@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTLOP4K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 10:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTLOP4K
+	id S263809AbTLOP6z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 10:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbTLOP6y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 10:56:10 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:18863 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S263798AbTLOP4D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 10:56:03 -0500
-Date: Mon, 15 Dec 2003 16:56:01 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Craig Bradney <cbradney@zip.com.au>
-Cc: ross@datscreative.com.au, recbo@nishanet.com, linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: Working nforce2, was Re: Fixes for nforce2 hard lockup,
- apic, io-apic, udma133 covered
-In-Reply-To: <1071500545.6680.15.camel@athlonxp.bradney.info>
-Message-ID: <Pine.LNX.4.55.0312151652260.22939@jurand.ds.pg.gda.pl>
-References: <200312160030.30511.ross@datscreative.com.au>
- <1071500545.6680.15.camel@athlonxp.bradney.info>
-Organization: Technical University of Gdansk
+	Mon, 15 Dec 2003 10:58:54 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:29673 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263809AbTLOP6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 10:58:49 -0500
+Message-ID: <3FDDDA01.20403@intel.com>
+Date: Mon, 15 Dec 2003 17:57:53 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gabriel Paubert <paubert@iram.es>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Martin Mares <mj@ucw.cz>, zaitcev@redhat.com, hch@infradead.org
+Subject: Re: PCI Express support for 2.4 kernel
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>
+In-Reply-To: <20031215103142.GA8735@iram.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003, Craig Bradney wrote:
+Gabriel Paubert wrote:
 
->            CPU0
->   0:  245382420    IO-APIC-edge  timer
->   1:     139577    IO-APIC-edge  i8042
->   2:          0          XT-PIC  cascade
->   8:          3    IO-APIC-edge  rtc
->   9:          0   IO-APIC-level  acpi
->  12:    1478615    IO-APIC-edge  i8042
->  14:    1055548    IO-APIC-edge  ide0
->  15:     737664    IO-APIC-edge  ide1
->  19:   18405692   IO-APIC-level  radeon@PCI:3:0:0
->  21:    5257090   IO-APIC-level  ehci_hcd, NVidia nForce2, eth0
->  22:          3   IO-APIC-level  ohci1394
-> NMI:      14944
-> LOC:  245087891
-> ERR:          0
-> MIS:          6
-> 
-> As for NMI.. I actually forget which I booted from... I think =1, but NMI is a small number now.. would it have wrapped?
+Gabriel,
+I verified with PCI-E designers,
+uncacheable memory relates to snoop/non-snoop, not to buffering in 
+bridge. Bridge will still buffer writes.
+The only way to be sure data has arrived, is to perform read.
 
- That's "=2" -- otherwise the NMI count would be rougly the same as the
-sum of counts for IRQ 0 for all processors.  And you can actually get your
-kernel's command line from /proc/cmdline.
+Vladimir.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+>>>Further, PCI posting:  a writeb() / writew() / writel() will not be 
+>>>flushed immediately to the processor.  The CPU and/or PCI bridge may 
+>>>post (delay/combine) such writes.  I do not think this is a desireable 
+>>>effect, for PCI config register accesses.
+>>>
+>>>      
+>>>
+>>Good point. Fixed.
+>>    
+>>
+>
+>Here I'm somehwat lost. Writes to uncacheable RAM will be in program 
+>order and never combined. The bridge itself should not post writes to 
+>config space. So it's a matter of pushing the write to the processor
+>bus, a PCI read looks very heavy for this. Isn't there a more
+>lightweight solution ?
+>
+>	Regards,
+>	Gabriel
+>
+>  
+>
+

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290767AbSBLTdw>; Tue, 12 Feb 2002 14:33:52 -0500
+	id <S290616AbSBLTfW>; Tue, 12 Feb 2002 14:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290616AbSBLTdm>; Tue, 12 Feb 2002 14:33:42 -0500
-Received: from dialin-145-254-130-001.arcor-ip.net ([145.254.130.1]:2564 "EHLO
-	dale.home") by vger.kernel.org with ESMTP id <S290503AbSBLTdd>;
-	Tue, 12 Feb 2002 14:33:33 -0500
-Date: Tue, 12 Feb 2002 20:33:23 +0100
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
-Message-ID: <20020212203323.A1685@steel>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-In-Reply-To: <20020211172747.A1815@namesys.com> <Pine.LNX.4.44.0202121753360.15594-100000@Expansa.sns.it> <20020212200124.A2267@namesys.com>
-Mime-Version: 1.0
+	id <S290503AbSBLTfM>; Tue, 12 Feb 2002 14:35:12 -0500
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:46830 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S290616AbSBLTe5>; Tue, 12 Feb 2002 14:34:57 -0500
+Message-ID: <3C696FE4.83AAA1B9@ntlworld.com>
+Date: Tue, 12 Feb 2002 19:41:24 +0000
+From: SA <super.aorta@ntlworld.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Write-combining
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020212200124.A2267@namesys.com>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 12, 2002 at 08:01:24PM +0300, Oleg Drokin wrote:
-> Hello!
-> 
->    What kind of corruption? Can we look at corrupted file if there is something
->    unusual?
->    What Linux Distribution do you run?
-i have my own system (but with sysVinit), and am somewhat sure about unmounts.
 
->    You can check cleanness by looking into kernel messages.
->    If there is "replaying journal" message - umount was not clean.
-I've had the "replaying journal" after "machine check exception".
-But after this crash the filesystem was perfect. The zerofiles was before...
+Have I missed something here?
+
+Am I being dim?
+
+Or is the usual "instant advice" feature switched off?
 
 
-> 
-> Bye,
->     Oleg
-> On Tue, Feb 12, 2002 at 05:55:54PM +0100, Luigi Genoni wrote:
-> > Sorry but I got a corrupted file also with 2.5.4. I could see it after the
-> > reboot to 2.4.17. It was /etc/exports and it was OK since i edited it
-> > running 2.5.4, and It was readable by exportfs, so it corrupted at reboot.
-> > 
-> > The reboot was clean, of course. Maybe wrong umount?
+The device I am writing the driver for formally didn't support
+write-combining and it took
+10000 clock ticks to do a partial transfer- now it does support
+write-combining and it still
+takes 10000 clock ticks to transfer the data- It is performance
+critical- How do I switch
+write-combining on? It is worth at least a 2x speed up for me?
 
--alex
+If it is something obvious please don't be afraid to point it out-----
+
+Thanks SA
+

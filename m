@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263170AbRFETRz>; Tue, 5 Jun 2001 15:17:55 -0400
+	id <S264087AbRFET1q>; Tue, 5 Jun 2001 15:27:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263172AbRFETRp>; Tue, 5 Jun 2001 15:17:45 -0400
-Received: from web13704.mail.yahoo.com ([216.136.175.137]:42511 "HELO
-	web13704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263170AbRFETRg>; Tue, 5 Jun 2001 15:17:36 -0400
-Message-ID: <20010605191735.28928.qmail@web13704.mail.yahoo.com>
-Date: Tue, 5 Jun 2001 12:17:35 -0700 (PDT)
-From: jalaja devi <jala_74@yahoo.com>
-Subject: smp errors in 2.4!!
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE2AB@orsmsx31.jf.intel.com>
+	id <S264088AbRFET1g>; Tue, 5 Jun 2001 15:27:36 -0400
+Received: from kanga.kvack.org ([216.129.200.3]:5905 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S264087AbRFET1Z>;
+	Tue, 5 Jun 2001 15:27:25 -0400
+Date: Tue, 5 Jun 2001 15:21:16 -0400 (EDT)
+From: "Benjamin C.R. LaHaise" <blah@kvack.org>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: Comment on patch to remove nr_async_pages limit
+In-Reply-To: <Pine.LNX.4.33.0106051140270.1227-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.3.96.1010605151500.25725C-100000@kanga.kvack.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encounter this compilation error:
-/usr/x.c:2112: struct has no member named
-"event_Rsmp_7b16c344"
+On Tue, 5 Jun 2001, Mike Galbraith wrote:
 
-The structure has that field and I don't have the
-conflicting structure name anywhere in my code and in
-the system files too. 
+> Yes.  If we start writing out sooner, we aren't stuck with pushing a
+> ton of IO all at once and can use prudent limits.  Not only because of
+> potential allocation problems, but because our situation is changing
+> rapidly so small corrections done often is more precise than whopping
+> big ones can be.
 
-The makefile uses sed and *.d files.
+Hold on there big boy, writing out sooner is not better.  What if the
+memory shortage is because real data is being written out to disk?
+Swapping early causes many more problems than swapping late as extraneous
+seeks to the swap partiton severely degrade performance.
 
-Could anyone help me out as how to fix this.
+		-ben
 
-Thanks
-Jalaja
-
-
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/

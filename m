@@ -1,62 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVAXTYg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVAXT1u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVAXTYg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:24:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVAXTYg
+	id S261579AbVAXT1u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:27:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVAXTZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:24:36 -0500
-Received: from s2.home.ro ([193.231.236.41]:54252 "EHLO s2.home.ro")
-	by vger.kernel.org with ESMTP id S261584AbVAXTVg (ORCPT
+	Mon, 24 Jan 2005 14:25:26 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:11215 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261579AbVAXTYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:21:36 -0500
-Subject: Re: kernel oops!
-From: ierdnah <ierdnah@go.ro>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>
-	 <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-	 <1106483340.21951.4.camel@ierdnac>
-	 <Pine.LNX.4.58.0501230943020.4191@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Mon, 24 Jan 2005 21:21:34 +0200
-Message-Id: <1106594494.31049.5.camel@ierdnac>
+	Mon, 24 Jan 2005 14:24:16 -0500
+Date: Mon, 24 Jan 2005 22:46:54 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050124224654.6b20ab50@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050124190320.GO3515@stusta.de>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<20050124175449.GK3515@stusta.de>
+	<20050124214336.2c555b53@zanzibar.2ka.mipt.ru>
+	<20050124182926.GM3515@stusta.de>
+	<20050124221929.590418e2@zanzibar.2ka.mipt.ru>
+	<20050124190320.GO3515@stusta.de>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-01-23 at 09:51 -0800, Linus Torvalds wrote:
+On Mon, 24 Jan 2005 20:03:20 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-I applied the patch and the uptime is 1 day and no oops, i will wait 2
-more days too see if the oops appears, then I will compile the kernel
-with CONFIG_PREEMPT. Before, when PREEMPT was enabled, the oops appeared
-immediatly after booting and more often.
-
-> ----
-> --- 1.32/drivers/char/pty.c	2005-01-10 17:29:36 -08:00
-> +++ edited/drivers/char/pty.c	2005-01-23 09:49:16 -08:00
-> @@ -149,13 +149,15 @@
->  static int pty_chars_in_buffer(struct tty_struct *tty)
->  {
->  	struct tty_struct *to = tty->link;
-> +	ssize_t (*chars_in_buffer)(struct tty_struct *);
->  	int count;
->  
-> -	if (!to || !to->ldisc.chars_in_buffer)
-> +	/* We should get the line discipline lock for "tty->link" */
-> +	if (!to || !(chars_in_buffer = to->ldisc.chars_in_buffer))
->  		return 0;
->  
->  	/* The ldisc must report 0 if no characters available to be read */
-> -	count = to->ldisc.chars_in_buffer(to);
-> +	count = chars_in_buffer(to);
->  
->  	if (tty->driver->subtype == PTY_TYPE_SLAVE) return count;
->  
+> On Mon, Jan 24, 2005 at 10:19:29PM +0300, Evgeniy Polyakov wrote:
+> > On Mon, 24 Jan 2005 19:29:26 +0100
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > 
+> > > On Mon, Jan 24, 2005 at 09:43:36PM +0300, Evgeniy Polyakov wrote:
+> > > > On Mon, 24 Jan 2005 18:54:49 +0100
+> > > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > > 
+> > > > > It seems noone who reviewed the SuperIO patches noticed that there are 
+> > > > > now two modules "scx200" in the kernel...
+> > > > 
+> > > > They are almost mutually exlusive(SuperIO contains more advanced), 
+> > > > so I do not see any problem here.
+> > > 
+> > > The Kconfig files allow building both modular at the same time.
+> > > 
+> > > > Only one of them can be loaded in a time.
+> > > 
+> > > You are assuming the module support was in able to correctly handle two 
+> > > modules with the same name...
+> > > 
+> > > > So what does exactly bother you?
+> > > 
+> > > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.11-rc2-mm1; fi
+> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_base
+> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_configure
+> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/i2c/busses/scx200_i2c.ko needs unknown symbol scx200_gpio_shadow
+> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_base
+> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_configure
+> > > WARNING: /lib/modules/2.6.11-rc2-mm1/kernel/drivers/char/scx200_gpio.ko needs unknown symbol scx200_gpio_shadow
+> > 
+> > Sorry, I can not buy it.
+> > Above symbols are defined in old scx200 driver, and I it is depmod
+> > who tries to get them from superio.
 > 
--- 
-ierdnah <ierdnah@go.ro>
+> More exactly, "make modules_install" does install only one of the two 
+> drivers.
+> 
+> > I definitely sure that it must be solved on the other layers.
+> >...
+> 
+> Two modules with the same name are simply a _very_ bad idea.
+> 
+> Even if they weren't allowed to be compiled at the same time, they 
+> should be named differently or it will cause much confusion for 
+> everyone (or don't you want to see from the output of "lsmod" which of 
+> the two modules is loaded?).
 
+I do not agree with you, Adrian, but I will not contend.
+As I say, noone protects against the same program names and there are
+mechnisms to differ modules by simply looking in lsmod output.
+Noone can damage systrem by loading "wrong" module.
+
+So I still do not see problems here.
+
+As I say I will change superio scx200 name since it is easier than
+flood about unmatched points of view.
+
+I will send patch through Greg and Andrew later.
+
+Thank you, Adrian, for your comments.
+ 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

@@ -1,70 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263284AbUJ2LvX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263286AbUJ2Lx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263284AbUJ2LvX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 07:51:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbUJ2LsX
+	id S263286AbUJ2Lx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 07:53:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbUJ2Lx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 07:48:23 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5385 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263260AbUJ2Lpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 07:45:43 -0400
-Date: Fri, 29 Oct 2004 13:45:11 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
+	Fri, 29 Oct 2004 07:53:28 -0400
+Received: from mxfep02.bredband.com ([195.54.107.73]:15747 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S263297AbUJ2Lv6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 07:51:58 -0400
+To: Ingo Molnar <mingo@elte.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.10-rc1-mm2: `key_init' multiple definition
-Message-ID: <20041029114511.GJ6677@stusta.de>
-References: <20041029014930.21ed5b9a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041029014930.21ed5b9a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Subject: Re: [PATCH] SysRq-n changes RT tasks to normal
+References: <yw1xy8hpix4z.fsf@inprovide.com> <20041029113405.GA32204@elte.hu>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 29 Oct 2004 13:51:34 +0200
+In-Reply-To: <20041029113405.GA32204@elte.hu> (Ingo Molnar's message of
+ "Fri, 29 Oct 2004 13:34:05 +0200")
+Message-ID: <yw1xpt31ivy1.fsf@inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 01:49:30AM -0700, Andrew Morton wrote:
->...
-> Changes since 2.6.10-rc1-mm1:
->...
-> +key_init-ordering-fix.patch
-> 
->  Fix early oops with the key management code
->...
-> All 381 patches:
->...
-> reiser4-only.patch
->   reiser4: main fs
->...
+Ingo Molnar <mingo@elte.hu> writes:
 
-Both patches add a global function key_init, resulting in the following 
-compile error:
+> * Måns Rullgård <mru@inprovide.com> wrote:
+>
+>> +	for_each_process (p) {
+>> +		if (!rt_task(p))
+>> +			continue;
+>> +
+>> +		read_lock_irq(&tasklist_lock);
+>> +		rq = task_rq_lock(p, &flags);
+>
+> you must take the tasklist_lock outside the for_each_process().
 
-<--  snip  -->
+The danger of cut and paste programming.  New diff below.
 
-...
-  LD      .tmp_vmlinux1
-security/built-in.o(.init.text+0x80): In function `key_init':
-: multiple definition of `key_init'
-fs/built-in.o(.text+0x8e200): first defined here
-ld: Warning: size of symbol `key_init' changed from 90 in fs/built-in.o to 247 in security/built-in.o
-make: *** [.tmp_vmlinux1] Error 1
+diff -Nru a/drivers/char/sysrq.c b/drivers/char/sysrq.c
+--- a/drivers/char/sysrq.c	2004-10-29 13:19:05 +02:00
++++ b/drivers/char/sysrq.c	2004-10-29 13:19:05 +02:00
+@@ -216,6 +216,16 @@
+ 
+ /* END SIGNAL SYSRQ HANDLERS BLOCK */
+ 
++static void sysrq_handle_unrt(int key, struct pt_regs *pt_regs,
++			      struct tty_struct *tty)
++{
++	normalize_rt_tasks();
++}
++static struct sysrq_key_op sysrq_unrt_op = {
++	.handler	= sysrq_handle_unrt,
++	.help_msg	= "Nice",
++	.action_msg	= "Nice All RT Tasks"
++};
+ 
+ /* Key Operations table and lock */
+ static spinlock_t sysrq_key_table_lock = SPIN_LOCK_UNLOCKED;
+@@ -250,7 +260,7 @@
+ #endif
+ /* l */	NULL,
+ /* m */	&sysrq_showmem_op,
+-/* n */	NULL,
++/* n */	&sysrq_unrt_op,
+ /* o */	NULL, /* This will often be registered
+ 		 as 'Off' at init time */
+ /* p */	&sysrq_showregs_op,
+diff -Nru a/include/linux/sched.h b/include/linux/sched.h
+--- a/include/linux/sched.h	2004-10-29 13:19:05 +02:00
++++ b/include/linux/sched.h	2004-10-29 13:19:05 +02:00
+@@ -1027,6 +1027,12 @@
+ extern long sched_setaffinity(pid_t pid, cpumask_t new_mask);
+ extern long sched_getaffinity(pid_t pid, cpumask_t *mask);
+ 
++#ifdef CONFIG_MAGIC_SYSRQ
++
++extern void normalize_rt_tasks(void);
++
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #endif
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	2004-10-29 13:19:05 +02:00
++++ b/kernel/sched.c	2004-10-29 13:19:05 +02:00
+@@ -4590,3 +4590,35 @@
+ }
+ EXPORT_SYMBOL(__might_sleep);
+ #endif
++
++#ifdef CONFIG_MAGIC_SYSRQ
++void normalize_rt_tasks(void)
++{
++       struct task_struct *p;
++       prio_array_t *array;
++       unsigned long flags;
++       runqueue_t *rq;
++
++       read_lock_irq(&tasklist_lock);
++       for_each_process (p) {
++               if (!rt_task(p))
++                       continue;
++
++               rq = task_rq_lock(p, &flags);
++
++               array = p->array;
++               if (array)
++                       deactivate_task(p, task_rq(p));
++               __setscheduler(p, SCHED_NORMAL, 0);
++               if (array) {
++                       __activate_task(p, task_rq(p));
++                       resched_task(rq->curr);
++               }
++
++               task_rq_unlock(rq, &flags);
++       }
++       read_unlock_irq(&tasklist_lock);
++}
++
++EXPORT_SYMBOL(normalize_rt_tasks);
++#endif /* CONFIG_MAGIC_SYSRQ */
 
-<--  snip  -->
-
-
-I'm unsure about the key management code case, but for reiser4 this name 
-is definitely too generic for a global symbol (-> reiser4_key_init ?).
-
-
-cu
-Adrian
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Måns Rullgård
+mru@inprovide.com

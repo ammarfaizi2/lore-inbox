@@ -1,35 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVDCLzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVDCMBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVDCLzt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 07:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVDCLzs
+	id S261706AbVDCMBd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 08:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVDCMBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 07:55:48 -0400
-Received: from mail.hosted.servetheworld.net ([62.70.14.38]:7918 "HELO
-	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
-	id S261699AbVDCLzo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 07:55:44 -0400
-Message-ID: <424FD9BB.7040100@osvik.no>
-Date: Sun, 03 Apr 2005 13:55:39 +0200
-From: Dag Arne Osvik <da@osvik.no>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Use of C99 int types
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 3 Apr 2005 08:01:33 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:57099 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261702AbVDCMB2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 08:01:28 -0400
+Date: Sun, 3 Apr 2005 22:00:20 +1000
+To: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+Cc: "Artem B. Bityuckiy" <dedekind@infradead.org>, dwmw2@infradead.org,
+       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       jmorris@redhat.com, svenning@post5.tele.dk,
+       YOSHIFUJI Hideaki <yoshfuji@linux-ipv6.org>
+Subject: Re: [RFC] CryptoAPI & Compression
+Message-ID: <20050403120020.GA21388@gondor.apana.org.au>
+References: <1111766900.4566.20.camel@sauron.oktetlabs.ru> <20050326044421.GA24358@gondor.apana.org.au> <1112030556.17983.35.camel@sauron.oktetlabs.ru> <20050331095151.GA13992@gondor.apana.org.au> <424FD653.7020204@yandex.ru> <20050403114704.GC21255@gondor.apana.org.au> <424FD944.7080606@yandex.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424FD944.7080606@yandex.ru>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Apr 03, 2005 at 03:53:40PM +0400, Artem B. Bityuckiy wrote:
+> Herbert Xu wrote:
+> >Can you please point me to the paragraph in RFC 1950 that says this?
+> 
+> Ok, if to do s/correct/compliant/, here it is:
+> 
+> Section 2.3, page 7
 
-I've been working on a new DES implementation for Linux, and ran into
-the problem of how to get access to C99 types like uint_fast32_t for
-internal (not interface) use.  In my tests, key setup on Athlon 64 slows
-down by 40% when using u32 instead of uint_fast32_t.
+Sorry, I thought you were referring to an RFC that defined IPComp/deflate.
 
-So I wonder if there is any standard way of, say, including stdint.h for
-internal use in kernel code?
+RFC 1950 only defines what a zlib compressed data stream should
+look like, it does not define what a deflate compressed data
+stream is.
 
-   Dag Arne
+RFC 2394 which defines IPComp/deflate only refers to the deflate
+document, and not zlib.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

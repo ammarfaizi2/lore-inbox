@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbRAOSTD>; Mon, 15 Jan 2001 13:19:03 -0500
+	id <S129485AbRAOSXq>; Mon, 15 Jan 2001 13:23:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129584AbRAOSSx>; Mon, 15 Jan 2001 13:18:53 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:42770 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S129485AbRAOSSj>;
-	Mon, 15 Jan 2001 13:18:39 -0500
-Date: Mon, 15 Jan 2001 19:18:30 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Disk geometry changed after running linux
-To: linux-kernel@vger.kernel.org
-Message-id: <3A633EF6.44E5A2C@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S129601AbRAOSXh>; Mon, 15 Jan 2001 13:23:37 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:38414 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129485AbRAOSX1>; Mon, 15 Jan 2001 13:23:27 -0500
+Date: Mon, 15 Jan 2001 19:22:01 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ralf Baechle <ralf@uni-koblenz.de>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+        linux-mm@frodo.biederman.org
+Subject: Re: Caches, page coloring, virtual indexed caches, and more
+Message-ID: <20010115192201.A18795@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org> <20010115005315.D1656@bacchus.dhis.org> <m1snmlfbrx.fsf_-_@frodo.biederman.org> <20010115095432.A14351@bacchus.dhis.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010115095432.A14351@bacchus.dhis.org>; from ralf@uni-koblenz.de on Mon, Jan 15, 2001 at 09:54:32AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encountered a weird problem.
+Ralf Baechle wrote:
+> > mremap.  Linux specific but pretty much the same as mmap, but easier.
+> > We just enforce that the virtual address of the source of mremap,
+> > and the destination of mremap match on VIRT_INDEX_BITS.
+> 
+> Correct and as mremap doesn't take any address argument we won't break
+> any expecations on the properties of the returned address in mmap.
 
-My HW :
-MSI K7T Pro2 motherboard ( VIA KT133 chipset ,
- VT82C686A south bridge )
-primary master IDE : Quantum Fireball lct20 , ATA-100 , 20 GB
-secondary master : Teac CD532E-B
+See MREMAP_FIXED.  There is an address argument, not mentioned in the
+manpage (man-pages 1.30).
 
-AWARD BIOS settings :
-PM : type : AUTO , Access mode : AUTO
-SM : type : AUTO , Access mode : AUTO
-PS/SS: NONE/NONE
+> > Hmm.  This doesn't sound right.  And this sounds like a silly way to
+> > use reverse mappings anyway, since you can do it up front in mmap and
+> > their kin.  Which means you don't have to slow any of the page fault
+> > logic up.
+> 
+> Then how do you handle something like:
+> 
+>   fd = open(TESTFILE, O_RDWR | O_CREAT, 664);
+>   res = write(fd, one, 4096);
+>   mmap(addr            , PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+>   mmap(addr + PAGE_SIZE, PAGE_SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+> 
+> If both mappings are immediately created accessible you'll directly endup
+> with aliases.  There is no choice, if the pagesize is only 4kb an R4x00
+> will create aliases in the case.  Bad.
 
-PM disk was set to LBA access mode on each boot.
-I had one primary and one logical NTFS partition.
+Indeed, a particularly nice way to handle circular buffers for DSP
+algorithms provided it works :-)
 
-
-Then I installed linux ( "some" beta version , kernel
-is some recent 2.4.0-testXX )
-
-I didn't install any LILO boot sectors , but created a boot-floppy.
-
-After the installation the disk ( win2000 ) would not boot.
-It reports :
-Read error on disk.
-Press ctrl+alt+del to reboot.
-
-If I run linux ( it work OK from the boot floppy ),
-it reports the geometry as 3xxxx/??/??.
-Thirty thousand and some cylinders , H and S are probably 16/63
-( don't have it at hand ).
-
-It should be two thousand something and 255/63, I think.
-
-fdisk -l /dev/hda prints "Partition 1 does not end on cylinder boundary"
-messages for the NTFS partitions ( hda1 and hda5 ). The linux ones are
-OK.
-
-The problem is that now the BIOS sets Access mode to LARGE.
-I can workaround it by changing access mode in BIOS setup
-from AUTO to LBA, but I want to know what made BIOS to default to
-LARGE and how to fix it.
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

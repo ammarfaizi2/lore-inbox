@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130146AbQK1CfY>; Mon, 27 Nov 2000 21:35:24 -0500
+        id <S130307AbQK1Cm1>; Mon, 27 Nov 2000 21:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130190AbQK1CfP>; Mon, 27 Nov 2000 21:35:15 -0500
-Received: from web512.mail.yahoo.com ([216.115.104.227]:40464 "HELO
-        web512.mail.yahoo.com") by vger.kernel.org with SMTP
-        id <S130146AbQK1CfH>; Mon, 27 Nov 2000 21:35:07 -0500
-Message-ID: <20001128020501.27708.qmail@web512.mail.yahoo.com>
-Date: Mon, 27 Nov 2000 18:05:01 -0800 (PST)
-From: Joe <josepha48@yahoo.com>
-Reply-To: joeja@mindspring.com
-Subject: out of swap
+        id <S130232AbQK1CmS>; Mon, 27 Nov 2000 21:42:18 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:63751 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S129960AbQK1CmB>; Mon, 27 Nov 2000 21:42:01 -0500
 To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
+Date: 27 Nov 2000 18:11:43 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8vv48v$7q7$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0011280012530.22068-100000@space.comunit.de> <3A22EF12.4A5D0121@timpanogas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last night I was browsing the web and I came across a page with
-LOTS of images.  There were so many that it drove my swap space
-to ZERO.  I still had 3 Meg of memory, but the system became
-virtually unusable and SLOW. (there were over 150 x 30k+ images
-on one page). 
+Followup to:  <3A22EF12.4A5D0121@timpanogas.org>
+By author:    "Jeff V. Merkey" <jmerkey@timpanogas.org>
+In newsgroup: linux.dev.kernel
+> > 
+> > Let me guess: it's a 4 cpu smp system?
+> 
+> Correct.  I take it them this is supposed to happen.
+> 
 
-Is this something that the OOM would fix or is this another
-issue altogether?
+Yup, one penguin per CPU.
 
-The machine has 
-64Meg of swap space, 128 Meg of RAM, Dual 233MMX, Itis running
-2.2.17 and Rh 6.2.
-
-Any ideas?  thanks Joe
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

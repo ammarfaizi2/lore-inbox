@@ -1,116 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVAZPtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVAZPxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262336AbVAZPtg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 10:49:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVAZPtf
+	id S262330AbVAZPxU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 10:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVAZPxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 10:49:35 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:44712 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262336AbVAZPtZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 10:49:25 -0500
-Subject: Re: 2.6.11-rc2-mm1
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: dtor_core@ameritech.net
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-In-Reply-To: <d120d5000501260726714e8251@mail.gmail.com>
-References: <20050124021516.5d1ee686.akpm@osdl.org>
-	 <d120d5000501250811295c298e@mail.gmail.com>
-	 <20050126001443.7f91bbbb@zanzibar.2ka.mipt.ru>
-	 <200501252357.08946.dtor_core@ameritech.net>
-	 <1106727902.5257.109.camel@uganda>
-	 <d120d5000501260546536647e7@mail.gmail.com>
-	 <1106751547.5257.162.camel@uganda>
-	 <d120d5000501260726714e8251@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hrr0xZ0mK5zeRiCGdguy"
-Organization: MIPT
-Date: Wed, 26 Jan 2005 18:54:08 +0300
-Message-Id: <1106754848.5257.189.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Wed, 26 Jan 2005 15:48:30 +0000 (UTC)
+	Wed, 26 Jan 2005 10:53:20 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:4743 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262330AbVAZPxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 10:53:09 -0500
+Message-ID: <41F7BCCA.7060101@comcast.net>
+Date: Wed, 26 Jan 2005 10:52:42 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Jens Axboe <axboe@suse.de>, torvalds@osdl.org, alexn@dsv.su.se,
+       kas@fi.muni.cz, linux-kernel@vger.kernel.org,
+       lennert.vanalboom@ugent.be
+Subject: Re: Memory leak in 2.6.11-rc1?
+References: <20050123095608.GD16648@suse.de>	<20050123023248.263daca9.akpm@osdl.org>	<1106528219.867.22.camel@boxen>	<20050124204659.GB19242@suse.de>	<20050124125649.35f3dafd.akpm@osdl.org>	<Pine.LNX.4.58.0501241435010.4191@ppc970.osdl.org>	<20050126080152.GA2751@suse.de>	<20050126001113.30933eef.akpm@osdl.org>	<20050126084005.GB2751@suse.de>	<20050126004419.26aab4a5.akpm@osdl.org>	<20050126084743.GD2751@suse.de> <20050126005844.6880d195.akpm@osdl.org>
+In-Reply-To: <20050126005844.6880d195.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am running 2.6.11-rc2+ fix for the pipe related leak by Linus. I am 
+currently running a QT+KDE compile with distcc on two machines.  I am 
+running these machines for around 11 hours now and  swap seems to be 
+growing steadily on the -rc2 box - it went to ~260kb after 10hrs, after 
+which I ran swapoff.  Now after couple hours it is at 40kb. The other 
+machine is Knoppix 2.4.26 kernel with lesser memory and it hasn't run 
+into swap at all.
 
---=-hrr0xZ0mK5zeRiCGdguy
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On the -rc2 machine, however, I don't feel anything is sluggish yet. But 
+I think if I leave it running long enough it might run out of memory.
 
-On Wed, 2005-01-26 at 10:26 -0500, Dmitry Torokhov wrote:
-> On Wed, 26 Jan 2005 17:59:07 +0300, Evgeniy Polyakov
-> <johnpol@2ka.mipt.ru> wrote:
->=20
-> > Each superio chip has the same logical devices inside.
-> > With your approach we will have following schema:
-> >=20
-> > bus:
-> > superio1 - voltage, temp, gpio, rtc, wdt, acb
-> > superio2 - voltage, temp, gpio, rtc, wdt, acb
-> > superio3 - voltage, temp, gpio, rtc, wdt, acb
-> > superio4 - voltage, temp, gpio, rtc, wdt, acb
-> >=20
-> > Each logical device driver (for existing superio schema)
-> > is about(more than) 150 lines of code.
-> > With your approach above example will be 150*6*4 +
-> > 4*superio_chip_driver_size bytes
-> > of the code.
->=20
-> ????? Let's count again, shall we? Suppose we have:
-> > superio1 - voltage, temp, gpio, rtc, wdt, acb
-> > superio2 - voltage, temp, gpio, rtc, wdt, acb
-> superio1 is driven by scx200 hardware, superio2 is driven by pc8736x
-> or whatever. So here, you have 2 drivers to manage chips. Plus you
-> have 6 superio interface drivers - gpio, acb, etc...
-> It is exactly the same as your cheme size-wise.
->=20
-> There is no need to many-to-many relationship. Each chip is bound to
-> only one chip driver which registers several interfaces. Each
-> interface is bound to only one interface driver. Interface driver is
-> not chip specific, it knows how to run a specific interface (gpio,
-> temp) and relies on chip driver to properly manage access to the
-> hardware. Each combination of inetrface + interface driver produce one
-> class_device (call it sio, serio, whatever). Class device provides
-> unified view of the interface to the userspace.
->=20
-> What am I missing?
+I don't know if this is perfectly normal given the differences between 
+2.4.x and 2.6.x VM. I will  keep it running and under load for a while 
+and report any interesting stuff.
 
-Since each logical device does not know who use it, it can not be,
-for example, removed optimally.
-You need to run through whole superio device set to find those one that=20
-has reference to logical device being removed.
-And situation become much worse, when we have so called logical device
-clones -=20
-it is virtual logical device that emulates standard one, but inside
-performs
-in a different way. Clone creates inside superio device(for example such
-device
-can live at different address).
-When you do not have ldev->sc relation, you must traverse through each
-logical device=20
-in each superio chip to find clones.
-Thus you will need to traverse through each superio chip,=20
-then through each logical device it references, just to remove one
-logical device.
+Here is /proc/meminfo on the rc2 box as of now -
+root@localhost paragw]# cat /proc/meminfo
+MemTotal:       775012 kB
+MemFree:         55260 kB
+Buffers:         72732 kB
+Cached:         371956 kB
+SwapCached:         40 kB
+Active:         489508 kB
+Inactive:       182360 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       775012 kB
+LowFree:         55260 kB
+SwapTotal:      787176 kB
+SwapFree:       787136 kB
+Dirty:            2936 kB
+Writeback:           0 kB
+Mapped:         259024 kB
+Slab:            32288 kB
+CommitLimit:   1174680 kB
+Committed_AS:   450692 kB
+PageTables:       3072 kB
+VmallocTotal:   253876 kB
+VmallocUsed:     25996 kB
+VmallocChunk:   226736 kB
+HugePages_Total:     0
+HugePages_Free:      0
+Hugepagesize:     4096 kB
 
---=20
-        Evgeniy Polyakov
+Parag
+Andrew Morton wrote:
 
-Crash is better than data corruption -- Arthur Grabowski
-
---=-hrr0xZ0mK5zeRiCGdguy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBB970gIKTPhE+8wY0RAntJAJ9Nqnrt79aj+uq1jPLLYNSFliEsNwCfX4gg
-R3+wwG2RIdedZR0/MqULjoI=
-=UaKQ
------END PGP SIGNATURE-----
-
---=-hrr0xZ0mK5zeRiCGdguy--
+>Jens Axboe <axboe@suse.de> wrote:
+>  
+>
+>>This is my current situtation:
+>>
+>>...
+>> axboe@wiggum:/home/axboe $ cat /proc/meminfo 
+>> MemTotal:      1024992 kB
+>> MemFree:          9768 kB
+>> Buffers:         76664 kB
+>> Cached:         328024 kB
+>> SwapCached:          0 kB
+>> Active:         534956 kB
+>> Inactive:       224060 kB
+>> HighTotal:           0 kB
+>> HighFree:            0 kB
+>> LowTotal:      1024992 kB
+>> LowFree:          9768 kB
+>> SwapTotal:           0 kB
+>> SwapFree:            0 kB
+>> Dirty:            1400 kB
+>> Writeback:           0 kB
+>> Mapped:         464232 kB
+>> Slab:           225864 kB
+>> CommitLimit:    512496 kB
+>> Committed_AS:   773844 kB
+>> PageTables:       8004 kB
+>> VmallocTotal: 34359738367 kB
+>> VmallocUsed:       644 kB
+>> VmallocChunk: 34359737167 kB
+>> HugePages_Total:     0
+>> HugePages_Free:      0
+>> Hugepagesize:     2048 kB
+>>    
+>>
+>
+>OK.  There's rather a lot of anonymous memory there - 700M on the LRU, 300M
+>pageache, 400M anon, 200M of slab.  You need some swapspace ;)
+>
+>What are the symptoms?  Slow to load applications?  Lots of paging?  Poor
+>I/O speeds?
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
 

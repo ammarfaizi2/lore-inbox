@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131371AbQLFLVt>; Wed, 6 Dec 2000 06:21:49 -0500
+	id <S129423AbQLFL2W>; Wed, 6 Dec 2000 06:28:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131418AbQLFLVk>; Wed, 6 Dec 2000 06:21:40 -0500
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:26638 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S131371AbQLFLVb>; Wed, 6 Dec 2000 06:21:31 -0500
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
+	id <S129183AbQLFL2M>; Wed, 6 Dec 2000 06:28:12 -0500
+Received: from [202.141.79.18] ([202.141.79.18]:48139 "HELO
+	hansa.krec.ernet.in") by vger.kernel.org with SMTP
+	id <S129423AbQLFL15>; Wed, 6 Dec 2000 06:27:57 -0500
+Date: Wed, 6 Dec 2000 15:42:24 +0530 (IST)
+From: Chittari Prasanna Kumar BE <prasanna@krec.ernet.in>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 6 Dec 2000 11:51:01 +0100
+Subject: Checkpointing Problem!
+Message-ID: <Pine.LNX.4.21.0012061538440.13812-100000@vidur.krec.ernet.in>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: poll: nanoseconds in 2.5?
-Message-ID: <3A2E281C.22288.D5C37E@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+hi,
+  i am working on the project similar to Epckpt but with a concept of 
+loadable module. here i have a problem in handling the page requests.
 
-maybe some of you know that I patched an early 2.2 kernel (2.1.131 or 
-so) to provide nanoseconds to the customers, i.e. xtime has tv_nsec.
+when i checkpoint a process in which malloc is used i found that if i 
+malloc 1mb and make sure that all pages are used ( are present in
+memory by making use of some loop in user program, i have written small
+code is down ) before i checkpointed then there is no problem ,otherwise
+its pmd_none is > 0 that's there is no valid pmd for it. i think i cannot
+call handle_mm_fault ( or some thing like make_pages_present of mm.h,memory.c)
+to bring the brk segment pages into memory because of invalid page tables!
 
-The patch is available throughout 2.2 (including 2.2.17).
+In Epckpt he was in kernel and found it to be ok! but as i am working
+as char driver i didn't get the same.
 
-I merged the patch into 2.4test11, it compiles and boots so far.
+For this reason i am unable to get through it, can any one help me out.
 
-Now I wonder if there's interest to integrate my code to an early 2.5. 
-I will have to clean up some obsolete stuff, and order a few things 
-first.
+please CC your message because i am not the list!
+ 
+thanks for replying.
 
-I will need strong support for the non i386 architectures however (I 
-only have a Pentium for testing).
+Chittari Prasanna Kumar
+KREC, Surathkal.
+India.
 
-Interestingly some of my changes are already in 2.4: Moving the time 
-stuff out from kernel/sched.c, joining mktime(), etc.
 
-If there is interest, please say so. I could provide an early alpha-
-quality patch by monday, maybe even this friday if someone wants to 
-test it or implement another architecture.
+int main()
+{
+  int *p,i;
+  p=(int *)malloc(SIZE*sizeof(int));
 
-(The 2.2 stuff is named PPSkit-1.0.1 and can be found in 
-/pub/linux/daemons/ntp/PPS on most mirrors of quality ;-)
+#if USE
+ for(i=0 ; i< SIZE; i++)
+   p[i]=i;
+#endif
+  :
+  :
+ 
+  now checkpoint here
+   fails if USE is not >= 1
+  
+ :
+ :
+}
 
-Regards,
-Ulrich
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

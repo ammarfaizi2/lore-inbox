@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbTJUHWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 03:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbTJUHWM
+	id S262979AbTJUHRq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 03:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbTJUHRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 03:22:12 -0400
-Received: from dns1.seagha.com ([217.66.0.18]:40781 "EHLO relay-1.seagha.com")
-	by vger.kernel.org with ESMTP id S262986AbTJUHWJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 03:22:09 -0400
-Message-ID: <6DED3619289CD311BCEB00508B8E133601177AEB@nt-server2.antwerp.seagha.com>
-From: Karl Vogel <karl.vogel@seagha.com>
-To: "'Neil Brown'" <neilb@cse.unsw.edu.au>
-Cc: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: RE: LVM on md0: raid0_make_request bug: can't convert block acros
-	s chunks or bigger than 64k
-Date: Tue, 21 Oct 2003 09:24:57 +0200
+	Tue, 21 Oct 2003 03:17:46 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:23566 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S262979AbTJUHRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 03:17:45 -0400
+Date: Tue, 21 Oct 2003 09:12:53 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: "David S. Miller" <davem@redhat.com>
+cc: Martin Diehl <lists@mdiehl.de>, <noah@caltech.edu>,
+       <irda-users@lists.sourceforge.net>, <netdev@oss.sgi.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [irda-users] [PATCH] Make VLSI FIR depend on X86
+In-Reply-To: <20031020211706.5be33474.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0310210858550.4246-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Somebody else referred to this posting:
-> >   http://marc.theaimsgroup.com/?l=linux-kernel&m=103369952814053&w=2
-> > 
-> > but that patch doesn't apply cleanly anymore and I'm not 
-> familiar with
-> > the code to be confident to fix it up myself. (that post 
-> was from almost
-> > exactly 1 year ago, so alot changed probably :)
-> 
-> That patch is already included.
-> 
-> The problem is that dm is not honouring the merge_bvec_fn that
-> raid0 has set.
-> 
-> This patch might fix it, but I'm not very familiar with the dm code,
-> so I make no promises.
+On Mon, 20 Oct 2003, David S. Miller wrote:
 
-I will give it a shot when I get home.
-
-> (I wonder why you are running LVM on top of raid0 given that lvm
-> contains raid0 functionality).
+> On Mon, 20 Oct 2003 19:30:33 +0200 (CEST)
+> Martin Diehl <lists@mdiehl.de> wrote:
 > 
-> NeilBrown
+> > Well, it would work with any arch, _if_ there was a way to sync the 
+> > streaming pci dma buffers before giving them back to hardware.
+> 
+> If pci_dma_sync() doesn't perform the operation you want, please
+> describe what that operation is.
+> 
 
-Historical reasons.. but since it worked, I never changed it.. and now it
-makes for a good test case :)
+Last time I checked pci_dma_sync was meant to sync the mapping when 
+ownership gets transferred from busmaster to cpu, i.e. after hardware 
+used/modified the buffer. What about the other direction when the cpu 
+filled a reused streaming map to device and wants to pass ownership to the 
+busmaster - we need to flush cpu caches to make sure the busmaster sees 
+the modified data.
 
-Thx,
-Karl
+<http://marc.theaimsgroup.com/?l=linux-kernel&amp;m=103221032617171&amp;w=2>
+<http://marc.theaimsgroup.com/?l=linux-kernel&amp;m=103221300019951&amp;w=2>
+
+Did I miss something?
+
+Thanks,
+Martin
+

@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281342AbRKMAsj>; Mon, 12 Nov 2001 19:48:39 -0500
+	id <S281349AbRKMAs3>; Mon, 12 Nov 2001 19:48:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281326AbRKMAsa>; Mon, 12 Nov 2001 19:48:30 -0500
-Received: from c1765315-a.mckiny1.tx.home.com ([65.10.75.71]:260 "EHLO
-	aruba.maner.org") by vger.kernel.org with ESMTP id <S281342AbRKMAsQ> convert rfc822-to-8bit;
-	Mon, 12 Nov 2001 19:48:16 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Compile error 2.4.15-pre4 on alpha
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-Date: Mon, 12 Nov 2001 18:48:15 -0600
-content-class: urn:content-classes:message
-Message-ID: <C033B4C3E96AF74A89582654DEC664DB5576@aruba.maner.org>
-Thread-Topic: Compile error 2.4.15-pre4 on alpha
-Thread-Index: AcFr3MNOOABrq8D5RTKuHvkjvUM3QQ==
-From: "Donald Maner" <donjr@maner.org>
-To: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+	id <S281354AbRKMAsU>; Mon, 12 Nov 2001 19:48:20 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:49309 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S281326AbRKMAsI>; Mon, 12 Nov 2001 19:48:08 -0500
+Message-Id: <5.1.0.14.2.20011113004430.03264ec0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 13 Nov 2001 00:47:45 +0000
+To: Alexander Viro <viro@math.psu.edu>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [RFC][PATCH] VFS interface for extended attributes
+Cc: Andreas Gruenbacher <ag@bestbits.at>, Nathan Scott <nathans@sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-xfs@oss.sgi.com
+In-Reply-To: <Pine.GSO.4.21.0111121207530.21825-100000@weyl.math.psu.edu
+ >
+In-Reply-To: <Pine.LNX.4.21.0111121152410.14344-100000@moses.parsec.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I'm compiling on a PC164SX, and I'm getting this at the end.  I'm
-pretty sure the math stuff doesn't have anything to do w/ it, but just
-incase:
+At 00:32 13/11/01, Alexander Viro wrote:
+>On Mon, 12 Nov 2001, Andreas Gruenbacher wrote:
+> > There is one difference between the interfaces you are complaining about
+> > above and the proposed EA interface for EA's: In those interfaces you have
+> > wildcard parameters that are used for who-knows-what, depending on a
+> > command-like parameter, including use as a value, use as a pointer to a
+> > value/struct, etc.
+>
+>Yes, and?  You've got more than enough material for the same kind of
+>abuse.  What's more, you _already_ have it - in some of the subfunctions
+>*data is read from, in some - written to, in some - ignored.  Worse
+>yet, in some subfunctions we put structured data in there, in some -
+>just a chunk of something.
+>
+>With all that, who had said that a year down the road we won't get a
+>dozen of new syscalls hiding behind that one?
+>
+>Sorry, folks, but idea of private extendable syscall table (per-filesystem,
+>no less) doesn't look like a good thing.  That's _the_ reason why ioctl()
+>is bad.
 
-make[2]: Entering directory
-`/usr/users/donjr/linux-2.4.15-pre4/arch/alpha/math-emu'
-gcc -D__KERNEL__ -I/usr/users/donjr/linux-2.4.15-pre4/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mno-fp-regs -ffixed-8 -mcpu=ev5
--Wa,-mev6    -c -o math.o math.c
-math.c: In function `alpha_fp_emul':
-math.c:204: warning: right shift count is negative
-math.c:204: warning: left shift count >= width of type
-math.c:220: warning: left shift count is negative
-math.c:238: warning: statement with no effect
-math.c:258: warning: right shift count >= width of type
-math.c:258: warning: right shift count >= width of type
-math.c:262: warning: right shift count >= width of type
-math.c:262: warning: right shift count >= width of type
-math.c:270: warning: statement with no effect
-math.c:270: warning: statement with no effect
-math.c:270: warning: statement with no effect
-math.c:277: warning: statement with no effect
-math.c:277: warning: statement with no effect
-math.c:277: warning: statement with no effect
-math.c:99: warning: `SR_c' might be used uninitialized in this function
-math.c:99: warning: `SR_s' might be used uninitialized in this function
-math.c:99: warning: `SR_e' might be used uninitialized in this function
-math.c:99: warning: `SR_f' might be used uninitialized in this function
-math.c:100: warning: `DR_c' might be used uninitialized in this function
-math.c:100: warning: `DR_s' might be used uninitialized in this function
-math.c:100: warning: `DR_e' might be used uninitialized in this function
-math.c:100: warning: `DR_f' might be used uninitialized in this function
-gcc  -D__KERNEL__ -I/usr/users/donjr/linux-2.4.15-pre4/include  -c -o
-qrnnd.o qrnnd.S
-rm -f math-emu.o
-ld  -r -o math-emu.o math.o qrnnd.o
-make[2]: Leaving directory
-`/usr/users/donjr/linux-2.4.15-pre4/arch/alpha/math-emu'
-make[1]: Leaving directory
-`/usr/users/donjr/linux-2.4.15-pre4/arch/alpha/math-emu'
-gcc -E -D__KERNEL__ -I/usr/users/donjr/linux-2.4.15-pre4/include -xc -P
-arch/alpha/vmlinux.lds.in -o arch/alpha/vmlinux.lds
-ld -static -T arch/alpha/vmlinux.lds -N  arch/alpha/kernel/head.o
-init/main.o init/version.o \
-        --start-group \
-        arch/alpha/kernel/kernel.o arch/alpha/mm/mm.o kernel/kernel.o
-mm/mm.o fs/fs.o ipc/ipc.o arch/alpha/math-emu/math-emu.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o
-drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o
-drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o
-drivers/video/video.o drivers/md/mddev.o \
-        net/network.o \
-        /usr/users/donjr/linux-2.4.15-pre4/arch/alpha/lib/lib.a
-/usr/users/donjr/linux-2.4.15-pre4/lib/lib.a
-/usr/users/donjr/linux-2.4.15-pre4/arch/alpha/lib/lib.a \
-        --end-group \
-        -o vmlinux
-fs/fs.o: In function `cpuinfo_open':
-fs/fs.o(.text+0x2cf88): undefined reference to `cpuinfo_op'
-make: *** [vmlinux] Error 1
+Al,
+
+Out of interest, which access interface(s) would you like to see used?
+
+Giving a few suggestions you would be happy with would be a lot easier on 
+anyone trying to develop a filesystem API than for them having to come up 
+with one after the other until one is found which you approve of... (-;
+
+Best regards,
+
+Anton
+
+
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

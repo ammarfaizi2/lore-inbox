@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbUDPVRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 17:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUDPVRZ
+	id S263815AbUDPVTr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 17:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263819AbUDPVTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 17:17:25 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:65438 "EHLO
+	Fri, 16 Apr 2004 17:19:47 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:5279 "EHLO
 	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263760AbUDPVRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 17:17:24 -0400
-Date: Fri, 16 Apr 2004 22:16:28 +0100
+	id S263815AbUDPVTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 17:19:46 -0400
+Date: Fri, 16 Apr 2004 22:18:26 +0100
 From: Dave Jones <davej@redhat.com>
-To: trond.myklebust@fys.uio.no
+To: jgarzik@pobox.com
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: NFS thinko
-Message-ID: <20040416211628.GM20937@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, trond.myklebust@fys.uio.no,
+Subject: orinoco potentially dereferencing before check
+Message-ID: <20040416211826.GN20937@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, jgarzik@pobox.com,
 	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,28 +24,25 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dereferencing 'exp' before the check for NULL.
 
-		Dave
-
-
---- linux-2.6.5/include/linux/nfsd/export.h~	2004-04-16 22:13:28.000000000 +0100
-+++ linux-2.6.5/include/linux/nfsd/export.h	2004-04-16 22:14:21.000000000 +0100
-@@ -118,13 +118,15 @@
- 	if (ek && !IS_ERR(ek)) {
- 		struct svc_export *exp = ek->ek_export;
- 		int err;
-+		if (!exp)
-+			goto out;
- 		cache_get(&exp->h);
- 		expkey_put(&ek->h, &svc_expkey_cache);
--		if (exp &&
--		    (err = cache_check(&svc_export_cache, &exp->h, reqp)))
-+		if (err = cache_check(&svc_export_cache, &exp->h, reqp))
- 			exp = ERR_PTR(err);
- 		return exp;
- 	} else
-+out:
- 		return ERR_PTR(PTR_ERR(ek));
- }
+--- linux-2.6.5/drivers/net/wireless/orinoco_pci.c~	2004-04-16 22:16:57.000000000 +0100
++++ linux-2.6.5/drivers/net/wireless/orinoco_pci.c	2004-04-16 22:17:30.000000000 +0100
+@@ -275,14 +275,16 @@
+ static void __devexit orinoco_pci_remove_one(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+-	struct orinoco_private *priv = dev->priv;
++	struct orinoco_private *priv;
  
+ 	if (! dev)
+ 		BUG();
+ 
++	priv = dev->priv;
++
+ 	unregister_netdev(dev);
+ 
+-        if (dev->irq)
++	if (dev->irq)
+ 		free_irq(dev->irq, dev);
+ 
+ 	if (priv->hw.iobase)

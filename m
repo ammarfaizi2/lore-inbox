@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264498AbTLVWGx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 17:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264527AbTLVWGx
+	id S264501AbTLVWIl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 17:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTLVWIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 17:06:53 -0500
-Received: from users.ccur.com ([208.248.32.211]:14470 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S264498AbTLVWGw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 17:06:52 -0500
-Date: Mon, 22 Dec 2003 17:06:11 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Rob Love <rml@ximian.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: atomic copy_from_user?
-Message-ID: <20031222220610.GA3451@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <1072054100.1742.156.camel@cube> <20031222150026.GD27687@holomorphy.com> <20031222182637.GA2659@rudolph.ccur.com> <1072126506.3318.31.camel@fur>
+	Mon, 22 Dec 2003 17:08:41 -0500
+Received: from svr8.m-online.net ([62.245.150.237]:31429 "EHLO
+	mail-in.m-online.net") by vger.kernel.org with ESMTP
+	id S264501AbTLVWIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 17:08:36 -0500
+Subject: Speedup reading from broken hdd
+From: Florian Huber <florian.huber@mnet-online.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Hb1923acUrEvKm1NgtsC"
+Message-Id: <1072130914.3618.12.camel@laptop.lindoze.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072126506.3318.31.camel@fur>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Dec 2003 23:08:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 22, 2003 at 03:55:06PM -0500, Rob Love wrote:
-> On Mon, 2003-12-22 at 13:26, Joe Korty wrote:
-> 
-> > Shouldn't the dec_prempt_count() in kunmap_atomic() be followed
-> > by a preempt_check_resched()???
-> 
-> Probably.
-> 
-> Actually, dec_preempt_count() ought to call preempt_check_resched()
-> itself.  In the case of !CONFIG_PREEMPT, that call would simply optimize
-> away.
-> 
-> Attached patch is against 2.6.0.
 
-If this is done then preempt_enable_no_resched() and preempt_enable() also
-need to be adjusted, as they both call dec_preempt_count().
+--=-Hb1923acUrEvKm1NgtsC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Joe
+Hello ML,
+I have one broken harddisk, but most of the sectors are still ok.
+Whenn I try to dump the data via dd_rescue and it comes to faulty
+bytes/bits/whatever the kernel takes a lot of time (retries, timeout?)
+till it recognizes that it's broken. (The usual error in kernel log...).
+
+Is there a possibilty to speed this up? Maybe there is a kernel patch or
+I can access this device in a different way?
+
+TIA
+
+--=20
+Florian Huber
+
+Key ID: D9D50EA2
+Fingerprint: 0241 C329 E355 9B94 8D34 F637 4EB9 1B1D D9D5 0EA2
+
+BOFH Excuse #274:
+It was OK before you touched it.
+
+--=-Hb1923acUrEvKm1NgtsC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/52tiTrkbHdnVDqIRAoT7AJ45v1Hren8dvpcQIbMeCddYhgO7nQCfb5ZI
+qWBsIJ/yHaithXNmoazDDcY=
+=sag9
+-----END PGP SIGNATURE-----
+
+--=-Hb1923acUrEvKm1NgtsC--
+

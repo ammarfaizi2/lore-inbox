@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316695AbSIALlE>; Sun, 1 Sep 2002 07:41:04 -0400
+	id <S317017AbSIALos>; Sun, 1 Sep 2002 07:44:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316705AbSIALlE>; Sun, 1 Sep 2002 07:41:04 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:34039
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316695AbSIALlD>; Sun, 1 Sep 2002 07:41:03 -0400
-Subject: Re: [info] 2.4.20-pre5-ac1 still have the DMA problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+	id <S317024AbSIALos>; Sun, 1 Sep 2002 07:44:48 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:14989 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S317017AbSIALor>; Sun, 1 Sep 2002 07:44:47 -0400
+Subject: Re: SMB browser
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D71D84B.61C15376@wanadoo.fr>
-References: <3D71D84B.61C15376@wanadoo.fr>
+In-Reply-To: <3D709AB7.705@linkvest.com>
+References: <3D709AB7.705@linkvest.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 01 Sep 2002 12:46:25 +0100
-Message-Id: <1030880785.3490.30.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 01 Sep 2002 14:49:43 +0300
+Message-Id: <1030880983.31921.47.camel@gby.benyossef.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-01 at 10:05, Jean-Luc Coulon wrote:
-> Aug 31 11:21:07 f5ibh kernel: ALI15X3: chipset revision 193
-> Aug 31 11:21:07 f5ibh kernel: ALI15X3: not 100%% native mode: will probe
-> irqs later
-> Aug 31 11:21:07 f5ibh kernel: ALI15X3: simplex device with no drives:
-> DMA disabled
-> Aug 31 11:21:07 f5ibh kernel: ide0: ALI15X3 Bus-Master DMA disabled
-> (BIOS)
-> Aug 31 11:21:07 f5ibh kernel: ALI15X3: simplex device with no drives:
-> DMA disabled
-> Aug 31 11:21:07 f5ibh kernel: ide1: ALI15X3 Bus-Master DMA disabled
-> (BIOS)
+On Sat, 2002-08-31 at 13:30, Jean-Eric Cuendet wrote:
+> Hi,
+> I want to develop a filesystem driver. It will be able to access SMB 
+> shares without mountnig.
+> I'll do a daemon that use libsmbclient from Samba 3.0 that do all the 
+> dirty stuff (getting the available domains, authenticating, getting 
+> files, etc...) and a device driver that will be a filesystem driver. The 
+> driver should communicate with the daemon to ask him about shares, 
+> machines, domains, etc...
 
-I expect it to continue to turn DMA off on all parts of simplex devices
-for a while yet. Correctness first
+People who reinvent the wheel usually end up with a square one :-)
+
+lufs is a User Land Filesystem for Linux - 
+http://lufs.sourceforge.net/
+
+Share && Enjoy,
+Gilad.
+
+
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com
+
+"Money talks, bullshit walks and GNU awks."
+  -- Shachar "Sun" Shemesh, debt collector for the GNU/Yakuza
 

@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263978AbTDNWPM (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:15:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263992AbTDNWPM (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 18:15:12 -0400
-Received: from zeke.inet.com ([199.171.211.198]:26287 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id S263978AbTDNWPL (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 18:15:11 -0400
-Message-ID: <3E9B35B1.1020809@inet.com>
-Date: Mon, 14 Apr 2003 17:26:57 -0500
-From: Eli Carter <eli.carter@inet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id S264015AbTDNWW7 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 18:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264017AbTDNWW4 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 18:22:56 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:31872 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264015AbTDNWWt convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 18:22:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [patch] printk subsystems
+Date: Mon, 14 Apr 2003 15:33:18 -0700
+User-Agent: KMail/1.4.1
+Cc: Martin Hicks <mort@wildopensource.com>, <hpa@zytor.com>, <pavel@ucw.cz>,
+       <jes@wildopensource.com>, <linux-kernel@vger.kernel.org>,
+       <wildos@sgi.com>
+References: <Pine.LNX.4.44.0304141325010.14087-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0304141325010.14087-100000@cherise>
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] patch splitting util(s)?
-References: <3E9B2C38.4020405@inet.com> <20030414215128.GA24096@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304141533.18779.dsteklof@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Mon, Apr 14, 2003 at 04:46:32PM -0500, Eli Carter wrote:
-> 
->  > I didn't have much luck with googling.  I think the words I used are too 
->  > generic.  :/
->  
-> Google for diffsplit. Its part of Tim Waugh's patchutils.
-> Patchutils should be part of pretty much every distro these days too.
+On Monday 14 April 2003 11:33 am, Patrick Mochel wrote:
+> > I don't like the #define DEBUG approach.  It's useless for users; it's a
+> > developer debug tool.  It won't allow some support staff to ask users to
+> > enable module debugging (or subsystem debugging) and see what gets
+> > printed.
+>
+> Agreed. Having a runtime-tweakable field would be very handy, and
+> something that's been requested many times over.
+>
+> > Martin, you are ahead of my schedule, but I was planning to use sysfs
+> > to add a 'debug' flag/file that could be dynamically altered on a
+> > per-module basis.
+>
+> Something I've pondered in the past is a per-subsystem (as in struct
+> subsystem) debug field and log buffer. When the subsystem is registered, a
+> sysfs 'debug' file is created, from which the user can set the noisiness
+> level.
 
-I'm aware of patchutils.  (Check the 0.2.22 Changelog ;) )  However, 
-splitdiff doesn't do what I'm after, from my initial look.  Though now 
-that I think about it, it suggests an alternative solution.  A 
-'shatterdiff' that created one diff file per hunk in a patch would give 
-me basically what I want.  I could then use directories and 'mv' to sort 
-out the parts.  Repetative calls to 'combinediff' would suffice for 
-cleaning up the ensuing mess, I think.  Hmm...  That would get me to the 
-hunk level, but not the sub-hunk, though editdiff/rediff might help there.
+
+Would the debug level be for the entire subsystem? Do you think people would 
+like to be able to set debug/logging level per driver or device, and not just 
+subsystem? 
+
+Is debugging level here the same as logging level? 
+
+I like the idea of having logging levels, which include debug, defined by 
+subsystem. Each subsystem will have separate requirements for logging. 
+Networking, for instance, already has the NETIF_MSG* levels defined in 
+netdevice.h that can be set with Ethtool. I can see, for example, having the 
+msg_enable not in the private data as it is now but in the subsystem or class 
+structure for that device, such as in struct net_device. This could easily be 
+exported through sysfs. 
 
 Thanks,
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+Dan
+
+
+> From there, each subsystem can specify the size of a log buffer, which
+> would be allocated also when the subsystem is registered. Messages from
+> the subsystem, and kobjects belonging to it, would be copied into the
+> local log buffer.
+>
+> Wrapper functions can be created, similar to the dev_* functions, which
+> take a kobject as the first parameter. From this, the subsystem and log
+> buffer, can be derived (or rather, passed to a lower-level helper).
+>
+> This all falls under the 'gee-whiz-this-might-be-neat' category, and may
+> inherently suck; I haven't tried it. Doing the core code is < 1 day's
+> work, though there would be nothing that actually used it..
+>
+>
+> 	-pat
 

@@ -1,65 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129540AbRB0DYP>; Mon, 26 Feb 2001 22:24:15 -0500
+	id <S129548AbRB0D2p>; Mon, 26 Feb 2001 22:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129541AbRB0DYG>; Mon, 26 Feb 2001 22:24:06 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:44530 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129540AbRB0DXt>; Mon, 26 Feb 2001 22:23:49 -0500
-Message-ID: <3A9B1CB8.B989A10@coplanar.net>
-Date: Mon, 26 Feb 2001 22:19:20 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ivan Passos <lists@cyclades.com>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Linux Serial List <linux-serial@vger.kernel.org>
-Subject: Re: CLOCAL and TIOCMIWAIT
-In-Reply-To: <Pine.LNX.4.10.10102261651000.15230-100000@main.cyclades.com>
+	id <S129552AbRB0D20>; Mon, 26 Feb 2001 22:28:26 -0500
+Received: from 2-113.cwb-adsl.telepar.net.br ([200.193.161.113]:47599 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129548AbRB0D2U>; Mon, 26 Feb 2001 22:28:20 -0500
+Date: Mon, 26 Feb 2001 22:49:11 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Yaroslav Polyakov <xenon@granch.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sbni: update last_rx after netif_rx
+Message-ID: <20010226224911.C8692@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Yaroslav Polyakov <xenon@granch.ru>, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.14i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Passos wrote:
+Hi,
 
-> Hello,
->
-> A customer has just brought to my attention that when you try to use the
-> TIOCMIWAIT ioctl with our boards and CLOCAL is enabled, you can't check
-> changes in the DCD signal. He also mentioned that that is possible with
-> the regular serial ports.
->
-> As I understood, CLOCAL meant disabling DCD sensitivity, so if CLOCAL is
-> disabled, no changes in DCD will be passed from hardware driver to the
-> kernel or userspace. The way the serial driver is implemented, this is not
-> true (i.e. even with CLOCAL enabled, you can still see DCD changes through
-> the TIOCMIWAIT command).
+	Please consider applying.
 
-I remember auditing the exact code where this happens, but on 2.0 or earlier.
+- Arnaldo
 
-I had written a simple program 10-20 lines C to count pulses at rate of 1 per
-
-second give or take.  It turned out that the driver disabled the UART's
-generation
-of interrupts completely for certain signals.  I don't remember which
-exactly, but
-I think it was DCD; I was using CLOCAL so the hangups wouldn't close the
-descriptor.  The problems was that by disabling the interrupt at the source,
-the ioctl's to read the bits stopped working!  not what I wanted.
-
-I'm afraid I can't help, other that to suggest that that behaviour can have
-problems.
-The extra irq traffic was probably the motivation for this optimisation, but
-I don't know of anyone's modem hanging up frequently enough to measure the
-extra load.  Only people crazy enough to use the built-in serial port ($0)
-as opposed to an $500 industrial digital io card are likely to care though...
-
->
->
-> My question is: what's the correct interpretation of CLOCAL?? If the
-> serial driver's interpretation is the correct one, I'll be more than happy
-> to change the Cyclades' driver to comply with that, I just want to make
-> sure that this is the expected behavior before I patch the driver.
-
+--- linux-2.4.2/drivers/net/wan/sbni.c	Tue Feb 13 19:15:05 2001
++++ linux-2.4.2.acme/drivers/net/wan/sbni.c	Tue Feb 27 00:19:32 2001
+@@ -460,7 +460,7 @@
+ 	 * generate Ethernet address (0x00ff01xxxxxx)
+ 	 */
+ 
+-	*(u16*)dev->dev_addr = htons(0x00ff);
++	*(u16*)dev->dev_addr = __constant_htons(0x00ff);
+ 	*(u32*)(dev->dev_addr+2) = htonl(((def_mac ? def_mac : (u32) dev->priv) & 0x00ffffff) | 0x01000000);
+    
+ 	lp = dev->priv;
+@@ -962,12 +962,17 @@
+ static inline void sbni_get_packet(struct net_device* dev)
+ {
+ 	struct net_local* lp = (struct net_local*)dev->priv;
++	int pktlen = lp->inppos - ETH_HLEN + sizeof(struct sbni_hard_header);
++	struct net_device* rx_dev =
++#ifdef KATYUSHA
++		lp->m;
++#else
++		dev;
++#endif      
+ 	struct sk_buff* skb;
+ 	unsigned char *rawp;
+     
+-   
+-     
+-	skb = dev_alloc_skb(lp->inppos - ETH_HLEN + sizeof(struct sbni_hard_header));
++	skb = dev_alloc_skb(pktlen);
+    
+ 	if(skb == NULL)
+ 	{
+@@ -975,11 +980,7 @@
+ 		lp->stats.rx_dropped++;
+ 		return;
+ 	} else {
+-#ifdef KATYUSHA
+-		skb->dev = lp->m;
+-#else
+-		skb->dev = dev;
+-#endif      
++		skb->dev = rx_dev;
+ 		memcpy((unsigned char*)skb_put(skb, lp->inppos + 8)+8,
+ 			lp->eth_rcv_buffer,
+ 			lp->inppos);
+@@ -1006,9 +1007,9 @@
+ 		{
+ 			rawp = (unsigned char*)(&lp->eth_rcv_buffer[2*ETH_ALEN]);
+ 			if (*(unsigned short *)rawp == 0xFFFF)
+-				skb->protocol=htons(ETH_P_802_3);
++				skb->protocol=__constant_htons(ETH_P_802_3);
+ 			else
+-				skb->protocol=htons(ETH_P_802_2);
++				skb->protocol=__constant_htons(ETH_P_802_2);
+ 		}
+             
+ 
+@@ -1016,6 +1017,8 @@
+    
+ 		netif_rx(skb);
+ 		lp->stats.rx_packets++;
++		lp->stats.rx_bytes += pktlen;
++		rx_dev->last_rx = jiffies;
+ 	}
+ 	return;
+ }

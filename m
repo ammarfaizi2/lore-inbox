@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130448AbQKGXER>; Tue, 7 Nov 2000 18:04:17 -0500
+	id <S129791AbQKGXHH>; Tue, 7 Nov 2000 18:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130449AbQKGXEH>; Tue, 7 Nov 2000 18:04:07 -0500
-Received: from m11.boston.juno.com ([63.211.172.74]:60585 "EHLO
-	m11.boston.juno.com") by vger.kernel.org with ESMTP
-	id <S130448AbQKGXD6>; Tue, 7 Nov 2000 18:03:58 -0500
-To: alan@lxorguk.ukuu.org.uk
-Cc: x_coder@hotmail.com, andre@linux-ide.org, linux-kernel@vger.kernel.org
-Date: Sat, 4 Nov 2000 19:04:08 -0500
-Subject: Re: Pentium 4 and 2.4/2.5
-Message-ID: <20001104.190410.-351455.2.fdavis112@juno.com>
-X-Mailer: Juno 4.0.5
+	id <S129871AbQKGXG6>; Tue, 7 Nov 2000 18:06:58 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:64756 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129791AbQKGXGl>;
+	Tue, 7 Nov 2000 18:06:41 -0500
+Date: Tue, 7 Nov 2000 18:06:32 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: swapout vs. filemap_sync_pte...?
+In-Reply-To: <3A074633.12ED8137@mandrakesoft.com>
+Message-ID: <Pine.GSO.4.21.0011071757500.5033-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Juno-Line-Breaks: 0-5,8-12,14-28
-X-Juno-Att: 0
-X-Juno-RefParts: 0
-From: Frank Davis <fdavis112@juno.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-  As for 'rep nop', couldn't we add in the code, as an example:  
-#ifdef Pentium_4
-rep nop
-#endif
 
-  As for the 2.2.18 patch for correctly determining 2GHz and above, can
-it be easily  merged into the 2.4.x kernel, and if so, what's the maximum
-clock speed that can be detected?
 
-Regards,
--Frank
+On Mon, 6 Nov 2000, Jeff Garzik wrote:
 
-On Tue, 7 Nov 2000 21:48:40 +0000 (GMT) Alan Cox
-<alan@lxorguk.ukuu.org.uk> writes:
-> > are you saying that rep;nop is not needed in the spinlocks? 
-> (because they
-> > are for P4)
-> 
-> rep;nop is a magic instruction on the PIV and possibly some PIII 
-> series CPUs
-> [not sure]. As far as I can make out it naps momentarily or until 
-> bus
-> activity thus saving power on spinlocks.
-> 
-> The problem is 'rep nop' is not defined on other cpus so we can only 
-> really use
-> it on the PIII/PIV kernel builds
-> 
+> The address_space::writepage callback is called from try_to_swap_out()
+> path, and also from the filemap_sync_pte() path.  There appears to be no
+> way to tell the difference between the two callers.  This is not good
+> because the semantics are very different:  "sync this page" versus "page
+> is going away".
+
+For the filemap VMAs (i.e. ones that are based on address_space with
+backstore) it is the same thing. For something like tmpfs you have
+different VMA-level semantics. Ergo, different VMA methods. They can
+be shared with filemap ones, but you definitely don't want ->vm_ops->sync().
+End of the problem...
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

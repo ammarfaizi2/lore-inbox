@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUD2IEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263663AbUD2IE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263664AbUD2IEv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 04:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263671AbUD2IEu
+	id S263663AbUD2IE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 04:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbUD2IE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 04:04:50 -0400
-Received: from levante.wiggy.net ([195.85.225.139]:40875 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S263654AbUD2IEo (ORCPT
+	Thu, 29 Apr 2004 04:04:27 -0400
+Received: from smtp5.libero.it ([193.70.192.55]:22168 "EHLO smtp5.libero.it")
+	by vger.kernel.org with ESMTP id S263663AbUD2IDj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 04:04:44 -0400
-Date: Thu, 29 Apr 2004 10:04:44 +0200
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Questions : disk partition re-reading
-Message-ID: <20040429080443.GG4437@wiggy.net>
-Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
-	linux-kernel@vger.kernel.org
-References: <4082819E.10106@free.fr> <20040420074650.GA3040@pclin040.win.tue.nl> <20040420143634.GA12132@bitwizard.nl> <20040425221528.GB3040@pclin040.win.tue.nl> <20040426083142.GA26429@wiggy.net> <20040429001559.GB4068@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040429001559.GB4068@pclin040.win.tue.nl>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-SA-Exim-Connect-IP: <locally generated>
+	Thu, 29 Apr 2004 04:03:39 -0400
+From: Mail Delivery Service <postmaster@iol.it>
+Subject: Delivery Status Notification
+To: linux-kernel@vger.kernel.org
+Date: Thu, 29 Apr 2004 10:03:38 +0200
+Message-ID: <40886FC20146E46F@smtp5.libero.it>
+MIME-Version: 1.0
+Content-Type: Multipart/Report; report-type=delivery-status; boundary="========/40886FC20146E46D/smtp5.libero.it"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andries Brouwer wrote:
-> It depends on what you want to do.
-> It really works, or at least really worked when I last tried it.
-> There are no problems that I know of.
+This multi-part MIME message contains a Delivery Status Notification.
+If you can see this text, your mail client may not be able to understand MIME
+formatted messages or DSNs (see RFC 2045 through 2049 for general MIME
+information and RFC 1891 through 1894 for DSN specific information).
 
-If it works as advertised I'm happy with it. I'm just asking you to make
-it a proper part of util-linux in its next release so it will actually be 
-installed for people without having to manually compile and install it
-seperately from the other utilities in util-linux.
+--========/40886FC20146E46D/smtp5.libero.it
+Content-Type: text/plain; charset=iso-8859-1
 
-Wichert.
+Your message was refused by recipient's server filtering program.
+Reason given was as follows:
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+Disallowed attach type
+
+--========/40886FC20146E46D/smtp5.libero.it
+Content-Type: Message/Delivery-Status
+
+Reporting-MTA: dns; smtp5.libero.it
+Received-from-MTA: dns; libero.it (151.38.167.5)
+Arrival-Date: Thu, 29 Apr 2004 10:03:38 +0200
+
+Final-Recipient: rfc822; mantra@libero.it
+Action: Failed
+Status: 5.7.1 (delivery not authorized, message refused)
+
+--========/40886FC20146E46D/smtp5.libero.it
+Content-Type: Text/RFC822-headers
+
+Return-Path: <linux-kernel@vger.kernel.org>
+Received: from libero.it (151.38.167.5) by smtp5.libero.it (7.0.027-DD01)
+        id 40886FC20146E46D for mantra@libero.it; Thu, 29 Apr 2004 10:03:38 +0200
+From: linux-kernel@vger.kernel.org
+To: mantra@libero.it
+Subject: Numbers
+Date: Thu, 29 Apr 2004 10:03:38 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0013_000059D0.0000171A"
+X-Priority: 3
+X-MSMail-Priority: Normal
+
+
+--========/40886FC20146E46D/smtp5.libero.it--
 

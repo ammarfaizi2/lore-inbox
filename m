@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288958AbSANTFe>; Mon, 14 Jan 2002 14:05:34 -0500
+	id <S288975AbSANTPW>; Mon, 14 Jan 2002 14:15:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288922AbSANTEg>; Mon, 14 Jan 2002 14:04:36 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:44929 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S288932AbSANTDn>;
-	Mon, 14 Jan 2002 14:03:43 -0500
-Message-Id: <m16QCNJ-000OVeC@amadeus.home.nl>
-Date: Mon, 14 Jan 2002 19:02:29 +0000 (GMT)
-From: arjan@fenrus.demon.nl
-To: esr@thyrsus.com
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020114132618.G14747@thyrsus.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+	id <S288967AbSANTN6>; Mon, 14 Jan 2002 14:13:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52742 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288801AbSANTMe>; Mon, 14 Jan 2002 14:12:34 -0500
+Subject: Re: Hardwired drivers are going away?
+To: viro@math.psu.edu (Alexander Viro)
+Date: Mon, 14 Jan 2002 19:24:17 +0000 (GMT)
+Cc: esr@thyrsus.com (Eric S. Raymond), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        babydr@baby-dragons.com (Mr. James W. Laferriere),
+        cate@debian.org (Giacomo Catenazzi),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu> from "Alexander Viro" at Jan 14, 2002 02:09:16 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QCiP-0002cc-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020114132618.G14747@thyrsus.com> you wrote:
-> Not that I'm running down distro makers.  They do a valuable job, and in fact
-> my approach relies on Aunt Tillie's machine starting life with an all-modular
-> distro kernel.
+> 	a) on some architecures modular code is slower (IIRC, the problem is
+> with medium-range calls being faster than far ones and usable only in the
+> kernel proper).  We probaly want to leave a gap after the .text and remap
 
-> But the point of this game is for Aunt Tillie to have more and better
-> choices.  Isn't that what we're supposed to be about?
+Also with TLB mapping sizes (4Mb versus 4K)
 
-While I'm absolutely not disputing the right of anyone to compile their own
-kernel (I'm not trying to lock customers into my special platform like some
-unnamed industrial giant *cough*), I just wonder why an AUTOMATIC generated
-kernel with all the _relevant_ drivers modules will be "more and better"
-than a (distro) kernel with _all_ drivers modules. That's the POINT of
-modules -> be there or not, nothing else cares. If that's not the case
-right now it's something we ought to fix first I'd say.
+> .text of module in there - if I understand the problem that should be
+> enough, but that's really a question to folks dealing with these ports (PPC64
+> and Itanic?)
 
-Of course there are other settings that do have impact (CPU type mostly,
-maybe memory layout) but other than that... distros already ship several
-binary versions (last I counted Red Hat ships 11 or so with RHL72) to
-account for CPU type and amount etc.
+For x86 you just need to leave a nice chunk of physical memory that is there
+to copy the module text/data into as you insmod them during boot then give
+the rest of the pool back to the paging system. This also solves the problem
+with "can't be a module because I need 1Mb of linear space" drivers.
 
-Greetings,
-   Arjan van d Ven
+Alan

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263169AbTCWT5W>; Sun, 23 Mar 2003 14:57:22 -0500
+	id <S263176AbTCWUKq>; Sun, 23 Mar 2003 15:10:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263170AbTCWT5W>; Sun, 23 Mar 2003 14:57:22 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3593 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263169AbTCWT5V>; Sun, 23 Mar 2003 14:57:21 -0500
-Date: Sun, 23 Mar 2003 20:08:20 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Mares <mj@ucw.cz>
-Cc: Robert Love <rml@tech9.net>, Alan Cox <alan@redhat.com>,
+	id <S263177AbTCWUKq>; Sun, 23 Mar 2003 15:10:46 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:26131
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263176AbTCWUKp>; Sun, 23 Mar 2003 15:10:45 -0500
+Subject: re: Ptrace hole / Linux 2.2.25
+From: Robert Love <rml@tech9.net>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Martin Mares <mj@ucw.cz>, Alan Cox <alan@redhat.com>,
        Jeff Garzik <jgarzik@pobox.com>,
        Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       szepe@pinerecords.com, arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Ptrace hole / Linux 2.2.25
-Message-ID: <20030323200820.A20767@flint.arm.linux.org.uk>
-Mail-Followup-To: Martin Mares <mj@ucw.cz>, Robert Love <rml@tech9.net>,
-	Alan Cox <alan@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Pavel Machek <pavel@ucw.cz>, szepe@pinerecords.com,
-	arjanv@redhat.com, linux-kernel@vger.kernel.org
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
+       arjanv@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030323200956.GJ31079@louise.pinerecords.com>
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
+	 <200303231938.h2NJcAq14927@devserv.devel.redhat.com>
+	 <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
+	 <1048448838.1486.12.camel@phantasy.awol.org>
+	 <20030323200956.GJ31079@louise.pinerecords.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048450898.1486.30.camel@phantasy.awol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030323195606.GA15904@atrey.karlin.mff.cuni.cz>; from mj@ucw.cz on Sun, Mar 23, 2003 at 08:56:06PM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 23 Mar 2003 15:21:39 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 23, 2003 at 08:56:06PM +0100, Martin Mares wrote:
-> > Yes, I suspect he does as do most people here.
-> > 
-> > If you do not use a vendor kernel then you assume the responsibility of
-> > doing this stuff yourself.  If you do not want to worry about these
-> > things, use a vendor kernel.
-> 
-> But if you assume this, what are the official releases for anyway?
+On Sun, 2003-03-23 at 15:09, Tomas Szepe wrote:
 
-It is the way Linux is heading - becoming less free.  Lock-in to
-distribution vendors.  And soon you'll need to pay distributions
-to (timely) get the fixes.
+> This sentence is ambiguous and one of its possible meanings is
+> "Most people do and Robert Love suspects Alan Cox does, too," which
+> is also probably what you meant.  A bit strong a statement, don't you
+> think?  How can you know the opinion of most people here?
 
-To give an instance, because I don't work for a distribution, I don't
-have access to the security lists.  Yet, I'm the guy who produces the
-ARM patches which the ARM community at large use.
+Yes, sorry, ambiguous.
 
-This situation caused HP to shut down their public ARM boxen while I
-worked on integrating the security fix into the ARM tree.  Unfortunately,
-this could only happen _after_ the problem was publically announced,
-which means some of HPs systems were vulnerable to attack for a few
-days.
+I meant "I suspect most people agree with Alan"
 
-If you think Linux today is about something "free"...
+I do not presume to know what most people think.  I presume to think I
+know, hence "I suspect ..."
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Anyhow, all I am saying is, if people _require_ support or bug fixes or
+instant updates they should use a vendor kernel.  This does not mean we
+should not facilitate users who do make their own kernel.
+
+This thread is getting off-topic...
+
+> As a sidenote, I consider it important to note that it's obvious
+> that if Alan were the 2.4 maintainer, we would likely have a 2.4.21
+> with the critical (and possibly other) fixes out and all the fancy
+> new stuff rescheduled for 2.4.22.
+
+I would of released a 2.4.21, too.
+
+	Robert Love
 

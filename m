@@ -1,66 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVCVBLN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVCVAn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbVCVBLN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 20:11:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVCVBK1
+	id S262220AbVCVAn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 19:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVCVAle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 20:10:27 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:51387 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262258AbVCVBHJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 20:07:09 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 21 Mar 2005 19:41:34 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:28656 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262225AbVCVAjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 19:39:01 -0500
+Message-ID: <423F691E.200@mvista.com>
+Date: Mon, 21 Mar 2005 16:38:54 -0800
+From: Frank Rowand <frowand@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC/Patch 0/12] ACPI based root bridge hot-add
-Date: Mon, 21 Mar 2005 17:06:47 -0800
-Message-ID: <468F3FDA28AA87429AD807992E22D07E04A3DDC9@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC/Patch 0/12] ACPI based root bridge hot-add
-Thread-Index: AcUuQIGV+3nfat58RryRsFcW1r2mwgAN19BA
-From: "Sy, Dely L" <dely.l.sy@intel.com>
-To: "Shah, Rajesh" <rajesh.shah@intel.com>, "Greg KH" <gregkh@suse.de>
-Cc: <linux-pci@atrey.karlin.mff.cuni.cz>, <linux-kernel@vger.kernel.org>,
-       <pcihpd-discuss@lists.sourceforge.net>, <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>, "Luck, Tony" <tony.luck@intel.com>
-X-OriginalArrivalTime: 22 Mar 2005 01:06:48.0880 (UTC) FILETIME=[6CA90B00:01C52E7B]
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, frowand@mvista.com
+Subject: Re: [PATCH 0/5] ppc RT: Realtime preempt support for PPC
+References: <422CCC1D.1050902@mvista.com> <20050316100914.GA16012@elte.hu>
+In-Reply-To: <20050316100914.GA16012@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, March 21, 2005 10:05 AM, Rajesh Shah wrote:
-> On Fri, Mar 18, 2005 at 09:13:32PM -0800, Greg KH wrote:
-> > 	- Does this break the i386 acpiphp functionality?
+Ingo Molnar wrote:
+> hi Frank - sorry about the late reply, was busy with other things. Your
 
-> Dely Sy had tested hotplug with an earlier version of my patches
-> (with minor differences from the current series) on i386 and it
-> worked fine. She probably hasn't tested the latest one. Dely,
-> could you check that please? 
+My turn to be late, but now I'm back from vacation :-).
 
-I tested an earlier version of this patch on my i386 system with
-PCI Express hot-plug slots.  The i386 acpiphp functionality worked
-fine - i.e. I was able to do hot-plug of single- & multi-function 
-cards.  
 
-I'll check this new patch on my system.
+> ppc patches look mostly mergeable, with some small details still open:
+> 
+> * Frank Rowand <frowand@mvista.com> wrote:
+> 
+> 
+>>The patches are:
+>>
+>> 1/5 ppc_rt.patch          - the core realtime functionality for PPC
+> 
+> 
+> what is the rationale behind the rt_lock.h changes? The #ifdef
+> CONFIG_PPC32 changes in generic code are not really acceptable, the -RT
+> tree tries to keep a single spinlock definition and debugging
+> primitives, across all architectures.
 
-> > 	- Have you tested other pci hotplug systems with this patch
-> > 	  series?  Like pci express hotplug, standard pci hotplug,
-> > 	  cardbus, etc?
+The first "#ifdef CONFIG_PPC32" adds some debug fields to raw_spinlock_t.
+The debug fields are only used in the pre-existing arch/ppc/lib/locks.c,
+and are disabled unless CONFIG_DEBUG_SPINLOCK is defined.
+CONFIG_DEBUG_SPINLOCK is commented out in lib/Kconfig.debug as "# broken,
+disable for now".  If CONFIG_DEBUG_SPINLOCK is ever enabled it will quickly
+become apparent that there are conflicts between arch/ppc/lib/locks.c and
+rt_lock.h (compile errors will occur) and the debug fields can easily be
+removed from locks.c.
+Thus it is OK that you left this chunk out of your patch.
 
-> No, because I the one system I have access to isn't doing any
-> hot-plug. I'm working on fixing that but was also hoping to hear
-> from others who surely have access to more machines than I do.
+The second "#ifdef CONFIG_PPC32" is in raw_rwlock_t, making the lock
+field signed instead of unsigned.  The PPC code uses the value of
+-1 to mean write locked, 0 to mean unlocked, and >0 to mean read
+locked.  With one minor exception, all of the PPC raw_rwlock_t related
+code will work properly with an unsigned type because the code that
+checks the value of lock is assembly and treats lock as signed.  The
+one non-assembly code that examines lock as a signed object is in
+arch/ppc/lib/locks.c and is disabled unless CONFIG_DEBUG_SPINLOCK is
+defined.  If CONFIG_DEBUG_SPINLOCK is ever enabled this will be
+very evident as each call to __raw_write_unlock() will result in a
+printk() warning.  The strongest reason I could advance for making
+lock signed for PPC32 is that any future C code that checks for a
+lock value less than zero will not function correctly and might not
+be very obvious.
+Thus it is also OK that you left this chunk out of your patch.
 
-PCI Express hot-plug has been tried (see above).  The original 
-acpiphp driver won't detect hot-pluggable slots that locate on the
-p2p bridge (PCI Express to PCI/PCI-X bridge) behind another p2p 
-bridge (root port).  Therefore, the acpiphp can't be used for
-standard PCI hot-plug in my system.
 
-Thanks,
-Dely
+> 
+> to drive things forward, i've applied the first 3 patches (except the
+> rt_lock.h chunk from the first patch), and released it as part of the
+> 40-03 patch:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/
+> 
+> so that you can send followup patches based on this. Patches #4 and #5
+> are routed via the upstream PPC tree, so -RT should not carry them,
+> right?
+
+Yes, -RT should not carry them.  Patch #4 went in via the PPC tree.
+Patch #5 is a temporary hack that is only for someone with an IBM 405gp
+reference platform who might want to test real-time with an SMP turned on.
+
+
+-Frank
+-- 
+Frank Rowand <frank_rowand@mvista.com>
+MontaVista Software, Inc
+

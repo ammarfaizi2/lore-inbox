@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAJVgl>; Wed, 10 Jan 2001 16:36:41 -0500
+	id <S129610AbRAJVjB>; Wed, 10 Jan 2001 16:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136576AbRAJVgb>; Wed, 10 Jan 2001 16:36:31 -0500
-Received: from 216.41.5.host170 ([216.41.5.170]:38524 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S129903AbRAJVgU>; Wed, 10 Jan 2001 16:36:20 -0500
-Message-Id: <200101102136.f0ALaEr01228@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.1.1 10/15/1999
-To: kernel@ddx.a2000.nu, linux-kernel@vger.kernel.org
-Subject: Re: unexplained high load
+	id <S136655AbRAJViv>; Wed, 10 Jan 2001 16:38:51 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:42256 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S136576AbRAJVim>;
+	Wed, 10 Jan 2001 16:38:42 -0500
+Date: Wed, 10 Jan 2001 22:38:36 +0100
+From: Andi Kleen <ak@suse.de>
+To: Dennis <dennis@etinc.com>
+Cc: Hans Grobler <grobh@sun.ac.za>, linux-kernel@vger.kernel.org
+Subject: Re: Drivers under 2.4
+Message-ID: <20010110223836.A7321@gruyere.muc.suse.de>
+In-Reply-To: <5.0.0.25.0.20010110132141.02096910@mail.etinc.com> <Pine.LNX.4.30.0101102156270.30013-100000@prime.sun.ac.za> <5.0.0.25.0.20010110163625.01f8b020@mail.etinc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 10 Jan 2001 16:36:14 -0500
-From: Hacksaw <hacksaw@hacksaw.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.0.0.25.0.20010110163625.01f8b020@mail.etinc.com>; from dennis@etinc.com on Wed, Jan 10, 2001 at 04:37:06PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh, a D state.
+On Wed, Jan 10, 2001 at 04:37:06PM -0500, Dennis wrote:
+> At 03:01 PM 01/10/2001, Hans Grobler wrote:
+> >On Wed, 10 Jan 2001, Dennis wrote:
+> > > At 02:57 PM 01/09/2001, Dennis wrote:
+> > > >Where might one find the definitive document on porting device drivers to
+> > > >2.4 kernels?
+> > >
+> > > should I assume that there are none?
+> >
+> >I don't think anyone has had the time yet. I'm sure someone will get
+> >around to this soon. If you ask specific questions here, the answers may
+> >well form the basis for such a document.
+> 
+> 
+> Aren't you supposed to design the spec BEFORE  you implement it?
 
-D means disk wait, which the only thing that can postpone a -9. Basic, the 
-process is stuck in a loop inside a routine that needs to be atomic.
-
-You'll have to reboot to clear it. I believe this is a kernel bug. Try going 
-back to 2.2.14, or maybe up to 2.2.19pre2.
+Try http://www.firstfloor.org/~andi/softnet (minor details outdated) 
 
 
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

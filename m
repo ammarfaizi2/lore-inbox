@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVBDANU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVBDAOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263103AbVBDANU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:13:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbVBDANU
+	id S261277AbVBDAOn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:14:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVBDAOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:13:20 -0500
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:15230 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263337AbVBDANB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:13:01 -0500
-Message-ID: <4202BE05.9090901@yahoo.com.au>
-Date: Fri, 04 Feb 2005 11:12:53 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?UTF-8?B?77+9?= <terje_fb@yahoo.no>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.10: kswapd spins like crazy
-References: <20050203195033.29314.qmail@web51608.mail.yahoo.com>
-In-Reply-To: <20050203195033.29314.qmail@web51608.mail.yahoo.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 3 Feb 2005 19:14:42 -0500
+Received: from fw.osdl.org ([65.172.181.6]:24019 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261760AbVBDAOb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:14:31 -0500
+Date: Thu, 3 Feb 2005 16:19:27 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel@vger.kernel.org, zach.brown@oracle.com
+Subject: Re: [Patch] invalidate range of pages after direct IO write
+Message-Id: <20050203161927.0090655c.akpm@osdl.org>
+In-Reply-To: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net>
+References: <20050129011906.29569.18736.24335@volauvent.pdx.zabbo.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terje Fåberg wrote:
-> Terje Fåberg <terje_fb@yahoo.no> skrev: 
-> 
-> 
->>The kernel is compiling right now, but I cannot 
->>reboot this machine until six or seven o'clock
->>tonight (CET). I will report then.
-> 
-> 
-> Well, well, I rebooted the same kernel, now with
-> MAGIC-SYSRQ enabled.  At first the kswapd-effect
-> wouldn't show up, but now the image is much clearer
-> than before. kswapd eats constantly 95% cpu time while
-> the system is "idle".
-> 
-> The System is quite sluggish. Switching between
-> applications needs ages. After Eclipse has been active
-> for a few minutes, I it lasts 45 seconds until enough
-> of Mozilla is swapped back in, and Mozilla has redrawn
-> its window. 
-> 
-> Complete info including SysRq-Meminfo is attached.
-> 
+Zach Brown <zach.brown@oracle.com> wrote:
+>
+> After a direct IO write only invalidate the pages that the write intersected.
+> invalidate_inode_pages2_range(mapping, pgoff start, pgoff end) is added and
+> called from generic_file_direct_IO().  This doesn't break some subtle agreement
+> with some other part of the code, does it?
 
-Thanks very much, this is a good help.
+It should be OK.
 
-> galileo:~# cat /proc/vmstat > pre ; sleep 10 ; cat /proc/vmstat > post
-> 
-> galileo:~# cat pre
-...
-> pgscan_kswapd_high 0
-> pgscan_kswapd_normal 2504667
-> pgscan_kswapd_dma 615532032
-...
-> 
-> galileo:~# cat post
-...
-> pgscan_kswapd_high 0
-> pgscan_kswapd_normal 2504667
-> pgscan_kswapd_dma 649881006
-...
+Note that the same optimisation should be made in the call to
+unmap_mapping_range() in generic_file_direct_IO().  Currently we try and
+unmap the whole file, even if we're only writing a single byte.  Given that
+you're now calculating iov_length() in there we might as well use that
+number a few lines further up in that function.
 
-So we can see it is trying to scan the DMA zone.
+Note that invalidate_inode_pages[_range2] also does the unmapping thing -
+in the direct-io case we don't expect that path th ever trigger: the only
+way we'll find mapped pages here is if someone raced and faulted a page
+back in.
 
-> galileo:~# dmesg 
-> [...]
-> SysRq : Show Memory
-> Mem-info:
-> DMA per-cpu:
-> cpu 0 hot: low 2, high 6, batch 1
-> cpu 0 cold: low 0, high 2, batch 1
-> Normal per-cpu:
-> cpu 0 hot: low 32, high 96, batch 16
-> cpu 0 cold: low 0, high 32, batch 16
-> HighMem per-cpu: empty
-> 
-> Free pages:        7872kB (0kB HighMem)
-> Active:48698 inactive:86241 dirty:0 writeback:0 unstable:0 free:1968 slab:4509 mapped:50560 pagetables:1717
-> DMA free:80kB min:80kB low:100kB high:120kB active:0kB inactive:11716kB present:16384kB pages_scanned:123 all_unreclaimable? no
-> protections[]: 0 0 0
+Reading the code, I'm unable to convince myself that it won't go into an
+infinite loop if it finds a page at page->index = -1.  But I didn't try
+very hard ;)
 
-This is the reason why: DMA only has 80K free, and kswapd won't stop until either 120K
-is free, or all_unreclaimable gets switched on.
+Minor note on this:
 
-Now clearly all_unreclaimable should be getting set if nothing can be reclaimed (although
-it is possible that non pagecache allocating and freeing can mess it up, that's unlikely).
+	return invalidate_inode_pages2_range(mapping, 0, ~0UL);
 
-Hmm, your DMA zone has no active pages, and pages_scanned (which triggers all_unreclaimable)
-is only incremented when scanning the active list. But I wonder, if the pages can't be
-freed, why aren't they being put on the active list?
+I just use `-1' there.  We don't _know_ that pgoff_t is an unsigned long. 
+Some smarty may come along one day and make it unsigned long long, in which
+case the code will break.  Using -1 here just works everywhere.
 
-Nick
-
-PS. let's not release 2.6.11 just yet :\
-
+I'll make that change and plop the patch into -mm, but we need to think
+about the infinite-loop problem..

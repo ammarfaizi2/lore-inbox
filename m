@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTBERBS>; Wed, 5 Feb 2003 12:01:18 -0500
+	id <S262208AbTBERHi>; Wed, 5 Feb 2003 12:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTBERBS>; Wed, 5 Feb 2003 12:01:18 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47101 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261868AbTBERBR>;
-	Wed, 5 Feb 2003 12:01:17 -0500
-Subject: Re: Monta Vista software license terms
-From: Robert Love <rml@mvista.com>
+	id <S262394AbTBERHi>; Wed, 5 Feb 2003 12:07:38 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:36107 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262208AbTBERHg>; Wed, 5 Feb 2003 12:07:36 -0500
+Date: Wed, 5 Feb 2003 17:17:10 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: Nilmoni Deb <ndeb@ece.cmu.edu>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net>
+Subject: Re: Monta Vista software license terms
+Message-ID: <20030205171710.A23093@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nilmoni Deb <ndeb@ece.cmu.edu>, linux-kernel@vger.kernel.org
 References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1044465050.810.31.camel@phantasy>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 05 Feb 2003 12:10:50 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net>; from ndeb@ece.cmu.edu on Wed, Feb 05, 2003 at 11:58:23AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-02-05 at 06:58, Nilmoni Deb wrote:
+On Wed, Feb 05, 2003 at 11:58:23AM +0000, Nilmoni Deb wrote:
+> 
+> This is about Monta Vista Software, a company that develops software for
+> embedded platforms, based on the Linux kernel and (possibly) other GPL
+> software.
 
-> 	Its the last sentence that is of concern. Does this mean no 3rd
-> party (who is not a customer) can get the GPL source code part of their
-> products ? Seems like a GPL violation of clause 3b in
-> http://www.gnu.org/licenses/gpl.html .
+The statements arew right.  Of course it's not nice of them and 'd suggest
+to refuse any cooperation with mvista for every kernel hackers that cares.
 
-The GPL only requires that source accompanies any distributed binaries.
-In other words, with distribution comes the requirement of source. 
-MontaVista provides all the source to all GPL components as part of
-their products.
-
-The GPL places no requirement on giving source away to the world at
-large, which would be silly. If you do not distribute anything, you do
-not have to make available the source. If you do, you need to give the
-recipients the source as well.
-
-That line is in the FAQ because many customers are concerned of their
-obligations with GPL software.
-
-	Robert Love
+It would also be cool to get that into the press for those of you that have
+the contacts.. :)
 

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267201AbSLED2d>; Wed, 4 Dec 2002 22:28:33 -0500
+	id <S267202AbSLEDeD>; Wed, 4 Dec 2002 22:34:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267202AbSLED2d>; Wed, 4 Dec 2002 22:28:33 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:53197 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267201AbSLED2c>;
-	Wed, 4 Dec 2002 22:28:32 -0500
-Date: Thu, 5 Dec 2002 09:12:17 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [patch] kmalloc_percpu  -- 2 of 2
-Message-ID: <20021205091217.A11438@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20021204174209.A17375@in.ibm.com> <20021204174550.B17375@in.ibm.com> <3DEE58CB.737259DB@digeo.com>
+	id <S267203AbSLEDeD>; Wed, 4 Dec 2002 22:34:03 -0500
+Received: from havoc.gtf.org ([64.213.145.173]:26525 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267202AbSLEDeC>;
+	Wed, 4 Dec 2002 22:34:02 -0500
+Date: Wed, 4 Dec 2002 22:41:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: David Gibson <david@gibson.dropbear.id.au>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] generic device DMA implementation
+Message-ID: <20021205034131.GA26616@gtf.org>
+References: <20021205004744.GB2741@zax.zax> <200212050144.gB51iH105366@localhost.localdomain> <20021205023847.GA1500@zax.zax>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DEE58CB.737259DB@digeo.com>; from akpm@digeo.com on Wed, Dec 04, 2002 at 11:34:35AM -0800
+In-Reply-To: <20021205023847.GA1500@zax.zax>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 11:34:35AM -0800, Andrew Morton wrote:
-> > +/* Use these with kmalloc_percpu */
-> > +#define get_cpu_ptr(ptr) per_cpu_ptr(ptr, get_cpu())
-> > +#define put_cpu_ptr(ptr) put_cpu()
+On Thu, Dec 05, 2002 at 01:38:47PM +1100, David Gibson wrote:
+> It seems the "try to get consistent memory, but otherwise give me
+> inconsistent" is only useful on machines which:
+> 	(1) Are not fully consisent, BUT
+> 	(2) Can get consistent memory without disabling the cache, BUT
+> 	(3) Not very much of it, so you might run out.
 > 
-> These names sound very much like get_cpu_var() and put_cpu_var(),
-> yet they are using a quite different subsystem.  It would be good
-> to choose something more distinct.  Not that I can think of anything
-> at present ;)
+> The point is, there has to be an advantage to using consistent memory
+> if it is available AND the possibility of it not being available.
 
-Well, they are similar, aren't they ? get_cpu_ptr() can just be thought
-of as the dynamic twin of get_cpu_var(). So, in that sense it seems ok
-to me.
+Agreed here.  Add to this
 
-> 
-> If we were to remove the percpu_interlaced_alloc() leg here, we'd
-> have a nice, simple per-cpu kmalloc implementation.
-> 
-> Could you please explain what all the other code is there for?
+(4) quite silly from an API taste perspective.
 
-The interlaced allocator allows you to save space when kmalloc_percpu()
-is used to allocate small objects. That is done by interlacing each
-CPU's copy of the objects just like the static per-cpu data area.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+> Otherwise, drivers which absolutely need consistent memory, no matter
+> the cost, should use consistent_alloc(), all other drivers just use
+> kmalloc() (or whatever) then use the DMA flushing functions which
+> compile to NOPs on platforms with consistent memory.
+
+Ug.  This is travelling backwards in time.
+
+kmalloc is not intended to allocate memory for DMA'ing.  I (and others)
+didn't spend all that time converting drivers to the PCI DMA API just to
+see all that work undone.
+
+Note that I am speaking from a driver API perspective, however.  If you
+are talking about using kmalloc "under the hood" while still presenting
+the same driver interface, that's fine.
+
+	Jeff
+
+
+

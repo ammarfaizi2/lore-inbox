@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263608AbRFKWl5>; Mon, 11 Jun 2001 18:41:57 -0400
+	id <S264080AbRFKXYK>; Mon, 11 Jun 2001 19:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264066AbRFKWlr>; Mon, 11 Jun 2001 18:41:47 -0400
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:52236 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S263608AbRFKWle>;
-	Mon, 11 Jun 2001 18:41:34 -0400
-Date: Mon, 11 Jun 2001 18:42:15 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
-In-Reply-To: <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0106111823110.20760-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264081AbRFKXYA>; Mon, 11 Jun 2001 19:24:00 -0400
+Received: from babel.apana.org.au ([202.12.88.4]:1284 "EHLO babel.apana.org.au")
+	by vger.kernel.org with ESMTP id <S264080AbRFKXXn>;
+	Mon, 11 Jun 2001 19:23:43 -0400
+Date: Tue, 12 Jun 2001 09:23:05 +1000
+From: johna@babel.apana.org.au
+To: linux-kernel@vger.kernel.org
+Subject: Re: Driver for ADC 7841 Analogue Digital Converter
+Message-ID: <20010612092305.A365@babel.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've put this driver on my web page at :
 
-How good is the linux kernel driver for the Intel gigabit Ethernet
-NIC (copper) with the TL82543GC chipset? The card says it's
-a "PRO/1000T" server adapter, and it looks like the part
-number A19845-003.
+http://phaedra.apana.org.au/johna
 
-The sales guy who is promoting it says this is apparently a new
-card and he claims he can get specs from engineering.
-Not sure about NDA status.
+But, my original comments ommitted the fact that there is a data in
+pin, as well as a data out pin. The code itself is fine, and reflects
+this.
 
-So my question is... is it worth calling this guy's bluff?
+The correct pin allocations are :
 
-Shawn.
+port 0x278
 
+bit 0, pin 2, Clock
+bit 1, pin 3, Chip Select
+bit 2, pin 4, Data out to ADC
+bits 3-7 user available
+
+port 0x279
+
+bit 3, pin 15, Busy
+bit 4, pin 13, Data in from ADC
+bits 5-7 user available
+
+And I've changed the code on my home page to reflect this.
+
+Gatic,
+
+-- 
+John August
+
+Actions speak louder than spending habits.

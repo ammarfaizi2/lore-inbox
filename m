@@ -1,85 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262592AbSI0Syb>; Fri, 27 Sep 2002 14:54:31 -0400
+	id <S262588AbSI0SyC>; Fri, 27 Sep 2002 14:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262591AbSI0SyZ>; Fri, 27 Sep 2002 14:54:25 -0400
-Received: from packet.digeo.com ([12.110.80.53]:60036 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262589AbSI0SyT>;
-	Fri, 27 Sep 2002 14:54:19 -0400
-Message-ID: <3D94AA96.8E29FC2A@digeo.com>
-Date: Fri, 27 Sep 2002 11:59:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
-       Matthew Jacob <mjacob@feral.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doingfile  
- transfers
-References: <200209271426.g8REQ3228125@localhost.localdomain> <2441376224.1033144007@aslan.btc.adaptec.com>
+	id <S262589AbSI0SyC>; Fri, 27 Sep 2002 14:54:02 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:2827 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262588AbSI0SyB>; Fri, 27 Sep 2002 14:54:01 -0400
+Date: Fri, 27 Sep 2002 19:59:19 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [RFC] LSM changes for 2.5.38
+Message-ID: <20020927195919.A4635@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20020927003210.A2476@sgi.com> <Pine.GSO.4.33.0209270743170.22771-100000@raven> <20020927175510.B32207@infradead.org> <200209271809.g8RI92e6002126@turing-police.cc.vt.edu> <20020927191943.A2204@infradead.org> <200209271854.g8RIsPe6002510@turing-police.cc.vt.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2002 18:59:27.0843 (UTC) FILETIME=[00EC3330:01C26658]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200209271854.g8RIsPe6002510@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Fri, Sep 27, 2002 at 02:54:25PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin T. Gibbs" wrote:
-> 
-> ...
-> The OS elevator will never know all of the device characteristics that
-> the device knows.  This is why the device's elevator will always out
-> perform the OSes assuming the OS isn't stupid about overcommitting writes.
-> That's what the argument is here.  Linux is agressively committing writes
-> when it shouldn't.
+On Fri, Sep 27, 2002 at 02:54:25PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> By the same token, at that point you can download the kernel source and
+> build it without LSM.  What I showed was a way to bypass the iptables
+> rules set up *WITHOUT REPLACING A MODULE* (which might be detected by
+> tripwire, or totally refused because the LSM rejects any writes in /lib/modules).
 
-The VM really doesn't want to strangle itself because it might be
-talking to a braindead SCSI drive.
+insmod doesn't require modules to be in /lib/modules.  Anyway I could even change
+the device name _after_ it was loaded.  this is linux and not BSD..
 
-I have a Fujitsu disk which allows newly submitted writes to
-bypass already-submitted reads.  A read went in, and did not
-come back for three seconds.  Ninety megabytes of writes went
-into the disk during those three seconds.
+Given that we really want to fine-grained control who's netdevice can get what
+names we'd` better place a hook in dev_alloc_name.
 
->From a whole-system performance viewpoint that is completely
-broken behaviour.  It's unmanageable from the VM point of view.
-At least, I don't want to have to manage it at that level.
+And that's my whole point: LSM adds random hooks all over the place without
+even thinking what they intend to protect.
 
-We may be able to work around it by adding kludges to the IO
-scheduler but it's easier to just set the tag depth to zero and
-mutter rude words about clueless firmware developers.
-
-> > I guess, however, that this issue will evaporate substantially once the
-> > aic7xxx driver uses ordered tags to represent the transaction integrity
-> > since  the barriers will force the drive seek algorithm to follow the tag
-> > transmission order much more closely.
-> 
-> Hooks for sending ordered tags have been in the aic7xxx driver, at least
-> in FreeBSD's version, since '97.  As soon as the Linux cmd blocks have
-> such information it will be trivial to have the aic7xxx driver issue
-> the appropriate tag types.  But this misses the point.  Andrew's original
-> speculation was that writes were "passing reads" once the read was
-> submitted to the drive.  I would like to understand the evidence behind
-> that assertion since all drive's I've worked with automatically give
-> a higher priority to read traffic than writes since writes can be buffered
-> but reads cannot.
-
-Could be that the Fujitsu is especially broken.  I observed the three
-second read latency with 253 tags (OK, that's 128 megabytes worth).
-But with the driver limited to four tags, latency was two seconds.
-Hence my speculation.
-
->  Ordered tags only help if the driver is already not
-> doing what you want or if your writes must have a specific order for
-> data integrity.
-
-Is it possible to add a tag to a read which says "may not be bypassed
-by writes"?  That would be OK, as long as the driver is only set up
-to use a tag depth of four or so.
-
-To use larger tag depths, we'd need to be able to tag newly incoming
-reads with a "do this before servicing already-submitted writes"
-attribute.  Is anything like that available?

@@ -1,64 +1,187 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261556AbSJYTCv>; Fri, 25 Oct 2002 15:02:51 -0400
+	id <S261555AbSJYTDa>; Fri, 25 Oct 2002 15:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261557AbSJYTCv>; Fri, 25 Oct 2002 15:02:51 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:36102
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261556AbSJYTCu>; Fri, 25 Oct 2002 15:02:50 -0400
-Subject: [PATCH] How to get number of physical CPU in linux from user space?
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, chrisl@vmware.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-In-Reply-To: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
-References: <F2DBA543B89AD51184B600508B68D4000EA170E9@fmsmsx103.fm.intel.com>
+	id <S261557AbSJYTDa>; Fri, 25 Oct 2002 15:03:30 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:35572 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261555AbSJYTDY>;
+	Fri, 25 Oct 2002 15:03:24 -0400
+Subject: Re: 2.5.44-mm5 - ltp-cvs (current) - 98.74% Pass
+From: Paul Larson <plars@linuxtestproject.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       ltp-results <ltp-results@lists.sourceforge.net>
+In-Reply-To: <3DB8D94B.20D3D5BD@digeo.com>
+References: <3DB8D94B.20D3D5BD@digeo.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 15:09:09 -0400
-Message-Id: <1035572950.1501.3429.camel@phantasy>
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 25 Oct 2002 14:00:08 -0500
+Message-Id: <1035572409.3447.205.camel@plars>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 14:54, Nakajima, Jun wrote:
+2.5.44-mm5 does not have any new or unexpected LTP failures above
+2.5.44-vanilla.  These results are the same for both.
 
-> Recent distributions or the AC tree has additional fields in
-> /proc/cpu, which tell
-> - physical package id
-> - number of threads 
+These results are on an 8-way PIII-700 16 GB.  Preempt off, PAE on,
+HUGETLB on, Shared PTE on
 
-Attached patch for 2.5 adds the same fields the 2.4-ac tree have.  I
-consider those "standard" enough.
+tag=nanosleep02 stime=1035560360 dur=1 exit=exited stat=1 core=no cu=0
+cs=0
+tag=personality02 stime=1035560367 dur=0 exit=exited stat=1 core=no cu=0
+cs=0
+tag=pread02 stime=1035560372 dur=0 exit=exited stat=1 core=no cu=1 cs=1
+tag=pwrite02 stime=1035560372 dur=0 exit=exited stat=1 core=no cu=0 cs=1
+tag=writev01 stime=1035560429 dur=0 exit=exited stat=1 core=no cu=0 cs=1
+tag=dio04 stime=1035561857 dur=0 exit=exited stat=1 core=no cu=0 cs=0
+tag=dio10 stime=1035561870 dur=400 exit=exited stat=1 core=no cu=124
+cs=465
+tag=sem02 stime=1035562935 dur=20 exit=exited stat=1 core=no cu=0 cs=0
 
-Is this something HT users want?
+---test_start---
+tag=nanosleep02 stime=1035525897
+cmdline="nanosleep02"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+nanosleep02    1  FAIL  :  Remaining sleep time 4001000 usec doesn't
+match with the expected 3998337 usec time
+nanosleep02    1  FAIL  :  child process exited abnormally
+---execution_status---
+duration=1 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=1
+---test_end---
+---test_start---
+tag=personality02 stime=1035525903
+cmdline="personality02"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+personality02    1  FAIL  :  call failed - errno = 0 - Success
+---execution_status---
+duration=0 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=0
+---test_end---
+---test_start---
+tag=pread02 stime=1035525908
+cmdline="pread02"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+pread02     1  PASS  :  pread() fails, file descriptor is a PIPE or
+FIFO, errno:29
+pread02     2  FAIL  :  pread() returned 0, expected -1, errno:22
+---execution_status---
+duration=0 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=0
+---test_end---
+---test_start---
+tag=pwrite02 stime=1035525908
+cmdline="pwrite02"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+pwrite02    1  PASS  :  file descriptor is a PIPE or FIFO, errno:29
+caught SIGXFSZ
+pwrite02    2  FAIL  :  specified offset is -ve or invalid, unexpected
+errno:27, expected:22
+pwrite02    3  PASS  :  file descriptor is bad, errno:9
+---execution_status---
+duration=0 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=0
+---test_end---
+---test_start---
+tag=writev01 stime=1035525965
+cmdline="writev01"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+writev01    0  INFO  :  Enter Block 1
+writev01    0  INFO  :  Received EINVAL as expected
+writev01    0  INFO  :  block 1 PASSED
+writev01    0  INFO  :  Exit block 1
+writev01    0  INFO  :  Enter block 2
+writev01    1  FAIL  :  writev() failed unexpectedly
+writev01    0  INFO  :  block 2 FAILED
+writev01    0  INFO  :  Exit block 2
+writev01    0  INFO  :  Enter block 3
+writev01    0  INFO  :  block 3 PASSED
+writev01    0  INFO  :  Exit block 3
+writev01    0  INFO  :  Enter block 4
+writev01    0  INFO  :  Received EBADF as expected
+writev01    0  INFO  :  block 4 PASSED
+writev01    0  INFO  :  Exit block 4
+writev01    0  INFO  :  Enter block 5
+writev01    0  INFO  :  Received EINVAL as expected
+writev01    0  INFO  :  block 5 PASSED
+writev01    0  INFO  :  Exit block 5
+writev01    0  INFO  :  Enter block 6
+writev01    2  PASS  :  writev() wrote 0 iovectors
+writev01    0  INFO  :  block 6 PASSED
+writev01    0  INFO  :  Exit block 6
+writev01    0  INFO  :  Enter block 7
+writev01    3  PASS  :  writev passed writing 64 bytes, followed by two
+NULL vectors
+writev01    0  INFO  :  block 7 PASSED
+writev01    0  INFO  :  Exit block 7
+writev01    0  INFO  :  Enter block 8
+writev01    0  INFO  :  Received EPIPE as expected
+writev01    0  INFO  :  block 8 PASSED
+writev01    0  INFO  :  Exit block 8
+---execution_status---
+duration=0 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=0
+---test_end---
+---test_start---
+tag=dio04 stime=1035527610
+cmdline="diotest4"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+[9] open /dev/null:Invalid argument
+---execution_status---
+duration=1 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=38
+---test_end---
+---test_start---
+tag=dio10 stime=1035527680
+cmdline="diotest4 -b 65536"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+[9] open /dev/null:Invalid argument
+---execution_status---
+duration=1444 termination_type=exited termination_id=1 corefile=no
+cutime=127 cstime=118842
+---test_end---
+---test_start---
+tag=sem02 stime=1035530115
+cmdline="sem02"
+contacts=""
+analysis=exit
+initiation_status="ok"
+---test_output---
+Waiter, pid = 5116
+Poster, pid = 5117, posting
+Poster posted
+Poster exiting
+Waiter waiting, pid = 5116
+sem02: FAIL
+Waiter done waiting
+---execution_status---
+duration=20 termination_type=exited termination_id=1 corefile=no
+cutime=0 cstime=1
+---test_end---
 
-	Robert Love
-
- proc.c |    5 +++++
- 1 files changed, 5 insertions(+)
-
-diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c linux/arch/i386/kernel/cpu/proc.c
---- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19 00:02:29.000000000 -0400
-+++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:06:23.000000000 -0400
-@@ -17,6 +17,7 @@
- 	 * applications want to get the raw CPUID data, they should access
- 	 * /dev/cpu/<cpu_nr>/cpuid instead.
- 	 */
-+	extern int phys_proc_id[NR_CPUS];
- 	static char *x86_cap_flags[] = {
- 		/* Intel-defined */
- 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
-@@ -74,6 +75,10 @@
- 	/* Cache size */
- 	if (c->x86_cache_size >= 0)
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
-+#ifdef CONFIG_SMP
-+	seq_printf(m, "physical processor ID\t: %d\n", phys_proc_id[n]);
-+	seq_printf(m, "number of siblings\t: %d\n", smp_num_siblings);
-+#endif
- 	
- 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
- 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
+Thanks,
+Paul Larson
 

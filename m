@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290662AbSBFQpT>; Wed, 6 Feb 2002 11:45:19 -0500
+	id <S290664AbSBFQp7>; Wed, 6 Feb 2002 11:45:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290664AbSBFQpJ>; Wed, 6 Feb 2002 11:45:09 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:35047 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S290665AbSBFQo4>; Wed, 6 Feb 2002 11:44:56 -0500
-Date: Wed, 6 Feb 2002 17:42:04 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Kirk Reiser <kirk@braille.uwo.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Need a clew WRT fig2dev
-In-Reply-To: <x7zo2mzi5v.fsf@speech.braille.uwo.ca>
-Message-ID: <Pine.NEB.4.44.0202061740520.5795-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290665AbSBFQpx>; Wed, 6 Feb 2002 11:45:53 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:52953 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S290664AbSBFQpn>;
+	Wed, 6 Feb 2002 11:45:43 -0500
+Date: Wed, 6 Feb 2002 18:45:32 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Kopp, Jeffery" <Jeffery.Kopp@COMPAQ.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Please add me to the kernel change distribution list
+Message-ID: <20020206184532.C20396@mea-ext.zmailer.org>
+In-Reply-To: <46BC296DF8858447B94D8A4A6CE4A4AE10EFB7@cceexc15.americas.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <46BC296DF8858447B94D8A4A6CE4A4AE10EFB7@cceexc15.americas.cpqcorp.net>; from Jeffery.Kopp@COMPAQ.com on Wed, Feb 06, 2002 at 10:29:53AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Feb 2002, Kirk Reiser wrote:
+On Wed, Feb 06, 2002 at 10:29:53AM -0600, Kopp, Jeffery wrote:
+> Subject: Please add me to the kernel change distribution list 
+> Date:	Wed, 6 Feb 2002 10:29:53 -0600
+> From:	"Kopp, Jeffery" <Jeffery.Kopp@COMPAQ.com>
+> To:	<linux-kernel@vger.kernel.org>
 
-> Hi Folks: I have been trying to make the docbook documentation in the
-> 2.5.3 tree but have run into a problem not having fig2dev.  I do not
-> seem to be able to find this utility or any reference to it.  It does
-> not appear to be in my docbook utilities at any rate.  Any suggestions
-> would certainly be appreciated.
+  Can't.  COMPAQ is one of those companies which have covered their
+incoming email systems with firewalls rejecting connections with IP-
+header option bits that were "reserved, set to zero when sending" for
+first about 20 years, but which now got other specification.
+(The firewall makers made an error and tought it to mean: "reserved,
+ must forever be zero".)
 
-fig2dev is part of transfig. You can get it e.g. from [1].
+See:   http://vger.kernel.org/   for pointers to info.
 
->   Kirk
+You can initiate a connection towards vger, but vger can't initiate
+a connection towards you!
 
-HTH
-Adrian
+I repeat:  At present you CAN NOT receive email from vger.kernel.org.
 
-[1] ftp://ftp.dante.de/pub/tex/graphics/transfig/
 
+/Matti Aarnio

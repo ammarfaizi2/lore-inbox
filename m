@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbUKAJeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbUKAJfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbUKAJeA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 04:34:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUKAJeA
+	id S261743AbUKAJfi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 04:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbUKAJfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 04:34:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:41179 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261649AbUKAJd6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 04:33:58 -0500
-Date: Mon, 1 Nov 2004 01:31:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jaakko =?ISO-8859-1?B?SHl25HR0aQ==?= <jaakko@hyvatti.iki.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 and nfsd do not work under load (Re: x86_64, LOCKUP on
- CPU0, kjournald)
-Message-Id: <20041101013150.2ab0aaa5.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411010847180.2172@gyre.weather.fi>
-References: <Pine.LNX.4.58.0410260818560.3400@gyre.weather.fi>
-	<Pine.LNX.4.58.0411010847180.2172@gyre.weather.fi>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 1 Nov 2004 04:35:37 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:4102 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261744AbUKAJfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 04:35:22 -0500
+Date: Mon, 1 Nov 2004 09:35:14 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Dittmer <jdittmer@ppp0.net>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: [patch 1/2] fakephp: introduce pci_bus_add_device
+Message-ID: <20041101093514.GA25921@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Dittmer <jdittmer@ppp0.net>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org,
+	Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241412.45204@bilbo.math.uni-mannheim.de> <41541009.9080206@ppp0.net> <200409241432.06748@bilbo.math.uni-mannheim.de> <20040924145542.GA17147@kroah.com> <41687EBA.7050506@ppp0.net> <41688985.7030607@ppp0.net> <41693CF9.10905@ppp0.net> <20041030041615.GH1584@kroah.com> <41857C7A.2030007@ppp0.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41857C7A.2030007@ppp0.net>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaakko Hyvätti <jaakko@hyvatti.iki.fi> wrote:
->
+On Mon, Nov 01, 2004 at 12:59:54AM +0100, Jan Dittmer wrote:
+> fakephp needs to add newly discovered devices to the global pci list.
+> Therefore seperate out the appropriate chunk from pci_bus_add_devices
+> to pci_bus_add_device to add a single device to sysfs, procfs
+> and the global device list.
 > 
-> Here is another oops and lockup, with nfsd now there in the trace also:
+> Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
 > 
-> Unable to handle kernel paging request at ffffffff00000808 RIP:
-> <ffffffff80161b37>{cache_alloc_refill+329}
-> PML4 103027 PGD 0
-> Oops: 0002 [1] SMP
-> CPU 0
-> Modules linked in: w83627hf i2c_sensor i2c_isa i2c_core nfsd exportfs lockd sunrpc md5 ipv6 parport_pc lp parport tg3 ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables dm_mod ohci_hcd button battery asus_acpi ac ext3 jbd 3w_xxxx sd_mod scsi_mod
-> Pid: 1968, comm: nfsd Not tainted 2.6.8-1.521smp
+> ===== drivers/pci/bus.c 1.9 vs edited =====
+> --- 1.9/drivers/pci/bus.c       2004-04-11 00:27:59 +02:00
+> +++ edited/drivers/pci/bus.c    2004-10-31 23:24:10 +01:00
+> @@ -69,6 +69,24 @@
+>  }
+> 
+>  /**
+> + * add a single device
+> + * @dev: device to add
+> + *
+> + * This adds a single pci device to the global
+> + * device list and adds sysfs and procfs entries for it
+> + */
+> +void __devinit pci_bus_add_device(struct pci_dev *dev) {
 
-That's a vendor kernel of some form, yes?
+the brace should go to a line of it's own
 
-> RIP: 0010:[<ffffffff80161b37>] <ffffffff80161b37>{cache_alloc_refill+329}
-
-I'd suggest that you either recompile this vendor kernel with
-CONFIG_DEBUG_SLAB=y or try a later kernel.org kernel and see if it's fixed.
-Or look for an updated kernel from your vendor.  And check the vendor's
-bug tracking system for other reports of this problem.
-
-I don't recall having seen anyone else report this crash.

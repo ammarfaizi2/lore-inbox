@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSCaAnr>; Sat, 30 Mar 2002 19:43:47 -0500
+	id <S310258AbSCaAjh>; Sat, 30 Mar 2002 19:39:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310241AbSCaAnh>; Sat, 30 Mar 2002 19:43:37 -0500
-Received: from c9mailgw04.amadis.com ([216.163.188.207]:62982 "EHLO
-	C9Mailgw07.amadis.com") by vger.kernel.org with ESMTP
-	id <S310206AbSCaAnT>; Sat, 30 Mar 2002 19:43:19 -0500
-Message-ID: <3CA65B98.9A787386@starband.net>
-Date: Sat, 30 Mar 2002 19:43:04 -0500
-From: Justin Piszcz <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+	id <S310241AbSCaAj2>; Sat, 30 Mar 2002 19:39:28 -0500
+Received: from CPE-203-51-25-11.nsw.bigpond.net.au ([203.51.25.11]:63733 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S311203AbSCaAjQ>; Sat, 30 Mar 2002 19:39:16 -0500
+Message-ID: <3CA65AAE.4917313E@eyal.emu.id.au>
+Date: Sun, 31 Mar 2002 10:39:10 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4-ac2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.18 [link error]
-In-Reply-To: <11595.1017533537@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.19-pre5: hotplug config
+In-Reply-To: <Pine.LNX.4.21.0203291842530.6417-100000@freak.distro.conectiva>
+Content-Type: multipart/mixed;
+ boundary="------------85BC3090E144680B4E71D91C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.
-I thought I could get away with a make config, and not a make oldconfig
-first. :P
+This is a multi-part message in MIME format.
+--------------85BC3090E144680B4E71D91C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Keith Owens wrote:
+Marcelo Tosatti wrote:
+> 
+> Hi,
+> 
+> Here goes pre5.
 
-> On Sat, 30 Mar 2002 17:26:43 -0500,
-> Justin Piszcz <war@starband.net> wrote:
-> >The .config is attached.
-> >/usr/src/linux/arch/i386/lib/lib.a \
-> >        --end-group \
-> >        -o vmlinux
-> >net/network.o(.text.lock+0x3a37): undefined reference to `local symbols
-> >in discarded section .text.exit'
->
-> Your .config is invalid for 2.4.18.  You did not run make *config
-> before building the kernel[1], the results are undefined.
->
-> [1] Guess why kbuild 2.5 checks if make *config has been run?
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+While we are cleaning up configs, here is another one (I think
+mentioned a while ago) that removes the unresolved ref to
+	IO_APIC_get_PCI_irq_vector
+from ibmphp.o if IO_APIC is not selected.
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+--------------85BC3090E144680B4E71D91C
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.19-pre5-ibmphp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.19-pre5-ibmphp.patch"
+
+--- linux/drivers/hotplug/Config.in.orig	Sun Mar 31 10:04:45 2002
++++ linux/drivers/hotplug/Config.in	Sun Mar 31 10:06:01 2002
+@@ -8,7 +8,9 @@
+ 
+ dep_tristate '  Compaq PCI Hotplug driver' CONFIG_HOTPLUG_PCI_COMPAQ $CONFIG_HOTPLUG_PCI $CONFIG_X86
+ dep_mbool '    Save configuration into NVRAM on Compaq servers' CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM $CONFIG_HOTPLUG_PCI_COMPAQ
+-dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86_IO_APIC $CONFIG_X86
++if [ "$CONFIG_X86_IO_APIC" = "y" ]; then
++   dep_tristate '  IBM PCI Hotplug driver' CONFIG_HOTPLUG_PCI_IBM $CONFIG_HOTPLUG_PCI $CONFIG_X86
++fi
+ dep_tristate '  ACPI PCI Hotplug driver' CONFIG_HOTPLUG_PCI_ACPI $CONFIG_ACPI $CONFIG_HOTPLUG_PCI
+ 
+ endmenu
+
+--------------85BC3090E144680B4E71D91C--
 

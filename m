@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317068AbSICPwH>; Tue, 3 Sep 2002 11:52:07 -0400
+	id <S317181AbSICPtA>; Tue, 3 Sep 2002 11:49:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317257AbSICPwH>; Tue, 3 Sep 2002 11:52:07 -0400
-Received: from tapu.f00f.org ([66.60.186.129]:45698 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S317068AbSICPwG>;
-	Tue, 3 Sep 2002 11:52:06 -0400
-Date: Tue, 3 Sep 2002 08:56:38 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: Rik van Riel <riel@conectiva.com.br>,
+	id <S317263AbSICPtA>; Tue, 3 Sep 2002 11:49:00 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:2041 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S317181AbSICPs7>; Tue, 3 Sep 2002 11:48:59 -0400
+Date: Tue, 3 Sep 2002 17:53:39 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] mount flag "direct" (fwd)
-Message-ID: <20020903155638.GA30659@tapu.f00f.org>
-References: <Pine.LNX.4.44L.0209031243450.1519-100000@duckman.distro.conectiva> <200209031550.g83FogE03775@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209031550.g83FogE03775@oboe.it.uc3m.es>
-User-Agent: Mutt/1.4i
-X-No-Archive: Yes
+Subject: Re: [RFC] mount flag "direct"
+In-Reply-To: <Pine.LNX.4.44L.0209031211400.1519-100000@duckman.distro.conectiva>
+Message-ID: <Pine.GSO.3.96.1020903174246.20090C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 03, 2002 at 05:50:42PM +0200, Peter T. Breuer wrote:
+On Tue, 3 Sep 2002, Rik van Riel wrote:
 
-    Yes, I do have synchronization - locks are/can be shared between both
-    kernels using a device driver mechanism that I implemented.
+> > Rationale:
+> > No caching means that each kernel doesn't go off with its own idea of
+> > what is on the disk in a file, at least. Dunno about directories and
+> > metadata.
+> 
+> And what if they both allocate the same disk block to another
+> file, simultaneously ?
 
-What happens if one of the kernels/nodes dies?
+ You need a mutex then.  For SCSI devices a reservation is the way to go
+-- the RESERVE/RELEASE commands are mandatory for direct-access devices,
+so thy should work universally for disks.
 
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-  --cw

@@ -1,86 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317587AbSGOSjF>; Mon, 15 Jul 2002 14:39:05 -0400
+	id <S317591AbSGOSlL>; Mon, 15 Jul 2002 14:41:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317586AbSGOSjE>; Mon, 15 Jul 2002 14:39:04 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:38148 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317587AbSGOSjB>; Mon, 15 Jul 2002 14:39:01 -0400
-Date: Mon, 15 Jul 2002 20:41:49 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [sparc32] reserve nocache based on RAM size
-Message-ID: <20020715184149.GA18980@louise.pinerecords.com>
-References: <200207151333.g6FDXF001511@devserv.devel.redhat.com> <20020715143525.B27814@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S317590AbSGOSlK>; Mon, 15 Jul 2002 14:41:10 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:57613 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317593AbSGOSkR>;
+	Mon, 15 Jul 2002 14:40:17 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200207151843.g6FIh0r217981@saturn.cs.uml.edu>
+Subject: Re: HZ, preferably as small as possible
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Mon, 15 Jul 2002 14:43:00 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+       torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20020715180646.B15136@flint.arm.linux.org.uk> from "Russell King" at Jul 15, 2002 06:06:46 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020715143525.B27814@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 41 days, 7:22
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > From: Tomas Szepe <szepe@pinerecords.com>
-> > Newsgroups: rhat.general.linux-kernel
-> > Date: Sun, 14 Jul 2002 17:38:05 +0200
+Russell King writes:
+> On Mon, Jul 15, 2002 at 12:07:18PM -0400, Albert D. Cahalan wrote:
+
+>> You have 64, 128, and 1000. See for yourself.
+>>
+>> arch-cl7500/param.h     #define HZ 100
+>> arch-epxa10db/param.h   #define HZ 100
+>> arch-integrator/param.h #define HZ 100
+>> arch-l7200/param.h      #define HZ 128
+>> arch-shark/param.h      #define HZ 64
+>> arch-tbox/param.h       #define HZ 1000
+>>
+>> I need to support all of that with one binary.
+>> So I'm stuck with:
+>
+> Lets look more closely:
+>
+> #ifndef HZ
+> #define HZ 100
+> #endif
+> #if defined(__KERNEL__) && (HZ == 100)
+> #define hz_to_std(a) (a)
+> #endif
+>
+> And:
+>
+> $ grep hz_to_std arch-*/param.h
+> arch-l7200/param.h:#define hz_to_std(a) ((a * HZ)/100)
+> arch-shark/param.h:#define hz_to_std(a) ((a * HZ)/100)
+
+Won't that overflow in 3 or 4 days?
+
+> As I said, tbox is broken, so ignore that.
+
+OK.
+
+> And hz_to_std gets used (fs/proc/array.c):
+>
+>                 hz_to_std(task->times.tms_utime),
+>                 hz_to_std(task->times.tms_stime),
+>                 hz_to_std(task->times.tms_cutime),
+>                 hz_to_std(task->times.tms_cstime),
+
+Now look in the 2.4.xx kernel source.
+
+> So merely grepping for HZ doesn't actually tell you anything.
 > 
-> > Since there's no official sparc32 maintainer, I'm sending this patch
-> > directly to you. It has now been tested in various configurations
-> > (released in the default Aurora 0.3 kernel) and appears to be causing
-> > no undesired side effects.
-> 
-> Would you mind to send me 3-4 /proc/meminfos and /proc/cpuinfos
-> from your Aurora boxes with this patch, preferably after some uptime?
+> All /proc values are in 100Hz units on ARM.
 
-At the moment, I've only got one box up:
+Since kernel 2.5.25 it looks like. I must support
+the 2.4.xx kernels at least, and 2.2.xx is still
+pretty popular.
 
-$ uname -r
-2.4.19-pre10
-$ uptime
-  8:39pm  up 41 days, 10:33,  5 users,  load average: 0.00, 0.00, 0.00
-$ cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  157298688 145948672 11350016        0 41795584 48705536
-Swap: 234864640 24662016 210202624
-MemTotal:       153612 kB
-MemFree:         11084 kB
-MemShared:           0 kB
-Buffers:         40816 kB
-Cached:          42640 kB
-SwapCached:       4924 kB
-Active:          40752 kB
-Inactive:        67556 kB
-HighTotal:       64828 kB
-HighFree:         4472 kB
-LowTotal:        88784 kB
-LowFree:          6612 kB
-SwapTotal:      229360 kB
-SwapFree:       205276 kB
-$ cat /proc/cpuinfo 
-cpu             : Texas Instruments, Inc. - SuperSparc-(II)
-fpu             : SuperSparc on-chip FPU
-promlib         : Version 3 Revision 2
-prom            : 2.22
-type            : sun4m
-ncpus probed    : 2
-ncpus active    : 2
-Cpu0Bogo        : 74.75
-Cpu1Bogo        : 59.80
-MMU type        : TI Viking/MXCC
-contexts        : 65536
-nocache total   : 3145728
-nocache used    : 998656
-CPU0            : online
-CPU1            : online
 
-> Also, did you think about a deadlock-free runtime resizing of the
-> nocache memory? I did not even bother with boot-time resizing,
-> because run-time resizing sounds doable and certainly nobler.
-
-Not yet, sounds like a good idea, though. I'll certainly have
-a look at it later on.
-
-T.

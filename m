@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbTFXTya (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 15:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTFXTya
+	id S262202AbTFXTx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 15:53:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbTFXTx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 15:54:30 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:60715 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S262368AbTFXTyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 15:54:04 -0400
-Date: Tue, 24 Jun 2003 13:09:02 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "jds" <jds@soltis.cc>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Panic in 2.5.73-mm1 OOps part.
-Message-Id: <20030624130902.3d9090e9.akpm@digeo.com>
-In-Reply-To: <20030624191740.M38428@soltis.cc>
-References: <20030624191740.M38428@soltis.cc>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Jun 2003 20:08:13.0634 (UTC) FILETIME=[579E7220:01C33A8C]
+	Tue, 24 Jun 2003 15:53:29 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:5266 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262202AbTFXTx1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 15:53:27 -0400
+Message-Id: <200306242006.h5OK6aRY001853@eeyore.valparaiso.cl>
+To: corbet@lwn.net (Jonathan Corbet)
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/3] Allow arbitrary number of init funcs in modules 
+In-Reply-To: Your message of "Mon, 23 Jun 2003 13:11:41 CST."
+             <20030623191141.31814.qmail@eklektix.com> 
+X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
+Date: Tue, 24 Jun 2003 16:06:36 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"jds" <jds@soltis.cc> wrote:
->
-> 
-> 
-> Hi Andrew:
-> 
-> 
->     I have kernel panic when boot with kernel 2.5.73-mm1, in kernel 2.5.73
-> working good.
-> 
+corbet@lwn.net (Jonathan Corbet) said:
+> --- 2.5.73-rr/kernel/module.c	Tue Jun 24 02:58:32 2003
+> +++ 2.5.73/kernel/module.c	Tue Jun 24 03:00:36 2003
+> @@ -617,9 +617,10 @@
+>  {
+>  	int i, balance = 0;
+>  
+> -	for (i = 0; i < num_pairs; i++)
+> +	for (i = 0; i < num_pairs; i++) {
+>  		balance += (pairs->init ? 1 : 0) - (pairs->exit ? 1 : 0);
+> -
+> +		pairs++;
+> +	}
 
-Please disable CONFIG_BLK_DEV_NBD.   We're working on it.
+Hummm... as you are essentially counting off pairs, isn't there a way of
+detecting end-of-pairs, i.e. along the line (last points to NULL):
+
+        for(pairs = start_of_pairs; *pairs; pairs++)
+             ....
+
+or just:
+
+        for(i = 0; i < num_pairs; i++)
+	       balance += (pairs[i].init ? 1 : 0) - (pairs[i].exit ? 1 : 0);
+
+(as added bonus doesn't screw up variable pairs' value), or even (same as
+yours above but marginally clearer IMEHO):
+
+        for (i = 0; i < num_pairs; i++, pairs++)
+              .....
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

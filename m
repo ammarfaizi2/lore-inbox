@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263597AbREYHA3>; Fri, 25 May 2001 03:00:29 -0400
+	id <S263595AbREYG67>; Fri, 25 May 2001 02:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263599AbREYHAT>; Fri, 25 May 2001 03:00:19 -0400
-Received: from sgi.SGI.COM ([192.48.153.1]:33405 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S263597AbREYHAE>;
-	Fri, 25 May 2001 03:00:04 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: esr@thyrsus.com
-cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Configure.help entries wanted 
-In-Reply-To: Your message of "Fri, 25 May 2001 02:35:58 -0400."
-             <20010525023558.B5622@thyrsus.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 25 May 2001 16:59:24 +1000
-Message-ID: <24758.990773964@kao2.melbourne.sgi.com>
+	id <S263597AbREYG6t>; Fri, 25 May 2001 02:58:49 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:9925 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263595AbREYG6l>;
+	Fri, 25 May 2001 02:58:41 -0400
+Date: Fri, 25 May 2001 02:58:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Aaron Lehmann <aaronl@vitelus.com>
+cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, adam@yggdrasil.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
+In-Reply-To: <20010524234240.G23155@vitelus.com>
+Message-ID: <Pine.GSO.4.21.0105250244310.24864-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 May 2001 02:35:58 -0400, 
-"Eric S. Raymond" <esr@thyrsus.com> wrote:
->Keith Owens <kaos@ocs.com.au>:
->> +McKinley A-step specific code
->> +CONFIG_MCKINLEY_ASTEP_SPECIFIC
->> +  Select this option to build a kernel for an IA64 McKinley system
->> +  with any A-stepping CPU.
->> +
->> +McKinley A0/A1-step specific code
->> +CONFIG_MCKINLEY_A0_SPECIFIC
->> +  Select this option to build a kernel for an IA64 McKinley system
->> +  with an A0 or A1 stepping CPU.
->
->Is there a value range in /proc/cpuinfo that tells you you have an A/A0 step?
 
-Unfortunately I do not have the McKinley data yet, the NDA is worse
-than the Itanium one.  Fill in later when the data is available, I
-expect more McKinley steppings to be added to the list.
 
->> +CONFIG_IA64_DEBUG_CMPXCHG
->> +  Selecting this option turns on bug checking for the IA64
->> +  compare-and-exchange instructions.  This is slow!  If you're unsure,
->> +  select N.
->
->These would be much improved by some indication of what IA64 variants or mask
->steppings have these problems.
+On Thu, 24 May 2001, Aaron Lehmann wrote:
 
-Early ones for compare-and-exchange.  AFAIK no recent (Itanium B3 or
-later) cpu has these problems.
+> On Fri, May 25, 2001 at 02:34:05AM -0400, Alexander Viro wrote:
+> > Should we file bug reports against glibc?
+> 
+> invsqrtpi=  5.64189583547756279280e-01
+> Inverted square root of pi. Want to file a bug on Pi?
 
->> +IA64 IRQ bug checking
->> +CONFIG_IA64_DEBUG_IRQ
->> +  Selecting this option turns on bug checking for the IA64 irq_save and
->> +  restore instructions.  This is slow!  If you're unsure, select N.
+Nope. Well-known constant.
 
-This is software, not hardware, debugging.  It saves addresses to help
-track down spinlock problems.
+> tpi      =  6.36619772367581382433e-01,
+> R0/S0 on [0, 2.00]
+> 
+> I'm not sure what R and S are, but the glibc developers probably are.
+> IMHO poorly documented code is different from binary-only code.
+> However, it appears to be a sketchy line.
+
+It _is_ a sketchy line. In that case you can be damn sure that constants
+had been derived from other form. And you need that other form to do any
+modifications that wouldn't turn the thing into random junk.
+
+Normally you don't need it, unless you feel that one you have in glibc is
+not good enough for your needs or want to experiment with modifying it.
+Or analise the thing.
+
+It's pretty similar to the case in question. The only difference is that
+information needed to implement Bessel functions from scratch is easier
+to find. However, it will be reimplementing from scratch. It won't help
+you to answer any questions about the accuracy of implementation in glibc,
+etc.
 

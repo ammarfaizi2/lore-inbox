@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVCYBMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVCYBI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVCYBMd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 20:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVCYBKK
+	id S261370AbVCYBI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 20:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVCYBIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 20:10:10 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24337 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261348AbVCYBFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 20:05:23 -0500
-Date: Fri, 25 Mar 2005 02:05:12 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: gregkh@suse.de
-Cc: linux-usb-devel@lists.sourceforge.ne, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/usb/class/usb-midi.c: remove dead code
-Message-ID: <20050325010512.GM3966@stusta.de>
+	Thu, 24 Mar 2005 20:08:21 -0500
+Received: from fire.osdl.org ([65.172.181.4]:1470 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261365AbVCYBHk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 20:07:40 -0500
+Date: Thu, 24 Mar 2005 17:07:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Lutz Vieweg <lutz.vieweg@is-teledata.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: select() not returning though pipe became readable
+Message-Id: <20050324170731.70a31f99.akpm@osdl.org>
+In-Reply-To: <4242E0E2.4050407@is-teledata.com>
+References: <4242E0E2.4050407@is-teledata.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes some obviously dead code found by the Coverity 
-checker.
+Lutz Vieweg <lutz.vieweg@is-teledata.com> wrote:
+>
+> I'm currently investigating the following problem, which seems to indicate
+> a misbehaviour of the kernel:
+> 
+> A server software we implemented is sporadically "hanging" in a select()
+> call since we upgraded from kernel 2.4 to (currently) 2.6.9 (we have to wait
+> for 2.6.12 before we can upgrade again due to the shared-mem-not-dumped-into-
+> core-files problem addressed there).
+> 
+> What's suspicious is that whenever we attach with gdb to such a hanging process,
+> we can see that a pipe, whose file-descriptor is definitely included in the
+> fd_set "readfds" (and "n" is also high enough) has a byte in it available for
+> reading - and just leaving gdb again is enough to let the server continue just
+> fine.
+> 
+> We are using that pipe, which is known only to the same one process, to cause
+> select() to return immediately if a signal (SIGUSR1) had been delivered to the
+> process (by another process), there's a signal handler installed that does
+> nothing but a (non-blocking) write of 1 byte to the writing end of the pipe.
+> 
+> This mechanism worked fine before kernel 2.6, and it is still working in 99.99% of
+> the cases, but under heavy load, every few hours, we'll see the hanging select()
+> as mentioned above.
+> 
+> I noticed a recent thread at lkml about poll() and pipes, but that seems to address a
+> different issue, where there are more events reported than occured, what we
+> see is quite the opposite, we want select() to return on that pipe becoming readable...
+> 
+> Any ideas?
+> Any hints on what to do to investigate the problem further?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-rc1-mm1-full/drivers/usb/class/usb-midi.c.old	2005-03-24 04:51:19.000000000 +0100
-+++ linux-2.6.12-rc1-mm1-full/drivers/usb/class/usb-midi.c	2005-03-24 04:51:50.000000000 +0100
-@@ -1451,8 +1451,6 @@ static struct usb_midi_device *parse_des
- 			} else {
- 				if ( oep < 15 ) {
- 					pins = oep+1;
--					if ( pins > 16 )
--						pins = 16;
- 					u->out[oep].endpoint = p1[2];
- 					u->out[oep].cableId = ( 1 << pins ) - 1;
- 					if ( u->out[oep].cableId )
+Could you at least test 2.6.12-rc1?  Otherwise we might be looking for a
+bug whicj isn't there.
 

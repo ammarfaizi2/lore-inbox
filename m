@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276642AbRJKRyH>; Thu, 11 Oct 2001 13:54:07 -0400
+	id <S276647AbRJKSLa>; Thu, 11 Oct 2001 14:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276633AbRJKRx6>; Thu, 11 Oct 2001 13:53:58 -0400
-Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:20701 "EHLO
-	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
-	id <S276642AbRJKRxt>; Thu, 11 Oct 2001 13:53:49 -0400
-Date: Fri, 12 Oct 2001 03:52:59 +1000 (EST)
-From: Tim Connors <tcon@Physics.usyd.edu.au>
-To: jkp@riker.nailed.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Which kernel (Linus or ac)?
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org>
-Message-ID: <Pine.SOL.3.96.1011012034648.5285B-100000@suphys.physics.usyd.edu.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276653AbRJKSLU>; Thu, 11 Oct 2001 14:11:20 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:22681 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S276643AbRJKSLG>; Thu, 11 Oct 2001 14:11:06 -0400
+Date: Thu, 11 Oct 2001 12:08:21 -0600
+Message-Id: <200110111808.f9BI8Ls04654@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: John Levon <moz@compsoc.man.ac.uk>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tainting FAQ
+In-Reply-To: <20011011184241.A95852@compsoc.man.ac.uk>
+In-Reply-To: <20011011184241.A95852@compsoc.man.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 jkp@riker.nailed.org wrote:
+John Levon writes:
+> short and sweet. (useful) comments ?
 
-> I'm presently running 2.4.8 on a machine. The VM on this is not terribly
-> good (swaps a lot with seemlingly plenty of physical memory).
-> I'm considering going to an -ac kernel, but I need recent iptables. Is the
-> iptables code up to date in -ac?
+Maybe we're giving out too much information? To put it bluntly, if
+people are told what we're up to, they'll doctor the bug reports.
+People are selfish and will try to game the system. I'm not even sure
+if we should expose the term "tainted" in the first place. Maybe a
+"compatibility bitmask" with a hex value should be reported instead.
 
-Seems to be, how recent do you want? I am using it, anyways....
+Alan: you're the instigator of this scheme. How widely do you want to
+publish what this is really about? I note that lwn.net had a paragraph
+on the tainting scheme.
 
-> Also, which -ac do people recommend? I've beent trying to follow lkm, but
-> I'm somewhat confused at this point.
+				Regards,
 
--ac is much better than -linus for me.
-
-I am using 2.4.9-ac18. It is mostly good, the occasion swapping when I
-leave mozilla or xemacs alone for a little while, but mostly good. Much
-better than ever since 2.4.~5 though!
-
-Used 2.4.10-ac1 for a while, but seems worse than 2.4.9-ac1[678].
-
-Looking at the changelog and comments on the list and /. though - very
-very promising with 2.4.10-ac11 with the new VM changes. I will compile
-that one tonight and try it out when I next reboot (finally having a
-decent kernel has given me some uptime I don't want to destroy though ;)
-
-> The box:
-> 
-> P200MMX 64MB
-> 
-> It's used as a firewall and a ssh login/through server for external connections.
-
-2.4.9-ac* should be good for such a box - looks like you don't put much
-demand on it (although the RAM is a little small....)
-
--- 
-TimC -- http://www.physics.usyd.edu.au/~tcon/
-
-"I give up," said Pierre de Fermat's friend. "How DO you keep a
-mathematician busy for 350 years?"
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

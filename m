@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUD1Gay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264647AbUD1G3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264652AbUD1Gay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 02:30:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbUD1Gay
+	id S264647AbUD1G3I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 02:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264650AbUD1G3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 02:30:54 -0400
-Received: from FE-mail03.albacom.net ([213.217.149.83]:38617 "EHLO
-	FE-mail03.sfg.albacom.net") by vger.kernel.org with ESMTP
-	id S264652AbUD1GaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 02:30:25 -0400
-Message-ID: <000e01c42cea$5ea02720$0200a8c0@arrakis>
-Reply-To: "Marco Cavallini" <linux@koansoftware.com>
-From: "Marco Cavallini" <linux@koansoftware.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: "Greg KH" <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-References: <005c01c42b82$60d82f60$0200a8c0@arrakis> <20040426185612.GB28530@kroah.com> <003501c42c24$06e87940$0200a8c0@arrakis> <20040427171737.GB2465@mars.ravnborg.org> <000701c42c7e$20214810$0200a8c0@arrakis> <20040427175754.GA2968@mars.ravnborg.org>
-Subject: Re: Problem with CONFIG_USB_SL811HS
-Date: Wed, 28 Apr 2004 08:30:40 +0200
-Organization: Koan s.a.s.
+	Wed, 28 Apr 2004 02:29:07 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:19343 "EHLO mail4.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S264647AbUD1G3F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 02:29:05 -0400
+Date: Wed, 28 Apr 2004 16:18:44 +1000
+From: "Nigel Cunningham" <ncunningham@linuxmail.org>
+To: "Chris Siebenmann" <cks@utcc.utoronto.ca>
+Subject: Re: What does tainting actually mean?
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Reply-To: ncunningham@linuxmail.org
+References: <04Apr28.020259edt.41801@gpu.utcc.utoronto.ca>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=us-ascii
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Transfer-Encoding: 8bit
+Message-ID: <opr65k5ivcshwjtr@laptop-linux.wpcb.org.au>
+In-Reply-To: <04Apr28.020259edt.41801@gpu.utcc.utoronto.ca>
+User-Agent: Opera M2/7.50 (Linux, build 663)
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > In Linux-2.4.26 the problem is in
-> > drivers/usb/host/Makefile
->
-> I assumed you were using the 2.6 kernel, so I did not
-> even look at 2.4.
->
-> Sorry for the noise.
+Hi.
 
-No problem .
-However I've noticed that the latest sources version for SL811 are in 2.4.26
-and in 2.6.6 there are only the old one.
-Could some linux-usb mantainer tell me if should be a good idea to update
-these bringing sources from 2.4.26 and porting them to 2.6.6-rc2 ?
-Thank you
+On Wed, 28 Apr 2004 02:02:55 -0400, Chris Siebenmann  
+<cks@utcc.utoronto.ca> wrote:
+>  What happens when a binary module thinks it knows the size of a
+> structure and is wrong? What happens when a binary module has a
+> concurrency problem, in any of the many forms they manifest in the Linux
+> kernel?
 
-Marco Cavallini
+Good points. It could be really difficult to trace the cause of those  
+issues. But hard/too much effort != impossible. For every entry point to  
+the module we have a known state of the system prior to and after the  
+call. We could potentially checksum the whole of memory before and after  
+and find out exactly what the module has changed.
 
+Anyway, I'm going to drop this conversation now. Work to do :>
+
+Nigel
+-- 
+Nigel Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614, Australia.
++61 (2) 6251 7727 (wk)

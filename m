@@ -1,112 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132511AbRDDWkw>; Wed, 4 Apr 2001 18:40:52 -0400
+	id <S132512AbRDDWkw>; Wed, 4 Apr 2001 18:40:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132512AbRDDWkd>; Wed, 4 Apr 2001 18:40:33 -0400
-Received: from mail11.speakeasy.net ([216.254.0.211]:52232 "HELO
-	mail11.speakeasy.net") by vger.kernel.org with SMTP
-	id <S132511AbRDDWkY>; Wed, 4 Apr 2001 18:40:24 -0400
-Message-ID: <3ACB94E3.2030108@megapathdsl.net>
-Date: Wed, 04 Apr 2001 14:40:51 -0700
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3-ac2 i686; en-US; 0.8.1)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Joachim 'roh' Steiger" <roh@convergence.de>
-CC: Thomas Dodd <ted@cypress.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
-Subject: Re: Contacts within AMD?  AMD-756 USB host-controller blacklisted due to
-In-Reply-To: <Pine.LNX.4.21.0104050004060.21943-100000@campari.convergence.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132514AbRDDWkd>; Wed, 4 Apr 2001 18:40:33 -0400
+Received: from monza.monza.org ([209.102.105.34]:36625 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S132512AbRDDWkc>;
+	Wed, 4 Apr 2001 18:40:32 -0400
+Date: Wed, 4 Apr 2001 15:39:23 -0700
+From: Tim Wright <timw@splhi.com>
+To: christophe barbe <christophe.barbe@lineo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: uninteruptable sleep (D state => load_avrg++)
+Message-ID: <20010404153923.B2144@kochanski>
+Reply-To: timw@splhi.com
+Mail-Followup-To: christophe barbe <christophe.barbe@lineo.fr>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010404094708.A4718@pc8.inup.com> <E14klGU-0001kB-00@the-village.bc.nu> <20010404141349.A6702@pc8.inup.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010404141349.A6702@pc8.inup.com>; from christophe.barbe@lineo.fr on Wed, Apr 04, 2001 at 02:13:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joachim 'roh' Steiger wrote:
+On Wed, Apr 04, 2001 at 02:13:49PM +0200, christophe barbe wrote:
+> The sleep should certainly be interruptible and I that's what I said to the GFS guy.
+> But what the reason to increment the load average for each D process ?
+> 
 
-> i would like to help to track down this problem
-> i'm using a gigabyte 7IXE revision 1.1
-> kernel is 2.4.1
-> 
-> lspci output for usb:
-> 00:07.4 USB Controller: Advanced Micro Devices [AMD] AMD-756 [Viper] USB
-> (rev 06) (prog-i
-> f 10 [OHCI])
->         Flags: bus master, medium devsel, latency 16, IRQ 11
->         Memory at efffc000 (32-bit, non-prefetchable) [size=4K]
-> 
-> 
-> On Wed, 4 Apr 2001, Miles Lane wrote:
-> 
->> Thomas Dodd wrote:
->> 
->> 
->>> Alan Cox wrote:
->>> 
->>> 
->>>> because we dont know the full scope of the problem yet.
->>> 
->>> Exactly how many bug reports has this caused?
->>> What kind of problems?
->> 
-> 
-> here i only have this kernelmessage floating around in my logfiles about 1
-> time the day: 
-> 
-> Apr  4 14:47:15 campari kernel: usb-ohci.c: bogus NDP=204 for OHCI 
-> usb-00:07.4
-> Apr  4 14:47:15 campari kernel: usb-ohci.c: rereads as NDP=4
-> 
-> 
->> error."  Most of the time, when the error occurs, it seems
->> pretty benign.  That is, I haven't noticed it crashing USB
->> device connections, causing data corruption or OOPSen.
->> Some folks _have_ reported OOPSen, though, that seemed to
->> be triggered by the erratum #4 hardware bug.  I think I
->> may have had one of these a long time ago.
-> 
-> 
-> as you see it's revision 6
-> i've had no other problems with usb for now and use this
->  idVendor           0x046d Logitech Inc.
->  idProduct          0xc00c 
-> usb-wheelmouse all the time
-> 
-> i've never had this kernel or previous kernel (2.4.0test8) oopsen 
-> and it runs perfectly stable here
-> 
-> 
->> I believe David has found that there definitely are code
->> paths where this hardware bug can cause failures of various
->> sorts and that's why the AMD-756 has been blacklisted.
-> 
-> 
-> since i did'nt cause any troubles here i would not like to have the
-> complete AMD-756 blacklisted in the ohci-driver
-> eventually only some revisions are that bad
-> 
-> please correct me if i'm wrong i only don't want to blacklist complete
-> chipset-series
+OK, the Unix history goes something like this. Synchronization was achieved
+using two primitives, sleep() and wakeup(). These guys rendezvous'd on a
+wait channel, which was simply an 'int', and by convention was actually the
+address of a data structure (yes I know int and pointers aren't the same, this
+is a long time ago, OK ? :-).
+Anyway, when you called sleep, you also had an associated priority. Priority
+values less than PZERO were "high" priority, and >= PZERO were "low" priority.
+sleeping above PZERO was interruptible, and processes sleeping at this priority
+did not count towards the load. The idea was to use this for events that
+potentially might never happen. Sleeping at a priority < PZERO was intended
+to be used for things that are absolutely 100% guaranteed to happen, preferably
+sometime very soon. Disk I/O (real disks, not NFS) fell into this category,
+and hence it counts towards the load since this could be deemed a "fast wait"
+state, and the process is nominally runnable. All a bit hand-wavy I know, but
+it worked well enough.
 
-Hi Joachim,
+The really important part of all this is that you should never sleep
+uninterruptibly for anything that you cannot absolutely guarantee will happen,
+otherwise you wind up with a stuck process.
 
-Personally, I agree with you, but I can also understand David's
-desire to avoid wasting time chasing phantom bugs that only
-show up due to this broken hardware.  If it turns out that
-there is actually a well-defined workaround that AMD will
-tell us about, it shouldn't take too long before we have a
-real fix and the AMD-756 can be taken off of the blacklist.
+Regards,
 
-My guess is that there are specific drivers for which this
-hardware bug causes problems.  You probably just aren't
-using the *right* drivers.  :-)
+Tim
 
-Luckily, USB add-on cards are pretty cheap, so I suppose you
-could just put a new host-controller in your test machine
-for a month or two until David and Alan get this sorted out
-with AMD.  Think of it this way, you'll have more hardware
-configurations to test with, so get a UHCI or EHCI card.
-Woohoo!  (Only half kidding)
 
-	Miles
-
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

@@ -1,82 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272556AbRH3X2q>; Thu, 30 Aug 2001 19:28:46 -0400
+	id <S272557AbRH3Xbf>; Thu, 30 Aug 2001 19:31:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272557AbRH3X2f>; Thu, 30 Aug 2001 19:28:35 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:44554 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272556AbRH3X2Q>;
-	Thu, 30 Aug 2001 19:28:16 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108302327.f7UNRvl04257@oboe.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <s5gheup6ugt.fsf@egghead.curl.com> from "Patrick J. LoPresti" at
- "Aug 30, 2001 06:42:10 pm"
-To: "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>
-Date: Fri, 31 Aug 2001 01:27:57 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S272558AbRH3XbZ>; Thu, 30 Aug 2001 19:31:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3988 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S272557AbRH3XbU>;
+	Thu, 30 Aug 2001 19:31:20 -0400
+Date: Thu, 30 Aug 2001 16:31:29 -0700 (PDT)
+Message-Id: <20010830.163129.55479282.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: kraxel@bytesex.org, linux-kernel@vger.kernel.org
+Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E15cbGc-00027M-00@the-village.bc.nu>
+In-Reply-To: <20010830.161453.130817352.davem@redhat.com>
+	<E15cbGc-00027M-00@the-village.bc.nu>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Patrick J. LoPresti wrote:"
-> This is a MUCH nicer solution.  max() is a well-defined mathematical
-> concept; it is simply the larger of its two arguments, period.  It is
-> C's *promotion* rules that kill you, especially signed->unsigned
-> promotion.  So just forbid them, at least when they implicit.
-> 
-> You can argue about whether the "differing sizes" case should be a
-> BUG(), since the output will still be mathematically correct.  It
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: Fri, 31 Aug 2001 00:30:34 +0100 (BST)
 
-To give you all something definite to look at, here's some test code:
+   That isnt done anyway - the card executes a risc instruction set for the
+   DMA engine specifying which to skip and draw. So you feed it a base
+   physical address for the fb via ioctl (yes this needs to be a pci device
+   bar and offset I suspect) and then tell it about the fb layout and the like
 
-// standard good 'ol faithful version
-#define __MIN(x,y) ({\
-   typeof(x) _x = x; \
-   typeof(y) _y = y; \
-   _x < _y ? _x : _y ; \
- })
+We could do something interesting with /proc/bus/pci/bus/devfn nodes
+I suspect.
 
-// possible implemetation with type sanity checks - alter to taste
-#define MIN(x,y) ({\
-   const typeof(x) _x = ~(typeof(x))0; \
-   const typeof(y) _y = ~(typeof(y))0; \
-   void MIN_BUG(); \
-   if (sizeof(_x) != sizeof(_y)) \
-     MIN_BUG(); \
-   if ((_x > 0 && _y < 0) || (_x < 0 && _y > 0)) \
-     MIN_BUG(); \
-   __MIN(x,y); \
- })
+You open the target fb pci dev, and part of the argument to the video
+ioctl is:
 
-// test code that compiles with no complaints with -O1 -Wall
-int main() {
-  unsigned i = 1;
-  unsigned j = -2;
-  return MIN(i,j);
-}
+	int pci_dev_fd;
+	int resource_num;
+	u64 offset;
+	u64 len;
 
-// test code that complains at link time (in this version) with ..
-//  gcc -o test -O1 -Wall test.c
-// /tmp/cczJbwv5.o: In function `main':
-// /tmp/cczJbwv5.o(.text+0x7): undefined reference to `MIN_BUG'
-// collect2: ld returned 1 exit status
-//
-int main() {
-  unsigned i = 1;
-  signed j = -2;
-  return MIN(i,j);
-}
+Something like that.
 
-> depends on how often it is useful to compare (say) unsigned chars
-> against ints, and on whether the compiler warns about cases where you
-> try to stuff the return value into a too-small container.  I bet that
-> just forbidding signed->unsigned promotion would be enough.
-
-Possibly. I have little clue as to the real extent of the problem.
-
-Peter
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312521AbSCYTuu>; Mon, 25 Mar 2002 14:50:50 -0500
+	id <S312526AbSCYTwU>; Mon, 25 Mar 2002 14:52:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312526AbSCYTul>; Mon, 25 Mar 2002 14:50:41 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56334 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S312521AbSCYTu2>; Mon, 25 Mar 2002 14:50:28 -0500
-Date: Mon, 25 Mar 2002 14:47:56 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Grogan <grogan@pcnineoneone.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ANN: New NTFS driver (2.0.0/TNG) now finished.
-In-Reply-To: <20020325121725.71f6df02.grogan@pcnineoneone.com>
-Message-ID: <Pine.LNX.3.96.1020325144453.4219C-100000@gatekeeper.tmr.com>
+	id <S312524AbSCYTwB>; Mon, 25 Mar 2002 14:52:01 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:44461 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S312525AbSCYTv7>;
+	Mon, 25 Mar 2002 14:51:59 -0500
+Message-ID: <001001c1d436$90abdf70$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Paul Clements" <kernel@steeleye.com>, "Andrew Morton" <akpm@zip.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.18 raid1 - fix SMP locking/interrupt 
+Date: Mon, 25 Mar 2002 20:50:26 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002, Grogan wrote:
+>
+> However a bare spin_unlock_irq() in a function means that
+> callers which wish to keep interrupts disabled are subtly
+> subverted.   We've had bugs from this before.
+>
+It is trivial to catch such bugs at runtime. I tried it a year ago, and
+immediately run into sleep_on() users that legitimately call
+spin_lock_irq() with disabled interrupts. Perhaps they are gone now,
+I'll retest my patch.
 
-> On a fresh boot with 2.4.19-pre4:
-> 
-> bash-2.05$ time cp -r /mnt/windows3/windows/system32 /home/grogan/test
-> 
-> real    8m45.256s
-> user    0m0.730s
-> sys     6m27.030s
-> 
-> On a fresh boot with 2.5.7 with the new NTFS driver:
-> 
-> bash-2.05$ time cp -r /mnt/windows3/windows/system32 /home/grogan/test
-> 
-> real    3m13.190s
-> user    0m0.610s
-> sys     0m51.660s
-> 
-> This "test" was repeated twice under the same conditions, with
-> negligible difference in the result (couple of seconds). Both of these
-> disks are on the same IDE controller (/home is /dev/hda8 and the NTFS
-> partition is /dev/hdb2). I must say I wasn't expecting such a drastic
-> difference. The data appears to be intact. (correct size and number of
-> files, anyway) 
+> So the irqrestore functions are much more robust.  I believe
+> that they should be the default choice.  The non-restore
+> versions should be viewed as a micro-optimised version,
+> to be used with caution.  The additional expense of the save/restore
+> is quite tiny - 20-30 cycles, perhaps.
 
-  Looks great, one of the few things in 2.5 I see as a reason upgrade in
-the future. This could be really useful to people who need to pull NT
-data.
+OTHO, if a function doesn't work correctly if it's called with disabled
+interrupts, then it should not use spin_lock_irqsave() - it's
+misleading.
+e.g. if it calls kmalloc(GFP_KERNEL), down(), schedule(), etc.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+--
+    Manfred
 

@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265701AbUIIUZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUIIU31@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265701AbUIIUZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 16:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUIIUW0
+	id S264997AbUIIU31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 16:29:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUIIU1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 16:22:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34012 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266821AbUIIUVG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 16:21:06 -0400
-Subject: Re: 2.6.9-rc1-mm4 kjournald oops (repeatable)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: Richard A Nelson <cowboy@debian.org>, Lee Revell <rlrevell@joe-job.com>,
-       Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20040909215611.47484cd8@localhost>
-References: <Pine.LNX.4.58.0409071707100.6982@onaqvg-unyy.qla.jronurnq.voz.pbz>
-	 <20040908020402.3823a658.akpm@osdl.org>
-	 <1094635403.1985.12.camel@sisko.scot.redhat.com>
-	 <Pine.LNX.4.58.0409081011170.7419@hygvzn-guhyr.pnirva.bet>
-	 <Pine.LNX.4.58.0409081604060.6248@hygvzn-guhyr.pnirva.bet>
-	 <1094685396.1362.245.camel@krustophenia.net>
-	 <Pine.LNX.4.58.0409081644150.6248@hygvzn-guhyr.pnirva.bet>
-	 <20040909215611.47484cd8@localhost>
+	Thu, 9 Sep 2004 16:27:12 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5084 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265517AbUIIUXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 16:23:04 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-S0
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Alexander Nyberg <alexn@dsv.su.se>
+In-Reply-To: <1094758246.1362.264.camel@krustophenia.net>
+References: <20040905140249.GA23502@elte.hu>
+	 <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl>
+	 <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu>
+	 <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu>
+	 <1094597988.16954.212.camel@krustophenia.net>
+	 <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net>
+	 <20040909061729.GH1362@elte.hu>
+	 <1094758246.1362.264.camel@krustophenia.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1094761240.3047.12.camel@sisko.scot.redhat.com>
+Message-Id: <1094761389.1362.304.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 Sep 2004 21:20:40 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 09 Sep 2004 16:23:09 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2004-09-09 at 15:30, Lee Revell wrote:
+> On Thu, 2004-09-09 at 02:17, Ingo Molnar wrote:
+> > could you try -S0:
+> 
+> Nope, different error:
+> 
+>   CC      arch/i386/kernel/irq.o
+> arch/i386/kernel/irq.c: In function `do_IRQ':
+> arch/i386/kernel/irq.c:273: warning: implicit declaration of function `redirect_hardirq'
+> arch/i386/kernel/irq.c:349: error: `noirqdebug' undeclared (first use in this function)
+> arch/i386/kernel/irq.c:349: error: (Each undeclared identifier is reported only once
+> arch/i386/kernel/irq.c:349: error: for each function it appears in.)
+> arch/i386/kernel/irq.c:350: warning: implicit declaration of function `note_interrupt'
+> make[1]: *** [arch/i386/kernel/irq.o] Error 1
+> make: *** [arch/i386/kernel] Error 2
+> 
 
-On Thu, 2004-09-09 at 22:56, Bongani Hlope wrote:
+OK, this was user error on my part.  R7 introduced the
+CONFIG_GENERIC_HARDIRQS config item, and I had neglected to run make
+oldconfig.
 
-> Ok it seem I'm not the only one. Ive bee trying to find this for a
-> while. It seems to happen on 2.6.9rc1-mm[24] kernels (I haven't tried
-> mm[13] ). I was only able to capture the Oops this morning (pen and
-> paper) I also have preempt enabled. This only happens on my PII though
-> (Mandrake cooker updates and kernel compiles), my dual opteron has
-> been running this since last night without any problems (gentoo sync
-> and kernel compile), also with preempt 
-
-The journal_clean_checkpoint_list-latency-fix.patch was added in
-2.6.9rc1-mm2 and is still there in mm4, so your problem is also
-consistent with a bug in that patch; could you try backing that one diff
-out and seeing if it fixes it for you too?
-
-Thanks,
- Stephen
+Lee 
 

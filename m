@@ -1,57 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135634AbRD2MfX>; Sun, 29 Apr 2001 08:35:23 -0400
+	id <S135759AbRD2MVu>; Sun, 29 Apr 2001 08:21:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135760AbRD2MfO>; Sun, 29 Apr 2001 08:35:14 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:37124 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S135634AbRD2MfA>; Sun, 29 Apr 2001 08:35:00 -0400
-From: Colonel <klink@clouddancer.com>
-To: linux-kernel@vger.kernel.org
-Subject: OOM stupidity
-Reply-To: klink@clouddancer.com
-Message-Id: <20010429123454.364E06808@mail.clouddancer.com>
-Date: Sun, 29 Apr 2001 05:34:54 -0700 (PDT)
+	id <S135760AbRD2MVl>; Sun, 29 Apr 2001 08:21:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:47034 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S135759AbRD2MVa>;
+	Sun, 29 Apr 2001 08:21:30 -0400
+Date: Sun, 29 Apr 2001 14:21:11 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200104291221.OAA37952.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, mdharm-kernel@one-eyed-alien.net
+Subject: Re: Dane-Elec PhotoMate Combo
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        mailhot@enst.fr, markus@schlup.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
 
-When the OOM kills the process that I am currently composing within
-(an active character stream), that is a MICROSOFT WINDOWS behavior.  
-I don't care if it's hogging the machine, *I'M* using it!  That is the
-point after all, isn't it?  A human sysadmin could kill my process
-(and then I would have dealings with him), but the logic here is badly
-flawed.
+    > (ii) this card needs usb/storage/dpcm.c which is compiled when
+    > CONFIG_USB_STORAGE_DPCM is set, but this variable is missing
+    > from usb/Config.in. Add it.
 
-If this is what Linux will become in the 2.4 kernel, *FORGET IT*.
-Swap was hardly filled up, and remember it's the 2xRAM swap size now!
-Has Linux been too eager to accept recent windows converts (and prior
-to their recovery from that brain damage) and lost it's sharp edge of
-careful thought and tooling that was it's hallmark in the beginning??
-Are the maintainers of this area too busy "protecting their turf" to
-allow some options to the end user?  Seem like Linus better kick some
-butt before it's too late.  Microsoft has been running a
-disinformation campaign against Linux for awhile, but the current OOM
-behavior could allow them to make a major capitalization against
-Linux.
+    This config option is considered so immature that it's not ready for the
+    kernel config, even as an EXPERIMENTAL.  Use it at your own risk.
 
-Just think of the Microsoft campaign :
-"We don't pull the rug out from underneath you".
+Of course. But the choice is simple. Without it, one has a non-functional
+device. With it, one has a device that works beautifully.
 
-(Note to all those that will jump up and claim that Microsoft has
-problems -- I see, you are saying because MS is faulty, it's OK that
-Linux is faulty)
-
-Where is a patch to allow the sensible OOM I had in prior kernels?
-(cause this crap is getting pitched)
-
---------
-
-(kernel 2.4.4-pre6, not noticed in eariler kernels, but machine was
-not that heavily used.  Hardware has been rock solid for years.  Load
-at the time was trivial compared to 2.0 series kernels workload.)
-
-____
-ron
-
-- I don't need no stinkin multiline sig -

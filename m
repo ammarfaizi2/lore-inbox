@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTJ1Lds (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 06:33:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263933AbTJ1Lds
+	id S263936AbTJ1Lmf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 06:42:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTJ1Lme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 06:33:48 -0500
-Received: from home.wiggy.net ([213.84.101.140]:48605 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S263930AbTJ1Ldq (ORCPT
+	Tue, 28 Oct 2003 06:42:34 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:19664 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S263936AbTJ1Lmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 06:33:46 -0500
-Date: Tue, 28 Oct 2003 12:33:44 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: status of ipchains in 2.6?
-Message-ID: <20031028113344.GA3718@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200310280127.h9S1RM5d002140@napali.hpl.hp.com> <20031028015032.734caf21.davem@redhat.com> <bnliqd$sq6$1@news.cistron.nl>
+	Tue, 28 Oct 2003 06:42:33 -0500
+Date: Tue, 28 Oct 2003 22:41:01 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: felipe_alfaro@linuxmail.org, mochel@osdl.org, george@mvista.com,
+       pavel@suse.cz, johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [pm] fix time after suspend-to-*
+Message-Id: <20031028224101.3220e0a6.sfr@canb.auug.org.au>
+In-Reply-To: <20031028093233.GA1253@elf.ucw.cz>
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise>
+	<1067329994.861.3.camel@teapot.felipe-alfaro.com>
+	<20031028093233.GA1253@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bnliqd$sq6$1@news.cistron.nl>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Miquel van Smoorenburg wrote:
-> I can't find a mailinglist archive of netdev.
+On Tue, 28 Oct 2003 10:32:33 +0100 Pavel Machek <pavel@suse.cz> wrote:
+>
+> Not sure... We do not want applications to know. Certainly we can't
+> send a signal; SIGPWR already has some meaning and it would be bad to
+> override it.
 
-Luckily google -> netdev archive -> I feel lucky brings you straight to
-http://oss.sgi.com/projects/netdev/archive/
+And SIGPWR is a bad choice anyway as the default action for SIGPWR
+is to terminate the process - I can't see people being amused if all
+their processes are killed when they suspend their laptop :-)
 
-Wichert.
+We could invent a new signal whose default action is ignore ... Solaris
+has SIGFREEZE and SIGTHAW (the comment in the header file says used by CPR
+- whatever that is).  SIGSUSPEND and SIGRESUME?
 
 -- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
-
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSE0QBe>; Mon, 27 May 2002 12:01:34 -0400
+	id <S316674AbSE0Q01>; Mon, 27 May 2002 12:26:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316670AbSE0QBd>; Mon, 27 May 2002 12:01:33 -0400
-Received: from pD952A637.dip.t-dialin.net ([217.82.166.55]:29872 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316667AbSE0QBd>; Mon, 27 May 2002 12:01:33 -0400
-Date: Mon, 27 May 2002 10:01:29 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] gcc3 arch options 
-In-Reply-To: <Pine.LNX.4.44.0205271030240.24699-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0205271000390.15928-100000@hawkeye.luckynet.adm>
+	id <S316675AbSE0Q00>; Mon, 27 May 2002 12:26:26 -0400
+Received: from www.cdhutmusic.com ([196.28.7.66]:10125 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316674AbSE0Q00>; Mon, 27 May 2002 12:26:26 -0400
+Date: Mon, 27 May 2002 17:59:54 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Terje Eggestad <terje.eggestad@scali.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Eric Lemoine <Eric.Lemoine@ens-lyon.fr>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i8259 and IO-APIC
+In-Reply-To: <1022510160.12202.113.camel@pc-16.office.scali.no>
+Message-ID: <Pine.LNX.4.44.0205271757550.28930-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 27 May 2002, Terje Eggestad wrote:
 
-On Mon, 27 May 2002, Kai Germaschewski wrote:
-> CFLAGS is initially defined with ':=', which, as opposed to '=' means to 
-> evaluate directly and store the resulting string, so it should be fine. 
-> 
-> Even if it wasn't, only the evaluations from the top-level Makefile would
-> cause the command to be executed, make will always pass down the evaluated 
-> result to the subdir makes.
-> 
-> --Kai
+> Do you got any numbers that state that it's processing overhead, and not
+> HW latency that is the bulk of interrupt service time? Just curious,
+> I've been looking and can't find this "perceived fact" backed up by
+> facts anywhere. 
 
-I've had an evaluation; it does not. So nothing to worry about
+I think Alan had the ISR and kernel IRQ service overhead in mind. In this 
+light, hardware interrupt latency is a drop in the ocean..
 
-Regards,
-Thunder
+Cheers,
+	Zwane Mwaikambo
 -- 
-Was it a black who passed along in the sand?
-Was it a white who left his footprints?
-Was it an african? An indian?
-Sand says, 'twas human.
+http://function.linuxpower.ca
+		
+
 

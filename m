@@ -1,98 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130921AbRCGKa7>; Wed, 7 Mar 2001 05:30:59 -0500
+	id <S130874AbRCGK14>; Wed, 7 Mar 2001 05:27:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130960AbRCGKat>; Wed, 7 Mar 2001 05:30:49 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:44214 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S130921AbRCGKan>; Wed, 7 Mar 2001 05:30:43 -0500
-Date: Wed, 7 Mar 2001 10:33:50 +0000 (GMT)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: Alex Baretta <alex@baretta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Major system crash 2.2.14 HELP!!!
-In-Reply-To: <000501c0a6df$7e5e4900$396dc6d4@alex.cybercable.fr>
-Message-ID: <Pine.LNX.4.21.0103071016460.13603-100000@erdos.shef.ac.uk>
+	id <S130900AbRCGK1r>; Wed, 7 Mar 2001 05:27:47 -0500
+Received: from samar.sasken.com ([164.164.56.2]:25570 "EHLO samar.sasi.com")
+	by vger.kernel.org with ESMTP id <S130824AbRCGK13>;
+	Wed, 7 Mar 2001 05:27:29 -0500
+Message-ID: <3AA60CEE.AD9F2102@sasken.com>
+Date: Wed, 07 Mar 2001 15:56:54 +0530
+From: Manoj Sontakke <manojs@sasken.com>
+Organization: Sasken Communication Technologies Limited.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Hen, Shmulik" <shmulik.hen@intel.com>
+CC: "'nigel@nrg.org'" <nigel@nrg.org>, Manoj Sontakke <manojs@sasken.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: spinlock help
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27152@hasmsx52.iil.intel.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+hi
 
-Hm, ok, let me be the first to reply to you, although I am far not a good
-specialist in this area, I just hope to provoke somebody to give more
-professional answers to your problem:-)
+spin_lock_irq()   and    spin_lock_bh() 
 
-1) Try using dd to copy your entire disk to another one (if that's
-possible), it anyway would be a good starting point, I guess. Smth. like
-(boot from a floppy, supposing your damaged drive is hda and you copy it
-to hdb)
-dd if=/dev/hda of=/dev/hdb
-2) ok, now that we have (hopefully) preserved what was possible we can
-attempt more risky steps: while booted from a floppy do
-mount -r /dev/hda /mnt
-and see what's left on your drive...
-3) Now you can attempt various fsck's, but be warned - this is where you
-already CAN make matters worse... First umount
-umount /dev/hda
-then smth like
-e2fsck /dev/hda
-...
+can they be of any use to u? 
 
-Good luck
-Guennadi
-
-P.S. Hey, guys, I know it's a bit off-topic here, but some (all?) of you
-can help this chap out better than me - please correct what I've said
-wrong.
-
-On Wed, 7 Mar 2001, Alex Baretta wrote:
-
-> I desperately need your help. I booted my machine 15 minutes ago,
-> pressed return at the LILO prompt to load the default kernel, waited
-> for the visual login screen to appear, I logged on to my account (not
-> root), started a terminal and ... and that's as much as I can tell
-> you. I left the computer for a few minutes to prepare my breakfast,
-> and when I sat down to my machine with my bowl of cereals in front of
-> me, I saw a most horrific vision: the LILO prompt once again. The
-> machine crashed so severely it rebooted directly without showing any
-> previous signs of agony. And what is worse, the machine now refuses to
-> start up. It tells me the superblock of some device does not pass file
-> system check (superblock is damaged). If offers me the possibility of
-> pressing Ctrl-D to resume the boot process or the possibility to type
-> my root password and start a shell. Ctrl-D results in the machine
-> observing that it can do nothing but force a reboot. The root password
-> takes me into a shell where I see the usual directories, but most of
-> them are empty. And what's even worse is that my data (home directory)
-> has been blown to interstellar dust.
+"Hen, Shmulik" wrote:
 > 
-> I have frequently experienced system crashes on my machine. What would
-> happen exactly is that the machine would become totally unresponsive.
-> The mouse pointer would usually disappear, and no key combination
-> (Ctrl-Alt-Del, Ctrl-Alt-BS, Shit-Alt-Fn) would obtain any result, and
-> would very simply have to reboot the hard way. The frequence actually
-> appeared to be very random. Some days I would spend in the excess of
-> 12 hours working at my computer and never rebooting. Other days I
-> remeber having had to reboot every few minutes. Originally I
-> attributed this phenomenon to an overheating of the drives [ I have 3
-> IDE drives which _used_to_ run merrily in my case... 8-(     ] Then  I
-> moved them to a one bay distance from one another, thereby greatly
-> reducing the temperature they reached, but this did not solve the
-> random system crashes.
+> How about if the same sequence occurred, but from two different drivers ?
 > 
-> Now my machine was completely cold after one night's rest. I boot up
-> correctly once, committed suicide, and all I have got is it's corpse.
-> What can I do? I could reinstall Linux, but first I have to try to get
-> my /home directory copied somewhere (to my other HD, for example, the
-> where I keep the Dark Side of the Force handy, for emergencies ... ).
-> How can I do this? What information can I _attempt_ to recover by
-> inspecting the cadaver (logs and the like that help a guru or two
-> figure out what happened?
+> We've had some bad experience with this stuff. Our driver, which acts as an
+> intermediate net driver, would call the hard_start_xmit in the base driver.
+> The base driver, wanting to block receive interrupts would issue a
+> 'spin_lock_irqsave(a,b)' and process the packet. If the TX queue is full, it
+> could call an indication entry point in our intermediate driver to signal it
+> to stop sending more packets. Since our indication function handles many
+> types of indications but can process them only one at a time, we wanted to
+> block other indications while queuing the request.
 > 
-> Please, help me urgently. I am in such distress!
+> The whole sequence would look like that:
 > 
-> Alex
+> [our driver]
+>         ans_send() {
+>                 .
+>                 .
+>                 e100_hard_start_xmit(dev, skb);
+>                 .
+>                 .
+>         }
+> 
+> [e100.o]
+>         e100_hard_start_xmit() {
+>                 .
+>                 .
+>                 spin_lock_irqsave(a,b);
+>                 .
+>                 .
+>                 if(tx_queue_full)
+>                         ans_notify(TX_QUEUE_FULL);      <--
+>                 .
+>                 .
+>                 spin_unlock_irqrestore(a,b);
+>         }
+> 
+> [our driver]
+>         ans_notify() {
+>                 .
+>                 .
+>                 spin_lock_irqsave(c,d);
+>                 queue_request(req_type);
+>                 spin_unlock_irqrestore(c,d);    <--
+>                 .
+>                 .
+>         }
+> 
+> At that point, for some reason, interrupts were back and the e100.o would
+> hang in an infinite loop (we verified it on kernel 2.4.0-test10 +kdb that
+> the processor was enabling interrupts and that the e100_isr was called for
+> processing an Rx int.).
+> 
+> How is that possible that a 'spin_unlock_irqrestore(c,d)' would also restore
+> what should have been restored only with a 'spin_unlock_irqrestore(a,b)' ?
+> 
+>         Thanks in advance,
+>         Shmulik Hen
+>       Software Engineer
+>         Linux Advanced Networking Services
+>         Intel Network Communications Group
+>         Jerusalem, Israel.
+> 
+> -----Original Message-----
+> From: Nigel Gamble [mailto:nigel@nrg.org]
+> Sent: Wednesday, March 07, 2001 1:54 AM
+> To: Manoj Sontakke
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: spinlock help
+> 
+> On Tue, 6 Mar 2001, Manoj Sontakke wrote:
+> > 1. when spin_lock_irqsave() function is called the subsequent code is
+> > executed untill spin_unloc_irqrestore()is called. is this right?
+> 
+> Yes.  The protected code will not be interrupted, or simultaneously
+> executed by another CPU.
+> 
+> > 2. is this sequence valid?
+> >       spin_lock_irqsave(a,b);
+> >       spin_lock_irqsave(c,d);
+> 
+> Yes, as long as it is followed by:
+> 
+>         spin_unlock_irqrestore(c, d);
+>         spin_unlock_irqrestore(a, b);
+> 
+> Nigel Gamble                                    nigel@nrg.org
+> Mountain View, CA, USA.                         http://www.nrg.org/
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -100,12 +125,12 @@ On Wed, 7 Mar 2001, Alex Baretta wrote:
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
-
+-- 
+Regards,
+Manoj Sontakke

@@ -1,37 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBNHPH>; Wed, 14 Feb 2001 02:15:07 -0500
+	id <S129108AbRBNHgL>; Wed, 14 Feb 2001 02:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131502AbRBNHOr>; Wed, 14 Feb 2001 02:14:47 -0500
-Received: from rhinocomputing.com ([161.58.241.147]:48145 "EHLO
-	rhinocomputing.com") by vger.kernel.org with ESMTP
-	id <S129027AbRBNHOl>; Wed, 14 Feb 2001 02:14:41 -0500
-MIME-Version: 1.0
+	id <S129154AbRBNHgC>; Wed, 14 Feb 2001 02:36:02 -0500
+Received: from saloma.stu.rpi.edu ([128.113.199.230]:29193 "HELO
+	incandescent.mp3revolution.net") by vger.kernel.org with SMTP
+	id <S129108AbRBNHft>; Wed, 14 Feb 2001 02:35:49 -0500
+From: dilinger@mp3revolution.net
+Date: Wed, 14 Feb 2001 02:35:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: piix.c and tuning question
+Message-ID: <20010214023538.A26558@incandescent.mp3revolution.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14986.12379.73487.400038@rhino.thrillseeker.net>
-Date: Wed, 14 Feb 2001 02:14:35 -0500 (EST)
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: swap errors
-X-Mailer: VM 6.75 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+X-Operating-System: Linux incandescent 2.4.2-pre2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 2.4.1-ac11 I'm getting errors like:
+I have a box w/ the following controllers:
 
-Feb 14 02:10:09 rhino kernel: Unused swap offset entry in swap_count 004dda00
-Feb 14 02:10:09 rhino kernel: VM: Bad swap entry 004dda00
+00:00.0 Host bridge: Intel Corporation 430HX - 82439HX TXC [Triton II] (rev 03)
+00:07.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA [Natoma/Triton II] (rev 01)
+00:07.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE [Natoma/Triton II]
 
-over and over.  The system has 512M real and 1G swap allocated.  This
-is occuring at:
+I regularly see the following, during high i/o:
 
-Mem:    512492K total,   397780K used,   114712K free,     1192K buffers
-Swap:   982792K total,   284380K used,   698412K free,   298556K cached
+Feb 14 02:15:27 inkbay kernel: hdd: timeout waiting for DMA
+Feb 14 02:15:27 inkbay kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Feb 14 02:15:27 inkbay kernel: hdd: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+Feb 14 02:21:13 inkbay kernel: hdc: DMA disabled
+Feb 14 02:21:13 inkbay kernel: hdd: DMA disabled
+Feb 14 02:21:22 inkbay kernel: hdd: timeout waiting for DMA
+Feb 14 02:21:22 inkbay kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+Feb 14 02:21:22 inkbay kernel: hdd: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
 
-while running imagemagick on a bunch of tifs to convert them to jpgs.
+(the DMA being disabled was me manually doing an hdparm -d0)
 
-It's the first time I've seen this error.  Is it more likely that the
-swap file has gone south or is it indicative of something else?
+According to Documentation/Configure.help:
 
-Billy
+Intel PIIXn chipsets support
+CONFIG_BLK_DEV_PIIX
+  This driver adds PIO mode setting and tuning for all PIIX IDE
+  controllers by Intel.  Since the BIOS can sometimes improperly tune
+  PIO 0-4 mode settings, this allows dynamic tuning of the chipset
+  via the standard end-user tool 'hdparm'.
+
+  Please read the comments at the top of drivers/ide/piix.c.
+
+  If you say Y here, you should also say Y to "PIIXn Tuning support",
+  below.
+
+  If unsure, say N.
+
+PIIXn Tuning support
+CONFIG_PIIX_TUNING
+  This driver extension adds DMA mode setting and tuning for all PIIX
+  IDE controllers by Intel. Since the BIOS can sometimes improperly
+  set up the device/adapter combination and speed limits, it has
+  become a necessity to back/forward speed devices as needed.
+
+  Case 430HX/440FX PIIX3 need speed limits to reduce UDMA to DMA mode
+  2 if the BIOS can not perform this task at initialization.
+
+  If unsure, say N.
+
+
+Obviously, the BIOS is not performing the DMA mode reduction, and must
+be done maually.  However, that's about all the information I can gather
+about this problem.  Has anyone looked at the top of piix.c (other than
+the IDE maintainer, that is)?  It's quite cryptic:
+ * | PIO 4 | MW2 | e3 | a3 | b |        piix_tune_drive(drive, 4);
+ * 
+ * sitre = word40 & 0x4000; primary
+ * sitre = word42 & 0x4000; secondary
+ *
+ * 44 8421|8421    hdd|hdb
+ * 
+ * 48 8421         hdd|hdc|hdb|hda udma enabled
+ *
+ *    0001         hda
+Wtf is a sitre?  What are these odd numbers?  And where is any useful
+info that, as a piix driver _user_, I might be able to use?  Is it
+merely DMA which I want to tune, or do I want to mess w/ PIO modes
+(marked as dangerous in hdparm) as well?
+
+
+
+
+-- 
+"... being a Linux user is sort of like living in a house inhabited
+by a large family of carpenters and architects. Every morning when
+you wake up, the house is a little different. Maybe there is a new
+turret, or some walls have moved. Or perhaps someone has temporarily
+removed the floor under your bed." - Unix for Dummies, 2nd Edition
+        -- found in the .sig of Rob Riggs, rriggs@tesser.com

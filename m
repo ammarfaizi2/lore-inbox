@@ -1,111 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265596AbUBPPQa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 10:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265598AbUBPPQa
+	id S265631AbUBPPFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 10:05:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265641AbUBPPFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 10:16:30 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:39884 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S265596AbUBPPQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 10:16:27 -0500
-Message-ID: <4030DEC5.2060609@grupopie.com>
-Date: Mon, 16 Feb 2004 15:16:21 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Andy Lutomirski <luto@myrealbox.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BUG] usblp_write spins forever after an error
-References: <402FEAD4.8020602@myrealbox.com> <20040216035834.GA4089@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------040401040602040403060102"
+	Mon, 16 Feb 2004 10:05:16 -0500
+Received: from mail.shareable.org ([81.29.64.88]:11140 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S265631AbUBPPFF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 10:05:05 -0500
+Date: Mon, 16 Feb 2004 15:05:01 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: stty utf8
+Message-ID: <20040216150501.GC16658@mail.shareable.org>
+References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402150006.23177.robin.rosenberg.lists@dewire.com> <20040214232935.GK8858@parcelfarce.linux.theplanet.co.uk> <200402150107.26277.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.58.0402141827200.14025@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0402141827200.14025@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040401040602040403060102
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Linus Torvalds wrote:
+> People understand the problem. And UTF-8 is the solution.
 
-Greg KH wrote:
+Linus, I agree 100%.
+My own filesystems have UTF-8 file names, of course.
 
-> On Sun, Feb 15, 2004 at 01:55:32PM -0800, Andy Lutomirski wrote:
-> 
->>I recently cancelled a print job with the printer's cancel function, and 
->>the CUPS backend got stuck in usblp_write (using 100% CPU and not 
->>responding to signals).
->>
+There are still practical problems, two of which stand out:
 
-I wrote a patch some time ago to correct a bug exactly at usblp_write. It is 
-still not in the main kernel, but you can give it a try and see if it helps. It 
-applies cleanly against 2.6.2-rc2, but I guess it should apply to 2.6.2-rc3.
+1. Just because you hope a filesystem is UTF-8, does not preclude
+   readdir() from returning non-UTF-8 names.  (These are far too
+   easy to create by accident).
 
-This patch corrected a problem for me, that happened when a printer presents an 
-out-of-paper status while printing a document. The driver would send endless 
-garbage to the printer.
+   Because of that, programs which interpret the result of
+   readdir() as text, yet are expected to handle any name without
+   silently rejecting them or aborting, are forced into strange
+   compromises which break basic expectations.
 
-I hope this helps,
+   Spot the bug in this perl script:
 
--- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
+     perl -e 'for (glob "*") { rename $_, "ņi-".$_ or die "rename: $!\n"; }'
 
---------------040401040602040403060102
-Content-Type: text/plain;
- name="usblp_patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="usblp_patch"
+   (NB: The prefix string is N WITH CEDILLA followed by "i-").
 
---- drivers/usb/class/usblp.c.orig	2004-02-09 14:46:27.000000000 +0000
-+++ drivers/usb/class/usblp.c	2004-02-09 15:03:32.281551096 +0000
-@@ -603,7 +603,7 @@ static ssize_t usblp_write(struct file *
- {
- 	DECLARE_WAITQUEUE(wait, current);
- 	struct usblp *usblp = file->private_data;
--	int timeout, err = 0;
-+	int timeout, err = 0, transfer_length;
- 	size_t writecount = 0;
- 
- 	while (writecount < count) {
-@@ -654,19 +654,13 @@ static ssize_t usblp_write(struct file *
- 			continue;
- 		}
- 
--		writecount += usblp->writeurb->transfer_buffer_length;
--		usblp->writeurb->transfer_buffer_length = 0;
-+		transfer_length=(count - writecount);
-+		if (transfer_length > USBLP_BUF_SIZE)
-+			transfer_length = USBLP_BUF_SIZE;
- 
--		if (writecount == count) {
--			up (&usblp->sem);
--			break;
--		}
-+		usblp->writeurb->transfer_buffer_length = transfer_length;
- 
--		usblp->writeurb->transfer_buffer_length = (count - writecount) < USBLP_BUF_SIZE ?
--							  (count - writecount) : USBLP_BUF_SIZE;
--
--		if (copy_from_user(usblp->writeurb->transfer_buffer, buffer + writecount,
--				usblp->writeurb->transfer_buffer_length)) {
-+		if (copy_from_user(usblp->writeurb->transfer_buffer, buffer + writecount, transfer_length)) {
- 			up(&usblp->sem);
- 			return writecount ? writecount : -EFAULT;
- 		}
-@@ -683,6 +677,8 @@ static ssize_t usblp_write(struct file *
- 			break;
- 		}
- 		up (&usblp->sem);
-+
-+		writecount += transfer_length;
- 	}
- 
- 	return count;
+   (Hint: it mangles perfectly fine non-ASCII file names).
 
---------------040401040602040403060102--
+   Perl has no perfect behaviour to offer, because what should that
+   behaviour be if readdir() might return a non-UTF-8 byte sequence
+   as a name?
+
+
+2. Terminals are not all UTF-8, and some never will be.
+
+   So when someone types something like this on a non-UTF-8
+   terminal, they get non-UTF-8 filename:
+
+       vi el-niño.txt
+
+   It isn't just a problem of display.  Now you have created a
+   filename which isn't valid UTF-8, and GUI programs may complain,
+   perhaps refusing to let you select the file.
+
+   Furthermore, how exactly do you expect a user to use UTF-8 on
+   the filesystem when their terminal is not (or sometimes is not)
+   using UTF-8?
+
+
+==> This problem would be very nicely solved with an additional
+    terminal flag.  We have "stty ocrnl", "onlcr", "igncr" etc. to
+    translate between terminal line endings and the unix convention of
+    LF at the end of each line.  Why not create "stty utf8" so that
+    non-UTF-8 terminals and UTF-8 terminals alike can work with a
+    Linux convention that all programs enter and display UTF-8?  It
+    would simplify a lot of things.
+
+
+-- Jamie
 

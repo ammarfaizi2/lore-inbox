@@ -1,38 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUHVXZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUHVXmU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUHVXZI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 19:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266807AbUHVXZI
+	id S266878AbUHVXmU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 19:42:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266899AbUHVXmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 19:25:08 -0400
-Received: from serwer.tvgawex.pl ([212.122.214.2]:52166 "HELO
-	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S266808AbUHVXZE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 19:25:04 -0400
-Date: Mon, 23 Aug 2004 01:24:57 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
+	Sun, 22 Aug 2004 19:42:19 -0400
+Received: from quechua.inka.de ([193.197.184.2]:40134 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S266878AbUHVXmS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 19:42:18 -0400
+From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
 To: linux-kernel@vger.kernel.org
 Subject: Re: Trivial IPv6-for-Fedora HOWTO
-Message-ID: <20040822232457.GA27135@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4129236E.9020205@pobox.com> <4129276A.4090001@fraser.ipv6.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4129276A.4090001@fraser.ipv6.net.au>
-User-Agent: Mutt/1.5.4i
+Organization: Deban GNU/Linux Homesite
+In-Reply-To: <4129236E.9020205@pobox.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
+Message-Id: <E1Bz1ya-0006Vi-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Mon, 23 Aug 2004 01:42:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 23, 2004 at 09:08:26AM +1000, Paul Fraser wrote:
-> You can also get an IPv6 tunnel at http://tunnelbroker.ipv6.net.au/ that 
-> will give you your own IPv6 tunnel and allocation. This isn't just an 
-> Australian site either - you can get either AU or US tunnels, and you 
-> can apply and use it anywhere in the world.
+In article <4129236E.9020205@pobox.com> you wrote:
+> If you have an iptables ipv4 firewall, you'll want to
+> 
+> F1) allow ipv6 tunnelled packets to pass through to ip6tables, by 
+> allowing protocol 41
+> 
+> iptables -A block -p 41 -j ACCEPT
+> ("block" is a custom chain on my firewall)
+> 
+> F2) duplicate your ipv4 firewall rules for ipv6, using ip6tables.  Some 
+> things, like masquerade, are not applicable to ipv6.
 
- Best way is still asking your ISP for IPv6 address range.
+Note that you have to terminate the tunnel on your firewall in order to
+filter the encapsulated ipv6. This is important, since letting tunnel
+packets pass your firewall is a major security problem, otherwise.
 
+Greetings
+Bernd
 -- 
-Tomasz Torcz                Only gods can safely risk perfection,     
-zdzichu@irc.-nie.spam-.pl     it's a dangerous thing for a man.  -- Alia
-
+eckes privat - http://www.eckes.org/
+Project Freefire - http://www.freefire.org/

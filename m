@@ -1,85 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129398AbRAZC3V>; Thu, 25 Jan 2001 21:29:21 -0500
+	id <S129771AbRAZCkv>; Thu, 25 Jan 2001 21:40:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRAZC3L>; Thu, 25 Jan 2001 21:29:11 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:54022 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129398AbRAZC2z>; Thu, 25 Jan 2001 21:28:55 -0500
-Message-ID: <3A70E0D7.8D28F8B6@baldauf.org>
-Date: Fri, 26 Jan 2001 03:28:39 +0100
-From: Xuan Baldauf <xuan--lkml@baldauf.org>
-Organization: Medium.net
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: de-DE,en
+	id <S129834AbRAZCkm>; Thu, 25 Jan 2001 21:40:42 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:4776 "EHLO
+	smtprelay3.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S129771AbRAZCkh>; Thu, 25 Jan 2001 21:40:37 -0500
+Date: Thu, 25 Jan 2001 21:41:12 -0500 (EST)
+From: "Steven N. Hirsch" <shirsch@adelphia.net>
+To: Leif Sawyer <lsawyer@gci.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Daniel Phillips <phillips@innominate.de>,
+        Thunder from the hill <thunder@ngforever.de>, alex@foogod.com
+Subject: RE: named streams, extended attributes, and posix
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA31503515880@berkeley.gci.com>
+Message-ID: <Pine.LNX.4.21.0101252139430.27798-100000@pii.fast.net>
 MIME-Version: 1.0
-To: Peter Horton <pdh@colonel-panic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre8 losing pages
-In-Reply-To: <20010125231659.A2128@colonel-panic.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 25 Jan 2001, Leif Sawyer wrote:
+
+> alex@foogod.com [alex@foogod.com] wrote:
+> > Here's an idea: streams/etc are reached by appending 
+> > "/.../xxx" or some such to paths, thus:
+> >   for streamname on /dir/file, we have "/dir/file/.../streamname" 
+> >  for a directory /dir/dir, we get /dir/dir/.../streamname" 
+> >    -- "..." is a special subdirectory of any directories which have 
+> 
+> An interesting point to note here would be that
+> the directory '...'  has been used for many years to 'hide' things
+> from un-skilled sysadmins.
+> 
+> In other words, warez ftp sites pop up all over the place, and this
+> directory name is pretty close to being the number one stash point,
+> right next to ".. "
+
+It's also the implicit root for the global DFS filesystem namespace (from
+Transarc of AFS fame).
 
 
-Peter Horton wrote:
 
-> I'm experiencing repeatable corruption whilst writing large volumes of
-> data to disk. Kernel version is 2.4.1-pre8, on an 850MHz AMD Athlon on an
-> ASUS A7V (VIA KT133 chipset) motherboard 128M RAM (tested with 'memtest86'
-> for 10 hours).
->
-> First, I realised that the fsck was noticing small corruptions on my ext2
-> volume. My first suspect was the much discussed VIA IDE controller. As a
-> test I created a 128M file from "urandom" and copied it to twenty six
-> files. When I MD5 the files one or two of them are usually corrupt. The
-> damage usually occurs in the 24th copy (thought not always). Inspecting
-> the files shows a single 4K block (aligned on a 4K boundary) that is
-> completely different from what it should be. The kernel logs no errors
-> whilst writing the corrupt files.
->
-> I've repeated the test on the other on-board IDE controller (Promise), a
-> different hard disk, and on reiserfs. I see the corruption in all cases.
->
-> I tried building the kernel for "Pentium-Classic", and I tried a few older
-> kernels (2.4.0-test5 and 2.4.0-test12), still bad (all kernels built with
-> GCC 2.95.2 - Debian potato).
->
-> I really could do with some help as where to look next :-). I did try and
-> come up with a test to see whether bad data is written or whether the
-> damaged piece is just not written, but if I alter the testing procedure
-> too much the problem seems to go away. It seems to just lose a single page
-> under one very specific circumstance.
 
-So what output does following bash script produce?
 
-#!/bin/bash
-uname -a
-dd if=/dev/urandom of=test0 bs=1024k count=128
-I=1
-while test $I -lt 32; do
-  echo $I
-  cp test0 test$I
-  I="$(($I+1))"
-done
-md5sum test*
-
-I cannot reproduce your behaviour in 2.4.1-pre9.
-
-Xuân.
-
->
->
-> P.
->
-> ( configs attached )
->
->   ------------------------------------------------------------
->                   Name: info.tar.gz
->    info.tar.gz    Type: Unix Tape Archive (application/x-tar)
->               Encoding: base64
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

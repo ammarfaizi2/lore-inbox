@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbUKFTrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbUKFT4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbUKFTrp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 14:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbUKFTrp
+	id S261454AbUKFT4m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 14:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbUKFT4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 14:47:45 -0500
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:56033 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261453AbUKFTrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 14:47:42 -0500
-From: Daniel Drake <dsd@gentoo.org>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: Missing SCSI command in the allowed list?
-Date: Sat, 6 Nov 2004 16:24:57 +0000
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <cmikie$vif$1@sea.gmane.org>
-In-Reply-To: <cmikie$vif$1@sea.gmane.org>
+	Sat, 6 Nov 2004 14:56:42 -0500
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:35037 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261454AbUKFT4l convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 14:56:41 -0500
+To: Hugh Dickins <hugh@veritas.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: shmem_file_setup not exported
+References: <Pine.LNX.4.44.0411061937370.4000-100000@localhost.localdomain>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Sat, 06 Nov 2004 20:56:40 +0100
+In-Reply-To: <Pine.LNX.4.44.0411061937370.4000-100000@localhost.localdomain> (Hugh
+ Dickins's message of "Sat, 6 Nov 2004 19:42:55 +0000 (GMT)")
+Message-ID: <yw1x1xf6oio7.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411061624.57918.dsd@gentoo.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hugh Dickins <hugh@veritas.com> writes:
 
-On Saturday 06 November 2004 13:47, Alexander E. Patrakov wrote:
-> While cloning an audio CD using cdrdao 1.1.9 with vanilla linux-2.6.9 as a
-> user, I see the following "errors":
+> On Sat, 6 Nov 2004, Måns Rullgård wrote:
+>> I noticed this change in mm/shmem.c:
+>> 
+>> -EXPORT_SYMBOL(shmem_file_setup);
+>> 
+>> Is there a reason for this, other than nobody using it?
 >
-> ERROR: Read buffer capacity failed.
+> That's the reason hch rightly removed the export, yes.
+> ipc/shm.c does use it, but it's never a module, so doesn't need export.
+> No other reason, beyond that it's appropriate to minimize exports.
+> If you want to use it from your module, just patch the export back.
 
-I submitted a patch for this a few days ago. It has been merged into Linus's 
-tree.
+That makes using the module more complicated.  I don't really care
+much, I'm not actively using the module.  I was just wondering whether
+using it was incredibly silly for some reason.
 
-Daniel
+-- 
+Måns Rullgård
+mru@inprovide.com

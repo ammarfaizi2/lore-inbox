@@ -1,80 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbTFEUpm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265118AbTFEUpm
+	id S263574AbTFEUrk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbTFEUqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:45:42 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52100 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265117AbTFEUpl convert rfc822-to-8bit
+	Thu, 5 Jun 2003 16:46:55 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:37284 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264864AbTFEUqG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:45:41 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10548468771986@kroah.com>
-Subject: Re: [PATCH] More PCI fixes for 2.5.70
-In-Reply-To: <10548468772486@kroah.com>
+	Thu, 5 Jun 2003 16:46:06 -0400
+Date: Thu, 5 Jun 2003 13:50:29 -0700
 From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 5 Jun 2003 14:01:17 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+To: torvalds@transmeta.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Yet more USB changes for 2.5.70
+Message-ID: <20030605205029.GA6788@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1317, 2003/06/05 12:04:33-07:00, greg@kroah.com
+Hi,
 
-[PATCH] PCI: move pci_present() into drivers/pci/search.c
+Here are some more USB changes and fixes for 2.5.70.  These include a
+documentaton update for the USB gadget drivers, and a bug fix for USB
+keyboards that was caused by the previous patches sent to you.
 
-This will let not have to export the pci_devices variable.
+Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
+
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
+
+thanks,
+
+greg k-h
+
+ Documentation/DocBook/Makefile    |    3 
+ Documentation/DocBook/gadget.tmpl |  966 ++++++++++++++++++++++++++++++++++++++
+ drivers/usb/image/hpusbscsi.c     |   11 
+ drivers/usb/input/hid-input.c     |   97 +--
+ drivers/usb/input/hid.h           |    3 
+ drivers/usb/serial/empeg.c        |    5 
+ 6 files changed, 1022 insertions(+), 63 deletions(-)
+-----
 
 
- drivers/pci/search.c |   11 +++++++++++
- include/linux/pci.h  |    6 +-----
- 2 files changed, 12 insertions(+), 5 deletions(-)
+Ben Collins:
+  o USB: fix keyboard leds
 
+David Brownell:
+  o USB: kerneldoc for gadget API
 
-diff -Nru a/drivers/pci/search.c b/drivers/pci/search.c
---- a/drivers/pci/search.c	Thu Jun  5 13:52:43 2003
-+++ b/drivers/pci/search.c	Thu Jun  5 13:52:43 2003
-@@ -171,9 +171,20 @@
- 	return NULL;
- }
- 
-+/**
-+ * pci_present - determine if there are any pci devices on this system
-+ *
-+ * Returns 0 if no pci devices are present, 1 if pci devices are present.
-+ */
-+int pci_present(void)
-+{
-+	return !list_empty(&pci_devices);
-+}
-+
- EXPORT_SYMBOL(pci_find_bus);
- EXPORT_SYMBOL(pci_find_class);
- EXPORT_SYMBOL(pci_find_device);
- EXPORT_SYMBOL(pci_find_device_reverse);
- EXPORT_SYMBOL(pci_find_slot);
- EXPORT_SYMBOL(pci_find_subsys);
-+EXPORT_SYMBOL(pci_present);
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Thu Jun  5 13:52:43 2003
-+++ b/include/linux/pci.h	Thu Jun  5 13:52:43 2003
-@@ -522,14 +522,10 @@
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
- 
--static inline int pci_present(void)
--{
--	return !list_empty(&pci_devices);
--}
--
- #define pci_for_each_bus(bus) \
- 	for(bus = pci_bus_b(pci_root_buses.next); bus != pci_bus_b(&pci_root_buses); bus = pci_bus_b(bus->node.next))
- 
-+int pci_present(void);
- void pcibios_fixup_bus(struct pci_bus *);
- int pcibios_enable_device(struct pci_dev *, int mask);
- char *pcibios_setup (char *str);
+Oliver Neukum:
+  o USB: usb_set_configuration in empeg.c
+  o USB: cut usb_set_config from hpusbscsi
 

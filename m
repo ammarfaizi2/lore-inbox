@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129812AbQKHWce>; Wed, 8 Nov 2000 17:32:34 -0500
+	id <S129097AbQKHWkH>; Wed, 8 Nov 2000 17:40:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129828AbQKHWcY>; Wed, 8 Nov 2000 17:32:24 -0500
-Received: from jump-isi.interactivesi.com ([207.8.4.2]:7674 "HELO
-	dinero.interactivesi.com") by vger.kernel.org with SMTP
-	id <S129812AbQKHWcQ>; Wed, 8 Nov 2000 17:32:16 -0500
-Date: Wed, 08 Nov 2000 16:32:13 -0600
-From: Timur Tabi <ttabi@interactivesi.com>
-To: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
-Subject: `smp_num_cpus' redefined
-X-Mailer: The Polarbar Mailer (pbm 1.17b)
-Message-Id: <20001108223222Z129812-31179+2060@vger.kernel.org>
+	id <S129145AbQKHWj6>; Wed, 8 Nov 2000 17:39:58 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:18696 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129097AbQKHWjs>;
+	Wed, 8 Nov 2000 17:39:48 -0500
+Message-ID: <3A09D60F.2A5C1990@mandrakesoft.com>
+Date: Wed, 08 Nov 2000 17:39:11 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Feuer <David_Feuer@brown.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pcmcia
+In-Reply-To: <4.3.2.7.2.20001108172304.00adb270@postoffice.brown.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling under 2.4, I get this:
+David Feuer wrote:
+> 
+> What is the current status of PC-card support?  I've seen ominous signs on
+> this list about the state of support....  I have a laptop with a PCMCIA
+> network card (a 3com thing). Will it work?
 
-/usr/include/linux/smp.h:80: warning: `smp_num_cpus' redefined
-/usr/include/linux/modules/i386_ksyms.ver:82: warning: this is the location of
-the previous definition
-/usr/include/linux/smp.h:87: warning: `smp_call_function' redefined
-/usr/include/linux/modules/i386_ksyms.ver:98: warning: this is the location of
-the previous definition
-/usr/include/linux/smp.h:88: warning: `cpu_online_map' redefined
-/usr/include/linux/modules/i386_ksyms.ver:84: warning: this is the location of
-the previous definition
-
-Where does i386_ksyms.ver come from?
-
-
+It should, yes.  Enable hotplug, cardbus, and 3com vortex/boomerang
+support...
 
 -- 
-Timur Tabi - ttabi@interactivesi.com
-Interactive Silicon - http://www.interactivesi.com
-
-When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+Jeff Garzik             | "When I do this, my computer freezes."
+Building 1024           |          -user
+MandrakeSoft            | "Don't do that."
+                        |          -level 1
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

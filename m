@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbQLaDnO>; Sat, 30 Dec 2000 22:43:14 -0500
+	id <S129436AbQLaDsf>; Sat, 30 Dec 2000 22:48:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130643AbQLaDnE>; Sat, 30 Dec 2000 22:43:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64260 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129436AbQLaDm7>; Sat, 30 Dec 2000 22:42:59 -0500
-Date: Sat, 30 Dec 2000 19:12:22 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Steven Cole <elenstev@mesatop.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: test13-pre7...
-In-Reply-To: <00123019575800.01541@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10012301910420.1904-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130643AbQLaDs0>; Sat, 30 Dec 2000 22:48:26 -0500
+Received: from smtp8.xs4all.nl ([194.109.127.134]:58842 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129436AbQLaDsK>;
+	Sat, 30 Dec 2000 22:48:10 -0500
+Path: Home.Lunix!not-for-mail
+Subject: Re: PROBLEM: multiple mount of devices possible 2.4.0-test1 -
+    2.4.0-test13-pre4
+Date: Sun, 31 Dec 2000 03:18:21 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <Pine.GSO.4.21.0012301829190.4082-100000@weyl.math.psu.edu>
+NNTP-Posting-Host: kali.eth
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Trace: quasar.home.lunix 978232701 30725 10.253.0.3 (31 Dec 2000
+    03:18:21 GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Sun, 31 Dec 2000 03:18:21 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:66223
+X-Mailer: Perl5 Mail::Internet v1.32
+Message-Id: <92m8ht$u05$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.GSO.4.21.0012301829190.4082-100000@weyl.math.psu.edu>,
+	Alexander Viro <viro@math.psu.edu> writes:
+> On Sat, 30 Dec 2000, Ton Hospel wrote:
+> 
+>> It should still need a special flag or something, since it's
+>> impossible for userspace to check this atomically.
+> 
+> To check _what_? Having the same tree mounted in several places is
+> allowed. End of story. Atomicity of any kind is a non-issue - if you
+> have processes that do not cooperate and do random mounts you are
+> getting exactly what you are asking for.
+> 
 
+I wasn't talking about mounting the same device on different mount points.
+If you ask for that, it's good that you nowadays you can get that (though
+even there it might be a good idea to let the filesystem say if it can
+support that or not)
 
-On Sat, 30 Dec 2000, Steven Cole wrote:
->
-> It looks like 2.4.0-test13-pre7 is a clear winner when running dbench 48
-> on my somewhat slow test machine (450 Mhz P-III, 192MB, IDE).
+I was talking about avoiding that the same device gets multiple mounted 
+at the SAME place, e.g. when doing mount -a, which is often used as a
+quick way to get the new entries in /etc/fstab
 
-This is almost certainly purely due to changing (some would say "fixing")
-the bdflush synchronous wait point.
-
-No actual code was harmed in the making of this improvement.
-
-But I will take full credit anyway.
-
-		Linus
-
+That would also be no problem if there were a standard about e.g. always
+flocking /etc/mtab. But as far as I know there isn't such a standard.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

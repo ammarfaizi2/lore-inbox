@@ -1,95 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129541AbQKRQ5S>; Sat, 18 Nov 2000 11:57:18 -0500
+	id <S129625AbQKRQ6T>; Sat, 18 Nov 2000 11:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129625AbQKRQ5I>; Sat, 18 Nov 2000 11:57:08 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:18697 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129541AbQKRQ44>; Sat, 18 Nov 2000 11:56:56 -0500
-Date: Sat, 18 Nov 2000 08:26:27 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S129694AbQKRQ6J>; Sat, 18 Nov 2000 11:58:09 -0500
+Received: from 213-1-125-95.btconnect.com ([213.1.125.95]:26498 "EHLO
+	saturn.homenet") by vger.kernel.org with ESMTP id <S129684AbQKRQ5v>;
+	Sat, 18 Nov 2000 11:57:51 -0500
+Date: Sat, 18 Nov 2000 16:29:51 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
 To: Brian Gerst <bgerst@didntduck.org>
-cc: linux-kernel@vger.kernel.org, Markus Schoder <markus_schoder@yahoo.de>
-Subject: Re: Freeze on FPU exception with Athlon
-In-Reply-To: <3A168F08.F124A76A@didntduck.org>
-Message-ID: <Pine.LNX.4.10.10011180809250.8465-100000@penguin.transmeta.com>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86 mm init cleanup
+In-Reply-To: <3A16ACD6.71BAF564@didntduck.org>
+Message-ID: <Pine.LNX.4.21.0011181628220.1270-100000@saturn.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
 On Sat, 18 Nov 2000, Brian Gerst wrote:
+
+> Patch against test11.  This patch moves the setting of %cr4 out of the
+> loops and makes the code a bit more readable.  Tested with standard
+> pagetables, PSE, and PAE.
 > 
-> I get Floating Point Exception (core dumped), but I needed to use the
-> modified program below to keep GCC from optimizing the division away as
-> a constant.  This is on test11-pre5.
+> 
 
-I'm starting to suspect that it's really a combination of three things: 
- - 3dnow optimization (ie you have to compile the kernel with Athlon
-   support)
- - pending, but not yet noticed, FPU exceptions.
- - a bug/feature in the kernel, where a process exit does not bother to
-   clear the FPU, only marks it as "unused".
+Brian,
 
-If I'm right, the proper test-program should be something like
+while you were there, so close to paging_init() why not also correct the
+wrong comment at the top of the function? It talks about 0-4M pagetables
+whereas we really setup (see head.S) 0-8M.
 
-	int main(int argc, char **argv)
-	{
-	        asm("fldcw %0": :"m" (0));
-	        asm("fldz ; fld1 ; fdiv");
-		sleep(1);
-	        return 0;
-	}
-
-where it's important that we do not wait for the result of the fdiv, we
-just exit after having caused a pending exception (and you cannot do this 
-reliably from C code - depending on compiler version and optimizations
-gcc may try to write the bad value back to memory etc). 
-
-Now, with the pending exception, do a 3dnow MMX memcpy() - which will
-clear the TS bit (because it decides that the FP state can be thrown
-away and doesn't need to do a full save/restore) and start using the FPU.
-Boom. Instant FP exception. With the exception handler deciding that
-nobody owns the FP state, and thus doing nothing sane.
-
-If I'm right (and I'm _always_ right), the following patch would make a
-difference.
-
-Markus?
-
-		Linus
-
-----
---- v2.4.0-test10/linux/arch/i386/kernel/traps.c	Tue Oct 31 12:42:26 2000
-+++ linux/arch/i386/kernel/traps.c	Fri Nov 17 21:52:55 2000
-@@ -643,6 +640,12 @@
- asmlinkage void do_coprocessor_error(struct pt_regs * regs, long error_code)
- {
- 	ignore_irq13 = 1;
-+
-+	/* Due to lazy error handling, we might have false pending errors! */
-+	if (!current->used_math) {
-+		init_fpu();
-+		return;
-+	}	
- 	math_error((void *)regs->eip);
- }
- 
-@@ -700,6 +703,12 @@
- 	if (cpu_has_xmm) {
- 		/* Handle SIMD FPU exceptions on PIII+ processors. */
- 		ignore_irq13 = 1;
-+
-+		/* Due to lazy error handling, we might have false pending errors! */
-+		if (!current->used_math) {
-+			init_fpu();
-+			return;
-+		}	
- 		simd_math_error((void *)regs->eip);
- 	} else {
- 		/*
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

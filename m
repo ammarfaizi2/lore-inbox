@@ -1,773 +1,991 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVDFLus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVDFL5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVDFLus (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 07:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVDFLup
+	id S262175AbVDFL5B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 07:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVDFL5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 07:50:45 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:61887 "EHLO
+	Wed, 6 Apr 2005 07:57:00 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:62143 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262176AbVDFLrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 07:47:07 -0400
-Message-Id: <20050406114654.049702000@faui31y>
+	id S262175AbVDFLrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 07:47:10 -0400
+Message-Id: <20050406114655.119804000@faui31y>
 References: <20050406114610.287064000@faui31y>
-Date: Wed, 06 Apr 2005 13:46:13 +0200
+Date: Wed, 06 Apr 2005 13:46:15 +0200
 From: Martin Waitz <tali@admingilde.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 3/6] DocBook: fix some descriptions
-Content-Disposition: inline; filename=docbook-fix-missing-desc.patch
+Subject: [patch 5/6] DocBook: remove obsolete templates
+Content-Disposition: inline; filename=docbook-remove-obsolete-templates.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DocBook: fix some descriptions
+DocBook: remove obsolete templates
 
-Some KernelDoc descriptions are updated to match the current code.
-No code changes.
+From: Jeff Garzik <jgarzik@pobox.com>
+
+As the author of tulip-user and via-audio docbooks, I can say that
+they are out of date and should be deleted.
 
 Signed-off-by: Martin Waitz <tali@admingilde.org>
 
- drivers/acpi/scan.c     |    4 -
- drivers/base/platform.c |    4 -
- drivers/pci/hotplug.c   |    4 +
- drivers/pci/rom.c       |   14 +++---
- drivers/pnp/manager.c   |    2 
- fs/bio.c                |    2 
- fs/buffer.c             |   11 ++---
- fs/fs-writeback.c       |    4 +
- fs/mpage.c              |   92 ++++++++++++++++++++++----------------------
- fs/proc/base.c          |    2 
- fs/seq_file.c           |    9 +++-
- fs/sysfs/file.c         |    4 -
- include/linux/fs.h      |  100 ++++++++++++++++++++++++------------------------
- include/linux/skbuff.h  |    5 +-
- include/net/sock.h      |    1 
- kernel/sched.c          |    3 -
- kernel/sysctl.c         |    2 
- lib/kobject.c           |    3 -
- mm/filemap.c            |   17 ++++----
- mm/page-writeback.c     |    6 +-
- mm/truncate.c           |    4 -
- net/core/datagram.c     |    4 -
- 22 files changed, 160 insertions(+), 137 deletions(-)
+ Documentation/DocBook/tulip-user.tmpl |  327 ------------------
+ Documentation/DocBook/via-audio.tmpl  |  597 ----------------------------------
+ Documentation/DocBook/Makefile        |    7 
+ 3 files changed, 3 insertions(+), 928 deletions(-)
 
-Index: linux-docbook/kernel/sysctl.c
+Index: linux-docbook/Documentation/DocBook/Makefile
 ===================================================================
---- linux-docbook.orig/kernel/sysctl.c	2005-04-06 12:12:50.869129883 +0200
-+++ linux-docbook/kernel/sysctl.c	2005-04-06 12:25:15.526488679 +0200
-@@ -1969,6 +1969,7 @@ int proc_dointvec_jiffies(ctl_table *tab
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: file position
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-  * values from/to the user buffer, treated as an ASCII string. 
-@@ -1991,6 +1992,7 @@ int proc_dointvec_userhz_jiffies(ctl_tab
-  * @filp: the file structure
-  * @buffer: the user buffer
-  * @lenp: the size of the user buffer
-+ * @ppos: the current position in the file
-  *
-  * Reads/writes up to table->maxlen/sizeof(unsigned int) integer
-  * values from/to the user buffer, treated as an ASCII string. 
-Index: linux-docbook/lib/kobject.c
+--- linux-docbook.orig/Documentation/DocBook/Makefile	2005-04-06 12:12:46.103850545 +0200
++++ linux-docbook/Documentation/DocBook/Makefile	2005-04-06 12:25:19.150939983 +0200
+@@ -7,10 +7,9 @@
+ # list of DOCBOOKS.
+ 
+ DOCBOOKS := wanbook.xml z8530book.xml mcabook.xml videobook.xml \
+-	    kernel-hacking.xml kernel-locking.xml via-audio.xml \
+-	    deviceiobook.xml procfs-guide.xml tulip-user.xml \
+-	    writing_usb_driver.xml scsidrivers.xml sis900.xml \
+-	    kernel-api.xml journal-api.xml lsm.xml usb.xml \
++	    kernel-hacking.xml kernel-locking.xml deviceiobook.xml \
++	    procfs-guide.xml writing_usb_driver.xml scsidrivers.xml \
++	    sis900.xml kernel-api.xml journal-api.xml lsm.xml usb.xml \
+ 	    gadget.xml libata.xml mtdnand.xml librs.xml
+ 
+ ###
+Index: linux-docbook/Documentation/DocBook/via-audio.tmpl
 ===================================================================
---- linux-docbook.orig/lib/kobject.c	2005-04-06 12:12:50.870129732 +0200
-+++ linux-docbook/lib/kobject.c	2005-04-06 12:25:15.527488527 +0200
-@@ -217,13 +217,12 @@ int kobject_register(struct kobject * ko
- /**
-  *	kobject_set_name - Set the name of an object
-  *	@kobj:	object.
-- *	@name:	name. 
-+ *	@fmt:	format string used to build the name
-  *
-  *	If strlen(name) >= KOBJ_NAME_LEN, then use a dynamically allocated
-  *	string that @kobj->k_name points to. Otherwise, use the static 
-  *	@kobj->name array.
-  */
+--- linux-docbook.orig/Documentation/DocBook/via-audio.tmpl	2005-04-06 12:12:46.103850545 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,597 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+-	"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" []>
 -
- int kobject_set_name(struct kobject * kobj, const char * fmt, ...)
- {
- 	int error = 0;
-Index: linux-docbook/kernel/sched.c
+-<book id="ViaAudioGuide">
+- <bookinfo>
+-  <title>Via 686 Audio Driver for Linux</title>
+-  
+-  <authorgroup>
+-   <author>
+-    <firstname>Jeff</firstname>
+-    <surname>Garzik</surname>
+-   </author>
+-  </authorgroup>
+-
+-  <copyright>
+-   <year>1999-2001</year>
+-   <holder>Jeff Garzik</holder>
+-  </copyright>
+-
+-  <legalnotice>
+-   <para>
+-     This documentation is free software; you can redistribute
+-     it and/or modify it under the terms of the GNU General Public
+-     License as published by the Free Software Foundation; either
+-     version 2 of the License, or (at your option) any later
+-     version.
+-   </para>
+-      
+-   <para>
+-     This program is distributed in the hope that it will be
+-     useful, but WITHOUT ANY WARRANTY; without even the implied
+-     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-     See the GNU General Public License for more details.
+-   </para>
+-      
+-   <para>
+-     You should have received a copy of the GNU General Public
+-     License along with this program; if not, write to the Free
+-     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+-     MA 02111-1307 USA
+-   </para>
+-      
+-   <para>
+-     For more details see the file COPYING in the source
+-     distribution of Linux.
+-   </para>
+-  </legalnotice>
+- </bookinfo>
+-
+-<toc></toc>
+-
+-  <chapter id="intro">
+-      <title>Introduction</title>
+-  <para>
+-  	The Via VT82C686A "super southbridge" chips contain
+-	AC97-compatible audio logic which features dual 16-bit stereo
+-	PCM sound channels (full duplex), plus a third PCM channel intended for use
+-	in hardware-assisted FM synthesis.
+-  </para>
+-  <para>
+-  	The current Linux kernel audio driver for this family of chips
+-	supports audio playback and recording, but hardware-assisted
+-	FM features, and hardware buffer direct-access (mmap)
+-	support are not yet available.
+-  </para>
+-  <para>
+-  	This driver supports any Linux kernel version after 2.4.10.
+-  </para>
+-  <para>
+-	Please send bug reports to the mailing list <email>linux-via@gtf.org</email>.
+-	To subscribe, e-mail <email>majordomo@gtf.org</email> with
+-  </para>
+-  <programlisting>
+-	subscribe linux-via
+-  </programlisting>
+-  <para>
+-	in the body of the message.
+-  </para>
+-  </chapter>
+-  
+-  <chapter id="install">
+-      <title>Driver Installation</title>
+-  <para>
+-  	To use this audio driver, select the
+-	CONFIG_SOUND_VIA82CXXX option in the section Sound during kernel configuration.
+-	Follow the usual kernel procedures for rebuilding the kernel,
+-	or building and installing driver modules.
+-  </para>
+-  <para>
+-  	To make this driver the default audio driver, you can add the
+-	following to your /etc/conf.modules file:
+-  </para>
+-  <programlisting>
+-	alias sound via82cxxx_audio
+-  </programlisting>
+-  <para>
+-  	Note that soundcore and ac97_codec support modules
+-	are also required for working audio, in addition to
+-	the via82cxxx_audio module itself.
+-  </para>
+-  </chapter>
+-  
+-  <chapter id="reportbug">
+-      <title>Submitting a bug report</title>
+-  <sect1 id="bugrepdesc"><title>Description of problem</title>
+-  <para>
+-	Describe the application you were using to play/record sound, and how
+-	to reproduce the problem.
+-  </para>
+-  </sect1>
+-  <sect1 id="bugrepdiag"><title>Diagnostic output</title>
+-  <para>
+-	Obtain the via-audio-diag diagnostics program from
+-	http://sf.net/projects/gkernel/ and provide a dump of the
+-	audio chip's registers while the problem is occurring.  Sample command line:
+-  </para>
+-  <programlisting>
+-	./via-audio-diag -aps > diag-output.txt
+-  </programlisting>
+-  </sect1>
+-  <sect1 id="bugrepdebug"><title>Driver debug output</title>
+-  <para>
+-	Define <constant>VIA_DEBUG</constant> at the beginning of the driver, then capture and email
+-	the kernel log output.  This can be viewed in the system kernel log (if
+-	enabled), or via the dmesg program.  Sample command line:
+-  </para>
+-  <programlisting>
+-	dmesg > /tmp/dmesg-output.txt
+-  </programlisting>
+-  </sect1>
+-  <sect1 id="bugrepprintk"><title>Bigger kernel message buffer</title>
+-  <para>
+-	If you wish to increase the size of the buffer displayed by dmesg, then
+-	change the <constant>LOG_BUF_LEN</constant> macro at the top of linux/kernel/printk.c, recompile
+-	your kernel, and pass the <constant>LOG_BUF_LEN</constant> value to dmesg.  Sample command line with
+-	<constant>LOG_BUF_LEN</constant> == 32768:
+-  </para>
+-  <programlisting>
+-	dmesg -s 32768 > /tmp/dmesg-output.txt
+-  </programlisting>
+-  </sect1>
+-  </chapter>
+-  
+-  <chapter id="bugs">
+-     <title>Known Bugs And Assumptions</title>
+-  <para>
+-  <variablelist>
+-    <varlistentry><term>Low volume</term>
+-    <listitem>
+-    <para>
+-	Volume too low on many systems.  Workaround:  use mixer program
+-	such as xmixer to increase volume.
+-    </para>
+-    </listitem></varlistentry>
+-
+-  </variablelist>
+-	
+-  </para>
+-  </chapter>
+-
+-  <chapter id="thanks">
+-      <title>Thanks</title>
+-  <para>
+-	Via for providing e-mail support, specs, and NDA'd source code.
+-  </para>
+-  <para>
+-	MandrakeSoft for providing hacking time.
+-  </para>
+-  <para>
+-	AC97 mixer interface fixes and debugging by Ron Cemer <email>roncemer@gte.net</email>.
+-  </para>
+-  <para>
+-	Rui Sousa <email>rui.sousa@conexant.com</email>, for bugfixing
+-	MMAP support, and several other notable fixes that resulted from
+-	his hard work and testing.
+-  </para>
+-  <para>
+-	Adrian Cox <email>adrian@humboldt.co.uk</email>, for bugfixing
+-	MMAP support, and several other notable fixes that resulted from
+-	his hard work and testing.
+-  </para>
+-  <para>
+-  	Thomas Sailer for further bugfixes.
+-  </para>
+-  </chapter>
+-  
+-  <chapter id="notes">
+-     <title>Random Notes</title>
+-  <para>
+-	Two /proc pseudo-files provide diagnostic information.  This is generally
+-	not useful to most users.  Power users can disable CONFIG_SOUND_VIA82CXXX_PROCFS,
+-	and remove the /proc support code.  Once
+-	version 2.0.0 is released, the /proc support code will be disabled by
+-	default.  Available /proc pseudo-files:
+-  </para>
+-  <programlisting>
+-	/proc/driver/via/0/info
+-	/proc/driver/via/0/ac97
+-  </programlisting>
+-  <para>
+-	This driver by default supports all PCI audio devices which report
+-	a vendor id of 0x1106, and a device id of 0x3058.  Subsystem vendor
+-	and device ids are not examined.
+-  </para>
+-  <para>
+-	GNU indent formatting options:
+-  <programlisting>
+--kr -i8 -ts8 -br -ce -bap -sob -l80 -pcs -cs -ss -bs -di1 -nbc -lp -psl
+-  </programlisting>
+-  </para>
+-  <para>
+-	Via has graciously donated e-mail support and source code to help further
+-	the development of this driver.  Their assistance has been invaluable
+-	in the design and coding of the next major version of this driver.
+-  </para>
+-  <para>
+-	The Via audio chip apparently provides a second PCM scatter-gather
+-	DMA channel just for FM data, but does not have a full hardware MIDI
+-	processor.  I haven't put much thought towards a solution here, but it
+-	might involve using SoftOSS midi wave table, or simply disabling MIDI
+-	support altogether and using the FM PCM channel as a second (input? output?)
+-  </para>
+-  </chapter>
+-
+-  <chapter id="changelog">
+-      <title>Driver ChangeLog</title>
+-
+-<sect1 id="version191"><title>
+-Version 1.9.1
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    DSP read/write bugfixes from Thomas Sailer.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Add new PCI id for single-channel use of Via 8233.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Other bug fixes, tweaks, new ioctls.
+-    </para>
+-   </listitem>
+-
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version1115"><title>
+-Version 1.1.15
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    Support for variable fragment size and variable fragment number (Rui
+-    Sousa)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Fixes for the SPEED, STEREO, CHANNELS, FMT ioctls when in read &amp;
+-    write mode (Rui Sousa)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Mmaped sound is now fully functional. (Rui Sousa)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Make sure to enable PCI device before reading any of its PCI
+-    config information. (fixes potential hotplug problems)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Clean up code a bit and add more internal function documentation.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    AC97 codec access fixes (Adrian Cox)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Big endian fixes (Adrian Cox)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    MIDI support (Adrian Cox)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Detect and report locked-rate AC97 codecs.  If your hardware only
+-    supports 48Khz (locked rate), then your recording/playback software
+-    must upsample or downsample accordingly.  The hardware cannot do it.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Use new pci_request_regions and pci_disable_device functions in
+-    kernel 2.4.6.
+-    </para>
+-   </listitem>
+-
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version1114"><title>
+-Version 1.1.14
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    Use VM_RESERVE when available, to eliminate unnecessary page faults.
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version1112"><title>
+-Version 1.1.12
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    mmap bug fixes from Linus.
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version1111"><title>
+-Version 1.1.11
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    Many more bug fixes.  mmap enabled by default, but may still be buggy.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Uses new and spiffy method of mmap'ing the DMA buffer, based
+-    on a suggestion from Linus.
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version1110"><title>
+-Version 1.1.10
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    Many bug fixes.  mmap enabled by default, but may still be buggy.
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version119"><title>
+-Version 1.1.9
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    Redesign and rewrite audio playback implementation.  (faster and smaller, hopefully)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Implement recording and full duplex (DSP_CAP_DUPLEX) support.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Make procfs support optional.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Quick interrupt status check, to lessen overhead in interrupt
+-    sharing situations.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Add mmap(2) support.  Disabled for now, it is still buggy and experimental.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Surround all syscalls with a semaphore for cheap and easy SMP protection.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Fix bug in channel shutdown (hardware channel reset) code.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Remove unnecessary spinlocks (better performance).
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Eliminate "unknown AFMT" message by using a different method
+-    of selecting the best AFMT_xxx sound sample format for use.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Support for realtime hardware pointer position reporting
+-    (DSP_CAP_REALTIME, SNDCTL_DSP_GETxPTR ioctls)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Support for capture/playback triggering
+-    (DSP_CAP_TRIGGER, SNDCTL_DSP_SETTRIGGER ioctls)
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    SNDCTL_DSP_SETDUPLEX and SNDCTL_DSP_POST ioctls now handled.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Rewrite open(2) and close(2) logic to allow only one user at
+-    a time.  All other open(2) attempts will sleep until they succeed.
+-    FIXME: open(O_RDONLY) and open(O_WRONLY) should be allowed to succeed.
+-    </para>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    Reviewed code to ensure that SMP and multiple audio devices
+-    are fully supported.
+-    </para>
+-   </listitem>
+-
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version118"><title>
+-Version 1.1.8
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+-    	Clean up interrupt handler output.  Fixes the following kernel error message:
+-    </para>
+-  	<programlisting>
+-	unhandled interrupt ...
+-  	</programlisting>
+-   </listitem>
+-
+-   <listitem>
+-    <para>
+-    	Convert documentation to DocBook, so that PDF, HTML and PostScript (.ps) output is readily
+-	available.
+-    </para>
+-   </listitem>
+-
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version117"><title>
+-Version 1.1.7
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+- Fix module unload bug where mixer device left registered
+-  after driver exit
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version116"><title>
+-Version 1.1.6
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+- Rewrite via_set_rate to mimic ALSA basic AC97 rate setting
+-    </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Remove much dead code
+-    </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Complete spin_lock_irqsave -> spin_lock_irq conversion in via_dsp_ioctl
+-    </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Fix build problem in via_dsp_ioctl
+-    </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Optimize included headers to eliminate headers found in linux/sound
+-	</para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version115"><title>
+-Version 1.1.5
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+- Disable some overly-verbose debugging code
+-    </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Remove unnecessary sound locks
+-   </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Fix some ioctls for better time resolution
+-    </para>
+-   </listitem>
+-   <listitem>
+-    <para>
+- Begin spin_lock_irqsave -> spin_lock_irq conversion in via_dsp_ioctl
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-<sect1 id="version114"><title>
+-Version 1.1.4
+-</title>
+-  <itemizedlist spacing="compact">
+-   <listitem>
+-    <para>
+- Completed rewrite of driver.  Eliminated SoundBlaster compatibility
+-  completely, and now uses the much-faster scatter-gather DMA engine.
+-    </para>
+-   </listitem>
+-  </itemizedlist>
+-</sect1>
+-
+-  </chapter>
+-  
+-  <chapter id="intfunctions">
+-     <title>Internal Functions</title>
+-!Isound/oss/via82cxxx_audio.c
+-  </chapter>
+-
+-</book>
+-
+-
+Index: linux-docbook/Documentation/DocBook/tulip-user.tmpl
 ===================================================================
---- linux-docbook.orig/kernel/sched.c	2005-04-06 12:12:50.870129732 +0200
-+++ linux-docbook/kernel/sched.c	2005-04-06 12:25:15.532487770 +0200
-@@ -2906,6 +2906,7 @@ static void __wake_up_common(wait_queue_
-  * @q: the waitqueue
-  * @mode: which threads
-  * @nr_exclusive: how many wake-one or wake-many threads to wake up
-+ * @key: is directly passed to the wakeup function
-  */
- void fastcall __wake_up(wait_queue_head_t *q, unsigned int mode,
- 				int nr_exclusive, void *key)
-@@ -2928,7 +2929,7 @@ void fastcall __wake_up_locked(wait_queu
- }
- 
- /**
-- * __wake_up - sync- wake up threads blocked on a waitqueue.
-+ * __wake_up_sync - wake up threads blocked on a waitqueue.
-  * @q: the waitqueue
-  * @mode: which threads
-  * @nr_exclusive: how many wake-one or wake-many threads to wake up
-Index: linux-docbook/fs/buffer.c
-===================================================================
---- linux-docbook.orig/fs/buffer.c	2005-04-06 12:12:50.875128976 +0200
-+++ linux-docbook/fs/buffer.c	2005-04-06 12:25:15.536487165 +0200
-@@ -774,15 +774,14 @@ repeat:
- /**
-  * sync_mapping_buffers - write out and wait upon a mapping's "associated"
-  *                        buffers
-- * @buffer_mapping - the mapping which backs the buffers' data
-- * @mapping - the mapping which wants those buffers written
-+ * @mapping: the mapping which wants those buffers written
-  *
-  * Starts I/O against the buffers at mapping->private_list, and waits upon
-  * that I/O.
-  *
-- * Basically, this is a convenience function for fsync().  @buffer_mapping is
-- * the blockdev which "owns" the buffers and @mapping is a file or directory
-- * which needs those buffers to be written for a successful fsync().
-+ * Basically, this is a convenience function for fsync().
-+ * @mapping is a file or directory which needs those buffers to be written for
-+ * a successful fsync().
-  */
- int sync_mapping_buffers(struct address_space *mapping)
- {
-@@ -1263,6 +1262,7 @@ __getblk_slow(struct block_device *bdev,
- 
- /**
-  * mark_buffer_dirty - mark a buffer_head as needing writeout
-+ * @bh: the buffer_head to mark dirty
-  *
-  * mark_buffer_dirty() will set the dirty bit against the buffer, then set its
-  * backing page dirty, then tag the page as dirty in its address_space's radix
-@@ -1501,6 +1501,7 @@ EXPORT_SYMBOL(__breadahead);
- 
- /**
-  *  __bread() - reads a specified block and returns the bh
-+ *  @bdev: the block_device to read from
-  *  @block: number of block
-  *  @size: size (in bytes) to read
-  * 
-Index: linux-docbook/drivers/pci/rom.c
-===================================================================
---- linux-docbook.orig/drivers/pci/rom.c	2005-04-06 12:12:50.884127615 +0200
-+++ linux-docbook/drivers/pci/rom.c	2005-04-06 12:25:15.537487014 +0200
-@@ -14,7 +14,7 @@
- 
- /**
-  * pci_enable_rom - enable ROM decoding for a PCI device
-- * @dev: PCI device to enable
-+ * @pdev: PCI device to enable
-  *
-  * Enable ROM decoding on @dev.  This involves simply turning on the last
-  * bit of the PCI ROM BAR.  Note that some cards may share address decoders
-@@ -32,7 +32,7 @@ static void pci_enable_rom(struct pci_de
- 
- /**
-  * pci_disable_rom - disable ROM decoding for a PCI device
-- * @dev: PCI device to disable
-+ * @pdev: PCI device to disable
-  *
-  * Disable ROM decoding on a PCI device by turning off the last bit in the
-  * ROM BAR.
-@@ -47,7 +47,7 @@ static void pci_disable_rom(struct pci_d
- 
- /**
-  * pci_map_rom - map a PCI ROM to kernel space
-- * @dev: pointer to pci device struct
-+ * @pdev: pointer to pci device struct
-  * @size: pointer to receive size of pci window over ROM
-  * @return: kernel virtual pointer to image of ROM
-  *
-@@ -132,7 +132,7 @@ void __iomem *pci_map_rom(struct pci_dev
- 
- /**
-  * pci_map_rom_copy - map a PCI ROM to kernel space, create a copy
-- * @dev: pointer to pci device struct
-+ * @pdev: pointer to pci device struct
-  * @size: pointer to receive size of pci window over ROM
-  * @return: kernel virtual pointer to image of ROM
-  *
-@@ -166,7 +166,7 @@ void __iomem *pci_map_rom_copy(struct pc
- 
- /**
-  * pci_unmap_rom - unmap the ROM from kernel space
-- * @dev: pointer to pci device struct
-+ * @pdev: pointer to pci device struct
-  * @rom: virtual address of the previous mapping
-  *
-  * Remove a mapping of a previously mapped ROM
-@@ -187,7 +187,7 @@ void pci_unmap_rom(struct pci_dev *pdev,
- 
- /**
-  * pci_remove_rom - disable the ROM and remove its sysfs attribute
-- * @dev: pointer to pci device struct
-+ * @pdev: pointer to pci device struct
-  *
-  * Remove the rom file in sysfs and disable ROM decoding.
-  */
-@@ -206,7 +206,7 @@ void pci_remove_rom(struct pci_dev *pdev
- /**
-  * pci_cleanup_rom - internal routine for freeing the ROM copy created
-  * by pci_map_rom_copy called from remove.c
-- * @dev: pointer to pci device struct
-+ * @pdev: pointer to pci device struct
-  *
-  * Free the copied ROM if we allocated one.
-  */
-Index: linux-docbook/include/linux/skbuff.h
-===================================================================
---- linux-docbook.orig/include/linux/skbuff.h	2005-04-06 12:24:11.954112753 +0200
-+++ linux-docbook/include/linux/skbuff.h	2005-04-06 12:25:15.539486711 +0200
-@@ -173,13 +173,14 @@ struct skb_shared_info {
-  *	@h: Transport layer header
-  *	@nh: Network layer header
-  *	@mac: Link layer header
-- *	@dst: FIXME: Describe this field
-+ *	@dst: destination entry
-+ *	@sp: the security path, used for xfrm
-  *	@cb: Control buffer. Free for use by every layer. Put private vars here
-  *	@len: Length of actual data
-  *	@data_len: Data length
-  *	@mac_len: Length of link layer header
-  *	@csum: Checksum
-- *	@__unused: Dead field, may be reused
-+ *	@local_df: allow local fragmentation
-  *	@cloned: Head may be cloned (check refcnt to be sure)
-  *	@nohdr: Payload reference only, must not modify header
-  *	@pkt_type: Packet class
-Index: linux-docbook/include/linux/fs.h
-===================================================================
---- linux-docbook.orig/include/linux/fs.h	2005-04-06 12:24:11.951113207 +0200
-+++ linux-docbook/include/linux/fs.h	2005-04-06 12:25:15.542486257 +0200
-@@ -1065,71 +1065,75 @@ int sync_inode(struct inode *inode, stru
-  *    with a particular exported file system  - particularly enabling nfsd and
-  *    the filesystem to co-operate when dealing with file handles.
-  *
-- *    export_operations contains two basic operation for dealing with file handles,
-- *    decode_fh() and encode_fh(), and allows for some other operations to be defined
-- *    which standard helper routines use to get specific information from the
-- *    filesystem.
-+ *    export_operations contains two basic operation for dealing with file
-+ *    handles, decode_fh() and encode_fh(), and allows for some other
-+ *    operations to be defined which standard helper routines use to get
-+ *    specific information from the filesystem.
-  *
-  *    nfsd encodes information use to determine which filesystem a filehandle
-- *    applies to in the initial part of the file handle.  The remainder, termed a
-- *    file handle fragment, is controlled completely by the filesystem.
-- *    The standard helper routines assume that this fragment will contain one or two
-- *    sub-fragments, one which identifies the file, and one which may be used to
-- *    identify the (a) directory containing the file.
-+ *    applies to in the initial part of the file handle.  The remainder, termed
-+ *    a file handle fragment, is controlled completely by the filesystem.  The
-+ *    standard helper routines assume that this fragment will contain one or
-+ *    two sub-fragments, one which identifies the file, and one which may be
-+ *    used to identify the (a) directory containing the file.
-  *
-  *    In some situations, nfsd needs to get a dentry which is connected into a
-- *    specific part of the file tree.  To allow for this, it passes the function
-- *    acceptable() together with a @context which can be used to see if the dentry
-- *    is acceptable.  As there can be multiple dentrys for a given file, the filesystem
-- *    should check each one for acceptability before looking for the next.  As soon
-- *    as an acceptable one is found, it should be returned.
-+ *    specific part of the file tree.  To allow for this, it passes the
-+ *    function acceptable() together with a @context which can be used to see
-+ *    if the dentry is acceptable.  As there can be multiple dentrys for a
-+ *    given file, the filesystem should check each one for acceptability before
-+ *    looking for the next.  As soon as an acceptable one is found, it should
-+ *    be returned.
-  *
-  * decode_fh:
-- *    @decode_fh is given a &struct super_block (@sb), a file handle fragment (@fh, @fh_len)
-- *    and an acceptability testing function (@acceptable, @context).  It should return
-- *    a &struct dentry which refers to the same file that the file handle fragment refers
-- *    to,  and which passes the acceptability test.  If it cannot, it should return
-- *    a %NULL pointer if the file was found but no acceptable &dentries were available, or
-- *    a %ERR_PTR error code indicating why it couldn't be found (e.g. %ENOENT or %ENOMEM).
-+ *    @decode_fh is given a &struct super_block (@sb), a file handle fragment
-+ *    (@fh, @fh_len) and an acceptability testing function (@acceptable,
-+ *    @context).  It should return a &struct dentry which refers to the same
-+ *    file that the file handle fragment refers to,  and which passes the
-+ *    acceptability test.  If it cannot, it should return a %NULL pointer if
-+ *    the file was found but no acceptable &dentries were available, or a
-+ *    %ERR_PTR error code indicating why it couldn't be found (e.g. %ENOENT or
-+ *    %ENOMEM).
-  *
-  * encode_fh:
-- *    @encode_fh should store in the file handle fragment @fh (using at most @max_len bytes)
-- *    information that can be used by @decode_fh to recover the file refered to by the
-- *    &struct dentry @de.  If the @connectable flag is set, the encode_fh() should store
-- *    sufficient information so that a good attempt can be made to find not only
-- *    the file but also it's place in the filesystem.   This typically means storing
-- *    a reference to de->d_parent in the filehandle fragment.
-- *    encode_fh() should return the number of bytes stored or a negative error code
-- *    such as %-ENOSPC
-+ *    @encode_fh should store in the file handle fragment @fh (using at most
-+ *    @max_len bytes) information that can be used by @decode_fh to recover the
-+ *    file refered to by the &struct dentry @de.  If the @connectable flag is
-+ *    set, the encode_fh() should store sufficient information so that a good
-+ *    attempt can be made to find not only the file but also it's place in the
-+ *    filesystem.   This typically means storing a reference to de->d_parent in
-+ *    the filehandle fragment.  encode_fh() should return the number of bytes
-+ *    stored or a negative error code such as %-ENOSPC
-  *
-  * get_name:
-- *    @get_name should find a name for the given @child in the given @parent directory.
-- *    The name should be stored in the @name (with the understanding that it is already
-- *    pointing to a a %NAME_MAX+1 sized buffer.   get_name() should return %0 on success,
-- *    a negative error code or error.
-- *    @get_name will be called without @parent->i_sem held.
-+ *    @get_name should find a name for the given @child in the given @parent
-+ *    directory.  The name should be stored in the @name (with the
-+ *    understanding that it is already pointing to a a %NAME_MAX+1 sized
-+ *    buffer.   get_name() should return %0 on success, a negative error code
-+ *    or error.  @get_name will be called without @parent->i_sem held.
-  *
-  * get_parent:
-- *    @get_parent should find the parent directory for the given @child which is also
-- *    a directory.  In the event that it cannot be found, or storage space cannot be
-- *    allocated, a %ERR_PTR should be returned.
-+ *    @get_parent should find the parent directory for the given @child which
-+ *    is also a directory.  In the event that it cannot be found, or storage
-+ *    space cannot be allocated, a %ERR_PTR should be returned.
-  *
-  * get_dentry:
-- *    Given a &super_block (@sb) and a pointer to a file-system specific inode identifier,
-- *    possibly an inode number, (@inump) get_dentry() should find the identified inode and
-- *    return a dentry for that inode.
-- *    Any suitable dentry can be returned including, if necessary, a new dentry created
-- *    with d_alloc_root.  The caller can then find any other extant dentrys by following the
-- *    d_alias links.  If a new dentry was created using d_alloc_root, DCACHE_NFSD_DISCONNECTED
-- *    should be set, and the dentry should be d_rehash()ed.
-+ *    Given a &super_block (@sb) and a pointer to a file-system specific inode
-+ *    identifier, possibly an inode number, (@inump) get_dentry() should find
-+ *    the identified inode and return a dentry for that inode.  Any suitable
-+ *    dentry can be returned including, if necessary, a new dentry created with
-+ *    d_alloc_root.  The caller can then find any other extant dentrys by
-+ *    following the d_alias links.  If a new dentry was created using
-+ *    d_alloc_root, DCACHE_NFSD_DISCONNECTED should be set, and the dentry
-+ *    should be d_rehash()ed.
-  *
-- *    If the inode cannot be found, either a %NULL pointer or an %ERR_PTR code can be returned.
-- *    The @inump will be whatever was passed to nfsd_find_fh_dentry() in either the
-- *    @obj or @parent parameters.
-+ *    If the inode cannot be found, either a %NULL pointer or an %ERR_PTR code
-+ *    can be returned.  The @inump will be whatever was passed to
-+ *    nfsd_find_fh_dentry() in either the @obj or @parent parameters.
-  *
-  * Locking rules:
-- *  get_parent is called with child->d_inode->i_sem down
-- *  get_name is not (which is possibly inconsistent)
-+ *    get_parent is called with child->d_inode->i_sem down
-+ *    get_name is not (which is possibly inconsistent)
-  */
- 
- struct export_operations {
-Index: linux-docbook/net/core/datagram.c
-===================================================================
---- linux-docbook.orig/net/core/datagram.c	2005-04-06 12:24:11.964111239 +0200
-+++ linux-docbook/net/core/datagram.c	2005-04-06 12:25:15.543486105 +0200
-@@ -203,7 +203,7 @@ void skb_free_datagram(struct sock *sk, 
-  *	skb_copy_datagram_iovec - Copy a datagram to an iovec.
-  *	@skb: buffer to copy
-  *	@offset: offset in the buffer to start copying from
-- *	@iovec: io vector to copy to
-+ *	@to: io vector to copy to
-  *	@len: amount of data to copy from buffer to iovec
-  *
-  *	Note: the iovec is modified during the copy.
-@@ -379,7 +379,7 @@ fault:
-  *	skb_copy_and_csum_datagram_iovec - Copy and checkum skb to user iovec.
-  *	@skb: skbuff
-  *	@hlen: hardware length
-- *	@iovec: io vector
-+ *	@iov: io vector
-  * 
-  *	Caller _must_ check that skb will fit to this iovec.
-  *
-Index: linux-docbook/fs/mpage.c
-===================================================================
---- linux-docbook.orig/fs/mpage.c	2005-04-06 12:12:50.874129127 +0200
-+++ linux-docbook/fs/mpage.c	2005-04-06 12:25:15.545485803 +0200
-@@ -160,52 +160,6 @@ map_buffer_to_page(struct page *page, st
- 	} while (page_bh != head);
- }
- 
--/**
-- * mpage_readpages - populate an address space with some pages, and
-- *                       start reads against them.
-- *
-- * @mapping: the address_space
-- * @pages: The address of a list_head which contains the target pages.  These
-- *   pages have their ->index populated and are otherwise uninitialised.
-- *
-- *   The page at @pages->prev has the lowest file offset, and reads should be
-- *   issued in @pages->prev to @pages->next order.
-- *
-- * @nr_pages: The number of pages at *@pages
-- * @get_block: The filesystem's block mapper function.
-- *
-- * This function walks the pages and the blocks within each page, building and
-- * emitting large BIOs.
-- *
-- * If anything unusual happens, such as:
-- *
-- * - encountering a page which has buffers
-- * - encountering a page which has a non-hole after a hole
-- * - encountering a page with non-contiguous blocks
-- *
-- * then this code just gives up and calls the buffer_head-based read function.
-- * It does handle a page which has holes at the end - that is a common case:
-- * the end-of-file on blocksize < PAGE_CACHE_SIZE setups.
-- *
-- * BH_Boundary explanation:
-- *
-- * There is a problem.  The mpage read code assembles several pages, gets all
-- * their disk mappings, and then submits them all.  That's fine, but obtaining
-- * the disk mappings may require I/O.  Reads of indirect blocks, for example.
-- *
-- * So an mpage read of the first 16 blocks of an ext2 file will cause I/O to be
-- * submitted in the following order:
-- * 	12 0 1 2 3 4 5 6 7 8 9 10 11 13 14 15 16
-- * because the indirect block has to be read to get the mappings of blocks
-- * 13,14,15,16.  Obviously, this impacts performance.
-- * 
-- * So what we do it to allow the filesystem's get_block() function to set
-- * BH_Boundary when it maps block 11.  BH_Boundary says: mapping of the block
-- * after this one will require I/O against a block which is probably close to
-- * this one.  So you should push what I/O you have currently accumulated.
-- *
-- * This all causes the disk requests to be issued in the correct order.
-- */
- static struct bio *
- do_mpage_readpage(struct bio *bio, struct page *page, unsigned nr_pages,
- 			sector_t *last_block_in_bio, get_block_t get_block)
-@@ -320,6 +274,52 @@ confused:
- 	goto out;
- }
- 
-+/**
-+ * mpage_readpages - populate an address space with some pages, and
-+ *                       start reads against them.
-+ *
-+ * @mapping: the address_space
-+ * @pages: The address of a list_head which contains the target pages.  These
-+ *   pages have their ->index populated and are otherwise uninitialised.
-+ *
-+ *   The page at @pages->prev has the lowest file offset, and reads should be
-+ *   issued in @pages->prev to @pages->next order.
-+ *
-+ * @nr_pages: The number of pages at *@pages
-+ * @get_block: The filesystem's block mapper function.
-+ *
-+ * This function walks the pages and the blocks within each page, building and
-+ * emitting large BIOs.
-+ *
-+ * If anything unusual happens, such as:
-+ *
-+ * - encountering a page which has buffers
-+ * - encountering a page which has a non-hole after a hole
-+ * - encountering a page with non-contiguous blocks
-+ *
-+ * then this code just gives up and calls the buffer_head-based read function.
-+ * It does handle a page which has holes at the end - that is a common case:
-+ * the end-of-file on blocksize < PAGE_CACHE_SIZE setups.
-+ *
-+ * BH_Boundary explanation:
-+ *
-+ * There is a problem.  The mpage read code assembles several pages, gets all
-+ * their disk mappings, and then submits them all.  That's fine, but obtaining
-+ * the disk mappings may require I/O.  Reads of indirect blocks, for example.
-+ *
-+ * So an mpage read of the first 16 blocks of an ext2 file will cause I/O to be
-+ * submitted in the following order:
-+ * 	12 0 1 2 3 4 5 6 7 8 9 10 11 13 14 15 16
-+ * because the indirect block has to be read to get the mappings of blocks
-+ * 13,14,15,16.  Obviously, this impacts performance.
-+ * 
-+ * So what we do it to allow the filesystem's get_block() function to set
-+ * BH_Boundary when it maps block 11.  BH_Boundary says: mapping of the block
-+ * after this one will require I/O against a block which is probably close to
-+ * this one.  So you should push what I/O you have currently accumulated.
-+ *
-+ * This all causes the disk requests to be issued in the correct order.
-+ */
- int
- mpage_readpages(struct address_space *mapping, struct list_head *pages,
- 				unsigned nr_pages, get_block_t get_block)
-Index: linux-docbook/include/net/sock.h
-===================================================================
---- linux-docbook.orig/include/net/sock.h	2005-04-06 12:24:11.956112450 +0200
-+++ linux-docbook/include/net/sock.h	2005-04-06 12:25:15.546485651 +0200
-@@ -161,6 +161,7 @@ struct sock_common {
-   *	@sk_sndmsg_page: cached page for sendmsg
-   *	@sk_sndmsg_off: cached offset for sendmsg
-   *	@sk_send_head: front of stuff to transmit
-+  *	@sk_security: used by security modules
-   *	@sk_write_pending: a write to stream socket waits to start
-   *	@sk_state_change: callback to indicate change in the state of the sock
-   *	@sk_data_ready: callback to indicate there is data to be processed
-Index: linux-docbook/fs/fs-writeback.c
-===================================================================
---- linux-docbook.orig/fs/fs-writeback.c	2005-04-06 12:12:50.877128674 +0200
-+++ linux-docbook/fs/fs-writeback.c	2005-04-06 12:25:15.548485349 +0200
-@@ -512,7 +512,8 @@ restart:
- }
- 
- /**
-- * sync_inodes
-+ * sync_inodes - writes all inodes to disk
-+ * @wait: wait for completion
-  *
-  * sync_inodes() goes through each super block's dirty inode list, writes the
-  * inodes out, waits on the writeout and puts the inodes back on the normal
-@@ -604,6 +605,7 @@ EXPORT_SYMBOL(sync_inode);
- /**
-  * generic_osync_inode - flush all dirty data for a given inode to disk
-  * @inode: inode to write
-+ * @mapping: the address_space that should be flushed
-  * @what:  what to write and wait upon
-  *
-  * This can be called by file_write functions for files which have the
-Index: linux-docbook/fs/seq_file.c
-===================================================================
---- linux-docbook.orig/fs/seq_file.c	2005-04-06 12:12:50.876128825 +0200
-+++ linux-docbook/fs/seq_file.c	2005-04-06 12:25:15.548485349 +0200
-@@ -51,7 +51,10 @@ EXPORT_SYMBOL(seq_open);
- 
- /**
-  *	seq_read -	->read() method for sequential files.
-- *	@file, @buf, @size, @ppos: see file_operations method
-+ *	@file: the file to read from
-+ *	@buf: the buffer to read to
-+ *	@size: the maximum number of bytes to read
-+ *	@ppos: the current position in the file
-  *
-  *	Ready-made ->f_op->read()
-  */
-@@ -219,7 +222,9 @@ Eoverflow:
- 
- /**
-  *	seq_lseek -	->llseek() method for sequential files.
-- *	@file, @offset, @origin: see file_operations method
-+ *	@file: the file in question
-+ *	@offset: new position
-+ *	@origin: 0 for absolute, 1 for relative position
-  *
-  *	Ready-made ->f_op->llseek()
-  */
-Index: linux-docbook/mm/page-writeback.c
-===================================================================
---- linux-docbook.orig/mm/page-writeback.c	2005-04-06 12:12:50.872129430 +0200
-+++ linux-docbook/mm/page-writeback.c	2005-04-06 12:25:15.550485046 +0200
-@@ -255,7 +255,7 @@ static void balance_dirty_pages(struct a
- 
- /**
-  * balance_dirty_pages_ratelimited - balance dirty memory state
-- * @mapping - address_space which was dirtied
-+ * @mapping: address_space which was dirtied
-  *
-  * Processes which are dirtying memory should call in here once for each page
-  * which was newly dirtied.  The function will periodically check the system's
-@@ -562,8 +562,8 @@ int do_writepages(struct address_space *
- /**
-  * write_one_page - write out a single page and optionally wait on I/O
-  *
-- * @page - the page to write
-- * @wait - if true, wait on writeout
-+ * @page: the page to write
-+ * @wait: if true, wait on writeout
-  *
-  * The page must be locked by the caller and will be unlocked upon return.
-  *
-Index: linux-docbook/drivers/pnp/manager.c
-===================================================================
---- linux-docbook.orig/drivers/pnp/manager.c	2005-04-06 12:12:50.887127162 +0200
-+++ linux-docbook/drivers/pnp/manager.c	2005-04-06 12:25:15.551484894 +0200
-@@ -253,7 +253,7 @@ void pnp_init_resource_table(struct pnp_
- 
- /**
-  * pnp_clean_resources - clears resources that were not manually set
-- * @res - the resources to clean
-+ * @res: the resources to clean
-  *
-  */
- static void pnp_clean_resource_table(struct pnp_resource_table * res)
-Index: linux-docbook/fs/bio.c
-===================================================================
---- linux-docbook.orig/fs/bio.c	2005-04-06 12:12:50.876128825 +0200
-+++ linux-docbook/fs/bio.c	2005-04-06 12:25:15.552484743 +0200
-@@ -140,6 +140,7 @@ inline void bio_init(struct bio *bio)
-  * bio_alloc_bioset - allocate a bio for I/O
-  * @gfp_mask:   the GFP_ mask given to the slab allocator
-  * @nr_iovecs:	number of iovecs to pre-allocate
-+ * @bs:		the bio_set to allocate from
-  *
-  * Description:
-  *   bio_alloc_bioset will first try it's on mempool to satisfy the allocation.
-@@ -629,6 +630,7 @@ out:
- 
- /**
-  *	bio_map_user	-	map user address into bio
-+ *	@q: the request_queue_t for the bio
-  *	@bdev: destination block device
-  *	@uaddr: start of user address
-  *	@len: length in bytes
-Index: linux-docbook/fs/sysfs/file.c
-===================================================================
---- linux-docbook.orig/fs/sysfs/file.c	2005-04-06 12:12:50.877128674 +0200
-+++ linux-docbook/fs/sysfs/file.c	2005-04-06 12:25:15.553484592 +0200
-@@ -96,7 +96,7 @@ static int fill_read_buffer(struct dentr
- /**
-  *	flush_read_buffer - push buffer to userspace.
-  *	@buffer:	data buffer for file.
-- *	@userbuf:	user-passed buffer.
-+ *	@buf:		user-passed buffer.
-  *	@count:		number of bytes requested.
-  *	@ppos:		file position.
-  *
-@@ -164,7 +164,7 @@ out:
- /**
-  *	fill_write_buffer - copy buffer from userspace.
-  *	@buffer:	data buffer for file.
-- *	@userbuf:	data from user.
-+ *	@buf:		data from user.
-  *	@count:		number of bytes in @userbuf.
-  *
-  *	Allocate @buffer->page if it hasn't been already, then
-Index: linux-docbook/fs/proc/base.c
-===================================================================
---- linux-docbook.orig/fs/proc/base.c	2005-04-06 12:24:11.948113661 +0200
-+++ linux-docbook/fs/proc/base.c	2005-04-06 12:25:15.555484289 +0200
-@@ -1740,7 +1740,7 @@ struct dentry *proc_pid_unhash(struct ta
- 
- /**
-  * proc_pid_flush - recover memory used by stale /proc/@pid/x entries
-- * @proc_entry: directoy to prune.
-+ * @proc_dentry: directoy to prune.
-  *
-  * Shrink the /proc directory that was used by the just killed thread.
-  */
-Index: linux-docbook/mm/truncate.c
-===================================================================
---- linux-docbook.orig/mm/truncate.c	2005-04-06 12:12:50.872129430 +0200
-+++ linux-docbook/mm/truncate.c	2005-04-06 12:25:15.556484138 +0200
-@@ -242,7 +242,7 @@ EXPORT_SYMBOL(invalidate_inode_pages);
- 
- /**
-  * invalidate_inode_pages2_range - remove range of pages from an address_space
-- * @mapping - the address_space
-+ * @mapping: the address_space
-  * @start: the page offset 'from' which to invalidate
-  * @end: the page offset 'to' which to invalidate (inclusive)
-  *
-@@ -322,7 +322,7 @@ EXPORT_SYMBOL_GPL(invalidate_inode_pages
- 
- /**
-  * invalidate_inode_pages2 - remove all pages from an address_space
-- * @mapping - the address_space
-+ * @mapping: the address_space
-  *
-  * Any pages which are found to be mapped into pagetables are unmapped prior to
-  * invalidation.
-Index: linux-docbook/drivers/pci/hotplug.c
-===================================================================
---- linux-docbook.orig/drivers/pci/hotplug.c	2005-04-06 12:12:50.883127766 +0200
-+++ linux-docbook/drivers/pci/hotplug.c	2005-04-06 12:25:15.557483986 +0200
-@@ -120,6 +120,10 @@ static int pci_visit_bridge (struct pci_
- 
- /**
-  * pci_visit_dev - scans the pci buses.
-+ * @fn: callback functions that are called while visiting
-+ * @wrapped_dev: the device to scan
-+ * @wrapped_parent: the bus where @wrapped_dev is connected to
-+ *
-  * Every bus and every function is presented to a custom
-  * function that can act upon it.
-  */
-Index: linux-docbook/drivers/base/platform.c
-===================================================================
---- linux-docbook.orig/drivers/base/platform.c	2005-04-06 12:12:50.885127464 +0200
-+++ linux-docbook/drivers/base/platform.c	2005-04-06 12:25:15.558483835 +0200
-@@ -115,7 +115,7 @@ int platform_add_devices(struct platform
- 
- /**
-  *	platform_device_register - add a platform-level device
-- *	@dev:	platform device we're adding
-+ *	@pdev:	platform device we're adding
-  *
-  */
- int platform_device_register(struct platform_device * pdev)
-@@ -174,7 +174,7 @@ int platform_device_register(struct plat
- 
- /**
-  *	platform_device_unregister - remove a platform-level device
-- *	@dev:	platform device we're removing
-+ *	@pdev:	platform device we're removing
-  *
-  *	Note that this function will also release all memory- and port-based
-  *	resources owned by the device (@dev->resource).
-Index: linux-docbook/mm/filemap.c
-===================================================================
---- linux-docbook.orig/mm/filemap.c	2005-04-06 12:12:50.871129581 +0200
-+++ linux-docbook/mm/filemap.c	2005-04-06 12:25:15.561483381 +0200
-@@ -152,9 +152,10 @@ static int sync_page(void *word)
- /**
-  * filemap_fdatawrite_range - start writeback against all of a mapping's
-  * dirty pages that lie within the byte offsets <start, end>
-- * @mapping: address space structure to write
-- * @start: offset in bytes where the range starts
-- * @end : offset in bytes where the range ends
-+ * @mapping:	address space structure to write
-+ * @start:	offset in bytes where the range starts
-+ * @end:	offset in bytes where the range ends
-+ * @sync_mode:	enable synchronous operation
-  *
-  * If sync_mode is WB_SYNC_ALL then this is a "data integrity" operation, as
-  * opposed to a regular memory * cleansing writeback.  The difference between
-@@ -518,8 +519,8 @@ EXPORT_SYMBOL(find_trylock_page);
- /**
-  * find_lock_page - locate, pin and lock a pagecache page
-  *
-- * @mapping - the address_space to search
-- * @offset - the page index
-+ * @mapping: the address_space to search
-+ * @offset: the page index
-  *
-  * Locates the desired pagecache page, locks it, increments its reference
-  * count and returns its address.
-@@ -558,9 +559,9 @@ EXPORT_SYMBOL(find_lock_page);
- /**
-  * find_or_create_page - locate or add a pagecache page
-  *
-- * @mapping - the page's address_space
-- * @index - the page's index into the mapping
-- * @gfp_mask - page allocation mode
-+ * @mapping: the page's address_space
-+ * @index: the page's index into the mapping
-+ * @gfp_mask: page allocation mode
-  *
-  * Locates a page in the pagecache.  If the page is not present, a new page
-  * is allocated using @gfp_mask and is added to the pagecache and to the VM's
-Index: linux-docbook/drivers/acpi/scan.c
-===================================================================
---- linux-docbook.orig/drivers/acpi/scan.c	2005-04-06 12:12:50.886127313 +0200
-+++ linux-docbook/drivers/acpi/scan.c	2005-04-06 12:25:15.562483229 +0200
-@@ -379,8 +379,8 @@ ACPI_DEVICE_ATTR(eject, 0200, NULL, acpi
- 
- /**
-  * setup_sys_fs_device_files - sets up the device files under device namespace
-- * @@dev:	acpi_device object
-- * @@func:	function pointer to create or destroy the device file
-+ * @dev:	acpi_device object
-+ * @func:	function pointer to create or destroy the device file
-  */
- static void
- setup_sys_fs_device_files (
+--- linux-docbook.orig/Documentation/DocBook/tulip-user.tmpl	2005-04-06 12:12:46.104850394 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,327 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+-	"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" []>
+-
+-<book id="TulipUserGuide">
+- <bookinfo>
+-  <title>Tulip Driver User's Guide</title>
+-  
+-  <authorgroup>
+-   <author>
+-    <firstname>Jeff</firstname>
+-    <surname>Garzik</surname>
+-    <affiliation>
+-     <address>
+-      <email>jgarzik@pobox.com</email>
+-     </address>
+-    </affiliation>
+-   </author>
+-  </authorgroup>
+-
+-  <copyright>
+-   <year>2001</year>
+-   <holder>Jeff Garzik</holder>
+-  </copyright>
+-
+-  <legalnotice>
+-   <para>
+-     This documentation is free software; you can redistribute
+-     it and/or modify it under the terms of the GNU General Public
+-     License as published by the Free Software Foundation; either
+-     version 2 of the License, or (at your option) any later
+-     version.
+-   </para>
+-      
+-   <para>
+-     This program is distributed in the hope that it will be
+-     useful, but WITHOUT ANY WARRANTY; without even the implied
+-     warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-     See the GNU General Public License for more details.
+-   </para>
+-      
+-   <para>
+-     You should have received a copy of the GNU General Public
+-     License along with this program; if not, write to the Free
+-     Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+-     MA 02111-1307 USA
+-   </para>
+-      
+-   <para>
+-     For more details see the file COPYING in the source
+-     distribution of Linux.
+-   </para>
+-  </legalnotice>
+- </bookinfo>
+-
+- <toc></toc>
+-
+-  <chapter id="intro">
+-    <title>Introduction</title>
+-<para>
+-The Tulip Ethernet Card Driver
+-is maintained by Jeff Garzik (<email>jgarzik@pobox.com</email>).
+-</para>
+-
+-<para>
+-The Tulip driver was developed by Donald Becker and changed by
+-Jeff Garzik, Takashi Manabe and a cast of thousands.
+-</para>
+-
+-<para>
+-For 2.4.x and later kernels, the Linux Tulip driver is available at
+-<ulink url="http://sourceforge.net/projects/tulip/">http://sourceforge.net/projects/tulip/</ulink>
+-</para>
+-
+-<para>
+-	This driver is for the Digital "Tulip" Ethernet adapter interface.
+-	It should work with most DEC 21*4*-based chips/ethercards, as well as
+-	with work-alike chips from Lite-On (PNIC) and Macronix (MXIC) and ASIX.
+-</para>
+-
+-<para>
+-        The original author may be reached as becker@scyld.com, or C/O
+-        Scyld Computing Corporation,
+-        410 Severn Ave., Suite 210,
+-        Annapolis MD 21403
+-</para>
+-
+-<para>
+-	Additional information on Donald Becker's tulip.c
+-	is available at <ulink url="http://www.scyld.com/network/tulip.html">http://www.scyld.com/network/tulip.html</ulink>
+-</para>
+-
+-  </chapter>
+-
+-  <chapter id="drvr-compat">
+-    <title>Driver Compatibility</title>
+-
+-<para>
+-This device driver is designed for the DECchip "Tulip", Digital's
+-single-chip ethernet controllers for PCI (now owned by Intel).
+-Supported members of the family
+-are the 21040, 21041, 21140, 21140A, 21142, and 21143.  Similar work-alike
+-chips from Lite-On, Macronics, ASIX, Compex and other listed below are also
+-supported.
+-</para>
+-
+-<para>
+-These chips are used on at least 140 unique PCI board designs.  The great
+-number of chips and board designs supported is the reason for the
+-driver size and complexity.  Almost of the increasing complexity is in the
+-board configuration and media selection code.  There is very little
+-increasing in the operational critical path length.
+-</para>
+-  </chapter>
+-
+-  <chapter id="board-settings">
+-    <title>Board-specific Settings</title>
+-
+-<para>
+-PCI bus devices are configured by the system at boot time, so no jumpers
+-need to be set on the board.  The system BIOS preferably should assign the
+-PCI INTA signal to an otherwise unused system IRQ line.
+-</para>
+-
+-<para>
+-Some boards have EEPROMs tables with default media entry.  The factory default
+-is usually "autoselect".  This should only be overridden when using
+-transceiver connections without link beat e.g. 10base2 or AUI, or (rarely!)
+-for forcing full-duplex when used with old link partners that do not do
+-autonegotiation.
+-</para>
+-  </chapter>
+-
+-  <chapter id="driver-operation">
+-    <title>Driver Operation</title>
+-
+-<sect1><title>Ring buffers</title>
+-
+-<para>
+-The Tulip can use either ring buffers or lists of Tx and Rx descriptors.
+-This driver uses statically allocated rings of Rx and Tx descriptors, set at
+-compile time by RX/TX_RING_SIZE.  This version of the driver allocates skbuffs
+-for the Rx ring buffers at open() time and passes the skb->data field to the
+-Tulip as receive data buffers.  When an incoming frame is less than
+-RX_COPYBREAK bytes long, a fresh skbuff is allocated and the frame is
+-copied to the new skbuff.  When the incoming frame is larger, the skbuff is
+-passed directly up the protocol stack and replaced by a newly allocated
+-skbuff.
+-</para>
+-
+-<para>
+-The RX_COPYBREAK value is chosen to trade-off the memory wasted by
+-using a full-sized skbuff for small frames vs. the copying costs of larger
+-frames.  For small frames the copying cost is negligible (esp. considering
+-that we are pre-loading the cache with immediately useful header
+-information).  For large frames the copying cost is non-trivial, and the
+-larger copy might flush the cache of useful data.  A subtle aspect of this
+-choice is that the Tulip only receives into longword aligned buffers, thus
+-the IP header at offset 14 isn't longword aligned for further processing.
+-Copied frames are put into the new skbuff at an offset of "+2", thus copying
+-has the beneficial effect of aligning the IP header and preloading the
+-cache.
+-</para>
+-
+-</sect1>
+-
+-<sect1><title>Synchronization</title>
+-<para>
+-The driver runs as two independent, single-threaded flows of control.  One
+-is the send-packet routine, which enforces single-threaded use by the
+-dev->tbusy flag.  The other thread is the interrupt handler, which is single
+-threaded by the hardware and other software.
+-</para>
+-
+-<para>
+-The send packet thread has partial control over the Tx ring and 'dev->tbusy'
+-flag.  It sets the tbusy flag whenever it's queuing a Tx packet. If the next
+-queue slot is empty, it clears the tbusy flag when finished otherwise it sets
+-the 'tp->tx_full' flag.
+-</para>
+-
+-<para>
+-The interrupt handler has exclusive control over the Rx ring and records stats
+-from the Tx ring.  (The Tx-done interrupt can't be selectively turned off, so
+-we can't avoid the interrupt overhead by having the Tx routine reap the Tx
+-stats.)	 After reaping the stats, it marks the queue entry as empty by setting
+-the 'base' to zero.	 Iff the 'tp->tx_full' flag is set, it clears both the
+-tx_full and tbusy flags.
+-</para>
+-
+-</sect1>
+-
+-  </chapter>
+-
+-  <chapter id="errata">
+-    <title>Errata</title>
+-
+-<para>
+-The old DEC databooks were light on details.
+-The 21040 databook claims that CSR13, CSR14, and CSR15 should each be the last
+-register of the set CSR12-15 written.  Hmmm, now how is that possible?
+-</para>
+-
+-<para>
+-The DEC SROM format is very badly designed not precisely defined, leading to
+-part of the media selection junkheap below.  Some boards do not have EEPROM
+-media tables and need to be patched up.  Worse, other boards use the DEC
+-design kit media table when it isn't correct for their board.
+-</para>
+-
+-<para>
+-We cannot use MII interrupts because there is no defined GPIO pin to attach
+-them.  The MII transceiver status is polled using an kernel timer.
+-</para>
+-  </chapter>
+-
+-  <chapter id="changelog">
+-    <title>Driver Change History</title>
+-
+-    <sect1><title>Version 0.9.14 (February 20, 2001)</title>
+-    <itemizedlist>
+-    <listitem><para>Fix PNIC problems (Manfred Spraul)</para></listitem>
+-    <listitem><para>Add new PCI id for Accton comet</para></listitem>
+-    <listitem><para>Support Davicom tulips</para></listitem>
+-    <listitem><para>Fix oops in eeprom parsing</para></listitem>
+-    <listitem><para>Enable workarounds for early PCI chipsets</para></listitem>
+-    <listitem><para>IA64, hppa csr0 support</para></listitem>
+-    <listitem><para>Support media types 5, 6</para></listitem>
+-    <listitem><para>Interpret a bit more of the 21142 SROM extended media type 3</para></listitem>
+-    <listitem><para>Add missing delay in eeprom reading</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.11 (November 3, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Eliminate extra bus accesses when sharing interrupts (prumpf)</para></listitem>
+-    <listitem><para>Barrier following ownership descriptor bit flip (prumpf)</para></listitem>
+-    <listitem><para>Endianness fixes for >14 addresses in setup frames (prumpf)</para></listitem>
+-    <listitem><para>Report link beat to kernel/userspace via netif_carrier_*. (kuznet)</para></listitem>
+-    <listitem><para>Better spinlocking in set_rx_mode.</para></listitem>
+-    <listitem><para>Fix I/O resource request failure error messages (DaveM catch)</para></listitem>
+-    <listitem><para>Handle DMA allocation failure.</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.10 (September 6, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Simple interrupt mitigation (via jamal)</para></listitem>
+-    <listitem><para>More PCI ids</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.9 (August 11, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>More PCI ids</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.8 (July 13, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Correct signed/unsigned comparison for dummy frame index</para></listitem>
+-    <listitem><para>Remove outdated references to struct enet_statistics</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.7 (June 17, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Timer cleanups (Andrew Morton)</para></listitem>
+-    <listitem><para>Alpha compile fix (somebody?)</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.6 (May 31, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Revert 21143-related support flag patch</para></listitem>
+-    <listitem><para>Add HPPA/media-table debugging printk</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.5 (May 30, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>HPPA support (willy@puffingroup)</para></listitem>
+-    <listitem><para>CSR6 bits and tulip.h cleanup (Chris Smith)</para></listitem>
+-    <listitem><para>Improve debugging messages a bit</para></listitem>
+-    <listitem><para>Add delay after CSR13 write in t21142_start_nway</para></listitem>
+-    <listitem><para>Remove unused ETHER_STATS code</para></listitem>
+-    <listitem><para>Convert 'extern inline' to 'static inline' in tulip.h (Chris Smith)</para></listitem>
+-    <listitem><para>Update DS21143 support flags in tulip_chip_info[]</para></listitem>
+-    <listitem><para>Use spin_lock_irq, not _irqsave/restore, in tulip_start_xmit()</para></listitem>
+-    <listitem><para>Add locking to set_rx_mode()</para></listitem>
+-    <listitem><para>Fix race with chip setting DescOwned bit (Hal Murray)</para></listitem>
+-    <listitem><para>Request 100% of PIO and MMIO resource space assigned to card</para></listitem>
+-    <listitem><para>Remove error message from pci_enable_device failure</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.4.3 (April 14, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>mod_timer fix (Hal Murray)</para></listitem>
+-    <listitem><para>PNIC2 resuscitation (Chris Smith)</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.4.2 (March 21, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Fix 21041 CSR7, CSR13/14/15 handling</para></listitem>
+-    <listitem><para>Merge some PCI ids from tulip 0.91x</para></listitem>
+-    <listitem><para>Merge some HAS_xxx flags and flag settings from tulip 0.91x</para></listitem>
+-    <listitem><para>asm/io.h fix (submitted by many) and cleanup</para></listitem>
+-    <listitem><para>s/HAS_NWAY143/HAS_NWAY/</para></listitem>
+-    <listitem><para>Cleanup 21041 mode reporting</para></listitem>
+-    <listitem><para>Small code cleanups</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-
+-    <sect1><title>Version 0.9.4.1 (March 18, 2000)</title>
+-    <itemizedlist>
+-    <listitem><para>Finish PCI DMA conversion (davem)</para></listitem>
+-    <listitem><para>Do not netif_start_queue() at end of tulip_tx_timeout() (kuznet)</para></listitem>
+-    <listitem><para>PCI DMA fix (kuznet)</para></listitem>
+-    <listitem><para>eeprom.c code cleanup</para></listitem>
+-    <listitem><para>Remove Xircom Tulip crud</para></listitem>
+-    </itemizedlist>
+-    </sect1>
+-  </chapter>
+-
+-</book>
 
 --
 Martin Waitz

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbTKCRTa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 12:19:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTKCRTa
+	id S263277AbTKCRWx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 12:22:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263297AbTKCRWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 12:19:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11150 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263178AbTKCRT2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 12:19:28 -0500
-Date: Mon, 3 Nov 2003 17:19:25 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Konstantin Boldyshev <konst@linuxassembly.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       marcelo.tosatti@cyclades.com
-Subject: Re: minix fs corruption fix for 2.4
-Message-ID: <20031103171925.GH7665@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.43L.0311031557480.1077-200000@alpha.linuxassembly.org> <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 3 Nov 2003 12:22:52 -0500
+Received: from [62.233.185.126] ([62.233.185.126]:260 "EHLO
+	aclaptop.unregistered.futuro.pl") by vger.kernel.org with ESMTP
+	id S263277AbTKCRWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 12:22:51 -0500
+From: Szymon =?iso-8859-2?q?Aceda=F1ski?= <accek@poczta.gazeta.pl>
+To: Ruben Puettmann <ruben@puettmann.net>
+Subject: Re: Synaptics losing sync
+Date: Mon, 3 Nov 2003 18:13:24 +0100
+User-Agent: KMail/1.5
+References: <N7gI.1K3.9@gated-at.bofh.it> <200311021048.33698.accek@poczta.gazeta.pl> <20031103132557.GD27206@puettmann.net>
+In-Reply-To: <20031103132557.GD27206@puettmann.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200311031813.24701.accek@poczta.gazeta.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 03, 2003 at 08:55:42AM -0800, Linus Torvalds wrote:
-> I'd also prefer to do the test the other way around: test for CHRDEV and 
-> BLKDEV in inode.c the same way the other functions do. Something like the 
-> appended..
-> 
-> Al, can you verify? I think this crept in when you did the block lookup 
-> cleanups. I also worry whether anybody else got the bug?
-> 
-> 		Linus
+On Monday 03 November 2003 14:25, you wrote:
+> On Sun, Nov 02, 2003 at 10:48:33AM +0100, Szymon Aceda?ski wrote:
+>
+>                 hy,
+>
+> > "Losing too many ticks" exists when I'm running with cpufreq
+> > [p4_clockmod] and clock=tsc (default). This is because of rescaling TSC
+> > pitch by cpufreq, I think. If I specify in bootloader clock=hpet, problem
+> > disappears. [Am I doing right?]
+>
+> If I boot with clock=hpet the cpu MHz in cat /proc/cpuinfo is 0.
 
-Hmm...  I would rather check for regular|directory|symlink explicitly -
-note that FIFO and socket can have junk in i_data.
+Oh, yes. HPET timer needs ACPI support to work (also HPET is not present on 
+many machines). You can probably find 'Warning: clock= override failed' in 
+your dmesg. The default timer is then set to PIT. Determination of CPU clock 
+when using PIT is not implemented in the kernel, so it's reported as zero in 
+/proc/cpufreq. You may also find some patches around the LKML adding support 
+for ACPI timer, but it needs ACPI itself. I didn't try it.
 
-Looks like that fsckup had happened only in fs/minix - fs/sysv/itree.c
-does it right.
+	Szymon

@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVCYTAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVCYTEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVCYTAL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 14:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVCYTAL
+	id S261229AbVCYTEq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 14:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVCYTEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 14:00:11 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:30437 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261227AbVCYTAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 14:00:07 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: jgarzik@pobox.com, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: drivers/net/at1700.c: at1700_probe1: array overflow
-X-Message-Flag: Warning: May contain useful information
-References: <20050325181836.GB3153@stusta.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 25 Mar 2005 10:42:11 -0800
-In-Reply-To: <20050325181836.GB3153@stusta.de> (Adrian Bunk's message of
- "Fri, 25 Mar 2005 19:18:36 +0100")
-Message-ID: <528y4b7ekc.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 25 Mar 2005 18:42:11.0554 (UTC) FILETIME=[5B278C20:01C5316A]
+	Fri, 25 Mar 2005 14:04:46 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:30886 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261229AbVCYTEo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 14:04:44 -0500
+Subject: Re: megaraid driver (proposed patch)
+From: James Bottomley <jejb@steeleye.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Bruno Cornec <Bruno.Cornec@hp.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, tvignaud@mandrakesoft.com
+In-Reply-To: <20050325184718.GA15215@infradead.org>
+References: <20050325182252.GA4268@morley.grenoble.hp.com>
+	 <1111775992.5692.25.camel@mulgrave>  <20050325184718.GA15215@infradead.org>
+Content-Type: text/plain
+Date: Fri, 25 Mar 2005 13:04:37 -0600
+Message-Id: <1111777477.5692.29.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Adrian> This can result in indexing in an array with 8 entries the
-    Adrian> 10th entry.
+On Fri, 2005-03-25 at 18:47 +0000, Christoph Hellwig wrote:
+> On Fri, Mar 25, 2005 at 12:39:52PM -0600, James Bottomley wrote:
+> > On Fri, 2005-03-25 at 19:22 +0100, Bruno Cornec wrote:
+> > > Would you consider to apply the following patch proposed by Thierry
+> > > Vignaud as a solution for the MandrakeSoft kernel in the mainstream 2.6 
+> > > kernel ?
+> > 
+> > Well, to be considered you'd need to cc the megaraid maintainers and the
+> > linux-scsi mailing list.
+> > 
+> > > -if MEGARAID_NEWGEN=n
+> > 
+> > No, this is wrong it would break allyes configs and I'd get shot.
+> 
+> Why?  The megaraid drivers shouldn't have any conflicting non-static
+> symbols
 
-Well, not really, since the first 8 entries of the array have every
-3-bit pattern.  So pos3 & 0x07 will always match one of them.
+You get a kernel with two drivers trying to claim some of the same set
+of cards.  The winner will be the driver that gets its init routines
+called first, but this isn't a desirable outcome.
 
-I agree it would be cleaner to make the loop only go up to 7 though.
+I wouldn't object to a patch that allows both *modules* to be built,
+which is all I think the distros are after.
 
- - R.
+James
+
+

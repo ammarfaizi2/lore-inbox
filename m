@@ -1,87 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266645AbTAOQRq>; Wed, 15 Jan 2003 11:17:46 -0500
+	id <S266678AbTAOQXd>; Wed, 15 Jan 2003 11:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266665AbTAOQRp>; Wed, 15 Jan 2003 11:17:45 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:49101 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S266645AbTAOQRn>; Wed, 15 Jan 2003 11:17:43 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD901@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "'Martin J. Bligh'" <mbligh@aracnet.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: "'Zwane Mwaikambo'" <zwane@holomorphy.com>,
-       "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "'haveblue@us.ibm.com'" <haveblue@us.ibm.com>
-Subject: RE: [BUG] SLAB.C:1617-error on boot
-Date: Wed, 15 Jan 2003 10:25:07 -0600
+	id <S266682AbTAOQXd>; Wed, 15 Jan 2003 11:23:33 -0500
+Received: from adsl-173-18.barak.net.il ([62.90.173.18]:19328 "EHLO
+	laptop.slamail.org") by vger.kernel.org with ESMTP
+	id <S266678AbTAOQXb>; Wed, 15 Jan 2003 11:23:31 -0500
+Message-ID: <3E258BBC.7010902@slamail.org>
+Date: Wed, 15 Jan 2003 18:26:36 +0200
+From: Yaacov Akiba Slama <ya@slamail.org>
+Reply-To: Yaacov Akiba Slama <ya@slamail.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+X-Accept-Language: en, fr, he
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+CC: Mikael Pettersson <mikpe@csd.uu.se>,
+       Jens Taprogge <taprogge@idg.rwth-aachen.de>, zwane@holomorphy.com,
+       bvermeul@blackstar.nl
+Subject: [PATCH] Re: [BUG] cardbus/hotplugging still broken in 2.5.56
+References: <20030115081109.GA3839@valsheda.taprogge.wh> <15909.9796.157927.447889@harpo.it.uu.se>
+In-Reply-To: <15909.9796.157927.447889@harpo.it.uu.se>
+Content-Type: multipart/mixed;
+ boundary="------------090801000808020102010903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh, good... I was wondering why it was booting on after that trace like
-nothing happened.
+This is a multi-part message in MIME format.
+--------------090801000808020102010903
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Can you test the enclosed patch. It seems to be both simple and to 
+resolve the resource collisions and the "No IRQ known" problem.
+I added a smal comment (and modified another) so future janitors won't 
+move pci_enable above pci_assign_resource again.
+If everyone is ok, I can send it to Linus for inclusion in BK (I have 
+the green light of Dave Jones).
 
 Thanks,
+Yaacov Akiba Slama
 
---Natalie
+Mikael Pettersson wrote:
 
------Original Message-----
-From: Martin J. Bligh [mailto:mbligh@aracnet.com]
-Sent: Wednesday, January 15, 2003 12:39 AM
-To: Protasevich, Natalie; Linux Kernel
-Cc: 'Zwane Mwaikambo'; 'Nakajima, Jun'; 'haveblue@us.ibm.com'
-Subject: Re: [BUG] SLAB.C:1617-error on boot
+>Jens Taprogge writes:
+> > The cardbus problems are caused by 
+> > 
+> > ChangeSet@1.797.145.6  2002-11-25 18:31:10-08:00 davej@codemonkey.org.uk
+> > 
+> > as far as I can tell. 
+> > 
+> > pci_enable_device() will fail at least on i386 (see
+> > arch/i386/pci/i386.c: pcibios_enable_resource (line 260)) if the
+> > resources have not been assigned previously. Hence the ostensible
+> > resource collisions.
+> > 
+> > The attached patch should fix the problem.
+> > 
+> > I have send the patch to Dave Jones some time ago but did not hear from
+> > him yet.
+> > 
+> > I am not subscribed to the list so please cc me on replys. 
+>
+>Thanks. Your patch fixed the cardbus hotplug issue perfectly on my laptop.
+>It survives multiple insert/eject cycles without any problems.
+>
+>The patch posted by Yaacov Akiba Slama today also fixed cardbus hotplug
+>for me, but with his patch the kernel still prints "PCI: No IRQ known for
+>interrupt pin A of device xx:xx.x. Please try using pci=biosirq" when the
+>cardbus NIC is inserted; Jens Taprogge's patch silenced that warning.
+>
+>/Mikael
+>
+>  
+>
 
+--------------090801000808020102010903
+Content-Type: text/plain;
+ name="cardbus-rom.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cardbus-rom.patch"
 
-It's just a warning ... I thing you'll find more info logged
-on http://bugme.osdl.org ... I've been hitting that for ages
-with no ill effects ;-)
+--- drivers/pcmcia/cardbus.c.original	2003-01-14 19:38:49.000000000 +0200
++++ drivers/pcmcia/cardbus.c	2003-01-15 18:21:40.000000000 +0200
+@@ -285,25 +285,29 @@
+ 		dev->dev.dma_mask = &dev->dma_mask;
+ 
+ 		pci_setup_device(dev);
+-		if (pci_enable_device(dev))
+-			continue;
+ 
+ 		strcpy(dev->dev.bus_id, dev->slot_name);
+ 
+-		/* FIXME: Do we need to enable the expansion ROM? */
++		/* We need to assign resources for expansion ROM. */
+ 		for (r = 0; r < 7; r++) {
+ 			struct resource *res = dev->resource + r;
+-			if (res->flags)
++			if (!res->start && res->end)
+ 				pci_assign_resource(dev, r);
+ 		}
+ 
+ 		/* Does this function have an interrupt at all? */
+ 		pci_readb(dev, PCI_INTERRUPT_PIN, &irq_pin);
+-		if (irq_pin) {
++		if (irq_pin)
+ 			dev->irq = irq;
+-			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
+-		}
++		
++		/* pci_enable_device needs to be called after pci_assign_resource */
++		/* because it returns an error if (!res->start && res->end).      */
++		if (pci_enable_device(dev))
++			continue;
+ 
++		if (irq_pin)
++			pci_writeb(dev, PCI_INTERRUPT_LINE, irq);
++		
+ 		device_register(&dev->dev);
+ 		pci_insert_device(dev, bus);
+ 	}
 
---On Tuesday, January 14, 2003 22:13:26 -0600 "Protasevich, Natalie"
-<Natalie.Protasevich@UNISYS.com> wrote:
-
-> I get the error below consistently on boot with 2.5.58. Didn't see it with
-> 2.5.56 (skipped 2.5.57).
-> 
-> .............................
-> Detected 1899.559 MHz processor.
-> 
-> Console: colour VGA+ 80x25
-> 
-> Calibrating delay loop... 3702.78 BogoMIPS
-> 
-> Memory: 3952476k/3997504k available (2436k kernel code, 43892k reserved,
-> 1280k data, 132k init, 3080000k highmem)
-> 
-> Debug: sleeping function called from illegal context at mm/slab.c:1617
-> 
-> Call Trace:
-> 
->  [<c013b09c>] kmem_cache_alloc+0x74/0x76
-> 
->  [<c013a2ca>] kmem_cache_create+0x72/0x5be
-> 
->  [<c0105000>] _stext+0x0/0x56
-> 
-> 
-> Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes)
-> 
-> Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes)
-> 
-> ................
-> 
-> 
-> --Natalie
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+--------------090801000808020102010903--
 

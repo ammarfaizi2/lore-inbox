@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbULPSVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbULPSTx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbULPSVP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 13:21:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbULPSVP
+	id S261919AbULPSTx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 13:19:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbULPSTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 13:21:15 -0500
-Received: from h66-38-154-67.gtcust.grouptelecom.net ([66.38.154.67]:64995
-	"EHLO pbl.ca") by vger.kernel.org with ESMTP id S261967AbULPSUv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 13:20:51 -0500
-Message-ID: <41C1D1DB.2000106@pbl.ca>
-Date: Thu, 16 Dec 2004 12:20:11 -0600
-From: Aleksandar Milivojevic <amilivojevic@pbl.ca>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bug in sym53c8xx? [Was: RAID1 + LVM not detected during boot
- on 2.6.9]
-References: <DBFABB80F7FD3143A911F9E6CFD477B0033AE3D6@hqemmail02.nvidia.com> <41C0935B.7060509@pbl.ca> <cpr51c$gc4$1@sea.gmane.org>
-In-Reply-To: <cpr51c$gc4$1@sea.gmane.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Dec 2004 13:19:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14234 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261919AbULPSTu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 13:19:50 -0500
+Date: Thu, 16 Dec 2004 10:19:49 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Split bprm_apply_creds into two functions
+Message-ID: <20041216101949.P2357@build.pdx.osdl.net>
+References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com> <20041215145222.V469@build.pdx.osdl.net> <20041216181613.GB3260@IBM-BWN8ZTBWA01.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20041216181613.GB3260@IBM-BWN8ZTBWA01.austin.ibm.com>; from serue@us.ibm.com on Thu, Dec 16, 2004 at 12:16:13PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander E. Patrakov wrote:
-> I am not sure how to classify this bug properly. 
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> Quoting Chris Wright (chrisw@osdl.org):
+> > * Serge E. Hallyn (serue@us.ibm.com) wrote:
+> > > The security_bprm_apply_creds() function is called from
+> > > fs/exec.c:compute_creds() under task_lock(current).  SELinux must
+> > > perform some work which is unsafe in that context, and therefore
+> > > explicitly drops the task_lock, does the work, and re-acquires the
+> > > task_lock.  This is unsafe if other security modules are stacked after
+> > > SELinux, as their bprm_apply_creds assumes that the 'unsafe' variable is
+> > > still meaningful, that is, that the task_lock has not been dropped.
+> > 
+> > I don't like this approach.  The whole point is to ensure safety, and
+> > avoid races that have been found in the past.  This gives a new interface
+> > that could be easily used under the wrong conditions, and breaking
+> > the interface into two pieces looks kinda hackish.  Is there no other
+> > solution?  I looked at this once before and wondered why task_unlock()
+> > is needed to call avc_audit?  audit should be as lock friendly as printk
+> > IMO, and I don't recall seeing any deadlock after short review of it.
+> > But I didn't get much beyond that.  Is it all the flushing that can't
+> > hold task_lock?
 > 
-> First, the driver correctly follows the behaviour described by Greg KH: it
-> should load successfully even if there is no corresonding hardware. Then
-> (in already-loaded state) it should generate hotplug events when the
-> hardware says it's present (and that's slow). Greg KH says that in hotplug
-> world (i.e., in reality) nothing else is possible. From this viewpoint, the
-> bug is in the linuxrc script provided by RedHat. It should really either
-> poll and sleep and wait or use udev to get notification when the disk is
-> really accessible.
+> As Stephen points out, it was more a concern about lock nesting.  The
+> attached patch simply removes the task_unlock from selinux_bprm_apply_creds,
+> and runs just fine on my machine.  Stephen, do you have a preference
+> either way, or was the task_unlock to relieve the concerns of others?
 
-I've just stumbled at another problem that seems to boil down to the 
-same thing.  This time modules were not PCI related.  They were file 
-system modules: jbd and ext3.
+Unfortunately, running fine isn't indication that it's not
+deadlock-able.  Issues are making sure nesting is appropriate, as
+task_lock is normally inner lock, and making sure normal things like not
+taking sem when holding spinlock.  It requires more inspection than just
+running.
 
-The ext3.ko needs some symbols that are defined in jbd.ko.  The linuxrc 
-(init) script first loads jbd.ko, and than ext3.ko.  ext3.ko complains 
-about unknown symbols (journal_*) that are defined in jbd.ko and fails 
-to load.  Again, inserting sleep between invocations of insmod solves 
-the problem.
-
-The problem was first referenced on Fedora Users mailing list, under 
-thread "FC3 SMP builds do NOT contain ext3 drivers in the build!!!!" 
-(kind of incorrect subject line, ext3 driver was included, but it failed 
-to load due to unknown symbols).  It seems that OP migrated his file 
-systems back to ext2 in order to be able to boot.  There were couple of 
-people that experienced this race condition problem.
-
-Now, this might be the linuxrc (init) script problem.  But if in order 
-to boot reliably we need to add "sleep 10" lines after each and every 
-module from initrd image is loaded, it becomes ridicilus.  Shouldn't 
-there be a way to load module and wait until it signals "I'm done with 
-initialization" before insmod command exits?  This would solve problems 
-with hot-pluggable devices too (driver would scan the bus, than signal 
-it is initialized, and after that it would continue doing its 
-hot-pluggable agenda).
-
+thanks,
+-chris
 -- 
-Aleksandar Milivojevic <amilivojevic@pbl.ca>    Pollard Banknote Limited
-Systems Administrator                           1499 Buffalo Place
-Tel: (204) 474-2323 ext 276                     Winnipeg, MB  R3T 1L7
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

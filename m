@@ -1,76 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbUKVQzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbUKVQzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbUKVQzj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:55:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUKVQoe
+	id S262178AbUKVQzi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbUKVQoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:44:34 -0500
-Received: from fw.osdl.org ([65.172.181.6]:46252 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262182AbUKVQXD (ORCPT
+	Mon, 22 Nov 2004 11:44:25 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:15327 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262132AbUKVQWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:23:03 -0500
-Date: Mon, 22 Nov 2004 08:22:57 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: sparse segfaults
-In-Reply-To: <Pine.LNX.4.53.0411221132550.8845@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.58.0411220812580.20993@ppc970.osdl.org>
-References: <20041120143755.E13550@flint.arm.linux.org.uk>
- <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com>
- <Pine.LNX.4.58.0411211433540.20993@ppc970.osdl.org>
- <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
- <Pine.LNX.4.58.0411211644200.20993@ppc970.osdl.org>
- <Pine.LNX.4.53.0411221132550.8845@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Nov 2004 11:22:55 -0500
+Subject: Re: drivers/w1/: why is dscore.c not ds9490r.c ?
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Adrian Bunk <bunk@stusta.de>
+Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20041122133344.GA19419@stusta.de>
+References: <20041121220251.GE13254@stusta.de>
+	 <1101108672.2843.55.camel@uganda>  <20041122133344.GA19419@stusta.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WpoNA6IRBvXGmkFmRn9I"
+Organization: MIPT
+Date: Mon, 22 Nov 2004 19:25:45 +0300
+Message-Id: <1101140745.9784.7.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Mon, 22 Nov 2004 16:21:31 +0000 (UTC)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-WpoNA6IRBvXGmkFmRn9I
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 22 Nov 2004, Jan Engelhardt wrote:
->
-> >BAD gcc extensions:
-> 
-> You don't have to use them...
+On Mon, 2004-11-22 at 14:33 +0100, Adrian Bunk wrote:
+> On Mon, Nov 22, 2004 at 10:31:12AM +0300, Evgeniy Polyakov wrote:
+> > On Mon, 2004-11-22 at 01:02, Adrian Bunk wrote:
+> > > Hi Evgeniy,
+> >=20
+> > Hello, Adrian.
+>=20
+> Hi Evgeniy,
+>=20
+> > > drivers/w1/Makefile in recent 2.6 kernels contains:
+> > >   obj-$(CONFIG_W1_DS9490)         +=3D ds9490r.o=20
+> > >   ds9490r-objs    :=3D dscore.o
+> > >=20
+> > > Is there a reason, why dscore.c isn't simply named ds9490r.c ?
+> >=20
+> > dscore.c is a core function set to work with ds2490 chip.
+> > ds9490* is built on top of it.
+> > Any vendor can create it's own w1 bus master using this chip,=20
+> > not ds9490.
+>=20
+> if it was built on top of it, I'd have expected ds9490r.o to contain=20
+> additional object files.
 
-We don't, generally. But they are bad even if you DON'T use them, because 
-they sometimes make obvious syntax errors etc much harder to debug.
+DS9490 does not have anything except this chip and simple 64bit memory
+chip,
+so it is not needed to have any additional code.
 
-For example, the "nested function" thing makes something as simple as a 
-missing end brace cause the error reporting to be totally off, when gcc 
-decides that "hey, that's ok, those other function declarations are just 
-nested functions in the middle of that other function". So you get 
-something like
+> How would a different w1 bus master chip look like in=20
+> drivers/w1/Makefile?
 
-	file.c: lastline: parse error at end of input
+obj-m: proprietary_module.o
+proprietary_module-objs: dscore.o proprietary_module_init.o
 
-even though the _real_ parse error could have been pinpointed exactly if 
-gcc did NOT do it's totally braindamaged nested functions. IOW, the 
-extension causes problems even when you don't use it.
+Actually it will live outside the kernel tree, but will require ds2490
+driver.
+It could be called ds2490.c but I think dscore is better name.
 
-Same goes for the "extended lvalues". They are not only insane, but they 
-mean that code like
+> > 	Evgeniy Polyakov
+>=20
+> cu
+> Adrian
+>=20
+--=20
 
-	(0,i) = 1;
+--=-WpoNA6IRBvXGmkFmRn9I
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-actually compiles. Why is that a problem? Because some people (ie me) have 
-used constructs like this in macros to make sure that the macro is 
-"read-only", ie you have a situation where you don't want people to 
-mis-use the macro on some architecture. So having
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-	int max_of_something;
-	#define MAX_SOMETHING (0,max_of_something)
+iD8DBQBBohMJIKTPhE+8wY0RAjdFAJ4tMfeL5jtKsQS7+8Xmj6wwytnuOACgg2r/
+ly13rxU3zlmD7EAUTQJFeCE=
+=Scs6
+-----END PGP SIGNATURE-----
 
-is actually a nice way to make sure nobody does anything like
+--=-WpoNA6IRBvXGmkFmRn9I--
 
-	MAX_SOMETHING = new;
-
-but the gcc extension means that this doesn't actually work.
-
-(Yes, I've been bitten by this. And no, I don't see the _point_ of the
-extension - does anybody actually admit to ever _using_ comma- expressions
-for assignments?)
-
-		Linus

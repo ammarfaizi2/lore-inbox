@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVCENEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVCENqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVCENEY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 08:04:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVCENEY
+	id S261275AbVCENqy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 08:46:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVCENqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 08:04:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28691 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261251AbVCENER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 08:04:17 -0500
-Date: Sat, 5 Mar 2005 14:04:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Kai Germaschewski <kai.germaschewski@unh.edu>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
-Message-ID: <20050305130416.GA6373@stusta.de>
-References: <20050304202842.GH3327@stusta.de> <Pine.LNX.4.44.0503050004120.20007-100000@chaos.sr.unh.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0503050004120.20007-100000@chaos.sr.unh.edu>
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 5 Mar 2005 08:46:54 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:22429 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261275AbVCENqv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 08:46:51 -0500
+Message-ID: <4229B847.5050301@drzeus.cx>
+Date: Sat, 05 Mar 2005 14:46:47 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ian Molton <spyro@f2s.com>, Richard Purdie <rpurdie@rpsys.net>
+Subject: Re: [PATCH][MMC] Secure Digital (SD) support
+References: <422701A0.8030408@drzeus.cx> <20050305113730.B26541@flint.arm.linux.org.uk> <4229A4B4.1000208@drzeus.cx> <20050305124420.A342@flint.arm.linux.org.uk>
+In-Reply-To: <20050305124420.A342@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 05, 2005 at 12:09:29AM -0500, Kai Germaschewski wrote:
-> On Fri, 4 Mar 2005, Adrian Bunk wrote:
-> 
-> > > [...] So ld looks into the lib .a archive, determines that none of 
-> > > the symbols in that object file are needed to resolve a reference and 
-> > > drops the entire .o file.
-> 
-> > Silly question:
-> > What's the advantage of lib-y compared to obj-y?
-> 
-> Basically exactly what I quoted above -- unused object files don't get
-> linked into the kernel image and don't take up (wasted) space. On the
-> other hand, files in obj-y get linked into the kernel unconditionally.
+Russell King wrote:
 
-And this can break as soon as the "unused" object files contains 
-EXPORT_SYMBOL's.
+>On Sat, Mar 05, 2005 at 01:23:16PM +0100, Pierre Ossman wrote:
+>  
+>
+>>I can make a new patch or you can just undo that line once you've 
+>>applied the current one.
+>>    
+>>
+>
+>I'd rather not just apply this patch - there's rather a lot there to
+>just apply on top of what's already merged.
+>
+>Is there any chance you can split it up into a smaller set of changes
+>so it's more obvious what's going on at each stage please?
+>  
+>
+Sure. I'll try to divide it into smaller pieces. It will result in some 
+patches that are just there to prepare for the other ones though (i.e. 
+they don't add any functionality by themselves).
 
-Is it really worth it doing it in this non-intuitive way?
-I'd prefer an explicite dependency on a variable if you want to 
-compile library functions conditionally.
+>We'll also need to run this by Linus first, explaining why you believe
+>it's now ok to merge this.  (Added Linus...)
+>
+>  
+>
+First of, I can't really back up the claim that it isn't ok. The SDA has 
+a paragraph about non-disclosure in their "IP Policy" 
+(http://www.sdcard.org/membership/images/ippolicy.pdf) but it also 
+states that exceptions can be granted.
 
-> --Kai
+Against this stands the new information that the SDA is changing its 
+policy and making the specs public. This information comes from some of 
+the guys at HP research and hasn't been confirmed by any public 
+statement from SDA. The SDA have, however, already released the SDIO 
+specs. Presumably as part of this new policy.
 
-cu
-Adrian
+It was also pointed out in the previous thread by myself, Alan Cox and 
+Ian Molton that SD specs have been publically available from different 
+companies for quite some time. As such it is difficult for anyone to 
+claim that these are secret and can be regulated by a NDA. The only part 
+that hasn't been found in the wild is the spec for the 'secure' parts of 
+the cards. But that also means that it isn't included in this patch so 
+it shouldn't pose a problem.
 
--- 
+As always, IANAL so I can't give any definite answer. But from my point 
+of view they would have a very weak case if they tried to claim that the 
+information in this patch is a trade secret.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Rgds
+Pierre
+
 

@@ -1,61 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263936AbTD0Lnp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 07:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbTD0Lnp
+	id S263954AbTD0MI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 08:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263958AbTD0MI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 07:43:45 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:23190 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S263936AbTD0Lno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 07:43:44 -0400
-Date: Sun, 27 Apr 2003 21:56:44 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-Message-ID: <20030427115644.GA492@zip.com.au>
+	Sun, 27 Apr 2003 08:08:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46787 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263954AbTD0MI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 08:08:57 -0400
+Date: Sun, 27 Apr 2003 14:21:04 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Erik Andersen <andersen@codepoet.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
+Message-ID: <20030427122104.GK10256@fs.tum.de>
+References: <20030424093443.GA7180@codepoet.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+In-Reply-To: <20030424093443.GA7180@codepoet.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I keep a-lookin but I can't find any data. Have I missed something?
+On Thu, Apr 24, 2003 at 03:34:43AM -0600, Erik Andersen wrote:
+> The ide driver does not list whether drives support things like
+> write cache, SMART, SECURITY ERASE UNIT.  But for some silly
+> reason it tells us at boot whether each drive is capable of
+> supporting the Host Protected Area feature set.  If people want
+> to know the capabilites of their drive, they can run 'hdparm' 
+> and find out.
+> 
+> This patch removes this pointless noise.  Please apply,
+> 
+> 
+> --- linux/drivers/ide/ide-disk.c.orig	2003-04-24 03:23:53.000000000 -0600
+> +++ linux/drivers/ide/ide-disk.c	2003-04-24 03:24:54.000000000 -0600
+> @@ -1133,10 +1133,7 @@
+>   */
+>  static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
+>  {
+> -	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
+> -	if (flag)
+> -		printk("%s: host protected area => %d\n", drive->name, flag);
+> -	return flag;
+> +	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+>  }
+>  
+>  /*
 
-# find | grep -i pii
-./bus/pci/drivers/piix4 smbus
-./bus/pci/drivers/piix4 smbus/00:07.3
-./bus/pci/drivers/PIIX IDE
-./bus/pci/drivers/PIIX IDE/00:07.1
-# find | grep -i i2c
-./bus/i2c
-./bus/i2c/drivers
-./bus/i2c/drivers/lm75
-./bus/i2c/drivers/IT87xx
-./bus/i2c/drivers/dev driver
-./bus/i2c/devices
-./devices/pci0/00:07.3/i2c-0
-./devices/pci0/00:07.3/i2c-0/power
-./devices/pci0/00:07.3/i2c-0/name
-# find | grep -i sensor
-# find | grep -i smbus
-./bus/pci/drivers/piix4 smbus
-./bus/pci/drivers/piix4 smbus/00:07.3
 
-# grep '\(SENSORS\|I2C\)' .config | grep -v '^#'
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_PIIX4=y
-CONFIG_SENSORS_IT87=y
-CONFIG_SENSORS_LM75=y
-CONFIG_I2C_SENSOR=y
+Looking at the only user of this function it seems we can completely 
+remove it (patch below).
 
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+Alan:
+Is the patch below OK or are there any future plans for more uses of
+idedisk_supports_host_protected_area?
+
+>  -Erik
+
+cu
+Adrian
+
+
+--- linux-2.4.21-rc1-full/drivers/ide/ide-disk.c.old	2003-04-27 13:26:17.000000000 +0200
++++ linux-2.4.21-rc1-full/drivers/ide/ide-disk.c	2003-04-27 13:30:48.000000000 +0200
+@@ -1128,18 +1128,6 @@
+ #endif /* CONFIG_IDEDISK_STROKE */
+ 
+ /*
+- * Tests if the drive supports Host Protected Area feature.
+- * Returns true if supported, false otherwise.
+- */
+-static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
+-{
+-	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
+-	if (flag)
+-		printk("%s: host protected area => %d\n", drive->name, flag);
+-	return flag;
+-}
+-
+-/*
+  * Compute drive->capacity, the full capacity of the drive
+  * Called with drive->id != NULL.
+  *
+@@ -1165,8 +1153,6 @@
+ 	drive->capacity48 = 0;
+ 	drive->select.b.lba = 0;
+ 
+-	(void) idedisk_supports_host_protected_area(drive);
+-
+ 	if (id->cfs_enable_2 & 0x0400) {
+ 		capacity_2 = id->lba_capacity_2;
+ 		drive->head		= drive->bios_head = 255;

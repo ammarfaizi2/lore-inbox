@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263620AbTETHol (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 03:44:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbTETHol
+	id S263628AbTETH4k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 03:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTETH4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 03:44:41 -0400
-Received: from netmail02.services.quay.plus.net ([212.159.14.221]:64241 "HELO
-	netmail02.services.quay.plus.net") by vger.kernel.org with SMTP
-	id S263620AbTETHok (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 03:44:40 -0400
-From: "Riley Williams" <Riley@Williams.Name>
-To: "Randy.Dunlap" <rddunlap@osdl.org>, "Andrew Morton" <akpm@digeo.com>
-Cc: <jamagallon@able.es>, <ricklind@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, <lm@bitmover.com>, <cs@tequila.co.jp>
-Subject: RE: [PATCH] Documentation for iostats
-Date: Tue, 20 May 2003 08:57:44 +0100
-Message-ID: <BKEGKPICNAKILKJKMHCAOECEDBAA.Riley@Williams.Name>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 20 May 2003 03:56:40 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:42037 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263628AbTETH4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 03:56:39 -0400
+Date: Tue, 20 May 2003 01:11:57 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: paulmck@us.ibm.com
+Cc: phillips@arcor.de, hch@infradead.org, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] vm_operation to avoid pagefault/inval race
+Message-Id: <20030520011157.3f6b73a6.akpm@digeo.com>
+In-Reply-To: <20030519182305.C1813@us.ibm.com>
+References: <200305172021.56773.phillips@arcor.de>
+	<20030517124948.6394ded6.akpm@digeo.com>
+	<20030519182305.C1813@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <20030519163816.66489368.rddunlap@osdl.org>
+X-OriginalArrivalTime: 20 May 2003 08:09:33.0672 (UTC) FILETIME=[25A92680:01C31EA7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy.
+"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+>
+> So the general idea is to do something as follows, right?
 
- > There are 3 widely-used date formats, but only one standard one.
- >
- > 05/15/2003  (US et al order; the worst of the 3 IMO :)
- > 15/05/2003  (or your 15 May 2003)
- > 2003/05/15  (ISO standard)
+It sounds reasonable.  A matter of putting together the appropriate
+library functions and refactoring a few things.
 
-The above is just plain wrong...
+> 
+> o	Make a function, perhaps named something like
+> 	install_new_page(), that does the PTE-installation
+> 	and RSS-adjustment tasks currently performed by
+> 	both do_no_page() and by do_anonymous_page().
 
-05/15/2003  - US style
-15/05/2003  - European style
-2003/05/15  - Japanese numeric style
+That's similar to mm/fremap.c:install_page().  (Which forgets to call
+update_mmu_cache().  Debatably a buglet.)
 
-2003-May-15 - Japanese text style
-15-May-2003 - UK style
-2003-05-15  - ISO style
+However there is not a lot of commonality between the various nopage()s and
+there may not be a lot to be gained from all this.  There is subtle code in
+there and it is performance-critical.  I'd be inclined to try to minimise
+overall code churn in this work.
 
-Personally, I find any of the last group to be perfectly readable,
-but find the first group (especially the first two) plain confusing.
-
-Best wishes from Riley.
----
- * Nothing as pretty as a smile, nothing as ugly as a frown.
-
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.481 / Virus Database: 277 - Release Date: 13-May-2003
 

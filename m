@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVCSFz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVCSGKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbVCSFz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 00:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVCSFz3
+	id S262415AbVCSGKN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 01:10:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVCSGKN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 00:55:29 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:14667 "EHLO
-	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262410AbVCSFzV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 00:55:21 -0500
-Date: Fri, 18 Mar 2005 23:53:56 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: PROBLEM: Buffer I/O error on device hdg1, system freeze.
-In-reply-to: <3JuoL-3Mm-3@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <423BBE74.1060902@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3JrTL-1C4-23@gated-at.bofh.it> <3JtCc-35h-21@gated-at.bofh.it>
- <3JuoL-3Mm-3@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Sat, 19 Mar 2005 01:10:13 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:24736 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262415AbVCSGJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 01:09:51 -0500
+Subject: Re: [PATCH 2.4.30-pre3] x86_64: pci_alloc_consistent() match 2.6
+	implementation
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20050318212344.GC26112@lists.us.dell.com>
+References: <20050318212344.GC26112@lists.us.dell.com>
+Content-Type: text/plain
+Date: Sat, 19 Mar 2005 07:09:45 +0100
+Message-Id: <1111212585.6291.41.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nils Radtke wrote:
-> Error 14 occurred at disk power-on lifetime: 2249 hours (93 days + 17
-> hours)
->   When the command that caused the error occurred, the device was doing
-> SMART Offline or Self-test.
+On Fri, 2005-03-18 at 15:23 -0600, Matt Domsch wrote:
+> For review and comment.
 > 
->   After command completion occurred, registers were:
->   ER ST SC SN CL CH DH
->   -- -- -- -- -- -- --
->   40 51 f8 23 3e 56 e0  Error: UNC at LBA = 0x00563e23 = 5652003
-> 
->   Commands leading to the command that caused the error were:
->   CR FR SC SN CL CH DH DC   Powered_Up_Time  Command/Feature_Name
->   -- -- -- -- -- -- -- --  ----------------  --------------------
->   24 00 f8 07 3e 56 10 00      00:36:28.850  READ SECTOR(S) EXT
->   25 00 00 ff 3d 56 10 00      00:36:28.850  READ DMA EXT
->   25 00 00 ff 3c 56 10 00      00:36:28.850  READ DMA EXT
->   25 00 00 ff 3b 56 10 00      00:36:28.850  READ DMA EXT
->   25 00 00 ff 3a 56 10 00      00:36:28.850  READ DMA EXT
-> 
-> 
-> Could you please explain what these errors mean exactly and what may
-> have caused them?
-> 
-> Might it be possible that these transmission/xxx errors be caused 
-> by a bad card and/or driver?
-> 
-> I'm asking this as the disk never showed errors on onboard IDE ports.
-> 
->         Nils
-> 
+> On x86_64 systems with no IOMMU and with >4GB RAM (in fact, whenever
+> there are any pages mapped above 4GB), pci_alloc_consistent() falls
+> back to using ZONE_DMA for all allocations, even if the device's
+> dma_mask could have supported using memory from other zones.  Problems
+> can be seen when other ZONE_DMA users (SWIOTLB, scsi_malloc()) consume
+> all of ZONE_DMA, leaving none left for pci_alloc_consistent() use.
 
-This error is reported by the drive itself, indicating uncorrectable 
-errors when attempting to read data from the media. It is quite unlikely 
-that the controller or driver is responsible for this sort of error, as 
-can occasionally be the case for DMA timeout errors. Almost certainly 
-the hard drive is failing.
+scsi_malloc no longer uses ZONE_DMA nowadays....
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
 

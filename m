@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268472AbTBNXto>; Fri, 14 Feb 2003 18:49:44 -0500
+	id <S268519AbTBNX4t>; Fri, 14 Feb 2003 18:56:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268135AbTBNXrz>; Fri, 14 Feb 2003 18:47:55 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:25984 "EHLO doc.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S268168AbTBNXrj>;
-	Fri, 14 Feb 2003 18:47:39 -0500
-Date: Fri, 14 Feb 2003 15:57:27 -0800
-From: Bob Miller <rem@osdl.org>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.60 8/9] Update the Multiface 3 parallel port driver for new module API.
-Message-ID: <20030214235727.GK13336@doc.pdx.osdl.net>
+	id <S268526AbTBNX4t>; Fri, 14 Feb 2003 18:56:49 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:42390 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S268519AbTBNX4k>;
+	Fri, 14 Feb 2003 18:56:40 -0500
+Date: Sat, 15 Feb 2003 02:06:28 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Synchronous signal delivery..
+Message-ID: <20030215000628.GB1073@mea-ext.zmailer.org>
+References: <Pine.LNX.4.44.0302131452450.4232-100000@penguin.transmeta.com> <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.50.0302141553020.988-100000@blue1.dev.mcafeelabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below updates the Multiface 3 parallel port driver to use the
-new module interfaces.  This hasn't been test (sorry no hardware).
+On Fri, Feb 14, 2003 at 04:00:03PM -0800, Davide Libenzi wrote:
+> On Thu, 13 Feb 2003, Linus Torvalds wrote:
+....
+> > > > One of the reasons for the "flags" field (which is not unused) was because
+> > > > I thought it might have extensions for things like alarms etc.
+> > > I was thinking more like :
+> > > 
+> > > int timerfd(int timeout, int oneshot);
+> >
+> > It could be a separate system call, ...
+> 
+> I would personally like it a lot to have timer events available on
+> pollable fds. Am I alone in this ?
 
+Somehow all this idea has a feeling of long established
+Linux kernel facility called:  netlink
 
--- 
-Bob Miller					Email: rem@osdl.org
-Open Source Development Lab			Phone: 503.626.2455 Ext. 17
+It can send varying messages to userspace via a file-handle, and is 
+pollable.  Originally that is for network codes, and therefore it
+already has protocol capable to handle multiple different formats,
+handle queue saturation, etc.
 
-diff -Nru a/drivers/parport/parport_mfc3.c b/drivers/parport/parport_mfc3.c
---- a/drivers/parport/parport_mfc3.c	Fri Feb 14 09:50:44 2003
-+++ b/drivers/parport/parport_mfc3.c	Fri Feb 14 09:50:44 2003
-@@ -281,14 +281,14 @@
- 	pia(p)->cra |= PIA_DDR;
- }
- 
--static void mfc3_inc_use_count(void)
-+static int mfc3_inc_use_count(void)
- {
--	MOD_INC_USE_COUNT;
-+	return try_module_get(THIS_MODULE);
- }
- 
- static void mfc3_dec_use_count(void)
- {
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- }
- 
- static struct parport_operations pp_mfc3_ops = {
+Do we need new syscall(s) ?  Could it all be done with netlink ?
+
+/Matti Aarnio

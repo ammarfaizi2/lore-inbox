@@ -1,35 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314374AbSDRPQX>; Thu, 18 Apr 2002 11:16:23 -0400
+	id <S314375AbSDRPU1>; Thu, 18 Apr 2002 11:20:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314375AbSDRPQW>; Thu, 18 Apr 2002 11:16:22 -0400
-Received: from slip-202-135-75-31.ca.au.prserv.net ([202.135.75.31]:43918 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314374AbSDRPQW>; Thu, 18 Apr 2002 11:16:22 -0400
-Date: Fri, 19 Apr 2002 01:17:36 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au, hannal@us.ibm.com
-Subject: Re: 12 way dbench analysis: 2.5.9, dalloc and fastwalkdcache
-Message-Id: <20020419011736.72e666fd.rusty@rustcorp.com.au>
-In-Reply-To: <20020418081843.GE4209@krispykreme>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S314376AbSDRPU0>; Thu, 18 Apr 2002 11:20:26 -0400
+Received: from bitmover.com ([192.132.92.2]:60875 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314375AbSDRPUZ>;
+	Thu, 18 Apr 2002 11:20:25 -0400
+Date: Thu, 18 Apr 2002 08:20:25 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Kent Borg <kentborg@borg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Versioning File Systems?
+Message-ID: <20020418082025.N2710@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Kent Borg <kentborg@borg.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020418110558.A16135@borg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Apr 2002 18:18:43 +1000
-Anton Blanchard <anton@samba.org> wrote:
-> 1. On 2.5.9, lru_list_lock contention starts to cut in at 4 cpus.
-> Andrew's dalloc work gets rid of this bottleneck completely. Its fantastic
-> stuff!
+On Thu, Apr 18, 2002 at 11:05:58AM -0400, Kent Borg wrote:
+> Seriously, I have a server in the basement with a pair of 60 GB RAID 1
+> disks the protect me against likely hardware failure, but they don't
+> protect me against: "# rm rf /*".  They don't even let me easily back
+> out a bad RPM from Red Hat.
 
-Agreed.
+To protect agains rm -rf /, you need backups, not raid.  We do that here
+with scripts which just mirror the whole file system to a different drive
+every night.  Saves us a ton of grief and gives us a very simplistic 
+version control system, I do stuff like
 
-Just wanted to state for the public record: Andrew Morton is a God,
-Rusty.
+	diff foo.c /nightly/$PWD
+
+all the time for data which isn't in a version control system.
+
+> I guess I am suggesting the (more constructive) discussions over
+> desirable Bitkeeper and CVS features consider what it would mean for a
+> filesystem to absorb some of the key underlying features of each.
+
+It's certainly a fun space, file system hacking is always fun.  There
+doesn't seem to be a good match between file system operations and
+SCM operations, especially stuff like checkin.  write != checkin.
+But you can handle that with
+
+	echo "I'm done" >> foo.c/checkin
+
+i.e., when the file is treated as a directory, use the rest of the 
+pathname as the operation.  Could be cool.
+
+One other thing you might consider, is gluing an SCM system into
+the user level NFS server.  That has the nice attribute that you
+can export your file system/SCM system.  And/Or samba.
+
+The real issue with all of this is that you can make it work 
+locally by extending your pathname sematics or some other
+thing, but I've never figured out how to make it work remotely
+without hacking the remote OS.  Cross platform is important,
+at least it is commercially.
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263495AbUJ3Elt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263513AbUJ3Eo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263495AbUJ3Elt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 00:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263512AbUJ3Elt
+	id S263513AbUJ3Eo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 00:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263512AbUJ3Eo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 00:41:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:54742 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263495AbUJ3Ekh (ORCPT
+	Sat, 30 Oct 2004 00:44:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:56593 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263513AbUJ3EoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 00:40:37 -0400
-Message-ID: <41831A1D.3030901@osdl.org>
-Date: Fri, 29 Oct 2004 21:35:41 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: adaplas@hotpop.com
-Subject: Re: [PATCH] fbdev: Convert MODULE_PARM to module_param in neofb
-References: <200410292312.i9TNCsDq006882@hera.kernel.org>
-In-Reply-To: <200410292312.i9TNCsDq006882@hera.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 30 Oct 2004 00:44:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=EvOI21o+dXgyY4IMRyq95W0I/ibWmzpb+ynDna2wTn1zWvWCvmSfJ9bBPm8ARnyzGA9YAvMA/6ynacBxhY14408qi1SeiaGAxSSnrnh8Z2dWoGYkN6cTAoZLEvhWkjDmM22KSHbKERQfsOXGe1nPa2YpYGNn+NQWvniNt0dkCuw=
+Message-ID: <29495f1d04102921447ab65101@mail.gmail.com>
+Date: Fri, 29 Oct 2004 21:44:18 -0700
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [KJ] 2.6.10-rc1-kjt1: ixgb_ethtool.c doesn't compile
+Cc: kj <kernel-janitors@osdl.org>, linux-kernel@vger.kernel.org,
+       Nishanth Aravamudan <nacc@us.ibm.com>
+In-Reply-To: <20041029235137.GG6677@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20041024151241.GA1920@stro.at> <20041029235137.GG6677@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.2337.1.21, 2004/10/29 13:24:51-07:00, adaplas@hotpop.com
+On Sat, 30 Oct 2004 01:51:37 +0200, Adrian Bunk <bunk@stusta.de> wrote:
+> On Sun, Oct 24, 2004 at 05:12:41PM +0200, maximilian attems wrote:
+> >...
+> > splitted out 168 patches:
+> > http://debian.stro.at/kjt/2.6.10-rc1-kjt1/split/
 > 
-> 	[PATCH] fbdev: Convert MODULE_PARM to module_param in neofb
-> 	Convert MODULE_PARM to module_param in neofb
-> 	
-> diff -Nru a/drivers/video/neofb.c b/drivers/video/neofb.c
-> @@ -100,18 +100,18 @@
->  MODULE_AUTHOR("(c) 2001-2002  Denis Oliver Kropp <dok@convergence.de>");
->  MODULE_LICENSE("GPL");
->  MODULE_DESCRIPTION("FBDev driver for NeoMagic PCI Chips");
-> -MODULE_PARM(internal, "i");
-> +module_param(internal, bool, 0);
->  MODULE_PARM_DESC(internal, "Enable output on internal LCD Display.");
-> -MODULE_PARM(external, "i");
-> +module_param(external, bool, 0);
->  MODULE_PARM_DESC(external, "Enable output on external CRT.");
-> -MODULE_PARM(libretto, "i");
-> +module_param(libretto, bool, 0);
->  MODULE_PARM_DESC(libretto, "Force Libretto 100/110 800x480 LCD.");
-> -MODULE_PARM(nostretch, "i");
-> +module_param(nostretch, bool, 0);
->  MODULE_PARM_DESC(nostretch,
->  		 "Disable stretching of modes smaller than LCD.");
-> -MODULE_PARM(nopciburst, "i");
-> +module_param(nopciburst, bool, 0);
->  MODULE_PARM_DESC(nopciburst, "Disable PCI burst mode.");
-> -MODULE_PARM(mode_option, "s");
-> +module_param(mode_option, charp, 0);
->  MODULE_PARM_DESC(mode_option, "Preferred video mode ('640x480-8@60', etc)");
+> Could you provide a .tar.gz (or .tar.bz) of the splitted patches
+> (similar to how Andrew does for -mm)?
 
-Since neofb_setup() still parses options, what does this do?
-Provide 2 ways of passing options/arguments?
+Do you mean like the one he provided?
 
-Same questions for intelfb and i810fb.
+please test out:
+http://debian.stro.at/kjt/2.6.10-rc1-kjt1/2.6.10-rc1-kjt1.patch.bz2
 
-Oh, is it this?
-neofb_setup() is used for non-modular option parsing,
-and module_param() is used for modular or non-modular option parsing.
+Admittedly, it's not tarred first, but still... Maybe you mean
+something else, though, and I'm just confused.
 
-IOW, using neofb_setup() for option parsing maintains some
-backward compatibility for options?
+> > thanks for feedback.
+> > maks
+> >...
+> 
+> msleep_interruptible-drivers_net_ixgb_ixgb_ethtool.patch doesn't
+> compile:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/net/ixgb/ixgb_ethtool.o
+> drivers/net/ixgb/ixgb_ethtool.c: In function `ixgb_ethtool_led_blink':
+> drivers/net/ixgb/ixgb_ethtool.c:407: error: `id' undeclared (first use in this function)
+> drivers/net/ixgb/ixgb_ethtool.c:407: error: (Each undeclared identifier is reported only once
+> drivers/net/ixgb/ixgb_ethtool.c:407: error: for each function it appears in.)
+> make[3]: *** [drivers/net/ixgb/ixgb_ethtool.o] Error 1
 
--- 
-~Randy
+Thanks for catching this, I will make the change to the patch tomorrow
+and send it again.
+
+-Nish

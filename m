@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274611AbRJNHNS>; Sun, 14 Oct 2001 03:13:18 -0400
+	id <S274653AbRJNHTL>; Sun, 14 Oct 2001 03:19:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRJNHNJ>; Sun, 14 Oct 2001 03:13:09 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:11783 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S274611AbRJNHND>;
-	Sun, 14 Oct 2001 03:13:03 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Recursive deadlock on die_lock 
-In-Reply-To: Your message of "Sat, 13 Oct 2001 23:42:51 MST."
-             <3BC933EA.4636D57C@zip.com.au> 
+	id <S274666AbRJNHS7>; Sun, 14 Oct 2001 03:18:59 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13721 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S274653AbRJNHS4>; Sun, 14 Oct 2001 03:18:56 -0400
+Date: Sun, 14 Oct 2001 12:55:01 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Paul McKenney <paul.mckenney@us.ibm.com>, linux-kernel@vger.kernel.org,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-ID: <20011014125501.A9354@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <Pine.LNX.4.33.0110131015410.8707-100000@penguin.transmeta.com> <Pine.LNX.4.33.0110131024480.8707-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 14 Oct 2001 17:13:16 +1000
-Message-ID: <28465.1003043596@ocs3.intra.ocs.com.au>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <Pine.LNX.4.33.0110131024480.8707-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Oct 13, 2001 at 10:28:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001 23:42:51 -0700, 
-Andrew Morton <akpm@zip.com.au> wrote:
->Keith Owens wrote:
->> 
->> ...
->> If show_registers() fails (which it does far too often on IA64) then
->> the system deadlocks trying to recursively obtain die_lock.  Also
->> die_lock is never used outside die(), it should be proc local.
->> Suggested fix:
->> 
->
->Looks to me like it'll work.  But why does ia64 show_registers()
->die so easily?  Can it be taught to validate addresses before
->dereferencing them somehow?
+On Sat, Oct 13, 2001 at 10:28:13AM -0700, Linus Torvalds wrote:
+> 
+> On Sat, 13 Oct 2001, Linus Torvalds wrote:
+> >
+> > In short, RCU seems to be a case of "hey, that's cool", but it's a
+> > solution in search of a problem so severe that it is worth it.
+> 
+> Oh, and before people start telling me that RCU was successfully used in
+> AIX/projectX/xxxx/etc, you have to realize that I don't give a rats *ss
+> about the fact that there are OS's out there that are "more scalable".
 
-Unwind code.  It is impossible to obtain IA64 saved registers or back
-trace the calling sequence without using the unwind API.  That API
-relies on decent unwind data being associated with each function
-prologue, stack adjustment, save of return registers etc.  Not an issue
-for C code, it is for Assembler where the unwind info has to be hand
-coded to match what the asm is doing.  IA64 also has PAL code which is
-called directly by the kernel, that PAL code has no unwind data so
-failures in PAL code result in bad or incomplete back traces.
+Absolutely. Those are different OSes, different environments and mostly
+imprtantly different goals. We may draw on that experience, but still
+need to prove that the ideas work for *Linux*.
 
-Unwind is not supposed to fail, it should detect bad input data and
-avoid errors.  Alas, sometimes it does fail.
+> 
+> The last time I looked, Solaris and AIX and all the rest of the "scalable"
+> systems were absolute pigs on smaller hardware, and the "scalability" in
+> them often translates into "we scale linearly to many CPU's by being
+> really bad even on one".
 
+No argument here at all. Big iron is only a part of what linux
+does and we are very conscious of that fact. In fact, this makes
+our work quite an interesting challenge.
+
+Thanks
+Dipankar
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

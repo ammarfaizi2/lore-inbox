@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317305AbSGTAn4>; Fri, 19 Jul 2002 20:43:56 -0400
+	id <S317293AbSGTApj>; Fri, 19 Jul 2002 20:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317306AbSGTAnz>; Fri, 19 Jul 2002 20:43:55 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:51217 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317305AbSGTAny>; Fri, 19 Jul 2002 20:43:54 -0400
-Date: Fri, 19 Jul 2002 21:46:40 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Hans Reiser <reiser@namesys.com>
-cc: Andreas Dilger <adilger@clusterfs.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST]
-In-Reply-To: <3D38AF47.2000106@namesys.com>
-Message-ID: <Pine.LNX.4.44L.0207192144190.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S317299AbSGTApi>; Fri, 19 Jul 2002 20:45:38 -0400
+Received: from p50887F04.dip.t-dialin.net ([80.136.127.4]:395 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317293AbSGTApg>; Fri, 19 Jul 2002 20:45:36 -0400
+Date: Fri, 19 Jul 2002 18:48:17 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Alan Cox <alan@redhat.com>
+cc: Andrew Rodland <arodland@noln.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -ac] Panicking in morse code
+In-Reply-To: <200207200035.g6K0ZFN11415@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0207191847550.3378-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jul 2002, Hans Reiser wrote:
+Hi,
 
-> That could be dealt with by letting people resend feature containing
-> patches that were first submitted by Halloween (forward porting them as
-> things progress) until they get a rejection or Linus announces he has
-> taken all that he wants from the queue.
+On Fri, 19 Jul 2002, Alan Cox wrote:
+> How about using bitmasks here. Say top five bits being the length, lower
+> 5 bits being 1 for dash 0 for dit ?
 
-I hope the Halloween feature freeze really will be a feature
-freeze.  Nothing is more frustrating than having a "stable
-kernel" broken every second release by yet another feature.
+Just have a look at his latest solution.
 
-If we all restrain ourselves 2.6 will be stable soon and 2.7
-will be started shortly after. Backporting "essential" features
-from 2.7 into a _stable_ 2.6 will be so much easier than trying
-to stabilise a 2.6-pre that's full to the brim of not-yet-stable
-new features.
-
-regards,
-
-Rik
+							Regards,
+							Thunder
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

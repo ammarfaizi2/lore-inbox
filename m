@@ -1,30 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292592AbSBZSNB>; Tue, 26 Feb 2002 13:13:01 -0500
+	id <S292639AbSBZSOl>; Tue, 26 Feb 2002 13:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292633AbSBZSMx>; Tue, 26 Feb 2002 13:12:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31762 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292639AbSBZSMg>; Tue, 26 Feb 2002 13:12:36 -0500
-Subject: Re: IDE error on 2.4.17
-To: turveysp@ntlworld.com (Simon Turvey)
-Date: Tue, 26 Feb 2002 18:27:21 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <000901c1beec$6ac68940$030ba8c0@mistral> from "Simon Turvey" at Feb 26, 2002 05:38:35 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292633AbSBZSOX>; Tue, 26 Feb 2002 13:14:23 -0500
+Received: from taifun.devconsult.de ([212.15.193.29]:38408 "EHLO
+	taifun.devconsult.de") by vger.kernel.org with ESMTP
+	id <S292612AbSBZSOL>; Tue, 26 Feb 2002 13:14:11 -0500
+Date: Tue, 26 Feb 2002 19:14:09 +0100
+From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3 and undeletion
+Message-ID: <20020226191409.A23093@devcon.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020226171634.GL4393@matchmail.com> <Pine.LNX.4.44L.0202261419240.1413-100000@duckman.distro.conectiva> <20020226173822.GN4393@matchmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16fmJt-0001Xi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020226173822.GN4393@matchmail.com>; from mfedyk@matchmail.com on Tue, Feb 26, 2002 at 09:38:22AM -0800
+Organization: dev/consulting GmbH
+X-NCC-RegID: de.devcon
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=250746,
-> sector=250680
-> end_request: I/O error, dev 03:01 (hda), sector 250680
+On Tue, Feb 26, 2002 at 09:38:22AM -0800, Mike Fedyk wrote:
+> 
+> Basically, it would only move the files to the undelete area if the link
+> count == 1.  If you just decremented the link, then unlink() in glibc would
+> work as it does now.
 
-Uncorrectable error is a message from your disk, along the lines of "Hey
-pal I wonder if the warranty has expired yet"
+Always racy if done in userspace, unless you introduce a centralised
+"unlink daemon" (hope no glibc developer reads that, they might be
+tempted to implement such an abomination...):
 
+     proc1       proc2
+   --------------------
+    stat()
+                stat()
+    unlink()
+                unlink()
+
+*kaboom*, blackhole opens, file is gone.
+
+/If/ you start doing such a mess (personally I don't want undeletion
+anyways), please do it at least in a correct way.
+
+Andreas
+-- 
+       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
+     ---------------------------------------------------------
+         +49 521 1365800 - af@devcon.net - www.devcon.net

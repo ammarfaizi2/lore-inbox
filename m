@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318065AbSIOOx5>; Sun, 15 Sep 2002 10:53:57 -0400
+	id <S318069AbSIOPIJ>; Sun, 15 Sep 2002 11:08:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318067AbSIOOx5>; Sun, 15 Sep 2002 10:53:57 -0400
-Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:32917 "EHLO
-	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S318065AbSIOOx4>; Sun, 15 Sep 2002 10:53:56 -0400
-Date: Sun, 15 Sep 2002 11:58:27 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@digeo.com>
-cc: Daniel Phillips <phillips@arcor.de>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.34-mm2
-In-Reply-To: <3D841C8A.682E6A5C@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0209151156080.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318075AbSIOPIJ>; Sun, 15 Sep 2002 11:08:09 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:507 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318069AbSIOPII>; Sun, 15 Sep 2002 11:08:08 -0400
+Subject: Re: [2.5] DAC960
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Jens Axboe <axboe@suse.de>, Samium Gromoff <_deepfire@mail.ru>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <E17qQum-0001qO-00@starship>
+References: <E17odbY-000BHv-00@f1.mail.ru> <20020910062030.GL8719@suse.de> 
+	<E17qQum-0001qO-00@starship>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
+Date: 15 Sep 2002 16:14:50 +0100
+Message-Id: <1032102890.25716.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Andrew Morton wrote:
-> Daniel Phillips wrote:
+On Sun, 2002-09-15 at 05:21, Daniel Phillips wrote:
+> A somewhat curt reply, it could be seen as a brush-off.  I believe the
+> whole story goes something like this: the scsi system is a festering
+> sore on the whole and eventually needs to be rationalized.  But until
+> that happens, we should basically just keep nursing along the various
+> drivers that should be using a generic interface, until there really
+> is a generic interface around worth putting in the effort to port to.
 
-> > but that sure looks like the low hanging fruit.
->
-> It's low alright.  AFAIK Linux has always had this problem of
-> seizing up when there's a lot of dirty data around.
-
-Somehow I doubt the "seizing up" problem is caused by too much
-scanning.  In fact, I'm pretty convinced it is caused by having
-too much IO submitted at once (and stalling in __get_request_wait).
-
-The scanning is probably not relevant at all and it may be
-beneficial to just ignore the scanning for now and do our best
-to keep the pages in better LRU order.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+DAC960 doesn't present a scsi interface to the higher levels. Its
+abstraction truely is block based, like i2o_block, like aacraid, like
+many other cards.
 

@@ -1,72 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281552AbRKQAjn>; Fri, 16 Nov 2001 19:39:43 -0500
+	id <S281662AbRKQAnd>; Fri, 16 Nov 2001 19:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281647AbRKQAjd>; Fri, 16 Nov 2001 19:39:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:39693 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281552AbRKQAjW>;
-	Fri, 16 Nov 2001 19:39:22 -0500
-Date: Sat, 17 Nov 2001 01:39:21 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Jeff Golds <jgolds@resilience.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AMD SMP capability sanity checking.
-In-Reply-To: <3BF5B05F.9F727DD8@resilience.com>
-Message-ID: <Pine.LNX.4.30.0111170133290.32578-100000@Appserv.suse.de>
+	id <S281647AbRKQAnY>; Fri, 16 Nov 2001 19:43:24 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:19142 "EHLO
+	c0mailgw10.prontomail.com") by vger.kernel.org with ESMTP
+	id <S281662AbRKQAnN>; Fri, 16 Nov 2001 19:43:13 -0500
+Message-ID: <3BF5B275.215D6D44@starband.net>
+Date: Fri, 16 Nov 2001 19:42:29 -0500
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Swap Usage with Kernel 2.4.14
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Jeff Golds wrote:
+Regular usage on my box, launching netscape, opera, pan, xchat, gaim;
+the kernel eventually digs into swap.
 
-> > Burning out a fuse to make the switch from MP->XP may affect more
-> > than just the cpuid capabilities. The fact is _we don't know_
-> Right, so why assume it doesn't work?
+However, the swap is never released?
 
-Because there are cases where it. does. not. work.
+Mem:   900596K av,  185896K used,  714700K free,       0K shrd,    4172K
+buff
+Swap: 2048276K av,   63728K used, 1984548K free                   91176K
+cached
 
-> People with "true" SMP CPUs can have problems as well.  Does this mean
-> SMP CPUs are not SMP capable?  If only one person is having problems,
-> chances are there's a problem someplace.
+Are there any settings I should have set or be aware of?
 
-Such problems get researched, and warnings such as the one in
-my patch get added. Take a look through smpboot.c and friends.
-We support a lot of broken hardware, but there's a difference between
-broken (buggy) and running something outside of its specification.
+I current use 4GB support, 1GB of ram, 2GB of swap.
 
->  Could it be a faulty motherboard?
-
-The reason we have DMI table scanning on boot up.
-
->  Mismatched CPUs?
-
-Another unsupported configuration we should at least warn about.
-Note however, that some quad systems allow 2 different pairs.
-
->  Bad memory?
-
-The reason memtest86 came to be.
-
->  Bad CPU?
-
-See errata workarounds in smpboot.c & setup.c
-
->  Bad power supply?
-
-Running underrated PSUs on modern hw is asking for trouble.
-Unless you think AMD approved PSUs are another marketing gimmik
-to make people pay out more.
-
->  There's an awful lot of variables here.
-
-Sure. And this eliminates one such variable.
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Having 1GB, I thought I had enough memory for basic operations without
+the disk swapping like mad.
 

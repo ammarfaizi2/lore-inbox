@@ -1,81 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311762AbSCNUjA>; Thu, 14 Mar 2002 15:39:00 -0500
+	id <S311761AbSCNUiF>; Thu, 14 Mar 2002 15:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311763AbSCNUiq>; Thu, 14 Mar 2002 15:38:46 -0500
-Received: from mug.sys.Virginia.EDU ([128.143.6.251]:41221 "EHLO
-	mug.sys.virginia.edu") by vger.kernel.org with ESMTP
-	id <S311762AbSCNUig>; Thu, 14 Mar 2002 15:38:36 -0500
-Date: Thu, 14 Mar 2002 20:38:36 -0500 (EST)
-From: David Forrest <drf5n@mug.sys.virginia.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: K7S5A SIS735 ext2fs corruption
-Message-ID: <Pine.LNX.4.33.0203142014160.7770-100000@mug.sys.virginia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311764AbSCNUhz>; Thu, 14 Mar 2002 15:37:55 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37667 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S311761AbSCNUhq>; Thu, 14 Mar 2002 15:37:46 -0500
+Date: Thu, 14 Mar 2002 15:37:11 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "David S. Miller" <davem@redhat.com>, whitney@math.berkeley.edu,
+        rgooch@ras.ucalgary.ca, linux-kernel@vger.kernel.org,
+        marcelo@conectiva.com.br
+Subject: Re: [patch] ns83820 0.17 (Re: Broadcom 5700/5701 Gigabit Ethernet Adapters)
+Message-ID: <20020314153711.D9194@redhat.com>
+In-Reply-To: <200203110205.g2B25Ar05044@adsl-209-76-109-63.dsl.snfc21.pacbell.net> <20020310.180456.91344522.davem@redhat.com> <20020310212210.A27870@redhat.com> <20020310.183033.67792009.davem@redhat.com> <20020312004036.A3441@redhat.com> <3C90733B.4020205@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C90733B.4020205@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Mar 14, 2002 at 04:54:03AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know this has been on the list before, but I wanted to whine a bit, and
-collect what I've seen because I havent seen it resolved
+On Thu, Mar 14, 2002 at 04:54:03AM -0500, Jeff Garzik wrote:
+> Comments:
+> 
+> 1) What were the test conditions leading to your decision to decrease 
+> the RX/TX ring count?  I'm not questioning the decision, but looking to 
+> be better informed...  other gigabit drivers normally have larger rings. 
+>  I also wonder if the slowdown you see could be related to a small-sized 
+> FIFO on the natsemi chips, that would probably not be present on other 
+> gigabit chips.
 
-lkml: 2001-12-30 UMOUNTING in 2.4.17 / Ext2 Partitions destroyed (3x)
-lkml: 2001-10-25 Repeatable File Corruption (ECS K7S5A w/SIS735)
+Smaller rings lead to better thruput, especially on the slower cpus.  Not 
+that in part the slowness was caused by having slab debugging enabled.  
+Turning slab debugging off brought the p3s up to ~500mbit and the athlons 
+over 900.
 
-http://www.geocities.com/mrathlon2000/   and
-http://pub65.ezboard.com/fk7s5amotherboardforumfrm10.showMessage?topicID=2.topic
-suggests a couple hardware fixes, and blames corruptions on high speeds
-and a bad resistor choice.
+> 2) PCI latency timer is set with pci_set_master(), as in:  if it's not 
+> correctly set, fix it up.  If it's correctly set, leave it alone and let 
+> the user tune in BIOS Setup.
 
-My ECS k7s5a with the SIS735 Athalon 1.4 chipset has corrupted a couple of
-my disks
+Ah.  That part is something I was thinking of deleting, and now will do.
 
-I was using 2.4.17, and the dma modes kicked in automatically.  I thought
-I had it managed with the boot parameter of 'ide=nodma', since that
-eliminatated errors like
-status=0x51 { DriveReady SeekComplete Error }
-error=0x84 { BadCRC DriveStatusError }
+> 3) Seeing "volatile" in your code.  Cruft?  volatile's meaning change in 
+> recent gcc versions implies to me that your code may need some addition 
+> rmb/wmb calls perhaps, which are getting hidden via the driver's 
+> dependency on a compiler-version-specific implementation of "volatile."
 
-These were with the drives in the hdparm output below.
+Paranoia during writing.  I'll reaudit.  That said, volatile behaviour 
+is not compiler version specific.
 
-I don't have this board up and running right now, but could throw some old
-stuff into it and see how it goes.
+> 4) Do you really mean to allocate memory for "REAL_RX_BUF_SIZE + 16"? 
+>  Why not plain old REAL_RX_BUF_SIZE?
 
-Dave,
+The +16 is for alignment (just like the comment says).  The hardware 
+requires that rx buffers be 64 bit aligned.
+
+> 5) Random question, do you call netif_carrier_{on,off,ok} for link 
+> status manipulation?  (if not, you should...)
+
+Ah, api updates.  Added to the todo.
+
+> 6) skb_mangle_for_davem is pretty gross...  curious: what sort of NIC 
+> alignment restrictions are there on rx and tx buffers (not descriptors)? 
+>  None? 32-bit?  Ignore CPU alignment for a moment here...
+
+tx descriptors have no alignment restriction, rx descriptors must be 
+64 bit aligned.  Someone chose not to include the transistors for a 
+barrel shifter in the rx engine.
+
+> 7) What are the criteria for netif_wake_queue?  If you are waking when 
+> the TX is still "mostly full" you probably generate excessive wakeups...
+
+Hrm?  Currently it will do a wakeup when at least one packet (8 sg 
+descriptors) can be sent.  Given that the tx done code is only called 
+when a tx desc (every 1/4 or so of the tx queue) or txidle interrupt 
+occurs, it shouldn't be that often.
+
+		-ben
 -- 
- Dave Forrest                                   drf5n@virginia.edu
- (434)296-7283h 924-3954w      http://mug.sys.virginia.edu/~drf5n/
-
-
-{root@mug:~}# /usr/sbin/hdparm -i /dev/hd[ad]
-
-/dev/hda:
-
- Model=IBM-DHEA-38451, FwRev=HP8OA20C, SerialNo=SH0SH0S4378
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=28
- BuffType=DualPortCache, BuffSize=472kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=16514064
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2
- AdvancedPM=no
- Drive Supports : ATA-3 X3T10 2008D revision 1 : ATA-1 ATA-2 ATA-3
-
-
-/dev/hdd:
-
- Model=WDC WD205BA, FwRev=16.13M16, SerialNo=WD-WM9490019722
- Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq
-}
- RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=40088160
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4
- AdvancedPM=no
- Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4
-
-
-
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

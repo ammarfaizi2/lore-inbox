@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269590AbUISEqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269596AbUISEtp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269590AbUISEqr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 00:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269596AbUISEqr
+	id S269596AbUISEtp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 00:49:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269626AbUISEto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 00:46:47 -0400
-Received: from gate.crashing.org ([63.228.1.57]:33719 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269590AbUISEqY (ORCPT
+	Sun, 19 Sep 2004 00:49:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:35255 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S269596AbUISEt0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 00:46:24 -0400
+	Sun, 19 Sep 2004 00:49:26 -0400
 Subject: Re: Design for setting video modes, ownership of sysfs attributes
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 To: Jon Smirl <jonsmirl@gmail.com>
-Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+Cc: Mike Mestnik <cheako911@yahoo.com>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e47339104091811431fb44254@mail.gmail.com>
+In-Reply-To: <9e47339104091815125ef78738@mail.gmail.com>
 References: <9e47339104091811431fb44254@mail.gmail.com>
+	 <20040918195807.18874.qmail@web11906.mail.yahoo.com>
+	 <9e47339104091815125ef78738@mail.gmail.com>
 Content-Type: text/plain
-Message-Id: <1095569137.6580.23.camel@gaston>
+Message-Id: <1095569317.6670.26.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 19 Sep 2004 14:45:37 +1000
+Date: Sun, 19 Sep 2004 14:48:38 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-09-19 at 04:43, Jon Smirl wrote:
-> Original proposal.....
-> At OLS we talked about a system like this for setting video modes:
+On Sun, 2004-09-19 at 08:12, Jon Smirl wrote:
+
+> I'm still undecided if there needs to be a root priv daemon caching
+> the EDID and polling for a monitor change. EDID can be regenerated on
+> each request to change mode but it takes a few seconds. The root priv
+> daemon will dynamically link to card specific libraries. Initially I'm
+> going to add the functions to the mesa libraries but they may get
+> broken out later.
+
+I'd rather have the kernel driver do the actual probing and provide
+the EDID or other infos for non-EDID capable monitors to userland (via
+hotplug maybe ?), though userland can then of course decide to
+"override" it and it's still userland that decodes it etc....
+
+There are various cases of HW hackery involved in proper monitor
+detection that I'd rather not see in userland anymore. Also, some cards
+may provide an interrupt for detecting connector state change.
+
+> > There is another thing I can't see.  Why can't the module for the drm
+> > create fb[0-9]* devices, one for each monitor?  This would seam to solve
+> > the problem with having another app and ioctl(API).
 > 
-> 1) user owns graphics devices
-> 2) user sets mode with string (or similar) format using ioctl common to
-> all drivers.
-> 3) driver is locked to prevent multiple mode sets
-> 4) common code takes this string and does a hotplug event with it.
-> 5) hotplug event runs root context in user space 
-> 6) mode is decoded and verified, this may involve a little process that
-> maintains the DDC database and reads a file of legal modes. Other
-> schemes are possible.
-> 7a) mode is set using VBIOS and vm86, signal driver mode is set
-> 7b) the register values needed to set the mode are passed into a root
-> priv ioctl.
-> 8) driver is unlocked.
-
-One issue here... When we discussed all of this with Keith, we wanted
-a mecanism where the user can set the mode without "owning" the device.
-
-Typically, with X: We don't want X itself to have to be the one setting
-the mode, but rather set the mode and have X be notified properly before
-and after it happens so it can "catch up".
-
-This also involves dealing with all pending DRI clients too, that is they
-have to be notified that the fb/vmem layout is changing, the pending
-commands have to be completed, no more accepted, etc... until every DRI
-"client" acked the change... That sort of thing.
-
-Ben.
-
+> The DRM driver I'm working on already creates one DRM device for each
+> head. Doing this also creates a sysfs entry for each head too. Each
+> head has it's own mode/modes attributes.
+> 
+> Another item is merged fb. Initially heads will be unowned. Logging
+> into a head makes you the owner. If you ask for the modes available on
+> your head the list will also contain merged fb mode. If you set a
+> merged fb mode, the login process on the secondary screen needs to be
+> killed. If some one is logged into the secondary head merged fb modes
+> won't be in the list. This scheme has the nice side effect of making
+> all heads equal, there is no separate controlling device for the card.
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

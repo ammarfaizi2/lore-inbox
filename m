@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135490AbRDWRz7>; Mon, 23 Apr 2001 13:55:59 -0400
+	id <S135489AbRDWR53>; Mon, 23 Apr 2001 13:57:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135489AbRDWRzt>; Mon, 23 Apr 2001 13:55:49 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:525 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135490AbRDWRzj>;
-	Mon, 23 Apr 2001 13:55:39 -0400
-Date: Mon, 23 Apr 2001 18:54:17 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Szabolcs Szakacsits <szaka@f-secure.com>
-Subject: Re: [patch] swap-speedup-2.4.3-A2
-In-Reply-To: <Pine.LNX.4.21.0104231011070.13206-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0104231852130.394-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135491AbRDWR5U>; Mon, 23 Apr 2001 13:57:20 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:46226 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S135489AbRDWR5O>; Mon, 23 Apr 2001 13:57:14 -0400
+Date: Mon, 23 Apr 2001 19:57:12 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Russell King <rmk@arm.linux.org.uk>, mythos <papadako@csd.uoc.gr>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Can't compile 2.4.3 with agcc
+Message-ID: <20010423195712.T682@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010423154821.A26340@flint.arm.linux.org.uk> <Pine.GSO.4.33.0104231611090.15682-100000@iridanos.csd.uch.gr> <20010423154821.A26340@flint.arm.linux.org.uk> <24644.988041173@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <24644.988041173@redhat.com>; from dwmw2@infradead.org on Mon, Apr 23, 2001 at 04:52:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 23, 2001 at 04:52:53PM +0100, David Woodhouse wrote:
+> RCS file: /inst/cvs/linux/include/asm-i386/bugs.h,v
+> retrieving revision 1.2.2.16
+> diff -u -r1.2.2.16 bugs.h
+> --- include/asm/bugs.h	2001/01/18 13:56:53	1.2.2.16
+> +++ include/asm/bugs.h	2001/04/23 15:45:28
+> @@ -80,8 +80,10 @@
+>  	 * Verify that the FXSAVE/FXRSTOR data will be 16-byte aligned.
+>  	 */
+>  	if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
+> -		extern void __buggy_fxsr_alignment(void);
+> -		__buggy_fxsr_alignment();
+> +		printk(KERN_EMERG "ERROR: FXSAVE data are not 16-byte aligned in task_struct.\n");
+> +		printk(KERN_EMERG "This is usually caused by a buggy compiler (perhaps pgcc?)\n");
+> +		printk(KERN_EMERG "Cannot continue.\n");
+> +		for (;;) ;
+replace this with panic() please. Even machines, which reboot on
+panic will reboot over and over again here, which surely someone
+will notice ;-)
+>  	}
+>  	if (cpu_has_fxsr) {
+>  		printk(KERN_INFO "Enabling fast FPU save and restore... ");
 
-On Mon, 23 Apr 2001, Linus Torvalds wrote:
+Regards
 
-> The above is NOT how the page cache works. Or if some part of the page
-> cache works that way, then it is a BUG. You must NEVER allow multiple
-> outstanding reads from the same location - that implies that you're
-> doing something wrong, and the system is doing too much IO.
-
-you are right, the pagecache does it correctly, i've just re-checked all
-places.
-
-	Ingo
-
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

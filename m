@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261557AbSKCB66>; Sat, 2 Nov 2002 20:58:58 -0500
+	id <S261556AbSKCCPM>; Sat, 2 Nov 2002 21:15:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbSKCB66>; Sat, 2 Nov 2002 20:58:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21767 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261557AbSKCB65>; Sat, 2 Nov 2002 20:58:57 -0500
-Date: Sat, 2 Nov 2002 18:05:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David D. Hagood" <wowbagger@sktc.net>
-cc: Rik van Riel <riel@conectiva.com.br>, "Theodore Ts'o" <tytso@mit.edu>,
-       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       <linux-kernel@vger.kernel.org>, <davej@suse.de>
+	id <S261558AbSKCCPM>; Sat, 2 Nov 2002 21:15:12 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:57853 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261556AbSKCCPL>;
+	Sat, 2 Nov 2002 21:15:11 -0500
+Date: Sat, 2 Nov 2002 21:21:40 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       davej@suse.de
 Subject: Re: Filesystem Capabilities in 2.6?
-In-Reply-To: <3DC47659.4060006@sktc.net>
-Message-ID: <Pine.LNX.4.44.0211021803240.2300-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0211022114280.25010-100000@steklov.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 2 Nov 2002, David D. Hagood wrote:
-> Linus Torvalds wrote:
-> >
-> > And pathnames are a _hell_ of a lot better and straightforward interface
-> > than inode numbers are. It's confusing when you change the permission on
-> > one path to notice that another path magically changed too.
-> 
-> Would this not allow a user to add permissions to a file, by creating a 
-> new directory entry and linking it to an existing inode?
-> 
-> Would that not be a greater security hole?
 
-No. The file itself has _no_ capabilities at all. If you just link to it,
-you can give it whatever capabilities _you_ have as a user (well, normal
-users don't really have any capabilities to give, but you get the idea).
+On Sat, 2 Nov 2002, Linus Torvalds wrote:
 
-		Linus
+> The reason I like directory entries as opposed to inodes is that if you
+> work this way, you can actually give different people _different_
+> capabilities for the same program.  You don't need to have two different
+> installs, you can have one install and two different links to it.
+
+	<shrug> that can be done without doing anything to filesystem.
+Namely, turn current "nosuid" of vfsmount into a mask of capabilities.
+Then use bindings instead of links.  *Note* - binary _is_ marked suid,
+mask tells which capabilities _not_ to gain.  It's OK - attempt to
+link(2) to the thing using binding will see that oldname and newname
+are within different vfsmounts, so instead of link to suid-root binary
+you get -EXDEV.
+
+	And that works on any fs, can be made per-user and can be _seen_
+by admin - bindings are visible in /proc/mounts (yes, I remember that
+we need to fix the crap with pathnames).
+
+	I can do that thing in a weekend - it's trivial to implement.
+No need to bugger filesystems for that.
 

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314987AbSENCDj>; Mon, 13 May 2002 22:03:39 -0400
+	id <S315042AbSENCGa>; Mon, 13 May 2002 22:06:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315039AbSENCDi>; Mon, 13 May 2002 22:03:38 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:45045 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S314987AbSENCDh>;
-	Mon, 13 May 2002 22:03:37 -0400
-Date: Mon, 13 May 2002 22:03:34 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: davej@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.1[345]-dj Add cpqarray_init() back into genhd.c
-Message-ID: <20020514020334.GA24417@www.kroptech.com>
-Mime-Version: 1.0
+	id <S315048AbSENCG3>; Mon, 13 May 2002 22:06:29 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21515 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315042AbSENCG2>;
+	Mon, 13 May 2002 22:06:28 -0400
+Message-ID: <3CE071F7.347C78B5@zip.com.au>
+Date: Mon, 13 May 2002 19:09:59 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Chubb <peter@chubb.wattle.id.au>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, axboe@suse.de, martin@dalecki.de,
+        neilb@cse.unsw.edu.au
+Subject: Re: [PATCH] remove 2TB block device limit
+In-Reply-To: <20020513131339.A4610@infradead.org> <15584.23204.925373.44968@wombat.chubb.wattle.id.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.13-dj1, the call to cpqarray_init() in drivers/block/genhd.c was
-dropped. I'm not sure what the intent was since the driver seems to work fine
-as a module. In case it was a mistake, here's a patch (against 2.5.15-dj1) to
-add it back in. Without it, cpqarray only works as a module. Works For Me (tm).
+Peter Chubb wrote:
+> 
+> ...
+> Christoph>  - why is the get_block block argument
+> Christoph> a sector_t?  It presents a logical filesystem block which
+> Christoph> usually is larger than the sector, not to mention that for
+> Christoph> the usual blocksize == PAGE_SIZE case a ulong is enough as
+> Christoph> that is the same size the pagecache limit triggers.
+> 
+> For filesystems that *can* handle logical filesystem blocks beyond the
+> 2^32 limit (i.e., that use >32bit offsets in their on-disc format),
+> the get_block() argument has to be > 32bits long.  At  the moment
+> that's only JFS and XFS, but reiserfs version 4 looks as if it might
+> go that way.  We'll need this especially when the pagecache limit is
+> gone.
 
---Adam
+I think Christoph's point is that a pagecache index is not a sector
+number.  We agree that we need to plan for taking it to 64 bits, but
+it should be something different. Like pageindex_t, or whatever.
 
---- linux-2.5.15-dj1-virgin/drivers/block/genhd.c	Mon May 13 21:21:59 2002
-+++ linux-2.5.15-dj1/drivers/block/genhd.c	Mon May 13 21:18:48 2002
-@@ -229,6 +229,9 @@
- 	/* This has to be done before scsi_dev_init */
- 	soc_probe();
- #endif
-+#ifdef CONFIG_BLK_CPQ_DA
-+	cpqarray_init();
-+#endif
- #ifdef CONFIG_NET
- 	net_dev_init();
- #endif
+This:
+
+--- linux-2.5.15/include/linux/mm.h	Tue Apr 30 17:56:30 2002
++++ 25/include/linux/mm.h	Mon May 13 19:08:21 2002
+@@ -148,7 +148,7 @@ struct vm_operations_struct {
+ typedef struct page {
+ 	struct list_head list;		/* ->mapping has some page lists. */
+ 	struct address_space *mapping;	/* The inode (or ...) we belong to. */
+-	unsigned long index;		/* Our offset within mapping. */
++	sector_t index;			/* Our offset within mapping. */
+ 	atomic_t count;			/* Usage count, see below. */
+ 	unsigned long flags;		/* atomic flags, some possibly
+ 					   updated asynchronously */
+
+looks rather silly, no?
+
+-

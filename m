@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317497AbSGXTaL>; Wed, 24 Jul 2002 15:30:11 -0400
+	id <S317641AbSGXTeu>; Wed, 24 Jul 2002 15:34:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317500AbSGXTaK>; Wed, 24 Jul 2002 15:30:10 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:60186 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S317497AbSGXTaK>; Wed, 24 Jul 2002 15:30:10 -0400
-Date: Wed, 24 Jul 2002 15:33:19 -0400
-From: Kareem Dana <kareemy@earthlink.net>
-To: Andrew Rodland <arodland@noln.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: loop.o device busy after umount
-Message-Id: <20020724153319.5ebd589b.kareemy@earthlink.net>
-In-Reply-To: <20020724151904.3d719dea.arodland@noln.com>
-References: <20020724145919.01c79fce.kareemy@earthlink.net>
-	<20020724151904.3d719dea.arodland@noln.com>
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S317643AbSGXTeu>; Wed, 24 Jul 2002 15:34:50 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17170 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317641AbSGXTet>;
+	Wed, 24 Jul 2002 15:34:49 -0400
+Message-ID: <3D3F019A.80BC3632@zip.com.au>
+Date: Wed, 24 Jul 2002 12:35:54 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David F Barrera <dbarrera@us.ibm.com>
+CC: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at page_alloc.c:92! & page allocation failure. order:0,  
+ mode:0x0
+References: <OF58871EFC.4272F3EB-ON85256C00.004B3677@pok.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jul 2002 15:19:04 -0400
-Andrew Rodland <arodland@noln.com> wrote:
+David F Barrera wrote:
+> 
+> Andrew,
+> 
+> I tried the change to ptrace.c, but it did not work.  I cannot boot the
+> machine.  It gives an oops upon boot.
 
-> On Wed, 24 Jul 2002 14:59:19 -0400
-> Kareem Dana <kareemy@earthlink.net> wrote:
-> 
-> > Hello,
-> > 
-> > I've noticed in kernel 2.4.18 that my loop module remains busy after I
-> > umount the device using it. For example
-> > 
-> > mount -t iso9660 -o loop file.iso /mnt
-> > * loop module gets loaded
-> > * lsmod shows "loop                    7952   1 (autoclean)"
-> > * ps ax shows [loop0] process
-> > 
-> > then
-> > umount /mnt
-> > lsmod shows the same thing - specifically the use of loop as 1 and the
-> > [loop0] process remains open. Trying to rmmod loop gives me a device
-> > or resource busy error.
-> 
-> For some reason or other, umount didn't losetup -d the device.
-> 
-> Try losetup -d /dev/loop0, and see whether it does what you want, or
-> returns some sort of error.
-> 
-> --hobbs
-umount: mount-2.11r
+That won't be due to the ptrace change.  Suggest you do a clean
+build and if the oops is still there, please pass it through ksymoops and
+let us know.
 
-losetup worked like a charm. Thanks. Any reason umount would not do that automatically though?
-umount -V returns umount: mount-2.11r
+And please drop the ptrace.c change and use
+http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.27/lru-removal.patch
+instead.
 
-- Kareem
+Thanks.

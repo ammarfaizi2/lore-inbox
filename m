@@ -1,89 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263332AbTDGIPP (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTDGIPP (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:15:15 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:14572 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S263332AbTDGIPN (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 04:15:13 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
+	id S263320AbTDGITv (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbTDGITv (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:19:51 -0400
+Received: from desnol.ru ([217.150.58.11]:62985 "EHLO desnol.ru")
+	by vger.kernel.org with ESMTP id S263320AbTDGITu (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 04:19:50 -0400
+Date: Mon, 7 Apr 2003 11:35:34 +0400
+From: Vitaly <agri@desnol.ru>
 To: linux-kernel@vger.kernel.org
-Subject: An idea for prefetching swapped memory...
-Date: Mon, 7 Apr 2003 10:26:43 +0200
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_HZTk+Okv0Bi9LLP";
-  charset="us-ascii"
+Subject: Re: [PATCH] new syscall: flink
+Message-Id: <20030407113534.1de8dc91.agri@desnol.ru>
+In-Reply-To: <200304070709.h37792815083@mozart.cs.berkeley.edu>
+References: <20030407102005.4c13ed7f.manushkinvv@desnol.ru>
+	<200304070709.h37792815083@mozart.cs.berkeley.edu>
+Organization: Desnol, grp
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.9; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200304071026.47557.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Apr 2003 00:09:01 -0700 (PDT)
+David Wagner <daw@cs.berkeley.edu> wrote:
 
---Boundary-02=_HZTk+Okv0Bi9LLP
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: signed data
-Content-Disposition: inline
+> > > >mkdir("testdir", 0700)                  = 0
+> > > >open("testdir/testfile", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+> > > >write(3, "Ansiktsburk\n", 12)           = 12
+> > > >close(3)                                = 0
+> > > >open("testdir/testfile", O_RDONLY)      = 3
+> > > >chmod("testdir", 0)                     = 0
+> > > >open("/proc/self/fd/3", O_RDWR)         = 4
+> > > >write(4, "Tjo fidelittan hatt!\n", 21)  = 21
+> 
+> > open("/proc/self/fd/3", O_RDWR) -- i thought, it just makes a copy for fd/3, and fd/3 should have the same permissions as it was opened.
+> 
+> 
+> It should have the same permissions, but it doesn't.  Try the sample code!
+> This looks like a security hole to me.
 
-Hello,
+Yep, you are write it's a big hole but it's not a security hole.
+It is mistake of abstraction. ls show file in /proc/self/fd as symbolic links and kernel tries to work with it as symbolic links. Because there will be a problem when program can access file from cwd but cannot access from absolute path, also after chroot and after changing cwd. Therefore it just test permissions of the file and don't checks any directories in the path. It works as a program doing smth like that:
+cd testdir
+open testfile
+open /proc/self/fd/3 (in mind: open testfile again)
 
-some days ago some friends and me argued about a feature which seems not to=
- be=20
-included in current OSs but could improve useability mainly for desktop=20
-computers.
+it was a choice of proceed, and it's a bad choice.
+I think that "open("/proc/self/fd/3", O_RDWR)" should forget anything about "testdir/testfile" and should only check permissions for proc/self/fd/3.
+using your test program i got
+open("testfile", O_RDONLY) = 3
+open("/proc/self/fd/3", O_RDWR) = 5
 
-The idea was about prefetching swapped out pages when some memory is free, =
-the=20
-CPU is idle and the I/O load is low.
+and ls /proc/self/fd:
+l-wx------   3 -> /.../testfile
+lrwx------   5 -> /.../testfile
 
-So this should not 'cost' much but behave better on following situation:
-(I think there are even more such situations, this one should just be an=20
-example)
+my proceed: if fd 3 have permission l-wx------ it cannot be opened for reading anyway only for writing and execution.
 
-One is surfing the internet and having some browser windows opened. Now,=20
-without closing the browser windows, he is playing some game which needs=20
-pretty much memory so the browsers memory is getting swapped out. After=20
-finishing gaming he's going to make some coffee and then surfing the intern=
-et=20
-again.
-But even if the computer was IDLE for a time and, as the game was closed=20
-again, some memory is really FREE, the pages for the browser are swapped in=
-=20
-just when they are needed and not in advance.
+Agri
 
-With this feature there should be no performance decrease because only free=
-=20
-resources would be used, and if pages were swapped in but not be used, they=
-=20
-stay not dirty and so have not to be written to disk when they are swapped=
-=20
-out again. But the improvements should be obvious if simply the last swaped=
-=20
-out pages are swapped in again...
-
-If somebody could give me a hint how to implement this I would try it. I ho=
-pe=20
-it will not be very difficult... ;-)
-
-Thank you for reading and perhaps thinking about it...
-
-Best regards
-   Thomas Schlichter
---Boundary-02=_HZTk+Okv0Bi9LLP
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+kTZHYAiN+WRIZzQRAmfLAJ9weSjhvGgQLmNICs4LRqySsm5wUQCgg63N
-NzrXXo/U1tmlhaAjd8MB2LA=
-=cLak
------END PGP SIGNATURE-----
-
---Boundary-02=_HZTk+Okv0Bi9LLP--
-
+> -- David
+> 

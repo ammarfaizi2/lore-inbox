@@ -1,149 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVBFSIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVBFSKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVBFSIA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 13:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVBFSH5
+	id S261271AbVBFSKu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 13:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVBFSIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 13:07:57 -0500
-Received: from chello081018222206.chello.pl ([81.18.222.206]:50446 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261264AbVBFSHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 13:07:33 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-To: Andi Kleen <ak@suse.de>
+	Sun, 6 Feb 2005 13:08:31 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:50954 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261266AbVBFSIS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 13:08:18 -0500
 Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Date: Sun, 6 Feb 2005 19:07:27 +0100
-User-Agent: KMail/1.7.91
-References: <20050206113635.GA30109@wotan.suse.de> <200502061303.12377.pluto@pld-linux.org> <20050206124701.GD30109@wotan.suse.de>
-In-Reply-To: <20050206124701.GD30109@wotan.suse.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_gzlBCu6cX89QLJo"
-Message-Id: <200502061907.28165.pluto@pld-linux.org>
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, drepper@redhat.com
+In-Reply-To: <Pine.LNX.4.58.0502061002090.2165@ppc970.osdl.org>
+References: <20050206120244.GA28061@elte.hu> <20050206124523.GA762@elte.hu>
+	 <20050206125002.GF30109@wotan.suse.de>
+	 <1107694800.22680.90.camel@laptopd505.fenrus.org>
+	 <20050206130152.GH30109@wotan.suse.de>
+	 <20050206130650.GA32015@infradead.org>
+	 <20050206131130.GJ30109@wotan.suse.de> <20050206133239.GA4483@elte.hu>
+	 <20050206134640.GB30476@wotan.suse.de> <20050206140802.GA6323@elte.hu>
+	 <20050206142936.GC30476@wotan.suse.de>
+	 <Pine.LNX.4.58.0502060907220.2165@ppc970.osdl.org>
+	 <1107710023.22680.138.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.58.0502060920050.2165@ppc970.osdl.org>
+	 <1107711569.22680.146.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.58.0502061002090.2165@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Sun, 06 Feb 2005 19:08:08 +0100
+Message-Id: <1107713288.22680.153.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_gzlBCu6cX89QLJo
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 2005-02-06 at 10:04 -0800, Linus Torvalds wrote:
+> > Ok so what to do for 2.6.11... the setarch workaround is there; that
+> > works. My patch patches the worst issues and is quite minimal. What you
+> > propose will be more invasive and more suitable for 2.6.11-bk1... 
+> > I can do such a patch no problem (although the next two days I won't
+> > have time).
+> 
+> Hmm.. I can take your initial patch now. Can somebody explain why this 
+> hassn't come up before, though?
 
-On Sunday 06 of February 2005 13:47, you wrote:
-> On Sun, Feb 06, 2005 at 01:03:11PM +0100, Pawel Sikora wrote:
-> > On Sunday 06 of February 2005 12:36, you wrote:
-> > > Worse is that even when the program has trampolines and has
-> > > PT_GNU_STACK header with an E bit on the stack it still won't get an
-> > > executable heap by default  (this is what broke grub)
-> > > (...)
-> > > My proposal is to turn this all off at least for 2.6.11.
-> >
-> > My proposal is to recompile broken software with cflags +=3D
-> > -Wa,--noexecstack
->
-> By how do you detect broken software? There doesn't seem to be any
-> fool proof way other than a extensive test on a NX capable system
-> with correct kernel.
+somehow things got "cleaned up" around 2.6.10-ish to change the
+default... it's quite rare so few people noticed. It seems Andi got a
+few reports in the last week or so and started investigating.
 
-[1] glibc-2.3.4 kill buggy bins at the load time.
-    (please look into: elf/dl-load.c, elf/dl-support.c, elf/rtld.c)
-    This works on i386/PaX systems too (hardware NX isn't required).
 
-[2] `readelf -Wl |grep GNU_STACK` shows RWE ;-)
 
-Please look at this quick example.
 
-# gcc tmp1.c tmp2-invalid.S -o tmp -s
-# readelf -Wl tmp
-
-(...)
-  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x4
-                                                                  ^ execsta=
-ck?
-  PAX_FLAGS      0x000000 0x00000000 0x00000000 0x00000 0x00000     0x4
-(...)
-
-Now, let's add section note to the asm. file and rebuild.
-
-# gcc tmp1.c tmp2-valid.S -o tmp -s
-# readelf -Wl tmp
-
-(...)
-  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
-  PAX_FLAGS      0x000000 0x00000000 0x00000000 0x00000 0x00000     0x4
-(...)
-
-The execstack req. disappeard (~99% of broken sources).
-I get the same effect with fixed cflags and invalid source.
-
-# gcc tmp1.c tmp2-invalid.S -o tmp -s -Wa,--noexecstack
-# readelf -Wl tmp
-
-(...)
-  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x4
-  PAX_FLAGS      0x000000 0x00000000 0x00000000 0x00000 0x00000     0x4
-(...)
-
-I known several apps that really need executable data/stack (eg. jvm, xorg).
-The rest of RWE-marked binaries have IMHO buggy sources.
-
-> It would be fine if there was a compile time error or something,
-> but there isn't.
-
-IMHO the `as` should warn about missed (.note.GNU-stack) section.
-
-Regards,
-Pawe=C5=82.
-
-=2D-=20
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
-
---Boundary-00=_gzlBCu6cX89QLJo
-Content-Type: text/x-csrc;
-  charset="iso-8859-1";
-  name="tmp1.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="tmp1.c"
-
-extern void test();
-
-int main(int argc, char** argv)
-{
-    test();
-    return 0;
-}
-
---Boundary-00=_gzlBCu6cX89QLJo
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="tmp2-invalid.S"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="tmp2-invalid.S"
-
-    .text
-    .global test
-test:
-    ret
-    .end
-
---Boundary-00=_gzlBCu6cX89QLJo
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="tmp2-valid.S"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="tmp2-valid.S"
-
-    .section .note.GNU-stack,"",@progbits; .previous
-    .text
-    .global test
-test:
-    ret
-    .end
-
---Boundary-00=_gzlBCu6cX89QLJo--

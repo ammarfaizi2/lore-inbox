@@ -1,45 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266359AbSKWA3U>; Fri, 22 Nov 2002 19:29:20 -0500
+	id <S266210AbSKWAlC>; Fri, 22 Nov 2002 19:41:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266487AbSKWA3U>; Fri, 22 Nov 2002 19:29:20 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:37638 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266359AbSKWA3T>;
-	Fri, 22 Nov 2002 19:29:19 -0500
-Date: Sat, 23 Nov 2002 00:47:00 GMT
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200211230047.gAN0l0hw002339@darkstar.example.net>
+	id <S266285AbSKWAlC>; Fri, 22 Nov 2002 19:41:02 -0500
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:182 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S266210AbSKWAlB>; Fri, 22 Nov 2002 19:41:01 -0500
+Subject: APIC error on CPU1: 80(00)
+From: Emmanuel Fuste <e.fuste@wanadoo.fr>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.49/2.4.20-rc3 mirrors list
+Content-Type: text/plain
+Organization: 
+Message-Id: <1038013505.1361.6.camel@rafale.worldnet.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 23 Nov 2002 02:05:06 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people might not realise that 2.4.20-rc3 and 2.5.49 are on-line, as the subject lines of the mails to the list are mostly Re: the initial request for them, so here is a summary of the mirrors:
+Hello,
 
-2.4.20-rc3:
+I just try vmware on my computer (old bi-pentium 233) and when I start
+the virtual machine, I get constant flood of :
 
-        ftp://zeniiia.linux.org.uk/pub/linux/kernel/v2.4
-        ftp://zeniii.linux.org.uk/pub/linux/kernel/v2.4
-        http://ftp.linux.org.uk/pub/linux/kernel/v2.4
-        ftp://ftp.linux.org.uk/pub/linux/kernel/v2.4
+....
+APIC error on CPU1: 80(00)
+APIC error on CPU1: 80(00)
+APIC error on CPU1: 80(00)
+APIC error on CPU1: 80(00)
+APIC error on CPU1: 80(00)
+APIC error on CPU1: 80(00)
+APIC error on CPU1: 80(00)
+....
 
-Thanks to Russell King for providing those and Andre for the original download.
+(and the machine became very slow)
 
-        http://grabjohn.com/kernel
+cat /proc/interrupts 
+           CPU0       CPU1       
+  0:     398166     411063    IO-APIC-edge  timer
+  1:       1853       1831    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  4:          3          0    IO-APIC-edge  serial
+  5:       1018        914    IO-APIC-edge  SoundBlaster
+  6:         67         69    IO-APIC-edge  floppy
+  8:     773092     836563    IO-APIC-edge  rtc
+ 12:     109641     113068    IO-APIC-edge  PS/2 Mouse
+ 19:      94973      95335   IO-APIC-level  aic7xxx, usb-uhci, PCnet/PCI
+79C970
+NMI:          0          0 
+LOC:     809172     809162 
+ERR:   16097271
+MIS:          0
 
-My mirror, (not as fast, but I did promise to mirror them).
+reading the sources tel me thet 80 is illegal register address.
 
-2.5.49:
+It is a vmware bug ? or a kernel bug?
 
-        ftp://zeniiia.linux.org.uk/pub/linux/kernel/v2.5
-        ftp://zeniii.linux.org.uk/pub/linux/kernel/v2.5
-        http://ftp.linux.org.uk/pub/linux/kernel/v2.5
-        ftp://ftp.linux.org.uk/pub/linux/kernel/v2.5
+My kernel is 2.4.20-rc1.
 
-Thanks to Russell again for those, and Andre for the download.
+Thanks.
 
-        http://grabjohn.com/kernel
 
-My mirror, (just for the sake of it :-) ).
+Ps: please cc.
+-- 
+Emmanuel Fuste <e.fuste@wanadoo.fr>
 
-John.

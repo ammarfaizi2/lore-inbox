@@ -1,90 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266068AbUALGuL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 01:50:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266069AbUALGuL
+	id S266066AbUALGrn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 01:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266068AbUALGrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 01:50:11 -0500
-Received: from waste.org ([209.173.204.2]:8349 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266068AbUALGuD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 01:50:03 -0500
-Date: Mon, 12 Jan 2004 00:49:23 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: George Anzinger <george@mvista.com>
-Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>
-Subject: Re: kgdb cleanups
-Message-ID: <20040112064923.GX18208@waste.org>
-References: <20040109183826.GA795@elf.ucw.cz> <3FFF2304.8000403@mvista.com> <20040110044722.GY18208@waste.org> <3FFFB3D6.1050505@mvista.com> <20040110175607.GH18208@waste.org> <400233A5.8080505@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Jan 2004 01:47:43 -0500
+Received: from out009pub.verizon.net ([206.46.170.131]:20731 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S266066AbUALGrl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 01:47:41 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+Date: Mon, 12 Jan 2004 01:47:36 -0500
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <20040109014003.3d925e54.akpm@osdl.org> <20040111214259.568cff35.akpm@osdl.org> <200401120611.i0C6BH7c003591@turing-police.cc.vt.edu>
+In-Reply-To: <200401120611.i0C6BH7c003591@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <400233A5.8080505@mvista.com>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200401120147.36032.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.56.190] at Mon, 12 Jan 2004 00:47:40 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 11, 2004 at 09:41:57PM -0800, George Anzinger wrote:
-> For the internal kgdb stuff I have created kdgb_local.h which I intended to 
-> be local to the workings of kgdb and not to contain anything a user would 
-> need.
+On Monday 12 January 2004 01:11, Valdis.Kletnieks@vt.edu wrote:
+>On Sun, 11 Jan 2004 21:42:59 PST, Andrew Morton said:
+>> Gene Heskett <gene.heskett@verizon.net> wrote:
+>> >  hubble of about 4 or 5 months back.  In any other kernel,
+>> > switching to that window took about 12 seconds for the backdrop
+>> > to be converted to 1600x1200x32 and drawn the first time and
+>> > about 8 seconds for the next time.  But with this 2.6.1-mm1
+>> > kernel, that repeat window switch is so close to instant that I
+>> > cannot see it being drawn.
+>>
+>> There are no significant fbdev patches in 2.6.1-mm1.  There is a
+>> DRM update.
+>
+>The 12 seconds coming and 8 seconds going, versus instant, sounds an
+> *awful* lot like the virtual memory manager making better choices
+> in -mm kernels, so the pages of pixmap are staying in memory rather
+> than paging out.
+>
+>Other guess is that o21-sched.patch is DTRT, while the stock
+> scheduler DTWT for his particular config.
+>
+>Gene:  Can you tell what exactly your system is doing for the 12/8
+> seconds?  Is it CPU bound, or beating on the disk while paging
+> in/out, or just sitting idle?  Leaving a 'vmstat 1' running while
+> you change backdrops should tell us something.
 
-Agreed, I just haven't touched it since you last mentioned it.
+I can try that with the 2 kernels, but it will have to be after amanda
+is done with her nightly tour, which will take another 2.5 hours.  By
+then I expect to be sleeping, or hope to be, its 1:30am here now.
 
-> >+struct kgdb_hook {
-> >+	char *sendbuf;
-> >+	int maxsend;
-> 
-> I don't see the need of maxsend, or sendbuff, for that matter, as kgdb uses 
-> it now (for the eth code) it is redundant, in that the eth putchar also 
-> does the same thing as is being done in the kgdb_stub.c code.  I think this 
-> should be removed from the stub and the limit in the ethcode relied upon.
+Or maybe not, what do I do when "vmstat 1" prints its column headers and segfaults?:
+---
+[root@coyote linux-2.6]# vmstat 1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+Segmentation fault
+[root@coyote linux-2.6]#
+---
+cd'ing to /proc/1, and trying to "cat mem" gets me this:
+---
+[root@coyote 1]# cat mem
+cat: mem: No such process
+[root@coyote 1]#
+---
+Some of the other names there have content, but 'mem' seems to be
+a truely empty filename, marked:
+-rw-------    1 root     root            0 Jan 12 01:32 mem
+but apparently inacessable.
 
-Fair enough.
+This actually sounds pretty serious, and I did have a hard lockup
+in the night last night, had to use the reset button, but I think
+that was a cpu overheat, I'd run the heat up cause the missus was
+squawking about being cold.
 
-> > void
-> > putDebugChar(int c)
-> > {
-> >-	if (!kgdboe) {
-> >-		tty_putDebugChar(c);
-> >-	} else {
-> >-		eth_putDebugChar(c);
-> >-	}
-> >+	if (kh)
-> >+		kh->putchar(c);
-> > }
-> 
-> I was thinking that this might read something like:
->          if (xxx[kh].putchar(c))
->                 xxx[kh].putchar(c);
-> 
-> One might further want to do something like:
->          if (!xxx[kh].putchar(c))
->                 kh = 0;
-> 
-> In otherwords, an array (xxx must, of course, be renamed) of stuct 
-> kgdb_hook (which name should also be changed to relate to I/O, 
-> kgdb_IO_hook, for example). Then reserve entry 0 for the rs232 I/O code.  
+I've rearranged things airwise and got the cpu down to below 70C.
+These AMD DX-1600 thoroughbreds really are genuine coffee boilers.
+I really should replace it with the cheapest barton cored one, but
+this ones been running that hot for 30 months now.  Running seti 24/7
+of course doesn't help. :)
 
-Dunno about that. Probably should work more like the console code,
-whoever registers first wins. Early boot will probably be the
-exclusive province of serial for a while yet, but designing it in is
-probably short-sighted.
-
->  An alternate possibility is an array of pointer to struct kgdb_hook which 
-> allows one to define the struct contents as below and to build the array, 
-> all at compile/link time.  A legal entry MUST define get and put, but why 
-> not define them all, using dummy functions for the ones that make no sense 
-> in a particular interface.
-
-Throwing all the stubs in a special section could work well too. Then
-we could add an avail() function so that early boot debugging could
-discover if each one was available. The serial code could use this to
-kickstart itself while the eth code could test a local initialized
-flag and say "not a chance". Which gives us all the architecture to
-throw in other trivial interfaces (parallel, bus-snoopers, etc.).
+Do I need YANP42.6 (Yet Another New Program 4 2.6)?
+Sorry, couldn't resist creating a new acronym. :)
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Cheers, Gene
+"There are four boxes to be used in defense of liberty: soap,
+ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

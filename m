@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUHaC37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266293AbUHaCkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266287AbUHaC37 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 22:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHaC37
+	id S266293AbUHaCkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 22:40:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUHaCkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 22:29:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:61877 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266287AbUHaC35 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 22:29:57 -0400
-Date: Mon, 30 Aug 2004 19:29:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tim Fairchild <tim@bcs4me.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: K3b and 2.6.9?
-In-Reply-To: <200408311151.25854.tim@bcs4me.com>
-Message-ID: <Pine.LNX.4.58.0408301917360.2295@ppc970.osdl.org>
-References: <200408301047.06780.tim@bcs4me.com> <1093871277.30082.7.camel@localhost.localdomain>
- <200408311151.25854.tim@bcs4me.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 Aug 2004 22:40:09 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:47262 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S266293AbUHaCkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 22:40:06 -0400
+Subject: MAX_NESTED_LINKS
+From: Steve French <smfrench@austin.rr.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1093920028.2445.2.camel@smfhome.smfdom>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 30 Aug 2004 21:40:28 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+MAX_NESTED_LINKS seems to have been set to 5, but the comment in
+fs/namei.c indicates a larger number.  Is that intentional?
 
+* This limits recursive symlink follows to 8, while
+* limiting consecutive symlinks to 40.
+@@ -405,19 +407,30 @@
+static inline int do_follow_link(struct dentry *dentry, struct nameidata
+*nd)
+{
+int err = -ELOOP;
+if (current->link_count >= MAX_NESTED_LINKS)
+	goto loop;
+if (current->total_link_count >= 40)
+	goto loop;
+BUG_ON(nd->depth >= MAX_NESTED_LINKS);
 
-On Tue, 31 Aug 2004, Tim Fairchild wrote:
-> 
-> Thanks. Yes I realize that and understand why this is a good idea to
-> have. But most of the verify_command list seems fine and I find the
-> following works, but don't know if this is any 'safer' or not... This is
-> the particular test that makes the difference to k3b/cdrecord, but I
-> don't know enough to work out what it actually does... (this is with
-> 2.6.9-rc1-bk6)
-> 
-> --- a/drivers/block/scsi_ioctl.c.original  2004-08-30 23:50:16.000000000 +1000
-> +++ b/drivers/block/scsi_ioctl.c  2004-08-31 08:37:56.000000000 +1000
-> @@ -192,7 +192,7 @@
-> 
->         /* Write-safe commands just require a writable open.. */
->         if (type & CMD_WRITE_SAFE) {
-> -               if (file->f_mode & FMODE_WRITE)
-> +/*              if (file->f_mode & FMODE_WRITE)      */
->                         return 0;
->         }
-
-Ehh.. This seems to imply that K3b opens the device for _reading_ when it 
-wants to burn a CD-ROM. It also implies that K3b only uses the commands 
-that are already marked as being "safe for writing", so the kernel command 
-list is apparently fine. 
-
-Which implies that the only way to fix it sanely is literally to have K3b 
-open the device for writing, and then everything will be happy.
-
-As far as I can tell, the fix should be a simple one-liner: make sure that 
-K3b opens the device with O_RDWR | O_NONBLOCK instead of using O_RDONLY | 
-O_NONBLOCK. The fix looks trivial, it's in
-
-   src/device/k3bdevice.cpp:
-	int K3bCdDevice::openDevice( const char* name );
-
-(two places).
-
-That "kind of" makes sense anyway - if you want to write to the disk, you 
-damn well should open the disk for writing, no? So clearly K3b right now 
-is doing something pretty nonsensical.
-
-Can somebody who is active in the K3b community check with the K3b 
-authors, and please try to get that fixed?
-
-			Linus

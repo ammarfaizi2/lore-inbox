@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbUAOQ3j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 11:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265162AbUAOQ3j
+	id S265170AbUAOQoN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 11:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265171AbUAOQoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 11:29:39 -0500
-Received: from relaycz.systinet.com ([62.168.12.68]:27019 "HELO
-	relaycz.systinet.com") by vger.kernel.org with SMTP id S264974AbUAOQ3i
+	Thu, 15 Jan 2004 11:44:13 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:50706 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S265170AbUAOQoK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 11:29:38 -0500
-Subject: Re: [2.6,2.4] HPT366 (on Abit BP6) + Seagate 7000.7 + DMA = kernel
-	halted
-From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+	Thu, 15 Jan 2004 11:44:10 -0500
+Date: Thu, 15 Jan 2004 10:58:17 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1074178780.1400.34.camel@hostmaster.org>
-References: <1074103900.22670.27.camel@narsil>
-	 <1074178780.1400.34.camel@hostmaster.org>
-Content-Type: text/plain
-Message-Id: <1074184167.27869.19.camel@narsil>
+Subject: Re: VIA and NVIDIA
+Message-ID: <20040115155817.GD25550@widomaker.com>
+References: <1074106424.6839.15.camel@applehead> <20040114201637.566a9330@Genbox>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 15 Jan 2004 17:29:27 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040114201637.566a9330@Genbox>
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-01-15 at 15:59, Thomas Zehetbauer wrote:
-> Must be a problem with the harddisk; I do also have a Abit BP6 board
-> with two WD800JB which work fine on the HPT366 controller. Maybe you
-> should try to connect them to one of the PIIX4 IDE channels. Btw: I do
-> have CONFIG_IDEDMA_PCI_AUTO enabled so I do not even need to use hdparm
-> to enable DMA.
+Wed, 14 Jan 2004 @ 20:16 +0100, Nuno Alexandre said:
+
+> Hi Eddie.
+> I have Asus A7V, KT 333
+> AMD 1800+
+> Gforce 2gts
+> 768 DDR Kingston
 > 
-
-It supports my idea that linux kernel driver miss some 'special'
-initialization for Seagate disk. But I need to try HighPoint's own
-driver first, hopefully during weekend.
-
-I also know that's not problem of AUTO DMA, I tried it and it didn't
-change anything. During boot driver reports that my disk can do only
-PIO.
-
-However I am myself not so sure if I should use the HPT366 or the PIIX4
-> controller as I got better cache read throughput (hdparm -T) with the
-> PIIX4 controller and could avoid sharing an interrupt. Maybe someone
-> here is willing to share some piece of advice?
+> settings on
+> pre-empt
+> AGPART
 > 
+> not using framebuffer.
+> As you see, very similar setup, apart from the riva fb.  But I have
+> had  a framebuffer working with help from some patches available on
+> the gentoo forums, but they don't work on the latest kernel build. So
+> i dropped it.
 
-The problem with faster controller is a bit funny. I suppose that the
-HPT366 controller is there because of its ability to run UDMA66, so that
-it should be faster.
+You are using framebuffer with the commercial nVidia driver? I didn't
+think you could do that.
 
-Anyway, thanks for your comments.
+I run kernel 2.6.1 and the 4620 version of the commercial driver.
+The only problem so far is a lot of messages in the logs like
+this:
 
-Pogo
+Jan 15 02:05:25 daydream kernel: Debug: sleeping function called from invalid co
+ntext at mm/page_alloc.c:550
+Jan 15 02:05:25 daydream kernel: in_atomic():1, irqs_disabled():0
+Jan 15 02:05:25 daydream kernel: Call Trace:
+Jan 15 02:05:25 daydream kernel:  [<c011ad8b>] __might_sleep+0xab/0xd0
+Jan 15 02:05:25 daydream kernel:  [<c013aa45>] __alloc_pages+0x365/0x370
+Jan 15 02:05:25 daydream kernel:  [<c01192f9>] scheduler_tick+0x489/0x4a0
+Jan 15 02:05:25 daydream kernel:  [<c0117378>] pte_alloc_one+0x18/0x50
+Jan 15 02:05:25 daydream kernel:  [<c0142834>] pte_alloc_map+0x44/0xd0
+Jan 15 02:05:25 daydream kernel:  [<c01438b7>] remap_page_range+0xc7/0x1e0
+Jan 15 02:05:25 daydream kernel:  [<d0da3cf6>] os_map_io_space+0x56/0x70 [nvidia
+]
+Jan 15 02:05:25 daydream kernel:  [<d0c6ceba>] __nvsym00624+0x1e/0x28 [nvidia]
+Jan 15 02:05:25 daydream kernel:  [<d0c6b8f1>] __nvsym00601+0x91/0xc4 [nvidia]
+Jan 15 02:05:25 daydream kernel:  [<d0c6baa2>] __nvsym00610+0x26/0x5c [nvidia]
+Jan 15 02:05:25 daydream kernel:  [<d0c70db3>] rm_map_agp_pages+0x1b/0x24 [nvidi
+a]
+Jan 15 02:05:25 daydream kernel:  [<d0da0bad>] nv_kern_mmap+0x35d/0x380 [nvidia]
+Jan 15 02:05:25 daydream kernel:  [<c0146110>] do_mmap_pgoff+0x360/0x720
+Jan 15 02:05:25 daydream kernel:  [<c01100fb>] old_mmap+0x13b/0x180
+Jan 15 02:05:25 daydream kernel:  [<c010921b>] syscall_call+0x7/0xb
+Jan 15 02:05:25 daydream kernel:  [<c0284627>] ahc_run_qoutfifo+0x27/0xc0
+Jan 15 02:05:25 daydream kernel: 
+
+I hope nVidia releases real 2.6 drivers soon.
+
+I have tried to get by with the nv driver, but the performance hit is
+just too much, and I still use 3D apps now and then.
 
 -- 
-Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
-
+UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com

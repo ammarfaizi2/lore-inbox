@@ -1,87 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTIKMeh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 08:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbTIKMeh
+	id S261270AbTIKMpn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 08:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTIKMpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 08:34:37 -0400
-Received: from www.inreko.ee ([195.222.18.2]:26124 "EHLO www.inreko.ee")
-	by vger.kernel.org with ESMTP id S261259AbTIKMee (ORCPT
+	Thu, 11 Sep 2003 08:45:43 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:64696 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S261270AbTIKMpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 08:34:34 -0400
-Date: Thu, 11 Sep 2003 15:34:18 +0300
-From: Marko Kreen <marko@l-t.ee>
-To: Ronny Buchmann <ronny-lkml@vlugnet.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.4.22 / HPT372N
-Message-ID: <20030911123418.GA6798@l-t.ee>
-References: <200309091406.56334.ronny-lkml@vlugnet.org>
+	Thu, 11 Sep 2003 08:45:41 -0400
+Date: Thu, 11 Sep 2003 14:45:30 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [2.6.0-test5-mm1] Suspend to RAM problems
+Message-ID: <20030911124530.GA7695@rootdir.de>
+References: <20030910103142.GA1053@rootdir.de> <Pine.LNX.4.33.0309100829470.1012-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309091406.56334.ronny-lkml@vlugnet.org>
+In-Reply-To: <Pine.LNX.4.33.0309100829470.1012-100000@localhost.localdomain>
+Reply-By: So Sep 14 14:31:28 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test5-mm1 i686
+X-No-archive: yes
+X-Uptime: 14:31:28 up  2:14,  5 users,  load average: 0.06, 0.27, 0.27
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 02:06:56PM +0200, Ronny Buchmann wrote:
-> Marko Kreen wrote:
-> > Now we did some experimenting with it and no BIOS settings seem
-> > to affect the FREQ numbers. (Lower CPU/mem speed, 50/25 AGP/PCI speed.)
-> > The FREQ still stays fixed at 85.
-> > 
-> > Motherboard is EP-4PDA2+.
-> > 
-> > Any idea how to remove the overclocking?  Otherwise it seems
-> > like driver bug to me.
-> What bios version do you use? Have you tried a CMOS reset?
+Patrick Mochel wrote:
 
-BIOS is 6/20/2003.
-
-Yes, we did CMOS reset, because the board 'played dead' for a
-while.  After staying without battery it woke up again.
-HPT acts still same.  I looked BIOS changelog, did not saw
-anything related to overclocking.
-
-> I have the same motherboard but a different problem with the hpt chip, only 
-> the first channel is recognized. (see 
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=97824)
-
-I saw something like that too - when disk was in second channel,
-it did not crash because it did not detect anything.
-
-> part from dmesg (klogd) output
-> ---
-> Sep  7 23:50:17 bserv kernel: HPT366: IDE controller at PCI slot 02:00.0
-> Sep  7 23:50:17 bserv kernel: HPT366: chipset revision 6
-> Sep  7 23:50:17 bserv kernel: HPT366: not 100%% native mode: will probe irqs 
-> later
-> Sep  7 23:50:17 bserv kernel: hpt: HPT372N detected, using 372N timing.
-> Sep  7 23:50:17 bserv kernel: FREQ: 82 PLL: 35
-
-"FREQ: 82" is pretty high as the limit is 85.
-
-I replaced "< 0x55" with "<= 0x55" in hpt366.c and the driver
-did not crash, but it also did not detect cdrom - only thing
-behind it ATM - so I did not bother messing with it further.
-
-> Currently the driver provided by highpoint 
-> (http://www.highpoint-tech.com/hpt3xx-opensource-v131.tgz) is working ok for 
-> me (apart from it's lack of s.ma.r.t. support).
+> > 2) ACPI
+> > Thanks to Andrew de Quincey I can boot with ACPI without
+> > problems and I can read out my temp and so on, but when I do
+> >    echo -n "mem" >/sys/power/state 
+> > the machine goes into sleep (STR) but crashes after waking up again.
 > 
-> Did you try this?
+> What exactly does it do on wakeup? 
+> 
+> Would you please try the patch at: 
+> 
+> http://developer.osdl.org/~mochel/patches/test5-pm1/test5-pm2.diff.bz2
+> 
+> against 2.6.0-test5 and report whether or not it works? 
 
-Now I tried - that one also did not detect cdrom.  I cant
-experiment further as the machine needs to go to production
-soon.  ATM I disabled onboard HPT, and put in separate IDE
-controller (HPT370) to get needed IDE channel.
+[...]
+  CC      drivers/acpi/sleep/proc.o
+  drivers/acpi/sleep/proc.c: In function `acpi_system_write_sleep':
+  drivers/acpi/sleep/proc.c:72: error: void value not ignored as it
+  ought to be
+  make[3]: *** [drivers/acpi/sleep/proc.o] Error 1
+  make[2]: *** [drivers/acpi/sleep] Error 2
+  make[1]: *** [drivers/acpi] Error 2
+  make: *** [drivers] Error 2
 
-My conclusions:
 
-1) Motherboard is overclocked by manufacturer - so in the future
-   I intend to stay away from EPOX.
+Is there an incremental patch from -pm1 to -pm2?
+I would apply it to -test5-mm1 then
 
-2) HPT372n support in Linux is beta (as documented...)
 
--- 
-marko
 
+claas

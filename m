@@ -1,204 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264288AbUDWC1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUDWCac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbUDWC1f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 22:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264656AbUDWC1e
+	id S264656AbUDWCac (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 22:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbUDWCab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 22:27:34 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:43484
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264288AbUDWC12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 22:27:28 -0400
-Date: Fri, 23 Apr 2004 04:27:32 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Alexander Y. Fomichev" <gluk@php4.ru>
-Cc: admin@list.net.ru, linux-kernel@vger.kernel.org
-Subject: Re: Similar behaviour without BUG() message(was: Re: 2.6.5-aa3: kernel BUG at mm/objrmap.c:137!)
-Message-ID: <20040423022732.GU29954@dualathlon.random>
-References: <200404141257.16731.gluk@php4.ru> <200404141539.49757.gluk@php4.ru> <20040414114731.GJ2150@dualathlon.random> <200404191632.53565.gluk@php4.ru>
+	Thu, 22 Apr 2004 22:30:31 -0400
+Received: from ns.suse.de ([195.135.220.2]:18085 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264656AbUDWCaG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 22:30:06 -0400
+Date: Fri, 23 Apr 2004 04:30:01 +0200
+From: Andi Kleen <ak@suse.de>
+To: akpm@osdl.org
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] New version of early CPU detect
+Message-Id: <20040423043001.4bb05d5f.ak@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404191632.53565.gluk@php4.ru>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 19, 2004 at 04:32:53PM +0400, Alexander Y. Fomichev wrote:
-> On Wednesday 14 April 2004 15:47, Andrea Arcangeli wrote:
-> > ok so there are good chances that 2.6.5-aa5 will fix it, if not then
-> > please notify me again, thanks.
-> 
->   I've noticed a behaviour today very similar to mentioned in previous report
->   (on 14   Apr 2004) except for message from BUG() (kernel 2.6.5-aa5) i.e.
->   system remained accessible but procps(ps,pkill) appears to be locked and
->   Sysrq-T is similar to previous one - some of apache2 & all of procps 
->   have been blocked.
-> 
->   Here is a traces:
->   
->   http://sysadminday.org.ru/2.6.5-ps-lockup/sysrq-M
->   http://sysadminday.org.ru/2.6.5-ps-lockup/full_trace
 
-following your trace I got to some futex issue (likely invoked by NPTL),
-and following the futex code I noticed a race with threads in
-expand_stack and likely the futex is effectively calling expand_stack
-too. Then I found a race in expand_stack with threads.
+We still need some kind of early CPU detection, e.g. for the AMD768 workaround
+and for the slab allocator to size its slabs correctly for the cache line.
+Also some other code already had private early CPU routines.
 
-here the details:
+This patch takes a new approach compared to the previous patch which caused
+Andrew so much grief. It only fills in a few selected fields in boot_cpu_data
+(only the data needed to identify the CPU type and the cache alignment).
+In particular the feature masks are not filled in, and the other fields
+are also not touched to prevent unwanted side effects.
 
-in 2.6-aa expand_stack is moving down vm_start and vm_end with only the
-read semaphore held. this means this thing can even run in parallel in
-both cpus, the latter will corrupt vm_pgoff which generate malfunction
-with anon-vma:
+Also convert the ppro workaround to use standard cpu data now. 
 
-        vma->vm_start = address;
-        vma->vm_pgoff -= grow;
+Please consider applying to -mm.
 
-this isn't an issue for the file mappings because only anon vmas can be
-growsdown (the filemappings could never work right in filemap_nopage if
-expand_stack would mess with pgoff and vm_start without holding the
-mmap_sem in write mode).
+I'm not sure if slab still has the necessary support to use the cache line size
+early; previously Manfred showed some serious memory saving with this for kernels
+that are compiled for a bigger cache line size than the CPU (is often the case on 
+distribution kernels). This code could be reenable now with this patch.
 
-serializing this with anon-vma is easy and scalable with the
-anon_vma_lock (not an mm-wide lock like the page_table_lock).
-This will also serialize perfectly with the objrmap. objrmap should be
-the only thing that cares about vm_pgoff and vm_start being coherent at
-the same time for anon-mappings in anon-vma, and the anon_vma_lock
-provides perfect locking for that.
+-Andi
 
-One of the scalability and simplicity locking beauty of anon-vma is the
-total avoidance of page_table_lock for vma merging and all other vma
-operations in general, and true usage of page_table_lock only for the
-pagetables (and future usage of vma->page_table_lock only for pagetables
-too). I wouldn't really like to giveup on this and to reintroduce the
-whole mess of page_table_lock in the vma merging and in expand stack
-that all other implementations like 2.6 mainline and anonmm are
-suffering from, and I hope my fix will be enough. Could you test if this
-patch helps?
-
-(there was also an ancient page_table_lock in split_vma, I forgot to
-delete that previously)
-
---- 2.6.5-aa3/mm/mmap.c.~1~	2004-04-14 11:51:33.000000000 +0200
-+++ 2.6.5-aa3/mm/mmap.c	2004-04-23 04:04:31.258066752 +0200
-@@ -977,6 +977,15 @@ int expand_stack(struct vm_area_struct *
- 		return -EFAULT;
- 
- 	/*
-+	 * We must make sure the anon-vma is allocated
-+	 * to make sure the anon-vma locking is not a noop.
-+	 */
-+	if (unlikely(anon_vma_prepare(vma)))
-+		return -ENOMEM;
-+
-+	anon_vma_lock(vma);
-+
-+	/*
- 	 * vma->vm_start/vm_end cannot change under us because the caller
- 	 * is required to hold the mmap_sem in read mode. We need to get
- 	 * the spinlock only before relocating the vma range ourself.
-@@ -986,13 +995,15 @@ int expand_stack(struct vm_area_struct *
- 	grow = (address - vma->vm_end) >> PAGE_SHIFT;
- 
- 	/* Overcommit.. */
--	if (security_vm_enough_memory(grow)) {
-+	if (unlikely(security_vm_enough_memory(grow))) {
-+		anon_vma_unlock(vma);
- 		return -ENOMEM;
- 	}
- 	
--	if (address - vma->vm_start > current->rlim[RLIMIT_STACK].rlim_cur ||
--			((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) >
--			current->rlim[RLIMIT_AS].rlim_cur) {
-+	if (unlikely(address - vma->vm_start > current->rlim[RLIMIT_STACK].rlim_cur ||
-+		     ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) >
-+		     current->rlim[RLIMIT_AS].rlim_cur)) {
-+		anon_vma_unlock(vma);
- 		vm_unacct_memory(grow);
- 		return -ENOMEM;
- 	}
-@@ -1000,6 +1011,9 @@ int expand_stack(struct vm_area_struct *
- 	vma->vm_mm->total_vm += grow;
- 	if (vma->vm_flags & VM_LOCKED)
- 		vma->vm_mm->locked_vm += grow;
-+
-+	anon_vma_unlock(vma);
-+
- 	return 0;
+diff -u linux-2.6.5-i386/arch/i386/kernel/cpu/common.c-o linux-2.6.5-i386/arch/i386/kernel/cpu/common.c
+--- linux-2.6.5-i386/arch/i386/kernel/cpu/common.c-o	2004-03-21 21:12:03.000000000 +0100
++++ linux-2.6.5-i386/arch/i386/kernel/cpu/common.c	2004-04-21 17:05:06.000000000 +0200
+@@ -137,8 +137,7 @@
  }
  
-@@ -1028,6 +1042,24 @@ int expand_stack(struct vm_area_struct *
- 	unsigned long grow;
  
- 	/*
-+	 * We must make sure the anon-vma is allocated
-+	 * to make sure the anon-vma locking is not a noop.
-+	 */
-+	if (unlikely(anon_vma_prepare(vma)))
-+		return -ENOMEM;
-+
-+	/*
-+	 * We must serialize against other thread and against
-+	 * objrmap while moving the vm_start/vm_pgoff of anon-vmas.
-+	 * The total_vm/locked_vm as well needs serialization
-+	 * against other threads, the serialization of
-+	 * locked_vm/total_vm against syscalls is provided by
-+	 * the mmap_sem that we hold in read mode here (all
-+	 * syscalls holds it in write mode).
-+	 */
-+	anon_vma_lock(vma);
-+
-+	/*
- 	 * vma->vm_start/vm_end cannot change under us because the caller
- 	 * is required to hold the mmap_sem in read mode. We need to get
- 	 * the spinlock only before relocating the vma range ourself.
-@@ -1036,13 +1068,15 @@ int expand_stack(struct vm_area_struct *
- 	grow = (vma->vm_start - address) >> PAGE_SHIFT;
- 
- 	/* Overcommit.. */
--	if (security_vm_enough_memory(grow)) {
-+	if (unlikely(security_vm_enough_memory(grow))) {
-+		anon_vma_unlock(vma);
- 		return -ENOMEM;
- 	}
- 	
--	if (vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
--			((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) >
--			current->rlim[RLIMIT_AS].rlim_cur) {
-+	if (unlikely(vma->vm_end - address > current->rlim[RLIMIT_STACK].rlim_cur ||
-+		     ((vma->vm_mm->total_vm + grow) << PAGE_SHIFT) >
-+		     current->rlim[RLIMIT_AS].rlim_cur)) {
-+		anon_vma_unlock(vma);
- 		vm_unacct_memory(grow);
- 		return -ENOMEM;
- 	}
-@@ -1051,6 +1085,9 @@ int expand_stack(struct vm_area_struct *
- 	vma->vm_mm->total_vm += grow;
- 	if (vma->vm_flags & VM_LOCKED)
- 		vma->vm_mm->locked_vm += grow;
-+
-+	anon_vma_unlock(vma);
-+
- 	return 0;
+-
+-void __init get_cpu_vendor(struct cpuinfo_x86 *c)
++void __init get_cpu_vendor(struct cpuinfo_x86 *c, int early)
+ {
+ 	char *v = c->x86_vendor_id;
+ 	int i;
+@@ -149,7 +148,8 @@
+ 			    (cpu_devs[i]->c_ident[1] && 
+ 			     !strcmp(v,cpu_devs[i]->c_ident[1]))) {
+ 				c->x86_vendor = i;
+-				this_cpu = cpu_devs[i];
++				if (!early) 
++					this_cpu = cpu_devs[i];
+ 				break;
+ 			}
+ 		}
+@@ -193,6 +193,44 @@
+ 	return flag_is_changeable_p(X86_EFLAGS_ID);
  }
  
-@@ -1289,7 +1326,6 @@ int split_vma(struct mm_struct * mm, str
++/* Do minimum CPU detection early. 
++   Fields really needed: vendor, cpuid_level, family, model, mask, cache alignment.
++   The others are not touched to avoid unwanted side effects. */
++void __init early_cpu_detect(void) 
++{ 
++	struct cpuinfo_x86 *c = &boot_cpu_data;
++
++	if (!have_cpuid_p())
++		return;
++
++	/* Get vendor name */
++	cpuid(0x00000000, &c->cpuid_level,
++	      (int *)&c->x86_vendor_id[0],
++	      (int *)&c->x86_vendor_id[8],
++	      (int *)&c->x86_vendor_id[4]);
++	
++	get_cpu_vendor(c, 1);
++
++	c->x86 = 4;
++	c->x86_cache_alignment = 32;
++
++	if (c->cpuid_level >= 0x00000001) {
++		u32 junk, tfms, cap0, misc;
++		cpuid(0x00000001, &tfms, &misc, &junk, &cap0);
++		c->x86 = (tfms >> 8) & 15;
++		c->x86_model = (tfms >> 4) & 15;
++		if (c->x86 == 0xf) {
++			c->x86 += (tfms >> 20) & 0xff;
++			c->x86_model += ((tfms >> 16) & 0xF) << 4;
++		} 
++		c->x86_mask = tfms & 15;
++		if (cap0 & (1<<19)) 
++			c->x86_cache_alignment = ((misc >> 8) & 0xff) * 8;
++	}
++
++	early_intel_workaround(c); 
++} 
++
+ void __init generic_identify(struct cpuinfo_x86 * c)
+ {
+ 	u32 tfms, xlvl;
+@@ -205,7 +243,7 @@
+ 		      (int *)&c->x86_vendor_id[8],
+ 		      (int *)&c->x86_vendor_id[4]);
+ 		
+-		get_cpu_vendor(c);
++		get_cpu_vendor(c, 0);
+ 		/* Initialize the standard set of capabilities */
+ 		/* Note that the vendor-specific code below might override */
+ 	
+@@ -383,7 +421,6 @@
+  
+ void __init dodgy_tsc(void)
+ {
+-	get_cpu_vendor(&boot_cpu_data);
+ 	if (( boot_cpu_data.x86_vendor == X86_VENDOR_CYRIX ) ||
+ 	    ( boot_cpu_data.x86_vendor == X86_VENDOR_NSC   ))
+ 		cpu_devs[X86_VENDOR_CYRIX]->c_init(&boot_cpu_data);
+@@ -431,9 +468,11 @@
+ extern int rise_init_cpu(void);
+ extern int nexgen_init_cpu(void);
+ extern int umc_init_cpu(void);
++void early_cpu_detect(void);
  
- 	if (mapping)
- 		down(&mapping->i_shared_sem);
--	spin_lock(&mm->page_table_lock);
- 	anon_vma_lock(vma);
+ void __init early_cpu_init(void)
+ {
++	early_cpu_detect();
+ 	intel_cpu_init();
+ 	cyrix_init_cpu();
+ 	nsc_init_cpu();
+diff -u linux-2.6.5-i386/arch/i386/kernel/cpu/cpu.h-o linux-2.6.5-i386/arch/i386/kernel/cpu/cpu.h
+--- linux-2.6.5-i386/arch/i386/kernel/cpu/cpu.h-o	2004-03-21 21:12:03.000000000 +0100
++++ linux-2.6.5-i386/arch/i386/kernel/cpu/cpu.h	2004-04-21 14:53:41.000000000 +0200
+@@ -26,3 +26,6 @@
  
- 	if (new_below)
-@@ -1301,7 +1337,6 @@ int split_vma(struct mm_struct * mm, str
- 	__insert_vm_struct(mm, new);
+ extern void generic_identify(struct cpuinfo_x86 * c);
+ extern int have_cpuid_p(void);
++
++extern void early_intel_workaround(struct cpuinfo_x86 *c);
++
+diff -u linux-2.6.5-i386/arch/i386/kernel/cpu/intel.c-o linux-2.6.5-i386/arch/i386/kernel/cpu/intel.c
+--- linux-2.6.5-i386/arch/i386/kernel/cpu/intel.c-o	1970-01-01 01:12:51.000000000 +0100
++++ linux-2.6.5-i386/arch/i386/kernel/cpu/intel.c	2004-04-21 17:06:00.000000000 +0200
+@@ -28,6 +28,15 @@
+ struct movsl_mask movsl_mask;
+ #endif
  
- 	anon_vma_unlock(vma);
--	spin_unlock(&mm->page_table_lock);
- 	if (mapping)
- 		up(&mapping->i_shared_sem);
- 
-
++void __init early_intel_workaround(struct cpuinfo_x86 *c)
++{
++	if (c->x86_vendor != X86_VENDOR_INTEL)
++		return; 
++	/* Netburst reports 64 bytes clflush size, but does IO in 128 bytes */
++	if (c->x86 == 15 && c->x86_cache_alignment == 64) 
++		c->x86_cache_alignment = 128;
++}
++
+ /*
+  *	Early probe support logic for ppro memory erratum #50
+  *
+@@ -36,42 +45,14 @@
+  
+ int __init ppro_with_ram_bug(void)
+ {
+-	char vendor_id[16];
+-	int ident;
+-
+-	/* Must have CPUID */
+-	if(!have_cpuid_p())
+-		return 0;
+-	if(cpuid_eax(0)<1)
+-		return 0;
+-	
+-	/* Must be Intel */
+-	cpuid(0, &ident, 
+-		(int *)&vendor_id[0],
+-		(int *)&vendor_id[8],
+-		(int *)&vendor_id[4]);
+-	
+-	if(memcmp(vendor_id, "IntelInside", 12))
+-		return 0;
+-	
+-	ident = cpuid_eax(1);
+-
+-	/* Model 6 */
+-
+-	if(((ident>>8)&15)!=6)
+-		return 0;
+-	
+-	/* Pentium Pro */
+-
+-	if(((ident>>4)&15)!=1)
+-		return 0;
+-	
+-	if((ident&15) < 8)
+-	{
++	/* Uses data from early_cpu_detect now */
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL &&
++	    boot_cpu_data.x86 == 6 &&
++	    boot_cpu_data.x86_model == 1 && 
++	    boot_cpu_data.x86_mask < 8) { 
+ 		printk(KERN_INFO "Pentium Pro with Errata#50 detected. Taking evasive action.\n");
+ 		return 1;
+ 	}
+-	printk(KERN_INFO "Your Pentium Pro seems ok.\n");
+ 	return 0;
+ }
+ 	

@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267690AbTAHF6F>; Wed, 8 Jan 2003 00:58:05 -0500
+	id <S267447AbTAHGH1>; Wed, 8 Jan 2003 01:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267714AbTAHF6F>; Wed, 8 Jan 2003 00:58:05 -0500
-Received: from 24.213.60.109.up.mi.chartermi.net ([24.213.60.109]:13001 "EHLO
-	front3.chartermi.net") by vger.kernel.org with ESMTP
-	id <S267690AbTAHF6E>; Wed, 8 Jan 2003 00:58:04 -0500
-Date: Wed, 8 Jan 2003 01:07:09 -0500 (EST)
-From: Nathaniel Russell <reddog83@chartermi.net>
-X-X-Sender: reddog83@reddog.example.net
-To: alan@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: New Via 8233 Sound concerns
-Message-ID: <Pine.LNX.4.44.0301080101130.1017-200000@reddog.example.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1805570035-1042006029=:1017"
+	id <S267507AbTAHGH1>; Wed, 8 Jan 2003 01:07:27 -0500
+Received: from b.smtp-out.sonic.net ([208.201.224.39]:34509 "HELO
+	b.smtp-out.sonic.net") by vger.kernel.org with SMTP
+	id <S267447AbTAHGH0>; Wed, 8 Jan 2003 01:07:26 -0500
+X-envelope-info: <dhinds@sonic.net>
+Date: Tue, 7 Jan 2003 22:16:05 -0800
+From: dhinds <dhinds@sonic.net>
+To: Joshua Kwan <joshk@ludicrus.ath.cx>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.54-dj1-bk] Some interesting experiences...
+Message-ID: <20030107221605.A27650@sonic.net>
+References: <20030107172147.3c53efa8.joshk@ludicrus.ath.cx> <20030107175801.A23794@sonic.net> <20030107204303.2dd901ca.joshk@ludicrus.ath.cx> <20030107215630.6f8bd876.joshk@ludicrus.ath.cx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030107215630.6f8bd876.joshk@ludicrus.ath.cx>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, Jan 07, 2003 at 09:56:30PM -0800, Joshua Kwan wrote:
+> Ok, the problem is with scsi.h.
+> In a typedef for SCSI LUNs 'u8' is used, but not defined - either
+> 'typedef u_int8_t u8' outside of the struct, or changing the
+> declaration to u_int8_t works. Thanks Misha...
 
---8323328-1805570035-1042006029=:1017
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+It isn't a kernel header bug; 'u8' is defined elsewhere.  I'll fix
+cardmgr properly; it should not be referencing any kernel header
+files.
 
-Hi Alan,
-I figured i wouldn't bother you until after New Year's. I'm having a brnad
-new problem when playing mp3 with XMMS and changing songs work's until
-i start to load other program's like LimeWire and Yahoo! Messenger. All
-deal with  sound so i shut those off but i let XMMS keep playing
-and then my audio from XMMS just shut's down and doesn't wanna play after that.
-I don't know if i'm sending to many packets of audio to my sound card at
-one time or if i'm just the lucky one with all the problems.
-Nathaniel
-
-CC me at reddog83@chartermi.net
-
---8323328-1805570035-1042006029=:1017
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="audio.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0301080107090.1017@reddog.example.net>
-Content-Description: Via 8233 Audio
-Content-Disposition: attachment; filename="audio.log"
-
-TGludXggdmVyc2lvbiAyLjQuMjAgKHJvb3RAcmVkZG9nKSAoZ2NjIHZlcnNp
-b24gMy4yLjEpICMxIEZyaSBEZWMgNiAwMToyODo1NyBFU1QgMjAwMg0KW1NO
-SVBFRF0NClZpYSA2ODZhLzgyMzMvODIzNSBhdWRpbyBkcml2ZXIgMS45LjEt
-YWMyDQpQQ0k6IEZvdW5kIElSUSAxMSBmb3IgZGV2aWNlIDAwOjExLjUNClBD
-STogU2hhcmluZyBJUlEgMTEgd2l0aCAwMDowOS4xDQpQQ0k6IFNoYXJpbmcg
-SVJRIDExIHdpdGggMDA6MGEuMA0KdmlhODJjeHh4OiBTaXggY2hhbm5lbCBh
-dWRpbyBhdmFpbGFibGUNClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9m
-IGRldmljZSAwMDoxMS41IHRvIDY0DQphYzk3X2NvZGVjOiBBQzk3IEF1ZGlv
-IGNvZGVjLCBpZDogSUNFMTcoSUNFMTIzMikNCnZpYTgyY3h4eDogYm9hcmQg
-IzEgYXQgMHhFNDAwLCBJUlEgMTENCnZpYV9hdWRpbzogaWdub3JpbmcgZHJh
-aW4gcGxheWJhY2sgZXJyb3IgLTExDQp2aWFfYXVkaW86IGlnbm9yaW5nIGRy
-YWluIHBsYXliYWNrIGVycm9yIC0xMQ0KdmlhX2F1ZGlvOiBpZ25vcmluZyBk
-cmFpbiBwbGF5YmFjayBlcnJvciAtMTENCnZpYV9hdWRpbzogaWdub3Jpbmcg
-ZHJhaW4gcGxheWJhY2sgZXJyb3IgLTExDQp2aWE4MmN4eHg6IHVua25vd24g
-bnVtYmVyIG9mIGNoYW5uZWxzDQp2aWE4MmN4eHg6IHRpbWVvdXQgd2hpbGUg
-cmVhZGluZyBBQzk3IGNvZGVjICgweDlBMDAwMCkNCg==
---8323328-1805570035-1042006029=:1017--
+-- Dave

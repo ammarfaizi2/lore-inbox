@@ -1,65 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269777AbRHIMGH>; Thu, 9 Aug 2001 08:06:07 -0400
+	id <S269778AbRHIMH1>; Thu, 9 Aug 2001 08:07:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269778AbRHIMF5>; Thu, 9 Aug 2001 08:05:57 -0400
-Received: from razor.hemmet.chalmers.se ([193.11.251.99]:62090 "EHLO
-	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
-	id <S269777AbRHIMFn>; Thu, 9 Aug 2001 08:05:43 -0400
-Message-ID: <3B712B23.5090700@kjellander.com>
-Date: Wed, 08 Aug 2001 14:05:55 +0200
-From: Carl-Johan Kjellander <carljohan@kjellander.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Maciej Zenczykowski <maze@druid.if.uj.edu.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 386 boot problems with 2.4.7 and 2.4.7-ac9
-In-Reply-To: <Pine.LNX.4.33.0108091228380.6063-100000@druid.if.uj.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269779AbRHIMHS>; Thu, 9 Aug 2001 08:07:18 -0400
+Received: from dmi1fw.dmi.dk ([130.226.64.130]:16086 "EHLO dmi1fw.dmi.dk")
+	by vger.kernel.org with ESMTP id <S269778AbRHIMHI>;
+	Thu, 9 Aug 2001 08:07:08 -0400
+From: Kim Bisgaard <kib@dmi.dk>
+Date: Thu, 9 Aug 2001 14:07:20 +0200 (MET DST)
+Message-Id: <200108091207.OAA10720@berta>
+To: linux-kernel@vger.kernel.org
+CC: lastec@dmi.dk, kib@dmi.dk
+Subject: Random core dumps, and misreading files
+Content-Type: text
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Zenczykowski wrote:
->>The system is a 386DX with an Award 3.15c BIOS. The distribution
->>is smalllinux i think, but I've modified it a lot.
->>
-> 
-> 99% sure that your problem is binaries for 486 and up, had this problem
-> installing RedHat 7.1 on a 486 with no CDROM drive - did the installation
-> on a Pentium 3, then it would not boot, compiled a new kernel for 486,
-> installed that on the P 3, now it booted on the 486 but would not run
-> init.  The binaries were for 686 and refused to run...
 
-As I said in my post, the distribution is not Red Hat, but smalllinux,
-a very tiny floppydistribution that runs on a 386 with as low as 2MB RAM
-(Mine has 4MB).
+I gets random core dumps and and misreading of files. The chances for provoking
+there errors, increases with the amount of memory used.
 
-I only compile new kernels on my Red Hat machine and yes I do compile
-it for the 386:
+With misreadings of files I mean eg. copy a large file then compare several
+times and get different answers each time.
 
-# Processor type and features
-#
-CONFIG_M386=y
+I have seen this in kernels 2.4.4-7, in both 1GB and 4GB settings, and using
+kgcc and gcc-2.96-69. 
 
-My 386 boots stock 2.4.3 fine but not 2.4.7.
+The HW is AMD Athlon 1100, 1.5GB memory, VIA Apollo KT133 chipset.
 
-> PS. There should be a choich when installing RedHat in advanced mode what
-> processor you want to install for - often enough the computer you are
-> installing on is not quite the same as the one it will be running on.
-> 
+I have used a memory test program, which ran without any problems!
+- memtest: http://www.qcc.sk.ca/~charlesc/software/memtester/
+     version is v.2.93.1 by Charles Cazabon <memtest@discworld.dyndns.org>
+     dynamic version (libc.so.6 and ld-linux.so.2) (28/12/2000)
 
-You can do always try to install from the harddrive or via NFS, ftp or
-http from your other machines. Red Hat does a lot of smart things during
-the install and you have to make sure that for instance glibc is not
-the i686 rpm.
 
-/Carl-Johan Kjellander
+Good ways to provoke the error is to create a couple of ~2GB files, the files
+have to get in and out of the file system cache, in order to go different.
 
--- 
-begin 644 carljohan_at_kjellander_dot_com.gif
-Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
-Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
-R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
+Error scenario:
+% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
+clout010629part001.dump.gz clout010629part001.dump.2.gz differ: char 2351101, line 7984
+% gunzip -vt clout010629part001.dump.2.gz &
+% gunzip -vt clout010629part001.dump.gz&
+gunzip: clout010629part001.dump.2.gz: invalid compressed data--crc error
+[3]    Done                          gunzip -vt clout010629part001.dump.gz
+[2]  - Exit 1                        gunzip -vt clout010629part001.dump.2.gz
+% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
+clout010629part001.dump.gz clout010629part001.dump.2.gz differ: char 1253855229, line 4124979
+% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
+cmp: clout010629part001.dump.gz: Input/output error
+% gunzip -vt clout010629part001.dump.2.gz
+clout010629part001.dump.2.gz:        OK
+% gunzip -vt clout010629part001.dump.gz
+clout010629part001.dump.gz:   OK
+% cmp clout010629part001.dump.gz clout010629part001.dump.2.gz
+% gunzip -tv clout010629part001.dump.2.gz &
+% gunzip -tv clout010629part001.dump.gz &
+gunzip: clout010629part001.dump.2.gz: invalid compressed data--crc error
+gunzip: clout010629part001.dump.gz: invalid compressed data--crc error
+gunzip: clout010629part001.dump.gz: invalid compressed data--length error
+% 
+
+
+A zap from top during these tests:
+
+% top
+    1:44pm  up 2 days, 22:04,  6 users,  load average: 2.03, 1.22, 0.81
+205 processes: 202 sleeping, 3 running, 0 zombie, 0 stopped
+CPU states: 13.3% user, 37.3% system,  0.0% nice, 49.3% idle
+Mem:   899996K av,  896940K used,    3056K free,       0K shrd,    3556K buff
+Swap: 5210256K av,  224132K used, 4986124K free                  851892K cached
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 9290 kib       18   0   352  352   288 R    25.2  0.0   0:20 cmp
+ 9289 kib       19   0   384  384   316 D    21.6  0.0   0:17 diff
+
+I am available for further tests, and requests for more info.
+
+Best Regards,
+Kim Bisgaard
 

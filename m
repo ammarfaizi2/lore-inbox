@@ -1,90 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129030AbQKLTFz>; Sun, 12 Nov 2000 14:05:55 -0500
+	id <S129281AbQKLTXc>; Sun, 12 Nov 2000 14:23:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129675AbQKLTFq>; Sun, 12 Nov 2000 14:05:46 -0500
-Received: from slc539.modem.xmission.com ([166.70.7.31]:3592 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129030AbQKLTFk>; Sun, 12 Nov 2000 14:05:40 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
-        Tigran Aivazian <tigran@veritas.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: bzImage ~ 900K with i386 test11-pre2
-In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet> <m1ofzmcne5.fsf@frodo.biederman.org> <20001112122910.A2366@athlon.random> <m1k8a9badf.fsf@frodo.biederman.org> <20001112163705.A4933@athlon.random>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 Nov 2000 11:57:15 -0700
-In-Reply-To: Andrea Arcangeli's message of "Sun, 12 Nov 2000 16:37:05 +0100"
-Message-ID: <m1bsvlauic.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
+	id <S129391AbQKLTXX>; Sun, 12 Nov 2000 14:23:23 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:2132
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129281AbQKLTXR>; Sun, 12 Nov 2000 14:23:17 -0500
+Date: Sun, 12 Nov 2000 20:15:27 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: john slee <indigoid@higherplane.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, dake@staszic.waw.pl,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11-pre3 [gus_midi.c breakage]
+Message-ID: <20001112201527.A740@jaquet.dk>
+In-Reply-To: <Pine.LNX.4.10.10011111914170.7609-100000@penguin.transmeta.com> <20001112205848.E19275@higherplane.net> <20001112121707.B637@jaquet.dk> <20001112123126.C637@jaquet.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20001112123126.C637@jaquet.dk>; from rasmus@jaquet.dk on Sun, Nov 12, 2000 at 12:31:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
-
-> On Sun, Nov 12, 2000 at 06:14:36AM -0700, Eric W. Biederman wrote:
-> > x86-64 doesn't load the segment registers at all before use.
+On Sun, Nov 12, 2000 at 12:31:26PM +0100, Rasmus Andersen wrote:
+> On Sun, Nov 12, 2000 at 12:17:07PM +0100, Rasmus Andersen wrote:
+> > On Sun, Nov 12, 2000 at 08:58:48PM +1100, john slee wrote:
+> > > On Sat, Nov 11, 2000 at 07:22:06PM -0800, Linus Torvalds wrote:
+> > > >-----
+> > > >  - pre3:
+> > > >     - Bartlomiej Zolnierkiewicz: sound and drm driver init fixes and
+> > > >       cleanups
+> > > 
 > 
-> Yes, before switching to 64bit long mode we never do any data access. We do a
-> stack access to clear eflags only while we still run in legacy mode with paging
-> disabled and so we only rely on ss to be valid when the bootloader jumps at
-> 0x100000 for executing the head.S code (and not anymore on the gdt_48 layout).
-
-Nope you rely on cs & ds as well.  cs is just a duh the codes running
-so it must be valid.  But ds is needed for lgdt.
-
-> > I can tell you don't have real hardware.  The non obviousness
-
-I need to retract this a bit.  You are still building a compressed image,
-and the code in the boot/compressed/head.S remains unchanged and loads
-segment registers, so it works by luck.  If you didn't build a
-compressed image you would be in trouble.
- 
-> Current code definitely works fine on the simnow simulator so if current code
-> shouldn't work because it's buggy then at least the simulator is sure buggy as
-> well (and that isn't going to be the case as its behaviour is in full sync with
-> the specs as far I can see).
-
-Add a target for a noncompressed image and then build.  It should be
-interesting to watch.
+> It seems like this touched more than just gus_midi.c. The following
+> patch are similarly trivial as the previously posted and therefore
+> are bunched together. They should fix the sound/ drivers.
 > 
-> > So while you load the gdt before you set a segment register later,
-> > which is good the more important part was still missed.
-> 
-> Sorry but I don't see the missing part. Are you sure you're not missing this
-> part of the x86-64 specs?
 
-Nope because what I was complaining about is in 32 bit mode. :)
+Hrmmm. Missed one that pops up when I compile for modules. Patch
+attached.
 
-> 	Data and Stack Segments:
-> 
-> 	In 64-bit mode, the contents of the ES, DS, and SS segment registers
-> 	are ignored. All fields (base, limit, and attribute) in the
-> 	corresponding segment descriptor registers (hidden part) are also
-> 	ignored.
+--- linux-240-t11-pre3-clean/drivers/sound/yss225.c	Sun Nov 12 09:46:14 2000
++++ linux/drivers/sound/yss225.c	Sun Nov 12 20:12:24 2000
+@@ -1,3 +1,5 @@
++#include <linux/init.h>
++
+ unsigned char page_zero[] __initdata = {
+ 0x01, 0x7c, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf5, 0x00,
+ 0x11, 0x00, 0x20, 0x00, 0x32, 0x00, 0x40, 0x00, 0x13, 0x00, 0x00,
 
-Hmm.  I'll have to look and see if FS & GS are also ignored.
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-> 	Address calculations in 64-bit mode that reference the ES, DS, or SS
-> 	segments, are treated as if the segment base is zero.  Rather than
-> 	perform limit checks, the processor instead checks that all
-> 	virtual-address references are in canonical form.
-
-Cool I like this bit.  The segments are finally dead.
-
-> > O.k. on monday I'll dig up my patch and that clears this up.
-> 
-> Sure, go ahead if you weren't missing that basic part of the long mode specs.
-> Thanks.
-
-Nope.  Though I suspect we should do the switch to 64bit mode in
-setup.S and not have these issues pollute head.S at all.
-
-Eric
-
+Real computer scientists don't program in assembler. They don't write in 
+anything less portable than a number two pencil.   -- Anonymous
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

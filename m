@@ -1,65 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262894AbTCSCMK>; Tue, 18 Mar 2003 21:12:10 -0500
+	id <S262914AbTCSCPI>; Tue, 18 Mar 2003 21:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262896AbTCSCMK>; Tue, 18 Mar 2003 21:12:10 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:60915 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262894AbTCSCMH>;
-	Tue, 18 Mar 2003 21:12:07 -0500
-Message-ID: <3E77D46F.5070709@mvista.com>
-Date: Tue, 18 Mar 2003 18:22:39 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
- due to wrmsr (performance)
-References: <3E7765DE.10609@didntduck.org> <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com> <b58edl$au1$1@cesium.transmeta.com>
-In-Reply-To: <b58edl$au1$1@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262915AbTCSCPI>; Tue, 18 Mar 2003 21:15:08 -0500
+Received: from packet.digeo.com ([12.110.80.53]:64173 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262914AbTCSCPH>;
+	Tue, 18 Mar 2003 21:15:07 -0500
+Date: Tue, 18 Mar 2003 20:31:25 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: george anzinger <george@mvista.com>
+Cc: tim@physik3.uni-rostock.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix nanosleep() granularity bumps
+Message-Id: <20030318203125.054b2704.akpm@digeo.com>
+In-Reply-To: <3E77D107.30406@mvista.com>
+References: <Pine.LNX.4.33.0303182123510.30255-100000@gans.physik3.uni-rostock.de>
+	<3E77D107.30406@mvista.com>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 Mar 2003 02:25:53.0421 (UTC) FILETIME=[DD6C0BD0:01C2EDBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Followup to:  <Pine.LNX.4.44.0303181113590.13708-100000@home.transmeta.com>
-> By author:    Linus Torvalds <torvalds@transmeta.com>
-> In newsgroup: linux.dev.kernel
-> 
->>Wow. There aren't many things that AMD tends to show the P4-like "big
->>latency in rare cases" behaviour.
->>
->>But quite honestly, I think they made the right call, and I _expect_ that
->>of modern CPU's. The fact is, modern CPU's tend to need to pre-decode the
->>instruction stream some way, and storing to it while running from it is
->>just a really really bad idea. And since it's so easy to avoid it, you
->>really just shouldn't do it.
->>
+george anzinger <george@mvista.com> wrote:
+>
 > 
 > 
-> AMD, I believe, has an "annotated" icache
+> Here is a fix for the problem that eliminates the index from the 
+> structure.  The index ALWAYS depends on the current value of 
+> base->timer_jiffies in a rather simple way which is I exploit.  Either 
+> patch works, but this seems much simpler...
 
-Here is an SMP:
+Seems to be a nice change.  I think it would be better to get Tim's fix into
+Linus's tree and let your rationalisation bake for a while in -mm.
 
-vendor_id	: AuthenticAMD
-cpu family	: 6
-model		: 6
-model name	: AMD Athlon(TM) MP 2000+
-stepping	: 2
-cpu MHz		: 1680.368
-cache size	: 256 KB
+There is currently a mysterious timer lockup happening on power4 machines. 
+I'd like to keep these changes well-separated in time so we can get an
+understanding of what code changes correlate with changed behaviour.
 
-empty overhead=11 cycles
-load overhead=6 cycles
-I$ load overhead=5 cycles
-I$ load overhead=6 cycles
-I$ store overhead=1051 cycles
+There are timer changes in Linus's post-2.5.65 tree and your patch generates
+zillions of rejects against everything.  Can you send me a diff against
+Linus's latest sometime?
 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

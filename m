@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265748AbUBKUKt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 15:10:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265848AbUBKUKt
+	id S266174AbUBKUd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 15:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266184AbUBKUdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 15:10:49 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:32989 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S265748AbUBKUKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 15:10:47 -0500
-Message-ID: <402A887D.7030408@t-online.de>
-Date: Wed, 11 Feb 2004 20:54:37 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040129
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.2: "-" or "_", thats the question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Seen: false
-X-ID: bpATviZSoepIRXoxsmzFtvPpdOYEITqfKHmFXDCBBeL-glvKiX9-0g
+	Wed, 11 Feb 2004 15:33:25 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:58068 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S266174AbUBKUdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 15:33:23 -0500
+Date: Wed, 11 Feb 2004 12:33:06 -0800
+From: Tim Hockin <thockin@sun.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, viro@math.psu.edu
+Subject: Re: PATCH - raise max_anon limit
+Message-ID: <20040211203306.GI9155@sun.com>
+Reply-To: thockin@sun.com
+References: <20040206221545.GD9155@sun.com> <20040207005505.784307b8.akpm@osdl.org> <20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+On Sat, Feb 07, 2004 at 09:48:47AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > It would be better to lose the sysctl and do it all dynamically.
+> > 
+> > Options are:
+> > 
+> > a) realloc the bitmap when it fills up
+> > 
+> >    Simple, a bit crufty, doesn't release memory.
 
-'cat /proc/modules' returns most (all?) of the module names with
-"_", e.g.
+This can work if it's OK to allocate pages during set_max_anon() (which
+includes changing the spinlock to a sema or always allocating before the
+lock).
 
-	:
-	ipt_conntrack
-	ip_conntrack
-	iptable_filter
-	ip_tables
-	uhci_hcd
-	ohci_hcd
-	ehci_hcd
-	:
+> d) grab a couple of pages and be done with that.  That gives us 64Kbits.
 
-Very consistent. But the filenames of some kernel modules are
-still written with "-", e.g.
+Maybe that is just the simplest answer?  It can be a simple constant that is
+changeable at compile time, and leave it at that
 
-	/lib/modules/2.6.2/kernel/drivers/usb/host/ehci-hcd.ko
-	/lib/modules/2.6.2/kernel/drivers/usb/host/ohci-hcd.ko
-	/lib/modules/2.6.2/kernel/drivers/usb/host/uhci-hcd.ko
+What's most likely to cause the least argument?
 
-What would be the correct way to get the filename of a
-loaded module? The basename would be sufficient.
+> PS: psu.edu address is still valid, but I rarely read that mailbox...
 
+Sorry - it's what was listed in MAINTAINERS, so I used it.
 
-Regards
-
-Harri
+Tim
+-- 
+Tim Hockin
+Sun Microsystems, Linux Software Engineering
+thockin@sun.com
+All opinions are my own, not Sun's

@@ -1,75 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRACXjW>; Wed, 3 Jan 2001 18:39:22 -0500
+	id <S129267AbRACXlm>; Wed, 3 Jan 2001 18:41:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbRACXjN>; Wed, 3 Jan 2001 18:39:13 -0500
-Received: from jalon.able.es ([212.97.163.2]:16608 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S129324AbRACXi7>;
-	Wed, 3 Jan 2001 18:38:59 -0500
-Date: Thu, 4 Jan 2001 00:38:50 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Kervin Pierre <kpierre@fit.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: /xproc -> /proc files in xml grammer?
-Message-ID: <20010104003850.A980@werewolf.able.es>
-In-Reply-To: <3A53B08D.F10B96FB@fit.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3A53B08D.F10B96FB@fit.edu>; from kpierre@fit.edu on Thu, Jan 04, 2001 at 00:06:53 +0100
-X-Mailer: Balsa 1.0.1
+	id <S129370AbRACXld>; Wed, 3 Jan 2001 18:41:33 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2063 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129267AbRACXl1>; Wed, 3 Jan 2001 18:41:27 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: gcc2.96 + prerelease BUG at inode.c:372
+Date: 3 Jan 2001 15:40:23 -0800
+Organization: Transmeta Corporation
+Message-ID: <930d97$83s$1@penguin.transmeta.com>
+In-Reply-To: <200101031919.f03JJQU13197@interno.emmenet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <200101031919.f03JJQU13197@interno.emmenet.it>,
+Diego Liziero  <pmcq@interno.emmenet.it> wrote:
+>
+>->1: The sound module for my mad16 based card plays the bytes swapped
+>     (the same module recompiled with egcs-2.91.66 works fine).
 
-On 2001.01.04 Kervin Pierre wrote:
-> 
-> hello,
-> 
-> Would XML be considered human readable enough for /proc files?  If not,
-> how about a /xproc filesystem ( maybe as a kernel build option ), same
-> as /proc but uses an xml grammer for reporting.
-> I can see tons of uses for this, no more 'fuzzy' parsing for gui
-> configuration tools, resource monitors, etc.
-> 
-> ?
-> 
-> just thinking aloud really,
+Could you try to figure this one out a bit more? This sounds like a real
+compiler issue, whether it is because egcs just happens to get the right
+result for bogus kernel source, of whether gcc-2.96 has problems..
 
-More aloud thinkin...
+>->2: after two day under heavy load I've got the following BUG:
+>     (I don't know if it's related to the compiler, that's why I'm reporting
+>     this.)
 
-I have seen some times this thread appear on the list. One of the
-problems: you will have to force drivers to register in two file
-systems...
+Unrelated. This one is a known bug that hits if you are a bit unlucky
+with a race on deleting the pages from the inode page-lists. Fixed in
+the current prerelease patches on ftp.kernel.org.
 
-Perhaps there are tools yet to do what I'm thinkin of: a ghost file
-system that just mirrors /proc, changing format of output.
-
-Say you clone the procfs to a fake fs driver (for example, 
-procfs.xml) that just translates each fs access system call to
-
-/fproc/xml/path/to/file_or_dir (fproc==formatted proc)
-
-to
-
-/proc/path/to/file_or_dir
-
-reads its contents and reformats them to give the desired output
-(now thinkin on read-only, main people interest seems to be
-in syntax-ing the out of /proc).
-
-So actual /proc stays, not breaking anything, and theres a way
-to write proc info formatters.
-
-Even there could be many common code between all the possible
-procfs.XXXX things to ease maintenance.
-
--- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
-
-Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
-
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

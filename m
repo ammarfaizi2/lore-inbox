@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289708AbSBJSD2>; Sun, 10 Feb 2002 13:03:28 -0500
+	id <S289715AbSBJSDI>; Sun, 10 Feb 2002 13:03:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289711AbSBJSDT>; Sun, 10 Feb 2002 13:03:19 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:47490
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S289708AbSBJSDF>; Sun, 10 Feb 2002 13:03:05 -0500
-Date: Sun, 10 Feb 2002 11:02:29 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Larry McVoy <lm@work.bitmover.com>, David Lang <dlang@diginsite.com>,
-        Larry McVoy <lm@bitmover.com>, Patrick Mochel <mochel@osdl.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [bk patch] Make cardbus compile in -pre4
-Message-ID: <20020210180229.GI872@opus.bloom.county>
-In-Reply-To: <20020209090527.B13735@work.bitmover.com> <Pine.LNX.4.44.0202091258110.25220-100000@dlang.diginsite.com> <20020209134132.J13735@work.bitmover.com> <20020209163603.B9826@lynx.turbolabs.com> <20020209155258.E18734@work.bitmover.com>
+	id <S289711AbSBJSCt>; Sun, 10 Feb 2002 13:02:49 -0500
+Received: from pl100.nas921.ichikawa.nttpc.ne.jp ([210.165.234.100]:24118 "EHLO
+	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S289708AbSBJSCo>;
+	Sun, 10 Feb 2002 13:02:44 -0500
+Date: Mon, 11 Feb 2002 03:02:25 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Kurt Garloff <garloff@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Misc ICH ID changes/additions
+Message-Id: <20020211030225.25f9fb5b.bruce@ask.ne.jp>
+In-Reply-To: <20020207114548.C25360@gum01m.etpnet.phys.tue.nl>
+In-Reply-To: <20020131224122.59d1de9e.bruce@ask.ne.jp>
+	<E16WIFn-0002Iy-00@the-village.bc.nu>
+	<20020201022958.7b58493f.harada@mbr.sphere.ne.jp>
+	<20020131141025.E669@havoc.gtf.org>
+	<20020201095457.23a30eb5.harada@mbr.sphere.ne.jp>
+	<20020207114548.C25360@gum01m.etpnet.phys.tue.nl>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
+X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020209155258.E18734@work.bitmover.com>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 09, 2002 at 03:52:58PM -0800, Larry McVoy wrote:
-> On Sat, Feb 09, 2002 at 04:36:03PM -0700, Andreas Dilger wrote:
-> > On Feb 09, 2002  13:41 -0800, Larry McVoy wrote:
-> > > We don't, but we can, and we should.  "bk relink tree1 tree2" seems like 
-> > > the right interface.
-> > 
-> > Yes, this would be great.  It should probably only do this for files in
-> > SCCS and BitKeeper directories, because vim (for example) will do the
-> 
-> Correct.
-> 
-> > One thing that I've noticed (got my first linux-2.5 clone last night) is
-> > that the kernel build process is somewhat broken by the fact that not
-> > everything that you need to build is checked out of the repository by
-> > make.
-> > 
-> > It appears to handle .c files ok, but it failed for all of the .h files.
-> 
-> This is because the dependencies are incorrect in the makefiles.  If you
-> have correct dependencies in the makefiles, make will do the right thing.
+On Thu, 7 Feb 2002 11:45:48 +0100
+Kurt Garloff <garloff@suse.de> wrote:
 
-Or more specifically, the 'dependancy' stage of the kernel knows
-_nothing_ about SCCS.  It _might_ not be that hard to hack up the
-scripts/mkdep.c program to check if an #include'd file exists (and if it
-doesn't, if (any search patch)/SCCS exists, and if so, get it.
+> Actually this part should also go to the pci ID stuff at sourceforge, if
+> it's not there already:
+> http://pciids.sourceforge.net/
 
-> One alternative would be to have a scripts/bk-get which takes as an arg
-> the architecture[s] you want and gets the files that make sense for
-> that architecture.  That would help somewhat.
+Thanks Kurt. It looks like Jeff or some other kind person already submitted
+it, but it would appear to have been bounced (I presume it was because my
+patch was from the kernel tree root, whereas the bot seems to want a diff
+taken directly from pci.ids). I'll have a look at it in a day or two.
 
-If it's just a flat list of files, it'd be rather hellish to maintain
-I'd think.  It _might_ not be too horrible to try and glean files from
-CONFIG options (but isn't part of the point of the kernel's current dep
-system to not depend on CONFIG_xxx options?) and assume all of include/
-is needed.
-
-Or kbuild-2.5 might just work since it does deps in a more 'correct'
-manner.
-
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Bruce

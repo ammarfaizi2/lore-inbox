@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVCCMA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVCCKpV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVCCMA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 07:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVCCLLB
+	id S261577AbVCCKpV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 05:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbVCCKoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:11:01 -0500
-Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:16863 "EHLO
-	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261554AbVCCKuV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 05:50:21 -0500
-Date: Thu, 3 Mar 2005 10:49:37 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-In-Reply-To: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.60.0503031045580.26782@hermes-1.csi.cam.ac.uk>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
- <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org>
- <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
- <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	Thu, 3 Mar 2005 05:44:38 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:10201 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261573AbVCCKn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 05:43:58 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "David S. Miller" <davem@davemloft.net>
+Date: Thu, 3 Mar 2005 21:43:35 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16934.59991.693197.513163@cse.unsw.edu.au>
+Cc: Jeff Garzik <jgarzik@pobox.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+In-Reply-To: message from David S. Miller on Wednesday March 2
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+	<42264F6C.8030508@pobox.com>
+	<20050302162312.06e22e70.akpm@osdl.org>
+	<42265A6F.8030609@pobox.com>
+	<20050302165830.0a74b85c.davem@davemloft.net>
+	<422674A4.9080209@pobox.com>
+	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	<42268749.4010504@pobox.com>
+	<20050302200214.3e4f0015.davem@davemloft.net>
+	<42268F93.6060504@pobox.com>
+	<4226969E.5020101@pobox.com>
+	<20050302205826.523b9144.davem@davemloft.net>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Linus Torvalds wrote:
-> On Wed, 2 Mar 2005, Jeff Garzik wrote:
-> > 
-> > If we want a calming period, we need to do development like 2.4.x is 
-> > done today.  It's sane, understandable and it works.
+On Wednesday March 2, davem@davemloft.net wrote:
+> On Wed, 02 Mar 2005 23:46:22 -0500 Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
-> No. It's insane, and the only reason it works is that 2.4.x is a totally
-> different animal. Namely it doesn't have the kind of active development AT
-> ALL any more. It _only_ has the "even" number kind of things, and quite 
-> frankly, even those are a lot less than 2.6.x has.
+> > If Linus/DaveM really don't like -pre/-rc naming, I think 2.6.x.y is 
+> > preferable to even/odd.
 > 
-> > 2.6.x-pre: bugfixes and features
-> > 2.6.x-rc: bugfixes only
-> 
-> And the reason it does _not_ work is that all the people we want testing 
-> sure as _hell_ won't be testing -rc versions.
-> 
-> That's the whole point here, at least to me. I want to have people test 
-> things out, but it doesn't matter how many -rc kernels I'd do, it just 
-> won't happen. It's not a "real release".
-> 
-> In contrast, making it a real release, and making it clear that it's a 
-> release in its own right, might actually get people to use it. 
-> 
-> Might. Maybe.
+> All of these arguments are circular.  If people think that even/odd
+> will devalue odd releases, guess what 2.6.x.y will do?  By that line
+> of reasoning nobody will test 2.6.x just the same as they aren't
+> testing 2.6.x-rc* right now.
 
-I agree with you.  And I think it definitely would.  A lot of people just 
-go to ftp.kernel.org and get the latest full release (heck a lot of 
-compile your own kernel scripts I have seen do that).  They never read 
-LKML or related lists, they just try the latest released kernel.  You 
-would catch that whole group of people by turning -rc into 2.6.ODD.
+I think there is a qualitative difference.
+2.6.x is the end of a line that 2.6.x-rc* leads up to.  There is a
+clear end.  "I will test when it gets to the end".
 
-And not to forget companies where senior management will refuse to run -rc 
-because its a beta and beta is not good enough for company use.
+2.6.x.y doesn't.  If the releases are quick (daily if there is
+anything to release) then there is no clear end to the list, just a
+beginning.  There may never be a 2.6.x.1 for some values of x, so
+people won't be able to wait for the .1 or the .2 release.  They will
+have to just take what is available when they want to upgrade.
 
-Its the same as with companies refusing to run 0.x software.  In the end 
-the software developers usually end up doing a 1.x release just _so_ it 
-gets run by those companies.
+If we want to stop people from waiting for a final release before they
+test, we need to make sure there isn't a (recognisable in advance)
+final release.
 
-I think the .EVEN and .ODD proposal would work a lot better than -rc ever 
-would/could.
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+NeilBrown

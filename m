@@ -1,58 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266976AbUBMMXx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 07:23:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266979AbUBMMXw
+	id S266955AbUBMMgI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 07:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266959AbUBMMgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 07:23:52 -0500
-Received: from pop.gmx.de ([213.165.64.20]:26093 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266976AbUBMMXv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 07:23:51 -0500
-Date: Fri, 13 Feb 2004 13:23:49 +0100 (MET)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: linux-kernel@vger.kernel.org
+	Fri, 13 Feb 2004 07:36:08 -0500
+Received: from columba.eur.3com.com ([161.71.171.238]:53965 "EHLO
+	columba.eur.3com.com") by vger.kernel.org with ESMTP
+	id S266955AbUBMMgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 07:36:05 -0500
+Message-ID: <402CC4AE.7050904@jburgess.uklinux.net>
+Date: Fri, 13 Feb 2004 12:35:58 +0000
+From: Jon Burgess <lkml@jburgess.uklinux.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-gb, en-us, en
 MIME-Version: 1.0
-Subject: Re: File system performance, hardware performance, ext3, 3ware RAID1, etc.
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <9792.1076675029@www11.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: Jon Burgess <lkml@jburgess.uklinux.net>, linux-kernel@vger.kernel.org
+Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved
+ writes
+References: <402A7CA0.9040409@jburgess.uklinux.net> <20040212015626.48631555.akpm@osdl.org>
+In-Reply-To: <20040212015626.48631555.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau <willy@w.ods.org> wrote in message
-news:<1oEGw-2ex-1@gated-at.bofh.it>...
-> On Thu, Feb 12, 2004 at 06:32:31PM -0500, Timothy Miller wrote:
+Andrew Morton wrote:
+
+>What filesytem was that with?
 >  
-> > For writes, iozone found an upper bound of about 10megs/sec, which is 
-> > abysmal.  Typically, I'd expect writes to be faster (on a single drive) 
-> > than reads, because once the write is sent, you can forget about it. 
-> > You don't have to wait around for something to come back, and that 
-> > latency for reads can hurt performance.  The OS can also buffer writes 
-> > and reorder them in order to improve efficiency.
-> 
-> It depends on the disk too. Lots of disks (specially IDE) are far slower
-> on writes than they are on reads.
+>
+I re-ran the tests again last night and founfd that I had made one 
+mistake in my description.
 
-No. Have you verified this? If you 'dd' your swap partition from /dev/zero
-on IDE, you'll see write performance closely matches read performance, for
-drives old and new.
+The really poor results occured with the *ext3* filesystem, not ext2.
 
-In the case of small transfers, the drive can hand them off to the on-drive
-write cache (2/8MB usually). The only case where IDE disks will be 'slow' for
-write performance is where you have no disk I/O scheduling and lots of small
-reads/writes - this case wins on SCSI, but many modern IDE disks and
-controllers also have tagged command queuing, so it is even more of a corner case.
+"mount" was telling me that the contents of /etc/fstab which was ext2 - 
+but the kernel actually had it mounted it as ext3.
 
-Dan
+I think I might be able to give a little insight to the "0.34MB/s" and 
+"0.48MB/s" numbers. I think these numbers closely match the theoretical 
+performance rate when a single 4kB write occurs per disk rotation.
 
--- 
-Daniel J Blueman
+4kB * 5400RPM / 60 seconds = 360 kB/s
+4kB * 7200RPM / 60 seconds = 480 kB/s
 
-GMX ProMail (250 MB Mailbox, 50 FreeSMS, Virenschutz, 2,99 EUR/Monat...)
-jetzt 3 Monate GRATIS + 3x DER SPIEGEL +++ http://www.gmx.net/derspiegel +++
+Perhaps the drives that I am running the test on do not have 
+write-caching enabled.
+By the time the first 4kB write has completed the drive may need to wait 
+a complete rotation before it can do the next write. I don't think it 
+quite explains the difference between ext2 and ext3. Any ideas?
+
+Below are the resuls of ext2/ext3 tests on a new Seagate 80Gb SATA, 8MB 
+Cache, model ST380023AS.
+The ext3 results are a lot better, perhaps this drive has write caching 
+enabled.
+
+Num streams    |1      1      |2      2      |4       4
+Filesystem     |Write  Read   |Write  Read   |Write   Read
+------------------------------|--------------|--------------
+Ext2           |40.17  43.07  |10.88  21.49  |10.13   11.41
+ext3-journal   |16.06  42.24  | 7.56  16.28  | 7.17   11.25
+ext3-ordered   |37.31  43.12  | 4.64  15.33  | 5.25   11.28
+ext3-writeback |37.33  42.93  | 4.00  14.88  | 2.97   11.26
+
+
+    Jon
 

@@ -1,127 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264592AbRFYOuT>; Mon, 25 Jun 2001 10:50:19 -0400
+	id <S264608AbRFYO6j>; Mon, 25 Jun 2001 10:58:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264589AbRFYOuJ>; Mon, 25 Jun 2001 10:50:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:9346 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264593AbRFYOtu>; Mon, 25 Jun 2001 10:49:50 -0400
-Date: Mon, 25 Jun 2001 10:49:12 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Shutko <ats@acm.org>
-cc: Michael Meissner <meissner@spectacle-pond.org>,
-        Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: sizeof problem in kernel modules
-In-Reply-To: <87ofrcbryf.fsf@wesley.springies.com>
-Message-ID: <Pine.LNX.3.95.1010625094914.7314A-100000@chaos.analogic.com>
+	id <S264594AbRFYO63>; Mon, 25 Jun 2001 10:58:29 -0400
+Received: from smtp9.xs4all.nl ([194.109.127.135]:2266 "EHLO smtp9.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S264608AbRFYO6R>;
+	Mon, 25 Jun 2001 10:58:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dirk Bonenkamp <dirk@bean-it.nl>
+Organization: Bean IT
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.5 crash
+Date: Mon, 25 Jun 2001 16:58:16 +0200
+X-Mailer: KMail [version 1.2]
+Cc: rene@nf.tv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0106251658160L.00965@dirk.intern.bean-it.nl>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Jun 2001, Alan Shutko wrote:
+Hi all,
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> 
-> > This means that it must be some place else than where it's denoted
-> > in a visual representation of the structure.
-> 
-> No, that's not true.
-> 
-> ISO/IEC 9899:1990 6.5.2.1:
-> 
->   As discussed in 6.1.2.5, a structure is a type consisting of a
->   sequence of named members, whose storage is allocated in an ordered
->   sequence, and a union [stuff we don't care about].
->
+Haven't been on this list for a while, and don't really know if this is the 
+right place for this message... If not, pls let me know.
 
-Does "ordered sequence" mean "incremental"? I think not.
- 
->   Within a structure object, the non-bit-field members and the units
->   in which bit-fields reside have addresses that increase in the order
->   in which they declared.
+The thing is that I had some crashes with kernel 2.4.5. I'm pretty sure that 
+the hardware is OK. These are the messages in the syslog / console when 
+locking up:
 
+Jun 25 14:51:00 bizon kernel: kernel BUG at page_alloc.c:73!
+Jun 25 14:51:00 bizon kernel: invalid operand: 0000
+Jun 25 14:51:00 bizon kernel: CPU:    1
+Jun 25 14:51:00 bizon kernel: EIP:    0010:[<c012ba83>]
+Jun 25 14:51:00 bizon kernel: EFLAGS: 00010282
+Jun 25 14:51:00 bizon kernel: eax: 0000001f   ebx: c121cd54   ecx: 00000086   
+edx: 01000000
+Jun 25 14:51:00 bizon kernel: esi: c121cd54   edi: 00000000   ebp: c127a420   
+esp: c36bdea8
+Jun 25 14:51:00 bizon kernel: ds: 0018   es: 0018   ss: 0018
+Jun 25 14:51:00 bizon kernel: Process sa1 (pid: 15977, stackpage=c36bd000)
+Jun 25 14:51:00 bizon kernel: Stack: c02131ac c0213260 00000049 c119bb4c 
+c1044010 c0254004 00000207 fffffffe
+Jun 25 14:51:00 bizon kernel:        c121cd54 00000002 00000000 c71ce050 
+c01201e8 00000013 00000000 00016000
+Jun 25 14:51:00 bizon kernel:        c60d2400 00000000 40016000 c60d2400 
+c0144d4c c7f902c0 c0254df8 bffffd78
+Jun 25 14:51:00 bizon kernel: Call Trace: [<c01201e8>] [<c0144d4c>] 
+[<c01100bc>] [<c0122bc9>] [<c0124572>] [<c01121e7>] [<c0116605>]
+Jun 25 14:51:00 bizon kernel:        [<c0131bb2>] [<c0106e0b>]
+Jun 25 14:51:00 bizon kernel:
+Jun 25 14:51:00 bizon kernel: Code: 0f 0b 83 c4 0c 8b 5e 08 85 db 74 16 6a 4b 
+68 60 32 21 c0 68
 
-Really?? Did you TYPE this in or did you copy it from somewhere??
-When I was on an ANSI committee (nothing to do with software), we
-made damn sure that we used the correct English.
+It's an intel based 2 cpu machine, used as an apache webserver. The load is 
+low.
 
-Look at:
- "have addresses that increase in the order in which they declared."
+Hope you guys can do something with this message!
 
-I think this was added, in the copy you cite, by somebody who didn't
-know English grammar, to support the argument..."
+Tia,
 
- "in which they were declared."
-                ^^^^
-
-And... If this was a part of a C specification it would prevent
-the inclusion of const data within a structure unless the entire
-structure was of type const. And, it is well known that any
-data types may be structure members so this cannot be correct.
-
-    A pointer to a structure object, suitably
->   converted, points to its initial member (or if that member is a
->   bit-field, then to the unit in which it resides, and vice versa.
->   There may therefore be unnammed padding withing a structure object,
-                           ^^^^^^^^         ^^^^^^^
-
-Unnamed and within are spelled incorrectly. This is not a valid
-document.
-
-
->   but not at its beginning, as necessary to achieve the appropriate
->   alignment.
-> 
->   There may also be unnamed padding at the end of a structure or
->   union, as necessary to achieve the appropriate alignment were the
->   structure or union to be an element of an array.
->
- 
-> You can look at other things too... you can memcpy structures, pass
-> them into functions, call sizeof, put them in arrays... it _is_ a
-> physical representation.
-> 
-
-memcpy()...
-Maybe you can memcpy() structures. Maybe you and I usually get away
-with it, but provisions were made to handle the problems previously
-discussed, by using the assigment operator "=" to copy structures.
-This way, the compiler "knows" where things are and handles duplication
-accordingly. And copying a structure that contains a mix of const
-and writable data is probably a bug since the copy can't support
-data of type 'const'.
-
-Pass to functions...
-Since any memory object(s) including structure members are simply
-data contained at addresses, of course you can pass them to functions
-although doing this is probably done by mistake, rather than design.
-Generally, one would pass a pointer to a structure. Which, according
-to previously-cited rules, represents the address of the first structure
-member.
-
-"call?" sizeof...
-Returns the allocation size of the structure. So? The compiler
-can certainly add up the length of all the structure members plus
-any padding and return the result. Note that you can't allocate data
-of type 'const' so when copying any structure by any means, the
-copy contains no 'const' data, even if the original structure contained
-'const' data members. The const data is/are not missing, they are
-just no longer const.
-
-Put into arrays...
-Of course. Nothing has to be physical representation as a requisite
-for being put into arrays.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Dirk

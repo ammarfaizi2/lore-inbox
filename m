@@ -1,160 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbTA2B7s>; Tue, 28 Jan 2003 20:59:48 -0500
+	id <S262394AbTA2COu>; Tue, 28 Jan 2003 21:14:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbTA2B7s>; Tue, 28 Jan 2003 20:59:48 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:23794 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S262380AbTA2B7X>; Tue, 28 Jan 2003 20:59:23 -0500
-Message-ID: <15927.14127.261752.943121@milikk.co.intel.com>
-Date: Tue, 28 Jan 2003 18:06:39 -0800
-From: Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
-Subject: [PATCH 2.5.59] prioarray-1.0: Priority arrays as a separate data structure
-To: linux-kernel@vger.kernel.org, mingo@redhat.com, pwaechtler@mac.com,
-       rusty@rustcorp.com.au
-X-Mailer: VM 7.07 under Emacs 21.2.2
+	id <S262418AbTA2COu>; Tue, 28 Jan 2003 21:14:50 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40408 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262394AbTA2COs>; Tue, 28 Jan 2003 21:14:48 -0500
+Date: Tue, 28 Jan 2003 18:16:11 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.59-mjb2 (scalability / NUMA patchset)
+Message-ID: <20200000.1043806571@flay>
+In-Reply-To: <19610000.1043137151@titus>
+References: <19270000.1038270642@flay><134580000.1039414279@titus><32230000.1039502522@titus><568990000.1040112629@titus><21380000.1040717475@titus> <821470000.1041579423@titus> <214500000.1041821919@titus> <676880000.1042101078@titus> <922170000.1042183282@titus> <437220000.1042531505@titus> <190030000.1042787514@titus> <19610000.1043137151@titus>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-This patch extracts some of the stuff that Ingo uses for the O(1)
-scheduler and makes it avalable in linux/prioarray.h, so that it
-can be used by other parts of the kernel. 
+http://www.aracnet.com/~fletch/linux/2.5.59/patch-2.5.59-mjb2.bz2
 
-It's main use right now is by the pfutex patch, that implements
-priority based futexes.
+Since 2.5.59-mjb1 (~ = changed, + = added, - = dropped)
 
-Caveats:
+Notes:
+Added frlock xtime patches, cyclone timer fixes, sched stats. 
+I have new code for 4K stacks, but haven't applied it yet (next release).
 
- - Ugly kludge in sched.h to include prioarray.h ... 
++ schedstat					Rick Lindsley
+~ sched_tuneables				Robert Love
+- topo_hack					Pat Gaughen
++ sysfs_fix					Pat Gaughen
++ cyclone_fixes					John Stultz
++ enable_cyclone				John Stultz
++ lost_tick					John Stultz
++ frlock_xtime					Stephen Hemminger et al.
++ frlock_xtime-i386				Stephen Hemminger et al.
++ frlock_xtime-ia64				Stephen Hemminger et al.
++ frlock_xtime-other				Stephen Hemminger et al.
++ tcp_fix					Alexey
++ numa_pci_fix					Dave Hansen
 
-Enjoy
+Pending:
+Revised 4K stacks code
+Notsc automatic enablement (someone, please ... anyone?)
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Child runs first (akpm)
+New qlogic driver (Badari ??)
+Kexec
+Linux Kernel Crash Dump
 
-This patch requires linux-2.5.59 
-
-diff -u /dev/null linux/include/linux/prioarray.h:1.1.2.1
---- /dev/null	Tue Jan 28 17:37:07 2003
-+++ linux/include/linux/prioarray.h	Wed Dec 11 12:44:33 2002
-@@ -0,0 +1,57 @@
-+/*
-+ * O(1) priority arrays
-+ *
-+ * Modified from code (C) 2002 Ingo Molnar <mingo@redhat.com> in
-+ * sched.c by Iñaky Pérez-González <inaky.perez-gonzalez@intel.com> so
-+ * that other parts of the kernel can use the same constructs.
-+ */
-+
-+#ifndef _LINUX_PRIOARRAY_
-+#define _LINUX_PRIOARRAY_
-+
-+        /* This inclusion is kind of recursive ... hmmm */
-+
-+#include <linux/sched.h>
-+
-+struct prio_array {
-+	int nr_active;
-+	unsigned long bitmap[BITMAP_SIZE];
-+	struct list_head queue[MAX_PRIO];
-+};
-+
-+typedef struct prio_array prio_array_t;
-+
-+static inline
-+void pa_init (prio_array_t *array)
-+{
-+        unsigned cnt;
-+	array->nr_active = 0;
-+        memset (array->bitmap, 0, sizeof (array->bitmap));
-+        for (cnt = 0; cnt < MAX_PRIO; cnt++)
-+                INIT_LIST_HEAD (&array->queue[cnt]);
-+}
-+
-+/*
-+ * Adding/removing a node to/from a priority array:
-+ */
-+
-+static inline
-+void pa_dequeue (struct list_head *p, unsigned prio, prio_array_t *array)
-+{
-+	array->nr_active--;
-+	list_del(p);
-+	if (list_empty(array->queue + prio))
-+		__clear_bit(prio, array->bitmap);
-+}
-+
-+static inline
-+void pa_enqueue (struct list_head *p, unsigned prio, prio_array_t *array)
-+{
-+	list_add_tail(p, array->queue + prio);
-+	__set_bit(prio, array->bitmap);
-+	array->nr_active++;
-+}
-+
-+
-+
-+#endif /* #ifndef _LINUX_PRIOARRAY_ */
-diff -u linux/include/linux/sched.h:1.1.1.13 linux/include/linux/sched.h:1.1.1.1.2.7
---- linux/include/linux/sched.h:1.1.1.13	Thu Jan 16 18:56:22 2003
-+++ linux/include/linux/sched.h	Fri Jan 24 20:00:58 2003
-@@ -252,6 +252,9 @@
- #define MAX_RT_PRIO		MAX_USER_RT_PRIO
+dcache_rcu					Dipankar / Maneesh
+	Use RCU type locking for the dentry cache.
  
- #define MAX_PRIO		(MAX_RT_PRIO + 40)
-+#define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
-+
-+#include <linux/prioarray.h> /* Okay, this is ugly, but needs MAX_PRIO */
-  
- /*
-  * Some day this will be a full-fledged user tracking system..
-@@ -276,7 +279,6 @@
- extern struct user_struct root_user;
- #define INIT_USER (&root_user)
- 
--typedef struct prio_array prio_array_t;
- struct backing_dev_info;
- 
- struct task_struct {
-diff -u linux/kernel/sched.c:1.1.1.10 linux/kernel/sched.c:1.1.1.1.2.5
---- linux/kernel/sched.c:1.1.1.10	Thu Jan 16 18:56:23 2003
-+++ linux/kernel/sched.c	Fri Jan 24 20:00:58 2003
-@@ -130,15 +130,8 @@
-  * These are the runqueue data structures:
-  */
- 
--#define BITMAP_SIZE ((((MAX_PRIO+1+7)/8)+sizeof(long)-1)/sizeof(long))
--
- typedef struct runqueue runqueue_t;
- 
--struct prio_array {
--	int nr_active;
--	unsigned long bitmap[BITMAP_SIZE];
--	struct list_head queue[MAX_PRIO];
--};
- 
- /*
-  * This is the main, per-CPU runqueue data structure.
-@@ -273,17 +266,12 @@
-  */
- static inline void dequeue_task(struct task_struct *p, prio_array_t *array)
- {
--	array->nr_active--;
--	list_del(&p->run_list);
--	if (list_empty(array->queue + p->prio))
--		__clear_bit(p->prio, array->bitmap);
-+        pa_dequeue (&p->run_list, p->prio, array);
- }
- 
- static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
- {
--	list_add_tail(&p->run_list, array->queue + p->prio);
--	__set_bit(p->prio, array->bitmap);
--	array->nr_active++;
-+        pa_enqueue (&p->run_list, p->prio, array);
- 	p->array = array;
- }
- 
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
 
--- 
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
 
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my fault]
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+local_pgdat					William Lee Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+mpc_apic_id					Martin J. Bligh
+	Fix null ptr dereference (optimised away, but ...)
+
+doaction					Martin J. Bligh
+	Fix cruel torture of macros and small furry animals in io_apic.c
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+ingosched					Ingo Molnar
+	Modify NUMA scheduler to have independant tick basis.
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/stat
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+discontig_x440					Pat Gaughen / Chandra
+	SLIT/SRAT parsing for x440 discontigmem
+
+sysfs_fix					Pat Gaughen
+	Fix sysfs for x440 machines instead of some topo hack ;-)
+
+acpi_x440_hack					Anonymous Coward
+	Stops x440 crashing, but owner is ashamed of it ;-)
+
+cyclone_fixes					John Stultz
+	Fix up some stuff for the x440's cyclone timer
+
+enable_cyclone					John Stultz
+	Enable the x440's cyclone timer
+
+lost_tick					John Stultz
+	Detect lost timer ticks
+
+frlock_xtime					Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+frlock-xtime-i386				Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+frlock-xtime-ia64				Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+frlock-xtime-other				Stephen Hemminger et al.
+	Turn xtime_lock into an frlock to reduce contention 
+
+numaq_ioapicids					William Lee Irwin
+	Stop 8 quad NUMA-Qs from panicing due to phys apicid "exhaustion".
+
+oprofile_p4					John Levon
+	Updates for oprofile for P4s. Needs new userspace tools.
+
+starfire					Ion Badulescu
+	64 bit aware starfire driver	
+
+tcp_fix						Alexey
+	Stop some tcp problem with hardware checksumming (e1000?)
+
+numa_pci_fix					Dave Hansen
+	Fix a potential error in the numa pci code from Stanford Checker
+
+-mjb						Martin Bligh
+	Add a tag to the makefile
+

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282873AbRLGQ3n>; Fri, 7 Dec 2001 11:29:43 -0500
+	id <S282890AbRLGQbd>; Fri, 7 Dec 2001 11:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282874AbRLGQ3e>; Fri, 7 Dec 2001 11:29:34 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:28947 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S282873AbRLGQ3Q>;
-	Fri, 7 Dec 2001 11:29:16 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Date: Fri, 7 Dec 2001 17:28:44 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: spurious interrupt with 2.4.10 and higher ?
-CC: kernel list <linux-kernel@vger.kernel.org>, xsebbi@gmx.de
-X-mailer: Pegasus Mail v3.40
-Message-ID: <B53085D0774@vcnet.vc.cvut.cz>
+	id <S282878AbRLGQbX>; Fri, 7 Dec 2001 11:31:23 -0500
+Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:23307 "HELO
+	light-brigade.mit.edu") by vger.kernel.org with SMTP
+	id <S282874AbRLGQbL>; Fri, 7 Dec 2001 11:31:11 -0500
+Date: Fri, 7 Dec 2001 11:31:10 -0500
+From: Gerald Britton <gbritton@mit.edu>
+To: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: IDE-DMA woes
+Message-ID: <20011207113110.A3673@light-brigade.mit.edu>
+In-Reply-To: <3C115106.BED6616D@sltnet.lk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C115106.BED6616D@sltnet.lk>; from ioshadi@sltnet.lk on Fri, Dec 07, 2001 at 05:30:14PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Dec 01 at 15:43, Richard B. Johnson wrote:
-> > For a long time, I receive at boot time (and in /var/log/warn) the following 
-> > message from the kernel:
-> > 
-> > Spurious 8259A interrupt: IRQ7
-> > 
-> > Could you tell me please, what is it? My System works fine but I hate this 
-> > message. :-)
-> 
-> FYI, unless you get a burst of these things, they are harmless.
+On Fri, Dec 07, 2001 at 05:30:14PM -0600, Ishan Oshadi Jayawardena wrote:
+> Greetings.
+> 	I run Linux on an IBM PC300GL with Intel's
+> 82371AB PIIX4 chipset. With DMA enabled (by doing a
+> hdparm -d1 /dev/hda) on the hdd, I
+> _sometimes_ get the following message from the kernel
+> after resuming from APM standby mode:
 
-Only problem is that this message is printed only once for each IRQ, so
-you cannot get more than 16 of them... Watch ERR counter in /proc/interrupts,
-it is still increasing, although message is not printed. On my A7V (KT133,
-Thunderbird) there are about 3 spurious IRQ7 per 1000 irqs delivered from
-onboard Promise IDE (and ide driver does not complain about timeouts, so
-I assume that IRQ from IDE is delivered AND spurious IRQ7 is delivered). 
-Unfortunately I do not have anything else in the computer, so I cannot 
-check whether KT133 or Promise is a culprit, but from other messages it 
-looks like that Promise is innocent, and VIA is guilty one.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+I have very similar behavior on an IBM Thinkpad T23.  It's got this IDE
+controller:
+
+00:1f.1 IDE interface: Intel Corporation: Unknown device 248a (rev 01)
+        Subsystem: IBM: Unknown device 0220
+
+And, I also only sometimes get roughly:
+
+ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
+hda: lost interrupt
+ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+
+> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+> hda: status error: status=0x59 { DriveReady SeekComplete DataRequest
+> Error }
+> hda: status error: error=0x84 { DriveStatusError BadCRC }
+> hda: drive not ready for command
+> 
+> then the drive stalls for a few seconds, and the driver
+> disables DMA. This behaviour doesn't seem to depend on the
+> kernel version (current: 2.4.14; error seen with 2.2 series also.)
+> The weird thing is that this is not reliably reproducable; most of
+> the time the system goes to apm standby (not suspend) and resumes fine.
+
+Unfortunately, when mine hits this condition, it seems to never recover
+from it.  It also seems to only happen sometimes and I've been unable to
+reliably reproduce the problem.  I told Andre about the problem and he
+suggested doing a "hdparm -d0 -X08 /dev/hda" prior to suspend and that
+seems to work around the problem.  I "hdparm -d1 -X69 /dev/hda" on resume
+to get it back to speedy udma5 mode.  I think the problem is the BIOS doing
+things to the IDE chipset during the suspend, and the driver not properly
+correcting the changes on resume.
+
+				-- Gerald
+

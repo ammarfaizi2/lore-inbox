@@ -1,109 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUKTXmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262983AbUKUANS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbUKTXmU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 18:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263215AbUKTXjx
+	id S262983AbUKUANS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 19:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUKUALh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 18:39:53 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:11404 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S263220AbUKTXNS (ORCPT
+	Sat, 20 Nov 2004 19:11:37 -0500
+Received: from gate.crashing.org ([63.228.1.57]:59290 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263195AbUKUAHh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 18:13:18 -0500
-To: akpm@osdl.org, torvalds@osdl.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 10/13] Filesystem in Userspace
-Message-Id: <E1CVePn-0007Rr-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sun, 21 Nov 2004 00:13:11 +0100
+	Sat, 20 Nov 2004 19:07:37 -0500
+Subject: Re: [PATCH 1/2] pci: Block config access during BIST
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Brian King <brking@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <419FD58A.3010309@us.ibm.com>
+References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
+	 <1100917635.9398.12.camel@localhost.localdomain>
+	 <1100934567.3669.12.camel@gaston>
+	 <1100954543.11822.8.camel@localhost.localdomain>
+	 <419FD58A.3010309@us.ibm.com>
+Content-Type: text/plain
+Date: Sun, 21 Nov 2004 11:06:56 +1100
+Message-Id: <1100995616.27157.44.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for exporting a FUSE filesystem through NFS.
+On Sat, 2004-11-20 at 17:38 -0600, Brian King wrote:
+> Alan Cox wrote:
+> > Some of the Intel CPU's are very bad at lock handling so it is an issue.
+> > Also most PCI config accesses nowdays go to onboard devices whose
+> > behaviour may well be quite different to PCI anyway. PCI has become a
+> > device management API.
+> 
+> Does this following patch address your issues with this patch, Alan?
+> 
+> It still doesn't address Greg's issue about making this apply to the
+> pci_bus_* functions as well, but I'm not sure of a good way to do that
+> due to the reasons given earlier.
 
-The following export operations are defined:
+Looks good to me, I don't sure we actually have to deal with pci_bus_*
+functions, do we ? When are they called ?
 
- o get_dentry
- o encode_fh
+> +void pci_block_config_access(struct pci_dev *dev)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&pci_lock, flags);
+> +	dev->block_cfg_access = 1;
+> +	spin_unlock_irqrestore(&pci_lock, flags);
+> +}
 
-Currently only inodes still in the cache are found.  This is adequate
-for most applications.
+Shouldn't we save the config space here ?
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
---- linux-2.6.10-rc2/fs/fuse/inode.c	2004-11-20 22:56:22.000000000 +0100
-+++ linux-2.6.10-rc2-fuse/fs/fuse/inode.c	2004-11-20 22:56:22.000000000 +0100
-@@ -337,6 +337,67 @@ static struct inode *get_root_inode(stru
- 	return fuse_iget(sb, 1, 0, &attr, 0);
- }
- 
-+static struct dentry *fuse_get_dentry(struct super_block *sb, void *vobjp)
-+{
-+	__u32 *objp = vobjp;
-+	unsigned long nodeid = objp[0];
-+	__u32 generation = objp[1];
-+	struct inode *inode;
-+	struct dentry *entry;
-+
-+	if (nodeid == 0)
-+		return ERR_PTR(-ESTALE);
-+
-+	inode = fuse_ilookup(sb, nodeid);
-+	if (!inode || inode->i_generation != generation)
-+		return ERR_PTR(-ESTALE);
-+
-+	entry = d_alloc_anon(inode);
-+	if (!entry) {
-+		iput(inode);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	return entry;
-+}
-+
-+static int fuse_encode_fh(struct dentry *dentry, __u32 *fh, int *max_len,
-+			  int connectable)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	struct fuse_inode *fi = INO_FI(inode);
-+	int len = *max_len;
-+	int type = 1;
-+	
-+	if (len < 2 || (connectable && len < 4))
-+		return 255;
-+
-+	len = 2;
-+	fh[0] = fi->nodeid;
-+	fh[1] = inode->i_generation;
-+	if (connectable && !S_ISDIR(inode->i_mode)) {
-+		struct inode *parent;
-+		struct fuse_inode *parent_fi;
-+
-+		spin_lock(&dentry->d_lock);
-+		parent = dentry->d_parent->d_inode;
-+		parent_fi = INO_FI(parent);
-+		fh[2] = parent_fi->nodeid;
-+		fh[3] = parent->i_generation;
-+		spin_unlock(&dentry->d_lock);
-+		len = 4;
-+		type = 2;
-+	}
-+	*max_len = len;
-+	return type;
-+}
-+
-+
-+static struct export_operations fuse_export_operations = {
-+	.get_dentry	= fuse_get_dentry,
-+	.encode_fh      = fuse_encode_fh,
-+};
-+
- static struct super_operations fuse_super_operations = {
- 	.alloc_inode    = fuse_alloc_inode,
- 	.destroy_inode  = fuse_destroy_inode,
-@@ -367,6 +428,7 @@ static int fuse_read_super(struct super_
- 	sb->s_magic = FUSE_SUPER_MAGIC;
- 	sb->s_op = &fuse_super_operations;
- 	sb->s_maxbytes = MAX_LFS_FILESIZE;
-+	sb->s_export_op = &fuse_export_operations;
- 
- 	file = fget(d.fd);
- 	if (!file)
+Ben.
+
+

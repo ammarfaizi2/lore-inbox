@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbUKXP34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262685AbUKXPch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbUKXP34 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 10:29:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbUKXN1I
+	id S262685AbUKXPch (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 10:32:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262715AbUKXPak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:27:08 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:63380 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262658AbUKXNDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:03:20 -0500
-Subject: Suspend 2 merge: 29/51: Clear swapfile bdev in swapoff.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-Content-Type: text/plain
-Message-Id: <1101297169.5805.306.camel@desktop.cunninghams>
+	Wed, 24 Nov 2004 10:30:40 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:48835 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262685AbUKXNZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:25:29 -0500
+Date: Wed, 24 Nov 2004 14:24:50 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Christopher S. Aker" <caker@theshore.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-bk7 - Badness in cfq_put_request at drivers/block/cfq-iosched.c:1402
+Message-ID: <20041124132449.GD13847@suse.de>
+References: <001301c4d1f6$941d1370$0201a8c0@hawk> <20041124130139.GC13847@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 24 Nov 2004 23:59:41 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041124130139.GC13847@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suspend uses the bdev field as its means of telling which swap devices
-are in use. (This info needs to be used at resume time without actually
-doing the swapon[s] again). In order to avoid an oops in the suspend
-code if the user turns off a swap device, this small addition is
-necessary. (If you want the long explanation, feel free to ask!)
+On Wed, Nov 24 2004, Jens Axboe wrote:
+> On Wed, Nov 24 2004, Christopher S. Aker wrote:
+> > Badness in cfq_put_request at drivers/block/cfq-iosched.c:1402
+> >  [<c025eed4>] cfq_put_request+0xcc/0x119
+> >  [<c0252520>] elv_put_request+0x25/0x27
+> >  [<c02553a5>] __blk_put_request+0x66/0xab
+> >  [<c0256647>] end_that_request_last+0x6a/0x10b
+> >  [<c029d836>] scsi_end_request+0xbf/0xe6
+> >  [<c029db11>] scsi_io_completion+0x117/0x4b6
+> >  [<c029b2e2>] scsi_delete_timer+0x1a/0x66
+> >  [<c02a9290>] sd_rw_intr+0x89/0x30f
+> >  [<c0114472>] rebalance_tick+0xac/0xbb
+> >  [<c0298e8a>] scsi_finish_command+0x85/0xd9
+> >  [<c0298d9d>] scsi_softirq+0xb7/0xdd
+> >  [<c011cba7>] __do_softirq+0xb7/0xc6
+> >  [<c011cbe3>] do_softirq+0x2d/0x2f
+> >  [<c01046b6>] do_IRQ+0x1e/0x24
+> >  [<c0102db2>] common_interrupt+0x1a/0x20
+> >  [<c01005da>] mwait_idle+0x31/0x48
+> >  [<c01005a0>] cpu_idle+0x33/0x3c
+> >  [<c046aa49>] start_kernel+0x175/0x1b1
+> >  [<c046a4bd>] unknown_bootoption+0x0/0x1ab
+> 
+> It's a known issue, just not fixed yet... You can ignore the warning,
+> cfq recovers the condition.
 
-diff -ruN 816-clear-swapfile-bdev-in-swapoff-old/mm/swapfile.c 816-clear-swapfile-bdev-in-swapoff-new/mm/swapfile.c
---- 816-clear-swapfile-bdev-in-swapoff-old/mm/swapfile.c	2004-11-06 09:26:59.372699648 +1100
-+++ 816-clear-swapfile-bdev-in-swapoff-new/mm/swapfile.c	2004-11-04 16:27:41.000000000 +1100
-@@ -1179,6 +1179,7 @@
- 	swap_file = p->swap_file;
- 	p->swap_file = NULL;
- 	p->max = 0;
-+	p->bdev = NULL;
- 	swap_map = p->swap_map;
- 	p->swap_map = NULL;
- 	p->flags = 0;
+Is this an SMP machine, btw?
 
+-- 
+Jens Axboe
 

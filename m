@@ -1,104 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVATFBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVATFFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbVATFBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 00:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVATFBh
+	id S262051AbVATFFq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 00:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVATFFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 00:01:37 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:34970 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262052AbVATFA6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 00:00:58 -0500
-Date: Thu, 20 Jan 2005 06:00:54 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Edjard Souza Mota <edjard@gmail.com>
-Cc: Bodo Eggert <7eggert@gmx.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Ilias Biris <xyz.biris@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: User space out of memory approach
-In-Reply-To: <4d6522b90501191920410780fe@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0501200437180.6801@be1.lrz>
-References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
-  <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org>  <4d6522b905011805154bf27b52@mail.gmail.com>
-  <Pine.LNX.4.58.0501190629490.5090@be1.lrz> <4d6522b90501191920410780fe@mail.gmail.com>
+	Thu, 20 Jan 2005 00:05:46 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:26761 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP id S262051AbVATFFk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 00:05:40 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None, usuallly detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+Date: Thu, 20 Jan 2005 00:05:38 -0500
+User-Agent: KMail/1.7
+Cc: "Jack O'Quin" <joq@io.com>, Con Kolivas <kernel@kolivas.org>,
+       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
+       paul@linuxaudiosystems.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+References: <41EEE1B1.9080909@kolivas.org> <41EF2E7E.8070604@kolivas.org> <87oefkd7ew.fsf@sulphur.joq.us>
+In-Reply-To: <87oefkd7ew.fsf@sulphur.joq.us>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501200005.38607.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [151.205.47.137] at Wed, 19 Jan 2005 23:05:39 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Jan 2005, Edjard Souza Mota wrote:
+On Wednesday 19 January 2005 23:57, Jack O'Quin wrote:
+>Con Kolivas <kernel@kolivas.org> writes:
+>> Jack O'Quin wrote:
+>>> Outstanding.  How do you get rid of that checkerboard grey
+>>> background in the graphs?
+>>>
+>>> Con Kolivas <kernel@kolivas.org> writes:
+>>
+>> Funny; that's the script you sent me so... beats me?
+>
+>It's just one of the many things I don't understand about graphics.
+>
+>If I look at those png's locally (with gimp or gqview) they have a
+>dark grey checkerboard background.  If I look at them on the web
+> (with galeon), the background is white.  Go figure.  Maybe the file
+> has no background?  I dunno.
+>
+I think you've probably hit it there Con.  Thats exactly what the gimp 
+will show you if you expand the view window bigger than the image.  
+No data=checkerboard here, everytime.
 
-> > > > What about creating a linked list of (stackable) algorhithms which can be
-> > > > extended by loading modules and resorted using {proc,sys}fs? It will avoid
-> > > > the extra process, the extra CPU time (and task switches) to frequently
-> > > > update the list and I think it will decrease the typical amount of used
-> > > > memory, too.
-> > >
-> > > Wouldn't this bring the (set of ) ranking algorithm(s) back to the kernel? This
-> > > is exactly what we're trying to avoid.
-> > 
-> > You're trying to avoid it in order to let admins try other ranking
-> > algorhithms (at least that's what I read). The module approach seems to be
-> > flexible enough to do that, and it avoids the mentioned issues. If you
-> > really want a userspace daemon, it can be controled by a module.-)
-> 
-> Yes, your reading is correct, but this choice should take into account
-> the "patterns"
-> of how memory is allocated for user's mostly used applications. Why?
-> The closer the
-> ranking gets to "The Best choice" the longer it will take to invoke
-> oom killer again.
-
-ACK.
-
-> I am wondering how could a module control a user space deamon if it
-> hasn't started
-> yet? I mean, processes at user space are supposed to start only after
-> all modules
-> are loaded (those loadable at boot time). So, this user space deamon
-> would break
-> this standard. But if we manage to have a special module that takes
-> care of loading
-> this stack of  OOM Killer ranking algorithms, then the deamon would
-> not need to break
-> the default order of loading modules.
-
-I don't think there neeeds to be a special order while loading the 
-modules, since each module will provide a defined interface which can be 
-registered in a linked list and sorted on demand. Just init all 
-compiled-in modules and sort using a kernel-parameter (remembering 
-modprobe might be fubar), then modprobe (if compiled-in) all missing 
-decision modules from the list (appending them) and resort again.
-
-If the admin wants to add a module later, he can also change the order
-again, possibly after configuring the module. Disabeling may be either
-done by moving a decision past one without fall-through or by using a
-seperate list.
-
-There will be a need for a controling instance which will build a list of
-candidates and pass it to each decision module in turn untill the victim
-is found. Maybe the list will need a field for a ranking offset and a
-scaling factor if a module is not supposed to do the final decision but to
-modify the ranking for some blessed processes.
-
-> The init could be changed to
-> start the deamon,
-> and then the module would start controlling it. Am I right?
-
-It can, but it should be run from the (possibly autogenerated)  
-initr{d,amfs} if it's used.
-
-> So that's why people is complaining every distro would have to update the init
-> and load this new module. Correct?
-
-ACK. (It's just me - for now)
-
-Upgrading kernels used to be a drop-in replacement, except for ISDN and 
-(for 2.4 -> 2.6) v4l. I like it that way.
 -- 
-Top 100 things you don't want the sysadmin to say:
-66. What do you mean you needed that directory?
-
-Friﬂ, Spammer: nI4m@egiefdjm.info technik@gueb.de order@upstair.com
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.32% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

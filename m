@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264948AbTGKTV2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S264949AbTGKTV2 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 11 Jul 2003 15:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265549AbTGKTTi
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbTGKTTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 15:19:38 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:37773 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265542AbTGKTS0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 15:18:26 -0400
-Message-Id: <200307111932.h6BJWMr5004606@eeyore.valparaiso.cl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Style question: Should one check for NULL pointers? 
-In-Reply-To: Your message of "Thu, 10 Jul 2003 16:28:09 -0400."
-             <Pine.LNX.4.44L0.0307101606060.22398-100000@netrider.rowland.org> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Fri, 11 Jul 2003 15:32:20 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 11 Jul 2003 15:19:30 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:9946
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S265549AbTGKTSd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 15:18:33 -0400
+Date: Fri, 11 Jul 2003 15:33:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030711193316.GA28806@gtf.org>
+References: <20030711140219.GB16433@suse.de> <20030711181453.GA976@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711181453.GA976@matchmail.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> said:
+On Fri, Jul 11, 2003 at 11:14:53AM -0700, Mike Fedyk wrote:
+> On Fri, Jul 11, 2003 at 03:02:19PM +0100, Dave Jones wrote:
+> > Enormous block size support.
+> > ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> 
+> How about "block device size" instead?  This made me think of blocks larger
+> than page size initially (even though I know that hasn't happened).
 
-[...]
+Agreed.
 
-> Suppose everything is working correctly and the pointer never is NULL.  
-> Then it really doesn't matter whether you check or not;  the loss in code
-> speed and size is completely negligible (except maybe deep in some inner
-> loop).  But there is a loss in code clarity; when I see a check like that
-> it makes me think, "What's that doing there?  Can that pointer ever be
-> NULL, or is someone just being paranoid?"  Distractions of that sort don't
-> help when trying to read code.
 
-My personal paranoia when reading code goes the other way: How can I be
-sure it won´t ever be NULL?  Maybe it can't be now (and to find that out an
-hour grepping around goes by), but the very next patch introduces the
-possibility.  Better have the function do an extra check, or make sure
-somehow the assumption won't _ever_ be violated. But that is a large (huge,
-even) cost, so...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> >   o  ide_scsi is completely broken in 2.5.x. Known problem. If you need it
+> >      either use 2.4 or fix it 8)
+> 
+> Is this still true?  I seem to recall testing a kernel in the 2.5.6x range,
+> and it worked.  (haven't tested more recent kernels yet -- compiling one now
+> though)
+
+IIRC Alan's comment was "this fixes 99% of it"
+
+	Jeff
+
+
+

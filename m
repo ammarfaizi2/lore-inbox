@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276474AbRJILzu>; Tue, 9 Oct 2001 07:55:50 -0400
+	id <S276468AbRJIMCL>; Tue, 9 Oct 2001 08:02:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276468AbRJILzk>; Tue, 9 Oct 2001 07:55:40 -0400
-Received: from falka.mfa.kfki.hu ([148.6.72.6]:31152 "EHLO falka.mfa.kfki.hu")
-	by vger.kernel.org with ESMTP id <S276343AbRJILzZ>;
-	Tue, 9 Oct 2001 07:55:25 -0400
-Date: Tue, 9 Oct 2001 13:55:22 +0200 (CEST)
-From: Gergely Tamas <dice@mfa.kfki.hu>
-To: Marco Berizzi <pupilla@hotmail.com>
-cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
-In-Reply-To: <LAW2-OE29ilTmbtQVi0000079ef@hotmail.com>
-Message-ID: <Pine.LNX.4.33.0110091347001.12835-100000@falka.mfa.kfki.hu>
+	id <S276666AbRJIMCC>; Tue, 9 Oct 2001 08:02:02 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:22793 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S276468AbRJIMBw>; Tue, 9 Oct 2001 08:01:52 -0400
+Date: Tue, 9 Oct 2001 17:53:11 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        Stephane List <stephane.list@fr.alcove.com>
+Subject: Re: Reg-network driver.
+In-Reply-To: <20011009105731.A835@alcove-fr>
+Message-ID: <Pine.LNX.4.10.10110091750390.11843-100000@blrmail>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi stephane,
 
- > Could I try to patch also 2.4.10 kernel?
+ I have cscope installed to search source files.
+I could not find "register_netdevice()" functionthrough it. I want to see
+where it calls the driver initialisation.
+Please help me out.
 
-You can do this 'by hand'. 2.4.10 changed the structure a bit. But I sent
-VDA a modified patch some time ago. Maybe just ask him.
+Thanks in advance,
+Warm regards,
+sathish.j
+On Tue, 9 Oct 2001, Stephane List wrote:
 
- > This patch will be included in kernel 2.4.11?
-
-I don't think so. :(
-
-Honestly I'm not happy about this, but there had beed a large discussion
-about it. There were some people which mobo worked right 'out of the box',
-and they found that others should patch their kernels by hand to be able
-to use their linux boxes. :(((
-
-Gergely
-
-ps: I use this patch too on an ABIT KT7A mobo with Duron 750
+> On Tue, Oct 09, 2001 at 02:35:37PM +0530, SATHISH.J wrote :
+> > Hi all,
+> > I am trying to learn network drivers. Trying to initialise the driver we
+> > call "register_netdev()". This function in turn calls
+> > "register_netdevice()". Please tell me where register_netdevice() is
+> > defined. I want to see the code because the init function of the driver is
+> > called from function only as I heard. Please tell me where
+> > "register_netdevice()" and "unregister_netdevice()" are defined in the
+> > code.
+> > 
+> You can see it with :
+> 
+> http://lxr.linux.no/ident?i=register_netdevice
+> 
+> 
+> You can also install LXR on your own PC.
+> 
+> Stephane
+> -- 
+> Stephane LIST                     -- <stephane.list@fr.alcove.com>
+> Alcove, liberating software       -- <http://www.alcove.com/>
+> 
 

@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270330AbRHMRo0>; Mon, 13 Aug 2001 13:44:26 -0400
+	id <S270331AbRHMRsQ>; Mon, 13 Aug 2001 13:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270328AbRHMRoR>; Mon, 13 Aug 2001 13:44:17 -0400
-Received: from alto.i-cable.com ([210.80.60.4]:60666 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S270330AbRHMRoH>;
-	Mon, 13 Aug 2001 13:44:07 -0400
-Date: Tue, 14 Aug 2001 01:44:23 +0800 (HKT)
-From: lkthomas@hkicable.com
-Message-Id: <200108131744.BAA27539@alto.i-cable.com>
+	id <S270333AbRHMRsG>; Mon, 13 Aug 2001 13:48:06 -0400
+Received: from press-gopher.uchicago.edu ([128.135.204.194]:4018 "EHLO
+	press-gopher.uchicago.edu") by vger.kernel.org with ESMTP
+	id <S270331AbRHMRsA>; Mon, 13 Aug 2001 13:48:00 -0400
+Date: Mon, 13 Aug 2001 12:47:53 -0500 (CDT)
+From: "Roy C. Bixler" <rcb@press-gopher.uchicago.edu>
 To: linux-kernel@vger.kernel.org
-Subject: memory compress tech...
-X-Mailer: Gmail 0.7.0 (http://gmail.linuxpower.org)
+Subject: VM lockup with 2.4.8 / 2.4.8pre8
+Message-ID: <Pine.GSO.4.10.10108131229270.27903-100000@press-gopher.uchicago.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have just inadvertantly encountered a VM lockup with Linux 2.4.8.  The
+KDE kspread application couldn't handle one spreadsheet I gave it and it
+ran away consuming all memory in the system.  When I first ran into the
+trouble, my machine has 384 Meg. RAM and 184 Meg. of swap.  I tried
+2.4.8pre8 and the lockup still occurs.  I have increased my swap to 768
+Meg. and 2.4.8 still locks up.  I tried 2.4.7 and it doesn't lockup - it
+correctly OOM kills the runaway process.
 
-another suggestion, mate
-if you are using dos before, you must know a tools call "QEMM" 
-http://www.netten.net/~garycox/qemm3.htm
-you can look over this URL if you do not know what is that
-it can do a real time memory compress and decompress tools ( I mean on fly ), the sound like IBM of MXT..
-so people can use more memory as they want
-but IBM one can not compile into kernel :(
-so I am thinking if someone can program a new code into kernel and let user to select if use it or not
-( 8M data in RAM can compress to 4-5M, so people can free up more to use in another side )
-I hope this one would help for end user :)
-Thanks
+The system feels responcive up until it locks up.  Running 'top' while it
+happens show that the lockup occurs at about the point where swap runs
+out.  Other system details: it is running the latest Debian snapshot.
+
+Linux frobozz 2.4.8 #1 Sat Aug 11 19:26:35 CDT 2001 i686 unknown
+ 
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.11.90.0.25
+util-linux             2.11h
+mount                  2.11h
+modutils               2.4.6
+e2fsprogs              1.22
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         cs4232 ad1848 uart401 sound soundcore parport_pc lp
+parport ipx usb-uhci usbcore
+
+-- 
+Roy Bixler
+The University of Chicago Press
+rcb@press-gopher.uchicago.edu
+
 

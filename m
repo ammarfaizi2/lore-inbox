@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285724AbRLTAxT>; Wed, 19 Dec 2001 19:53:19 -0500
+	id <S285720AbRLTAvt>; Wed, 19 Dec 2001 19:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285745AbRLTAxK>; Wed, 19 Dec 2001 19:53:10 -0500
-Received: from pat.uio.no ([129.240.130.16]:62688 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S285738AbRLTAw7>;
-	Wed, 19 Dec 2001 19:52:59 -0500
-To: David Chow <davidchow@rcn.com.hk>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: nfsroot dead slow with redhat 7.2
-In-Reply-To: <3C2131FC.6040209@rcn.com.hk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 20 Dec 2001 01:52:42 +0100
-In-Reply-To: <3C2131FC.6040209@rcn.com.hk>
-Message-ID: <shs6672n25h.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S285724AbRLTAvj>; Wed, 19 Dec 2001 19:51:39 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:63243 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S285720AbRLTAv3>; Wed, 19 Dec 2001 19:51:29 -0500
+Message-ID: <3C2135D3.C5AE16A7@zip.com.au>
+Date: Wed, 19 Dec 2001 16:50:27 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: paulus@samba.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-rc2 BUG at slab.c:1110
+In-Reply-To: <15393.11001.446919.939724@argo.ozlabs.ibm.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
+Paul Mackerras wrote:
+> 
+> So, is this devfs's fault for not allowing devfs_unregister to be
+> called from interrupt context, or is it ide-cs's fault for calling
+> ide_unregister from interrupt context?
+> 
 
-     > Dear all, When I use 2.4.7-10 i686 kernel from stock Redhat 7.2
-     > as the NFS server. My NFS client use the 2.4.13 kernel, when I
-     > mount the nfsroot to the server, I found it is dead slow on the
-     > client. This only happens in i686 kernel on the server, if we
-     > use a K6-2 uses an i386 server its fine. What's going on? By
+ide-cs, I'd say.
 
-Usually means you have a bad network connection. Use tcpdump to
-isolate where on the network packets (and UDP fragments) are
-disappearing.
+The way hotplug generally avoids this problem is via schedule_task() - that
+was why it was written in the first place, I think.
 
-     > the way, how to configure the client to default use a NFSv3
-     > mount? Thanks.
-
-Specify the 'v3' NFSroot mount option.
-
-Cheers,
-   Trond
+And given that we need to bump the event up to process context, we may
+as well do it at the earliest stage.  Looks like the fix it to kill
+off the timer altogether, replace it with a tqueue and ask keventd
+to run ide_release.

@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265023AbSKFNEQ>; Wed, 6 Nov 2002 08:04:16 -0500
+	id <S265026AbSKFNAm>; Wed, 6 Nov 2002 08:00:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265025AbSKFNEQ>; Wed, 6 Nov 2002 08:04:16 -0500
-Received: from medelec.uia.ac.be ([143.169.17.1]:56583 "EHLO medelec.uia.ac.be")
-	by vger.kernel.org with ESMTP id <S265023AbSKFNEP>;
-	Wed, 6 Nov 2002 08:04:15 -0500
-Date: Wed, 6 Nov 2002 14:10:43 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: linux-kernel@vger.kernel.org
-Cc: jordan.breeding@attbi.com, Matt_Domsch@Dell.com, rob@osinvestor.com,
-       nwourms@netscape.net
-Subject: Re: Watchdog drivers
-Message-ID: <20021106141043.A29723@medelec.uia.ac.be>
-References: <20021014184031.A19866@medelec.uia.ac.be> <Pine.LNX.4.44.0210141408400.13924-100000@humbolt.us.dell.com> <20021015192615.A1512@medelec.uia.ac.be>
+	id <S265027AbSKFNAm>; Wed, 6 Nov 2002 08:00:42 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:8637 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S265026AbSKFNAj>;
+	Wed, 6 Nov 2002 08:00:39 -0500
+Date: Wed, 6 Nov 2002 13:06:12 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Jordan Breeding <jordan.breeding@attbi.com>, linux-kernel@vger.kernel.org
+Subject: Re: unitialized timers with 2.5.46-bk
+Message-ID: <20021106130612.GA2666@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andrew Morton <akpm@digeo.com>,
+	Jordan Breeding <jordan.breeding@attbi.com>,
+	linux-kernel@vger.kernel.org
+References: <3DC891A9.5030404@attbi.com> <3DC89B50.2DBF413@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021015192615.A1512@medelec.uia.ac.be>; from wim@iguana.be on Tue, Oct 15, 2002 at 07:26:15PM +0200
+In-Reply-To: <3DC89B50.2DBF413@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Tue, Nov 05, 2002 at 08:32:16PM -0800, Andrew Morton wrote:
+ > > function=0xc036ca30, data=0x0
+ > > Call Trace:
+ > >   [<c012d568>] check_timer_failed+0x68/0x70
+ > >   [<c036ca30>] floppy_shutdown+0x0/0xe0
+ > >   [<c012d8bb>] del_timer+0x1b/0x90
+ > >   [<c036a458>] reschedule_timeout+0x28/0xd0
+ > >   [<c03708f0>] floppy_find+0x0/0x60
+ > >   [<c0105094>] init+0x54/0x180
+ > >   [<c0105040>] init+0x0/0x180
+ > >   [<c0108d9d>] kernel_thread_helper+0x5/0x18
+ > hm.  Except this one.
 
-I updated the watchdog patches for v2.5.45. (To reflect the Kconfig configuration files).
-Patch 1 : move of existing watchdog drivers in drivers/char/watchdog/
-Patch 2 : remove of 'old' watchdog drivers in drivers/char/
-Patch 3 : cleanup additional spaces in headers + addition of MODULE-info
-Patch 4 : C99 designated initializers for watchdog drivers
-Patch 5 : add extra watchdog drivers
-Patch 6 : changes the CONFIG dependencies in wdt_pci.c (They were incorrect).
+Here's a very similar one too..
 
-The patches are ftp-able at:
-ftp://medelec.uia.ac.be/pub/linux/kernel-patches/ .
-The diff files are wd-2.5.45-patch*
+function=0xc029547c, data=0x0
+Call Trace:
+ [<c012ab30>] check_timer_failed+0x40/0x5c
+ [<c029547c>] floppy_shutdown+0x0/0x118
+ [<c012b266>] del_timer+0x16/0x10c
+ [<c029319e>] reschedule_timeout+0x22/0xa8
+ [<c0297754>] do_fd_request+0x0/0x90
+ [<c0105101>] init+0x75/0x204
+ [<c010508c>] init+0x0/0x204
+ [<c0106f0d>] kernel_thread_helper+0x5/0xc
 
-Greetings,
-Wim.
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

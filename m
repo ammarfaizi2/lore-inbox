@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263301AbTEIP5w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 11:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTEIP5w
+	id S263302AbTEIQAi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 12:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTEIQAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 11:57:52 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:32129 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263301AbTEIP5v (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 11:57:51 -0400
-Message-Id: <200305091609.h49G9ib9008119@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Felix von Leitner <felix-kernel@fefe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69: VIA IDE still broken 
-In-Reply-To: Your message of "Fri, 09 May 2003 00:09:10 +0200."
-             <20030508220910.GA1070@codeblau.de> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030508220910.GA1070@codeblau.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_240982716P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 9 May 2003 12:00:38 -0400
+Received: from rth.ninka.net ([216.101.162.244]:22471 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S263302AbTEIQAh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 12:00:37 -0400
+Subject: Re: ioctl32_unregister_conversion & modules
+From: "David S. Miller" <davem@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030509152436.GA762@elf.ucw.cz>
+References: <20030509100039$6904@gated-at.bofh.it>
+	 <200305091213.h49CDuO4029947@post.webmailer.de>
+	 <20030509152436.GA762@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 09 May 2003 12:09:43 -0400
+Organization: 
+Message-Id: <1052496782.19951.3.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 09 May 2003 09:13:02 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_240982716P
-Content-Type: text/plain; charset=us-ascii
+On Fri, 2003-05-09 at 08:24, Pavel Machek wrote:
+> Fixing that would require resgister_ioctl32_conversion() to have 3-rd
+> parameter "this module" and some magic inside fs/compat_ioctl.c,
+> right?
 
-On Fri, 09 May 2003 00:09:10 +0200, Felix von Leitner <felix-kernel@fefe.de>  said:
+That would do it.  I would suggest seperating out the static translation
+handlers and the dynamically registered ones.  Now that you're adding
+in module owner info, the translation tables are going to start bloating
+up like crazy.
 
-> does OTP, finalizing or eject.  The nvidia graphics card takes major
-> patching to work at all with X, and all of these components are
+I'm still upset about going from 32-bit --> 64-bit entries on
+sparc64 :-(
 
-Umm... see http://www.minion.de/nvidia - or have you tried that and it
-still doesn't work, or you trying to get the XFree driver working, or is
-it some other issue?
-
-(One gotcha that hosed *ME* up was the fact that recent XFree86 are TLS-sensitive,
-and NVidia's latest few series of drivers included TLS libs for OpenGL - but
-I didn't have /lib/tls and/or /usr/lib/tls in /etc/ld.so.conf so ldconfig
-didn't DTRT - THAT horqued things up but good).
-
-
---==_Exmh_240982716P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+u9LHcC3lWbTT17ARAi3WAJ9UCh3Bq5tnZ8DYWYPBNHAGGsskqwCgptWa
-HCbzuJU23XI4QQm+NNq+/Gk=
-=9eKj
------END PGP SIGNATURE-----
-
---==_Exmh_240982716P--
+-- 
+David S. Miller <davem@redhat.com>

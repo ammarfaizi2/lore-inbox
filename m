@@ -1,42 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267449AbTACHmA>; Fri, 3 Jan 2003 02:42:00 -0500
+	id <S267454AbTACHn7>; Fri, 3 Jan 2003 02:43:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267450AbTACHmA>; Fri, 3 Jan 2003 02:42:00 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:46753 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267449AbTACHl7>; Fri, 3 Jan 2003 02:41:59 -0500
-From: Richard Stallman <rms@gnu.org>
-To: mark@mark.mielke.cc
-CC: efault@gmx.de, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-In-reply-to: <20030102193109.GA27443@mark.mielke.cc> (message from Mark Mielke
-	on Thu, 2 Jan 2003 14:31:09 -0500)
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Reply-to: rms@gnu.org
-References: <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net> <E18UAEy-00046n-00@fencepost.gnu.org> <20030102193109.GA27443@mark.mielke.cc>
-Message-Id: <E18UMb1-0001Zo-00@fencepost.gnu.org>
-Date: Fri, 03 Jan 2003 02:50:23 -0500
+	id <S267455AbTACHn7>; Fri, 3 Jan 2003 02:43:59 -0500
+Received: from rth.ninka.net ([216.101.162.244]:53918 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S267454AbTACHn6>;
+	Fri, 3 Jan 2003 02:43:58 -0500
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+From: "David S. Miller" <davem@redhat.com>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
+References: <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Jan 2003 00:24:57 -0800
+Message-Id: <1041582297.8648.0.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Actually, since Linux is the kernel, and GNU/Linux (or GNU+Linux) is
-    the collection of tools that make the full system,
+On Thu, 2003-01-02 at 03:43, Max Krasnyansky wrote:
+> Did you have a chance to look at the new patch ?
 
-That's almost correct, but not quite.  GNU/Linux is the whole system,
-the combination of GNU and Linux.
+No, I'm still working on my backlog.
 
-Many people think GNU is a collection of tools, because the best known
-among the programs we developed for GNU are tools.  We also developed
-other programs for GNU that are not tools.  But GNU is not just a
-collection of various programs; it's an operating system which in 1992
-was mostly complete.  (See http://www.gnu.org/gnu/the-gnu-project.html.)
-
-    it would be
-    *inaccurate* to say anything but "Linux" when talking about "Linux,
-    the operating system."
-
-The term "operating system" has sometimes been used with the same
-meaning as "kernel", but nowadays when people speak of operating
-systems they typically mean complete systems such as HPUX, Solaris,
-Windows, MacOS, GNU, and GNU/Linux.
 

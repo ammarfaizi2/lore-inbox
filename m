@@ -1,89 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261480AbSIWTz2>; Mon, 23 Sep 2002 15:55:28 -0400
+	id <S261325AbSIWT7B>; Mon, 23 Sep 2002 15:59:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbSIWTz1>; Mon, 23 Sep 2002 15:55:27 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:6797 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261480AbSIWTzX>;
-	Mon, 23 Sep 2002 15:55:23 -0400
-Message-ID: <3D8F70F5.4040406@watson.ibm.com>
-Date: Mon, 23 Sep 2002 15:52:21 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S261327AbSIWT7B>; Mon, 23 Sep 2002 15:59:01 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:34480 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261325AbSIWT67>;
+	Mon, 23 Sep 2002 15:58:59 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-To: clemc@alumni.cmu.edu
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Benjamin LaHaise <bcrl@redhat.com>, Andrew Morton <akpm@digeo.com>,
-       Alexander Viro <viro@math.psu.edu>, linux-aio <linux-aio@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] adding aio_readv/writev
-References: <200209231851.g8NIpea12782@igw2.watson.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15759.29621.741797.479861@kim.it.uu.se>
+Date: Mon, 23 Sep 2002 22:04:05 +0200
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 broke the floppy driver
+In-Reply-To: <Pine.GSO.4.21.0209231507370.3948-100000@weyl.math.psu.edu>
+References: <15759.25411.512115.64467@kim.it.uu.se>
+	<Pine.GSO.4.21.0209231507370.3948-100000@weyl.math.psu.edu>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clement T. Cole wrote:
+Alexander Viro writes:
+ > 
+ > 
+ > On Mon, 23 Sep 2002, Mikael Pettersson wrote:
+ > 
+ > > With O100-get_gendisk-C38 the oops is cured, but the floppy size is
+ > > still wrong. Freshly booted, dd if=/dev/fd0H1440 bs=72k of=/dev/null
+ > > reads only 720K instead of 1440K. Same thing on write: trying to
+ > > write more than 720K results in an ENOSPC error.
+ > 
+ > 
+ > Arrrgh.  O/O101-floppy_sizes-C38 and it's also my fsckup - missed the
+ > size in kilobytes/size in sectors.  Fortunately that kind of crap is
+ > over - blk_size[] is no more...
 
->>>Comments, reasons for not doing async readv/writev directly welcome.
->>>
->
->How about the case for it...  See Pages 404-406 [Section 12.7] of
->Richard Steven's ``Advanced Programming in the Unix Environment''
->[aka APUE].  Richard measures almost a factor of 2 difference
->in system time between using vectored I/O and not using it on
->a Sun and on a x86.
->
-It would have been nice to have corresponding data for the async path.
-
-><snip>
->
->So... let's get back to the basic issue....
->
->We know that vectored/scatter gather I/O can help a number of real
->applications ... Richard demonstrated that.  We have some examples
->[like DB2] that have use vectored I/O successfully.  We also
->know asynchronous I/O has been demonstrated to be useful and
->know that some commerical folks have used that.  
->
->I'm gather from some of the comments, adding async/vectored
->will make an already complex subsystem, even more so [i.e. not
->a resounding endorsement for sure this is easy].
->
-
-I wouldn't say so. Adding async vectored I/O to the 2.5 code won't make 
-it more complex since the underlying functions
-do handle iovec's anyway.
-
->
->
->So the question is can async vectored I/O be implemented 
->to have a positive gain, such as it did within the traditonal one.
->If the complexity is too high and it does not help much...then
->maybe this is a Chimera to leave alone.   But.... if it can be
->done with some level of elegance... well.... the past history is
->that the commerical folks have used those features.
->
-
-It seems to be a case of "complexity is low, benefits are unknown". I 
-guess the best thing is to develop a patch and see what people think 
-about the complexity part. The benefits part will become clear only when 
-the async interfaces are reasonable functional and we can compare the 
-following
-
-- call async readv directly
-vs
-- multiple calls to io_submit using one iocb (each call corresponds to 
-one element of user's vector)
-vs
-- single call to io_submit using multiple iocb's (each iocb corresponds 
-to one element of user's vector)
-
-Since the raw/O_DIRECT interfaces offer asynchrony (through Badari 
-Pulavarty & Mingming Cao's patches), it should be possible to test this 
-out.
-
-More on this shortly,
-- Shailabh
-
+With that patch the /dev/fd0H1440 device now seems to work. However,
+the /dev/fd0 (autosensing) device gets its very first read or write
+after boot wrong. For example, dd if=/dev/fd0 bs=8k count=1 of=/dev/null
+only reads 4096 bytes, and likewise a write will only write 4096 bytes
+before reporting ENOSPC. Accesses after the first work though.

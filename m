@@ -1,44 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135791AbRAMAKH>; Fri, 12 Jan 2001 19:10:07 -0500
+	id <S135863AbRAMAOS>; Fri, 12 Jan 2001 19:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135816AbRAMAJ5>; Fri, 12 Jan 2001 19:09:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:13071 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135791AbRAMAJj>; Fri, 12 Jan 2001 19:09:39 -0500
-Date: Fri, 12 Jan 2001 16:09:22 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <20010112212427.A2829@suse.cz>
-Message-ID: <Pine.LNX.4.10.10101121604080.8097-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135850AbRAMAOI>; Fri, 12 Jan 2001 19:14:08 -0500
+Received: from ziggy.one-eyed-alien.net ([216.120.107.189]:20486 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S135863AbRAMANz>; Fri, 12 Jan 2001 19:13:55 -0500
+Date: Fri, 12 Jan 2001 16:13:47 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: "Robert J. Bell" <rob@bellfamily.org>
+Cc: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: USB Mass Storage in 2.4.0
+Message-ID: <20010112161347.A6792@one-eyed-alien.net>
+Mail-Followup-To: "Robert J. Bell" <rob@bellfamily.org>,
+	kernel-list <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A5F8956.9040305@bellfamily.org> <20010112151008.A5798@one-eyed-alien.net> <3A5F9108.4030706@bellfamily.org> <20010112152415.B5798@one-eyed-alien.net> <3A5F9491.20109@bellfamily.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3A5F9491.20109@bellfamily.org>; from rob@bellfamily.org on Fri, Jan 12, 2001 at 03:34:41PM -0800
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 12 Jan 2001, Vojtech Pavlik wrote:
-> 
-> However - Alan's IDE patch for 2.2 kills autodma on ALL VIA chipsets.
-> That's because all VIA chipsets starting from vt82c586 to vt82c686b
-> (UDMA100), share the same PCI ID.
-> 
-> Would you prefer to filter just vt82c586 and vt82c586a as the comment in
-> Alan's code says or simply unconditionally kill autodma on all of VIA
-> chipsets, as Alan's code does?
+Do you have an OHCI controller or an UHCI controller?  I noticed that
+you're using the "alternate" UHCI driver... can you try this with the
+standard UHCI driver?
 
-Right now, for 2.4.1, I'd rather have the patch to just do the same as
-2.2.x. We can figure it out better when we get a better idea of exactly
-what the bug is, and whether there is some other work-around, and whether
-it is 100% certain that it is just those two controllers (maybe the other
-ones are buggy too, but the 2.2.x tests basically cured their symptoms too
-and peopl ehaven't reported them because they are "fixed").
+Matt
 
-		Linus
+On Fri, Jan 12, 2001 at 03:34:41PM -0800, Robert J. Bell wrote:
+> Unfortunately I lost everything on my system (the one that worked) and I=
+=20
+> don't believe I ever looked in /proc/scsi/scsi because It was working=20
+> and I didn't feel the need to go poking around.  I had this problem=20
+> initially the first time I compiled 2.4.0 but I went back and added SCSI=
+=20
+> Generic "on" and that seemed to fix it.  I am just confused why it=20
+> thinks this is a scanner. IS there any way to force it to detect it as a=
+=20
+> scsi disk?
+>=20
+> I must have recompiled this kernel 50 times trying to recreate the the=20
+> scenario where this worked. I can send you my .config if you think that=
+=20
+> will help.
+>=20
+> Robert
+>=20
+>=20
+>=20
+>=20
+>=20
+> Matthew Dharm wrote:
+>=20
+> > Hrm... from these logs, everything looks okay, except for the fact that=
+ the
+> > device refuses to return any INQUIRY data.
+> >=20
+> > Can you reproduce the conditions under which it was working and send lo=
+gs
+> > from that?  Or at least remember what the /proc/scsi/scsi info looked l=
+ike?
+> >=20
+> > Matt
+> >=20
+> > On Fri, Jan 12, 2001 at 03:19:36PM -0800, Robert J. Bell wrote:
+> >=20
+> >> Matthew here is the info you requested, thanks for your help.
+> >>=20
+> >>=20
 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+It was a new hope.
+					-- Dust Puppy
+User Friendly, 12/25/1998
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6X527z64nssGU+ykRApL6AKDPMVc5Js5KRhWcT7RdWp+SxUpgHgCePKdh
+0r9kzrqjyhV44ghr0/8e3Yo=
+=oo++
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130807AbQK3X30>; Thu, 30 Nov 2000 18:29:26 -0500
+	id <S129257AbQK3Xbg>; Thu, 30 Nov 2000 18:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbQK3X3Q>; Thu, 30 Nov 2000 18:29:16 -0500
-Received: from [195.138.130.130] ([195.138.130.130]:18451 "EHLO
-	goce.pirincom.com") by vger.kernel.org with ESMTP
-	id <S130792AbQK3X3H>; Thu, 30 Nov 2000 18:29:07 -0500
-Date: Fri, 1 Dec 2000 01:06:50 +0200 (EET)
-From: Velizar Bodurski <velizarb@goce.pirincom.com>
-To: linux-kernel@vger.kernel.org
-Subject: XFree 4.0 problems.
-Message-ID: <Pine.LNX.4.21.0012010105270.22261-100000@goce.pirincom.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129572AbQK3Xb0>; Thu, 30 Nov 2000 18:31:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29966 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129257AbQK3XbQ>;
+	Thu, 30 Nov 2000 18:31:16 -0500
+Date: Fri, 1 Dec 2000 00:00:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Richard Pries <PriesRx@hlyw.com>
+Cc: Glen Gerber <GlenG.CORP.HLYW@hlyw.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Correct cdrom.h comments.
+Message-ID: <20001201000048.C16713@suse.de>
+In-Reply-To: <sa26679d.082@hlyw.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <sa26679d.082@hlyw.com>; from PriesRx@hlyw.com on Thu, Nov 30, 2000 at 02:43:15PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok I don't have the system in question, but i use others' experience with
-the problem. The system is 2xPentium II Celeron 600 Mhz, 256 MB RAM, Video
-Card Matrox Millenium G400, HDD 15 Gb Maxtor 7200 rpm, 2 Mb Cashe,
-MB Abit BP6.
-Both with kernel version 2.2.17 and 2.4.0-test11 after switching from
-X to the console the system hangs, nothing changes if the console is frame
-buffer or vt. If for X is used XFree 3.3.3.6 then the problem doesn't
-appear.
-Any help is apreciated, I don't really know if the problem is with the
-kernel or with the config, so any directions will be a lot helpfull.
+On Thu, Nov 30 2000, Richard Pries wrote:
+> Jens,
+> 
+> The following patch corrects the comments in cdrom.h for CDROMREADRAW,
+> CDROMREADMODE1, and CDROMREADMODE2 that erroneously refer to the
+> cdrom_read structure.  With this patch, they refer to the cdrom_msf
+> structure.
 
-Thanks in advance.
-I'm not on the list, so if there is something i should read please send a
-cc: to this address.
+Thank you, applied.
 
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

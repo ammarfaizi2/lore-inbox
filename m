@@ -1,86 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbUKDPTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUKDPV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262265AbUKDPTY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 10:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKDPS0
+	id S262272AbUKDPV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 10:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUKDPTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 10:18:26 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:34963 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262257AbUKDPQP (ORCPT
+	Thu, 4 Nov 2004 10:19:50 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:28890 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262255AbUKDPSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 10:16:15 -0500
-Message-ID: <418A47BB.5010305@g-house.de>
-Date: Thu, 04 Nov 2004 16:16:11 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] Oops in 2.6.10-rc1
-References: <4180F026.9090302@g-house.de> <Pine.LNX.4.58.0410281526260.31240@pnote.perex-int.cz> <4180FDB3.8080305@g-house.de>
-In-Reply-To: <4180FDB3.8080305@g-house.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 10:18:53 -0500
+Date: Thu, 4 Nov 2004 16:19:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.1
+Message-ID: <20041104151948.GA25326@elte.hu>
+References: <OF4142E065.5AF4099C-ON86256F42.00513CF0@raytheon.com> <20041104151631.GA24056@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104151631.GA24056@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
+	BAYES_00 -4.90, SORTED_RECIPS 2.70
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-hm,
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-still no sound with snd_ens1371 but now i spend some time to find out how
-to revert a patch with bk. while compiling is still ongoing, let me tell
-you how i tried to revert the patch with bk, because i am not entirely
-sure if i do the right thing here:
-
-bk changes > ../changes-04-11-2004.txt
-
-as written before, i suspect (!) two changes here:
-
-> [...]
-> <rddunlap@osdl.org>
->     [PATCH] i386/io_apic init section fixups
+> icmp/ping replies are handled by ksoftirqd. Once a networking request
+> has been handed to ksoftirqd it cannot be redirected to another CPU,
+> because softirq processing is fundamentally per-CPU. So if the network
+> interrupt hits the CPU where the RT-task is running then the RT task
+> will starve that ksoftirq instance (and hence the reply) even if
+> another CPU in the system is idle.
 > 
-> <wli@holomorphy.com>
->     [PATCH] vm: convert users of remap_page_range() under sound/ to
->     use remap_pfn_range()
-> [...]
+> i agree that this is an SMP/RT artifact that should be fixed. hardirq
+> workload can be redirected to other CPUs because it's single-threaded,
+> but it's not that easy for softirq workload.
 > 
-> so i'll revert the patches and see what it gives.
+> i suspect the same phenomenon causes some of the other scheduling
+> artifacts ('frozen' X) you've noticed.
 
-in ../changes-04-11-2004.txt i found out the ChnageSet numbers:
-1.1988.72.76 + 1.2000.5.77. then i did
+does the ping phenomenon go away if you chrt both the networking IRQ
+thread and both ksoftirqd's to above the RT task's priority? (this
+doesnt solve the problem though - that task has RT priority for a reason
+and on an SMP box the kernel should be able to schedule work without
+getting into this starvation scenario.)
 
-bk undo -a1.1988.72.76
-
-only to find out that i misread the manual and 1.1988.72.76 is still in
-place. i did
-
-bk changes > ../changes-1.1988.72.76.txt
-
-and the very patch has a different ChangeSet now: 1.2202. so i did
-
-bk undo -a1.2201
-
-is this the right way to revert patches when subsequent patches might not
-allow to simply "bk undo -r<vers>" (because subsequent patches rely on
-this single ChangeSet).
-
-thank you for your assistance,
-Christian
-- --
-BOFH excuse #182:
-
-endothermal recalibration
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBike6+A7rjkF8z0wRAl/DAKDAMP31cXrzjBnnl+713F1zJ5ShQQCdFYRr
-TpRkMTwdhZq9SvoZEPR2Plw=
-=sm2q
------END PGP SIGNATURE-----
+	Ingo

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263219AbTEVUXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 16:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTEVUXr
+	id S263234AbTEVUYX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 16:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTEVUYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 16:23:47 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43998 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263219AbTEVUXq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 16:23:46 -0400
-Date: Thu, 22 May 2003 22:36:20 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Peter <cogwepeter@cogweb.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: DMA gone on ALI 1533
-In-Reply-To: <Pine.LNX.4.44.0305221240040.15298-100000@greenie.frogspace.net>
-Message-ID: <Pine.SOL.4.30.0305222230220.26086-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 May 2003 16:24:23 -0400
+Received: from mail.eskimo.com ([204.122.16.4]:10507 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id S263234AbTEVUYP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 May 2003 16:24:15 -0400
+Date: Thu, 22 May 2003 13:37:10 -0700
+To: Ming Lei <lei.ming@attbi.com>
+Cc: linux-kernel@vger.kernel.org, Elladan <elladan@eskimo.com>, efault@gmx.de
+Subject: Re: Linux 2.4 scheduler is RTOS-alike?
+Message-ID: <20030522203710.GA4195@eskimo.com>
+References: <200305142020.h4EKK9J01052@relax.cmf.nrl.navy.mil> <20030514205949.GA3945@kroah.com> <004601c3209c$f0739700$0305a8c0@arch.sel.sony.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <004601c3209c$f0739700$0305a8c0@arch.sel.sony.com>
+User-Agent: Mutt/1.5.4i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The printfs could block, so B could run while A is blocked.
 
-On Thu, 22 May 2003, Peter wrote:
+They might not ever block if you're always printing to the console, but
+if they go over the network or into some sort of file or anything, they
+could block.  
 
-> I had included kernel support for the ALI 15X3 chipset, but as a module --
-> and it obviously didn't load. If I include the module in /etc/modules, it
-> loads too late (details below). I'm assuming this means "make menuconfig"
-> mistakenly provides the module option? I've recompiled it into the kernel
+If you want to trace the operation without blocking, you might make your
+own printf that outputs to a ring buffer, or use internal counters or
+the like.
 
-Module support for IDE chipsets is currently unfinished/broken.
-Lot of things need fixing before we will have _correct_ module support.
-If we won't manage to do it for 2.6, option for compiling them as
-modules will backed out.
+-J
 
-> and got DMA back (although only dma2, as before) -- thanks for the quick
-> feedback!
->
-> Cheers,
-> Peter
-
-Cheers,
---
-Bartlomiej
-
+On Thu, May 22, 2003 at 01:01:30PM -0700, Ming Lei wrote:
+> 
+> will it be the same behavior If thread A and thread B both have a lot of
+> printf? Suppose A get first run, does B get run at all?
+> 
+> > this question is regarding linux kernel 2.4.7-2.4.20.
+> > linux 2.4 kernel does support real time sheduler. If using FIFO real time
+> > schedule policy, would the case that higher priority thread starve the
+> lower
+> > priority thread happen?  Similarly, let's say an example: if I have higher
+> > prioority thread A and lower priority thread B, thread A is running
+> without
+> > any wait or blocking, is there a possiblity that 2.4 scheduler may want to
+> > switch to thread B? Why?
+> 
+> Yes, FIFO threads that spin will block lower priority threads forever.
+> 
+> Sure, guaranteed if the high prio SCHED_FIFO task doesn't block at all.  If
+> you have a pure cpu burner, it will starve all lower priority
+> threads.

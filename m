@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269669AbRHDQGu>; Sat, 4 Aug 2001 12:06:50 -0400
+	id <S269115AbRHDQTB>; Sat, 4 Aug 2001 12:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269115AbRHDQGj>; Sat, 4 Aug 2001 12:06:39 -0400
-Received: from [213.96.224.204] ([213.96.224.204]:39431 "EHLO manty.net")
-	by vger.kernel.org with ESMTP id <S268913AbRHDQG3>;
-	Sat, 4 Aug 2001 12:06:29 -0400
-Date: Sat, 4 Aug 2001 18:06:36 +0200
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <andrewm@uow.edu.au>
-Subject: 3c59x problems solved
-Message-ID: <20010804180636.A3189@man.beta.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S268913AbRHDQSw>; Sat, 4 Aug 2001 12:18:52 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:47986 "EHLO
+	alloc.wat.veritas.com") by vger.kernel.org with ESMTP
+	id <S269018AbRHDQSh>; Sat, 4 Aug 2001 12:18:37 -0400
+Date: Sat, 4 Aug 2001 17:21:16 +0100 (BST)
+From: Mark Hemment <markhe@veritas.com>
+X-X-Sender: <markhe@alloc.wat.veritas.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        Hugh Dickins <hugh@veritas.com>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+In-Reply-To: <Pine.LNX.4.33.0108032330450.1193-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33.0108041717540.26125-100000@alloc.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, 3 Aug 2001, Linus Torvalds wrote:
+> Well, I've made a 2.4.8-pre4.
 
-I had similar problems to those reported on LKML by Parag Warudkar on a
-message on the 21st of July. I have a 3c905C and run 2.4.7, I have applied
-the patch sent by Andrew to the list on reply and works ok, I'm not using
-any dhcp but had those problems anyway.
+  A colleague has reminded me that we this small patch against
+flush_dirty_buffers() - kick the disk queues before sleeping.
 
-The patch, wich upgrades to version LK1.1.16, works perfectly, I have not
-seen this patch on 2.4.8pre4 and I think that it would be good to apply it
-before 2.4.8, as the driver on 2.4.7 doesn't work at all at least with this
-card.
+Mark
 
-Regards...
--- 
-Manty/BestiaTester -> http://manty.net
+
+--- linux-2.4.8-pre4/fs/buffer.c	Sat Aug  4 11:49:52 2001
++++ linux/fs/buffer.c	Sat Aug  4 11:56:25 2001
+@@ -2568,8 +2568,11 @@
+ 		ll_rw_block(WRITE, 1, &bh);
+ 		put_bh(bh);
+
+-		if (current->need_resched)
++		if (current->need_resched) {
++			/* kick what we've already pushed down */
++			run_task_queue(&tq_disk);
+ 			schedule();
++		}
+ 		goto restart;
+ 	}
+  out_unlock:
+

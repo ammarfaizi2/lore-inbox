@@ -1,85 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271788AbTGRKCC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 06:02:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271786AbTGRKBM
+	id S271780AbTGRJ62 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 05:58:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271779AbTGRJ52
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 06:01:12 -0400
-Received: from pop.gmx.de ([213.165.64.20]:39872 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S271783AbTGRJ7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 05:59:23 -0400
-Message-Id: <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Fri, 18 Jul 2003 12:18:33 +0200
-To: Nick Piggin <piggin@cyberone.com.au>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] O6int for interactivity
-Cc: Davide Libenzi <davidel@xmailserver.org>, Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-In-Reply-To: <3F1794F0.1090803@cyberone.com.au>
-References: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
- <200307170030.25934.kernel@kolivas.org>
- <200307170030.25934.kernel@kolivas.org>
- <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Fri, 18 Jul 2003 05:57:28 -0400
+Received: from smtp7.wanadoo.fr ([193.252.22.29]:57296 "EHLO
+	mwinf0201.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S271776AbTGRJ5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 05:57:12 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Martin Diehl <lists@mdiehl.de>
+Subject: Re: SET_MODULE_OWNER
+Date: Fri, 18 Jul 2003 12:12:09 +0200
+User-Agent: KMail/1.5.2
+Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       <schlicht@uni-mannheim.de>, <ricardo.b@zmail.pt>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307181045520.14014-100000@notebook.home.mdiehl.de>
+In-Reply-To: <Pine.LNX.4.44.0307181045520.14014-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307181212.09102.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:34 PM 7/18/2003 +1000, Nick Piggin wrote:
-
->Mike Galbraith wrote:
+On Friday 18 July 2003 11:05, Martin Diehl wrote:
+> On Fri, 18 Jul 2003, Duncan Sands wrote:
+> > On Thursday 17 July 2003 22:22, Jeff Garzik wrote:
+> > > David S. Miller wrote:
+> > > > On Thu, 17 Jul 2003 12:00:58 -0400
+> > > >
+> > > > Jeff Garzik <jgarzik@pobox.com> wrote:
+> > > >>David?  Does Rusty have a plan here or something?
+> > > >
+> > > > It just works how it works and that's it.
+> > > >
+> > > > Net devices are reference counted, anything more is superfluous.
+> > > > They may be yanked out of the kernel whenever you want.
+> > >
+> > > (I'm obviously just realizing the implications of this... missed it
+> > > completely during the earlier discussions)
+> > >
+> > > Object lifetime is just part of the story.
+> > >
+> > > This change is a major behavior change.  The whole point of removing a
+> > > module is knowing its gone ;-)  And that is completely changed now.
+> > > Modules are very often used by developers in a "modprobe ; test ;
+> > > rmmod" cycle, and that's now impossible (you don't know when the net
+> > > device, and thus your code, is really gone).  It's already breaking
+> > > userland, which does sweeps for zero-refcount modules among other
+> > > things.
+> >
+> > Most USB drivers can be unloaded at any time, so this problem already
+> > existed elsewhere.
 >
->>no_load:
->>Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69               1  153     94.8    0.0     0.0     1.00
->>2.5.70               1  153     94.1    0.0     0.0     1.00
->>2.6.0-test1          1  153     94.1    0.0     0.0     1.00
->>2.6.0-test1-mm1      1  152     94.7    0.0     0.0     1.00
->>cacherun:
->>Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69               1  146     98.6    0.0     0.0     0.95
->>2.5.70               1  146     98.6    0.0     0.0     0.95
->>2.6.0-test1          1  146     98.6    0.0     0.0     0.95
->>2.6.0-test1-mm1      1  146     98.6    0.0     0.0     0.96
->>process_load:
->>Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69               1  331     43.8    90.0    55.3    2.16
->>2.5.70               1  199     72.4    27.0    25.5    1.30
->>2.6.0-test1          1  264     54.5    61.0    44.3    1.73
->>2.6.0-test1-mm1      1  323     44.9    88.0    54.2    2.12
->>ctar_load:
->>Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69               1  190     77.9    0.0     0.0     1.24
->>2.5.70               1  186     80.1    0.0     0.0     1.22
->>2.6.0-test1          1  213     70.4    0.0     0.0     1.39
->>2.6.0-test1-mm1      1  207     72.5    0.0     0.0     1.36
->>xtar_load:
->>Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69               1  196     75.0    0.0     3.1     1.28
->>2.5.70               1  195     75.9    0.0     3.1     1.27
->>2.6.0-test1          1  193     76.7    1.0     4.1     1.26
->>2.6.0-test1-mm1      1  195     75.9    1.0     4.1     1.28
->>io_load:
->>Kernel          [runs]  Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69               1  437     34.6    69.1    15.1    2.86
->>2.5.70               1  401     37.7    72.3    17.4    2.62
->>2.6.0-test1          1  243     61.3    48.1    17.3    1.59
->>2.6.0-test1-mm1      1  336     44.9    64.5    17.3    2.21
+> Most? Since when?
 >
->Looks like gcc is getting less priority after a read completes.
->Keep an eye on this please.
+> For me neither usb-storage nor usbserial (pl2303 f.e.) can be unloaded
+> when in use (storage being mounted or /dev/usb/ttyUSBX opened).
 
-That _might_ (add salt) be priorities of kernel threads dropping too low.
+OK, maybe most was exagerated. :) 
 
-I'm also seeing occasional total stalls under heavy I/O in the order of 
-10-12 seconds (even the disk stops).  I have no idea if that's something in 
-mm or the scheduler changes though, as I've yet to do any isolation and/or 
-tinkering.  All I know at this point is that I haven't seen it in stock yet.
+If you want to see what I have in mind, do
+	rmmod uhci-hcd
+(or whatever your hcd is).  This shows that there was already a problem with
+unloading modules with zero refcount.
 
-         -Mike 
+> True, irda-usb (and probably usbnet) can be unloaded when the interface is
+> up since a few weeks - but this is due to the networking not bumping
+> the module use counter anymore, nothing todo with usb.
+>
+> Doing something comparable to network with usb in general one would need
+> to change usb-storage reporting use-count==0 while the disk is mounted!
+> Only then one could rmmod and the fs would (hopefully) get synced and
+> unmounted (or staled) automagically.
+>
+> Personally I believe it all comes down to the semantics of the module use
+> counter. If it's taken to indicate the module cannot be unloaded while
+> !=0, it might (or should) stay ==0 if the underlaying subsystem can handle
+> module removal at any time safe - like it is done for network now.
+>
+> In contrast, if the module use count is taken to indicate a module is in
+> use (interface up, fs mounted, chardev open, ...) I'd expect it to be >0.
+> Being unable to rmmod in this situation is just a consequence of the fact
+> it's being used then, regardless whether we could rmmod anyway.
+>
+> OTOH David has a point as the current situation with network helps to
+> identify bugs there - YMMV.
 
+Duncan.

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290472AbSA3TjG>; Wed, 30 Jan 2002 14:39:06 -0500
+	id <S290500AbSA3Tn0>; Wed, 30 Jan 2002 14:43:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290495AbSA3Ti5>; Wed, 30 Jan 2002 14:38:57 -0500
-Received: from [63.204.6.12] ([63.204.6.12]:33511 "EHLO mail.somanetworks.com")
-	by vger.kernel.org with ESMTP id <S290472AbSA3Tir>;
-	Wed, 30 Jan 2002 14:38:47 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-From: "Georg Nikodym" <georgn@somanetworks.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Larry McVoy <lm@bitmover.com>, Ingo Molnar <mingo@elte.hu>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Tom Rini <trini@kernel.crashing.org>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alexander Viro <viro@math.psu.edu>,
-        Rob Landley <landley@trommello.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201301005260.1989-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0201301005260.1989-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 30 Jan 2002 14:38:21 -0500
-Message-Id: <1012419503.1460.68.camel@keller>
-Mime-Version: 1.0
+	id <S290504AbSA3TnT>; Wed, 30 Jan 2002 14:43:19 -0500
+Received: from waste.org ([209.173.204.2]:2756 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S290500AbSA3TnN>;
+	Wed, 30 Jan 2002 14:43:13 -0500
+Date: Wed, 30 Jan 2002 13:43:09 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6 
+In-Reply-To: <Pine.LNX.4.44.0201292328530.25123-100000@waste.org>
+Message-ID: <Pine.LNX.4.44.0201301259520.11802-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-01-30 at 13:23, Linus Torvalds wrote:
+On Wed, 30 Jan 2002, Oliver Xymoron wrote:
 
-[really interesting and insightful comments about revision graphs]
+> On Wed, 30 Jan 2002, Rusty Russell wrote:
+>
+> > In message <Pine.LNX.4.44.0201291813110.25443-100000@waste.org> you write:
+> >
+> > > Nearly as good would be replacing the current logic for figuring out the
+> > > current processor id through current with logic to access the per-cpu
+> > > data. The primary use of that id is indexing that data anyway.
+> >
+> > And if you'd been reading this thread, you would have already seen
+> > this idea, and if you'd read the x86 code, you'd have realised that
+> > the tradeoff is arch-specific.
+>
+> Looking closer, I've found an issue with your patch related to the above,
+> so I think it bears closer examination.
 
-The thing that's missing here is that 'g' (or 1.7) doesn't just refer to
-the change that is 'g'.  It's actually a label that implies a point in
-time as well as all the change that came before it.  Stated differently,
-it is a set.
+Looking closer again (and not at 1am), I see I missed this line in reading
+your patch, sorry:
 
-Using your graph:
++#define this_cpu(var)	per_cpu(var,smp_processor_id())
 
-        a -> b -> c -> f
+I still think that tracking per_cpu_offset in task struct to eventually
+replace current->processor is a win. Basically everyone except Sparc goes
+through current anyway for smp_processor_id and Sparc caches current in a
+register. Please elucidate your reference to "arch-specific tradeoffs".
 
-                -> d
+Also, it'd be nice to unmap the original copy of the area or at least
+poison it to catch silent references to var without going through
+this_cpu, which will probably prove very hard to find. If there were a way
+to do this at the C source level and catch such things at compile time,
+that'd be even better, but I can't see a way to do it without grotty
+macros.
 
-                -> e
-
-and the way that people currently think (and thus speak) of these
-things, saying that you're using a version 'e' kernel is ambiguous
-because it may or may not have 'c' or 'd'.  This ambiguity also
-complicates the task of reproducing a tree at some known state later.
-
-You, as the center of the known universe may not need to concern
-yourself with such trifles, but speaking as one of those fabled
-commercial customers, the ability to say unambiguously say what's been
-changed (read: fixed) is really important.
-
-All that said, I like your idea about revision graph compression.  My
-concerns might simply be mitigated by being able to insert "release"
-points (simply a tag that implies/includes all the preceding
-changesets).
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

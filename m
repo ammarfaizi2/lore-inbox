@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265326AbTGHUZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 16:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbTGHUZM
+	id S265335AbTGHU1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 16:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265337AbTGHU1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 16:25:12 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:57579 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S265326AbTGHUZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 16:25:07 -0400
-Reply-To: <vlad@lrsehosting.com>
-From: <vlad@lrsehosting.com>
-To: "'Ryan Underwood'" <nemesis-lists@icequake.net>,
-       "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
-Subject: RE: Forking shell bombs
-Date: Tue, 8 Jul 2003 15:35:26 -0500
-Message-ID: <000901c34590$778e0870$0200a8c0@wsl3>
+	Tue, 8 Jul 2003 16:27:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13491 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S265335AbTGHU0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 16:26:49 -0400
+Date: Tue, 8 Jul 2003 17:38:57 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Jim Gifford <maillist@jg555.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.22-pre3
+In-Reply-To: <003501c34572$4113f0c0$3400a8c0@W2RZ8L4S02>
+Message-ID: <Pine.LNX.4.55L.0307081551480.21543@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
+ <003501c34572$4113f0c0$3400a8c0@W2RZ8L4S02>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20030708184537.GJ1030@dbz.icequake.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Interesting!  Kills a Slackware 9.0 stock system nicely, kills the same
-system nicely with 2.5.74 config'd with make oldconfig answering no to all
-questions.
 
---
+Are you using SMP? What drivers are you using and what your workload is?
 
- /"\                         / For information and quotes, email us at
- \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
-  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
- / \  AND POSTINGS        / vlad@lrsehosting.com
--------------------------------------------------------------------------
+On Tue, 8 Jul 2003, Jim Gifford wrote:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Ryan Underwood
-Sent: Tuesday, July 08, 2003 1:46 PM
-To: linux-kernel@vger.kernel.org
-Cc: witwerg@icequake.net
-Subject: Forking shell bombs
-
-
-
-Hi,
-
-:(){ :|:&};:
-
-Paste that into bash and watch linux die. (2.4.21 stock)
-
-
+> Still receiving lockups. It it is about 2 days and 10 hours before the
+> system just freezes. I can use the sysrq keys to safely shutdown. No error
+> messages present in any logs.
+>
+> As I stated in previous emails, when I run sync every hour, this prevents
+> the lock ups. I will try this under the 2.4.22-pre3.

@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267638AbTAQTOQ>; Fri, 17 Jan 2003 14:14:16 -0500
+	id <S267642AbTAQTPF>; Fri, 17 Jan 2003 14:15:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbTAQTOQ>; Fri, 17 Jan 2003 14:14:16 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:21482 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267638AbTAQTOP>; Fri, 17 Jan 2003 14:14:15 -0500
-Subject: Re: [PATCH] linux-2.5.59_timer-tsc-cleanup_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, akpm@diego.com
-In-Reply-To: <20030117090237.GA1523@brodo.de>
-References: <1042771949.29942.19.camel@w-jstultz2.beaverton.ibm.com>
-	 <22767.1042793253@www52.gmx.net>  <20030117090237.GA1523@brodo.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042830989.29941.26.camel@w-jstultz2.beaverton.ibm.com>
+	id <S267643AbTAQTPF>; Fri, 17 Jan 2003 14:15:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24071 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267642AbTAQTO7>; Fri, 17 Jan 2003 14:14:59 -0500
+Date: Fri, 17 Jan 2003 19:23:56 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Initcall / device model meltdown?
+Message-ID: <20030117192356.F13888@flint.arm.linux.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 17 Jan 2003 11:16:29 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-17 at 01:02, Dominik Brodowski wrote:
-> Hi John,
-> 
-> On Fri, Jan 17, 2003 at 09:47:33AM +0100, john stultz wrote:
-> > Linus, Andrew, All,
-> >         Just a resend/resync for 2.5.59. This patch cleans up the
-> > timer_tsc code, removing the unused use_tsc variable and making
-> > fast_gettimeoffset_quotient static.
-> 
-> use_tsc is _not_ unused -- it's used at least in time_cpufreq_notifier (even
-> though time_cpufreq_notifier didn't introduce use_tsc, it's in there the
-> same way it's in 2.4. time.c ). So please don't remove it.
+The initcall/device model seems to be quite fragile at the moment with
+respect to not oopsing the kernel.
 
-<Groan> Oh yikes, that totally snuck by me.
+On many StrongARM-based systems, a multifunction chip addressed through
+a serial bus is used to provide touchscreen, audio and additional digital
+IO.  Currently, there are many sub-drivers, some of which are modular
+themselves, and some which depend on each other.  They currently live
+under drivers/misc, for want of a better location.  They are all
+initialised using module_init(), via the device model driver_register()
+function.
 
-Thanks for pointing that out, I'll remove the chance from my patch
-immediately. 
+The input drivers are also modular, and provide a device class
+(input_devclass), which is registered using module_init().
 
-thanks again,
--dumbo^W-john
+One of the multifunction device drivers is a touchscreen driver, which
+should obviously be part of the input device class.
 
+Both the input core and the multifunction chip drivers are using
+module_init(), the order in which these are initialised is link-order
+specific, and it happens that drivers/input is initialised really late
+during boot, after drivers/misc.
 
+Since the device model requires any object to be initialised before it
+is used, this causes an oops from devclass_add_driver().
 
+We appear to have two conflicting requirements here:
+
+1. the device model requires a certain initialisation order.
+2. modules need to use module_init() which means the initialisation order
+   is link-order dependent, despite our multi-level initialisation system.
+
+Obviously one solution would be to spread the drivers for this
+multifunction chip throughout the kernel tree (ie, by function not
+by device) so the touchscreen driver would live under drivers/input.
+
+However, then we need to make sure that the multifunction chip's
+bus type is initialised before any of the other subsystems, and of
+course, the bus type is initialised using module_init() since it
+lives in a module...
+
+I think we need to re-think what we're doing with the initialisation
+handling and the device model before these sorts of problems get out
+of hand.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,96 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129652AbQK3HUF>; Thu, 30 Nov 2000 02:20:05 -0500
+        id <S131735AbQK3H3A>; Thu, 30 Nov 2000 02:29:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129851AbQK3HT4>; Thu, 30 Nov 2000 02:19:56 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:11783 "EHLO
-        smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-        id <S129652AbQK3HTx>; Thu, 30 Nov 2000 02:19:53 -0500
-Message-ID: <3A25F803.6090609@megapathdsl.net>
-Date: Wed, 29 Nov 2000 22:47:31 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001127
-X-Accept-Language: en
+        id <S131610AbQK3H2v>; Thu, 30 Nov 2000 02:28:51 -0500
+Received: from mail2.rdc3.on.home.com ([24.2.9.41]:51403 "EHLO
+        mail2.rdc3.on.home.com") by vger.kernel.org with ESMTP
+        id <S129851AbQK3H2g>; Thu, 30 Nov 2000 02:28:36 -0500
+Date: Thu, 30 Nov 2000 01:57:54 -0500
+X-Mailer: 21.1 (patch 12) "Channel Islands" XEmacs Lucid (via feedmail 9-beta-7 I);
+        VM 6.82 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
 MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-test12-pre3 -- Playing an audio CD halts with drive errors.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14885.64113.780609.704554@phoenix.somewhere.out.there>
+From: "S.Salman Ahmed" <ssahmed@pathcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: ATA100/UDMA100 Support on the ASUS-CUSL2 mobo
+Reply-To: ssahmed@pathcom.com
+X-No-Archive: Yes
+X-Operating-System: Linux phoenix 2.2.17 i686
+X-Organization: Salman Ahmed Software & Consulting
+X-Disclaimer: I didn't do it, little green aliens wrote this email
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This could be a CD scratch, but I don't think it is.
-This is a brand new CD which I just opened.
 
-After the errors from /var/log/messages, I include
-info from hdparm -g -i.
+[I am not subscribed to the list, so please CC: me]
 
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x50
-ATAPI device hdc:
-   Error: Illegal request -- (Sense key=0x05)
-   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-   The failed "Play Audio MSF" packet command was:
-   "47 00 00 00 02 00 3f 24 ff 00 00 00 "
-   Error in command packet byte 8 bit 0
-hdc: packet command error: status=0x41 { DriveReady Error }
-hdc: packet command error: error=0x50
-ATAPI device hdc:
-   Error: Illegal request -- (Sense key=0x05)
-   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-   The failed "Play Audio MSF" packet command was:
-   "47 00 00 05 38 34 3f 24 ff 00 00 00 "
-   Error in command packet byte 8 bit 0
-Uniform CD-ROM driver unloaded
-hdc: ATAPI 24X CD-ROM drive, 128kB Cache, DMA
-Uniform CD-ROM driver Revision: 3.11
-VFS: Disk change detected on device ide1(22,0)
-hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: packet command error: error=0x50
-ATAPI device hdc:
-   Error: Illegal request -- (Sense key=0x05)
-   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-   The failed "Play Audio MSF" packet command was:
-   "47 00 00 00 02 00 3f 24 ff 00 00 00 "
-   Error in command packet byte 8 bit 0
-isapnp: Scanning for Pnp cards...
-isapnp: No Plug & Play device found
-snd: cs4231: port = 0x530, id = 0xa
-snd: CS4231: VERSION (I25) = 0x3
-snd: CS4231: ext version; rev = 0xe8, id = 0xe8
-snd: CS4236: [0xf00] C1 (version) = 0xe8, ext = 0xe8
-hdc: packet command error: status=0x41 { DriveReady Error }
-hdc: packet command error: error=0x50
-ATAPI device hdc:
-   Error: Illegal request -- (Sense key=0x05)
-   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-   The failed "Play Audio MSF" packet command was:
-   "47 00 00 05 38 34 3f 24 ff 00 00 00 "
-   Error in command packet byte 8 bit 0
-hdc: packet command error: status=0x41 { DriveReady Error }
-hdc: packet command error: error=0x50
-ATAPI device hdc:
-   Error: Illegal request -- (Sense key=0x05)
-   Invalid field in command packet -- (asc=0x24, ascq=0x00)
-   The failed "Play Audio MSF" packet command was:
-   "47 00 00 0e 10 32 3f 24 ff 00 00 00 "
-   Error in command packet byte 8 bit 0
+Hi,
 
-hdparm -g -i /dev/hdc
+How well is the ATA100/UDMA100 supported in the development kernels ? I
+have a system with an ASUS CUSL2 mobo, which has built-in ATA100 IDE
+channels, alongwith a Maxtor 20Gb ATA100 HD.
 
-/dev/hdc:
-  HDIO_GET_MULTCOUNT failed: Invalid argument
-  HDIO_GETGEO failed: Invalid argument
+I looked at the kernel config for 2.4.0-test11, but in the "IDE, ATA and
+ATAPI Block devices" section couldn't find chipset-specific support for
+either the:
 
-  Model=TOSHIBA CD-ROM XM-1702BC, FwRev=1854, SerialNo=ÿÿÿÿÿÿÿÿÿÿ
-  Config={ SpinMotCtl Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
-  RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
-  BuffType=0(?), BuffSize=128kB, MaxMultSect=0
-  DblWordIO=no, OldPIO=4, DMA=yes, OldDMA=2
-  (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
-  tDMA={min:120,rec:120}, DMA modes: sword0 sword1 sword2 mword0 mword1 
-*mword2
-  IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+(1) Intel i815 chipset, which is what the ASUS-CUSL2 has
+
+or the
+
+(2) Intel I/O Controller Hub 2 (ICH2)
+
+I'd like to get my system working using the built-in ATA100 controller
+on the ASUS CUSL2, but what options do I need in 2.4.0-test11's kernel
+config ?
+
+Is there support for the Intel i815 chipset ?
+
+I'd appreciate any info.
+
+Thanks,
+
+-- 
+Salman Ahmed
+ssahmed AT pathcom DOT com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

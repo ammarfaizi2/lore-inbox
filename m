@@ -1,61 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271936AbRIIJoP>; Sun, 9 Sep 2001 05:44:15 -0400
+	id <S271942AbRIIKFK>; Sun, 9 Sep 2001 06:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271939AbRIIJoF>; Sun, 9 Sep 2001 05:44:05 -0400
-Received: from alcatraz.fdf.net ([209.245.242.221]:7552 "HELO alcatraz.fdf.net")
-	by vger.kernel.org with SMTP id <S271936AbRIIJnz>;
-	Sun, 9 Sep 2001 05:43:55 -0400
-Date: Sun, 9 Sep 2001 04:44:04 -0500 (CDT)
-From: Dustin Marquess <jailbird@alcatraz.fdf.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: PATCH - Software RAID Autodetection for OSF partitions
-Message-ID: <Pine.LNX.4.33.0109090443440.369-100000@alcatraz.fdf.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269693AbRIIKEu>; Sun, 9 Sep 2001 06:04:50 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:5582 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S271941AbRIIKEj>; Sun, 9 Sep 2001 06:04:39 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: nfs is stupid ("getfh failed")
+Date: Sun, 9 Sep 2001 10:05:00 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9nfesc$ctr$1@forge.intermeta.de>
+In-Reply-To: <m2ae06a6t7.fsf@euler.axel.nom> <E15fiJ6-0003sK-00@the-village.bc.nu>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1000029900 10155 212.34.181.4 (9 Sep 2001 10:05:00 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Sun, 9 Sep 2001 10:05:00 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Here's a quick patch that I wrote-up for 2.4.10-pre5 (should work with
-other 2.4.x kernels too), so that the OSF partition code should
-auto-detect partitions with a fstype of 0xFD (software RAID).
+>> "Michael Rothwell" <rothwell@holly-springs.nc.us> writes:
+>> 
+>> > Just wondering if there's been any talk, plans, etc. of an alternative for
+>> > NFS.
+>> 
+>> there's coda.
 
-It seems to work for me, except that the software RAID code in 2.4.10-pre5
-(both with and without my patch) keep dying with superblock errors on line
-1574 of md.c.  If anybody knows how to fix this error, please let me know
-:).
+>You probably want inter-mezzo rather than coda for that kind of file
+>service. Coda is a research project, inter-mezzo is kind of "distilled coda
+>and afs", making it a real fs.  http://www.inter-mezzo.org
 
-Thanks,
--Dustin
+And it currently looks "Linux only", which kind of defeats IMHO the
+purpose.
 
---- linux/fs/partitions/osf.c	Fri Feb 16 18:02:37 2001
-+++ /usr/src/linux-2.4.10-pre5/fs/partitions/osf.c	Sat Sep  8 22:53:37 2001
-@@ -17,6 +17,12 @@
- #include "check.h"
- #include "osf.h"
+In a heterogenous environment there is NFS (and SMB aka CIFS aka <name
+of the day>, of course. The horrors! The horrors! :-) ) and nothing
+much else.
 
-+#if CONFIG_BLK_DEV_MD
-+extern void md_autodetect_dev(kdev_t dev);
-+#include <asm/unaligned.h>
-+#define P_FSTYPE(p)	(get_unaligned(&p->p_fstype))
-+#endif
-+
- int osf_partition(struct gendisk *hd, kdev_t dev, unsigned long first_sector,
- 		  int current_minor)
- {
-@@ -77,6 +83,12 @@
- 			add_gd_partition(hd, current_minor,
- 				first_sector+le32_to_cpu(partition->p_offset),
- 				le32_to_cpu(partition->p_size));
-+#if CONFIG_BLK_DEV_MD
-+			if (P_FSTYPE(partition) == LINUX_RAID_PARTITION) {
-+				md_autodetect_dev(MKDEV(hd->major,current_minor));
-+			}
-+#endif
-+
- 		current_minor++;
- 	}
- 	printk("\n");
+	Regards
+		Henning
 
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291541AbSBMKsd>; Wed, 13 Feb 2002 05:48:33 -0500
+	id <S291543AbSBMKrx>; Wed, 13 Feb 2002 05:47:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291544AbSBMKsP>; Wed, 13 Feb 2002 05:48:15 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:13574 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S291541AbSBMKsD>; Wed, 13 Feb 2002 05:48:03 -0500
-Message-ID: <3C6A4449.3030703@evision-ventures.com>
-Date: Wed, 13 Feb 2002 11:47:37 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: another IDE cleanup: kill duplicated code
-In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com> <3C69750E.8BA2C6AB@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291541AbSBMKro>; Wed, 13 Feb 2002 05:47:44 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37126 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S291543AbSBMKrh>; Wed, 13 Feb 2002 05:47:37 -0500
+Date: Wed, 13 Feb 2002 11:47:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Rob Landley <landley@trommello.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: small IDE cleanup: void * should not be used unless neccessary
+Message-ID: <20020213104731.GG32687@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020211220937.GA121@elf.ucw.cz> <20020212224930.OKGN9845.femail25.sdc1.sfba.home.com@there>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020212224930.OKGN9845.femail25.sdc1.sfba.home.com@there>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi!
 
->Martin Dalecki wrote:
->
->>If you are already at it, I would like to ask to you consider seriously
->>the removal of the
->>following entries in the ide drivers /proc control files:
->>
->>    ide_add_setting(drive,    "breada_readahead",    ...         1,
->>2,    &read_ahead[major],        NULL);
->>    ide_add_setting(drive,    "file_readahead",   ...
->>&max_readahead[major][minor],    NULL);
->>
->>Those calls can be found in ide-cd.c, ide-disk,c and ide-floppy.c
->>
->
->I suspect that if we remove these, we'll one day end up putting them back.
->It is appropriate that we be able to control readahead characteristics
->on a per-device and per-technology basis.
->
-You are missing one simple thing: The removed values doen't control 
-ANYTHING!
+> > This is really easy, please apply. (It will allow me to kill few casts
+> > in future).
+> > 								Pavel
+> >
+> > --- linux/include/linux/ide.h	Mon Feb 11 21:15:04 2002
+> > +++ linux-dm/include/linux/ide.h	Mon Feb 11 22:36:12 2002
+> > @@ -529,7 +531,7 @@
+> >
+> >  typedef struct hwif_s {
+> >  	struct hwif_s	*next;		/* for linked-list in ide_hwgroup_t */
+> > -	void		*hwgroup;	/* actually (ide_hwgroup_t *) */
+> > +	struct hwgroup_s *hwgroup;	/* actually (ide_hwgroup_t *) */
+> >  	ide_ioreg_t	io_ports[IDE_NR_PORTS];	/* task file registers */
+> >  	hw_regs_t	hw;		/* Hardware info */
+> >  	ide_drive_t	drives[MAX_DRIVES];	/* drive info */
+> 
+> Now I'm confused about the comment on the end of the line.
+> 
+> Should the comment be changed, or should the type be ide_hwgroup_t instead of 
+> struct hwgroup_s?
 
-
+struct hwgroup_s == ide_hwgroup_t. That's infection by hungarian
+notation, and yes it would be nice to clean it up. For now, I'm
+killing worst stuff.
+							Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

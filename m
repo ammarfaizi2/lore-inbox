@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVBHQIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVBHQLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVBHQIc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 11:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVBHQIc
+	id S261560AbVBHQLx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 11:11:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVBHQLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 11:08:32 -0500
-Received: from styx.suse.cz ([82.119.242.94]:38863 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261557AbVBHQIa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 11:08:30 -0500
-Date: Tue, 8 Feb 2005 17:09:28 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: zyphr <infzyphr@gmail.com>
-Cc: Mikkel Krautz <krautz@gmail.com>, linux-kernel@vger.kernel.org,
-       greg@kroah.com
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Message-ID: <20050208160928.GA6516@ucw.cz>
-References: <20050207185706.GA6701@omnipotens.localhost> <3de2c80b050208071520375d28@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3de2c80b050208071520375d28@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 8 Feb 2005 11:11:53 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37599 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261557AbVBHQLp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 11:11:45 -0500
+Date: Tue, 8 Feb 2005 08:11:40 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andrew Morton <akpm@osdl.org>
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: prezeroing V6 [2/3]: ScrubD
+In-Reply-To: <20050207173559.68ce30e3.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0502080807410.3169@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501211228430.26068@schroedinger.engr.sgi.com>
+ <1106828124.19262.45.camel@hades.cambridge.redhat.com> <20050202153256.GA19615@logos.cnet>
+ <Pine.LNX.4.58.0502071127470.27951@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0502071131260.27951@schroedinger.engr.sgi.com>
+ <20050207163035.7596e4dd.akpm@osdl.org> <Pine.LNX.4.58.0502071646170.29971@schroedinger.engr.sgi.com>
+ <20050207170947.239f8696.akpm@osdl.org> <Pine.LNX.4.58.0502071710580.30068@schroedinger.engr.sgi.com>
+ <20050207173559.68ce30e3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 04:15:53PM +0100, zyphr wrote:
-> Something looks odd.
-> I've tested this with 2.6.11-rc3-bk5 + your lasted patch
-> 
-> cat /sys/module/usbhid/parameters/mousepoll says it's at 2ms
-> but if I check /proc/bus/usb/devices it's reading 10ms
-> 
-> I've used parameter under /etc/modules (debian sarge)
-> in there I have added: usbhid mousepoll=2
-> 
-> this used to work ok with:
-> http://omfg.linux.dk/pub/configurable-hid-mouse-polling/archive/chmp-r5-add-modparam.patch
-> 
-> rmmod usbhid and then "modprobe usbhid mousepoll=x" with a different value,
-> does change the vualue under /sys
-> but under /proc/bus/usb/devices it keeps reading the same value (10ms)
-> I also tried replugging the mouse, the value's stay the same.
-> 
-> I am just a just user, so maybe I did something wrong =)
+On Mon, 7 Feb 2005, Andrew Morton wrote:
 
-This is correct. The new patch is not modifying the device descriptors,
-which should be considered read-only by driver code, it only changes
-only the actual polling behavior.
+> > No its a page fault benchmark. Dave Miller has done some kernel compiles
+> > and I have some benchmarks here that I never posted because they do not
+> > show any material change as far as I can see. I will be posting that soon
+> > when this is complete (also need to do the same for the atomic page fault
+> > ops and the prefaulting patch).
+>
+> OK, thanks.  That's important work.  After all, this patch is a performance
+> optimisation.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Well its a bit complicated due to the various configuration. UP, and then
+more and more processors. Plus the NUMA stuff and the standard benchmarks
+that are basically not suited for SMP tests make this a bit difficult.
+
+> > memory node is bound to a set of cpus. This may be controlled by the
+> > NUMA node configuration. F.e. for nodes without cpus.
+>
+> kthread_bind() should be able to do this.  From a quick read it appears to
+> have shortcomings in this department (it expects to be bound to a single
+> CPU).
+
+Sorry but I still do not get what the problem is? kscrubd does exactly
+what kswapd does and can be handled in the same way. It works fine here
+on various multi node configurations and correctly gets CPUs assigned.
+

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVDERuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVDERxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbVDERuS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 13:50:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVDERtF
+	id S261852AbVDERxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 13:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVDERuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 13:49:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14035 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261852AbVDER05 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:26:57 -0400
-Date: Tue, 5 Apr 2005 13:26:44 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Crash during boot for 2.6.12-rc2.
-In-Reply-To: <Xine.LNX.4.44.0504050605170.10569-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0504051325520.12266-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Apr 2005 13:50:23 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:19935 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261860AbVDERfx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 13:35:53 -0400
+Subject: Re: [patch] inotify for 2.6.11
+From: Robert Love <rml@novell.com>
+To: Prakash Punnoor <prakashp@arcor.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4252C8D8.9040109@arcor.de>
+References: <1109961444.10313.13.camel@betsy.boston.ximian.com>
+	 <4252453E.7060407@arcor.de> <1112717566.7324.19.camel@betsy>
+	 <4252C8D8.9040109@arcor.de>
+Content-Type: text/plain
+Date: Tue, 05 Apr 2005 13:35:38 -0400
+Message-Id: <1112722538.7324.39.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005, James Morris wrote:
+On Tue, 2005-04-05 at 19:20 +0200, Prakash Punnoor wrote:
 
-> > Surprise, surprise, it works OK here.
-> > 
-> > What compiler version?
+> BTW, what else could I use to make use of inotify? I know fam, which afaik
+> only uses dnotify.
+
+Beagle, a desktop search infrastructure.  Check out
+http://www.gnome.org/projects/beagle
+
+Some other little projects.  If anyone else is using it, please let us
+know!
+
+The main problem is that dnotify sucks so bad now that no one uses it.
+So we don't have any existing applications to convert, besides FAM, and
+we did that (via Gamin).
+
+I've been meaning to write some sample GNOME code to show how easy it is
+to use Inotify, even directly.  I'll get on that.
+
+> > Anyhow, this should fix it.  Confirm?
 > 
-> gcc -v
-> Using built-in specs.
-> Target: i386-redhat-linux
-> Configured with: ../configure --prefix=/usr --mandir=/usr/share/man 
-> --infodir=/usr/share/info --enable-shared --enable-threads=posix 
-> --enable-checking=release --with-system-zlib --enable-__cxa_atexit 
-> --disable-libunwind-exceptions --enable-languages=c,c++,objc,java,f95,ada 
-> --enable-java-awt=gtk --host=i386-redhat-linux
-> Thread model: posix
-> gcc version 4.0.0 20050329 (Red Hat 4.0.0-0.38)
-> 
-> 
-> I'll try a fresh compile later.
+> So far no problems. Interesting enough the previous patch worked w/o problem
+> the last hours...
 
-Looks like it was a miscompile, newly compiled (without ccache, too) 
-kernel works fine.
+It might of been caused by a bug in Gamin, so it took some while to
+expose.  It should only happen when the user asks to remove a watch on a
+wd that does not exist (I just forgot to check that error case in a bug
+fix I added).
 
+Keep pounding.  It ought to be fixed, but please let me know if not!
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+	Robert Love
+
 
 

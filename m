@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268181AbTAKWHk>; Sat, 11 Jan 2003 17:07:40 -0500
+	id <S268180AbTAKWH3>; Sat, 11 Jan 2003 17:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268182AbTAKWHk>; Sat, 11 Jan 2003 17:07:40 -0500
-Received: from h-64-105-35-9.SNVACAID.covad.net ([64.105.35.9]:62641 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S268181AbTAKWHj>; Sat, 11 Jan 2003 17:07:39 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sat, 11 Jan 2003 14:16:13 -0800
-Message-Id: <200301112216.OAA16593@baldur.yggdrasil.com>
-To: hch@lst.de, torvalds@transmeta.com
-Subject: Re: [PATCH] umode_t changes from Adam's mini-devfs
-Cc: linux-kernel@vger.kernel.org
+	id <S268181AbTAKWH3>; Sat, 11 Jan 2003 17:07:29 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:260
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S268180AbTAKWH2> convert rfc822-to-8bit; Sat, 11 Jan 2003 17:07:28 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+Date: Sat, 11 Jan 2003 17:18:07 -0500
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: USB problems on ASUS A7M266-D with kernel 2.4.20
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200301111718.07209.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
->The use of umode_t instead of devfs-specific char vs block #defines
->in Adam's mini-devfs patch makes sense independant of whether his patch
->should get merged.  While reviewing his changes I also notices that
->most of the number allocation functionality in devfs has no business
->beeing exported.  In addition I cleaned up devfs_alloc_devnum/
->devfs_dealloc_devnum a bit.
+I have this board, but the problem is the newer A7M266-D boards have the USB 
+1.x pins removed. 
 
-	It looks good to me, although I haven't tried it or fully
-comprehended every line of Christoph's devfs_{,de}alloc_devnum cleanup
-(I have looked at it a bit before sending this email though).
+Also, I cannot get USB working with 2.4 it fails on assignment of irq routing.
 
-	One really minor suggestion: perhaps Christoph could add an
-entry in the giant change log in fs/devfs/util.c so that people know
-who to contact if there is a problem with his number allocation
-change.
+2.5 does find my USB but I have issues with it right now ;(
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Shawn.
+
+>List:     linux-kernel
+>Subject:  USB problems on ASUS A7M266-D with kernel 2.4.20
+From:     "=?iso-8859-1?Q?Philip_K.F._H=F6lzenspies?="
+>Date:     2003-01-11 18:25:02
+
+>Hi,
+
+>I can't seem to figure this out. I have an A7M266-D (with the 760MPX AMD
+>chipset, with the busted USB-controller, but with a pci replacement
+>board) with 2 AMD Athlon 1800 XP CPUs. One way or another, whatever I
+>do, I can't see USB devices. In my case, it mainly concerns my Logitech
+>MouseMan Dual Optical. I have HID, EHCI, UHCI and OHCI compiled into the
+>kernel (kernel config file included at the bottom) and still don't get
+>anything in my /proc/bus/usb/ other than 'devices' and 'drivers' and
+>they don't tell me very much either (see below).
+
+>Did anybody else encounter this problem, or is it a Logitech specific
+>issue?
+
+>Regards,
+>Philip K.F. Hölzenspies

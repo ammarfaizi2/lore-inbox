@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276341AbRJPOvr>; Tue, 16 Oct 2001 10:51:47 -0400
+	id <S276344AbRJPPFA>; Tue, 16 Oct 2001 11:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276344AbRJPOv1>; Tue, 16 Oct 2001 10:51:27 -0400
-Received: from smtp.seznam.cz ([195.119.180.43]:65032 "HELO email.seznam.cz")
-	by vger.kernel.org with SMTP id <S276341AbRJPOvQ>;
-	Tue, 16 Oct 2001 10:51:16 -0400
-Message-ID: <001101c15652$5dadc1e0$5365060a@franta>
-From: "Frantisek Dufka" <dufkaf@seznam.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: Wake-up from APM suspend state by /dev/rtc ?
-Date: Tue, 16 Oct 2001 16:53:44 +0200
+	id <S276361AbRJPPEl>; Tue, 16 Oct 2001 11:04:41 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:61923 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S276344AbRJPPEd>;
+	Tue, 16 Oct 2001 11:04:33 -0400
+To: fdavis@si.rr.com
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] 2.4.12-ac1: a few more net MODULE_LICENSE patches
+In-Reply-To: <3BC9C18C.6060808@si.rr.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 16 Oct 2001 17:05:00 +0200
+In-Reply-To: Frank Davis's message of "Sun, 14 Oct 2001 12:47:08 -0400"
+Message-ID: <d31yk31v8j.fsf@lxplus050.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello people,
+>>>>> "Frank" == Frank Davis <fdavis@si.rr.com> writes:
 
-I wanted to record my favourite Simpsons series from TV via my ATI TV wonder
-card. It works fine automatically, no X needed, just framebuffer
-(nuppelvideo 0.4, nuv2divx, v4lctl from xawtv). I wanted to have my machine
-suspended when waiting for the recording to spare some trees.
+Frank> Hello, I've attached a few more MODULE_LICENSE patches against
+Frank> 2.4.12-ac1 .  A few more net MODULE_LICENSE patches to follow
+Frank> soon. Please review.  Regards, Frank ---
 
-There is setting in a bios for turning on interrupts which should cause
-wake-up. I turned interrupt 8 on. I modified code from
-linux/Documentation/rtc.txt To set alarm to some time. Then I tried 'apm -S'
-or 'apm -s' and waited.
-Unfortunately it doesn't work. When I wake it up by mouse later, the
-modified code from rtc.txt gets the interrupt and finishes fine. But it
-doesn't wake up itself by RTC interrupt :(
+ARGH!
 
-I also tried to turn on kernel compile flag which enables interrupts when
-calling APM bios but it didn't help.
+Alan, please do not apply this one.
 
-I suppose it's a bios bug, so probably I can't do anything with it.
+Why are you trying to remove my compat macro for MODULE_LICENSE? I am
+trying to maintain the source so it compiles under multiple kernels!
 
-Anyone tried this successfully? Should it work? Can using ACPI instead of
-APM help me with this?
+If you submit acenic patches, make sure to drop a copy in my
+inbox. Yes, I am listed in the source code, it's really hard to miss.
 
-I've got Soyo 6VBA133 motherboard (Slot1) with VIA Apollo 133 chipset,
-Celeron 900. Kernel 2.4.12.
+Jes
 
-Thanks for any helpful reply.
-
-Frantisek
-
-
+--- drivers/net/acenic.c.old	Fri Oct 12 18:42:54 2001
++++ drivers/net/acenic.c	Sun Oct 14 11:56:31 2001
+@@ -145,10 +145,6 @@
+ #endif
+ 
+ 
+-#ifndef MODULE_LICENSE
+-#define MODULE_LICENSE(a)
+-#endif
+-
+ #ifndef wmb
+ #define wmb()	mb()
+ #endif

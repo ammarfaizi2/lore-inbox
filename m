@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUCDCBt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 21:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUCDCBt
+	id S261400AbUCDCIj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 21:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUCDCIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 21:01:49 -0500
-Received: from amdext2.amd.com ([163.181.251.1]:5847 "EHLO amdext2.amd.com")
-	by vger.kernel.org with ESMTP id S261396AbUCDCBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 21:01:47 -0500
-Message-ID: <99F2150714F93F448942F9A9F112634C0FD3862D@txexmtae.amd.com>
-From: richard.brunner@amd.com
-To: pavel@suse.cz, davej@redhat.com, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org, paul.devriendt@amd.com
-Subject: RE: powernow-k8-acpi driver
-Date: Wed, 3 Mar 2004 20:00:44 -0600
+	Wed, 3 Mar 2004 21:08:39 -0500
+Received: from smtp.sys.beep.pl ([195.245.198.13]:21010 "EHLO maja.beep.pl")
+	by vger.kernel.org with ESMTP id S261400AbUCDCIi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 21:08:38 -0500
+From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Organization: SelfOrganizing
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: ip a flush problem on 2.6 kernels (fine on 2.4 kernels)
+Date: Thu, 4 Mar 2004 03:08:15 +0100
+User-Agent: KMail/1.6.1
+Cc: netdev@oss.sgi.com
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 6C585253376919-01-01
+Content-Disposition: inline
 Content-Type: text/plain;
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200403040308.15880.arekm@pld-linux.org>
+X-Authenticated-Id: arekm 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The problem is that
 
-> -----Original Message-----
-> From: Pavel Machek [mailto:pavel@suse.cz] 
-> 
-> Hi!
-> 
-> >  > Dave, could you apply these? That are cleanups from Paul's new version
-> >  > of driver (killed few unused defines, right names for MSR's
-> >  > (hopefully!), more linux-like comments). No code changes.
-> > 
-> > Looks trivial enough. I just bounced it forward to Linus directly.
-> > (I'm travelling this week, and bitkeeper on a laptop is unfunny)
-> 
-> :-)
-> 
-> >  > - *   (c) 2003 Advanced Micro Devices, Inc.
-> >  > + *   (c) 2003, 2004 Advanced Micro Devices, Inc.
-> >  >   *  Your use of this code is subject to the terms and conditions of the
-> >  > - *  GNU general public license version 2. See "../../../COPYING" or
-> >  > + *  GNU general public license version 2. See "../../../../../COPYING" or
-> >  >   *  http://www.gnu.org/licenses/gpl.html
-> >  >   */
-> > 
-> > This bit seems really silly though, but thats just my opinion 8-)
-> > I'd just kill the ../'s completely.
-> 
-> Agreed, I assume AMD lawyers wanted that... If not, perhaps we can
-> make it disappear?
+ip a a 192.168.0.1/24 dev eth0
+ip link set eth0 down
+ip a flush dev eth0
 
-Killing the ../'s is probably fine so long as we leave the 
-"Your use ... version 2." and shrink the copying notice to 
-"See COPYING or http ..."
+Here on my vanilla 2.6.2 it locks eating CPU - it does netlink 
+communication over and over. This ,,hang'' doesn't happen when 
+interface is in UP state. Also doesn't happen on 2.4 kernels.
 
-We stopped paying our lawyers by the number of letters in 
-copyright notices several months ago, so I think it is ok.
+I've tried it on different 2.6 kernels (one from fedora, one from PLD) with 
+different versions of iproute2 (usually latest). Friend tried it also with 
+iproute2 from slackware - same result.
 
+Same happens when using lo interface instead of ethX.
 
-] -Rich ...
-] AMD Fellow
-] richard.brunner at amd com  
+More description in RH bugzilla:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=116982
 
+ps. doing that on Broadcom Corporation BCM4401 100Base-T ethX interface (using 
+b44 driver) causes lock (but sysrq works) on 2.4.25 kernel. Would be nice if 
+someone with that hardware could verify this.
+-- 
+Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
+arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux

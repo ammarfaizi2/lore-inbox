@@ -1,62 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265611AbRFWDsA>; Fri, 22 Jun 2001 23:48:00 -0400
+	id <S265614AbRFWD6Z>; Fri, 22 Jun 2001 23:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265612AbRFWDru>; Fri, 22 Jun 2001 23:47:50 -0400
-Received: from www.wen-online.de ([212.223.88.39]:20754 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S265611AbRFWDrc>;
-	Fri, 22 Jun 2001 23:47:32 -0400
-Date: Sat, 23 Jun 2001 05:46:52 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Tom Vier <tmv5@home.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac17
-In-Reply-To: <20010622184040.A765@zero>
-Message-ID: <Pine.LNX.4.33.0106230451560.493-100000@mikeg.weiden.de>
+	id <S265510AbRFWD6Q>; Fri, 22 Jun 2001 23:58:16 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:29788 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S265434AbRFWD55>; Fri, 22 Jun 2001 23:57:57 -0400
+Message-ID: <3B3413B1.6040808@blue-labs.org>
+Date: Fri, 22 Jun 2001 20:57:37 -0700
+From: David Ford <david@blue-labs.org>
+Organization: Blue Labs
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010622
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cleanup kbuild for aic7xxx
+In-Reply-To: <200106230307.f5N370U83109@aslan.scsiguy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Jun 2001, Tom Vier wrote:
-
-> On Fri, Jun 22, 2001 at 09:06:42AM +0200, Mike Galbraith wrote:
-> > It's not actually swapping unless you see IO (si/so).  It's allocating
-> > swap space, but won't send pages out to disk unless there's demand. One
 >
-> if it's pre-allocation, why does it show up as "used"? "reserved" would be a
-> better fit.
-
-(Marcelo answered)
-
-> > benefit of this early allocation is that idle pages will be identified
-> > prior to demand, and will be moved out of the way sooner.  Watch as
 >
-> how long can swap allocation possibly take? certainly no where near as long
-> as a write to disk takes. my box has a half gig of ram, pre-allocation is a
-> waste of cpu. i never hit swap.
+>I don't usually keep up with the various "pre" or "ac" kernels, so I
+>can't give you pointers about which ones are more stable, etc.  As
+>far as the aic7xxx driver is concerned, they should all work the same.
+>I primarally provide patches for release kernels, so that may limit
+>what kernels you can use to get up to the latest aic7xxx driver.
+>
 
-It's not that allocation takes long, it's the fact that no private pages
-were previously _in_ the aging pool.  You see the pages which were added
-to the active page list for aging.  Pages are aged down, and put on the
-inactive_dirty list.  If demand exists, they are moved to the clean list
-and eventually reclaimed. If the page is touched at any time prior to
-being reclaimed, it stays is ram and is reactivated.  Those which stay
-inactive are very good candidates for reclamation.
+Ok, here's the relevant output from 2.2.19.  In future emails, would 
+like all the information posted to the list or would you like URLs to 
+the text docs?
 
-You say pre-allocation is a waste of cpu.. how much cpu can you waste
-if you repeatedly eat and replentish your public cached data before you
-even think of shrinking netscape?  How expensive can it be to have multiple
-tasks waiting for a page to be read from disk vs one task waiting for
-a private page?
+Linux version 2.2.19 (root@James) (gcc version 2.95.3 20010315 
+(release)) #1 Fri
+ Jun 22 20:17:08 PDT 2001
+...
+(scsi0) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/1
+(scsi0) Wide Channel B, SCSI ID=7, 32/255 SCBs
+(scsi0) Downloading sequencer code... 393 instructions downloaded
+(scsi1) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/0
+(scsi1) Wide Channel A, SCSI ID=7, 32/255 SCBs
+(scsi1) Downloading sequencer code... 393 instructions downloaded
+scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.33/3.2.4
+       <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
+scsi1 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.33/3.2.4
+       <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
+scsi : 2 hosts.
+  Vendor: SEAGATE   Model: ST318436LW        Rev: 0005
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
+(scsi0:0:0:2) Synchronous at 40.0 Mbyte/sec, offset 31.
+scsi : detected 1 SCSI generic 1 SCSI disk total.
+SCSI device sda: hdwr sector= 512 bytes. Sectors= 35885168 [17522 MB] 
+[17.5 GB]
 
-So you never hit swap, so what, your swap isn't hitting disk.  If you
-have enough ram that you know for a fact that your cache won't be
-mangled by rss bloat, turn swap off.  If that's the case, in fact you
-have too much ram :)  For those where page replacement is a probability
-and for those who actually use the ram they have, aging private pages
-also vs only aging public pages until _crunch_ time makes good sense.
 
-	-Mike
+David
+
 

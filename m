@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130429AbQLDAkG>; Sun, 3 Dec 2000 19:40:06 -0500
+	id <S130230AbQLDAtu>; Sun, 3 Dec 2000 19:49:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129700AbQLDAj4>; Sun, 3 Dec 2000 19:39:56 -0500
-Received: from laurin.munich.netsurf.de ([194.64.166.1]:36761 "EHLO
-	laurin.munich.netsurf.de") by vger.kernel.org with ESMTP
-	id <S130429AbQLDAjp>; Sun, 3 Dec 2000 19:39:45 -0500
-Date: Mon, 4 Dec 2000 01:10:19 +0100
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test12-pre3 (FireWire issue)
-Message-ID: <20001204011018.A3593@storm.local>
-Mail-Followup-To: Dax Kelson <dax@gurulabs.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10011282248530.6275-100000@penguin.transmeta.com> <Pine.SOL.4.30.0011302253590.28037-100000@ultra1.inconnect.com>
+	id <S130164AbQLDAtk>; Sun, 3 Dec 2000 19:49:40 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:56839 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129700AbQLDAtc>; Sun, 3 Dec 2000 19:49:32 -0500
+Date: Sun, 3 Dec 2000 18:15:24 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-11 AIC7xxx.o driver barfs on AHA27XX adapter
+Message-ID: <20001203181524.A24809@vger.timpanogas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SOL.4.30.0011302253590.28037-100000@ultra1.inconnect.com>; from dax@gurulabs.com on Thu, Nov 30, 2000 at 11:00:07PM -0700
-From: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 11:00:07PM -0700, Dax Kelson wrote:
-> Linus Torvalds said once upon a time (Tue, 28 Nov 2000):
-> 
-> >  - pre3:
-> >     - Andreas Bombe: ieee1394 cleanups and fixes
-> 
-> Linus, Andreas,
-> 
-> I've been using this same config since FireWire was merged, just tried out
-> test12-pre3 and got an unresolved symbol problem with raw1394.o
 
-Frankly, I don't know where the missing symbols could come from.
-Nothing in that area was recently changed.  The patch merged into pre3
-was just removing Linux 2.2 compatibility macros and fixing two bugs,
-symbols were not messed with.
 
-I haven't compiled pre3 myself so far, however.
+On a four processor POCA system with dual Fast-SCSI AHA274X/VLB bus
+controllers I am seeing the following timeout errors right after
+the sequencer scripts are downloaded and the driver starts polling.
+It does not happen when compiled in kernel, only when loaded from 
+an initrd image.  The root FS is getting mounted properly and
+probing and loading the driver.
 
--- 
- Andreas E. Bombe <andreas.bombe@munich.netsurf.de>    DSA key 0x04880A44
-http://home.pages.de/~andreas.bombe/    http://linux1394.sourceforge.net/
+aborting command due to timeout:  pid 00 scsi 00 channel 00 lun 00 
+inquiry 00 00 00 ff 00
+
+The machine then hard hangs after it gets this error and has to be 
+powered off in order to reboot it.
+
+Jeff 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

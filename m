@@ -1,61 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbULRBVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbULRBVS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbULRBVj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 20:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbULRBVj
+	id S262806AbULRBVS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 20:21:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbULRBVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 20:21:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8884 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262808AbULRBVd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 20:21:33 -0500
-Date: Fri, 17 Dec 2004 17:21:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: James Pearson <james-p@moving-picture.com>
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: Re: Reducing inode cache usage on 2.4?
-Message-Id: <20041217172104.00da3517.akpm@osdl.org>
-In-Reply-To: <41C37AB6.10906@moving-picture.com>
-References: <41C316BC.1020909@moving-picture.com>
-	<20041217151228.GA17650@logos.cnet>
-	<41C37AB6.10906@moving-picture.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 17 Dec 2004 20:21:18 -0500
+Received: from mail.portrix.net ([212.202.157.208]:54943 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S262806AbULRBVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 20:21:11 -0500
+Message-ID: <41C385FC.3010109@ppp0.net>
+Date: Sat, 18 Dec 2004 02:21:00 +0100
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041124 Thunderbird/0.9 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Nelson <james4765@verizon.net>
+CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] esp: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
+References: <20041217231915.14919.49991.15433@localhost.localdomain>
+In-Reply-To: <20041217231915.14919.49991.15433@localhost.localdomain>
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Pearson <james-p@moving-picture.com> wrote:
->
-> It seems the inode cache has priority over cached file data.
+James Nelson wrote:
+> This is an attempt to make the esp driver SMP-correct.
 
-It does.  If the machine is full of unmapped clean pagecache pages the
-kernel won't even try to reclaim inodes.  This should help a bit:
+You're trying to protect the info data, correct? Could you please
+add a comment to the locks which data structures need to be
+protected by them?!
+Just blindly replacing cli/sti with spin_(un)lock doesn't make it
+SMP save.
 
---- 24/mm/vmscan.c~a	2004-12-17 17:18:31.660254712 -0800
-+++ 24-akpm/mm/vmscan.c	2004-12-17 17:18:41.821709936 -0800
-@@ -659,13 +659,13 @@ int fastcall try_to_free_pages_zone(zone
- 
- 		do {
- 			nr_pages = shrink_caches(classzone, gfp_mask, nr_pages, &failed_swapout);
--			if (nr_pages <= 0)
--				return 1;
- 			shrink_dcache_memory(vm_vfs_scan_ratio, gfp_mask);
- 			shrink_icache_memory(vm_vfs_scan_ratio, gfp_mask);
- #ifdef CONFIG_QUOTA
- 			shrink_dqcache_memory(vm_vfs_scan_ratio, gfp_mask);
- #endif
-+			if (nr_pages <= 0)
-+				return 1;
- 			if (!failed_swapout)
- 				failed_swapout = !swap_out(classzone);
- 		} while (--tries);
-_
+> diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/esp.c linux-2.6.10-rc3-mm1/drivers/char/esp.c
+> --- linux-2.6.10-rc3-mm1-original/drivers/char/esp.c	2004-12-03 16:52:13.000000000 -0500
+> +++ linux-2.6.10-rc3-mm1/drivers/char/esp.c	2004-12-17 18:11:31.275037730 -0500
+> @@ -212,14 +214,14 @@
+>  	if (serial_paranoia_check(info, tty->name, "rs_stop"))
+>  		return;
+>  	
+> -	save_flags(flags); cli();
+> +	spin_lock_irqsave(&esp_lock, flags);
 
+info can change between return and lock
 
->  What triggers the 'normal ageing round'? Is it possible to trigger this 
->  earlier (at a lower memory usage), or give a higher priority to cached data?
+>  	if (info->IER & UART_IER_THRI) {
+>  		info->IER &= ~UART_IER_THRI;
+>  		serial_out(info, UART_ESI_CMD1, ESI_SET_SRV_MASK);
+>  		serial_out(info, UART_ESI_CMD2, info->IER);
+>  	}
+>  
+> -	restore_flags(flags);
+> +	spin_unlock_irqrestore(&esp_lock, flags);
+>  }
+>  
+>  static void rs_start(struct tty_struct *tty)
+> @@ -230,13 +232,13 @@
+>  	if (serial_paranoia_check(info, tty->name, "rs_start"))
+>  		return;
+>  	
+> -	save_flags(flags); cli();
+> +	spin_lock_irqsave(&esp_lock, flags);
 
-You could also try lowering /proc/sys/vm/vm_mapped_ratio.  That will cause
-inodes to be reaped more easily, but will also cause more swapout.
+same here.
+
+>  	if (info->xmit_cnt && info->xmit_buf && !(info->IER & UART_IER_THRI)) {
+>  		info->IER |= UART_IER_THRI;
+>  		serial_out(info, UART_ESI_CMD1, ESI_SET_SRV_MASK);
+>  		serial_out(info, UART_ESI_CMD2, info->IER);
+>  	}
+> -	restore_flags(flags);
+> +	spin_unlock_irqrestore(&esp_lock, flags);
+>  }
+>  
+>  /*
+
+Didn't read the rest. Are you sure you didn't introduce a deadlock in
+the interrupt handler? {transmit,receiver}_chars_{pio,dma} also try to take
+the lock.
+
+Jan

@@ -1,55 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262913AbTAJG4c>; Fri, 10 Jan 2003 01:56:32 -0500
+	id <S263326AbTAJHMq>; Fri, 10 Jan 2003 02:12:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbTAJG4c>; Fri, 10 Jan 2003 01:56:32 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:60410 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S262913AbTAJG40>;
-	Fri, 10 Jan 2003 01:56:26 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S263333AbTAJHMq>; Fri, 10 Jan 2003 02:12:46 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:38075 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263326AbTAJHMp>; Fri, 10 Jan 2003 02:12:45 -0500
+Date: Thu, 09 Jan 2003 23:21:22 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.55-mjb1 (scalability / NUMA patchset)
+Message-ID: <922170000.1042183282@titus>
+In-Reply-To: <676880000.1042101078@titus>
+References: <19270000.1038270642@flay><134580000.1039414279@titus><32230000.1039502522@titus><568990000.1040112629@titus><21380000.1040717475@titus> <821470000.1041579423@titus> <214500000.1041821919@titus> <676880000.1042101078@titus>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15902.28835.127030.199073@harpo.it.uu.se>
-Date: Fri, 10 Jan 2003 08:05:07 +0100
-To: jamesclv@us.ibm.com
-Cc: Jason Lunz <lunz@falooley.org>, linux-kernel@vger.kernel.org
-Subject: Re: detecting hyperthreading in linux 2.4.19
-In-Reply-To: <200301091337.04957.jamesclv@us.ibm.com>
-References: <slrnb1rlct.g2c.lunz@stoli.localnet>
-	<200301091337.04957.jamesclv@us.ibm.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Cleverdon writes:
- > On Thursday 09 January 2003 12:02 pm, Jason Lunz wrote:
- > > Is there a way for a userspace program running on linux 2.4.19 to tell
- > > the difference between a single hyperthreaded xeon P4 with HT enabled
- > > and a dual hyperthreaded xeon P4 with HT disabled? The /proc/cpuinfos
- > > for the two cases are indistinguishable.
- > >
- > > Jason
- > >
- > > -
- > 
- > In the kernel that's no problem:
- > 
- > A) If the BIOS writers followed Intel's guidelines, just look at the physical 
- > APIC IDs.  HT siblings have odd IDs, the real ones have even.
- > 
- > B) Check the siblings table built up at boot time and used by the scheduler.
- > 
- > I don't know of any way to do this in userland.  The whole point is that the 
- > sibling processors are supposed to look like real ones.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-If the kernel has sched_setaffinity() or some other way of binding a process
-to a given CPU (as numbered by the kernel, which may or may not be related
-to any physical CPU numbers), then this will do it: execute CPUID on each
-CPU and check the initial APIC ID field. If you find one that's non-zero,
-then HT is enabled.
+I'd be very interested in feedback from anyone willing to test on any
+platform, however large or small.
 
-My performance monitoring counters driver uses this approach in kernel-space
-using smp_call_function(). I don't use the siblings tables because they suck :-)
-[I don't think they distinguish between logical CPUs #0 and #1, and they aren't
-exported to modules. The CPUID check is simple and portable across kernel versions.]
+http://www.aracnet.com/~fletch/linux/2.5.55/patch-2.5.55-mjb1.bz2
+
+Since 2.5.54-mjb3
+
+merged with Linus:
+- kallsyms					Andi Kleen / Daniel Ritz
+- apicid_to_node				Martin Bligh
+- i386_topo					Matt Dobson
+- do_boot_error					James Cleverdon
+- more_numaq1					James Cleverdon / Martin Bligh
+- cleanup_cpu_apicid				Martin J. Bligh
+- smpboot_cam					Martin J. Bligh
+- nuke_clustered_apic				Martin J. Bligh
+- fix_starfire_warning				Martin J. Bligh
+
+Other:
+~ summit2					James Cleverdon / John Stultz
+- shpte						Dave McCracken
+		(dropped temporarily until Dave merges up with 2.5.55)
+~ interrupt_stacks				Dave Hansen / Ben LaHaise
+~ stack_usage_check				Dave Hansen / Ben LaHaise
++ ksymsoff					Hugh Dickins
+
+Pending:
+Speed up page init on boot (Bill Irwin)
+Notsc automatic enablement
+scheduler callers profiling (Anton)
+PPC64 NUMA patches (Anton)
+Scheduler tunables (rml)
+Lockless xtime structures (Andi)
+P4 oprofile support (movement)
+
+summit1						James Cleverdon / John Stultz
+	Summit support part 1
+
+summit2						James Cleverdon / John Stultz
+	Summit support part 2
+
+summit3						James Cleverdon / John Stultz
+	Summit support part 3
+
+summit4						James Cleverdon / John Stultz
+	Summit support part 4
+
+dcache_rcu					Dipankar / Maneesh
+	Use RCU type locking for the dentry cache.
+ 
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+numasched1					Erich Focht
+	Numa scheduler general foundation work + pooling
+
+numasched2					Michael Hohnbaum
+	Numa scheduler lightweight initial load balancing.
+
+local_pgdat					Bill Irwin
+	Move the pgdat structure into the remapped space with lmem_map
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+notsc						Martin Bligh
+	Enable notsc option for NUMA-Q (new version for new config system)
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+noframeptr					Martin Bligh
+	Disable -fomit_frame_pointer
+
+ksymoff						Hugh Dickins
+	Fix off by one error in kksymoops
+
+-mjb						Martin Bligh
+	Add a tag to the makefile
+

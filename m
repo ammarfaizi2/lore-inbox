@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268864AbUHLXB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268859AbUHLXBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268864AbUHLXB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUHLXBz
+	id S268859AbUHLXBh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUHLW6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:01:55 -0400
-Received: from apollo.tuxdriver.com ([24.172.12.4]:61457 "EHLO
-	ra.tuxdriver.com") by vger.kernel.org with ESMTP id S268873AbUHLXA2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:00:28 -0400
-Message-ID: <411BF6A5.2030306@tuxdriver.com>
-Date: Thu, 12 Aug 2004 19:00:53 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick Mansfield <patmans@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-Subject: Re: [patch] 2.6 -- add IOI Media Bay to SCSI quirk list
-References: <200408122137.i7CLbGU13688@ra.tuxdriver.com> <20040812225118.GA20904@beaverton.ibm.com>
-In-Reply-To: <20040812225118.GA20904@beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 12 Aug 2004 18:58:03 -0400
+Received: from mail.tmr.com ([216.238.38.203]:41490 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268865AbUHLWya (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 18:54:30 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Thu, 12 Aug 2004 18:58:08 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cfgs3q$h6g$1@gatekeeper.tmr.com>
+References: <200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de><200408101027.i7AARuZr012065@burner.fokus.fraunhofer.de> <1092141996.4383.8119.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1092350906 17616 192.168.12.100 (12 Aug 2004 22:48:26 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <1092141996.4383.8119.camel@hades.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Mansfield wrote:
+David Woodhouse wrote:
 
->We seem to be getting quite a few of these. In theory we could add a line
->like this for every multi-lun SCSI device.
->  
->
+> I haven't even stated which distribution I'm running. How can you
+> possibly know what it puts into /etc/cdrecord.conf when it detects my
+> CD-R? What relation has this to your man page?
 
-Isn't that what the quirk list is for?
+David, I don't know what program you're running, but it is NOT cdrecord! 
+There is no such file used in the program, and hasn't been in versions 
+going back at least a year. I don't recall there ever being such a 
+thing, and I've been using it since cdwrite was active. Any program 
+which uses that file has NO relation to Joerg's man page, it's not his code.
 
->Can you instead try booting with scsi_mod.max_luns=8 (or such) or build
->with SCSI_MULTI_LUN enabled?
->  
->
-
-That works for my box, but what about for others?  Like those who may 
-have both a multi-lun device and a single-lun device that hangs on a 
-non-zero lun?  What about the average luser who can't be bothered to 
-hack-up his startup scripts or *gasp* rebuild his kernel?
-
-It seems like the quirk list is there for a reason.  If we start 
-rejecting certain devices, then what is the criteria for a device to 
-actually make it on the list?
-
-John
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266972AbTAKBTp>; Fri, 10 Jan 2003 20:19:45 -0500
+	id <S267007AbTAKB3a>; Fri, 10 Jan 2003 20:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266989AbTAKBTo>; Fri, 10 Jan 2003 20:19:44 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:9675 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266972AbTAKBTk>;
-	Fri, 10 Jan 2003 20:19:40 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [pthreads-devel] NGPT 2.2.0 RELEASED: TOPS LINUXTHREADS AND NPTL IN
- SCALABILITY AND PERFORMANCE
-To: Bill Abt <babt@us.ibm.com>
-Cc: pthreads-announce@www-124.southbury.usf.ibm.com,
-       pthreads-core@www-124.southbury.usf.ibm.com,
-       pthreads-devel@www-124.southbury.usf.ibm.com,
-       pthreads-users@www-124.southbury.usf.ibm.com,
+	id <S267008AbTAKB33>; Fri, 10 Jan 2003 20:29:29 -0500
+Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:6823 "EHLO
+	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267007AbTAKB30>; Fri, 10 Jan 2003 20:29:26 -0500
+Date: Fri, 10 Jan 2003 20:36:59 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+In-reply-to: <20030110053305.GD14778@waste.org>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Richard Stallman <rms@gnu.org>, lm@bitmover.com,
        linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFD021A392.2FDB9E5D-ON87256CAB.00072F44@us.ibm.com>
-From: Saurabh Desai <sdesai@us.ibm.com>
-Date: Fri, 10 Jan 2003 18:28:11 -0700
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
- 01/10/2003 18:28:13
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=08BBE638DF94A9D48f9e8a93df938690918c08BBE638DF94A9D4"
-Content-Disposition: inline
+Reply-to: robw@optonline.net
+Message-id: <1042249019.1259.2.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <200301050802.h0582u4214558@saturn.cs.uml.edu>
+ <E18Vaoa-0002Pm-00@fencepost.gnu.org>
+ <20030106173705.GP1386@work.bitmover.com>
+ <E18Vtxy-0002c2-00@fencepost.gnu.org>
+ <20030107142612.GO17602@work.bitmover.com>
+ <E18WB8R-0004k9-00@fencepost.gnu.org>
+ <20030108135109.GA8049@work.bitmover.com>
+ <E18Wlsj-0000Zr-00@fencepost.gnu.org> <20030110053305.GD14778@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=08BBE638DF94A9D48f9e8a93df938690918c08BBE638DF94A9D4
-Content-type: text/plain; charset=US-ASCII
+On Fri, 2003-01-10 at 00:33, Oliver Xymoron wrote:
+> On Thu, Jan 09, 2003 at 06:14:37PM -0500, Richard Stallman wrote:
+> [GNU/Linux stuff deleted]
+> 
+> Can we all agree that this is indeed the kernel list and that the
+> kernel is indeed known as simply 'Linux' and that therefore the
+> GNU/Linux debate is off-topic here?
 
+Wasn't it Linux Torvalds who origianlly started using the Minix forums
+to proudly promote Linux to the Minix users (and apparently with some
+success).  I say it's fair game for other OS people to promote related
+OS topics here, especially if related to the linux kernel (or Gnu/Linux
+as the case may be).
 
-
-
-
-
-The benchmark program (pingpong) developed by Sun Microsystem can be found
-at
- http://wwws.sun.com/software/whitepapers/solaris9/multithread.pdf
-
-This patch is needed to compile and run under Linux.
-
-(See attached file: pingpong.c.diff)
-
-Thanks,
-- - - - -
-Saurabh Desai
-
-
-
---0__=08BBE638DF94A9D48f9e8a93df938690918c08BBE638DF94A9D4
-Content-type: application/octet-stream; 
-	name="pingpong.c.diff"
-Content-Disposition: attachment; filename="pingpong.c.diff"
-Content-transfer-encoding: base64
-
-LS0tIHBpbmdwb25nLmMub3JpZwlGcmkgSmFuIDEwIDE5OjAzOjQ1IDIwMDMKKysrIHBpbmdwb25n
-LmMJRnJpIEphbiAxMCAxOTowNDo1OCAyMDAzCkBAIC03LDcgKzcsNyBAQAogICogKiBjYyAtbXQg
-LXhhcmNoPXY5IC14TzQgcHAuYyAtbyBwcDY0IC1scHRocmVhZCAtbHJ0CiAgKiAqLwogI2luY2x1
-ZGUgPHB0aHJlYWQuaD4KLSNpbmNsdWRlIDx0aHJlYWQuaD4KKy8qICNpbmNsdWRlIDx0aHJlYWQu
-aD4gKi8KICNpbmNsdWRlIDxzdGRsaWIuaD4KICNpbmNsdWRlIDxzdHJpbmdzLmg+CiAjaW5jbHVk
-ZSA8c3RkaW8uaD4KQEAgLTY5LDcgKzY5LDcgQEAKIG1haW4oaW50IGFyZ2MsIGNoYXIgKmFyZ3Zb
-XSkKIHsKIAlpbnQgYzsKLQlocnRpbWVfdCB0MDsKKwlzdHJ1Y3QgdGltZXZhbCB0MCwgdDE7CiAJ
-aW50IG50YWJsZXMgPSAxOwogCWludCB0YXJnZXQgPSAxMDAwMDAwOwogCWludCBzbGVlcG1zID0g
-MDsKQEAgLTE1OSwyNyArMTU5LDMxIEBACiAJYmFycmllcl9pbml0KCZiZWdpbl9iYXJyaWVyLCAo
-MiAqIG50YWJsZXMpICsgMSk7CiAJYmFycmllcl9pbml0KCZlbmRfYmFycmllciwgKDIgKiBudGFi
-bGVzKSArIDEpOwogCS8qIHNob3VsZCBub3QgYmUgbmVlZGVkIC0gc2lnaCEgKi8KLQlpZiAoY29u
-Y3VycmVuY3kgPiAwKSB7Ci0JCSh2b2lkKSB0aHJfc2V0Y29uY3VycmVuY3koY29uY3VycmVuY3kp
-OwotCX0KKwkvL2lmIChjb25jdXJyZW5jeSA+IDApIHsKKwkJLy8odm9pZCkgdGhyX3NldGNvbmN1
-cnJlbmN5KGNvbmN1cnJlbmN5KTsKKwkvL30KIAkvKiBpbml0aWFsaXNlIGFsbCBnYW1lcyAqLwot
-CXQwID0gZ2V0aHJ0aW1lKCk7CisJZ2V0dGltZW9mZGF5KCZ0MCwgTlVMTCk7CiAJc2V0dXBfdGFi
-bGVzKG50YWJsZXMsIHRhcmdldCwgc2xlZXBtcyk7CiAJCiAJLyogd2FpdCBmb3IgYWxsIHBsYXll
-cnMgdG8gYmUgcmVhZHkgKi8KIAliYXJyaWVyX3dhaXQoJnNldHVwX2JhcnJpZXIpOwogCWlmICh2
-ZXJib3NlKSB7Ci0JCSh2b2lkKSBwcmludGYoIiVkIHRocmVhZHMgaW5pdGlhbGlzZWQgaW4gJWxs
-ZG1zXG4iLAotCQkJICAgICAgbnRhYmxlcyAqIDIsIChnZXRocnRpbWUoKSAtIHQwKS8xMDAwMDAw
-TEwpOworCQlnZXR0aW1lb2ZkYXkoJnQxLCBOVUxMKTsKKwkJdGltZXJzdWIoJnQxLCAmdDAsICZ0
-MSk7CisJCSh2b2lkKSBwcmludGYoIiVkIHRocmVhZHMgaW5pdGlhbGlzZWQgaW4gJWRzLiVkbXNc
-biIsCisJCQkgICAgICBudGFibGVzICogMiwgdDEudHZfc2VjLCB0MS50dl91c2VjKTsKIAl9CiAJ
-Lyogc3RhcnQgYWxsIGdhbWVzICovCi0JdDAgPSBnZXRocnRpbWUoKTsKKwlnZXR0aW1lb2ZkYXko
-JnQwLCBOVUxMKTsKIAliYXJyaWVyX3dhaXQoJmJlZ2luX2JhcnJpZXIpOwogCS8qIHdhaXQgZm9y
-IGFsbCBnYW1lcyB0byBjb21wbGV0ZSAqLwogCWJhcnJpZXJfd2FpdCgmZW5kX2JhcnJpZXIpOwog
-CWlmICh2ZXJib3NlKSB7Ci0JCSh2b2lkKSBwcmludGYoIiVkIGdhbWVzIGNvbXBsZXRlZCBpbiAl
-bGxkbXNcbiIsCi0JCQkgICAgICBudGFibGVzLCAoZ2V0aHJ0aW1lKCkgLSB0MCkvMTAwMDAwMExM
-KTsKKwkJZ2V0dGltZW9mZGF5KCZ0MSwgTlVMTCk7CisJCXRpbWVyc3ViKCZ0MSwgJnQwLCAmdDEp
-OworCQkodm9pZCkgcHJpbnRmKCIlZCBnYW1lcyBjb21wbGV0ZWQgaW4gJWRzLiVkbXNcbiIsCisJ
-CQkgICAgICBudGFibGVzLCAgdDEudHZfc2VjLCB0MS50dl91c2VjKTsKIAl9CiAJcmV0dXJuICgw
-KTsKIH0K
-
---0__=08BBE638DF94A9D48f9e8a93df938690918c08BBE638DF94A9D4--
+-Rob
+(running Debian Gnu/Linux)
 

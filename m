@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbUKAHl4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbUKAIFo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbUKAHl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 02:41:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbUKAHlz
+	id S261564AbUKAIFo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 03:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbUKAIFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 02:41:55 -0500
-Received: from mproxy.gmail.com ([216.239.56.242]:39334 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261504AbUKAHly (ORCPT
+	Mon, 1 Nov 2004 03:05:44 -0500
+Received: from gprs214-33.eurotel.cz ([160.218.214.33]:16768 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261564AbUKAIFk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 02:41:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dto38kfmsIIaZZ3zHfA7ad2P/1IP9pm3GKDCzfsyB0eCVNShyoF2QpEKRuxxLAx11Mc5epsaG8MavuKpfoeUSX9s8Xxt/Azmhuiw7iZQ3RC3yrr8UXuxjYYz3voKenbz1NA5qe0fZiuiQy2mfMlsUWpKcoL1bbCfJ+bkln9v4aQ=
-Message-ID: <21d7e9970410312341404c5f73@mail.gmail.com>
-Date: Mon, 1 Nov 2004 18:41:53 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH} Trivial - fix drm_agp symbol export
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Christoph Hellwig <hch@infradead.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e473391041031223761ffbf7f@mail.gmail.com>
+	Mon, 1 Nov 2004 03:05:40 -0500
+Date: Mon, 1 Nov 2004 09:03:07 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Map extra keys on compaq evo
+Message-ID: <20041101080306.GA1002@elf.ucw.cz>
+References: <20041031213859.GA6742@elf.ucw.cz> <200410312016.08468.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e473391041022214570eab48a@mail.gmail.com>
-	 <20041023095644.GC30137@infradead.org>
-	 <9e47339104102311229276d8@mail.gmail.com>
-	 <1099288890.25525.4.camel@localhost.localdomain>
-	 <9e473391041031223761ffbf7f@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200410312016.08468.dtor_core@ameritech.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+
+> > Compaq Evo notebooks seem to use non-standard keycodes for their extra
+> > keys. I workaround that quirk with dmi hook.
+> > 
 > 
-> The code in DRM CVS works and it has no DRM() macros, inter_module_xx
-> is gone, and it splits DRM in to DRM-core plus personality modules.
-> Now all we have to do is get it merged into the kernel.  The diffs are
-> huge due to lindent reformatting and removal of DRM() macros.
+> Why don't you just call "setkeycodes" from your init script?
 
-I'm about 50percent through a working tree now ... hopefully I'll
-release it for -mm in the next evening or two,
+In such case I'd need to configure keys at two different places, and
+that's ugly. I have to configure these extra keys with "hotkeys"
+anyway (input layer does not provide list of keys available, so
+"hotkeys" . Having to configure this at two places is pretty ugly.
 
-I've got it nearly building completly now then there'll be some
-testing on it to do..
-
-Dave.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

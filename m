@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317862AbSHLLEW>; Mon, 12 Aug 2002 07:04:22 -0400
+	id <S317864AbSHLLOk>; Mon, 12 Aug 2002 07:14:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317864AbSHLLEW>; Mon, 12 Aug 2002 07:04:22 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10745 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317862AbSHLLEV>; Mon, 12 Aug 2002 07:04:21 -0400
-Subject: Re: [patch] tls-2.5.31-C3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       julliard@winehq.com, ldb@ldb.ods.org
-In-Reply-To: <Pine.LNX.4.44.0208121454580.14271-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208121454580.14271-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Aug 2002 13:29:27 +0100
-Message-Id: <1029155367.16421.163.camel@irongate.swansea.linux.org.uk>
+	id <S317872AbSHLLOk>; Mon, 12 Aug 2002 07:14:40 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:26363 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S317864AbSHLLOk>; Mon, 12 Aug 2002 07:14:40 -0400
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk> 
+References: <1028850350.28882.121.camel@irongate.swansea.linux.org.uk>  <Pine.LNX.4.44.0208082357170.8911-100000@serv> <1028844681.1669.80.camel@ldb> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Luca Barbieri <ldb@ldb.ods.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] asm-generic/atomic.h and changes to arm, parisc, mips, m68k, sh, cris to use it 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 12 Aug 2002 12:16:48 +0100
+Message-ID: <20995.1029151008@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-12 at 13:55, Ingo Molnar wrote:
-> 
-> On 12 Aug 2002, Alan Cox wrote:
-> 
-> > > ugh, we do Linux interrupts while in the APM BIOS?
-> > 
-> > We have to. Most APM bios expects interrupts to be happening. In
-> > pre-emptive mode we may well even be switching to/from APM BIOS code in
-> > 2.5 at the moment. I've not looked into that.
-> 
-> i think that since we hold the APM spinlock (do we always, when calling
-> into the APM BIOS?), we should not preempt any APM BIOS code.
 
-Looking at the 2.5.29 tree I have handy here there is no APM spinlock. I
-don't have 2.5.30/31 unpacked to check those
+alan@lxorguk.ukuu.org.uk said:
+>  Possibly not - volatile doesnt guarantee the compiler won't do
+> 	x = 1
+> 	add *p into x
+> 	store x into *p
 
+Er, AIUI 'volatile' guarantees that '*p++' will do precisely that. It's a 
+load, an add and a store, and the rules about volatile mean that the load 
+and the store _must_ be separate.
+
+--
+dwmw2
 
 

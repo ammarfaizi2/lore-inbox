@@ -1,129 +1,468 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbUBYV3p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 16:29:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUBYV2I
+	id S261603AbUBYV10 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 16:27:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbUBYV1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 16:28:08 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:47060 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261590AbUBYV1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 16:27:23 -0500
-Date: Wed, 25 Feb 2004 22:27:08 +0100
-From: Christophe Saout <christophe@saout.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Morris <jmorris@redhat.com>, jlcooke@certainkey.com,
-       linux-kernel@vger.kernel.org, adam@yggdrasil.com
-Subject: Re: cryptoapi highmem bug
-Message-ID: <20040225212641.GA6587@leto.cs.pocnet.net>
-References: <20040224220030.13160197.akpm@osdl.org> <Xine.LNX.4.44.0402250825110.28907-100000@thoron.boston.redhat.com> <20040225115027.580cc2ed.akpm@osdl.org>
+	Wed, 25 Feb 2004 16:27:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6306 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261590AbUBYVXr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 16:23:47 -0500
+Date: Wed, 25 Feb 2004 13:23:55 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: kjo <kernel-janitors@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [announce] 2.6.3-223 kj patchset
+Message-Id: <20040225132355.43607885.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040225115027.580cc2ed.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 11:50:27AM -0800, Andrew Morton wrote:
 
-> Or maybe it's sufficient for crypt() to pass a simple boolean down to the
-> prfn() callout which says "this is in-place encryption".
 
-Yes, this works. As usual I was simply thinking too complicated. ;)
+patch is at:
+http://developer.osdl.org/rddunlap/kj-patches/2.6.3-223/2.6.3-223-kj1.patch.bz2  [2004-02-25]
 
-It looks like this now. It's on top of Jean-Luc's patch. Jean-Luc, can
-update your patch and use this one instead? It's much simpler this way
-and it keeps the whole voodoo in cipher.c.
+M: merged at kernel.org;   mm: in -mm;   tx: sent;   mntr: maintainer merged;
 
-diff -ur linux.orig/crypto/cipher.c linux/crypto/cipher.c
---- linux.orig/crypto/cipher.c	2004-02-25 17:26:06.000000000 +0100
-+++ linux/crypto/cipher.c	2004-02-25 22:11:03.000000000 +0100
-@@ -26,7 +26,7 @@
- 
- typedef void (cryptfn_t)(void *, u8 *, const u8 *);
- typedef void (procfn_t)(struct crypto_tfm *, u8 *,
--                        u8*, cryptfn_t, int enc, void *);
-+                        u8*, cryptfn_t, int enc, void *, int);
- 
- static inline void xor_64(u8 *a, const u8 *b)
- {
-@@ -81,7 +81,9 @@
- 
- 		scatterwalk_copychunks(src_p, &walk_in, bsize, 0);
- 
--		prfn(tfm, dst_p, src_p, crfn, enc, info);
-+		prfn(tfm, dst_p, src_p, crfn, enc, info,
-+		     scatterwalk_samebuf(&walk_in, &walk_out,
-+					 src_p, dst_p));
- 
- 		scatterwalk_done(&walk_in, 0, nbytes);
- 
-@@ -185,8 +187,8 @@
- }
- #endif /* CONFIG_CRYPTO_OMAC */
- 
--static void cbc_process(struct crypto_tfm *tfm,
--                        u8 *dst, u8 *src, cryptfn_t fn, int enc, void *info)
-+static void cbc_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
-+			cryptfn_t fn, int enc, void *info, int in_place)
- {
- 	u8 *iv = info;
- 	
-@@ -202,9 +204,8 @@
- 		fn(crypto_tfm_ctx(tfm), dst, iv);
- 		memcpy(iv, dst, crypto_tfm_alg_blocksize(tfm));
- 	} else {
--		const int need_stack = (src == dst);
--		u8 stack[need_stack ? crypto_tfm_alg_blocksize(tfm) : 0];
--		u8 *buf = need_stack ? stack : dst;
-+		u8 stack[in_place ? crypto_tfm_alg_blocksize(tfm) : 0];
-+		u8 *buf = in_place ? stack : dst;
- 		
- 		fn(crypto_tfm_ctx(tfm), buf, src);
- 		tfm->crt_u.cipher.cit_xor_block(buf, iv);
-@@ -214,13 +215,12 @@
- 	}
- }
- 
--static void ctr_process(struct crypto_tfm *tfm,
--                        u8 *dst, u8 *src, cryptfn_t fn, int enc, void *info)
-+static void ctr_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
-+			cryptfn_t fn, int enc, void *info, int in_place)
- {
- 	u8 *iv = info;
--	const int need_stack = (src == dst);
--	u8 stack[need_stack ? crypto_tfm_alg_blocksize(tfm) : 0];
--	u8 *buf = need_stack ? stack : dst;
-+	u8 stack[in_place ? crypto_tfm_alg_blocksize(tfm) : 0];
-+	u8 *buf = in_place ? stack : dst;
- 	int i;
- 
- 	/* Null encryption */
-@@ -255,7 +255,7 @@
- 
- 
- static void ecb_process(struct crypto_tfm *tfm, u8 *dst, u8 *src,
--                        cryptfn_t fn, int enc, void *info)
-+			cryptfn_t fn, int enc, void *info, int in_place)
- {
- 	/* we can use dst as scratch space since we overwrite it later */
- 	omac_update(tfm, dst, src);
-diff -ur linux.orig/crypto/scatterwalk.h linux/crypto/scatterwalk.h
---- linux.orig/crypto/scatterwalk.h	2004-02-25 17:26:06.000000000 +0100
-+++ linux/crypto/scatterwalk.h	2004-02-25 22:10:15.000000000 +0100
-@@ -38,6 +38,14 @@
- 	return sg + 1;
- }
- 
-+static inline int scatterwalk_samebuf(struct scatter_walk *walk_in,
-+				      struct scatter_walk *walk_out,
-+				      void *src_p, void *dst_p)
-+{
-+	return walk_in->page == walk_out->page &&
-+	       walk_in->data == src_p && walk_out->data == dst_p;
-+}
-+
- void *scatterwalk_whichbuf(struct scatter_walk *walk, unsigned int nbytes, void *scratch);
- void scatterwalk_start(struct scatter_walk *walk, struct scatterlist *sg);
- int scatterwalk_copychunks(void *buf, struct scatter_walk *walk, size_t nbytes, int out);
+This patch applies to linux-2.6.3-feb23pm.
+new (for 2.6.3-223):  [2004-02-25]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+add/	extraver.patch
+	rddunlap%osdl!org
+
+add/	kswapd_init_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+add/	lmc_proto_raw_h_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+
+add/	setup_bootmem_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+add/	skfddi_errmsg.patch (instead):
+	From: Matthew Wilcox <willy@debian.org>
+
+M/	net_ibmtr_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to netdev/jgarzik: 2004.0223;
+
+M/	net_ne_unused2.patch
+	From: Stephen Hemminger <shemminger@osdl.org>
+	sent to netdev/jgarzik: 2004.0223;
+
+done/	net_skge_unused.patch
+	From: Stephen Hemminger <shemminger@osdl.org>
+	sent to netdev/jgarzik: 2004.0223;
+
+M/	net_strip_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to netdev/jgarzik: 2004.0223;
+
+M/	net_strip_noprocfs.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to netdev/jgarzik: 2004.0223;
+
+tx/	posix_timers_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to akpm: 2004.0220;
+
+drop/	pm2fb_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm/mntr: 2004.0220;
+	Replaced by rewritten driver.
+
+tx/	video_cyber2000fb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_neofb_audit2.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_radeonfb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_vesafb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_vfb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	mod_license_move.patch
+	From: Fry <fryboy@optushome.com.au>
+	sent to akpm/mntr: 2004.0220;
+
+add/	90patches.tar.gz for unneeded casts
+	From: Carlo Perassi <carlo@linux.it>
+	net_arm_casts.patch
+	net_atalk_fc_casts.patch
+done/	net_bonding_casts.patch
+	net_hamradio_casts.patch
+	net_pcmcia_casts.patch
+	net_token_casts.patch
+	net_tulip_casts.patch
+	net_wan_casts.patch
+	net_wireless_casts.patch
+	s390_net_cast.patch
+	fusion_mptlan.patch
+	char_synclink.patch
+	ieee1394_eth1394.patch
+	net_generic_casts.patch
+	net_intel_casts.patch
+	net_lance_casts.patch
+	net_3cxyz_casts.patch (except for 3c527.c changes)
+	drivers_net_casts.patch (except for tc35815.c, 68360enet.c)
+
+add/	atm_nicstar_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+
+add/	doc_00_index.patch
+	From: Alexey Dobriyan <adobriyan@mail.ru>
+
+add/	drivers_net_v2_casts.patch
+	From: Carlo Perassi <carlo@linux.it>
+
+add/	ide_piix_init.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+
+add/	isdn_eicon_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+
+add/	message_fusion_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+
+add/	mtd_doc200x_warn.patch
+	From: Vinay K Nallamothu <nvk@gsecone.com>
+
+add/	genrtc_proc.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	From: Randy.Dunlap <rddunlap%osdl!org>
+
+wait	ipv4_fib_hash_check.patch
+	From: Francois Romieu <romieu@fr.zoreil.com>
+	original From: <WHarms@bfs.de>(Walter Harms)
+
+add/	file2alias_signcomp.patch
+fxd	From: Ron Gage <ron@rongage.org>
+
+add/	fixdep_signcomp.patch
+fxd	From: Ron Gage <ron@rongage.org>
+
+add/	modpost_signcomp.patch
+	From: Ron Gage <ron@rongage.org>
+
+add/	char_rioctrl_retval.patch
+	From: Tony Breeds <tony@bakeyournoodle.com>
+
+
+previous (for 2.6.3):  [2004-02-18]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+add/	extraver.patch
+	rddunlap%osdl!org
+
+drop/	fs_buffer_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to akpm: 2004.0220;
+	Nope, just let it fault later.
+
+???	ipv4_fibhash_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+
+M/	ipv4_inetpeer_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to netdev/davem: 2004.0223;
+
+M/	ipv4_ipmr_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to netdev/davem: 2004.0223;
+
+M/	ipv6_fib_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to netdev/davem: 2004.0223;
+
+M/	ipv6_route_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to netdev/davem: 2004.0223;
+
+M/	jffs_checks.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to akpm: 2004.0220;
+
+add/	kswapd_init_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+add/	lmc_proto_raw_h_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+
+M/	media_saa5249_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm: 2004.0220;
+
+tx/	net_ibmtr_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to netdev/jgarzik: 2004.0223;
+
+M/	net_neighbour_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to netdev/davem: 2004.0223;
+
+tx/	net_ne_unused2.patch
+	From: Stephen Hemminger <shemminger@osdl.org>
+	sent to netdev/jgarzik: 2004.0223;
+
+M/	net_pppoe_noprocfs2.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to netdev/davem: 2004.0223;
+
+M/	net_pppoe_rmproc.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to netdev/davem: 2004.0223;
+
+tx/	net_skge_unused.patch
+	From: Stephen Hemminger <shemminger@osdl.org>
+	sent to netdev/jgarzik: 2004.0223;
+
+tx/	net_strip_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to netdev/jgarzik: 2004.0223;
+
+tx/	net_strip_noprocfs.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to netdev/jgarzik: 2004.0223;
+
+tx/	pm2fb_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	posix_timers_kmemcc.patch
+	From: <WHarms@bfs.de>(Walter Harms)
+	sent to akpm: 2004.0220;
+
+add/	setup_bootmem_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+drop	skfddi_regions_pciupdate.patch
+	From: Matthew Wilcox <willy@debian.org>
+	merged with another skfddi cleanup patch;
+
+add?	skfddi_errmsg.patch (instead):
+
+mntr/	stv680_fixes.patch
+	From: Domen Puncer <domen@coderock.org>
+
+M/	tele_ixj_minmax.patch
+	From: Michael Veeck <michael.veeck@gmx.net>
+	sent to akpm: 2004.0220;
+
+tx/	video_cyber2000fb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_neofb_audit2.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_radeonfb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_vesafb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	video_vfb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/mntr: 2004.0220;
+
+tx/	mod_license_move.patch
+	From: Fry <fryboy@optushome.com.au>
+	sent to akpm/mntr: 2004.0220;
+
+add/	90patches.tar.gz for unneeded casts
+	From: Carlo Perassi <carlo@linux.it>
+	net_arm_casts.patch
+	net_atalk_fc_casts.patch
+done/	net_bonding_casts.patch
+	net_hamradio_casts.patch
+	net_pcmcia_casts.patch
+	net_token_casts.patch
+	net_tulip_casts.patch
+	net_wan_casts.patch
+	net_wireless_casts.patch
+	s390_net_cast.patch
+	fusion_mptlan.patch
+	char_synclink.patch
+	ieee1394_eth1394.patch
+	net_generic_casts.patch
+	net_intel_casts.patch
+	net_lance_casts.patch
+	net_3cxyz_casts.patch (except for 3c527.c changes)
+	drivers_net_casts.patch (except for tc35815.c, 68360enet.c)
+
+previous (for 2.6.2-rc2):  [2004-01-27]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+M/	ide_pci_triflex_not_procfs.patch
+	From: Luiz Fernando Capitulino <lcapitulino@prefeitura.sp.gov.br>
+	sent to akpm/maint: 2004.0204;
+
+M/	ps2esdi_typos.patch
+	From: Timmy Yee <shoujun@masterofpi.org>
+	sent to akpm/maint: 2004.0204;
+
+M/	fbcmap_kmalloc.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/maint: 2004.0204;
+
+tx/	vga16fb_audit.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to akpm/maint: 2004.0204;
+
+previous (for 2.6.2-rc1):  [2004-01-23] [not announced]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tx/	errno_numbers_assembly.patch
+	From: Danilo Piazzalunga <danilopiazza@libero.it>
+	to akpm: 2004.0126;
+
+drop/	ide_tape_kmalloc_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+	looks wrong:  can't just return without doing work;
+
+M/	linux_sound_c99_init.patch
+	From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+	to akpm/perex: 2004.0124;
+
+drop/	parameter_typos.patch
+	From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
+	don't worry about spellos in comments;
+
+previous (for 2.6.1-bk6):  [2004-01-21]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+M/	aha1542_kmalloc_type.patch
+	From: Timmy Yee <shoujun@masterofpi.org>
+	to linux-scsi 2004.0124;
+
+M/	aha1542_qcommand_return.patch
+	From: Timmy Yee <shoujun@masterofpi.org>
+	to linux-scsi 2004.0124;
+
+M/	char_dz_vrfy_area.patch
+	From: Domen Puncer <domen@coderock.org>
+	to akpm: 2004.0124;
+
+M/	config_sysrq.patch
+	From: Domen Puncer <domen@coderock.org>
+	to akpm: 2004.0124;
+
+mntr/	mcfserial_remove_casts_args.patch
+	From: Domen Puncer <domen@coderock.org>
+	to gerg@snapgear.com 2004.0124;
+
+mntr/	netdev_get_stats.patch
+	From: Domen Puncer <domen@coderock.org>
+	to netdev/davem: 2004.0124;
+
+tx/	scsi_config_doc.patch
+	From: Jean Delvare <khali@linux-fr.org>
+	to linux-scsi 2004.0124;
+
+M/	saa7146_hlp_min_max.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+	to maint: 2004.0124;
+
+previous (for 2.6.1-bk4):  [2004-01-16]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mntr/	config_ledman_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+	to gerg@snapgear.com 2004.0124;
+
+M/	ipt_register_target_retval.patch
+	From: Daniele Bellucci <bellucda@tiscali.it>
+	to netdev/davem: 2004.0124;
+
+drop/	kconfig_cleanups_v1.patch
+	From: Matthew Wilcox <willy@debian.org>
+  drop	drivers/block/Kconfig: merge conflicts
+  drop	drivers/video/console/Kconfig: merge conflicts
+  drop	drivers/i2c/*/Kconfig: already merged
+  	Willy to handle with akpm.
+
+add?	kswapd_init_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+
+add/	lmc_proto_raw_h_rm.patch
+	From: Domen Puncer <domen@coderock.org>
+
+M/	netdev_rm_casts.patch
+	From: Carlo Perassi <carlo@linux.it>
+	to netdev/jgarzik: 2004.0124;
+
+mntr/	s390_net_ctctty_putuser.patch
+	From: Domen Puncer <domen@coderock.org>
+	(rediffed)
+	sent to s390 mntr: 2004.0124;
+
+tx/	setup_bootmem_fail.patch
+	From: Eugene Teo <eugene.teo@eugeneteo.net>
+	sent to akpm: 2004.0220;
+
+drop	skfddi_regions_pciupdate.patch
+	From: Matthew Wilcox <willy@debian.org>
+	merged into another skfddi cleanup patch;
+
+drop/	acpi_boot_message_typo.patch
+	From: Simon Richard Grint <rgrint@mrtall.compsoc.man.ac.uk>
+	no longer applicable: function was removed;
+
+M/	cpcihp_zt5550_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	to gregkh: 2004.0124;
+
+mntr/	mfcserial_vrfyarea.patch
+	From: Domen Puncer <domen@coderock.org>
+	to gerg@snapgear.com 2004.0124;
+
+M/	vga16fb.c_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	to akpm/mntr: 2004.0126;
+
+M/	vgastate.c_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	to akpm/mntr: 2004.0126;
+
+drop/	tc35815.c_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to jgarzik/netdev: 2004.0118;
+	already in netdev patchset;
+
+drop/	depca_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	already in netdev patchset;
+
+tx/	dgrs_iounmap.patch
+	From: Leann Ogasawara <ogasawara@osdl.org>
+	sent to jgarzik/netdev: 2004.0118;
+
+###
+
+backlog:
+
+- string/ptr changes (max, Luiz)
+- list_for_each (max)
+- kernel_thread (Walter)
+- ipv4/fib_hash.c (Francois, Walter)
+
+--
+~Randy

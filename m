@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313044AbSDYKXu>; Thu, 25 Apr 2002 06:23:50 -0400
+	id <S313041AbSDYKZP>; Thu, 25 Apr 2002 06:25:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313045AbSDYKXt>; Thu, 25 Apr 2002 06:23:49 -0400
-Received: from [159.226.41.188] ([159.226.41.188]:7431 "EHLO
-	gatekeeper.ncic.ac.cn") by vger.kernel.org with ESMTP
-	id <S313044AbSDYKXs>; Thu, 25 Apr 2002 06:23:48 -0400
-Date: Thu, 25 Apr 2002 18:6:6 +0800
-From: "Huo Zhigang" <zghuo@gatekeeper.ncic.ac.cn>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Re: Re: what`s wrong?
-Organization: NCIC
-X-mailer: FoxMail 3.11 Release [cn]
-Content-Type: text/plain; charset="GB2312"
-Content-Transfer-Encoding: 7bit
-Message-ID: <7754BE8E9F3.AAA6F3A@gatekeeper.ncic.ac.cn>
+	id <S313054AbSDYKZO>; Thu, 25 Apr 2002 06:25:14 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:63500 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313041AbSDYKZN>; Thu, 25 Apr 2002 06:25:13 -0400
+Date: Thu, 25 Apr 2002 12:25:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Karim Yaghmour <karim@opersys.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Linux Trace Toolkit 0.9.5
+In-Reply-To: <3CC72CDC.CF80C0C6@opersys.com>
+Message-ID: <Pine.LNX.4.21.0204251154510.31280-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I am very sorry to ask such a stupid question. I think I have to work harder 8-)
-  Thank you all, especially Matti Aarnio, Mike Galbraith, Joe Thornber.
-  Now, I began to treat the kernel as an ordinary, but much more complex, C program.  :)
+Hi,
 
+On Wed, 24 Apr 2002, Karim Yaghmour wrote:
 
->On Thu, Apr 25, 2002 at 05:12:21PM +0800, Huo Zhigang wrote:
->....
->> >The entire kernel stack is only 8kB in size.  You have already killed
->>   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> >a bunch of random memory by allocating this much memory on the stack.
->> >You allocated 4*8192 = 32kB on the stack here.
->>   
->>    Sure, the kernel stack is 8192 Bytes, but "err_frame[]" is a local 
->>    variable. Does the kernel allocate memory for "err_frame[]" from the 
->>    stack?? 
->
->   It is not about how KERNEL does it, but how C (programming language)
->   does it.  If you don't know C's memory management things regarding
->   various classes of variables, I suggest you pick some good reference
->   book and study it asap.
->
->>    Here, I think, err_frame[] as a function parameter  will take 8K in 
->>    the kernel stack.  Am I correct?
->
+> As I said earlier, a 2.5.x patch is available and LTT is ready to
+> be integrated into the 2.5 series.
 
-      
+I'd really like to see it go in, but I think some small problems are left,
+mostly formatting. Please read Documentation/CodingStyle.
+Please use tabs for indentation and not spaces.
+You should consider using more inline functions, instead of lots of "do
+{...} while(0)" macros.
+Do we really need more usages of uint32_t or uint8_t in the kernel?
+Instead of using lots of "#ifdef __arch__" you should move this into
+<asm/trace.h>.
+Comments are nice, but IMO your code does a bit too much of it, e.g.:
+
+  /* Everything is OK */
+  return 0;
+
+or
+
+  /* Unlock the table for reading */
+  read_unlock(&custom_list_lock);
+
+bye, Roman
 

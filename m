@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264313AbRFGEeR>; Thu, 7 Jun 2001 00:34:17 -0400
+	id <S264312AbRFGEZQ>; Thu, 7 Jun 2001 00:25:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264315AbRFGEeH>; Thu, 7 Jun 2001 00:34:07 -0400
-Received: from www.wen-online.de ([212.223.88.39]:52750 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S264313AbRFGEdw>;
-	Thu, 7 Jun 2001 00:33:52 -0400
-Date: Thu, 7 Jun 2001 06:32:42 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Derek Glidden <dglidden@illusionary.com>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <m1k82p5rxr.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33.0106070631150.285-100000@mikeg.weiden.de>
+	id <S264313AbRFGEZG>; Thu, 7 Jun 2001 00:25:06 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:28939 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S264312AbRFGEY6>; Thu, 7 Jun 2001 00:24:58 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: I/O system call never returns if file desc is closed in the
+In-Reply-To: <E157kxf-0000UE-00@the-village.bc.nu>
+	<p05100310b744a22f02a6@[192.109.102.42]>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 07 Jun 2001 06:24:38 +0200
+In-Reply-To: <p05100310b744a22f02a6@[192.109.102.42]> (Matthias Urlichs's message of "Thu, 7 Jun 2001 05:25:30 +0200")
+Message-ID: <tgbso0diih.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Jun 2001, Eric W. Biederman wrote:
+Matthias Urlichs <smurf@noris.de> writes:
 
-> Mike Galbraith <mikeg@wen-online.de> writes:
->
-> > > If you could confirm this by calling swapoff sometime other than at
-> > > reboot time.  That might help.  Say by running top on the console.
-> >
-> > The thing goes comatose here too. SCHED_RR vmstat doesn't run, console
-> > switch is nogo...
-> >
-> > After running his memory hog, swapoff took 18 seconds.  I hacked a
-> > bleeder valve for dead swap pages, and it dropped to 4 seconds.. still
-> > utterly comatose for those 4 seconds though.
->
-> At the top of the while(1) loop in try_to_unuse what happens if you put in.
-> if (need_resched) schedule();
-> It should be outside all of the locks.  It might just be a matter of everything
-> serializing on the SMP locks, and the kernel refusing to preempt itself.
+> Select is defined as to return, with the appropriate bit set, if/when
+> a nonblocking read/write on the file descriptor won't block. You'd get
+> EBADF in this case, therefore causing the select to return would be a
+> Good Thing.
 
-That did it.
+How do you avoid race conditions if more than one thread is creating
+file descriptors?  I think you can only do that under very special
+circumstances, and it definitely requires some synchronization.
 
-	-Mike
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

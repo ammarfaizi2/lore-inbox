@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311940AbSC1Gxy>; Thu, 28 Mar 2002 01:53:54 -0500
+	id <S311948AbSC1HAz>; Thu, 28 Mar 2002 02:00:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311948AbSC1Gxq>; Thu, 28 Mar 2002 01:53:46 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:18661 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S311940AbSC1Gxe>; Thu, 28 Mar 2002 01:53:34 -0500
-Date: Thu, 28 Mar 2002 08:42:21 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
-Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support (take 2)
-In-Reply-To: <3CA293A3.7040408@didntduck.org>
-Message-ID: <Pine.LNX.4.44.0203280818480.20437-100000@netfinity.realnet.co.sz>
+	id <S311960AbSC1HAq>; Thu, 28 Mar 2002 02:00:46 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:14982 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S311948AbSC1HAd> convert rfc822-to-8bit; Thu, 28 Mar 2002 02:00:33 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hans-Christian Armingeon <linux.johnny@gmx.net>
+To: Steven Walter <srwalter@yahoo.com>, Berend De Schouwer <bds@jhb.ucs.co.za>
+Subject: Re: VIA text console corruption and fix.
+Date: Thu, 28 Mar 2002 09:03:37 +0100
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1017256651.18224.40.camel@bds.ucs.co.za> <20020327225549.GA5337@hapablap.dyn.dhs.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200203280903.37096.linux.johnny@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Brian Gerst wrote:
-
-> You are missing the asm stub for the interrupt handler.  You can't just 
-> call C code directly from the interrupt vector.  Look in i8259.c where 
-> the stubs are for the other APIC interrupts.
-
-hmm, i thought the traps.c stuff was sufficient. Thanks i'll check that 
-out.
-
-	Zwane
-
--- 
-http://function.linuxpower.ca
-		
-
+Am Mittwoch, 27. März 2002 23:55 schrieb Steven Walter:
+> On Wed, Mar 27, 2002 at 09:17:30PM +0200, Berend De Schouwer wrote:
+> [...]
+>
+> > I have 3000+ identical VIA KT133/Duron 750MHz machines.  In 20% of these
+> > the bug is visible, in the others, it isn't.  The machines run in an
+> > LTSP-ish configuration.  The machines are supposed to be identical (they
+> > were bought together), but have different revisions of BIOS versions,
+> > etc.  They have on-board S3 Savage cards that steal RAM from the main
+> > RAM.
+>
+> Aha, another.  You're the fourth or fifth person with this problem.  I
+> have a patch very similar to yours.  What my patch does is only clear
+> bit 7, which is what was experimentally determined to disable the Write
+> Memory Queue.  So far it seems that only KM133 (KT133 w/onboard S3
+> Savage) are afflicted.
+Well, I had a corrupted screen [unreadable characters], after running KDE rc3 for a few hours. Seems like the console font has been corrupted.
+>
+> However, the patch isn't being accepted until an explanation from VIA is
+> obtained (apparently the head kernel honcho's were explicitly told to
+> clear bit 5).  I'm working on that now.
 

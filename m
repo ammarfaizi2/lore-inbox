@@ -1,55 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbTLDNrp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 08:47:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTLDNrp
+	id S262126AbTLDNib (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 08:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTLDNib
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 08:47:45 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:43136 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S262055AbTLDNrg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 08:47:36 -0500
-Date: Thu, 4 Dec 2003 14:47:33 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Hinds <dhinds@sonic.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Worst recursion in the kernel
-Message-ID: <20031204134733.GA7890@wohnheim.fh-wedel.de>
-References: <20031203143122.GA6470@wohnheim.fh-wedel.de> <20031203100709.B6625@sonic.net> <20031203190440.GA15857@wohnheim.fh-wedel.de> <20031203150804.A19286@sonic.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 4 Dec 2003 08:38:31 -0500
+Received: from shark.pro-futura.com ([161.58.178.219]:37021 "EHLO
+	shark.pro-futura.com") by vger.kernel.org with ESMTP
+	id S262126AbTLDNiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 08:38:19 -0500
+From: "Tvrtko A. =?utf-8?q?Ur=C5=A1ulin?=" <tvrtko@croadria.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Con Kolivas <kernel@kolivas.org>
+Subject: Re: 2.4.23-ck1
+Date: Thu, 4 Dec 2003 14:36:57 +0100
+User-Agent: KMail/1.5.1
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200312040228.44980.kernel@kolivas.org> <200312042321.44902.kernel@kolivas.org> <Pine.LNX.4.53.0312041421300.9854@gockel.physik3.uni-rostock.de>
+In-Reply-To: <Pine.LNX.4.53.0312041421300.9854@gockel.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031203150804.A19286@sonic.net>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200312041436.57450.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 December 2003 15:08:04 -0800, David Hinds wrote:
-> 
-> The issue is that validate_mem() doesn't need to use read_cis_mem's
-> functionality directly (so it can't just be modified to use the __*
-> form).  It calls other stuff, which calls other stuff, which
-> eventually calls read_cis_mem(), and all that other stuff is used by
-> other callers.  So there isn't an obvious place to insert this
-> bifurcation.
+On Thursday 04 December 2003 14:31, Tim Schmielau wrote:
 
-This explanation sounds a bit like "that mess is too fragile, there is
-no way to touch it without everything falling apart."  Just one more
-reason to change it and make it more maintainable.  I agree, it is a
-big piece of work waiting for 2.7 to open up, but your only excuse not
-to do it eventually is lack of time. ;)
+> Warning: totally untested. Pretty much obvious, however.
 
-> inv_probe() is pretty comprehensible, it calls itself directly, in
-> order to traverse a short linked list from tail to head.
+oxygene:/usr/src/linux-2.4.23-ck1 # patch --dry-run 
+<../patches/2.4.23-ck1-stat-fix.patch -p1 --global-reject=bla
+patching file fs/proc/proc_misc.c
+Hunk #1 FAILED at 422.
+Hunk #2 FAILED at 460.
+2 out of 2 hunks FAILED -- saving rejects to file fs/proc/proc_misc.c.rej
 
-Sounds like a valid candidate for <list.h>, but if you can prove the
-list to always be short, it is ok.
+oxygene:/usr/src/linux-2.4.23-ck1 # cat bla
+*************** fs/proc/proc_misc.c
+*** 422,428 ****
+                         (unsigned long long) jiffies_64_to_clock_t(user),
+                         (unsigned long long) jiffies_64_to_clock_t(nice),
+                         (unsigned long long) jiffies_64_to_clock_t(system),
+-                        (unsigned long long) jiffies_64_to_clock_t(jif - user 
+-
+ nice - system));
+         }
+         proc_sprintf(page, &off, &len,
+                 "page %u %u\n"
+--- 422,428 ----
+                         (unsigned long long) jiffies_64_to_clock_t(user),
+                         (unsigned long long) jiffies_64_to_clock_t(nice),
+                         (unsigned long long) jiffies_64_to_clock_t(system),
++                        (unsigned long long) jif - jiffies_64_to_clock_t(user 
++
+ nice + system));
+         }
+         proc_sprintf(page, &off, &len,
+                 "page %u %u\n"
+*************** fs/proc/proc_misc.c
+*** 460,466 ****
+                 }
+         }
 
-Jörn
+-        do_div(jif, HZ);
+         proc_sprintf(page, &off, &len,
+                 "\nctxt %lu\n"
+                 "btime %lu\n"
+--- 460,466 ----
+                 }
+         }
 
--- 
-Write programs that do one thing and do it well. Write programs to work
-together. Write programs to handle text streams, because that is a
-universal interface. 
--- Doug MacIlroy
++        do_div(jif, USER_HZ);
+         proc_sprintf(page, &off, &len,
+                 "\nctxt %lu\n"
+                 "btime %lu\n"
+
+
+
+> Sorry,
+> Tim
+>
+>
+> --- linux-2.4.23-ck1/fs/proc/proc_misc.c	2003-12-04 14:15:59.000000000
+> +0100 +++ linux-2.4.23-ck1-fix/fs/proc/proc_misc.c	2003-12-04
+> 14:20:07.000000000 +0100 @@ -422,7 +422,7 @@
+>  			(unsigned long long) jiffies_64_to_clock_t(user),
+>  			(unsigned long long) jiffies_64_to_clock_t(nice),
+>  			(unsigned long long) jiffies_64_to_clock_t(system),
+> -			(unsigned long long) jiffies_64_to_clock_t(jif - user - nice -
+> system)); +			(unsigned long long) jif - jiffies_64_to_clock_t(user + nice
+> + system)); }
+>  	proc_sprintf(page, &off, &len,
+>  		"page %u %u\n"
+> @@ -460,7 +460,7 @@
+>  		}
+>  	}
+>
+> -	do_div(jif, HZ);
+> +	do_div(jif, USER_HZ);
+>  	proc_sprintf(page, &off, &len,
+>  		"\nctxt %lu\n"
+>  		"btime %lu\n"
+

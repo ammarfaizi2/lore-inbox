@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265484AbUFICp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265510AbUFICuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265484AbUFICp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 22:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUFICp3
+	id S265510AbUFICuc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 22:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265512AbUFICuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 22:45:29 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:2642 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265484AbUFICp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 22:45:28 -0400
-Message-ID: <04f301c44dcb$7441b6a0$6804a8c0@shrike>
-From: "Brad Mattick" <bradmattick@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: simple sparc32 smp question
-Date: Tue, 8 Jun 2004 19:42:46 -0700
+	Tue, 8 Jun 2004 22:50:32 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:29432 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265510AbUFICua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 22:50:30 -0400
+Date: Tue, 8 Jun 2004 22:52:09 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Hanna Linder <hannal@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
+In-Reply-To: <10660000.1086732946@dyn318071bld.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.58.0406082248360.23469@montezuma.fsmlabs.com>
+References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com>
+ <40BE6CA9.9030403@zytor.com> <20040603193256.GD23564@kroah.com>
+ <7430000.1086729016@dyn318071bld.beaverton.ibm.com>
+ <10660000.1086732946@dyn318071bld.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, 8 Jun 2004, Hanna Linder wrote:
 
-I've checked the outdated faqs, searched through the archives and still
-haven't found an answer to my simple question:
+> +static void cpuid_class_simple_device_remove(void)
+> +{
+> +	int i = 0;
+> +	for_each_online_cpu(i)
+> +		class_simple_device_remove(MKDEV(CPUID_MAJOR, i));
+> +	return;
+> +}
 
-What is the latest stable kernel that I can run on a quad 125 MHz Ross
-HyperSparc SPARCstation 20?
+My understanding is that the above removes the class for each online cpu.
 
-I'm currently running 2.2.22 and it has a kernel oops weekly with all 4 CPUs
-installed. With 2 CPUs (either card- I've tested) it runs stable, if much
-slower. Last I checked (back when 2.4 was new) 2.2 was it for sparc32. Is
-this still the case?
+> +static int __devinit cpuid_class_cpu_callback(struct notifier_block *nfb, unsigned long action, void *hcpu)
+> +{
+> +	unsigned int cpu = (unsigned long)hcpu;
+> +
+> +	switch(action) {
+> +	case CPU_ONLINE:
+> +		cpuid_class_simple_device_add(cpu);
+> +		break;
+> +	case CPU_DEAD:
+> +		cpuid_class_simple_device_remove();
+> +		break;
 
-Thanks for any help you can offer.
+So the above will remove the class for all online processors when one
+processor goes down? By the way, you can use i386 SMP to test cpu hotplug
+code paths.
 
--Brad
-
-----------------------------------------------------
-This mailbox protected from junk email by MailFrontier Desktop
-from MailFrontier, Inc. http://info.mailfrontier.com
+	Zwane
 

@@ -1,79 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130191AbRAQWXy>; Wed, 17 Jan 2001 17:23:54 -0500
+	id <S130579AbRAQWYo>; Wed, 17 Jan 2001 17:24:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130484AbRAQWXp>; Wed, 17 Jan 2001 17:23:45 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:64824
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S130191AbRAQWX3>; Wed, 17 Jan 2001 17:23:29 -0500
-Date: Wed, 17 Jan 2001 23:23:20 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] make drivers/scsi/mvme147.c care about (some) return codes (240p3)
-Message-ID: <20010117232320.C602@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S130605AbRAQWYe>; Wed, 17 Jan 2001 17:24:34 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:19889 "EHLO
+	fungus.svenskatest.se") by vger.kernel.org with ESMTP
+	id <S130579AbRAQWYQ>; Wed, 17 Jan 2001 17:24:16 -0500
+Date: Wed, 17 Jan 2001 23:24:05 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: "Scott A. Sibert" <kernel@hollins.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: oops in 2.4.1-pre8
+In-Reply-To: <3A66130E.8010004@hollins.edu>
+Message-ID: <Pine.LNX.4.30.0101172312550.18642-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 17 Jan 2001, Scott A. Sibert wrote:
 
-(I have not been able to find a maintainer for this code.)
+> I'm consistently getting an oops when accessing any smbfs mount whether
+> running 'ls' inside the smbfs mount or hitting TAB for filename
+> completion of a directory in an smbfs mount.  I have another machine
+> (dual P2/300 w/320MB memory) that does not have this problem.  The P2
 
-The following patch makes drivers/scsi/mvme147.c check the return code
-from request_irq and scsi_register. It applies cleanly against 240p3 
-and ac9.
-
-Please comment.
+That other machine is not compiled with bigmem, I assume.
 
 
---- linux/drivers/scsi/mvme147.c	Tue Nov 28 02:57:34 2000
-+++ linux-ac9/drivers/scsi/mvme147.c	Wed Jan 17 22:40:08 2001
-@@ -74,13 +74,18 @@
-     tpnt->proc_info = &wd33c93_proc_info;
- 
-     mvme147_host = scsi_register (tpnt, sizeof(struct WD33C93_hostdata));
-+    if (!mvme147_host)
-+	    goto err_out;
-+
-     mvme147_host->base = 0xfffe4000;
-     mvme147_host->irq = MVME147_IRQ_SCSI_PORT;
-     wd33c93_init(mvme147_host, (wd33c93_regs *)0xfffe4000,
- 		 dma_setup, dma_stop, WD33C93_FS_8_10);
- 
--    request_irq(MVME147_IRQ_SCSI_PORT, mvme147_intr, 0, "MVME147 SCSI PORT", mvme147_intr);
--    request_irq(MVME147_IRQ_SCSI_DMA, mvme147_intr, 0, "MVME147 SCSI DMA", mvme147_intr);
-+    if (request_irq(MVME147_IRQ_SCSI_PORT, mvme147_intr, 0, "MVME147 SCSI PORT", mvme147_intr))
-+	    goto err_unregister;
-+    if (request_irq(MVME147_IRQ_SCSI_DMA, mvme147_intr, 0, "MVME147 SCSI DMA", mvme147_intr))
-+	    goto err_free_irq;
- #if 0	/* Disabled; causes problems booting */
-     m147_pcc->scsi_interrupt = 0x10;	/* Assert SCSI bus reset */
-     udelay(100);
-@@ -94,6 +99,14 @@
-     m147_pcc->dma_intr = 0x89;		/* Ack and enable ints */
- 
-     return 1;
-+
-+ err_free_irq:
-+    free_irq(MVME147_IRQ_SCSI_PORT, mvme147_intr);
-+ err_unregister:
-+    wd33c93_release();
-+    scsi_unregister(mvme147_host);
-+ err_out:
-+    return 0;
- }
- 
- #define HOSTS_C
+> Ethernet is compiled into the kernel as is smbfs (not as modules).  I've
+> compiled this kernel with 4GB bigmem support (otherwise I only get 8xxMB
+> total).
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
+The smbfs cache code in 2.4.0 doesn't work with bigmem. For now disable
+bigmem or don't use smbfs, it's oopsing all the time.
 
-"I begin by taking. I shall find scholars later to demonstrate my 
-perfect right." - Frederick (II) the Great
+Rainer Mager reported the same thing yesterday ("Oops with 4GB memory
+setting in 2.4.0 stable" if you want to read the thread).
+
+I am currently looking into this ... what kind of server are you
+connecting to? win2k/NT4/9x? It is easier to test with those than the more
+exotic OS/2 & NetApp.
+
+/Urban
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

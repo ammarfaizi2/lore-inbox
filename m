@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbSIZRb7>; Thu, 26 Sep 2002 13:31:59 -0400
+	id <S261396AbSIZRgw>; Thu, 26 Sep 2002 13:36:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSIZRb7>; Thu, 26 Sep 2002 13:31:59 -0400
-Received: from packet.digeo.com ([12.110.80.53]:30949 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261375AbSIZRb6>;
-	Thu, 26 Sep 2002 13:31:58 -0400
-Message-ID: <3D9345C4.74CD73B8@digeo.com>
-Date: Thu, 26 Sep 2002 10:37:08 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com>
+	id <S261413AbSIZRgw>; Thu, 26 Sep 2002 13:36:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:62140 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261396AbSIZRgv>; Thu, 26 Sep 2002 13:36:51 -0400
+Date: Thu, 26 Sep 2002 10:41:48 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: "David S. Miller" <davem@redhat.com>, jgarzik@pobox.com,
+       wli@holomorphy.com, axboe@suse.de, akpm@digeo.com,
+       linux-kernel@vger.kernel.org, patman@us.ibm.com
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020926174148.GB1843@beaverton.ibm.com>
+References: <3D92B450.2090805@pobox.com> <20020926.001343.57159108.davem@redhat.com> <3D92B83E.3080405@pobox.com> <20020926.003503.35357667.davem@redhat.com> <3D92C206.2050905@metaparadigm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Sep 2002 17:37:09.0460 (UTC) FILETIME=[57010140:01C26583]
+Content-Disposition: inline
+In-Reply-To: <3D92C206.2050905@metaparadigm.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+Michael Clark [michael@metaparadigm.com] wrote:
+> The qlogic HBAs are a real problem in choosing which driver
+> to use out of:
 > 
-> > Slab caches no longer hold onto completely empty pages.  Instead, pages
-> > are freed as soon as they have zero objects.  This is possibly a
-> > performance hit for slabs which have constructors, but it's doubtful.
-> 
-> It could be a performance hit for slab with just one object - e.g the
-> page sized names cache, used in every syscall that has a path name as a
-> parameter.
-> 
-> Ed, have you benchmarked that there is no noticable slowdown?
-> e.g. test the time needed for stat("."). on UP, otherwise the SMP arrays
-> would perform the caching.
+> in kernel qlogicfc
+> Qlogic's qla2x00 v4.x, v5.x, v6.x
+> Matthew Jacob's isp_mod
 > 
 
-(What Ed said - we do hang onto one page.  And I _have_ measured
-cost in kmem_cache_shrink...)
+We have had good results using the Qlogic's driver. We are currently
+running the v6.x version with Failover tunred off on 23xx cards. We have
+run a lot on > 4GB systems also.
 
-For those things, the caching should be performed in the page
-allocator.  This way, when names_cache requests a cache-hot page,
-it may get a page which was very recently a (say) pagetable page,
-rather than restricting itself only to pages which used to be
-a names_cache page.
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 
-CPU caches are per-cpu global.  So the hot pages list should be
-per-cpu global also.
-
-Martin Bligh seems to have the patches up and running.  It isn't
-very finetuned yet, but initial indications are promising:
-
-Before:
-Elapsed: 20.18s User: 192.914s System: 48.292s CPU: 1195.6%
-
-After:
-Elapsed: 19.798s User: 191.61s System: 43.322s CPU: 1186.4%
-
-That's for a kernel compile.
-
-And from the profiles, it appears that the benefit is coming
-from cache locality, not from the buddylist lock amortisation
-which we've also designed into those patches.
-
-I need to stop being slack, and get that code into the pipeline.

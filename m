@@ -1,82 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266577AbUA3HS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 02:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUA3HS0
+	id S266235AbUA3HZg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 02:25:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266316AbUA3HZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 02:18:26 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:61071 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S266577AbUA3HSY
+	Fri, 30 Jan 2004 02:25:34 -0500
+Received: from webhosting.rdsbv.ro ([213.157.185.164]:48871 "EHLO
+	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id S266235AbUA3HZ3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 02:18:24 -0500
-Message-ID: <401A0432.3070103@cyberone.com.au>
-Date: Fri, 30 Jan 2004 18:13:54 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Fri, 30 Jan 2004 02:25:29 -0500
+Date: Fri, 30 Jan 2004 09:25:10 +0200 (EET)
+From: Catalin BOIE <util@deuroconsult.ro>
+X-X-Sender: util@hosting.rdsbv.ro
+To: "Robert M. Hyatt" <hyatt@cis.uab.edu>
+cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org,
+       linux-smp@vger.kernel.org
+Subject: Re: 2.6.2-rc2 Interactivity problems with SMP + HT
+In-Reply-To: <Pine.LNX.4.44.0401290901510.21120-100000@crafty.cis.uab.edu>
+Message-ID: <Pine.LNX.4.58.0401300919520.8217@hosting.rdsbv.ro>
+References: <Pine.LNX.4.44.0401290901510.21120-100000@crafty.cis.uab.edu>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Curt <curt@northarc.com>, linux-kernel@vger.kernel.org
-Subject: Re: Raw devices broken in 2.6.1? AND- 2.6.1 I/O degraded?
-References: <01c501c3e6b9$67225f70$0700000a@irrosa>	<20040129163852.4028c689.akpm@osdl.org>	<020d01c3e6d0$acd78f60$0700000a@irrosa>	<20040129205605.5bd140b2.akpm@osdl.org>	<015301c3e6fb$2dbc22b0$0300000a@falcon> <20040129224629.702e9eca.akpm@osdl.org>
-In-Reply-To: <20040129224629.702e9eca.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 29 Jan 2004, Robert M. Hyatt wrote:
 
+>
+>
+> It might be some IDE disk I/O that results from flushing buffers or
+> whatever.  I don't see this on my SCSI boxes, but I have seen an IDE
+> box get sluggish at times due to I/O.
 
-Andrew Morton wrote:
+It is possible.
+vmstat shows a lot of writes when this happen.
+Seems that even reads hangs.
+I remember tat I was in pine and I tried to save a small file (under 1k)
+and it took 5-7 seconds to do it.
 
->"Curt" <curt@northarc.com> wrote:
 >
->> >    Or you can put 2.6 on par by setting
->> >    /proc/sys/vm/dirty_background_ratio to 40 and dirty_ratio to 60.
->>
->> Okay will do, is there a good comprehensive resource where I can read up on
->> these (and presumably many other I/O related) variables?
->>
+> On Thu, 29 Jan 2004, Nick Piggin
+> wrote:
 >
->We've been relatively good about keeping the in-kernel documentation up to
->date.  For this stuff, see Documentation/filesystems/proc.txt and
->Documentation/sysctl/vm.txt.
+> >
+> >
+> > Catalin BOIE wrote:
+> >
+> > >Hello!
+> > >
+> > >First, thank you very much for the effort you put for Linux!
+> > >
+> > >I have a Intel motherboard with SATA (2 Maxtor disks).
+> > >CPUs: 2 x 2.4GHz PIV HT = 4 processors (2 virtual)
+> > >1 GB RAM.
+> > >
+> > >Load: postgresql and apache. Very low load (3-4 clients).
+> > >
+> > >RAID: Yes, soft RAID1 between the 2 disks.
+> > >
+> > >I have times when the console freeze for 3-4 seconds!
+> > >2.6.0-test11 had the same problem (maybe longer times).
+> > >2.6.1-rc2 worked good in this respect but crashed after 2 days. :(
+> > >2.6.2-rc2 is back with the delay.
+> > >
+> > >Do you know why this can happen?
+> > >
+> > >
+> >
+> > There haven't been many scheduler changes there recently so
+> > maybe its something else.
+> >
+> > But you could try the latest -mm kernels. They have some
+> > Hyperthreading work in them (you need to enable CONFIG_SCHED_SMT).
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-smp" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >
 >
->
->> > Longer-term, if your customers are using scsi, you should ensure that the
->> > disks do not use a tag queue depth of more than 4 or 8.  More than that
->> and
->> > the anticipatory scheduler becomes ineffective and you won't get that
->> > multithreaded-read goodness.
->>
->> I've heard-tell of tweaking the elevator paramter to 'deadline', again could
->> you point me to a resource where I can read up on this? And forgive the
->> newbie-question, but is this a boot-time parameter, or a bit I can set in
->> the /proc system, or both?
->>
->
->It's boot-time only.  We were working on making it per-disk but that was
->quite complex and we really didn't get there in time.
->
->So add `elevator=deadline' to your kernel boot command line.  From my
->(brief) testing, it was a significant lose.  It needs more work though:
->2.6+deadline shouldn't be slower than 2.4.x
->
+> --
+> Robert M. Hyatt, Ph.D.          Computer and Information Sciences
+> hyatt@uab.edu                   University of Alabama at Birmingham
+> (205) 934-2213                  136A Campbell Hall
+> (205) 934-5473 FAX              Birmingham, AL 35294-1170
 >
 
-Another thing you can do which is runtime per-disk is set
-/sys/block/???/queue/iosched/antic_expire to 0 which gives you
-something quite like deadline.
-
->> > Please stay in touch, btw.  If we cannot get applications such as yours
->> > working well, we've wasted our time...
->>
->> I'll do what I can to provide real-world feedback, I want this to work too.
->>
->
->Thanks.
->
-
-I'd be interested in taking a look at the io scheduler if you have
-problems with these workloads in future.
-
+---
+Catalin(ux) BOIE
+catab@deuroconsult.ro

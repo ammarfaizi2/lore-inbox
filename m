@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267439AbTA1RW5>; Tue, 28 Jan 2003 12:22:57 -0500
+	id <S267469AbTA1Ra0>; Tue, 28 Jan 2003 12:30:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267481AbTA1RW4>; Tue, 28 Jan 2003 12:22:56 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:61431 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S267439AbTA1RWz>; Tue, 28 Jan 2003 12:22:55 -0500
-Message-ID: <3E36BBDF.4090104@mvista.com>
-Date: Tue, 28 Jan 2003 10:20:31 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: New model for managing dev_t's for partitionable block devices
-References: <3F61ABC3.1080502@tin.it>
-In-Reply-To: <3F61ABC3.1080502@tin.it>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267472AbTA1Ra0>; Tue, 28 Jan 2003 12:30:26 -0500
+Received: from crack.them.org ([65.125.64.184]:35500 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S267469AbTA1RaZ>;
+	Tue, 28 Jan 2003 12:30:25 -0500
+Date: Tue, 28 Jan 2003 12:39:49 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Robert Love <rml@tech9.net>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PID of multi-threaded core's file name is wrong in 2.5.59
+Message-ID: <20030128173949.GA23077@nevyn.them.org>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030125.135611.74744521.maeda@jp.fujitsu.com> <1043756485.1328.26.camel@dhcp22.swansea.linux.org.uk> <20030128154541.GA7269@nevyn.them.org> <1043774823.9069.59.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1043774823.9069.59.camel@phantasy>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was thinking of an entirely new model for partitionable block devices. 
-Here is how it would work:
+On Tue, Jan 28, 2003 at 12:27:03PM -0500, Robert Love wrote:
+> On Tue, 2003-01-28 at 10:45, Daniel Jacobowitz wrote:
+> 
+> > I think this isn't an issue; multi-threaded core dumps are done by
+> > the core_waiter synchronization, so all other threads will have exited
+> > before the first thread to crash actually writes out its core.
+> 
+> I think the problem is the filenames need to not overwrite each other -
+> not actual synchronization in the kernel (which, as you point out, is
+> correct).
+> 
+> If we name the coredumps based on ->tgid, then all threads will dump to
+> the same file.  If we use ->pid, each thread will use its unique PID as
+> its filename.
 
-Each physical disk would be assigned a minor number in a group of 
-majors.  So assume a major was chosen of 150, 151, 152, 153, there would 
-be a total of 1024 physical disks that could be mapped.  Then the device 
-mapper code could be used to provide partition devices in another 
-major/group of majors.
+That wasn't my point.  All of the other threads have already terminated
+without dumping core at tis point; I don't think it's possible for two
+threads of a CLONE_THREAD application to both dump core.  See
+fs/exec.c:coredump_wait.
 
-The advantage of this technique is that instead of wasting tons of 
-minors on partitions that are never used, partitions could be 
-dynamically allocated out of the minor list, allowing for thousands of 
-disks with varying numbers of partitions each.  Further instead of each 
-block device (such as i2o, scsi, etc) having their own set of majors for 
-each partitionable disk (which wastes dev_t address space) everything 
-would be compressed into the same set of majors.
+Also, once one thread gets into do_coredump it clears mm->dumpable;
+nothing else will dump core from that MM anyway.
 
-As an example, Lets assume we want 4096 total disks with 16384 total 
-partitions (4 partitions per disk, where it is likely to be less):
+I think using ->tgid is a good idea.
 
-That is:
-4096 disks / 256 disks * 1 major = 16 majors
-16384 partitions / 256 partitions * 1 major = 64 majors
-total of 80 majors
-
-To allow a similiar configuration in the current block device setup, 
-with just the SCSI disk major,
-4096 disks / 16 disks * 1 major = 256 majors
-
-Now, assume we have 4096 disks available for i2o, scsi, compaq raid, etc 
-etc, we are talking about lots of majors that go way beyond the current 
-addressable 16 bytes.
-
-The only downside is addressing the disks in hotswap (ie: how do you 
-know what disk is where?)  This can be achieved through per-subsystem 
-devfs mapping (ie: linking /dev/scsi/hostX/... to /dev/disc0) or 
-userspace utilities that scan the disk devices (such as those that would 
-be in /dev/disk) and determine which disks are what.
-
-Thanks
--steve
-
->
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

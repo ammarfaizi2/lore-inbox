@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262716AbSI1Fcr>; Sat, 28 Sep 2002 01:32:47 -0400
+	id <S261662AbSI1FaK>; Sat, 28 Sep 2002 01:30:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262723AbSI1Fcq>; Sat, 28 Sep 2002 01:32:46 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:4549 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262716AbSI1Fcq>;
-	Sat, 28 Sep 2002 01:32:46 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200209280537.JAA03046@sex.inr.ac.ru>
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-To: pekkas@netcore.fi (Pekka Savola)
-Date: Sat, 28 Sep 2002 09:37:33 +0400 (MSD)
-Cc: davem@redhat.com, yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, usagi@linux-ipv6.org
-In-Reply-To: <Pine.LNX.4.44.0209280813030.8846-100000@netcore.fi> from "Pekka Savola" at Sep 28, 2 08:24:58 am
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S262719AbSI1FaK>; Sat, 28 Sep 2002 01:30:10 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:10624 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261662AbSI1FaK>; Sat, 28 Sep 2002 01:30:10 -0400
+Date: Sat, 28 Sep 2002 11:11:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+Subject: Re: 2.5.38-mm3
+Message-ID: <20020928111103.C32125@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020927152833.D25021@in.ibm.com> <502559422.1033113869@[10.10.2.3]> <20020927224424.A28529@in.ibm.com> <20020927225455.GW22942@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020927225455.GW22942@holomorphy.com>; from wli@holomorphy.com on Fri, Sep 27, 2002 at 03:54:55PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
-
-> Or would you have an already-sorted list of possible candidate addresses 
-> for each route in the order of preference?
-
-I am not mad yet. :-)
-
-What preference? You must select _one_ address, you do not need lost
-candidates.
-
-
-> And recalculate always when address changes?
-
-What address? Interface address? Routing tables used to be synchronized
-to this.
-
-
-> This is IMO a wrong approach from user's perspective.  Perhaps not if the 
-> algorithm was run and e.g. additional, temporary "address selection" 
-> routes were created by kernel.
->  
-> > > (stuff that's network prefix -independent
-> > 
-> > I am sorry, I feel I do not understand what you mean.
+On Fri, Sep 27, 2002 at 03:54:55PM -0700, William Lee Irwin III wrote:
+> On Fri, Sep 27, 2002 at 10:44:24PM +0530, Dipankar Sarma wrote:
+> > Not sure why it shows up more in -mm, but likely because -mm has
+> > lot less contention on other locks like dcache_lock.
 > 
-> Hmm.. this depends on the interpretation of the concept above.  If the
-> list is refreshed always when addresses change or change state, this could
-> perhaps work..
+> Well, the profile I posted was an interactive UP workload, and it's
+> fairly high there. Trimming cycles off this is good for everyone.
 
-I am afraid I do not understand what "address", "state", "temporary" routes
-etc you mean. It remained in your brains. :-)
+Oh, I was commenting on possible files_lock contention on mbligh's
+NUMA-Q.
 
-Pekka, are you not going to sleep? (I am.) I bet when you reread this tomorrow,
-you will not blame that my brains eventually falled to "parse error" loop. :-)
+> 
+> Small SMP boxen (dual?) used similarly will probably see additional
+> gains as the number of locked operations in fget() will be reduced.
+> There's clearly no contention or cacheline bouncing in my workloads as
+> none of them have tasks sharing file tables, nor is anything else
+> messing with the cachelines.
 
-Alexey
+I remember seeing fget() high up in specweb profiles. I suspect that
+fget profile count is high because it just happens to get called very 
+often for most workloads (all file syscalls) and the atomic 
+operations (SMP) and the function call overhead just adds to the cost. 
+If possible, we should try inlining it too.
+
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

@@ -1,50 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbUCaQZT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 11:25:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUCaQZT
+	id S262051AbUCaQgP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 11:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCaQgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 11:25:19 -0500
-Received: from dh132.citi.umich.edu ([141.211.133.132]:387 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S261804AbUCaQZM
+	Wed, 31 Mar 2004 11:36:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:53380 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262051AbUCaQfd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 11:25:12 -0500
-Subject: Re: kernel 2.6.4 and nfs lockd.udpport?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Jan Kesten <rwe.piller@the-hidden-realm.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040331145711.GB18990@mail.shareable.org>
-References: <200403290958.i2T9w2fJ029554@mail.bytecamp.net>
-	 <1080587948.2410.68.camel@lade.trondhjem.org>
-	 <20040331145711.GB18990@mail.shareable.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1080750306.4194.7.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 31 Mar 2004 11:25:06 -0500
+	Wed, 31 Mar 2004 11:35:33 -0500
+Date: Wed, 31 Mar 2004 11:36:07 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Powers-of-two - 7 for recv() length??
+Message-ID: <Pine.LNX.4.53.0403311128200.11700@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-31 at 09:57, Jamie Lokier wrote:
 
-> The module parameters "nlm_udpport" and "nlm_tcpport" _do_ work -- I
-> use them with my firewall.
-> 
-> For some reason, because modules don't need #ifdef MODULE any more, I
-> thought module_param*() entries would be automatically available as
-> boot parameters.  Silly me, that would be too obvious.
+Linux version 2.4.24
 
-module_param*() ought indeed to suffice.
+Given a TCP/IP server feeding data as fast as it can
+to a stream connection on a dedicated link, and a
+client receiving that data, I observe that the data
+received is usually a (power-off-two - 7) bytes in
+length, followed by the 7 bytes returned by the next
+recv() call.
 
-AFAICS the only problem here is that Documentation/kernel-parameters.txt
-still lists lockd.udpport and lockd.tcpport instead of the new names
-lockd.nlm_udpport and lockd.nlm_udpport.
-There is also lockd.nlm_grace_period, and lockd.nlm_timeout, both of
-which need to be added to the same list...
+It makes no difference if Nagle is turned OFF (TCP_NODELAY).
+
+Very bad!
+Recv value was 114681
+Remaining length was was 409607
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+Very bad!
+Recv value was 7
+Remaining length was was 0
+Very bad!
+Recv value was 65529
+Remaining length was was 458759
+[SNIPPED....]
+
+Code snippet:
+
+            len = BUF_LEN;
+            while(len)
+            {
+                if((ret = recv(s, cp, len, 0 )) <= 0)
+                {
+                    if(errno == EINTR)
+                        continue;
+                    handler(0);
+                }
+                len -= ret;
+                cp  += ret;
+                if(ret & 1)
+                {
+                    fprintf(stderr, "Very bad!\n");
+                    fprintf(stderr, "Recv value was %d\n", ret);
+                    fprintf(stderr, "Remaining length was was %u\n", len);
+                }
+            }
+
+Given that the transport sends only even numbers of bytes, I
+would guess that there is considerable overhead associated with
+the 7-byte break. This likely points to something being
+broken and some work-around incorporated to "fix" it. The
+additional calls necessary to receive a mere 7 bytes into
+a buffer that expects to get filled with 1/2 megabytes,
+seriously reduces the through-put, not only because of the
+additional call, but because of the remaining odd-byte
+buffer alignment necessary for the next recv() call.
+
+Could somebody who understands the network code please
+find out what is going on. I can't find Alexy who used
+to handle these kinds of problems off the list.
 
 Cheers,
-  Trond
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+

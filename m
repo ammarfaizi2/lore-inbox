@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262889AbTCWHFP>; Sun, 23 Mar 2003 02:05:15 -0500
+	id <S262905AbTCWHDd>; Sun, 23 Mar 2003 02:03:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262908AbTCWHDs>; Sun, 23 Mar 2003 02:03:48 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:44160 "EHLO
+	id <S262908AbTCWHCk>; Sun, 23 Mar 2003 02:02:40 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:43392 "EHLO
 	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262890AbTCWHDa>; Sun, 23 Mar 2003 02:03:30 -0500
-Date: Sun, 23 Mar 2003 16:13:38 +0900
+	id <S262905AbTCWHCJ>; Sun, 23 Mar 2003 02:02:09 -0500
+Date: Sun, 23 Mar 2003 16:12:19 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5.65-ac3] Additionals for support PC-9800 (7/10) parport
-Message-ID: <20030323071338.GG2951@yuzuki.cinet.co.jp>
+Subject: [PATCH 2.5.65-ac3] Additionals for support PC-9800 (6/10) kconfig
+Message-ID: <20030323071219.GF2951@yuzuki.cinet.co.jp>
 References: <20030323065928.GF2851@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,71 +22,44 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is the patch to support NEC PC-9800 subarchitecture
-against 2.5.65-ac3. (7/10)
+against 2.5.65-ac3. (6/10)
 
-Parallel port support.
- - Change IO port and IRQ assign for PC-98.
- - Add probing for PC98 bi-directional parport.
+Add selection CONFIG_X86_PC9800.
 
 Regards,
 Osamu Tomita
 
-diff -Nru linux-2.5.64-ac2/drivers/parport/parport_pc.c linux98-2.5.64-ac2/drivers/parport/parport_pc.c
---- linux-2.5.64-ac2/drivers/parport/parport_pc.c	2003-03-08 08:25:20.000000000 +0900
-+++ linux98-2.5.64-ac2/drivers/parport/parport_pc.c	2003-03-08 10:44:43.000000000 +0900
-@@ -1892,6 +1892,9 @@
- 			config & 0x80 ? "Level" : "Pulses");
+diff -Nru linux-2.5.64-ac4/arch/i386/Kconfig linux98-2.5.64-ac4/arch/i386/Kconfig
+--- linux-2.5.64-ac4/arch/i386/Kconfig	2003-03-15 01:15:40.000000000 +0900
++++ linux98-2.5.64-ac4/arch/i386/Kconfig	2003-03-15 01:59:17.000000000 +0900
+@@ -104,6 +104,12 @@
+ 	  A kernel compiled for the Visual Workstation will not run on PCs
+ 	  and vice versa. See <file:Documentation/sgi-visws.txt> for details.
  
- 		configb = inb (CONFIGB (pb));
-+		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
-+			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
++config X86_PC9800
++	bool "PC-9800 (NEC)"
++	help
++	  To make kernel for NEC PC-9801/PC-9821 sub-architecture, say Y.
++	  If say Y, kernel works -ONLY- on PC-9800 architecture.
 +
- 		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
- 			pb->base, config, configb);
- 		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
-@@ -2032,6 +2035,9 @@
- 	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
+ endchoice
  
- 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
-+	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
-+		intrLine = 5; /* IRQ 14 */
-+
- 	irq = lookup[intrLine];
  
- 	ECR_WRITE (pb, oecr);
-@@ -2248,7 +2254,7 @@
- 			parport_ECR_present(p);
- 	}
+@@ -1081,7 +1087,7 @@
  
--	if (base != 0x3bc) {
-+	if (!pc98 && base != 0x3bc) {
- 		EPP_res = request_region(base+0x3, 5, fake_name);
- 		if (EPP_res)
- 			if (!parport_EPP_supported(p))
-@@ -3022,6 +3028,26 @@
- {
- 	int count = 0;
+ config EISA
+ 	bool "EISA support"
+-	depends on ISA
++	depends on ISA && !X86_PC9800
+ 	---help---
+ 	  The Extended Industry Standard Architecture (EISA) bus was
+ 	  developed as an open alternative to the IBM MicroChannel bus.
+@@ -1099,7 +1105,7 @@
  
-+	if (pc98) {
-+		/* Set default settings for IEEE1284 parport */
-+		int	base = 0x140;
-+		int	base_hi = 0x14c;
-+		int	irq = 14;
-+		int	dma = PARPORT_DMA_NONE;
-+
-+		/* Check PC9800 old style parport */
-+		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
-+		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
-+			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
-+			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
-+				if (parport_pc_probe_port(base, base_hi,
-+							  irq, dma, NULL))
-+					count++;
-+			}
-+		}
-+
-+	}
-+
- 	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
- 		count++;
- 	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))
+ config MCA
+ 	bool "MCA support"
+-	depends on !(X86_VISWS || X86_VOYAGER)
++	depends on !(X86_VISWS || X86_VOYAGER || X86_PC9800)
+ 	help
+ 	  MicroChannel Architecture is found in some IBM PS/2 machines and
+ 	  laptops.  It is a bus system similar to PCI or ISA. See

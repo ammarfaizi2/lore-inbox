@@ -1,59 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132586AbRD1Ios>; Sat, 28 Apr 2001 04:44:48 -0400
+	id <S131446AbRD1Ipi>; Sat, 28 Apr 2001 04:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131477AbRD1Io2>; Sat, 28 Apr 2001 04:44:28 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:37903 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131446AbRD1IoU>;
-	Sat, 28 Apr 2001 04:44:20 -0400
-Date: Sat, 28 Apr 2001 10:42:29 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, <David_J_Morse@Dell.com>
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <3AEA0C52.FA7CE1F1@chromium.com>
-Message-ID: <Pine.LNX.4.33.0104281029390.15790-100000@localhost.localdomain>
+	id <S131477AbRD1Ip3>; Sat, 28 Apr 2001 04:45:29 -0400
+Received: from relay03.cablecom.net ([62.2.33.103]:60678 "EHLO
+	relay03.cablecom.net") by vger.kernel.org with ESMTP
+	id <S131446AbRD1IpW>; Sat, 28 Apr 2001 04:45:22 -0400
+Message-ID: <3AEA831A.6707BEF@bluewin.ch>
+Date: Sat, 28 Apr 2001 10:45:11 +0200
+From: Otto Wyss <otto.wyss@bluewin.ch>
+Reply-To: otto.wyss@bluewin.ch
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: de,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Framebuffer does not handle kernel parameter when compiled as a 
+ module
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have two almost identical computers with different graphic cards (ATI
+RageII, Matrox G200). I'd like to have the framebuffer devices compiled
+as modules, but then the kernel parameters from lilo (i.e. append =
+"video=atyfb:800x600@72") doesn't work. Afterwards switching with fbset
+works. It seems as if the switching of the resolution is handled before
+the corresponding module is loaded. Is there any solution to this
+problem (besides compiling into the kernel) or is this a bug?
 
-Fabio,
+O. Wyss
 
-i noticed one weirdness in the Date-field handling of X15. X15 appears to
-cache the Date field too, which is contrary to RFCs:
+-----------------------------------------------------------------------------------------
+/usr/src/linux$> sh scripts/ver_linux
+[...]
+Linux Johann 2.4.3 #7 Son Apr 29 10:12:30 CEST 2001 i586 unknown
 
- earth2:~> wget -s http://localhost/index.html -O - 2>/dev/null | grep Date
- Date: Sat Apr 28 10:15:14 2001
- earth2:~> date
- Sat Apr 28 10:32:40 CEST 2001
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.11.90.0.5
+util-linux             2.11b
+modutils               2.4.2
+e2fsprogs              1.19
+Linux C Library        2.2.2
+Dynamic linker (ldd)   2.2.2
+Procps                 2.0.7
+Net-tools              1.58
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         nls_iso8859-1 binfmt_misc atyfb udf smbfs 3c509
+ide-scsi sr_mod sg sd_mod aic7xxx loop
 
-ie. there is already a 15 minutes difference between the 'origin date of
-the reply' and the actual date of the reply. (i started X15 up 15 minutes
-ago.)
+-----------------------------------------------------------------------------------------
+/usr/src/linux$> most current.conf
 
-per RFC 2616:
-.............
-The Date general-header field represents the date and time at which the
-message was originated, [...]
+#
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
 
-Origin servers MUST include a Date header field in all responses, [...]
-.............
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
-i considered the caching of the Date field for TUX too, and avoided it
-exactly due to this issue, to not violate this 'MUST' item in the RFC. It
-can be reasonably expected from a web server to have a 1-second accurate
-Date: field.
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
 
-the header-caching in X15 gives it an edge against TUX, obviously, but IMO
-it's a questionable practice.
+[...]
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+# CONFIG_MDA_CONSOLE is not set
 
-if caching of headers was be allowed then we could the obvious trick of
-sendfile()ing complete web replies (first header, then body).
-
-	Ingo
-
+#
+# Frame-buffer support
+#
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+[...]
+CONFIG_FB_VESA=y
+[...]
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=m
+CONFIG_FB_MATROX_MILLENIUM=y
+[...]
+CONFIG_FB_MATROX_G100=y
+[...]
+CONFIG_FB_ATY=m
+CONFIG_FB_ATY128=m
+[...]
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+[...]
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y

@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264647AbSK0CRC>; Tue, 26 Nov 2002 21:17:02 -0500
+	id <S264610AbSK0COe>; Tue, 26 Nov 2002 21:14:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264649AbSK0CRC>; Tue, 26 Nov 2002 21:17:02 -0500
-Received: from [210.176.202.14] ([210.176.202.14]:48019 "EHLO
-	mail.shaolinmicro.com") by vger.kernel.org with ESMTP
-	id <S264647AbSK0CRB>; Tue, 26 Nov 2002 21:17:01 -0500
-Message-ID: <3DE42CD1.8040902@shaolinmicro.com>
-Date: Wed, 27 Nov 2002 10:24:17 +0800
-From: David Chow <davidchow@shaolinmicro.com>
-Organization: Shaolin Microsystems Ltd.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: zh_TW, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: serial port buffer commit
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264617AbSK0COe>; Tue, 26 Nov 2002 21:14:34 -0500
+Received: from smtp09.iddeo.es ([62.81.186.19]:11517 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id <S264610AbSK0COd>;
+	Tue, 26 Nov 2002 21:14:33 -0500
+Date: Wed, 27 Nov 2002 03:21:49 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Thread accounting
+Message-ID: <20021127022149.GA2757@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi al...
 
-I am writing a kernel thread for serial port communication. If the 
-serial character device file is opened by a filp_open() or manipulating 
-using a struct file in the kernel, how can I know whether the previous 
-written buffer has commit or not? Similarly, how do I know is there any 
-data ready for read for non blocking access? Thanks.
+Since a discussion time ago, I know that accounting for threads is
+broken in linux: getrusage does not give any info on children.
+So I decided to do it by hand in my userspace app: each thread
+tries to accout for itself, and parent sums up. But it looks like
+getrusage called from a thread still gives the useless info about
+the parent !!! Is this correct ? Any way to get accounting for a
+thread itself, from the thread itself ?
 
-regards,
-David Chow
+(everytime I said thread, I meant _POSIX_ tread)
 
+I am interested mainly in cpu (user/sys) accounting...
 
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-rc4-jam0 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))

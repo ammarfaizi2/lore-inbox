@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264904AbUFAQBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUFAQDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264904AbUFAQBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 12:01:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUFAQBT
+	id S265098AbUFAQDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 12:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265097AbUFAQDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 12:01:19 -0400
-Received: from main.gmane.org ([80.91.224.249]:12943 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264904AbUFAQBO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 12:01:14 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Gabriel Ebner <ge@gabrielebner.at>
-Subject: Re: 2.6.7-rc2-mm1
-Date: Tue, 01 Jun 2004 17:58:46 +0200
-Message-ID: <2801394.4xBL5sa4j5@schnecke2.gabrielebner.at>
-References: <22dBi-3Hb-27@gated-at.bofh.it> <22exj-4ty-15@gated-at.bofh.it> <22fjG-56P-11@gated-at.bofh.it> <22i80-7v8-41@gated-at.bofh.it> <m34qpvjog0.fsf@averell.firstfloor.org>
+	Tue, 1 Jun 2004 12:03:34 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:43652 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265095AbUFAQCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 12:02:35 -0400
+Date: Tue, 1 Jun 2004 18:02:34 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Takashi Iwai <tiwai@suse.de>, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: Resume enhancement: restore pci config space
+Message-ID: <20040601160234.GB1899@atrey.karlin.mff.cuni.cz>
+References: <20040526203524.GF2057@devserv.devel.redhat.com> <20040530184031.GF997@openzaurus.ucw.cz> <20040531133834.GA5834@devserv.devel.redhat.com> <s5hllj7qt7g.wl@alsa2.suse.de> <1086102397.7500.2.camel@laptop.fenrus.com> <s5hbrk3qoxw.wl@alsa2.suse.de> <20040601153800.GA22986@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: chello212186175067.4.14.vie.surfer.at
-User-Agent: KNode/0.7.7
+Content-Disposition: inline
+In-Reply-To: <20040601153800.GA22986@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Ahoj!
 
-Andi Kleen wrote:
-> This patch should fix it.
+> > > [1  <text/plain (quoted-printable)>]
+> > > 
+> > > > int xxx_resume(struct pci_dev *dev)
+> > > > {
+> > > > 	int err;
+> > > > 	if ((err = pci_default_resume(dev)) < 0)
+> > > > 		return err;
+> > > > 	// ... do h/w specific
+> > > > }
+> > > 
+> > > well define "h/w specific", just give me an example of a real (alsa?)
+> > > driver that would use it (or point me to one) so that I can see if this
+> > > is the best API, what the return value should be etc etc 
+> > 
+> > I'm afraid the ALSA drivers aren't be the best examples :)
+> > It doesn't handle the error in suspend/resume at all.
 > 
-> -------------------------------------------------------------
-> 
-> Fix compilation of x86-64 with NUMA off
+> hm it looks like all this would gain is that instead of 2 or 3 function calls
+> you need to do one which then calls those 3. The *driver* already knows if
+> it needs busmaster or not etc, so when I wrote this code I felt that the
+> driver could do a better job really. But well if you think it's worth it to
+> save those 3 lines into 1 ?
 
-Thanks Andi, that fix fixed 1 error, so 2 still remain:
+I'd prefer one line, same in all alsa drivers, than each driver trying
+to be clever.
 
-  LD      .tmp_vmlinux1
-arch/x86_64/kernel/built-in.o(.init.text+0x4236): In function
-`dmi_disable_acpi':
-: undefined reference to `acpi_force'
-arch/x86_64/kernel/built-in.o(.init.text+0x42a7): In function
-`force_acpi_ht':
-: undefined reference to `acpi_force'
-make: *** [.tmp_vmlinux1] Fehler 1
-
-        Gabriel.
-
+[It seems to me like ALSA can't easily put NULL into suspend/resume
+fields, because they have additional layer of abstraction between them
+and kernel.]
+								Pavel
 -- 
-Gabriel Ebner - reverse "ta.renbeleirbag@eg"
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

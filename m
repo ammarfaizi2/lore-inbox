@@ -1,111 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266859AbTBLEcI>; Tue, 11 Feb 2003 23:32:08 -0500
+	id <S266852AbTBLEid>; Tue, 11 Feb 2003 23:38:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266917AbTBLEcI>; Tue, 11 Feb 2003 23:32:08 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:34280 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266859AbTBLEcB>;
-	Tue, 11 Feb 2003 23:32:01 -0500
-Date: Wed, 12 Feb 2003 10:17:05 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Kenneth Sumrall <ken@mvista.com>, linux-kernel@vger.kernel.org,
-       lkcd-devel@lists.sourceforge.net
-Subject: Re: Kexec, DMA, and SMP
-Message-ID: <20030212101705.A1593@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <m1isvuzjj2.fsf@frodo.biederman.org> <3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org> <20030210174243.B11250@in.ibm.com> <m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com> <20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com> <20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com>
+	id <S266868AbTBLEid>; Tue, 11 Feb 2003 23:38:33 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:7100 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S266852AbTBLEib>;
+	Tue, 11 Feb 2003 23:38:31 -0500
+Date: Wed, 12 Feb 2003 15:47:16 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
+       schwidefsky@de.ibm.com, ralf@gnu.org, matthew@wil.cx
+Subject: [PATCH][COMPAT] compat_sys_futex 1/7 generic
+Message-Id: <20030212154716.7c101942.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E4914CA.6070408@mvista.com>; from cminyard@mvista.com on Tue, Feb 11, 2003 at 09:20:42AM -0600
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11, 2003 at 09:20:42AM -0600, Corey Minyard wrote:
-> |The scope here was just the case that Eric seemed to be
-> |trying to address, the way I understood it, and hence a much
-> |simpler subset of the problem at hand, since it is not really
-> |tackling the rouge/buggy cases. There is no restriction on
-> |where DMA can happen, just a block of memory area set aside
-> |for the dormant kernel to use when it is instantiated.
-> |So this is an area that the current kernel will not use or
-> |touch and not specify as a DMA target during "regular"
-> |operation.
-> 
-> You don't understand.  You don't *want* to set aside a block of memory 
-> that's
-> reserved for DMA.  You want to be able to DMA directly into any user 
-> address.
-> Consider demand paging.  The performance would suck if you DMA into some
-> fixed region then copied to the user address.  Plus you then have another
-> resource you have to manage in the kernel.  And you still have to change all
-> the drivers, buffer management, etc. to add a flag that says "I'm going 
-> to use
-> this for DMA" to allocations.  
+Hi Linus,
 
-That is not what I'm suggesting. I wish I knew a better way 
-to put myself in your shoes and explain this from your context
-without repeating myself. 
+This patch creates compat_sys_futex and changes the 64 bit architextures
+to use it.  This also changes sys_futex to take a "u32 *" as its first
+argument as discussed with Rusty and yourself.
 
-I'm not talking about DMA'ing into a fixed region and copying
-into user address. 
+This is just the generic part of the patch.  The architecture specific
+parts will follow.
 
-There is just this (say) 4MB area that the current kernel thinks
-is reserved/already allocated. When the recovery kernel comes up
-it thinks its booted with just this 4MB of memory, quickly performs
-the writeout of the dump to disk (which in the case of lkcd
-happens straight from the kernel, _unlike_ MCL which needs 
-filesystems mounted and drives this from user space), and 
-then reboots itself the normal way (i.e. not via kexec). 
-
-So while the recovery kernel is running in a very constrained 
-way, it is not _meant_ to be dealing with user-space workloads 
-etc - just a disk writeout and a prompt reboot.
-
-And there is no need to change drivers, buffer mgmt etc in any
-of this. There is no explicit limitation on where to or not to
-DMA from.
-
-It is simply what Eric was suggesting, minus the need to build
-the recovery kernel to be able to run from different physical
-addresses.
-
-That's about all !
-
-Does this make things any clearer ?
-
-> You might as well add the quiesce 
-> function, it's probably easier to do.  
-
-Yes if that can be done for all drivers, well and good.
-
-> And it doesn't help if you DMA to static memory
-> addresses.
-
-Again I'm not suggesting we DMA into static memory addresses.
-Quite the reverse actually.
-The point was that this scheme wouldn't help in the cases where
-DMA is happening to static memory addresses.
-
-> 
-> I, too, would like a simpler solution. I just don't think 
-this is it.
-
-This wasn't even intended to be a full solution as Eric
-has already observed. 
-
-I think we must quiesce the devices. Just that for the
-cases that this isn't happening yet, we are a little 
-better off than having nothing all all.
-
-Regards
-Suparna
+There is no mip64 part as the mips port currently does not support
+sys_futex.
 
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.5.60-32bit.1/kernel/compat.c 2.5.60-32bit.2/kernel/compat.c
+--- 2.5.60-32bit.1/kernel/compat.c	2003-01-17 14:01:08.000000000 +1100
++++ 2.5.60-32bit.2/kernel/compat.c	2003-02-11 12:21:56.000000000 +1100
+@@ -208,3 +208,19 @@
+ 		ret = put_user(s, oset);
+ 	return ret;
+ }
++
++extern long do_futex(u32 *, int, int, struct timespec *);
++
++asmlinkage long compat_sys_futex(u32 *uaddr, int op, int val,
++		struct compat_timespec *ct)
++{
++	struct timespec *ts = NULL;
++	struct timespec t;
++
++	if ((op == FUTEX_WAIT) && ct) {
++		if (get_compat_timespec(&t, ct))
++			return -EFAULT;
++		ts = &t;
++	}
++	return do_futex((unsigned long)uaddr, op, val, ts);
++}
+diff -ruN 2.5.60-32bit.1/kernel/futex.c 2.5.60-32bit.2/kernel/futex.c
+--- 2.5.60-32bit.1/kernel/futex.c	2002-11-28 10:34:59.000000000 +1100
++++ 2.5.60-32bit.2/kernel/futex.c	2003-02-11 12:21:56.000000000 +1100
+@@ -318,17 +318,12 @@
+ static inline int futex_wait_utime(unsigned long uaddr,
+ 		      int offset,
+ 		      int val,
+-		      struct timespec* utime)
++		      struct timespec* ts)
+ {
+ 	unsigned long time = MAX_SCHEDULE_TIMEOUT;
+ 
+-	if (utime) {
+-		struct timespec t;
+-		if (copy_from_user(&t, utime, sizeof(t)) != 0)
+-			return -EFAULT;
+-		time = timespec_to_jiffies(&t) + 1;
+-	}
+-
++	if (ts)
++		time = timespec_to_jiffies(ts) + 1;
+ 	return futex_wait(uaddr, offset, val, time);
+ }
+ 
+@@ -437,7 +432,7 @@
+ 	return ret;
+ }
+ 
+-asmlinkage int sys_futex(unsigned long uaddr, int op, int val, struct timespec *utime)
++long do_futex(unsigned long uaddr, int op, int val, struct timespec *ts)
+ {
+ 	unsigned long pos_in_page;
+ 	int ret;
+@@ -445,12 +440,12 @@
+ 	pos_in_page = uaddr % PAGE_SIZE;
+ 
+ 	/* Must be "naturally" aligned */
+-	if (pos_in_page % sizeof(int))
++	if (pos_in_page % sizeof(u32))
+ 		return -EINVAL;
+ 
+ 	switch (op) {
+ 	case FUTEX_WAIT:
+-		ret = futex_wait_utime(uaddr, pos_in_page, val, utime);
++		ret = futex_wait_utime(uaddr, pos_in_page, val, ts);
+ 		break;
+ 	case FUTEX_WAKE:
+ 		ret = futex_wake(uaddr, pos_in_page, val);
+@@ -465,6 +460,19 @@
+ 	return ret;
+ }
+ 
++asmlinkage long sys_futex(u32 *uaddr, int op, int val, struct timespec *utime)
++{
++	struct timespec *ts = NULL;
++	struct timespec t;
++
++	if ((op == FUTEX_WAIT) && utime) {
++		if (copy_from_user(&t, utime, sizeof(t)) != 0)
++			return -EFAULT;
++		ts = &t;
++	}
++	return do_futex((unsigned long)uaddr, op, val, ts);
++}
++
+ static struct super_block *
+ futexfs_get_sb(struct file_system_type *fs_type,
+ 	       int flags, char *dev_name, void *data)

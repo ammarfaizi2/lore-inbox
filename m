@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265389AbUBFSDf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 13:03:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265560AbUBFSDf
+	id S265603AbUBFSMf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 13:12:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265634AbUBFSMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 13:03:35 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:13198 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S265389AbUBFSDd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 13:03:33 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: psmouse.c, throwing 3 bytes away
-Date: Fri, 6 Feb 2004 19:03:20 +0100
-User-Agent: KMail/1.6.50
-References: <4022BC15.4090502@wanadoo.es> <200402062112.32212.chakkerz@optusnet.com.au> <20040206175248.GE26093@fs.tum.de>
-In-Reply-To: <20040206175248.GE26093@fs.tum.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christian Unger <chakkerz@optusnet.com.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200402061903.31039.mbuesch@freenet.de>
+	Fri, 6 Feb 2004 13:12:35 -0500
+Received: from main.gmane.org ([80.91.224.249]:39648 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265603AbUBFSMb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 13:12:31 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in
+ theLinux kernel
+Date: Fri, 06 Feb 2004 19:12:28 +0100
+Message-ID: <yw1xsmhoqdpv.fsf@kth.se>
+References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com> <Pine.LNX.4.53.0402061150100.3862@chaos>
+ <52smhounpn.fsf@topspin.com> <Pine.LNX.4.53.0402061258110.4045@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:W2q/NJNndA+NKUBreoQuJBG8tfk=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-On Friday 06 February 2004 18:52, you wrote:
-> gcc 2.95 is usually a good choice.
-> 
-> But although it's unlikely, it would eliminate one possible problem if 
-> someone would check whether the problem still exists with a kernel that 
-> is compiled with e.g. gcc 3.3.2 .
+> On Fri, 6 Feb 2004, Roland Dreier wrote:
+>
+>>     Richard> If some major changes are being considered, I think it's
+>>     Richard> time to get rid of the:
+>>
+>>     Richard> do { } while(0) stuff that permiates a lot of MACROS and
+>>     Richard> just use the { } as they were designed.
+>>
+>>     Richard> Before everybody screams, think. It's perfectly correct
+>>     Richard> to start a new "program unit" without a conditional
+>>     Richard> expression.  You just add a curley-brace, then close the
+>>     Richard> brace when you are though.
+>>
+>> This is totally, totally wrong.  If you get rid of do { } while (0),
+>> then you can't use the macro in an if statement.  Read any C FAQ for
+>> details, or try the following:
+>>
+>
+> Yes you can. You just don't use an ';' if you are going
+> to use 'else'.
 
-The problem occured for me a few days ago with a gcc 3.3.2
-compiled linux-2.6.2-rc2
+Now suppose someone changes the macro into an inline function.  Then
+the ; is suddenly required.  How are you going to deal with that?
 
-> cu
-> Adrian
-> 
+-- 
+Måns Rullgård
+mru@kth.se
 
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAI9bxFGK1OIvVOP4RAgRmAKDP8XNSp+cfwmU6KGrffZ0Q8MbkgQCgue7w
-FFUX287kLwBk15juYW1l8RI=
-=SXlV
------END PGP SIGNATURE-----

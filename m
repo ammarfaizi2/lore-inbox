@@ -1,69 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281450AbSAGRSh>; Mon, 7 Jan 2002 12:18:37 -0500
+	id <S281797AbSAGRTH>; Mon, 7 Jan 2002 12:19:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281797AbSAGRS1>; Mon, 7 Jan 2002 12:18:27 -0500
-Received: from nat-pool-hsv.redhat.com ([12.150.234.132]:13538 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S281450AbSAGRSR>; Mon, 7 Jan 2002 12:18:17 -0500
-Date: Mon, 7 Jan 2002 11:17:37 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "Jesse Pollard" <pollard@tomcat.admin.navo.hpc.mil>
-Cc: tmolina@home.com, linux-kernel@vger.kernel.org
-Subject: Re: Two hdds on one channel - why so slow?
-Message-Id: <20020107111737.1a83cb5c.reynolds@redhat.com>
-In-Reply-To: <200201071706.LAA92223@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <200201071706.LAA92223@tomcat.admin.navo.hpc.mil>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.k)l(C+yfllM89G"
+	id <S281809AbSAGRS6>; Mon, 7 Jan 2002 12:18:58 -0500
+Received: from gate.perex.cz ([194.212.165.105]:57607 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S281797AbSAGRSp>;
+	Mon, 7 Jan 2002 12:18:45 -0500
+Date: Mon, 7 Jan 2002 18:18:02 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: David Weinehall <tao@acc.umu.se>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA patch for 2.5.2pre9 kernel
+In-Reply-To: <20020107164136.I5235@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.31.0201071807060.498-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.k)l(C+yfllM89G
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Mon, 7 Jan 2002, David Weinehall wrote:
 
-Uttered "Jesse Pollard" <pollard@tomcat.admin.navo.hpc.mil>, spoke thus:
+> On Mon, Jan 07, 2002 at 03:32:18PM +0100, Christoph Hellwig wrote:
+> > In article <Pine.LNX.4.31.0201061814580.545-100000@pnote.perex-int.cz> you wrote:
+> > > The latest patch is alsa-2002-01-06-1-linux-2.5.2pre9.patch.gz and
+> > > contains:
+> >
+> > > * moved linux/drivers/sound directory to linux/sound/oss
+> > > * moved sound core files to linux/sound
+> > > * integrated ALSA kernel code
+> > >   - linux/include/sound - sound header files
+> > >   - linux/sound/core	- midlevel (no hw dependent) code
+> > >   - linux/sound/drivers - generic drivers (no arch dependent)
+> > >   - linux/sound/i2c     - reduced I2C core and drivers
+> > >   - linux/sound/isa	- ISA sound hardware drivers
+> > >   - linux/sound/pci	- PCI sound hardware drivers
+> > >   - linux/sound/ppc	- PowerPC sound hardware drivers
+> > >   - linux/sound/synth	- generic synthesizer support code
+> >
+> > > We appreciate any comments regarding directory structure
+> >
+> > linux/sound is silly.  It's drivers so put it under linux/drivers/sound.
+> > Everything else seems to be sane to me.
+>
+> One question: What happens with hardware both available in both isa & pci
+> versions (or any other combination that doesn't fit into this
+> sorting?!)
 
-> Thomas Molina <tmolina@home.com>:
-> > 
-> > On Mon, 7 Jan 2002, Ricky Beam wrote:
-> > 
-> > > >I remember Hollerith Cards.
-> > > 
-> > > Paper tape!  If it's good enough for the .gov, it's good enough for you.
-> > 
-> > Have you ever seen an ASR-33 paper tape pileup?  I have; I assure you it's 
-> > not a pretty sight.
-> 
-> Didn't see one of those, but I did see (caused) a pileup from a 30in/sec
-> reader.... just try to catch the input before it tears the tape when it
-> falls out of the holder ... :-)
+Right, the directory structure is mostly informative only, because it is
+possible to get parts from single directories. For example: ALS4000 driver
+uses pci/als4000.c and isa/sb/sb_common.c code. Both source files are
+used for compilation. We can optimize Makefiles further for an exact
+specification of such hardware cross-references and reduce directory
+passes when cross-references are not active.
 
-It was always great fun to switch the 3000 line-per-minute back online
-while the operator was down behind the printer, trying to get the
-paper to fold properly.
+If you look to the Makefiles, there is (for ALS4000):
 
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- -- -- --
-Tommy Reynolds                               | mailto: <reynolds@redhat.com>
-Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
-307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
-Senior Software Developer                    | Mobile: +1.919.641.2923
+linux/sound/isa/sb/Makefile:
 
---=.k)l(C+yfllM89G
-Content-Type: application/pgp-signature
+obj-$(CONFIG_SND_ALS4000) += snd-sb-common.o
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+linux/sound/pci/Makefile:
 
-iEYEARECAAYFAjw52DYACgkQWEn3bOOMcupDBACfVn1GIzy9NJPt75fKFu/T0zum
-kFEAnRpw/yPWgwBHXuPtgtKFyh4vnYw/
-=qJMi
------END PGP SIGNATURE-----
+obj-$(CONFIG_SND_ALS4000) += snd-als4000.o
 
---=.k)l(C+yfllM89G--
+
+If something does not fit: we can create a new subdirectory.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+SuSE Linux    http://www.suse.com
+ALSA Project  http://www.alsa-project.org
+
 

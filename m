@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUESK6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263585AbUESLBH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUESK6b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 06:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUESK6b
+	id S263585AbUESLBH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 07:01:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbUESLBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 06:58:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60805 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263574AbUESK63 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 06:58:29 -0400
-Date: Wed, 19 May 2004 06:58:06 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: sendfile -EOVERFLOW on AMD64
-Message-ID: <20040519105805.GK30909@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <1XuW9-3G0-23@gated-at.bofh.it> <m3d650wys1.fsf@averell.firstfloor.org> <20040519103855.GF18896@fi.muni.cz>
+	Wed, 19 May 2004 07:01:06 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:6633 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S263585AbUESLBD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 07:01:03 -0400
+Date: Wed, 19 May 2004 13:00:55 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: more s390 patches for 2.6.6.
+Message-ID: <20040519110055.GA5888@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040519103855.GF18896@fi.muni.cz>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 12:38:56PM +0200, Jan Kasprzak wrote:
-> Andi Kleen wrote:
-> : Jan Kasprzak <kas@informatics.muni.cz> writes:
-> : >
-> : > The image (FC2-i386-DVD.iso) has 4370640896 bytes. The FTP server is native
-> : > x86_64 binary, not a 32-bit one.
-> : 
-> : sys_sendfile limits itself dumbly to 2GB even on 64bit architectures.
-> : This patch should fix it on x86-64, although other 64bit ports may 
-> : need a similar patch. Just removing the limit in read_write 
-> : is not easy, because it would need fixes in all the 32bit emulation
-> : layers.
-> : 
-> 	It partly helped, thanks. But there is still one more problem
-> - it looks like sendfile() returns 32-bit value instead of 64-bit.
-> My debug info looks like this:
-> 
-> sendfile(offset=0, count=4370640896)
->     = -767073160, offset=3527894136
-> 
-> where I do
-> 
-> 	long val = sendfile(...); printf(...%ld..., val);
+Hi Andrew,
+I found the problem that caused s390 to hang on boot. The find_idlest_cpu
+function triggers a bug in the find bit functions of s390. An address
+passed to an inline assembly constraint doesn't force the content of
+the memory pointed to by the address to be up-to-date. In the case of
+find_idlest_cpu the compiler didn't bother to store to the memory
+location of the bitfield input for find_first_bit/find_next_bit
+because only the address of the bitfield has been passed to the inline
+assembly but not the memory content of the bitfield. Uli explained to
+me how an arbitrary large piece of memory can be "passed" to an inline
+assembly. Looks strange but it works.
+While I'm at it I sent the other accrued patches as well.
 
-What filesystem you're using?
-For XFS I'd expect this:
-STATIC ssize_t
-linvfs_sendfile(
-        struct file             *filp,
-        loff_t                  *ppos,
-        size_t                  count,
-        read_actor_t            actor,
-        void                    *target)
-{
-        vnode_t                 *vp = LINVFS_GET_VP(filp->f_dentry->d_inode);
-        int                     error;
+1) s390 core changes.
+2) network driver fixes, add direct SNMP interface to qeth.
+3) zfcp host adapter fix & cleanup.
+4) dasd driver fix.
 
-        VOP_SENDFILE(vp, filp, ppos, 0, count, actor, target, NULL, error);
-        return error;
-}
+Patches apply against BitKeeper.
 
-(note error is int, not ssize_t), but I don't see anything obvious
-for other filesystems.
-
-	Jakub
+blue skies,
+  Martin.

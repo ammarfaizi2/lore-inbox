@@ -1,34 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269265AbUIBXMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269273AbUIBXTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269265AbUIBXMt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 19:12:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269289AbUIBXIQ
+	id S269273AbUIBXTu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269272AbUIBXTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 19:08:16 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:59888 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S269189AbUIBXF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:05:26 -0400
-Date: Thu, 2 Sep 2004 19:05:26 -0400
+	Thu, 2 Sep 2004 19:19:40 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:4011 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269273AbUIBXST (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:18:19 -0400
+Date: Thu, 2 Sep 2004 19:18:15 -0400
 From: Tom Vier <tmv@comcast.net>
-To: linux-kernel@vger.kernel.org
+To: Wichert Akkerman <wichert@wiggy.net>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040902230526.GB15505@zero>
+Message-ID: <20040902231815.GC15505@zero>
 Reply-To: Tom Vier <tmv@comcast.net>
-References: <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <412D9FFA.6030307@hist.no>
+References: <20040825234629.GF2612@wiggy.net> <1939276887.20040826114028@tnonline.net> <20040826024956.08b66b46.akpm@osdl.org> <839984491.20040826122025@tnonline.net> <20040826032457.21377e94.akpm@osdl.org> <742303812.20040826125114@tnonline.net> <20040826035500.00b5df56.akpm@osdl.org> <1453776111.20040826131547@tnonline.net> <20040826042043.15978b0a.akpm@osdl.org> <20040826112938.GK2612@wiggy.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <412D9FFA.6030307@hist.no>
+In-Reply-To: <20040826112938.GK2612@wiggy.net>
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What's wrong with ~/.thumbcache or a daemon that manages system wide cache?
+On Thu, Aug 26, 2004 at 01:29:38PM +0200, Wichert Akkerman wrote:
+> That is actually one of the few places where a bit of metadata would be
+> very useful. Right now there is no way to indicate in what encoding a
+> source is written: ascii, utf-8, ucs16, etc. are all possible. But a
+> compiler or interpreter has no good way to figure that out.
 
-I have no problem if a plugin wants to parse a file and split it inside the
-file-as-dir. However, multiple file streams are a cross-platform nighmare.
-Anyone who's used mac os knows this.
+Make it a cmd line option. The makefile can contain info on what files are
+what and invoke the right options.
 
 -- 
 Tom Vier <tmv@comcast.net>

@@ -1,36 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293154AbSCEFTi>; Tue, 5 Mar 2002 00:19:38 -0500
+	id <S293164AbSCEFYY>; Tue, 5 Mar 2002 00:24:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293164AbSCEFT2>; Tue, 5 Mar 2002 00:19:28 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:60170 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293154AbSCEFTV>;
-	Tue, 5 Mar 2002 00:19:21 -0500
-Date: Mon, 4 Mar 2002 21:11:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Carl-Johan Kjellander <carljohan@kjellander.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-Message-ID: <20020305051146.GA7075@kroah.com>
-In-Reply-To: <3C8419FF.10103@kjellander.com>
+	id <S293608AbSCEFYO>; Tue, 5 Mar 2002 00:24:14 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1568 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S293164AbSCEFYB>; Tue, 5 Mar 2002 00:24:01 -0500
+Date: Tue, 5 Mar 2002 00:23:58 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux390@de.ibm.com, Pete Zaitcev <zaitcev@redhat.com>
+Subject: s390 is totally broken in 2.4.18
+Message-ID: <20020305002358.A1670@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C8419FF.10103@kjellander.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 05 Feb 2002 03:08:43 -0800
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 02:06:07AM +0100, Carl-Johan Kjellander wrote:
-> 
-> Attached to each one of these is an Philips ToUCam pro which uses the pwc
-> and pwcx modules. (yes, the kernel becomes tainted by the pwcx module)
+Apparently, NOBODY bothered to test 2.4.18-pre*, 2.4.18 final,
+or 2.4.19-pre* on s390. The broken patch went into 2.4.18-pre1
+with a curt changelog:
 
-As you are using this closed source module, I suggest you take this up
-with that module's author.
+- S390 merge                                    (IBM)
 
-Good luck,
+Patch attached.
 
-greg k-h
+-- Pete
+
+--- linux-2.4.18-0.1.s390/arch/s390/kernel/entry.S	Mon Feb 25 11:37:56 2002
++++ linux-2.4.18-0.1-x.s390/arch/s390/kernel/entry.S	Mon Mar  4 19:53:13 2002
+@@ -59,7 +59,7 @@
+  */
+ _TSS_PTREGS  = 0
+ _TSS_FPRS    = (_TSS_PTREGS+8)
+-_TSS_AR2     = (_TSS_FPRS+136)
++_TSS_AR2     = (_TSS_FPRS+128)
+ _TSS_AR4     = (_TSS_AR2+4)
+ _TSS_KSP     = (_TSS_AR4+4)
+ _TSS_USERSEG = (_TSS_KSP+4)
+--- linux-2.4.18-0.1.s390/arch/s390x/kernel/entry.S	Mon Feb 25 11:37:56 2002
++++ linux-2.4.18-0.1-x.s390/arch/s390x/kernel/entry.S	Mon Mar  4 20:04:24 2002
+@@ -60,7 +60,7 @@
+  */
+ _TSS_PTREGS  = 0
+ _TSS_FPRS    = (_TSS_PTREGS+8)
+-_TSS_AR2     = (_TSS_FPRS+136)
++_TSS_AR2     = (_TSS_FPRS+128)
+ _TSS_AR4     = (_TSS_AR2+4)
+ _TSS_KSP     = (_TSS_AR4+4)
+ _TSS_USERSEG = (_TSS_KSP+8)

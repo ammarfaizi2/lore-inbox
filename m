@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVCEVxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVCEV6V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVCEVxR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 16:53:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVCEVxQ
+	id S261205AbVCEV6V (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 16:58:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVCEV6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 16:53:16 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:43429 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261201AbVCEVxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 16:53:13 -0500
-Date: Sat, 05 Mar 2005 16:53:12 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [PATCH] Re: diff command line?
-In-reply-to: <20050305210850.GI30106@alpha.home.local>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503051653.12290.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <fa.jshi2h6.1g20sjc@ifi.uio.no>
- <E1D7gBd-0000q3-3G@be1.7eggert.dyndns.org>
- <20050305210850.GI30106@alpha.home.local>
-User-Agent: KMail/1.7
+	Sat, 5 Mar 2005 16:58:20 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52386 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261205AbVCEV6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 16:58:17 -0500
+Date: Sat, 5 Mar 2005 22:58:06 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: swsusp memory freeing [was Re: swsusp: allow resume from initramfs]
+Message-ID: <20050305215806.GB14823@elf.ucw.cz>
+References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org> <20050304175038.GE9796@ip68-4-98-123.oc.oc.cox.net> <1109971327.3772.280.camel@desktop.cunningham.myip.net.au> <20050304214329.GD2385@elf.ucw.cz> <1109973035.3772.291.camel@desktop.cunningham.myip.net.au> <20050304220709.GE2385@elf.ucw.cz> <1109975474.3772.305.camel@desktop.cunningham.myip.net.au> <20050304225556.GA2647@elf.ucw.cz> <1109984867.3772.322.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109984867.3772.322.camel@desktop.cunningham.myip.net.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 05 March 2005 16:08, Willy Tarreau wrote:
->On Sat, Mar 05, 2005 at 09:47:44PM +0100, Bodo Eggert wrote:
->> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
->> > On Sat, Mar 05, 2005 at 10:48:00AM -0500, Gene Heskett wrote:
->> >> What are the options normally used to generate a diff for
->> >> public consumption on this list?
->> >
->> > diff -urpN orig new
->> >
->> > where "orig" and "new" both contain the top level "linux"
->> > directory, so the resulting patch can be applied with patch -p1.
->>
->> This seems to be a common mistake.
->
->I often use a simple trick to make my single file patches compatible
->with both -p0 and -p1 :
->
->diff -pruN ./dir/file.orig ./dir/file.new
->
->The './' can either get stripped by -p1 or left as is, thus the
-> patch works for different scripts or people. The main disadvantage
-> is that there's no base version indication in the patch with this
-> method.
->
->Regards,
->Willy
+Hi!
 
-Neat, Willy.  Are such patches generally acceptable here?
+> > > By the way, did you see the effect of the memory eating patch? I didn't
+> > > think about it until someone emailed me, but the improvement was 50x
+> > > speed in the best case!
+> > 
+> > Well, more interesting was that you actually freed much more memory
+> > with your patch. *You actually made memory freeing to work*. So yes, I
+> > like that one.
+> 
+> You might be misreading me. When you set the image size limit setting in
+> Suspend2, it's a soft limit. The image size wouldn't actually get down
+> to 2 meg; Suspend would just aim for that and eat memory until it saw it
+> wasn't getting anywhere.
 
+Well, numbers looked like with same 2MB soft limit, "new" version
+actually freed more memory. Perhaps that's not the case...
+								Pavel
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266669AbSKHAEZ>; Thu, 7 Nov 2002 19:04:25 -0500
+	id <S266666AbSKHADo>; Thu, 7 Nov 2002 19:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266671AbSKHAEZ>; Thu, 7 Nov 2002 19:04:25 -0500
-Received: from pool-151-196-237-11.balt.east.verizon.net ([151.196.237.11]:49343
-	"EHLO starbug.reddwarf") by vger.kernel.org with ESMTP
-	id <S266669AbSKHAEX>; Thu, 7 Nov 2002 19:04:23 -0500
-Message-ID: <3DCB0114.4080409@yossman.net>
-Date: Thu, 07 Nov 2002 19:11:00 -0500
-From: Brian Davids <dlister@yossman.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ian Soboroff <ian.soboroff@nist.gov>
-CC: linux-kernel@vger.kernel.org
-Subject: OT Re: Majordomo results
-References: <Pine.LNX.4.44L.0211071353330.22494-100000@duckman.distro.conectiva> <9cf8z05qigu.fsf@rogue.ncsl.nist.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266669AbSKHADo>; Thu, 7 Nov 2002 19:03:44 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:38901 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S266666AbSKHADn>; Thu, 7 Nov 2002 19:03:43 -0500
+Date: Thu, 7 Nov 2002 19:10:22 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Robert Love <rml@tech9.net>, Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.46-mm1 with contest
+Message-ID: <20021107191022.A5154@redhat.com>
+References: <200211080953.22903.conman@kolivas.net> <1036712891.764.2055.camel@phantasy> <3DCAFE38.16DED3BF@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DCAFE38.16DED3BF@digeo.com>; from akpm@digeo.com on Thu, Nov 07, 2002 at 03:58:48PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Soboroff wrote:
-> It might be an innocent fat-finger problem... I use a digestifying
-> mailing list gateway to get lkml and almost comitted this error
-> myself...
+On Thu, Nov 07, 2002 at 03:58:48PM -0800, Andrew Morton wrote:
+> > Nice.
 > 
-> ian
+> Mysterious.
 
-Not since whoever did it replied to the confirmation email with the 
-proper authorization message.  Definitely intentional.
+Nah, that's the allocator changes kicking in.
 
-
-Brian Davids
-
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

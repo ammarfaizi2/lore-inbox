@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262579AbREVIK3>; Tue, 22 May 2001 04:10:29 -0400
+	id <S262593AbREVIxG>; Tue, 22 May 2001 04:53:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262580AbREVIKT>; Tue, 22 May 2001 04:10:19 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:11528 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262579AbREVIKN>; Tue, 22 May 2001 04:10:13 -0400
-Date: Tue, 22 May 2001 10:10:07 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: question: permission checking for network filesystem
-Message-ID: <20010522101007.A15555@artax.karlin.mff.cuni.cz>
-In-Reply-To: <20010521153246.A9454@artax.karlin.mff.cuni.cz> <Pine.LNX.3.96.1010521233913.27071A-100000@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S262594AbREVIw4>; Tue, 22 May 2001 04:52:56 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:20419 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S262593AbREVIwj>; Tue, 22 May 2001 04:52:39 -0400
+Message-ID: <3B0A28C0.2FFFC935@TeraPort.de>
+Date: Tue, 22 May 2001 10:52:16 +0200
+From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac11 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: hpa@transmeta.com
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1010521233913.27071A-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Tue, May 22, 2001 at 12:26:47AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can write lookup so that it always succeeds and returns dummy inode
-> without sending anything and do all the work in open & inode operations.
- 
-It'd be great if I could. But I can't. First, the inode data are checked by
-some vfs functions before driver is called (this being the bigest problem:
-if (S_ISDIR(inode->i_mode) && (flag & FMODE_WRITE)) goto exit;
-- I think these checks could be, perhaps better, done by having right
-i_fop->open on different types of inodes)
+>> 
+>> Hi, 
+>> 
+>> while trying to enhance a small hardware inventory script, I found that 
+>> cpuinfo is missing the details of L1, L2 and L3 size, although they may 
+>> be available at boot time. One could of cource grep them from "dmesg" 
+>> output, but that may scroll away on long lived systems. 
+>> 
+>
+>Any particular reason this needs to be done in the kernel, as opposed 
+>to having your script read /dev/cpu/*/cpuid? 
+>
+>        -hpa 
 
-It could be done partialy (ie. returning dummy data for all but the last
-inode in path_walk) if path_walk passed LOOKUP_CONTINUE to i_ops->lookup
-(it's passed to d_ops->d_revalidate so NFS can avoid revalidating inodes on
-the way). I think adding this flag to i_ops->lookup won't break anything
-and make path_walk more self-consistent. (Also passing all flags from
-path_walk might help some optimization).
+ terse answer: probably the same reason as for most stuff in
+/proc/cpuinfo :-)
 
-> > exclusivity of write versus execute is the other
-> > (can't be workaround).
-> 
-> MAP_DENYWRITE is used for this. If somebody is mapping file with
-> MAP_DENYWRITE, lock it on server. Write locking does not depend on exec,
-> and it is bad to expect that it may be used only in exec. 
+ Seriously, is there any kind of documentation on for the stuff you
+mention? I am willing to learn. Isn't the cpuid just a kind of
+serialnumber? The one that caused the big flame wars when Intel
+introduced the concept? In any case, on my system(s) there seems to be
+no device behind those files. On some systems, there is even no
+"/dev/cpu" directory.
 
-There is one problem - I don't get to get/deny_write_permission functions.
-They operate on i_writecount and don't call the driver. MAP_DENYWRITE must
-be solved by mandatory write-lock on the file... I still think it's better
-to check permission in open (
+ I agree in a way that the changes to processor.h are not neccessary -
+unless other parts of the kernel are interested in those values. I
+probably should change that to make the thing easier to digest.
 
-Anyway, is there any reason file->f_ops->open shouldn't have the
-information inode->i_ops->permission had? Even if I unite opening for read
-and for exec, permissions still have to be queried and permission is
-definitely no good place. Lookup might do, but it might not do on other
-operating systems.
-
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+Martin

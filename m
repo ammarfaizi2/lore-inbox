@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318066AbSGLX3E>; Fri, 12 Jul 2002 19:29:04 -0400
+	id <S318067AbSGLXkW>; Fri, 12 Jul 2002 19:40:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318067AbSGLX3D>; Fri, 12 Jul 2002 19:29:03 -0400
-Received: from pc132.utati.net ([216.143.22.132]:19077 "HELO
-	merlin.webofficenow.com") by vger.kernel.org with SMTP
-	id <S318066AbSGLX3C>; Fri, 12 Jul 2002 19:29:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Thunder from the hill <thunder@ngforever.de>
-Subject: Re: No rule to make autoconf.h in 2.4.19-rc1?
-Date: Fri, 12 Jul 2002 13:33:31 -0400
-X-Mailer: KMail [version 1.3.1]
+	id <S318068AbSGLXkV>; Fri, 12 Jul 2002 19:40:21 -0400
+Received: from t2o913p32.telia.com ([195.252.44.152]:48256 "EHLO
+	best.localdomain") by vger.kernel.org with ESMTP id <S318067AbSGLXkU>;
+	Fri, 12 Jul 2002 19:40:20 -0400
+To: Alan Cox <alan@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0207121526421.3421-100000@hawkeye.luckynet.adm>
-In-Reply-To: <Pine.LNX.4.44.0207121526421.3421-100000@hawkeye.luckynet.adm>
+Subject: Re: Linux 2.4.19-rc1-ac3
+References: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 13 Jul 2002 01:42:52 +0200
+In-Reply-To: <200207121914.g6CJEcN32497@devserv.devel.redhat.com>
+Message-ID: <m2znwwikcj.fsf@best.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020712231123.2C7AE8B5@merlin.webofficenow.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 July 2002 05:27 pm, Thunder from the hill wrote:
-> Hi,
->
-> On Fri, 12 Jul 2002, Rob Landley wrote:
-> > What does the kernel use autoconf for?  (When did this get added?  I
-> > wrote a kernel output parser and didn't see autoconf, and I'd expect it
-> > to run in ake dep anyway...)
->
-> This is your kernel configuration. Please run make
-> configure/oldconfig/menuconfig before running make dep.
+Alan Cox <alan@redhat.com> writes:
 
-Actually, I was.  But it was in a script run on a detached terminal with 
-watched output, and I wasn't going yes "" | make oldconfig.  (Error checking. 
- Good thing.  It DID work under 2.4.18, because oldconfig didn't prompt for 
-anything. :)
+> o	Update cpufreq, add PIV throttling		(Robert Schwebel,
+> 			Padraig Brady, Zwane Mwaikambo, Arjan van de Ven,
+> 			Tora Engstad)
 
-> 							Regards,
-> 							Thunder
+It doesn't work because of a bug in cpufreq_p4_validatedc. Here is a
+patch to fix it:
 
-Rob
+--- linux/arch/i386/kernel/p4-clockmod.c.orig	Sat Jul 13 01:27:30 2002
++++ linux/arch/i386/kernel/p4-clockmod.c	Sat Jul 13 01:27:55 2002
+@@ -97,8 +97,9 @@
+ 	for (i=0; i<8; i++) 
+ 		if (percent <= cycle_table[i][0]) {
+ 			dc = cycle_table[i][1];
+ 			*pct = cycle_table[i][0];
++			break;
+ 		}
+ 
+ 
+ 	if (has_N44_O17_errata && (dc == DC_25PT || dc == DC_DFLT)) {
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,64 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUA1UvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 15:51:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266145AbUA1UvM
+	id S266162AbUA1VCD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 16:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbUA1VCD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 15:51:12 -0500
-Received: from faui10.informatik.uni-erlangen.de ([131.188.31.10]:4596 "EHLO
-	faui10.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S266124AbUA1UvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 15:51:08 -0500
-From: Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>
-Message-Id: <200401282051.VAA07809@faui1d.informatik.uni-erlangen.de>
-Subject: Re: long long on 32-bit machines
-To: hpa@zytor.com, arnd@arndb.de
-Date: Wed, 28 Jan 2004 21:51:06 +0100 (CET)
+	Wed, 28 Jan 2004 16:02:03 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:55683 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S266162AbUA1VB4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 16:01:56 -0500
+Date: Wed, 28 Jan 2004 17:42:11 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL2]
+Subject: [PATCH] PC300 update
+Message-ID: <Pine.LNX.4.58L.0401281741120.2088@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann wrote:
 
->Some architectures require long long arguments to be passed as an
->even/odd register pair. For example on s390, 
->
->   void f(int a, int b, long long x) 
->
->uses registers 2, 3, 4 and 5, while 
->
->   void f(int a, long long x, int b)
->
->uses registers 2, 4, 5 and 6.
+Hi Linus,
 
-Actually, this isn't quite true -- the second case will also
-use registers 2, 3, 4, and 5.
+This patch forward ports some changes from latest 2.4 driver:
 
-However, there is still a case where a single long long is
-passed differently from a pair of longs: when there is only
-a single register remaining for parameters.
+- Update maintainer email address
+- Mark pci_device_id list with __devinitdata
+- Set correct protocol type on packet receive (this caused the kernel to
+  drop all packets received)
+- Add #ifdef DEBUG around debug printk()
 
-This means that
-  void f(int a, int b, int c, int d, long e, long f)
-is passed as
-  a-d in register 2-5
-  e in register 6
-  f on the stack (4 bytes)
+Kudos to Ivan Passos / Daniela Squassoni
 
-while
-  void f(int a, int b, int c, int d, long long e)
-is passed as
-  a-d in register 2-5
-  nothing in register 6
-  e on the stack (8 bytes)
- 
-Bye,
-Ulrich 
+Please apply.
 
--- 
-  Dr. Ulrich Weigand
-  weigand@informatik.uni-erlangen.de
+--- linux-2.6.1/drivers/net/wan/pc300_drv.c.orig	2004-01-28 12:48:48.000000000 -0200
++++ linux-2.6.1/drivers/net/wan/pc300_drv.c	2004-01-28 13:21:23.634860712 -0200
+@@ -6,9 +6,9 @@
+  * pc300.c	Cyclades-PC300(tm) Driver.
+  *
+  * Author:	Ivan Passos <ivan@cyclades.com>
+- * Maintainer:	Henrique Gobbi <henrique@cyclades.com>
++ * Maintainer:	PC300 Maintainer <pc300@cyclades.com>
+  *
+- * Copyright:	(c) 1999-2002 Cyclades Corp.
++ * Copyright:	(c) 1999-2003 Cyclades Corp.
+  *
+  *	This program is free software; you can redistribute it and/or
+  *	modify it under the terms of the GNU General Public License
+@@ -252,7 +252,7 @@
+ #undef	PC300_DEBUG_RX
+ #undef	PC300_DEBUG_OTHER
+
+-static struct pci_device_id cpc_pci_dev_id[] = {
++static struct pci_device_id cpc_pci_dev_id[] __devinitdata = {
+ 	/* PC300/RSV or PC300/X21, 2 chan */
+ 	{0x120e, 0x300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0x300},
+ 	/* PC300/RSV or PC300/X21, 1 chan */
+@@ -1961,7 +1961,7 @@
+ 		}
+ 		stats->rx_packets++;
+ 		skb->mac.raw = skb->data;
+-		skb->protocol = htons(ETH_P_HDLC);
++		skb->protocol = hdlc_type_trans(skb, dev);
+ 		netif_rx(skb);
+ 	}
+ }
+@@ -2088,9 +2088,10 @@
+ 					}
+ 				}
+ 				if (!(dsr_rx = cpc_readb(scabase + DSR_RX(ch)) & DSR_DE)) {
+-
+-printk("%s: RX intr chan[%d] (st=0x%08lx, dsr=0x%02x, dsr2=0x%02x)\n",
+-	dev->name, ch, status, drx_stat, dsr_rx);
++#ifdef PC300_DEBUG_INTR
++		printk("%s: RX intr chan[%d] (st=0x%08lx, dsr=0x%02x, dsr2=0x%02x)\n",
++			dev->name, ch, status, drx_stat, dsr_rx);
++#endif
+ 					cpc_writeb(scabase + DSR_RX(ch), (dsr_rx | DSR_DE) & 0xfe);
+ 				}
+ 			}
+@@ -3690,6 +3691,6 @@
+
+ MODULE_DESCRIPTION("Cyclades-PC300 cards driver");
+ MODULE_AUTHOR(  "Author: Ivan Passos <ivan@cyclades.com>\r\n"
+-                "Maintainer: Henrique Gobbi <henrique.gobbi@cyclades.com");
++                "Maintainer: PC300 Maintainer <pc300@cyclades.com");
+ MODULE_LICENSE("GPL");
+

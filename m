@@ -1,65 +1,149 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263537AbUAHIBd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 03:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUAHIBd
+	id S262328AbUAHIBW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 03:01:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbUAHIBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 03:01:33 -0500
-Received: from AGrenoble-101-1-4-93.w217-128.abo.wanadoo.fr ([217.128.202.93]:27559
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S263537AbUAHIBa convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 03:01:30 -0500
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Greg KH <greg@kroah.com>,
-       Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
-References: <200401012333.04930.arvidjaar@mail.ru>
-	 <20040103055847.GC5306@kroah.com>
-	 <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
-	 <20040108031357.A1396@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401071815320.12602@home.osdl.org>
-	 <20040108034906.A1409@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401071854500.2131@home.osdl.org>
-	 <20040108043506.A1555@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1073548840.6189.144.camel@nomade>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 08 Jan 2004 09:00:41 +0100
-Content-Transfer-Encoding: 8BIT
+	Thu, 8 Jan 2004 03:01:22 -0500
+Received: from mail.blue-edge.bg ([213.222.56.114]:33679 "HELO
+	mail.blue-edge.bg") by vger.kernel.org with SMTP id S262328AbUAHIBS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 03:01:18 -0500
+Message-ID: <3FFD0E48.1090308@blue-edge.bg>
+Date: Thu, 08 Jan 2004 10:01:12 +0200
+From: Deian Chepishev <deian@blue-edge.bg>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Maetee Maitri <new@ji-net.com>
+CC: tsd@asus.com, linux-kernel@vger.kernel.org
+Subject: Re: P4P800-VM - ASUS - HIGH MEMORY extremely slow under some circumstaces
+ - LOG FILES - added
+References: <3FFD09F1.2020702@ji-net.com>
+In-Reply-To: <3FFD09F1.2020702@ji-net.com>
+Content-Type: text/plain; charset=TIS-620; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 08/01/2004 à 04:43, Linus Torvalds a écrit :
-> On Thu, 8 Jan 2004, Andries Brouwer wrote:
-> > 
-> > I am even happy in a somewhat more general situation that you are.
-> > If the kernel autopartitions (and make recognition of new partitions
-> > hotplug events so that udev can create the device nodes), all is well.
-> 
-> Yes. We _could_ do that, by just making a "we noticed the disk change" be
-> a hotplug event. However, I'm loath to do that, because some devices
-> literally don't even have an easily read disk change signal, so what they
-> do is
-> 
->  - assume the disk _always_ changed on open
->  - do a quick IO to verify it
-> 
-> and I'd be nervous about that kind of thing resulting in hotplug being 
-> called constantly if somebody rude just has an endless loop of 
-> "open()/close()".
+I guess it will work if i do it like you have said but i had not much 
+time to play with that. I have done some further investigation and found 
+the following dependency:
+Since my RAM is on 4 dims 512MB each i started to remove them one bu 
+one. First removed both dims on the second channel. Still the same 
+problem. But when i removed the third dimm and on the mainboard left 
+only one the problem did not appear. I guess that either the chipset has 
+some bug when allocating memory for the video card or ASUS have made 
+really poor implementation.
 
-Theses devices are kind of broken anyway, aren't they ? I see no safe
-way of handling disk changes on them, except having a "I changed disk in
-this drive" button on the desktop and rely on the user's good behavior.
-Currently the kernel will may have a wrong idea of what's in the drive
-if it doesn't poll, and that may wreak havoc.
+That is why i installed external AGP video card and disabled that one on 
+the main board and the problem have gone.
+Maetee Maitri wrote:
 
-	Xav
+> Hi,
+>
+> I just upgrade from P4 1.8G on GIGABYTE GA-8IGX (Intel 845G) to P4 
+> 2.4c on ASUS P4P800-VM and have the similar problem. My system runing 
+> RedHat 7.3 kernel 2.4.18-26.7.x. My system have only 1G RAM (2x512M 
+> DDR400). both of them set to use only 1M video ram.
+>
+> I notice that the setting of difference video RAM and AGP aperture 
+> size in BIOS affected speed of system.
+> I see that /proc/mtrr on P4P800-VM has 6 lines and GA-8IGX has 2 lines.
+>
+> GA-8IGX:
+> reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
+> reg01: base=0x3ff00000 (1023MB), size=   1MB: uncachable, count=1
+>
+> P4P800-VM:
+> reg00: base=0x00000000 (   0MB), size= 512MB: write-back, count=1
+> reg01: base=0x20000000 ( 512MB), size= 256MB: write-back, count=1
+> reg02: base=0x30000000 ( 768MB), size= 128MB: write-back, count=1
+> reg03: base=0x38000000 ( 896MB), size=  64MB: write-back, count=1
+> reg04: base=0x3c000000 ( 960MB), size=  32MB: write-back, count=1
+> reg05: base=0x3e000000 ( 992MB), size=  16MB: write-back, count=1
+>
+> Why a lot of region???
+> I try to clear all mtrr on P4P800-VM and set the new one base on GA-8IGX:
+>
+> [root /]# echo "disable=5" >| /proc/mtrr
+> [root /]# echo "disable=4" >| /proc/mtrr
+> [root /]# echo "disable=3" >| /proc/mtrr
+> [root /]# echo "disable=2" >| /proc/mtrr
+> [root /]# echo "disable=1" >| /proc/mtrr
+> [root /]# echo "disable=0" >| /proc/mtrr
+> [root /]# echo "base=0x00000000 size=0x40000000 type=write-back" > 
+> /proc/mtrr
+> [root /]# echo "base=0x3ff00000 size=0x00100000 type=uncachable" > 
+> /proc/mtrr
+>
+> Yes!! It work, My system come fast again. the new /proc/mtrr show below:
+> [root /]# cat /proc/mtrr reg00: base=0x00000000 (   0MB), size=1024MB: 
+> write-back, count=1
+> reg01: base=0x3ff00000 (1023MB), size=   1MB: uncachable, count=1
+>
+> For your 2G RAM machine. You may change size of first region from 
+> 0x40000000 (1G) to 0x80000000 (2G). The value of base and size of 
+> second region base on your video RAM setting in BIOS.
+>
+> Hope this solution will work on your system too.
+>
+> Maetee Maitri
+>
+>
+>> Hi,
+>>
+>> I have ASUS P4P800-VM mother board.
+>> Chipset:     Intel 865G GMCH
+>>                 Intel ICH5   - 800MHz FSB
+>>
+>> BIOS  Revision: 1007
+>>
+>> Embedded LAN  : Intel 82562EZ
+>> Embedded Graphics: Intel Extreme Graphics 2
+>>
+>> RAM  2G    4x512M  DDR400 Samsung
+>> HDD IDE  Seagate Barracuda  120G
+>> Processor:  P4 - 2.6 GHz   HyperThreading
+>>
+>> OS: Slackware Linux 9.1
+>>
+>> Description of the problem:
+>>
+>> I have installed 2 GB memory 4x512M
+>> The embedded video uses system memory. If i set it to use only 1 MB or
+>> 32MB of system RAM everything seems ok. The system boots normally and
+>> working normally.
+>> If i set it to use 4,8 or 16 MB of the system memory the system boots
+>> much slower and despite it has no errors or something wrong it works
+>> slow. I mean the difference between fast and slow working is really 
+>> HUGE.
+>> I have made the following test: in a 600MB text file  replace some text
+>> with sed. The line looks like this:
+>>
+>> sed s/deian/test/g  testfile > /dev/null
+>>
+>> when the system is working normally this is done for ~ 30sec. When the
+>> system is working slowly it takes ~ 9 min and 30 sec.
+>> I have tested this with kernel 2.4.23 from kernel.org. High memory
+>> support is enabled - 4GB. If i have no high memory support enabled the
+>> thing are ok but the kernel see only 900MB of my memory.
+>> The other strange thing is that with kernel 2.6 the system works
+>> normally ONLY IF video card uses 32MB. It is not like with 2.4.23 when 1
+>> and 32M but only with 32MB.
+>>
+>> I dont think this is normal behavior. And i hope that the problem is not
+>> the chipset or hardware. I have searched the news groups and other
+>> people has the same problem too but no solution yet.
+>> I have attached some logs which may help u find what is wrong. If u need
+>> me to do something more just mail me i shall respond as fast as i can.
+>> Regards,
+>>
+>> Deian Chepishev
+>>
+>
+> Maetee Maitri
+>
+>
+
 

@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281059AbRLOBJE>; Fri, 14 Dec 2001 20:09:04 -0500
+	id <S281217AbRLOBVi>; Fri, 14 Dec 2001 20:21:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281217AbRLOBIz>; Fri, 14 Dec 2001 20:08:55 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:39099 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S281059AbRLOBIv>; Fri, 14 Dec 2001 20:08:51 -0500
-Date: Sat, 15 Dec 2001 01:54:50 +0100 (CET)
-From: eduard.epi@t-online.de (Peter Bornemann)
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: Peter Bornemann <eduard.epi@t-online.de>, Jens Axboe <axboe@suse.de>,
-        Kirk Alexander <kirkalx@yahoo.co.nz>, <linux-kernel@vger.kernel.org>
-Subject: Re: your mail
-In-Reply-To: <20011214210728.K2427-100000@gerard>
-Message-ID: <Pine.LNX.4.33.0112150136390.5849-100000@eduard.t-online.de>
+	id <S281416AbRLOBV3>; Fri, 14 Dec 2001 20:21:29 -0500
+Received: from atlas.otago.ac.nz ([139.80.32.250]:51471 "EHLO
+	atlas.otago.ac.nz") by vger.kernel.org with ESMTP
+	id <S281217AbRLOBVL>; Fri, 14 Dec 2001 20:21:11 -0500
+Date: Sat, 15 Dec 2001 14:21:07 +1300 (NZDT)
+From: Corrin Lakeland <lakeland@atlas.otago.ac.nz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Subject: 2.4.16 not booting with Athlon optimisations
+Message-ID: <Pine.OSF.4.21.0112151418080.9398-100000@atlas.otago.ac.nz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Dec 2001, [ISO-8859-1] Gérard Roudier wrote:
+Yesterday I wrote
 
->
->
-> On Fri, 14 Dec 2001, Peter Bornemann wrote:
-> > Ahemm -- well,
-> > maybe I'm the first one. I have a symbios card, which is recognized by
-> > lspci:  SCSI storage controller: LSI Logic Corp. / Symbios Logic Inc.
-> > (formerly NCR) 53c810 (rev 23).
-> Could you, please,  report me more accurate information.
-> TIA,
->
+> [ problem with via chipset, fixed by 2.4.17 + via-mwq.patch ]
+> [ I'll try 2.4.17-pre8 without via-mwq.patch ]
 
-Well, it seems I made my intention not very clear: I do not want You to
-fix something in the driver, I just wanted from You to leave the old
-ncr-driver in the kernel, just for the situation of a first install. I
-think no newbie with little knowledge will be able to install Linux (or,
-maybe, FreeBSD), when he happens to own such an controller. First, he
-won't be able to read very much on the screen, for the loop runs much too
-fast and second, he will not understand when he reads something about a
-sym53c8xx. Exactly for this case I think the old driver should be left in.
-If You want, You can tell him "Attention! Use of this driver deprecated.
-Contact Your support." or whatever seems appropriate. It is just about the
-first step to linuxland :-)
+Ok, the system won't boot without the via-mwq patch, so I guess the patch
+is still useful.
 
-Hope I managed to make myself clear tris time
+Thanks all
 
-Peter B
-
-
-
-          .         .
-          |\_-^^^-_/|
-          / (|)_(|) \
-         ( === X === )
-          \  ._|_.  /
-           ^-_   _-^
-              °°°
+Corrin
+--
+Corrin Lakeland <lakeland@cs.otago.ac.nz> 
+Department of Computer Science
+University of Otago, New Zealand
 

@@ -1,146 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVBKKbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVBKKi4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbVBKKbe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 05:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVBKKbe
+	id S262246AbVBKKi4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 05:38:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbVBKKi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 05:31:34 -0500
-Received: from smail4.alcatel.fr ([62.23.212.167]:40126 "EHLO
-	smail4.alcatel.fr") by vger.kernel.org with ESMTP id S262239AbVBKKb2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 05:31:28 -0500
-Message-ID: <420C894B.1090700@linux-fr.org>
-Date: Fri, 11 Feb 2005 11:30:35 +0100
-From: Jean Delvare <khali@linux-fr.org>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.8a5) Gecko/20041222
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Stelian Pop <stelian@popies.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
-References: <20050210161809.GK3493@crusoe.alcove-fr>
-In-Reply-To: <20050210161809.GK3493@crusoe.alcove-fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 11 Feb 2005 05:38:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:42408 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262243AbVBKKiC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 05:38:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=qEd1WRI+d0T7yEA+FmGGbeYUJQfJ85Vj7+wry7fjYq6baGYMdGVIXSo9Rk2821x4dpeMlpKgvZjCIIXNNw1mYBl9fbkJ2YWk0N3sLG1ga/y4/nKUbPqacRBzoUNjzPbHcLbN7244ZFsiK7j6k2xWOWl2riIK9rAixTz5+/oZR2U=
+Message-ID: <25349aa40502110238484767bb@mail.gmail.com>
+Date: Fri, 11 Feb 2005 03:38:01 -0700
+From: Tipp Moseley <tipp.moseley@gmail.com>
+Reply-To: Tipp Moseley <tipp.moseley@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Potential timer bug
+In-Reply-To: <25349aa4050211010930333ae3@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Alcanet-MTA-scanned-and-authorized: yes
+References: <25349aa4050211010930333ae3@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stelian, all,
+Err.  I'm stupid.  This isn't a bug.
 
-> This driver has been submitted (almost unchanged) on lkml and 
-> on acpi-devel twice, first on July 21, 2004, then again on
-> September 17, 2004. It has been quietly ignored.
+
+
+
+On Fri, 11 Feb 2005 02:09:10 -0700, Tipp Moseley <tipp.moseley@gmail.com> wrote:
+> Hello,
 > 
-> Privately I've had many positive feedbacks from users of this driver
-> (and no negative feedback), including Linux distributions who wish
-> to include it into their kernels. The reports are increasing in number,
-> it would seem that newer Sony Vaios are more and more incompatible
-> with sonypi and require sony_acpi to control the screen brightness.
-
-I'm sorry I missed the first two announcements. I'll give a try to your 
-driver this evening, and report how it is working for me.
-
-In the meantime, I'd have some comments on your patch:
-
-> +static int debug = 0;
-
-No need to initialize it to 0, the compiler does it for you (and more 
-efficiently at that).
-
-> +module_param(debug, int, 0);
-> +MODULE_PARM_DESC(debug,"set this to 1 (and RTFM) if you want to help the development of this driver");
-
-Lack of space after comma, and line too long, split it please.
-
-> +static struct acpi_driver sony_acpi_driver = {
-> +	name:	ACPI_SNC_DRIVER_NAME,
-> +	class:	ACPI_SNC_CLASS,
-> +	ids:	ACPI_SNC_HID,
-> +	ops:	{
-> +			add:	sony_acpi_add,
-> +			remove:	sony_acpi_remove,
-> +		},
-> +};
-
-As far as I know, you are supposed to use C99-style for structure 
-initialization:
-     .name = ACPI_SNC_DRIVER_NAME,
-etc.
-
-> +	printk(KERN_WARNING "acpi_callreadfunc failed\n");
-
-Please prepend the driver name before such messages (everywhere in the 
-driver). It's annoying when you see error messages in your logs and 
-don't know which driver caused them.
-
-> +static int parse_buffer(const char __user *buffer, unsigned long count, int *val) {
-> +	char s[32];
-> +	
-> +	if (count > 31)
-> +		return -EINVAL;
-> +	if (copy_from_user(s, buffer, count))
-> +		return -EFAULT;
-> +	s[count] = 0;
-
-= '\0' would look better IMHO.
-
-> +	if (sscanf(s, "%i", val) != 1)
-
-Can't you use simple_strtoul instead? This would be more efficient, or 
-so I guess.
-
-> --- /dev/null	2005-02-10 10:35:32.824183288 +0100
-> +++ linux-2.6-stelian/Documentation/sony_acpi.txt	2005-01-31 17:00:09.000000000 +0100
-
-Could be the time to create a Documentation/acpi directory and start 
-populating it. It's odd that such a large subsystem has no documentation 
-in the kernel tree.
-
-> +You should start by trying the sonypi driver, which does
-> +all this and many other things. But the sonypi driver does
-> +not work on all sonypi laptops, whereas sony_acpi should 
-> +work everywhere.
-
-s/all sonypi laptops/all Sony laptops/?
-
-> +Loading the sony_acpi.ko module will create a /proc/acpi/sony/
-> +directory populated with a couple of files (only one for the
-> +moment).
-
-s/sony_acpi\.ko/sony_acpi/
-.ko is an implementation detail the user-space should not have to care 
-about.
-
-> +For example:
-> +	# echo "1" > /proc/acpi/sony/brt
-
-BTW, why not naming the file "brightness" instead? Most acpi files have 
-"long" names like that. At least people can easily figure out what the 
-files are for.
-
-> +config ACPI_SONY
-> +	tristate "Sony Laptop Extras" 
-> +	depends on X86
-> +	depends on ACPI_INTERPRETER
-> +	default m
-> +	  ---help---
-> +	  This mini-driver drives the ACPI SNC device present in the
-> +	  ACPI BIOS of the Sony Vaio laptops.
-> +
-> +	  It gives access to some extra laptop functionalities. In
-> +	  its current form, the only thing this driver does is letting 
-> +	  the user set or query the screen brightness.
-> +
-> +	  Read <Documentation/sony_acpi.txt> for more information.
-
-I think I remember this should be <file:Documentation...> or something 
-similar.
-
-Note that I have next to zero knowledge of the acpi internals so I 
-couldn't comment on that part.
-
-Thanks,
--- 
-Jean Delvare
+> I am running on a uniprocessor x86 with CONFIG_SMP disabled and
+> CONFIG_PREEMPT enabled.
+> 
+> The problem I have encountered is when using a timer in a module.  The
+> timer is set to execute every 3 ticks, and does nothing but increment
+> a counter, and that works fine.  However, when the module is unloaded
+> sometimes the system hangs on module exit and barfs something like:
+> 
+> Unable to handle kernel paging request at virtual address e18861bc
+>  printing eip:
+> c0122a88
+> *pde = 015e5067
+> *pte = 00000000
+> Oops: 0002 [#1]
+> PREEMPT
+> Modules linked in: yenta socket, rsrc_nonstatic sonypi
+> CPU: 0
+> ...
+> Call Trace:
+>  __do_softirq+0x76/0x90
+>  do_softirq+0x41/0x50
+> ...
+> <0>Kernel panic - not syncing: Fatal exception in interrupt
+> 
+> I am using del_timer_sync to delete the timer in the module_exit
+> routine, and sometimes it works correctly.  My theory is that since
+> with CONFIG_SMP disabled, del_timer_sync is the same as del_timer.
+> This allows the timer to potentially execute after the module has
+> unloaded, causing the invalid paging request.
+> 
+> My solution to the problem (which works, but is probably not optimal)
+> is to change '#ifdef CONFIG_SMP' to '#if defined(CONFIG_SMP) ||
+> defined(CONFIG_PREEMPT)' around the code defining timer_del_sync.  A
+> patch is attached.  Let me know if there's any more information that I
+> can provide.
+> 
+> Thanks,
+> 
+> Tipp Moseley
+> 
+> 
+>

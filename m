@@ -1,93 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314088AbSDKPPh>; Thu, 11 Apr 2002 11:15:37 -0400
+	id <S314092AbSDKPXx>; Thu, 11 Apr 2002 11:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314091AbSDKPPg>; Thu, 11 Apr 2002 11:15:36 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1858 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314088AbSDKPPe>; Thu, 11 Apr 2002 11:15:34 -0400
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: suparna@in.ibm.com, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-In-Reply-To: <1759496962.1018114339@[10.10.2.3]>
-	<m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com>
-	<m1ofgum81l.fsf@frodo.biederman.org> <20020409205636.A1234@in.ibm.com>
-	<m1y9fvlfyb.fsf@frodo.biederman.org> <1018461522.4453.212.camel@andyp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 11 Apr 2002 09:08:44 -0600
-Message-ID: <m1pu16l1c3.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S314093AbSDKPXw>; Thu, 11 Apr 2002 11:23:52 -0400
+Received: from stingr.net ([212.193.32.15]:16512 "HELO hq.stingr.net")
+	by vger.kernel.org with SMTP id <S314092AbSDKPXv>;
+	Thu, 11 Apr 2002 11:23:51 -0400
+Date: Thu, 11 Apr 2002 19:23:27 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Cc: Marc Haber <mh+linux-kernel@zugschlus.de>
+Subject: Re: tulip and VLAN tagging - accepting larger frames without affecting higher layers?
+Message-ID: <20020411152327.GA600@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Marc Haber <mh+linux-kernel@zugschlus.de>
+In-Reply-To: <E16veWm-00052F-00@janet.int.toplink-plannet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Tanya
+X-Mailer: Roxio Easy CD Creator 5.0
+X-RealName: Stingray Greatest Jr
+Organization: Bedleham International
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Pfiffer <andyp@osdl.org> writes:
+Replying to Marc Haber:
+> Hi,
+> 
+> VLAN-Tagging on Linux seems still to be problematic, despite the dot1q
+> patch being in the kernel since a few months. Problems arise when a
+> system running on an untagged switch port sends a frame using full MTU
+> to a system that runs VLAN tagging. The switch adds the VLAN tag to
+> the frame which then exceeds the MTU and is then dropped by the
+> receiving Linux system.
 
-> On Wed, 2002-04-10 at 08:40, Eric W. Biederman wrote:
-> 
-> > Unless I missed something the Linux kernel won't work on smp though.
-> > It is a matter of resetting the state of the apics, and ensuring you
-> > are running on the first processor.  I don't believe bootimg did/does that.
-> > 
-> 
-> The copy of bootimg that I have makes no effort to offline CPU's or
-> reset the APICs.  If there is a newer version, I could not find it.
-> 
-> I have tried 3 different solutions for for Linux-reloading-linux
-> (bootimg, two-kernel monte, and kexec), and none of them fully support
-> the kinds of enterprise-class systems we (OSDL) care about:
-> 
-> 	1. multiprocessor x86 (p3, p4, +xeons) with APICs
-> 	2. >4GB memory
-> 	3. CPU hotplug
-> 	4. device hotplug
-> 	5. >= 2.5.x kernel
+You can take latest stable linux-stingr kernel from
+bk://linux-stingr.bkbits.net/stable4
 
-kexec should handle.
-        1. multiprocessor x86 (p3, p4, +xeons) with APICs
-        2. >4GB memory
-        3. >= 2.5.x kernel
-        4. potentially non-x86.
+It contains (following) (rediffed) working tulip mtu patch :)
+
+diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/interrupt.c linux-2.4.9-ac10/drivers/net/tulip/interrupt.c
+--- linux-2.4.9-ac10-novlan/drivers/net/tulip/interrupt.c	Wed Jun 20 22:15:44 2001
++++ linux-2.4.9-ac10/drivers/net/tulip/interrupt.c	Mon Sep 10 18:44:12 2001
+@@ -128,8 +128,8 @@
+ 				   dev->name, entry, status);
+ 		if (--rx_work_limit < 0)
+ 			break;
+-		if ((status & 0x38008300) != 0x0300) {
+-			if ((status & 0x38000300) != 0x0300) {
++		if ((status & (0x38000000 | RxDescFatalErr | RxWholePkt)) != RxWholePkt) {
++			if ((status & (0x38000000 | RxWholePkt)) != RxWholePkt) {
+ 				/* Ingore earlier buffers. */
+ 				if ((status & 0xffff) != 0x7fff) {
+ 					if (tulip_debug > 1)
+@@ -155,10 +155,10 @@
+ 			struct sk_buff *skb;
  
-> In fact, I have yet to find any variation of linux-loading-linux that
-> works at all on the 2-way P4-Xeon under my desk or the 8-way P3-Xeon in
-> the lab.  The only system I have ever seen Two Kernel Monte work on here
-> is a Celeron-based machine in a nearby cube.
-
-Interesting.  I know I have it runs on the 2-way P4-Xeon under my
-desk.  So maybe it is a compiler bug, or some weird firmware case I
-don't handle correctly.
+ #ifndef final_version
+-			if (pkt_len > 1518) {
++			if (pkt_len > 1522) {
+ 				printk(KERN_WARNING "%s: Bogus packet size of %d (%#x).\n",
+ 					   dev->name, pkt_len, pkt_len);
+-				pkt_len = 1518;
++				pkt_len = 1522;
+ 				tp->stats.rx_length_errors++;
+ 			}
+ #endif
+diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip.h linux-2.4.9-ac10/drivers/net/tulip/tulip.h
+--- linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip.h	Wed Jun 20 22:19:02 2001
++++ linux-2.4.9-ac10/drivers/net/tulip/tulip.h	Mon Sep 10 18:42:27 2001
+@@ -186,7 +186,7 @@
  
-> The >4GB of memory problem is an interesting quirk -- if the
-> linux-loading-linux implementation assumes that it can perform the final
-> copy in 32-bit protected mode *without* paging enabled, it won't
-> reliably work on >4GB systems.
+ enum desc_status_bits {
+ 	DescOwned = 0x80000000,
+-	RxDescFatalErr = 0x8000,
++	RxDescFatalErr = 0x4842,
+ 	RxWholePkt = 0x0300,
+ };
+ 
+@@ -264,7 +264,7 @@
+ 
+ #define MEDIA_MASK     31
+ 
+-#define PKT_BUF_SZ		1536	/* Size of each temporary Rx buffer. */
++#define PKT_BUF_SZ		1540	/* Size of each temporary Rx buffer. */
+ 
+ #define TULIP_MIN_CACHE_LINE	8	/* in units of 32-bit words */
+ 
+diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip_core.c linux-2.4.9-ac10/drivers/net/tulip/tulip_core.c
+--- linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip_core.c	Mon Sep 10 18:50:47 2001
++++ linux-2.4.9-ac10/drivers/net/tulip/tulip_core.c	Mon Sep 10 18:39:59 2001
+@@ -59,7 +59,7 @@
+ #if defined(__alpha__) || defined(__arm__) || defined(__hppa__) \
+ 	|| defined(__sparc_) || defined(__ia64__) \
+ 	|| defined(__sh__) || defined(__mips__)
+-static int rx_copybreak = 1518;
++static int rx_copybreak = 1522;
+ #else
+ static int rx_copybreak = 100;
+ #endif
 
-Sure it will, if it only allocates the memory from the low 4GB, in fact
-my kexec code makes certain to allocate memory from the kernel address
-space.  get_free_page() in ZONE_NORMAL.  This is the low 896MB.  So
-there shouldn't be a problem.  This was done very deliberately so it
-would work on these kinds of systems.
-
-> > In general yes.  There are some interesting side effects though.
-> > Going through the pci bus and shutting off bus masters is a good
-> > first approximation of what needs to happen.
-> > 
-> 
-> The new device model from Pat (mochel@osdl.org) is probably the best way
-> to go here; you'll be able to walk the driver tree and reliably turn off
-> devices.
-
-I totally agree.  Walking the driver tree is exactly what I want.
-Disabling bus masters is just a quick hack to rule out a DMA killing
-your linux booting linux.
-
-> For the CPU side of things, the CPU hotplug work looks promising as
-> well.
-
-Interesting.  So far I haven't seen a system that supports CPU hot
-plug, on x86 so I have no clue here.
-
-Eric
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4

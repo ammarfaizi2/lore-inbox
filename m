@@ -1,116 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318918AbSIJBeD>; Mon, 9 Sep 2002 21:34:03 -0400
+	id <S318946AbSIJBf5>; Mon, 9 Sep 2002 21:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318923AbSIJBeD>; Mon, 9 Sep 2002 21:34:03 -0400
-Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:61635 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318918AbSIJBeC>;
-	Mon, 9 Sep 2002 21:34:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: Question about pseudo filesystems
-Date: Tue, 10 Sep 2002 03:40:31 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
-References: <20020907192736.A22492@kushida.apsleyroad.org> <E17oUnq-0006tg-00@starship> <20020910014459.B5875@kushida.apsleyroad.org>
-In-Reply-To: <20020910014459.B5875@kushida.apsleyroad.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17oa11-0006ww-00@starship>
+	id <S318962AbSIJBf4>; Mon, 9 Sep 2002 21:35:56 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:4648 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S318946AbSIJBfw>; Mon, 9 Sep 2002 21:35:52 -0400
+Date: Mon, 9 Sep 2002 18:50:07 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20pre5aa2
+Message-ID: <20020909165007.GA17868@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 10 September 2002 02:44, Jamie Lokier wrote:
-> Daniel Phillips wrote:
-> > It wasn't obvious to you, was it.  So how can you call it simple.
-> 
-> I have to agree.
-> 
-> > [...] This doesn't cover the whole range of module applications.
-> > There is a significant class of module types that must rely on
-> > sheduling techniques to prove inactivity.  My suggestion covers both,
-> > Al has his blinders on.
-> 
-> Unfortunately having cleanup_module() return a value don't necessarily
-> make things simpler.  Sure, it's a general solution, but it's not always
-> easier to use.
+2.4.20pre5aa1 had a deadlock in the sched_yield changes (missing _irq
+while taking the spinlock). this new one should be rock solid ;).
 
-It's always as easy to use, or easier.  It's certainly more obvious.
+URL:
 
-> Typically, your module's resources are protected by a lock or so.
-> cleanup_module() could take this lock, check any private reference
-> counts, and (because it has the lock) decide whether to proceed with
-> unregistering the module's resources.  Once it begins unregistering
-> resources, it's pretty committed to unregistering them all and saying it
-> exited ok.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre5aa2.gz
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.20pre5aa2/
 
-And failing silently if it can't?
+Changelog:
 
-> Unfortunately, once it has the lock, and the reference counts are all
-> zero, it's still _not_ generally safe to cleanup up a module.
-> 
-> This is because any other function, for example a release() op on a
-> file, or a remove() op on a PCI device, can't take a module's private
-> lock, decrement the private reference count, release the lock and
-> return.  There's a race between releasing the lock and returning, where
-> it still isn't safe to remove the module's memory.
->
-> Even waiting for a schedule to happen won't help if CONFIG_PREEMPT is
-> enabled. 
+Only in 2.4.20pre5aa2: 00_ext3-o_direct-1
 
-That's exactly the race that is removed by having the module subsystem call 
-__exit to remove the module.  Since the module subsystem checks the __exit's 
-flag on return and releases the lock, so there is no window after releasing 
-the lock when the releasor is still executing in the module.
+	O_DIRECT support for ext3, from Andrew and Stephen.
 
-> In other words, the module's idea of whether it's own resources are no
-> longer in use _must_ be released by code outside the module - or at
-> very least, locks protecting that information must be released outside
-> the module.
+Only in 2.4.20pre5aa2: 00_find_or_create_page-1
 
-Yup, that's exactly what I've proposed, in the simplest way possible.
+	Cleanup patch from Christoph to start the xfs merging.
 
-> > Designs are not always correct just because they work.
-> 
-> Unfortunately it's not immediately clear to me that having
-> cleanup_module() be able to abort an exit actually helps.
+Only in 2.4.20pre5aa1: 00_net-softirq-2
+Only in 2.4.20pre5aa2: 00_net-softirq-3
 
-Silent failure is about the worst thing that we could possibly design into 
-the system, but that's not even the issue I'm going on about - because I 
-think it's so appallingly obvious it's wrong, I assume everybody can see that.
+	This time I think I fixed the AF_UNIX latency in lmbench
+	to go as fast as with irqrate applied (if yes, as I expect it was
+	totally unrelated to the irqrate irq proper part). Please
+	benchmark (totally untested).
 
-Rather, it's the simple fact that this is the obvious interface a naive 
-person would expect, and nobody has presented a rational argument for not 
-using it.
+Only in 2.4.20pre5aa1: 00_prepare-write-fixes-3-1
+Only in 2.4.20pre5aa2: 98_prepare-write-fixes-3-1
 
-> Doing so with RCU-style "wait until none of my module functions could
-> possible be in their race window" might work, though.  If you could 100%
-> trust GCC's sibling call optimisation, variations on
-> `spin_unlock_and_return' and `up_and_return' could be written.
-> 
-> But even if you can write code that's safe, is it likely to be
-> understood by most module authors?  If not, it's no better than Al
-> Viro's filesystem method.
+	Moved at the end so it compiles even if you stop applying patches
+	in the middle. From Christoph.
 
-It solves one of the races in a tidy, obviously correct way.  There are other 
-races that are much more difficult (which don't for the most part apply to 
-filesystem modules) where we have to do cute things to be sure that all 
-threads are out of the module, however, that is an othogonal issue, and when 
-last sighted, it had a workable solution on the table, which requires each 
-task to schedule once.  Config_preempt is a trivial issue: just increment the 
-preempt counter and nobody will preempt on you while you run the magic 
-quiescence test.  The module runs this test, by the way, so that only modules 
-that can't figure this out by some less intrusive means have to impose 
-themselves on the rest of the system this way.
+Only in 2.4.20pre5aa2: 00_reiserfs-o_direct-1
 
-Anyway, this does not replace Al's filesystem method, it *uses* it, but only 
-where appropriate.
+	Fixes for O_DIRECT with reiserfs from Chris.
 
-Of course we can design a more complex method for accomplishing the same 
-thing, but why?  Have you looked at the module.c by the way?  If you have and 
-you like it, you are one sick puppy ;-)
+Only in 2.4.20pre5aa1: 00_sched-O1-aa-2.4.19rc3-2.gz
+Only in 2.4.20pre5aa2: 00_sched-O1-aa-2.4.19rc3-3.gz
 
--- 
-Daniel
+	Fix deadlock in sched_yield (rq->lock must be acquired after
+	disabling irqs). From Andi.
+
+Only in 2.4.20pre5aa2: 00_slabinfo-shared-address-space-1
+
+	Fix from Arnd Bergmann to avoid archs with shared/overlapped address
+	space across kernel and userspace to show broken (literally ;) in
+	/proc/slabinfo.
+
+Only in 2.4.20pre5aa1: 10_rawio-vary-io-12
+Only in 2.4.20pre5aa2: 10_rawio-vary-io-13
+
+	Cleanedup version from Christoph.
+
+Only in 2.4.20pre5aa2: 50_uml-patch-2.4.19-2.gz
+Only in 2.4.20pre5aa2: 51_uml-aa-11
+Only in 2.4.20pre5aa1: 51_uml-ac-to-aa-10
+Only in 2.4.20pre5aa2: 53_uml-cache-shift-1
+Only in 2.4.20pre5aa1: 56_uml-pte-highmem-3
+Only in 2.4.20pre5aa2: 56_uml-pte-highmem-4
+Only in 2.4.20pre5aa1: 60_tux-flush_icache_range-1
+
+	Make UML compile and work again (didn't like too much the /usr/lib/uml
+	hardcoded path just for this proggy:
+
+andrea@dualathlon:~> ls /usr/lib/uml/
+port-helper
+andrea@dualathlon:~>
+
+	to make the debugger working). I'd prefer to install it locally
+	in my home dir.
+
+Only in 2.4.20pre5aa2: 70_PF_FSTRANS-1
+Only in 2.4.20pre5aa2: 70_alloc_inode-1
+Only in 2.4.20pre5aa2: 70_delalloc-1
+Only in 2.4.20pre5aa2: 70_dmapi-stuff-1
+Only in 2.4.20pre5aa2: 70_iget-1
+Only in 2.4.20pre5aa2: 70_intermezzo-junk-1
+Only in 2.4.20pre5aa2: 70_quota-backport-1
+Only in 2.4.20pre5aa2: 70_vmap-1
+Only in 2.4.20pre5aa2: 70_xattr-1
+Only in 2.4.20pre5aa1: 70_xfs-1.1-6.gz
+Only in 2.4.20pre5aa2: 70_xfs-config-stuff-1
+Only in 2.4.20pre5aa2: 70_xfs-cvs-020905-1
+Only in 2.4.20pre5aa2: 70_xfs-exports-1
+Only in 2.4.20pre5aa2: 70_xfs-sysctl-1
+Only in 2.4.20pre5aa2: 71_posix_acl-1
+Only in 2.4.20pre5aa2: 71_xfs-aa-1
+Only in 2.4.20pre5aa1: 71_xfs-kiobuf-slab-1
+Only in 2.4.20pre5aa2: 71_xfs-zalloc-fix-1
+Only in 2.4.20pre5aa1: 72_xfs-O_DIRECT-1
+Only in 2.4.20pre5aa1: 73_xfs-blksize-PAGE_SIZE-1
+Only in 2.4.20pre5aa1: 74_super_quotaops-1
+Only in 2.4.20pre5aa1: 75_compile-dmapi-1
+Only in 2.4.20pre5aa1: 76_xfs-64bit-1
+
+	XFS SGI updates from Christoph.
+
+Only in 2.4.20pre5aa1: 82_x86_64-suse-3
+Only in 2.4.20pre5aa2: 82_x86_64-suse-4
+Only in 2.4.20pre5aa1: 87_x86_64-o1sched-2
+
+	Make x86-64 compile (modulo aio, didn't merge the wtd framework yet).
+
+Only in 2.4.20pre5aa1: 90_ext3-commit-interval-2
+Only in 2.4.20pre5aa2: 90_ext3-commit-interval-3
+Only in 2.4.20pre5aa1: 96_inode_read_write-atomic-4
+Only in 2.4.20pre5aa2: 96_inode_read_write-atomic-5
+Only in 2.4.20pre5aa1: 9940_ocfs-1.gz
+Only in 2.4.20pre5aa2: 9940_ocfs-2.gz
+
+	Rediffed
+
+Only in 2.4.20pre5aa1: 9900_aio-4.gz
+Only in 2.4.20pre5aa2: 9900_aio-5.gz
+Only in 2.4.20pre5aa1: 9910_shm-largepage-2.gz
+Only in 2.4.20pre5aa2: 9910_shm-largepage-3.gz
+Only in 2.4.20pre5aa1: 9920_kgdb-1.gz
+Only in 2.4.20pre5aa2: 9920_kgdb-2.gz
+
+	Rediffed after fixing some compilation issue (wtd is still missing
+	for most archs though).
+
+Only in 2.4.20pre5aa1: 9950_futex-1.gz
+Only in 2.4.20pre5aa2: 9950_futex-2.gz
+
+	New fixed version.
+
+Andrea

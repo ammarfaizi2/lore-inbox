@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264069AbTFTSTh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 14:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264072AbTFTSTh
+	id S264088AbTFTSWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 14:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFTSWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 14:19:37 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:15013 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264069AbTFTSTg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 14:19:36 -0400
-Date: Fri, 20 Jun 2003 11:32:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Patrick Mochel <mochel@osdl.org>, Mike Anderson <andmike@us.ibm.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Flaw in the driver-model implementation of attributes
-Message-ID: <20030620183251.GB12509@kroah.com>
-References: <20030619213109.GB5644@kroah.com> <Pine.LNX.4.44L0.0306201020240.917-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0306201020240.917-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 20 Jun 2003 14:22:25 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:29232 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S264088AbTFTSWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 14:22:22 -0400
+Message-ID: <3EF353B9.6050303@myrealbox.com>
+Date: Fri, 20 Jun 2003 14:34:33 -0400
+From: Nicholas Wourms <nwourms@myrealbox.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 MultiZilla/v1.1.20
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Disconnect <kernel@gotontheinter.net>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] to "Disable Trackpad while typing" patch
+References: <200306201818.40805.torsten.foertsch@gmx.net> <1056128080.17756.38.camel@slappy>
+X-Enigmail-Version: 0.75.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 10:22:21AM -0400, Alan Stern wrote:
-> > Why not hold off until the scsi people are finished with their changes?
-> > If after that, you _really_ need to be putting usb-storage only
-> > attributes in the sysfs tree somewhere, we can talk again.
+Disconnect wrote:
+> Is this a patch against a patch (instead of against modified pc_keyb.c)
+> or did the mailer just chew it up badly?
 > 
-> Sounds reasonable.  By the way, do you plan to create a 
-> /sys/class/usb_host/ class for the OHCI and ECHI drivers?
+>>Hash: SHA1
+>>
+>>see http://marc.theaimsgroup.com/?l=linux-kernel&m=105182586512456&w=2
+>>
+[SNIP]
+>>
+>>- --- drivers/char/pc_keyb.c.orig	2003-06-20 08:10:41.000000000 +0000
+>>+++ drivers/char/pc_keyb.c	2003-06-20 15:45:01.000000000 +0000
+>>@@ -18,6 +18,9 @@
+>>  * notebooks with a PS/2 trackpad.
+>>  * Hans-Georg Thien <1682-600@onlinehome.de> 2003-04-30.
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Yes, and for the UHCI driver too :)
+Hi,
 
-Unless someone else wants to send me a patch...
+Based on this hunk in the diff, I'd assume that it is a patch against 
+the patch mentioned in that url.
 
-thanks,
+Cheers,
+Nicholas
 
-greg k-h

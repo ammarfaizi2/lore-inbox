@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266765AbSKHHQm>; Fri, 8 Nov 2002 02:16:42 -0500
+	id <S261668AbSKHHcR>; Fri, 8 Nov 2002 02:32:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266766AbSKHHQm>; Fri, 8 Nov 2002 02:16:42 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:53253 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266765AbSKHHQm>;
-	Fri, 8 Nov 2002 02:16:42 -0500
-Date: Thu, 7 Nov 2002 23:19:02 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Rick Lindsley <ricklind@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.46: duplicate statistics being gathered
-Message-ID: <20021108071901.GB2152@kroah.com>
-References: <200211080208.gA828nD24150@eng4.beaverton.ibm.com> <3DCB4B2C.989AA22@digeo.com>
+	id <S266767AbSKHHcR>; Fri, 8 Nov 2002 02:32:17 -0500
+Received: from p50829A93.dip.t-dialin.net ([80.130.154.147]:42254 "EHLO
+	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
+	id <S261668AbSKHHcQ>; Fri, 8 Nov 2002 02:32:16 -0500
+Date: Fri, 8 Nov 2002 07:38:45 +0000
+From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
+To: Richard Henderson <rth@redhat.com>, George France <france@handhelds.org>,
+       axp-list mailing list <axp-list@redhat.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] eliminate compile warnings
+Message-ID: <20021108073845.A17905@Marvin.DL8BCU.ampr.org>
+Reply-To: dl8bcu@dl8bcu.de
+Mail-Followup-To: Richard Henderson <rth@redhat.com>,
+	George France <france@handhelds.org>,
+	axp-list mailing list <axp-list@redhat.com>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20021106214705.A15525@Marvin.DL8BCU.ampr.org> <02110709222600.14483@shadowfax.middleearth> <20021107202855.B17028@Marvin.DL8BCU.ampr.org> <20021107173349.A4017@twiddle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DCB4B2C.989AA22@digeo.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20021107173349.A4017@twiddle.net>; from rth@twiddle.net on Thu, Nov 07, 2002 at 05:33:49PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 07, 2002 at 09:27:08PM -0800, Andrew Morton wrote:
+On Thu, Nov 07, 2002 at 05:33:49PM -0800, Richard Henderson wrote:
+> As for the patch itself, it's not correct.  At a glance,
 > 
-> The <unknown quantity of> applications out there which are reading
-> the disk info from /proc/stat need to be taught to go fishing in
-> /name-of-the-day-fs.
+> > 	addr = arch_get_unmapped_area_1 (PAGE_ALIGN(addr), len, limit);
+> > -	if (addr != -ENOMEM)
+> > +	if (addr != (unsigned) -ENOMEM)
 > 
-> And that's hard.  /driverfs? /sys? /sysfs? /kernfs?  AFAIK we don't
-> even have a recommended mountpoint for the thing, do we?  One way
-> to resolve that is for the monitoring application to locate the
-> mountpoint by consulting /proc/mounts on startup.
+> addr is unsigned long.  If you truncate -ENOMEM to 32-bits, it will
+> never match.  There appears to be much more int/long confusion later.
 
-It's now called sysfs and should be mounted at /sys.  I do not think the
-name will change anymore (famous last words...)
+I will give my patch another thought and I will feed it to you in smaller 
+pieces and with comments.
 
-Unless you want to be different and mount it somewhere else :)
+> You have to be /exceedingly/ careful to fix these warnings without
+> introducing new bugs.  If you change the type of a variable, you 
+> have to examine each and every use of the variable to determine if
+> the semantics are unchanged.  If you add a cast, you have to be sure
+> that you cast to a type of the correct width.  If you're adding lots
+> of casts, you should think about changing the type of one or more
+> variables.
 
-And yes, any application relying on data within it, should be able to
-determine its location (through /proc/mounts, or some other such
-format.)
+Generally I'm aware of this - maybe a case of more coffee needed :)
 
-thanks,
+> It's enough to make me wish we had -Wno-sign-compare in CFLAGS by
+> default for the nonce.  Which, incidentally, is what I've been doing
+> for my own builds.
+> 
+> There's absolutely no way I'm going to apply a jumbo patch that
+> changes hundreds of these at once.  If you still want to fix these,
+> then you'll need to send them one at a time and include analysis of
+> why each change is correct.
 
-greg k-h
+Will do.
+
+Thanks for your time.
+
+Thorsten
+
+-- 
+| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
+| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
+| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

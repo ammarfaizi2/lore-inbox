@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277347AbRKDBst>; Sat, 3 Nov 2001 20:48:49 -0500
+	id <S277380AbRKDBx3>; Sat, 3 Nov 2001 20:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277363AbRKDBsa>; Sat, 3 Nov 2001 20:48:30 -0500
-Received: from p0062.as-l042.contactel.cz ([194.108.237.62]:15488 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S277347AbRKDBsW>;
-	Sat, 3 Nov 2001 20:48:22 -0500
-Date: Sun, 4 Nov 2001 02:48:00 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Jordan Breeding <ledzep37@home.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Support for Matrox G550 framebuffer?
-Message-ID: <20011104024800.D2214@ppc.vc.cvut.cz>
-In-Reply-To: <3BE43C2C.BDAC4C4A@home.com>
+	id <S277382AbRKDBxT>; Sat, 3 Nov 2001 20:53:19 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:28166 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S277380AbRKDBxH>;
+	Sat, 3 Nov 2001 20:53:07 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Andreas Achtzehn <linux-kernel@achtzehn.2y.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13: unresolved symbols with modules_install 
+In-Reply-To: Your message of "Sat, 03 Nov 2001 15:48:18 BST."
+             <01110315481802.06645@paris> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BE43C2C.BDAC4C4A@home.com>
-User-Agent: Mutt/1.3.23i
+Date: Sun, 04 Nov 2001 12:52:55 +1100
+Message-ID: <11324.1004838775@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 03, 2001 at 12:49:16PM -0600, Jordan Breeding wrote:
-> Is there or will there will be support for the Matrox G550 as a
-> frambuffer in linux?  Thanks.
+On Sat, 3 Nov 2001 15:48:18 +0100, 
+Andreas Achtzehn <linux-kernel@achtzehn.2y.net> wrote:
+>/lib/modules/2.4.13/kernel/drivers/net/wan/comx.o
+>depmod:         proc_get_inode
 
-I sent patches to Alan on Friday. I do not know whether he'll
-apply them or not. But for using G550 you must download matroxset
-from ftp://platan.vc.cvut.cz/pub/linux/matrox-latest, as if
-you are connecting VGA monitor to card, you are on 90% using
-secondary output...
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+The comx.c code is wrong, it is still using an old interface.  This
+problem has existed for months, nobody wants to fix it.  Turn off
+CONFIG_COMX.
+

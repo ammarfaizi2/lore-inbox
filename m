@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262675AbTCYPCo>; Tue, 25 Mar 2003 10:02:44 -0500
+	id <S262678AbTCYPJs>; Tue, 25 Mar 2003 10:09:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262678AbTCYPCo>; Tue, 25 Mar 2003 10:02:44 -0500
-Received: from popmail.goshen.edu ([199.8.232.22]:14247 "EHLO mail.goshen.edu")
-	by vger.kernel.org with ESMTP id <S262675AbTCYPCn>;
-	Tue, 25 Mar 2003 10:02:43 -0500
-Subject: Re: 3ware driver errors
-From: Ezra Nugroho <ezran@goshen.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20030325031225.GA6851@osiris.silug.org>
-References: <20030324212813.GA6310@osiris.silug.org>
-	<20030324180107.A14746@vger.timpanogas.org>
-	<20030324234410.GB10520@work.bitmover.com>
-	<20030324182508.A15039@vger.timpanogas.org> 
-	<20030325031225.GA6851@osiris.silug.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 25 Mar 2003 10:25:42 -0500
-Message-Id: <1048605943.20862.10731.camel@ezran.goshen.edu>
-Mime-Version: 1.0
-X-MailScanner: Found to be clean
+	id <S262679AbTCYPJr>; Tue, 25 Mar 2003 10:09:47 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:30086 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S262678AbTCYPJq>;
+	Tue, 25 Mar 2003 10:09:46 -0500
+Date: Tue, 25 Mar 2003 15:20:51 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Poor performance with pcnet32 on SMP
+In-Reply-To: <3E7B5B41.2070308@us.ibm.com>
+Message-ID: <Pine.LNX.4.53.0303251433160.18798@skynet>
+References: <Pine.LNX.4.53.0303202346220.3340@skynet> <3E7B5B41.2070308@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have 8 120GB in a raid 5.
-Although the site doesn't say that the 120s are affected, I have gotten
-my raid to be degraded because one drive disappeared.
-I got the same error message.
+On Fri, 21 Mar 2003, Dave Hansen wrote:
 
-I am not sure if I want to upgrade the firmware, however, I am not sure
-my array is stable either...
+> I have the same kind of machine.  I've seen the same problems, but
+> they're intermittent; I haven't been able to really discern a pattern.
 
-On Mon, 2003-03-24 at 22:12, Steven Pritchard wrote:
-> On Mon, Mar 24, 2003 at 06:25:08PM -0700, Jeff V. Merkey wrote:
-> > The person at WD to contact with specifics is listed below.
-> 
-> Thanks for the pointer.  I have a lot of these WD drives...
-> 
-> > We have seen it on the 180GB drives, but the 200GB are also affected.
-> 
-> I don't suppose you've heard if the 160GB drives are affected, have
-> you?  The page on support.wdc.com that someone else referred to
-> specifically mentions the 200s and the 180s, but I see no mention of
-> the 160s.
-> 
-> Steve
-> -- 
-> steve@silug.org           | Southern Illinois Linux Users Group
-> (618)398-7360             | See web site for meeting details.
-> Steven Pritchard          | http://www.silug.org/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Neither can I. I did not that sometimes between subsequent boots, I could
+get either 300B/s or 7kB/s for no apparent reason.
 
+> I have the feeling that part of the problem may be with the machine on
+> the other side of the connection.
+>
 
+I tried a few different machines but they are all using a 2.4.x kernel of
+some description. It still is a lot more reliable if SMP is disabled.
+
+> Yeah, kirq was causing that and it _was_ broken for a bit.  It should
+> have been fixed by 2.5.64, though.
+>
+
+I'm not sure and I don't have the expertise to track down the problem.
+After a session of Devils Guide To Debugging[1], I could not find any
+pattern that determined performance. I tried loading the module full
+duplex at 100mb (it still resolves to 10mb at half-duplex) and various
+combinations of smp_affinity but it still is very poor. Curiously enough,
+trying to load it at 100mb and full_duplex makes it perform more
+predictably. It's still bad (3 to 7 kB/s), but bad at a consistant level.
+I suspect this observation exists purely inside my own head though. I
+tried turning off ACPI but it made no difference.
+
+I did note that I get decent performance to a 2.4 UP box that is on the
+same subnet as me. I am not sure if it is relevant but the computer I am
+getting really bad performance with is on another subnet behind a
+firewall even though it is on the same LAN.
+
+I am going to leave it for the moment anyway as I am getting nowhere with
+the problem. Thanks for your time and if there is any other suggestions,
+I'd be happy to try them out.
+
+Mel
+
+[1] Change things at random until something works

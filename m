@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316840AbSGZFNX>; Fri, 26 Jul 2002 01:13:23 -0400
+	id <S316842AbSGZFKZ>; Fri, 26 Jul 2002 01:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316847AbSGZFNX>; Fri, 26 Jul 2002 01:13:23 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:11270 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316840AbSGZFNW>; Fri, 26 Jul 2002 01:13:22 -0400
-Message-ID: <3D40DA00.9080603@evision.ag>
-Date: Fri, 26 Jul 2002 07:11:28 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
+	id <S316845AbSGZFKY>; Fri, 26 Jul 2002 01:10:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:34514 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S316842AbSGZFKY>; Fri, 26 Jul 2002 01:10:24 -0400
+Date: Fri, 26 Jul 2002 07:13:36 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Anton Altaparmakov <aia21@cantab.net>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.5.28 and partitions
+In-Reply-To: <5.1.0.14.2.20020725144011.00ab3ec0@pop.cus.cam.ac.uk>
+Message-ID: <Pine.NEB.4.44.0207260709130.15439-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@sgi.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lock assertion macros for 2.5.28
-References: <20020725233047.GA782991@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> Here's the lastest version of the lockassert patch.  It includes:
->   o MUST_HOLD for all architectures
->   o MUST_HOLD_RW for architectures implementing rwlock_is_locked (only
->     ia64 at the moment, as part of this patch)
->   o MUST_HOLD_RWSEM for arcitectures that use rwsem-spinlock.h
->   o MUST_HOLD_SEM for ia64
->   o a call to MUST_HOLD(&inode_lock) in inode.c:__iget().
-> 
-> I'd be happy to take patches that implement the above routines for
-> other architectures and/or patches that sprinkle the macros where
-> they're needed.
+On Thu, 25 Jul 2002, Anton Altaparmakov wrote:
 
-Well one one place? Every single implementation of the request_fn
-method from the request_queue_t needs to hold some
-lock associated with the queue in question.
+> At 14:24 25/07/02, Petr Vandrovec wrote:
+> >But I care whether gcc barfs on code or not, and whether generated code
+> >is correct or not.
+>
+> Everyone cares about that! That has nothing to do with performance. It's
+> simply a broken compiler which needs fixing.
+>...
 
-In fact you will find ASSERT_LOCK macros sparnkled through the scsi code 
-already right now. BTW> ASSERT_HOLDS would sound a bit more
-familiar to some of us.
+Unfortunately the 2.95 branch of gcc is more or less dead: Noone maintains
+it and no new release is planned. It's perhaps a more useful work to get
+the kernel compiling with gcc 3.1/3.2 ...
 
-This minor issue asside I think that your idea is a good thing.
+> Best regards,
+>
+>          Anton
+
+cu
+Adrian
+
+-- 
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
 

@@ -1,48 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267599AbUIOVoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUIOVpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267599AbUIOVoB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 17:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267597AbUIOVlr
+	id S267587AbUIOVpt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 17:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267601AbUIOVow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 17:41:47 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:4804 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S267523AbUIOVkb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 17:40:31 -0400
-Subject: Re: [patch] kernel sysfs events layer
-From: Robert Love <rml@novell.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: Greg KH <greg@kroah.com>, Tim Hockin <thockin@hockin.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1095284330.3508.11.camel@localhost.localdomain>
-References: <20040915034455.GB30747@kroah.com>
-	 <20040915194018.GC24131@kroah.com>
-	 <1095279043.23385.102.camel@betsy.boston.ximian.com>
-	 <20040915202234.GA18242@hockin.org>
-	 <1095279985.23385.104.camel@betsy.boston.ximian.com>
-	 <20040915203133.GA18812@hockin.org>
-	 <1095280414.23385.108.camel@betsy.boston.ximian.com>
-	 <20040915204754.GA19625@hockin.org>
-	 <1095281358.23385.109.camel@betsy.boston.ximian.com>
-	 <20040915205643.GA19875@hockin.org>  <20040915212322.GB25840@kroah.com>
-	 <1095283589.23385.117.camel@betsy.boston.ximian.com>
-	 <1095284330.3508.11.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 15 Sep 2004 17:39:29 -0400
-Message-Id: <1095284369.23385.125.camel@betsy.boston.ximian.com>
+	Wed, 15 Sep 2004 17:44:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43964 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267587AbUIOVlk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 17:41:40 -0400
+Date: Wed, 15 Sep 2004 14:45:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, wli@holomorphy.com,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+Message-Id: <20040915144523.0fec2070.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com>
+References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-15 at 23:38 +0200, Kay Sievers wrote:
+Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+>
+> William spotted this stray bit, LOCK_SECTION isn't used anymore on x86_64. 
 
-> Anyone can watch the refcount on the fs-modules, they increment on every
-> device claim. Is that a leak in your eyes too :)
+btw, Ingo and I were scratching heads over an x86_64 oops in curent -linus
+trees.
 
-Haha, Kay, rocking point.
-
-	Robert Love
-
-
+If you enable profiling and frame pointers, profile_pc() goes splat
+dereferencing the `regs' argument when it decides that the pc refers to a
+lock section.  Ingo said `regs' had a value of 0x2, iirc.  Consider this a
+bug report ;)

@@ -1,140 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263897AbTDVWAi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 18:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTDVWAh
+	id S263880AbTDVWJf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 18:09:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263884AbTDVWJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 18:00:37 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:61414 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S263897AbTDVWAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 18:00:34 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C263A2C@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'karim@opersys.com'" <karim@opersys.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Martin Hicks'" <mort@wildopensource.com>,
-       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
-       "'Patrick Mochel'" <mochel@osdl.org>,
-       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'hpa@zytor.com'" <hpa@zytor.com>,
-       "'pavel@ucw.cz'" <pavel@ucw.cz>,
-       "'jes@wildopensource.com'" <jes@wildopensource.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'wildos@sgi.com'" <wildos@sgi.com>,
-       "'Tom Zanussi'" <zanussi@us.ibm.com>
-Subject: RE: [patch] printk subsystems
-Date: Tue, 22 Apr 2003 11:46:31 -0700
+	Tue, 22 Apr 2003 18:09:35 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:62226 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263880AbTDVWJd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 18:09:33 -0400
+Date: Tue, 22 Apr 2003 18:16:29 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@redhat.com>
+cc: Rick Lindsley <ricklind@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: several messages
+In-Reply-To: <Pine.LNX.4.44.0304220622570.24063-100000@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.3.96.1030422180002.31749C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Karim Yaghmour [mailto:karim@opersys.com]
+On Tue, 22 Apr 2003, Dave Jones wrote:
+
+> On Mon, Apr 21, 2003 at 03:13:31PM -0400, Ingo Molnar wrote:
 > 
-> "Perez-Gonzalez, Inaky" wrote:
-> > However, in relayfs that problem is shifted, unless I am missing
-> > something. For what I know, so far, is that you have to copy the
-> > message to the relayfs buffer, right? So you have to generate the
-> > message and then copy it to the channel with relay_write(). So
-> > here is kue's copy_to_user() counterpart.
+>  > +/*
+>  > + * Is there a way to do this via Kconfig?
+>  > + */
+>  > +#if CONFIG_NR_SIBLINGS_2
+>  > +# define CONFIG_NR_SIBLINGS 2
+>  > +#elif CONFIG_NR_SIBLINGS_4
+>  > +# define CONFIG_NR_SIBLINGS 4
+>  > +#else
+>  > +# define CONFIG_NR_SIBLINGS 0
+>  > +#endif
+>  > +
 > 
-> OK, so you are claiming that memcpy() == copy_to_user()?
-
-Not ==, although you cannot deny that they do basically the same: 
-copy memory. 
-
-copy_to_user() has to do some more gymnastics in the process, 
-but basically, the bulk is the same [at least by reading the 
-asm of __copy_user() in usercopy.c and __memcpy() in string.h 
--- it is kind of different, but in function is/should
-be the same - bar that copy_to_user() might sleep due to 
-paging-in and preemption and who knows what else].
- 
-> [If nothing else, please keep in mind that the memcpy() in question
-> is to an rvmalloc'ed buffer.]
-
-Good issue for caching ...
-
-> Maybe I'm just old fashioned, but I usually want to provide a
-> logging function with a pointer and a size parameter, and I want
-> whatever I'm passing to it be placed in a secure repository where
-> my own code couldn't touch it even if it went berserk.
-
-That is a good point, that brought me yesterday night to the following
-doubt. How do you guarantee integrity of the data when reading with
-mmap. In other words, if I am just copying the mmap region, how do
-I know that what I am copying is safe enough, that it is not being
-modified by CPU #2, for example? (because user space and kernel space
-will not share the locks, at most, user space can look at a couple of
-markers that identify the bottom and the top of the "safe" buffer,
-but there is not way to get both of them atomically). Also, if it
-is a circular buffer, is there a way for the user space to know
-when did it wrap around? I still don't get how mmap works all this
-out (or is the buffer being moved under the user space's feet?)
-
-> Again, you are making assumptions regarding the usage of your mechanism.
-> With relayfs, dropping a channel (even one that has millions upon millions
-> of events) requires one rvfree().
-
-Well, we all have to make certain assumptions, other wise we'd be
-having philosophical discussions about the squareness of the circle
-for ever an ever in a for(;;) loop. 
-
-> Sorry, you don't get to see b, c, g, h, and i because something
-> changed in the system and whatever wanted to send those over isn't
-> running anymore. Maybe I'm just off the chart, but I'd rather see
-> the first list of events.
-
-As I explained below, you don't _have_to_ drop it; however, in some
-cases, it makes sense to drop it because it is meaningless anyway (ie
-the device-plugged message - why would I want the userspace to check
-it if I know there is no device - so I recall it). Errors are another
-matter, and you don't want to recall those.
-
-This is different from running out of space. Like it or not, if you 
-have a circular buffer with limited space and you run out ... moc!
-you loose, drop something somewhere to make space for it. This is not
-a kue limitation, this is a property of buffers: they fill up.
-
-Now, if you want to make it resizable, that understands Japanese and
-does double loops followed by a nose dive and a vertical climb up, 
-well, that's up to the client of the API. And I didn't want to 
-constraint the gymnastics that the client could do to handle a buffer.
-
-> > However, there are two different concepts here. One is the event
-> > that you want to send and recall it if not delivered by the time
-> > it does not make sense anymore (think plug a device, then remove
-> > it). The other want is the event you want delivered really badly
-> > (think a "message" like "the temperature of the nuclear reactor's
-> > core has reached the high watermark").
+> Maybe this would be better resolved at runtime ?
+> With the above patch, you'd need three seperate kernel images
+> to run optimally on a system in each of the cases.
+> The 'vendor kernel' scenario here looks ugly to me.
 > 
-> I'm sorry, but the way I see printk() is that once I send something
-> to it, it really ought to show up somewhere. Heck, I'm printk'ing
-> it. If I plugged a device and the driver said "Your chair is
-> on fire", I want to know about it whether the device has been
-> unplugged later or not.
-
-I would say this case, printk(), would fit in my second example,
-doesn't it? ... this is one message you want delivered, not recalled.
-
-> > As I mentioned before, this kind-of-compensates-but-not-really
-> > with the fact of having to generate the message and then copy
-> > it to the channel.
+>  > +#if CONFIG_NR_SIBLINGS
+>  > +# define CONFIG_SHARE_RUNQUEUE 1
+>  > +#else
+>  > +# define CONFIG_SHARE_RUNQUEUE 0
+>  > +#endif
 > 
-> That's the memcpy() == copy_to_user() again.
+> And why can't this just be a
+> 
+> 	if (ht_enabled)
+> 		shared_runqueue = 1;
+> 
+> Dumping all this into the config system seems to be the
+> wrong direction IMHO. The myriad of runtime knobs in the
+> scheduler already is bad enough, without introducing
+> compile time ones as well.
 
-Please note the "kind-of-compensates-but-not-really"; then refer
-to my first paragraph. 
+May I add my "I don't understand this, either" at this point? It seems
+desirable to have this particular value determined at runtime. 
 
-> Nevertheless, if you want to measure scalability alone, try
-> porting LTT to kue, and try running LMbench and co. LTT is very
-> demanding in terms of buffering (indeed, I'll go a step further and
-> claim that it is the most demanding application in terms of
-> buffering) and already runs on relayfs.
+On Tue, 22 Apr 2003, Ingo Molnar wrote:
 
-Got it, thanks :)
+> 
+> On Tue, 22 Apr 2003, Rick Lindsley wrote:
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+> > [...] Are we assuming that because both a physical processor and its
+> > sibling are not idle, that it is better to move a task from the sibling
+> > to a physical processor?  In other words, we are presuming that the case
+> > where the task on the physical processor and the task(s) on the
+> > sibling(s) are actually benefitting from the relationship is rare?
+> 
+> yes. This 'un-sharing' of contexts happens unconditionally, whenever we
+> notice the situation. (ie. whenever a CPU goes completely idle and notices
+> an overloaded physical CPU.) On the HT system i have i have measure this
+> to be a beneficial move even for the most trivial things like infinite
+> loop-counting.
+> 
+> the more per-logical-CPU cache a given SMT implementation has, the less
+> beneficial this move becomes - in that case the system should rather be
+> set up as a NUMA topology and scheduled via the NUMA scheduler.
+
+Have you done any tests with a threaded process running on a single CPU in
+the siblings? If they are sharing data and locks in the same cache it's
+not obvious (to me at least) that it would be faster in two CPUs having to
+do updates. That's a question, not an implication that it is significantly
+better in just one, a threaded program with only two threads is not as
+likely to be doing the same thing in both, perhaps.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

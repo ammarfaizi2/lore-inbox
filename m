@@ -1,74 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273644AbRIYVUq>; Tue, 25 Sep 2001 17:20:46 -0400
+	id <S273796AbRIYVUq>; Tue, 25 Sep 2001 17:20:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273806AbRIYVUg>; Tue, 25 Sep 2001 17:20:36 -0400
-Received: from smtp-server6.tampabay.rr.com ([65.32.1.43]:60150 "EHLO
-	smtp-server6.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S273502AbRIYVUY>; Tue, 25 Sep 2001 17:20:24 -0400
-Date: Tue, 25 Sep 2001 17:20:16 -0400
-From: Rick Haines <rick@kuroyi.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10 VM: what avoids from having lots of unwriteable inactive pages
-Message-ID: <20010925172016.B860@sasami.kuroyi.net>
-In-Reply-To: <Pine.LNX.4.33.0109250849480.7353-100000@penguin.transmeta.com> <Pine.LNX.4.33L.0109251311340.26091-100000@duckman.distro.conectiva>
+	id <S273502AbRIYVUg>; Tue, 25 Sep 2001 17:20:36 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:8459 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S273796AbRIYVU3>;
+	Tue, 25 Sep 2001 17:20:29 -0400
+Date: Tue, 25 Sep 2001 14:16:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Roberto Nibali <ratz@drugphish.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Binary only module overview
+Message-ID: <20010925141623.A14962@kroah.com>
+In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com> <3BB0F297.D4A9E986@drugphish.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0109251311340.26091-100000@duckman.distro.conectiva>
-User-Agent: Mutt/1.3.22i
+In-Reply-To: <3BB0F297.D4A9E986@drugphish.ch>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 25, 2001 at 01:13:37PM -0300, Rik van Riel wrote:
-> On Tue, 25 Sep 2001, Linus Torvalds wrote:
-> > On Tue, 25 Sep 2001, Rik van Riel wrote:
-> > > >
-> > > > swap_out() will deactivate everything it finds to be not-recently used,
-> > > > and that's how the inactive list ends up getting replenished.
-> > >
-> > > mlock()
-> >
-> > Hey, if you've mlock'ed more than your available memory, there's nothing
-> > the VM layer can do. Except maybe a nice printk("Kiss your *ss goodbye");
+On Tue, Sep 25, 2001 at 11:09:43PM +0200, Roberto Nibali wrote:
+> 
+> If you're dealing with argus, ask straight for developers or technical
+> people not resellers.
 
-Shouldn't there be a threshold where mlock will fail?
-Or are you saying that in general mlocking lots of memory will screw the
-VM?
+I did just directly email them.  Thanks for letting me know.
 
-> But if you've mlock()ed enough to clog up the inactive
-> list, the VM could just move the pages it cannot free
-> back to the active list and it will come across those
-> pages which are freeable eventually.
-> 
-> Note that the maximum amount of mlock()ed memory is way
-> higher than the maximum amount of pages the system puts
-> on the inactive list.
-> 
-> (at least, it was last I looked at the maximum number
-> of mlocked pages)
-> 
-> regards,
-> 
-> Rik
-> --
-> IA64: a worthy successor to the i860.
-> 
-> 		http://www.surriel.com/
-> http://www.conectiva.com/	http://distro.conectiva.com/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> The second problem is that they ceased making their
+> Pitbull LX product available for download on the web for some reasons.
+> Since I work with argus-system products sometime I got the chance of
+> still having a copy of this huge tarball and I made a diff or their
+> actual changes to the 2.2.19 kernel for you. Unfortunately I had to
+> put it onto a non- argus related development site and I will leave it
+> there for the next 12 hours. Grab it, analyse it and convince yourself
+> that they actually go quite into the direction of the LSM framework
+> approach. Actually I talked to one of the argus technical guys about a
+> possible port to the LSM frame- work and he said that they are going
+> to look into it. Of course the lkm with the real security
+> functionality is binary only. Decide yourself ...
 
--- 
-Rick (rick@kuroyi.net)
-http://dxr3.sourceforge.net
+Thank you for putting this up.  It looks like they are placing hooks all
+through the kernel, much like the LSM patch does.
 
-I think the slogan of the fansubbers puts
-it best: "Cheaper than crack, and lots more fun."
+And since they are patching the kernel to provide hooks for their
+security module, they should also release that security module source
+code to remain legal.
+
+Thanks again.
+
+greg k-h

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266586AbRHFDuB>; Sun, 5 Aug 2001 23:50:01 -0400
+	id <S266582AbRHFDyL>; Sun, 5 Aug 2001 23:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266582AbRHFDtl>; Sun, 5 Aug 2001 23:49:41 -0400
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:30980
-	"HELO marcus.pants.nu") by vger.kernel.org with SMTP
-	id <S266580AbRHFDti>; Sun, 5 Aug 2001 23:49:38 -0400
-Subject: Re: PPC? (Was: Re: [RFC] /proc/ksyms change for IA64)
-To: kaos@ocs.com.au (Keith Owens)
-Date: Sun, 5 Aug 2001 20:05:20 -0700 (PDT)
-Cc: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <29464.997040507@ocs3.ocs-net> from "Keith Owens" at Aug 06, 2001 05:41:47 AM
-X-Mailer: ELM [version 2.5 PL0pre8]
-MIME-Version: 1.0
+	id <S266606AbRHFDyB>; Sun, 5 Aug 2001 23:54:01 -0400
+Received: from ppp43.ts5-2.NewportNews.visi.net ([209.8.198.107]:34804 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S266582AbRHFDxq>; Sun, 5 Aug 2001 23:53:46 -0400
+Date: Sun, 5 Aug 2001 23:53:43 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: Re: drivers/ieee1394 duplicate symbol, 2.4.8-pre4
+Message-ID: <20010805235343.S30381@visi.net>
+In-Reply-To: <32414.997069600@ocs3.ocs-net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010806030520.153282B54A@marcus.pants.nu>
-From: flar@pants.nu (Brad Boyer)
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <32414.997069600@ocs3.ocs-net>; from kaos@ocs.com.au on Mon, Aug 06, 2001 at 01:46:40PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On 05 Aug 2001 11:29:00 +0200,
-> kaih@khms.westfalen.de (Kai Henningsen) wrote:
-> >kaos@ocs.com.au (Keith Owens)  wrote on 02.08.01 in <22165.996722560@kao2.melbourne.sgi.com>:
-> >
-> >> The IA64 use of descriptors for function pointers has bitten ksymoops.
-> >> For those not familiar with IA64, &func points to a descriptor
-> >> containing { &code, &data_context }.
-> >
-> >That sounds suspiciously like what I remember from PPC. How is this solved
-> >on the PPC side?
+On Mon, Aug 06, 2001 at 01:46:40PM +1000, Keith Owens wrote:
+> drivers/ieee1394/raw1394.c:spinlock_t host_info_lock = SPIN_LOCK_UNLOCKED;
+> drivers/ieee1394/nodemgr.c:spinlock_t host_info_lock = SPIN_LOCK_UNLOCKED;
 > 
-> Best guess, without access to a PPC box, is that it is not solved.  Any
-> arch where function pointers go via a descriptor will have this
-> problem.
+> when both raw1394 and nodemgr are linked into vmlinux, it gets
 > 
-> PPC users, does /proc/ksyms contain the address of the function code or
-> the address of a descriptor which points to the code?  It is easy to
-> tell, if function entries in /proc/ksyms are close together (8-128
-> bytes apart) and do not match the addresses in System.map then PPC has
-> the same problem as IA64.  If this is true, what is the layout of a PPC
-> function descriptor so I can handle that case as well?
+> drivers/ieee1394/raw1394.o(.data+0x8): multiple definition of `host_info_lock'
+> drivers/ieee1394/ieee1394.o(.data+0x8c): first defined here
+> 
+> Either host_info_lock should be static or it should be defined as
+> extern in one source and referenced in the others.
 
-This is what the MacOS does on ppc, but it's specific to the MacOS, and
-is part of the way the MacOS seamlessly integrates 68k code and ppc code
-so that they didn't have to have both 68k and ppc versions of all the
-system calls. This was basically a trick to pack in extra information
-along with a function pointer to tell the Mixed Mode Manager if it needed
-to run the 68k emulator and also how to setup the right context. I'm
-pretty sure that Linux just does the normal address for function pointers
-just like most other architectures.
+It should be static. Thanks for the report. I believe this is fixed in
+CVS, and if not, it will be soon.
 
-	Brad Boyer
-	flar@allandria.com
+Hopefully we'll get a chance to sync CVS to Linus before 2.4.8 final. If
+not, I'll submit a patch for that bug atleast.
 
-
+-- 
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

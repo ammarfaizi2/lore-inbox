@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbTLDExS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 23:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTLDExS
+	id S262078AbTLDEsm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 23:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbTLDEsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 23:53:18 -0500
-Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:41232 "EHLO
-	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S262805AbTLDExR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 23:53:17 -0500
-Message-ID: <3FCEBE88.7030305@mailandnews.com>
-Date: Thu, 04 Dec 2003 10:26:40 +0530
-From: Raj <raju@mailandnews.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 
-References: <7A25937D23A1E64C8E93CB4A50509C2A0310EFAA@stca204a.bus.sc.rolm.com>
-In-Reply-To: <7A25937D23A1E64C8E93CB4A50509C2A0310EFAA@stca204a.bus.sc.rolm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Dec 2003 23:48:42 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:25474 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262078AbTLDEsl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 23:48:41 -0500
+Date: Thu, 4 Dec 2003 04:48:37 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Aaron Smith <aws4y@virginia.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031204044837.GF1216@mail.shareable.org>
+References: <3FCDE5CA.2543.3E4EE6AA@localhost> <Pine.LNX.4.58.0312031533530.2055@home.osdl.org> <3FCE854A.70404@virginia.edu> <Pine.LNX.4.58.0312031742150.8229@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312031742150.8229@dlang.diginsite.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bloch, Jack wrote:
+David Lang wrote:
+> becouse of this you could take the kernel and include any propriatary code
+> in it that you want and run it. You don't even need to use modules, just
+> paste in th code and compile (make sure you have a legal right to the code
+> you are pasting in though :-)
 
->I try to open a non-existan device driver node file. The Kernel returns a
->value of -1 (expected). However, when I read the value of errno it contains
->a value of 29. A call to the perror functrion does print out the correct
->error message (a value of 2). Why does this happen?
->
->  
->
-I tried this on a 2.6.0-test11 and it works fine. Pls specify your 
-kernel version and attach the program if possible.
+To elaborate on this: most patches which apply to the Linux kernel are
+clearly derived works of the kernel.[*]
 
-/Raj
+You can write and apply such a patch , but if you distribute the patch
+it must be licensed under the GPL.
 
+Thus while _you_ may take a Linux kernel and include any proprietary
+code you want in it, a vendor _may not_ send you a patch which applies
+to the Linux kernel if the patch is not licensed under the GPL or a
+compatible license.  A vendor is not allowed to restrict your rights
+in this way.
+
+[*] Exceptions would be patches which are very small (<10 lines is
+sometimes suggested, but it's not a hard boundary), and patches which
+simply add code which is clearly not derived form the kernel, as Linus
+described.
+
+-- Jamie

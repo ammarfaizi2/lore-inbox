@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261718AbTCNKFQ>; Fri, 14 Mar 2003 05:05:16 -0500
+	id <S261643AbTCNKCv>; Fri, 14 Mar 2003 05:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261715AbTCNKFQ>; Fri, 14 Mar 2003 05:05:16 -0500
-Received: from [80.190.48.67] ([80.190.48.67]:53766 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id <S261718AbTCNKFO> convert rfc822-to-8bit; Fri, 14 Mar 2003 05:05:14 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre5aa1
-Date: Fri, 14 Mar 2003 11:15:55 +0100
-User-Agent: KMail/1.4.3
-References: <20030314090825.GB1375@dualathlon.random>
-In-Reply-To: <20030314090825.GB1375@dualathlon.random>
+	id <S261676AbTCNKCv>; Fri, 14 Mar 2003 05:02:51 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:13067 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S261643AbTCNKCu>; Fri, 14 Mar 2003 05:02:50 -0500
+Message-ID: <3E71ABC7.90500@aitel.hist.no>
+Date: Fri, 14 Mar 2003 11:15:35 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303141115.42063.m.c.p@wolk-project.de>
+To: Kendall Bennett <KendallB@scitechsoft.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: VESA FBconsole driver?
+References: <3E70A68F.1935.AF1549@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 14 March 2003 10:08, Andrea Arcangeli wrote:
-
-Hi Andrea,
-
-> Only in 2.4.21pre4aa3: 60_tux-timer_t-1
-> Only in 2.4.21pre5aa1: 60_tux-timer_t-2.gz
-^^ hmm, this file is empty?
-
-> 	Part of it obsoleted by smptimers.
+Kendall Bennett wrote:
 
 
-ciao, Marc
+ > Why is it ugly? IMHO it is very much needed, as it would provide a
+ > mechanism for the kernel to be able to properly restore the screen
+ > if a user land program goes astray.
+
+First - the bios isn't always able to fix the screen - the program may
+have programmed the video hardware in odd ways the bios don't know 
+about.  Bioses aren't a magic fix.
+
+Second, the proper way to do this is for the video driver to fix it up,
+using more efficient code that runs under linux without special 
+consideration because it was written for that case.
+
+> More tricks like what? All we need is the ability to call the BIOS and 
+> have it execute the necessary real mode code, just like we do on ia32 
+> machines in user land.
+
+Ability to call the bios in real mode is no simple feat. And the bios
+may screw up.  That doesn't matter for a user program, it just crashes
+and don't damage anything else.  You don't want the kernel to crash - 
+ever.  A broken bios is _no_ excuse here.
+
+Bioses are generally too limited.  They make a lot of stupid 
+assumptions, thinking it is ok to use legacy vga registers and things 
+like that. Consider a machine with two or more video cards.  Linux 
+handles that fine, but a bios? Or really two bioses, one for each card?
+Imagine a dual processor where one one processor executes one bios and 
+the other processor another bios , each trying to set up one card. 
+Somehow I think this won't work too well.
+
+As for userspace tricks - userspace can do all sorts of nifty things 
+like actually open a file and read it.  For example a file
+with the latest list of bios oddities to work around.
+
+Helge Hafting
+

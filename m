@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263752AbUEMFRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUEMFTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263752AbUEMFRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 01:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUEMFRJ
+	id S263778AbUEMFTr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 01:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263781AbUEMFTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 01:17:09 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:60426 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S263752AbUEMFRH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 01:17:07 -0400
-Date: Thu, 13 May 2004 07:05:15 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       davidm@hpl.hp.com, rddunlap@osdl.org, ebiederm@xmission.com,
-       drepper@redhat.com, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-Message-ID: <20040513050515.GA578@alpha.home.local>
-References: <40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com> <40A2517C.4040903@redhat.com> <m17jvhoa6g.fsf@ebiederm.dsl.xmission.com> <20040512143233.0ee0405a.rddunlap@osdl.org> <16546.41076.572371.307153@napali.hpl.hp.com> <20040512152815.76280eac.akpm@osdl.org> <16546.42537.765495.231960@napali.hpl.hp.com> <20040512161603.44c50cec.akpm@osdl.org> <20040513053051.A5286@infradead.org>
+	Thu, 13 May 2004 01:19:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57791 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263778AbUEMFTp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 01:19:45 -0400
+Date: Wed, 12 May 2004 22:19:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: odd problem with dd, kernels 2.6.5-mm6, 2.6.6 maybe others
+Message-Id: <20040512221916.37ee96fc.akpm@osdl.org>
+In-Reply-To: <200405120928.00764.gene.heskett@verizon.net>
+References: <200405120928.00764.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040513053051.A5286@infradead.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 13, 2004 at 05:30:52AM +0100, Christoph Hellwig wrote:
-> On Wed, May 12, 2004 at 04:16:03PM -0700, Andrew Morton wrote:
-> > But if we need additional infrastructure to "add new syscalls via VDSO" then
-> > this should be in the base kernel, even if it's empty, yes?
+Gene Heskett <gene.heskett@verizon.net> wrote:
+>
+> Greetings;
 > 
-> Linus has vetoed dynamic syscall registration a few times.  And I agree
-> with him, dynamic syscalls are the best way to get completely crappy
-> interfaces.
+> I'm apparently having tape problems, and dd is one of the tools I use 
+> to fix things.  Unforch, when /dev/nst0 has reported an error during 
+> the amcheck cycle, on 2 of the 4 tapes that it read just fine 
+> yesterday, and then I do a rewind on one of them, and issue a 'dd 
+> if=/dev/nst0 count=1' which *should* spit out the tape header 
+> onscreen, what I'm actually getting is that nothing touches the drive 
+> as far as moving the tape or changing the "Ready 1" display on the 
+> face of the changer, but I do have a hung dd that can only be gotten 
+> rid of by a reboot.
+> 
+> It cannot be killed, not even with a -9.  I do not know if this is a 
+> new development in kernel history or not, but it sure is a PITA.
+> 
+> Its been hung for about 20 minutes now.
+> 
+> Is there anything that I as a big dummy can do to remedy this?
 
-And why not definitely assign sort of a "multiplexed syscall" entry,
-a la sys_socketcall() ? It could be shared by lots of non-mainline projects
-and have a greater chance of being stable along the time.
+Please ensure that the kernel was built with CONFIG_KALLSYMS, wait for the
+hang, do: 
 
-Cheers,
-Willy
+	echo 1 > /proc/sys/kernel/sysrq
+	dmesg -c > /dev/null
+	echo t > /proc/sysrq-trigger
+	dmesg -s 1000000 > foo
 
+and send foo.

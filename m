@@ -1,90 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263975AbTI2RoO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263980AbTI2Rnu
+	id S264097AbTI2SE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTI2SEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:43:50 -0400
-Received: from web40902.mail.yahoo.com ([66.218.78.199]:22546 "HELO
-	web40902.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263979AbTI2Rn0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:43:26 -0400
-Message-ID: <20030929174324.86819.qmail@web40902.mail.yahoo.com>
-Date: Mon, 29 Sep 2003 10:43:24 -0700 (PDT)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: [BUG] Defunct event/0 processes under 2.6.0-test6-mm1
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030929094136.0b4bb026.akpm@osdl.org>
+	Mon, 29 Sep 2003 14:04:43 -0400
+Received: from fep02.swip.net ([130.244.199.130]:35577 "EHLO
+	fep02-svc.swip.net") by vger.kernel.org with ESMTP id S264098AbTI2R7p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 13:59:45 -0400
+From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: "alias char-major-13 hid" doesn't work
+Date: Mon, 29 Sep 2003 19:59:43 +0200
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309291959.43329.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Morton,
+Hi,
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> Bradley Chapman <kakadu_croc@yahoo.com> wrote:
-> >
-> > I am experiencing defunct event/0 kernel daemons under 2.6.0-test6-mm1
-> >  with synaptics_drv 0.11.7, Dmitry Torokhov's gpm-1.20 with synaptics
-> >  support, and XFree86 4.3.0-10. Moving the touchpad in either X or with
-> >  gpm causes defunct event/0 processes to be created. 
-> 
-> Defunct is odd.  Have you run `dmesg' to see if the kernel oopsed?
-> 
-> You could try reverting synaptics-reconnect.patch, and then serio-reconnect.patch
-> from
-> 
->
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test6/2.6.0-test6-mm1/broken-out
+In 2.4.X kernels I use in /etc/modules.conf to get my mouse working
+alias char-major-13 hid
+post-install hid modprobe -k mousedev; modprobe -k input
 
-I reverted these two patches and rebooted. No such luck; I noticed that immediately
-after starting gpm and X and moving my Logitech MX700 mouse to start the Konsole,
-I had many events/0 processes that were defunct. No Oopses at all. Here is the
-relevant part of dmesg:
+when I converted to /etc/modprobe.conf
+module autoloading doesn't work - when I by hand write "modprobe hid",
+mouse starts to work
 
-drivers/usb/core/usb.c: registered new driver hiddev
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-mice: PS/2 mouse device common for all mice
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-Synaptics Touchpad, model: 1
- Firmware: 5.9
- Sensor: 28
- new absolute packet format
- Touchpad has extended capability bits
- -> four buttons
- -> multifinger detection
- -> palm detection
-mousedev: attached device SynPS/2 Synaptics TouchPad at input/mouse0 <----- *
-input: SynPS/2 Synaptics TouchPad on isa0060/serio4
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-input: AT Translated Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-...
-hub 1-0:1.0: new USB device on port 1, assigned address 2
-mousedev: attached device Logitech USB Receiver at input/mouse1 <---------- *
-input: USB HID v1.10 Mouse [Logitech USB Receiver] on usb-0000:00:1d.0-1
+Where is problem?
+List of valid part of /etc/modprobe.conf
+alias char-major-13 hid
+alias char-major-13-32 mousedev
+install hid /sbin/modprobe --ignore-install hid && { modprobe -k mousedev; 
+modprobe -k input; }
 
-If you want the rest of the USB parts, I can send that too.
+Michal
 
-Brad
-
-[*] - This is a patch I added to mousedev.c at the end of mousedev_connect() -
-when the input core connects a new device to mousedev, this message prints the
-devnode it made it available on. It's just a debugging patch.
-
-
-=====
-Brad Chapman
-
-Permanent e-mail: kakadu_croc@yahoo.com
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283259AbRL0Xki>; Thu, 27 Dec 2001 18:40:38 -0500
+	id <S283265AbRL0Xks>; Thu, 27 Dec 2001 18:40:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283080AbRL0Xk3>; Thu, 27 Dec 2001 18:40:29 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:52745 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S283054AbRL0XkT>;
-	Thu, 27 Dec 2001 18:40:19 -0500
-Date: Thu, 27 Dec 2001 21:40:47 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
-Message-ID: <20011227214047.D30930@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011227202345.B30930@conectiva.com.br> <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de> <20011227163130.N12868@lynx.no>
+	id <S283080AbRL0Xki>; Thu, 27 Dec 2001 18:40:38 -0500
+Received: from bitmover.com ([192.132.92.2]:20383 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S283056AbRL0XkX>;
+	Thu, 27 Dec 2001 18:40:23 -0500
+Date: Thu, 27 Dec 2001 15:40:22 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Troy Benjegerdes <hozer@drgw.net>
+Cc: Dana Lacoste <dana.lacoste@peregrine.com>,
+        "'Larry McVoy'" <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: BK scales, Bitmover doesn't [was Re: BK stuff ]
+Message-ID: <20011227154022.R25698@work.bitmover.com>
+Mail-Followup-To: Troy Benjegerdes <hozer@drgw.net>,
+	Dana Lacoste <dana.lacoste@peregrine.com>,
+	'Larry McVoy' <lm@bitmover.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A3B@ottonexc1.ottawa.loran.com> <20011227133951.M25698@work.bitmover.com> <20011227155956.G25200@altus.drgw.net> <20011227142359.O25698@work.bitmover.com> <20011227170941.I25200@altus.drgw.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011227163130.N12868@lynx.no>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011227170941.I25200@altus.drgw.net>; from hozer@drgw.net on Thu, Dec 27, 2001 at 05:09:42PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Dec 27, 2001 at 04:31:30PM -0700, Andreas Dilger escreveu:
-> On Dec 27, 2001  23:44 +0100, Dave Jones wrote:
-> 
-> Well, in the past I had suggested to ESR (and he agreed) that it would
-> be nice to split up the MAINTAINERS file (and maybe even Configure.help)
+[Troy's worries deleted]
 
-this already happens for the net/ directory to some degree, look at
-net/README, the problem, as with MAINTAINERS, is that is way outdated,
-listing Alan, for example, as the maintainer for net/core...
-
-- Arnaldo
+Unless someone other than Troy objects, I think this is better handled 
+offline.  Troy has some issues that have nothing to do with the kernel
+team.  If anyone has any issues with our products, please take them up
+with me, the kernel list really doesn't care.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

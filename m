@@ -1,43 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUGFRFY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264213AbUGFRJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264206AbUGFRFY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 13:05:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264213AbUGFRFY
+	id S264213AbUGFRJs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 13:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264228AbUGFRJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 13:05:24 -0400
-Received: from host81-133-159-142.in-addr.btopenworld.com ([81.133.159.142]:45539
-	"HELO hellrimore3412.com") by vger.kernel.org with SMTP
-	id S264206AbUGFRFS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 13:05:18 -0400
-From: "ARAF.M.MADIHAH" <arafmadihah@yahoo.com>
-Reply-To: afaf_madihah@zwallet.com
-To: linux-kernel@vger.kernel.org
-Date: Tue, 6 Jul 2004 18:07:12 +0100
-Subject: CONSIDERATIONS FOR ALLAH WORKS
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S264206AbUGFRFS/20040706170518Z+949@vger.kernel.org>
+	Tue, 6 Jul 2004 13:09:48 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:2755 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S264213AbUGFRJp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 13:09:45 -0400
+Subject: Re: problems getting SMP to work with vanilla 2.4.26
+From: Len Brown <len.brown@intel.com>
+To: Zack Brown <zbrown@tumblerings.org>
+Cc: linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+In-Reply-To: <20040706164839.GA1094@tumblerings.org>
+References: <A6974D8E5F98D511BB910002A50A6647615FF683@hdsmsx403.hd.intel.com>
+	 <1089054464.15675.56.camel@dhcppc4> <20040706164839.GA1094@tumblerings.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089133780.15675.468.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 06 Jul 2004 13:09:40 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir, 
-Assalamualaikum, 
+On Tue, 2004-07-06 at 12:48, Zack Brown wrote:
+> Hi Len,
+> 
+> On Mon, Jul 05, 2004 at 03:07:44PM -0400, Len Brown wrote:
+> > On Sat, 2004-07-03 at 22:05, Zack Brown wrote:
+> > > Hi folks,
+> > > 
+> > > When booting vanilla 2.4.26 with SMP enabled, I get a lockup
+> before
+> > > the
+> > > boot sequence is completed. The same kernel with SMP disabled
+> boots
+> > > and runs
+> > > just fine. Both CPUs are detected by the system at bootup, before
+> lilo
+> > > takes
+> > > over. Here's the error as I wrote it down from the screen,
+> followed by
+> > > the
+> > > .config file:
+> > e 
+> > > ------------------------------ cut here
+> ------------------------------
+> > > Using local APIC timer interrupts.
+> > > Calibrating APIC timer...
+> > > ..... CPU clock speed is 1004.4785 MHZ
+> > > ..... hostbus clock speed is 133.9304 MHz
+> > > cpu: 0, clocks: 1339304, slice: 446434
+> > > CPU0<T0:1339296,T1:892848,D:14,S:446434,C:1339304>
+> > > cpu: 1, clocks: 1339304, slice: 446434
+> > > CPU1<T0:1339296,T1:446416,D:12,S:446434,C:1339304>
+> > > ------------------------------ cut here
+> ------------------------------
+> > 
+> > complete dmesg from success case would help,
+> > but try booting with "acpi=off", as that will
+> > disable ACPI for CPU enumeration, and if there
+> > is a bug in your ACPI tables, it would avoid it.
+> 
+> I tried acpi=off, and got a hang at boot right after the line:
+> 
+> CPU0<T0:1339376,T1:892912,D:4,S:446460,C:1339380
 
-I am ARAF.M. MOHAMMED from Singapore, married to Late Kazeem Mohammed of blessed memory who was an oil explorer in Singapore and Kuwait for twelve years before he died in 2000.We were married for twelve years without a child. He died after a brief illness that lasted for only four days. Before his death we were both devoted Muslims. Since his death I've been battling with Cancer and fibroid problems. When my late Husband was alive he deposited the sum of $15.5million (Fifteen Million, Five Hundred thousand U.S Dollars) with a Finance Company in Europe.
- 
-Recently, my doctor told me that I have only six months to live due to cancer problem. . Having known my condition I decided to donate this fund to either a Moslem organization or devoted Muslim individual that will utilize this money the way I am going to instruct herein. 
-I want the Muslim organization or individual to use this money in all sincerity to fund mosques, orphanages, widows, and also propagating the word of ALLAH and to ensure that the society upholds the views and belief of the Holy Quran. 
-The Holy Quran emphasizes so much on ALLAH'S benevolence and this has encouraged me to take the bold step. I took this decision because I don't have any child that will inherit the funds. My husband relatives are new Christian's converts and I don't want a situation where this money will be used in an Unholy manner. Hence the reasons for this bold decision. I know that after death I will be with ALLAH the most beneficent and the most merciful. 
-My doctors have warned against constant telephone discussion because of my deteriorating condition and further more, my husband relatives are always beside me and I don't want them to have an inside of my. I don't want them to know about this development. With ALLAH all things are possible. 
+sounds like there is no SMP success case on this box with any OS?
+Maybe a hardware problem.  See if you
+can simplify the hardware by ripping stuff out
+until it works.  Alternatively, if you find a
+different OS or version of linux that boots SMP,
+then that suggests a Linux specific issue.
 
-Please reply strictly via FAX NO: 27 11 507 6103, the fax is accessed solely by me from my sick bed in South Africa where I am presently to receive herbal treatment for my cancer as advised by my husband's relatives. OR email araf_madihah@zwallet.com <mailto:araf_madihah@zwallet.com>. On receipt of your confirmation to assist, I will release all details (Name, address of the trust company in Europe) to you where funds are located and a letter of Authority mandating the trust company to release funds to you and a copy of certificate of deposit released to you also. I want you and the Muslim community where you reside to always pray for me. 
- 
-My happiness is that I lived a true devoted Muslims worthy of emulation. Whoever that wants to serve ALLAH must serve him in truth and in fairness. Please always be prayerful all through your life. Any delay in your reply will give room in sourcing for a Muslim organization or a devoted Muslim for this same purpose. Until I hear from you, my dreams will rest squarely on your shoulders. 
-May the Almighty ALLAH continue to guide and protect you. 
-Regards, 
-MRS ARAF.M. MOHAMMED 
+cheers,
+-Len
 
 

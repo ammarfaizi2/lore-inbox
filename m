@@ -1,53 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262913AbVAQWna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262894AbVAQWn3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbVAQWna (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 17:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbVAQWYC
+	id S262894AbVAQWn3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 17:43:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbVAQWX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 17:24:02 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:7818 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S262894AbVAQV7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 16:59:04 -0500
-Subject: Re: journaled filesystems -- known instability; Was: XFS: inode
-	with st_mode == 0
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-Cc: Jakob Oestergaard <jakob@unthought.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kruty@fi.muni.cz
-In-Reply-To: <41EC2ECF.6010701@mnsu.edu>
-References: <20041209125918.GO9994@fi.muni.cz>
-	 <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>
-	 <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net>
-	 <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com>
-	 <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org>
-	 <20050117100746.GI347@unthought.net>  <41EC2ECF.6010701@mnsu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105995240.16119.14.camel@localhost.localdomain>
+	Mon, 17 Jan 2005 17:23:29 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:48613 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262933AbVAQWCO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 17:02:14 -0500
+Date: Mon, 17 Jan 2005 14:01:07 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] PCI fixes and PCI Express drivers for 2.6.11-rc1
+Message-ID: <20050117220107.GA28985@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 17 Jan 2005 20:54:01 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-17 at 21:31, Jeffrey Hundstad wrote:
-> I also can't keep a recent 2.6 or 2.6*-ac* kernel up more than a few 
-> hours on a machine under real load.   Perhaps us folks with the problem 
-> need to talk to the powers who be to come up with a strategy to make a 
-> report they can use.  My guess is we're not sending something that can 
-> be used.
+Hi,
 
-I need a way to reproduce it. Preferably on a hardware configuration
-that is running 2.6.10-ac10 or later because of the bio and acpi fixes.
-I'm not interested in any report including binary drivers and to be
-honest the least complex configuration the better. I also care that the
-hardware passes memtest86+ !
+Here are some small PCI patches for 2.6.11-rc1, and the addition of a
+new PCI Express subsystem (it's self contained, if you don't have PCI
+Express, or select it, the code never gets built.)  All of these patches
+have been in the past few -mm releases.
 
-I also don't care about XFS although Christoph may well do.
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
 
-Alan
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+
+ Documentation/PCIEBUS-HOWTO.txt   |  217 ++++++++++++++++++
+ arch/i386/Kconfig                 |    4 
+ arch/i386/pci/pcbios.c            |    4 
+ drivers/Makefile                  |    2 
+ drivers/pci/Makefile              |    2 
+ drivers/pci/access.c              |    2 
+ drivers/pci/hotplug/Kconfig       |   21 -
+ drivers/pci/hotplug/pciehp.h      |    3 
+ drivers/pci/hotplug/pciehp_core.c |   83 ++++--
+ drivers/pci/hotplug/pciehp_hpc.c  |   21 -
+ drivers/pci/msi.c                 |   39 +--
+ drivers/pci/pci.c                 |    2 
+ drivers/pci/pci.h                 |    2 
+ drivers/pci/pcie/Kconfig          |   38 +++
+ drivers/pci/pcie/Makefile         |    7 
+ drivers/pci/pcie/portdrv.h        |   42 +++
+ drivers/pci/pcie/portdrv_bus.c    |   88 +++++++
+ drivers/pci/pcie/portdrv_core.c   |  453 ++++++++++++++++++++++++++++++++++++++
+ drivers/pci/pcie/portdrv_pci.c    |  138 +++++++++++
+ drivers/pci/probe.c               |   10 
+ drivers/pci/remove.c              |   13 -
+ drivers/pci/rom.c                 |   80 +++---
+ drivers/pci/search.c              |    2 
+ include/linux/pci_ids.h           |    4 
+ include/linux/pcieport_if.h       |   74 ++++++
+ 25 files changed, 1209 insertions(+), 142 deletions(-)
+-----
+
+
+<jason.d.gaston:intel.com>:
+  o PCI: pci_ids.h correction for Intel ICH7 - 2.6.10-bk13
+
+Bjorn Helgaas:
+  o PCI: use modern format for PCI addresses
+
+David Howells:
+  o PCI: Downgrade printk that complains about unsupported PCI PM caps
+
+Greg Kroah-Hartman:
+  o PCI: move pcie build into the drivers/pci/ subdirectory
+
+Jesse Barnes:
+  o PCI: rom.c cleanups
+
+John Rose:
+  o PCI: fix release_pcibus_dev() crash
+
+Roland Dreier:
+  o PCI: Clean up printks in msi.c
+
+Thomas Gleixner:
+  o PCI: Lock initializer cleanup - batch 4
+
+Tom L. Nguyen:
+  o PCI: add PCI Express Port Bus Driver subsystem
 

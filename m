@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbRBBU4U>; Fri, 2 Feb 2001 15:56:20 -0500
+	id <S129876AbRBBU6l>; Fri, 2 Feb 2001 15:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129876AbRBBU4K>; Fri, 2 Feb 2001 15:56:10 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:22024 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129854AbRBBUzx>; Fri, 2 Feb 2001 15:55:53 -0500
-Date: Fri, 02 Feb 2001 15:55:43 -0500
-From: Chris Mason <mason@suse.com>
-To: newsreader@mediaone.net, linux-kernel@vger.kernel.org
-Subject: Re: did 2.4 messed up lilo?
-Message-ID: <786060000.981147343@tiny>
-In-Reply-To: <20010202153618.A653@dragon.universe>
-X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+	id <S130197AbRBBU6b>; Fri, 2 Feb 2001 15:58:31 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:53010 "EHLO devel.uklinux.net")
+	by vger.kernel.org with ESMTP id <S130177AbRBBU6Q>;
+	Fri, 2 Feb 2001 15:58:16 -0500
+Envelope-To: <linux-kernel@vger.kernel.org>
+Date: Fri, 2 Feb 2001 20:59:37 +0000 (GMT)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: Every Make option ends in error.
+Message-ID: <Pine.LNX.4.21.0102022052090.31663-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi guys, 
+ I guess I'm doing something stupid, so please can somebody point it out
+and put me out of my misery ?
+ 
+ Copied a plain 2.4.0 tree to a new directory, patched it to 2.4.1 without
+any errors. Then I realised it had all the object files from my last
+compile, so I thought "make mrproper" was called for. It did a little,
+then
 
+rm: include/asm: is a directory
+make: *** [mrproper] Error 1
 
-On Friday, February 02, 2001 03:36:18 PM -0500 newsreader@mediaone.net
-wrote:
+"make clean" and "make oldconfig" stop with similar errors, "make
+clean" is in "symlinks" at the time.
 
-> I'm not sure whether this problem is related
-> to 2.4 kernel.
-> 
+This piece of makefile looks to be the same as in 2.4.0, which worked.
 
-I suspect it is a reiserfs problem, and that you are using lilo older than
-21.6.  Are you mounting /boot with -o notail?
+I'm running make 3.77.
 
-Regardless, I'm willing to bet upgrading to lilo 21.6 will solve this.  It
-calls an ioctl reiserfs provides to unpack small files, and I've seen it
-fix this exact problem on one of my devel boxes (no lilo prompt, append
-lines in lilo.conf ignored).
+Any comments, please ?
 
--chris
+Ken
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

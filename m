@@ -1,60 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267118AbTBPQL0>; Sun, 16 Feb 2003 11:11:26 -0500
+	id <S267309AbTBPQOf>; Sun, 16 Feb 2003 11:14:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267120AbTBPQLZ>; Sun, 16 Feb 2003 11:11:25 -0500
-Received: from node-c-58b2.a2000.nl ([62.194.88.178]:1920 "EHLO
-	wsprwl.xs4all.nl") by vger.kernel.org with ESMTP id <S267118AbTBPQLY>;
-	Sun, 16 Feb 2003 11:11:24 -0500
-Message-ID: <3E4FBA7B.8010808@xs4all.nl>
-Date: Sun, 16 Feb 2003 17:21:15 +0100
-From: Ruud Linders <rkmp@xs4all.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S267311AbTBPQOf>; Sun, 16 Feb 2003 11:14:35 -0500
+Received: from mx.laposte.net ([213.30.181.7]:25289 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id <S267309AbTBPQOd>;
+	Sun, 16 Feb 2003 11:14:33 -0500
+Subject: Alsa kernel questionS
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
 To: linux-kernel@vger.kernel.org
-Cc: Kai.Makisara@kolumbus.fi
-Subject: Re: SCSI Tape hangs when no tape loaded (2.5.6x)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ucgQpwbInmeADcU4Sdse"
+Organization: 
+Message-Id: <1045412663.1955.10.camel@rousalka>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-1) 
+Date: 16 Feb 2003 17:24:23 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Kai,
+--=-ucgQpwbInmeADcU4Sdse
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-That did it !
+Hi,
 
-I was running mt-st-0.5b, upgrading to 0.7 fixed the 'mt' command as
-well as the 'stinit' command which caused my boot to delay for 2 minutes
-as that was called from the boot scripts.
+	I've got a Hercules Fortissimo III 7.1 :
 
-THanks
- >On Sun, 16 Feb 2003, Ruud Linders wrote:
- >
- >>
- >>
- >> On both 2.5.60 and 2.5.61 when there is no tape loaded in my SCSI DAT
- >> tape drive, access to the drive blocks for exactly 2 minutes
- >> before timing out and giving an I/O error.
- >>
- >> # mt stat
- >> ....... < 2 minutes later > ...
- >> /dev/tape: Input/output error
- >>
- >Does you mt open the tape device with the O_NONBLOCK option? If not, this
- >is what is expected. mt-st version >= 0.6 does use this option. I don't
- >know about other mt's.
- >
- >The open() behaviour of st was changed at 2.5.3 to conform with SUS
- >(blocking) and what the other Unices do (timeout). If the device is opened
- >without O_NONBLOCK, the driver waits for some time (default 2 minutes) for
- >the device to become ready. If it does not become ready, an error is 
-returned.
- >
- >	Kai
- >
- >P.S. I just tested 2.5.61 and in my system 'mt status' without tape in
- >the drive works as expected (i.e., prints status immediately).
- >
+00:0a.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24
+[CrystalClear SoundFusion Audio Accelerator] (rev 01)
+        Subsystem: Hercules Fortissimo III 7.1
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort-
+<TAbort-
+<MAbort- >SERR- <PERR-
+        Latency: 32 (1000ns min, 6000ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e9100000 (32-bit, non-prefetchable)
+[size=3D4K]
+        Region 1: Memory at e9000000 (32-bit, non-prefetchable)
+[size=3D1M]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=3D0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+=09
+
+I use it *only* via the optical output.
+
+Now it seems the alsa driver that's in 2.5 with mute the optical output
+until black magic is performed in any alsa-compatible mixer.
+
+Is there any boot option to tell alsa to activate the optical output
+automatically ?
+
+The second question is, with the alsa tools present on freshrpms.net and
+optical output activated, the only mixer setting that seem to have an
+effect is the DAC.
+
+Is there a way to set this knob as the default sound volume (as a kernel
+boot option ...) ?
+
+Why is the dac controlling the volume even when I'm reading a CD (i.e.
+digital PCM input, digital optical output, what is the DAC doing here) ?
+
+Sorry about the stupid questions, I found lots of material on building
+alsa (not really needed now it's in-kernel) but little on how to use
+it:(
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-ucgQpwbInmeADcU4Sdse
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+T7s3I2bVKDsp8g0RAtDuAJ91qDZcA032hqPnjkmzGNcXtDrewgCgpVZK
+xdKccYywx2aJfOs37j9x/IM=
+=tb83
+-----END PGP SIGNATURE-----
+
+--=-ucgQpwbInmeADcU4Sdse--
 

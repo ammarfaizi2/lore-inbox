@@ -1,110 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbULRNQu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbULRN0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262250AbULRNQu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 08:16:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbULRNQu
+	id S262255AbULRN0J (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 08:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbULRN0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 08:16:50 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:47837 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP id S262250AbULRNQp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 08:16:45 -0500
-Message-ID: <41C42DD2.9030205@verizon.net>
-Date: Sat, 18 Dec 2004 08:17:06 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] ip2: fix compile warnings
-References: <20041217214735.7127.91238.40236@localhost.localdomain> <41C38BE0.30004@osdl.org>
-In-Reply-To: <41C38BE0.30004@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 18 Dec 2004 08:26:09 -0500
+Received: from piglet.wetlettuce.com ([82.68.149.69]:56448 "EHLO
+	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
+	id S262255AbULRN0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 08:26:04 -0500
+Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
+From: Mark Broadbent <markb@wetlettuce.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20041217233524.GA11202@electric-eye.fr.zoreil.com>
+References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
+	 <20041216211024.GK2767@waste.org>
+	 <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
+	 <20041217215752.GP2767@waste.org>
+	 <20041217233524.GA11202@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [209.158.220.243] at Sat, 18 Dec 2004 07:16:44 -0600
+Date: Sat, 18 Dec 2004 13:25:12 +0000
+Message-Id: <1103376312.5196.0.camel@tigger>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+X-MailScanner: Mail is clear of Viree
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> james4765@verizon.net wrote:
+On Sat, 2004-12-18 at 00:35 +0100, Francois Romieu wrote:
+> Matt Mackall <mpm@selenic.com> :
+> [...]
+> > Please try the attached untested, uncompiled patch to add polling to
+> > r8169:
+> [...]
+> > @@ -1839,6 +1842,15 @@
+> >  }
+> >  #endif
+> >  
+> > +#ifdef CONFIG_NET_POLL_CONTROLLER
+> > +static void rtl8169_netpoll(struct net_device *dev)
+> > +{
+> > +	disable_irq(dev->irq);
+> > +	rtl8169_interrupt(dev->irq, netdev, NULL);
+>                                     ^^^^^^ -> should be "dev"
 > 
->> This fixes the following compile errors in the ip2 and ip2main drivers:
->>
->>   CC      drivers/char/ip2main.o
->> drivers/char/ip2main.c:470: warning: initialization from incompatible 
->> pointer type
+> The r8169 driver in -mm offers netpoll. A patch which syncs the r8169
+> driver from 2.6.10-rc3 with current -mm is available at:
+> http://www.fr.zoreil.com/people/francois/misc/20041218-2.6.10-rc3-r8169.c-test.patch
 > 
+> Please report success/failure. Cc: netdev@oss.sgi.com is welcome.
+
+Will try -mm when I next have access to the hardware (on Monday) and
+will report back.
+
+Thanks
+Mark
+
+> --
+> Ueimor
 > 
-> 
->> diff -urN --exclude='*~' 
->> linux-2.6.10-rc3-mm1-original/drivers/char/ip2main.c 
->> linux-2.6.10-rc3-mm1/drivers/char/ip2main.c
->> --- linux-2.6.10-rc3-mm1-original/drivers/char/ip2main.c    2004-12-03 
->> 16:55:03.000000000 -0500
->> +++ linux-2.6.10-rc3-mm1/drivers/char/ip2main.c    2004-12-17 
->> 16:24:24.094730049 -0500
->> @@ -467,7 +466,7 @@
->>  static struct tty_operations ip2_ops = {
->>      .open            = ip2_open,
->>      .close           = ip2_close,
->> -    .write           = ip2_write,
->> +    .write           = (void *) ip2_write,
->>      .put_char        = ip2_putchar,
->>      .flush_chars     = ip2_flush_chars,
->>      .write_room      = ip2_write_room,
-> 
-> 
-> The write() prototype in tty_operations is:
->     int  (*write)(struct tty_struct * tty,
->               const unsigned char *buf, int count);
-> 
-> Somehow the cast does eliminate the compiler warning (and give
-> a false sense of correctness).
-> 
-> However, ip2main.c::ip2_write() should be modified like so:
-> 
-> static int
-> ip2_write( PTTY tty, const unsigned char *pData, int count)
-> 
-> and drop the cast and fix the ip2_write comment (drop old arg 2),
-> and fix the ip2_write() prototype.
-> But then you (someone) will have to decide how to handle the
-> dropped <user> parameter when calling i2Output()...
-> I don't know the answer to that.
-> I just changed <user> to 0 to get a clean build of ip2main.o,
-> but ip2/i2lib.c still needs some work.
-> 
-
-Sorry for the constant n00b questions, but:
-
-Is there anything outside the kernel that could call tty_operations.write?
-
-drivers/input/serio/serport.c uses: (as an example)
-
-static int serport_serio_write(struct serio *serio, unsigned char data)
-{
-	struct serport *serport = serio->port_data;
-	return -(serport->tty->driver->write(serport->tty, &data, 1) != 1);
-}
-
-I'm guessing that something does copy_from_user() before tty_operations.write is 
-called, but I don't know quite what that is.
-
-Can anyone to point me in the direction of where the user/kernel interface for tty 
-devices is?
-
-Given the way this is set up -
-
-int  (*write)(struct tty_struct * tty, const unsigned char *buf, int count);
-
-vs.
-
-ip2_write( PTTY tty, int user, const unsigned char *pData, int count)
-
-I don't even know if the driver would work - I think you'd have serious problems 
-as it tries to dereference a pointer that is half-integer.
-
-Am I reading this wrong?
-
-Jim
+-- 
+Mark Broadbent <markb@wetlettuce.com>

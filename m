@@ -1,108 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTCTTdb>; Thu, 20 Mar 2003 14:33:31 -0500
+	id <S261855AbTCTTbD>; Thu, 20 Mar 2003 14:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261876AbTCTTdb>; Thu, 20 Mar 2003 14:33:31 -0500
-Received: from pop.gmx.net ([213.165.65.60]:40773 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261863AbTCTTdY>;
-	Thu, 20 Mar 2003 14:33:24 -0500
-Message-Id: <5.2.0.9.2.20030320194530.01985440@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Thu, 20 Mar 2003 20:48:40 +0100
-To: Steven Cole <elenstev@mesatop.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.65-mm2
-Cc: Ed Tomlinson <tomlins@cam.org>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <1048170972.4302.119.camel@spc9.esa.lanl.gov>
-References: <200303192327.45883.tomlins@cam.org>
- <20030319012115.466970fd.akpm@digeo.com>
- <20030319163337.602160d8.akpm@digeo.com>
- <1048117516.1602.6.camel@spc1.esa.lanl.gov>
- <200303192327.45883.tomlins@cam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S261857AbTCTTbD>; Thu, 20 Mar 2003 14:31:03 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:55729 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261855AbTCTTbA>;
+	Thu, 20 Mar 2003 14:31:00 -0500
+Message-ID: <3E7A1871.4090505@us.ibm.com>
+Date: Thu, 20 Mar 2003 14:37:21 -0500
+From: Stacy Woods <stacyw@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs sitting in the NEW state for more than two weeks
+References: <3E79D1AD.5080803@us.ibm.com> <20030320182135.GD1757@Master.Wizards>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:36 AM 3/20/2003 -0700, Steven Cole wrote:
->On Wed, 2003-03-19 at 21:27, Ed Tomlinson wrote:
-> > On March 19, 2003 06:45 pm, Steven P. Cole wrote:
-> > > On Wed, 2003-03-19 at 17:33, Andrew Morton wrote:
-> > > > "Steven P. Cole" <elenstev@mesatop.com> wrote:
-> > > > > > Summary: using ext3, the simple window shake and scrollbar wiggle
-> > > > > > tests were much improved, but really using Evolution left much 
-> to be
-> > > > > > desired.
-> > > > >
-> > > > > Replying to myself for a followup,
-> > > > >
-> > > > > I repeated the tests with 2.5.65-mm2 elevator=deadline and the
-> > > > > situation was similar to elevator=as.  Running dbench on ext3, the
-> > > > > response to desktop switches and window wiggles was improved over
-> > > > > running dbench on reiserfs, but typing in Evolution was subject 
-> to long
-> > > > > delays with dbench clients greater than 16.
-> > > >
-> > > > OK, final question before I get off my butt and find a way to reproduce
-> > > > this:
-> > > >
-> > > > Does reverting
-> > > >
-> > > > 
-> http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.65/2.5.65-mm2/broken-ou
-> > > >t/sched-2.5.64-D3.patch
-> > > >
-> > > > help?
-> > >
-> > > Sorry, didn't have much time for a lot of testing, but no miracles
-> > > occurred.  With 5 minutes of testing 2.5.65-mm2 and dbench 24 on ext3
-> > > and that patch reverted (first hunk had to be manually fixed), I don't
-> > > see any improvement.  Still the same long long delays in trying to use
-> > > Evolution.
-> >
-> > Steven,
-> >
-> > Do things improve with the patch below applied?  You have to backout the
-> > schedule-tuneables patch before appling it.
-> >
-> > Ed Tomlinson
->
->[patch snipped]
->
->I tried that patch, and the bad behavior with the Evolution "Compose a
->Message" window remains.  With a load of dbench 12, I had stalls of many
->seconds before I could type something.  Also, here is an additional
->symptom.  If I move the Evolution "Compose" window around rapidly, it
->leaves a smear of itself on the screen under itself.  With all -mm2
->variants, this smear stays for an intolerably long time (tens of
->seconds) while that window does not record keyboard strokes.  2.5.65-bk
->on the other hand exhibits much more benign behavior.
+Murray J. Root wrote:
 
-This is a side effect of Ingo's (nice!) latency change methinks.  When you 
-have several cpu hogs running (dbench), and they are cleaning your cpu's 
-clock by using their full bandwidth to attain maximum throughput, and they 
-then break up their timeslice in order to provide you with more 
-responsiveness, and then their _cumulative_  sleep time between (round 
-robin!) cpu hard burns is added to their sleep_avg, (boy is this a long 
-sentence) you will (likely) find that they run at a highly elevated 
-priority and starve the devil out of everything else because they can not 
-possibly get enough cpu to eat the sleep_avg they have been given (only way 
-to reduce their priority without forking).  Virgin .65 is also subject to 
-the positive feedback loop (irman's process load is worst case methinks, 
-and rounding down only ~hides it).
+> On Thu, Mar 20, 2003 at 09:35:25AM -0500, Stacy Woods wrote:
+> 
+>> There are 101 bugs sitting in the NEW state for more than 2 weeks
+>> that don't appear to have any activity. 48 of these bugs are owned
+>> by bugme-janitors which are good candidates for anyone to work on.
+>> Please check the bugs for before working on them to see if they are
+>> still available.
+>> 
+>> Kernel Bug Tracker: http://bugme.osdl.org
+>> 
+>> 
+> ...
+> 
+>> 387 Other Other bugme-janitors@lists.osdl.org
+>> poll on usb device does not return immediatly when device is unplugged
+>> 
+>> 388 Other Other bugme-janitors@lists.osdl.org
+>> 2.5.60/ioctl on usb device returns wrong length
+>> 
+>> 390 Other Other bugme-janitors@lists.osdl.org
+>> System hang with MySql workload
+> 
+> ...
+> 
+> 389 is still in "new" state but doesn't appear in list
+> 
+> ...
+>  
+> 
+>> 410  Platform   i386       mbligh@aracnet.com
+>> unexpected IO-APIC, please file a report at http://bugzilla.kernel.org
+>> 
+>> 415  Drivers    Video(DR   bugme-janitors@lists.osdl.org
+>> aty128fb.c fails to compile (logic error)
+>> 
+>> 417  File Sys   ext3       akpm@digeo.com
+>> htree much slower than regular ext3
+> 
+> ...
+> 
+> 413 is still in "new" state but does not appear in list
+> 
+> it seems your script is sorting by more than just age.
+> 
+> If severity "normal" means "ignore" it should be indicated - I'll start 
+> claiming a higher level.
+> 
+Murray,
+  Bugs 389 and 413 show the "last update" date was  March 12th which 
+dosen't fall
+within the two week criteria.    The search is done only on the "last 
+update" and
+has nothing to do with severity.    Since you added comments to those 
+bugs it set
+the date then.   I realize this is not a perfect system to list all bugs 
+that are truly
+not being worked on,  but hopefully it gets some bugs investigated  
+Especially the
+ones owned by bugme-janitors.
 
-I have a really horrid looking sched.c right now that works around some of 
-this problem in disgusting ways.  If you want to try it, give me a holler 
-before tomorrow morning (slice 'n dice resumes) and I'll rip it out and 
-send it to you.  Fair warning though, if you have good taste, don't look at 
-it at all before applying.  There are a few of spots I wouldn't even want 
-to _try_ to justify.  I don't think dbench will be able to dork it up, but 
-irman's process load (horrible thing) now can again.  (it's pure 
-research... that says a lot;)
-
-Bottom line is that once cpu hogs are falsely determined to be sleepers, 
-positive feedback kills you.
-
-         -Mike 
+- Stacy
 

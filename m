@@ -1,90 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbTH2RuE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 13:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbTH2RuD
+	id S261621AbTH2Rzs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 13:55:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbTH2Rzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 13:50:03 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:11501 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S261529AbTH2Rtz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 13:49:55 -0400
-Message-ID: <3F4F923F.9070207@wmich.edu>
-Date: Fri, 29 Aug 2003 13:49:51 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
-X-Accept-Language: en
+	Fri, 29 Aug 2003 13:55:48 -0400
+Received: from web12803.mail.yahoo.com ([216.136.174.38]:38798 "HELO
+	web12803.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261621AbTH2Rzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 13:55:45 -0400
+Message-ID: <20030829175544.84979.qmail@web12803.mail.yahoo.com>
+Date: Fri, 29 Aug 2003 10:55:44 -0700 (PDT)
+From: Shantanu Goel <sgoel01@yahoo.com>
+Subject: Re: [VM PATCH] Faster reclamation of dirty pages and unused inode/dcache entries in 2.4.22
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030829145749.GA709@wind.cocodriloo.com>
 MIME-Version: 1.0
-To: Alex Tomas <bzzz@tmi.comex.ru>
-CC: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] extents support for EXT3
-References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu> <m3isogpgna.fsf@bzzz.home.net>
-In-Reply-To: <m3isogpgna.fsf@bzzz.home.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Tomas wrote:
->>>>>>Ed Sweetman (ES) writes:
+I am not very knowledgeable about micro-optimizations.
+ I'll take your word for it. ;-)  What interests me
+more is whether others notice any performance
+improvement under swapout with this patch given that
+is on the order of milliseconds.
+
+--- Antonio Vargas <wind@cocodriloo.com> wrote:
+> On Fri, Aug 29, 2003 at 08:01:11AM -0700, Shantanu
+> Goel wrote:
+> > Hi kernel hackers,
+> > 
+> > The VM subsystem in Linux 2.4.22 can cause
+> spurious
+> > swapouts in the presence of lots of dirty pages. 
+> > Presently, as dirty pages are encountered,
+> > shrink_cache() schedules a writepage() and moves
+> the
+> > page to the head of the inactive list.  When a lot
+> of
+> > dirty pages are present, this can break the FIFO
+> > ordering of the inactive list because clean pages
+> > further down the list will be reclaimed first. 
+> The
+> > following patch records the pages being laundered,
+> and
+> > once SWAP_CLUSTER_MAX pages have been accumulated
+> or
+> > the scan is complete, goes back and attempts to
+> move
+> > them back to the tail of the list.
+> > 
+> > The second part of the patch reclaims unused
+> > inode/dentry/dquot entries more aggressively.  I
+> have
+> > observed that on an NFS server where swap out
+> activity
+> > is low, the VM can shrink the page cache to the
+> point
+> > where most pages are used up by unused
+> inode/dentry
+> > entries.  This is because page cache reclamation
+> > succeeds most of the time except when a swap_out()
+> > happens.
+> > 
+> > Feedback and comments are welcome.
 > 
+> Microoptimization (which helps on x86 a lot):
+>  
+> -       for (i = nr_pages - 1; i >= 0; i--) {
+> -               page = laundry[i];
+> +	laundry += nr_pages;
+> +	for (i = -nr_pages; ++i ;){
+> +               page = laundry[i];
 > 
->  ES> I was testing this with only a single partition mounted with extents
->  ES> enabled when benchmarking.  Ext3 gave no messages of being mounted
->  ES> afterbootup with or without extents so to make sure i had extents
->  ES> enabled i booted with all my partitions with the extents option.  I
->  ES> suspect then my problems began.  I'm completely unaware of the extent
->  ES> of the damage enabling extents has done since most of the important
->  ES> things were opened, not created during my extents use.  In any case it
->  ES> may be that the reason why init is not able to be found is because i
->  ES> used apt and upgraded my system ...and I dont remember if i had
->  ES> extents enabled at the time or not.  If my init is in extents format
->  ES> though, then why is a patched kernel able to read it with extents not
->  ES> being enabled via the omunt option where as kernels without the patch
->  ES> cannot.  Is extents able to be read from a fs even when it's not
->  ES> mounted with the option but not written?   I'm kinda confused, this
->  ES> aspect of extents wasn't in the original email.
+> Your original code reads from higher to lower
+> addresses,
+> while the new one reads from lower to higer
+> addresses.
 > 
-> well, on my testbox I use _patched with extents_ ext3 as / and /boot partitions.
-> I haven't seen any problems on them. with patch, ext3 look at special EXTENTS
-> flag in inode (this flag is set up only for newly created files on fs being
-> mounted with extents enabled) and calls apropriate routines. thus, it will
-> call extents routines for those file even if fs is being mounted with extents
-> disabled. I really do believe that your root filesystem haven't been mounted
-> with extents enabled, so init must be stored in good old format.
-
-Ok well little wait on the non-patched bootup.
-
-I booted with test4-mm2 patched
-
-
-
-Throughput 221.812 MB/sec 16 procs    ext2
-Throughput 159.495 MB/sec 16 procs    ext3-extents (definitely enabled)
-Throughput 147.598 MB/sec 16 procs    ext3 (patched but disabled)
-
-There is an obvious improvement, but nothing near the 70+% increase you 
-saw.  Subsequent runs run anything from a little lower than above for 
-extents to 167MB/s.
-
-I'm using the largest inode size possible for ext3 for the filesystem 
-tested.
-
-
-By the way, what's the behavior of opening an existing non-extent file 
-and writing and reading to it while the partition is mounted with 
-extents enabled?
-
-
-
-
->  ES> i'm going to try and boot a kernel without the extents patch (so far
->  ES> hasn't been possible) and run dbench again and see if i get different
->  ES> numbers.  I'm almost suspecting extents being enabled no matter what i
->  ES> mount the fs's as.
+> The new code changes and then tests the loop
+> counter,
+> so it's a little bit faster :)
 > 
-> that would be fine!
+> Both check against zero, so both can use result
+> flags
+> directly and do no intervening "cmp ecx,CONSTANT".
 > 
+> To the "powers that be", would this type of
+> microoptimizations
+> be futher welcomed?
 > 
+> Greets, Antonio.
 
 
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266648AbUIENgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUIENje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266648AbUIENgF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 09:36:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUIENgF
+	id S266669AbUIENje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 09:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUIENjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 09:36:05 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:54402 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266648AbUIENfs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 09:35:48 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 5 Sep 2004 06:35:44 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: "Zach, Yoav" <yoav.zach@intel.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Yoav Zach <yoav_zach@yahoo.com>,
-       Andrew Morton <akpm@osdl.org>,
+	Sun, 5 Sep 2004 09:39:33 -0400
+Received: from [217.79.151.115] ([217.79.151.115]:53646 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S266669AbUIENja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 09:39:30 -0400
+Date: Sun, 5 Sep 2004 15:39:23 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Tim Fairchild <tim@bcs4me.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Sid Boyce <sboyce@blueyonder.co.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: force_sig_info
-In-Reply-To: <2C83850C013A2540861D03054B478C06048FFA9D@hasmsx403.ger.corp.intel.com>
-Message-ID: <Pine.LNX.4.58.0409050630280.11784@bigblue.dev.mdolabs.com>
-References: <2C83850C013A2540861D03054B478C06048FFA9D@hasmsx403.ger.corp.intel.com>
+Subject: Re: NVIDIA Driver 1.0-6111 fix
+In-Reply-To: <1094385894.1078.31.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.60.0409051511500.4243@alpha.polcom.net>
+References: <41390988.2010503@blueyonder.co.uk>  <200409041954.05272.tim@bcs4me.com>
+  <1094327788.6575.209.camel@krustophenia.net>  <200409050702.29007.tim@bcs4me.com>
+  <1094332949.6575.360.camel@krustophenia.net> <1094385894.1078.31.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Sep 2004, Zach, Yoav wrote:
+On Sun, 5 Sep 2004, Alan Cox wrote:
 
-> >-----Original Message-----
-> >From: Linus Torvalds [mailto:torvalds@osdl.org] 
-> >Sent: Friday, September 03, 2004 21:12
-> >To: Yoav Zach
-> >Cc: akpm@osdl.org; linux-kernel@vger.kernel.org; Zach, Yoav
-> >Subject: Re: force_sig_info
-> >
-> >
-> >Why are you blocking signals that you want to get? Sounds like 
-> >a bug in 
-> >your program.
-> 
-> It's a translator - it emulates the behavior of the translated
-> 'process', which is the one that sets the signal mask. On the
-> other hand, it has its own logic, which requires handling of
-> certain HW exceptions. In 2.4, signals that were raised due to
-> HW exceptions could be handled by the translator regardless of
-> the mask that was set by the translated process. We lost this
-> ability in 2.6. It will be very good for our product, and I
-> believe any similar product where a native process emulates 
-> behavior of another process, if we could have this ability
-> back.
+> On Sad, 2004-09-04 at 22:22, Lee Revell wrote:
+>> I have never understood why these people don't just run Windows.  I have
+>> also never understood why people make so much noise about having to use
+>> a closed source driver to play A CLOSED SOURCE GAME!  What's next, a
+>> petition to open the UT2004 source?  Sheesh...
+>
+> Because a lot of them happen to like running things on Linux, or having
+> the webserver still work while they are blasting aliens. You could ask a
+> few of them. Thats a rather good idea when you don't understand why
+> people do something. They also play a lot of open source games - bzflag,
+> cube, flightgear (which does need a high end video card to do well),
+> gl-117, neverball etc. Take a look at the happypenguin website some day.
 
-Below is the latest patch I posted (applies on some Jun 2004 2.6.x) to 
-bring 2.6 back to the 2.4 behaviour, but then it has been decided to leave 
-2.6 as is.
+Yes. Also Linux has often better performance and is way more smooth than 
+Windows. I am running vanilla-rc-bk with -ck patches (and some others) and 
+I can download or compile something and play my favourite game (at the 
+same time) without any problems.
+
+Also not everybody have enought money to buy Windows (and all legal 
+applications that every normal Windows user must have).
+
+And when I am using Linux I can forget about the treat that somebody will 
+find my IP and will (automatically) compromise my system and install some 
+worm (for example to send spam to LKML) in it. Games often have security 
+holes too and if I run them on Linux on my user account I am sure that, in 
+the worst scenarion, somebody will gain my normal user rights (or my 
+normal game user rights) instead of "root" in Windows.
+
+>> I suspect many of these users are ricers who tweak CFLAGS and compare
+>> benchmark scores all day, and cannot bear to use the open source driver
+>> if it will make their machine 1% slower.  I was surprised to find that
+>
+> There is certainly a strong Gentoo gaming contingent.
+
+I am running Gentoo. I have very conservative CFLAGS and I am not 
+benchmarking my system and comaring results with friends. I am using 
+Gentoo mainly because it has very big amount of software "packaged", I can 
+choose what software I am installing on my box (nobody will force me to 
+install esd - not needed with ALSA and often harmful - just because 1000 
+apps in my distribution are compiled with it), software is compiled from 
+sources (its open*_source_* not openRPM or openDEB), and new versions 
+of apps are appearing constantly not with 6 months release cycle. Also 
+Gentoo has very good (but can-be-better) installer/deinstaller.
+
+Yes, I am using nvidia binary only modules. But there was some time when 
+nvidia binary module was not supporting 4k stacks in kernel. And I was 
+using some -bk kernel that had this option and I turned it on. So I tried 
+the nv X driver and later framebuffer driver. Both were absolutelly 
+useless. One was freezing my box constantly and the second also had some 
+mayor problems. And the quality of picture in both of them was worst than 
+bad. One of them displayed some "moving background" on search 
+subpages of lkml.org instead of normal background with nvidia binary 
+drivers - this can yield to epilepsia or other illness in very short time. 
+Of course I was unable to play my favourite tuxracer (OPENSOURCE). So I 
+was forced to return to nvidia binary only driver as soon as they provided 
+fixed one.
+
+And I am using nvidia binary only driver for nearly 4 years on my GeForce 
+2 and I have seen only 2 or 3 oopses caused by this driver. And I am using 
+very experimental (-mm or -vanilla-bk) kernels with strange patches from 
+time to time. Nearly all ooopses were reproductible with untainted kernel.
 
 
+Grzegorz Kulewski
 
-- Davide
-
-
-
-
---- a/kernel/signal.c	2004-06-28 14:28:51.000000000 -0700
-+++ b/kernel/signal.c	2004-06-28 14:29:31.000000000 -0700
-@@ -820,8 +820,9 @@
- 	int ret;
- 
- 	spin_lock_irqsave(&t->sighand->siglock, flags);
--	if (sigismember(&t->blocked, sig) || t->sighand->action[sig-1].sa.sa_handler == SIG_IGN) {
-+	if (t->sighand->action[sig-1].sa.sa_handler == SIG_IGN)
- 		t->sighand->action[sig-1].sa.sa_handler = SIG_DFL;
-+	if (sigismember(&t->blocked, sig)) {
- 		sigdelset(&t->blocked, sig);
- 		recalc_sigpending_tsk(t);
- 	}

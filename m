@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272978AbTG3QbG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272976AbTG3QbG
+	id S272958AbTG3QfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 12:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272959AbTG3QfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:31:06 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53443 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S272973AbTG3QbD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:31:03 -0400
-Date: Wed, 30 Jul 2003 18:30:14 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Tomas Szepe <szepe@pinerecords.com>
-cc: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>, <linux-ide@vger.kernel.org>
-Subject: [PATCH] Re: [TRIVIAL] kill surplus menu in IDE Kconfig
-In-Reply-To: <20030730055725.GG4279@louise.pinerecords.com>
-Message-ID: <Pine.SOL.4.30.0307301823210.8913-100000@mion.elka.pw.edu.pl>
+	Wed, 30 Jul 2003 12:35:15 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:37623 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S272958AbTG3QfH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 12:35:07 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Date: Wed, 30 Jul 2003 09:34:51 -0700
+Message-ID: <DD755978BA8283409FB0087C39132BD101B0100B@fmsmsx404.fm.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lse-tech] Re: [patch] scheduler fix for 1cpu/node case
+Thread-Index: AcNWtfEFukBxtaNhTzaoyDHOtoU7SgAAbLXw
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Andrew Theurer" <habanero@us.ibm.com>,
+       "Erich Focht" <efocht@hpce.nec.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "LSE" <lse-tech@lists.sourceforge.net>
+Cc: "Andi Kleen" <ak@muc.de>, <torvalds@osdl.org>
+X-OriginalArrivalTime: 30 Jul 2003 16:34:51.0742 (UTC) FILETIME=[7FF7BFE0:01C356B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> As for idle balances, we may be able to go a step further: 
+> follow the range rules, but do a more aggressive/frequent search.
 
-On Wed, 30 Jul 2003, Tomas Szepe wrote:
+Be cautious about how much work you do here ... while you can burn
+as much cpu time as you like on an idle cpu without affecting anything,
+you need to be sure that your activities don't burn too much bus
+bandwidth, or cause cache lines to ping-pong around the machine. The
+classic case of this has been seen while one cpu is trying to boot,
+and the other 31 idle cpus beat the bus to death looking to see
+whether they can "help".
 
-> > [B.Zolnierkiewicz@elka.pw.edu.pl]
->
-> > - kill CONFIG_BLK_DEV_PDC202XX
->
-> How do you mean?
-
-It is not needed anymore.
-We have now CONFIG_BLK_DEV_PDC202XX_OLD and CONFIG_BLK_DEV_PDC202XX_NEW.
-
-> > Does it sound sane?  If so I will later post patches for you review.
->
-> Sounds good.  I can generate these patches if you're interested.
-
-Patches are at:
-http://home.elka.pw.edu.pl/~bzolnier/ide-Kconfig/
-
-They are against 2.6.0-test2.
-
---
-Bartlomiej
-
+-Tony

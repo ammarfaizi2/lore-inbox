@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbUDOTIY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 15:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUDOTIY
+	id S261498AbUDOTNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 15:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbUDOTNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 15:08:24 -0400
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:24012 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262316AbUDOTHn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 15:07:43 -0400
-Message-ID: <407EDD23.3080009@stesmi.com>
-Date: Thu, 15 Apr 2004 21:06:11 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA support merge in 2.4.27
-References: <20040415171755.GC3218@logos.cnet>
-In-Reply-To: <20040415171755.GC3218@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Apr 2004 15:13:16 -0400
+Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:57618 "EHLO
+	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
+	id S261498AbUDOTNO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 15:13:14 -0400
+Subject: Re: [PATCH][RFC] highpmd for arch i386 PAE
+From: Antony Suter <suterant@users.sourceforge.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: List LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040415182815.GB743@holomorphy.com>
+References: <1082048738.8544.25.camel@hikaru.lan>
+	 <20040415182815.GB743@holomorphy.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-urd2nPslC5uv948CLKBL"
+Message-Id: <1082056377.8544.32.camel@hikaru.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 16 Apr 2004 05:12:57 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
 
-> Hi, 
-> 
-> Jeff Garzik sent me a SATA update to be merged in 2.4.x. 
-> 
-> A lot of new boxes are shipping with SATA-only disks, and its pretty bad
-> to not have a "stable" series without such industry-standard support.
-> 
-> This is the last feature to be merged on 2.4.x, and only because its quite 
-> necessary.
-> 
-> Any oppositions?
+--=-urd2nPslC5uv948CLKBL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-There are alternative ways* to get sata support for some chips but I
-believe it's the right choice to do the 'full' route so I believe it's
-the right choice. 2.4 will still be used for quite a while, especially
-until "everybody" trusts 2.6, same way that happened with 2.2 and 2.4 ..
+On Fri, 2004-04-16 at 04:28, William Lee Irwin III wrote:
+> On Fri, Apr 16, 2004 at 03:05:38AM +1000, Antony Suter wrote:
+> > This patch places middle level pagetables into highmem, on PAE machines=
+.
+> > It is relevant to arch/i386 machines running many processes on 4 to 64
+> > GB of RAM.
+> > This is simply a resync to the current kernel of a patch released by
+> > William Lee Irwin III about 4 months ago. WLI's comments on the patch
+> > are:
+>=20
+> I'll be damned. This is one of the many pieces people never said much
+> about. Looks relatively thorough.
+>=20
+> I did a few things to keep pmd caching around that look like they got
+> dropped, but I suppose for a standalone mainline port that's the only
+> option.
 
-* siimage.c, add sata8237 entry to via driver, etc...
+Did you have a more recent version than the one from
+linux-2.6.0-test11-wli-1.tar.bz2 ? Perhaps patch-2.6.0-test11-wli-3.bz2
+included it, but you didn't break them out into a tarball?
 
-// Stefan
+> I'm really astounded ppl are going through the trouble of resurrecting
+> all this stuff. I suppose that means it was valuable to someone.
+
+Well i'm starting at number 01... :)
+
+--=20
+- Antony Suter  (suterant users sourceforge net)  "Bonta"
+- "...through shadows falling, out of memory and time..."
+
+--=-urd2nPslC5uv948CLKBL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAft64Zu6XKGV+xxoRAhYbAJ0STgYglu0E+zYpxK5LDbJmAiajzgCfU6tS
+jWz7ZKQxUDJEXni6e2R13XE=
+=Wktc
+-----END PGP SIGNATURE-----
+
+--=-urd2nPslC5uv948CLKBL--
+

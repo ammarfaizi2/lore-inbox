@@ -1,60 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271699AbTHRMWs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 08:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271701AbTHRMWs
+	id S271713AbTHRMY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 08:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271714AbTHRMY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 08:22:48 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:27570 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S271699AbTHRMWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 08:22:44 -0400
-Date: Mon, 18 Aug 2003 14:22:35 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Jamie Lokier <jamie@shareable.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-In-Reply-To: <20030817215436.GA24933@ucw.cz>
-Message-ID: <Pine.GSO.3.96.1030818135400.12013B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Aug 2003 08:24:57 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:1292 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271713AbTHRMYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 08:24:54 -0400
+Date: Mon, 18 Aug 2003 13:24:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andries.Brouwer@cwi.nl
+Cc: Dominik.Strasser@t-online.de, hch@infradead.org,
+       linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] Re: [PATCH] scsi.h uses "u8" which isn't defined.
+Message-ID: <20030818132451.A22393@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andries.Brouwer@cwi.nl, Dominik.Strasser@t-online.de,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <UTC200308181219.h7ICJfw14963.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Aug 18, 2003 at 02:19:41PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003, Vojtech Pavlik wrote:
+On Mon, Aug 18, 2003 at 02:19:41PM +0200, Andries.Brouwer@cwi.nl wrote:
+> The right approach is not to break userspace without any kernel
+> benefit whatsoever, but to eliminate the accumulated cruft from
+> scsi.h.
 
-> > What are the known problems with mode #3, then?
-> 
-> It's broken on many keyboards (on some only slightly, like some keys not
-> working properly). Other (special, either unix workstation or point of
-> sale) keyboards need it to work properly.
-
- IIRC, OSF/1 running on later Alphas with a PS/2 keyboard interface
-(earlier oned had an LK201 one) uses mode #3.  I can't comment on the VMS.
-
-> > That is, why doesn't everyone use it and why haven't they always used it?
-> 
-> Because old AT keyboards didn't support it. Because the XT keyboard
-> didn't support it. Because history sticks.
-
- Since the 8042+keyboard combo supports a PC/XT compatibility mode there
-was no incentive -- why bother modifying software if the hardware works
-with the old one?  Even if that sucks. 
-
-> > For that matter, what does Windows use?
-> 
-> Translated Set 2. Actually an emulated XT keyboard.
-
- For mode #3 explicit handling for hot-plugging would be required -- I
-guess the change would be much too intrusive.  And untranslated mode #2 is
-nearly the same as an emulated PC/XT keyboard: codes are different and the
-release bit is replaced by the release code, but the multibyte mess for
-PS/2-specific keys remains -- no gain at all.
-
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Userspace is supposed to use the glibc <scsi/scsi.h> which is there
+for exactly that reason.
 

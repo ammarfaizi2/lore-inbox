@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129394AbRCBSeA>; Fri, 2 Mar 2001 13:34:00 -0500
+	id <S129401AbRCBSgU>; Fri, 2 Mar 2001 13:36:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129397AbRCBSdu>; Fri, 2 Mar 2001 13:33:50 -0500
-Received: from sparrow.ists.dartmouth.edu ([129.170.249.49]:30356 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S129394AbRCBSdo>; Fri, 2 Mar 2001 13:33:44 -0500
-Date: Fri, 2 Mar 2001 13:33:07 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Thomas Lau <lkthomas@hkicable.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: is it possible to port linux into palm IIIc ?
-In-Reply-To: <3A9FE34E.C0BE5BCA@hkicable.com>
-Message-ID: <Pine.LNX.4.30.0103021332420.12061-100000@sparrow.websense.net>
+	id <S129402AbRCBSgL>; Fri, 2 Mar 2001 13:36:11 -0500
+Received: from laird.ocp.internap.com ([64.94.114.35]:47201 "EHLO
+	laird.ocp.internap.com") by vger.kernel.org with ESMTP
+	id <S129401AbRCBSgG>; Fri, 2 Mar 2001 13:36:06 -0500
+Date: Fri, 2 Mar 2001 10:35:33 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+X-X-Sender: <laird@laird.ocp.internap.com>
+To: <kuznet@ms2.inr.ac.ru>
+cc: Russell King <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Another rsync over ssh hang (repeatable, with 2.4.1 on both
+ ends)
+In-Reply-To: <200103021808.VAA00511@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.33.0103021031120.17365-100000@laird.ocp.internap.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, Thomas,
 
-On Sat, 3 Mar 2001, Thomas Lau wrote:
 
-> I am using PalmIIIc
-> is it possible to port into palm ?
-> Thanks
+On Fri, 2 Mar 2001 kuznet@ms2.inr.ac.ru wrote:
+> > together to put 2.2.18 on this machine.  I can't guarantee when I'll
+> > be able to do this though.
+>
+> You planned to make more accurate strace on Monday, if I remember correctly.
+> Now it is not necessary, Scott's one is enough to understand that
+> some problem exists and cannot be explained by buggy 2.2.15.
 
-	http://www.uclinux.org
-	Cheers,
-	- Bill
+One data point on my hang -- I increased
+/proc/sys/net/core/wmem_{max,default} from 64k to 256k, and then increased
+/proc/sys/net/ipv5/tcp_wmem from "4096 16384 131072" to "16384 65536
+262144", and the hangs seem to have either stopped or (more likely)
+drastically reduced in frequency.  I was able to rsync a couple GB without
+stalling.
 
----------------------------------------------------------------------------
-	If you have any trouble sounding condescending, find a Unix user
-to show you how it's done.
-	-- Scott Adams: DNRC Newsletter 3.0
-(Courtesy of Bob Tracy <rct@gherkin.sa.wlk.com>)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
+I can perform more tests, if anyone has anything in particular that they'd
+like to see.
+
+
+Scott
 

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268844AbRHFQM2>; Mon, 6 Aug 2001 12:12:28 -0400
+	id <S268841AbRHFQMs>; Mon, 6 Aug 2001 12:12:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268843AbRHFQMT>; Mon, 6 Aug 2001 12:12:19 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:5181 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S268841AbRHFQMH>; Mon, 6 Aug 2001 12:12:07 -0400
-Date: Mon, 6 Aug 2001 19:11:46 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: dave-mlist@bfnet.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: looking for resources for designing loopback filesystem
-Message-ID: <20010806191146.D58023@niksula.cs.hut.fi>
-In-Reply-To: <5.1.0.14.2.20010803232810.0415b840@pop.cus.cam.ac.uk> <ygehevl5i0s.fsf_-_@bfnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <ygehevl5i0s.fsf_-_@bfnet.com>; from dave-mlist@bfnet.com on Mon, Aug 06, 2001 at 08:23:47AM -0700
+	id <S268843AbRHFQMi>; Mon, 6 Aug 2001 12:12:38 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36367 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268841AbRHFQMa>; Mon, 6 Aug 2001 12:12:30 -0400
+Date: Mon, 6 Aug 2001 13:12:28 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        David Luyer <david_luyer@pacific.net.au>,
+        <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: /proc/<n>/maps growing...
+In-Reply-To: <15214.24938.681121.837470@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.33L.0108061311120.1439-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 06, 2001 at 08:23:47AM -0700, you [dave-mlist@bfnet.com] claimed:
-> I'd like to create a filesystem which mirrors another local
-> filesystem, but with different permissions, and with some content
-> invisible to some users.  Is there a kernel module that does this
-> already?  Is the loopback module the one?  If so, where can I learn
-> about applying the module to this purpose?
+On Mon, 6 Aug 2001, David S. Miller wrote:
+> Andrea Arcangeli writes:
+>  > Can somebody see a problem with this design?
+>
+> As someone who was involved when the merge_segments stuff got tossed
+> by Linus, the reason was that the locking is utterly atrocious.
 
-Perhaps you could hack an nfs-server (knfsd or nfsd) to do the permission
-tweaks and hiding and then just mount the stuff over to another location
-with ordinary nfs client stuff.
+Mmmm, don't we ONLY need to hold both the mm->mmap_sem for
+write access and the mm->page_table_lock ?
+
+... which we are already holding at that point.
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
 
--- v --
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-v@iki.fi

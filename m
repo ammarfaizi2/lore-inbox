@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbUB1AQg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 19:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263230AbUB1AN7
+	id S263225AbUB1AMm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 19:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263217AbUB1AKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 19:13:59 -0500
-Received: from mail.kroah.org ([65.200.24.183]:52645 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263221AbUB1AJ4 convert rfc822-to-8bit
+	Fri, 27 Feb 2004 19:10:51 -0500
+Received: from mail.kroah.org ([65.200.24.183]:51365 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263219AbUB1AJv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 19:09:56 -0500
+	Fri, 27 Feb 2004 19:09:51 -0500
 Subject: Re: [PATCH] PCI fixes for 2.6.4-rc1
-In-Reply-To: <1077926983983@kroah.com>
+In-Reply-To: <10779269823390@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 27 Feb 2004 16:09:44 -0800
-Message-Id: <10779269841823@kroah.com>
+Date: Fri, 27 Feb 2004 16:09:42 -0800
+Message-Id: <10779269823562@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,55 +22,32 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1619, 2004/02/24 14:04:40-08:00, greg@kroah.com
+ChangeSet 1.1614, 2004/02/24 11:07:43-08:00, rmk-pci@arm.linux.org.uk
 
-PCI Hotplug: clean up the Makefile a bit more.
+[PATCH] PCI: Don't report pci_request_regions() failure twice
 
-Still need to fix up the pcie and shpc options to be saner for distros to use.
-
-
- drivers/pci/hotplug/Makefile |   18 ++++++++----------
- 1 files changed, 8 insertions(+), 10 deletions(-)
+pci_request_regions() reports an error when pci_request_region() fails.
+However, since pci_request_region() already reports an error on failure,
+pci_request_regions() has some unwanted duplication.
 
 
-diff -Nru a/drivers/pci/hotplug/Makefile b/drivers/pci/hotplug/Makefile
---- a/drivers/pci/hotplug/Makefile	Fri Feb 27 15:57:08 2004
-+++ b/drivers/pci/hotplug/Makefile	Fri Feb 27 15:57:08 2004
-@@ -25,6 +25,8 @@
- 				cpqphp_ctrl.o	\
- 				cpqphp_sysfs.o	\
- 				cpqphp_pci.o
-+cpqphp-$(CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM) += cpqphp_nvram.o
-+cpqphp-objs += $(cpqphp-y)
+ drivers/pci/pci.c |    5 -----
+ 1 files changed, 5 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	Fri Feb 27 15:57:30 2004
++++ b/drivers/pci/pci.c	Fri Feb 27 15:57:30 2004
+@@ -535,11 +535,6 @@
+ 	return 0;
  
- ibmphp-objs		:=	ibmphp_core.o	\
- 				ibmphp_ebda.o	\
-@@ -49,21 +51,17 @@
- 				pciehp_sysfs.o	\
- 				pciehp_hpc.o
- 
--shpchp-objs		:=	shpchp_core.o	\
--				shpchp_ctrl.o	\
--				shpchp_pci.o	\
--				shpchp_sysfs.o	\
--				shpchp_hpc.o
--
--ifeq ($(CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM),y)
--	cpqphp-objs += cpqphp_nvram.o
--endif
--
- ifeq ($(CONFIG_HOTPLUG_PCI_PCIE_PHPRM_NONACPI),y)
-   pciehp-objs += pciehprm_nonacpi.o
- else
-   pciehp-objs += pciehprm_acpi.o
- endif
-+
-+shpchp-objs		:=	shpchp_core.o	\
-+				shpchp_ctrl.o	\
-+				shpchp_pci.o	\
-+				shpchp_sysfs.o	\
-+				shpchp_hpc.o
- 
- ifeq ($(CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY),y)
-   shpchp-objs += shpchprm_legacy.o
+ err_out:
+-	printk (KERN_WARNING "PCI: Unable to reserve %s region #%d:%lx@%lx for device %s\n",
+-		pci_resource_flags(pdev, i) & IORESOURCE_IO ? "I/O" : "mem",
+-		i + 1, /* PCI BAR # */
+-		pci_resource_len(pdev, i), pci_resource_start(pdev, i),
+-		pci_name(pdev));
+ 	while(--i >= 0)
+ 		pci_release_region(pdev, i);
+ 		
 

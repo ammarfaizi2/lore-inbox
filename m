@@ -1,42 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267597AbTALWve>; Sun, 12 Jan 2003 17:51:34 -0500
+	id <S267621AbTALW6g>; Sun, 12 Jan 2003 17:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267598AbTALWvd>; Sun, 12 Jan 2003 17:51:33 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:63506
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267597AbTALWvc>; Sun, 12 Jan 2003 17:51:32 -0500
+	id <S267620AbTALW6g>; Sun, 12 Jan 2003 17:58:36 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:7623 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267621AbTALW5h> convert rfc822-to-8bit; Sun, 12 Jan 2003 17:57:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: robw@optonline.net, Aaron Lehmann <aaronl@vitelus.com>
 Subject: Re: any chance of 2.6.0-test*?
-From: Robert Love <rml@tech9.net>
-To: robw@optonline.net
-Cc: Oliver Neukum <oliver@neukum.name>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
-	 <200301122306.14411.oliver@neukum.name>
-	 <1042410145.3162.152.camel@RobsPC.RobertWilkens.com>
-	 <200301122343.41150.oliver@neukum.name>
-	 <1042411916.1209.181.camel@RobsPC.RobertWilkens.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042412421.834.103.camel@phantasy>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Jan 2003 18:00:21 -0500
-Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Jan 2003 00:06:14 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <20030112221802.GN31238@vitelus.com> <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+In-Reply-To: <1042410897.1209.165.camel@RobsPC.RobertWilkens.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301130006.14180.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-01-12 at 17:51, Rob Wilkens wrote:
+Am Sonntag, 12. Januar 2003 23:34 schrieb Rob Wilkens:
+> On Sun, 2003-01-12 at 17:18, Aaron Lehmann wrote:
+> > These are usually error conditions. If you inline them, you will have
+> > to jump *over* them as part of the normal code path. You don't save
+>
+> You're wrong.  You wouldn't have to jump over them any more than you
+> have to jump over the "goto" statement.  They would be where the goto
+> statement is.  Instead of the goto you would have the function.
 
-> "easier" is the motivation behind using goto.. Laziness.. that's
-> all it is.
+That exactly is the problem. If they are where the goto would be
+they needlessly fill the CPU's pipeline, take up space in L1 and use
+up bandwidth on the busses.
+A goto is much shorter than a cleanup.
 
-And faster, cleaner, simpler, and smaller.  Yup.
+And you would have to jump. Any control structure will result in one
+or more conditional jumps in the assembler code (or conditional instructions)
 
-In the history of trolls on lkml, you are rising to the top.  Are you
-proud?
+Turning "if (a) goto b;"  into a single branch instruction is trivial.
+The best the compiler can do with
+if (a) {
+	cleanup();
+	return err;
+}
+is putting the conditional code on the end of the function.
 
-	Robert Love
+So in the best case the compiler can generate almost equivalent code
+at a cost of maintainability.
+
+> > any instructions, and you end up with a kernel which has much more
+> > duplicated code and thus thrashes the cache more. It also makes the
+>
+> If that argument was taken to it's logical conclusion (and I did, in my
+> mind just now), no one should add any code the grows the kernel at all.
+
+Correct. If you mean that literally, you've grasped an important concept.
+You grow the kernel only with good cause.
+
+And you look where you add the code. Additional device drivers don't hurt.
+A computed jump is still only one computed jump. Additional code in common
+code paths of the core hurts a lot.
+For the inner loops of core code there are two considerations, size and
+reducing jumps.
+
+	Regards
+		Oliver
 

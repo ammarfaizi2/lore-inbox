@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269450AbTGJRD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265525AbTGJRAj
+	id S269506AbTGJRGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269432AbTGJREM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:00:39 -0400
-Received: from storm.he.net ([64.71.150.66]:13989 "HELO storm.he.net")
-	by vger.kernel.org with SMTP id S269417AbTGJQ75 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:59:57 -0400
-Date: Thu, 10 Jul 2003 10:13:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Mikael Starvik <mikael.starvik@axis.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: CRIS architecture update
-Message-ID: <20030710171341.GA12171@kroah.com>
-References: <3C6BEE8B5E1BAC42905A93F13004E8AB034C5655@mailse01.axis.se> <3C6BEE8B5E1BAC42905A93F13004E8AB03277A7D@mailse01.axis.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C6BEE8B5E1BAC42905A93F13004E8AB03277A7D@mailse01.axis.se>
-User-Agent: Mutt/1.4.1i
+	Thu, 10 Jul 2003 13:04:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:40920 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S269447AbTGJQ7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 12:59:34 -0400
+Date: Thu, 10 Jul 2003 14:11:48 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Kevin Curtis <kevin.curtis@farsite.co.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+In-Reply-To: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk>
+Message-ID: <Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva>
+References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 07:24:58AM +0200, Mikael Starvik wrote:
-> Ok, do you have any other suggestion on how to make the driver 
-> compilable for both >= 2.4.20 and < 2.4.20?
 
-As the driver is _in_ the kernel tree, why does it need to be compilable
-for older kernels?  :)
 
-Anyway, yes, just use the structure name, not the typedef.  That is
-backwards compatible.
+On Thu, 10 Jul 2003, Kevin Curtis wrote:
 
-For example, don't use "urb_t" but instead, "struct urb".
+> The usual request for generic hdlc (please).
+> Why are requests for it's inclusion being ignored?
+>
+>
+> Kevin Curtis
+> Linux Development
+> FarSite Communications Ltd
+> www.farsite.co.uk
+> tel:  +44 1256 330461
+> fax:  +44 1256 854931
 
-Hm, I think I did actually change one of the structure names, but I
-don't think you use that structure in the host controller.
 
-Hope this helps,
-
-greg k-h
+Where is the patch and why do you want it in?

@@ -1,216 +1,191 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316968AbSFWDy5>; Sat, 22 Jun 2002 23:54:57 -0400
+	id <S316969AbSFWD6l>; Sat, 22 Jun 2002 23:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316969AbSFWDy4>; Sat, 22 Jun 2002 23:54:56 -0400
-Received: from pD952AF65.dip.t-dialin.net ([217.82.175.101]:19155 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316968AbSFWDyz>; Sat, 22 Jun 2002 23:54:55 -0400
-Date: Sat, 22 Jun 2002 21:54:40 -0600 (MDT)
-From: Lightweight patch manager <patch@luckynet.dynu.com>
-X-X-Sender: patch@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Daniel Phillips <phillips@bonn-fries.net>
-Subject: Linux 2.5.24-ct1 (81 Csets)
-Message-ID: <Pine.LNX.4.44.0206222153350.8375-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316970AbSFWD6k>; Sat, 22 Jun 2002 23:58:40 -0400
+Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:7432 "HELO
+	alhambra.merseine.nu") by vger.kernel.org with SMTP
+	id <S316969AbSFWD6i>; Sat, 22 Jun 2002 23:58:38 -0400
+Date: Sun, 23 Jun 2002 06:54:48 +0300
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: linux-kernel@vger.kernel.org
+Subject: ANN: syscalltrack v0.72 "bald hare" released
+Message-ID: <20020623065448.Q9997@alhambra.actcom.co.il>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="uCozLMBrA/OCc/kF"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the promised 2.5.24-ct1. Basically some stuff + kbuild-2.5
-Altogether we have 81 ChangeSets (see below)
 
-Single patches are availabla at:
-<URL:ftp://luckynet.dynu.com/pub/linux/2.5.24-ct1/patches/>
-The whole patch is here:
-<URL:ftp://luckynet.dynu.com/pub/linux/2.5.24-ct1/patch-2.5.24-ct1.bz2>
-The full ChangeLog is here
-<URL:ftp://luckynet.dynu.com/pub/linux/2.5.24-ct1/ChangeLog-2.5.24-ct1.bz2>
+--uCozLMBrA/OCc/kF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-RCS file: /var/cvs/thunder-2.5/ChangeSet,v
-Working file: ChangeSet
-head: 1.80
-total revisions: 81
-=============================================================================
+syscalltrack-0.72, the 8th _alpha_ release of the Linux kernel system
+call tracker, is now available. syscalltrack supports versions 2.4.x
+of the Linux kernel on the i386 and UML platforms. The current release
+contains support for tracking many new system calls (including
+fork(2), exit(1), read(3) and write(4)), and various bug fixes and
+code cleanups. See details below.
 
-<acahalan@cs.uml.edu>:
-  o [patch] fat/msdos/vfat crud removal
+* What is syscalltrack?
 
-<ak@suse.de>:
-  o Re: 2.5.23+ bootflag.c triggers __iounmap: bad address
+syscalltrack is made of a pair of Linux kernel modules and supporting
+user space environment which allow interception, logging and possibly
+taking action upon system calls that match user defined
+criteria. (syscalltrack can be thought of as a hypher-sophisticated,
+system wide strace).
 
-<boris@kista.gajba.net>:
-  o mad16.c
+* Where can I get it?
 
-<da-x@gmx.net>:
-  o Re: [PATCH] 2.5.21 - list.h cleanup
+Information on syscalltrack is available on the project's homepage:
+http://syscalltrack.sourceforge.net, and in the project's file
+release.
 
-<dent@cosy.sbg.ac.at>:
-  o adding slist.h: simple single-linked-list helper functions
+You can download the source directly from:
+http://west.dl.sourceforge.net/sourceforge/syscalltrack/syscalltrack-0.72.t=
+ar.gz
+or any of the other sourceforge mirrors.=20
 
-<garloff@suse.de>:
-  o Re: [PATCH] /proc/scsi/map
+* Call for developers:
 
-<gerald@esi.ac.at>:
-  o isapnp_dma0.patch
+The syscalltrack project is looking for developers, both for kernel
+space and user space. If you want to join in on the fun, get in touch
+with us on the syscalltrack-hackers mailing list
+(http://lists.sourceforge.net/lists/listinfo/syscalltrack-hackers).
 
-<gerald@io.com>:
-  o small cleanup of ide parameter parsing
+* License and NO Warrany
 
-<gianni@ecsc.co.uk>:
-  o AF_PACKET: Clear out packet-mmap pages
+syscalltrack is Free Software, licensed under the GNU General Public
+License (GPL) version 2. The 'sct_ctrl_lib' library is licensed under
+the GNU Lesser General Public License (LGPL).
 
-<jwhite@codeweavers.com>:
-  o Fix bug parsing option of isofs driver
-  o Reverse isofs unhide option to hide
+syscalltrack is in _alpha_ stages and comes with NO warranty.
+If it breaks something, you get to keep all of the pieces.
+You have been warned (TM).
 
-<manik@cisco.com>:
-  o (off 2.5.22) replacing __builtin_expect with unlikely in Alpha headers
+Happy hacking and tracking!
 
-<martin.schwidefsky@debitel.net>:
-  o 2.5.21 - end_request warning
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-<mgross@unix-os.sc.intel.com>:
-  o tcore for 2.5.23 kernel
+Major new features for 0.72 (mostly a bug fix and new syscalls release)
+-----------------------------------------------------------------------
 
-<ryan@michonline.com>:
-  o ad1848_lib.c compile fix
+* Many new system calls supported, including but not limited to
+  exit(1), fork(2), read(3) and write(4).=20
 
-<thunder7@xs4all.nl>:
-  o 2.5.24 doesn't compile on Alpha
+* Fixed bug when evaluating a buffer node and a bug with pattern
+  matching on a buffer node.=20
 
-<tyketto@wizard.com>:
-  o Re: 2.5.21 -- sound/core/misc.c:93: `file' undeclared in function
+* Fixed bug when matching for a constant [filter_expression {1}] to
+  return true, as it should, instead of false, as it did.=20
 
-<wa@almesberger.net>:
-  o policing for sch_prio (2.4,2.5)
-  o include/net/dsfield.h warning (2.4,2.5)
+* Fixed several in-kernel memory leaks and erronous kernel string=20
+  handling.=20
 
-<willy@debian.org>:
-  o fs/locks.c: Fix posix locking for threaded tasks
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-<wli@holomorphy.com>:
-  o remove magic numbers for fault return codes
-  o smp_call_function() deadlock during boot
+Major new features for 0.71 (mostly a bug fix and cleanup release)
+------------------------------------------------------------------
 
-<zwane@linux.realnet.co.sz>:
-  o [RFC] Memory barriers
+* add a 'get rule count' and 'get rules' API to to the
+  sct_ctrl_lib. 'get rule count' will return the number of currently
+  registered rules, 'get rules' will return to user space from the
+  kernel a linked list of the before and after rules for each system
+  call. =20
 
-Adam J. Richter <adam@yggdrasil.com>:
-  o Trivial PATCH: linux-2.5.20/include/linux/blkdev.h -
-  o Patch: linux-2.5.23/Rules.make - enable modversions.h to build
-  o Re: IDE{,-SCSI} trouble [2.5.20]
-  o Patch: linux-2.5.20/fs/bio.c - ll_rw_kio made incorrect
-  o bio_append patch
+* Support for constants when specifying matching rules, for example,
+  O_RDONLY, O_EXCL and friends for open(2).
 
-Adrian Bunk <bunk@fs.tum.de>:
-  o [2.5 patch] fix compilation of ad1848_lib.c
-  o [2.5 patch] i2o_proc.c needs tqueue.h
-  o [2.5 patch] drivers/net/aironet4500.h must include tqueue.h
+* Support for octal/hex numbers in filter expressions.=20
 
-Andi Kleen <ak@muc.de>:
-  o [NEW PATCH, testers needed] was Re: [PATCH] poll/select fast path
+* Support for specifying and printing multiplex syscall ids as
+  "syscall:func", for example "102:5" for accept(2).=20
 
-Andrew Morton <akpm@zip.com.au>:
-  o [Ext2-devel] Shrinking ext3 directories 1/3
-  o [Ext2-devel] Shrinking ext3 directories 2/3
-  o [Ext2-devel] Shrinking ext3 directories 3/3
+* Assorted internal cleanups, code refactoring, bug fixes and memory
+  leaks plugged, too many to list here. Documentation and header file
+  updates. See the ChangeLog for the gory details.=20
 
-Andrey Panin <pazke@orbita1.ru>:
-  o [RFC] SGI VISWS support for 2.5
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-Andries E. Brouwer <Andries.Brouwer@cwi.nl>:
-  o [PATCHlet] 2.5.23 usb, ide
+Major new features for 0.7
+--------------------------
 
-Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>:
-  o [redone PATCH 2.5.22] simple ide-tape/floppy.c cleanup
+* Support for dynamic-cast of 'struct' syscall parameters when filtering
+  based on them, and for logging. See the relevant section in
+  doc/sct_config_manual.html for how to use this feature. Mostly useful now
+  for checking struct parameters in socket calls, so now its possible
+  to check if a client prorgam tries to connect to a given port or IP addre=
+ss,
+  etc.
 
-Benjamin LaHaise <bcrl@redhat.com>:
-  o [patch] credentials for 2.5.23
+* Support for 'fail syscall' actions - allows you to specify that a matching
+  syscall invocation will prematurely return a given error code (or '0')
+  before the system call is actually performed. Handle with care, as failing
+  the wrong syscall invocations might render your system unuseable. Good
+  usage example: TODO
 
-Chris Mason <mason@suse.com>:
-  o Re: ext3 performance bottleneck as the number of spindles gets
+* Support for convenience-macros in rule config files. Currently supported
+  macros include:
 
-Chris Wright <chris@wirex.com>:
-  o 2.5.20 drivers/scsi/ips.c cleanup
+    - ipaddr("127.0.0.1") -> translates an IP address to an unsigned long
+                             in network byte-order.
+    - htons(7) -> host to network byte-order for 'short' numbers.
+    - usernametoid("root") -> translates user name to UID.
+    - groupnametoid("wheel") -> translates group name to GID.
 
-Frank Davis <fdavis@si.rr.com>:
-  o 2.5.24 : include/linux/intermezzo_fs.h
-  o 2.5.24 : tr_source_route undefined fix
+* Experimental Device-driver control support - the syscalltrack kernel modu=
+le
+  can now be controlled via a device-file interface - specify "-c device_fi=
+le"
+  when running 'sct_config' to use it. The interface is currently
+  functionaly-equivalent to the existing 'sysctl' interface - but it will be
+  enhanced in the future to support logging via a device-file interface,
+  getting rule list via the device-file interface, etc.
 
-Geert Uytterhoeven <geert@linux-m68k.org>:
-  o khttpd and make_times_h
+* Support for 'log_format' definition per rule, to override the global
+  'log_format'.
 
-Greg Kroah-Hartman <greg@kroah.com>:
-  o Re: 2.5.22 fix for pci_hotplug
-  o Re: 2.5.22 fix for pci_hotplug
+* Initial correctness-testing script added. Currently only runs 2 tests -
+  will become more functional on the next release.
 
-Hirofumi Ogawa <hirofumi@mail.parknet.co.jp>:
-  o remove the fat_cvf
+* Support for new system calls - waitpid, close and creat.
 
-Ivan Kokshaysky <ink@jurassic.park.msu.ru>:
-  o Re: 2.5.24 doesn't compile on Alpha
+major bug fixes for version 0.7:
 
-James Morris <jmorris@intercode.com.au>:
-  o 3c509 compile fix for 2.5.24
+* Fixes for white-space parsing in 'sct_config'.
 
-James Simmons <jsimmons@transvirtual.com>:
-  o [UPDATES] fbdev ports and fixes
+* Fix small memory leak when deserializing 'log' actions
 
-Jan-Benedict Glaw <jbglaw@lug-owl.de>:
-  o [Docu-PATCH] Updated docu for srm_env.o driver
+* Fix bug in the kernel module that would leave dangling function pointers
+  in case a user cleared only the 'before' function pointer. This bug
+  wasn't triggered, since sct_config always erased _all_ rules, causing this
+  code path to remain yet unused.
 
-Jeff Garzik <jgarzik@mandrakesoft.com>:
-  o Re: [PROBLEM] sundance on d-link dfe-580tx
+--=20
+http://vipe.technion.ac.il/~mulix/
+http://syscalltrack.sf.net/
 
-Patrick Mochel <mochel@osdl.org>:
-  o Re: [patch] PCI device matching fix
+--uCozLMBrA/OCc/kF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Pete Zaitcev <zaitcev@redhat.com>:
-  o Patch - SCSI host numbers - please apply
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-Peter Chubb <peter@chubb.wattle.id.au>:
-  o ppp_generic.c doesn't compile on IA64
+iD8DBQE9FUaIKRs727/VN8sRArGqAKCnhLAjjZXgax+Jo8rjUdNaytIqgwCeLNGG
+QXWBlXxHSD5Dq0yVK+r7TDo=
+=jID3
+-----END PGP SIGNATURE-----
 
-Robert Kuebel <kuebelr@email.uc.edu>:
-  o do_mounts.c - compiler warning, comments, cramfs
-
-Robert Love <rml@tech9.net>:
-  o scheduler hints
-
-Russell King <rmk@arm.linux.org.uk>:
-  o CONFIG_GENERIC_ISA_DMA
-  o Allow jffs2/super.c to build
-  o Re: sparc64 pgalloc.h pgd_quicklist question
-
-Rusty Russell <rusty@rustcorp.com.au>:
-  o Trivial rename bitmap_member -> DECLARE_BITMAP
-  o Fixed set_affinity/get_affinity syscalls
-
-Stephen Rothwell <sfr@canb.auug.org.au>:
-  o Consolidate include/asm/signal.h
-  o cs46xx.c needs init.h
-  o ipc statics
-  o make Alpha use generic copy_siginfo_to_user
-  o Make CRIS use generic copy_siginfo_to_user
-
-Thunder from the hill <patch@luckynet.dynu.com>:
-  o [2.5] Double quote patches part one: drivers 1/2
-  o [2.5] Double quote patches part two: drivers 2/2
-  o Floppy fix (unknown author)
-  o HFS' inode.c needs init.h (unknown author)
-  o Alpha patches (unknown author)
-  o [2.5] List macros take two
-  o Matroxfb tvout patches (unknown author)
-  o 2.5.20 stack patch (unknown author)
-  o Tulip devname fixes
-  o [update] credentials for 2.5.24
-  o Makefile fix for hamradio soundmodems
-
-Tom Rini <trini@kernel.crashing.org>:
-  o Include <linux/gfp.h> directly instead of via <linux/mm.h>
-  o Remove numerous includes from <linux/mm.h>
--- 
-Lightweight patch manager using pine. If you have any objections, tell me.
-
+--uCozLMBrA/OCc/kF--

@@ -1,76 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269762AbUJGJSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269761AbUJGJRz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269762AbUJGJSl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 05:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269763AbUJGJSl
+	id S269761AbUJGJRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 05:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269762AbUJGJRz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 05:18:41 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:19945 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S269762AbUJGJSf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 05:18:35 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [2.4] 0-order allocation failed
-Date: Thu, 7 Oct 2004 13:18:13 +0200
-User-Agent: KMail/1.7
+	Thu, 7 Oct 2004 05:17:55 -0400
+Received: from web52903.mail.yahoo.com ([206.190.39.180]:57753 "HELO
+	web52903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269761AbUJGJRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 05:17:53 -0400
+Message-ID: <20041007091753.34564.qmail@web52903.mail.yahoo.com>
+Date: Thu, 7 Oct 2004 10:17:53 +0100 (BST)
+From: Ankit Jain <ankitjain1580@yahoo.com>
+Subject: VM Vs Swap Space
+To: linux <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <200410071318.21091.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart3599702.ivUqQrdHHC";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3599702.ivUqQrdHHC
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+hi
 
-Hi all,
+if somebody can tell me that is this correct?
 
-I'm running 2.4.28 bk snapshot of 2004.09.03
-The machine has an uptime of 7 days, 23:46 now.
+(1)can i say that swap area created by linux is
+nothign
+but virtual memory. (2)is it correct to use the term
+interchangeably
 
-I was running several bittorrent clients inside of
-a screen session. Suddenly they all died (including the
-screen session).
-dmesg sayed this:
+thanks
 
-__alloc_pages: 0-order allocation failed (gfp=3D0x1f0/0)
-__alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
-VM: killing process python
-__alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
-__alloc_pages: 0-order allocation failed (gfp=3D0x1d2/0)
-VM: killing process screen
+ankit
 
-I already got this with kernel 2.4.27 vanilla after a
-higher amount of uptime (I think it was over 10 days).
-This was exactly the reason I updated to bk snapshot.
-
-What can be the reason for this? Is it OOM? (I can't
-really believe it is).
-Is it a kernel memory leak?
-
-With 2.4.26 I never got these errors. And I ran uptimes
-up to 50 days.
-
-=2D-=20
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
-
---nextPart3599702.ivUqQrdHHC
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD4DBQBBZSX9FGK1OIvVOP4RAq0+AJ44OI2/4mA2O7n2yG5///L19C74GQCVGzdP
-KESQbTzgdJgj/rPGXeo/wA==
-=5fjC
------END PGP SIGNATURE-----
-
---nextPart3599702.ivUqQrdHHC--
+________________________________________________________________________
+Yahoo! Messenger - Communicate instantly..."Ping" 
+your friends today! Download Messenger Now 
+http://uk.messenger.yahoo.com/download/index.html

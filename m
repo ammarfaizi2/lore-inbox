@@ -1,85 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbTLSWnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 17:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTLSWnQ
+	id S263680AbTLSXI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 18:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263691AbTLSXI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 17:43:16 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:997 "EHLO postfix3-1.free.fr")
-	by vger.kernel.org with ESMTP id S263662AbTLSWnO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 17:43:14 -0500
-Date: Fri, 19 Dec 2003 23:44:02 +0100
-From: Arnaud Fontaine <arnaud@andesi.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops with 2.4.23
-Message-ID: <20031219224402.GA1284@scrappy>
-References: <20031218085621.GA8283@scrappy> <Pine.LNX.4.44.0312180946550.4547-100000@logos.cnet> <20031218130601.GA11274@scrappy> <20031218190809.GB6438@matchmail.com>
+	Fri, 19 Dec 2003 18:08:56 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:26354 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263680AbTLSXIq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 18:08:46 -0500
+Date: Sat, 20 Dec 2003 00:08:38 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Romain Lievin <roms@lpg.ticalc.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.4 patch] fix a compile warning in tipar.c (fwd)
+Message-ID: <20031219230838.GZ12750@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031218190809.GB6438@matchmail.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Marcelo,
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+the patch forwarded below still applies and compiles against 
+2.4.24-pre1.
 
-On Thu, Dec 18, 2003 at 11:08:09AM -0800, Mike Fedyk wrote:
-> > On Thu, Dec 18, 2003 at 09:47:42AM -0200, Marcelo Tosatti wrote:
-> > >=20
-> > > Andrew,=20
-> > >=20
-> > > This is likely to be bad memory.
-> > >=20
-> > > Can you try memtest86 on the box ?=20
-> >=20
-> > Before install Debian GNU/Linux Woody on this box, i have ran memtest
-> > with a bootable media and have no error after 13 pass. But i have added
-> > memory after. It comes from an other PC running perfectly with this. So
-> > i think it could come from the memory but if you want i can launch
-> > memtest again this night ;).
->=20
-> There is a difference between memtest and memtest86.  memtest86 tests all=
- of
-> your memory, and memtest can only test the userspace memory it can lock.
+Please apply
+Adrian
 
-Hello,
 
-So i have just tested to run memtest86 on my box and i have had no error
-with this. I have also tested cpuburn without any result. Have you some
-others ideas ?
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-Thanks for your help.
-Arnaud Fontaine
+Date:	Sun, 3 Aug 2003 12:58:42 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Romain Lievin <roms@lpg.ticalc.org>
+Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
+Subject: [2.4 patch] fix a compile warning in tipar.c
 
---=20
-Arnaud Fontaine <arnaud@andesi.org> - http://www.andesi.org/
-GnuPG Public Key available on pgp.mit.edu
-Fingerprint: D792 B8A5 A567 B001 C342 2613 BDF2 A220 5E36 19D3
+I got the following compile warning in 2.4.22-pre10:
 
---
-=2E.. A solemn, unsmiling, sanctimonious old iceberg who looked like he
-was waiting for a vacancy in the Trinity.
-		-- Mark Twain
+<--  snip  -->
 
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+...
+gcc -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include -
+Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix 
+include -DKBUILD_BASENAME=tipar  -c -o tipar.o tipar.c
+tipar.c:76:1: warning: "minor" redefined
+In file included from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/fs.h:16,
+                 from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/capability.h:17,
+                 from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/binfmts.h:5,
+                 from 
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/sched.h:9,
+                 from tipar.c:49:
+/home/bunk/linux/kernel-2.4/linux-2.4.22-pre10-full/include/linux/kdev_t.h:81:1:
+ warning: this is the location of the previous definition
+...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+<--  snip  -->
 
-iD8DBQE/438yvfKiIF42GdMRAr1uAJ94OfAVzpzMcDzqiPfvm+nt3vgO8QCglOry
-5VojpzTm1IZSEdX8ITQ2qzw=
-=IMfw
------END PGP SIGNATURE-----
+The minor #define was added to kdev_t.h in 2.4.18-pre4. The following
+patch adjusts tipar.c accordingly. Besides this, it changes the kernel
+version chack from a private macro to use the KERNEL_VERSION in kernel.h.
 
---SUOF0GtieIMvvwua--
+--- linux-2.4.22-pre10-full/drivers/char/tipar.c.old	2003-08-02 22:52:49.000000000 +0200
++++ linux-2.4.22-pre10-full/drivers/char/tipar.c	2003-08-02 22:57:57.000000000 +0200
+@@ -71,9 +71,11 @@
+ #define DRIVER_DESC    "Device driver for TI/PC parallel link cables"
+ #define DRIVER_LICENSE "GPL"
+ 
+-#define VERSION(ver,rel,seq) (((ver)<<16) | ((rel)<<8) | (seq))
+-#if LINUX_VERSION_CODE < VERSION(2,5,0)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,18)
+ # define minor(x) MINOR(x)
++#endif
++
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+ # define need_resched() (current->need_resched)
+ #endif
+ 
+
+
+
+I've tested the compilation with 2.4.22-pre10.
+
+Please apply
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

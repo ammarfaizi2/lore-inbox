@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131006AbRBNJDk>; Wed, 14 Feb 2001 04:03:40 -0500
+	id <S129700AbRBNJME>; Wed, 14 Feb 2001 04:12:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131761AbRBNJDa>; Wed, 14 Feb 2001 04:03:30 -0500
-Received: from host217-32-162-13.hg.mdip.bt.net ([217.32.162.13]:19204 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S131006AbRBNJDR>;
-	Wed, 14 Feb 2001 04:03:17 -0500
-Date: Wed, 14 Feb 2001 09:05:05 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: John Levon <moz@compsoc.man.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.1-ac10] unsetting TASK_RUNNING
-In-Reply-To: <Pine.LNX.4.21.0102131701010.9400-100000@mrworry.compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.21.0102140900130.1203-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131830AbRBNJLy>; Wed, 14 Feb 2001 04:11:54 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:24328 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129700AbRBNJLq>; Wed, 14 Feb 2001 04:11:46 -0500
+Date: Wed, 14 Feb 2001 03:11:25 -0600
+To: Eli Carter <eli.carter@inet.com>
+Cc: Kai Henningsen <kaih@khms.westfalen.de>, matti.aarnio@zmailer.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: lkml subject line
+Message-ID: <20010214031125.B30531@cadcamlab.org>
+In-Reply-To: <20010212133324.B15688@mea-ext.zmailer.org> <7vh2Hebmw-B@khms.westfalen.de> <3A885DFF.824AC093@inet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3A885DFF.824AC093@inet.com>; from eli.carter@inet.com on Mon, Feb 12, 2001 at 04:04:47PM -0600
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, John Levon wrote:
-> I had a similar set of patches a while ago. I had several more unnecessary settings.
+
+  [Kai Henningsen]
+> > There *is* a good way to do this, and it would be really nice if
+> > vger could be taught to do it: add a List-Id: header
+> > (draft-chandhok-listid-04.txt RFC-to-be, implemented in lots of
+> > mailing list managers already).
+
+[Eli Carter]
+> Have you looked at the headers in an LK email?
 > 
-> At least Matthew Dharm as usb-storage maintainer wanted to keep his in. Of more
-> concern IMHO were the drivers busy waiting by failing to reset current->state
-> on each iteration - e.g. maestro2, maestro3.
-> 
-> The patches I sent (out dated, and some of it buggy) are at :
-> 
-> http://www.movement.uklinux.net/patches/kernel/schedule1.diff
-> http://www.movement.uklinux.net/patches/kernel/schedule2.diff
-> http://www.movement.uklinux.net/patches/kernel/schedule3.diff
-> http://www.movement.uklinux.net/patches/kernel/schedule4.diff
-> 
-> for your reference. The last is similar to your patch.
-> 
+> Sender: linux-kernel-owner@vger.kernel.org
+> X-Mailing-List:         linux-kernel@vger.kernel.org
+> ^^^^^^^^^^^^^^ Should provide that List-Id you want.
 
-Ok, good -- so why aren't your patches already in the kernel?
+You missed the point.  Certainly there are ways to identify LK mail.
+Kai is saying that since 'List-Id:' is an IETF proposed standard,
+Majordomo ought to use it.
 
-Also, I think the concept of "maintainer of some part of Linux" means (or
-should mean) a person who has the intimate knowledge of a particular
-subject and is responsible for fixing bugs in that particular piece of
-software. This should add the burden but should _not_ give the person
-right to decide that the bugs should be left there. In other words, no
-maintainer should be allowed to say "I want to keep this line of code
-there" if such line serves no purpose and only adds confusion to people
-reading the code.
-
-At least that is how I treat myself wrt maintaining microcode driver and
-BFS -- everyone in the world is welcome to find bugs in them and _mandate_
-that I accept the fixes (if they are correct) -- I have no right to
-neglect them.
-
-Regards,
-Tigran
-
-
+Peter

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbTJIVJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbTJIVJ1
+	id S262587AbTJIVMS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 17:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbTJIVMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:09:27 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:52216 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262582AbTJIVJW
+	Thu, 9 Oct 2003 17:12:18 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:273 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262587AbTJIVMR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:09:22 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
-Subject: Re: Serverworks CSB5 IDE-DMA Problem (2.4 and 2.6)
-Date: Thu, 9 Oct 2003 23:13:05 +0200
-User-Agent: KMail/1.5.4
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0310091634330.3040-100000@logos.cnet> <200310092146.17695.bzolnier@elka.pw.edu.pl> <3F85CC0E.50003@madness.at>
-In-Reply-To: <3F85CC0E.50003@madness.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310092313.05371.bzolnier@elka.pw.edu.pl>
+	Thu, 9 Oct 2003 17:12:17 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (Bill Davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [Fastboot] kexec update (2.6.0-test7)
+Date: 9 Oct 2003 21:02:35 GMT
+Organization: I need to put my ORGANIZATION here.
+Message-ID: <bm4idb$68n$1@gatekeeper.tmr.com>
+References: <20031008172235.70d6b794.rddunlap@osdl.org> <Pine.NEB.4.58.0310090401310.17767@sdf.lonestar.org> <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>
+X-Trace: gatekeeper.tmr.com 1065733355 6423 192.168.12.62 (9 Oct 2003 21:02:35 GMT)
+X-Complaints-To: abuse@tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 of October 2003 22:58, Stefan Kaltenbrunner wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > APIC problem should be fixed, but yes it's better to disable ACPI.
+In article <m1y8vufe5l.fsf@ebiederm.dsl.xmission.com>,
+Eric W. Biederman <ebiederm@xmission.com> wrote:
+>Cherry George Mathew <cherry@sdf.lonestar.org> writes:
 >
-> Not sure if I understand this one right - the dmesg was from the
-> 2.6.0-test6 kernel which did have ACPI HT-enum-only compiled in but no
-> "local APIC support".
-> The 2.4.22 one that has the same problem does neither have ACPI nor APIC
-> support compiled in - so no this doesn't seem to be the problem.
-
-Okay.
-
-> > These "timeout due to drive busy" needs to be resolved.
+>> On Wed, 8 Oct 2003, Randy.Dunlap wrote:
+>> 
+>> > You'll need to update the kexec-syscall.c file for the correct
+>> > kexec syscall number (274).
+>> 
+>> Is there a consensus about what the syscall number will finally be ? We've
+>> jumped from 256 to 274 over the 2.5.x+  series kernels. Or is it the law
+>> the Jungle ?
 >
-> Yes - I really hope this will be fixed soon. I was forced to add a
-> fiberchannel HBA into this maschine today to integrate it into our SAN
-> to get the database up to speed again.
-> However I'm willing to move the database to the local disks again if you
-> want me to test a patch or something along that line.
+>So far the law of the jungle.  Regardless of the rest it looks like it
+>is time to submit a place keeping patch.
+>
+>Eric
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Did some kernel worked okay or this is new system?
-
---bartlomiej
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,246 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262252AbULMThQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbULMTno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262252AbULMThQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 14:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbULMT3K
+	id S262336AbULMTno (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 14:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbULMTkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 14:29:10 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:49464 "EHLO
+	Mon, 13 Dec 2004 14:40:21 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:58686 "EHLO
 	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262270AbULMSLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 13:11:15 -0500
-Cc: openib-general@openib.org
-In-Reply-To: <20041213109.42OdQqmmAkW2Pv7s@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Mon, 13 Dec 2004 10:10:04 -0800
-Message-Id: <200412131010.qyAMW5NxoiM4CntC@topspin.com>
-Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	id S262281AbULMSti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 13:49:38 -0500
+To: Tom Duffy <tduffy@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, openib-general@openib.org
+X-Message-Flag: Warning: May contain useful information
+References: <20041213109.JT1ejUdkRIUXbWOm@topspin.com>
+	<1102963464.9258.11.camel@duffman>
 From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
+Date: Mon, 13 Dec 2004 10:49:36 -0800
+In-Reply-To: <1102963464.9258.11.camel@duffman> (Tom Duffy's message of
+ "Mon, 13 Dec 2004 10:44:24 -0800")
+Message-ID: <52mzwi58zj.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
 X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v3][20/21] Add InfiniBand Documentation files
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [openib-general] [PATCH][v3][17/21] Add IPoIB
+ (IP-over-InfiniBand) driver
+Content-Type: text/plain; charset=us-ascii
 X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
 X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 13 Dec 2004 18:10:07.0021 (UTC) FILETIME=[F9E89DD0:01C4E13E]
+X-OriginalArrivalTime: 13 Dec 2004 18:49:37.0130 (UTC) FILETIME=[7E9A8CA0:01C4E144]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add files to Documentation/infiniband that describe the tree under
-/sys/class/infiniband, the IPoIB driver and the userspace MAD access driver.
+    Tom> Is there a reason why you put this in in an earlier patch and
+    Tom> then take it out later?
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+I guess the reasons are stupidity and bad patch scripts...
 
+Doesn't hurt for now, will be fixed in future versions.
 
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/Documentation/infiniband/ipoib.txt	2004-12-13 09:44:50.964217426 -0800
-@@ -0,0 +1,56 @@
-+IP OVER INFINIBAND
-+
-+  The ib_ipoib driver is an implementation of the IP over InfiniBand
-+  protocol as specified by the latest Internet-Drafts issued by the
-+  IETF ipoib working group.  It is a "native" implementation in the
-+  sense of setting the interface type to ARPHRD_INFINIBAND and the
-+  hardware address length to 20 (earlier proprietary implementations
-+  masqueraded to the kernel as ethernet interfaces).
-+
-+Partitions and P_Keys
-+
-+  When the IPoIB driver is loaded, it creates one interface for each
-+  port using the P_Key at index 0.  To create an interface with a
-+  different P_Key, write the desired P_Key into the main interface's
-+  /sys/class/net/<intf name>/create_child file.  For example:
-+
-+    echo 0x8001 > /sys/class/net/ib0/create_child
-+
-+  This will create an interface named ib0.8001 with P_Key 0x8001.  To
-+  remove a subinterface, use the "delete_child" file:
-+
-+    echo 0x8001 > /sys/class/net/ib0/delete_child
-+
-+  The P_Key for any interface is given by the "pkey" file, and the
-+  main interface for a subinterface is in "parent."
-+
-+Debugging Information
-+
-+  By compiling the IPoIB driver with CONFIG_INFINIBAND_IPOIB_DEBUG set
-+  to 'y', tracing messages are compiled into the driver.  They are
-+  turned on by setting the module parameters debug_level and
-+  mcast_debug_level to 1.  These parameters can be controlled at
-+  runtime through files in /sys/module/ib_ipoib/.
-+
-+  CONFIG_INFINIBAND_IPOIB_DEBUG also enables the "ipoib_debugfs"
-+  virtual filesystem.  By mounting this filesystem, for example with
-+
-+    mkdir -p /ipoib_debugfs
-+    mount -t ipoib_debugfs none /ipoib_debufs
-+
-+  it is possible to get statistics about multicast groups from the
-+  files /ipoib_debugfs/ib0_mcg and so on.
-+
-+  The performance impact of this option is negligible, so it
-+  is safe to enable this option with debug_level set to 0 for normal
-+  operation.
-+
-+  CONFIG_INFINIBAND_IPOIB_DEBUG_DATA enables even more debug output in
-+  the data path when data_debug_level is set to 1.  However, even with
-+  the output disabled, enabling this configuration option will affect
-+  performance, because it adds tests to the fast path.
-+
-+References
-+
-+  IETF IP over InfiniBand (ipoib) Working Group
-+    http://ietf.org/html.charters/ipoib-charter.html
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/Documentation/infiniband/sysfs.txt	2004-12-13 09:44:51.008210945 -0800
-@@ -0,0 +1,63 @@
-+SYSFS FILES
-+
-+  For each InfiniBand device, the InfiniBand drivers create the
-+  following files under /sys/class/infiniband/<device name>:
-+
-+    node_guid      - Node GUID
-+    sys_image_guid - System image GUID
-+
-+  In addition, there is a "ports" subdirectory, with one subdirectory
-+  for each port.  For example, if mthca0 is a 2-port HCA, there will
-+  be two directories:
-+
-+    /sys/class/infiniband/mthca0/ports/1
-+    /sys/class/infiniband/mthca0/ports/2
-+
-+  (A switch will only have a single "0" subdirectory for switch port
-+  0; no subdirectory is created for normal switch ports)
-+
-+  In each port subdirectory, the following files are created:
-+
-+    cap_mask       - Port capability mask
-+    lid            - Port LID
-+    lid_mask_count - Port LID mask count
-+    sm_lid         - Subnet manager LID for port's subnet
-+    sm_sl          - Subnet manager SL for port's subnet
-+    state          - Port state (DOWN, INIT, ARMED, ACTIVE or ACTIVE_DEFER)
-+
-+  There is also a "counters" subdirectory, with files
-+
-+    VL15_dropped
-+    excessive_buffer_overrun_errors
-+    link_downed
-+    link_error_recovery
-+    local_link_integrity_errors
-+    port_rcv_constraint_errors
-+    port_rcv_data
-+    port_rcv_errors
-+    port_rcv_packets
-+    port_rcv_remote_physical_errors
-+    port_rcv_switch_relay_errors
-+    port_xmit_constraint_errors
-+    port_xmit_data
-+    port_xmit_discards
-+    port_xmit_packets
-+    symbol_error
-+
-+  Each of these files contains the corresponding value from the port's
-+  Performance Management PortCounters attribute, as described in
-+  section 16.1.3.5 of the InfiniBand Architecture Specification.
-+
-+  The "pkeys" and "gids" subdirectories contain one file for each
-+  entry in the port's P_Key or GID table respectively.  For example,
-+  ports/1/pkeys/10 contains the value at index 10 in port 1's P_Key
-+  table.
-+
-+MTHCA
-+
-+  The Mellanox HCA driver also creates the files:
-+
-+    hw_rev   - Hardware revision number
-+    fw_ver   - Firmware version
-+    hca_type - HCA type: "MT23108", "MT25208 (MT23108 compat mode)",
-+               or "MT25208"
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-bk/Documentation/infiniband/user_mad.txt	2004-12-13 09:44:51.441147165 -0800
-@@ -0,0 +1,81 @@
-+USERSPACE MAD ACCESS
-+
-+Device files
-+
-+  Each port of each InfiniBand device has a "umad" device attached.
-+  For example, a two-port HCA will have two devices, while a switch
-+  will have one device (for switch port 0).
-+
-+Creating MAD agents
-+
-+  A MAD agent can be created by filling in a struct ib_user_mad_reg_req
-+  and then calling the IB_USER_MAD_REGISTER_AGENT ioctl on a file
-+  descriptor for the appropriate device file.  If the registration
-+  request succeeds, a 32-bit id will be returned in the structure.
-+  For example:
-+
-+	struct ib_user_mad_reg_req req = { /* ... */ };
-+	ret = ioctl(fd, IB_USER_MAD_REGISTER_AGENT, (char *) &req);
-+        if (!ret)
-+		my_agent = req.id;
-+	else
-+		perror("agent register");
-+
-+  Agents can be unregistered with the IB_USER_MAD_UNREGISTER_AGENT
-+  ioctl.  Also, all agents registered through a file descriptor will
-+  be unregistered when the descriptor is closed.
-+
-+Receiving MADs
-+
-+  MADs are received using read().  The buffer passed to read() must be
-+  large enough to hold at least one struct ib_user_mad.  For example:
-+
-+	struct ib_user_mad mad;
-+	ret = read(fd, &mad, sizeof mad);
-+	if (ret != sizeof mad)
-+		perror("read");
-+
-+  In addition to the actual MAD contents, the other struct ib_user_mad
-+  fields will be filled in with information on the received MAD.  For
-+  example, the remote LID will be in mad.lid.
-+
-+  If a send times out, a receive will be generated with mad.status set
-+  to ETIMEDOUT.  Otherwise when a MAD has been successfully received,
-+  mad.status will be 0.
-+
-+  poll()/select() may be used to wait until a MAD can be read.
-+
-+Sending MADs
-+
-+  MADs are sent using write().  The agent ID for sending should be
-+  filled into the id field of the MAD, the destination LID should be
-+  filled into the lid field, and so on.  For example:
-+
-+	struct ib_user_mad mad;
-+
-+	/* fill in mad.data */
-+
-+	mad.id  = my_agent;	/* req.id from agent registration */
-+	mad.lid = my_dest;	/* in network byte order... */
-+	/* etc. */
-+
-+	ret = write(fd, &mad, sizeof mad);
-+	if (ret != sizeof mad)
-+		perror("write");
-+
-+/dev files
-+
-+  To create the appropriate character device files automatically with
-+  udev, a rule like
-+
-+    KERNEL="umad*", NAME="infiniband/%k"
-+
-+  can be used.  This will create a device node named
-+
-+    /dev/infiniband/umad0
-+
-+  for the first port, and so on.  The InfiniBand device and port
-+  associated with this device can be determined from the files
-+
-+    /sys/class/infiniband_mad/umad0/ibdev
-+    /sys/class/infiniband_mad/umad0/port
-
+ - R.

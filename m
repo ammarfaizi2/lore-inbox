@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVAGEX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVAGEdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVAGEX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 23:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVAGEX4
+	id S261238AbVAGEdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 23:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVAGEdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 23:23:56 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20141 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261227AbVAGEXx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 23:23:53 -0500
-Date: Thu, 6 Jan 2005 20:23:39 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mauricio Lin <mauriciolin@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] A new entry for /proc
-Message-Id: <20050106202339.4f9ba479.akpm@osdl.org>
-In-Reply-To: <3f250c7105010613115554b9d9@mail.gmail.com>
-References: <3f250c7105010613115554b9d9@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 6 Jan 2005 23:33:43 -0500
+Received: from tomts20.bellnexxia.net ([209.226.175.74]:58525 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261233AbVAGEdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 23:33:36 -0500
+Message-ID: <41DE15C7.6030102@nit.ca>
+Date: Thu, 06 Jan 2005 23:53:27 -0500
+From: Lukasz Kosewski <lkosewsk@nit.ca>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041203)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Arjan van de Ven <arjan@infradead.org>, vgoyal@in.ibm.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
+References: <1105014959.2688.296.camel@2fwv946.in.ibm.com>	<1105013524.4468.3.camel@laptopd505.fenrus.org> <20050106195043.4b77c63e.akpm@osdl.org>
+In-Reply-To: <20050106195043.4b77c63e.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauricio Lin <mauriciolin@gmail.com> wrote:
->
-> Here is a new entry developed for /proc that prints for each process
-> memory area (VMA) the size of rss. The maps from original kernel is
-> able to present the virtual size for each vma, but not the physical
-> size (rss). This entry can provide an additional information for tools
-> that analyze the memory consumption. You can know the physical memory
-> size of each library used by a process and also the executable file.
+Andrew Morton wrote:
+>> looks like the following is happening:
+>> the controller wants to send an irq (probably from previous life)
+>> then suddenly the driver gets loaded
+>> * which registers an irq handler
+>> * which does pci_enable_device()
+>> and .. the irq goes through. 
+>> the irq handler just is not yet expecting this irq, so
+>> returns "uh dunno not mine"
+>> the kernel then decides to disable the irq on the apic level
+>> and then the driver DOES need an irq during init
+>> ... which never happens.
+>>
 > 
-> Take a look the output:
-> # cat /proc/877/smaps
-> 08048000-08132000 r-xp  /usr/bin/xmms
-> Size:     936 kB
-> Rss:     788 kB
+> 
+> yes, that's exactly what e100 was doing on my laptop last month.  Fixed
+> that by arranging for the NIC to be reset before the call to
+> pci_set_master().
 
-This is potentially quite useful.  I'd be interested in what others think of
-the idea and implementation.
+I noticed the exact same thing with a usb-uhci hub on a VIA MicroATX
+board a month back.  I rewrote the init sequence of the driver so that
+it resets all of the hubs in the system first, and THEN registers their
+interrupts.
 
-> Here is the patch:
+This seems like a problem that CAN happen with level-triggered
+interrupts.  Us fixing it in individual drivers is not the solution; we
+need a general solution.
 
-- It was wordwrapped.  Mail the patch to yourself first, make sure it
-  still applies.
+I have an idea of something I might do for 2.6.11, but I doubt anyone
+will actually agree with it.  Say we keep a counter of how many times
+interrupt x has been fired off since the last timer interrupt
+(obviously, a timer interrupt resets the counter).  Then we can pick an
+arbitrary threshold for masking out this interrupt until another device
+actually pines for it.
 
-- Prepare patches with `diff -u'
+Or something.  The point is, we need a general solution to the problem,
+not poking about in every single driver trying to tie it down.
 
-- 
-
-> + extern struct seq_operations proc_pid_smaps_op;
-
-  Put extern headers in .h files, not in .c.
-
-
-> + static void resident_mem_size(struct mm_struct *mm, unsigned long
-> start_address,
-> + 			unsigned long end_address, unsigned long *size) {
-> + 	pgd_t *pgd;
-> + 	pmd_t *pmd;
-> + 	pte_t *ptep, pte;
-> + 	unsigned long page;
-
-The identifier `page' is usually used for pointers to struct page.  Please
-pick another name?
-
-> + 			if (pte_present(pte)) {
-> + 				*size += PAGE_SIZE;
-> + 			}
-
-We prefer to omit the braces if they enclose only a single statement.
-
-> + 	if (map->vm_file) {
-> + 		len = sizeof(void*) * 6 - len;
-> + 		if (len < 1)
-> + 			len = 1;
-> + 		seq_printf(m, "%*c", len, ' ');
-> + 		seq_path(m, file->f_vfsmnt, file->f_dentry, " \t\n\\");
-> + 	}
-
-hm, that's a bit bizarre.  Isn't there a printf construct which will do the
-right-alignment for you?  %8u?  (See meminfo_read_proc())
-
+Luke Kosewski
+Human Cannonball
+Net Integration Technologies

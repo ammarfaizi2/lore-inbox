@@ -1,36 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261723AbSLPWOx>; Mon, 16 Dec 2002 17:14:53 -0500
+	id <S261799AbSLPW00>; Mon, 16 Dec 2002 17:26:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261732AbSLPWOx>; Mon, 16 Dec 2002 17:14:53 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:17027 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S261723AbSLPWOw>;
-	Mon, 16 Dec 2002 17:14:52 -0500
-Date: Mon, 16 Dec 2002 23:18:58 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200212162218.XAA01969@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.4.21-pre1 broke the ide-tape driver
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+	id <S261861AbSLPW0Z>; Mon, 16 Dec 2002 17:26:25 -0500
+Received: from 217-127-206-122.uc.nombres.ttd.es ([217.127.206.122]:54468 "HELO
+	fulanito.nisupu.com") by vger.kernel.org with SMTP
+	id <S261799AbSLPW0X>; Mon, 16 Dec 2002 17:26:23 -0500
+Message-ID: <016c01c2a553$83f1b680$152ea8c0@maincomp>
+From: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>,
+       <linux-kernel@vger.kernel.org>
+References: <61DB42B180EAB34E9D28346C11535A78011303BD@nocmail101.ma.tmpw.net>
+Subject: Re: NAT helper module for MSN
+Date: Mon, 16 Dec 2002 23:36:03 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Dec 2002 14:53:33 +0000, Alan Cox wrote:
->On Sun, 2002-12-15 at 23:38, Mikael Pettersson wrote:
->> 
->> On Sun, 15 Dec 2002 02:23:34 +0100, Marc-Christian Petersen wrote:
->> >> Kernel 2.4.21-pre1 broke the ide-tape driver: the driver
->> >> now hangs during initialisation. 2.2 kernels (with Andre's
->> >> IDE patch) and 2.4 up to 2.4.20 do not have this problem.
->> >> My box has a Seagate STT8000A ATAPI tape drive as hdd;
->> >> hdc is a Philips CD-RW, and the controller is ICH2 (i850 chipset).
->> >http://linux.bkbits.net:8080/linux-2.4/patch@1.828?nav=index.html|ChangeSet@-7d|cset@1.828
->> 
->> Addendum: this patch fixes the init-time hang, and ide-tape does
->> seem to work fine, but 'rmmod ide-tape' oopses -- 2.4.20-ac2 also
->> oopses on 'rmmod ide-tape'.
->
->I don't unfortunately have any ide-tape devices. I'll take a look though
+Not masquerading, only NAT.
+Everything works except outgoing file transmission, apparently caused by the
+internal network IPs going out inside the packet (not the headers). So
+unless the packets are modified on the fly, I don't think there's a chance
+it can work :-) (unless of course they were originated with the public IP,
+but trillian doesn't have the feature to edit that, and even if it did, it
+doesn't solve the problem in the right place).
 
-I can trigger the oops by a simple 'modprobe ide-tape; rmmod ide-tape'
-even on boxes without ide-tape devices.
+----- Original Message -----
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Carlos Fernandez Sanz'" <cfs-lk@nisupu.com>;
+<linux-kernel@vger.kernel.org>
+Sent: Monday, December 16, 2002 23:24
+Subject: RE: NAT helper module for MSN
+
+
+> >
+> > Is there a help module to help MSN work through a NAT'ed connection?
+> >
+> > If there isn't one, is there an ongoing project to write one
+> > I can join?
+> >
+>
+> This may not be strictly kernel related, are you using masquerading?  I
+have
+> yet to have a prob with MSN messenger using 2.2 with ipmasq.  But, have
+you
+> checked http://ipmasq.cjb.net/
+>
+> Here's the masq modules I have loaded.
+> ip_masq_quake           1420   0  (unused)
+> ip_gre                  6776   0  (unused)
+> ip_masq_autofw          2556   0  (unused)
+> ip_masq_portfw          2636   2
+> ip_masq_mfw             3272   0
+> ip_masq_ipsec          11812   0  (unused)
+> ip_masq_pptp            6856   0
+> ip_masq_irc             1656   0  (unused)
+> ip_masq_raudio          3064   0
+> ip_masq_ftp             2680   0
+>
+> Maybe you should check withe the iptables group at the netfilter home:
+> http://www.netfilter.org/
+>
+> Hope that helps.
+> Bruce H.
+>
+

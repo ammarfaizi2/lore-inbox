@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264948AbUD2TiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264939AbUD2TlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264948AbUD2TiO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 15:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUD2Tgr
+	id S264939AbUD2TlR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 15:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUD2TlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 15:36:47 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:57233 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S264939AbUD2Tfr (ORCPT
+	Thu, 29 Apr 2004 15:41:17 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:39812 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S264939AbUD2Tk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 15:35:47 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
-Date: Thu, 29 Apr 2004 21:35:42 +0200
-User-Agent: KMail/1.5.1
-Cc: Bryan Small <code_smith@comcast.net>, Sean Young <sean@mess.org>,
-       Chester <fitchett@phidgets.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-References: <20040428181806.GA36322@atlantis.8hz.com> <200404292110.21235.oliver@neukum.org> <20040429191605.GB18643@kroah.com>
-In-Reply-To: <20040429191605.GB18643@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Apr 2004 15:40:56 -0400
+Date: Thu, 29 Apr 2004 21:41:30 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Zinx Verituse <zinx@epicsol.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Trivial fix for hid-tmff driver
+Message-ID: <20040429194130.GA7960@ucw.cz>
+References: <20040429192656.GA13053@bliss>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404292135.42713.oliver@neukum.org>
+In-Reply-To: <20040429192656.GA13053@bliss>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 29. April 2004 21:16 schrieb Greg KH:
-> On Thu, Apr 29, 2004 at 09:10:21PM +0200, Oliver Neukum wrote:
-> > Am Donnerstag, 29. April 2004 20:49 schrieb Bryan Small:
-> > > The IFkit ( both 8/8/8 and 0/8/8) and the TextLCD will work nearly the
-> > > same as Sean's servo control. They will use sysfs also. They will be
-> >
-> > I don't want to spoil the party, but in which way is using sysfs in this
-> > way different from using it as a form of devfs?
->
-> 	- one value per file, no char or block nodes
-> 	- devices can export many different files depending on their
-> 	  needs (no ioctl crud needed.)
-> 	- you can use a script or libsysfs a web browser, or anything
-> 	  else that reads directory trees and files to access the device
-> 	  info.
-> 	- you can have as many devices as you want in the system, no
-> 	  limitations on minor numbers, or anything else.
-> 	- no unsolvable kernel race and locking issues
-> 	- no horribly formatted code from a developer who is no longer
-> 	  maintaining it.
->
-> Shall I go on?  :)
+On Thu, Apr 29, 2004 at 02:26:56PM -0500, Zinx Verituse wrote:
+> Well, this has been a problem for quite some time due to a change in
+> the list code way back when, and my mails don't seem to be getting
+> through to Vojtech Pavlik, so here's the patch..  The problem may still
+> exist in the other drivers..
 
-Yes. You are describing a better devfs, but still devfs. Why not go
-the whole way?
+I'll get it into my tree asap.
 
-	Regards
-		Oliver
+> 
+> -- 
+> Zinx Verituse                                    http://zinx.xmms.org/
+
+> diff -ru linux-2.6.5.orig/drivers/usb/input/hid-tmff.c linux-2.6.5/drivers/usb/input/hid-tmff.c
+> --- linux-2.6.5.orig/drivers/usb/input/hid-tmff.c	2003-10-25 13:43:59.000000000 -0500
+> +++ linux-2.6.5/drivers/usb/input/hid-tmff.c	2003-12-18 01:00:41.000000000 -0600
+> @@ -110,7 +110,7 @@
+>  {
+>  	struct tmff_device *private;
+>  	struct list_head *pos;
+> -	struct hid_input *hidinput = list_entry(&hid->inputs, struct hid_input, list);
+> +	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
+>  
+>  	private = kmalloc(sizeof(struct tmff_device), GFP_KERNEL);
+>  	if (!private)
 
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

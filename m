@@ -1,66 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbULPSDP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbULPSQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbULPSDP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 13:03:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbULPSDP
+	id S261763AbULPSQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 13:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbULPSQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 13:03:15 -0500
-Received: from neopsis.com ([213.239.204.14]:29923 "EHLO
-	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
-	id S261961AbULPSDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 13:03:10 -0500
-Message-ID: <41C1CE60.5010606@dbservice.com>
-Date: Thu, 16 Dec 2004 19:05:20 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Neil Conway <nconway_kernel@yahoo.co.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 3TB disk hassles
-References: <20041216173811.7697.qmail@web26505.mail.ukl.yahoo.com>
-In-Reply-To: <20041216173811.7697.qmail@web26505.mail.ukl.yahoo.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+	Thu, 16 Dec 2004 13:16:27 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:754 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261763AbULPSQP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 13:16:15 -0500
+Date: Thu, 16 Dec 2004 12:16:13 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Split bprm_apply_creds into two functions
+Message-ID: <20041216181613.GB3260@IBM-BWN8ZTBWA01.austin.ibm.com>
+References: <20041215200005.GB3080@IBM-BWN8ZTBWA01.austin.ibm.com> <20041215145222.V469@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041215145222.V469@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Conway wrote:
-> Hi Tom...
+Quoting Chris Wright (chrisw@osdl.org):
+> * Serge E. Hallyn (serue@us.ibm.com) wrote:
+> > The security_bprm_apply_creds() function is called from
+> > fs/exec.c:compute_creds() under task_lock(current).  SELinux must
+> > perform some work which is unsafe in that context, and therefore
+> > explicitly drops the task_lock, does the work, and re-acquires the
+> > task_lock.  This is unsafe if other security modules are stacked after
+> > SELinux, as their bprm_apply_creds assumes that the 'unsafe' variable is
+> > still meaningful, that is, that the task_lock has not been dropped.
 > 
->  --- Tomas Carnecky <tom@dbservice.com> wrote: 
-> 
->>I had a GUID partition table (GPT) on my system (x86, normal 
->>mainboard/BIOS etc) and it worked fine. I didn't need a separate boot
->>disk. I used grub as the boot loader. I think if you enable GPT in
->>the 
->>kernel you should be able to boot stright from the big disk.
-> 
-> 
-> Wow, that's unexpected but encouraging news.  What distro?  Did it
-> allow you to go GPT right from the off, or did you have to migrate from
-> an MSDOS ptbl to a GPT one after installation?
-> 
+> I don't like this approach.  The whole point is to ensure safety, and
+> avoid races that have been found in the past.  This gives a new interface
+> that could be easily used under the wrong conditions, and breaking
+> the interface into two pieces looks kinda hackish.  Is there no other
+> solution?  I looked at this once before and wondered why task_unlock()
+> is needed to call avc_audit?  audit should be as lock friendly as printk
+> IMO, and I don't recall seeing any deadlock after short review of it.
+> But I didn't get much beyond that.  Is it all the flushing that can't
+> hold task_lock?
 
-It was gentoo, and I even think I installed it right onto the GPT disk, 
-so no migration. But I'm not sure. You just have to look that your 
-kernel supports GPT. I don't know if the kernel from the gentoo livecd 
-supports GPT.
+As Stephen points out, it was more a concern about lock nesting.  The
+attached patch simply removes the task_unlock from selinux_bprm_apply_creds,
+and runs just fine on my machine.  Stephen, do you have a preference
+either way, or was the task_unlock to relieve the concerns of others?
 
-Also have a look here how to create GPT partitions:
-http://www.google.ch/search?q=site%3Ausefulthings.org.uk+gpt
-I think I did it like it's shown there, mklabel, mkpart and mount them.
-I don't think I migrated from MSDOS to GPT, because I don't even know 
-how it'is possible if you have only one disk with the system on it.
+thanks,
+-serge
 
-While looking for gentoo GPT support, I found this:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/0624.html
-Looks like CONFIG_EFI_PARTITION is enabled by default now on the newer 
-kernels.
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 
-tom
+Index: linux-2.6.9-test/security/selinux/hooks.c
+===================================================================
+--- linux-2.6.9-test.orig/security/selinux/hooks.c	2004-12-16 12:14:32.000000000 -0600
++++ linux-2.6.9-test/security/selinux/hooks.c	2004-12-16 12:51:55.000000000 -0600
+@@ -1827,35 +1827,26 @@ static void selinux_bprm_apply_creds(str
+ 		/* Check for shared state.  If not ok, leave SID
+ 		   unchanged and kill. */
+ 		if (unsafe & LSM_UNSAFE_SHARE) {
+-			rc = avc_has_perm_noaudit(tsec->sid, sid,
+-					  SECCLASS_PROCESS, PROCESS__SHARE, &avd);
++			rc = avc_has_perm(tsec->sid, sid, SECCLASS_PROCESS,
++						PROCESS__SHARE, NULL);
+ 			if (rc) {
+-				task_unlock(current);
+-				avc_audit(tsec->sid, sid, SECCLASS_PROCESS,
+-				    PROCESS__SHARE, &avd, rc, NULL);
+ 				force_sig_specific(SIGKILL, current);
+-				goto lock_out;
++				return;
+ 			}
+ 		}
+ 
+ 		/* Check for ptracing, and update the task SID if ok.
+ 		   Otherwise, leave SID unchanged and kill. */
+ 		if (unsafe & (LSM_UNSAFE_PTRACE | LSM_UNSAFE_PTRACE_CAP)) {
+-			rc = avc_has_perm_noaudit(tsec->ptrace_sid, sid,
+-					  SECCLASS_PROCESS, PROCESS__PTRACE, &avd);
+-			if (!rc)
+-				tsec->sid = sid;
+-			task_unlock(current);
+-			avc_audit(tsec->ptrace_sid, sid, SECCLASS_PROCESS,
+-				  PROCESS__PTRACE, &avd, rc, NULL);
++			rc = avc_has_perm(tsec->ptrace_sid, sid,
++					  SECCLASS_PROCESS, PROCESS__PTRACE,
++					  NULL);
+ 			if (rc) {
+ 				force_sig_specific(SIGKILL, current);
+-				goto lock_out;
++				return;
+ 			}
+-		} else {
+-			tsec->sid = sid;
+-			task_unlock(current);
+ 		}
++		tsec->sid = sid;
+ 
+ 		/* Close files for which the new task SID is not authorized. */
+ 		flush_unauthorized_files(current->files);
+@@ -1903,10 +1894,6 @@ static void selinux_bprm_apply_creds(str
+ 		/* Wake up the parent if it is waiting so that it can
+ 		   recheck wait permission to the new task SID. */
+ 		wake_up_interruptible(&current->parent->signal->wait_chldexit);
+-
+-lock_out:
+-		task_lock(current);
+-		return;
+ 	}
+ }
+ 

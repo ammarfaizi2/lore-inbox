@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265477AbUHPNXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267622AbUHPN2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265477AbUHPNXi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 09:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267609AbUHPNXi
+	id S267622AbUHPN2R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 09:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267623AbUHPN2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 09:23:38 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30737 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265477AbUHPNXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 09:23:37 -0400
-Date: Mon, 16 Aug 2004 14:23:32 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Thomas Winkler <tom@qwws.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ARM: PCI Bridge Problems
-Message-ID: <20040816142332.A12367@flint.arm.linux.org.uk>
-Mail-Followup-To: Thomas Winkler <tom@qwws.net>,
-	linux-kernel@vger.kernel.org
-References: <20040816125903.GN10616@qwwsII.qwws.net>
+	Mon, 16 Aug 2004 09:28:17 -0400
+Received: from pD9517D3C.dip.t-dialin.net ([217.81.125.60]:12680 "EHLO
+	undata.org") by vger.kernel.org with ESMTP id S267622AbUHPN2P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 09:28:15 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
+From: Thomas Charbonnel <thomas@undata.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <20040816120933.GA4211@elte.hu>
+References: <20040816023655.GA8746@elte.hu>
+	 <1092624221.867.118.camel@krustophenia.net>
+	 <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu>
+	 <1092627691.867.150.camel@krustophenia.net>
+	 <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net>
+	 <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost>
+	 <20040816113131.GA30527@elte.hu>  <20040816120933.GA4211@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092662814.5082.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040816125903.GN10616@qwwsII.qwws.net>; from tom@qwws.net on Mon, Aug 16, 2004 at 02:59:03PM +0200
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 16 Aug 2004 15:26:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 02:59:03PM +0200, Thomas Winkler wrote:
-> If there is anybody out there who can help me getting this problem
-> solved I'd really be thankful!
+Ingo Molnar wrote :
+> here's -P2:
+> 
+>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
+> 
+> Changes since -P1:
+> 
+>  - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
+> 
+>  - yet another shot at trying to fix the IO-APIC/USB issues.
+> 
+>  - mcount speedups - tracing should be faster
+> 
+> 	Ingo
 
-Just a thought, but you could try posting this to the ARM kernel list
-linux-arm-kernel which is located on lists.arm.linux.org.uk
+Same do_IRQ problem with P2, trace is here :
+http://www.undata.org/~thomas/swapper-P2.trace
 
-I suspect there may be something wrong with the IXP code which
-decides whether the access is to the host bridge.
+Thomas
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+

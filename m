@@ -1,103 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264464AbTLGR6p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 12:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbTLGR6p
+	id S264482AbTLGSFx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 13:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264474AbTLGSFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 12:58:45 -0500
-Received: from cafe.hardrock.org ([142.179.182.80]:14209 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S264464AbTLGR6l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 12:58:41 -0500
-Date: Sun, 7 Dec 2003 10:58:38 -0700 (MST)
-From: James Bourne <jbourne@hardrock.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.22-uv3 patch set released
-Message-ID: <Pine.LNX.4.51.0312071056350.2796@cafe.hardrock.org>
+	Sun, 7 Dec 2003 13:05:10 -0500
+Received: from mail.g-housing.de ([62.75.136.201]:21667 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264476AbTLGSFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 13:05:02 -0500
+Message-ID: <3FD35DBD.9070004@g-house.de>
+Date: Sun, 07 Dec 2003 18:05:01 +0100
+From: Christian <evil@g-house.de>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031203 Thunderbird/0.4RC2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Benecke <jens-usenet@spamfreemail.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Help: 2.4 -> 2.6 (test11,bk2) kernel module file size (due to
+ debug options?)
+References: <bqs6rq$vv3$1@sea.gmane.org>
+In-Reply-To: <bqs6rq$vv3$1@sea.gmane.org>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-The Update Version patchset is a set of patches which include only fatal
-compile/runtime bug fixes and security updates for the current kernel
-version.  This patch set can be used in production environments for those
-who wish to run 2.4.22, but do not use vendor kernels and at the same time
-require patches which add to the stability of the current release kernel
-version.  This is a patch set only, it does not include kernel source.
+Jens Benecke wrote:
+> Hi,
+> 
+> after installing (actually - creating a debian package for) 2.6.0-test11-bk2
+> I have this:
+> 
+> 2.3M    /boot
+> 366M    /lib/modules/2.6.0-test11-bk2                           !!!
+> 15k     /usr/share/doc/kernel-image-2.6.0-test11-bk2
 
-Current version is 2.4.22-uv3 and adds the do_brk() security patch.
+you don't use "du -cahL" when counting /lib/modules/2.6.0-test11-bk2, 
+don you? /lib/modules/2.6.0-test11-bk2/build is a symbolic link to your 
+kernel sources, "-L" in "du" counts them too. (man du)
 
-The complete URL to the patch set is
-http://www.hardrock.org/kernel/current-updates/linux-2.4.22-updates.patch
+evil@sheep:~$ du -cahL /lib/modules/2.6.0-test11/ | tail -n1
+422M    total
+evil@sheep:~$ du -cah /lib/modules/2.6.0-test11/ | tail -n1
+2.2M    total
 
-Individual patches can be viewed and downloaded from
-http://www.hardrock.org/kernel/current-updates/
 
-This patch set only contains and will only contain security updates and
-fixes for the latest kernel version.  Each individual patch contains text
-WRT the patch itself and the creator of the patch, I will try to keep doing
-that as standard reference for the complete collection.
-
-Please send bug reports to jbourne@hardrock.org and CC
-linux-kernel@vger.kernel.org.
-
-Patch specifics are:
-linux-2.4.22-extraversion.patch: Updated the extraversion in the Makefile
-
-linux-2.4.22-amd64-compile.patch: Fixes broken x86-64 compilation
-
-linux-2.4.22-amd76x_pm.c-crash.patch: Fix amd67x_pm.c crash with no chipsets
-        / CONFIG_HOTPLUG
-
-linux-2.4.22-atm-pca-200epc.patch: when clip isnt a module, the common code
-        try to manipulate the module count while fails.
-
-linux-2.4.22-hardirq-race.patch: Fix possible IRQ handling SMP race
-
-linux-2.4.22-initrd-netboot.patch: Handle -EBUSY in mount_block_root for
-        netboot
-
-linux-2.4.22-pcwd-unload-oops.patch: This patch is from Alan Cox and fixes
-        problems when pcwd driver is loaded while there is no pcwd hardware
-        installed.
-
-linux-2.4.22-usb-serial.patch: This patch from Greg K-H stops an oops
-        condition within the USB Serial driver.
-
-linux-2.4.22-acpi_po_tramp.patch: When using ACPI, sysrq-o will oops the
-        kernel.  This patch from Andi Kleen fixes the condition.
-
-linux-2.4.22-aic7xxx_osm-compile.patch: Compile fix for aic7xxx_osm when
-        compiling using CONFIG_EISA and CONFIG_PCI is unset.
-
-linux-2.4.22-do_brk.patch: Andrew Morton found an issue where there is an
-        integer overflow condition in the do_brk function call of mm/mmap.c
-        this patch (pulled from 2.4.23) corrects that condition.
-
-Regards
-James Bourne
-
+Christian.
 -- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
+BOFH excuse #265:
 
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
--- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
+The mouse escaped.

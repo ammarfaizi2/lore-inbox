@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268154AbUH1D4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268149AbUH1ECM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268154AbUH1D4f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 23:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268149AbUH1D4f
+	id S268149AbUH1ECM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 00:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268156AbUH1ECM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 23:56:35 -0400
-Received: from dp.samba.org ([66.70.73.150]:7607 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266526AbUH1D4d (ORCPT
+	Sat, 28 Aug 2004 00:02:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2966 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268149AbUH1ECK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 23:56:33 -0400
-Date: Fri, 27 Aug 2004 20:56:29 -0700
-From: Jeremy Allison <jra@samba.org>
-To: Christoph Hellwig <hch@infradead.org>, Jeremy Allison <jra@samba.org>,
-       Jamie Lokier <jamie@shareable.org>, Rik van Riel <riel@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
-       christophe@saout.de, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040828035629.GE1285@jeremy1>
-Reply-To: Jeremy Allison <jra@samba.org>
-References: <Pine.LNX.4.58.0408261217140.2304@ppc970.osdl.org> <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <20040826204841.GC5733@mail.shareable.org> <20040826205218.GE1570@legion.cup.hp.com> <20040827101956.B29672@infradead.org>
+	Sat, 28 Aug 2004 00:02:10 -0400
+Date: Fri, 27 Aug 2004 20:57:24 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Pat LaVarre <p.lavarre@ieee.org>
+Cc: usb-storage@lists.one-eyed-alien.net, linux-kernel@vger.kernel.org,
+       jgarzik@redhat.com
+Subject: Re: [usb-storage] drivers/block/ub.c #6
+Message-Id: <20040827205724.64a3c99f@lembas.zaitcev.lan>
+In-Reply-To: <1093645959.8006.219.camel@patlinux.iomegacorp.com>
+References: <20040730035120.30abd121@lembas.zaitcev.lan>
+	<1093640531.8006.68.
+	camel@patlinux.iomegacorp.com>
+	<1093645959.8006.219.camel@patlinux.iomegacorp.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040827101956.B29672@infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 10:19:56AM +0100, Christoph Hellwig wrote:
+On 27 Aug 2004 16:32:39 -0600
+Pat LaVarre <p.lavarre@ieee.org> wrote:
+
+> Looks to me like we have ub.ko taking over just x 08 06 50, rather than
+> all of the x 08 (06|05|02) 50 = bInterfaceClass ...SubClass ...Protocol
+> considered generic by MSFT?
 > 
-> Maybe you should learn from netatalk.
+> http://www.microsoft.com/whdc/device/storage/usbfaq.mspx
+> agrees Flash should be x 08 06 50 but gives no clear guidance to the
+> rest of us.
+> 
+> I remember we invented x 08 06 50 to be the one tuple to rule them all,
+> to move the determination of PDT (peripheral device type) etc. back into
+> op x12 "INQUIRY" where it belongs, ...
 
-I am well aware of what netatalk does. However netatalk
-isn't as widely used as Samba. Things they can get away
-with would cause our user community to flay us alive.
+I'll look at non-bulk once we have something useable by common folks
+and Fedora ships ub, but not before. All my devices use Bulk. But also,
+UFI has to come first. Only then, perhaps, I'll look at CB and CBI.
 
-We need a proper solution, not a nasty hack.
+> Of course the world may yet contain advocates of connecting HDD/FDD as
+> bInterfaceSubClass = x05 "SFF 8070" = Compaq LS-120 or connecting DVD/CD
+> as x02 "SFF 8020" = read-only CD.
 
-That's like me telling you to "learn from *BSD". You have
-different user constituencies, you have to serve yours,
-I have to serve mine.
+I don't have any plans for 8070 and 8020i. I promise to look at patches
+if someone submits any. However, in my experience, 8070 devices are fickle.
+They may be better off left to usb-storage forever, with its richer
+infrastructure.
 
-Jeremy.
+-- Pete

@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266586AbRGLUqn>; Thu, 12 Jul 2001 16:46:43 -0400
+	id <S266567AbRGLUpw>; Thu, 12 Jul 2001 16:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266582AbRGLUqc>; Thu, 12 Jul 2001 16:46:32 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:16132 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266573AbRGLUqN>;
-	Thu, 12 Jul 2001 16:46:13 -0400
-Message-ID: <20010711235312.A425@bug.ucw.cz>
-Date: Wed, 11 Jul 2001 23:53:12 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andreas Dilger <adilger@turbolinux.com>, Zach Brown <zab@osdlab.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] struct kernel_stat -> struct cpu_stat[NR_CPUS]
-In-Reply-To: <20010702163631.B9806@osdlab.org> <200107030649.f636nqB3001452@webber.adilger.int>
-Mime-Version: 1.0
+	id <S266573AbRGLUpm>; Thu, 12 Jul 2001 16:45:42 -0400
+Received: from pop.gmx.net ([194.221.183.20]:19493 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S266567AbRGLUph>;
+	Thu, 12 Jul 2001 16:45:37 -0400
+Message-ID: <3B4E0CC4.1926053C@gmx.at>
+Date: Thu, 12 Jul 2001 22:47:00 +0200
+From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Torrey Hoffman <torrey.hoffman@myrio.com>
+CC: "'jesse@cats-chateau.net'" <jesse@cats-chateau.net>,
+        Kip Macy <kmacy@netapp.com>, Paul Jakma <paul@clubi.ie>,
+        Helge Hafting <helgehaf@idb.hist.no>, "C. Slater" <cslater@wcnet.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C92A@mail0.myrio.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200107030649.f636nqB3001452@webber.adilger.int>; from Andreas Dilger on Tue, Jul 03, 2001 at 12:49:51AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > These per cpu statistics are reported via a new /proc/cpustat, a quick
-> > tool for processing that output, vmstat-style, can be found near
+Torrey Hoffman wrote:
 > 
-> Could you consider /proc/cpu/0/stats or similar?  It is much nicer
-> than polluting the top-level /proc directory, and I believe there
-> are a bunch of other per-cpu items waiting to go there as well
-> (process binding, hot-swap CPU stuff, etc)
+> Jesse Pollard wrote:
+> 
+> [why switching kernels is very hard, and...]
+> 
+> > Before you even try switching kernels, first implement a process
+> > checkpoint/restart. The process must be resumed after a boot
+> > using the same
+> > kernel, with all I/O resumed. Now get it accepted into the kernel.
+> 
+> Hear, hear!  That would be a useful feature, maybe not network servers,
+> but for pure number crunching apps it would save people having to write
+> all the state saving and recovery that is needed now for long term
+> computations.
 
-Add throttling, C-states, and similar acpi stuff. I'd like it to go
-into /proc/cpu/0 rather than be buried somewhere into /proc/acpi.
+There is a checkpointing and resumeing lib at
+ftp://gutemine.geo.uni-koeln.de/pub/chkpt/
+I am not sure if it has been ported to linux yet, but it might be worth
+a look.
 
-								Pavel
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> 
+> For bonus points, make it work for clusters to synchronously save and
+> restore state for the apps running on all the nodes at once...
+> 
+> Torrey
+
+bye,
+Wilfried

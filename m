@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286283AbRLTQOS>; Thu, 20 Dec 2001 11:14:18 -0500
+	id <S286284AbRLTQ0t>; Thu, 20 Dec 2001 11:26:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286284AbRLTQOI>; Thu, 20 Dec 2001 11:14:08 -0500
-Received: from lsmls01.we.mediaone.net ([24.130.1.20]:32211 "EHLO
-	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S286283AbRLTQN6>; Thu, 20 Dec 2001 11:13:58 -0500
-Message-ID: <3C220ED2.F5B01AD4@kegel.com>
-Date: Thu, 20 Dec 2001 08:16:18 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S286287AbRLTQ0j>; Thu, 20 Dec 2001 11:26:39 -0500
+Received: from hostB.konkovo.mcn.ru ([195.14.63.251]:16134 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S286284AbRLTQ0d>; Thu, 20 Dec 2001 11:26:33 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: cerberus on 2.4.17-rc2 UP
+From: Michael Govorun <mike@shpion.ru>
+Message-ID: <m31yhpsvun.fsf@localhost.localdomain>
+Date: 20 Dec 2001 19:26:18 +0300
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: billh@tierra.ucsd.edu, bcrl@redhat.com, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: aio
-In-Reply-To: <20011219171631.A544@burn.ucsd.edu>
-		<20011219.172046.08320763.davem@redhat.com>
-		<20011219182628.A13280@burn.ucsd.edu> <20011219.184527.31638196.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> If AIO was so relevant+sexy we'd be having threads of discussion about
-> the AIO implementation instead of threads about how relevant it is or
-> is not for the general populace.  Wouldn't you concur?  :-)
+
+On Thu, Dec 20, 2001 at 04:22:38PM +0300, Michael Govorun wrote:
 > 
-> The people doing Java server applets are such a small fraction of the
-> Linux user community.
+> I got the same problem on p120 machine with 16Mb RAM, IDE,
+> (ext3/ext2) under stock 2.4.16 + trustix 1.5. I got this several
+> times. Every time under big load and swap activity. 
+> But now I can't supply more info since I'm switched to software RAID1
+> on SCSI disks and can't reproduce this.
 
-People writing code for NT/Win2K/WinXP are being channelled into
-using AIO because that's the way to do things there (NT doesn't
-really support nonblocking I/O).  Thus another valid economic
-reason AIO is important is to make it easier to port code from NT.
-I have received requests from NT folks for things like aio_recvfrom()
-(and have passed them on to Ben), so I'm not just guessing here.
+hmmm, maybe that's a data point.. you should forward it to the list.
 
-As should be clear from my c10k page, I love nonblocking I/O,
-but I firmly believe that some form of AIO is vital.
+-m
 
-- Dan
+-- 
+	C3C5 9226 3C03 CDF7 2EF1  029F 4CAD FBA4 F5ED 68EB
+	key: http://people.hbesoftware.com/~heckmann/

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316755AbSGQVbq>; Wed, 17 Jul 2002 17:31:46 -0400
+	id <S316780AbSGQVtR>; Wed, 17 Jul 2002 17:49:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316770AbSGQVbq>; Wed, 17 Jul 2002 17:31:46 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:13828 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316755AbSGQVbq>;
-	Wed, 17 Jul 2002 17:31:46 -0400
-Date: Wed, 17 Jul 2002 14:33:32 -0700
-From: Greg KH <greg@kroah.com>
-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.25  uhci-hcd  very bad
-Message-ID: <20020717213332.GA10227@kroah.com>
-References: <3D308A30.7070702@wanadoo.fr>
-Mime-Version: 1.0
+	id <S316782AbSGQVtR>; Wed, 17 Jul 2002 17:49:17 -0400
+Received: from lns04a-5-214.w.club-internet.fr ([212.194.76.214]:16768 "EHLO
+	universe") by vger.kernel.org with ESMTP id <S316780AbSGQVtQ>;
+	Wed, 17 Jul 2002 17:49:16 -0400
+From: Philippe Gerum <rpm@xenomai.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D308A30.7070702@wanadoo.fr>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 19 Jun 2002 20:28:23 -0700
+Content-Transfer-Encoding: 7bit
+Message-ID: <15669.58314.307577.58284@universe.xenomai.org>
+Date: Wed, 17 Jul 2002 23:38:18 +0200
+To: linux-kernel@vger.kernel.org
+Cc: adeos-main@mail.freesoftware.fsf.org,
+       xenomai-main@mail.freesoftware.fsf.org
+Subject: [ANNOUNCE] Adeos M2
+X-Mailer: VM 7.03 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 13, 2002 at 10:14:40PM +0200, Pierre Rousselet wrote:
-> usb inboard Abit BE6, ADSL modem Speedtouch usb.
-> 
-> I used to use satisfactorily usb-uhci-hcd before 2.5.25, switching to 
-> uhci-hcd halts the adsl modem after a few minutes with this message:
-> 
-> kernel: uhci-hcd.c: c000: host controller process error. something bad 
-> happened
-> kernel: uhci-hcd.c: c000: host controller halted. very bad
-> 
-> 2.5.24 is not happy too with uhci-hcd.
-> 
-> What should I look at ?
 
-Is this the usbfs userspace ASDL driver?  Or the kernel driver?
+On behalf of the Adeos project team, I'm glad to announce the
+availability of the new Adeos milestone release M2 based on 2.4.18
+(x86).  This release aims at stabilizing the code (internals and API),
+which now includes the SMP support.
 
-thanks,
+Aside of this, the initial port of Adeos to 2.5 (2.5.25/x86) has just
+been completed. It is available from our CVS area on Savannah.
 
-greg k-h
+Finally, the RTOS available from the Xenomai project (*) has been
+ported over Adeos to serve as a proof-of-concept of one of the
+possible applications Karim had envisioned. In order to achieve a high
+degree of determinism, this real-time kernel (loaded as a module) runs
+aside of Linux as a separate Adeos domain living ahead of the Linux
+domain in the interrupt pipeline.
+
+M2 release: http://savannah.gnu.org/download/adeos/releases/adeos-m2.tar.gz
+On-line Adeos doc: http://www.freesoftware.fsf.org/adeos/doc/api/globals.html
+Adeos CVS: http://savannah.gnu.org/cvs/?group=adeos
+Xenomai: http://savannah.gnu.org/download/xenomai/snapshots/xenomai-1.1pre2.tar.gz
+
+(*) Xenomai is a development framework for real-time systems which
+includes a collection of emulators mimicking APIs of traditional RTOS
+such as VxWorks, pSOS+ and VRTXsa. These emulators run over a single
+"generic" RTOS core which have been ported over Adeos.
+
+Regards,
+
+Philippe.

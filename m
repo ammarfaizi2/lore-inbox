@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVAKBcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVAKBkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbVAKBcc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:32:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVAKB1R
+	id S262690AbVAKBkz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:40:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVAKBkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:27:17 -0500
-Received: from holomorphy.com ([207.189.100.168]:46033 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262644AbVAKBXW (ORCPT
+	Mon, 10 Jan 2005 20:40:52 -0500
+Received: from mail.kroah.org ([69.55.234.183]:53900 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262690AbVAKBig (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 20:23:22 -0500
-Date: Mon, 10 Jan 2005 17:23:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [patch] Per-sb s_all_inodes list
-Message-ID: <20050111012311.GD2696@holomorphy.com>
-References: <41E2F15C.3010607@sun.com>
+	Mon, 10 Jan 2005 20:38:36 -0500
+Date: Mon, 10 Jan 2005 17:36:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Chad Kitching <CKitching@powerlandcomputers.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       linux-usb-devel@lists.sourcefoge.net.kroah.org,
+       linux-kernel@vger.kernel.org, laforge@gnumonks.org
+Subject: Re: My vision of usbmon
+Message-ID: <20050111013601.GG18697@kroah.com>
+References: <18DFD6B776308241A200853F3F83D5072851@pl6w2kex.lan.powerlandcomputers.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41E2F15C.3010607@sun.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <18DFD6B776308241A200853F3F83D5072851@pl6w2kex.lan.powerlandcomputers.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 04:19:24PM -0500, Mike Waychison wrote:
-> Releasing a super_block requires walking all inodes for the given
-> superblock and releasing them. Currently, inodes are found on one of
-> four lists:
-[...]
-> The second list, inode_unused can potentially be quite large.
-> Unfortunately, it cannot be made per-sb as it is the global LRU list
-> used for inode cache reduction under memory pressure.
-> When unmounting a single filesystem, profiling shows dramatic time spent
-> walking inode_unused.  This because very noticeble when one is
-> unmounting a decently sized tree of filesystems.
-> The proposed solution is to create a new list per-sb, that contains all
-> inodes allocated.  It is maintained under the inode_lock for the sake of
-> simplicity, but this may prove unneccesary, and may be better done with
-> another global or per-sb lock.
+On Thu, Dec 23, 2004 at 03:02:49PM -0600, Chad Kitching wrote:
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: December 21, 2004 11:11 PM
+> > Subject: Re: My vision of usbmon
+> > 
+> > -/* exported only within usbcore */
+> > -struct usb_bus *usb_bus_get (struct usb_bus *bus)
+> > +struct usb_bus *usb_bus_get(struct usb_bus *bus)
+> >  {
+> > -	struct class_device *tmp;
+> > -
+> > -	if (!bus)
+> > -		return NULL;
+> > -
+> > -	tmp = class_device_get(&bus->class_dev);
+> > -	if (tmp)        
+> > -		return to_usb_bus(tmp);
+> > -	else
+> > -		return NULL;
+> > +	if (bus)
+> > +		class_device_get(&bus->class_dev);
+> > +	return bus; 
+> >  }
+> > +EXPORT_SYMBOL_GPL(usb_bus_get);
+>   
+> I'm not familiar with this code, but if the replacement code is 
+> equivalent, is there any point to the return usb_bus pointer?  With 
+> the replacement, you should always get the same pointer you put 
+> into it.  If that is the case, why not remove the return value, and 
+> change drivers/usb/core/usb.c to match?
 
-I thought this was a good idea a number of months ago myself when I saw
-a patch for 2.4.x implementing this from Kirill Korotaev, so I ported
-that code to 2.6.x and it got merged in -mm then. That patch was merged
-into Linus' bk shortly after 2.6.10. Could you check Linus' bk to see
-if what made it there resolves the issue as well as your own?
+Because that goes against the "style" of the _get functions in the
+driver core.  This way, it's easy to just do:
+	some_function(usb_bus_get(my_bus), foo);
 
--- wli
+thanks,
+
+greg k-h

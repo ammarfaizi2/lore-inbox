@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261674AbSJNODu>; Mon, 14 Oct 2002 10:03:50 -0400
+	id <S261660AbSJNOBP>; Mon, 14 Oct 2002 10:01:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261631AbSJNODu>; Mon, 14 Oct 2002 10:03:50 -0400
-Received: from rj.sgi.com ([192.82.208.96]:39852 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S261626AbSJNODs>;
-	Mon, 14 Oct 2002 10:03:48 -0400
-Subject: Re: [patch] remove BKL from inode_setattr
-From: Steve Lord <lord@sgi.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <3DAA6587.2A4C24B0@digeo.com>
-References: <3DAA4FD6.A18DAFE6@digeo.com>
-	<Pine.LNX.4.44.0210140657240.9845-100000@localhost.localdomain> 
-	<3DAA6587.2A4C24B0@digeo.com>
-Content-Type: text/plain
+	id <S261664AbSJNOBO>; Mon, 14 Oct 2002 10:01:14 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:9645 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S261660AbSJNOBO>; Mon, 14 Oct 2002 10:01:14 -0400
+Message-ID: <003401c2738b$ccfe2010$2b060e09@beavis>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: <neilb@cse.unsw.edu.au>, "Hirokazu Takahashi" <taka@valinux.co.jp>
+Cc: <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <nfs@lists.sourceforge.net>
+References: <20020918.171431.24608688.taka@valinux.co.jp><15786.23306.84580.323313@notabene.cse.unsw.edu.au> <20021014.210144.74732842.taka@valinux.co.jp>
+Subject: Re: [PATCH] zerocopy NFS for 2.5.36
+Date: Mon, 14 Oct 2002 09:12:56 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Oct 2002 09:07:19 -0500
-Message-Id: <1034604439.25231.9.camel@jen.americas.sgi.com>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-14 at 01:34, Andrew Morton wrote:
+> Hello, Neil
+>
+> > > I ported the zerocopy NFS patches against linux-2.5.36.
+> >
+> > hi,
+> >  I finally got around to looking at this.
+> >  It looks good.
+>
+> Thanks!
+>
+> >  However it really needs the MSG_MORE support for udp_sendmsg to be
+> >  accepted before there is any point merging the rpc/nfsd bits.
+> >
+> >  Would you like to see if davem is happy with that bit first and get
+> >  it in?  Then I will be happy to forward the nfsd specific bit.
+>
+> Yes.
+>
+> >  I'm bit I'm not very sure about is the 'shadowsock' patch for having
+> >  several xmit sockets, one per CPU.  What sort of speedup do you get
+> >  from this?  How important is it really?
+>
+> It's not so important.
+>
+> davem> Personally, it seems rather essential for scalability on SMP.
+>
+> Yes.
+> It will be effective on large scale SMP machines as all kNFSd shares
+> one NFS port. A udp socket can't send data on each CPU at the same
+> time while MSG_MORE/UDP_CORK options are set.
+> The UDP socket have to block any other requests during making a UDP frame.
 
-> 
-> The number of filsystems which do not take the bkl in truncate/setattr
-> is in fact quite small.  Here's the patch which removes all doubt:
-> 
-> 
-> 
-> 
->  fs/affs/file.c          |   13 ++++++++-----
->  fs/attr.c               |    2 --
->  fs/cifs/inode.c         |    7 ++++++-
->  fs/jfs/file.c           |    3 +++
->  fs/reiserfs/file.c      |    2 ++
->  fs/smbfs/proc.c         |   18 +++++++++++++++---
->  fs/sysv/itree.c         |    6 +++++-
->  fs/xfs/linux/xfs_iops.c |   11 +++++++++--
->  8 files changed, 48 insertions(+), 14 deletions(-)
+I experienced this exact problem a few months ago.  I had a test where
+several clients read a file or files cached on a linux server.  TCP was just
+fine, I could get 100% CPU on all CPUs on the server.  TCP zerocopy was even
+better, by about 50% throughput.  UDP could not get better than 33% CPU, one
+CPU working on those UDP requests and I assume a portion of another CPU
+handling some inturrupt stuff.  Essentially 2P and 4P throughput was only as
+good as UP throughput.  It is essential to get scaling on UDP.  That
+combined with the UDP zerocopy, we will have one extremely fast NFS server.
 
-XFS deliberately does not take the BKL - anywhere. Our setattr
-code is doing its own locking. You just added the BKL to a 
-bunch of xfs operations which do not need it. Now, vmtruncate
-may need it, itself, but if vmtruncate does not, then the xfs
-callout from vmtruncate certainly does not.
+Andrew Theurer
+IBM LTC
 
-Steve
-
--- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com

@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbUKIVuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbUKIV4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbUKIVuW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 16:50:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbUKIVuW
+	id S261713AbUKIV4S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 16:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbUKIV4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 16:50:22 -0500
-Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:36837 "EHLO
-	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261710AbUKIVuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 16:50:14 -0500
-Message-ID: <41913B75.1050500@kolivas.org>
-Date: Wed, 10 Nov 2004 08:49:41 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: Patrick Mau <mau@oscar.ping.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Workaround for wrapping loadaverage
-References: <20041108001932.GA16641@oscar.prima.de> <20041108012707.1e141772.akpm@osdl.org> <20041108102553.GA31980@oscar.prima.de> <20041108155051.53c11fff.akpm@osdl.org> <20041109004335.GA1822@oscar.prima.de> <20041109185103.GE29661@mail.13thfloor.at>
-In-Reply-To: <20041109185103.GE29661@mail.13thfloor.at>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigFA1AEB4C5C19C470ADA788D3"
+	Tue, 9 Nov 2004 16:56:18 -0500
+Received: from smtp.loomes.de ([212.40.161.2]:34462 "EHLO falcon.loomes.de")
+	by vger.kernel.org with ESMTP id S261713AbUKIV4P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 16:56:15 -0500
+Subject: Re: [patch] 2.6.10-rc1-mm4: bttv-driver.c compile error
+From: Markus Trippelsdorf <markus@trippelsdorf.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+In-Reply-To: <20041109211107.GB5892@stusta.de>
+References: <20041109074909.3f287966.akpm@osdl.org>
+	 <1100018489.7011.4.camel@lb.loomes.de>  <20041109211107.GB5892@stusta.de>
+Content-Type: text/plain
+Date: Tue, 09 Nov 2004 22:55:58 +0100
+Message-Id: <1100037358.1519.6.camel@lb.loomes.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigFA1AEB4C5C19C470ADA788D3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2004-11-09 at 22:11 +0100, Adrian Bunk wrote:
+> On Tue, Nov 09, 2004 at 05:41:28PM +0100, Markus Trippelsdorf wrote:
+> > On Tue, 2004-11-09 at 07:49 -0800, Andrew Morton wrote:
+> > 
+> > > - v4l updates, fbdev updates.
+> > 
+> > It does not link here on amd64 using an build-in BT848 driver.  
+> > 
+> > LD      vmlinux
+> > drivers/built-in.o(.init.text+0xba4d): In function `p_radio':
+> > : undefined reference to `bttv_parse'
+> > make: *** [vmlinux] Error 1
 
-Herbert Poetzl wrote:
-> but I agree that a higher resolution would be a good
-> idea ... also doing the calculation when the number
-> of running/uninterruptible processes has changed would
-> be a good idea ...
+> 
+> @Gerd:
+> This is caused by your bttv updates included in -mm.
+> 
+> As far as I can see, the radio parameter is already handled correctly.
+> Is the patch below correct?
 
-This could get very expensive. A modern cpu can do about 700,000 context 
-switches per second of a real task with the current linux kernel so I'd 
-suggest not doing this.
+Now the kernel is linked correctly.
+However, on reboot I get this nasty error in my dmesg:
+...
+bttv0: PLL: 28636363 => 35468950 .. ok
+tvaudio: TV audio decoder + audio/video mux driver
+tvaudio: known chips:
+tda9840,tda9873h,tda9874h/a,tda9850,tda9855,tea6300,tea6420,tda8425,pic16c54 (PV951),ta8874z
+kobject_register failed for <NULL> (-17)
 
-Cheers,
-Con
+Call Trace:[<ffffffff80208fa6>] [<ffffffff80277a9b>]
+[<ffffffff80278002>] 
+       [<ffffffff802f8930>] [<ffffffff8010b0e8>] [<ffffffff8010ea03>] 
+       [<ffffffff8010b050>] [<ffffffff8010e9fb>] 
 
---------------enigFA1AEB4C5C19C470ADA788D3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+and a little later:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+warning: many lost ticks.
+Your time source seems to be instable or some driver is hogging
+interupts
 
-iD8DBQFBkTt1ZUg7+tp6mRURAgK0AJ49jAGM2yMf6Cn6AOyVejHIKAGcmwCbBWtd
-j/p7dkjDgpULdxgkGXb7wUg=
-=WgSb
------END PGP SIGNATURE-----
+All this goes away if I disable the BT848 driver...
 
---------------enigFA1AEB4C5C19C470ADA788D3--
+__ 
+Markus
+
+

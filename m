@@ -1,281 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVAHGWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVAHG0l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbVAHGWE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 01:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVAHGVY
+	id S261944AbVAHG0l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 01:26:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVAHGUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 01:21:24 -0500
-Received: from mail.kroah.org ([69.55.234.183]:30598 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261944AbVAHFsx convert rfc822-to-8bit
+	Sat, 8 Jan 2005 01:20:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:30854 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261946AbVAHFsx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 8 Jan 2005 00:48:53 -0500
-Subject: Re: [PATCH] I2C patches for 2.6.10
-In-Reply-To: <11051627762989@kroah.com>
+Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
+In-Reply-To: <11051632683091@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:39:36 -0800
-Message-Id: <11051627762271@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:49 -0800
+Message-Id: <11051632692510@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.445.11, 2004/12/21 11:09:49-08:00, jmunsin@iki.fi
+ChangeSet 1.1938.446.45, 2004/12/20 14:20:30-08:00, stern@rowland.harvard.edu
 
-[PATCH] I2C: it87.c update
+[PATCH] USB: Create usb_hcd structures within usbcore [6/13]
 
- - adds manual PWM
- - removes buggy "reset" module parameter
- - fixes some whitespaces
+This patch alters the dummy_hcd driver, removing the routine that
+allocates the hcd structure and introducing inline functions to convert
+safely between the public and private hcd structures.
 
-Signed-off-by: Jonas Munsin <jmunsin@iki.fi>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/i2c/chips/it87.c |  147 +++++++++++++++++++++++++++++++++++++++++------
- 1 files changed, 130 insertions(+), 17 deletions(-)
+ drivers/usb/gadget/dummy_hcd.c |   44 +++++++++++++----------------------------
+ 1 files changed, 14 insertions(+), 30 deletions(-)
 
 
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	2005-01-07 14:55:04 -08:00
-+++ b/drivers/i2c/chips/it87.c	2005-01-07 14:55:04 -08:00
-@@ -96,9 +96,6 @@
- /* Update battery voltage after every reading if true */
- static int update_vbat;
- 
--/* Reset the registers on init if true */
--static int reset;
--
- /* Chip Type */
- 
- static u16 chip_type;
-@@ -128,6 +125,8 @@
- #define IT87_REG_FAN(nr)       (0x0d + (nr))
- #define IT87_REG_FAN_MIN(nr)   (0x10 + (nr))
- #define IT87_REG_FAN_MAIN_CTRL 0x13
-+#define IT87_REG_FAN_CTL       0x14
-+#define IT87_REG_PWM(nr)       (0x15 + (nr))
- 
- #define IT87_REG_VIN(nr)       (0x20 + (nr))
- #define IT87_REG_TEMP(nr)      (0x29 + (nr))
-@@ -164,6 +163,9 @@
- 
- #define ALARMS_FROM_REG(val) (val)
- 
-+#define PWM_TO_REG(val)   ((val) >> 1)
-+#define PWM_FROM_REG(val) (((val)&0x7f) << 1)
-+
- static int DIV_TO_REG(int val)
- {
- 	int answer = 0;
-@@ -200,6 +202,8 @@
- 	u8 vid;			/* Register encoding, combined */
- 	int vrm;
- 	u32 alarms;		/* Register encoding, combined */
-+	u8 fan_main_ctrl;	/* Register value */
-+	u8 manual_pwm_ctl[3];   /* manual PWM value set by user */
+diff -Nru a/drivers/usb/gadget/dummy_hcd.c b/drivers/usb/gadget/dummy_hcd.c
+--- a/drivers/usb/gadget/dummy_hcd.c	2005-01-07 15:43:14 -08:00
++++ b/drivers/usb/gadget/dummy_hcd.c	2005-01-07 15:43:14 -08:00
+@@ -149,7 +149,6 @@
  };
  
+ struct dummy {
+-	struct usb_hcd			hcd;		/* must come first! */
+ 	spinlock_t			lock;
  
-@@ -440,18 +444,28 @@
+ 	/*
+@@ -178,12 +177,17 @@
+ 
+ static inline struct dummy *hcd_to_dummy (struct usb_hcd *hcd)
  {
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf,"%d\n", FAN_FROM_REG(data->fan[nr], 
--				DIV_FROM_REG(data->fan_div[nr])) );
-+				DIV_FROM_REG(data->fan_div[nr])));
- }
- static ssize_t show_fan_min(struct device *dev, char *buf, int nr)
- {
- 	struct it87_data *data = it87_update_device(dev);
- 	return sprintf(buf,"%d\n",
--		FAN_FROM_REG(data->fan_min[nr], DIV_FROM_REG(data->fan_div[nr])) );
-+		FAN_FROM_REG(data->fan_min[nr], DIV_FROM_REG(data->fan_div[nr])));
- }
- static ssize_t show_fan_div(struct device *dev, char *buf, int nr)
- {
- 	struct it87_data *data = it87_update_device(dev);
--	return sprintf(buf,"%d\n", DIV_FROM_REG(data->fan_div[nr]) );
-+	return sprintf(buf, "%d\n", DIV_FROM_REG(data->fan_div[nr]));
+-	return container_of(hcd, struct dummy, hcd);
++	return (struct dummy *) (hcd->hcd_priv);
 +}
-+static ssize_t show_pwm_enable(struct device *dev, char *buf, int nr)
++
++static inline struct usb_hcd *dummy_to_hcd (struct dummy *dum)
 +{
-+	struct it87_data *data = it87_update_device(dev);
-+	return sprintf(buf,"%d\n", (data->fan_main_ctrl & (1 << nr)) ? 1 : 0);
-+}
-+static ssize_t show_pwm(struct device *dev, char *buf, int nr)
-+{
-+	struct it87_data *data = it87_update_device(dev);
-+	return sprintf(buf,"%d\n", data->manual_pwm_ctl[nr]);
++	return container_of((void *) dum, struct usb_hcd, hcd_priv);
  }
- static ssize_t set_fan_min(struct device *dev, const char *buf, 
- 		size_t count, int nr)
-@@ -499,6 +513,44 @@
- 	}
- 	return count;
+ 
+ static inline struct device *dummy_dev (struct dummy *dum)
+ {
+-	return dum->hcd.self.controller;
++	return dummy_to_hcd(dum)->self.controller;
  }
-+static ssize_t set_pwm_enable(struct device *dev, const char *buf,
-+		size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct it87_data *data = i2c_get_clientdata(client);
-+	int val = simple_strtol(buf, NULL, 10);
-+
-+	if (val == 0) {
-+		/* set on/off mode */
-+		data->fan_main_ctrl &= ~(1 << nr);
-+		it87_write_value(client, IT87_REG_FAN_MAIN_CTRL, data->fan_main_ctrl);
-+	} else if (val == 1) {
-+		/* set SmartGuardian mode */
-+		data->fan_main_ctrl |= (1 << nr);
-+		it87_write_value(client, IT87_REG_FAN_MAIN_CTRL, data->fan_main_ctrl);
-+		/* set saved pwm value, clear FAN_CTLX PWM mode bit */
-+		it87_write_value(client, IT87_REG_PWM(nr), PWM_TO_REG(data->manual_pwm_ctl[nr]));
-+	} else
-+		return -EINVAL;
-+
-+	return count;
-+}
-+static ssize_t set_pwm(struct device *dev, const char *buf,
-+		size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct it87_data *data = i2c_get_clientdata(client);
-+	int val = simple_strtol(buf, NULL, 10);
-+
-+	if (val < 0 || val > 255)
-+		return -EINVAL;
-+
-+	data->manual_pwm_ctl[nr] = val;
-+	if (data->fan_main_ctrl & (1 << nr))
-+		it87_write_value(client, IT87_REG_PWM(nr), PWM_TO_REG(data->manual_pwm_ctl[nr]));
-+
-+	return count;
-+}
  
- #define show_fan_offset(offset)						\
- static ssize_t show_fan_##offset (struct device *dev, char *buf)	\
-@@ -533,6 +585,36 @@
- show_fan_offset(2);
- show_fan_offset(3);
+ static inline struct dummy *ep_to_dummy (struct dummy_ep *ep)
+@@ -1368,7 +1372,7 @@
+ 			ep->already_seen = ep->setup_stage = 0;
  
-+#define show_pwm_offset(offset)						\
-+static ssize_t show_pwm##offset##_enable (struct device *dev,		\
-+	char *buf)							\
-+{									\
-+	return show_pwm_enable(dev, buf, offset - 1);			\
-+}									\
-+static ssize_t show_pwm##offset (struct device *dev, char *buf)		\
-+{									\
-+	return show_pwm(dev, buf, offset - 1);				\
-+}									\
-+static ssize_t set_pwm##offset##_enable (struct device *dev,		\
-+		const char *buf, size_t count)				\
-+{									\
-+	return set_pwm_enable(dev, buf, count, offset - 1);		\
-+}									\
-+static ssize_t set_pwm##offset (struct device *dev,			\
-+		const char *buf, size_t count)				\
-+{									\
-+	return set_pwm(dev, buf, count, offset - 1);			\
-+}									\
-+static DEVICE_ATTR(pwm##offset##_enable, S_IRUGO | S_IWUSR,		\
-+		show_pwm##offset##_enable,				\
-+		set_pwm##offset##_enable);				\
-+static DEVICE_ATTR(pwm##offset, S_IRUGO | S_IWUSR,			\
-+		show_pwm##offset , set_pwm##offset );
-+
-+show_pwm_offset(1);
-+show_pwm_offset(2);
-+show_pwm_offset(3);
-+
- /* Alarms */
- static ssize_t show_alarms(struct device *dev, char *buf)
+ 		spin_unlock (&dum->lock);
+-		usb_hcd_giveback_urb (&dum->hcd, urb, 0);
++		usb_hcd_giveback_urb (dummy_to_hcd(dum), urb, 0);
+ 		spin_lock (&dum->lock);
+ 
+ 		goto restart;
+@@ -1570,20 +1574,6 @@
+ 
+ /*-------------------------------------------------------------------------*/
+ 
+-static struct usb_hcd *dummy_alloc (void)
+-{
+-	struct dummy		*dum;
+-
+-	dum = kmalloc (sizeof *dum, SLAB_KERNEL);
+-	if (dum == NULL)
+-		return NULL;
+-	the_controller = dum;
+-	memset (dum, 0, sizeof *dum);
+-	return &dum->hcd;
+-}
+-
+-/*-------------------------------------------------------------------------*/
+-
+ static inline ssize_t
+ show_urb (char *buf, size_t size, struct urb *urb)
  {
-@@ -774,6 +856,12 @@
- 	device_create_file(&new_client->dev, &dev_attr_fan2_div);
- 	device_create_file(&new_client->dev, &dev_attr_fan3_div);
- 	device_create_file(&new_client->dev, &dev_attr_alarms);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1_enable);
-+	device_create_file(&new_client->dev, &dev_attr_pwm2_enable);
-+	device_create_file(&new_client->dev, &dev_attr_pwm3_enable);
-+	device_create_file(&new_client->dev, &dev_attr_pwm1);
-+	device_create_file(&new_client->dev, &dev_attr_pwm2);
-+	device_create_file(&new_client->dev, &dev_attr_pwm3);
+@@ -1711,13 +1701,14 @@
  
- 	if (data->type == it8712) {
- 		device_create_file_vrm(new_client);
-@@ -851,12 +939,17 @@
- /* Called when we have found a new IT87. */
- static void it87_init_client(struct i2c_client *client, struct it87_data *data)
- {
--	int tmp;
-+	int tmp, i;
+ static const struct hc_driver dummy_hcd = {
+ 	.description =		(char *) driver_name,
++	.product_desc =		"Dummy host controller",
++	.hcd_priv_size =	sizeof(struct dummy),
++
+ 	.flags =		HCD_USB2,
  
--	if (reset) {
--		/* Reset all except Watchdog values and last conversion values
--		   This sets fan-divs to 2, among others */
--		it87_write_value(client, IT87_REG_CONFIG, 0x80);
-+	/* initialize to sane defaults:
-+	 * - if the chip is in manual pwm mode, this will be overwritten with
-+	 *   the actual settings on the chip (so in this case, initialization
-+	 *   is not needed)
-+	 * - if in automatic or on/off mode, we could switch to manual mode,
-+	 *   read the registers and set manual_pwm_ctl accordingly, but currently
-+	 *   this is not implemented, so we initialize to something sane */
-+	for (i = 0; i < 3; i++) {
-+		data->manual_pwm_ctl[i] = 0xff;
+ 	.start =		dummy_start,
+ 	.stop =			dummy_stop,
+ 
+-	.hcd_alloc = 		dummy_alloc,
+-
+ 	.urb_enqueue = 		dummy_urb_enqueue,
+ 	.urb_dequeue = 		dummy_urb_dequeue,
+ 
+@@ -1737,7 +1728,7 @@
+ 
+ 	dev_info (dev, "%s, driver " DRIVER_VERSION "\n", driver_desc);
+ 
+-	hcd = dummy_alloc ();
++	hcd = usb_create_hcd (&dummy_hcd);
+ 	if (hcd == NULL) {
+ 		dev_dbg (dev, "hcd_alloc failed\n");
+ 		return -ENOMEM;
+@@ -1745,9 +1736,8 @@
+ 
+ 	dev_set_drvdata (dev, hcd);
+ 	dum = hcd_to_dummy (hcd);
++	the_controller = dum;
+ 
+-	hcd->driver = (struct hc_driver *) &dummy_hcd;
+-	hcd->description = dummy_hcd.description;
+ 	hcd->self.controller = dev;
+ 
+ 	/* FIXME don't require the pci-based buffer/alloc impls;
+@@ -1760,13 +1750,7 @@
+ 		goto err1;
  	}
  
- 	/* Check if temperature channnels are reset manually or by some reason */
-@@ -876,13 +969,35 @@
- 	}
+-	usb_bus_init (&hcd->self);
+-	hcd->self.op = &usb_hcd_operations;
+-	hcd->self.release = &usb_hcd_release;
+-	hcd->self.hcpriv = hcd;
+ 	hcd->self.bus_name = dev->bus_id;
+-	hcd->product_desc = "Dummy host controller";
+-
+ 	usb_register_bus (&hcd->self);
  
- 	/* Check if tachometers are reset manually or by some reason */
--	tmp = it87_read_value(client, IT87_REG_FAN_MAIN_CTRL);
--	if ((tmp & 0x70) == 0) {
-+	data->fan_main_ctrl = it87_read_value(client, IT87_REG_FAN_MAIN_CTRL);
-+	if ((data->fan_main_ctrl & 0x70) == 0) {
- 		/* Enable all fan tachometers */
--		tmp = (tmp & 0x8f) | 0x70;
--		it87_write_value(client, IT87_REG_FAN_MAIN_CTRL, tmp);
-+		data->fan_main_ctrl |= 0x70;
-+		it87_write_value(client, IT87_REG_FAN_MAIN_CTRL, data->fan_main_ctrl);
- 	}
+ 	if ((retval = dummy_start (hcd)) < 0) 
+@@ -1774,7 +1758,7 @@
+ 	return retval;
  
-+	/* Set current fan mode registers and the default settings for the
-+	 * other mode registers */
-+	for (i = 0; i < 3; i++) {
-+		if (data->fan_main_ctrl & (1 << i)) {
-+			/* pwm mode */
-+			tmp = it87_read_value(client, IT87_REG_PWM(i));
-+			if (tmp & 0x80) {
-+				/* automatic pwm - not yet implemented, but
-+				 * leave the settings made by the BIOS alone
-+				 * until a change is requested via the sysfs
-+				 * interface */
-+			} else {
-+				/* manual pwm */
-+				data->manual_pwm_ctl[i] = PWM_FROM_REG(tmp);
-+			}
-+		}
-+ 	}
-+
-+	/* make sure the fan is on when in on/off mode */
-+	tmp = it87_read_value(client, IT87_REG_FAN_CTL);
-+	it87_write_value(client, IT87_REG_FAN_CTL, tmp | 0x07);
-+
- 	/* Start monitoring */
- 	it87_write_value(client, IT87_REG_CONFIG,
- 			 (it87_read_value(client, IT87_REG_CONFIG) & 0x36)
-@@ -984,8 +1099,6 @@
- MODULE_DESCRIPTION("IT8705F, IT8712F, Sis950 driver");
- module_param(update_vbat, bool, 0);
- MODULE_PARM_DESC(update_vbat, "Update vbat if set else return powerup value");
--module_param(reset, bool, 0);
--MODULE_PARM_DESC(reset, "Reset the chip's registers, default no");
- MODULE_LICENSE("GPL");
- 
- module_init(sm_it87_init);
+ err1:
+-	kfree (hcd);
++	usb_put_hcd (hcd);
+ 	dev_set_drvdata (dev, NULL);
+ 	return retval;
+ }
 

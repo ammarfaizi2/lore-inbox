@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVCRB75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVCRCHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVCRB75 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 20:59:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVCRB75
+	id S261429AbVCRCHB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 21:07:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVCRCHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 20:59:57 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:7610 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261373AbVCRB7z (ORCPT
+	Thu, 17 Mar 2005 21:07:01 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:59533 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261421AbVCRCG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 20:59:55 -0500
-Message-ID: <423A3617.6060406@g-house.de>
-Date: Fri, 18 Mar 2005 02:59:51 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Coywolf Qi Hunt <coywolf@gmail.com>
-Subject: Re: oom with 2.6.11
-References: <422DC2F1.7020802@g-house.de>	 <2cd57c9005031102595dfe78e6@mail.gmail.com>	 <4231B4E9.3080005@g-house.de> <42332F9C.7090703@g-house.de>	 <4238DD01.9060500@g-house.de> <2cd57c90050317132570147e7c@mail.gmail.com>
-In-Reply-To: <2cd57c90050317132570147e7c@mail.gmail.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Mar 2005 21:06:58 -0500
+Date: Thu, 17 Mar 2005 18:06:45 -0800
+From: Jason Uhlenkott <jasonuhl@sgi.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, holt@sgi.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Prezeroing V8 + free_hot_zeroed_page + free_cold_zeroed page
+Message-ID: <20050318020645.GC156968@dragonfly.engr.sgi.com>
+References: <Pine.LNX.4.58.0503171340480.9678@schroedinger.engr.sgi.com> <20050317140831.414b73bb.akpm@osdl.org> <Pine.LNX.4.58.0503171459310.10205@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503171459310.10205@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> I do "grep check-route.sh oom_2.6.11.3.txt | wc" and it shows 4365
+On Thu, Mar 17, 2005 at 05:36:50PM -0800, Christoph Lameter wrote:
+> +        while (avenrun[0] >= ((unsigned long)sysctl_scrub_load << FSHIFT)) {
+> +		set_current_state(TASK_UNINTERRUPTIBLE);
+> +		schedule_timeout(30*HZ);
+> +	}
 
-duh, good catch! really!
-
-> lines, which means there're 4365 that script processes running, from 
-> pid 4260 to12747, mostly with pretty low points, 123.
-> Based on this points, suppose each script consumes 100k, that'll be
-> 100k*4k=400M roughly. And your box's is merely 256M MemTotal.
-
-yes, i just checked, the script is looping and crond is starting a new
-one, and another....and the oom-killer does not catch it, because it's too
-small and of course don't know where it is coming from (crond).
-
-> Check this script and disable it; see what will happen.
-
-yes, will do that. on a (not so unimportant) side-note: i was told the
-whole thing should be fixed with 2.6.11.4:
-
-  [PATCH] CAN-2005-0384: Remote Linux DoS on ppp servers
-
-
-after all it seems to be PEBKAC and bad luck...what a week.
-
-thank you for your help,
-Christian.
--- 
-BOFH excuse #416:
-
-We're out of slots on the server
+This should probably be TASK_INTERRUPTIBLE.  It'll never actually get
+interrupted either way since kernel threads block all signals, but
+sleeping uninterruptibly contributes to the load average.  

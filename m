@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264859AbSLaXXW>; Tue, 31 Dec 2002 18:23:22 -0500
+	id <S264875AbSLaX1d>; Tue, 31 Dec 2002 18:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264875AbSLaXXW>; Tue, 31 Dec 2002 18:23:22 -0500
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:52887 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S264859AbSLaXXV>; Tue, 31 Dec 2002 18:23:21 -0500
-Date: Tue, 31 Dec 2002 15:35:28 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] generic device DMA (dma_pool update)
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
-Message-id: <3E1229C0.2010000@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200212312202.OAA10841@adam.yggdrasil.com>
+	id <S264877AbSLaX1d>; Tue, 31 Dec 2002 18:27:33 -0500
+Received: from are.twiddle.net ([64.81.246.98]:898 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S264875AbSLaX1c>;
+	Tue, 31 Dec 2002 18:27:32 -0500
+Date: Tue, 31 Dec 2002 15:35:39 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] arch/alpha: Makefiles update
+Message-ID: <20021231153539.A21946@twiddle.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021230115336.GA1089@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021230115336.GA1089@mars.ravnborg.org>; from sam@ravnborg.org on Mon, Dec 30, 2002 at 12:53:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
+On Mon, Dec 30, 2002 at 12:53:36PM +0100, Sam Ravnborg wrote:
+> +# If ALPHA_GENERIC, make sure to turn off any instruction set extensions
+> +# that the host compiler might have on by default. Given that EV4 and EV5
+> +# have the same instruction set, prefer EV5 because an EV5 schedule is
+> +# more likely to keep an EV4 processor busy than vice-versa.
+> + 
+> +# Default value
+> +mach-yy := ev56
+> +mach-$(have_mcpu_pca56)$(have_mcpu_pca56)	:= pca56
+> +
+> +#Machine depedent values, influenced by gcc capabilitites
+> +mach-$(CONFIG_ALPHA_SX164)$(have_mcpu_pca56)	:= pca56
+> +mach-$(CONFIG_ALPHA_POLARIS)$(have_mcpu_pca56)	:= pca56
+> +mach-$(CONFIG_ALPHA_EV67)$(have_mcpu_ev67)	:= ev67
+> +
+> +mach-y				:= $(mach-yy)
+> +mach-$(CONFIG_ALPHA_GENERIC)	:= ev5
+> +mach-$(CONFIG_ALPHA_EV4)	:= ev4
+> +mach-$(CONFIG_ALPHA_EV56)	:= ev56
+> +mach-$(CONFIG_ALPHA_EV5)	:= ev5
+> +mach-$(CONFIG_ALPHA_EV6)	:= ev6
 
-> 	I think that the term "pool" is more descriptively used by
-> mempool and more misleadningly used by the pci_pool code, as there is
-> no guaranteed pool being reserved in the pci_pool code.  Alas, I don't
-> have a good alternative term to suggest at the moment.
+This doesn't work.   For example CONFIG_ALPHA_EV67 depends on
+CONFIG_ALPHA_EV6, so we'll never use the -mcpu=ev67 flag.
 
-FWIW pci_pool predates mempool by quite a bit (2.4.early vs 2.5.later),
-and I don't think I've noticed any correlation between allocation using
-the "pool" word and reserving memory ... so I thought it was "mempool"
-that clashed.  No big deal IMO, "all the good words are taken".
-
-I seem to recall it was a portability issue that made pci_pool never
-release pages once it allocates them ... some platform couldn't cope
-with pci_free_consistent() being called in_interrupt().  In practice
-that seems to have been a good enough reservation scheme so far.
-
-- Dave
+I'm reverting this part.  I see nothing wrong with an if/else
+tree for this.  It's straightforward.  I think anything you come
+up with to replace it will be harder to understand at a glance,
+and therefore more fragile.
 
 
+> +# My special boot (msb) writes directly to a specific disk partition,
+> +# I doubt most people will want to do that without changes..
+> +msb srmboot: vmlinux
+> +	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
+
+I've just removed these targets.
+
+I'm testing the rest of the patch now.  Will apply if successful.
+
+
+r~

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLNXJW>; Thu, 14 Dec 2000 18:09:22 -0500
+	id <S129773AbQLNXKW>; Thu, 14 Dec 2000 18:10:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133089AbQLNXJM>; Thu, 14 Dec 2000 18:09:12 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1540 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129260AbQLNXIz>; Thu, 14 Dec 2000 18:08:55 -0500
-Subject: Re: Is this a compromise and how?
-To: F.vanMaarseveen@inter.NL.net (Frank van Maarseveen)
-Date: Thu, 14 Dec 2000 22:40:38 +0000 (GMT)
-Cc: brian@top.worldcontrol.com (Brian Litzinger), linux-kernel@vger.kernel.org
-In-Reply-To: <20001214212211.A10157@iapetus.localdomain> from "Frank van Maarseveen" at Dec 14, 2000 09:22:11 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S133089AbQLNXKM>; Thu, 14 Dec 2000 18:10:12 -0500
+Received: from gherkin.sa.wlk.com ([192.158.254.49]:58372 "HELO
+	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
+	id <S129773AbQLNXKJ>; Thu, 14 Dec 2000 18:10:09 -0500
+Message-Id: <m146h2G-0005keC@gherkin.sa.wlk.com>
+From: rct@gherkin.sa.wlk.com (Bob_Tracy)
+Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
+To: linux-kernel@vger.kernel.org
+Date: Thu, 14 Dec 2000 16:39:36 -0600 (CST)
+CC: davem@redhat.com, mhaque@haque.net, ionut@moisil.cs.columbia.edu
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E146h3H-000087-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'm guessing that your ls was also hijacked.  You're using RedHat, so try
-> > the rpm -V command
-> Once hacked you can't trust anything. A malicious person might just
-> install RPMs for example.
+Ion Badulescu wrote:
+> On Thu, 14 Dec 2000 07:15:04 -0500, Mohammad A. Haque <mhaque@haque.net> wrote:
+> > Were you connected to a network or receiving/sending anything?
+> 
+> ip_defrag is broken -- there is an obvious NULL pointer dereference
+> in it, introduced in test12. It doesn't hit normally, because of
+> path MTU discovery, but using NFS causes instant death.
 
-There is a proper way to do this. You boot the rescue CD, then do the rpm 
-verify of each package with the rpm binary on the CD (static) agains the
-package on the CD. 
+...and then I wrote:
+> This is consistent with the lockup I reported several hours ago.
+> In the case of my "unstable" 2.4.0-test12 machine where "startx"
+> worked fine for "root" but not for a normal user, the "root"
+> account is local.  The normal user account home directories are
+> NFS mounted :-(.
 
-> Re-install is the only option.
+I tried the submitted patch for ip_fragment.c, and there's still
+no joy on that one unstable machine in my sample set.  At this
+point, I should probably go back through all the pre-12 patches
+and see if the problem scope can be narrowed a bit.
 
-I would advise this however it is not 'only' but 'very good idea'
-
-> Restore backups only after verifying that they do not re-install the
-
-(popular one is roots .login)
-
-Alan
-
+-- 
+Bob Tracy
+rct@frus.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

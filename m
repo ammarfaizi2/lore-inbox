@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135889AbRDZTTo>; Thu, 26 Apr 2001 15:19:44 -0400
+	id <S135895AbRDZTVF>; Thu, 26 Apr 2001 15:21:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135890AbRDZTTe>; Thu, 26 Apr 2001 15:19:34 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:35727 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135889AbRDZTTS>;
-	Thu, 26 Apr 2001 15:19:18 -0400
-Date: Thu, 26 Apr 2001 15:17:54 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <Pine.GSO.4.21.0104261455530.15385-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0104261510290.15385-100000@weyl.math.psu.edu>
+	id <S135896AbRDZTU5>; Thu, 26 Apr 2001 15:20:57 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:7429 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S135895AbRDZTUw>; Thu, 26 Apr 2001 15:20:52 -0400
+Date: Thu, 26 Apr 2001 15:20:20 -0400
+From: Chris Mason <mason@suse.com>
+To: Samium Gromoff <_deepfire@mail.ru>, linux-kernel@vger.kernel.org
+cc: reiser@idiom.com
+Subject: Re: ReiserFS question
+Message-ID: <242950000.988312820@tiny>
+In-Reply-To: <E14sr4v-000EC4-00@f3.mail.ru>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 26 Apr 2001, I wrote:
+On Thursday, April 26, 2001 11:05:25 PM +0400 Samium Gromoff
+<_deepfire@mail.ru> wrote:
 
-> On Thu, 26 Apr 2001, Linus Torvalds wrote:
->  
-> > I see the race, but I don't see how you can actually trigger it.
-> > 
-> > Exactly _who_ does the "read from device" part? Somebody doing a
-> > "fsck" while the filesystem is mounted read-write and actively written
-> > to? Yeah, you'd get disk corruption that way, but you'll get it regardless
-> > of this bug.
+>       Hi People...
+>    got a following "dead of alive" question:
+>    how to find a root block on a ReiserFS partition
+>    with a corrupted superblock?
+> 
+>    reiserfsprogs-3.x.0.9j simply writes -2^32
+>    there at start (reset_super_block) and then simply
+>    crashes when attempting to access to such mad place
+>           ... got nearly lost my main partition ...
+> 
+> 
 
-OK, I think I've a better explanation now:
+The reiserfsck ---rebuild-tree will find the root block for you.  Now that
+you've rebuilt the super, run with --rebuild-tree and it should find
+everything.
 
-Suppose /dev/hda1 is owned by root.disks and permissions are 640.
-It is mounted read-write.
-
-Process foo belongs to pfy.staff. PFY is included into disks, but doesn't
-have root. I claim that he should be unable to cause fs corruption on
-/dev/hda1.
-
-Currently foo _can_ cause such corruption, even though it has nothing
-resembling write permissions for device in question.
-
-IMO it is wrong. I'm not saying that it's a real security problem. I'm
-not saying that PFY is not idiot or that his actions make any sense.
-However, I think that situation when he can do that without write
-access to device is just plain wrong.
-
-Does the above make sense?
-								Al
+-chris
 

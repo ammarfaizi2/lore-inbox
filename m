@@ -1,111 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbUFPP2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264054AbUFPP3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbUFPP2g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 11:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263979AbUFPP2g
+	id S264054AbUFPP3u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 11:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264058AbUFPP3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 11:28:36 -0400
-Received: from os.inf.tu-dresden.de ([141.76.48.99]:5567 "EHLO
-	os.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id S262648AbUFPP2c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 11:28:32 -0400
-From: Carsten Rietzschel <cr7@os.inf.tu-dresden.de>
-To: davej@codemonkey.org.uk
-Subject: PATCH - via_agp.c: VP3 souldn't work /  "Detected VIA %s chipset" fails (kernel 2.6.7)
-Date: Wed, 16 Jun 2004 17:32:23 +0200
-User-Agent: KMail/1.6.52
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 16 Jun 2004 11:29:49 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:21659 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S264054AbUFPP3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 11:29:41 -0400
+Date: Wed, 16 Jun 2004 16:29:34 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Option to run cache reap in thread mode
+Message-ID: <20040616152934.GA13527@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dimitri Sivanich <sivanich@sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20040616142413.GA5588@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: TU Dresden - Operating System Group 
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_HgG0A8RIs+uXDew"
-Message-Id: <200406161732.23630.cr7@os.inf.tu-dresden.de>
+In-Reply-To: <20040616142413.GA5588@sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_HgG0A8RIs+uXDew
-Content-Type: text/plain;
-  charset="us-ascii";
-  boundary=""
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, Jun 16, 2004 at 09:24:13AM -0500, Dimitri Sivanich wrote:
+> Hi,
+> 
+> In the process of testing per/cpu interrupt response times and CPU availability,
+> I've found that running cache_reap() as a timer as is done currently results
+> in some fairly long CPU holdoffs.
+> 
+> I would like to know what others think about running cache_reap() as a low
+> priority realtime kthread, at least on certain cpus that would be configured
+> that way (probably configured at boottime initially).  I've been doing some
+> testing running it this way on CPU's whose activity is mostly restricted to
+> realtime work (requiring rapid response times).
+> 
+> Here's my first cut at an initial patch for this (there will be other changes
+> later to set the configuration and to optimize locking in cache_reap()).
 
-Hello,
+YAKT, sigh..  I don't quite understand what you mean with a "holdoff" so
+maybe you could explain what problem you see?  You don't like cache_reap
+beeing called from timer context?
 
-the AGP-driver should not work for Apollo VP3, cause it's not listed in 
-struct pci_device_id list in the fresh kernel 2.6.7.
+As for realtime stuff you're probably better off using something like rtlinux,
+getting into the hrt or even real strong soft rt busuniness means messing up
+the kernel horrible.  Given you're @sgi.com address you probably know what
+a freaking mess and maintaince nightmare IRIX has become because of that.
 
-So it also displays "Detected VIA %s chipset" wrong for every VIA chipset.
-
-The reason for both is, in 
-	static struct pci_device_id agp_via_pci_table[]
-the line
-       ID(PCI_DEVICE_ID_VIA_82C597_0),
-is missing.
-
-The source code has an comment:
-/* must be the same order as name table above */
-but it doesn't match.
-
-The attached patch:
-- adds ID(PCI_DEVICE_ID_VIA_82C597_0) to pci_device_id agp_via_pci_table[]
-- it compares the correct number of entries in both tables in init-function
-  (agp_via_pci_table vs. via_agp_device_ids), if it doesn't match in prints a 
-  warning 
-  <--- this is not neccessary, but  just to be sure :)
- 
-Regards,
-Carsten
-
---Boundary-00=_HgG0A8RIs+uXDew
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="via-agp-verbose.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="via-agp-verbose.patch"
-
-diff -uprN linux-2.6.7-org/drivers/char/agp/via-agp.c linux-2.6.7/drivers/char/agp/via-agp.c
---- linux-2.6.7-org/drivers/char/agp/via-agp.c	2004-06-16 13:26:03.000000000 +0200
-+++ linux-2.6.7/drivers/char/agp/via-agp.c	2004-06-16 17:10:47.000000000 +0200
-@@ -351,6 +351,7 @@ static struct agp_device_ids via_agp_dev
- 
- 	{ }, /* dummy final entry, always present */
- };
-+#define AGP_VIA_DEVICE_ELEMENTS (sizeof(via_agp_device_ids)/sizeof(via_agp_device_ids[0]))
- 
- 
- /*
-@@ -434,6 +435,7 @@ static struct pci_device_id agp_via_pci_
- 	.subvendor	= PCI_ANY_ID,			\
- 	.subdevice	= PCI_ANY_ID,			\
- 	}
-+	ID(PCI_DEVICE_ID_VIA_82C597_0),
- 	ID(PCI_DEVICE_ID_VIA_82C598_0),
- 	ID(PCI_DEVICE_ID_VIA_8501_0),
- 	ID(PCI_DEVICE_ID_VIA_8601_0),
-@@ -459,10 +461,12 @@ static struct pci_device_id agp_via_pci_
- 	ID(PCI_DEVICE_ID_VIA_PX8X0_0),	
- 	{ }
- };
-+#define AGP_VIA_PCI_ELEMENTS (sizeof(agp_via_pci_table)/sizeof(agp_via_pci_table[0]))
- 
- MODULE_DEVICE_TABLE(pci, agp_via_pci_table);
- 
- 
-+
- static struct pci_driver agp_via_pci_driver = {
- 	.name		= "agpgart-via",
- 	.id_table	= agp_via_pci_table,
-@@ -473,6 +477,8 @@ static struct pci_driver agp_via_pci_dri
- 
- static int __init agp_via_init(void)
- {
-+        if(AGP_VIA_DEVICE_ELEMENTS != AGP_VIA_PCI_ELEMENTS)
-+	    printk (KERN_INFO PFX "Warning: sizeof device and pci elements don't match. Please send a bug report.\n");
- 	return pci_module_init(&agp_via_pci_driver);
- }
- 
-
---Boundary-00=_HgG0A8RIs+uXDew--

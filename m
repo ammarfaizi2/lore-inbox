@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbUCKLAP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 06:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUCKLAP
+	id S261179AbUCKLGO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 06:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbUCKLGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 06:00:15 -0500
-Received: from main.gmane.org ([80.91.224.249]:32901 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261171AbUCKLAK (ORCPT
+	Thu, 11 Mar 2004 06:06:14 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9391 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261179AbUCKLGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 06:00:10 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Framebuffer with nVidia GeForce 2 Go on Dell Inspiron 8200
-Date: Thu, 11 Mar 2004 11:51:08 +0100
-Message-ID: <MPG.1aba630ad806a4c3989683@news.gmane.org>
-References: <c2o8sp$h3j$1@sea.gmane.org> <Pine.LNX.4.44.0403110112170.24760-100000@phoenix.infradead.org>
+	Thu, 11 Mar 2004 06:06:10 -0500
+Date: Thu, 11 Mar 2004 03:06:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mickael Marchand <marchand@kde.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-Id: <20040311030607.22706063.akpm@osdl.org>
+In-Reply-To: <200403111017.33363.marchand@kde.org>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+	<200403111017.33363.marchand@kde.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: oblomov.dipmat.unict.it
-X-Newsreader: MicroPlanet Gravity v2.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Simmons wrote:
+Mickael Marchand <marchand@kde.org> wrote:
+>
+> Hi,
 > 
-> > 1. The vga framebuffer works. I can even bring the monitor to 800x600 
-> > in tweaked VGA mode.
+> on my config (opteron box) I need this patch to get it compiled :
 > 
-> Cool :-) I assume you mean the vga16fb driver.
+> --- fs/compat_ioctl.c.orig      2004-03-11 08:57:49.472074584 +0000
+> +++ fs/compat_ioctl.c   2004-03-11 08:57:01.770326352 +0000
+> @@ -1604,7 +1604,7 @@
+>          * To have permissions to do most of the vt ioctls, we either have
+>          * to be the owner of the tty, or super-user.
+>          */
+> -       if (current->tty == tty || capable(CAP_SYS_ADMIN))
+> +       if (current->signal->tty == tty || capable(CAP_SYS_ADMIN))
+>                 return 1;
+>         return 0;
+>  }
 
-Yes :)
+yup, thanks.
 
-> > 2. The VESA framebuffer does not work. Apparently, the card is not 
-> > detected as VESA-compatible. (I'm not 100% sure about this --how can 
-> > I check if this is indeed the case?)
 > 
-> Are you sure. Take a look at your vga= parmeter. What is its value?
+> while I am at it, I am running a 64 bits kernel with 32 bits debian testing and
+> it seems some ioctl conversion fails
+> that happened with all 2.6 I tried.
+> here is the relevant kernel messages part :
+> ioctl32(dmsetup:26199): Unknown cmd fd(3) cmd(c134fd00){01} arg(0804c0b0) on /dev/mapper/control
 
-I tried vga=ask, and no VESA modes are detected.
+The device mapper version 1 ioctl interface was removed.  Perhaps you need
+to update your dm tools?
 
-> > 3. The Riva framebuffer doesn't work either. It detects the video 
-> > card all right, understands that I'm running on a laptop and thus 
-> > with an LCD monitor, but as soon as I "touch" it (be it even just 
-> > with a fbset -i to find the information), the screen goes blank or 
-> > has some very funny graphical effects (fade to black in the middle, 
-> > etc). The system doesn't lock up (I can still blind-type and reset 
-> > it), but I can't use it.
-> > 
-> > Does anybody know what could be wrong?
-> 
-> That is a bug in fbcon layer. Now that I have my home system back up I 
-> plan to test my radeon card to track down the bug that was preventing the 
-> layer from properly resizing the screen.
+> ioctl32(fsck.reiserfs:201): Unknown cmd fd(4) cmd(80081272){00} arg(ffffdab8) on /dev/ide/host0/bus0/target0/lun0/part4
 
-Is there a particular reason why it would blank out even when just 
-asking for information, without changing any setting?
+Is this something which 2.6 has always done, or is it new behaviour?
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-Can't you see
-It all makes perfect sense
-Expressed in dollar and cents
-Pounds shillings and pence
-                  (Roger Waters)
-
+reiserfs ioctl translation appears to be incomplete...

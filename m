@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263204AbUG2XxM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267531AbUG2XxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbUG2XxM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 19:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUG2XxM
+	id S267531AbUG2XxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 19:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUG2XxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 19:53:12 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:9624 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S263204AbUG2XxJ (ORCPT
+	Thu, 29 Jul 2004 19:53:16 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22943 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S267531AbUG2XxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 19:53:09 -0400
-X-Sender-Authentication: net64
-Date: Fri, 30 Jul 2004 01:53:07 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
+	Thu, 29 Jul 2004 19:53:13 -0400
+Date: Thu, 29 Jul 2004 16:51:52 -0700
+From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to increase max number of groups per uid ?
-Message-Id: <20040730015307.71df3cc6.skraw@ithnet.com>
-In-Reply-To: <20040729163407.02bb2dd6.akpm@osdl.org>
-References: <20040729193106.43d4c515.skraw@ithnet.com>
-	<20040729163407.02bb2dd6.akpm@osdl.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Cc: hirofumi@mail.parknet.co.jp, aebr@win.tue.nl, vojtech@suse.cz,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
+Message-Id: <20040729165152.492faced.pj@sgi.com>
+In-Reply-To: <20040729162423.7452e8f5.akpm@osdl.org>
+References: <87llhjlxjk.fsf@devron.myhome.or.jp>
+	<20040716164435.GA8078@ucw.cz>
+	<20040716201523.GC5518@pclin040.win.tue.nl>
+	<871xjbkv8g.fsf@devron.myhome.or.jp>
+	<20040728115130.GA4008@pclin040.win.tue.nl>
+	<87fz7c9j0y.fsf@devron.myhome.or.jp>
+	<20040728134202.5938b275.pj@sgi.com>
+	<87llh3ihcn.fsf@ibmpc.myhome.or.jp>
+	<20040728231548.4edebd5b.pj@sgi.com>
+	<87oelzjhcx.fsf@ibmpc.myhome.or.jp>
+	<20040729024931.4b4e78e6.pj@sgi.com>
+	<20040729162423.7452e8f5.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004 16:34:07 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+Andrew:
+> ... still waiting ...
 
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> >
-> > is there a simple way in either 2.4 or 2.6 to get a lot more than 32 groups
-> > per uid?
-> 
-> 2.6 kernels support up to 65536 groups per user.
+Don't wait on me ... as indicated in my last post on this lkml thread,
+I left this back in the hands of the expert, OGAWA Hirofumi.
 
-Then this feature didn't seem to make it in the core utils.
-On a 2.6-based SuSE 9.1 "groups" (which is in fact "id") lists exactly 32.
-
-What about other distros?
-
-Regards,
-Stephan
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

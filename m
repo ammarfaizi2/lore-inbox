@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263627AbTJCJD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 05:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTJCJD3
+	id S263646AbTJCJLd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 05:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTJCJLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 05:03:29 -0400
-Received: from rth.ninka.net ([216.101.162.244]:12687 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263627AbTJCJD2 (ORCPT
+	Fri, 3 Oct 2003 05:11:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31379 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263646AbTJCJLb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 05:03:28 -0400
-Date: Fri, 3 Oct 2003 02:03:17 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Michal Kochanowicz <michal@michal.waw.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test6] definition and usage of __u64/__s64 inconsistent?
-Message-Id: <20031003020317.4d582970.davem@redhat.com>
-In-Reply-To: <20031003085412.GA4602@wieszak.lan>
-References: <20031003085412.GA4602@wieszak.lan>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 3 Oct 2003 05:11:31 -0400
+Date: Fri, 3 Oct 2003 02:12:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix vsyscall page in core dumps
+Message-Id: <20031003021251.627dd922.akpm@osdl.org>
+In-Reply-To: <200310030156.h931uZhL015129@magilla.sf.frob.com>
+References: <200310030156.h931uZhL015129@magilla.sf.frob.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Oct 2003 10:54:12 +0200
-Michal Kochanowicz <michal@michal.waw.pl> wrote:
+Roland McGrath <roland@redhat.com> wrote:
+>
+> My change to core dumps that was included with the vsyscall DSO
+>  implementation had a bug (braino on my part).  Core dumps don't include the
+>  full page of the vsyscall DSO, and so don't accurately represent the whole
+>  memory image of the process.  This patch fixes it.  I have tested it on
+>  x86, but not tested the same change to 32-bit core dumps on AMD64 (haven't
+>  even compiled on AMD64).
+> 
+>  I've also included the corresponding change for the IA64 code that was
+>  copied blindly from the x86 vsyscall implementation, which looks like more
+>  change than it is since I preserved the formatting of the copied code
+>  instead of arbitrarily diddling it along with the trivial symbol name
+>  changes.
 
-> The file asm/types.h is _unconditionally_ included from linux/cdrom.h
-> and linux/loop.h and both files use __u64 unonditionally. Isn't this an
-> error?
+How does one test it?
 
-Not really.
+> I haven't compiled or tested on ia64.
 
-We could fix this by using the __extension__ keyword and thereby
-get rid of the __STRICT_ANSI__ check and situations like your's
-would work.
+I have.  GATE_BASE is undefined.  Replacing it with GATE_ADDR makes it
+build OK, but that's all I can say.
+

@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbUD1Vea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbUD1Vko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbUD1Vea (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 17:34:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbUD1Ve1
+	id S261793AbUD1Vko (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 17:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUD1ToG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 17:34:27 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:7372 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261931AbUD1Vdf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 17:33:35 -0400
-Subject: Re: Low bogomips on IBM x445 (kernel 2.6.5)
-From: john stultz <johnstul@us.ibm.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Christoph Pohl <christoph.pohl@inf.tu-dresden.de>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <40901E1A.9020904@nortelnetworks.com>
-References: <408E3D74.2090301@inf.tu-dresden.de>
-	 <1083184612.9664.15.camel@cog.beaverton.ibm.com>
-	 <40901E1A.9020904@nortelnetworks.com>
-Content-Type: text/plain
-Message-Id: <1083187994.9664.24.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 28 Apr 2004 14:33:14 -0700
+	Wed, 28 Apr 2004 15:44:06 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:2791 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S264999AbUD1RaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 13:30:19 -0400
+Message-ID: <408FEA82.1040309@pacbell.net>
+Date: Wed, 28 Apr 2004 10:31:46 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: Grzegorz Kulewski <kangur@polcom.net>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       speedtouch@ml.free.fr
+Subject: Re: [linux-usb-devel] Re: USB related oops in 2.6.6-rk2-bk3 (similar
+ with 2.6.5)
+References: <200403262054.56725@WOLK> <Pine.LNX.4.58.0403272228360.2662@alpha.polcom.net> <Pine.LNX.4.58.0404270115260.5772@alpha.polcom.net> <Pine.LNX.4.58.0404281325250.5272@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.58.0404281325250.5272@alpha.polcom.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-28 at 14:11, Chris Friesen wrote:
-> john stultz wrote:
+Grzegorz Kulewski wrote:
+> Is anybody going to look at it? It prevents my system from shuting down.
+
+Looks like one of the problems already fixed in the latest bk-usb.patch
+found in the MM kernels ...
+
+- Dave
+
+> On Tue, 27 Apr 2004, Grzegorz Kulewski wrote:
 > 
-> > This is expected. Since the IBM x440/x445 are NUMA systems, we cannot
-> > use the TSC (cpu cycle counter) as a time source. Instead we use an off
-> > chip performance counter which runs at 100Mhz. This then translates to a
-> > bogoMIPS value of ~200. 
 > 
-> That sounds very strange.  Bogomips is supposed to be how many busy-wait loops the cpu can do in a 
-> second, or at least that's what I've seen in all the books.  It shouldn't matter what the time 
-> source is.
-
-Well, sort of. bogoMIPS is derived from loops_per_jiffy, which when
-using the PIT as a time source is how many busy-wait loops occur in a
-timer tick.  However when using the TSC as a timesource, the __delay()
-function busy waits for a number of cycles. This increases the accuracy,
-as interrupts taken do not affect the delay time. So in this case
-bogoMIPS becomes the number of cpu cycles per tick. When using the
-cyclone time source (the off chip performance counter) on the x440, it
-becomes the number of cyclone cycles per tick.
-
-thanks
--john
-
-
+>>Hi,
+>>
+>>I experienced this oops. I have uhci-hcd and two devices. One is usb 
+>>camera (TC111 - probably not supported under linux?) and the 
+>>second is speedtouch modem. Everytime I shut down my system (Gentoo) with 
+>>2.6.5 and newer I get some oops but system log is down before that and I 
+>>have no time to hack start scripts to stop shuting syslog. It occures when  
+>>removing some usb modules. So I stopped speedtouch and removed the modules 
+>>manually (in stop scripts order I hope). But I have not removed uhci-hcd 
+>>module (this module is removed in other part of stop scripts). And... 
+>>nothing happened. So I unplugged speedtouch and replugged it back. And I 
+>>immendiatelly got atached oops. (I think that I should use ksymoops, but 
+>>it is searching for /proc/ksyms that is not present in 2.6 and it does not 
+>>like /proc/kallsyms... And it produces nothing but warnings. What options 
+>>should I use?)
+>>
+>>What can I do to help track the problem down?
+>>
+>>
+>>thanks in advance
+>>
+>>Grzegorz Kulewski
+>>
+>>
+>>PS. I am subscribbed only to LKML, so CC me, please.
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: Oracle 10g
+> Get certified on the hottest thing ever to hit the market... Oracle 10g. 
+> Take an Oracle 10g class now, and we'll give you the exam FREE. 
+> http://ads.osdn.com/?ad_id=3149&alloc_id=8166&op=click
+> _______________________________________________
+> linux-usb-devel@lists.sourceforge.net
+> To unsubscribe, use the last form field at:
+> https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+> 
 
 

@@ -1,38 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290842AbSARVrm>; Fri, 18 Jan 2002 16:47:42 -0500
+	id <S290846AbSARVsW>; Fri, 18 Jan 2002 16:48:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290846AbSARVrc>; Fri, 18 Jan 2002 16:47:32 -0500
-Received: from host155.209-113-146.oem.net ([209.113.146.155]:38902 "EHLO
-	tibook.netx4.com") by vger.kernel.org with ESMTP id <S290842AbSARVrP>;
-	Fri, 18 Jan 2002 16:47:15 -0500
-Message-ID: <3C4897BD.1080503@embeddededge.com>
-Date: Fri, 18 Jan 2002 16:46:37 -0500
-From: Dan Malek <dan@embeddededge.com>
-Organization: Embedded Edge, LLC.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.11-pre6-ben0 ppc; en-US; 0.8) Gecko/20010419
-X-Accept-Language: en
+	id <S290847AbSARVsN>; Fri, 18 Jan 2002 16:48:13 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:30592 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290846AbSARVsA>; Fri, 18 Jan 2002 16:48:00 -0500
+Date: Fri, 18 Jan 2002 16:49:29 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Doug Alcorn <lathi@seapine.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors
+In-Reply-To: <87lmevjrep.fsf@localhost.localdomain>
+Message-ID: <Pine.LNX.3.95.1020118163838.3008B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-CC: hozer@drgw.net, linux-kernel@vger.kernel.org, groudier@free.fr
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-In-Reply-To: <20020118130209.J14725@altus.drgw.net> <3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com> <20020118212949.H2059@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+On 18 Jan 2002, Doug Alcorn wrote:
 
-> ..... The problem currently is
-> that there is no way for the page table allocation functions to know
-> that they should be using atomic and emergency pool memory allocations.
+> 
+> I had a weird situation with my application where the user deleted all
+> the database files while the app was still reading and writing to the
+> opened file descriptor.  What was weird to me was that the app didn't
+> complain.  It just went merrily about it's business as if nothing were
+> wrong.  Of course, after the app shut down all it's data was lost.
+> 
+> Since I didn't expect this behavior I wrote a simple little program to
+> test it[1].  Sure enough, you can rm a file that has opened file
+> descriptors and no errors are generated.  Interestingly, sun solaris
+> does the same thing.  Since this is the case, I thought this might be
+> a feature instead of a bug (ms-win doesn't allow the rm).  So, my
+> question is where is this behavior defined?  Is it a kernel issue?
+> Does POSIX define this behavior?  Is it a libc issue?  
+> 
+> I tried to google this, but couldn't think of the right terms to
+> describe it.  As I'm not on lkm, I would appreciate a CC: to
+> <doug@lathi.net>.
 
-Hmmm...I thought they already do this.  I always assumed the gfp_flag passed
-into alloc_pages would find its way all of the way through the page table
-allocation as well.  You just have to be ready to handle the case where
-it returns with an -ENOMEM :-).
+This is a characteristic of a VFS (Virtual File System) on any
+Unix system. The file doesn't go away until it is closed by
+everybody that accesses it. However, you can remove or rename it
+even when it's open for write by other tasks. If a task has an
+open file-descriptor and keeps it open, it could 'fix' a possibly
+deleted file, by opening it again with
 
+         new_fd = open("filename", O_CREAT|O_RDWR, 0644);
 
-	-- Dan
+(without O_TRUNC) and it will remain in existance after all
+file descriptors are closed, because it was "created" again
+after it was deleted by another task. However, if all descriptors
+are closed before you recreate it, data are permanently lost.
+In this case, it's a new file.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

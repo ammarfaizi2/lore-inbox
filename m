@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTLJXXl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 18:23:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTLJXXl
+	id S264272AbTLJXTt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 18:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTLJXTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 18:23:41 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:13966 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S262914AbTLJXXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 18:23:40 -0500
-Date: Wed, 10 Dec 2003 23:15:36 +0000
-From: Dave Jones <davej@redhat.com>
-To: Paul Jakma <paul@clubi.ie>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
-Subject: Re: Device-mapper submission for 2.4
-Message-ID: <20031210231536.GB13303@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Paul Jakma <paul@clubi.ie>,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet> <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org> <20031209235823.GT8039@holomorphy.com> <Pine.LNX.4.56.0312100005270.30298@fogarty.jakma.org>
+	Wed, 10 Dec 2003 18:19:49 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:44038 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264272AbTLJXTs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 18:19:48 -0500
+Date: Thu, 11 Dec 2003 00:30:50 +0100
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Con Kolivas <kernel@kolivas.org>,
+       Chris Vine <chris@cvine.freeserve.co.uk>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
+Message-ID: <20031210233050.GA16653@hh.idb.hist.no>
+References: <200311032113.14462.chris@cvine.freeserve.co.uk> <200311041355.08731.kernel@kolivas.org> <20031208135225.GT19856@holomorphy.com> <20031208194930.GA8667@k3.hellgate.ch> <20031208204817.GA19856@holomorphy.com> <20031209002745.GB8667@k3.hellgate.ch> <20031209040501.GE19856@holomorphy.com> <20031209151103.GA4837@k3.hellgate.ch> <20031209193801.GF19856@holomorphy.com> <20031210135829.GA18370@k3.hellgate.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0312100005270.30298@fogarty.jakma.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031210135829.GA18370@k3.hellgate.ch>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 12:15:17AM +0000, Paul Jakma wrote:
- > > Just apply the patch if you're for some reason terrified of 2.6.
- > Or get RedHat or Fedora to apply the patch.
+On Wed, Dec 10, 2003 at 02:58:29PM +0100, Roger Luethi wrote:
+> 
+> What goes wrong is that once you start suspending tasks, you have a
+> hard time telling the interactive tasks apart from the batch load.
+> This may not be much of a problem on a 10x overcommit system, because
+> that's presumably quite unresponsive anyway, but it does matter a lot if
+> you have an interactive system that just crossed the border to thrashing.
+> 
+This isn't too bad.  Lets say I use the system interavtively and the "wrong"
+app suddenly is swapped out.  I notice this, and simply close
+down some responsive apps that are less needed.  The system
+will then notice that there's "enough" memory and allow
+the app to page in again.
 
-This isn't going to happen for Fedora.
-
-		Dave
-
+Helge Hafting

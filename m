@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVBDAbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVBDAgN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262622AbVBDAbf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVBDAbR
+	id S262026AbVBDAgN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:36:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVBDAgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:31:17 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:61570 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262986AbVBDAat (ORCPT
+	Thu, 3 Feb 2005 19:36:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61415 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262026AbVBDAfz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:30:49 -0500
-Message-ID: <4202C223.6050802@home-tj.org>
-Date: Fri, 04 Feb 2005 09:30:27 +0900
-From: Tejun Heo <tj@home-tj.org>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc2 21/29] ide: Merge do_rw_taskfile() and flagged_taskfile().
-References: <20050202024017.GA621@htj.dyndns.org>	 <20050202030603.GF1187@htj.dyndns.org> <58cb370e050203103952e1cd22@mail.gmail.com>
-In-Reply-To: <58cb370e050203103952e1cd22@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Feb 2005 19:35:55 -0500
+Date: Thu, 3 Feb 2005 16:35:20 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Davis <paul@linuxaudiosystems.com>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, "Jack O'Quin" <joq@io.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, rlrevell@joe-job.com,
+       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050203163520.D24171@build.pdx.osdl.net>
+References: <42014C10.60407@bigpond.net.au> <200502022303.j12N3nZa002055@localhost.localdomain> <20050203213645.GB27255@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050203213645.GB27255@elte.hu>; from mingo@elte.hu on Thu, Feb 03, 2005 at 10:36:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Bartlomiej Zolnierkiewicz wrote:
-> On Wed, 2 Feb 2005 12:06:03 +0900, Tejun Heo <tj@home-tj.org> wrote:
+* Ingo Molnar (mingo@elte.hu) wrote:
+> i believe RT-LSM provides a way to solve this cleanly: you can make your
+> audio app setguid-audio (note: NOT setuid), and make the audio group
+> have CAP_SYS_NICE-equivalent privilege via the RT-LSM, and then you
+> could have a finegrained per-app way of enabling SCHED_FIFO scheduling,
+> without giving _users_ the blanket permission to SCHED_FIFO. Ok?
 > 
->>>21_ide_do_taskfile.patch
->>>
->>>      Merged do_rw_taskfile() and flagged_taskfile() into
->>>      do_taskfile().  During the merge, the following changes took
->>>      place.
->>>      1. flagged taskfile now honors HOB feature register.
->>>         (do_rw_taskfile() did write to HOB feature.)
->>>      2. No do_rw_taskfile() HIHI check on select register.  Except
->>>         for the DEV bit, all bits are honored.
->>>      3. Uses taskfile->data_phase to determine if dma trasfer is
->>>         requested.  (do_rw_taskfile() directly switched on
->>>         taskfile->command for all dma commands)
->>
->>Signed-off-by: Tejun Heo <tj@home-tj.org>
+> this way if jackd (or a client) gets run by _any_ user, all jackd
+> processes will be part of the audio group and can do SCHED_FIFO - but
+> users are not automatically trusted with SCHED_FIFO.
 > 
-> 
-> do_rw_taskfile() is going to be used by fs requests once
-> __ide_do_rw_disk() is converted to taskfile transport.
-> 
-> I don't think that do_rw_taskfile() and flagged_taskfile() merge
-> is a good thing as it adds unnecessary overhead for hot path
-> (fs requests).
+> you are currently using RT-LSM to enable a user to do SCHED_FIFO, right? 
+> I think the above mechanism is more secure and more finegrained than
+> that.
 
-Yeah, I also thought about that, but here are reasons why I still think 
-merging is better.
+No, rt-lsm is actually gid based.
 
-1. The added overhead is small.  It's just a dozen more if's per every 
-disk io.  I don't think it will make any noticeable difference.
-
-2. If hot path optimization is needed, it can be easily done inside one 
-do_taskfile() function with one or two more if's.
-
-3. Currently, do_rw_taskfile() isn't used by __ide_do_rw_disk().  We can 
-think about optimization when actually converting it to use taskfile 
-transport.  And IMHO, if hot path optimization is needed, leaving hot 
-path optimization where it is now (inside __ide_do_rw_disk()) is better 
-  than moving it to separate taskfile function (do_rw_taskfile()).
-
+thanks,
+-chris
 -- 
-tejun
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261545AbTCGMWE>; Fri, 7 Mar 2003 07:22:04 -0500
+	id <S261553AbTCGMhe>; Fri, 7 Mar 2003 07:37:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261543AbTCGMWE>; Fri, 7 Mar 2003 07:22:04 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41739 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S261545AbTCGMWD>; Fri, 7 Mar 2003 07:22:03 -0500
-Date: Fri, 7 Mar 2003 13:32:37 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030307123237.GG18420@atrey.karlin.mff.cuni.cz>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030301202617.A18142@kerberos.ncsl.nist.gov> <20030306161853.GD2781@zaurus.ucw.cz> <20030307121215.GA68353@dspnet.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261550AbTCGMhe>; Fri, 7 Mar 2003 07:37:34 -0500
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:38285 "EHLO
+	d06lmsgate-4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S261553AbTCGMhd> convert rfc822-to-8bit; Fri, 7 Mar 2003 07:37:33 -0500
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390: update for 2.5.64.
+Date: Fri, 7 Mar 2003 13:34:18 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20030307121215.GA68353@dspnet.fr.eu.org>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200303071334.18873.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Linus,
+another 2000 lines of patches for s390. They are against 2.5.64 + bk.
 
-> > Can you elaborate? I thought that this
-> > "real DAG" structure is more or less
-> > equivalent to each developer having
-> > his owm CVS repository...
-> 
-> Nope.  CVS uses RCS, and RCS only knows about trees, not graphs.
-> Specifically, branch merges are not tagged as such, and as a result
-> CVS is unable to pick up the best grandparent when doing a merge.
-> That's the main reason of why branching under CVS is so painful
-> (forgetting about the performance issues).
+Short descriptions:
+1) Basic bug fixes for s390.
+2) Add support for system call numbers > 255. The svc instruction
+  provides 8 bits for the svc number. The additional system calls for
+  the posix timers pushed s390 over the edge of 256 system calls. To
+  support more than 256 system calls a second interface is introduced.
+  svc 0 is unused so far and will be used like the int 0x80 interface
+  on i386. The register %r1 contains the real system call number.
+  The new interface requires on additional instructions, e.g. getpid
+  with the new interface is "lhi %r1,20; svc 0" compared to the old
+  interface "svc 20". The old interface will be used for system call
+  number < 256 and the new one for calls >= 256.
+3) dasd driver update. A race condition in dasd_end_request and a
+  compile fix for devfs.
+4) shutdown/restart fixes for the lcs driver.
+5) Fix some kmallocs with GFP_DMA but without GFP_KERNEL.
+6) Make uni-processor kernels compile & work again.
+7) Add code to wait for the root device. We had some trouble to
+  ipl on an LPAR where dasd devices may take time to respond.
 
-I see. But I still somehow can not understand how merging is
-possible. Merge possibly means work-by-hand, right? So it is not as
-simple as noting that 1.8 and 1.7.1.1 were merged into 1.9, no? [And
-what if developer did really crap job at merging that, like dropping
-all changes from 1.7.1.1?]
+blue skies,
+  Martin.
 
-> > If I fixed CVS renames, added atomic
-> > commits, splits and merges, and gave each
-> > developer his own CVS repository,
-> > would I be in same league as bk?
-> > Ie 10 times slower but equivalent
-> > functionality?
-> 
-> Nope.  You'll find out that this per-developper repository quickly
-> needs to become a per-branch repository, and even need you need to
-> write somewhere when the merges with other repositories happen, and
-> you end up with the DAG again.
-
-Yep, that's what I wanted to know. [I see per-branch repository is
-pain, but it helps me to understand that.]
-
-Thanx for your explanations,
-							Pavel
--- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290817AbSBLH5g>; Tue, 12 Feb 2002 02:57:36 -0500
+	id <S290818AbSBLH4g>; Tue, 12 Feb 2002 02:56:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290822AbSBLH5R>; Tue, 12 Feb 2002 02:57:17 -0500
-Received: from AGrenoble-101-1-7-138.abo.wanadoo.fr ([80.13.189.138]:3714 "EHLO
-	lyon.ram.loc") by vger.kernel.org with ESMTP id <S290817AbSBLH5G>;
-	Tue, 12 Feb 2002 02:57:06 -0500
-From: Raphael Manfredi <Raphael_Manfredi@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18-pre7 - known issue with ext3?
-X-Mailer: MH [version 6.8]
-Organization: Home, Grenoble, France
-Date: Tue, 12 Feb 2002 08:21:52 +0100
-Message-ID: <3057.1013498512@nice.ram.loc>
+	id <S290817AbSBLH40>; Tue, 12 Feb 2002 02:56:26 -0500
+Received: from holomorphy.com ([216.36.33.161]:24225 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S290822AbSBLH4L>;
+	Tue, 12 Feb 2002 02:56:11 -0500
+Date: Mon, 11 Feb 2002 23:55:56 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Anish Srivastava <anish@bidorbuyindia.com>, linux-kernel@vger.kernel.org
+Subject: Re: File BlockSize
+Message-ID: <20020212075556.GG767@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Anish Srivastava <anish@bidorbuyindia.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <002e01c1b397$1a26d270$3c00a8c0@baazee.com> <20020212075203.GF767@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020212075203.GF767@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got the following panic trace on the console this morning:
+On Tue, Feb 12, 2002 at 01:00:07PM +0530, Anish Srivastava wrote:
+>> Hi!!
+>> Is there any way I can have 8K block sizes in ext2, reiserfs or ext3.
+>> I am trying to install Oracle on Linux with 8K DB_Block_size.
+>> But it gives me a Block size mismatch saying that the File BlockSize is only
+>> 4K
+>> Maybe, there is a kernel patch available which enables Linux to create 8K
+>> file blocks.
+>> Thanks in anticipation....
 
- invalid operand: 0000
- CPU:    0
- EIP:    0010:[__insert_into_lru_list+28/92]    Not tainted
- EFLAGS: 00010286
- eax: 00000000   ebx: 00000002   ecx: cce5ce40   edx: c02b5e94
- esi: cce5ce40   edi: cce5ce40   ebp: cfa11640   esp: cefb7ea0
- ds: 0018   es: 0018   ss: 0018
- Process perl (pid: 14685, stackpage=cefb7000)
- Stack: 00000002 c012b4c5 cce5ce40 00000002 cce5ce40 00000400 c012b4d5 cce5ce40 
-        c012be08 cce5ce40 00001000 00027000 00000000 cfa11640 00000400 00000000 
-        c012c357 cfa11640 c1225a80 00000000 00001000 c1225a80 40018000 cfa11640 
- Call Trace: [__refile_buffer+73/80] [refile_buffer+9/16]
-	[__block_commit_write+124/192] [generic_commit_write+51/92]
-	[ext3_commit_write+290/436] [generic_file_write+1184/1720]
-	[ext3_file_write+67/76] [sys_write+142/196] [system_call+51/64] 
+On Mon, Feb 11, 2002 at 11:52:03PM -0800, William Lee Irwin III wrote:
+> Unfortunately filesystem block sizes larger than PAGE_SIZE are unsupported.
+> I wish they were, though.
 
-Are there known problems with the implementation of ext3 on this kernel, or
-is the root cause elsewhere, and it's only an accident that it was in ext3
-code at the time?
+Sorry -- I've been corrected elsewhere on this, and it's blocksizes greater
+than PAGE_CACHE_SIZE... and there is some plan to eventually allow a
+configurable PAGE_CACHE_SIZE.
 
-Raphael
+
+Cheers,
+Bill

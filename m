@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVARSYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVARS1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVARSYo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 13:24:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVARSYo
+	id S261373AbVARS1D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 13:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVARS1D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 13:24:44 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:7588 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261366AbVARSYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 13:24:41 -0500
-Date: Tue, 18 Jan 2005 11:28:57 -0800
-From: long <tlnguyen@snoqualmie.dp.intel.com>
-Message-Id: <200501181928.j0IJSvVv023915@snoqualmie.dp.intel.com>
-To: greg@kroah.com
-Subject: Re:[PATCH] PCI: add PCI Express Port Bus Driver subsystem
-Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+	Tue, 18 Jan 2005 13:27:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32917 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261373AbVARS04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 13:26:56 -0500
+Date: Tue, 18 Jan 2005 13:13:59 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: iswraid and 2.4.x?
+Message-ID: <20050118151359.GB27635@logos.cnet>
+References: <20050118172816.21090.qmail@web30208.mail.mud.yahoo.com> <41ED51C3.6030004@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41ED51C3.6030004@pobox.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jan 2005 15:49:08 -0800 Greg KH wrote:
-> > +int pcie_port_device_register(struct pci_dev *dev)
-> > +{
-> > +	struct pcie_device *parent;
-> > +	int status, type, capabilities, irq_mode, i;
-> > +	int vectors[PCIE_PORT_DEVICE_MAXSERVICES];
-> > +	u16 reg16;
-> > +
-> > +	/* Get port type */
-> > +	pci_read_config_word(dev, 
-> > +		pci_find_capability(dev, PCI_CAP_ID_EXP) + 
-> > +		PCIE_CAPABILITIES_REG, &reg16);
-> > +	type = (reg16 >> 4) & PORT_TYPE_MASK;
-> > +
-> > +	/* Now get port services */
-> > +	capabilities = get_port_device_capability(dev);
-> > +	irq_mode = assign_interrupt_mode(dev, vectors, capabilities);
-> > +
-> > +	/* Allocate parent */
-> > +	parent = alloc_pcie_device(NULL, dev, type, 0, dev->irq, irq_mode);
-> > +	if (!parent) 
-> > +		return -ENOMEM;
-> > +	
-> > +	status = device_register(&parent->device);
-> > +	if (status) {
-> > +		kfree(parent);
-> > +		return status;
-> > +	}
->
->
-> This puts all of the pcie "port" structures in /sys/devices/  Shouldn't
-> you make the parent of the device you create point to the pci_dev
-> structure that's passed into this function?  That would make the sysfs
-> tree a lot saner I think.
+On Tue, Jan 18, 2005 at 01:13:23PM -0500, Jeff Garzik wrote:
+> Martins Krikis wrote:
+> >--- Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> >
+> >>It seems the general consensus is to merge iswraid, so I'm fine with
+> >>it.
+> >>
+> >>Martins, we are approaching -rc stage, I would prefer the merge to
+> >>happen 
+> >>at the beginning of 2.4.29-pre. Is that fine for you?
+> >
+> >
+> >Marcelo,
+> >
+> >I seemed to have missed the 2.4.29-pre stages, unfortunately.
+> >Are you planning on a 2.4.30, too? I'd still love to get
+> >iswraid accepted in the 2.4 tree eventually...
+> >
+> >The version that's out on SourceForge right now would be alright
+> >as is with the 2.4.29-x kernels, if that's any help. In about a
+> >week I'm planning to have a new version that adds RAID10 support
+> >for the ICH7R-based machines. Please let me know what my options
+> >are (if any) regarding getting iswraid in 2.4.
+> 
+> I ACK getting this into 2.4, as well...
 
-The patch makes the parent of the device point to the pci_dev structure
-that is passed into this function. If you think it is cleaner that the
-patch should not, I will update the patch to reflect your input.
-
-Thanks,
-Long 
+OK, can you please review if for 2.4.30-pre Jeff ? 

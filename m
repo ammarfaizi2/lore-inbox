@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280017AbRJ3Qjp>; Tue, 30 Oct 2001 11:39:45 -0500
+	id <S280019AbRJ3Qnz>; Tue, 30 Oct 2001 11:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280012AbRJ3Qjf>; Tue, 30 Oct 2001 11:39:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52740 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280014AbRJ3QjZ>; Tue, 30 Oct 2001 11:39:25 -0500
-Subject: Re: Linux Bared - Project
-To: linuxlist@visto.com
-Date: Tue, 30 Oct 2001 16:46:44 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, shanti@aarohi-inc.com
-In-Reply-To: <3BDBB25D0001FDB0@iso3.vistocorporation.com> (added by from "rohit prasad" at Oct 30, 2001 07:50:26 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S280021AbRJ3Qnq>; Tue, 30 Oct 2001 11:43:46 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:9875 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S280015AbRJ3Qnl>;
+	Tue, 30 Oct 2001 11:43:41 -0500
+Date: Tue, 30 Oct 2001 16:44:18 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: arjan@fenrus.demon.nl, Sam Vilain <sam@vilain.net>
+Cc: linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: eepro100 quirk with APM suspend on Dell laptops
+Message-ID: <13270000.1004460258@shed>
+In-Reply-To: <E15yTkh-0001hc-00@fenrus.demon.nl>
+In-Reply-To: <E15yTkh-0001hc-00@fenrus.demon.nl>
+X-Mailer: Mulberry/2.1.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15yc2G-0000X8-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Eg: Could I have only the 
-> 1)Scheduler
-> 2)Boot -loader(via TFTP / Flash)
-> 3)Thread support
-> 4)Debugger 
+Arjan,
 
-You might want to look at something like eCos if thats all you actually
-need.
+> For the Red Hat Linux kernel we added a quirk for this machine that
+> restores PCI config space on restore, so that this is no longer needed.
+> It's kind of a hack so I haven't sent it to Linus for merging yet....
 
+Is this the 'resume=force' stuff, by any chance? (driver/pci/bridge.c
+et al.)?
+
+I am trying to port this (only) to 2.4.12-ac5 or later, as I think
+the lack of this may be why resume dies on the T23. If you have
+a ready-made diff containing this, I would be very grateful
+& will try here, & report back.
+
+--
+Alex Bligh

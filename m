@@ -1,101 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261610AbSJFNZq>; Sun, 6 Oct 2002 09:25:46 -0400
+	id <S261611AbSJFNmy>; Sun, 6 Oct 2002 09:42:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261612AbSJFNZq>; Sun, 6 Oct 2002 09:25:46 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:44675 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261610AbSJFNZo>;
-	Sun, 6 Oct 2002 09:25:44 -0400
-Message-ID: <3DA03B17.8010501@colorfullife.com>
-Date: Sun, 06 Oct 2002 15:31:03 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "Murray J. Root" <murrayr@brain.org>, linux-kernel@vger.kernel.org,
-       Andre Hedrick <andre@linux-ide.org>
-Subject: Re: 2.5.40-ac4  kernel BUG at slab.c:1477!
-Content-Type: multipart/mixed;
- boundary="------------060404060705070704070208"
+	id <S261612AbSJFNmy>; Sun, 6 Oct 2002 09:42:54 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11527 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261611AbSJFNmw>; Sun, 6 Oct 2002 09:42:52 -0400
+Date: Sun, 6 Oct 2002 14:48:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Larry McVoy <lm@bitmover.com>, Ulrich Drepper <drepper@redhat.com>,
+       bcollins@debian.org, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BK MetaData License Problem?
+Message-ID: <20021006144821.B31147@flint.arm.linux.org.uk>
+References: <20021006.035934.106436540.davem@redhat.com> <Pine.LNX.4.44.0210061324500.4303-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0210061324500.4303-100000@localhost.localdomain>; from mingo@elte.hu on Sun, Oct 06, 2002 at 02:04:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060404060705070704070208
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Oct 06, 2002 at 02:04:42PM +0200, Ingo Molnar wrote:
+> the BKL.txt license currently says:
+> 
+>                              By transmitting the Metadata
+>      to an Open Logging server, You hereby grant BitMover,
+>      or any other operator of an Open Logging server, per-
+>      mission  to  republish  the Metadata sent by the Bit-
+>      Keeper Software to the Open Logging server.
 
- > This happens at random during boot when loading modules.
- > About half of the time ide-scsi works fine.
- > The system continues to boot after the BUG with /dev/hdc unaccessible.
+IANAL, but this is just to protect BitMover against _you_ suing them for
+publishing your log entries.  Completely sensible.  They're not claiming
+copyright over the metadata.  They're not claiming any license over the
+metadata.
 
-from mm/slab.c:
+> what i'm worried about is the following issue: by default the data and the
+> MetaData is owned by whoever created it. You, me, other kernel developers.
+> We GPL the code, but the metadata is not automatically GPL-ed, just like
+> writing a book about the Linux kernel is is not necesserily GPL-ed.
 
-1475 if (xchg((unsigned long *)objp, RED_MAGIC1) != RED_MAGIC2)
-1476     /* Either write before start, or a double free. */
-1477     BUG();
+It doesn't say "you transfer all your IP and soul to bitmover."
 
-You run an uniprocessor kernel, with slab debugging enabled, and the 
-red-zoning test notices a write before the beginning of the buffer 
-during scsi_probe_and_add_lun, with ide-scsi.
+> it would be better if the license also said:
+> 
+> 	By transmitting the MetaData to an Open Logging server, You 
+>         hereby also agree to license the MetaData under the same license
+>         you license the data it describes.
+> 
+> (or something to that extent - i'm not a lawyer.)
 
-Andre: Do you know if ide-scsi makes any assumptions about memory 
-alignment of the input buffers? With slab debugging disabled, the 
-alignment is 32 or 64 bytes, with debugging enabled, it's just 4 byte 
-[actually sizeof(void*)] aligned.
+That doesn't explicitly allow bitmover to put the metadata up in public
+view, which would mean the openlogging stuff will leave bitmover wide
+open for legal action.
 
-Murray, could you apply the attached patch? It dumps the redzone value 
-during scsi_probe_and_add_lun. Hopefully this will help to find who 
-corrupts the buffers.
+> btw., this is also the case with the emails Linus puts into BK commit info
+> - the email someone sends to Linus is _not_ GPL-ed by default.
+> 
+> (perhaps the solution is simple - i'd be really happy if it was.)
 
---
-	Manfred
+The exact same problem applies to pre-BK Linus and Alan, and whoever
+else produces a change log that contains information produced by a
+third party.
 
---------------060404060705070704070208
-Content-Type: text/plain;
- name="patch-scsi-debug"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-scsi-debug"
+Does Linus and Alan have an implicit right to republish the documentation
+that was sent to them with the patch?  Does Red Hat have the right to
+republish comments placed into the bugzilla database by external users
+of that service?  Does Debian have a right to reproduce emails on their
+website which have been sent to foo@bugs.debian.org (or whatever the
+address is?)
 
---- 2.5/drivers/scsi/scsi_scan.c	Sun Sep 22 06:25:17 2002
-+++ build-2.5/drivers/scsi/scsi_scan.c	Sun Oct  6 14:21:58 2002
-@@ -1526,8 +1526,9 @@
- 			      GFP_DMA : 0);
- 	if (scsi_result == NULL)
- 		goto alloc_failed;
--
-+printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
- 	scsi_probe_lun(sreq, scsi_result, &bflags);
-+printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
- 	if (sreq->sr_result)
- 		res = SCSI_SCAN_NO_RESPONSE;
- 	else {
-@@ -1550,8 +1551,10 @@
- 					" no device added\n"));
- 			res = SCSI_SCAN_TARGET_PRESENT;
- 		} else {
-+printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
- 			res = scsi_add_lun(sdevscan, &sdev, sreq, scsi_result,
- 					   &bflags);
-+printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
- 			if (res == SCSI_SCAN_LUN_PRESENT) {
- 				BUG_ON(sdev == NULL);
- 				if ((bflags & BLIST_KEY) != 0) {
-@@ -1574,9 +1577,13 @@
- 			}
- 		}
- 	}
-+printk(KERN_INFO"scsi_result: %p, start %lxh.\n",scsi_result, ((unsigned long*)scsi_result)[-1]);
- 	kfree(scsi_result);
-+printk(KERN_INFO"after kfree\n");
- 	scsi_release_request(sreq);
-+printk(KERN_INFO"after release_request\n");
- 	scsi_release_commandblocks(sdevscan);
-+printk(KERN_INFO"after release_commandblocks\n");
- 	return res;
- 
- alloc_failed:
+There is a _big_ question about reproducing peoples personal information
+in the EU (eg, email addresses) on web sites, even archives of public
+mailing lists.  The exim mailing lists were recently threatened with
+legal action over this very point, and there was talk at one point about
+having to shut down the whole exim.org site because of this.  The end
+result of this debarcle was various posts were deleted from the list
+archive.
 
---------------060404060705070704070208--
+So, this isn't a BK problem.  Its a community problem.
+
+Please don't shovel shit into other peoples back yards.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263344AbTJQJPq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 05:15:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbTJQJPq
+	id S263358AbTJQJ0X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 05:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263359AbTJQJ0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 05:15:46 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:55056 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263344AbTJQJPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 05:15:45 -0400
-Date: Fri, 17 Oct 2003 10:15:41 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Bradley Chapman <kakadu_croc@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test7-mm1
-Message-ID: <20031017101541.A24238@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Bradley Chapman <kakadu_croc@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20031016083124.45a171a5.akpm@osdl.org> <20031017070348.46326.qmail@web40911.mail.yahoo.com> <20031017002529.21528bc7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Oct 2003 05:26:23 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53215 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263358AbTJQJ0W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 05:26:22 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Tomas Szepe <szepe@pinerecords.com>
+Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
+Date: Fri, 17 Oct 2003 11:30:32 +0200
+User-Agent: KMail/1.5.4
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org
+References: <200310162344.09021.bzolnier@elka.pw.edu.pl> <20031017073742.GA12489@louise.pinerecords.com>
+In-Reply-To: <20031017073742.GA12489@louise.pinerecords.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031017002529.21528bc7.akpm@osdl.org>; from akpm@osdl.org on Fri, Oct 17, 2003 at 12:25:29AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200310171130.32514.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 17, 2003 at 12:25:29AM -0700, Andrew Morton wrote:
-> It's not an oops, it's a warning.  cpufreq_register_notifier() is being
-> called super-early but is taking a semaphore.  I've asked the cpufreq guys
-> if this can be moved to an initcall but received one of those stupid "your
-> message is awaiting moderator approval" replies from the mailing list.  I
-> gave up at that point.
+On Friday 17 of October 2003 09:37, Tomas Szepe wrote:
+> On Oct-16 2003, Thu, 23:44 +0200
+>
+> Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> > I wonder if this patch fixes problems (reported back in 2.4.21 days)
+> > with CSB5 IDE and Compaq Proliant machines.  Please test it if you can.
+>
+> Sure.  What kernel series is the patch against?
 
-Not silly.  Your message was oversize - at least you got something back
-rather than it being blackholed like lkml does.
+Patch is against 2.6.0-test7 but also applies to 2.4.22 / 2.4.23-pre.
 
-I forwarded it on to the list (after cutting out that massive 47K .config
-file that was attached), but no one seems to be listening or interested
-there.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267346AbTACANr>; Thu, 2 Jan 2003 19:13:47 -0500
+	id <S267348AbTACAWV>; Thu, 2 Jan 2003 19:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267347AbTACANr>; Thu, 2 Jan 2003 19:13:47 -0500
-Received: from vger.timpanogas.org ([216.250.140.154]:53730 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S267346AbTACANq>; Thu, 2 Jan 2003 19:13:46 -0500
-Date: Thu, 2 Jan 2003 18:32:18 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
-       jmerkey@timpanogas.org
-Cc: jmerkey@timpanogas.org
-Subject: Re: Question about Zone Allocation 2.4.X
-Message-ID: <20030102183218.A21808@vger.timpanogas.org>
-References: <20030102175517.A21471@vger.timpanogas.org> <20030102235147.GS9704@holomorphy.com> <20030102180849.A21498@vger.timpanogas.org> <20030103000034.GU9704@holomorphy.com> <20030102181554.A21643@vger.timpanogas.org> <20030103001127.GV9704@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030103001127.GV9704@holomorphy.com>; from wli@holomorphy.com on Thu, Jan 02, 2003 at 04:11:27PM -0800
+	id <S267344AbTACAWS>; Thu, 2 Jan 2003 19:22:18 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:36873 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S267340AbTACAWO>;
+	Thu, 2 Jan 2003 19:22:14 -0500
+Date: Fri, 3 Jan 2003 01:30:39 +0100
+Message-Id: <200301030030.h030Udk24218@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: getblk spins endlessly in 2.4.19 SMP
+X-Newsgroups: linux.kernel
+In-Reply-To: <3E14906E.7F6D3226@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 04:11:27PM -0800, William Lee Irwin III wrote:
-> 
-> Adding new zone types is easy. Just add them to mmzone.h, avoid setting
-> ->virtual (which does not universally exist) in free_area_init_core()
-> if it's not perma-mapped, stuff them in the fallback sequence in
-> build_zonelists(), and detect them in arch/*/mm/init.c
-> 
 
-Bill,
+Hi - thanks for replying!
 
-I also just reviewed the changes to the mmu code mode by Ingo -- very ugly
-stuff.  Looks like both changes are required to get this working properly 
-since without the PDE being setup properly, we'll get page faults since the 
-AS above 1GB is not mapped by the mmu.
+In article <3E14906E.7F6D3226@digeo.com> you wrote:
+> "Peter T. Breuer" wrote:
+>> 
+>> get_blk() loops forever internally for in a sort piece of driver code of
+>> mine.
 
-Jeff
+> probably it found some buffers with the wrong ->b_size, tried to
+> get rid of them via try_to_free_buffers(), failed, and then fell
+> into the "oh, we're out of memory" loop.
 
+Sounds just like what I see.
 
-> 
-> Bill
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> You need to work out why grow_dev_page() is seeing buffers with
+> the wrong size against the page.  Be looking for incorrect or
+> missing calls to set_blocksize().
+
+Set_blocksize was indeed not called before. I had set the size on the
+kernel blksize_size array by hand. I now see that in addition to that
+set_blocksize sets the bdev->bd_inode->i_blkbits value.
+
+But I'm now calling set_blocksize when I set the device block size,
+and no change.  The portable (running SMP with one processor) still
+works fine.  The SMP server goes into a loop on the first call to
+getblk, because get_hash_table returns NULL when asked for a block of
+size 1024. Always. Same binaries. Both machines are running the same
+kernel and modules.
+
+Can you see anything that would explain the difference? Should
+I call for a 4K block instead? I'm mystified. Tomorrow I'll boot
+the server nosmp and see what happens.
+
+I'll look inside grow_dev_page. It this called from free_more_memory
+or from grow_buffers? Ahh .. the latter. Indeed, if it returns 0,
+grow_buffers will return 0, and then we try free_more_memory,
+whoch presumably does nothing, and loop.
+
+grow_dev_page fails if find_or_create_page fails. Or if it returns a
+page of the wrong size. Or if create_buffers fails. Sigh .. I guess
+I get a page of the wrong size. I'll try asking for 4K instead of 1K.
+
+Is there some way I  can "seed" things so that a call to getblk
+will succeed? I mean, by making a buffer of teg right size be
+available?
+
+Peter

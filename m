@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130455AbQJ0Avm>; Thu, 26 Oct 2000 20:51:42 -0400
+	id <S130342AbQJ0AxM>; Thu, 26 Oct 2000 20:53:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130485AbQJ0Avc>; Thu, 26 Oct 2000 20:51:32 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:9732 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130455AbQJ0AvX>; Thu, 26 Oct 2000 20:51:23 -0400
-Message-ID: <39F8D0B3.B2B6D520@timpanogas.org>
-Date: Thu, 26 Oct 2000 18:47:47 -0600
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S130415AbQJ0AxC>; Thu, 26 Oct 2000 20:53:02 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47698 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130342AbQJ0Awt>; Thu, 26 Oct 2000 20:52:49 -0400
+Subject: Re: [PATCH] make my life easier ...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Fri, 27 Oct 2000 01:52:56 +0100 (BST)
+Cc: sfr@linuxcare.com.au (Stephen Rothwell),
+        andre@linux-ide.org (Andre Hedrick), linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk (Alan Cox), mlord@pobox.com (Mark Lord)
+In-Reply-To: <Pine.LNX.4.10.10010260829150.2335-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 26, 2000 08:31:34 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Martin Dalecki <dalecki@evision-ventures.com>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: killing read_ahead[]
-In-Reply-To: <39F5999B.91DDC98@evision-ventures.com> <39F8C0BA.CF0F284D@timpanogas.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13oxlT-00042A-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> certainly accept it), then why not just do the equivalent of a reset in
+> the high-level IDE driver on coming back from sleep? Possibly together
+> with forcing any other setup state we know about.
 
+Because windows seems to drop the controller back to PIO mode 0 and the BIOS
+knows about it. At least in the palmax case, although since 2.4test doesnt
+boot on it as of pre9 I've not tried the 2.4 patches yet.
 
-"Jeff V. Merkey" wrote:
-> 
-> Martin,
-> 
-> A lot of changes.  Have you tested this adequately?   Changes of this
-> magnitude this late in the 2.4 cycle could break a lot of stuff.  I'll
-> apply your patch, and let you know.
-> 
-> :-)
-> 
-> Jeff
-
-Martin,
-
-1.  Adaptec SCSI driver on a 4 x P6 POCA blows up with timeout errors
-then hard hangs machine.
-2.  DVD-RAM drive gets scsi timeout errors on AMD K6 System.
-3.  Cannot see the MASHITA RW-CDROM with ide-scsi loaded with patch.
-4.  2.4.0 hard locks on dual processor PIII 400Mhz during kernel boot.
-
-:-)
-
-Well, I tried the patch.  Looks like some SMP issues of some kind.  
-
-Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

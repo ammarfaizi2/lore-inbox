@@ -1,55 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284182AbSAGRl6>; Mon, 7 Jan 2002 12:41:58 -0500
+	id <S284186AbSAGRs6>; Mon, 7 Jan 2002 12:48:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284186AbSAGRli>; Mon, 7 Jan 2002 12:41:38 -0500
-Received: from [62.245.135.174] ([62.245.135.174]:47545 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S284182AbSAGRlh>;
-	Mon, 7 Jan 2002 12:41:37 -0500
-Message-ID: <3C39DDC9.29F29E68@TeraPort.de>
-Date: Mon, 07 Jan 2002 18:41:29 +0100
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en, de
+	id <S284191AbSAGRss>; Mon, 7 Jan 2002 12:48:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42249 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284186AbSAGRsq>; Mon, 7 Jan 2002 12:48:46 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: lseek() on an iso9660 file
+Date: 7 Jan 2002 09:48:35 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a1cn1j$sev$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1020107091316.18091A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: vanl@megsinet.net
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/07/2002 06:41:29 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 01/07/2002 06:41:36 PM,
-	Serialize complete at 01/07/2002 06:41:36 PM
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: [2.4.17/18pre] VM and swap - it's really unusable
+Followup to:  <Pine.LNX.3.95.1020107091316.18091A-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
 > 
+> Using Linux 2.4.1 I discovered a problem with lseek on CDROM files
+> (iso9660). I just installed 2.4.17 and found the same problem.
 > 
-> I did some tests with different VM-patches. I tested one ac-patch, too.
-> I detected the same as you described - but the memory-consumption and
-> the behaviour at all isn't better. If you want to, you can test another
-> patch, which worked best in my test. It's nearly as good as kernel
-> 2.2.x. Ask M.H.vanLeeuwen (vanl@megsinet.net) for his oom-patch to
-> kernel 2.4.17.
-> But beware: maybe this strategy doesn't fit to your applications. And
-> it's not for productive use.
-> I and some others surely too, would be interested in your experience
-> with this patch.
+> The problem:
 > 
-Hi,
+> (1) A portion of the file, existing on a CDROM,  is read and its the
+>     contents are written to an output file on writable media.
+> 
+> (2) The current input file-position is obtained using
+>     pos = lseek(fd, 0, SEEK_CUR); The value returned is exactly
+>     the expected value.
+> 
+> (3) The rest of the CDROM file is read and written to the output file.
+> 
+> (4) The file-position of the CDROM file is then set back to the saved
+>     position using lseek(fd, pos, SEEK_SET); The value returned is
+>     exactly the expected value.
+> 
+> (5) The CDROM file is then read and its contents are observed to be
+>     scrambled in some strange manner in which word-length groups of
+>     bytes from near the end of the file are interleaved with the
+>     correct bytes. Basically, the file ends up being about twice
+>     as long as the original, with every-other two-byte interval
+>     being filled with bytes from near the end of the file.
+> 
 
- so I took the M.H.vL vmscan.c patch for 2.4.17 and it is a definite
-winner for me. Sounds like 2.4.18 material.
+a) How long is the file?
+b) What is the offset?
+c) What particular iso9660 options (RockRidge, Joliet, zisofs...)
+   does your disk use?
+d) Mount options?
 
-Martin
+This seems to be a rather serious bug, so I'd like to get to the
+bottom with it.
+
+	-hpa
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

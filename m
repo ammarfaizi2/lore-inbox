@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUCAJmh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 04:42:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbUCAJmg
+	id S261191AbUCAJsA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 04:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbUCAJsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 04:42:36 -0500
-Received: from fmr10.intel.com ([192.55.52.30]:10449 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261191AbUCAJmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 04:42:20 -0500
-Date: Mon, 1 Mar 2004 17:36:22 +0800 (CST)
-From: "Zhu, Yi" <yi.zhu@intel.com>
-X-X-Sender: chuyee@mazda.sh.intel.com
-Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [start_kernel] Suggest to move parse_args() before trap_init()
-Message-ID: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com>
+	Mon, 1 Mar 2004 04:48:00 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:51928 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S261191AbUCAJr6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 04:47:58 -0500
+Message-ID: <404306BE.6000803@matchmail.com>
+Date: Mon, 01 Mar 2004 01:47:42 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: MM VM patches was: 2.6.3-mm4
+References: <20040225185536.57b56716.akpm@osdl.org> <4042F38B.8020307@matchmail.com> <4042F7E6.1050904@cyberone.com.au> <4042FCBC.7000809@matchmail.com> <40430204.6040901@cyberone.com.au>
+In-Reply-To: <40430204.6040901@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin wrote:
+> 
+> 
+> Mike Fedyk wrote:
+>> So, I'll merge up 2.6.3 + "vm of rc1-mm1" and tell you guys what I see.
+>>
+> 
+> I'm not so hopeful for you anymore :P
 
-Hi,
+These patches apply with only a few offsets if you apply them like in 
+the series file, so there's not much work for either of us in applying 
+these patches (unless I need to test without a dependent patch or 
+something obvious like that...)
 
-I'm not sure it is _correct_ to move parse_args() before trap_init() in
-start_kernel(). Is there any potencial dependencies? I did this on my P4 UP
-box, it boots OK.
+> 
+>> Are the graphs helpful at all?
+>>
+> 
+> 
+> My eyes! The goggles, they do nothing!
+> 
 
-My issue is if the parse_args() runs after trap_init(), the kernel
-parameter "lapic" and "nolapic" takes no effect. Because lapic_enable()
-is called after init_apic_mappings().
+Heh.
 
+> They have a lot of good info but I'm a bit hard pressed working
+> out what kernel is running where
 
---- init/main.c.orig    2004-03-01 16:54:23.000000000 +0800
-+++ init/main.c 2004-03-01 16:54:45.000000000 +0800
-@@ -416,11 +416,11 @@
+Suffice it to say, 2.6.3 is the begining of week9, and 2.6.3-lofft-mm4vm 
+is the end of week9.  The graphs weren't meant to keep secondary 
+information like kernel version...
 
-        build_all_zonelists();
-        page_alloc_init();
--       trap_init();
-        printk("Kernel command line: %s\n", saved_command_line);
-        parse_args("Booting kernel", command_line, __start___param,
-                   __stop___param - __start___param,
-                   &unknown_bootoption);
-+       trap_init();
-        sort_main_extable();
-        rcu_init();
-        init_IRQ();
+> and it's a bit hard working out
+> all the shades of blue on my crappy little monitor.
 
+Yeah, I see what you mean.  The code in the lrrd/munin project controls 
+what colors come in what order, but I can control what order the info is 
+output in...
 
-Thanks,
--- 
------------------------------------------------------------------
-Opinions expressed are those of the author and do not represent
-Intel Corp.
+> But if they were easier to read I reckon they'd be useful ;)
 
-Zhu Yi (Chuyee)
+I'd like for that to be true especially since I rewrote the memory 
+plugin for munin to graph as much as was exported to userspace from the 
+Linux kernel...
 
-GnuPG v1.0.6 (GNU/Linux)
-http://cn.geocities.com/chewie_chuyee/gpg.txt or
-$ gpg --keyserver wwwkeys.pgp.net --recv-keys 71C34820
-1024D/71C34820 C939 2B0B FBCE 1D51 109A  55E5 8650 DB90 71C3 4820
-
+Did I miss anything? ;)

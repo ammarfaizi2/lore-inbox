@@ -1,105 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287945AbSAHLhN>; Tue, 8 Jan 2002 06:37:13 -0500
+	id <S287868AbSAHLmN>; Tue, 8 Jan 2002 06:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287407AbSAHLgy>; Tue, 8 Jan 2002 06:36:54 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:28678 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S287400AbSAHLgp>;
-	Tue, 8 Jan 2002 06:36:45 -0500
-Date: Tue, 8 Jan 2002 22:32:52 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-Message-ID: <20020108113251.GB20897@krispykreme>
-In-Reply-To: <200201071922.g07JMN106760@penguin.transmeta.com> <Pine.LNX.4.33.0201072222100.15970-100000@localhost.localdomain>
+	id <S287946AbSAHLmD>; Tue, 8 Jan 2002 06:42:03 -0500
+Received: from mxzilla4.xs4all.nl ([194.109.6.48]:29191 "EHLO
+	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287868AbSAHLlx>; Tue, 8 Jan 2002 06:41:53 -0500
+Date: Tue, 8 Jan 2002 12:41:51 +0100
+From: jtv <jtv@xs4all.nl>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Tim Hollebeek <tim@hollebeek.com>,
+        Bernard Dautrevaux <Dautrevaux@microprocess.com>,
+        "'dewar@gnat.com'" <dewar@gnat.com>, paulus@samba.org, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        velco@fadata.bg
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020108124151.E11855@xs4all.nl>
+In-Reply-To: <17B78BDF120BD411B70100500422FC6309E402@IIS000> <20020107224907.D8157@xs4all.nl> <20020107172832.A1728@cj44686-b.reston1.va.home.com> <20020107231620.H8157@xs4all.nl> <20020108012734.E23665@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0201072222100.15970-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020108012734.E23665@werewolf.able.es>; from jamagallon@able.es on Tue, Jan 08, 2002 at 01:27:34AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 08, 2002 at 01:27:34AM +0100, J.A. Magallon wrote:
+> >
+> >	int a = 3;
+> >	{
+> >		volatile int b = 10;
+> 
+>     >>>>>>>>> here b changes
 
-Hi Ingo,
+Yes, thank you, that part was obvious already.  The question pertained
+to the fact that nobody outside compiler-visible code was being handed
+an address for b, and so the compiler could (if it wanted to) prove
+under pretty broad assumptions that nobody could *find* b to make the
+change in the first place.
 
-I tested 2.5.2-pre10 today. There is some bitop abuse that needs fixing
-for big endian machines to work :)
+Now other people assure me that the Standard explicitly rules this out,
+and I'm willing to believe that--although naturally I'd still feel more 
+comfortable if I'd actually seen the relevant text.  Just so long as
+we're not making another wild-guess stab at solving the problem.
 
-At the moment we have:
 
-	#define BITMAP_SIZE ((MAX_PRIO+7)/8)
-	char bitmap[BITMAP_SIZE];
+Jeroen
 
-Which is initialised using:
-
-	memset(array->bitmap, 0xff, BITMAP_SIZE);
-	clear_bit(MAX_PRIO, array->bitmap);
-
-This results in the following in memory (in ascending memory order):
-
-ffffffffffffffff ffffffffffffffff fffffeffff000000
-
-The problem here is that when we search the high word, we do so from
-the right, therefore we get 128 all the time :)
-
-The following patch fixes this. We need to define the bitmap to be in
-terms of unsigned long, in this case its only lucky we have the correct
-alignment. We also replace the memset of the bitmap with set_bit.
-
-With the patch things look much better (and the kernel boots on my
-ppc64 machine :)
-
-ffffffffffffffff ffffffffffffffff 000000ffffffffff 
-
-Anton
-
-diff -urN linuxppc_2_5/include/asm-i386/mmu_context.h linuxppc_2_5_work/include/asm-i386/mmu_context.h
---- linuxppc_2_5/include/asm-i386/mmu_context.h	Tue Jan  8 17:09:47 2002
-+++ linuxppc_2_5_work/include/asm-i386/mmu_context.h	Tue Jan  8 22:06:35 2002
-@@ -16,7 +16,7 @@
- # error update this function.
- #endif
- 
--static inline int sched_find_first_zero_bit(char *bitmap)
-+static inline int sched_find_first_zero_bit(unsigned long *bitmap)
- {
- 	unsigned int *b = (unsigned int *)bitmap;
- 	unsigned int rt;
-diff -urN linuxppc_2_5/kernel/sched.c linuxppc_2_5_work/kernel/sched.c
---- linuxppc_2_5/kernel/sched.c	Tue Jan  8 17:09:47 2002
-+++ linuxppc_2_5_work/kernel/sched.c	Tue Jan  8 22:13:45 2002
-@@ -20,15 +20,13 @@
- #include <linux/interrupt.h>
- #include <asm/mmu_context.h>
- 
--#define BITMAP_SIZE ((MAX_PRIO+7)/8)
--
- typedef struct runqueue runqueue_t;
- 
- struct prio_array {
- 	int nr_active;
- 	spinlock_t *lock;
- 	runqueue_t *rq;
--	char bitmap[BITMAP_SIZE];
-+	unsigned long bitmap[3];
- 	list_t queue[MAX_PRIO];
- };
- 
-@@ -1306,11 +1304,12 @@
- 			array = rq->arrays + j;
- 			array->rq = rq;
- 			array->lock = &rq->lock;
--			for (k = 0; k < MAX_PRIO; k++)
-+			for (k = 0; k < MAX_PRIO; k++) {
- 				INIT_LIST_HEAD(array->queue + k);
--			memset(array->bitmap, 0xff, BITMAP_SIZE);
-+				__set_bit(k, array->bitmap);
-+			}
- 			// zero delimiter for bitsearch
--			clear_bit(MAX_PRIO, array->bitmap);
-+			__clear_bit(MAX_PRIO, array->bitmap);
- 		}
- 	}
- 	/*

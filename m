@@ -1,90 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbTEQKR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 06:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTEQKR4
+	id S261399AbTEQKip (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 06:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbTEQKip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 06:17:56 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:59285 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S261392AbTEQKRy
+	Sat, 17 May 2003 06:38:45 -0400
+Received: from cable98.usuarios.retecal.es ([212.22.32.98]:2454 "EHLO
+	hell.lnx.es") by vger.kernel.org with ESMTP id S261399AbTEQKio
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 06:17:54 -0400
-Date: Sat, 17 May 2003 12:30:37 +0200
+	Sat, 17 May 2003 06:38:44 -0400
+Date: Sat, 17 May 2003 12:51:30 +0200
 From: Manuel Estrada Sainz <ranty@debian.org>
-To: David Gibson <david@gibson.dropbear.id.au>, Greg KH <greg@kroah.com>,
-       Oliver Neukum <oliver@neukum.org>, LKML <linux-kernel@vger.kernel.org>,
+To: Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
        Simon Kelley <simon@thekelleys.org.uk>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        "Downing, Thomas" <Thomas.Downing@ipc.com>, jt@hpl.hp.com,
        Pavel Roskin <proski@gnu.org>
 Subject: Re: request_firmware() hotplug interface, third round.
-Message-ID: <20030517103037.GA17576@ranty.ddts.net>
+Message-ID: <20030517105130.GA17998@ranty.ddts.net>
 Reply-To: ranty@debian.org
-References: <200305170155.15295.oliver@neukum.org> <20030517000338.GA17466@kroah.com> <20030517044459.GB13827@zax> <20030517084612.GC3808@ranty.ddts.net> <20030517090705.GA16092@zax>
+References: <20030515200324.GB12949@ranty.ddts.net> <20030516223624.GA16759@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030517090705.GA16092@zax>
+In-Reply-To: <20030516223624.GA16759@kroah.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2003 at 07:07:05PM +1000, David Gibson wrote:
-> On Sat, May 17, 2003 at 10:46:12AM +0200, Manuel Estrada Sainz wrote:
-> > On Sat, May 17, 2003 at 02:44:59PM +1000, David Gibson wrote:
-> > > On Fri, May 16, 2003 at 05:03:38PM -0700, Greg Kroah-Hartman wrote:
-> > > > On Sat, May 17, 2003 at 01:55:15AM +0200, Oliver Neukum wrote:
-> > > > > 
+On Fri, May 16, 2003 at 03:36:24PM -0700, Greg KH wrote:
+> On Thu, May 15, 2003 at 10:03:24PM +0200, Manuel Estrada Sainz wrote:
 [snip]
-> >  But in case you are doing things by hand, how about:
-> >  
-> > 	$ echo cancel > .../loading
-> > 
-> > 	or if you want to keep the content numeric:
-> > 
-> > 	$ echo -1 > .../loading
-> > 
-> >  This will also allow the regular script to just cancel the load in case
-> >  of error, like if the firmware image is not available or a read error
-> >  happened while reading it.
-> > 
-> >  I'll implement that and the other stuff that came out of Oliver's
-> >  comments later today and post the new code.
-> >  
-> > > Better to catch the close, check the length, then return the firmware
-> > > or throw the junk image away as appropriate.
-> > 
-> >  If 'loading' stays the above should fix your timeout issue, and if it
-> >  goes, yes, that is probably the way to go.
+> >  Attached:
+> >  	firmware.h
+> > 	firmware_class.c:
+> > 		The firmware support itself.
 > 
-> How about combining these two ideas: instead of "loading" and "data"
-> we have "size" and "data".  First you write the size, then the data -
-> the driver accepts it once it gets the expected number of bytes.
-> Writing a new size throws away any partial image that's there, and
-> restarts the upload.  Writing 0 cancels the upload entirely, and the
-> driver will presumably fail to initialize (or maybe use a default
-> image if it has one).
+> Can you just send this as a patch to the current kernel next time?  It's
+> much easier to read and test with that way :)
 
- I just thought this over. This makes more requirements for the userspace
- scripts, they will need some way to get the size of the image: stat, or
- ls and some crude regex.
+ When I updated my tree (via bk cvs gateway) to make the patch I noticed
+ some changes in sysfs's binary support.
 
- And we can have the same effect with loading/data:
+ In general, they look good, but the size of files is set in
+ sysfs_create_bin_file and not changeable later.  This breaks
+ firmware_class.c :(
 
- echo 1 > .../loading:
- 	Will start a load, discarding any previous partial load.
- echo 0 > .../loading:
- 	Will conclude the load and handle the data to the driver code.
- echo -1 > .../loading:
-	Will conclude the load with an error and the driver won't get
-	any firmware, failing or using firmware in some flash if
-	available.
+ With current request_firmware(), the drivers don't tell the size of the
+ firmware, and in some cases they don't even know, so changing the
+ interface is no good.
 
- This way, the script also won't have to check the value of 'loading'.
+ I also don't understand why sysfs needs to keep a copy of the data in
+ it's own buffer. It has to ask the driver for any read/write anyway,
+ the previous approach of one page at a time looked better to me and
+ saves some kernel memory :-).
 
- How does that sound?
+ And the size checks could be skipped in case of zero size.
 
- Thanks
+ I'll include a change proposal to sysfs/bin.c next time.
+
+ Have a nice day
 
  	Manuel
 

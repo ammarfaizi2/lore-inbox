@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266194AbUGONMA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266198AbUGONXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266194AbUGONMA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 09:12:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266197AbUGONMA
+	id S266198AbUGONXz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 09:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUGONXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 09:12:00 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35719 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266194AbUGONLw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 09:11:52 -0400
-Message-ID: <40F68287.1010309@pobox.com>
-Date: Thu, 15 Jul 2004 09:11:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Woods <dwoods@fastclick.com>
-CC: linux-kernel@vger.kernel.org,
-       Stephanie Marasciullo <smarasciullo@fastclick.com>
-Subject: Re: Problems with DMA on IDE/ServerWorks/Seagate.
-References: <7632915A8F000C4FAEFCF272A880344105095A@Ehost067.exch005intermedia.net>
-In-Reply-To: <7632915A8F000C4FAEFCF272A880344105095A@Ehost067.exch005intermedia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jul 2004 09:23:55 -0400
+Received: from nef.ens.fr ([129.199.96.32]:56594 "EHLO nef.ens.fr")
+	by vger.kernel.org with ESMTP id S266198AbUGONXu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 09:23:50 -0400
+Date: Thu, 15 Jul 2004 15:23:48 +0200
+From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: swsuspend not working
+Message-ID: <20040715132348.GA9939@lps.ens.fr>
+References: <20040715121042.GB9873@lps.ens.fr> <20040715121825.GC22260@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040715121825.GC22260@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.3 (nef.ens.fr [129.199.96.32]); Thu, 15 Jul 2004 15:23:49 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Woods wrote:
-> Please CC me on all replies, as I am not subscribed to the list.
-> 
-> We have diagnosed a problem (file corruption) using Ultra DMA & IDE with
-> 
-> ServerWorks OSB4 Chipset and Seagate drives under heavy disk I/O.
+On Thu, Jul 15, 2004 at 02:18:25PM +0200, Pavel Machek wrote:
+> You are not really using swsusp. You are using pmdisk. Fix your
+> kernel config.
 
+Oh, I am confused; I believed that /proc/acpi/sleep was for swsuspend and
+/sys/power/state for pmdisk. Well, things are changing I guess.
 
-Known -- do NOT use Ultra DMA.
+Anyway, I recompiled and tried again (not forgetting this time to swapon;
+swsuspend has a usefull error message) and it worked ! Twice in a row !
+I then tried S3, but then, no luck. The computer printed some text,
+apparently shut down. I hit the power button to wake it up, I can hear
+the fan and the disk spinning up, but the screen remains black and the
+keyboard does nothing (caps lock does not lit the led, Ctrl-Alt-Suppr
+does not reboot.) I have to hit the reset button.
 
-MWDMA should work.
+Next I tried to suspend with the standard Fedora kernel
+(2.6.6-1.435.2.3). I booted normally, did a telinit 1, umounted
+everything except /proc and /, removed all modules except jbd and ext3
+and did echo 4 > /proc/acpi/sleep and nothing happened. Half a second
+later, sh was waiting for more input. The screen didn't blink, no line
+was output, nothing in the logs.
 
-	Jeff
+The next step will be to boot the Fedora kernel directly in runlevel 1
+(or maybe with init=/bin/sh, but I have to understand initrd, then) so
+that most modules will never get loaded, video will never get set up,
+etc., and then try S4. And then, their will be the long dichotomy to see
+what is not working.
 
+But that will be on monday, I think.
 
+Éric

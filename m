@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbTASAVw>; Sat, 18 Jan 2003 19:21:52 -0500
+	id <S265246AbTASAZT>; Sat, 18 Jan 2003 19:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbTASAVw>; Sat, 18 Jan 2003 19:21:52 -0500
-Received: from pc2-bahd1-3-cust72.renf.cable.ntl.com ([62.255.161.72]:31836
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S265230AbTASAVv>;
-	Sat, 18 Jan 2003 19:21:51 -0500
-Date: Sun, 19 Jan 2003 00:31:28 +0000
-From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Whole thing about GNU/Linux and Linux
-Message-ID: <20030119003128.GB3659@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030118205006.GA417@localnet.sytes.net> <20030118215631.GA3659@localhost> <87adhy9eey.fsf@basilikum.skogtun.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87adhy9eey.fsf@basilikum.skogtun.org>
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.4.20 (i686)
-X-Uptime: 00:26:56 up 11 days, 11:36,  3 users,  load average: 0.45, 0.34, 0.32
-User-Agent: Mutt/1.5.3i
+	id <S265247AbTASAZS>; Sat, 18 Jan 2003 19:25:18 -0500
+Received: from [213.171.53.133] ([213.171.53.133]:13074 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id <S265246AbTASAZS>;
+	Sat, 18 Jan 2003 19:25:18 -0500
+Date: Sun, 19 Jan 2003 03:34:07 +0300 (MSK)
+From: "Ruslan U. Zakirov" <cubic@miee.ru>
+To: Jaroslav Kysela <perex@suse.cz>
+cc: Adam Belay <ambx1@neo.rr.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.58][PnP] Some small points.
+In-Reply-To: <Pine.LNX.4.44.0301182220430.3993-100000@pnote.perex-int.cz>
+Message-ID: <Pine.BSF.4.05.10301190253300.84027-100000@wildrose.miee.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Harald Arnesen (harald@skogtun.org) wrote:
-> iain d broadfoot <ibroadfo@cis.strath.ac.uk> writes:
+On Sat, 18 Jan 2003, Jaroslav Kysela wrote:
+
+> On Fri, 17 Jan 2003, Adam Belay wrote:
 > 
-> > * Steve Lion (steve.lion@verizon.net) wrote:
-> >> I am simply a person who uses the Linux operating system.  Nothing else.
-> >
-> > personally, i'm using the debian operating system...
+> > > 4) Have we got ALSA driver that work absolutly and use PnP layer in
+> > > right ways?
+> > 
+> > I believe Jaroslav is working on that now.  Jaroslav, if you would like me to 
+> > convert ALSA drivers please let me know.
 > 
-> Debian GNU/Linux, Debian GNU/Hurd or Debian GNU/BSD?
+> I'm working on it. Your converted drivers still misses one feature: force
+> resources via module options. Two complete drivers using configuration 
+> templates follow.
+> 
+[snip]
+> -static void snd_opl3sa2_isapnp_remove(struct pnp_card * card)
+> +static void __devexit snd_opl3sa2_isapnp_remove(struct pnp_card * pcard)
+>  {
+> -/* FIXME */
+> +	snd_card_t * card = (snd_card_t *) pnpc_get_drvdata(pcard);
+> +	
+> +	snd_card_disconnect(card);
+> +	snd_card_free_in_thread(card);
+>  }
+[snip]
+>  static void __exit alsa_card_opl3sa2_exit(void)
+>  {
+> -	int idx;
+> +        int dev;
+>  
+> -	for (idx = 0; idx < SNDRV_CARDS; idx++)
+> -		snd_card_free(snd_opl3sa2_cards[idx]);
+> +	pnpc_unregister_driver(&opl3sa2_pnpc_driver);
+> +	for (dev = 0; dev < SNDRV_CARDS; dev++)
+> +		snd_card_free(snd_opl3sa2_cards[dev]);
+>  }
+Hello Jaroslav and other.
+I could be wrong.
+1) It's cause an compilation error without CONFIG_PNP.
+2) We can delete call of snd_card_free in module exit function, it'll be
+freed within driver->remove call. It's realy needed only without
+CONFIG_PNP_CARD.
+Thanks for example of driver, I've understood some tricks from it.
+	Best regards, Ruslan.
 
-i'm using the linux kernel.
-
-i'm also running several items not part of debian - kernel patches /
-non-free software / phoenix (mmmm yummy) / stuff that i want bleeding
-edge style (mplayerplugin, among others).
-
-for a short while, i was using debian gnu/linux, but to me, what is on
-my laptop is no longer what is supplied by the debian project. indeed,
-the only users who could really be said to be running debian gnu/linux
-are those using stable, with stock debian kernels.
-
-i'm still using debian tools for most things (mmm aptitude...).
-
-hth, hand,
-
-iain
-
--- 
-wh33, y1p33 3tc.

@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbTE2Sz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 14:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbTE2Sz1
+	id S262520AbTE2TAF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 15:00:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTE2TAF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 14:55:27 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:15671 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S262499AbTE2Sz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 14:55:26 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A920221E6EA@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: RE: 2.5.70-mm2
-Date: Thu, 29 May 2003 15:08:35 -0400
+	Thu, 29 May 2003 15:00:05 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:726 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S262520AbTE2TAE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 15:00:04 -0400
+Date: Thu, 29 May 2003 16:11:12 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Georg Nikodym <georgn@somanetworks.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: -rc7   Re: Linux 2.4.21-rc6
+In-Reply-To: <20030529140025.61f991d4.georgn@somanetworks.com>
+Message-ID: <Pine.LNX.4.55L.0305291609580.14835@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva>
+ <20030529140025.61f991d4.georgn@somanetworks.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use MySQL pretty extensively, so I'll excersize that as well as
-the day-to-day builds, etc.  I'm on day 4 of -mm1, no problems to date.
-
-By definition, I'm happy!
-
------Original Message-----
-From: Andrew Morton [mailto:akpm@digeo.com]
-Sent: Thursday, May 29, 2003 1:36 PM
-To: Downing, Thomas
-Cc: linux-kernel@vger.kernel.org; linux-mm@kvack.org
-Subject: Re: 2.5.70-mm2
 
 
-"Downing, Thomas" <Thomas.Downing@ipc.com> wrote:
+On Thu, 29 May 2003, Georg Nikodym wrote:
+
+> On Wed, 28 May 2003 21:55:39 -0300 (BRT)
+> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 >
-> -----Original Message-----
-> From: Andrew Morton [mailto:akpm@digeo.com]
-> 
-> >
+> > Here goes -rc6. I've decided to delay 2.4.21 a bit and try Andrew's
+> > fix for the IO stalls/deadlocks.
 >
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.70/2.5.70-
-> mm2/
-> [snip]
-> >  Needs lots of testing.
-> [snip]
-> 
-> I for one would like to help in that testing, as might others.
-> Could you point to/name some effective test tools/scripts/suites 
-> for testing your work?  As it is, my testing is just normal usage,
-> lots of builds.
-> 
+> While others may be dubious about the efficacy of this patch, I've been
+> running -rc6 on my laptop now since sometime last night and have seen
+> nothing odd.
+>
+> In case anybody cares, I'm using both ide and a ieee1394 (for a large
+> external drive [which implies scsi]) and I do a _lot_ of big work with
+> BK so I was seeing the problem within hours previously.
 
-I was specifically referring to the O_SYNC changes there.  That means
-databases: postgresql, mysql, sapdb, etc.
+Great!
 
-Some of these use fsync()-based synchronisation and won't benefit, but they
-may have compile-time or runtime options to use O_SYNC instead.
-
-
-Apart from that, just using the kernel in day-to-day activity is the most
-important thing.  If everyone does that, and everyone is happy then by
-definition this kernel is a wrap.
+-rc7 will have to be released due to some problems :(

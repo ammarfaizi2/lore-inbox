@@ -1,94 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265667AbTGLNj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 09:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265670AbTGLNj5
+	id S265713AbTGLNmK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 09:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbTGLNmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 09:39:57 -0400
-Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:42421 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265667AbTGLNjy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 09:39:54 -0400
-Date: Sat, 12 Jul 2003 07:49:19 -0600 (MDT)
-From: James Bourne <jbourne@hardrock.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: linux-2.4.22-pre5 drm/agpsupport unresolved symbols (fwd)
-Message-ID: <Pine.LNX.4.44.0307120747530.1986-200000@cafe.hardrock.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1197356979-1876980671-1058017759=:1986"
+	Sat, 12 Jul 2003 09:42:10 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:33488 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S265713AbTGLNkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 09:40:23 -0400
+Date: Sat, 12 Jul 2003 15:54:53 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, acpi-support@lists.sourceforge.net,
+       Scott Feldman <scott.feldman@intel.com>
+Subject: Re: [2.5.75] S3 and S4
+Message-ID: <20030712135452.GA284@elf.ucw.cz>
+References: <20030711193611.GA824@dreamland.darkstar.lan> <20030711200053.GA402@elf.ucw.cz> <20030711134833.1adeceb1.akpm@osdl.org> <20030711215240.GA335@elf.ucw.cz> <20030711145309.091069e6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711145309.091069e6.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi!
 
----1197356979-1876980671-1058017759=:1986
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> > > > > Suspending devices
+> > > > > Badness in local_bh_enable at kernel/softirq.c:113
+> > > > > Call Trace:
+> > > > >  [<c0130078>] local_bh_enable+0x88/0x90
+> > > > >  [<f0a44fa4>] e100_do_wol+0x14/0x60 [e100]
+> > > > >  [<f0a461ee>] e100_suspend+0x3e/0xa0 [e100]
+> > > > >  [<f0a461b0>] e100_suspend+0x0/0xa0 [e100]
+> > > > >  [<c0212577>] pci_device_suspend+0x47/0x70
+> > > > >  [<c029bc99>] device_suspend+0xd9/0x100
+> > > > >  [<c023e047>] acpi_system_save_state+0x42/0x8c
+> > > > >  [<c023e153>] acpi_suspend+0x5e/0xb3
+> > > > >  [<c023e394>] acpi_system_write_sleep+0xe3/0x132
+> > > > >  [<c0177de0>] filp_open+0x60/0x70
+> > > > >  [<c017952d>] vfs_write+0xad/0x120
+> > > > >  [<c017963f>] sys_write+0x3f/0x60
+> > > > >  [<c010b10f>] syscall_call+0x7/0xb
+> > > > > 
+> > > > 
+> > > > If e100. You have the hardware...
+> > > 
+> > > No, it's acpi_system_save_state() illegally calling device_suspend() under
+> > > local_irq_disable().
+> > 
+> > Oops, I failed to see this is S3.
+> > 
+> > I can see that device_suspend( ..., SUSPEND_POWER_DOWN) is called with
+> > interrupts disabled. But thats okay: (driver.txt) All calls are made
+> > with interrupts enabled, except for the SUSPEND_POWER_DOWN level.
+> 
+> OK, it's an e100 bug then.  Not allowed to sleep or do spin_unloch_bh() in
+> device_suspend( ..., SUSPEND_POWER_DOWN).
+> 
+> That's a fairly awkward restriction.
 
-[And now for the patch, sorry forgot to attach it... *sigh*]
+Actually, its not. Some phase with interrupts off is needed for
+devices such as interrupt controller. Fix is very simple: move the
+e100 suspend from SUSPEND_POWER_DOWN to some other level.
 
-The attached patch fixes the following compile error when building
-agpsupport as a module.  This is against 2.4.22pre5.
-
-Marcelo, please apply as it's a very simple patch the adds the symbol to an
-enum in include/linux/agp_backend.h and adds a missed break statement in
-drm-4.0/agpsupport.c.
-
-**********
-gcc -D__KERNEL__ -I/usr/src/redhat/BUILD/kernel-2.4.22pre5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include /usr/src/redhat/BUILD/kernel-2.4.22pre5/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=agpsupport  -c -o agpsupport.o agpsupport.c
-agpsupport.c: In function `drm_agp_bind':
-agpsupport.c:215: warning: concatenation of string literals with __FUNCTION__ is deprecated
-agpsupport.c: In function `drm_agp_init':
-agpsupport.c:280: `VIA_APOLLO_P4X400' undeclared (first use in this function)
-agpsupport.c:280: (Each undeclared identifier is reported only once
-agpsupport.c:280: for each function it appears in.)
-make[3]: *** [agpsupport.o] Error 1
-make[3]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.22pre5/drivers/char/drm-4.0'
-make[2]: *** [_modsubdir_drm-4.0] Error 2
-make[2]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.22pre5/drivers/char'
-make[1]: *** [_modsubdir_char] Error 2
-make[1]: Leaving directory `/usr/src/redhat/BUILD/kernel-2.4.22pre5/drivers'
-make: *** [_mod_drivers] Error 2
-******************
-
-Thanks and regards
-James Bourne
+								Pavel
 
 -- 
-James Bourne                  | Email:            jbourne@hardrock.org          
-Unix Systems Administrator    | WWW:           http://www.hardrock.org
-Custom Unix Programming       | Linux:  The choice of a GNU generation
-----------------------------------------------------------------------
- "All you need's an occasional kick in the philosophy." Frank Herbert  
-
-
-
-
-
----1197356979-1876980671-1058017759=:1986
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.4.22pre5-drm-compile.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0307120749190.1986@cafe.hardrock.org>
-Content-Description: patch
-Content-Disposition: attachment; filename="2.4.22pre5-drm-compile.patch"
-
-LS0tIGxpbnV4LTIuNC4yMnByZTUvaW5jbHVkZS9saW51eC9hZ3BfYmFja2Vu
-ZC5ofgkyMDAzLTA3LTEyIDE0OjM2OjU0LjAwMDAwMDAwMCArMDcwMA0KKysr
-IGxpbnV4LTIuNC4yMnByZTUvaW5jbHVkZS9saW51eC9hZ3BfYmFja2VuZC5o
-CTIwMDMtMDctMTIgMTQ6MzY6NTQuMDAwMDAwMDAwICswNzAwDQpAQCAtNjYs
-NiArNjYsNyBAQA0KIAlWSUFfQVBPTExPX0tNMjY2LA0KIAlWSUFfQVBPTExP
-X0tUNDAwLA0KIAlWSUFfQVBPTExPX1A0TTI2NiwNCisJVklBX0FQT0xMT19Q
-NFg0MDAsDQogCVNJU19HRU5FUklDLA0KIAlBTURfR0VORVJJQywNCiAJQU1E
-X0lST05HQVRFLA0KLS0tIGxpbnV4LTIuNC4yMnByZTUvZHJpdmVycy9jaGFy
-L2RybS00LjAvYWdwc3VwcG9ydC5jfgkyMDAzLTA3LTEyIDE0OjM2OjU5LjAw
-MDAwMDAwMCArMDcwMA0KKysrIGxpbnV4LTIuNC4yMnByZTUvZHJpdmVycy9j
-aGFyL2RybS00LjAvYWdwc3VwcG9ydC5jCTIwMDMtMDctMTIgMTQ6MzY6NTku
-MDAwMDAwMDAwICswNzAwDQpAQCAtMjc4LDYgKzI3OCw3IEBADQogCQljYXNl
-IFZJQV9BUE9MTE9fS1Q0MDA6ICBoZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9s
-bG8gS1Q0MDAiOw0KIAkJCWJyZWFrOw0KIAkJY2FzZSBWSUFfQVBPTExPX1A0
-WDQwMDoJaGVhZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIFA0WDQwMCI7DQor
-CQkJYnJlYWs7DQogI2VuZGlmDQogDQogCQljYXNlIFZJQV9BUE9MTE9fUFJP
-OiAJaGVhZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIFBybyI7DQo=
----1197356979-1876980671-1058017759=:1986--
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

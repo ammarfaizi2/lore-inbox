@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310979AbSCHSDz>; Fri, 8 Mar 2002 13:03:55 -0500
+	id <S310989AbSCHSHF>; Fri, 8 Mar 2002 13:07:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310980AbSCHSDr>; Fri, 8 Mar 2002 13:03:47 -0500
-Received: from smtp.terrabee.net ([213.242.165.28]:51724 "HELO
-	smtp.terrabee.net") by vger.kernel.org with SMTP id <S310979AbSCHSDc>;
-	Fri, 8 Mar 2002 13:03:32 -0500
-Message-ID: <3C88FCED.5030407@computer.org>
-Date: Fri, 08 Mar 2002 19:03:25 +0100
-From: Robert Claeson <r.claeson@computer.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S310983AbSCHSGz>; Fri, 8 Mar 2002 13:06:55 -0500
+Received: from rogue.ncsl.nist.gov ([129.6.101.41]:57828 "EHLO
+	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP
+	id <S310991AbSCHSGl>; Fri, 8 Mar 2002 13:06:41 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with Kernel
-In-Reply-To: <20020304164444.A263@romulus>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [lkml] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
+In-Reply-To: <Pine.GSO.4.21.0203061424190.14695-100000@vervain.sonytel.be>
+	<Pine.LNX.4.21.0203061525160.6899-100000@serv>
+	<20020306090011.G15303@work.bitmover.com>
+	<a685rc$v4$1@forge.intermeta.de>
+	<20020308100747.GB3650@merlin.emma.line.org>
+From: Ian Soboroff <ian.soboroff@nist.gov>
+Date: 08 Mar 2002 13:05:29 -0500
+In-Reply-To: <20020308100747.GB3650@merlin.emma.line.org>
+Message-ID: <9cfelivrl3q.fsf@rogue.ncsl.nist.gov>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy M. Totten wrote:
+Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
 
- >    I am currently running Kernel 2.4.5 on my machine, and I
- >tried to install 2.4.18 and got a kernel panic. So I thought
- >I'de just make a new compile of 2.4.5 with only one change,
- >I set the High Memory support to 4GB instead of None.
- >
- >    Right when the kernel should have been setting up the swap
- >space, instead it gave me the following message:
- >
- >BUG IN DYNAMIC LINKER ld.so: rtld.c: 621: dl_main: Assertion 
- >`_dl_rtld_map.l_libname` failed!
- >Kernel panic: Attempted to kill init!
- >
- >This is a different message than I was getting in 2.4.18
- >but happens at the same time in bootup.
- >
- >The thing is, when I boot the original 2.4.5 it works fine.
+> Flame attractor: No sane person works with [t]csh.
 
-Are you sure you did get exactly the same drivers and file system 
-modules included as with your original 2.4.5 kernel? The reason I ask is 
-that I've just spent two entire days trying (and finally suceeding) to 
-get 2.4.18 working on a Compaq DL380 server (and no, not evern Red Hat's 
-"original" kernels worked with these systems starting with 2.4.9-21).
+Let's see... we've had a SCM flamewar, a license flamewar, an Emacs/VI
+taunt or two, a csh/sh taunt, and even Hitler.  Add this to the ESR
+flamewar, the devfs flamewar, the odd microkernel LART, and a spam or
+three.
 
-I didn't get the same results as you did, but various other kinds of 
-kernel panics either when it tried to mount the root file system or 
-setting up swap. I'm not sure exactly how I did manage to get it to 
-work, but I believe I finally figured that I needed to compile the 
-cpqarray driver as a module and not as a static driver, and various 
-other drivers static, especially those pertaining to file systems and 
-such. Mkinitrd didn't pick them up correctly, and using --preload or 
---with to mkinitrd didn't help either. IOW, I fixed the problem with my 
-systems by T&E. I know too little about your system to tell whether the 
-problem is the same, or even similar.
+If we only had kibo, LKML would be USENET.
 
-/Robert
+(ducks)
 
+ian 
+(a fried of whose once sig'ed: "Unencumbered with facts as I am, I
+will now comment." -- USENET motto)

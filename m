@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311819AbSCNV6l>; Thu, 14 Mar 2002 16:58:41 -0500
+	id <S311818AbSCNWAb>; Thu, 14 Mar 2002 17:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311818AbSCNV6c>; Thu, 14 Mar 2002 16:58:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11527 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S311819AbSCNV6W>; Thu, 14 Mar 2002 16:58:22 -0500
+	id <S311821AbSCNWAV>; Thu, 14 Mar 2002 17:00:21 -0500
+Received: from [24.67.14.151] ([24.67.14.151]:42488 "EHLO webber.adilger.int")
+	by vger.kernel.org with ESMTP id <S311818AbSCNWAJ>;
+	Thu, 14 Mar 2002 17:00:09 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Thu, 14 Mar 2002 14:59:29 -0700
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-Date: 14 Mar 2002 13:57:40 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a6r6ck$8ia$1@cesium.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0203141234170.1286-100000@scsoftware.sc-software.com> <Pine.LNX.4.33.0203141318130.9855-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems.
+Message-ID: <20020314215929.GN429@turbolinux.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <E16lcxr-0001wc-00@the-village.bc.nu> <1016142855.14838.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1016142855.14838.5.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.27i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33.0203141318130.9855-100000@penguin.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> Port ED is fine for a BIOS, which (by definition) knows what the
-> motherboard devices are, and thus knows that ED cannot be used by
-> anything.
-> 
-> But it _is_ an unused port, and that's exactly the kind of thing that
-> might be used sometime in the future. Remember the port 22/23 brouhaha
-> with Cyrix using it for their stuff, and later Intel getting into the fray
-> too?
-> 
-> So the fact that ED works doesn't mean that _stays_ working.
-> 
+On Mar 14, 2002  23:53 +0200, Bongani wrote:
+> ...I just vompiled 2.4.19...
 
-It is, in fact, broken on several systems -- I tried ED in SYSLINUX
-for a while, and it broke things for people.
+Is this what you do when the code is so bad it makes you sick ;-)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

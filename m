@@ -1,84 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTJCUiF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 16:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTJCUiF
+	id S261176AbTJCU3O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 16:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTJCU3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 16:38:05 -0400
-Received: from mail.netbeat.de ([193.254.185.26]:37128 "HELO mail.netbeat.de")
-	by vger.kernel.org with SMTP id S261188AbTJCUiA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 16:38:00 -0400
-Subject: PPP not working on test6-mm2
-From: Jan Ischebeck <mail@jan-ischebeck.de>
-To: akpm@osdl.org
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1065220814.2261.1.camel@JHome.uni-bonn.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 04 Oct 2003 00:40:14 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Oct 2003 16:29:14 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:48069 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S261176AbTJCU3H convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 16:29:07 -0400
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] down_timeout
+Date: Fri, 3 Oct 2003 13:29:03 -0700
+Message-ID: <D3A3AA459175A44CB5326F26DA7A189C1C3DD3@orsmsx405.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] down_timeout
+Thread-Index: AcOJuzvSJecBYaUuSZaTo2Wf83Y7tQAMYdMw
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Matthew Wilcox" <willy@debian.org>, "Yury Umanets" <umka@namesys.com>
+Cc: <acpi-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Oct 2003 20:29:03.0927 (UTC) FILETIME=[FC92C470:01C389EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
 
-PPP isn't working anymore since test5-mm1.
+I would say that the whole thing is wrong -- the kernel should provide a
+semaphore wait function that includes a timeout parameter.
 
-Here a stacktrace from test6-mm2, last lines from dmesg:
-
-Badness in local_bh_enable at kernel/softirq.c:119
-Call Trace:
-[<c01281e5>] local_bh_enable+0x85/0x90
-[<c0243762>] ppp_async_push+0xa2/0x190
-[<c024307d>] ppp_asynctty_wakeup+0x2d/0x60
-[<c020fcf8>] pty_unthrottle+0x58/0x60
-[<c020c67d>] check_unthrottle+0x3d/0x40
-[<c020c723>] n_tty_flush_buffer+0x13/0x60
-[<c0210107>] pty_flush_buffer+0x67/0x70
-[<c0208f55>] do_tty_hangup+0x405/0x470
-[<c020a4dc>] release_dev+0x64c/0x680
-[<c014abfb>] zap_pmd_range+0x4b/0x70
-[<c014ac63>] unmap_page_range+0x43/0x70
-[<c0170562>] dput+0x22/0x270
-[<c020a8aa>] tty_release+0x2a/0x60
-[<c015ac40>] __fput+0x100/0x120
-[<c0159229>] filp_close+0x59/0x90
-[<c0125b34>] put_files_struct+0x54/0xc0
-[<c0126795>] do_exit+0x155/0x3f0
-[<c0126aca>] do_group_exit+0x3a/0xb0
-[<c02fb427>] syscall_call+0x7/0xb
+Bob
 
 
-PPP is build in, 
-
-# CONFIG_PLIP is not set
-CONFIG_PPP=y
-# CONFIG_PPP_MULTILINK is not set
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-# CONFIG_PPP_SYNC_TTY is not set
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_PPPOE=y
-# CONFIG_SLIP is not set
+-----Original Message-----
+From: acpi-devel-admin@lists.sourceforge.net
+[mailto:acpi-devel-admin@lists.sourceforge.net] On Behalf Of Matthew
+Wilcox
+Sent: Friday, October 03, 2003 7:25 AM
+To: Yury Umanets
+Cc: acpi-devel@lists.sourceforge.net; linux-kernel@vger.kernel.org
+Subject: [ACPI] down_timeout
 
 
-trying to start pppd doesn't work. Syslog:
+[l-k people, skip to the bottom, that's where down_timeout is]
 
-Oct  4 00:05:39 JHome pppoe[2108]: ioctl(SIOCGIFHWADDR): Session 0: No
-such device
-Oct  4 00:05:39 JHome pppd[1134]: Serial connection established.
-Oct  4 00:05:39 JHome pppd[1134]: Couldn't get channel number:
-Input/output error
+On Fri, Oct 03, 2003 at 04:37:53PM +0400, Yury Umanets wrote:
+> Thus, @quantum_ms will be calculated longer for shorter HZ and this is
 
+> definitelly not good in my opinion. Am I right?
 
-Jan
+You're right, but for the wrong reason.  This code is pretty inaccurate
+as it's relying on the result of integer divides.  This code should
+work better (disclaimer: compiled, not tested):
 
-Pleace CC on reply.
+Index: drivers/acpi/osl.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/acpi/osl.c,v
+retrieving revision 1.3
+diff -u -p -r1.3 osl.c
+--- drivers/acpi/osl.c	23 Aug 2003 02:46:37 -0000	1.3
++++ drivers/acpi/osl.c	3 Oct 2003 14:02:44 -0000
+@@ -827,7 +827,6 @@ acpi_os_wait_semaphore(
+ {
+ 	acpi_status		status = AE_OK;
+ 	struct semaphore	*sem = (struct semaphore*)handle;
+-	int			ret = 0;
+ 
+ 	ACPI_FUNCTION_TRACE ("os_wait_semaphore");
+ 
+@@ -842,56 +841,28 @@ acpi_os_wait_semaphore(
+ 	if (in_atomic())
+ 		timeout = 0;
+ 
+-	switch (timeout)
+-	{
+-		/*
+-		 * No Wait:
+-		 * --------
+-		 * A zero timeout value indicates that we shouldn't wait
+- just
+-		 * acquire the semaphore if available otherwise return
+AE_TIME
+-		 * (a.k.a. 'would block').
+-		 */
+-		case 0:
+-		if(down_trylock(sem))
+-			status = AE_TIME;
+-		break;
+-
+-		/*
+-		 * Wait Indefinitely:
+-		 * ------------------
+-		 */
+-		case ACPI_WAIT_FOREVER:
++	if (timeout == ACPI_WAIT_FOREVER) {
+ 		down(sem);
+-		break;
+-
+-		/*
+-		 * Wait w/ Timeout:
+-		 * ----------------
+-		 */
+-		default:
+-		// TODO: A better timeout algorithm?
+-		{
+-			int i = 0;
+-			static const int quantum_ms = 1000/HZ;
+-
++	} else if (down_trylock(sem) == 0) {
++		/* Success, do nothing */
++	} else {
++		long now = jiffies;
++		int ret = 1;
++		while (jiffies < now + timeout * HZ) {
++			current->state = TASK_INTERRUPTIBLE;
++			schedule_timeout(1);
+ 			ret = down_trylock(sem);
+-			for (i = timeout; (i > 0 && ret < 0); i -=
+quantum_ms) {
+-				current->state = TASK_INTERRUPTIBLE;
+-				schedule_timeout(1);
+-				ret = down_trylock(sem);
+-			}
+-	
+-			if (ret != 0)
+-				status = AE_TIME;
++			if (!ret)
++				break;
+ 		}
+-		break;
++		if (ret)
++			status = AE_TIME;
+ 	}
+ 
+ 	if (ACPI_FAILURE(status)) {
+ 		ACPI_DEBUG_PRINT ((ACPI_DB_ERROR, "Failed to acquire
+semaphore[%p|%d|%d], %s\n", 
+ 			handle, units, timeout,
+acpi_format_exception(status)));
+-	}
+-	else {
++	} else {
+ 		ACPI_DEBUG_PRINT ((ACPI_DB_MUTEX, "Acquired
+semaphore[%p|%d|%d]\n", handle, units, timeout));
+ 	}
+ 
 
+[l-k people, this is the interesting bit]
+
+It's still not great because it doesn't preserve ordering.
+down_timeout()
+would be a much better primitive.  We have down_interruptible() which
+could be used for this purpose.  Something like (completely uncompiled):
+
+/* Returns -EINTR if the timeout expires */
+int down_timeout(struct semaphore *sem, long timeout)
+{
+	struct timer_list timer;
+	int result;
+
+	init_timer(&timer);
+	timer.expires = timeout + jiffies;
+	timer.data = (unsigned long) current;
+	timer.function = process_timeout;
+
+	add_timer(&timer);
+	result = down_interruptible(sem);
+	del_timer_sync(&timer);
+
+	return result;
+}
+
+(This would have to go in kernel/timer.c as that's where process_timeout
+lives).
 
 -- 
-Jan Ischebeck <mail@jan-ischebeck.de>
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead
+bodies.
+Do you think I want to have an academic debate on this subject?" --
+Robert Fisk
 
+
+-------------------------------------------------------
+This sf.net email is sponsored by:ThinkGeek
+Welcome to geek heaven.
+http://thinkgeek.com/sf
+_______________________________________________
+Acpi-devel mailing list
+Acpi-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/acpi-devel

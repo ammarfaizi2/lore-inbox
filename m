@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbUDNX31 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 19:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbUDNW1c
+	id S261980AbUDNX3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 19:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbUDNW0q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 18:27:32 -0400
-Received: from mail.kroah.org ([65.200.24.183]:43679 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261969AbUDNWZD convert rfc822-to-8bit
+	Wed, 14 Apr 2004 18:26:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:44447 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261979AbUDNWZE convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 18:25:03 -0400
-Subject: Re: [PATCH] I2C update for 2.6.5
-In-Reply-To: <10819814502649@kroah.com>
+	Wed, 14 Apr 2004 18:25:04 -0400
+Subject: [PATCH] I2C update for 2.6.5
+In-Reply-To: <20040414222215.GA26225@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 14 Apr 2004 15:24:10 -0700
-Message-Id: <10819814502077@kroah.com>
+Date: Wed, 14 Apr 2004 15:24:09 -0700
+Message-Id: <10819814493235@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
@@ -22,200 +22,155 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1643.36.9, 2004/03/30 14:26:52-08:00, khali@linux-fr.org
+ChangeSet 1.1643.36.1, 2004/03/19 13:24:14-08:00, khali@linux-fr.org
 
-[PATCH] I2C: i2c documentation update (2/2)
+[PATCH] I2C: w83781d fan_div code refactoring
 
-Here is a patch to Documentation/i2c/sysfs-interface. This is mostly my
-intent to make the document more readable. There are also a few
-incorrectnesses fixed, and some comments added.
+Quoting myself:
+
+> This tends to increase the size of the three set_store_regs_fan_div
+> functions, and I am considering refactoring them at some point. Later
+> though.
+
+Here is the promised refactoring. Tested on my AS99127F rev.1, seems to
+work. As for the previous patch, there is a part that I cannot test with
+the AS99127F, so additional testing is welcome.
+
+I agree this makes the code slightly less readable, but this saves 60
+lines of code (1754 bytes, around 3% of the driver total), and is
+actually far less complex that I first feared.
 
 
- Documentation/i2c/sysfs-interface |   78 ++++++++++++++++++--------------------
- 1 files changed, 37 insertions(+), 41 deletions(-)
+ drivers/i2c/chips/w83781d.c |   94 +++++++-------------------------------------
+ 1 files changed, 17 insertions(+), 77 deletions(-)
 
 
-diff -Nru a/Documentation/i2c/sysfs-interface b/Documentation/i2c/sysfs-interface
---- a/Documentation/i2c/sysfs-interface	Wed Apr 14 15:14:16 2004
-+++ b/Documentation/i2c/sysfs-interface	Wed Apr 14 15:14:16 2004
-@@ -74,18 +74,15 @@
- ************
+diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
+--- a/drivers/i2c/chips/w83781d.c	Wed Apr 14 15:15:00 2004
++++ b/drivers/i2c/chips/w83781d.c	Wed Apr 14 15:15:00 2004
+@@ -620,7 +620,7 @@
+    least suprise; the user doesn't expect the fan minimum to change just
+    because the divisor changed. */
+ static ssize_t
+-store_regs_fan_div_1(struct device *dev, const char *buf, size_t count)
++store_fan_div_reg(struct device *dev, const char *buf, size_t count, int nr)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct w83781d_data *data = i2c_get_clientdata(client);
+@@ -628,92 +628,28 @@
+ 	u8 reg;
  
- in[0-8]_min	Voltage min value.
--		Fixed point value in form XXXX.  Divide by 1000 to get
--		Volts.
-+		Unit: millivolt
- 		Read/Write
- 		
- in[0-8]_max	Voltage max value.
--		Fixed point value in form XXXX.  Divide by 1000 to get
--		Volts.
-+		Unit: millivolt
- 		Read/Write
- 		
- in[0-8]_input	Voltage input value.
--		Fixed point value in form XXXX.  Divide by 1000 to get
--		Volts.
-+		Unit: millivolt
- 		Read only
- 		Actual voltage depends on the scaling resistors on the
- 		motherboard, as recommended in the chip datasheet.
-@@ -95,10 +92,10 @@
- 		However, some drivers (notably lm87 and via686a)
- 		do scale, with various degrees of success.
- 		These drivers will output the actual voltage.
--		First two values are read/write and third is read only.
-+
- 		Typical usage:
- 			in0_*	CPU #1 voltage (not scaled)
--			in1_*	CPU #1 voltage (not scaled)
-+			in1_*	CPU #2 voltage (not scaled)
- 			in2_*	3.3V nominal (not scaled)
- 			in3_*	5.0V nominal (scaled)
- 			in4_*	12.0V nominal (scaled)
-@@ -108,17 +105,16 @@
- 			in8_*	varies
+ 	/* Save fan_min */
+-	min = FAN_FROM_REG(data->fan_min[0],
+-			   DIV_FROM_REG(data->fan_div[0]));
++	min = FAN_FROM_REG(data->fan_min[nr],
++			   DIV_FROM_REG(data->fan_div[nr]));
  
- in0_ref		CPU core reference voltage.
-+		Unit: millivolt
- 		Read only.
--		Fixed point value in form XXXX corresponding to CPU core
--		voltage as told to the sensor chip.  Divide by 1000 to
--		get Volts.  Not always correct.
-+		Not always correct.
+-	data->fan_div[0] = DIV_TO_REG(simple_strtoul(buf, NULL, 10),
++	data->fan_div[nr] = DIV_TO_REG(simple_strtoul(buf, NULL, 10),
+ 				      data->type);
  
- vrm		Voltage Regulator Module version number. 
- 		Read only.
--		Two digit number (XX), first is major version, second is
-+		Two digit number, first is major version, second is
- 		minor version.
--		Affects the way the driver calculates the core voltage from
--		the vid pins. See doc/vid for details.
-+		Affects the way the driver calculates the CPU core reference
-+		voltage from the vid pins.
+-	reg = w83781d_read_value(client, W83781D_REG_VID_FANDIV) & 0xcf;
+-	reg |= (data->fan_div[0] & 0x03) << 4;
+-	w83781d_write_value(client, W83781D_REG_VID_FANDIV, reg);
++	reg = (w83781d_read_value(client, nr==2 ? W83781D_REG_PIN : W83781D_REG_VID_FANDIV)
++	       & (nr==0 ? 0xcf : 0x3f))
++	    | ((data->fan_div[nr] & 0x03) << (nr==0 ? 4 : 6));
++	w83781d_write_value(client, nr==2 ? W83781D_REG_PIN : W83781D_REG_VID_FANDIV, reg);
  
+ 	/* w83781d and as99127f don't have extended divisor bits */
+ 	if (data->type != w83781d && data->type != as99127f) {
+-		reg = w83781d_read_value(client, W83781D_REG_VBAT) & 0xdf;
+-		reg |= (data->fan_div[0] & 0x04) << 3;
++		reg = (w83781d_read_value(client, W83781D_REG_VBAT)
++		       & ~(1 << (5 + nr)))
++		    | ((data->fan_div[nr] & 0x04) << (3 + nr));
+ 		w83781d_write_value(client, W83781D_REG_VBAT, reg);
+ 	}
  
- ********
-@@ -126,23 +122,23 @@
- ********
+ 	/* Restore fan_min */
+-	data->fan_min[0] = FAN_TO_REG(min, DIV_FROM_REG(data->fan_div[0]));
+-	w83781d_write_value(client, W83781D_REG_FAN_MIN(1), data->fan_min[0]);
+-
+-	return count;
+-}
+-
+-static ssize_t
+-store_regs_fan_div_2(struct device *dev, const char *buf, size_t count)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct w83781d_data *data = i2c_get_clientdata(client);
+-	unsigned long min;
+-	u8 reg;
+-
+-	/* Save fan_min */
+-	min = FAN_FROM_REG(data->fan_min[1],
+-			   DIV_FROM_REG(data->fan_div[1]));
+-
+-	data->fan_div[1] = DIV_TO_REG(simple_strtoul(buf, NULL, 10),
+-				      data->type);
+-
+-	reg = w83781d_read_value(client, W83781D_REG_VID_FANDIV) & 0x3f;
+-	reg |= (data->fan_div[1] & 0x03) << 6;
+-	w83781d_write_value(client, W83781D_REG_VID_FANDIV, reg);
+-
+-	/* w83781d and as99127f don't have extended divisor bits */
+-	if (data->type != w83781d && data->type != as99127f) {
+-		reg = w83781d_read_value(client, W83781D_REG_VBAT) & 0xbf;
+-		reg |= (data->fan_div[1] & 0x04) << 4;
+-		w83781d_write_value(client, W83781D_REG_VBAT, reg);
+-	}
+-
+-	/* Restore fan_min */
+-	data->fan_min[1] = FAN_TO_REG(min, DIV_FROM_REG(data->fan_div[1]));
+-	w83781d_write_value(client, W83781D_REG_FAN_MIN(2), data->fan_min[1]);
+-
+-	return count;
+-}
+-
+-static ssize_t
+-store_regs_fan_div_3(struct device *dev, const char *buf, size_t count)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct w83781d_data *data = i2c_get_clientdata(client);
+-	unsigned long min;
+-	u8 reg;
+-
+-	/* Save fan_min */
+-	min = FAN_FROM_REG(data->fan_min[2],
+-			   DIV_FROM_REG(data->fan_div[2]));
+-
+-	data->fan_div[2] = DIV_TO_REG(simple_strtoul(buf, NULL, 10),
+-				      data->type);
+-
+-	reg = w83781d_read_value(client, W83781D_REG_PIN) & 0x3f;
+-	reg |= (data->fan_div[2] & 0x03) << 6;
+-	w83781d_write_value(client, W83781D_REG_PIN, reg);
+-
+-	/* w83781d and as99127f don't have extended divisor bits */
+-	if (data->type != w83781d && data->type != as99127f) {
+-		reg = w83781d_read_value(client, W83781D_REG_VBAT) & 0x7f;
+-		reg |= (data->fan_div[2] & 0x04) << 5;
+-		w83781d_write_value(client, W83781D_REG_VBAT, reg);
+-	}
+-
+-	/* Restore fan_min */
+-	data->fan_min[2] = FAN_TO_REG(min, DIV_FROM_REG(data->fan_div[2]));
+-	w83781d_write_value(client, W83781D_REG_FAN_MIN(3), data->fan_min[2]);
++	data->fan_min[nr] = FAN_TO_REG(min, DIV_FROM_REG(data->fan_div[nr]));
++	w83781d_write_value(client, W83781D_REG_FAN_MIN(nr+1), data->fan_min[nr]);
  
- fan[1-3]_min	Fan minimum value
--		Integer value indicating RPM
-+		Unit: revolution/min (RPM)
- 		Read/Write.
+ 	return count;
+ }
+@@ -722,6 +658,10 @@
+ static ssize_t show_regs_fan_div_##offset (struct device *dev, char *buf) \
+ { \
+ 	return show_fan_div_reg(dev, buf, offset); \
++} \
++static ssize_t store_regs_fan_div_##offset (struct device *dev, const char *buf, size_t count) \
++{ \
++	return store_fan_div_reg(dev, buf, count, offset - 1); \
+ } \
+ static DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR, show_regs_fan_div_##offset, store_regs_fan_div_##offset)
  
- fan[1-3]_input	Fan input value.
--		Integer value indicating RPM
-+		Unit: revolution/min (RPM)
- 		Read only.
- 
- fan[1-3]_div	Fan divisor.
--		Integers in powers of two (1,2,4,8,16,32,64,128).
--		Some chips only support values 1,2,4,8.
--		See doc/fan-divisors for details.
-+		Integer value in powers of two (1, 2, 4, 8, 16, 32, 64, 128).
-+		Some chips only support values 1, 2, 4 and 8.
-+		Note that this is actually an internal clock divisor, which
-+		affects the measurable speed range, not the read value.
- 
- fan[1-3]_pwm	Pulse width modulation fan control.
--		Integer 0 - 255
-+		Integer value in the range 0 to 255
- 		Read/Write
- 		255 is max or 100%.
--		Corresponds to the fans 1-3.
- 
- fan[1-3]_pwm_enable
- 		Switch PWM on and off.
-@@ -157,46 +153,46 @@
- ****************
- 
- temp[1-3]_type	Sensor type selection.
--		Integers 1,2,3, or thermistor Beta value (3435)
-+		Integers 1, 2, 3 or thermistor Beta value (3435)
- 		Read/Write.
-+		1: PII/Celeron Diode
-+		2: 3904 transistor
-+		3: thermal diode
-+		Not all types are supported by all chips
- 
- temp[1-4]_max	Temperature max value.
--		Fixed point value in form XXXXX and should be divided by
--		1000 to get degrees Celsius.
-+		Unit: millidegree Celcius
- 		Read/Write value.
- 
- temp[1-3]_min	Temperature min value.
--		Fixed point value in form XXXXX and should be divided by
--		1000 to get degrees Celsius.
-+		Unit: millidegree Celcius
- 		Read/Write value.
- 
- temp[1-3]_max_hyst
- 		Temperature hysteresis value for max limit.
--		Fixed point value in form XXXXX and should be divided by
--		1000 to get degrees Celsius.  Must be reported as an
--		absolute temperature, NOT a delta from the max value.
-+		Unit: millidegree Celcius
-+		Must be reported as an absolute temperature, NOT a delta
-+		from the max value.
- 		Read/Write value.
- 
- temp[1-4]_input Temperature input value.
--		Fixed point value in form XXXXX and should be divided by
--		1000 to get degrees Celsius.
-+		Unit: millidegree Celcius
- 		Read only value.
- 
- temp[1-4]_crit	Temperature critical value, typically greater than
- 		corresponding temp_max values.
--		Fixed point value in form XXXXX and should be divided by
--		1000 to get degrees Celsius.
-+		Unit: millidegree Celcius
- 		Read/Write value.
- 
- temp[1-2]_crit_hyst
- 		Temperature hysteresis value for critical limit.
--		Fixed point value in form XXXXX and should be divided by
--		1000 to get degrees Celsius.  Must be reported as an
--		absolute temperature, NOT a delta from the critical value.
-+		Unit: millidegree Celcius
-+		Must be reported as an absolute temperature, NOT a delta
-+		from the critical value.
- 		Read/Write value.
- 
- 		If there are multiple temperature sensors, temp1_* is
--		generally the sensor inside the chip itself, generally
-+		generally the sensor inside the chip itself,
- 		reported as "motherboard temperature".  temp2_* to
- 		temp4_* are generally sensors external to the chip
- 		itself, for example the thermal diode inside the CPU or
-@@ -211,15 +207,15 @@
- so this part is theoretical, so to say.
- 
- curr[1-n]_max	Current max value
--		Fixed point XXXXX, divide by 1000 to get Amps.
-+		Unit: milliampere
- 		Read/Write.
- 
- curr[1-n]_min	Current min value.
--		Fixed point XXXXX, divide by 1000 to get Amps.
-+		Unit: milliampere
- 		Read/Write.
- 
- curr[1-n]_input	Current input value
--		Fixed point XXXXX, divide by 1000 to get Amps.
-+		Unit: milliampere
- 		Read only.
- 
- 
-@@ -246,7 +242,7 @@
- 
- beep_mask	Bitmask for beep.
- 		Same format as 'alarms' with the same bit locations.
--		Read only.
-+		Read/Write
- 
- eeprom		Raw EEPROM data in binary form.
- 		Read only.
 

@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUIEVqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUIEVrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267251AbUIEVqb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 17:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUIEVqb
+	id S267259AbUIEVrj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 17:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267258AbUIEVri
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 17:46:31 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:13074 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267251AbUIEVq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 17:46:29 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Stuart Young <cef-lkml@optusnet.com.au>, linux-kernel@vger.kernel.org,
-       Rohit Neupane <rohitneupane@gmail.com>
-Subject: Re: Weird Problem with TCP
-Date: Mon, 6 Sep 2004 00:46:22 +0300
-User-Agent: KMail/1.5.4
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <93e09f0104090202216403c08d@mail.gmail.com> <93e09f0104090206334a708289@mail.gmail.com> <200409030106.24476.cef-lkml@optusnet.com.au>
-In-Reply-To: <200409030106.24476.cef-lkml@optusnet.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409060046.22544.vda@port.imtp.ilyichevsk.odessa.ua>
+	Sun, 5 Sep 2004 17:47:38 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:19997 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267259AbUIEVrT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 17:47:19 -0400
+Message-ID: <d577e56904090514472eff2e55@mail.gmail.com>
+Date: Sun, 5 Sep 2004 17:47:16 -0400
+From: Patrick McFarland <diablod3@gmail.com>
+Reply-To: Patrick McFarland <diablod3@gmail.com>
+Illegal-Object: Syntax error in To: address found on vger.kernel.org:
+	To:	"Michel  =?ISO-8859-1?Q?=20D=E4nzer=22?= <michel@daenzer.net>"
+			^-missing closing '"' in token
+Subject: Re: [BUG] r200 dri driver deadlocks
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+In-Reply-To: <1094415901.31465.133.camel@admin.tel.thor.asgaard.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <d577e569040904021631344d2e@mail.gmail.com>
+	 <1094321696.31459.103.camel@admin.tel.thor.asgaard.local>
+	 <d577e56904090413365f5e223d@mail.gmail.com>
+	 <1094366099.31457.112.camel@admin.tel.thor.asgaard.local>
+	 <d577e56904090501224f252dbc@mail.gmail.com>
+	 <1094406055.31464.118.camel@admin.tel.thor.asgaard.local>
+	 <d577e569040905131870fa14a3@mail.gmail.com>
+	 <1094415901.31465.133.camel@admin.tel.thor.asgaard.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+To: unlisted-recipients:; (no To-header on input)
 
-> > > Are you using session tracking. The symptoms you describe are
-> > > classically those of session tracking nat/firewalling/whatever running
-> > > out of table entries and being unable to allow new connections.
-> >
-> > No, it is not running any session tracking (ip_conntrack) neither it
-> > does nat. It is just a firewall with around 1600 rules in FORWARD
-> > mangle table and around 1500 rules in FORWARD filter table. Out of
-> > 1500 rules , 1377 rules are MAC filter rules.
-> > And it had 3 alias address for the interface conneted to the wirelss.
->
-> EEEEK! 1600? That is insane!
->
-> Consider cutting your rules into sections, and jumping to other tables to
-> do sections of the work. Perhaps you can filter on the start of the MAC
-> address and break this into smaller sections?
->
-> Also of note: MAC addresses are easily spoofed, so if you're using this to
-> lock out people on wireless, forget it, it doesn't work. Get them to use
+On Sun, 05 Sep 2004 16:25:00 -0400, Michel Dänzer <michel@daenzer.net> wrote:
+> On Sun, 2004-09-05 at 16:18 -0400, Patrick McFarland wrote:
+> > That shouldn't matter, should it? The userland stuff should never lock
+> > the machine up.
+> 
+> In an ideal world... Feel free to track down the cause and add code to
+> the DRM to prevent it.
 
-Yes. I saw MAC filtering being hacked by a teenager with WinXP.
-I inflicted OpenVPN on him. Now hack *that*, boy... ;)
+I would, except, as many have noted before, even looking at the r200
+driver requires years
+of therapy to get rid of the nightmares.
 
-> tunnels (eg: ipsec) instead. The only real way MAC addresses even sort of
-> work is when you're providing a hotspot, ie: where you can't guarantee the
-> client to have anything apart from base wireless, and you should therefore
-> keep a tight leash on users connections by either timing them out
-> regularly, or making them keep open a https:// page to a login/AAA server
-> (ie: a page that auto-refreshes - when they stop refreshing the page,
-> consider their connection stale).
---
-vda
+So, yeah, I'll check to see if today's dri cvs snapshot works. If it
+doesn't, I'm not sure what to do.
 
+-- 
+Patrick "Diablo-D3" McFarland || diablod3@gmail.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, we'd 
+all be running around in darkened rooms, munching magic pills and listening to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989

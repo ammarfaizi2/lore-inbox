@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290561AbSA3U1T>; Wed, 30 Jan 2002 15:27:19 -0500
+	id <S290573AbSA3U35>; Wed, 30 Jan 2002 15:29:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290557AbSA3U1I>; Wed, 30 Jan 2002 15:27:08 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:8159 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S290565AbSA3U07>; Wed, 30 Jan 2002 15:26:59 -0500
-Date: Wed, 30 Jan 2002 22:26:49 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: master.kernel.org status
-Message-ID: <20020130202648.GE341293@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3C57A9BF.60100@zytor.com>
+	id <S290565AbSA3U3i>; Wed, 30 Jan 2002 15:29:38 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:39141
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S290558AbSA3U3c>; Wed, 30 Jan 2002 15:29:32 -0500
+Date: Wed, 30 Jan 2002 21:29:22 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: grumph@pakistanmail.com, linux-kernel@vger.kernel.org,
+        Kalle Kivimaa <killeri@iki.fi>
+Subject: Re: Wanted: Volunteer to code a Patchbot
+Message-ID: <20020130212922.F821@jaquet.dk>
+In-Reply-To: <3c580adc.3d7c.0@pakistanmail.com> <E16VyMG-0000G7-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C57A9BF.60100@zytor.com>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16VyMG-0000G7-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Jan 30, 2002 at 06:17:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 12:07:27AM -0800, you [H. Peter Anvin] claimed:
-> Whew...
+On Wed, Jan 30, 2002 at 06:17:16PM +0100, Daniel Phillips wrote:
+> I must say, I've been impressed with the insight of all three.  Would you be 
+> a fourth?  A mailing list has been set up (by Giacomo):
 > 
-> Thanks to a tip from Leonard Zubkoff I've successfully reconstructed the 
-> data on master.kernel.org. 
+>    http://killeri.net/cgi-bin/alias/ezmlm-cgi
 
-After the well-deserved sleep, would you (or Leonard) care to share the tip?
-I've been involved in (fortunately, not responsible for) a situation where
-attempt to extend a hardware raid set led into state where be had to
-reformat the whole system and restore all from backups (what backups we
-had). I wonder if that piece of information would have been applicable.
-
-And I do wish to express my respect for the hard work you are doing on
-kernel.org.
-
-
--- v --
-
-v@iki.fi
+It does not matter terribly but the list has been setup by
+Kalle Kivimaa <killeri@iki.fi>.
+-- 
+        Rasmus(rasmus@jaquet.dk)

@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272478AbTHKKGM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 06:06:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272492AbTHKKGM
+	id S270823AbTHKKOW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 06:14:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272445AbTHKKOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 06:06:12 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:23699 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S272478AbTHKKGI (ORCPT
+	Mon, 11 Aug 2003 06:14:22 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:62616 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S270823AbTHKKOV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 06:06:08 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 11 Aug 2003 12:05:52 +0200 (MEST)
-Message-Id: <UTC200308111005.h7BA5qa11199.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, fgrum@free.fr
-Subject: Re: Apacer SM/CF combo reader driver
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	Mon, 11 Aug 2003 06:14:21 -0400
+Date: Mon, 11 Aug 2003 12:14:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test2: unable to suspend (APM)
+Message-ID: <20030811101403.GA360@elf.ucw.cz>
+References: <20030806231519.H16116@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030806231519.H16116@flint.arm.linux.org.uk>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	From: Fabien Grumelard <fgrum@free.fr>
-	Subject: Re: Apacer SM/CF combo reader driver
+Hi!
 
-	> If you need the SM half, ask me again.
+> I'm trying to test out APM on my laptop (in order to test some PCMCIA
+> changes), but I'm hitting a brick wall.  I've added the device_suspend()
+> calls for the SAVE_STATE, DISABLE and the corresponding device_resume()
+> calls into apm's suspend() function.  (this is needed so that PCI
+> devices receive their notifications.)
 
-	yes, this is what I want to use.
-
-
-About the 07c4:a109 CF+SM Apacer LC1 reader:
-
-I just checked status in 2.4.21.
-
-The CF half words if you select CONFIG_USB_STORAGE_DATAFAB.
-The SM hals works is you select CONFIG_USB_STORAGE_SDDR55
-and apply a tiny patch to unusual devices:
-
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/usb/storage/unusual_devs.h b/drivers/usb/storage/unusual_devs.h
---- a/drivers/usb/storage/unusual_devs.h        Sun Jul  6 14:22:55 2003
-+++ b/drivers/usb/storage/unusual_devs.h        Mon Aug 11 12:50:26 2003
-@@ -462,6 +462,14 @@
-                US_FL_START_STOP ),
- #endif
- 
-+#ifdef CONFIG_USB_STORAGE_SDDR55
-+UNUSUAL_DEV(  0x07c4, 0xa109, 0x0000, 0xffff,
-+               "Datafab Systems, Inc.",
-+               "USB to CF + SM Combo (LC1)",
-+               US_SC_SCSI, US_PR_SDDR55, NULL,
-+               US_FL_SINGLE_LUN),
-+#endif
-+
- #ifdef CONFIG_USB_STORAGE_DATAFAB
- UNUSUAL_DEV(  0x07c4, 0xa000, 0x0000, 0x0015,
-                "Datafab",
-
-Andries
-
-[Note: the vanilla kernel setup still does not handle
-composite devices like these - you need the twoluns
-setup from the URL I gave if you want to use both CF and SM.
-But if you are satisfied with having one, then you have it.]
-
-[Note: if you select both CONFIG_USB_STORAGE_DATAFAB and
-CONFIG_USB_STORAGE_SDDR55 then the order of the items in
-unusual_devs.h will determine which is found first, so
-whether you get CF or SM. That is why I put the entry "too early"
-in the above.]
+Can you verify that it is not device "vetoing" the suspend?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

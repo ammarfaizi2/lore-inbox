@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317979AbSGWHQO>; Tue, 23 Jul 2002 03:16:14 -0400
+	id <S317977AbSGWHMc>; Tue, 23 Jul 2002 03:12:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317980AbSGWHQO>; Tue, 23 Jul 2002 03:16:14 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:17645 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S317979AbSGWHQN>;
-	Tue, 23 Jul 2002 03:16:13 -0400
-Date: Tue, 23 Jul 2002 09:19:15 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: support <support@promise.com.tw>
-Cc: Hank <hanky@promise.com.tw>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-rc2-ac2 pdc202xx.c update
-Message-ID: <20020723091915.A29237@fafner.intra.cogenit.fr>
-References: <01b801c22f0b$c02cc360$47cba8c0@promise.com.tw> <01ee01c2312e$22976900$47cba8c0@promise.com.tw> <20020722083548.A27973@fafner.intra.cogenit.fr> <000d01c231e5$10f8ae40$47cba8c0@promise.com.tw>
+	id <S317978AbSGWHMc>; Tue, 23 Jul 2002 03:12:32 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24074 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317977AbSGWHMb>; Tue, 23 Jul 2002 03:12:31 -0400
+Date: Tue, 23 Jul 2002 08:15:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] uart_start thinko
+Message-ID: <20020723081538.A13337@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.44.0207230818410.32636-100000@linux-box.realnet.co.sz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <000d01c231e5$10f8ae40$47cba8c0@promise.com.tw>; from support@promise.com.tw on Tue, Jul 23, 2002 at 09:05:30AM +0800
-X-Organisation: Marie's fan club - II
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0207230818410.32636-100000@linux-box.realnet.co.sz>; from zwane@linuxpower.ca on Tue, Jul 23, 2002 at 08:20:00AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-support <support@promise.com.tw> :
-> We think there is no problems, Acturally it is
-> 
-> if (speed == XFER_UDMA_2) {
->         OUT_BYTE((thold + adj), indexreg);
->         OUT_BYTE((IN_BYTE(datareg) & 0x7f), datareg);
-> }
-> 
-> So,
-> if (speed == XFER_UDMA_2)
->         set_2regs(thold, (IN_BYTE(datareg) & 0x7f));
+On Tue, Jul 23, 2002 at 08:20:00AM +0200, Zwane Mwaikambo wrote:
+> Hi Russell,
+> 	With this patch i can now fully use the console as i normally do, 
+> ie kernel messages, agetty and syslogd. I think you forgot to remove the 
+> other locks when you were doing the shuffle between __uart_start and
+> uart_start ;)
 
-set_2regs() is a macro. Macro have side effects.
-
-Before the change, assuming speed != XFER_UDMA_2
-
-if (speed == XFER_UDMA_2) {
-	OUT_BYTE((thold + adj), indexreg); 		<- not executed
-	OUT_BYTE((IN_BYTE(datareg) & 0x7f), datareg);	<- not executed
-}
-
--> the block isn't executed
-
-After the change, the code is:
-
-if (speed == XFER_UDMA_2)
-        OUT_BYTE((thold + adj), indexreg);              <- not executed
-        OUT_BYTE((IN_BYTE(datareg) & 0x7f), datareg);   <- executed, damn it !
-
--> only the first statement of the macro is executed.
-
-Put a pair of {} after the "if", a "do {...} while (0)" in the macro
-declaration. Please, please, think about it a few minutes.
+Thanks.
 
 -- 
-Ueimor
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

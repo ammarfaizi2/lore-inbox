@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264809AbUEEVEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbUEEVJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbUEEVEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 17:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbUEEVEQ
+	id S262050AbUEEVJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 17:09:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbUEEVJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 17:04:16 -0400
-Received: from mail.tpgi.com.au ([203.12.160.59]:27621 "EHLO mail3.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S264809AbUEEVEN (ORCPT
+	Wed, 5 May 2004 17:09:28 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22676 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262050AbUEEVJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 17:04:13 -0400
-Subject: Re: swsusp documentation updates
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040505101158.GC1361@elf.ucw.cz>
-References: <20040505094719.GA4259@elf.ucw.cz>
-	 <1083750907.17294.27.camel@laptop-linux.wpcb.org.au>
-	 <20040505101158.GC1361@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1083791008.17292.32.camel@laptop-linux.wpcb.org.au>
+	Wed, 5 May 2004 17:09:27 -0400
+Date: Wed, 5 May 2004 13:36:04 -0700
+From: Greg KH <greg@kroah.com>
+To: Daniel Ritz <daniel.ritz@gmx.ch>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add support for eGalax Touchscreen USB
+Message-ID: <20040505203603.GE28427@kroah.com>
+References: <200405032124.46062.daniel.ritz@gmx.ch>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Thu, 06 May 2004 07:03:28 +1000
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405032124.46062.daniel.ritz@gmx.ch>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy.
-
-On Wed, 2004-05-05 at 20:11, Pavel Machek wrote:
-> Hi!
+On Mon, May 03, 2004 at 09:24:46PM +0200, Daniel Ritz wrote:
+> hi
 > 
-> > > +There are two solutions to this:
-> > > +
-> > > +* require half of memory to be free during suspend. That way you can
-> > > +read "new" data onto free spots, then cli and copy
-> > 
-> > Would you consider adding:
-> > 
-> > (Suspend2, which allows more than half of memory to be saved, is a
-> > variant on this).
+> this is the second version of the patch to add support for eGalax Touchkit USB
+> touchscreen. changes since last patch:
+> - fixed the bug in open, found by oliver neukum
+> - renamed driver from touchkit.c to touchkitusb.c (since the thing also exists
+>   as RS232, PS/2 and I2C)
+> - some minor coding style updates
 > 
-> How would you like this added?
+> against 2.6.6-rc3-bk. 
+> greg, feel free to apply it :)
 
-Well, I was thinking of simply adding the above in brackets on the same
-or the next line.
+Looks good, thanks for fixing it.
 
-> swsusp2 shares this fundamental limitation, but does not include user
-> data and disk caches into "used memory" by saving them in
-> advance. That means that limitation goes away in practice.
-> 
-> And perhaps you want to write "What is swsusp2?" question/answer?
+Applied.
 
-I'm avoiding calling it swsusp2 because 'swsusp' is unpronouncable. It
-also gets different interpretations: suspend2 isn't 'swap suspend'
-because it's not inherently limited to saving to swap. 'software
-suspend' is too long and doesn't seem to occur as quickly. Thus I'm
-simply using suspend2.
-
-Regards,
-
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+greg k-h
 

@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbUKCAkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbUKCAlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbUKCAkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 19:40:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUKBWXE
+	id S261193AbUKCAlK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 19:41:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUKCAkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:23:04 -0500
-Received: from c-24-10-162-127.client.comcast.net ([24.10.162.127]:54657 "EHLO
-	zedd.willden.org") by vger.kernel.org with ESMTP id S262065AbUKBWSP
+	Tue, 2 Nov 2004 19:40:13 -0500
+Received: from c-24-10-162-127.client.comcast.net ([24.10.162.127]:10368 "EHLO
+	zedd.willden.org") by vger.kernel.org with ESMTP id S261176AbUKCAi5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:18:15 -0500
-From: Shawn Willden <shawn@willden.org>
+	Tue, 2 Nov 2004 19:38:57 -0500
+From: Shawn Willden <shawn-lkml@willden.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.8 Thinkpad T40, clock running too fast
-Date: Tue, 2 Nov 2004 15:18:12 -0700
+Subject: Re: 2.6.8 Thinkpad T40, clock running too fast
+Date: Tue, 2 Nov 2004 17:38:53 -0700
 User-Agent: KMail/1.7
+References: <200411021551.53253.shawn-lkml@willden.org> <1099436816.9139.28.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1099436816.9139.28.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200411021518.17391.shawn@willden.org>
+Message-Id: <200411021738.59657.shawn-lkml@willden.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-I'm having a problem with the clock on my Thinkpad running too fast.  My clock 
-is gaining about 4 seconds every five minutes of operation.  I'm actually not 
-sure when this started because NTP has been fairly successful at keeping my 
-clock under control, so I didn't really notice it until I spent some time 
-operating disconnected... and then it became very obvious very quickly.
+On Tuesday 02 November 2004 04:06 pm, john stultz wrote:
+> Does this go away if you disable cpufreq in your kernel config?
 
-On October 15th, I "fixed" the problem by booting with "noapic" on the command 
-line.  Or I thought I fixed it anyway.  I had to reboot yesterday for an 
-unrelated issue (a "stuck" smb share that I couldn't figure out how to 
-unmount) and the racing clock is back.  I've booted with "noapic", "nolapic", 
-"noapic nolapic" and no options at all, and the clock doesn't keep the time 
-with any of them.  I'm not sure if it's always too fast.  I seem to remember 
-that last month it was running too slow.  I'll check with the various apic 
-settings and see if it's consistent.
+Nope.
 
-I'm not sure what information I need to provide, but you can find my kernel 
-config at http://willden.org/~shawn/config-2.6.8.  It's built from the Debian 
-2.6.8 tree, with a custom config.  The CPU is a 1.6GHz Pentium M in a 
-"Centrino" chipset.
+My 2.6.9 config is at http://willden.org/~shawn/config-2.6.9
 
-What should I be looking at to track this down?  I'm building a 2.6.9 kernel 
-but I haven't found any reports of similar problems corrected by it, so I 
-don't expect that to make a difference.
+cpufreq is turned off.  APIC and local APIC are both turned off on the command 
+line (noapic and nolapic).
+
+Any ideas?
 
 Thanks,
 
@@ -55,7 +45,7 @@ Thanks,
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBiAep6d8WxFy/CWcRAoXVAKCeEwysrrF/+lcFuRttAx5JDs8RYQCgjf1q
-cdK/581EqaX+2oGXlkOLpoE=
-=sNMu
+iD4DBQFBiCij6d8WxFy/CWcRAoBQAJUWR1c2HyOHHbYq+iM8FRh/n8S3AJwKhdOz
+35b/Qmv3LxIDboFfXzoH2g==
+=5D2Y
 -----END PGP SIGNATURE-----

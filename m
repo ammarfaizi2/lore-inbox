@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319659AbSIMPF5>; Fri, 13 Sep 2002 11:05:57 -0400
+	id <S319681AbSIMPCx>; Fri, 13 Sep 2002 11:02:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319666AbSIMPF5>; Fri, 13 Sep 2002 11:05:57 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:61193 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S319659AbSIMPF4>; Fri, 13 Sep 2002 11:05:56 -0400
-Date: Fri, 13 Sep 2002 17:10:37 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alex Davis <alex14641@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Possible bug and question about ide_notify_reboot in drivers/ide/ide.c (2.4.19)
-Message-ID: <20020913151037.GM28541@louise.pinerecords.com>
-References: <20020913023744.78077.qmail@web40510.mail.yahoo.com> <1031922553.9056.18.camel@irongate.swansea.linux.org.uk>
+	id <S319682AbSIMPCx>; Fri, 13 Sep 2002 11:02:53 -0400
+Received: from mnh-1-17.mv.com ([207.22.10.49]:59652 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S319681AbSIMPCw>;
+	Fri, 13 Sep 2002 11:02:52 -0400
+Message-Id: <200209131612.LAA02596@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net,
+       Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
+Subject: Re: [reiserfs-dev] Re: UML 2.5.34 
+In-Reply-To: Your message of "Fri, 13 Sep 2002 17:31:24 +0400."
+             <15745.59564.28543.921212@laputa.namesys.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1031922553.9056.18.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 18 days, 23:42
+Date: Fri, 13 Sep 2002 11:12:12 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have
-> > to go into the BIOS and force auto-detect to wake them back up. I've removed the "standby"
-> > code and things seem to be functioning normally. I have an Epox 8K7A motherboard with two
-> > Maxtor Hard drives (model 5T040H4).
-> 
-> Congratulations your BIOS sucks 8)
+Nikita@Namesys.COM said:
+> pte_addr_t and CLOCK_TICK_RATE were undefined. 
 
-Alan, obviously this should be made into a config option.
+Undefined WHERE?  You could send me a snippet of your build log.
+
+> By the way, I am talking about Linus BK tree, rather than patches you
+> have posted.
+
+I would not have sent it to Linus if it didn't build.  Like I said, it builds
+here fine.  I want to know where it breaks, so I can see it for myself, so
+I can be sure the fix is right.
+
+				Jeff
+

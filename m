@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbUJXRQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbUJXRa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbUJXRQq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 13:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbUJXRQq
+	id S261560AbUJXRa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 13:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbUJXRa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 13:16:46 -0400
-Received: from mailbox.surfeu.se ([213.173.154.11]:5604 "EHLO surfeu.fi")
-	by vger.kernel.org with ESMTP id S261533AbUJXRQm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 13:16:42 -0400
-Message-ID: <417BE3D6.BB54FE7D@users.sourceforge.net>
-Date: Sun, 24 Oct 2004 20:18:14 +0300
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1r7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-crypto@nl.linux.org
-CC: linux-kernel@vger.kernel.org
-Subject: Announce loop-AES-v2.2c file/swap crypto package
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Oct 2004 13:30:59 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:42887 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261560AbUJXRaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 13:30:55 -0400
+Subject: Re: getting rid of inter_module_xx
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jon Smirl <jonsmirl@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041023094413.GA30137@infradead.org>
+References: <9e473391041022100835da7baf@mail.gmail.com>
+	 <20041023094413.GA30137@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1098635275.24241.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 24 Oct 2004 17:27:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-loop-AES changes since previous release:
-- Added compile time autodetection and workaround for per-thread vs.
-  per-process rlimits (2.6 kernels).
-- Added Gentoo compatible binary key setup option to mount and losetup
-  'mount -p 0 -o phash=unhashed3' or 'losetup -p 0 -H unhashed3'.
-- Added random key setup option to mount and losetup. This can be used to
-  encrypt /tmp with random keys.
-- Added workaround for module_param_array() breakage in 2.6.10-rc
+On Sad, 2004-10-23 at 10:44, Christoph Hellwig wrote:
+> not at all.  Everything else in the kernel is compile-time depencies.
+> Just make the agp backend module mandatory if CONFIG_AGP is set, you'll
+> lose tons of complexity at a minimum amount of used memory, and as an
+> added benefit look like the rest of the kernel.
 
-bzip2 compressed tarball is here:
+Thats completely stupid
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2c.tar.bz2
-    md5sum 439a25bd1e85e8053bf0cf3c504279ed
+CONFIG_AGP enables the building of AGP modules, it does not disable the
+ability to run that kernel on non AGP setups, or to use non AGP video
+cards.
 
-    http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.2c.tar.bz2.sign
+The relationship is dynamic and you'd need to fix the various drivers
+that support both PCI and AGP mode by compiling them twice so you can
+load them with or without agp support.
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+Yuck yuck yuck. It would instead be much saner to fix the module loader
+to support weak symbols.
+
+Alan

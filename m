@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265199AbUELTzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265205AbUELT4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265199AbUELTzW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 15:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265205AbUELTzW
+	id S265205AbUELT4b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 15:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUELT4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 15:55:22 -0400
-Received: from ns.suse.de ([195.135.220.2]:8174 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265199AbUELTzS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 15:55:18 -0400
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6: ALSA sound/ppc/keywest.c:84: tumbler: cannot initialize
- the MCS
-References: <m3y8nzgbmo.fsf@whitebox.m5r.de> <s5hu0yndose.wl@alsa2.suse.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: If this is the DATING GAME I want to know your FAVORITE PLANET!  Do I
- get th' MICROWAVE MOPED?
-Date: Wed, 12 May 2004 21:54:31 +0200
-In-Reply-To: <s5hu0yndose.wl@alsa2.suse.de> (Takashi Iwai's message of "Tue,
- 11 May 2004 16:25:05 +0200")
-Message-ID: <jelljxpgjs.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Wed, 12 May 2004 15:56:30 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:8399 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265205AbUELT4F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 15:56:05 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 12 May 2004 12:56:04 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Valdis.Kletnieks@vt.edu
+cc: Ingo Molnar <mingo@elte.hu>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up... 
+In-Reply-To: <200405121947.i4CJlJm5029666@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.58.0405121255170.11950@bigblue.dev.mdolabs.com>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com>
+ <40A26FFA.4030701@pobox.com>            <20040512193349.GA14936@elte.hu>
+ <200405121947.i4CJlJm5029666@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai <tiwai@suse.de> writes:
+On Wed, 12 May 2004 Valdis.Kletnieks@vt.edu wrote:
 
-> At Tue, 11 May 2004 00:28:47 +0200,
-> Andreas Schwab wrote:
->> 
->> I've never been able to get a working sound with ALSA after booting my
->> iBook G3 (dmasound is working fine).  Any idea what's wrong with
->> snd-powermac?
->
-> does the attached patch work?  it's a partial patch from the latest
-> ALSA cvs tree.
-> the problem seems like the initialization of i2c-keywest.
+> On Wed, 12 May 2004 21:33:49 +0200, Ingo Molnar said:
+> > 
+> > * Jeff Garzik <jgarzik@pobox.com> wrote:
+> > 
+> > > >Woah, that's new.  And wrong.  The code in include/asm-i386/param.h that
+> > > >says:
+> > > >	# define JIFFIES_TO_MSEC(x)     (x)
+> > > >	# define MSEC_TO_JIFFIES(x)     (x)
+> > > >
+> > > >Is not correct.  Look at kernel/sched.c for verification of this :)
+> > > 
+> > > 
+> > > Yes, that is _massively_ broken.
+> > 
+> > why is it wrong?
+> 
+> If the kernel jiffie is anything other than exactly 1 msec, you're screwed... 
 
-I have now imported the alsa patch from 2.6.6-mm1 and the problem seems
-to be fixed.
+I believe they were talking about include/asm-i386/param.h
+                                          ^^^^^^^^
 
-Thanks, Andreas.
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+- Davide
+

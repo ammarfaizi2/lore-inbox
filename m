@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTIRVKS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 17:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTIRVKS
+	id S262156AbTIRVQI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 17:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbTIRVQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 17:10:18 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:35798 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S262123AbTIRVKP (ORCPT
+	Thu, 18 Sep 2003 17:16:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:22406 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262156AbTIRVQG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 17:10:15 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: William Lee Irwin III <wli@holomorphy.com>
-Date: Thu, 18 Sep 2003 23:10:06 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: BUG at mm/memory.c:1501 in 2.6.0-test5
+	Thu, 18 Sep 2003 17:16:06 -0400
+Date: Thu, 18 Sep 2003 14:09:18 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Louis Garcia <louisg00@bellsouth.net>
 Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <95932E0ADB@vcnet.vc.cvut.cz>
+Subject: Re: BK changelog URL
+Message-Id: <20030918140918.6cfbcfcd.rddunlap@osdl.org>
+In-Reply-To: <1063918905.2554.1.camel@tiger>
+References: <1063918905.2554.1.camel@tiger>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Sep 03 at 13:43, William Lee Irwin III wrote:
-> On Thu, Sep 18, 2003 at 10:27:58PM +0200, Petr Vandrovec wrote:
-> > EIP:    0060:[<c015be10>]    Tainted: PF 
-> 
->                 snprintf(buf, sizeof(buf), "Tainted: %c%c%c",
->                         tainted & TAINT_PROPRIETARY_MODULE ? 'P' : 'G',
->                         tainted & TAINT_FORCED_MODULE ? 'F' : ' ',
->                         tainted & TAINT_UNSAFE_SMP ? 'S' : ' ');
-> 
-> This is probably the reason you're not getting much in the way of a
-> response.
+On Thu, 18 Sep 2003 17:01:45 -0400 Louis Garcia <louisg00@bellsouth.net> wrote:
 
-I explicitly stated that it happened shortly after I shut down VMware UI,
-and that I spent whole day trying to find what's going on, finally
-politely asking for help, hoping that someone could have a clue
-what went wrong.
-                                            Petr Vandrovec
+| I lost the URL someone posted here for the real time bk changelog for
+| linus bk tree. Anyone have it?
 
+Do you mean
+  http://linux.bkbits.net:8080/linux-2.5
+?
+It appears to be down atm.
 
+--
+~Randy

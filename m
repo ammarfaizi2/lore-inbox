@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbUKDAMS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbUKDAQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbUKDAMS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 19:12:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbUKDAIn
+	id S262017AbUKDAQd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 19:16:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUKDAMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 19:08:43 -0500
-Received: from zamok.crans.org ([138.231.136.6]:49561 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S261995AbUKDAFX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 19:05:23 -0500
-To: Russell Miller <rmiller@duskglow.com>
-Cc: Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
-       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
-       linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: is killing zombies possible w/o a reboot?
-References: <200411030751.39578.gene.heskett@verizon.net>
-	<200411031733.30469.rmiller@duskglow.com>
-	<877jp2sdfd.fsf@barad-dur.crans.org>
-	<200411031756.30112.rmiller@duskglow.com>
-From: Mathieu Segaud <matt@minas-morgul.org>
-Date: Thu, 04 Nov 2004 01:05:22 +0100
-In-Reply-To: <200411031756.30112.rmiller@duskglow.com> (Russell Miller's
-	message of "Wed, 3 Nov 2004 18:56:30 -0500")
-Message-ID: <87y8hiqy0t.fsf@barad-dur.crans.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+	Wed, 3 Nov 2004 19:12:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2720 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261997AbUKDAKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 19:10:41 -0500
+Date: Wed, 3 Nov 2004 16:10:31 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] avoid semi-infinite loop when mounting bad ext2
+In-Reply-To: <20041103232744.GA10325@apps.cwi.nl>
+Message-ID: <Pine.LNX.4.58.0411031608380.2187@ppc970.osdl.org>
+References: <20041103232744.GA10325@apps.cwi.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell Miller <rmiller@duskglow.com> disait dernièrement que :
 
-> On Wednesday 03 November 2004 17:47, Mathieu Segaud wrote:
->
->> this is because nfs related syscalls are not interruptible by default.
->> you can make them interruptible by mounting your nfs's with the 'intr'
->> option.
->
-> That doesn't appear to work, then.  Because we do mount them with the intr 
-> option, and the behavior doesn't seem to be any different.
 
-weird, it works by here.... I can even umount() lost shares....
+On Thu, 4 Nov 2004, Andries Brouwer wrote:
+> 
+> [no doubt a similar patch is appropriate for ext3]
 
-NFS is quite an unknown beast to me, sorry...
-But it is clearly a bug, if you do mount them with -o intr...
+ext3 is different here, and uses the old-style buffer cache rather than
+page cache. It has the equivalent case for a hole and/or IO error, and 
+like ext2, it just continues with the next block.
 
--- 
-<ajh> I always viewed HURD development like the Special Olympics of free software.
+I _think_ that case should be updated to do the same thing you did for 
+ext2, but I'll leave it up to Andrew, since he is the ext3 master anyway.
 
-	- Is Hurd a opponent to Linux?
+Andrew?
 
+		Linus
+
+> diff -uprN -X /linux/dontdiff a/fs/ext2/dir.c b/fs/ext2/dir.c
+> --- a/fs/ext2/dir.c	2004-10-30 21:44:02.000000000 +0200
+> +++ b/fs/ext2/dir.c	2004-11-04 00:14:14.000000000 +0100
+> @@ -275,7 +275,8 @@ ext2_readdir (struct file * filp, void *
+>  				   "bad page in #%lu",
+>  				   inode->i_ino);
+>  			filp->f_pos += PAGE_CACHE_SIZE - offset;
+> -			continue;
+> +			ret = -EIO;
+> +			goto done;
+>  		}
+>  		kaddr = page_address(page);
+>  		if (need_revalidate) {
+> 

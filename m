@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbTEHQOR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 12:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTEHQOR
+	id S261840AbTEHQR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 12:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTEHQR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 12:14:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43179 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261666AbTEHQOQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 12:14:16 -0400
-Message-ID: <3EBA854D.1030101@pobox.com>
-Date: Thu, 08 May 2003 12:26:53 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: alan@lxorguk.ukuu.org.uk, haveblue@us.ibm.com, akpm@digeo.com,
-       rmk@arm.linux.org.uk, rddunlap@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: The magical mystical changing ethernet interface order
-References: <3EB98878.5060607@us.ibm.com>	<1052395526.23259.0.camel@rth.ninka.net>	<1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk> <20030508.075438.52189319.davem@redhat.com>
-In-Reply-To: <20030508.075438.52189319.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 8 May 2003 12:17:28 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33159
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261840AbTEHQR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 12:17:26 -0400
+Subject: Re: The disappearing sys_call_table export.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Terje Eggestad <terje.eggestad@scali.com>
+In-Reply-To: <03050809564900.09057@tabby>
+References: <200305081009_MC3-1-37FA-2408@compuserve.com>
+	 <03050809564900.09057@tabby>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052407341.10038.69.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 May 2003 16:22:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: 08 May 2003 15:55:31 +0100
-> 
->    Unfortunately for the ISA driver code we *have* to rely on link
->    order or rip out the __init stuff and use Space.c type hacks.
->    
-> I do no argue that needing an invocation order is bogus.
-> I merely disagree with the way we're trying to achieve it.
-> 
-> You don't need Space.c magic, the linker in binutils has mechanisms by
-> which this can be accomplished and we already use this in 2.5.x
-> 
-> Have a peek at __define_initcall($NUM,fn), imagine it with one more
-> argument $PRIO.  It might look like this:
-> 
-> #define __define_initcall(level,prio,fn) \
->         static initcall_t __initcall_##fn __attribute__
->         ((unused,__section__ ("\.initcall" level "." prio ".init"))) = fn
-> 
-> Use the 'prio' number to define the ordering.  The default for
-> modules that don't care about relative ordering within a class
-> use a value like "9999" or something like that.
+> M$ seems to treat everything as a disk file (even "pipes" are implemented
+> as temporary files).
 
+So did original Unix, it was a disk file that was anonymous and just
+used the direct pointers to blocks for a ring buffer. Storing pipe data
+in RAM in the old days was a hideous waste of resources.
 
-Linus has traditionally resisted this, and pushed for the 
-link-order-defines-init-order bit.
+> There is NO reason a custom filesystem cannot be layered over other 
+> filesystems. It might not be done today (though the references to "userfs"
+> keep showing up in such discussions).
 
-However, that was years ago.  Patrick Mochel added the current 
-seven-levels-of-initcall, which is where the referenced 
-__define_initcall originated.
+Erez Zadoz (not sure of the spelling) did some stacking fs modules on
+Linux
 
-I agree with you, and would prefer to move away from any dependence on 
-link order...
+> Fix the vulnerability. Then there won't be a virus.
 
-	Jeff
+But you don't know if its fixed and if there are any more holes without
+being able to detect attackers be they electronic or human.
 
 

@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263461AbTDSUkB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 16:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTDSUkA
+	id S263467AbTDSUmn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 16:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTDSUmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 16:40:00 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:37905 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263461AbTDSUj6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 16:39:58 -0400
-Date: Sat, 19 Apr 2003 22:51:52 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Christian Staudenmayer <eggdropfan@yahoo.com>
+	Sat, 19 Apr 2003 16:42:42 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:12813 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263467AbTDSUml
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 16:42:41 -0400
+Date: Sat, 19 Apr 2003 22:56:21 +0200
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-ac2 and lilo
-Message-ID: <20030419205152.GA19800@win.tue.nl>
-References: <20030419170725.35871.qmail@web41812.mail.yahoo.com>
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+Message-ID: <20030419205621.GA15577@hh.idb.hist.no>
+References: <20030419180421.0f59e75b.skraw@ithnet.com> <87lly6flrz.fsf@deneb.enyo.de> <20030419200712.3c48a791.skraw@ithnet.com> <20030419184120.GH669@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030419170725.35871.qmail@web41812.mail.yahoo.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030419184120.GH669@gallifrey>
+User-Agent: Mutt/1.5.3i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 19, 2003 at 10:07:25AM -0700, Christian Staudenmayer wrote:
+On Sat, Apr 19, 2003 at 07:41:20PM +0100, Dr. David Alan Gilbert wrote:
+> 	4) It is OK saying return the drive and get a new one - but many of
+> 	   us can't do this in a commercial environment where the contents of
+> 		 the drive are confidential - leading to stacks of dead drives
+> 		 (often many inside their now short warranty periods).
 
-> i'm running a machine that uses the aic7xxx driver for the old adaptec 2940 scsi
-> controller. i had problems with getting 2.5.67-ac2 to run, it used to end in
-> a kernel panic. i got told to remove the body of the function ide_xlate_1024
-> by just "return 0;", which fixed the problem, i could then boot the kernel.
-> but now, when running lilo, i get the following message:
-> 
-> Fatal: First boot sector doesn't have a valid LILO signature
-> 
-> these problems do not occur on kernels 2.4.20, 2.4.21-pre7-ac1 and 2.5.67-bk9,
-> if i boot another kernel, i can run/install LILO without problems.
-> 
-> i'd appreciate any insight on this problem.
+There are commercially available programs that guarantees to
+wipe your drive clean - including hidden areas and remapped
+sectors.  You should then be able to send drives
+back for warranty replacement.
 
-Hmm. You did not forget to rerun LILO or so?
-If ide_xlate_1024 does nothing but "return 0" then
-handle_ide_mess() does nothing.
+There are also bulk erasers that reset every bit magnetically,
+but those will probably void the warranty too.  (You'll
+need a low-level reformat to recreate sector addresses on the
+suddenly blank surface.)
 
-What other differences does -ac2 have?
-It reintroduces a bug in the partition reading code - the fragment
 
-@@ -456,7 +556,7 @@
-                if (!subtypes[n].parse)
-                        continue;
-                subtypes[n].parse(state, bdev, START_SECT(p)*sector_size,
--                                               NR_SECTS(p)*sector_size, slot);
-+                                               NR_SECTS(p)*sector_size, n);
-        }
-        put_dev_sector(sect);
-
-of the -ac2 patch is bad.
-In order to judge whether it is this or something else I would have
-to know much more about your system. What are the kernel boot messages
-for this disk under 2.5.67-bk9 that works and 2.5.67-ac2 that fails?
-What is the partition table? No disk managers in sight? Does LILO
-have lba32 or linear options?
-Does 2.5.67-ac2 work if you replace its fs/partitions/msdos.c by
-the vanilla one?
-
-Andries
+Helge Hafting  		 
 

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269589AbUHZU27@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269622AbUHZUnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269589AbUHZU27 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269603AbUHZU1s
+	id S269622AbUHZUnh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbUHZUm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:27:48 -0400
-Received: from mail.shareable.org ([81.29.64.88]:3015 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S269560AbUHZUSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:18:41 -0400
-Date: Thu, 26 Aug 2004 21:16:39 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jonathan Abbey <jonabbey@arlut.utexas.edu>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826201639.GA5733@mail.shareable.org>
-References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com> <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua> <20040826193617.GA21248@arlut.utexas.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826193617.GA21248@arlut.utexas.edu>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 Aug 2004 16:42:29 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:44283 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S267770AbUHZUjx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:39:53 -0400
+Message-ID: <412E4A4F.2040706@ttnet.net.tr>
+Date: Thu, 26 Aug 2004 23:38:39 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: bunk@fs.tum.de
+CC: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: [2.4 patch][5/6] asm-i386/smpboot.h: fix gcc 3.4 compilation
+Content-Type: multipart/mixed;
+	boundary="------------080205080801020300040703"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan Abbey wrote:
-> | Will it work out if "dir inside file" will only be visible when
-> referred as "file/."?
-> 
-> I'm used to using ls symlink/. to get ls to show me the directory on
-> the far side of a symbolic link.  That's a pretty analagous case to
-> the one we're discussing here, I think?
+This is a multi-part message in MIME format.
+--------------080205080801020300040703
+Content-Type: text/plain;
+	charset=us-ascii;
+	format=flowed
+Content-Transfer-Encoding: 7bit
 
-By the way, do symlinks have metadata?  Where do you find it? :)
+Didn't look at the code much but how about removing the
+label as the -ac tree does?
 
--- Jamie
+
+--------------080205080801020300040703
+Content-Type: text/plain;
+	name="smpboot.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="smpboot.patch"
+
+diff -urN 28pre2/include/asm-i386/smpboot.h 28pre2_acx/include/asm-i386/smpboot.h
+--- 28pre2/include/asm-i386/smpboot.h	2004-08-08 02:26:06.000000000 +0300
++++ 28pre2_acx/include/asm-i386/smpboot.h	2004-08-26 12:09:44.000000000 +0300
+@@ -129,7 +129,6 @@
+ 			/*round robin the interrupts*/
+ 			cpu = (cpu+1)%smp_num_cpus;
+ 			return cpu_to_physical_apicid(cpu);
+-		default:
+ 	}
+ 	return cpu_online_map;
+ }
+
+--------------080205080801020300040703--

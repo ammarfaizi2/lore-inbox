@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136538AbREGSYi>; Mon, 7 May 2001 14:24:38 -0400
+	id <S136560AbREGS0I>; Mon, 7 May 2001 14:26:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136555AbREGSY3>; Mon, 7 May 2001 14:24:29 -0400
-Received: from anime.net ([63.172.78.150]:41734 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S136538AbREGSYM>;
-	Mon, 7 May 2001 14:24:12 -0400
-Date: Mon, 7 May 2001 11:23:04 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
-cc: "Bene, Martin" <Martin.Bene@KPNQwest.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: what causes Machine Check exception? revisited (2.2.18)
-In-Reply-To: <Pine.LNX.4.31.0105071502450.1545-100000@phobos.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.30.0105071122290.5820-100000@anime.net>
+	id <S136572AbREGSZv>; Mon, 7 May 2001 14:25:51 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:16649 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S136560AbREGSZ3>; Mon, 7 May 2001 14:25:29 -0400
+Date: Mon, 7 May 2001 11:25:28 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <alexander.eichhorn@rz.tu-ilmenau.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Question] Explanation of zero-copy networking
+In-Reply-To: <Pine.LNX.3.95.1010507121212.4256A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.33.0105071124080.10009-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 May 2001, Simon Richter wrote:
-> On Mon, 7 May 2001, Bene, Martin wrote:
-> > Definitely not caused by:
-> > 	Bad Rams, mb-chipset.
-> Erm, it was bad RAM everytime it happened to me. On standard PCs, you
-> don't see those because you don't have ECC and the error is simply not
-> detected.
+On Mon, 7 May 2001, Richard B. Johnson wrote:
 
-So a 440bx motherboard with ECC ram is a non-standard PC?
+> when the hardware I/O is used. This shows that the network code, alone,
+> cannot be improved very much to provide an improvement in throughput.
 
--Dan
+doesn't your analysis assume that we've got nothing else interesting to do
+while doing the network i/o?  for example, i may want to do something else
+which needs the memory bandwidth i'd otherwise spend on a single-copy...
+
+-dean
 

@@ -1,75 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130529AbRCIP2G>; Fri, 9 Mar 2001 10:28:06 -0500
+	id <S130532AbRCIPbg>; Fri, 9 Mar 2001 10:31:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130532AbRCIP15>; Fri, 9 Mar 2001 10:27:57 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:36342 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130529AbRCIP1p>; Fri, 9 Mar 2001 10:27:45 -0500
-Date: Fri, 9 Mar 2001 19:39:59 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Philipp Rumpf <prumpf@mandrakesoft.com>
-cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] documentation mm.h + swap.h
-In-Reply-To: <20010309021523.A13408@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0103091938430.2283-100000@duckman.distro.conectiva>
+	id <S130533AbRCIPb1>; Fri, 9 Mar 2001 10:31:27 -0500
+Received: from [212.183.11.206] ([212.183.11.206]:5395 "EHLO
+	grips_nts2.grips.com") by vger.kernel.org with ESMTP
+	id <S130532AbRCIPbT>; Fri, 9 Mar 2001 10:31:19 -0500
+Message-ID: <3AA8F713.367A5FFD@grips.com>
+Date: Fri, 09 Mar 2001 16:30:27 +0100
+From: jury gerold <gjury@grips.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: de-AT, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Will Newton <will@misconception.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ES1371 driver in kernel 2.4.2
+In-Reply-To: <Pine.LNX.4.33.0103082255560.11750-100000@dogfox.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Mar 2001, Philipp Rumpf wrote:
-> On Thu, Mar 08, 2001 at 06:10:16PM -0300, Rik van Riel wrote:
-> > --- linux-2.4.2-doc/include/linux/mm.h.orig	Wed Mar  7 15:36:32 2001
-> > +++ linux-2.4.2-doc/include/linux/mm.h	Thu Mar  8 09:54:22 2001
-> > @@ -39,32 +39,37 @@
-> >   * library, the executable area etc).
-> >   */
-> >  struct vm_area_struct {
-> > -	struct mm_struct * vm_mm;	/* VM area parameters */
-> > -	unsigned long vm_start;
-> > -	unsigned long vm_end;
-> > +	struct mm_struct * vm_mm;	/* The address space we belong to. */
-> > +	unsigned long vm_start;		/* Our start address within vm_mm. */
-> > +	unsigned long vm_end;		/* Our end address within vm_mm. */
->
-> it might be a good idea to point out that this is the address of
-> the byte after the last one covered by the vma, not the address
-> of the last byte.
+I am facing the same trouble but in my case
+the parallel printer driver complains about a possible
+interrupt sharing problem because i run it on interrupt 7.
 
-        unsigned long vm_end;           /* The first byte after our end address
-                                           within vm_mm. */
+The alsa driver however works pretty well with this chip for me.
 
-Does this look good to you ?
+The sound chip does not generate any interrupts on its own line.
+So it does not sound at all.
+
+Maybe i can find something by comparing the alsa driver chip initialisation
+with the 2.4.2 driver.
+It feels strange having the card generating a completely different interrupt
+than the one assigned to it.
+
+Anyone with an idea ?
 
 
-> (are there any architectures where we allow a vma at the end of
-> memory ?  Is the mm/ code handling ->vm_end = 0 correctly ?)
+Gerold
 
-Good question ...
-
-> >  /*
-> > + * Each physical page in the system has a struct page associated with
-             ^^^^^^^^
-> Each page of "real" RAM.
-
-> > + *
-> > + * TODO: make this structure smaller, it could be as small as 32 bytes.
->
-> Or make it cover large pages, which might be even more of a win ..
-
-*nod*
-
-regards,
-
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+Will Newton wrote:
+> 
+> I am still having problems with this driver.
+> 
+> When loading the driver I get:
+> 
+> es1371: version v0.27 time 00:47:56 Mar  7 2001
+> es1371: found chip, vendor id 0x1274 device id 0x1371 revision 0x08
+> PCI: Found IRQ 10 for device 00:0b.0
+> es1371: found es1371 rev 8 at io 0xa400 irq 10
+> es1371: features: joystick 0x0
+> ac97_codec: AC97  codec, id: 0x0000:0x0000 (Unknown)
+> spurious 8259A interrupt: IRQ7.
+> 
+> This last line seems strange as /proc/interrupts does not list IRQ7:
+> 
+>   0:    2515137          XT-PIC  timer
+>   1:      18752          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   4:    2438600          XT-PIC  serial
+>   5:          0          XT-PIC  bttv
+>   8:          1          XT-PIC  rtc
+>  10:          0          XT-PIC  es1371
+>  12:     310926          XT-PIC  PS/2 Mouse
+>  14:     137157          XT-PIC  ide0
+>  15:      35714          XT-PIC  ide1
+> NMI:          0
+> ERR:          1
+> 
+> The chip is actually a Cirrus Logic CS4297A.

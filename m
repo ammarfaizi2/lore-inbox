@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268196AbUIGQEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUIGQJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268196AbUIGQEV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 12:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268314AbUIGQBg
+	id S268230AbUIGQJd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 12:09:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268170AbUIGQIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 12:01:36 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:12029 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268196AbUIGP6M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:58:12 -0400
-Date: Tue, 7 Sep 2004 12:02:38 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       len.brown@intel.com
-Subject: Re: [PATCH] Oops and panic while unloading holder of pm_idle
-In-Reply-To: <200409051802.03976.blaisorblade_spam@yahoo.it>
-Message-ID: <Pine.LNX.4.53.0409071200480.14053@montezuma.fsmlabs.com>
-References: <200408171728.06262.blaisorblade_spam@yahoo.it>
- <200408301309.54465.blaisorblade_spam@yahoo.it>
- <Pine.LNX.4.58.0408301743190.21529@montezuma.fsmlabs.com>
- <200409051802.03976.blaisorblade_spam@yahoo.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Sep 2004 12:08:50 -0400
+Received: from verein.lst.de ([213.95.11.210]:46490 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S268290AbUIGPJn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 11:09:43 -0400
+Date: Tue, 7 Sep 2004 17:09:35 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] unexport f_delown
+Message-ID: <20040907150935.GA9552@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Sep 2004, BlaisorBlade wrote:
 
-> > There aren't many users of pm_idle 
-> > outside of arch/*/kernel/process.c
-> Both APM and ACPI set pm_idle, and both can be modular. It seems, however, 
-> they are the only such ones. And since they APM and ACPI refuse to be both 
-> loaded, we cannot have (actually) two modules which override pm_idle. So 
-> you're right.
-
-There are a few other issues with pm_idle, preempt and modular drivers 
-which someone else is looking at, we'll see how things go from there.
-
-Thanks,
-	Zwane
-
+--- 1.40/fs/fcntl.c	2004-09-02 11:48:03 +02:00
++++ edited/fs/fcntl.c	2004-09-07 13:40:56 +02:00
+@@ -290,8 +290,6 @@
+ 	f_modown(filp, 0, 0, 0, 1);
+ }
+ 
+-EXPORT_SYMBOL(f_delown);
+-
+ static long do_fcntl(int fd, unsigned int cmd, unsigned long arg,
+ 		struct file *filp)
+ {

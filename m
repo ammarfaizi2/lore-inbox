@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262795AbULQMpA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262798AbULQMsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262795AbULQMpA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 07:45:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbULQMpA
+	id S262798AbULQMsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 07:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbULQMsy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 07:45:00 -0500
-Received: from mail.renesas.com ([202.234.163.13]:64482 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262795AbULQMo4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 07:44:56 -0500
-Date: Fri, 17 Dec 2004 21:44:43 +0900 (JST)
-Message-Id: <20041217.214443.579663291.takata.hirokazu@renesas.com>
+	Fri, 17 Dec 2004 07:48:54 -0500
+Received: from mail.renesas.com ([202.234.163.13]:64703 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262798AbULQMrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 07:47:47 -0500
+Date: Fri, 17 Dec 2004 21:47:35 +0900 (JST)
+Message-Id: <20041217.214735.859512432.takata.hirokazu@renesas.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-rc3-mm1] m32r: Update include/asm-m32r/system.h
+Subject: [PATCH 2.6.10-rc3-mm1] m32r: Update include/asm-m32r/mmu_context.h
 From: Hirokazu Takata <takata@linux-m32r.org>
 X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
@@ -24,71 +24,109 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch updates include/asm-m32r/system.h.
+This patch updates include/asm-m32r/mmu_context.h.
 Please apply.
 
-	* include/asm-m32r/system.h:
-	- Use barrier() as mb().
-	- Change __inline__ to inline.
+	* include/asm-m32r/mmu_context.h:
+	- Add #ifdef __KERNEL__
+	- Change __inline__ to inline for __KERNEL__ portion.
 
 Thanks,
 
 Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
 ---
 
- include/asm-m32r/system.h |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
+ include/asm-m32r/mmu_context.h |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
 
 
-diff -ruNp a/include/asm-m32r/system.h b/include/asm-m32r/system.h
---- a/include/asm-m32r/system.h	2004-10-19 06:53:07.000000000 +0900
-+++ b/include/asm-m32r/system.h	2004-12-16 10:05:50.000000000 +0900
-@@ -7,6 +7,7 @@
-  * for more details.
-  *
-  * Copyright (C) 2001  by Hiroyuki Kondo, Hirokazu Takata, and Hitoshi Yamamoto
-+ * Copyright (C) 2004  Hirokazu Takata <takata at linux-m32r.org>
-  */
+diff -ruNp a/include/asm-m32r/mmu_context.h b/include/asm-m32r/mmu_context.h
+--- a/include/asm-m32r/mmu_context.h	2004-12-15 12:56:47.000000000 +0900
++++ b/include/asm-m32r/mmu_context.h	2004-12-16 18:20:01.000000000 +0900
+@@ -1,7 +1,7 @@
+ #ifndef _ASM_M32R_MMU_CONTEXT_H
+ #define _ASM_M32R_MMU_CONTEXT_H
+ 
+-/* $Id */
++#ifdef __KERNEL__
  
  #include <linux/config.h>
-@@ -73,7 +74,7 @@
- #define local_irq_disable() \
- 	__asm__ __volatile__ ("clrpsw #0x40 -> nop": : :"memory")
- #else	/* CONFIG_CHIP_M32102 */
--static __inline__ void local_irq_enable(void)
-+static inline void local_irq_enable(void)
+ 
+@@ -34,13 +34,13 @@ extern unsigned long mmu_context_cache_d
+ #define mm_context(mm)		mm->context[smp_processor_id()]
+ #endif /* not CONFIG_SMP */
+ 
+-#define set_tlb_tag(entry, tag)	(*entry = (tag & PAGE_MASK)|get_asid())
++#define set_tlb_tag(entry, tag)		(*entry = (tag & PAGE_MASK)|get_asid())
+ #define set_tlb_data(entry, data)	(*entry = (data | _PAGE_PRESENT))
+ 
+ #ifdef CONFIG_MMU
+ #define enter_lazy_tlb(mm, tsk)	do { } while (0)
+ 
+-static __inline__ void get_new_mmu_context(struct mm_struct *mm)
++static inline void get_new_mmu_context(struct mm_struct *mm)
  {
- 	unsigned long tmpreg;
- 	__asm__ __volatile__(
-@@ -83,7 +84,7 @@ static __inline__ void local_irq_enable(
- 	: "=&r" (tmpreg) : : "cbit", "memory");
+ 	unsigned long mc = ++mmu_context_cache;
+ 
+@@ -59,7 +59,7 @@ static __inline__ void get_new_mmu_conte
+ /*
+  * Get MMU context if needed.
+  */
+-static __inline__ void get_mmu_context(struct mm_struct *mm)
++static inline void get_mmu_context(struct mm_struct *mm)
+ {
+ 	if (mm) {
+ 		unsigned long mc = mmu_context_cache;
+@@ -75,7 +75,7 @@ static __inline__ void get_mmu_context(s
+  * Initialize the context related info for a new mm_struct
+  * instance.
+  */
+-static __inline__ int init_new_context(struct task_struct *tsk,
++static inline int init_new_context(struct task_struct *tsk,
+ 	struct mm_struct *mm)
+ {
+ #ifndef CONFIG_SMP
+@@ -97,12 +97,12 @@ static __inline__ int init_new_context(s
+  */
+ #define destroy_context(mm)	do { } while (0)
+ 
+-static __inline__ void set_asid(unsigned long asid)
++static inline void set_asid(unsigned long asid)
+ {
+ 	*(volatile unsigned long *)MASID = (asid & MMU_CONTEXT_ASID_MASK);
  }
  
--static __inline__ void local_irq_disable(void)
-+static inline void local_irq_disable(void)
+-static __inline__ unsigned long get_asid(void)
++static inline unsigned long get_asid(void)
  {
- 	unsigned long tmpreg0, tmpreg1;
- 	__asm__ __volatile__(
-@@ -219,11 +220,7 @@ static __inline__ unsigned long __xchg(u
-  * rmb() prevents loads being reordered across this point.
-  * wmb() prevents stores being reordered across this point.
+ 	unsigned long asid;
+ 
+@@ -116,13 +116,13 @@ static __inline__ unsigned long get_asid
+  * After we have set current->mm to a new value, this activates
+  * the context for the new mm so we see the new mappings.
   */
--#if 0
--#define mb()   __asm__ __volatile__ ("push r0; \n\t pop r0;" : : : "memory")
--#else
--#define mb()   __asm__ __volatile__ ("" : : : "memory")
--#endif
-+#define mb()   barrier()
- #define rmb()  mb()
- #define wmb()  mb()
+-static __inline__ void activate_context(struct mm_struct *mm)
++static inline void activate_context(struct mm_struct *mm)
+ {
+ 	get_mmu_context(mm);
+ 	set_asid(mm_context(mm) & MMU_CONTEXT_ASID_MASK);
+ }
  
-@@ -298,4 +295,3 @@ static __inline__ unsigned long __xchg(u
- #define set_wmb(var, value) do { var = value; wmb(); } while (0)
+-static __inline__ void switch_mm(struct mm_struct *prev,
++static inline void switch_mm(struct mm_struct *prev,
+ 	struct mm_struct *next, struct task_struct *tsk)
+ {
+ #ifdef CONFIG_SMP
+@@ -165,5 +165,6 @@ static __inline__ void switch_mm(struct 
  
- #endif  /* _ASM_M32R_SYSTEM_H */
--
+ #endif /* not __ASSEMBLY__ */
+ 
+-#endif /* _ASM_M32R_MMU_CONTEXT_H */
++#endif /* __KERNEL__ */
+ 
++#endif /* _ASM_M32R_MMU_CONTEXT_H */
+
 
 --
 Hirokazu Takata <takata@linux-m32r.org>
 Linux/M32R Project:  http://www.linux-m32r.org/
-

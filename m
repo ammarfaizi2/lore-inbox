@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129036AbRBAVko>; Thu, 1 Feb 2001 16:40:44 -0500
+	id <S129048AbRBAVrY>; Thu, 1 Feb 2001 16:47:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129048AbRBAVke>; Thu, 1 Feb 2001 16:40:34 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:25875 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129036AbRBAVkX>; Thu, 1 Feb 2001 16:40:23 -0500
-Date: Thu, 1 Feb 2001 15:40:05 -0600
-To: Admin Mailing Lists <mlist@intergrafix.net>
-Cc: Bruce Harada <bruce@ask.ne.jp>, linux-kernel@vger.kernel.org
-Subject: Re: rlim_t and DNS?
-Message-ID: <20010201154005.B4161@cadcamlab.org>
-In-Reply-To: <20010202023923.4fce856c.bruce@ask.ne.jp> <Pine.LNX.4.10.10102011242380.18810-100000@athena.intergrafix.net>
+	id <S129116AbRBAVrO>; Thu, 1 Feb 2001 16:47:14 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:30401 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129048AbRBAVrF>;
+	Thu, 1 Feb 2001 16:47:05 -0500
+Date: Thu, 1 Feb 2001 21:44:47 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christoph Hellwig <hch@caldera.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201214447.J11607@redhat.com>
+In-Reply-To: <20010201174946.B11607@redhat.com> <200102012033.VAA15590@ns.caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.10.10102011242380.18810-100000@athena.intergrafix.net>; from mlist@intergrafix.net on Thu, Feb 01, 2001 at 12:50:26PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+User-Agent: Mutt/1.2i
+In-Reply-To: <200102012033.VAA15590@ns.caldera.de>; from hch@caldera.de on Thu, Feb 01, 2001 at 09:33:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-[Admin Mailing Lists]
-> i have no bits directory
+On Thu, Feb 01, 2001 at 09:33:27PM +0100, Christoph Hellwig wrote:
+> 
+> > On Thu, Feb 01, 2001 at 05:34:49PM +0000, Alan Cox wrote:
+> > In the disk IO case, you basically don't get that (the only thing
+> > which comes close is raid5 parity blocks).  The data which the user
+> > started with is the data sent out on the wire.  You do get some
+> > interesting cases such as soft raid and LVM, or even in the scsi stack
+> > if you run out of mailbox space, where you need to send only a
+> > sub-chunk of the input buffer. 
+> 
+> Though your describption is right, I don't think the case is very common:
+> Sometimes in LVM on a pv boundary and maybe sometimes in the scsi code.
 
-Really?  What version of libc, and on what Linux distro?  I thought all
-versions of glibc2 had /usr/include/bits/.
+On raid0 stripes, it's common to have stripes of between 16k and 64k,
+so it's rather more common there than you'd like.  In any case, you
+need the code to handle it, and I don't want to make the code paths
+any more complex than necessary.
 
-If you are using libc4 or libc5, it is not surprising if the BIND
-people didn't notice the problem -- they probably didn't try it.
+> In raid1 you need some kind of clone iobuf, which should work with both
+> cases.  In raid0 you need a complete new pagelist anyway
 
-Peter
+No you don't.  You take the existing one, specify which region of it
+is going to the current stripe, and send it off.  Nothing more.
+
+> > In that case, having offset/len as the kiobuf limit markers is ideal:
+> > you can clone a kiobuf header using the same page vector as the
+> > parent, narrow down the start/end points, and continue down the stack
+> > without having to copy any part of the page list.  If you had the
+> > offset/len data encoded implicitly into each entry in the sglist, you
+> > would not be able to do that.
+> 
+> Sure you could: you embedd that information in a higher-level structure.
+
+What's the point in a common data container structure if you need
+higher-level information to make any sense out of it?
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

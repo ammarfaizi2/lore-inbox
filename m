@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266785AbUBRACN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266809AbUBRACN
+	id S266632AbUBQX46 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 18:56:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUBQX46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:02:13 -0500
-Received: from stewie.egr.unlv.edu ([131.216.22.9]:15521 "EHLO
-	mail.egr.unlv.edu") by vger.kernel.org with ESMTP id S266785AbUBRACG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:02:06 -0500
-Subject: Re: fh_verify: no root_squashed access hundreds of times a second
-	again
-From: Andrew Gray <grayaw@Egr.UNLV.EDU>
-To: linux-kernel@vger.kernel.org
-Organization: University of Nevada Las Vegas
-Message-Id: <1077062525.3090.14.camel@blargh.egr.unlv.edu>
+	Tue, 17 Feb 2004 18:56:58 -0500
+Received: from delerium.kernelslacker.org ([81.187.208.145]:53403 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266632AbUBQX45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 18:56:57 -0500
+Date: Tue, 17 Feb 2004 23:54:31 +0000
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Marc Zyngier <maz@wild-wind.fr.eu.org>
+Subject: EISA & sysfs.
+Message-ID: <20040217235431.GF6242@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Marc Zyngier <maz@wild-wind.fr.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Tue, 17 Feb 2004 16:02:05 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Solution found.  At least to my particular situation.
+I'm somewhat puzzled about the case where we have a driver
+that can work on EISA bus, as well as others, when modprobe'd on
+a system that doesn't have an EISA bus.
 
-We have a bunch of SunBlades.  As part of their login in, the dtlogin
-program tries to access <homedir>/.dt/sessions/lastsession.  It is
-operating as root at this point, i.e. unauthenticated as the user.
+It seems we do a probe really early on to see if we actually
+have an eisa bus, but if a driver later calls eisa_driver_register()
+we still do lots of hoop jumping through sysfs/kobjects
+before deciding that we don't have the device.
 
-For some reason, when it makes this request, if the user's home
-directory doesn't allow access, the NFS server returns that it's a NFS
-Stale Handle.  For some other odd reason, when dtlogin gets this, it
-just immediately retries.  This leads to the hundreds of times per
-second worth of accesses we were seeing. 
+Wouldn't it make sense to have eisa_driver_register() check that the
+root EISA bus actually got registered, and if not, -ENODEV
+immediately ?
 
-Combine this with having about a dozen machines all doing it at the same
-time yields the problem we were seeing.
-
-The solution in our case was to allow world-execute permissions on the
-user home directories so dt could get at the file.
-
-While this prevents the problem from occuring, further investigation is
-probably needed as to why this interaction between Solaris and the Linux
-kernel NFS daemon occurs.
-
-Posted here in hopes that it will help someone else out with this
-problem.
+		Dave
 

@@ -1,88 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVBROM4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVBROPZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVBROM4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 09:12:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVBROMi
+	id S261370AbVBROPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 09:15:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVBROPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 09:12:38 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:25985 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261208AbVBROMe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 09:12:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=KG1j9jDs1Klln68a9T1q6S3IYbT1mTa1cncTrp6KzMKd4g5zcW9bfpV1CMkLJWyW1I5XIDVr8v2xYdxdQxaqzoqLl1zXw/8MBipbp4qOFYZaE6qdYSosEFC2RG3iLLtn0YhI72/gvpPPLzgBwshMB/hev5AKoRNk+mSXu1kL7vE=
-Message-ID: <d120d50005021806121af06d85@mail.gmail.com>
-Date: Fri, 18 Feb 2005 09:12:31 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Cc: Richard Purdie <rpurdie@rpsys.net>, Vojtech Pavlik <vojtech@suse.cz>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050218132651.GA1813@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050213004729.GA3256@stusta.de>
-	 <Pine.LNX.4.56.0502141756220.7398@pentafluge.infradead.org>
-	 <20050214193438.GB7763@ucw.cz> <20050218122217.GA1523@elf.ucw.cz>
-	 <047401c515bb$437b5130$0f01a8c0@max>
-	 <20050218132651.GA1813@elf.ucw.cz>
+	Fri, 18 Feb 2005 09:15:25 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:4737 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261208AbVBROPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 09:15:15 -0500
+Message-ID: <4215F89F.9050801@sgi.com>
+Date: Fri, 18 Feb 2005 06:15:59 -0800
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>, Christoph Lameter <clameter@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: initialize_acct_integrals
+Content-Type: multipart/mixed;
+ boundary="------------040107010300000601040803"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Feb 2005 14:26:51 +0100, Pavel Machek <pavel@suse.cz> wrote:
-> Hi!
-> 
-> 
-> > >> > CONFIG_INPUT_POWER was enabled - but it is nowhere possible to enable
-> > >> > this option.
-> > >>
-> > >> That was written a long time ago before the new power management went
-> > >> in.
-> > >> On PDA's there is a power button and suspend button. So this was a hook
-> > >> so that the input layer could detect the power/suspend button being
-> > >> presses and then power down or turn off the device. Now that the new
-> > >> power
-> > >> management is in what should we do?
-> > >
-> > >Change power.c to generate power events like ACPI does, most likely.
-> >
-> >
-> > There was some recent discussion of this on linux-input. It was basically
-> > agreed that the input system should pass the request on to ACPI and/or apm
-> > and Dmitry Torokhov (cc'd) proposed a patch that did this. His patch needed
-> > to be slightly modified to work with arm apm, the final result being:
-> >
-> > http://www.rpsys.net/openzaurus/2.6.11-rc4/input_power-r1.patch
-> >
-> > I can confirm this works well on arm with apm enabled.
-> 
-> It has quite a lot of #ifdefs for CONFIG_APM/CONFIG_ARM/CONFIG_ACPI,
+This is a multi-part message in MIME format.
+--------------040107010300000601040803
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, power.c is an aggregator that transports power events from the
-input system into whatever power scheme is in use, so there will
-always be a lot of ifdefs unless we will invent grand unified power
-interface with userspace. I wonder if we could use kevents.
+Hi Andrew,
 
-> and it will not work on i386/APM, anyway.
+The new "move-accounting-function-calls-out-of-critical-vm-code-paths"
+patch in 2.6.11-rc3-mm2 was different from the code i tested.
 
-We could add fix i386 APM case but it looks like most people are
-concentrating on ACPI.
+In particular, it mistakenly dropped the accounting routine calls
+in fs/exec.c. The calls in do_execve() are needed to properly
+initialize accounting fields. Specifically, the tsk->acct_stimexpd
+needs to be initialized to tsk->stime.
 
-> I still believe right
-> solution is to add input interface to ACPI. /proc/acpi/events needs to
-> die, being replaced by input subsystem.
+I have discussed this with Christoph Lameter and he gave me full
+blessings to bring the calls back.
 
-There are many more events from ACPI that are not related to input, so
-we need to keep it. Still, I can see buttons converted to input
-devices which bind to power.c and then transmit requests to acpid
-through /acpi/proc/event.
+This initialize_acct_integrals patch was generated against
+2.6.11-rc3-mm2 to fix the problem. Thanks!
 
--- 
-Dmitry
+Signed-off-by: Jay Lan <jlan@sgi.com>
+
+
+--------------040107010300000601040803
+Content-Type: text/plain;
+ name="initialize_acct_integrals"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="initialize_acct_integrals"
+
+Index: linux/fs/exec.c
+===================================================================
+--- linux.orig/fs/exec.c	2005-02-17 19:24:45.785343748 -0800
++++ linux/fs/exec.c	2005-02-18 05:45:19.868493728 -0800
+@@ -1193,6 +1193,8 @@ int do_execve(char * filename,
+ 
+ 		/* execve success */
+ 		security_bprm_free(bprm);
++		acct_update_integrals(current);
++		update_mem_hiwater(current);
+ 		kfree(bprm);
+ 		return retval;
+ 	}
+
+--------------040107010300000601040803--
+

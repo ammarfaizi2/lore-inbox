@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131509AbRDBX0b>; Mon, 2 Apr 2001 19:26:31 -0400
+	id <S131555AbRDBXcv>; Mon, 2 Apr 2001 19:32:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131555AbRDBX0W>; Mon, 2 Apr 2001 19:26:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40465 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131509AbRDBX0G>; Mon, 2 Apr 2001 19:26:06 -0400
-Subject: Re: 2.4.3 aic7xxx wont compile
-To: gibbs@scsiguy.com (Justin T. Gibbs)
-Date: Tue, 3 Apr 2001 00:27:19 +0100 (BST)
-Cc: matti.aarnio@zmailer.org (Matti Aarnio), george@gator.com (George Bonser),
-   linux-kernel@vger.kernel.org, torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <200103301509.f2UF9ws23721@aslan.scsiguy.com> from "Justin T. Gibbs" at Mar 30, 2001 08:09:58 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131496AbRDBXcn>; Mon, 2 Apr 2001 19:32:43 -0400
+Received: from waste.org ([209.173.204.2]:9833 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S131555AbRDBXca>;
+	Mon, 2 Apr 2001 19:32:30 -0400
+Date: Mon, 2 Apr 2001 18:31:47 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <3AC90A1B.3B5DACD1@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.30.0104021825330.29801-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kDjG-0006sG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The sad part is that there has been a fix for this "problem", supplied
-> by the author of the driver, for well over a month that everyone seems
-> to ignore.
+On Mon, 2 Apr 2001, Jeff Garzik wrote:
 
-I've not had a patch from the author to apply so I've not applied anything.
+> Oliver Xymoron wrote:
+> > On Mon, 2 Apr 2001, Tom Leete wrote:
+> > > How about /lib/modules/$(uname -r)/build/.config ? It's already there.
+>
+> > It'd be great if we got away from the config being hidden too.
+>
+> When exporting it outside the kernel tree, the '.' prefix should
+> definitely be stripped...
 
-Alan
+I think the same should be true for the new build system as well.
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

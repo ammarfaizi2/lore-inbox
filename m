@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbTARCoI>; Fri, 17 Jan 2003 21:44:08 -0500
+	id <S261857AbTARCkn>; Fri, 17 Jan 2003 21:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTARCoH>; Fri, 17 Jan 2003 21:44:07 -0500
-Received: from mta7.srv.hcvlny.cv.net ([167.206.5.22]:8548 "EHLO
-	mta7.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S261894AbTARCoG>; Fri, 17 Jan 2003 21:44:06 -0500
-Date: Fri, 17 Jan 2003 21:49:16 -0500
-From: Rob Wilkens <robw@optonline.net>
-Subject: [PATCH] Trivial Comment Change (Please Verify) (2.5.59)
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: robw@optonline.net
-Message-id: <1042858155.3800.16.camel@RobsPC.RobertWilkens.com>
-Organization: Robert Wilkens
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	id <S261894AbTARCkn>; Fri, 17 Jan 2003 21:40:43 -0500
+Received: from mail.cs.umn.edu ([128.101.35.202]:59613 "EHLO mail.cs.umn.edu")
+	by vger.kernel.org with ESMTP id <S261857AbTARCkm>;
+	Fri, 17 Jan 2003 21:40:42 -0500
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: alsa-devel@alsa-project.org, perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: Patch?: linux-2.5.59/sound/soundcore.c referenced non-existant
+ errno variable
+From: Raja R Harinath <harinath@cs.umn.edu>
+Date: Fri, 17 Jan 2003 20:49:36 -0600
+In-Reply-To: <20030117155717.A6250@baldur.yggdrasil.com> ("Adam J.
+ Richter"'s message of "Fri, 17 Jan 2003 15:57:17 -0800")
+Message-ID: <d9n0lz18an.fsf@bose.cs.umn.edu>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.3.50
+ (i686-pc-linux-gnu)
+References: <20030117155717.A6250@baldur.yggdrasil.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please remember that I'm a newbie.  As such, even though I'm only
-changing a comment, an expert should review the change before it goes
-through.
+Hi,
 
-I was looking up the definition of kdev_t, and I saw it defined two
-entirely different ways (only once for compilation purposes, so no
-compile time problems).
+"Adam J. Richter" <adam@yggdrasil.com> writes:
 
-In the same file, <include/linux/kdev_t.h>, patched below and I only
-patched the comments and did not touch the code, it was defined as (in
-the comments):
+> 	linux-2.5.59/sound/sound_firmware.c attempts to use the
+> user level system call interface from the kernel, which I understand
+> works on i386 and perhaps all architectures, but requires a variable
+> named "errno." 
 
-(1) typedef struct { unsigned short major, minor; } kdev_t;
+Which is provided in-kernel (not for modules) by 'lib/errno.c'.
 
-Which would be a long (two shorts), then actually defined later in the
-code as:
+> (Actually, it mixed things like close() and sys_close(), but that's
+> beside the point.)
 
-(2) typedef struct {
-        unsigned short value;
-    } kdev_t;
+Those are provided by <linux/unistd.h>, with __KERNEL_SYSCALLS__
+defined.
 
+> 	I could just declare a "static int errno;" in the file,
 
-As you can guess, Redefining the comment to be two "chars" instead of
-two shorts keeps the meaningful description in the comments (there is a
-major # component and a minor # component), but redefining them to be
-chars (bytes) rather than shorts reflects more accurately the storage
-space allotted by the actual structure (one short, not two).
+That was originally there, but removed in 2.5.57 IIRC.
+<linux/unistd.h> has 'extern int errno;' -- so 'static int errno;'
+would be a bug.
 
-I figure it's best, when possible, to have the comments match up with
-reality.  If someone (like myself just now) is referencing the comments
-for guidance with respect to what the data structures look like, they
-would have soon discoverred that the data structures looked nothing like
-what the comment was describing.
-
-I'd appreciate if someone could get this or a similar patch in, and no,
-I don't need to be specially credited for making a comment change :-).
-
-Patch follows.
-
-
---- kdev_t.h.orig       2003-01-17 21:25:18.000000000 -0500
-+++ kdev_t.h    2003-01-17 21:33:57.000000000 -0500
-@@ -31,7 +31,7 @@
-  
- However, for the time being we let kdev_t be almost the same as dev_t:
-  
--typedef struct { unsigned short major, minor; } kdev_t;
-+typedef struct { unsigned char major, minor; } kdev_t;
-  
- Admissible operations on an object of type kdev_t:
- - passing it along
-
-
+- Hari
+-- 
+Raja R Harinath ------------------------------ harinath@cs.umn.edu

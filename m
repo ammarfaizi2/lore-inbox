@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261546AbRERUZZ>; Fri, 18 May 2001 16:25:25 -0400
+	id <S261550AbRERUq7>; Fri, 18 May 2001 16:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbRERUZF>; Fri, 18 May 2001 16:25:05 -0400
-Received: from www.wen-online.de ([212.223.88.39]:35333 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S261546AbRERUY4>;
-	Fri, 18 May 2001 16:24:56 -0400
-Date: Fri, 18 May 2001 22:24:05 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <20010518205843.T806@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.33.0105182218070.387-100000@mikeg.weiden.de>
+	id <S261553AbRERUqt>; Fri, 18 May 2001 16:46:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63247 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261550AbRERUqk>; Fri, 18 May 2001 16:46:40 -0400
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+To: Wayne.Brown@altec.com
+Date: Fri, 18 May 2001 21:43:03 +0100 (BST)
+Cc: esr@thyrsus.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <86256A50.006E3D90.00@smtpnotes.altec.com> from "Wayne.Brown@altec.com" at May 18, 2001 03:04:43 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150r5T-0007gK-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Ingo Oeser wrote:
+> On 05/18/2001 at 02:44:07 PM esr@thyrsus.com wrote:
+> >But the real question is whether the old tools have enough value to be
+> >worth the effort.  What problem are you trying to solve here?
+> 
+> How about:
+> 1.  Some of us are perfectly satisfied with the existing tools and don't want
+>       them to be yanked out from under us.
 
-> On Fri, May 18, 2001 at 03:23:03PM -0300, Rik van Riel wrote:
-> > On Fri, 18 May 2001, Ingo Oeser wrote:
-> >
-> > > Rik: Would you take patches for such a tradeoff sysctl?
-> >
-> > "such a tradeoff" ?
-> >
-> > While this sounds reasonable, I have to point out that
-> > up to now nobody has described exactly WHAT tradeoff
-> > they'd like to make tunable and why...
->
-> Amount of pages reclaimed from swapout_mm() versus amount of
-> pages reclaimed from caches.
+> 2.  Some of us have no interest in Python and don't like being forced to deal
+>       with installing/upgrading it just for CML2.
 
-I don't know if this'll make sense, but I think this has to
-be a ~fuzzy suggestion to the kernel.  There are so many
-variables that you can't predict what the kernel will run
-into.  For example, with my favorite test, sometimes tasks
-do something nasty, like all deciding to do the same things
-at once and thereby jerking a _knot_ in the vm's tail.
-
-	-Mike
+Since someone is rewriting CML2 in C that #2 is a non issue. #1 may be a case
+of bolting alternative ui's onto the parser 
 

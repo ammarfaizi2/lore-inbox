@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261947AbSJISmd>; Wed, 9 Oct 2002 14:42:33 -0400
+	id <S261979AbSJITFH>; Wed, 9 Oct 2002 15:05:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261951AbSJISmd>; Wed, 9 Oct 2002 14:42:33 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53511 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261947AbSJISm0>; Wed, 9 Oct 2002 14:42:26 -0400
-Date: Wed, 9 Oct 2002 11:47:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [bk/patch] driver model update: device_unregister()
-In-Reply-To: <Pine.GSO.4.21.0210091358100.8980-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.44.0210091138540.14464-100000@penguin.transmeta.com>
+	id <S262000AbSJITFH>; Wed, 9 Oct 2002 15:05:07 -0400
+Received: from 62-190-218-143.pdu.pipex.net ([62.190.218.143]:36868 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261979AbSJITFB>; Wed, 9 Oct 2002 15:05:01 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210091917.g99JHkSP001461@darkstar.example.net>
+Subject: Re: The end of embedded Linux?
+To: root@chaos.analogic.com
+Date: Wed, 9 Oct 2002 20:17:45 +0100 (BST)
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org, lypanov@kde.org,
+       jw@pegasys.ws
+In-Reply-To: <Pine.LNX.3.95.1021009074742.27056A-100000@chaos.analogic.com> from "Richard B. Johnson" at Oct 09, 2002 07:53:19 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i
-On Wed, 9 Oct 2002, Alexander Viro wrote:
 > 
-> OK, call me dense, but what things are associated with partition aside of the
-> fact that it exists?
+> On 9 Oct 2002, Alan Cox wrote:
+> 
+> > On Wed, 2002-10-09 at 08:37, Alexander Kellett wrote: 
+> > > This talk of adeos reminds me of something that i'd
+> > > "dreamed" of a while back. Whats the feasability of
+> > > having a 70kb kernel that barely even provides support 
+> > > for user space apps and is basically just an hardware 
+> > > abstraction layer for "applications" that can be 
+> > > written as kernel modules?
+> > 
+> > Its called FreeDOS,
+> > 
+> 
+> -emm. Maybe he needs just a bit more.
 
-Filesystems can be associated with one or more partitions. MD devices are 
-associated with one or more partitions. 
+Minix, maybe?
 
-Not disks. Partitions.
-
-		Linus
-
-
+John.

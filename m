@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288284AbSBDDs2>; Sun, 3 Feb 2002 22:48:28 -0500
+	id <S288325AbSBDEHu>; Sun, 3 Feb 2002 23:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287478AbSBDDsT>; Sun, 3 Feb 2002 22:48:19 -0500
-Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:52998 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S287467AbSBDDsO>; Sun, 3 Feb 2002 22:48:14 -0500
-Date: Sun, 3 Feb 2002 20:47:59 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Michal Jaegermann <michal@harddata.com>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Symbol troubles in 2.4.18pre... kernels
-Message-ID: <20020203204759.A14119@mail.harddata.com>
-In-Reply-To: <20020203171615.A12981@mail.harddata.com> <E16XXIq-0005ml-00@the-village.bc.nu>
+	id <S288338AbSBDEHk>; Sun, 3 Feb 2002 23:07:40 -0500
+Received: from 12-234-33-29.client.attbi.com ([12.234.33.29]:1856 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S288325AbSBDEHa>; Sun, 3 Feb 2002 23:07:30 -0500
+From: brian@worldcontrol.com
+Date: Sun, 3 Feb 2002 20:05:34 -0800
+To: linux-kernel@vger.kernel.org
+Subject: valen kernel: kmem_alloc: Bad slab magic (corrupt)
+Message-ID: <20020204040534.GA2322@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16XXIq-0005ml-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Feb 04, 2002 at 12:48:12AM +0000
+User-Agent: Mutt/1.3.25i
+X-No-Archive: yes
+X-Noarchive: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 04, 2002 at 12:48:12AM +0000, Alan Cox wrote:
-> 
-> > 'isa_eth_io_copy_and_sum' is defined only for some architectures but
-> > assorted modules, like drivers/net/3c503.o and few others, can be
-> > configured, say, for Alpha and 'depmod' once again complains about
-> > unresolved symbols.  I do not think that anybody will really miss that
-> > on Alpha but maybe configuring them in should be disallowed?
-> 
-> This is a bug in the Alpha port. Fix the port. Its not ecactly the
-> most complex function to implement.
+I have 14 machines all running Linux 2.2.19 with reiserfs.  All
+have been running for at least 4 months 24/7.
+All are AMD Athlons or Durons, with 1.5GB memory, and are
+interconnected by a 16 port 100mbit/s switch.  All machines have
+tons of cooling and are in a temperature, humidity and power
+controlled environment.  No overclocking.
 
-Well, the best I can tell by looking at other implementations and
-comparing there is not much to implement and the fix looks like
-that:
+The particular machine valen is a 1.333 GHz Athlon Thunderbird
 
---- linux-2.4.18p7/include/asm-alpha/io.h~	Sun Feb  3 16:42:17 2002
-+++ linux-2.4.18p7/include/asm-alpha/io.h	Sun Feb  3 20:35:13 2002
-@@ -432,6 +432,8 @@
- #define eth_io_copy_and_sum(skb,src,len,unused) \
-   memcpy_fromio((skb)->data,(src),(len))
- 
-+#define isa_eth_io_copy_and_sum(a,b,c,d) eth_copy_and_sum((a),(b),(c),(d))
-+
- static inline int
- check_signature(unsigned long io_addr, const unsigned char *signature,
- 		int length)
+Earlier today it started reporting:
 
-But I really have no way to test that on a real, live, hardware.
-It compiles. :-)
+Feb  3 08:24:57 valen kernel: kmem_alloc: Bad slab magic (corrupt)              (name=size-4096)
+Feb  3 08:25:17 valen last message repeated 7 times                            ...
+Feb  3 08:27:46 valen kernel: kmem_alloc: Bad slab magic (corrupt)              (name=size-4096)
+Feb  3 08:27:47 valen kernel: nfs: task 2109 can't get a request slot
+Feb  3 08:29:16 valen kernel: nfs: task 2111 can't get a request slot
+Feb  3 08:29:24 valen kernel: nfs: task 2112 can't get a request slot
+Feb  3 08:29:47 valen kernel: nfs: task 2109 can't get a request slot
+...
 
-  Michal
+rebooted machine, then later...
+
+Feb  3 16:50:27 valen kernel: call_verify: server accept status: 2
+Feb  3 16:50:27 valen kernel: RPC: garbage, retrying    0
+Feb  3 16:50:27 valen kernel: call_verify: server accept status: 2
+Feb  3 16:50:27 valen kernel: RPC: garbage, retrying    0
+Feb  3 16:50:27 valen kernel: call_verify: server accept status: 2
+Feb  3 16:50:27 valen kernel: RPC: garbage, exit EIO
+Feb  3 16:50:27 valen kernel: nfs_get_root: getattr error = 5
+
+Though I think most of the machines occasionally get these later
+messages.
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2002 By Brian Litzinger, All Rights Reserved

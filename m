@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263156AbUDETjK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 15:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbUDETjK
+	id S263173AbUDEToU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 15:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUDEToU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 15:39:10 -0400
-Received: from smtp.mailix.net ([216.148.213.132]:48974 "EHLO smtp.mailix.net")
-	by vger.kernel.org with ESMTP id S263156AbUDETjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 15:39:07 -0400
-Date: Mon, 5 Apr 2004 21:39:02 +0200
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <20040405193902.GA1226@steel.home>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040405192443.GA1305@steel.home>
-Mime-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20040405192443.GA1305@steel.home>
-User-Agent: Mutt/1.5.6i
-X-SA-Exim-Mail-From: fork0@users.sourceforge.net
-Subject: Re: 2.6.5: Solid freeze after removing a bluetooth usb dongle
-Content-Type: text/plain; charset=us-ascii
-X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
-	*      [80.140.221.58 listed in dnsbl.njabl.org]
-	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
-	*      [80.140.221.58 listed in dnsbl.sorbs.net]
-	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
-	*      [80.140.221.58 listed in dnsbl.njabl.org]
-	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
-	*      [80.140.221.58 listed in dnsbl.sorbs.net]
-X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
-X-SA-Exim-Scanned: Yes
-X-uvscan-result: clean (1BAZvy-0006nr-PB)
+	Mon, 5 Apr 2004 15:44:20 -0400
+Received: from smtp-hub2.mrf.mail.rcn.net ([207.172.4.76]:11229 "EHLO
+	smtp-hub2.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S263173AbUDEToS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 15:44:18 -0400
+Message-ID: <4071B70E.3090400@lycos.com>
+Date: Mon, 05 Apr 2004 15:44:14 -0400
+From: James Vega <vega_james@lycos.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: fat32 all upper-case filename problem
+References: <4070910E.7020808@lycos.com> <87k70utw5n.fsf@devron.myhome.or.jp>
+In-Reply-To: <87k70utw5n.fsf@devron.myhome.or.jp>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA25D9CB6EB51B71197ABAC1B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Riesen, Mon, Apr 05, 2004 21:24:43 +0200:
-> After modprobing hci-usb, I insert the dongle in the usb port
-> of the card reader. Than I run "hciconfig hci0 up" to initialize
-> the interface and start "hcitool scan". While it was running, I
-> removed the dongle. The computer froze. Nothing in logs, no network.
-> Hcitool managed to write some error (sorry, can't remember, will try to
-> reproduce) before everything died.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA25D9CB6EB51B71197ABAC1B
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-http://bugzilla.kernel.org/show_bug.cgi?id=2445
+OGAWA Hirofumi wrote:
+  > Are you using the "iocharset=utf8" or CONFIG_NLS_DEFAULT="utf8"?
+> If so, it's buggy.
+> 
+> Please don't use it for now.
 
-successfully reproduced with an oops. Made a picture of it and uploaded
-to bugzilla. Sorry for abuse.
+I am using CONFIG_NLS_DEFAULT="utf8". I'll see if I get the same results that 
+changed back to iso8859-1.
 
+--------------enigA25D9CB6EB51B71197ABAC1B
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iEYEARECAAYFAkBxtw4ACgkQDb3UpmEybUDR/ACffeasqPVl4xtNjYxOxf2c8Tio
+VU8AnjmLLgWibdBQO/af56aeAUnwJEb7
+=hN5l
+-----END PGP SIGNATURE-----
+
+--------------enigA25D9CB6EB51B71197ABAC1B--

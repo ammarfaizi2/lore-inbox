@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268004AbUJOBh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268053AbUJOBlb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268004AbUJOBh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 21:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268005AbUJOBh4
+	id S268053AbUJOBlb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 21:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUJOBlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 21:37:56 -0400
-Received: from ozlabs.org ([203.10.76.45]:19421 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268004AbUJOBhx (ORCPT
+	Thu, 14 Oct 2004 21:41:31 -0400
+Received: from ozlabs.org ([203.10.76.45]:23261 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268053AbUJOBl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 21:37:53 -0400
-Subject: Re: 2.6.9-rc3-mm2
+	Thu, 14 Oct 2004 21:41:29 -0400
+Subject: Re: s390(64) per_cpu in modules (ipv6)
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Dominik Karall <dominik.karall@gmx.net>
-Cc: Andrew Morton <akpm@osdl.org>,
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: schwidefsky@de.ibm.com,
        lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410051607.40860.dominik.karall@gmx.net>
-References: <20041004020207.4f168876.akpm@osdl.org>
-	 <200410051607.40860.dominik.karall@gmx.net>
+In-Reply-To: <20040629233537.523db68c@lembas.zaitcev.lan>
+References: <20040629233537.523db68c@lembas.zaitcev.lan>
 Content-Type: text/plain
-Message-Id: <1097804285.22673.47.camel@localhost.localdomain>
+Message-Id: <1097804500.22673.51.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 11:38:05 +1000
+Date: Fri, 15 Oct 2004 11:41:40 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 00:07, Dominik Karall wrote:
-> On Monday 04 October 2004 11:02, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6
-> >.9-rc3-mm2/
+On Wed, 2004-06-30 at 16:35, Pete Zaitcev wrote:
+> Hi, Martin,
 > 
-> some more scheduling/preempt problems. following patches were applied:
-> --- 
-> 25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix 
-> Mon Oct  4 14:36:19 2004
-> +++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h Mon Oct  4 14:37:02 
-> 2004
-> @@ -311,10 +311,11 @@ struct ip_conntrack_stat
->         unsigned int expect_delete;
->  };
->  
-> -#define CONNTRACK_STAT_INC(count)                              \
-> -       do {                                                    \
-> -               per_cpu(ip_conntrack_stat, get_cpu()).count++;  \
-> -               put_cpu();                                      \
-> +#define CONNTRACK_STAT_INC(count)                                      \
-> +       do {                                                            \
-> +               preempt_disable();                                      \
-> +               per_cpu(ip_conntrack_stat, smp_processor_id()).count++; \
-> +               preempt_disable();                                      \
->         } while (0)
+> I tried to build ipv6 as a module in 2.6.7, and it bombs, producing a
+> module which wants per_cpu____icmpv6_socket (obviously, undefined).
+> 
+> The problem appears to be caused by this:
+> 
+> #define __get_got_cpu_var(var,offset) \
+>   (*({ unsigned long *__ptr; \
+>        asm ( "larl %0,per_cpu__"#var"@GOTENT" : "=a" (__ptr) ); \
+>        ((typeof(&per_cpu__##var))((*__ptr) + offset)); \
+>     }))
 
-Please, please please!  Never use per_cpu(XXX, smp_processor_id())!  In
-this case, it's "get_cpu_var(ip_conntrack_stat).count++; put_cpu(),
-although I think this code should only be called in a softirq, so a
-simple "__get_cpu_var(ip_conntrack_stat).count++;" is sufficient.
+
+Heh, I ran into the same problem trying to do this trick for PPC64.  You
+really need to use __thread and make GCC do the work, AFAICT.
+
+The worse problem is that a (static) per-cpu var declared *inside* a
+function gets renamed by gcc; IIRC some generic code used to do this.
 
 Rusty.
 -- 

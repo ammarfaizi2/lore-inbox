@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313920AbSDPVpA>; Tue, 16 Apr 2002 17:45:00 -0400
+	id <S313922AbSDPVpl>; Tue, 16 Apr 2002 17:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313922AbSDPVo7>; Tue, 16 Apr 2002 17:44:59 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:18898 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S313920AbSDPVo6>; Tue, 16 Apr 2002 17:44:58 -0400
-Message-ID: <3CBCB762.4030902@bingo-ev.de>
-Date: Tue, 16 Apr 2002 23:44:34 +0000
-From: Michael Obster <michael.obster@bingo-ev.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020328
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S313923AbSDPVpk>; Tue, 16 Apr 2002 17:45:40 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:45964 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S313922AbSDPVpf>; Tue, 16 Apr 2002 17:45:35 -0400
+Date: Tue, 16 Apr 2002 12:57:17 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
-In-Reply-To: <Pine.LNX.4.33.0204160921060.472-100000@polywog.navpoint.com> <00dc01c1e58b$668dd2f0$0201a8c0@homer>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] 2.5.8 fix for percpu area
+Message-ID: <20020416125716.A31123@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+The percpu area stuff is broken in two places -
 
->>I get (when FSCK):
->>
->>spurious 8259A IRQ7
+Missing stub for setup_per_cpu_areas() in the UP case
+and missing definition of __per_cpu_data attribute in percpu.h.
+Here is a patch that fixes these. Please apply.
 
-I also get this message every time i boot my machine when the fs are 
-mounted. but i don't had a machine lock yet.
-Configuration: Athlon 1GHz on a VIA chip (ASUS A7V).
-Btw. What does this message say?
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.
 
-> First check out what kind of chipset you really have;
-> lspci -xs 0:0
-> should do the thing. Post the results.
 
-Kernel is 2.4.19pre5
+[percpufix-2.5.8-1.patch]
 
-my result is:
-00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] 
-(rev 02)
-00: 06 11 05 03 06 00 10 22 02 00 00 06 00 08 00 00
-10: 08 00 00 e4 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
 
-I hope you can do s.th. with that.
-
-Regards,
-Michael
-
-------------------------------------------------------
-do you want to rock?
-http://www.rocklinux.org/
-------------------------------------------------------
-
+diff -urN linux-2.5.8-base/include/asm-generic/percpu.h linux-2.5.8-percpufix/include/asm-generic/percpu.h
+--- linux-2.5.8-base/include/asm-generic/percpu.h	Mon Apr 15 00:48:47 2002
++++ linux-2.5.8-percpufix/include/asm-generic/percpu.h	Tue Apr 16 11:49:28 2002
+@@ -4,6 +4,8 @@
+ #define __GENERIC_PER_CPU
+ #include <linux/compiler.h>
+ 
++#define __per_cpu_data  __attribute__((section(".data.percpu")))
++
+ extern unsigned long __per_cpu_offset[NR_CPUS];
+ 
+ /* var is in discarded region: offset to particular copy we want */
+diff -urN linux-2.5.8-base/init/main.c linux-2.5.8-percpufix/init/main.c
+--- linux-2.5.8-base/init/main.c	Mon Apr 15 00:48:46 2002
++++ linux-2.5.8-percpufix/init/main.c	Tue Apr 16 11:50:57 2002
+@@ -272,6 +272,10 @@
+ #define smp_init()	do { } while (0)
+ #endif
+ 
++static inline void setup_per_cpu_areas(void)
++{
++}
++
+ #else
+ 
+ #ifdef __GENERIC_PER_CPU

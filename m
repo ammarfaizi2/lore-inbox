@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131140AbRCUDUX>; Tue, 20 Mar 2001 22:20:23 -0500
+	id <S131151AbRCUDge>; Tue, 20 Mar 2001 22:36:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131151AbRCUDUO>; Tue, 20 Mar 2001 22:20:14 -0500
-Received: from glatton.cnchost.com ([207.155.248.47]:7604 "EHLO
-	glatton.cnchost.com") by vger.kernel.org with ESMTP
-	id <S131140AbRCUDUB>; Tue, 20 Mar 2001 22:20:01 -0500
-Message-ID: <3AB81E4A.9060604@devries.tv>
-Date: Tue, 20 Mar 2001 22:21:46 -0500
-From: Peter DeVries <peter@devries.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; 0.7) Gecko/20010105
-X-Accept-Language: en
+	id <S131152AbRCUDgZ>; Tue, 20 Mar 2001 22:36:25 -0500
+Received: from nrg.org ([216.101.165.106]:11632 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S131151AbRCUDgJ>;
+	Tue, 20 Mar 2001 22:36:09 -0500
+Date: Tue, 20 Mar 2001 19:35:17 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: Keith Owens <kaos@ocs.com.au>
+cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel 
+In-Reply-To: <16074.985137800@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Drvie Corruption CONSTANTLY with Linux and KT7-RAID
-In-Reply-To: <Pine.LNX.4.10.10103151153050.28602-100000@coffee.psychology.mcmaster.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have noiw tried the following
-   Diffrent Ram
-   No PNP/ Manual set IRQ's
-   All bios settings are manual. CPU speed etc
-   -X 34
-   Diffrent Controlllers ide0,ide1,ide2
-   
-Still getting drive corruption as soon as I turn on DMA mode..  I even 
-tested 2 HD's and only activating DMA on 1.  (seperate controllers) and 
-the both got corrupted. 
+On Wed, 21 Mar 2001, Keith Owens wrote:
+> I misread the code, but the idea is still correct.  Add a preemption
+> depth counter to each cpu, when you schedule and the depth is zero then
+> you know that the cpu is no longer holding any references to quiesced
+> structures.
 
-any ideas? 
+A task that has been preempted is on the run queue and can be
+rescheduled on a different CPU, so I can't see how a per-CPU counter
+would work.  It seems to me that you would need a per run queue
+counter, like the example I gave in a previous posting.
 
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
-
-
-
-
-Mark Hahn wrote:
-
->> least 30 times now.  I have a ABIT KT7-RAID and no
-> 
-> 
-> have you installed the latest bios, and/or turned off the 
-> bugusly agressive pci-bridge settings?  they are responsible 
-> for all verified kt133/ide problems reported so far.
-> 
-> 
-> 
-
+MontaVista Software                             nigel@mvista.com
 

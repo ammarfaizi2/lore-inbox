@@ -1,105 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVA0Dg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVA0D7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVA0Dg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 22:36:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVA0Dfv
+	id S262432AbVA0D7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 22:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVA0D7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 22:35:51 -0500
-Received: from ozlabs.org ([203.10.76.45]:5589 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262432AbVA0DfR (ORCPT
+	Wed, 26 Jan 2005 22:59:24 -0500
+Received: from rain.plan9.de ([193.108.181.162]:44467 "EHLO rain.plan9.de")
+	by vger.kernel.org with ESMTP id S262432AbVA0D7K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 22:35:17 -0500
-Date: Thu, 27 Jan 2005 14:31:04 +1100
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org, neilb@cse.unsw.edu.au
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix large allocation in nfsd init
-Message-ID: <20050127033104.GA26367@krispykreme.ozlabs.ibm.com>
+	Wed, 26 Jan 2005 22:59:10 -0500
+Date: Thu, 27 Jan 2005 04:59:07 +0100
+From: Marc Lehmann <linux-kernel@plan9.de>
+To: linux-kernel@vger.kernel.org
+Subject: critical bugs in md raid5
+Message-ID: <20050127035906.GA7025@schmorp.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
+       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Hi,
 
-I just added an NFS mount to a ppc64 box that had been up for a while.
-This required inserting the nfsd module. Unfortunately it failed:  
+I want to report a number of problems in the current raid5 code, some of
+which are pretty annoying, some of which require a superblock reformat.
 
-modprobe: page allocation failure. order:5, mode:0xd0
-Trace:
-[c0000000000ba0f8] alloc_pages_current+0xc0/0xe4
-[c0000000000941fc] __get_free_pages+0x54/0x1e0
-[d00000000046f7d8] nfsd_cache_init+0x54/0x1a4 [nfsd]
-[d0000000004782cc] init_nfsd+0x30/0x2564 [nfsd]
-[c000000000084bec] sys_init_module+0x23c/0x5ac
-[c00000000001045c] ret_from_syscall_1+0x0/0xa4
-nfsd: cannot allocate 98304 bytes for reply cache
+Here's my setup:
 
-An order 5 allocation. Replace it with a vmalloc.
+- dual AMD opteron with 64-bit kernel, 2.6.10/2.6.8.1
+- 5 raid disks, 4 standard ide on hda..hdd, one sata-device
+  (that setup gives a much higher performance than putting every device
+  on it's own ide port).
 
-Anton
+First, the really bad ones (happened with 2.6.10):
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+Today, I had a crash that required a hard reset. After the next start, the
+raid started to rebuild as expected (and, as usually, at 5 times the speed
+that I get when reading from the raid array, but that's an old problem
+that I had on 2.4, too).
 
-diff -puN fs/nfsd/nfscache.c~fix_nfsd_allocation fs/nfsd/nfscache.c
---- foobar2/fs/nfsd/nfscache.c~fix_nfsd_allocation	2005-01-27 13:56:14.248445552 +1100
-+++ foobar2-anton/fs/nfsd/nfscache.c	2005-01-27 14:22:52.764642869 +1100
-@@ -15,6 +15,7 @@
- #include <linux/slab.h>
- #include <linux/string.h>
- #include <linux/spinlock.h>
-+#include <linux/vmalloc.h>
- 
- #include <linux/sunrpc/svc.h>
- #include <linux/nfsd/nfsd.h>
-@@ -56,14 +57,10 @@ nfsd_cache_init(void)
- 	struct svc_cacherep	*rp;
- 	struct nfscache_head	*rh;
- 	size_t			i;
--	unsigned long		order;
--
- 
- 	i = CACHESIZE * sizeof (struct svc_cacherep);
--	for (order = 0; (PAGE_SIZE << order) < i; order++)
--		;
--	nfscache = (struct svc_cacherep *)
--		__get_free_pages(GFP_KERNEL, order);
-+
-+	nfscache = vmalloc(i);
- 	if (!nfscache) {
- 		printk (KERN_ERR "nfsd: cannot allocate %Zd bytes for reply cache\n", i);
- 		return;
-@@ -73,7 +70,7 @@ nfsd_cache_init(void)
- 	i = HASHSIZE * sizeof (struct nfscache_head);
- 	hash_list = kmalloc (i, GFP_KERNEL);
- 	if (!hash_list) {
--		free_pages ((unsigned long)nfscache, order);
-+		vfree(nfscache);
- 		nfscache = NULL;
- 		printk (KERN_ERR "nfsd: cannot allocate %Zd bytes for hash list\n", i);
- 		return;
-@@ -102,8 +99,6 @@ void
- nfsd_cache_shutdown(void)
- {
- 	struct svc_cacherep	*rp;
--	size_t			i;
--	unsigned long		order;
- 
- 	for (rp = lru_head; rp; rp = rp->c_lru_next) {
- 		if (rp->c_state == RC_DONE && rp->c_type == RC_REPLBUFF)
-@@ -112,10 +107,7 @@ nfsd_cache_shutdown(void)
- 
- 	cache_disabled = 1;
- 
--	i = CACHESIZE * sizeof (struct svc_cacherep);
--	for (order = 0; (PAGE_SIZE << order) < i; order++)
--		;
--	free_pages ((unsigned long)nfscache, order);
-+	vfree(nfscache);
- 	nfscache = NULL;
- 	kfree (hash_list);
- 	hash_list = NULL;
-_
+I only remember that I had all all five disks with an up-to-date sign
+[UUUUU] during the whole rebuild, which made sense to me, as the data
+should be up-to-date, despite the raid being out-of-sync. I rebooted
+during the time, at around 46%. After the next reboot, resyncing properly
+continued.
+
+Then the rebuild finished:
+
+   md: md0: sync done.
+
+*immediately* after that line, I got an ide error:
+
+   hda: dma_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+   hda: dma_intr: error=0x40 { UncorrectableError }, LBAsect=312581110, high=18, low=10591222, sector=312580370
+   ide: failed opcode was: unknown
+   end_request: I/O error, dev hda, sector 312580370
+
+I did verify that the disk block indeed was unreadable. The raid did react:
+
+   raid5: Disk failure on hda1, disabling device. Operation continuing on 4 devices
+   RAID5 conf printout:
+    --- rd:5 wd:4 fd:1
+    disk 0, o:0, dev:hda1
+    disk 1, o:1, dev:sda1
+    disk 2, o:1, dev:hdd1
+    disk 3, o:1, dev:hdc1
+    disk 4, o:1, dev:hdb1
+   RAID5 conf printout:
+    --- rd:5 wd:4 fd:1
+    disk 1, o:1, dev:sda1
+    disk 2, o:1, dev:hdd1
+    disk 3, o:1, dev:hdc1
+    disk 4, o:1, dev:hdb1
+
+Interestingly, it immediately started to rebuild the array, with only for
+disks (/proc/mdstat showed hda1 as F (faulty)):
+
+   .<6>md: syncing RAID array md0
+   md: minimum _guaranteed_ reconstruction speed: 0 KB/sec/disc.
+   md: using maximum available idle IO bandwith (but not more than 99999 KB/sec)
+   for reconstruction.
+   md: using 128k window, over a total of 156290816 blocks.
+   md: resuming recovery of md0 from checkpoint.
+
+Indeed, /proc/mdstat showed that it had 46% (last checkpoint) already in
+sync, while at the same time only showing 4 disks.
+
+I did:
+
+   raidhotremove /dev/md0 /dev/hda1
+
+which worked (rebuild continued, though), then
+
+   raidhotadd /dev/md0 /dev/hda1
+
+which worked (rebuilt continued, though). I then decided to reboot.
+
+After the reboot, I no longer had a raid, because the array was dirty and
+degraded.
+
+This is an important bug, IMHO, as it required me to manually mdadm -C the
+array, which I am fairly proficient with, but it's still rather risky,
+because of the following issues:
+
+Sometimes, when the machine crashes, it seems that a dirty array is just
+as unsafe as a degraded array: when the rebuild starts and hits a bad
+block somewhere on the disks it chose to read from (bad blocks are very
+common during hard crashes, as the disk might not have time to properly
+write the block), it will mark the disk as faulty. Unfortunately, as the
+array seems to be in some artifical degraded mode, it seems to think yet
+another disk is faulty, and then stop working, as it thinks it has lost
+two disks - reformat required.
+
+Then, the reformat might be more difficult than necessary, as, of course,
+you need to know the "index" numbers of your disks, I mean these numbers:
+
+   md0 : active raid5 hda1[5] sda1[1] hdd1[2] hdc1[3] hdb1[4]
+
+mdadm can be made to print the same numbers. Unfortunately, neither mkraid
+nor mdadm have any waay of working with disk indices that are outside the
+normal range (i.e. only 0..4 are valid on my 5 disk-array when building,
+but every raid failure will give the disks a different number, which is in
+no relation to the original order).
+
+That means that every replacement disk will need paper and pencil work, as
+the required data is not readily available with user-level commands.
+
+In one case, I ahd two unavailable disks (generated by the problem above)
+with indices 5 and 6. Simple guesswork (formatting the array superblocks
+in degraded mode - not a very documented thing, readonly-mount, retry
+with different order) gave me the correct order, but it's a tedious and
+error-prone task.  I'd say many admins might just format the superblocks
+in non-degraded mode, and when they detect a problem, it'S already too
+late because the sync has already started (although it could be that a
+sync will not damage the disks in any way, after all, it's simple xor).
+
+The summary seems to be that the linux raid driver only protects your data
+as long as all disks are fine and the machine never crashes.
+
+The last annoying issue is not a bug per se, and has been reported in much
+larger detail earlier: my array can rebuild at a top speed of 165MB/s, but
+dd or other tools never read more than about 25-35MB/s top, which is much
+less than the speed of a single disk - dd'ing from a single disk gives a
+speed of >50MB/s, and dd'ing from, say, 4 or 5 disks gives me wlel over
+200MB/s).
+
+Of course, this last issue is not critical at all - I am working with this
+problem since 2.4 days :)
+
+Thanks for all the good work that alraedy went into linux, though!
+
+Hope this helps,
+
+-- 
+                The choice of a
+      -----==-     _GNU_
+      ----==-- _       generation     Marc Lehmann
+      ---==---(_)__  __ ____  __      pcg@goof.com
+      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
+      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267080AbSKMBSg>; Tue, 12 Nov 2002 20:18:36 -0500
+	id <S267084AbSKMBY0>; Tue, 12 Nov 2002 20:24:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267081AbSKMBSg>; Tue, 12 Nov 2002 20:18:36 -0500
-Received: from mail0.lsil.com ([147.145.40.20]:9442 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id <S267080AbSKMBSe>;
-	Tue, 12 Nov 2002 20:18:34 -0500
-Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185ED7B@EXA-ATLANTA.se.lsil.com>
-From: "Mukker, Atul" <atulm@lsil.com>
-To: "'alan@redhat.com'" <alan@redhat.com>,
-       "'arjanv@redhat.com'" <arjanv@redhat.com>,
-       "'marcelo@conectiva.com.br'" <marcelo@conectiva.com.br>,
-       linux-megaraid-devel@dell.com
-Cc: "Jarrett, Peter B." <Peterj@lsil.com>,
-       "'matt_domsch@dell.com'" <matt_domsch@dell.com>,
-       "'Tesfamariam_Michael@Dell.com'" <Tesfamariam_Michael@dell.com>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [ANNOUNCE] MegaRAID RAID driver version 2.00 - introduced as new megaraid2 in 2.4.x and 2.5.x
-Date: Tue, 12 Nov 2002 20:24:57 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S267086AbSKMBY0>; Tue, 12 Nov 2002 20:24:26 -0500
+Received: from mail3.noris.net ([62.128.1.28]:32648 "EHLO mail3.noris.net")
+	by vger.kernel.org with ESMTP id <S267084AbSKMBYW>;
+	Tue, 12 Nov 2002 20:24:22 -0500
+From: "Matthias Urlichs" <smurf@noris.de>
+Date: Wed, 13 Nov 2002 02:30:59 +0100
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.4: scsi and BLK_STATS
+Message-ID: <20021113023059.K18881@noris.de>
+References: <20021112172821.GA14195@play.smurf.noris.de> <20021113001530.A323@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021113001530.A323@infradead.org>; from hch@infradead.org on Wed, Nov 13, 2002 at 12:15:30AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan et al,
+Hi,
 
-Attached please find the megaraid driver version 2.00, which is to be
-introduced as megaraid2 in 2.4.x and 2.5.x kernels. The mail has two
-attachments:
-1.	megaraid v200 for 2.4.x kernels - megaraid2-v200.tar.gz
-2.	patch for 2.5.x kernels - megaraid2-v200-24x-25x.patch.gz
+Christoph Hellwig:
+> On Tue, Nov 12, 2002 at 06:28:21PM +0100, Matthias Urlichs wrote:
+> > Some people might want SCSI without block statistics...
+> 
+> Probably.  But your patch doesn;t gain them anything but a useless
+> ifdef..  Look at include/linux/genhd.h:
+> 
+*Sigh*
+Note that scsi_lib.c does not include linux/genhd.h, thus I missed
+that. :-/
 
-Other people on linux lists: Driver is not attached for lists. Please await
-announcement from Matt Domsch after he has updated the appropriate download
-sites.
+> static inline void req_new_io(struct request *req, int merge, int sectors) { }
+> static inline void req_merged_io(struct request *req) { }
+> static inline void req_finished_io(struct request *req) { }
 
-Regards
+That may be a matter of style, but I would strongly prefer these to be
 
-Atul Mukker <Atul.Mukker@lsil.com>
-Project Leader, RAID Device Drivers
+#define req_new_io(_a,_b,_c) do {} while(0)
+#define req_merge_io(_a)     do {} while(0)
+#define req_finished_io(_a)  do {} while(0)
 
-RAID Storage Adapters Division
-LSI Logic Corporation
-6145-D Northbelt Parkway
-Norcross GA - 30071
-U.S.A.
+instead ... anyway, please disregard my patch and add
 
-<megaraid2-v200.tar.gz> <megaraid2-v200-24x-25x.patch.gz>
+#include <linux/genhd.h>
+
+in scsi/scsi_lib.c.  :-/
+
+-- 
+Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/

@@ -1,118 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbUKXOVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbUKXOVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbUKXOVu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:21:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbUKXOVA
+	id S262727AbUKXOVw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbUKXOU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:21:00 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:3810 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262730AbUKXORF (ORCPT
+	Wed, 24 Nov 2004 09:20:27 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:63621 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262727AbUKXOPk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 09:17:05 -0500
-Message-ID: <41A49940.6030104@snapgear.com>
-Date: Thu, 25 Nov 2004 00:22:56 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compound page overhaul
-References: <20041122155434.758c6fff.akpm@osdl.org> <11948.1101130077@redhat.com> <29356.1101201515@redhat.com> <20041123081129.3e0121fd.akpm@osdl.org> <20041123171039.GK2714@holomorphy.com>
-In-Reply-To: <20041123171039.GK2714@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 24 Nov 2004 09:15:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=WYAV5Ia4sqXPHP/jfCuvfV8SHGEIAu1PVjg2RZoQAeTjUIuEAssVn1B56nLCS/IUhOYnbP5jx3Jk4H1pJ2/TK9sS2raVO0Rt5QatB/cv8NgRdJ7nRAw4SxrIAnSgmQpNdjs39tPhYvGkkrryjEPQfPcetTb+8P0qXXHVf1cX/bc=
+Message-ID: <4b41a25041124051572892c7@mail.gmail.com>
+Date: Wed, 24 Nov 2004 18:45:39 +0530
+From: Jyoti Wagholikar <jyoti.wagholikar@gmail.com>
+Reply-To: Jyoti Wagholikar <jyoti.wagholikar@gmail.com>
+To: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com
+Subject: Thread priority scheduling across linux kernels RH9.0 and RH 7.2.
+In-Reply-To: <4b41a25.0408290455.111c1747@posting.google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <4b41a25.0408290455.111c1747@posting.google.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+   I have come across some strange behaviour of
+priority base scheduling of threads across linux
+kernels.
+
+  The program below shows that main priority is
+raised to max = 99. Another thread with priority =30
+is created.
+
+void main()
+{
+struct sched_param schedparam, getparam,
+taskschedparam;
+int policy, status;
+pthread_attr_t attribs;
+
+pthread_t id =pthread_self();
+
+/* Raising main priority to max =99 */
+schedparam.__sched_priority
+=sched_get_priority_max( SCHED_FIFO );
+pthread_setschedparam(id, SCHED_FIFO, &schedparam);
+pthread_getschedparam(id,&policy , &getparam);
+printf("\n main  :  priority = %d, policy = %d",
+getparam.__sched_priority, policy);
+
+/* First Assign default attributes for the thread */
+pthread_attr_init(&attribs);
+
+/*Set stack size as specified by user*/
+attribs.__stacksize = 10000;
+
+/*set scheduling policy*/
+pthread_attr_setschedpolicy(&attribs, SCHED_FIFO);
+
+/*Set task priority*/
+taskschedparam.__sched_priority = 30;
+pthread_attr_setschedparam(&attribs, &taskschedparam);
+
+status = pthread_create(&firstTask, &attribs,
+task_fun1, (void*)1 );
+printf("\n main :first task = %d,firstTask);
+fflush(stdout);
+
+sleep(10000);
+}
+void *task_fun1 ( void *param)
+{
+struct sched_param schedparam, getparam ;
+int policy;
+
+pthread_getschedparam(pthread_self(),&policy ,
+&getparam);
+printf("\n task_fun1: priority = %d, policy = %d",
+getparam.__sched_priority, policy);fflush(stdout);
+printf("\n FIRST TASK = %x", firstTask);
+fflush(stdout);
+}
+
+Ouputs:
+Redhat: 7.2 :[CORRECT OUTPUT]
+main  :  priority = 99, policy = 1
+pthread_create status = 0
+main :first task = 1026
+Sleeping for 1000 sec
+task_fun1: priority = 30, policy = 1
+FIRST TASK = 402
+
+Redhat: 9.0 [ WRONG OUTPUT]
+main  :  priority = 99, policy = 1
+task_fun1: priority = 0, policy = 0
+FIRST TASK = 40838cc0
+pthread_create status = 0
+main :first task = 1082363072
+Sleeping for 1000 sec
+
+Just wondering if there is any inconsistency in the
+priority scheduling across linux version: linux
+2.4.20-8(Redhat 9.0) linux 2.4.7(Redhat 7.2).
+
+Has anyone come across this problem earlier? Any
+solution to overcome it? 
+I want my implementation which is running fine on RH7.2 to run on RH9.0
+
+Just wondering if it is related to priority based real time futexes.  
 
 
-William Lee Irwin III wrote:
-> David Howells <dhowells@redhat.com> wrote:
-> 
->>>It's nothing at all to do with MMU vs !MMU.
-> 
-> 
-> On Tue, Nov 23, 2004 at 08:11:29AM -0800, Andrew Morton wrote:
-> 
->>In that case I just dunno what's going on now.
->>I thought we were discussing the removal of this, from __free_pages_ok():
->>#ifndef CONFIG_MMU
->>	if (order > 0)
->>		for (i = 1 ; i < (1 << order) ; ++i)
->>			__put_page(page + i);
->>#endif
->>by using compound page's refcounting logic instead.  But !MMU really wants
->>to treat that higher-order page as an array of zero-order pages, and that
->>requires the usual usage of the fields of page[1], page[2], etc.
->>So what I'm saying is "compound pages are designed for treating a
->>higher-order page as a higher-order page.  !MMU wants to treat a higher
->>order page as an array of zero-order pages.  Hence give up and stick with
->>the current code".
->>What are you saying?
-> 
-> 
-> The way I interpreted this is something like:
-> 
-> The usual way this goes (as I've seen it elsewhere) is that some fields
-> are "base page properties", so each struct page in the subarray of
-> mem_map the higher-order page represents can have some different,
-> meaningful value for the field, and so on. Others are "superpage
-> properties", which refer to the head of the higher-order page.
-> 
-> The MMU-less code appears to assume the refcounts of the tail pages
-> will remain balanced, and elevates them to avoid the obvious disaster.
-> But this looks rather broken barring some rather unlikely invariants. I
-> presume the patch is backing that out so refcounting works properly, or
-> in the nomenclature above (for which there is a precedent) makes the
-> refcount a superpage property uniformly across MMU and MMU-less cases.
+Your input will be helpful in my project.
 
-The MMUless code probably does not need to be done differently,
-as it is now. Backing out the refcounting changes for non-MMU
-is good, once the procfs problem is fixed. (At least as far as
-I can tell this is the case, and some limited testing seems to
-back that up).
-
-
-> It's unclear (to me) how the current MMU-less code works properly, at
-> the very least. It would appear to leak memory since there is no
-> obvious guarantee the reference to the head page will be dropped when
-> needed, though things may have intended to free the various tail pages.
-
-I am not aware of any memory leaks in practice, and I haven't
-heard from others of any specific problem.
-
-
-> i.e. AFAICT things really need to acquire and release references on the
-> whole higher-order page as a unit for refcounting to actually work,
-> regardless of MMU or no.
-> 
-> It may also be helpful for Greg Ungerer to help review these patches,
-> as he appears to represent some of the other MMU-less concerns, and
-> may have more concrete notions of how things behave in the MMU-less
-> case than I myself do (hardware tends to resolve these issues, but
-> that's not always feasible; perhaps an MMU-less port of a "normal"
-> architecture would be enlightening to those otherwise unable to
-> directly observe MMU-less behavior). In particular, correcting what
-> misinterpretations in the above there may be.
-
-The refcounting has been annoying me for a while, it just feels
-wrong. It has been done that way for a very long time (since 2.4.0
-IIRC). I am sure there was more to it back in the 2.4 but I don't
-think we need to do it like this any more.
-
-I don't have any problem with what David has done so far though
-I need to test it more extensively first.
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
-SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
-825 Stanley St,                             FAX:         +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+thanks and regards,
+-Jyoti

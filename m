@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUKABmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbUKABof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUKABmD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 20:42:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbUKABls
+	id S261716AbUKABof (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 20:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUKABod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 20:41:48 -0500
-Received: from cantor.suse.de ([195.135.220.2]:31104 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261723AbUKABlU (ORCPT
+	Sun, 31 Oct 2004 20:44:33 -0500
+Received: from holomorphy.com ([207.189.100.168]:23170 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261716AbUKABms (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 20:41:20 -0500
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, pluto@pld-linux.org
-Subject: Re: unit-at-a-time...
-References: <200410311541.i9VFf0ah023857@harpo.it.uu.se.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Nov 2004 02:39:41 +0100
-In-Reply-To: <200410311541.i9VFf0ah023857@harpo.it.uu.se.suse.lists.linux.kernel>
-Message-ID: <p73hdoaibz6.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sun, 31 Oct 2004 20:42:48 -0500
+Date: Sun, 31 Oct 2004 17:42:30 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Peter Williams <pwil3058@bigpond.net.au>,
+       Alexander Nyberg <alexn@dsv.su.se>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH][plugsched 0/28] Pluggable cpu scheduler framework
+Message-ID: <20041101014230.GC2583@holomorphy.com>
+References: <4183A602.7090403@kolivas.org> <20041031233313.GB6909@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041031233313.GB6909@elf.ucw.cz>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
+At some point in the past, Con Kolivas wrote:
+>> This code was designed to touch the least number of files, be completely
+>> arch-independant, and allow extra schedulers to be coded in by only
+>> touching Kconfig, scheduler.c and scheduler.h. It should incur no
+>> overhead when run and will allow you to compile in only the scheduler(s)
+>> you desire. This allows, for example, embedded hardware to have a tiny
+>> new scheduler that takes up minimal code space.
 
-> On Sun, 31 Oct 2004 15:57:00 +0100, pluto@pld-linux.org wrote:
-> >/i386/Makefile:# Disable unit-at-a-time mode, it makes gcc use a lot morestack
-> >/i386/Makefile:CFLAGS += $(call cc-option,-fno-unit-at-a-time)
-> >
-> >/x86_64/Makefile:# -funit-at-a-time shrinks the kernel .text considerably
-> >/x86_64/Makefile:CFLAGS += $(call cc-option,-funit-at-a-time)
-> >
-> >Which solution is correct?
+On Mon, Nov 01, 2004 at 12:33:13AM +0100, Pavel Machek wrote:
+> You are changing 
+> some_functions()
+> into
+> something->function()
+> no? I do not think that is 0 overhead...
 
-It shrinks the .text on i386 considerably too. One reason
-is that it automatically enables regparms for static functions.
-With global CONFIG_REGPARM the shrink is a bit less, but still
-noticeable.
+It's nonzero, yes. However, it's rather small with modern branch
+predictors; older microarchitectures handled this less well, which
+is probably why you expect a measurable hit. It may still have
+non-negligible performance effects on some legacy architectures,
+but I would not let that hold up progress.
 
-One drawback is that oopses are harder to read because
-of the more aggressive inlining, but it's not too bad.
 
-> 
-> Disabling unit-at-a-time for i386 is definitely correct.
-> I've personally observed horrible runtime corruption bugs
-> in early 2.6 kernels when they were compiled with gcc-3.4
-> without the -fno-unit-at-a-time fix.
-
-Maybe you got a buggy gcc version. The 2.6.5 based SLES9/i386
-kernel is shipping with -funit-at-a-time compiled with a 3.3-hammer
-compiler and I am not aware of any reports of stack overflow
-(and that kernel is extremly well tested) 
-
-IMHO it should be enabled on i386 in mainline, and if some gcc version
-is determined to break it then it should be only explicitely 
-disabled for that version. With the commonly used 3.3-hammer
-compiler it seems to work fine.
-
-> 
-> x86-64 is a different architecture. It's possible its larger
-> number of registers reduces spills enough that gcc's failure
-> to merge stack slots doesn't matter.
-
-The only reports of stack overflows on x86-64 were clear programmer
-bugs (too large arrays/structures on the stack).
-
--Andi
+-- wli

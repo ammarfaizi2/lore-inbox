@@ -1,61 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292873AbSB0URY>; Wed, 27 Feb 2002 15:17:24 -0500
+	id <S292899AbSB0Uax>; Wed, 27 Feb 2002 15:30:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292928AbSB0UQ6>; Wed, 27 Feb 2002 15:16:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32012 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292929AbSB0UQr>;
-	Wed, 27 Feb 2002 15:16:47 -0500
-Message-ID: <3C7D3E5A.490D939D@zip.com.au>
-Date: Wed, 27 Feb 2002 12:15:22 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S292939AbSB0UaY>; Wed, 27 Feb 2002 15:30:24 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:55694 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292530AbSB0U3F>; Wed, 27 Feb 2002 15:29:05 -0500
+Date: Wed, 27 Feb 2002 15:32:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: artoim@phreaker.net
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Message-ID: <Pine.LNX.3.95.1020227151958.16459A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net, viro@math.psu.edu
-Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
-In-Reply-To: <3C7D374B.4621F9BA@zip.com.au>,
-		<10460000.1014833979@w-hlinder.des>,	<10460000.1014833979@w-hlinder.des> <67850000.1014834875@flay> <3C7D374B.4621F9BA@zip.com.au> <86760000.1014840118@flay>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> > inode_lock hold times are a problem for other reasons.  Leaving this
-> > unfixed makes the preepmtible kernel rather pointless....  An ideal
-> > fix would be to release inodes based on VM pressure against their backing
-> > page.  But I don't think anyone's started looking at inode_lock yet.
-> >
-> > The big one is lru_list_lock, of course.  I'll be releasing code in
-> > the next couple of days which should take that off the map.  Testing
-> > would be appreciated.
-> 
-> Seeing as people seem to be interested ... there are some big holders
-> of BKL around too - do_exit shows up badly (50ms in the data Hanna
-> posted, and I've seen that a lot before).
 
-That'll be where exit() takes down the tasks's address spaces.  
-zap_page_range().  That's a nasty one.
 
-> I've seen sync_old_buffers
-> hold the BKL for 64ms on an 8way Specweb99 run (22Gb of RAM?)
-> (though this was on an older 2.4 kernel, and might be fixed by now).
+>	Here's a sample program. Try running it and open about 2k of 
+>connections to port 5222 (you'll need ulimit -n 10000 or like that). It 
+>will segfault. Simple asm like this
 
-That will still be there - presumably it's where we walk the
-per-superblock dirty inode list.  hmm.
+   __asm__(
+	"pushl %eax \n\t"
+ 	"movl  0(%ebp), %eax \n\t"
 
-For lru_list_lock we can do an end-around by not using
-buffers at all.
+Get whatever ss:[%ebp] points to into %eax
 
-The other big one is truncate_inode_pages().  With ratcache
-it's not a contention problem, but it is a latency problem.
-I expect that we can drastically reduce the lock hold time
-there by simply snipping the wholly-truncated pages out of
-the tree, and thus privatising them so they can be disposed
-of outside any locking.
+	"cmp   $65535, %eax \n\t"
 
--
+Check to see if that was 0xffff (why should it be?)
+
+	"ja isok \n\t"
+
+	"xor  %eax, %eax \n\t"
+Get a zero.
+
+	"movl  %eax, 0(%eax) \n\t"	
+
+ ... and put it into ds:[0]
+
+Which will seg-fault of course.
+
+
+	"isok: \n\t"
+	"popl  %eax \n\t"
+   );
+
+>after each subroutine call will show you that after select() [ebp] have 
+>weird value. While this is unlikely to be a security flaw, i think this 
+>is a bug.
+
+
+You are not testing the value of EBP, but what it points to on the stack.
+Depending upon what was called, and subsequently returned from, stuff
+below the current above the current stack is undefined, residual from
+previous calls and their local data.
+
+In your asm code, for some reason, you expect SS:[EBP] to point to
+the value of 0x00010000 or greater. It could point to anything and
+be legal. If you want to test the value of EBP (and you have to do
+it within the function that has set it), you would do:
+
+	movl	%ebp, %eax
+
+Since the returned value from a function is in the %eax register, you
+could make an ASM function that returns this value at the start of
+the function you are testing, save it in a variable, then periodically
+check by calling and comparing. You will, no doubt, find that it
+will remain the same.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+

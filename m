@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315218AbSDWOEI>; Tue, 23 Apr 2002 10:04:08 -0400
+	id <S315217AbSDWOFk>; Tue, 23 Apr 2002 10:05:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315220AbSDWOEH>; Tue, 23 Apr 2002 10:04:07 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:36265 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S315218AbSDWOEE>;
-	Tue, 23 Apr 2002 10:04:04 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 23 Apr 2002 16:04:01 +0200 (MEST)
-Message-Id: <UTC200204231404.g3NE41414336.aeb@smtp.cwi.nl>
-To: dwmw2@infradead.org
-Subject: Re: Flash device IDs
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-        mdharm-usb@one-eyed-alien.net
+	id <S315220AbSDWOFk>; Tue, 23 Apr 2002 10:05:40 -0400
+Received: from jalon.able.es ([212.97.163.2]:63167 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315217AbSDWOFi>;
+	Tue, 23 Apr 2002 10:05:38 -0400
+Date: Tue, 23 Apr 2002 16:05:31 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam5
+Message-ID: <20020423140531.GC2048@werewolf.able.es>
+In-Reply-To: <Pine.LNX.4.10.10204222302220.32212-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: David Woodhouse <dwmw2@infradead.org>
 
-    >  No, I am afraid this thing doesn't let me talk to raw flash, or if it
-    > does, I have not yet discovered how.
+On 2002.04.23 Andre Hedrick wrote:
+>
+>bottom of ide-pci.c
+>
+>there is a failed test to isolate multi-function chips which carry a real
+>host inside.
+>
+>ide_scan_pcidev()
+>
+>else if (d->order_fix)
+>	d->order_fix(dev, d);
+>--
+>--
+>--
+>
+>delete the three lines after d->order_fix(dev, d);
+>
 
-    Ok... so when you issue write commands, you're pretending it's a normal
-    SCSI hard drive and issuing requests with the _logical_ block numbers?
-    You don't have to grok the SmartMedia format and issue _physical_
-    addresses on the flash, handle ECC, the block chains, etc.?
+Planning to include a 41-ide-6-promise-fix.gz in -pre7-jam6 with:
 
-It is worse. The commands are SCSI-like, but vendor-unique.
-So one has to discover the commands and the details of the
-media format. I wrote an ECC routine, and do something more
-or less random for the connection between logical and physical blocks.
-If you have ECC and LBA/PBA handling, then there is more to merge.
+--- linux/drivers/ide/ide-pci.c.org	2002-04-23 15:57:13.000000000 +0200
++++ linux/drivers/ide/ide-pci.c	2002-04-23 15:57:57.000000000 +0200
+@@ -918,9 +918,11 @@
+ 			"(uses own driver)\n", d->name);
+ 	else if (d->order_fix)
+ 		d->order_fix(dev, d);
++#if 0
+ 	else if (((dev->class >> 8) != PCI_CLASS_STORAGE_IDE) &&
+ 		 (!(PCI_FUNC(dev->devfn) & 1)))
+ 		return;
++#endif
+ 	else if (IDE_PCI_DEVID_EQ(d->devid, DEVID_UM8886A) &&
+ 		 (!(PCI_FUNC(dev->devfn) & 1)))
+ 		return;	/* UM8886A/BF pair */
 
-[Things are not quite straightforward. I think the media uses
-512+16 byte sectors, but my SCSI commands must use 512+64 byte
-sectors.][Of course 512 and 16 are variables. Don't know about 64.]
+so text stays there for reference....
 
-Andries
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam5 #1 SMP mar abr 23 01:29:38 CEST 2002 i686

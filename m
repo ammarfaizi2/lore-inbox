@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316856AbSEVE6k>; Wed, 22 May 2002 00:58:40 -0400
+	id <S316857AbSEVFBW>; Wed, 22 May 2002 01:01:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316857AbSEVE6j>; Wed, 22 May 2002 00:58:39 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:33717 "EHLO
+	id <S316859AbSEVFBV>; Wed, 22 May 2002 01:01:21 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:21688 "EHLO
 	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316856AbSEVE6j>; Wed, 22 May 2002 00:58:39 -0400
-Date: Wed, 22 May 2002 14:57:46 +1000
+	id <S316857AbSEVFBU>; Wed, 22 May 2002 01:01:20 -0400
+Date: Wed, 22 May 2002 15:01:14 +1000
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@zip.com.au>
+Cc: alan@lxorguk.ukuu.org.uk, pavel@suse.cz, linux-kernel@vger.kernel.org,
+        paulus@samba.org
 Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Message-Id: <20020522145746.69756cf5.rusty@rustcorp.com.au>
-In-Reply-To: <E17AHQw-0000Jq-00@the-village.bc.nu>
+Message-Id: <20020522150114.63a45f09.rusty@rustcorp.com.au>
+In-Reply-To: <3CEAC020.4F63A181@zip.com.au>
 X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -20,18 +21,18 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002 22:44:42 +0100 (BST)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Tue, 21 May 2002 14:46:08 -0700
+Andrew Morton <akpm@zip.com.au> wrote:
+> Pavel makes a reasonable point that copy_*_user may elect
+> to copy the data in something other than strictly ascending
+> user virtual addresses.  In which case it's not possible to return
+> a sane "how much was copied" number.
 
-> > So if you pass bad pointer to read(), why would you expect "number of
-> > bytes read" return? Its true that kernel can't simply not return
-> 
-> Because the standard says either you return the errorcode and no data
-> is transferred or for a partial I/O you return how much was done.
+If I understand Paulus correctly, PPC64 could share their optimized memcpy
+routine (ie. icache win), from which it is really hard to tell how far we got
+before we faulted.
 
-Hmm... I can't find anything like that in SuSv2: can you give a reference?
-
-And we're already violating that for the write() case.
+You then do the fixup search on the link register (ie. to find the caller).
 
 Rusty.
 -- 

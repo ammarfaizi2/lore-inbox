@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265657AbUA0UYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265673AbUA0UYJ
+	id S265769AbUA0Udx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265783AbUA0Udx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:24:09 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:54987 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S265657AbUA0UYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:24:04 -0500
-Message-ID: <4016C8B6.6070704@grupopie.com>
-Date: Tue, 27 Jan 2004 20:23:18 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: joe.korty@ccur.com
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] volatile may be needed in rwsem
-References: <20040127191155.GA12128@tsunami.ccur.com> <23376.1075231180@redhat.com> <20040127194343.GA12763@tsunami.ccur.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jan 2004 15:33:53 -0500
+Received: from ns.suse.de ([195.135.220.2]:32488 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265769AbUA0Udt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:33:49 -0500
+Date: Tue, 27 Jan 2004 21:28:53 +0100
+From: Karsten Keil <kkeil@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: ISDN CAPI (avm b1pci) doesn't work, occasionally freezes Kernel (2.6.1)
+Message-ID: <20040127202853.GA20425@pingi3.kke.suse.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <200401181746.i0IHkO2G002776@reason.gnu-hamburg> <1074468927.2722.2.camel@server> <m3r7xwqjue.fsf@reason.gnu-hamburg> <1074531587.1833.5.camel@server> <m3oet0dkti.fsf@reason.gnu-hamburg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3oet0dkti.fsf@reason.gnu-hamburg>
+User-Agent: Mutt/1.4.1i
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.4.21-166-default i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty wrote:
-
-> On Tue, Jan 27, 2004 at 07:19:40PM +0000, David Howells wrote:
+On Mon, Jan 19, 2004 at 04:23:05PM +0100, Georg C. F. Greve wrote:
+>  || On Mon, 19 Jan 2004 14:59:48 -0200
+>  || fcp <fcp@pop.co.za> wrote: 
 > 
->>>'flags' should be declared volatile as rwsem_down_failed_common() spins
->>>waiting for this to change.  Untested.
->>>
->>Is it though? Does this fix an error?
->>
->>The thing is, we make a function call inside of the loop:
->>
->>	/* wait to be given the lock */
->>	for (;;) {
->>		if (!waiter->flags)
->>			break;
->>		schedule();
->>		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
->>	}
->>
->>Which might preclude that need. I'm not entirely sure, though... it's one of
->>those compiler black magic things.
->>
->>I suppose it can't hurt...
->>
->>David
->>
+>  f> He advised me this morning that the latest i4l cvs branch kernel26
+>  f> version (old isdn system) fixes the problems we are having with
+>  f> the 2.6.1 kernel. Haven't had a chance to test this yet.
 > 
-> Hi David,
-> I misspoke.  The potentially failing spin is in __down_write and
-> __down_read in lib/rwsem-spinlock.c, not in rwsem_down_failed_common.
-> 
-> The problem is is that 'flags' is on the callee's stack and is thus
-> subject to be optimized out of the loop if the compiler is smart enough
-> to discover that it is on the stack.  Apparently gcc is not yet smart
-> enough but that doesn't mean it won't be so soon.
+> Ah, so 2.6.2 should fix the problem? Good.
 > 
 
-It seems to me that the compiler did the right thing and was smart enough, 
-because after the function did:
+I sent a big patch to Linus (against 2.6.2-rc2), you will find the patch at
+ftp://ftp.isdn4linux.de/pub/isdn4linux/kernel/v2.6.
+It fix some small problems with the CAPI2.0 implementation/AVM active cards
+and is a new I4L/HiSax implementation based on the stable 2.4 code base. 
+It's successfull tested by a handfull people and I run it with all cards
+I own (~40 different types) without outstanding problems so far.
 
-list_add_tail(&waiter.list,&sem->wait_list);
-
-it "published" the address of the structure, so the compiler can no longer 
-assume that no outside function will have access to it.
-
-So even if the compiler was extremely smart, it would have to do the same thing.
-
-If you told no one where your structure is, how could it be modified outside 
-your function, and how could you expect "waiter.flags" to be modified while 
-inside the loop anyway (even if it was volatile)?
-
-IMHO the code is correct.
+Currently untested:
+Teles PCMCIA
+Elsa PCMCIA
+some old ISA cards
 
 -- 
-Paulo Marques - www.grupopie.com
-"In a world without walls and fences who needs windows and gates?"
-
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271413AbTGXJQm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 05:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271416AbTGXJOh
+	id S271412AbTGXJQz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 05:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271414AbTGXJQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 05:14:37 -0400
-Received: from pop.gmx.net ([213.165.64.20]:31384 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S271413AbTGXJOF (ORCPT
+	Thu, 24 Jul 2003 05:16:54 -0400
+Received: from aneto.able.es ([212.97.163.22]:52424 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S271412AbTGXJQZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 05:14:05 -0400
-Date: Thu, 24 Jul 2003 11:28:50 +0200
-From: Dominik Brugger <ml.dominik83@gmx.net>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test1] ACPI slowdown
-Message-Id: <20030724112850.0e311b7a.ml.dominik83@gmx.net>
-In-Reply-To: <87el0gv3g9.fsf@deneb.enyo.de>
-References: <878yqpptez.fsf@deneb.enyo.de>
-	<20030723114421.34eb7149.dominik83@gmx.net>
-	<87el0gv3g9.fsf@deneb.enyo.de>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 24 Jul 2003 05:16:25 -0400
+Date: Thu, 24 Jul 2003 11:31:30 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Michal Semler <cijoml@volny.cz>,
+       Martin Zwickel <martin.zwickel@technotrend.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: passing my own compiler options into linux kernel compiling
+Message-ID: <20030724093130.GA8172@werewolf.able.es>
+References: <200307240916.17530.cijoml@volny.cz> <20030724100111.343d84cd.martin.zwickel@technotrend.de> <200307241050.25094.cijoml@volny.cz> <20030724095505.A28118@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030724095505.A28118@infradead.org>; from hch@infradead.org on Thu, Jul 24, 2003 at 10:55:05 +0200
+X-Mailer: Balsa 2.0.12
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jul 2003 08:33:42 +0200
-Florian Weimer <fw@deneb.enyo.de> wrote:
 
-> Could you post the output of "tail /proc/acpi/thermal_zone/THRM/*"?
-> Thanks.
+On 07.24, Christoph Hellwig wrote:
+> On Thu, Jul 24, 2003 at 10:50:25AM +0200, Michal Semler wrote:
+> > Hi,
+> > 
+> > -O4 is a feature - for example MPlayer (www.mplayerhq.hu) using it.
+> 
+> Maybe you and the mplayer folks want to take a look at gcc's "handling"
+> of -O4..
+> 
 
-$ tail /proc/acpi/thermal_zone/THRM/*
-==> /proc/acpi/thermal_zone/THRM/cooling_mode <==
-cooling mode:            active
+http://freshmeat.net/articles/view/730/
 
-==> /proc/acpi/thermal_zone/THRM/polling_frequency <==
-<polling disabled>
-
-==> /proc/acpi/thermal_zone/THRM/state <==
-state:                   ok
-
-==> /proc/acpi/thermal_zone/THRM/temperature <==
-temperature:             37 C
-
-==> /proc/acpi/thermal_zone/THRM/trip_points <==
-critical (S5):           70 C
-passive:                 70 C: tc1=4 tc2=3 tsp=60 devices=0xdff6cde8
-active[0]:               70 C: devices=0xdff64d68
+;)
 
 -- 
--Dominik Brugger
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre7-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbTH3Xga (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 19:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbTH3Xg3
+	id S262337AbTH3Xiz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 19:38:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTH3Xiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 19:36:29 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54283
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262300AbTH3XgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 19:36:01 -0400
-Date: Sat, 30 Aug 2003 16:36:02 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Sebastian Reichelt <SebastianR@gmx.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] VIA VT8231 router detection
-Message-ID: <20030830233602.GC898@matchmail.com>
-Mail-Followup-To: Sebastian Reichelt <SebastianR@gmx.de>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-References: <20030830151112.550df1a6.Sebastian@tigcc.ticalc.org> <3F50E0E6.2040907@pobox.com> <20030830201654.403f1421.SebastianR@gmx.de>
+	Sat, 30 Aug 2003 19:38:55 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:27064 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262337AbTH3Xij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 19:38:39 -0400
+Subject: Re: [PATCH] check_gcc for i386
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet>
+References: <Pine.LNX.4.44.0308301957440.20117-100000@logos.cnet>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062286661.31332.8.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030830201654.403f1421.SebastianR@gmx.de>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sun, 31 Aug 2003 00:37:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 30, 2003 at 08:16:54PM +0200, Sebastian Reichelt wrote:
-> > Well, Mr. Newbie, your patch looks fine to me :)
+On Sad, 2003-08-30 at 23:58, Marcelo Tosatti wrote:
+> >  ifdef CONFIG_MPENTIUM4
+> > -CFLAGS += -march=i686
+> > +CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
+> >  endif
+> >  
+> >  ifdef CONFIG_MK6
 > 
-> Good :-)
-> I did forget one thing, though: It's the file pci-irq.c in
-> arch/i386/kernel. Well, there are only three files with this name in
-> 2.4, but I just thought I'd mention it. ;-)
+> OK, I forgot what that does. Can you please explain in detail what 
+> check_gcc does. 
 
-Then run patch from the root of the kernel tree next time, there will be no
-confusion at all.
+Tries to use gcc with the options given and if not falls back to the
+second set suggested. So it'll try -march=pentium4 (new gcc) and 
+fall back to -march=i686
+

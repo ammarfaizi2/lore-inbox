@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAEXz5>; Fri, 5 Jan 2001 18:55:57 -0500
+	id <S131090AbRAFACc>; Fri, 5 Jan 2001 19:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129777AbRAEXzr>; Fri, 5 Jan 2001 18:55:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8719 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129387AbRAEXzj>;
-	Fri, 5 Jan 2001 18:55:39 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200101052356.f05NumX17925@flint.arm.linux.org.uk>
-Subject: Re: port of linux to Intel IXP1200
-To: fryman@cc.gatech.edu (Josh Fryman)
-Date: Fri, 5 Jan 2001 23:56:47 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A565BA5.E04635EE@cc.gatech.edu> from "Josh Fryman" at Jan 05, 2001 06:41:25 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S129777AbRAFACX>; Fri, 5 Jan 2001 19:02:23 -0500
+Received: from graft.XCF.Berkeley.EDU ([128.32.45.176]:37394 "EHLO
+	wilber.gimp.org") by vger.kernel.org with ESMTP id <S129675AbRAFACC>;
+	Fri, 5 Jan 2001 19:02:02 -0500
+Date: Fri, 5 Jan 2001 16:00:21 -0800
+From: Joshua Uziel <uzi@uzix.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: 2.4.0 on sparc64 build problems
+Message-ID: <20010105160021.A18483@gimp.org>
+In-Reply-To: <200101051721.f05HLaP21812@pincoya.inf.utfsm.cl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101051721.f05HLaP21812@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Fri, Jan 05, 2001 at 02:21:35PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josh Fryman writes:
-> does anyone out there know if linux has been successfully ported to the Intel
-> IXP1200 programmable network processor?  it's got an SA-1 core with lots of
-> frills, and there have been rumors of a linux port, but i can't find anything
-> through normal channels.
+* Horst von Brand <vonbrand@inf.utfsm.cl> [010105 09:24]:
+> Sun Ultra 1, RH 6.2 + updates (+ local hacks)
+> 
+> Building modules:
+> 
+> In drivers/sbus/audio:
+> 
+>   amd7930.c:113: ../../isdn/hisax/foreign.h: No such file or directory
+>   amd7930.c:1159: warning: function declaration isn't a prototype
+>   amd7930.c: In function `amd7930_dxmit':
+>   amd7930.c:1266: warning: assignment from incompatible pointer type
+>   amd7930.c: In function `amd7930_drecv':
+>   amd7930.c:1312: warning: assignment from incompatible pointer type
+>   amd7930.c: At top level:
+>   amd7930.c:1486: variable `amd7930_foreign_interface' has initializer but incomplete type
+>   [Ad nauseam]
+> 
+>   dbri.c:67: ../../isdn/hisax/foreign.h: No such file or directory
+>   [More or less the same junk as above]
 
-Yes there is.  Look at:
+I'm wondering why building those drivers are options at all on sparc64
+since none of the sparc64 machines (that I know of) currently available
+have anything other than the cs4231 or no audio support.
 
-http://www.netwinder.org/~urnaik/ixp1200_howto.html
+Basically, those two should be removed from the config options for
+sparc64... and in the meantime, you should build without 'em. :)
 
-for more information on getting Linux running.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

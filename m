@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268714AbRH0WWG>; Mon, 27 Aug 2001 18:22:06 -0400
+	id <S269517AbRH0WYq>; Mon, 27 Aug 2001 18:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269463AbRH0WV4>; Mon, 27 Aug 2001 18:21:56 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:36382 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S268714AbRH0WVq>; Mon, 27 Aug 2001 18:21:46 -0400
-Date: Mon, 27 Aug 2001 18:22:04 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
+	id <S269541AbRH0WYd>; Mon, 27 Aug 2001 18:24:33 -0400
+Received: from web20001.mail.yahoo.com ([216.136.225.46]:28433 "HELO
+	web20001.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269436AbRH0WXp>; Mon, 27 Aug 2001 18:23:45 -0400
+Message-ID: <20010827222401.86285.qmail@web20001.mail.yahoo.com>
+Date: Mon, 27 Aug 2001 15:24:01 -0700 (PDT)
+From: Raghava Raju <vraghava_raju@yahoo.com>
+Subject: Kernel stack...
 To: linux-kernel@vger.kernel.org
-Subject: A tester is needed with dual P3 and USB
-Message-ID: <20010827182204.A25212@devserv.devel.redhat.com>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, All:
 
-I received a complaint that a UP kernel hangs on boot if USB is
-enabled. SMP works. An SMP kernel started with "nosmp" hangs too.
-The reporter is, umm, how shall I put it... is a power user.
+ Hi 
 
-I need someone to help me to track the problem down, because
-I am curious. I heard of SMP hangs before, but a UP hang is
-a novel idea.
+   Kindly provide me with some basic insights
+  into kernel.
 
-The box is VA Linux 1000 (similar to IBM Netfinity 4000r).
-Kernel is 2.4.8-ac10.
+ 1) I want to know exact structure of kernel stack
+  and process stack in memory. It would be helpful
+  if description includes approximate memory addresses
+  of kernel stack,process stack, and different regions
+  in kernel stack and process stack. What happens 
+  if there are multiple processes.
 
-If you love me (or USB subsystem in kernel) enough to help
-me out, and you your hardware reproduces the problem,
-please reply privately.
+ 2) What about "current" data structure. Where is it
+  located  on memory. If I am not wrong it will be 
+  just below the process stack.
 
-Thanks in advance,
--- Pete
+ 3)Which variable to use to access (I am in kernel
+   code) kernel stack. In "task_struct" 
+   kernel_stack_page is not defined. Mine is 
+   "linux 2.4.2 mvista".
+
+  I am not subscribed to this list, kindly send
+  me the reply to vraghava_raju@yahoo.com .
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

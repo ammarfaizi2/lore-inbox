@@ -1,77 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280939AbRKLTGY>; Mon, 12 Nov 2001 14:06:24 -0500
+	id <S280933AbRKLTNO>; Mon, 12 Nov 2001 14:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280933AbRKLTGO>; Mon, 12 Nov 2001 14:06:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14345 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280940AbRKLTGJ> convert rfc822-to-8bit; Mon, 12 Nov 2001 14:06:09 -0500
-Date: Mon, 12 Nov 2001 11:01:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.15-pre4 - merge with Alan
-Message-ID: <Pine.LNX.4.33.0111121056260.1078-100000@penguin.transmeta.com>
+	id <S280947AbRKLTNE>; Mon, 12 Nov 2001 14:13:04 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:39689 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S280945AbRKLTMy>; Mon, 12 Nov 2001 14:12:54 -0500
+Message-ID: <3BF02B94.5E10B132@evision-ventures.com>
+Date: Mon, 12 Nov 2001 21:05:40 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id LAA18088
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Corsspatch patch-2.4.15-pre2 patch-2.4.15-pre3
+In-Reply-To: <Pine.LNX.4.33.0111120838110.15242-100000@penguin.transmeta.com> <3BF01A14.26A5F78@evision-ventures.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello out there!
 
-Ok, this kernel hopefully contains all the high-priority merges with Alan,
-which means that as far as that is concerned, I'm done with 2.4.x and
-ready to pass it on to Marcelo.
+Doing a X-patch between, ehmm, the pre-patches 2 and 3, I noticed
+that a call to sa1100_irda_init() will be added in
+patch-2.4.15-pre3 TWICE. This *may* work, but I think this isn't
+quite in the intention of the inventor :-). So Linus/Alan please 
+watch out...
 
-Which means that I'd also like people to double-check that there are no
-embarrassing missing pieces due to the merge (or other patches).
-
-Known issue: Al Viro fixed the nasty overflow with /proc/cpuinfo and
-multiple CPU's, but only for x86. So other architectures need to convert
-from the old "get_cpuinfo()" to the seq-file-based "show_cpuinfo()". The
-conversion should be pretty mindless and straightforward.. (ie use
-"seq_printf()"  instead of "sprintf()" etc - see arch/i386/kernel/setup.c
-for the example code).
-
-Changelog appeded,
-
-		Linus
-
------
-pre4:
- - Mikael Pettersson: make proc_misc happy without modules
- - Arjan van de Ven: clean up acpitable implementation ("micro-acpi")
- - Anton Altaparmakov: LDM partition code update
- - Alan Cox: final (yeah, sure) small missing pieces
- - Andrey Savochkin/Andrew Morton: eepro100 config space save/restore over suspend
- - Arjan van de Ven: remove power from pcmcia socket on card remove
- - Greg KH: USB updates
- - Neil Brown: multipath updates
- - Martin Dalecki: fix up some "asmlinkage" routine markings
-
-pre3:
- - Alan Cox: more driver merging
- - Al Viro: make ext2 group allocation more readable
-
-pre2:
- - Ivan Kokshaysky: fix alpha dec_and_lock with modules, for alpha config entry
- - Kai Germaschewski: ISDN updates
- - Jeff Garzik: network driver updates, sysv fs update
- - Kai Mäkisara: SCSI tape update
- - Alan Cox: large drivers merge
- - Nikita Danilov: reiserfs procfs information
- - Andrew Morton: ext3 merge
- - Christoph Hellwig: vxfs livelock fix
- - Trond Myklebust: NFS updates
- - Jens Axboe: cpqarray + cciss dequeue fix
- - Tim Waugh: parport_serial base_baud setting
- - Matthew Dharm: usb-storage Freecom driver fixes
- - Dave McCracken: wait4() thread group race fix
-
-pre1:
- - me: fix page flags race condition Andrea found
- - David Miller: sparc and network updates
- - various: fix loop driver that thought it was part of the VM system
- - me: teach DRM about VM_RESERVED
- - Alan Cox: more merging
-
+It's in the file linux/net/irda/irda_device.c:
+The following will be twice there after pre3
+#ifdef CONFIG_SA1100_FIR
+	sa1100_irda_init()
+#endif

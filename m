@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261598AbREOVmi>; Tue, 15 May 2001 17:42:38 -0400
+	id <S261603AbREOVs6>; Tue, 15 May 2001 17:48:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261599AbREOVm2>; Tue, 15 May 2001 17:42:28 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:29340 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261598AbREOVmS>; Tue, 15 May 2001 17:42:18 -0400
-Date: Tue, 15 May 2001 15:41:41 -0600
-Message-Id: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        torvalds@transmeta.com (Linus Torvalds),
-        neilb@cse.unsw.edu.au (Neil Brown),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        hpa@transmeta.com (H. Peter Anvin),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        viro@math.psu.edu
+	id <S261607AbREOVss>; Tue, 15 May 2001 17:48:48 -0400
+Received: from nat-hdqt.valinux.com ([198.186.202.17]:57592 "EHLO tytlal")
+	by vger.kernel.org with ESMTP id <S261603AbREOVsh>;
+	Tue, 15 May 2001 17:48:37 -0400
+Date: Tue, 15 May 2001 14:46:56 -0700
+From: Chip Salzenberg <chip@valinux.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: James Simmons <jsimmons@transvirtual.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Neil Brown <neilb@cse.unsw.edu.au>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E14zl9b-0002x9-00@the-village.bc.nu>
-In-Reply-To: <200105151931.f4FJVL830847@vindaloo.ras.ucalgary.ca>
-	<E14zl9b-0002x9-00@the-village.bc.nu>
+Message-ID: <20010515144656.J3098@valinux.com>
+In-Reply-To: <Pine.LNX.4.10.10105151028380.22038-100000@www.transvirtual.com> <Pine.GSO.4.21.0105151330480.21081-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.GSO.4.21.0105151330480.21081-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, May 15, 2001 at 01:32:23PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> > 	len = readlink ("/proc/self/3", buffer, buflen);
-> > 	if (strcmp (buffer + len - 2, "cd") != 0) {
-> > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
-> > 		exit (1);
+According to Alexander Viro:
+> On Tue, 15 May 2001, James Simmons wrote:
+> > I would use write except we use write to draw into the framebuffer. If I
+> > write to the framebuffer with that data the only thing that will happen is
+> > I will get pretty colors on my screen. 
 > 
-> And on my box cd is the cabbage dicer whoops
+> Yes. And we also use write to send data to printer. So what? Nobody makes
+> you use the same file.
 
-Actually, no, because it's guaranteed that a trailing "/cd" is a
-CD-ROM. That's the standard.
+You're talking about /dev/fb0 vs. /dev/fb0ctl, right?
 
-				Regards,
+Would that driver authors routinely used such clean designs.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+PS: No, readers, AFAIK, there is no such thing as /dev/fb0ctl.  Yet.
+-- 
+Chip Salzenberg              - a.k.a. -             <chip@valinux.com>
+ "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech

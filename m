@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbTJOEMi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 00:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTJOEMi
+	id S262068AbTJOEJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 00:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbTJOEJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 00:12:38 -0400
-Received: from mx1.blkhawk.net ([12.148.201.5]:29300 "EHLO mx1.blkhawk.net")
-	by vger.kernel.org with ESMTP id S262344AbTJOEMg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 00:12:36 -0400
-Subject: 2.6.0-test7 athlon smp network devices not found
-From: "Jason L. Nesheim" <jason@bhawk.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Blackhawk Internet Communications Inc.
-Message-Id: <1066191155.30643.16.camel@st-wrkstn>
+	Wed, 15 Oct 2003 00:09:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21182 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262068AbTJOEJi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 00:09:38 -0400
+Date: Tue, 14 Oct 2003 21:13:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, clock@twibright.com
+Subject: Re: Vortex 3c900 passing driver parameters
+Message-Id: <20031014211316.64c7eeb9.akpm@osdl.org>
+In-Reply-To: <20031014205702.140b6476.rddunlap@osdl.org>
+References: <20031014205702.140b6476.rddunlap@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 14 Oct 2003 23:12:35 -0500
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Oct 2003 04:12:35.0347 (UTC) FILETIME=[9003EE30:01C392D2]
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to have an issue, maybe a bug, with test7 on athlon smp.
+"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+>
+> Andrew Morton wrote:
+> | Karel Kulhavý <clock@twibright.com> wrote:
+> | >
+> | > Hello
+> | > 
+> | > How do I do a ether=... (kernel boot-time) equivalent of
+> | > insmod 3c59x.o options=0x201 full_duplex=1 ?
+> | 
+> | Unfortunately you cannot.  `ether=' is broken for all drivers which use the
+> | new(ish) alloc_etherdev() API.
+> | 
+> | It is due to ordering problems: the name of the interface is not known at
+> | the time of parsing the setup info and nobody has got down and worked out
+> | how to fix it.
+> 
+> Does this ordering problem apply to both 2.4.current and 2.6.0-test?
 
-The kernel is compiled for athlon with smp and acpi (acpi makes no
-difference though) and I am receiving strange errors with several
-network utils.
+Well it was a problem a year or so ago.
 
-ifconfig returns this with I execute 'ifconfig':
-
-: error fetching interface information: Device not found
-
-yet, if I run 'ifconfig eth1' or with any other interface as the
-argument I get:
-
-eth1      Link encap:Ethernet  HWaddr 00:04:75:B1:A4:47
-          inet addr:12.148.210.98  Bcast:12.255.255.255 
-Mask:255.255.255.224
-          inet6 addr: fe80::204:75ff:feb1:a447/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:10117 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:10592 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:5714965 (5.4 MiB)  TX bytes:1151861 (1.0 MiB)
-          Interrupt:19 Base address:0x2000
-
-which is the correct output.  If I configure the ip manually with
-ifconfig for the device, and set routes with 'ip', the card works fine.
-Also, dhclient and other programs give me similar errors.
-
-output of dhclient:
-
-Internet Software Consortium DHCP Client 2.0pl5
-Copyright 1995, 1996, 1997, 1998, 1999 The Internet Software Consortium.
-All rights reserved.
- 
-Please contribute if you find this software useful.
-For info, please visit http://www.isc.org/dhcp-contrib.html
- 
-Can't get interface flags for : No such device
-exiting.
-
-Adding the interface as an argument makes no difference here.
-
-Anyone have ideas what is going on?
-
-Jason L. Nesheim
+But init_netdev()'s call to netdev_boot_setup_check() looks like it
+should fix things up, so I'm not sure what's going on...
 

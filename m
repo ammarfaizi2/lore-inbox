@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261825AbTCaUPm>; Mon, 31 Mar 2003 15:15:42 -0500
+	id <S261832AbTCaU3a>; Mon, 31 Mar 2003 15:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261831AbTCaUPm>; Mon, 31 Mar 2003 15:15:42 -0500
-Received: from [213.196.40.44] ([213.196.40.44]:40350 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id <S261825AbTCaUPl>;
-	Mon, 31 Mar 2003 15:15:41 -0500
-Date: Mon, 31 Mar 2003 21:09:01 +0200 (CEST)
-From: Bas Vermeulen <bvermeul@blackstar.nl>
-To: Juan Quintela <quintela@mandrakesoft.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 3c59x gives HWaddr FF:FF:...
-In-Reply-To: <86y92xh9wt.fsf@trasno.mitica>
-Message-ID: <Pine.LNX.4.33.0303312107060.26570-100000@devel.blackstar.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261833AbTCaU3a>; Mon, 31 Mar 2003 15:29:30 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:17419 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261832AbTCaU3a>;
+	Mon, 31 Mar 2003 15:29:30 -0500
+Date: Mon, 31 Mar 2003 22:40:51 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Michael Buesch <freesoftwaredeveloper@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make menuconfig error
+Message-ID: <20030331204051.GA1673@mars.ravnborg.org>
+Mail-Followup-To: Michael Buesch <freesoftwaredeveloper@web.de>,
+	linux-kernel@vger.kernel.org
+References: <200303312134.38818.freesoftwaredeveloper@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303312134.38818.freesoftwaredeveloper@web.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Mar 2003, Juan Quintela wrote:
+On Mon, Mar 31, 2003 at 09:34:38PM +0200, Michael Buesch wrote:
+>$ make menuconfig
+> #
+> # using defaults found in .config
+> #
+Ok, it reads configuration from your old .config
 
-> In my experience, that bug is related with acpi.  In a kernel compiled
-> without acpi, the card works perfectly, in a kernel compiled with acpi
-> it depend on the phase of the moon and similar things :(
-> 
-> The driver for some reason sets too much 1.  I have one of my machines
-> conected using dhcp, and it almost never got the right address the
-> first boot (a reset _usually_ fix the problem, not always).  Some
-> times, only some bits are set in the mac address, I think that a
-> couple of times, I have got a MAC with all FF in the address.  
-> 
-> Worse still is the fact, that sometimes it is not the MAC address what
-> is afected, it is also the vendor ip/product id, that makes that the
-> driver is not recognized by the driver module.
-> 
-> I have tried both, the standard driver and the 3com "official" driver,
-> both have that problem.  I already informend Andrew Grover about the
-> problem, but he is not sure what is happening.
-> 
-> Later, Juan "wondering what sane network card's are still on the market".
+> .config:763: trying to assign nonexistent symbol INTEL_RNG
 
-I've never had too many problems with one of the cheapest around,
-a realtek 8139. Not sure if you want to use them in a server, but
-in most of my desktops they work great.
+Your old configuration assigned a value to INTEL_RNG, that symbol
+seems to have disappered in the later kernels.
+So actually no bug, just a report about an inconsistency in your
+old configuration.
 
-Bas Vermeulen
-
--- 
-"God, root, what is difference?" 
-	-- Pitr, User Friendly
-
-"God is more forgiving." 
-	-- Dave Aronson
-
+	Sam

@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264876AbUFAESg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264858AbUFAETp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264876AbUFAESg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 00:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUFAESg
+	id S264858AbUFAETp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 00:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUFAETp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 00:18:36 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:26576 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S264876AbUFAERr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 00:17:47 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Paul Serice <paul@serice.net>
-Date: Tue, 1 Jun 2004 14:17:40 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16572.868.477203.352122@cse.unsw.edu.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] iso9660 inodes beyond 4GB
-In-Reply-To: message from Paul Serice on Monday May 31
-References: <40BB714B.8050504@serice.net>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Tue, 1 Jun 2004 00:19:45 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:17876 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S264858AbUFAETc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 00:19:32 -0400
+Date: Tue, 1 Jun 2004 01:16:04 -0300
+From: Guido Guenther <agx@sigxcpu.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: [Patch]: Fix rivafb's OF parsing
+Message-ID: <20040601041604.GA2344@bogon.ms20.nix>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday May 31, paul@serice.net wrote:
-> This is my third attempt to patch the isofs code.  It is a completely
-> different patch from the previous two.  I do not think there are any
-> trade-offs with this patch.
-snip
-> 
-> Lastly, the current code uses the default export_operations to handle
-> accessing the file system through NFS.  The problem with this is that
-> the default NFS operations assume that iget() works which is no longer
-> the case because of the necessary switch to iget5_locked().  So, I had
-> to implement the NFS operations too.
-> 
-> I did not, however, implement the NFS get_parent() method.  So, the
-> default method which just returns an error is used.  This is not a
-> reduction in functionality because the current code also uses the
-> default method.  If someone can explain what I need to do to trigger
-> this error, I will gladly try to implement the method.
-> 
 
-The easiest way to trigger the error is:
-  export the filesystem and mount it on some client.
-  On the client, cd into some subdirectory.
-  On the server, unexport, unmount, remount, reexport
-    (i.e. simulate a reboot).
-  On the client "ls -l"
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-That should cause the server to try to call get_parent to find the
-path back up to the root of the filesystem.
+Hi,
+the attached patch fixes the EDID parsing for PPC on rivafb. It actually
+finds the EDID info in the OF Tree now. I grabbed this from BenHs Tree as
+of 2.6.5-rc3. The current code has no chance to work since it doesn't
+walk the device tree.
+This helps rivafb on PPC at least a bit further...
+Cheers,
+ -- Guido
 
-A quick glance at the rest of the export related code suggests that it
-is all ok.  
+signed-off-by: Guido Günther <agx@sigxpu.org>
 
-NeilBrown
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="revert-rivafb-edid-changes.diff"
+
+--- ../linux-2.6.7-rc2.orig/drivers/video/riva/fbdev.c	2004-05-30 11:40:32.000000000 -0300
++++ drivers/video/riva/fbdev.c	2004-06-01 00:57:37.060599712 -0300
+@@ -1620,14 +1632,27 @@
+ 	struct riva_par *par = (struct riva_par *) info->par;
+ 	struct device_node *dp;
+ 	unsigned char *pedid = NULL;
++        unsigned char *disptype = NULL;
++        static char *propnames[] = {
++        	"DFP,EDID", "LCD,EDID", "EDID", "EDID1", "EDID,B", "EDID,A", NULL };
++        int i;  
+ 
+ 	dp = pci_device_to_OF_node(pd);
+-	pedid = (unsigned char *)get_property(dp, "EDID,B", 0);
+-
+-	if (pedid) {
++        for (; dp != NULL; dp = dp->child) {
++               	disptype = (unsigned char *)get_property(dp, "display-type", NULL);
++                if (disptype == NULL)
++                	continue;
++                if (strncmp(disptype, "LCD", 3) != 0)
++                	continue;
++                for (i = 0; propnames[i] != NULL; ++i) {
++                        pedid = (unsigned char *)
++                                get_property(dp, propnames[i], NULL);
++                        if (pedid != NULL) {
+ 		par->EDID = pedid;
+ 		return 1;
+-	} else
++                        }
++                }
++        }
+ 		return 0;
+ }
+ #endif /* CONFIG_PPC_OF */
+
+--Dxnq1zWXvFF0Q93v--

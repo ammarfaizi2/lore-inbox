@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278098AbRJRTgL>; Thu, 18 Oct 2001 15:36:11 -0400
+	id <S278099AbRJRThl>; Thu, 18 Oct 2001 15:37:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278099AbRJRTgB>; Thu, 18 Oct 2001 15:36:01 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:27654 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S278098AbRJRTfv>; Thu, 18 Oct 2001 15:35:51 -0400
-Date: Thu, 18 Oct 2001 15:36:21 -0400
-Message-Id: <200110181936.f9IJaLF06832@deathstar.prodigy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM test on 2.4.13-pre3aa1 (compared to 2.4.12-aa1 and 2.4.13-pre2aa1)
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <20011017040907.A2380@athlon.random>
-Organization: TMR Associates, Schenectady NY
-From: davidsen@tmr.com (bill davidsen)
+	id <S278100AbRJRThb>; Thu, 18 Oct 2001 15:37:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:2312 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278099AbRJRThN>; Thu, 18 Oct 2001 15:37:13 -0400
+Date: Thu, 18 Oct 2001 16:16:06 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fork() failing
+In-Reply-To: <20011018.122525.82054118.davem@redhat.com>
+Message-ID: <Pine.LNX.4.21.0110181609360.12383-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011017040907.A2380@athlon.random> andrea@suse.de wrote:
->On Wed, Oct 17, 2001 at 09:32:12AM +0800, Beau Kuiper wrote:
 
->> Swapping too much probably has a lot to do with a particular hard drive
->> and its performace. Is there any way of adding a configurable option (via
->> sysctl) to allow the adminstrators to tune how aggressively the kernel
->> swaps out data/vs throwing out the disk cache (so if it is set to
->> agressive, the kernel will try hard to make sure to use swap to free up
->> memory, or if it is set to conservative it will try to free disk cache (to
->> a limit) instead of swapping stuff out to free memory)
->
->I could add a sysctl to control that. In short the change consists of
->making the DEF_PRIORITY in mm/vmscan.c a variable rather than a
->preprocessor #define. That's the "ratio" number I was talking about in
->the last email to Rik, and if you read ac/mm/vmscan.c you'll find it
->there too indeed.
 
-I think that would give people a sense of control.
+On Thu, 18 Oct 2001, David S. Miller wrote:
 
->That's basically the only number that I left in the code, everything
->else should be completly dynamic behaviour. Anyways also this number
->isn't critical, as said it shouldn't make an huge difference anyways,
->but yes it could be tunable.
->
->However one of the reasons I didn't do that I still believe the vm
->should be autotuning and provide behaviour with concepts, not with
->random tweaking. But I cannot imagine at the moment how to make even
->such fixed number to go away :), so at the moment it could make some
->sense to make it a sysctl.
+>    From: Marcelo Tosatti <marcelo@conectiva.com.br>
+>    Date: Thu, 18 Oct 2001 15:04:15 -0200 (BRST)
+>    
+>    As you know, we currently allow 1-order allocations to fail easily. 
+>    
+>    However, there is one special case of 1-order allocations which cannot
+>    fail: fork.
+>    
+>    Here is the tested patch against pre4.
+> 
+> There are also some platforms using 1-order allocations
+> for page tables as well.
+> 
+> But I don't know if I agree with this special casing.
+> Why not just put something into the GFP flag bits
+> which distinguishes between high order allocations which
+> are "critical" and others which are "don't try too hard".
 
-  I thing it's desirable for VM to run well on autopilot for as many
-cases as possible, because Linux is going to be used by some very
-non-technical users. However, it is also strong in small machines, old
-PCs, embedded uses, etc. These would benefit from tuning the ratio of
-swap and buffer use, and also from being able to specify having a large
-available page pool, for applications which suddenly need memory which
-is a large percentage of physical memory.
+Look at the comment on my patch. I've suggested that :)
 
-| The probe of the cache that allows me to swapouts before we really
-| failed shrinking the cache doesn't sounds like random tweaking either to
-| me (maybe I'm biased 8), it instead allows to free memory and swapout at
-| the very same time, and this seems beneficial.
+I've added a __GFP_FAIL flag back in 2.4-ac something days exactly for
+that purpose. I've ported the same code to the XFS tree so they could try
+to "lazily" allocate (big) structures to build page clusters.
 
-  If it can work well in common cases for average users, and still allow
-tuning by people who have special needs, I'm all for it. I'm sure you
-understand the problems with self-tuning VM as well as anyone, I just
-want to suggest that for uncommon situations you provide a way for
-knowledgable users to handle special situations which need info not
-available to the VM otherwise.
+However, there is one nasty problem with it: How we can define "don't try
+too hard" ?
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+Lets say you want to use the __GFP_FAIL flag when trying to allocate data
+to do more readahead. If it fails too easily, we're never going to do
+enough readahead.
+
+What I'm trying to say is that we would need levels of "don't try too
+hard" to have a nice scheme, and thats not simple.
+
+See my point? 
+
+> BTW, such a scheme could be useful for page cache pre-fetching.
+
+It could be used in a _LOT_ of performance critical parts of the kernel,
+indeed.
+
+> If you use a high order allocation, it is more likely that all
+> of the pages in that prefetch will fit into the same kernel TLB
+> mapping.  We could use a GFP_NONCRITICAL for something like this.
+
+

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289084AbSAIXtF>; Wed, 9 Jan 2002 18:49:05 -0500
+	id <S289086AbSAIXzF>; Wed, 9 Jan 2002 18:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289086AbSAIXs4>; Wed, 9 Jan 2002 18:48:56 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:9607 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S289084AbSAIXsp>;
-	Wed, 9 Jan 2002 18:48:45 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201092348.g09NmHg25671@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Wed, 9 Jan 2002 15:48:17 -0800 (PST)
-Cc: pbadari@us.ibm.com (Badari Pulavarty), bcrl@redhat.com (Benjamin LaHaise),
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, andrea@suse.de
-In-Reply-To: <E16ORfZ-0002Zu-00@the-village.bc.nu> from "Alan Cox" at Jan 09, 2002 09:58:05 PM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S289088AbSAIXyz>; Wed, 9 Jan 2002 18:54:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33291 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289086AbSAIXyn>; Wed, 9 Jan 2002 18:54:43 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: initramfs programs (was [RFC] klibc requirements)
+Date: 9 Jan 2002 15:54:27 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a1il7j$hjl$1@cesium.transmeta.com>
+In-Reply-To: <20020109174637.A1742@thyrsus.com> <Pine.LNX.4.33.0201092325280.31502-100000@sphinx.mythic-beasts.com> <20020109182902.A2804@thyrsus.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-
+Followup to:  <20020109182902.A2804@thyrsus.com>
+By author:    "Eric S. Raymond" <esr@thyrsus.com>
+In newsgroup: linux.dev.kernel
 > 
-> > If it is not reasonable to fix all the brokern drivers,
-> > how about making this configurable (to do variable size IO) ?
-> > Do you favour this solution ?
+> OK.  One more time.
 > 
-> We have hardware that requires aligned power of two for writes (ie 4K on
-> 4K boundaries only). The 3ware is one example Jeff Merkey found
+> The autoconfigurator is *not* mean to be run at boot time, or as root.
+> 
+> It is intended to be run by ordinary users, after system boot time.
+> This is so they can configure and experimentally build kernels without
+> incurring the "oops..." risks of going root.
+> 
+> Therefore, the above 'solution' is not acceptable.
 > 
 
-emm.. come to think of it, I can easily (2 line) change my patch to
-do 512 byte buffer heads till we get PAGE alignment and then start
-issuing 4K IO buffer heads. What do you think ? will this work ? 
+If /var/run/dmidata [or whatever you call it] isn't available, put an
+error box on the screen and say "complain to your distribution
+vendor."
 
-And also, do you know any low level drivers Ben mentioning:
+End of story.
 
-> low level drivers, some of which assume that 
-> all buffer heads within a request have the same block size.
-
-Is it still true for 2.4 ? 
-
-Regards,
-Badari
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

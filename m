@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280907AbRK1W1x>; Wed, 28 Nov 2001 17:27:53 -0500
+	id <S280838AbRK1Wfn>; Wed, 28 Nov 2001 17:35:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280909AbRK1W1m>; Wed, 28 Nov 2001 17:27:42 -0500
-Received: from mail.mojomofo.com ([208.248.233.19]:16646 "EHLO mojomofo.com")
-	by vger.kernel.org with ESMTP id <S280907AbRK1W1a>;
-	Wed, 28 Nov 2001 17:27:30 -0500
-Message-ID: <01c201c1785b$dbdf0df0$58dc703f@bnscorp.com>
-From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1697I9-0005IQ-00@the-village.bc.nu> <1006973117.11751.15.camel@thanatos>
-Subject: Re: PnP BIOS driver -- Can it go in?
-Date: Wed, 28 Nov 2001 17:27:22 -0500
+	id <S280801AbRK1Wfd>; Wed, 28 Nov 2001 17:35:33 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:24729 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S280838AbRK1WfY> convert rfc822-to-8bit; Wed, 28 Nov 2001 17:35:24 -0500
+Date: Wed, 28 Nov 2001 19:21:13 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@ufies.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2 small patches against 2.4.15-pre6 (sym2 + email change)
+ (fwd)
+In-Reply-To: <20011127233858.B2842@online.fr>
+Message-ID: <20011128191806.F2255-100000@gerard>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Submit it to Linus.
-> Linus and Marcelo: Would either of you accept a patch to add
-> the pnpbios driver with /proc interface, so we can use lspnp
-> and setpnp to control how PnP BIOS configures devices?
 
-[AOL mode on]
-Me too. It makes configuration of my Thinkpad 600e's much more tolerable and
-sane.
-[/AOL]
 
+On Tue, 27 Nov 2001, christophe barbé wrote:
+
+>
+> On Tue, Nov 27, 2001 at 07:46:13PM +0100, Gérard Roudier wrote:
+> >
+> > By the way, I missed the postings that made you the maintainer of 2.4
+> > kernel neither saw any comments from Alan about. I am sure that you will
+> > do the best you can and will do a very good work, but I feel a bit
+> > frustrated not to know the reasons of this decision. If you can point me
+> > to the corresponding articles, I will be very interested in.
+>
+> This link should be fine for you :
+>
+> http://advogato.org/article/370.html
+
+Thanks a lot.
+It is exactly the kind of article I was looking for.
+
+  Gérard.
 

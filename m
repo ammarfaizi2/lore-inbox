@@ -1,111 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269648AbUIRWDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268162AbUIRWMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269648AbUIRWDj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 18:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269650AbUIRWDi
+	id S268162AbUIRWMV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 18:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268216AbUIRWMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 18:03:38 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:12536 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S269648AbUIRWDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 18:03:34 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Torben Mathiasen <device@lanana.org>
-Subject: [Patch][RFC] conflicting device major numbers in devices.txt
-Date: Sun, 19 Sep 2004 00:03:30 +0200
-User-Agent: KMail/1.7
-Cc: john.cagle@hp.com
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sat, 18 Sep 2004 18:12:21 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:57666 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268162AbUIRWMS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 18:12:18 -0400
+Message-ID: <9e47339104091815125ef78738@mail.gmail.com>
+Date: Sat, 18 Sep 2004 18:12:17 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Mike Mestnik <cheako911@yahoo.com>
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+Cc: dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040918195807.18874.qmail@web11906.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409190003.31177.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+References: <9e47339104091811431fb44254@mail.gmail.com>
+	 <20040918195807.18874.qmail@web11906.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Sat, 18 Sep 2004 12:58:07 -0700 (PDT), Mike Mestnik
+<cheako911@yahoo.com> wrote:
+> This is intersting...
+> I'd like to know how you plan to use VCs?  That is more then one tty
+> sharing the same monitor.  I'd also like to see VCs able to change modes
+> while not being active, thought I can't imagin how one would plan todo
+> this  /wo blocking.  I don't see any good reason why it can't be an ioctl,
+> you can have the same exe/bin/app handle BOTH the user and root parts of
+> the mode change.  This way it can keep a cache of things, like modes that
+> will currently not be valid.
 
-some month ago a change to Documentation/devices.txt was submitted by John 
-Cagle. 
+VCs should be dealt with at a higher layer. This higher layer would
+track what mode is on each virtual console and set it back after
+console swap. The VC code would provide it's own sysfs mode attribute
+in the VC's sysfs entry. A VC layer may suppress direct access to the
+head specific mode attribute. This brings up a question, how do I know
+which sysfs VC entry corresponds to the one I'm logged into?
 
-http://linux.bkbits.net:8080/linux-2.6/cset%4040586a32fpYGPUC8ysFeU7GIfmmdUA
+I'm trying to allow for a user space VC implementation at some point
+in the future so I don't want to build assumptions about a kernel
+space VC implementation into the code.
 
-The patch changed the major number of the s/390 dasd devices from 94 to 95. 
-As you can see in include/major.h and drivers/s390/block/dasd.c the change 
-to the documentation was bogus. The dasd device driver was using and will 
-be using major number 94. 
+The sysfs scheme has the advantage that there is no special user
+command required. You just use echo or cp to set the mode.
 
-Unfortunately, the "Inverse NAND Flash Translation Layer", which was added 
-somewhen during 2.5 now uses the same major number.
+I'm still undecided if there needs to be a root priv daemon caching
+the EDID and polling for a monitor change. EDID can be regenerated on
+each request to change mode but it takes a few seconds. The root priv
+daemon will dynamically link to card specific libraries. Initially I'm
+going to add the functions to the mesa libraries but they may get
+broken out later.
 
-I attached a patch to restore the old state but I am not sure, how to deal 
-with the inftla driver. 
+> There is another thing I can't see.  Why can't the module for the drm
+> create fb[0-9]* devices, one for each monitor?  This would seam to solve
+> the problem with having another app and ioctl(API).
 
+The DRM driver I'm working on already creates one DRM device for each
+head. Doing this also creates a sysfs entry for each head too. Each
+head has it's own mode/modes attributes.
 
-Patch to restore the old state
+Another item is merged fb. Initially heads will be unowned. Logging
+into a head makes you the owner. If you ask for the modes available on
+your head the list will also contain merged fb mode. If you set a
+merged fb mode, the login process on the secondary screen needs to be
+killed. If some one is logged into the secondary head merged fb modes
+won't be in the list. This scheme has the nice side effect of making
+all heads equal, there is no separate controlling device for the card.
 
-Signed-of-by: Christian Borntraeger <linux-kernel@borntraeger.net>
-
--------------
-
-diff -ur linux-bk/Documentation/devices.txt 
-linux-dev/Documentation/devices.txt
---- a/Documentation/devices.txt 2004-09-18 23:20:38.000000000 +0200
-+++ b/Documentation/devices.txt 2004-09-18 23:28:48.000000000 +0200
-@@ -1683,11 +1683,16 @@
-     1 = /dev/dcxx1 Second capture card
-       ...
- 
-- 94 block Inverse NAND Flash Translation Layer
--    0 = /dev/inftla First INFTL layer
--   16 = /dev/inftlb Second INFTL layer
-+ 94 block IBM S/390 DASD block storage
-+    0 = /dev/dasda First DASD device, major
-+    1 = /dev/dasda1 First DASD device, block 1
-+    2 = /dev/dasda2 First DASD device, block 2
-+    3 = /dev/dasda3 First DASD device, block 3
-+    4 = /dev/dasdb Second DASD device, major
-+    5 = /dev/dasdb1 Second DASD device, block 1
-+    6 = /dev/dasdb2 Second DASD device, block 2
-+    7 = /dev/dasdb3 Second DASD device, block 3
-       ...
--  240 = /dev/inftlp 16th INTFL layer
- 
-  95 char IP filter
-     0 = /dev/ipl  Filter control device/log file
-@@ -1696,15 +1701,9 @@
-     3 = /dev/ipauth Authentication control device/log file
-       ...  
- 
-- 95 block IBM S/390 DASD block storage
--    0 = /dev/dasd0 First DASD device, major
--    1 = /dev/dasd0a First DASD device, block 1
--    2 = /dev/dasd0b First DASD device, block 2
--    3 = /dev/dasd0c First DASD device, block 3
--    4 = /dev/dasd1 Second DASD device, major
--    5 = /dev/dasd1a Second DASD device, block 1
--    6 = /dev/dasd1b Second DASD device, block 2
--    7 = /dev/dasd1c Second DASD device, block 3
-+ 95 block IBM S/390 VM/ESA minidisk
-+    0 = /dev/msd0  First VM/ESA minidisk
-+    1 = /dev/msd1  Second VM/ESA minidisk
-       ...
- 
-  96 char Parallel port ATAPI tape devices
-@@ -1715,11 +1714,6 @@
-   129 = /dev/npt1  Second p.p. ATAPI tape, no rewind
-       ...
- 
-- 96 block IBM S/390 VM/ESA minidisk
--    0 = /dev/msd0  First VM/ESA minidisk
--    1 = /dev/msd1  Second VM/ESA minidisk
--      ...
--
-  97 char Parallel port generic ATAPI interface
-     0 = /dev/pg0  First parallel port ATAPI device
-     1 = /dev/pg1  Second parallel port ATAPI device
-
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbUDPQFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 12:05:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbUDPQFa
+	id S263284AbUDPQJV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 12:09:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUDPQJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 12:05:30 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:62728 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S263281AbUDPQFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 12:05:18 -0400
-Message-ID: <4080047E.9050804@techsource.com>
-Date: Fri, 16 Apr 2004 12:06:22 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Felix von Leitner <felix-kernel@fefe.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: radeonfb broken
-References: <20040415202523.GA17316@codeblau.de>	 <407EFB08.6050307@techsource.com> <1082079792.2499.229.camel@gaston>
-In-Reply-To: <1082079792.2499.229.camel@gaston>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 16 Apr 2004 12:09:21 -0400
+Received: from mproxy.gmail.com ([216.239.56.247]:23754 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S263284AbUDPQJS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 12:09:18 -0400
+Message-ID: <73979326.58EE2AD2@mail.gmail.com>
+Date: Fri, 16 Apr 2004 09:09:14 -0700
+From: Ross Biro <ross.biro@gmail.com>
+To: root@chaos.analogic.com
+Subject: Re: Kernel writes to RAM it doesn't own on 2.4.24
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.53.0404161150450.542@chaos>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mem= isn't there to tell the kernel what ram it owns and what ram it
+doesn't own.  It's there to tell the kernel what ram is in the system.
+ Since you told the system it only has 500m, it assumes the rest of
+the 3.5G of address space is available for things like memory mapped
+i/o.  If you cat /proc/iomem, you'll probably see something has
+reserved the memory range in question.
 
+I added a hack to make the kernel assume the greater of the mem= and
+what is passed to in from the BIOS via the e820 maps is where the
+unused address space starts.  It seems to eliminate such problems.
 
-Benjamin Herrenschmidt wrote:
->>What annoys me most about the Radeon driver is the off-by-one error in 
->>the bmove routine.  Whenever text is copied to the right or down, it 
->>gets positioned incorrectly.  I posted the fix, but no one paid attention.
+    Ross
+
+On Fri, 16 Apr 2004 11:55:28 -0400 (EDT), Richard B. Johnson
+<root@chaos.analogic.com> wrote:
 > 
 > 
-> Mayb it was just "missed" in the flow of hundreds of mails that go
-> through this list. Can you re-sent it to me, and also precise which
-> kernel version it applies to ?
+> Hello again,
 > 
-> Ben.
-
-
-BTW, now that we're on the topic of Radeon, could someone tell me how to 
-tell the kernel the default resolution to use when initializing the 
-console?
-
-When using a CRT, it defaults to 640x480.  When I use my Planar PQ191 
-19" 1280x1024 monitor, it defaults to 1024x768.  I want it to default to 
-1280x1024.  There's a tool, fbset or something like that, which I can 
-use AFTER bootup, but trying to put that into init causes all sorts of 
-conflicts.  I need to be able to tell the kernel, either at compile time 
-or on the boot command line.
-
-
-Moving off topic, my cries for help from the XFree86 people also seem to 
-have gotten lost in the flow of hundreds of usenet messages.  Try as I 
-might, I cannot seem to get XFree86 to talk to my monitor at anything 
-other than 60Hz.  Even though LCD monitors have a persistent image, 
-increasing the frame rate CAN reduce motion blur slightly.
-
-
-Thanks.
-
+> If I start a system that has 1 Gb of memory with mem=500m,
+> the value of the kernel's num_physpages is 0x20000 as would
+> be expected. If I multiply that by PAGE_SIZE, I get 0x20000000,
+> also as expected. If I observe that memory region, I note
+> that somebody has written something there!
+> 
+> This is not good. The kernel touches RAM it doesn't own. I have
+> booted the system with only the internal floppy controller
+> and no other modules installed. I see the same thing.
+> 
+> Script started on Fri Apr 16 11:33:39 2004
+> # monitor
+>                   TMD Platinum(tm) Control System Version 2.0
+>                  Copyright(c) 1999-2003, Analogic Corporation
+> 
+>   Enter "help" for commands
+> 
+> PLATINUM> dump=20000000
+> 20000000  78 56 34 12 21 43 65 87-FF FF FF FF FF FF FF FF   xV4.!Ce.........
+> 20000010  FF FF FF FF FF FF FF FD-FF FF FF FF FF FF FF FF   ................
+> 20000020  FF FF FF FF FF FE FF FF-FF FF FE FF FF FF FF FF   ................
+> [SNIPPED...]
+> 
+> My temporary work around for the kernel's destroying a
+> precious DMA buffer is to start one page higher. However,
+> whomever is writing to that RAM is likely writing other
+> places it doesn't belong also. This could lead to some
+> very interesting bugs.
+> 
+> Note that the value written there is 0x12345678, twice, once
+> in little endian and another in swap-nibble big endian, like
+> a mirror. This is evil.
+> 
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.24 on an i686 machine (5596.77 BogoMips).
+>             Note 96.31% of all statistics are fiction.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

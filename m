@@ -1,88 +1,778 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVCIUZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVCIUbC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbVCIUZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 15:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVCIUYn
+	id S262417AbVCIUbC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 15:31:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbVCIUaf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 15:24:43 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:1437 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262153AbVCIUNp (ORCPT
+	Wed, 9 Mar 2005 15:30:35 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:63900 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262298AbVCIUNg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 15:13:45 -0500
-Date: Wed, 9 Mar 2005 12:13:44 -0800 (PST)
+	Wed, 9 Mar 2005 15:13:36 -0500
+Date: Wed, 9 Mar 2005 12:13:34 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-ia64@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
-Message-Id: <20050309201344.29721.26698.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20050309201334.29721.30516.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20050309201324.29721.28956.sendpatchset@schroedinger.engr.sgi.com>
 References: <20050309201324.29721.28956.sendpatchset@schroedinger.engr.sgi.com>
-Subject: Page Fault Scalability patch V19 [4/4]: Drop use of page_table_lock in do_anonymous_page
+Subject: Page Fault Scalability patch V19 [2/4]: Abstract mm_struct counter operations
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do not use the page_table_lock in do_anonymous_page. This will significantly
-increase the parallelism in the page fault handler in SMP systems. The patch
-also modifies the definitions of _mm_counter functions so that rss and anon_rss
-become atomic.
+This patch extracts all the operations on rss into definitions in 
+include/linux/sched.h. All rss operations are performed through
+the following three macros:
+
+get_mm_counter(mm, member)		-> Obtain the value of a counter
+set_mm_counter(mm, member, value)	-> Set the value of a counter
+update_mm_counter(mm, member, value)	-> Add a value to a counter
+
+The simple definitions provided in this patch result in no change to
+to the generated code. 
+
+With this patch it becomes easier to add new counters and it is possible
+to redefine the method of counter handling (f.e. the page fault scalability
+patches may want to use atomic operations or split rss).
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.11/mm/memory.c
+Index: linux-2.6.10/include/linux/sched.h
 ===================================================================
---- linux-2.6.11.orig/mm/memory.c	2005-03-09 10:43:28.000000000 -0800
-+++ linux-2.6.11/mm/memory.c	2005-03-09 10:43:29.000000000 -0800
-@@ -1825,12 +1825,12 @@ do_anonymous_page(struct mm_struct *mm, 
- 						 vma->vm_page_prot)),
- 			      vma);
- 
--	spin_lock(&mm->page_table_lock);
-+	page_table_atomic_start(mm);
- 	
- 	if (!ptep_cmpxchg(page_table, orig_entry, entry)) {
- 		pte_unmap(page_table);
- 		page_cache_release(page);
--		spin_unlock(&mm->page_table_lock);
-+		page_table_atomic_stop(mm);
- 		inc_page_state(cmpxchg_fail_anon_write);
- 		return VM_FAULT_MINOR;
- 	}
-@@ -1848,7 +1848,7 @@ do_anonymous_page(struct mm_struct *mm, 
- 	SetPageReferenced(page);
- 	update_mmu_cache(vma, addr, entry); 
- 	pte_unmap(page_table);
--	spin_unlock(&mm->page_table_lock);
-+	page_table_atomic_stop(mm);
- 
- 	return VM_FAULT_MINOR;
- }
-Index: linux-2.6.11/include/linux/sched.h
-===================================================================
---- linux-2.6.11.orig/include/linux/sched.h	2005-03-09 10:43:26.000000000 -0800
-+++ linux-2.6.11/include/linux/sched.h	2005-03-09 10:43:29.000000000 -0800
-@@ -203,10 +203,26 @@ arch_get_unmapped_area_topdown(struct fi
+--- linux-2.6.10.orig/include/linux/sched.h	2005-02-24 19:41:49.000000000 -0800
++++ linux-2.6.10/include/linux/sched.h	2005-02-24 19:42:17.000000000 -0800
+@@ -203,6 +203,10 @@ arch_get_unmapped_area_topdown(struct fi
  extern void arch_unmap_area(struct vm_area_struct *area);
  extern void arch_unmap_area_topdown(struct vm_area_struct *area);
  
-+#ifdef CONFIG_ATOMIC_TABLE_OPS
-+/*
-+ * Atomic page table operations require that the counters are also
-+ * incremented atomically
-+*/
-+#define set_mm_counter(mm, member, value) atomic_set(&(mm)->member, value)
-+#define get_mm_counter(mm, member) ((unsigned long)atomic_read(&(mm)->member))
-+#define update_mm_counter(mm, member, value) atomic_add(value, &(mm)->member)
-+#define MM_COUNTER_T atomic_t
-+
-+#else
-+/*
-+ * No atomic page table operations. Counters are protected by
-+ * the page table lock 
-+ */
- #define set_mm_counter(mm, member, value) (mm)->member = (value)
- #define get_mm_counter(mm, member) ((mm)->member)
- #define update_mm_counter(mm, member, value) (mm)->member += (value)
- #define MM_COUNTER_T unsigned long
-+#endif
++#define set_mm_counter(mm, member, value) (mm)->member = (value)
++#define get_mm_counter(mm, member) ((mm)->member)
++#define update_mm_counter(mm, member, value) (mm)->member += (value)
++#define MM_COUNTER_T unsigned long
  
  struct mm_struct {
  	struct vm_area_struct * mmap;		/* list of VMAs */
+@@ -219,7 +223,7 @@ struct mm_struct {
+ 	atomic_t mm_count;			/* How many references to "struct mm_struct" (users count as 1) */
+ 	int map_count;				/* number of VMAs */
+ 	struct rw_semaphore mmap_sem;
+-	spinlock_t page_table_lock;		/* Protects page tables, mm->rss, mm->anon_rss */
++	spinlock_t page_table_lock;		/* Protects page tables and some counters */
+ 
+ 	struct list_head mmlist;		/* List of maybe swapped mm's.  These are globally strung
+ 						 * together off init_mm.mmlist, and are protected
+@@ -229,9 +233,13 @@ struct mm_struct {
+ 	unsigned long start_code, end_code, start_data, end_data;
+ 	unsigned long start_brk, brk, start_stack;
+ 	unsigned long arg_start, arg_end, env_start, env_end;
+-	unsigned long rss, anon_rss, total_vm, locked_vm, shared_vm;
++	unsigned long total_vm, locked_vm, shared_vm;
+ 	unsigned long exec_vm, stack_vm, reserved_vm, def_flags, nr_ptes;
+ 
++	/* Special counters protected by the page_table_lock */
++	MM_COUNTER_T rss;
++	MM_COUNTER_T anon_rss;
++
+ 	unsigned long saved_auxv[42]; /* for /proc/PID/auxv */
+ 
+ 	unsigned dumpable:1;
+Index: linux-2.6.10/mm/memory.c
+===================================================================
+--- linux-2.6.10.orig/mm/memory.c	2005-02-24 19:42:12.000000000 -0800
++++ linux-2.6.10/mm/memory.c	2005-02-24 19:42:17.000000000 -0800
+@@ -313,9 +313,9 @@ copy_one_pte(struct mm_struct *dst_mm,  
+ 		pte = pte_mkclean(pte);
+ 	pte = pte_mkold(pte);
+ 	get_page(page);
+-	dst_mm->rss++;
++	update_mm_counter(dst_mm, rss, 1);
+ 	if (PageAnon(page))
+-		dst_mm->anon_rss++;
++		update_mm_counter(dst_mm, anon_rss, 1);
+ 	set_pte(dst_pte, pte);
+ 	page_dup_rmap(page);
+ }
+@@ -517,7 +517,7 @@ static void zap_pte_range(struct mmu_gat
+ 			if (pte_dirty(pte))
+ 				set_page_dirty(page);
+ 			if (PageAnon(page))
+-				tlb->mm->anon_rss--;
++				update_mm_counter(tlb->mm, anon_rss, -1);
+ 			else if (pte_young(pte))
+ 				mark_page_accessed(page);
+ 			tlb->freed++;
+@@ -1340,13 +1340,14 @@ static int do_wp_page(struct mm_struct *
+ 	spin_lock(&mm->page_table_lock);
+ 	page_table = pte_offset_map(pmd, address);
+ 	if (likely(pte_same(*page_table, pte))) {
+-		if (PageAnon(old_page))
+-			mm->anon_rss--;
++		if (PageAnon(old_page)) 
++			update_mm_counter(mm, anon_rss, -1);
+ 		if (PageReserved(old_page)) {
+-			++mm->rss;
++			update_mm_counter(mm, rss, 1);
+ 			acct_update_integrals();
+ 			update_mem_hiwater();
+ 		} else
++
+ 			page_remove_rmap(old_page);
+ 		break_cow(vma, new_page, address, page_table);
+ 		lru_cache_add_active(new_page);
+@@ -1750,7 +1751,7 @@ static int do_swap_page(struct mm_struct
+ 	if (vm_swap_full())
+ 		remove_exclusive_swap_page(page);
+ 
+-	mm->rss++;
++	update_mm_counter(mm, rss, 1);
+ 	acct_update_integrals();
+ 	update_mem_hiwater();
+ 
+@@ -1817,7 +1818,7 @@ do_anonymous_page(struct mm_struct *mm, 
+ 			spin_unlock(&mm->page_table_lock);
+ 			goto out;
+ 		}
+-		mm->rss++;
++		update_mm_counter(mm, rss, 1);
+ 		acct_update_integrals();
+ 		update_mem_hiwater();
+ 		entry = maybe_mkwrite(pte_mkdirty(mk_pte(page,
+@@ -1935,7 +1936,7 @@ retry:
+ 	/* Only go through if we didn't race with anybody else... */
+ 	if (pte_none(*page_table)) {
+ 		if (!PageReserved(new_page))
+-			++mm->rss;
++			update_mm_counter(mm, rss, 1);
+ 		acct_update_integrals();
+ 		update_mem_hiwater();
+ 
+@@ -2262,8 +2263,10 @@ void update_mem_hiwater(void)
+ 	struct task_struct *tsk = current;
+ 
+ 	if (tsk->mm) {
+-		if (tsk->mm->hiwater_rss < tsk->mm->rss)
+-			tsk->mm->hiwater_rss = tsk->mm->rss;
++		unsigned long rss = get_mm_counter(tsk->mm, rss);
++
++		if (tsk->mm->hiwater_rss < rss)
++			tsk->mm->hiwater_rss = rss;
+ 		if (tsk->mm->hiwater_vm < tsk->mm->total_vm)
+ 			tsk->mm->hiwater_vm = tsk->mm->total_vm;
+ 	}
+Index: linux-2.6.10/mm/rmap.c
+===================================================================
+--- linux-2.6.10.orig/mm/rmap.c	2005-02-24 19:42:12.000000000 -0800
++++ linux-2.6.10/mm/rmap.c	2005-02-24 19:42:17.000000000 -0800
+@@ -258,7 +258,7 @@ static int page_referenced_one(struct pa
+ 	pte_t *pte;
+ 	int referenced = 0;
+ 
+-	if (!mm->rss)
++	if (!get_mm_counter(mm, rss))
+ 		goto out;
+ 	address = vma_address(page, vma);
+ 	if (address == -EFAULT)
+@@ -437,7 +437,7 @@ void page_add_anon_rmap(struct page *pag
+ 	BUG_ON(PageReserved(page));
+ 	BUG_ON(!anon_vma);
+ 
+-	vma->vm_mm->anon_rss++;
++	update_mm_counter(vma->vm_mm, anon_rss, 1);
+ 
+ 	anon_vma = (void *) anon_vma + PAGE_MAPPING_ANON;
+ 	index = (address - vma->vm_start) >> PAGE_SHIFT;
+@@ -510,7 +510,7 @@ static int try_to_unmap_one(struct page 
+ 	pte_t pteval;
+ 	int ret = SWAP_AGAIN;
+ 
+-	if (!mm->rss)
++	if (!get_mm_counter(mm, rss))
+ 		goto out;
+ 	address = vma_address(page, vma);
+ 	if (address == -EFAULT)
+@@ -591,14 +591,14 @@ static int try_to_unmap_one(struct page 
+ 		}
+ 		pteval = ptep_xchg_flush(vma, address, pte, swp_entry_to_pte(entry));
+ 		BUG_ON(pte_file(*pte));
+-		mm->anon_rss--;
++		update_mm_counter(mm, anon_rss, -1);
+ 	} else
+ 		pteval = ptep_clear_flush(vma, address, pte);
+ 
+ 	/* Move the dirty bit to the physical page now that the pte is gone. */
+ 	if (pte_dirty(pteval))
+ 		set_page_dirty(page);
+-	mm->rss--;
++	update_mm_counter(mm, rss, -1);
+ 	acct_update_integrals();
+ 	page_remove_rmap(page);
+ 	page_cache_release(page);
+@@ -705,7 +705,7 @@ static void try_to_unmap_cluster(unsigne
+ 		page_remove_rmap(page);
+ 		page_cache_release(page);
+ 		acct_update_integrals();
+-		mm->rss--;
++		update_mm_counter(mm, rss, -1);
+ 		(*mapcount)--;
+ 	}
+ 
+@@ -804,7 +804,7 @@ static int try_to_unmap_file(struct page
+ 			if (vma->vm_flags & (VM_LOCKED|VM_RESERVED))
+ 				continue;
+ 			cursor = (unsigned long) vma->vm_private_data;
+-			while (vma->vm_mm->rss &&
++			while (get_mm_counter(vma->vm_mm, rss) &&
+ 				cursor < max_nl_cursor &&
+ 				cursor < vma->vm_end - vma->vm_start) {
+ 				try_to_unmap_cluster(cursor, &mapcount, vma);
+Index: linux-2.6.10/fs/proc/task_mmu.c
+===================================================================
+--- linux-2.6.10.orig/fs/proc/task_mmu.c	2005-02-24 19:41:44.000000000 -0800
++++ linux-2.6.10/fs/proc/task_mmu.c	2005-02-24 19:42:17.000000000 -0800
+@@ -24,7 +24,7 @@ char *task_mem(struct mm_struct *mm, cha
+ 		"VmPTE:\t%8lu kB\n",
+ 		(mm->total_vm - mm->reserved_vm) << (PAGE_SHIFT-10),
+ 		mm->locked_vm << (PAGE_SHIFT-10),
+-		mm->rss << (PAGE_SHIFT-10),
++		get_mm_counter(mm, rss) << (PAGE_SHIFT-10),
+ 		data << (PAGE_SHIFT-10),
+ 		mm->stack_vm << (PAGE_SHIFT-10), text, lib,
+ 		(PTRS_PER_PTE*sizeof(pte_t)*mm->nr_ptes) >> 10);
+@@ -39,11 +39,13 @@ unsigned long task_vsize(struct mm_struc
+ int task_statm(struct mm_struct *mm, int *shared, int *text,
+ 	       int *data, int *resident)
+ {
+-	*shared = mm->rss - mm->anon_rss;
++	int rss = get_mm_counter(mm, rss);
++	
++	*shared = rss - get_mm_counter(mm, anon_rss);
+ 	*text = (PAGE_ALIGN(mm->end_code) - (mm->start_code & PAGE_MASK))
+ 								>> PAGE_SHIFT;
+ 	*data = mm->total_vm - mm->shared_vm;
+-	*resident = mm->rss;
++	*resident = rss;
+ 	return mm->total_vm;
+ }
+ 
+Index: linux-2.6.10/mm/mmap.c
+===================================================================
+--- linux-2.6.10.orig/mm/mmap.c	2005-02-24 19:41:50.000000000 -0800
++++ linux-2.6.10/mm/mmap.c	2005-02-24 19:42:17.000000000 -0800
+@@ -2000,7 +2000,7 @@ void exit_mmap(struct mm_struct *mm)
+ 	vma = mm->mmap;
+ 	mm->mmap = mm->mmap_cache = NULL;
+ 	mm->mm_rb = RB_ROOT;
+-	mm->rss = 0;
++	set_mm_counter(mm, rss, 0);
+ 	mm->total_vm = 0;
+ 	mm->locked_vm = 0;
+ 
+Index: linux-2.6.10/kernel/fork.c
+===================================================================
+--- linux-2.6.10.orig/kernel/fork.c	2005-02-24 19:41:50.000000000 -0800
++++ linux-2.6.10/kernel/fork.c	2005-02-24 19:42:17.000000000 -0800
+@@ -174,8 +174,8 @@ static inline int dup_mmap(struct mm_str
+ 	mm->mmap_cache = NULL;
+ 	mm->free_area_cache = oldmm->mmap_base;
+ 	mm->map_count = 0;
+-	mm->rss = 0;
+-	mm->anon_rss = 0;
++	set_mm_counter(mm, rss, 0);
++	set_mm_counter(mm, anon_rss, 0);
+ 	cpus_clear(mm->cpu_vm_mask);
+ 	mm->mm_rb = RB_ROOT;
+ 	rb_link = &mm->mm_rb.rb_node;
+@@ -471,7 +471,7 @@ static int copy_mm(unsigned long clone_f
+ 	if (retval)
+ 		goto free_pt;
+ 
+-	mm->hiwater_rss = mm->rss;
++	mm->hiwater_rss = get_mm_counter(mm,rss);
+ 	mm->hiwater_vm = mm->total_vm;
+ 
+ good_mm:
+Index: linux-2.6.10/include/asm-generic/tlb.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-generic/tlb.h	2005-02-24 19:41:46.000000000 -0800
++++ linux-2.6.10/include/asm-generic/tlb.h	2005-02-24 19:42:17.000000000 -0800
+@@ -88,11 +88,11 @@ tlb_finish_mmu(struct mmu_gather *tlb, u
+ {
+ 	int freed = tlb->freed;
+ 	struct mm_struct *mm = tlb->mm;
+-	int rss = mm->rss;
++	int rss = get_mm_counter(mm, rss);
+ 
+ 	if (rss < freed)
+ 		freed = rss;
+-	mm->rss = rss - freed;
++	update_mm_counter(mm, rss, -freed);
+ 	tlb_flush_mmu(tlb, start, end);
+ 
+ 	/* keep the page table cache within bounds */
+Index: linux-2.6.10/fs/binfmt_flat.c
+===================================================================
+--- linux-2.6.10.orig/fs/binfmt_flat.c	2004-12-24 13:33:47.000000000 -0800
++++ linux-2.6.10/fs/binfmt_flat.c	2005-02-24 19:42:17.000000000 -0800
+@@ -650,7 +650,7 @@ static int load_flat_file(struct linux_b
+ 		current->mm->start_brk = datapos + data_len + bss_len;
+ 		current->mm->brk = (current->mm->start_brk + 3) & ~3;
+ 		current->mm->context.end_brk = memp + ksize((void *) memp) - stack_len;
+-		current->mm->rss = 0;
++		set_mm_counter(current->mm, rss, 0);
+ 	}
+ 
+ 	if (flags & FLAT_FLAG_KTRACE)
+Index: linux-2.6.10/fs/exec.c
+===================================================================
+--- linux-2.6.10.orig/fs/exec.c	2005-02-24 19:41:43.000000000 -0800
++++ linux-2.6.10/fs/exec.c	2005-02-24 19:42:17.000000000 -0800
+@@ -326,7 +326,7 @@ void install_arg_page(struct vm_area_str
+ 		pte_unmap(pte);
+ 		goto out;
+ 	}
+-	mm->rss++;
++	update_mm_counter(mm, rss, 1);
+ 	lru_cache_add_active(page);
+ 	set_pte(pte, pte_mkdirty(pte_mkwrite(mk_pte(
+ 					page, vma->vm_page_prot))));
+Index: linux-2.6.10/fs/binfmt_som.c
+===================================================================
+--- linux-2.6.10.orig/fs/binfmt_som.c	2005-02-24 19:41:43.000000000 -0800
++++ linux-2.6.10/fs/binfmt_som.c	2005-02-24 19:42:17.000000000 -0800
+@@ -259,7 +259,7 @@ load_som_binary(struct linux_binprm * bp
+ 	create_som_tables(bprm);
+ 
+ 	current->mm->start_stack = bprm->p;
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 
+ #if 0
+ 	printk("(start_brk) %08lx\n" , (unsigned long) current->mm->start_brk);
+Index: linux-2.6.10/mm/fremap.c
+===================================================================
+--- linux-2.6.10.orig/mm/fremap.c	2005-02-24 19:41:50.000000000 -0800
++++ linux-2.6.10/mm/fremap.c	2005-02-24 19:42:17.000000000 -0800
+@@ -39,7 +39,7 @@ static inline void zap_pte(struct mm_str
+ 					set_page_dirty(page);
+ 				page_remove_rmap(page);
+ 				page_cache_release(page);
+-				mm->rss--;
++				update_mm_counter(mm, rss, -1);
+ 			}
+ 		}
+ 	} else {
+@@ -92,7 +92,7 @@ int install_page(struct mm_struct *mm, s
+ 
+ 	zap_pte(mm, vma, addr, pte);
+ 
+-	mm->rss++;
++	update_mm_counter(mm,rss, 1);
+ 	flush_icache_page(vma, page);
+ 	set_pte(pte, mk_pte(page, prot));
+ 	page_add_file_rmap(page);
+Index: linux-2.6.10/mm/swapfile.c
+===================================================================
+--- linux-2.6.10.orig/mm/swapfile.c	2005-02-24 19:41:50.000000000 -0800
++++ linux-2.6.10/mm/swapfile.c	2005-02-24 19:42:17.000000000 -0800
+@@ -432,7 +432,7 @@ static void
+ unuse_pte(struct vm_area_struct *vma, unsigned long address, pte_t *dir,
+ 	swp_entry_t entry, struct page *page)
+ {
+-	vma->vm_mm->rss++;
++	update_mm_counter(vma->vm_mm, rss, 1);
+ 	get_page(page);
+ 	set_pte(dir, pte_mkold(mk_pte(page, vma->vm_page_prot)));
+ 	page_add_anon_rmap(page, vma, address);
+Index: linux-2.6.10/fs/binfmt_aout.c
+===================================================================
+--- linux-2.6.10.orig/fs/binfmt_aout.c	2005-02-24 19:41:43.000000000 -0800
++++ linux-2.6.10/fs/binfmt_aout.c	2005-02-24 19:42:17.000000000 -0800
+@@ -317,7 +317,7 @@ static int load_aout_binary(struct linux
+ 		(current->mm->start_brk = N_BSSADDR(ex));
+ 	current->mm->free_area_cache = current->mm->mmap_base;
+ 
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 	current->mm->mmap = NULL;
+ 	compute_creds(bprm);
+  	current->flags &= ~PF_FORKNOEXEC;
+Index: linux-2.6.10/arch/ia64/mm/hugetlbpage.c
+===================================================================
+--- linux-2.6.10.orig/arch/ia64/mm/hugetlbpage.c	2005-02-24 19:41:29.000000000 -0800
++++ linux-2.6.10/arch/ia64/mm/hugetlbpage.c	2005-02-24 19:42:17.000000000 -0800
+@@ -73,7 +73,7 @@ set_huge_pte (struct mm_struct *mm, stru
+ {
+ 	pte_t entry;
+ 
+-	mm->rss += (HPAGE_SIZE / PAGE_SIZE);
++	update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 	if (write_access) {
+ 		entry =
+ 		    pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+@@ -116,7 +116,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 		ptepage = pte_page(entry);
+ 		get_page(ptepage);
+ 		set_pte(dst_pte, entry);
+-		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
++		update_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
+ 		addr += HPAGE_SIZE;
+ 	}
+ 	return 0;
+@@ -246,7 +246,7 @@ void unmap_hugepage_range(struct vm_area
+ 		put_page(page);
+ 		pte_clear(pte);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
++	update_mm_counter(mm, rss, - ((end - start) >> PAGE_SHIFT));
+ 	flush_tlb_range(vma, start, end);
+ }
+ 
+Index: linux-2.6.10/fs/binfmt_elf.c
+===================================================================
+--- linux-2.6.10.orig/fs/binfmt_elf.c	2005-02-24 19:41:43.000000000 -0800
++++ linux-2.6.10/fs/binfmt_elf.c	2005-02-24 19:42:17.000000000 -0800
+@@ -764,7 +764,7 @@ static int load_elf_binary(struct linux_
+ 
+ 	/* Do this so that we can load the interpreter, if need be.  We will
+ 	   change some of these later */
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 	current->mm->free_area_cache = current->mm->mmap_base;
+ 	retval = setup_arg_pages(bprm, STACK_TOP, executable_stack);
+ 	if (retval < 0) {
+Index: linux-2.6.10/include/asm-ia64/tlb.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-ia64/tlb.h	2005-02-24 19:41:47.000000000 -0800
++++ linux-2.6.10/include/asm-ia64/tlb.h	2005-02-24 19:42:17.000000000 -0800
+@@ -161,11 +161,11 @@ tlb_finish_mmu (struct mmu_gather *tlb, 
+ {
+ 	unsigned long freed = tlb->freed;
+ 	struct mm_struct *mm = tlb->mm;
+-	unsigned long rss = mm->rss;
++	unsigned long rss = get_mm_counter(mm, rss);
+ 
+ 	if (rss < freed)
+ 		freed = rss;
+-	mm->rss = rss - freed;
++	update_mm_counter(mm, rss, -freed);
+ 	/*
+ 	 * Note: tlb->nr may be 0 at this point, so we can't rely on tlb->start_addr and
+ 	 * tlb->end_addr.
+Index: linux-2.6.10/include/asm-arm/tlb.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-arm/tlb.h	2005-02-24 19:41:45.000000000 -0800
++++ linux-2.6.10/include/asm-arm/tlb.h	2005-02-24 19:42:17.000000000 -0800
+@@ -54,11 +54,11 @@ tlb_finish_mmu(struct mmu_gather *tlb, u
+ {
+ 	struct mm_struct *mm = tlb->mm;
+ 	unsigned long freed = tlb->freed;
+-	int rss = mm->rss;
++	int rss = get_mm_counter(mm, rss);
+ 
+ 	if (rss < freed)
+ 		freed = rss;
+-	mm->rss = rss - freed;
++	update_mm_counter(mm, rss, -freed);
+ 
+ 	if (freed) {
+ 		flush_tlb_mm(mm);
+Index: linux-2.6.10/include/asm-arm26/tlb.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-arm26/tlb.h	2005-02-24 19:41:45.000000000 -0800
++++ linux-2.6.10/include/asm-arm26/tlb.h	2005-02-24 19:42:17.000000000 -0800
+@@ -37,11 +37,11 @@ tlb_finish_mmu(struct mmu_gather *tlb, u
+ {
+         struct mm_struct *mm = tlb->mm;
+         unsigned long freed = tlb->freed;
+-        int rss = mm->rss;
++        int rss = get_mm_counter(mm, rss);
+ 
+         if (rss < freed)
+                 freed = rss;
+-        mm->rss = rss - freed;
++        update_mm_counter(mm, rss, -freed);
+ 
+         if (freed) {
+                 flush_tlb_mm(mm);
+Index: linux-2.6.10/include/asm-sparc64/tlb.h
+===================================================================
+--- linux-2.6.10.orig/include/asm-sparc64/tlb.h	2005-02-24 19:41:48.000000000 -0800
++++ linux-2.6.10/include/asm-sparc64/tlb.h	2005-02-24 19:42:17.000000000 -0800
+@@ -80,11 +80,11 @@ static inline void tlb_finish_mmu(struct
+ {
+ 	unsigned long freed = mp->freed;
+ 	struct mm_struct *mm = mp->mm;
+-	unsigned long rss = mm->rss;
++	unsigned long rss = get_mm_counter(mm, rss);
+ 
+ 	if (rss < freed)
+ 		freed = rss;
+-	mm->rss = rss - freed;
++	update_mm_counter(mm, rss, -freed);
+ 
+ 	tlb_flush_mmu(mp);
+ 
+Index: linux-2.6.10/arch/sh/mm/hugetlbpage.c
+===================================================================
+--- linux-2.6.10.orig/arch/sh/mm/hugetlbpage.c	2004-12-24 13:34:58.000000000 -0800
++++ linux-2.6.10/arch/sh/mm/hugetlbpage.c	2005-02-24 19:42:17.000000000 -0800
+@@ -62,7 +62,7 @@ static void set_huge_pte(struct mm_struc
+ 	unsigned long i;
+ 	pte_t entry;
+ 
+-	mm->rss += (HPAGE_SIZE / PAGE_SIZE);
++	update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 
+ 	if (write_access)
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page,
+@@ -115,7 +115,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 			pte_val(entry) += PAGE_SIZE;
+ 			dst_pte++;
+ 		}
+-		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
++		update_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
+ 		addr += HPAGE_SIZE;
+ 	}
+ 	return 0;
+@@ -206,7 +206,7 @@ void unmap_hugepage_range(struct vm_area
+ 			pte++;
+ 		}
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
++	update_mm_counter(mm, rss, -((end - start) >> PAGE_SHIFT));
+ 	flush_tlb_range(vma, start, end);
+ }
+ 
+Index: linux-2.6.10/arch/x86_64/ia32/ia32_aout.c
+===================================================================
+--- linux-2.6.10.orig/arch/x86_64/ia32/ia32_aout.c	2005-02-24 19:41:33.000000000 -0800
++++ linux-2.6.10/arch/x86_64/ia32/ia32_aout.c	2005-02-24 19:42:17.000000000 -0800
+@@ -313,7 +313,7 @@ static int load_aout_binary(struct linux
+ 		(current->mm->start_brk = N_BSSADDR(ex));
+ 	current->mm->free_area_cache = TASK_UNMAPPED_BASE;
+ 
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 	current->mm->mmap = NULL;
+ 	compute_creds(bprm);
+  	current->flags &= ~PF_FORKNOEXEC;
+Index: linux-2.6.10/arch/ppc64/mm/hugetlbpage.c
+===================================================================
+--- linux-2.6.10.orig/arch/ppc64/mm/hugetlbpage.c	2005-02-24 19:41:32.000000000 -0800
++++ linux-2.6.10/arch/ppc64/mm/hugetlbpage.c	2005-02-24 19:42:17.000000000 -0800
+@@ -153,7 +153,7 @@ static void set_huge_pte(struct mm_struc
+ {
+ 	pte_t entry;
+ 
+-	mm->rss += (HPAGE_SIZE / PAGE_SIZE);
++	update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 	if (write_access) {
+ 		entry =
+ 		    pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+@@ -315,7 +315,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 		
+ 		ptepage = pte_page(entry);
+ 		get_page(ptepage);
+-		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
++		update_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
+ 		set_pte(dst_pte, entry);
+ 
+ 		addr += HPAGE_SIZE;
+@@ -425,7 +425,7 @@ void unmap_hugepage_range(struct vm_area
+ 
+ 		put_page(page);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
++	update_mm_counter(mm, rss, -((end - start) >> PAGE_SHIFT));
+ 	flush_tlb_pending();
+ }
+ 
+Index: linux-2.6.10/arch/sh64/mm/hugetlbpage.c
+===================================================================
+--- linux-2.6.10.orig/arch/sh64/mm/hugetlbpage.c	2004-12-24 13:34:30.000000000 -0800
++++ linux-2.6.10/arch/sh64/mm/hugetlbpage.c	2005-02-24 19:42:17.000000000 -0800
+@@ -62,7 +62,7 @@ static void set_huge_pte(struct mm_struc
+ 	unsigned long i;
+ 	pte_t entry;
+ 
+-	mm->rss += (HPAGE_SIZE / PAGE_SIZE);
++	update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 
+ 	if (write_access)
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page,
+@@ -115,7 +115,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 			pte_val(entry) += PAGE_SIZE;
+ 			dst_pte++;
+ 		}
+-		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
++		update_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
+ 		addr += HPAGE_SIZE;
+ 	}
+ 	return 0;
+@@ -206,7 +206,7 @@ void unmap_hugepage_range(struct vm_area
+ 			pte++;
+ 		}
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
++	update_mm_counter(mm, rss, -((end - start) >> PAGE_SHIFT));
+ 	flush_tlb_range(vma, start, end);
+ }
+ 
+Index: linux-2.6.10/arch/sparc64/mm/hugetlbpage.c
+===================================================================
+--- linux-2.6.10.orig/arch/sparc64/mm/hugetlbpage.c	2005-02-24 19:41:32.000000000 -0800
++++ linux-2.6.10/arch/sparc64/mm/hugetlbpage.c	2005-02-24 19:42:17.000000000 -0800
+@@ -67,7 +67,7 @@ static void set_huge_pte(struct mm_struc
+ 	unsigned long i;
+ 	pte_t entry;
+ 
+-	mm->rss += (HPAGE_SIZE / PAGE_SIZE);
++	update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 
+ 	if (write_access)
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page,
+@@ -120,7 +120,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 			pte_val(entry) += PAGE_SIZE;
+ 			dst_pte++;
+ 		}
+-		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
++		update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 		addr += HPAGE_SIZE;
+ 	}
+ 	return 0;
+@@ -211,7 +211,7 @@ void unmap_hugepage_range(struct vm_area
+ 			pte++;
+ 		}
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
++	update_mm_counter(mm, rss, -((end - start) >> PAGE_SHIFT));
+ 	flush_tlb_range(vma, start, end);
+ }
+ 
+Index: linux-2.6.10/arch/mips/kernel/irixelf.c
+===================================================================
+--- linux-2.6.10.orig/arch/mips/kernel/irixelf.c	2005-02-24 19:41:29.000000000 -0800
++++ linux-2.6.10/arch/mips/kernel/irixelf.c	2005-02-24 19:42:17.000000000 -0800
+@@ -692,7 +692,7 @@ static int load_irix_binary(struct linux
+ 	/* Do this so that we can load the interpreter, if need be.  We will
+ 	 * change some of these later.
+ 	 */
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 	setup_arg_pages(bprm, STACK_TOP, EXSTACK_DEFAULT);
+ 	current->mm->start_stack = bprm->p;
+ 
+Index: linux-2.6.10/arch/m68k/atari/stram.c
+===================================================================
+--- linux-2.6.10.orig/arch/m68k/atari/stram.c	2005-02-24 19:41:29.000000000 -0800
++++ linux-2.6.10/arch/m68k/atari/stram.c	2005-02-24 19:42:17.000000000 -0800
+@@ -635,7 +635,7 @@ static inline void unswap_pte(struct vm_
+ 	set_pte(dir, pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+ 	swap_free(entry);
+ 	get_page(page);
+-	++vma->vm_mm->rss;
++	update_mm_counter(vma->vm_mm, rss, 1);
+ }
+ 
+ static inline void unswap_pmd(struct vm_area_struct * vma, pmd_t *dir,
+Index: linux-2.6.10/arch/i386/mm/hugetlbpage.c
+===================================================================
+--- linux-2.6.10.orig/arch/i386/mm/hugetlbpage.c	2005-02-24 19:41:28.000000000 -0800
++++ linux-2.6.10/arch/i386/mm/hugetlbpage.c	2005-02-24 19:42:17.000000000 -0800
+@@ -46,7 +46,7 @@ static void set_huge_pte(struct mm_struc
+ {
+ 	pte_t entry;
+ 
+-	mm->rss += (HPAGE_SIZE / PAGE_SIZE);
++	update_mm_counter(mm, rss, HPAGE_SIZE / PAGE_SIZE);
+ 	if (write_access) {
+ 		entry =
+ 		    pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+@@ -86,7 +86,7 @@ int copy_hugetlb_page_range(struct mm_st
+ 		ptepage = pte_page(entry);
+ 		get_page(ptepage);
+ 		set_pte(dst_pte, entry);
+-		dst->rss += (HPAGE_SIZE / PAGE_SIZE);
++		update_mm_counter(dst, rss, HPAGE_SIZE / PAGE_SIZE);
+ 		addr += HPAGE_SIZE;
+ 	}
+ 	return 0;
+@@ -222,7 +222,7 @@ void unmap_hugepage_range(struct vm_area
+ 		page = pte_page(pte);
+ 		put_page(page);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
++	update_mm_counter(mm ,rss, -((end - start) >> PAGE_SHIFT));
+ 	flush_tlb_range(vma, start, end);
+ }
+ 
+Index: linux-2.6.10/arch/sparc64/kernel/binfmt_aout32.c
+===================================================================
+--- linux-2.6.10.orig/arch/sparc64/kernel/binfmt_aout32.c	2005-02-24 19:41:32.000000000 -0800
++++ linux-2.6.10/arch/sparc64/kernel/binfmt_aout32.c	2005-02-24 19:42:17.000000000 -0800
+@@ -241,7 +241,7 @@ static int load_aout32_binary(struct lin
+ 	current->mm->brk = ex.a_bss +
+ 		(current->mm->start_brk = N_BSSADDR(ex));
+ 
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 	current->mm->mmap = NULL;
+ 	compute_creds(bprm);
+  	current->flags &= ~PF_FORKNOEXEC;
+Index: linux-2.6.10/fs/proc/array.c
+===================================================================
+--- linux-2.6.10.orig/fs/proc/array.c	2005-02-24 19:41:44.000000000 -0800
++++ linux-2.6.10/fs/proc/array.c	2005-02-24 19:42:17.000000000 -0800
+@@ -423,7 +423,7 @@ static int do_task_stat(struct task_stru
+ 		jiffies_to_clock_t(task->it_real_value),
+ 		start_time,
+ 		vsize,
+-		mm ? mm->rss : 0, /* you might want to shift this left 3 */
++		mm ? get_mm_counter(mm, rss) : 0, /* you might want to shift this left 3 */
+ 	        rsslim,
+ 		mm ? mm->start_code : 0,
+ 		mm ? mm->end_code : 0,
+Index: linux-2.6.10/fs/binfmt_elf_fdpic.c
+===================================================================
+--- linux-2.6.10.orig/fs/binfmt_elf_fdpic.c	2005-02-24 19:41:43.000000000 -0800
++++ linux-2.6.10/fs/binfmt_elf_fdpic.c	2005-02-24 19:42:17.000000000 -0800
+@@ -299,7 +299,7 @@ static int load_elf_fdpic_binary(struct 
+ 	/* do this so that we can load the interpreter, if need be
+ 	 * - we will change some of these later
+ 	 */
+-	current->mm->rss = 0;
++	set_mm_counter(current->mm, rss, 0);
+ 
+ #ifdef CONFIG_MMU
+ 	retval = setup_arg_pages(bprm, current->mm->start_stack, executable_stack);
+Index: linux-2.6.10/mm/nommu.c
+===================================================================
+--- linux-2.6.10.orig/mm/nommu.c	2005-02-24 19:41:50.000000000 -0800
++++ linux-2.6.10/mm/nommu.c	2005-02-24 19:42:17.000000000 -0800
+@@ -962,10 +962,11 @@ void arch_unmap_area(struct vm_area_stru
+ void update_mem_hiwater(void)
+ {
+ 	struct task_struct *tsk = current;
++	unsigned long rss = get_mm_counter(tsk->mm, rss);
+ 
+ 	if (likely(tsk->mm)) {
+-		if (tsk->mm->hiwater_rss < tsk->mm->rss)
+-			tsk->mm->hiwater_rss = tsk->mm->rss;
++		if (tsk->mm->hiwater_rss < rss)
++			tsk->mm->hiwater_rss = rss;
+ 		if (tsk->mm->hiwater_vm < tsk->mm->total_vm)
+ 			tsk->mm->hiwater_vm = tsk->mm->total_vm;
+ 	}
+Index: linux-2.6.10/kernel/acct.c
+===================================================================
+--- linux-2.6.10.orig/kernel/acct.c	2005-02-24 19:41:50.000000000 -0800
++++ linux-2.6.10/kernel/acct.c	2005-02-24 19:42:17.000000000 -0800
+@@ -544,7 +544,7 @@ void acct_update_integrals(void)
+ 		if (delta == 0)
+ 			return;
+ 		tsk->acct_stimexpd = tsk->stime;
+-		tsk->acct_rss_mem1 += delta * tsk->mm->rss;
++		tsk->acct_rss_mem1 += delta * get_mm_counter(tsk->mm, rss);
+ 		tsk->acct_vm_mem1 += delta * tsk->mm->total_vm;
+ 	}
+ }

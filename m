@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVCNUNh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVCNURA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVCNUNh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 15:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVCNUMT
+	id S261354AbVCNURA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 15:17:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCNURA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 15:12:19 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:63799 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261827AbVCNUIu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 15:08:50 -0500
-Date: Mon, 14 Mar 2005 21:09:00 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: John Kacur <jkacur@rogers.com>
-Cc: kai.germaschewski@unh.edu, linux-kernel@vger.kernel.org
-Subject: Re: Exuberant ctags can tag files names too
-Message-ID: <20050314200900.GC17373@mars.ravnborg.org>
-Mail-Followup-To: John Kacur <jkacur@rogers.com>,
-	kai.germaschewski@unh.edu, linux-kernel@vger.kernel.org
-References: <1110420068.5526.39.camel@linux.site>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110420068.5526.39.camel@linux.site>
-User-Agent: Mutt/1.5.6i
+	Mon, 14 Mar 2005 15:17:00 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:38049 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261354AbVCNUQh convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 15:16:37 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] PCI Express Advanced Error Reporting Driver
+Date: Mon, 14 Mar 2005 12:16:28 -0800
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408070E64@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] PCI Express Advanced Error Reporting Driver
+Thread-Index: AcUmjZZKrS3vBFHIT/eGkRWDxlZxBQCQ0E2g
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Paul Mackerras" <paulus@samba.org>
+Cc: "Greg KH" <greg@kroah.com>, <benh@kernel.crashing.org>,
+       <linux-kernel@vger.kernel.org>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 14 Mar 2005 20:16:30.0439 (UTC) FILETIME=[B5919F70:01C528D2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 09:01:08PM -0500, John Kacur wrote:
-> Exuberant ctags can tag file names too. I find this extremely useful
-> when browsing kernel source, and so would like to share it with
-> everyone. (You can now type ":tag oprof.c" for example, and jump to the
-> file with that name.)
-> 
-> I previously sent a patch which naively just appended an "--extra=+f" to
-> the ctags line. Here's a much smarter patch that works by first
-> querrying if ctags is exuberant, and if so, whether the --extra
-> functionality is available before adding the line. Please apply.
-> Signed-off-by: John Kacur jkacur@rogers.com
+On Friday, March 11, 2005 2:49 PM Paul Mackerras wrote:
+>> The standard PCI Specification calls out SERR and PERR. I am not sure
+>> about the recent discussion of PCI error of recovery. It is perhaps
+>> regarding the possibility of recovering from a PERR or SERR. However,
+>> PCI Express error occurs on the PCI Express link or on behalf of
+>> transactions occurred on the PCI Express link. PCI Express component,
+>> which implements PCI Express Advanced Error Reporting Capability,
+sends
+>> error message to the Root Port to indicate error occurred on the PCI
+>> Express link where it is connected. The PCI Express error recovery is
+on
+>> behalf of attempting to do a PCI Express link recovery, not PCI error
+>> recovery. It appears that PCI Express AER is disjoint from PCI error
+>> recovery.
+>
+>To give you some context, the recent discussion was about how we could
+>give a unified interface to drivers for both PCI-Express error
+>reporting and for the "Enhanced Error Handling" (EEH) facilities we
+>have on IBM PPC64 boxes.  EEH includes not only the detection and
+>reporting of errors (for PCI, PCI-X and PCI-Express buses) but also
+>hardware support for isolating devices when an error is detected, plus
+>means for resetting individual bus segments or slots, to assist in
+>recovering a device which has got into a bad state.
 
-I already applied your original patch (end of January) but only this week
-it hit Linus' tree.
-I think ctags users will just upgrade if their ctgs does not support
---extra=+f.
-At least I will await and see if anyone complains before applying this
-patch (btw. line wrapped)
+Thanks for providing this information.
 
-	Sam
+>Does PCI Express provide any facilities for recovering from errors,
+>beyond just "try that transaction again"?
+
+PCI Express AER Root driver provides AER callback interfaces to
+coordinate with PCI Express AER aware drivers. However, based on recent
+LKML inputs, we like the suggestion for a common interface in the
+drivers to support error handling for different platforms.
+
+Thanks,
+Long

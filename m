@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311594AbSDIVLO>; Tue, 9 Apr 2002 17:11:14 -0400
+	id <S311614AbSDIVRK>; Tue, 9 Apr 2002 17:17:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311614AbSDIVLN>; Tue, 9 Apr 2002 17:11:13 -0400
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:15268 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S311594AbSDIVLM>;
-	Tue, 9 Apr 2002 17:11:12 -0400
-Message-ID: <3CB358EF.2090309@tmsusa.com>
-Date: Tue, 09 Apr 2002 14:11:11 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020409
-X-Accept-Language: en-us, en
+	id <S311615AbSDIVRJ>; Tue, 9 Apr 2002 17:17:09 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14604 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S311614AbSDIVRJ>; Tue, 9 Apr 2002 17:17:09 -0400
+Date: Tue, 9 Apr 2002 18:16:52 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Aviv Shavit <avivshavit@yahoo.com>
+Cc: Ken Brownfield <brownfld@irridia.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <20020409204545.11251.qmail@web13205.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.44L.0204091815410.31387-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 0(1)-patch, where did it go?
-In-Reply-To: <Pine.LNX.4.44.0204091649030.9846-100000@majere.epithna.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-listmail@majere.epithna.com wrote:
+On Tue, 9 Apr 2002, Aviv Shavit wrote:
 
->Ok,
->Maybe I am just lost and confused, but I can't see anywhere what has
->happened to this patch....
->
->Did it get merged when I wasn't looking?  I can't seem to find a record of
->it in the change logs?  It just seems to stop getting updated just before
->2.4.18 release, but I don't see a message about it getting merged....
->
->Could someone please update me?
->
->Is it in 2.4.19 someplace, or  2.5.x?
->
-It's in 2.5, and also in the 2.4 -ac tree
+> Just got to testng rmap-12f on 2.4.17. While I was
+> able to throw at it more sessions then at the vannila
+> kernel, it crashed with a kernel panic. Something that
+> has not happend for main-line .17 nor for .18.
 
-Joe
+Something I haven't seen either.  Do you have the message
+your kernel spit out so I can have a go at fixing the problem ?
 
+kind regards,
+
+Rik
+-- 
+Will hack the VM for food.
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

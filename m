@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261957AbTHTNbc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 09:31:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbTHTNbc
+	id S261604AbTHTOAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 10:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTHTOAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 09:31:32 -0400
-Received: from main.gmane.org ([80.91.224.249]:34268 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261957AbTHTNbb (ORCPT
+	Wed, 20 Aug 2003 10:00:25 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:44266 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261604AbTHTOAX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 09:31:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: how to turn off, or to clear read cache?
-Date: Wed, 20 Aug 2003 15:31:32 +0200
-Message-ID: <yw1x8ypocv63.fsf@users.sourceforge.net>
-References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:pJ/ogtCcwn+3CnBe/zymhTQeXFE=
+	Wed, 20 Aug 2003 10:00:23 -0400
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: Bill Davidsen <davidsen@tmr.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: scheduler interactivity: timeslice calculation seem wrong
+Date: Wed, 20 Aug 2003 08:59:36 -0500
+User-Agent: KMail/1.5
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Eric St-Laurent <ericstl34@sympatico.ca>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.3.96.1030820000415.11300B-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1030820000415.11300B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308200859.36164.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Spiridonov <spiridonov@gamic.com> writes:
-
->>> I need to make some performance tests. I need to switch off or to
->>> clear read cache, so that consequent reading of the same file will
->>> take the same amount of time.
->>>
->>>Is there an easy way to do it, without rebuilding the kernel?
->> Unmount and remount the filesystem.
+On Tuesday 19 August 2003 23:11, Bill Davidsen wrote:
+> On Tue, 19 Aug 2003, William Lee Irwin III wrote:
+> > On Tue, Aug 19, 2003 at 05:32:04PM -0700, David Lang wrote:
+> > > while thinking about scaling based on CPU speed remember systems with
+> > > variable CPU clocks (or even just variable performance like the
+> > > transmeta CPU's)
+> >
+> > This and/or mixed cpu speeds could make load balancing interesting on
+> > SMP. I wonder who's tried. jejb?
 >
->
-> Would
->
-> # mount -o remount
->
-> do the job?
+> Hum, I *guess* that if you are using some "mean time between dispatches"
+> to tune time slice you could apply a CPU speed correction, but mixed speed
+> SMP is too corner a case for me. I think if you were tuning time slice by
+> mean time between dispatches (or similar) you could either apply a
+> correction, set affinity low to keep jobs changing CPUs, or just ignore
+> it.
 
-no
+One could continue this thinking (more load_balance corrections than 
+timeslice, IMO) on to SMT processors, where the throughput of a sibling is 
+highly dependent on what the other siblings are doing in the same core.  For 
+example, in a dual proc system, the first physical cpu with one task will run 
+much faster than the second cpu with 2 tasks.  Actually, using a shared 
+runqueue would probably fix this (something we still don't have in 2.6-test).
 
--- 
-Måns Rullgård
-mru@users.sf.net
+But one other thing, and maybe this has been brought up before (sorry, I have 
+not been following all the discussions), but why are we not altering 
+timeslice based on the runqueue length for that processor?  Would it not make 
+sense, for the sake of good interactivity, to lower all the timeslices when 
+we have a longer runqueue?
 
+-Andrew Theurer

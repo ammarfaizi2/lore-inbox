@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284008AbRLAIus>; Sat, 1 Dec 2001 03:50:48 -0500
+	id <S284013AbRLAI76>; Sat, 1 Dec 2001 03:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281506AbRLAIum>; Sat, 1 Dec 2001 03:50:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34568 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284008AbRLAIu2>; Sat, 1 Dec 2001 03:50:28 -0500
-Subject: Re: Coding style - a non-issue
-To: yodaiken@fsmlabs.com (Victor Yodaiken)
-Date: Sat, 1 Dec 2001 08:57:17 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        yodaiken@fsmlabs.com (Victor Yodaiken),
-        riel@conectiva.com.br (Rik van Riel), akpm@zip.com.au (Andrew Morton),
-        lm@bitmover.com (Larry McVoy),
-        phillips@bonn-fries.net (Daniel Phillips),
-        hps@intermeta.de (Henning Schmiedehausen),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <20011130214448.A28617@hq2> from "Victor Yodaiken" at Nov 30, 2001 09:44:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284014AbRLAI7s>; Sat, 1 Dec 2001 03:59:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49669 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284013AbRLAI7g>; Sat, 1 Dec 2001 03:59:36 -0500
+Message-ID: <3C089BDB.4020801@zytor.com>
+Date: Sat, 01 Dec 2001 00:59:07 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Incremental prepatches
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16A5xV-0006UL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here's a characteristic good Linux design method ,( or call it "less than random
-> mutation method" if that makes you feel happy): read the literature,
-> think hard, try something, implement it
+Hi everyone,
 
-That assumes computer science is a functional engineering discipline. Its
-not, at best we are at the alchemy stage of progression. You put two things
-together it goes bang and you try to work out why.
+I have created a robot on kernel.org which makes incremental prepatches 
+available.  It looks for standard-named prepatches in the 
+/pub/linux/kernel/v*.*/testing directories, and creates incrementals in 
+the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
 
-In many of these fields there is no formal literature. The scientific paper
-system in computer science is based on publishing things people already
-believe. Much of the rest of the knowledge is unwritten or locked away in
-labs as a trade secret, and wil probably never be reused.
+For example:
 
-Take TCP for example. The TCP protocol is specified in a series of
-documents. If you make a formally correct implementation of the base TCP RFC
-you won't even make connections. Much of the flow control behaviour, the
-queueing and the detail is learned only by being directly part of the
-TCP implementing community. You can read  all the scientific papers you
-like, it will not make you a good TCP implementor. 
+hera 86 % cd /pub/linux/kernel/v2.5/testing/incr/
+hera 87 % ls -l *.gz
+-rw-rw-r--    1 kdist    kernel     177158 Nov 27 10:17 
+patch-2.5.1-pre1-pre2.gz
+-rw-rw-r--    1 kdist    kernel     102202 Nov 28 15:35 
+patch-2.5.1-pre2-pre3.gz
+-rw-rw-r--    1 kdist    kernel      52955 Nov 29 15:29 
+patch-2.5.1-pre3-pre4.gz
+-rw-rw-r--    1 kdist    kernel      53616 Nov 30 17:04 
+patch-2.5.1-pre4-pre5.gz
 
-Alan
+The naming and function of the patches should be obvious.
+
+.bz2 and .sign files are available too, of course.
+
+	-hpa
+

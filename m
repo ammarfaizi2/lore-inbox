@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264084AbRFETGP>; Tue, 5 Jun 2001 15:06:15 -0400
+	id <S264080AbRFETJp>; Tue, 5 Jun 2001 15:09:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264082AbRFETFz>; Tue, 5 Jun 2001 15:05:55 -0400
-Received: from cs.huji.ac.il ([132.65.16.10]:16101 "EHLO cs.huji.ac.il")
-	by vger.kernel.org with ESMTP id <S264081AbRFETFu>;
-	Tue, 5 Jun 2001 15:05:50 -0400
-Date: Tue, 5 Jun 2001 22:05:47 +0300 (IDT)
-From: Tsafrir Dan <dants@cs.huji.ac.il>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-cc: linux-kernel@vger.kernel.org, feit@cc.huji.ac.il, etsman@cs.huji.ac.il,
-        dants@cs.huji.ac.il
-Subject: Re: the value of PROC_CHANGE_PENALTY
-In-Reply-To: <Pine.LNX.4.10.10106042004010.8516-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.10.10106051957330.20547-100000@pomela4.cs.huji.ac.il>
+	id <S264083AbRFETJf>; Tue, 5 Jun 2001 15:09:35 -0400
+Received: from barn.holstein.com ([198.134.143.193]:9998 "EHLO holstein.com")
+	by vger.kernel.org with ESMTP id <S264080AbRFETJ1>;
+	Tue, 5 Jun 2001 15:09:27 -0400
+Date: Tue, 5 Jun 2001 19:08:37 GMT
+Message-Id: <200106051908.f55J8bS32044@pcx4168.holstein.com>
+From: "Todd M. Roy" <troy@holstein.com>
+To: andre@linux-ide.org
+Cc: linux-kernel@vger.kernel.org
+Subject: patch for ide.2.4.5-ac8
+Reply-To: troy@holstein.com
+X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 06/05/2001 03:08:47 PM,
+	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
+ 06/05/2001 03:08:48 PM,
+	Serialize complete at 06/05/2001 03:08:48 PM
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andre,
+  Minor typo fix:
+--- ide-dma.c.~1~	Tue Jun  5 14:39:06 2001
++++ ide-dma.c	Tue Jun  5 15:04:54 2001
+@@ -708,15 +708,15 @@
+ 	if ((!dma_base) && (!second_chance)) {
+ 		unsigned long set_bmiba = 0;
+ 		second_chance++;
+-		switch(dev->vender) {
+-			PCI_VENDOR_ID_AL:
+-				set_bmiba = DEFAULT_BMALIBA; break;
+-			PCI_VENDOR_ID_VIA:
+-				set_bmiba = DEFAULT_BMCRBA; break;
+-			PCI_VENDOR_ID_INTEL:
+-				set_bmiba = DEFAULT_BMIBA; break;
+-			default:
+-				return dma_base;
++		switch (dev->vendor) {
++		         case PCI_VENDOR_ID_AL:
++				        set_bmiba = DEFAULT_BMALIBA; break;
++		         case PCI_VENDOR_ID_VIA:
++		                set_bmiba = DEFAULT_BMCRBA; break;
++		         case PCI_VENDOR_ID_INTEL:
++		                set_bmiba = DEFAULT_BMIBA; break;
++		         default:
++		                return dma_base;
+ 		}
+ 		pci_write_config_dword(dev, 0x20, set_bmiba|1);
+ 		goto second_chance_to_dma;
 
-
-On Mon, 4 Jun 2001, Mark Hahn wrote:
-
-> > am I correct ?
-> > and if so, is this what the authors meant, or did they simply forget
-> > to update PROC_CHANGE_PENALTY's value when moving from 2.2 to 2.4 ?
->
-> I don't believe anyone has proposed a relation between nice
-> and cpu-affinity; the latter has always been a fairly arbitrary 
-> constant.
-
-I see, but even so, in linux-2.2 this arbitrary constant allows a non
-realtime task to migrate, and totally prohibits it in linux-2.4 (unless
-some other cpu is idle).
-i.e. maybe there is no relation between the max value of the static 
-priority and PROC_CHANGE_PENALTY, but you get a scheduler that behaves
-quite differently when you change one without the other.
-
-I think that if it's indeed an arbitrary value, then it should have 
-been modified along with the modification of the quantum's length,
-because this way the 2.2 behavior (which I assume somebody adopted for
-a reason) would have remained the same.
-
-However, if you say that PROC_CHANGE_PENALTY does somehow embody the
-cpu-time wasted because of migration (due to cache etc.) regardless of
-the quantum's length, then PROC_CHANGE_PENALTY should probably remain 
-the same and I got my answer.
-
-Is this what you mean ?
-
-thanks, Dan.
-
-
+Cheers,
+  Todd
+**********************************************************************
+This footnote confirms that this email message has been swept by 
+MIMEsweeper for the presence of computer viruses.
+**********************************************************************

@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269622AbUHZUnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269628AbUHZUmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269622AbUHZUnh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbUHZUm3
+	id S269628AbUHZUmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269622AbUHZUjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:42:29 -0400
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:44283 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S267770AbUHZUjx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:39:53 -0400
-Message-ID: <412E4A4F.2040706@ttnet.net.tr>
-Date: Thu, 26 Aug 2004 23:38:39 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: bunk@fs.tum.de
-CC: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: [2.4 patch][5/6] asm-i386/smpboot.h: fix gcc 3.4 compilation
-Content-Type: multipart/mixed;
-	boundary="------------080205080801020300040703"
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Thu, 26 Aug 2004 16:39:52 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:28071 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S267770AbUHZUg1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:36:27 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Christophe Saout <christophe@saout.de>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Rik van Riel <riel@redhat.com>, Diego Calleja <diegocg@teleline.es>,
+       jamie@shareable.org, christer@weinigel.se, spam@tnonline.net,
+       akpm@osdl.org, wichert@wiggy.net, jra@samba.org, reiser@namesys.com,
+       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+In-Reply-To: <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408261356330.27909-100000@chimarrao.boston.redhat.com>
+	 <200408262128.41326.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <Pine.LNX.4.58.0408261132150.2304@ppc970.osdl.org>
+	 <20040826191323.GY21964@parcelfarce.linux.theplanet.co.uk>
+	 <20040826203228.GZ21964@parcelfarce.linux.theplanet.co.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-93ZxXzE7cHUjN/kDvYMF"
+Date: Thu, 26 Aug 2004 22:36:10 +0200
+Message-Id: <1093552570.13881.41.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080205080801020300040703
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Content-Transfer-Encoding: 7bit
 
-Didn't look at the code much but how about removing the
-label as the -ac tree does?
+--=-93ZxXzE7cHUjN/kDvYMF
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Am Donnerstag, den 26.08.2004, 21:32 +0100 schrieb :
+
+> Argh...  OK, now I remember why I went for -EBUSY for unlink() (we obviou=
+sly
+> are not bound by SuS on that one).  Consider the following scenario:
+> 	* local file foo got something else bound on it for a while
+> 	* we are tight on space - time to clean up
+> 	* oh, look - contents of foo is junk
+> 	* rm foo
+> 	* ... oh, fuck, there goes the underlying file.
+
+Right. Good thinking. You can't delete a directory while there regular
+files in it either.
+
+Another question: /mnt/test is a mountpoint. Why can I rename `mnt' but
+can't rename `test'?
 
 
---------------080205080801020300040703
-Content-Type: text/plain;
-	name="smpboot.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="smpboot.patch"
+--=-93ZxXzE7cHUjN/kDvYMF
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-diff -urN 28pre2/include/asm-i386/smpboot.h 28pre2_acx/include/asm-i386/smpboot.h
---- 28pre2/include/asm-i386/smpboot.h	2004-08-08 02:26:06.000000000 +0300
-+++ 28pre2_acx/include/asm-i386/smpboot.h	2004-08-26 12:09:44.000000000 +0300
-@@ -129,7 +129,6 @@
- 			/*round robin the interrupts*/
- 			cpu = (cpu+1)%smp_num_cpus;
- 			return cpu_to_physical_apicid(cpu);
--		default:
- 	}
- 	return cpu_online_map;
- }
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
---------------080205080801020300040703--
+iD8DBQBBLkm6ZCYBcts5dM0RApvcAKCMxROH+ugJZw6LlUMzRKlSInpwkQCfQg1I
+KW/2Ax+hEGewrv+vJCSoCKs=
+=F9+H
+-----END PGP SIGNATURE-----
+
+--=-93ZxXzE7cHUjN/kDvYMF--
+

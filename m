@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266772AbTBQE6S>; Sun, 16 Feb 2003 23:58:18 -0500
+	id <S266761AbTBQE52>; Sun, 16 Feb 2003 23:57:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266796AbTBQE6S>; Sun, 16 Feb 2003 23:58:18 -0500
-Received: from csa.iisc.ernet.in ([144.16.67.8]:29916 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S266772AbTBQE6O>;
-	Sun, 16 Feb 2003 23:58:14 -0500
-Date: Mon, 17 Feb 2003 10:38:05 +0530 (IST)
-From: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
-Reply-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.53 not compiling
-In-Reply-To: <20030217040949.GA10986@nevyn.them.org>
-Message-ID: <Pine.SOL.3.96.1030217102959.28131E-100000@osiris.csa.iisc.ernet.in>
+	id <S266772AbTBQE52>; Sun, 16 Feb 2003 23:57:28 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:31210 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266761AbTBQE51>; Sun, 16 Feb 2003 23:57:27 -0500
+Date: Sun, 16 Feb 2003 21:07:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+       Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: more signal locking bugs?
+Message-ID: <75430000.1045458425@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you Daniel,
-
-                The kernel source compiled. I changed the CC variable
-path.
-
-I also thank Russel,Zwane and John for their help.
-
-Thanks again.  
-
---
-Rahul Vaidya
-Hostel Room G46,
-Ph.3942451
-
-"Life can only be understood going backwards, 
-	            but it must be lived going forwards"
-						-Kierkegaard
-
-On Sun, 16 Feb 2003, Daniel Jacobowitz wrote:
-
-> On Mon, Feb 17, 2003 at 09:33:32AM +0530, Rahul Vaidya wrote:
-> > >From my kernel source directory: I have aliased gcc to my actual gcc
-> > file..not the softlinked one..
+>> Ah, I see what happened, I think .... the locking used to be inside
+>> collect_sigign_sigcatch, and you moved it out into task_sig ... but 
+>> there were two callers of collect_sigign_sigcatch, the other one being
+>> proc_pid_stat
 > 
-> Shell aliases won't affect the GCC that Make uses.  Try using make
-> CC=/path/to/real/gcc.
+> Doh.
 > 
-> -- 
-> Daniel Jacobowitz
-> MontaVista Software                         Debian GNU/Linux Developer
-> 
+> This should fix it. 
 
+Don't you need this bit as well?
 
++	sigemptyset(&sigign);
++	sigemptyset(&sigcatch);
+
+to replace this bit from your previous patch.
+
+ static void collect_sigign_sigcatch(struct task_struct *p, sigset_t *ign,
+                                    sigset_t *catch)
+ {
+        struct k_sigaction *k;
+        int i;
+ 
+-       sigemptyset(ign);
+-       sigemptyset(catch);
+
+That was in the patch I sent you ... but I missed task->sighand->siglock ;-)
+
+M.
 

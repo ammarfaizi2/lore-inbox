@@ -1,73 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbTERJTz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 05:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTERJTz
+	id S261863AbTERJQg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 05:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbTERJQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 05:19:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:21691 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261864AbTERJTx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 05:19:53 -0400
-Date: Sun, 18 May 2003 02:31:51 -0700 (PDT)
-Message-Id: <20030518.023151.77034834.davem@redhat.com>
-To: fw@deneb.enyo.de
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org
-Subject: Re: Route cache performance under stress
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <87iss87gqd.fsf@deneb.enyo.de>
-References: <87d6iit4g7.fsf@deneb.enyo.de>
-	<20030517.150933.74723581.davem@redhat.com>
-	<87iss87gqd.fsf@deneb.enyo.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Sun, 18 May 2003 05:16:36 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:33262 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261863AbTERJQe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 05:16:34 -0400
+Subject: Re: [patch] support 64 bit pci_alloc_consistent
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "David S. Miller" <davem@redhat.com>, James.Bottomley@steeleye.com,
+       Grant Grundler <grundler@dsl2.external.hp.com>,
+       Colin Ngam <cngam@sgi.com>, Jeremy Higdon <jeremy@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org, wildos@sgi.com
+In-Reply-To: <16071.1892.811622.257847@trained-monkey.org>
+References: <16071.1892.811622.257847@trained-monkey.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-0c7yDvAUspW93r7FLMOK"
+Organization: Red Hat, Inc.
+Message-Id: <1053250142.1300.8.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 18 May 2003 11:29:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Florian Weimer <fw@deneb.enyo.de>
-   Date: Sun, 18 May 2003 11:21:14 +0200
 
-[ Please don't CC: sim@netnation.org any more, his address
-  bounces at least for me (maybe his site rejects ECN, it is
-  the most likely problem if it works for other people) ]
+--=-0c7yDvAUspW93r7FLMOK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-   "David S. Miller" <davem@redhat.com> writes:
-   
-   > I think your criticism of the routing cache is not well
-   > founded.
-   
-   Well, what would change your mind?
+On Sun, 2003-05-18 at 06:09, Jes Sorensen wrote:
+> Hi Linus,
+>=20
+> This is patch which provides support for 64 bit address allocations from
+> pci_alloc_consistent(), based on the address mask set through
+> pci_set_consistent_dma_mask(). This is necessary on some platforms which
+> are unable to provide physical memory in the lower 4GB block and do not
+> provide IOMMU support for cards operating in certain bus modes, such as
+> PCI-X on the SGI SN2.
 
-I'll start to listen when you start to demonstrate that you understand
-why the input routing cache is there and what problems it solves.
+I rather see a slightly different interface for this all together.
+Right now the template for doing this is that the driver needs to check
+the return value of the "set to 64 bit" operation and itself fall back
+to 32 bit etc. What the driver really wants to achieve is to announce
+device capabilities. The current interface is sort of also used to
+retrieve the capability as well, which is a whole different thing.
 
-More people will also start to listen when you acutally discuss this
-matter on the proper list(s) (which isn't linux-kernel, since
-linux-net and netdev@oss.sgi.com are the proper places).  Most of the
-net hackers have zero time to follow the enourmous amount of traffic
-that exists on linux-kernel and picking out the networking bits.
-Frankly, I /dev/null linux-kernel from time to time as well.
+An interface like
 
-The fact is, our routing cache slow path is _FAST_.  And we garbage
-collect routing cache entries, so the attacker's entries are deleted
-quickly while the entries for legitimate flows stick around.  And
-especially during an attack you want your legitimate traffic using the
-routing cache.
+#define PCI_DMA_64BIT 0xffffffffffffffffULL
+#define PCI_DMA_32BIT 0xffffffffULL
 
-I've never seen you mention this attribute of how the routing cache
-works, nor have I seen you say anything which even suggests that you
-are aware of this.  You could even make this apparent by proposing a
-replacement for the input routing cache.  But remember, it has to
-provide all of the functionality that is there today.
+void pci_set_dma_capabilities(device,=20
+               u64 streaming_mask, u64 persistent_mask);
+u64 pci_get_effective_streaming_mask(device);
+u64 pci_get_effective_persistent_mask(device);
 
-Nobody has demonstrated that there is a performance problem due to the
-input routing cache once the hashing DoS is eliminated, which it is
-in current kernels.  Take this as my challenge to you. :-)
+if for some reason the architecture PCI code needs or wants to reduce
+the DMA mask (for example on non-PAE36 x86 kernels) it now doesn't need
+to return failure for the 64 bit mask (and maybe even the 32 bit one)
+but it can just do it. All places in drivers that actually care about
+the resulting, effective DMA mask now have an interface to get this.=20
+Why this interface? I think it fits closer to what drivers use it for;
+uncomplicated announcing of the hardware's capabilities and independent
+checking of the effective mask, for example for the decision about what
+DMA descriptor model to use in some communications ringbuffer.
 
-   using FreeBSD is not always an option
+Greetings,
+   Arjan van de Ven
 
-Yeah, that dinosaur :-)
+--=-0c7yDvAUspW93r7FLMOK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+x1JdxULwo51rQBIRAq3NAKCmG/bNGJ9a/bRHe5J1cxGVl+g+OwCfSKRa
+oAI1Nf+7x7nWRwcgp3H7OhY=
+=OY5f
+-----END PGP SIGNATURE-----
+
+--=-0c7yDvAUspW93r7FLMOK--

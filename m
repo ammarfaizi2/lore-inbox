@@ -1,92 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbTIYTGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 15:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTIYTGJ
+	id S261863AbTIYTPN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 15:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTIYTPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 15:06:09 -0400
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:44284 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S261964AbTIYTFx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 15:05:53 -0400
-Message-ID: <3F733DF1.7010008@pacbell.net>
-Date: Thu, 25 Sep 2003 12:11:45 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Milton Miller <miltonm@bga.com>, linux-kernel@vger.kernel.org
-Subject: Re: USB problem. 'irq 9: nobody cared!'
-References: <200309242257.h8OMvR5d090443@sullivan.realtime.net> <20030925042326.GA6751@washoe.rutgers.edu> <20030925180020.GB28876@kroah.com>
-In-Reply-To: <20030925180020.GB28876@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------020307050304030901050106"
+	Thu, 25 Sep 2003 15:15:12 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:63498 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261863AbTIYTPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 15:15:10 -0400
+Date: Thu, 25 Sep 2003 20:15:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (9/19): xpram driver.
+Message-ID: <20030925201505.A22993@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20030925171917.GJ2951@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030925171917.GJ2951@mschwid3.boeblingen.de.ibm.com>; from schwidefsky@de.ibm.com on Thu, Sep 25, 2003 at 07:19:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020307050304030901050106
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Sep 25, 2003 at 07:19:17PM +0200, Martin Schwidefsky wrote:
+>  static xpram_device_t xpram_devices[XPRAM_MAX_DEVS];
+> -static int xpram_sizes[XPRAM_MAX_DEVS];
+> +static unsigned int xpram_sizes[XPRAM_MAX_DEVS];
+>  static struct gendisk *xpram_disks[XPRAM_MAX_DEVS];
 
-Greg KH wrote:
-> On Thu, Sep 25, 2003 at 12:23:26AM -0400, Yaroslav Halchenko wrote:
-> 
->>Nop - it didn't help  :-(
->>
->>http://onerussian.com/Linux/bug.USB2/dmesg
->>
->>which else usefull information I can provide?
-> 
-> 
-> David, can you try to fix this up.  It all started with your uhci
-> patch...
-
-I have tried, two or three times now ...
-
-The problem is that nobody has ever reported back with results from
-testing any updated patch (see attachment, the guts of this being
-from Alan Stern).  Sort of makes trying be a moot point ... :)
-
-It's OK with me if you just revert the patch that adds a uhci_reset()
-entry, but based on what I saw with EHCI and OHCI that'll just turn
-up a different set of problems with certain BIOS configurations (none
-of which I have) ... which will need to be fixed by having a UHCI
-reset sequence that works correctly from _all_ initial states.
-
-- Dave
-
-
-
---------------020307050304030901050106
-Content-Type: text/plain;
- name="Diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Diff"
-
---- 1.44/drivers/usb/host/uhci-hcd.c	Fri Jul 18 06:22:32 2003
-+++ edited/drivers/usb/host/uhci-hcd.c	Fri Sep 19 12:23:54 2003
-@@ -1960,8 +1960,9 @@
- {
- 	unsigned int io_addr = uhci->io_addr;
- 
--	/* Global reset for 50ms */
-+	/* Global reset for 50ms, and don't interrupt me */
- 	uhci->state = UHCI_RESET;
-+	outw(0, io_addr + USBINTR);
- 	outw(USBCMD_GRESET, io_addr + USBCMD);
- 	set_current_state(TASK_UNINTERRUPTIBLE);
- 	schedule_timeout((HZ*50+999) / 1000);
-@@ -2187,6 +2188,7 @@
- 	/* Maybe kick BIOS off this hardware.  Then reset, so we won't get
- 	 * interrupts from any previous setup.
- 	 */
-+	outw(0, uhci->io_addr + USBINTR);
- 	pci_write_config_word(hcd->pdev, USBLEGSUP, USBLEGSUP_DEFAULT);
- 	reset_hc(uhci);
- 	return 0;
-
---------------020307050304030901050106--
+Btw, you should really consolidate all these per-device arrays
+in a struct.  Maybe some day you even get rid of the artifical
+limit on the number of devices :)
 

@@ -1,168 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266284AbUGWUFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267947AbUGWUKY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266284AbUGWUFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 16:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266397AbUGWUFd
+	id S267947AbUGWUKY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 16:10:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267725AbUGWUKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 16:05:33 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:60108 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S266284AbUGWUDp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 16:03:45 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Dimitri Sivanich <sivanich@sgi.com>, linux-kernel@vger.kernel.org,
-       John Hawkes <hawkes@sgi.com>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [RFC] Patch for isolated scheduler domains
-Date: Fri, 23 Jul 2004 16:03:09 -0400
-User-Agent: KMail/1.6.2
-References: <20040722164126.GB13189@sgi.com>
-In-Reply-To: <20040722164126.GB13189@sgi.com>
-MIME-Version: 1.0
+	Fri, 23 Jul 2004 16:10:24 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36036 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268001AbUGWUKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 16:10:04 -0400
+Date: Fri, 23 Jul 2004 22:09:54 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Kevin Fox <Kevin.Fox@pnl.gov>
+Cc: Andrew Morton <akpm@osdl.org>, corbet@lwn.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: New dev model (was [PATCH] delete devfs)
+Message-ID: <20040723200954.GP19329@fs.tum.de>
+References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722193337.GE19329@fs.tum.de> <20040722160112.177fc07f.akpm@osdl.org> <1090528107.10227.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_97WABeS4ccHQUIX"
-Message-Id: <200407231603.09055.jbarnes@engr.sgi.com>
+In-Reply-To: <1090528107.10227.4.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 22, 2004 at 01:28:27PM -0700, Kevin Fox wrote:
 
---Boundary-00=_97WABeS4ccHQUIX
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> How is this any different then the old dev model with very short release
+> cycles? (Other then keeping a "2." prefixed forever)
 
-On Thursday, July 22, 2004 12:41 pm, Dimitri Sivanich wrote:
-> I'm interested in implementing something I'll call isolated sched domains
-> for single cpus (to minimize the latencies involved when doing things like
-> load balancing on certain select cpus) on IA64.
+Currently, the old stable tree will be supported for several years even 
+after the new stable tree opens (2.0 and 2.2 seem to be quite dead today 
+and might even miss several security fixes but 2.4 is still 
+well-maintained). If you use a 2.4 kernel today you know that you can 
+follow 2.4 for the next year without risking big breakages.
 
-And here's what I had in mind for restricting the CPU span of a given node's 
-domain.  I haven't even compiled it though, so it probably won't work.  I'm 
-just posting it for comments.
+With the new dev model, I assume noone will maintain a 2.6.8 tree for 
+several years.
 
-I think the code can be reused for a hierarchical system too, by simply 
-looping in sched_domain_node_span with a few different values of SD_MAX_NODE.
+cu
+Adrian
 
-Any thoughts?
+-- 
 
-Thanks,
-Jesse
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
---Boundary-00=_97WABeS4ccHQUIX
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="sched-domain-node-span.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sched-domain-node-span.patch"
-
-===== kernel/sched.c 1.224 vs edited =====
---- 1.224/kernel/sched.c	2004-07-12 18:32:52 -04:00
-+++ edited/kernel/sched.c	2004-07-23 15:31:40 -04:00
-@@ -3699,26 +3699,97 @@
- #ifdef CONFIG_NUMA
- static struct sched_group sched_group_nodes[MAX_NUMNODES];
- static DEFINE_PER_CPU(struct sched_domain, node_domains);
-+
-+#define SD_CPUS_PER_NODE 64
-+
-+/**
-+ * find_next_best_node - find the next node to include in a sched_domain
-+ * @node: node whose sched_domain we're building
-+ * @used_nodes: nodes already in the sched_domain
-+ *
-+ * Find the next node to include in a given scheduling domain.  Simply
-+ * finds the closest node not already in the @used_nodes map.
-+ *
-+ * Should use nodemask_t.
-+ */
-+static int __init find_next_best_node(int node, unsigned long *used_nodes)
-+{
-+	int i, n, val, min_val, best_node;
-+
-+	min_val = INT_MAX;
-+
-+	for (i = 0; i < numnodes; i++) {
-+		/* Start at @node */
-+		n = (node + i) % numnodes;
-+
-+		/* Skip already used nodes */
-+		if (test_bit(used_nodes, n))
-+			continue;
-+
-+		/* Simple min distance search */
-+		val = node_distance(node, i);
-+
-+		if (val < min_val) {
-+			min_val = val;
-+			best_node = n;
-+		}
-+	}
-+
-+	set_bit(used_nodes, best_node);
-+	return best_node;
-+}
-+
-+/**
-+ * sched_domain_node_span - get a cpumask for a node's sched_domain
-+ * @node: node whose cpumask we're constructing
-+ *
-+ * Given a node, construct a good cpumask for its sched_domain to span.  It
-+ * should be one that prevents unnecessary balancing, but also spreads tasks
-+ * out optimally.
-+ *
-+ * Note that this *should* be heirarchical rather than flat, i.e. the
-+ * domain above single CPUs should only span nodes or physical chassis, and
-+ * a domain above that should contain a larger number of CPUs, though
-+ * probably not all of the available ones.
-+ */
-+static cpumask_t __init sched_domain_node_span(int node)
-+{
-+	cpumask_t span;
-+	DECLARE_BITMAP(used_nodes, MAX_NUMNODES);
-+
-+	cpu_clear(span);
-+	bitmap_zero(used_nodes, MAX_NUMNODES);
-+
-+	for (i = 0; i < SD_MAX_NODES; i++) {
-+		int next_node = find_next_best_node(node, used_nodes);
-+		cpu_set(span, node_to_cpumask(next_node));
-+	}
-+	return span;
-+}
-+
- static void __init arch_init_sched_domains(void)
- {
- 	int i;
- 	struct sched_group *first_node = NULL, *last_node = NULL;
- 
-+	for (i = 0; i < MAX_NUMNODES; i++) {
-+		struct sched_domain *node_sd = &per_cpu(node_domains, i);
-+
-+		*node_sd = SD_NODE_INIT;
-+		node_sd->span = sched_domain_node_span(i);
-+		node_sd->groups = &sched_group_nodes[cpu_to_node(i)];
-+	}
-+
- 	/* Set up domains */
- 	for_each_cpu(i) {
- 		int node = cpu_to_node(i);
- 		cpumask_t nodemask = node_to_cpumask(node);
--		struct sched_domain *node_sd = &per_cpu(node_domains, i);
- 		struct sched_domain *cpu_sd = &per_cpu(cpu_domains, i);
- 
--		*node_sd = SD_NODE_INIT;
--		node_sd->span = cpu_possible_map;
--		node_sd->groups = &sched_group_nodes[cpu_to_node(i)];
--
- 		*cpu_sd = SD_CPU_INIT;
- 		cpus_and(cpu_sd->span, nodemask, cpu_possible_map);
- 		cpu_sd->groups = &sched_group_cpus[i];
--		cpu_sd->parent = node_sd;
-+		cpu_sd->parent = &per_cpu(node_domains, i);
- 	}
- 
- 	/* Set up groups */
-
---Boundary-00=_97WABeS4ccHQUIX--

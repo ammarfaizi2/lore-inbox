@@ -1,95 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262106AbRE3UeQ>; Wed, 30 May 2001 16:34:16 -0400
+	id <S262170AbRE3Ulg>; Wed, 30 May 2001 16:41:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262094AbRE3UeG>; Wed, 30 May 2001 16:34:06 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:22761 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S262076AbRE3Ud7>;
-	Wed, 30 May 2001 16:33:59 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200105302033.NAA07866@csl.Stanford.EDU>
-Subject: [CHECKER] new floating point bugs in 2.4.5-ac4
+	id <S262090AbRE3Ul0>; Wed, 30 May 2001 16:41:26 -0400
+Received: from mercury.ukc.ac.uk ([129.12.21.10]:58540 "EHLO mercury.ukc.ac.uk")
+	by vger.kernel.org with ESMTP id <S262094AbRE3UlU>;
+	Wed, 30 May 2001 16:41:20 -0400
+Date: Wed, 30 May 2001 21:40:45 +0100 (BST)
+From: Leonid Timochouk <L.A.Timochouk@ukc.ac.uk>
 To: linux-kernel@vger.kernel.org
-Date: Wed, 30 May 2001 13:33:57 -0700 (PDT)
-Cc: mc@cs.Stanford.EDU
-X-Mailer: ELM [version 2.5 PL1]
+Subject: Segfault during network calls
+Message-ID: <Pine.GSO.4.21.0105302124290.10349-100000@myrtle.ukc.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are two new uses of floating point that popped up in the 2.4.5-ac4
-kernel.  While the expressions that use FP are trivial, at least my
-version of gcc does not calculate them at compile time.
+Hello colleagues,
 
-As a bonus, two old, but still existing FP uses are also included.
+We have a strange problem with our multi-threaded SMTP client: at very
+heavy load (e.g. 150 threads, each with a pool of 5 persistent
+connections) it sometimes receives SIGSEGV while making network kernel
+calls (mostly in "recvfrom" for both TCP and UDP, but also in "connect").
+This happens for both 2.2.12 and 2.4.4 kernels on a Celeron 600 machine
+(no SMP) with glibc 2.1.3. The kernel logs do not show any problems, yet
+the application program gets killed. This happens MORE frequently if we
+increase the number of file descriptors available to the process (using
+"ulimit -n"), which suggests some resource utilisation problem in the
+kernel (?) E.g., is there a compiled-in upper bound on the total number of
+sockets which can be created by all processes? (I could not find
+SOCK_ARRAY_SIZE in 2.4.4). Any ideas would be very much appreciated.
 
-Dawson
-MC linux bug database: http://hands.stanford.edu/linux
+Thank you very much in advance,
 
-############################################################
-# New errors.
-#
----------------------------------------------------------
-[BUG] DMFE_TX_TIMEOUT is HZ * 1.5 which seems easy to fix.
+Dr. Leonid A. Timochouk
+Computing Laboratory
+University of Kent at Canterbury
 
-/u2/engler/mc/oses/linux/2.4.5-ac4/drivers/net/dmfe.c:1112:dmfe_timer: ERROR:FLOAT: cannot use fp in kernel
-
-	if ( db->tx_packet_cnt &&
-		((jiffies - dev->trans_start) > DMFE_TX_KICK) ) {
-		outl(0x1, dev->base_addr + DCR1);   /* Tx polling again */
-
-		/* TX Timeout */
-
-Error --->
-		if ( (jiffies - dev->trans_start) > DMFE_TX_TIMEOUT ) {
----------------------------------------------------------
-[BUG] DMFE_TX_KICK is (HZ * 0.5) which gcc does as floating point.  Fix is
-	trivial: just divide by 2 instead.
-/u2/engler/mc/oses/linux/2.4.5-ac4/drivers/net/dmfe.c:1108:dmfe_timer: ERROR:FLOAT: cannot use fp in kernel
-
-	}
-	db->interval_rx_cnt = 0;
-
-	/* TX polling kick monitor */
-	if ( db->tx_packet_cnt &&
-
-Error --->
-		((jiffies - dev->trans_start) > DMFE_TX_KICK) ) {
-
-############################################################
-# Existing, unfixed errors
-#
----------------------------------------------------------
-[BUG]
-/u2/engler/mc/oses/linux/2.4.5-ac4/drivers/video/sgivwfb.c:731:sgivwfb_set_var: ERROR:FLOAT: cannot use fp in kernel
-
-  var->green.msb_right = 0;
-  var->blue.msb_right = 0;
-  var->transp.msb_right = 0;
-
-  /* set video timing information */
-
-Error --->
-  var->pixclock = (__u32)(1.0e+9/(float)timing->cfreq);
----------------------------------------------------------
-[BUG]
-/u2/engler/mc/oses/linux/2.4.5-ac4/drivers/video/sgivwfb.c:664:sgivwfb_set_var: ERROR:FLOAT: cannot use fp in kernel
-
-    return -EINVAL;             /* Resolution to high */
-
-  /* XXX FIXME - should try to pick best refresh rate */
-  /* for now, pick closest dot-clock within 3MHz*/
-#error "Floating point not allowed in kernel"  
-
-Error --->
-  req_dot = (int)((1.0e3/1.0e6) / (1.0e-12 * (float)var->pixclock));
-
-
-
-############################################################
-# Old fixed
-#
-[FIXED] sis_main.c:crtc_to_var:FLOAT: cannot use fp in kerne
-/u2/engler/mc/oses/linux/2.4.4/drivers/video/sis/sis_main.c:588:crtc_to_var: ERROR:FLOAT: cannot use fp in kernel

@@ -1,22 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVBTOlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVBTOoX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261834AbVBTOlY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 09:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVBTOlY
+	id S261835AbVBTOoX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 09:44:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVBTOoW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 09:41:24 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:59834 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S261834AbVBTOlV
+	Sun, 20 Feb 2005 09:44:22 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:45756 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261835AbVBTOoT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 09:41:21 -0500
-Date: Sun, 20 Feb 2005 06:41:10 -0800
+	Sun, 20 Feb 2005 09:44:19 -0500
+Date: Sun, 20 Feb 2005 06:44:12 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Joerg Sommrey <jo@sommrey.de>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Question on CONFIG_IRQBALANCE / 2.6.x
-Message-ID: <318120000.1108910469@[10.10.2.4]>
-In-Reply-To: <20050218225722.GA11292@sommrey.de>
-References: <20050218213332.GA13485@sommrey.de> <4440000.1108766389@flay> <20050218225722.GA11292@sommrey.de>
+To: Jeff Garzik <jgarzik@pobox.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: ncunningham@cyclades.com, kwijibo@zianet.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Should kirqd work on HT?
+Message-ID: <320350000.1108910651@[10.10.2.4]>
+In-Reply-To: <421769BD.4060606@pobox.com>
+References: <88056F38E9E48644A0F562A38C64FB60040DBACB@scsmsx403.amr.corp.intel.com> <421769BD.4060606@pobox.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,25 +27,25 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > there's something I don't understand:  With IRQBALANCE *enabled* almost
->> > all interrupts are processed on CPU0.  This changed in an unexpected way
->> > after disabling IRQBALANCE: now all interrupts are distributed uniformly
->> > to both CPUs.  Maybe it's intentional, but it's not what I expect when a
->> > config option named IRQBALANCE is *disabled*.
->> > 
->> > Can anybody comment on this?
->> 
->> If you have a Pentium 3 based system, by default they'll round robin.
->> If you turn on IRQbalance, they won't move until the traffic gets high
->> enough load to matter. That's presumably what you're seeing.
-> 
-> It's an Athlon box that propably has the same behaviour.  Just another
-> question on this topic:  with IRQBALANCE enabled, almost all interupts
-> are routet to CPU0.  Lately irq 0 runs on CPU1 and never returns to CPU0
-> - is there any obvious reason for that?
+--Jeff Garzik <jgarzik@pobox.com> wrote (on Saturday, February 19, 2005 11:30:53 -0500):
 
-If it's not getting interrupts at 1010 per second or so, it won't rotate
-them, on the grounds it's not worthwhile.
+> Pallipadi, Venkatesh wrote:
+>> You are right. Kernel balancer doesn't move around the irqs, unless it
+>> has too many interrupts. The logic is moving around interrupts all the
+>> time will not be good on caches. So, there is a threshold above which
+>> the balancer start moving things around.
+>> 
+>> You should see them moving around if you do 'ping -f' or a big 'dd' from
+>> the disk.
+> 
+> If kirqd is moving NIC interrupts, it's broken.
+> 
+> (and another reason why irqbalanced is preferable)
+
+Why is it broken to move NIC interrupts? Obviously you don't want to
+rotate them around a lot, but in the interests of fairness to other 
+processes, it seems reasonable to migrate them occasionally (IIRC, kirqd
+rate limits to once a second or something).
 
 M.
 

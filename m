@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264062AbTEGPn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 11:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264057AbTEGPn5
+	id S264080AbTEGPvz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 11:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTEGPvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 11:43:57 -0400
-Received: from mail.convergence.de ([212.84.236.4]:62355 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S264062AbTEGPnz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 11:43:55 -0400
-Message-ID: <3EB92CAD.2040502@convergence.de>
-Date: Wed, 07 May 2003 17:56:29 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+	Wed, 7 May 2003 11:51:55 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:17165 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264080AbTEGPvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 11:51:53 -0400
+Date: Wed, 7 May 2003 17:04:27 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: [PATCH[[2.5][3-11] update dvb subsystem core
-References: <3EB7DCF0.2070207@convergence.de> <20030506220828.A19971@infradead.org> <3EB8C67A.4020500@convergence.de> <20030507102256.B14040@infradead.org>
-In-Reply-To: <20030507102256.B14040@infradead.org>
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030507170427.B29161@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Hunold <hunold@convergence.de>,
+	linux-kernel@vger.kernel.org, torvalds@transmeta.com
+References: <3EB7DCF0.2070207@convergence.de> <20030506214918.A18262@infradead.org> <3EB8CFA2.5090405@convergence.de> <20030507102857.C14040@infradead.org> <3EB92CB1.7050400@convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3EB92CB1.7050400@convergence.de>; from hunold@convergence.de on Wed, May 07, 2003 at 05:56:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph,
+On Wed, May 07, 2003 at 05:56:33PM +0200, Michael Hunold wrote:
+> I won't insist on keeping code that I haven't written. My only point is 
+> that we use the code in set-top-boxes, where every byte is valuable. But 
+>   I suspect that there are numerous other places where we could safe 
+> bytes... 8-)
 
-> That okay in principle, but I'd like to ask you nicely to not touch any
-> devfs-related stuff currently.  I'ts in flux and any external change
-> makes my life in cleaning up the mess a lot harder.
+This code will go away soon for both the devfs and non-devfs case..
 
-The problem was that the devices disappeared. I did not realize that you 
-did a typo and they were created at another place, though.
+> > Okay, you're right I should have read more of the code to get the global
+> > picture.  You still wan't an owner field for at least struct dvb_device
+> > device, though - but the try_module_get must go into dvb_generic_open
+> > and maybe in more other places where you use the "backend" modules.
+> 
+> I don't get that, sorry. The backend modules have functional 
+> dependencies and register/deregister upon loading/unloading. There is 
+> never a call from the dvb-core to the backend modules. Do I really need 
+> an owner field then?
 
-So I rewrote the code for both 2.4 and 2.5 and it worked again.
+It doesn't have to be a call.  Unless I completely misread the code
+your dvb core references struct dvb_adapter in certain cases.  But
+struct dvb_adapter is allocated in the actual drivers so these could be
+unloaded and give you scrambled memory even when it's still in use.
 
->>I understand. But delaying the dvb updates just because a few calls to 
->>the devfs subsystem (which are now separated by #ifdefs and can easily 
->>be found) is not a good option either, or is it?
-
-> I think it is :)  Esepcially as you don't just add ifdefs (which give
-> me lots of rejects and you much uglier code than just using the
-> compat header I'll send to lkml once I'm done with the API changes) but
-> you also change the code that's ifdefed for 2.5 to reverse change I
-> did.  There is a reason why I removed every occurance of devfs_handle_t
-> from all drivers and the particular reason is that it will go away in
-> the next series of patches.
-
-Ok, I understand.
-
-I promise that I don't touch the devfs related code anymore. But, how do 
-we proceed in general?
-
-Will the other patches be applied and who does that for which tree?
-Shall I resend the patches where you had objections?
-
-CU
-Michael.
+So you need to acquire a reference on those backends whenever you
+touch any object that logically belongs to them.
 

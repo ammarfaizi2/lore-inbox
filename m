@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270927AbTGVQuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 12:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270928AbTGVQuJ
+	id S270939AbTGVQwV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 12:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270940AbTGVQwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 12:50:09 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:38282 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270927AbTGVQuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 12:50:01 -0400
-Date: Tue, 22 Jul 2003 14:01:25 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Aschwin Marsman <a.marsman@aYniK.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre7: are security issues solved?
-In-Reply-To: <200307221707.26033.m.c.p@wolk-project.de>
-Message-ID: <Pine.LNX.4.55L.0307221400500.23424@freak.distro.conectiva>
-References: <Pine.LNX.4.44.0307221659320.1850-100000@localhost.localdomain>
- <200307221707.26033.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 22 Jul 2003 12:52:21 -0400
+Received: from ce.fis.unam.mx ([132.248.33.1]:49889 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id S270939AbTGVQwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 12:52:06 -0400
+Subject: Re: no EMU10k1 Sound on 2.6.0-test1-ac2
+From: Max Valdez <maxvalde@fis.unam.mx>
+To: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030722160242.GA23041@mikamyla.com>
+References: <1058867364.13457.4.camel@garaged.homeip.net>
+	 <20030722160242.GA23041@mikamyla.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VdyXjPWqueCUO10l7+FY"
+Message-Id: <1058875762.4013.1.camel@garaged.homeip.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 22 Jul 2003 07:09:22 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-VdyXjPWqueCUO10l7+FY
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 22 Jul 2003, Marc-Christian Petersen wrote:
+I will try that later.
 
-> On Tuesday 22 July 2003 17:02, Aschwin Marsman wrote:
->
-> Hi Aschwin,
->
-> > > > Red Hat has released a new kernel today, that fixes several security
-> > > > issues. I currently use 2.4.22-pre7, are those security issues solved
-> > > > in this kernel too?
-> > > no.
-> > Thanks for your reply, I only hoped for another answer. I hope that these
-> > security issues will be solved in 2.4.22-pre8.
-> well, I hope that too ;)
->
-> I can send these patches for inclusion. Marcelo? Would you consider including
-> them?
+I changed to the oss driver and everything is fine, no skips on sound,
+and i can actually hear mp3 :-), the weird thing is that test1 and
+test1-ac1 didnt had any problem.
 
-Yes, of course.
+I will try ur comment on next reboot, thanks Dave !
+Max
 
-Please send them for _consideration_. ;)
+
+On Tue, 2003-07-22 at 11:02, Dave Barry wrote:
+> Quothe Max Valdez <maxvaldez@yahoo.com>, on Tue, Jul 22, 2003:
+> > Hi,
+> >=20
+> > Is anybody having problems with alsa sound on 2.6.0-test1-ac2 ??
+> >=20
+> > I have all my modules mounted, and this time, I can even look the tree
+> > with lsmod (couldnt do it with any other 2.5.X or 2.6-0-test1). But my
+> > speakears dont get any signal :-(.
+> >=20
+> > Sound worked perfect on test1-ac1. and test1 too.
+>=20
+> Hi,=20
+>=20
+> This may not help, but on my system, I had to use alsamixer to mute the
+> digital out channel (which was enabled by default) to hear sound via the
+> analog channels.
+--=20
+Linux garaged 2.6.0-test1-ac1 #2 SMP Tue Jul 15 06:25:03 CDT 2003 i686 Pent=
+ium III (Coppermine) GenuineIntel GNU/Linux
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GS/ d-s:a-28C++ILHA+++P+L++>+++E---W++N*o--K-w++++O-M--V--PS+PEY--PGP++t5XR=
+tv++b++DI--D-G++e++h-r+y**
+------END GEEK CODE BLOCK------
+gpg-key: http://garaged.homeip.net/gpg-key.txt
+
+--=-VdyXjPWqueCUO10l7+FY
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/HSlxsrSE6THXcZwRAhTVAKC1Pr8yZNuKz1eGLW6QYhcGC7BRvQCeMSgE
+wM5CZRFYVistxgvFFY2NIS0=
+=JQOB
+-----END PGP SIGNATURE-----
+
+--=-VdyXjPWqueCUO10l7+FY--
+

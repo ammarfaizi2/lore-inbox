@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUBZUKl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUBZUKl
+	id S262836AbUBZUKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262972AbUBZUKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:10:41 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8888 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262972AbUBZUK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:10:29 -0500
-Date: Thu, 26 Feb 2004 12:09:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: davidm@hpl.hp.com
-Cc: davidm@napali.hpl.hp.com, peter@chubb.wattle.id.au, kingsley@aurema.com,
-       linux-kernel@vger.kernel.org, Daniel Jacobowitz <dan@debian.org>
-Subject: Re: /proc visibility patch breaks GDB, etc.
-Message-Id: <20040226120959.35b284ff.akpm@osdl.org>
-In-Reply-To: <16446.19305.637880.99704@napali.hpl.hp.com>
-References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
-	<20040225224410.3eb21312.akpm@osdl.org>
-	<16446.19305.637880.99704@napali.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 26 Feb 2004 15:10:21 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:38275 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262836AbUBZUKQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 15:10:16 -0500
+Message-ID: <403E53C3.9090106@tmr.com>
+Date: Thu, 26 Feb 2004 15:14:59 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <1tfy0-7ly-29@gated-at.bofh.it> <1thzJ-A5-13@gated-at.bofh.it> <1tjrN-2m5-1@gated-at.bofh.it> <1tjLa-2Ab-9@gated-at.bofh.it> <1tlaf-3OY-11@gated-at.bofh.it> <1tljX-3Wf-5@gated-at.bofh.it> <1tznd-CP-35@gated-at.bofh.it> <1tzQe-10s-25@gated-at.bofh.it>
+In-Reply-To: <1tzQe-10s-25@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger <davidm@napali.hpl.hp.com> wrote:
->
-> >>>>> On Wed, 25 Feb 2004 22:44:10 -0800, Andrew Morton <akpm@osdl.org> said:
+Mike Fedyk wrote:
+> Shailabh Nagar wrote:
 > 
->   Andrew> Peter Chubb <peter@chubb.wattle.id.au> wrote:
->   >> 
->   >> 
->   >> In fs/proc/base.c:proc_pid_lookup(), the patch
->   >> 
->   >> read_unlock(&tasklist_lock); if (!task) goto out; + if
->   >> (!thread_group_leader(task)) + goto out_drop_task;
->   >> 
->   >> inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
->   >> 
->   >> means that threads other than the thread group leader don't
->   >> appear in the /proc top-level directory.  Programs that are
->   >> informed via pid of events can no longer find the appropriate
->   >> process -- for example, using gdb on a multi-threaded process, or
->   >> profiling using perfmon.
->   >> 
->   >> The immediate symptom is GDB saying: Could not open
->   >> /proc/757/status when 757 is a TID not a PID.
+>>>> Mike Fedyk wrote:
+>>>>
+>>>>> Better would be to have the kernel tell the daemon whenever a 
+>>>>> process in exec-ed, and you have simplicity in the kernel, and 
+>>>>> policy in user space.
+>>
+>>
+>>
+>>
+>> As it turns out, one can still use a fairly simple in-kernel module 
+>> which provides a *mechanism* for effectively changing a process' 
+>> entitlement while retaining the policy component in userland.
 > 
->   Andrew> What does `ls /proc/757' say?  Presumably no such file or
->   Andrew> directory?  It's fairly bizare behaviour to be able to open
->   Andrew> files which don't exist according to readdir, which is why
->   Andrew> we made that change.
 > 
-> Excuse, but this seems seriously FOOBAR.  I understand that it's
-> interesting to see the thread-leader/thread relationship, but surely
-> that's no reason to break backwards compatibility and the ability to
-> look up _any_ task's info via /proc/PID/.
+> How much code could be removed if CKRM triggered a userspace process to 
+> perform the operations required?
 
-Well you can't look them up - you can only open them.  But I take your
-point.  In another life, these things would appear under a special
-/proc/magical_directory_which_has_dopey_semantics.
+One other interesting question is what would happen if the userspace 
+program didn't run, died, etc. Or set some ill-behaved other user 
+program to a higher priority and the other program did a DoS 
+(intentional or not)?
 
-> A program that only wants
-> to show "processes" (thread-group leaders) can simply read
-> /proc/PID/status and ignore the entries for which Tgid != PPid.
-> 
-> Perhaps you could put relative symlinks in task/?  Something like
-> this:
-> 
->  $ ls -l /proc/self/task
->  dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13494 -> ..
->  dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13495 -> ../../13495
-> 
-> perhaps?
+I don't like the whole idea, but I like it even less with a user program 
+requiring context switches on scheduling.
 
-Well the contents of /proc/pid/task are OK at present.
-
-I guess we should revert that change.

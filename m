@@ -1,87 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261377AbSIXPzV>; Tue, 24 Sep 2002 11:55:21 -0400
+	id <S261697AbSIXQSW>; Tue, 24 Sep 2002 12:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261418AbSIXPzV>; Tue, 24 Sep 2002 11:55:21 -0400
-Received: from nameservices.net ([208.234.25.16]:17037 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S261377AbSIXPzU>;
-	Tue, 24 Sep 2002 11:55:20 -0400
-Message-ID: <3D908D2A.C169D01B@opersys.com>
-Date: Tue, 24 Sep 2002 12:04:58 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S261698AbSIXQSW>; Tue, 24 Sep 2002 12:18:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3930 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261697AbSIXQSV>; Tue, 24 Sep 2002 12:18:21 -0400
+To: Bill Huey (Hui) <billh@gnuppy.monkey.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Ingo Molnar <mingo@elte.hu>,
+       Ulrich Drepper <drepper@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+References: <Pine.LNX.3.96.1020922093417.6569A-100000@gatekeeper.tmr.com>
+	<m1u1khkgt7.fsf@frodo.biederman.org>
+	<20020923001125.GA1983@gnuppy.monkey.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 24 Sep 2002 10:07:29 -0600
+In-Reply-To: <20020923001125.GA1983@gnuppy.monkey.org>
+Message-ID: <m1fzvzjrr2.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Fwd: Announce: rtai-24.1.10]
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Huey (Hui) <billh@gnuppy.monkey.org> writes:
 
-For those on the LKML interested in RTAI:
+> On Sun, Sep 22, 2002 at 12:41:40PM -0600, Eric W. Biederman wrote:
+> > They are talking about an incremental GC routine so it does not need to stop
+> > all threads simultaneously.  Threads only need to be stopped when the GC is
+> gather
+> 
+> > a root set.  This is what the safe points are for right?  And it does
+> > not need to be 100% accurate in finding all of the garbage.  The
+> > collector just needs to not make mistakes in the other direction.
+> 
+> There's a mixture of GC algorithms in HotSpot including generational and I
+> believe a traditional mark/sweep. GC isn't my expertise per se.
 
-Paolo Mantegazza wrote:
-> Hi,
+If they have any sense they also have an incremental GC algorithm.  That
+the GC thread can sit around all day and executing.  If they are actually
+using a stop and collect algorithm there are real issues.  Though I would
+love to see the Java guys justify a copy collector...
+
+> Think, you have a compiled code block and you suspend/interrupt threads when
+> you either start hitting the stack yellow guard or by a periodic GC thread...
 > 
-> at: www.aero.polimi.it/~rtai you'll find "rtai-24.1.10".
-> 
-> It is a huge one, worth a couple of releases before it. There are so
-> many new things that I'm not sure to recall them all. More or less and
-> without caring of any order of presentation what's new should be:
-> 
-> - NEWLXRT, i.e. LXRT without using RTAI proper tasks. It schedules just
-> LINUX tasks and kernel threads natively. Under NEWLXRT kernel space
-> threads works in hard mode always, user space Linux tasks can be
-> soft/hard as in LXRT. You can think of it as something that makes Linux
-> a hard real time kernel natively, albeit under the constraint of using
-> RTAI APIs. Anything that runs under RTAI can run under NEWLXRT
-> (kernel/user space). Back portable down to rtai-24.1.7 by just copying
-> the related directory.
-> 
-> - Full support for writing interrupt handlers in user space under
-> LXRT/NEWLXRT (UserSpaceInterrups-USI).
-> 
-> - Support for COMEDI kernel space APIs (kcomedilib) in user space under
-> LXRT/NEWLXRT, in soft/hard real time. (The Comedi Players)
-> 
-> - Support for LABVIEW under LXRT/NEWLXRT, in soft/hard real time. It is
-> now possible to program your hard real time applications, including
-> interrupt handlers, using the visual 'G' language. (Thomas Leibner)
-> 
-> - LXRT extensions can now use the FPU. (Giuseppe Renoldi)
-> 
-> - A new real time support for serial ports, user/kernel space (SPDRV).
-> (Giuseppe Renoldi)
-> 
-> - Support for making it easy for you to prepare a bootable floppy that
-> runs RTAI (uRTAI, read it microRTAI). (Lorenzo Dozio)
-> 
-> - RTW should work more reliably and has more DAQ boards supported,
-> including NI-MIO line. (Lorenzo Dozio)
-> 
-> - Revised and more detailed configuration for a better making. (Lorenzo
-> Dozio, with help and suggestions from the RTAI team)
-> 
-> It is also possible to apply a new patch (allsoft) that allows
-> configuring RTAI to manage all interrupts (hard/soft), in the soft way
-> (ALLSOFT) and avoid scheduling any RTAI proper tasks from Linux
-> (MINI_LXRT). The new configuration making will assist you in setting up
-> such features, if you use the "allsoft" patch.
-> 
-> It is distributed as a short living provisional work.
-> 
-> In fact ALLSOFT+MINI_LXRT is meant to pave the way to the ADEOS
-> transition by statically mimicking its multi-domain scheme in
-> replacement of the previous master(RTAI)-slave(Linux) approach. It is
-> intended to provide the bottom line in terms of performance that we
-> should be able to reach, hopefully improve, with ADEOS, so people can
-> immediately experiment the implications of the future transition to
-> ADEOS. Such a transition will be the core of rtai-24.1.11.
-> 
-> I'll not dwell on the meaning of having ALLSOFT+MINI_LXRT and NEWLXRT
-> (back portable), RTAI users should grasp it easily.
-> 
-> Paolo Mantegazza.
+> That can happen anytime, so you can't just expect things to drop onto a
+> regular boundary in the compiled code block.
+
+Agreed, but what was this talk earlier about safe points?
+
+>  It's for that reason that
+> you have to some kind of OS level threading support to get the ucontext.
+
+I don't quite follow the need and I'm not certain you do either.  A full
+GC pass is very expensive.  So saving a threads context in user space
+should not be a big deal.  It is very minor compared to the rest
+of the work going on.  Especially in a language like java where practically
+everything lives on the heap.
+
+The thing that sounds sensible to me is that before a threads makes a blocking
+call it can be certain to save relevant bits of information to the stack.  But
+x86 is easy what to do with the pointer heavy architectures where pushing
+all of the registers onto the stack starts getting expensive is an entirely
+different question.
+
+But beyond that.  The most sensible algorithm I can see is a
+generational incremental collector where each thread has it's own
+local heap, and does it's own local garbage collection. And only the
+boundary where the local heap meets the global heap needs to collected
+by the collector for all threads.  This preserves a lot of cache
+locality as well as circumventing the whole ucontext issue.
+
+If getting the registers is really a bottle neck in the garbage
+collector I suspect it can probably share some generic primitives
+with user mode linux.
+
+If support really needs to happen I suspect this case is close
+enough to what that user mode linux is doing that someone should
+look at how the same mechanism to get the register state can be
+shared.
+
+Eric

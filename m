@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265495AbUGGVeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUGGVtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265495AbUGGVeS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 17:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUGGVeS
+	id S265502AbUGGVtH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 17:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265510AbUGGVtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 17:34:18 -0400
-Received: from cantor.suse.de ([195.135.220.2]:50157 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265495AbUGGVeR (ORCPT
+	Wed, 7 Jul 2004 17:49:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60827 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265502AbUGGVtE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 17:34:17 -0400
-Subject: Re: Unnecessary barrier in sync_page()?
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andrea Arcangeli <andrea@suse.de>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040707143015.03379d0f.akpm@osdl.org>
-References: <20040707175724.GB3106@logos.cnet>
-	 <20040707182025.GJ28479@dualathlon.random>
-	 <20040707112953.0157383e.akpm@osdl.org>
-	 <20040707184202.GN28479@dualathlon.random>
-	 <1089233823.3956.80.camel@watt.suse.com>
-	 <20040707210608.GS28479@dualathlon.random>
-	 <20040707143015.03379d0f.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089236056.3956.91.camel@watt.suse.com>
+	Wed, 7 Jul 2004 17:49:04 -0400
+Date: Wed, 7 Jul 2004 14:47:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Creation of driver-specific sysfs attributes
+Message-ID: <20040707214731.GA4514@kroah.com>
+References: <20040707152106.GB2168@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 07 Jul 2004 17:34:16 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707152106.GB2168@logos.cnet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-07 at 17:30, Andrew Morton wrote:
+On Wed, Jul 07, 2004 at 12:21:06PM -0300, Marcelo Tosatti wrote:
+> Hi Greg, others,
+> 
+> Hope this is not a FAQ.
+> 
+> I want to export some read-only attributes (statistics) from cyclades.c char 
+> driver to userspace via sysfs. 
+> 
+> I can't figure out the right place to do it - I could create a class under
+> /sys/class/cyclades for example, but that doesnt sound right since this 
+> is not a "class" of device, but a device itself.
 
-> But I cannot think of any callers of sync_page() who don't have a ref on
-> the inode, so...
+For a driver only attribute, you want them to show up in the place for
+the driver (like under /sys/bus/pci/driver/MY_FOO_DRIVER/).  To do that
+use the DRIVER_ATTR() and the driver_add_file() functions.  For
+examples, see the other drivers that use these functions.
 
-I looked pretty hard for callers that didn't have a ref on the inode
-while debugging the backing dev oopsen...I couldn't find any.
+Hope this helps,
 
--chris
-
-
+greg k-h

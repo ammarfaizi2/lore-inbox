@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318223AbSIBEAy>; Mon, 2 Sep 2002 00:00:54 -0400
+	id <S318221AbSIBED0>; Mon, 2 Sep 2002 00:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318222AbSIBEAy>; Mon, 2 Sep 2002 00:00:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29202 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318219AbSIBEAx>; Mon, 2 Sep 2002 00:00:53 -0400
-Date: Sun, 1 Sep 2002 21:13:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org, <linux-raid@vger.kernel.org>
-Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
-In-Reply-To: <15730.42533.481161.627180@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.44.0209012110490.1516-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318222AbSIBED0>; Mon, 2 Sep 2002 00:03:26 -0400
+Received: from p508B6F8E.dip.t-dialin.net ([80.139.111.142]:20867 "EHLO
+	p508B6F8E.dip.t-dialin.net") by vger.kernel.org with ESMTP
+	id <S318221AbSIBEDZ>; Mon, 2 Sep 2002 00:03:25 -0400
+Date: Mon, 2 Sep 2002 06:07:49 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: dirty boy <slashdotcommacolon@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux ELF Implementation
+Message-ID: <20020902060749.A6109@bacchus.dhis.org>
+References: <F218kOUkl2SN8anK0B30000890f@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <F218kOUkl2SN8anK0B30000890f@hotmail.com>; from slashdotcommacolon@hotmail.com on Sun, Sep 01, 2002 at 10:26:10PM +0000
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 01, 2002 at 10:26:10PM +0000, dirty boy wrote:
 
-On Mon, 2 Sep 2002, Neil Brown wrote:
+> im learning about the ELF specification with a friend of mine, were hoping 
+> to get a better understanding of how these things work, and a wild idea 
+> occurred to us - would it be possible to create a valid ELF executable from 
+> purely printable ASCII characters ?
 > 
-> I'm actually a little disappointed by this change.  I was hoping that
-> the ->queue might get changed to be passed a 'struct block_device *'
-> instead of a 'kdev_t' so that the device driver would only have to
-> interpret the device number in one place: the open.  But now that
-> ->queue is called before ->open, that wouldn't help.
+> by that i mean, you would be able to literally cat > a.out and enter your 
+> executable from the keyboard! it wouldnt have todo anything, just return 
+> 0...
+> 
+> the file wouldnt have to be portable, only the fields that the kernel is 
+> going to notice would have to be present, so long as it executes!
+> 
+> im convinced the answer is no - but my friend says it is, he says hes seen 
+> it done in PE format ( although we cant find it on the web ) and therefore 
+> theres no reason why it couldnt be done in ELF.
 
-We may still do this. 
+There answer is no; the ELF magic at the begin of an ELF file contains
+a non-printable character.
 
-Right now the _only_ reason to call ->queue before open() is that open() 
-is also doing things like disk change checking, which reasonably needs the 
-queue because it can need to do IO in order to check the disk change 
-status. The floppy in fact did exactly this.
-
-HOWEVER, that disk change checking really should be done by the generic
-layers, and it should be done after the open() anyway (and not by the
-open), and I think Al is actually working on this. That will allow us to 
-be a bit more flexible about the ordering.
-
-		Linus
-
+  Ralf

@@ -1,39 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316786AbSFZTFy>; Wed, 26 Jun 2002 15:05:54 -0400
+	id <S316604AbSFZTwg>; Wed, 26 Jun 2002 15:52:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316788AbSFZTFx>; Wed, 26 Jun 2002 15:05:53 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:6695 "EHLO devil.stev.org")
-	by vger.kernel.org with ESMTP id <S316786AbSFZTFw>;
-	Wed, 26 Jun 2002 15:05:52 -0400
-Message-ID: <008901c21d44$231e5fd0$0501a8c0@Stev.org>
-From: "James Stevenson" <mistral@stev.org>
-To: <gul@gul.kiev.ua>, <linux-kernel@vger.kernel.org>
-References: <20020626110230.GA21100@happy.kiev.ua>
-Subject: Re: kernel crash
-Date: Wed, 26 Jun 2002 20:03:20 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S316803AbSFZTwf>; Wed, 26 Jun 2002 15:52:35 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33294 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316604AbSFZTwe>; Wed, 26 Jun 2002 15:52:34 -0400
+Date: Wed, 26 Jun 2002 21:52:38 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: suspend-to-disk: prototype fixes
+Message-ID: <20020626195237.GA3391@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
->
-> Jun 20 04:33:30 gate kernel: ------------[ cut here ]------------
-> Jun 20 04:33:30 gate kernel: kernel BUG at inode.c:1066!
-> Jun 20 04:33:30 gate kernel: invalid operand: 0000
-> Jun 20 04:33:30 gate kernel: ip_nat_ftp ipt_REJECT ipt_REDIRECT cls_u32
-sch_tbf sch_cbq autofs smbfs ne2k-p
-> Jun 20 04:33:30 gate kernel: CPU:    0
-> Jun 20 04:33:31 gate kernel: EIP:    0010:[iput+47/496]    Tainted: P
-> Jun 20 04:33:31 gate kernel: EIP:    0010:[<c0148cdb>]    Tainted: P
-> Jun 20 04:33:31 gate kernel: EFLAGS: 00010286
+Adding missing prototypes / changing code not to need
+prototypes. Please apply,
 
-what makes your kernel tainted ?
-do you have some binary only drivers ?
+							Pavel
 
+--- clean/arch/i386/kernel/suspend.c	Wed Jun 26 20:18:53 2002
++++ linux-swsusp/arch/i386/kernel/suspend.c	Wed Jun 12 08:39:31 2002
+@@ -97,6 +97,14 @@
+ 	asm volatile ("pushfl ; popl (%0)" : "=m" (saved_context.eflags));
+ }
+ 
++static void
++do_fpu_end(void)
++{
++        /* restore FPU regs if necessary */
++	/* Do it out of line so that gcc does not move cr0 load to some stupid place */
++        kernel_fpu_end();
++}
++
+ /*
+  * restore_processor_context
+  * 
+@@ -220,13 +228,6 @@
+ 
+ }
+ 
+-static void
+-do_fpu_end(void)
+-{
+-        /* restore FPU regs if necessary */
+-	/* Do it out of line so that gcc does not move cr0 load to some stupid place */
+-        kernel_fpu_end();
+-}
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ /* Local variables for do_magic */
+--- clean/include/asm-i386/suspend.h	Mon Jun 10 17:17:48 2002
++++ linux-swsusp/include/asm-i386/suspend.h	Wed Jun 12 08:42:43 2002
+@@ -38,7 +38,6 @@
+                        : /* no output */ \
+                        :"r" ((thread)->debugreg[register]))
+ 
+-extern void do_fpu_end(void);
+ extern void fix_processor_context(void);
+ extern void do_magic(int resume);
+ 
+--- clean/include/linux/suspend.h	Wed Jun 26 20:19:08 2002
++++ linux-swsusp/include/linux/suspend.h	Wed Jun 12 08:43:51 2002
+@@ -56,9 +56,22 @@
+ extern int unregister_suspend_notifier(struct notifier_block *);
+ extern void refrigerator(unsigned long);
+ 
++extern int freeze_processes(void);
++extern void thaw_processes(void);
++
+ extern unsigned int nr_copy_pages __nosavedata;
+ extern suspend_pagedir_t *pagedir_nosave __nosavedata;
+ 
++/* Communication between kernel/suspend.c and arch/i386/suspend.c */
++
++extern void do_magic_resume_1(void);
++extern void do_magic_resume_2(void);
++extern void do_magic_suspend_1(void);
++extern void do_magic_suspend_2(void);
++
++/* Communication between acpi and arch/i386/suspend.c */
++
++extern void do_suspend_lowlevel(int resume);
+ 
+ #else
+ #define software_suspend()		do { } while(0)
 
-
-
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,154 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262255AbVAOKL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVAOKU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262255AbVAOKL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 05:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbVAOKL2
+	id S262256AbVAOKU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 05:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbVAOKU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 05:11:28 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:59542 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S262255AbVAOKKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 05:10:30 -0500
-Subject: [ANNOUNCE] vSecurity LSM (under development)
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-security-module@wirex.com" <linux-security-module@wirex.com>,
-       torvalds@osdl.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-X6f0M+SIy/rsKwO/WONx"
-Date: Sat, 15 Jan 2005 11:09:31 +0100
-Message-Id: <1105783771.3737.69.camel@localhost.localdomain>
+	Sat, 15 Jan 2005 05:20:57 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:9621
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262256AbVAOKUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 05:20:46 -0500
+Subject: Re: 2.6.11-rc1-mm1
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: karim@opersys.com
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <41E87102.2090502@opersys.com>
+References: <20050114002352.5a038710.akpm@osdl.org>
+	 <1105740276.8604.83.camel@tglx.tec.linutronix.de>
+	 <41E85123.7080005@opersys.com>
+	 <1105747280.13265.72.camel@tglx.tec.linutronix.de>
+	 <20050114162652.73283f2e.akpm@osdl.org>
+	 <1105750810.13265.126.camel@tglx.tec.linutronix.de>
+	 <41E87102.2090502@opersys.com>
+Content-Type: text/plain
+Date: Sat, 15 Jan 2005 11:20:45 +0100
+Message-Id: <1105784445.13265.222.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-01-14 at 20:25 -0500, Karim Yaghmour wrote:
+> Thomas Gleixner wrote:
+>
+> You have previously demonstrated that you do not understand the
+> implementation you are criticizing. You keep repeating the size
+> of the patch like a mantra, yet when pressed for actual bits of
+> code that need fixing, you use a circular argument to slip away.
 
---=-X6f0M+SIy/rsKwO/WONx
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Yeah, did you answer one of my arguments except claiming that I'm to
+stupid to understand how it works ? 
 
-Hi,
+I completely understand what this code does and I don't beat on the
+patch size. I beat on the timing burden and restrictions which are given
+by the implementation.
 
-I've been reading the last thread where my TPE was mentioned, also about
-the other security-related issues, work models, etc...
+I have no objection against relayfs itself. I can just leave the config
+switch off, so it does not affect me.
 
-I'm just curious about what's the opinion of kernel hackers on the
-possibility of including an optional suite of security enhancements in
-the mainline, such as grSecurity, but using Vanilla-"default" code base,
-without touching the kernel core and messing up things that some hackers
-wouldn't like.
-I've started a new LSM called vSecurity, inspired by grsecurity aims to
-bring to Vanilla sources users most of grsec's features without being a
-non usable solution or even an "aggressive" implementation.
-Using the LSM framework, it can be handled as a simple LKM, so, it can
-be easily enabled and disabled.
+Adding instrumentation to the kernel is a good thing. 
 
-Now I've done the TPE features, most of socket restriction ones, and
-some jail and raw I/O protections as well.
+I just dont like the idea, that instrumentation is bound on relayfs and
+adds a feature to the kernel which fits for a restricted set of problems
+rather than providing a generic optimized instrumentation framework,
+where one can use relayfs as a backend, if it fits his needs. Making
+this less glued together leaves the possibility to use other backends. 
 
-Past week I haven't a lot of time, because of personal reasons (the
-arrival of an exchange student girl was the main one), so, maybe this
-weekend i could have a pre-release, before I start the normal school
-rhythm (Monday).
+> If you feel that there is some unncessary processing being done
+> in the kernel, please show me the piece of code affected so that
+> it can be fixed if it is broken.
 
-The goal is quite simple, solve at least the 50% of the issues that my
-(still not released, Rik Van Riel has an old copy) regression test suite
-reports:
+Just doing codepath analysis shows me:
 
-(...)
-FIPS-140-2 Compliance tests for RNG dev  : /dev/urandom
-  MonoBit test:                          : Passed
-  Poker test:                            : Passed
-  RUNS test:                             : Passed
-  LongRun test:                          : Passed
-(...)
-PID Randomization                        : Vulnerable
-Raw IO access restrictions               :
-  Testing denied ioperm                  : Vulnerable
-  Testing denied iopl                    : Vulnerable
-DMESG Restrictions                       : Vulnerable
-Symlink restrictions                     : Vulnerable
-Hardlinking restrictions                 : Vulnerable
-Chroot jails regression tests            :
-  Chdir("/") on chroot                   : Vulnerable
-  Testing double chroot                  : Vulnerable
-  Dangerous capabilities inside chroot   : Vulnerable
-  Fchmod +s inside chroot                : Vulnerable
-  Chmod +s in chroot                     : Vulnerable
-  Kill process outside chroot            : Vulnerable
-  mknod() inside chroot                  : Vulnerable
-  Nice raise in chroot                   : Vulnerable
-  Priority raise in chroot               : Vulnerable
-  sysctl() inside chroot                 : Vulnerable
-  Abstract Unix socket() outside chroot  : Vulnerable
-  SHM attach outside chroot (non-root)   : Vulnerable
-  SHM attach outside chroot              : Vulnerable
-  ptrace() attach outside chroot         : Vulnerable
-RSBAC Jail regression test               : rsbac_jail() unsupported
-(...)
+There is a loop in ltt_log_event, which enforces the processing of each
+event twice. Spliting traces is postprocessing and can be done
+elsewhere.
 
-That's what it reports when running in a default Vanilla sources that
-come with most of the distributions.
-Should we solve them or leave them unsolved waiting for independent
-developers and hackers work?
+In _ltt_log_event lives quite a bunch of if(...) processing decisions
+which have to be evaluated for _each_ event.
 
-I think that's not worthy, but it's just my opinion.
+The relay_reserve code can loop in the do { } while() and even go into a
+slow path where another do { } while() is found.
+So it can not be used in fast paths and for timing related problem
+tracking, because it adds variable time overhead.
 
-This is what currently happens when loading vSecurity:
+Due to the fact, that the ltt_log_event path is not preempt safe you can
+actually hit the additional go in the do { } while() loop.
 
-lorenzo@estila:~/kernel/vsecurity $ sudo insmod vsecurity.ko
-lorenzo@estila:~/kernel/vsecurity $ LANG=3D"en" dmesg
-klogctl: Operation not permitted
+I pointed out before, that it is not possible to selectively select the
+events which I'm interested in during compile time. I get either nothing
+or everything. If I want to use instrumentation for a particular
+problem, why must I process a loop of _ltt_log_event calls for stuff I
+do not need instead of just compiling it away ?
 
-Dmesg output (must have CAP_SYS_ADMIN capabilities):
-VSEC: Registering vsecfs subsystem (sysfs).
-VSEC: Initializing Access Control Lists.
-VSEC: vSecurity engine initialized.
-VSEC: Denied syslog access: uid/euid=3D1000/1000 gid/egid=3D1000/1000
-suid/sgid=3D1000/1000 pid=3D19826
-VSEC: Denied syslog access: uid/euid=3D1000/1000 gid/egid=3D1000/1000
-suid/sgid=3D1000/1000 pid=3D19829
+If I compile a event in, then adding a couple of checks into the
+instrumentation macro itself does not hurt as much as leaving the
+straight code path for a disabled event.
 
-...and so on.
+tglx
 
-Almost all of the restrictions and protections have also an ACL:
-
-lorenzo@estila:~/proyectos/collision-rts-0.1/src $ ls /sys/vsecfs/
-all-sockets-add        client-sockets-add        rawio-add
-server-sockets-add        tpe-add
-all-sockets-add-group  client-sockets-add-group  rawio-add-group
-server-sockets-add-group  tpe-add-group
-all-sockets-del        client-sockets-del        rawio-del
-server-sockets-del        tpe-del
-all-sockets-del-group  client-sockets-del-group  rawio-del-group
-server-sockets-del-group  tpe-del-group
-lorenzo@estila:~/proyectos/collision-rts-0.1/src $
-
-
-I will try to make most of the remaining  work to get at least the half
-of those issues solved, but it depends on how i feel to do it and how
-good is the users opinion on it, so, please, tell me your opinion.
-
-BTW, Linus was working on some type of TPE features, Am i right?
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
-[2048g/9AE91A22] Hardened Debian head developer & project manager
-
---=-X6f0M+SIy/rsKwO/WONx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB6OvbDcEopW8rLewRAhf8AKCrQ8teE3PpkAioghHml/YaGSfLbwCePCX2
-v6xoMTWGIcc7zjKwz3BENCw=
-=9W1e
------END PGP SIGNATURE-----
-
---=-X6f0M+SIy/rsKwO/WONx--
 

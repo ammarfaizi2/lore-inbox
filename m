@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269551AbRHCSnP>; Fri, 3 Aug 2001 14:43:15 -0400
+	id <S268123AbRHCSmF>; Fri, 3 Aug 2001 14:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269558AbRHCSnF>; Fri, 3 Aug 2001 14:43:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7440 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S269570AbRHCSm5>;
-	Fri, 3 Aug 2001 14:42:57 -0400
-Date: Fri, 3 Aug 2001 19:43:00 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Frank Torres <frank@ingecom.net>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Duplicate console output to a RS232C and keep keyb where it is
-Message-ID: <20010803194300.A1609@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.3.95.1010803085542.16919A-100000@chaos.analogic.com> <018201c11c24$cd2af730$66011ec0@frank>
+	id <S269551AbRHCSl4>; Fri, 3 Aug 2001 14:41:56 -0400
+Received: from weta.f00f.org ([203.167.249.89]:65423 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S268123AbRHCSlm>;
+	Fri, 3 Aug 2001 14:41:42 -0400
+Date: Sat, 4 Aug 2001 06:42:06 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Manolis Perakakis <perakakis@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RBEM56G-100 card
+Message-ID: <20010804064206.A17446@weta.f00f.org>
+In-Reply-To: <20010803180844.56139.qmail@web12908.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <018201c11c24$cd2af730$66011ec0@frank>; from frank@ingecom.net on Fri, Aug 03, 2001 at 04:01:28PM +0200
+In-Reply-To: <20010803180844.56139.qmail@web12908.mail.yahoo.com>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 04:01:28PM +0200, Frank Torres wrote:
-> > This is not valid. You cannot reasonably have parity and 8 bits. One
-> > of them has to go. Either use 8 bits and no parity or 7 bits with
-> > parity.
+On Fri, Aug 03, 2001 at 11:08:44AM -0700, Manolis Perakakis wrote:
 
-All standard 16550 family ports support 8 bits _and_ parity.  Ancient
-serial ports did have a restriction, but that restriction is no more.
+    So, would you still recomend the purchase of such a card? (I
+    wouldn't hesitate for REM56G-100BTX but laptop comes with RBEM56G
+    allready!)
 
-> All showed wrong or no characters in the display. It only worked with 8,
-> parity on, parity odd, stop b. (also with no stop b.)
+Don't buy Xircom.
 
-You actually mean 2 stop bits.  (There is _always_ one stop bit).
+Xircom has be swallowed by Intel, who have a funny attitude when it
+comes to helping linux especially with networking products.  I have
+Xircom cards at present, and they more-or-less work, but I certainly
+won't buy another.
 
-I read your first mail, but couldn't really grasp the details of your
-problem.
 
-Are you trying to direct console _output_ to ttyS2 and the VGA card, yet
-still accept input from the PS/2 keyboard?  And then when you try to set
-this up, you get garbled characters via ttyS2?
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+  --cw

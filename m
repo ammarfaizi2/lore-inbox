@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291169AbSCDD3X>; Sun, 3 Mar 2002 22:29:23 -0500
+	id <S291192AbSCDDdN>; Sun, 3 Mar 2002 22:33:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291192AbSCDD3N>; Sun, 3 Mar 2002 22:29:13 -0500
-Received: from CPE00a024ce35e9.cpe.net.cable.rogers.com ([24.43.233.137]:3332
-	"EHLO 3\(NXDOMAIN\)") by vger.kernel.org with ESMTP
-	id <S291169AbSCDD3E>; Sun, 3 Mar 2002 22:29:04 -0500
-Message-Id: <200203040330.g243URr05337@3 (NXDOMAIN) >
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Richards <m.richards@utoronto.ca>
-To: barryn@pobox.com (Barry K. Nathan), tmolina@cox.net (Thomas Molina)
-Subject: Re: Invalid @home email addresses
-Date: Sun, 3 Mar 2002 22:30:26 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020304002030.7348089C87@cx518206-b.irvn1.occa.home.com>
-In-Reply-To: <20020304002030.7348089C87@cx518206-b.irvn1.occa.home.com>
+	id <S291193AbSCDDcx>; Sun, 3 Mar 2002 22:32:53 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:31724 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S291192AbSCDDcn>;
+	Sun, 3 Mar 2002 22:32:43 -0500
+Message-ID: <3C82EAD9.8010802@candelatech.com>
+Date: Sun, 03 Mar 2002 20:32:41 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: J Sloan <joe@tmsusa.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: latency & real-time-ness.
+In-Reply-To: <E16hd1T-0005QW-00@the-village.bc.nu> <3C82A702.1030803@candelatech.com> <3C82CA19.9000702@tmsusa.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 3, 2002 07:20 pm, Barry K. Nathan wrote:
-> Thomas Molina wrote:
-> > Most addresses for home.com users simply switched to cox.net addresses.
->
-> Uh, no. I think (but am not sure) that more @home.com addresses became
-> @attbi.com than @cox.net. Even if I'm wrong about that, I'm almost certain
-> that more became @attbi.com + @rogers.ca + @shaw.ca + @charterpipeline.com
-> + @comcast.net + ... than @cox.net. (It's possible that I made errors in
-> the past sentence, perhaps confusing .com and .net stuff or the like, but
-> even in the face of such errors I think my point still stands.)
 
-FYI it's @rogers.com not @rogers.ca, if anyone cares.
 
->
-> > However, email to the above users at cox.net bounced in four out of five
-> > cases.
->
-> I wouldn't be surprised if four out of five weren't with Cox in the first
-> place.
->
-> -Barry K. Nathan <barryn@pobox.com>
+J Sloan wrote:
 
-Mark
+> Ben Greear wrote
+> 
+>>> Would the low-latency patch help me?
+>>>
+>>> Yes
+>> Excellent, I'm compiling that now.... 
+> Eh?
+> 
+> The full-on low latency patch from Andrew Morton?
+> 
+> You might want to make some diffs available
+> since AFIK that would have involved quite a bit
+> of hand editing to fix rejects...
+
+
+I found this patch:
+preempt-kernel-rml-2.4.19-pre2-ac2-1.patch
+
+It applied cleanly...looks like maybe this isn't
+the low-latency patch though now that I look at
+it a little closer.
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

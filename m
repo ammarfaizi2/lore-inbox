@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267633AbUHXKQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267404AbUHXKSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267633AbUHXKQP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUHXKPp
+	id S267404AbUHXKSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUHXKSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:15:45 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:43679 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267394AbUHXKPZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:15:25 -0400
-Date: Tue, 24 Aug 2004 12:13:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Karl Vogel <karl.vogel@seagha.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
-Message-ID: <20040824101352.GJ2355@suse.de>
-References: <6DED3619289CD311BCEB00508B8E133601A68B13@nt-server2.antwerp.seagha.com> <20040824100342.GI2355@suse.de>
+	Tue, 24 Aug 2004 06:18:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59146 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267404AbUHXKR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 06:17:58 -0400
+Date: Tue, 24 Aug 2004 11:17:51 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.9-rc1 compile fix: nfsroot.c
+Message-ID: <20040824111751.A23041@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040824100342.GI2355@suse.de>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24 2004, Jens Axboe wrote:
-> On Mon, Aug 23 2004, Karl Vogel wrote:
-> > > > Jens, is this huge amount of bio/biovec's allocations 
-> > > expected with CFQ? Its really really bad.
-> > > 
-> > > Nope, it's not by design :-)
-> > > 
-> > > A test case would be nice, then I'll fix it as soon as possible. But
-> > > please retest with 2.6.8.1 marcelo, 2.6.8-rc4 is missing an important
-> > > fix to ll_rw_blk that can easily cause this. The first report is for
-> > > 2.6.8.1, so I'm more puzzled on that.
-> > 
-> > I tried with 2.6.8.1 and 2.6.8.1-mm4, both had the problem. If there 
-> > is anything extra I need to try/record, just shoot!
-> > 
-> > Original post with testcase + stats:
-> >   http://article.gmane.org/gmane.linux.kernel/228156
-> 
-> 2.6.8.1-mm4 clean does not reproduce the problem. Marcelo, your
-> 2.6.8-rc4 report is not valid due to the fixed problem related to that
-> in CFQ already. I'd still like for you to retest with 2.6.8.1.
-> 
-> So I'm trying 2.6.8.1 with voluntary preempt applied now, the bug could
-> be related to that.
+Here's an untested patch for this error:
 
-Oh, and please do also do a sysrq-t from a hung box and save the output.
+fs/nfs/nfsroot.c: In function `root_nfs_get_handle':
+fs/nfs/nfsroot.c:499: error: incompatible type for argument 1 of `nfs_copy_fh'
+fs/nfs/nfsroot.c:499: error: incompatible type for argument 2 of `nfs_copy_fh'
+
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/fs/nfs/nfsroot.c linux/fs/nfs/nfsroot.c
+--- orig/fs/nfs/nfsroot.c	Tue Aug 24 09:56:32 2004
++++ linux/fs/nfs/nfsroot.c	Tue Aug 24 11:11:01 2004
+@@ -496,7 +496,7 @@ static int __init root_nfs_get_handle(vo
+ 		printk(KERN_ERR "Root-NFS: Server returned error %d "
+ 				"while mounting %s\n", status, nfs_path);
+ 	else
+-		nfs_copy_fh(nfs_data.root, fh);
++		nfs_copy_fh(&nfs_data.root, &fh);
+ 
+ 	return status;
+ }
 
 -- 
-Jens Axboe
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

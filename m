@@ -1,74 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbUCOFTT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 00:19:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbUCOFTT
+	id S262258AbUCOFTC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 00:19:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbUCOFTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 00:19:19 -0500
-Received: from cmail.srv.hcvlny.cv.net ([167.206.112.40]:30899 "EHLO
-	cmail.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S262259AbUCOFTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 00:19:16 -0500
-Date: Mon, 15 Mar 2004 00:19:08 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-Subject: [PATCH] MAC_PARTITION not enabled for PowerMac by default
-X-X-Sender: proski@portland.hansa.lan
-To: linux-kernel@vger.kernel.org
-Message-id: <Pine.LNX.4.58.0403150002350.27719@portland.hansa.lan>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_0k0kf4s/1B4V94qM4fHyTg)"
+	Mon, 15 Mar 2004 00:19:01 -0500
+Received: from cpe-024-033-224-91.neo.rr.com ([24.33.224.91]:46977 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S262258AbUCOFS6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 00:18:58 -0500
+Date: Mon, 15 Mar 2004 00:15:19 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Updates for 2.6.4-mm2
+Message-ID: <20040315001519.GC5972@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040315000615.GA5972@neo.rr.com> <20040315001029.GB5972@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040315001029.GB5972@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+[ISAPNP] Fix Device Detection Issue
 
---Boundary_(ID_0k0kf4s/1B4V94qM4fHyTg)
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+Some isapnp devices were not getting detected as a result of a bug in the isapnp 
+driver.  It was not following the specifications and calculating a checksum when
+it was not reliable.  This problem was originally discovered by Paul L. Rogers
+<rogerspl@datasync.com>.  He made an initial patch.  This release has some small 
+modifications, including a check to see if we run out of CSNs.
 
-Hello!
+--- a/drivers/pnp/isapnp/core.c	2004-03-11 02:55:28.000000000 +0000
++++ b/drivers/pnp/isapnp/core.c	2004-03-14 21:55:12.000000000 +0000
+@@ -99,6 +99,7 @@
+ static unsigned char isapnp_checksum_value;
+ static DECLARE_MUTEX(isapnp_cfg_mutex);
+ static int isapnp_detected;
++static int isapnp_csn_count;
 
-One should not have to enable CONFIG_PARTITION_ADVANCED just to get Mac
-partition support on Power Macintosh, especially considering the
-description of the option:
-
-"Say Y here if you would like to use hard disks under Linux which
-were partitioned under an operating system running on a different
-architecture than your Linux system."
-
-CONFIG_MAC is only defined for m68k systems.  Power Macintosh uses
-CONFIG_PPC_PMAC.  Both m68k and PowerMacs use the same partition tables.
-
-I left another occurrence of lone "MAC" unchanged, so after the patch,
-unselecting CONFIG_PARTITION_ADVANCED for PowerMac enables Mac and MS-DOS
-partitions.  The reason is that MacOS 9 (and almost certainly MacOS X)
-allow formatting Zip drives in "DOS format", which means creating an
-MS-DOS partition.  We want Linux running on the same architecture to read
-those disks.
-
--- 
-Regards,
-Pavel Roskin
-
---Boundary_(ID_0k0kf4s/1B4V94qM4fHyTg)
-Content-id: <Pine.LNX.4.58.0403150019080.27719@portland.hansa.lan>
-Content-type: TEXT/plain; charset=US-ASCII; name=mac_partition.diff
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=mac_partition.diff
-Content-description: 
-
---- linux.orig/fs/partitions/Kconfig
-+++ linux/fs/partitions/Kconfig
-@@ -93,7 +93,7 @@
+ /* some prototypes */
  
- config MAC_PARTITION
- 	bool "Macintosh partition map support" if PARTITION_ADVANCED
--	default y if !PARTITION_ADVANCED && MAC
-+	default y if !PARTITION_ADVANCED && (MAC || PPC_PMAC)
- 	help
- 	  Say Y here if you would like to use hard disks under Linux which
- 	  were partitioned on a Macintosh.
+@@ -371,11 +372,14 @@
+ 			break;
+ 		}
+ 	      __next:
++		if (csn == 255)
++			break;
+ 		checksum = 0x6a;
+ 		chksum = 0x00;
+ 		bit = 0x00;
+ 	}
+ 	isapnp_wait();
++	isapnp_csn_count = csn;
+ 	return csn;
+ }
+ 
+@@ -880,7 +884,7 @@
+ 
+ 	isapnp_wait();
+ 	isapnp_key();
+-	for (csn = 1; csn <= 10; csn++) {
++	for (csn = 1; csn <= isapnp_csn_count; csn++) {
+ 		isapnp_wake(csn);
+ 		isapnp_peek(header, 9);
+ 		checksum = isapnp_checksum(header);
+@@ -890,12 +894,6 @@
+ 			header[4], header[5], header[6], header[7], header[8]);
+ 		printk(KERN_DEBUG "checksum = 0x%x\n", checksum);
+ #endif
+-		/* Don't be strict on the checksum, here !
+-                   e.g. 'SCM SwapBox Plug and Play' has header[8]==0 (should be: b7)*/
+-		if (header[8] == 0)
+-			;
+-		else if (checksum == 0x00 || checksum != header[8])	/* not valid CSN */
+-			continue;
+ 		if ((card = isapnp_alloc(sizeof(struct pnp_card))) == NULL)
+ 			continue;
 
---Boundary_(ID_0k0kf4s/1B4V94qM4fHyTg)--
+@@ -932,7 +930,7 @@
+
+ int isapnp_cfg_begin(int csn, int logdev)
+ {
+-	if (csn < 1 || csn > 10 || logdev > 10)
++	if (csn < 1 || csn > isapnp_csn_count || logdev > 10)
+ 		return -EINVAL;
+ 	MOD_INC_USE_COUNT;
+ 	down(&isapnp_cfg_mutex);

@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311820AbSCNVox>; Thu, 14 Mar 2002 16:44:53 -0500
+	id <S311811AbSCNVvK>; Thu, 14 Mar 2002 16:51:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311825AbSCNVol>; Thu, 14 Mar 2002 16:44:41 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6784 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S311820AbSCNVoa>; Thu, 14 Mar 2002 16:44:30 -0500
-Date: Thu, 14 Mar 2002 16:44:29 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: John Heil <kerndev@sc-software.com>, linux-kernel@vger.kernel.org,
-        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
-Subject: Re: IO delay, port 0x80, and BIOS POST codes
-In-Reply-To: <Pine.LNX.4.33.0203141324480.9855-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.3.95.1020314164142.382B-100000@chaos.analogic.com>
+	id <S311807AbSCNVvA>; Thu, 14 Mar 2002 16:51:00 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:31619 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S311811AbSCNVur>; Thu, 14 Mar 2002 16:50:47 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200203142150.g2ELoJr27197@devserv.devel.redhat.com>
+Subject: Re: linux 2.2.21 pre3, pre4 and rc1 problems. (fwd)
+To: bonganilinux@mweb.co.za (Bongani)
+Date: Thu, 14 Mar 2002 16:50:19 -0500 (EST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mikesw@ns1.whiterose.net (M Sweger),
+        linux-kernel@vger.kernel.org, alan@redhat.com
+In-Reply-To: <1016142855.14838.5.camel@localhost.localdomain> from "Bongani" at Mar 14, 2002 11:53:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Mar 2002, Linus Torvalds wrote:
+> on 2.4.19-pre3 and 2.4.19-pre3-aa1. I put a couple of printk's to see
+> where the problem was (arch/i386/bluesmoke.c), but after rebooting it
+> did not show up. I just vompiled 2.4.19-pre3-aa and 2.4.19-pre3 +
+> preempt, I would like o have it solved before I reboot though
 
-> 
-> On Thu, 14 Mar 2002, Richard B. Johnson wrote:
-> > 
-> > Well I can see why he's an EX-Phoenix BIOS developer. A port at 0xed
-> > does not exist on any standard or known non-standard Intel/PC/AT 
-> > compatible.
-> 
-> Note that "doesn't exist" is actually a _bonus_. It means that no 
-> controller will answer to it, which causes the IO to time out, which on a 
-> regular ISA bus will also take the same 1us. Which is what we want.
-> 
-> Real ports with real controllers can be faster - they could, for example,
-> be fast motherboard PCI ports and be positively decoded and be faster than
-> 1us.
-> 
-> 		Linus
-> 
+The intel cpus get deeply upset if you write to bank zero of the error
+reporting registers used by MCE exceptions. The AMD ones want you to do so
+and the change that went in was tested on AMD boxes but not Intel.
 
-Well no, IO doesn't "time-out". The PC/AT/ISA bus is asychronous, it's
-not clocked. If there's no hardware activity as a result of the write
-to nowhere, it's just a no-op. The CPU isn't slowed down at all. It's
-just some bits that got flung out on the bus with no feed-back at all.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+Revert the bluesmoke.c change and all should be well

@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263304AbVBDTQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264580AbVBDTRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263304AbVBDTQV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 14:16:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264442AbVBDTKG
+	id S264580AbVBDTRP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 14:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVBDTRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 14:10:06 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:6325 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261934AbVBDTHC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 14:07:02 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: olof@austin.ibm.com (Olof Johansson)
-Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
-Date: Fri, 4 Feb 2005 19:57:06 +0100
-User-Agent: KMail/1.6.2
-Cc: linuxppc64-dev@ozlabs.org, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, trini@kernel.crashing.org,
-       paulus@samba.org, anton@samba.org, hpa@zytor.com
-References: <20050204072254.GA17565@austin.ibm.com> <200502041336.59892.arnd@arndb.de> <20050204183514.GB17586@austin.ibm.com>
-In-Reply-To: <20050204183514.GB17586@austin.ibm.com>
+	Fri, 4 Feb 2005 14:17:15 -0500
+Received: from user-119bnkd.biz.mindspring.com ([66.149.222.141]:42394 "EHLO
+	pxtvjoweb01.primeexalia.com") by vger.kernel.org with ESMTP
+	id S264580AbVBDTRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 14:17:05 -0500
+Message-ID: <1107544219.4203c89bdfa6a@www.adndrealm.net>
+Date: Fri,  4 Feb 2005 11:10:19 -0800
+From: Gary Smith <linuxkernel@adndrealm.net>
+To: linux-kernel@vger.kernel.org
+Subject: Post install 2.4.29 causes many apps to seg fault.
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_CW8ACUJ5uRR8DhR";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200502041957.06979.arnd@arndb.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
+X-Originating-IP: 171.161.160.10
+X-WebMail-Provided-By: Prime Exalia Technologies (http
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, 
 
---Boundary-02=_CW8ACUJ5uRR8DhR
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I have been running RHEL3 update 3 for some time and need to patch netfilter 
+for PPTP.  After doing so and installing the kernel I found that certain 
+applications (such as MySQL, nslook, etc) began to segfault.  Rolling the 
+kernel back fixed the problem.
 
-On Freedag 04 Februar 2005 19:35, Olof Johansson wrote:
-> pSeries will need all cpus enabled since we have them all on various
-> machines, etc. I guess Powermac/Maple could benefit from it.
+I have since then gone back and recompiled the vanilla 2.4.29 kernel (without 
+additing any patches this time - clean from tarball) and installed it and all 
+of the the applications that failed on the custom kernel (with the PPTP 
+patches) continue to fail (clean box as well).
 
-Even on pSeries, we already have CONFIG_POWER4_ONLY, which could be
-used to optimize away some of the checks at compile time.
+Is there something more that I need to compile besides the kernel for 
+compatability or is this a sign of some type of bug.  I do realize that RHEL3 
+itself has some proprietary items added to their kernel but replacing it 
+shouldn't make other applications fails.
 
-I think it makes sense to extend this a bit to look more like the CPU
-selection on i386 or s390 where can set the oldest CPU you want to
-support. This also fits nicely with the gcc -mcpu=3D options.
+Any assistance would be greatly appreciated.
 
-> In the end it depends on how hairy the implementation would get vs=20
-> performance improvement.
+Gary Smith
 
-=46ortunately, that optimization should be easy to do on top of your
-patch, so we don't have to decide now.
 
-	Arnd <><
-
---Boundary-02=_CW8ACUJ5uRR8DhR
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCA8WC5t5GS2LDRf4RAmGxAJ9zivMYwnsLAzVCEqkcRSgd9eT4yQCaA/fo
-N87nLOWitDYUyyYJD/hrNBA=
-=i9zW
------END PGP SIGNATURE-----
-
---Boundary-02=_CW8ACUJ5uRR8DhR--

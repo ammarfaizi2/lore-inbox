@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284445AbRLHTon>; Sat, 8 Dec 2001 14:44:43 -0500
+	id <S284444AbRLHTmW>; Sat, 8 Dec 2001 14:42:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284452AbRLHTod>; Sat, 8 Dec 2001 14:44:33 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:4620 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S284448AbRLHToQ>;
-	Sat, 8 Dec 2001 14:44:16 -0500
-Date: Sat, 8 Dec 2001 20:44:03 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-pre7 ide-cd module
-Message-ID: <20011208194403.GY11567@suse.de>
-In-Reply-To: <3C1235C4.BC20AC8E@wanadoo.fr> <20011208161847.GK11567@suse.de> <3C126634.F3BBC941@delusion.de> <20011208191515.GX11567@suse.de> <3C1269E1.53347A2A@delusion.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="gr/z0/N6AeWAPJVB"
-Content-Disposition: inline
-In-Reply-To: <3C1269E1.53347A2A@delusion.de>
+	id <S284445AbRLHTmN>; Sat, 8 Dec 2001 14:42:13 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:46860 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S284444AbRLHTl7>; Sat, 8 Dec 2001 14:41:59 -0500
+Message-ID: <3C126CE2.31726172@zip.com.au>
+Date: Sat, 08 Dec 2001 11:41:22 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Leigh Orf <orf@mailbag.com>
+CC: Ken Brownfield <brownfld@irridia.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.16 memory badness (reproducible)
+In-Reply-To: Your message of "Sat, 08 Dec 2001 09:56:20 CST."
+	             <20011208095620.C1179@asooo.flowerfire.com> <200112081854.fB8IsIr01485@orp.orf.cx>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---gr/z0/N6AeWAPJVB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sat, Dec 08 2001, Udo A. Steinberg wrote:
-> Jens Axboe wrote:
-> > 
-> > Yes please -- try 2.5.1-pre1 and 2.5.1-pre2, it probably broke there.
+Leigh Orf wrote:
 > 
-> Indeed. pre1 works, pre2 doesn't:
+> Ken Brownfield wrote:
+> 
+> |   This parallels what I'm seeing -- perhaps inode/dentry cache
+> |   bloat is causing the memory issue (which mimics if not _is_
+> |   a memory leak) _and_ my kswapd thrashing?  It fits both the
+> |   situation you report and what I'm seeing with I/O across a
+> |   large number of files (inodes) -- updatedb, smb, NFS, etc.
+> |
+> |   I think Andrea was on to this issue, so I'm hoping his work
+> |   will help.  Have you tried an -aa kernel or an aa patch onto
+> |   a 2.4.17-pre4 to see how the kernel's behavior changes?
+> |
+> |   --
+> |   Ken.
+> |   brownfld@irridia.com
+> 
+> I get the exact same behavior with 2.4.17-pre4-aa1 - many applications
+> abort with ENOMEM after updatedb (filling the buffer and cache). Is
+> there another kernel/patch I should try?
+> 
 
-Ah, I think I see the problem. Very first mode page capabilities probe
-fails, which is expected and therefore retried. But now we've killed the
-correct length of command, which should only be done on success. The
-second time you load ide-cd, it succeeds on first probe and thus works.
+Just for interest's sake:
 
-Attached patch should fix it.
-
--- 
-Jens Axboe
-
-
---gr/z0/N6AeWAPJVB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=ide-cd-stat
-
---- /opt/kernel/linux-2.5.1-pre7/drivers/ide/ide-cd.c	Fri Dec  7 20:38:44 2001
-+++ drivers/ide/ide-cd.c	Sat Dec  8 14:39:43 2001
-@@ -2145,7 +2145,8 @@
- 	pc.timeout = cgc->timeout;
- 	pc.sense = cgc->sense;
- 	cgc->stat = cdrom_queue_packet_command(drive, &pc);
--	cgc->buflen -= pc.buflen;
-+	if (!cgc->stat)
-+		cgc->buflen -= pc.buflen;
- 	return cgc->stat;
- }
+--- linux-2.4.17-pre6/mm/memory.c	Fri Dec  7 15:39:52 2001
++++ linux-akpm/mm/memory.c	Sat Dec  8 11:13:30 2001
+@@ -1184,6 +1184,7 @@ static int do_anonymous_page(struct mm_s
+ 		flush_page_to_ram(page);
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+ 		lru_cache_add(page);
++		activate_page(page);
+ 	}
  
-
---gr/z0/N6AeWAPJVB--
+ 	set_pte(page_table, entry);

@@ -1,362 +1,182 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTIFEJV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 00:09:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbTIFEJV
+	id S262057AbTIFEe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 00:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTIFEe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 00:09:21 -0400
-Received: from www.piratehaven.org ([204.253.162.40]:41192 "EHLO
-	skull.piratehaven.org") by vger.kernel.org with ESMTP
-	id S262482AbTIFEJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 00:09:05 -0400
-Date: Fri, 5 Sep 2003 21:09:04 -0700
-From: Dale Harris <rodmur@maybe.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: compile problems on PPC for 2.6.0-test4
-Message-ID: <20030906040904.GM29466@maybe.org>
-Mail-Followup-To: Dale Harris <rodmur@maybe.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Sat, 6 Sep 2003 00:34:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:3160 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262057AbTIFEev (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 00:34:51 -0400
+To: mgross@linux.co.intel.com
+Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [UPDATED PATCH] EFI support for ia32 kernels
+References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFE677@fmsmsx406.fm.intel.com>
+	<m1k78opnvw.fsf@ebiederm.dsl.xmission.com>
+	<1062799223.7011.80.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Sep 2003 22:34:25 -0600
+In-Reply-To: <1062799223.7011.80.camel@localhost.localdomain>
+Message-ID: <m11xuupmb2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Gross <mgross@linux.co.intel.com> writes:
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Thu, 2003-09-04 at 08:35, Eric W. Biederman wrote:
+> > "Tolentino, Matthew E" <matthew.e.tolentino@intel.com> writes:
+> > A problem is that set_virtual_address_space cannot be called multiple times,
+> > and so it interacts badly with kexec.  I was just about to disable it
+> > on the ia64 tree, so I could use kexec.  Besides that BIOS calls
+> > should be quite infrequent so flipping to physical mode this should
+> > not matter.  That plus not being in physical mode looks like a great
+> > way to trip up various implementation bugs when there are multiple
+> > implementations.
+> 
+> Hmmm.  I bet there is some other way to get around this.  
+
+Why enable a slow path case that will make the system less reliable?
+
+> Perhaps use
+> efi_set_varriable to implement a counter in NV memory or a page reserved
+> by the boot loader that gets initialized by elilo on the first boot up
+> and then have the kernel test / write to it in the startup before
+> calling set_vertual_address_space.  They would requier a tweak to the
+> boot loader to make work.
+
+Sure you can do things like that but then you can't call EFI in physical
+address mode.
+
+set_virtual_address_space is unnecessary, on a slow path, tricky to
+test, and potentially bug prone.  
+
+Please just deprecate set_virtual_address please.
+
+> > > I'm not sure what you mean here.  Nothing really, except that the loader
+> passes
+> 
+> > > the location of the initrd to the kernel, even though the loader is
+> currently
+> 
+> > > putting where the kernel expects it.  However, in the future this may allow
+> the
+> 
+> > > initrd to be placed somewhere else.
+> > 
+> > > 
+> > > > > +struct ia32_boot_params {
+> > > > > +	unsigned long size;
+> > > > > +	unsigned long command_line;
+> > > > > +	efi_system_table_t *efi_sys_tbl;
+> > > > > +	efi_memory_desc_t *efi_mem_map;
+> > > > > +	unsigned long efi_mem_map_size;
+> > > > > +	unsigned long efi_mem_desc_size;	
+> > > > > +	unsigned long efi_mem_desc_version;
+> > > > > +	unsigned long initrd_start;
+> > > > > +	unsigned long initrd_size;
+> > > > > +	unsigned long loader_start;	
+> > > > > +	unsigned long loader_size;
+> > > > > +	unsigned long kernel_start;
+> > > > > +	unsigned long kenrel_size;
+> > > > > +	unsigned long num_cols;
+> > > > > +	unsigned long num_rows;
+> > > > > +	unsigned long orig_x;
+> > > > > +	unsigned long orig_y;
+> > > > > +};
+> > > > 
+> > > > Interesting.  What's all this, and how does the user interact with it?
+> > > 
+> > > It's the boot parameters that the EFI linux boot loader (ELILO) passes to
+> the
+> 
+> > > kernel.  It's only used in the early boot process.
+> > 
+> > Hmm.  You have added additional parameters passed to the kernel, but
+> > have not updated the documentation.  Nor have you bumped the protocol
+> > number in setup.S. 
+> 
+> Bumping the boot protocal in setup.S doesn't make sence as this new boot
+> protocal is only possible under EFI platforms.  Legacy BIOS platform
+> boot up processing shouldn't know anything about it.  Its ment to be
+> orthoganal to the older boot protocal.
+
+Bumping the minor revision indicates new features are present.
+You added new features therefore the minor rev needs to be bumped.
+
+> This being said, some EFI boot protocall documentation could be cut and
+> pasted out of the OLS talk into a new file the Documentation directory.
+> 
+> > 
+> > Beyond that you have duplicated a bunch of variables that already have
+> > perfectly valid ways of being passed to the kernel.
+> 
+> Actualy this is a step in getting away from those legacy boot
+> parrameters scattered about the boot parrameter block for the EFI boot
+> up processing.  
+> 
+> The worst thing about continuing to use the legacy boot parrameters is
+> that we then need to go hunting for holes in the existing structure
+> where we can put the new EFI specific values as well as ending up
+> carrying along baggage that dates way WAY back that doesn't get used or
+> make sence any more.
+
+The joy of x86.  And no you don't need to look for holes all you need to
+do is to append to the end.
+
+> > initrd_start, initrd_size, num_cols, num_rows, orig_x, orig_y and the
+> > command line should be passed in their original locations.  At least
+> > baring the creation of a subarch and starting from scratch.  
+> > 
+> 
+> We are hoping to avoid doing a subarch with this boot parrameter design
+> and went for a coexistance approach that has zero impact to the current
+> booting up on legacy platforms.  
+
+Which is a reasonable way to go.
+ 
+> I think this is THE key issue to get to the bottom of.  EFI enabled
+> kernels need not be a new sub-architecture, as we can see that the EFI
+> start up design supports booting on legacy firmware/bios, and has zero
+> impact on execution flow for the legacy case.  Do you think that doing a
+> sub architecture is really needed for this?
+
+If you want a clean slate a sub arch looks necessary.  If you want to 
+coexist with the legacy you need to put of with the issues of being
+compatible.
+
+But realize you will also want to know you started from efi even if
+you were loaded in pcbios compatibility mode with lilo or grub.  So
+this is not a boolean kind of thing EFI or no EFI.  It is does my BIOS
+have the EFI features.  At least on x86.  And at that point you
+probably want EFI detection in Setup.S.
+
+> > kernel_start, and kernel_size are not used.
+> > loader_start, and loader_size are not used.
+> > 
+> 
+> They are anticipated to be useful for embedded designs booting linux on
+> EFI firmwware.  They could be removed but I'd rather see them stay.
+
+Except when you are directly loading vmlinux you don't have the information
+to populate kernel_start and kernel_size properly.  And at that point
+you are missing other interesting parts of the kernel.  Like which
+boot protocol it supports.
+
+The x86 boot protocol is crusty and has plenty of warts but it works.
+Just having a length and no version number or any other way to detect
+features is worse, and that is what you are proposing in the EFI case.
+
+Things change and evolve.  So far I know of two distinct versions of
+EFI.  The EFI that has been so nicely described by Mark Doran.  And
+the version I have actually used with is quite a different animal.
 
 
-This is a PowerBook G4, debian unstable, gcc-2.95.4
+Eric
 
-A couple of compile warnings errors:
-
-  CC      drivers/macintosh/via-pmu.o
-drivers/macintosh/via-pmu.c: In function `powerbook_sleep_grackle':
-drivers/macintosh/via-pmu.c:2465: warning: integer overflow in expression
-drivers/macintosh/via-pmu.c: In function `powerbook_sleep_Core99':
-drivers/macintosh/via-pmu.c:2557: warning: integer overflow in expression
-
-  CC      drivers/net/sungem.o
-drivers/net/sungem.c:2444: duplicate initializer
-drivers/net/sungem.c:2444: (near initialization for
-`gem_ethtool_ops.get_link')
-make[3]: *** [drivers/net/sungem.o] Error 1
-make[2]: *** [drivers/net] Error 2
-make[1]: *** [drivers] Error 2
-make[1]: Leaving directory `/usr/src/linuxppc-2.6'
-
-
-Also the planb video 4 linux driver doesn't seem to be compiling either.
-I failed to save the error messages.  
-
-config attached.
-
-
--- 
-Dale Harris   
-rodmur@maybe.org
-/.-)
-
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="grep.conf"
-
-CONFIG_MMU=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_LOG_BUF_SHIFT=16
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_PPC=y
-CONFIG_PPC32=y
-CONFIG_6xx=y
-CONFIG_PM=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_PPC_STD_MMU=y
-CONFIG_PPC_MULTIPLATFORM=y
-CONFIG_PPC_CHRP=y
-CONFIG_PPC_PMAC=y
-CONFIG_PPC_PREP=y
-CONFIG_PPC_OF=y
-CONFIG_PREEMPT=y
-CONFIG_ALTIVEC=y
-CONFIG_TAU=y
-CONFIG_TAU_AVERAGE=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=y
-CONFIG_CPU_FREQ_24_API=y
-CONFIG_CPU_FREQ_PMAC=y
-CONFIG_HIGHMEM=y
-CONFIG_PCI=y
-CONFIG_PCI_DOMAINS=y
-CONFIG_KERNEL_ELF=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA=m
-CONFIG_YENTA=m
-CONFIG_CARDBUS=y
-CONFIG_I82092=m
-CONFIG_TCIC=m
-CONFIG_PPC601_SYNC_FIX=y
-CONFIG_PROC_DEVICETREE=y
-CONFIG_PPC_RTAS=y
-CONFIG_PPCBUG_NVRAM=y
-CONFIG_HIGHMEM_START=0xfe000000
-CONFIG_LOWMEM_SIZE=0x30000000
-CONFIG_KERNEL_START=0xc0000000
-CONFIG_TASK_SIZE=0x80000000
-CONFIG_BOOT_LOAD=0x00800000
-CONFIG_FW_LOADER=m
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECS=m
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_SL82C105=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_IDE_PMAC=y
-CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST=y
-CONFIG_BLK_DEV_IDEDMA_PMAC=y
-CONFIG_BLK_DEV_IDEDMA_PMAC_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=m
-CONFIG_SCSI_REPORT_LUNS=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_AIC7XXX=m
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-CONFIG_AIC7XXX_DEBUG_MASK=0
-CONFIG_SCSI_AIC7XXX_OLD=m
-CONFIG_SCSI_ADVANSYS=m
-CONFIG_SCSI_SYM53C8XX_2=m
-CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE=0
-CONFIG_SCSI_SYM53C8XX_DEFAULT_TAGS=16
-CONFIG_SCSI_SYM53C8XX_MAX_TAGS=64
-CONFIG_SCSI_MESH=m
-CONFIG_SCSI_MESH_SYNC_RATE=5
-CONFIG_SCSI_MESH_RESET_DELAY_MS=4000
-CONFIG_SCSI_MAC53C94=m
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_ETH1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_I2O=y
-CONFIG_I2O_PCI=y
-CONFIG_I2O_BLOCK=m
-CONFIG_I2O_PROC=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_INET_IPCOMP=y
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_IP_SCTP=m
-CONFIG_SCTP_HMAC_MD5=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MACE=y
-CONFIG_BMAC=y
-CONFIG_SUNGEM=y
-CONFIG_NET_PCI=y
-CONFIG_PCNET32=y
-CONFIG_TIGON3=y
-CONFIG_PPP=y
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=m
-CONFIG_NET_RADIO=y
-CONFIG_HERMES=m
-CONFIG_APPLE_AIRPORT=m
-CONFIG_PCI_HERMES=m
-CONFIG_PCMCIA_HERMES=m
-CONFIG_NET_WIRELESS=y
-CONFIG_NET_PCMCIA=y
-CONFIG_FB=y
-CONFIG_FB_OF=y
-CONFIG_FB_CONTROL=y
-CONFIG_FB_PLATINUM=y
-CONFIG_FB_VALKYRIE=y
-CONFIG_FB_CT65550=y
-CONFIG_FB_RADEON=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_PCI_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_ADB_PMU=y
-CONFIG_PMAC_PBOOK=y
-CONFIG_PMAC_APM_EMU=y
-CONFIG_PMAC_BACKLIGHT=y
-CONFIG_ADB=y
-CONFIG_ADB_MACIO=y
-CONFIG_INPUT_ADBHID=y
-CONFIG_MAC_EMUMOUSEBTN=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_CORE=m
-CONFIG_SERIAL_PMACZILOG=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_I2C=m
-CONFIG_I2C_KEYWEST=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_BUSMOUSE=y
-CONFIG_NVRAM=y
-CONFIG_GEN_RTC=m
-CONFIG_GEN_RTC_X=y
-CONFIG_AGP=m
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=m
-CONFIG_VIDEO_DEV=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_MINIX_FS=m
-CONFIG_ISO9660_FS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_DEVPTS_FS_SECURITY=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_HFS_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V4=y
-CONFIG_LOCKD=y
-CONFIG_SUNRPC=y
-CONFIG_SUNRPC_GSS=m
-CONFIG_RPCSEC_GSS_KRB5=m
-CONFIG_SMB_FS=m
-CONFIG_CIFS=m
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_SMB_NLS=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_SOUND=m
-CONFIG_DMASOUND_AWACS=m
-CONFIG_DMASOUND=m
-CONFIG_SND=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_VERBOSE_PRINTK=y
-CONFIG_SND_DEBUG=y
-CONFIG_SND_DEBUG_DETECT=y
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_MPU401=m
-CONFIG_SND_POWERMAC=m
-CONFIG_SND_USB_AUDIO=m
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_AUDIO=m
-CONFIG_USB_ACM=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_SCANNER=m
-CONFIG_USB_OV511=m
-CONFIG_USB_PWC=m
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_BOOTX_TEXT=y
-CONFIG_SECURITY=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_CRYPTO_TEST=m
-
---AqsLC8rIMeq19msA--

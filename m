@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVBUT0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVBUT0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVBUT0f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 14:26:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVBUT0e
+	id S262071AbVBUT0j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 14:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVBUT0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:26:34 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:60100 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262065AbVBUSqD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 13:46:03 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: gene.heskett@verizon.net
-Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
-Date: Mon, 21 Feb 2005 19:46:02 +0100
+	Mon, 21 Feb 2005 14:26:39 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:4078 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S262071AbVBUSsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 13:48:22 -0500
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Subject: Re: 2.6.11rc4: irq 5, nobody cared
+Date: Mon, 21 Feb 2005 19:43:59 +0100
 User-Agent: KMail/1.7.1
-References: <200502211216.35194.gene.heskett@verizon.net> <200502211858.34301.oliver@neukum.org> <200502211325.55013.gene.heskett@verizon.net>
-In-Reply-To: <200502211325.55013.gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
+References: <20050220155600.GD5049@vanheusden.com> <4218C692.9040106@tiscali.de> <20050220180550.GA18606@ime.usp.br>
+In-Reply-To: <20050220180550.GA18606@ime.usp.br>
+Cc: =?iso-8859-1?q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200502211946.02233.oliver@neukum.org>
+Message-Id: <200502211943.59887.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 21. Februar 2005 19:25 schrieb Gene Heskett:
-> Thats what I was afraid of, which makes using it for a motion detected 
-> burgular alarm source considerably less than practical since the 
-> machine must be able to do other things too.  Darn.  And its usb1.1 
-> even when plugged into a 2.0 capable port.
 
-There are some cameras which can operate without compression at lowered
-resolution and framerate. Maybe that is good enough. In addition,
-decompression may be optimised.
+On Sunday 20 February 2005 19:05, Rogério Brito wrote:
+> On Feb 20 2005, Matthias-Christian Ott wrote:
+> > Rogério Brito wrote:
+> > >I am willing to test any patch and configuration (let's call me a
+> > >"guinea pig"), but I don't know what I should do. I have, OTOH,
+> > >reported my problem many times in the past few days. :-(
+> > >
+> > >I will retry sending my message to the list once again, with the
+> > >details (in my case, the message I get is "irq 10: nobody cared!"
+> > >and it is regarding my primary HD on my secondary Promise PDC20265
+> > >controller).
+> 
+> First of all, Matthias-Christian, thank you very much for your kind
+> answer.
+> 
+> I have already tried contacting the linux-ide mailing list as a CC to my
+> earlier messages, but I got no response. I am including some details in
+> this e-mail. I included Bartlomiej in the CC, as he is listed as general
+> IDE maintainer in the MAINTAINERS file.
 
-	Regards
-		Oliver
+Hi,
+
+There is no need to cc: me 3x times,
+I'm subscribed to linux-kernel and linux-ide
+so I got your mail 5x times...
+
+If I don't reply it means that I'm busy doing other stuff.
+
+Regards,
+Bartlomiej

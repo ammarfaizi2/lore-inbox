@@ -1,67 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262313AbTEUUq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 16:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTEUUq6
+	id S262268AbTEUU2E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 16:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbTEUU2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 16:46:58 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:8073 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262313AbTEUUq5 (ORCPT
+	Wed, 21 May 2003 16:28:04 -0400
+Received: from mail.ccur.com ([208.248.32.212]:65030 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S262268AbTEUU2D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 16:46:57 -0400
-Date: Wed, 21 May 2003 14:01:54 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com, baldrick@wanadoo.fr
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [BK PATCH] Yet more USB changes for 2.5.69
-Message-ID: <20030521210154.GA2991@kroah.com>
-References: <20030521004509.GA7055@kroah.com>
+	Wed, 21 May 2003 16:28:03 -0400
+Date: Wed, 21 May 2003 16:40:26 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] setscheduler resched bug
+Message-ID: <20030521204026.GA13444@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030521004509.GA7055@kroah.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+setscheduler is not forcing a reschedule when needed like set_user_nice
+does.  It should.
 
-I messed up merging some patches yesterday, and I've now fixed that up.
-Could you please pull from:
+Joe
+
+
+--- 2.5.69/kernel/sched.c.orig	2003-05-21 14:50:53.000000000 -0400
++++ 2.5.69/kernel/sched.c	2003-05-21 15:01:13.000000000 -0400
+@@ -1716,6 +1716,7 @@
+ 	unsigned long flags;
+ 	runqueue_t *rq;
+ 	task_t *p;
++	int oldprio;
  
-	bk://kernel.bkbits.net/gregkh/linux/linus-2.5
-
-To get the following changes?
-
-thanks,
-
-greg k-h
-
-
- drivers/usb/misc/speedtch.c     | 1086 +++++++++++++++++-----------------------
- drivers/usb/storage/transport.c |    2 
- drivers/usb/storage/transport.h |    2 
- 3 files changed, 487 insertions(+), 603 deletions(-)
------
-
-Duncan Sands:
-  o USB speedtouch: receive code rewrite
-  o USB speedtouch: receive path micro optimization
-  o USB speedtouch: remove useless NULL pointer checks
-  o USB speedtouch: kfree_skb -> dev_kfree_skb
-  o USB speedtouch: send path micro optimizations
-  o USB speedtouch: use optimally sized reconstruction buffers
-  o USB speedtouch: remove stale code
-  o USB speedtouch: verbose debugging
-  o USB speedtouch: spin_lock_irqsave -> spin_lock_irq in tasklets
-  o USB speedtouch: spin_lock_irqsave -> spin_lock_irq in process context
-  o USB speedtouch: add defensive memory barriers
-  o USB speedtouch: replace yield()
-  o USB speedtouch: trivial whitespace and name changes
-
-Greg Kroah-Hartman:
-  o USB: speedtch merge fixups by hand
-
-Vojtech Pavlik:
-  o USB: Make Olympus cameras work with usb-storage
-
+ 	if (!param || pid < 0)
+ 		goto out_nounlock;
+@@ -1778,12 +1779,20 @@
+ 	retval = 0;
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
++	oldprio = p->prio;
+ 	if (policy != SCHED_NORMAL)
+ 		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+ 	else
+ 		p->prio = p->static_prio;
+-	if (array)
++	if (array) {
+ 		__activate_task(p, task_rq(p));
++		/*
++		 * Reschedule if on a CPU and the priority dropped, or not on
++		 * a CPU and the priority rose above the currently running task.
++		 */
++		if ((rq->curr == p) ? (p->prio > oldprio) : (p->prio < rq->curr->prio))
++			resched_task(rq->curr);
++	}
+ 
+ out_unlock:
+ 	task_rq_unlock(rq, &flags);

@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272519AbRH3WOH>; Thu, 30 Aug 2001 18:14:07 -0400
+	id <S272525AbRH3WPr>; Thu, 30 Aug 2001 18:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272522AbRH3WN6>; Thu, 30 Aug 2001 18:13:58 -0400
-Received: from t2.redhat.com ([199.183.24.243]:19191 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272519AbRH3WNp>; Thu, 30 Aug 2001 18:13:45 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200108302156.f7ULujo24456@oboe.it.uc3m.es> 
-In-Reply-To: <200108302156.f7ULujo24456@oboe.it.uc3m.es> 
-To: ptb@it.uc3m.es
-Cc: "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war 
-Mime-Version: 1.0
+	id <S272524AbRH3WPi>; Thu, 30 Aug 2001 18:15:38 -0400
+Received: from smtp4vepub.gte.net ([206.46.170.25]:32796 "EHLO
+	smtp4vepub.verizon.net") by vger.kernel.org with ESMTP
+	id <S272523AbRH3WPd>; Thu, 30 Aug 2001 18:15:33 -0400
+Message-ID: <3B8EBB10.524E543F@verizon.net>
+Date: Thu, 30 Aug 2001 18:15:44 -0400
+From: Rafael Herrera <vze26vn8@verizon.net>
+Reply-To: raffo@neuronet.pitt.edu
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-4GB i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs: how to mount without journal replay?
+In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL> <20010830225323.A18630@atrey.karlin.mff.cuni.cz> <3B8EAD35.5695B30B@namesys.com> <20010830235005.B9330@bug.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 30 Aug 2001 23:13:31 +0100
-Message-ID: <11888.999209611@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The SUSE CD has a rescue image which contains reiserfsck. Boot the CD in
+"manual" mode and select "Start rescue system" when you get to the
+install/boot installed/rescue menu.
 
-ptb@it.uc3m.es said:
->  You got me curious enough to try it.  It compiles and links fine with
-> -O1 and higher under
-
->        gcc version 2.95.2 20000220 (Debian GNU/Linux)
->        gcc version 2.8.1
->        gcc version 2.7.2.3 
-
-Oh well, then it _must_ be safe then - gcc has never changed unspecified 
-behaviour on us before, has it?
-
-The gcc engineer who took one look at the __buggy_udelay cruft, raised his
-eyebrows, swore and wandered off muttering must just have been having a bad
-day or something.
-
---
-dwmw2
-
-
+-- 
+     Rafael

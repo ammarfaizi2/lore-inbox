@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132071AbQLJSvs>; Sun, 10 Dec 2000 13:51:48 -0500
+	id <S131641AbQLJSwj>; Sun, 10 Dec 2000 13:52:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132131AbQLJSvi>; Sun, 10 Dec 2000 13:51:38 -0500
-Received: from diver.doc.ic.ac.uk ([146.169.1.47]:7693 "EHLO
-	diver.doc.ic.ac.uk") by vger.kernel.org with ESMTP
-	id <S132130AbQLJSvd>; Sun, 10 Dec 2000 13:51:33 -0500
-To: v.j.orlikowski@gte.net
-Cc: Julian Anastasov <ja@ssi.bg>, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre25, S3, AMD K6-2, and MTRR....
-In-Reply-To: <Pine.LNX.4.21.0012092218280.877-100000@u>
-	<14898.42117.34020.145433@critterling.garfield.home>
-From: David Wragg <dpw@doc.ic.ac.uk>
-Date: 10 Dec 2000 18:20:31 +0000
-Message-ID: <y7ru28cdtow.fsf@sytry.doc.ic.ac.uk>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+	id <S131961AbQLJSwT>; Sun, 10 Dec 2000 13:52:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51465 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131940AbQLJSvr>; Sun, 10 Dec 2000 13:51:47 -0500
+Subject: Re: Traffic storm interaction with MacOS 8.6
+To: j.d.morton@lancaster.ac.uk (Jonathan Morton)
+Date: Sun, 10 Dec 2000 18:23:41 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <l0313030bb658f80c3180@[192.168.239.101]> from "Jonathan Morton" at Dec 10, 2000 10:07:42 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E145B8R-0006ox-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Victor J. Orlikowski" <v.j.orlikowski@gte.net> writes:
-> This is precisely my problem.
-> K6-2, model 8, stepping 12.
-> Thus far, everything is *fine*, as long as MTRR is not compiled into
-> the kernel.
-> If MTRR is compiled into the kernel, I get lock-ups in X *only*, and
-> the entire machine locks.
+> Analysis:
+> 	This is probably a bug in the MacOS, as well as in Linux, and the
+> presence of both is necessary to cause the effect.  I believe it can be
 
-Just to check the important facts (correct any of this if it is
-wrong): In 2.2.18, the problem appears when you enable MTRR support,
-but goes away when you disable MTRR support.  You are using the vesafb
-driver.  You are running XFree86-3.x.
+I would imagine its a bug in some mangling proxy in the middle. MacOS is
+mentat streams which while not reknowned for its behaviour certainly isnt
+normally in the complete idiot category
 
-Are you passing any vesafb options on the kernel command line?
+> systems, in the following manner.  The workaround involves NOT sending more
+> than one TCP responses in a row which advertise a zero receive window,
 
-If not, this is very strange, because the 2.2.18 mtrr.c (or any other)
-should not be touching the MTRR registers (or whatever the K6 calls
-them) unless you do something to /proc/mtrr.
+Thats not legal. RFC's are explicit about when you send acks
 
-If I understood why the MTRR driver was doing something on the K6-2,
-then model-specific differences might make some sense.  But currently,
-I don't see why there would be any difference between "MTRR disabled"
-and "MTRR enabled, but not used".
+> eliminating the storm.  When the receive window becomes available again, a
+> single, empty TCP packet would be generated advertising the new window
+> size; this I believe is already present.
 
+This packet is unreliable so the acks must happen.
 
-David Wragg
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

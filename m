@@ -1,82 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286647AbSBCJft>; Sun, 3 Feb 2002 04:35:49 -0500
+	id <S286692AbSBCKZ2>; Sun, 3 Feb 2002 05:25:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286692AbSBCJf2>; Sun, 3 Feb 2002 04:35:28 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:7855 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S286647AbSBCJfH>;
-	Sun, 3 Feb 2002 04:35:07 -0500
-Date: Sun, 3 Feb 2002 12:32:42 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <20020202155013.28C4615CFC@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0202031220510.2020-100000@localhost.localdomain>
+	id <S286712AbSBCKZR>; Sun, 3 Feb 2002 05:25:17 -0500
+Received: (root@vger.kernel.org) by vger.kernel.org id <S286692AbSBCKZE>;
+	Sun, 3 Feb 2002 05:25:04 -0500
+Received: from mx3.fuse.net ([216.68.1.123]:65197 "EHLO mta03.fuse.net")
+	by vger.kernel.org with ESMTP id <S286311AbSBCGek>;
+	Sun, 3 Feb 2002 01:34:40 -0500
+Message-ID: <3C5CD9F3.8090404@fuse.net>
+Date: Sun, 03 Feb 2002 01:34:27 -0500
+From: Nathan <wfilardo@fuse.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020121
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: ACPI help needed
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've got a curious problem on my hands (I think. Maybe somebody can fix 
+it in an instant):
 
-On Sat, 2 Feb 2002, Ed Tomlinson wrote:
+the latest ACPI patch refuses to build with my box.
 
-> The following patch improves the performance of O(1) when under load
-> and threaded programs are running.  For this patch, threaded is taken
-> to mean processes sharing their vm (p->mm).  While this type of
-> programming is usually not optimal it is very common (ie. java).
+Under gcc 2.95.4 I get:
+ld -m elf_i386 -T 
+/home/expsoft/src/linux-kernel/linux-2.5/linux/arch/i386/vmlinux.lds -e 
+stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o 
+init/version.o init/do_mounts.o \
+       --start-group \
+       arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o 
+mm/mm.o fs/fs.o ipc/ipc.o \
+       
+/home/expsoft/src/linux-kernel/linux-2.5/linux/arch/i386/lib/lib.a 
+/home/expsoft/src/linux-kernel/linux-2.5/linux/lib/lib.a 
+/home/expsoft/src/linux-kernel/linux-2.5/linux/arch/i386/lib/lib.a \
+        drivers/acpi/acpi.o drivers/base/base.o drivers/char/char.o 
+drivers/block/block.o drivers/misc/misc.o drivers/net/net.o 
+drivers/media/media.o drivers/char/agp/agp.o drivers/char/drm/drm.o 
+drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o 
+drivers/net/pcmcia/pcmcia_net.o drivers/net/wireless/wireless_net.o 
+drivers/pnp/pnp.o drivers/video/video.o drivers/input/inputdrv.o 
+drivers/input/serio/seriodrv.o \
+       net/network.o \
+       --end-group \
+       -o vmlinux
+drivers/acpi/acpi.o: In function `acpi_battery_read_info':
+drivers/acpi/acpi.o(.text+0x2864e): undefined reference to `__ucmpdi2'
+drivers/acpi/acpi.o(.text+0x28667): undefined reference to `__ucmpdi2'
+drivers/acpi/acpi.o(__ksymtab+0x208): undefined reference to `acpi_exit'
 
-generally we do not make any distinction between Linux threads that share
-or do not share their VM. We certainly do not want to handle them
-differently wrt. timeslices distributed.
 
-> Under load, with threaded tasks running niced, and a cpu bound task at
-> normal priority we quickly notice the load average shooting up.  What
-> is happening is all the threads are trying to run.  Due to the nature
-> of O(1) all the process in the current array must run to get on to the
-> inactive array.  This quickly leads to the higher priority cpu bound
-> task starving.  Running the threaded application at nice +19 can help
-> but does not solve the base issue.  On UP, I have observed loads of
-> between 20 and 40 when this is happening,
+And under 3.0 (debian unstable latest, 3.0.4-pre020127), the errors 
+about __ucmpdi2 disappear, but the acpi_exit one remains.  acpi_init, 
+which is a very very similarly defined, constructed, etc function is 
+fine.  Somebody please help me (my system depends on ACPI PCI IRQ routing).
 
-the problem of lower priority tasks taking away CPU time from a higher
-priority task is not new, it's present in the old scheduler as well. In no
-way is this symptom related to threads that share their VM. The same
-workload with forked processes will show the same symptoms.
+--Nathan
 
-i'd suggest to do the following tunings on stock -J9:
-
- - increase HZ to 1024, in include/asm/param.h
- - decrease MIN_TIMESLICE to 1 msec in sched.h.
- - decrease PRIO_BONUS_RATIO from 70 to 40.
-
-these changes do two things: they decrease the timeslice of nice +19 tasks
-(pretty dramatically, relative to current kernels), and they make sure
-that heavily reniced tasks cannot reach interactive status easily.
-
-do you still see higher priority CPU-bound task starving?
-
-> I tried various approaches to correcting this. Neither reducing the
-> timeslices or playing the the effective prio of the threaded tasks
-> helped much. What does seems quite effective is to monitor the total
-> time _all_ the tasks sharing a vm use. Once a threshold is exceeded we
-> move any tasks in the same group directly to the inactive array
-> temporarily increasing their effective prio.
-
-this in essence punishes threads that share their VM - including system
-threads such as eg. kswapd or bdflush as well. This concept is broken
-because the problem is not that the threads share their VM, that is just a
-property of your particular workload. The problem is that while you have
-lowered the priority of your java threads, they still show interactive
-behavior and get a higher proportion of the CPU share they got previously.
-
-i think your workload shows a weakness in the current handling of reniced
-workloads, which can be fixed without adding any new mechanizm.
-
-> With this change the cpu bound tasks can get over 80% of the cpu.
-
-please also try the tunings i suggested, and compare the two kernels.
-
-	Ingo
 

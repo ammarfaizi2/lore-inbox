@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbTAICRL>; Wed, 8 Jan 2003 21:17:11 -0500
+	id <S261370AbTAICNI>; Wed, 8 Jan 2003 21:13:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbTAICRL>; Wed, 8 Jan 2003 21:17:11 -0500
-Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:50532 "EHLO
-	vlad.geekizoid.com") by vger.kernel.org with ESMTP
-	id <S261376AbTAICRL>; Wed, 8 Jan 2003 21:17:11 -0500
-Reply-To: <vlad@geekizoid.com>
-From: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>
-To: <rms@gnu.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Nvidia and its choice to read the GPL "differently"
-Date: Wed, 8 Jan 2003 20:26:09 -0600
-Message-ID: <010101c2b786$794d87a0$0200a8c0@wsl3>
+	id <S261371AbTAICNH>; Wed, 8 Jan 2003 21:13:07 -0500
+Received: from ftp.tpi.com ([198.107.51.136]:13074 "EHLO mailgate.tpi.com")
+	by vger.kernel.org with ESMTP id <S261370AbTAICNF> convert rfc822-to-8bit;
+	Wed, 8 Jan 2003 21:13:05 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Gardner <timg@tpi.com>
+Reply-To: timg@tpi.com
+Organization: TriplePoint, Inc
+To: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
+Subject: Re: 2.4.19 ICMP redirects erroneously ignored
+Date: Wed, 8 Jan 2003 19:21:44 -0700
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200301081852.05547.rtg@tim.rtg.net> <1042046214.17783.7.camel@ranjeet-linux-1>
+In-Reply-To: <1042046214.17783.7.camel@ranjeet-linux-1>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <E18WB8R-0004k9-00@fencepost.gnu.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301081921.44506.timg@tpi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you actually buy your own bullshit here?  If so, that's sad.  I used to
-respect you.  I'd like to see you put your money where your mouth is - PROVE
-that GNU (not just people who have release GPL'd software) contributed most
-of the work to say Slackware, or Debian, or Red Hat.
+I understand the ramifications of ICMP redirect and how it can be mis-used. 
+However, the SuSE 8.1 default for non-forwarding 
+(/proc/sys/net/ipv4ip_forward==0) Linux is to accept redirects. I also own 
+the router, so I trust it.
 
-Face it - you're full of it.  You're not fooling anyone either.
+rtg
+On Wednesday 08 January 2003 10:16, Ranjeet Shetye wrote:
+> On Thu, 2003-01-09 at 02:52, Tim Gardner wrote:
+> > I'm getting pounded by ICMP redirects from my Nortel router. The
+> > setup is a SuSE 8.1 (2.4.19) standard client with fixed IP and netmask.
+> > The client is configured with a default route. However, there are
+> > several routers on the subnet that the default router knows about.
+> > Hence, the reason that the Nortel router emits ICMP redirects
+> > which my client steadfastly ignores.
+> >
+> > I've RTFM, read the kernel source, and checked the relevant settings
+> > (/proc/sys/net/ipv4/conf/all/*). I find in /proc/net/rt_cache that there
+> > are 2 entries, one of which is marked RTCF_REDIRECTED.
+> >
+> > Why isn't this redirected route being used?
+>
+> AFAIK, because that would mean that you are allowing another machine to
+> manipulate your routing tables by simply using ICMP. How do you know
+> that you can trust the other machine, in this case, the nortel router ?
+> The problem is not of (missing) functionality, its about trusting the
+> integrity of the source of the ICMP redirect.
+>
+> > This seems like a problem that ought to be common to anyone that
+> > has multiple routers on the same subnet. What am I missing?
+> >
+> > rtg
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> > in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
-Sent: Wednesday, January 08, 2003 2:00 AM
-To: lm@bitmover.com
-Cc: lm@bitmover.com; acahalan@cs.uml.edu; linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-
-
-    Great.  So not only is there no legal need to cite GNU in the Linux
-    name, there is no ethical obligation either.
-
-When you take part of my statement, stretch it, interpret it based on
-assumptions you know I disagree with, and present the result as
-something I said, that doesn't prove anything.  It is childish.
-
-There is no ethical obligation to mention secondary contributions
-incorporated in a large project.  There ethical obligation is to cite
-the main developer.  In the GNU/Linux system, the GNU Project is the
-principal contributor; the system is more GNU than anything else,
-and we started it.
-
+-- 
+Tim Gardner - timg@tpi.com 406-443-5357
+TriplePoint, Inc. - http://www.tpi.com
+PGP: http://www.tpi.com/PGP/Tim.txt

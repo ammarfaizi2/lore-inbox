@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263496AbTLSRfi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 12:35:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSRfh
+	id S263185AbTLSR6L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 12:58:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSR6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 12:35:37 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:34460 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S263496AbTLSRfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 12:35:36 -0500
-Date: Fri, 19 Dec 2003 09:22:48 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, David Mosberger <davidm@napali.hpl.hp.com>,
-       Andi Kleen <ak@muc.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test11-mm1 doesn't compile on x86_64
-Message-ID: <41640000.1071854568@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Dec 2003 12:58:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31124 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263185AbTLSR6I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 12:58:08 -0500
+Date: Fri, 19 Dec 2003 09:56:47 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SCSI AM53C974 driver missing in 2.6.0?
+Message-Id: <20031219095647.18648118.rddunlap@osdl.org>
+In-Reply-To: <20031218145527.GN19831@charite.de>
+References: <20031218145527.GN19831@charite.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fs/proc/task_mmu.c: In function `show_map':
-fs/proc/task_mmu.c:127: `gate_dso_path' undeclared (first use in this function)
-fs/proc/task_mmu.c:127: (Each undeclared identifier is reported only once
-fs/proc/task_mmu.c:127: for each function it appears in.)
-make[2]: *** [fs/proc/task_mmu.o] Error 1
-make[1]: *** [fs/proc] Error 2
-make: *** [fs] Error 2
-make: *** Waiting for unfinished jobs....
+On Thu, 18 Dec 2003 15:55:27 +0100 Ralf Hildebrandt <Ralf.Hildebrandt@charite.de> wrote:
 
-It seems to be fixmap-in-proc-pid-maps-ng.patch that's broken
-(davidm cc'ed). Maybe something as simple as the below fixes it.
-Or maybe it's total crap ... I don't really know what AT_SYSINFO_EHDR
-is, but presumably someone does.
+| % lspci -v
+| 00:0b.0 SCSI storage controller: Advanced Micro Devices [AMD] 53c974 [PCscsi] (rev 10)
+|         Flags: bus master, stepping, medium devsel, latency 70, IRQ 10
+|         I/O ports at b800 [size=128]
+|         Expansion ROM at <unassigned> [disabled] [size=64K]
+| 	
+| in 2.4.x we've been using 
+| CONFIG_SCSI_AM53C974=m
+| 
+| 2.6.0 doesn't seem to have any support for that specific SCSI
+| controller. What now? Aternatives?
 
-M.
+Kurt Garloff <garloff@suse.de>
+and Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+have made some recent patches for this driver.
+It was discussed on the linux-scsi@vger.kernel.org mailing list.
 
-diff -urpN -X /home/fletch/.diff.exclude mm1/fs/proc/task_mmu.c mm1-fix/fs/proc/task_mmu.c
---- mm1/fs/proc/task_mmu.c	Fri Dec 19 09:15:45 2003
-+++ mm1-fix/fs/proc/task_mmu.c	Fri Dec 19 09:21:11 2003
-@@ -76,9 +76,10 @@ int task_statm(struct mm_struct *mm, int
- 	return size;
- }
- 
-+char gate_dso_path[256] = "";
-+
- #ifdef AT_SYSINFO_EHDR
- 
--char gate_dso_path[256] = "";
- static struct vm_area_struct gate_vmarea = {
- 	/* Do _not_ mark this area as readable, cuz not the entire range may be readable
- 	   (e.g., due to execute-only pages or holes) and the tools that read
+Kurt, Guennadi:  Is there a current patch posted somewhere?
 
+--
+~Randy
+MOTD:  Always include version info.

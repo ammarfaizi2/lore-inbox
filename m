@@ -1,18 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316996AbSFKKgl>; Tue, 11 Jun 2002 06:36:41 -0400
+	id <S316995AbSFKKnv>; Tue, 11 Jun 2002 06:43:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316995AbSFKKgk>; Tue, 11 Jun 2002 06:36:40 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29199 "EHLO
+	id <S316997AbSFKKnu>; Tue, 11 Jun 2002 06:43:50 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29967 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316996AbSFKKgf>; Tue, 11 Jun 2002 06:36:35 -0400
-Date: Tue, 11 Jun 2002 11:36:29 +0100
+	id <S316995AbSFKKnu>; Tue, 11 Jun 2002 06:43:50 -0400
+Date: Tue, 11 Jun 2002 11:43:44 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
-Message-ID: <20020611113629.A3081@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048CFD.2090201@evision-ventures.com> <20020611004000.GH5202@kroah.com> <3D0599AE.7080809@evision-ventures.com> <20020611092637.C1346@flint.arm.linux.org.uk> <3D05B61F.4010609@evision-ventures.com> <20020611100634.D1346@flint.arm.linux.org.uk> <3D05BE5B.1000705@evision-ventures.com> <20020611102859.F1346@flint.arm.linux.org.uk> <3D05C61B.1090809@evision-ventures.com>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] Double quote patches part one: drivers 1/2
+Message-ID: <20020611114344.B3081@flint.arm.linux.org.uk>
+In-Reply-To: <20020611084758.B1346@flint.arm.linux.org.uk> <Pine.LNX.4.44.0206110422110.24261-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,24 +22,50 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 11:42:51AM +0200, Martin Dalecki wrote:
-> Well I surely understand what a pointer to the local variable set is.
-> I know pascal and gdb well enough :-). However what I may have
-> missed is that ARM is using some other task switch mechanism.
-> I would be courious to see what it is?
+On Tue, Jun 11, 2002 at 04:24:01AM -0600, Thunder from the hill wrote:
+> On Tue, 11 Jun 2002, Russell King wrote:
+> > 1. Spaces -> source bloat.
+> 
+> No spaces -> looks unsatisfying, someone mentioned.
 
-Frame pointer - used to reference the function return state, and function
-arguments.  Optional.
+Authors taste.
 
-Stack pointer - used to reference the function local variables.  In the
-absence of the frame pointer, this is also used to reference the function
-return state and the function arguments.
+> > 2. No tab at the start of the file -> yuck when reading the ASM.
+> 
+> What do you mean by that?
 
-As you can see, it has nothing to do with task switch mechanisms.
+Ever tried:
 
-I suggest you revise your "pascal and gdb" and "task switch mechanism"
-knowledge.  I don't believe ARM is special in doing the above.  In fact,
-the above is probably very common indeed.
+make kernel/fork.s
+
+and then read kernel/fork.s ?  Yes, some people who care about getting
+the best out of the kernel do convert C to assembly and then read the
+result.  If there's something really yucky in there, then you go back
+and fix it in the C source.
+
+> > My preferred way of fixing these in ARM stuff is to add <tab><tab><tab>\n\
+> > to each line (with the appropriate number of tabs.  See
+> > arch/arm/kernel/semaphore.c for an example.
+> 
+> Hmm... Wasn't that the behavior we wanted to fix with the concatenated 
+> strings?
+
+"behaviour" or "style".  I prefer my style for the code I maintain, which
+is close to Linus' style.  There is no current style for fixing gcc 3.x
+stuff, so its up to the authors of the code to set the style.  I've
+decided on one which matches the style of my multi-line macros for
+consistency sake.  I'd rather not invent another style for multi-line
+asm.
+
+Sure, both "fix" the underlying problem.  But how readable is it in the
+end?
+
+BTW, your sig is being messed up by the mixture of spaces and tabs:
+
+> German attitude becoming        |	Thunder from the hill at ngforever
+> rightaway popular:		|
+>        "Get outa my way,  	|	free inhabitant not directly
+>     for I got a mobile phone!"	|	belonging anywhere
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

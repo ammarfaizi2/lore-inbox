@@ -1,91 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272822AbRI0MvY>; Thu, 27 Sep 2001 08:51:24 -0400
+	id <S272817AbRI0Mvo>; Thu, 27 Sep 2001 08:51:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272818AbRI0MvO>; Thu, 27 Sep 2001 08:51:14 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:24339 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S272817AbRI0MvD>; Thu, 27 Sep 2001 08:51:03 -0400
-Date: Thu, 27 Sep 2001 15:48:29 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <1024452310.20010927154829@port.imtp.ilyichevsk.odessa.ua>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Automount expiration bug: it does not like symlinks
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272818AbRI0Mvf>; Thu, 27 Sep 2001 08:51:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:51982 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S272817AbRI0MvX> convert rfc822-to-8bit;
+	Thu, 27 Sep 2001 08:51:23 -0400
+To: James Antill <james@and.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
+In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel>
+	<E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel>
+	<9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
+	<oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
+	<jeelp4rbtf.fsf@sykes.suse.de>
+	<20010918143827.A16003@gruyere.muc.suse.de>
+	<nn3d59qzho.fsf@code.and.org>
+X-Yow: Do you need any MOUTH-TO-MOUTH resuscitation?
+From: Andreas Schwab <schwab@suse.de>
+Date: 27 Sep 2001 14:51:44 +0200
+In-Reply-To: <nn3d59qzho.fsf@code.and.org> (James Antill's message of "26 Sep 2001 19:54:59 -0400")
+Message-ID: <jezo7gu78f.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.107
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Antill <james@and.org> writes:
 
-I just discovered that automount misbehaves when its mount points are
-syumlinks. It repeatedly reports expiration but fails to actually
-unmount automounted dir.
+|> Andi Kleen <ak@suse.de> writes:
+|> 
+|> > Good point. I somehow assumed that __builtin_expect would just signify
+|> > a boolean, but if I read gcc source correctly this was wrong.
+|> 
+|>  Yeh, it's a long so you'll get no cast warnings too.
+|> 
+|> > Here is an updated patch.
+|> 
+|> [snip ... ]
+|> 
+|> > --- include/linux/kernel.h-LIKELY	Tue Sep 18 11:12:20 2001
+|> > +++ include/linux/kernel.h	Tue Sep 18 14:35:17 2001
+|> > @@ -171,4 +171,14 @@
+|> >  	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+|> >  };
+|> >  
+|> > +
+|> > +/* This loses on a few early 2.96 snapshots, but hopefully nobody uses them anymore. */ 
+|> > +#if __GNUC__ > 2 || (__GNUC__ == 2 && _GNUC_MINOR__ == 96)
+|> > +#define likely(x)  __builtin_expect(!!(x), 1) 
+|> > +#define unlikely(x)  __builtin_expect((x), 0) 
+|> 
+|>  unlikely() also needs to be...
+|> 
+|> #define unlikely(x)  __builtin_expect(!(x), 1) 
+|> 
+|> ...or...
+|> 
+|> #define unlikely(x)  __builtin_expect(!!(x), 0) 
 
-See attached logs. My /mnt is a symlink to /.share/.local/mnt
-If you plan to reproduce please note that my /etc/mtab is symlinked to
-/proc/mounts which may contribute to this behavior.
+This is not needed, since only 0 is the likely value and !! does not
+change that.
 
-# automount --timeout 5 /mnt/auto file /etc/autofs.conf
-# cd /mnt/auto/hda2
-# cd /
- -- in syslog: --
-Sep 27 09:47:05 pegasus automount[179]: attempting to mount entry /mnt/auto/hda2
-Sep 27 09:47:05 pegasus automount[3539]: lookup(file): looking up hda2
-Sep 27 09:47:05 pegasus automount[3539]: lookup(file): hda2 -> -fstype=auto,noexec^I:/dev/hda2
-Sep 27 09:47:05 pegasus automount[3539]: parse(sun): expanded entry: -fstype=auto,noexec^I:/dev/hda2
-Sep 27 09:47:05 pegasus automount[3539]: parse(sun): dequote("fstype=auto,noexec") -> fstype=auto,noexec
-Sep 27 09:47:05 pegasus automount[3539]: parse(sun): gathered options: fstype=auto,noexec
-Sep 27 09:47:05 pegasus automount[3539]: parse(sun): dequote("/dev/hda2") -> /dev/hda2
-Sep 27 09:47:05 pegasus automount[3539]: parse(sun): core of entry: options=fstype=auto,noexec, loc=/dev/hda2
-Sep 27 09:47:05 pegasus automount[3539]: parse(sun): mounting root /mnt/auto, mountpoint hda2/, what /dev/hda2, fstype auto, options noexec
-Sep 27 09:47:05 pegasus automount[3539]: do_mount /dev/hda2 /mnt/auto/hda2/ type auto options noexec using module generic
-Sep 27 09:47:05 pegasus automount[3539]: mount(generic): calling mkdir_path /mnt/auto/hda2/
-Sep 27 09:47:05 pegasus automount[3539]: mount(generic): calling mount -t auto -s -o noexec /dev/hda2 /mnt/auto/hda2/
-Sep 27 09:47:06 pegasus automount[3539]: mount(generic): mounted /dev/hda2 type auto on /mnt/auto/hda2/
-Sep 27 09:47:13 pegasus automount[3545]: running expiration on path /mnt/auto/hda2
-Sep 27 09:47:13 pegasus automount[3545]: expired /mnt/auto/hda2
-Sep 27 09:47:19 pegasus automount[3549]: running expiration on path /mnt/auto/hda2
-Sep 27 09:47:19 pegasus automount[3549]: expired /mnt/auto/hda2
-Sep 27 09:47:25 pegasus automount[3553]: running expiration on path /mnt/auto/hda2
-Sep 27 09:47:25 pegasus automount[3553]: expired /mnt/auto/hda2
-Sep 27 09:47:31 pegasus automount[3557]: running expiration on path /mnt/auto/hda2
-Sep 27 09:47:31 pegasus automount[3557]: expired /mnt/auto/hda2
- -- here I do manual "umount /mnt/auto/hda2" --
-Sep 27 09:47:39 pegasus automount[3563]: running expiration on path /mnt/auto/hda2
-Sep 27 09:47:39 pegasus automount[3563]: expired /mnt/auto/hda2
- -- end of log --
-
-# killall automount
-# automount --timeout 5 /.share/.local/mnt/auto file /etc/autofs.conf
-# cd /.share/.local/mnt/auto/hda2
-# cd /
- -- in syslog: --
-Sep 27 14:33:09 pegasus automount[9726]: attempting to mount entry /.share/.local/mnt/auto/hda2
-Sep 27 14:33:09 pegasus automount[9763]: lookup(file): looking up hda2
-Sep 27 14:33:09 pegasus automount[9763]: lookup(file): hda2 -> -fstype=auto,noexec^I:/dev/hda2
-Sep 27 14:33:09 pegasus automount[9763]: parse(sun): expanded entry: -fstype=auto,noexec^I:/dev/hda2
-Sep 27 14:33:09 pegasus automount[9763]: parse(sun): dequote("fstype=auto,noexec") -> fstype=auto,noexec
-Sep 27 14:33:09 pegasus automount[9763]: parse(sun): gathered options: fstype=auto,noexec
-Sep 27 14:33:09 pegasus automount[9763]: parse(sun): dequote("/dev/hda2") -> /dev/hda2
-Sep 27 14:33:09 pegasus automount[9763]: parse(sun): core of entry: options=fstype=auto,noexec, loc=/dev/hda2
-Sep 27 14:33:09 pegasus automount[9763]: parse(sun): mounting root /.share/.local/mnt/auto, mountpoint hda2/, what /dev/hda2, fstype auto, options noexec
-Sep 27 14:33:09 pegasus automount[9763]: do_mount /dev/hda2 /.share/.local/mnt/auto/hda2/ type auto options noexec using module generic
-Sep 27 14:33:09 pegasus automount[9763]: mount(generic): calling mkdir_path /.share/.local/mnt/auto/hda2/
-Sep 27 14:33:09 pegasus automount[9763]: mount(generic): calling mount -t auto -s -o noexec /dev/hda2 /.share/.local/mnt/auto/hda2/
-Sep 27 14:33:09 pegasus automount[9763]: mount(generic): mounted /dev/hda2 type auto on /.share/.local/mnt/auto/hda2/
-Sep 27 14:33:18 pegasus automount[9790]: running expiration on path /.share/.local/mnt/auto/hda2
-Sep 27 14:33:18 pegasus automount[9790]: expired /.share/.local/mnt/auto/hda2
- -- end of log --
+Andreas.
 
 -- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
-
-
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

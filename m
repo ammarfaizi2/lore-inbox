@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132507AbRACRNA>; Wed, 3 Jan 2001 12:13:00 -0500
+	id <S132587AbRACRVM>; Wed, 3 Jan 2001 12:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132587AbRACRMv>; Wed, 3 Jan 2001 12:12:51 -0500
-Received: from mail-4.tiscalinet.it ([195.130.225.150]:52579 "EHLO
-	mail.tiscalinet.it") by vger.kernel.org with ESMTP
-	id <S132507AbRACRMk>; Wed, 3 Jan 2001 12:12:40 -0500
-Message-Id: <3.0.6.32.20010103174545.00b76100@pop.tiscalinet.it>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 03 Jan 2001 17:45:45 +0100
+	id <S132601AbRACRVC>; Wed, 3 Jan 2001 12:21:02 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:35090 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S132587AbRACRUt>; Wed, 3 Jan 2001 12:20:49 -0500
+Message-Id: <200101031650.f03Go4D29320@pincoya.inf.utfsm.cl>
 To: linux-kernel@vger.kernel.org
-From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
-Subject: swapoff and 2.4.0-prerelease
-Cc: torvalds@transmeta.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+cc: David Miller <davem@redhat.com>
+Subject: 2.2.19pre5 on sparc64: Missing symbols
+X-Mailer: MH [Version 6.8.4]
+Date: Wed, 03 Jan 2001 13:50:04 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SS U1, RH 6.2 + updates
 
-I run 'swapoff -a' in the middle of 'make j10 bzImage'
-with 32M (by lilo) and got this:
-
-Jan  3 17:30:07 lenstra kernel: VM: Undead swap entry 000f3100
-Jan  3 17:30:07 lenstra kernel: VM: Bad swap entry 000f3100
-Jan  3 17:30:07 lenstra kernel: VM: Bad swap entry 000f3100
-Jan  3 17:30:07 lenstra kernel: Unused swap offset entry in swap_count
-000f3100
-Jan  3 17:30:07 lenstra kernel: VM: Bad swap entry 000f3100
-
-I that moment the swap was about 20-25M.
-(ok, maybe swapoff by root is rather "unfair" but.. :-)
-
---
-Lorenzo
+depmod: *** Unresolved symbols in /lib/modules/2.2.19pre5/fs/binfmt_elf.o
+depmod: 	get_pte_slow
+depmod: 	get_pmd_slow
+depmod: 	pgt_quicklists
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

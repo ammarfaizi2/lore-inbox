@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317994AbSHZIKV>; Mon, 26 Aug 2002 04:10:21 -0400
+	id <S314546AbSHZIbC>; Mon, 26 Aug 2002 04:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318007AbSHZIKV>; Mon, 26 Aug 2002 04:10:21 -0400
-Received: from web40207.mail.yahoo.com ([66.218.78.68]:24070 "HELO
-	web40207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317994AbSHZIKU>; Mon, 26 Aug 2002 04:10:20 -0400
-Message-ID: <20020826081431.44853.qmail@web40207.mail.yahoo.com>
-Date: Mon, 26 Aug 2002 01:14:31 -0700 (PDT)
-From: mike heffner <mdheffner@yahoo.com>
-Subject: PROBLEM:  conflict between apm and system clock on Inspiron 8100
-To: linux-kernel@vger.kernel.org
+	id <S315720AbSHZIbC>; Mon, 26 Aug 2002 04:31:02 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:19475 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S314546AbSHZIbB>; Mon, 26 Aug 2002 04:31:01 -0400
+Date: Mon, 26 Aug 2002 16:34:36 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG] initrd >24MB corruption
+Message-ID: <Pine.LNX.4.44.0208261621190.2610-100000@boston.corp.fedex.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/26/2002
+ 04:35:08 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/26/2002
+ 04:35:11 PM,
+	Serialize complete at 08/26/2002 04:35:11 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-  I have found a problem with the use of apm on my
-dell inspiron 8100 running kernel 2.4.18-10.  Any
-access to the apm kernel routine (for example cat
-/proc/apm) causes the system clock to run slow.  About
-1% slow if I run the battstat applet in gnome.  I
-suspect that somehow the clock interrupt is getting
-missed during the apm bios/kernel call.  Looking
-though the apm.c I don't see how to fix this.  I tried
-the switch apm=allow_int, but that showed no change. 
-I have found some vague (don't mention apm) references
-to this problem on the web, but no solutions.  Does
-anyone understand this problem?
+I posted a similar message last week. No response, but that was on
+Gcc3.2, but when I tried out on gcc2.95.3, it failed too.
+
+Symptons:
+	create 28MB ramdisk, fill up to 18MB, system boots ok.
+
+	create 28MB ramdisk, fill up to 24MB, system can't boot, fail at
+
+	RAMDISK: Compressed image found at block 0 ... then stuck!
+
+
+What's the next step to debug this?
+
 
 Thanks,
-Mike
-mdheffner@yahoo.com
+Jeff
+[ jchua@fedex.com ]
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Finance - Get real-time stock quotes
-http://finance.yahoo.com

@@ -1,59 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263287AbTCUGav>; Fri, 21 Mar 2003 01:30:51 -0500
+	id <S263285AbTCUGaK>; Fri, 21 Mar 2003 01:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263288AbTCUGat>; Fri, 21 Mar 2003 01:30:49 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:25748 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP
-	id <S263287AbTCUGan>; Fri, 21 Mar 2003 01:30:43 -0500
-Message-ID: <3E7AB38F.124B98E4@verizon.net>
-Date: Thu, 20 Mar 2003 22:39:11 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.65 i686)
-X-Accept-Language: en
+	id <S263287AbTCUGaJ>; Fri, 21 Mar 2003 01:30:09 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:46529 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S263285AbTCUGaI>; Fri, 21 Mar 2003 01:30:08 -0500
+Message-ID: <3E7AB696.40204@pacbell.net>
+Date: Thu, 20 Mar 2003 22:52:06 -0800
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Linux-kernel@vger.kernel.org, torvalds@transmeta.com, ak@suse.de,
-       rml@tech9.net
-Subject: Re: [PATCH] arch-independent syscalls to return long
-References: <3E7AAD0C.B8CB2926@verizon.net> <20030320222358.454a1f4f.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [4.64.238.61] at Fri, 21 Mar 2003 00:41:37 -0600
+To: Oliver Neukum <oliver@neukum.name>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: question on macros in wait.h
+Content-Type: multipart/mixed;
+ boundary="------------000900040803020806070700"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> "Randy.Dunlap" <randy.dunlap@verizon.net> wrote:
-> >
-> > Hi,
-> >
-> > I posted this about 1 month ago (as [RFC]), to no avail.
-> > However, tonight Andi needs it for pause() [which is failing
-> > on x86_64], and Robert Love mentioned converting the affinity
-> > syscalls.  I had already done them, so here they are again.
-> >
-> 
-> Thanks.  Is that all of them done now?
-
-AFAIK, without guarantees.  I used a list from Jamie Lokier and then
-went thru bunches of source files & syscalls myself and came up with
-these.
-
-There are still some syscall prototypes that are declared as int
-instead of long, but I can't fix them tonight (zzz).  Examples:
-
-	sys_sched_setaffinity
-		arch/sparc64/, arch/ppc64/, arch/s390x/ (FIX PROTO)
-	sys_sched_getaffinity
-		arch/sparc64/, arch/ppc64/, arch/s390x/ (FIX PROTO)
-	sys_remap_file_pages
-		arch/sparc/ (FIX PROTO)
-	sys_lookup_dcookie
-		arch/sparc64/, arch/ppc64/, arch/parisc/ (FIX PROTO)
+This is a multi-part message in MIME format.
+--------------000900040803020806070700
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-That's all that I know of.
+  > is there some deeper reason that there's no macro for waiting
+  > uninterruptablely with a timeout? Or did just nobody feel a need
+  > as yet?
 
-~Randy
+Those macros seem to have moved out of <linux/sched.h> (2.4)
+and wait_event_interruptible_timeout() was added about 6
+months ago; the changelog entry says it was for smbfs.
+So I'd guess "no need yet".
+
+Here's an updated version of your patch, now using the same
+calling convention that the other two "can return 'early'"
+calls there provide.  It's behaved in my testing, to replace the
+chaos in the usb synchronous call wrappers.
+
+- Dave
+
+
+--------------000900040803020806070700
+Content-Type: text/plain;
+ name="sched3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched3.patch"
+
+--- 1.7/include/linux/wait.h	Sun Nov 17 12:30:14 2002
++++ edited/include/linux/wait.h	Thu Mar 20 21:57:52 2003
+@@ -173,6 +173,32 @@
+ 	__ret;								\
+ })
+ 
++#define __wait_event_timeout(wq, condition, ret)			\
++do {									\
++	wait_queue_t __wait;						\
++	init_waitqueue_entry(&__wait, current);				\
++									\
++	add_wait_queue(&wq, &__wait);					\
++	for (;;) {							\
++		set_current_state(TASK_UNINTERRUPTIBLE);		\
++		if (condition)						\
++			break;						\
++		ret = schedule_timeout(ret);				\
++		if (!ret)						\
++			break;						\
++	}								\
++	current->state = TASK_RUNNING;					\
++	remove_wait_queue(&wq, &__wait);				\
++} while (0)
++
++#define wait_event_timeout(wq, condition, timeout)			\
++({									\
++	long __ret = timeout;						\
++	if (!(condition))						\
++		__wait_event_timeout(wq, condition, __ret);		\
++	__ret;								\
++})
++	
+ #define __wait_event_interruptible_timeout(wq, condition, ret)		\
+ do {									\
+ 	wait_queue_t __wait;						\
+
+--------------000900040803020806070700--
+

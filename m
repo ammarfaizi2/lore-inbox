@@ -1,95 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbTFKAEe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 20:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTFKAEd
+	id S262431AbTFKAHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 20:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTFKAHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 20:04:33 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:41164 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262379AbTFKAEI
+	Tue, 10 Jun 2003 20:07:41 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:16140 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S262569AbTFKAFx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 20:04:08 -0400
-Date: Tue, 10 Jun 2003 17:19:22 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] And yet more USB changes for 2.5.70
-Message-ID: <20030611001922.GB21057@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 10 Jun 2003 20:05:53 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "P. Benie" <pjb1008@eng.cam.ac.uk>,
+       "Linus Torvalds" <torvalds@transmeta.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Christoph Hellwig" <hch@infradead.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       <mfedyk@matchmail.com>
+Subject: RE: [PATCH] [2.5] Non-blocking write can block
+Date: Tue, 10 Jun 2003 17:19:13 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGMECPCPAA.rwhite@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.HPX.4.33L.0306042133330.21092-100000@punch.eng.cam.ac.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+(A quick food-for-thought note here...)
 
-Here are some more USB changes and fixes for 2.5.70.  These include some
-usb-storage cleanups, hub driver cleanups, ethtool fixes, and some
-sparse cleanups to the usb core code.
+I hate to bring it up, but I am fairly certain that this argument is
+part-and-parcel of the original AT&T "STREAMS"  (as opposed to "Streams" or
+"streams", talk about namespace pollution 8-)interface.
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
+Basically most devices (particularly character and network devices) were
+implemented as a pair of queues of messages (one upstream one downstream)
+and a writer would compose his entire text into a message (a linked list of
+message buffers) which could be atomically placed on the write queue without
+any consideration for device internal buffering.
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
+[Between the "head" of the file handle and the actual driver you could
+interpose translators and such by forming chains of queues, but that isn't
+germane here.]
 
-thanks,
+In such a usage, the writeability of a device is predicated on the
+availability of a message buffer from some pool and some (in AT&T's case
+some "lame-ass slightly less than Linux'es idea of a") kernel thread does
+the pumping from the list to the device logic itself.
 
-greg k-h
+Without some sort of "above the driver but below the write" dynamic
+buffering you almost inevitably get into a squeeze-the-balloon bug shuffling
+situation.  The three bugs already mentioned here are write-interleaving,
+odd blocking, and busy waiting.
 
- drivers/usb/core/devices.c      |    4 
- drivers/usb/core/devio.c        |  106 +++---
- drivers/usb/core/hub.c          |  239 ++++++++------
- drivers/usb/core/hub.h          |    7 
- drivers/usb/core/inode.c        |    4 
- drivers/usb/gadget/net2280.c    |   30 +
- drivers/usb/host/ohci-q.c       |    8 
- drivers/usb/image/hpusbscsi.c   |    2 
- drivers/usb/media/vicam.c       |   57 +++
- drivers/usb/net/catc.c          |   19 -
- drivers/usb/net/kaweth.c        |   18 -
- drivers/usb/net/pegasus.c       |  174 ++++++----
- drivers/usb/net/pegasus.h       |    6 
- drivers/usb/net/rtl8150.c       |   45 +-
- drivers/usb/storage/transport.c |   34 +-
- drivers/usb/storage/transport.h |    6 
- drivers/usb/storage/usb.c       |  669 ++++++++++++++++++----------------------
- drivers/usb/storage/usb.h       |    7 
- include/linux/usb.h             |    2 
- include/linux/usbdevice_fs.h    |    8 
- 20 files changed, 787 insertions(+), 658 deletions(-)
------
+Basically the peek-ahead on writeability is the relatively simple test: "is
+there a free buffer in the pool of any size?" (because writeability is "can
+accept at least one character.") and the anti-interleaving warrant is set at
+multiples of "smallest buffer pool entry size".
 
-Alan Stern:
-  o USB: Make hub.c DMA-aware
-  o USB: Rename static functions in hub.c and increase timeouts
-  o USB: Don't allocate transfer buffers on the stack in hub.c
+The important thing is that the only lock contention window takes place for
+the predictable time of putting the filled buffer onto or getting it off of
+the queue (linked list pointer juggling time).
 
-David Brownell:
-  o USB: ohci-hcd, remove FIXME
-  o USB: net2280 patch: control-out fix, minor cleanups
-  o USB: usb/core/devio: identify process
+So why did I bring it up?
 
-Greg Kroah-Hartman:
-  o USB: lots of sparse fixups for usbfs
-  o USB: sparse fixups for drivers/usb/core/inode.c
-  o USB: sparse fixups for drivers/usb/core/devices.c
-  o USB: fix problem found by sparse in usb.h
+It seems to me that this can't really be fixed unilaterally at the driver
+level without putting in a heck of a lot of scaffolding (e.g. evil STREAMS
+8-).
 
-Joe Burks:
-  o USB: vicam.c patch
+The specific fix, however, might be easy at a fairly high level (line
+discipline level?) with a fairly straight-forward linked list of buffers
+thing.  With a fixed (or variable sized for that matter) pool of buffers,
+the poll() could become a simple look-aside for a buffer well before the
+branching internal logic/locking is otherwise referenced.  A
+false-positive/race on the poll-to-get-buffer branch remains possible, but
+unlikely to loop.
 
-Matthew Dharm:
-  o USB: usb-storage: remove dead code
-  o USB: usb-storage: re-organize probe/disconnect
-  o USB: usb-storage: handle babble
+Basically you would be buying the correction in several ways:
 
-Olaf Hering:
-  o USB: incorrect ethtool -i driver name
+1) raise the granularity.  With the warrant for an atomic write raised to
+"one buffer" you increase the likely hood that any one operation will get in
+and get out all at once.
 
-Oliver Neukum:
-  o USB: kill a compiler warning in hpusbscsi
+2) add an insulating layer.  With the buffers rotating in and out via
+pointer juggling, a very-short (spinlock) duration locking behavior is
+placed between the fast world of the calling processes and the slow world of
+serial I/O (and its analogues)
 
-Petko Manolov:
-  o USB: pegasus patch
+3) dynamic buffering.  Since the writes are called with reasonably sleepable
+user context (e.g. enough latitude to do a memory allocate) "extra buffers"
+are "always available" (though at the far end of this is a nasty DOR attack
+8-) if circumstances or tuning makes such allocation desirable.
+
+4) look aside used to determine write space availability.  (really a "2a"
+thought) the list and pool of buffers approach would net you a look-aside
+for the question of "can I write" so there is no contention between what the
+driver is actually doing and the applicability of the question itself.
+
+5) POSIX (et al) is (if I recall) silent about the size and nature of the
+write buffer for a tty device.
+
+uh... but it's just a thought... 8-)
+
+Rob.
+
+
+P. Benie wrote:
+
+> On Wed, 4 Jun 2003, Linus Torvalds wrote:
+
+> > On Wed, 4 Jun 2003, P. Benie wrote:
+> > > The problem isn't to do with large writes. It's to do with any
+sequence of
+> > > writes that fills up the receive buffer, which is only 4K for N_TTY.
+If
+> > > the receiving program is suspended, the buffer will fill sooner or
+later.
+> >
+> > Well, even then we could just drop the "write_atomic" lock.
+> >
+> > The thing is, I don't know what the tty atomicity guarantees are. I know
+> > what they are for pipes (quite reasonable), but tty's?
+
+> We don't have a PIPE_BUF-style atomicity guarantee, even though this would
+> be quite useful. This lock is only used to prevent simultaneous writes
+> from being interleaved. I've always assumed that when writes shouldn't be
+> interleaved, but I can't quote a source for that.
 

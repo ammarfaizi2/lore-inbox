@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281242AbRKEREc>; Mon, 5 Nov 2001 12:04:32 -0500
+	id <S281239AbRKERDW>; Mon, 5 Nov 2001 12:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281243AbRKEREP>; Mon, 5 Nov 2001 12:04:15 -0500
-Received: from slide.SoftHome.net ([66.54.152.30]:2192 "HELO
-	waltz.SoftHome.net") by vger.kernel.org with SMTP
-	id <S281242AbRKERED>; Mon, 5 Nov 2001 12:04:03 -0500
-Message-ID: <20011105162810.13878.qmail@softhome.net>
-From: krajput@softhome.net
-To: linux-kernel@vger.kernel.org
-Subject: Unresolved Symb...in 2.4.12 ehci installation
-Date: Mon, 05 Nov 2001 16:28:10 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S281238AbRKERDM>; Mon, 5 Nov 2001 12:03:12 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:48132 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S281239AbRKERDG>; Mon, 5 Nov 2001 12:03:06 -0500
+Message-Id: <200111051703.fA5H32Y92172@aslan.scsiguy.com>
+To: tony@softins.clara.co.uk (Tony Mountifield)
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx problems with AHA2930CU 
+In-Reply-To: Your message of "05 Nov 2001 16:39:46 GMT."
+             <9s6fci$3f7$1@softins.clara.co.uk> 
+Date: Mon, 05 Nov 2001 10:03:02 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I have been running fine for over two months with 2.2.19 and the old 5.1.31
+>SCSI driver. When Red Hat 7.2 came out recently I though I would try again,
+>and created a boot floppy and a driver floppy.
+>
+>Booting with these still displayed the problems I described.
+>Using aic7xxx_mod (6.1.13) instead of aic7xxx resulted in a kernel panic.
 
-I have upgraded my Linux 7.1 (kernel version 2.4.2) to kernel version
-2.4.12. I want to install the linux ehci driver as well. On applying the
-required changes in the usr/src/linux/drivers/usb/Makefile and
-usr/src/linux/drivers/usb/Config.in files and selecting the EHCI as a
-module in make menuconfig. When i get to the part where i do make
-modules_install after make modules, i get the following error:-
+Can you provide any information about the kernel panic?  6.1.13 is still
+quite old.  You may have better luck using version 6.2.4, but I can't
+really say without knowing more about your system, the devices on the
+bus, and the nature of the crash.  The 2930CU seems to work okay here.
 
-depmode: *** Unresolved Symbols in
-/lib/modules/2.4.12/kernel/drivers/usb/usbcore.o
-depmode: usb_hub_cleanup
-depmode: usb_hub_init
+Latest aic7xxx drivers can be found here:
 
-I have tried to install the same with and without the kernel version info
-but to no avail. Shall be grateful if anybody could advise! Thanking you in
-advance.
+http://people.FreeBSD.org/~gibbs/linux/
 
-Kashif!
+--
+Justin

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTFIU3n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 16:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTFIU3n
+	id S261820AbTFIU3p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 16:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbTFIU3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 16:29:43 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:462 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261872AbTFIU3m (ORCPT
+	Mon, 9 Jun 2003 16:29:45 -0400
+Received: from pdbn-d9bb86da.pool.mediaWays.net ([217.187.134.218]:65287 "EHLO
+	citd.de") by vger.kernel.org with ESMTP id S261820AbTFIU3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 16:29:42 -0400
-Date: Mon, 09 Jun 2003 13:32:08 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix scheduler bug not passing idle
-Message-ID: <72650000.1055190728@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 9 Jun 2003 16:29:44 -0400
+Date: Mon, 9 Jun 2003 22:42:49 +0200
+From: Matthias Schniedermeyer <ms@citd.de>
+To: "Leonardo H. Machado" <leoh@dcc.ufmg.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cachefs on linux
+Message-ID: <20030609204249.GA11373@citd.de>
+References: <Pine.LNX.4.44.0306091624370.14854-100000@volga.dcc.ufmg.br>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306091624370.14854-100000@volga.dcc.ufmg.br>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rebalance_tick is not properly passing the idle argument through to 
-load_balance in one case. The fix is trivial. Pointed out by John Hawkes.
+On Mon, Jun 09, 2003 at 04:26:01PM -0300, Leonardo H. Machado wrote:
+> 
+> Why has Solaris a CacheFS file system, while linux doesn't?
 
-diff -purN -X /home/mbligh/.diff.exclude mm5/kernel/sched.c mm5-idle/kernel/sched.c
---- mm5/kernel/sched.c	2003-06-09 13:28:47.000000000 -0700
-+++ mm5-idle/kernel/sched.c	2003-06-09 13:31:20.000000000 -0700
-@@ -1107,7 +1107,7 @@ static void rebalance_tick(runqueue_t *t
- #endif
- 		if (!(j % IDLE_REBALANCE_TICK)) {
- 			spin_lock(&this_rq->lock);
--			load_balance(this_rq, 0, cpu_to_node_mask(this_cpu));
-+			load_balance(this_rq, idle, cpu_to_node_mask(this_cpu));
- 			spin_unlock(&this_rq->lock);
- 		}
- 		return;
+Is this a "You don't know it, you don't need it" thing?
 
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 

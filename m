@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131363AbRCWUBL>; Fri, 23 Mar 2001 15:01:11 -0500
+	id <S131402AbRCWUAl>; Fri, 23 Mar 2001 15:00:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131409AbRCWUBB>; Fri, 23 Mar 2001 15:01:01 -0500
-Received: from dfmail.f-secure.com ([194.252.6.39]:28690 "HELO
-	dfmail.f-secure.com") by vger.kernel.org with SMTP
-	id <S131363AbRCWUAp>; Fri, 23 Mar 2001 15:00:45 -0500
-Date: Fri, 23 Mar 2001 22:09:23 +0200 (MET DST)
-From: Szabolcs Szakacsits <szaka@f-secure.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Guest section DW <dwguest@win.tue.nl>,
-        Stephen Clouse <stephenc@theiqgroup.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
-        <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <E14gEgX-0003Zr-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103232159560.13864-100000@fs131-224.f-secure.com>
+	id <S131363AbRCWUAV>; Fri, 23 Mar 2001 15:00:21 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:780 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131402AbRCWUAJ>; Fri, 23 Mar 2001 15:00:09 -0500
+Date: Fri, 23 Mar 2001 11:58:50 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Ben LaHaise <bcrl@redhat.com>,
+        Christoph Rohland <cr@sap.com>
+Subject: Re: [PATCH] Fix races in 2.4.2-ac22 SysV shared memory
+In-Reply-To: <20010323011331.J7756@redhat.com>
+Message-ID: <Pine.LNX.4.31.0103231157200.766-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 22 Mar 2001, Alan Cox wrote:
 
-> I'd like to have it there as an option. As to the default - You
-> would have to see how much applications assume they can overcommit
-> and rely on it. You might find you need a few Gbytes of swap just to
-> boot
+On Fri, 23 Mar 2001, Stephen C. Tweedie wrote:
+>
+> The patch below is for two races in sysV shared memory.
 
-Seems a bit exaggeration ;) Here are numbers,
+	+       spin_lock (&info->lock);
+	+
+	+       /* The shmem_swp_entry() call may have blocked, and
+	+        * shmem_writepage may have been moving a page between the page
+	+        * cache and swap cache.  We need to recheck the page cache
+	+        * under the protection of the info->lock spinlock. */
+	+
+	+       page = find_lock_page(mapping, idx);
 
-	http://lists.openresources.com/NetBSD/tech-userlevel/msg00722.html
+Ehh.. Sleeping with the spin-lock held? Sounds like a truly bad idea.
 
-6-50% more VM and the performance hit also isn't so bad as it's thought
-(Eduardo Horvath sent a non-overcommit patch for Linux about one year
-ago).
-
-	Szaka
+		Linus
 

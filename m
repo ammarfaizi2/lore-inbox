@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbUB2QRW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 11:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbUB2QRW
+	id S262065AbUB2QX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 11:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUB2QX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 11:17:22 -0500
-Received: from hell.org.pl ([212.244.218.42]:57865 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S262063AbUB2QRT (ORCPT
+	Sun, 29 Feb 2004 11:23:29 -0500
+Received: from gprs154-126.eurotel.cz ([160.218.154.126]:41601 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262065AbUB2QX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 11:17:19 -0500
-Date: Sun, 29 Feb 2004 17:17:21 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Pavel Machek <pavel@ucw.cz>
+	Sun, 29 Feb 2004 11:23:28 -0500
+Date: Sun, 29 Feb 2004 17:23:17 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Karol Kozimor <sziwan@hell.org.pl>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Dropping CONFIG_PM_DISK?
-Message-ID: <20040229161721.GA16688@hell.org.pl>
-References: <1ulUA-33w-3@gated-at.bofh.it>
+Message-ID: <20040229162317.GC283@elf.ucw.cz>
+References: <1ulUA-33w-3@gated-at.bofh.it> <20040229161721.GA16688@hell.org.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1ulUA-33w-3@gated-at.bofh.it>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <20040229161721.GA16688@hell.org.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote Pavel Machek:
-> Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
-> It seems noone is maintaining it, equivalent functionality is provided
-> by swsusp, and it is confusing users...
+Hi!
 
-It may be ugly, it may be unmaintained, but I get the impression that it
-works for some people for whom swsusp doesn't. So unless swsusp works for
-everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
-Best regards,
+> > Would there be any major screaming if I tried to drop CONFIG_PM_DISK?
+> > It seems noone is maintaining it, equivalent functionality is provided
+> > by swsusp, and it is confusing users...
+> 
+> It may be ugly, it may be unmaintained, but I get the impression that it
+> works for some people for whom swsusp doesn't. So unless swsusp works for
+> everyone or Nigel's swsusp2 is merged, I'd suggest leaving that in.
 
+Do you have example when pmdisk works and swsusp does not? I'm not
+aware of any in recent history...
+								Pavel
 -- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

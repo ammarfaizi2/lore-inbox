@@ -1,62 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265612AbUAGUxF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 15:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265619AbUAGUxF
+	id S265658AbUAGVKv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbUAGVKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 15:53:05 -0500
-Received: from ns.suse.de ([195.135.220.2]:42216 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265612AbUAGUwv (ORCPT
+	Wed, 7 Jan 2004 16:10:51 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:56297 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265658AbUAGVKt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 15:52:51 -0500
-Date: Wed, 7 Jan 2004 21:52:37 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20040107205237.GB16832@suse.de>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com> <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
+	Wed, 7 Jan 2004 16:10:49 -0500
+Date: Wed, 7 Jan 2004 22:10:45 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-rc1-tiny2
+Message-ID: <20040107211045.GJ16720@suse.de>
+References: <20040106054859.GA18208@waste.org> <20040107140640.GC16720@suse.de> <20040107185039.GC18208@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0401071036560.12602@home.osdl.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes
+In-Reply-To: <20040107185039.GC18208@waste.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Jan 07, Linus Torvalds wrote:
-
-> 
-> 
-> On Fri, 2 Jan 2004, Greg KH wrote:
+On Wed, Jan 07 2004, Matt Mackall wrote:
+> On Wed, Jan 07, 2004 at 03:06:40PM +0100, Jens Axboe wrote:
+> > On Mon, Jan 05 2004, Matt Mackall wrote:
+> > > This is the fourth release of the -tiny kernel tree. The aim of this
+> > > tree is to collect patches that reduce kernel disk and memory
+> > > footprint as well as tools for working on small systems. Target users
+> > > are things like embedded systems, small or legacy desktop folks, and
+> > > handhelds.
+> > > 
+> > > Latest release includes:
+> > >  - various compile fixes for last release
+> > >  - actually include Andi Kleen's bloat-o-meter this time
+> > >  - optional mempool removal
 > > 
-> > Doesn't the kernel always create the main block device for this device?
-> > If so, udev will catch that.
+> > Your CONFIG_MEMPOOL is completely broken as you are no longer giving the
+> > same guarentees (you have no reserve at all). Might as well change it to
+> > CONFIG_DEADLOCK instead.
 > 
-> But udev should probably also create all the sub-nodes if it doesn't 
-> already.
-> 
-> And it really has to create _all_ of them, exactly because there's no way
-> to know ahead-of-time which of them will be available.
-> 
-> Then, user space can just access "/dev/sda1" or whatever, and the act of 
-> accessing it will force the re-scan.
+> It's equivalent to a pool size of zero, yes, so deadlock odds are
+> significantly higher with some usage scenarios. I'll add a big fat
+> warning.
 
-How would that work? I mean, what will a tool that cares about a block
-event do? It will run a fdisk/parted -l /udev/sda to figure out what partitions
-are there (just to skip an extended partition sda5, as example) and
-finds no media. That tool will never run again on sda, unless a new
-block add event comes in. So some sort of polling is required for that
-class of devices.
+Precisely. In most scenarios it makes deadlocks possible, where it was
+safe before (more below).
 
-If we create sda1 - sda15, you mean a mount /udev/sda15 /mnt is supposed
-to fail with -ENODEV instead of -ENOENT? 
+> On the other hand, the existence of pre-allocated mempools can greatly
+> increase the likelihood of starvation, oom, and deadlock on the rest
+> of the system, especially as it becomes a greater percentage of the
+> total free memory on a small system. In other words, I had to cut this
+> corner to make running in 2M work with my config. When I merge
+> CONFIG_BLOCK, it'll be more generally useful.
+
+It needs to be carefulled tuned, definitely.
+
+> For the sake of our other readers, I'll point out that mempool doesn't
+> intrinisically reduce deadlock odds to zero unless we have a hard
+> limit on requests in flight that's strictly less than pool size.
+
+That's not true, depends entirely on usage. It's not a magic wand. And
+you don't need a hard limit, you only need progress guarentee. Typically
+just a single pre-allocated object can make you 100% deadlock free, if
+stacking is not involved. So for most cases, I think it would be much
+better if you just hard wired min_nr to 1, that would move you from 90%
+to 99% safe :-)
 
 -- 
-USB is for mice, FireWire is for men!
+Jens Axboe
 
-sUse lINUX ag, nÜRNBERG

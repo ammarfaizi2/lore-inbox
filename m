@@ -1,65 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263197AbTDMEJc (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 00:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTDMEJc (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 00:09:32 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:64198 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263197AbTDMEJb (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 00:09:31 -0400
-Date: Sat, 12 Apr 2003 20:59:57 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Chuck Ebbert <76306.1226@compuserve.com>,
-       John Bradford <john@grabjohn.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel support for non-English user messages
-Message-ID: <241800000.1050206396@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0304121307420.18684-100000@dell>
-References: <Pine.LNX.4.44.0304121307420.18684-100000@dell>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S263224AbTDMEUX (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 00:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTDMEUX (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 00:20:23 -0400
+Received: from [12.47.58.73] ([12.47.58.73]:62863 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263224AbTDMEUX (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 00:20:23 -0400
+Date: Sat, 12 Apr 2003 21:32:05 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Jeremy Hall <jhall@maoz.com>
+Cc: jhall@maoz.com, felipe_alfaro@linuxmail.org, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.67-mm2
+Message-Id: <20030412213205.4bcbe1d8.akpm@digeo.com>
+In-Reply-To: <200304130422.h3D4M6XY031187@sith.maoz.com>
+References: <200304130354.h3D3slbp031124@sith.maoz.com>
+	<200304130422.h3D4M6XY031187@sith.maoz.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 13 Apr 2003 04:32:04.0633 (UTC) FILETIME=[A28B1090:01C30175]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > > /Documentation could be a lot better than it is...  Some of it
->> > > is very out of date.
->> > 
->> > 
->> >   You are being way too kind.
->> > 
->> >   /Documentation is *awful*.
->> 
->> You know where to submit contributions
+Jeremy Hall <jhall@maoz.com> wrote:
+>
+> ah, here we go
 > 
-> this is, from a personal perspective, simply too timely to pass up. in
-> fact, i have submitted six different patches, all aimed at either
-> improving the documentation or cleaning up configuration menus.
+> BUG(); line 907 of mm/slab.c
 > 
-> without exception, every patch i have submitted directly has been dropped
-> without comment.  the only one that was eventually accepted (rearranged
-> filesystems menu) was because someone else with more authority and higher
-> up the kernel-hacker food chain was gracious enough to submit it on my
-> behalf.
 
-Well, that's often what it takes, I'm afraid ... going direct to Linus is
-by no means the only way to work, and it's often not the easiest. Try 
-picking someone who's interested in the area you're working on, if possible
-(ideally the maintainer if you can work out who it is). Failing that, try 
-Andrew or Alan or both. 
+Yup, it looks like the lockmeter patch has borked the preempt_count when
+CONFIG_LOCKMETER=n.  Sorry, I didn't test it with preempt enabled.
 
-> yes, i've read the "SubmittingPatches" guide, and at the risk of offending
-> a few people, i find it pretty irritating, if not downright patronizing,
-> to suggest that one should *expect* to have patches dropped without
-> comment, and should *expect* to have to work hard at resubmitting the same
-> patch until it takes.
-
-It's a bit like Darwinian evolution, or Democracy ... both rather horribly
-inefficient, but overall it's reasonably effective. Yeah, it's crap
-sometimes. Sorry.
-
-M.
+I'll fix that up.  Meanwhile you can revert the lockmeter patch or disable
+preemption.
 

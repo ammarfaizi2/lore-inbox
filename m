@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263080AbSITRJn>; Fri, 20 Sep 2002 13:09:43 -0400
+	id <S263288AbSITR0V>; Fri, 20 Sep 2002 13:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263084AbSITRJn>; Fri, 20 Sep 2002 13:09:43 -0400
-Received: from smtp01.web.de ([194.45.170.210]:51473 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S263080AbSITRJm> convert rfc822-to-8bit;
-	Fri, 20 Sep 2002 13:09:42 -0400
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: =?iso-8859-15?q?Ren=E9=20Scharfe?= <l.s.r@web.de>
-To: Jean Tourrilhes <jt@hpl.hp.com>
-Subject: [PATCH] 2.5.37 wavelan_cs compile error, warning fix
-Date: Fri, 20 Sep 2002 19:14:43 +0200
-User-Agent: KMail/1.4.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209201914.43965.l.s.r@web.de>
+	id <S263298AbSITR0V>; Fri, 20 Sep 2002 13:26:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58050 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S263288AbSITR0U>;
+	Fri, 20 Sep 2002 13:26:20 -0400
+Date: Fri, 20 Sep 2002 19:31:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Mike Anderson <andmike@us.ibm.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>, "Bond, Andrew" <Andrew.Bond@hp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: TPC-C benchmark used standard RH kernel
+Message-ID: <20020920173103.GK936@suse.de>
+References: <45B36A38D959B44CB032DA427A6E106402D09E43@cceexc18.americas.cpqcorp.net> <3D8A3654.50201@us.ibm.com> <20020920172041.GB1944@beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020920172041.GB1944@beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 20 2002, Mike Anderson wrote:
+> 
+> Dave Hansen [haveblue@us.ibm.com] wrote:
+> > Bond, Andrew wrote:
+> > > This isn't as recent as I would like, but it will give you an idea.
+> > > Top 75 from readprofile.  This run was not using bigpages though.
+> > >
+> > > 00000000 total                                      7872   0.0066
+> > > c0105400 default_idle                               1367  21.3594
+> > > c012ea20 find_vma_prev                               462   2.2212
+> 
+> > > c0142840 create_bounce                               378   1.1250
+> > > c0142540 bounce_end_io_read                          332   0.9881
+> 
+> .. snip..
+> > 
+> > Forgive my complete ignorane about TPC-C...  Why do you have so much 
+> > idle time?  Are you I/O bound? (with that many disks, I sure hope not 
+> > :) )  Or is it as simple as leaving profiling running for a bit before 
+> > or after the benchmark was run?
+> 
+> The calls to create_bounce and bounce_end_io_read are indications that
+> some of your IO is being bounced and will not be running a peak
+> performance. 
+> 
+> This is avoided by using the highmem IO changes which I believe are not
+> in the standard RH kernel. Unknown if that would address your idle time
+> question.
 
-this patch fixes a compile error and a warning about an unused
-function in wavelan_cs.c. Compiles, untested.
+They benched RHAS iirc, and that has the block-highmem patch. They also
+had more than 4GB of memory, alas, there is bouncing. That doesn't work
+on all hardware, and all drivers.
 
-René
-
-
---- linux-2.5.37/drivers/net/wireless/wavelan_cs.c	Fri Sep 20 18:22:38 2002
-+++ linux/drivers/net/wireless/wavelan_cs.c	Fri Sep 20 19:00:11 2002
-@@ -56,6 +56,7 @@
-  *
-  */
- 
-+#include <linux/types.h>
- #include <linux/ethtool.h>
- #include <asm/uaccess.h>
- #include "wavelan_cs.p.h"		/* Private header */
-@@ -1860,6 +1861,7 @@
- }
- #endif	/* HISTOGRAM */
- 
-+#if WIRELESS_EXT <= 12
- static int netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
- {
- 	u32 ethcmd;
-@@ -1880,6 +1882,7 @@
- 
- 	return -EOPNOTSUPP;
- }
-+#endif
- 
- /*------------------------------------------------------------------*/
- /*
+-- 
+Jens Axboe
 

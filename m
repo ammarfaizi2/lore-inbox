@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266506AbRGLSoh>; Thu, 12 Jul 2001 14:44:37 -0400
+	id <S266516AbRGLSt2>; Thu, 12 Jul 2001 14:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266507AbRGLSo1>; Thu, 12 Jul 2001 14:44:27 -0400
-Received: from adsl-207-241-136-214.mpl.michix.net ([207.241.136.214]:60680
-	"HELO cobalt.deepthought.org") by vger.kernel.org with SMTP
-	id <S266506AbRGLSoU>; Thu, 12 Jul 2001 14:44:20 -0400
-Date: Thu, 12 Jul 2001 14:36:27 -0400 (EDT)
-From: Martin Murray <mmurray@deepthought.org>
-To: linux-kernel@vger.kernel.org
-Subject: yenta_socket hangs sager laptop in kernel 2.4.6
-Message-ID: <Pine.LNX.4.21.0107112003170.17294-100000@cobalt.deepthought.org>
+	id <S266508AbRGLStJ>; Thu, 12 Jul 2001 14:49:09 -0400
+Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:26762
+	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
+	id <S266507AbRGLSsx>; Thu, 12 Jul 2001 14:48:53 -0400
+Message-ID: <3B4DF114.44272B74@nortelnetworks.com>
+Date: Thu, 12 Jul 2001 14:48:52 -0400
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
+In-Reply-To: <200107121623.f6CGNV569053@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Albert D. Cahalan" wrote:
 
-	I have a sager 9820 laptop with an Ali chipset and a TI 1251B
-pcmcia socket. The stock redhat 7.0 kernel works fine (2.2.16-22),
-however, booting 2.4.3, 2.4.5, or 2.4.6 all cause the computer to hang
-about a second and a half after loading yenta_socket. Someone suggested
-that it might be a pci irq routing problem, and I suspect it may still be
-an irq problem (see ahead), however, both 2.2.16 and 2.4.6 assign it irq
-11. For brevity, I have omitted /proc/pci, but, if someone wants it, or
-any other information, I'd be happy to pass it on. 
-	To do as much as I could, before I troubled all of you, I booted
-in single user mode, and loaded the yenta_socket with the debug output. 
-This is what I crudely copied down on a legal pad, from output on the
-screen:
-(the actual output was different, I just copied the information)
-exca_readb c68307e8 6 0
-exca_writeb c6807e8 43 0 
-exca_writew c6807e8 28 0
-exca_writew c6807e8 2a 0
-exca_writew c6807e8 2c 0
-exca_readb c68307e8 6 0
-exca_writeb c6807e8 44 0
-exca_writew c6807e8 30 0
-exca_writew c6807e8 32 0
-exca_writew c6807e8 34 0
-exca_readb c6807e8 3 40
-exca_writeb c6807e8 3 50
+> The 24x7 places might be willing to pay somebody to do this.
+> It's consulting work really. The customer says "I want to go
+> from 2.4.8 to 2.4.12", you say "OK, $320405 please.", and you
+> make a custom upgrade procedure for them.
 
-The repeating block (read byte, write byte, 3xwrite word) seems to be the
-end of yenta_clear_maps() which is the last thing done by yenta_init() -
-so I suspect that the yenta_socket() stuff is loading correctly. The last
-two operations seem to be enabling interrupts, and then a short moment
-later, the machine hangs. I suspect that the last call is
-yenta_set_socket() because that is the only explicit exca_writeb() to
-I365_INTCTL. Does anyone have any suggestions? I think its important to
-remember that the machine does hang immediately, I generally have time to
-scratch off an 'ls' before the machine freezes. 
+Speaking as someone who is working on what will eventually be a five 9's project
+based on linux, there is almost zero chance that we would make use of something
+like this.  Applications and kernels are tested together and verified together,
+and the likelihood of changing either one and not the other one is very low (and
+in fact they are shipped together as a single image).
 
-Thank you, Martin Murray 
+We have hardware redundancy, and upgrades are controlled by the application,
+since it knows exactly what state must be transferred and what the differences
+are between versions.  After all the state has been transferred we then do an IP
+takeover so that the rest of the system knows to talk to the new side.  At this
+point we can test the new side for a while.  If we're satisfied with how its
+performing, we can then take down the inactive side and upgrade it and then
+bring it back into sync with the active side.  If we don't like it, we can
+always abort and switch back to the old version.
 
 -- 
-Martin Murray, <mmurray@deepthought.org>
-- What is Industrial Music? It's the sound of angry 
-  Belgians having a fight with a washing machine.
-Fear: Seeing B8:00:4C:CD:21, and knowing what it means.
-
-
-
-
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,80 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267314AbRG3Tfo>; Mon, 30 Jul 2001 15:35:44 -0400
+	id <S267664AbRG3TeY>; Mon, 30 Jul 2001 15:34:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267632AbRG3Tfe>; Mon, 30 Jul 2001 15:35:34 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:16884 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S267314AbRG3TfU>; Mon, 30 Jul 2001 15:35:20 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107301934.f6UJYSWI031975@webber.adilger.int>
-Subject: Re: make rpm
-In-Reply-To: <E15QeJf-0008O8-00@the-village.bc.nu> "from Alan Cox at Jul 29,
- 2001 01:20:19 am"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 30 Jul 2001 13:34:28 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+	id <S267632AbRG3TeO>; Mon, 30 Jul 2001 15:34:14 -0400
+Received: from [204.214.10.168] ([204.214.10.168]:49166 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S267314AbRG3TeJ>;
+	Mon, 30 Jul 2001 15:34:09 -0400
+Date: Mon, 30 Jul 2001 14:33:55 -0400
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Torrey Hoffman <torrey.hoffman@myrio.com>, ignacio@openservices.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: Test mail
+Message-ID: <20010730143355.A4226@xi.linuxpower.cx>
+In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C971@mail0.myrio.com> <200107301919.f6UJJH7227019@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <200107301919.f6UJJH7227019@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Mon, Jul 30, 2001 at 03:19:17PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan writes:
-> scripts/mkspec
+On Mon, Jul 30, 2001 at 03:19:17PM -0400, Albert D. Cahalan wrote:
+> Torrey Hoffman writes:
+> > I hate to jump in and extend this mostly off-topic thread, but I would be
+> > a little annoyed if Outlook was banned from LKML.  I've got two machines
+> > on my desk here at work - one is Win2K, and is used almost exclusively for 
+[snip]
+> This does not mean you have to use Outlook to _send_ mail to
+> the linux-kernel mailing list. Do this:
 
-Probably clearer to make it a "here" document (untested).  EXTRASHORT could
-have been left inline (inside ``), but it is a bit clearer this way, I think.
-
-#!/bin/sh
-#
-#	Output a simple RPM spec file that uses no fancy features requring
-#	RPM v4. This is intended to work with any RPM distro.
-#
-#	The only gothic bit here is redefining install_post to avoid 
-#	stripping the symbols from files in the kernel which we want
-#
-EXTRASHORT=`echo $EXTRAVERSION | sed -e "s/-//"`
-
-cat - << EOT
-Name: kernel
-Summary: The Linux Kernel
-Version: $VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRASHORT
-Release: `cat .version`
-Copyright: GPL
-Group: System Environment/Kernel
-Vendor: The Linux Community
-URL: http://www.kernel.org
-Source: kernel-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRASHORT.tar.gz
-BuildRoot: /var/tmp/%{name}-%{PACKAGE_VERSION}-root
-%define __spec_install_post /usr/lib/rpm/brp-compress || :
-
-%description
-The Linux Kernel, the operating system core itself
-
-%prep
-%setup -q
-
-%build
-make oldconfig dep clean bzImage modules
-
-%install
-mkdir -p $RPM_BUILD_ROOT/boot $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/lib/modules
-INSTALL_MOD_PATH=$RPM_BUILD_ROOT make modules_install
-cp arch/i386/boot/bzImage $RPM_BUILD_ROOT/boot/vmlinuz-$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION
-
-%clean
-#echo -rf $RPM_BUILD_ROOT
-
-%files
-%defattr (-, root, root)
-%dir /lib/modules
-lib/modules/$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION
-
-EOT
-
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
-
+There already are readers of LKML who filter listmail from Outlook/'Internet
+mail server' into /dev/null.

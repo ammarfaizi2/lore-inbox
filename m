@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289074AbSANV3W>; Mon, 14 Jan 2002 16:29:22 -0500
+	id <S289067AbSANVfM>; Mon, 14 Jan 2002 16:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289072AbSANV3N>; Mon, 14 Jan 2002 16:29:13 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:4880 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S289067AbSANV3D>; Mon, 14 Jan 2002 16:29:03 -0500
-Message-ID: <3C434D95.3060106@lexus.com>
-Date: Mon, 14 Jan 2002 13:28:53 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: en-us
+	id <S289078AbSANVfC>; Mon, 14 Jan 2002 16:35:02 -0500
+Received: from femail44.sdc1.sfba.home.com ([24.254.60.38]:1983 "EHLO
+	femail44.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S289067AbSANVey>; Mon, 14 Jan 2002 16:34:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Charles Cazabon <charlesc@discworld.dyndns.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Date: Mon, 14 Jan 2002 08:32:53 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Eli Carter <eli.carter@inet.com>,
+        "Michael Lazarou \(ETL\)" <Michael.Lazarou@etl.ericsson.se>
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <20020114132618.G14747@thyrsus.com> <20020114125508.A3358@twoflower.internal.do>
+In-Reply-To: <20020114125508.A3358@twoflower.internal.do>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16QB7T-0002JS-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020114213453.YJCM15906.femail44.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
->>>stays on.  That's another problem, and I did play with some patches this
->>>weekend without making myself really happy :-( Another topic,
->>>unfortunately.
->>>
->>Patience, the problem is understood and there will be a fix in the 2.5 
->>timeframe.
->>
+On Monday 14 January 2002 01:55 pm, Charles Cazabon wrote:
+> Eric S. Raymond <esr@thyrsus.com> wrote:
+> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > > Now to do everything you describe does not need her to configure a
+> > > custom kernel tree. Not one bit. You think apt or up2date build each
+> > > user a custom kernel tree ?
+> >
+> > Is it OK in your world that Aunt Tillie is dependent on a distro maker? 
+> > Is it OK that she never gets to have a kernel compiled for anything above
+> > the least-common-denominator chip?
 >
->Without a fix in the 2.4 timeframe everyone has to run 2.2. That strikes
->me as decidedly non optimal. If you are having VM problems try both the
->Andrea -aa and the Rik rmap-11b patches (*not together*) and report back
->
-Easiest is to grab 2.4.17 and apply 2.4.18pre2 and 2.4.18pre2-aa2 -
+> Yes, and yes.  Aunt Tillie is running Linux because someone installed a
+> distribution for her.
 
-pre2-aa2 has all the fixes and tweaks I had been doing by hand.
+Or, some glorious day in the future, it came preinstalled on her hardware.
 
-cu
+> She is never going to need anything out of her kernel that her
+> vendor-shipped update kernels do not provide.
 
-jjs
+I wouldn't go THAT far, but when she does she'll have someone else upgrade it 
+for her.  (Just because you CAN learn to change the oil in your car doesn't 
+mean you want to.  Can aunt tillie actually unscrew her case and insert a PCI 
+card?  More to the point, WOULD she?)
 
->
+> > But the point of this game is for Aunt Tillie to have more and better
+> > choices.  Isn't that what we're supposed to be about?
 
+No.  The point is to offer EVERYBODY more and better choices.  Whether 
+they'll be any use to aunt tillie specifically is secondary.
 
+> No.  We're supposed to be about stuff that works.  Vendor-shipped kernels
+> work for 99.9% of people.  The remaining 0.1% have no need for an
+> "auto-configurator".
+
+I like the auto-configurator.  I build custom kernels for all sorts of 
+different machines and it can take me half an hour to walk through the menus 
+with a command line open in a second window doing cat /proc/pci, cat 
+/proc/bus/usb, and whatever replaced isapnp (cat /proc/bus/isapnp probably) 
+to figure out and properly select everything that's in this box.
+
+If the autoprobe saves me that half an hour, I'm all for it.  People who 
+don't see much use in an autoprober probably don't work with other people's 
+hardware very often.
+
+It's also a nice educational tool for newbies learning the linux kernel, 
+which I suspect is the real reason some people actively object to it. :) 
+
+> Charles
+
+Rob

@@ -1,225 +1,382 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269829AbRIEAXz>; Tue, 4 Sep 2001 20:23:55 -0400
+	id <S269971AbRIEBGy>; Tue, 4 Sep 2001 21:06:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269926AbRIEAXp>; Tue, 4 Sep 2001 20:23:45 -0400
-Received: from extern.mbi-berlin.de ([194.95.11.135]:40140 "EHLO
-	extern.mbi-berlin.de") by vger.kernel.org with ESMTP
-	id <S269829AbRIEAXj>; Tue, 4 Sep 2001 20:23:39 -0400
-Message-ID: <3B9570F0.5E6DF01B@informatik.hu-berlin.de>
-Date: Wed, 05 Sep 2001 02:25:20 +0200
-From: Viktor Rosenfeld <rosenfel@informatik.hu-berlin.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S270025AbRIEBGp>; Tue, 4 Sep 2001 21:06:45 -0400
+Received: from krs-dhcp336.studby.uio.no ([129.240.107.113]:56555 "EHLO
+	ilm.nlc.no") by vger.kernel.org with ESMTP id <S269971AbRIEBGc>;
+	Tue, 4 Sep 2001 21:06:32 -0400
+Date: Wed, 5 Sep 2001 03:06:49 +0200
 To: linux-kernel@vger.kernel.org
-Subject: OOPS and hard locks when trying to access an CD-RW drive via ide-scsi
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Oops when reading /proc/dri/0/vm with r128 on Inspiron 4000
+Message-ID: <20010905030649.A25418@ilm.nlc.no>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MfFXiAuoTsnnDAfZ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+From: =?iso-8859-1?Q?Dagfinn_Ilmari_Manns=E5ker?= <ilmari@ilm.nlc.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
 
-I have an RICOH CD-R/RW MP7063A ATAPI burner which I tried to get
-working via ide-scsi emulation.  I got several hard locks with the error
-message
+--MfFXiAuoTsnnDAfZ
+Content-Type: multipart/mixed; boundary="W/nzBZO5zC0uMSeA"
+Content-Disposition: inline
 
-	scsi : aborting command due to timeout pid 0, scsi 1, channel 0, id 0,
-lun 0 Read (10) 00 00 00 00 00 00 00 01 00
-	hda: timeout waiting for DMA
-	ide_dmaproc : chipset supported ide_dma_timeout func only: 14
 
-After an
-	
-	# cdrecord -speed=4 dev=1,0,0 -data cd_image
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I got an oops, which I have decoded below:
+Hi,
 
-ksymoops 2.4.2 on i686 2.4.9.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.9/ (default)
-     -m /boot/System.map-2.4.9 (default)
+Let me first ask you to please copy me on replies, as I am not subscribed to
+the list (but I do browse it via the fa.linux.kernel nntp gateway).
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+DRI won't work on my Dell Inspiron 4000 with an ATI Rage Mobility M3 graphi=
+cs
+chip. I've tried both 2.4.9 and -ac6. The kernel seems to find the card just
+fine, according to dmesg, but /dev/dri/0/ is not created (I'm running devfs=
+).
 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
-d0846ac0
-*pde = 00000000
-Oops: 0002
+The dmesg output for the card is:
+
+[drm] AGP 0.99 on Intel 440BX @ 0xf0000000 64MB
+[drm] Initialized r128 2.1.6 20010405 on minor 0
+
+X on the other hand, says:
+
+(II) R128(0): Direct rendering disabled
+
+When cat'ing /proc/dri/0/vm I get  the following oops, after which all
+reading from any file (except name) in /proc/dri/0/ hangs in uninterruptible
+sleep until I reboot:
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+d09d75a4
+*pde =3D 00000000
+Oops: 0000
 CPU:    0
-EIP:    0010:[<d0846ac0>]
+EIP:    0010:[<d09d75a4>]
 Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: 00000000   ecx: 00000003   edx: cdd28720
-esi: 00008000   edi: 00000000   ebp: cc178000   esp: cd037b6c
+EFLAGS: 00010287
+eax: 00000000   ebx: 00000032   ecx: ce44e000   edx: c5dce800
+esi: cf00df98   edi: ce44e000   ebp: ce44e000   esp: cf00df0c
 ds: 0018   es: 0018   ss: 0018
-Process cdrecord (pid: 498, stackpage=cd037000)
-Stack: 00000000 00000001 d084e8c0 d084e880 00000000 00000000 00000001
-00000000
-       d0846b30 d084e880 cdd281a0 00000000 00000001 d084e8c0 d084e880
-d084e8c0
-       d0847060 d084e8c0 00000001 d084e8c0 ce8c0ee0 d084e8c0 0000f800
-d085a458
-Call Trace: [<d084e8c0>] [<d084e880>] [<d0846b30>] [<d084e880>]
-[<d084e8c0>]
-   [<d084e880>] [<d084e8c0>] [<d0847060>] [<d084e8c0>] [<d084e8c0>]
-[<d084e8c0>]
-   [<d085a458>] [<d0848e67>] [<d084e8c0>] [<d085a7af>] [<d084e8c0>]
-[<d084e8c0>]
-   [<d084e8c0>] [<d084e8c0>] [<d084e8c0>] [<d085a8ef>] [<d084e8c0>]
-[<d08428f2>]
-   [<d084e8c0>] [<d084e880>] [<d084e8c0>] [<d084e8c0>] [<d084e880>]
-[<d0842c46>]
-   [<d084e8c0>] [<d084e8e8>] [<d084327a>] [<d085b272>] [<d084e8c0>]
-[<d084e8c0>]
-   [<c016fe01>] [<c0175580>] [<c0176c1f>] [<c0176196>] [<c01761de>]
-[<c017004f>]
-   [<d085df9b>] [<d085ebcc>] [<d085dd3a>] [<d085e235>] [<c0129a5e>]
-[<c0164230>]
-   [<c0165632>] [<c01666f8>] [<c018b5a7>] [<c01637de>] [<c0166dea>]
-[<c015c570>]
-   [<c015831c>] [<c013be37>] [<c0106b0b>]
-Code: f3 ab 8b 44 24 14 89 28 8b 4c 24 10 8b 7c 24 1c 89 74 0f 08
+Process cat (pid: 2942, stackpage=3Dcf00d000)
+Stack: c5dce800 cf00df98 ce44e000 c5dce820 00000000 c5dce800 d09e0d34 d09e0=
+d37
+       d09e0d3b d09e0d3f d09d76f5 ce44e000 cf00df98 00000000 00000400 cf00d=
+f94
+       c5dce800 c1d1a6e0 00000400 ce44e000 00000400 c014571a ce44e000 cf00d=
+f98
+Call Trace: [<d09e0d34>] [<d09e0d37>] [<d09e0d3b>] [<d09e0d3f>] [<d09d76f5>]
+   [<c014571a>] [<c012e1c6>] [<c0106aeb>]
+Code: 8b 38 8b 07 0f 18 00 8b 44 24 14 8b 90 4c 01 00 00 39 d7 0f
 
->>EIP; d0846ac0 <[ide-mod]ide_build_sglist+c8/114>   <=====
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e880 <[ide-mod]ide_hwifs+0/1fe0>
-Trace; d0846b30 <[ide-mod]ide_build_dmatable+24/168>
-Trace; d084e880 <[ide-mod]ide_hwifs+0/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e880 <[ide-mod]ide_hwifs+0/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d0847060 <[ide-mod]ide_dmaproc+e8/210>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d085a458 <[ide-scsi]idescsi_pc_intr+0/230>
-Trace; d0848e66 <[ide-mod]piix_dmaproc+22/28>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d085a7ae <[ide-scsi]idescsi_issue_pc+6a/190>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d085a8ee <[ide-scsi]idescsi_do_request+1a/4c>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d08428f2 <[ide-mod]start_request+192/200>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e880 <[ide-mod]ide_hwifs+0/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e880 <[ide-mod]ide_hwifs+0/1fe0>
-Trace; d0842c46 <[ide-mod]ide_do_request+28a/2d0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8e8 <[ide-mod]ide_hwifs+68/1fe0>
-Trace; d084327a <[ide-mod]ide_do_drive_cmd+ee/120>
-Trace; d085b272 <[ide-scsi]idescsi_queue+4f2/540>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; d084e8c0 <[ide-mod]ide_hwifs+40/1fe0>
-Trace; c016fe00 <scsi_dispatch_cmd+1a4/22c>
-Trace; c0175580 <scsi_old_done+0/578>
-Trace; c0176c1e <scsi_request_fn+2b2/2e8>
-Trace; c0176196 <__scsi_insert_special+66/70>
-Trace; c01761de <scsi_insert_special_req+1a/20>
-Trace; c017004e <scsi_do_req+11e/144>
-Trace; d085df9a <[sg]sg_common_write+23a/254>
-Trace; d085ebcc <[sg]sg_cmd_done_bh+0/320>
-Trace; d085dd3a <[sg]sg_new_write+1ca/1f0>
-Trace; d085e234 <[sg]sg_ioctl+280/ad4>
-Trace; c0129a5e <_alloc_pages+16/18>
-Trace; c0164230 <lf+34/60>
-Trace; c0165632 <do_con_trol+17e/cbc>
-Trace; c01666f8 <do_con_write+588/640>
-^Trace; c018b5a6 <vgacon_cursor+17e/188>
-Trace; c01637de <set_cursor+6e/80>
-Trace; c0166dea <con_flush_chars+16/20>
-Trace; c015c570 <write_chan+1fc/214>
-Trace; c015831c <tty_write+154/1c0>
-Trace; c013be36 <sys_ioctl+16a/184>
-Trace; c0106b0a <system_call+32/38>
-Code;  d0846ac0 <[ide-mod]ide_build_sglist+c8/114>
+>>EIP; d09d75a4 <[r128]r128__vm_info+98/1b4>   <=3D=3D=3D=3D=3D
+Trace; d09e0d34 <[r128].rodata.start+2374/481e>
+Trace; d09e0d36 <[r128].rodata.start+2376/481e>
+Trace; d09e0d3a <[r128].rodata.start+237a/481e>
+Trace; d09e0d3e <[r128].rodata.start+237e/481e>
+Trace; d09d76f4 <[r128]r128_vm_info+34/48>
+Trace; c014571a <proc_file_read+f2/194>
+Trace; c012e1c6 <sys_read+96/cc>
+Trace; c0106aea <system_call+32/38>
+Code;  d09d75a4 <[r128]r128__vm_info+98/1b4>
 00000000 <_EIP>:
-Code;  d0846ac0 <[ide-mod]ide_build_sglist+c8/114>   <=====
-   0:   f3 ab                     repz stos %eax,%es:(%edi)   <=====
-Code;  d0846ac2 <[ide-mod]ide_build_sglist+ca/114>
-   2:   8b 44 24 14               mov    0x14(%esp,1),%eax
-Code;  d0846ac6 <[ide-mod]ide_build_sglist+ce/114>
-   6:   89 28                     mov    %ebp,(%eax)
-Code;  d0846ac8 <[ide-mod]ide_build_sglist+d0/114>
-   8:   8b 4c 24 10               mov    0x10(%esp,1),%ecx
-Code;  d0846acc <[ide-mod]ide_build_sglist+d4/114>
-   c:   8b 7c 24 1c               mov    0x1c(%esp,1),%edi
-Code;  d0846ad0 <[ide-mod]ide_build_sglist+d8/114>
-  10:   89 74 0f 08               mov    %esi,0x8(%edi,%ecx,1)
+Code;  d09d75a4 <[r128]r128__vm_info+98/1b4>   <=3D=3D=3D=3D=3D
+   0:   8b 38                     mov    (%eax),%edi   <=3D=3D=3D=3D=3D
+Code;  d09d75a6 <[r128]r128__vm_info+9a/1b4>
+   2:   8b 07                     mov    (%edi),%eax
+Code;  d09d75a8 <[r128]r128__vm_info+9c/1b4>
+   4:   0f 18 00                  prefetchnta (%eax)
+Code;  d09d75aa <[r128]r128__vm_info+9e/1b4>
+   7:   8b 44 24 14               mov    0x14(%esp,1),%eax
+Code;  d09d75ae <[r128]r128__vm_info+a2/1b4>
+   b:   8b 90 4c 01 00 00         mov    0x14c(%eax),%edx
+Code;  d09d75b4 <[r128]r128__vm_info+a8/1b4>
+  11:   39 d7                     cmp    %edx,%edi
+Code;  d09d75b6 <[r128]r128__vm_info+aa/1b4>
+  13:   0f 00 00                  sldt   (%eax)
 
 
-1 warning issued.  Results may not be reliable.
+lspci -vvv output:
 
-After the oops I get the following messages in the syslog, continously:
+01:00.0 VGA compatible controller: ATI Technologies Inc Mobility M3 AGP 2x =
+(rev 02) (prog-if 00 [VGA])
+	Subsystem: Dell Computer Corporation: Unknown device 00b0
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at f4000000 (32-bit, prefetchable) [size=3D64M]
+	Region 1: I/O ports at ec00 [size=3D256]
+	Region 2: Memory at fdffc000 (32-bit, non-prefetchable) [size=3D16K]
+	Expansion ROM at <unassigned> [disabled] [size=3D128K]
+	Capabilities: [50] AGP version 2.0
+		Status: RQ=3D31 SBA+ 64bit- FW- Rate=3Dx1,x2
+		Command: RQ=3D0 SBA+ AGP- 64bit- FW- Rate=3D<none>
+	Capabilities: [5c] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
 
-	scsi : aborting command due to timeout : pid 0, scsi1, channel 0, id 0,
-lun 0 Write (10) 00 00 00 00 00 00 00 1f 00
-	SCSI host 1 abort (pid 0) timed out - resetting
-	SCSI bus is being reset for host 1 channel 0.
+My kernel config is attached.
+--=20
+Dagfinn I. Manns=E5ker
+GPG Public Key ID: 0x51ECFAC6
+Fingerprint:  48BB A64D CE9B 9A06 65DF  395C D42E CDC4 51EC FAC6
 
-modules loaded at that time:
 
-# lsmod
-Module                  Size  Used by
-ide-scsi                7712   1
-ide-cd                 26432   0
-sg                     26704   1  (autoclean)
-ide-mod                63632   0  [ide-scsi ide-cd]
-rtc                     5408   0  (autoclean)
-nfs                    73200   4  (autoclean)
-lockd                  48272   1  (autoclean) [nfs]
-sunrpc                 60976   1  (autoclean) [nfs lockd]
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=kernel-config
 
-After the oops the scsi system is in a bad shape, ie the continous error
-message and also cdrecord -scanbus hangs when trying to access the
-second scsi bus which is handled by ide-scsi.  It cannot be killed, even
-with SysRQ+K, and shows up in ps ax in a D state.  (I also have a first
-scsi bus handled by a sym53c875 with a CD-ROM drive and a hard disk
-attached, which appears to be working fine after the oops.)  I do not
-use any IDE devices other then the RICOH burner.
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=m
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_UNIX=m
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IPV6=m
+CONFIG_IP6_NF_IPTABLES=m
+CONFIG_IP6_NF_MATCH_LIMIT=m
+CONFIG_IP6_NF_MATCH_MARK=m
+CONFIG_IP6_NF_FILTER=m
+CONFIG_IP6_NF_MANGLE=m
+CONFIG_IP6_NF_TARGET_MARK=m
+CONFIG_IPSEC=m
+CONFIG_IPSEC_IPIP=y
+CONFIG_IPSEC_AH=y
+CONFIG_IPSEC_AUTH_HMAC_MD5=y
+CONFIG_IPSEC_AUTH_HMAC_SHA1=y
+CONFIG_IPSEC_ESP=y
+CONFIG_IPSEC_ENC_3DES=y
+CONFIG_IPSEC_IPCOMP=y
+CONFIG_IPSEC_DEBUG=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_PIIX_TUNING=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_EEPRO100=m
+CONFIG_PLIP=m
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_SYNC_TTY=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_NET_RADIO=y
+CONFIG_NET_WIRELESS=y
+CONFIG_IRDA=m
+CONFIG_IRLAN=m
+CONFIG_IRNET=m
+CONFIG_IRCOMM=m
+CONFIG_IRTTY_SIR=m
+CONFIG_IRPORT_SIR=m
+CONFIG_NSC_FIR=m
+CONFIG_WINBOND_FIR=m
+CONFIG_TOSHIBA_FIR=m
+CONFIG_SMC_IRCC_FIR=m
+CONFIG_ALI_FIR=m
+CONFIG_VLSI_FIR=m
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=m
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=m
+CONFIG_PPDEV=m
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_NVRAM=m
+CONFIG_RTC=y
+CONFIG_AGP=m
+CONFIG_AGP_INTEL=y
+CONFIG_DRM=y
+CONFIG_DRM_NEW=y
+CONFIG_DRM_R128=m
+CONFIG_REISERFS_FS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_UMSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_CRAMFS=m
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_EXT2_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_RW=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_SMB_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_CODEPAGE_737=m
+CONFIG_NLS_CODEPAGE_775=m
+CONFIG_NLS_CODEPAGE_850=m
+CONFIG_NLS_CODEPAGE_852=m
+CONFIG_NLS_CODEPAGE_855=m
+CONFIG_NLS_CODEPAGE_857=m
+CONFIG_NLS_CODEPAGE_860=m
+CONFIG_NLS_CODEPAGE_861=m
+CONFIG_NLS_CODEPAGE_862=m
+CONFIG_NLS_CODEPAGE_863=m
+CONFIG_NLS_CODEPAGE_864=m
+CONFIG_NLS_CODEPAGE_865=m
+CONFIG_NLS_CODEPAGE_866=m
+CONFIG_NLS_CODEPAGE_869=m
+CONFIG_NLS_CODEPAGE_936=m
+CONFIG_NLS_CODEPAGE_950=m
+CONFIG_NLS_CODEPAGE_932=m
+CONFIG_NLS_CODEPAGE_949=m
+CONFIG_NLS_CODEPAGE_874=m
+CONFIG_NLS_ISO8859_8=m
+CONFIG_NLS_CODEPAGE_1251=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_NLS_ISO8859_2=m
+CONFIG_NLS_ISO8859_3=m
+CONFIG_NLS_ISO8859_4=m
+CONFIG_NLS_ISO8859_5=m
+CONFIG_NLS_ISO8859_6=m
+CONFIG_NLS_ISO8859_7=m
+CONFIG_NLS_ISO8859_9=m
+CONFIG_NLS_ISO8859_13=m
+CONFIG_NLS_ISO8859_14=m
+CONFIG_NLS_ISO8859_15=m
+CONFIG_NLS_KOI8_R=m
+CONFIG_NLS_KOI8_U=m
+CONFIG_NLS_UTF8=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_SOUND=m
+CONFIG_USB=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_HID=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
 
-Something that might be related is that I can't get ide-scsi trivially
-to recognize the atapi burner.  Ie, after an
+--W/nzBZO5zC0uMSeA--
 
-	# modprobe ide-mod
-	# modprobe ide-scsi
-	# modprobe sg
+--MfFXiAuoTsnnDAfZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-the RICOH is not recognized.  Instead I have to do
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	# modprobe ide-mod
-	# modprobe ide-probe-mod	<-- 1
-	# modprobe ide-scsi		<-- 2
-	# modprobe sg
+iD8DBQE7lXqp1C7NxFHs+sYRAqzkAJ4n9AoJuooRBKu3845ADgyceupFfACcCjIt
+n6iZhGIeDHX8q7QTgf3+mb0=
+=IR01
+-----END PGP SIGNATURE-----
 
-1 -- this will report the RICOH as hda: ATAPI CD-ROM drive
-2 -- this will install a new scsi bus scsi1, and report the RICOH as sr1
-
-I tried various strategies of module loading, ie unloading ide-probe-mod
-after ide-scsi has found the RICOH, or loading ide-cd ignore=hda, but I
-either get a hard lock when trying to access the RICOH, or (if I'm
-lucky) an oops.  When the machine locks, it's totally unresponsible, ie
-won't answer pings or react to the magic SysRQ key.  I'm running a stock
-2.4.9 kernel w/o any additional patches.
-
-Viktor
-
-PS: The RICOH works successfully under Windows.  :(
--- 
-Viktor Rosenfeld
-WWW: http://www.informatik.hu-berlin.de/~rosenfel/
+--MfFXiAuoTsnnDAfZ--

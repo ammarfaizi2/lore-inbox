@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVBAJJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVBAJKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVBAJJk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 04:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVBAJJj
+	id S261970AbVBAJKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 04:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVBAJKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 04:09:39 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:35816 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261948AbVBAJIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 04:08:47 -0500
-To: Koichi Suzuki <koichi@intellilink.co.jp>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot <fastboot@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Maneesh Soni <maneesh@in.ibm.com>,
-       Hariprasad Nellitheertha <hari@in.ibm.com>,
-       suparna bhattacharya <suparna@in.ibm.com>
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based	crashdumps.
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	<1106294155.26219.26.camel@2fwv946.in.ibm.com>
-	<m1sm4v2p5t.fsf@ebiederm.dsl.xmission.com>
-	<1106305073.26219.46.camel@2fwv946.in.ibm.com>
-	<m17jm72fy1.fsf@ebiederm.dsl.xmission.com>
-	<1106475280.26219.125.camel@2fwv946.in.ibm.com>
-	<m18y6gf6mj.fsf@ebiederm.dsl.xmission.com>
-	<1106833527.15652.146.camel@2fwv946.in.ibm.com>
-	<m1zmyueh4c.fsf@ebiederm.dsl.xmission.com>
-	<41FF381B.4080904@intellilink.co.jp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Feb 2005 02:06:42 -0700
-In-Reply-To: <41FF381B.4080904@intellilink.co.jp>
-Message-ID: <m1fz0gbqe5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Tue, 1 Feb 2005 04:10:08 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:2442 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261933AbVBAJHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 04:07:52 -0500
+Date: Tue, 1 Feb 2005 10:07:47 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Bernd Eckenfels <ecki-news2005-01@lina.inka.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] "biological parent" pid
+In-Reply-To: <E1CvlZk-0007D3-00@calista.eckenfels.6bone.ka-ip.net>
+Message-ID: <Pine.LNX.4.53.0502010945480.23883@gockel.physik3.uni-rostock.de>
+References: <E1CvlZk-0007D3-00@calista.eckenfels.6bone.ka-ip.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Koichi Suzuki <koichi@intellilink.co.jp> writes:
+On Tue, 1 Feb 2005, Bernd Eckenfels wrote:
 
-> Hook in panic code is very good idea and is useful in various scenes. It could
-> be used to kick RAM dump code, obviously, and also kick the code to initiate
-> failover, etc.   Various use could be possible so I believe that this hook
-> should be prepared for wider use.
+> In article <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de> you wrote:
+> > I am not aware of concepts in Linux or other unices that apply to this
+> > case.
+> 
+> Normal process accounting.
 
-It is.  Basically it is the normal kexec interface that allows you to
-boot another kernel.  With a few restrictions that should keep it as
-reliable as possible when the kernel has not shut itself down cleanly.
+Sure. That's what the patch was made for. Or do you have anything else
+in mind than BSD accounting?
 
-The hardest case is to do a useful system core dump.  As that requires
-looking at what has gone before.  For the rest if you can do it
-with a kernel and a initramfs you are in good shape.
+> If you want to keep the pid of the bio-parent, you also need to keep the
+> start-time to make it unique.
 
-There seems to be a significant amount of interest in the full
-system core dump case so that is what the work is concentrating
-on.
+Yes, that's what I wrote: A process would be uniquely identified by the
+(btime, pid) pair, in terms of BSD accounting field names. Or
+(start_time, pid), if we use the names of task_struct members.
 
-Eric
+> Better would be to have a all-time-unqiue process handle.
+
+Yes, but that would need new infrastructure. So instead of assigning new
+64 bit process handles, we can just just that pair of 32 bit variables.
+
+> But I think it is better to not have that field, but use
+> audit logs. That is especially needed if you want to track chains, because
+> it doesnt help you to know the bio parent if you have no idea what that was.
+
+That's the kind of comment I was actually seeking - maybe what I'm trying 
+is not really worth because anyone interested in its reliability and 
+security would use auditing anyways.
+
+But still it might be useful for 'home use', because I do have an idea of 
+what the parent was if I keep the BSD accounting records.

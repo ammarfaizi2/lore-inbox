@@ -1,39 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVCNNhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVCNNnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbVCNNhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 08:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVCNNhY
+	id S261494AbVCNNnE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 08:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVCNNnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 08:37:24 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:10913 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261496AbVCNNg0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 08:36:26 -0500
-Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for
-	2.6.11)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       peterc@gelato.unsw.edu.au
-In-Reply-To: <1110575069.1949.72.camel@cube>
-References: <1110518308.1949.67.camel@cube>
-	 <1110568542.15927.76.camel@localhost.localdomain>
-	 <1110575069.1949.72.camel@cube>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110807262.15927.117.camel@localhost.localdomain>
+	Mon, 14 Mar 2005 08:43:03 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:49626 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261494AbVCNNkY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 08:40:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=dy8lE7rVh7m5pDGWVm0ynoZrDIqyfK30PZ18Yoq1MlC8qsHFVxHaeALlPkwJmr0+8Cz8K7aF4zCTuWqBtwsmYRL35qBD6JjArtDsmR6kmKYLetknIzWlup6jLqwPia7rXfr21qW9Jv72W0sowWuuRK+FAlpLYTOUnc5+w/XDbaQ=
+Message-ID: <a71293c205031405403b353f6e@mail.gmail.com>
+Date: Mon, 14 Mar 2005 08:40:22 -0500
+From: Stephen Evanchik <evanchsa@gmail.com>
+Reply-To: Stephen Evanchik <evanchsa@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11] IBM TrackPoint support
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>
+In-Reply-To: <20050314081949.GA2309@ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 14 Mar 2005 13:34:24 +0000
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <a71293c2050313210230161278@mail.gmail.com>
+	 <20050314081949.GA2309@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-03-11 at 21:04, Albert Cahalan wrote:
-> > Still insufficient because the device might be hotplugged on you. You
-> > need a file handle that has the expected revocation effects on unplug
-> > and refcounts
-> 
-> I was under the impression that a file handle would be returned.
+On Mon, 14 Mar 2005 13:19:56 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> How much does it interpret the stream in non-transparent mode? Are
+> commands also passed through in soft transparent mode?
+>
+> I'm asking because we might want to implement a passthrough port
+> similarly to what the Synaptics driver does and allow extended protocol
+> mice to be connected to the external mouse port.
 
-Then lets use that popular "open" system call
+I originally thought that I could implement something similar to the
+Synaptics driver. Unfortunately, while in transparent mode bytes are
+relayed unmodified with the TrackPoint controller disabled. In other
+words, no simultaneous usage.
 
+That doesn't mean extended protocol mice couldn't be supported in
+transparent mode however. I didn't find it particularly useful given
+the TrackPoint itself would be disabled.

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261391AbTCJSCf>; Mon, 10 Mar 2003 13:02:35 -0500
+	id <S261392AbTCJSN7>; Mon, 10 Mar 2003 13:13:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261392AbTCJSCe>; Mon, 10 Mar 2003 13:02:34 -0500
-Received: from blowme.phunnypharm.org ([65.207.35.140]:47631 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S261391AbTCJSCd>; Mon, 10 Mar 2003 13:02:33 -0500
-Date: Mon, 10 Mar 2003 13:12:51 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] [PATCH] Device removal callback
-Message-ID: <20030310181251.GA1311@phunnypharm.org>
-References: <20030310010232.GB16134@phunnypharm.org> <Pine.LNX.4.33.0303100949490.1002-100000@localhost.localdomain> <20030310165548.GA753@phunnypharm.org> <20030310172155.GA9792@kroah.com>
+	id <S261393AbTCJSN7>; Mon, 10 Mar 2003 13:13:59 -0500
+Received: from c9-rba-216.absamail.co.za ([196.39.55.216]:24580 "EHLO
+	mail.codefountain.com") by vger.kernel.org with ESMTP
+	id <S261392AbTCJSN6>; Mon, 10 Mar 2003 13:13:58 -0500
+Date: Mon, 10 Mar 2003 20:28:04 +0200
+From: Craig Schlenter <craig.schlenter@absamail.co.za>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel bug in dcache.h:266; 2.5.64, EIP at sysfs_remove_dir
+Message-ID: <20030310182804.GB2289@codefountain.com>
+References: <Pine.LNX.4.33.0303091604530.994-100000@localhost.localdomain> <1047251674.1418.1.camel@ixodes.goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030310172155.GA9792@kroah.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <1047251674.1418.1.camel@ixodes.goop.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's less work to add all this overhead back into my subsystem than to
-argue about it's worthiness. It seemed obviously in-line with the
-driver-model's purpose to have a remove callback, but maybe my way of
-thinking is expecting too much from the driver core, and I should do the
-work myself in the subsystem.
+On Sun, Mar 09, 2003 at 03:14:34PM -0800, Jeremy Fitzhardinge wrote:
+> On Sun, 2003-03-09 at 14:06, Patrick Mochel wrote:
+> > Bah, we're accidentally dropping the refcount on the directory one too 
+> > many times, which is a different, though slightly related, problem to the 
+> > one the previous patch fixed. 
+> > 
+> > Please try this patch (after removing the previous one).
+> 
+> That looks like it fixed it.
 
-thanks
+I've been unable to reproduce my sysfs/ppp BUG with this 
+patch applied. Magic.
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Thank you!
+
+--Craig

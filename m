@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129855AbRCGCVd>; Tue, 6 Mar 2001 21:21:33 -0500
+	id <S129878AbRCGC5v>; Tue, 6 Mar 2001 21:57:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbRCGCVY>; Tue, 6 Mar 2001 21:21:24 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:36603 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129855AbRCGCVK>; Tue, 6 Mar 2001 21:21:10 -0500
-Message-ID: <3AA599BD.F3318F7@coplanar.net>
-Date: Tue, 06 Mar 2001 21:15:26 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S129884AbRCGC5m>; Tue, 6 Mar 2001 21:57:42 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:1277 "EHLO
+	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
+	id <S129878AbRCGC5j>; Tue, 6 Mar 2001 21:57:39 -0500
+Date: Tue, 6 Mar 2001 21:54:18 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Patch submissions
+In-Reply-To: <3AA576C7.B00DF382@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0103062153190.5591-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Gregory Maxwell <greg@linuxpower.cx>, Bryan Rittmeyer <bryan@ixiacom.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: conducting TCP sessions with non-local IPs
-In-Reply-To: <3AA54902.AFF8550@ixiacom.com> <20010306170551.D2244@xi.linuxpower.cx> <3AA592FF.5107E508@matchmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
+On Tue, 6 Mar 2001, Andrew Morton wrote:
 
-> > [snip]
-> >
-> > /sbin/ip addr add 10.2.0.0/24 dev eth0
-> >
-> > Tada
-> How would you deal with the other computer responding to the host "port not
-> reachable"?
+> With respect, Rik.  You haven't finished the 2.4 VM yet.
+> 
+> It needs better design description.
 
-What the hell kind of monster are you making?  There's got to be another way.
+> Could you please take the time to raise a commentary patch
+> which describes the underlying design intent?
+
+OK, I'll go work on this...
+
+You are right, this is an extremely important thing.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

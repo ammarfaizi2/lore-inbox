@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbUAXVJt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 16:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUAXVJt
+	id S262164AbUAXVYV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 16:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbUAXVYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 16:09:49 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:42993 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S261929AbUAXVJs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 16:09:48 -0500
-Date: Sat, 24 Jan 2004 23:09:40 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Diego Calleja <grundig@teleline.es>
-Cc: Felix von Leitner <felix-kernel@fefe.de>, linux-kernel@vger.kernel.org
-Subject: Re: Request: I/O request recording
-Message-ID: <20040124210940.GX11115091@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Diego Calleja <grundig@teleline.es>,
-	Felix von Leitner <felix-kernel@fefe.de>,
-	linux-kernel@vger.kernel.org
-References: <20040124181026.GA22100@codeblau.de> <20040124211156.042a4ff2.grundig@teleline.es>
+	Sat, 24 Jan 2004 16:24:21 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:41147 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262164AbUAXVYS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 16:24:18 -0500
+Date: Sat, 24 Jan 2004 13:14:45 -0800 (PST)
+Message-Id: <20040124.131445.48521788.davem@redhat.com>
+To: jgarzik@pobox.com
+Cc: grundler@parisc-linux.org, jgarzik@redhat.com,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: [PATCH] 2.6.1 tg3 DMA engine test failure
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <4012E071.2080704@pobox.com>
+References: <20040124073032.GA7265@colo.lackof.org>
+	<20040123.233241.59493446.davem@redhat.com>
+	<4012E071.2080704@pobox.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040124211156.042a4ff2.grundig@teleline.es>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 24, 2004 at 09:11:56PM +0100, you [Diego Calleja] wrote:
-> 
-> That's exactly what XP does (and Mac OS X, for that matter).
-> And it really works (ie: you can notice it)
-> 
-> XP records what the OS does in the first 2 minutes (or so). The next
-> time it boots, it tries to load the files that he knows that are going
-> to be used. The same for an app that is frecuently used: it records
-> what the app does, and it optimizes the startup of that app. 
-> Take a look at: (search prefetch)
-> http://msdn.microsoft.com/library/default.asp?url=/library/en-us/appendix/hh/appendix/enhancements5_0qhx.asp
-> http://msdn.microsoft.com/msdnmag/issues/01/12/xpkernel/default.aspx
+   From: Jeff Garzik <jgarzik@pobox.com>
+   Date: Sat, 24 Jan 2004 16:15:29 -0500
 
-It's perhaps worth pointing out that XP not only uses the boot (or
-application launch) traces to prefetch the data on next boot (application
-launch) but also to reorder the data on disk optimally via XP's
-defragmenter. 
+   There were two separate components to Grant's patch (hint ggg... split 
+   up your patches).
+   
+   What do you think about GRC-resets-sub-components part?
+   
+   That appears valid (and probably wise) to me, but correct me if I'm wrong...
 
-And XP is noticeable faster to boot than (say) W2000.
+I know, I tried to give the impression that I was fine with Grant's
+patch besides the ALL_BE bit part.
 
-
--- v --
-
-v@iki.fi
+I'll take care of further reviewing and merging this around Jeff.

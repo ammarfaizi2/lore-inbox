@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280959AbRKGUhK>; Wed, 7 Nov 2001 15:37:10 -0500
+	id <S280964AbRKGUla>; Wed, 7 Nov 2001 15:41:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280971AbRKGUhC>; Wed, 7 Nov 2001 15:37:02 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:56197 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S280959AbRKGUgx>; Wed, 7 Nov 2001 15:36:53 -0500
-Message-Id: <5.1.0.14.2.20011107203345.02af5378@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 07 Nov 2001 20:36:43 +0000
-To: Andreas Dilger <adilger@turbolabs.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
+	id <S280967AbRKGUlU>; Wed, 7 Nov 2001 15:41:20 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6417 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280964AbRKGUlM>; Wed, 7 Nov 2001 15:41:12 -0500
+Message-ID: <3BE99B29.354AA18A@zip.com.au>
+Date: Wed, 07 Nov 2001 12:35:53 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Ville Herva <vherva@niksula.hut.fi>, James A Sutherland <jas88@cam.ac.uk>,
+        linux-kernel@vger.kernel.org
 Subject: Re: ext3 vs resiserfs vs xfs
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011107132552.J5922@lynx.no>
-In-Reply-To: <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk>
- <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk>
- <E161Y87-00052r-00@the-village.bc.nu>
- <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+In-Reply-To: <20011107213837.F26218@niksula.cs.hut.fi>,
+		<E161UYR-0004S5-00@the-village.bc.nu>
+		<E161Vbf-0000m9-00@lilac.csi.cam.ac.uk> 
+		<20011107213837.F26218@niksula.cs.hut.fi> <1005164667.884.5.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 20:25 07/11/2001, Andreas Dilger wrote:
->On Nov 07, 2001  19:40 +0000, Anton Altaparmakov wrote:
-> > Yes, that makes a lot of sense. After the reset I went into my own kernel
-> > with both ext2 and ext3 compiled into it. However, before the reboot, I 
-> was
-> > still in the RH kernel (99% sure it was so, but my memory might be
-> > deceiving me).
-> >
-> > Is there any Right Way(TM) to fix this situation considering I want to 
-> have
-> > both ext2 and ext3 in my kernels (apart from the obvious of changing the
-> > order fs are called during root mount in the kernel)?
->
->If both ext2 and ext3 are compiled into the kernel, then ext3 will try first
->to mount the root fs.  If there is no journal on this fs (check this with
->tune2fs -l <dev>, and look for "has_journal" feature), then it will be
->mounted as ext2.  If you are doing strange things with initrd and modules,
->then there is more chance to have problems.
+Robert Love wrote:
+> 
+> On Wed, 2001-11-07 at 14:38, Ville Herva wrote:
+> > A stupid question: does ext3 replay the journal before fsck? If not, the
+> > inode errors would be expected...
+> 
+> ext3 will reply the root file systems journal on boot when the kernel
+> mounts root.  other ext3 partitions will have their journals replayed
+> when they are mounted.
+> 
+> also, btw, I use RedHat 7.2 and fsck does not run if I don't hit Y.  It
+> is there for pedants or seriously screwed disks -- the journal replay
+> should be sufficient.
+> 
 
-Will check. Thanks for info.
+fsck can perform journal replay.  It's the same code, in fact.
 
->I don't know why you would want to go back to ext2 if you have ext3 in your
->kernel, but if so, there is a patch to add a "rootfstype" parameter which
->allows you to select the fstype to try and mount your root fs as.  It looks
->like it is in Linus' 2.4.13 kernel at least (don't know when it went in).
+So even if one does run fsck against an unclean ext3 partition,
+fsck will just replay the journal and then exit.  It won't do
+the twenty minute go-grab-a-coffee thing unless it has explicitly
+been passed the `-f' option.  Doing that is very, very paraniod.
 
-Well one good reason is I don't trust ext3 because it is new and I haven't 
-used it before. (You can call me paranoid all you want...) Before I start 
-trusting it with my really important data, I would rather use ext3 for a 
-while on /, /usr and other non-important partitions (they can be 
-reinstalled, /home cannot...)
+I normally just leave ext3 at the default check-time settings,
+so fsck runs every thirtieth boot or so.  ie: hourly :)
 
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+=

@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129699AbRCFXyt>; Tue, 6 Mar 2001 18:54:49 -0500
+	id <S129712AbRCFX4j>; Tue, 6 Mar 2001 18:56:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129712AbRCFXyj>; Tue, 6 Mar 2001 18:54:39 -0500
-Received: from nrg.org ([216.101.165.106]:36388 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129699AbRCFXy0>;
-	Tue, 6 Mar 2001 18:54:26 -0500
-Date: Tue, 6 Mar 2001 15:53:45 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Manoj Sontakke <manojs@sasken.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: spinlock help
-In-Reply-To: <Pine.GSO.4.30.0103061926390.13816-100000@suns3.sasi.com>
-Message-ID: <Pine.LNX.4.05.10103061549480.4692-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129719AbRCFX43>; Tue, 6 Mar 2001 18:56:29 -0500
+Received: from f41.law11.hotmail.com ([64.4.17.41]:45322 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129712AbRCFX40>;
+	Tue, 6 Mar 2001 18:56:26 -0500
+X-Originating-IP: [63.89.188.109]
+From: "Ying Chen" <yingchenb@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 06 Mar 2001 15:55:55 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F41oVQAiEGKROptzzpY000014a6@hotmail.com>
+X-OriginalArrivalTime: 06 Mar 2001 23:55:55.0237 (UTC) FILETIME=[FB93A150:01C0A698]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Manoj Sontakke wrote:
-> 1. when spin_lock_irqsave() function is called the subsequent code is
-> executed untill spin_unloc_irqrestore()is called. is this right?
+Hi,
 
-Yes.  The protected code will not be interrupted, or simultaneously
-executed by another CPU.
+I have two questions on Linux pthread related issues. Would anyone be able 
+to help?
 
-> 2. is this sequence valid?
-> 	spin_lock_irqsave(a,b);
-> 	spin_lock_irqsave(c,d);
+1. Does any one have some suggestions (pointers) on good kernel Linux thread 
+libraries?
+2. We ran multi-threaded application using Linux pthread library on 2-way 
+SMP and UP intel platforms (with both 2.2 and 2.4 kernels). We see 
+significant increase in context switching when moving from UP to SMP, and 
+high CPU usage with no performance gain in turns of actual work being done 
+when moving to SMP, despite the fact the benchmark we are running is 
+CPU-bound. The kernel profiler indicates that the a lot of kernel CPU ticks 
+went to scheduling and signaling overheads. Has anyone seen something like 
+this before with pthread applications running on SMP platforms? Any 
+suggestions or pointers on this subject?
 
-Yes, as long as it is followed by:
+Thanks a lot!
 
-	spin_unlock_irqrestore(c, d);
-	spin_unlock_irqrestore(a, b);
+Ying
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 

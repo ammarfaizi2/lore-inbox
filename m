@@ -1,38 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267686AbTCFB60>; Wed, 5 Mar 2003 20:58:26 -0500
+	id <S267688AbTCFCIC>; Wed, 5 Mar 2003 21:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267688AbTCFB60>; Wed, 5 Mar 2003 20:58:26 -0500
-Received: from to-wiznet.redhat.com ([216.129.200.2]:61692 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S267686AbTCFB6Z>; Wed, 5 Mar 2003 20:58:25 -0500
-Date: Wed, 5 Mar 2003 21:08:56 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Andi Kleen <ak@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Better CLONE_SETTLS support for Hammer
-Message-ID: <20030305210856.B16093@redhat.com>
-References: <3E664836.7040405@redhat.com> <20030305190622.GA5400@wotan.suse.de> <3E6650D4.8060809@redhat.com> <20030305212107.GB7961@wotan.suse.de> <3E668267.5040203@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E668267.5040203@redhat.com>; from drepper@redhat.com on Wed, Mar 05, 2003 at 03:04:07PM -0800
+	id <S267692AbTCFCIC>; Wed, 5 Mar 2003 21:08:02 -0500
+Received: from [203.94.130.164] ([203.94.130.164]:36315 "EHLO bad-sports.com")
+	by vger.kernel.org with ESMTP id <S267688AbTCFCIA>;
+	Wed, 5 Mar 2003 21:08:00 -0500
+Date: Thu, 6 Mar 2003 13:07:58 +1100 (EST)
+From: Brett <generica@email.com>
+X-X-Sender: brett@bad-sports.com
+To: Dominik Brodowski <linux@brodo.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: pcmcia no worky in 2.5.6[32]
+In-Reply-To: <20030305063635.GA2507@brodo.de>
+Message-ID: <Pine.LNX.4.44.0303061307130.15121-100000@bad-sports.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 03:04:07PM -0800, Ulrich Drepper wrote:
-> I wouldn't want to either in your position.  You caused this whole mess
-> and now you're not willing to fix it.
 
-I disagree.  We don't need to use a segment register to get the thread 
-library equivalent of "current".  Changing the segment registers on a 
-per process basis is a waste of time in the context switch.  Instead, 
-making x86-64 TLS support based off of the stack pointer, or even using 
-a fixed per-cpu segment register such that gs:0 holds the pointer to the 
-thread "current" would be better.  Make the users of threads suffer, not 
-every single application and syscall in the system.
+On Wed, 5 Mar 2003, Dominik Brodowski wrote:
 
-		-ben
--- 
-Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>
+> Hi,
+> 
+> On Wed, Mar 05, 2003 at 11:54:36AM +1100, Brett wrote:
+> > On Mon, 3 Mar 2003, Dominik Brodowski wrote:
+> > 
+> > > > Hey,
+> > > > 
+> > > > since 2.5.62, I've not been able to get pcmcia working.
+> > > > 
+> > > > Hardware: toshiba 100CS
+> > > > 
+> > > > I've attached my .config for 2.5.63,
+> > > > and a dmesg directly after boot for 2.5.61 and 2.5.63
+> > > > 
+> > > > any other details needed, please let me know
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > 	/ Brett
+> > > 
+> > > Could you please try this patch? It *should* fix this problem:
+> > > 
+> > 
+> > Sadly, it didn't do a thing
+> > same dmesg/no pcmcia as vanilla 2.5.63
+> > 
+> > any other ideas ??
+> 
+> Yes: platform_match within the pcmcia core wasn't doing was it was supposed
+> to do... and it still doesn't work in 2.5.64. So could you please try if it
+> works with this patch against 2.5.64?
+> 
+
+Yep, the patch fixed it.
+Now happy in 2.5.64 with pcmcia again
+
+many thanks,
+
+	/ Brett
+
+> 
+> 
+> diff -ruN linux-original/drivers/base/platform.c linux/drivers/base/platform.c
+> --- linux-original/drivers/base/platform.c	2003-03-05 07:19:19.000000000 +0100
+> +++ linux/drivers/base/platform.c	2003-03-05 07:22:31.000000000 +0100
+> @@ -59,12 +59,9 @@
+>  
+>  static int platform_match(struct device * dev, struct device_driver * drv)
+>  {
+> -	char name[BUS_ID_SIZE];
+> +	struct platform_device *pdev = container_of(dev, struct platform_device, dev);
+>  
+> -	if (sscanf(dev->bus_id,"%s",name))
+> -		return (strcmp(name,drv->name) == 0);
+> -
+> -	return 0;
+> +	return (strncmp(pdev->name, drv->name, BUS_ID_SIZE) == 0);
+>  }
+>  
+>  struct bus_type platform_bus_type = {
+> diff -ruN linux-original/drivers/pcmcia/hd64465_ss.c linux/drivers/pcmcia/hd64465_ss.c
+> --- linux-original/drivers/pcmcia/hd64465_ss.c	2003-03-05 07:19:13.000000000 +0100
+> +++ linux/drivers/pcmcia/hd64465_ss.c	2003-03-05 07:35:34.000000000 +0100
+> @@ -1070,8 +1070,8 @@
+>  	}
+>  
+>  /*	hd64465_io_debug = 0; */
+> -	platform_device_register(&hd64465_device);
+>  	hd64465_device.dev.class_data = &hd64465_data;
+> +	platform_device_register(&hd64465_device);
+>  
+>  	return 0;
+>  }
+> diff -ruN linux-original/drivers/pcmcia/i82365.c linux/drivers/pcmcia/i82365.c
+> --- linux-original/drivers/pcmcia/i82365.c	2003-03-05 07:19:13.000000000 +0100
+> +++ linux/drivers/pcmcia/i82365.c	2003-03-05 07:35:34.000000000 +0100
+> @@ -1628,11 +1628,11 @@
+>  	request_irq(cs_irq, pcic_interrupt, 0, "i82365", pcic_interrupt);
+>  #endif
+>      
+> -    platform_device_register(&i82365_device);
+> -
+>      i82365_data.nsock = sockets;
+>      i82365_device.dev.class_data = &i82365_data;
+>      
+> +    platform_device_register(&i82365_device);
+> +
+>      /* Finally, schedule a polling interrupt */
+>      if (poll_interval != 0) {
+>  	poll_timer.function = pcic_interrupt_wrapper;
+> diff -ruN linux-original/drivers/pcmcia/tcic.c linux/drivers/pcmcia/tcic.c
+> --- linux-original/drivers/pcmcia/tcic.c	2003-03-05 07:19:13.000000000 +0100
+> +++ linux/drivers/pcmcia/tcic.c	2003-03-05 07:35:34.000000000 +0100
+> @@ -452,8 +452,6 @@
+>  	sockets++;
+>      }
+>  
+> -    platform_device_register(&tcic_device);
+> -
+>      switch (socket_table[0].id) {
+>      case TCIC_ID_DB86082:
+>  	printk("DB86082"); break;
+> @@ -527,6 +525,8 @@
+>      tcic_data.nsock = sockets;
+>      tcic_device.dev.class_data = &tcic_data;
+>  
+> +    platform_device_register(&tcic_device);
+> +
+>      return 0;
+>      
+>  } /* init_tcic */
+> 
+

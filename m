@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314085AbSFIRuF>; Sun, 9 Jun 2002 13:50:05 -0400
+	id <S314149AbSFIRyF>; Sun, 9 Jun 2002 13:54:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314138AbSFIRuE>; Sun, 9 Jun 2002 13:50:04 -0400
-Received: from p50887457.dip.t-dialin.net ([80.136.116.87]:14994 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314085AbSFIRuC>; Sun, 9 Jun 2002 13:50:02 -0400
-Date: Sun, 9 Jun 2002 11:49:57 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Robert Love <rml@tech9.net>
-cc: Lightweight patch manager <patch@luckynet.dynu.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH][2.5] make kernel scheduler use list_move_tail (1 occ)
-In-Reply-To: <1023643356.1180.119.camel@sinai>
-Message-ID: <Pine.LNX.4.44.0206091146460.8715-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314243AbSFIRyE>; Sun, 9 Jun 2002 13:54:04 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:18191 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314149AbSFIRyD>; Sun, 9 Jun 2002 13:54:03 -0400
+Message-Id: <200206091754.g59Hs0d08560@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+cc: James.Bottomley@HansenPartnership.com
+Subject: [PATCH: NEW SUBARCHITECTURE FOR 2.5.21] support for NCR voyager 
+ (3/4/5xxx
+ series)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 09 Jun 2002 13:54:00 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch adds SMP (and UP) support for voyager which is an (up to 32 way) 
+SMP microchannel non-PC architecture.
 
-On 9 Jun 2002, Robert Love wrote:
-> I guess this would be fine if I knew what list_move_tail did... or if I
-> had it in my tree:
+There's basically nothing different from the 2.5.15 one except for updates and 
+changes to the arch-split and a few #include file additions.
 
-There was a patch introducing it this morning, maybe you missed it.
+The patch is in two parts:  The i386 sub-architecture split is separated from 
+the addition of the voyager components
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102362676727017&w=2
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.21.diff (165k)
+http://www.hansenpartnership.com/voyager/files/voyager-2.5.21.diff (148k)
 
-Regards,
-Thunder
--- 
-ship is leaving right on time	|	Thunder from the hill at ngforever
-empty harbour, wave goodbye	|
-evacuation of the isle		|	free inhabitant not directly
-caveman's paintings drowning	|	belonging anywhere
+(The split diff is pretty huge because it's actually moving files about).  You 
+must apply the split diff before applying the voyager one.
+
+These two patches are also available as separate bitkeeper trees (the voyager 
+tree is a superset of the arch-split one):
+
+http://linux-voyager.bkbits.net/voyager-2.5
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James Bottomley
+
 

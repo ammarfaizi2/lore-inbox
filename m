@@ -1,23 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264621AbTIDCvS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 22:51:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264619AbTIDCvA
+	id S264524AbTIDC4n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 22:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbTIDC4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 22:51:00 -0400
-Received: from citrine.spiritone.com ([216.99.193.133]:21460 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S264609AbTIDCte (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 22:49:34 -0400
-Date: Wed, 03 Sep 2003 19:48:03 -0700
+	Wed, 3 Sep 2003 22:56:42 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:43173 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S264524AbTIDCy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 22:54:56 -0400
+Date: Wed, 03 Sep 2003 19:50:07 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Scaling noise
-Message-ID: <9110000.1062643682@[10.10.2.4]>
-In-Reply-To: <20030904023446.GG5227@work.bitmover.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay> <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]> <20030904023446.GG5227@work.bitmover.com>
+Message-ID: <9320000.1062643806@[10.10.2.4]>
+In-Reply-To: <20030904024051.GO16361@matchmail.com>
+References: <1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk> <20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com> <20030904013253.GB4306@holomorphy.com> <7420000.1062642672@[10.10.2.4]> <20030904024051.GO16361@matchmail.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,34 +29,17 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> --Larry McVoy <lm@bitmover.com> wrote (on Wednesday, September 03, 2003 17:36:33 -0700):
->> > They have to be, CPUs are fast enough
->> > to handle most problems, clustering has worked for lots of big companies
->> > like Google, Amazon, Yahoo, and the HPC market has been flat for years.
->> > So where's the growth?  Nowhere I can see.  If I'm not seeing it, show
->> > me the data.  I may be a pain in the ass but I'll change my mind instantly
->> > when you show me data that says something different than what I believe.
->> > So far, all I've seen is people having fun proving that their ego is
->> > bigger than the next guys, no real data.  Come on, you'd love nothing
->> > better than to prove me wrong.  Do it.  Or admit that you can't.
->> 
->> Not quite sure why the onus is on the rest of us to disprove your pet
->> theory, rather than you to prove it.
-> 
-> Maybe because history has shown over and over again that your pet theory
-> doesn't work.  Mine might be wrong but it hasn't been proven wrong.  Yours
-> has.  Multiple times.
+> Am I missing something, but why hasn't openmosix been brought into this
+> discussion?  It looks like the perfect base for something like this.  All
+> that it needs is some cleanup.
 
-Please, this makes no sense. Why do you think IBM and others make large
-machines? Stupidity? From my experience they're hard assed "if it don't
-make a profit, nor is likely to, then it can piss off" marketeers. Which
-often pisses me off, but still ... if it didn't make money, they wouldn't
-do it. And no, I can't go get you internal confidential sales figures,
-but I'll bet you we're not selling these things at a loss for our own
-general self-flagellating amusement.
+>From what I've seen, it needs a redesign. I don't think it's maintainable
+or mergeable as is ... nor would I want to work with their design. Just
+an initial gut reaction, I haven't spent a lot of time looking at it, but
+from what I saw, I didn't bother looking further.
 
-I don't think you're stupid, but please ... who do you think has better
-data on this? IBM market research people? or you? I think I'd bet on IBM.
+>From all accounts, OpenSSI sounds more promising, but I need to spend some
+more time looking at it.
 
 M.
 

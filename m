@@ -1,92 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbUDFRlX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 13:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263925AbUDFRlX
+	id S263924AbUDFRoV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 13:44:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbUDFRoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 13:41:23 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:64406 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263923AbUDFRlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 13:41:17 -0400
-Message-Id: <200404061740.i36HeLF05474@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andy Whitcroft'" <apw@shadowen.org>, "'Ray Bryant'" <raybry@sgi.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <anton@samba.org>, <sds@epoch.ncsc.mil>,
-       <ak@suse.de>, <lse-tech@lists.sourceforge.net>,
-       <linux-ia64@vger.kernel.org>
-Subject: RE: [Lse-tech] RE: [PATCH] HUGETLB memory commitment
-Date: Tue, 6 Apr 2004 10:40:22 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQb8eP6Ht9dppyzQ/mvZ4Kd/7fxTAABsFyg
-In-Reply-To: <25241785.1081271641@42.150.104.212.access.eclipse.net.uk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Tue, 6 Apr 2004 13:44:20 -0400
+Received: from web40511.mail.yahoo.com ([66.218.78.128]:55850 "HELO
+	web40511.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263924AbUDFRoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 13:44:16 -0400
+Message-ID: <20040406174412.7850.qmail@web40511.mail.yahoo.com>
+Date: Tue, 6 Apr 2004 10:44:12 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040406133246.GA19091@hh.idb.hist.no>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Andy Whitcroft wrote on Tue, April 06, 2004 9:14 AM
-> >>>>> Ray Bryant wrote on Monday, April 05, 2004 11:22 AM
-> >> > Chen, Kenneth W wrote:
-> >> > I actually started coding yesterday.  It doesn't look too bad (I think).
-> >> > I will post it once I finished it up later today or tomorrow.
-> >>
-> >> Hmmm...so did I.  Oh well.  We can pull the good ideas from both. :-)
->
-> Bugger, so am I.  Someone will have to merge :)
->
-> > +	/* we have enough hugetlb page, go ahead reserve them */
-> > +	switch(action) {
-> > +		case BACK_MERGE:
-> > +			curr->end = block_end;
-> > +			break;
-> > +		case FRONT_MERGE:
-> > +			curr->start = block_start;
-> > +			break;
-> > +		case THREE_WAY_MERGE:
-> > +			curr->end = next->end;
-> > +			list_del(p->next);
-> > +			kfree(next);
-> > +			break;
->
-> I don't know if I have read this right, but if I have then you only support
-> overlapping with two existing extents?  What if there are extents from 0-4,
-> 6-8 and 10-12 when you map 0-16?  Will that not corrupt the list?
+If stack will shrink - i'll come up with something.
+Rearchitecture of LISP interpreter - is too much work.
+(and I'm lazy - I prefer computer to do a work, not me
+:-)
+
+I checked what is going on with the stack - it is used
+to pass parameters, some functions have one or two
+local variables (4 bytes each) and that's it.
+
+I like to develop tools and general solutions :-) To
+solve the stack problem in a way which will not cause
+big changes in any existing code - I can make stack
+virtualization. API can be different, but idea is the
+same. Task has some memory allocated by malloc
+(vstack) which is used for saving data from real
+stack. One of the APIs - scall function:
+
+scall(pointer_to_vstack, number_of_arguments,
+pointer_to_function_to_call, arg1, arg2,...)
+
+scall checks if real stack is full enough - it stores
+it's content in the vstack and moves %esp to the
+bottom of the real stack. When user function returns -
+information from vstack moves to the real one (one
+movl instruction at Intel x86).
+
+In case of LISP there is only one place where it will
+be enough to use scall - eval function.
+
+In other subsystems - it can be needed to call in a
+few places. But in such way a new 4K stack could be
+used without serious rewriting of existing code.
+
+vstack can grow dynamically if needed (within defined
+limit).
+
+Serge.
+
+--- Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> On Mon, Apr 05, 2004 at 10:05:37AM -0700, Sergiy
+> Lozovsky wrote:
+> > > Consider rewriting your function to use
+> allocated
+> > > memory instead of stack, this isn't all that
+> hard.
+> > 
+> > I put LISP interpreter inside the Kernel -
+> > http://vxe.quercitron.com
+> > 
+> > It works, but it use a lot of stack memory. It's
+> > impossible to rewrite it easily, though I'll
+> > investigate why exactly it uses so much of stack
+> > memory (though it's nature of LISP). There are no
+> > serious kernel memory allocation (as of my
+> interpreter
+> > code review, only function calls; recursions in
+> LISP
+> > application itself are eliminated for sure), but
+> I'll
+> > trace stack usage more thouroughly.
+> > 
+> Consider this.  We're currently experimenting with a
+> transition from 8k to 4k stacks on x86, and that is
+> considered a very good thing.  Allocating a single-
+> page stack is easy, two (contigous) pages might
+> fail.
+> 
+> So a bigger kernel stack is out.
+> 
+> As for rewriting code so it doesn't use stack - it
+> _is_ easy, but it might be a lot of _work_.
+> 
+> The simple approach is to replace all (big) stack
+> allocations with an explicit stack structure that
+> you manages
+> on the heap. There'll be more code, but it won't be
+> slower
+> because all the extra code is stuff that happen
+> automatically
+> with the hw stack. (I.e. stuff the compiler normally
+> take
+> care of.)
+> 
+> There is some more work if your interpreter also
+> does deep recursion.
+> It involves making one big function of those that do
+> the recursion
+> and manage the "calls" yourself with an array and a
+> switch statement.
+> Again, not particularly hard, but it could take some
+> time to implement.
+> 
+> Helge Hafting  
 
 
-Doh, you are absolutely right that this code is broken in that scenario.
-
-
-
-> Anyhow, below is a work in progress, ie it compiles and boots and passes
-> the tests I've applied (not tested error handling well yet).  The regions
-> accumulation code has been extensively tested in a user level test harness,
-> so I am fairly sure it works.  I have split the request and commit phases
-> for the region handling to allow simpler backout on other failure such as
-> quota (which remains to be fixed).
->
->
-> @@ -736,11 +996,18 @@ struct file *hugetlb_zero_setup(size_t s
->  	d_instantiate(dentry, inode);
->  	inode->i_size = size;
->  	inode->i_nlink = 0;
-> +	inode->i_blocks = HUGETLBFS_NOACCT;
->  	file->f_vfsmnt = mntget(hugetlbfs_vfsmount);
->  	file->f_dentry = dentry;
->  	file->f_mapping = inode->i_mapping;
->  	file->f_op = &hugetlbfs_file_operations;
->  	file->f_mode = FMODE_WRITE | FMODE_READ;
-> +
-> +	error = hugetlb_acct_prepare(inode, 0, size / PAGE_SIZE);
-> +	if (error < 0)
-> +		goto out_file;
-> +	hugetlb_acct_commit(inode, 0, size / PAGE_SIZE);
-> +
->  	return file;
-
-Is this absolutely necessary?  There is no vma associated at shmget().
-shmat() eventually calls mmap, and that is already covered.
-
-- Ken
-
-
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

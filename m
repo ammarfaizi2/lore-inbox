@@ -1,49 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313820AbSDIIYV>; Tue, 9 Apr 2002 04:24:21 -0400
+	id <S313821AbSDIIae>; Tue, 9 Apr 2002 04:30:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313821AbSDIIYU>; Tue, 9 Apr 2002 04:24:20 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:46086 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313820AbSDIIYU>; Tue, 9 Apr 2002 04:24:20 -0400
-Message-Id: <200204090821.g398LjX01722@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Event logging vs enhancing printk
-Date: Tue, 9 Apr 2002 11:24:58 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Tony.P.Lee@nokia.com, kessler@us.ibm.com
-In-Reply-To: <87960000.1018307908@flay>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S313822AbSDIIad>; Tue, 9 Apr 2002 04:30:33 -0400
+Received: from velli.mail.jippii.net ([195.197.172.114]:38059 "HELO
+	velli.mail.jippii.net") by vger.kernel.org with SMTP
+	id <S313821AbSDIIac>; Tue, 9 Apr 2002 04:30:32 -0400
+Date: Tue, 9 Apr 2002 11:32:43 +0300
+From: Anssi Saari <as@sci.fi>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROMBLEM: CD burning at 16x uses excessive CPU, although DMA is enabled
+Message-ID: <20020409083243.GB23043@sci.fi>
+In-Reply-To: <20020408122603.GA7877@sci.fi> <Pine.LNX.3.96.1020408104857.21476C-100000@gatekeeper.tmr.com> <20020408174529.A546@mark.mielke.cc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 April 2002 21:18, Martin J. Bligh wrote:
+On Mon, Apr 08, 2002 at 05:45:29PM -0400, Mark Mielke wrote:
+ 
+> The question is, how is CD burning of raw data different from
+> CD burning of ISO images, in respect to Linux drivers for the
+> hardware
 
-[snip]
+As far as I know, when burning an ISO image, the image has 2048 byte
+sectors to which the CD writer adds error correction data so that the
+individual sector becomes 2352 bytes. A raw data image includes 2352 byte
+sectors. The obvious difference would be a higher data rate (2352/2048
+or 1.15x more) from computer to writer. 
 
-> where printk_evlog calls printk_raw, then logs an "enhanced" version of
-> the printk message to the *event logging* subsystem (not
-> /var/log/messages), including process PID (0 or -1 if in_interrupt() ),
-> file, line number, function, cpu number, accurate time stamp, etc, etc.
-
-[snip]
-
-As I understand, Linus accepts new features only if they are improving kernel 
-in some vital area significantly (for example, Ingo's new scheduler).
-
-If he has a feeling that existing subsystem is adequate, he is unlikely to
-take replacements and intrusive enhancements (example: kbuild 2.5).
-Something along the lines "it is does not broke _enough_, don't rewrite it".
-
-(that's only IMHO, Linus didn't say it AFAIK)
-
-You'll need to show that "enhanced" printk/evlog is significant improvement 
-and is worth the trouble. That won't be easy.
-
-That said, I wish you luck.
---
-vda

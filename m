@@ -1,103 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268966AbUIMV2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268977AbUIMVbb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268966AbUIMV2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 17:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268977AbUIMV2Z
+	id S268977AbUIMVbb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268979AbUIMVbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 17:28:25 -0400
-Received: from ms-smtp-02-qfe0.socal.rr.com ([66.75.162.134]:10965 "EHLO
-	ms-smtp-02-eri0.socal.rr.com") by vger.kernel.org with ESMTP
-	id S268972AbUIMV1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 17:27:33 -0400
-Date: Mon, 13 Sep 2004 14:24:13 -0700
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm5 qlogic oops
-Message-ID: <20040913212413.GA22149@praka.san.rr.com>
-Mail-Followup-To: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Badari Pulavarty <pbadari@us.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <1095100546.3628.162.camel@dyn318077bld.beaverton.ibm.com>
+	Mon, 13 Sep 2004 17:31:31 -0400
+Received: from ns.mashcenter.ru ([195.14.58.214]:20493 "HELO ns.mashcenter.ru")
+	by vger.kernel.org with SMTP id S268977AbUIMVb0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 17:31:26 -0400
+Date: Tue, 14 Sep 2004 01:31:17 +0400
+From: Leonid Kalmankin <lvk@mashcenter.ru>
+To: linux-kernel@vger.kernel.org
+Subject: segfault and multiple traps on x86_64
+Message-Id: <20040914013117.3bda812d.lvk@mashcenter.ru>
+Organization: MashCenter
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
-In-Reply-To: <1095100546.3628.162.camel@dyn318077bld.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux 2.6.9-rc1-mm2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings!
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In dmesg I see stuff like:
 
-On Mon, 13 Sep 2004, Badari Pulavarty wrote:
+rpmbuild[3842] trap int3 rip:402d9e rsp:7fbfffb540 error:0
+rpmbuild[3842] trap int3 rip:4026d1 rsp:7fbfffb538 error:0
+sh[3843] trap int3 rip:415f39 rsp:7fbffff8c8 error:0
+sh[3843]: segfault at 0000000000000000 rip 0000000000000000 rsp 0000007fbffff8b8 error 14
+rpmbuild[3842] trap int3 rip:402dea rsp:7fbfffb540 error:0
+rpmbuild[3842] trap int3 rip:4025d1 rsp:7fbfffb538 error:0
+rpmbuild[3842] trap int3 rip:402ced rsp:7fbfffb540 error:0
+rpmbuild[3842] trap int3 rip:4027c1 rsp:7fbffff688 error:0
 
-> 
-> I get this Oops with qlogic 2200 FC controllers with 2.6.9-rc1-mm5.
-> Is this a known issue ? Any fixes ?
-> 
+segfault is scarry.
+Are these traps harmless or do they mean some serious software/hardware problem?
 
-Hmm, there seems to be some merging problems in changeset 1.44 for
-qla_os.c -- the 'DMA pool/api usage' patch I sent is not completely
-integrated (appears to be massaging problems while attempting to apply
-on top off 1.43).
+The system is:
+Fedora Core 2 x86_64, last updates, vanilla 2.6.8.1, dual AMD Opteron, 4G RAM
 
-Please apply the attached patch which should address the issue.
-
-Regards,
-Andrew Vasquez
-
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dma_fixups.diff"
-
-===== drivers/scsi/qla2xxx/qla_os.c 1.46 vs edited =====
---- 1.46/drivers/scsi/qla2xxx/qla_os.c	2004-09-06 12:07:52 -07:00
-+++ edited/drivers/scsi/qla2xxx/qla_os.c	2004-09-13 14:07:23 -07:00
-@@ -2892,6 +2892,19 @@
- 			continue;
- 		}
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 15
+model           : 5
+model name      : AMD Opteron(tm) Processor 246
+stepping        : 10
+cpu MHz         : 1992.318
+cache size      : 1024 KB
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov
+pat pse36 clflush mmx fxsr sse sse2 syscall nx mmxext lm 3dnowext 3dnow
+bogomips        : 3915.77
+TLB size        : 1088 4K pages
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 40 bits physical, 48 bits virtual
+power management: ts fid vid ttp
  
-+		/* get consistent memory allocated for init control block */
-+		ha->init_cb = dma_pool_alloc(ha->s_dma_pool, GFP_KERNEL,
-+		    &ha->init_cb_dma);
-+		if (ha->init_cb == NULL) {
-+			qla_printk(KERN_WARNING, ha,
-+			    "Memory Allocation failed - init_cb\n");
-+
-+			qla2x00_mem_free(ha);
-+			msleep(100);
-+
-+			continue;
-+		}
-+		memset(ha->init_cb, 0, sizeof(init_cb_t));
- 
- 		/* Get consistent memory allocated for Get Port Database cmd */
- 		ha->iodesc_pd = dma_pool_alloc(ha->s_dma_pool, GFP_KERNEL,
-@@ -2982,21 +2995,6 @@
- 			}
- 			memset(ha->ct_sns, 0, sizeof(struct ct_sns_pkt));
- 		}
--
--		/* Get consistent memory allocated for Get Port Database cmd */
--		ha->iodesc_pd = pci_alloc_consistent(ha->pdev,
--		    PORT_DATABASE_SIZE, &ha->iodesc_pd_dma);
--		if (ha->iodesc_pd == NULL) {
--			/* error */
--			qla_printk(KERN_WARNING, ha,
--			    "Memory Allocation failed - iodesc_pd\n");
--
--			qla2x00_mem_free(ha);
--			msleep(100);
--
--			continue;
--		}
--		memset(ha->iodesc_pd, 0, PORT_DATABASE_SIZE);
- 
- 		/* Done all allocations without any error. */
- 		status = 0;
+[skipping 2nd processor info]
 
---Kj7319i9nmIyA2yE--
+SY,
+LVK

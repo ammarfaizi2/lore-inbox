@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264728AbTFWHpU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 03:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264868AbTFWHpU
+	id S264736AbTFWHsr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 03:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264759AbTFWHsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 03:45:20 -0400
-Received: from mail.uptime.at ([62.116.87.11]:25271 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id S264728AbTFWHpJ convert rfc822-to-8bit
+	Mon, 23 Jun 2003 03:48:46 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:35310 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S264736AbTFWHsh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 03:45:09 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
-Cc: "'Willy Tarreau'" <willy@w.ods.org>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Date: Mon, 23 Jun 2003 09:57:39 +0200
-Organization: UPtime system solutions
-Message-ID: <000201c3395d$1e8c0360$020b10ac@pitzeier.priv.at>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-In-Reply-To: <Pine.LNX.4.55L.0305271701430.9487@freak.distro.conectiva>
-Importance: Normal
-X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
-X-MailScanner: clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-5.4,
-	required 4.1, BAYES_10 -4.70, IN_REP_TO -0.30,
-	QUOTED_EMAIL_TEXT -0.38)
+	Mon, 23 Jun 2003 03:48:37 -0400
+Subject: RE: [BK PATCH] acpismp=force fix
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Andrew Morton <akpm@digeo.com>, torvalds@transmeta.com,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A302@orsmsx401.jf.intel.com>
+References: <F760B14C9561B941B89469F59BA3A84725A302@orsmsx401.jf.intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UAQQOzRDpOTAF7MiKZ5d"
+Organization: Red Hat, Inc.
+Message-Id: <1056355301.1699.6.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 23 Jun 2003 10:01:42 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcello!
 
-Marcello Tosatti wrote:
-[ ... ]
-> > I also changed the whole server (the one which had the aix7xxx 
-> > problems) in the meantime... Changed the Adaptec 2940, now 
-> > there is a 
-> > Adaptec 29160. I switched from a Dual-P3 to a P4. And well, the 
-> > interessting part, I switched from
-> > 2.4.20(-XX) to 2.4.19. EVERYTHING runs faster and stable now!
-> 
-> Does 2.4.21-rc5 work for you?
+--=-UAQQOzRDpOTAF7MiKZ5d
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Blame me for this! I was very busy the last few weeks, that's why I answer this
-mail soooooo late. Because I have the machine now at home and no longer in a
-production environment, I'm able to test everything...
+On Mon, 2003-06-23 at 09:43, Grover, Andrew wrote:
+> > From: Andrew Morton [mailto:akpm@digeo.com]=20
+> > >    ACPI: make it so acpismp=3Dforce works (reported by Andrew Morton)
+>=20
+> > But prior to 2.5.72, CPU enumeration worked fine without=20
+> > acpismp=3Dforce.=20
+> > Now it is required.  How come?
+>=20
+> (I'm taking the liberty to update the subject, which I accidentally left
+> blank)
+>=20
+> Because 2.4 has that behavior. One objection that people raised to
+> applying the 2.4 ACPI patch was that it changed that behavior. So I made
+> an effort to keep it there.
 
-(FYI. The P4 machine still runs stable. :-) ).
+in 2.4 it is absolutely not mantadory; it's default actually if the cpu
+advertises the "ht" flag.....
 
-I'll try the latest kernel 2.4.22-pre1 on the dual-machine and tell you if it
-runs stable or not. I believe there are not too much people who have a Dual-PIII
-with an Adaptec controller...(!?)
+--=-UAQQOzRDpOTAF7MiKZ5d
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-However...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Keep on going!
+iD8DBQA+9rPlxULwo51rQBIRAmSHAKCDUsXRO2DOFNGf38nO5sBgkcFkuQCZAcv2
+HNtXVEwyuU1xFkOH5fihIHU=
+=jskh
+-----END PGP SIGNATURE-----
 
-Best regards,
- Oliver
-
+--=-UAQQOzRDpOTAF7MiKZ5d--

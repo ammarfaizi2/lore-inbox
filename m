@@ -1,67 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265839AbUBJMbC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 07:31:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUBJMbC
+	id S265851AbUBJMyO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 07:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265855AbUBJMyO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 07:31:02 -0500
-Received: from smtp05.web.de ([217.72.192.209]:41993 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S265839AbUBJMbA (ORCPT
+	Tue, 10 Feb 2004 07:54:14 -0500
+Received: from mail-02.iinet.net.au ([203.59.3.34]:916 "HELO mail.iinet.net.au")
+	by vger.kernel.org with SMTP id S265851AbUBJMyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 07:31:00 -0500
-Subject: Problems getting dma working with the sc1200.c ide driver
-From: Axel Waggershauser <awagger@web.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1076416255.1676.6.camel@strand.wg>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 10 Feb 2004 13:30:56 +0100
+	Tue, 10 Feb 2004 07:54:11 -0500
+Message-ID: <4028D450.4030504@cyberone.com.au>
+Date: Tue, 10 Feb 2004 23:53:36 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Samium Gromoff <deepfire@sic-elvis.zel.ru>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [TEST] 2.4 vs 2.6.2 vs 2.6.2-mm1 vs 2.6.2-rc3-mm1
+References: <873c9kz4et.wl@canopus.ns.zel.ru>
+In-Reply-To: <873c9kz4et.wl@canopus.ns.zel.ru>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I have the <subject> problem and tried to contact Mark Lord, which seems
-to be the author of the driver. There is no response yet, so I decided to
-post it here...
-
-I have a peace of hardware called "X-board" in front of me (if your are
-interested: http://www.jumptec.de/product/data/xboard/xb-861.html). It is
-based on the Geode SC1200 cpu. This module is plugged into a development
-board which I connected a standard IDE drive to.
-
-I tried to get dma access working with a 2.4 and the 2.6.2 kernel without
-success. The 2.6.2 kernel compiled with CONFIG_IDEDMA_PCI_AUTO=y hangs at
-boot with the last line on the screen containing
-"sc1200_set_xfer_mode(UDMA2)". Both kernel versions compiled without
-CONFIG_IDEDMA_PCI_AUTO=y boot fine, but trying to enable dma with hdparm
-after boot fails with "SC1200: set xfer mode failure". I took a look at the
-2.6.2 driver code and found that if IDEDMA_PCI_AUTO is not configured every
-attempt to enable dma later on fails because sc1200_autoselect_dma_mode()
-returns 0 since hwif->autodma is false. So without the IDEDMA_PCI_AUTO option
-(which locks my machine) there seems to be no way to enable dma, or is there?
-
-I did not further try to track down the lockup, yet. I could start debugging
-this on the level of "inserting printks". I have no knowledge of the IDE
-part of the kernel, though.
-
-I have seen lines like:
-
-	if (!((d->device == PCI_DEVICE_ID_CYRIX_5530_IDE && d->vendor == PCI_VENDOR_ID_CYRIX)
-	     ||(d->device == PCI_DEVICE_ID_NS_SCx200_IDE && d->vendor == PCI_VENDOR_ID_NS)))
-	{
-	    hwif->autodma = 0;
-	}
-
-which I do not understand in their context but made me suspect that
-dma is not really expected to work on this setup.
 
 
-I would appreciate any help or hints to a solution.
+Samium Gromoff wrote:
 
+>Here are the tests i`ve promised, and sorry for the delays.
+>
+>The test machine was a pIII-600/192M RAM/10krpm SCSI drive.
+>
+>There was three different loads.
+>
+>the test app whose run time was measured was:
+>
+>time find / -xdev | \
+>	bzip2 --compress | bzip2 --decompress | \
+>	bzip2 --compress | bzip2 --decompress | \
+>	bzip2 --compress | bzip2 --decompress | \
+>	cat > /dev/null
+>
+>the loads were:
+>
+>Load 1:
+>	boot options: mem=32M init=/bin/bash
+>	swapon -a
+>	run the test
+>
+>Load 2:
+>	boot options: mem=48M init=/bin/bash
+>	swapon -a
+>	run the test
+>
+>Load 3:
+>	boot options: mem=48M
+>	usual X session, with lots of terminals, emacs and stuff
+>	the test was run from one of the x terminal emulators
+>
+>the kernels were:
+>	2.4.20-pre9, 2.6.2 -- no comments
+>	2.6.2-rc3-mm1 -- that one didn`t include the Namesys VM patches
+>	2.6.2--mm1 -- that one _did_ include the Namesys VM patches
+>
+>results:
+>
+>
+>		2.4.20-pre9	2.6.2		2.6.2-mm1	2.6.2-rc3-mm1
+>
+>Load 1
+>  run1		6.27		9.14		9.42		10.52
+>
+>Load 2
+>  run1		3.29		4.42		3.40		3.45
+>  run2		3.28		4.37		3.39		3.45
+>
+>Load 3
+>  run1		4.42		8.39		18.26
+>
+>
+>short summary:
+>
+>	2.4 is faster.
+>
+>
 
-Thanks,
-Axel.
+What are the units? minutes.seconds?
 
+The test is interesting, I'll have to try it. Does it
+resemble a workload you're interested in?
+
+It looks like the -mm kernels might have something other
+than Nikita's and my VM patches that is affecting times.
+
+Your Load 3 looks quite bad. Does it give decent results?
+Is it possibly because the other stuff is getting better
+treatment, do you think?
+
+Thanks
+Nick

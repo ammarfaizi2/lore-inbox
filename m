@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264737AbTIJIJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 04:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264740AbTIJIJ6
+	id S264750AbTIJILv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 04:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264754AbTIJILv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 04:09:58 -0400
-Received: from dp.samba.org ([66.70.73.150]:48534 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264737AbTIJIJz (ORCPT
+	Wed, 10 Sep 2003 04:11:51 -0400
+Received: from ns.suse.de ([195.135.220.2]:64985 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264750AbTIJILq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 04:09:55 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add kobject to struct module 
-In-reply-to: Your message of "Tue, 09 Sep 2003 21:11:22 MST."
-             <20030910041122.GE9760@kroah.com> 
-Date: Wed, 10 Sep 2003 18:07:35 +1000
-Message-Id: <20030910080955.9318E2C0EB@lists.samba.org>
+	Wed, 10 Sep 2003 04:11:46 -0400
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 2/3] netpoll: netconsole
+References: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 10 Sep 2003 10:11:42 +0200
+In-Reply-To: <20030910074256.GD4489@waste.org.suse.lists.linux.kernel>
+Message-ID: <p73znhdhxkx.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030910041122.GE9760@kroah.com> you write:
-> On Wed, Sep 10, 2003 at 01:31:02PM +1000, Rusty Russell wrote:
-> > Because kobject does not have a "struct module *owner", we can't
-> > simply add in the refcount.
-> 
-> Um, I don't understand.  There is no "struct module *owner in struct
-> kobject.  There is one in struct attribute, but I don't set it, so it
-> doesn't matter for this usage.
+Matt Mackall <mpm@selenic.com> writes:
 
-Your parser broke, I think 8)
+> This patch uses the netpoll API to transmit kernel printks over UDP
+> for uses similar to serial console.
 
-> > The module reference count is defined to never go from zero to one
-> > when the module is dying, which means callers must use
-> > try_module_get().  I grab the reference on read/write, which means
-> > opening the file won't hold the module, either.
-> 
-> read/write of what?  The attribute?  Sure, why not set the module
-> attribute sysfs file to the module that way the reference count will be
-> incremented if the sysfs file is opened.
+One common problem I saw with the original netconsole patches
+was that the low level drivers' poll function was grabbing the 
+driver spinlock, but the driver would otherwere do printk
+with the spinlock hold (->easy deadlock) 
 
-Hmm, because there's one attribute: which module would own it?  You're
-going to creation attributes per module later (for module parameters),
-so when you do that it might make sense to do this too.
+Does your patchkit handle that?
 
-> But in looking at your patch, I don't see why you want to separate the
-> module from the kobject?  What benefit does it have?
+I worked around it in some drivers by not grabbing the lock
+in the direct access poll path, but it's a bit ugly. 
 
-The lifetimes are separate, each controlled by their own reference
-count.  I *know* this will work even if someone holds a reference to
-the kobject (for some reason in the future) even as the module is
-removed.
+-Andi
 
-> > Were you intending to put all the info currently in /proc/modules
-> > under sysfs?  Makes sense I think.  For the options you'll need a
-> > subdir to avoid name clashes.
-> 
-> Yes, I was going to add it, this patch was more of a "test" to see how
-> receptive you were to it.
-
-More more! 8)
-
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
+P.S.: Also what would be really nice for netconsole
+would be "kernel ifconfig" similar to what the nfsroot code does. 
+With that it would be actually possible to use it as a full console 
+replacement.

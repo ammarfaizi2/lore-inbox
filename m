@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271004AbSISKWD>; Thu, 19 Sep 2002 06:22:03 -0400
+	id <S270964AbSISKVB>; Thu, 19 Sep 2002 06:21:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271005AbSISKWD>; Thu, 19 Sep 2002 06:22:03 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:43274 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S271004AbSISKWC>; Thu, 19 Sep 2002 06:22:02 -0400
-Date: Thu, 19 Sep 2002 11:26:59 +0100 (BST)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: "Bond, Andrew" <Andrew.Bond@hp.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux TPC-C performance aided by kernel features
-In-Reply-To: <45B36A38D959B44CB032DA427A6E106402D09E36@cceexc18.americas.cpqcorp.net>
-Message-ID: <Pine.LNX.4.33.0209191121340.21867-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271004AbSISKVB>; Thu, 19 Sep 2002 06:21:01 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:22515
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S270964AbSISKVA>; Thu, 19 Sep 2002 06:21:00 -0400
+Subject: Re: Compile problem w/ 2.4.20-pre7-ac2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Wes Kurdziolek <wkurdzio@cs.vt.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020919080500.GB936@suse.de>
+References: <1032409341.6480.2.camel@yavin>  <20020919080500.GB936@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 19 Sep 2002 11:30:23 +0100
+Message-Id: <1032431423.26669.12.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, Bond, Andrew wrote:
+On Thu, 2002-09-19 at 09:05, Jens Axboe wrote:
 
-> 2. Large memory support (16GB) - The Oracle processes used about 14GB
-> of shared memory which was allocated using shmfs and managed through a
-> mapping window in the Oracle process space.  Databases always love
-> more memory, however in an IA-32 architecture the gains definitely
-> diminish once you get past 4GB because of overhead.  Our gains going
-> from 8GB to 16GB of memory in the system were in the 10% range.
+> -static ide_pci_device_t piix_pci_info[] __devinit = {
+> +static ide_pci_device_t piix_pci_info[] __initdata = {
 
-What did the gains from 4 to 8GB look like?
-
-Could going above 4GB be a performance loss on less busy systems?
-#
-Matthew.
+That won't work either. The table is needed in cases __devinit is - its
+basically __devinitdata. I need to go look up the right types for it
 

@@ -1,21 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266976AbTBHItH>; Sat, 8 Feb 2003 03:49:07 -0500
+	id <S266977AbTBHI5P>; Sat, 8 Feb 2003 03:57:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266977AbTBHItH>; Sat, 8 Feb 2003 03:49:07 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:54242 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S266976AbTBHItH>;
-	Sat, 8 Feb 2003 03:49:07 -0500
-Date: Sat, 08 Feb 2003 00:44:57 -0800 (PST)
-Message-Id: <20030208.004457.88335582.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+	id <S266978AbTBHI5P>; Sat, 8 Feb 2003 03:57:15 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60386 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266977AbTBHI5O>;
+	Sat, 8 Feb 2003 03:57:14 -0500
+Date: Sat, 08 Feb 2003 00:53:03 -0800 (PST)
+Message-Id: <20030208.005303.80023391.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: christopher.leech@intel.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: skb_padto and small fragmented transmits
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20030207153336.0583e198@mail1.qualcomm.com>
-References: <Pine.LNX.4.33.0301180439480.10820-100000@champ.qualcomm.com>
-	<20030207.014836.78483470.davem@redhat.com>
-	<5.1.0.14.2.20030207153336.0583e198@mail1.qualcomm.com>
+In-Reply-To: <1044624820.14026.7.camel@irongate.swansea.linux.org.uk>
+References: <1044559328.4618.54.camel@localhost.localdomain>
+	<20030206.144306.14966745.davem@redhat.com>
+	<1044624820.14026.7.camel@irongate.swansea.linux.org.uk>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -24,9 +25,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Max Krasnyansky <maxk@qualcomm.com>
-   Date: Fri, 07 Feb 2003 15:34:22 -0800
-   
-   Do you want me to push this stuff to BK where you can pull from ?
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 07 Feb 2003 13:33:41 +0000
 
-No need.
+   On Thu, 2003-02-06 at 22:43, David S. Miller wrote:
+   > Indeed, Alan you need to fix the skb_padto stuff to use
+   > skb->len, ignore the skb->data_len as skb->len is the
+   > full length.
+   
+   Dave just fix it next time you touch the code and push it to Marcelo. It
+   doesnt affect the 2.2 backport so that will be ok
+   
+Ok, I will take care of this.

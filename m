@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279912AbRKBBYp>; Thu, 1 Nov 2001 20:24:45 -0500
+	id <S279884AbRKBBgP>; Thu, 1 Nov 2001 20:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279914AbRKBBYg>; Thu, 1 Nov 2001 20:24:36 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:36919 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S279912AbRKBBYY>;
-	Thu, 1 Nov 2001 20:24:24 -0500
-Date: Thu, 1 Nov 2001 18:23:34 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@lexus.com>,
-        Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        george anzinger <george@mvista.com>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-Message-ID: <20011101182334.P16554@lynx.no>
-Mail-Followup-To: Tim Schmielau <tim@physik3.uni-rostock.de>,
-	linux-kernel@vger.kernel.org, J Sloan <jjs@lexus.com>,
-	Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	george anzinger <george@mvista.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Benjamin LaHaise <bcrl@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0111011224440.1053-100000@gans.physik3.uni-rostock.de> <Pine.LNX.4.30.0111020059170.5092-100000@gans.physik3.uni-rostock.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <Pine.LNX.4.30.0111020059170.5092-100000@gans.physik3.uni-rostock.de>; from tim@physik3.uni-rostock.de on Fri, Nov 02, 2001 at 01:28:29AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S279914AbRKBBgF>; Thu, 1 Nov 2001 20:36:05 -0500
+Received: from fmfdns02.fm.intel.com ([132.233.247.11]:12745 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S279884AbRKBBf5>; Thu, 1 Nov 2001 20:35:57 -0500
+Message-ID: <A9B0C3C90A46D411951400A0C9F4F67103BA56DE@pdsmsx33.pd.intel.com>
+From: "Yan, Noah" <noah.yan@intel.com>
+To: "'vda'" <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Get hands on starting in this world.
+Date: Fri, 2 Nov 2001 09:34:33 +0800 
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 02, 2001  01:28 +0100, Tim Schmielau wrote:
-> Well, I did the next patch without waiting for progress on the stability
-> front (fsck still in heavy use here). As an excercise I added proper
-> locking to get_jiffies64().
+Vda,
 
-Looks good.
+I want to start digging into how OS is architected and built, from initail booting till final resource management, I got more theroy than practice in this world.  I may more focus on computation management in distributed OS, cluster, Grid, P2P later. 
 
->  	idle = init_tasks[0]->times.tms_utime + init_tasks[0]->times.tms_stime;
-> [snip]
->  	 */
->  #if HZ!=100
->  	len = sprintf(page,"%lu.%02lu %lu.%02lu\n",
-> -		uptime / HZ,
-> -		(((uptime % HZ) * 100) / HZ) % 100,
-> +		(unsigned long) uptime,
-> +		(remainder * 100) / HZ,
->  		idle / HZ,
->  		(((idle % HZ) * 100) / HZ) % 100);
+Somebody has such focus?
 
-Probably need to make idle a 64-bit value as well, even if the individual
-items are not, just to avoid potential overflow...  Calling do_div(idle,HZ)
-may end up being just as fast as the hoops we jump through above to calculate
-the fractions (2 divides, 2 modulus, and one multiply).
+Thanks
+Noah 
 
-Cheers, Andreas
+-----Original Message-----
+From: vda [mailto:vda@port.imtp.ilyichevsk.odessa.ua]
+Sent: 2001?11?2? 1:22
+To: Yan, Noah
+Subject: Re: Get hands on starting in this world.
+
+
+On Thursday 01 November 2001 00:24, Yan, Noah wrote:
+
+> I am a new comer to the Linux world. It is really a hard start for me when
+> I dig into those OS code although I have a strong theoretic background in
+> OS and computer architecture. I am now being blocking at the start_kernel
+> and caliberate_delay function of Kernel 2.2.x. Also, everyday, I got
+> hundreds of mail from Linux-kernel list but I cannot enjoy it.
+
+?
+
+> So could some experienced guys give some advice on how to start, which
+> document/material can be recommended on this.
+
+How to start _what_? What do you want to do?
+
+> My keen interest in this filed make me free to any suggestions on that.
+> Please lend your hands
 --
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+vda

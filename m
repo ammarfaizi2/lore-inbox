@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130771AbQKPRAc>; Thu, 16 Nov 2000 12:00:32 -0500
+	id <S130497AbQKPRAm>; Thu, 16 Nov 2000 12:00:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130770AbQKPRAW>; Thu, 16 Nov 2000 12:00:22 -0500
-Received: from slc1038.modem.xmission.com ([166.70.8.22]:15625 "EHLO
+	id <S130770AbQKPRAc>; Thu, 16 Nov 2000 12:00:32 -0500
+Received: from slc1038.modem.xmission.com ([166.70.8.22]:16393 "EHLO
 	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S130497AbQKPRAJ> convert rfc822-to-8bit; Thu, 16 Nov 2000 12:00:09 -0500
-To: Juan <piernas@ditec.um.es>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Addressing logically the buffer cache
-In-Reply-To: <Pine.GSO.4.21.0011141445450.5482-100000@weyl.math.psu.edu> <3A11C480.A27E406B@ditec.um.es>
+	id <S130497AbQKPRA3>; Thu, 16 Nov 2000 12:00:29 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andreas Osterburg <alanos@first.gmd.de>, linux-kernel@vger.kernel.org
+Subject: Re: Swapping over NFS in Linux 2.4?
+In-Reply-To: <Pine.LNX.4.21.0011151421580.5584-100000@duckman.distro.conectiva>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Nov 2000 09:18:31 -0700
-In-Reply-To: Juan's message of "Wed, 15 Nov 2000 00:02:24 +0100"
-Message-ID: <m1y9yj7uw8.fsf@frodo.biederman.org>
+Date: 16 Nov 2000 08:55:37 -0700
+In-Reply-To: Rik van Riel's message of "Wed, 15 Nov 2000 14:23:24 -0200 (BRDT)"
+Message-ID: <m13dgr9aiu.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juan <piernas@ditec.um.es> writes:
+Rik van Riel <riel@conectiva.com.br> writes:
 
-> Alexander Viro escribió:
-> > 
-> > On Tue, 14 Nov 2000, Juan wrote:
-> > 
-> > > Hi!.
-> > >
-> > > Is there any patch or project to address logically the buffer cache?.
-> > > Now, you use three parameters to find a buffer in cache: device, block
-> > > number, and block size. But, what about if I want to find a buffer using
-> > > a super block, an inode number, and a block number within the file
-> > > specified by the inode number.
-> > 
-> > What's wrong with using the pagecache and per-page buffer_heads?
+> On Wed, 15 Nov 2000, Andreas Osterburg wrote:
 > 
-> Suppose you are implementing a log-structured file system and a process
-> adds a new logical block to a file. Besides, suppose that the segment is
-> 512 KBytes in size. Usually, you don't want to write the segment before
-> it is full. The logical block hasn't got a physical address because you
-> don't build the segment until it is written to disk. So, what happens if
-> another process wants to access to the new block?.
+> > Because I set up a diskless Linux-workstation, I want to swap
+> > over NFS. For this purpose I found only patches for "older"
+> > Linux-versions (2.0, 2.1, 2.2?).
 > 
-> You can't assign a physical address to the new block because the address
-> can change when the buffer is written to disk.
+> > Does anyone know wheter there are patches for 2.4 or does anyone
+> > know another solution for this problem?
+> 
+> 1. you can swap over NBD
+> 2. if you point me to the swap-over-nfs patches you
+>    have found, I can try to make them work on 2.4 ;)
 
-So you don't assign a buffer head until you make the final decision.
-There are some interesting issues with how you track that your data
-is dirty but otherwise all is well.
-> 
-> Perhaps, I'm wrong, but I think that the implementation of the BSD-LFS
-> needs to address logically the buffer cache.
+Rik all we need to do now is convert the swapout code to address space
+methods just like the block device was.
 
-The linux vfs is quite different from the berkley one.  The linux page
-cache is much closer to the berkley block cache, then the depricated
-linux block cache.
+This has a number of interesting effects.  One of which is that
+brw_page should no longer have any users.  Simplifying fs/buffer.c
+
+Further this is equivalent to mounting a nfs file loop back which
+the address space methods now allow, but it is more direct.  
+
+Which means that if this reveals any bugs in nfs/lock ups in nfs they
+were already there.
+
+This has been on my want to do list for a while but I'm busy
+reinventing booting so I haven't gotten to it.
 
 Eric
 -

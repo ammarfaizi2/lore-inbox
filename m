@@ -1,41 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263856AbTIICQD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 22:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbTIICQC
+	id S263861AbTIICIu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 22:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbTIICIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 22:16:02 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:26642
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S263856AbTIICQB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 22:16:01 -0400
-Subject: Re: [PATCH] use group_leader->pgrp (was Re: setpgid and threads)
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Ulrich Drepper <drepper@redhat.com>,
-       Roland McGrath <roland@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030908191215.22f501a2.akpm@osdl.org>
-References: <1061424262.24785.29.camel@localhost.localdomain>
-	 <20030820194940.6b949d9d.akpm@osdl.org>
-	 <1063072786.4004.11.camel@localhost.localdomain>
-	 <20030908191215.22f501a2.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1063073637.4004.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 08 Sep 2003 19:13:58 -0700
+	Mon, 8 Sep 2003 22:08:50 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:49550
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S263861AbTIICIs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 22:08:48 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>, Steven Pratt <slpratt@austin.ibm.com>
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+Date: Tue, 9 Sep 2003 12:16:32 +1000
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <3F5D023A.5090405@austin.ibm.com> <20030908155639.2cdc8b56.akpm@osdl.org> <200309091210.06333.kernel@kolivas.org>
+In-Reply-To: <200309091210.06333.kernel@kolivas.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309091216.32964.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-09-08 at 19:12, Andrew Morton wrote:
-> and to then rename task_struct.pgrp to something else, to pick up any
-> missed conversions?
+On Tue, 9 Sep 2003 12:10, Con Kolivas wrote:
+> On Tue, 9 Sep 2003 08:56, Andrew Morton wrote:
+> > Steven Pratt <slpratt@austin.ibm.com> wrote:
+> > > For specjbb things are looking good from a throughput point of view.
+> > > ...
+> > > Volanomark, on the other hand is still off by quite a bit from test4
+> > > stock
+> >
+> > hmm, thanks.
+> >
+> > I'm not sure that volanomark is very representative of any real-world
+> > thing.
+> >
+> > > ...
+> > > If thre is any particular patch/tree combination you would like me to
+> > > try out, please let me know and I will see if I can get the results for
+> > > you.
+> >
+> > Could we please see test5 versus test5 plus Andrew's patch?
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4
+> >/2 .6.0-test4-mm6/broken-out/sched-CAN_MIGRATE_TASK-fix.patch
+> >
+> > and if you have time, also test5 plus sched-CAN_MIGRATE_TASK-fix.patch
+> > plus
+> >
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4
+> >/2 .6.0-test4-mm6/broken-out/sched-balance-fix-2.6.0-test3-mm3-A0.patch
+>
+> Interestingly enough this drops the volano results the same proportion as
+> Ingo's A3 patch. 11000 ->10400 throughput with same idle, but more
+> schedule().
+>
+> I've posted some results for test5 volano and test5-A0 here:
+> http://kernel.kolivas.org/2.5/volano
+>
+> More testing underway.
 
-Probably a good idea.  I was also thinking about renaming "group_leader"
-to something which tells you which kind of group its the leader of.  Or
-at least commenting it.
+Correction sorry: These changes were due to sched-CAN_MIGRATE_TASK-fix.patch 
+and the test results say volano-results-2.6.0-test5-A0-*
 
-	J
+Con
 

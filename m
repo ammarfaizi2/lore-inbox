@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289824AbSBEWO0>; Tue, 5 Feb 2002 17:14:26 -0500
+	id <S289833AbSBEWfZ>; Tue, 5 Feb 2002 17:35:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289826AbSBEWOQ>; Tue, 5 Feb 2002 17:14:16 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28934 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289824AbSBEWOC>; Tue, 5 Feb 2002 17:14:02 -0500
-Message-ID: <3C605910.6060907@zytor.com>
-Date: Tue, 05 Feb 2002 14:13:36 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <a3mjhc$qba$1@cesium.transmeta.com> <2006875340.1012946564@[195.224.237.69]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289832AbSBEWfI>; Tue, 5 Feb 2002 17:35:08 -0500
+Received: from mail5.svr.pol.co.uk ([195.92.193.20]:12915 "EHLO
+	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S289829AbSBEWe5>; Tue, 5 Feb 2002 17:34:57 -0500
+Message-ID: <036501c1ae8b$5572d240$0501a8c0@Stev.org>
+Reply-To: "James Stevenson" <mistral@stev.org>
+From: "James Stevenson" <mail-lists@stev.org>
+To: "william fitzgerald" <william.fitzgerald2@beer.com>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer.com>
+Subject: Re: windows is more secure than linux!!
+Date: Tue, 5 Feb 2002 21:22:59 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Bligh - linux-kernel wrote:
 
-> 
-> I would be surprised if there is anyone on this list
-> who has not lost at some point either the .config, the
-> kysms, or something similar associated with at least
-> one build they've made.
-> 
+----- Original Message -----
+From: "william fitzgerald" <william.fitzgerald2@beer.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Tuesday, February 05, 2002 11:47 AM
+Subject: windows is more secure than linux!!
 
 
-Sure.  And people have lost their root filesystems due to "rm -rf /".
-That doesn't mean we build the entire (real) root filesystem into the kernel.
+> hi all,
+>
+> some of you might find this interesting others
+> disheartening
+>
+> www.shortnews.com/shownews.cfm?id=16886&u_id=623
 
-	-hpa
+Hi
+
+ahh that was on security focus
+
+you mean windows is more secure than mandrake or redhat
+but not linux
+
+but at least you can have a chance of securing linux youself
+of fixing holes when they are found unlike other systems
+like windows
 
 

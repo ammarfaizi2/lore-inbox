@@ -1,148 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUGVXqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267427AbUGVXsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUGVXqa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 19:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266550AbUGVXq3
+	id S267427AbUGVXsY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 19:48:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUGVXsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 19:46:29 -0400
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:59288 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266124AbUGVXqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 19:46:24 -0400
-Message-ID: <41004A8C.1000906@sbcglobal.net>
-Date: Thu, 22 Jul 2004 18:15:24 -0500
-From: Wes Janzen <superchkn@sbcglobal.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.7) Gecko/20040720
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-usb-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: USB trouble since 2.6.8-rc1...
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig586EB1B657684B3533B7B123"
+	Thu, 22 Jul 2004 19:48:24 -0400
+Received: from S01060001023ff1ee.su.shawcable.net ([24.76.66.102]:16512 "EHLO
+	spacebox.net") by vger.kernel.org with ESMTP id S267427AbUGVXqs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 19:46:48 -0400
+Date: Thu, 22 Jul 2004 19:50:10 -0400
+From: Matt DeLuco <duke@spacebox.net>
+To: linux-kernel@vger.kernel.org
+Subject: oops related crash
+Message-ID: <20040722235010.GA2483@mobius.su.shawcable.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="gKMricLos+KVdGMg"
+Content-Disposition: inline
+X-URL: http://spacebox.net/
+X-HTML: HTML in email is a Bad Thing(tm).
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig586EB1B657684B3533B7B123
-Content-Type: multipart/mixed;
- boundary="------------060206050207050502030605"
 
-This is a multi-part message in MIME format.
---------------060206050207050502030605
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I've been having trouble with USB since 2.6.8-rc1; khubd ends up 
-blocking on something which makes USB hotplugging stop working (and only 
-half my devices even get initialized).  I did get 2.6.8-rc1 to work once 
-though it seemed to help inserting modules before calling hotplug.  
-However I haven't been able to repeat that during my last 5 attempts 
-with no changes besides a reboot.  I'm running 2.6.7-ck5 right now with 
-no apparent problems.
+Hi,
 
-I haven't done extensive testing, but things seemed to work OK until I 
-plugged in my Belkin F5U231 4-port multi-tt hub.  My other hub is a 
-4-port single-tt Belkin F5U224.
+last night I had a seemingly random crash with serveral oopses.  I say
+random because my debug log showed nothing for 7 hours between the last
+log and the oops log.  Though I don't really know if that's significant.
 
-I've attached the usb messages from 2.6.8-rc2 booting with the hub 
-attached and then the little bit I see in the log if I don't plug-in the 
-F5U231 until after the rest of the USB devices have been attached.
+Anywho, I read Documentation/oops-tracing.txt.  As suggested I ran the
+oops through ksymoops and I've attached the output.  I'm not sure how
+reliable it'll be.. I had to edit all the log stuff (host, date/time,
+etc.) out of the oops.
 
-Please let me know what further information or action on my behalf will 
-help find the solution to this problem.
+I'm running a "vanilla" 2.4.26 kernel with a patch I inserted manually
+to prevent distcc from causing the system to crash.  The patch seemed to
+be holding up well, and nothing was being compiled at the time of last
+night's oops attack.  I have attached the patch (which I found on the
+lkml.)
 
-Thanks
+Sorry for not having done much else, but my skills in dealing with the
+kernel are.. limited at best.
 
-Wes Janzen
+I hope this info is useful.  Please let me know if there's anything else
+I can do.
+
+Thanks,
+
+    -- Matt.
+
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="ksymoops.out"
+
+ksymoops 2.4.9 on i686 2.4.26.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.26/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning (compare_maps): ksyms_base symbol sk_chk_filter_R__ver_sk_chk_filter not found in vmlinux.  Ignoring ksyms_base entry
+Warning (compare_maps): ksyms_base symbol sk_run_filter_R__ver_sk_run_filter not found in vmlinux.  Ignoring ksyms_base entry
+Unable to handle kernel paging request at virtual address 31383131
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[__kmem_cache_alloc+160/240]    Not tainted
+EIP:    0010:[<c012aa00>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010006
+eax: 31383131   ebx: c158f5d8   ecx: d5667540  
+esi: c158f5d0   edi: 00000246   ebp: 000001f0  
+ds: 0018   es: 0018   ss: 0018
+Process ircd (pid: 2342, stackpage=d8ad9000)
+Stack: 000005a8 d86d8118 d9572c00 000001f0 d86d817c c788e2e0 c01b810a c158f5d0 
+000001f0 d86d80c0 d86d80c0 c01d4749 00000680 000001f0 00000042 00000000 
+d8ad9e28 00000000 d8ad8000 00000001 00000000 00000000 d86d8118 402bc4d8 
+Call Trace:    [alloc_skb+170/448] [tcp_sendmsg+2297/4032] [inet_recvmsg+82/112] [inet_sendmsg+66/80] [sock_sendmsg+117/176]
+Call Trace:    [<c01b810a>] [<c01d4749>] [<c01f1482>] [<c01f14e2>] [<c01b4c55>] [sockfd_lookup+28/128] [sockfd_lookup+28/128] [sys_sendto+227/256] [locate_hd_struct+56/144] [account_io_end+42/80] [req_finished_io+76/96] [<c01b4a6c>] [<c01b4a6c>] [<c01b5c93>] [<c0193968>] [<c0193a7a>] [<c0193bcc>] [sock_poll+44/64] [do_pollfd+79/144] [sys_send+55/64] [sys_socketcall+311/608] [system_call+51/56] [<c01b513c>] [<c014232f>] [<c01b5ce7>] [<c01b6557>] [<c010720b>]
+Code: 89 10 89 42 04 c7 01 00 00 00 00 8b 46 08 89 48 04 89 01 89 
 
 
+>>EIP; c012aa00 <__kmem_cache_alloc+a0/f0>   <=====
+
+>>ebx; c158f5d8 <_end+12dc514/205adf9c>
+>>ecx; d5667540 <_end+153b447c/205adf9c>
+>>esi; c158f5d0 <_end+12dc50c/205adf9c>
+
+Trace; c01b810a <alloc_skb+aa/1c0>
+Trace; c01d4749 <tcp_sendmsg+8f9/fc0>
+Trace; c01f1482 <inet_recvmsg+52/70>
+Trace; c01f14e2 <inet_sendmsg+42/50>
+Trace; c01b4c55 <sock_sendmsg+75/b0>
+
+Code;  c012aa00 <__kmem_cache_alloc+a0/f0>
+00000000 <_EIP>:
+Code;  c012aa00 <__kmem_cache_alloc+a0/f0>   <=====
+   0:   89 10                     mov    %edx,(%eax)   <=====
+Code;  c012aa02 <__kmem_cache_alloc+a2/f0>
+   2:   89 42 04                  mov    %eax,0x4(%edx)
+Code;  c012aa05 <__kmem_cache_alloc+a5/f0>
+   5:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
+Code;  c012aa0b <__kmem_cache_alloc+ab/f0>
+   b:   8b 46 08                  mov    0x8(%esi),%eax
+Code;  c012aa0e <__kmem_cache_alloc+ae/f0>
+   e:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012aa11 <__kmem_cache_alloc+b1/f0>
+  11:   89 01                     mov    %eax,(%ecx)
+Code;  c012aa13 <__kmem_cache_alloc+b3/f0>
+  13:   89 00                     mov    %eax,(%eax)
+
+<1>Unable to handle kernel paging request at virtual address 31303838
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[__kmem_cache_alloc+160/240]    Not tainted
+EIP:    0010:[<c012aa00>]    Not tainted
+EFLAGS: 00010006
+eax: 31303838   ebx: c158f5d8   ecx: d5667540  
+esi: c158f5d0   edi: 00000246   ebp: 000001f0  
+ds: 0018   es: 0018   ss: 0018
+Process gkrellmd (pid: 1754, stackpage=dd62d000)
+Stack: 00000008 00000282 d7298780 000001f0 d86d8e7c cceeede0 c01b810a c158f5d0 000001f0 d86d8dc0 d86d8dc0 c01d4749 00000680 000001f0 00000002 ffffffff c48ab220 fffffff4 c0239638 c0239808 00000000 000001d2 d86d8e18 08063e48 
+Call Trace:    [alloc_skb+170/448] [tcp_sendmsg+2297/4032] [inet_sendmsg+66/80] [sock_sendmsg+117/176] [sockfd_lookup+28/128]
+Call Trace:    [<c01b810a>] [<c01d4749>] [<c01f14e2>] [<c01b4c55>] [<c01b4a6c>] [sys_sendto+227/256] [link_path_walk+1333/1664] [cp_new_stat64+247/288] [sys_send+55/64] [sys_socketcall+311/608] [math_state_restore+30/64] [<c01b5c93>] [<c013d4e5>] [<c013a3a7>] [<c01b5ce7>] [<c01b6557>] [<c010828e>] [system_call+51/56] [<c010720b>]
+Code: 89 10 89 42 04 c7 01 00 00 00 00 8b 46 08 89 48 04 89 01 89 
 
 
---------------060206050207050502030605
-Content-Type: application/x-gzip;
- name="usb.log.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="usb.log.gz"
+>>EIP; c012aa00 <__kmem_cache_alloc+a0/f0>   <=====
 
-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
-91+Lr5jES0sAAA==
---------------060206050207050502030605--
+>>ebx; c158f5d8 <_end+12dc514/205adf9c>
+>>ecx; d5667540 <_end+153b447c/205adf9c>
+>>esi; c158f5d0 <_end+12dc50c/205adf9c>
 
---------------enig586EB1B657684B3533B7B123
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Trace; c01b810a <alloc_skb+aa/1c0>
+Trace; c01d4749 <tcp_sendmsg+8f9/fc0>
+Trace; c01f14e2 <inet_sendmsg+42/50>
+Trace; c01b4c55 <sock_sendmsg+75/b0>
+Trace; c01b4a6c <sockfd_lookup+1c/80>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Code;  c012aa00 <__kmem_cache_alloc+a0/f0>
+00000000 <_EIP>:
+Code;  c012aa00 <__kmem_cache_alloc+a0/f0>   <=====
+   0:   89 10                     mov    %edx,(%eax)   <=====
+Code;  c012aa02 <__kmem_cache_alloc+a2/f0>
+   2:   89 42 04                  mov    %eax,0x4(%edx)
+Code;  c012aa05 <__kmem_cache_alloc+a5/f0>
+   5:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
+Code;  c012aa0b <__kmem_cache_alloc+ab/f0>
+   b:   8b 46 08                  mov    0x8(%esi),%eax
+Code;  c012aa0e <__kmem_cache_alloc+ae/f0>
+   e:   89 48 04                  mov    %ecx,0x4(%eax)
+Code;  c012aa11 <__kmem_cache_alloc+b1/f0>
+  11:   89 01                     mov    %eax,(%ecx)
+Code;  c012aa13 <__kmem_cache_alloc+b3/f0>
+  13:   89 00                     mov    %eax,(%eax)
 
-iD8DBQFBAEqSTH1dEI8IpaARAiXhAKCLrfGiQcfoK2av79kEdYGNNrwqXwCgkA46
-nFchbhG0dBxKDY9E6/5Fg3o=
-=nqm+
------END PGP SIGNATURE-----
+<1>Unable to handle kernel paging request at virtual address 32333031
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[kmem_cache_reap+128/448]    Not tainted
+EIP:    0010:[<c012a4f0>]    Not tainted
+EFLAGS: 00010003
+eax: 32333031   ebx: 00000001   ecx: c158f5d0  
+esi: 00000000   edi: 00000001   ebp: c158f6a8  
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c1599000)
+Stack: c11c89d4 000001d0 c158f5d0 00000000 00000003 00000003 00000020 000001d0 c0239638 c0239638 c012b3ec c1599f84 000001d0 0000003c 00000020 c012b483 c1599f84 c1598000 00000000 00000000 c0239638 c1598000 c0239560 00000000 
+Call Trace:    [shrink_caches+28/96] [try_to_free_pages_zone+83/224] [kswapd_balance_pgdat+94/160] [kswapd_balance+25/48] [kswapd+141/176]
+Call Trace:    [<c012b3ec>] [<c012b483>] [<c012b62e>] [<c012b689>] [<c012b7ad>] [kswapd+0/176] [rest_init+0/64] [arch_kernel_thread+43/64] [kswapd+0/176] [<c012b720>] [<c0105000>] [<c010574b>] [<c012b720>]
+Warning (Oops_read): Code line not seen, dumping what data is available
 
---------------enig586EB1B657684B3533B7B123--
+
+>>EIP; c012a4f0 <kmem_cache_reap+80/1c0>   <=====
+
+>>ecx; c158f5d0 <_end+12dc50c/205adf9c>
+>>ebp; c158f6a8 <_end+12dc5e4/205adf9c>
+
+Trace; c012b3ec <shrink_caches+1c/60>
+Trace; c012b483 <try_to_free_pages_zone+53/e0>
+Trace; c012b62e <kswapd_balance_pgdat+5e/a0>
+Trace; c012b689 <kswapd_balance+19/30>
+Trace; c012b7ad <kswapd+8d/b0>
+
+
+3 warnings issued.  Results may not be reliable.
+
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="distcc.patch"
+
+--- a/mm/page_alloc.c.orig 2004-04-29 17:38:14.184021976 -0300
++++ b/mm/page_alloc.c 2004-04-29 17:47:27.906843312 -0300
+@@ -46,6 +46,34 @@
+ 
+ int vm_gfp_debug = 0;
+ 
++static void FASTCALL(__free_pages_ok (struct page *page, unsigned int order));
++
++static spinlock_t free_pages_ok_no_irq_lock = SPIN_LOCK_UNLOCKED;
++struct page * free_pages_ok_no_irq_head;
++
++static void do_free_pages_ok_no_irq(void * arg)
++{
++       struct page * page, * __page;
++
++       spin_lock_irq(&free_pages_ok_no_irq_lock);
++
++       page = free_pages_ok_no_irq_head;
++       free_pages_ok_no_irq_head = NULL;
++
++       spin_unlock_irq(&free_pages_ok_no_irq_lock);
++
++       while (page) {
++               __page = page;
++               page = page->next_hash;
++               __free_pages_ok(__page, __page->index);
++       }
++}
++
++static struct tq_struct free_pages_ok_no_irq_task = {
++       .routine        = do_free_pages_ok_no_irq,
++};
++
++
+ /*
+  * Temporary debugging check.
+  */
+@@ -81,7 +109,6 @@
+  * -- wli
+  */
+ 
+-static void FASTCALL(__free_pages_ok (struct page *page, unsigned int order));
+ static void __free_pages_ok (struct page *page, unsigned int order)
+ {
+  unsigned long index, page_idx, mask, flags;
+@@ -94,8 +121,20 @@
+   * a reference to a page in order to pin it for io. -ben
+   */
+  if (PageLRU(page)) {
+-  if (unlikely(in_interrupt()))
+-   BUG();
++  if (unlikely(in_interrupt())) {
++   unsigned long flags;
++
++   spin_lock_irqsave(&free_pages_ok_no_irq_lock, flags);
++   page->next_hash = free_pages_ok_no_irq_head;
++   free_pages_ok_no_irq_head = page;
++   page->index = order;
++ 
++   spin_unlock_irqrestore(&free_pages_ok_no_irq_lock, flags);
++ 
++   schedule_task(&free_pages_ok_no_irq_task);
++   return;
++  }
++  
+   lru_cache_del(page);
+  }
+
+--gKMricLos+KVdGMg--

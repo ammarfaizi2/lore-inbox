@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281360AbRKTUhu>; Tue, 20 Nov 2001 15:37:50 -0500
+	id <S281369AbRKTUls>; Tue, 20 Nov 2001 15:41:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281369AbRKTUhj>; Tue, 20 Nov 2001 15:37:39 -0500
-Received: from tbird2.auc.ca ([199.212.53.2]:6149 "HELO tbird2.auc.on.ca")
-	by vger.kernel.org with SMTP id <S281360AbRKTUhX>;
-	Tue, 20 Nov 2001 15:37:23 -0500
-Subject: Re: File size limit exceeded with mkfs
-From: Jason Tackaberry <tack@auc.ca>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011120113316.R1308@lynx.no>
-In-Reply-To: <1006272138.1263.3.camel@somewhere.auc.ca> 
-	<20011120113316.R1308@lynx.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 20 Nov 2001 15:29:14 -0500
-Message-Id: <1006288154.1863.0.camel@somewhere.auc.ca>
+	id <S281373AbRKTUli>; Tue, 20 Nov 2001 15:41:38 -0500
+Received: from cs314333-a.mtnk1.on.wave.home.com ([24.101.65.215]:59305 "HELO
+	misato.prohost.org") by vger.kernel.org with SMTP
+	id <S281369AbRKTUlZ>; Tue, 20 Nov 2001 15:41:25 -0500
+Date: Tue, 20 Nov 2001 15:45:34 -0500
+From: hackie@misato.prohost.org
+To: linux-kernel@vger.kernel.org
+Subject: Unkillable process in 2.4.15-pre5
+Message-ID: <20011120154534.A30266@misato.nerv>
 Mime-Version: 1.0
-X-Spam-Rating: tbird2.auc.ca 1.6.2 0/1000/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas,
+Using boarland's kylix 2 open edition,
 
-On Tue, 2001-11-20 at 13:33, Andreas Dilger wrote:
-> Several people have reported problems like this also.  What happens is
-> that if you are logged on as a user, then su to root, it will fail.  If
-> you log in directly as root, it will work.
+as soon as it is started just run the default project (it's starts with this
+project by default), then go into debugging, and while there terminate
+kylix, it leaves its [Project1] process which is in
 
-Yep, this is indeed the case.
+$ cat /proc/31366
+31366 (Project1) R 1 31365 31365 0 -1 1092 0 0 0 0 2 2 0 0 11 1 0 0 14864708 0 0 4294967295 0 0 0 0 0 0 65536 0 0 3222391056 0 0 17 0
 
-> Can you please try some intermediate kernels (2.4.10 would be a good
-> start, because it had some major changes in this area, and then go
-> forward and back depending whether it works or not).
-
-2.4.10 does NOT work.
-2.4.9 DOES work.
-
-So clearly something happened in 2.4.10 which broke this.  Please let me
-know if I can be of any more help.
-
-Regards,
-Jason.
-
+state, I can't SIGKILL it (it's in RWN state as ps says it).

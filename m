@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267702AbUGaPgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267963AbUGaPht@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267702AbUGaPgb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 11:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267956AbUGaPgb
+	id S267963AbUGaPht (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 11:37:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUGaPht
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 11:36:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:52435 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267702AbUGaPg0 (ORCPT
+	Sat, 31 Jul 2004 11:37:49 -0400
+Received: from bob.coplanar.net ([216.16.241.10]:24738 "EHLO bob.coplanar.net")
+	by vger.kernel.org with ESMTP id S267956AbUGaPhi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 11:36:26 -0400
-Date: Sat, 31 Jul 2004 17:36:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Zinx Verituse <zinx@epicsol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide-cd problems
-Message-ID: <20040731153609.GG23697@suse.de>
-References: <20040730193651.GA25616@bliss>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040730193651.GA25616@bliss>
+	Sat, 31 Jul 2004 11:37:38 -0400
+Message-ID: <410BBCA0.5020208@coplanar.net>
+Date: Sat, 31 Jul 2004 11:37:04 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040624 Debian/1.7-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Torben Mathiasen <torben.mathiasen@hp.com>,
+       linux-kernel@vger.kernel.org, linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: 2.4.23 IDE hang on boot with two single-channel controllers
+References: <401538C6.5030609@coplanar.net> <200402180034.44917.bzolnier@elka.pw.edu.pl> <20040731143700.GC6497@logos.cnet>
+In-Reply-To: <20040731143700.GC6497@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30 2004, Zinx Verituse wrote:
-> I'm going to bump this topic a bit, since it's been a while..
-> There are still some issues with ide-cd's SG_IO, listed from
-> most important as percieved by me to least:
+Marcelo Tosatti wrote:
+> Hi Bart,
 > 
->  * Read-only access grants you the ability to write/blank media in the drive
->  * (with above) You can open the device only in read-only mode.
+> This triflex fix hasnt been merged in v2.4 mainline, it looks 
+> pretty straightforward. And it works for Jeremy.
 
-That's by design. Search linux-scsi or this list for why that is so.
+It works for me, in that I can now boot while docked, and I can use the 
+CD-ROM in the base station.  /proc/ide/triflex produces several kB or 
+binary garbage, but all other files under /proc/ide show sane output.
+It has been running stably with 2.4.23 for several months (since Bart's 
+sent the patch).
 
->  * You can't open the device unless there is media in the drive
+> Shall we merge this in 2.4.28-pre?
+> 
+> TIA
 
-False, you use O_NONBLOCK.
-
->  * Still seems to be no way to specify scatter gather/dma buffers yourself,
->    though I'm not entirely sure that matters anyway.
-
-That's true, later implementation of block layer SG_IO adds that as
-well. It's really a minor thing though, I don't think I've ever seen
-anyone use it outside of regression testing scripts.
 
 -- 
-Jens Axboe
-
+Jeremy Jackson
+Coplanar Networks
+(519)897-1516
+http://www.coplanar.net

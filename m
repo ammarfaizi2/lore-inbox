@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269133AbTCDEAd>; Mon, 3 Mar 2003 23:00:33 -0500
+	id <S269134AbTCDEIo>; Mon, 3 Mar 2003 23:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269143AbTCDEAd>; Mon, 3 Mar 2003 23:00:33 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:61424 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S269133AbTCDEAc>; Mon, 3 Mar 2003 23:00:32 -0500
-Date: Mon, 3 Mar 2003 21:09:56 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Beneath <ishikodzume@beneath.plus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: EXT3: linux-2.4.21-pre5
-Message-ID: <20030303210956.M1373@schatzie.adilger.int>
-Mail-Followup-To: Beneath <ishikodzume@beneath.plus.com>,
-	linux-kernel@vger.kernel.org
-References: <20030304024714.647cc75d.ishikodzume@beneath.plus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030304024714.647cc75d.ishikodzume@beneath.plus.com>; from ishikodzume@beneath.plus.com on Tue, Mar 04, 2003 at 02:47:14AM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S269141AbTCDEIo>; Mon, 3 Mar 2003 23:08:44 -0500
+Received: from static-ctb-203-29-86-202.webone.com.au ([203.29.86.202]:46351
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id <S269134AbTCDEIn>; Mon, 3 Mar 2003 23:08:43 -0500
+Message-ID: <3E642932.7070205@cyberone.com.au>
+Date: Tue, 04 Mar 2003 15:18:58 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] 2.5.63-mm2 + i/o schedulers with contest
+References: <200303041354.03428.kernel@kolivas.org>
+In-Reply-To: <200303041354.03428.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 04, 2003  02:47 +0000, Beneath wrote:
-> All of a sudden, and not during any heavy disk writing sessions or
-> anything, things seem to stop loading up. I.e. the system is still very
-> much alive, just anything that requires disk access will hang. It's
-> happened both times in X, and i was able to switch back to VT1, where
-> the following error messages awaited me:
-> (this is as much as i could write down)
-> 
-> Several of these two messages:
-> EXT3-FS error (device ide0(3,2)) in ext3 reserve_inode_write: IO failure
-> EXT3-FS error (device ide0(3,2)) in ext3_get_inode ... (this then
-> scrolled off the screen before i could transcribe it)
+Con Kolivas wrote:
 
-So, could you check in /var/log/messages (or whatever) to see if you
-have the original error?  It might not have been written to disk if the
-error is on the /var filesystem.  If that is the case, is it possible
-for you to set up a serial console or network syslog to capture the
-full errors?
+>Here are contest (http://contest.kolivas.org) benchmarks using the osdl 
+>hardware (http://www.osdl.org) for 2.5.63-mm2 and various i/o schedulers:
+>
+Thanks :)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+>It seems the AS scheduler reliably takes slightly longer to compile the kernel 
+>in no load conditions, but only about 1% cpu.
+>
+It is likely that AS will wait too long for gcc to submit another
+read and end up timing out anyway. Hopefully IO history tracking
+will fix this up - for some loads the effect can be much worse.
+
+>
+>
+>CFQ and DL faster to compile the kernel than AS while extracting or creating 
+>tars.
+>
+This is likely to be balancing differences from LCPU% it does
+seem like AS is doing a bit more "load" work.
+
+>
+>
+>AS significantly faster under writing large file to the same disk (io_load) or 
+>other disk (io_other) conditions. The CFQ and DL schedulers showed much more 
+>variability on io_load during testing but did not drop below 140 seconds.
+>
+small randomish reads vs large writes _is_ where AS really can
+perform better than non a non AS scheduler. Unfortunately gcc
+doesn't have the _best_ IO pattern for AS ;)
+
+>
+>
+>CFQ and DL scheduler were faster compiling the kernel under read_load,  
+>list_load and dbench_load.
+>
+>Mem_load result of AS being slower was just plain weird with the result rising 
+>from 100 to 150 during testing.
+>
+I would like to see if AS helps much with a swap/memory
+thrashing load.
 

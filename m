@@ -1,94 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbUEFLXO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbUEFL0i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbUEFLXO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 07:23:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbUEFLXO
+	id S262019AbUEFL0i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 07:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUEFL0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 07:23:14 -0400
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:52581
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S261998AbUEFLXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 07:23:09 -0400
-Message-Id: <s09a2e2c.054@emea1-mh.id2.novell.com>
-X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
-Date: Thu, 06 May 2004 13:23:24 +0200
-From: "Jan Beulich" <JBeulich@novell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: sys_ioctl export consolidation
+	Thu, 6 May 2004 07:26:38 -0400
+Received: from mail.donpac.ru ([80.254.111.2]:19855 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S262019AbUEFL0g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 07:26:36 -0400
+Date: Thu, 6 May 2004 15:26:41 +0400
+From: Andrey Panin <pazke@donpac.ru>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/6] Port PIIX4 I2C driver to new DMI probing
+Message-ID: <20040506112641.GD3295@pazke>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <10838395553579@donpac.ru> <1083839558750@donpac.ru> <20040506115358.A14696@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2/5bycvrmDh4d1IB"
 Content-Disposition: inline
+In-Reply-To: <20040506115358.A14696@infradead.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-SMTP-Authenticated: pazke@donpac.ru (cram)
+X-SMTP-TLS: TLSv1:AES256-SHA:256
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since we noted that sys_ioctl is not currently being exported for ia64
-to be used in the 32-bit emulation routines I'd like to suggest the
-following patch, which, instead of making this available in another
-individual architecture, exports the symbol whenever CONFIG_COMPAT is
-defined (legal users should be a subset of
-[un]register_ioctl32_conversion users, which is scoped by the same
-config option).
 
-Regards, Jan
+--2/5bycvrmDh4d1IB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-compat-sys_ioctl-export.patch:
-diff -aur linux-2.6.5/arch/ppc64/kernel/ppc_ksyms.c
-linux-2.6.5-ioctl/arch/ppc64/kernel/ppc_ksyms.c
---- linux-2.6.5/arch/ppc64/kernel/ppc_ksyms.c	2004-04-04
-05:36:26.000000000 +0200
-+++ linux-2.6.5-ioctl/arch/ppc64/kernel/ppc_ksyms.c	2004-05-06
-13:07:28.000000000 +0200
-@@ -49,7 +49,6 @@
- int abs(int);
- 
- EXPORT_SYMBOL(do_signal);
--EXPORT_SYMBOL(sys_ioctl);
- 
- EXPORT_SYMBOL(isa_io_base);
- EXPORT_SYMBOL(pci_io_base);
-diff -aur linux-2.6.5/arch/s390/kernel/s390_ksyms.c
-linux-2.6.5-ioctl/arch/s390/kernel/s390_ksyms.c
---- linux-2.6.5/arch/s390/kernel/s390_ksyms.c	2004-04-04
-05:37:25.000000000 +0200
-+++ linux-2.6.5-ioctl/arch/s390/kernel/s390_ksyms.c	2004-05-06
-13:07:07.000000000 +0200
-@@ -95,4 +95,3 @@
- EXPORT_SYMBOL_NOVERS(do_call_softirq);
- EXPORT_SYMBOL(sys_wait4);
- EXPORT_SYMBOL(cpcmd);
--EXPORT_SYMBOL(sys_ioctl);
-diff -aur linux-2.6.5/arch/x86_64/kernel/x8664_ksyms.c
-linux-2.6.5-ioctl/arch/x86_64/kernel/x8664_ksyms.c
---- linux-2.6.5/arch/x86_64/kernel/x8664_ksyms.c	2004-04-04
-05:36:25.000000000 +0200
-+++ linux-2.6.5-ioctl/arch/x86_64/kernel/x8664_ksyms.c	2004-05-06
-13:06:39.000000000 +0200
-@@ -220,7 +220,5 @@
- EXPORT_SYMBOL_GPL(flush_tlb_all);
- #endif
- 
--EXPORT_SYMBOL(sys_ioctl);
--
- EXPORT_SYMBOL(memcpy_toio);
- EXPORT_SYMBOL(memcpy_fromio);
-diff -aur linux-2.6.5/fs/ioctl.c linux-2.6.5-ioctl/fs/ioctl.c
---- linux-2.6.5/fs/ioctl.c	2004-04-04 05:36:26.000000000 +0200
-+++ linux-2.6.5-ioctl/fs/ioctl.c	2004-05-06 13:05:56.000000000
-+0200
-@@ -4,6 +4,7 @@
-  *  Copyright (C) 1991, 1992  Linus Torvalds
-  */
- 
-+#include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/smp_lock.h>
- #include <linux/file.h>
-@@ -132,3 +133,6 @@
- out:
- 	return error;
- }
-+#ifdef CONFIG_COMPAT
-+EXPORT_SYMBOL(sys_ioctl)
-+#endif
+On 127, 05 06, 2004 at 11:53:58AM +0100, Christoph Hellwig wrote:
+> AFAIK the piix is used on a bunch of non-x86 platforms. =20
 
+No problem here, on non-x86 dmi_check_system() is defined as:
+
+static inline int dmi_check_system(struct dmi_system_id *list) { return 0; }
+
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+
+--2/5bycvrmDh4d1IB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAmiDxby9O0+A2ZecRAl0DAJ47xi+l1Oc/R9CK/iAIid+52g7p6gCdGkE+
+YY6KLhHB7ham2A9huYL91dY=
+=Qf+Q
+-----END PGP SIGNATURE-----
+
+--2/5bycvrmDh4d1IB--

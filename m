@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271758AbTHMLGf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271807AbTHMLGe
+	id S271119AbTHMLd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271129AbTHMLd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:06:34 -0400
-Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:9720 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S271758AbTHMLGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:06:33 -0400
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: thunder7@xs4all.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030813025542.32429718.akpm@osdl.org>
-References: <20030813045638.GA9713@middle.of.nowhere>
-	 <20030813014746.412660ae.akpm@osdl.org>
-	 <20030813091958.GA30746@gates.of.nowhere>
-	 <20030813025542.32429718.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1060772769.8009.4.camel@localhost.localdomain>
+	Wed, 13 Aug 2003 07:33:26 -0400
+Received: from law11-f49.law11.hotmail.com ([64.4.17.49]:18957 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S271119AbTHMLdY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 07:33:24 -0400
+X-Originating-IP: [220.224.16.129]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: jmorris@intercode.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CAST5 Cipher Algorithm for Kernel Cryptographic API.
+Date: Wed, 13 Aug 2003 17:03:24 +0530
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 13 Aug 2003 12:06:10 +0100
+Content-Type: text/plain; format=flowed
+Message-ID: <Law11-F49NOoIu83xnD0004caca@hotmail.com>
+X-OriginalArrivalTime: 13 Aug 2003 11:33:24.0154 (UTC) FILETIME=[B4B559A0:01C3618E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-08-13 at 10:55, Andrew Morton wrote:
-> Jurriaan on adsl-gate <thunder7@xs4all.nl> wrote:
-> >
-> > > Exactly what sort of CPU are you using?
-> >  > -
-> >  AMD Athlon XP2400+ on a VIA KT400 chipset, single CPU-system.
-> 
-> OK, thanks.  The word is that Athlons will, very occasionally,
-> take a fault when prefetching from an unmapped address.
 
-Page zero in the kernel is mapped in 4Mb paging mode (which is what the
-Athlon uses). Also your likely(pos) pretty much wiped out the point of
-prefetching and punishes other processors because it is in the wrong
-place. For that matter we could add a LIST_NULL that pointed somewhere
-safe and wasn't NULL per se in 2.7.
+thanks david.
+does it work? (cast5 on sparc).
+what's probability of it being included in 2.6.0-test4.
 
-Put the likely(pos) in the asm/prefetch for Athlon until someone can
-figure out what is going on with some specific Athlons, 2.6 and certain
-kernels (notably 4G/4G).
 
-Long term we really do need to start supporting a zero page mapped at
-0->64K when not debugging the kernel, then you can let the compiler do
-NULL dereferences which is a _huge_ win because you can move stuff
-around a lot of natural C conditionals to get better unrolling and
-instruction scheduling.
+>From: James Morris <jmorris@intercode.com.au>
+>To: Bhatt Kartikey <kartik_me@hotmail.com>
+>Subject: Re: CAST5 Cipher Algorithm for Kernel Cryptographic API.
+>Date: Tue, 12 Aug 2003 18:50:11 +1000 (EST)
+>
+>On Tue, 12 Aug 2003, Bhatt Kartikey wrote:
+>
+> > thanks for getting it into a patch.
+> > i hope it will soon be tested on non x86 box.
+>
+>Yes, David Miller tested it on sparc64.
+>
+>
+>- James
+>--
+>James Morris
+><jmorris@intercode.com.au>
+>
 
-The alternative is to start doing multipointer lists which is messier
-and uses more memory (ie each node has next, prev, "several nodes on")
-
-Alan
+_________________________________________________________________
+MSN Messenger V6.0. Give it a fun name. 
+http://server1.msn.co.in/sp03/ilovemessenger/index.asp Win cool stuff!
 

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130007AbRBPMkI>; Fri, 16 Feb 2001 07:40:08 -0500
+	id <S129639AbRBPMo7>; Fri, 16 Feb 2001 07:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130031AbRBPMj6>; Fri, 16 Feb 2001 07:39:58 -0500
-Received: from [212.209.126.34] ([212.209.126.34]:56069 "EHLO
+	id <S129762AbRBPMot>; Fri, 16 Feb 2001 07:44:49 -0500
+Received: from [212.209.126.34] ([212.209.126.34]:57093 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S130007AbRBPMjo>; Fri, 16 Feb 2001 07:39:44 -0500
-Date: Fri, 16 Feb 2001 13:41:06 +0100 (CET)
+	id <S129639AbRBPMoh>; Fri, 16 Feb 2001 07:44:37 -0500
+Date: Fri, 16 Feb 2001 13:45:44 +0100 (CET)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@localhost.localdomain>
-To: Yuri Niyazov <yuricake@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: What does the linux kernel need?
-In-Reply-To: <20010215171245.21445.qmail@web2301.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.31.0102161338590.28870-100000@localhost.localdomain>
+To: Alan Olsen <alan@clueserver.org>
+cc: "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        Mark Haney <mhaney@info4cars.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux stifles innovation...
+In-Reply-To: <Pine.LNX.4.10.10102151208440.7204-100000@clueserver.org>
+Message-ID: <Pine.LNX.4.31.0102161343240.28870-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Feb 2001, Yuri Niyazov wrote:
+On Thu, 15 Feb 2001, Alan Olsen wrote:
 
->     I am currently a university student taking a "Advanced
-> design of Operating Systems" class at New York University. We
+> I expect the next thing that will happen is that they will get
+> patents on key portions of their protocols and then start
+> enforcing them.
 
-> please. The requirement of the class is a final project proposal
-> and implementation of a student's own choosing - I would really
-> like to do something useful for the linux kernel,
+If Microsoft would start pissing off IBM and other major
+companies which have big business interests in Linux by
+invoking their patents, I can just imagine IBM coming down
+on Microsoft with their own patents ...
 
-Cool ... I've been meaning to put together a "student's projects"
-page for http://kernelnewbies.org/ for a while now, but haven't
-gotten around to it. ;(
+"Hey you!  Stop flipping those bits!  Hold it right there!
+ ... Don't you flip any more bits, read this patent first..."
 
-But feel free to drop by on #kernelnewbies any time you want, I'm
-sure we'll be able to find a few projects to work on.
+(and I'm sure they must have patents on _setting_ bits as
+well ;))
 
-Btw ... any volunteers to help document a number of student projects
-for the Linux kernel so we can put a page up with a bunch of
-possible kernel projects ?
-
-regards,
+cheers,
 
 Rik
 --

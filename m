@@ -1,27 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261936AbREPNXC>; Wed, 16 May 2001 09:23:02 -0400
+	id <S261941AbREPNbw>; Wed, 16 May 2001 09:31:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbREPNWw>; Wed, 16 May 2001 09:22:52 -0400
-Received: from ns.tasking.nl ([195.193.207.2]:34570 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S261936AbREPNWl>;
-	Wed, 16 May 2001 09:22:41 -0400
-Date: Wed, 16 May 2001 15:21:25 +0200
-From: Frank van Maarseveen <fvm@tasking.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.5-pre2: Bogus ARP packets containing NFS file data?
-Message-ID: <20010516152125.A1734@espoo.tasking.nl>
-Reply-To: frank_van_maarseveen@tasking.com
-In-Reply-To: <20010515175212.A31058@espoo.tasking.nl>
+	id <S261947AbREPNbm>; Wed, 16 May 2001 09:31:42 -0400
+Received: from pc1-camb6-0-cust57.cam.cable.ntl.com ([62.253.135.57]:61063
+	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S261941AbREPNba>; Wed, 16 May 2001 09:31:30 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Nico Schottelius <nicos@pcsystems.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: parport problems with devfs 
+In-Reply-To: Message from Nico Schottelius <nicos@pcsystems.de> 
+   of "Wed, 16 May 2001 15:19:02 +0200." <3B027E46.5095E8BB@pcsystems.de> 
+In-Reply-To: <3B027E46.5095E8BB@pcsystems.de> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i (Linux)
-In-Reply-To: <20010515175212.A31058@espoo.tasking.nl>; from fvm on Tue, May 15, 2001 at 05:52:12PM +0200
-Organization: TASKING, Inc.
+Date: Wed, 16 May 2001 14:31:26 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E1501Og-0007EH-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As the subject already says, reproduced in 2.4.5-pre2.
+>I attached the problem occured with parport and devfs.
+>I don't exactly know where the problem in the parport source
+>is. If someone has a patch for it, I will test it.
 
--- 
-Frank
+I don't think this is a bug.  You need to load the `lp' module.
+
+p.
+
+

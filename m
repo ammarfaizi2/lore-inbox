@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264374AbTL3EwH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 23:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTL3Etp
+	id S264506AbTL3E7l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 23:59:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTL3E7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 23:49:45 -0500
-Received: from dp.samba.org ([66.70.73.150]:25518 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264457AbTL3Et3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 23:49:29 -0500
-Date: Tue, 30 Dec 2003 13:47:03 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Add support for checking before-the-fact whether an IRQ is
-Message-Id: <20031230134703.71379d63.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.58.0312291140360.2113@home.osdl.org>
-References: <200312291905.hBTJ56k1032326@hera.kernel.org>
-	<1072725508.4233.11.camel@laptop.fenrus.com>
-	<Pine.LNX.4.58.0312291140360.2113@home.osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 29 Dec 2003 23:59:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26000 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264477AbTL3E7k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 23:59:40 -0500
+Message-ID: <3FF10629.8080301@pobox.com>
+Date: Mon, 29 Dec 2003 23:59:21 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Feldman, Scott" <scott.feldman@intel.com>
+CC: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS][2.6.0][e100 new driver] mii-diag oops with -F option
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229BE5@orsmsx402.jf.intel.com>
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102229BE5@orsmsx402.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003 11:43:29 -0800 (PST)
-Linus Torvalds <torvalds@osdl.org> wrote:
-> > question; which lock prevents someone else claiming the irq and making
-> > it unsharable/unclaimable between can_request_irq() and the eventual
-> > request_irq() ????
-> 
-> Nothing. It never did. This is basically a heuristic: "find the irq that 
-> looks the least used".
+Feldman, Scott wrote:
+> So e100-3.0.x is pending in -exp queue for 2.6.1; do we fix 2.6.0?
 
-I just worry about other people using it.  I'd prefer "irq_looks_free()",
-but since it's x86-specific it's not a big issue.
 
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+I'll go ahead and expedite the __devinit removal to Linus for now
+
+	Jeff
+
+
+

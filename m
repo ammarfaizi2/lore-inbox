@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbTKCROa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 12:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTKCROa
+	id S263178AbTKCRTa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 12:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263189AbTKCRTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 12:14:30 -0500
-Received: from gateway.caplin.com ([195.110.77.253]:57613 "EHLO
-	gateway.caplin.com") by vger.kernel.org with ESMTP id S262198AbTKCRO3
+	Mon, 3 Nov 2003 12:19:30 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11150 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263178AbTKCRT2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 12:14:29 -0500
-Message-ID: <3FA68CD1.80608@driscollnewsletter.com>
-Date: Mon, 03 Nov 2003 17:13:53 +0000
-From: Luke Driscoll <news.cis@driscollnewsletter.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031009
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS on 2.6.0-test9
-References: <NN6j.pY.25@gated-at.bofh.it> <NPhU.42k.19@gated-at.bofh.it>
-In-Reply-To: <NPhU.42k.19@gated-at.bofh.it>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 3 Nov 2003 12:19:28 -0500
+Date: Mon, 3 Nov 2003 17:19:25 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Konstantin Boldyshev <konst@linuxassembly.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       marcelo.tosatti@cyclades.com
+Subject: Re: minix fs corruption fix for 2.4
+Message-ID: <20031103171925.GH7665@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.43L.0311031557480.1077-200000@alpha.linuxassembly.org> <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> Luke Driscoll <newsregister@driscollnewsletter.com> writes:
+On Mon, Nov 03, 2003 at 08:55:42AM -0800, Linus Torvalds wrote:
+> I'd also prefer to do the test the other way around: test for CHRDEV and 
+> BLKDEV in inode.c the same way the other functions do. Something like the 
+> appended..
 > 
+> Al, can you verify? I think this crept in when you did the block lookup 
+> cleanups. I also worry whether anybody else got the bug?
 > 
->>On a kernel 2.6.0-test9 as an NFS client I am having trouble transferring
->>data to and from NFS servers. It it extraordinarily slow.  I receive the
->>following information in dmesg:
->>
->>nfs warning: mount version older than kernel
-> 
-> 
-> I see that one, too.  Apart from that, it appears to work.  Try the
-> tcp option, and see if it helps.
-> 
-tcp option seems to have helped, except when attempting to mount a 
-redhat 9 nfs server.  Mount says:
-"nfs server reported service unavailable: Address already in use"
+> 		Linus
 
+Hmm...  I would rather check for regular|directory|symlink explicitly -
+note that FIFO and socket can have junk in i_data.
 
-
-
+Looks like that fsckup had happened only in fs/minix - fs/sysv/itree.c
+does it right.

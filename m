@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292980AbSCIXQO>; Sat, 9 Mar 2002 18:16:14 -0500
+	id <S292975AbSCIXND>; Sat, 9 Mar 2002 18:13:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292982AbSCIXQE>; Sat, 9 Mar 2002 18:16:04 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:33689 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S292980AbSCIXPw>; Sat, 9 Mar 2002 18:15:52 -0500
-Message-ID: <XFMail.020310001311.pirx@minet.uni-jena.de>
-X-Mailer: XFMail 1.4.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S292979AbSCIXMy>; Sat, 9 Mar 2002 18:12:54 -0500
+Received: from leviathan.kumin.ne.jp ([211.9.65.12]:32323 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
+	id <S292975AbSCIXMs>; Sat, 9 Mar 2002 18:12:48 -0500
+Message-Id: <200203092312.AA00022@prism.kumin.ne.jp>
+Date: Sun, 10 Mar 2002 08:12:28 +0900
+To: linux-kernel@vger.kernel.org
+Cc: nakasei@fa.mdis.co.jp
+Subject: 2.2.21-pre4 hung up
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
 MIME-Version: 1.0
-In-Reply-To: <3C8A8AF6.3080002@web.de>
-Date: Sun, 10 Mar 2002 00:13:11 +0100 (CET)
-Reply-To: pirx@minet.uni-jena.de
-From: 520042182928-0001@t-online.de (Martin Huenniger)
-To: Stephan Wienczny <wienczny@web.de>
-Subject: RE: PROBLEM: Video Module doesn't compile
-Cc: linux-kernel@vger.kernel.org
+X-Mailer: AL-Mail32 Version 1.12
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi.
 
-Just set the value to 
+I update to linux-2.2.20 + patch-2.2.21-pre4.
+before I used linux-2.2.20 + patch-2.2.21-pre3, and worked fine.
+linux-2.2.21-pre4 is normal end to patch, compile and install, but bootup failuer.
 
-info->node = NODEV;
+these messages displayed on console, and hung up.
 
-and everything will (hopefully) work fine
+===== messaged start =====
+Uncompressing Linux... Ok, booting the kernel.
+Linux version 2.2.21pre4 (root@homesv) (gcc version 2.95.3 20010315 (release)) #
+1 Sun Mar 10 07:31:33 JST 2002
+USER-provided physical RAM map:
+ USER: 000a0000 @ 00000000 (usable)
+ USER: 05efd000 @ 00100000 (usable)
+Detected 400916 kHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 799.53 BogoMIPS
+Memory: 95824k/98292k abailable (816k kernel code, 412k reserved, 1180k data, 60k init)
+Dentry hash table entries: 16384 (order 5, 128k)
+Buffer cache hash table entries: 131072 (order 7, 512k)
+Page cache hash table entries: 32768 (order 5, 128k)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+Intel machine check architecture supported.
+===== messages end =====
 
-
-Martin
-
------------------------------------------------
-E-Mail: Martin Huenniger <pirx@minet.uni-jena.de>
-Date: 10-Mar-02
-Time: 00:13:11
------------------------------------------------
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

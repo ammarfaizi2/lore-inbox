@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293238AbSCJVKq>; Sun, 10 Mar 2002 16:10:46 -0500
+	id <S293251AbSCJVOG>; Sun, 10 Mar 2002 16:14:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293243AbSCJVKh>; Sun, 10 Mar 2002 16:10:37 -0500
-Received: from cpe.atm0-0-0-209183.0x3ef29767.boanxx7.customer.tele.dk ([62.242.151.103]:18126
-	"HELO mail.hswn.dk") by vger.kernel.org with SMTP
-	id <S293238AbSCJVK1>; Sun, 10 Mar 2002 16:10:27 -0500
-Date: Sun, 10 Mar 2002 22:10:24 +0100
-From: =?iso-8859-1?Q?Henrik_St=F8rner?= <henrik@hswn.dk>
-To: linux-kernel@vger.kernel.org
-Subject: initrd problem, and a small 2.5.6 ALSA sound no-compile
-Message-ID: <20020310221024.A1647@hswn.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S293244AbSCJVN4>; Sun, 10 Mar 2002 16:13:56 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:56560 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S293243AbSCJVNl>;
+	Sun, 10 Mar 2002 16:13:41 -0500
+Date: Sun, 10 Mar 2002 16:13:32 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Paul P Komkoff Jr <i@stingr.net>
+cc: linux-kernel@vger.kernel.org, Richard Gooch <rgooch@ras.ucalgary.ca>
+Subject: Re: Bug in do_mounts.c/namespace.c/devfs ?
+In-Reply-To: <20020310193152.GJ28744@stingr.net>
+Message-ID: <Pine.GSO.4.21.0203101612100.7778-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my first attempt at booting a 2.5.x kernel.
 
-First, sound/core/rtctimer.c doesn't compile because there is no
-"err" variable defined in the rtctimer_open() routine. Adding a
-simple "int err;" fixes that. The OSS drivers also do not compile;
-something about "bus_to_virt" being obsolete in several files.
 
-Is initrd broken in 2.5.x ? It seems so here, at least. I use LVM
-on my root-fs, so I need the LVM initrd for the vgscan/vgchange
-commands (no modules - I have it all compiled in) and this works
-fine in 2.4.18.
+On Sun, 10 Mar 2002, Paul P Komkoff Jr wrote:
 
-With 2.5.6, the behaviour is different.
+> This is clearly reproducible here.
+> Let's have 2.4.19-pre2-ac{2,3,maybe 4}.
+> Let compile in devfs support but dont enable mount on boot etc.
+> 
+> After boot we will have in /proc/mounts the following line
+> devfs /dev devfs
+> (other mounts)
 
-* If I use my normal "root=<LVM device>" in lilo, it panics claiming
-  it cannot mount the root fs
-* If I use "root=/dev/ram0" in lilo, the ramdisk is loaded and the
-  commands in /linuxrc are executed, but then the system just 
-  drops to a shell - it seems it does not do the normal swicth to
-  the real root-fs and execs init from there.
+>                 sys_umount(".", 0);
 
-So, back to 2.4.18 for now ... 
--- 
-Henrik Storner <henrik@hswn.dk> 
+Good catch - it should be
+		  sys_umount(".", MNT_DETACH);
 

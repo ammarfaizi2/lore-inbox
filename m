@@ -1,46 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUIPNS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUIPNWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268045AbUIPNS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 09:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUIPNSZ
+	id S268055AbUIPNWE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 09:22:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268058AbUIPNWD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 09:18:25 -0400
-Received: from rose.man.poznan.pl ([150.254.173.3]:64390 "EHLO
-	rose.man.poznan.pl") by vger.kernel.org with ESMTP id S268045AbUIPNQd
+	Thu, 16 Sep 2004 09:22:03 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:21755 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S268055AbUIPNVh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 09:16:33 -0400
-Message-ID: <41499348.46349103@man.poznan.pl>
-Date: Thu, 16 Sep 2004 15:21:12 +0200
-From: Gracjan Jankowski <gracjan@man.poznan.pl>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Thu, 16 Sep 2004 09:21:37 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Subject: Is there a limit on the amount of entries in /proc filesystem?
-Content-Type: text/plain; charset=iso-8859-2
+Subject: Re: journal aborted, system read-only
+Date: Thu, 16 Sep 2004 09:21:34 -0400
+User-Agent: KMail/1.7
+Cc: "Stephen C. Tweedie" <sct@redhat.com>
+References: <200409121128.39947.gene.heskett@verizon.net> <200409160103.35665.gene.heskett@verizon.net> <1095331734.1958.3.camel@sisko.scot.redhat.com>
+In-Reply-To: <1095331734.1958.3.camel@sisko.scot.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409160921.34902.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.59.197] at Thu, 16 Sep 2004 08:21:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Thursday 16 September 2004 06:48, Stephen C. Tweedie wrote:
+>Hi,
+>
+>On Thu, 2004-09-16 at 06:03, Gene Heskett wrote:
+>> >Well, we really need to see _what_ error the journal had
+>> > encountered
+>
+>...
+>
+>> It just did it to me again, this time with 2.6.9-rc1-mm5.
+>>
+>> And as usual in these cases, the logs are spotlessly clean
+>> because /var is on /, which is on /dev/hda7, an syslog couldn't
+>> write when its read-only.
+>
+>Possibility the first is to create a separate partition for /var;
 
-The environment I work in is: SGI ProPack v2.2 for Linux, Kernel
-2.4.20-sgi220r3 on an ia64.
+Thats now been done, but not w/o a minor disaster & an extra hour 
+sorting out something heyu seems to have done.  NDI when, but its log 
+output in /var/tmp has been renamed from heyu.out to heyu.outttyS1 
+and thats why xtend has been getting a tummy ache.
 
-When I intensively test my kernel module then more than 3100 entries in
-/proc filesytem are created. When such number of entries is attained
-then, even though create_proc_entry() and proc_mkdir() functions end
-with success, the new files or directories don't appear in /proc
-filesystm.
+I did have 2 partitions on that 200Gigger, one accidently way too big 
+16GB swap and the rest as /amandatapes.  The minor disaster was that 
+I didn't wait till I had rebooted before I ran a mke2fs -j /dev/hdd2 
+(the new /var, and the amanda useage partition was left exactly the 
+same, but the kernel was still runing on the old partition table so 
+it formatted the amanda partition.  My bad...), so amanda is back to 
+square one tonight but thinking it has a weeks backups to count on.  
+But with a 7 day dumpcycle, it will be caught up in a week if I 
+expand the tapetypes set size to 60Gb or so till it gets in balance.
 
-What is going wrong? Is there a limit on the amount of entries in /proc
-filesystem? If yes, why the create_proc_entry() and proc_mkdir()
-functions do not return NULL pointers?
+Anyway, I now have a 15GB /var to record this crap in.
 
-As I'm not subscribed on this list, please set CC field in reply mail on
-gracjan@man.poznan.pl
+>possibility the second is to set up a serial console.
 
-Thanks in advance.
+Both of my seriel ports are busy, one is watching the ups, and the 
+other is running x10 stuffs.
 
+So we'll have to take our chances that we can catch it in the logs.  
+There was a single 'driver ready seek not complete' message in the 
+log several days ago according to logwatch.  Its about a year old 
+120GB Maxtor, and smartd is watching both of them now without send me 
+any telegrams (so far, that knocking sound is me, knocking on wood).
 
-Gracjan Jankowski
+>Without 
+> access to that log information, all we know is "there was an IO
+> error," and that's really not enough to narrow down the search. :-)
+>
+>Thanks,
+> Stephen
+
+Anyway, now we wait, except I'm going to fire off the initial amdump 
+right now after telling it there is enough space on its 'tape' do do 
+a level 0 on everything.  That might be interesting in itself.
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.26% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,92 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbTIRABL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 20:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262908AbTIRABL
+	id S262909AbTIRAUE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 20:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTIRAUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 20:01:11 -0400
-Received: from mail5.intermedia.net ([206.40.48.155]:14860 "EHLO
-	mail5.intermedia.net") by vger.kernel.org with ESMTP
-	id S262906AbTIRABH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 20:01:07 -0400
-Subject: [PATCH] Linux 2.6.0-test5 OOPS in sysfs
-From: Ranjeet Shetye <ranjeet.shetye2@zultys.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-p1IJm86hVLfvcvJc6SX4"
-Organization: Zultys Technologies Inc.
-Message-Id: <1063843491.1532.4.camel@ranjeet-pc2.zultys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 17 Sep 2003 17:04:51 -0700
+	Wed, 17 Sep 2003 20:20:04 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:50412 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S262909AbTIRAUA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 20:20:00 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Stevie-O <oliver@klozoff.com>
+Date: Thu, 18 Sep 2003 02:19:50 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Aliasing physical memory using virtual memory (from a d
+Cc: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <80BC15566D@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 17 Sep 03 at 19:36, Stevie-O wrote:
+> 
+> My thinking is this: I want to use __get_free_pages(1) 80 times to get the
+> 160 pages, then passed those 80 pieces to the card (it's known the card can
+> handle requests with that many pieces).  Then I want to create a *virtually*
+> contiguous 160-page mapping, so the postprocessing code in the driver can
+> view the 80 2-page sub-buffers as one big consecutive 160-page buffer. 
+> Doing this would (a) make for more efficient use of memory, and (b) leave
+> the larger piles of contiguous pages to the drivers of cards that actually
+> require them.
 
---=-p1IJm86hVLfvcvJc6SX4
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+If you'll use __get_free_pages(0) 160 times, you should be able to use
+vmap() in 2.[456].x.
 
+I must say that I do not understand why it checks for 
+size > (max_mapnr << PAGE_SHIFT) in 2.4.x, or for count > num_physpages
+in 2.6.x (as there is nothing wrong with mapping same page several
+thousand times, or is it bad? with 32MB host you have plenty of
+unused VA space in the kernel...), but it should not hurt you as you
+need distinct physical pages.
 
-A week back I ran into this bug which was causing an OOPS. Andrew Morton
-sent me a fix which worked and which I acknowledged on the mailing list
-as being the correct fix. However I haven't seen this fix make its way
-into the code, so I am sending it again.
-
-Please note that the bug was fixed by Andrew, not me.
-
-thanks,
--- 
-
-Ranjeet Shetye
-Senior Software Engineer
-Zultys Technologies
-Ranjeet dot Shetye2 at Zultys dot com
-http://www.zultys.com/
- 
-The views, opinions, and judgements expressed in this message are solely
-those of the author. The message contents have not been reviewed or
-approved by Zultys.
-
-
---=-p1IJm86hVLfvcvJc6SX4
-Content-Disposition: attachment; filename=sysfs.bug.patch
-Content-Type: text/x-patch; name=sysfs.bug.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Index: fs/sysfs/dir.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/fs/sysfs/dir.c,v
-retrieving revision 1.8
-diff -d -u -r1.8 dir.c
---- fs/sysfs/dir.c	5 Sep 2003 21:17:55 -0000	1.8
-+++ fs/sysfs/dir.c	17 Sep 2003 22:15:21 -0000
-@@ -24,10 +24,11 @@
- static struct dentry * 
- create_dir(struct kobject * k, struct dentry * p, const char * n)
- {
--	struct dentry * dentry;
-+	struct dentry * dentry, * ret;
- 
- 	down(&p->d_inode->i_sem);
- 	dentry = sysfs_get_dentry(p,n);
-+	ret = dentry;
- 	if (!IS_ERR(dentry)) {
- 		int error = sysfs_create(dentry,
- 					 S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO,
-@@ -36,11 +37,11 @@
- 			dentry->d_fsdata = k;
- 			p->d_inode->i_nlink++;
- 		} else
--			dentry = ERR_PTR(error);
-+			ret = ERR_PTR(error);
- 		dput(dentry);
- 	}
- 	up(&p->d_inode->i_sem);
--	return dentry;
-+	return ret;
- }
- 
- 
-
---=-p1IJm86hVLfvcvJc6SX4--
+On other side, maybe that using SG even for driver operations is not
+that complicated. Do not forget that on bigmem boxes you have only
+128MB area for vmalloc/vmap/ioremap, so you can quickly find that
+there is not 640KB continuous area available.
+                                                    Best regards,
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
 

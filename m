@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269913AbTGZVMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 17:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269711AbTGZVMZ
+	id S270013AbTGZVPs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 17:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269969AbTGZVPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 17:12:25 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27017 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269919AbTGZVMY (ORCPT
+	Sat, 26 Jul 2003 17:15:48 -0400
+Received: from zork.zork.net ([64.81.246.102]:64747 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S270013AbTGZVPm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 17:12:24 -0400
-Date: Sat, 26 Jul 2003 14:31:57 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Pavel Machek <pavel@ucw.cz>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp updates
-In-Reply-To: <20030726211310.GG266@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
+	Sat, 26 Jul 2003 17:15:42 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] use ext2/ext3 consistently in Kconfig
+References: <20030726195722.GB16160@louise.pinerecords.com>
+	<200307261621.55553.jeffpc@optonline.net>
+	<6ud6fx118p.fsf@zork.zork.net>
+	<20030726212128.GB16798@louise.pinerecords.com>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Sat, 26 Jul 2003 22:30:54 +0100
+In-Reply-To: <20030726212128.GB16798@louise.pinerecords.com> (Tomas Szepe's
+ message of "Sat, 26 Jul 2003 23:21:28 +0200")
+Message-ID: <6uwue5ynzl.fsf@zork.zork.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I hate to drag this out further...
 
-> Okay, I killed few trivial hunks, will submit them through trivial
-> patch monkey. Are you happy now, patrick?
+Tomas Szepe <szepe@pinerecords.com> writes:
 
-Why do you insist on abusing the trivial patch monkey? Why can't you send 
-them directly to the maintainers? For instance, you add/remove printk()s 
-and comments that other people may or may not want in there. 
+> -	  This is the journaling version of the Second extended file system
+> -	  (often called ext3), the de facto standard Linux file system
+> -	  (method to organize files on a storage device) for hard disks.
+> +	  Ext3 is a jornaling version of the Second extended fs
 
-But no, this doesn't make me happy because you insist on munging multiple 
-patches together that have little to do with each other, besides the fact 
-they touch the same file. Like I said in private email, it really helps to 
-track down a problem if each patch and subsequent changeset is as small 
-and localized as possible. 
-
-And, that's a real problem with swsusp. It's a huge mess right now. I'd 
-like to see it work well and reliably for 2.6, and have the source code be 
-in a state where people can look at it without running away screaming. 
-Convoluted updates are not going to help the situation. 
-
-
-	-pat
+s/jornaling/journaling/
 

@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263612AbUEKUdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUEKUgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263612AbUEKUdo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:33:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUEKUdo
+	id S263609AbUEKUgV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbUEKUgV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:33:44 -0400
-Received: from d64-180-152-77.bchsia.telus.net ([64.180.152.77]:36878 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id S263632AbUEKUdN (ORCPT
+	Tue, 11 May 2004 16:36:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:65507 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263609AbUEKUgH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:33:13 -0400
-Date: Tue, 11 May 2004 13:28:12 -0700
-From: carbonated beverage <ramune@net-ronin.org>
-To: John McCutchan <ttb@tentacle.dhs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
-Message-ID: <20040511202812.GA5737@net-ronin.org>
-References: <1084152941.22837.21.camel@vertex> <20040510021141.GA10760@taniwha.stupidest.org> <1084227460.28663.8.camel@vertex> <20040511024701.GA19489@taniwha.stupidest.org> <1084278001.1225.9.camel@vertex> <20040511124647.GE17014@parcelfarce.linux.theplanet.co.uk> <20040511190228.GA12609@tentacle.dhs.org>
+	Tue, 11 May 2004 16:36:07 -0400
+Date: Tue, 11 May 2004 22:38:13 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, geoff@linux.jf.intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] Performance of del_timer_sync
+Message-ID: <20040511203813.GA6552@elte.hu>
+References: <20040511131137.2390ffa8.akpm@osdl.org> <200405112027.i4BKR5F18656@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040511190228.GA12609@tentacle.dhs.org>
+In-Reply-To: <200405112027.i4BKR5F18656@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 03:02:31PM -0400, John McCutchan wrote:
-> >From a quick glance at someone elses implementation of it, I plan on
-> walking up the dentries and checking at each level if a watcher on that
-> level is interested in events from subdirectories. Is this good practice in
-> the kernel?
 
-Curious, why is it being implemented in this fashion instead of broadcasting
-it over a netlink socket?
+* Chen, Kenneth W <kenneth.w.chen@intel.com> wrote:
 
-That way, the user-space listeners can determine whether they want to pay
-attention to it or not, and figure out for themselves most of the "do I
-care about this event" issue.
+> > +int del_single_shot_timer(struct timer_struct *timer)
+> > +{
+> > +	if (del_timer(timer))
+> > +		del_timer_sync(timer);
+> > +}
+> >  #endif
+> 
+> I'm confused, isn't the polarity of del_timer() need to be reversed?
+> Also propagate the return value of del_timer_sync()?
 
-As for the directory heirarchy watching, does that mean the user can do:
-<process 1>   <process 2>
-              while : ; do mkdir a ; cd a ; done
-    .... wait 10 seconds ....
-listen to a/
+indeed. If the removal didnt succeed then we must make sure there's no
+timer fn pending. Btw., in that case del_timer_sync() must not succeed -
+it would mean the timer fn re-added the timer, which by definition must
+not happen here. So i'd go for:
 
-What's the kernel going to do then?  Hopefully, you don't mean you'll
-be crawling down the entire chain each and every time...
+int del_single_shot_timer(struct timer_struct *timer)
+{
+	int ret = del_timer(timer);
 
-Just random thoughts.
+	if (!ret) {
+		ret = del_timer_sync(timer);
+		BUG_ON(ret);
+	}
 
--- DN
-Daniel
+	return ret;
+}
+
+this should catch illegal uses of del_single_shot_timer().
+
+	Ingo

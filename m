@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbUKKWNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUKKV6d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbUKKWNr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:13:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbUKKVtH
+	id S262391AbUKKV6d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 16:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbUKKV5P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 16:49:07 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:14607 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262372AbUKKVsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 16:48:18 -0500
-Subject: Re: module tool with 2.6.9 issue
-From: Arjan van de Ven <arjan@infradead.org>
-To: yiding_wang@agilent.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <08A354A3A9CCA24F9EE9BE13600CFBC50F85CE@wcosmb07.cos.agilent.com>
-References: <08A354A3A9CCA24F9EE9BE13600CFBC50F85CE@wcosmb07.cos.agilent.com>
-Content-Type: text/plain
-Message-Id: <1100209690.6760.2.camel@laptop.fenrus.org>
+	Thu, 11 Nov 2004 16:57:15 -0500
+Received: from mail.charite.de ([160.45.207.131]:19670 "EHLO mail.charite.de")
+	by vger.kernel.org with ESMTP id S262376AbUKKVzb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 16:55:31 -0500
+Date: Thu, 11 Nov 2004 22:55:30 +0100
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: FB: vesafb garbled after using X11 with nv driver
+Message-ID: <20041111215530.GB24338@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Thu, 11 Nov 2004 22:48:10 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.6 (++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (2.6 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[62.195.31.207 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-11 at 14:27 -0700, yiding_wang@agilent.com wrote:
-> I am using moudle-init-tools-3.1-pre6 with kernel 2.6.9. The new insmod seems have restrictions which failed using parameters to load a driver module.
-> 
-> My module parameter is in the form of modname="*************** ****", a quite long one.
-> Run - insmod modname.o modname="*********** *******" (with a script), it complains about the space and treats the string next to the space to be a "Unknown parameter".
-> 
-> By replacing the space with any character, then it complains 
-> "modname: string parameter too long"
+I use the nv driver in XFree and the vesafb for the framebuffer console.
+vesafb works fine, I get the bootlogo and all during boot. 
 
+Once X11 starts up and I want to switch back to the framebuffer
+console using CTRL-ALT-F1, the framebuffer is garbled. The screen is
+flickering, as if the vertical synchronisation is lost. Colors seem to
+be OK, I get grey garbage on black background.
 
-can you post an url to the sourcecode... it's going to be really had for ANYONE to dive into this without that
+Switching back to X11 using ALT-F7 works OK, the X11 screen looks fine.
 
+I made two screenshots to illuminate what I'm seeing:
+http://www.stahl.bau.tu-bs.de/~hildeb/bugreport/dsc02089.jpg
+http://www.stahl.bau.tu-bs.de/~hildeb/bugreport/dsc02090.jpg
+(watch out, high resolution)
+
+It's not entirely clear if it's an issue of the nv driver or the vesafb
+in the kernel.
+
+-- 
+Ralf Hildebrandt (i.A. des IT-Zentrum)          Ralf.Hildebrandt@charite.de
+Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
+Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-962
+IT-Zentrum Standort CBF                 send no mail to spamtrap@charite.de

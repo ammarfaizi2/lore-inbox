@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290812AbSBLH2z>; Tue, 12 Feb 2002 02:28:55 -0500
+	id <S290813AbSBLHfP>; Tue, 12 Feb 2002 02:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290811AbSBLH2p>; Tue, 12 Feb 2002 02:28:45 -0500
-Received: from [202.87.41.13] ([202.87.41.13]:44260 "HELO postfix.baazee.com")
-	by vger.kernel.org with SMTP id <S287493AbSBLH2g>;
-	Tue, 12 Feb 2002 02:28:36 -0500
-Message-ID: <002e01c1b397$1a26d270$3c00a8c0@baazee.com>
-From: "Anish Srivastava" <anish@bidorbuyindia.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: File BlockSize
-Date: Tue, 12 Feb 2002 13:00:07 +0530
+	id <S290811AbSBLHfG>; Tue, 12 Feb 2002 02:35:06 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:34778 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S290813AbSBLHe5>; Tue, 12 Feb 2002 02:34:57 -0500
+Date: Tue, 12 Feb 2002 09:26:28 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Kernel Janitors <kernel-janitor-discuss@lists.sourceforge.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: [PATCH] printk prefix cleanups.
+In-Reply-To: <200202120718.g1C7IlS29064@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0202120923350.30276-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!!
+On Tue, 12 Feb 2002, Pete Zaitcev wrote:
 
-Is there any way I can have 8K block sizes in ext2, reiserfs or ext3.
+> > Here is a simple patch which reduces resultant binary size by 1.2k for 
+> > this particular module (opl3sa2). [...]
+> 
+> >  #define OPL3SA2_MODULE_NAME	"opl3sa2"
+> > +#define OPL3SA2_PFX		OPL3SA2_MODULE_NAME ": "
+>  
+> > -			printk(KERN_ERR "opl3sa2: MSS mixer not installed?\n");
+> > +			printk(KERN_ERR OPL3SA2_PFX "MSS mixer not installed?\n");
+> 
+> I do not believe that it shortens binaries. Care to quote
+> size(1) output and /proc/modules with and without the patch?
 
-I am trying to install Oracle on Linux with 8K DB_Block_size.
-But it gives me a Block size mismatch saying that the File BlockSize is only
-4K
-
-Maybe, there is a kernel patch available which enables Linux to create 8K
-file blocks.
-Thanks in anticipation....
+It does _not_ reduce the memory footprint, that i knew before doing the 
+patch, the only thing it does do is reduce the resultant binary's 
+filesize. Surely thats worth it just for the space saving? size(1) reports 
+the same sizes for both patched and unpatched.
 
 Regards,
-Anish Srivastava
-
+	Zwane Mwaikambo
 
 

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUHVMPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUHVMSm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266684AbUHVMPO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 08:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUHVMPO
+	id S266705AbUHVMSm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 08:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUHVMSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 08:15:14 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:5083 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S266684AbUHVMPH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 08:15:07 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Sun, 22 Aug 2004 14:14:08 +0200
-To: schilling@fokus.fraunhofer.de, der.eremit@email.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <41288E10.nail9MX3BDIPM@burner>
-References: <2ptdY-42Y-55@gated-at.bofh.it>
- <2uPdM-380-11@gated-at.bofh.it> <2uUwL-6VP-11@gated-at.bofh.it>
- <2uWfh-8jo-29@gated-at.bofh.it> <2uXl0-Gt-27@gated-at.bofh.it>
- <2vge2-63k-15@gated-at.bofh.it> <2vgQF-6Ai-39@gated-at.bofh.it>
- <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
- <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
- <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
-In-Reply-To: <412889FC.nail9MX1X3XW5@burner>
-User-Agent: nail 11.2 8/15/04
+	Sun, 22 Aug 2004 08:18:42 -0400
+Received: from zero.aec.at ([193.170.194.10]:15366 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S266705AbUHVMQa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 08:16:30 -0400
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, eich@suse.de
+Subject: Re: [patch] context-switching overhead in X, ioport(), 2.6.8.1
+References: <2vEzI-Vw-17@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 22 Aug 2004 14:16:00 +0200
+In-Reply-To: <2vEzI-Vw-17@gated-at.bofh.it> (Ingo Molnar's message of "Sat,
+ 21 Aug 2004 16:00:14 +0200")
+Message-ID: <m3n00nwepr.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Pascal Schmidt <der.eremit@email.de> wrote:
+Ingo Molnar <mingo@elte.hu> writes:
 
->> I am not against a long term change that would require euid root too,
->> but this should be announced early enough to allow prominent users of
->> the interface to keep track of the interface changes.
+> while debugging/improving scheduling latencies i got the following
+> strange latency report from Lee Revell:
+>
+>   http://krustophenia.net/testresults.php?dataset=2.6.8.1-P6#/var/www/2.6.8.1-P6
+>
+> this trace shows a 120 usec latency caused by XFree86, on a 600 MHz x86
+> system. Looking closer reveals:
+>
+>   00000002 0.006ms (+0.003ms): __switch_to (schedule)
+>   00000002 0.088ms (+0.082ms): finish_task_switch (schedule)
+>
+> it took more than 80 usecs for XFree86 to do a context-switch!
+>
+> it turns out that the reason for this (massive) context-switching
+> overhead is the following change in 2.6.8:
+>
+>       [PATCH] larger IO bitmaps
+[...]
 
->Too late for that now, no matter whether we like it or not... however,
->at least the discussion now has shown that changes to this interface
->need to be considered carefully, so maybe the future will be
->bright. ;)
+At least older XFree86 (4.2/3 time frame) used to only use iopl(). I
+know it because at some point ioperm() was completely broken on
+x86-64, but the X server never hit it. I wonder why they changed
+that. Anyways, perhaps it would be better to just change the X server
+back to use iopl(), because it will be always faster than using
+ioperm.
 
-Eveybody makes mistakes. Not being able to admid that and persisting to 
-continue to go in a wrong direction is the real problem.
+-Andi
 
-There is no problem to do what I did propose.
-
-And the wrong decision could have even be avoided if people did contact me
-before they did act....
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

@@ -1,92 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265598AbTF3CWL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 22:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265599AbTF3CWL
+	id S265591AbTF3CVN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 22:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265522AbTF3CVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 22:22:11 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:6063 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265598AbTF3CVz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 22:21:55 -0400
-Date: Sun, 29 Jun 2003 19:35:44 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk
-cc: greearb@candelatech.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-Message-ID: <17280000.1056940541@[10.10.2.4]>
-In-Reply-To: <20030629.151302.28804993.davem@redhat.com>
-References: <1056755070.5463.12.camel@dhcp22.swansea.linux.org.uk><20030629.141528.74734144.davem@redhat.com><1056924426.16255.24.camel@dhcp22.swansea.linux.org.uk> <20030629.151302.28804993.davem@redhat.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 29 Jun 2003 22:21:13 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:38334 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265073AbTF3CVG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 22:21:06 -0400
+Message-ID: <3EFFA1EA.7090502@nortelnetworks.com>
+Date: Sun, 29 Jun 2003 22:35:22 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org
+Subject: [BUG]:   problem when shutting down ppp connection since 2.5.70
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---"David S. Miller" <davem@redhat.com> wrote (on Sunday, June 29, 2003 15:13:02 -0700):
+Summary:
+On 2.5.70 and later kernels, shutting down a pppoe connection causes 
+pppd to hang and results in a usage count stuck at 1.
 
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: 29 Jun 2003 23:07:07 +0100
->    
->    What you don't get is that like you I'm distributing work. I'm
->    getting end users to spot bug correlations - and thats why I want
->    better tools
->
-> DaveM:
-> I understand this part, it's great sounding in theory.
-> 
-> But all the examples I've seen are you sifting through bugzilla making
-> these correlations.  I've seen no evidence of community participation
-> in this activity.
+Details:
 
-People have been. Maybe not with the networking bugs, but I've seen
-people sift through other stuff, and mark off duplicates, and point
-out similarities. People go chase attatched patches back into the tree,
-and people test fixes they didn't submit the bug for, and report status.
-I'd like more of that, but it happens already.
- 
-> The greatest tools in the world aren't useful if people don't want
-> to use them.
-> 
-> Nobody wants to use tools unless it melds easily into their existing
-> daily routine.  This means it must be email based and it must somehow
-> work via the existing mailing lists.  It sounds a lot like what I'm
-> advocating except that there's some robot monitoring the list
-> postings.
+I have a pppoe dsl connection and I use the roaring penguin stuff that 
+comes default with Mandrake 9.  My connection is brought up at init 
+time.  With kernels past 2.5.69, if I try and shut down the connection I 
+get logs as follows:
 
-Agreed, the interface could be better - we're working on it. It won't
-be totally change free, but it could be better integrated. Feedback is
-very useful, though it helps a lot of you can pinpoint what's the 
-underlying issue rather than "this is crap". Better email integration
-is top of the list, starting with sending stuff out to multiple people
-when filed, not a single bottleneck point.
- 
-> But then who monitors and maintains the entries?  That's the big
-> problem and I haven't heard a good solution yet.  Going to a web site
-> and clicking buttons is not a solution.  That's a waste of time.
 
-There is an army of elves out there, quite capable and willing.
-Like most change, it takes a little time, but it's started already.
+Jun 29 17:18:29 doug adsl-stop: Killing pppd
+Jun 29 17:18:29 doug pppd[779]: Terminating on signal 15.
+Jun 29 17:18:29 doug adsl-stop: Killing adsl-connect
+Jun 29 17:18:29 doug pppd[779]: Connection terminated.
+Jun 29 17:18:29 doug pppd[779]: Connect time 1.3 minutes.
+Jun 29 17:18:29 doug pppd[779]: Sent 902 bytes, received 588 bytes.
+Jun 29 17:18:32 doug pppoe[781]: Session 2991 terminated -- received 
+PADT from peer
+Jun 29 17:18:32 doug pppoe[781]: Sent PADT
+Jun 29 17:18:39 doug kernel: unregister_netdevice: waiting for ppp0 to 
+become free. Usage count = 1
+Jun 29 17:18:45 doug ntpd[1094]: sendto(132.246.168.148): Invalid argument
+Jun 29 17:18:46 doug smbd[1510]: [2003/06/29 17:18:46, 0] 
+smbd/server.c:open_sockets(238)
+Jun 29 17:18:46 doug smbd[1510]:   Got SIGHUP
+Jun 29 17:18:46 doug smb: smbd -HUP succeeded
+Jun 29 17:18:49 doug kernel: unregister_netdevice: waiting for ppp0 to 
+become free. Usage count = 1
+Jun 29 17:19:29 doug last message repeated 4 times
+Jun 29 17:20:39 doug last message repeated 7 times
 
-> AEB:
->
-> See, you think you are doing the submitter a favour.
-> I prefer the point of view that the submitter does us a favour.
- 
-Absolutely. Personally, I think testing & communication with users is 
-more what we're lacking as a community than coding power. In Dave's 
-case, it sounds like he's so swamped, it's not an issue for him. 
 
-However, finding and fixing stuff earlier on will actually reduce
-the workload, IMHO. It's a damned sight easier to find a bug you wrote
-yesterday than one you wrote last year. I *love* things like nightly
-regression testing that reaches out and larts me with a bug report
-in < 24 hrs of me screwing things up.
+Also, pppd is stuck in a busy-loop, and isn't killable even with -9. 
+Interestingly, top shows it in the R state.  I thought that wasn't 
+supposed to happen?
 
-Lastly, I'd rather ditch bug reports based on crap content, or overall
-impact, than whether I happened to be busy at the moment they came in.
+With 2.5.69, the shutdown messages look like:
 
-M.
+Jun 29 21:56:17 doug adsl-stop: Killing pppd
+Jun 29 21:56:17 doug pppd[778]: Terminating on signal 15.
+Jun 29 21:56:17 doug adsl-stop: Killing adsl-connect
+Jun 29 21:56:17 doug pppd[778]: Connection terminated.
+Jun 29 21:56:17 doug pppd[778]: Connect time 9.7 minutes.
+Jun 29 21:56:17 doug pppd[778]: Sent 1510 bytes, received 588 bytes.
+Jun 29 21:56:17 doug pppoe[781]: read (asyncReadFromPPP): Session 14: 
+Input/output error
+Jun 29 21:56:17 doug pppoe[781]: Sent PADT
+Jun 29 21:56:17 doug pppd[778]: Exit.
+
+The cpu is an athlon xp, no modules loaded.
+
+One interesting tidbit is that this doesn't seem to happen if I remove 
+the dsl connection from init and do it manually later.
+
+I did a quick scan of the ppp*.c files in drivers/net and these are the 
+ones with updates that went into 2.5.70.
+
+Affected files are:
+ppp_deflate.c 1.10
+ppp_generic.c 1.25-1.30
+ppp_synctty.c 1.9
+
+Affected userids:
+akpm
+davem
+paulus
+torvalds
+
+
+If anyone wants to propose a patch, I'm willing to try it out.
+
+Thanks,
+
+Chris
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+

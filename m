@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264347AbUADVBC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 16:01:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264376AbUADVBC
+	id S263661AbUADVCb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 16:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbUADVCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 16:01:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56800 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264347AbUADVBA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 16:01:00 -0500
-Date: Sun, 4 Jan 2004 13:00:39 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Erik Hensema <erik@hensema.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0: something is leaking memory
-In-Reply-To: <slrnbvgohn.1pb.erik@dexter.hensema.net>
-Message-ID: <Pine.LNX.4.58.0401041257290.2162@home.osdl.org>
-References: <slrnbvgohn.1pb.erik@dexter.hensema.net>
+	Sun, 4 Jan 2004 16:02:31 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:6537 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263661AbUADVC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 16:02:29 -0500
+Message-ID: <3FF87F41.1090007@eglifamily.dnsalias.net>
+Date: Sun, 04 Jan 2004 14:01:53 -0700
+From: Dan Egli <dan@eglifamily.dnsalias.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Armin <Zoup@zoup.org>
+CC: linux-kernel@vger.kernel.org
+References: <200401041241.26368.Zoup@zoup.org>
+In-Reply-To: <200401041241.26368.Zoup@zoup.org>
+X-Enigmail-Version: 0.82.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Subject: Re: Crazy Mouse !
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dan@eglifamily.dnsalias.net
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Armin wrote:
+| Hi list ,
+| im using 2.6.1-rc1 , i have an ps2 mouse ( in fact , its touch pad !
+but iv
+| got this problem with external mouse too ) , when my box is under
+heavy ( or
+| normal ) load , mouse start to be crazy , dancing all around the
+screen and
+| click every where ... how can i fix it ?
+|
 
-On Sun, 4 Jan 2004, Erik Hensema wrote:
-> 
-> The leak can be most easily seen in my rrdtool graphs of memory
-> usage: http://dexter.hensema.net/~erik/stats/mem-mon.gif and
-> http://dexter.hensema.net/~erik/stats/mem-year.gif - try to guess
-> when I switched to 2.6.0-test11 ;-)
-> 
-> At Dec 31 I upgraded to 2.6.0-final.
-> 
-> Output from ps aux, /proc/vmstat and /proc/meminfo, are attached.
-> My .config isn't compiled in and I haven't got it at hand
-> currently. If anyone is interested I can post it tomorrow.
+Did you try restarting gpm? That happens to me whenever I swap from one
+machine to another on the KVM switch. When I go back my mouse is
+abslultely insane. Does everything EXCEPT what I said to do. 99 of 100
+times killing and restarting gpm fixes it.
 
-Can you do /proc/slabinfo too?
+- --- Dan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (MingW32)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-Clearly the memory leak isn't in the page cache, so the most likely source 
-is network buffers, and most likely in iptables connection tracking or 
-similar. If you actually _use_ IPv6, then that is also more likely to have 
-leaks just due to less testing.
+iD8DBQE/+H9BtwT22Jak4/4RAuXuAJ9935AmYjUkY/KUj8kgmrPLcbWvyACdG19K
+MKqhSY/YkVEiYwE7ZATRsiU=
+=PI1Q
+-----END PGP SIGNATURE-----
 
-David & co fixed a number of leaks just before 2.6.0-final, but that 
-doesn't mean that they are all gone - rather it means that there 
-definitely were still leaks around just a few weeks ago.
-
-
-		Linus

@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130607AbQLBXps>; Sat, 2 Dec 2000 18:45:48 -0500
+	id <S130645AbQLBXtI>; Sat, 2 Dec 2000 18:49:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130645AbQLBXpj>; Sat, 2 Dec 2000 18:45:39 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:12553 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130607AbQLBXpf>; Sat, 2 Dec 2000 18:45:35 -0500
-Date: Sat, 2 Dec 2000 17:14:52 -0600
-To: Frédéric L . W . Meunier 
-	<0@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: make oldconfig with menuconfig
-Message-ID: <20001202171452.G25464@wire.cadcamlab.org>
-In-Reply-To: <20001202144151.C1437@pervalidus.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001202144151.C1437@pervalidus.dyndns.org>; from 0@pervalidus.net on Sat, Dec 02, 2000 at 02:41:51PM -0200
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130648AbQLBXs7>; Sat, 2 Dec 2000 18:48:59 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:40850 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S130645AbQLBXsw>;
+	Sat, 2 Dec 2000 18:48:52 -0500
+Date: Sat, 2 Dec 2000 18:18:06 -0500
+Message-Id: <200012022318.SAA17498@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: david@linux.com, linux-kernel@vger.kernel.org, vpnd@sunsite.auc.dk
+In-Reply-To: Albert D. Cahalan's message of Sat, 2 Dec 2000 17:00:32 -0500
+	(EST), <200012022200.eB2M0Wu473578@saturn.cs.uml.edu>
+Subject: Re: /dev/random probs in 2.4test(12-pre3)
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+   Date: 	Sat, 2 Dec 2000 17:00:32 -0500 (EST)
 
-[Frédéric L . W . Meunier]
-> What's the best way to use make oldconfig with menuconfig?
-> oldconfig with config isn't what will make my life easier.
+   > Any programmer who has evolved sufficiently from a scriptie
+   > should take necessary precautions to check how much data was
+   > transferred.  Those who don't..well, there is still tomorrow.
 
-You mean you want menuconfig, but only one small menu with the new
-options?  Can't be done, currently.
+   Yeah, people write annoying little wrapper functions that
+   bounce right back into the kernel until the job gets done.
+   This is slow, it adds both source and object bloat, and it
+   is a source of extra bugs. What a lovely API, eh?
 
-Peter
+Well, that's the Unix interface you.  I you don't like it, why don't you
+become a Windows programmer and try your hand at the Win32 interface?  :-)
+
+Seriously, doing something different for /dev/random compared to all
+other read(2) calls is a bad idea; it will get people confused.  The
+answer is whenever you call read(2), you must check the return values.
+People who don't are waiting to get themselves into a lot of trouble,
+particularly people who writing network programs.  The number of people
+who assume that they can get an entire (variable-length) RPC packet by
+doing a single read() call astounds me.  TCP doesn't provide message
+boundaries, never did and never will.  The problem is that such program
+will work on a LAN, and then blow up when you try using them across the
+real Internet.
+
+Secondly, the number of times that you end up going into a kernel is
+relatively rare; I doubt you'd be able to notice a performance
+difference in the real world using a real-world program.  As far as
+source/object code bloat, well, how much space does a while loop take?
+And I usyally write a helper function which takes care of the while
+loop, checks for errors, calls read again if EINTR is returned, etc.
+
+						- Ted
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

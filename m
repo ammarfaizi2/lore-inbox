@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263789AbUC3RpY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:45:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbUC3RpX
+	id S263787AbUC3RsD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:48:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUC3Rrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:45:23 -0500
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:45752 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S263789AbUC3Rov (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:44:51 -0500
-Message-Id: <200403301744.i2UHiT9b001846@ginger.cmf.nrl.navy.mil>
-To: davem@redhat.com
-cc: Willy TARREAU <willy@w.ods.org>, Chris Wedgwood <cw@f00f.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.4.26] ATM cleanup 
-In-Reply-To: Message from Willy TARREAU <willy@w.ods.org> 
-   of "Sun, 28 Mar 2004 15:08:11 +0200." <20040328130811.GA7345@pcw.home.local> 
-Date: Tue, 30 Mar 2004 12:44:30 -0500
-From: "chas williams (contractor)" <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-0.3
+	Tue, 30 Mar 2004 12:47:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36808 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263775AbUC3RrG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 12:47:06 -0500
+Message-ID: <4069B289.9030807@pobox.com>
+Date: Tue, 30 Mar 2004 12:46:49 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+CC: Kevin Corry <kevcorry@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
+       dm-devel@redhat.com
+Subject: Re: "Enhanced" MD code avaible for review
+References: <760890000.1079727553@aslan.btc.adaptec.com> <200403261315.20213.kevcorry@us.ibm.com> <1644340000.1080333901@aslan.btc.adaptec.com> <200403270939.29164.kevcorry@us.ibm.com> <842610000.1080666235@aslan.btc.adaptec.com> <4069AB1B.90108@pobox.com> <854630000.1080668158@aslan.btc.adaptec.com>
+In-Reply-To: <854630000.1080668158@aslan.btc.adaptec.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-please apply to the 2.4 and 2.6 kernels.
+Justin T. Gibbs wrote:
+>>The kernel should not be validating -trusted- userland inputs.  Root is
+>>allowed to scrag the disk, violate limits, and/or crash his own machine.
+>>
+>>A simple example is requiring userland, when submitting ATA taskfiles via
+>>an ioctl, to specify the data phase (pio read, dma write, no-data, etc.).
+>>If the data phase is specified incorrectly, you kill the OS driver's ATA
+>>host wwtate machine, and the results are very unpredictable.   Since this
+>>is a trusted operation, requiring CAP_RAW_IO, it's up to userland to get the
+>>required details right (just like following a spec).
+> 
+> 
+> That's unfortunate for those using ATA.  A command submitted from userland
 
-thanks!
+Required, since one cannot know the data phase of vendor-specific commands.
 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1717  -> 1.1718 
-#	 net/atm/mpoa_proc.c	1.7     -> 1.8    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/03/30	chas@relax.cmf.nrl.navy.mil	1.1718
-# [ATM]: mpoa_proc warning cleanup (from Willy TARREAU <willy@w.ods.org>)
-# --------------------------------------------
-#
-diff -Nru a/net/atm/mpoa_proc.c b/net/atm/mpoa_proc.c
---- a/net/atm/mpoa_proc.c	Tue Mar 30 12:41:47 2004
-+++ b/net/atm/mpoa_proc.c	Tue Mar 30 12:41:47 2004
-@@ -103,7 +103,7 @@
- 			     size_t count, loff_t *pos){
-         unsigned long page = 0;
- 	unsigned char *temp;
--        ssize_t length  = 0;
-+        int length = 0;
- 	int i = 0;
- 	struct mpoa_client *mpc = mpcs;
- 	in_cache_entry *in_entry;
+> to the SCSI drivers I've written that causes a protocol violation will
+> be detected, result in appropriate recovery, and a nice diagnostic that
+> can be used to diagnose the problem.  Part of this is because I cannot know
+> if the protocol violation stems from a target defect, the input from the
+> user or, for that matter, from the kernel.  The main reason is for robustness
+
+Well,
+* the target is not _issuing_ commands,
+* any user issuing incorrect commands/cdbs is not your bug,
+* and kernel code issuing incorrect cmands/cdbs isn't your bug either
+
+Particularly, checking whether the kernel is doing something wrong, or 
+wrong, just wastes cycles.  That's not a scalable way to code...  if 
+every driver and Linux subsystem did that, things would be unbearable slow.
+
+	Jeff
+
+
+

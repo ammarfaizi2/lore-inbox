@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317904AbSHCVyw>; Sat, 3 Aug 2002 17:54:52 -0400
+	id <S317924AbSHCVy7>; Sat, 3 Aug 2002 17:54:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317911AbSHCVyw>; Sat, 3 Aug 2002 17:54:52 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38889 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317904AbSHCVyu>; Sat, 3 Aug 2002 17:54:50 -0400
-Date: Sat, 3 Aug 2002 23:58:03 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pawel Kot <pkot@linuxnews.pl>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: No Subject
-In-Reply-To: <1028411118.1760.30.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.SOL.4.30.0208032341220.24539-100000@mion.elka.pw.edu.pl>
+	id <S317931AbSHCVy7>; Sat, 3 Aug 2002 17:54:59 -0400
+Received: from sammy.netpathway.com ([208.137.139.2]:4881 "EHLO
+	sammy.netpathway.com") by vger.kernel.org with ESMTP
+	id <S317924AbSHCVy6>; Sat, 3 Aug 2002 17:54:58 -0400
+Message-ID: <3D4C5209.67385E8C@netpathway.com>
+Date: Sat, 03 Aug 2002 16:58:33 -0500
+From: Gary White <gary@netpathway.com>
+X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 IDE Partition Check issue
+References: <20020803163708.GHUY23840.mta03-svc.ntlworld.com@[10.137.100.63]> <1028397650.1760.8.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-scanner: scanned by Inflex 1.0.12.4 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan I have the same problem Just complied 2.4.10-ac1 and I it did
+not help. I only have a problem if I compile in the ALI M15x3 chipset
+support so I can use DMA. Without DMA the partition check zooms right
+past the 2 Maxtor 120GB drives I am having a problem with.
 
-On 3 Aug 2002, Alan Cox wrote:
+Note: I do have an AWARD Bios and have tried the with and without
+Auto-Geometry Resizing support compiled in the kernel.
 
-> On Sat, 2002-08-03 at 20:26, Pawel Kot wrote:
-> > What helped me was using fixup_device_piix() from -ac in
-> > ide_scan_pcidev(). My controler's ID is DEVID_ICH3M.
-> > It is used in a different, more generic way in -ac, so I don't post the
-> > patch.
+Oly boots if I don't use DMA and generic controller support.
+
+> 
+> On Sat, 2002-08-03 at 17:37, alien.ant@ntlworld.com wrote:
+> > Hi,
 > >
-> > Alan, Marcelo: is there any chance that this change will be ported from
-> > -ac in 2.4.20?
->
-> I plan to send Marcelo all the IDE updates. Note btw the checking of the
-> return value on pci_enable_device is critical - some old kernels hang on
-> boot with crappy bioses through not checking.
+> > I attempted to upgrade from 2.4.18 to 2.4.19 today but one of machines repeatedly hangs at the "Partition check" on the IDE drives.
+> >
+> > The machine is a Compaq Proliant 800 Pentium III SMP box with a Highpoint 370 IDE controller. I attempted several reboots with the check continually failing. Rebooting back to 2.4.18 removed the problem.
+> >
+> > Searching the archive I note several other people have had this problem with 2.4.19-pre kernels but, as yet, there seems to be no resolution?
+> >
+> Can you try 2.4.19-ac1 once I upload it. That has slightly further
+> updated IDE code and it would useful to know if the same problem occurs
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Of course it is critical :-).
+-- 
+Gary White                                  admin@netpathway.com
+Network Administrator                           Internet Pathway
+P. O. Box 777, 105 D East Church Street        Quitman, MS 39355
+Voice: 601-776-3355                            Fax: 601-776-2314
 
-> What I begin to the think the right answer is, is to relax the IDE fixup
-> block in the i386 kernel boot up. Right now we avoid assigning
-> unassigned resources for IDE controllers. Clearly we should be doing so.
-
-I think so.
-Andre what do you think?
-
-And one more thing in ide-pci.c:ide_setup_pci_device() after explicitly
-enabling device's IOs we may need to update dev->resource and we don't
-do this (we place chipset in native mode so i.e. on VIA base addresses
-are just showing up). How to update them?
-
-Regards
---
-Bartlomiej
-
+________________________________________________________
+This email has been scanned by Internet Pathway's Email
+Gateway scanning system for potentially harmful content,
+such as viruses or spam. Nothing out of the ordinary was
+detected in this email. For more information, call
+601-776-3355 or email emailscanner@netpathway.com
+________________________________________________________

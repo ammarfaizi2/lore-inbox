@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288976AbSAUAKi>; Sun, 20 Jan 2002 19:10:38 -0500
+	id <S288978AbSAUATi>; Sun, 20 Jan 2002 19:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288977AbSAUAK2>; Sun, 20 Jan 2002 19:10:28 -0500
-Received: from ftoomsh.progsoc.uts.edu.au ([138.25.6.1]:11786 "EHLO ftoomsh")
-	by vger.kernel.org with ESMTP id <S288976AbSAUAKT>;
-	Sun, 20 Jan 2002 19:10:19 -0500
-Date: Mon, 21 Jan 2002 11:10:05 +1100
-From: Matt <matt@progsoc.uts.edu.au>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Shawn <spstarr@sh0n.net>,
-        linux-kernel@vger.kernel.org, Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering.
-Message-ID: <20020121111005.F12258@ftoomsh.progsoc.uts.edu.au>
-In-Reply-To: <Pine.LNX.4.33L.0201201936340.32617-100000@imladris.surriel.com> <3C4B3B67.60505@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C4B3B67.60505@namesys.com>; from reiser@namesys.com on Mon, Jan 21, 2002 at 12:49:27AM +0300
-X-OperatingSystem: Linux ftoomsh.progsoc.uts.edu.au 2.2.15-pre13
+	id <S288979AbSAUAT2>; Sun, 20 Jan 2002 19:19:28 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:26192 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S288978AbSAUATU>; Sun, 20 Jan 2002 19:19:20 -0500
+Date: Mon, 21 Jan 2002 00:21:29 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>,
+        alad@hss.hns.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] free_swap_and_cache misses
+Message-ID: <Pine.LNX.4.21.0201210016040.1153-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 12:49:27AM +0300, Hans Reiser wrote:
-> Rik van Riel wrote:
+free_swap_and_cache() often misses its purpose and leaves freeable page
+in swap and cache.  Wrong in mainline 2.4 and 2.5, but looks okay in -aa
+(so don't bother to apply this if you're now merging that).
 
-[snip snip]
+Hugh
 
->> On basically any machine we'll have multiple memory zones.
-
->> Each of those memory zones has its own free list and each of the
->> zones can get low on free pages independantly of the other zones.
-
->> This means that if the VM asks to get a particular page freed, at
->> the very minimum you need to make a page from the same zone
->> freeable.
-
->> regards,
-
->> Rik
-
-
-> I'll discuss with Josh tomorrow how we might implement support for that. 
->   A clean and simple mechanism does not come to my mind immediately.
-
-> Hans
-
-i know this sounds semi-evil, but can't you just drop another non
-dirty page and do a copy if you need the page you have been asked to
-write out? because if you have no non dirty pages around you'd
-probably have to drop the page anyway at some stage..
-
-	matt
+--- 2.4.18-pre4/mm/swapfile.c	Sun Dec 23 10:47:32 2001
++++ linux/mm/swapfile.c	Sun Jan 20 23:30:52 2002
+@@ -344,7 +344,7 @@
+ 	if (page) {
+ 		page_cache_get(page);
+ 		/* Only cache user (+us), or swap space full? Free it! */
+-		if (page_count(page) == 2 || vm_swap_full()) {
++		if (page_count(page) - !!page->buffers == 2 || vm_swap_full()) {
+ 			delete_from_swap_cache(page);
+ 			SetPageDirty(page);
+ 		}
 

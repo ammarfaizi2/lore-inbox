@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbTJJIhq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 04:37:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262673AbTJJIhq
+	id S262709AbTJJIkR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 04:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTJJIkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 04:37:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23472 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262659AbTJJIho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 04:37:44 -0400
-Date: Thu, 9 Oct 2003 21:07:42 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
-Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.7 thoughts
-Message-ID: <20031009190742.GF1659@openzaurus.ucw.cz>
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
-Mime-Version: 1.0
+	Fri, 10 Oct 2003 04:40:16 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:12169 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262709AbTJJIkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 04:40:08 -0400
+To: linux-kernel@vger.kernel.org
+Subject: net/sunrpc/clnt.c compilation error: tk_pid field
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 10 Oct 2003 17:40:00 +0900
+Message-ID: <buo65ixv63j.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+With linux-2.6.0-test7, I get compilation errors like:
 
-> 	Some thoughts for 2.7.Someone has other ideas, comments ?
-> 	
+     CC      net/sunrpc/clnt.o
+   net/sunrpc/clnt.c:965: structure has no member named `tk_pid'
+   net/sunrpc/clnt.c:970: structure has no member named `tk_pid'
+   net/sunrpc/clnt.c:976: structure has no member named `tk_pid'
+   make[2]: *** [net/sunrpc/clnt.o] Error 1
 
-* mosix-like clustering support
-* network char device for using remote soundcards etc.
-* whole-system snapshot / rollback
-* ACLs
+The reason seems to be that the tk_pid field is only included in
+`struct rpc_task' (defined in include/linux/sunrpc/sched.h) if
+DEBUG_RPC is defined, and DEBUG_RPC is only defined if CONFIG_SYSCTL
+is defined (include/linux/sunrpc/debug.h).  I've enabled NFS, but not
+CONFIG_SYSCTL:
 
-				Pavel
+   $ egrep '(SYSCTL|NFS|RPC)' .config
+   # CONFIG_SYSCTL is not set
+   CONFIG_NFS_FS=y
+   CONFIG_NFS_V3=y
+   CONFIG_NFS_V4=y
+   # CONFIG_NFSD is not set
+   CONFIG_SUNRPC=y
+   CONFIG_SUNRPC_GSS=y
+
+Most code in net/sunrpc only references the tk_pid field inside of calls
+to `dprintk', which is a macro that does nothing unless DEBUG_RPC is
+defined; however the three lines mentioned in the error messages above
+use ordinary printks, and so don't compile unless DEBUG_RPC is defined.
+Perhaps these three lines should also use dprintk.
+
+-Miles
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+`Life is a boundless sea of bitterness'

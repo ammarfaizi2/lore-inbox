@@ -1,107 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130105AbRATQaX>; Sat, 20 Jan 2001 11:30:23 -0500
+	id <S129944AbRATQjH>; Sat, 20 Jan 2001 11:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130391AbRATQaO>; Sat, 20 Jan 2001 11:30:14 -0500
-Received: from pak145.pakuni.net ([205.138.121.145]:37362 "EHLO
-	postal.paktronix.com") by vger.kernel.org with ESMTP
-	id <S130105AbRATQaJ>; Sat, 20 Jan 2001 11:30:09 -0500
-Date: Sat, 20 Jan 2001 10:24:15 -0600 (CST)
-From: "Matthew G. Marsh" <mgm@paktronix.com>
-To: depaan@bibleinfo.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4, iproute2 and routing rules that refuse to match
-In-Reply-To: <0101181351280C.02284@orion>
-Message-ID: <Pine.LNX.4.10.10101201012140.2187-100000@netmonster.pakint.net>
+	id <S130008AbRATQi6>; Sat, 20 Jan 2001 11:38:58 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:17924 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129944AbRATQil>; Sat, 20 Jan 2001 11:38:41 -0500
+Date: Sat, 20 Jan 2001 08:38:17 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Albert Cranford <ac9410@bellsouth.net>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1-pre9 fails to compile drm r128 as module
+In-Reply-To: <3A68EEA7.1A806E6C@bellsouth.net>
+Message-ID: <Pine.LNX.4.10.10101200836110.10154-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jan 2001, Andrew wrote:
 
-> Greetings,
 
-[snip]
+On Sat, 20 Jan 2001, Albert Cranford wrote:
+>
+> 2.4.1-pre9 changes to drivers/char/drm/drm.h are incorrect.
+> Please reverse this small change to compile correctly.
 
-Hi! 
+Actually, please revert a bit more.
+
+(The XFree86 CVS tree is being silly - they've renamed the ioctl's after
+4.0.2 instead of just assigning new numbers. I hope they learn. The radeon
+merge got a bit too much merged)
+
+		Linus
+
+----
+diff -u --recursive --new-file pre9/linux/drivers/char/drm/drm.h linux/drivers/char/drm/drm.h
+--- pre9/linux/drivers/char/drm/drm.h	Fri Jan 19 21:41:07 2001
++++ linux/drivers/char/drm/drm.h	Fri Jan 19 21:38:59 2001
+@@ -374,15 +374,14 @@
+ #define DRM_IOCTL_R128_CCE_RESET	DRM_IO(  0x43)
+ #define DRM_IOCTL_R128_CCE_IDLE		DRM_IO(  0x44)
+ #define DRM_IOCTL_R128_RESET		DRM_IO(  0x46)
+-#define DRM_IOCTL_R128_FULLSCREEN	DRM_IOW( 0x47, drm_r128_fullscreen_t)
+-#define DRM_IOCTL_R128_SWAP		DRM_IO(  0x48)
+-#define DRM_IOCTL_R128_CLEAR		DRM_IOW( 0x49, drm_r128_clear_t)
+-#define DRM_IOCTL_R128_VERTEX		DRM_IOW( 0x4a, drm_r128_vertex_t)
+-#define DRM_IOCTL_R128_INDICES		DRM_IOW( 0x4b, drm_r128_indices_t)
+-#define DRM_IOCTL_R128_BLIT		DRM_IOW( 0x4c, drm_r128_blit_t)
+-#define DRM_IOCTL_R128_DEPTH		DRM_IOW( 0x4d, drm_r128_depth_t)
+-#define DRM_IOCTL_R128_STIPPLE		DRM_IOW( 0x4e, drm_r128_stipple_t)
+-#define DRM_IOCTL_R128_INDIRECT		DRM_IOWR(0x4f, drm_r128_indirect_t)
++#define DRM_IOCTL_R128_SWAP		DRM_IO(  0x47)
++#define DRM_IOCTL_R128_CLEAR		DRM_IOW( 0x48, drm_r128_clear_t)
++#define DRM_IOCTL_R128_VERTEX		DRM_IOW( 0x49, drm_r128_vertex_t)
++#define DRM_IOCTL_R128_INDICES		DRM_IOW( 0x4a, drm_r128_indices_t)
++#define DRM_IOCTL_R128_BLIT		DRM_IOW( 0x4b, drm_r128_blit_t)
++#define DRM_IOCTL_R128_DEPTH		DRM_IOW( 0x4c, drm_r128_depth_t)
++#define DRM_IOCTL_R128_STIPPLE		DRM_IOW( 0x4d, drm_r128_stipple_t)
++#define DRM_IOCTL_R128_PACKET		DRM_IOWR(0x4e, drm_r128_packet_t)
  
-> But when I ping 172.x.x.1, my router's address, I get nothing. Hopping
-> over to the router's terminal and running tcpdump shows me that the packets
-> are indeed arriving but they aren't making it. As it ends up, they are 
-
-yes. Always will. Note that lo (loopback is a valid interface on the
-system and that the systems IP addresses belong to the system not to the
-interface. Having said that mouthfull let me illustrate:
-
-ETH0 = 172.16.1.1/24
-
-To appropriately route out all packets from the LOCAL machine (internal
-responses) to ETH0 the following rule and route/table exist:
-
-ip rule add from 172.16.1.1 dev lo table outeth0 prio 2000
-
-ip route add 172.16.1.0/24 dev eth0 table outeth0 src 172.16.1.1 \
-	 proto static
-
-Or whatever default/network you would wish to add. The problem is that the
-machine is trying to respond but you have no rule that permits the
-response. BTW that is one of the reasons for the default rules.
-
-> It's almost as if there is a bug in the rule matching code somewhere
-> which doesn't properly handle this specific condition. But then again,
-> why would this bug manifest itself across so many different kernels, including
-> 2.4.0 in which I understand the networking has been completely rewritten?
-
-No bug - just that the full scope of the policy routing (RPDB) changes are
-quite fundamental WRT the "traditional" IP implementations. Alexey, etal,
-actually do it "right" according to the RFC's and the sense of the
-IPv4/v6 specifications.
- 
-> One important gotcha I found when testing is after every change you make,
-> you have to run "ip route flush cache" to make it take effect. I've
-> been down that road already, we're not dealing with that here.
-
-yep.
- 
-> You can review my postings about this issue in the lartc advanced routing
-> mailing list archives by looking through q4 of 2000 for the following
-> subject lines:
-
-hmmm - mebbe I should join that list... eh - I get too much mail now...
-;-} 
-
-> (http://mailman.ds9a.nl/pipermail/lartc/2000q4/author.html)
-> 
-> [LARTC] A complicated routing scenario (for me at least)  
-> [LARTC] Backup Route   Andrew 
-> [LARTC] A bug in ip?   Andrew 
-> [LARTC] simple routing problem... (what am I missing?)   Andrew 
-> [LARTC] Can't one filter based on a single destination address?   Andrew 
-> [LARTC] Advanced Routing problem (Can someone PLEASE answer this!)   Andrew 
-> 
-> Thanks in advance for any help. If this advanced routing is going to be of
-> any use to me, I need to get this resoved. The only other option I know of
-> is to buy another $10,000 cisco router (not very appealing to say the least).
-
-Npt needed - I have a router (P90/64M) with 6 interfaces (3 Internet, 2
-LAN, 1 Wireless) that is doing wierder things than that... Works very
-well.
-
-> -Andrew
-
-Hate to bang a drum in public so if you would like a good reference to a
-book on this subject email me directly. 
-
---------------------------------------------------
-Matthew G. Marsh,  President
-Paktronix Systems LLC
-1506 North 59th Street
-Omaha  NE  68104
-Phone: (402) 932-7250
-Email: mgm@paktronix.com
-WWW:  http://www.paktronix.com
---------------------------------------------------
+ /* Radeon specific ioctls */
+ #define DRM_IOCTL_RADEON_CP_INIT	DRM_IOW( 0x40, drm_radeon_init_t)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

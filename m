@@ -1,41 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286137AbRLTFtB>; Thu, 20 Dec 2001 00:49:01 -0500
+	id <S286143AbRLTFvv>; Thu, 20 Dec 2001 00:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286139AbRLTFsv>; Thu, 20 Dec 2001 00:48:51 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30480 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286137AbRLTFsk>; Thu, 20 Dec 2001 00:48:40 -0500
-Date: Wed, 19 Dec 2001 21:47:18 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: <cs@zip.com.au>, <billh@tierra.ucsd.edu>, <bcrl@redhat.com>,
-        <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
-Subject: Re: aio
-In-Reply-To: <20011219.185847.77651573.davem@redhat.com>
-Message-ID: <Pine.LNX.4.33.0112192136300.19214-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286144AbRLTFvm>; Thu, 20 Dec 2001 00:51:42 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:47878 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S286143AbRLTFvd>; Thu, 20 Dec 2001 00:51:33 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com, marcelo@conectiva.com.br
+Subject: [PATCH] Documentation update
+Date: Thu, 20 Dec 2001 16:51:21 +1100
+Message-Id: <E16Gw6z-0000Aj-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Someone pointed out that cpu_to_XXX is not included in the Unreliable
+Guide to Kernel Hacking.
 
-On Wed, 19 Dec 2001, David S. Miller wrote:
->
-> Not precisely my thrust, which is that AIO is not important to any
-> significant population of Linux users, it is "nook and cranny" in
-> scope.  And that those "nook and cranny" folks who really find it
-> important can get paid implementation+support of AIO.
+Being aimed as a "fast background to kernel coding", it's a definite
+hole.
 
-I disagree - we can probably make the aio by Ben quite important. Done
-right, it becomes a very natural way of doing event handling, and it could
-very well be rather useful for many things that use select loops right
-now.
+Cheers,
+Rusty.
 
-So I actually like the thing as it stands now. What I don't like is how
-it's been handled, with people inside Oracle etc working with it, but
-_not_ people on the kernel mailing list. I don't worry about the code
-nearly as much as I worry about people starting to clique together.
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.4.16-uml/Documentation/DocBook/kernel-hacking.tmpl working-2.4.16-uml-proc/Documentation/DocBook/kernel-hacking.tmpl
+--- linux-2.4.16-uml/Documentation/DocBook/kernel-hacking.tmpl	Thu Oct 25 11:29:46 2001
++++ working-2.4.16-uml-proc/Documentation/DocBook/kernel-hacking.tmpl	Thu Dec 20 12:31:41 2001
+@@ -18,8 +18,8 @@
+   </authorgroup>
+ 
+   <copyright>
+-   <year>2000</year>
+-   <holder>Paul Russell</holder>
++   <year>2001</year>
++   <holder>Rusty Russell</holder>
+   </copyright>
+ 
+   <legalnotice>
+@@ -651,6 +651,28 @@
+    </para> 
+   </sect1>
+  
++  <sect1 id="routines-endian">
++   <title><function>cpu_to_be32()</function>/<function>be32_to_cpu()</function>/<function>cpu_to_le32()</function>/<function>le32_to_cpu()</function>
++     <filename class=headerfile>include/asm/byteorder.h</filename> 
++   </title>
++
++   <para>
++    The <function>cpu_to_be32()</function> family (where the "32" can
++    be replaced by 64 or 16, and the "be" can be replaced by "le") are
++    the general way to do endian conversions in the kernel: they
++    return the converted value.
++   </para>
++
++   <para>
++    There are two major variations of these functions: the pointer
++    variation, such as <function>cpu_to_be32p()</function>, which take
++    a pointer to the given type, and return the converted value.  The
++    other variation is the "in-situ" family, such as
++    <function>cpu_to_be32s()</function>, which convert value referred
++    to by the pointer, and return void.
++   </para> 
++  </sect1>
++
+   <sect1 id="routines-local-irqs">
+    <title><function>local_irq_save()</function>/<function>local_irq_restore()</function>
+     <filename class=headerfile>include/asm/system.h</filename>
 
-		Linus
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

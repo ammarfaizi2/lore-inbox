@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVATV76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVATWBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVATV76 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 16:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVATV6S
+	id S262092AbVATWBo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 17:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVATWBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 16:58:18 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:9706 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262081AbVATV5R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 16:57:17 -0500
-Message-ID: <41F02933.7040706@nortelnetworks.com>
-Date: Thu, 20 Jan 2005 15:57:07 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Thu, 20 Jan 2005 17:01:43 -0500
+Received: from mail08.syd.optusnet.com.au ([211.29.132.189]:57262 "EHLO
+	mail08.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262081AbVATWB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 17:01:28 -0500
 MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Andrea Arcangeli <andrea@suse.de>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: oom killer gone nuts
-References: <20050120123402.GA4782@suse.de> <20050120131556.GC10457@pclin040.win.tue.nl> <20050120171544.GN12647@dualathlon.random> <20050120205204.GB11170@pclin040.win.tue.nl>
-In-Reply-To: <20050120205204.GB11170@pclin040.win.tue.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16880.10712.159729.934973@wombat.chubb.wattle.id.au>
+Date: Fri, 21 Jan 2005 08:59:52 +1100
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, Con Kolivas <kernel@kolivas.org>,
+       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling
+In-Reply-To: <87y8eo9hed.fsf@sulphur.joq.us>
+References: <200501201542.j0KFgOwo019109@localhost.localdomain>
+	<87y8eo9hed.fsf@sulphur.joq.us>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
+>>>>> "Jack" == Jack O'Quin <joq@io.com> writes:
 
-> But let me stress that I also consider the earlier situation
-> unacceptable. It is really bad to lose a few weeks of computation.
 
-Shouldn't the application be backing up intermediate results to disk 
-periodically?  Power outages do occur, as do bus faults, electrical 
-glitches, dead fans, etc.
+Jack> Looks like we need to do another study to determine which
+Jack> filesystem works best for multi-track audio recording and
+Jack> playback.  XFS looks promising, but only if they get the latency
+Jack> right.  Any experience with that?  
 
-Chris
+The nice thing about audio/video and XFS is that if you know ahead of
+time the max size of a file (and you usually do -- because you know
+ahead of time how long a take is going to be) you can precreadte the
+file as a contiguous chunk, then just fill it in, for minimum disc
+latency.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311884AbSECNbQ>; Fri, 3 May 2002 09:31:16 -0400
+	id <S311898AbSECNcG>; Fri, 3 May 2002 09:32:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311898AbSECNbP>; Fri, 3 May 2002 09:31:15 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:24142 "EHLO mtaout05")
-	by vger.kernel.org with ESMTP id <S311884AbSECNbO>;
-	Fri, 3 May 2002 09:31:14 -0400
-Date: Fri, 03 May 2002 09:25:12 -0400
-From: Russell Leighton <russ@elegant-software.com>
-Subject: Linux 2.4 as a router, when is it appropriate?
+	id <S312379AbSECNcF>; Fri, 3 May 2002 09:32:05 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:9996 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S311898AbSECNcA>;
+	Fri, 3 May 2002 09:32:00 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
 To: linux-kernel@vger.kernel.org
-Message-id: <3CD28FB8.40204@elegant-software.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.9)
- Gecko/20020311
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+In-Reply-To: Your message of "03 May 2002 12:05:01 GMT."
+             <slrnad4v7c.i01.kraxel@bytesex.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 03 May 2002 23:31:48 +1000
+Message-ID: <12882.1020432708@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 3 May 2002 12:05:01 GMT, 
+Gerd Knorr <kraxel@bytesex.org> wrote:
+>Keith Owens wrote:
+>>  Coding a special case to work out if the existing global makefile can
+>>  be reused is horribly error prone.
+>
+>Special case?  I'd say it is the common case when doing kernel
+>development.  At least I don't use another compiler for every second
+>make.  I usually hack some piece of code and recompile the module then.
 
-Could someone please tell me (or refer me to docs) on when
-using the Linux on PC hardware as a router is an appropriate
-solution and when one should consider a "real" router (e.g., Cisco)?
+We learnt the hard way in kbuild 2.4 that trying to optimize the build
+by checking for special cases wasted far more time in solving wierd
+problems than it ever saved, every time the optimization was wrong we
+generated invalid kernels and modules.  Experience showed that
+over-optimization was a BIG mistake.
 
-I have heard that performance wise, if you have a fast CPU,
-much memory and good NICs that Linux can be as good
-all but the high end routers. Are there important missing
-features or realiability issues that make using Linux not
-suitable for "enterprise" use?
+The pre-processing programs do more than just build the global
+makefile, they do a ton of integrity checking as well.  If you bypass
+the makefile generation then I cannot guarantee the results.  Most of
+the time is taken in finding all the files and doing the integrity
+checks, the actual generation step is pretty fast.
 
-Thanks.
+You are complaining about a system that is already far more accurate
+than the old build system, has more features and it still manages to be
+faster than kbuild 2.4.  I am not going to sacrifice build accuracy for
+the sake of shaving a few more seconds off the build time, it is
+already faster than the old system.  Especially when I have to add and
+maintain extra code in order to make the build less reliable!
 
-Russ
+
+I suspect that some users are put off by the small amount of output
+from kbuild 2.5, they are used to all the noise from kbuild 2.4 and
+they equate noise with "something is being done".  Perhaps I should add
+CONFIG_PROVIDE_RANDOM_NOISE_TO_KEEP_THE_USER_AMUSED to kbuild 2.5, with
+sub-options for dots, hashes, twirling bars and
+
+              \|/ ____ \|/
+              "@'/ ,. \`@"
+              /_| \__/ |_\
+                 \__U_/			(R) davem
 
 
+Users who "know" that nothing has changed except a source file can tell
+kbuild 2.5 of their opinion with NO_MAKEFILE_GEN=1.  Just don't blame
+me if you get it wrong.  I provide the gun, but you have to aim it at
+your own foot and pull the trigger.  Like everything else on kbuild
+2.5, NO_MAKEFILE_GEN=1 is more accurate than the 2.4 equivalent
+(SUBDIRS= is broken) and faster as well.  If you cannot type 18 extra
+characters on the command line, you have other problems.
+
+For the really foolish people who "know" that the build is complete and
+who want to bypass all the integrity checks that are performed during
+makefile generation -
+
+  make NO_MAKEFILE_GEN=1 \
+  	I_KNOW_THAT_THIS_BUILD_MAY_BE_INCOMPLETE_BUT_I_WANT_TO_INSTALL_IT_ANYWAY=1 \
+	install
+
+When it blows up on you, you get to keep the pieces.
 

@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbUKDAQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbUKCWyf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbUKDAQd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 19:16:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUKDAMu
+	id S261952AbUKCWyf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 17:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbUKCWwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 19:12:50 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2720 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261997AbUKDAKl (ORCPT
+	Wed, 3 Nov 2004 17:52:44 -0500
+Received: from gprs214-112.eurotel.cz ([160.218.214.112]:28547 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261925AbUKCWtC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 19:10:41 -0500
-Date: Wed, 3 Nov 2004 16:10:31 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] avoid semi-infinite loop when mounting bad ext2
-In-Reply-To: <20041103232744.GA10325@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.58.0411031608380.2187@ppc970.osdl.org>
-References: <20041103232744.GA10325@apps.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 3 Nov 2004 17:49:02 -0500
+Date: Wed, 3 Nov 2004 23:48:42 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Type-checking for pci layer
+Message-ID: <20041103224842.GH1574@elf.ucw.cz>
+References: <20041103214711.GA1885@elf.ucw.cz> <20041103215130.GA30621@kroah.com> <20041103221440.GG1574@elf.ucw.cz> <20041103222145.GA30900@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041103222145.GA30900@kroah.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 4 Nov 2004, Andries Brouwer wrote:
+Hi!
+> > > > This adds type-checking to PCI layer. u32 has been replaced with
+> > > > defines, so it is no longer easy to confuse it with system suspend
+> > > > level. Patrick included it in his power tree, but I guess direct
+> > > > merging to you (Andrew) is faster/easier way to go? Please apply,
+> > > > 
+> > > > 								Pavel
+> > > > 
+> > > > Acked-by: Greg KH <greg@kroah.com>
+> > > 
+> > > Woah, I've never acked this patch.  Let me push it through my pci trees,
+> > > or if Pat's already taken it, I'll get it from him through that path.
+> > 
+> > Did I misunderstandd email exchange? [I have full version with all
+> > headers, too...]. [I hope I sent same patch as last time... Hmm, only
+> > files were transposed]
+> > 
+> > Or did you just say that you agree with Patrick, nothing about
+> > original patch?
 > 
-> [no doubt a similar patch is appropriate for ext3]
-
-ext3 is different here, and uses the old-style buffer cache rather than
-page cache. It has the equivalent case for a hole and/or IO error, and 
-like ext2, it just continues with the next block.
-
-I _think_ that case should be updated to do the same thing you did for 
-ext2, but I'll leave it up to Andrew, since he is the ext3 master anyway.
-
-Andrew?
-
-		Linus
-
-> diff -uprN -X /linux/dontdiff a/fs/ext2/dir.c b/fs/ext2/dir.c
-> --- a/fs/ext2/dir.c	2004-10-30 21:44:02.000000000 +0200
-> +++ b/fs/ext2/dir.c	2004-11-04 00:14:14.000000000 +0100
-> @@ -275,7 +275,8 @@ ext2_readdir (struct file * filp, void *
->  				   "bad page in #%lu",
->  				   inode->i_ino);
->  			filp->f_pos += PAGE_CACHE_SIZE - offset;
-> -			continue;
-> +			ret = -EIO;
-> +			goto done;
->  		}
->  		kaddr = page_address(page);
->  		if (need_revalidate) {
+> Ugh, there are just too many pm patches flying around.  Sorry, but yes,
+> I did ack this patch, but I did so to let Pat take it.  He's the one
+> collecting all of these changes.
 > 
+> Also, due to the fact that we are all still discussing (well, I'm
+> listening at least) how this is all going to work on the linux-pm
+> mailing list, I think it's quite early to be getting patches like these
+> into the tree right now.
+> 
+> So, in short, Andrew, don't apply it.  Let Pat collect them, and then
+> I'll channel them in through the proper paths.
+
+Ok, I was hoping this change could go in because it does not change
+any code and David was already posting changes that should better be
+done relative to this one.
+
+[Problem with Pat's tree is that I'm unable to access it :-(].
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

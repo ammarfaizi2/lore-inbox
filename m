@@ -1,63 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290838AbSARVdB>; Fri, 18 Jan 2002 16:33:01 -0500
+	id <S290839AbSARVev>; Fri, 18 Jan 2002 16:34:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290841AbSARVct>; Fri, 18 Jan 2002 16:32:49 -0500
-Received: from smtp2.vol.cz ([195.250.128.42]:51976 "EHLO smtp2.vol.cz")
-	by vger.kernel.org with ESMTP id <S290837AbSARVbm>;
-	Fri, 18 Jan 2002 16:31:42 -0500
-Date: Fri, 18 Jan 2002 22:18:53 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, rwhron@earthlink.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1-2-3 GB
-Message-ID: <20020118211851.GB130@elf.ucw.cz>
-In-Reply-To: <20020112125625.E1482@inspiron.school.suse.de> <Pine.LNX.4.21.0201121825200.1105-100000@localhost.localdomain>
+	id <S290837AbSARVep>; Fri, 18 Jan 2002 16:34:45 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:35222 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290839AbSARVec>;
+	Fri, 18 Jan 2002 16:34:32 -0500
+Date: Fri, 18 Jan 2002 13:33:06 -0800 (PST)
+Message-Id: <20020118.133306.118980313.davem@redhat.com>
+To: rmk@arm.linux.org.uk
+Cc: dan@embeddededge.com, hozer@drgw.net, linux-kernel@vger.kernel.org,
+        groudier@free.fr, mattl@mvista.com
+Subject: Re: pci_alloc_consistent from interrupt == BAD
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020118212949.H2059@flint.arm.linux.org.uk>
+In-Reply-To: <3C4875DB.9080402@embeddededge.com>
+	<20020118.123221.85715153.davem@redhat.com>
+	<20020118212949.H2059@flint.arm.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0201121825200.1105-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: Russell King <rmk@arm.linux.org.uk>
+   Date: Fri, 18 Jan 2002 21:29:49 +0000
+   
+   However, if it becomes easy to implement without impacting the code too
+   much, then it will get fixed in due coarse.  The problem currently is
+   that there is no way for the page table allocation functions to know
+   that they should be using atomic and emergency pool memory allocations.
 
-> The patch below seems to be enough to convince egcs-2.91.66 and
-> gcc-2.95.3 to use a "jb" comparison there.  I'm working on PIII,
-> prefetchw() just a stub, if that makes any difference.
+Encapsultate the page table allocation core interfaces into
+__whatever_alloc() routines that take a GFP arg perhaps?
+It is like a 15 minute hack.
 
-If this is really gcc bug, would simply making j volatile fix it?
-
-								Pavel
-> --- 2.4.18pre2aa2/mm/memory.c	Sat Jan 12 18:01:36 2002
-> +++ linux/mm/memory.c	Sat Jan 12 18:09:27 2002
-> @@ -106,8 +106,7 @@
->  
->  static inline void free_one_pgd(pgd_t * dir)
->  {
-> -	int j;
-> -	pmd_t * pmd;
-> +	pmd_t * pmd, * md, * emd;
->  
->  	if (pgd_none(*dir))
->  		return;
-> @@ -118,9 +117,9 @@
->  	}
->  	pmd = pmd_offset(dir, 0);
->  	pgd_clear(dir);
-> -	for (j = 0; j < PTRS_PER_PMD ; j++) {
-> -		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
-> -		free_one_pmd(pmd+j);
-> +	for (md = pmd, emd = pmd + PTRS_PER_PMD; md < emd; md++) {
-> +		prefetchw(md+(PREFETCH_STRIDE/16));
-> +		free_one_pmd(md);
->  	}
->  	pmd_free(pmd);
->  }
-
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+BTW, the USB host controller drivers do this (allocate potentially
+from interrupts) so anyone using USB on ARM...

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266504AbUFRTDT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266750AbUFRTDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266504AbUFRTDT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 15:03:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUFRS6g
+	id S266750AbUFRTDR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266754AbUFRS6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 14:58:36 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:37791 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S266757AbUFRS5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 14:57:45 -0400
-Date: Fri, 18 Jun 2004 19:57:21 +0100
-From: Ian Molton <spyro@f2s.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
-       david-b@pacbell.net, jamey.hicks@hp.com, joshua@joshuawise.com
-Subject: Re: DMA API issues
-Message-Id: <20040618195721.0cf43ec2.spyro@f2s.com>
-In-Reply-To: <1087584769.2134.119.camel@mulgrave>
-References: <1087582845.1752.107.camel@mulgrave>
-	<20040618193544.48b88771.spyro@f2s.com>
-	<1087584769.2134.119.camel@mulgrave>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 14:58:20 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:7019 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S266487AbUFRS4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 14:56:08 -0400
+Date: Fri, 18 Jun 2004 19:55:54 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: anon-vma mprotect merging-extend fix
+In-Reply-To: <20040618015903.GA2797@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0406181953260.26377-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jun 2004 13:52:46 -0500
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
+On Fri, 18 Jun 2004, Andrea Arcangeli wrote:
+> yesterday I got a crash bugreport where this BUG_ON bombed with wine.
+>.... 
+> The problem is that I was not propagating the anon_vma correctly in the
+> extend case of mprotect-merging.
 
-> 
-> You still haven't explained what you want to do though.  Apart from the
-> occasional brush with usbstorage, I don't have a good knowledge of the
-> layout of the USB drivers.  I assume you simply want to persuade the
-> ohci driver to use your memory area somehow, but what do you actually
-> want the ohci driver to do with it?  And how much leeway do you get to
-> customise the driver.
+Thanks a lot for this alert, Andrea, much appreciated.
 
+Although the 2.6.7 code looks rather different here (vma_merge now does
+all mprotect's merging too), and there's a couple of reasons it's harder
+to see the problem with mainline (because fork's copy_page_range uses the
+quick page_dup_rmap inline, skipping the BUG_ONs in page_add_anon_rmap;
+and because anon_vma_prepare is likely to correct the situation by taking
+anon_vma from neighbouring vma later), I missed exactly the same point
+and we do indeed need a patch for it.
 
-In *theory* the OHCI driver is doing everything right - its asking for DMAable memory and using it. if the DMA api simply understood the device in question, and alocated accordingly, it would just work.
+> This adds another robustness BUG_ON to be sure we switch the PG_anon
+> bitflag only in unmapped pages, and secondly it makes sure not to merge
+> anything if vm_private_data is set on the "other" vma (the one not
+> checked internally in is_mergeable_vma). I considered adding another
+> parameter to is_mergeable_vma, but I think the above is fine too, such
+> construct can be copied as easily without forgetting about the "other"
+> vma private_data.
 
-there are two solutions:
+I hope you've not found somewhere the vm_private_data change is actually
+needed - because when using that field for the non-linear swapout cursor,
+the test in is_mergeable_vma prevented non-linear merges, it seemed a
+superfluous test to me, and so I simply removed it.  I say superfluous
+because those few vmas which set vm_private_data are already prevented
+from merging by VM_SPECIAL flags tests.
 
-1) Break up the OHCI driver and make it into a chip driver as you describe
-2) Make the DMA API do the right thing with these devices
+> I didn't have much time to look at the status of mainline in the last
+> week, I assume Hugh will take care of merging this fix in a way that
+> will apply cleanly to mainline.
 
-1) means everyone gets to write their own allocator - not pretty
-2) means we get to share code and it all just works.
+That's fine, yes, I've now done the patch, will post it separately now.
+
+Thanks again,
+Hugh
+

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261599AbTBSVgZ>; Wed, 19 Feb 2003 16:36:25 -0500
+	id <S261894AbTBSVqT>; Wed, 19 Feb 2003 16:46:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261724AbTBSVgZ>; Wed, 19 Feb 2003 16:36:25 -0500
-Received: from pipgate.pipsworld.sara.nl ([145.100.9.18]:32640 "EHLO
-	dinkie.pipsworld.sara.nl") by vger.kernel.org with ESMTP
-	id <S261599AbTBSVgZ>; Wed, 19 Feb 2003 16:36:25 -0500
-Date: Wed, 19 Feb 2003 22:46:27 +0100
-From: Remco Post <r.post@sara.nl>
-To: linux-kernel@vger.kernel.org
-Cc: linuxppc-dev <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: Linux v2.5.62
-Message-Id: <20030219224627.71a85963.r.post@sara.nl>
-In-Reply-To: <20030219185017.GA6091@gemtek.lt>
-References: <Pine.LNX.4.44.0302171515110.1150-100000@penguin.transmeta.com>
-	<3E536237.8010502@blue-labs.org>
-	<20030219185017.GA6091@gemtek.lt>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261934AbTBSVqT>; Wed, 19 Feb 2003 16:46:19 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19651 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261894AbTBSVqS>;
+	Wed, 19 Feb 2003 16:46:18 -0500
+Date: Wed, 19 Feb 2003 13:39:06 -0800 (PST)
+Message-Id: <20030219.133906.127189630.davem@redhat.com>
+To: toml@us.ibm.com
+Cc: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IPSec protocol application order
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
+References: <OF8FC87DCF.42F7A5C1-ON86256CD2.007686FA-86256CD2.0077C5EA@pok.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+   From: "Tom Lendacky" <toml@us.ibm.com>
+   Date: Wed, 19 Feb 2003 15:48:14 -0600
 
-just to let you all know, The linus 2.5.62 (plain as can be) just booted
-on my motorola powerstack II system. No modules, but also, no oops on
-boot, like 2.5.59 and allmost every other 2.5 before that....
+   So if you would prefer to not do this in the kernel you can ignore
+   the patch, but then the setkey application needs to be fixed.
 
--- Remco
+In one sense yes, but in another no.
+
+setkey is for manual keying and debugging.  Therefore, disallowing
+experimenting with non-rfc-compliant orderings seems to lack purpose
+to me.

@@ -1,54 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269913AbTGQT51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 15:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270190AbTGQT4p
+	id S269736AbTGQT73 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 15:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270324AbTGQT72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 15:56:45 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:28625 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270085AbTGQT4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 15:56:39 -0400
-Date: Thu, 17 Jul 2003 22:11:27 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [2.4 patch] netfilter Configure.help cleanup
-Message-ID: <20030717201127.GK1407@fs.tum.de>
-References: <20030627233357.GN24661@fs.tum.de> <20030630051516.AAEC12C220@lists.samba.org>
+	Thu, 17 Jul 2003 15:59:28 -0400
+Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:26588 "EHLO
+	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S269736AbTGQT6l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 15:58:41 -0400
+Date: Thu, 17 Jul 2003 23:14:42 +0300
+From: Faik Uygur <faikuygur@dsl.ttnet.net.tr>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bad autorepeat problems in 2.5.75
+Message-ID: <20030717201442.GA18472@spider>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20030714222249.GA11150@elf.ucw.cz> <20030715064755.GD27368@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-9
 Content-Disposition: inline
-In-Reply-To: <20030630051516.AAEC12C220@lists.samba.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030715064755.GD27368@ucw.cz>
+User-Agent: Mutt/1.4i
+X-PGP-Fingerprint: D2 3C E7 1A 96 96 35 99 AD 33 AB B0 F9 E9 7E B1
+X-PGP-Key-ID: 0x857B9912
+X-PGP-Key-Size: 1024 bits
+X-Editor: GNU Emacs 21.2.1
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 30, 2003 at 02:38:12PM +1000, Rusty Russell wrote:
-> In message <20030627233357.GN24661@fs.tum.de> you write:
-> > - remove useless short descriptions above CONFIG_*
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Tue, Jul 15, 2003 at 12:22:51AM +0200, Pavel Machek wrote:
 > 
-> > -Connection tracking (required for masq/NAT)
-> >  CONFIG_IP_NF_CONNTRACK
+> > Hi!
+> > 
+> > I have bad problems with autorepeat. When switching consoles with
+> > alt-left / alt-right it sometimes skips wrong number of consoles, and
+> > sometimes it just keeps repeating even through I already released a
+> > key.
+> > 
+> > Syslog complains:
+> > 
+> > Jul 15 00:15:52 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0x1cb, on isa0060/serio0) pressed.
+> > Jul 15 00:16:21 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0x1cb, on isa0060/serio0) pressed.
+> > Jul 15 00:19:02 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0x1cd, on isa0060/serio0) pressed.
+> > Jul 15 00:20:04 amd kernel: atkbd.c: Unknown key (set 2, scancode
+> > 0x1cd, on isa0060/serio0) pressed.
+> > 
+> > Its vesafb -> switching consoles is not exactly fast, maybe that has
+> > some role?
 > 
-> Can you really do this?  A quick skim didn't find anyone else skipping
-> this line...
+> Probably keyboard interrupts get lost. Bad. Can you track with DEBUG
+> enabled in i8042.c?
 
-These lines are only (sometimes outdated) copies of the lines in the
-Config.in files that are not used by any tool I am aware of. 
+Hi,
 
-> Thanks,
-> Rusty.
+Related or same problem here. This is Toshiba 1410-902.
 
-cu
-Adrian
+Here is some debug output:
 
--- 
+drivers/input/serio/i8042.c: 25 <- i8042 (interrupt, kbd, 1) [1154471]
+drivers/input/serio/i8042.c: 24 <- i8042 (interrupt, kbd, 1) [1154532]
+drivers/input/serio/i8042.c: a5 <- i8042 (interrupt, kbd, 1) [1154538]
+drivers/input/serio/i8042.c: a4 <- i8042 (interrupt, kbd, 1) [1154664]
+drivers/input/serio/i8042.c: a4 <- i8042 (interrupt, kbd, 1) [1154672]
+atkbd.c: Unknown key (set 2, scancode 0xa4, on isa0060/serio0) pressed.
+drivers/input/serio/i8042.c: 25 <- i8042 (interrupt, kbd, 1) [1154683]
+drivers/input/serio/i8042.c: 24 <- i8042 (interrupt, kbd, 1) [1154743]
+drivers/input/serio/i8042.c: a5 <- i8042 (interrupt, kbd, 1) [1154769]
+drivers/input/serio/i8042.c: a4 <- i8042 (interrupt, kbd, 1) [1154873]
+drivers/input/serio/i8042.c: a4 <- i8042 (interrupt, kbd, 1) [1154881]
+atkbd.c: Unknown key (set 2, scancode 0xa4, on isa0060/serio0) pressed.
+drivers/input/serio/i8042.c: 25 <- i8042 (interrupt, kbd, 1) [1154892]
+drivers/input/serio/i8042.c: 24 <- i8042 (interrupt, kbd, 1) [1154971]
+drivers/input/serio/i8042.c: a5 <- i8042 (interrupt, kbd, 1) [1154995]
+drivers/input/serio/i8042.c: a4 <- i8042 (interrupt, kbd, 1) [1155099]
+drivers/input/serio/i8042.c: a4 <- i8042 (interrupt, kbd, 1) [1155109]
+atkbd.c: Unknown key (set 2, scancode 0xa4, on isa0060/serio0) pressed.
+drivers/input/serio/i8042.c: 25 <- i8042 (interrupt, kbd, 1) [1155118]
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Faik

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131004AbQLFUTz>; Wed, 6 Dec 2000 15:19:55 -0500
+	id <S130836AbQLFUUz>; Wed, 6 Dec 2000 15:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130562AbQLFUTq>; Wed, 6 Dec 2000 15:19:46 -0500
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:27396 "EHLO
-	anduin.gondor.com") by vger.kernel.org with ESMTP
-	id <S131008AbQLFUTc>; Wed, 6 Dec 2000 15:19:32 -0500
-Date: Wed, 6 Dec 2000 20:49:04 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Trashing ext2 with hdparm
-Message-ID: <20001206204904.A1083@gondor.com>
-In-Reply-To: <3A2E767B.D74B24B5@Hell.WH8.TU-Dresden.De> <Pine.LNX.4.10.10012061141300.21407-100000@master.linux-ide.org>
-Mime-Version: 1.0
+	id <S131060AbQLFUUp>; Wed, 6 Dec 2000 15:20:45 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:21683 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S130836AbQLFUUh>;
+	Wed, 6 Dec 2000 15:20:37 -0500
+Message-ID: <3A2E5227.693121F@scs.ch>
+Date: Wed, 06 Dec 2000 06:50:15 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: 64bit offsets for block devices ?
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10012061141300.21407-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Dec 06, 2000 at 11:41:51AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 11:41:51AM -0800, Andre Hedrick wrote:
-> No way that this could cause corruption it is a read-only test.
+Hi
 
-It definitely does, I saw it, too.  It seems to be triggered
-by invalidate_buffers().
+Imagine we have a virtual disk which provides a 64bit (sparse) address
+room. Unfortunately we can not use it as a block device because in a lot
+of places (including buffer_head structure), we're using a long or even
+an int for the block number. 
 
-Jan
+Is there any way of getting a standardized way of doing I/O to a block
+device which could handle 64bit addresses for the block number?
 
+Don't you think that we will run into problems anyway because soon there
+will be raid systems with a couple of Terrabytes of space to waste for
+mp3's ;-)
+
+	Reto
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,88 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318361AbSGRVCY>; Thu, 18 Jul 2002 17:02:24 -0400
+	id <S318376AbSGRVNc>; Thu, 18 Jul 2002 17:13:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318364AbSGRVCY>; Thu, 18 Jul 2002 17:02:24 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:24076 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S318361AbSGRVCW>;
-	Thu, 18 Jul 2002 17:02:22 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Matthew Wilcox <willy@debian.org>
-Date: Thu, 18 Jul 2002 23:04:54 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.5.26 broken on headless boxes
-CC: jsimmons@transvirtual.com, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <B4822306FB3@vcnet.vc.cvut.cz>
+	id <S318377AbSGRVNc>; Thu, 18 Jul 2002 17:13:32 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:20357 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S318376AbSGRVN2>; Thu, 18 Jul 2002 17:13:28 -0400
+Date: Thu, 18 Jul 2002 23:15:09 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: davej@suse.de, torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] resolve ACPI oops on boot
+Message-ID: <20020718231509.A539@brodo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jul 02 at 21:32, Matthew Wilcox wrote:
-> On Thu, Jul 18, 2002 at 01:18:57PM -0700, William Lee Irwin III wrote:
-> > On Thu, Jul 18, 2002 at 02:29:46PM +0100, Matthew Wilcox wrote:
-> > >>>EIP; c01b7695 <visual_init+85/e0>   <=====
-> > >>>edx; f7906600 <END_OF_CODE+37502e5c/????>
-> > >>>edi; c03dcc00 <vc_cons+0/fc>
-> > >>>esp; c3d45e7c <END_OF_CODE+39426d8/????>
-> > > Trace; c01b7773 <vc_allocate+83/140>
-> > > Trace; c01baa25 <con_open+19/88>
-> > > Trace; c01ac08c <tty_open+20c/394>
-> > > Trace; c0145a83 <link_path_walk+683/874>
-> > > Trace; c0144ed7 <permission+27/2c>
-> > > Trace; c0146373 <may_open+5f/2ac>
-> > > Trace; c013c33a <chrdev_open+66/98>
-> > > Trace; c013b001 <dentry_open+e1/1b0>
-> > > Trace; c013af16 <filp_open+52/5c>
-> > > Trace; c013b307 <sys_open+37/74>
-> > > Trace; c0108893 <syscall_call+7/b>
-> > 
-> > This is the 4th one of these I've seen in the last two days. Any chance
-> > of being able to compile with -g and get an addr2line on the EIP? I've
-> > tried to reproduce it myself, but haven't gotten it to happen yet.
-> 
-> seems fairly obvious what's happening with a couple of printks...
-> 
->     printk("visual_init: sw = %p, conswitchp = %p, currcons = %d, init = %d\n",
->                     sw, conswitchp, currcons, init);
-> 
-> gets me the interesting fact that sw & conswitchp are both NULL.
-> later on, we call:
->     sw->con_init(vc_cons[currcons].d, init);
-> which seems like it would be the exact cause, no?
-> 
-> now whether putting a:
-> 
->     if (!sw)
->         return;
-> 
-> call into visual_init or whether we should determine earlier never to
-> call visual_init, I don't know.  The people who know about the console
-> have been conspicuously silent so far...
+An u8 was casted into an u32, then all 32 bits were set to zero, this
+causing another variable - in my case, processor flags - to be corrupted. 
 
-You have enabled CONFIG_VT without CONFIG_VGA_CONSOLE and 
-CONFIG_DUMMY_CONSOLE. It is illegal configuration.
+Dominik
 
-To fix oopses, either enable 'Framebuffer devices' under 'Console
-drivers' section (you do not have to enable any fbdev driver, just
-check this option...), or disable CONFIG_VT. See arch/*/kernel/setup.c
-for explanation, no code in VT subsystem kernel expects conswitchp == NULL,
-but couple of architectures leaves sometime conswitchp uninitialized.
+--- linux/drivers/acpi-original/ec.c	Fri Jul 12 22:43:11 2002
++++ linux/drivers/acpi/ec.c	Fri Jul 12 23:28:14 2002
+@@ -134,7 +134,7 @@
+ acpi_ec_read (
+ 	struct acpi_ec		*ec,
+ 	u8			address,
+-	u8			*data)
++	u32			*data)
+ {
+ 	acpi_status		status = AE_OK;
+ 	int			result = 0;
+@@ -167,7 +167,7 @@
+ 		goto end;
+ 
+ 
+-	acpi_hw_low_level_read(8, (u32*) data, &ec->data_addr, 0);
++	acpi_hw_low_level_read(8, data, &ec->data_addr, 0);
+ 
+ 	ACPI_DEBUG_PRINT((ACPI_DB_INFO, "Read [%02x] from address [%02x]\n",
+ 		*data, address));
+@@ -237,7 +237,7 @@
+ static int
+ acpi_ec_query (
+ 	struct acpi_ec		*ec,
+-	u8			*data)
++	u32			*data)
+ {
+ 	int			result = 0;
+ 	acpi_status		status = AE_OK;
+@@ -269,7 +269,7 @@
+ 	if (result)
+ 		goto end;
+ 	
+-	acpi_hw_low_level_read(8, (u32*) data, &ec->data_addr, 0);
++	acpi_hw_low_level_read(8, data, &ec->data_addr, 0);
+ 	if (!*data)
+ 		result = -ENODATA;
+ 
+@@ -328,7 +328,7 @@
+ {
+ 	acpi_status		status = AE_OK;
+ 	struct acpi_ec		*ec = (struct acpi_ec *) data;
+-	u8			value = 0;
++	u32			value = 0;
+ 	unsigned long		flags = 0;
+ 	struct acpi_ec_query_data *query_data = NULL;
+ 
+@@ -336,7 +336,7 @@
+ 		return;
+ 
+ 	spin_lock_irqsave(&ec->lock, flags);
+-	acpi_hw_low_level_read(8, (u32*) &value, &ec->command_addr, 0);
++	acpi_hw_low_level_read(8, &value, &ec->command_addr, 0);
+ 	spin_unlock_irqrestore(&ec->lock, flags);
+ 
+ 	/* TBD: Implement asynch events!
+@@ -398,6 +398,7 @@
+ {
+ 	int			result = 0;
+ 	struct acpi_ec		*ec = NULL;
++	u32          		tmp = 0;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_ec_space_handler");
+ 
+@@ -408,7 +409,8 @@
+ 
+ 	switch (function) {
+ 	case ACPI_READ:
+-		result = acpi_ec_read(ec, (u8) address, (u8*) value);
++		result = acpi_ec_read(ec, (u8) address, &tmp);
++		*value = (acpi_integer) tmp;
+ 		break;
+ 	case ACPI_WRITE:
+ 		result = acpi_ec_write(ec, (u8) address, (u8) *value);
 
-It would be possible to add error return path to visual_init, but
-I think that adding
-
-  conswitchp = &dummy_con;
-+ #else
-+ #error No console defined with CONFIG_VT enabled
-  #endif
-  #endif
-
-at the end of setup.c will work same way, as open of /dev/tty* will
-never suceed with your config with added error path anyway.
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                

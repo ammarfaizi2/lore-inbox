@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbTIOQTV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 12:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbTIOQTV
+	id S261538AbTIOQVX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 12:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbTIOQVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 12:19:21 -0400
-Received: from extreme.heaven.net ([208.20.133.2]:4845 "EHLO
-	extreme.heaven.net") by vger.kernel.org with ESMTP id S261535AbTIOQTT
+	Mon, 15 Sep 2003 12:21:23 -0400
+Received: from peabody.ximian.com ([141.154.95.10]:10711 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261538AbTIOQVT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 12:19:19 -0400
-Date: Mon, 15 Sep 2003 16:19:20 -0000
-To: <linux-kernel@vger.kernel.org>
-Subject: TAP interface on 2.4.22: Reduced MSS causes FTP stalls
-From: "James Yonan" <jim@yonan.net>
-X-Mailer: TWIG 2.7.7
-Message-ID: <twig.1063642760.74284@yonan.net>
+	Mon, 15 Sep 2003 12:21:19 -0400
+Message-ID: <3F65E6D6.6090001@ximian.com>
+Date: Mon, 15 Sep 2003 12:20:38 -0400
+From: Kevin Breit <mrproper@ximian.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Need fixing of a rebooting system
+References: <1063496544.3164.2.camel@localhost.localdomain>  <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>  <3F6450D7.7020906@ximian.com>  <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com> <1063561687.10874.0.camel@localhost.localdomain> <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com> <3F64FEAF.1070601@ximian.com> <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm testing a new version of OpenVPN which has the ability to lower the MSS on
-TCP SYN packets as they pass through a tun or tap tunnel.  I am testing by
-running FTP transfers over the tunnel.
+Zwane Mwaikambo wrote:
 
-I am finding that everything works perfectly over tun tunnels.  The MSS is
-lowered and TCP properly uses the MSS as an upper bound on TCP payload size.
+>On Sun, 14 Sep 2003, Kevin Breit wrote:
+>
+>  
+>
+>>This unfortunately didn't help.  It still reboots right after it 
+>>uncompresses the kernel.
+>>    
+>>
+>
+>Please try the attached .config, if that works, start removing things like 
+>ACPI from your configuration.
+>
+Bah!  I wasn't thinking this morning.  I ran a make menuconfig and now 
+I'm running make, so ignore my last message.  I'll reply later about the 
+new kernel.
 
-On tap tunnels however, an FTP put appears to progress to the end of the data
-transfer then stall just prior to data channel close.  The stall can be broken
-by pinging the remote tunnel endpoint from the ftp client machine.  The ping
-causes the FTP client to instantly complete the stalled transfer.
+Thanks
 
-I am testing by running the tunnel between two x86 systems running 2.4.22,
-both locally connected to a 100mbps ethernet LAN.  I have also tested on
-2.4.21 with the same results.
-
-I have checked fairly carefully to make sure this isn't a bug in OpenVPN. When
-the stall occurs, OpenVPN is blocking on a select() that is waiting for data
-to become available on the tap character device.  Pinging the remote tunnel
-endpoint unblocks the select call as it should with readable data appearing on
-the tap device.  The ping completes, triggering the resumption of the nearly
-complete but stalled FTP transfer.  I have been unable to reproduce this
-stalling behavior using tun (i.e. point-to-point IPv4) tunnels.  Only tap
-(i.e. virtual 802.3 ethernet) tunnels show this stalling behavior.
-
-Somehow the ping seems to kick the stalled TCP session into completing.
-
-The code I am using to tweak the MSS is drawn from the FreeBSD PPP code. 
-Apparently, tweaking the TCP MSS in SYN packets is a fairly common approach to
-solving MTU problems which arise from TCP protocol encapsulation.  The
-tweaking happens in OpenVPN which runs in userspace.  OpenVPN constructs a tap
-tunnel by opening the character device end of a tap interface and pushing bits
-between the tap device and a UDP socket connected to a remote OpenVPN instance.
-
-Any ideas of what might be wrong or where to look?
-
-James Yonan
-OpenVPN Developer
+Kevin Breit
 

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbTI2VM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263051AbTI2VM5
+	id S261939AbTI2VRs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbTI2VRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:12:57 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:44305 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263012AbTI2VMH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:12:07 -0400
+	Mon, 29 Sep 2003 17:17:48 -0400
+Received: from mrout1.yahoo.com ([216.145.54.171]:53005 "EHLO mrout1.yahoo.com")
+	by vger.kernel.org with ESMTP id S261939AbTI2VRq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 17:17:46 -0400
+Message-ID: <3F78A149.9010505@bigfoot.com>
+Date: Mon, 29 Sep 2003 14:16:57 -0700
+From: Erik Steffl <steffl@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i386; en-US; rv:1.3) Gecko/20030312
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] Athlon Prefetch workaround for 2.6.0test6
-Date: 29 Sep 2003 21:02:39 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bla6lf$3ul$1@gatekeeper.tmr.com>
-References: <20030929125629.GA1746@averell>
-X-Trace: gatekeeper.tmr.com 1064869359 4053 192.168.12.62 (29 Sep 2003 21:02:39 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+Subject: Re: Can't X be elemenated?
+References: <LAW11-F18b4SaFMwr9y00007564@hotmail.com> <200309291656.55428.france@handhelds.org>
+In-Reply-To: <200309291656.55428.france@handhelds.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030929125629.GA1746@averell>, Andi Kleen  <ak@muc.de> wrote:
+George France wrote:
+> Hello,
+> 
+> On Monday 29 September 2003 10:44 am, kartikey bhatt wrote:
+> 
+>><snip>
+>>
+>>1st. X is bloat. Though it's good for server environments. For desktop pcs
+>>it's too heavy. On my machine (PIII500 with 128MB RAM) I have to choose
+>>from either to run X or compile 2.6.0-test6.
+...
 
-| It removes the previous dumb in kernel workaround for this and shrinks the 
-| kernel by >10k.
-| 
-| Small behaviour change is that a SIGBUS fault for a *_user access will
-| cause an EFAULT now, no SIGBUS.
-| 
-| This version addresses all criticism that I got for previous versions.
-| 
-| - Only checks on AMD K7+ CPUs. 
-| - Computes linear address for VM86 mode or code segments
-| with non zero base.
-| - Some cleanup
-| - No pointer comparisons
-| - More comments
+   running X does not prevent you from compiling kernel (I did it with a 
+lot lower spec'd machines before). It's true that on low end machine the 
+kernel compile prevents you from doing much else but that's true 
+regardless of X. Some X apps eat quite a lot of memory and if you run 
+openoffice and mozilla (and gnome or kde or enlightement) you end up not 
+being able to do anything else. But that's not problem of X, it's a 
+problem of specific applications. I have been using X (under linux) 
+since times of 486 & 128MB RAM and it's been quite OK (=responsive), 
+given that appropriate apps are chosen.
 
-I have to try this on a P4 and K7, but WRT "Only checks on AMD K7+ CPUs"
-I hope you meant "only generates code if AMD CPU is target" and not that
-the code size penalty is still there for CPUs which don't need it.
+	erik
 
-Will check Wednesday, life is very busy right now.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+

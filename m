@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263186AbTEINE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 09:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTEINE5
+	id S263246AbTEINTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 09:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTEINTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 09:04:57 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54923
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263186AbTEINEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 09:04:55 -0400
-Subject: Re: The disappearing sys_call_table export.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <200305090352_MC3-1-3815-126F@compuserve.com>
-References: <200305090352_MC3-1-3815-126F@compuserve.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052482717.14539.10.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 9 May 2003 09:19:15 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:1038 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263246AbTEINTN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 09:19:13 -0400
+Date: Fri, 9 May 2003 14:31:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, arjanv@redhat.com,
+       viro@parcelfarce.linux.theplanet.co.uk, drepper@redhat.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [RFC] New authentication management syscalls
+Message-ID: <20030509143147.A23197@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>, arjanv@redhat.com,
+	viro@parcelfarce.linux.theplanet.co.uk, drepper@redhat.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <11183.1052485877@warthog.warthog>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 May 2003 13:18:38 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <11183.1052485877@warthog.warthog>; from dhowells@redhat.com on Fri, May 09, 2003 at 02:11:17PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-05-09 at 08:50, Chuck Ebbert wrote:
->   Security-sensitive upper layers like virus scanners and loggers
-> would want to do it that way.  The upper layer might even just log
-> the fact that mount happened and then stay out of the way after that.
+On Fri, May 09, 2003 at 02:11:17PM +0100, David Howells wrote:
+>  (3) settok(const char *fs, const char *key, size_t size, const void *data)
 
-What makes you say that. If the administrator has full priviledges then
-its kind of irrelevant trying to force anything "for security reasons"
+fs is the path to a mount point?
+
+>      Present data to the named filesystem as being the authentication token
+>      for the specified key (eg: an AFS cell). If accepted, this token should
+>      be stored in the PAG to which the calling process belongs.
+
+s/filesystem/mount instance/
+
+> 
+> 	struct file_system_type {
+> 	        ...
+> 		int settok(struct file_system_type *fstype,
+> 			   const char *domain,
+> 			   size_t size,
+> 			   const void *data);
+> 	};
+
+This should go into super_operations instead.
 

@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbRBEGcQ>; Mon, 5 Feb 2001 01:32:16 -0500
+	id <S129035AbRBEGh4>; Mon, 5 Feb 2001 01:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129108AbRBEGcH>; Mon, 5 Feb 2001 01:32:07 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43158 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S129044AbRBEGb7>; Mon, 5 Feb 2001 01:31:59 -0500
-Date: Sun, 4 Feb 2001 23:31:45 -0700
-Message-Id: <200102050631.f156Vje04234@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: drepper@cygnus.com (Ulrich Drepper)
-Cc: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
-        David Ford <david@linux.com>, devfs@oss.sgi.com,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] devfsd, compiling on glibc22x
-In-Reply-To: <m3wvbgnnk3.fsf@otr.mynet.cygnus.com>
-In-Reply-To: <3A7383B2.19DDD006@linux.com>
-	<3A73C1D8.578AEEE@wanadoo.fr>
-	<m3wvbgnnk3.fsf@otr.mynet.cygnus.com>
+	id <S129065AbRBEGhq>; Mon, 5 Feb 2001 01:37:46 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:39248 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129035AbRBEGhg>;
+	Mon, 5 Feb 2001 01:37:36 -0500
+Message-ID: <3A7E49C6.BE283336@sgi.com>
+Date: Sun, 04 Feb 2001 22:35:50 -0800
+From: LA Walsh <law@sgi.com>
+Organization: Trust Technology, SGI
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.2-pre1 i686)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x Shared memory question
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper writes:
-> Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
-> 
-> > for me :
-> > make CFLAGS='-O2 -I. -D_GNU_SOURCE' 
-> > compiles without any patch. is it correct ?
-> 
-> Yes.  RTLD_NEXT is not in any standard, it's an extension available
-> via -D_GNU_SOURCE.
 
-So why do old binaries (compiled with glibc 2.1.3) segfault when they
-call dlsym() with RTLD_NEXT?  Even newly compiled binaries (with glibc
-2.2) still segfault.
+Another oddity -- I notice things taking alot more memory
+in 2.4.  This coincides with 'top' consistently showing I have 0 shared
+memory.  These two observations would have me wondering if I
+have somehow misconfigured my system to disallow sharing.  Note
+that /proc/meminfo also shows 0 shared memory:
 
-				Regards,
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  525897728 465264640 60633088        0 82145280 287862784
+Swap: 270909440        0 270909440
+MemTotal:       513572 kB
+MemFree:         59212 kB
+MemShared:           0 kB
+Buffers:         80220 kB
+Cached:         281116 kB
+Active:          22340 kB
+Inact_dirty:    338996 kB
+Inact_clean:         0 kB
+Inact_target:        0 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       513572 kB
+LowFree:         59212 kB
+SwapTotal:      264560 kB
+SwapFree:       264560 kB 
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Not that it seems unrelated, but I do have filesystem type shm 
+mounted on /dev/shm as suggested for POSIX shared memory.
+
+
+-- 
+Linda A Walsh                    | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338
+
+
+
+-- 
+Linda A Walsh                    | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice: (650) 933-5338
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

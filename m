@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUDOGLh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 02:11:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263832AbUDOGLh
+	id S263790AbUDOGMM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 02:12:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263828AbUDOGMM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 02:11:37 -0400
-Received: from ozlabs.org ([203.10.76.45]:57557 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261685AbUDOGLY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 02:11:24 -0400
-Date: Thu, 15 Apr 2004 16:09:19 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [TRIVIAL] RCS_*_IGNORE quilt backup files
-Message-ID: <20040415060919.GB25560@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-	trivial@rustcorp.com.au
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 15 Apr 2004 02:12:12 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:57539 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263790AbUDOGMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 02:12:09 -0400
+Date: Thu, 15 Apr 2004 02:12:29 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] conditionalize some boring buffer_head checks
+In-Reply-To: <20040414213336.GC30663@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.58.0404150206270.18930@montezuma.fsmlabs.com>
+References: <407CEB91.1080503@pobox.com> <20040414005832.083de325.akpm@osdl.org>
+ <20040414010240.0e9f4115.akpm@osdl.org> <407CF201.408@pobox.com>
+ <20040414011653.22c690d9.akpm@osdl.org> <407CFFF9.5010500@pobox.com>
+ <20040414212539.GE1175@waste.org> <20040414213336.GC30663@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  This patch excludes the .pc directory from the
-same things that SCCS/BitKeeper/.svn/CVS files are excluded from.  The
-.pc directory is used for backup/reference files by quilt, a patch
-mangling system conceptually derived from akpm's patch scripts.
+On Wed, 14 Apr 2004, Jeff Garzik wrote:
 
-Excluding the .pc directory is handy, because otherwise old versions
-of files found in there tend to end up at the front of the TAGS index.
+> On Wed, Apr 14, 2004 at 04:25:39PM -0500, Matt Mackall wrote:
+> > Sticking this in arch/*/Kconfig seems silly (as does much of the
+> > duplication in said files). Can we stick this and other debug bits
+> > under the kallsyms option in init/Kconfig instead? Or alternately move
+> > debugging bits into their own file that gets included as appropriate.
+>
+> I would rather have an arch/generic/Kconfig.debug file that gets
+> included.  init/Kconfig may be generic, but its name hardly implies its
+> purpose as used.
+>
+> There are clearly two classes of debug options, one arch-specific, and
+> one not.
 
-Index: working-2.6/Makefile
-===================================================================
---- working-2.6.orig/Makefile	2004-04-14 12:22:48.000000000 +1000
-+++ working-2.6/Makefile	2004-04-15 13:59:02.419865672 +1000
-@@ -334,8 +334,8 @@
- 
- # Files to ignore in find ... statements
- 
--RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS \) -prune -o
--RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS
-+RCS_FIND_IGNORE := \( -name SCCS -o -name BitKeeper -o -name .svn -o -name CVS -o -name .pc \) -prune -o
-+RCS_TAR_IGNORE := --exclude SCCS --exclude BitKeeper --exclude .svn --exclude CVS --exclude .pc
- 
- # ===========================================================================
- # Rules shared between *config targets and build targets
-
-
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+This sounds like lib/Kconfig

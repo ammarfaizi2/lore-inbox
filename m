@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVAFR7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVAFSEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262962AbVAFR7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262933AbVAFR6e
+	id S262961AbVAFSEf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 13:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbVAFSEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:58:34 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:54363 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262962AbVAFRzg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:55:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=SdKx7tD0ijgqQKtFaZYaspU2iW/S3nBCnOLqyllukdbNDPFtkqT4Tu4WlmFpcBhIzMtFoVd2DxdWBEfcp2qc0WsPWLQ/b9tRTXzYw0cwlxAJE4YgYLKk5d0wA5dbP9E0WsXyzVjJ+YRqpdqCC7ZAtfSw1AJC1AMAygZMoP4Gf1A=
-Date: Thu, 6 Jan 2005 18:55:29 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm2
-Message-Id: <20050106185529.43662ebc.diegocg@gmail.com>
-In-Reply-To: <200501061811.51659@zodiac.zodiac.dnsalias.org>
-References: <20050106002240.00ac4611.akpm@osdl.org>
-	<200501061811.51659@zodiac.zodiac.dnsalias.org>
-X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 6 Jan 2005 13:04:31 -0500
+Received: from dialpool1-19.dial.tijd.com ([62.112.10.19]:27274 "EHLO
+	precious.kicks-ass.org") by vger.kernel.org with ESMTP
+	id S262961AbVAFR5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:57:43 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: rol@as2917.net
+Subject: Re: ARP routing issue
+Date: Thu, 6 Jan 2005 18:57:41 +0100
+User-Agent: KMail/1.7.2
+Cc: "'Steve Iribarne'" <steve.iribarne@dilithiumnetworks.com>,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+References: <200501061753.j06HrJ101272@tag.witbe.net>
+In-Reply-To: <200501061753.j06HrJ101272@tag.witbe.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501061857.42881.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 6 Jan 2005 18:11:51 +0100 Alexander Gran <alex@zodiac.dnsalias.org> escribió:
+On Thursday 06 January 2005 18:53, Paul Rolland wrote:
+> Hello,
+>
+> Have a look at /proc/sys/net/conf/XXX/arp_filter :
+>
+>
+> arp_filter - BOOLEAN
+>         1 - Allows you to have multiple network interfaces on the same
+>         subnet, and have the ARPs for each interface be answered
+>         based on whether or not the kernel would route a packet from
+>         the ARP'd IP out that interface (therefore you must use source
+>         based routing for this to work). In other words it allows control
+>         of which cards (usually 1) will respond to an arp request.
+>
+>         0 - (default) The kernel can respond to arp requests with addresses
+>         from other interfaces. This may seem wrong but it usually makes
+>         sense, because it increases the chance of successful communication.
+>         IP addresses are owned by the complete host on Linux, not by
+>         particular interfaces. Only for more complex setups like load-
+>         balancing, does this behaviour cause problems.
+>
+> Regards,
+> Paul
 
+I tried that actually, didn't change a thing.
 
-> Y stays black, I need sysrq to reboot. mm1 works fine.
-> 0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (rev 
-> 03)
-> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf 
-> [Radeon Mobility 9000 M9] (rev 02)
+Jan
 
-
-I was going to report that bug, too. Mine is a p3 with:
-0000:00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x] (rev c4)
-0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x AGP]
-0000:00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
-0000:00:07.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-0000:00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 16)
-0000:00:07.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 16)
-0000:00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 40)
-0000:00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 50)
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200 SE] (rev 01)
-
-and using x.org
+-- 
+Beware of computerized fortune-tellers!

@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbUKRG36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbUKRGbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262614AbUKRG36 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 01:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbUKRG35
+	id S262615AbUKRGbp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 01:31:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbUKRGbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 01:29:57 -0500
-Received: from [203.200.194.71] ([203.200.194.71]:23183 "EHLO
-	semsoftindia-samsung.com") by vger.kernel.org with ESMTP
-	id S262614AbUKRG3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 01:29:55 -0500
-Reply-To: <srinivas@semsoftindia-samsung.com>
-From: "Srinivas Naga Vutukuri" <srinivas@semsoftindia-samsung.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Ack Flooding
-Date: Thu, 18 Nov 2004 11:59:49 +0530
-Message-ID: <HEEPIMMIBFKCAGHPIBKDAEKMCAAA.srinivas@semsoftindia-samsung.com>
+	Thu, 18 Nov 2004 01:31:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:939 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262615AbUKRGad (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 01:30:33 -0500
+Date: Thu, 18 Nov 2004 01:30:09 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Valdis.Kletnieks@vt.edu
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc2-mm1 - detect-atomic-counter-underflows.patch
+In-Reply-To: <200411171803.iAHI3wIG018055@turing-police.cc.vt.edu>
+Message-ID: <Xine.LNX.4.44.0411180128570.2938-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Nov 2004 Valdis.Kletnieks@vt.edu wrote:
 
+> Now, I *may* have simply shot myself in the foot, but when I tried booting
+> 2.6.10-rc2-mm1, I got spewed *thousands* of messages triggered by this:
 
-Hi,
-            
-       Am just looked at the tcp_input.c
-will it serve in modifying the function, tcp_rcv_established()
-calling tcp_send_ack() inside it places 3 or 5 times,
+Are you running SELinux?
 
-
-Regards,
-srinivas.
-
+Try this: 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110062417701884&w=2
 
 
 
-
-********************************************************************
-No virus was detected in the attachment no filename
-
-Your mail has been scanned by InterScan.
-********************************************************************
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
 
-The information contained in this electronic message and any attachments 
-to this message are intended for the exclusive use of the addressee(s) 
-and may contain confidential or privileged information.
-If you are not the intended recipient, please notify the sender at 
-Samsung Electro-Mechanics Co. Ltd. or admin@semsoftindia-samsung.com
-immediately and destroy all copies of this message and any attachments.
-Any unauthorized review, use, disclosure, dissemination, forwarding, 
-printing or copying of this email or any action taken in reliance on
-this e-mail is strictly prohibited and may be unlawful.

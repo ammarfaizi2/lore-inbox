@@ -1,54 +1,241 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264543AbTCZF15>; Wed, 26 Mar 2003 00:27:57 -0500
+	id <S264531AbTCZFZz>; Wed, 26 Mar 2003 00:25:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264552AbTCZF15>; Wed, 26 Mar 2003 00:27:57 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:29098 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S264543AbTCZF1z>; Wed, 26 Mar 2003 00:27:55 -0500
-Message-ID: <3E813E66.1060802@on-demand-tech.com>
-Date: Tue, 25 Mar 2003 23:45:10 -0600
-From: Adam Kelly <akelly@on-demand-tech.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S264536AbTCZFZz>; Wed, 26 Mar 2003 00:25:55 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:32529 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264531AbTCZFZu>; Wed, 26 Mar 2003 00:25:50 -0500
+Date: Wed, 26 Mar 2003 05:36:36 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: dan carpenter <d_carpenter@sbcglobal.net>
+cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: sleeping function called from illegal context at mm/slab.c:1723
+In-Reply-To: <200303260525.h2Q5PulK314364@pimout2-ext.prodigy.net>
+Message-ID: <Pine.LNX.4.44.0303260536010.12718-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: viro@math.psu.edu, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] linux-2.5.66/fs/cramfs/inode.c typecheck - int vs. struct
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Very minor change. GCC now does more type checking, so This just zeros a 
-timespec struct
-so that i_mtime, etc will match types.
 
-gcc version 3.2 20020903 (Red Hat Linux 8.0 3.2-7)
-compiling linux-2.5.66
+> On Tuesday 25 March 2003 03:01 pm, Thomas Schlichter wrote:
+> > Every second I get following Debug message with kernel 2.5.66:
+> >
+> > Debug: sleeping function called from illegal context at mm/slab.c:1723
+> > Call Trace:
+> 
+> Yes.  This is a known bug in the frame buffer driver.  James Simmons is 
+> working on a fix for this.
 
- -Adam
+Try this and let me know how it works out for you.
 
---- inode.c.orig        2003-03-25 22:50:17.000000000 -0600
-+++ inode.c     2003-03-25 23:00:50.000000000 -0600
-@@ -44,6 +44,8 @@
- {
-        struct inode * inode = new_inode(sb);
- 
-+       const struct timespec zero_timespec = {0};
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/console/fbcon.c fbdev-2.5/drivers/video/console/fbcon.c
+--- linus-2.5/drivers/video/console/fbcon.c	Sat Mar 22 21:45:23 2003
++++ fbdev-2.5/drivers/video/console/fbcon.c	Tue Mar 25 12:03:56 2003
+@@ -172,8 +172,9 @@
+  *  Internal routines
+  */
+ static void fbcon_set_display(struct vc_data *vc, int init, int logo);
++static void accel_cursor(struct vc_data *vc, struct fb_info *info,
++			 struct fb_cursor *cursor, int yy);
+ static __inline__ int real_y(struct display *p, int ypos);
+-static void fb_vbl_handler(int irq, void *dummy, struct pt_regs *fp);
+ static __inline__ void updatescrollmode(struct display *p, struct vc_data *vc);
+ static __inline__ void ywrap_up(struct vc_data *vc, int count);
+ static __inline__ void ywrap_down(struct vc_data *vc, int count);
+@@ -194,6 +195,34 @@
+ }
+ #endif
+
++static void fb_callback(void *private)
++{
++	struct fb_info *info = (struct fb_info *) private;
++	struct display *p = &fb_display[fg_console];
++	struct vc_data *vc = vc_cons[fg_console].d;
++	struct fb_cursor cursor;
 +
-        if (inode) {
-                inode->i_mode = cramfs_inode->mode;
-                inode->i_uid = cramfs_inode->uid;
-@@ -51,7 +53,7 @@
-                inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
-                inode->i_blksize = PAGE_CACHE_SIZE;
-                inode->i_gid = cramfs_inode->gid;
--               inode->i_mtime = inode->i_atime = inode->i_ctime = 0;
-+               inode->i_mtime = inode->i_atime = inode->i_ctime = 
-zero_timespec;
-                inode->i_ino = CRAMINO(cramfs_inode);
-                /* inode->i_nlink is left 1 - arguably wrong for 
-directories,
-                   but it's the best we can do without reading the 
-directory  
++	if (!info || !cursor_on)
++		return;
++
++	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
++		cursor.set = 0;
++
++		if (!cursor_drawn)
++			cursor.set = FB_CUR_SETCUR;
++		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
++		cursor_drawn ^= 1;
++		vbl_cursor_cnt = cursor_blink_rate;
++	}
++}
++
++static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
++{
++	struct fb_info *info = dev_id;
++
++	schedule_work(&info->queue);
++}
++
+ static void cursor_timer_handler(unsigned long dev_addr);
+
+ static struct timer_list cursor_timer =
+@@ -203,7 +232,7 @@
+ {
+ 	struct fb_info *info = (struct fb_info *) dev_addr;
+
+-	fb_vbl_handler(0, info, NULL);
++	schedule_work(&info->queue);
+ 	cursor_timer.expires = jiffies + HZ / 50;
+ 	add_timer(&cursor_timer);
+ }
+@@ -290,14 +319,14 @@
+ 			    const unsigned short *s)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = (vc->vc_font.width + 7)/8;
++	unsigned int width = (vc->vc_font.width + 7) >> 3;
+ 	unsigned int cellsize = vc->vc_font.height * width;
+ 	unsigned int maxcnt = info->pixmap.size/cellsize;
+ 	unsigned int shift_low = 0, mod = vc->vc_font.width % 8;
+ 	unsigned int shift_high = 8, size, pitch, cnt, k;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+-	unsigned int idx = vc->vc_font.width/8;
++	unsigned int idx = vc->vc_font.width >> 3;
+ 	u8 mask, *src, *dst, *dst0;
+
+ 	while (count) {
+@@ -307,7 +336,7 @@
+ 			cnt = k = count;
+
+ 		image->width = vc->vc_font.width * cnt;
+-		pitch = (image->width + 7)/8 + scan_align;
++		pitch = ((image->width + 7) >> 3) + scan_align;
+ 		pitch &= ~scan_align;
+ 		size = pitch * vc->vc_font.height + buf_align;
+ 		size &= ~buf_align;
+@@ -338,7 +367,7 @@
+ 			  const unsigned short *s)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = vc->vc_font.width/8;
++	unsigned int width = vc->vc_font.width >> 3;
+ 	unsigned int cellsize = vc->vc_font.height * width;
+ 	unsigned int maxcnt = info->pixmap.size/cellsize;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+@@ -411,7 +440,7 @@
+                       int c, int ypos, int xpos)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+-	unsigned int width = (vc->vc_font.width + 7)/8;
++	unsigned int width = (vc->vc_font.width + 7) >> 3;
+ 	unsigned int scan_align = info->pixmap.scan_align - 1;
+ 	unsigned int buf_align = info->pixmap.buf_align - 1;
+ 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+@@ -559,6 +588,15 @@
+
+ 	vc = (struct vc_data *) kmalloc(sizeof(struct vc_data), GFP_ATOMIC);
+
++	if (!vc) {
++		if (softback_buf)
++			kfree((void *) softback_buf);
++		return NULL;
++	}
++
++	/* Initialize the work queue */
++	INIT_WORK(&info->queue, fb_callback, info);
++
+ 	/* Setup default font */
+ 	vc->vc_font.data = font->data;
+ 	vc->vc_font.width = font->width;
+@@ -956,8 +994,8 @@
+ 	accel_putcs(vc, info, s, count, real_y(p, ypos), xpos);
+ }
+
+-void accel_cursor(struct vc_data *vc, struct fb_info *info, struct fb_cursor *cursor,
+-		  int yy)
++static void accel_cursor(struct vc_data *vc, struct fb_info *info,
++			 struct fb_cursor *cursor, int yy)
+ {
+ 	unsigned short charmask = vc->vc_hi_font_mask ? 0x1ff : 0xff;
+ 	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
+@@ -986,7 +1024,15 @@
+ 	size = ((width + 7) >> 3) * height;
+
+ 	data = kmalloc(size, GFP_KERNEL);
++
++	if (!data) return;
++
+ 	mask = kmalloc(size, GFP_KERNEL);
++
++	if (!mask) {
++		kfree(data);
++		return;
++	}
+
+ 	if (cursor->set & FB_CUR_SETSIZE) {
+ 		memset(data, 0xff, size);
+@@ -1101,27 +1147,6 @@
+ 	}
+ }
+
+-static void fb_vbl_handler(int irq, void *dev_id, struct pt_regs *fp)
+-{
+-	struct fb_info *info = dev_id;
+-	struct display *p = &fb_display[fg_console];
+-	struct vc_data *vc = vc_cons[fg_console].d;
+-	struct fb_cursor cursor;
+-
+-	if (!cursor_on)
+-		return;
+-
+-	if (vbl_cursor_cnt && --vbl_cursor_cnt == 0) {
+-		cursor.set = 0;
+-
+-		if (!cursor_drawn)
+-			cursor.set = FB_CUR_SETCUR;
+-		accel_cursor(vc, info, &cursor, real_y(p, vc->vc_y));
+-		cursor_drawn ^= 1;
+-		vbl_cursor_cnt = cursor_blink_rate;
+-	}
+-}
+-
+ static int scrollback_phys_max = 0;
+ static int scrollback_max = 0;
+ static int scrollback_current = 0;
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/drivers/video/softcursor.c fbdev-2.5/drivers/video/softcursor.c
+--- linus-2.5/drivers/video/softcursor.c	Sat Mar 22 21:45:22 2003
++++ fbdev-2.5/drivers/video/softcursor.c	Tue Mar 25 11:41:28 2003
+@@ -44,6 +44,7 @@
+ 		if (info->cursor.mask)
+ 			kfree(info->cursor.mask);
+ 		info->cursor.mask = kmalloc(dsize, GFP_KERNEL);
++		if (!info->cursor.mask) return -ENOMEM;
+ 		if (cursor->mask)
+ 			memcpy(info->cursor.mask, cursor->mask, dsize);
+ 		else
+diff -urN -X /home/jsimmons/dontdiff linus-2.5/include/linux/fb.h fbdev-2.5/include/linux/fb.h
+--- linus-2.5/include/linux/fb.h	Sat Mar 22 21:45:25 2003
++++ fbdev-2.5/include/linux/fb.h	Tue Mar 25 12:00:20 2003
+@@ -2,6 +2,7 @@
+ #define _LINUX_FB_H
+
+ #include <linux/tty.h>
++#include <linux/workqueue.h>
+ #include <asm/types.h>
+ #include <asm/io.h>
+
+@@ -406,8 +407,9 @@
+    struct fb_fix_screeninfo fix;        /* Current fix */
+    struct fb_monspecs monspecs;         /* Current Monitor specs */
+    struct fb_cursor cursor;		/* Current cursor */
+-   struct fb_cmap cmap;                 /* Current cmap */
++   struct work_struct queue;		/* Framebuffer event queue */
+    struct fb_pixmap pixmap;	        /* Current pixmap */
++   struct fb_cmap cmap;                 /* Current cmap */
+    struct fb_ops *fbops;
+    char *screen_base;                   /* Virtual address */
+    struct vc_data *display_fg;		/* Console visible on this display */
+
 

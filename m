@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290575AbSAYGNr>; Fri, 25 Jan 2002 01:13:47 -0500
+	id <S290294AbSAYG1v>; Fri, 25 Jan 2002 01:27:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290576AbSAYGNh>; Fri, 25 Jan 2002 01:13:37 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:20195 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290573AbSAYGNW> convert rfc822-to-8bit;
-	Fri, 25 Jan 2002 01:13:22 -0500
-Date: Fri, 25 Jan 2002 01:13:21 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: timothy.covell@ashavan.org, Robert Love <rml@tech9.net>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: booleans and the kernel
-In-Reply-To: <1011914865.2636.16.camel@bip>
-Message-ID: <Pine.GSO.4.21.0201250109150.23657-100000@weyl.math.psu.edu>
+	id <S290289AbSAYG1k>; Fri, 25 Jan 2002 01:27:40 -0500
+Received: from beasley.gator.com ([63.197.87.202]:522 "EHLO beasley.gator.com")
+	by vger.kernel.org with ESMTP id <S289881AbSAYG1c>;
+	Fri, 25 Jan 2002 01:27:32 -0500
+From: "George Bonser" <george@gator.com>
+To: "M. Edward Borasky" <znmeb@aracnet.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux console at boot
+Date: Thu, 24 Jan 2002 22:27:28 -0800
+Message-ID: <CHEKKPICCNOGICGMDODJOEPGGBAA.george@gator.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBEEPAEGAA.znmeb@aracnet.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+>
+> If all else fails, try a scan converter and a VCR with a
+> decent freeze-frame
+> capability.
+>
 
+Well, I imagine if this problem gets released with 2.4.18 there will
+probably be someone
+that has such a rig already to troubleshoot it :-)
 
-On 25 Jan 2002, Xavier Bestel wrote:
-
-> le sam 26-01-2002 à 00:09, Timothy Covell a écrit :
-> > #include <stdio.h>
-> > 
-> > int main()
-> > {
-> >         char x;
-> > 
-> >         if ( x )
-> >         {
-> >                 printf ("\n We got here\n");
-> >         }
-> >         else
-> >         {
-> >                 // We never get here
-> >                 printf ("\n We never got here\n");
-> >         }
-> >         exit (0);
-> > }
-> > covell@xxxxxx ~>gcc -Wall foo.c
-> > foo.c: In function `main':
-> > foo.c:17: warning: implicit declaration of function `exit'
-> 
-> I'm lost. What do you want to prove ? (Al Viro would say you just want
-> to show you don't know C ;)
-> And why do you think you never get there ?
-
-I suspect that our, ah, Java-loving friend doesn't realize that '\0' is
-a legitimate value of type char...
-
-BTW, he's got a funny compiler - I would expect at least a warning about
-use of uninitialized variable.
+If nobody else runs into it, I will likely hook it up with a serial
+console and record the output on a different machine. There were
+plenty of SCSI changes in pre7. I backed out the rather harmless
+looking change in the aic7xxx driver with no luck so I am guessing it
+was something in the generic scsi stuff that broke the ability to find
+the disk.
 

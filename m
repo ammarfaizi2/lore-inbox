@@ -1,79 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUIXFAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267804AbUIXFHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbUIXFAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 01:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267804AbUIXFAs
+	id S267804AbUIXFHs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 01:07:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUIXFHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 01:00:48 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:2200 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267798AbUIXFAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 01:00:44 -0400
+	Fri, 24 Sep 2004 01:07:48 -0400
+Received: from [211.49.235.11] ([211.49.235.11]:34572 "HELO inststo.inet.fi")
+	by vger.kernel.org with SMTP id S267804AbUIXFHr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 01:07:47 -0400
+Message-ID: <138501c4a1f5$9db27b00$15b0f56b@inststo.inet.fi>
+From: "Randall Velazquez" <velazquez_fv@britvic.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: New!  =?ISO-8859-1?Q?=20V=ECagra?= soft tabs.
+Date: Fri, 24 Sep 2004 03:16:51 -0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16723.43493.796084.90914@wombat.chubb.wattle.id.au>
-Date: Fri, 24 Sep 2004 15:00:21 +1000
-From: Peter Chubb <peterc@gelato.unsw.edu.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Steven Pratt <slpratt@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-fs-devel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Simplified Readahead
-In-Reply-To: <372479081@toto.iv>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
+Hello!
 
-Andrew> Steven Pratt <slpratt@austin.ibm.com> wrote:
->>  The readahead code has undergone many changes in the 2.6 kernel
->> and the current implementation is in my opinion obtuse and hard to
->> maintain.
+We would like to offer V_I_A_G_R_A soft tabs,
 
-Andrew> It did get a bit ugly - it was intially designed to handle
-Andrew> pagefault readaround and perhaps could be further simplified
-Andrew> as we're now doing that independently.
+These pills are just like regular Vìagra but they are specially formulated 
+to be soft and dissolvable under the tongue. The pill is absorbed at the 
+mouth and enters the bloodstream directly instead of going through the stomach. 
+This results in a faster more powerful effect which lasts as long as the normal.
 
-If you're coding up new readahead schemes, it may be worth taking into
-account Papathanasiou and Scott, `Energy Efficient Prefetching and
-Caching'
-( http://www.usenix.org/events/usenix04/tech/general/papathanasiou/papathanasiou_html/index.html
-)
+Soft Tabs also have less sidebacks (you can drive or mix alcohol drinks with them).
 
-which describes tuning of readahead for optimum disk energy usage,
-while not compromising performance.
+You can get it at: http://888-luvu.com/st/?coupon
 
-Here's the abstract:
+No thanks: http://888-luvu.com/rm.html
 
-       Traditional disk management strategies--prefetching and caching
-       in particular--are designed to maximize performance. In mobile
-       systems they conflict with strategies that attempt to save
-       energy by powering down the disk when it is idle. We present
-       new rules for prefetching and caching that maximize power-down
-       opportunities (without performance loss) by creating an access
-       pattern characterized by intense bursts of activity separated
-       by long idle times. We also describe an automatic system that
-       monitors past application behavior in order to generate
-       appropriate prefetching hints, and a general system of kernel
-       enhancements that coordinate I/O activity across all running
-       applications.
-
-       We have implemented our system in the Linux kernel, and have
-       measured its performance and energy consumption via physical
-       instrumentation of a running laptop. We describe our
-       implementation and present quantitative results. For workloads
-       including a mix of sequential access to large files
-       (multimedia), concurrent access to large numbers of files
-       (compilation), and random access to large files (speech
-       recognition), we report disk energy savings of 60-80%, with
-       negligible loss in throughput or interactive responsiveness.
-
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*

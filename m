@@ -1,86 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265790AbTL3NNf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 08:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbTL3NNf
+	id S262446AbTL3NVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 08:21:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbTL3NVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 08:13:35 -0500
-Received: from math.ut.ee ([193.40.5.125]:15589 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S265790AbTL3NNc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 08:13:32 -0500
-Date: Tue, 30 Dec 2003 15:13:30 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: cdrecord & /dev/hdc - problems
-Message-ID: <Pine.GSO.4.44.0312301504580.27497-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 30 Dec 2003 08:21:51 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:22149 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262446AbTL3NVs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 08:21:48 -0500
+Date: Tue, 30 Dec 2003 18:56:15 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, rusty@au1.ibm.com,
+       lhcs-devel@lists.sourceforge.net
+Subject: Re: in_atomic doesn't count local_irq_disable?
+Message-ID: <20031230185615.A9292@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <3FF044A2.3050503@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FF044A2.3050503@colorfullife.com>; from manfred@colorfullife.com on Mon, Dec 29, 2003 at 04:13:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried the new SG_IO interface to ATAPI devices, with 2.6.0 pristine
-and todays BK. Same problems: cdrecord gets bogsu answer and CD drive is
-hosed.
+On Mon, Dec 29, 2003 at 04:13:38PM +0100, Manfred Spraul wrote:
+> 
+> What do you mean with unable? Could you post what was printed?
 
-cdrecord is Cdrecord-Clone 2.01a19 from Debian unstable.
+All I used to get was :
 
-[...]
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-Using libscg version 'schily-0.7'
-scsibus0:
-        0,0,0     0) '' '' '' NON CCS Disk
-        0,1,0     1) *
-        0,2,0     2) *
-        0,3,0     3) *
-        0,4,0     4) *
-        0,5,0     5) *
-        0,6,0     6) *
-        0,7,0     7) *
+"Debug: sleeping function called from invalid context
+at include/linux/rwsem.h:45
+in_atomic: 0, irqs_disabled(): 1
+Call Trace:"
 
-And at the same time, dmesg gets the following:
+That's it. Nothing more. Looks like it could not read the
+stack at that point and hence couldn't dump the stack traceback.
 
-hdc: DMA interrupt recovery
-hdc: lost interrupt
-hdc: status timeout: status=0xd0 { Busy }
-hdc: status timeout: error=0x00
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
-cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC
-sector 0, nr/cnr 0/0
-bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
-cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+I now inserted some printk's in do_page_fault
+to print regs->eip before calling down_read i.e:
 
-... and the last 5 lines repeat until the machine is rebooted.
+        /*
+         * If we're in an interrupt, have no user context or are running in an
+         * atomic region then we must not take the fault..
+         */
+        if (in_atomic() || !mm)
+                goto bad_area_nosemaphore;
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH2: IDE controller at PCI slot 0000:00:1f.1
-ICH2: chipset revision 2
-ICH2: not 100%% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-hda: ST380011A, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: CDU5211, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 1024KiB
-hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
- hda: hda1 hda2 hda3 hda4
-hdc: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
++       if (irqs_disabled()) {
++               printk("BAD Access at (EIP) %08lx\n", regs->eip);
++               printk("Bad Access at virtual address %08lx\n",address);
++       }
 
-This DMA timeout appeared in about 2.4.21 (the drive worked fine with
-DMA before that) and as the same IDE driveers are used in 2.6, it's in
-2.6 too. It may be confusing the kernel when the reset happens during
-SG_IO.
+        down_read(&mm->mmap_sem);
 
-Notice that I do not have CD-writer, just a normal IDE CD that I'm
-trying to see with cdrecord -scanbus.
+
+This is what I got now when I reran my stress test:
+
+
+BAD Access at (EIP) c011c1b5
+Bad Access at virtual address 05050501
+Debug: sleeping function called from invalid context at include/linux/rwsem.h:47
+in_atomic():0, irqs_disabled():1
+Call Trace:
+ [<c011fd66>] __might_sleep+0x86/0x90
+ [<c01378f6>] module_unload_free+0x36/0xe0
+ [<c011b889>] do_page_fault+0xc9/0x573
+ [<c013f1df>] buffered_rmqueue+0x10f/0x120
+ [<c013f2ba>] __alloc_pages+0xca/0x360
+ [<c0148d64>] do_anonymous_page+0x1c4/0x1d0
+ [<c011b7c0>] do_page_fault+0x0/0x573
+ [<c01378f6>] module_unload_free+0x36/0xe0
+ [<c0109d6d>] error_code+0x2d/0x38
+ [<01010101>] 
+
+BAD Access at (EIP) c0139934
+Bad Access at virtual address 0101011f
+
+
+The first EIP (c011c1b5) is inside search_extable!!
+The second EIP (c0139934) is inside get_ksymbol() ...
+
+I suspect the second happened when kdb tried decoding the (first) exception
+address and hence is secondary here ..
+
+The stack trace that follows the first exception seems to be
+totally bogus(?) .. I suspect the first exception 
+happened in search_extable when looking up some module exception
+tables(?) ..Because search_module_extables() calls search_extable() with 
+interrupts disabled ..
+
+I think this points to some module unload (race) issues during hotplug ..
+
+Rusty, any comments?
+
+
+
+
+
+
+
+> 
+> I guess it's a get_user within either spin_lock_irq() or local_irq_disable. Without more info about the context, it's difficult to figure out if the page fault handler or the caller should be updated
+
+
+Given the context above, I feel it would be correct for
+do_page_fault() to avoid calling down_read() when IRQs are
+disabled and instead just branch to bad_nosemaphore.
+(as Rusty seems to concur) .. However, schedule() doesn't
+seem to actually trap the case when it is called with interrupts disabled (as using local_irq_disable)?
 
 -- 
-Meelis Roos (mroos@linux.ee)
 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560033

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267367AbTBUADx>; Thu, 20 Feb 2003 19:03:53 -0500
+	id <S267366AbTBUAEt>; Thu, 20 Feb 2003 19:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbTBUADl>; Thu, 20 Feb 2003 19:03:41 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55047 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267356AbTBUADF>;
-	Thu, 20 Feb 2003 19:03:05 -0500
-Message-ID: <3E556F00.30201@pobox.com>
-Date: Thu, 20 Feb 2003 19:12:48 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ion Badulescu <ionut@badula.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: UP local APIC is deadly on SMP Athlon
-References: <Pine.LNX.4.44.0302191458160.29393-100000@guppy.limebrokerage.com>
-In-Reply-To: <Pine.LNX.4.44.0302191458160.29393-100000@guppy.limebrokerage.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267331AbTBUAEk>; Thu, 20 Feb 2003 19:04:40 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:14342 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267366AbTBUADx>;
+	Thu, 20 Feb 2003 19:03:53 -0500
+Date: Thu, 20 Feb 2003 16:06:47 -0800
+From: Greg KH <greg@kroah.com>
+To: kernel1@jsl.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyspan USB/Serial Drivers for 2.4.20/2.4.21-pre4
+Message-ID: <20030221000647.GA26468@kroah.com>
+References: <200302202328.h1KNSaj26209@jsl.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302202328.h1KNSaj26209@jsl.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> A UP kernel compiled with CONFIG_X86_LOCAL_APIC=y dies a very horrible
-> death on an SMP Athlon motherboard (Tyan S2462 and S2468), flooding the
-> console with the following messages:
+On Thu, Feb 20, 2003 at 03:28:35PM -0800, System Administrator wrote:
+> Hello List,
+> 
+>  I'm not sure why, but the current kernel source tree doesn't support some
+> of the Keyspan USB/Serial adapter products (49WLC and MPR).  There is code
+> at: http://www.keyspan.com/support/linux/files/currentversion/rev2003jan31/
+> but it only works with 2.4.18 or 2.4.19.  Keyspan seems to think the code
+> is current and they didn't want my patches.  Here they are for posterity.
 
-IMO just assume this option is just broken, unless you absolutely need it.
+Any reason you didn't send this to the listed maintainer for these
+drivers?  :)
 
-Red Hat ships UP kernels with this option disabled, because either the 
-code, the BIOS, or both are typically broken.
+Thanks for doing this, but why did you modify the Config.in file so
+much?  That's not correct.
 
-	Jeff
+And does this patch work with the new devices?
 
+thanks,
 
-
+greg k-h

@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVCUTI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVCUTOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVCUTI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 14:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVCUTI2
+	id S261745AbVCUTOK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 14:14:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVCUTOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 14:08:28 -0500
-Received: from colin2.muc.de ([193.149.48.15]:6158 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261745AbVCUTHt (ORCPT
+	Mon, 21 Mar 2005 14:14:09 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:45262 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261745AbVCUTNz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 14:07:49 -0500
-Date: 21 Mar 2005 20:07:41 +0100
-Date: Mon, 21 Mar 2005 20:07:41 +0100
-From: Andi Kleen <ak@muc.de>
-To: Dave Peterson <dsp@llnl.gov>
-Cc: oprofile-list@lists.sourceforge.net, bluesmoke-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, dave_peterson@pobox.com
-Subject: Re: [PATCH] NMI handler message passing / work deferral API
-Message-ID: <20050321190741.GA98750@muc.de>
-References: <200503202056.02429.dave_peterson@pobox.com> <m1eke93ul3.fsf@muc.de> <200503211103.56930.dsp@llnl.gov>
+	Mon, 21 Mar 2005 14:13:55 -0500
+Date: Mon, 21 Mar 2005 20:13:53 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Norbert Preining <preining@logic.at>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/1] pcmcia: select crc32 in Kconfig for PCMCIA [Was: Re: pcmcia compile problems in 2.6.11-mm4 and above]
+Message-ID: <20050321191353.GA13659@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050321150143.GB14614@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503211103.56930.dsp@llnl.gov>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050321150143.GB14614@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 11:03:56AM -0800, Dave Peterson wrote:
-> On Monday 21 March 2005 07:08 am, Andi Kleen wrote:
-> > Dave Peterson <dave_peterson@pobox.com> writes:
-> > > Below is an experimental 2.6.11.5 kernel patch that implements the
-> > > following:
-> > >
-> > >      - A generic mechanism for safely passing information from NMI
-> > > handlers to code that executes outside NMI context.
-> >
-> > See the machine check queueing implementation in
-> > arch/x86_64/kernel/mce.c. It does exactly that already.
-> >
-> > Several other architectures already have similar mechanisms.
-> >
-> > -Andi
+On Mon, Mar 21, 2005 at 04:01:43PM +0100, Norbert Preining wrote:
+> HI Andrew!
 > 
-> Yes exactly.  That's one reason why I posted the patch.  Different
-> sybsystems that need this type of functionality shouldn't have to
-> individually reinvent the wheel.  With a single implementation, code
-> is more compact and easier to understand and maintain.  I would argue
+> Compiling 2.6.12-rc1-mm1 with the attached config gives me an error
+> while compiling pcmcia (I made a make oldconfig)
+> drivers/built-in.o(.text+0xaf2a2): In function `pcmcia_check_driver':
+> : undefined reference to `crc32_le'
+> drivers/built-in.o(.text+0xafef1): In function `pcmcia_bus_hotplug':
+> : undefined reference to `crc32_le'
+> 
+> compiling pcmcia modular works.
 
-More compact? Sorry, but even all existing implementations together
-are still far less code than your really complicated subsystem which
-seems quite overengineered for this simple task for me.
+That's a missing dependency on CONFIG_CRC32. Could you check whether this
+patch helps, please?
 
-Also lockless programming is tricky and I would feel quite uneasy
-about auditing so much code.
 
-> that code maintenance is of particular concern to code such as NMI
-> and machine check handlers because bugs in this type of code can be
-> hard to track down.
+PCMCIA needs CRC32.
 
-Yeah, that is why we use simple, not complex, code in there.
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 
--Andi
+Index: linux-2.6.12-rc1/drivers/pcmcia/Kconfig
+===================================================================
+--- linux-2.6.12-rc1.orig/drivers/pcmcia/Kconfig	2005-03-21 20:07:42.000000000 +0100
++++ linux-2.6.12-rc1/drivers/pcmcia/Kconfig	2005-03-21 20:12:00.000000000 +0100
+@@ -42,6 +42,7 @@
+ 
+ config PCMCIA
+ 	tristate "16-bit PCMCIA support"
++	select CRC32
+ 	default y
+ 	---help---
+ 	   This option enables support for 16-bit PCMCIA cards. Most older

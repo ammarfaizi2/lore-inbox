@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131672AbRAGNbw>; Sun, 7 Jan 2001 08:31:52 -0500
+	id <S131871AbRAGNgF>; Sun, 7 Jan 2001 08:36:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131871AbRAGNbm>; Sun, 7 Jan 2001 08:31:42 -0500
-Received: from csa.iisc.ernet.in ([144.16.67.8]:25098 "EHLO csa.iisc.ernet.in")
-	by vger.kernel.org with ESMTP id <S131672AbRAGNbc>;
-	Sun, 7 Jan 2001 08:31:32 -0500
-Date: Sun, 7 Jan 2001 19:01:06 +0530 (IST)
-From: Sourav Sen <sourav@csa.iisc.ernet.in>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Kdb for modules
-Message-ID: <Pine.SOL.3.96.1010107184944.24088A-100000@kohinoor.csa.iisc.ernet.in>
+	id <S131955AbRAGNf4>; Sun, 7 Jan 2001 08:35:56 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35086 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131871AbRAGNfg>; Sun, 7 Jan 2001 08:35:36 -0500
+Subject: Re: [PATCH] mptctl.c memory leak on failure
+To: acme@conectiva.com.br (Arnaldo Carvalho de Melo)
+Date: Sun, 7 Jan 2001 13:37:15 +0000 (GMT)
+Cc: Steve.Ralston@lsil.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20010107011226.C8362@conectiva.com.br> from "Arnaldo Carvalho de Melo" at Jan 07, 2001 01:12:26 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14FG0b-0002dZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> kmalloc and the comment: the buffer is used for DMA but the kmalloc doesn't
+> has GFP_DMA, maybe I'm missing something here, its about time for me to
 
-Hi,
-	For using kdb I have done the following:
-	1) upgrade modutils using modutils-2.3.11-1.i386.rpm
-	2) patched the source using kdb-v0.6-2.2.13 as I am using
-	   linux-2.2.16.(I don't know, this kdb for 2.2.13 works for
-	   linux-2.2.16, I haven't used it extensively, so don't know 
-	   whether it works correctly or not?, but I couldn't find kdb
-	   for 2.2.16 in SGI site, any clues in this is very much 
-	   welcomed  :))
-
-	so this works ... , 
-	But if I want to debug the modules, set breakpoints at, see the
-	address of, module functions, what shall I have to do? I haven't 
-	found any clue on this as yet, Plz. help..
-
-sourav
---------------------------------------------------------------------------------
-
+It should be kmalloc (or 2.4 wise pci_alloc_* I guess eventually). Its driven
+by 32bit busmaster DMA. Its non ISA so it doesnt need GFP_DMA
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

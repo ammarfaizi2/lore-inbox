@@ -1,54 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264053AbTKDK2a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 05:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbTKDK2a
+	id S264047AbTKDKWd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 05:22:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbTKDKWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 05:28:30 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36736
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S264053AbTKDK23
+	Tue, 4 Nov 2003 05:22:33 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:34432
+	"EHLO x30.random") by vger.kernel.org with ESMTP id S264047AbTKDKWc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 05:28:29 -0500
-Date: Tue, 4 Nov 2003 11:28:16 +0100
+	Tue, 4 Nov 2003 05:22:32 -0500
+Date: Tue, 4 Nov 2003 11:22:20 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Jamie Clark <jamie@metaparadigm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23pre6aa3 scsi oops
-Message-ID: <20031104102816.GB2984@x30.random>
-References: <3FA713B9.3040405@metaparadigm.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Jan Dittmer <j.dittmer@portrix.net>, linux-kernel@vger.kernel.org
+Subject: Re: Clock skips (?) with 2.6 and games
+Message-ID: <20031104102219.GA2984@x30.random>
+References: <3FA62DD4.1020202@portrix.net> <20031103110129.GF1772@x30.random> <3FA63A57.8070606@portrix.net> <20031103143656.GA6785@x30.random> <3FA677D7.1000100@portrix.net> <Pine.LNX.4.53.0311032139450.20595@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FA713B9.3040405@metaparadigm.com>
+In-Reply-To: <Pine.LNX.4.53.0311032139450.20595@montezuma.fsmlabs.com>
 User-Agent: Mutt/1.4i
 X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
 X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 10:49:29AM +0800, Jamie Clark wrote:
-> Hi,
+On Mon, Nov 03, 2003 at 09:40:28PM -0500, Zwane Mwaikambo wrote:
+> On Mon, 3 Nov 2003, Jan Dittmer wrote:
 > 
-> Consistent oops with 2.4.23pre6aa3 after 3-4 hours running bonnie on 
-> ext3 fs through qla2300 HBA. (w SMP, HIGHMEM) The test machine was 
-> completely wedged so I ended up transcribing the oops from the vga 
-> console. No typos I think.
+> > Strange, if I enable Highmem support and set CONFIG_NR_CPUS from 4 to 8,
+> > 4 penguins are showing up...
+> 
+> It should do it with the NR_CPUS change only, sounds like yet another APIC 
+> ID SMP bootstrap problem.
 
-I need to release an update that has a chance to fix it. Jens identified
-problem in his last_merge scsi patch so I will back it out.
-
-you can try to backout it by yourself in the meantime, it's called
-\*elevator-merge-fast-path\* . or you can disable it with this patch:
-
---- xx/drivers/block/elevator.c.~1~	2003-10-17 21:49:49.000000000 +0200
-+++ xx/drivers/block/elevator.c	2003-11-04 11:27:13.000000000 +0100
-@@ -77,6 +77,7 @@ inline int bh_rq_in_between(struct buffe
- static int rq_mergeable(struct request *req, struct buffer_head *bh,
- 			request_queue_t *q, int rw, int count, int max_sectors)
- {
-+	return 0;
- 	if (q->head_active && !q->plugged) {
- 		struct request *next;
- 		next = blkdev_entry_next_request(&q->queue_head);
-
-Hope this helps.
+yes, and now with NR_CPUS == 8 Jan can compare apples to apples. So I
+would suggest you to repeat the interactivity test, first w/o desktop
+then w/ desktop. My tree has a o1 scheduler, though quite different
+from any other version (especially for HT machines).

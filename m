@@ -1,33 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271085AbRIGEgQ>; Fri, 7 Sep 2001 00:36:16 -0400
+	id <S271108AbRIGEp5>; Fri, 7 Sep 2001 00:45:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271108AbRIGEgH>; Fri, 7 Sep 2001 00:36:07 -0400
-Received: from adsl-64-171-4-169.dsl.sntc01.pacbell.net ([64.171.4.169]:51963
-	"EHLO devel.office") by vger.kernel.org with ESMTP
-	id <S271085AbRIGEfv>; Fri, 7 Sep 2001 00:35:51 -0400
-Date: Thu, 6 Sep 2001 21:36:11 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: <christoph@devel.office>
-To: Robert Love <rml@tech9.net>
-cc: <linux-kernel@vger.kernel.org>
+	id <S271109AbRIGEpr>; Fri, 7 Sep 2001 00:45:47 -0400
+Received: from tisch.mail.mindspring.net ([207.69.200.157]:19218 "EHLO
+	tisch.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271108AbRIGEpi>; Fri, 7 Sep 2001 00:45:38 -0400
 Subject: Re: Linux Preemptive patch success 2.4.10-pre4 + lots of other
- patches
-In-Reply-To: <999835218.2456.16.camel@phantasy>
-Message-ID: <Pine.LNX.4.33.0109062135280.1643-100000@devel.office>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	patches
+From: Robert Love <rml@tech9.net>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0109062135280.1643-100000@devel.office>
+In-Reply-To: <Pine.LNX.4.33.0109062135280.1643-100000@devel.office>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13.99+cvs.2001.09.05.07.08 (Preview Release)
+Date: 07 Sep 2001 00:45:59 -0400
+Message-Id: <999837964.865.3.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Given the minimal nature of the patch I would suggest that it become part
-of 2.4.10 or 11
+On Fri, 2001-09-07 at 00:36, Christoph Lameter wrote:
+> Given the minimal nature of the patch I would suggest that it become part
+> of 2.4.10 or 11
 
-On 7 Sep 2001, Robert Love wrote:
+Are you kidding?  We will be lucky to see this in during 2.5.
 
-> As for integrating into the kernel, there has been talk of preemption
-> becoming standard for 2.5.  This is one reason why I keep the patches up
-> to date.  When 2.5 starts, I will have a working patch that has seen
-> some use and hopefully generated some benchmarks and discussions, and I
-> can send a diff off to Linus.  We shall see.
+Its a pretty big change.  It makes the Linux kernel preemptible.   This
+is a fairly big move, one I don't think any of the major Unices have
+done.  The only reason the patch is not _huge_ is because the Linux
+kernel is already setup for concurrency of this nature -- it does SMP.
+
+I suggest you read
+http://www.linuxdevices.com/articles/AT4185744181.html
+http://www.linuxdevices.com/articles/AT5152980814.html
+http://kpreempt.sourceforge.net
+
+and my previous threads on this issue, for more informaiton.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

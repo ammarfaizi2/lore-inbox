@@ -1,41 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289974AbSAWTLE>; Wed, 23 Jan 2002 14:11:04 -0500
+	id <S289981AbSAWTLE>; Wed, 23 Jan 2002 14:11:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289981AbSAWTKo>; Wed, 23 Jan 2002 14:10:44 -0500
-Received: from zero.tech9.net ([209.61.188.187]:24836 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S289979AbSAWTKn>;
-	Wed, 23 Jan 2002 14:10:43 -0500
+	id <S289979AbSAWTKp>; Wed, 23 Jan 2002 14:10:45 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:5572 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S289974AbSAWTKl>;
+	Wed, 23 Jan 2002 14:10:41 -0500
 Subject: Re: [PATCH *] rmap VM, version 12
-From: Robert Love <rml@tech9.net>
 To: Rik van Riel <riel@conectiva.com.br>
-Cc: "David S. Miller" <davem@redhat.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0201231650450.32617-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.33L.0201231650450.32617-100000@imladris.surriel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 23 Jan 2002 14:15:04 -0500
-Message-Id: <1011813305.28682.14.camel@phantasy>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, owner-linux-mm@kvack.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFD53A5C76.36FD7F7A-ON88256B4A.0069B25C@boulder.ibm.com>
+From: "Badari Pulavarty" <badari@us.ibm.com>
+Date: Wed, 23 Jan 2002 11:11:35 -0800
+X-MIMETrack: Serialize by Router on D03NM044/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 01/23/2002 12:10:38 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-01-23 at 13:57, Rik van Riel wrote:
 
-> Actually, this is just using the pte_free_fast() and
-> {get,free}_pgd_fast() functions on non-pae machines.
-> 
-> I think this should be safe, unless there is a way
-> we could pagefault from inside interrupts (but I don't
-> think we do that).
-> 
-> OTOH, the -preempt people will want to add preemption
-> protection from the fiddling with the local pte freelist ;)
+Rik,
 
-If you are using the stock mechanisms in include/asm/pgalloc.h they are
-already made preempt-safe by the patch. ;)
+I just tried to boot 2.4.17+rmap12 turning off HIGHMEM and it booted just
+fine.
+So it has to do with some HIGHMEM change happend between  rmap11c and
+rmap12.
 
-	Robert Love
+Does this help ?
+
+Thanks,
+Badari
+
+
+
+                                                                                                         
+                    Rik van Riel                                                                         
+                    <riel@conectiv       To:     Badari Pulavarty/Beaverton/IBM@IBMUS                    
+                    a.com.br>            cc:     <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>    
+                    Sent by:             Subject:     Re: [PATCH *] rmap VM, version 12                  
+                    owner-linux-mm                                                                       
+                    @kvack.org                                                                           
+                                                                                                         
+                                                                                                         
+                    01/23/02 11:05                                                                       
+                    AM                                                                                   
+                                                                                                         
+                                                                                                         
+
+
+
+On Wed, 23 Jan 2002, Badari Pulavarty wrote:
+
+> Does this explain why my SMP box does not boot with rmap12 ? It works
+fine
+> with rmap11c.
+>
+> Machine: 4x  500MHz Pentium Pro with 3GB RAM
+>
+> When I tried to boot 2.4.17+rmap12, last message I see is
+>
+> uncompressing linux ...
+> booting ..
+
+At this point we're not even near using pagetables yet,
+so I guess this is something else ...
+
+(I'm not 100% sure, though)
+
+kind regards,
+
+Rik
+--
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/                   http://distro.conectiva.com/
+
+--
+To unsubscribe, send a message with 'unsubscribe linux-mm' in
+the body to majordomo@kvack.org.  For more info on Linux MM,
+see: http://www.linux-mm.org/
+
+
+
 

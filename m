@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269804AbUJGMgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269812AbUJGMig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269804AbUJGMgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 08:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269714AbUJGMdc
+	id S269812AbUJGMig (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 08:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUJGMhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 08:33:32 -0400
-Received: from ts2-075.twistspace.com ([217.71.122.75]:62385 "EHLO entmoot.nl")
-	by vger.kernel.org with ESMTP id S263795AbUJGMcT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 08:32:19 -0400
-Message-ID: <001601c4ac72$19932760$161b14ac@boromir>
-From: "Martijn Sipkema" <martijn@entmoot.nl>
-To: "Paul Jakma" <paul@clubi.ie>,
-       "Chris Friesen" <cfriesen@nortelnetworks.com>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       "David S. Miller" <davem@davemloft.net>, <joris@eljakim.nl>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl> <20041006080104.76f862e6.davem@davemloft.net> <Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com> <20041006082145.7b765385.davem@davemloft.net> <Pine.LNX.4.61.0410061124110.31091@chaos.analogic.com> <Pine.LNX.4.61.0410070212340.5739@hibernia.jakma.org> <4164EBF1.3000802@nortelnetworks.com> <Pine.LNX.4.61.0410071244150.304@hibernia.jakma.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Date: Thu, 7 Oct 2004 14:32:31 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1437
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+	Thu, 7 Oct 2004 08:37:53 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:17036 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S269714AbUJGMgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 08:36:37 -0400
+Date: Thu, 07 Oct 2004 21:42:05 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: [PATCH] no buddy bitmap patch : for ia64 [2/2]
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Cc: linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+Message-id: <4165399D.7010600@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Paul Jakma" <paul@clubi.ie>
-Sent: Thursday, October 07, 2004 12:53
+This patch is for ia64.
+Add HOLES_IN_ZONE macro definition and align vmemmap with ia64's granule size.
+
+Kame <kamezawa.hiroyu@jp.fujitsu.com>
+
+=== for arch/ia64 ===============
+This patch is for ia64 kernel.
+This defines HOLES_IN_ZONE in asm-ia64/page.h
+And makes vmemmap aligned with IA64_GRANULE_SIZE in arch/ia64/mm/init.c.
+
+Signed-off-by: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
 
 
-> On Thu, 7 Oct 2004, Chris Friesen wrote:
-> 
-> > Actually, in the single threaded case, the state did not change.  We just 
-> > didn't actually check the state before returning from select().
-> 
-> Right, so our perception of state (which for all useful purposes /is/ 
-> the state) changed - "we have data" -> "we had to throw out data due 
-> to bad checksum" is a change in kernel state at least, if not in the 
-> (now gone) data.
-> 
-> I'm not really a kernel person. From the application POV, in the 
-> single-threaded case (cause the multi-threaded case is fairly 
-> pathological anyway), there /will/ be time between the select and the 
-> recvmsg, things /can/ change, and obviously they do.
+---
 
-That there is time between the select() and recvmsg() calls is not the
-issue; the data is only checked in the call to recvmsg(). Actually the
-longer the time between select() and recvmsg(), the larger the probability
-that valid data has been received.
+ test-kernel-kamezawa/arch/ia64/mm/init.c     |    3 ++-
+ test-kernel-kamezawa/include/asm-ia64/page.h |    1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-> Treating select as anything other than a useful hints mechanism is 
-> going to get you into trouble - just see the Stevens' example others 
-> gave for a long-standing example, in addition to this (sane imho) 
-> Linuxism.
+diff -puN include/asm-ia64/page.h~ia64_fix include/asm-ia64/page.h
+--- test-kernel/include/asm-ia64/page.h~ia64_fix	2004-10-07 19:40:30.953218680 +0900
++++ test-kernel-kamezawa/include/asm-ia64/page.h	2004-10-07 19:40:30.958217920 +0900
+@@ -79,6 +79,7 @@ do {						\
 
-But the standard clearly says otherwise.
+ #ifdef CONFIG_VIRTUAL_MEM_MAP
+ extern int ia64_pfn_valid (unsigned long pfn);
++#define HOLES_IN_ZONE 1
+ #else
+ # define ia64_pfn_valid(pfn) 1
+ #endif
+diff -puN arch/ia64/mm/init.c~ia64_fix arch/ia64/mm/init.c
+--- test-kernel/arch/ia64/mm/init.c~ia64_fix	2004-10-07 19:40:30.955218376 +0900
++++ test-kernel-kamezawa/arch/ia64/mm/init.c	2004-10-07 19:40:30.959217768 +0900
+@@ -410,7 +410,8 @@ virtual_memmap_init (u64 start, u64 end,
+ 	struct page *map_start, *map_end;
 
-> > Actually, there wasn't.  The data was corrupt, therefore there was 
-> > no data. Nothing changed with time, as the corrupt data was already 
-> > present before we returned from select().
-> 
-> Perception of state is as good as state here.
-
-Perhaps select()'s perception of state should be made to take possible
-corruption into account.
-
-> > POSIX says that if select() says a socket is readable, a read call 
-> > will not block.  Obviously, we are not POSIX compliant.
-> 
-> Right, yes, that seems to be clear now.
-> 
-> Though, I'd still say that any app that calls read/write functions 
-> without O_NONBLOCK set and that expects it will not block, is broken. 
-> Basic common sense really, never mind the fine details of POSIX on 
-> select(). ;)
-
-Why would the POSIX standard say recvmsg() should not block if
-it did not intend it to be used in that way?
-
-> > There's nothing wrong with not being compliant, but it should be 
-> > documented and we shouldn't claim to be compliant.
-> 
-> Right.
-
-Wrong. IMHO it is not exactly a good thing to not be compliant on
-such basic functionality.
+ 	args = (struct memmap_init_callback_data *) arg;
+-
++	start = GRANULEROUNDDOWN(start);
++	end = GRANULEROUNDUP(end);
+ 	map_start = vmem_map + (__pa(start) >> PAGE_SHIFT);
+ 	map_end   = vmem_map + (__pa(end) >> PAGE_SHIFT);
 
 
---ms
+_
 

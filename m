@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263258AbUDMFHZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 01:07:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUDMFHZ
+	id S263348AbUDMFQm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 01:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbUDMFQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 01:07:25 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:10141 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S263258AbUDMFHY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 01:07:24 -0400
-Message-Id: <200404130507.i3D57KO16254@zeus.kernel.org>
-From: "Gilmar P. Santos" <onettfaste@decibel.com.br>
-To: <linux-kernel@vger.kernel.org>
-Subject: Jantar de  =?ISO-8859-1?Q?=20Neg=F3cios?=
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Date: Tue, 13 Apr 2004 02:07:37 -0300
-Content-Transfer-Encoding: 8bit
+	Tue, 13 Apr 2004 01:16:41 -0400
+Received: from web02-imail.bloor.is.net.cable.rogers.com ([66.185.86.76]:4843
+	"EHLO web02-imail.rogers.com") by vger.kernel.org with ESMTP
+	id S263348AbUDMFQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 01:16:38 -0400
+From: "Shawn Starr" <shawn.starr@rogers.com>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'Len Brown'" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>,
+       <netdev@oss.sgi.com>
+Subject: RE: [BUG][2.6.5 final][e100/ee100pro] NETDEV_WATCHDOG Timeout -Related to i2c interface?
+Date: Tue, 13 Apr 2004 01:16:43 -0400
+Message-ID: <000101c42116$82b8e910$0200080a@panic>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+In-Reply-To: <4079B246.4070107@pobox.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at web02-imail.rogers.com from [69.196.108.95] using ID <shawn.starr@rogers.com> at Tue, 13 Apr 2004 01:15:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convite para - Jantar de Negócios.
-Buscamos Pessoas, Profissionais e Empresários, para Trabalho e Parceria
-com E-Business, usando a Internet.
+Might be, I have since not had any issues with timeouts. Though, I don't
+know where it is doing this. It is an IBM machine so some things are
+proprietary.
 
-Visite: http://www.rendaforte.com/jantar/
+-----Original Message-----
+From: Jeff Garzik 
+Sent: Sunday, April 11, 2004 05:02 PM
+To: Shawn Starr
+Cc: 'Len Brown'; linux-kernel@; netdev@
+Subject: Re: [BUG][2.6.5 final][e100/ee100pro] NETDEV_WATCHDOG Timeout
+-Related to i2c interface?
 
-Gilmar P. Santos
-NGTCorp - Dúvidas pelo email wtrcorp@ibest.com.br
+
+Shawn Starr wrote:
+> Ok, this is strange, I put in an external 10/100 PRO S Adaptor, and im 
+> not getting anymore eth0 timeouts, I would only get eth0 timeouts on 
+> the ONBOARD nic if I enabled the lm80 sensor driver.. I don't know 
+> what to say, the onboard nic would work fine without lm80 being 
+> loaded?
+> 
+> Is there some sort of race condition that the onboard 10/100 PRO is 
+> doing ?
+
+If i2c is killing the network, sounds like it's diddling something on 
+the motherboard it shouldn't...
+
+	Jeff
 
 
 
 
 
-Para ser removido de futuros correios, por favor, envie email para
-ngtcad@ibest.com.br, com o assunto REMOVER. Obrigado.

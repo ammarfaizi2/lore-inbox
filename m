@@ -1,106 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264618AbTFLMTX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 08:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbTFLMTX
+	id S264479AbTFLMQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 08:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTFLMQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 08:19:23 -0400
-Received: from mail2.ewetel.de ([212.6.122.20]:42442 "EHLO mail2.ewetel.de")
-	by vger.kernel.org with ESMTP id S264618AbTFLMTS (ORCPT
+	Thu, 12 Jun 2003 08:16:28 -0400
+Received: from inconnu.isu.edu ([134.50.8.55]:37789 "EHLO inconnu.isu.edu")
+	by vger.kernel.org with ESMTP id S264479AbTFLMQ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 08:19:18 -0400
-Date: Thu, 12 Jun 2003 14:33:01 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5] capability flag for ATAPI MO devices
-Message-ID: <Pine.LNX.4.44.0306121428410.2153-100000@neptune.local>
+	Thu, 12 Jun 2003 08:16:27 -0400
+Date: Thu, 12 Jun 2003 06:30:06 -0600 (MDT)
+From: I Am Falling I Am Fading <skuld@anime.net>
+X-X-Sender: skuld@inconnu.isu.edu
+To: Gregor Essers <gregor.essers@web.de>
+cc: davej@codemonkey.org.uk, <linux-kernel@vger.kernel.org>
+Subject: Re: Via KT400 and AGP 8x Support
+In-Reply-To: <000f01c33013$c713eeb0$6602a8c0@Schleppi>
+Message-ID: <Pine.LNX.4.44.0306120626540.14123-100000@inconnu.isu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 11 Jun 2003, Gregor Essers wrote:
 
-Hi Jens,
+> Hi i will look into that with the bridges, i hope that Hercules is so that
+> they give me the spec´s (Plan of the Card) with the Jupers/Bridges for AGP
+> 2.0.
 
-I though I already sent this version of the patch to you, but I can't
-find it in my sent-mail folder, so I may have forgotten to do so.
+Follow the traces from pins A3 and A11 on the edge connector, they'll lead
+you to the 0 ohm resistor jumpers (Just look for the little rectangular
+things that have a 0 printed on them where others have numbers).
 
-This just adds a capability flag to ide-cd.{c,h} and cdrom.h so that we
-may later know this device is an MO drive (needed for write support).
+Make sure they are the ones for A3 and A11, and remove 'em. Voila, an AGP 
+2.0 card.
 
-Please apply.
+(These are on the ATI 9700 reference design, which all manufacturers have 
+copied so far, your Hercules will probably have them too, although it's 
+a 9800 I'm assuming)
 
+> It´s very SAD that Ati and Nvidia will not give the Specs or an Sourcecode
+> of the Drivers :/.
 
-Index: drivers/ide/ide-cd.c
-===================================================================
-RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-cd.c,v
-retrieving revision 1.112
-diff -u -3 -b -p -r1.112 ide-cd.c
---- drivers/ide/ide-cd.c	3 Jun 2003 00:35:28 -0000	1.112
-+++ drivers/ide/ide-cd.c	6 Jun 2003 13:07:31 -0000
-@@ -2805,7 +2805,7 @@ static struct cdrom_device_ops ide_cdrom
- 				CDC_MEDIA_CHANGED | CDC_PLAY_AUDIO | CDC_RESET |
- 				CDC_IOCTLS | CDC_DRIVE_STATUS | CDC_CD_R |
- 				CDC_CD_RW | CDC_DVD | CDC_DVD_R| CDC_DVD_RAM |
--				CDC_GENERIC_PACKET,
-+				CDC_GENERIC_PACKET | CDC_MO_DRIVE,
- 	.generic_packet		= ide_cdrom_packet,
- };
- 
-@@ -2838,6 +2838,8 @@ static int ide_cdrom_register (ide_drive
- 		devinfo->mask |= CDC_PLAY_AUDIO;
- 	if (!CDROM_CONFIG_FLAGS(drive)->close_tray)
- 		devinfo->mask |= CDC_CLOSE_TRAY;
-+	if (!CDROM_CONFIG_FLAGS(drive)->mo_drive)
-+		devinfo->mask |= CDC_MO_DRIVE;
- 
- 	return register_cdrom(devinfo);
- }
-@@ -2884,6 +2886,7 @@ int ide_cdrom_probe_capabilities (ide_dr
- 	int nslots = 1;
- 
- 	if (drive->media == ide_optical) {
-+		CDROM_CONFIG_FLAGS(drive)->mo_drive = 1;
- 		printk("%s: ATAPI magneto-optical drive\n", drive->name);
- 		return nslots;
- 	}
-Index: drivers/ide/ide-cd.h
-===================================================================
-RCS file: /home/bkcvs/linux-2.5/drivers/ide/ide-cd.h,v
-retrieving revision 1.16
-diff -u -3 -b -p -r1.16 ide-cd.h
---- drivers/ide/ide-cd.h	2 Nov 2002 21:12:01 -0000	1.16
-+++ drivers/ide/ide-cd.h	6 Jun 2003 13:06:08 -0000
-@@ -85,7 +85,8 @@ struct ide_cd_config_flags {
- 	__u8 audio_play		: 1; /* can do audio related commands */
- 	__u8 close_tray		: 1; /* can close the tray */
- 	__u8 writing		: 1; /* pseudo write in progress */
--	__u8 reserved		: 3;
-+	__u8 mo_drive		: 1; /* drive is an MO device */
-+	__u8 reserved		: 2;
- 	byte max_speed;		     /* Max speed of the drive */
- };
- #define CDROM_CONFIG_FLAGS(drive) (&(((struct cdrom_info *)(drive->driver_data))->config_flags))
-Index: include/linux/cdrom.h
-===================================================================
-RCS file: /home/bkcvs/linux-2.5/include/linux/cdrom.h,v
-retrieving revision 1.14
-diff -u -3 -b -p -r1.14 cdrom.h
---- include/linux/cdrom.h	24 Apr 2003 01:27:54 -0000	1.14
-+++ include/linux/cdrom.h	6 Jun 2003 13:05:30 -0000
-@@ -387,6 +387,7 @@ struct cdrom_generic_command
- #define CDC_DVD			0x8000	/* drive is a DVD */
- #define CDC_DVD_R		0x10000	/* drive can write DVD-R */
- #define CDC_DVD_RAM		0x20000	/* drive can write DVD-RAM */
-+#define CDC_MO_DRIVE		0x40000 /* drive is an MO device */
- 
- /* drive status possibilities returned by CDROM_DRIVE_STATUS ioctl */
- #define CDS_NO_INFO		0	/* if not implemented */
+Agreed. :-(
 
-
--- 
-Ciao,
-Pascal
+-----
+James Sellman -- ISU CoE-CS/ISLUG Linux Lab Admin   |"Lum, did you just see
+----------------------------------------------------| a hentai rabbit flying
+skuld@inconnu.isu.edu      |   // A4000/604e/60 128M| through the air?"
+skuld@anime.net            | \X/  A500/20 3M        |   - Miyake Shinobu
 

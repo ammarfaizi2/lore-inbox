@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289783AbSA2RiH>; Tue, 29 Jan 2002 12:38:07 -0500
+	id <S289646AbSA2RtI>; Tue, 29 Jan 2002 12:49:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289787AbSA2Rh5>; Tue, 29 Jan 2002 12:37:57 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:27155 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289783AbSA2Rhp>;
-	Tue, 29 Jan 2002 12:37:45 -0500
-Date: Tue, 29 Jan 2002 18:37:23 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: torvalds@transmeta.com, lm@bitmover.com, landley@trommello.org,
+	id <S289789AbSA2Rs6>; Tue, 29 Jan 2002 12:48:58 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:56477 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S289646AbSA2Rsq>; Tue, 29 Jan 2002 12:48:46 -0500
+Date: Tue, 29 Jan 2002 10:48:21 -0700
+Message-Id: <200201291748.g0THmLS23684@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Cc: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>,
         linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-Id: <20020129183723.18915729.skraw@ithnet.com>
-In-Reply-To: <3C568B6A.9090408@evision-ventures.com>
-In-Reply-To: <Pine.LNX.4.33.0201282217220.10929-100000@penguin.transmeta.com>
-	<3C568B6A.9090408@evision-ventures.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] KERN_INFO for devfs
+In-Reply-To: <200201291140.g0TBecE28017@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <000701c1a8b1$2f493850$21c9ca95@mow.siemens.ru>
+	<200201291140.g0TBecE28017@Port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002 12:45:46 +0100
-Martin Dalecki <dalecki@evision-ventures.com> wrote:
-
-> Linus Torvalds wrote:
+Denis Vlasenko writes:
+> > > Why do you think they _have to_ have "none"? Is it POSIXized or
+> > > otherwise standardized? Where can I RTFM?
+> >
+> > I do not think they have to. They just are :-)
+> >
+> > fs/namespace.c:show_vfsmnt()
+> >
+> > ...
+> > mangle(m, mnt->mnt_devname ? mnt->mnt_devname : "none");
+> >
+> >
+> > I find this convention quite useful. It allows any program to easily
+> > skip virtual filesystems. Using something like /dev or devfs in this
+> > case does not add any bit of useful information but possibly adds to
+> > confusion.
 > 
-> >On Mon, 28 Jan 2002, Larry McVoy wrote:
-> >
-> >>What you didn't do, Linus, is paint a picture which allows development
-> >>to scale up.
-> >>
-> >
-> >Actually, I thought I did.
-> >
-> >Basic premise: development is done by humans.
-> >
-> >Now, look at how humans work. I don't know _anybody_ who works with
-> >hundreds of people. You work with 5-10 people, out of a pool of maybe
-> >30-50 people. Agreed?
-> >
-> Not at all. Please have a look at the ARMY. (A tightly hierarchical 
-> system...)
+> Maybe you're right. It's up to maintainer to decide.
+> Richard, do you need updated patch without "none" -> "devfs"?
 
-Shoot me: where the heck is the creative/innovative element inside the ARMY?
-It just died somewhere down the hierarchy tree...
-Ants are a very successful species, too, but they will hardly ever write
-software (personal guess).
+Don't bother. I've gone through the code and done it myself, making
+some other minor changes as I go along.
 
-Regards,
-Stephan
+				Regards,
 
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

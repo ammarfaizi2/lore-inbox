@@ -1,106 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276042AbRI1NJi>; Fri, 28 Sep 2001 09:09:38 -0400
+	id <S276044AbRI1NMI>; Fri, 28 Sep 2001 09:12:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276044AbRI1NJ3>; Fri, 28 Sep 2001 09:09:29 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:64705 "EHLO
-	vega.digitel2002.hu") by vger.kernel.org with ESMTP
-	id <S276042AbRI1NJS>; Fri, 28 Sep 2001 09:09:18 -0400
-Date: Fri, 28 Sep 2001 15:09:36 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: clemens <therapy@endorphin.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide drive problem?
-Message-ID: <20010928150936.B12586@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <20010928041519.968EA4FA00@spock> <OE55yDnSI4nHp4PlNMu00004f47@hotmail.com> <20010928135222.A2722@ghanima.endorphin.org>
+	id <S276045AbRI1NL6>; Fri, 28 Sep 2001 09:11:58 -0400
+Received: from smtp.alcove.fr ([212.155.209.139]:13829 "EHLO smtp.alcove.fr")
+	by vger.kernel.org with ESMTP id <S276044AbRI1NLs>;
+	Fri, 28 Sep 2001 09:11:48 -0400
+Date: Fri, 28 Sep 2001 15:12:08 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Thomas Hood <jdthood@mail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
+Message-ID: <20010928151208.J21524@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <3BB46DCD.91576F70@mail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20010928135222.A2722@ghanima.endorphin.org>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: vega Linux 2.4.10-grsecurity-1.8 i686
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3BB46DCD.91576F70@mail.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 01:52:22PM +0200, clemens wrote:
-> Hi David, Hi Steve
-> 
-> i get:
-> 
-> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+On Fri, Sep 28, 2001 at 08:32:13AM -0400, Thomas Hood wrote:
 
-Hmmm, I get this message as well about once a day (though it seems it
-could not cause any damage ... yet ...)
-But I have got non-highpoint-equipped KT133 motherboard with ATA33
-disk.
+> Please try this patch to drivers/pnp/pnp_bios.c (attached) and get
+> back to me.
 
-Note, that this hw config DID NOT WORK with 2.2.x kernel at all (waiting
-for interrupt or something similar message)
+It doesn't change much: without the patch it hangs after:
+	PnP: PNP BIOS installation structure at 0xc00f8120
+	PnP: PNP BIOS version 1.0, entry ay f0000:b25f, dseg at 400
+With the patch a third line is printed before the oops:
+	PnP: PNP BIOS 13 devices detected (or something like that).
 
-> on:
-> 
-> Linux version 2.4.9-ac7 (root@ghanima) (gcc version 2.95.4 20010902 (Debian
-> prerelease)) #1 SMP Wed Sep 26 14:39:37 CEST 2001
-> 
-> HPT370: IDE controller on PCI bus 00 dev 98
-> PCI: Found IRQ 15 for device 00:13.0
-> HPT370: chipset revision 3
-> HPT370: not 100% native mode: will probe irqs later
->     ide2: BM-DMA at 0xe800-0xe807, BIOS settings: hde:DMA, hdf:pio
->     ide3: BM-DMA at 0xe808-0xe80f, BIOS settings: hdg:pio, hdh:pio
-> hde: ST360021A, ATA DISK drive
-> 
-> even thou i have VT8363/8365 (=KT133) as north bridge, and VT82C686A as
-> southbridge, at least the south bridge could not be blamed for that, since
-> a. i don't even use it, hde is my hpt370 controller, and
-> b. it's the A revision and not the infamous 686B revision (see
-> http://www.viahardware.com/686bfaq.shtm for more infos on "the" 686B bug)
-> 
-> what kernel, harddisc do you both have?
-> 
-> clemens
-> 
-> p.s.: i don't know if "BadCRC" has anything to do with bad blocks, but
-> /sbin/badblocks doesn't even show a single bad block on my brand new seagate 
-> disc, so i guess, that's not the source of the troubles.
-> 
-> On Thu, Sep 27, 2001 at 10:44:53PM -0700, David Grant wrote:
-> > I think the standard response people would give you is that your IDE cable
-> > is too long, of bad quality, or you are using a 40-pin cable instead of an
-> > 80-pin cable (although I'm pretty sure that should have been detected, and
-> > DMA should automatically have not been used, but I heard at one point that
-> > the code which detected this on motherboards using the vt82c686b chip didn't
-> > really work in some cases).
-> > 
-> > That's the standard answer, but I used to get this messages on my machine as
-> > well (I think it was back when I was trying to use my VIA chipset with
-> > Redhat 7.1).  I don't seem to get them anymore though, but maybe that's just
-> > because I'm trying to install distros newer than Redhat 7.1.  That makes me
-> > think that I never had CRC errors, it was just some buggy VIA code.
-> > 
-> > I just get the dma timeout errors now with my VIA IDE controller.  I also
-> > get them with the Promise controller (sigh...).
-> > 
-> > David Grant
-> > 
-> > ----- Original Message -----
-> > From: "Steven Joerger" <steven@spock.2y.net>
-> > To: <linux-kernel@vger.kernel.org>
-> > Sent: Thursday, September 27, 2001 9:02 PM
-> > Subject: ide drive problem?
-> > 
-> > 
-> > > List,
-> > >
-> > > When I enable support for my chipset in the kernel (via kt133) I always
-> > get
-> > > these messages:
-> > >
-> > > hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> > > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> > >
-> > > over and over and ....
-> > >
-> > > Any clues to whats going on?
+The oops symptoms seems to be identical in both cases.
+
+> It would be helpful too if you could track down (using printks)
+> where the fault occurs.
+
+What about this manually copied oops decode (not sure why the
+warnings are present...) (NOTE: this oops is without your patch):
+
+ksymoops 2.4.1 on i586 2.4.9-ac16.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.9-ac16/ (default)
+     -m /boot/System.map-2.4.9-ac16 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol us_list  , usb-storage says c80729b0, /lib/modules/2.4.9-ac16/kernel/drivers/usb/storage/usb-storage.o says c8071c80.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/usb/storage/usb-storage.o entry
+Warning (compare_maps): mismatch on symbol us_list_semaphore  , usb-storage says c80729b4, /lib/modules/2.4.9-ac16/kernel/drivers/usb/storage/usb-storage.o says c8071c84.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/usb/storage/usb-storage.o entry
+Warning (compare_maps): mismatch on symbol proc_scsi  , scsi_mod says c806c778, /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o says c806afd0.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_devicelist  , scsi_mod says c806c7a4, /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o says c806affc.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_hostlist  , scsi_mod says c806c7a0, /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o says c806aff8.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_hosts  , scsi_mod says c806c7a8, /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o says c806b000.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_logging_level  , scsi_mod says c806c774, /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o says c806afcc.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore says c8050580, /lib/modules/2.4.9-ac16/kernel/drivers/usb/usbcore.o says c80500a0.  Ignoring /lib/modules/2.4.9-ac16/kernel/drivers/usb/usbcore.o entry
+CPU:    0
+EIP:    0068:[<0000a67e>]  Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 00000001 ebx: 0000a8ce ecx: 00150000 edx: 00000005
+esi: 0000c569 edi: 00000000 ebp: c11ede80 esp: c11ede28
+ds: 0040 es:0080 ss: 0018
+Process swapper (pid: 1, stackpage=c11ed000)
+Stack: c5ae0070 a8ce0005 c5883032 c54c0003 0a110011 0018c50f c4fca8c8 0000c4e8
+       c4d3a8c7 0000c4c1 00030000 de800000 de6ec11e a8afc11e 00000000 00180000
+       00010015 ca5d0000 02f8c039 c1cac0b4 c17f0000 cac2c1a7 20000000 00000000
+Call trace: [<c011a3cc>] [<c018bf28>] [<c0105000>] [<c018c4bb>] [<c01051fd>] 
+   [<c0105000>] [<c010562f>] [<c01051f4>]
+Code: Bad EIP value
+
+>>EIP; 0000a67e Before first symbol   <=====
+Trace; c011a3cc <update_process_times+20/7f>
+Trace; c018bf28 <pnp_bios_get_dev_node+de/123>
+Trace; c0105000 <_stext+0/0>
+Trace; c018c4bb <pnp_bios_init+169/1b6>
+Trace; c01051fd <init+9/134>
+Trace; c0105000 <_stext+0/0>
+Trace; c010562f <kernel_thread+26/30>
+Trace; c01051f4 <init+0/134>
+
+  Kernel panic: Attempted to kill init!
+
+9 warnings issued.  Results may not be reliable.
+
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+|---------------- Free Software Engineer -----------------|
+| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
+|------------- Alcôve, liberating software ---------------|

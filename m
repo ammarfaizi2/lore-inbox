@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279241AbRJ2MGN>; Mon, 29 Oct 2001 07:06:13 -0500
+	id <S279196AbRJ2MDX>; Mon, 29 Oct 2001 07:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279243AbRJ2MFx>; Mon, 29 Oct 2001 07:05:53 -0500
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:2297 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S279241AbRJ2MFt>; Mon, 29 Oct 2001 07:05:49 -0500
-Date: Mon, 29 Oct 2001 17:35:43 +0530 (IST)
-From: Manik Raina <manik@cisco.com>
-To: <linux-i2c@pelican.tk.uni-linz.ac.at>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix for warnings for i2o
-Message-ID: <Pine.GSO.4.33.0110291733020.28035-100000@cbin2-view1.cisco.com>
+	id <S279241AbRJ2MDN>; Mon, 29 Oct 2001 07:03:13 -0500
+Received: from 146.241.88.213.host.songnetworks.se ([213.88.241.146]:17167
+	"EHLO dican.se") by vger.kernel.org with ESMTP id <S279196AbRJ2MDB>;
+	Mon, 29 Oct 2001 07:03:01 -0500
+Message-ID: <3BDD4593.74988F93@dican.se>
+Date: Mon, 29 Oct 2001 13:03:31 +0100
+From: Magnus Sundberg <Magnus.Sundberg@dican.se>
+Organization: Dican AB
+X-Mailer: Mozilla 4.71 [en] (WinNT; I)
+X-Accept-Language: sv,en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Does VFS cache individual files? Is the linker involved?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i2o code compilation gives a warning which is due
-to the fact that queue_buggy (i2o_block.c:1375, 1378)
-is compared to 1 and 2, even though it's 1 bit in size.
+Dear sirs,
 
-queue_buggy is set to 0, 1 and 2 and hence the warnings
-go away when the size is increased.
+QUESTION:
+Does VFS cache the content of a file?
 
-diffs attached ....
+Does VFS consult memory instead of disk, when accessing a file that is
+already linked to a process that is running?
 
-Index: i2o.h
-===================================================================
-RCS file: /vger/linux/include/linux/i2o.h,v
-retrieving revision 1.17
-diff -u -r1.17 i2o.h
---- i2o.h	22 Oct 2001 06:46:34 -0000	1.17
-+++ i2o.h	29 Oct 2001 11:34:55 -0000
-@@ -82,7 +82,7 @@
- struct i2o_pci
- {
- 	int		irq;
--	int		queue_buggy:1;	/* Don't send a lot of messages */
-+	int		queue_buggy:3;	/* Don't send a lot of messages */
- 	int		short_req:1;	/* Use small block sizes        */
- 	int		dpt:1;		/* Don't quiesce                */
- #ifdef CONFIG_MTRR
+
+RELATED INFORMATION:
+Operating system RedHat 7.1, kernel 2.4.3-12 (from RedHat RPM)
+My webserver runs tripwire for integrity test of critical files.
+
+One night, when the PHP runtime of apache had crashed, tripwire reported
+checksum error of
+/usr/lib/apache/libphp4.so
+The next night, when apache was restarted, there where no checksum
+errors of the file.
+
+I have seen checksum errors of /lib/libc-2.2.2.so, rpm also reported md5
+checksum error when I
+used rpm to verify the installation of glibc.
+
+Thank you for your time reading this
+
+regards,
+
+Magnus Sundberg
+
 

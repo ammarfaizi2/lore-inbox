@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285136AbRLFODJ>; Thu, 6 Dec 2001 09:03:09 -0500
+	id <S285135AbRLFOET>; Thu, 6 Dec 2001 09:04:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285135AbRLFOC7>; Thu, 6 Dec 2001 09:02:59 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39948 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285136AbRLFOCr>; Thu, 6 Dec 2001 09:02:47 -0500
-Subject: Re: Adaptec-2920 eats too much cpu time when reading from the CD-ROM
-To: florin@iucha.net (Florin Iucha)
-Date: Thu, 6 Dec 2001 14:11:56 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), florin@iucha.net (Florin Iucha),
-        linux-kernel@vger.kernel.org, faith@acm.org
-In-Reply-To: <20011206075125.A23432@beaver.iucha.org> from "Florin Iucha" at Dec 06, 2001 07:51:26 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285138AbRLFOEM>; Thu, 6 Dec 2001 09:04:12 -0500
+Received: from mustard.heime.net ([194.234.65.222]:24775 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S285135AbRLFOEC>; Thu, 6 Dec 2001 09:04:02 -0500
+Date: Thu, 6 Dec 2001 15:03:47 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: temporarily system freeze with high I/O write to ext2 fs
+Message-ID: <Pine.LNX.4.30.0112061458360.15516-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16BzFk-0001m3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is one interesting thing about it: when I write a CD, I write at 12x
-> - that means 1800Kb/s, which is comparable with the reading speed of 2400Kb/s.
-> But when writing, the system CPU usage is about 30%.
+hi all
 
-When you write the scsi layer keeps getting to the point where there are
-no commands to issue. When you read its always there waiting for the drive.
+why is it that Linux 'hangs' while doing heavy I/O operations (such as dd)
+to (and perhaps from?) ext2 file systems? I can't see the same behaivour
+when using other file systems, such as ReiserFS
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
 

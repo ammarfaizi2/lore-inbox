@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVANRDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVANRJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbVANRDz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 12:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVANRD3
+	id S262030AbVANRJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 12:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVANRJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 12:03:29 -0500
-Received: from avexch02.qlogic.com ([198.70.193.200]:6563 "EHLO
-	avexch01.qlogic.com") by vger.kernel.org with ESMTP id S262026AbVANRCD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 12:02:03 -0500
-Subject: [PATCH] MAINTAINERS: add entry for qla2xxx driver.
-From: Andrew Vasquez <andrew.vasquez@qlogic.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: QLogic Corporation
-Date: Fri, 14 Jan 2005 09:02:12 -0800
-Message-Id: <1105722132.12434.17.camel@plap.san.rr.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-OriginalArrivalTime: 14 Jan 2005 16:58:56.0921 (UTC) FILETIME=[55F31090:01C4FA5A]
+	Fri, 14 Jan 2005 12:09:28 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:44215 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262028AbVANRJT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 12:09:19 -0500
+Date: Fri, 14 Jan 2005 09:08:54 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <20050114170140.GB4634@muc.de>
+Message-ID: <Pine.LNX.4.58.0501140906550.27552@schroedinger.engr.sgi.com>
+References: <41E5B7AD.40304@yahoo.com.au> <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+ <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+ <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+ <20050113180205.GA17600@muc.de> <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+ <20050114043944.GB41559@muc.de> <Pine.LNX.4.58.0501140838240.27382@schroedinger.engr.sgi.com>
+ <20050114170140.GB4634@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add entry for QLogic qla2xxx driver.
+On Fri, 14 Jan 2005, Andi Kleen wrote:
 
-Signed-off-by: Andrew Vasquez <andrew.vasquez@qlogic.com>
+> > Looked at  arch/i386/lib/mmx.c. It avoids the mmx ops in an interrupt
+> > context but the rest of the prep for mmx only saves the fpu state if its
+> > in use. So that code would only be used rarely. The mmx 64 bit
+> > instructions seem to be quite fast according to the manual. Double the
+> > cycles than the 32 bit instructions on Pentium M (somewhat higher on Pentium 4).
+>
+> With all the other overhead (disabling exceptions, saving register etc.)
+> will be likely slower. Also you would need fallback paths for CPUs
+> without MMX but with PAE (like Ppro). You can benchmark
+> it if you want, but I wouldn't be very optimistic.
 
- MAINTAINERS |    6 ++++++
- 1 files changed, 6 insertions(+)
-
---- linux-2.6.11-rc1/MAINTAINERS.orig	2005-01-14 08:34:41.087661376 -0800
-+++ linux-2.6.11-rc1/MAINTAINERS	2005-01-14 08:42:26.004983200 -0800
-@@ -1828,6 +1828,12 @@
- L:	linux-arm-kernel@lists.arm.linux.org.uk
- S:	Maintained
- 
-+QLOGIC QLA2XXX FC-SCSI DRIVER
-+P:	Andrew Vasquez
-+M:	andrew.vasquez@qlogic.com
-+L:	linux-scsi@vger.kernel.org
-+S:	Supported
-+
- QNX4 FILESYSTEM
- P:	Anders Larsen
- M:	al@alarsen.net
+So the PentiumPro is a cpu with atomic 64 bit operations in a cmpxchg but
+no instruction to do an atomic 64 bit store or load although the
+architecture conceptually supports 64bit atomic stores and loads? Wild.
 

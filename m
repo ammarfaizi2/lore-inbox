@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287578AbSAXMGN>; Thu, 24 Jan 2002 07:06:13 -0500
+	id <S287616AbSAXMRZ>; Thu, 24 Jan 2002 07:17:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287607AbSAXMGC>; Thu, 24 Jan 2002 07:06:02 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:64266 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287578AbSAXMFz>;
-	Thu, 24 Jan 2002 07:05:55 -0500
-Date: Thu, 24 Jan 2002 10:05:43 -0200 (BRST)
+	id <S287626AbSAXMRP>; Thu, 24 Jan 2002 07:17:15 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:41483 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287616AbSAXMRD>;
+	Thu, 24 Jan 2002 07:17:03 -0500
+Date: Thu, 24 Jan 2002 10:16:57 -0200 (BRST)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: <riel@imladris.surriel.com>
-To: <info@global-digicom.com>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: White Paper on the Linux kernel VM?
-In-Reply-To: <20020124033618.20653.cpmta@c001.snv.cp.net>
-Message-ID: <Pine.LNX.4.33L.0201241004320.32617-100000@imladris.surriel.com>
+Subject: Re: VM: Where do we stand?
+In-Reply-To: <a2olpj$ed0$1@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.33L.0201241016200.32617-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jan 2002 info@global-digicom.com wrote:
+On Thu, 24 Jan 2002, Henning P. Schmiedehausen wrote:
+> "Duraid Madina" <duraid@fl.net.au> writes:
+>
+> >I'm sure at least some of you will immediately recognize these words:
+>
+> This paper is _two_ years old. What is this? Linux 2.4pre? 2.2?
+>
+> (<199901140720.XAA22609@apollo.backplane.com> for the googlelites).
 
-> I am interested in reviewing the technical specifications on the Linux
-> kernel VM. As there has been much controversy of late on this subject,
-> it would be relevant to compare the concepts behind both the former VM
-> and the new VM in order to obtain a better understanding of the
-> issues.  Is there a “white paper” available on both the old and the
-> new VM’s?  Understandably, the VM is a work in progress; however,
-> there should be a basic set of design goals and concepts from which
-> future development will proceed.  It would definitely be helpful to
-> present them both as an aid to further analysis.
-
-I made a paper about the old VM in the 2.4 kernels, with some
-overview of its shortcomings and what needs to be fixed.
-
-This paper was made for last year's USENIX in Boston, you can
-get it from my home page:
-
-	http://surriel.com/lectures/
+Doesn't mean it's no longer valid, though.
 
 regards,
 

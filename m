@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFQJsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266441AbUFQKDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbUFQJsi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 05:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266435AbUFQJsi
+	id S266441AbUFQKDr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 06:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUFQKDq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 05:48:38 -0400
-Received: from CPE-203-51-26-230.nsw.bigpond.net.au ([203.51.26.230]:42492
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S264367AbUFQJsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 05:48:36 -0400
-Message-ID: <40D168EF.5050009@eyal.emu.id.au>
-Date: Thu, 17 Jun 2004 19:48:31 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Thu, 17 Jun 2004 06:03:46 -0400
+Received: from bart.webpack.hosteurope.de ([217.115.142.76]:59307 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S266441AbUFQKDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 06:03:45 -0400
+Envelope-to: linux-kernel@vger.kernel.org
+Date: Thu, 17 Jun 2004 12:09:23 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Christoph Hellwig <hch@infradead.org>
+cc: Oliver Neukum <oliver@neukum.org>, <davids@webmaster.com>,
+       <erikharrison@gmail.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: more files with licenses that aren't GPL-compatible
+In-Reply-To: <20040617075926.GA27938@infradead.org>
+Message-ID: <Pine.LNX.4.44.0406171201100.7337-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.27-pre6: visor.c (patch)
-References: <20040616183343.GA9940@logos.cnet> <40D16710.9010105@eyal.emu.id.au>
-In-Reply-To: <40D16710.9010105@eyal.emu.id.au>
-Content-Type: multipart/mixed;
- boundary="------------020705040700030508080109"
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020705040700030508080109
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 17 Jun 2004, Christoph Hellwig wrote:
 
-Forgot to attach this trivial patch...
+> On Thu, Jun 17, 2004 at 12:45:32AM +0200, Oliver Neukum wrote:
+> > This all boils down to the question of whether fimware is code or not.
+> 
+> No, that's exactly the political discussion we don't want to discuss here.
+> The keyspan case is worse where a file used in the kernel built has a
+> GPL-incompatible license.
 
---
-Eyal Lebedinsky		(eyal@eyal.emu.id.au)
+>From a technical point of view I'm just wondering how it comes this 
+firmware is derived from the Linux kernel? I mean this is running on an 
+8-bit microcontroller with some 4KiB of memory so it sounds pretty much 
+impossible to me.
 
---------------020705040700030508080109
-Content-Type: text/plain;
- name="2.4.27-pre6-visor.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.27-pre6-visor.patch"
+If anybody would have a point calling this a derived work from Linux, I'd 
+be very concerned about SCO might have a point with their claims wrt. 
+Linux being derived from their IP =(:-(
 
---- linux/drivers/usb/serial/visor.c.orig	Thu Jun 17 19:18:58 2004
-+++ linux/drivers/usb/serial/visor.c	Thu Jun 17 19:19:34 2004
-@@ -890,13 +890,12 @@
- {
- 	int response;
- 	unsigned char *transfer_buffer;
-+	struct palm_ext_connection_info *connection_info;
- 
- 	dbg("%s", __FUNCTION__);
- 
- 	dbg("%s - Set config to 1", __FUNCTION__);
- 	usb_set_configuration(serial->dev, 1);
--
--	struct palm_ext_connection_info *connection_info;
- 
- 	transfer_buffer = kmalloc(sizeof (*connection_info),
- 					GFP_KERNEL);
+>From the maintenance POV of course it would be much better not to have it 
+aggregated with the kernel sources.
 
---------------020705040700030508080109--
+SCNR
+Martin
+

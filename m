@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265575AbSJSJiH>; Sat, 19 Oct 2002 05:38:07 -0400
+	id <S265577AbSJSJxk>; Sat, 19 Oct 2002 05:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265577AbSJSJiH>; Sat, 19 Oct 2002 05:38:07 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:39120 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S265575AbSJSJiG> convert rfc822-to-8bit; Sat, 19 Oct 2002 05:38:06 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Gerrit =?iso-8859-1?q?Bruchh=E4user?= <gbruchhaeuser@orga.com>
-Subject: Re: bootsect.S and magic address 0x78
-Date: Fri, 18 Oct 2002 23:44:05 -0500
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <3DAFDC88.2010009@orga.com>
-In-Reply-To: <3DAFDC88.2010009@orga.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210182344.05223.landley@trommello.org>
+	id <S265580AbSJSJxj>; Sat, 19 Oct 2002 05:53:39 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40970 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265577AbSJSJxj>; Sat, 19 Oct 2002 05:53:39 -0400
+Date: Sat, 19 Oct 2002 10:59:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: jt@hpl.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 orinoco_cs with Lucent WaveLAN "bronze"
+Message-ID: <20021019105938.A14830@flint.arm.linux.org.uk>
+References: <200210190922.g9J9M4p15225@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200210190922.g9J9M4p15225@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Sat, Oct 19, 2002 at 02:14:57PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 October 2002 05:03, Gerrit Bruchhäuser wrote:
-> Hello Linus,
->
->
-> Can you tell me where this magic address 0x78 in arch/i386/bootsect.S
-> refers to? I mean, is this somewhere specified?
->
-> Many thanks and cheers from germany.
->
-> Gerrit
+On Sat, Oct 19, 2002 at 02:14:57PM +0000, Denis Vlasenko wrote:
+> Today I played with wireless LAN euqipment for the first time.
+> I have ISA-to-PCMCIA converter and a Lucent (IEEE) PCMCIA card.
+> I set up everything as directed by HOWTOs. I do:
 
-I believe Tigran's Linux Kernel Internels guide for 2.4 covers this, you can 
-download it from here:
+Yes, I also noticed many problems with the current orinoco_cs driver.
+I've reported them to David, but had very little response thus far.
+Basically, iwconfig ethx essid foo appears to crash the cards firmware
+(I get really interesting series of words in the chips registers giving
+a nice ASCII string.)
 
-http://www.tldp.org/guides.html
+I did find that if I took the wvlan_cs driver from a Red Hat kernel and
+drop it into 2.5, it works (as far as I can tell) quite nicely.
 
-Alas, there isn't a 2.5 guide yet.  Moves too fast. :)
+Unfortunately, I haven't been able to do any further investigation of
+this; I'm not too bothered because wvlan_cs gets me working.
 
-Rob
+(My card is a Lucent WaveLAN Silver)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,83 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264340AbTLQLT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 06:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTLQLT3
+	id S264383AbTLQLVg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 06:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264384AbTLQLVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 06:19:29 -0500
-Received: from web106.biz.mail.yahoo.com ([216.136.174.208]:27775 "HELO
-	web106.biz.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264340AbTLQLTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 06:19:25 -0500
-Message-ID: <20031217111924.41027.qmail@web106.biz.mail.yahoo.com>
-Date: Wed, 17 Dec 2003 11:19:24 +0000 (GMT)
-From: =?iso-8859-1?q?Zainab=20Hamza?= <zainab1060@familykose.com>
-Reply-To: zainab1960@web-mail.com.ar
-Subject: ASSISTANCE
-To: zainab1060@familykose.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 17 Dec 2003 06:21:36 -0500
+Received: from ANancy-107-1-16-31.w81-48.abo.wanadoo.fr ([81.48.91.31]:49338
+	"EHLO joebar.freealter.fr") by vger.kernel.org with ESMTP
+	id S264383AbTLQLVe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 06:21:34 -0500
+Date: Wed, 17 Dec 2003 12:20:46 +0100
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Simple partition not detected with 2.6
+Message-ID: <20031217112046.GA31709@joebar.freealter.fr>
+References: <20031215141746.GA27006@joebar.freealter.fr> <20031215170517.GA12267@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031215170517.GA12267@win.tue.nl>
+User-Agent: Mutt/1.3.28i
+From: Ludovic Drolez <ludovic.drolez@linbox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, 
- 
-I humbly introduce myself to you; I am Mrs. Alhaja
-Zainab Hamza the wife Of Captain Hamza who served in
-Iraq. I am contacting you base on trust and
-humanitarian assistance which I  urgently need from
-you. The recent concluded US led war against my
-country has left my family  total devastated as I lost
-my Husband to the cold hands of death and the children
-lost their father.  
+On Mon, Dec 15, 2003 at 06:05:17PM +0100, Andries Brouwer wrote:
+> On Mon, Dec 15, 2003 at 03:17:46PM +0100, Ludovic Drolez wrote:
+> 
+> > I have one computer which has two partitions per disk.
+> > This partition is seen by a 2.4.xx kernel (knoppix) but
+> > not by a 2.6.0t7 kernel.
+> > 
+> > When booting the knoppix, dmesg says:
+> > 
+> > hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
+> > hdc: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63
+> > ide-cd: passing drive hde to ide-scsi emulation.
+> > Partition check:
+> > hda: [PTBL] [9729/255/63] hda1 hda2
+> > hdc: [PTBL] [9729/255/63] hdc1 hdc2
+> > 
+> > 
+> > But the 2.6.0t7 does not see the partition table. 
+> > Other disks are properly recognized, so it seems to
+> > be a problem with [PTBL] and 2.6 ...
+> 
+> The [PTBL] part just says that this 2.4 kernel first concluded to
+> a 155061/16/63 geometry but then saw the partition table and
+> changed it mind to 9729/255/63.
+> It is unrelated to partition recognition.
+> 
+> Check that your kernel was compiled without CONFIG_PARTITION_ADVANCED,
+> or, in case you selected advanced, has CONFIG_MSDOS_PARTITION selected.
 
-Long before this war started, my late husband had in
-his custody $20.7  Million U.S Dollars, but due to
-serious threat of war from the United 
-States and the collision forces (if our dictator
-president does not  amend his ways), my husband had to
-act fast and at such deposited these  funds in a
-Diplomatic Condominium in a neighboring country for
-the purpose  of our family survival after the war
-might have been over. 
- 
-I am writing you this letter because our dreams was
-not fulfilled as we could not leave Iraq before the
-war but we did however succeeded in getting the
-children to a neighboring country first before trying
-to proceed with getting ourselves out. It was in the
-process of escaping to a neighboring country that we
-came under friendly fire. It was this mistake that
-took my husband’s life and critically injured me.I was
-rushed to a military hospital in a neighboring country
-where I am currently admitted and writing this letter.
-I am recovering well and now that my health has
-improved dramatically, I need to think of the future
-of my Children and who to trust in  sending the entire
-amount kept by my late husband for investment and
-acquiring immigration papers for my children. 
- 
-If you believe you can assist me on this endeavor,
-kindly reply me  so that I shall forward to you all
-the details required to carry on this transaction
-successfully. 
- 
-I look forward to your prompt favorable response. 
-Thanks for your understanding. 
- 
- 
-Yours Respectfully, 
- 
-Mrs. Zainab Hamza. 
- 
-N.B 
-(If you have received this email in error, please
-accept my apology. If  you no longer wish to receive
-email from me, please do not reply. Your 
-request will be honored).
+Yes, I have CONFIG_PARTITION_ADVANCED, CONFIG_MSDOS_PARTITION and also LDM
+partitions support.
 
+I've attached a boot log.
+In fact it seems that it's not a partitions problem but a disk
+detection problem: the IDE controller is detected but not the disks...
 
+The server is an HP-DL320 with integrated RAID IDE.
 
-
-
+-- 
+Ludovic DROLEZ                              Linbox / Free&ALter Soft
+152 rue de Grigy - Technopole Metz 2000                   57070 METZ
+tel : 03 87 75 55 21                            fax : 03 87 75 19 26

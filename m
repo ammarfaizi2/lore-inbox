@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316538AbSEPBop>; Wed, 15 May 2002 21:44:45 -0400
+	id <S316540AbSEPCBj>; Wed, 15 May 2002 22:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316539AbSEPBoo>; Wed, 15 May 2002 21:44:44 -0400
-Received: from ns.suse.de ([213.95.15.193]:31240 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S316538AbSEPBon>;
-	Wed, 15 May 2002 21:44:43 -0400
-Date: Thu, 16 May 2002 03:44:42 +0200
-From: Dave Jones <davej@suse.de>
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: Rob Landley <landley@trommello.org>, John Weber <john.weber@linuxhq.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OT] Unofficial but Supported Kernel Patches
-Message-ID: <20020516034442.C21902@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	John Levon <movement@marcelothewonderpenguin.com>,
-	Rob Landley <landley@trommello.org>,
-	John Weber <john.weber@linuxhq.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0205121935000.18593-100000@dragon.pdx.osdl.net> <3CDF2C7C.7090203@linuxhq.com> <20020515200758.BEAB373B@merlin.webofficenow.com> <20020515205607.GA19388@compsoc.man.ac.uk>
+	id <S316541AbSEPCBj>; Wed, 15 May 2002 22:01:39 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:13132 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S316540AbSEPCBi>; Wed, 15 May 2002 22:01:38 -0400
+Date: Thu, 16 May 2002 04:01:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa3
+Message-ID: <20020516020134.GC1025@dualathlon.random>
+In-Reply-To: <20020515212733.GA1025@dualathlon.random> <Pine.LNX.4.44L.0205151929430.32261-100000@imladris.surriel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 09:56:08PM +0100, John Levon wrote:
- > On Wed, May 15, 2002 at 09:43:26AM -0400, Rob Landley wrote:
- > 
- > > it's way better than nothing.)  There's buildable docbook documentation in 
- > > the source tarball that in theory could be blasted to HTML and posted online, 
- > > and that might be nice to have a standard location for.  (If there is one 
- > > already, I missed it.)
- > 
- > http://kernelnewbies.org/documents/
+On Wed, May 15, 2002 at 07:30:18PM -0300, Rik van Riel wrote:
+> On Wed, 15 May 2002, Andrea Arcangeli wrote:
+> 
+> > Only in 2.4.19pre8aa3: 00_ext3-register-filesystem-lifo-1
+> >
+> > 	Make sure to always try mounting with ext3 before ext2 (otherwise
+> > 	it's impossible to mount the real rootfs with ext3 if ext3 is a module
+> > 	loaded by an initrd and ext2 is linked into the kernel).
+> 
+> Funny, I've been doing this for months.
+> 
+> Maybe you should look into pivot_mount(2) and pivot_mount(8)
+> some day ?
 
-The pdf's there are somewhat up to date, the html version has fallen
-behind quite a bit due to lack of time on my part. Christoph Hellwig
-offered to update that, but I believe he's also been quite busy of
-late.
+I'm not sure if you really understood what the problem is from my
+description above because your kind suggestion doesn't make sense to me.
 
-In theory it could be mostly automated. The only reason I didn't do it
-already was every time I updated it so far, the names of the html
-files changed, which meant lots of manual 'cvs add' & 'cvs remove'
-operations to kernelnewbies CVS.
+First of all there's no pivot_mount but there's only pivot_root (never
+mind, it is clear you meant pivot_root).
 
-iirc, Christoph had a workaround for this problem..
+Secondly pivot_root has nothing to do with handle_initrd.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Go read init/do_mounts.c::handle_initrd. There are only two ways:
+
+1) you specified rootfstype=ext3, then the real rootfs will be
+   mounted as ext3 and not as ext2, but the initrd must also
+   be mountable by ext3 and that's not the case normally (the same
+   rootfstype will apply to both the initrd and the real root fs,
+   the fact rootfstype applies to both doesn't make sense but
+   that's another issue and I don't want to be forced to use
+   rootfstype anyways, I don't like having to pass an argument for
+   something that can be done at runtime by the kernel).
+2) you didn't specified rootfstype=, in such case ext2 will be
+   tried first because it got registered first because ext2 is linked
+   into the kernel and ext3 is a module
+
+That's all, and that's an autodetection bug because ext3 must be always
+tried first, there's no point at all to try to mount with ext2 before
+ext3 (of course unless rootfstype= is specified).
+
+If it works for you it means you regularly reboot with SYSRQ+B (or
+some workaround on those lines), and so ext2 doesn't mount
+and in turn ext3 is later tried. otherwise if ext2 mounts cleanly ext3
+is _never_ tried and you cannot mount ext3 as rootfs without my patch
+that enforces the ordering.
+
+Make sure to check with /proc/mounts that your rootfs is really using
+ext3 and not ext2, or you may not notice.
+
+If it works for you it's probably because ext2 is a module too, or maybe
+more simply because ext3 is linked into the kernel.
+
+Andrea

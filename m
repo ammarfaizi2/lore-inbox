@@ -1,94 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261344AbSJQKlQ>; Thu, 17 Oct 2002 06:41:16 -0400
+	id <S261347AbSJQKnz>; Thu, 17 Oct 2002 06:43:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261339AbSJQKjp>; Thu, 17 Oct 2002 06:39:45 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28935 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261340AbSJQKjb>; Thu, 17 Oct 2002 06:39:31 -0400
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Linus Torvalds <torvalds@transmeta.com>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 2.5.29-rdunzip
-Message-Id: <E18289d-0007te-00@flint.arm.linux.org.uk>
-Date: Thu, 17 Oct 2002 11:45:25 +0100
+	id <S261352AbSJQKne>; Thu, 17 Oct 2002 06:43:34 -0400
+Received: from edu.joroinen.fi ([195.156.135.125]:41998 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S261347AbSJQKmT> convert rfc822-to-8bit;
+	Thu, 17 Oct 2002 06:42:19 -0400
+Date: Thu, 17 Oct 2002 13:48:17 +0300 (EEST)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: pk@edu.joroinen.fi
+To: "G.de-With" <G.de-With@herts.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: I/O performance test
+In-Reply-To: <3DAE89B1.F58E90C3@herts.ac.uk>
+Message-ID: <Pine.LNX.4.44.0210171342560.5519-100000@edu.joroinen.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch appears not to be in 2.5.43, but applies cleanly.
 
-This patch ensures that we report failures when unzipping ramdisks and the
-like, including if we fail to write to the ramdisk.
+On Thu, 17 Oct 2002, G.de-With wrote:
 
-Unfortunately, there is no way to guarantee that the gunzip function will
-ever terminate (gzip itself uses a setjmp and longjmp to achieve this).
+> Hello
+>
+> Since a month we have a LINUX BEOWULF cluster, the clusters contains 7
+> P4 dual processor 2GHz computers, with 8Gb of RAM per machine. For our
+> network we have used Gigabit ethernet. On our cluster we are running RH
+> 7.2, with Linux 2.4.19.
+>
+> These are some of the hardware specs:
+>
+> - Dual Intel Xeon 2.GHz, 512 cache 400 MHz FSB
+> - 8 Gb ECC DDR
+> - Fujitsu 72Gb 10.000 rpm Ultra 160 SCA HDD SCSI HARDDISK
+>
+> The problem we have with our cluster is as follows. When running large
+> scientific simulations the computer performance gradually goes down as
+> the I/O activity is increasing. At some point the response of the
+> computer is so poor that we have to kill the simulation. In a worst case
+> when the simulation was running overnight the computer hangs and a reset
+> of the computer is necessary. Nevertheless, even when we manage to kill
+> the simulation in time the computer remains very slow and a reboot is
+> necessary to regain full computer power.
+>
+> My first suspicion was that the computer simply started swapping, but
+> there is no swap space being used, instead free RAM memory is still
+> apparent
+> (between 5-10%) and only 90% of the RAM is in use whereby 50% is cached
+> and another 50% is in usage. In addition the cpu usage is very low as
+> well.
+>
+> To investigate the I/O performance I installed an I/O performance
+> benchmark program called bonnie++. The first test I performed was a
+> single bonnie++ -s 16096 instance.
+>
+> # bonnie++ -s 16096
+>
+> Unfortunately, as a result of running bonnie++ the computer started to
+> slow down till it finally hang. All the symptoms I discover with
+> bonnie++ are identical to what I experience when running our scientific
+> calculations.
+>
+> In order to improve the I/O performance I have add some patches to the
+> kernel, including the patch for 00_block-highmem-all-19-1, to avoid
+> bounce buffers. Unfortunately none of the patches let to any improvement
+> in the I/O performance.
+>
+> I don't think the machine should be behaving like this. I certainly
+> expect some slowdowns with that much IO, but the computer should still
+> be reasonably responsive, particularly because no system or user files
+> that need to be accessed are on that channel of the SCSI controller.
+>
+> As a sort of a desperate move I did two other test in addition which
+> could be of use to the understanding of the problem:
+>
+> - I removed 6Gb from the server and run the test bonnie++ -s 16096
+> succesfully with 2Gb of RAM.
+> - I placed an IDE disk 40Gb and run the test bonnie++ -s 16096 with 8Gb
+> of RAM succesfully.
+>
+>
+> Any advice on approaching this problem would be appreciated.
+>
 
- init/do_mounts.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions, 3 deletions
+I'm not expert on this, but I would try with -aa patches for 2.4.19
+kernel. They work really well for me, and are stable, and also perform
+better than vanilla 2.4.19.
 
-diff -urN orig/init/do_mounts.c linux/init/do_mounts.c
---- orig/init/do_mounts.c	Sat Jul 27 13:55:25 2002
-+++ linux/init/do_mounts.c	Sat Jul 27 14:13:56 2002
-@@ -877,6 +877,7 @@
- static unsigned inptr;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt;  /* bytes in output buffer */
- static int exit_code;
-+static int unzip_error;
- static long bytes_out;
- static int crd_infd, crd_outfd;
- 
-@@ -924,13 +925,17 @@
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-+ * Returning -1 does not guarantee that gunzip() will ever return.
-  */
- static int __init fill_inbuf(void)
- {
- 	if (exit_code) return -1;
- 	
- 	insize = read(crd_infd, inbuf, INBUFSIZ);
--	if (insize == 0) return -1;
-+	if (insize == 0) {
-+		error("RAMDISK: ran out of compressed data\n");
-+		return -1;
-+	}
- 
- 	inptr = 1;
- 
-@@ -944,10 +949,15 @@
- static void __init flush_window(void)
- {
-     ulg c = crc;         /* temporary variable */
--    unsigned n;
-+    unsigned n, written;
-     uch *in, ch;
-     
--    write(crd_outfd, window, outcnt);
-+    written = write(crd_outfd, window, outcnt);
-+    if (written != outcnt && unzip_error == 0) {
-+	printk(KERN_ERR "RAMDISK: incomplete write (%d != %d) %d\n",
-+	       written, outcnt, bytes_out);
-+	unzip_error = 1;
-+    }
-     in = window;
-     for (n = 0; n < outcnt; n++) {
- 	    ch = *in++;
-@@ -962,6 +972,7 @@
- {
- 	printk(KERN_ERR "%s", x);
- 	exit_code = 1;
-+	unzip_error = 1;
- }
- 
- static int __init crd_load(int in_fd, int out_fd)
-@@ -990,6 +1001,8 @@
- 	}
- 	makecrc();
- 	result = gunzip();
-+	if (unzip_error)
-+		result = 1;
- 	kfree(inbuf);
- 	kfree(window);
- 	return result;
+2.4.19rc5aa1 applies cleanly to 2.4.19 final (because rc5 and final are
+the same kernel).
+
+-aa patches are available from kernel.org mirrors
+(people/andrea/kernels/v2.4/2.4.19rc5aa1.bz2)
+
+
+- Pasi Kärkkäinen
+
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
 

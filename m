@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267854AbRGRQFq>; Wed, 18 Jul 2001 12:05:46 -0400
+	id <S267902AbRGRQHR>; Wed, 18 Jul 2001 12:07:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267899AbRGRQFg>; Wed, 18 Jul 2001 12:05:36 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:3588 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S267854AbRGRQF3>; Wed, 18 Jul 2001 12:05:29 -0400
-Date: Wed, 18 Jul 2001 18:04:03 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: David HM Spector <spector@zeitgeist.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI hiccup installing Lucent/Orinoco carbus PCI adapter
-Message-ID: <20010718180403.I13239@arthur.ubicom.tudelft.nl>
-In-Reply-To: <200107171706.f6HH63S05993@thx1138.ny.zeitgeist.com>
-Mime-Version: 1.0
+	id <S267900AbRGRQHH>; Wed, 18 Jul 2001 12:07:07 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:25824 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S267901AbRGRQGv>;
+	Wed, 18 Jul 2001 12:06:51 -0400
+Message-ID: <3B55B3A4.5E266E7D@freesoft.org>
+Date: Wed, 18 Jul 2001 12:04:52 -0400
+From: Brent Baccala <baccala@freesoft.org>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Do kernel threads need their own stack?
+In-Reply-To: <8F87F416D97@vcnet.vc.cvut.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107171706.f6HH63S05993@thx1138.ny.zeitgeist.com>; from spector@zeitgeist.com on Tue, Jul 17, 2001 at 01:06:03PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 17, 2001 at 01:06:03PM -0400, David HM Spector wrote:
-> Hi,  included is a bug-report that seems to be a PCI oops that affects the 
-> intallation of a Lucent PCI CardBus adapter.
+Petr Vandrovec wrote:
 > 
-> [1.] One line summary of the problem:    
+> On 18 Jul 01 at 3:16, Brent Baccala wrote:
 > 
->      PCI Drivers fail to allocate interrrupt for Lucent Cardbus bridge
+> > The first thing I notice is that this function refers not only to the
+> > clone flags in ebx, but also to a "newsp" in ecx - and ecx went
+> > completely unmentioned in kernel_thread()!  A disassembly of
+> >
+> > Anyway, I'm confused.  My analysis might be wrong, since I don't spend
+> > that much time in the Linux kernel, but bottom line - doesn't
+> > kernel_thread() need to allocate stack space for the child?  I mean,
+> > even if everything else is shared, doesn't the child at least need it's
+> > own stack?
 > 
-> [2.] Full description of the problem/report:
-> 
-> The 2.4.3 kernel recognizes the card but failts to allocate an
-> interrupt for it.  This is the Lucent Oinoco PCI Carbus bridge product
-> which is based on the TI1410 chip.  In talking with Dave Hinds about
-> the problem, he looked at the enclose outbut and suggested that it
-> looks like a kernel/PCI problem.
+> ecx specifies where userspace stack lives, not kernel space one, and
+> each process gets its own kernel stack automagically. As you must not
+> ever return to userspace from kernel_thread(), it is not a problem.
+> Because of exiting from kernel_thread() to userspace is not trivial
+> task, I do not think that is worth of effort.
 
-I posted a patch for this two weeks ago. It's fixed in linux-2.4.6.
+OK, now I see it.  The kernel stack lives at the top of the task
+structure, which is allocated as a full page at the beginning of
+do_fork(), then type cast down to a struct task_struct.  The copy_thread
+code looks past the end of the task_struct and sets up esp0 to point to
+the end of the page.
 
-
-Erik
+Thanks.
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+                                        -bwb
+
+                                        Brent Baccala
+                                        baccala@freesoft.org
+
+==============================================================================
+       For news from freesoft.org, subscribe to announce@freesoft.org:
+   
+mailto:announce-request@freesoft.org?subject=subscribe&body=subscribe
+==============================================================================

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUEFOuN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEFOxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUEFOuN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 10:50:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbUEFOuN
+	id S262434AbUEFOxL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 10:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUEFOxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 10:50:13 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:45316 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261900AbUEFOuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 10:50:10 -0400
-Date: Thu, 6 May 2004 15:50:08 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jan Beulich <JBeulich@novell.com>
+	Thu, 6 May 2004 10:53:11 -0400
+Received: from svxf1a001p.gps.infracom.it ([217.12.180.1]:6039 "EHLO
+	smtp1.infracom.it") by vger.kernel.org with ESMTP id S262434AbUEFOxI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 10:53:08 -0400
+Date: Thu, 6 May 2004 16:53:04 +0200
+From: Antonio Dolcetta <adolcetta@infracom.it>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: sys_ioctl export consolidation
-Message-ID: <20040506155008.A17635@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jan Beulich <JBeulich@novell.com>, linux-kernel@vger.kernel.org
-References: <s09a2e2c.054@emea1-mh.id2.novell.com>
+Subject: Re: 2.6.6-rc3-mm2
+Message-Id: <20040506165304.6376fed1@simbad>
+In-Reply-To: <20040505013135.7689e38d.akpm@osdl.org>
+References: <20040505013135.7689e38d.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: Ff>cp|(|}BIY<{%+OIxjt,E5:W.\OC~.w%;\l"M8TJ'mks=0a"smDo=58<y'P};g83XQQO,
+ T>etiyr(H\tfzfEtPT7:O9`&~[pgFj=S]})*<s?wuHOC>-[(4yfk]aI$F424s%sDWv1jo|q^#pG/:.
+ <'mSIw`%!FD;;ksFkJ|m.^K7#r(@q\/Bj)PU\,RA27UMCI<GgEm*sTjR^a/~ppf/S67Hx%1DEJ#[g^
+ tn1_Rw.p~Xdc1Z?Gv:kfI-@bnM|jBj#RZvrFPBiKT%&#aR/qYpAq?Wdfq7{(z5FCcMd48zoU"9ma^@
+ Vd?A8
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <s09a2e2c.054@emea1-mh.id2.novell.com>; from JBeulich@novell.com on Thu, May 06, 2004 at 01:23:24PM +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 01:23:24PM +0200, Jan Beulich wrote:
-> Since we noted that sys_ioctl is not currently being exported for ia64
-> to be used in the 32-bit emulation routines I'd like to suggest the
-> following patch, which, instead of making this available in another
-> individual architecture, exports the symbol whenever CONFIG_COMPAT is
-> defined (legal users should be a subset of
-> [un]register_ioctl32_conversion users, which is scoped by the same
-> config option).
+On Wed, 5 May 2004 01:31:35 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-Should ioctl32 handlers in drivers really call sys_ioctl?  Calling sys_ioctl
-makes sense for ioctls that are supported by a broad range of drivers, but
-in that case the ioctl32 translation should be in the core compat code.
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2.6.6-rc3-mm2/
+> 
+> - Lots of little fixes and updates.  Nothing really major.
+> 
+> - The huge memory leak from 2.6.6-rc3-mm1 is fixed.
+> 
+> 
 
-Drivers using register_ioctl32_conversion should rather call their own
-ioctl handlers directly if you ask me.
 
-Do you have a list of drivers currently needing sys_ioctl?
+something has broken the b44 module,
+modprobe b44 fails with:
+FATAL: Error inserting b44 (/lib/modules/2.6.6-rc3-mm2/kernel/drivers/net/b44.ko): Unknown symbol in module, or unknown parameter (see dmesg)
 
+dmesg contains the line:
+b44: Unknown symbol generic_mii_ioctl
+
+
+	Antonio

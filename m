@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313089AbSECNo3>; Fri, 3 May 2002 09:44:29 -0400
+	id <S313118AbSECNrQ>; Fri, 3 May 2002 09:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313120AbSECNo2>; Fri, 3 May 2002 09:44:28 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:28449 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S313089AbSECNo0>; Fri, 3 May 2002 09:44:26 -0400
-Date: Fri, 3 May 2002 14:46:34 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-cc: Andrew Morton <akpm@zip.com.au>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
-        linux-mm@kvack.org
-Subject: Re: [PATCH]Fix: Init page count for all pages during higher order
- allocs
-In-Reply-To: <20020503175438.A1816@in.ibm.com>
-Message-ID: <Pine.LNX.4.21.0205031438310.1408-100000@localhost.localdomain>
+	id <S313120AbSECNrP>; Fri, 3 May 2002 09:47:15 -0400
+Received: from pieck.student.uva.nl ([146.50.96.22]:48524 "EHLO
+	pieck.student.uva.nl") by vger.kernel.org with ESMTP
+	id <S313118AbSECNrO>; Fri, 3 May 2002 09:47:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Reply-To: rudmer@legolas.dynup.net
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Subject: psmouse
+Date: Fri, 3 May 2002 15:47:47 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020503134714Z313118-22651+22158@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 May 2002, Suparna Bhattacharya wrote:
-> 
-> For example we have an option that tries to exclude non-kernel
-> pages from the dump based on a simple heuristic of checking the
-> PG_lru flag (actually exclude LRU pages and unreferenced pages). 
+Hi,
 
-I hadn't thought of using PG_lru (last thought about it before
-anonymous pages were put on the LRU in 2.4.14): good idea,
-seems much more appealing than my extra flag for GFP_HIGHUSER.
+I have a Logitech Optical Wheelmouse and it is not detected correctly in 
+2.5.12-dj1. It is detected as a 'PS/2 Logitech Mouse on isa0060/serio1' and 
+the scrollwheel does not work. 
 
-Hugh
+when I let the detection function print the devicetype I discovered that the 
+devicetype of my mouse is not listed in the logitech_{4btn,wheel,ps2pp} 
+arrays (it is 86).
 
+when I put 86 in logitech_wheel[] it is still listed as 'PS/2 Logitech Mouse 
+on isa0060/serio1'
+
+when I also put 86 in logitech_ps2pp it is listed as 'ImExPS/2 Microsoft 
+IntelliMouse Explorer on isa0060/serio1'....
+
+It appears that it is not recognised in the if statement on line 405, 
+printing the numbers in the param[] array gives:
+param[0] = 8
+param[1] = 0
+param[2] = 0
+param[3] = 205
+param[4] = 246
+
+In every combination of 86 in the logitch_* arrays I get the following 
+messages when I use the wheel:
+psmouse.c: Lost synchronization, throwing X bytes away. (with X = 1-3)
+the mouse does not work correctly for PSMOUSE_{IMPS,IMEX} otherwise the mouse 
+and the three buttons work ok.
+
+I do not know what to do next, but I want to use my scrollwheel!!
+BTW the wheel works in 2.4.x
+
+mouse info:
+Logitech Optical Wheelmouse
+M/N: M-BJ58
+P/N: 830513-0000
+S/N: LNA14826942
+Chip: CP5763AM, Logitech, 3311550000 A  02, IND0143 508226
+
+	Rudmer

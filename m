@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265175AbUGUKpd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266481AbUGUKqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265175AbUGUKpd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 06:45:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266481AbUGUKpd
+	id S266481AbUGUKqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 06:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUGUKqH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 06:45:33 -0400
-Received: from imap.gmx.net ([213.165.64.20]:19689 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265175AbUGUKpb (ORCPT
+	Wed, 21 Jul 2004 06:46:07 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:17340 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S266481AbUGUKqC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 06:45:31 -0400
-X-Authenticated: #4399952
-Date: Wed, 21 Jul 2004 12:53:52 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: "The Linux Audio Developers' Mailing List" 
-	<linux-audio-dev@music.columbia.edu>
-Cc: rlrevell@joe-job.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary	Kernel
- Preemption Patch
-Message-Id: <20040721125352.7e8e95a1@mango.fruits.de>
-In-Reply-To: <1090369957.841.14.camel@mindpipe>
-References: <20040712163141.31ef1ad6.akpm@osdl.org>
-	<1090306769.22521.32.camel@mindpipe>
-	<20040720071136.GA28696@elte.hu>
-	<200407202011.20558.musical_snake@gmx.de>
-	<1090353405.28175.21.camel@mindpipe>
-	<40FDAF86.10104@gardena.net>
-	<1090369957.841.14.camel@mindpipe>
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jul 2004 06:46:02 -0400
+Date: Wed, 21 Jul 2004 12:45:45 +0200 (MEST)
+Message-Id: <200407211045.i6LAjjmO024229@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: andyb@chainsaw.com, linux-kernel@vger.kernel.org
+Subject: Re: Asus A7M266-D, Linux 2.6.7 and APIC
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Jul 2004 20:32:37 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
+On Tue, 20 Jul 2004 17:55:32 -0700 (PDT), Andy Biddle wrote:
+>I have a dual-proc server that I've recently decided to overhaul.  It's an
+>Asus A7M266-D motherboard.  It had been running with dual Athlon MP 1800+s
+>and RedHat and BIOS rev 1003 for at least a year with no real problems.
+>
+>First I decided to change the OS to Gentoo.  I build the system with no
+>problem and built a custom kernel based on linux 2.6.7-gentoo-r11.
+>Everything was working great.  Then I changed out the procs and went with
+>dual Athlon MP 2800+s.  To support these, I needed to (according to Asus's
+>website) upgrade the BIOS to 1011.002 or higher.  (Latest is 1011.003, so
+>that's what I used.)
+>
+>Now, when I boot to this custom kernel I get about 2 seconds into the boot
+>process before the system starts spewing constant "APIC error on CPU0:
+>04(04)" messages.   It stops booting at that point.
+>
+>I've done a little research and it seems that I'm supposed to do a couple
+>of things:
+>	1.  Disable "MPS 1.4 Support" in the BIOS.
+>	2.  pass the kernel "noapic" as a parameter.
+>
+>I've done both of these and I STILL get the APIC messages.  (Which leads
 
-> 
-> Yes, this is important.  One problem I had recently with the Via EPIA
-> board was that unless 2D acceleration was disabled by setting 'Option
-> "NoAccel"' in /etc/X11/XF86Config-4, overloading the X server would
-> cause interrupts from the soundcard to be completely disabled for tens
-> of milliseconds.  Users should keep in mind that by using 2D or 3D
-> hardware acceleration in X, you are allowing the X server to directly
-> access hardware, which can have very bad results if the driver is
-> buggy.  I am not sure the kernel can do anything about this.
+04 is "send accept error". That noapic doesn't kill it means
+that it occurs when CPU0 sends messages to CPU1.
 
-Hi,
+I suspect that CPU1 isn't booting properly, or that the BIOS
+set it up with an APIC ID not matching the MP table.
 
-interesting that you mention the Xserver. I use a dual graphics card setup atm [Nvidia GF3 TI and some matrox pci card]. The nvidia card seems to work flawlessly even with HW accelleration [i use nvidias evil binary only drivers]. The matrox card OTH disturbs the soundcard severely. Whenever i have activity on my second monitor i get sound artefacts in jack's output [no cracklling, it's rather as if the volume is set to 0 for short moments and then back to normal]. There's a certain chance that this artefact produces an xrun. I suppose it's because the card is on the pci bus.
+How far in the boot did it get before the errors & halt?
 
-I figured it's maybe an irq issue problem, but whatever slot i put the gfx card in - it made no difference [btw: how do i find out which resources this card uses? it is not shown by /proc/interrupts]. I also tried putting the soundcard in many different slots to maybe get it on higher prio irq, but it always gets irq 5 [according to /proc/interrupts]..
-
-Should i try a different 2nd gfx card? Should i avoid pci gfx cards at all costs? Will i just have to live w/o second monitor?  How do i find out which hw resources X is really using?
-
-Florian Schmidt
--- 
-Palimm Palimm!
-Sounds/Ware:
-http://affenbande.org/~tapas/
-
+1. Try swapping CPU0 and CPU1.
+2. Try downgrading both CPUs to your original MP 1800+ ones.
+3. Check if ASUS' German ftp site has a newer beta BIOS than
+   that 1011.003 you're using. For older boards these betas
+   may be the only way to get newer CPUs to work.

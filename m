@@ -1,249 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbUHGPTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUHGPY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbUHGPTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 11:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUHGPTQ
+	id S263062AbUHGPY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 11:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUHGPY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 11:19:16 -0400
-Received: from darwin.snarc.org ([81.56.210.228]:45285 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S263100AbUHGPSq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 11:18:46 -0400
-Date: Sat, 7 Aug 2004 17:18:38 +0200
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Paul Mackerras <paulus@samba.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][RESENT] remove hardcoded offsets from ppc asm
-Message-ID: <20040807151838.GA6760@snarc.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 7 Aug 2004 11:24:58 -0400
+Received: from mail01.hpce.nec.com ([193.141.139.228]:46006 "EHLO
+	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S263062AbUHGPYr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 11:24:47 -0400
+From: Erich Focht <efocht@hpce.nec.com>
+To: Paul Jackson <pj@sgi.com>
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Date: Sat, 7 Aug 2004 17:22:36 +0200
+User-Agent: KMail/1.6.2
+Cc: mbligh@aracnet.com, lse-tech@lists.sourceforge.net, akpm@osdl.org,
+       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
+       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com>
+In-Reply-To: <20040806231013.2b6c44df.pj@sgi.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.6+20040803i
-From: Vincent Hanquez <tab@snarc.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408071722.36705.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi LKML,
+On Saturday 07 August 2004 08:10, Paul Jackson wrote:
+> > I think cpusets and CKRM should be
+> > made to come together. One of CKRM's user interfaces is a filesystem
+> > with the file-tree representing the class hierarchy. It's the same for
+> > cpusets.
+> 
+> Hmmm ... this suggestion worries me, for a couple of reasons.
+> 
+> Just because cpusets and CKRM both have a hierarchy represented in a
+> file system doesn't mean it is, or can be, the same file system.  Not
+> all trees are the same.
 
-This patch removes hardcoded offsets from ppc asm.
-It generate offsets for thread_info structure instead of hardcoding them.
+Cpusets are a complex resource which needs to be managed. You already
+provided an interface for management but on the horizon there is this
+CKRM thing... I really don't care too much about the interface as long
+as it is comfortable (advocating for your bitset manipulation routines
+here ;-). CKRM will some day come in and maybe try to unify the
+resource control through a generalized interface. In my understand
+CKRM "classes" are (for the cpusets resource) your "sets". I was
+trying to anticipate that CKRM might want to present the single entry
+point for managing resources, including cpusets.
 
-Please apply or comments,
+If I understand correctly, CKRM is fine for simple resources like
+amount of memory or cputime and designed to control flexible sharing
+of these resources and ensure some degree of fairness. Cpusets is a
+complex NUMA specific compound resource which actually only allows for
+a rather static distribution across processes (especially with the
+exclusive bits set). Including cpusets control into CKRM will be
+trivial, because you already provide all that's needed.
 
-Signed-off-by: Vincent Hanquez <tab@snarc.org>
+What I proposed was to include cpusets ASAP. As we learned from
+Hubertus, CKRM is undergoing some redesign (after the kernel summit),
+so let's now get used to cpusets and forget about the generic resource
+controller until that is mature to enter the kernel. When that happens
+people might love the generic way of controlling resources and the
+cpusets user interface will be yet another filesystem for controlling
+some hierarchical structures... The complaints about the huge size of
+the patch should therefore have in mind that we might well get rid of
+the user interface part of it. The core infrastructure of cpusets will
+be needed anyway and the amount of code is the absolutely required
+minimum, IMHO.
 
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/asm-offsets.c linux-2.6.8-rc3/arch/ppc/kernel/asm-offsets.c
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/asm-offsets.c	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/asm-offsets.c	2004-08-07 16:26:06.000000000 +0200
-@@ -129,6 +129,13 @@
- 	DEFINE(CPU_SPEC_FEATURES, offsetof(struct cpu_spec, cpu_features));
- 	DEFINE(CPU_SPEC_SETUP, offsetof(struct cpu_spec, cpu_setup));
- 
-+	DEFINE(TI_task, offsetof(struct thread_info, task));
-+	DEFINE(TI_exec_domain, offsetof(struct thread_info, exec_domain));
-+	DEFINE(TI_flags, offsetof(struct thread_info, flags));
-+	DEFINE(TI_local_flags, offsetof(struct thread_info, local_flags));
-+	DEFINE(TI_cpu, offsetof(struct thread_info, cpu));
-+	DEFINE(TI_preempt_count, offsetof(struct thread_info, preempt_count));
-+	
- 	DEFINE(NUM_USER_SEGMENTS, TASK_SIZE>>28);
- 	return 0;
- }
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/entry.S linux-2.6.8-rc3/arch/ppc/kernel/entry.S
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/entry.S	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/entry.S	2004-08-07 16:26:06.000000000 +0200
-@@ -199,10 +199,10 @@
- 	bl	do_show_syscall
- #endif /* SHOW_SYSCALLS */
- 	rlwinm	r10,r1,0,0,18	/* current_thread_info() */
--	lwz	r11,TI_LOCAL_FLAGS(r10)
-+	lwz	r11,TI_local_flags(r10)
- 	rlwinm	r11,r11,0,~_TIFL_FORCE_NOERROR
--	stw	r11,TI_LOCAL_FLAGS(r10)
--	lwz	r11,TI_FLAGS(r10)
-+	stw	r11,TI_local_flags(r10)
-+	lwz	r11,TI_flags(r10)
- 	andi.	r11,r11,_TIF_SYSCALL_TRACE
- 	bne-	syscall_dotrace
- syscall_dotrace_cont:
-@@ -225,7 +225,7 @@
- 	cmpl	0,r3,r11
- 	rlwinm	r12,r1,0,0,18	/* current_thread_info() */
- 	blt+	30f
--	lwz	r11,TI_LOCAL_FLAGS(r12)
-+	lwz	r11,TI_local_flags(r12)
- 	andi.	r11,r11,_TIFL_FORCE_NOERROR
- 	bne	30f
- 	neg	r3,r3
-@@ -237,7 +237,7 @@
- 30:	LOAD_MSR_KERNEL(r10,MSR_KERNEL)	/* doesn't include MSR_EE */
- 	SYNC
- 	MTMSRD(r10)
--	lwz	r9,TI_FLAGS(r12)
-+	lwz	r9,TI_flags(r12)
- 	andi.	r0,r9,(_TIF_SYSCALL_TRACE|_TIF_SIGPENDING|_TIF_NEED_RESCHED)
- 	bne-	syscall_exit_work
- syscall_exit_cont:
-@@ -311,7 +311,7 @@
- 	SYNC
- 	MTMSRD(r10)		/* disable interrupts again */
- 	rlwinm	r12,r1,0,0,18	/* current_thread_info() */
--	lwz	r9,TI_FLAGS(r12)
-+	lwz	r9,TI_flags(r12)
- 5:
- 	andi.	r0,r9,_TIF_NEED_RESCHED
- 	bne	1f
-@@ -567,7 +567,7 @@
- sigreturn_exit:
- 	subi	r1,r3,STACK_FRAME_OVERHEAD
- 	rlwinm	r12,r1,0,0,18	/* current_thread_info() */
--	lwz	r9,TI_FLAGS(r12)
-+	lwz	r9,TI_flags(r12)
- 	andi.	r0,r9,_TIF_SYSCALL_TRACE
- 	bnel-	do_syscall_trace
- 	/* fall through */
-@@ -593,7 +593,7 @@
- user_exc_return:		/* r10 contains MSR_KERNEL here */
- 	/* Check current_thread_info()->flags */
- 	rlwinm	r9,r1,0,0,18
--	lwz	r9,TI_FLAGS(r9)
-+	lwz	r9,TI_flags(r9)
- 	andi.	r0,r9,(_TIF_SIGPENDING|_TIF_NEED_RESCHED)
- 	bne	do_work
- 
-@@ -612,16 +612,16 @@
- resume_kernel:
- 	/* check current_thread_info->preempt_count */
- 	rlwinm	r9,r1,0,0,18
--	lwz	r0,TI_PREEMPT(r9)
-+	lwz	r0,TI_preempt_count(r9)
- 	cmpwi	0,r0,0		/* if non-zero, just restore regs and return */
- 	bne	restore
--	lwz	r0,TI_FLAGS(r9)
-+	lwz	r0,TI_flags(r9)
- 	andi.	r0,r0,_TIF_NEED_RESCHED
- 	beq+	restore
- 	andi.	r0,r3,MSR_EE	/* interrupts off? */
- 	beq	restore		/* don't schedule if so */
- 1:	lis	r0,PREEMPT_ACTIVE@h
--	stw	r0,TI_PREEMPT(r9)
-+	stw	r0,TI_preempt_count(r9)
- 	ori	r10,r10,MSR_EE
- 	SYNC
- 	MTMSRD(r10)		/* hard-enable interrupts */
-@@ -631,8 +631,8 @@
- 	MTMSRD(r10)		/* disable interrupts */
- 	rlwinm	r9,r1,0,0,18
- 	li	r0,0
--	stw	r0,TI_PREEMPT(r9)
--	lwz	r3,TI_FLAGS(r9)
-+	stw	r0,TI_preempt_count(r9)
-+	lwz	r3,TI_flags(r9)
- 	andi.	r0,r3,_TIF_NEED_RESCHED
- 	bne-	1b
- #else
-@@ -913,7 +913,7 @@
- 	SYNC
- 	MTMSRD(r10)		/* disable interrupts */
- 	rlwinm	r9,r1,0,0,18
--	lwz	r9,TI_FLAGS(r9)
-+	lwz	r9,TI_flags(r9)
- 	andi.	r0,r9,_TIF_NEED_RESCHED
- 	bne-	do_resched
- 	andi.	r0,r9,_TIF_SIGPENDING
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/head.S linux-2.6.8-rc3/arch/ppc/kernel/head.S
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/head.S	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/head.S	2004-08-07 16:26:06.000000000 +0200
-@@ -1240,7 +1240,7 @@
- 	tophys(r1,r1)
- 	lwz	r1,secondary_ti@l(r1)
- 	tophys(r2,r1)
--	lwz	r2,TI_TASK(r2)
-+	lwz	r2,TI_task(r2)
- 
- 	/* stack */
- 	addi	r1,r1,THREAD_SIZE-STACK_FRAME_OVERHEAD
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/idle_6xx.S linux-2.6.8-rc3/arch/ppc/kernel/idle_6xx.S
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/idle_6xx.S	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/idle_6xx.S	2004-08-07 16:26:06.000000000 +0200
-@@ -94,7 +94,7 @@
- 
- 	/* Check current_thread_info()->flags */
- 	rlwinm	r4,r1,0,0,18
--	lwz	r4,TI_FLAGS(r4)
-+	lwz	r4,TI_flags(r4)
- 	andi.	r0,r4,_TIF_NEED_RESCHED
- 	beq	1f
- 	mtmsr	r7	/* out of line this ? */
-@@ -191,7 +191,7 @@
- 	
- 	rlwinm	r9,r1,0,0,18
- 	tophys(r9,r9)
--	lwz	r11,TI_CPU(r9)
-+	lwz	r11,TI_cpu(r9)
- 	slwi	r11,r11,2
- 	/* Todo make sure all these are in the same page
- 	 * and load r22 (@ha part + CPU offset) only once
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/idle_power4.S linux-2.6.8-rc3/arch/ppc/kernel/idle_power4.S
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/idle_power4.S	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/idle_power4.S	2004-08-07 16:26:06.000000000 +0200
-@@ -66,7 +66,7 @@
- 
- 	/* Check current_thread_info()->flags */
- 	rlwinm	r4,r1,0,0,18
--	lwz	r4,TI_FLAGS(r4)
-+	lwz	r4,TI_flags(r4)
- 	andi.	r0,r4,_TIF_NEED_RESCHED
- 	beq	1f
- 	mtmsr	r7	/* out of line this ? */
-diff -Naur linux-2.6.8-rc3.orig/arch/ppc/kernel/misc.S linux-2.6.8-rc3/arch/ppc/kernel/misc.S
---- linux-2.6.8-rc3.orig/arch/ppc/kernel/misc.S	2004-08-07 16:19:55.000000000 +0200
-+++ linux-2.6.8-rc3/arch/ppc/kernel/misc.S	2004-08-07 16:26:06.000000000 +0200
-@@ -233,7 +233,7 @@
- 
- 	/* Store new HID1 image */
- 	rlwinm	r6,r1,0,0,18
--	lwz	r6,TI_CPU(r6)
-+	lwz	r6,TI_cpu(r6)
- 	slwi	r6,r6,2
- 	addis	r6,r6,nap_save_hid1@ha
- 	stw	r4,nap_save_hid1@l(r6)
-@@ -457,7 +457,7 @@
- #else /* !(CONFIG_40x || CONFIG_44x || CONFIG_FSL_BOOKE) */
- #if defined(CONFIG_SMP)
- 	rlwinm	r8,r1,0,0,18
--	lwz	r8,TI_CPU(r8)
-+	lwz	r8,TI_cpu(r8)
- 	oris	r8,r8,10
- 	mfmsr	r10
- 	SYNC
-@@ -538,7 +538,7 @@
- #else /* !(CONFIG_40x || CONFIG_44x || CONFIG_FSL_BOOKE) */
- #if defined(CONFIG_SMP)
- 	rlwinm	r8,r1,0,0,18
--	lwz	r8,TI_CPU(r8)
-+	lwz	r8,TI_cpu(r8)
- 	oris	r8,r8,11
- 	mfmsr	r10
- 	SYNC
-diff -Naur linux-2.6.8-rc3.orig/include/asm-ppc/thread_info.h linux-2.6.8-rc3/include/asm-ppc/thread_info.h
---- linux-2.6.8-rc3.orig/include/asm-ppc/thread_info.h	2004-08-07 16:20:00.000000000 +0200
-+++ linux-2.6.8-rc3/include/asm-ppc/thread_info.h	2004-08-07 16:26:06.000000000 +0200
-@@ -65,16 +65,6 @@
-  */
- #define THREAD_SIZE		8192	/* 2 pages */
- 
--/*
-- * Offsets in thread_info structure, used in assembly code
-- */
--#define TI_TASK		0
--#define TI_EXECDOMAIN	4
--#define TI_FLAGS	8
--#define TI_LOCAL_FLAGS	12
--#define TI_CPU		16
--#define TI_PREEMPT	20
--
- #define PREEMPT_ACTIVE		0x4000000
- 
- /*
+
+> The other reason that this suggestion worries me is a bit more
+> philosophical.  I'm sure that for all the other, well known,
+> resources that CKRM manages, no one is proposing replacing whatever
+> existing names and mechanisms exist for those resources, such as
+> bandwidth, compute cycles, memory, ...  Rather I presume that CKRM
+> provides an additional resource management layer on top of the
+> existing resources, which retain their classic names and apparatus.
+> [...]
+
+I hope cpusets will be an "existing resource" when CKRM comes into
+play. It's a compound resource built of cpus and memories (and the
+name cpuset is a bit misleading) but it fully makes sense on a NUMA
+machine to have these two elementary resources glued together. If CKRM
+was to build a resource controller for cpu masks and memories, or two
+separate resource controllers, the really acceptable end result would
+look like the current cpusets infrastructure. So why waste time?
+
+Later cpusets could borrow the user interface of CKRM or, if the
+cpusets user interface is better suited, maybe we can just have a
+/rcfs/cpusets/ directory tree with the current cpusets look and feel?
+Question to CKRM people: would it make sense to have a class with
+another way of control than the shares/targets/members files?
+
+> I'd hate to see cpusets hidden behind resource management terms from day
+> one.
+
+That's an argument. Less RTFM mails, happier admins and users... A
+better world ;-)
+
+Regads,
+Erich
+

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271645AbRIBRGK>; Sun, 2 Sep 2001 13:06:10 -0400
+	id <S270132AbRIAG3l>; Sat, 1 Sep 2001 02:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271646AbRIBRF7>; Sun, 2 Sep 2001 13:05:59 -0400
-Received: from mail11.svr.pol.co.uk ([195.92.193.23]:36192 "EHLO
-	mail11.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S271645AbRIBRFr>; Sun, 2 Sep 2001 13:05:47 -0400
-Date: Thu, 30 Aug 2001 22:00:09 +0100
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-Cc: Tester <tester@videotron.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Bizzare crashes on IBM Thinkpad A22e
-Message-ID: <20010830220009.A3660@wyvern>
-Reply-To: adrian.bridgett@iname.com
-Mail-Followup-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
-	Tester <tester@videotron.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0108301139310.8245-100000@TesterTop.PolyDom> <20010830195041.N1146@arthur.ubicom.tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010830195041.N1146@arthur.ubicom.tudelft.nl>
-User-Agent: Mutt/1.3.20i
-From: Adrian Bridgett <adrian.bridgett@iname.com>
+	id <S270134AbRIAG3c>; Sat, 1 Sep 2001 02:29:32 -0400
+Received: from nick.dcs.qmw.ac.uk ([138.37.88.61]:32779 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S270132AbRIAG3X>; Sat, 1 Sep 2001 02:29:23 -0400
+Date: Sat, 1 Sep 2001 07:29:40 +0100 (BST)
+From: <mb/ext3@dcs.qmul.ac.uk>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>, <ext3-users@redhat.com>
+Subject: Re: ext3 oops under moderate load
+In-Reply-To: <3B904AC4.6A449086@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0109010724110.19444-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 30, 2001 at 19:50:41 +0200 (+0000), Erik Mouw wrote:
-[snip]
-> Could you try to boot with "mem=one MB less than the machine actually
-> has" and see if that fixes the problem? So "mem=127M" for a 128MB
-> machine. If that fixes the problem, I think there is a bug in the e820
-> BIOS memory map and you should ask IBM to fix their BIOS.
+On Aug 31 Andrew Morton wrote:
 
-You can actually use the number that showd on boot (mem=125435K or
-whatever...)
+>> kernel BUG at revoke.c:307!
+>
+>Yours is the third report of this - it's definitely a bug in
+>ext3.  I still need to work out how you managed to get a page
+>attached to the inode which has not had its buffers fed through
+>journal_dirty_data().  There seem to be several ways in which
+>this can happen.
+>
+>Is it possible that you ran out of disk space on the relevant
+>partition shortly before it died?
 
-OTOH since I switched to 2.4 I havn't needed that (TP770X).
+I think I can safely rule that one out :)
 
-Adrian
+alan:~$ df /export
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/ataraid/d0p1    240196512  29362544 210833968  13% /export
 
-Email: adrian.bridgett@iname.com
-Windows NT - Unix in beta-testing. GPG/PGP keys available on public key servers
-Debian GNU/Linux  -*-  By professionals for professionals  -*-  www.debian.org
+..that's about as full as it's got, well it may have got up to 50GB used.
+[NB for now I've switched the partition to reiserfs (didn't fancy the
+fsck), but I'll have a very similar box to play with soon.]
+

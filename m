@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbUKXUrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbUKXUtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbUKXUrS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 15:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUKXUrR
+	id S262850AbUKXUtq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 15:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbUKXUrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 15:47:17 -0500
+	Wed, 24 Nov 2004 15:47:37 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:33423 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262847AbUKXUqV (ORCPT
+	by vger.kernel.org with ESMTP id S262848AbUKXUpC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 15:46:21 -0500
-Date: Wed, 24 Nov 2004 18:21:55 +0100
-From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.10-rc2 SAVAGEFB startup crash
-Message-ID: <20041124172155.GA5061@titan.lahn.de>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200411180635.32907.adaplas@hotpop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411180635.32907.adaplas@hotpop.com>
-Organization: UUCP-Freunde Lahn e.V.
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 24 Nov 2004 15:45:02 -0500
+Message-ID: <41A4DF61.8050008@pobox.com>
+Date: Wed, 24 Nov 2004 14:22:09 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+CC: Justin Piszcz <jpiszcz@lucidpixels.com>, linux-kernel@vger.kernel.org
+Subject: Re: tulip question: tulip.o vs de4x5.o
+References: <Pine.LNX.4.61.0411231216470.3740@p500> <20041124073628.GJ2067@lug-owl.de>
+In-Reply-To: <20041124073628.GJ2067@lug-owl.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello LKML!
+Jan-Benedict Glaw wrote:
+> On Tue, 2004-11-23 12:28:54 -0500, Justin Piszcz <jpiszcz@lucidpixels.com>
+> wrote in message <Pine.LNX.4.61.0411231216470.3740@p500>:
+> 
+>>Each driver works, I have not benchmarked performance with one over the 
+>>other with ttcp yet; however, does anyone have any experience with using 
+>>one over the other? I see the tulip has several options and the de4x5 
+>>seems to be a rather generic driver.
+> 
+> 
+> The de4x5 driver supports some older revisions of the tulip chipset
+> which aren't supported by the tulip driver. I guess it could be made to
+> support those, too, but nobody did that up to now.
 
-On Thu, Nov 18, 2004 at 06:35:32AM +0800, Antonino A. Daplas wrote:
-> > On Wed, Nov 17, 2004 at 05:20:58AM +0800, Antonino
-> > A. Daplas wrote:
-> > > -		               FBINFO_HWACCEL_XPAN;
-> > > +		               FBINFO_HWACCEL_XPAN |
-> > > +	                       FBINFO_MISC_MODESWITCHLATE;
-> >
-> > That (partly) solved the lockup: I was able start XFree86, switch
-> > back to Console, but on return to X11, the X11 screen wasn't
-> > restored correctly, the mouse left a trail behind and switching to
-> > console
->
-> Try Option "UseBios" "False" in your /etc/X11/XF86Config, if at all possible.
+Incorrect, the older chips are supported by the de2104x driver.
 
-FYI: That solved the problem, now savagefb and XFree86 are both running
-fine. Thank you very much for your support.
+de4x5 will be going away.
 
-BYtE
-Philipp
--- 
-  / /  (_)__  __ ____  __ Philipp Hahn
- / /__/ / _ \/ // /\ \/ /
-/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de
+
+> You can actually see the difference on older Alphas: de4x5 works while
+> tulip doesn't transmit or receive a single packet (getting netdev
+> watchdogs later on...).
+
+That's a bug in tulip.
+
+	Jeff
+
+
+

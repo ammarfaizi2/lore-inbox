@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129878AbQLRGbG>; Mon, 18 Dec 2000 01:31:06 -0500
+	id <S129627AbQLRGfg>; Mon, 18 Dec 2000 01:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130758AbQLRGa5>; Mon, 18 Dec 2000 01:30:57 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:2570 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129878AbQLRGax>; Mon, 18 Dec 2000 01:30:53 -0500
-Date: Mon, 18 Dec 2000 00:00:01 -0600
-To: Albert Cranford <ac9410@bellsouth.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: test13-pre3
-Message-ID: <20001218000001.X3199@cadcamlab.org>
-In-Reply-To: <Pine.LNX.4.10.10012171353270.2052-100000@penguin.transmeta.com> <3A3D4FB4.CBA887E4@bellsouth.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A3D4FB4.CBA887E4@bellsouth.net>; from ac9410@bellsouth.net on Sun, Dec 17, 2000 at 11:43:48PM +0000
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129557AbQLRGf1>; Mon, 18 Dec 2000 01:35:27 -0500
+Received: from fe160.worldonline.dk ([212.54.64.198]:34832 "HELO
+	fe160.worldonline.dk") by vger.kernel.org with SMTP
+	id <S129421AbQLRGfP>; Mon, 18 Dec 2000 01:35:15 -0500
+Date: Mon, 18 Dec 2000 07:03:03 +0100 (CET)
+From: Niels Kristian Bech Jensen <nkbj@image.dk>
+To: J Sloan <jjs@pobox.com>
+cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre3 woes
+In-Reply-To: <3A3DA5B0.6BACE66E@pobox.com>
+Message-ID: <Pine.LNX.4.30.0012180702380.16423-100000@hafnium.nkbj.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Dec 2000, J Sloan wrote:
 
-[Albert Cranford]
-> With CONFIG_DRM_R128=m
-> we fail to produce module linux/drivers/char/drm/r128.o
+> Similar problem here - with CONFIG_DRM_TDFX=m
+> I have not gotten a tdfx.o module complied since the
+> start of the test13-pre series...
+>
+> So no quake 3 arena unless I want to play at < 1 fps...
+>
+Does this patch fix your problem?
 
-He's right.  Linus, please apply.
+--- test13-pre3/drivers/char/Makefile	Mon Dec 18 01:21:31 2000
++++ linux/drivers/char/Makefile	Mon Dec 18 06:58:06 2000
+@@ -16,6 +16,8 @@
 
-Peter
+ O_TARGET := char.o
 
---- test13pre3/drivers/char/Makefile.orig	Wed Dec 13 23:56:01 2000
-+++ test13pre3/drivers/char/Makefile	Sun Dec 17 23:55:00 2000
-@@ -25,6 +25,7 @@
- 			misc.o pty.o random.o selection.o serial.o \
- 			tty_io.o
- 
-+mod-subdirs	:=	joystick ftape drm pcmcia
- list-multi	:=	
- 
- KEYMAP   =defkeymap.o
++mod-subdirs := drm
++
+ obj-y	 += tty_io.o n_tty.o tty_ioctl.o mem.o raw.o pty.o misc.o random.o
+
+ # All of the (potential) objects that export symbols.
+
+-- 
+Niels Kristian Bech Jensen -- nkbj@image.dk -- http://www.image.dk/~nkbj/
+
+----------->>  Stop software piracy --- use free software!  <<-----------
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

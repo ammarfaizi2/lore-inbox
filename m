@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTEFBij (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 21:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTEFBij
+	id S262253AbTEFBwO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 21:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTEFBwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 21:38:39 -0400
-Received: from [12.47.58.20] ([12.47.58.20]:46334 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262251AbTEFBii (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 21:38:38 -0400
-Date: Mon, 5 May 2003 18:52:48 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kmalloc_percpu
-Message-Id: <20030505185248.3c3a478f.akpm@digeo.com>
-In-Reply-To: <20030506012846.18DD62C568@lists.samba.org>
-References: <20030505014729.5db76f70.akpm@digeo.com>
-	<20030506012846.18DD62C568@lists.samba.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 May 2003 21:52:14 -0400
+Received: from ausadmmsrr504.aus.amer.dell.com ([143.166.83.91]:28174 "HELO
+	AUSADMMSRR504.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id S262253AbTEFBwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 21:52:13 -0400
+X-Server-Uuid: 5b9b39fe-7ea5-4ce3-be8e-d57fc0776f39
+Message-ID: <1052186678.19726.9.camel@iguana.localdomain>
+From: Matt_Domsch@Dell.com
+To: greg@kroah.com, mochel@osdl.org
+cc: alan@redhat.com, linux-kernel@vger.kernel.org, jgarzik@redhat.com
+Subject: Re: [RFC][PATCH] Dynamic PCI Device IDs
+Date: Mon, 5 May 2003 21:04:35 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 12A9C7BD3394223-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 May 2003 01:51:04.0590 (UTC) FILETIME=[F435BAE0:01C31371]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->
-> > +#define PERCPU_POOL_SIZE 32768
-> > 
-> > What's this?
+> I like this patch a _lot_ better, nice job.
+
+Thanks.
+
+>   Only one comment:
+> > +        if (error < 0)
+> > +                return error;
+> > +        return count;
+> > +
+> > +
+> > +     return count;
+> > +}
 > 
-> OK.  It has a size restriction: PERCPU_POOL_SIZE is the maximum total
-> kmalloc_percpu + static DECLARE_PER_CPU you'll get, ever.  This is the
-> main downside.  It's allocated at boot.
+> Oops, lost the tabs at the end of the function :)
 
-And is subject to fragmentation.
+Duh.  Good eyes.  Fixed.
 
-Is it not possible to go allocate another N * PERCPU_POOL_SIZE from
-slab if it runs out?
+> This function will not link up a device to a driver properly within
+> the driver core, only with the pci code.  So if you do this, the
+> driver core still thinks you have a device that is unbound, right? 
+> Also, the symlinks don't get created from the bus to the device I
+> think, correct?
 
-That way, PERCPU_POOL_SIZE only needs to be sized for non-modular static
-percpu data, which sounds more robust.
+I think you're right.
+
+> Unfortunatly, looking at the driver core real quickly, I don't see a
+> simple way to kick the probe cycle off again for all pci devices, but
+> I'm probably just missing something somewhere...
+
+I think drivers/base/bus.c: driver_attach() is what we want, which will
+walk the list of the bus's devices and run bus_match() which is
+pci_bus_match() which will scan for us.  Just need to un-static
+driver_attach() I expect.  Pat, does this sound right?
+
+If that works, probe_each_pci_dev() can go away.  I'll play with it some
+more.
+
+Thanks,
+Matt
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
 

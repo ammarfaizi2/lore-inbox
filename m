@@ -1,45 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbTHTIzf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 04:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbTHTIzf
+	id S261850AbTHTI7B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 04:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbTHTI7B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 04:55:35 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:23288 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261814AbTHTIzd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 04:55:33 -0400
-Message-ID: <3F43362A.7090802@zurich.ibm.com>
-Date: Wed, 20 Aug 2003 10:49:46 +0200
-From: Roman Pletka <rap@zurich.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020903
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bas Bloemsaat <bloemsaa@xs4all.nl>
-CC: "David S. Miller" <davem@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       skraw@ithnet.com, willy@w.ods.org, richard@aspectgroup.co.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
+	Wed, 20 Aug 2003 04:59:01 -0400
+Received: from granite.aspectgroup.co.uk ([212.187.249.254]:63474 "EHLO
+	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
+	id S261821AbTHTI6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 04:58:54 -0400
+Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB61@post.pc.aspectgroup.co.uk>
+From: Richard Underwood <richard@aspectgroup.co.uk>
+To: "'David S. Miller'" <davem@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: skraw@ithnet.com, willy@w.ods.org,
+       Richard Underwood <richard@aspectgroup.co.uk>, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
        marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
        layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk><20030819145403.GA3407@alpha.home.local><20030819170751.2b92ba2e.skraw@ithnet.com><20030819085717.56046afd.davem@redhat.com><20030819185219.116fd259.skraw@ithnet.com><1061319864.30565.52.camel@dhcp23.swansea.linux.org.uk> <20030819120131.1999b1ec.davem@redhat.com> <091f01c36686$dade2bf0$c801a8c0@llewella>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Wed, 20 Aug 2003 09:58:51 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bas Bloemsaat wrote:
->>Indeed, would people stop quoting from RFC 985 and
->>RFC 826.
+David S. Miller wrote:
 > 
-> 
-> RFC 826 is referenced from 1009 as describing ARP. So in effect it does
-> define a standard.
+> Indeed, would people stop quoting from RFC 985 and
+> RFC 826.
 
-RFC 1009 is obsolete too (by 1812 for the sake of completeness).
-Please stop quoting obsolete RFC's.
+	In case anyone missed it, the following message was posted to
+linux-net and netdev. This is currently a draft standard, but anyone
+implementing IPv6 should be following it. It clearly states that the the
+source address for the equivalent of the ARP request should be the INTERFACE
+address.
 
--- Roman
+	While it doesn't directly apply to IPv4 (except for David's claim
+that IPv4 ARP is based on IPv6 ARP) it does clarify the situation nicely.
 
+	I, for one, will be glad when (!) we all migrade to IPv6 and we can
+once and all be done with this nonsense, unless Linux plans to deviate from
+the standard?
+
+	Thanks,
+
+		Richard
+
+-----Original Message-----
+From: Steven Blake [mailto:slblake@petri-meat.com]
+Sent: 20 August 2003 05:58
+To: David S. Miller
+Cc: netdev@oss.sgi.com; linux-net@vger.kernel.org
+Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
+
+
+On Tue, 2003-08-19 at 13:53, David S. Miller wrote:
+
+> BTW, this ARP source address algorithm we use comes from
+> ipv6, it would be instructive to go and see why they do
+> things the way they do.
+
+Are you sure?  See below:
+
+========================================================================
+
+RFC 2461              Neighbor Discovery for IPv6          December 1998
+
+
+4.3.  Neighbor Solicitation Message Format
+
+   Nodes send Neighbor Solicitations to request the link-layer address
+   of a target node while also providing their own link-layer address to
+   the target.  Neighbor Solicitations are multicast when the node needs
+   to resolve an address and unicast when the node seeks to verify the
+   reachability of a neighbor.
+
+         0                   1                   2                   3
+         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |     Type      |     Code      |          Checksum             |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                           Reserved                            |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                                                               |
+        +                                                               +
+        |                                                               |
+        +                       Target Address                          +
+        |                                                               |
+        +                                                               +
+        |                                                               |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |   Options ...
+        +-+-+-+-+-+-+-+-+-+-+-+-
+
+   IP Fields:
+
+      Source Address
+                     Either an address assigned to the interface from
+                     which this message is sent or (if Duplicate Address
+                     Detection is in progress [ADDRCONF]) the
+                     unspecified address.
+
+      Destination Address
+                     Either the solicited-node multicast address
+                     corresponding to the target address, or the target
+                     address.
+
+      Hop Limit      255
+
+      Authentication Header
+                     If a Security Association for the IP Authentication
+                     Header exists between the sender and the
+                     destination address, then the sender SHOULD include
+                     this header.
+
+
+
+
+
+Narten, et. al.             Standards Track                    [Page 21]
+
+========================================================================
+
+
+Regards,
+
+// Steve

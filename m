@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281034AbRKOUUF>; Thu, 15 Nov 2001 15:20:05 -0500
+	id <S281031AbRKOUVz>; Thu, 15 Nov 2001 15:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281040AbRKOUT4>; Thu, 15 Nov 2001 15:19:56 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:28656 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281034AbRKOUTp>;
-	Thu, 15 Nov 2001 15:19:45 -0500
-Date: Thu, 15 Nov 2001 13:19:38 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: linux kernel <linux-kernel@vger.kernel.org>,
-        "Peter T. Breuer" <ptb@it.uc3m.es>
-Subject: Re: blocks or KB? (was: .. current meaning of blk_size array)
-Message-ID: <20011115131938.M5739@lynx.no>
-Mail-Followup-To: linux kernel <linux-kernel@vger.kernel.org>,
-	"Peter T. Breuer" <ptb@it.uc3m.es>
-In-Reply-To: <20011115003434.A25883@node0.opengeometry.ca> <200111151235.fAFCZQY31248@oboe.it.uc3m.es> <20011115133133.A732@node0.opengeometry.ca>
-Mime-Version: 1.0
+	id <S281040AbRKOUVq>; Thu, 15 Nov 2001 15:21:46 -0500
+Received: from l3ux02.univ-lille3.fr ([194.254.132.192]:56308 "HELO
+	tadorne.grappa.fr") by vger.kernel.org with SMTP id <S281029AbRKOUV3>;
+	Thu, 15 Nov 2001 15:21:29 -0500
+From: Marc Tommasi <tommasi@univ-lille3.fr>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20011115133133.A732@node0.opengeometry.ca>; from opengeometry@yahoo.ca on Thu, Nov 15, 2001 at 01:31:33PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
+Message-ID: <15348.9247.86835.895403@pingouin.grappa.fr>
+Date: Thu, 15 Nov 2001 21:22:55 +0100
+To: Jens Axboe <axboe@suse.de>
+Cc: tommasi@univ-lille3.fr, linux-kernel@vger.kernel.org
+Subject: Re: mount /mnt/cdrom = segfault
+In-Reply-To: <20011115075930.H27010@suse.de>
+In-Reply-To: <3BF2E136.396C35BE@free.fr>
+	<20011115075930.H27010@suse.de>
+X-Mailer: VM 6.94 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15, 2001  13:31 -0500, William Park wrote:
-> I looked around, and 1KB block size is hard-coded in too many places.
-> For example, function 'generic_make_request()' in
-> 'drivers/block/ll_rw_blk.c' assumes 512 sector and 1024 block size:
+Jens Axboe writes:
+ ---| On Wed, Nov 14 2001, Tommasi Marc wrote:
+ ---| > I have tried no boot with devfs=nomount but I have still the same kind
+ ---| > of message. 
+ ---| 
+ ---| Please reproduce with devfs=nomount and send in that oops instead,
+ ---| thanks.
+ ---| 
+ ---| -- 
+ ---| Jens Axboe
 
-Yes, it _would_ be nice to clean this up, but it is a lot of work.  You
-could check out Anton's patch (posted today) for this as a starting point.
+Hello,
 
-> Is changing 'int' to 'u64' (and all the dependent code) enough to get
-> 64-bit block devices?  I'm willing to do the work.
+    please aplogies. I have an Athlon 800, with kernel 2.4.8 (Mandrake 8.1). It seems that the message is very similar after rebooting with devfs=nomount, but maybe I am wrong. 
 
-It is already done, please don't duplicate.  Search for 64 bit block
-devices around June of this year for a URL to Jens'/Ben's patch.  Please
-repost the URL, as several people have asked.
 
-> I don't care about filesystem; that's the job for maintainer of particular
-> filesystem.  I understand XFS is 64-bit, so I can use that.
-
-FYI, ext2/ext3 _should_ be OK up to 8TB (possibly 16TB depending on sign
-issues) filesystem, with individual files at 2TB, when using a 4kB block
-size.  However, there appear to be other issues like VFS and page cache
-which may have problems at this point as well.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+Nov 15 20:41:39 marion kernel: ide-floppy driver 0.97
+Nov 15 20:41:39 marion kernel: hdc: ATAPI 40X DVD-ROM drive, 512kB Cache, UDMA(33)
+Nov 15 20:41:39 marion kernel: devfs: devfs_register(): device already registered: "cd"
+Nov 15 20:41:39 marion kernel: hdc: ide_cdrom_setup failed to register device with the cdrom driver.
+Nov 15 20:41:39 marion kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000028
+Nov 15 20:41:39 marion kernel:  printing eip:
+Nov 15 20:41:39 marion kernel: c018ba8f
+Nov 15 20:41:39 marion kernel: *pde = 00000000
+Nov 15 20:41:39 marion kernel: Oops: 0000
+Nov 15 20:41:39 marion kernel: CPU:    0
+Nov 15 20:41:39 marion kernel: EIP:    0010:[ide_revalidate_disk+223/272]
+Nov 15 20:41:39 marion kernel: EIP:    0010:[<c018ba8f>]
+Nov 15 20:41:39 marion kernel: EFLAGS: 00010212
+Nov 15 20:41:39 marion kernel: eax: 00000000   ebx: 00001600   ecx: 00001600   edx: 00000000
+Nov 15 20:41:39 marion kernel: esi: c03591d0   edi: 00001100   ebp: 00000040   esp: c68d7ee8
+Nov 15 20:41:39 marion kernel: ds: 0018   es: 0018   ss: 0018
+Nov 15 20:41:39 marion kernel: Process mount (pid: 2168, stackpage=c68d7000)
+Nov 15 20:41:39 marion kernel: Stack: 16000330 00000000 00000330 00000000 c0359498 00000330 c018bb0a 00001600
+Nov 15 20:41:39 marion kernel:        00000001 c03591d0 cf675760 00000000 c148a070 c018bbd4 c149a2a0 cf675760
+Nov 15 20:41:39 marion kernel:        c0138a38 cf675760 c6973680 c6973680 cf675760 c1447320 c0131d60 cf675760
+Nov 15 20:41:39 marion kernel: Call Trace: [revalidate_drives+74/128] [ide_open+52/240] [blkdev_open+72/128] [dentry_open+192/336] [filp_open+75/96]
+Nov 15 20:41:39 marion kernel: Call Trace: [<c018bb0a>] [<c018bbd4>] [<c0138a38>] [<c0131d60>] [<c0131c8b>]
+Nov 15 20:41:39 marion kernel:    [getname+95/160] [sys_open+54/176] [system_call+51/64]
+Nov 15 20:41:39 marion kernel:    [<c013b45f>] [<c0131f76>] [<c0106ec3>]
+Nov 15 20:41:39 marion kernel:
+Nov 15 20:41:39 marion kernel: Code: 8b 40 28 85 c0 74 04 56 ff d0 5b 80 a6 ae 00 00 00 fb 8d 86

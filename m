@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265533AbTF2DOj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 23:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265536AbTF2DOj
+	id S265545AbTF2DQd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 23:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbTF2DQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 23:14:39 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55050
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265533AbTF2DOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 23:14:38 -0400
-Date: Sat, 28 Jun 2003 20:25:43 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Adarsh Daheriya <AdarshDNet@netscape.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Serial ATA driver for 2.4.18.
-In-Reply-To: <1056662149.3174.4.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10306282023330.1116-100000@master.linux-ide.org>
+	Sat, 28 Jun 2003 23:16:32 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:23022 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S265545AbTF2DQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 23:16:24 -0400
+Message-ID: <3EFE5E39.4070509@pacbell.net>
+Date: Sat, 28 Jun 2003 20:34:17 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: bkbits.net is down
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ > From:     Alan Cox
+ > Date:     2003-06-28 23:13:55
+ >
+ > On Sad, 2003-06-28 at 23:15, Dr. David Alan Gilbert wrote:
+ > > Hmm - why should it suck so badly? Shouldn't USB 2 (yes I mean the
+ > > 480Mbps) manage 40MByte/s+ ?
 
-I have one for sale buy you will pay a price for my time and work in the
-past to get it.  Nothing is free in this economy today.
+Custom devices certainly have done that, with drivers that keep
+everything busy.  Last fall, one person reported 38+ MB/sec
+from a VT8235.  The theoretical peak bandwidth for bulk traffic
+(what most folk want) is 52 MByte/sec.
 
-Cheers,
+A Western Digital drive I tried gave me 27 MByte/sec with USB.
+And I hate to say that the FireWire mode didn't work at all,
+since I was curious how they'd compare!  (2.5.71 or so.)
 
-Andre Hedrick
-LAD Storage Consulting Group
 
-On 26 Jun 2003, Alan Cox wrote:
+ > I don't think you get the full 480Mbit/sec on a single device.
+ > 5Mbyte/sec is a bit low
 
-> On Iau, 2003-06-26 at 09:15, Adarsh Daheriya wrote:
-> > hi all,
-> > 
-> > can anybody tell me where i can get the siimage SATA driver for 2.4.18 
-> > kernel?
-> 
-> The current one depends on the 2.4.20/2.4.21 IDE rework. I have no plans
-> to backport it although if you desperately need it you could I guess pay
-> someone
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Some combinations of EHCI silicon, USB-to-IDE adapter, and IDE
+work better than others ... I once switched a drive from one
+EHCI controller to another (same host and OS, didn't reboot),
+and went from 5 MB/s to 19 MB/sec.  That was on 2.4; with the
+2.5 usb-storage, both controllers gave the higher speed.
+
+
+ > 	but that may be some of the remaining work on
+ > the USB EHCI drivers. I've not tried 2.5.x which may be way better here.
+
+The key difference in 2.5 is that usb-storage queues requests,
+no more slow page-at-a-time I/O.  It's the same EHCI driver
+underneath, lately -- much improved since last September (or so)
+when it first started to generate real user feedback.
+
+- Dave
 

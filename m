@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264407AbTEJPws (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 11:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264410AbTEJPws
+	id S264414AbTEJP7X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 11:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264416AbTEJP7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 11:52:48 -0400
-Received: from [212.156.4.132] ([212.156.4.132]:3038 "EHLO fep02.ttnet.net.tr")
-	by vger.kernel.org with ESMTP id S264407AbTEJPwr (ORCPT
+	Sat, 10 May 2003 11:59:23 -0400
+Received: from granite.he.net ([216.218.226.66]:24849 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S264414AbTEJP7U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 11:52:47 -0400
-Date: Sat, 10 May 2003 19:04:28 +0300
-From: Faik Uygur <faikuygur@ttnet.net.tr>
-To: linux-kernel@vger.kernel.org
-Cc: mochel@osdl.org
-Subject: [PATCH] 2.5.69: mtrr: MTRR 2 not used, Bug #564
-Message-ID: <20030510160428.GA5415@ttnet.net.tr>
-Mail-Followup-To: linux-kernel@vger.kernel.org, mochel@osdl.org
+	Sat, 10 May 2003 11:59:20 -0400
+Date: Sat, 10 May 2003 09:12:19 -0700
+From: Greg KH <greg@kroah.com>
+To: chas williams <chas@locutus.cmf.nrl.navy.mil>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Francois Romieu <romieu@fr.zoreil.com>,
+       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [UPDATE] unbalanced exit path in Forerunner HE he_init_one() (and an iphase patch too!)
+Message-ID: <20030510161219.GB5580@kroah.com>
+References: <20030510062015.A21408@infradead.org> <200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-9
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
-X-PGP-Key-ID: 0x5C447959
-X-PGP-Key-Size: 2048 bits
-X-Editor: GNU Emacs 21.2.1
-X-Operating-System: Debian GNU/Linux
+In-Reply-To: <200305101352.h4ADqoGi014392@locutus.cmf.nrl.navy.mil>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one-liner fixes the mtrr not used bug, and addresses Bug #564
-of Bugzilla.
+On Sat, May 10, 2003 at 09:52:49AM -0400, chas williams wrote:
+> In message <20030510062015.A21408@infradead.org>,Christoph Hellwig writes:
+> >> +init_one_failure:
+> >> +	if (atm_dev) atm_dev_deregister(atm_dev);
+> >> +	if (he_dev) kfree(he_dev);
+> >> +	pci_disable_device(pci_dev);
+> >> +	return err;
+> >
+> >kfree(NULL) if perfectly fine.  Also please untangle all this if
+> >statements to two separate lines.
+> 
+> but its ok for usb drivers?
 
-mtrr_file_del was not decreasing the mtrr usage count so when
-XFree86 was exiting, mtrr_close was trying to delete an already 
-deleted memory type region with the freed mtrr.
+Not at all.  I'll gladly take patches to fix this crud up.
 
+thanks,
 
-Index: arch/i386/kernel/cpu/mtrr/if.c
-===================================================================
-RCS file: /home/faiku/cvs/linux-2.5/arch/i386/kernel/cpu/mtrr/if.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 if.c
---- arch/i386/kernel/cpu/mtrr/if.c      10 May 2003 07:06:50 -0000      1.1.1.1
-+++ arch/i386/kernel/cpu/mtrr/if.c      10 May 2003 15:14:00 -0000
-@@ -49,7 +49,7 @@
-              struct file *file, int page)
- {
-        int reg;
--       unsigned int *fcount = file->private_data;
-+       unsigned int *fcount = FILE_FCOUNT(file);
-
-        if (!page) {
-                if ((base & (PAGE_SIZE - 1)) || (size & (PAGE_SIZE - 1)))
+greg k-h

@@ -1,68 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbULIRc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbULIRia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbULIRc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 12:32:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbULIRc1
+	id S261558AbULIRia (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 12:38:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbULIRia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 12:32:27 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:13522 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261551AbULIRcJ (ORCPT
+	Thu, 9 Dec 2004 12:38:30 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29607 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261558AbULIRiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 12:32:09 -0500
-Date: Thu, 9 Dec 2004 18:31:36 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209173136.GE7975@elte.hu>
-References: <OFADAD8EC1.8BCE1EC6-ON86256F65.005EFFA6@raytheon.com>
-Mime-Version: 1.0
+	Thu, 9 Dec 2004 12:38:20 -0500
+From: Limin Gu <limin@dbear.engr.sgi.com>
+Message-Id: <200412091724.iB9HOEf26056@dbear.engr.sgi.com>
+Subject: Re: [RFC][PATCH] jobfs - new virtual filesystem for job kernel/user
+To: jeffrey.hundstad@mnsu.edu (Jeffrey E. Hundstad)
+Date: Thu, 9 Dec 2004 09:24:14 -0800 (PST)
+Cc: holt@sgi.com (Robin Holt), linux-kernel@vger.kernel.org,
+       limin@dbear.engr.sgi.com (Limin Gu)
+In-Reply-To: <41B88319.9070207@mnsu.edu> from "Jeffrey E. Hundstad" at Dec 09, 2004 10:53:45 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFADAD8EC1.8BCE1EC6-ON86256F65.005EFFA6@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
-
-> >also, i'd like to take a look at latency traces, if you have them for
-> >this run.
 > 
-> I could if I had any. The _RT run had NO latency traces > 250 usec
-> (the limit I had set for the test). The equivalent _PK run had 37 of
-> those traces. I can rerun the test with a smaller limit to get some if
-> it is really important. My build of -12 is almost done and we can see
-> what kind of repeatability / results from the all_cpus trace shows.
+> I'd have to second Robin's sentiments.  IMHO there should be a very 
+> strong reason to have this type of information in a new filesystem as 
+> this type of proliferation is counterproductive.
+> 
+> -- 
+> jeffrey hundstad
+> 
+> Robin Holt wrote:
+> 
+> >On Wed, Dec 08, 2004 at 02:03:21PM -0800, Limin Gu wrote:
+> >  
+> >
+> >>Hello,
+> >>
+> >>I am looking for your comments on the attached draft, it is the job patch 
+> >>for 2.6.9. I have posted job patch for older kernel before, but in this patch
+> >>I have replaced the /proc/job binary ioctl calls with a new small virtual 
+> >>filesystem (jobfs).
+> >>
+> >>Job uses the hook provided by PAGG (Process Aggregates). A job is a group
+> >>related processes all descended from a point of entry process and identified
+> >>by a unique job identifier (jid). You can find the general information
+> >>about PAGG and Job at http://oss.sgi.com/projects/pagg/
+> >>
+> >>I will very much appreciate your comments, suggestions and criticisms
+> >>on this new filesystem design and implementation as the job kernel/user
+> >>communication interface. The patch is still a draft.
+> >>
+> >>Thank you!
+> >>    
+> >>
+> >
+> >I maintain my position that this belongs in /proc.
 
-/me is puzzled.
+This is a question I try to find an answer. If the community agrees
+the /proc is the right place for it, I would be very happy to move it
+to /proc and implement it with procfs.
 
-so all the CPU-loop delays within the -RT kernel are below 250 usecs? I
-guess i dont understand what this means then:
+> >
+> >Why not have a structure something like:
+> >
+> >/proc/<pid>/job -> ../jobs/<jid>
 
-| The max CPU latencies in RT are worse than PK as well. The values for
-| RT range from 3.00 msec to 5.43 msec and on PK range from 1.45 msec to
-| 2.24 msec.
+SGI is providing job to our customers as a kernel module. 
+But adding /proc/<pid>/job needs to patch fs/proc/base.c, we can not
+do that in a module. Of course if job gets accepted, this won't be a problem.
 
-these come from userspace timestamping? So where userspace detects a
-delay the kernel tracer doesnt measure any?
+> >/proc/jobs/<jid>/<pid> -> ../../<pid>
+> >
+> >What other information is really necessary from userland?
 
-	Ingo
+We want to keep the same userland libraries and commands we have been
+providing to our customers. Here is the library interface.
+
+jid_t
+job_create( jid_t jid_requested, uid_t uid, int options );
+
+jid_t
+job_getjid( pid_t pid );
+
+jid_t
+job_waitjid( jid_t jid, int *status, int options );
+
+int
+job_killjid( jid_t jid, int sig );
+
+int
+job_getjidcnt( void );
+
+int
+job_getjidlist( jid_t *jid, int bufsize );	/* buffer size in bytes*/
+
+int
+job_getpidcnt( jid_t jid );
+
+int
+job_getpidlist( jid_t jid, pid_t *pid, int bufsize ); /* buffer size in bytes*/
+
+uid_t
+job_getuid( jid_t jid );
+
+pid_t
+job_getprimepid( jid_t jid );
+
+int
+job_sethid( unsigned int hid );
+
+int
+job_detachjid( jid_t jid );
+
+jid_t
+job_detachpid( pid_t pid );
+
+We will need more than those two entries in /proc as you listed above.
+Would it be considered abusing /proc to have too much job stuff there?
+
+Thanks,
+--Limin

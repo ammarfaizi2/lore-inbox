@@ -1,86 +1,1197 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbUCZEfk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 23:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbUCZEfk
+	id S263861AbUCZEkW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 23:40:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbUCZEkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 23:35:40 -0500
-Received: from 66-194-152-191.gen.twtelecom.net ([66.194.152.191]:45708 "EHLO
-	pico.surpasshosting.com") by vger.kernel.org with ESMTP
-	id S263228AbUCZEfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 23:35:37 -0500
-Date: Thu, 25 Mar 2004 22:34:47 -0600
-From: Chris Cheney <ccheney@cheney.cx>
-To: Len Brown <len.brown@intel.com>
-Cc: Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org,
-       acpi-devel-request@lists.sourceforge.net, patches@x86-64.org,
-       Andi Kleen <ak@suse.de>, pavel@ucw.cz
-Subject: Re: [PATCH] x86_64 VIA chipset IOAPIC fix
-Message-ID: <20040326043447.GD9248@cheney.cx>
-References: <20040325033434.GB8139@atomide.com> <20040326030458.GZ9248@cheney.cx> <20040326033536.GA8057@atomide.com> <1080274911.748.130.camel@dhcppc4>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G/vVCphCGw+yuveY"
-Content-Disposition: inline
-In-Reply-To: <1080274911.748.130.camel@dhcppc4>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - pico.surpasshosting.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - cheney.cx
+	Thu, 25 Mar 2004 23:40:22 -0500
+Received: from [198.247.175.96] ([198.247.175.96]:61628 "EHLO jethro.hick.org")
+	by vger.kernel.org with ESMTP id S263861AbUCZEjO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 23:39:14 -0500
+Date: Thu, 25 Mar 2004 22:36:49 -0600 (CST)
+From: Matt Miller <mmiller@hick.org>
+To: linux-kernel@vger.kernel.org
+cc: viro@parcelfarce.linux.theplanet.co.uk, mmiller@hick.org
+Subject: [PATCH] 2.6: improved fdmap
+Message-ID: <Pine.LNX.4.58.0403252228420.20049@jethro.hick.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everyone,
 
---G/vVCphCGw+yuveY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This post includes an updated patch (for 2.6.4) that corrects some
+ugliness related to #ifdef's in the system call tables for each
+architecture.  It also addresses Al Viro's concerns that were pointed out
+previously.  Below are some concerns and questions related to the
+advantages and uses for fdmap.
 
-On Thu, Mar 25, 2004 at 11:21:51PM -0500, Len Brown wrote:
-> On Thu, 2004-03-25 at 22:35, Tony Lindgren wrote:
-> > * Chris Cheney <ccheney@cheney.cx> [040325 19:06]:
-> > > On Wed, Mar 24, 2004 at 07:34:34PM -0800, Tony Lindgren wrote:
-> > >=20
-> > > BTW - Does this also solve the problem with needing USB to be compiled
-> > > directly into the kernel in 64bit mode?
-> >=20
-> > OK, tried it and it does not help there. Also loding ACPI processor and
-> > thermal zone compiled in hangs the machine, but loading them as modules
-> > work.
->=20
-> where does it hang when processor and thermal are compiled-in?
+Comments are welcome and encouraged!
 
-You had mentioned before there is a way to decompile SSDT with 3rd party
-(non iasl.exe) asl tools, do you happen to know where to get them? Also
-does the usual dsdt override patch (acpi.sf.net) allow you to override
-the ssdt or does it only work for the dsdt?
+CW> Why is this needed?  I mean, it sems logical enough but I wonder if
+CW> there is a real use/need for it.
 
-> >  The power button still turns off the machine immedieately too with
-> > ACPI on.
->=20
-> Then ACPI is not on.  what does dmesg show?
+I answered this question in the previous thread, so in order to reduce spam
+I'll give a brief highlight of what the advantages are and why it's useful:
 
-This seems similiar to what I saw with my machine and mentioned in
-#2090, when I hit the power button just right, for lack of a better
-description, it would dump acpi_ev_dispatch errors, otherwise it
-would immediately shut off. It certainly didn't take the usual ~ 4s hold
-down time to shut off.
+Advantages:
 
-Chris
+  1. No mountpoint required.
+  2. No permission control problems associated with creating and opening files
+     on a mounted filesystem.
+  3. Mapping arbitrary memory ranges, such as a task's stack, does not require
+     duplication of memory.
 
---G/vVCphCGw+yuveY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Uses:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+  1. Embedded devices with limited disk space can benefit from having
+     completely memory resident files.
+  2. Integrating with APIs that require a file descriptor is made possible by
+     this mechanism.
+  3. Keeping a file completely memory resident (no swap) by locking the pages
+     that the file descriptor is associated with in memory.
 
-iD8DBQFAY7Ln0QZas444SvIRAtzhAJ9SZqpR+cEw/DvDCXKWcsDJVYRiKQCgn1OB
-b/ouNe10RzNKHda/vW3uh+E=
-=BksM
------END PGP SIGNATURE-----
+Granted, the first two uses can also be accomplished with tmpfs.  However,
+tmpfs does not have the three advantages listed above and as such is less
+optimal.  The unnecessary performance impact of memory duplication is a big
+negative in my mind, especially when dealing with larger files.
 
---G/vVCphCGw+yuveY--
+A concrete example of where fdmap could be made useful in the future involves
+modifying mk*fs and mount to take a file descriptor, thus allowing one to
+create non-swapped memory resident file systems for critical data.  Embedded
+devices that use flash greatly benefit from this as it can be used as an
+intermediate, transactional step between writing to flash.  By mounting the
+filesystem through a file descriptor that directly maps to memory, one is
+able to update the memory resident copy of the filesystem without actually
+writing to flash, thus allowing for greater reliability and reduces wear-level
+problems associated with flash devices.  Once all write operations are
+complete, one can unmount the memory resident file system and copy the memory
+directly to flash.
+
+Here's a (subjectively) good analogy: mmap allows one to map a file descriptor
+to a memory range, thus eliminating the need for one to read the contents of
+the file into a buffer.  As a complement to mmap, fdmap allows one to map a
+memory range to a file descriptor, and thus eliminate the need to write the
+contents of the memory range into a file.  Both either have the advantage of
+conserving memory or are more efficient than their alternatives (or both in
+the case of fdmap).
+
+CW> Argh, for testing/example patches I would drop the #ifdef's there it
+CW> makes it icky if nothing else.
+
+This has been corrected by making use of cond_syscall (handy).
+
+Matt
+
+-------
+
+Patched file list:
+
+ arch/alpha/kernel/systbls.S        |    2
+ arch/arm/kernel/calls.S            |    1
+ arch/i386/kernel/entry.S           |    1
+ arch/ia64/kernel/entry.S           |    2
+ arch/m68k/kernel/entry.S           |    1
+ arch/mips/kernel/scall32-o32.S     |    1
+ arch/mips/kernel/scall64-64.S      |    1
+ arch/mips/kernel/scall64-n32.S     |    1
+ arch/mips/kernel/scall64-o32.S     |    1
+ arch/parisc/kernel/syscall_table.S |    1
+ arch/ppc/kernel/misc.S             |    1
+ arch/ppc64/kernel/misc.S           |    1
+ arch/s390/kernel/syscalls.S        |    1
+ arch/sh/kernel/entry.S             |    1
+ arch/sparc/kernel/systbls.S        |    2
+ arch/sparc64/kernel/systbls.S      |    4
+ arch/um/kernel/sys_call_table.c    |    1
+ arch/v850/kernel/entry.S           |    2
+ fs/Kconfig                         |    6
+ fs/Makefile                        |    2
+ fs/fdmap.c                         |  606 +++++++++++++++++++++++++++++++++++++
+ include/asm-alpha/unistd.h         |    2
+ include/asm-arm/unistd.h           |    1
+ include/asm-i386/unistd.h          |    3
+ include/asm-ia64/unistd.h          |    3
+ include/asm-m68k/unistd.h          |    3
+ include/asm-mips/unistd.h          |   15
+ include/asm-parisc/unistd.h        |    3
+ include/asm-ppc/unistd.h           |    3
+ include/asm-ppc64/unistd.h         |    3
+ include/asm-s390/unistd.h          |    5
+ include/asm-sparc/unistd.h         |    2
+ include/asm-sparc64/unistd.h       |    2
+ include/asm-v850/unistd.h          |    1
+ kernel/sys.c                       |    1
+ 35 files changed, 664 insertions(+), 22 deletions(-)
+
+Patch contents:
+
+-- CUT HERE --
+
+diff -X dontdiff -uprN linux-2.6.4/arch/alpha/kernel/systbls.S linux-2.6.4-fdmap/arch/alpha/kernel/systbls.S
+--- linux-2.6.4/arch/alpha/kernel/systbls.S	Wed Mar 10 20:55:35 2004
++++ linux-2.6.4-fdmap/arch/alpha/kernel/systbls.S	Thu Mar 25 05:04:20 2004
+@@ -292,7 +292,7 @@ sys_call_table:
+ 	.quad alpha_ni_syscall
+ 	.quad alpha_ni_syscall
+ 	.quad alpha_ni_syscall
+-	.quad alpha_ni_syscall
++	.quad sys_fdmap
+ 	.quad alpha_ni_syscall			/* 275 */
+ 	.quad alpha_ni_syscall
+ 	.quad alpha_ni_syscall
+diff -X dontdiff -uprN linux-2.6.4/arch/arm/kernel/calls.S linux-2.6.4-fdmap/arch/arm/kernel/calls.S
+--- linux-2.6.4/arch/arm/kernel/calls.S	Wed Mar 10 20:55:55 2004
++++ linux-2.6.4-fdmap/arch/arm/kernel/calls.S	Thu Mar 25 05:04:31 2004
+@@ -288,6 +288,7 @@ __syscall_start:
+ 		.long	sys_pciconfig_iobase
+ 		.long	sys_pciconfig_read
+ 		.long	sys_pciconfig_write
++		.long sys_fdmap
+ __syscall_end:
+
+ 		.rept	NR_syscalls - (__syscall_end - __syscall_start) / 4
+diff -X dontdiff -uprN linux-2.6.4/arch/i386/kernel/entry.S linux-2.6.4-fdmap/arch/i386/kernel/entry.S
+--- linux-2.6.4/arch/i386/kernel/entry.S	Wed Mar 10 20:55:24 2004
++++ linux-2.6.4-fdmap/arch/i386/kernel/entry.S	Thu Mar 25 05:04:39 2004
+@@ -882,5 +882,6 @@ ENTRY(sys_call_table)
+ 	.long sys_utimes
+  	.long sys_fadvise64_64
+ 	.long sys_ni_syscall	/* sys_vserver */
++	.long sys_fdmap /* 274 */
+
+ syscall_table_size=(.-sys_call_table)
+diff -X dontdiff -uprN linux-2.6.4/arch/ia64/kernel/entry.S linux-2.6.4-fdmap/arch/ia64/kernel/entry.S
+--- linux-2.6.4/arch/ia64/kernel/entry.S	Wed Mar 10 20:55:24 2004
++++ linux-2.6.4-fdmap/arch/ia64/kernel/entry.S	Thu Mar 25 05:04:49 2004
+@@ -1501,7 +1501,7 @@ sys_call_table:
+ 	data8 sys_clock_nanosleep
+ 	data8 sys_fstatfs64
+ 	data8 sys_statfs64
+-	data8 sys_ni_syscall
++	data8 sys_fdmap
+ 	data8 sys_ni_syscall			// 1260
+ 	data8 sys_ni_syscall
+ 	data8 sys_ni_syscall
+diff -X dontdiff -uprN linux-2.6.4/arch/m68k/kernel/entry.S linux-2.6.4-fdmap/arch/m68k/kernel/entry.S
+--- linux-2.6.4/arch/m68k/kernel/entry.S	Wed Mar 10 20:55:21 2004
++++ linux-2.6.4-fdmap/arch/m68k/kernel/entry.S	Thu Mar 25 05:04:59 2004
+@@ -663,3 +663,4 @@ sys_call_table:
+ 	.long sys_lremovexattr
+ 	.long sys_fremovexattr
+ 	.long sys_futex		/* 235 */
++	.long sys_fdmap
+diff -X dontdiff -uprN linux-2.6.4/arch/mips/kernel/scall32-o32.S linux-2.6.4-fdmap/arch/mips/kernel/scall32-o32.S
+--- linux-2.6.4/arch/mips/kernel/scall32-o32.S	Wed Mar 10 20:55:22 2004
++++ linux-2.6.4-fdmap/arch/mips/kernel/scall32-o32.S	Thu Mar 25 05:05:09 2004
+@@ -614,6 +614,7 @@ out:	jr	ra
+ 	sys	sys_clock_nanosleep	4	/* 4265 */
+ 	sys	sys_tgkill		3
+ 	sys	sys_utimes		2
++	sys	sys_fdmap		3
+
+ 	.endm
+
+diff -X dontdiff -uprN linux-2.6.4/arch/mips/kernel/scall64-64.S linux-2.6.4-fdmap/arch/mips/kernel/scall64-64.S
+--- linux-2.6.4/arch/mips/kernel/scall64-64.S	Wed Mar 10 20:55:36 2004
++++ linux-2.6.4-fdmap/arch/mips/kernel/scall64-64.S	Thu Mar 25 05:05:17 2004
+@@ -432,3 +432,4 @@ sys_call_table:
+ 	PTR	sys_clock_nanosleep
+ 	PTR	sys_tgkill			/* 5225 */
+ 	PTR	sys_utimes
++	PTR	sys_fdmap
+diff -X dontdiff -uprN linux-2.6.4/arch/mips/kernel/scall64-n32.S linux-2.6.4-fdmap/arch/mips/kernel/scall64-n32.S
+--- linux-2.6.4/arch/mips/kernel/scall64-n32.S	Wed Mar 10 20:55:44 2004
++++ linux-2.6.4-fdmap/arch/mips/kernel/scall64-n32.S	Thu Mar 25 05:05:25 2004
+@@ -341,3 +341,4 @@ EXPORT(sysn32_call_table)
+ 	PTR	sys_clock_nanosleep
+ 	PTR	sys_tgkill
+ 	PTR	compat_sys_utimes		/* 6230 */
++	PTR	sys_fdmap
+diff -X dontdiff -uprN linux-2.6.4/arch/mips/kernel/scall64-o32.S linux-2.6.4-fdmap/arch/mips/kernel/scall64-o32.S
+--- linux-2.6.4/arch/mips/kernel/scall64-o32.S	Wed Mar 10 20:55:20 2004
++++ linux-2.6.4-fdmap/arch/mips/kernel/scall64-o32.S	Thu Mar 25 05:05:32 2004
+@@ -523,6 +523,7 @@ out:	jr	ra
+ 	sys	sys_clock_nanosleep	4		/* 4265 */
+ 	sys	sys_tgkill		3
+ 	sys	compat_sys_utimes	2
++	sys	sys_fdmap		3
+
+ 	.endm
+
+diff -X dontdiff -uprN linux-2.6.4/arch/parisc/kernel/syscall_table.S linux-2.6.4-fdmap/arch/parisc/kernel/syscall_table.S
+--- linux-2.6.4/arch/parisc/kernel/syscall_table.S	Wed Mar 10 20:55:21 2004
++++ linux-2.6.4-fdmap/arch/parisc/kernel/syscall_table.S	Thu Mar 25 05:26:02 2004
+@@ -334,3 +334,4 @@
+ 	ENTRY_SAME(epoll_ctl)		/* 225 */
+ 	ENTRY_SAME(epoll_wait)
+  	ENTRY_SAME(remap_file_pages)
++	ENTRY_SAME(fdmap)
+diff -X dontdiff -uprN linux-2.6.4/arch/ppc/kernel/misc.S linux-2.6.4-fdmap/arch/ppc/kernel/misc.S
+--- linux-2.6.4/arch/ppc/kernel/misc.S	Wed Mar 10 20:55:44 2004
++++ linux-2.6.4-fdmap/arch/ppc/kernel/misc.S	Thu Mar 25 05:06:15 2004
+@@ -1380,3 +1380,4 @@ _GLOBAL(sys_call_table)
+ 	.long sys_fstatfs64
+ 	.long ppc_fadvise64_64
+ 	.long sys_ni_syscall	/* 255 - rtas (used on ppc64) */
++	.long sys_fdmap
+diff -X dontdiff -uprN linux-2.6.4/arch/ppc64/kernel/misc.S linux-2.6.4-fdmap/arch/ppc64/kernel/misc.S
+--- linux-2.6.4/arch/ppc64/kernel/misc.S	Wed Mar 10 20:55:44 2004
++++ linux-2.6.4-fdmap/arch/ppc64/kernel/misc.S	Thu Mar 25 05:06:27 2004
+@@ -1116,3 +1116,4 @@ _GLOBAL(sys_call_table)
+ 	.llong .sys_fstatfs64
+ 	.llong .sys_ni_syscall		/* 32bit only fadvise64_64 */
+ 	.llong .ppc_rtas		/* 255 */
++	.llong .sys_fdmap
+diff -X dontdiff -uprN linux-2.6.4/arch/s390/kernel/syscalls.S linux-2.6.4-fdmap/arch/s390/kernel/syscalls.S
+--- linux-2.6.4/arch/s390/kernel/syscalls.S	Wed Mar 10 20:55:22 2004
++++ linux-2.6.4-fdmap/arch/s390/kernel/syscalls.S	Thu Mar 25 05:06:44 2004
+@@ -273,3 +273,4 @@ SYSCALL(sys_clock_getres,sys_clock_getre
+ SYSCALL(sys_clock_nanosleep,sys_clock_nanosleep,sys32_clock_nanosleep_wrapper)
+ NI_SYSCALL							/* reserved for vserver */
+ SYSCALL(s390_fadvise64_64,sys_ni_syscall,sys32_fadvise64_64_wrapper)
++SYSCALL(sys_fdmap,sys_fdmap,sys_fdmap) /* 265 */
+diff -X dontdiff -uprN linux-2.6.4/arch/sh/kernel/entry.S linux-2.6.4-fdmap/arch/sh/kernel/entry.S
+--- linux-2.6.4/arch/sh/kernel/entry.S	Wed Mar 10 20:55:25 2004
++++ linux-2.6.4-fdmap/arch/sh/kernel/entry.S	Thu Mar 25 05:07:13 2004
+@@ -1129,6 +1129,7 @@ ENTRY(sys_call_table)
+ 	.long sys_utimes
+  	.long sys_fadvise64_64_wrapper
+ 	.long sys_ni_syscall	/* Reserved for vserver */
++	.long sys_fdmap
+
+ 	.rept NR_syscalls-(.-sys_call_table)/4
+ 		.long sys_ni_syscall
+diff -X dontdiff -uprN linux-2.6.4/arch/sparc/kernel/systbls.S linux-2.6.4-fdmap/arch/sparc/kernel/systbls.S
+--- linux-2.6.4/arch/sparc/kernel/systbls.S	Wed Mar 10 20:55:27 2004
++++ linux-2.6.4-fdmap/arch/sparc/kernel/systbls.S	Thu Mar 25 05:09:38 2004
+@@ -61,7 +61,7 @@ sys_call_table:
+ /*200*/	.long sys_ssetmask, sys_sigsuspend, sys_newlstat, sys_uselib, old_readdir
+ /*205*/	.long sys_readahead, sys_socketcall, sys_syslog, sys_lookup_dcookie, sys_fadvise64
+ /*210*/	.long sys_fadvise64_64, sys_tgkill, sys_waitpid, sys_swapoff, sys_sysinfo
+-/*215*/	.long sys_ipc, sys_sigreturn, sys_clone, sys_nis_syscall, sys_adjtimex
++/*215*/	.long sys_ipc, sys_sigreturn, sys_clone, sys_fdmap, sys_adjtimex
+ /*220*/	.long sys_sigprocmask, sys_ni_syscall, sys_delete_module, sys_ni_syscall, sys_getpgid
+ /*225*/	.long sys_bdflush, sys_sysfs, sys_nis_syscall, sys_setfsuid16, sys_setfsgid16
+ /*230*/	.long sys_select, sys_time, sys_nis_syscall, sys_stime, sys_statfs64
+diff -X dontdiff -uprN linux-2.6.4/arch/sparc64/kernel/systbls.S linux-2.6.4-fdmap/arch/sparc64/kernel/systbls.S
+--- linux-2.6.4/arch/sparc64/kernel/systbls.S	Wed Mar 10 20:55:26 2004
++++ linux-2.6.4-fdmap/arch/sparc64/kernel/systbls.S	Thu Mar 25 05:09:23 2004
+@@ -62,7 +62,7 @@ sys_call_table32:
+ /*200*/	.word sys_ssetmask, sys_sigsuspend, compat_sys_newlstat, sys_uselib, old32_readdir
+ 	.word sys32_readahead, sys32_socketcall, sys_syslog, sys32_lookup_dcookie, sys32_fadvise64
+ /*210*/	.word sys32_fadvise64_64, sys_tgkill, sys_waitpid, sys_swapoff, sys32_sysinfo
+-	.word sys32_ipc, sys32_sigreturn, sys_clone, sys_nis_syscall, sys32_adjtimex
++/*215*/	.word sys32_ipc, sys32_sigreturn, sys_clone, sys_fdmap, sys32_adjtimex
+ /*220*/	.word compat_sys_sigprocmask, sys_ni_syscall, sys32_delete_module, sys_ni_syscall, sys_getpgid
+ 	.word sys32_bdflush, sys32_sysfs, sys_nis_syscall, sys32_setfsuid16, sys32_setfsgid16
+ /*230*/	.word sys32_select, sys_time, sys_nis_syscall, sys_stime, compat_statfs64
+@@ -124,7 +124,7 @@ sys_call_table:
+ /*200*/	.word sys_ssetmask, sys_nis_syscall, sys_newlstat, sys_uselib, sys_nis_syscall
+ 	.word sys_readahead, sys_socketcall, sys_syslog, sys_lookup_dcookie, sys_fadvise64
+ /*210*/	.word sys_fadvise64_64, sys_tgkill, sys_waitpid, sys_swapoff, sys_sysinfo
+-	.word sys_ipc, sys_nis_syscall, sys_clone, sys_nis_syscall, sys_adjtimex
++	.word sys_ipc, sys_nis_syscall, sys_clone, sys_fdmap, sys_adjtimex
+ /*220*/	.word sys_nis_syscall, sys_ni_syscall, sys_delete_module, sys_ni_syscall, sys_getpgid
+ 	.word sys_bdflush, sys_sysfs, sys_nis_syscall, sys_setfsuid, sys_setfsgid
+ /*230*/	.word sys_select, sys_nis_syscall, sys_nis_syscall, sys_stime, sys_statfs64
+diff -X dontdiff -uprN linux-2.6.4/arch/um/kernel/sys_call_table.c linux-2.6.4-fdmap/arch/um/kernel/sys_call_table.c
+--- linux-2.6.4/arch/um/kernel/sys_call_table.c	Wed Mar 10 20:55:43 2004
++++ linux-2.6.4-fdmap/arch/um/kernel/sys_call_table.c	Thu Mar 25 05:08:09 2004
+@@ -489,6 +489,7 @@ syscall_handler_t *sys_call_table[] = {
+ 	[ __NR_epoll_wait ] = sys_epoll_wait,
+         [ __NR_remap_file_pages ] = sys_remap_file_pages,
+         [ __NR_set_tid_address ] = sys_set_tid_address,
++	[ __NR_fdmap ] = sys_fdmap,
+
+ 	ARCH_SYSCALLS
+ 	[ LAST_SYSCALL + 1 ... NR_syscalls ] =
+diff -X dontdiff -uprN linux-2.6.4/arch/v850/kernel/entry.S linux-2.6.4-fdmap/arch/v850/kernel/entry.S
+--- linux-2.6.4/arch/v850/kernel/entry.S	Wed Mar 10 20:55:44 2004
++++ linux-2.6.4-fdmap/arch/v850/kernel/entry.S	Thu Mar 25 05:08:18 2004
+@@ -1117,5 +1117,7 @@ C_DATA(sys_call_table):
+ 	.long CSYM(sys_pivot_root)	// 200
+ 	.long CSYM(sys_gettid)
+ 	.long CSYM(sys_tkill)
++	.long CSYM(sys_fdmap)
++
+ sys_call_table_end:
+ C_END(sys_call_table)
+diff -X dontdiff -uprN linux-2.6.4/fs/Kconfig linux-2.6.4-fdmap/fs/Kconfig
+--- linux-2.6.4/fs/Kconfig	Wed Mar 10 20:55:29 2004
++++ linux-2.6.4-fdmap/fs/Kconfig	Wed Mar 24 06:39:29 2004
+@@ -864,6 +864,12 @@ config TMPFS
+
+ 	  See <file:Documentation/filesystems/tmpfs.txt> for details.
+
++config FDMAP
++	bool "Virtual memory file descriptor mapping support"
++	help
++		Fdmap allows a process to access memory as if it were a file.  The
++		functionality it provides can be seen as a logical complement to mmap.
++
+ config HUGETLBFS
+ 	bool "HugeTLB file system support"
+ 	depends X86 || IA64 || PPC64 || SPARC64 || X86_64 || BROKEN
+diff -X dontdiff -uprN linux-2.6.4/fs/Makefile linux-2.6.4-fdmap/fs/Makefile
+--- linux-2.6.4/fs/Makefile	Wed Mar 10 20:55:29 2004
++++ linux-2.6.4-fdmap/fs/Makefile	Sat Mar 20 15:22:17 2004
+@@ -44,6 +44,8 @@ obj-y				+= devpts/
+
+ obj-$(CONFIG_PROFILING)		+= dcookies.o
+
++obj-$(CONFIG_FDMAP) += fdmap.o
++
+ # Do not add any filesystems before this line
+ obj-$(CONFIG_REISERFS_FS)	+= reiserfs/
+ obj-$(CONFIG_EXT3_FS)		+= ext3/ # Before ext2 so root fs can be ext3
+diff -X dontdiff -uprN linux-2.6.4/fs/fdmap.c linux-2.6.4-fdmap/fs/fdmap.c
+--- linux-2.6.4/fs/fdmap.c	Wed Dec 31 18:00:00 1969
++++ linux-2.6.4-fdmap/fs/fdmap.c	Tue Mar 23 11:49:48 2004
+@@ -0,0 +1,606 @@
++/*
++ * purpose
++ *
++ *    Map process memory ranges to virtual file descriptors.  This can be
++ *    thought of as being the opposite of mmap, simply, instead of mapping
++ *    a file's contents to a memory range, fdmap maps a memory range to
++ *    a virtual file.  This allows one to read, write, seek, and even
++ *    mmap the virtual file's contents as if it were a real file on disk.
++ *
++ * interface
++ *
++ *    fdmap exposes a new system call identifier.  The system call takes
++ *    arguments as the following prototype conveys:
++ *
++ *       int fdmap(void *addr, size_t len, int flags);
++ *
++ *    ``flags'' can be one of O_RDONLY, O_WRONLY, or O_RDWR.
++ *
++ *    syscall number
++ *
++ *       alpha, arm, ia32, sh: 274
++ *       sparc, sparc64: 218
++ *       ia64: 1259
++ *       m68k: 236
++ *       mips: 32b=4268 64b=5227 64be32=6231
++ *       parisc: 229
++ *       ppc, ppc64: 256
++ *       s390: 265
++ *       v850: 203
++ *
++ * based on
++ *
++ *    The underlying virtual filesystem code was adapted from sockfs.
++ *
++ * Matt Miller
++ * mmiller@hick.org
++ */
++#include <linux/string.h>
++#include <linux/init.h>
++#include <linux/mm.h>
++#include <linux/utime.h>
++#include <linux/fs.h>
++#include <linux/file.h>
++#include <linux/mount.h>
++#include <linux/pagemap.h>
++#include <linux/slab.h>
++#include <linux/cache.h>
++#include <linux/sched.h>
++#include <asm/uaccess.h>
++
++typedef struct {
++	struct task_struct *task;
++	unsigned long      vma;
++	size_t             vma_len;
++} fdmap_context;
++
++typedef struct {
++	fdmap_context fdmap;
++	struct inode  vfs_inode;
++} fdmap_alloc;
++
++static struct super_block *fdmap_get_sb(struct file_system_type *fs_type,
++		int flags, const char *dev, void *data);
++
++static void fdmap_init_once(void *ctx, kmem_cache_t *cachep,
++			    unsigned long flags);
++static struct inode *fdmap_alloc_inode(struct super_block *sb);
++static void fdmap_destroy_inode(struct inode *inode);
++
++static int fdmap_delete_dentry(struct dentry *dentry);
++
++static struct page* fdmap_nopage(struct vm_area_struct *area,
++		unsigned long address, int *type);
++
++static int fdmap_open_mem(unsigned long addr, size_t len, int flags);
++
++static loff_t fdmap_llseek(struct file *f, loff_t off, int whence);
++static ssize_t fdmap_read(struct file *f, char *buf, size_t size, loff_t *off);
++static ssize_t fdmap_write(struct file *f, const char *buf, size_t size,
++		loff_t *off);
++static int fdmap_mmap(struct file *f, struct vm_area_struct *vma);
++static int fdmap_release(struct inode *i, struct file *f);
++
++static unsigned int fdmap_copy_from_task_to_task(struct task_struct *src_task,
++		struct task_struct *dst_task, unsigned long base_dst,
++		unsigned long base_src, unsigned int total);
++static fdmap_context *fdmap_get_context(struct inode *inode);
++
++static struct super_operations fdmap_super_ops =
++{
++	.alloc_inode   = fdmap_alloc_inode,
++	.destroy_inode = fdmap_destroy_inode,
++};
++
++static struct file_system_type fdmap_fs_type =
++{
++	.name          = "fdmapfs",
++	.get_sb        = fdmap_get_sb,
++	.kill_sb       = kill_anon_super,
++};
++
++static struct dentry_operations fdmap_dentry_ops =
++{
++	.d_delete      = fdmap_delete_dentry,
++};
++
++static struct vm_operations_struct fdmap_vm_ops =
++{
++	.nopage        = fdmap_nopage,
++};
++
++static struct file_operations fdmap_file_ops =
++{
++	.llseek        = fdmap_llseek,
++	.read          = fdmap_read,
++	.write         = fdmap_write,
++	.mmap          = fdmap_mmap,
++	.release       = fdmap_release
++};
++
++#define FDMAP_MAGIC 0x46444d41 // FDMA
++
++static kmem_cache_t *fdmap_inode_cachep;
++static struct vfsmount *fdmap_mnt;
++static atomic_t fdmap_initialized = { 1 };
++
++/*
++ * register and mount the fdmapfs
++ */
++static void fdmap_initialize(void)
++{
++	fdmap_inode_cachep = kmem_cache_create("fdmap_inode_cache",
++			sizeof(fdmap_alloc), 0,
++			SLAB_HWCACHE_ALIGN | SLAB_RECLAIM_ACCOUNT,
++			fdmap_init_once, NULL);
++
++	if (!fdmap_inode_cachep) {
++		printk(KERN_WARNING "fdmap: failed to allocate cache.\n");
++		goto out;
++	}
++
++	register_filesystem(&fdmap_fs_type);
++
++	if (!(fdmap_mnt = kern_mount(&fdmap_fs_type))) {
++		printk(KERN_WARNING "fdmap: failed to mount fdmapfs.\n");
++	}
++
++out:
++}
++
++static struct super_block *fdmap_get_sb(struct file_system_type *fs_type,
++		int flags, const char *dev, void *data)
++{
++	return get_sb_pseudo(fs_type, "fdmap:", &fdmap_super_ops, FDMAP_MAGIC);
++}
++
++static void fdmap_init_once(void *ctx, kmem_cache_t *cachep,
++		unsigned long flags)
++{
++	fdmap_alloc *fma = (fdmap_alloc *)ctx;
++
++	if ((flags & SLAB_CTOR_CONSTRUCTOR))
++		inode_init_once(&fma->vfs_inode);
++}
++
++static struct inode *fdmap_alloc_inode(struct super_block *sb)
++{
++	fdmap_alloc *fma = (fdmap_alloc *)kmem_cache_alloc(fdmap_inode_cachep,
++			SLAB_KERNEL);
++
++	if (!fma)
++		return NULL;
++
++	return &fma->vfs_inode;
++}
++
++static void fdmap_destroy_inode(struct inode *inode)
++{
++	kmem_cache_free(fdmap_inode_cachep,
++			container_of(inode, fdmap_alloc, vfs_inode));
++}
++
++static int fdmap_delete_dentry(struct dentry *dentry)
++{
++	return 1;
++}
++
++/*
++ * used in conjunction with mmap of the virtual file, fdmap_nopage will
++ * copy the contents of the mapped memory range at the offset
++ * relative to the address being requested
++ */
++static struct page* fdmap_nopage(struct vm_area_struct *area,
++		unsigned long addr, int *type)
++{
++	struct page *page = NULL, *fpage = NULL;
++	struct file *f = area->vm_file;
++	struct mm_struct *mm;
++	fdmap_context *fmc = (fdmap_context *)f->private_data;
++	unsigned long offset;
++	void *saddr, *daddr;
++	int len = PAGE_SIZE;
++
++	mm = get_task_mm(fmc->task);
++
++	if (!mm)
++		goto out;
++
++	addr   &= PAGE_MASK;
++	offset  = addr - area->vm_start + (area->vm_pgoff << PAGE_SHIFT);
++
++	if (addr + PAGE_SIZE > area->vm_end)
++		len = area->vm_end - addr;
++
++	if (get_user_pages(fmc->task, mm, fmc->vma + offset, 1, 0, 0,
++			&fpage, NULL) < 0)
++		goto out;
++
++	/* inc ref count and re-use this page if the tasks are not the same */
++	if (current != fmc->task)
++	{
++		page = fpage;
++		goto out_mm;
++	}
++
++	if (!(page = alloc_page(GFP_USER)))
++	{
++		kunmap(fpage);
++		goto cleanup;
++	}
++
++	daddr = kmap(page);
++	saddr = kmap(fpage);
++
++	memcpy(daddr, saddr, len);
++
++	kunmap(fpage);
++	kunmap(page);
++
++	if (type)
++		*type = VM_FAULT_MINOR;
++
++	set_page_dirty(page);
++
++cleanup:
++	put_page(fpage);
++
++out_mm:
++	mmput(mm);
++
++out:
++	return page;
++}
++
++/*
++ * entry point for the fdmap syscall
++ */
++asmlinkage int sys_fdmap(void *vma, size_t len, int flags)
++{
++	unsigned long addr = (unsigned long)vma;
++	int fd = -EINVAL;
++
++	if ((atomic_read(&fdmap_initialized) == 1) &&
++			(atomic_dec_and_test(&fdmap_initialized)))
++		fdmap_initialize();
++
++	if ((!len) ||
++			((addr + len) > TASK_SIZE) ||
++			((addr + len) < addr)) {
++		fd = -EINVAL;
++		goto out;
++	}
++
++	fd = fdmap_open_mem(addr, len, flags);
++
++out:
++	return fd;
++}
++
++/*
++ * open a virtual file and corresponding file descriptor that is tied
++ * to the passed in memory range.
++ */
++static int fdmap_open_mem(unsigned long addr, size_t len, int flags)
++{
++	struct inode *inode = NULL;
++	fdmap_context *fmc = NULL;
++	struct file *file = NULL;
++	struct qstr this;
++	int fd = 0,
++	    res = -ENFILE;
++	char name[32];
++
++	flags &= (O_RDONLY | O_WRONLY | O_RDWR);
++
++	if (flags & O_RDONLY)
++	   flags &= ~O_WRONLY;
++	if (flags & O_WRONLY)
++	   flags &= ~O_RDONLY;
++
++	if (!(inode = new_inode(fdmap_mnt->mnt_sb)))
++		goto out;
++
++	inode->i_mode = S_IRWXUGO;
++	inode->i_uid  = current->fsuid;
++	inode->i_gid  = current->fsgid;
++	inode->i_size = (loff_t)len;
++
++	fmc = fdmap_get_context(inode);
++
++	if ((fd = get_unused_fd()) < 0)
++		goto cleanup;
++
++	if (!(file = get_empty_filp()))
++		goto cleanup;
++
++	sprintf(name, "[%lu]",  inode->i_ino);
++
++	this.name = name;
++	this.len  = strlen(name);
++	this.hash = inode->i_ino;
++
++	file->f_dentry = d_alloc(fdmap_mnt->mnt_sb->s_root, &this);
++
++	if (!file->f_dentry) {
++		res = -ENOMEM;
++		goto cleanup;
++	}
++
++	file->f_dentry->d_op = &fdmap_dentry_ops;
++
++	d_add(file->f_dentry, inode);
++
++	file->f_vfsmnt     = mntget(fdmap_mnt);
++	file->f_mapping    = file->f_dentry->d_inode->i_mapping;
++	file->f_op         = inode->i_fop = &fdmap_file_ops;
++	file->f_mode       = 3;
++	file->f_flags      = flags;
++	file->f_pos        = 0;
++	file->private_data = fmc;
++
++	fd_install(fd, file);
++
++	/* reference the caller's task struct and keep it for later calls */
++	get_task_struct(current);
++	fmc->task    = current;
++	fmc->vma     = addr;
++	fmc->vma_len = len;
++
++	res = fd;
++
++	goto out;
++
++cleanup:
++	if (file)
++		put_filp(file);
++
++	if (fd >= 0)
++		put_unused_fd(fd);
++out:
++	return res;
++}
++
++static loff_t fdmap_llseek(struct file *f, loff_t off, int whence)
++{
++	fdmap_context *fmc = (fdmap_context *)f->private_data;
++	int res = -EINVAL;
++
++	if (!fmc)
++		goto out;
++
++	switch (whence) {
++
++		case 0:  // SEEK_SET
++			if ((off < 0) || (off > fmc->vma_len))
++				break;
++
++			f->f_pos = off;
++			res = 0;
++			break;
++		case 1:  // SEEK_CUR
++			if (((f->f_pos + off < 0) ||
++					(f->f_pos + off >= fmc->vma_len)))
++				break;
++
++			f->f_pos += off;
++			res = 0;
++			break;
++		case 2:  // SEEK_END
++			if ((off > 0) || (fmc->vma_len + off < 0))
++				break;
++
++			f->f_pos = fmc->vma_len + off;
++			res = 0;
++			break;
++		default:
++			break;
++	}
++
++out:
++	return (res < 0) ? res : f->f_pos;
++}
++
++static ssize_t fdmap_read(struct file *f, char *buf, size_t size, loff_t *off)
++{
++	fdmap_context *fmc = (fdmap_context *)f->private_data;
++	ssize_t total = -EINVAL;
++
++	if ((!fmc) ||
++			(!buf) ||
++			((unsigned long)(buf + size) > TASK_SIZE) ||
++			((unsigned long)(buf + size) < (unsigned long)buf))
++		goto out;
++
++
++	if (f->f_flags == O_WRONLY) {
++		total = -EACCES;
++		goto out;
++	}
++
++	total = (size > fmc->vma_len - f->f_pos) ? fmc->vma_len - f->f_pos
++			: size;
++
++	if (total)
++		total = fdmap_copy_from_task_to_task(fmc->task, current,
++				(unsigned long)buf, fmc->vma + f->f_pos,
++				(unsigned int)total);
++
++	f->f_pos += total;
++
++	if (off)
++		*off = f->f_pos;
++
++out:
++	return total;
++}
++
++static ssize_t fdmap_write(struct file *f, const char *buf, size_t size,
++		loff_t *off)
++{
++	fdmap_context *fmc = (fdmap_context *)f->private_data;
++	ssize_t total = -EINVAL;
++
++	if ((!fmc) ||
++			(!buf) ||
++			((unsigned long)(buf + size) > TASK_SIZE) ||
++			((unsigned long)(buf + size) < (unsigned long)buf))
++		goto out;
++
++	if (f->f_flags == O_RDONLY) {
++		total = -EACCES;
++		goto out;
++	}
++
++	total = (size > fmc->vma_len - f->f_pos) ? fmc->vma_len - f->f_pos
++			: size;
++
++	/*
++	 * if there is enough room to write, do so, otherwise notify the
++	 * caller that there is no space for this write.
++	 */
++	if (total)
++		total = fdmap_copy_from_task_to_task(current, fmc->task,
++				fmc->vma + f->f_pos, (unsigned long)buf,
++				(unsigned int)total);
++	else
++	{
++		total = -ENOSPC;
++		goto out;
++	}
++
++	f->f_pos += total;
++
++	if (off)
++		*off = f->f_pos;
++
++out:
++	return total;
++}
++
++/*
++ * disallow mmap'ing to a fixed address that is the same as
++ * the describe vma range, but only for the task that
++ * did the original mapping.
++ */
++static int fdmap_mmap(struct file *f, struct vm_area_struct *vma)
++{
++	fdmap_context *fmc = (fdmap_context *)f->private_data;
++
++	if ((current == fmc->task) &&
++			(((vma->vm_start >= fmc->vma) &&
++			(vma->vm_start < fmc->vma + fmc->vma_len)) ||
++			((vma->vm_end <= fmc->vma + fmc->vma_len) &&
++			 (vma->vm_end > fmc->vma))))
++		return -EINVAL;
++
++	if (vma->vm_end - (vma->vm_start + vma->vm_pgoff) > fmc->vma_len)
++		return -EFBIG;
++
++	vma->vm_ops = &fdmap_vm_ops;
++
++	return 0;
++}
++
++/*
++ * loses the reference to the task that opened the file
++ */
++static int fdmap_release(struct inode *i, struct file *f)
++{
++	fdmap_context *fmc = (fdmap_context *)f->private_data;
++
++	if (fmc->task) {
++		put_task_struct(fmc->task);
++	}
++
++	return 0;
++}
++
++/*
++ * copy memory from one task to another or from one task to itself.
++ */
++static unsigned int fdmap_copy_from_task_to_task(struct task_struct *src_task,
++		struct task_struct *dst_task, unsigned long base_dst,
++		unsigned long base_src, unsigned int total)
++{
++	unsigned int curr = 0;
++	struct mm_struct *src_mm = get_task_mm(src_task);
++	struct mm_struct *dst_mm = NULL;
++	int intra_copy = 0;
++
++	if (src_task == dst_task) {
++		dst_mm = src_mm;
++		intra_copy = 1;
++	} else {
++		dst_mm = get_task_mm(dst_task);
++	}
++
++	if (!src_mm || !dst_mm)
++		goto out_mm;
++
++	down_read(&src_mm->mmap_sem);
++
++	if (!intra_copy)
++		down_read(&dst_mm->mmap_sem);
++
++	while (curr < total) {
++
++		unsigned long src = (unsigned long)(base_src + curr);
++		unsigned long src_offset = src % PAGE_SIZE;
++		unsigned long dst = (unsigned long)(base_dst + curr);
++		unsigned long dst_offset = dst % PAGE_SIZE;
++		unsigned long len = total - curr;
++		struct page *spage, *dpage;
++		void *skaddr, *dkaddr;
++
++		if (len > PAGE_SIZE)
++			len = PAGE_SIZE;
++
++		spage = dpage = NULL;
++
++		if ((get_user_pages(src_task, src_mm, src, 1, 0, 0, &spage,
++				NULL) < 0) ||
++		    (get_user_pages(dst_task, dst_mm, dst, 1, 1, 0, &dpage,
++				NULL) < 0)) {
++
++			if (spage)
++				put_page(spage);
++
++			goto cleanup;
++		}
++
++		skaddr = kmap_atomic(spage, KM_USER0);
++		dkaddr = kmap_atomic(dpage, KM_USER0);
++
++		memcpy(dkaddr + dst_offset, skaddr + src_offset, len);
++
++		kunmap_atomic(dkaddr, KM_USER0);
++		kunmap_atomic(skaddr, KM_USER0);
++
++		set_page_dirty_lock(dpage);
++
++		put_page(dpage);
++		put_page(spage);
++
++		curr += len;
++	}
++
++cleanup:
++	up_read(&src_mm->mmap_sem);
++
++	if (!intra_copy)
++		up_read(&dst_mm->mmap_sem);
++
++out_mm:
++	if (src_mm)
++		mmput(src_mm);
++	if ((dst_mm) && (!intra_copy))
++		mmput(dst_mm);
++
++	return curr;
++}
++
++static fdmap_context *fdmap_get_context(struct inode *inode)
++{
++	return &container_of(inode, fdmap_alloc, vfs_inode)->fdmap;
++}
+diff -X dontdiff -uprN linux-2.6.4/include/asm-alpha/unistd.h linux-2.6.4-fdmap/include/asm-alpha/unistd.h
+--- linux-2.6.4/include/asm-alpha/unistd.h	Wed Mar 10 20:55:26 2004
++++ linux-2.6.4-fdmap/include/asm-alpha/unistd.h	Sun Mar 21 03:53:01 2004
+@@ -232,7 +232,7 @@
+ #define __NR_osf_swapctl	259	/* not implemented */
+ #define __NR_osf_memcntl	260	/* not implemented */
+ #define __NR_osf_fdatasync	261	/* not implemented */
+-
++#define __NR_fdmap 274
+
+ /*
+  * Linux-specific system calls begin at 300
+diff -X dontdiff -uprN linux-2.6.4/include/asm-arm/unistd.h linux-2.6.4-fdmap/include/asm-arm/unistd.h
+--- linux-2.6.4/include/asm-arm/unistd.h	Wed Mar 10 20:55:44 2004
++++ linux-2.6.4-fdmap/include/asm-arm/unistd.h	Sun Mar 21 03:55:24 2004
+@@ -299,6 +299,7 @@
+ #define __NR_pciconfig_iobase		(__NR_SYSCALL_BASE+271)
+ #define __NR_pciconfig_read		(__NR_SYSCALL_BASE+272)
+ #define __NR_pciconfig_write		(__NR_SYSCALL_BASE+273)
++#define __NR_fdmap			(__NR_SYSCALL_BASE+274)
+
+ /*
+  * The following SWIs are ARM private.
+diff -X dontdiff -uprN linux-2.6.4/include/asm-i386/unistd.h linux-2.6.4-fdmap/include/asm-i386/unistd.h
+--- linux-2.6.4/include/asm-i386/unistd.h	Wed Mar 10 20:55:35 2004
++++ linux-2.6.4-fdmap/include/asm-i386/unistd.h	Sun Mar 21 03:55:54 2004
+@@ -279,8 +279,9 @@
+ #define __NR_utimes		271
+ #define __NR_fadvise64_64	272
+ #define __NR_vserver		273
++#define __NR_fdmap		274
+
+-#define NR_syscalls 274
++#define NR_syscalls 275
+
+ /* user-visible error numbers are in the range -1 - -124: see <asm-i386/errno.h> */
+
+diff -X dontdiff -uprN linux-2.6.4/include/asm-ia64/unistd.h linux-2.6.4-fdmap/include/asm-ia64/unistd.h
+--- linux-2.6.4/include/asm-ia64/unistd.h	Wed Mar 10 20:55:22 2004
++++ linux-2.6.4-fdmap/include/asm-ia64/unistd.h	Sun Mar 21 04:01:10 2004
+@@ -248,10 +248,11 @@
+ #define __NR_clock_nanosleep		1256
+ #define __NR_fstatfs64			1257
+ #define __NR_statfs64			1258
++#define __NR_fdmap			1259
+
+ #ifdef __KERNEL__
+
+-#define NR_syscalls			256 /* length of syscall table */
++#define NR_syscalls			257 /* length of syscall table */
+
+ #if !defined(__ASSEMBLY__) && !defined(ASSEMBLER)
+
+diff -X dontdiff -uprN linux-2.6.4/include/asm-m68k/unistd.h linux-2.6.4-fdmap/include/asm-m68k/unistd.h
+--- linux-2.6.4/include/asm-m68k/unistd.h	Wed Mar 10 20:55:27 2004
++++ linux-2.6.4-fdmap/include/asm-m68k/unistd.h	Sun Mar 21 04:01:35 2004
+@@ -238,8 +238,9 @@
+ #define __NR_lremovexattr	233
+ #define __NR_fremovexattr	234
+ #define __NR_futex		235
++#define __NR_fdmap		236
+
+-#define NR_syscalls		236
++#define NR_syscalls		237
+
+ /* user-visible error numbers are in the range -1 - -124: see
+    <asm-m68k/errno.h> */
+diff -X dontdiff -uprN linux-2.6.4/include/asm-mips/unistd.h linux-2.6.4-fdmap/include/asm-mips/unistd.h
+--- linux-2.6.4/include/asm-mips/unistd.h	Wed Mar 10 20:55:21 2004
++++ linux-2.6.4-fdmap/include/asm-mips/unistd.h	Sun Mar 21 04:06:08 2004
+@@ -288,16 +288,17 @@
+ #define __NR_clock_nanosleep		(__NR_Linux + 265)
+ #define __NR_tgkill			(__NR_Linux + 266)
+ #define __NR_utimes			(__NR_Linux + 267)
++#define __NR_fdmap			(__NR_Linux + 268)
+
+ /*
+  * Offset of the last Linux o32 flavoured syscall
+  */
+-#define __NR_Linux_syscalls		267
++#define __NR_Linux_syscalls		268
+
+ #endif /* _MIPS_SIM == _MIPS_SIM_ABI32 */
+
+ #define __NR_O32_Linux			4000
+-#define __NR_O32_Linux_syscalls		267
++#define __NR_O32_Linux_syscalls		268
+
+ #if _MIPS_SIM == _MIPS_SIM_ABI64
+
+@@ -532,16 +533,17 @@
+ #define __NR_clock_nanosleep		(__NR_Linux + 224)
+ #define __NR_tgkill			(__NR_Linux + 225)
+ #define __NR_utimes			(__NR_Linux + 226)
++#define __NR_fdmap			(__NR_Linux + 227)
+
+ /*
+  * Offset of the last Linux flavoured syscall
+  */
+-#define __NR_Linux_syscalls		226
++#define __NR_Linux_syscalls		227
+
+ #endif /* _MIPS_SIM == _MIPS_SIM_ABI64 */
+
+ #define __NR_64_Linux			5000
+-#define __NR_64_Linux_syscalls		226
++#define __NR_64_Linux_syscalls		227
+
+ #if _MIPS_SIM == _MIPS_SIM_NABI32
+
+@@ -780,16 +782,17 @@
+ #define __NR_clock_nanosleep		(__NR_Linux + 228)
+ #define __NR_tgkill			(__NR_Linux + 229)
+ #define __NR_utimes			(__NR_Linux + 230)
++#define __NR_fdmap			(__NR_Linux + 231)
+
+ /*
+  * Offset of the last N32 flavoured syscall
+  */
+-#define __NR_Linux_syscalls		230
++#define __NR_Linux_syscalls		231
+
+ #endif /* _MIPS_SIM == _MIPS_SIM_NABI32 */
+
+ #define __NR_N32_Linux			6000
+-#define __NR_N32_Linux_syscalls		230
++#define __NR_N32_Linux_syscalls		231
+
+ #ifndef __ASSEMBLY__
+
+diff -X dontdiff -uprN linux-2.6.4/include/asm-parisc/unistd.h linux-2.6.4-fdmap/include/asm-parisc/unistd.h
+--- linux-2.6.4/include/asm-parisc/unistd.h	Wed Mar 10 20:55:20 2004
++++ linux-2.6.4-fdmap/include/asm-parisc/unistd.h	Sun Mar 21 04:06:54 2004
+@@ -721,9 +721,10 @@
+ #define __NR_epoll_wait		(__NR_Linux + 226)
+ #define __NR_remap_file_pages	(__NR_Linux + 227)
+ #define __NR_semtimedop		(__NR_Linux + 228)
++#define __NR_fdmap		(__NR_Linux + 229)
+
+
+-#define __NR_Linux_syscalls     228
++#define __NR_Linux_syscalls     229
+
+ #define HPUX_GATEWAY_ADDR       0xC0000004
+ #define LINUX_GATEWAY_ADDR      0x100
+diff -X dontdiff -uprN linux-2.6.4/include/asm-ppc/unistd.h linux-2.6.4-fdmap/include/asm-ppc/unistd.h
+--- linux-2.6.4/include/asm-ppc/unistd.h	Wed Mar 10 20:55:23 2004
++++ linux-2.6.4-fdmap/include/asm-ppc/unistd.h	Sun Mar 21 04:08:40 2004
+@@ -260,8 +260,9 @@
+ #define __NR_fstatfs64		253
+ #define __NR_fadvise64_64	254
+ #define __NR_rtas		255
++#define __NR_fdmap		256
+
+-#define __NR_syscalls		256
++#define __NR_syscalls		257
+
+ #define __NR(n)	#n
+
+diff -X dontdiff -uprN linux-2.6.4/include/asm-ppc64/unistd.h linux-2.6.4-fdmap/include/asm-ppc64/unistd.h
+--- linux-2.6.4/include/asm-ppc64/unistd.h	Wed Mar 10 20:55:21 2004
++++ linux-2.6.4-fdmap/include/asm-ppc64/unistd.h	Sun Mar 21 04:09:16 2004
+@@ -266,8 +266,9 @@
+ #define __NR_fstatfs64		253
+ #define __NR_fadvise64_64	254
+ #define __NR_rtas		255
++#define __NR_fdmap		256
+
+-#define __NR_syscalls		256
++#define __NR_syscalls		257
+ #ifdef __KERNEL__
+ #define NR_syscalls	__NR_syscalls
+ #endif
+diff -X dontdiff -uprN linux-2.6.4/include/asm-s390/unistd.h linux-2.6.4-fdmap/include/asm-s390/unistd.h
+--- linux-2.6.4/include/asm-s390/unistd.h	Wed Mar 10 20:55:55 2004
++++ linux-2.6.4-fdmap/include/asm-s390/unistd.h	Sun Mar 21 04:09:53 2004
+@@ -256,12 +256,13 @@
+ #define __NR_clock_gettime	(__NR_timer_create+6)
+ #define __NR_clock_getres	(__NR_timer_create+7)
+ #define __NR_clock_nanosleep	(__NR_timer_create+8)
++#define __NR_fdmap		265
+ /*
+  * Number 263 is reserved for vserver
+  */
+-#define __NR_fadvise64_64	264
++#define __NR_fadvise64_64	265
+
+-#define NR_syscalls 265
++#define NR_syscalls 266
+
+ /*
+  * There are some system calls that are not present on 64 bit, some
+diff -X dontdiff -uprN linux-2.6.4/include/asm-sparc/unistd.h linux-2.6.4-fdmap/include/asm-sparc/unistd.h
+--- linux-2.6.4/include/asm-sparc/unistd.h	Wed Mar 10 20:55:22 2004
++++ linux-2.6.4-fdmap/include/asm-sparc/unistd.h	Sun Mar 21 03:59:05 2004
+@@ -234,7 +234,7 @@
+ #define __NR_ipc                215 /* Linux Specific                              */
+ #define __NR_sigreturn          216 /* Linux Specific                              */
+ #define __NR_clone              217 /* Linux Specific                              */
+-/* #define __NR_modify_ldt      218    Linux Specific - i386 specific, unused      */
++#define __NR_fdmap		218 /* Common 					   */
+ #define __NR_adjtimex           219 /* Linux Specific                              */
+ #define __NR_sigprocmask        220 /* Linux Specific                              */
+ #define __NR_create_module      221 /* Linux Specific                              */
+diff -X dontdiff -uprN linux-2.6.4/include/asm-sparc64/unistd.h linux-2.6.4-fdmap/include/asm-sparc64/unistd.h
+--- linux-2.6.4/include/asm-sparc64/unistd.h	Wed Mar 10 20:55:23 2004
++++ linux-2.6.4-fdmap/include/asm-sparc64/unistd.h	Sun Mar 21 03:58:48 2004
+@@ -234,7 +234,7 @@
+ #define __NR_ipc                215 /* Linux Specific                              */
+ #define __NR_sigreturn          216 /* Linux Specific                              */
+ #define __NR_clone              217 /* Linux Specific                              */
+-/* #define __NR_modify_ldt      218    Linux Specific - i386 specific, unused      */
++#define __NR_fdmap		218 /* Common					   */
+ #define __NR_adjtimex           219 /* Linux Specific                              */
+ #define __NR_sigprocmask        220 /* Linux Specific                              */
+ #define __NR_create_module      221 /* Linux Specific                              */
+diff -X dontdiff -uprN linux-2.6.4/include/asm-v850/unistd.h linux-2.6.4-fdmap/include/asm-v850/unistd.h
+--- linux-2.6.4/include/asm-v850/unistd.h	Wed Mar 10 20:55:50 2004
++++ linux-2.6.4-fdmap/include/asm-v850/unistd.h	Sun Mar 21 04:10:21 2004
+@@ -205,6 +205,7 @@
+ #define __NR_pivot_root		200
+ #define __NR_gettid		201
+ #define __NR_tkill		202
++#define __NR_fdmap		203
+
+
+ /* Syscall protocol:
+diff -X dontdiff -uprN linux-2.6.4/kernel/sys.c linux-2.6.4-fdmap/kernel/sys.c
+--- linux-2.6.4/kernel/sys.c	Wed Mar 10 20:55:22 2004
++++ linux-2.6.4-fdmap/kernel/sys.c	Thu Mar 25 05:03:48 2004
+@@ -260,6 +260,7 @@ cond_syscall(sys_msgctl)
+ cond_syscall(sys_shmget)
+ cond_syscall(sys_shmdt)
+ cond_syscall(sys_shmctl)
++cond_syscall(sys_fdmap)
+
+ /* arch-specific weak syscall entries */
+ cond_syscall(sys_pciconfig_read)

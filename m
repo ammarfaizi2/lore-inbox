@@ -1,89 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVBJAPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVBJAVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVBJAPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 19:15:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVBJAPU
+	id S261981AbVBJAVN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 19:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVBJAVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 19:15:20 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:45189 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261982AbVBJAPC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 19:15:02 -0500
-Date: Thu, 10 Feb 2005 01:14:43 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Larry McVoy <lm@bitmover.com>
-cc: Nicolas Pitre <nico@cam.org>, Jon Smirl <jonsmirl@gmail.com>,
-       tytso@mit.edu, Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-In-Reply-To: <20050209235312.GA25351@bitmover.com>
-Message-ID: <Pine.LNX.4.61.0502100109050.6118@scrub.home>
-References: <20050209184629.GR22893@bitmover.com>
- <Pine.LNX.4.61.0502091513060.7836@localhost.localdomain>
- <20050209235312.GA25351@bitmover.com>
+	Wed, 9 Feb 2005 19:21:13 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:8836 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261981AbVBJAVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 19:21:04 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.11-rc3-mm1: softlockup and suspend/resume [update]
+Date: Thu, 10 Feb 2005 01:22:02 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <20050204103350.241a907a.akpm@osdl.org> <20050208110418.GA878@elte.hu> <200502091735.07834.rjw@sisk.pl>
+In-Reply-To: <200502091735.07834.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502100122.03064.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 9 Feb 2005, Larry McVoy wrote:
-
-(I just sent a similiar mail in private and didn't immediately realize it 
-didn't went to lkml, so sorry, who gets it twice.)
-
-> On Wed, Feb 09, 2005 at 03:13:48PM -0500, Nicolas Pitre wrote:
-> > I think what people want here is the tree structure representation in
-> > whatever form, not necessarily in the BK format.  
+On Wednesday, 9 of February 2005 17:35, Rafael J. Wysocki wrote:
+> On Tuesday, 8 of February 2005 12:04, Ingo Molnar wrote:
+> > 
+> > * Rafael J. Wysocki <rjw@sisk.pl> wrote:
+> > 
+> > > The warning is printed right after the image is restored (ie somewhere
+> > > around the local_irq_enable() above, but it goes before the "PM: Image
+> > > restored successfully." message that is printed as soon as the return
+> > > is executed).  Definitely, less than 1 s passes between the resoring
+> > > of the image and the warining.
+> > > 
+> > > BTW, I've also tried to put touch_softlockup_watchdog() before
+> > > device_power_up(), but it didn't change much.
+> > 
+> > this is a single-CPU box, right?
 > 
-> That's fine, they can do that.  Get the patches and figure out how to
-> put them back together.  These people do know how to use patch, right?
-> OK, then they are welcome to patch things in, when they don't work, find
-> a place they do work and create a branch, patch them, repeat.  Haven't
-> they ever dealt with a patch reject before?  It's not that hard.
+> Yes.
+> 
+> OK, I think I've sorted it out.  The solution is to use your patch and the
+> following change against swsusp.c:
 
-No, just impossible.
+Well, I was to quick with this,  sorry.
+ 
+> --- linux-2.6.11-rc3-mm1-orig/kernel/power/swsusp.c	2005-02-08 18:16:34.000000000 +0100
+> +++ new/kernel/power/swsusp.c	2005-02-09 17:31:16.000000000 +0100
+> @@ -870,7 +870,9 @@
+>  	/* Restore control flow magically appears here */
+>  	restore_processor_state();
+>  	restore_highmem();
+> +	touch_softlockup_watchdog();
+>  	device_power_up();
+> +	touch_softlockup_watchdog();
+>  	local_irq_enable();
+>  	return error;
+>  }
 
-As I mentioned already previously, the main problem is restoring the 
-changeset information, so one actually knows how the kernel tree looked at 
-a specific point. I also mentioned that it's not really possible to find 
-for all changesets their parent changesets, e.g. changeset 1.889 has 416 
-branches which include 3560 changesets, that means some of the branches 
-have over 3000 potential parents. Due to parallel changes to a file on 
-multiple branches one can reduce that number, but it's likely still 
-greater than one.
+The following patch (instead of the above) seems to work much better:
 
-Now for a while I hoped to at least find the end of branch, that means 
-where two branches get merged again. The gnupatches contain some 
-information of what they merge, so that one could use the log text to find 
-the changeset. The problem is that even these gnupatches don't contain 
-information to reliable find its parents. First, they don't include other 
-merge logs, so there are again multiple potential parents if there are 
-merge changeset near the changeset identified by the log text. Second, 
-there are completely empty changesets with no log text and so no 
-indication what they are merging, I currently have 171 of them and of 
-these 13 are at a start of the branch (and therefore have no usable 
-information at all of either parent).
+--- linux-2.6.11-rc3-mm1-orig/kernel/power/swsusp.c	2005-02-08 18:16:34.000000000 +0100
++++ new/kernel/power/swsusp.c	2005-02-10 00:45:45.000000000 +0100
+@@ -870,6 +870,7 @@
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ 	restore_highmem();
++	touch_softlockup_watchdog();
+ 	device_power_up();
+ 	local_irq_enable();
+ 	return error;
+--- linux-2.6.11-rc3-mm1-orig/arch/x86_64/kernel/time.c	2005-02-05 20:49:26.000000000 +0100
++++ new/arch/x86_64/kernel/time.c	2005-02-10 00:46:48.000000000 +0100
+@@ -988,6 +988,7 @@
+ 	write_sequnlock_irqrestore(&xtime_lock,flags);
+ 	jiffies += sleep_length;
+ 	wall_jiffies += sleep_length;
++	touch_softlockup_watchdog();
+ 	return 0;
+ }
+ 
+--- linux-2.6.11-rc3-mm1-orig/arch/i386/kernel/time.c	2005-02-05 20:49:26.000000000 +0100
++++ new/arch/i386/kernel/time.c	2005-02-10 00:47:03.000000000 +0100
+@@ -378,6 +378,7 @@
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	jiffies += sleep_length;
+ 	wall_jiffies += sleep_length;
++	touch_softlockup_watchdog();
+ 	return 0;
+ }
+ 
 
-So why is this parent information so important? If the patches are not 
-applied in the correct order, one simply gets the wrong kernel snapshot. 
-What makes this more difficult are the merge changesets, as they don't 
-contain the complete information of what has changed compared to one of 
-the parents, they just contain the file conflicts. If one had the correct 
-parent information this would not be a problem, repeating the merge is 
-one of the smaller problems. But with fuzzy parent information one also 
-only gets fuzzy merge results and if the parents have n potential parents 
-that results in n^2 possible merge results in the worst case. Since the 
-merge changeset only contains conflict information, that makes it rather 
-likely one detects a problem (e.g. that a changeset doesn't apply) very 
-late. So if one detects such problem after m merges, we have a worst case 
-of n^(m+1). IOW the complexity of a bkweb export grows exponentially with 
-the size of the repository! And there is still no guarantee to get a 
-correct (that means only one) result.
-So doing the work is one thing, getting a result within my lifetime would 
-be nice too.
+I tested it only on x86-64, so the change for i386 is a guess, albeit
+educated. ;-)
 
-bye, Roman
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

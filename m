@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266149AbUGZW7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266153AbUGZW6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266149AbUGZW7n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 18:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266154AbUGZW7n
+	id S266153AbUGZW6v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 18:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266154AbUGZW6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 18:59:43 -0400
-Received: from irulan.endorphin.org ([212.13.208.107]:59915 "EHLO
-	irulan.endorphin.org") by vger.kernel.org with ESMTP
-	id S266149AbUGZW7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 18:59:38 -0400
-Subject: Re: [PATCH] Delete cryptoloop
-To: Jari Ruusu <jariruusu@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41054966.2D74437E@users.sourceforge.net>
-References: <Pine.LNX.4.58.0407211609230.19655@devserv.devel.redhat.com>
-	<1090672906.8587.66.camel@ghanima>
-	<41039CAC.965AB0AA@users.sourceforge.net>
-	<1090761870.10988.71.camel@ghanima>
-	<4103ED18.FF2BC217@users.sourceforge.net>
-	<1090778567.10988.375.camel@ghanima>
-	<4104E2CC.D8CBA56@users.sourceforge.net>
-	<1090845926.13338.98.camel@ghanima>
-	<41054966.2D74437E@users.sourceforge.net>
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-l6kmttw3kDoJGVfwf5Gu"
-Message-Id: <1090882773.13338.128.camel@ghanima>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 27 Jul 2004 00:59:33 +0200
-From: Fruhwirth Clemens <clemens-dated-1091746774.c9dd@endorphin.org>
-X-Delivery-Agent: TMDA/0.92 (Kauai King)
+	Mon, 26 Jul 2004 18:58:51 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:51343 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266153AbUGZW6s convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 18:58:48 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] kernel events layer
+Date: Mon, 26 Jul 2004 15:58:26 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A6EBFB9@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] kernel events layer
+Thread-Index: AcRzH9ut5eApZ763QF6qo/o9Il9cRQAQiOzg
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Robert Love" <rml@ximian.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, <cw@f00f.org>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jul 2004 22:58:27.0013 (UTC) FILETIME=[0FACE750:01C47364]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> From: Robert Love [mailto:rml@ximian.com]
+>
+> > methinks: if the message is related to some object that has a kobject
+> > representation, use it. If not, come up with one on a case by case
+> > basis [now this is the difficult one--is where it'd be difficult to
+> > keep things on leash].
+> 
+> That introduces two orthogonal name spaces, and that really doesn't cut
+> it.
+> 
+> If Greg can come up with a solution for using kobjects, I am all for
+> that - that would be great - but I really do not see kobject paths
+> working out.  I think the best we have is the file path in the tree.
 
---=-l6kmttw3kDoJGVfwf5Gu
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Agreed -- I guess what I am looking for is a regular way to link the 
+instance of the object (if any) that caused the message, so it is easier 
+to take action.
 
-On Mon, 2004-07-26 at 20:11, Jari Ruusu wrote:
+For a silly example, IDE, I want to know which hard drive had a read 
+error; knowing that it came from drivers/ide/ide-disk.c is useful, but
+quite limited; it doesn't tell me which drive I need to babysit and 
+maybe swap. Certainly the message can print that information as part of
+the text, but chances up we'll end up with something like printk again
+if following that path.
 
-> Fruhwirth, what you have failed to understand is that the exploit does do=
-es
-> not exploit flaws in any cipher, but cryptoloop's and dm-crypt's insecure
-> use of those ciphers. Any block cipher that encrypts two identical plaint=
-ext
-> blocks using same key and produces two identical ciphertext blocks will d=
-o.
-> It is all about tricking a cipher to encrypt two identical plaintext bloc=
-ks,
-> which, after encryption will show up as two identical ciptext blocks. And
-> those identical ciphertext blocks can be easily detected and counted.
+Ok, I did my share of non-very-constructive criticism already--shutting up :)
 
-Rusuu, you failed to understand that I not only understood your attack,
-but also disregard it as minor imperfection (warning: personal opinion).
+Thx,
 
-Reason:
-This watermarking evidence can't be used at court, because it does not
-reveal the content (at least not in my country!). Even if the
-watermarking domain has a bigger cardinality than 32, I doubt the
-practical implications.
-
-However, if you haven't understood it already, one more time just for
-you: I vote for changing the IV scheme, see my posting from 23.2.2004
-[1]. But as you might not know (because you never contributed anything
-substantial to the kernel): Kernel developers try to get things right,
-and using CryptoAPI for hashing IVs results in some problems if one
-wants to avoid reinitializing the context every call:=20
-
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107721067317841&w=3D2
-
-[1] http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107749648717666&w=3D=
-2
---=20
-Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org
-
---=-l6kmttw3kDoJGVfwf5Gu
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBBYzVW7sr9DEJLk4RAi7cAJ9uYxWP9pjnK0tE0SusUrLOMKs1VACdHef2
-a6glk/D9zGT+6QTf0TxT7fQ=
-=7SIF
------END PGP SIGNATURE-----
-
---=-l6kmttw3kDoJGVfwf5Gu--
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault) 

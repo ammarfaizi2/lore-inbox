@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265656AbTGIEsy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 00:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbTGIEsy
+	id S265667AbTGIFCD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 01:02:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265669AbTGIFCC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 00:48:54 -0400
-Received: from mithril.c-zone.net ([63.172.74.235]:21779 "EHLO mail.c-zone.net")
-	by vger.kernel.org with ESMTP id S265656AbTGIEsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 00:48:53 -0400
-Message-ID: <3F0BA241.8020508@c-zone.net>
-Date: Tue, 08 Jul 2003 22:04:01 -0700
-From: jiho@c-zone.net
-Organization: Kidding of Course
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?C=E9dric?= Barboiron <ced2ml@ifrance.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: hdX lost interrupt problem
-References: <3F0AE4DF.80808@ifrance.com> <3F0B6930.3080009@c-zone.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Jul 2003 01:02:02 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:31136 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265667AbTGIFB6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 01:01:58 -0400
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more)
+	support
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057727763.1615.3.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 Jul 2003 22:16:03 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Looks very interesting.  A few concerns, though, some stylish.  Although
+I know, if I had done something half as complex, it would look much
+worse :) If you're still planning on doing cleanups I can wait, but
+otherwise, I can send patches.
 
-jiho@c-zone.net wrote:
+Have you looked at the impact on high interrupt load workloads?  I saw
+you mention the per-syscall TLB overhead, but you only mentioned the
+interrupt overhead in passing.  Doesn't this make it increasingly
+important to coalesce interrupts, especially when you're running with
+lots of user time?  Any particular workloads have you've tested this
+on?  I can try to get a couple of large webserver benchmark runs in on
+it, if you like.
 
- > I seem to recall one incident  while I was unrolling a tarball off a
- >  CD onto a hard drive, that  happened to involve a VIA chipset.
+It's a lot harder now to drop back to 4k stacks, because of the
+hard-coded 2 page kmap sequences.  But those patches are out-of-tree, so
+they're of relatively little consequence.  
 
-I don't have a record of it, but as I remember, when that happened I had 
-APIC enabled in the BIOS.  After that, I switched to PIC.
+It might be nice to some more abstraction of the size of the trampoline
+window.  There's a stuff this:
+        pgd[PTRS_PER_PGD-2] = swapper_pg_dir[PTRS_PER_PGD-2];
+        pgd[PTRS_PER_PGD-1] = swapper_pg_dir[PTRS_PER_PGD-1];
+Being clever, I think some of these can be the same as the generic code.
+The sepmd and banana_split patches in -mjb demonstrate some relatively 
+nice ways to do this.
 
-In this machine's BIOS Setup BIOS FEATURES SETUP screen, there's the line:
+There seems to be quite a bit of duplication of code in the new 
+__kmap_atomic* functions.  __kmap_atomic_vaddr() could replace all of
+the
+duplicated 
+        idx = type + KM_TYPE_NR*smp_processor_id();
+        vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+lines.  Also, it might nice to combine __kmap_atomic{,_noflush}()
 
-   Interrupt Mode         : PIC
-
-The other option is APIC.  Make sure it says PIC.
-
-I think it was Alan Cox who pointed out that on single-processor systems 
-you need to have PIC, and not APIC enabled.  And my kernel wasn't even 
-built with APIC support ("# CONFIG_X86_UP_APIC is not set").
-
-APIC is a newer interrupt controller type, PIC is the orginal 8259A 
-type.  These chipsets can emulate either type in hardware.
-
-I don't know if that's your problem, but you might check.
-
-
--- Jim Howard  <jiho@c-zone>
+Are you hoping to get this integrated for 2.6, or will it be more of an 
+add-on for 2.6 distro releases?
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

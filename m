@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbUKIDqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbUKIDpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbUKIDqB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 22:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbUKIDqB
+	id S261168AbUKIDpw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 22:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbUKIDpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 22:46:01 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56053 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261200AbUKIDpt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 22:45:49 -0500
-Subject: Re: [RFC/PATCH 0/4] cpus, nodes, and the device model: dynamic cpu
-	registration
+	Mon, 8 Nov 2004 22:45:52 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:442 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261168AbUKIDpq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 22:45:46 -0500
+Subject: Re: [RFC/PATCH 1/4] dynamic cpu registration - core changes
 From: Nathan Lynch <nathanl@austin.ibm.com>
 To: Ashok Raj <ashok.raj@intel.com>
 Cc: linux-kernel@vger.kernel.org, greg@kroah.com, rusty@rustcorp.com.au,
        mochel@digitalimplant.org, anton@samba.org
-In-Reply-To: <20041104170902.A8747@unix-os.sc.intel.com>
+In-Reply-To: <20041104175125.A9271@unix-os.sc.intel.com>
 References: <20041024094551.28808.28284.87316@biclops>
-	 <20041104170902.A8747@unix-os.sc.intel.com>
+	 <20041024094559.28808.12445.63352@biclops>
+	 <20041104175125.A9271@unix-os.sc.intel.com>
 Content-Type: text/plain
-Date: Mon, 08 Nov 2004 21:45:48 -0600
-Message-Id: <1099971948.8723.51.camel@localhost.localdomain>
+Date: Mon, 08 Nov 2004 21:45:47 -0600
+Message-Id: <1099971947.8723.50.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 17:09 -0800, Ashok Raj wrote:
-> On Sun, Oct 24, 2004 at 03:42:10AM -0600, Nathan Lynch wrote:
+On Thu, 2004-11-04 at 17:51 -0800, Ashok Raj wrote:
+> On Sun, Oct 24, 2004 at 05:42:17AM -0400, Nathan Lynch wrote:
 > > 
-> > Finally, I've added two new interfaces which wrap all this up --
-> > cpu_add() and cpu_remove().  These carry out the necessary update to
-> > cpu_present_map and take care of the cpu device registration.  These
-> > are meant to be invoked from the platform-specific code which
-> > discovers and removes processors.
+> > +	/* XXX FIXME: cpu->no_control is always zero...
+> > +	 * Maybe should introduce an arch-overridable "hotpluggable" map.
+> > +	 */
+
+> Iam getting obsessed with these __attribute__((weak)) these days...:-)
 > 
-> I think you want the device registration that create the sysfs file to the 
-> arch code.
+> simple solution seems like you can have a platform_prefilter() and post_filter() declared
+> in the core with weak atteibute, and let the platform that cares about this provide an override
+> function. So if you need to hang off additional files for platform this can be handy. so for
+> ppc64, based on LPAR or not, you can add these no_control flag before the file is created?
 
-No, I don't think the arch code should be registering the cpu devices
-(or the node devices).  There is very little that is arch-specific about
-these, and the same code is more or less duplicated between the
-architectures.
+I'm not sure using weak symbols is the way to take care of the
+'no_control' field.  I think having the arch implement a
+__register_cpu(struct cpu*) helper which sets the the 'no_control'
+attribute should be sufficient.  E.g. IA64 and i386 implementations of
+__register_cpu would set no_control=1 if the cpu is the boot processor.
 
->  If you look at the ACPI extensions to support physical cpu hotplug
-> we need to keep track of the acpi->logical association. so all we really need
-> is a bit off the bitmap, but the cpu is not yet ready for operation yet.
-
-I see your point here, though, and I'm slightly embarrassed I forgot
-that ppc64 has similar needs.  What is needed is an arch-specific
-__cpu_add which is called from cpu_add after the new cpu's bit has been
-reserved, and which sets up the architecture's physical<->logical
-associations or whatever.  This follows the convention established in
-the existing cpu code and keeps the manipulation of cpu_present_map in
-one place.
-
-I'll incorporate this in my next attempt.
+With respect to the general issue of adding sysfs attributes to the cpu
+devices, that's simply a matter of coding up a sysdev_driver as I did in
+the node and ppc64 code in the other patches.
 
 
 Nathan

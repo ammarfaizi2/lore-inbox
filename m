@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317481AbSF1VXx>; Fri, 28 Jun 2002 17:23:53 -0400
+	id <S317169AbSF1W1d>; Fri, 28 Jun 2002 18:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317482AbSF1VXw>; Fri, 28 Jun 2002 17:23:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14864 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317481AbSF1VXw>; Fri, 28 Jun 2002 17:23:52 -0400
-Date: Fri, 28 Jun 2002 17:31:05 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
-In-Reply-To: <20020628145406.A17560@jurassic.park.msu.ru>
-Message-ID: <Pine.LNX.4.44.0206281730160.12542-100000@freak.distro.conectiva>
+	id <S317170AbSF1W1c>; Fri, 28 Jun 2002 18:27:32 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:57036 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S317169AbSF1W1c> convert rfc822-to-8bit;
+	Fri, 28 Jun 2002 18:27:32 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: David Weeks <dweeks02@tampabay.rr.com>
+To: linux-kernel@vger.kernel.org
+Subject: hp zt1130 laptop/via twister chipset support...
+Date: Fri, 28 Jun 2002 18:29:19 -0400
+User-Agent: KMail/1.4.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200206281829.19226.dweeks02@tampabay.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've installed the 2.4.18 source and looked for references to chipsets, but I 
+am mostly lost.
 
-Ivan,
+I'd never consider myself a competent coder, but I'm stuborn about fixing 
+things.  Where do I find source for this and other chipsets?  
 
-I just backed it on my BK repository.
+Also, I understand via is supposed to be forthcoming in an open source sort of 
+way regarding specification (as opposed to nvidia).  Any clue will help.
 
-Please test now.
+David Weeks
 
+ps -- has anyone ever tried to htdig the source files?  Wouldn't that help, 
+such as a concordance would?  I spend all my time looking for stuff, don't 
+find what I'm looking for, and don't get anything done.
 
-On Fri, 28 Jun 2002, Ivan Kokshaysky wrote:
-
-> Hi Marcelo, Alan,
->
-> IIRC, the problem is that BSD and OSF readv/writev(2) manuals
-> explicitly talked of 32 bit iov_len, thus allowing the application
-> to pass junk in an upper half of the 64 bit word.
-> This change broke widely used netscape and acrobat reader,
-> please revert it until we have a better solution:
->
-> <alan@lxorguk.ukuu.org.uk> (02/06/06 1.537.2.37)
-> 	[PATCH] PATCH; make readv/writev SuS compliant
->
-> Ivan.
->
-
+Dave
+-- 
+dweeks02@tampabay.rr.com
+813-236-2009

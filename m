@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130206AbRBZPcJ>; Mon, 26 Feb 2001 10:32:09 -0500
+	id <S130237AbRBZPml>; Mon, 26 Feb 2001 10:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130221AbRBZPcC>; Mon, 26 Feb 2001 10:32:02 -0500
-Received: from vulcan.datanet.hu ([194.149.0.156]:2822 "EHLO relay.datanet.hu")
-	by vger.kernel.org with ESMTP id <S130206AbRBZPbt>;
-	Mon, 26 Feb 2001 10:31:49 -0500
-From: "Bakonyi Ferenc" <fero@drama.obuda.kando.hu>
-Organization: Datakart Geodzia KFT.
-To: Felix von Leitner <leitner@convergence.de>
-Date: Mon, 26 Feb 2001 16:31:22 +0100
+	id <S130245AbRBZPme>; Mon, 26 Feb 2001 10:42:34 -0500
+Received: from web11205.mail.yahoo.com ([216.136.131.187]:35085 "HELO
+	web11205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S130237AbRBZPm3>; Mon, 26 Feb 2001 10:42:29 -0500
+Message-ID: <20010226154228.48338.qmail@web11205.mail.yahoo.com>
+Date: Mon, 26 Feb 2001 07:42:28 -0800 (PST)
+From: Stephen Mollett <molletts@yahoo.com>
+Subject: "io mapaddr 0xXXXXX not valid" in smc-mca in 2.4.x
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: USB and 2.4.2: "uhci: host system error, PCI problems?"
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010223144004.A30274@convergence.de>
-X-mailer: Pegasus Mail for Win32 (v3.01d)
-Message-Id: <E14XPcd-00085C-00@aleph0.datakart.hu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In kernel version 2.4.x (x from 0 to 2-ac3), the
+smc-mca driver gives many errors like the following on
+the console log:
 
+io mapaddr 0xXXXXX not valid at smc-mca.c:YYY!
 
-Felix von Leitner <leitner@convergence.de> wrote:
+where XXXXX is an address within the shared-memory
+assigned to the adapter card, and YYY is 378, 398 or
+408.
 
-> Any ideas?  It's a VIA based Athlon board.  Worked fine with 2.4.0 and
-> 2.4.1.  The only change was that I added rivafb, which finally adds
-> Geforce support in 2.4.2.  /proc/interrupts does not show any interrupts
-> assigned to rivafb, maybe there is a conflict?
+I have tested the driver on two IBM MCA systems - a
+9577 and an 8590. I have tried three different network
+adapters in each machine:
 
-Rivafb does not use interrupts at all.
+WD Ethercard PLUS 10T/A (WD8003W/A)
+SMC Ethercard PLUS Elite/A BNC/AUI (WD8013EP/A)
+SMC Ethercard PLUS Elite/A UTP/AUI (WD8013WP/A)
 
-Regards:
-	Ferenc Bakonyi
+All the adapters give the errors, in both machines.
+All adapters and both PS/2s are known to be good with
+kernel 2.2.17.
 
+* please cc any responses to me <molletts@yahoo.com>
+as I do not subscribe to the list.
+
+Regards,
+Stephen Mollett
+
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/

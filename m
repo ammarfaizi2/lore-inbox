@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264139AbTEaE2I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 00:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTEaE2I
+	id S264144AbTEaFBu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 01:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTEaFBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 00:28:08 -0400
-Received: from main.gmane.org ([80.91.224.249]:944 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264139AbTEaE2H (ORCPT
+	Sat, 31 May 2003 01:01:50 -0400
+Received: from holomorphy.com ([66.224.33.161]:17299 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264144AbTEaFBu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 00:28:07 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 31 May 2003 01:01:50 -0400
+Date: Fri, 30 May 2003 22:15:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: linux-kernel@vger.kernel.org
-From: "Brian J. Murrell" <brian@interlinx.bc.ca>
-Subject: Re: local apic timer ints not working with vmware: nolocalapic
-Date: Sat, 31 May 2003 00:41:26 -0400
-Message-ID: <pan.2003.05.31.04.41.25.903565@interlinx.bc.ca>
-References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca> <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com> <pan.2003.05.30.22.14.35.511205@interlinx.bc.ca> <Pine.LNX.4.50.0305301907230.29718-100000@montezuma.mastecende.com> <pan.2003.05.31.03.38.16.701826@interlinx.bc.ca>
+Cc: linux-mm@kvack.org
+Subject: pgcl-2.5.70-bk4-1
+Message-ID: <20030531051504.GX15692@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2003 23:38:16 -0400, Brian J. Murrell wrote:
-> 
-> I will take another stab at all of this tomorrow to double-verify what I
-> am saying here regarding the use of local APIC timer interrupts even if
-> the local apic usage flag is set to disable (dont_enable_local_apic = 1).
+(1) fix for fault_in_page_*() not faulting in enough mmupages.
+(2) fix for bogus open-coded ptep_to_address()
+(3) fix for iounmap() missing its targets
 
-Just to confirm now, I have modified Zwane's patch add another kernel arg,
-[no]locapictimer, which deals with dont_use_local_apic_timer in the same
-way his patch deals with the dont_enable_local_apic flag, and indeed, a
-kernel booted with "nolapic" does hang in the APIC timer calibration
-however a kernel booted with "nolocapictimer" does not.
+Unfortunately, none of these are the bug we're looking for.
+(which is wrong pages landing on the LRU's)
 
-Is it really valid to go and try to calibrate the APIC timer if it was
-disabled by the user, or even DMI?
+A pgcl-2.5.70-2 patch with these changes incrementally atop
+pgcl-2.5.70-1 is also available.
 
-b.
+Available from the usual place:
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/vm/pgcl/
 
 
+-- wli

@@ -1,74 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVC3TI7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVC3TU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbVC3TI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:08:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVC3TIw
+	id S262425AbVC3TU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVC3TSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:08:52 -0500
-Received: from mail.dif.dk ([193.138.115.101]:679 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262409AbVC3TIK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:08:10 -0500
-Date: Wed, 30 Mar 2005 21:10:14 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, jengelh@linux01.gwdg.de,
-       penberg@gmail.com, rlrevell@joe-job.com, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <20050329184411.1faa71eb.pj@engr.sgi.com>
-Message-ID: <Pine.LNX.4.62.0503302105320.2463@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
- <1111825958.6293.28.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
- <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
- <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
- <20050327065655.6474d5d6.pj@engr.sgi.com> <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
- <20050327174026.GA708@redhat.com> <1112064777.19014.17.camel@mindpipe>
- <84144f02050328223017b17746@mail.gmail.com> <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>
- <courier.42490293.000032B0@courier.cs.helsinki.fi> <20050329184411.1faa71eb.pj@engr.sgi.com>
+	Wed, 30 Mar 2005 14:18:08 -0500
+Received: from [195.23.16.24] ([195.23.16.24]:24506 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262411AbVC3TPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:15:12 -0500
+Message-ID: <424AFA98.9080402@grupopie.com>
+Date: Wed, 30 Mar 2005 20:14:32 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Shankar Unni <shankarunni@netscape.net>
+Cc: linux-kernel@vger.kernel.org, khali@linux-fr.org, bunk@stusta.de,
+       akpm@osdl.org
+Subject: Re: Do not misuse Coverity please
+References: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl> <OofSaT76.1112169183.7124470.khali@localhost> <d2er4p$qp$1@sea.gmane.org>
+In-Reply-To: <d2er4p$qp$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Mar 2005, Paul Jackson wrote:
+Shankar Unni wrote:
+> Jean Delvare wrote:
+> 
+>>     v = p->field;
+>>     if (!p) return;
+>>
+>> can be seen as equivalent to
+>>
+>>     if (!p) return;
+>>     v = p->field;
+> 
+> 
+> Heck, no.
+> 
+> You're missing the side-effect of a null pointer dereference crash (for 
+> p->field) (even though v is unused before the return). The optimizer is 
+> not allowed to make exceptions go away as a result of the hoisting.
 
-> Pekka wrote:
-> >  (4) The cleanups Jesper and others are doing are to remove the
-> >      _redundant_ NULL checks (i.e. it is now checked twice). 
-> 
-> Even such obvious changes as removing redundant checks doesn't
-> seem to ensure a performance improvement.  Jesper Juhl posted
-> performance data for such changes in his microbenchmark a couple
-> of days ago.
-> 
-> As I posted then, I could swear that his numbers show:
-> 
-> > Just looking at the third run, it seems to me that "if (likely(p))
-> > kfree(p);" beats a naked "kfree(p);" everytime, whether p is half
-> > NULL's, or very few NULL's, or almost all NULL's.
-> 
-> Twice now I have asked Jesper to explain this strange result.
-> 
-I've been kept busy with other things for a while and haven't had the time 
-to reply to your emails, sorry.   As I just said in another post I don't 
-know how valid my numbers are, but I'll try and craft a few more tests to 
-see if I can get some more solid results.
+I just had to try this out :)
 
-> 
-> Maybe we should be following your good advice:
-> 
-> > You don't know that until you profile! 
-> 
-> instead of continuing to make these code changes.
-> 
-I'll gather some more numbers and post them along with any conclusions I 
-believe can be drawn from them within a day or two, untill then I'll hold 
-back on the patches...
+Using gcc 3.3.2 this code sample:
 
+> struct test {
+>   int code;
+> };
+> 
+> int test_func(struct test *a)
+> {
+>   int ret;
+>   if (!a) return -1;
+>   ret = a->code;
+>   return ret;
+> }
+
+is compiled into:
+
+>    0:   8b 54 24 04             mov    0x4(%esp,1),%edx
+>    4:   83 c8 ff                or     $0xffffffff,%eax
+>    7:   85 d2                   test   %edx,%edx
+>    9:   74 02                   je     d <test_func+0xd>
+>    b:   8b 02                   mov    (%edx),%eax
+>    d:   c3                      ret
+
+whereas this one:
+
+> int test_func(struct test *a)
+> {
+>   int ret;
+>   ret = a->code;
+>   if (!a) return -1;
+>   return ret;
+> }
+
+is simply compiled into:
+
+>    0:   8b 44 24 04             mov    0x4(%esp,1),%eax
+>    4:   8b 00                   mov    (%eax),%eax
+>    6:   c3                      ret
+
+It seems that gcc is smart enough to know that after we've dereferenced 
+a pointer, if it was NULL, it doesn't matter any more. So it just 
+assumes that if execution reaches that "if" statement then the pointer 
+can not be NULL at all.
+
+So the 2 versions aren't equivalent, and gcc doesn't treat them as such 
+either.
+
+Just a minor nitpick, though: wouldn't it be possible for an application 
+to catch the SIGSEGV and let the code proceed, making invalid the 
+assumption made by gcc?
 
 -- 
-Jesper Juhl
+Paulo Marques - www.grupopie.com
 
-
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

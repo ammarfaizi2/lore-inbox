@@ -1,89 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135242AbRDZJcC>; Thu, 26 Apr 2001 05:32:02 -0400
+	id <S135246AbRDZJec>; Thu, 26 Apr 2001 05:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135245AbRDZJbw>; Thu, 26 Apr 2001 05:31:52 -0400
-Received: from www.wen-online.de ([212.223.88.39]:7944 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135242AbRDZJbo>;
-	Thu, 26 Apr 2001 05:31:44 -0400
-Date: Thu, 26 Apr 2001 11:31:06 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.30.0104260955540.1546-100000@elte.hu>
-Message-ID: <Pine.LNX.4.33.0104261121390.313-100000@mikeg.weiden.de>
+	id <S135251AbRDZJeX>; Thu, 26 Apr 2001 05:34:23 -0400
+Received: from sh-home.de ([212.60.1.17]:56080 "HELO sh-home.de")
+	by vger.kernel.org with SMTP id <S135246AbRDZJeF>;
+	Thu, 26 Apr 2001 05:34:05 -0400
+Message-ID: <3AE7EB3D.3C9DA6A0@enter.de>
+Date: Thu, 26 Apr 2001 11:32:45 +0200
+From: Christian Knoke <ChrisK@enter.de>
+Organization: Pretty Good Privacy
+X-Mailer: Mozilla 4.74 [de] (X11; U; Linux 2.2.18 i586)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: Remounting write-protected floppy
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-SHLINK: Mail autoscanned by SHLINK-VirusScan
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Ingo Molnar wrote:
+Hi,
 
-> On Thu, 26 Apr 2001, Mike Galbraith wrote:
->
-> > 2.4.4.pre7.virgin
-> > real    11m33.589s
->
-> > 2.4.4.pre7.sillyness
-> > real    9m30.336s
->
-> very interesting. Looks like there are still reserves in the VM, for heavy
-> workloads. (and swapping is all about heavy workloads.)
->
-> it would be interesting to see why your patch has such a good effect.
-> (and it would be nice get the same improvement in a clean way.)
+is this a bug or am I missing something? I'm
+not at all a kernel hacker.
 
-It's not good.. it's an ugly beaste from hell ;-)
+1. Remounting write-protected floppy
 
-> > -		if (!page->age)
-> > -			deactivate_page(page);
-> > +		age_page_down(page);
->
-> this one preserves the cache a bit more agressively.
+2. It is possible to remount a write-protected,
+   read-only mounted floppy disk as read-writeable,
+   and write and remove files on it. The result
+   is weird, depends on what you're doing
 
-(intent)
+3. floppy, mount, filesystem, VFS
 
->
-> >  	/* Always start by trying to penalize the process that is allocating memory */
-> >  	if (mm)
-> > -		retval = swap_out_mm(mm, swap_amount(mm));
-> > +		return swap_out_mm(mm, swap_amount(mm));
->
-> keep swap-out activity more focused to the process that is generating the
-> VM pressure. It might make sense to test this single change in isolation.
-> (While we cannot ignore to swap out other contexts under memory pressure,
-> we could do something to make it focused on the current MM a bit more.)
+4. Kernel: 2.2.19 and 2.2.18 (unpatched)
+   mount 2.10m (NFS patched, and unpatched originating SuSE 7.0)
 
-(also the intent.. make 'em pagein like a bugger to slow down cache munh)
+5. Kernel warnings: (a lot)
+   Apr 26 10:25:07 max kernel: floppy0: Drive is write protected
+   Apr 26 10:25:07 max kernel: end_request: I/O error, dev 02:00\
+   (floppy), sector 82
 
-> > +	static unsigned long lastscan;
-> > +
-> > +	if (lastscan == jiffies)
-> > +		return 0;
->
-> limit the runtime of refill_inactive_scan(). This is similar to Rik's
-> reclaim-limit+aging-tuning patch to linux-mm yesterday. could you try
-> Rik's patch with your patch except this jiffies hack, does it still
-> achieve the same improvement?
+6. Procedure:
+-------------------------------------------------------------------
+Using an ext2-formatted, write-protected HD (1.44) floppy:
 
-No.  It livelocked on me with almost all active pages exausted.
+max:~ # mount /dev/fd0 /floppy -t ext2
+mount: block device /dev/fd0 is write-protected, mounting read-only
+max:~ # mount /dev/fd0 /floppy -t ext2 -o remount,rw
+max:~ # ls -l /floppy
+total 765
+drwxr-xr-x   3 root     root         1024 Apr 26 08:35 .
+drwxr-xr-x  20 root     root         4096 Jan 16 23:42 ..
+-rw-r--r--   1 root     root       761016 Apr 26 08:35 bzImage
+drwxr-xr-x   2 root     root        12288 Apr 26 08:33 lost+found
+max:~ # echo empty > /floppy/bzImage
+max:~ # ls -l /floppy
+total 18
+drwxr-xr-x   3 root     root         1024 Apr 26 08:35 .
+drwxr-xr-x  20 root     root         4096 Jan 16 23:42 ..
+-rw-r--r--   1 root     root            6 Apr 26 10:57 bzImage
+drwxr-xr-x   2 root     root        12288 Apr 26 08:33 lost+found
+max:~ # cat /floppy/bzImage
+¸À?Ø¸max:~ # 
 
-> > +	int shortage = inactive_shortage();
-> >
-> > +	if (refill_inactive_scan(DEF_PRIORITY, 0) < shortage)
-> >  		/* If refill_inactive_scan failed, try to page stuff out.. */
-> >  		swap_out(DEF_PRIORITY, gfp_mask);
-> >
-> > +	return 0;
->
-> (i cannot see how this chunk affects the VM, AFAICS this too makes the
-> zapping of the cache less agressive.)
+The last command sometimes writes "empty" instead of the old
+content of bzImage as above.
+-------------------------------------------------------------------
 
-(more folks get snagged on write.. they can't eat cache so fast)
+7. Environment
+-------------------------------------------------------------------
+Linux max 2.2.18 #2 Sun Mar 4 13:56:26 CET 2001 i586 unknown
+Kernel modules         2.3.11
+Gnu C                  2.95.2
+Binutils               2.9.5.0.24
+Linux C Library        x   1 root     root    \
+  4070534 Sep  5  2000 /lib/libc.so.6
+Dynamic linker         ldd (GNU libc) 2.1.3
+Procps                 2.0.6
+Mount                  2.10m
+Net-tools              1.56
+Kbd                    0.99
+Sh-utils               2.0
+Modules Loaded         snd-seq-midi snd-seq-midi-event\
+ snd-seq snd-card-cs4232 isapnp snd-mpu401-uart snd-rawmidi\
+ snd-seq-device snd-cs4231 snd-mixer snd-pcm snd-opl3\
+ snd-hwdep snd-timer snd
+-------------------------------------------------------------------
 
-	-Mike
+Regards,
+
+Christian
+
+P.S.: If you answer, please CC: me, I'm not on the list.
+
+-- 
+* Christian Knoke                           +49 4852 92248 *
+* D-25541 Brunsbuettel                  Wurtleutetweute 49 *
+* * * * * * * * *  Ceterum censeo Microsoft esse dividendum.
 

@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272929AbTG3O0l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 10:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272914AbTG3OXT
+	id S272931AbTG3O1E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 10:27:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272921AbTG3O0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 10:23:19 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:38663 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S272894AbTG3OVR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 10:21:17 -0400
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Andi Kleen <ak@suse.de>, davem@redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
-       suparna@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-In-Reply-To: <20030730044256.GA1974@dsl2.external.hp.com>
-References: <20030708213427.39de0195.ak@suse.de>
-	<20030708.150433.104048841.davem@redhat.com>
-	<20030708222545.GC6787@dsl2.external.hp.com>
-	<20030708.152314.115928676.davem@redhat.com>
-	<20030723114006.GA28688@dsl2.external.hp.com>
-	<20030728131513.5d4b1bd3.ak@suse.de> 
-	<20030730044256.GA1974@dsl2.external.hp.com>
-Content-Type: text/plain
+	Wed, 30 Jul 2003 10:26:52 -0400
+Received: from halon.barra.com ([144.203.11.1]:17131 "EHLO halon.barra.com")
+	by vger.kernel.org with ESMTP id S272931AbTG3OZv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 10:25:51 -0400
+From: Fedor Karpelevitch <fedor@karpelevitch.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.60-test2 oops on unloading ohci-hcd
+Date: Wed, 30 Jul 2003 07:12:00 -0700
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 30 Jul 2003 09:20:52 -0500
-Message-Id: <1059574857.1849.7.camel@mulgrave>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200307300712.00815.fedor@karpelevitch.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-07-29 at 23:42, Grant Grundler wrote:
-> On Mon, Jul 28, 2003 at 01:15:13PM +0200, Andi Kleen wrote:
-> > Run it with 100-500 users (reaim -f workfile... -s 100 -e 500 -i 100) 
-> 
-> jejb was wondering if 4k pages would cause different behaviors becuase
-> of file system vs page size (4k vs 16k).  ia64 uses 16k by default.
-> I've rebuilt the kernel with 4k page size and VMERGE != 0.
-> The substantially worse performance feels like a rat hole because
-> of 4x pressure on CPU TLB.
-
-OK, I admit it, it was a rat hole.  Provided reaim uses large files, we
-should only get block<->page fragmentation at the edges, and obviously,
-reaim has to use large files otherwise it's not testing the virtual
-merging properly...
-
-James
+with 2.6.0-test2 I am getting this oops every time I shut down, is 
+this a known problem?
 
 
+Jul 29 17:03:09 bologoe kernel: ohci-hcd 0000:00:02.0: remove, state 3
+Jul 29 17:03:09 bologoe kernel: ohci-hcd 0000:00:02.0: roothub 
+graceful disconnect
+Jul 29 17:03:09 bologoe kernel: usb usb1: USB disconnect, address 1
+Jul 29 17:03:09 bologoe kernel: drivers/usb/core/usb.c: nuking urbs 
+assigned to usb1
+Jul 29 17:03:09 bologoe kernel: Debug: sleeping function called from 
+invalid context at drivers/usb/core/hcd.c:1350
+Jul 29 17:03:09 bologoe kernel: Call Trace:
+Jul 29 17:03:09 bologoe kernel:  [__might_sleep+95/112] 
+__might_sleep+0x5f/0x70
+Jul 29 17:03:09 bologoe kernel:  
+[__crc_bdev_read_only+1405263/2058957] 
+hcd_endpoint_disable+0x18c/0x530 [usbcore]
+Jul 29 17:03:09 bologoe kernel:  
+[__crc_bdev_read_only+1404867/2058957] hcd_endpoint_disable+0x0/0x530 
+[usbcore]
+Jul 29 17:03:09 bologoe kernel:  
+[__crc_bdev_read_only+1374202/2058957] nuke_urbs+0x87/0x90 [usbcore]
+Jul 29 17:03:09 bologoe kernel:  
+[__crc_bdev_read_only+1377800/2058957] usb_disconnect+0x95/0x180 
+[usbcore]
+Jul 29 17:03:09 bologoe kernel:  
+[__crc_bdev_read_only+1424199/2058957] usb_hcd_pci_remove+0xb4/0x1b0 
+[usbcore]
+Jul 29 17:03:09 bologoe kernel:  [pci_device_remove+59/64] 
+pci_device_remove+0x3b/0x40
+Jul 29 17:03:09 bologoe kernel:  [device_release_driver+98/112] 
+device_release_driver+0x62/0x70
+Jul 29 17:03:09 bologoe kernel:  [driver_detach+32/48] 
+driver_detach+0x20/0x30
+Jul 29 17:03:09 bologoe kernel:  [bus_remove_driver+91/160] 
+bus_remove_driver+0x5b/0xa0
+Jul 29 17:03:09 bologoe kernel:  [driver_unregister+26/70] 
+driver_unregister+0x1a/0x46
+Jul 29 17:03:09 bologoe kernel:  [unmap_vma_list+31/48] 
+unmap_vma_list+0x1f/0x30
+Jul 29 17:03:09 bologoe kernel:  [pci_unregister_driver+22/48] 
+pci_unregister_driver+0x16/0x30
+Jul 29 17:03:09 bologoe kernel:  
+[__crc_bdev_read_only+1278082/2058957] ohci_hcd_pci_cleanup+0xf/0x13 
+[ohci_hcd]
+Jul 29 17:03:09 bologoe kernel:  [sys_delete_module+303/336] 
+sys_delete_module+0x12f/0x150
+Jul 29 17:03:09 bologoe kernel:  [sys_munmap+88/128] 
+sys_munmap+0x58/0x80
+Jul 29 17:03:09 bologoe kernel:  [syscall_call+7/11] 
+syscall_call+0x7/0xb
+Jul 29 17:03:09 bologoe kernel: 

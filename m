@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVCVDpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVCVDpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVCVDpF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 22:45:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVCVDos
+	id S262371AbVCVDpD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 22:45:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVCVCY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 22:44:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:36027 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262353AbVCVDkz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 22:40:55 -0500
-Date: Mon, 21 Mar 2005 19:40:22 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: buakaw@buakaw.homelinux.net
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: dst cache overflow
-Message-Id: <20050321194022.491060c7.akpm@osdl.org>
-In-Reply-To: <1144.192.168.0.37.1111351868.squirrel@buakaw.homelinux.net>
-References: <1144.192.168.0.37.1111351868.squirrel@buakaw.homelinux.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 21:24:27 -0500
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:36490 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S262271AbVCVBeU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 20:34:20 -0500
+Message-Id: <20050322013454.833635000@abc>
+References: <20050322013427.919515000@abc>
+Date: Tue, 22 Mar 2005 02:23:37 +0100
+From: Johannes Stezenbach <js@linuxtv.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Disposition: inline; filename=dvb-skystar2-pci.patch
+X-SA-Exim-Connect-IP: 217.231.55.169
+Subject: [DVB patch 04/48] skystar2: remove duplicate pci_release_region()
+X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
+X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-buakaw@buakaw.homelinux.net wrote:
->
-> the system become very laggy.
-> i use kernel 2.6.10/2.6.11.3 on p4 2.8, msi915p, 3 x 3com905 boomerang.
-> and the cpu usage normally be about 12% and after something happens it
-> boost to 100% and it is used mostly by ksoftirqd/0, and a little bit by 
-> migration/0 and event/0. and in syslog i found thies lines
-> 
-> Mar 20 22:21:09 buakaw kernel: printk: 5543 messages suppressed.
-> Mar 20 22:21:09 buakaw kernel: dst cache overflow
-> 
-> what can cause this?
+remove duplicated pci_release_region() etc.
 
-Could you please describe the workload?  What is the computer doing at the
-time, and how is it set up?
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 
-Thanks.
+ skystar2.c |    4 ----
+ 1 files changed, 4 deletions(-)
+
+Index: linux-2.6.12-rc1-mm1/drivers/media/dvb/b2c2/skystar2.c
+===================================================================
+--- linux-2.6.12-rc1-mm1.orig/drivers/media/dvb/b2c2/skystar2.c	2005-03-21 23:27:59.000000000 +0100
++++ linux-2.6.12-rc1-mm1/drivers/media/dvb/b2c2/skystar2.c	2005-03-22 00:14:40.000000000 +0100
+@@ -1996,10 +1996,6 @@ static void driver_halt(struct pci_dev *
+ 	free_adapter_object(adapter);
+ 
+ 	pci_set_drvdata(pdev, NULL);
+-
+-	pci_disable_device(pdev);
+-	pci_release_region(pdev, 1);
+-	pci_release_region(pdev, 0);
+ }
+ 
+ static int dvb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
+
+--
+

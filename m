@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUIFG35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266813AbUIFGaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266808AbUIFG35 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 02:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUIFG34
+	id S266813AbUIFGaP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 02:30:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUIFGaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 02:29:56 -0400
-Received: from rrzd2.rz.uni-regensburg.de ([132.199.1.12]:5783 "EHLO
-	rrzd2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S266808AbUIFG3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 02:29:55 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-Date: Mon, 06 Sep 2004 08:26:07 +0200
-MIME-Version: 1.0
-Subject: Re: [RFC] New Time of day proposal (updated 9/2/04)
-CC: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich.Windl@rz.uni-regensburg.de, clameter@sgi.com,
-       Len Brown <len.brown@intel.com>, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Message-ID: <413C1F21.32130.254827@rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <20040903202615.GA18255@dominikbrodowski.de>
-References: <1094240482.14662.525.camel@cog.beaverton.ibm.com>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-3.84+2.20+2.07.066+02 August 2004+93227@20040906.061834Z
+	Mon, 6 Sep 2004 02:30:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:34447 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266813AbUIFGaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 02:30:10 -0400
+Date: Mon, 6 Sep 2004 08:30:40 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+Message-ID: <20040906063040.GA11541@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <1094408203.4445.5.camel@krustophenia.net> <20040905191227.GA29797@elte.hu> <1094418192.4445.58.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094418192.4445.58.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Sep 2004 at 22:26, Dominik Brodowski wrote:
 
-...
-> What about removing cpu_freq_khz you have in your patch, adding a per-CPU 
-> value, and just use the value of the boot CPU for the other CPUs if
-> !CONFIG_DIFFERENT_CPU_SPEEDS or something like that?
-...
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-I would not mention SMP at that stage, but most of the existing code on IA32 
-suumes that all CPUs run with the same frequency. I only heared that at least on 
-Alphas this is not true. Probably you'll need a per-CPU state regarding time. Most 
-likely resulting in the "local CPU's time" and a global concept of time that 
-should not be in contradiction with any CPU's time. That might mean that any 
-process always has to query the global time, involving extra overhead.
+> http://krustophenia.net/testresults.php?dataset=2.6.9-rc1-R0#/var/www/2.6.9-rc1-R0/foo.hist
+> 
+> I find the two smaller spikes to either side of the central spike
+> really odd.  These showed up in my jackd tests too, I had attributed
+> them to some measurement artifact, but they seem real.  Maybe a
+> rounding bug, or some kind of weird cache effect?
 
-You mentioned it...
+interesting - the histograms are pretty symmetric around the center.
+E.g. the exponential foo.hist2 diagram is way too symmetric around 50
+usecs! What precisely is being measured?
 
-Regards,
-Ulrich
-
-
+	Ingo

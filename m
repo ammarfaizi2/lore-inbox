@@ -1,144 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270695AbRHKAJy>; Fri, 10 Aug 2001 20:09:54 -0400
+	id <S270696AbRHKALE>; Fri, 10 Aug 2001 20:11:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270696AbRHKAJo>; Fri, 10 Aug 2001 20:09:44 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:32017 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270695AbRHKAJf>; Fri, 10 Aug 2001 20:09:35 -0400
-Message-ID: <3B7477A5.3000602@zytor.com>
-Date: Fri, 10 Aug 2001 17:09:09 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en, sv
+	id <S270697AbRHKAKy>; Fri, 10 Aug 2001 20:10:54 -0400
+Received: from [24.159.204.122] ([24.159.204.122]:3597 "EHLO
+	tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S270696AbRHKAKn>; Fri, 10 Aug 2001 20:10:43 -0400
+Date: Fri, 10 Aug 2001 19:06:53 -0500 (CDT)
+From: Chris Abbey <linux@cabbey.net>
+X-X-Sender: <cabbey@tweedle.cabbey.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Remotely rebooting a machine with state 'D' processes, how?
+In-Reply-To: <20010811095051.A28624@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.33.0108101904350.7726-100000@tweedle.cabbey.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: That horrible thing from hell called A20... *again*...
-Content-Type: multipart/mixed;
- boundary="------------000905070603080905000000"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000905070603080905000000
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Tomorrow, Herbert Xu wrote:
+> Perhaps we need a RESTART3 that restarts without notifying?
 
-It has come to my attention that the current 2.4 A20-enabling code still 
-has two problems: it doesn't work on machines for which the "fast A20 
-gate" bit has been hijacked for other uses (e.g. Olivetti); apparently 
-it doesn't work on some more modern "legacy free" systems either 
-(apparently the "Compaq 5Bw160" might be in this category - currently 
-unconfirmed.)  I have ported the current A20 code from SYSLINUX (it has 
-been stable there since version 1.52) and I would really appreciate it 
-(PLEASE PLEASE PRETTY PLEASE) if people would try it out and see how it 
-works before sending it to Linus and Alan; I'd like to know any 
-combination of "works/doesn't work with the patch" and "works/doesn't 
-work without the patch..."
+That would be the one line outb that Chris Wedgewood posted a few notes
+back in the thread. If my memory of x86 bios is correct he simple poked
+the control register that equates to pushing the reset button.
 
-This version first tests for the A20 gate already being enabled (e.g. 
-"legacy free" systems), and secondly tries to use the BIOS function (int 
-15h, AX=2401h) if it exists.  If not it tries the KBC and finally port 92h.
-
-The patch is against 2.4.8-pre8; I have tried to test it as well as I 
-can, which is somewhat hard since I don't actually have any machines 
-which exhibit these pathologies; they do, however, support A20 unmasking 
-via the BIOS, so that part can be considered tested; and, of course, the 
-SYSLINUX code that was the porting basis has been in production use 
-since version 1.52, which was released over six months ago.
-
-	-hpa
-
---------------000905070603080905000000
-Content-Type: text/plain;
- name="a20-2.4.8-pre8-2.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="a20-2.4.8-pre8-2.diff"
-
-LS0tIGFyY2gvaTM4Ni9ib290L3NldHVwLlMub2xkCUZyaSBBdWcgMTAgMTU6MjA6NTEgMjAw
-MQorKysgYXJjaC9pMzg2L2Jvb3Qvc2V0dXAuUwlGcmkgQXVnIDEwIDE3OjA1OjI3IDIwMDEK
-QEAgLTI1Myw2ICsyNTMsNyBAQAogCWNhbGwJcHJ0c3RyCiAKIG5vX3NpZ19sb29wOgorCWhs
-dAogCWptcAlub19zaWdfbG9vcAogCiBnb29kX3NpZzoKQEAgLTY0MSwxOCArNjQyLDQwIEBA
-CiAJbW92dwklYXgsICVkcwogCW1vdncJJWR4LCAlc3MKIGVuZF9tb3ZlX3NlbGY6CQkJCQkj
-IG5vdyB3ZSBhcmUgYXQgdGhlIHJpZ2h0IHBsYWNlCi0JbGlkdAlpZHRfNDgJCQkJIyBsb2Fk
-IGlkdCB3aXRoIDAsMAotCXhvcmwJJWVheCwgJWVheAkJCSMgQ29tcHV0ZSBnZHRfYmFzZQot
-CW1vdncJJWRzLCAlYXgJCQkjIChDb252ZXJ0ICVkczpnZHQgdG8gYSBsaW5lYXIgcHRyKQot
-CXNobGwJJDQsICVlYXgKLQlhZGRsCSRnZHQsICVlYXgKLQltb3ZsCSVlYXgsIChnZHRfNDgr
-MikKLQlsZ2R0CWdkdF80OAkJCQkjIGxvYWQgZ2R0IHdpdGggd2hhdGV2ZXIgaXMKLQkJCQkJ
-CSMgYXBwcm9wcmlhdGUKIAotIyB0aGF0IHdhcyBwYWlubGVzcywgbm93IHdlIGVuYWJsZSBh
-MjAKKyMKKyMgRW5hYmxlIEEyMC4gIFRoaXMgaXMgYXQgdGhlIHZlcnkgYmVzdCBhbiBhbm5v
-eWluZyBwcm9jZWR1cmUuCisjIEEyMCBjb2RlIHBvcnRlZCBmcm9tIFNZU0xJTlVYIDEuNTIt
-MS42MyBieSBILiBQZXRlciBBbnZpbi4KKyMKKworQTIwX1RFU1RfTE9PUFMJCT0gIDMyCQkj
-IEl0ZXJhdGlvbnMgcGVyIHdhaXQKK0EyMF9FTkFCTEVfTE9PUFMJPSAyNTUJCSMgVG90YWwg
-bG9vcHMgdG8gdHJ5CQkKKworCithMjBfdHJ5X2xvb3A6CisKKwkjIEZpcnN0LCBzZWUgaWYg
-d2UgYXJlIG9uIGEgc3lzdGVtIHdpdGggbm8gQTIwIGdhdGUuCithMjBfbm9uZToKKwljYWxs
-CWEyMF90ZXN0CisJam56CWEyMF9kb25lCisKKwkjIE5leHQsIHRyeSB0aGUgQklPUyAoSU5U
-IDB4MTUsIEFYPTB4MjQwMSkKK2EyMF9iaW9zOgorCW1vdncJJDB4MjQwMSwgJWF4CisJcHVz
-aGZsCQkJCQkjIEJlIHBhcmFub2lkIGFib3V0IGZsYWdzCisJaW50CSQweDE1CisJcG9wZmwK
-KworCWNhbGwJYTIwX3Rlc3QKKwlqbnoJYTIwX2RvbmUKKworCSMgVHJ5IGVuYWJsaW5nIEEy
-MCB0aHJvdWdoIHRoZSBrZXlib2FyZCBjb250cm9sbGVyCithMjBfa2JjOgogCWNhbGwJZW1w
-dHlfODA0MgogCisJY2FsbAlhMjBfdGVzdAkJCSMgSnVzdCBpbiBjYXNlIHRoZSBCSU9TIHdv
-cmtlZAorCWpueglhMjBfZG9uZQkJCSMgYnV0IGhhZCBhIGRlbGF5ZWQgcmVhY3Rpb24uCisK
-IAltb3ZiCSQweEQxLCAlYWwJCQkjIGNvbW1hbmQgd3JpdGUKIAlvdXRiCSVhbCwgJDB4NjQK
-IAljYWxsCWVtcHR5XzgwNDIKQEAgLTY2MSwyOSArNjg0LDYyIEBACiAJb3V0YgklYWwsICQw
-eDYwCiAJY2FsbAllbXB0eV84MDQyCiAKLSMKLSMJWW91IG11c3QgcHJlc2VydmUgdGhlIG90
-aGVyIGJpdHMgaGVyZS4gT3RoZXJ3aXNlIGVtYmFycmFzaW5nIHRoaW5ncwotIwlsaWtlIGxh
-cHRvcHMgcG93ZXJpbmcgb2ZmIG9uIGJvb3QgaGFwcGVuLiBDb3JyZWN0ZWQgdmVyc2lvbiBi
-eSBLaXJhCi0jCUJyb3duIGZyb20gTGludXggMi4yCi0jCi0JaW5iCSQweDkyLCAlYWwJCQkj
-IAotCW9yYgkkMDIsICVhbAkJCSMgImZhc3QgQTIwIiB2ZXJzaW9uCi0Jb3V0YgklYWwsICQw
-eDkyCQkJIyBzb21lIGNoaXBzIGhhdmUgb25seSB0aGlzCi0KLSMgd2FpdCB1bnRpbCBhMjAg
-cmVhbGx5ICppcyogZW5hYmxlZDsgaXQgY2FuIHRha2UgYSBmYWlyIGFtb3VudCBvZgotIyB0
-aW1lIG9uIGNlcnRhaW4gc3lzdGVtczsgVG9zaGliYSBUZWNyYXMgYXJlIGtub3duIHRvIGhh
-dmUgdGhpcwotIyBwcm9ibGVtLiAgVGhlIG1lbW9yeSBsb2NhdGlvbiB1c2VkIGhlcmUgKDB4
-MjAwKSBpcyB0aGUgaW50IDB4ODAKLSMgdmVjdG9yLCB3aGljaCBzaG91bGQgYmUgc2FmZSB0
-byB1c2UuCi0KLQl4b3J3CSVheCwgJWF4CQkJIyBzZWdtZW50IDB4MDAwMAotCW1vdncJJWF4
-LCAlZnMKLQlkZWN3CSVheAkJCQkjIHNlZ21lbnQgMHhmZmZmIChITUEpCi0JbW92dwklYXgs
-ICVncwotYTIwX3dhaXQ6Ci0JaW5jdwklYXgJCQkJIyB1bnVzZWQgbWVtb3J5IGxvY2F0aW9u
-IDwweGZmZjAKLQltb3Z3CSVheCwgJWZzOigweDIwMCkJCSMgd2UgdXNlIHRoZSAiaW50IDB4
-ODAiIHZlY3RvcgotCWNtcHcJJWdzOigweDIxMCksICVheAkJIyBhbmQgaXRzIGNvcnJlc3Bv
-bmRpbmcgSE1BIGFkZHIKLQlqZQlhMjBfd2FpdAkJCSMgbG9vcCB1bnRpbCBubyBsb25nZXIg
-YWxpYXNlZAorCSMgV2FpdCB1bnRpbCBhMjAgcmVhbGx5ICppcyogZW5hYmxlZDsgaXQgY2Fu
-IHRha2UgYSBmYWlyIGFtb3VudCBvZgorCSMgdGltZSBvbiBjZXJ0YWluIHN5c3RlbXM7IFRv
-c2hpYmEgVGVjcmFzIGFyZSBrbm93biB0byBoYXZlIHRoaXMKKwkjIHByb2JsZW0uCithMjBf
-a2JjX3dhaXQ6CisJeG9ydwklY3gsICVjeAorYTIwX2tiY193YWl0X2xvb3A6CisJY2FsbAlh
-MjBfdGVzdAorCWpueglhMjBfZG9uZQorCWxvb3AJYTIwX2tiY193YWl0X2xvb3AKKworCSMg
-RmluYWwgYXR0ZW1wdDogdXNlICJjb25maWd1cmF0aW9uIHBvcnQgQSIKK2EyMF9mYXN0Ogor
-CWluYgkkMHg5MiwgJWFsCQkJIyBDb25maWd1cmF0aW9uIFBvcnQgQQorCW9yYgkkMHgwMiwg
-JWFsCQkJIyAiZmFzdCBBMjAiIHZlcnNpb24KKwlhbmRiCSQweEZFLCAlYWwJCQkjIGRvbid0
-IGFjY2lkZW50YWxseSByZXNldAorCW91dGIJJWFsLCAkMHg5MgorCisJIyBXYWl0IGZvciBj
-b25maWd1cmF0aW9uIHBvcnQgQSB0byB0YWtlIGVmZmVjdAorYTIwX2Zhc3Rfd2FpdDoKKwl4
-b3J3CSVjeCwgJWN4CithMjBfZmFzdF93YWl0X2xvb3A6CisJY2FsbAlhMjBfdGVzdAorCWpu
-eglhMjBfZG9uZQorCWxvb3AJYTIwX2Zhc3Rfd2FpdF9sb29wCisKKwkjIEEyMCBpcyBzdGls
-bCBub3QgcmVzcG9uZGluZy4gIFRyeSBmcm9iYmluZyBpdCBhZ2Fpbi4KKwkjIAorCWRlY2IJ
-KGEyMF90cmllcykKKwlqbnoJYTIwX3RyeV9sb29wCisJCisJbW92dwkkYTIwX2Vycl9tc2cs
-ICVzaQorCWNhbGwJcHJ0c3RyCisKK2EyMF9kaWU6CisJaGx0CisJam1wCWEyMF9kaWUKKwor
-YTIwX3RyaWVzOgorCS5ieXRlCUEyMF9FTkFCTEVfTE9PUFMKKworYTIwX2Vycl9tc2c6CisJ
-LmFzY2lpCSJsaW51eDogZmF0YWwgZXJyb3I6IEEyMCBnYXRlIG5vdCByZXNwb25kaW5nISIK
-KwkuYnl0ZQkxMywgMTAsIDAKKworCSMgSWYgd2UgZ2V0IGhlcmUsIGFsbCBpcyBnb29kCith
-MjBfZG9uZToKKworIyBzZXQgdXAgZ2R0IGFuZCBpZHQKKwlsaWR0CWlkdF80OAkJCQkjIGxv
-YWQgaWR0IHdpdGggMCwwCisJeG9ybAklZWF4LCAlZWF4CQkJIyBDb21wdXRlIGdkdF9iYXNl
-CisJbW92dwklZHMsICVheAkJCSMgKENvbnZlcnQgJWRzOmdkdCB0byBhIGxpbmVhciBwdHIp
-CisJc2hsbAkkNCwgJWVheAorCWFkZGwJJGdkdCwgJWVheAorCW1vdmwJJWVheCwgKGdkdF80
-OCsyKQorCWxnZHQJZ2R0XzQ4CQkJCSMgbG9hZCBnZHQgd2l0aCB3aGF0ZXZlciBpcworCQkJ
-CQkJIyBhcHByb3ByaWF0ZQogCiAjIG1ha2Ugc3VyZSBhbnkgcG9zc2libGUgY29wcm9jZXNz
-b3IgaXMgcHJvcGVybHkgcmVzZXQuLgogCXhvcncJJWF4LCAlYXgKQEAgLTgzOSw2ICs4OTUs
-MzcgQEAKIAogYm9vdHNlY3RfcGFuaWNfbWVzczoKIAkuc3RyaW5nCSJJTlQxNSByZWZ1c2Vz
-IHRvIGFjY2VzcyBoaWdoIG1lbSwgZ2l2aW5nIHVwLiIKKworCisjIFRoaXMgcm91dGluZSB0
-ZXN0cyB3aGV0aGVyIG9yIG5vdCBBMjAgaXMgZW5hYmxlZC4gIElmIHNvLCBpdAorIyBleGl0
-cyB3aXRoIHpmID0gMC4KKyMKKyMgVGhlIG1lbW9yeSBhZGRyZXNzIHVzZWQsIDB4MjAwLCBp
-cyB0aGUgaW50ICQweDgwIHZlY3Rvciwgd2hpY2gKKyMgc2hvdWxkIGJlIHNhZmUuCisKK0Ey
-MF9URVNUX0FERFIgPSA0KjB4ODAKKworYTIwX3Rlc3Q6CisJcHVzaHcJJWN4CisJcHVzaHcJ
-JWF4CisJeG9ydwklY3gsICVjeAorCW1vdncJJWN4LCAlZnMJCQkjIExvdyBtZW1vcnkKKwlk
-ZWN3CSVjeAorCW1vdncJJWN4LCAlZ3MJCQkjIEhpZ2ggbWVtb3J5IGFyZWEKKwltb3Z3CSRB
-MjBfVEVTVF9MT09QUywgJWN4CisJbW92dwklZnM6KEEyMF9URVNUX0FERFIpLCAlYXgKKwlw
-dXNodwklYXgKK2EyMF90ZXN0X3dhaXQ6CisJaW5jdwklYXgKKwltb3Z3CSVheCwgJWZzOihB
-MjBfVEVTVF9BRERSKQorCWNhbGwJZGVsYXkJCQkJIyBTZXJpYWxpemUgYW5kIG1ha2UgZGVs
-YXkgY29uc3RhbnQKKwljbXB3CSVnczooQTIwX1RFU1RfQUREUisweDEwKSwgJWF4CisJbG9v
-cGUJYTIwX3Rlc3Rfd2FpdAorCisJcG9wdwklZnM6KEEyMF9URVNUX0FERFIpCisJcG9wdwkl
-YXgKKwlwb3B3CSVjeAorCXJldAkKIAogIyBUaGlzIHJvdXRpbmUgY2hlY2tzIHRoYXQgdGhl
-IGtleWJvYXJkIGNvbW1hbmQgcXVldWUgaXMgZW1wdHkKICMgKGFmdGVyIGVtcHR5aW5nIHRo
-ZSBvdXRwdXQgYnVmZmVycykK
---------------000905070603080905000000--
+-- 
+now the forces of openness have a powerful and
+  unexpected new ally - http://ibm.com/linux
 

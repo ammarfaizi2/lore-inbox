@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbTIYRbU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 13:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbTIYR3Z
+	id S261498AbTIYR14 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 13:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTIYR1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 13:29:25 -0400
-Received: from d12lmsgate-3.de.ibm.com ([194.196.100.236]:38024 "EHLO
+	Thu, 25 Sep 2003 13:27:04 -0400
+Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:48793 "EHLO
 	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S261429AbTIYRX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 13:23:26 -0400
-Date: Thu, 25 Sep 2003 19:22:44 +0200
+	id S261407AbTIYRWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 13:22:22 -0400
+Date: Thu, 25 Sep 2003 19:21:38 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390 (18/19): documentation.
-Message-ID: <20030925172244.GS2951@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (15/19): lcs driver.
+Message-ID: <20030925172138.GP2951@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,129 +21,184 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-s390 documentation changes.
+ - Add type and timeout attribute.
+ - Create symlinks between netdev and groupdev.
+ - Remove initialization of device.name.
 
 diffstat:
- Documentation/s390/CommonIO         |   46 ++----------------------------------
- Documentation/s390/driver-model.txt |   21 ++++++++++------
- 2 files changed, 16 insertions(+), 51 deletions(-)
+ drivers/s390/net/lcs.c |   77 +++++++++++++++++++++++++++++++++++++++++++++----
+ drivers/s390/net/lcs.h |    4 +-
+ 2 files changed, 74 insertions(+), 7 deletions(-)
 
-diff -urN linux-2.6/Documentation/s390/CommonIO linux-2.6-s390/Documentation/s390/CommonIO
---- linux-2.6/Documentation/s390/CommonIO	Mon Sep  8 21:50:32 2003
-+++ linux-2.6-s390/Documentation/s390/CommonIO	Thu Sep 25 18:33:34 2003
-@@ -45,25 +45,6 @@
- /proc entries
- -------------
+diff -urN linux-2.6/drivers/s390/net/lcs.c linux-2.6-s390/drivers/s390/net/lcs.c
+--- linux-2.6/drivers/s390/net/lcs.c	Thu Sep 25 18:33:27 2003
++++ linux-2.6-s390/drivers/s390/net/lcs.c	Thu Sep 25 18:33:32 2003
+@@ -11,7 +11,7 @@
+  *			  Frank Pavlic (pavlic@de.ibm.com) and
+  *		 	  Martin Schwidefsky <schwidefsky@de.ibm.com>
+  *
+- *    $Revision: 1.53 $	 $Date: 2003/06/17 11:36:45 $
++ *    $Revision: 1.58 $	 $Date: 2003/09/22 13:33:56 $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -58,7 +58,7 @@
+ /**
+  * initialization string for output
+  */
+-#define VERSION_LCS_C  "$Revision: 1.53 $"
++#define VERSION_LCS_C  "$Revision: 1.58 $"
  
--* /proc/subchannels
--
--  This entry shows information on a per-subchannel basis.
--
--  The data is ordered in the following way:
--
--  - device number 
--  - subchannel number 
--  - device type/model (if applicable; if not, this is empty) and control unit 
--    type/model
--  - whether the device is in use (i. e. a device driver has requested ownership 
--    and registered an interrupt handler)
--  - path installed mask (PIM), as reflected by last store subchannel
--  - path available mask (PAM), as reflected by last store subchannel
--  - path operational mask (POM), as reflected by last store subchannel
--  - the channel path IDs (CHPIDs)
--
--  All fields are separated by spaces, the chpids are in blocks of four chpids.
--
- * /proc/cio_ignore
+ static char version[] __initdata = "LCS driver ("VERSION_LCS_C "/" VERSION_LCS_H ")";
  
-   Lists the ranges of device numbers which are ignored by common I/O.
-@@ -116,27 +97,6 @@
-   /proc/s390dbf/cio_*/level a number between 0 and 6; see the documentation on
-   the S/390 debug feature (Documentation/s390/s390dbf.txt) for details.
+@@ -159,6 +159,7 @@
+ 		return NULL;
+ 	memset(card, 0, sizeof(struct lcs_card));
+ 	card->lan_type = LCS_FRAME_TYPE_AUTO;
++	card->lancmd_timeout = LCS_LANCMD_TIMEOUT_DEFAULT;
+ 	return card;
+ }
  
--* /proc/irq_count
--
--  This entry counts how many times s390_process_IRQ has been called for each 
--  CPU. This info is in /proc/interrupts on other architectures.
--
--* /proc/chpids
--
--  This entry serves a dual purpose:
-- 
--  - show which chpids are currently known to Linux and their status (online,
--    logically offline),
--
--  - toggling known chpids logically online/offline.
--
--  To toggle a known chpid logically offline, do an
--	echo off <chpid> > /proc/chpids
--  <chpid> is interpreted as hex, even if you omit the '0x'.
--  The chpid will be treated by Linux as if it were not online, which can mean 
--  some devices will become unavailable.
--
--  You can toggle a logically offline chpid online again by
--	echo on <chpid> > /proc/chpids
--  If devices became unavailable by toggling the chpid logically offline, they 
--  will become available again after you toggle the chpid online again.
-+* For some of the information present in the /proc filesystem in 2.4 (namely,
-+  /proc/subchannels and /proc/chpids), see driver-model.txt.
-+  Information formerly in /proc/irq_count is now in /proc/interrupts.
-diff -urN linux-2.6/Documentation/s390/driver-model.txt linux-2.6-s390/Documentation/s390/driver-model.txt
---- linux-2.6/Documentation/s390/driver-model.txt	Mon Sep  8 21:49:51 2003
-+++ linux-2.6-s390/Documentation/s390/driver-model.txt	Thu Sep 25 18:33:34 2003
-@@ -14,19 +14,18 @@
-      - sys
-      - legacy
-      - css0/
--           - 0:0000/0:0815/
--	   - 0:0001/0:4711/
--	   - 0:0002/
-+           - 0.0.0000/0.0.0815/
-+	   - 0.0.0001/0.0.4711/
-+	   - 0.0.0002/
- 	   ...
+@@ -690,7 +691,7 @@
+ 	init_timer(&timer);
+ 	timer.function = lcs_lancmd_timeout;
+ 	timer.data = (unsigned long) &reply;
+-	timer.expires = jiffies + HZ*5;
++	timer.expires = jiffies + HZ*card->lancmd_timeout;
+ 	add_timer(&timer);
+ 	wait_event(reply.wait_q, reply.received);
+ 	del_timer(&timer);
+@@ -1675,8 +1676,55 @@
  
- In this example, device 0815 is accessed via subchannel 0, device 4711 via 
- subchannel 1, and subchannel 2 is a non-I/O subchannel.
+ static DEVICE_ATTR(portno, 0644, lcs_portno_show, lcs_portno_store);
  
--You should address a ccw device via its bus id (e.g. 0:4711); the device can
-+You should address a ccw device via its bus id (e.g. 0.0.4711); the device can
- be found under bus/ccw/devices/.
- 
--All ccw devices export some data via sysfs additional to the standard 'name'
--and 'power' entries.
-+All ccw devices export some data via sysfs.
- 
- cutype:	    The control unit type / model.
- 
-@@ -177,6 +176,10 @@
- possible). This ccwgroup device can be set online or offline just like a normal
- ccw device.
- 
-+Each ccwgroup device also provides an 'ungroup' attribute to destroy the device
-+again (only when offline). This is a generic ccwgroup mechanism (the driver does
-+not need to implement anything beyond normal removal routines).
++static ssize_t
++lcs_type_show(struct device *dev, char *buf)
++{
++	struct ccwgroup_device *cgdev;
 +
- To implement a ccwgroup driver, please refer to include/asm/ccwgroup.h. Keep in
- mind that most drivers will need to implement both a ccwgroup and a ccw driver
- (unless you have a meta ccw driver, like cu3088 for lcs and ctc).
-@@ -186,7 +189,7 @@
- -----------------
- 
- Channel paths show up, like subchannels, under the channel subsystem root (css0)
--and are called 'chp<chpid>'. They have no driver and do not belong to any bus.
-+and are called 'chp0.<chpid>'. They have no driver and do not belong to any bus.
- 
- status - Can be 'online', 'logically offline' or 'n/a'.
- 	 Piping 'on' or 'off' sets the chpid logically online/offline.
-@@ -215,7 +218,9 @@
- 
- Netiucv connections show up under devices/iucv/ as "netiucv<ifnum>". The interface
- number is assigned sequentially to the connections defined via the 'connection'
--attribute. 'name' shows the connection partner.
-+attribute.
++	cgdev = to_ccwgroupdev(dev);
++	if (!cgdev)
++		return -ENODEV;
 +
-+user			  - shows the connection partner.
++	return sprintf(buf, "%s\n", cu3088_type[cgdev->cdev[0]->id.driver_info]);
++}
++
++static DEVICE_ATTR(type, 0444, lcs_type_show, NULL);
++
++static ssize_t
++lcs_timeout_show(struct device *dev, char *buf)
++{
++	struct lcs_card *card;
++
++	card = (struct lcs_card *)dev->driver_data;
++
++	return card ? sprintf(buf, "%u\n", card->lancmd_timeout) : 0;
++}
++
++static ssize_t
++lcs_timeout_store (struct device *dev, const char *buf, size_t count)
++{
++        struct lcs_card *card;
++        int value;
++
++	card = (struct lcs_card *)dev->driver_data;
++
++        if (!card)
++                return 0;
++
++        sscanf(buf, "%u", &value);
++        /* TODO: sanity checks */
++        card->lancmd_timeout = value;
++
++        return count;
++
++}
++
++DEVICE_ATTR(lancmd_timeout, 0644, lcs_timeout_show, lcs_timeout_store);
++
+ static struct attribute * lcs_attrs[] = {
+ 	&dev_attr_portno.attr,
++	&dev_attr_type.attr,
++	&dev_attr_lancmd_timeout.attr,
+ 	NULL,
+ };
  
- buffer			  - maximum buffer size.
- 			    Pipe to it to change buffer size.
+@@ -1711,8 +1759,6 @@
+ 		return ret;
+         }
+ 	ccwgdev->dev.driver_data = card;
+-	snprintf(ccwgdev->dev.name, DEVICE_NAME_SIZE, "%s",
+-		 cu3088_type[ccwgdev->cdev[0]->id.driver_info]);
+ 	ccwgdev->cdev[0]->dev.driver_data = card;
+ 	ccwgdev->cdev[0]->handler = lcs_irq;
+ 	ccwgdev->cdev[1]->dev.driver_data = card;
+@@ -1797,6 +1843,18 @@
+ 	SET_MODULE_OWNER(dev);
+ 	if (register_netdev(dev) != 0)
+ 		goto out;
++	/* Create symlinks. */
++	if (sysfs_create_link(&ccwgdev->dev.kobj, &dev->class_dev.kobj,
++			      dev->name)) {
++		unregister_netdev(dev);
++		goto out;
++	}
++	if (sysfs_create_link(&dev->class_dev.kobj, &ccwgdev->dev.kobj,
++			      ccwgdev->dev.bus_id)) {
++		sysfs_remove_link(&ccwgdev->dev.kobj, dev->name);
++		unregister_netdev(dev);
++		goto out;
++	}
+ 	netif_stop_queue(dev);
+ 	lcs_stopcard(card);
+ 	return 0;
+@@ -1814,13 +1872,20 @@
+ lcs_shutdown_device(struct ccwgroup_device *ccwgdev)
+ {
+ 	struct lcs_card *card;
++	int ret;
+ 
+ 	LCS_DBF_TEXT(3, setup, "shtdndev");
+ 	card = (struct lcs_card *)ccwgdev->dev.driver_data;
+ 	if (!card)
+ 		return -ENODEV;
+ 
+-	return lcs_stop_device(card->dev);
++	ret = lcs_stop_device(card->dev);
++	if (ret)
++		return ret;
++	sysfs_remove_link(&card->dev->class_dev.kobj, ccwgdev->dev.bus_id);
++	sysfs_remove_link(&ccwgdev->dev.kobj, card->dev->name);
++	unregister_netdev(card->dev);
++	return 0;
+ }
+ 
+ /**
+diff -urN linux-2.6/drivers/s390/net/lcs.h linux-2.6-s390/drivers/s390/net/lcs.h
+--- linux-2.6/drivers/s390/net/lcs.h	Mon Sep  8 21:50:18 2003
++++ linux-2.6-s390/drivers/s390/net/lcs.h	Thu Sep 25 18:33:32 2003
+@@ -6,7 +6,7 @@
+ #include <linux/workqueue.h>
+ #include <asm/ccwdev.h>
+ 
+-#define VERSION_LCS_H "$Revision: 1.12 $"
++#define VERSION_LCS_H "$Revision: 1.13 $"
+ 
+ #define LCS_DBF_TEXT(level, name, text) \
+ 	do { \
+@@ -83,6 +83,7 @@
+ #define LCS_NUM_BUFFS			8	/* needs to be power of 2 */
+ #define LCS_MAC_LENGTH			6
+ #define LCS_INVALID_PORT_NO		-1
++#define LCS_LANCMD_TIMEOUT_DEFAULT      5
+ 
+ /**
+  * Multicast state
+@@ -263,6 +264,7 @@
+ 	struct lcs_buffer *tx_buffer;
+ 	int tx_emitted;
+ 	struct list_head lancmd_waiters;
++	int lancmd_timeout;
+ 
+ 	struct work_struct kernel_thread_starter;
+ 	unsigned long thread_mask;

@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281424AbRKEXbd>; Mon, 5 Nov 2001 18:31:33 -0500
+	id <S281430AbRKEXdd>; Mon, 5 Nov 2001 18:33:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281428AbRKEXbX>; Mon, 5 Nov 2001 18:31:23 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:57526 "EHLO
-	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S281424AbRKEXbH>; Mon, 5 Nov 2001 18:31:07 -0500
+	id <S281429AbRKEXdX>; Mon, 5 Nov 2001 18:33:23 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:3006 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S281428AbRKEXdJ>; Mon, 5 Nov 2001 18:33:09 -0500
 Content-Type: text/plain; charset=US-ASCII
-From: Thomas Koeller <tkoeller@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Scheduling of low-priority background processes
-Date: Tue, 6 Nov 2001 00:30:08 +0100
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.LNX.4.10.10111051722590.13543-100000@coffee.psychology.mcmaster.ca>
-In-Reply-To: <Pine.LNX.4.10.10111051722590.13543-100000@coffee.psychology.mcmaster.ca>
+From: Tim Jansen <tim@tjansen.de>
+To: andersen@codepoet.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Date: Tue, 6 Nov 2001 00:35:54 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0111051638230.27028-100000@duckman.distro.conectiva> <160sXt-0LMrdQC@fmrl04.sul.t-online.com> <20011105155955.A16505@codepoet.org>
+In-Reply-To: <20011105155955.A16505@codepoet.org>
 MIME-Version: 1.0
-Message-Id: <01110523561405.00641@sarkovy.koeller.org>
 Content-Transfer-Encoding: 7BIT
+Message-ID: <160tEV-20u3KSC@fmrl04.sul.t-online.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday,  5. November 2001 23:24, Mark Hahn wrote:
->
-> please read the scheduler; it's not that bad, especially if you
-> ignore the SMP case.  normal procs are only considered if there
-> are no runnable RT procs.
+On Monday 05 November 2001 23:59, Erik Andersen wrote:
+> Come now, it really isn't that difficult:
+>     if (sscanf(line, "%4u %4u %llu %s", &major, &minor, &size, name) == 4)
+>     {
+> 	add_partition(name, size, major, minor);
+>     }
 
-I know the scheduler works this way. But does it have to? What I meant to do 
-was suggesting an improvement.
+But how can the user know this without looking into the kernel? Compare it to 
+/proc/mounts. Proc mounts escapes spaces and other special characters in 
+strings with an octal encoding (so spaces are replaced by '\040'). 
 
-Thomas
-
-
--- 
-Thomas Koeller
-tkoeller@gmx.net
+bye...

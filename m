@@ -1,59 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265517AbUHOC7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266141AbUHODFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265517AbUHOC7e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 22:59:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266141AbUHOC7e
+	id S266141AbUHODFd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 23:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHODFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 22:59:34 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36091 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265517AbUHOC7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 22:59:32 -0400
-Date: Sat, 14 Aug 2004 23:03:29 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] smp_call_function WARN_ON
-Message-ID: <Pine.LNX.4.58.0408131448020.18353@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 14 Aug 2004 23:05:32 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:54984 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S266141AbUHODF2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 23:05:28 -0400
+Date: Sun, 15 Aug 2004 04:04:09 +0200
+From: "xerces8" <xerces8@butn.net>
+To: linux-kernel@vger.kernel.org
+Subject: New versioning scheme ? ( 2.6.8.1 )
+Message-ID: <WorldClient-F200408150404.AA04094351@butn.net>
+X-Mailer: WorldClient 6.8.5
+X-Authenticated-Sender: xerces8@butn.net
+X-Spam-Processed: butn.net, Sun, 15 Aug 2004 04:04:09 +0200
+	(not processed: message from valid local sender)
+X-MDRemoteIP: 127.0.0.1
+X-Return-Path: xerces8@butn.net
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The WARN_ON() is really only true if you're waiting for the other
-processors.
+Hi!
 
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+Can someone tell me why the ages old, established versioning scheme of
+x.y.z was "abolished" and x.y.z.w was introduced ?
 
-Index: linux-2.6.8-rc4-mm1/arch/i386/kernel/smp.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc4-mm1/arch/i386/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smp.c
---- linux-2.6.8-rc4-mm1/arch/i386/kernel/smp.c	10 Aug 2004 14:49:26 -0000	1.1.1.1
-+++ linux-2.6.8-rc4-mm1/arch/i386/kernel/smp.c	13 Aug 2004 18:46:11 -0000
-@@ -538,7 +538,7 @@ int smp_call_function (void (*func) (voi
- 	}
+Regards,
+David Balazic
 
- 	/* Can deadlock when called with interrupts disabled */
--	WARN_ON(irqs_disabled());
-+	WARN_ON(wait && irqs_disabled());
-
- 	data.func = func;
- 	data.info = info;
-Index: linux-2.6.8-rc4-mm1/arch/x86_64/kernel/smp.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.8-rc4-mm1/arch/x86_64/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 smp.c
---- linux-2.6.8-rc4-mm1/arch/x86_64/kernel/smp.c	10 Aug 2004 14:49:30 -0000	1.1.1.1
-+++ linux-2.6.8-rc4-mm1/arch/x86_64/kernel/smp.c	13 Aug 2004 18:45:54 -0000
-@@ -417,7 +417,7 @@ int smp_call_function (void (*func) (voi
- 		return 0;
-
- 	/* Can deadlock when called with interrupts disabled */
--	WARN_ON(irqs_disabled());
-+	WARN_ON(wait && irqs_disabled());
-
- 	data.func = func;
- 	data.info = info;

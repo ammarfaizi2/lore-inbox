@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269394AbUINSrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUINSzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269394AbUINSrK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 14:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269521AbUINSpk
+	id S266683AbUINSzL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 14:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269199AbUINSxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 14:45:40 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:13745 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S269334AbUINSoK (ORCPT
+	Tue, 14 Sep 2004 14:53:21 -0400
+Received: from holomorphy.com ([207.189.100.168]:45461 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269387AbUINSwY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 14:44:10 -0400
-Date: Tue, 14 Sep 2004 13:43:27 -0500
-From: Greg Edwards <edwardsg@sgi.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>, paulmck@us.ibm.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org, wli@holomorphy.com
-Subject: Re: kernbench on 512p
-Message-ID: <20040914184327.GM4178@sgi.com>
-References: <200408191216.33667.jbarnes@engr.sgi.com> <200408192016.10064.jbarnes@engr.sgi.com> <20040820155717.GF1243@us.ibm.com> <200408201324.32464.jbarnes@engr.sgi.com> <41265CCE.3070808@colorfullife.com> <20040910190153.GA32062@sgi.com> <4145E50E.2020300@colorfullife.com> <20040914175241.GI4178@sgi.com> <41473578.7000106@colorfullife.com>
+	Tue, 14 Sep 2004 14:52:24 -0400
+Date: Tue, 14 Sep 2004 11:52:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Love <rml@ximian.com>
+Cc: Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040914185212.GY9106@holomorphy.com>
+References: <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095185103.23385.1.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41473578.7000106@colorfullife.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1095185103.23385.1.camel@betsy.boston.ximian.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 08:16:24PM +0200, Manfred Spraul wrote:
-| Greg Edwards wrote:
-| 
-| >Manfred,
-| >
-| >Lockstat output attached from 2.6.9-rc2 at 512p and 2.6.9-rc2 + your two
-| >remaining RCU patches at 512p.  kernbench was run without any arguments.
-| >
-| >The difference for RCU looks great.
-| >
-| > 
-| >
-| Which value did you use for RCU_GROUP_SIZE? I'm not sure what's the 
-| optimal value for 512p - probably 32 or so.
+On Tue, 2004-09-14 at 17:03 +0200, Andrea Arcangeli wrote:
+>> we simply need a cond_resched_bkl() for that, no? Very few places are
+>> still serialized with the BKL, so I don't think it would be a big issue
+>> to convert those few places to use cond_resched_bkl.
 
-I used what was defined in the patch
+On Tue, Sep 14, 2004 at 02:05:03PM -0400, Robert Love wrote:
+> Yes, this is all we need to do.
+> cond_resched() goes away under PREEMPT.
+> cond_resched_bkl() does not.
+> I did this a looong time ago, but did not get much interest.
+> Explicitly marking places that use BKL's "I can always call schedule()"
+> assumption help make it easier to phase out that assumption, too.  Or at
+> least better mark it.
 
-+#define RCU_GROUP_SIZE 2
+I'd vaguely prefer to clean up the BKL (ab)users... of course, this
+involves working with some of the dirtiest code in the kernel that's
+already discouraged most/all of those who work on reducing/eliminating
+BKL use from touching it... maybe the latency trend is the final nail
+in the coffin of resistance to cleaning that up, though I agree with
+Alan that we have to be very careful about it, particularly since all
+prior attempts failed to be sufficiently so.
 
-I can try running with a couple different values and see how it looks.
 
-Greg
+-- wli

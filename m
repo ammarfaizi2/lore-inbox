@@ -1,36 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbUAYJDI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 04:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbUAYJDI
+	id S263800AbUAYJFn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 04:05:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbUAYJFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 04:03:08 -0500
-Received: from odpn1.odpn.net ([212.40.96.53]:64229 "EHLO odpn1.odpn.net")
-	by vger.kernel.org with ESMTP id S263787AbUAYJDG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 04:03:06 -0500
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-pre7 - no DRQ after issuing WRITE
-References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
-From: "Gabor Z. Papp" <gzp@papp.hu>
-Date: Sun, 25 Jan 2004 10:03:03 +0100
-Message-ID: <x6ptd8l7so@gzp>
-User-Agent: Gnus/5.1004 (Gnus v5.10.4)
+	Sun, 25 Jan 2004 04:05:43 -0500
+Received: from dsl081-085-091.lax1.dsl.speakeasy.net ([64.81.85.91]:12162 "EHLO
+	mrhankey.megahappy.net") by vger.kernel.org with ESMTP
+	id S263800AbUAYJFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 04:05:40 -0500
+Message-ID: <40138599.1030406@jpl.nasa.gov>
+Date: Sun, 25 Jan 2004 01:00:09 -0800
+From: Bryan Whitehead <driver@jpl.nasa.gov>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.2-rc1-mm3] drivers/usb/storage/dpcm.c
+References: <20040125050342.45C3E13A354@mrhankey.megahappy.net> <20040125084141.GA14215@one-eyed-alien.net>
+In-Reply-To: <20040125084141.GA14215@one-eyed-alien.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
+Matthew Dharm wrote:
+> One message a day to report a particular bug is really enough.... :)
+> 
+> That said, I think it would be better to add the ifdef's instead of more
+> substantial code changes.
 
-| Please help testing! :)
+No problemo, I was just getting my feet wet on small compiler warning 
+fixes and the SubmitingPatches doc said ifdefs were from the devil. ;)
 
-Here we go: http://gzp.odpn.net/tmp/linux-2.4.25-pre7/
+I'll sent a patch later sunday...
 
-The "no DRQ after issuing WRITE" problem with 2 120GB Seagate
-harddisk. I don't think its hw problem, because these disks are fine
-in other environment. More "load" related, without running them in sw
-raid mode, the problem doesn't hit me so quickly.
+> 
+> Matt
+> 
+> On Sat, Jan 24, 2004 at 09:03:42PM -0800, Bryan Whitehead wrote:
+> 
+>>In function dpcm_transport the compiler complains about ret not being used:
+>>drivers/usb/storage/dpcm.c: In function `dpcm_transport':
+>>drivers/usb/storage/dpcm.c:46: warning: unused variable `ret'
+>>
+>>ret is not used if CONFIG_USB_STORAGE_SDDR09 is not set. Instead of adding
+>>more ifdef's to the code this patch puts ret to use for the other 2 cases in
+>>the switch statement (case 0 and default).
+>>
+>>--- drivers/usb/storage/dpcm.c.orig     2004-01-24 20:51:40.631038904 -0800
+>>+++ drivers/usb/storage/dpcm.c  2004-01-24 20:50:05.155553384 -0800
+>>@@ -56,7 +56,8 @@ int dpcm_transport(Scsi_Cmnd *srb, struc
+>>     /*
+>>      * LUN 0 corresponds to the CompactFlash card reader.
+>>      */
+>>-    return usb_stor_CB_transport(srb, us);
+>>+    ret = usb_stor_CB_transport(srb, us);
+>>+    break;
+>>  
+>> #ifdef CONFIG_USB_STORAGE_SDDR09
+>>   case 1:
+>>@@ -72,11 +73,12 @@ int dpcm_transport(Scsi_Cmnd *srb, struc
+>>     ret = sddr09_transport(srb, us);
+>>     srb->device->lun = 1; us->srb->device->lun = 1;
+>>  
+>>-    return ret;
+>>+    break;
+>> #endif
+>>  
+>>   default:
+>>     US_DEBUGP("dpcm_transport: Invalid LUN %d\n", srb->device->lun);
+>>-    return USB_STOR_TRANSPORT_ERROR;
+>>+    ret = USB_STOR_TRANSPORT_ERROR;
+>>   }
+>>+  return ret;
+>> }
+>>
+>>--
+>>Bryan Whitehead
+>>driver@megahappy.net
+>>
+> 
+> 
 
+
+-- 
+Bryan Whitehead
+Email:driver@megahappy.net
+WorkE:driver@jpl.nasa.gov

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289084AbSBJUeR>; Sun, 10 Feb 2002 15:34:17 -0500
+	id <S289643AbSBJUj1>; Sun, 10 Feb 2002 15:39:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289643AbSBJUeJ>; Sun, 10 Feb 2002 15:34:09 -0500
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:31752 "HELO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with SMTP
-	id <S289084AbSBJUd6>; Sun, 10 Feb 2002 15:33:58 -0500
-Date: Sun, 10 Feb 2002 21:33:59 +0100
-From: Jan Hudec <bulb@ucw.cz>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: How do I get "make install" to handle GRUB?
-Message-ID: <20020210213359.A32719@artax.karlin.mff.cuni.cz>
-Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1013371603.29598.4.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1013371603.29598.4.camel@turbulence.megapathdsl.net>; from miles@megapathdsl.net on Sun, Feb 10, 2002 at 12:06:43PM -0800
+	id <S289741AbSBJUjR>; Sun, 10 Feb 2002 15:39:17 -0500
+Received: from ns.suse.de ([213.95.15.193]:18692 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289643AbSBJUjH>;
+	Sun, 10 Feb 2002 15:39:07 -0500
+Date: Sun, 10 Feb 2002 21:39:06 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch][looking for maintainers] jiffies compare fixups
+In-Reply-To: <Pine.LNX.4.33.0202102019370.30794-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.33.0202102137560.29486-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have GRUB installed with RH 7.2.  I build and test 
-> the development kernel series.  How can I get "make install"
-> to work with GRUB?  It seems like maybe we need a "install-grub"
-> target or we need to have a way to automatically determine the
-> bootloader being used and then do corresponding install method.
+On Sun, 10 Feb 2002, Tim Schmielau wrote:
 
-GRUB package should have provided /sbin/installkernel script to take
-care of this properly - or some other package should have.
-(In debian it's in debianutils).
+> On the other hand, about the same fraction of the mails weren't replied
+> to, while these patches also haven't yet appeared in Marcelo's tree.
 
-Anyway - you can always provide this script yourself. Makefile gives it
-four arguments: version, path to zImage, path to System.map, intall-direcotry
-(the install directory is whatever is defined in kernel Makefile and if you
-are not using the default (/), you can override it here)
+Your pine seems to be eating trailing whitespace making a lot of these
+not apply. This could be one of the reasons why they haven't been
+accepted either by the maintainer, or marcelo/linus.
 
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

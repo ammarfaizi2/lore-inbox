@@ -1,55 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262019AbUCIPnG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 10:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUCIPnG
+	id S262022AbUCIPwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 10:52:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUCIPwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 10:43:06 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:10980 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262019AbUCIPnA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 10:43:00 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16461.58880.459105.959740@laputa.namesys.com>
-Date: Tue, 9 Mar 2004 18:42:56 +0300
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 4/4] vm-mapped-x-active-lists
-In-Reply-To: <200403091626.39479@WOLK>
-References: <404D56D8.2000008@cyberone.com.au>
-	<404D5784.9080004@cyberone.com.au>
-	<200403091626.39479@WOLK>
-X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
+	Tue, 9 Mar 2004 10:52:16 -0500
+Received: from dh197.citi.umich.edu ([141.211.133.197]:38530 "EHLO
+	nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S262022AbUCIPwF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 10:52:05 -0500
+Subject: Re: Problems with 2.6.4-rc2 NFS server and diskless clients
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Adrian Cox <adrian@humboldt.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1078846645.1441.14.camel@newt>
+References: <1078846645.1441.14.camel@newt>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1078847522.4067.10.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 09 Mar 2004 10:52:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen writes:
- > On Tuesday 09 March 2004 06:35, Nick Piggin wrote:
- > 
- > Hi Nick,
- > 
- > seems the following patch is required ontop of your patches?
- > 
- > ciao, Marc
- > --- old/arch/i386/mm/hugetlbpage.c	2004-03-09 14:57:42.000000000 +0100
- > +++ new/arch/i386/mm/hugetlbpage.c	2004-03-09 15:36:15.000000000 +0100
- > @@ -411,8 +411,8 @@ static void update_and_free_page(struct 
- >  	htlbzone_pages--;
- >  	for (j = 0; j < (HPAGE_SIZE / PAGE_SIZE); j++) {
- >  		map->flags &= ~(1 << PG_locked | 1 << PG_error | 1 << PG_referenced |
- > -				1 << PG_dirty | 1 << PG_active | 1 << PG_reserved |
- > -				1 << PG_private | 1<< PG_writeback);
- > +				1 << PG_dirty | 1 << PG_active_mapped | 1 << PG_active_unapped |
+På ty , 09/03/2004 klokka 10:37, skreiv Adrian Cox:
+> Using 2.6.4-rc2  on the NFS server together with Debian unstable
+> (nfs-kernel-server version 1:1.0.6-1), diskless clients can no longer
+> mount their root filesystems. The same configuration works with a 2.4
+> kernel on the server.
+> 
+> The client reports "nfs_get_root: getattr error = 116". No error
+> messages appear in the server logs. And the old recipe of exporting with
+> "no_subtree_check" makes no difference.
+> 
+> Anybody have any suggestions?
 
-PG_active_unapped?
+There's already a patch for that in the Bitkeeper tree.
 
- > +				1 << PG_reserved | 1 << PG_private | 1<< PG_writeback);
- >  		set_page_count(map, 0);
- >  		map++;
- >  	}
+Cheers
 
-Nikita.
+  Trond
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/03/06 16:11:47-08:00 trond.myklebust@fys.uio.no 
+#   [PATCH] Fix knfsd filehandles...
+#   
+#   Here's a fix for an obvious typo in changeset
+#   neilb@cse.unsw.edu.au|ChangeSet|20040305155724|31191
+#   that was causing ESTALE errors galore on my NFS testrig.
+# 
+# fs/nfsd/nfsfh.c
+#   2004/03/06 13:46:05-08:00 trond.myklebust@fys.uio.no +1 -0
+#   Fix knfsd filehandles...
+# 
+diff -Nru a/fs/nfsd/nfsfh.c b/fs/nfsd/nfsfh.c
+--- a/fs/nfsd/nfsfh.c	Tue Mar  9 10:51:22 2004
++++ b/fs/nfsd/nfsfh.c	Tue Mar  9 10:51:22 2004
+@@ -396,6 +396,7 @@
+ 				 */
+ 				mk_fsid_v0(datap, ex_dev,
+ 					exp->ex_dentry->d_inode->i_ino);
++				break;
+ 			case 1:
+ 				/* fsid_type 1 == 4 bytes filesystem id */
+ 				mk_fsid_v1(datap, exp->ex_fsid);
+

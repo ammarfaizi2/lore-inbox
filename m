@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312859AbSDJLjc>; Wed, 10 Apr 2002 07:39:32 -0400
+	id <S312610AbSDJLsR>; Wed, 10 Apr 2002 07:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312834AbSDJLjc>; Wed, 10 Apr 2002 07:39:32 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:52376 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S312610AbSDJLja>; Wed, 10 Apr 2002 07:39:30 -0400
-Date: Wed, 10 Apr 2002 13:39:27 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: "Udo A. Steinberg" <reality@delusion.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.8-pre3 linking error
-Message-ID: <20020410113927.GE28413@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	"Udo A. Steinberg" <reality@delusion.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CB418B7.BB5CFEB9@delusion.de>
+	id <S312826AbSDJLsQ>; Wed, 10 Apr 2002 07:48:16 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:65035 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S312610AbSDJLsQ>;
+	Wed, 10 Apr 2002 07:48:16 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: kbuild-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.0 is available 
+In-Reply-To: Your message of "Tue, 09 Apr 2002 23:08:35 +1000."
+             <29447.1018357715@ocs3.intra.ocs.com.au> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Date: Wed, 10 Apr 2002 21:48:02 +1000
+Message-ID: <6278.1018439282@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 12:49:27PM +0200, Udo A. Steinberg wrote:
+New core and common code for kbuild 2.5 is available in
+http://sourceforge.net/project/showfiles.php?group_id=18813&release_id=83065
 
-> 2.5.8-pre3 fails to link here:
-> 
-> init/main.o: In function `start_kernel':
-> init/main.o(.text.init+0x681): undefined reference to `setup_per_cpu_areas'
-> 
+Changes from core-3 to core-4.
 
-Apply this:
+  GNUism removal.
+  WISH is exposed in case your wish binary is not in /usr/bin/wish.
+  awk changed to $(AWK) throughout.
+  PP_variables added to expose headers and compiler flags that might be
+  different on on non-Linux build platforms.
+  Force the use of KBUILD_SHELL instead of relying on a working build
+  platform shell.
+  Drop back to getopt if getopt_long is not available on the build
+  platform, in which case only the single character command flags are
+  available.
+  Documentation updates.
 
-===== init/main.c 1.39 vs edited =====
---- 1.39/init/main.c	Fri Mar 15 15:01:31 2002
-+++ edited/init/main.c	Wed Apr 10 10:35:38 2002
-@@ -271,6 +271,10 @@
- #define smp_init()	do { } while (0)
- #endif
- 
-+static inline void setup_per_cpu_areas(void)
-+{
-+}
-+
- #else
- 
- #ifdef __GENERIC_PER_CPU
+  *** kbuild 2.5-core-4 runs on Solaris using gcc, gmake, gawk. ***
 
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+  Would any brave (or foolhardy) person like to run kbuild 2.5 under
+  Cygwin or other build platforms?
+
+Changes from common-2.4.18-2 to common-2.4.18-3.
+
+  Yet more aic7xxx problems :(
+  Documentation updates.
+  Correct fencepost error in scripts/tkparse.
+
+Changes from common-2.4.19-pre6-1 to common-2.4.19-pre6-2.
+
+  As for  common-2.4.18-2 -> 3.
+

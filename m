@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288402AbSA0T1C>; Sun, 27 Jan 2002 14:27:02 -0500
+	id <S288395AbSA0TXC>; Sun, 27 Jan 2002 14:23:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288414AbSA0T0w>; Sun, 27 Jan 2002 14:26:52 -0500
-Received: from mx04.nexgo.de ([151.189.8.80]:4619 "EHLO mx04.nexgo.de")
-	by vger.kernel.org with ESMTP id <S288402AbSA0T0n>;
-	Sun, 27 Jan 2002 14:26:43 -0500
-Message-ID: <3C54546C.0@arcor.de>
-Date: Sun, 27 Jan 2002 20:26:36 +0100
-From: Hartmut Holz <hartmut.holz@arcor.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020116
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-        Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: Uptime again?
-In-Reply-To: <Pine.LNX.4.33L.0201261935330.32617-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S288402AbSA0TWw>; Sun, 27 Jan 2002 14:22:52 -0500
+Received: from mailhost.nmt.edu ([129.138.4.52]:20484 "EHLO mailhost.nmt.edu")
+	by vger.kernel.org with ESMTP id <S288395AbSA0TWj>;
+	Sun, 27 Jan 2002 14:22:39 -0500
+Date: Sun, 27 Jan 2002 12:22:35 -0700
+From: Val Henson <val@nmt.edu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/AGP issue update
+Message-ID: <20020127122235.D11111@boardwalk>
+In-Reply-To: <20020125113443.C26874@boardwalk> <20020126002045.17802@smtp.wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020126002045.17802@smtp.wanadoo.fr>; from benh@kernel.crashing.org on Sat, Jan 26, 2002 at 01:20:45AM +0100
+Favorite-Color: Polka dot
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
+On Sat, Jan 26, 2002 at 01:20:45AM +0100, Benjamin Herrenschmidt wrote:
+> >
+> >Looking at bat_mapin_ram, it looks like we only map the first 512MB of
+> >RAM with BATs, so we actually map the 512MB - 768MB range with PTEs
+> >(and highmem starts at 768MB).  Two of the DBATs are used by I/O
+> >mappings, so that only leaves two DBATs of 256MB each to map lowmem
+> >anyway.  Am I missing something?
 > 
-> The fact that lavrec crashes the machine while Xawtv works
-> suggests a device driver may be corrupting memory somewhere.
+> No, except maybe my last patch that actually limits lowmem to 512Mb ;)
+
+:)
+
+> I don't think we use the io mapping BATs any more, do we ? (well,
+> maybe on PReP...) I don't on pmac.
+
+Lots and lots of PPC platforms use BATs for io mappings:
+
+val@evilcat </sys/linuxppc_2_4_devel_pristine/arch/ppc/platforms>$ grep -l ppc_md.setup_io_mappings *
+grep: SCCS: Is a directory
+adir_setup.c
+apus_setup.c
+chrp_setup.c
+gemini_setup.c
+k2_setup.c
+lopec_setup.c
+mcpn765_setup.c
+menf1_setup.c
+mvme5100_setup.c
+pcore_setup.c
+powerpmc250.c
+pplus_setup.c
+prep_setup.c
+prpmc750_setup.c
+prpmc800_setup.c
+sandpoint_setup.c
+spruce_setup.c
+zx4500_setup.c
+
+I'm trying to get highmem working on Gemini, hence my interest.
+
+> >By the way, does the "nobats" option currently work on PowerMac?
 > 
+> No, nor on any other BAT-capable PPC (and that's the reason why I
+> did the above). Basically, our exception return path and some of
+> the hash manipulation functions aren't safe without BAT mapping,
+> especially on SMP when you can get evicted from the hash table
+> by the other CPU in places where taking hash faults isn't safe.
 
-I got a debug patch from Manfred Spraul to debug slab.c. With this patch
-the machine ran for about 3 hours. No problem. I looked into slab.c and had an
-idea. What about just one CPU. So I built a new Kernel with just one CPU.
-Result: 1 CPU 1 Minute - 2 CPU 20 Minutes. I aspected a different result.
-In my opinion the whole thing has something to do with slab, SMP and threads.
+Hm, that's what I thought.  Thanks for confirming that.
 
-The machine (450Mhz PII, 448 MB, Intel L440GX Mainboard, Adaptec) it self is solid.
-It has run every 2.3.x and  2.4.x Kernel, Oracle and Sybase (only development).
-No problem.
-.
-
-Regards
-
-Hartmut
-
-
-
-
+-VAL

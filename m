@@ -1,138 +1,175 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312772AbSDOOXD>; Mon, 15 Apr 2002 10:23:03 -0400
+	id <S312791AbSDOO2Y>; Mon, 15 Apr 2002 10:28:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312773AbSDOOXD>; Mon, 15 Apr 2002 10:23:03 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:34822 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S312772AbSDOOXC>; Mon, 15 Apr 2002 10:23:02 -0400
-Date: Mon, 15 Apr 2002 15:22:59 +0100 (BST)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: JFS crash on 2.5.6
-Message-ID: <Pine.LNX.4.33.0204151500020.10194-100000@sphinx.mythic-beasts.com>
+	id <S312790AbSDOO2X>; Mon, 15 Apr 2002 10:28:23 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:10164 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S312791AbSDOO2W>; Mon, 15 Apr 2002 10:28:22 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Subject: Re: [PATCH] Futex Generalization Patch
+Date: Mon, 15 Apr 2002 09:28:23 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: Bill Abt <babt@us.ibm.com>, drepper@redhat.com,
+        linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
+        Rusty Russell <rusty@rustcorp.com.au>
+In-Reply-To: <OF0676911E.A8260761-ON85256B97.006AB10C@raleigh.ibm.com> <20020412194801.35FF13FE06@smtp.linux.ibm.com> <3CB83807.5AD7EEA7@loewe-komp.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020415142727.1E6F53FE07@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Saturday 13 April 2002 09:52 am, Peter Wächtler wrote:
+> Hubertus Franke wrote:
+> > On Friday 12 April 2002 11:36 am, Peter Wächtler wrote:
+> > > Hubertus Franke wrote:
+> > > > On Wednesday 10 April 2002 03:30 pm, Bill Abt wrote:
+> > > > > On 04/10/2002 at 02:10:59 PM AST, Hubertus Franke
+> > > > > <frankeh@watson.ibm.com>
+> > > > >
+> > > > > wrote:
+> > > > > > So you are OK with having only poll  or  select.  That seems odd.
+> > > > > > It seems you still need SIGIO on your fd to get the async
+> > > > > > notification.
+> > > > >
+> > > > > Duh...  You're right.  I forgot about that...
+> > > >
+> > > > Yes,
+> > > >
+> > > > The current interface is
+> > > >
+> > > > (A)
+> > > > async wait:
+> > > >         sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*)
+> > > > sig); upon signal handling
+> > > >         sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
+> > > >         to retrieve the uaddrs that got woken up...
+> > > >
+> > > > If you simply want a notification with SIGIO (or whatever you desire)
+> > > > We can change that to
+> > > > (A)
+> > > > sys_futex(uaddr, FUTEX_WAIT, value, (truct timespec*) fd);
+> > > >
+> > > > I send a SIGIO and you can request via ioctl or read the pending
+> > > > notifications from fd.
+> > > > (B)        { struct futex *notarray[N]
+> > > >               int n = read( futex_fd, (void**)notarray,
+> > > >                             N*sizeof(struct futex));
+> > > >         }
+> > > > I am mainly concerned that SIGIO can be overloaded in a thread
+> > > > package ? How would you know whether a SIGIO came from the futex or
+> > > > from other file handle.
+> > >
+> > > I want to vote for using POSIX realtime signals. With them (and
+> > > SA_SIGINFO) you can carry small amounts of userdata, passed in the
+> > >
+> > > struct siginfo_t
+> > > ---susv2---
+> > > The <signal.h> header defines the siginfo_t type as a structure that
+> > > includes at least the following members:
+> > >
+> > >       int           si_signo  signal number
+> > >       int           si_errno  if non-zero, an errno value associated
+> > > with this signal, as defined in <errno.h> int           si_code  
+> > > signal code
+> > >       pid_t         si_pid    sending process ID
+> > >       uid_t         si_uid    real user ID of sending process
+> > >       void         *si_addr   address of faulting instruction
+> > >       int           si_status exit value or signal
+> > >       long          si_band   band event for SIGPOLL
+> > >       union sigval  si_value  signal value
+> > >
+> > > [and further on]
+> > > Implementations may support additional si_code values not included in
+> > > this list, may generate values included in this list under
+> > > circumstances other than those described in this list, and may contain
+> > > extensions or limitations that prevent some values from being
+> > > generated. Implementations will not generate a different value from the
+> > > ones described in this list for circumstances described in this list.
+> > >
+> > > ---susv2---
+> >
+> > Need to digest your suggestion a bit more. Not too familiar with that
+> > interface.
+> > One question I have though is whether information can get lost?
+> >
+> > Assume , I have a few notifications pending and signal the app.
+> > We signal the app? what would the app call upon notification.
+> > Remember, I don't want to pass in a heavy weight object into the futex
+> > kernel call.
+>
+> Well, realtime signals are reliable in that, that the implementation has to
+> assure, that NO signal gets lost (in contrast to the early unreliable
+> signals [in Version7 ?]). For every notification a realtime signal gets
+> queued.
+>
+That's great. Question is can the NGPT folks live with that realtime signal.
 
-My gateway suffered the below this morning, during
-an "apt-get update".  The logs suggest that it spat
-out oopses for a full minute before finally dying.
+> Do you want to be able to read all (or at least a lot of) pending
+> notifications at once? Then your interface _could_ be more efficient than
+> using a realtime signal for every notification.
+Occasionally, there is a chance that more than 1 notification is pending.
+Hence I don't want to be in the situation to constantly get one notification 
+and have to check for more.
+I think you solution makes a whole lot of sense.
 
-There seem to have been a fair few changes to JFS
-between 2.5.6 and 2.5.8, so I will upgrade this
-evening, but am posting this just in case it's not
-something which has been fixed.
+> OTOH, if you pass the uaddr with the signal, you save one syscall ...
+> Here is an advantage on low lock contention (number of waiters).
+>
+Yipp.
 
-Here are the first few.
+> So you want to read several WAKEUP events in your signal handler. Except
+> for the pthread_cond_broadcast(which is not often used?) do you think that
+> this is a realistic real world scenario or only good for a synthetic
+> benchmark that shows: hey, on heavy lock contention: this implementation is
+> faster.
+>
+> Looking closer at the pthread_cond_broadcast:
+>
+> a) NGPT and n waiters on the same kernel vehicle
+> 	the thread manager could request one WAITA for all, would
+> 	get just one signal and wakes up all threads on his own
+>
+Correct.
 
-Matthew.
+> b) NGPT and n waiters on m kernel vehicles
+> 	all threads on their own vehicle will block on sys_futex(FUTEX_WAIT)
+> 	all others are managed on user space queue and woken up
+> 	by manager who gets only 1 notification
+>
+Correct.
+
+> c) NGPT and n waiters on n kernel vehicles (like on LinuxThreads)
+> 	every kernel vehicle will request a WAIT and block
+>
+Correct.
+
+All <corrects> contingent on my limited knowledge on how an M:N package is 
+implemented.
+
+> So when we have 500 threads competing for dozens of mutexes on a big SMP
+> box: is the bottleneck in the kernel (and on the locked bus) or in the
+> notification mechanism? I can't imagine (don't hit me on this :) that if
+> the kernel releases a lock, and the app wants a fast notification (and
+> delivered/scheduled in priority order) that there is a big chance that a
+> lot of notifications pile up... What do you think?
+> Also: the waitqueues in the kernel are protected by a mutex themselves,
+> while in progress of waking up, no new waiters can be added.
+>
+> If the waiter has higher priority I want to deliver the notify immediatly
+> so that it's getting the CPU and preempts the lock releaser - I wouldn't
+> want a lazy wake up.
+>
+> [And yes, I am missing the wake up in priority order. Uh, now we can
+> discuss the preempt patch again... and I will check how realtime processes
+> are treated]
 
 
-assert(blkno + nblocks <= bmp->db_mapsize)
-kernel BUG at jfs_dmap.c:464!
-invalid operand: 0000
-CPU:    0
-assert(blkno + nblocks <= bmp->db_mapsize)
-kernel BUG at jfs_dmap.c:464!
-invalid operand: 0000
-CPU:    0
-assert(blkno + nblocks <= bmp->db_mapsize)
-kernel BUG at jfs_dmap.c:464!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[dbUpdatePMap+103/1244]    Not tainted
-EFLAGS: 00010286
-eax: 0000002b   ebx: 0044495f   ecx: ffffffd2   edx: c3f18000
-esi: 00000000   edi: c3ba4000   ebp: 00000003   esp: c3f19ee8
-ds: 0018   es: 0018   ss: 0018
-Process jfsCommit (pid: 9, threadinfo=c3f18000 task=c11f5140)
-Stack: c0206e83 c0206e60 0000005f 0044495f c1e9ed80 00000003 c3f18000 c3f5fe78
-       00000000 00000286 00000003 00000001 c0173579 c3f5fe78 00000000 00000000
-       c0167edd c3f5fe78 00000000 c3b00eb0 c480e334 c3ba4000 c1e6c000 c3b00678
-Call Trace: [release_metapage+457/476] [dbFree+561/604] [txFreeMap+133/600] [txUpdateMap+201/548] [txLazyCommit+169/176]
-   [txLazyCommit+33/176] [jfs_lazycommit+304/396] [kernel_thread+40/56]
-
-Code: 0f 0b d0 01 8f 6e 20 c0 83 c4 08 8b 84 24 80 00 00 00 8b 94
- kernel BUG at exit.c:524!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[do_exit+677/692]    Not tainted
-EFLAGS: 00010246
-eax: 00000000   ebx: c3f18000   ecx: c0226650   edx: c3f18000
-esi: c10b4200   edi: c3f19eb4   ebp: c11f5140   esp: c3f19dec
-ds: 0018   es: 0018   ss: 0018
-Process jfsCommit (pid: 9, threadinfo=c3f18000 task=c11f5140)
-Stack: c3f18000 00000000 c3f19eb4 00000003 c010758f 0000000b c3f19eb4 00000000
-       c01077a4 c010782c c01f5371 c3f19eb4 00000000 c3f18000 00000000 00000004
-       00000000 00030002 c0167f6f c027deb4 0088219b c018efb4 c022e2e0 c026e4e9
-Call Trace: [die+111/112] [do_invalid_op+0/148] [do_invalid_op+136/148] [dbUpdatePMap+103/1244] [vt_console_print+720/740]
-   [schedule+521/588] [preempt_schedule+29/32] [error_code+52/64] [dbUpdatePMap+103/1244] [release_metapage+457/476] [dbFree+561/604]
-   [txFreeMap+133/600] [txUpdateMap+201/548] [txLazyCommit+169/176] [txLazyCommit+33/176] [jfs_lazycommit+304/396] [kernel_thread+40/56]
-
-Code: 0f 0b 0c 02 b7 b8 1f c0 e9 a7 fd ff ff 89 f6 8b 44 24 04 85
-EIP:    0010:[dbUpdatePMap+103/1244]    Not tainted
-EFLAGS: 00010286
-eax: 0000002b   ebx: 0044495f   ecx: ffffffd2   edx: c3f18000
-esi: 00000000   edi: c3ba4000   ebp: 00000003   esp: c3f19ee8
-ds: 0018   es: 0018   ss: 0018
-Process jfsCommit (pid: 9, threadinfo=c3f18000 task=c11f5140)
-Stack: c0206e83 c0206e60 0000005f 0044495f c1e9ed80 00000003 c3f18000 c3f5fe78
-       00000000 00000286 00000003 00000001 c0173579 c3f5fe78 00000000 00000000
-       c0167edd c3f5fe78 00000000 c3b00eb0 c480e334 c3ba4000 c1e6c000 c3b00678
-Call Trace: [release_metapage+457/476] [dbFree+561/604] [txFreeMap+133/600] [txUpdateMap+201/548] [txLazyCommit+169/176]
-   [txLazyCommit+33/176] [jfs_lazycommit+304/396] [kernel_thread+40/56]
-
-Code: 0f 0b d0 01 8f 6e 20 c0 83 c4 08 8b 84 24 80 00 00 00 8b 94
- kernel BUG at exit.c:524!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[do_exit+677/692]    Not tainted
-EFLAGS: 00010246
-eax: 00000000   ebx: c3f18000   ecx: c0226650   edx: c3f18000
-esi: c10b4200   edi: c3f19eb4   ebp: c11f5140   esp: c3f19dec
-ds: 0018   es: 0018   ss: 0018
-Process jfsCommit (pid: 9, threadinfo=c3f18000 task=c11f5140)
-Stack: c3f18000 00000000 c3f19eb4 00000003 c010758f 0000000b c3f19eb4 00000000
-       c01077a4 c010782c c01f5371 c3f19eb4 00000000 c3f18000 00000000 00000004
-       00000000 00030002 c0167f6f c027deb4 0088219b c018efb4 c022e2e0 c026e4e9
-Call Trace: [die+111/112] [do_invalid_op+0/148] [do_invalid_op+136/148] [dbUpdatePMap+103/1244] [vt_console_print+720/740]
-   [schedule+521/588] [preempt_schedule+29/32] [error_code+52/64] [dbUpdatePMap+103/1244] [release_metapage+457/476] [dbFree+561/604]
-   [txFreeMap+133/600] [txUpdateMap+201/548] [txLazyCommit+169/176] [txLazyCommit+33/176] [jfs_lazycommit+304/396] [kernel_thread+40/56]
-
-Code: 0f 0b 0c 02 b7 b8 1f c0 e9 a7 fd ff ff 89 f6 8b 44 24 04 85
-EIP:    0010:[dbUpdatePMap+103/1244]    Not tainted
-EFLAGS: 00010286
-eax: 0000002b   ebx: 0044495f   ecx: ffffffd2   edx: c3f18000
-esi: 00000000   edi: c3ba4000   ebp: 00000003   esp: c3f19ee8
-ds: 0018   es: 0018   ss: 0018
-Process jfsCommit (pid: 9, threadinfo=c3f18000 task=c11f5140)
-Stack: c0206e83 c0206e60 0000005f 0044495f c1e9ed80 00000003 c3f18000 c3f5fe78
-       00000000 00000286 00000003 00000001 c0173579 c3f5fe78 00000000 00000000
-       c0167edd c3f5fe78 00000000 c3b00eb0 c480e334 c3ba4000 c1e6c000 c3b00678
-Call Trace: [release_metapage+457/476] [dbFree+561/604] [txFreeMap+133/600] [txUpdateMap+201/548] [txLazyCommit+169/176]
-   [txLazyCommit+33/176] [jfs_lazycommit+304/396] [kernel_thread+40/56]
-
-Code: 0f 0b d0 01 8f 6e 20 c0 83 c4 08 8b 84 24 80 00 00 00 8b 94
- kernel BUG at exit.c:524!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[do_exit+677/692]    Not tainted
-EFLAGS: 00010246
-eax: 00000000   ebx: c3f18000   ecx: c0226650   edx: c3f18000
-esi: c10b4200   edi: c3f19eb4   ebp: c11f5140   esp: c3f19dec
-ds: 0018   es: 0018   ss: 0018
-Process jfsCommit (pid: 9, threadinfo=c3f18000 task=c11f5140)
-Stack: c3f18000 00000000 c3f19eb4 00000003 c010758f 0000000b c3f19eb4 00000000
-       c01077a4 c010782c c01f5371 c3f19eb4 00000000 c3f18000 00000000 00000004
-       00000000 00030002 c0167f6f c027deb4 0088219b c018efb4 c022e2e0 c026e4e9
-Call Trace: [die+111/112] [do_invalid_op+0/148] [do_invalid_op+136/148] [dbUpdatePMap+103/1244] [vt_console_print+720/740]
-   [schedule+521/588] [preempt_schedule+29/32] [error_code+52/64] [dbUpdatePMap+103/1244] [release_metapage+457/476] [dbFree+561/604]
-   [txFreeMap+133/600] [txUpdateMap+201/548] [txLazyCommit+169/176] [txLazyCommit+33/176] [jfs_lazycommit+304/396] [kernel_thread+40/56]
-
-Code: 0f 0b 0c 02 b7 b8 1f c0 e9 a7 fd ff ff 89 f6 8b 44 24 04 85
-
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

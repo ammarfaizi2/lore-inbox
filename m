@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265001AbRFUPQD>; Thu, 21 Jun 2001 11:16:03 -0400
+	id <S264999AbRFUPRx>; Thu, 21 Jun 2001 11:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265000AbRFUPPn>; Thu, 21 Jun 2001 11:15:43 -0400
-Received: from sammy.netpathway.com ([208.137.139.2]:40975 "EHLO
-	sammy.netpathway.com") by vger.kernel.org with ESMTP
-	id <S264999AbRFUPPi>; Thu, 21 Jun 2001 11:15:38 -0400
-Message-ID: <3B320DD3.BBC083CB@netpathway.com>
-Date: Thu, 21 Jun 2001 10:08:03 -0500
-From: "Gary White (Network Administrator)" <admin@netpathway.com>
-Organization: Internet Pathway
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S265000AbRFUPRd>; Thu, 21 Jun 2001 11:17:33 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:3845 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S264999AbRFUPR0>; Thu, 21 Jun 2001 11:17:26 -0400
+Date: Thu, 21 Jun 2001 11:16:42 -0400
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>, Stefan.Bader@de.ibm.com
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: correction: fs/buffer.c underlocking async pages
+Message-ID: <470160000.993136602@tiny>
+In-Reply-To: <20010621170813.F29084@athlon.random>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac16 kernel panic
-In-Reply-To: <E15Czfx-0000x5-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the boot panic message I get with the patch applied...
-
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-RSDT Table at 0x1FFEC000, size 536788992 bytes.
-kernel BUG at ioremap.c:73!
-invalid operand: 0000
 
 
+On Thursday, June 21, 2001 05:08:13 PM +0200 Andrea Arcangeli
+<andrea@suse.de> wrote:
 
-> Try this - it may help
-> --- arch/i386/kernel/bootflag.c~        Mon Jun 18 19:17:30 2001
-> +++ arch/i386/kernel/bootflag.c Thu Jun 21 08:19:44 2001
-> @@ -168,6 +168,9 @@
->         rsdt = *(u32 *)(p+16);
->         rsdtlen = *(u32 *)(p+20);
->
-> +       printk(KERN_INFO "RSDT Table at 0x%lX, size %u bytes.\n",
-> +               rsdt, rsdtlen);
-> +
->         rsdt = (unsigned long)ioremap(rsdt, rsdtlen);
->         if(rsdt == 0)
->                 return;
-> @@ -188,6 +191,15 @@
->         for(n = 36; n+3 < i; n += 4)
->         {
->                 unsigned long rp = readl(rsdt+n);
-> +               int len = 4096;
-> +
-> +               if(rp > 0xFFFFFFFFUL - len)
-> +                       len = 0xFFFFFFFFUL - rp;
-> +
-> +               /* Too close to the end!! */
-> +               if(len < 20)
-> +                       continue;
-> +
->                 rp = (unsigned long)ioremap(rp, 4096);
->                 if(rp == 0)
->                         continue;
+> 
+> It seems we can more simply drop the tmp->b_end_io == end_buffer_io_async
+> check enterely and safely. Possibly we could build a debugging logic to
+> make sure nobody ever lock down a buffer mapped on a pagecache that is
+> under async I/O (which in realty is "sync" I/O, you know the async/sync
+> names of the kernel io callbacks are the opposite of realty ;).
+> 
+> The reason it seems safe to me is that when a pagecache is under async
+> I/O (async in kernel terms) it says locked all the time until the last
+> call of the async I/O callback, and _nobody_ is ever allowed to mess
+> with the anon bh overlapped on the pagecache while the page stays locked
+> down. As far as the async end_io callback is recalled it means the page
+> is still locked down so we know if the end_io callback points to
+> something else it's because of a underlying remapper, nobody else would
+> be allowed to play the bh of a page locked down.
 
---
-Gary White               Network Administrator
-admin@netpathway.com          Internet Pathway
-Voice 601-776-3355            Fax 601-776-2314
+Think of a mixture of fsync_inode_buffers and async i/o on page.  Since
+fsync_inode_buffers uses ll_rw_block, if that end_io handler is the last to
+run the page never gets unlocked.
 
+-chris
 

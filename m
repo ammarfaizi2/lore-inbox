@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275941AbSIUULT>; Sat, 21 Sep 2002 16:11:19 -0400
+	id <S275942AbSIUUOM>; Sat, 21 Sep 2002 16:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275940AbSIUULT>; Sat, 21 Sep 2002 16:11:19 -0400
-Received: from 62-190-219-210.pdu.pipex.net ([62.190.219.210]:5 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S275941AbSIUULS>; Sat, 21 Sep 2002 16:11:18 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209212023.g8LKNC9i001545@darkstar.example.net>
-Subject: Re: Loading kernel
-To: thunder@lightweight.ods.org (Thunder from the hill)
-Date: Sat, 21 Sep 2002 21:23:12 +0100 (BST)
-Cc: chavvasrini@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209201846520.342-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Sep 20, 2002 06:47:41 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S275943AbSIUUOM>; Sat, 21 Sep 2002 16:14:12 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:33005 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S275942AbSIUUOL>;
+	Sat, 21 Sep 2002 16:14:11 -0400
+Date: Sat, 21 Sep 2002 22:19:11 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       msinz@wgate.com
+Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
+Message-ID: <20020921221911.C15732@fafner.intra.cogenit.fr>
+References: <3D8B87C7.7040106@wgate.com.suse.lists.linux.kernel> <3D8B8CAB.103C6CB8@digeo.com.suse.lists.linux.kernel> <3D8B934A.1060900@wgate.com.suse.lists.linux.kernel> <3D8B982A.2ABAA64C@digeo.com.suse.lists.linux.kernel> <p73bs6stfv8.fsf@oldwotan.suse.de> <3D8BAEDC.ED943632@digeo.com> <20020921014735.A28162@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020921014735.A28162@wotan.suse.de>; from ak@suse.de on Sat, Sep 21, 2002 at 01:47:35AM +0200
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 20 Sep 2002, Srinivas Chavva wrote:
-> > "
-> > /etc/rc.sysinit: /var/log/dmesg: No such file or
-> > directory
-> > /etc/rc.sysinit: /var/log/ksyms.o: No such file or
-> > directory
-> > INIT: Entering run level:3
-> > Updating /etc/fstab execvp: No such file or directory
-> > 					[FAILED]
-> > Checking for new hardware
-> > /etc/rc3.d/S05Kudzu:/usr/sbin/kudzu: No such file or
-> > directory
-> > 					[FAILED]
-> > touch:creating '/var/lock/subsys/kudzu': No such file
-> > or directory
-> > "
+Andi Kleen <ak@suse.de> :
+> On Fri, Sep 20, 2002 at 04:27:24PM -0700, Andrew Morton wrote:
+[...]
+> > Oh sure, I agree that it's a useful feature.  But I don't agree that
+> > we need to allow users to specify how the final filename is pasted
+> > together.  Just give them host-uid-gid-comm.core.  ie: everything.
 > 
-> That's really no kernel issue. The kernel seems to have booted fine, and 
-> I'd doubt that's fs corruption.
+> That wouldn't support the Dr.Watson thing.
 
-Agreed, except that I think that the old kernel has been re-loaded instead of the new one, because lilo hasn't been re-run.
+Time to upgrade to directory notification enabled Dr.Watson ?
 
-Lilo does not automatically re-read it's config file, like grub does, (apparently, I use lilo exclusively), and you need to run lilo before re-booting after installing a new kernel image.
-
-John.
+-- 
+Ueimor

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283626AbRK3Lc0>; Fri, 30 Nov 2001 06:32:26 -0500
+	id <S283627AbRK3Ll5>; Fri, 30 Nov 2001 06:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283622AbRK3LcQ>; Fri, 30 Nov 2001 06:32:16 -0500
-Received: from dsl-213-023-038-163.arcor-ip.net ([213.23.38.163]:13583 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S283625AbRK3LcE>;
-	Fri, 30 Nov 2001 06:32:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Block I/O Enchancements, 2.5.1-pre2
-Date: Fri, 30 Nov 2001 03:19:09 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>,
-        <jmerkey@timpanogas.org>
-In-Reply-To: <Pine.LNX.4.33.0111271933100.1195-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0111271933100.1195-100000@penguin.transmeta.com>
+	id <S283625AbRK3Llt>; Fri, 30 Nov 2001 06:41:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26383 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S283624AbRK3Llg>; Fri, 30 Nov 2001 06:41:36 -0500
+Subject: Re: kapm-idled no longer idling CPU?
+To: dglidden@illusionary.com (Derek Glidden)
+Date: Fri, 30 Nov 2001 11:50:08 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C06855F.22AD79C4@illusionary.com> from "Derek Glidden" at Nov 29, 2001 01:58:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E169dGg-0000iO-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E169mBE-0003Fw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 28, 2001 04:38 am, Linus Torvalds wrote:
-> We will probably _not_ get 64-bit page index numbers, though. I don't want
-> to make the page structure bigger/slower for very little gain. So the page
-> cache is probably going to be limited to about 44 bits (45+ if people
-> start doing large pages, which is probably worth it). So there would still
-> be partition/file limits on the order of 16-64 TB in the next few years.
+> application that uses more than very minor system resources is running,
+> (i.e. mozilla, netscape, xemacs, apache, Tomcat, just to name a few
+> common ones I've seen this behaviour with) kapm-idled no longer receives
+> scheduling time from what I can tell and I assume that means my CPU is
+> never getting idled when nothing is scheduled.
 
-The Ext2+ crowd is actively working on preparing for the world of larger 
-blocks, so that 64KB blocks will be entirely practical.  This will get us to 
-1/4 Petabyte, still with 32 bit block pointers internally.  The main problem 
-that has to be solved is internal fragmentation.
+kapm_idled will get scheduling time when there is nothing else to run, 
+whether it wants it or is using it is more of the question.
 
-Going beyond 64KB blocks with mimimal changes is possible too, basically just 
-working around the 16 bit pointers in directory blocks.  However, it's not 
-clear it's a pressing need.
+> reporting its time incorrectly since my laptop has gone from about 2-1/2
+> hours of battery life in early 2.4 versions to less than 1 hour of
+> battery life under the same conditions for recent kernels.  Plus, if I
 
-> (In a longer timeframe, assuming RAM keeps getting cheaper and cheaper,
-> and 64-bit computing starts hppening on PC's, a few years down the line we
-> can re-visit this - that particular transition is not going to be too
-> painful).
->
-> And yes, I realize that you can already build big arrays and use LVM etc
-> to make them be more than 16TB. I just do not think it's a problem yet,
-> and I'd rather cater to "normal" people than to peopel who can't bother
-> to partition their data at all.
+Stick some printk calls in so you can see a count of when the thread runs
+and also see when it decides to ask the BIOS to do idling (and also what
+then occurs).
 
-Right, there's still a lot more scalability to be squeezed out of good old 32 
-bits.  If we do run out of something it's likely to be the 32 bits of inodes, 
-after all, who can get by on a mere 4 billion files these days?
+I fixed one case recently where we would spin calling the bios all the time
+when instead of pausing the bios replied that it had slowed down the
+processor. That however was post 2.4.9 so I dont think its related.
 
---
-Daniel
+Alan

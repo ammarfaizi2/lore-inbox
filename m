@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269757AbRHDBkI>; Fri, 3 Aug 2001 21:40:08 -0400
+	id <S269760AbRHDBm2>; Fri, 3 Aug 2001 21:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269753AbRHDBj6>; Fri, 3 Aug 2001 21:39:58 -0400
-Received: from dnai-216-15-62-124.cust.dnai.com ([216.15.62.124]:56301 "HELO
-	soni.ppetru.net") by vger.kernel.org with SMTP id <S269750AbRHDBjo>;
-	Fri, 3 Aug 2001 21:39:44 -0400
-Date: Fri, 3 Aug 2001 18:38:53 -0700
-To: Dan Kegel <dank@kegel.com>
-Cc: Christopher Smith <x@xman.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Michael Elkins <me@toesinperil.com>, Zach Brown <zab@zabbo.net>
-Subject: Re: sigopen() vs. /dev/sigtimedwait
-Message-ID: <20010803183853.H1080@ppetru.net>
-In-Reply-To: <3B6B50C4.D9FBF398@kegel.com>
+	id <S269750AbRHDBmS>; Fri, 3 Aug 2001 21:42:18 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:13072 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S269758AbRHDBmM>;
+	Fri, 3 Aug 2001 21:42:12 -0400
+Date: Sat, 4 Aug 2001 04:42:02 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Brad Bonkoski <bbonkoski@xyterra.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: select(2)
+Message-ID: <20010804044202.G11046@mea-ext.zmailer.org>
+In-Reply-To: <03f101c11c5b$b53a19d0$6e00a8c0@BBONKOSKI>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3B6B50C4.D9FBF398@kegel.com>
-User-Agent: Mutt/1.3.20i
-From: ppetru@ppetru.net (Petru Paler)
+In-Reply-To: <03f101c11c5b$b53a19d0$6e00a8c0@BBONKOSKI>; from bbonkoski@xyterra.com on Fri, Aug 03, 2001 at 01:34:34PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 03, 2001 at 06:32:52PM -0700, Dan Kegel wrote:
-> So I'm proposing the following user story:
+On Fri, Aug 03, 2001 at 01:34:34PM -0700, Brad Bonkoski wrote:
+> > Hello,
+> >
+> > this code:
+> > fd_set set;
+> > struct timeval timeout;
+> > int len_inet;
+> > int n;
+> > FD_ZERO(&set);
+> > timeout.tv_sec = 1L;
+
+  I would venture a guess that as you don't EXPLICITELY
+  initialize the   timeout.tv_usec  value to be
+  within  0  to   999999   it may get some system dependent
+  sometimes random, sometimes fixed value (the joys of these
+  stack-allocated "automatic" variables..)
+
+  For short:  Smells of UNINITIALIZED PARAMETER DATA.
+
+> > FD_SET(sc_sock,&set);
+> > n = select(sc_sock+1, &set, NULL, NULL, &timeout);
+> > if (n == -1)
+> >
 > 
->   // open a fd linked to signal mysignum
->   int fd = open("/dev/sigtimedwait", O_RDWR);
->   int sigs[1]; sigs[0] = mysignum;
->   write(fd, sigs, sizeof(sigs[0]));
+> >   perror("select()\n");
+> >   exit(1);
+> > }
+> >
+> > Works just fine on one machine, i.e. select() does not return a '-1' which
+> lets it run through the rest of the code.  However, on other machines, it
+> does not work fine, -1 is always returned by select() with error of: Invalid
+> arguement
+> >
+> > Any ideas on where I could look to fix this problem?  Something in the
+> syntax of the posted code, or should I be looking at the creation of the
+> socket?
+> > TIA.
+> > Brad
+> >
+> >
+> >
+> >
+> >
 > 
->   // memory map a result buffer
->   struct siginfo_t *map = mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
 > 
->   for (;;) {
->       // grab recent siginfo_t's
->       struct devsiginfo dsi;
->       dsi.dsi_nsis = 1000;
->       dsi.dsi_sis = NULL;      // NULL means "use map instead of buffer"
->       dsi.dsi_timeout = 1;
->       int nsis = ioctl(fd, DS_SIGTIMEDWAIT, &dvp);   
 > 
->       // use 'em.  Some might be completion notifications; some might be readiness notifications.
->       for (i=0; i<nsis; i++)
->           handle_siginfo(map+i);
->   }
-
-And the advantage of this over /dev/epoll would be that you don't have to
-explicitly add/remove fd's?
-
-I ask because yesterday I used /dev/epoll in a project and it behaves *very*
-well, so I'm wondering what advantages your interface would bring.
-
-> Comments?
-
-How do you handle signal queue overflow? signal-per-fd helps, but you still
-have to have the queue as big as the maximum number of fds is...
-
-Petru
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

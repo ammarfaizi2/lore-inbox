@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbSKYWus>; Mon, 25 Nov 2002 17:50:48 -0500
+	id <S265854AbSKYWxH>; Mon, 25 Nov 2002 17:53:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265800AbSKYWus>; Mon, 25 Nov 2002 17:50:48 -0500
-Received: from fw-az.mvista.com ([65.200.49.158]:40184 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id <S265798AbSKYWur>; Mon, 25 Nov 2002 17:50:47 -0500
-Message-ID: <3DE2AB46.70100@mvista.com>
-Date: Mon, 25 Nov 2002 15:59:18 -0700
-From: Steven Dake <sdake@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S265857AbSKYWxH>; Mon, 25 Nov 2002 17:53:07 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:2188 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265854AbSKYWxF>; Mon, 25 Nov 2002 17:53:05 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 25 Nov 2002 15:01:15 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Myers <jgmyers@netscape.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] new poll callback'd wake up hell ...
+In-Reply-To: <Pine.LNX.4.50.0211251451060.1793-100000@blue1.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.50.0211251458220.1793-100000@blue1.dev.mcafeelabs.com>
+References: <3DE29EB9.9050301@netscape.com>
+ <Pine.LNX.4.50.0211251433200.1793-100000@blue1.dev.mcafeelabs.com>
+ <Pine.LNX.4.50.0211251451060.1793-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: "Joao \"Alberto M. dos Reis \" \"(listas de discucao)\"" 
-	<lista@vudu.ath.cx>
-CC: lista do kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Network Load Balance
-References: <1038264237.3731.9.camel@goku>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joao,
+On Mon, 25 Nov 2002, Davide Libenzi wrote:
 
-Your looking for bonding driver, which is in the kernel and also has a 
-seperate sourceforge project where development works.
+> On Mon, 25 Nov 2002, Davide Libenzi wrote:
+>
+> > On Mon, 25 Nov 2002, John Myers wrote:
+> >
+> > > Davide Libenzi writes:
+> > >  > 1) Move the wake_up() call done inside the poll callback outside the lock
+> > >
+> > > You can't.  You need to hold the lock over the callback or your callback
+> > > could end up accessing a freed epitem.
+> >
+> > No, look at the code :
+> >
+> > http://www.xmailserver.org/linux-patches/sys_epoll-2.5.49-0.58.diff
+> >
+> > The function ep_collect_ready_items() increases the usage count under
+> > lock. So the epintem is protected, and the file* cannot desappear because
+> > of the read lock on epsem.
+>
+> Ops, I understood the f_op->poll() not the wake_up(). It can be solved in
+> the same way. I'll do it now.
 
-Thanks
--steve
+The only place where a protection is needed is inside ep_insert() and not
+because of the wake_up() outsize the lock. Because of this :
 
-Joao Alberto M. dos Reis (listas de discucao) wrote:
+        /* Add the current item to the list of active epoll hook for this file */
+        spin_lock(&tfile->f_ep_lock);
+        list_add_tail(&epi->fllink, &tfile->f_ep_links);
+        spin_unlock(&tfile->f_ep_lock);
 
->There is any way to make 2 intel ethernet cards working as one, like the
->Network Load Balance (NLB - Windows) in the Intel Ethernet adapters with
->the Adaptive Load Balance feature on linux? 
->
->I know that in windows it works, but in the linux? Anyone has any
->ideias? 
->
->Joao Reis.
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
->  
->
+
+
+- Davide
 

@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262692AbREOJFb>; Tue, 15 May 2001 05:05:31 -0400
+	id <S262688AbREOI7l>; Tue, 15 May 2001 04:59:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262693AbREOJFV>; Tue, 15 May 2001 05:05:21 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:4113 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S262692AbREOJFL>;
-	Tue, 15 May 2001 05:05:11 -0400
-X-Envelope-From: news@bytesex.org
+	id <S262690AbREOI7b>; Tue, 15 May 2001 04:59:31 -0400
+Received: from CPE-61-9-184-110.vic.bigpond.net.au ([61.9.184.110]:34837 "EHLO
+	surfers.oz.agile.tv") by vger.kernel.org with ESMTP
+	id <S262688AbREOI7U>; Tue, 15 May 2001 04:59:20 -0400
+Message-ID: <3B00F0FD.2060905@oz.agile.tv>
+Date: Tue, 15 May 2001 19:03:57 +1000
+From: Dave Cecil <dcecil@oz.agile.tv>
+Organization: AgileTV
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: mmap
-Date: 15 May 2001 07:33:12 GMT
-Organization: [x] network byte order
-Message-ID: <slrn9g1mto.74g.kraxel@bytesex.org>
-In-Reply-To: <CA256A4D.00256728.00@d73mta05.au.ibm.com>
-NNTP-Posting-Host: localhost
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Trace: bytesex.org 989911992 7324 127.0.0.1 (15 May 2001 07:33:12 GMT)
-User-Agent: slrn/0.9.7.0 (Linux)
+Subject: Tracing a network device
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdaljeet@in.ibm.com wrote:
->  I am doing the following:
->  
->     malloc some memory is user space
->     pass its pointer to some kernel module
->     in the kernel module...do a pci_alloc_consistent so that i get a memory
->     region for PCI DMA operations
+Guys,
 
-Wrong approach, you can use kiobufs if you want DMA to the malloc()ed
-userspace memory:
+I'm working on a network device that will forward some packets before 
+they get to netif_rx and thus net_rx_action.  Thus, the forwarded 
+packets handled by my device/protocol would not be traced by the 
+existing trace utility (AF_PACKET etc.), correct?  Am I correct in 
+assuming that there is no existing way to trace such fast-forwarded packets?
 
- * lock down the user memory using map_user_kiobuf() + lock_kiovec()
-   (see linux/iobuf.h).
- * translate the iobuf->maplist into a scatterlist [1]
- * feed pci_map_sg() with the scatterlist to get DMA addresses.
-   you can pass to the hardware.
+Mmy proposed solution to the problem is to implement a socket type for 
+my (new) protocol family that will allow such packets to be traced.  
+Simply open a socket eg socket(AF_MINE, SOCK_RAW, MYPROTO_TRACE) and you 
+get a copy of the packets from the driver.  Is this an acceptable 
+solution or are people cringing at the thought?
 
-And the reverse to free everything when you are done of course.
+I came across the ethertap driver and it seems to do something along the 
+lines of what I want to do, but I need to look at it more closely.
 
-  Gerd
+Comments?
 
-[1] IMHO it would be more useful if iobufs would use a scatterlist
-    instead of an struct page* array.
+Thanks,
+Dave
 
-
--- 
-Gerd Knorr <kraxel@bytesex.org>  --  SuSE Labs, Auﬂenstelle Berlin

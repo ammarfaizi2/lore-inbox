@@ -1,133 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264088AbUFBUTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264082AbUFBUQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbUFBUTA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 16:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbUFBUS7
+	id S264082AbUFBUQm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 16:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUFBUOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 16:18:59 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:33714 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264088AbUFBURL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 16:17:11 -0400
-Date: Wed, 2 Jun 2004 21:16:59 +0100 (BST)
+	Wed, 2 Jun 2004 16:14:54 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:27778 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264058AbUFBUOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 16:14:14 -0400
+Date: Wed, 2 Jun 2004 21:14:03 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
-cc: davidm@hpl.hp.com, <James.Bottomley@SteelEye.com>, <ak@suse.de>,
-       <rmk@arm.linux.org.uk>, <paulus@samba.org>, <anton@samba.org>,
+cc: rmk@arm.linux.org.uk, <paulus@samba.org>, <anton@samba.org>,
        <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pretest pte_young and pte_dirty
+Subject: [PATCH] flush TLB when clearing young
 In-Reply-To: <Pine.LNX.4.44.0406022103500.27696-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0406022114110.27696-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0406022112020.27696-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Test for pte_young before going to the costlier atomic test_and_clear,
-as asm-generic does.  Test for pte_dirty before going to the costlier
-atomic test_and_clear, as asm-generic does (I said before that I would
-not do so for pte_dirty, but was missing the point: there is nothing
-atomic about deciding to do nothing).  But I've not touched the rather
-different ppc and ppc64.
+Traditionally we've not flushed TLB after clearing the young/referenced
+bit, it has seemed just a waste of time.  Russell King points out that
+on some architectures, with the move from 2.4 mm sweeping to 2.6 rmap,
+this may be a serious omission: very frequently referenced pages never
+re-marked young, and the worst choices made for unmapping.
+
+So, replace ptep_test_and_clear_young by ptep_clear_flush_young
+throughout rmap.c.  Originally I'd imagined making some kind of TLB
+gather optimization, but don't see what now: whether worth it rather
+depends on how common cross-cpu flushes are, and whether global or not.
+
+ppc and ppc64 have already found this issue, and worked around it by
+arranging TLB flush from their ptep_test_and_clear_young: with the aid
+of pgtable rmap pointers.  I'm hoping ptep_clear_flush_young will allow
+ppc and ppc64 to remove that special code, but won't change them myself.
+
+It's worth noting that it is Andrea's anon_vma rmap which makes the vma
+available for ptep_clear_flush_young in page_referenced_one: anonmm and
+pte_chains would both need an additional find_vma for that.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
- include/asm-i386/pgtable.h   |   16 ++++++++++++++--
- include/asm-ia64/pgtable.h   |    4 ++++
- include/asm-parisc/pgtable.h |    4 ++++
- include/asm-x86_64/pgtable.h |   17 +++++++++++++++--
- 4 files changed, 37 insertions(+), 4 deletions(-)
+ mm/rmap.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
---- 2.6.7-rc2/include/asm-i386/pgtable.h	2004-05-30 11:36:30.000000000 +0100
-+++ linux/include/asm-i386/pgtable.h	2004-06-02 16:32:40.032214544 +0100
-@@ -220,8 +220,20 @@ static inline pte_t pte_mkdirty(pte_t pt
- static inline pte_t pte_mkyoung(pte_t pte)	{ (pte).pte_low |= _PAGE_ACCESSED; return pte; }
- static inline pte_t pte_mkwrite(pte_t pte)	{ (pte).pte_low |= _PAGE_RW; return pte; }
+--- 2.6.7-rc2/mm/rmap.c	2004-05-30 11:36:40.000000000 +0100
++++ linux/mm/rmap.c	2004-06-02 16:32:28.792923176 +0100
+@@ -232,7 +232,7 @@ static int page_referenced_one(struct pa
+ 	if (page_to_pfn(page) != pte_pfn(*pte))
+ 		goto out_unmap;
  
--static inline  int ptep_test_and_clear_dirty(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_DIRTY, &ptep->pte_low); }
--static inline  int ptep_test_and_clear_young(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_ACCESSED, &ptep->pte_low); }
-+static inline int ptep_test_and_clear_dirty(pte_t *ptep)
-+{
-+	if (!pte_dirty(*ptep))
-+		return 0;
-+	return test_and_clear_bit(_PAGE_BIT_DIRTY, &ptep->pte_low);
-+}
-+
-+static inline int ptep_test_and_clear_young(pte_t *ptep)
-+{
-+	if (!pte_young(*ptep))
-+		return 0;
-+	return test_and_clear_bit(_PAGE_BIT_ACCESSED, &ptep->pte_low);
-+}
-+
- static inline void ptep_set_wrprotect(pte_t *ptep)		{ clear_bit(_PAGE_BIT_RW, &ptep->pte_low); }
- static inline void ptep_mkdirty(pte_t *ptep)			{ set_bit(_PAGE_BIT_DIRTY, &ptep->pte_low); }
+-	if (ptep_test_and_clear_young(pte))
++	if (ptep_clear_flush_young(vma, address, pte))
+ 		referenced++;
  
---- 2.6.7-rc2/include/asm-ia64/pgtable.h	2004-05-30 11:36:31.000000000 +0100
-+++ linux/include/asm-ia64/pgtable.h	2004-06-02 16:32:40.034214240 +0100
-@@ -346,6 +346,8 @@ static inline int
- ptep_test_and_clear_young (pte_t *ptep)
- {
- #ifdef CONFIG_SMP
-+	if (!pte_young(*ptep))
-+		return 0;
- 	return test_and_clear_bit(_PAGE_A_BIT, ptep);
- #else
- 	pte_t pte = *ptep;
-@@ -360,6 +362,8 @@ static inline int
- ptep_test_and_clear_dirty (pte_t *ptep)
- {
- #ifdef CONFIG_SMP
-+	if (!pte_dirty(*ptep))
-+		return 0;
- 	return test_and_clear_bit(_PAGE_D_BIT, ptep);
- #else
- 	pte_t pte = *ptep;
---- 2.6.7-rc2/include/asm-parisc/pgtable.h	2004-05-30 11:36:33.000000000 +0100
-+++ linux/include/asm-parisc/pgtable.h	2004-06-02 16:32:40.035214088 +0100
-@@ -417,6 +417,8 @@ extern void update_mmu_cache(struct vm_a
- static inline int ptep_test_and_clear_young(pte_t *ptep)
- {
- #ifdef CONFIG_SMP
-+	if (!pte_young(*ptep))
-+		return 0;
- 	return test_and_clear_bit(xlate_pabit(_PAGE_ACCESSED_BIT), ptep);
- #else
- 	pte_t pte = *ptep;
-@@ -430,6 +432,8 @@ static inline int ptep_test_and_clear_yo
- static inline int ptep_test_and_clear_dirty(pte_t *ptep)
- {
- #ifdef CONFIG_SMP
-+	if (!pte_dirty(*ptep))
-+		return 0;
- 	return test_and_clear_bit(xlate_pabit(_PAGE_DIRTY_BIT), ptep);
- #else
- 	pte_t pte = *ptep;
---- 2.6.7-rc2/include/asm-x86_64/pgtable.h	2004-05-30 11:36:35.000000000 +0100
-+++ linux/include/asm-x86_64/pgtable.h	2004-06-02 16:32:40.036213936 +0100
-@@ -262,8 +262,21 @@ extern inline pte_t pte_mkexec(pte_t pte
- extern inline pte_t pte_mkdirty(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_DIRTY)); return pte; }
- extern inline pte_t pte_mkyoung(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_ACCESSED)); return pte; }
- extern inline pte_t pte_mkwrite(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_RW)); return pte; }
--static inline  int ptep_test_and_clear_dirty(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_DIRTY, ptep); }
--static inline  int ptep_test_and_clear_young(pte_t *ptep)	{ return test_and_clear_bit(_PAGE_BIT_ACCESSED, ptep); }
-+
-+static inline int ptep_test_and_clear_dirty(pte_t *ptep)
-+{
-+	if (!pte_dirty(*ptep))
-+		return 0;
-+	return test_and_clear_bit(_PAGE_BIT_DIRTY, ptep);
-+}
-+
-+static inline int ptep_test_and_clear_young(pte_t *ptep)
-+{
-+	if (!pte_young(*ptep))
-+		return 0;
-+	return test_and_clear_bit(_PAGE_BIT_ACCESSED, ptep);
-+}
-+
- static inline void ptep_set_wrprotect(pte_t *ptep)		{ clear_bit(_PAGE_BIT_RW, ptep); }
- static inline void ptep_mkdirty(pte_t *ptep)			{ set_bit(_PAGE_BIT_DIRTY, ptep); }
+ 	(*mapcount)--;
+@@ -480,7 +480,7 @@ static int try_to_unmap_one(struct page 
+ 	 * skipped over this mm) then we should reactivate it.
+ 	 */
+ 	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
+-			ptep_test_and_clear_young(pte)) {
++			ptep_clear_flush_young(vma, address, pte)) {
+ 		ret = SWAP_FAIL;
+ 		goto out_unmap;
+ 	}
+@@ -590,7 +590,7 @@ static int try_to_unmap_cluster(unsigned
+ 		if (PageReserved(page))
+ 			continue;
  
+-		if (ptep_test_and_clear_young(pte))
++		if (ptep_clear_flush_young(vma, address, pte))
+ 			continue;
+ 
+ 		/* Nuke the page table entry. */
 

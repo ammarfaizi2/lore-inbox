@@ -1,42 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129108AbRBXFaP>; Sat, 24 Feb 2001 00:30:15 -0500
+	id <S129197AbRBXFff>; Sat, 24 Feb 2001 00:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129181AbRBXFaG>; Sat, 24 Feb 2001 00:30:06 -0500
-Received: from web9204.mail.yahoo.com ([216.136.129.27]:38410 "HELO
-	web9204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129108AbRBXF35>; Sat, 24 Feb 2001 00:29:57 -0500
-Message-ID: <20010224052955.75158.qmail@web9204.mail.yahoo.com>
-Date: Fri, 23 Feb 2001 21:29:55 -0800 (PST)
-From: bradley mclain <bradley_kernel@yahoo.com>
-Subject: Re: APM suspend system lockup under 2.4.2 and 2.4.2ac1
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E14WJrt-0006Ud-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129252AbRBXFfZ>; Sat, 24 Feb 2001 00:35:25 -0500
+Received: from smtp2.ihug.co.nz ([203.109.252.8]:63493 "EHLO smtp2.ihug.co.nz")
+	by vger.kernel.org with ESMTP id <S129197AbRBXFfX>;
+	Sat, 24 Feb 2001 00:35:23 -0500
+Message-Id: <200102240534.f1O5YlG08147@sucky.fish>
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+From: Ralph Loader <suckfish@ihug.co.nz>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: Linux-kernel@vger.kernel.org, kaih@khms.westfalen.de
+In-Reply-To: <20010223233717.B13627@win.tue.nl>
+In-Reply-To: <UTC200102230152.CAA138669.aeb@vlet.cwi.nl>
+	<200102232143.f1NLhG202360@sucky.fish>  <20010223233717.B13627@win.tue.nl>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 24 Feb 2001 18:34:47 +1300
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i thought that it was my network driver (xircom), but
-i recompiled 2.4.2 without sound support and apm
---suspend has begun to work again.
+Andries,
 
-the sound card is a yamaha YMF-744B.  i hadn't been
-compiling with sound support (i dont care about sound
-on my laptop), but when i got 2.4.2 i decided to try,
-and now i'm pretty sure that was the problem.
 
-is there anything else i should do, or information i
-could provide that would confirm this analysis or help
-to find a fix?
+> > int hash_fn (char * p)
+> > {
+> >   int hash = 0;
+> >   while (*p) {
+> >      hash = hash + *p;
+> >      // Rotate a 31 bit field 7 bits:
+> >      hash = ((hash << 7) | (hash >> 24)) & 0x7fffffff;
+> >   }
+> >   return hash;
+> > }
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Can you see if 2.4.1ac20 was ok
 > 
 
+> Hmm. This one goes in the "catastrophic" category.
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+> 
+> For actual names:
+> 
+> N=557398, m=51 sz=2048, min 82, max 4002, av 272.17, stddev 45122.99
+> 
+> For generated names:
+> 
+> N=557398, m=51 sz=2048, min 0, max 44800, av 272.17, stddev 10208445.83
+> 
+
+Instead of masking the hash value down to 11 bits you could try:
+
+index = (hash ^ (hash >> 11) ^ (hash >> 22)) & 0x7ff;
+
+I ran a quick test which gave fairly good results with that: 12871
+identifiers
+from a source tree) gave a mean square bucket size of 45.65, expected
+value for a random function is 45.78.
+
+That change might improve some of your other hashes as well - there
+doesn't
+seem to be much point in computing a 32 bit value only to throw 20 bits
+away -
+stirring in the extra bits makes much more sense to me.
+
+> > The rotate is equivalent to a multiplication by x**7 in Z_2[P=0],
+
+> > where P is the polynomial x**31 - 1 (over Z_2).
+> > Presumably the "best" P would be irreducible - but that would have more
+> > bits set in the polynomial, making reduction harder.  A compromise is to
+> > choose P in the form x**N - 1 but with relatively few factors.
+> > X**31 - 1 is such a P.
+> 
+> It has seven irreducible factors. Hardly "almost irreducible".
+
+I didn't say it was.  "almost irreducible" polynomials with Hamming
+weight two are pretty rare...  Relative to say, x**32 - 1 or x**24 - 1,
+having 7 factors is good.
+
+Ralph.
+
+

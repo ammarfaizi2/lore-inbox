@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267128AbTBQO1j>; Mon, 17 Feb 2003 09:27:39 -0500
+	id <S267292AbTBQOnF>; Mon, 17 Feb 2003 09:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbTBQOML>; Mon, 17 Feb 2003 09:12:11 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:25063 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S267187AbTBQOJ7>;
-	Mon, 17 Feb 2003 09:09:59 -0500
-Date: Mon, 17 Feb 2003 15:19:48 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][2.5] Don't wake up tasks on offline processors
-In-Reply-To: <Pine.LNX.4.50.0302170254480.18087-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.44.0302171518220.24394-100000@localhost.localdomain>
+	id <S267280AbTBQOl7>; Mon, 17 Feb 2003 09:41:59 -0500
+Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:29879 "EHLO
+	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S267263AbTBQOkk>; Mon, 17 Feb 2003 09:40:40 -0500
+Date: Mon, 17 Feb 2003 11:50:02 -0300 (BRT)
+From: Rik van Riel <riel@imladris.surriel.com>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Nicolas Pitre <nico@cam.org>, David Lang <david.lang@digitalinsight.com>,
+       Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+In-Reply-To: <20030217043108.GA16137@bjl1.jlokier.co.uk>
+Message-ID: <Pine.LNX.4.50L.0302171120060.16271-100000@imladris.surriel.com>
+References: <Pine.LNX.4.44.0302152104500.6594-100000@dlang.diginsite.com>
+ <Pine.LNX.4.44.0302160027390.17241-100000@xanadu.home>
+ <20030217043108.GA16137@bjl1.jlokier.co.uk>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Feb 2003, Jamie Lokier wrote:
 
-On Mon, 17 Feb 2003, Zwane Mwaikambo wrote:
+> However, rsync from the repository is generally _much_ faster than CVS
+> if you are tracking changes, so I (an impatient modem user) prefer rsync.
 
-> This patch stops waking up of tasks onto offline processors. We need
-> this when migrating tasks from offline processors onto other online ones
-> and to avert a livelock whilst doing so.
+> So I vote for rsync read-only access to the actual SCCS-ish repository
+> files that BK manages.
 
-this code too should be done in a separate 'zap_runqueue()' function,
-which also needs to iterate through all tasks and migrate them off to an
-online CPU. This code definitely does not belong into the wakeup hotpath.
+See ftp://nl.linux.org/pub/linux/bk2patch/
 
-	Ingo
+You can get BK trees (uncompressed SCCS) via rsync, as well as
+patches from the latest tagged version to the head of the tree.
 
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

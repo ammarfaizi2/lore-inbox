@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276278AbRJGK5K>; Sun, 7 Oct 2001 06:57:10 -0400
+	id <S276285AbRJGKv3>; Sun, 7 Oct 2001 06:51:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276297AbRJGK5A>; Sun, 7 Oct 2001 06:57:00 -0400
-Received: from mail.physics.ox.ac.uk ([163.1.244.140]:40452 "EHLO
-	janus.physics.ox.ac.uk") by vger.kernel.org with ESMTP
-	id <S276278AbRJGK4p>; Sun, 7 Oct 2001 06:56:45 -0400
-Date: Sun, 7 Oct 2001 11:57:12 +0100
-From: Tim Stadelmann <Tim.Stadelmann@physics.ox.ac.uk>
+	id <S276278AbRJGKvT>; Sun, 7 Oct 2001 06:51:19 -0400
+Received: from uucp.cistron.nl ([195.64.68.38]:24841 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S276234AbRJGKvE>;
+	Sun, 7 Oct 2001 06:51:04 -0400
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: Re: AIC7xxx panic
+Date: Sun, 7 Oct 2001 12:48:28 +0200
+Organization: Cistron Internet Services B.V.
+Message-ID: <9ppc3l$cde$1@ncc1701.cistron.net>
+In-Reply-To: <1002451051.3718.20.camel@warblade>
+X-Trace: ncc1701.cistron.net 1002451894 12718 213.46.44.164 (7 Oct 2001 10:51:34 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 To: linux-kernel@vger.kernel.org
-Subject: Dell Latitude C600 suspend problem
-Message-ID: <20011007115712.A4357@univn10.univ.ox.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
-X-AVtransport: scanmails_remote
-X-AVwrapper: AMaViS (http://www.amavis.org/)
-X-AVscanner: Sophos sweep (http://www.sophos.com/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+"Jim Crilly" <noth@noth.is.eleet.ca> wrote in message
+news:cistron.1002451051.3718.20.camel@warblade...
+> I got a reproducible panic while running dbench simulating 25+ clients,
+> the new aic7xxx driver panics with "Too few segs for dma mapping.
+> "Increase AHC_NSEG". The partition in question is FAT32 and on a
+> different disk than /, I'm not using HIGHMEM. I am using XFS and the
+> preempt patches, but I don't think they're related to the panic.
+>
+> The odd thing, is if I run dbench in the same manner on my / partition,
+> which is on a different disk on the same controller, it goes fine. It
+> seems, to my untrained eye anyway, to be a bad interaction between the
+> vfat driver and the aic7xxx driver.
+>
+> I'm using the old aic7xxx driver right now and it's fine, has anyone
+> else seen anything like this?
+>
+> Jim
 
-A couple of days ago there was a discussion about a problem introduced
-in 2.4.10 that would prevent APM on a Dell Latitude C600 (and possibly
-others) from entering suspend mode.
+Since this seems to fail on just one disk, it might have to do with one of the
+disk characteristics, like command queue depth. Did you enable Tagged Command
+Queueing, and if so, can you try playing around with the maximum depth?
 
-A closer investigation revealed that the patch meant to correct a
-problem with the internal ps2 pointing device on suspend is at fault.
-Commenting out the entry in arch/i386/kernel/dmi_scan.c that triggers
-the activation of this logic for the C600 allows the machine to
-suspend normally.
-
-Does anybody know the purpose of this change?  It seems to address a
-problem I've never seen on my computer...
-
-Please CC relevant replies to my personal address, as I'm not
-currently subscribed.
+Rob
 
 
-				Tim Stadelmann
+
 

@@ -1,84 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbRBSMSB>; Mon, 19 Feb 2001 07:18:01 -0500
+	id <S129852AbRBSMf4>; Mon, 19 Feb 2001 07:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129852AbRBSMRv>; Mon, 19 Feb 2001 07:17:51 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:27984 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S129807AbRBSMRj>; Mon, 19 Feb 2001 07:17:39 -0500
-Date: Mon, 19 Feb 2001 06:15:22 -0600 (CST)
-From: Philipp Rumpf <prumpf@mandrakesoft.com>
-Reply-To: Philipp Rumpf <prumpf@mandrakesoft.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac15 
-In-Reply-To: <30069.982583679@ocs3.ocs-net>
-Message-ID: <Pine.LNX.3.96.1010219055750.16489G-100000@mandrakesoft.mandrakesoft.com>
+	id <S129773AbRBSMfq>; Mon, 19 Feb 2001 07:35:46 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:52647 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129852AbRBSMfd>; Mon, 19 Feb 2001 07:35:33 -0500
+Message-ID: <3A911510.2F89D093@uow.edu.au>
+Date: Mon, 19 Feb 2001 23:44:00 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Philipp Rumpf <prumpf@mandrakesoft.com>, Kenn Humborg <kenn@linux.ie>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel_thread() & thread starting
+In-Reply-To: <Pine.LNX.3.96.1010219040821.16489E-100000@mandrakesoft.mandrakesoft.com>,
+		<Pine.LNX.3.96.1010219040821.16489E-100000@mandrakesoft.mandrakesoft.com> <25350.982578755@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Feb 2001, Keith Owens wrote:
-> On Mon, 19 Feb 2001 11:35:08 +0000 (GMT), 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> >The problem isnt running module code. What happens in this case
-> >
-> >        mod->next = module_list;
-> >        module_list = mod;      /* link it in */
-> >
-> >Note no write barrier.
+David Woodhouse wrote:
 > 
-> <humour>It works on ix86 so the code must be right</humour>
+> prumpf@mandrakesoft.com said:
+> >  Why bother ?  It looks like a leftover debugging message which
+> > doesn't make a lot of sense once the code is stable (what might make
+> > sense is checking keventd is still around, but that's not what the
+> > code is doing).
 
-Too bad it doesn't.
+keventd *must* still be around.
 
-> >Delete is even worse
-> >
-> >We unlink the module
-> >We free the memory
-> >
-> >At the same time another cpu may be walking the exception table that we free.
+And the code obviously isn't completely stable, and this debug
+message has found something rather unpleasant.
+
+I don't think we should run the init tasks when keventd may, or
+may not be running.  Sure, the current code does, by happenstance,
+all work correctly when keventd hasn't yet started running, and
+when it's starting up.  But it's safer, saner and surer just
+to crank the damn thing up before proceeding.
+
+> > Proposed patch:
 > 
-> Another good reason why locking modules via use counts from external
-> code is not the right fix.  We definitely need a quiesce model for
-> module removal.
+> >  dwmw2 ?
+> 
+> Don't look at me. I didn't like the current_is_keventd stuff very much
+> in the first place. akpm?
 
-Unless I'm mistaken, we need both use counts and SMP magic (though not
-necessarily as extreme as what the "freeze all other CPUs during module
-unload" patch did).
+Heh. Tell that to wakeup_bdflush().
 
+The all-singing fully-async + fully-sync + async with callback
+patch was dropped, and until we can demonstrate that it
+fixes a bug, it can stay dropped.  I think it _will_ fix
+a bug, but the development of userspace hotplug infrastructure
+hasn't reached the stage where the need for a kernel fix
+has been proven.
 
-I think something like this would work (in addition to use counts)
+I believe the right thing to do here is the RMK approach.
 
-int callin_func(void *p)
-{
-	int *cpu = p;
+Here's a faintly tested patch.
 
-	while (*cpu != smp_processor_id()) {
-		current->cpus_allowed = 1 << *cpu;
-		schedule();
-	}
-
-	return 0;
-}
-
-void callin_other_cpus(void)
-{
-	int cpus[smp_num_cpus];
-	int i;
-
-	for (i=0; i<smp_num_cpus; i++) {
-		cpus[i] = i;
-
-		kernel_thread(callin_func, &cpus[i], ...);
-	}
-}
-
-and call callin_other_cpus() before unloading a module.
-
-
-I'm not sure how you could make exception handling safe without locking
-all accesses to the module list - but that sounds like the sane thing to
-do anyway.
-
+--- linux-2.4.2-pre4/kernel/context.c	Sat Jan 13 04:52:41 2001
++++ lk/kernel/context.c	Mon Feb 19 23:33:38 2001
+@@ -19,6 +19,7 @@
+ #include <linux/init.h>
+ #include <linux/unistd.h>
+ #include <linux/signal.h>
++#include <asm/semaphore.h>
+ 
+ static DECLARE_TASK_QUEUE(tq_context);
+ static DECLARE_WAIT_QUEUE_HEAD(context_task_wq);
+@@ -26,19 +27,9 @@
+ static int keventd_running;
+ static struct task_struct *keventd_task;
+ 
+-static int need_keventd(const char *who)
+-{
+-	if (keventd_running == 0)
+-		printk(KERN_ERR "%s(): keventd has not started\n", who);
+-	return keventd_running;
+-}
+-	
+ int current_is_keventd(void)
+ {
+-	int ret = 0;
+-	if (need_keventd(__FUNCTION__))
+-		ret = (current == keventd_task);
+-	return ret;
++	return (current == keventd_task);
+ }
+ 
+ /**
+@@ -57,13 +48,12 @@
+ int schedule_task(struct tq_struct *task)
+ {
+ 	int ret;
+-	need_keventd(__FUNCTION__);
+ 	ret = queue_task(task, &tq_context);
+ 	wake_up(&context_task_wq);
+ 	return ret;
+ }
+ 
+-static int context_thread(void *dummy)
++static int context_thread(void *sem)
+ {
+ 	struct task_struct *curtask = current;
+ 	DECLARE_WAITQUEUE(wait, curtask);
+@@ -85,6 +75,7 @@
+ 	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
+ 	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
+ 
++	up((struct semaphore *)sem);
+ 	/*
+ 	 * If one of the functions on a task queue re-adds itself
+ 	 * to the task queue we call schedule() in state TASK_RUNNING
+@@ -146,9 +137,11 @@
+ 	remove_wait_queue(&context_task_done, &wait);
+ }
+ 	
+-int start_context_thread(void)
++int __init start_context_thread(void)
+ {
+-	kernel_thread(context_thread, NULL, CLONE_FS | CLONE_FILES);
++	DECLARE_MUTEX_LOCKED(sem);
++	kernel_thread(context_thread, &sem, CLONE_FS | CLONE_FILES);
++	down(&sem);
+ 	return 0;
+ }
+ 
+-

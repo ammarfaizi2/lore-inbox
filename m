@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLSJlk>; Tue, 19 Dec 2000 04:41:40 -0500
+	id <S129340AbQLSJyP>; Tue, 19 Dec 2000 04:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQLSJla>; Tue, 19 Dec 2000 04:41:30 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:41079
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129183AbQLSJlN>; Tue, 19 Dec 2000 04:41:13 -0500
-Date: Tue, 19 Dec 2000 10:10:41 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Converting drivers/net/rcpci45.c to new PCI API
-Message-ID: <20001219101041.B17946@jaquet.dk>
-In-Reply-To: <20001219004604.B761@jaquet.dk> <20001219095906.A5764@se1.cogenit.fr>
+	id <S129752AbQLSJyF>; Tue, 19 Dec 2000 04:54:05 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:54281 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129340AbQLSJxv>;
+	Tue, 19 Dec 2000 04:53:51 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: M Sweger <mikesw@whiterose.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux 2.2.19pre1 oops on cpuid 
+In-Reply-To: Your message of "Mon, 18 Dec 2000 10:35:58 CDT."
+             <Pine.LNX.4.21.0012181029270.3478-100000@whiterose.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001219095906.A5764@se1.cogenit.fr>; from romieu@cogenit.fr on Tue, Dec 19, 2000 at 09:59:06AM +0100
+Date: Tue, 19 Dec 2000 20:23:18 +1100
+Message-ID: <1274.977217798@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +	unregister_netdev(dev);
-> > +	iounmap((void *)dev->base_addr);
-> > +        free_irq(dev->irq, dev);
-> 
-> I'd rather inhibit irq first then release the ressources.
-> +       free_irq(dev->irq, dev);
-> +	iounmap((void *)dev->base_addr);
-> +	unregister_netdev(dev);
+On Mon, 18 Dec 2000 10:35:58 -0500 (EST), 
+M Sweger <mikesw@whiterose.net> wrote:
+>    Question:  Is it possible to update the ksymoops utility to a 
+>     newer version vs. the one supplied which  is v0.6?
 
-Fair enough. I just copied the sequence used in the original but your
-suggestion makes sense. I'll do that in my next patch.
+Read the warning message.  ksymoops is separate from the kernel after 2.2.
 
-Thanks for the eyeballs :),
-  Rasmus
+  WARNING: This version of ksymoops is obsolete.
+  WARNING: The current version can be obtained from ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

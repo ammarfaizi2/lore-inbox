@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbTHYA6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 20:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTHYA6Z
+	id S261292AbTHYBTh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 21:19:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbTHYBTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 20:58:25 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:24778 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S261176AbTHYA6Y convert rfc822-to-8bit (ORCPT
+	Sun, 24 Aug 2003 21:19:37 -0400
+Received: from dp.samba.org ([66.70.73.150]:59030 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261292AbTHYBTf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 20:58:24 -0400
-Date: Sun, 24 Aug 2003 21:54:13 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.22-rc4
-Message-ID: <Pine.LNX.4.55L.0308242151340.28519@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 24 Aug 2003 21:19:35 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: peter@chubb.wattle.id.au, linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] Fix loose->lose typos in 2.6.0-test2 
+In-reply-to: Your message of "Fri, 15 Aug 2003 12:12:40 MST."
+             <20030815121240.7ff9fed0.rddunlap@osdl.org> 
+Date: Sat, 23 Aug 2003 04:29:04 +1000
+Message-Id: <20030825011935.836452C221@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20030815121240.7ff9fed0.rddunlap@osdl.org> you write:
+> On Sat, 16 Aug 2003 03:12:52 +1000 Rusty Russell <rusty@rustcorp.com.au> wrote:
+> 
+> | After a brief conversation with Andrew, Trivial Patch Monkey is only
+> | taking patches for documentation and where grep might be effected.
+> | Feel free to push this directly though.
+> 
+> then it qualifies.
+> Who would grep for 'loose' when it should be 'lose' and v.v.?
 
-Hi,
+I was thinking of something like a variable name, (eg. foo_close was
+misspellt as foo_klose) then someone might be greping for "close"
+functions and miss it.
 
-A few annoying things showed up, so here goes -rc4.
+Or if the documentation for the foo card talked about the "Dunlap
+Enable" feature, and it was misspellt "Donlap" in the code or
+comments, it'd be nice to be fixed.
 
+But the lose/loose one is a stretch, I think.
 
-Summary of changes from v2.4.22-rc3 to v2.4.22-rc4
-============================================
-
-<marcelo:logos.cnet>:
-  o Fix drivers/net/Config.in -> CONFIG_TC35815
-  o Changed EXTRAVERSION to -rc4
-
-Andi Kleen:
-  o Fix x86-64 ia32 emulation
-
-Paul Mackerras:
-  o PPC32: Make strncpy clear the unused part of the destination
-  o PPC32: Make sure various sections get aligned properly by the linker
-
-Ralf Bächle:
-  o dep_tristate fix for CONFIG_TC35815
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130079AbQKIEiV>; Wed, 8 Nov 2000 23:38:21 -0500
+	id <S130161AbQKIEoV>; Wed, 8 Nov 2000 23:44:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130161AbQKIEiM>; Wed, 8 Nov 2000 23:38:12 -0500
-Received: from andromeda.dsdk12.net ([207.109.100.251]:50333 "HELO
-	patriot.dsdk12.net") by vger.kernel.org with SMTP
-	id <S130079AbQKIEiG>; Wed, 8 Nov 2000 23:38:06 -0500
-Date: Wed, 8 Nov 2000 21:38:02 -0700 (MST)
-From: Derrik Pates <dpates@andromeda.dsdk12.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: B/W G3 - big IDE problems with 2.4.0-test10
-Message-ID: <Pine.LNX.4.30.0011082115050.27524-100000@andromeda.dsdk12.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130205AbQKIEoM>; Wed, 8 Nov 2000 23:44:12 -0500
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:6103 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S130161AbQKIEoH>; Wed, 8 Nov 2000 23:44:07 -0500
+Message-Id: <4.2.0.58.20001108233713.00a678d0@engr.de.psu.edu>
+X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
+Date: Wed, 08 Nov 2000 23:44:06 -0500
+To: linux-kernel@vger.kernel.org
+From: Eric Reischer <emr@engr.de.psu.edu>
+Subject: 2.4 test10 bug
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying Debian woody for PowerPC on a blue-and-white G3 tower
-machine (PPC750/350 MHz, 192 MB RAM). Finally got yaboot working, so now
-I'm playing with getting 2.4.x going (in part to get the built-in support
-for Mac-on-Linux). However, when I try to boot the kernel, I get errors
-about conflicts in I/O address space, and the secondary IDE interface
-(what 2.2.17 sees as hde/hdf) shows up as the primary, but both hard
-drives (Linux installed on hdb, MacOS on hda) do not show at all. I can't
-use serial-console, and I don't have an NFS server (I may have to setup a
-basic NFS-root image on another machine to boot it from). Also, it has no
-floppy drives. I can't scroll back, so I can't read all the messages.
+When cross compiling a PowerPC kernel on an i386 machine, got the following 
+error:
 
-I saw a previous post about a similar situation with test5 a ways back in
-Geocrawler's linux-kernel archive, but I don't see any answer to the
-earlier query.
+binfmt_elf.c: In function 'create_elf_tables':
+binfmt_elf.c:166: 'CLOCKS_PER_SEC' undeclared (first use in this function)
+binfmt_elf.c:166: (Each undeclared identifier is reported only once
+binfmt_elf.c:166: for each function it appears in.)
+make[2]: *** [binfmt_elf.o] Error 1
 
-Derrik Pates      | Sysadmin, Douglas School|    _   #linuxOS on EFnet
-dpates@dsdk12.net |  District (dsdk12.net)  |   | |   and now OPN too!
-   Student @ South Dakota School of Mines   | __| |___ _ _ _   ___ _ _   ____
-       & Technology (www.sdsmt.edu)         |/ _  / -_) ' \ '\/ _ \ ' \ (____)
-UNIX: Because you want to USE your computer.|\___,\___|_||_||_\___/_||_|
+for folder /usr/src/cross/powerpc-unknown-linux-gnu/src/linux/fs
 
+Copied the binfmt_elf.c code from the test9 tree and recompiled.  Compile 
+then proceeded without errors.  If whoever is in charge of this section 
+would like a copy of the .config file, I would be more than willing to 
+attach it.  On a side note the kernel was being compiled for a POWER3 
+processor, but it doesn't appear as though that would be a factor here.
+
+
+
+----------
+Eric Reischer                           "You can't depend on your eyes
+emr@engr.de.psu.edu                      if your imagination is out of focus."
+emr@ccil.org                                            -- Mark Twain
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

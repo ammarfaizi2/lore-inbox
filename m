@@ -1,185 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbUCJKxw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 05:53:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbUCJKxw
+	id S261999AbUCJKyx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 05:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUCJKyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 05:53:52 -0500
-Received: from pop.gmx.net ([213.165.64.20]:5817 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261856AbUCJKxj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 05:53:39 -0500
-Date: Wed, 10 Mar 2004 11:53:38 +0100 (MET)
-From: =?ISO-8859-1?Q?=22Fabian_LoneStar_Fr=E9d=E9rick=22?= 
-	<fabian.frederick@gmx.fr>
+	Wed, 10 Mar 2004 05:54:53 -0500
+Received: from mail.daysofwonder.com ([209.61.173.130]:65222 "EHLO
+	mail.daysofwonder.com") by vger.kernel.org with ESMTP
+	id S261999AbUCJKyN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 05:54:13 -0500
+Subject: PROBLEM: task->tty->driver problem/oops in proc_pid_stat (was Re:
+	[2.6.4-rc2] Unable to handle kernel paging request at virtual address
+	02000064)
+From: Brice Figureau <brice@daysofwonder.com>
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary244901078916018"
-Subject: [PATCH 2.6.4rc2mm1] nfsroot parser
-X-Priority: 3 (Normal)
-X-Authenticated: #9223398
-Message-ID: <24490.1078916018@www18.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+In-Reply-To: <1078823808.23748.88.camel@localhost.localdomain>
+References: <1078823808.23748.88.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Days of Wonder
+Message-Id: <1078916045.2157.195.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Wed, 10 Mar 2004 11:54:06 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+Hi List,
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+I've digged a little deeper into the following oops that occurs every
+night on my servers (see my previous mail):
 
---========GMXBoundary244901078916018
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+On Tue, 2004-03-09 at 10:16, Brice Figureau wrote:
+> Mar  9 02:00:06 server2 kernel: Unable to handle kernel paging request at virtual address 02000064
+> Mar  9 02:00:06 server2 kernel:  printing eip:
+> Mar  9 02:00:06 server2 kernel: c01915bc
+> Mar  9 02:00:06 server2 kernel: *pde = 00000000
+> Mar  9 02:00:06 server2 kernel: Oops: 0000 [#1]
+> Mar  9 02:00:06 server2 kernel: PREEMPT SMP
+> Mar  9 02:00:06 server2 kernel: CPU:    2
+> Mar  9 02:00:06 server2 kernel: EIP:    0060:[proc_pid_stat+160/1280]    Not tainted
+> Mar  9 02:00:06 server2 kernel: EFLAGS: 00010286
+> Mar  9 02:00:06 server2 kernel: EIP is at proc_pid_stat+0xa0/0x500
+> Mar  9 02:00:06 server2 kernel: eax: 02000000   ebx: f597a000   ecx: c182d548 edx: 00000000
+> Mar  9 02:00:06 server2 kernel: esi: f71d77c0   edi: c269ed00   ebp: f46b9f44 esp: f46b9e30
+> Mar  9 02:00:06 server2 kernel: ds: 007b   es: 007b   ss: 0068
+> Mar  9 02:00:06 server2 kernel: Process ps (pid: 17291, threadinfo=f46b8000 task=c26ac830)
+> Mar  9 02:00:06 server2 kernel: Stack: c269ed00 404d1716 0cf254ae c0402bb0 f4f1bc90 c03e6442 f46b9e78 c018f400
+> Mar  9 02:00:06 server2 kernel:        f45e4980 f4f1bc90 0000001d c03e643e 00000004 f71d77c0 ffffffea fffffff4
+> Mar  9 02:00:06 server2 kernel:        f59f30fc f59f3090 f46b9e9c c016a7b4 f59f3090 f45e4980 c0402b60 f45e4980
+> Mar  9 02:00:06 server2 kernel: Call Trace:
+> Mar  9 02:00:06 server2 kernel:  [proc_pident_lookup+246/588] proc_pident_lookup +0xf6/0x24c
+> Mar  9 02:00:06 server2 kernel:  [real_lookup+199/238] real_lookup+0xc7/0xee
+> Mar  9 02:00:06 server2 kernel:  [in_group_p+67/118] in_group_p+0x43/0x76
+> Mar  9 02:00:06 server2 kernel:  [buffered_rmqueue+237/404] buffered_rmqueue+0xe d/0x194
+> Mar  9 02:00:06 server2 kernel:  [__alloc_pages+151/804] __alloc_pages+0x97/0x32 4
+> Mar  9 02:00:06 server2 kernel:  [proc_info_read+83/305] proc_info_read+0x53/0x1 31
+> Mar  9 02:00:06 server2 kernel:  [filp_open+93/95] filp_open+0x5d/0x5f
+> Mar  9 02:00:06 server2 kernel:  [vfs_read+161/268] vfs_read+0xa1/0x10c
+> Mar  9 02:00:06 server2 kernel:  [sys_read+63/93] sys_read+0x3f/0x5d
+> Mar  9 02:00:06 server2 kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+> Mar  9 02:00:06 server2 kernel:
+> Mar  9 02:00:06 server2 kernel: Code: 8b 48 64 c1 e1 14 0b 48 68 03 4b 08 89 c8 0f b6 d1 81 e1 00
+> Mar  9 02:00:06 server2 kernel:  <6>note: ps[17291] exited with preempt_count 1
 
-Hi,
+I found that the problem occurs there:
+fs/proc/array.c (proc_pid_stat):
 
-      Here's a patch against 2.6.4rc2mm1.
+	if (task->tty) {
+		tty_pgrp = task->tty->pgrp;
+-->		tty_nr = new_encode_dev(tty_devnum(task->tty));
+	}
 
-            -Nfs root standard parser
-            -Enum activated :)
+The oops occured on:
+	mov    0x64(%eax),%ecx	
 
-PS : This time it compiles :)
+eax value was 02000000.
+This code is part of the tty_devnum() inline:
+static inline dev_t tty_devnum(struct tty_struct *tty)
+{
+  return MKDEV(tty->driver->major, tty->driver->minor_start) + tty->index;
+}
 
-Regards,
-Fabian
-	
+The faulty instruction is the deferencing of task->tty->driver.
 
--- 
-+++ NEU bei GMX und erstmalig in Deutschland: TÜV-geprüfter Virenschutz +++
-100% Virenerkennung nach Wildlist. Infos: http://www.gmx.net/virenschutz
---========GMXBoundary244901078916018
-Content-Type: application/octet-stream; name="nfs_parse2.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="nfs_parse2.diff"
+As a side effect, the oops occurs while holding a task_lock, that's why
+my further ps mauxgww were stuck at some point.
 
-ZGlmZiAtTmF1ciBvcmlnL2ZzL25mcy9uZnNyb290LmMgZWRpdGVkL2ZzL25mcy9uZnNyb290LmMK
-LS0tIG9yaWcvZnMvbmZzL25mc3Jvb3QuYwkyMDA0LTAzLTEwIDEwOjU0OjIzLjAwMDAwMDAwMCAr
-MDEwMAorKysgZWRpdGVkL2ZzL25mcy9uZnNyb290LmMJMjAwNC0wMy0xMCAxMTo0MzowNS4wMDAw
-MDAwMDAgKzAxMDAKQEAgLTY2LDcgKzY2LDggQEAKICAqCQkJCWlzIE5PVCBmb3IgdGhlIGxlbmd0
-aCBvZiB0aGUgaG9zdG5hbWUuCiAgKglIdWEgUWluCQk6CVN1cHBvcnQgZm9yIG1vdW50aW5nIHJv
-b3QgZmlsZSBzeXN0ZW0gdmlhCiAgKgkJCQlORlMgb3ZlciBUQ1AuCi0gKi8KKyAqCUZhYmlhbiBG
-cmVkZXJpY2s6CU9wdGlvbiBwYXJzZXIgcmVidWlsdCAodXNpbmcgcGFyc2VyIGxpYikKKyovCiAK
-ICNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPgpAQCAt
-ODUsNiArODYsNyBAQAogI2luY2x1ZGUgPGxpbnV4L2luZXQuaD4KICNpbmNsdWRlIDxsaW51eC9y
-b290X2Rldi5oPgogI2luY2x1ZGUgPG5ldC9pcGNvbmZpZy5oPgorI2luY2x1ZGUgPGxpbnV4L3Bh
-cnNlci5oPgogCiAvKiBEZWZpbmUgdGhpcyB0byBhbGxvdyBkZWJ1Z2dpbmcgb3V0cHV0ICovCiAj
-dW5kZWYgTkZTUk9PVF9ERUJVRwpAQCAtMTE0LDkyICsxMTYsMTc1IEBACiAKICAqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKiovCiAKLS8qCi0gKiAgVGhlIGZvbGxvd2luZyBpbnRlZ2VyIG9wdGlvbnMgYXJlIHJl
-Y29nbml6ZWQKLSAqLwotc3RhdGljIHN0cnVjdCBuZnNfaW50X29wdHMgewotCWNoYXIgKm5hbWU7
-Ci0JaW50ICAqdmFsOwotfSByb290X2ludF9vcHRzW10gX19pbml0ZGF0YSA9IHsKLQl7ICJwb3J0
-IiwJJm5mc19wb3J0IH0sCi0JeyAicnNpemUiLAkmbmZzX2RhdGEucnNpemUgfSwKLQl7ICJ3c2l6
-ZSIsCSZuZnNfZGF0YS53c2l6ZSB9LAotCXsgInRpbWVvIiwJJm5mc19kYXRhLnRpbWVvIH0sCi0J
-eyAicmV0cmFucyIsCSZuZnNfZGF0YS5yZXRyYW5zIH0sCi0JeyAiYWNyZWdtaW4iLAkmbmZzX2Rh
-dGEuYWNyZWdtaW4gfSwKLQl7ICJhY3JlZ21heCIsCSZuZnNfZGF0YS5hY3JlZ21heCB9LAotCXsg
-ImFjZGlybWluIiwJJm5mc19kYXRhLmFjZGlybWluIH0sCi0JeyAiYWNkaXJtYXgiLAkmbmZzX2Rh
-dGEuYWNkaXJtYXggfSwKLQl7IE5VTEwsCQlOVUxMIH0KK2VudW0geworCU9wdF9wb3J0LCBPcHRf
-cnNpemUsIE9wdF93c2l6ZSwgT3B0X3RpbWVvLCBPcHRfcmV0cmFucywgT3B0X2FjcmVnbWluLAor
-CU9wdF9hY3JlZ21heCwgT3B0X2FjZGlybWluLCBPcHRfYWNkaXJtYXgsIE9wdF9zb2Z0LCBPcHRf
-aGFyZCwgT3B0X2ludHIsCisJT3B0X25vaW50ciwgT3B0X3Bvc2l4LCBPcHRfbm9wb3NpeCwgT3B0
-X2N0bywgT3B0X25vY3RvLCBPcHRfYWMsIE9wdF9ub2FjLAorCU9wdF9sb2NrLCBPcHRfbm9sb2Nr
-LCBPcHRfdjIsIE9wdF92MywgT3B0X3VkcCwgT3B0X3RjcCwgT3B0X2Jyb2tlbl9zdWlkLAorCU9w
-dF9lcnIsCiB9OwogCi0KLS8qCi0gKiAgQW5kIG5vdyB0aGUgZmxhZyBvcHRpb25zCi0gKi8KLXN0
-YXRpYyBzdHJ1Y3QgbmZzX2Jvb2xfb3B0cyB7Ci0JY2hhciAqbmFtZTsKLQlpbnQgIGFuZF9tYXNr
-OwotCWludCAgb3JfbWFzazsKLX0gcm9vdF9ib29sX29wdHNbXSBfX2luaXRkYXRhID0gewotCXsg
-InNvZnQiLAl+TkZTX01PVU5UX1NPRlQsCU5GU19NT1VOVF9TT0ZUIH0sCi0JeyAiaGFyZCIsCX5O
-RlNfTU9VTlRfU09GVCwJMCB9LAotCXsgImludHIiLAl+TkZTX01PVU5UX0lOVFIsCU5GU19NT1VO
-VF9JTlRSIH0sCi0JeyAibm9pbnRyIiwJfk5GU19NT1VOVF9JTlRSLAkwIH0sCi0JeyAicG9zaXgi
-LAl+TkZTX01PVU5UX1BPU0lYLAlORlNfTU9VTlRfUE9TSVggfSwKLQl7ICJub3Bvc2l4IiwJfk5G
-U19NT1VOVF9QT1NJWCwJMCB9LAotCXsgImN0byIsCX5ORlNfTU9VTlRfTk9DVE8sCTAgfSwKLQl7
-ICJub2N0byIsCX5ORlNfTU9VTlRfTk9DVE8sCU5GU19NT1VOVF9OT0NUTyB9LAotCXsgImFjIiwJ
-CX5ORlNfTU9VTlRfTk9BQywJMCB9LAotCXsgIm5vYWMiLAl+TkZTX01PVU5UX05PQUMsCU5GU19N
-T1VOVF9OT0FDIH0sCi0JeyAibG9jayIsCX5ORlNfTU9VTlRfTk9OTE0sCTAgfSwKLQl7ICJub2xv
-Y2siLAl+TkZTX01PVU5UX05PTkxNLAlORlNfTU9VTlRfTk9OTE0gfSwKLSNpZmRlZiBDT05GSUdf
-TkZTX1YzCi0JeyAidjIiLAkJfk5GU19NT1VOVF9WRVIzLAkwIH0sCi0JeyAidjMiLAkJfk5GU19N
-T1VOVF9WRVIzLAlORlNfTU9VTlRfVkVSMyB9LAotI2VuZGlmCi0JeyAidWRwIiwJfk5GU19NT1VO
-VF9UQ1AsCQkwIH0sCi0JeyAidGNwIiwJfk5GU19NT1VOVF9UQ1AsCQlORlNfTU9VTlRfVENQIH0s
-Ci0JeyAiYnJva2VuX3N1aWQiLH5ORlNfTU9VTlRfQlJPS0VOX1NVSUQsCU5GU19NT1VOVF9CUk9L
-RU5fU1VJRCB9LAotCXsgTlVMTCwJCTAsCQkJMCB9CitzdGF0aWMgbWF0Y2hfdGFibGVfdCB0b2tl
-bnMgPSB7CisJe09wdF9wb3J0LCAicG9ydD0ldSJ9LAorCXtPcHRfcnNpemUsICJyc2l6ZT0ldSJ9
-LAorCXtPcHRfd3NpemUsICJ3c2l6ZT0ldSJ9LAorCXtPcHRfdGltZW8sICJ0aW1lbz0ldSJ9LAor
-CXtPcHRfcmV0cmFucywgInJldHJhbnM9JXUifSwKKwl7T3B0X2FjcmVnbWluLCAiYWNyZWdtaW49
-JXUifSwKKwl7T3B0X2FjcmVnbWF4LCAiYWNyZWdtYXg9JXUifSwKKwl7T3B0X2FjZGlybWluLCAi
-YWNkaXJtaW49JXUifSwKKwl7T3B0X2FjZGlybWF4LCAiYWNkaXJtYXg9JXUifSwKKwl7T3B0X3Nv
-ZnQsICJzb2Z0In0sCisJe09wdF9oYXJkLCAiaGFyZCJ9LAorCXtPcHRfaW50ciwgImludHIifSwK
-Kwl7T3B0X25vaW50ciwgIm5vaW50ciJ9LAorCXtPcHRfcG9zaXgsICJwb3NpeCJ9LAorCXtPcHRf
-bm9wb3NpeCwgIm5vcG9zaXgifSwKKwl7T3B0X2N0bywgImN0byJ9LAorCXtPcHRfbm9jdG8sICJu
-b2N0byJ9LAorCXtPcHRfYWMsICJhYyJ9LAorCXtPcHRfbm9hYywgIm5vYWMifSwKKwl7T3B0X2xv
-Y2ssICJsb2NrIn0sCisJe09wdF9ub2xvY2ssICJub2xvY2sifSwKKwl7T3B0X3YyLCAidjIifSwK
-Kwl7T3B0X3YzLCAidjMifSwKKwl7T3B0X3VkcCwgInVkcCJ9LAorCXtPcHRfdGNwLCAidGNwIn0s
-CisJe09wdF9icm9rZW5fc3VpZCwgImJyb2tlbl9zdWlkIn0sCisJe09wdF9lcnIsIE5VTEx9CisJ
-CiB9OwogCi0KIC8qCiAgKiAgUGFyc2Ugb3B0aW9uIHN0cmluZy4KICAqLwotc3RhdGljIHZvaWQg
-X19pbml0IHJvb3RfbmZzX3BhcnNlKGNoYXIgKm5hbWUsIGNoYXIgKmJ1ZikKKworc3RhdGljIGlu
-dCBfX2luaXQgcm9vdF9uZnNfcGFyc2UoY2hhciAqbmFtZSwgY2hhciAqYnVmKQogewotCWNoYXIg
-Km9wdGlvbnMsICp2YWwsICpjcDsKIAotCWlmICgob3B0aW9ucyA9IHN0cmNocihuYW1lLCAnLCcp
-KSkgewotCQkqb3B0aW9ucysrID0gMDsKLQkJd2hpbGUgKChjcCA9IHN0cnNlcCgmb3B0aW9ucywg
-IiwiKSkgIT0gTlVMTCkgewotCQkJaWYgKCEqY3ApCi0JCQkJY29udGludWU7Ci0JCQlpZiAoKHZh
-bCA9IHN0cmNocihjcCwgJz0nKSkpIHsKLQkJCQlzdHJ1Y3QgbmZzX2ludF9vcHRzICpvcHRzID0g
-cm9vdF9pbnRfb3B0czsKLQkJCQkqdmFsKysgPSAnXDAnOwotCQkJCXdoaWxlIChvcHRzLT5uYW1l
-ICYmIHN0cmNtcChvcHRzLT5uYW1lLCBjcCkpCi0JCQkJCW9wdHMrKzsKLQkJCQlpZiAob3B0cy0+
-bmFtZSkKLQkJCQkJKihvcHRzLT52YWwpID0gKGludCkgc2ltcGxlX3N0cnRvdWwodmFsLCBOVUxM
-LCAxMCk7Ci0JCQl9IGVsc2UgewotCQkJCXN0cnVjdCBuZnNfYm9vbF9vcHRzICpvcHRzID0gcm9v
-dF9ib29sX29wdHM7Ci0JCQkJd2hpbGUgKG9wdHMtPm5hbWUgJiYgc3RyY21wKG9wdHMtPm5hbWUs
-IGNwKSkKLQkJCQkJb3B0cysrOwotCQkJCWlmIChvcHRzLT5uYW1lKSB7Ci0JCQkJCW5mc19kYXRh
-LmZsYWdzICY9IG9wdHMtPmFuZF9tYXNrOwotCQkJCQluZnNfZGF0YS5mbGFncyB8PSBvcHRzLT5v
-cl9tYXNrOwotCQkJCX0KLQkJCX0KKwljaGFyICpwOworCXN1YnN0cmluZ190IGFyZ3NbTUFYX09Q
-VF9BUkdTXTsKKwlpbnQgb3B0aW9uOworCisJaWYgKCFuYW1lKQorCQlyZXR1cm4gMTsKKworCWlm
-IChuYW1lWzBdICYmIHN0cmNtcChuYW1lLCAiZGVmYXVsdCIpKXsKKwkJc3RybGNweShidWYsIG5h
-bWUsIE5GU19NQVhQQVRITEVOKTsKKwkJcmV0dXJuIDE7CisJfQorCXdoaWxlICgocCA9IHN0cnNl
-cCAoJm5hbWUsICIsIikpICE9IE5VTEwpIHsKKwkJaW50IHRva2VuOyAKKwkJaWYgKCEqcCkKKwkJ
-CWNvbnRpbnVlOworCQl0b2tlbiA9IG1hdGNoX3Rva2VuKHAsIHRva2VucywgYXJncyk7CisKKwkJ
-LyogJXUgdG9rZW5zIG9ubHkgKi8KKwkJaWYgKG1hdGNoX2ludCgmYXJnc1swXSwgJm9wdGlvbikp
-CisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAwOworCQlzd2l0Y2ggKHRv
-a2VuKSB7CisJCQljYXNlIE9wdF9wb3J0OgorCQkJCW5mc19wb3J0ID0gb3B0aW9uOworCQkJCWJy
-ZWFrOworCQkJY2FzZSBPcHRfcnNpemU6CisJCQkJbmZzX2RhdGEucnNpemUgPSBvcHRpb247CisJ
-CQkJYnJlYWs7CisJCQljYXNlIE9wdF93c2l6ZToKKwkJCQluZnNfZGF0YS53c2l6ZSA9IG9wdGlv
-bjsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X3RpbWVvOgorCQkJCW5mc19kYXRhLnRpbWVvID0g
-b3B0aW9uOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfcmV0cmFuczoKKwkJCQluZnNfZGF0YS5y
-ZXRyYW5zID0gb3B0aW9uOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfYWNyZWdtaW46CisJCQkJ
-bmZzX2RhdGEuYWNyZWdtaW4gPSBvcHRpb247CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF9hY3Jl
-Z21heDoKKwkJCQluZnNfZGF0YS5hY3JlZ21heCA9IG9wdGlvbjsKKwkJCQlicmVhazsKKwkJCWNh
-c2UgT3B0X2FjZGlybWluOgorCQkJCW5mc19kYXRhLmFjZGlybWluID0gb3B0aW9uOworCQkJCWJy
-ZWFrOworCQkJY2FzZSBPcHRfYWNkaXJtYXg6CisJCQkJbmZzX2RhdGEuYWNkaXJtYXggPSBvcHRp
-b247CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF9zb2Z0OgorCQkJCW5mc19kYXRhLmZsYWdzICY9
-IH5ORlNfTU9VTlRfU09GVDsKKwkJCQluZnNfZGF0YS5mbGFncyB8PSBORlNfTU9VTlRfU09GVDsK
-KwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X2hhcmQ6CisJCQkJbmZzX2RhdGEuZmxhZ3MgJj0gfk5G
-U19NT1VOVF9TT0ZUIDsKKwkJCQluZnNfZGF0YS5mbGFncyB8PSAwIDsKKwkJCQlicmVhazsKKwkJ
-CWNhc2UgT3B0X2ludHI6CisJCQkJbmZzX2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9JTlRSOwor
-CQkJCW5mc19kYXRhLmZsYWdzIHw9IE5GU19NT1VOVF9JTlRSOworCQkJCWJyZWFrOworCQkJY2Fz
-ZSBPcHRfbm9pbnRyOgorCQkJCW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfSU5UUjsKKwkJ
-CQluZnNfZGF0YS5mbGFncyB8PSAwOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfcG9zaXg6CisJ
-CQkJbmZzX2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9QT1NJWDsKKwkJCQluZnNfZGF0YS5mbGFn
-cyB8PSBORlNfTU9VTlRfUE9TSVg7CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF9ub3Bvc2l4Ogor
-CQkJCW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfUE9TSVg7CisJCQkJbmZzX2RhdGEuZmxh
-Z3MgfD0gMDsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X2N0bzoKKwkJCQluZnNfZGF0YS5mbGFn
-cyAmPSB+TkZTX01PVU5UX05PQ1RPOworCQkJCW5mc19kYXRhLmZsYWdzIHw9IDA7CisJCQkJYnJl
-YWs7CisJCQljYXNlIE9wdF9ub2N0bzoKKwkJCQluZnNfZGF0YS5mbGFncyAmPSB+TkZTX01PVU5U
-X05PQ1RPOworCQkJCW5mc19kYXRhLmZsYWdzIHw9IE5GU19NT1VOVF9OT0NUTzsKKwkJCQlicmVh
-azsKKwkJCWNhc2UgT3B0X2FjOgorCQkJCW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfTk9B
-QzsKKwkJCQluZnNfZGF0YS5mbGFncyB8PSAwOworCQkJCWJyZWFrOworCQkJY2FzZSBPcHRfbm9h
-YzoKKwkJCQluZnNfZGF0YS5mbGFncyAmPSB+TkZTX01PVU5UX05PQUM7CisJCQkJbmZzX2RhdGEu
-ZmxhZ3MgfD0gTkZTX01PVU5UX05PQUM7CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF9sb2NrOgor
-CQkJCW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfTk9OTE07CisJCQkJbmZzX2RhdGEuZmxh
-Z3MgfD0gMDsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X25vbG9jazoKKwkJCQluZnNfZGF0YS5m
-bGFncyAmPSB+TkZTX01PVU5UX05PTkxNOworCQkJCW5mc19kYXRhLmZsYWdzIHw9IE5GU19NT1VO
-VF9OT05MTTsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X3YyOgorCQkJCW5mc19kYXRhLmZsYWdz
-ICY9IH5ORlNfTU9VTlRfVkVSMzsKKwkJCQluZnNfZGF0YS5mbGFncyB8PSAwOworCQkJCWJyZWFr
-OworCQkJY2FzZSBPcHRfdjM6CisJCQkJbmZzX2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9WRVIz
-OworCQkJCW5mc19kYXRhLmZsYWdzIHw9IE5GU19NT1VOVF9WRVIzOworCQkJCWJyZWFrOworCQkJ
-Y2FzZSBPcHRfdWRwOgorCQkJCW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfVENQOworCQkJ
-CW5mc19kYXRhLmZsYWdzIHw9IDA7CisJCQkJYnJlYWs7CisJCQljYXNlIE9wdF90Y3A6CisJCQkJ
-bmZzX2RhdGEuZmxhZ3MgJj0gfk5GU19NT1VOVF9UQ1A7CisJCQkJbmZzX2RhdGEuZmxhZ3MgfD0g
-TkZTX01PVU5UX1RDUDsKKwkJCQlicmVhazsKKwkJCWNhc2UgT3B0X2Jyb2tlbl9zdWlkOgorCQkJ
-CW5mc19kYXRhLmZsYWdzICY9IH5ORlNfTU9VTlRfQlJPS0VOX1NVSUQ7CisJCQkJbmZzX2RhdGEu
-ZmxhZ3MgfD0gTkZTX01PVU5UX0JST0tFTl9TVUlEOworCQkJCWJyZWFrOworCQkJZGVmYXVsdCA6
-IAorCQkJCXJldHVybiAwOwogCQl9CiAJfQotCWlmIChuYW1lWzBdICYmIHN0cmNtcChuYW1lLCAi
-ZGVmYXVsdCIpKQotCQlzdHJsY3B5KGJ1ZiwgbmFtZSwgTkZTX01BWFBBVEhMRU4pOworCXJldHVy
-biAxOwogfQogCi0KIC8qCiAgKiAgUHJlcGFyZSB0aGUgTkZTIGRhdGEgc3RydWN0dXJlIGFuZCBw
-YXJzZSBhbGwgb3B0aW9ucy4KICAqLwo=
+Something interesting: the oops occurs always in a thread (either mysql
+or java), not in a principal process (verified by finding the only task
+that is locked by doing some cat in /proc/<pid>/task/).
 
---========GMXBoundary244901078916018--
+Then I tried to reproduce it exactly and found the following:
+1) log in with ssh on the server (this allocates a tty: /dev/pts/0)
+2) launch a java application using some threads, the application in
+question uses /dev/pts/0 as tty
+3) log-out, this releases /dev/pts/0
+4) log in again (this session uses /dev/pts/1)
+5) run chkrootkit or a 'ps mauxgww' -> the previous oops is reported.
+
+It seems that task->tty for the threads are not properly zeroed when the
+corresponding tty is unregistered (parent process is OK, though).
+
+I'll let real kernel hackers find exactly where the problem is (and
+possibly a fix)...
+
+I'm not subscribed to the list, so please CC: me on answers.
+
+--
+Brice Figureau
 

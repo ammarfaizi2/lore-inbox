@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUJAWaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUJAWaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUJAWaD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 18:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUJAW1X
+	id S266538AbUJAWaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 18:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266643AbUJAW1b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 18:27:23 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:52114 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266775AbUJAWTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 18:19:40 -0400
-Subject: Re: [PATCH] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: "Jack O'Quin" <joq@io.com>, Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-In-Reply-To: <20041001142259.I1924@build.pdx.osdl.net>
-References: <1094967978.1306.401.camel@krustophenia.net>
-	 <20040920202349.GI4273@conscoop.ottawa.on.ca>
-	 <20040930211408.GE4273@conscoop.ottawa.on.ca>
-	 <1096581213.24868.19.camel@krustophenia.net>
-	 <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net>
-	 <87k6ubcccl.fsf@sulphur.joq.us>
-	 <1096663225.27818.12.camel@krustophenia.net>
-	 <20041001142259.I1924@build.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1096669179.27818.29.camel@krustophenia.net>
+	Fri, 1 Oct 2004 18:27:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40898 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266352AbUJAWZw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 18:25:52 -0400
+Date: Fri, 1 Oct 2004 15:25:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>, dely.l.sy@intel.com
+Cc: sgala@apache.org, linux-kernel@vger.kernel.org
+Subject: Re: Fw: 2.6.8-rc2-mm4 does not link (PPC)
+Message-ID: <20041001222517.GB4464@kroah.com>
+References: <20041001010818.6a6e2fca.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 18:19:39 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041001010818.6a6e2fca.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 17:23, Chris Wright wrote:
-> * Lee Revell (rlrevell@joe-job.com) wrote:
-> > On Fri, 2004-10-01 at 00:05, Jack O'Quin wrote:
-> > > The ulimit approach is way too cumbersome.
-> > 
-> > Agreed.  The whole point of getting realtime-lsm in the kernel is to
-> > make it _easier_ to get a linux audio (or other realtime system) up and
-> > running.
+> It looks like a trivial error: a structure used in PCI architecture
+> independent code (quirks.c) gets defined (only) in i386 architecture
+> (raw_pci_ops). I'm not an expert and cannot help to define this under
+> ppc arch:
 > 
-> It's nice to have something that's easy to use, but that's not a great
-> justification for addition to the kernel.  Esp. when there's a
-> functional userspace solution.
+> drivers/built-in.o(.text+0x350a): In function `quirk_pcie_aspm_read':
+> : undefined reference to `raw_pci_ops'
+> drivers/built-in.o(.text+0x351e): In function `quirk_pcie_aspm_read':
+> : undefined reference to `raw_pci_ops'
+> drivers/built-in.o(.text+0x3566): In function `quirk_pcie_aspm_write':
+> : undefined reference to `raw_pci_ops'
+> drivers/built-in.o(.text+0x35a6): In function `quirk_pcie_aspm_write':
+> : undefined reference to `raw_pci_ops'
+> make: *** [.tmp_vmlinux1] Error 1
 > 
+> I sent a typo for rc2-mm2. Just to report that it never booted after
+> the typo was corrected. hard freeze.
 
-OK, poor choice of words.  Correctness of course comes before ease of
-use.  I believe the realtime-lsm module satisfies both requirements.
+Dely, we need to move this quirk to i386 specific code.  Will we also
+have to do this for the x86-64 platform too?
 
-> > The ulimit approach would probably be acceptable
-> > if it subsumed all the functionality of the realtime-lsm module.
-> 
-> Hrm, I guess we'll have to agree to disagree.  The whole point of the
-> mlock rlimits code is to enable this policy to be pushed to userspace.
-> A generic method of enabling capabilities is the best way to go, long
-> term.  Any interest in pursuing that?
+Care to send a patch to fix this?
 
-I did not mean to imply that I disagree with the realtime-lsm approach. 
-Obviously some kernel support is required, and realtime-lsm seems to
-solve the problem with the minimum possible change to the kernel.  And
-above all it is a proven working solution that has been field tested for
-months by many, many users.
+thanks,
 
-Lee
-
+greg k-h

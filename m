@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbTLKNvn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 08:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbTLKNvn
+	id S264949AbTLKNwc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 08:52:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTLKNwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 08:51:43 -0500
-Received: from math.ut.ee ([193.40.5.125]:47552 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S264954AbTLKNvl (ORCPT
+	Thu, 11 Dec 2003 08:52:32 -0500
+Received: from ee.oulu.fi ([130.231.61.23]:33458 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S264949AbTLKNw3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 08:51:41 -0500
-Date: Thu, 11 Dec 2003 15:51:34 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Tom Rini <trini@kernel.crashing.org>
+	Thu, 11 Dec 2003 08:52:29 -0500
+Date: Thu, 11 Dec 2003 15:52:24 +0200 (EET)
+From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
+X-X-Sender: tuukkat@stekt37
+To: James Bourne <jbourne@hardrock.org>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
-In-Reply-To: <20031210161142.GE23731@stop.crashing.org>
-Message-ID: <Pine.GSO.4.44.0312111357130.24419-100000@math.ut.ee>
+Subject: Re: computer hangs with 2.4.23 (2.4.22 works)
+In-Reply-To: <Pine.LNX.4.51.0312090752320.31228@cafe.hardrock.org>
+Message-ID: <Pine.GSO.4.58.0312111544310.17042@stekt37>
+References: <Pine.GSO.4.58.0312091309090.15061@stekt37>
+ <Pine.LNX.4.51.0312090752320.31228@cafe.hardrock.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ===== arch/ppc/boot/prep/misc.c 1.14 vs edited =====
-> --- 1.14/arch/ppc/boot/prep/misc.c	Mon Oct 20 11:49:35 2003
-> +++ edited/arch/ppc/boot/prep/misc.c	Wed Dec 10 09:11:05 2003
-> @@ -251,15 +251,21 @@
->  		{
->  			phandle dev_handle;
->  			int mem_info[2];
-> +			int n;
-> +			puts("Trying OF\n");
->
->  			/* get handle to memory description */
->  			if (!(dev_handle = finddevice("/memory@0")))
->  				break;
-> +			puts("Found /memory@0\n");
->
->  			/* get the info */
->  			if (getprop(dev_handle, "reg", mem_info,
-> -						sizeof(mem_info) != 8))
-> +						sizeof(mem_info) != 8)) {
-> +				puts("n = 0x");puthex(n);puts("\n");
->  				break;
-> +			}
-> +			puts("Found reg prop\n");
+On Tue, 9 Dec 2003, James Bourne wrote:
 
-Are you sure that n really gets a value?
+>On Tue, 9 Dec 2003, Tuukka Toivonen wrote:
+>> Computer hangs after few hours of uptime
 
-It prints
-Found /memory@0
-n = 0x00000000
+>You have CONFIG_IP_NF_COMPAT_IPCHAINS as a module, are you using ipchains
+>compatibility?
 
-and nothinf about reg prop as the code tells. What do you actually mean
-by n?
+Yes indeed I am.
 
--- 
-Meelis Roos (mroos@linux.ee)
+>http://www.hardrock.org/kernel/current-updates/linux-2.4.23-updates.patch
+>and see if that makes a difference for you.  It contains the ipchains compat
+>oops amoung other patches.
 
+Looks like this patch fixed the problem. Since I applied this patch two
+days ago, the computer hasn't crashed (yesterday or today).
+
+>http://www.kernel.org/pub/linux/kernel/v2.4/snapshots/patch-2.4.23-bk5.bz
+
+I can't get this link to work... but I don't then need it.
+
+Some more facts which clearly point into ipchains problem:
+This computer has two network cards, another connected to the Internet,
+another to a laptop. The ipchains is used to allow the laptop to access
+Internet. The laptop generally doesn't do that, except at 13:00 when a cron
+job runs ntpdate, and now that I think it, the crash happened probably
+every day soon after 13:00 (but not exactly, I believe).
+
+Thanks.
 

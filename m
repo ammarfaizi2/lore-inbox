@@ -1,53 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263575AbTIHTre (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTIHTrS
+	id S263627AbTIHUF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 16:05:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTIHUF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:47:18 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:64929 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263566AbTIHTrL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:47:11 -0400
+	Mon, 8 Sep 2003 16:05:59 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:26885 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263627AbTIHUFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 16:05:55 -0400
+Message-ID: <3F5CE0E5.A5A08A91@SteelEye.com>
+Date: Mon, 08 Sep 2003 16:04:53 -0400
+From: Paul Clements <Paul.Clements@SteelEye.com>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Sven =?iso-8859-1?Q?K=F6hler?= <skoehler@upb.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NBD] patch and documentation
+References: <3F5CB554.5040507@upb.de> <20030908193838.GA435@elf.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16220.56495.308087.395919@gargle.gargle.HOWL>
-Date: Mon, 8 Sep 2003 21:46:55 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew de Quincey <adq_dvb@lidskialf.net>, torvalds@osdl.org,
-       lkml <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net,
-       linux-acpi@intel.com
-Subject: Re: [PATCH] 2.6.0-test4 ACPI fixes series (4/4)
-In-Reply-To: <3F5936D2.3060502@pobox.com>
-References: <200309051958.02818.adq_dvb@lidskialf.net>
-	<200309060016.16545.adq_dvb@lidskialf.net>
-	<3F590E28.6090101@pobox.com>
-	<200309060157.47121.adq_dvb@lidskialf.net>
-	<3F5936D2.3060502@pobox.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
- > Andrew de Quincey wrote:
- > > This patch removes some erroneous code from mpparse which breaks IO-APIC programming
- > > 
- > > 
- > > --- linux-2.6.0-test4.null_crs/arch/i386/kernel/mpparse.c	2003-09-06 00:23:10.000000000 +0100
- > > +++ linux-2.6.0-test4.duffmpparse/arch/i386/kernel/mpparse.c	2003-09-06 00:28:23.788124872 +0100
- > > @@ -1129,9 +1129,6 @@
- > >  			continue;
- > >  		ioapic_pin = irq - mp_ioapic_routing[ioapic].irq_start;
- > >  
- > > -		if (!ioapic && (irq < 16))
- > > -			irq += 16;
- > > -
- > 
- > 
- > Even though I've been digging through stuff off and on, I consider 
- > myself pretty darn IOAPIC-clueless.  Mikael, does this look sane to you?
+Pavel Machek wrote:
 
-Sorry, I'm only a local APIC caretaker, not an I/O-APIC expert.
-Check with Alan, Ingo, Maciej, or the big-SMP people.
+> Paul, do you think this docs could be added to the end of
+> Documentation/nbd.txt?
+
+I've made some changes to 2.6 nbd.txt, so let me look at integrating
+this into those changes and also putting them into 2.4.
+
+> The patch also looks harmless enough for applying ;-).
+
+Harmless enough, although I'm not sure it really makes that much
+difference. The max_sectors being set to 255 doesn't, by itself, explain
+the back and forth 127k, 1k request thing. Typically what you'll see is
+127k, 127k, 127k, etc. and then some odd sized request at the end. Or
+the device gets unplugged anyway at some point and there are odd sized
+requests scattered throughout...that's especially going to be true if
+the reads or writes are from an actual disk, rather than /dev/null. I
+may be just coincidence that setting max_sectors to 256 actually helps.
+Also, are we sure that all those requests you're seeing are of the same
+type (all reads, all writes)?
+
+--
+Paul
+
+ 
+> > The patch i attached defines max_sectors for each NBD device to be 256
+> > which is 128KB as described in the protocol description i attached.
+> > The value 255 which is default in 2.4 kernels is not optimal. See my
+> > other posting in the lkml to read why.
+> > The patch seems to work fine. My server-implementation receives one
+> > 128KB request as expected instead of two 127KB and 1Kb requests.
+> >
+> > Even if 256 is the new max_sectors-default of kernel 2.6, the patch
+> > should be applied since the value should be part of the protocol
+> > specification and therefor part of nbd.c
+> >
+> > The documentation i attached should be published somewhere. For example
+> > on nbd.sf.net since we didn't find one source where all the information
+> > is collected.
+> >
+> > Thx
+> >   Sven
+> 
+> > The NBD-protocol
+> >
+> > How it works:
+> >     To use the NBD features of the kernel you must compile the kernel module
+> >       called "Network block device support" (CONFIG_BLK_DEV_NBD). After you've
+> >       loaded the module the devices will appear in /dev/nbd/ if you're using
+> >       devfs. If you're not using devfs you will possibly need to create your
+> >       device-nodes with "mknod". All NBD devices have major ID 43. /dev/nbd/0
+> >       has minor ID 0, /dev/nbd/1 has minor ID 1 and so on.
+> >     To connect a NBD device to a remote server you need install the NBD tools
+> >     downloadable at http://nbd.sf.net or http://sf.net/projects/nbd. Run
+> >     "nbd-client <host> <tcp-port> /dev/nbd/0" to connect the device /dev/nbd/0
+> >     to the remote server. nbd-client will open a TCP-connection to the server
+> >     and waits for some initial data which contains the size of the device.
+> >     Than the handle of the TCP-connection is transferred to the kernel for
+> >     further use. nbd-client will fork into background because the handle of the
+> >     TCP-connection would be closed by the kernel if nbd-client exits.
+> >     The tools also contain a very basic NBD server which will enable you to use
+> >     any file or device as a NBD.
+> >
+> > The protocol:
+> >     The protocol is based on top of TCP/IP. Both client and server send packets
+> >     to each other. The server must send an init-packet to the client if a
+> >     client connects. After that the server just receives request-packets from
+> >     the client and sends back reply-packets until the connection is closed or a
+> >     disconnect-request is received.
+> >
+> >     The amount of data that can be read or written with one request
+> >     is limited to 128KB.
+> >
+> >     The current implementation of the NBD-protocol in the Linux-Kernel does
+> >     send multiple requests without waiting for replies. So it does make sense
+> >     for the server to handle requests in parallel.
+> >
+> > Constants:
+> >       INIT_PASSWD   = "NBDMAGIC"
+> >       INIT_MAGIC    = 0x0000420281861253
+> >     REQUEST_MAGIC = 0x25609513
+> >       REPLY_MAGIC   = 0x67446698
+> >
+> >       REQUEST_READ       = 0
+> >       REQUEST_WRITE      = 1
+> >       REQUEST_DISCONNECT = 2
+> >
+> > Packets:
+> >
+> >       init-packet:
+> >               passwd   : 8 bytes (string)  = INIT_PASSWD
+> >               magic    : 8 bytes (integer) = INIT_MAGIC
+> >               size     : 8 bytes (integer) = size of the device in bytes
+> >               reserved : 128 bytes (filled with zeros)
+> >
+> >       request-packet:
+> >           magic  : 4 bytes (integer) = REQUEST_MAGIC
+> >           type   : 4 bytes (integer) = REQUEST_READ, REQUEST_WRITE or REQUEST_DISCONNECT
+> >           handle : 8 bytes (integer) = request-handle
+> >           from   : 8 bytes (integer) = start offset for read/write-operation in bytes
+> >           length : 4 bytes (integer) = length of the read/write-operationion bytes
+> >           data   : x bytes (only for write request, x = length field of this packet)
+> >
+> >       reply-packet:
+> >           magic  : 4 bytes (integer) = REPLY_MAGIC
+> >           error  : 4 bytes (integer) = errorcode (0 = no error)
+> >           handle : 8 bytes (integer) = copy of request-handle
+> >           data   : x bytes (only for reply to read request and if no error occured,
+> >                             x = length field of the request packet)
+> >
+> >       all integer values are stored unsigned and in network-byte-order (big-endian)
+> 
+> --
+> When do you have a heart between your knees?
+> [Johanka's followup: and *two* hearts?]
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,67 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263361AbTJUUlz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 16:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263363AbTJUUlz
+	id S263386AbTJUU6x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 16:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263393AbTJUU6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 16:41:55 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:28904 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S263361AbTJUUlx (ORCPT
+	Tue, 21 Oct 2003 16:58:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:62627 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263387AbTJUU6O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 16:41:53 -0400
-Date: Tue, 21 Oct 2003 22:39:27 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: Ian Hastie <ianh@iahastie.clara.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Uncorrectable Error on IDE, significant accumulation
-Message-ID: <20031021203927.GB4460%konsti@ludenkalle.de>
-Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
-Mail-Followup-To: Ian Hastie <ianh@iahastie.clara.net>,
-	linux-kernel@vger.kernel.org
-References: <20031020132705.GA1171@synertronixx3> <20031020230510.GD15563%konsti@ludenkalle.de> <200310210203.45512.ianh@iahastie.local.net> <200310212024.00096.ianh@iahastie.local.net>
+	Tue, 21 Oct 2003 16:58:14 -0400
+Date: Tue, 21 Oct 2003 13:56:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: clemens@dwf.com, linux-hotplug-devel@lists.sourceforge.net,
+       KML <linux-kernel@vger.kernel.org>, reg@orion.dwf.com
+Subject: Re: [ANNOUNCE] udev 003 release
+Message-ID: <20031021205653.GA2374@kroah.com>
+References: <200310171757.h9HHvGiY006997@orion.dwf.com> <20031017181923.GA10649@kroah.com> <20031017182754.GA10714@kroah.com> <1066696767.10221.164.camel@nosferatu.lan> <20031021005025.GA28269@kroah.com> <1066698679.10221.178.camel@nosferatu.lan> <20031021024322.GA29643@kroah.com> <1066707482.10221.243.camel@nosferatu.lan> <20031021174426.GA1497@kroah.com> <1066767647.11872.152.camel@nosferatu.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200310212024.00096.ianh@iahastie.local.net>
-Organization: Kletschke & Uhlig GbR
-User-Agent: Mutt/1.5.4i-ja.1
+In-Reply-To: <1066767647.11872.152.camel@nosferatu.lan>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ian Hastie <ianh@iahastie.clara.net> [Tue, Oct 21, 2003 at 08:23:58PM +0100]:
+On Tue, Oct 21, 2003 at 10:20:47PM +0200, Martin Schlemmer wrote:
+> > > Also, I am using ramfs for now to do the device nodes, and have not
+> > > looked at minimal /dev layout, although I guess it is not that minimal,
+> > > as even the input drivers lack udev (sysfs) support currently it seems.
+> > > Wat was the last eta for initramfs again ?
+> > 
+> > initramfs is in the kernel, you use it to boot already :)
+> > 
 > 
-> : USB Function for DOS
-> : Enable this item if you plan to use the USB ports on this mainboard in a DOS
-> : environment.
-> 
-> Well assuming it implies some kind of 16bit related access mode then I suppose 
-> it should be disabled anyway.  However I didn't see a specific "usb-keyboard 
-> support for dos" in the manual.  What happens if you disable "USB Function 
-> Support" completely?
+> OK ... I do though remember you saying it should be possible to have
+> initramfs get the initial /dev going ... any docs on that ?
 
-I meant your quoted excerpt. I did not remember the correct spelling of
-the option, remembered only something like "USB function for dos".
+Other than the source in the kernel, no, sorry.
 
-I thought also it must be some garbage left from BIOS or so, but when using
-arrow keys to select another item, lilo puts something like
-"2.6.0-test6-mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4mm4"...
-onto the screen. One backspace erases whole 5 lines.
-
-I flashed BIOS cause I thought ECS might have fixed it (if it is its
-fault) from January version to august version, same error.
-
-I was fed up now and installed grub, which works like a charme.
-
-Well, completely nokernel issue and I should write a bug report to the
-lilo folks...
-
-Or is it a BIOS error still which grub copes around with?
-
-Regards, Konsti
-
--- 
-2.6.0-test6-mm4
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 2:46, 4 users
+greg k-h

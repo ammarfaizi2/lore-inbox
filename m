@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265652AbTGXJjf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 05:39:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271420AbTGXJjf
+	id S267952AbTGXJsR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 05:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271420AbTGXJsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 05:39:35 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17939
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S265652AbTGXJje (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 05:39:34 -0400
-Date: Thu, 24 Jul 2003 02:46:39 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Miles Bader <miles@gnu.org>, Miles Bader <miles@lsi.nec.co.jp>
-cc: dean.mcewan@eudoramail.com, linux-kernel@vger.kernel.org
-Subject: Re: Switching to the OSL License, in a dual way.
-In-Reply-To: <buo8yqo2tel.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Message-ID: <Pine.LNX.4.10.10307240239260.16098-100000@master.linux-ide.org>
+	Thu, 24 Jul 2003 05:48:17 -0400
+Received: from sinma-gmbh.17.mind.de ([212.21.92.17]:41223 "EHLO gw.enyo.de")
+	by vger.kernel.org with ESMTP id S267952AbTGXJsQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 05:48:16 -0400
+To: "Bryan D. Stine" <admin@kentonet.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test1] ACPI slowdown
+References: <878yqpptez.fsf@deneb.enyo.de> <bfn3rj$lql$1@gatekeeper.tmr.com>
+	<1059002183.1484.18.camel@gaia>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: "Bryan D. Stine" <admin@kentonet.net>,
+ linux-kernel@vger.kernel.org
+Date: Thu, 24 Jul 2003 12:03:22 +0200
+In-Reply-To: <1059002183.1484.18.camel@gaia> (Bryan D. Stine's message of
+ "23 Jul 2003 19:16:23 -0400")
+Message-ID: <87el0gfdhx.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Bryan D. Stine" <admin@kentonet.net> writes:
 
-Yeah the bit about "Nasal Sex with Dead Plants" just makes one wonder, is
-a rose just a rose?  (note to self, don't read RMS's diary again)
+> I had that problem with my old Athlon TBird. Changing config to make
+> thermal a module and not loading it solved my problem. I don't know how
+> to change the thermal limits from within the system using ACPI.
 
-Has anyone ever asked why it is okay for RMS to suggest it is okay to
-invalidate another person/company license (BitKeeper is the example) yet
-become offended when their own license is to desired to be invalidated?
+Maybe it's related to the BIOS configuration.  You can configure
+limits there, and they seem to match those that are displayed under
+/proc.
 
-Why is it that nothing but gpl can exist with gpl?
-
-Why is that a superior option to license under which follows the
-original spirit of GPL but goes further to promote the ideas of open
-source is frowned upon?
-
-Maybe it has something to do with self pollenation.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On 24 Jul 2003, Miles Bader wrote:
-
-> "Dean McEwan" <dean.mcewan@eudoramail.com> writes:
-> >  After recently reading Mr. Stallman's online *BLURB*
-> > at www.stallman.org, specifically the diary entry
-> > on June 28th 2003, I am disturbed, I would like to
-> > work on helping you people move to a OSL licence,
-> 
-> Hmmm, if I read that page, I see nothing dated `June 28th' that's
-> related to linux, or indeed to software at all.
-> 
-> -Miles
-> -- 
-> Is it true that nothing can be known?  If so how do we know this?  -Woody Allen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+However, I still wonder if the 57 °C figure is something I should
+worry about (although the machine has been running stable for years).

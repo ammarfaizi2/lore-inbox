@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRCIDgs>; Thu, 8 Mar 2001 22:36:48 -0500
+	id <S129855AbRCIDrt>; Thu, 8 Mar 2001 22:47:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbRCIDgi>; Thu, 8 Mar 2001 22:36:38 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:40458 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129583AbRCIDga>;
-	Thu, 8 Mar 2001 22:36:30 -0500
-Date: Fri, 9 Mar 2001 04:35:58 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Microsoft begining to open source Windows 2000?
-Message-ID: <20010309043558.D19635@almesberger.net>
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C5@ATL_MS1>
+	id <S130428AbRCIDri>; Thu, 8 Mar 2001 22:47:38 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:22858 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129855AbRCIDrb>; Thu, 8 Mar 2001 22:47:31 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Mircea Damian <dmircea@kappa.ro>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel crash - reboot or hang 
+In-Reply-To: Your message of "Thu, 08 Mar 2001 16:17:23 +0200."
+             <20010308161723.A9138@linux.kappa.ro> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C5@ATL_MS1>; from Venkateshr@ami.com on Thu, Mar 08, 2001 at 11:04:25AM -0500
+Date: Fri, 09 Mar 2001 14:47:01 +1100
+Message-ID: <12647.984109621@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Venkatesh Ramamurthy wrote:
-> send a patch and they would put it in thier next version. Is this not the
-> same way Linux Kernel is developed?. Only thing microsoft does not want to
-> immediately go full open sourcing and get embarrased at the hands of linux
-> people.
+On Thu, 8 Mar 2001 16:17:23 +0200, 
+Mircea Damian <dmircea@kappa.ro> wrote:
+>I had two crashes with 2.4.2 and 2.4.2-pre2 on my local SMTP/POP3/SAMBA/WWW
+>server (once under some load and the second one - with 2.4.2-pre2 - while
+>it was almost idle).
+>Should I use kdb or just remote logging would do the job?
 
-Is this linux-kernel or "The Onion" ? I can already see it:
+kdb with a serial console.
 
-  "<Insert_Rogue_Nation_of_Your_Choice> suspends execution of dissidents
-   for one week.
-  Amnesty International hails this as a significant move, showing their
-  determination to move swiftly to full compliance with human rights."
-
-- Werner (couldn't resist ;-)
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261966AbTDABX2>; Mon, 31 Mar 2003 20:23:28 -0500
+	id <S261979AbTDABab>; Mon, 31 Mar 2003 20:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261970AbTDABX1>; Mon, 31 Mar 2003 20:23:27 -0500
-Received: from 130.146.174.203.mel.ntt.net.au ([203.174.146.130]:5259 "EHLO
-	enki.rimspace.net") by vger.kernel.org with ESMTP
-	id <S261966AbTDABX0>; Mon, 31 Mar 2003 20:23:26 -0500
+	id <S261980AbTDABab>; Mon, 31 Mar 2003 20:30:31 -0500
+Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:44805
+	"EHLO gw.goop.org") by vger.kernel.org with ESMTP
+	id <S261979AbTDABaa>; Mon, 31 Mar 2003 20:30:30 -0500
+Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-In-Reply-To: <20030331170927.013a0d4a.akpm@digeo.com> (Andrew Morton's
- message of "Mon, 31 Mar 2003 17:09:27 -0800")
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
-	<20030328231248.GH5147@zaurus.ucw.cz>
-	<slrnb8gbfp.1d6.erik@bender.home.hensema.net>
-	<3E8845A8.20107@aitel.hist.no> <3E88BAF9.8040100@cyberone.com.au>
-	<20030331144500.17bf3a2e.akpm@digeo.com>
-	<87el4ngi8l.fsf@enki.rimspace.net>
-	<20030331170927.013a0d4a.akpm@digeo.com>
-From: Daniel Pittman <daniel@rimspace.net>
-Date: Tue, 01 Apr 2003 11:34:50 +1000
-Message-ID: <87pto7f1ad.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.5 (cabbage)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Tom Sightler <ttsig@tuxyturvy.com>, rml@tech9.net,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20030329212330.225a96b6.akpm@digeo.com>
+References: <3E8610EA.8080309@telia.com> <1048987260.679.7.camel@teapot>
+	 <1048989922.13757.20.camel@localhost>
+	 <200303301233.03803.kernel@kolivas.org>
+	 <1048992365.13757.23.camel@localhost>
+	 <1048996723.3058.41.camel@iso-8590-lx.zeusinc.com>
+	 <20030329212330.225a96b6.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049161310.1043.440.camel@ixodes.goop.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 31 Mar 2003 17:41:50 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Mar 2003, Andrew Morton wrote:
-> Daniel Pittman <daniel@rimspace.net> wrote:
->>
->> Capturing a real-time video stream from an IEEE1394 DV stream means
->> writing a stead 3.5MB per second for two on two and a half hours.
->> 
->> Linux isn't great at this, using the default writeout policy, even as
->> recent as 2.5.64. The writer goes OK for a while but, eventually,
->> blocks on writeout for long enough to drop a frame -- more than
->> 8/25ths of a second.
->> 
->> 
->> This can be resolved by tuning the default delay before write-out
->> start to 5 seconds, down from 30, or by running sync every second, or
->> by doing fsync tricks.
+On Sat, 2003-03-29 at 21:23, Andrew Morton wrote:
+> Tom Sightler <ttsig@tuxyturvy.com> wrote:
+> >
+> > On my system I get a starvation issue with just about any CPU intensive
+> > task.  For example if create a bzip'd tar file from the linux kernel
+> > source with the command:
+> > 
+> > tar cvp linux | bzip2 -9 > linux.tar.bz2
+> > 
 > 
-> Interesting.
+> Ingo has determined that Linus's backboost trick is causing at least some
+> of these problems. Please test and report upon the below patch.
+>[...]
+> From: Ingo Molnar <mingo@elte.hu>
 > 
-> Yes, I expect that you could fix that up by altering
-> dirty_background_ratio and dirty_expire_centisecs.
-
-Those are, in fact, the precise knobs I turned. Well, those and the XFS
-pagebuf layer equivalents.
-
-> The problem with fsync() is that it waits on the writeout. You don't
-> want that to happen - you just want to tell the kernel "I won't be
-> overwriting or deleting this data". Make the kernel queue up and start
-> the IO but not wait on its completion.
-
-Yes, that would be good, because then I wouldn't need to write an IPC
-thing and fork or thread, so that the second thread can be busy blocking
-on the writeout for me.
-
-> It is quite appropriate to do this in fadvise(FADV_DONTNEED) - as a
-> lower-latency fsync(). The app would need to call it once per second
-> or so.
+> the patch below fixes George's setiathome problems (as expected).  It
+> essentially turns off Linus' improvement, but i dont think it can be fixed
+> sanely.
 > 
-> It would also throw away any written-back pagecache inside your
-> (start, len) which is exactly what your applications wants to happen,
-> so the app should be calling fadvise _anyway_.
-> 
-> What do you think?
+> the problem with setiathome is that it displays something every now and
+> then - so it gets a backboost from X, and hovers at a relatively high
+> priority.
 
-I will apply the patch and test later today.  This, however, looks like
-a *really* good thing to me.
+This fixes the starvation I was getting with xmms visualizers, which
+have a similar usage pattern: they're mostly CPU-bound, but they talk to
+the X server for drawing.
 
-  Daniel
+	J
 
--- 
-there's a party going on 
-we'll all be here dancing underground 
-      there's a riot going on 
-we'll all be here dancing underground
-        -- Covenant, _Riot_

@@ -1,121 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275125AbTHMMet (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 08:34:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272520AbTHMMet
+	id S272520AbTHMMnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 08:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272540AbTHMMnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 08:34:49 -0400
-Received: from pop016pub.verizon.net ([206.46.170.173]:59111 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP id S275125AbTHMMdp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 08:33:45 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: Andrew McGregor <andrew@indranet.co.nz>
-Subject: Re: [PATCH] O13int for interactivity
-Date: Wed, 13 Aug 2003 08:33:43 -0400
-User-Agent: KMail/1.5.1
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200308050207.18096.kernel@kolivas.org> <200308130124.31978.gene.heskett@verizon.net> <98750000.1060753418@ijir>
-In-Reply-To: <98750000.1060753418@ijir>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308130833.43362.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at pop016.verizon.net from [151.205.61.27] at Wed, 13 Aug 2003 07:33:44 -0500
+	Wed, 13 Aug 2003 08:43:49 -0400
+Received: from pop.gmx.net ([213.165.64.20]:647 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272520AbTHMMnm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 08:43:42 -0400
+Message-Id: <5.2.1.1.2.20030813144306.0198a058@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Wed, 13 Aug 2003 14:47:42 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: WINE + Galciv + 2.6.0-test3-mm1-O15
+Cc: gaxt <gaxt@rogers.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200308131334.54598.kernel@kolivas.org>
+References: <5.2.1.1.2.20030812193758.0197b9c0@pop.gmx.net>
+ <3F38FCBA.1000008@rogers.com>
+ <5.2.1.1.2.20030812193758.0197b9c0@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_29676046==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 August 2003 01:43, Andrew McGregor wrote:
->--On Wednesday, August 13, 2003 01:24:31 AM -0400 Gene Heskett
+--=====================_29676046==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+
+At 01:34 PM 8/13/2003 +1000, Con Kolivas wrote:
+>On Wed, 13 Aug 2003 04:24, Mike Galbraith wrote:
+> > At 12:40 AM 8/13/2003 +1000, Con Kolivas wrote:
+> > >On Wed, 13 Aug 2003 00:42, gaxt wrote:
+> > > > Photoshop 6 (yes, legal owned version) in wine is flawless (as it was
+> > > > with 2.6.0-test3)
+> > > >
+> > > > Galciv plays videos quite smoothly but as soon as I run it it will
+> > > > freeze the cursor for 12-15 seconds every half-minute or so even within
+> > > > the game itself which is turn-based strategy without a lot of whizbang
+> > > > stuff. In the past, the videos would stutter but the game would not
+> > > > suffer from more than short pauses now and then.
+> > >
+> > >Yes, herein lies one of those mysteries that still eludes me but I have
+> > > been investigating it. I can now reproduce in other applications what
+> > > appears to be the problem - Two cpu hogs, X and evolution for example are
+> > > running and evolution is making X the cpu hog. The problem is that X gets
+> > > demoted whereas evolution doesn't. Strangely, dropping evolution to nice
+> > > +1 or making X -1 seems to change which one gets demoted, and X is now
+> > > much smoother. I assume the same thing is happening here between wine and
+> > > wineserver, which is why you've seen reversal of priorities in your
+> > > previous posts. See if renicing one of them +1 helps for the time being.
+> > > I will continue investigating to find out why the heck this happens and
+> > > try and fix it.
+> > >
+> > >Con
+> > >
+> > >P.S. I've cc'ed MG because he has seen the scheduler do other forms of
+> > >trickery and may have thoughts on why this happens.
+> >
+> > That sounds suspiciously similar to my scenario, but mine requires a third
+> > element to trigger.
+> >
+> > <scritch scritch scritch>
+> >
+> > What about this?  In both your senario and mine, X is running low on cash
+> > while doing work at the request of a client right?  Charge for it.  If X is
+> > lower on cash than the guy he's working for, pick the client's pocket...
+> > take the remainder of your slice from his sleep_avg for your trouble.  If
+> > you're not in_interrupt(), nothing's free.  Similar to Robinhood, but you
+> > take from the rich, and keep it :)  He's probably going straight to the
+> > bank after he wakes you anyway, so he likely won't even miss it.  Instead
+> > of backboost of overflow, which can cause nasty problems, you could try
+> > backtheft.
 >
-><gene.heskett@verizon.net> wrote:
->> Unrelated question:  I've applied the 2.6 patches someone pointed
->> me at to the nvidia-linux-4496-pkg2 after figuring out how to get
->> it to unpack and leave itself behind, so x can be run on 2.6 now. 
->> But its a 100% total crash to exit x by any method when using it
->> that way.
->>
->> Has the patch been updated in the last couple of weeks to prevent
->> that now?  It takes nearly half an hour to e2fsck a hundred gigs
->> worth of drives, and its going to bite me if I don't let the
->> system settle before I crash it to reboot, finishing the reboot
->> with the hardware reset button.
->>
->> Better yet, a fresh pointer to that site.
->
->http://www.minion.de/
->
->Works fine for me, as of 2.6.0-test1 (which is when I downloaded the
->patch).  I don't get the crash on either of my systems (GeForce2Go
-> P3 laptop and GeForce4 Athlon desktop).
->
->Andrew
+>Not a bad idea at all. The working for someone else thing is killing me. Now,
+>how to implement...
 
-I see some notes about patching X, which I haven't done.  That might 
-be it.  I also doublechecked that I'm running the correct makefile, 
-and get this:
+I had to back up and regroup a bit because of backboost sanity problems 
+(wish I could pull those dang fangs, backboost is wonderful otherwise), but 
+the attached cured my inversion problem.
 
-[root@coyote NVIDIA-Linux-x86-1.0-4496-pkg2]# ls -lR * |grep Makefile
--rw-r--r--    1 root     root         3623 Jul 16 22:56 Makefile
--rw-r--r--    1 root     root         7629 Aug  5 22:24 Makefile
--rw-r--r--    1 root     root         7629 Aug  5 21:46 Makefile.kbuild
--rw-r--r--    1 root     root         4865 Aug  5 21:46 Makefile.nvidia
-[root@coyote NVIDIA-Linux-x86-1.0-4496-pkg2]# cd ../NVIDIA-Linux-x86-1.0-4496-pkg2-4-2.4/
-[root@coyote NVIDIA-Linux-x86-1.0-4496-pkg2-4-2.4]# ls -lR * |grep Makefile
--rw-r--r--    1 root     root         3623 Jul 16 22:56 Makefile
--rw-r--r--    1 root     root         5665 Jul 16 22:56 Makefile
-[root@coyote NVIDIA-Linux-x86-1.0-4496-pkg2-4-2.4]#
+         -Mike 
+--=====================_29676046==_
+Content-Type: application/octet-stream; name="xx.diff";
+ x-mac-type="42494E41"; x-mac-creator="5843454C"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="xx.diff"
 
-My video card, from an lspci:
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX DDR] (rev b2)
-
-And the XFree86 version is:
-3.2.1-21
-
-Interesting to note that the 'nv' driver that comes with X 
-does not do this.  But it also has no openGL and such.
-We are instructed to remove agp support from the kernel, and 
-use that which is in the nvidia kit, and I just checked the
-.config, and its off, so thats theoreticly correct.  A grep 
-for FB stuff returns this:
-
-CONFIG_FB=y
-# CONFIG_FB_CIRRUS is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_CYBER2000 is not set
-# CONFIG_FB_IMSTT is not set
-# CONFIG_FB_VGA16 is not set
-CONFIG_FB_VESA=y
-# CONFIG_FB_HGA is not set
-CONFIG_FB_RIVA=y
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_PM3 is not set
-# CONFIG_FB_VIRTUAL is not set
-
-I'd assume the 'RIVA' fb is the correct one, its working in
-2.4, although I can induce a crash there by switching from X
-to a virtual console, and then attempting to switch back to X.
-That will generally bring the machine down.  It is perfectly ok
-to do that, repeatedly, when running the nv driver from X.
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+LS0tIGxpbnV4LTIuNi4wLXRlc3QxLkc4L2tlcm5lbC9zY2hlZC5jLm9yZwlXZWQgQXVnIDEzIDA5
+OjE5OjEzIDIwMDMKKysrIGxpbnV4LTIuNi4wLXRlc3QxLkc4L2tlcm5lbC9zY2hlZC5jCVdlZCBB
+dWcgMTMgMTQ6NDE6NDIgMjAwMwpAQCAtMzU4LDYgKzM1OCw4IEBACiAKIAlpZiAoc2xlZXBfdGlt
+ZSA+IDApIHsKIAkJdW5zaWduZWQgbG9uZyBsb25nIHNsZWVwX2F2ZzsKKwkJdW5zaWduZWQgbG9u
+ZyBydW5fdGltZSA9IG5vdyAtIGN1cnJlbnQtPnRpbWVzdGFtcDsKKwkJdW5zaWduZWQgaW50IHNs
+aWNlID0gMTAwMDAwMCAqIGN1cnJlbnQtPnRpbWVfc2xpY2U7CiAKIAkJLyoKIAkJICogVGhpcyBj
+b2RlIGdpdmVzIGEgYm9udXMgdG8gaW50ZXJhY3RpdmUgdGFza3MuCkBAIC0zODEsNiArMzgzLDIy
+IEBACiAJCQlwLT5zbGVlcF9hdmcgPSBzbGVlcF9hdmc7CiAJCQlwLT5wcmlvID0gZWZmZWN0aXZl
+X3ByaW8ocCk7CiAJCX0KKwkJLyoKKwkJICogSWYgdGhlIGF3YWtlbmVkIHRhc2sgaGFzIGJlZW4g
+YXNsZWVwIGZvciBsb25nZXIgdGhhbiB0aGUKKwkJICogd2FrZXIgaGFzIGhhZCB0aGUgQ1BVIHBs
+dXMgcm91bmQtcm9iaW4gdGltZSwgYW5kIGl0IGlzCisJCSAqIGdvaW5nIHRvIHByZWVtcHQsIHRo
+ZXJlIGlzIGEgZ29vZCBjaGFuY2UgdGhhdCB0aGUgd2FrZXIKKwkJICogaXMgbm90IGdldHRpbmcg
+ZW5vdWdoIENQVSB0byBzZXJ2aWNlIHRoZSBhd2FrZW5lZCB0YXNrIGluCisJCSAqIGEgdGltZWx5
+IG1hbm5lciwgYW5kIHRoYXQgdGhpcyBpcyB0aGUgY2F1c2Ugb2YgdGhlIHByZWVtcHQuCisJCSAq
+IFRha2Ugc29tZSBvZiB0aGUgcmVzdWx0aW5nIHNsZWVwX3RpbWUgZnJvbSB0aGUgYXdha2VuZWQK
+KwkJICogdGFzaywgYW5kIGdpdmUgaXQgdG8gdGhlIHdha2VyLgorCQkgKi8KKwkJaWYgKCFpbl9p
+bnRlcnJ1cHQoKSAmJiBwLT5tbSAmJiBjdXJyZW50LT5tbSAmJiBzbGVlcF9hdmcgPgorCQkJCWN1
+cnJlbnQtPnNsZWVwX2F2ZyArIHNsaWNlICYmIHNsZWVwX3RpbWUgPiBydW5fdGltZSArCisJCQkJ
+KDEwMDAwMDAgKiB0aGlzX3JxKCktPm5yX3J1bm5pbmcgKiBUSU1FU0xJQ0VfR1JBTlVMQVJJVFkp
+ICYmCisJCQkJVEFTS19QUkVFTVBUU19DVVJSKHAsIHRhc2tfcnEoY3VycmVudCkpKSB7CisJCQlj
+dXJyZW50LT5zbGVlcF9hdmcgKz0gc2xpY2U7CisJCQlzbGVlcF9hdmcgLT0gc2xpY2U7CisJCX0K
+IAl9CiB9CiAKQEAgLTE0MTQsNiArMTQzMiw3IEBACiAJCW5leHQtPnRpbWVzdGFtcCA9IG5vdzsK
+IAkJcnEtPm5yX3N3aXRjaGVzKys7CiAJCXJxLT5jdXJyID0gbmV4dDsKKwkJbmV4dC0+dGltZXN0
+YW1wID0gbm93OwogCiAJCXByZXBhcmVfYXJjaF9zd2l0Y2gocnEsIG5leHQpOwogCQlwcmV2ID0g
+Y29udGV4dF9zd2l0Y2gocnEsIHByZXYsIG5leHQpOwo=
+--=====================_29676046==_--
 

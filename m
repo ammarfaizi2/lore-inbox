@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271452AbTGQMyN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 08:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271453AbTGQMyN
+	id S271456AbTGQNEa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 09:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271457AbTGQNEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 08:54:13 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:3824 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S271452AbTGQMyM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 08:54:12 -0400
-Subject: Re: 2.6.0-t1-ac2: unable to compile glibc 2.3.2
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Martin Zwickel <martin.zwickel@technotrend.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030717114548.5f5d506d.martin.zwickel@technotrend.de>
-References: <20030717114548.5f5d506d.martin.zwickel@technotrend.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Q3NQctb44vw47zYTlWkv"
-Organization: Red Hat, Inc.
-Message-Id: <1058436931.5778.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
-Date: 17 Jul 2003 12:15:31 +0200
+	Thu, 17 Jul 2003 09:04:30 -0400
+Received: from pat.uio.no ([129.240.130.16]:43771 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S271456AbTGQNE3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 09:04:29 -0400
+To: nbensa@yahoo.com
+Cc: Jeff Garzik <jgarzik@pobox.com>, Max Valdez <maxvalde@fis.unam.mx>,
+       kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 sound drivers?
+References: <20030716225826.GP2412@rdlg.net>
+	<1058383534.5432.33.camel@garaged.homeip.net>
+	<3F15F63E.1060602@pobox.com> <200307162318.27081.nbensa@gmx.net>
+From: Terje Kvernes <terjekv@math.uio.no>
+Organization: The friends of mr. Tux
+X-URL: http://terje.kvernes.no/
+Date: Thu, 17 Jul 2003 15:19:00 +0200
+In-Reply-To: <200307162318.27081.nbensa@gmx.net> (Norberto BENSA's message
+ of "Wed, 16 Jul 2003 23:18:24 -0300")
+Message-ID: <wxx7k6h8f5n.fsf@nommo.uio.no>
+User-Agent: Gnus/5.1001 (Gnus v5.10.1) Emacs/21.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Norberto BENSA <nbensa@gmx.net> writes:
 
---=-Q3NQctb44vw47zYTlWkv
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Jeff Garzik wrote:
+>
+> > ALSA supports emu10k1.
+> 
+> How well? 
 
-On Thu, 2003-07-17 at 11:45, Martin Zwickel wrote:
-> Hi there!
->=20
-> I just tried to update my glibc to 2.3.2 and saw that glibc can't compile
-> because of linux/sysctl.h.
->=20
-> I added the line "#include <linux/compiler.h>" to sysctl.h.
-> (since sysctl needs the __user)
->=20
-> So someone forgot the line, or did I miss something?
+  very well.
 
-you're probably better off using not-the-kernel headers for building
-glibc. eg on a RHL distro it's glibc-kernheaders package, other distros
-have different package names for these files.
+> Last time I've checked ALSA, it didn't support bass and treble,
+> that's why I'm using OSS (emu10k1)
 
---=-Q3NQctb44vw47zYTlWkv
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+  I have treble and base support on my emu10k1 via ALSA.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/FndDxULwo51rQBIRAoUWAJ0WzL7uOHIKxJJJ/1zGVwHiE98MXwCfQaVL
-mWhwb1+gsa7AquoCN4fhdR8=
-=hI/0
------END PGP SIGNATURE-----
-
---=-Q3NQctb44vw47zYTlWkv--
+-- 
+Terje

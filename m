@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265430AbSJaWpi>; Thu, 31 Oct 2002 17:45:38 -0500
+	id <S265450AbSJaWkw>; Thu, 31 Oct 2002 17:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265436AbSJaWpi>; Thu, 31 Oct 2002 17:45:38 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:65167 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP
-	id <S265430AbSJaWph>; Thu, 31 Oct 2002 17:45:37 -0500
-Message-Id: <200210312349.g9VNnMmf001238@pool-141-150-241-241.delv.east.verizon.net>
-Date: Thu, 31 Oct 2002 18:49:18 -0500
-From: Skip Ford <skip.ford@verizon.net>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: "Randy.Dunlap" <randy.dunlap@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.45 ipmr.c syntax error
-References: <200210310657.g9V6vrCA009366@pool-141-150-241-241.delv.east.verizon.net> <Pine.LNX.4.44.0210311252540.7997-100000@gfrw1044.bocc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210311252540.7997-100000@gfrw1044.bocc.de>; from jochen@scram.de on Thu, Oct 31, 2002 at 12:53:43PM +0100
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out001.verizon.net from [141.150.241.241] at Thu, 31 Oct 2002 16:51:55 -0600
+	id <S265453AbSJaWkv>; Thu, 31 Oct 2002 17:40:51 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:58360 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S265450AbSJaWkv>; Thu, 31 Oct 2002 17:40:51 -0500
+Message-ID: <F2DBA543B89AD51184B600508B68D4000EFF46CD@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: RE: [PATCH] fixes for building kernel 2.5.45 using Intel compiler
+	 (Ta ke 2)
+Date: Thu, 31 Oct 2002 14:47:16 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jochen Friedrich wrote:
-> Hi Skip,
+> From: Nakajima, Jun [mailto:jun.nakajima@intel.com]
+> Sent: Thursday, October 31, 2002 12:17 PM
 > 
-> > -	if (skb->len+encap > rt->u.dst.pmtu && (ntohs(iph->frag_off) & IP_DF)) {
-> > +	if (skb->len+encap > dst_pmtu(rt->u.dst) && (ntohs(iph->frag_off) & IP_DF)) {
+> This is take 2 of the updated patch against 2.5.45. I'm 
+> asking the compiler  team if someone can answer your question:
 > 
-> Shouldn't that be dst_pmtu(&rt->u.dst)?
+> > Considering that Intel largely wrote iBCS2, I guess some 
+> Intel person can 
+> > know what the standard was ;)
 
-Yep, you're right.  Thanks.
+This is what some Intel person said:
+   The optimization the compiler is working around is perfectly legal.
+   It isn't legal C/C++ to "use" a parameter after the function has
+returned.
+   The optimizer knows this, and that is why the code got removed. The
+volatile 
+   is necessary in order to make this kind of C code work.
 
+The point is that once sys_iopl(unsigned long unused) returns a value,
+unused is 
+finished. So nobody can do anything with the data associated with it after
+that.
 
---- linux/net/ipv4/ipmr.c~	Thu Oct 31 01:54:40 2002
-+++ linux/net/ipv4/ipmr.c	Thu Oct 31 01:55:31 2002
-@@ -1111,7 +1111,7 @@
- {
- 	struct dst_entry *dst = skb->dst;
- 
--	if (skb->len <= dst->pmtu)
-+	if (skb->len <= dst_pmtu(dst))
- 		return dst->output(skb);
- 	else
- 		return ip_fragment(skb, dst->output);
-@@ -1167,7 +1167,7 @@
- 
- 	dev = rt->u.dst.dev;
- 
--	if (skb->len+encap > rt->u.dst.pmtu && (ntohs(iph->frag_off) & IP_DF)) {
-+	if (skb->len+encap > dst_pmtu(&rt->u.dst) && (ntohs(iph->frag_off) & IP_DF)) {
- 		/* Do not fragment multicasts. Alas, IPv4 does not
- 		   allow to send ICMP, so that packets will disappear
- 		   to blackhole.
-
--- 
-Skip
+Jun

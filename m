@@ -1,51 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbUC1EkC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 23:40:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUC1EkC
+	id S262068AbUC1Ek7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 23:40:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUC1Ek7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 23:40:02 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:11438 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S262100AbUC1Ej6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 23:39:58 -0500
-Date: Sat, 27 Mar 2004 21:40:29 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] speed up SATA
-Message-ID: <20040328044029.GB1984@bounceswoosh.org>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au>
+	Sat, 27 Mar 2004 23:40:59 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:63389 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262068AbUC1Eky
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 23:40:54 -0500
+Date: Sun, 28 Mar 2004 01:26:08 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.26-rc1
+Message-ID: <20040328042608.GA17969@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40661049.1050004@yahoo.com.au>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.5.5.1i
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 28 at  9:37, Nick Piggin wrote:
->I think 32MB is too much. You incur latency and lose
->scheduling grainularity. I bet returns start diminishing
->pretty quickly after 1MB or so.
 
-32-MB requests are the best for raw throughput.
+Finally, -rc1.
 
-~15ms to land at your target location, then pure 50-60MB/sec for the .5
-seconds it takes to finish the operation. (media limited at that point)
+The first -rc contains an ACPI update, networking fixes, amongst others.
 
-Sure, there's more latency, but I guess that is application dependant.
+Please test!
 
---eric
+Summary of changes from v2.4.26-pre6 to v2.4.26-rc1
+============================================
 
+Chas Williams:
+  o [ATM]: [lec] lec_push() races with vcc->proto_data
+  o [ATM]: [nicstar] use kernel min/max (by Randy.Dunlap <rddunlap@osdl.org>)
 
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
+David S. Miller:
+  o [IGMP]: Do nothing in ip_mc_down() if ip_mc_up() was not called previously
+  o [SPARC64]: Update defconfig
+
+Dmitry Torokhov:
+  o [NET_SCHED]: Fix class reporting in TBF qdisc
+  o [NET_SCHED]: Trailing whitespace cleanup in TBF scheduler
+
+Jon Oberheide:
+  o [CRYPTO]: Remove confusing TODO comment in arc4.c
+
+Julian Anastasov:
+  o [IPVS] Fix to update the skb->h.raw after skb reallocation in tunnel_xmit
+  o [IPVS] Fix connection rehashing with new cport
+
+Len Brown:
+  o [ACPI] PCI interrupt link routing (Luming Yu) use _PRS to determine resource type for _SRS fixes HP Proliant servers http://bugzilla.kernel.org/show_bug.cgi?id=1590
+  o [ACPI] proposed fix for non-identity-mapped SCI override http://bugme.osdl.org/show_bug.cgi?id=2366
+  o [ACPI] ACPICA 20040326 from Bob Moore
+  o [ACPI] Linux specific updates from ACPICA 20040326 "acpi_wake_gpes_always_on" boot flag for old GPE behaviour
+
+Marcel Holtmann:
+  o [Bluetooth] Add support for AVM BlueFRITZ! USB v2.0
+  o [Bluetooth] Remove non-blocking socket fix
+
+Marcelo Tosatti:
+  o Trond: Avoid refile_inode() from putting locked inodes on the dirty list
+  o Changed EXTRAVERSION to -rc1
+
+Martin Devera:
+  o [NET_SCHED]: HTB scheduler updates
+
+Patrick McHardy:
+  o [NET_SCHED]: Fix broken indentation in HFSC scheduler
+  o [NET_SCHED]: Fix requeueing in HFSC scheduler
+  o [NET_SCHED]: Use queue limit of 1 when tx_queue_len is zero
+
+Sridhar Samudrala:
+  o [SCTP] Don't do any ppid byte-order conversions as it is opaque to SCTP
+  o [SCTP] Avoid the use of hacking CONFIG_IPV6_SCTP__ option
+
+Stephen Hemminger:
+  o [NET_SCHED]: Add packet delay scheduler
+
+Wensong Zhang:
+  o [IPVS]: Fix to hold the lock before updating a service
 

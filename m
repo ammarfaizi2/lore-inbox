@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269109AbUJEPlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269313AbUJEPlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269109AbUJEPlA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 11:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269080AbUJEPgk
+	id S269313AbUJEPlI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 11:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269301AbUJEPlE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 11:36:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:45979 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269059AbUJEPfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 11:35:14 -0400
-Date: Tue, 5 Oct 2004 11:35:07 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: linux-kernel@vger.kernel.org, <mingo@redhat.com>, <sct@redhat.com>
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-In-Reply-To: <16733.50382.569265.183099@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.44.0410051134080.30172-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Oct 2004 11:41:04 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:40199 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269150AbUJEPhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 11:37:34 -0400
+Date: Tue, 5 Oct 2004 16:37:30 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] ide-dma blacklist behaviour broken
+Message-ID: <20041005163730.A19554@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jens Axboe <axboe@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+References: <20041005142001.GR2433@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041005142001.GR2433@suse.de>; from axboe@suse.de on Tue, Oct 05, 2004 at 04:20:01PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Oct 2004, Jeff Moyer wrote:
+On Tue, Oct 05, 2004 at 04:20:01PM +0200, Jens Axboe wrote:
+> Hi,
+> 
+> The blacklist stuff is broken. When set_using_dma() calls into
+> ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
+> of course succeeds, returning success to the caller of ide_dma_check().
+> Not so good... It then uncondtionally calls ide_dma_on(), which turns on
+> dma for the drive.
+> 
+> This moves the check to ide_dma_on() so we also catch the buggy
+> ->ide_dma_check() defined by various chipset drivers.
 
-> This patch makes an attempt at supporting the O_NONBLOCK flag for
-> regular files.  It's pretty straight-forward.  One limitation is that we
-> still call into the readahead code, which I believe can block.  
-> However, if we don't do this, then an application which only uses
-> non-blocking reads may never get it's data.
-
-I like it, though for programs which are real serious about
-O_NONBLOCK we might want to hand off readahead to a helper
-thread instead of starting readahead in the same context...
-
-Not sure if we would always want this, though ;)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Is this a bug introduced in the 2.6.9ish IDE changes or has it been there
+for a longer time? 

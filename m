@@ -1,99 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266622AbSKGWjS>; Thu, 7 Nov 2002 17:39:18 -0500
+	id <S266627AbSKGWnJ>; Thu, 7 Nov 2002 17:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266623AbSKGWjS>; Thu, 7 Nov 2002 17:39:18 -0500
-Received: from dexter.citi.umich.edu ([141.211.133.33]:14464 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S266622AbSKGWjQ>; Thu, 7 Nov 2002 17:39:16 -0500
-Date: Thu, 7 Nov 2002 17:45:54 -0500 (EST)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: [PATCH] bug in NFSv2 end-of-file read handling
-Message-ID: <Pine.LNX.4.44.0211071743550.18237-100000@dexter.citi.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266628AbSKGWnJ>; Thu, 7 Nov 2002 17:43:09 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:5843 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S266627AbSKGWnI>;
+	Thu, 7 Nov 2002 17:43:08 -0500
+Date: Thu, 7 Nov 2002 14:47:50 -0800
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       rmk@arm.linux.org.uk
+Cc: Martin Diehl <lists@mdiehl.de>
+Subject: [Serial 2.5]: packet drop problem (FE ?)
+Message-ID: <20021107224750.GA699@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NFSv2 doesn't pass connectathon 2002, at least on some Linux kernels.  
-Trond deemed the following modification necessary in all kernels to
-address the problem.  a similar patch will go to Marcelo for 2.4.21.
+	Hi,
 
+	I've got two identical boxes (dual P6 200MHz) talking to each
+other through serial IrDA dongles (each attached to the first serial
+port).
 
-diff -ruN 06-setattr/fs/nfs/nfs2xdr.c 07-readeof/fs/nfs/nfs2xdr.c
---- 06-setattr/fs/nfs/nfs2xdr.c	Mon Nov  4 17:30:22 2002
-+++ 07-readeof/fs/nfs/nfs2xdr.c	Thu Nov  7 17:33:01 2002
-@@ -233,7 +233,6 @@
- static int
- nfs_xdr_readres(struct rpc_rqst *req, u32 *p, struct nfs_readres *res)
- {
--	struct xdr_buf *rcvbuf = &req->rq_rcv_buf;
- 	struct iovec *iov = req->rq_rvec;
- 	int	status, count, recvd, hdrlen;
- 
-@@ -243,11 +242,6 @@
- 
- 	count = ntohl(*p++);
- 	res->eof = 0;
--	if (rcvbuf->page_len) {
--		u32 end = page_offset(rcvbuf->pages[0]) + rcvbuf->page_base + count;
--		if (end >= res->fattr->size)
--			res->eof = 1;
--	}
- 	hdrlen = (u8 *) p - (u8 *) iov->iov_base;
- 	if (iov->iov_len < hdrlen) {
- 		printk(KERN_WARNING "NFS: READ reply header overflowed:"
-@@ -263,7 +257,6 @@
- 		printk(KERN_WARNING "NFS: server cheating in read reply: "
- 			"count %d > recvd %d\n", count, recvd);
- 		count = recvd;
--		res->eof = 0;
- 	}
- 
- 	dprintk("RPC:      readres OK count %d\n", count);
-diff -ruN 06-setattr/fs/nfs/read.c 07-readeof/fs/nfs/read.c
---- 06-setattr/fs/nfs/read.c	Mon Nov  4 17:30:03 2002
-+++ 07-readeof/fs/nfs/read.c	Thu Nov  7 17:33:01 2002
-@@ -355,11 +355,12 @@
- {
- 	struct nfs_read_data	*data = (struct nfs_read_data *) task->tk_calldata;
- 	struct inode		*inode = data->inode;
-+	struct nfs_fattr	*fattr = &data->fattr;
- 
- 	dprintk("NFS: %4d nfs_readpage_result, (status %d)\n",
- 		task->tk_pid, task->tk_status);
- 
--	nfs_refresh_inode(inode, &data->fattr);
-+	nfs_refresh_inode(inode, fattr);
- 	while (!list_empty(&data->pages)) {
- 		struct nfs_page *req = nfs_list_entry(data->pages.next);
- 		struct page *page = req->wb_page;
-@@ -368,13 +369,20 @@
- 		if (task->tk_status >= 0) {
- 			if (count < PAGE_CACHE_SIZE) {
- 				char *p = kmap(page);
--				memset(p + count, 0, PAGE_CACHE_SIZE - count);
-+
-+				if (count < req->wb_bytes)
-+					memset(p + req->wb_offset + count, 0,
-+							req->wb_bytes - count);
- 				kunmap(page);
--				count = 0;
--				if (eof)
-+
-+				if (eof ||
-+				    ((fattr->valid & NFS_ATTR_FATTR) &&
-+				     ((req_offset(req) + req->wb_offset + count) >= fattr->size)))
- 					SetPageUptodate(page);
- 				else
--					SetPageError(page);
-+					if (count < req->wb_bytes)
-+						SetPageError(page);
-+				count = 0;
- 			} else {
- 				count -= PAGE_CACHE_SIZE;
- 				SetPageUptodate(page);
+	One side has 2.4.20-pre8 :
+-------------------------------
+# cat /proc/tty/driver/serial 
+serinfo:1.0 driver:5.05c revision:2001-07-08
+0: uart:16550A port:3F8 irq:4 baud:9600 tx:5249946 rx:120379 RTS|DTR
+1: uart:16550A port:2F8 irq:3 tx:0 rx:0 
+-------------------------------
 
+	The other side has 2.5.46 :
+----------------------------
+# cat /proc/tty/driver/serial 
+serinfo:1.0 driver revision:
+0: uart:16550A port:000003F8 irq:4 tx:19541287 rx:14370938 fe:1384 RTS|DTR
+1: uart:16550A port:000002F8 irq:3 tx:39761 rx:3 RTS|DTR
+[...]
+# setserial -a /dev/ttyS0
+/dev/ttyS0, Line 0, UART: 16550A, Port: 0x03f8, IRQ: 4
+        Baud_base: 115200, close_delay: 500, divisor: 0
+        closing_wait: 30000
+        Flags: spd_normal skip_test
+----------------------------
+
+	Problem : a noticeable number of large packet from 2.4.X to
+2.5.X are dropped (and retransmitted), whereas almost no packet from
+2.5.X to 2.4.X are dropped.
+	I tried swapping the IrDA dongles themselves, and this didn't
+make any difference. No other device/driver is using irq4. I also try
+using a FIR as a sender, and I still see this packet dropped in Rx in
+2.5.X. And this used to work properly way back when I had 2.4.X on
+this box.
+	I'm kind of suspicious about the "fe" number above. Could
+anybody tell me a bit more about what "fe" means ?
+
+	Thanks...
+
+	Jean

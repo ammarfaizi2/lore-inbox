@@ -1,71 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUIFVf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUIFVhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUIFVf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 17:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUIFVf0
+	id S266888AbUIFVhn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 17:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267199AbUIFVhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 17:35:26 -0400
-Received: from waste.org ([209.173.204.2]:29338 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265928AbUIFVfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 17:35:16 -0400
-Date: Mon, 6 Sep 2004 16:35:02 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netpoll trapped question
-Message-ID: <20040906213502.GU31237@waste.org>
-References: <16692.45331.968648.262910@segfault.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16692.45331.968648.262910@segfault.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 6 Sep 2004 17:37:42 -0400
+Received: from damned.travellingkiwi.com ([81.6.239.220]:61547 "EHLO
+	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S266888AbUIFVhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 17:37:39 -0400
+Message-ID: <413CD8BD.7040802@travellingkiwi.com>
+Date: Mon, 06 Sep 2004 22:38:05 +0100
+From: Hamie <hamish@travellingkiwi.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+Subject: Re: New proposed DRM interface design
+References: <20040904102914.B13149@infradead.org>	 <4139C8A3.6010603@tungstengraphics.com>	 <9e47339104090408362a356799@mail.gmail.com>	 <4139FEB4.3080303@tungstengraphics.com>	 <9e473391040904110354ba2593@mail.gmail.com>	 <1094386050.1081.33.camel@localhost.localdomain>	 <9e47339104090508052850b649@mail.gmail.com>	 <1094398257.1251.25.camel@localhost.localdomain>	 <9e47339104090514122ca3240a@mail.gmail.com>	 <1094417612.1936.5.camel@localhost.localdomain>	 <9e4733910409051511148d74f0@mail.gmail.com>	 <1094425142.2125.2.camel@localhost.localdomain>	 <413CCF79.2080407@travellingkiwi.com> <1094501705.4531.1.camel@localhost.localdomain>
+In-Reply-To: <1094501705.4531.1.camel@localhost.localdomain>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 01:10:43PM -0400, Jeff Moyer wrote:
-> Hi, Matt,
-> 
-> This part of the netpoll trapped logic seems suspect to me, from
-> include/linux/netdevice.h:
-> 
-> static inline void netif_wake_queue(struct net_device *dev)
-> {
-> #ifdef CONFIG_NETPOLL_TRAP
-> 	if (netpoll_trap())
-> 		return;
-> #endif
-> 	if (test_and_clear_bit(__LINK_STATE_XOFF, &dev->state))
-> 		__netif_schedule(dev);
-> }
-> 
-> static inline void netif_stop_queue(struct net_device *dev)
-> {
-> #ifdef CONFIG_NETPOLL_TRAP
-> 	if (netpoll_trap())
-> 		return;
-> #endif
-> 	set_bit(__LINK_STATE_XOFF, &dev->state);
-> }
-> 
-> This looks buggy.  Network drivers are now not able to stop the queue when
-> they run out of Tx descriptors.  I think the __netif_schedule is okay to do
-> in the context of netpoll, and certainly a set_bit is okay.  Why are these
-> hooks in place?  I've tested alt-sysrq-t over netconsole and also netdump
-> with these #ifdef's removed, and things work correctly.  Compare this with
-> alt-sysrq-t hanging the system with these tests in place.  If I run netdump
-> with this logic still in place, I get the following messages from the tg3
-> driver:
-> 
->   eth0: BUG! Tx Ring full when queue awake!
-> 
-> Shall I send a patch, or have I missed something?
+Alan Cox wrote:
 
-I don't remember the origin or motivation of this bit, so I'm not sure
-at the moment. Shoot me a patch and I'll poke at it.
+>On Llu, 2004-09-06 at 21:58, Hamie wrote:
+>  
+>
+>>The fs -> SCSI interface is a logical one.
+>>    
+>>
+>
+>We just have to make the fb and DRI to hardware one logical.
+>  
+>
 
-Btw, did I send you my thoughts on your recursion patch?
+OK. (Even) I follow that... :)
 
--- 
-Mathematics is the supreme nostalgia of our time.
+>  
+>
+>>Unless you can have fb sitting on top of DRM of course... (I discount 
+>>DRM on-top of fb, because of the D == Direct... No other reason :)...
+>>
+>>Does it make sens to have fb ontop of DRM at all? Anyone?
+>>    
+>>
+>
+>In some cases yes. The DRM is happy with the idea of the kernel being a
+>DRM client too.
+>
+>  
+>
+
+Alright... So you have drm at the lower level, and the fb sits ontop of 
+that... The fb just becomes a user of the DRM... No merge necessary 
+then, because all the actual hardware access, memory allocation etc 
+would live in drm? Is that right? And all the 2D code would also move 
+into the DRM? (IIRC the DRM just has 3D stuff in it yes? IMO It would 
+made sense to have all the acceleration & hardware access in the DRM 
+together rather than in a separate place... Correct?)
+
+H
+

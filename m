@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267708AbTB1JPP>; Fri, 28 Feb 2003 04:15:15 -0500
+	id <S267692AbTB1J2e>; Fri, 28 Feb 2003 04:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267736AbTB1JPP>; Fri, 28 Feb 2003 04:15:15 -0500
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:37863 "EHLO
-	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S267708AbTB1JPO>; Fri, 28 Feb 2003 04:15:14 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] 2.5.63 tsk->usage count.
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFF53DE423.F325007B-ONC1256CDB.0031AB85@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Fri, 28 Feb 2003 10:24:03 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 28/02/2003 10:25:16
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S267693AbTB1J2d>; Fri, 28 Feb 2003 04:28:33 -0500
+Received: from packet.digeo.com ([12.110.80.53]:14486 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267692AbTB1J2d>;
+	Fri, 28 Feb 2003 04:28:33 -0500
+Date: Fri, 28 Feb 2003 01:39:43 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: maneesh@in.ibm.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, zilvinas@gemtek.lt
+Subject: Re: kernel Ooops (2.5.63 bk latest)
+Message-Id: <20030228013943.025774b0.akpm@digeo.com>
+In-Reply-To: <20030228091535.GE11135@in.ibm.com>
+References: <20030226113718.GA3568@gemtek.lt>
+	<20030228070905.GA11135@in.ibm.com>
+	<20030227233434.7ed26b83.akpm@digeo.com>
+	<20030228091535.GE11135@in.ibm.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 Feb 2003 09:38:47.0269 (UTC) FILETIME=[31317950:01C2DF0D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> This actually looks wrong, it ends up doing free_user() twice because a
-> final put_task_struct() does that too these days.
+Maneesh Soni <maneesh@in.ibm.com> wrote:
 >
-> Does this alternate patch work for you instead?
+> ref is taken in d_validate, which is called before using the smbfs cached 
+> dentry. It is this ref which is taken back in smb_readdir(). 
 
-Works fine. I had a "Badness in __put_task_struct at kernel/fork.c:77"
-from time to time. I couldn't reproduce this with your patch.
+hmm, thinking about this a bit more...
 
-blue skies,
-   Martin
+It appears that d_validate's role in life is to take some random pointer
+which the caller thinks might be a dentry and to verify that it is indeed
+still a valid dentry (or a totally new dentry at the same address!).  If
+so, pin that dentry and tell the user.
 
+Perhaps the dentry's address was received across the network, although it
+doesn't look that way.
+
+In which case passing in a might-be pointer to a zero-ref dentry is
+appropriate and your patch is OK.  One would need some understanding of ncpfs
+and smbfs to say for sure.
 

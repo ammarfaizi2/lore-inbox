@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262887AbSKYLvI>; Mon, 25 Nov 2002 06:51:08 -0500
+	id <S262913AbSKYML3>; Mon, 25 Nov 2002 07:11:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262901AbSKYLvI>; Mon, 25 Nov 2002 06:51:08 -0500
-Received: from ns.tasking.nl ([195.193.207.2]:26898 "EHLO ns.tasking.nl")
-	by vger.kernel.org with ESMTP id <S262887AbSKYLvI>;
-	Mon, 25 Nov 2002 06:51:08 -0500
-Message-ID: <3DE21010.9050407@netscape.net>
-Date: Mon, 25 Nov 2002 12:57:04 +0100
-From: David Zaffiro <davzaffiro@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: nl, en-us
-MIME-Version: 1.0
-To: vda@port.imtp.ilyichevsk.odessa.ua
-CC: willy@w.ods.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compiling x86 with and without frame pointer
-References: <19005.1037854033@kao2.melbourne.sgi.com> <20021121192045.GE3636@alpha.home.local> <3DE1E384.8000801@netscape.net> <200211251009.gAPA9np09476@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262924AbSKYML3>; Mon, 25 Nov 2002 07:11:29 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:7361 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262913AbSKYML3>;
+	Mon, 25 Nov 2002 07:11:29 -0500
+Date: Mon, 25 Nov 2002 12:15:45 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Ducrot Bruno <poup@poupinou.org>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20 ACPI
+Message-ID: <20021125121545.GA22915@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Pavel Machek <pavel@ucw.cz>, Adrian Bunk <bunk@fs.tum.de>,
+	Ducrot Bruno <poup@poupinou.org>,
+	Margit Schubert-While <margit@margit.com>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021119134830.00b53680@mail.dns-host.com> <20021119130728.GA28759@suse.de> <20021119142731.GF27595@poup.poupinou.org> <20021119164550.GQ11952@fs.tum.de> <20021123195720.GA310@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021123195720.GA310@elf.ucw.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>since "-momit-leaf-frame-pointer" makes a trade-off between both
->>other options: it omits framepointers for leaf functions (callees
->>that aren't callers as well) and it doesn't for branch-functions.
-> 
-> 
-> Which does not sound quite right for me. FP should be omitted
-> only if function contains less than half dozen stack references,
-> otherwise not. It does not matter whether it is a leaf function or not.
+On Sat, Nov 23, 2002 at 08:57:20PM +0100, Pavel Machek wrote:
+ 
+ > ACPI is marked experimental (and it *is* experimental), if you run it
+ > on production machine you loose.
 
-Leaf functions generally do not contain more than half dozen 
-stackreferences, and are generally called more or equally often as there 
-callers. The slight overhead of leaf functions that do contain a dozen 
-stackreferences is much smaller than the overhead of omitting 
-framepointers in /all/ branch functions including those with dozens of 
-stackreferences. Maybe gcc's optimizer could be adapted in the (near) 
-future to compare either speed or sizes of possibly generated code, with 
-and without framepointer, if the compile is not a debug one.
+Nice. Shame about all those boxes that won't boot without ACPI.
 
-But in the mean time, in most "userland" projects I've tested with, the 
--momit-leaf-frame-pointer resulted in almost te same codesize as 
-compiles with framepointer, along with more or less the same speed as 
-"-fomit-frame-pointer". I wouldn't know how to benchmark kernel-configs 
-though, and I haven't seen anyone doing this with the framepointer 
-options yet...
+		Dave
 
-
-> OTOH, AFAIK frame pointers make debugging easier, development kernels
-> are better to be compiled with fp in every func.
-
-Honestly, I think that's a shortcoming of the debugger if that's true. 
-The debugger could store the stackpointer position after a call or 
-calculate it based on sub/add/push/pop's, instead of borrowing it from 
-ebp.  I'm just concerned about the extra costs (in speed and size) of 
-always omiting the framepointer.
-
-(It shouldn't be impossible to debug regparm- and stdcall-functions as 
-well, I wonder why this could be a problem at the moment. But just 
-"omitting framepointers" at least doesn't mix up the (IMHO: somewhat 
-thoughtlessly defined) i386 32-bit C-callingconvention.)
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

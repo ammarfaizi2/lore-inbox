@@ -1,134 +1,220 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317616AbSGOUJ3>; Mon, 15 Jul 2002 16:09:29 -0400
+	id <S317620AbSGOUOM>; Mon, 15 Jul 2002 16:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317620AbSGOUJ3>; Mon, 15 Jul 2002 16:09:29 -0400
-Received: from twinlark.arctic.org ([208.44.199.239]:22210 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id <S317616AbSGOUJ1> convert rfc822-to-8bit; Mon, 15 Jul 2002 16:09:27 -0400
-Date: Mon, 15 Jul 2002 13:12:22 -0700 (PDT)
-From: Jauder Ho <jauderho@carumba.com>
-X-X-Sender: jauderho@twinlark.arctic.org
-To: Nick Bellinger <nickb@attheoffice.org>
-cc: Buddy Lumpkin <b.lumpkin@attbi.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: IDE/ATAPI in 2.5
-In-Reply-To: <1026757651.9529.36.camel@subjeKt>
-Message-ID: <Pine.LNX.4.44.0207151305540.28451-100000@twinlark.arctic.org>
-X-Mailer: UW Pine 4.44 + a bunch of schtuff
-X-There-Is-No-Hidden-Message-In-This-Email: There are no tyops either
+	id <S317624AbSGOUOL>; Mon, 15 Jul 2002 16:14:11 -0400
+Received: from lockupnat.curl.com ([216.230.83.254]:57584 "EHLO
+	egghead.curl.com") by vger.kernel.org with ESMTP id <S317620AbSGOUOG>;
+	Mon, 15 Jul 2002 16:14:06 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org,
+       Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
+References: <20020715075221.GC21470@uncarved.com>
+	<Pine.LNX.3.95.1020715084232.22834A-100000@chaos.analogic.com>
+	<20020715133507.GF32155@merlin.emma.line.org>
+	<s5gwurxt59x.fsf@egghead.curl.com>
+	<1026749802.30202.13.camel@irongate.swansea.linux.org.uk>
+	<s5ghej1t31f.fsf@egghead.curl.com>
+	<1026752140.30454.17.camel@irongate.swansea.linux.org.uk>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 15 Jul 2002 16:17:01 -0400
+In-Reply-To: <1026752140.30454.17.camel@irongate.swansea.linux.org.uk>
+Message-ID: <s5gofd8sq4i.fsf@egghead.curl.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
-I would disagree here. NAS _does_ in fact typically refer to storage that
-is network attached and acessed via some form of network filesystem i.e.
-NFS and friends. Typically, this is billed as just plugging more storage
-into the network.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-See http://www.quantum.com/Products/NAS+Servers/Default.htm for an
-example. SearchStorage has a little blurb (which I think could use some
-additional clarity)
-http://whatis.techtarget.com/definition/0,289893,sid9_gci214410,00.html
+> Documentation/fs/fsync.txt or similar sounds a good idea
 
-SAN on the other hand typically requires a different HBA than that NIC you
-use to access the network. Common access methods are via FiberChannel or
-iSCSI. As of now SAN based storage also requires more effort, skill and
-cost to provision. I would expect that to go down over time.
+OK, attached is my first attempt at such a document.
 
---jauder
+What do you think?
 
-On 15 Jul 2002, Nick Bellinger wrote:
+ - Pat
 
->
->
-> >I think someone is misunderstanding some industry buzz words here ...
-> >NAS refers to Network Attached Storage, as in via NFS, AFS, et al.
-> >What your showing in the output of the Solaris format command are
-> >raw SCSI LUNS attached via fibre channel (fabric or loop) or native
-> >scsi.
->
-> Just as a matter of clarification, the above two examples NFS and AFS
-> are most certainly NOT Network Attached Storage aka NAS.  The former is
-> an simple Networked File System, and the latter the first practical
-> distributed file system (ie: multiple client access to shares), but they
-> both provide access to storage resources at the FILE SYSTEM level.
->
-> The term 'NAS' (and SAN for that matter as the terms are pretty much
-> used interchangeably these days) refer to moving raw disk protocol
-> Command Descriptor Blocks aka CDBs and its associated data across the
-> network at the BLOCK level.  But storage folks generically regard the
-> terms as: NAS refers to BLOCK level storage over IP networks,  and SAN
-> to BLOCK level storage over a Fibre Channel setup.
->
-> The reason being a Storage Area Network is generally a closed, secure,
-> and seperate entity from ones IP network,  while Network Attached
-> Storage is storage added directly into an existing IP network.  Of
-> course this opens up all of related security considerations when dealing
-> with IP networks,  but a discussion of the related issues is beyond the
-> scope of this reply, and dangerously off-topic.
->
->
-> 		Nicholas 'trying to keep it real' Bellinger
->
->
-> >>From venom@sns.it Mon Jul 15 11:11:59 2002
-> >>On Sun, 14 Jul 2002, Rik van Riel wrote:
->
-> >>> > BTW: did you ever look at Solaris / HP-UX, ... and the way they
-> >>> > name disks?
-> >>> >
-> >>> > someting like: /dev/{r}dsk/c0t0d0s0
-> >>> > This is SCSI bus, target, lun and slice.
-> >>>
-> >>> I wonder what they'll change it to in order to support
-> >>> network attached storage.
-> >>>
-> >>Actually notthing:
->
-> >>dbtecnocasa:{root}:/>format
-> >>Searching for disks...done
->
-> >>c2t1d0: configured with capacity of 6.56MB
-> >>c2t1d30: configured with capacity of 34.04GB
-> >>c2t1d31: configured with capacity of 34.04GB
-> >>c2t1d81: configured with capacity of 34.04GB
->
->
-> >>AVAILABLE DISK SELECTIONS:
-> >>       0. c0t0d0 <SUN18G cyl 7506 alt 2 hd 19 sec 248>
-> >>          /pci@1f,4000/scsi@3/sd@0,0
-> >>       1. c2t1d0 <EMC-SYMMETRIX-5567 cyl 14 alt 2 hd 15 sec 64>
-> >>          /pci@4,2000/scsi@1/sd@1,0
-> >>       2. c2t1d30 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
-> >>          /pci@4,2000/scsi@1/sd@1,1e
-> >>       3. c2t1d31 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
-> >>          /pci@4,2000/scsi@1/sd@1,1f
-> >>       4. c2t1d81 <EMC-SYMMETRIX-5567 cyl 37178 alt 2 hd 30 sec 64>
-> >>          /pci@4,2000/scsi@1/sd@1,51
->
-> >>except of c0t0d0 everything else is network attached...
->
->
-> >How is it attached? Using FACL or ISCSI?
->
-> >In any case, it seems to be a natural solution to do it this way.
->
-> >In order to access a network disk, you need to obtain the right to
-> >do so first. Once this has been done, the netork subsystem just looks
-> >like a new SCSI bus.
->
-> >Jörg
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
 
+
+--=-=-=
+Content-Disposition: inline; filename=fsync.txt
+Content-Description: fsync.txt
+
+                       Linux fsync() semantics
+                (or, "How to create a file reliably")
+
+
+Introduction
+============
+
+Consider the following C program:
+
+    #include <unistd.h>
+    #include <stdio.h>
+    #include <fcntl.h>
+    #include <string.h>
+
+    int
+    main (int argc, char *argv[]) {
+      int fd;
+      char *s = "Hello, world!\n";
+
+      fd = open ("/tmp/foo", O_WRONLY|O_CREAT|O_EXCL);
+      if (fd < 0) return 1;
+
+      if (write (fd, s, strlen(s)) < 0) return 3;
+      if (fsync (fd) < 0) return 4;
+      if (close (fd) < 0) return 5;
+
+      return 0;
+    }
+
+Question: If you compile and run this program, and it exits zero
+(success), and your machine then crashes, is it guaranteed that the
+file /tmp/foo will exist upon reboot?
+
+Answer: On many Unices, including *BSD, yes.
+        On Linux, NO.
+
+How could this be?  And what can you do about it?
+
+
+History
+=======
+
+In the beginning was BSD with its Fast File System (FFS).  Under FFS,
+changes to directories were "synchronous", meaning they were committed
+to disk before the system call (open/link/rename/etc.) returned.
+Changes to files (write()) were asynchronous.  The fsync() system call
+allowed an application to force a file's pending writes to be
+committed to persistent media.
+
+In general, disks have reasonble throughput but horrible latency, so
+it is much faster to write many things all at once rather than one at
+a time.  In other words, synchronous operations are slow.
+
+Enter Linux.  By default, Linux makes all operations, including
+directory updates, asynchronous.  Early file system benchmarks showed
+Linux beating the pants off of BSD, especially when lots of directory
+operations were involved.  This annoyed the BSD folks, who claimed
+that synchronous directory updates are required for reliable
+operation.  (As with most points of contention between Linux and BSD,
+this is both true and false...  See below.)
+
+The problem with making directory operations asynchronous is that you
+then need to provide a way for the application to commit those changes
+to disk.  Otherwise, it is impossible to write reliable applications.
+
+
+BSD softupdates
+===============
+
+Sometime during the 90s, the BSD developers introduced "soft updates"
+to improve performance.  These do two things.  First, they make all
+file system operations asynchronous (like Linux).  Second, they extend
+the fsync() system call so that it commits to disk BOTH the file's
+data AND any directories via which the file might be accessed.
+
+In other words, BSD with soft updates requires that you call fsync()
+on a file to commit any changes to its containing directory.  This is
+why the program above "works" on BSD.
+
+Many programs are written these days to expect soft update semantics,
+because such algorithms will also work correctly under traditional
+FFS.
+
+The problem with the softupdates approach is that finding all paths to
+a file is complex, and the Linux developers hate complexity.  Linux
+does NOT support this behavior for fsync() and probably never will.
+
+
+Standards
+=========
+
+Quick aside: What do the relevant standards (POSIX, SuS) say?  Is
+Linux violating some standard here?
+
+Well, different people, having read the standards, disagree on this
+point.  This itself means the standards are not clear (which is a bad
+thing for a standard).  This is probably because the standards were
+written when synchronous directory updates were the norm, and the
+authors did not even consider asynchronous directory updates.
+
+
+The Linux Solution
+==================
+
+The Linux answer is simple: If you want to flush a modified directory
+to disk, call fsync() on the directory.
+
+In other words, to reliably create a file on Linux, you need to do
+something like this:
+
+    #include <unistd.h>
+    #include <stdio.h>
+    #include <fcntl.h>
+    #include <string.h>
+
+    int
+    main (int argc, char *argv[]) {
+      int fd, dirfd;
+      char *s = "Hello, world!\n";
+
+      fd = open ("/tmp/foo", O_WRONLY|O_CREAT|O_EXCL);
+      if (fd < 0) return 1;
+
+      dirfd = open ("/tmp", O_RDONLY);
+      if (dirfd < 0) return 2;
+
+      if (write (fd, s, strlen(s)) < 0) return 3;
+      if (fsync (fd) < 0) return 4;
+      if (close (fd) < 0) return 5;
+      if (fsync (dirfd) < 0) return 6;
+      if (close (dirfd) < 0) return 7;
+
+      return 0;
+    }
+
+If this program exits zero, the file /tmp/foo is guaranteed to be on
+disk and to have the correct contents.  This is true for ALL versions
+of the Linux kernel and ALL file systems.
+
+
+Other choices
+=============
+
+So you have written to the authors of your favorite MTA asking them to
+support Linux properly by using fsync() on directories.  They have
+responded saying that "Linux is broken".  (Be sure to ask them to
+justify this claim with chapter and verse from a standard.  It is sure
+to be interesting.)  What can you do?
+
+If the application does all its work in one directory, or a few
+directories, you can do "chattr +S" on the directory.  This will cause
+all operations on that directory to be synchronous.
+
+You can use the "-o sync" mount option.  This will cause ALL
+operations on that partition to be synchronous.  This solves the
+problem, but is likely to be slow.
+
+In the current version of Linux, you can use the ext3 or ReiserFS file
+systems.  These happen to commit their journals to disk whenever
+fsync() is called, which has the side-effect of providing semantics
+like BSD's soft updates.  But note: This behavior is not guaranteed,
+and may change in future releases!
+
+But really, the best idea is to convince application authors to
+support the "Linux way" for committing directory updates.  The
+semantics are simple, clear, and extremely efficient.  So go bug those
+MTA authors until they listen :-).
+
+
+ - Patrick LoPresti <patl@curl.com>
+   July 2002
+
+--=-=-=--

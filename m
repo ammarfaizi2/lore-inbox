@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293196AbSDCUFZ>; Wed, 3 Apr 2002 15:05:25 -0500
+	id <S311025AbSDCUJp>; Wed, 3 Apr 2002 15:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSDCUFP>; Wed, 3 Apr 2002 15:05:15 -0500
-Received: from adsl-64-108-133-56.dsl.milwwi.ameritech.net ([64.108.133.56]:52725
-	"EHLO alphaflight.d6.dnsalias.org") by vger.kernel.org with ESMTP
-	id <S293196AbSDCUFF>; Wed, 3 Apr 2002 15:05:05 -0500
-Date: Wed, 3 Apr 2002 14:05:01 -0600
-From: "M. R. Brown" <mrbrown@0xd6.org>
-To: Abdij Bhat <Abdij.Bhat@kshema.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'linux-mips-kernel@lists.sourceforge.net'" 
-	<linux-mips-kernel@lists.sourceforge.net>
-Subject: Re: [Linux-mips-kernel]error compiling kernel for mips
-Message-ID: <20020403200501.GA14938@0xd6.org>
-In-Reply-To: <91A7E7FABAF3D511824900B0D0F95D10136FD5@BHISHMA>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S311264AbSDCUJg>; Wed, 3 Apr 2002 15:09:36 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:38200 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S311025AbSDCUJ0>;
+	Wed, 3 Apr 2002 15:09:26 -0500
+Date: Wed, 3 Apr 2002 21:05:58 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: <tigran@einstein.homenet>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+        Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@redhat.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <E16sqAf-0004JH-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0204032051530.1163-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 3 Apr 2002, Alan Cox wrote:
+> Taking code I am one of the authors of and making it convenient for
+> people like veritas to use in non GPL code is quite different. Its
+> theft plain and simple.
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Alan,
 
-* Abdij Bhat <Abdij.Bhat@kshema.com> on Thu, Apr 04, 2002:
+I don't want to try your patience but I have to emphasize that:
 
-> Hi,
->  When i try compiling the Kernel for mips i get errors. The kernel is 2.4=
-.17
-> downloaded from www.kernel.org. I have the mips developments environment
-> set. I have (hopefully) the right headers and have modified the makefile =
-to
-> get the headers from those include directories.
->  My main problem is changing the architecture from arch686 ( mine ) to mi=
-ps.
-> How to i do this? What do i need to do inorder for the make to get the ri=
-ght
-> architecture? Or is there some other problem too?
->=20
+yes, it should be authors decision (completely agree with you there!)
+whether a symbol is exported or not and whether it should be exported to
+all modules or only to some "internal/kernel" modules. But this is a
+technical issue, nothing to do with legalities/licenses or author's likes
+or dislikes of binary modules.
 
-You need to pass something like:
+But if the author's decision is based on a statement similar to "I spent N
+hours writing this function, it's okay to let GPL modules use it but no
+way I'll let the nasty veritas-like people use it", then I feel something
+is wrong somewhere. Then perhaps we could even refine the API to have
 
-$ make ARCH=3Dmips CROSS_COMPILE=3Dmipsel-linux- config dep clean vmlinux
+EXPORT_SYMBOL_FRIENDS(sym,list_of_friends)
 
-So that the kernel build system knows that you are cross-compiling.
+where only "friends" can use the symbol and even then only if they first
+call (an exported function):
 
-M. R.
+register_export_payment(sym, sum);
 
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+where 'sum' depends on the number of hours spent on writing sym().
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
+I feared that perhaps I misunderstood the meaning of EXPORT_SYMBOL_GPL but
+in the other "instance" of this thread Linus did confirm that it was
+correct.
 
-iD8DBQE8q2BsaK6pP/GNw0URArnuAKCEnvcHv+N/jAHp061/eZMcfDzN6ACfQZWq
-VUTn00w8rlQlxh6tAbLsJVQ=
-=c1UO
------END PGP SIGNATURE-----
+Regards,
+Tigran
 
---LZvS9be/3tNcYl/X--
+
+PS. unimportant detail for curious listeners on linux-kernel -- Veritas
+doesn't actually need vmalloc_to_page exported in any manner or form.
+

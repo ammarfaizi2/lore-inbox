@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289293AbSBDXhQ>; Mon, 4 Feb 2002 18:37:16 -0500
+	id <S289296AbSBDXhQ>; Mon, 4 Feb 2002 18:37:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289294AbSBDXg4>; Mon, 4 Feb 2002 18:36:56 -0500
-Received: from ua0d5hel.dial.kolumbus.fi ([62.248.132.0]:65085 "EHLO
-	porkkala.uworld.dyndns.org") by vger.kernel.org with ESMTP
-	id <S289293AbSBDXgu>; Mon, 4 Feb 2002 18:36:50 -0500
-Message-ID: <3C5F1B0A.DD38E4D0@kolumbus.fi>
-Date: Tue, 05 Feb 2002 01:36:42 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S289293AbSBDXg5>; Mon, 4 Feb 2002 18:36:57 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:39608 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S289291AbSBDXgr>;
+	Mon, 4 Feb 2002 18:36:47 -0500
+Date: Tue, 5 Feb 2002 02:34:33 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Jussi Laako <jussi.laako@kolumbus.fi>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <Pine.LNX.4.33.0202050157170.19749-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3C5F1A17.A0713D5@kolumbus.fi>
+Message-ID: <Pine.LNX.4.33.0202050233160.21339-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> 
-> Please renice your CPU hog soundcard processes to -11, does that make any
-> difference? (under -K2)
 
-I can renice this only for testing purposes. Normally these are not run as
-root so I can't do negative renice.
- 
-> is it more important to run these CPU hogs than to run interactive tasks?
-> If yes then renice them to -11.
+On Tue, 5 Feb 2002, Jussi Laako wrote:
 
-Yes and no... :) Interactive tasks get their work from CPU hogs so those are
-strongly related. If interactive task puts CPU hog to wait it will also lose
-it's data.
+> Thus receiving "CPU hog" process is losing blocks of data.
 
+i understand, and we want to handle such cases perfectly as well.
 
-	- Jussi Laako
+How much of a CPU hog is your task? What does 'top' show while you are
+using your app? (pasting top output here will show the situation.)
 
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+	Ingo
 

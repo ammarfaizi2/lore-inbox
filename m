@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270339AbRHHFhs>; Wed, 8 Aug 2001 01:37:48 -0400
+	id <S270343AbRHHFp7>; Wed, 8 Aug 2001 01:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270341AbRHHFhj>; Wed, 8 Aug 2001 01:37:39 -0400
-Received: from cardinal0.Stanford.EDU ([171.64.15.238]:19181 "EHLO
-	cardinal0.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S270339AbRHHFhe>; Wed, 8 Aug 2001 01:37:34 -0400
-Date: Tue, 7 Aug 2001 22:37:39 -0700 (PDT)
-From: Ted Unangst <tedu@stanford.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: summary Re: encrypted swap
-In-Reply-To: <fa.fk6d0vv.vgmm1i@ifi.uio.no>
-Message-ID: <Pine.GSO.4.31.0108072230340.20246-100000@cardinal0.Stanford.EDU>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S270344AbRHHFpk>; Wed, 8 Aug 2001 01:45:40 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:2320 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S270343AbRHHFpT>;
+	Wed, 8 Aug 2001 01:45:19 -0400
+Date: Tue, 7 Aug 2001 22:45:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Stuart Lynne <sl@fireplug.net>, linux-kernel@vger.kernel.org
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+Message-ID: <20010807224500.A12601@kroah.com>
+In-Reply-To: <20010807135135.J17723@fireplug.net> <20010807223625.A8330@nostromo.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010807223625.A8330@nostromo.devel.redhat.com>; from notting@redhat.com on Tue, Aug 07, 2001 at 10:36:25PM -0400
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> David Wagner wrote:
->
-> >You missed some scenarios.  Suppose I run a server that uses crypto.
+On Tue, Aug 07, 2001 at 10:36:25PM -0400, Bill Nottingham wrote:
+> Stuart Lynne (sl@fireplug.net) said: 
+> > So not being able to reliable map ethernet devices to names is a feature
+> > not a bug .... 
+> 
+> With reasonable scriptage and 'nameif', it's doable. Only for
+> ethernet at the moment, however (and I haven't actually implementing
+> something that does this.)  But it *is* doable.
 
-oh, there's lots of scenarios. :)  i am definitely in the camp that says
-encrypted swap is good, though.  and that was a good one.
-
-On Wed, 8 Aug 2001, Ben Ford wrote:
-
-> Wiping swap on boot will achieve the same effect.
-
-1.  takes far longer.  encrypting swap is not a substantial operation.
-wiping is.  you'd have to wipe all 0's, then a 1010 pattern, then all 1's
-to get decent security. (encryption is spread out over time - done
-incrementally.  wiping must be done all at once.)
-
-2.  anyone stealing a disk to get data out of it sure as hell isn't going
-to boot it up and run your init scripts.
+With only adding one line to the current linux-hotplug scripts, a
+co-worker of mine enabled reliable mapping that isn't dependent on pci
+scanning, or hotplugging of pci cards.  He used nameif and a table of
+MAC addresses that map to the name he wanted.
 
 
-
---
-"People blame me because these water mains break, but I ask you,
-if the water mains didn't break, would it be my responsibility to
-fix them then? WOULD IT!?!"
-      - M. Barry, Mayor of Washington, DC
-
+greg k-h

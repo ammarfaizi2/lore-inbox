@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVBNSse@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVBNSv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261524AbVBNSse (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 13:48:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVBNSsd
+	id S261521AbVBNSv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 13:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVBNSv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 13:48:33 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:32429 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261522AbVBNSr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 13:47:27 -0500
-Subject: Re: [BK] upgrade will be needed
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Russell Miller <rmiller@duskglow.com>, Marcin Dalecki <martin@dalecki.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050214174932.GB8846@bitmover.com>
-References: <20050214020802.GA3047@bitmover.com>
-	 <20050214154015.GA8075@bitmover.com>
-	 <3586df11f3bb037ab4b0284109ff9c0a@dalecki.de>
-	 <200502140923.03155.rmiller@duskglow.com>
-	 <20050214174932.GB8846@bitmover.com>
+	Mon, 14 Feb 2005 13:51:27 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:20213 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261521AbVBNSvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 13:51:03 -0500
+Subject: Re: [RFC 2.6.11-rc2-mm2 7/7] mm: manual page migration --
+	sys_page_migrate
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Robin Holt <holt@sgi.com>
+Cc: Ray Bryant <raybry@sgi.com>, Hirokazu Takahashi <taka@valinux.co.jp>,
+       Hugh DIckins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Marcello Tosatti <marcello@cyclades.com>,
+       Ray Bryant <raybry@austin.rr.com>, linux-mm <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050214135221.GA20511@lnx-holt.americas.sgi.com>
+References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com>
+	 <20050212032620.18524.15178.29731@tomahawk.engr.sgi.com>
+	 <1108242262.6154.39.camel@localhost>
+	 <20050214135221.GA20511@lnx-holt.americas.sgi.com>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 14 Feb 2005 13:47:15 -0500
-Message-Id: <1108406835.8413.20.camel@localhost.localdomain>
+Date: Mon, 14 Feb 2005 10:50:42 -0800
+Message-Id: <1108407043.6154.49.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-14 at 09:49 -0800, Larry McVoy wrote:
-> On Monday 14 February 2005 09:14, Marcin Dalecki wrote:
+On Mon, 2005-02-14 at 07:52 -0600, Robin Holt wrote:
+> The node mask is a list of allowed.  This is intended to be as near
+> to a one-to-one migration path as possible.
 
-> On Mon, Feb 14, 2005 at 09:23:03AM -0800, Russell Miller wrote:
-> > It is certainly Larry's choice to license his software any way he chooses.
-> > 
-> > It is my choice whether or not to use it.
+If that's the case, it would make the kernel internals a bit simpler to
+only take a "from" and "to" node, instead of those maps.  You'll end up
+making multiple syscalls, but that shouldn't be a problem.  
+
+> > There also probably needs to be a bit more coordination between the
+> > other NUMA API and this one.  I noticed that, for now, the migration
+> > loop only makes a limited number of passes.  It appears that either you
+> > don't require that, once the syscall returns, that *all* pages have been
+> > migrated (there could have been allocations done behind the loop) or you
+> > have some way of keeping the process from doing any more allocations.
 > 
-> Yup, it is.  Always has been even for the kernel because of our hard
-> work to make sure of that.  We respect your choices, please respect ours.
+> It is intended that the process would be stopped during the migration
+> to simplify considerations such as overlapping destination node lists.
 
-I believe that Larry and Bitmover are fine with what they are doing.
-They have every right to license their product the way they want as long
-as they give it out for free (as in beer).  The problem that many people
-here have is that Linus and company have chosen BK as their SCM for
-Linux.  The effort of all those that disapprove of BK should not be
-directed at Larry, but at Linus and others to convince them that the BK
-license is not appropriate for Linux, and to find something else. If
-this is a problem because everything else that is Free Software is not
-capable for Linux then development should be done to what is out there
-to make it adequate to the Linux Kernel development needs. Even if this
-includes those that develop it not use BK. But this doesn't stop those
-that do use it in telling those that develop something else what they
-would like to have.  No license can stop you from listing what you would
-like of a SCM.
+Requiring that the process is stopped will somewhat limit the use of
+this API outside of the HPC space where so much control can be had over
+the processes.  I have the feeling that very few other kinds of
+applications will be willing to be stopped for the time that it takes
+for a set of migrations to occur.  But, if stopping the process is going
+to be a requirement, having more syscalls that take less time each
+should be desirable.  
 
--- Steve
-
+-- Dave
 

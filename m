@@ -1,77 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263769AbTK2Noc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 08:44:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263771AbTK2Noc
+	id S263778AbTK2Nr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 08:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTK2Nr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 08:44:32 -0500
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:57742 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S263769AbTK2Noa
+	Sat, 29 Nov 2003 08:47:57 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55824 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263778AbTK2Nry
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 08:44:30 -0500
-Date: Sat, 29 Nov 2003 14:42:20 +0100 (CET)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-rc5-pac1 released
-In-Reply-To: <1070053162.12656.180.camel@pegasus>
-Message-ID: <Pine.LNX.4.58.0311291431320.29214@dot.kde.org>
-References: <Pine.LNX.4.58.0311281912290.20775@dot.kde.org>
- <1070053162.12656.180.camel@pegasus>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+	Sat, 29 Nov 2003 08:47:54 -0500
+Date: Sat, 29 Nov 2003 08:36:50 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: bert hubert <ahu@ds9a.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 not cat proof
+In-Reply-To: <20031126201052.GA16106@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.3.96.1031129083405.26461D-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Nov 2003, Marcel Holtmann wrote:
+On Wed, 26 Nov 2003, bert hubert wrote:
 
-> Hi Bernhard,
+> This bug has been seen here over eight years ago and it is back.. linux
+> 2.6.0-test4 is still not cat proof :-)
 > 
-> > - Increase timeout in firmware_class.c [several people reported timeout
-> >   related problems with Netgear WG511 cards]
+> I found my cat asleep on the warm laptop, it is winter here, and the
+> keyboard was dead. Mouse still works, but I had to reboot before I could use
+> the keyboard again. Restarting X, which I could do with the mouse, did not
+> help.
+
+Interesting, I must have different config options, my keyboard is fine, if
+I tap the spacebar with my cat on my lap he   b <-(cat spaces) will insert
+one or more spaces for me. If I don't trim his nails he may insert nearby
+characters as well.
 > 
-> please tell me more about it.
+> But I'm willing to live with this problem :-) Not sure if I want to debug
+> this, my previous laptop turned out to be filled with hair too. She never
+> lies on the keyboard when I'm at home!
+> 
+> Thought you'd want to know,
 
-Extract from the syslog of a user trying to use a Netgear WG511 with the 
-prism54.org drivers in a Dell SmartStep 250N:
-
-Nov 18 15:14:52 rumsfeldsux kernel: cs: cb_alloc(bus 4): vendor 0x1260, device 0x3890
-Nov 18 15:14:52 rumsfeldsux kernel: PCI: Enabling device 04:00.0 (0000 -> 0002)
-Nov 18 15:14:52 rumsfeldsux cardmgr[1098]: socket 1: CardBus hotplug device
-Nov 18 15:14:52 rumsfeldsux default.hotplug[1837]: ======= START HOTPLUG FOR PID 1837 =======
-Nov 18 15:14:53 rumsfeldsux kernel: Loaded prism54 driver, version 1.0.2.2
-Nov 18 15:14:53 rumsfeldsux default.hotplug[1862]: ======= START HOTPLUG FOR PID 1862 =======
-Nov 18 15:14:53 rumsfeldsux default.hotplug[1870]: ======= START HOTPLUG FOR PID 1870 =======
-Nov 18 15:15:03 rumsfeldsux kernel: prism54: request_firmware() failed for 'isl3890'
-Nov 18 15:15:03 rumsfeldsux kernel: eth1: could not upload firmware ('isl3890')
-
-We got a similar report from someone using the same card in an Asus 
-Pundit, and another from someone using a D-Link DWL-g650 A1 in a 
-Gericom notebook.
-
-Telling the users to
-
-echo 100 >/proc/driver/firmware/timeout
-
-and try again fixed it for all of them.
-
-All 3 are using Ark Linux Dockyard, meaning 2.4.23-rcsomething-pacwhatever 
-with a couple of extra patches and a fairly recent userland hotplug.
-
-Due to lack of hardware I haven't yet figured out what the exact problem 
-is (I'm suspecting either the prism54 driver takes forever to handle the 
-firmware, or the hotplug scripts cause delays where they shouldn't), but 
-increasing the timeout definitely solves the problem for our users.
-
-LLaP
-bero
+Nice to know I'm not the only person silly about his cat ;-)
 
 -- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php

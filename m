@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135749AbRD2Lso>; Sun, 29 Apr 2001 07:48:44 -0400
+	id <S135634AbRD2MfX>; Sun, 29 Apr 2001 08:35:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135750AbRD2Lse>; Sun, 29 Apr 2001 07:48:34 -0400
-Received: from p3E9E2E76.dip.t-dialin.net ([62.158.46.118]:11012 "HELO
-	spot.local") by vger.kernel.org with SMTP id <S135749AbRD2LsX>;
-	Sun, 29 Apr 2001 07:48:23 -0400
-Date: Sun, 29 Apr 2001 13:48:49 +0200
-From: Oliver Feiler <kiza@gmx.net>
+	id <S135760AbRD2MfO>; Sun, 29 Apr 2001 08:35:14 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:37124 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S135634AbRD2MfA>; Sun, 29 Apr 2001 08:35:00 -0400
+From: Colonel <klink@clouddancer.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.4 - VIA PCI latency patch
-Message-ID: <20010429134849.A5408@munich.netsurf.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.4 i686
-X-Species: Snow Leopard
+Subject: OOM stupidity
+Reply-To: klink@clouddancer.com
+Message-Id: <20010429123454.364E06808@mail.clouddancer.com>
+Date: Sun, 29 Apr 2001 05:34:54 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Since 2.4.4 the kernel says
+When the OOM kills the process that I am currently composing within
+(an active character stream), that is a MICROSOFT WINDOWS behavior.  
+I don't care if it's hogging the machine, *I'M* using it!  That is the
+point after all, isn't it?  A human sysadmin could kill my process
+(and then I would have dealings with him), but the logic here is badly
+flawed.
 
-PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-Applying VIA PCI latency patch.
+If this is what Linux will become in the 2.4 kernel, *FORGET IT*.
+Swap was hardly filled up, and remember it's the 2xRAM swap size now!
+Has Linux been too eager to accept recent windows converts (and prior
+to their recovery from that brain damage) and lost it's sharp edge of
+careful thought and tooling that was it's hallmark in the beginning??
+Are the maintainers of this area too busy "protecting their turf" to
+allow some options to the end user?  Seem like Linus better kick some
+butt before it's too late.  Microsoft has been running a
+disinformation campaign against Linux for awhile, but the current OOM
+behavior could allow them to make a major capitalization against
+Linux.
 
-on bootup. Is this the workaround for the 686B problems? I have a 686A board 
-which should, in theory, be not affected by the bug. So why is this setting 
-still applied? If it's something different, never mind.
+Just think of the Microsoft campaign :
+"We don't pull the rug out from underneath you".
 
-Bye
+(Note to all those that will jump up and claim that Microsoft has
+problems -- I see, you are saying because MS is faulty, it's OK that
+Linux is faulty)
 
-Oliver
+Where is a patch to allow the sensible OOM I had in prior kernels?
+(cause this crap is getting pitched)
 
+--------
 
--- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+(kernel 2.4.4-pre6, not noticed in eariler kernels, but machine was
+not that heavily used.  Hardware has been rock solid for years.  Load
+at the time was trivial compared to 2.0 series kernels workload.)
+
+____
+ron
+
+- I don't need no stinkin multiline sig -

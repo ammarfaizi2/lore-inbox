@@ -1,70 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314051AbSDKNZf>; Thu, 11 Apr 2002 09:25:35 -0400
+	id <S314056AbSDKNoL>; Thu, 11 Apr 2002 09:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSDKNZe>; Thu, 11 Apr 2002 09:25:34 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:63494 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314051AbSDKNZc>; Thu, 11 Apr 2002 09:25:32 -0400
-Date: Thu, 11 Apr 2002 09:22:27 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS access to loopback mounts
-In-Reply-To: <2576.1018503672@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.3.96.1020411090957.3677G-100000@gatekeeper.tmr.com>
+	id <S314057AbSDKNoK>; Thu, 11 Apr 2002 09:44:10 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:61705 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314056AbSDKNoK>; Thu, 11 Apr 2002 09:44:10 -0400
+Message-Id: <200204111341.g3BDfJX10546@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Subject: Re: New IDE code and DMA failures
+Date: Thu, 11 Apr 2002 16:44:29 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jens Axboe <axboe@suse.de>, Martin Dalecki <martin@dalecki.de>,
+        Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <200204111236.g3BCaMX10247@Port.imtp.ilyichevsk.odessa.ua> <3CB57C1F.9060607@evision-ventures.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Apr 2002, Keith Owens wrote:
+On 11 April 2002 10:05, Martin Dalecki wrote:
+> > Since you are working on IDE subsystem, I will be glad to
+> > *retain* my flaky IDE setup and test future kernels
+> > for correct operation in this failure mode.
+> >
+> > Please inform me whenever you want me to test your patches.
+>
+> Guessing from the symptoms I would rather suggest that:
+>
+> 1. Are you sure you have the support for your chipset properly
+>     enabled? It's allmost a must for DMA.
 
-> Is accessing a loopback mount via NFS supposed to work or not?  If not,
-> how do you export iso contents without duplicating the entire iso?
-> 
-> Machine A.
->   mount -t iso9660 -o ro,loop /foo/iso /mnt/iso
->   /etc/exports contains /mnt *(rw,no_root_squash,no_all_squash)
-> 
-> Machine B.
->   mount -t nfs A:/mnt/iso /local/iso
+I am deadly sure. lspci:
+00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+00:04.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 01)
+00:04.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+00:04.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+00:04.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 01)
+00:06.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
+00:0a.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2164W [Millennium II]
+00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
 
-> I have a note from April 2000 where NFS access to a loopback mount used
-> to work.  Before I dig through two years of kernels to find out where
-> it stopped working, is it valid to access loopback via NFS?
-> 
-> AFAIK doing NFS first then loopback on the local NFS directory has
-> never worked.
+/boot/2.4.7/config:
+CONFIG_BLK_DEV_PIIX=y
 
-  I usually export a CD by mounting and exporting that, actually. If you
-have the space for the ISO I would think that just copying it from CD to a
-hierarchy would take no more space (although if you want to have the ISO
-image handy for burning that would take more space).
+> 2. Could you please report about the hardware you have. There are
+>     chipsets around there which are using theyr own transport layer
+>     implementations. host chip (aka south bridge) disk types and so on.
 
-  Can you export the directory with the ISO image and do a loopback mount
-on the client end? haven't tried that, and I'm working on a laptop at the
-end of a slow modem this morning, so I'm not able to try it here.
+# hdparm -i /dev/hda
+ Model=Maxtor 51369U3, FwRev=DA620CQ0, SerialNo=EK3HAE61C
+ Config={ Fixed }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
+ BuffType=3(DualPortCache), BuffSize=2048kB, MaxMultSect=16, MultSect=16
+ DblWordIO=no, maxPIO=2(fast), DMA=yes, maxDMA=0(slow)
+ CurCHS=17475/15/63, CurSects=16513875, LBA=yes
+ LBA CHS=512/511/63 Remapping, LBA=yes, LBAsects=26520480
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, PIO modes: mode3 mode4
+ UDMA modes: mode0 mode1 *mode2
 
-  Oops, I'm wrong, I could ssh into a machine with an NFS directory
-containing ISO images, and I did nicely mount one and look at the
-contents.
+# hdparm -i /dev/hdc
+ Model=ST31277A, FwRev=0.75, SerialNo=VAE07701
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+ RawCHS=2482/16/63, TrkSize=0, SectSize=0, ECCbytes=4
+ BuffType=0(?), BuffSize=0kB, MaxMultSect=16, MultSect=16
+ DblWordIO=no, maxPIO=1(medium), DMA=yes, maxDMA=2(fast)
+ CurCHS=2482/16/63, CurSects=2501856, LBA=yes
+ LBA CHS=620/64/63 Remapping, LBA=yes, LBAsects=2501856
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 *mword2
+ IORDY=on/off, tPIO={min:383,w/IORDY:120}, PIO modes: mode3 mode4
 
-  So to answer your questions, I have no idea why it doesn't work, but you
-can get around it if the NFS client is a Linux machine.
+I have problems with hdc. hda is mostly unused, so maybe it is DMA errors
+prone too but I have not seen that yet.
 
-  While we're mentioning loopback problems, mounting a CD with loopack and
-offset:
-  mount -o ro,loop,offset=7480 /dev/cdrom /mnt
-used to work and doesn't. I get these CDs all the time with a chunk of
-binary data of variable length and an ISO image. Used to work, and I can
-mount them on 2.0 and 2.2 systems still. I posted that one before and got
-no feedback other than one private E-mail saying that the format was dumb
-and I should change it. Since it works for the client and is written by
-hardware, LOL.
+> 3. Some timeout values got increased to more generally used values (in esp.
+>     IBM microdrives advice about timeout values. Could you see whatever
+>     the data doesn't eventually go to the disk after georgeous
+>     amounts of time.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Erm.. my English comprehension fails here... do you say my disk
+does not like bigger timeouts?
 
+> 4. Could you try to set the DMA mode lower then it's set up
+>     per default by using hdparm and try whatever it helps?
+
+Current params:
+
+# hdparm /dev/hda /dev/hdc
+/dev/hda:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ BLKRAGET failed: Invalid argument
+ geometry     = 1754/240/63, sectors = 26520480, start = 0
+
+/dev/hdc:
+ multcount    = 16 (on)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ BLKRAGET failed: Invalid argument
+ geometry     = 620/64/63, sectors = 2501856, start = 0
+
+I can't quite figure what MW/UDMA mode is active.
+--
+vda

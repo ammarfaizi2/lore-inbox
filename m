@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131451AbQLMWmz>; Wed, 13 Dec 2000 17:42:55 -0500
+	id <S129391AbQLMWq0>; Wed, 13 Dec 2000 17:46:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131478AbQLMWmq>; Wed, 13 Dec 2000 17:42:46 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39437 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131451AbQLMWm1>; Wed, 13 Dec 2000 17:42:27 -0500
-Subject: Re: insmod problem after modutils upgrading
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 13 Dec 2000 22:13:29 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        chris@chrullrich.de (Christian Ullrich), linux-kernel@vger.kernel.org
-In-Reply-To: <4381.976745113@ocs3.ocs-net> from "Keith Owens" at Dec 14, 2000 09:05:13 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E146K9T-0003MT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129543AbQLMWqQ>; Wed, 13 Dec 2000 17:46:16 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:38672 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S129391AbQLMWqE>; Wed, 13 Dec 2000 17:46:04 -0500
+Message-Id: <200012132215.eBDMFas35908@aslan.scsiguy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Adaptec AIC7XXX v 6.0.6 BETA Released
+Date: Wed, 13 Dec 2000 15:15:36 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> previously because nobody used those options.  Since these are bugs in
-> the modules and only a few modules are affected (less than 5 reported),
-> the fix is to correct the modules that have coding errors.
+daptec SCSI HBA device driver for the Linux Operating System
+To: linux-scsi@vger.kernel.org
+cc:
+Fcc: +outbox
+Subject: Adaptec AIC7XXX v6.0.6 BETA Released
+-------
+After several months of testing and refinement, the Adaptec 
+sponsored aic7xxx driver is now entering Beta testing.  Although
+still missing domain validation and the last bits of cardbus
+support, there are no known issues with the driver.  I would
+encourage all users of card supported by this driver to try the
+new code and submit feedback.  Patches for late 2.2.X, 2.3.99
+and 2.4.0 are provided in the driver distribution.  For those
+of you building the driver as a module, take note that the module
+name is now "aic7xxx_mod" rather than "aic7xxx".
 
-That wont be happening in 2.2 until 2.2.19 which probably means 6 months.
-If this is your decision please make it abundantly clear that the new
-modutils are a 2.4 only package.
+As always, the most recent distribution is available here:
 
+http://people.FreeBSD.org/~gibbs/linux/
+
+--
+Justin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

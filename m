@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266128AbUBKSk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 13:40:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUBKSk7
+	id S265954AbUBKTFq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 14:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUBKTFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 13:40:59 -0500
-Received: from ultra12.almamedia.fi ([193.209.83.38]:60577 "EHLO
-	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
-	id S266128AbUBKSk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 13:40:57 -0500
-Message-ID: <402A7765.FD5A7F9E@users.sourceforge.net>
-Date: Wed, 11 Feb 2004 20:41:41 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michal Kwolek <miho@centrum.cz>
-Cc: jmorris@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-References: <402A4B52.1080800@centrum.cz>
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Feb 2004 14:05:46 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13793 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265954AbUBKTFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 14:05:32 -0500
+Date: Wed, 11 Feb 2004 11:04:39 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ping Cheng <pingc@wacom.com>
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: Wacom USB driver patch
+Message-Id: <20040211110439.1a64fe9b.zaitcev@redhat.com>
+In-Reply-To: <mailman.1076463721.27289.linux-kernel2news@redhat.com>
+References: <mailman.1076463721.27289.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michal Kwolek wrote:
-> I've got a reproducible oops when using cryptoloop on vanilla 2.6.0,
-> 2.6.1 and 2.6.2 (2.4.* works fine).
-> 
-> Way to reproduce:
-> dd if=/dev/urandom of=crypto bs=1024 count=some_size
-> losetup -e some_cipher /dev/loop0 crypto
-> #Any of those commands causes oops and hard lockup:
-> cp /dev/loop0 /dev/null
-> mkreiserfs /dev/loop0
-> mkfs.ext2 /dev/loop0
-> 
-> Loop without cryptoapi works fine:
-> dd if=/dev/urandom of=crypto bs=1024 count=some_size
-> losetup /dev/loop0 crypto
-> cp /dev/loop0 /dev/null
-> #ok, no oops
+On Tue, 10 Feb 2004 17:23:11 -0800
+Ping Cheng <pingc@wacom.com> wrote:
 
-Can you try again using loop-AES? loop-AES does not fall apart like the
-mainline implementation does. loop-AES is here:
+>  <<linuxwacom.patch>> 
 
-http://mail.nl.linux.org/linux-crypto/2004-02/msg00006.html
+This looks much better, it's not line-wrapped.
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+I have one question though, about this part:
+
+@@ -152,15 +150,103 @@ static void wacom_pl_irq(struct urb *urb
+
++                       /* was entered with stylus2 pressed */
++                       if (wacom->tool[1] == BTN_TOOL_RUBBER && !(data[4] & 0x20) ) {
++                               /* report out proximity for previous tool */
++                               input_report_key(dev, wacom->tool[1], 0);
++                               input_sync(dev);
++                               wacom->tool[1] = BTN_TOOL_PEN;
++                               return;
++                       }
+
+Is it safe to just return without resubmitting the urb here?
+
+@@ -231,8 +317,12 @@ static void wacom_graphire_irq(struct ur
++       /* check if we can handle the data */
++       if (data[0] == 99)
++               return;
++
+        if (data[0] != 2)
+
+Same here.
+
+Also, please add the path to the patch, e.g. always use recursive diff.
+
+-- Pete

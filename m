@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVARRrE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVARSIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVARRrE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 12:47:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVARRrE
+	id S261357AbVARSIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 13:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVARSIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 12:47:04 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53674 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261356AbVARRrB (ORCPT
+	Tue, 18 Jan 2005 13:08:21 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:9234 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261357AbVARSIT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 12:47:01 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: Patch to control VGA bus routing and active VGA device.
-Date: Tue, 18 Jan 2005 09:46:46 -0800
-User-Agent: KMail/1.7.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Egbert Eich <eich@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <9e47339105011719436a9e5038@mail.gmail.com>
-In-Reply-To: <9e47339105011719436a9e5038@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 13:08:19 -0500
+Date: Tue, 18 Jan 2005 13:07:47 -0500
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [rfc] i810_audio: offset LVI from CIV to avoid stalled start
+Message-ID: <20050118180745.GA6883@tuxdriver.com>
+Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org, jgarzik@pobox.com
+References: <20050117183708.GD4348@tuxdriver.com> <20050117203930.GA9605@gondor.apana.org.au> <20050117214420.GH4348@tuxdriver.com> <20050117232323.GA21365@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501180946.47026.jbarnes@engr.sgi.com>
+In-Reply-To: <20050117232323.GA21365@gondor.apana.org.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, January 17, 2005 7:43 pm, Jon Smirl wrote:
-> Attached is a patch to control VGA bus routing and the active VGA
-> device. It works by adding sysfs attributes to bridge and VGA devices.
-> The bridge attribute is read only and indicates if the bridge is
-> routing VGA. The attribute on the device has four values:
+On Tue, Jan 18, 2005 at 10:23:23AM +1100, Herbert Xu wrote:
+> On Mon, Jan 17, 2005 at 04:44:22PM -0500, John W. Linville wrote:
+> > 
+> > Enemy Territory is available for free (as in beer) download from
+ 
+> Sure, I don't mind trying it out :)
+> 
+> In the mean time, does this patch fix your problem as well?
 
-How is it supposed to work?  Is VGA routing determined by the chipset?  Is it 
-separate from other legacy I/O and memory addresses?
+Herbert,
 
-Thanks,
-Jesse
+No, that does not fix it. :-(  In fact, it doesn't seem to alter the
+problem at all...
 
-P.S. Can you fix your mailer to set a mimetype other than "unspecified binary 
-data" for patches to make them easier to read?
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

@@ -1,131 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271196AbTHCOqd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 10:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271197AbTHCOqd
+	id S271197AbTHCO6J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 10:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271199AbTHCO6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 10:46:33 -0400
-Received: from hell.org.pl ([212.244.218.42]:14345 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S271196AbTHCOqa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 10:46:30 -0400
-Date: Sun, 3 Aug 2003 16:51:13 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5/2.6] buffer layer error at fs/buffer.c:2800 when unlinking
-Message-ID: <20030803145113.GA31715@hell.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Sun, 3 Aug 2003 10:58:09 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:56463 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S271197AbTHCO6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 10:58:05 -0400
+Date: Sun, 03 Aug 2003 07:57:48 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 1036] New: Badness in local_bh_enable at kernel/softirq.c:113 
+Message-ID: <100580000.1059922668@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+http://bugme.osdl.org/show_bug.cgi?id=1036
 
-I've recently managed to nail down the problems that have been occuring on 
- my machine at least since 2.5.59. I use XFS as my rootfs, no other
-filesystems are compiled in, but I doubt the filesystem is to blame, since
-the problem does not appear under 2.4, despite the similar codebase.
-Here's the guts: upon unlinking files in /var/{run,lock/subsys} (typically
-during shutdown, but not only), and when doing "dd if=/dev/urandom
-of=/etc/random-seed count=1 bs=512" the following traces appear:
-#v+
-buffer layer error at fs/buffer.c:2800
+           Summary: Badness in local_bh_enable at kernel/softirq.c:113
+    Kernel Version: 2.6.0-test2
+            Status: NEW
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: janfrode@parallab.no
+
+
+Distribution: gentoo
+Hardware Environment: AMD AthlonXP
+Software Environment:
+
+ppp-2.4.1-r14
+pptpclient-1.2.0
+
+Problem Description:
+
+My pptp client connections keeps dying, syslogging:
+
+Aug  3 13:35:36 [pppd] Using interface ppp0
+Aug  3 13:35:36 [pppd] Connect: ppp0 <--> /dev/pts/4
+Aug  3 13:35:36 [/etc/hotplug/net.agent] NET add event not supported
+Aug  3 13:35:38 [pptp] anon log[decaps_hdlc:pptp_gre.c:198]: PPP mode seems to
+be Asynchronous._
+Aug  3 13:35:39 [pppd] Remote message: Welcome^M^J
+Aug  3 13:35:41 [pppd] local  IP address 129.177.43.23
+Aug  3 13:35:41 [pppd] remote IP address 129.177.43.1
+Aug  3 13:36:07 [pppd] Unsupported protocol 0xd44a received
+Aug  3 13:36:57 [pppd] Unsupported protocol 0xcc4a received
+aug  3 13:38:20 [su(pam_unix)] session opened for user root by (uid=1001)
+Aug  3 13:39:21 [anacron] Job `cron.daily' started
+Aug  3 13:39:29 [crontab] (root) LIST (root)_
+Aug  3 13:39:37 [pptp] anon warn[decaps_gre:pptp_gre.c:300]: short read (-1):
+Message too long
+Aug  3 13:39:37 [pptp] anon log[callmgr_main:pptp_callmgr.c:234]: Closing connection
+Aug  3 13:39:37 [pptp] anon log[pptp_conn_close:pptp_ctrl.c:308]: Closing PPTP
+connection
+Aug  3 13:39:39 [pptp] anon log[call_callback:pptp_callmgr.c:74]: Closing connection
+Aug  3 13:39:39 [pppd] Hangup (SIGHUP)
+Aug  3 13:39:39 [kernel] Badness in local_bh_enable at kernel/softirq.c:113
+Aug  3 13:39:39 [pppd] Modem hangup
+Aug  3 13:39:39 [pppd] Connection terminated.
+Aug  3 13:39:39 [pppd] Connect time 4.1 minutes.
+Aug  3 13:39:39 [pppd] Sent 310556 bytes, received 1615363 bytes.
+Aug  3 13:39:39 [/etc/hotplug/net.agent] NET remove event not supported
+Aug  3 13:39:39 [pppd] Failed to open /dev/pts/4: No such file or directory
+                - Last output repeated 9 times -
+Aug  3 13:39:39 [pppd] Exit.
+
+
+And giving this call trace in the kernel log:
+
+Badness in local_bh_enable at kernel/softirq.c:113
 Call Trace:
- [<c014f1c6>] drop_buffers+0xb3/0xb9
- [<c014f208>] try_to_free_buffers+0x3c/0x96
- [<c01db1a1>] linvfs_release_page+0x74/0x78
- [<c014d2e6>] try_to_release_page+0x5c/0x6c
- [<c014d3d9>] block_invalidatepage+0xe3/0xf6
- [<c013a9db>] do_invalidatepage+0x27/0x2b
- [<c013aa66>] truncate_complete_page+0x87/0x89
- [<c013abc3>] truncate_inode_pages+0xcd/0x2be
- [<c01df4f1>] linvfs_unlink+0x5c/0x5e
- [<c0160e4a>] generic_delete_inode+0xc0/0xc5
- [<c0160fce>] iput+0x55/0x6f
- [<c01584bb>] sys_unlink+0x86/0x135
- [<c010905f>] syscall_call+0x7/0xb
+ [<c0120b88>] local_bh_enable+0x88/0x90
+ [<c037bd54>] ppp_async_push+0xa4/0x1b0
+ [<c015dd04>] __lookup_hash+0x64/0xd0
+ [<c037b621>] ppp_asynctty_wakeup+0x31/0x60
+ [<c032bff6>] pty_unthrottle+0x56/0x60
+ [<c032898a>] check_unthrottle+0x3a/0x40
+ [<c0328a34>] n_tty_flush_buffer+0x14/0x50
+ [<c032c3ae>] pty_flush_buffer+0x5e/0x60
+ [<c03253ac>] do_tty_hangup+0x3ac/0x420
+ [<c0326823>] release_dev+0x5b3/0x600
+ [<c03fc000>] snd_pcm_oss_init_substream+0x50/0x90
+ [<c01402fe>] zap_pmd_range+0x4e/0x70
+ [<c014036e>] unmap_page_range+0x4e/0x90
+ [<c0326beb>] tty_release+0x2b/0x60
+ [<c015091e>] __fput+0xce/0xe0
+ [<c014ef5b>] filp_close+0x4b/0x80
+ [<c011e5fc>] put_files_struct+0x6c/0xe0
+ [<c011f1c5>] do_exit+0x165/0x340
+ [<c011f3d5>] sys_exit+0x15/0x20
+ [<c010930b>] syscall_call+0x7/0xb
 
-buffer layer error at fs/buffer.c:2800
-Call Trace:
- [<c014f1c6>] drop_buffers+0xb3/0xb9
- [<c014f208>] try_to_free_buffers+0x3c/0x96
- [<c01db1a1>] linvfs_release_page+0x74/0x78
- [<c014d2e6>] try_to_release_page+0x5c/0x6c
- [<c014d3d9>] block_invalidatepage+0xe3/0xf6
- [<c013a9db>] do_invalidatepage+0x27/0x2b
- [<c013aa66>] truncate_complete_page+0x87/0x89
- [<c013abc3>] truncate_inode_pages+0xcd/0x2be
- [<c01df4f1>] linvfs_unlink+0x5c/0x5e
- [<c0160e4a>] generic_delete_inode+0xc0/0xc5
- [<c0160fce>] iput+0x55/0x6f
- [<c01584bb>] sys_unlink+0x86/0x135
- [<c010905f>] syscall_call+0x7/0xb
 
-// that's pcmcia: one trace for /var/run/cardmgr.pid, one for
-// /var/lock/subsys/pcmcia
 
-buffer layer error at fs/buffer.c:2800
-Call Trace:
- [<c014f1c6>] drop_buffers+0xb3/0xb9
- [<c014f208>] try_to_free_buffers+0x3c/0x96
- [<c01db1a1>] linvfs_release_page+0x74/0x78
- [<c014d2e6>] try_to_release_page+0x5c/0x6c
- [<c014d3d9>] block_invalidatepage+0xe3/0xf6
- [<c013a9db>] do_invalidatepage+0x27/0x2b
- [<c013aa66>] truncate_complete_page+0x87/0x89
- [<c013abc3>] truncate_inode_pages+0xcd/0x2be
- [<c016ba43>] padzero+0x28/0x2a
- [<c018e6ad>] xfs_bmap_last_offset+0xc2/0x119
- [<c018d929>] xfs_bmap_search_extents+0x70/0x85
- [<c01b55c1>] xfs_file_last_byte+0xea/0xf7
- [<c01b566c>] xfs_itruncate_start+0x9e/0xe2
- [<c01d0bfd>] xfs_setattr+0xdd1/0xfc2
- [<c01df9d8>] linvfs_setattr+0x11d/0x1c6
- [<c0161931>] notify_change+0x150/0x183
- [<c0148fd9>] do_truncate+0x4b/0x62
- [<c01d0e3b>] xfs_access+0x4d/0x5b
- [<c01562e8>] permission+0x46/0x48
- [<c01575ec>] may_open+0x169/0x1ba
- [<c01576e9>] open_namei+0xac/0x3f3
- [<c0149ffd>] filp_open+0x43/0x69
- [<c014a3e4>] sys_open+0x5b/0x8b
- [<c010905f>] syscall_call+0x7/0xb
+Steps to reproduce:
 
-// that's dd
+Don't know how to trigger it, but it happens all the time.
 
-buffer layer error at fs/buffer.c:2800
-Call Trace:
- [<c014f1c6>] drop_buffers+0xb3/0xb9
- [<c014f208>] try_to_free_buffers+0x3c/0x96
- [<c01db1a1>] linvfs_release_page+0x74/0x78
- [<c014d2e6>] try_to_release_page+0x5c/0x6c
- [<c014d3d9>] block_invalidatepage+0xe3/0xf6
- [<c013a9db>] do_invalidatepage+0x27/0x2b
- [<c013aa66>] truncate_complete_page+0x87/0x89
- [<c013abc3>] truncate_inode_pages+0xcd/0x2be
- [<c01df4f1>] linvfs_unlink+0x5c/0x5e
- [<c0160e4a>] generic_delete_inode+0xc0/0xc5
- [<c0160fce>] iput+0x55/0x6f
- [<c01584bb>] sys_unlink+0x86/0x135
- [<c010905f>] syscall_call+0x7/0xb
 
-// that's another one -- probably /var/run/sshd.pid
-#v-
-Oddly enough, those errors do not appear when I touch and remove the files
-manually. I can observe this behaviour on any kernel version between 2.5.59
-and 2.6.0-test2. I didn't test earlier versions. The traces come from
-2.6.0-test2.
-
-FYI: I never had any fs corruption whatsoever, just those annoying
-messages.
-
-I'll be happy to provide any additional information.
-Please Cc: me, as I can't handle lkml traffic.
-
-Best regards,
-
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl

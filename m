@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277573AbRJHWcP>; Mon, 8 Oct 2001 18:32:15 -0400
+	id <S277574AbRJHWgz>; Mon, 8 Oct 2001 18:36:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277572AbRJHWcG>; Mon, 8 Oct 2001 18:32:06 -0400
-Received: from node181b.a2000.nl ([62.108.24.27]:14342 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S277568AbRJHWcC>;
-	Mon, 8 Oct 2001 18:32:02 -0400
-Date: Tue, 9 Oct 2001 00:32:52 +0200 (CEST)
-From: kernel@ddx.a2000.nu
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-cc: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>,
-        "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>,
-        <sparclinux@vger.kernel.org>
-Subject: Re: sun + gigabit nic
-In-Reply-To: <Pine.LNX.4.33.0110081518370.17654-100000@twin.uoregon.edu>
-Message-ID: <Pine.LNX.4.40.0110090031000.28619-100000@ddx.a2000.nu>
+	id <S277572AbRJHWgq>; Mon, 8 Oct 2001 18:36:46 -0400
+Received: from warden.digitalinsight.com ([208.29.163.2]:55011 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S277576AbRJHWge>; Mon, 8 Oct 2001 18:36:34 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>,
+        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Date: Mon, 8 Oct 2001 14:16:04 -0700 (PDT)
+Subject: Re: %u-order allocation failed
+In-Reply-To: <Pine.LNX.3.96.1011009001720.20446A-100000@artax.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.40.0110081414360.30206-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Oct 2001, Joel Jaeggli wrote:
->
-> the 620t is the netgear gig-card based on the acenic, it' optical, sx or
-> lx.
->
-hmms think you mean also copper ?
-i found the ga620t card on shopper.com, for about $300, while the ga622t
-is
-about $100, no change it will be supported ? (don't like to pay 3* more
-when support is comming)
+only 4096 processes, sounds low to me (I realize that some of my configs
+are not typical, but this isn't that unusual on servers)
 
+does this limit go up if you raise the max number of processes/threads?
 
+David Lang
+
+On Tue, 9 Oct 2001, Mikulas Patocka wrote:
+
+> Date: Tue, 9 Oct 2001 00:21:04 +0200 (CEST)
+> From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+> To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> Cc: Rik van Riel <riel@conectiva.com.br>,
+>      Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
+>      linux-kernel@vger.kernel.org
+> Subject: Re: %u-order allocation failed
+>
+> On Sun, 7 Oct 2001, Alan Cox wrote:
+>
+> > > The difference between memory and vmalloc space is this: you fill up the
+> > > whole memory with cache => memory fragments. You don't fill up the whole
+> > > vmalloc space with anything => vmalloc space doesn't fragment.
+> >
+> > vmalloc space fragments. You fragment address space rather than pages thats
+> > all. Same problem
+>
+> If you have more than half of virtual space free, you can always find two
+> consecutive free pages. Period.
+>
+> You can fill up half of virtual space if you start 4096 processes or load
+> many modules of total size 32M. Is it clear? Do you realize that no one
+> will ever hit this limit in typical linux configuration?
+>
+> Mikulas
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

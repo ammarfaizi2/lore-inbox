@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263843AbUE1UKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263865AbUE1ULw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263843AbUE1UKs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 16:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263860AbUE1UKs
+	id S263865AbUE1ULw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 16:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUE1ULw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 16:10:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37550 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263843AbUE1UKq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 16:10:46 -0400
-Date: Fri, 28 May 2004 13:00:03 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Proposal] DEBUG_SLAB should select DEBUG_SPINLOCK
-Message-Id: <20040528130003.69a1e7c9.rddunlap@osdl.org>
-In-Reply-To: <52zn7s5nus.fsf@topspin.com>
-References: <528yfc72u8.fsf@topspin.com>
-	<20040528124228.105ebcbb.rddunlap@osdl.org>
-	<52zn7s5nus.fsf@topspin.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 28 May 2004 16:11:52 -0400
+Received: from calvin.stupendous.org ([213.84.70.4]:12548 "HELO
+	quadpro.stupendous.org") by vger.kernel.org with SMTP
+	id S263868AbUE1ULl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 16:11:41 -0400
+Date: Fri, 28 May 2004 22:11:39 +0200
+From: Jurjen Oskam <jurjen@stupendous.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] 2.6.6 tty_io.c hangup locking
+Message-ID: <20040528201139.GA12281@quadpro.stupendous.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040527174509.GA1654@quadpro.stupendous.org> <1085769769.2106.23.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1085769769.2106.23.camel@deimos.microgate.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 May 2004 12:54:35 -0700 Roland Dreier wrote:
+On Fri, May 28, 2004 at 01:42:50PM -0500, Paul Fulghum wrote:
 
-|     Randy> Andrew asked me to delay it until 2.6.6, which I did.  Sent
-|     Randy> that, but not merged.
-| 
-|     Randy> I will be rediffing it and resending it again for 2.6.7 and
-|     Randy> probably some intermediate kernels if that's what it takes.
-| 
-| Thanks for the info.  I guess I'll wait for your patch to be merged
-| and then send my (trivial) patch.
+> Up to now, this did not cause any actual problems.
+> In 2.6.X this causes a warning if any of the called functions
+> (flush_buffer/write_wakeup) call spin_xxx_bh() functions.
 
-You can wait, or send it to Andrew for merging (it will just be one
-more small change for me), or send it to me for Kconfig.debug.
+It was not only a warning here, but the pptp client also didn't work again
+until after rebooting. Every time the connection was retried (every 10
+seconds or so) the message appeared. Perhaps this is a problem in the pptp
+client, but after rebooting it worked.
 
-I won't lose it, but it's probably safer just to send it to Andrew,
-and I can deal with that small diff later.
+As for the patch: applied to vanilla 2.6.5 (applied cleanly, offset -5
+lines) and compiling now.
 
---
-~Randy
+One problem though: I'm running 2.6 for about two weeks now (with a 24x7
+pptp connection), and I encountered this problem just once. I've seen a
+report that someone got this error when his connection was severed, so
+I'll try to pull the phone cable a few times and see how it recovers, both
+with and without your patch. I'll report back when I know more.
+
+Thanks,
+-- 
+Jurjen Oskam
+
+"Avoid putting a paging file on a fault-tolerant drive, such as a mirrored
+volume or a RAID-5 volume. Paging files do not need fault-tolerance."-MS Q308417

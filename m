@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269220AbTCBQvL>; Sun, 2 Mar 2003 11:51:11 -0500
+	id <S269241AbTCBQ7s>; Sun, 2 Mar 2003 11:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269240AbTCBQvL>; Sun, 2 Mar 2003 11:51:11 -0500
-Received: from static-b2-191.highspeed.eol.ca ([64.56.236.191]:8196 "EHLO
-	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id <S269220AbTCBQvK>;
-	Sun, 2 Mar 2003 11:51:10 -0500
-Message-ID: <3E6238EE.7050802@brad-x.com>
-Date: Sun, 02 Mar 2003 12:01:34 -0500
-From: Brad Laue <brad@brad-x.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030223
-X-Accept-Language: en-us, en, zh-cn, zh-hk, zh-sg,
+	id <S269242AbTCBQ7s>; Sun, 2 Mar 2003 11:59:48 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:26103 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S269241AbTCBQ7r>; Sun, 2 Mar 2003 11:59:47 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [PATCH] reduce large stack usage
+Date: Sun, 2 Mar 2003 18:07:53 +0100
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <3E6222A7.9030705@colorfullife.com>
+In-Reply-To: <3E6222A7.9030705@colorfullife.com>
 MIME-Version: 1.0
-To: James Morris <jmorris@intercode.com.au>
-Cc: Marc Giger <gigerstyle@gmx.ch>, jt@hpl.hp.com,
-       linux-kernel@vger.kernel.org, breed@users.sourceforge.net,
-       achirica@users.sourceforge.net
-Subject: Re: Cisco Aironet 340 oops with 2.4.20
-References: <Pine.LNX.4.44.0303022210400.6149-100000@blackbird.intercode.com.au>
-In-Reply-To: <Pine.LNX.4.44.0303022210400.6149-100000@blackbird.intercode.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200303021807.54284.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
+On Sunday 02 March 2003 16:26, Manfred Spraul wrote:
 
->The latter two are still happening with a tainted kernel.  Are you able to 
->generate the crash if these modules have never been loaded?
->
->
->- James
->  
->
-I'm not sure I follow - the NVdriver module had not been loaded at all 
-for the other two. How is the kernel tainted?
+> What do you mean with broken? On i386, the function needs 32 byte stack
+> + the space for register saving.
+> It must be either a gcc bug, or a bug in your detection script - I don't
+> see anything special in twofish_setkey.
 
- Brad
+You are right that the code itself is not broken -- I did not read it 
+properly at first. The stack frame gets small if I compile for s390x
+with -fno-schedule-insn, so I suppose that optimization does
+not work to well on this particular code. I'll try a different compiler
+tomorrow.
 
--- 
-// -- http://www.BRAD-X.com/ -- //
+I can verify the 32 bytes on i386 with both gcc-3.2 and gcc-3.3-snapshot.
+However, when compiling i386 twofish with gcc-2.95, I get an 804 bytes
+stack frame. Other architectures are probably somewhere in between
+i386 and s390x here, so there should be done something about this.
 
-
+	Arnd <><

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318627AbSIKKJU>; Wed, 11 Sep 2002 06:09:20 -0400
+	id <S318641AbSIKKKG>; Wed, 11 Sep 2002 06:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318641AbSIKKJU>; Wed, 11 Sep 2002 06:09:20 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:23176 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318627AbSIKKJU>;
-	Wed, 11 Sep 2002 06:09:20 -0400
-Date: Wed, 11 Sep 2002 12:19:43 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] exit.c compilation fix
-Message-ID: <Pine.LNX.4.44.0209111218590.10684-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318643AbSIKKKG>; Wed, 11 Sep 2002 06:10:06 -0400
+Received: from colin.muc.de ([193.149.48.1]:64012 "HELO colin.muc.de")
+	by vger.kernel.org with SMTP id <S318641AbSIKKKE>;
+	Wed, 11 Sep 2002 06:10:04 -0400
+Message-ID: <20020911121438.20537@colin.muc.de>
+Date: Wed, 11 Sep 2002 12:14:38 +0200
+From: Andi Kleen <ak@muc.de>
+To: Oleg Drokin <green@namesys.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, ak@muc.de,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre6
+References: <Pine.LNX.4.44.0209101501200.16518-100000@freak.distro.conectiva> <20020911140047.A924@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.88e
+In-Reply-To: <20020911140047.A924@namesys.com>; from Oleg Drokin on Wed, Sep 11, 2002 at 12:00:47PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 11, 2002 at 12:00:47PM +0200, Oleg Drokin wrote:
+> Hello!
+> 
+> On Tue, Sep 10, 2002 at 03:04:04PM -0300, Marcelo Tosatti wrote:
+> 
+> AGP stuff still does not work for me. (It broke somewhere around 2.4.20-pre4
+> and I reported it at that time, but nobody was interested in that somehow)
 
-minor patch against BK-curr attached, forgot to remove an unused label in
-the deadlock fix patch.
+Does the kernel print a message like "Advanced speculative caching feature present" 
+or not present at boot up? 
 
-	Ingo
+If yes does it go away when you boot with unsafe-gart-alias  ? 
 
---- linux/kernel/exit.c.orig	Wed Sep 11 12:19:09 2002
-+++ linux/kernel/exit.c	Wed Sep 11 12:19:16 2002
-@@ -567,7 +567,6 @@
- 	if (current->exit_signal != -1)
- 		do_notify_parent(current, current->exit_signal);
- 
--zap_again:
- 	while (!list_empty(&current->children))
- 		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
- 	while (!list_empty(&current->ptrace_children))
+What other command line options do you use? Perhaps mem=nopentium? If yes
+does it help when you boot without that and with unsafe-gart-alias specified.
 
+
+-Andi

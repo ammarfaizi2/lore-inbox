@@ -1,90 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265403AbUAJV2H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 16:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265405AbUAJV2H
+	id S265352AbUAJVZI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265391AbUAJVZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 16:28:07 -0500
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:26343 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S265403AbUAJV2B convert rfc822-to-8bit (ORCPT
+	Sat, 10 Jan 2004 16:25:08 -0500
+Received: from vaino.wakkanet.fi ([212.83.117.4]:62609 "EHLO vaino.wakkanet.fi")
+	by vger.kernel.org with ESMTP id S265352AbUAJVZD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 16:28:01 -0500
-From: sven kissner <sven.kissner@consistencies.net>
+	Sat, 10 Jan 2004 16:25:03 -0500
+Date: Sat, 10 Jan 2004 23:23:43 +0200 (EET)
+From: Kai Vehmanen <kai.vehmanen@wakkanet.fi>
+X-X-Sender: kaiv@vaino.wakkanet.fi
 To: linux-kernel@vger.kernel.org
-Date: Sat, 10 Jan 2004 22:30:41 +0100
-User-Agent: KMail/1.5.94
+Subject: 2.4.20- boot freezes; works on 2.4.19
+Message-ID: <Pine.LNX.4.44.0401101856210.18078-100000@vaino.wakkanet.fi>
 MIME-Version: 1.0
-Content-Disposition: inline
-Subject: logitech cordless desktop deluxe optical keyboard issues
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401102230.54966.sven.kissner@consistencies.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+With kernel 2.4.20 and newer (tested all 2.4 kernels until the new
+2.4.24), my machine hangs during the boot sequence, right _after_ local
+filesystems cheched and _before_ they are succesfully mounted.
 
-hello, 
+This happens every time, and always at the same place. 2.4.19 (and
+earlier, have ran various kernels since 2.2.xx on this machine) have never
+frozen during boot. I know this sounds crazy, but I've tested dozens of
+times and the problem occurs systematically each and every time. 2.4.19
+otoh has not froze even once.
 
-i use the keyboard mentioned in the topic attached to the ps/2 keyboard port. 
-most keys can be mapped using lineak or appropriate applications but i have 
-problems getting some keys to work. i tested this with 2.6.0 and 2.6.1 as 
-well as with some of the 2.4 series. with wintendo xp, all keys are working 
-fine using logitech's itouch software.
+Now what makes this more curious is that if I do a cold-boot (press the
+reset-button after boot freezes), the second boot goes through fine, and
+once up, system works like a charm. The freeze-on-boot error only occurs
+if I do a sw-reboot, or after power-up.
 
-xev is not displaying keycodes for the special keys not working but i get 
-various messages by dmesg when pressing them:
+When the boot seq freezes, the console still works (I can type "foobar"
+and see the results), but kernel does not respond to any commands
+(ctrl-alt-del does not work, neither does SysReq). And no oopses either.
+As the system is not yet fully up, I cannot gather any other info
+about the system state.
 
-<-- snip -->
-atkbd.c: Unknown key pressed (translated set 2, code 0x91 on isa0060/serio0).
-atkbd.c: Unknown key released (translated set 2, code 0x91 on isa0060/serio0).
-atkbd.c: Unknown key pressed (translated set 2, code 0x92 on isa0060/serio0).
-atkbd.c: Unknown key released (translated set 2, code 0x92 on isa0060/serio0).
-<-- snap -->
+Anyone else seen this problem? Ideas where to start testing? The
+2.4.19->2.4.20 patch is quite large (5MB gzipped!), so manually going
+through all the changesets would take me forever (2 boots per try :(). 
+I haven't yet tested 2.6.
 
-on startup, i get the following:
-with 2.6.x:
-<-- snip -->
-serio: i8042 KBD port at 0x60,0x64 irq 1
-input: AT Translated Set 2 keyboard on isa0060/serio0
-[..]
-INIT: version 2.85
-Loading /etc/console/boottime.kmap.gz
-KDSKBENT: Invalid argument
-failed to bind key 265 to value 638
-KDSKBENT: Invalid argument
-failed to bind key 265 to value 638
-<-- snap -->
+Hw-details:
+- Abit BP6 motherboad with 2x466Mhz Celerons, 384MB of mem 
+- the integrated HPT366 IDE interface _not_ used
+- 80GB samsumg IDE-drive as /dev/hda
 
-with 2.4.20 & 2.4.22-ck2 the value is increasing from 128 to 511, restarting 
-~10 times(!):
-<-- snip -->
-INIT: version 2.85
-Loading /etc/console/boottime.kmap.gz
-KDSKBENT: Invalid argument
-failed to bind key 128 to value 512
-[..]
-failed to bind key 511 to value 512
-<-- snap -->
+Sw-details
+- vanilla 2.4 kernels, no patches applied, no tainting drivers
+- kernels compiled with gcc-2.95.3
+- base system is a heavily modified redhat-6.1
+- / and /boot are ext2, /home is /ext3, all mounted
+  during boot
+- kernel .config exactly the same in all tests (minus
+  new/removed features between kernel versions)
+- tried with "acpi=off" and "nosmp" kernel params but no help
 
-if i connect the kb to usb, there are slightly different issues, but let's do 
-it step-by-step ;). any ideas how to get this working? if you require 
-additional information, just let me know.
+--
+ http://www.eca.cx
+ Audio software for Linux!
 
-if answering, please put me on cc for i'm not subscribed to the list.
-
-keep on rockin, 
-sven
-- --
-..never argue with idiots. they drag you down to their level and beat you with 
-experience..
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAAG8MPV/e7f4i4AERAm2aAKCXkcngzoaoVI0caZ9qCnzIx8qSxACdEJtx
-VmFnQRAFUhCckPWPbf0PKD8=
-=AaJH
------END PGP SIGNATURE-----

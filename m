@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265608AbUFDFEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265609AbUFDFMb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265608AbUFDFEs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 01:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265607AbUFDFEs
+	id S265609AbUFDFMb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 01:12:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265613AbUFDFMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 01:04:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:30350 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265609AbUFDFEp (ORCPT
+	Fri, 4 Jun 2004 01:12:30 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:19405 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265609AbUFDFM3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 01:04:45 -0400
-Date: Thu, 3 Jun 2004 22:01:07 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, ak@muc.de,
-       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+	Fri, 4 Jun 2004 01:12:29 -0400
+Date: Thu, 3 Jun 2004 22:18:54 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
        joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
-       Simon.Derr@bull.net, wli@holomorphy.com
+       mikpe@csd.uu.se, Simon.Derr@bull.net, wli@holomorphy.com
 Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
  implementation
-Message-Id: <20040603220107.7590cbcc.davem@redhat.com>
-In-Reply-To: <20040603220224.73cd8d44.pj@sgi.com>
+Message-Id: <20040603221854.25d80f5a.pj@sgi.com>
+In-Reply-To: <40BFD839.7060101@yahoo.com.au>
 References: <20040603094339.03ddfd42.pj@sgi.com>
 	<20040603101010.4b15734a.pj@sgi.com>
-	<20040603170725.4b3f8b34.akpm@osdl.org>
-	<20040603194755.667e584b.pj@sgi.com>
-	<20040603195409.11d4aec2.davem@redhat.com>
-	<20040603220224.73cd8d44.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	<1086313667.29381.897.camel@bach>
+	<40BFD839.7060101@yahoo.com.au>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jun 2004 22:02:24 -0700
-Paul Jackson <pj@sgi.com> wrote:
+> I don't see what you gain from having the cpumask type but having
+> to get at its internals with the bitop functions.
 
-> The generic only is quite a bit simpler - it has some 26 fewer kernel
-> source files, and it saves sparc64 some 1144 bytes of kernel text space,
-> as measured by Andrew.
+There were a few places where arch-specific code had a cpumask_t type,
+then took its address and operated on it as if it was a simple unsigned
+long.   Where I was confident that I could correctly and efficiently
+recode them using 'real' cpumask operations, I did so.  But in some
+cases, I was not clear how to do this.  Grep for "cpus_addr()" uses to
+find these cases.  The old cpumask implementation had similar macros,
+including cpus_coerce() and cpus_promote(), for a similar purpose.
 
-I bet if you do a sparc32 build, you'll get larger text size
-and more leaf functions will need stack frames.
+The "ideal" solution, in my view, would be to have someone with arch
+specific experience in each affected arch code these uses of cpus_addr()
+out, then remove cpus_addr() entirely.
 
-> I really don't want to go 'back' to the fancy version.  If a particular
-> architecture has specific additional needs, I'm certainly open to
-> hearing the justifications, tradeoffs and suggestions for ways to meet
-> those needs.
+Perhaps I should comment the cpus_addr() definition as 'deprecated'?
 
-Another thing is that only newer gcc's are good at changing structure
-accesses such that they are optimized as aggregates when possible.
-
-You're the one doing the work, so it's up to you. :-)
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

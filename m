@@ -1,58 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266475AbUBLP10 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 10:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266478AbUBLP10
+	id S266492AbUBLPvB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 10:51:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266495AbUBLPvB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 10:27:26 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:49309 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S266475AbUBLP1Y (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 10:27:24 -0500
-Message-Id: <200402121526.i1CFQXL7018236@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.) 
-In-Reply-To: Your message of "Wed, 11 Feb 2004 18:45:32 CST."
-             <20040212004532.GB29952@hexapodia.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040209115852.GB877@schottelius.org> <slrn-0.9.7.4-32556-23428-200402111736-tc@hexane.ssi.swin.edu.au> <1076517309.21961.169.camel@shaggy.austin.ibm.com>
-            <20040212004532.GB29952@hexapodia.org>
+	Thu, 12 Feb 2004 10:51:01 -0500
+Received: from fed1mtao08.cox.net ([68.6.19.123]:22514 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S266492AbUBLPu5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 10:50:57 -0500
+Date: Thu, 12 Feb 2004 08:50:55 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       "Amit S. Kale" <amitkale@emsyssoft.com>
+Subject: Re: [PATCH][6/6] A different KGDB stub
+Message-ID: <20040212155055.GN19676@smtp.west.cox.net>
+References: <20040212000408.GG19676@smtp.west.cox.net.suse.lists.linux.kernel> <p73wu6syf0n.fsf@verdi.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1366536276P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 12 Feb 2004 10:26:33 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73wu6syf0n.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1366536276P
-Content-Type: text/plain; charset=us-ascii
+On Thu, Feb 12, 2004 at 07:43:04AM +0100, Andi Kleen wrote:
 
-On Wed, 11 Feb 2004 18:45:32 CST, Andy Isaacson said:
+> Tom Rini <trini@kernel.crashing.org> writes:
+> 
+> Andrew, please don't add this broken version.
+> 
+> > @@ -219,7 +219,7 @@
+> >  	jnc sysret_signal
+> >  	sti
+> >  	pushq %rdi
+> > -	call schedule
+> > +	call user_schedule
+> 
+> I really don't like this change. It is completely useless because you
+> can get the pt_regs as well from the stack.  Please don't add it.
+> George's stub also didn't need it.
+> 
+> > +#ifdef CONFIG_KGDB_THREAD
+> > +ENTRY(kern_schedule)
+> 
+> Similar. No such crap please.
 
-> Does JFS on AIX have the same buggy behavior?
+Amit?  I seem to recall you and George (and Andi?) talking about how to
+get rid of these bits, did you ever write any of it up?
 
-Nope, it's been tolerant of all 254 bit patterns except \0 and '/'
-since at least AIX 3.1.2 back in the early 90s.  It doesn't even have
-a concept of "UTF-8 filename" - it considers that a userspace issue.
+> > @@ -317,13 +318,26 @@
+> >  		return;
+> >  
+> >  	sum = read_pda(apic_timer_irqs);
+> > -	if (last_irq_sums[cpu] == sum) {
+> > +	if (atomic_read(&debugger_active)) {
+> > +
+> > +		/*
+> > +		 * The machine is in debugger, hold this cpu if already
+> > +		 * not held.
+> > +		 */
+> > +		debugger_nmihook(cpu, regs);
+> > +		alert_counter[cpu] = 0;
+> 
+> This should be a notify_die.
 
-Now, over the last 15 years I've tripped over a number of *userspace*
-things that did really stupid things when handed non-ASCII filenames,
-but that's a different issue...
+Not being firmiliar with x86_64, do you mean:
+		/*
+		 * The machine is in debugger, hold this cpu if already
+		 * not held.
+		 */
+		 notify_die(cpu, regs);
+? Or so?
 
+> > +	} else if (last_irq_sums[cpu] == sum) {
+> > +
+> >  		/*
+> >  		 * Ayiee, looks like this CPU is stuck ...
+> >  		 * wait a few IRQs (5 seconds) before doing the oops ...
+> >  		 */
+> >  		alert_counter[cpu]++;
+> >  		if (alert_counter[cpu] == 5*nmi_hz) {
+> > +
+> > +			CHK_DEBUGGER(2,SIGSEGV,0,regs,)
+> > +
+> >  			if (notify_die(DIE_NMI, "nmi", regs, reason, 2, SIGINT) == NOTIFY_BAD) { 
+> 
+> That's complete crap. You have a debugger hook and you add your own
+> hook one line before it. Please fix that.
 
---==_Exmh_1366536276P
-Content-Type: application/pgp-signature
+Yes, Amit's version does this on PPC32 as well, and I'd like to change
+it, but I've been cleaning up other things.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> > --- a/include/asm-x86_64/processor.h	Wed Feb 11 15:42:06 2004
+> > +++ b/include/asm-x86_64/processor.h	Wed Feb 11 15:42:06 2004
+> > @@ -252,6 +252,7 @@
+> >  	unsigned long	*io_bitmap_ptr;
+> >  /* cached TLS descriptors. */
+> >  	u64 tls_array[GDT_ENTRY_TLS_ENTRIES];
+> > +	void		*debuggerinfo;
+> >  };
+> 
+> This should not be needed
 
-iD8DBQFAK5spcC3lWbTT17ARAmdwAJ9B0yMRGJMlDU+ZbO1tLdn+8UWJEQCeMC5A
-jup9F7SJNvFAcjA6WjXGWGQ=
-=ecXv
------END PGP SIGNATURE-----
+What would be used instead to pass around the pt_regs?
 
---==_Exmh_1366536276P--
+> > --- a/include/asm-x86_64/system.h	Wed Feb 11 15:42:06 2004
+> > +++ b/include/asm-x86_64/system.h	Wed Feb 11 15:42:06 2004
+> > @@ -19,6 +19,56 @@
+> >  #define __SAVE(reg,offset) "movq %%" #reg ",(14-" #offset ")*8(%%rsp)\n\t"
+> >  #define __RESTORE(reg,offset) "movq (14-" #offset ")*8(%%rsp),%%" #reg "\n\t"
+> >  
+> > +/* #ifdef CONFIG_KGDB */
+> > +
+> > +/* full frame for the debug stub */
+> > +/* Should be replaced with a dwarf2 cie/fde description, then gdb could
+> > +   figure it out all by itself. */
+> > +struct save_context_frame { 
+> 
+> That's completely broken too. We have a full CFI description in the kernel
+> now, so this isn't needed anymore.
+
+Part of why I'm trying to get this into -mm is so that someone who has
+the hw and knowledge can try and merge some of the things that the other
+stubs got right into the stub that every arch can use.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

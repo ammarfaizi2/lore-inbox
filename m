@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281153AbRKOXFL>; Thu, 15 Nov 2001 18:05:11 -0500
+	id <S281156AbRKOXFv>; Thu, 15 Nov 2001 18:05:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281156AbRKOXFB>; Thu, 15 Nov 2001 18:05:01 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:28935 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S281153AbRKOXE4>;
-	Thu, 15 Nov 2001 18:04:56 -0500
-Date: Thu, 15 Nov 2001 16:03:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin McWhorter <m_mcwhorter@prairiegroup.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Possible Bug: 2.4.14 USB Keyboard
-Message-ID: <20011115160330.C12675@kroah.com>
-In-Reply-To: <200111151807.fAFI7XN30496@devserv.devel.redhat.com> <3BF40D17.4060501@prairiegroup.com> <20011115141430.B10133@devserv.devel.redhat.com> <3BF41E17.5080200@prairiegroup.com> <20011115152432.A26630@devserv.devel.redhat.com> <3BF433EE.40403@prairiegroup.com> <20011115170148.A19715@devserv.devel.redhat.com> <3BF43E55.80401@prairiegroup.com> <20011115171751.A22915@devserv.devel.redhat.com> <3BF44444.7010101@prairiegroup.com>
+	id <S281157AbRKOXFc>; Thu, 15 Nov 2001 18:05:32 -0500
+Received: from chunnel.redhat.com ([199.183.24.220]:51960 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S281156AbRKOXFV>; Thu, 15 Nov 2001 18:05:21 -0500
+Date: Thu, 15 Nov 2001 23:05:14 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+        Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: synchronous mounts
+Message-ID: <20011115230514.T1914@redhat.com>
+In-Reply-To: <3BF376EC.EA9B03C8@zip.com.au>, <3BF376EC.EA9B03C8@zip.com.au>; <20011115214525.C14221@redhat.com> <3BF43B8E.51A809D1@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BF44444.7010101@prairiegroup.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 18 Oct 2001 22:41:30 -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BF43B8E.51A809D1@zip.com.au>; from akpm@zip.com.au on Thu, Nov 15, 2001 at 02:02:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 15, 2001 at 04:40:04PM -0600, Martin McWhorter wrote:
+Hi,
+
+On Thu, Nov 15, 2001 at 02:02:54PM -0800, Andrew Morton wrote:
 > 
-> >Try to rename /sbin/hotplug into something else _temporarily_,
+> So shall we try to nail this down?  Synchronous mounts and chattr +S
+> provide synchronous semantics for directory contents, diretory metadata
+> and directory inodes only.  And fsync() will write out a file's data,
+> metadata and inode?
 
-Easier to just do:
-	echo "/bin/true" > /proc/sys/kernel/hotplug
+Sounds sane.  UFS sync mounts also update the inode bitmaps
+synchronously, and in order, so that they can tell exactly when an
+inode is valid.  I guess that we don't need that, at least on ext2,
+since the i_dtime gives us the necessary information automatically.
 
-Then change it back later to /sbin/hotplug when you are done testing, or
-just reboot :)
+> If this is correct then there are a few places where ext2 is
+> syncing stuff unnecessarily - file indirect blocks, etc.  Not
+> very important at this stage I guess.
 
-thanks,
+It's important for people running MTAs which expect dir sync
+behaviour: admins have to pay the performance cost of all file updates
+being sync as well as the directory updates if they enable chattr +S
+on the dir.
 
-greg k-h
+--Stephen

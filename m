@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264437AbRFIIDn>; Sat, 9 Jun 2001 04:03:43 -0400
+	id <S264389AbRFIIKN>; Sat, 9 Jun 2001 04:10:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264389AbRFIIDd>; Sat, 9 Jun 2001 04:03:33 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:61444 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264437AbRFIIDV>;
-	Sat, 9 Jun 2001 04:03:21 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106090800.f5980i101507@saturn.cs.uml.edu>
-Subject: Re: temperature standard - global config option?
-To: mhw@wittsend.com (Michael H. Warfield)
-Date: Sat, 9 Jun 2001 04:00:44 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        mhw@wittsend.com (Michael H. Warfield), bootc@worldnet.fr (Chris Boot),
-        isch@ecce.homeip.net (mirabilos {Thorsten Glaser}),
-        lk@aniela.eu.org (L. K.),
-        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <20010608191600.A12143@alcove.wittsend.com> from "Michael H. Warfield" at Jun 08, 2001 07:16:00 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S264438AbRFIIKD>; Sat, 9 Jun 2001 04:10:03 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:32785 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S264389AbRFIIJp>;
+	Sat, 9 Jun 2001 04:09:45 -0400
+Date: Sat, 9 Jun 2001 05:09:41 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Derek Glidden <dglidden@illusionary.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <3B1EA75B.8AC19AA0@illusionary.com>
+Message-ID: <Pine.LNX.4.21.0106090508530.14934-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael H. Warfiel writes:
-> On Fri, Jun 08, 2001 at 05:16:39PM -0400, Albert D. Cahalan wrote:
+On Wed, 6 Jun 2001, Derek Glidden wrote:
 
->> The bits are free; the API is hard to change.
->> Sensors might get better, at least on high-end systems.
->> Rounding gives a constant 0.15 degree error.
->> Only the truly stupid would assume accuracy from decimal places.
->> Again, the bits are free; the API is hard to change.
-...
-> 	No...  The average person, NO, the vast majority of people,
-> DO assume accuracy from decimal places and honestly do not know the
-> difference between precision and accuracy.  I've had comments on this
-> thread in private E-Mail the reinforce this impression.
+> working on the problems.  Yet, when I post a specific example, with
+> _clear and simple_ instructions on how to reproduce a problem I'm
+> experiencing and an offer to do whatever I can to help fix the problem,
+> I am told repeatedly, in effect "you need more swap, that's your
+> problem" (which isn't really even related to the issue I reported) by
+> names I have come to recognize and respect despite my status as not a
+> kernel hacker. Why shouldn't I be flabbergasted by that?
 
-I hope you don't think people would assume that a "float" always
-has useful data in all 23 fraction bits. It is a similar case.
+It gets even more fun when you realise that the people who
+told you this aren't working on the VM and in fact never
+seem to have contributed any VM code ;)
 
-So here you go, a kernel-safe conversion from C to K. It works
-from 0 to 238 degrees C. Print as hex, so user code can toss it
-into a union or maybe abuse scanf. Adjust as needed for F to K
-or for hardware with greater resolution.
+cheers,
 
-/* unsigned int degrees C --> float degrees K */
-unsigned ic_to_fk(unsigned c){
-  unsigned exponent;
-  unsigned tmp;
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-  tmp = (c<<23) + 0x88933333; /* Kelvin shifted 23 left */
-  exponent = 127; /* IEEE floating-point bias */
-  while(tmp&0xff000000){
-    tmp >>= 1;
-    exponent++;
-  }
-  tmp &= 0x007fffff; /* keep only the fraction */
-  tmp |= exponent<<23;
-  return tmp;
-}
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

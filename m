@@ -1,1579 +1,667 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261847AbSK0APB>; Tue, 26 Nov 2002 19:15:01 -0500
+	id <S261908AbSK0AZj>; Tue, 26 Nov 2002 19:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSK0APB>; Tue, 26 Nov 2002 19:15:01 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:22032 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261847AbSK0AOl> convert rfc822-to-8bit; Tue, 26 Nov 2002 19:14:41 -0500
+	id <S261854AbSK0AZi>; Tue, 26 Nov 2002 19:25:38 -0500
+Received: from elin.scali.no ([62.70.89.10]:31756 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S261908AbSK0AZU>;
+	Tue, 26 Nov 2002 19:25:20 -0500
+Date: Wed, 27 Nov 2002 01:33:51 +0100 (CET)
+From: Steffen Persvold <sp@scali.com>
+X-X-Sender: sp@sp-laptop.isdn.scali.no
+To: linux-kernel@vger.kernel.org
+Subject: Processor stuck in smp_call_function (arch/i386/kernel/smp.c)
+Message-ID: <Pine.LNX.4.44.0211270057410.1069-300000@sp-laptop.isdn.scali.no>
 MIME-Version: 1.0
-To: torvalds@transmeta.com, marcelo@conectiva.com.br
-Subject: lk-changelog.pl 0.54
-Cc: linux-kernel@vger.kernel.org
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Wed_Nov_27_00_21_51_UTC_2002_0@merlin.emma.line.org>
-Content-type: text/plain
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20021127002151.E7B7A69D82@merlin.emma.line.org>
-Date: Wed, 27 Nov 2002 01:21:51 +0100 (CET)
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463794943-386199268-1038357231=:1069"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a semi-automatic announcement.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-lk-changelog.pl aka. shortlog version 0.54 has been released.
-The changes are listed at the end of the script below.
+---1463794943-386199268-1038357231=:1069
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-You can always download this script and GPG signatures from
-http://mandree.home.pages.de/linux/kernel/
+Dear kernel experts,
 
-Note that your mailer must be MIME-capable to save this mail properly,
-because it is in the "quoted-printable" encoding.
+On a couple of Dual Xeon E7500 based machines (SuperMicro motherboards) we 
+have been experiencing frequent lockups running compute and I/O intensive 
+tasks. It came to a point where I patched the 2.4.20-rc2 kernel with kdb 
+v2.5 by Keith Owens trying to find out what was happening.
 
-= <- if you see just an equality sign, but no "3D", your mailer is fine.
-= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
-= <- into metamail.
+Now, when the systems become unresponsive I'm able to enter kdb and do a 
+back trace. It looks like this (trimmed down a bit to contain IMHO useful 
+info only) :
 
+smp_call_function+0x83 (0xc01141e0, 0x0, 0x1, 0x1)
+flush_tlb_all+0x14 ()
+vmfree_area_pages+0x180 (0xf8c00000, 0x11000)
+vfree+0x39 (0xf8a5e000)
+release_segments+0x47 (0xf6435880)
+exit_mmap+0x12 (0xf6435880)
+mmput+0x5d (0xf6435880)
+do_exit+0xd0 (0x200)
+
+smp_call_function() is looping here :
+
+        /* Wait for response */
+        while (atomic_read(&data.started) != cpus)
+                barrier();
+
+So it seems a process is about to exit and the TLB is to be flushed. 
+However when the active cpu (cpu 0) waits for the flush_tlb_all_ipi() 
+function to start on cpu 1, it loops forever. In addition, trying to 
+switch to cpu 1 with kdb (with the 'cpu 1' command) results in an 
+'Invalid cpu number' error and I was told by Keith that this must be 
+because the other cpu hasn't responded to the kdb_ipi NMI.
+
+It just looks like cpu 1 died for some reason, why ?
+
+Has anyone experienced the same behaviour ?
+
+I would really appreciate any input on this.
+
+PS.
+
+I've attached the output of dmesg and lspci, I hope it is helpful. As you 
+can see the system has a lot of IO-APICs, the reason is that this sytems 
+has fully equipped the E7500 MCH hub interfaces :
+
+Hub Interface A : ICH3 (main APIC)
+Hub Interface B, C, D : P64H2 (each with two PCI-X busses and APICs).
+
+IOAPIC #2 is the APIC on the ICH3
+IOAPIC #3 is the 1st APIC on Hub interface B
+IOAPIC #4 is the 2nd APIC on Hub interface B
+IOAPIC #5 is the 1st APIC on Hub interface C
+IOAPIC #8 is the 2nd APIC on Hub interface C
+IOAPIC #9 is the 1st APIC on Hub interface D
+IOAPIC #10 is the 2nd APIC on Hub interface D
+
+The PCI device where most of the IO is performed is located on the 2nd 
+APIC on Hub interface D.
+
+DS
+
+Thanks,
 -- 
-A sh script on behalf of Matthias Andree
--------------------------------------------------------------------------
-Changes since last release:
-
-----------------------------
-revision 0.54
-date: 2002/11/26 23:27:11;  author: emma;  state: Exp;  lines: +18 -2
-Merge changes from Linus' version.
-----------------------------
-revision 0.53
-date: 2002/11/25 17:12:08;  author: emma;  state: Exp;  lines: +5 -1
-Add Lee Nash's address
-----------------------------
-revision 0.52
-date: 2002/11/14 14:50:21;  author: emma;  state: Exp;  lines: +9 -4
-Bugfix --by-surname for some modes. Add two addresses. Fix Carl-Daniel Hailfinger's address to lower case.
-----------------------------
-revision 0.51
-date: 2002/11/14 14:31:10;  author: emma;  state: Exp;  lines: +7 -1
-Add Carl-Daniel Hailfinger's new address. Add TODO item to see if regexp/wildcard match in address list is possible.
-----------------------------
-revision 0.50
-date: 2002/11/09 14:24:21;  author: emma;  state: Exp;  lines: +5 -2
-Add comment to Richard Hitt's address.
-=============================================================================
--------------------------------------------------------------------------
-#! /usr/bin/perl -wT
-
-# This Perl script is meant to simplify/beautify BK ChangeLogs for the linux
-# kernel.
-#
-# (C) Copyright 2002 by Matthias Andree <matthias.andree@gmx.de>
-#			Marcus Alanen <maalanen@abo.fi>
-#			Tomas Szepe <szepe@pinerecords.com>
-#
-# $Id: lk-changelog.pl,v 0.54 2002/11/26 23:27:11 emma Exp $
-# ----------------------------------------------------------------------
-# Distribution of this script is permitted under the terms of the
-# GNU General Public License (GNU GPL) v2.
-# ----------------------------------------------------------------------
-
-# This program expects its input in the following format:
-# (E-Mail Addresses MUST NOT bear leading whitespace!)
-#
-# <email@ddr.ess>
-#	changelog text
-#	more changelog text
-# <email@ddr.ess>
-#	yet another changelog
-# <another@add.ress>
-#	changelog #3
-#	more lines
-#
-# and discards all changelog lines but the first after an email address,
-# and groups and sorts the entries by email address:
-#
-# another@add.ress:
-#	changelog #3
-# email@ddr.ess
-#	changelog text
-#	yet another changelog
-
-require 5.005;
-use strict;
-
-use Carp;
-use Getopt::Long;
-use IO::File;
-eval 'use Pod::Usage;';
-if ($@) {
-  eval 'sub pod2usage {
-    print STDERR "Usage information would be presented here if you had Pod::Usage installed.\n"
-      . "Try: perl -MCPAN -e \'install Pod::Usage\'\nAbort.\n";
-    exit 2;
-  }';
-}
-use Text::ParseWords;
-use Text::Tabs;
-use Text::Wrap;
-
-# --------------------------------------------------------------------
-# customize the following line to change the indentation of the change
-# lines, $indent1 is used for the first line of an entry, $indent for
-# all subsequent lines. $indent is auto-generated from $indent1.
-my $indent1 = "  o ";
-my $indent  = " " x length($indent1);
-# change this to enable some debugging stuff:
-my $debug = 0;
-# --------------------------------------------------------------------
-
-# the key is the email address in ALL LOWER CAPS!
-# the value is the real name of the person
-#
-# Unless otherwise noted, the addresses below have been obtained using
-# lbdb.
-my %addresses = (
-'abraham@2d3d.co.za' => 'Abraham van der Merwe',
-'ac9410@attbi.com' => 'Albert Cranford',
-'acher@in.tum.de' => 'Georg Acher',
-'achirica@ttd.net' => 'Javier Achirica',
-'acme@brinquedo.oo.ps' => 'Arnaldo Carvalho de Melo',
-'acme@conectiva.com.br' => 'Arnaldo Carvalho de Melo',
-'acme@dhcp197.conectiva' => 'Arnaldo Carvalho de Melo',
-'adam@mailhost.nmt.edu' => 'Adam Radford', # google
-'adam@nmt.edu' => 'Adam Radford', # google
-'adam@yggdrasil.com' => 'Adam J. Richter',
-'adilger@clusterfs.com' => 'Andreas Dilger',
-'agrover@acpi3.(none)' => 'Andy Grover',
-'agrover@acpi3.jf.intel.com' => 'Andy Grover', # guessed
-'agrover@dexter.groveronline.com' => 'Andy Grover',
-'agrover@groveronline.com' => 'Andy Grover',
-'ahaas@airmail.net' => 'Art Haas',
-'ahaas@neosoft.com' => 'Art Haas',
-'aia21@cam.ac.uk' => 'Anton Altaparmakov',
-'aia21@cantab.net' => 'Anton Altaparmakov',
-'aia21@cus.cam.ac.uk' => 'Anton Altaparmakov',
-'ajoshi@shell.unixbox.com' => 'Ani Joshi',
-'ak@muc.de' => 'Andi Kleen',
-'ak@suse.de' => 'Andi Kleen',
-'akpm@digeo.com' => 'Andrew Morton',
-'akpm@zip.com.au' => 'Andrew Morton',
-'akropel1@rochester.rr.com' => 'Adam Kropelin', # lbdb
-'alan@irongate.swansea.linux.org.uk' => 'Alan Cox',
-'alan@lxorguk.ukuu.org.uk' => 'Alan Cox',
-'alan@redhat.com' => 'Alan Cox',
-'alex_williamson@attbi.com' => 'Alex Williamson', # lbdb
-'alex_williamson@hp.com' => 'Alex Williamson', # google
-'alexander.riesen@synopsys.com' => 'Alexander Riesen',
-'alfre@ibd.es' => 'Alfredo Sanjuán',
-'ambx1@neo.rr.com' => 'Adam Belay',
-'amunoz@vmware.com' => 'Alberto Munoz',
-'andersen@codepoet.org' => 'Erik Andersen',
-'andersg@0x63.nu' => 'Anders Gustafsson',
-'andmike@us.ibm.com' => 'Mike Anderson', # lbdb
-'andrea@suse.de' => 'Andrea Arcangeli',
-'andries.brouwer@cwi.nl' => 'Andries E. Brouwer',
-'andros@citi.umich.edu' => 'Andy Adamson',
-'angus.sawyer@dsl.pipex.com' => 'Angus Sawyer',
-'ankry@green.mif.pg.gda.pl' => 'Andrzej Krzysztofowicz',
-'anton@samba.org' => 'Anton Blanchard',
-'arjan@redhat.com' => 'Arjan van de Ven',
-'arjanv@redhat.com' => 'Arjan van de Ven',
-'arndb@de.ibm.com' => 'Arnd Bergmann',
-'asit.k.mallick@intel.com' => 'Asit K. Mallick', # by Kristian Peters
-'axboe@burns.home.kernel.dk' => 'Jens Axboe', # guessed
-'axboe@hera.kernel.org' => 'Jens Axboe',
-'axboe@suse.de' => 'Jens Axboe',
-'baccala@vger.freesoft.org' => 'Brent Baccala',
-'barrow_dj@yahoo.com' => 'D. J. Barrow',
-'barryn@pobox.com' => 'Barry K. Nathan', # lbdb
-'bart.de.schuymer@pandora.be' => 'Bart De Schuymer',
-'bcollins@debian.org' => 'Ben Collins',
-'bcrl@bob.home.kvack.org' => 'Benjamin LaHaise',
-'bcrl@redhat.com' => 'Benjamin LaHaise',
-'bcrl@toomuch.toronto.redhat.com' => 'Benjamin LaHaise', # guessed
-'beattie@beattie-home.net' => 'Brian Beattie', # from david.nelson
-'benh@kernel.crashing.org' => 'Benjamin Herrenschmidt',
-'bfennema@falcon.csc.calpoly.edu' => 'Ben Fennema',
-'bgerst@didntduck.org' => 'Brian Gerst',
-'bhards@bigpond.net.au' => 'Brad Hards',
-'bhavesh@avaya.com' => 'Bhavesh P. Davda',
-'bheilbrun@paypal.com' => 'Brad Heilbrun', # by himself
-'bjorn.andersson@erc.ericsson.se' => 'Björn Andersson', # google, guessed ö
-'bjorn.wesen@axis.com' => 'Bjorn Wesen',
-'bjorn_helgaas@hp.com' => 'Bjorn Helgaas',
-'bmatheny@purdue.edu' => 'Blake Matheny', # google
-'borisitk@fortunet.com' => 'Boris Itkis', # by Kristian Peters
-'brett@bad-sports.com' => 'Brett Pemberton',
-'brihall@pcisys.net' => 'Brian Hall', # google
-'brownfld@irridia.com' => 'Ken Brownfield',
-'bunk@fs.tum.de' => 'Adrian Bunk',
-'buytenh@gnu.org' => 'Lennert Buytenhek',
-'bzeeb-lists@lists.zabbadoz.net' => 'Björn A. Zeeb', # lbdb
-'c-d.hailfinger.kernel.2002-07@gmx.net' => 'Carl-Daniel Hailfinger',
-'c-d.hailfinger.kernel.2002-q4@gmx.net' => 'Carl-Daniel Hailfinger', # himself
-'cattelan@sgi.com' => 'Russell Cattelan', # google
-'ccaputo@alt.net' => 'Chris Caputo',
-'cel@citi.umich.edu' => 'Chuck Lever',
-'celso@bulma.net' => 'Celso González', # google
-'ch@hpl.hp.com' => 'Christopher Hoover', # by Kristian Peters
-'charles.white@hp.com' => 'Charles White',
-'chessman@tux.org' => 'Samuel S. Chessman',
-'chris@wirex.com' => 'Chris Wright',
-'christer@weinigel.se' => 'Christer Weinigel', # from shortlog
-'christopher.leech@intel.com' => 'Christopher Leech',
-'cip307@cip.physik.uni-wuerzburg.de' => 'Jochen Karrer', # from shortlog
-'ckulesa@as.arizona.edu' => 'Craig Kulesa',
-'colin@gibbs.dhs.org' => 'Colin Gibbs',
-'colpatch@us.ibm.com' => 'Matthew Dobson',
-'cort@fsmlabs.com' => 'Cort Dougan',
-'cph@zurich.ai.mit.edu' => 'Chris Hanson',
-'cr@sap.com' => 'Christoph Rohland',
-'cruault@724.com' => 'Charles-Edouard Ruault',
-'ctindel@cup.hp.com' => 'Chad N. Tindel',
-'cyeoh@samba.org' => 'Christopher Yeoh',
-'da-x@gmx.net' => 'Dan Aloni',
-'daisy@teetime.dynamic.austin.ibm.com' => 'Daisy Chang', # from shortlog
-'dalecki@evision-ventures.com' => 'Martin Dalecki',
-'dalecki@evision.ag' => 'Martin Dalecki',
-'dan.zink@hp.com' => 'Dan Zink',
-'dan@debian.org' => 'Daniel Jacobowitz',
-'danc@mvista.com' => 'Dan Cox', # some CREDITS patch found by google
-'davej@codemonkey.org.uk' => 'Dave Jones',
-'davej@suse.de' => 'Dave Jones',
-'davem@hera.kernel.org' => 'David S. Miller',
-'davem@nuts.ninka.net' => 'David S. Miller',
-'davem@pizda.ninka.net' => 'David S. Miller', # guessed
-'davem@redhat.com' => 'David S. Miller',
-'david-b@pacbell.net' => 'David Brownell',
-'david.nelson@pobox.com' => 'David Nelson',
-'david@gibson.dropbear.id.au' => 'David Gibson',
-'david_jeffery@adaptec.com' => 'David Jeffery',
-'davidel@xmailserver.org' => 'Davide Libenzi',
-'davidm@hpl.hp.com' => 'David Mosberger',
-'davidm@napali.hpl.hp.com' => 'David Mosberger',
-'davidm@tiger.hpl.hp.com' => 'David Mosberger',
-'davidm@wailua.hpl.hp.com' => 'David Mosberger',
-'davids@youknow.youwant.to' => 'David Schwartz', # google
-'dbrownell@users.sourceforge.net' => 'David Brownell',
-'ddstreet@ieee.org' => 'Dan Streetman',
-'ddstreet@us.ibm.com' => 'Dan Streetman',
-'defouwj@purdue.edu' => 'Jeff DeFouw',
-'dent@cosy.sbg.ac.at' => "Thomas 'Dent' Mirlacher",
-'devel@brodo.de' => 'Dominik Brodowski',
-'devik@cdi.cz' => 'Martin Devera',
-'dgibson@samba.org' => 'David Gibson',
-'dhinds@sonic.net' => 'David Hinds', # google
-'dhollis@davehollis.com' => 'Dave Hollis',
-'dhowells@cambridge.redhat.com' => 'David Howells',
-'dhowells@redhat.com' => 'David Howells',
-'dipankar@in.ibm.com' => 'Dipankar Sarma',
-'dirk.uffmann@nokia.com' => 'Dirk Uffmann',
-'dledford@aladin.rdu.redhat.com' => 'Doug Ledford',
-'dledford@redhat.com' => 'Doug Ledford',
-'dmccr@us.ibm.com' => 'Dave McCracken',
-'dok@directfb.org' => 'Denis Oliver Kropp',
-'dougg@torque.net' => 'Douglas Gilbert',
-'driver@huey.jpl.nasa.gov' => 'Bryan B. Whitehead', # google
-'drow@false.org' => 'Daniel Jacobowitz',
-'drow@nevyn.them.org' => 'Daniel Jacobowitz',
-'dsaxena@mvista.com' => 'Deepak Saxena',
-'dwmw2@infradead.org' => 'David Woodhouse',
-'dwmw2@redhat.com' => 'David Woodhouse',
-'dz@cs.unitn.it' => 'Massimo Dal Zotto',
-'ebiederm@xmission.com' => 'Eric Biederman',
-'ebrower@resilience.com' => 'Eric Brower',
-'ebrower@usa.net' => 'Eric Brower',
-'ecd@skynet.be' => 'Eddie C. Dost',
-'edv@macrolink.com' => 'Ed Vance',
-'edward_peng@dlink.com.tw' => 'Edward Peng',
-'efocht@ess.nec.de' => 'Erich Focht',
-'eike@bilbo.math.uni-mannheim.de' => 'Rolf Eike Beer',
-'elenstev@mesatop.com' => 'Steven Cole',
-'engebret@us.ibm.com' => 'Dave Engebretsen',
-'eranian@hpl.hp.com' => 'Stéphane Eranian',
-'erik_habbinga@hp.com' => 'Erik Habbinga',
-'eyal@eyal.emu.id.au' => 'Eyal Lebedinsky', # lbdb
-'fbl@conectiva.com.br' => 'Flávio Bruno Leitner', # google
-'fdavis@si.rr.com' => 'Frank Davis',
-'felipewd@terra.com.br' => 'Felipe Damasio', # by self (did not ask to include the W.)
-'fenghua.yu@intel.com' => 'Fenghua Yu', # google
-'fero@sztalker.hu' => 'Bakonyi Ferenc',
-'fischer@linux-buechse.de' => 'Jürgen E. Fischer',
-'fletch@aracnet.com' => 'Martin J. Bligh',
-'flo@rfc822.org' => 'Florian Lohoff',
-'florian.thiel@gmx.net' => 'Florian Thiel', # from shortlog
-'focht@ess.nec.de' => 'Erich Focht',
-'fokkensr@fokkensr.vertis.nl' => 'Rolf Fokkens',
-'franz.sirl-kernel@lauterbach.com' => 'Franz Sirl',
-'franz.sirl@lauterbach.com' => 'Franz Sirl',
-'fubar@us.ibm.com' => 'Jay Vosburgh',
-'fw@deneb.enyo.de' => 'Florian Weimer', # lbdb
-'fzago@austin.rr.com' => 'Frank Zago', # google
-'ganesh@veritas.com' => 'Ganesh Varadarajan',
-'ganesh@vxindia.veritas.com' => 'Ganesh Varadarajan',
-'garloff@suse.de' => 'Kurt Garloff',
-'geert@linux-m68k.org' => 'Geert Uytterhoeven',
-'george@mvista.com' => 'George Anzinger',
-'gerg@snapgear.com' => 'Greg Ungerer',
-'ghoz@sympatico.ca' => 'Ghozlane Toumi',
-'gibbs@overdrive.btc.adaptec.com' => 'Justin T. Gibbs',
-'gibbs@scsiguy.com' => 'Justin T. Gibbs',
-'gilbertd@treblig.org' => 'Dr. David Alan Gilbert',
-'gl@dsa-ac.de' => 'Guennadi Liakhovetski',
-'glee@gnupilgrims.org' => 'Geoffrey Lee', # lbdb
-'gnb@alphalink.com.au' => 'Greg Banks',
-'go@turbolinux.co.jp' => 'Go Taniguchi',
-'gone@us.ibm.com' => 'Patricia Guaghen',
-'gotom@debian.or.jp' => 'Goto Masanori', # from shortlog
-'gphat@cafes.net' => 'Cory Watson',
-'green@angband.namesys.com' => 'Oleg Drokin',
-'green@namesys.com' => 'Oleg Drokin',
-'greg@kroah.com' => 'Greg Kroah-Hartman',
-'grundler@cup.hp.com' => 'Grant Grundler',
-'gsromero@alumnos.euitt.upm.es' => 'Guillermo S. Romero',
-'gtoumi@laposte.net' => 'Ghozlane Toumi',
-'hannal@us.ibm.com' => 'Hanna Linder',
-'haveblue@us.ibm.com' => 'Dave Hansen',
-'hch@caldera.de' => 'Christoph Hellwig',
-'hch@dhcp212.munich.sgi.com' => 'Christoph Hellwig',
-'hch@hera.kernel.org' => 'Christoph Hellwig',
-'hch@infradead.org' => 'Christoph Hellwig',
-'hch@lab343.munich.sgi.com' => 'Christoph Hellwig',
-'hch@lst.de' => 'Christoph Hellwig',
-'hch@pentafluge.infradead.org' => 'Christoph Hellwig',
-'hch@sb.bsdonline.org' => 'Christoph Hellwig', # by Kristian Peters
-'hch@sgi.com' => 'Christoph Hellwig',
-'helgaas@fc.hp.com' => 'Bjørn Helgås', # lbdb + guessed national characters
-'henrique@cyclades.com' => 'Henrique Gobbi',
-'hermes@gibson.dropbear.id.au' => 'David Gibson',
-'hirofumi@mail.parknet.co.jp' => 'Hirofumi Ogawa', # corrected by himself
-'hoho@binbash.net' => 'Colin Slater',
-'hpa@zytor.com' => 'H. Peter Anvin',
-'hugh@veritas.com' => 'Hugh Dickins',
-'ica2_ts@csv.ica.uni-stuttgart.de' => 'Thiemo Seufer', # google
-'info@usblcd.de' =>  'Adams IT Services',
-'ink@jurassic.park.msu.ru' => 'Ivan Kokshaysky',
-'ink@jurassic.park.msu.ru[rth]' => 'Ivan Kokshaysky',
-'ionut@cs.columbia.edu' => 'Ion Badulescu',
-'ioshadij@hotmail.com' => 'Ishan O. Jayawardena',
-'irohlfs@irohlfs.de' => 'Ingo Rohlfs',
-'ivangurdiev@linuxfreemail.com' => 'Ivan Gyurdiev',
-'jack@suse.cz' => 'Jan Kara',
-'jack_hammer@adaptec.com' => 'Jack Hammer',
-'jaharkes@cs.cmu.edu' => 'Jan Harkes',
-'jakob.kemi@telia.com' => 'Jakob Kemi',
-'jamagallon@able.es' => 'J. A. Magallon',
-'james.bottomley@steeleye.com' => 'James Bottomley',
-'james@cobaltmountain.com' => 'James Mayer',
-'jamey.hicks@hp.com' => 'Jamey Hicks',
-'jamey@crl.dec.com' => 'Jamey Hicks',
-'jani@astechnix.ro' => 'Jani Monoses',
-'jani@iv.ro' => 'Jani Monoses',
-'jb@jblache.org' => 'Julien Blache',
-'jbglaw@lug-owl.de' => 'Jan-Benedict Glaw',
-'jblack@linuxguru.net' => 'James Blackwell',
-'jdavid@farfalle.com' => 'David Ruggiero',
-'jdike@jdike.wstearns.org' => 'Jeff Dike',
-'jdike@karaya.com' => 'Jeff Dike',
-'jdike@uml.karaya.com' => 'Jeff Dike',
-'jdr@farfalle.com' => 'David Ruggiero',
-'jdthood@yahoo.co.uk' => 'Thomas Hood',
-'jeb.j.cramer@intel.com' => 'Jeb J. Cramer',
-'jeffs@accelent.com' => 'Jeff Sutherland', # lbdb
-'jejb@mulgrave.(none)' => 'James Bottomley', # from shortlog
-'jenna.s.hall@intel.com' => 'Jenna S. Hall', # google
-'jes@trained-monkey.org' => 'Jes Sorensen',
-'jes@wildopensource.com' => 'Jes Sorensen',
-'jgarzik@fokker2.devel.redhat.com' => 'Jeff Garzik',
-'jgarzik@mandrakesoft.com' => 'Jeff Garzik',
-'jgarzik@redhat.com' => 'Jeff Garzik',
-'jgarzik@rum.normnet.org' => 'Jeff Garzik',
-'jgarzik@tout.normnet.org' => 'Jeff Garzik',
-'jgrimm@jgrimm.austin.ibm.com' => 'Jon Grimm', # google
-'jgrimm@touki.austin.ibm.com' => 'Jon Grimm', # google
-'jgrimm@touki.qip.austin.ibm.com' => 'Jon Grimm', # google
-'jhammer@us.ibm.com' => 'Jack Hammer',
-'jmorris@intercode.com.au' => 'James Morris',
-'jo-lkml@suckfuell.net' => 'Jochen Suckfuell',
-'joe@wavicle.org' => 'Joe Burks',
-'johann.deneux@it.uu.se' => 'Johann Deneux',
-'johannes@erdfelt.com' => 'Johannes Erdfelt',
-'john@deater.net' => 'John Clemens',
-'john@larvalstage.com' => 'John Kim',
-'johnpol@2ka.mipt.ru' => 'Evgeniy Polyakov',
-'johnstul@us.ibm.com' => 'John Stultz',
-'jsiemes@web.de' => 'Josef Siemes',
-'jsimmons@heisenberg.transvirtual.com' => 'James Simmons',
-'jsimmons@maxwell.earthlink.net' => 'James Simmons',
-'jsimmons@transvirtual.com' => 'James Simmons',
-'jt@bougret.hpl.hp.com' => 'Jean Tourrilhes',
-'jt@hpl.hp.com' => 'Jean Tourrilhes',
-'jun.nakajima@intel.com' => 'Jun Nakajima',
-'jung-ik.lee@intel.com' => 'J.I. Lee',
-'jwoithe@physics.adelaide.edu.au' => 'Jonathan Woithe',
-'k-suganuma@mvj.biglobe.ne.jp' => 'Kimio Suganuma',
-'k.kasprzak@box43.pl' => 'Karol Kasprzak', # by Kristian Peters
-'kaber@trash.net' => 'Patrick McHardy',
-'kai-germaschewski@uiowa.edu' => 'Kai Germaschewski',
-'kai.makisara@kolumbus.fi' => 'Kai Makisara',
-'kai.reichert@udo.edu' => 'Kai Reichert',
-'kai@chaos.tp1.ruhr-uni-bochum.de' => 'Kai Germaschewski',
-'kai@tp1.ruhr-uni-bochum.de' => 'Kai Germaschewski',
-'kanoj@vger.kernel.org' => 'Kanoj Sarcar', # sent by Arnaldo Carvalho de Melo
-'kanojsarcar@yahoo.com' => 'Kanoj Sarcar',
-'kaos@ocs.com.au' => 'Keith Owens',
-'kasperd@daimi.au.dk' => 'Kasper Dupont',
-'keithu@parl.clemson.edu' => 'Keith Underwood',
-'kenneth.w.chen@intel.com' => 'Kenneth W. Chen',
-'key@austin.ibm.com' => 'Kent Yoder',
-'khalid@fc.hp.com' => 'Khalid Aziz',
-'khalid_aziz@hp.com' => 'Khalid Aziz',
-'khc@pm.waw.pl' => 'Krzysztof Halasa',
-'kiran@in.ibm.com' => 'Ravikiran G. Thirumalai',
-'kisza@sch.bme.hu' => 'Andras Kis-Szabo', # google (netfilter-ext HOWTO)
-'kkeil@suse.de' => 'Karsten Keil',
-'kmsmith@umich.edu' => 'Kendrick M. Smith',
-'knan@mo.himolde.no' => 'Erik Inge Bolsø',
-'komujun@nifty.com' => 'Jun Komuro', # google
-'kraxel@bytesex.org' => 'Gerd Knorr',
-'kraxel@suse.de' => 'Gerd Knorr',
-'kuebelr@email.uc.edu' => 'Robert Kuebel',
-'kuznet@mops.inr.ac.ru' => 'Alexey Kuznetsov',
-'kuznet@ms2.inr.ac.ru' => 'Alexey Kuznetsov',
-'ladis@psi.cz' => 'Ladislav Michl',
-'laforge@gnumonks.org' => 'Harald Welte',
-'laurent@latil.nom.fr' => 'Laurent Latil',
-'lawrence@the-penguin.otak.com' => 'Lawrence Walton',
-'ldb@ldb.ods.org' => 'Luca Barbieri',
-'ldm@flatcap.org' => 'Richard Russon',
-'lee@compucrew.com' => 'Lee Nash', # lbdb
-'leigh@solinno.co.uk' => 'Leigh Brown', # lbdb
-'levon@movementarian.org' => 'John Levon',
-'linux@brodo.de' => 'Dominik Brodowski',
-'lionel.bouton@inet6.fr' => 'Lionel Bouton',
-'lists@mdiehl.de' => 'Martin Diehl',
-'liyang@nerv.cx' => 'Liyang Hu',
-'lm@bitmover.com' => 'Larry McVoy',
-'lord@sgi.com' => 'Stephen Lord',
-'lowekamp@cs.wm.edu' => 'Bruce B. Lowekamp', # lbdb
-'luc.vanoostenryck@easynet.be' => 'Luc Van Oostenryck', # lbdb
-'lucasvr@terra.com.br' => 'Lucas Correia Villa Real', # google
-'maalanen@ra.abo.fi' => 'Marcus Alanen',
-'mac@melware.de' => 'Armin Schindler',
-'macro@ds2.pg.gda.pl' => 'Maciej W. Rozycki',
-'manfred@colorfullife.com' => 'Manfred Spraul',
-'manik@cisco.com' => 'Manik Raina',
-'mannthey@us.ibm.com' => 'Keith Mannthey',
-'marc@mbsi.ca' => 'Marc Boucher',
-'marcel@holtmann.org' => 'Marcel Holtmann', # sent by himself
-'marcelo@conectiva.com.br' => 'Marcelo Tosatti',
-'marcelo@freak.distro.conectiva' => 'Marcelo Tosatti', # guessed
-'marcelo@plucky.distro.conectiva' => 'Marcelo Tosatti',
-'mark@alpha.dyndns.org' => 'Mark W. McClelland',
-'markh@osdl.org' => 'Mark Haverkamp',
-'martin.bligh@us.ibm.com' => 'Martin J. Bligh',
-'martin@bruli.net' => 'Martin Brulisauer',
-'martin@meltin.net' => 'Martin Schwenke',
-'mason@suse.com' => 'Chris Mason',
-'matt_domsch@dell.com' => 'Matt Domsch', # sent by himself
-'matthew@wil.cx' => 'Matthew Wilcox',
-'mauelshagen@sistina.com' => 'Heinz J. Mauelshagen',
-'maxk@qualcomm.com' => 'Maksim Krasnyanskiy',
-'maxk@viper.(none)' => 'Maksim Krasnyanskiy', # from shortlog
-'mbligh@aracnet.com' => 'Martin J. Bligh',
-'mcp@linux-systeme.de' => 'Marc-Christian Petersen',
-'mdharm-scsi@one-eyed-alien.net' => 'Matthew Dharm',
-'mdharm-usb@one-eyed-alien.net' => 'Matthew Dharm',
-'mdharm@one-eyed-alien.net' => 'Matthew Dharm',
-'mec@shout.net' => 'Michael Elizabeth Chastain',
-'mgreer@mvista.com' => 'Mark A. Greer', # lbdb
-'michaelw@foldr.org' => 'Michael Weber', # google
-'michal@harddata.com' => 'Michal Jaegermann',
-'mikep@linuxtr.net' => 'Mike Phillips',
-'mikpe@csd.uu.se' => 'Mikael Pettersson',
-'mikulas@artax.karlin.mff.cuni.cz' => 'Mikulas Patocka',
-'miles@megapathdsl.net' => 'Miles Lane',
-'miltonm@bga.com' => 'Milton Miller', # by Kristian Peters
-'mingo@elte.hu' => 'Ingo Molnar',
-'mingo@redhat.com' => 'Ingo Molnar',
-'mj@ucw.cz' => 'Martin Mares',
-'mkp@mkp.net' => 'Martin K. Petersen', # lbdb
-'mlang@delysid.org' => 'Mario Lang', # google
-'mlindner@syskonnect.de' => 'Mirko Lindner',
-'mmcclell@bigfoot.com' => 'Mark McClelland',
-'mochel@geena.pdx.osdl.net' => 'Patrick Mochel',
-'mochel@osdl.org' => 'Patrick Mochel',
-'mochel@segfault.osdl.org' => 'Patrick Mochel',
-'mostrows@speakeasy.net' => 'Michal Ostrowski',
-'msw@redhat.com' => 'Matt Wilson',
-'mufasa@sis.com.tw' => 'Mufasa Yang', # sent by himself
-'mulix@actcom.co.il' => 'Muli Ben-Yehuda', # sent by himself
-'mw@microdata-pos.de' => 'Michael Westermann',
-'n0ano@n0ano.com' => 'Don Dugger',
-'nahshon@actcom.co.il' => 'Itai Nahshon',
-'nathans@sgi.com' => 'Nathan Scott',
-'neilb@cse.unsw.edu.au' => 'Neil Brown',
-'nemosoft@smcc.demon.nl' => 'Nemosoft Unv.',
-'nico@cam.org' => 'Nicolas Pitre',
-'nicolas.aspert@epfl.ch' => 'Nicolas Aspert',
-'nkbj@image.dk' => 'Niels Kristian Bech Jensen',
-'nmiell@attbi.com' => 'Nicholas Miell',
-'okir@suse.de' => 'Olaf Kirch', # lbdb
-'olaf.dietsche#list.linux-kernel@t-online.de' => 'Olaf Dietsche',
-'olaf.dietsche' => 'Olaf Dietsche',
-'oleg@tv-sign.ru' => 'Oleg Nesterov',
-'olh@suse.de' => 'Olaf Hering',
-'oliendm@us.ibm.com' => 'Dave Olien',
-'oliver.neukum@lrz.uni-muenchen.de' => 'Oliver Neukum',
-'oliver@neukum.name' => 'Oliver Neukum',
-'oliver@neukum.org' => 'Oliver Neukum',
-'orjan.friberg@axis.com' => 'Orjan Friberg',
-'os@emlix.com' => 'Oskar Schirmer', # sent by himself
-'otaylor@redhat.com' => 'Owen Taylor',
-'p2@ace.ulyssis.sutdent.kuleuven.ac.be' => 'Peter De Shrijver',
-'p_gortmaker@yahoo.com' => 'Paul Gortmaker',
-'patmans@us.ibm.com' => 'Patrick Mansfield',
-'paul.mundt@timesys.com' => 'Paul Mundt', # google
-'paulkf@microgate.com' => 'Paul Fulghum',
-'paulus@au1.ibm.com' => 'Paul Mackerras',
-'paulus@nanango.paulus.ozlabs.org' => 'Paul Mackerras',
-'paulus@quango.ozlabs.ibm.com' => 'Paul Mackerras',
-'paulus@samba.org' => 'Paul Mackerras',
-'pavel@janik.cz' => 'Pavel Janík',
-'pavel@suse.cz' => 'Pavel Machek',
-'pavel@ucw.cz' => 'Pavel Machek',
-'pazke@orbita1.ru' => 'Andrey Panin',
-'pbadari@us.ibm.com' => 'Badari Pulavarty',
-'pdelaney@lsil.com' => 'Pam Delaney',
-'pe1rxq@amsat.org' => 'Jeroen Vreeken',
-'pekon@informatics.muni.cz' => 'Petr Konecny',
-'perex@perex.cz' => 'Jaroslav Kysela',
-'perex@pnote.perex-int.cz' => 'Jaroslav Kysela',
-'perex@suse.cz' => 'Jaroslav Kysela',
-'peter@cadcamlab.org' => 'Peter Samuelson',
-'peter@chubb.wattle.id.au' => 'Peter Chubb',
-'peterc@gelato.unsw.edu.au' => 'Peter Chubb',
-'petero2@telia.com' => 'Peter Osterlund',
-'petkan@users.sourceforge.net' => 'Petko Manolov',
-'petr@vandrovec.name' => 'Petr Vandrovec',
-'petri.koistinen@iki.fi' => 'Petri Koistinen',
-'pkot@linuxnews.pl' => 'Pawel Kot',
-'plars@austin.ibm.com' => 'Paul Larson',
-'pmenage@ensim.com' => 'Paul Menage',
-'prom@berlin.ccc.de' => 'Ingo Albrecht',
-'proski@gnu.org' => 'Pavel Roskin',
-'pwaechtler@mac.com' => 'Peter Wächtler',
-'quinlan@transmeta.com' => 'Daniel Quinlan',
-'quintela@mandrakesoft.com' => 'Juan Quintela',
-'r.e.wolff@bitwizard.nl' => 'Rogier Wolff', # lbdbq
-'ralf@dea.linux-mips.net' => 'Ralf Bächle',
-'randy.dunlap@verizon.net' => 'Randy Dunlap',
-'ray-lk@madrabbit.org' => 'Ray Lee',
-'rbh00@utsglobal.com' => 'Richard Hitt', # asked him, he prefers Richard
-'rbt@mtlb.co.uk' => 'Robert Cardell',
-'rct@gherkin.frus.com' => 'Bob Tracy',
-'rddunlap@osdl.org' => 'Randy Dunlap',
-'reality@delusion.de' => 'Udo A. Steinberg',
-'reiser@namesys.com' => 'Hans Reiser',
-'rem@osdl.org' => 'Bob Miller',
-'rgooch@atnf.csiro.au' => 'Richard Gooch',
-'rgooch@ras.ucalgary.ca' => 'Richard Gooch',
-'rgs@linalco.com' => 'Roberto Gordo Saez',
-'rhirst@linuxcare.com' => 'Richard Hirst',
-'rhw@infradead.org' => 'Riley Williams',
-'richard.brunner@amd.com' => 'Richard Brunner',
-'riel@conectiva.com.br' => 'Rik van Riel',
-'rl@hellgate.ch' => 'Roger Luethi',
-'rlievin@free.fr' => 'Romain Lievin',
-'rmk@arm.linux.org.uk' => 'Russell King',
-'rmk@flint.arm.linux.org.uk' => 'Russell King',
-'rml@tech9.net' => 'Robert Love',
-'rob@osinvestor.com' => 'Rob Radez',
-'robert.olsson@data.slu.se' => 'Robert Olsson',
-'rohit.seth@intel.com' => 'Rohit Seth',
-'roland@topspin.com' => 'Roland Dreier',
-'romieu@cogenit.fr' => 'François Romieu',
-'root@viper.(none)' => 'Maxim Krasnyansky',
-'rscott@attbi.com' => 'Rob Scott',
-'rth@are.twiddle.net' => 'Richard Henderson',
-'rth@dorothy.sfbay.redhat.com' => 'Richard Henderson',
-'rth@dot.sfbay.redhat.com' => 'Richard Henderson',
-'rth@splat.sfbay.redhat.com' => 'Richard Henderson',
-'rth@twiddle.net' => 'Richard Henderson',
-'rth@vsop.sfbay.redhat.com' => 'Richard Henderson',
-'rui.sousa@laposte.net' => 'Rui Sousa',
-'rusty@rustcorp.com.au' => 'Rusty Russell',
-'rwhron@earthlink.net' => 'Randy Hron',
-'rz@linux-m68k.org' => 'Richard Zidlicky',
-'sabala@students.uiuc.edu' => 'Michal Sabala', # google
-'sailer@scs.ch' => 'Thomas Sailer',
-'sam@mars.ravnborg.org' => 'Sam Ravnborg',
-'sam@ravnborg.org' => 'Sam Ravnborg',
-'samel@mail.cz' => 'Vitezslav Samel',
-'samuel.thibault@ens-lyon.fr' => 'Samuel Thibault',
-'sandeen@sgi.com' => 'Eric Sandeen',
-'santiago@newphoenix.net' => 'Santiago A. Nullo', # sent by self
-'sarolaht@cs.helsinki.fi' => 'Pasi Sarolahti',
-'sawa@yamamoto.gr.jp' => 'sawa',
-'schoenfr@gaaertner.de' => 'Erik Schoenfelder',
-'schwab@suse.de' => 'Andreas Schwab',
-'schwidefsky@de.ibm.com' => 'Martin Schwidefsky',
-'scott.feldman@intel.com' => 'Scott Feldman',
-'scott_anderson@mvista.com' => 'Scott Anderson',
-'scottm@somanetworks.com' => 'Scott Murray',
-'sct@redhat.com' => 'Stephen C. Tweedie',
-'sds@tislabs.com' => 'Stephen Smalley',
-'sebastian.droege@gmx.de' => 'Sebastian Dröge',
-'sfr@canb.auug.org.au' => 'Stephen Rothwell',
-'shaggy@austin.ibm.com' => 'Dave Kleikamp',
-'shaggy@kleikamp.austin.ibm.com' => 'Dave Kleikamp',
-'shaggy@shaggy.austin.ibm.com' => 'Dave Kleikamp', # lbdb
-'shingchuang@via.com.tw' => 'Shing Chuang',
-'silicon@falcon.sch.bme.hu' => 'Szilárd Pásztor', # google
-'simonb@lipsyncpost.co.uk' => 'Simon Burley',
-'skip.ford@verizon.net' => 'Skip Ford',
-'sl@lineo.com' => 'Stuart Lynne',
-'smurf@osdl.org' => 'Nathan Dabney',
-'snailtalk@linux-mandrake.com' => 'Geoffrey Lee', # by himself
-'solar@openwall.com' => 'Solar Designer',
-'sparker@sun.com' => 'Steven Parker', # by Duncan Laurie
-'spse@secret.org.uk' => 'Simon Evans', # by Kristian Peters
-'sridhar@dyn9-47-18-140.beaverton.ibm.com' => 'Sridhar Samudrala',
-'steiner@sgi.com' => 'Jack Steiner',
-'stelian.pop@fr.alcove.com' => 'Stelian Pop',
-'stern@rowland.harvard.edu' => 'Alan Stern',
-'stern@rowland.org' => 'Alan Stern', # lbdb
-'steve.cameron@hp.com' => 'Stephen Cameron',
-'steve@chygwyn.com' => 'Steven Whitehouse',
-'steve@gw.chygwyn.com' => 'Steven Whitehouse',
-'stevef@smfhome1.austin.rr.com' => 'Steve French',
-'stevef@steveft21.ltcsamba' => 'Steve French',
-'stuartm@connecttech.com' => 'Stuart MacDonald',
-'sullivan@austin.ibm.com' => 'Mike Sullivan',
-'suncobalt.adm@hostme.bitkeeper.com' => 'Tim Hockin', # by Duncan Laurie
-'sunil.saxena@intel.com' => 'Sunil Saxena',
-'swanson@uklinux.net' => 'Alan Swanson',
-'szepe@pinerecords.com' => 'Tomas Szepe',
-'t-kouchi@mvf.biglobe.ne.jp' => 'Takayoshi Kouchi',
-'tai@imasy.or.jp' => 'Taisuke Yamada',
-'taka@valinux.co.jp' => 'Hirokazu Takahashi',
-'tcallawa@redhat.com' => 'Tom Callaway',
-'tetapi@utu.fi' => 'Tero Pirkkanen', # by Kristian Peters
-'th122948@scl1.sfbay.sun.com' => 'Tim Hockin', # by Duncan Laurie
-'th122948@scl3.sfbay.sun.com' => 'Tim Hockin', # by Duncan Laurie
-'thiel@ksan.de' => 'Florian Thiel', # lbdb
-'thockin@freakshow.cobalt.com' => 'Tim Hockin',
-'thockin@sun.com' => 'Tim Hockin',
-'tigran@aivazian.name' => 'Tigran Aivazian',
-'tim@physik3.uni-rostock.de' => 'Tim Schmielau',
-'tmolina@cox.net' => 'Thomas Molina',
-'tomita@cinet.co.jp' => 'Osamu Tomita',
-'tomlins@cam.org' => 'Ed Tomlinson',
-'tony.luck@intel.com' => 'Tony Luck',
-'tony@cantech.net.au' => 'Anthony J. Breeds-Taurima',
-'torvalds@athlon.transmeta.com' => 'Linus Torvalds',
-'torvalds@home.transmeta.com' => 'Linus Torvalds',
-'torvalds@kiwi.transmeta.com' => 'Linus Torvalds',
-'torvalds@penguin.transmeta.com' => 'Linus Torvalds',
-'torvalds@tove.transmeta.com' => 'Linus Torvalds',
-'torvalds@transmeta.com' => 'Linus Torvalds',
-'trini@bill-the-cat.bloom.county' => 'Tom Rini',
-'trini@kernel.crashing.org' => 'Tom Rini',
-'trond.myklebust@fys.uio.no' => 'Trond Myklebust',
-'tvignaud@mandrakesoft.com' => 'Thierry Vignaud',
-'twaugh@redhat.com' => 'Tim Waugh',
-'tytso@mit.edu' => "Theodore Ts'o", # web.mit.edu/tytso/www/home.html
-'tytso@snap.thunk.org' => "Theodore Ts'o",
-'tytso@think.thunk.org' => "Theodore Ts'o", # guessed
-'urban@teststation.com' => 'Urban Widmark',
-'uzi@uzix.org' => 'Joshua Uziel',
-'vandrove@vc.cvut.cz' => 'Petr Vandrovec',
-'venkatesh.pallipadi@intel.com' => 'Venkatesh Pallipadi',
-'viro@math.psu.edu' => 'Alexander Viro',
-'vojta@math.berkeley.edu' => 'Paul Vojta',
-'vojtech@suse.cz' => 'Vojtech Pavlik',
-'vojtech@twilight.ucw.cz' => 'Vojtech Pavlik',
-'vojtech@ucw.cz' => 'Vojtech Pavlik', # added by himself
-'wa@almesberger.net' => 'Werner Almesberger',
-'wes@infosink.com' => 'Wes Schreiner',
-'wg@malloc.de' => 'Wolfram Gloger', # lbdb
-'willy@debian.org' => 'Matthew Wilcox',
-'willy@w.ods.org' => 'Willy Tarreau',
-'wilsonc@abocom.com.tw' => 'Wilson Chen', # google
-'wim@iguana.be' => 'Wim Van Sebroeck',
-'wli@holomorphy.com' => 'William Lee Irwin III',
-'wolfgang.fritz@gmx.net' => 'Wolfgang Fritz', # by Kristian Peters
-'wolfgang@iksw-muees.de' => 'Wolfgang Muees',
-'wstinson@infonie.fr' => 'William Stinson',
-'xkaspa06@stud.fee.vutbr.cz' => 'Tomas Kasparek',
-'yoshfuji@linux-ipv6.org' => 'Hideaki Yoshifuji', # lbdb
-'yuri@acronis.com' => 'Yuri Per', # lbdb
-'zaitcev@redhat.com' => 'Pete Zaitcev',
-'zippel@linux-m68k.org' => 'Roman Zippel',
-'zubarev@us.ibm.com' => 'Irene Zubarev', # google
-'zwane@commfireservices.com' => 'Zwane Mwaikambo',
-'zwane@holomorphy.com' => 'Zwane Mwaikambo',
-'zwane@linuxpower.ca' => 'Zwane Mwaikambo',
-'zwane@mwaikambo.name' => 'Zwane Mwaikambo',
-'~~~~~~thisentrylastforconvenience~~~~~' => 'Cesar Brutus Anonymous'
-);
-
-sub doprint(\%@ ); # forward declaration
-
-my %address_unknown;
-
-# get name associated to an email address
-sub rmap_address {
-  my @o = map {defined $addresses{$_} ? $addresses{$_} :
-		 scalar (($address_unknown{$_} = 1), $_); }
-          map { lc; } @_;
-  return wantarray ? @o : $o[0];
-}
-
-# case insensitive string comparison
-# FIXME: use locale?
-sub caseicmp { uc($a) cmp uc($b) };
-
-# case insensitive string comparison by surname
-# Strings are of the form
-# "Firstname Surname <mailaddress>"
-# or
-# "<mailaddress>"
-sub caseicmpbysurname {
-  my $alast = "";
-  my $blast = "";
-  if ($a =~ m/(\S+)\s*(\s\<|$)/) { $alast = $1; }
-  if ($b =~ m/(\S+)\s*(\s\<|$)/) { $blast = $1; }
-  return uc($alast . $a) cmp uc($blast . $b);
-}
-
-my ($author, $address, $name);
-# * $address is always an email address
-# * $author can be the email address or Joe N. Sixpack II <joe6@example.com>
-#   (ready formatted to print)
-# * $name is the name (Joe N. Sixpack II) or the mail address
-#   (<joe6@example.com>) 
-
-sub get_name()   { return $name; }
-sub get_author() { return $author; }
-
-# This table maps MODE => { myhash }
-# myhash knows the keys "index" and "print" to choose the respective functions
-my %table =
-  (
-   'oneline' => { 'index' => \&get_name,
-		  'print' => \&print_oneline },
-   'terse'   => { 'index' => \&get_name,
-		  'print' => \&print_terse },
-   'grouped' => { 'index' => \&get_author,
-		  'print' => \&print_grouped },
-   'full'    => { 'index' => \&get_author,
-		  'print' => \&print_full }
-  );
-
-# temp store
-my $indexby;
-
-# The sort function we will use
-my $namesortfunc;
-
-# Global store #############
-# We store our options here.
-my %opt;
-
-# As we are parsing, the log is accumulated in the @cur array.  When
-# we are done with one item (end of input or new mail address found),
-# stuff a copy of this @cur array into the %log hash.
-sub append_item(\%@)
-# arguments: reference to hash
-#            array to push
-{
-  my $log = shift;
-  my @cur = @_;
-  return unless @cur;
-  return unless &$indexby;
-  $log->{&$indexby} = () unless defined $log->{&$indexby};
-
-  # strip trailing blank lines
-  my $t;
-  while (($t = pop(@cur)) eq '') { };
-  push @cur, $t;
-
-  # store the array
-  push @{$log->{&$indexby}}, [@cur];
-}
-
-# Remove duplicates from hash, without changing the order.
-# Prefix duplicates with the count.
-sub countdups(@) {
-  my %t;
-  croak "do not call removedups() in scalar context" unless wantarray;
-  my @u = grep (!$t{lc $_}++, @_);
-  return map {
-    $t{lc $_} > 1 ? sprintf("%d x ", $t{lc $_}) . $_ : $_; 
-  } @u;
-}
-
-# Remove duplicates from array, without changing the order. The
-# duplicates need not follow each other, so A B A is properly
-# stripped down to A B
-sub removedups(@) {
-  my %t;
-  croak "do not call removedups() in scalar context" unless wantarray;
-  return grep (!$t{lc $_}++, @_);
-}
-
-# Compress the hash passed in, depending on the --compress and --count
-# options in the %opt hash.
-sub compress(@) {
-  croak "do not call compress() in scalar context" unless wantarray;
-  if ($opt{compress}) {
-    if ($opt{count}) {
-      return countdups(@_);
-    } else {
-      return removedups(@_);
-    }
-  } else {
-    return @_;
-  }
-}
-
-# report write error, exit
-# do not return
-sub write_error() {
-  croak "Write error: $!\nAborting";
-  exit (1);
-}
-
-# implementation of "grouped" output:
-# author:
-#   first line of log1
-#   first line of log2
-sub print_grouped(\%) {
-  my $log = shift;
-  for (sort $namesortfunc keys %$log) {
-    my @lines = compress(map { $_->[0] . "\n"; } @{$log->{$_}});
-    if ($opt{width}) {
-      @lines = map { expand(wrap($indent1, $indent, ($_))); } @lines;
-    } else {
-      @lines = map { "$indent1$_" } @lines;
-    }
-    printtag($_) or write_error();
-    print join("", @lines), "\n" or write_error();
-  }
-}
-
-# implementation of "full" output
-# author:
-#   o log1
-#     more information on changeset1
-#   o log2
-#     more information on changeset2
-sub print_full(\%) {
-  my $log = shift;
-  for (sort $namesortfunc keys %$log) {
-    printtag($_) or write_error();
-    foreach (compress(@{$log->{$_}})) {
-      my @lines = map { s/^\t//; "$_\n"; } @$_;
-      if ($opt{width}) {
-	@lines = expand(wrap($indent1, $indent, @lines));
-      } else {
-	@lines = map { "$indent$_"; } @lines;
-	substr($lines[0], $[, length($indent1)) = $indent1;
-      }
-      print join("", @lines), "\n"  or write_error();
-    }
-  }
-  print "\n"  or write_error();
-}
-
-# implementation of "terse" output
-# with --swap          without --swap
-# author1: log1        log1    (author1)
-# author1: log2        log2    (author2)
-# author2: log3        log3    (author3)
-sub print_terse(\%) {
-  my $log = shift;
-  for (sort $namesortfunc keys %$log) {
-    my $a = $_;
-    if ($opt{width}) {
-      if ($opt{swap}) {
-	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
-	  my @lines = expand(wrap($indent1, $indent, ("$a: $_")));
-	  print join("\n", @lines), "\n"  or write_error();
-	}
-      } else {
-	# width, but not swap set
-	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
-	  my @addr = expand(split(/\n/, wrap('', $indent, " ($a)")));
-	  my @lines = expand(split(/\n/, wrap($indent1, $indent, ($_))));
-
-	  if (length($lines[$#lines]) + length($addr[0]) > $opt{width}) {
-	    push @lines, '';
-	  }
-	  $lines[$#lines] .= sprintf("%*s", $opt{width}
-				     - length($lines[$#lines]), $addr[0]);
-	  shift @addr;
-	  print join("\n", @lines), "\n"  or write_error();
-	  foreach (@addr) {
-	    printf "%*s\n", $opt{width}, $_  or write_error();
-	  }
-	}
-      }
-    } else {
-      # using the ?: operator within the map is more maintainable, but
-      # less efficient.
-      if ($opt{swap}) {
-	print join("\n", map { "$indent1$a: $_" }
-		   compress(map { $_->[0]; } @{$log->{$_}})), "\n"
-		     or write_error();
-      } else {
-	print join("\n", map { "$indent1$_ ($a)" } 
-		   compress(map { $_->[0]; } @{$log->{$_}})), "\n"
-		     or write_error();
-      }
-    }
-  }
-}
-
-# implementation of "oneline" output
-# which is similar to terse but reformats to one line exactly
-# with --swap          without --swap
-# author1: log1        log1    (author1)
-# author1: log2        log2    (author2)
-# author2: log3        log3    (author3)
-sub print_oneline(\%) {
-  my $log = shift;
-  for (sort $namesortfunc keys %$log) {
-    my $a = $_;
-    if ($opt{width}) {
-      if ($opt{swap}) {
-	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
-	  my $str = "$a: $_";
-	  if (length($str) > $opt{width}) {
-	    printf "%-.*s...\n", $opt{width}-3, $indent1 . "$a: $_"
-	      or write_error();
-	  } else {
-	    printf "%-.*s\n", $opt{width}, $indent1 . "$a: $_"
-	      or write_error();
-	  }
-	}
-      } else { # not swapping
-	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
-	  my $l = $opt{width} - length($indent1) - length($a) - 3;
-	  if (length($_) > $l) {
-	    $l -= 3;
-	    printf "%s%-*.*s... (%s)\n", $indent1, $l, $l, $_, $a;
-	  } else {
-	    printf "%s%-*.*s (%s)\n", $indent1, $l, $l, $_, $a;
-	  }
-	}
-      }
-    } else {
-      # not $opt{width} -> same as print_terse
-      print_terse(%$log);
-    }
-  }
-}
-
-# Abbreviate all components of the name except the last.  If capital
-# Roman numerals form the last component, leave that and the previous
-# component alone.
-sub abbreviate_name($ ) {
-  my @a = split /\s+/, $_[0];
-
-  # treat Roman numerals as last part of name
-  my $off = 0;
-  $off = 1 if ($a[$#a] =~ /^[IVXLCMD]+$/);
-
-  for (my $i = 0; $i < $#a - $off; $i++) {
-    $a[$i] =~ s/^(.).*/$1./;
-  }
-  return join(" ", @a);
-}
-
-# Read a file and parse it into the %log hash.
-sub parse_file(\%$$ ) {
-# arguments: %log hash
-#            file name
-#            file handle (IO::Handle or IO::File)
-  croak unless wantarray;
-  my $log = shift;
-  my $fn = shift;
-  my $fh = shift;
-  my @prolog;
-  local $_;
-
-  # initialize
-  my @cur = ();
-  my $first = 0;
-  my $firstpar = 0;
-  undef $address;
-
-  # now go!
-
-  # NOTE: the first @cur item can consist of multiple lines in the
-  # source file which are joined together. This happens when the first
-  # paragraph is longer than a single line.
-  while($_ = $fh -> getline) {
-    chomp;
-    s/^  (\S)/\t$1/;
-    # expand all tabs but the first
-    $_ = expand($_);
-    s/^        /\t/;
-
-    if (defined $address and $opt{multi}
-	and m{^[^<[:space:]]} and not m{^ChangeSet@}) {
-      # if we are in multi mode, if we encounter a non-address
-      # left-justified line, flush all data and print the header. The
-      # defined $address trick lets this only trigger to switch back
-      # from "log entry" to "prolog" mode
-      append_item(%$log, @cur); @cur = ();
-      doprint(%$log, @prolog);
-      print "\n" or write_error(); # print blank line between changelogs
-      @prolog = ($_);
-      undef %$log;
-      undef $address;
-    } elsif (m{^<([^>]+)>} or m{^ChangeSet@[0-9.]+,\s*[-0-9:+ ]+,\s*(.*)}) {
-      # go figure if a line starts with an address, if so, take it
-      # resolve the address to a name if possible
-      append_item(%$log, @cur); @cur = ();
-      $address = lc($1);
-      $name = rmap_address($address);
-      if ($name ne $address) {
-	if ($opt{'abbreviate-names'}) {
-	  $name = abbreviate_name($name);
-	}
-	$author = $name . ' <' . $address . '>';
-      } else {
-	$author = '<' . $address . '>';
-      }
-      $first = 1;
-      $firstpar = 1;
-    } elsif ($first) {
-      # we have a "first" line after an address, take it, 
-      # strip common redundant tags
-
-      # kill "PATCH" tag
-      s/^\s*\[PATCH\]//;
-      s/^\s*PATCH//;
-      s/^\s*[-:]+\s*//;
-
-      # strip trailing colon or period, and if we strip one,
-      # we don't parse further lines as part of the first paragraph
-      if (s/[:.]+\s*$//) { $firstpar = 0; }
-
-      # kill leading and trailing whitespace for consistent indentation
-      s/^\s+//; s/\s+$//;
-
-      push @cur, $_;
-      $first = 0;
-    } elsif (defined $address) {
-      # second or subsequent lines -- if in first paragraph,
-      # append this line to the first log line.
-      if (m/^\s*$/) { $firstpar = 0; }
-      elsif (m/^\s*[-*o\#]/) { $firstpar = 0; }
-      if ($firstpar) {
-	s/^\s*/ /;
-	$cur[0] .= $_;
-      } else {
-	push @cur, $_;
-      }
-      # we don't parse further lines as part of the first paragraph
-      if (s/[:.]+\s*$//) { $firstpar = 0; }
-    } else {
-      # store header before a changelog
-      push @prolog, $_;
-    }
-  }
-
-  if ($fh -> error) {
-    die "Error while reading from \"$fn\": $!";
-  }
-
-  # at file end, flush @cur array to %log.
-  append_item(%$log, @cur);
-
-  return @prolog;
-}
-
-# print a word-wrapped name or mail address, followed by a trailing colon.
-# used by print_grouped and print_full
-# passes the return value of print back up
-sub printtag($ ) {
-  my $a = shift;
-  $a .= ':';
-  return print $opt{width} ? expand(wrap("", "", ($a))) : $a, "\n";
-}
-
-# === MAIN PROGRAM ===============================================
-# Command line arguments
-# What options do we support?
-my @opts = ("help|?|h", "man", "mode=s", "compress!", "count!", "width:i",
-	    "swap!", "merge!", "warn!", "multi!", "abbreviate-names!",
-	    "by-surname!");
-#	    "bitkeeper|bk!");
-
-# How do we parse them?
-if ($Getopt::Long::VERSION gt '2.24') {
-  Getopt::Long::Configure("gnu_getopt");
-}
-
-# set default options
-$opt{mode} = 'grouped';
-$opt{warn} = 1;
-
-# Parse from environment, temporarily storing the original @ARGV.
-if (defined $ENV{LINUXKERNEL_BK_FMT}) {
-  my @savedargs = @ARGV;
-  @ARGV = parse_line('\s+', 0, $ENV{LINUXKERNEL_BK_FMT});
-  GetOptions(\%opt, @opts)
-    or pod2usage(-verbose => 0,
-		 -message => $0 . ': error in $LINUXKERNEL_BK_FMT');
-  push @ARGV, @savedargs;
-}
-
-# Parse command line. Handle help, check for errors.
-GetOptions(\%opt, @opts) or pod2usage(-verbose => 0);
-pod2usage(-verbose => 1) if $opt{help};
-pod2usage(-verbose => 2) if $opt{man};
-pod2usage(-verbose => 0,
-	  -message => ("$0: Unknown mode specified.\nValid modes are:\n    "
-		       . join(" ", sort keys %table) . "\n"))
-  unless defined $table{$opt{mode}};
-pod2usage(-verbose => 0,
-	  -message => "$0: No files given, refusing to read from a TTY.")
-  if (not $opt{bitkeeper} and (@ARGV == 0) and (-t STDIN));
-pod2usage(-verbose => 0,
-	  -message => "$0: Must have one or two arguments in --bitkeeper mode.")
-  if ($opt{bitkeeper} && (@ARGV < 1 || @ARGV > 2));
-pod2usage(-verbose => 0,
-	  -message => "$0: You cannot use --merge and --multi at the same time.")
-  if ($opt{merge} and $opt{multi});
-
-# Shortcut for programmer convenience :-)
-$indexby = $table{$opt{mode}}->{'index'};
-
-# --count implies --compress
-if ($opt{count}) { $opt{compress} = 1; }
-
-# Set the sort function
-$namesortfunc = \&caseicmp;
-if ($opt{'by-surname'}) { $namesortfunc = \&caseicmpbysurname; }
-
-# if --width is without argument or the argument is zero,
-# try to figure $COLUMNS or fall back to 80.
-if (exists $opt{width} and not $opt{width}) {
-  $opt{width} = $ENV{COLUMNS} ? $ENV{COLUMNS} : 80;
-}
-
-# Print the passed-in array linewise, checking for write errors
-# Then call the configured function to print %log formatted
-sub doprint(\%@ ) {
-  my $log = shift;
-  print join("\n", @_), "\n" or write_error();
-  $table{$opt{mode}}->{print}->($log);
-}
-
-# --------------------------------------------------------------------
-# Global initializations
-$Text::Tabs::tabstop = 8;
-$Text::Wrap::huge = 'wrap';
-if ($opt{width}) {
-  $Text::Wrap::columns = $opt{width};
-}
-
-if ($debug) {
-  print STDERR "DEBUG: Options summary:\n";
-  while (my ($k, $v) = each %opt) { print STDERR "DEBUG:   '$k' => '$v'\n"; }
-  print STDERR "DEBUG: Arguments summary:\n";
-  foreach (@ARGV) { print STDERR "DEBUG:   '$_'\n"; }
-}
-
-# Main program
-my @prolog;
-my %log;
-
-if($opt{bitkeeper}) {
-  # in Bitkeeper mode, try to figure the change set, and connect the
-  # bk program to our stdin.
-  die "not yet implemented";
-} elsif (@ARGV) {
-  # file names
-  foreach my $fn (@ARGV) {
-    my $fh = new IO::File;
-    $fh->open($fn, "r")
-      or die "cannot open \"$fn\": $!\nAborting";
-    push @prolog, parse_file(%log, $fn, $fh);
-    if (not $opt{merge}) {
-      doprint(%log, @prolog);
-      undef %log;
-    }
-    undef @prolog;
-  }
-
-  if ($opt{merge}) {
-    doprint(%log, ());
-  }
-} else {
-  # stdin
-  my @prolog;
-  my $fh = new IO::Handle;
-  $fh->fdopen(fileno(STDIN), "r")
-    or die "cannot open stdin: $!\nAborting";
-  @prolog = parse_file(%log, "stdin", $fh);
-  doprint(%log, @prolog);
-}
-
-# Flush STDOUT to prevent clobbering STDOUT with 2>&1-style redirections.
-$| = 1;
-
-# Warn about unknown addresses
-if ($opt{warn}) {
-  foreach (sort caseicmp keys %address_unknown) {
-    print STDERR "Warning: unknown address \"$_\"\n" or write_error();
-  }
-}
-
-__END__
-# --------------------------------------------------------------------
-# $Log: lk-changelog.pl,v $
-# Revision 0.54  2002/11/26 23:27:11  emma
-# Merge changes from Linus' version.
-#
-# Revision 0.53  2002/11/25 17:12:08  emma
-# Add Lee Nash's address
-#
-# Revision 0.52  2002/11/14 14:50:21  emma
-# Bugfix --by-surname for some modes. Add two addresses. Fix Carl-Daniel Hailfinger's address to lower case.
-#
-# Revision 0.51  2002/11/14 14:31:10  emma
-# Add Carl-Daniel Hailfinger's new address. Add TODO item to see if regexp/wildcard match in address list is possible.
-#
-# Revision 0.50  2002/11/09 14:24:21  emma
-# Add comment to Richard Hitt's address.
-#
-# Revision 0.49  2002/11/04 17:13:21  emma
-# Add 4 addresses sent by Duncan Laurie.
-#
-# Revision 0.48  2002/11/04 12:37:38  emma
-# Another four dozen addresses, courtesy of Vitezslav Samel.
-#
-# Revision 0.47  2002/11/04 12:19:17  emma
-# Vitezslav Samel: Merge bugfix to treat addresses with upper-case characters in ChangeSet.
-#
-# Revision 0.46  2002/11/04 11:37:33  emma
-# 7 new addresses.
-#
-# Revision 0.45  2002/11/04 11:26:41  emma
-# 18 new addresses.
-#
-# Revision 0.44  2002/10/04 03:37:51  emma
-# Track BK-kernel-tools changes to Jes Sorensen's name.
-#
-# Revision 0.43  2002/10/04 03:33:47  emma
-# 4 new addresses.
-#
-# Revision 0.42  2002/10/01 20:20:33  emma
-# Another 25 addresses for ChangeLog 2.5.3?, from google and lbdb.
-#
-# Revision 0.41  2002/10/01 19:45:20  emma
-# Some detective work on google found another 19 addresses.
-#
-# Revision 0.40  2002/09/30 01:44:51  emma
-# Drop bogus geert@linux-m68k.org.com address.
-#
-# Revision 0.39  2002/09/26 23:07:13  emma
-# 46 new addresses from lbdb
-#
-# Revision 0.38  2002/09/26 22:37:29  emma
-# 23 new addresses
-#
-# Revision 0.37  2002/09/26 22:27:37  emma
-# Fix --multi mode.
-#
-# Revision 0.36  2002/08/29 09:13:40  emma
-# Correct Vojtech Pavlik's addresses after mail from him.
-#
-# Revision 0.35  2002/08/21 13:49:46  emma
-# Many new addresses and one correction by Vitezslav 'Vita' Samel <samel@mail.cz>
-#
-# Revision 0.34  2002/08/21 13:45:53  emma
-# 2 new names
-#
-# Revision 0.33  2002/08/20 01:29:34  emma
-# The usual set of new addresses.
-#
-# Revision 0.32  2002/08/20 01:14:40  emma
-# Add Marcel Holtmann, who sent a patch.
-#
-# Revision 0.31  2002/08/12 22:34:41  emma
-# Patch by Marcus Alanen <maalanen@ra.abo.fi>:
-# Hi, patch to sort by developer surname, and a couple of more
-# developers. Use if you want to.
-#
-# Revision 0.30  2002/07/20 17:18:28  emma
-# Add one new address
-#
-# Revision 0.29  2002/07/17 23:10:13  emma
-# 23 new addresses.
-#
-# Revision 0.28  2002/06/25 09:46:57  emma
-# New mail addresses.
-#
-# Revision 0.27  2002/06/14 17:05:23  emma
-# three new addresses
-#
-# Revision 0.26  2002/06/06 10:26:51  emma
-# Get rid of global %log, pass it to sub functions by reference.
-# Move IO::Handle/IO::File treatment back into main program.
-# Prepare for integrating Bitkeeper.
-#
-# Revision 0.25  2002/06/04 00:01:23  emma
-# Recognize "bk changes" output format (that is: "ChangeSet@1.234.5.6,
-# date, programmer" tag line and body indented by two spaces). Reported
-# by Marcelo Tosatti <marcelo@conectiva.com.br>. Former versions would
-# only recognize the BK-kernel-tools/changelog format (see
-# http://gkernel.bkbits.net:8080/BK-kernel-tools/anno/changelog@1.5?nav=index.html|src/).
-#
-# Revision 0.24  2002/06/03 13:33:00  emma
-# * Fix 'grouped', 'terse', 'oneline' modes (change to parse_file()). We
-#   now take the first paragraph instead of the first line as log
-#   entry. We also guess where the paragraph ends, it ends at a line with
-#   trailing dot or colon, or if the next line is empty or starts with a
-#   "bullet" (that is -, *, o or #).
-# * New option --abbreviate-names.
-# * Fix 'full' mode indentation, broken in v0.21 by expanding the tabs.
-#   Now, the first tab is unexpanded again.
-# * Enhance 'online' mode: if the log is truncated, append an ellipsis ("...").
-# * Add more mail addresses.
-# * Fix Brian Beattie's name (was "Michael Beattie").
-#
-# Revision 0.23  2002/06/03 12:36:01  emma
-# More e-mail addresses.
-#
-# Revision 0.22  2002/05/29 20:28:20  emma
-# Mail addresses added.
-#
-# Revision 0.21  2002/05/29 11:45:48  emma
-# * Implement --mode=oneline.
-# * Expand tabs in input lines (tab stops are spaced 8 columns away from each other).
-# * Bugfix --multi mode: all append_item to flush @cur before printing.
-# * Restore prolog detection in --multi mode for efficiency.
-# * Undo the "unexpand()" that Text::Wrap does, it breaks our line width
-#   calculation. In the long run, a replacement for Text::Wrap must be
-#   found that does not unexpand().
-#
-# Revision 0.20  2002/05/29 10:44:35  emma
-# New --multi option that states multiple changelogs are in the same file.
-#
-# Revision 0.19  2002/05/29 10:27:21  emma
-# New option: --[no]warn: Warn about unknown addresses. By default
-# enabled, use --nowarn to suppress.
-#
-# Revision 0.18  2002/05/29 10:17:00  emma
-# New addresses.
-#
-# Revision 0.17  2002/05/25 23:32:49  emma
-# Four new addresses.
-#
-# Revision 0.16  2002/05/22 15:52:26  emma
-# Fix deliberate typo in use Pod::Usage that was left over from debugging.
-#
-# Revision 0.15  2002/05/22 14:05:13  emma
-# Sort addresses/names case insensitively (not locale aware).
-# Heed quotes when parsing $ENV{LINUXKERNEL_BK_FMT}. As I don't
-# currently have Perl 5.004 to test the older Text::ParseWords
-# implementation, script now requires Perl 5.005.
-# Do not require Pod::Usage, but warn if it's missing.
-#
-# Revision 0.14  2002/05/22 12:39:59  emma
-# Fold the print function dispatcher into %table.
-# Parse files on command line individually, but allow to treat them as
-# one with a new --merge option.
-# Make @cur local to the parse function.
-# Die on read errors on input files. Use IO::Handle to read files.
-#
-# Revision 0.13  2002/05/21 12:42:46  emma
-# Add 3 mail addresses.
-# Add commentary to the code.
-# Check for write errors on STDOUT and die if one happens.
-#
-# Revision 0.12  2002/05/18 16:54:50  emma
-# Make --compress work in terse mode.
-# New feature: --swap in terse mode swaps address and log entry.
-#
-# Revision 0.11  2002/05/18 16:43:30  emma
-# Support 'terse' mode.
-#
-# Revision 0.10  2002/05/18 16:15:10  emma
-# Another set of addresses.
-#
-# Revision 0.9  2002/05/18 16:06:43  emma
-# Dozens of new addresses.
-#
-# Revision 0.8  2002/05/18 15:46:01  emma
-# 21 new addresses.
-#
-# Revision 0.7  2002/05/16 13:57:37  emma
-# Add some documentation.
-#
-# Revision 0.6  2002/05/16 13:55:24  emma
-# Fix shift ambiguity in printtag().
-#
-# Revision 0.5  2002/05/16 13:51:43  emma
-# Implement grouped and full modes.
-#
-# Revision 0.4  2002/05/16 12:07:17  emma
-# Add some POD.
-# Do options and environment parsing.
-# Prepare multiple output modes (only grouped supported at the moment.)
-#
-# Revision 0.3  2002/05/13 16:11:34  emma
-# Compress identical ChangeLog lines (they need not be subsequent, note
-# this feature has O(n^2) behaviour, where n is the number of stored
-# ChangeLog lines per respective author):
-#   Soft-fp fix:
-#   Soft-fp fix:
-# becomes:
-#   2 x Soft-fp fix:
-#
-# Revision 0.2  2002/05/13 10:40:32  emma
-# Only consider e-mail addresses that are left-justified.
-# Suggested by Greg Kroah-Hartman <greg@kroah.com>.
-#
-=head1 NAME
-
-lk-changelog.pl - Reformat BitKeeper ChangeLog for Linux Kernel
-
-=head1 SYNOPSIS
-
-lk-changelog.pl [options] [file [...]]
-
-Try lk-changelog.pl --help or lk-changelog.pl --man for more information.
-
-=head1 OPTIONS
-
- -h, --help          print this short help
-     --man           print the manual page for this program
-
-     --[no]compress  if true, suppress duplicate entries
-     --[no]count     if true, fold duplicate entries into one,
-                     prefixing it with the count. Implies --compress.
-     --[no]swap      in terse and oneline mode, swap address and log entry.
-     --[no]merge     treat all files on command line as one big file
-                     and suppress the prolog
-     --[no]multi     states that multiple changelogs are in one file
-     --[no]warn      warn about unknown addresses. Default: set!
-     --[no]abbreviate-names
-                     abbreviate all but the last name
-     --[no]by-surname
-                     sort entries by surname
-
-     --mode=MODE     specify the output format (use --man to find out more)
-     --width[=WIDTH] specify the line length, if omitted: $COLUMNS or 80.
-                     text lines will not exceed this length.
-
-Warning: Neither --compress nor --count are currently functional with
---mode=full.
-
-=head1 DESCRIPTION
-
-Summarizes or reformats BitKeeper ChangeLogs for Linux Kernel 2.X.
-
-=head1 ENVIRONMENT
-
-=over
-
-=item LINUXKERNEL_BK_FMT
-
-Default options. These have the same meaning and syntax as the command
-line options and are parsed before them, so you can override defaults
-set in this variable on the command line. B<Example:> If you put
---swap here and --noswap on your command line, --noswap takes
-precedence.
-
-=back
-
-
-
-=head1 EXAMPLES
-
-=over
-
-=item Reformat ChangeLog-2.5.17, displaying all changes grouped by
-  their author (that is the default mode, but we specify it anyways),
-  with 76 character wide lines:
-
- lk-changelog.pl --mode=grouped --width=76 ChangeLog-2.5.17
-
-=item Reformat ChangeLog-2.5.18, displaying all changes and their
-      author on in "-ac changelog style", with 80 character wide lines:
-
- lk-changelog.pl --mode=terse --width=80 ChangeLog-2.5.18
-
-=item Reformat 2.4.19-pre ChangeLogs (several in one file) from your mailer:
-
-Use the pipe command to pipe the mail into:
-
- lk-changelog.pl --multi --mode=terse --width=80
-
-=back
-
-=head1 AUTHOR
-
-=over
-
-=item * Matthias Andree <matthias.andree@gmx.de>
-
-Main developer
-
-=item * Marcus Alanen <maalanen@abo.fi>
-
-=item * Tomas Szepe <szepe@pinerecords.com>
-
-=item * Further help from:
-
-Albert D. Cahalan <acahalan@cs.uml.edu>, Robinson Maureira Castillo
-<rmaureira@alumno.inacap.cl>, Greg Kroah-Hartman <greg@kroah.com>.
-
-=back
-
-=head1 BUGS
-
-=over
-
-=item * The header is not wrapped for --width character wide lines.
-
-=item * The implementation is not yet finished.
-
-=item * This manual page is incomplete.
-
-=item * --compress does not currently work with --mode=full.
-
-=item * does not detect if the changelog is already summarized (as in Marcelo's 2.4.19-pre9 announcement on the list)
-
-=back
-
-=head1 TODO
-
-=over
-
-=item * --compress-me-harder
-
- To merge
-   o iget_locked  [1/6]
-   o iget_locked  [2/6]
-   ...
-   o iget_locked  [6/6]
- into
-   o iget_locked  [1..6/6]
-
-=item * Integrate Bitkeeper
-
-=item * See if the map can be made to use or accompanied by regexp.
-
-=back
-
-=cut
-
+  Steffen Persvold   |       Scali AS      
+ mailto:sp@scali.com |  http://www.scali.com
+Tel: (+47) 2262 8950 |   Olaf Helsets vei 6
+Fax: (+47) 2262 8951 |   N0621 Oslo, NORWAY
+
+
+
+---1463794943-386199268-1038357231=:1069
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmesg
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0211270133510.1069@sp-laptop.isdn.scali.no>
+Content-Description: 
+Content-Disposition: attachment; filename=dmesg
+
+TGludXggdmVyc2lvbiAyLjQuMjAtcmMya2RiZnAgKHJvb3RAbW9vbndhdGNo
+KSAoZ2NjIHZlcnNpb24gMi45NiAyMDAwMDczMSAoUmVkIEhhdCBMaW51eCA3
+LjMgMi45Ni0xMTApKSAjMiBTTVAgRnJpIE5vdiAyMiAxMTo1NDowMSBDRVQg
+MjAwMg0KQklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOg0KIEJJT1Mt
+ZTgyMDogMDAwMDAwMDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAwOWY4MDAgKHVz
+YWJsZSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWY4MDAgLSAwMDAwMDAw
+MDAwMGEwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAw
+ZDgwMDAgLSAwMDAwMDAwMDAwMGUwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4
+MjA6IDAwMDAwMDAwMDAwZTQwMDAgLSAwMDAwMDAwMDAwMTAwMDAwIChyZXNl
+cnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAxMDAwMDAgLSAwMDAwMDAw
+MDdmZWYwMDAwICh1c2FibGUpDQogQklPUy1lODIwOiAwMDAwMDAwMDdmZWYw
+MDAwIC0gMDAwMDAwMDA3ZmVmYzAwMCAoQUNQSSBkYXRhKQ0KIEJJT1MtZTgy
+MDogMDAwMDAwMDA3ZmVmYzAwMCAtIDAwMDAwMDAwN2ZmMDAwMDAgKEFDUEkg
+TlZTKQ0KIEJJT1MtZTgyMDogMDAwMDAwMDA3ZmYwMDAwMCAtIDAwMDAwMDAw
+N2ZmODAwMDAgKHVzYWJsZSkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwN2ZmODAw
+MDAgLSAwMDAwMDAwMDgwMDAwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6
+IDAwMDAwMDAwZmVjMDAwMDAgLSAwMDAwMDAwMGZlYzEwMDAwIChyZXNlcnZl
+ZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmVlMDAwMDAgLSAwMDAwMDAwMGZl
+ZTAxMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmY4MDAw
+MDAgLSAwMDAwMDAwMGZmYzAwMDAwIChyZXNlcnZlZCkNCiBCSU9TLWU4MjA6
+IDAwMDAwMDAwZmZmMDAwMDAgLSAwMDAwMDAwMTAwMDAwMDAwIChyZXNlcnZl
+ZCkNCjExNTFNQiBISUdITUVNIGF2YWlsYWJsZS4NCjg5Nk1CIExPV01FTSBh
+dmFpbGFibGUuDQpmb3VuZCBTTVAgTVAtdGFibGUgYXQgMDAwZjY2YzANCmht
+LCBwYWdlIDAwMGY2MDAwIHJlc2VydmVkIHR3aWNlLg0KaG0sIHBhZ2UgMDAw
+ZjcwMDAgcmVzZXJ2ZWQgdHdpY2UuDQpobSwgcGFnZSAwMDA5ZjAwMCByZXNl
+cnZlZCB0d2ljZS4NCmhtLCBwYWdlIDAwMGEwMDAwIHJlc2VydmVkIHR3aWNl
+Lg0KT24gbm9kZSAwIHRvdGFscGFnZXM6IDUyNDE2MA0Kem9uZSgwKTogNDA5
+NiBwYWdlcy4NCnpvbmUoMSk6IDIyNTI4MCBwYWdlcy4NCnpvbmUoMik6IDI5
+NDc4NCBwYWdlcy4NCkFDUEk6IFNlYXJjaGVkIGVudGlyZSBibG9jaywgbm8g
+UlNEUCB3YXMgZm91bmQuDQpBQ1BJOiBSU0RQIGxvY2F0ZWQgYXQgcGh5c2lj
+YWwgYWRkcmVzcyBjMDBmNjcyMA0KUlNEIFBUUiAgdjAgW1BUTFREIF0NCl9f
+dmFfcmFuZ2UoMHg3ZmVmODE5OSwgMHg2OCk6IGlkeD04IG1hcHBlZCBhdCBm
+ZmZmNjAwMA0KQUNQSSB0YWJsZSBmb3VuZDogUlNEVCB2MSBbUFRMVEQgICAg
+UlNEVCAgIDE1NDAuMF0NCl9fdmFfcmFuZ2UoMHg3ZmVmYmU2NCwgMHgyNCk6
+IGlkeD04IG1hcHBlZCBhdCBmZmZmNjAwMA0KX192YV9yYW5nZSgweDdmZWZi
+ZTY0LCAweDc0KTogaWR4PTggbWFwcGVkIGF0IGZmZmY2MDAwDQpBQ1BJIHRh
+YmxlIGZvdW5kOiBGQUNQIHYxIFtJTlRFTCAgS19DQU5ZT04gMTU0MC4wXQ0K
+X192YV9yYW5nZSgweDdmZWZiZWQ4LCAweDI0KTogaWR4PTggbWFwcGVkIGF0
+IGZmZmY2MDAwDQpfX3ZhX3JhbmdlKDB4N2ZlZmJlZDgsIDB4YjApOiBpZHg9
+OCBtYXBwZWQgYXQgZmZmZjYwMDANCkFDUEkgdGFibGUgZm91bmQ6IEFQSUMg
+djEgW1BUTFREICAJIEFQSUMgICAxNTQwLjBdDQpfX3ZhX3JhbmdlKDB4N2Zl
+ZmJlZDgsIDB4YjApOiBpZHg9OCBtYXBwZWQgYXQgZmZmZjYwMDANCkxBUElD
+IChhY3BpX2lkWzB4MDAwMF0gaWRbMHgwXSBlbmFibGVkWzFdKQ0KQ1BVIDAg
+KDB4MDAwMCkgZW5hYmxlZFByb2Nlc3NvciAjMCBQZW50aXVtIDQodG0pIFhF
+T04odG0pIEFQSUMgdmVyc2lvbiAxNg0KDQpMQVBJQyAoYWNwaV9pZFsweDAw
+MDFdIGlkWzB4Nl0gZW5hYmxlZFsxXSkNCkNQVSAxICgweDA2MDApIGVuYWJs
+ZWRQcm9jZXNzb3IgIzYgUGVudGl1bSA0KHRtKSBYRU9OKHRtKSBBUElDIHZl
+cnNpb24gMTYNCg0KSU9BUElDIChpZFsweDJdIGFkZHJlc3NbMHhmZWMwMDAw
+MF0gZ2xvYmFsX2lycV9iYXNlWzB4MF0pDQpJT0FQSUMgKGlkWzB4M10gYWRk
+cmVzc1sweGZlYzgwMDAwXSBnbG9iYWxfaXJxX2Jhc2VbMHgxOF0pDQpJT0FQ
+SUMgKGlkWzB4NF0gYWRkcmVzc1sweGZlYzgwNDAwXSBnbG9iYWxfaXJxX2Jh
+c2VbMHgzMF0pDQpJT0FQSUMgKGlkWzB4NV0gYWRkcmVzc1sweGZlYzgxMDAw
+XSBnbG9iYWxfaXJxX2Jhc2VbMHg0OF0pDQpJT0FQSUMgKGlkWzB4OF0gYWRk
+cmVzc1sweGZlYzgxNDAwXSBnbG9iYWxfaXJxX2Jhc2VbMHg2MF0pDQpJT0FQ
+SUMgKGlkWzB4OV0gYWRkcmVzc1sweGZlYzgyMDAwXSBnbG9iYWxfaXJxX2Jh
+c2VbMHg3OF0pDQpJT0FQSUMgKGlkWzB4YV0gYWRkcmVzc1sweGZlYzgyNDAw
+XSBnbG9iYWxfaXJxX2Jhc2VbMHg5MF0pDQpJTlRfU1JDX09WUiAoYnVzWzBd
+IGlycVsweDBdIGdsb2JhbF9pcnFbMHgyXSBwb2xhcml0eVsweDFdIHRyaWdn
+ZXJbMHgxXSkNCklOVF9TUkNfT1ZSIChidXNbMF0gaXJxWzB4OV0gZ2xvYmFs
+X2lycVsweDldIHBvbGFyaXR5WzB4MV0gdHJpZ2dlclsweDNdKQ0KTEFQSUNf
+Tk1JIChhY3BpX2lkWzB4MDAwMF0gcG9sYXJpdHlbMHgxXSB0cmlnZ2VyWzB4
+MV0gbGludFsweDFdKQ0KTEFQSUNfTk1JIChhY3BpX2lkWzB4MDAwMV0gcG9s
+YXJpdHlbMHgxXSB0cmlnZ2VyWzB4MV0gbGludFsweDFdKQ0KMiBDUFVzIHRv
+dGFsDQpMb2NhbCBBUElDIGFkZHJlc3MgZmVlMDAwMDANCl9fdmFfcmFuZ2Uo
+MHg3ZmVmYmY4OCwgMHgyNCk6IGlkeD04IG1hcHBlZCBhdCBmZmZmNjAwMA0K
+X192YV9yYW5nZSgweDdmZWZiZjg4LCAweDI4KTogaWR4PTggbWFwcGVkIGF0
+IGZmZmY2MDAwDQpBQ1BJIHRhYmxlIGZvdW5kOiBCT09UIHYxIFtQVExURCAg
+JFNCRlRCTCQgMTU0MC4wXQ0KX192YV9yYW5nZSgweDdmZWZiZmIwLCAweDI0
+KTogaWR4PTggbWFwcGVkIGF0IGZmZmY2MDAwDQpfX3ZhX3JhbmdlKDB4N2Zl
+ZmJmYjAsIDB4NTApOiBpZHg9OCBtYXBwZWQgYXQgZmZmZjYwMDANCkFDUEkg
+dGFibGUgZm91bmQ6IFNQQ1IgdjEgW1BUTFREICAkVUNSVEJMJCAxNTQwLjBd
+DQpFbmFibGluZyB0aGUgQ1BVJ3MgYWNjb3JkaW5nIHRvIHRoZSBBQ1BJIHRh
+YmxlDQpJbnRlbCBNdWx0aVByb2Nlc3NvciBTcGVjaWZpY2F0aW9uIHYxLjQN
+CiAgICBWaXJ0dWFsIFdpcmUgY29tcGF0aWJpbGl0eSBtb2RlLg0KT0VNIElE
+OiAgIFByb2R1Y3QgSUQ6IEtpbmdzIENhbnlvbiBBUElDIGF0OiAweEZFRTAw
+MDAwDQpJL08gQVBJQyAjMiBWZXJzaW9uIDMyIGF0IDB4RkVDMDAwMDAuDQpJ
+L08gQVBJQyAjMyBWZXJzaW9uIDMyIGF0IDB4RkVDODAwMDAuDQpJL08gQVBJ
+QyAjNCBWZXJzaW9uIDMyIGF0IDB4RkVDODA0MDAuDQpJL08gQVBJQyAjNSBW
+ZXJzaW9uIDMyIGF0IDB4RkVDODEwMDAuDQpJL08gQVBJQyAjOCBWZXJzaW9u
+IDMyIGF0IDB4RkVDODE0MDAuDQpJL08gQVBJQyAjOSBWZXJzaW9uIDMyIGF0
+IDB4RkVDODIwMDAuDQpJL08gQVBJQyAjMTAgVmVyc2lvbiAzMiBhdCAweEZF
+QzgyNDAwLg0KUHJvY2Vzc29yczogMg0KS2VybmVsIGNvbW1hbmQgbGluZTog
+cm8gcm9vdD0vZGV2L2hkYTEgbm1pX3dhdGNoZG9nPTENCkluaXRpYWxpemlu
+ZyBDUFUjMA0KRGV0ZWN0ZWQgMjE5Ni4zMjcgTUh6IHByb2Nlc3Nvci4NCkNv
+bnNvbGU6IGNvbG91ciBWR0ErIDgweDI1DQpDYWxpYnJhdGluZyBkZWxheSBs
+b29wLi4uIDQzNzcuODAgQm9nb01JUFMNCk1lbW9yeTogMjA2ODU5MmsvMjA5
+NjY0MGsgYXZhaWxhYmxlICgxMjE2ayBrZXJuZWwgY29kZSwgMjc1OTZrIHJl
+c2VydmVkLCAxMDUwayBkYXRhLCAxMDhrIGluaXQsIDExNzkwNzJrIGhpZ2ht
+ZW0pDQprZGIgdmVyc2lvbiAyLjUgYnkgS2VpdGggT3dlbnMsIFNjb3R0IEx1
+cm5kYWwuIENvcHlyaWdodCBTR0ksIEFsbCBSaWdodHMgUmVzZXJ2ZWQNCkRl
+bnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDI2MjE0NCAob3JkZXI6
+IDksIDIwOTcxNTIgYnl0ZXMpDQpJbm9kZSBjYWNoZSBoYXNoIHRhYmxlIGVu
+dHJpZXM6IDEzMTA3MiAob3JkZXI6IDgsIDEwNDg1NzYgYnl0ZXMpDQpNb3Vu
+dC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDMyNzY4IChvcmRlcjogNiwg
+MjYyMTQ0IGJ5dGVzKQ0KQnVmZmVyLWNhY2hlIGhhc2ggdGFibGUgZW50cmll
+czogMTMxMDcyIChvcmRlcjogNywgNTI0Mjg4IGJ5dGVzKQ0KUGFnZS1jYWNo
+ZSBoYXNoIHRhYmxlIGVudHJpZXM6IDUyNDI4OCAob3JkZXI6IDksIDIwOTcx
+NTIgYnl0ZXMpDQpDUFU6IFRyYWNlIGNhY2hlOiAxMksgdW9wcywgTDEgRCBj
+YWNoZTogOEsNCkNQVTogTDIgY2FjaGU6IDUxMksNCkNQVTogUGh5c2ljYWwg
+UHJvY2Vzc29yIElEOiAwDQpJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVj
+dHVyZSBzdXBwb3J0ZWQuDQpJbnRlbCBtYWNoaW5lIGNoZWNrIHJlcG9ydGlu
+ZyBlbmFibGVkIG9uIENQVSMwLg0KQ1BVOiAgICAgQWZ0ZXIgZ2VuZXJpYywg
+Y2FwczogM2ZlYmZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDANCkNQ
+VTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDNmZWJmYmZmIDAwMDAwMDAw
+IDAwMDAwMDAwIDAwMDAwMDAwDQpFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFu
+ZCByZXN0b3JlLi4uIGRvbmUuDQpFbmFibGluZyB1bm1hc2tlZCBTSU1EIEZQ
+VSBleGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLg0KQ2hlY2tpbmcgJ2hsdCcg
+aW5zdHJ1Y3Rpb24uLi4gT0suDQpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5n
+IGJ5IFVOSUZJWA0KbXRycjogdjEuNDAgKDIwMDEwMzI3KSBSaWNoYXJkIEdv
+b2NoIChyZ29vY2hAYXRuZi5jc2lyby5hdSkNCm10cnI6IGRldGVjdGVkIG10
+cnIgdHlwZTogSW50ZWwNCkNQVTogVHJhY2UgY2FjaGU6IDEySyB1b3BzLCBM
+MSBEIGNhY2hlOiA4Sw0KQ1BVOiBMMiBjYWNoZTogNTEySw0KQ1BVOiBQaHlz
+aWNhbCBQcm9jZXNzb3IgSUQ6IDANCkludGVsIG1hY2hpbmUgY2hlY2sgcmVw
+b3J0aW5nIGVuYWJsZWQgb24gQ1BVIzAuDQpDUFU6ICAgICBBZnRlciBnZW5l
+cmljLCBjYXBzOiAzZmViZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAw
+MA0KQ1BVOiAgICAgICAgICAgICBDb21tb24gY2FwczogM2ZlYmZiZmYgMDAw
+MDAwMDAgMDAwMDAwMDAgMDAwMDAwMDANCkNQVTA6IEludGVsKFIpIFhFT04o
+VE0pIENQVSAyLjIwR0h6IHN0ZXBwaW5nIDA0DQpwZXItQ1BVIHRpbWVzbGlj
+ZSBjdXRvZmY6IDE0NjIuNDkgdXNlY3MuDQplbmFibGVkIEV4dElOVCBvbiBD
+UFUjMA0KRVNSIHZhbHVlIGJlZm9yZSBlbmFibGluZyB2ZWN0b3I6IDAwMDAw
+MDAwDQpFU1IgdmFsdWUgYWZ0ZXIgZW5hYmxpbmcgdmVjdG9yOiAwMDAwMDAw
+MA0KQm9vdGluZyBwcm9jZXNzb3IgMS82IGVpcCAyMDAwDQpJbml0aWFsaXpp
+bmcgQ1BVIzENCm1hc2tlZCBFeHRJTlQgb24gQ1BVIzENCkVTUiB2YWx1ZSBi
+ZWZvcmUgZW5hYmxpbmcgdmVjdG9yOiAwMDAwMDAwMA0KRVNSIHZhbHVlIGFm
+dGVyIGVuYWJsaW5nIHZlY3RvcjogMDAwMDAwMDANCkNhbGlicmF0aW5nIGRl
+bGF5IGxvb3AuLi4gNDM5MC45MSBCb2dvTUlQUw0KQ1BVOiBUcmFjZSBjYWNo
+ZTogMTJLIHVvcHMsIEwxIEQgY2FjaGU6IDhLDQpDUFU6IEwyIGNhY2hlOiA1
+MTJLDQpDUFU6IFBoeXNpY2FsIFByb2Nlc3NvciBJRDogMw0KSW50ZWwgbWFj
+aGluZSBjaGVjayByZXBvcnRpbmcgZW5hYmxlZCBvbiBDUFUjMS4NCkNQVTog
+ICAgIEFmdGVyIGdlbmVyaWMsIGNhcHM6IDNmZWJmYmZmIDAwMDAwMDAwIDAw
+MDAwMDAwIDAwMDAwMDAwDQpDUFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBz
+OiAzZmViZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMA0KQ1BVMTog
+SW50ZWwoUikgWEVPTihUTSkgQ1BVIDIuMjBHSHogc3RlcHBpbmcgMDQNClRv
+dGFsIG9mIDIgcHJvY2Vzc29ycyBhY3RpdmF0ZWQgKDg3NjguNzEgQm9nb01J
+UFMpLg0KV0FSTklORzogTm8gc2libGluZyBmb3VuZCBmb3IgQ1BVIDAuDQpX
+QVJOSU5HOiBObyBzaWJsaW5nIGZvdW5kIGZvciBDUFUgMS4NCkVOQUJMSU5H
+IElPLUFQSUMgSVJRcw0KU2V0dGluZyAyIGluIHRoZSBwaHlzX2lkX3ByZXNl
+bnRfbWFwDQouLi5jaGFuZ2luZyBJTy1BUElDIHBoeXNpY2FsIEFQSUMgSUQg
+dG8gMiAuLi4gb2suDQpTZXR0aW5nIDMgaW4gdGhlIHBoeXNfaWRfcHJlc2Vu
+dF9tYXANCi4uLmNoYW5naW5nIElPLUFQSUMgcGh5c2ljYWwgQVBJQyBJRCB0
+byAzIC4uLiBvay4NClNldHRpbmcgNCBpbiB0aGUgcGh5c19pZF9wcmVzZW50
+X21hcA0KLi4uY2hhbmdpbmcgSU8tQVBJQyBwaHlzaWNhbCBBUElDIElEIHRv
+IDQgLi4uIG9rLg0KU2V0dGluZyA1IGluIHRoZSBwaHlzX2lkX3ByZXNlbnRf
+bWFwDQouLi5jaGFuZ2luZyBJTy1BUElDIHBoeXNpY2FsIEFQSUMgSUQgdG8g
+NSAuLi4gb2suDQpTZXR0aW5nIDggaW4gdGhlIHBoeXNfaWRfcHJlc2VudF9t
+YXANCi4uLmNoYW5naW5nIElPLUFQSUMgcGh5c2ljYWwgQVBJQyBJRCB0byA4
+IC4uLiBvay4NClNldHRpbmcgOSBpbiB0aGUgcGh5c19pZF9wcmVzZW50X21h
+cA0KLi4uY2hhbmdpbmcgSU8tQVBJQyBwaHlzaWNhbCBBUElDIElEIHRvIDkg
+Li4uIG9rLg0KU2V0dGluZyAxMCBpbiB0aGUgcGh5c19pZF9wcmVzZW50X21h
+cA0KLi4uY2hhbmdpbmcgSU8tQVBJQyBwaHlzaWNhbCBBUElDIElEIHRvIDEw
+IC4uLiBvay4NCmluaXQgSU9fQVBJQyBJUlFzDQogSU8tQVBJQyAoYXBpY2lk
+LXBpbikgMi0wLCAyLTEwLCAyLTExLCAyLTIwLCAyLTIxLCAyLTIyLCAyLTIz
+LCAzLTAsIDMtMSwgMy0yLCAzLTMsIDMtNCwgMy01LCAzLTYsIDMtNywgMy04
+LCAzLTksIDMtMTAsIDMtMTEsIDMtMTIsIDMtMTMsIDMtMTQsIDMtMTUsIDMt
+MTYsIDMtMTcsIDMtMTgsIDMtMTksIDMtMjAsIDMtMjEsIDMtMjIsIDMtMjMs
+IDQtMCwgNC0xLCA0LTIsIDQtMywgNC00LCA0LTUsIDQtNiwgNC03LCA0LTgs
+IDQtOSwgNC0xMCwgNC0xMSwgNC0xMiwgNC0xMywgNC0xNCwgNC0xNSwgNC0x
+NiwgNC0xNywgNC0xOCwgNC0xOSwgNC0yMCwgNC0yMSwgNC0yMiwgNC0yMywg
+NS0wLCA1LTEsIDUtMiwgNS0zLCA1LTQsIDUtNSwgNS02LCA1LTcsIDUtOCwg
+NS05LCA1LTEwLCA1LTExLCA1LTEyLCA1LTEzLCA1LTE0LCA1LTE1LCA1LTE2
+LCA1LTE3LCA1LTE4LCA1LTE5LCA1LTIwLCA1LTIxLCA1LTIyLCA1LTIzLCA4
+LTAsIDgtMSwgOC0yLCA4LTMsIDgtNCwgOC01LCA4LTYsIDgtNywgOC04LCA4
+LTksIDgtMTAsIDgtMTEsIDgtMTIsIDgtMTMsIDgtMTQsIDgtMTUsIDgtMTYs
+IDgtMTcsIDgtMTgsIDgtMTksIDgtMjAsIDgtMjEsIDgtMjIsIDgtMjMsIDkt
+MSwgOS0yLCA5LTMsIDktNCwgOS01LCA5LTYsIDktNywgOS04LCA5LTksIDkt
+MTAsIDktMTEsIDktMTIsIDktMTMsIDktMTQsIDktMTUsIDktMTYsIDktMTcs
+IDktMTgsIDktMTksIDktMjAsIDktMjEsIDktMjIsIDktMjMsIDEwLTAsIDEw
+LTEsIDEwLTIsIDEwLTMsIDEwLTQsIDEwLTUsIDEwLTYsIDEwLTcsIDEwLTgs
+IDEwLTksIDEwLTEwLCAxMC0xMSwgMTAtMTIsIDEwLTEzLCAxMC0xNCwgMTAt
+MTUsIDEwLTE2LCAxMC0xNywgMTAtMTgsIDEwLTE5LCAxMC0yMCwgMTAtMjEs
+IDEwLTIyLCAxMC0yMyBub3QgY29ubmVjdGVkLg0KLi5USU1FUjogdmVjdG9y
+PTB4MzEgcGluMT0yIHBpbjI9MA0KYWN0aXZhdGluZyBOTUkgV2F0Y2hkb2cg
+Li4uIGRvbmUuDQp0ZXN0aW5nIE5NSSB3YXRjaGRvZyAuLi4gT0suDQpudW1i
+ZXIgb2YgTVAgSVJRIHNvdXJjZXM6IDIxLg0KbnVtYmVyIG9mIElPLUFQSUMg
+IzIgcmVnaXN0ZXJzOiAyNC4NCm51bWJlciBvZiBJTy1BUElDICMzIHJlZ2lz
+dGVyczogMjQuDQpudW1iZXIgb2YgSU8tQVBJQyAjNCByZWdpc3RlcnM6IDI0
+Lg0KbnVtYmVyIG9mIElPLUFQSUMgIzUgcmVnaXN0ZXJzOiAyNC4NCm51bWJl
+ciBvZiBJTy1BUElDICM4IHJlZ2lzdGVyczogMjQuDQpudW1iZXIgb2YgSU8t
+QVBJQyAjOSByZWdpc3RlcnM6IDI0Lg0KbnVtYmVyIG9mIElPLUFQSUMgIzEw
+IHJlZ2lzdGVyczogMjQuDQp0ZXN0aW5nIHRoZSBJTyBBUElDLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4NCg0KSU8gQVBJQyAjMi4uLi4uLg0KLi4uLiByZWdp
+c3RlciAjMDA6IDAyMDA4MDAwDQouLi4uLi4uICAgIDogcGh5c2ljYWwgQVBJ
+QyBpZDogMDINCiBXQVJOSU5HOiB1bmV4cGVjdGVkIElPLUFQSUMsIHBsZWFz
+ZSBtYWlsDQogICAgICAgICAgdG8gbGludXgtc21wQHZnZXIua2VybmVsLm9y
+Zw0KLi4uLiByZWdpc3RlciAjMDE6IDAwMTc4MDIwDQouLi4uLi4uICAgICA6
+IG1heCByZWRpcmVjdGlvbiBlbnRyaWVzOiAwMDE3DQouLi4uLi4uICAgICA6
+IFBSUSBpbXBsZW1lbnRlZDogMQ0KLi4uLi4uLiAgICAgOiBJTyBBUElDIHZl
+cnNpb246IDAwMjANCi4uLi4gcmVnaXN0ZXIgIzAyOiAwMDAwMDAwMA0KLi4u
+Li4uLiAgICAgOiBhcmJpdHJhdGlvbjogMDANCi4uLi4gSVJRIHJlZGlyZWN0
+aW9uIHRhYmxlOg0KIE5SIExvZyBQaHkgTWFzayBUcmlnIElSUiBQb2wgU3Rh
+dCBEZXN0IERlbGkgVmVjdDogICANCiAwMCAwMDAgMDAgIDEgICAgMCAgICAw
+ICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDEgMDAzIDAzICAwICAgIDAg
+ICAgMCAgIDAgICAwICAgIDEgICAgMSAgICAzOQ0KIDAyIDAwMyAwMyAgMCAg
+ICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgMzENCiAwMyAwMDMgMDMg
+IDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDQxDQogMDQgMDAz
+IDAzICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA0OQ0KIDA1
+IDAwMyAwMyAgMCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgNTEN
+CiAwNiAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAg
+IDU5DQogMDcgMDAzIDAzICAwICAgIDAgICAgMCAgIDAgICAwICAgIDEgICAg
+MSAgICA2MQ0KIDA4IDAwMyAwMyAgMCAgICAwICAgIDAgICAwICAgMCAgICAx
+ICAgIDEgICAgNjkNCiAwOSAwMDMgMDMgIDAgICAgMCAgICAwICAgMCAgIDAg
+ICAgMSAgICAxICAgIDcxDQogMGEgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KIDBiIDAwMCAwMCAgMSAgICAwICAgIDAg
+ICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwYyAwMDMgMDMgIDAgICAgMCAg
+ICAwICAgMCAgIDAgICAgMSAgICAxICAgIDc5DQogMGQgMDAzIDAzICAwICAg
+IDAgICAgMCAgIDAgICAwICAgIDEgICAgMSAgICA4OQ0KIDBlIDAwMyAwMyAg
+MCAgICAwICAgIDAgICAwICAgMCAgICAxICAgIDEgICAgOTENCiAwZiAwMDMg
+MDMgIDAgICAgMCAgICAwICAgMCAgIDAgICAgMSAgICAxICAgIDk5DQogMTAg
+MDAzIDAzICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEgICAgMSAgICBBMQ0K
+IDExIDAwMyAwMyAgMSAgICAxICAgIDAgICAxICAgMCAgICAxICAgIDEgICAg
+QTkNCiAxMiAwMDMgMDMgIDEgICAgMSAgICAwICAgMSAgIDAgICAgMSAgICAx
+ICAgIEIxDQogMTMgMDAzIDAzICAxICAgIDEgICAgMCAgIDEgICAwICAgIDEg
+ICAgMSAgICBCOQ0KIDE0IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAg
+ICAwICAgIDAgICAgMDANCiAxNSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAg
+IDAgICAgMCAgICAwICAgIDAwDQogMTYgMDAwIDAwICAxICAgIDAgICAgMCAg
+IDAgICAwICAgIDAgICAgMCAgICAwMA0KIDE3IDAwMCAwMCAgMSAgICAwICAg
+IDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCg0KSU8gQVBJQyAjMy4uLi4u
+Lg0KLi4uLiByZWdpc3RlciAjMDA6IDAzMDAwMDAwDQouLi4uLi4uICAgIDog
+cGh5c2ljYWwgQVBJQyBpZDogMDMNCi4uLi4gcmVnaXN0ZXIgIzAxOiAwMDE3
+ODAyMA0KLi4uLi4uLiAgICAgOiBtYXggcmVkaXJlY3Rpb24gZW50cmllczog
+MDAxNw0KLi4uLi4uLiAgICAgOiBQUlEgaW1wbGVtZW50ZWQ6IDENCi4uLi4u
+Li4gICAgIDogSU8gQVBJQyB2ZXJzaW9uOiAwMDIwDQouLi4uIHJlZ2lzdGVy
+ICMwMjogMDMwMDAwMDANCi4uLi4uLi4gICAgIDogYXJiaXRyYXRpb246IDAz
+DQouLi4uIElSUSByZWRpcmVjdGlvbiB0YWJsZToNCiBOUiBMb2cgUGh5IE1h
+c2sgVHJpZyBJUlIgUG9sIFN0YXQgRGVzdCBEZWxpIFZlY3Q6ICAgDQogMDAg
+MDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0K
+IDAxIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAg
+MDANCiAwMiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAw
+ICAgIDAwDQogMDMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAg
+ICAgMCAgICAwMA0KIDA0IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAg
+ICAwICAgIDAgICAgMDANCiAwNSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAg
+IDAgICAgMCAgICAwICAgIDAwDQogMDYgMDAwIDAwICAxICAgIDAgICAgMCAg
+IDAgICAwICAgIDAgICAgMCAgICAwMA0KIDA3IDAwMCAwMCAgMSAgICAwICAg
+IDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwOCAwMDAgMDAgIDEgICAg
+MCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDkgMDAwIDAwICAx
+ICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBhIDAwMCAw
+MCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwYiAw
+MDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQog
+MGMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAw
+MA0KIDBkIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAg
+ICAgMDANCiAwZSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAg
+ICAwICAgIDAwDQogMGYgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAg
+IDAgICAgMCAgICAwMA0KIDEwIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAg
+MCAgICAwICAgIDAgICAgMDANCiAxMSAwMDAgMDAgIDEgICAgMCAgICAwICAg
+MCAgIDAgICAgMCAgICAwICAgIDAwDQogMTIgMDAwIDAwICAxICAgIDAgICAg
+MCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDEzIDAwMCAwMCAgMSAgICAw
+ICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxNCAwMDAgMDAgIDEg
+ICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTUgMDAwIDAw
+ICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDE2IDAw
+MCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAx
+NyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAw
+DQoNCklPIEFQSUMgIzQuLi4uLi4NCi4uLi4gcmVnaXN0ZXIgIzAwOiAwNDAw
+MDAwMA0KLi4uLi4uLiAgICA6IHBoeXNpY2FsIEFQSUMgaWQ6IDA0DQouLi4u
+IHJlZ2lzdGVyICMwMTogMDAxNzgwMjANCi4uLi4uLi4gICAgIDogbWF4IHJl
+ZGlyZWN0aW9uIGVudHJpZXM6IDAwMTcNCi4uLi4uLi4gICAgIDogUFJRIGlt
+cGxlbWVudGVkOiAxDQouLi4uLi4uICAgICA6IElPIEFQSUMgdmVyc2lvbjog
+MDAyMA0KLi4uLiByZWdpc3RlciAjMDI6IDA0MDAwMDAwDQouLi4uLi4uICAg
+ICA6IGFyYml0cmF0aW9uOiAwNA0KLi4uLiBJUlEgcmVkaXJlY3Rpb24gdGFi
+bGU6DQogTlIgTG9nIFBoeSBNYXNrIFRyaWcgSVJSIFBvbCBTdGF0IERlc3Qg
+RGVsaSBWZWN0OiAgIA0KIDAwIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAg
+MCAgICAwICAgIDAgICAgMDANCiAwMSAwMDAgMDAgIDEgICAgMCAgICAwICAg
+MCAgIDAgICAgMCAgICAwICAgIDAwDQogMDIgMDAwIDAwICAxICAgIDAgICAg
+MCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDAzIDAwMCAwMCAgMSAgICAw
+ICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwNCAwMDAgMDAgIDEg
+ICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDUgMDAwIDAw
+ICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDA2IDAw
+MCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAw
+NyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAw
+DQogMDggMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAg
+ICAwMA0KIDA5IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAg
+IDAgICAgMDANCiAwYSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAg
+MCAgICAwICAgIDAwDQogMGIgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAw
+ICAgIDAgICAgMCAgICAwMA0KIDBjIDAwMCAwMCAgMSAgICAwICAgIDAgICAw
+ICAgMCAgICAwICAgIDAgICAgMDANCiAwZCAwMDAgMDAgIDEgICAgMCAgICAw
+ICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMGUgMDAwIDAwICAxICAgIDAg
+ICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBmIDAwMCAwMCAgMSAg
+ICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxMCAwMDAgMDAg
+IDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTEgMDAw
+IDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDEy
+IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDAN
+CiAxMyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAg
+IDAwDQogMTQgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAg
+MCAgICAwMA0KIDE1IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAw
+ICAgIDAgICAgMDANCiAxNiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAg
+ICAgMCAgICAwICAgIDAwDQogMTcgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KDQpJTyBBUElDICM1Li4uLi4uDQouLi4u
+IHJlZ2lzdGVyICMwMDogMDUwMDAwMDANCi4uLi4uLi4gICAgOiBwaHlzaWNh
+bCBBUElDIGlkOiAwNQ0KLi4uLiByZWdpc3RlciAjMDE6IDAwMTc4MDIwDQou
+Li4uLi4uICAgICA6IG1heCByZWRpcmVjdGlvbiBlbnRyaWVzOiAwMDE3DQou
+Li4uLi4uICAgICA6IFBSUSBpbXBsZW1lbnRlZDogMQ0KLi4uLi4uLiAgICAg
+OiBJTyBBUElDIHZlcnNpb246IDAwMjANCi4uLi4gcmVnaXN0ZXIgIzAyOiAw
+NTAwMDAwMA0KLi4uLi4uLiAgICAgOiBhcmJpdHJhdGlvbjogMDUNCi4uLi4g
+SVJRIHJlZGlyZWN0aW9uIHRhYmxlOg0KIE5SIExvZyBQaHkgTWFzayBUcmln
+IElSUiBQb2wgU3RhdCBEZXN0IERlbGkgVmVjdDogICANCiAwMCAwMDAgMDAg
+IDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDEgMDAw
+IDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDAy
+IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDAN
+CiAwMyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAg
+IDAwDQogMDQgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAg
+MCAgICAwMA0KIDA1IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAw
+ICAgIDAgICAgMDANCiAwNiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAg
+ICAgMCAgICAwICAgIDAwDQogMDcgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KIDA4IDAwMCAwMCAgMSAgICAwICAgIDAg
+ICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwOSAwMDAgMDAgIDEgICAgMCAg
+ICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMGEgMDAwIDAwICAxICAg
+IDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBiIDAwMCAwMCAg
+MSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwYyAwMDAg
+MDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMGQg
+MDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0K
+IDBlIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAg
+MDANCiAwZiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAw
+ICAgIDAwDQogMTAgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAg
+ICAgMCAgICAwMA0KIDExIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAg
+ICAwICAgIDAgICAgMDANCiAxMiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAg
+IDAgICAgMCAgICAwICAgIDAwDQogMTMgMDAwIDAwICAxICAgIDAgICAgMCAg
+IDAgICAwICAgIDAgICAgMCAgICAwMA0KIDE0IDAwMCAwMCAgMSAgICAwICAg
+IDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxNSAwMDAgMDAgIDEgICAg
+MCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTYgMDAwIDAwICAx
+ICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDE3IDAwMCAw
+MCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCg0KSU8g
+QVBJQyAjOC4uLi4uLg0KLi4uLiByZWdpc3RlciAjMDA6IDA4MDAwMDAwDQou
+Li4uLi4uICAgIDogcGh5c2ljYWwgQVBJQyBpZDogMDgNCi4uLi4gcmVnaXN0
+ZXIgIzAxOiAwMDE3ODAyMA0KLi4uLi4uLiAgICAgOiBtYXggcmVkaXJlY3Rp
+b24gZW50cmllczogMDAxNw0KLi4uLi4uLiAgICAgOiBQUlEgaW1wbGVtZW50
+ZWQ6IDENCi4uLi4uLi4gICAgIDogSU8gQVBJQyB2ZXJzaW9uOiAwMDIwDQou
+Li4uIHJlZ2lzdGVyICMwMjogMDgwMDAwMDANCi4uLi4uLi4gICAgIDogYXJi
+aXRyYXRpb246IDA4DQouLi4uIElSUSByZWRpcmVjdGlvbiB0YWJsZToNCiBO
+UiBMb2cgUGh5IE1hc2sgVHJpZyBJUlIgUG9sIFN0YXQgRGVzdCBEZWxpIFZl
+Y3Q6ICAgDQogMDAgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAg
+ICAgMCAgICAwMA0KIDAxIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAg
+ICAwICAgIDAgICAgMDANCiAwMiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAg
+IDAgICAgMCAgICAwICAgIDAwDQogMDMgMDAwIDAwICAxICAgIDAgICAgMCAg
+IDAgICAwICAgIDAgICAgMCAgICAwMA0KIDA0IDAwMCAwMCAgMSAgICAwICAg
+IDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwNSAwMDAgMDAgIDEgICAg
+MCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDYgMDAwIDAwICAx
+ICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDA3IDAwMCAw
+MCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwOCAw
+MDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQog
+MDkgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAw
+MA0KIDBhIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAg
+ICAgMDANCiAwYiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAg
+ICAwICAgIDAwDQogMGMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAg
+IDAgICAgMCAgICAwMA0KIDBkIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAg
+MCAgICAwICAgIDAgICAgMDANCiAwZSAwMDAgMDAgIDEgICAgMCAgICAwICAg
+MCAgIDAgICAgMCAgICAwICAgIDAwDQogMGYgMDAwIDAwICAxICAgIDAgICAg
+MCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDEwIDAwMCAwMCAgMSAgICAw
+ICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxMSAwMDAgMDAgIDEg
+ICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTIgMDAwIDAw
+ICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDEzIDAw
+MCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAx
+NCAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAw
+DQogMTUgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAg
+ICAwMA0KIDE2IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAg
+IDAgICAgMDANCiAxNyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAg
+MCAgICAwICAgIDAwDQoNCklPIEFQSUMgIzkuLi4uLi4NCi4uLi4gcmVnaXN0
+ZXIgIzAwOiAwOTAwMDAwMA0KLi4uLi4uLiAgICA6IHBoeXNpY2FsIEFQSUMg
+aWQ6IDA5DQouLi4uIHJlZ2lzdGVyICMwMTogMDAxNzgwMjANCi4uLi4uLi4g
+ICAgIDogbWF4IHJlZGlyZWN0aW9uIGVudHJpZXM6IDAwMTcNCi4uLi4uLi4g
+ICAgIDogUFJRIGltcGxlbWVudGVkOiAxDQouLi4uLi4uICAgICA6IElPIEFQ
+SUMgdmVyc2lvbjogMDAyMA0KLi4uLiByZWdpc3RlciAjMDI6IDA5MDAwMDAw
+DQouLi4uLi4uICAgICA6IGFyYml0cmF0aW9uOiAwOQ0KLi4uLiBJUlEgcmVk
+aXJlY3Rpb24gdGFibGU6DQogTlIgTG9nIFBoeSBNYXNrIFRyaWcgSVJSIFBv
+bCBTdGF0IERlc3QgRGVsaSBWZWN0OiAgIA0KIDAwIDAwMyAwMyAgMSAgICAx
+ICAgIDAgICAxICAgMCAgICAxICAgIDEgICAgQzENCiAwMSAwMDAgMDAgIDEg
+ICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDIgMDAwIDAw
+ICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDAzIDAw
+MCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAw
+NCAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAw
+DQogMDUgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAg
+ICAwMA0KIDA2IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAg
+IDAgICAgMDANCiAwNyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAg
+MCAgICAwICAgIDAwDQogMDggMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAw
+ICAgIDAgICAgMCAgICAwMA0KIDA5IDAwMCAwMCAgMSAgICAwICAgIDAgICAw
+ICAgMCAgICAwICAgIDAgICAgMDANCiAwYSAwMDAgMDAgIDEgICAgMCAgICAw
+ICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMGIgMDAwIDAwICAxICAgIDAg
+ICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBjIDAwMCAwMCAgMSAg
+ICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwZCAwMDAgMDAg
+IDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMGUgMDAw
+IDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBm
+IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDAN
+CiAxMCAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAg
+IDAwDQogMTEgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAg
+MCAgICAwMA0KIDEyIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAw
+ICAgIDAgICAgMDANCiAxMyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAg
+ICAgMCAgICAwICAgIDAwDQogMTQgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KIDE1IDAwMCAwMCAgMSAgICAwICAgIDAg
+ICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxNiAwMDAgMDAgIDEgICAgMCAg
+ICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTcgMDAwIDAwICAxICAg
+IDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KDQpJTyBBUElDICMx
+MC4uLi4uLg0KLi4uLiByZWdpc3RlciAjMDA6IDBBMDAwMDAwDQouLi4uLi4u
+ICAgIDogcGh5c2ljYWwgQVBJQyBpZDogMEENCi4uLi4gcmVnaXN0ZXIgIzAx
+OiAwMDE3ODAyMA0KLi4uLi4uLiAgICAgOiBtYXggcmVkaXJlY3Rpb24gZW50
+cmllczogMDAxNw0KLi4uLi4uLiAgICAgOiBQUlEgaW1wbGVtZW50ZWQ6IDEN
+Ci4uLi4uLi4gICAgIDogSU8gQVBJQyB2ZXJzaW9uOiAwMDIwDQouLi4uIHJl
+Z2lzdGVyICMwMjogMEEwMDAwMDANCi4uLi4uLi4gICAgIDogYXJiaXRyYXRp
+b246IDBBDQouLi4uIElSUSByZWRpcmVjdGlvbiB0YWJsZToNCiBOUiBMb2cg
+UGh5IE1hc2sgVHJpZyBJUlIgUG9sIFN0YXQgRGVzdCBEZWxpIFZlY3Q6ICAg
+DQogMDAgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAg
+ICAwMA0KIDAxIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAg
+IDAgICAgMDANCiAwMiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAg
+MCAgICAwICAgIDAwDQogMDMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAw
+ICAgIDAgICAgMCAgICAwMA0KIDA0IDAwMCAwMCAgMSAgICAwICAgIDAgICAw
+ICAgMCAgICAwICAgIDAgICAgMDANCiAwNSAwMDAgMDAgIDEgICAgMCAgICAw
+ICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDYgMDAwIDAwICAxICAgIDAg
+ICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDA3IDAwMCAwMCAgMSAg
+ICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAwOCAwMDAgMDAg
+IDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMDkgMDAw
+IDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDBh
+IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDAN
+CiAwYiAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAg
+IDAwDQogMGMgMDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAg
+MCAgICAwMA0KIDBkIDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAw
+ICAgIDAgICAgMDANCiAwZSAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAg
+ICAgMCAgICAwICAgIDAwDQogMGYgMDAwIDAwICAxICAgIDAgICAgMCAgIDAg
+ICAwICAgIDAgICAgMCAgICAwMA0KIDEwIDAwMCAwMCAgMSAgICAwICAgIDAg
+ICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxMSAwMDAgMDAgIDEgICAgMCAg
+ICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTIgMDAwIDAwICAxICAg
+IDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0KIDEzIDAwMCAwMCAg
+MSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAgMDANCiAxNCAwMDAg
+MDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAwICAgIDAwDQogMTUg
+MDAwIDAwICAxICAgIDAgICAgMCAgIDAgICAwICAgIDAgICAgMCAgICAwMA0K
+IDE2IDAwMCAwMCAgMSAgICAwICAgIDAgICAwICAgMCAgICAwICAgIDAgICAg
+MDANCiAxNyAwMDAgMDAgIDEgICAgMCAgICAwICAgMCAgIDAgICAgMCAgICAw
+ICAgIDAwDQpJUlEgdG8gcGluIG1hcHBpbmdzOg0KSVJRMCAtPiAwOjINCklS
+UTEgLT4gMDoxDQpJUlEzIC0+IDA6Mw0KSVJRNCAtPiAwOjQNCklSUTUgLT4g
+MDo1DQpJUlE2IC0+IDA6Ng0KSVJRNyAtPiAwOjcNCklSUTggLT4gMDo4DQpJ
+UlE5IC0+IDA6OQ0KSVJRMTIgLT4gMDoxMg0KSVJRMTMgLT4gMDoxMw0KSVJR
+MTQgLT4gMDoxNA0KSVJRMTUgLT4gMDoxNQ0KSVJRMTYgLT4gMDoxNg0KSVJR
+MTcgLT4gMDoxNw0KSVJRMTggLT4gMDoxOA0KSVJRMTkgLT4gMDoxOQ0KSVJR
+MTIwIC0+IDU6MA0KLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uIGRvbmUuDQpVc2luZyBsb2NhbCBBUElDIHRpbWVyIGludGVycnVwdHMu
+DQpjYWxpYnJhdGluZyBBUElDIHRpbWVyIC4uLg0KLi4uLi4gQ1BVIGNsb2Nr
+IHNwZWVkIGlzIDIxOTYuMjg4MCBNSHouDQouLi4uLiBob3N0IGJ1cyBjbG9j
+ayBzcGVlZCBpcyA5OS44MzEyIE1Iei4NCmNwdTogMCwgY2xvY2tzOiA5OTgz
+MTIsIHNsaWNlOiAzMzI3NzANCkNQVTA8VDA6OTk4MzA0LFQxOjY2NTUyMCxE
+OjE0LFM6MzMyNzcwLEM6OTk4MzEyPg0KY3B1OiAxLCBjbG9ja3M6IDk5ODMx
+Miwgc2xpY2U6IDMzMjc3MA0KQ1BVMTxUMDo5OTgzMDQsVDE6MzMyNzUyLEQ6
+MTIsUzozMzI3NzAsQzo5OTgzMTI+DQpjaGVja2luZyBUU0Mgc3luY2hyb25p
+emF0aW9uIGFjcm9zcyBDUFVzOiBwYXNzZWQuDQpXYWl0aW5nIG9uIHdhaXRf
+aW5pdF9pZGxlIChtYXAgPSAweDIpDQpBbGwgcHJvY2Vzc29ycyBoYXZlIGRv
+bmUgaW5pdF9pZGxlDQptdHJyOiB5b3VyIENQVXMgaGFkIGluY29uc2lzdGVu
+dCBmaXhlZCBNVFJSIHNldHRpbmdzDQptdHJyOiBwcm9iYWJseSB5b3VyIEJJ
+T1MgZG9lcyBub3Qgc2V0dXAgYWxsIENQVXMNClBDSTogUENJIEJJT1MgcmV2
+aXNpb24gMi4xMCBlbnRyeSBhdCAweGZkODc1LCBsYXN0IGJ1cz0xMA0KUENJ
+OiBVc2luZyBjb25maWd1cmF0aW9uIHR5cGUgMQ0KUENJOiBQcm9iaW5nIFBD
+SSBoYXJkd2FyZQ0KVHJhbnNwYXJlbnQgYnJpZGdlIC0gSW50ZWwgQ29ycC4g
+ODI4MDFCQS9DQS9EQiBQQ0kgQnJpZGdlDQpQQ0k6IFVzaW5nIElSUSByb3V0
+ZXIgUElJWCBbODA4Ni8yNDgwXSBhdCAwMDoxZi4wDQpQQ0ktPkFQSUMgSVJR
+IHRyYW5zZm9ybTogKEIwLEkyOSxQMCkgLT4gMTYNClBDSS0+QVBJQyBJUlEg
+dHJhbnNmb3JtOiAoQjAsSTI5LFAxKSAtPiAxOQ0KUENJLT5BUElDIElSUSB0
+cmFuc2Zvcm06IChCMCxJMjksUDIpIC0+IDE4DQpQQ0ktPkFQSUMgSVJRIHRy
+YW5zZm9ybTogKEI5LEkxLFAwKSAtPiAxMjANClBDSS0+QVBJQyBJUlEgdHJh
+bnNmb3JtOiAoQjEwLEkxLFAwKSAtPiAxNg0KUENJLT5BUElDIElSUSB0cmFu
+c2Zvcm06IChCMTAsSTIsUDApIC0+IDE3DQpQQ0ktPkFQSUMgSVJRIHRyYW5z
+Zm9ybTogKEIxMCxJMyxQMCkgLT4gMTgNCkxpbnV4IE5FVDQuMCBmb3IgTGlu
+dXggMi40DQpCYXNlZCB1cG9uIFN3YW5zZWEgVW5pdmVyc2l0eSBDb21wdXRl
+ciBTb2NpZXR5IE5FVDMuMDM5DQpJbml0aWFsaXppbmcgUlQgbmV0bGluayBz
+b2NrZXQNClN0YXJ0aW5nIGtzd2FwZA0KYWxsb2NhdGVkIDMyIHBhZ2VzIGFu
+ZCAzMiBiaHMgcmVzZXJ2ZWQgZm9yIHRoZSBoaWdobWVtIGJvdW5jZXMNClZG
+UzogRGlza3F1b3RhcyB2ZXJzaW9uIGRxdW90XzYuNC4wIGluaXRpYWxpemVk
+DQpKb3VybmFsbGVkIEJsb2NrIERldmljZSBkcml2ZXIgbG9hZGVkDQpEZXRl
+Y3RlZCBQUy8yIE1vdXNlIFBvcnQuDQpwdHk6IDI1NiBVbml4OTggcHR5cyBj
+b25maWd1cmVkDQpTZXJpYWwgZHJpdmVyIHZlcnNpb24gNS4wNWMgKDIwMDEt
+MDctMDgpIHdpdGggTUFOWV9QT1JUUyBTSEFSRV9JUlEgU0VSSUFMX1BDSSBl
+bmFibGVkDQprZXlib2FyZDogVGltZW91dCAtIEFUIGtleWJvYXJkIG5vdCBw
+cmVzZW50PyhlZCkNCmtleWJvYXJkOiBUaW1lb3V0IC0gQVQga2V5Ym9hcmQg
+bm90IHByZXNlbnQ/KGY0KQ0KdHR5UzAwIGF0IDB4MDNmOCAoaXJxID0gNCkg
+aXMgYSAxNjU1MEENCnR0eVMwMSBhdCAweDAyZjggKGlycSA9IDMpIGlzIGEg
+MTY1NTBBDQpSZWFsIFRpbWUgQ2xvY2sgRHJpdmVyIHYxLjEwZQ0KVW5pZm9y
+bSBNdWx0aS1QbGF0Zm9ybSBFLUlERSBkcml2ZXIgUmV2aXNpb246IDYuMzEN
+CmlkZTogQXNzdW1pbmcgMzNNSHogc3lzdGVtIGJ1cyBzcGVlZCBmb3IgUElP
+IG1vZGVzOyBvdmVycmlkZSB3aXRoIGlkZWJ1cz14eA0KSUNIMzogSURFIGNv
+bnRyb2xsZXIgb24gUENJIGJ1cyAwMCBkZXYgZjkNClBDSTogRGV2aWNlIDAw
+OjFmLjEgbm90IGF2YWlsYWJsZSBiZWNhdXNlIG9mIHJlc291cmNlIGNvbGxp
+c2lvbnMNClBDSTogTm8gSVJRIGtub3duIGZvciBpbnRlcnJ1cHQgcGluIEEg
+b2YgZGV2aWNlIDAwOjFmLjEuIFByb2JhYmx5IGJ1Z2d5IE1QIHRhYmxlLg0K
+SUNIMzogQklPUyBzZXR1cCB3YXMgaW5jb21wbGV0ZS4NCklDSDM6IGNoaXBz
+ZXQgcmV2aXNpb24gMg0KSUNIMzogbm90IDEwMCUgbmF0aXZlIG1vZGU6IHdp
+bGwgcHJvYmUgaXJxcyBsYXRlcg0KICAgIGlkZTA6IEJNLURNQSBhdCAweDIw
+NjAtMHgyMDY3LCBCSU9TIHNldHRpbmdzOiBoZGE6cGlvLCBoZGI6cGlvDQog
+ICAgaWRlMTogQk0tRE1BIGF0IDB4MjA2OC0weDIwNmYsIEJJT1Mgc2V0dGlu
+Z3M6IGhkYzpwaW8sIGhkZDpwaW8NCmhkYTogV0RDIFdEODAwQUItMDBDQkEx
+LCBBVEEgRElTSyBkcml2ZQ0KaWRlMCBhdCAweDFmMC0weDFmNywweDNmNiBv
+biBpcnEgMTQNCmJsazogcXVldWUgYzAzYmEyZTQsIEkvTyBsaW1pdCA0MDk1
+TWIgKG1hc2sgMHhmZmZmZmZmZikNCmhkYTogMTU2MzAxNDg4IHNlY3RvcnMg
+KDgwMDI2IE1CKSB3LzIwNDhLaUIgQ2FjaGUsIENIUz0xNTUwNjEvMTYvNjMs
+IFVETUEoMTAwKQ0KUGFydGl0aW9uIGNoZWNrOg0KIGhkYTogaGRhMSBoZGEy
+IGhkYTMgaGRhNCA8IGhkYTUgPg0KRmxvcHB5IGRyaXZlKHMpOiBmZDAgaXMg
+MS40NE0NCkZEQyAwIGlzIGEgcG9zdC0xOTkxIDgyMDc3DQpSQU1ESVNLIGRy
+aXZlciBpbml0aWFsaXplZDogMTYgUkFNIGRpc2tzIG9mIDQwOTZLIHNpemUg
+MTAyNCBibG9ja3NpemUNClNDU0kgc3Vic3lzdGVtIGRyaXZlciBSZXZpc2lv
+bjogMS4wMA0KbWQ6IG1kIGRyaXZlciAwLjkwLjAgTUFYX01EX0RFVlM9MjU2
+LCBNRF9TQl9ESVNLUz0yNw0KbWQ6IEF1dG9kZXRlY3RpbmcgUkFJRCBhcnJh
+eXMuDQptZDogYXV0b3J1biAuLi4NCm1kOiAuLi4gYXV0b3J1biBET05FLg0K
+cGNpX2hvdHBsdWc6IFBDSSBIb3QgUGx1ZyBQQ0kgQ29yZSB2ZXJzaW9uOiAw
+LjUNCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMA0KSVAgUHJv
+dG9jb2xzOiBJQ01QLCBVRFAsIFRDUCwgSUdNUA0KSVA6IHJvdXRpbmcgY2Fj
+aGUgaGFzaCB0YWJsZSBvZiAxNjM4NCBidWNrZXRzLCAxMjhLYnl0ZXMNClRD
+UDogSGFzaCB0YWJsZXMgY29uZmlndXJlZCAoZXN0YWJsaXNoZWQgMjYyMTQ0
+IGJpbmQgNjU1MzYpDQpORVQ0OiBVbml4IGRvbWFpbiBzb2NrZXRzIDEuMC9T
+TVAgZm9yIExpbnV4IE5FVDQuMC4NCmtqb3VybmFsZCBzdGFydGluZy4gIENv
+bW1pdCBpbnRlcnZhbCA1IHNlY29uZHMNCkVYVDMtZnM6IG1vdW50ZWQgZmls
+ZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0KVkZTOiBNb3VudGVk
+IHJvb3QgKGV4dDMgZmlsZXN5c3RlbSkgcmVhZG9ubHkuDQpGcmVlaW5nIHVu
+dXNlZCBrZXJuZWwgbWVtb3J5OiAxMDhrIGZyZWVkDQpBZGRpbmcgU3dhcDog
+MjA5NjEyOGsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTEpDQpFWFQzIEZTIDIu
+NC0wLjkuMTksIDE5IEF1Z3VzdCAyMDAyIG9uIGlkZTAoMywxKSwgaW50ZXJu
+YWwgam91cm5hbA0Ka2pvdXJuYWxkIHN0YXJ0aW5nLiAgQ29tbWl0IGludGVy
+dmFsIDUgc2Vjb25kcw0KRVhUMyBGUyAyLjQtMC45LjE5LCAxOSBBdWd1c3Qg
+MjAwMiBvbiBpZGUwKDMsNSksIGludGVybmFsIGpvdXJuYWwNCkVYVDMtZnM6
+IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLg0K
+aGRhOiBETUEgZGlzYWJsZWQNCg==
+---1463794943-386199268-1038357231=:1069
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=lspci
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0211270133511.1069@sp-laptop.isdn.scali.no>
+Content-Description: 
+Content-Disposition: attachment; filename=lspci
+
+MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gZTc1MDAgRFJBTSBD
+b250cm9sbGVyIChyZXYgMDMpDQowMDowMC4xIENsYXNzIGZmMDA6IEludGVs
+IENvcnAuIGU3NTAwIERSQU0gQ29udHJvbGxlciBFcnJvciBSZXBvcnRpbmcg
+KHJldiAwMykNCjAwOjAyLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gZTc1
+MDAgSElfQiBWaXJ0dWFsIFBDSS10by1QQ0kgQnJpZGdlIChGMCkgKHJldiAw
+MykNCjAwOjAzLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gZTc1MDAgSElf
+QyBWaXJ0dWFsIFBDSS10by1QQ0kgQnJpZGdlIChGMCkgKHJldiAwMykNCjAw
+OjA0LjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gZTc1MDAgSElfRCBWaXJ0
+dWFsIFBDSS10by1QQ0kgQnJpZGdlIChGMCkgKHJldiAwMykNCjAwOjFkLjAg
+VVNCIENvbnRyb2xsZXI6IEludGVsIENvcnAuIDgyODAxQ0EvQ0FNIFVTQiAo
+SHViICMxKSAocmV2IDAyKQ0KMDA6MWQuMSBVU0IgQ29udHJvbGxlcjogSW50
+ZWwgQ29ycC4gODI4MDFDQS9DQU0gVVNCIChIdWIgIzIpIChyZXYgMDIpDQow
+MDoxZC4yIFVTQiBDb250cm9sbGVyOiBJbnRlbCBDb3JwLiA4MjgwMUNBL0NB
+TSBVU0IgKEh1YiAjMykgKHJldiAwMikNCjAwOjFlLjAgUENJIGJyaWRnZTog
+SW50ZWwgQ29ycC4gODI4MDFCQS9DQSBQQ0kgQnJpZGdlIChyZXYgNDIpDQow
+MDoxZi4wIElTQSBicmlkZ2U6IEludGVsIENvcnAuIDgyODAxQ0EgSVNBIEJy
+aWRnZSAoTFBDKSAocmV2IDAyKQ0KMDA6MWYuMSBJREUgaW50ZXJmYWNlOiBJ
+bnRlbCBDb3JwLiA4MjgwMUNBIElERSBVMTAwIChyZXYgMDIpDQowMDoxZi4z
+IFNNQnVzOiBJbnRlbCBDb3JwLiA4MjgwMUNBL0NBTSBTTUJ1cyAocmV2IDAy
+KQ0KMDE6MWMuMCBQSUM6IEludGVsIENvcnAuIDgyODcwUDIgUDY0SDIgSS9P
+eEFQSUMgKHJldiAwMykNCjAxOjFkLjAgUENJIGJyaWRnZTogSW50ZWwgQ29y
+cC4gODI4NzBQMiBQNjRIMiBIdWIgUENJIEJyaWRnZSAocmV2IDAzKQ0KMDE6
+MWUuMCBQSUM6IEludGVsIENvcnAuIDgyODcwUDIgUDY0SDIgSS9PeEFQSUMg
+KHJldiAwMykNCjAxOjFmLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4
+NzBQMiBQNjRIMiBIdWIgUENJIEJyaWRnZSAocmV2IDAzKQ0KMDQ6MWMuMCBQ
+SUM6IEludGVsIENvcnAuIDgyODcwUDIgUDY0SDIgSS9PeEFQSUMgKHJldiAw
+MykNCjA0OjFkLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4NzBQMiBQ
+NjRIMiBIdWIgUENJIEJyaWRnZSAocmV2IDAzKQ0KMDQ6MWUuMCBQSUM6IElu
+dGVsIENvcnAuIDgyODcwUDIgUDY0SDIgSS9PeEFQSUMgKHJldiAwMykNCjA0
+OjFmLjAgUENJIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4NzBQMiBQNjRIMiBI
+dWIgUENJIEJyaWRnZSAocmV2IDAzKQ0KMDc6MWMuMCBQSUM6IEludGVsIENv
+cnAuIDgyODcwUDIgUDY0SDIgSS9PeEFQSUMgKHJldiAwMykNCjA3OjFkLjAg
+UENJIGJyaWRnZTogSW50ZWwgQ29ycC4gODI4NzBQMiBQNjRIMiBIdWIgUENJ
+IEJyaWRnZSAocmV2IDAzKQ0KMDc6MWUuMCBQSUM6IEludGVsIENvcnAuIDgy
+ODcwUDIgUDY0SDIgSS9PeEFQSUMgKHJldiAwMykNCjA3OjFmLjAgUENJIGJy
+aWRnZTogSW50ZWwgQ29ycC4gODI4NzBQMiBQNjRIMiBIdWIgUENJIEJyaWRn
+ZSAocmV2IDAzKQ0KMDk6MDEuMCBCcmlkZ2U6IERvbHBoaW4gSW50ZXJjb25u
+ZWN0IFNvbHV0aW9ucyBBUyBQU0I2NiBTQ0ktQWRhcHRlciBEMzN4DQowYTow
+MS4wIFZHQSBjb21wYXRpYmxlIGNvbnRyb2xsZXI6IEFUSSBUZWNobm9sb2dp
+ZXMgSW5jIFJhZ2UgWEwgKHJldiAyNykNCjBhOjAyLjAgRXRoZXJuZXQgY29u
+dHJvbGxlcjogSW50ZWwgQ29ycC4gODI1NTcvOC85IFtFdGhlcm5ldCBQcm8g
+MTAwXSAocmV2IDBkKQ0KMGE6MDMuMCBFdGhlcm5ldCBjb250cm9sbGVyOiBJ
+bnRlbCBDb3JwLiA4MjU1Ny84LzkgW0V0aGVybmV0IFBybyAxMDBdIChyZXYg
+MGQpDQo=
+---1463794943-386199268-1038357231=:1069--

@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269111AbUIRDrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269113AbUIRDts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269111AbUIRDrp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 23:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269114AbUIRDro
+	id S269113AbUIRDts (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 23:49:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbUIRDsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 23:47:44 -0400
-Received: from smtp-out.hotpop.com ([38.113.3.71]:30857 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S269111AbUIRDrd
+	Fri, 17 Sep 2004 23:48:22 -0400
+Received: from smtp-out.hotpop.com ([38.113.3.61]:40839 "EHLO
+	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S269113AbUIRDro
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 23:47:33 -0400
+	Fri, 17 Sep 2004 23:47:44 -0400
 From: "Antonino A. Daplas" <adaplas@hotpop.com>
 Reply-To: adaplas@pol.net
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2/4] fbdev: Add iomem annotations to cfbimgblt.c
-Date: Sat, 18 Sep 2004 11:48:00 +0800
+Subject: [PATCH 4/4] fbdev: Add iomem annotations to vga16fb.c
+Date: Sat, 18 Sep 2004 11:48:06 +0800
 User-Agent: KMail/1.5.4
 Cc: Linux Fbdev development list 
 	<linux-fbdev-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Disposition: inline
-Message-Id: <200409181137.58690.adaplas@hotpop.com>
+Message-Id: <200409181141.46530.adaplas@hotpop.com>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -31,183 +31,109 @@ X-HotPOP: -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Add iomem annotations to cfbimgblt.c
+Add iomem annottions to vga16fb.c
 
-- remove pitch_index (if buffer pitch is not divisible by sizeof(u32)).
-  This never gets used.
- 
 Signed-off-by: Antonino Daplas <adaplas@pol.net>
 ---
 
- cfbimgblt.c |   68 ++++++++++++++++++++++--------------------------------------
- 1 files changed, 26 insertions(+), 42 deletions(-)
+ vga16fb.c |   27 ++++++++++++++++-----------
+ 1 files changed, 16 insertions(+), 11 deletions(-)
 
-diff -uprN linux-2.6.9-rc2-mm1-orig/drivers/video/cfbimgblt.c linux-2.6.9-rc2-mm1/drivers/video/cfbimgblt.c
---- linux-2.6.9-rc2-mm1-orig/drivers/video/cfbimgblt.c	2004-09-16 19:32:57.000000000 +0800
-+++ linux-2.6.9-rc2-mm1/drivers/video/cfbimgblt.c	2004-09-18 10:32:41.551674624 +0800
-@@ -87,21 +87,20 @@ static u32 cfb_tab32[] = {
- #endif
- 
- static inline void color_imageblit(const struct fb_image *image, 
--				   struct fb_info *p, u8 *dst1, 
--				   u32 start_index,
--				   u32 pitch_index)
-+				   struct fb_info *p, u8 __iomem *dst1,
-+				   u32 start_index)
+diff -uprN linux-2.6.9-rc2-mm1-orig/drivers/video/vga16fb.c linux-2.6.9-rc2-mm1/drivers/video/vga16fb.c
+--- linux-2.6.9-rc2-mm1-orig/drivers/video/vga16fb.c	2004-09-16 19:40:05.000000000 +0800
++++ linux-2.6.9-rc2-mm1/drivers/video/vga16fb.c	2004-09-18 10:46:32.325377824 +0800
+@@ -123,7 +123,7 @@ static struct fb_fix_screeninfo vga16fb_
+    suitable instruction is the x86 bitwise OR.  The following
+    read-modify-write routine should optimize to one such bitwise
+    OR. */
+-static inline void rmw(volatile char *p)
++static inline void rmw(volatile char __iomem *p)
  {
- 	/* Draw the penguin */
--	u32 *dst, *dst2, color = 0, val, shift;
-+	u32 __iomem *dst;
-+	u32  color = 0, val, shift;
- 	int i, n, bpp = p->var.bits_per_pixel;
- 	u32 null_bits = 32 - bpp;
- 	u32 *palette = (u32 *) p->pseudo_palette;
- 	const u8 *src = image->data;
+ 	readb(p);
+ 	writeb(1, p);
+@@ -883,7 +883,7 @@ void vga_8planes_fillrect(struct fb_info
+         char oldmask = selectmask();
+         int line_ofs, height;
+         char oldop, oldsr;
+-        char *where;
++        char __iomem *where;
  
--	dst2 = (u32 *) dst1;
- 	for (i = image->height; i--; ) {
- 		n = image->width;
--		dst = (u32 *) dst1;
-+		dst = (u32 __iomem *) dst1;
- 		shift = 0;
- 		val = 0;
- 		
-@@ -134,36 +133,27 @@ static inline void color_imageblit(const
- 			FB_WRITEL((FB_READL(dst) & end_mask) | val, dst);
- 		}
- 		dst1 += p->fix.line_length;
--		if (pitch_index) {
--			dst2 += p->fix.line_length;
--			dst1 = (u8 *)((long)dst2 & ~(sizeof(u32) - 1));
--
--			start_index += pitch_index;
--			start_index &= 32 - 1;
--		}
- 	}
- }
- 
--static inline void slow_imageblit(const struct fb_image *image, struct fb_info *p, 
--				  u8 *dst1, u32 fgcolor,
--				  u32 bgcolor, 
--				  u32 start_index,
--				  u32 pitch_index)
-+static inline void slow_imageblit(const struct fb_image *image,
-+				  struct fb_info *p,
-+				  u8 __iomem *dst1, u32 fgcolor,
-+				  u32 bgcolor, u32 start_index)
+         dx /= 4;
+         where = info->screen_base + dx + rect->dy * info->fix.line_length;
+@@ -932,7 +932,7 @@ void vga_8planes_fillrect(struct fb_info
+ void vga16fb_fillrect(struct fb_info *info, const struct fb_fillrect *rect)
  {
- 	u32 shift, color = 0, bpp = p->var.bits_per_pixel;
--	u32 *dst, *dst2, val, pitch = p->fix.line_length;
-+	u32 __iomem *dst;
-+	u32  val, pitch = p->fix.line_length;
- 	u32 null_bits = 32 - bpp;
- 	u32 spitch = (image->width+7)/8;
- 	const u8 *src = image->data, *s;
- 	u32 i, j, l;
- 	
--	dst2 = (u32 *) dst1;
--
- 	for (i = image->height; i--; ) {
- 		shift = val = 0;
- 		l = 8;
- 		j = image->width;
--		dst = (u32 *) dst1;
-+		dst = (u32 __iomem *) dst1;
- 		s = src;
+ 	int x, x2, y2, vxres, vyres, width, height, line_ofs;
+-	char *dst;
++	char __iomem *dst;
  
- 		/* write leading bits */
-@@ -199,13 +189,6 @@ static inline void slow_imageblit(const 
- 		
- 		dst1 += pitch;
- 		src += spitch;	
--		if (pitch_index) {
--			dst2 += pitch;
--			dst1 = (u8 *)((long)dst2 & ~(sizeof(u32) - 1));
--			start_index += pitch_index;
--			start_index &= 32 - 1;
--		}
--		
- 	}
- }
+ 	vxres = info->var.xres_virtual;
+ 	vyres = info->var.yres_virtual;
+@@ -1012,7 +1012,8 @@ void vga_8planes_copyarea(struct fb_info
+         char oldsr = setsr(0xf);
+         int height, line_ofs, x;
+ 	u32 sx, dx, width;
+-	char *dest, *src;
++	char __iomem *dest;
++	char __iomem *src;
  
-@@ -217,15 +200,16 @@ static inline void slow_imageblit(const 
-  *           fix->line_legth is divisible by 4;
-  *           beginning and end of a scanline is dword aligned
-  */
--static inline void fast_imageblit(const struct fb_image *image, struct fb_info *p, 
--				  u8 *dst1, u32 fgcolor, 
-+static inline void fast_imageblit(const struct fb_image *image,
-+				  struct fb_info *p,
-+				  u8 __iomem *dst1, u32 fgcolor,
- 				  u32 bgcolor) 
+         height = area->height;
+ 
+@@ -1063,7 +1064,8 @@ void vga16fb_copyarea(struct fb_info *in
+ 	u32 dx = area->dx, dy = area->dy, sx = area->sx, sy = area->sy; 
+ 	int x, x2, y2, old_dx, old_dy, vxres, vyres;
+ 	int height, width, line_ofs;
+-	char *dst = NULL, *src = NULL;
++	char __iomem *dst = NULL;
++	char __iomem *src = NULL;
+ 
+ 	vxres = info->var.xres_virtual;
+ 	vyres = info->var.yres_virtual;
+@@ -1174,7 +1176,7 @@ void vga_8planes_imageblit(struct fb_inf
+         char oldmask = selectmask();
+         const char *cdat = image->data;
+ 	u32 dx = image->dx;
+-        char *where;
++        char __iomem *where;
+         int y;
+ 
+         dx /= 4;
+@@ -1198,10 +1200,11 @@ void vga_8planes_imageblit(struct fb_inf
+ 
+ void vga_imageblit_expand(struct fb_info *info, const struct fb_image *image)
  {
- 	u32 fgx = fgcolor, bgx = bgcolor, bpp = p->var.bits_per_pixel;
- 	u32 ppw = 32/bpp, spitch = (image->width + 7)/8;
- 	u32 bit_mask, end_mask, eorx, shift;
- 	const char *s = image->data, *src;
--	u32 *dst;
-+	u32 __iomem *dst;
- 	u32 *tab = NULL;
- 	int i, j, k;
- 		
-@@ -253,7 +237,9 @@ static inline void fast_imageblit(const 
- 	k = image->width/ppw;
+-	char *where = info->screen_base + (image->dx/8) + 
++	char __iomem *where = info->screen_base + (image->dx/8) +
+ 		image->dy * info->fix.line_length;
+ 	struct vga16fb_par *par = (struct vga16fb_par *) info->par;
+-	char *cdat = (char *) image->data, *dst;
++	char *cdat = (char *) image->data;
++	char __iomem *dst;
+ 	int x, y;
  
- 	for (i = image->height; i--; ) {
--		dst = (u32 *) dst1, shift = 8; src = s;
-+		dst = (u32 __iomem *) dst1, shift = 8;
-+
-+		src = s;
- 		
- 		for (j = k; j--; ) {
- 			shift -= ppw;
-@@ -268,12 +254,12 @@ static inline void fast_imageblit(const 
- 	
- void cfb_imageblit(struct fb_info *p, const struct fb_image *image)
- {
--	u32 fgcolor, bgcolor, start_index, bitstart, pitch_index = 0;
-+	u32 fgcolor, bgcolor, start_index, bitstart;
- 	u32 bpl = sizeof(u32), bpp = p->var.bits_per_pixel;
- 	u32 width = image->width, height = image->height; 
- 	u32 dx = image->dx, dy = image->dy;
- 	int x2, y2, vxres, vyres;
--	u8 *dst1;
-+	u8 __iomem *dst1;
+ 	switch (info->fix.type) {
+@@ -1265,9 +1268,11 @@ void vga_imageblit_color(struct fb_info 
+ 	 * Draw logo 
+ 	 */
+ 	struct vga16fb_par *par = (struct vga16fb_par *) info->par;
+-	char *where = info->screen_base + image->dy * info->fix.line_length + 
++	char __iomem *where =
++		info->screen_base + image->dy * info->fix.line_length +
+ 		image->dx/8;
+-	const char *cdat = image->data, *dst;
++	const char *cdat = image->data;
++	char __iomem *dst;
+ 	int x, y;
  
- 	if (p->state != FBINFO_STATE_RUNNING)
- 		return;
-@@ -299,11 +285,10 @@ void cfb_imageblit(struct fb_info *p, co
+ 	switch (info->fix.type) {
+@@ -1354,7 +1359,7 @@ int __init vga16fb_init(void)
  
- 	bitstart = (dy * p->fix.line_length * 8) + (dx * bpp);
- 	start_index = bitstart & (32 - 1);
--	pitch_index = (p->fix.line_length & (bpl - 1)) * 8;
+ 	/* XXX share VGA_FB_PHYS and I/O region with vgacon and others */
  
- 	bitstart /= 8;
- 	bitstart &= ~(bpl - 1);
--	dst1 = p->screen_base + bitstart;
-+	dst1 = (u8 __iomem *) p->screen_base + bitstart;
- 
- 	if (p->fbops->fb_sync)
- 		p->fbops->fb_sync(p);
-@@ -318,15 +303,14 @@ void cfb_imageblit(struct fb_info *p, co
- 			bgcolor = image->bg_color;
- 		}	
- 		
--		if (32 % bpp == 0 && !start_index && !pitch_index && 
--		    ((width & (32/bpp-1)) == 0) &&
--		    bpp >= 8 && bpp <= 32) 			
-+		if (32 % bpp == 0 && !start_index &&
-+		    ((width & (32/bpp-1)) == 0) && bpp >= 8 && bpp <= 32)
- 			fast_imageblit(image, p, dst1, fgcolor, bgcolor);
- 		else 
- 			slow_imageblit(image, p, dst1, fgcolor, bgcolor,
--					start_index, pitch_index);
-+					start_index);
- 	} else
--		color_imageblit(image, p, dst1, start_index, pitch_index);
-+		color_imageblit(image, p, dst1, start_index);
- }
- 
- EXPORT_SYMBOL(cfb_imageblit);
+-	vga16fb.screen_base = (void *)VGA_MAP_MEM(VGA_FB_PHYS);
++	vga16fb.screen_base = (void __iomem *)VGA_MAP_MEM(VGA_FB_PHYS);
+ 	if (!vga16fb.screen_base) {
+ 		printk(KERN_ERR "vga16fb: unable to map device\n");
+ 		ret = -ENOMEM;
 
 

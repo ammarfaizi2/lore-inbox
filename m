@@ -1,60 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265339AbUAJU5T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 15:57:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265352AbUAJU5S
+	id S265463AbUAJVEw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 16:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265464AbUAJVEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 15:57:18 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:19194 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S265339AbUAJU5O
+	Sat, 10 Jan 2004 16:04:52 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:26251 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265463AbUAJVEu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 15:57:14 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: Martin Schlemmer <azarah@nosferatu.za.org>,
-       John Lash <jlash@speakeasy.net>
-Subject: Re: Q re /proc/bus/i2c
-Date: Sat, 10 Jan 2004 15:57:13 -0500
-User-Agent: KMail/1.5.1
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200401100117.42252.gene.heskett@verizon.net> <20040110095911.7b99d40c.jlash@speakeasy.net> <1073758800.9096.12.camel@nosferatu.lan>
-In-Reply-To: <1073758800.9096.12.camel@nosferatu.lan>
+	Sat, 10 Jan 2004 16:04:50 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 10 Jan 2004 13:04:47 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Bart Samwel <bart@samwel.tk>
+cc: Tim Cambrant <tim@cambrant.com>, Mario Vanoni <vanonim@bluewin.ch>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][TRIVIAL] Remove bogus "value 0x37ffffff truncated to
+ 0x37ffffff" warning.
+In-Reply-To: <40005EA5.6070406@samwel.tk>
+Message-ID: <Pine.LNX.4.44.0401101243110.2210-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401101557.13028.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.61.108] at Sat, 10 Jan 2004 14:57:12 -0600
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 January 2004 13:20, Martin Schlemmer wrote:
->On Sat, 2004-01-10 at 17:59, John Lash wrote:
->> In a 2.6.x kernel, the sensors information is kept in sysfs. I
->> haven't actually tried installing lmsensors on my 2.6 system, but
->> if I look in: /sys/bus/i2c/devices/0-002d/
->> I can see files for all of the sensors on my system.
->>
->> Check below in your last mail where it is complaining about
->> "Algorithm: Unavailable from sysfs".
->
->Right, needs sysfs mounted.  You should (after creating /sys) add
->the following to /etc/fstab:
->
->--
->none	/sys	sysfs	defaults	0 0
->--
-Our messages are crossing in transit, done.
+On Sat, 10 Jan 2004, Bart Samwel wrote:
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+> >>--- page.h.orig	2004-01-10 18:15:17.000000000 +0100
+> >>+++ page.h	2004-01-10 18:15:47.000000000 +0100
+> >>@@ -123,7 +123,7 @@
+> >>
+> >>  #define PAGE_OFFSET		((unsigned long)__PAGE_OFFSET)
+> >>  #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+> >>-#define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
+> >>+#define MAXMEM			(0xFFFFFFFF-__PAGE_OFFSET-__VMALLOC_RESERVE+1)
+> > 
+> > 
+> > Try:
+> > 
+> > #define MAXMEM                       (~__PAGE_OFFSET + 1 - __VMALLOC_RESERVE)
+> 
+> I tried that first, before I came up with the solution in the patch, 
+> because I didn't like the dependency of 0xFFFFFFFF being 32-bit. It was 
+> a nice idea, but it didn't work. Apparently, gas interprets ~ as a one's 
+> complement negation operator, not a bitwise or. Therefore, 
+> ~__PAGE_OFFSET is just as negative as -__PAGE_OFFSET as far as gas is 
+> concerned. It gives me the same warning.
+
+That would mean a bug in as. __PAGE_OFFSET is unsigned and ~ is documented 
+(not a surprise) as "bitwise not". The bitwise not of __PAGE_OFFSET 
+(unsigned) is still unsigned. BTW 2.14 does not give warnings with both 
+the original statement and the ~ one. This:
+
+                                                                                                                        
+        PG=0xC0000000                                                                                                   
+        VM=(128 << 20)                                                                                                  
+                                                                                                                        
+        mov (~PG + 1 - VM), %eax                                                                                        
+        mov (-PG - VM), %eax                                                                                            
+                                                                                                                        
+generate this:
+
+zzzzzzzz:     file format elf32-i386
+
+Disassembly of section .text:
+
+00000000 <.text>:
+   0:   a1 00 00 00 38          mov    0x38000000,%eax
+   5:   a1 00 00 00 38          mov    0x38000000,%eax
+
+
+w/out any warnings. And the result is obviously 0x38000000 and 
+not 0x37ffffff.
+
+
+
+- Davide
+
+
 

@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbTA2Wl2>; Wed, 29 Jan 2003 17:41:28 -0500
+	id <S265382AbTA2Wmf>; Wed, 29 Jan 2003 17:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265382AbTA2Wl2>; Wed, 29 Jan 2003 17:41:28 -0500
-Received: from jstevenson.plus.com ([212.159.71.212]:29909 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id <S264818AbTA2Wl1>;
-	Wed, 29 Jan 2003 17:41:27 -0500
-Subject: Re: Linux 2.4.21pre3-ac5
-From: James Stevenson <james@stev.org>
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200301291500.h0TF0xW31184@devserv.devel.redhat.com>
-References: <200301291500.h0TF0xW31184@devserv.devel.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 29 Jan 2003 22:52:51 +0000
-Message-Id: <1043880772.1925.3.camel@god.stev.org>
+	id <S265872AbTA2Wmf>; Wed, 29 Jan 2003 17:42:35 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:14345 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265382AbTA2Wme>; Wed, 29 Jan 2003 17:42:34 -0500
+Date: Wed, 29 Jan 2003 23:51:56 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: John Levon <levon@movementarian.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Switch APIC to driver model (and make S3 sleep with APIC on)
+Message-ID: <20030129225156.GA20146@atrey.karlin.mff.cuni.cz>
+References: <200301281219.NAA03575@harpo.it.uu.se> <20030129201843.GA1256@elf.ucw.cz> <20030129224220.GA10439@compsoc.man.ac.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030129224220.GA10439@compsoc.man.ac.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi!
 
-i seem to keep getting really flaky / cracking sounds with the
-Via 686a/8233/8235 audio driver 1.9.1-ac2
-
-any ideas on how i can work out whats going wrong ?
-Its an on board sound card from the AOpen MK77 board
-
-
-
-Via 686a/8233/8235 audio driver 1.9.1-ac2
-via82cxxx: Six channel audio available
-PCI: Setting latency timer of device 00:11.5 to 64
-ac97_codec: AC97 Audio codec, id: ADS96 (Analog Devices AD1885)
-via82cxxx: board #1 at 0xE000, IRQ 12
-via_audio: ignoring drain playback error -11
-
-00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97
-Audio Controller (rev 30)
-	Subsystem: AOPEN Inc.: Unknown device 006a
-	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin C routed to IRQ 12
-	Region 0: I/O ports at e000 [size=256]
-
-thanks
-	James
-
-
-
-
-On Wed, 2003-01-29 at 15:00, Alan Cox wrote:
-> This patch fixes the random oops some peopel saw on 2.4.21pre-ac* before.
-> It should also fix highmem I/O and a pile of the minor glitches. I've left
-> the more interesting changes out of this patch set so that the stability
-> stuff can be dealt with first.
+> > How can this be? I see nmi.c being unconditionaly compiled-in. Where
+> > are the other clients you are talking about?
 > 
-> To minimise changes while verifying the fixes this is against pre3 still.
+> Is grep broken ?
+> 
+> > -#if defined(CONFIG_X86_LOCAL_APIC) && defined(CONFIG_PM)
+> > -EXPORT_SYMBOL_GPL(set_nmi_pm_callback);
+> > -EXPORT_SYMBOL_GPL(unset_nmi_pm_callback);
+> > -#endif
+> 
+> You removed these but didn't check where they were used ?
 
+Well, set_nmi... strongly suggests nmi, so I just killed them.. And
+ouch its used by oprofile :-(.
 
-
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

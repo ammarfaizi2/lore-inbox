@@ -1,65 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289621AbSBXEzt>; Sat, 23 Feb 2002 23:55:49 -0500
+	id <S289659AbSBXE6T>; Sat, 23 Feb 2002 23:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289655AbSBXEzj>; Sat, 23 Feb 2002 23:55:39 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:20229
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S289643AbSBXEzV>; Sat, 23 Feb 2002 23:55:21 -0500
-Date: Sat, 23 Feb 2002 20:42:37 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flash Back -- kernel 2.1.111
-In-Reply-To: <Pine.LNX.4.33.0202230953290.14299-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10202232035190.5715-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S289727AbSBXE6J>; Sat, 23 Feb 2002 23:58:09 -0500
+Received: from gw.wmich.edu ([141.218.1.100]:23541 "EHLO gw.wmich.edu")
+	by vger.kernel.org with ESMTP id <S289659AbSBXE6B>;
+	Sat, 23 Feb 2002 23:58:01 -0500
+Subject: Re: [PATCHSET] Linux 2.4.18-rc4-jam1
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Fran?ois Cami <stilgar2k@wanadoo.fr>, "J.A. Magallon" <jamagallon@able.es>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020224030620.GR20060@matchmail.com>
+In-Reply-To: <20020223234217.C2023@werewolf.able.es>
+	<3C782531.6050701@wanadoo.fr> <1014514801.492.14.camel@psuedomode>
+	<1014516072.491.28.camel@psuedomode>  <20020224030620.GR20060@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 23 Feb 2002 23:57:51 -0500
+Message-Id: <1014526676.587.29.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Feb 2002, Linus Torvalds wrote:
-
-> 
-> On Fri, 22 Feb 2002, Andre Hedrick wrote:
+On Sat, 2002-02-23 at 22:06, Mike Fedyk wrote:
+> On Sat, Feb 23, 2002 at 09:01:06PM -0500, Ed Sweetman wrote:
+> > Or it could be my ext3 fs corrupting files again.
 > > 
-> > Obvious you have a bug up the backside
 > 
-> Yes.
-> 
-> What really bugs me about this is that while normally you're hard to
-> communicate with, this time you have actively _lied_ about the patches on
-> IRC and in email about how they will cause IDE corruption etc due to
-> timing changes.
+> Oy, do you have one of those write-back (behind) ide hard drives?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Before I truley reply to this statement above, would you like to recant it?
-
-> No such timing changes existed, and whenever you were asked about what was
-> actually actively _wrong_ with the patches, you didn't reply.
-
-Here I question the taking of a patch 12 which altered the behavior of the
-subsystem baseclock to setting up PIO timings for the executing command
-block operations.  I then looked over the patch again and saw you had not
-taken it yet.
-
-In that private email, I clearly stated I made a mistake in reading what
-was accepted into 2.5.5.  The fact is you had not accepted it yet.
-However I expect you will take it.  Given that very few people in the
-world have most of the hardware that was effected by that change, and even
-less have the NDA documents on the rules, please accept the change.
-
-> There's a difference between being difficult to work with and being 
-> actively dishonest, and you crossed that line.
-
-If this line has be crossed it is because you have moved and altered that
-which is defined as truth.  You by now are having other people question
-your position on issues, and I will leave it at that ...
-
-Regards,
-
-
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+Probably, it's a WD 100GB.  hdparm says   WriteCache=enabled
+I dont know if the bios is set to writeback off hand, I'd have to
+reboot, which I'll probably do soon to add in another hdd and possibly
+run memtest86 instead of just memtest
 

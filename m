@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262795AbTKTWX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 17:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTKTWX5
+	id S262925AbTKTWdR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 17:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTKTWcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 17:23:57 -0500
-Received: from gprs147-68.eurotel.cz ([160.218.147.68]:8064 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262795AbTKTWX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 17:23:56 -0500
-Date: Thu, 20 Nov 2003 23:24:31 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Martin Schlemmer <azarah@nosferatu.za.org>, Adrian Bunk <bunk@fs.tum.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] document that udev isn't yet ready (fwd)
-Message-ID: <20031120222431.GD196@elf.ucw.cz>
-References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com> <20031120125228.GC432@openzaurus.ucw.cz> <20031120170303.GJ26720@kroah.com>
+	Thu, 20 Nov 2003 17:32:20 -0500
+Received: from AGrenoble-101-1-3-115.w193-253.abo.wanadoo.fr ([193.253.251.115]:8327
+	"EHLO awak") by vger.kernel.org with ESMTP id S263008AbTKTWcQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 17:32:16 -0500
+Subject: Re: OT: why no file copy() libc/syscall ??
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Florian Weimer <fw@deneb.enyo.de>, Valdis.Kletnieks@vt.edu,
+       Daniel Gryniewicz <dang@fprintf.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <03112013081700.27566@tabby>
+References: <1068512710.722.161.camel@cube> <03111209360001.11900@tabby>
+	 <20031120172143.GA7390@deneb.enyo.de>  <03112013081700.27566@tabby>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1069367504.8945.55.camel@bip.parateam.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031120170303.GJ26720@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 20 Nov 2003 23:31:45 +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Le jeu 20/11/2003 à 20:08, Jesse Pollard a écrit :
 
-> > > > > Hm, with the 006 release, what do you find lacking in udev?
-> > > > > 
-> > > > 
-> > > > I am guessing its more driver support, etc.  Input devices for
-> > > > instance do not seem to have any sysfs support yet,
-> > > 
-> > > Yes, we do need better driver support.  But that's nothing that udev
-> > > itself can do :)
-> > > 
-> > > I have a number of patches pending for 2.6.1 that will add more driver
-> > > support for sysfs.
-> > > 
-> > What drivers did you convert? sysfs-for-inputs would
-> > be *very* welcome.
-> 
-> I have patches for the memory devices, all sound drivers (ALSA and OSS),
-> frame buffer devices, and misc devices in my linuxusb.bkbits.net/usb-2.5
-> tree.  Hanna Linder is working on the input sysfs patches, and has
-> posted some work in the past.
+> 1. what happens if the copy is aborted?
+> 2. what happens if the network drops while the remote server continues?
+> 3. what about buffer synchronization?
+> 4. what errors should be reported ?
+> 5. what happens when the syscall is interupted? Especially if the remote
+>    copy may take a while (I've seen some require an hour or more - worst
+>    case: days due to a media error (completed after the disk was replaced)).
+> 6. what about a client opening the copy before it is finished copying?
 
-Do you have URL/her e-mail address? I don't remember seeing anything
-:-(.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+7. How to report progress with your average file manager ?
+

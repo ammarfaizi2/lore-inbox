@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268235AbUJCXWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUJCXZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268235AbUJCXWf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 19:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUJCXWf
+	id S268239AbUJCXZz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 19:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268237AbUJCXZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 19:22:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26522 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268235AbUJCXWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 19:22:32 -0400
-Date: Sun, 3 Oct 2004 16:20:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, trivial@rustcorp.com.au,
-       rusty@rustcorp.com.au
-Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper
- call
-Message-Id: <20041003162012.79296b37.akpm@osdl.org>
-In-Reply-To: <20041003100857.GB5804@optonline.net>
-References: <20041003100857.GB5804@optonline.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 3 Oct 2004 19:25:54 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:49051 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268239AbUJCXZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 19:25:45 -0400
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone (me
+	too???)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gustavo Guillermo Perez <gustavo@compunauta.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410031905.25980.gustavo@compunauta.com>
+References: <200410031905.25980.gustavo@compunauta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1096842198.16431.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 03 Oct 2004 23:23:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Josef 'Jeff' Sipek" <jeffpc@optonline.net> wrote:
->
-> Add $DEVPATH to the environmental variables during /sbin/hotplug call.
-> 
->  Josef 'Jeff' Sipek.
-> 
->  Signed-off-by: Josef 'Jeff' Sipek <jeffpc@optonline.net>
-> 
-> 
->  diff -Nru a/kernel/cpu.c b/kernel/cpu.c
->  --- a/kernel/cpu.c	2004-09-24 13:08:57 -04:00
->  +++ b/kernel/cpu.c	2004-09-24 13:08:57 -04:00
->  @@ -61,13 +61,13 @@
->    * cpu' with certain environment variables set.  */
->   static int cpu_run_sbin_hotplug(unsigned int cpu, const char *action)
+On Sul, 2004-10-03 at 14:48, Gustavo Guillermo Perez wrote:
+> Then I think I'm not evil, I'm wondering to ear that one DVD Player supports 
+> DIVX thanks to Linux/MPlayer or a Phone or a Government is using Linux on 
+> their offices, or... but I hate to profit without say just Tanks Guys.
 
-I don't think this function should exist at all.  We already have kobjects
-which represent the CPUs so it should be possible to find that kobject and
-use kobject_hotplug() on it.  That gives you your $DEVPATH.
+You need to make the GPL components available to customers, and anything
+derived from it. Thats all. That means if you've written additional
+programs that make your system work (even shell scripts!) then you could
+in theory choose to keep those proprietary until you see 100 copies.
+Lots of people ship both free software and proprietary software to make
+a product. Richard Stallman always asks people to keep the two clearly
+seperated so that someone can easily figure out which bit is which
 
-Does CPU hotplug behave correctly wrt /sys/devices/system/cpu?  Given that
-register_cpu() is still marked __init, I assume not.
+Also your duties end with giving your customers the GPL source, they
+don't extend to helping with it, supporting it or third parties.
+
+Alan
+

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbUBTVRo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 16:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUBTVRn
+	id S261333AbUBTVXx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 16:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbUBTVXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 16:17:43 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:61200 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261310AbUBTVRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 16:17:41 -0500
-Date: Fri, 20 Feb 2004 21:17:32 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: paulmck@us.ibm.com, "Stephen C. Tweedie" <sct@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-Subject: Re: Non-GPL export of invalidate_mmap_range
-Message-ID: <20040220211732.A10079@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Daniel Phillips <phillips@arcor.de>, paulmck@us.ibm.com,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-mm <linux-mm@kvack.org>
-References: <20040216190927.GA2969@us.ibm.com> <200402200007.25832.phillips@arcor.de> <20040220120255.GA1269@us.ibm.com> <200402201535.47848.phillips@arcor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200402201535.47848.phillips@arcor.de>; from phillips@arcor.de on Fri, Feb 20, 2004 at 03:37:26PM -0500
+	Fri, 20 Feb 2004 16:23:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:24809 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261333AbUBTVXv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 16:23:51 -0500
+Date: Fri, 20 Feb 2004 16:23:55 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+cc: Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
+       James Morris <jmorris@intercode.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+In-Reply-To: <20040220190926.GB9980@certainkey.com>
+Message-ID: <Xine.LNX.4.44.0402201622160.7335-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20, 2004 at 03:37:26PM -0500, Daniel Phillips wrote:
-> It does, thanks for the catch.  Please bear with me for a moment while I 
-> reroll this, then hopefully we can move on to the more interesting discussion 
-> of whether it's worth it.  (Yes it is :)
+On Fri, 20 Feb 2004, Jean-Luc Cooke wrote:
 
-What about to the more interesting question who needs it.  It think this
-whole discussion who needs what and which approach is better is pretty much
-moot as long as we don't have an intree users.
+> > sense and would be redundant. CFB and CTR are not implemented
+> > by cryptoloop BTW.
+> 
+> jlcooke:~/kern/linux-2.6.1/crypto$ grep CTR *.c
+> cipher.c:       case CRYPTO_TFM_MODE_CTR:
+> grep CFB *.c
+> cipher.c:       case CRYPTO_TFM_MODE_CFB:
+> 
+> It should be I wrote it...the crypto part anyways.
+> 
 
-Instead of wasting your time on different designs you should hurry of
-getting your filesystems encumbrance-reviewed, cleaned up and merged -
-with intree users we have a chance of finding the right API.  And your
-newly started dicussion shows pretty much that with only out of tree users
-we'll never get a sane API.
+These are just placeholders.  Before this, we need to work out how to 
+support stream ciphers in general (perhaps limit to 'byte' streams?).
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 

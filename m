@@ -1,44 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275398AbTHNTlV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 15:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275405AbTHNTlV
+	id S275436AbTHNTpd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 15:45:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275438AbTHNTpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 15:41:21 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:46352 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S275398AbTHNTlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 15:41:07 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Date: Thu, 14 Aug 2003 19:40:25 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <bhgoj9$9ab$1@abraham.cs.berkeley.edu>
-References: <20030809173329.GU31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030814165320.GA2839@speare5-1-14>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1060890025 9547 128.32.153.211 (14 Aug 2003 19:40:25 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Thu, 14 Aug 2003 19:40:25 +0000 (UTC)
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	Thu, 14 Aug 2003 15:45:32 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:12818 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S275436AbTHNTpS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 15:45:18 -0400
+Date: Thu, 14 Aug 2003 21:45:00 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
+Cc: "'Timothy Miller'" <miller@techsource.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: generic strncpy - off-by-one error
+Message-ID: <20030814194500.GA21146@alpha.home.local>
+References: <D069C7355C6E314B85CF36761C40F9A42E20AB@mailse02.se.axis.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D069C7355C6E314B85CF36761C40F9A42E20AB@mailse02.se.axis.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Val Henson  wrote:
->Throwing away 80 bits of the 160 bit output is much better
->than folding the two halves together.  In all the cases we've
->discussed where folding might improve matters, throwing away half the
->output would be even better.
+On Thu, Aug 14, 2003 at 11:34:50AM +0200, Peter Kjellerstedt wrote:
+ 
+> char *strncpy(char *dest, const char *src, size_t count)
+> {
+> 	char *tmp = dest;
+> 
+> 	while (count) {
+> 		if (*src == '\0')
+> 			break;
+> 
+> 		*tmp++ = *src++;
+> 		count--;
+> 	}
+> 
+> 	while (count) {
+> 		*tmp++ = '\0';
+> 		count--;
+> 	}
+> 
+> 	return dest;
+> }
+> 
+> Moving the check for *src == '\0' into the first loop seems
+> to let the compiler reuse the object code a little better
+> (may depend on the optimizer). Also note that your version
+> of the second loop needs an explicit  comparison with -1,
+> whereas mine uses an implicit comparison with 0.
 
-I don't see where you are getting this from.  Define
-  F(x) = first80bits(SHA(x))
-  G(x) = first80bits(SHA(x)) xor last80bits(SHA(x)).
-What makes you think that F is a better (or worse) hash function than G?
+Well, if you're at this level of comparison, then I may object that
+'count' is evaluated twice when jumping from one loop to the other one.
 
-I think there is little basis for discriminating between them.
-If SHA is cryptographically secure, both F and G are fine.
-If SHA is insecure, then all bets are off, and both F and G might be weak.
+*Algorithmically* speaking, the most optimal code should be :
+
+char *strncpy(char *dest, const char *src, size_t count)
+{
+        char *tmp = dest;
+        if (unlikely(!count))
+                goto end;
+loop1:
+        if ((*tmp = *src++) == '\0')
+		goto next;
+        tmp++;
+        if (likely(--count))
+		goto loop1;
+	else
+		goto end;
+loop2:
+        *tmp = '\0';
+next:
+        tmp++;
+        if (likely(--count))
+		goto loop2;
+end:
+        return dest;
+}
+
+(sorry for those who hate gotos). Look at it : no test is performed twice, no
+byte is read nor written twice in any case. The assembly code produced is
+optimal on x86 (well, in fact we could delete exactly one conditionnal jump
+because the compiler doesn't know how to reuse them for several tests). 16
+inlinable instructions (= excluding function in/out) which can be executed 2 at
+a time if your CPU has 2 pipelines. about 3 cycles/copied byte, 2 cycles/filled
+byte.
+
+Unfortunately, it fools branch predictors and prefetch mechanisms found in
+today's processors, so it results in slower code than yours (at least on
+athlon and P3). Perhaps it would be fast on older processors, I don't know.
+
+All that demonstrates that whatever your efforts in helping the optimizer, the
+only meaningful result is the benchmark. Number of bytes and speculations on
+the reusability of information between lines of codes are not what makes our
+programs fast anymore :-(
+
+> Testing on the CRIS architecture, your version is 24 instructions,
+> whereas mine is 18. For comparison, Eric's one is 12 and the
+> currently used implementation is 26 (when corrected for the
+> off-by-one error by comparing with > 1 rather than != 0 in the
+> second loop).
+
+Just out of curiosity, can the CRIS architecture execute multiple instructions
+per cycle ? have you tried to determine the dependencies between the
+instructions ? Did you time the different functions ? (yours is rather fast on
+x86 BTW).
+
+To conclude, I would say that if we want to implement really fast low-level
+primitives such as str*, mem*, ... there's nothing better than assembly
+associated with benchmarks on different CPU architectures and models.
+
+But I don't know if strncpy() is used enough to justify that...
+
+Regards,
+Willy

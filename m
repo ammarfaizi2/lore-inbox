@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQLFBUK>; Tue, 5 Dec 2000 20:20:10 -0500
+	id <S131013AbQLFBYk>; Tue, 5 Dec 2000 20:24:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129847AbQLFBUB>; Tue, 5 Dec 2000 20:20:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:31498 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129655AbQLFBTs>; Tue, 5 Dec 2000 20:19:48 -0500
-Date: Tue, 5 Dec 2000 16:48:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: That horrible hack from hell called A20
-In-Reply-To: <Pine.LNX.4.10.10012060118580.5125-100000@chaos.thphy.uni-duesseldorf.de>
-Message-ID: <Pine.LNX.4.10.10012051645080.811-100000@penguin.transmeta.com>
+	id <S131030AbQLFBYb>; Tue, 5 Dec 2000 20:24:31 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:45944 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S131013AbQLFBYZ>;
+	Tue, 5 Dec 2000 20:24:25 -0500
+Message-ID: <3A2D8E1D.CC04FDBC@thebarn.com>
+Date: Tue, 05 Dec 2000 18:53:49 -0600
+From: Russell Cattelan <cattelan@thebarn.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-whipme11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] livelock in elevator scheduling
+In-Reply-To: <200011210838.RAA27382@asami.proc.flab.fujitsu.co.jp> <20001121112836.B10007@suse.de> <200011211130.UAA27961@asami.proc.flab.fujitsu.co.jp> <20001121123608.F10007@suse.de> <3A2840AB.EE085CAA@thebarn.com> <20001202164234.B31217@suse.de> <3A2C472B.DBEA9E9@thebarn.com> <20001206000108.F747@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+
+> On Mon, Dec 04 2000, Russell Cattelan wrote:
+> > I'm going to take a closer look at the scsi_back_merge_fn.
+> > This may  have more to due with our/Chait's kiobuf modifications than
+> > anything else.
+> >
+> >
+> >
+> > XFS (dev: 8/20) mounting with KIOBUFIO
+> > Start mounting filesystem: sd(8,20)
+> > Ending clean XFS mount for filesystem: sd(8,20)
+> > kmem_alloc doing a vmalloc 262144 size & PAGE_SIZE 0 rval=0xe0a10000
+> > Unable to handle kernel NULL pointer dereference at virtual address
+> > 00000008
+> >  printing eip:
+> > c019f8b5
+> > *pde = 00000000
+> >
+> > Entering kdb (current=0xc1910000, pid 5) on processor 1 Panic: Oops
+> > due to panic @ 0xc019f8b5
+> > eax = 0x00000002 ebx = 0x00000001 ecx = 0x00081478 edx = 0x00000000
+> > esi = 0xc1957da0 edi = 0xc1923ac8 esp = 0xc1911e94 eip = 0xc019f8b5
+> > ebp = 0xc1911e9c xss = 0x00000018 xcs = 0x00000010 eflags = 0x00010046
+> > xds = 0x00000018 xes = 0x00000018 origeax = 0xffffffff &regs = 0xc1911e60
+> > [1]kdb> bt
+> >     EBP       EIP         Function(args)
+> > 0xc1911e9c 0x00000000c019f8b5 scsi_back_merge_fn_c+0x15 (0xc1923a98,
+> > 0xc1957da0, 0xcfb05780, 0x80)
+> >                                kernel .text 0xc0100000 0xc019f8a0
+>
+> Ah, I see what it is now. The elevator is attempting to merge a buffer
+> head into a kio based request, poof. The attached diff should take
+> care of that in your tree.
+
+Hmm..  Yup... that is actually the mods made for kio in our base XFS tree.
+I wonder why the patch dropped them?
+I should have caught that.
+
+Thanks.
+I'll let you know how things go.
 
 
-On Wed, 6 Dec 2000, Kai Germaschewski wrote:
-
-> 
-> On Tue, 5 Dec 2000, H. Peter Anvin wrote:
-> 
-> > If you have had A20M# problems with any kernel -- recent or not --
-> > *please* try this patch, against 2.4.0-test12-pre5:
-> 
-> Just a datapoint: This patch doesn't fix the problem here (Sony
-> PCG-Z600NE). Still the spontaneous reboot exactly the moment I expect to
-> get my console back from resumeing.
-
-Can you test whether it's the "and 0xfe" or the "or $2" that does it for
-you?
-
-Right now we know that the Olivetti M4 has problems with the "or $2". I'd
-like to know if this is the same bit #1, or whether it's #0.
-
-[ And I agree with Peter - if somebody knows BIOS programming and how to
-  use "int 15" to enter protected mode, then that migth well be the
-  easiest solution. The only real reason the linux setup code does it by
-  hand is that the original code was written that way - and it was written
-  that way because I had never used the BIOS in my life before, _and_ I
-  wanted to learn the i386. Both of which were valid reasons back in 1991.
-  Neither of which is probably a very good reason ten years later ;]
-
-		Linus
+>
+>
+> --
+> * Jens Axboe <axboe@suse.de>
+> * SuSE Labs
+>
+>   ------------------------------------------------------------------------
+>
+>    xfs-elv-1Name: xfs-elv-1
+>             Type: Plain Text (text/plain)
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264969AbUFGSAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbUFGR7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264969AbUFGSAk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 14:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbUFGSAj
+	id S264961AbUFGR7d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 13:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbUFGR7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 14:00:39 -0400
-Received: from mail5.bluewin.ch ([195.186.1.207]:61108 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S264965AbUFGR7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 13:59:35 -0400
-Date: Mon, 7 Jun 2004 19:59:33 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Matrox Kconfig
-Message-ID: <20040607175933.GA10578@k3.hellgate.ch>
-Mail-Followup-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-	linux-kernel@vger.kernel.org
-References: <8A46A014187@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8A46A014187@vcnet.vc.cvut.cz>
-X-Operating-System: Linux 2.6.7-rc1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Mon, 7 Jun 2004 13:59:33 -0400
+Received: from port-212-202-157-212.reverse.qsc.de ([212.202.157.212]:36815
+	"EHLO bender.portrix.net") by vger.kernel.org with ESMTP
+	id S264961AbUFGR7a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 13:59:30 -0400
+Message-ID: <40C4ACEF.1090707@portrix.net>
+Date: Mon, 07 Jun 2004 19:59:11 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Who has record no. of  DriveReady SeekComplete DataRequest
+ errors?
+References: <200406060007.10150.kernel@kolivas.org> <200406072008.07176.kernel@kolivas.org> <20040607101732.GI13836@suse.de> <200406072029.09765.kernel@kolivas.org> <20040607162923.GP13836@suse.de>
+In-Reply-To: <20040607162923.GP13836@suse.de>
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig7C0C0B28B14177FB1A7162AA"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Jun 2004 19:43:56 +0200, Petr Vandrovec wrote:
-> On  5 Jun 04 at 13:40, Roger Luethi wrote:
-> > The descriptions for CONFIG_FB_MATROX_G450 and CONFIG_FB_MATROX_G100A
-> > in drivers/video/Kconfig (current 2.6) are confusing: Both want to be
-> > selected for Matrox G100, G200, G400 based video cards.
-> > 
-> > In the menu, it's
-> > 
-> > # G100/G200/G400/G450/G550 support (sets FB_MATROX_G100, FB_MATROX_G450)
-> > #   G100/G200/G400 support     (sets FB_MATROX_G100)
-> > #   G400 second head support
-> > 
-> > where the second depends on the first _not_ being selected.
-> > 
-> > How about this instead?
-> > 
-> > # Gxxx (generic) (sets FB_MATROX_G100)
-> > #   G400 second head (depends FB_MATROX_GXXX, FB_MATROX_I2C)
-> >              (sets FB_MATROX_G450)
-> > #   G450/550 support (depends on FB_MATROX_GXXX)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig7C0C0B28B14177FB1A7162AA
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Jens Axboe wrote:
+> Hi Con,
 > 
-> Please no. It was this way in 2.4.x, and I was receiving at least
-> two complaints a week that their G450 does not work with their
-> system.
-> 
-> G400's second head has nothing to do with G450/G550, so there is
-> no reason why G400 second head should set FB_MATROX_G450...
+> Can you see if this works for you?
 
-Sorry, typo. Should have been:
+That fixes it.
 
-# Gxxx (generic) (sets FB_MATROX_G100)
-#   G400 second head (depends FB_MATROX_GXXX, FB_MATROX_I2C)
-#            (sets FB_MATROX_MAVEN)
-#   G450/550 support (depends on FB_MATROX_GXXX)
-#            (sets FB_MATROX_G450)
+Thanks,
 
-> If anything, then let's remove G100/G200/G400 choice completely,
-> making G450/G550 support unconditional.
+Jan
 
-That's fine with me, too. As far as I am concerned, you can throw the
-whole Matrox G??? bunch together :-). It's just the current presentation
-that is confusing.
+--------------enig7C0C0B28B14177FB1A7162AA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-Roger
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAxKz2LqMJRclVKIYRAuWXAJ4630JocCCG5cDPYkxwrFU1NmCWyACgjUMu
+qnU6PrqMwgsii0iJf/QyA8Q=
+=Aldb
+-----END PGP SIGNATURE-----
+
+--------------enig7C0C0B28B14177FB1A7162AA--

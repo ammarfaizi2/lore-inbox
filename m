@@ -1,44 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUIMPM3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267660AbUIMPMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267466AbUIMPM3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 11:12:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267660AbUIMPJT
+	id S267660AbUIMPMa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 11:12:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268578AbUIMPJA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 11:09:19 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:37767 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267749AbUIMO72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 10:59:28 -0400
-Date: Mon, 13 Sep 2004 15:58:37 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Alex Zarochentsev <zam@namesys.com>, Paul Jackson <pj@sgi.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined
-    atomic_sub_and_test
-In-Reply-To: <Pine.LNX.4.61.0409131608530.877@scrub.home>
-Message-ID: <Pine.LNX.4.44.0409131545100.17907-100000@localhost.localdomain>
+	Mon, 13 Sep 2004 11:09:00 -0400
+Received: from mail3.iserv.net ([204.177.184.153]:25277 "EHLO mail3.iserv.net")
+	by vger.kernel.org with ESMTP id S268172AbUIMPAW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 11:00:22 -0400
+Message-ID: <4145B606.5080505@didntduck.org>
+Date: Mon, 13 Sep 2004 11:00:22 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Constantine Gavrilov <constg@qlusters.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron
+ machines
+References: <4145A8E1.8010409@qlusters.com>
+In-Reply-To: <4145A8E1.8010409@qlusters.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Sep 2004, Roman Zippel wrote:
+Constantine Gavrilov wrote:
+> Hello:
 > 
-> So why not add the missing atomic_sub_and_test() (using simply 
-> atomic_sub_return)?
+> We have a piece of kernel code that calls some system calls in kernel 
+> context (from a process with mm and a daemonized kernel thread that does 
+> not have mm). This works fine on IA64 and i386 architectures.
+> 
+> When I try this on x86-64 kernel on Opteron machines, it results in 
+> immediate crash. I have tried standard _syscall() macros from 
+> asm/unistd.h. The system panics when returning from the system call.
+> The disassembled code shows that gcc has often a hard time deciding 
+> which registers (32-bit or 64-bit) it will use. For example, it puts the 
+> system call number to eax, while it should put it to rax. However, this 
+> register thing is not a problem. I have tried my own gcc hand-crafted 
+> inline assembly and glibc inline syscall assembly that results in 
+> "correct" disassembled code. The result is always the same -- kernel 
+> crash when calling a function defined by _syscall() macros or when using 
+> an "inline" block defined by glibc macros.
+> 
+> Attached please find a test module that tries to call the umask() (JUST 
+> TO DEMONSTRATE a problem) via the syscall machanism. Both methods (the 
+> _syscall1() marco and GLIBC INLINE_SYCALL() were used.
+> 
+> The assembly dump of the umask() called via _syscall(1) and via 
+> INLINE_SYSCALL() as well as the disassembly of umask() from glibc are 
+> provided in a separate attachement. The crash dump (captured with a 
+> serial console) is provided along with disassembly of the main module 
+> function.
+> 
+> It seems that segmentation is changed during the syscall and not 
+> restored properly, or some other REALLY BAD THING happens. The entry.S 
+> for x86_64 architecture is very informative, but I am not an expert in 
+> Opteron architecture and I do not know how the syscall instruction is 
+> supposed to work.
+> 
+> Can someone explain the reason for the crash? Can you think of a 
+> workaround? Comments and ideas are very welcome (except of the kind that 
+> it can be implemented in the user space or with a help of a user proxy 
+> process).
 
-sparc and s390 are not the only arches lacking atomic_sub_and_test.
+You should never use the unistd.h macros from kernel space.  Call 
+sys_foo() directly.  This may mean you have to export it.  The reason it 
+crashes is that the "syscall" opcode used by the x86-64 macros (unlike 
+the "int $0x80" for i386) causes a fault when already running in kernel 
+space.
 
-Go ahead and send the patches changing all the arches that have it to
-define __ARCH_HAS_ATOMIC_SUB_AND_TEST, and add asm-generic/atomic.h
-for those that don't etc; but to me that seems like a waste of time -
-unless Zam convinces us that Reiser4 will need every last ounce of
-cpu on this particular line of code.
-
-Hugh
-
+--
+				Brian Gerst

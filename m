@@ -1,81 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263131AbTDBSDR>; Wed, 2 Apr 2003 13:03:17 -0500
+	id <S263084AbTDBSHt>; Wed, 2 Apr 2003 13:07:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263139AbTDBSDR>; Wed, 2 Apr 2003 13:03:17 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:48448 "EHLO
-	pd6mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id <S263131AbTDBSDP>; Wed, 2 Apr 2003 13:03:15 -0500
-Date: Wed, 02 Apr 2003 10:15:21 -0800
-From: Nehal <nehal@canada.com>
-Subject: Re: mount hfs on SCSI cdrom = segfault
-In-reply-to: <3E87477C.3050208@canada.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <3E8B28B9.5090400@canada.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-References: <3E87477C.3050208@canada.com>
+	id <S263098AbTDBSHt>; Wed, 2 Apr 2003 13:07:49 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:26884 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S263084AbTDBSHr>; Wed, 2 Apr 2003 13:07:47 -0500
+Date: Wed, 2 Apr 2003 19:19:12 +0100
+From: John Levon <levon@movementarian.org>
+To: mikpe@csd.uu.se
+Cc: Pavel Machek <pavel@suse.cz>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       torvalds@transmeta.com, Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Convert APIC to driver model: now it works with SMP
+Message-ID: <20030402181912.GK35912@compsoc.man.ac.uk>
+References: <20030330193026.GA29499@elf.ucw.cz> <14730000.1049180682@[10.10.2.4]> <20030401153852.GA24356@compsoc.man.ac.uk> <20030401202544.GD122@elf.ucw.cz> <16010.57535.281723.305868@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16010.57535.281723.305868@gargle.gargle.HOWL>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *190mpN-0006Or-00*bHUiVarVt4.*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i have a hybrid cd (both HFS, ISO9660) , i have two CD drives,
-> one IDE CD-Rom (actima 32x), and one SCSI CD-burner (yamaha 6416)
-> on an advansys cfg-510 ISA scsi card
->
-> when i try to mount on IDE using hfs with:
->
->    mount -v -r -t hfs /dev/hdc /cdrom
->
-> it works fine, yet when i try on scsi with:
->
->    mount -v -r -t hfs /dev/scd0 /cdrom
->
-> i get a "Segmentation fault" error, no more output given,
-> it also locks the drive, and sometimes i can use the
-> 'eject' command to eject it, sometimes i cant and i gotta reboot
->
-> note: when i try to mount the cd using regular iso9660 fs, it
-> works perfectly on both cd drives,
-> also i have tried 2 hybrid cd's, both times i have trouble mounting
-> hfs on the scsi drive only
->
-> Nehal 
+On Wed, Apr 02, 2003 at 03:08:15PM +0200, mikpe@csd.uu.se wrote:
 
-ok i updated firmware of writer from 1.0c to 1.0d with no help,
-but i found when i do 'dmesg' after mounting i get this error:
-========
-kernel BUG at buffer.c:2518!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c013c329>]    Not tainted
-EFLAGS: 00013206
-eax: 000007ff   ebx: 00000b00   ecx: 00000800   edx: c11ee640
-esi: 00000b00   edi: 00000200   ebp: 00000b00   esp: c3425db4
-ds: 0018   es: 0018   ss: 0018
-Process mount (pid: 514, stackpage=c3425000)
-Stack: c6d0d760 c3425e48 c0257a59 c7f1c574 00000000 00000b00 00000200 
-00000000
-       c0139f66 00000b00 00000000 00000200 00000000 00000001 c7568400 
-00000000
-       c013a1e0 00000b00 00000000 00000200 00000000 c019280a 00000b00 
-00000000
-Call Trace:    [<c0257a59>] [<c0139f66>] [<c013a1e0>] [<c019280a>] 
-[<c019188a>]
-  [<c01925ff>] [<c0285c30>] [<c013cdca>] [<c013e908>] [<c013d64b>] 
-[<c013cd3c>]
-  [<c013d9a1>] [<c014fcf3>] [<c0150020>] [<c014fe69>] [<c0150441>] 
-[<c01090ff>]
+> John wrote that the latest works for him, with oprofile enabled.
+> Maybe he fixed some detail, I haven't compared it with mine yet.
 
-Code: 0f 0b d6 09 9a 2b 33 c0 8d 87 00 fe ff ff 3d 00 0e 00 00 76
- 
-root@Nehal:~#
-========
-then when i try it again it doesnt give this message, it locks up my drive
+The only fix I made was to let CONFIG_PM=n compile.
 
-can someone please help debug this problem,
-thx, Nehal
-
-
+regards,
+john

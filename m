@@ -1,80 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262452AbSI3RiM>; Mon, 30 Sep 2002 13:38:12 -0400
+	id <S262451AbSI3Rej>; Mon, 30 Sep 2002 13:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262492AbSI3RiM>; Mon, 30 Sep 2002 13:38:12 -0400
-Received: from landfill.ihatent.com ([217.13.24.22]:42216 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262452AbSI3RiL>;
-	Mon, 30 Sep 2002 13:38:11 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CPU/cache detection wrong
-References: <m3hegaxpp0.fsf@lapper.ihatent.com>
-	<1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 30 Sep 2002 19:43:16 +0200
-In-Reply-To: <1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
-Message-ID: <m3wup3bcgb.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S262452AbSI3Rej>; Mon, 30 Sep 2002 13:34:39 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:24201 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262451AbSI3Rej>;
+	Mon, 30 Sep 2002 13:34:39 -0400
+Date: Mon, 30 Sep 2002 23:15:37 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] generic work queue handling, workqueue-2.5.39-D6
+Message-ID: <20020930231537.A29582@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <Pine.LNX.4.44.0209301747560.13521-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209301747560.13521-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Sep 30, 2002 at 03:58:25PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> On Sat, 2002-09-28 at 13:29, Alexander Hoogerhuis wrote:
-> > CPU: Intel(R) Pentium(R) 4 Mobile CPU 1.70GHz stepping 04
-> > Enabling fast FPU save and restore... done.
-> > Enabling unmasked SIMD FPU exception support... done.
-> > Checking 'hlt' instruction... OK.
-> > 
-> > The machine is a Comapq Evo n800c with a 1.7GHz P4-M in it, and
-> > according to the BIOS I've got 16kb/512Kb L1/L2-cache. Accroding to
-> > the 2.4.20-pre7-ac3-kernel. It's been like this at least since
-> > 2.4.19-pre4 or so.
-> 
-> Can you stick a printk in arch/i386/kernel/setup.c in the function
-> init_intel    
-> 
-> Just before:                         
->         /* look up this descriptor in the table */
-> 
-> stick
-> 
->         printk("Cache info byte: %02X\n", des);
-> 
-> that will dump the cache info out of the CPU as the kernel scans it and
-> should let us find the error in the table.
+On Mon, Sep 30, 2002 at 03:58:25PM +0000, Ingo Molnar wrote:
+> it cannot get any simpler than this. Work-queues are SMP-safe and
+> guarantee serialization of actual work performed.
 > 
 
-And the jury says:
+Ingo,
 
-PU: Before vendor init, caps: 3febf9ff 00000000 00000000, vendor = 0
-Cache info byte: 50
-Cache info byte: 5B
-Cache info byte: 66
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 00
-Cache info byte: 40
-Cache info byte: 70
-Cache info byte: 7B
-Cache info byte: 00
-CPU: L1 I cache: 0K, L1 D cache: 8K
-CPU: L2 cache: 512K
-CPU: After vendor init, caps: 3febf9ff 00000000 00000000 00000000
+Is it possible that queue_task() handlers in earlier driver code may have
+depended on implicit serialization against corresponding timer handlers since
+each of those is run from BHs ? If so, isn't that an issue now with
+no BHs ? Or, is it safe to assume that general smp-safety code in the
+drivers will take care of serialization between timers and work-queues ?
 
-Let me know if you need more info :)
-
-mvh,
-A
+Thanks
 -- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

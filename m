@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUJGRqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267397AbUJGRD3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267516AbUJGRqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267552AbUJGRot
+	id S267397AbUJGRD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUJGRBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:44:49 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:38351 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S267565AbUJGRGa convert rfc822-to-8bit (ORCPT
+	Thu, 7 Oct 2004 13:01:45 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:35547 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267433AbUJGQ2N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 13:06:30 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 7 Oct 2004 12:28:13 -0400
+Date: Thu, 7 Oct 2004 18:28:04 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Hollis Blanchard <hollisb@us.ibm.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, katzj@redhat.com
+Subject: Re: [patch] add class/tty/console/real_dev symlink
+In-Reply-To: <200410061830.52563.hollisb@us.ibm.com>
+Message-ID: <Pine.GSO.4.61.0410071827370.9319@waterleaf.sonytel.be>
+References: <200410061830.52563.hollisb@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] 2.6 SGI Altix I/O code reorganization
-Date: Thu, 7 Oct 2004 10:06:14 -0700
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F022669A9@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] 2.6 SGI Altix I/O code reorganization
-Thread-Index: AcSsjgZ7CokWv96ARs+BMDpP7Ie4wgAAECUg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Jesse Barnes" <jbarnes@engr.sgi.com>, "Patrick Gefre" <pfg@sgi.com>
-Cc: "Grant Grundler" <iod00d@hp.com>, "Colin Ngam" <cngam@sgi.com>,
-       "Matthew Wilcox" <matthew@wil.cx>, <linux-kernel@vger.kernel.org>,
-       <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 07 Oct 2004 17:06:14.0955 (UTC) FILETIME=[F4247FB0:01C4AC8F]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Yeah, sorry, I shouldn't have said cleanup, fixup is better.  
->Anyway, they 
->need to be separate since they'll be going into the tree via 
->Andrew not Tony.
+On Wed, 6 Oct 2004, Hollis Blanchard wrote:
+> This patch adds a symlink from /sys/class/tty/console/real_dev to 
+> e.g. /sys/class/tty/ttyS0 . This is needed because there is no way for 
+> userspace to determine what device the kernel is using as its console, and in 
+> the case of an installer that is important information. Otherwise, the 
+> installer cannot know which serial port you're booting on, for example, and 
+> so wouldn't know where to display itself.
 
-A couple of days back I said that I'm ok pushing these drivers.
-Although they don't have "arch/ia64" or "include/asm-ia64"
-prefixes, they are only used by ia64.  I'm even ok with the
-qla1280.c change as the final version is only touching code
-inside #ifdef CONFIG_IA64_{GENERIC|SN2) ... but I would like
-to see a sign-off from the de-facto maintainer Christoph for
-this file.
+The installer can just open /dev/console?
 
-This is not a land-grab to expand my responsibilities, it just
-seems to be the right thing to do to coordinate getting all
-these interdependent pieces into the tree at the same time.
+Gr{oetje,eeting}s,
 
-However ... there's a thread on LKML wailing about huge changes
-going into "-rc" releases.  Since there still seems to be
-a lively discussion about the the right way to do the pci_root
-bits of this patch, I'm very inclined to save this till *after*
-Linus release 2.6.9-final.  If there's a _mostly_ clean patch
-presented to me before 2.6.10-rc1 shows up, I'll push that and
-allow for some follow-on tidy-up patches to clean up.
+						Geert
 
--Tony
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

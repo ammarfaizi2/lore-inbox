@@ -1,28 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265249AbRGNXmO>; Sat, 14 Jul 2001 19:42:14 -0400
+	id <S265149AbRGNXyq>; Sat, 14 Jul 2001 19:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265199AbRGNXmE>; Sat, 14 Jul 2001 19:42:04 -0400
-Received: from adsl-63-196-157-142.dsl.lsan03.pacbell.net ([63.196.157.142]:18440
-	"HELO adsl-63-196-157-142.dsl.lsan03.pacbell.net") by vger.kernel.org
-	with SMTP id <S265149AbRGNXl5>; Sat, 14 Jul 2001 19:41:57 -0400
-Date: Sat, 14 Jul 2001 16:39:01 -0700
-From: "Tim R. Young" <try@lyang.net>
-To: linux-kernel@vger.kernel.org
-Subject: /boot/kernel.h in redhat
-Message-ID: <20010714163901.B24263@box.lyang.net>
-Reply-To: try@lyang.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S265199AbRGNXyg>; Sat, 14 Jul 2001 19:54:36 -0400
+Received: from ppp-167.96.triton.net ([216.65.167.96]:3968 "HELO
+	tabris.domedata.com") by vger.kernel.org with SMTP
+	id <S265149AbRGNXy0>; Sat, 14 Jul 2001 19:54:26 -0400
+Message-ID: <3B50DBAE.7030406@lycosmail.com>
+Date: Sat, 14 Jul 2001 19:54:22 -0400
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>, reiser@namesys.com
+Subject: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Sorry if this is a repost.
 
-On redhat system, /etc/rc.d/rc.sysinit creates
-/boot/kernel.h each time machine boots.
-I am wondering what is the use of /boot/kernel.h?
+I am upgrading to a new 36GB HD, and intend to split it into 3 pieces: 
+one 7GB vfat, one ~28GB linux data (reiser or ext2), and 1GB swap.
 
-Thanks
+I need to know if I can trust ReiserFS, as I do believe that I do want 
+ReiserFS.
+

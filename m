@@ -1,296 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264555AbTCZCR7>; Tue, 25 Mar 2003 21:17:59 -0500
+	id <S264556AbTCZCSD>; Tue, 25 Mar 2003 21:18:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264556AbTCZCR7>; Tue, 25 Mar 2003 21:17:59 -0500
-Received: from user-0can0ud.cable.mindspring.com ([24.171.131.205]:4742 "EHLO
-	BL4ST") by vger.kernel.org with ESMTP id <S264555AbTCZCRy>;
-	Tue, 25 Mar 2003 21:17:54 -0500
-Date: Tue, 25 Mar 2003 18:29:38 -0800
-From: Eric Wong <eric@yhbt.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH] Logitech USB mice/trackball extensions
-Message-ID: <20030326022938.GA5187@bl4st.yhbt.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Tire Smokers Anonymous
-User-Agent: Mutt/1.5.4i
+	id <S264557AbTCZCSD>; Tue, 25 Mar 2003 21:18:03 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47351 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S264556AbTCZCSB>;
+	Tue, 25 Mar 2003 21:18:01 -0500
+Message-ID: <3E811055.5040202@mvista.com>
+Date: Tue, 25 Mar 2003 18:28:37 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Fionn Behrens <fionn@unix-ag.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: System time warping around real time problem - please help
+References: <1048609931.1601.49.camel@rtfm>	 <Pine.LNX.4.53.0303251152080.29361@chaos> <1048627013.2348.39.camel@rtfm>	 <3E80D4CC.4000202@mvista.com>  <1048632934.1355.12.camel@rtfm> <1048637613.29944.17.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1048637613.29944.17.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for controlling 400/800 cpi resolution and
-SMS/Smart Scroll/Cruise control for certain Logitech mice.  Disabling
-SMS lets you use the extra buttons on MX500/700 as regular buttons if
-an application supports evdev since ExpPS/2 doesn't support all the
-buttons.
+Alan Cox wrote:
+> On Tue, 2003-03-25 at 22:55, Fionn Behrens wrote:
+> 
+>>>This all sounds very much like the TSCs are drifting WRT each other. 
+>>>Is it possible that you have some power management code (or hardware) 
+>>>that is slowing one cpu and not the other?
+>>
+>>Well, I still don't really know what TSCs actually are (or what TSC
+>>stands for).
 
-For XFree86, there are some patches (not mine) to support evdev here: 
-http://people.debian.org/~warp/evdev/
-
-diff -ruN a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
---- a/drivers/usb/input/Kconfig	2003-03-17 13:44:22.000000000 -0800
-+++ b/drivers/usb/input/Kconfig	2003-03-24 20:06:26.000000000 -0800
-@@ -90,6 +90,36 @@
- 
- 	  If unsure, say Y.
- 
-+config USB_HIDLOGITECH
-+ 	bool "Logitech HID extensions"
-+ 	default n
-+ 	depends on USB_HID
-+ 	help
-+ 	  Say Y here will enable control of Logitech specific extensions
-+ 
-+	  module parameter: 'hid_logitech_sms' type: boolean
-+	  
-+	  Toggle simulated scrolling with the Smart Scroll / Cruise Control
-+ 	  buttons (7 and 8) on the following Logitech devices: 
-+ 	  - MX500 Optical Mouse
-+ 	  - Receiver for Cordless Elite Duo
-+ 	  - Receiver for MX700 Optical Mouse
-+ 	  - Receiver for Cordless Optical TrackMan
-+
-+  	  default: 1 (Smart Scroll / Cruise Control enabled)
-+ 
-+	  module parameter: 'hid_logitech_res' type: boolean
-+	  Toggle 400 / 800 cpi (characters per inch) resolution on Logitech
-+ 	  devices that support it:
-+ 	  - Wheel Mouse Optical
-+ 	  - MouseMan Traveler
-+ 	  - MouseMan Dual Optical
-+ 	  - MX300 Optical Mouse
-+ 	  - MX500 Optical Mouse
-+ 	  - iFeel Mouse (silver)
-+	  
-+ 	  default: 0 (400 cpi)
-+
- menu "USB HID Boot Protocol drivers"
- 	depends on USB!=n && USB_HID!=y
- 
-diff -ruN a/drivers/usb/input/Makefile b/drivers/usb/input/Makefile
---- a/drivers/usb/input/Makefile	2003-03-17 13:44:11.000000000 -0800
-+++ b/drivers/usb/input/Makefile	2003-03-24 20:06:26.000000000 -0800
-@@ -25,6 +25,9 @@
- ifeq ($(CONFIG_HID_FF),y)
- 	hid-objs	+= hid-ff.o
- endif
-+ifeq ($(CONFIG_USB_HIDLOGITECH),y)
-+	hid-objs	+= hid-logitech.o
-+endif
- 
- obj-$(CONFIG_USB_AIPTEK)	+= aiptek.o
- obj-$(CONFIG_USB_HID)		+= hid.o
-diff -ruN a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	2003-03-24 19:22:13.000000000 -0800
-+++ b/drivers/usb/input/hid-core.c	2003-03-25 18:05:48.000000000 -0800
-@@ -1610,6 +1610,7 @@
- 	hid_dump_device(hid);
- 
- 	hid_ff_init(hid);
-+	hid_logitech_extras(hid);
- 
- 	if (!hidinput_connect(hid))
- 		hid->claimed |= HID_CLAIMED_INPUT;
-@@ -1687,3 +1688,19 @@
- MODULE_AUTHOR(DRIVER_AUTHOR);
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_LICENSE(DRIVER_LICENSE);
-+
-+/* Module parameters */
-+MODULE_PARM(hid_poll_interval, "i");
-+MODULE_PARM_DESC(hid_poll_interval, "polling interval, millseconds (default=10)");
-+
-+#ifndef MODULE
-+static int __init hid_poll_interval_setup(char *str)
-+{
-+	get_option(&str,&hid_poll_interval);
-+	return 1;
-+}
-+
-+__setup("hid_poll_interval=", hid_poll_interval_setup);
-+
-+#endif
-+
-diff -ruN a/drivers/usb/input/hid-logitech.c b/drivers/usb/input/hid-logitech.c
---- a/drivers/usb/input/hid-logitech.c	1969-12-31 16:00:00.000000000 -0800
-+++ b/drivers/usb/input/hid-logitech.c	2003-03-25 18:11:16.000000000 -0800
-@@ -0,0 +1,156 @@
-+/*
-+ *  Copyright (c) 2003 Eric Wong <eric@yhbt.net>
-+ *
-+ *  Logitech extensions for HID devices
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/usb.h>
-+#include "hid.h"
-+
-+/* 
-+ * Logitech USB extra features 
-+ */
-+
-+#define HID_QUIRK_LOGI_HIRES	0x01
-+#define HID_QUIRK_LOGI_SMS	0x02
-+
-+#if 0
-+#define HID_QUIRK_LOGI_CSR	0x04 /* not implemented */
-+#endif
-+
-+/*
-+ * RES - Resolution switching between 400 cpi and 800 cpi
-+ *                type  req  value  index  length   
-+ * Set 400 cpi    40    02   0E 00  03 00  00 00  
-+ * Set 800 cpi    40    02   0E 00  04 00  00 00  
-+ * Get resolution C0    01   0E 00  00 00  01 00 
-+ * 	returns: 03 for 400 cpi or 04 for 800 cpi
-+ *
-+ * SMS - Smart Scroll / Cruise Control
-+ *                type  req  value  index  length   
-+ * Enable SMS     40    02   17 00  01 00  00 00  
-+ * Disable SMS    40    02   17 00  00 00  00 00  
-+ * Get SMS mode   C0    01   17 00  00 00  01 00 
-+ * 	returns: 00 for disabled, 01 for enabled
-+ */
-+
-+#define USB_VENDOR_ID_LOGITECH		0x046d
-+
-+/* mice */
-+#define USB_DEVICE_ID_LOGITECH_WMOPT	0xc00e	/* Wheel Mouse Optical */
-+#define USB_DEVICE_ID_LOGITECH_MMTRAV	0xc00f	/* MouseMan Traveler */
-+#define USB_DEVICE_ID_LOGITECH_MMDUAL	0xc012	/* MouseMan Dual Optical */
-+#define USB_DEVICE_ID_LOGITECH_MX300	0xc024	/* MX300 Optical Mouse */
-+#define USB_DEVICE_ID_LOGITECH_MX500	0xc025	/* MX500 Optical Mouse */
-+#define USB_DEVICE_ID_LOGITECH_IFEEL	0xc031	/* iFeel Mouse (silver) */
-+
-+/* receivers for cordless devices */
-+#define USB_DEVICE_ID_LOGITECH_CEDUO	0xc505	/* Cordless Elite Duo */
-+#define USB_DEVICE_ID_LOGITECH_MX700	0xc506	/* MX700 Optical Mouse */
-+#define USB_DEVICE_ID_LOGITECH_COTRACK	0xc508	/* Cordless Optical TrackMan */
-+
-+/*
-+ * keep this separate from the main hid-core.c blacklist to avoid bloating the
-+ * code for people who don't use these Logitech products.  This isn't a
-+ * blacklist, it's a whitelist :)
-+ */
-+
-+struct hid_logitech_quirklist {
-+	__u16 idVendor;
-+	__u16 idProduct;
-+	unsigned features;
-+} hid_logitech_quirklist[] = { 
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WMOPT,
-+		HID_QUIRK_LOGI_HIRES },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MMTRAV,
-+		HID_QUIRK_LOGI_HIRES },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MMDUAL,
-+		HID_QUIRK_LOGI_HIRES },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MX300,
-+		HID_QUIRK_LOGI_HIRES },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_IFEEL,
-+		HID_QUIRK_LOGI_HIRES },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MX500,
-+		HID_QUIRK_LOGI_HIRES | HID_QUIRK_LOGI_SMS },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CEDUO,
-+		HID_QUIRK_LOGI_SMS },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_MX700,
-+		HID_QUIRK_LOGI_SMS },
-+	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_COTRACK,
-+		HID_QUIRK_LOGI_SMS },
-+	{ 0, 0 }
-+};
-+	
-+/* 
-+ * Logitech SMS and RES
-+ * these are the logitech defaults for dpi and smart scrolling 
-+ * I don't like them, but they're the defaults. Also why I made this patch
-+ */
-+
-+#define HID_LOGITECH_RES	0
-+#define HID_LOGITECH_SMS	1
-+
-+static int hid_logitech_res = HID_LOGITECH_RES;
-+static int hid_logitech_sms = HID_LOGITECH_SMS;
-+
-+void hid_logitech_extras (struct hid_device *hid) 
-+{
-+	unsigned features = 0;
-+	int n;
-+	for (n = 0; hid_logitech_quirklist[n].idVendor; ++n)
-+		if ((hid_logitech_quirklist[n].idVendor == hid->dev->descriptor.idVendor) &&
-+			(hid_logitech_quirklist[n].idProduct == hid->dev->descriptor.idProduct))
-+				features = hid_logitech_quirklist[n].features;
-+
-+	if ( (features & HID_QUIRK_LOGI_SMS) && !hid_logitech_sms ) 
-+		/* disable sms */
-+	        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
-+				0x02, 0x40, 0x0017, 0x0000, NULL, 0, HZ);
-+	else if ( (features & HID_QUIRK_LOGI_SMS) && hid_logitech_sms ) 
-+		/* enable sms */
-+	        usb_control_msg(hid->dev, usb_sndctrlpipe(hid->dev, 0),
-+				0x02, 0x40, 0x0017, 0x0001, NULL, 0, HZ);
-+
-+	if ( (features & HID_QUIRK_LOGI_HIRES) && hid_logitech_res ) 
-+		/* 800 cpi resolution */
-+	        usb_control_msg(hid->dev,usb_sndctrlpipe(hid->dev, 0),
-+				0x02, 0x40, 0x000e, 0x0004, NULL, 0, HZ);
-+	else if ( (features & HID_QUIRK_LOGI_HIRES) && !hid_logitech_res ) 
-+		/* 400 cpi resolution */
-+	        usb_control_msg(hid->dev,usb_sndctrlpipe(hid->dev, 0),
-+				0x02, 0x40, 0x000e, 0x0003, NULL, 0, HZ);
-+}
-+
-+MODULE_PARM(hid_logitech_res, "i");
-+MODULE_PARM_DESC(hid_logitech_res, "resolution, 1 = 800cpi | 0 = 400cpi (default)");
-+MODULE_PARM(hid_logitech_sms, "i");
-+MODULE_PARM_DESC(hid_logitech_sms, "auto-repeat, 1 = enabled (default) | 0 = disabled");
-+
-+#ifndef MODULE
-+static int __init hid_logitech_res_setup(char *str)
-+{
-+	get_option(&str,&hid_logitech_res);
-+	return 1;
-+}
-+
-+static int __init hid_logitech_sms_setup(char *str)
-+{
-+	get_option(&str,&hid_logitech_sms);
-+	return 1;
-+}
-+__setup("hid_logitech_res=", hid_logitech_res_setup);
-+__setup("hid_logitech_sms=", hid_logitech_sms_setup);
-+#endif
-+
-diff -ruN a/drivers/usb/input/hid.h b/drivers/usb/input/hid.h
---- a/drivers/usb/input/hid.h	2003-03-17 13:43:37.000000000 -0800
-+++ b/drivers/usb/input/hid.h	2003-03-24 20:06:26.000000000 -0800
-@@ -432,6 +432,12 @@
- static inline void hidinput_disconnect(struct hid_device *hid) { }
- #endif
- 
-+#ifdef CONFIG_USB_HIDLOGITECH
-+extern void hid_logitech_extras (struct hid_device *);
-+#else
-+static inline void hid_logitech_extras (struct hid_device *hid) { }
-+#endif 
-+
- int hid_open(struct hid_device *);
- void hid_close(struct hid_device *);
- int hid_find_field(struct hid_device *, unsigned int, unsigned int, struct hid_field **);
-
-
+Stands for Time Stamp Counter.  It is a special cpu register that 
+basically counts cpu cycles.  Some times (incorrectly me thinks) it is 
+affected by power management code which slows the cpu by changing the 
+cpu frequency.
+>>
+>>The only suspect in that case would be the amd76x_pm.o kernel module
+>>which I am admittedly using. It saves about 90Watts of power when the
+>>machine is idle...
+> 
+> 
+> If you are using amd76x_pm boot with "notsc", ditto for that matter
+> on dual athlons with APM or ACPI in some cases. In fact I wish people
+> would stop using the tsc for clock timing altogether. It simply doesn't
+> work on a lot of modern systems
+> 
+I agree, however, what is really needed is not available in x86 
+machines, i.e. a cpu register that has a fixed and stable count rate. 
+  An I/O register is second best because of the long time it takes to 
+read it.
+> 
+> 
 
 -- 
-Eric Wong
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

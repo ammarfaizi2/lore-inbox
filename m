@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265084AbTFRHqk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 03:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265085AbTFRHqk
+	id S265083AbTFRH6d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 03:58:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265085AbTFRH6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 03:46:40 -0400
-Received: from smtp.pentapharm.com ([194.209.245.131]:9991 "HELO
-	fire0002.pentapharm.com") by vger.kernel.org with SMTP
-	id S265084AbTFRHqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 03:46:39 -0400
-MIME-Version: 1.0
-Subject: AW: Kernel 2.5.71 cannot unmount nfs
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-Date: Wed, 18 Jun 2003 09:59:48 +0200
-Message-ID: <0557B834CB410E4EB692BC78504D4C2C02F3F4@dc0011.pefade.pefa.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel 2.5.71 cannot unmount nfs
-Thread-Index: AcMz4+/TIlSbqsyGSAurmhkwXxoyAgBi3xUQ
-From: "Seifert Guido, gse" <Guido.Seifert@pentapharm.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Jun 2003 07:59:49.0916 (UTC) FILETIME=[97B1CDC0:01C3356F]
-Content-Type: multipart/mixed; boundary="----=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51"
+	Wed, 18 Jun 2003 03:58:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29350 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265083AbTFRH6c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 03:58:32 -0400
+Date: Wed, 18 Jun 2003 09:12:28 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Kevin P. Fleming'" <kpfleming@cox.net>,
+       "'Alan Stern'" <stern@rowland.harvard.edu>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Russell King'" <rmk@arm.linux.org.uk>, "'Greg KH'" <greg@kroah.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Flaw in the driver-model implementation of attributes
+Message-ID: <20030618081227.GA6754@parcelfarce.linux.theplanet.co.uk>
+References: <A46BBDB345A7D5118EC90002A5072C780DD16A55@orsmsx116.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780DD16A55@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart message in MIME format
+On Wed, Jun 18, 2003 at 12:48:59AM -0700, Perez-Gonzalez, Inaky wrote:
+ 
+> [I happen not to know the block layer as well as you and many others 
+> do, so please correct me where I am wrong ...]
+> 
+> So what? _every_ block device will have some form of physical 
+> back-up that can be linked back into sysfs.
 
-------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+... except ones that will not.  Wonderful.  I bow to that logics - there
+is nothing it wouldn't cover.
+ 
+> In cases like this, doesn't it make sense to have some 
+> /sys/devices/SOMETHING/ hierarchy for those  "logical" or "virtual" 
+> devices that back-up those block devices? 
+> 
+> You could even say that RAID and ramdisks -as used in the example 
+> above- would belong to /sys/devices/"virtual"/raid/ and 
+> ...../ramdisks/; after all, you have to create those devices before
+> being able to attach them (last time I checked):
+ 
+> In the tree structure it makes sense, because each block
+> device, at the end is or a partition (and thus is embedded
+> in a "true" block device) or a true block device on a 1:1
+> relationship with a physical device.
 
-> Seifert Guido, gse, Mon, Jun 16, 2003 10:22:08 +0200:
->> Sorry for the incomplete and unprofessional bugreport, I don't have=20
->> more info. I tried Kernel 2.5.71. Everything seems to work fine until
-
->> I shut down or try to unmount a mountend nfs filesystem. For several=20
->> minutes nothing happens, then I get something what looks like a=20
->> backtrace from the nfs related code section. Unfortunately there is=20
->> nothing in the log files afterwards.
-
->See the patch at http://bugme.osdl.org/show_bug.cgi?id=3D805
-
-Works great. Thank you.
-
-G.
-
-
-
-------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51
-Content-Type: text/plain;
-	name="InterScan_SafeStamp.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="InterScan_SafeStamp.txt"
-
-****** Message from InterScan E-Mail VirusWall NT ******
-
-** No virus found in attached file noname.htm
-
-E-mail is virus checked, Pentapharm Group, Switzerland, Support@pentapharm.com
-*****************     End of message     ***************
-
-
-------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51--
-
-------=_NextPartTM-000-63a556b7-ad1b-4ff7-9606-136905e1fe51--
+BS.  There is nothing to stop you from having a block device that talks
+to userland process instead of any form of hardware.  As the matter of
+fact, we already have such a beast - nbd.  There is also RAID - where
+there fsck is 1:1 here?  There's also such thing as RAID5 over partitions
+that sit on several disks - where do you see 1:1 or 1:n or n:1?
+There is such thing as e.g. encrypted loop over NFS.  There are all
+sorts of interesting things, with all sorts of interesting relationship
+to some pieces of hardware.

@@ -1,85 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268014AbRGVRwC>; Sun, 22 Jul 2001 13:52:02 -0400
+	id <S268018AbRGVSEX>; Sun, 22 Jul 2001 14:04:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268013AbRGVRvx>; Sun, 22 Jul 2001 13:51:53 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:54789 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S268012AbRGVRvs>;
-	Sun, 22 Jul 2001 13:51:48 -0400
-Date: Sun, 22 Jul 2001 19:51:43 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "Alan J. Wylie" <alan.nospam@glaramara.freeserve.co.uk>
-cc: <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: ipt_unclean: TCP flags bad: 4
-In-Reply-To: <15194.61662.338810.87576@glaramara.freeserve.co.uk>
-Message-ID: <Pine.LNX.4.33.0107221947420.739-100000@Expansa.sns.it>
+	id <S268017AbRGVSEN>; Sun, 22 Jul 2001 14:04:13 -0400
+Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:29840 "EHLO
+	bassia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S268016AbRGVSEJ>; Sun, 22 Jul 2001 14:04:09 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Igmar Palsenberg <i.palsenberg@jdimedia.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: New PCI device
+Date: Sun, 22 Jul 2001 20:02:43 +0200
+Message-Id: <20010722180243.22142@smtp.wanadoo.fr>
+In-Reply-To: <Pine.LNX.4.33.0107221342140.1363-100000@jdi.jdimedia.nl>
+In-Reply-To: <Pine.LNX.4.33.0107221342140.1363-100000@jdi.jdimedia.nl>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+>
+>I'm still thinking about what driver to create.. A driver that
+>emulates a PCMCIA controller is a knightmare, but so is an ethernet driver
+>for this setup.
 
-There was a bug introduced with kernel 2.4.6, but it was
-solved with one of the latest 2.4.7-pre patch, i do not remember which
-one.
+I didn't follow closely, but Imy understanding is that the prismII is
+not removable on the PCI card, that's it ? The PLX chip is probably 
+used to bridge the 16 bits PIO prism device, It doesn't make much sense
+to emulate PCMCIA.
 
-actually i was happily using tcp_unclean on my production servers, but
-with 2.4.6 i was forced to avoid it.
-I still have to try 2.4.7 to see if it works properly.
+>The 2.4.x kernel has support for the wireless card itself, but in a PCMCIA
+>context. Creating a ethernet driver creates a lot of duplicate code.
 
-If you use a rule like
+First, get a recent 2.4.x, 2.4.6 should you give you the latest version.
 
-iptables -A INPUT -m unlean -j DROP
+The kernel driver for those chipsets is designed in a way that should allow
+you to easily add new interface types. Look at what's in drivers/net/wireless,
+more specifically the files hermes.c, orinoco.c, orinoco_cs.c and airport.c.
 
-are you still able to connect in/out of your box?
+The drivers's layout is basically;
 
-bests
-Luigi
+     - hermes    : low level routines for talking to the controller,
+                   you initialize this layer by passing it an IO base
+                   for use with inx/outx routines. You shouldn't have
+                   to modify it.
+ 
+     - orinoco   : core driver. Implements the interface to the kernel
+                   network stack, the wireless interface, etc...
+                   You shouldn't need to change it neither
 
+Now are the bus interfaces :
 
-On Sun, 22 Jul 2001, Alan J. Wylie wrote:
+     - orinoco_cs : PCMCIA interface
+     - airport    : Apple "Airport" interface
 
->
-> I've just upgraded to 2.4.7, and I'm getting lots of errors:
->
-> ipt_unclean: TCP flags bad: 4
->
-> I only see them when my ppp link is up - pppd version 2.4.0
->
-> Looking at ipt_unclean.c it seems that this message will be generated
-> when I send a packet with flags set to RST only.
->
-> I've run a ppp session with the pppd option "record" turned on, and
-> analysed the output with "ethereal". This is indeed what is on the
-> wire. I'm no expert on TCP I'm afraid. The complete TCP stream
-> follows:
->
-> ------------------------------------------------------------------------------
-> No. Time        Source                Destination           Protocol Info
->
-> 129 12.800000   62.137.113.223        news.svr.pol.co.uk    TCP
->     1148 > nntp [SYN] Seq=3684831495 Ack=0 Win=5840 Len=0
->
-> 131 12.900000   news.svr.pol.co.uk    62.137.113.223        TCP
->     nntp > 1148 [SYN, ACK] Seq=2607886663 Ack=3684831496 Win=32736 Len=0
->
-> 137 13.300000   62.137.113.223        news.svr.pol.co.uk    TCP
->     1148 > nntp [FIN, ACK] Seq=3684831502 Ack=2607887466 Win=7090 Len=0
->
-> 142 13.400000   62.137.113.223        news.svr.pol.co.uk    TCP
->     1148 > nntp [RST] Seq=3684831503 Ack=0 Win=0 Len=0
-> ------------------------------------------------------------------------------
->
-> --
-> Alan J. Wylie                        http://www.glaramara.freeserve.co.uk/
-> "Perfection [in design] is achieved not when there is nothing left to add,
-> but rather when there is nothing left to take away."
->   Antoine de Saint-Exupery
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+What you have to do is basically add a module for your card. You should
+write a basic PCI driver that mostly does what airport does (except
+the powermac specific stuffs , mostly calls to feature_xxx() functions,
+just ignore them). That is get the card's IO base address and request
+an interrupt, implement open() and close() wrappers, and that's it.
+
+HOWEVER, the low-level hermes layer can only do PIO for now (inx/outx).
+If you card requires MMIO, then it will not be that simple. You'll probably
+have to work on the hermes layer to provide 2 implementations, a PIO one
+and an MMIO one.
+For the Airport driver, which is MMIO based, we can "fake" this because
+the Airport interface exist only on PowerMacs, and on PPC, PIO is actually
+MMIO in a specific address range.
+
+I don't know if the PLX bridge provides anything like GPIOs and/or if
+there's a separate PLD on your card. In these cases, it's possible that
+some card-specific IO magic be needed to properly initialize the prism.
+That's the case with Apple airport on which you have to "emulate" some
+PCMCIA stuffs for powering it up and resetting the chip.
+
+So if you have problems getting the chip up, you may have to ask the
+card manufacturer for some specs.
+
+Ben.
+
 

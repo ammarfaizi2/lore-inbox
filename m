@@ -1,35 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132551AbRDWXKL>; Mon, 23 Apr 2001 19:10:11 -0400
+	id <S132563AbRDWXKI>; Mon, 23 Apr 2001 19:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132561AbRDWXJI>; Mon, 23 Apr 2001 19:09:08 -0400
-Received: from t2.redhat.com ([199.183.24.243]:22010 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S132562AbRDWXIU>; Mon, 23 Apr 2001 19:08:20 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AE4B3D5.E026E291@mandrakesoft.com> 
-In-Reply-To: <3AE4B3D5.E026E291@mandrakesoft.com>  <3829d3430e.3430e3829d@mysun.com> 
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: pawel.worach@mysun.com, Chmouel Boudjnah <chmouel@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: i810_audio broken? 
+	id <S132551AbRDWXJH>; Mon, 23 Apr 2001 19:09:07 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:64272 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S132561AbRDWXIP>; Mon, 23 Apr 2001 19:08:15 -0400
+Date: Mon, 23 Apr 2001 17:01:58 -0600
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
+Subject: Re: NWFS broken on 2.4.3 -- someone removed WRITERAW
+Message-ID: <20010423170158.A1543@vger.timpanogas.org>
+In-Reply-To: <20010423163725.C1131@vger.timpanogas.org> <20010424005809.Y9357@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 24 Apr 2001 00:08:10 +0100
-Message-ID: <5393.988067290@redhat.com>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010424005809.Y9357@suse.de>; from axboe@suse.de on Tue, Apr 24, 2001 at 12:58:09AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 24, 2001 at 12:58:09AM +0200, Jens Axboe wrote:
+> On Mon, Apr 23 2001, Jeff V. Merkey wrote:
+> > 
+> > 
+> > Hey guys,
+> > 
+> > Whomever removed WRITERAW has broken NWFS.  WRITE requests call
+> > _refile_buffer() after the I/O request and take my locally created 
+> > buffer heads and munge them back into the linux buffer cache, causing
+> > massive memory corruption in the system.  These buffers don't belong 
+> > in Linus' buffer cache, they are owned by my LRU and ll_rw_block 
+> > should not be blindly filing them back into the buffer cache.
+> > 
+> > Please put something back in to allow me to write without the buffer
+> > heads always getting filed into Linus' buffer cache.  This has 
+> > broken NWFS on 2.4.3 and above.
+> 
+> 	bh->b_end_io = my_end_io_handler;
+> 	submit_bh(WRITE, bh);
 
-jgarzik@mandrakesoft.com said:
->  esd needs a special argument, -r RATE [iirc], in order to tell esd
-> that it is dealing with a locked rate codec.
 
-Isn't there an ioctl for that?
+Jens,
 
---
-dwmw2
+Bless you.  I'll code the fix, test it, and get it out.  
 
+Jeff
 
+> 
+> Be a happy camper.
+> 
+> -- 
+> Jens Axboe
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

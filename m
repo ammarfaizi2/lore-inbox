@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYBLR>; Wed, 24 Jan 2001 20:11:17 -0500
+	id <S129401AbRAYBSK>; Wed, 24 Jan 2001 20:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129441AbRAYBLI>; Wed, 24 Jan 2001 20:11:08 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45842 "EHLO
+	id <S129444AbRAYBSB>; Wed, 24 Jan 2001 20:18:01 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48658 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135296AbRAYBKx>; Wed, 24 Jan 2001 20:10:53 -0500
-Subject: Re: Is sendfile all that sexy?
-To: sape@iq.rulez.org (Sasi Peter)
-Date: Thu, 25 Jan 2001 01:11:07 +0000 (GMT)
-Cc: jas88@cam.ac.uk (James Sutherland), linux-kernel@vger.kernel.org
-In-Reply-To: <200101241512.QAA01140@iq.rulez.org> from "Sasi Peter" at Jan 24, 2001 04:12:49 PM
+	id <S129401AbRAYBRu>; Wed, 24 Jan 2001 20:17:50 -0500
+Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Thu, 25 Jan 2001 01:18:36 +0000 (GMT)
+Cc: phillips@innominate.de (Daniel Phillips),
+        greg@linuxpower.cx (Gregory Maxwell), linux-kernel@vger.kernel.org
+In-Reply-To: <3A6EF8AC.DFC50D37@uow.edu.au> from "Andrew Morton" at Jan 25, 2001 02:45:48 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14LawQ-000893-00@the-village.bc.nu>
+Message-Id: <E14Lb3f-0008A5-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think, that is not what we need. Once Ingo wrote, that since HTTP 
-> serving can also be viewed as a kind of fileserving, it should be 
-> possible to create a TUX like module for the same framwork, that serves 
-> using the SMB protocol instead of HTTP...
+> I sent the below patch to Linus earlier today.  I didn't copy
+> any mailing list because it's a bit security-related.  Oh well.
 
-
-Kernel SMB is basically not a sane idea. sendfile can help it though
-
+Its been in -ac for  while but using a define since its a constant
+so it not a secret 8)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283269AbRLIJ2a>; Sun, 9 Dec 2001 04:28:30 -0500
+	id <S283268AbRLIJsX>; Sun, 9 Dec 2001 04:48:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283270AbRLIJ2W>; Sun, 9 Dec 2001 04:28:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34053 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S283269AbRLIJ2J>; Sun, 9 Dec 2001 04:28:09 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [OT] fputc vs putc Re: horrible disk thorughput on itanium
-Date: 9 Dec 2001 01:27:51 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9uvaqn$u4s$1@cesium.transmeta.com>
-In-Reply-To: <p73n10v6spi.fsf@amdsim2.suse.de> <20011207.130316.39156883.davem@redhat.com> <20011208201907.A937@zero> <m1d71pw51p.fsf@frodo.biederman.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S283272AbRLIJsN>; Sun, 9 Dec 2001 04:48:13 -0500
+Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:17025 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S283268AbRLIJrx>;
+	Sun, 9 Dec 2001 04:47:53 -0500
+Message-Id: <m16D0Yk-000OXEC@amadeus.home.nl>
+Date: Sun, 9 Dec 2001 09:47:46 +0000 (GMT)
+From: arjan@fenrus.demon.nl
+To: rusty@rustcorp.com.au (Rusty Russell)
+Subject: Re: Linux 2.4.17-pre5
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011208214631.75573e9a.rusty@rustcorp.com.au>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <m1d71pw51p.fsf@frodo.biederman.org>
-By author:    ebiederm@xmission.com (Eric W. Biederman)
-In newsgroup: linux.dev.kernel
-> 
-> fputc is a function putc is a macro because the overhead of a function call
-> in writing a character has always been a problem...
-> 
+In article <20011208214631.75573e9a.rusty@rustcorp.com.au> you wrote:
+> On Fri, 7 Dec 2001 00:09:12 +0000 (GMT)
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-putc() is frequently defined as
+>> > > Actually that one is  various Intel people not me 8)
+>> > 
+>> > Wouldn't it be better to see such things proven right in 2.5 first ?
+>> 
+>> o     2.5 isnt going to be usable for that kind of thing in the near future
+>> o     There is no code that is "new" for normal paths (in fact Marcelo
+>>       wanted a change for the only "definitely harmless" one there was)
 
-#define putc(__C)   fputc((__C), stdout)
+> The sched.c change is also useless (ie. only harmful).
 
-... or some equivalent; I think the best way to say it's that it's a
-shorthand.
+The intention seems to be to avoid the situation where one "pair" is
+executing 2 processes while other "pair"s are fully idle. It makes a
+difference for the "system is < 50% busy" case, NOT for the "system is very
+busy" case....
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

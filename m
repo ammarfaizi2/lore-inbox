@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269596AbRHCUud>; Fri, 3 Aug 2001 16:50:33 -0400
+	id <S269599AbRHCUzn>; Fri, 3 Aug 2001 16:55:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269597AbRHCUuY>; Fri, 3 Aug 2001 16:50:24 -0400
-Received: from moline.gci.com ([205.140.80.106]:16139 "EHLO moline.gci.com")
-	by vger.kernel.org with ESMTP id <S269596AbRHCUuO>;
-	Fri, 3 Aug 2001 16:50:14 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA315053E1478@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Justin Guyett <justin@soze.net>,
-        Anders Eriksson <aer-list@mailandnews.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: link status changes forwarded to userspace?
-Date: Fri, 3 Aug 2001 12:50:06 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S269607AbRHCUzd>; Fri, 3 Aug 2001 16:55:33 -0400
+Received: from [204.214.10.168] ([204.214.10.168]:45071 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S269599AbRHCUzT>;
+	Fri, 3 Aug 2001 16:55:19 -0400
+Date: Fri, 3 Aug 2001 15:54:43 -0400
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: David Weinehall <tao@acc.umu.se>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+Message-ID: <20010803155443.A14908@xi.linuxpower.cx>
+In-Reply-To: <20010803105029.I6387@khan.acc.umu.se> <200108031959.f73Jx2d480109@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <200108031959.f73Jx2d480109@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Fri, Aug 03, 2001 at 03:59:02PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Guyett [justin@soze.net] responded to:
-> On Fri, 3 Aug 2001, Anders Eriksson wrote:
-> 
->> Is it possible to get the link status change (e.g. eth 
->> cable inserted in card) forwarded to userspace? 
-> 
-> mii-tool does it (comes with net-tools).
+On Fri, Aug 03, 2001 at 03:59:02PM -0400, Albert D. Cahalan wrote:
+[snip]
+> Somebody can create a big MTA list, listing the good and bad ones.
+> Then we get the Linux-hostile MTAs out of the Linux distributions,
+> demanding compliance like we do for filesystem layout. We also hunt
+> down Linux-related web pages that mention these MTAs and get the
+> pages changed or removed. The point is to make these MTAs just
+> disappear, never to be seen again. Nice MTAs get promoted.
 
-This works great for pci-based 10/100 cards, however when I
-try it on my 10-meg only ISA-3c509 (eth[0-1]) and PCI-de4x5 (eth2):
-
-mii-diag eth[0-2]
-SIOCGMIIPHY on eth[0-2] failed: operation not supported
-
-so probably there's more to it than just using mii-diag..
-
+Think we could just get their authors to 'disappear'? It might be more cost
+effective, and I can think of at least one example where removing the author
+would have other benefits beyond MTAs. :) :)

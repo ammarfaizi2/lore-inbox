@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261713AbSJIKj6>; Wed, 9 Oct 2002 06:39:58 -0400
+	id <S261520AbSJIKt5>; Wed, 9 Oct 2002 06:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261719AbSJIKj6>; Wed, 9 Oct 2002 06:39:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:64418 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261713AbSJIKj5>;
-	Wed, 9 Oct 2002 06:39:57 -0400
-Date: Wed, 9 Oct 2002 12:45:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: lell02 <lell02@stud.uni-passau.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Status of UDF CD packet writing?
-Message-ID: <20021009104537.GD620@suse.de>
-References: <200210091042.g99Agwjm009964@tom.rz.uni-passau.de>
-Mime-Version: 1.0
+	id <S261522AbSJIKt4>; Wed, 9 Oct 2002 06:49:56 -0400
+Received: from denise.shiny.it ([194.20.232.1]:13262 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S261520AbSJIKt4>;
+	Wed, 9 Oct 2002 06:49:56 -0400
+Message-ID: <XFMail.20021009125532.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210091042.g99Agwjm009964@tom.rz.uni-passau.de>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3DA3EC37.3F6FC3E8@digeo.com>
+Date: Wed, 09 Oct 2002 12:55:32 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Cc: Andrew Morton <akpm@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09 2002, lell02 wrote:
-> >On Tue, Oct 08 2002, lell02 wrote:
-> >> hi, 
-> >> 
-> >> >Will Jens Axboes patch for CD packet writing for CD-R/RW make it in
-> >> >before the feature freeze? I know Jens Axboe is busy with more basic I/O
-> >> >stuff, but i sincerely hope it can be squeezed in before 2.6/3.0 is
-> >> >released.
-> >> 
-> >> jens stated on this about 1-2 days ago. he said, it would be little
-> >> modification on the ide-cdrom, to make it work with cd-mrw/ packet
-> >> writing.  so it could go in after the feature freeze.
-> >
-> >You might be talking about two different patches -- one for cd-rw
-> >support (this is the pktcdvd (or -packet) patch that Peter Osterlund has
-> >been maintaining) and the other for cd-mrw. The cd-mrw patch is very
-> >small, not a lot is required to support that in the cd driver.
-> >Supporting cd-rw is a lot harder, basically you have to do in software
-> >what cd-mrw does in hardware (defect management, read-modify-write
-> >packet gathering, etc).
-> >
-> >cd-mrw will definitely be in 2.6. cd-rw support maybe, I haven't even
-> >looked at that lately.
-> >
-> 
-> thanx for clearing out these differences. 
-> 
-> but, isn't cd-mrw supposed to replace the old packet-writing
-> technique?  so, in the end, there wouldn't be any need for
-> packet-writing, if every burner ships with cd-mrw-support... i read in
-> the "specs", that the technology would be much better.
 
-(btw, please break your lines at 72 chars or similar)
+On 09-Oct-2002 Andrew Morton wrote:
+> Giuliano Pochini wrote:
+>> 
+>> > The point of O_STREAMING is one change: drop pages in the pagecache
+>> > behind our current position, that are free-able, because we know we will
+>> > never want them.
+>>
+>> Does it drop pages unconditionally ?
+>
+> Yup.
+>
+>> What happens if I do a
+>> streaming_cat largedatabase > /dev/null while other processes
+>> are working on it ?
+>
+> You'll make your database run really slowly.
+>
+>> It's not a good thing to remove the whole
+>> cached data other apps are working on.
+>
+> Don't do that then ;)
 
-Yeah that is true, the need for the cd-rw packet writing patch should
-diminish once cd-mrw is in all drives.
+I was thinking about hot backups of databases. But even if it
+did not drop caches "shared" by other processes it would drop
+them anyway because write-behind is still on. Probably only
+O_DIRECT can help in this case.
 
--- 
-Jens Axboe
+> Seriously, there are tons of ways of creating local performance
+> DoS'es of this form.  fsync is an excellent tool for that.
+
+Yes, I'm aware of that.
+
+
+Bye.
 

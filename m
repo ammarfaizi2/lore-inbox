@@ -1,54 +1,161 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbQLTUZj>; Wed, 20 Dec 2000 15:25:39 -0500
+	id <S130237AbQLTVMG>; Wed, 20 Dec 2000 16:12:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129697AbQLTUZa>; Wed, 20 Dec 2000 15:25:30 -0500
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:47116 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S129631AbQLTUZ0>; Wed, 20 Dec 2000 15:25:26 -0500
-Date: Wed, 20 Dec 2000 11:56:56 -0800 (PST)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: <whitney@math.berkeley.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-test13-pre3 drivers/char/Makefile and CONFIG_DRM_MGA=m
-Message-ID: <Pine.LNX.4.30.0012201131410.14898-100000@shimura.math.berkeley.edu>
+	id <S130320AbQLTVL5>; Wed, 20 Dec 2000 16:11:57 -0500
+Received: from pD9040D12.dip.t-dialin.net ([217.4.13.18]:8714 "HELO
+	grumbeer.hjb.de") by vger.kernel.org with SMTP id <S130237AbQLTVLm>;
+	Wed, 20 Dec 2000 16:11:42 -0500
+Subject: Re: 2.2.18: Thread problem with smbfs
+To: urban@teststation.com (Urban Widmark)
+Date: Wed, 20 Dec 2000 21:41:51 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0012191057010.8007-100000@cola.svenskatest.se> from "Urban Widmark" at Dec 19, 2000 11:58:10 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001220204151.E4FAE3479B1@grumbeer.hjb.de>
+From: hjb@pro-linux.de (Hans-Joachim Baader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Hello,
+Urban Widmark wrote:
 
-When I use 'make menuconfig' on 2.4.0-test13-pre3 to select DRM and the
-Matrox DRM driver as a module, I get a .config with CONFIG_DRM=y and
-CONFIG_DRM_MGA=m.  However, this causes drivers/char/Makefile to skip the
-drm subdirectory when compiling modules: its only reference to CONFIG_DRM
-is the line 'subdir-$(CONFIG_DRM) += drm' and 'make menuconfig' does not
-allow me to select 'm' for CONFIG_DRM.
+> I don't really know how signal delivery works within the kernel, but
+> smb_trans2_request tries to disable some signals. That does not work
+> (completely?) so either it needs fixing or the -512 errno needs to be
+> handled.
+> 
+> Why so bad in gdb? perhaps it causes more signals.
+> Why does one thread end up in D state? don't know.
+> 
+> 
+> > Kernel 2.2.18, smbfs as a module. I can provide more info if necessary.
+> 
+> A small testprogram that causes this would be nice. The -512 is easy to
+> reproduce but I haven't seen the 'D' before.
+> 
+> If someone is interested the relevant code is fs/smbfs/sock.c
+> (smb_trans2_request, ..., _recvfrom)
 
-I don't know enough about the kernel Makefiles to figure out the proper
-solution, but I was able to get the modules compiled by adding the line
-'mod-subdirs += drm' to drivers/char/Makefile.  This is not the proper
-solution, I expect, as now 'make modules' will enter the driver/char/drm
-subdirectory even if CONFIG_DRM=n.
+Here is a test program to reproduce this. Don't worry about
+missing error checks and so on, it's just a quick hack.
+Create the required files file1..file5 on a SMB share and edit
+the #define accordingly. File sizes of 1-2 MB should suffice.
+Then run the program. It should copy the files to the current
+directory. Then run it under gdb. It should hang until you kill
+gdb.
 
-Cheers,
-Wayne
+I tested only with a NT 4 server (sp 5 or 6).
+
+Regards,
+hjb
+
+#include <errno.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+/* Size of the blocks we read from a file. */
+static const int ChunkSize = 8192;
+
+/* Path on the mounted SMB share from which we copy files */
+#define SourcePath "/mnt/net/test"
+
+struct CopyThreadInfo
+{
+    char*        src;
+    char*        dst;
+};
+
+/* returns 1 on success */
+int CopyFile(char* src, char* dst)
+{
+    char        buffer[ChunkSize];
+    int         f, g;
+    ssize_t     nRet;
+    int         nError;
+
+    if ((f = open(src, O_RDONLY)) < 0)
+        return 0;
+
+    g = open(dst, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (g < 0)
+    {
+        close(f);
+        return 0;
+    }
+
+    do
+    {
+        nRet = read(f, buffer, sizeof(buffer));
+        if (nRet < 0 && errno == EINTR)
+            nRet = 0;
+        if (nRet < 0)
+        {
+            return 0;
+        }
+        if (nRet > 0)
+            nRet = write(g, buffer, nRet);
+    } while (nRet > 0);
+
+    close(g);
+    close(f);
+
+    if (nRet < 0)
+        return 0;
+
+    return 1;
+}
+
+void* Copy(struct CopyThreadInfo *info)
+{
+    CopyFile(info->src, info->dst);
+    return NULL;
+}
+
+void Fetch(char* name)
+{
+    char src[4096];
+    char dst[4096];
+
+    pthread_attr_t attr;
+    pthread_t pid;
+    struct CopyThreadInfo* pCopy = (struct CopyThreadInfo *) malloc(sizeof(struct CopyThreadInfo));
+
+    strcpy(src, SourcePath);
+    strcat(src, name);
+    strcpy(dst, name);
+
+    pCopy->src = strdup(src);
+    pCopy->dst = strdup(dst);
+
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+    pthread_create(&pid, &attr, Copy, pCopy);
+}
+
+int main()
+{
+	Fetch("file1");
+	Fetch("file2");
+	Fetch("file3");
+	Fetch("file4");
+	Fetch("file5");
+	while(1)
+		;
+	return 0;
+}
 
 
---- drivers/char/Makefile~	Wed Dec 20 11:16:59 2000
-+++ drivers/char/Makefile	Wed Dec 20 11:21:54 2000
-@@ -154,6 +154,7 @@
-
- subdir-$(CONFIG_FTAPE) += ftape
- subdir-$(CONFIG_DRM) += drm
-+mod-subdirs += drm
- subdir-$(CONFIG_PCMCIA) += pcmcia
- subdir-$(CONFIG_AGP) += agp
-
-
-
+-- 
+http://www.pro-linux.de/ - Germany's largest volunteer Linux support site
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261564AbSIZVmb>; Thu, 26 Sep 2002 17:42:31 -0400
+	id <S261548AbSIZVyw>; Thu, 26 Sep 2002 17:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261565AbSIZVmb>; Thu, 26 Sep 2002 17:42:31 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:6148 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S261564AbSIZVmb>;
-	Thu, 26 Sep 2002 17:42:31 -0400
-Message-ID: <3D938084.6040105@namesys.com>
-Date: Fri, 27 Sep 2002 01:47:48 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S261549AbSIZVyw>; Thu, 26 Sep 2002 17:54:52 -0400
+Received: from AMarseille-201-1-5-50.abo.wanadoo.fr ([217.128.250.50]:4464
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S261548AbSIZVyv>; Thu, 26 Sep 2002 17:54:51 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Richard Zidlicky" <rz@linux-m68k.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Linus Torvalds" <torvalds@transmeta.com>,
+       "Andre Hedrick" <andre@linux-ide.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Jens Axboe" <axboe@suse.de>
+Subject: Re: [PATCH] fix ide-iops for big endian archs
+Date: Thu, 26 Sep 2002 23:03:04 +0200
+Message-Id: <20020926210304.19470@192.168.4.1>
+In-Reply-To: <20020926225847.B2242@linux-m68k.org>
+References: <20020926225847.B2242@linux-m68k.org>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.38 - Config.in: Second extended fs rename / move
- Ext3 to a wiser place
-References: <200209261944.23447.m.c.p@wolk-project.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc-Christian Petersen wrote:
+>to put it a bit more precise, this is bus endianness, nothing to 
+>do with arch endianness.
 
->
->I also thought about splitting the "Journal Filesystems" into an extra menu 
->option just to clear up the whole menu a bit since we have: ReiserFS, Ext3, 
->XFS, JFS, JFFS and JFFSv2. I cooked up a patch which does it, also attached!
->
->  
->
+Well, right, though this is also the way a PCI bus is supposed
+to be wired to a BE CPU, and is the most common way to wire a
+bus with ISA-like chipsets (16 bits busses) on a BE core ;)
 
-I don't think it is very significant that ReiserFS version 3 is a 
-journaling file system in the long term (though it did matter a lot in 
-2.4), and Reiser4 is arguably not a journaling file system, but rather a 
-wandering log filesystem, so I think that such a categorization is not a 
-good one.  
+Ben.
 
-I think that journaling is only a transitory differentiator, and only a 
-differentiator vs. ext2.  It would make more sense to call ext2 "Ext2 
-(obsolete, requires long waits for fsck after crashes )", and then users 
-can decide for themselves who obsoleted it first.;-)
-
-Hans
 

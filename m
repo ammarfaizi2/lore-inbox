@@ -1,60 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285570AbRLGViJ>; Fri, 7 Dec 2001 16:38:09 -0500
+	id <S285574AbRLGVjp>; Fri, 7 Dec 2001 16:39:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285569AbRLGVhz>; Fri, 7 Dec 2001 16:37:55 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:33541 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S285566AbRLGVhe>; Fri, 7 Dec 2001 16:37:34 -0500
-Date: Fri, 7 Dec 2001 22:37:31 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: Greg Hennessy <gsh@cox.rr.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: horrible disk thorughput on itanium
-In-Reply-To: <9ur9ml$5jp$1@24-28-205-10.mf3.cox.rr.com>
-Message-ID: <Pine.LNX.4.33.0112072223560.13546-100000@Megathlon.ESI>
+	id <S285569AbRLGViU>; Fri, 7 Dec 2001 16:38:20 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:7165 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S285566AbRLGViK>;
+	Fri, 7 Dec 2001 16:38:10 -0500
+From: David Mosberger <davidm@hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15377.13976.342104.636304@napali.hpl.hp.com>
+Date: Fri, 7 Dec 2001 13:37:28 -0800
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Andrew Morton <akpm@zip.com.au>, j-nomura@ce.jp.nec.com,
+        linux-kernel@vger.kernel.org, David Mosberger <davidm@hpl.hp.com>
+Subject: Re: [PATCH] 2.4.16 kernel/printk.c (per processorinitializationcheck)
+In-Reply-To: <Pine.LNX.4.21.0112071651360.22868-100000@freak.distro.conectiva>
+In-Reply-To: <3C103A1E.2524A7B7@zip.com.au>
+	<Pine.LNX.4.21.0112071651360.22868-100000@freak.distro.conectiva>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Dec 2001, Greg Hennessy wrote:
+>>>>> On Fri, 7 Dec 2001 16:52:07 -0200 (BRST), Marcelo Tosatti <marcelo@conectiva.com.br> said:
 
-> In article <Pine.LNX.4.33.0112070941330.8465-100000@penguin.transmeta.com>,
-> Linus Torvalds <torvalds@transmeta.com> wrote:
-> > bonnie is a _benchmark_. It's meant for finding bad performance. Changing
-> > it to make it work better when performance is bad is _pointless_. You've
-> > now made the whole point of bonnie go away.
-> 
-> It isn't just bonnie showing bad performance. My application shows it,
-> bonnie shows it, and tiobench shows it. I think the focus on putc
-> may be too intense. It isn't suprizing to me that either the kernel
-> or glibc may not be optimised on ia64, I'm just trying to figure out
-> how to get better io rates out of my itanium machine.
+  Marcelo> I'm really not willing to apply this kludge...
 
-Does a simple 'dd' show the problem? I mean,
+Do you agree that it should always be safe to call printk() from C code?
 
-time dd if=/dev/zero of=/somelargefile count=somelargenumber bs=8k
-
-is it much slower on the itanium, too? dd doesn't use putc(), I hope.
-
-Just for comparison, I've run the following command here:
-
-# time dd if=/dev/zero of=/u2/test count=250000 bs=8k
-250000+0 records in
-250000+0 records out
-0.14user 12.95system 1:23.15elapsed 15%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (117major+18minor)pagefaults 0swaps
-
-(Almost idle box, 256MB RAM, UDMA disk, 2.2.x kernel)
-
-You may try with a bigger file, expecially if you have more RAM.
-
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
+	--david

@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267259AbTA0Rpr>; Mon, 27 Jan 2003 12:45:47 -0500
+	id <S267253AbTA0Rof>; Mon, 27 Jan 2003 12:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267260AbTA0Rpr>; Mon, 27 Jan 2003 12:45:47 -0500
-Received: from exzh001.alcatel.ch ([212.243.156.171]:22020 "HELO
-	exzh001.alcatel.ch") by vger.kernel.org with SMTP
-	id <S267259AbTA0Rpp> convert rfc822-to-8bit; Mon, 27 Jan 2003 12:45:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [ALSA] opl3sa2 silence
-Date: Mon, 27 Jan 2003 18:54:58 +0100
-User-Agent: KMail/1.4.3
-Cc: Jaroslav Kysela <perex@suse.cz>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <200301262350.51389.daniel.ritz@gmx.ch> <200301271552.25173.daniel.ritz@gmx.ch> <s5h1y2yobve.wl@alsa2.suse.de>
-In-Reply-To: <s5h1y2yobve.wl@alsa2.suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301271854.58093.daniel.ritz@gmx.ch>
+	id <S267257AbTA0Rof>; Mon, 27 Jan 2003 12:44:35 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:37094 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S267253AbTA0Roe>;
+	Mon, 27 Jan 2003 12:44:34 -0500
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Martin Mares <mj@ucw.cz>, geert@linux-m68k.org,
+       Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030127134010.C2569@jurassic.park.msu.ru>
+References: <20030126181326.A799@localhost.park.msu.ru>
+	 <20030126214550.GB6873@ucw.cz> <1043624458.2755.37.camel@zion.wanadoo.fr>
+	 <20030127094645.GD604@ucw.cz>  <20030127134010.C2569@jurassic.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043690104.2756.42.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 27 Jan 2003 18:55:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jup, switching mute on/off did the trick. (and i switched to self-compiled
-alsa-utils since the last mail, not those binaries)
-however the sound quality is miserable when PCM volume is more than 90%...
-but what do i care? anyway thanx for the help.
+On Mon, 2003-01-27 at 11:40, Ivan Kokshaysky wrote:
 
-now the question: is it possible to convert the driver to normal pnp, ie. no
-pnp cards? (forcing the resources by hand is working but using pnp would be
-much nicer, and since pnpc_ doesn't work for me...)
+> Then vgacon.c would be changed like this:
+> 
+> ...
+> -	request_resource(&ioport_resource, &vga_console_resource);
+> +	if (legacy_ioport_remap(&vga_console_resource) < 0)
+> +		goto failure;
+> ...
+> 
+> And all in/out port calls would use respective resource.start+offset:
+> ...
+> -	outb_p(6, 0x3ce)
+> +	outb_p(6, vga_console_resource.start + 0xe);
+> 
+> No need for other special IO functions then.
 
--daniel
+Well, your example clearly limits us to one IO space for VGA, which
+might not be what we want. The problem also exist for some fbdev drivers
+which might need to tap the VGA IOs of a given PCI card (thus getting
+access to the "legacy" IOs of the bus the card is on).
+It would be nice to provide some more generic solution to deal with that
+"ISA" problem...
+Finally, in the embedded world, we frequently have to deal with "legacy"
+controllers (ethernet, serial, ...) stuffed on whatever bus we have
+around, at addresses that might not be usual port addresses.
 
+It's definitely a good idea to always add a "base" to the legacy IOs as
+your examples shows though. The problem remaining is how to actually
+obtain this address for the various cases whe are interested in.
 
-On Monday 27 January 2003 16:23, Takashi Iwai wrote:
-> At Mon, 27 Jan 2003 15:52:25 +0100,
->
-> Daniel Ritz wrote:
-> > ok, i tried that. unfortunately no results. what would you like me to do?
-> > where to start debugging?
->
-> hmm, are all the mixers configured properly, i.e. volume adjusted
-> _and_ unmuted?   you need to set up at least "Master" and "PCM"
-> volumes...
->
->
-> ciao,
->
-> Takashi
->
-> > -daniel
-> >
-> > On Monday 27 January 2003 13:00, Takashi Iwai wrote:
-> > > At Sun, 26 Jan 2003 23:50:51 +0100,
-> > >
-> > > Daniel Ritz wrote:
-> > > > hi
-> > > >
-> > > > my toshiba tecra 8000 doesn't make a single beep when using the alsa
-> > > > opl3sa2 driver.  the resources are forced by hand (since pnpc_
-> > > > doesn't work here), i also tried a quick pnp (no cards) hack, the
-> > > > chip is detected correctly, but still doesn't make sound. the card
-> > > > shows up in /proc/asound/. when 'playing' sound,
-> > > > /proc/asound/card0/pcm0p/sub0/status shows nice values. i used
-> > > > alsamixer to give full volume to all channels, still no results...
-> > >
-> > > please try to touch the PCM volume after playing the sound again.
-> > > it seems that there is a bug hidden in alsa opl3sa2 driver, occuring
-> > > on some notebooks.  unfortunately, i cannot debug this due to lack of
-> > > hardware...
-> > >
-> > >
-> > > Takashi
+Ben.
+
 

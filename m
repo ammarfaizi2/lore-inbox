@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310206AbSDIQpy>; Tue, 9 Apr 2002 12:45:54 -0400
+	id <S310190AbSDIQtP>; Tue, 9 Apr 2002 12:49:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310214AbSDIQpx>; Tue, 9 Apr 2002 12:45:53 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:11905 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S310206AbSDIQpw>; Tue, 9 Apr 2002 12:45:52 -0400
-Date: Tue, 9 Apr 2002 12:48:10 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Mathew, Tisson K" <tisson.k.mathew@intel.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Inserting modules w/o version check
-In-Reply-To: <794826DE8867D411BAB8009027AE9EB911C10AE5@FMSMSX38>
-Message-ID: <Pine.LNX.3.95.1020409124241.5166A-100000@chaos.analogic.com>
+	id <S310214AbSDIQtO>; Tue, 9 Apr 2002 12:49:14 -0400
+Received: from mail.uni-freiburg.de ([132.230.2.46]:966 "EHLO uni-freiburg.de")
+	by vger.kernel.org with ESMTP id <S310190AbSDIQtN> convert rfc822-to-8bit;
+	Tue, 9 Apr 2002 12:49:13 -0400
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: C++ and the kernel
+From: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+Date: 09 Apr 2002 18:51:46 +0200
+In-Reply-To: "Richard B. Johnson"'s message of "Tue, 9 Apr 2002 09:28:59 -0400 (EDT)"
+Message-ID: <xb7u1qk6cil.fsf@camaro.informatik.uni-freiburg.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=cn-big5
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Apr 2002, Mathew, Tisson K wrote:
+>>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
 
-> All ,
-> 
-> Can we enforce no version check for modules when they are inserted
-> ( insmod
+    Richard> On Tue, 9 Apr 2002, Dr. David Alan Gilbert wrote:
+    >> * Richard B. Johnson (root@chaos.analogic.com) wrote:
+    >> I would like to rewrite the kernel in FORTRAN because this was 
+    >> one of the first languages I learned.  Seriously, the
+    >> kernel MUST be written in a procedural language.  It is the
+    >> mechanism by which something is accomplished that defines an
+    >> operating system kernel.  C++ is an object-oriented
+    >> language, in fact the opposite of a procedural language. It
+    >> is not suitable.  Bollox!  There are many places in the
+    >> kernel that are actually very OO - look at filesystems for
+    >> example. The super_operations sturcture is in effect a virtual
+    >> function table.
 
-insmod -f module.o
-        |_______________ force loading
+    Richard> The file operations structure(s) are structures. They are
+    Richard> not object- oriented in any way, and they are certainly
+    Richard> not virtual.
 
-> ) ? If yes , can this be implemented in the module itself ?
-> 
+The  term  "virtual"  has  a  very  specific  in  OO,  esp.   in  C++.
+Unfortunately, this word isn't a  very faithful description of what it
+means.  Java uses the keyword "abstract" for what is "virtual" in C++.
+This is much more appropriate.
 
-No. `insmod` wouldn't load it so the module doesn't get a chance to
-"check" anything.
+And "virtual function table", "vptr", "vtable" are also specific terms
+in OO which  refer to implementation details of the  run-time of an OO
+language.   To  you,  this  shouldn't  be anything  new.   A  "virtual
+function table" is just an  array of pointers to functions.  It serves
+essentially the same purpose  as the super_operations structure in the
+Linux  kernel.  Instead  of having  to building  the table  (in source
+code, not run-time) yourself, the  compiler of C++ and any OO language
+would do  it for you  automatically, thereby saving typing  effort and
+avoiding trivial typos.
 
-> Thanks in advance 
 
-Also, note that `struct file_operations` has different member-
-locations for different kernel versions. Even if the module
-loaded, you might end up with 'read' being 'seek', etc. Bad idea.
 
-Cheers,
-Dick Johnson
+-- 
+Sau Dan LEE                     §õ¦u´°(Big5)                    ~{@nJX6X~}(HZ) 
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+E-mail: danlee@informatik.uni-freiburg.de
+Home page: http://www.informatik.uni-freiburg.de/~danlee
 

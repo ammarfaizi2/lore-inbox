@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131712AbRCTEi1>; Mon, 19 Mar 2001 23:38:27 -0500
+	id <S131714AbRCTEm5>; Mon, 19 Mar 2001 23:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131714AbRCTEiH>; Mon, 19 Mar 2001 23:38:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:45574 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131712AbRCTEh6>; Mon, 19 Mar 2001 23:37:58 -0500
-Date: Tue, 20 Mar 2001 01:37:15 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
+	id <S131717AbRCTEmr>; Mon, 19 Mar 2001 23:42:47 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:10504 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131714AbRCTEmh>; Mon, 19 Mar 2001 23:42:37 -0500
+Date: Mon, 19 Mar 2001 20:41:41 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: 3rd version of R/W mmap_sem patch available
-In-Reply-To: <Pine.LNX.4.31.0103191529530.967-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0103200135570.2830-100000@duckman.distro.conectiva>
+In-Reply-To: <Pine.LNX.4.33.0103200133240.2830-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.31.0103192037270.819-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Mar 2001, Linus Torvalds wrote:
-> On Mon, 19 Mar 2001, Linus Torvalds wrote:
-> >
-> > Excellent point. We used to do all the looping and re-trying, but it got
-> > ripped out a long time ago (and in any case, it historically didn't do
-> > SMP, so the old code doesn't really work).
+
+
+On Tue, 20 Mar 2001, Rik van Riel wrote:
 >
-> Actually, funnily enough, I see that the old thread-safe stuff is still
-> there in get_pte_kernel_slow(). The only thing that breaks it is that we
-> don't hold any locks, so it's only UP-safe, not SMP-safe.
->
-> However, it definitely looks like we should just un-inline that thing
-> completely, and make a lot of it architecture-independent anyway.
+> (ie the patch really isn't ready yet to be included in the
+> main kernel ... OTOH, the changes needed to make it ready
+> are all trivial and tedious ;))
 
-Also, because lots of architectures seem to have exactly
-the same code, we might as well remove the duplicates and
-put them in the same place...
+They are trivial and tedious only if done wrong - which will also add tons
+of new places where we lock and unlock only to lock again.
 
-regards,
+My -pre5 has the non-trivial "fix the calling convention and require that
+pmd/pgd_alloc() be called with the lock held" version of the patch.
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
-
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+		Linus
 

@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUGLUVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUGLUVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262380AbUGLUVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUGLUVZ
+	id S262418AbUGLUVC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 16:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUGLUVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:21:25 -0400
-Received: from screech.rychter.com ([212.87.11.114]:7821 "EHLO
-	screech.rychter.com") by vger.kernel.org with ESMTP id S262380AbUGLUVH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:21:07 -0400
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.26: kernel BUG at page_alloc.c:235\
-References: <m23c3wzacq.fsf@tnuctip.rychter.com>
-	<20040712183819.GA5059@logos.cnet>
-X-Spammers-Please: blackholeme@rychter.com
-From: Jan Rychter <jan@rychter.com>
-Date: Tue, 13 Jul 2004 01:19:10 -0700
-In-Reply-To: <20040712183819.GA5059@logos.cnet> (Marcelo Tosatti's message
- of "Mon, 12 Jul 2004 15:38:19 -0300")
-Message-ID: <m2u0wcxqtd.fsf@tnuctip.rychter.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
+	Mon, 12 Jul 2004 16:21:02 -0400
+Received: from gprs214-117.eurotel.cz ([160.218.214.117]:1152 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262380AbUGLUUv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 16:20:51 -0400
+Date: Mon, 12 Jul 2004 22:20:34 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+Subject: swsusp speeds
+Message-ID: <20040712202034.GB862@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Marcelo" == Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
- Marcelo> On Mon, Jul 12, 2004 at 11:31:49PM -0700, Jan Rychter wrote:
- >> Linux 2.4.26 compiled with gcc-2.96 20000731 (RH7.1 2.96-85),
- >> running on an Athlon XP2200+ clocked at 1800MHz.
- >>
- >> Any ideas?
+Hi!
 
- Marcelo> Hi Jan,
+Vojtech asked me how fast swsusp actually is... So I did some timings
+for your pleasure...
 
- Marcelo> The BUG() is at rmqueue(), "if (PageLRU(page)) BUG".
+It *very* much depends on load. I have fairly minimal system with X
+and rhytmbox as a test load.
 
- Marcelo> The same BUG has been seen before. The BUG means an LRU page
- Marcelo> was found in a zone's free list (this is not a valid thing to
- Marcelo> happen).
+Boot:	16 sec			(From enter in grub to login)  
+Suspend:	13 sec, 13 sec
+Resume:		27 sec, 20 sec	(From enter in grub to bash# prompt)
 
- Marcelo> This could be either a driver bug (which uses a page after
- Marcelo> freeing it, as wli smartly pointed out at the time) or faulty
- Marcelo> hardware, as it showed to be in that occasion.
+So yes, even on my machines boot is faster then resume, OTOH it takes
+me quite long to login, relaunch X etc.
 
- Marcelo> What drivers are you using 
+Oh and yes, I have pretty fast boot ;-) [system is centrino 1.4
+notebook].
 
-8139too for networking, reiserfs and ext2 for filesystems. Not much
-more, really. IDE drives. iptable_nat + ip_conntrack. TUN/TAP. That's
-pretty much it.
+If your system is way slower than this, and you know how to make it
+slow, tell me. (But I'm looking for a script to fill memory or
+something, saying "just boot mandrake 17.9 and login into kde 15.3" is
+not going to help).
 
- Marcelo> and, just as matter of "safety", have you ran memtest on this
- Marcelo> box?
 
-Unfortunately, no -- and it isn't all that easy for me to do so (the box
-is remotely hosted). I will try to do it...
-
---J.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

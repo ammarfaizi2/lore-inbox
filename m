@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263589AbUCYT6S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUCYT6R
+	id S263572AbUCYUCn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 15:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263594AbUCYUCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:58:17 -0500
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:16652 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S263589AbUCYT6N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:58:13 -0500
-Date: Thu, 25 Mar 2004 14:10:57 -0600
-From: mike.miller@hp.com
-To: axboe@suse.de, jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: cciss update to replace 1 of 2 earlier patches
-Message-ID: <20040325201057.GC4456@beardog.cca.cpqcorp.net>
-Reply-To: mike.miller@hp.com
+	Thu, 25 Mar 2004 15:02:43 -0500
+Received: from colino.net ([62.212.100.143]:58096 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S263572AbUCYUCi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 15:02:38 -0500
+Date: Thu, 25 Mar 2004 21:01:54 +0100
+From: Colin Leroy <colin@colino.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Re: [linux-usb-devel] Re: [OOPS] reproducible oops with
+ 2.6.5-rc2-bk3
+Message-Id: <20040325210154.20b87112@jack.colino.net>
+In-Reply-To: <Pine.LNX.4.44L0.0403251341550.1083-100000@ida.rowland.org>
+References: <20040325184620.3b6b070c@jack.colino.net>
+	<Pine.LNX.4.44L0.0403251341550.1083-100000@ida.rowland.org>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__25_Mar_2004_21_01_54_+0100_WaiamQ4S+1aPaT+E"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is meant to replace the patch from earlier that mask off SATA drives. After Arjan's question about one for 2.6 I got back in the code and realized this has to be done in 2 places for the 2.4.x driver, but only in one place for 2.6.
-Also, to answer Jeff's question: if it's not a SCSI tape we don't care.
+This is a multi-part message in MIME format.
 
-This change is required to support the new MSA30 storage enclosure.
-If you do a SCSI inquiry to a SATA disk bad things happen. This patch prevents the inquiry from going to SATA disks.
+--Multipart=_Thu__25_Mar_2004_21_01_54_+0100_WaiamQ4S+1aPaT+E
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
- cciss_scsi.c |    3 +++
- 1 files changed, 3 insertions(+)
-------------------------------------------------------------------------------
-diff -burpN lx2425.orig/drivers/block/cciss_scsi.c lx2425/drivers/block/cciss_scsi.c
---- lx2425.orig/drivers/block/cciss_scsi.c	2003-11-28 12:26:19.000000000 -0600
-+++ lx2425/drivers/block/cciss_scsi.c	2004-03-25 13:45:47.000000000 -0600
-@@ -589,6 +589,8 @@ cciss_find_non_disk_devices(int cntl_num
- 
- 	for(i=0; i<num_luns; i++) {
- 		/* Execute an inquiry to figure the device type */
-+		/* Skip over masked devices */
-+		if (ld_buff->LUN[i][3] & 0xC0) continue;
- 		memset(inq_buff, 0, sizeof(InquiryData_struct));
- 		memcpy(scsi3addr, ld_buff->LUN[i], 8); /* ugly... */
- 		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,
-@@ -1148,6 +1150,7 @@ cciss_update_non_disk_devices(int cntl_n
- 		int devtype;
- 
- 		/* for each physical lun, do an inquiry */
-+		if (ld_buff->LUN[i][3] & 0xC0) continue;
- 		memset(inq_buff, 0, sizeof(InquiryData_struct));
- 		memcpy(&scsi3addr[0], &ld_buff->LUN[i][0], 8);
- 
+On 25 Mar 2004 at 13h03, Alan Stern wrote:
+
+Hi, 
+
+> In this case, your patch could be improved by calling device_initialize()  
+> during the first loop and device_add() during the second. 
+
+Here you are :)
+-- 
+Colin
+
+--Multipart=_Thu__25_Mar_2004_21_01_54_+0100_WaiamQ4S+1aPaT+E
+Content-Type: application/octet-stream;
+ name="cdc-acm.oops.patch"
+Content-Disposition: attachment;
+ filename="cdc-acm.oops.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jLm9yaWcJMjAwNC0wMy0yNSAxODozNDowNC4w
+MDAwMDAwMDAgKzAxMDAKKysrIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jCTIwMDQtMDMtMjUg
+MjA6NTM6MDYuMDAwMDAwMDAwICswMTAwCkBAIC0xMTc5LDEwICsxMTc5LDI0IEBACiAJCQkJIGNv
+bmZpZ3VyYXRpb24sCiAJCQkJIGFsdC0+ZGVzYy5iSW50ZXJmYWNlTnVtYmVyKTsKIAkJCWRldl9k
+YmcgKCZkZXYtPmRldiwKKwkJCQkiaW5pdGlhbGl6aW5nICVzIChjb25maWcgIyVkLCBpbnRlcmZh
+Y2UgJWQpXG4iLAorCQkJCWludGYtPmRldi5idXNfaWQsIGNvbmZpZ3VyYXRpb24sCisJCQkJaW50
+Zi0+Y3VyX2FsdHNldHRpbmctPmRlc2MuYkludGVyZmFjZU51bWJlcik7CisJCQlkZXZpY2VfaW5p
+dGlhbGl6ZSAoJmludGYtPmRldik7CQkJCisJCX0KKwkJCisJCS8qIGFsbCBpbnRlcmZhY2VzIGFy
+ZSBpbml0aWFsaXplZCwgd2UgY2FuIG5vdyAKKwkJICogcmVnaXN0ZXIgdGhlbQorCQkgKi8KKwkJ
+Zm9yIChpID0gMDsgaSA8IGNwLT5kZXNjLmJOdW1JbnRlcmZhY2VzOyArK2kpIHsKKwkJCXN0cnVj
+dCB1c2JfaW50ZXJmYWNlICppbnRmID0gY3AtPmludGVyZmFjZVtpXTsKKwkJCWRldl9kYmcgKCZk
+ZXYtPmRldiwKIAkJCQkicmVnaXN0ZXJpbmcgJXMgKGNvbmZpZyAjJWQsIGludGVyZmFjZSAlZClc
+biIsCiAJCQkJaW50Zi0+ZGV2LmJ1c19pZCwgY29uZmlndXJhdGlvbiwKLQkJCQlhbHQtPmRlc2Mu
+YkludGVyZmFjZU51bWJlcik7Ci0JCQlkZXZpY2VfcmVnaXN0ZXIgKCZpbnRmLT5kZXYpOworCQkJ
+CWludGYtPmN1cl9hbHRzZXR0aW5nLT5kZXNjLmJJbnRlcmZhY2VOdW1iZXIpOworCQkJaWYgKChy
+ZXQgPSBkZXZpY2VfYWRkICgmaW50Zi0+ZGV2KSkgPCAwKQorCQkJCWdvdG8gb3V0OworCQkJCQog
+CQkJdXNiX2NyZWF0ZV9kcml2ZXJmc19pbnRmX2ZpbGVzIChpbnRmKTsKIAkJfQogCX0K
+
+--Multipart=_Thu__25_Mar_2004_21_01_54_+0100_WaiamQ4S+1aPaT+E--

@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262634AbRGSPwl>; Thu, 19 Jul 2001 11:52:41 -0400
+	id <S263748AbRGSQEo>; Thu, 19 Jul 2001 12:04:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263748AbRGSPwW>; Thu, 19 Jul 2001 11:52:22 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:28934 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S262634AbRGSPwT>; Thu, 19 Jul 2001 11:52:19 -0400
-Date: Thu, 19 Jul 2001 17:50:19 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Steve Kieu <haiquy@yahoo.com>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-Message-ID: <20010719175019.B13239@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010718182201.J13239@arthur.ubicom.tudelft.nl> <20010719020259.24124.qmail@web10408.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S264877AbRGSQEd>; Thu, 19 Jul 2001 12:04:33 -0400
+Received: from mail.spylog.com ([194.67.35.220]:19688 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S263748AbRGSQEV>;
+	Thu, 19 Jul 2001 12:04:21 -0400
+Date: Thu, 19 Jul 2001 20:06:18 +0400
+From: Peter Zaitsev <pz@spylog.ru>
+X-Mailer: The Bat! (v1.52f)
+Reply-To: Peter Zaitsev <pz@spylog.ru>
+Organization: SpyLOG
+X-Priority: 3 (Normal)
+Message-ID: <59-1589488063.20010719200618@spylog.ru>
+To: linux-kernel@vger.kernel.org
+Subject: __alloc_pages X-order allocation failed.
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010719020259.24124.qmail@web10408.mail.yahoo.com>; from haiquy@yahoo.com on Thu, Jul 19, 2001 at 12:02:59PM +1000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, Jul 19, 2001 at 12:02:59PM +1000, Steve Kieu wrote:
->  --- Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> wrote: > On
-> > FUD. I've been using reiserfs on quite some systems
-> 
-> Probably !. I said just from my computer, :-)
-> 
-> Reiserfs uses system resources more than others.
-> Perfomance is ok (not as far more or less than JFS)
-> but after using for a while, some mysterious things
-> happen ; for example, the ini file of some program is
-> changed wihtout any reason. For example I run mc and
-> make it learn all keys, and pause when executing a
-> command ; After reboot, sometimes all these setting
-> are lost, some times not. It still happen with XFS
-> though but never see in ext2, ext3 (now I am using)
+Hello linux-kernel,
 
-That sounds more like hardware problems to me.
+  I'm trying to get stable running kernel from 2.4 series for about 3
+  months now, I thought it should become stable up to this time but it
+  still not at least in VM area.
 
+  I'm Testing various kernels from  Linus, Alan, Andrea as well as
+  some other patches provided but still:  I have no kernel which runs
+  stable - I always have __alloc_pages errors in kernel logs and after
+  while system completely dies with different things.
 
-Erik
+  I have about 30 systems I try to kernel start to work. They contain
+  1-2GB of memory, some of them are SMP. Some have swapping on
+  software raid1, which I thought is the reason, but it's not even
+  putting swap on a raw partition does not help.
+
+  Traces show quit different places for __alloc_pages to fail there is
+  really NO out of memory condition - several hundreds of megabytes
+  are in cache.
+
+  The main purpose for these systems is MYSQL database.
+
+  So I'm asking if there is any way to make kernel running more
+  stable?
+
+  May be some workarounds exists - For example may be I can increase
+  number of reserved buffers and so on ?
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Best regards,
+ Peter                          mailto:pz@spylog.ru
+

@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263298AbTESWTc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTESWTc
+	id S262763AbTESW1q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbTESW1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:19:32 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11268 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263298AbTESWTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:19:30 -0400
-Message-ID: <3EC95B58.7080807@zytor.com>
-Date: Mon, 19 May 2003 15:31:52 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, sv
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Recent changes to sysctl.h breaks glibc
-References: <20030519165623.GA983@mars.ravnborg.org>	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>	<babhik$sbd$1@cesium.transmeta.com> <m1d6ie37i8.fsf@frodo.biederman.org>
-In-Reply-To: <m1d6ie37i8.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 19 May 2003 18:27:46 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3783 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262763AbTESW1p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:27:45 -0400
+Date: Mon, 19 May 2003 15:37:58 -0700 (PDT)
+Message-Id: <20030519.153758.71094061.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: akpm@digeo.com, ak@muc.de, arjanv@redhat.com, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: time interpolation hooks
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <16073.5555.158600.61609@napali.hpl.hp.com>
+References: <16069.24454.349874.198470@napali.hpl.hp.com>
+	<1053139080.7308.6.camel@rth.ninka.net>
+	<16073.5555.158600.61609@napali.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> 
-> ABI changes or ABI additions?
-> 
-> If the ABI is not fixed that is a bug.  Admittedly some interfaces
-> in the development kernel are still under development and so have not
-> stabilized on an ABI but that is a different issue.
-> 
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Mon, 19 May 2003 10:34:43 -0700
 
-ABI fixes and ABI additions, as well as outright ABI changes (yes they
-suck, but they happen.)
-> 
->>ABI headers is the only realistic solution.  We
->>can't realistically get real ABI headers for 2.5, so please don't just
->>break things randomly until then.
-> 
-> As the ABI remains fixed I remain unconvinced.  Multiple implementations
-> against the same ABI should be possible.  The real question which is the
-> more scalable way to do the code.
+   >>>>> On 16 May 2003 19:38:01 -0700, "David S. Miller" <davem@redhat.com> said:
+   
+     DaveM> I think Andrew is really suggesting to declare these two
+     DaveM> things in an arch header, so if one needs it to be a function
+     DaveM> pointer one can make it so.
+   
+   I don't think this should be (purely) an arch thing.  It's just as
+   much a driver issue.  For example, HPET will pretty much work the same
+   on x86 and ia64, so being able to have a shared "driver" would be
+   useful.  I agree though that it would be nice if arches that don't
+   care for time-interpolation at all could turn it off completely.
+   In the proposal below, an architecture could achieve that by turning
+   off CONFIG_TIME_INTERPOLATION.
 
-The ABI doesn't remain fixed.  Like everything else it evolves.
+That's not the issue, if I have only ONE way to do this on my
+platform, I can INLINE this thing and I DO NOT need function
+pointers.
 
-> What I find truly puzzling is that after years glibc still needs
-> kernel headers at all.
-
-What I find truly puzzling is that obviously intelligent people like
-yourself still seem to think that ABIs remain fixed.
-
-	-hpa
-
-
+I should have that option.

@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277797AbRJOQTp>; Mon, 15 Oct 2001 12:19:45 -0400
+	id <S277705AbRJOQSZ>; Mon, 15 Oct 2001 12:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277790AbRJOQTf>; Mon, 15 Oct 2001 12:19:35 -0400
-Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:64937 "EHLO
-	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
-	id <S277656AbRJOQTY>; Mon, 15 Oct 2001 12:19:24 -0400
-Message-ID: <3BCB0CA7.46203D3F@bigfoot.com>
-Date: Mon, 15 Oct 2001 09:19:51 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
-X-Accept-Language: en
+	id <S277656AbRJOQSP>; Mon, 15 Oct 2001 12:18:15 -0400
+Received: from gap.cco.caltech.edu ([131.215.139.43]:58000 "EHLO
+	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S277705AbRJOQSN>; Mon, 15 Oct 2001 12:18:13 -0400
+Message-ID: <3BCB08B2.5060207@interactivesi.com>
+Date: Mon, 15 Oct 2001 11:02:58 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Cyrus <cyrusone@ihug.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Large Storage Devices in Linux.....Kernel level support.....
-In-Reply-To: <3BC93DCB.20400@linuxmail.org> <3BCAC80F.9050705@ihug.com.au>
-Content-Type: text/plain; charset=us-ascii
+To: mlist-linux-kernel@nntp-server.caltech.edu
+Subject: Re: 
+In-Reply-To: <20011015062505.32762.qmail@mailweb33.rediffmail.com> <3BCA889B.6000504@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > i've got a setup of 2 hard drives (30GB & 40GB) with an Asus a7m266 mobo
->  > with a VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 06).
->  >
->  > 30GB= fujitsu, 40GB= IBM (both are 7200rpm
->  >
->  > i've got my cdrw on /dev/hdc, 30GB=/dev/hda, and 40GB=/dev/hdb...
+David Ford wrote:
 
-You also want to move the IBM to IDE1 to avoid 1/2 speed throttle
-situations.  Don't forget to update /dev/fstab and the /dev/cdrom and/or
-/dev/cdr links before you reboot.
-
-Current
--------
-IDE0/M	/dev/hda	30GB
-IDE0/S	/dev/hdb	40GB
-IDE1/M	/dev/hdc	CD-RW
-
-Better disk I/O
----------------
-IDE0/M	/dev/hda	30GB
-IDE1/M	/dev/hdc	40GB
-IDE1/S	/dev/hdd	CD-RW
-
-	or
-
-IDE0/M	/dev/hda	30GB
-IDE0/S	/dev/hdd	CD-RW
-IDE1/M	/dev/hdc	40GB
+> That should throw a segmentation fault, in the kernel an OOPS,  in this 
+> statement the code is trying to dereference a NULL pointer and store a 
+> value at 0x0.
 
 
-rgds,
-tim.
---
+I much smarter way to do this would be to use this code:
+
+static inline void int3(void) { __asm__ __volatile__ (".byte 0xCC\n"); };
+
+Granted, it's x86-specific, but it works better, since gdb will halt the code 
+right at that spot rather than inside some trap hander.  And it's just more 
+elegant.
+

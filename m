@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262696AbSJLCFy>; Fri, 11 Oct 2002 22:05:54 -0400
+	id <S262707AbSJLCOR>; Fri, 11 Oct 2002 22:14:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262702AbSJLCFx>; Fri, 11 Oct 2002 22:05:53 -0400
-Received: from mail.storm.ca ([209.87.239.66]:6020 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S262696AbSJLCFx>;
-	Fri, 11 Oct 2002 22:05:53 -0400
-Message-ID: <3DA857AB.2010504@storm.ca>
-Date: Sat, 12 Oct 2002 10:11:07 -0700
-From: Sandy Harris <sandy@storm.ca>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mitsuru KANDA <mk@linux-ipv6.org>
-CC: linux-kernel@vger.kernel.org, design@lists.freeswan.org,
-       usagi@linux-ipv6.org
-Subject: Re: [Design] [PATCH] USAGI IPsec
-References: <m3k7kpjt7c.wl@karaba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262720AbSJLCOQ>; Fri, 11 Oct 2002 22:14:16 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:34827 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S262707AbSJLCOQ>; Fri, 11 Oct 2002 22:14:16 -0400
+Date: Fri, 11 Oct 2002 23:19:47 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mk@linux-ipv6.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USAGI IPsec
+Message-ID: <20021012021947.GF1861@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, mk@linux-ipv6.org,
+	linux-kernel@vger.kernel.org
+References: <m3u1js1l1a.wl@karaba.org> <20021011.185332.115906289.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021011.185332.115906289.davem@redhat.com>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mitsuru KANDA wrote:
+Em Fri, Oct 11, 2002 at 06:53:32PM -0700, David S. Miller escreveu:
+> We will be using your ipv6 ipsec work as a model for how
+> IPSEC will look in Linux.
 
->Hello Linux kernel network maintainers,
->
->I'm a member of USAGI project.
->  
->
-   [snip]
+Wohoo, and there are still people thinking that 2.5 has not exciting things,
+bah, I found it great to have so much work finally merged.
+ 
+> We liked your implementation for it's simplicity.  But Alexey and myself
+> believe several details should be handled very much differently.
 
->2. Cipher/Digest Algorithms
->
->	Supported algorithms:
->		Ciphers: DES, 3DES and AES
->		Digests: MD5 and SHA1
->
->	We use CryptoAPI as cipher/digest algorithm.
->	- CryptoAPI
->		http://www.kerneli.org/
->  
->
-Please remove DES as it is insecure. For discussion, see:
-http://www.freeswan.org/freeswan_trees/freeswan-1.98b/doc/politics.html#desnotsecure
+It will make it better, I'm sure.
 
+Congratulations to the USAGI people!
+
+- Arnaldo

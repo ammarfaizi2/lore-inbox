@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUAYU16 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 15:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUAYU16
+	id S265273AbUAYUgR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 15:36:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265276AbUAYUgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 15:27:58 -0500
-Received: from colin2.muc.de ([193.149.48.15]:10251 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265243AbUAYU1o (ORCPT
+	Sun, 25 Jan 2004 15:36:17 -0500
+Received: from d213-103-156-147.cust.tele2.ch ([213.103.156.147]:21057 "EHLO
+	kameha") by vger.kernel.org with ESMTP id S265273AbUAYUgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 15:27:44 -0500
-Date: 25 Jan 2004 21:25:57 +0100
-Date: Sun, 25 Jan 2004 21:25:57 +0100
-From: Andi Kleen <ak@muc.de>
-To: John Stoffel <stoffel@lucent.com>
-Cc: Andi Kleen <ak@muc.de>, Valdis.Kletnieks@vt.edu,
-       Adrian Bunk <bunk@fs.tum.de>, Fabio Coatti <cova@ferrara.linux.it>,
-       Andrew Morton <akpm@osdl.org>, Eric <eric@cisu.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Message-ID: <20040125202557.GD16962@colin2.muc.de>
-References: <200401232253.08552.eric@cisu.net> <200401251639.56799.cova@ferrara.linux.it> <20040125162122.GJ513@fs.tum.de> <200401251811.27890.cova@ferrara.linux.it> <20040125173048.GL513@fs.tum.de> <20040125174837.GB16962@colin2.muc.de> <200401251800.i0PI0SmV001246@turing-police.cc.vt.edu> <20040125191232.GC16962@colin2.muc.de> <16404.9520.764788.21497@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16404.9520.764788.21497@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+	Sun, 25 Jan 2004 15:36:16 -0500
+Message-ID: <401428CB.3030308@freesurf.ch>
+Date: Sun, 25 Jan 2004 21:36:27 +0100
+From: Marc Mongenet <Marc.Mongenet@freesurf.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25pre7 - cannot mount 128MB vfat fs on Minolta camera
+References: <4013D155.3080900@freesurf.ch>	<87y8rw2eyy.fsf@devron.myhome.or.jp> <40140221.40901@freesurf.ch> <87isiz3luw.fsf@devron.myhome.or.jp>
+In-Reply-To: <87isiz3luw.fsf@devron.myhome.or.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 25, 2004 at 03:21:04PM -0500, John Stoffel wrote:
+OGAWA Hirofumi wrote:
+> Hi,
 > 
-> Andi> The latest bk tree (post 2.6.2rc1) has a full solution that
-> Andi> should cover all architectures.
+> Is this known problem? Any idea?
 > 
-> Can you post your patch please?  I've been running into this too.  I'm
-> compiling 2.6.2-rc1-mm3 right now after having commented out the
+> Thanks.
+> 
+> Marc Mongenet <Marc.Mongenet@freesurf.ch> writes:
 
-It should be in there already. 
+Thanks for your help.
+Note that the sd_mod reload trick from Måns Rullgård works (is it safe?).
+The scsiadd trick from Philip Dodd works when the CD-ROM is not attached.
+Sorry for not replying directly, I am not subscribed to lkml.
 
-> -funit-at-a-time in Makefile.  I'm running gcc 3.3.3 on Debian with
-> the stable/unstable/testing branches.  
-
-Did you actually have problems? 
-
--Andi
+Marc Mongenet

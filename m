@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277309AbRJEEh0>; Fri, 5 Oct 2001 00:37:26 -0400
+	id <S277307AbRJEEgq>; Fri, 5 Oct 2001 00:36:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277310AbRJEEhR>; Fri, 5 Oct 2001 00:37:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:60354 "EHLO
-	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S277309AbRJEEg7>; Fri, 5 Oct 2001 00:36:59 -0400
-Date: Thu, 4 Oct 2001 21:35:07 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-Message-ID: <20011004213507.B1032@w-mikek2.sequent.com>
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl> <200110042139.f94Ld5r09675@vindaloo.ras.ucalgary.ca> <20011004.145239.62666846.davem@redhat.com> <20011004175526.C18528@redhat.com> <9piokt$8v9$1@penguin.transmeta.com> <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com> <20011005024526.E724@athlon.random>
+	id <S277309AbRJEEgg>; Fri, 5 Oct 2001 00:36:36 -0400
+Received: from rdu26-57-156.nc.rr.com ([66.26.57.156]:10386 "EHLO
+	gateway.house") by vger.kernel.org with ESMTP id <S277307AbRJEEgY>;
+	Fri, 5 Oct 2001 00:36:24 -0400
+Subject: Re: Development Setups
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: adam.keys@HOTARD.engr.smu.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there>
+In-Reply-To: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99 (Preview Release)
+Date: 05 Oct 2001 00:36:53 -0400
+Message-Id: <1002256614.20235.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011005024526.E724@athlon.random>; from andrea@suse.de on Fri, Oct 05, 2001 at 02:45:26AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 05, 2001 at 02:45:26AM +0200, Andrea Arcangeli wrote:
-> doesn't lmbench wakeup only via pipes? Linux uses the sync-wakeup that
-> avoids reschedule_idle in such case, to serialize the pipe load in the
-> same cpu.
+On Fri, 2001-10-05 at 00:20, Adam Keys wrote:
+> As a budding kernel hacker looking to cut my teeth, I've become curious about 
+> what types of setups people hack the kernel with.  I am very interested in 
+> descriptions of the computers you hack the kernel with and their use patterns.
 
-That's what I thought too.  However, kernel profile data of a
-lmbench run on 2.4.10 reveals that the pipe routines only call
-the non-synchronous form of wake_up.  I believe I reached the
-same conclusion in the 2.4.7 time frame by instrumenting this
-code.
+Here's what each developer was equipped with at my former place of
+employment, back when they had money and all:
 
--- 
-Mike
+Two x86 machines, one workstation and one "blow up box".
+
+Console on serial port, minicom logging to a file.
+
+/usr/src on the "blow up box" nfs-mounted from workstation; 100MBit
+ethernet
+
+Used kdb sometimes.
+
+

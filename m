@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVAHH1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVAHHgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbVAHH1F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 02:27:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVAHHZe
+	id S261877AbVAHHgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 02:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVAHHem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 02:25:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:61573 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261895AbVAHFsb convert rfc822-to-8bit
+	Sat, 8 Jan 2005 02:34:42 -0500
+Received: from mail.kroah.org ([69.55.234.183]:50053 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261877AbVAHFsU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:31 -0500
+	Sat, 8 Jan 2005 00:48:20 -0500
 Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632593220@kroah.com>
+In-Reply-To: <11051632613305@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:39 -0800
-Message-Id: <11051632592320@kroah.com>
+Date: Fri, 7 Jan 2005 21:47:42 -0800
+Message-Id: <11051632622393@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
@@ -22,38 +22,43 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.444.5, 2004/12/15 11:15:47-08:00, greg@kroah.com
+ChangeSet 1.1938.444.23, 2004/12/21 10:50:37-08:00, ecashin@coraid.com
 
-[PATCH] misc: remove miscdevice.h from pci hotplug drivers as they do not need it.
+[PATCH] rename ETH_P_AOE
 
+Rename old ETH_P_EDP2 ("EtherDrive Protocol 2") to ETH_P_AOE (ATA over
+Ethernet).
+
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/hotplug/pciehp_core.c |    1 -
- drivers/pci/hotplug/shpchp_core.c |    1 -
- 2 files changed, 2 deletions(-)
+ drivers/block/aoe/aoe.h  |    1 -
+ include/linux/if_ether.h |    2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/pci/hotplug/pciehp_core.c b/drivers/pci/hotplug/pciehp_core.c
---- a/drivers/pci/hotplug/pciehp_core.c	2005-01-07 15:51:36 -08:00
-+++ b/drivers/pci/hotplug/pciehp_core.c	2005-01-07 15:51:36 -08:00
-@@ -33,7 +33,6 @@
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/proc_fs.h>
--#include <linux/miscdevice.h>
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- #include <linux/pci.h>
-diff -Nru a/drivers/pci/hotplug/shpchp_core.c b/drivers/pci/hotplug/shpchp_core.c
---- a/drivers/pci/hotplug/shpchp_core.c	2005-01-07 15:51:36 -08:00
-+++ b/drivers/pci/hotplug/shpchp_core.c	2005-01-07 15:51:36 -08:00
-@@ -33,7 +33,6 @@
- #include <linux/kernel.h>
- #include <linux/types.h>
- #include <linux/proc_fs.h>
--#include <linux/miscdevice.h>
- #include <linux/slab.h>
- #include <linux/workqueue.h>
- #include <linux/pci.h>
+diff -Nru a/drivers/block/aoe/aoe.h b/drivers/block/aoe/aoe.h
+--- a/drivers/block/aoe/aoe.h	2005-01-07 15:41:09 -08:00
++++ b/drivers/block/aoe/aoe.h	2005-01-07 15:41:09 -08:00
+@@ -26,7 +26,6 @@
+ 	AOECCMD_FSET,
+ 
+ 	AOE_HVER = 0x10,
+-	ETH_P_AOE = 0x88a2,
+ };
+ 
+ struct aoe_hdr {
+diff -Nru a/include/linux/if_ether.h b/include/linux/if_ether.h
+--- a/include/linux/if_ether.h	2005-01-07 15:41:09 -08:00
++++ b/include/linux/if_ether.h	2005-01-07 15:41:09 -08:00
+@@ -69,7 +69,7 @@
+ #define ETH_P_ATMFATE	0x8884		/* Frame-based ATM Transport
+ 					 * over Ethernet
+ 					 */
+-#define ETH_P_EDP2	0x88A2		/* Coraid EDP2			*/
++#define ETH_P_AOE	0x88A2		/* ATA over Ethernet		*/
+ 
+ /*
+  *	Non DIX types. Won't clash for 1500 types.
 

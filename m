@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUDDXJO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 19:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbUDDXJO
+	id S262915AbUDDX3j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 19:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUDDX3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 19:09:14 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33411
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262925AbUDDXJL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 19:09:11 -0400
-Date: Mon, 5 Apr 2004 01:09:13 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.5-aa1 arch updates
-Message-ID: <20040404230913.GA2148@dualathlon.random>
-References: <Pine.LNX.4.44.0404041446430.22502-100000@localhost.localdomain> <20040404154924.GD2164@dualathlon.random> <16496.36001.210779.472061@cargo.ozlabs.ibm.com>
+	Sun, 4 Apr 2004 19:29:39 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:9871 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S262924AbUDDX3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 19:29:38 -0400
+Date: Sun, 4 Apr 2004 19:17:46 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Marcel Lanz <marcel.lanz@ds9.ch>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PANIC] ohci1394 & copy large files
+Message-ID: <20040404231746.GX13168@phunnypharm.org>
+References: <20040404141600.GB10378@ds9.ch> <20040404141339.GW13168@phunnypharm.org> <1081119623.1285.121.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16496.36001.210779.472061@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <1081119623.1285.121.camel@gaston>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 08:30:57AM +1000, Paul Mackerras wrote:
-> Andrea Arcangeli writes:
+On Mon, Apr 05, 2004 at 09:00:24AM +1000, Benjamin Herrenschmidt wrote:
+> On Mon, 2004-04-05 at 00:13, Ben Collins wrote:
+> > On Sun, Apr 04, 2004 at 04:16:00PM +0200, Marcel Lanz wrote:
+> > > Since 2.6.4 and still in 2.6.5 I get regurarly a Kernel panic if I try
+> > > to backup large files (10-35GB) to an external attached disc (200GB/JFS) via ieee1394/sbp2.
+> > > 
+> > > Has anyone similar problems ?
+> > 
+> > Known issue, fixed in our repo. I still need to sync with Linus once I
+> > iron one more issue and merge some more patches.
 > 
-> > I'm unsure about the arch/ppc/mm/pgtable.c part, I mean, ppc is being
-> > tested heavily, how can it be necessary if nobody ever got an oops yet? 
-> > OTOH your patch certainly cannot hurt and it might be needed after all.
-> > Maybe I should apply it after all, it'd be nice to get a comment on this
-> > bit from ppc people who knows tlb.c better to be sure.
+> Hi Ben !
 > 
-> We definitely need page->mapping and page->index set on pte and pmd
-> pages, both on ppc and ppc64.  Otherwise the flush_tlb_* functions
-> won't work properly.  Hugh's patch looks good to me (at least as far
-> as the ppc/ppc64 bits are concerned).
+> I don't want to be too critical or harsh or whatever, but why don't you
+> just send such fixes right upstream instead of stacking patches for a
+> while in your repo ? From my experience, such "batching" of patches is
+> the _wrong_ thing to do, and typically, there is a major useability
+> issue with sbp2 that could have been "right" in 2.6.5 final and will not
+> be (so we'll have to wait what ? 1 or 2 monthes more now to have a
+> release kernel with a reliable sbp2)
 
-ok thanks, Hugh's arch's update adding ppc support are fully applied
-right now in 2.6-aa and all other relevant trees. Thanks again Hugh!
+Because the fix was pretty extensive and needed testing. It was
+potentially more broken that the problem it was fixing. Sending untested
+patches to Linus is far worse than batching a few up and pushing to him.
 
-I only still wonder how this could be unnoticed in practice in ppc(32)?
-I mean page->mapping should be NULL if we don't set it and it should
-cause an oops in flush_hash_one_pte, no? (if Hash != 0 of course)
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261288AbSJCVOs>; Thu, 3 Oct 2002 17:14:48 -0400
+	id <S261361AbSJCV1D>; Thu, 3 Oct 2002 17:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261338AbSJCVOs>; Thu, 3 Oct 2002 17:14:48 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45553 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261288AbSJCVOq>;
-	Thu, 3 Oct 2002 17:14:46 -0400
-Message-ID: <3D9CB470.8BCA89F7@mvista.com>
-Date: Thu, 03 Oct 2002 14:19:44 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S261371AbSJCV1D>; Thu, 3 Oct 2002 17:27:03 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:50071 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261361AbSJCV1C>;
+	Thu, 3 Oct 2002 17:27:02 -0400
+Date: Thu, 3 Oct 2002 14:34:42 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc][patch] driverfs multi-node(board) patch [2/2]
+In-Reply-To: <3D98F450.8080003@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210031428280.1871-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>
-CC: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Dual PPro timer stopping problem
-References: <14632.1033653828@warthog.cambridge.redhat.com> <3D9C7E7E.7B2BFB52@mvista.com> <20021003164641.F16875@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
-> 
-> On Thu, Oct 03, 2002 at 10:29:34AM -0700, george anzinger wrote:
-> > The keyboard is, or at least depends on polling which is
-> > controled by a timer, thus, no timer, => no keyboard.
-> 
-> Eh?  Sure, by a timer internal to the keyboard itself.  At least x86
-> hardware has an interrupt wired to its keyboard controller that is used
-> to signal when a keystroke is available, and if you look into the driver,
-> you'd see that no timers are used at all.
-> 
-Hm?  I must have been seeing double ;)  Been doing that a
-lot lately :(
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+
+Ok, I'm finally getting back to you..
+
+> 	Ok..  here are the real changes.  I'd really like to get some feedback on 
+> what you (or anyone else) thinks of these proposed changes.  This sets 
+> up a generic topology initialization routine which should discover all 
+> online nodes (boards), CPUs, and Memory Blocks at boot time.  It also 
+> makes the CPUs and memblks it discovers children of the appropriate nodes.
+
+You didn't append the patch, which is annoying, but I'll deal..
+
+The main problem I have is the code placement. I put the CPU stuff under 
+arch/ because I anticpate wrapping the cpu structure with an arch-specific 
+one, so you can ascertain arch-specific information via the generic 
+structure. Moving it out of arch/ precludes that from happening (easily). 
+
+Ditto for memblks, though I'm not really sure what other info you'd want 
+in the structures. 
+
+Ditto+ for nodes, or boards. Those are definitely arch-specific 
+structures, and shouldn't be in drivers/base/. On top of that, I don't 
+think their registration should all be munged together in one file. Maybe 
+they should be, in their own play area (under arch/i386/mach-ccnuma/).
+
+
+	-pat
+

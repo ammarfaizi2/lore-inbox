@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262762AbUCPKkr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 05:40:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbUCPKkr
+	id S262829AbUCPKnN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 05:43:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbUCPKnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 05:40:47 -0500
-Received: from holomorphy.com ([207.189.100.168]:60934 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262762AbUCPKkq (ORCPT
+	Tue, 16 Mar 2004 05:43:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57811 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262829AbUCPKnJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 05:40:46 -0500
-Date: Tue, 16 Mar 2004 02:40:42 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6-mm] Fix 4G/4G w/ 8k+ stacks
-Message-ID: <20040316104042.GO655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-	Matt Mackall <mpm@selenic.com>
-References: <Pine.LNX.4.58.0403150401310.28447@montezuma.fsmlabs.com>
+	Tue, 16 Mar 2004 05:43:09 -0500
+Date: Tue, 16 Mar 2004 02:43:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Kristian Soerensen <ks@cs.auc.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] Recovering ext3 - recovery.c: assertion failed,
+ attempted to kill init
+Message-Id: <20040316024309.53da4f50.akpm@osdl.org>
+In-Reply-To: <1079430906.19929.10.camel@homer.cs.auc.dk>
+References: <1079430906.19929.10.camel@homer.cs.auc.dk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403150401310.28447@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 01:35:36AM -0500, Zwane Mwaikambo wrote:
-> +#ifdef CONFIG_4KSTACKS
-> +#define STACK_PAGE_COUNT	(4096/PAGE_SIZE)
-> +#else
-> +#define STACK_PAGE_COUNT	(8192/PAGE_SIZE)	/* THREAD_SIZE/PAGE_SIZE */
-> +#endif
+Kristian Soerensen <ks@cs.auc.dk> wrote:
+>
+> After (hard) power cycling a computer, running linux-2.6.3*, the
+>  filsystem (ext3) sould be recovered at boot. However I get the following
+>  message from the kernel. I have tried booting the redhat
+>  kernel-2.4.20-30.9 - but with the same result.
+> 
+>  * The kernel was patched with our Umbrella LSM module, but however _no_
+>  changes were made to the filesystem.
+> 
+> ...
+> 
+>  Assertion failure in jread() at fs/jbd/recovery.c:140: "offset <
+>  journal->j_maxlen"
 
-This looks like it wants to be:
+A wrecked journal superblock or log block.  Never seen that before.
 
-#define STACK_PAGE_COUNT	(PAGE_ALIGN(THREAD_SIZE)/PAGE_SIZE)
+See if e2fsck can fix it up.  If not, see if you can get e2fsck to remove
+the journal with
 
-(There are reasons to want THREAD_SIZE < PAGE_SIZE having to do with
-elevating PAGE_SIZE as opposed to shrinking THREAD_SIZE outright.)
+	tune2fs -O ^has_journal /dev/hdXX
 
-It looks like kmap_types.h should inherits PAGE_* from processor.h
-which in turn should inherit them from page.h
+then fsck it, then create a new journal with
 
-Did the headers barf on this or something? I can't imagine you didn't
-think of it already.
+	tune2fs -j /dev/hdXX
 
+As for the assertion failure: yes, that's fairly bad form.  I'll fix that
+up to simply fail the mount.
 
--- wli

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287183AbSATEQl>; Sat, 19 Jan 2002 23:16:41 -0500
+	id <S287966AbSATEaz>; Sat, 19 Jan 2002 23:30:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287945AbSATEQc>; Sat, 19 Jan 2002 23:16:32 -0500
-Received: from aramis.rutgers.edu ([128.6.4.2]:19949 "EHLO aramis.rutgers.edu")
-	by vger.kernel.org with ESMTP id <S287183AbSATEQX>;
-	Sat, 19 Jan 2002 23:16:23 -0500
-Date: Sat, 19 Jan 2002 23:16:22 -0500 (EST)
-From: Suresh Gopalakrishnan <gsuresh@cs.rutgers.edu>
-To: linux-kernel@vger.kernel.org
-Subject: multithreaded RPC handling
-In-Reply-To: <Pine.GSO.4.02A.10112151947010.14453-100000@aramis.rutgers.edu>
-Message-ID: <Pine.GSO.4.02A.10201192251560.20780-100000@aramis.rutgers.edu>
+	id <S287948AbSATEaq>; Sat, 19 Jan 2002 23:30:46 -0500
+Received: from femail23.sdc1.sfba.home.com ([24.0.95.148]:26594 "EHLO
+	femail23.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S287946AbSATEaa>; Sat, 19 Jan 2002 23:30:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Ken Brownfield <brownfld@irridia.com>, Doug Alcorn <lathi@seapine.com>
+Subject: Re: rm-ing files with open file descriptors
+Date: Sat, 19 Jan 2002 15:23:57 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <87lmevjrep.fsf@localhost.localdomain> <20020118152833.A30386@asooo.flowerfire.com>
+In-Reply-To: <20020118152833.A30386@asooo.flowerfire.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020120043027.TXTJ9511.femail23.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 January 2002 04:28 pm, Ken Brownfield wrote:
+> This is actually a long-standing UNIXism that is pretty heavily relied-
+> upon -- for example, opening a temporary file then unlinking it before
+> use "guarantees" that the file will not stick around in case the app
+> crashes before it can properly close and unlink.
 
-Am not sure if these are kernel issues or a library issues..
+It's fun with named pipes, too.  Allows you to use the child's PID as the 
+temp file name really easily...
 
-Is it ok to have multiple threads call svc_run() and then let each thread
-handle the request it gets? (In other words, does select allow multiple
-threads to block on the same set of fds, and correctly wake up only one?)
-
-I was looking at the (old) user level NFS server, and wonder why it forks
-multiple servers rather than have threads. Are there any RPC issues
-involved? Or is it just to avoid synchronization of the fd/filehandle
-caches? (Or maybe the thread support was poor/absent then?)
-
-Thanks
---suresh
-
+Rob

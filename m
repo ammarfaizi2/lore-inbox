@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264953AbUIWT4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUIWT5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264953AbUIWT4a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 15:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIWT4a
+	id S264503AbUIWT5L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 15:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUIWT5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 15:56:30 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:44979 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S264953AbUIWT42 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 15:56:28 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Mikhail Ramendik <mr@ramendik.ru>
-Subject: Re: 2.6.8.1, USB , "IRQ 11 disabled" on plugging in a device
-Date: Thu, 23 Sep 2004 13:56:25 -0600
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200409230959.19570.bjorn.helgaas@hp.com> <1095963910.2674.4.camel@localhost.localdomain>
-In-Reply-To: <1095963910.2674.4.camel@localhost.localdomain>
+	Thu, 23 Sep 2004 15:57:11 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:4020 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S264503AbUIWT5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 15:57:05 -0400
+Message-ID: <41532A92.5080305@myrealbox.com>
+Date: Thu, 23 Sep 2004 12:57:06 -0700
+From: Andy Lutomirski <luto@myrealbox.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Albert Cahalan <albert@users.sourceforge.net>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@muc.de,
+       gandalf@wlug.westbo.se
+Subject: Re: [PATCH] Warn people that ipchains and ipfwadm are going away.
+References: <1095962839.4974.965.camel@cube>	 <41532504.3000005@nortelnetworks.com> <1095968193.4969.980.camel@cube>
+In-Reply-To: <1095968193.4969.980.camel@cube>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409231356.25420.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 September 2004 12:25 pm, Mikhail Ramendik wrote:
-> Bjorn Helgaas wrote:
-> > > When I plug in a USB device it is not recognized. It does not even
-> > > appear in lsusb. And it says that it disables IRQ 11 - which is even 
-> > > NOT the IRQ used by USB!
-> > 
-> > Does it make any difference if you boot with "pci=routeirq"?
+Albert Cahalan wrote:
+> On Thu, 2004-09-23 at 15:33, Chris Friesen wrote:
 > 
-> No. The behaviour is the same. Perhaps the message is somewhat
-> different, but the "IRQ 11 disabled" part is still there.
+>>Albert Cahalan wrote:
+>>
+>>
+>>>Who is doing a 32-bit userland on x86-64, and WTF for?
+>>>Why do they not also run a 32-bit kernel?
+>>
+>>Backwards compatibility?  Desire to run binary-only 32-bit software as well as 
+>>64-bit software on the same kernel?
+> 
+> 
+> Nope. For that, you run 99% 64-bit, including iptables.
+> That's what is typically done. So you'd have a 32-bit
+> OpenOffice maybe, and everything else is 64-bit.
+> 
+> I'm still not seeing a need to run an x86-64 kernel
+> with an i386 iptables.
+> 
+> 
 
-Sorry, I wasn't paying enough attention.  You said you were on
-2.6.8.1, which doesn't have "pci=routeirq" in it.  So of course
-it didn't make any difference.  I was thinking you were on an
--mm kernel, where there are a couple issues that can be worked
-around with "pci=routeirq".
+Easy migration: take your fully-set-up server image, throw in an Opteron 
+with 16GB RAM, and boot a 64-bit kernel.  As long as you don't need more 
+than 4GB/program, you're set.  Except your firewall is broken.
+
+--Andy

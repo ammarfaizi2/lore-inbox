@@ -1,80 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261187AbSJGQ1I>; Mon, 7 Oct 2002 12:27:08 -0400
+	id <S261224AbSJGQ3w>; Mon, 7 Oct 2002 12:29:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261224AbSJGQ1I>; Mon, 7 Oct 2002 12:27:08 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:23007 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S261187AbSJGQ1H>;
-	Mon, 7 Oct 2002 12:27:07 -0400
-Subject: Re: QLogic Linux failover/Load Balancing ER0000000020860
-From: Austin Gonyou <austin@coremetrics.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021006075829.GB23504@marowsky-bree.de>
-References: <41EBA11203419D4CA8EB4C6140D8B4017CD8EE@AVEXCH01.qlogic.org>
-	 <1033862965.27451.51.camel@UberGeek.coremetrics.com>
-	 <20021006075829.GB23504@marowsky-bree.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-dr/uW992LnL2IlAsa7D3"
-Organization: Coremetrics, Inc.
-Message-Id: <1034008359.9137.9.camel@UberGeek.coremetrics.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 07 Oct 2002 11:32:39 -0500
+	id <S261263AbSJGQ3w>; Mon, 7 Oct 2002 12:29:52 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:5609 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261224AbSJGQ3u>;
+	Mon, 7 Oct 2002 12:29:50 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [Evms-devel] Re: [PATCH] EVMS core 3/4: evms_ioctl.h
+To: Christoph Hellwig <hch@infradead.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFEADEC58E.F70F8BE4-ON85256C4B.004F8C03@pok.ibm.com>
+From: "Mark Peloquin" <peloquin@us.ibm.com>
+Date: Mon, 7 Oct 2002 11:43:30 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 10/07/2002 12:34:33 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-dr/uW992LnL2IlAsa7D3
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+On 10/03/2002 at 10:00 AM, Christoph Hellwig wrote:
 
-On Sun, 2002-10-06 at 02:58, Lars Marowsky-Bree wrote:
-> On 2002-10-05T19:09:26,
->    Austin Gonyou <austin@coremetrics.com> said:
->=20
-> > Is there a way to resolve this, either at the driver level, IMHO the
-> > place it *should* happen. At the storage level, the place that it could
-> > also happen, or in the Kernel?
->=20
-> You can always use md multipathing; an extension to the 2.4 multipathing =
-has
-> been implemented by Jens Axboe and yours truely and is available at
-> http://lars.marowsky-bree.de/dl/md-mp; we'll see how Neil takes it when h=
-e
-> returns from vacation ;-)
->=20
-> We'll also be shipping that patch as part of United Linux.
+> > +#ifdef __KERNEL__
 
-Is this for 2.4 or 2.5. Just FMI.=20
+> Nuke this.  kernel he3aders aren't for userspace anyway.
+
+At one point, userspace did share this header file.
+That hasn't been the case for a while, so this has
+been removed.
+
+> > +#define EVMS_CHECK_MEDIA_CHANGE         _IO(EVMS_MAJOR, >
+EVMS_CHECK_MEDIA_CHANGE_NUMBER)
+> > +
+> > +#define EVMS_REVALIDATE_DISK_STRING     "EVMS_REVALIDATE_DISK"
+> > +#define EVMS_REVALIDATE_DISK            _IO(EVMS_MAJOR,
+EVMS_REVALIDATE_DISK_NUMBER)
+
+> Can't you use normal revalidate/media change operations?
+
+For most plugins, except the device manager, this operation
+was nothing more than an exercise in routing the operation
+requests to the underlying devices. Since this routing code
+already exists in the ioctl interface, it seemed reasonable
+to just reuse it for this purpose as well. As a result,
+each plugin had to add 0 lines of code to support this.
+
+> > +
+> > +#define EVMS_OPEN_VOLUME_STRING         "EVMS_OPEN_VOLUME"
+> > +#define EVMS_OPEN_VOLUME                _IO(EVMS_MAJOR,
+EVMS_OPEN_VOLUME_NUMBER)
+> > +
+> > +#define EVMS_CLOSE_VOLUME_STRING        "EVMS_CLOSE_VOLUME"
+> > +#define EVMS_CLOSE_VOLUME               _IO(EVMS_MAJOR,
+EVMS_CLOSE_VOLUME_NUMBER)
+
+> if you need open/close ioctl you got some abstraction wrong..
+
+In EVMS, because of removable media devices, we chose to
+open/close the underlying devices only when an actual
+open/close is received for a volume residing on the
+devices. This allows removable media devices to remain
+unlocked until they are in use.
+
+> > +/**
+> > + * struct evms_sector_io_pkt - sector io ioctl packet definition
+> > + * @disk_handle:   disk handle of target device
+> > + * @io_flag:       0 = read, 1 = write
+> > + * @starting_sector:     disk relative starting sector
+> > + * @sector_count:  count of sectors
+> > + * @buffer_address:      user buffer address
+> > + * @status:        return operation status
+> > + *
+> > + * ioctl packet definition for EVMS_SECTOR_IO ioctl
+> > + **/
+> > +struct evms_sector_io_pkt {
+> > + u64 disk_handle;
+> > + s32 io_flag;
+> > + u64 starting_sector;
+> > + u64 sector_count;
+> > + u8 *buffer_address;
+> > + s32 status;
+> > +};
+
+> You don't use an ioctl to read into a user supplied buffer??
+
+This ioctl is used by our userspace tools. EVMS stores
+metadata at the very end of devices. This ioctl was
+initially done to avoid the problem of "short writes"
+to those last sectors. It also allows the core to
+control which devices userspace can address.
+
+> > +/**
+> > + * struct evms_compute_csum_pkt - compute checksum ioctl packet
+definition
+> > + * @buffer_address:
+> > + * @buffer_size:
+> > + * @insum:
+> > + * @outsum:
+> > + * @status:
+> > + *
+> > + * ioctl packet definition for EVMS_COMPUTE_CSUM ioctl
+> > + **/
+> > +struct evms_compute_csum_pkt {
+> > + u8 *buffer_address;
+> > + s32 buffer_size;
+> > + u32 insum;
+> > + u32 outsum;
+> > + s32 status;
+> > +};
+
+> An ioctl to compute a checksum??
+
+MD uses checksum routines. Rather than duplicating
+this code, we provided a method, for our usertools,
+of using the kernel routines, especially considering
+there is multiple methods based on various
+characteristics.
 
 
-> IBM also did an extension to the LVM1 code to support multipathing; I don=
-'t
-> have an URL handy right now, but Google will certainly help out.
->=20
-> For 2.5, this is still not fully hashed out, but I assume you are running=
- 2.4
-> on a production system ;-)
->=20
->=20
-> Sincerely,
->     Lars Marowsky-Br=E9e <lmb@suse.de>
-
---=20
-Austin Gonyou <austin@coremetrics.com>
-Coremetrics, Inc.
-
---=-dr/uW992LnL2IlAsa7D3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA9obcn94g6ZVmFMoIRAoAdAJ4kaIO0Rh0pWP7azEdwxeMkVXwxRwCfeDnX
-cQ9mLYveMv22L8jOsSDxC9k=
-=HDEm
------END PGP SIGNATURE-----
-
---=-dr/uW992LnL2IlAsa7D3--

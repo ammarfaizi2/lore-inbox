@@ -1,51 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271895AbTGYDS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 23:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271896AbTGYDS4
+	id S271898AbTGYD0S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 23:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271899AbTGYD0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 23:18:56 -0400
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:46814 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S271895AbTGYDSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 23:18:55 -0400
-To: jw schultz <jw@pegasys.ws>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Posting format
-References: <20030723201801.GB32585@rdlg.net>
-	<20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
-	<20030723225333.GC16244@louise.pinerecords.com>
-	<bfn5v6$m20$1@gatekeeper.tmr.com>
-	<1059059667.1672.202.camel@spc9.esa.lanl.gov>
-	<20030724154732.GJ32585@rdlg.net> <20030724232413.GA800@zip.com.au>
-	<20030725025931.GE19593@pegasys.ws>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 25 Jul 2003 12:33:35 +0900
-In-Reply-To: <20030725025931.GE19593@pegasys.ws>
-Message-ID: <buoptjzffg0.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	Thu, 24 Jul 2003 23:26:18 -0400
+Received: from conure.mail.pas.earthlink.net ([207.217.120.54]:11468 "EHLO
+	conure.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S271898AbTGYD0Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 23:26:16 -0400
+Date: Thu, 24 Jul 2003 23:43:52 -0400
+To: linux-kernel@vger.kernel.org
+Subject: dbench has intermittent hang on 2.6.0-test1-ac2
+Message-ID: <20030725034352.GA10261@rushmore>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz <jw@pegasys.ws> writes:
-> if the quoting is FRC compliant both vim and mutt's built-in pager
-> will render the quotes in a succession of colors according to depth
-> making them even easier to discern.  if paragraph reformatting is
-> needed due to someone's misbehavior re long lines vim's autoindent
-> will preserve the quoting correctly.
+dbench 64 hung during a run using 2.6.0-test1-ac2 on ext3. One
+of the dbench processes never created the clients/clientsXX
+directory.
 
-Gnus (in emacs) will do both of those things too.
+The parent dbench-2.0 process continues to update the throughput
+measurement and the MB/sec slowly drops.
 
-It also has an option to hide quoted sections, replacing them with a
-little button you can use to see the text (mutt can hide quoted text
-too, but it leaves no indicator in its place, which makes the result
-quite confusing).
+I saw the same behavior on a dbench 32 run with 2.6.0-test1-ac1
+on reiserfs.
 
--Miles
+ps -ef|grep dbenc[h]
+root     12266 11460  0 21:24 pts/0    00:00:00 ./dbench 64
+root     12320 12266  0 21:24 pts/0    00:00:00 ./dbench 64
+
+It isn't highly reproduceable.  Of 28 different dbench runs
+on 2.6.0-test1-ac[12], only 2 have done this.
+
+Uniprocessor x86 running RedHat 7.3 + patches.
+
+Sysrq T for the dbench processes shows:
+
+dbench        R C010F024 4089854812 12266  11460 12320               (NOTLB)
+c909df60 00000082 bffffa58 c010f024 d5439360 d5439360 00000001 fffffe00
+       00000000 c0118dda c909c000 00000001 00000000 d5439360 c0113e10 00000000
+       00000000 c909dfc4 c010836b c909dfc4 00000000 d5439360 c0113e10 d54394b4
+Call Trace:
+ [<c010f024>] restore_i387+0x54/0x80
+ [<c0118dda>] sys_wait4+0x1ea/0x220
+ [<c0113e10>] default_wake_function+0x0/0x20
+ [<c010836b>] sys_sigreturn+0x8b/0xc0
+ [<c0113e10>] default_wake_function+0x0/0x20
+ [<c0108e27>] syscall_call+0x7/0xb
+
+dbench        S C46F3FC4 4028283312 12320  12266                     (NOTLB)
+c46f3fb8 00000086 00000000 c46f3fc4 d4546060 0000000b 00000774 00000040
+       c46f2000 c0120f14 c0108e27 0000000b 00000000 40013000 00000774 00000040
+       bffffb28 0000001d 0000007b 0000007b 0000001d 400c6837 00000073 00000246
+Call Trace:
+ [<c0120f14>] sys_pause+0x14/0x20
+ [<c0108e27>] syscall_call+0x7/0xb
+
+
+strace -p 12320		# child
+pause(
+
+
+kill 12320
+kill -INT 12320
+
+The state changes from S to T.
+
+ps axu|grep dbenc[h]
+root     12266  0.0  0.1  1364  424 pts/0    S    21:24   0:00 ./dbench 64
+root     12320  0.0  0.0  1360  356 pts/0    T    21:24   0:00 ./dbench 64
+
+cat /proc/12320/wchan
+finish_stop
+
+kill -CONT 12320	# child and parent exit
+
+All of <sysrq t> output at:
+http://home.earthlink.net/~rwhron/kernel/sysrq-t.txt
+
+config at
+http://home.earthlink.net/~rwhron/kernel/config/config-2.6.0-test1-ac2
+
 -- 
-"Most attacks seem to take place at night, during a rainstorm, uphill,
- where four map sheets join."   -- Anon. British Officer in WW I
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

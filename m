@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264699AbTIFAXH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 20:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbTIFAXH
+	id S262666AbTIFAap (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 20:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTIFAap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 20:23:07 -0400
-Received: from lidskialf.net ([62.3.233.115]:11981 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S264699AbTIFAXD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 20:23:03 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Chris Wright <chrisw@osdl.org>
-Subject: Re: [ACPI] Re: [PATCH] Next round of ACPI IRQ fixes (VIA ACPI fixed)
-Date: Sat, 6 Sep 2003 02:21:30 +0100
-User-Agent: KMail/1.5.3
-Cc: lkml <linux-kernel@vger.kernel.org>, acpi-devel@lists.sourceforge.net
-References: <200309051958.02818.adq_dvb@lidskialf.net> <200309060016.16545.adq_dvb@lidskialf.net> <20030905170224.A16217@osdlab.pdx.osdl.net>
-In-Reply-To: <20030905170224.A16217@osdlab.pdx.osdl.net>
+	Fri, 5 Sep 2003 20:30:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37530 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263060AbTIFAao
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 20:30:44 -0400
+Message-ID: <3F592AA7.7020700@pobox.com>
+Date: Fri, 05 Sep 2003 20:30:31 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: Chris Wright <chrisw@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [PATCH] Next round of ACPI IRQ fixes (VIA ACPI fixed)
+References: <200309051958.02818.adq_dvb@lidskialf.net> <200309060016.16545.adq_dvb@lidskialf.net> <20030905170224.A16217@osdlab.pdx.osdl.net> <200309060221.30741.adq_dvb@lidskialf.net>
+In-Reply-To: <200309060221.30741.adq_dvb@lidskialf.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309060221.30741.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 06 Sep 2003 1:02 am, Chris Wright wrote:
-> * Andrew de Quincey (adq_dvb@lidskialf.net) wrote:
-> > On Friday 05 Sep 2003 10:35 pm, Jeff Garzik wrote:
-> > > This is why we _really_ need you to split up your patches.  Multiple
-> > > split-up patches, one per email, is preferred.  Don't worry about
-> > > sending us too much email:  we like it like that.
-> >
-> > If/when I split it up, is it acceptable to number the patches to give the
-> > order they have to be applied in? The major problem with these particular
-> > fixes is that they all run over the same set of files, even the same
-> > functions, so they all conflict with each other.
->
-> Yes, please split them up.
->
-> I finally narrowed down to the ChangeSet 1.1046.1.424 (ACPI: Allow irqs >
-> 15...) as cause to my current hang-on-boot problem.  Quick test to see
-> if this patch fixes...nope ;-(
+Andrew de Quincey wrote:
+> successful dmesg
+> dmesg from a failed boot
+> /proc/acpi/dsdt
+> /proc/interrupts
 
-I have reports of a number of systems with issues like this. 
 
-I have a machine here (A Fujitsu Siemens TX150 server) in which the SCSI 
-controller actually corrupts the low level format of the hard disk if I 
-enable ACPI! (low level reformat required!). The ACPI IRQ setup seems to work 
-fine on it (as I assume it does on your system). Its just that there seems to 
-be "something else" wrong in ACPI still. Weirdly enough, it can read sector 0 
-of the HDD fine.. just any reads of any other sectors cause this corruption.
+dmidecode output is also quite helpful.
 
-Now that I've got the bulk of the changes to the basic ACPI IRQ setup done, I 
-can concentrate on these issues. Can you give me details of your system and 
-the following items:
+	Jeff
 
-successful dmesg
-dmesg from a failed boot
-/proc/acpi/dsdt
-/proc/interrupts
+
 

@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbTEAX5B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 19:57:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTEAX5A
+	id S262817AbTEBACY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 20:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbTEBACY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 19:57:00 -0400
-Received: from granite.he.net ([216.218.226.66]:29458 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S262810AbTEAX47 (ORCPT
+	Thu, 1 May 2003 20:02:24 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:49290 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262817AbTEBACS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 19:56:59 -0400
-Date: Thu, 1 May 2003 17:11:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Muizelaar <kernel@infidigm.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: request_firmware() hotplug interface.
-Message-ID: <20030502001125.GA4886@kroah.com>
-References: <20030501194702.GA2997@ranty.ddts.net> <20030501201943.GA3498@kroah.com> <3EB1AE73.8070408@infidigm.net>
+	Thu, 1 May 2003 20:02:18 -0400
+Subject: Re: [Patch] DMA mapping API for Alpha
+From: "David S. Miller" <davem@redhat.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: hch@infradead.org, Marc Zyngier <mzyngier@freesurf.fr>, rth@twiddle.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030430000807.A731@localhost.park.msu.ru>
+References: <wrp65oycvrw.fsf@hina.wild-wind.fr.eu.org>
+	 <20030429150532.A3984@jurassic.park.msu.ru>
+	 <wrpvfwx5xcq.fsf@hina.wild-wind.fr.eu.org>
+	 <20030429162322.B5767@jurassic.park.msu.ru>
+	 <20030429134100.A30251@infradead.org>
+	 <20030430000807.A731@localhost.park.msu.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051786561.8772.4.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EB1AE73.8070408@infidigm.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 May 2003 03:56:01 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 01, 2003 at 07:32:03PM -0400, Jeff Muizelaar wrote:
-> Greg KH wrote:
-> 
-> >As all devices in the kernel should now be in sysfs (if not, please let
-> >me know what busses haven't been converted yet), 
-> >
-> How about plain old isa?
+On Tue, 2003-04-29 at 13:08, Ivan Kokshaysky wrote:
+> Ok, for clean dma_* implementation on alpha (and others, I guess) we need
+> to move root level IO controller data from struct pci_dev (pdev->sysdata)
+> to struct dev. Actually, the latter already has such field (platform_data)
+> but right now it's kind of parisc specific. ;-)
+> I'll look into it after short vacation (4-5 days).
 
-ISA PnP is converted, I don't think plain isa is.  I think a lack of
-hardware and usage is probably keeping this one from being converted.
+I don't know if this will really be all that nice Ivan.
 
-thanks,
+The data is different for me on PCI vs. SBUS vs. whatever.
+This knowledge of what the dev->platform_data type is has to come from
+somewhere.
 
-greg k-h
+This means device->ops->dma_*(), a level of indirection I wish terribly
+that we could avoid.  If a driver is PCI or SBUS only it should not eat
+this overhead, I should just call call sbus_*() or pci_*() and this
+vectors directly to the proper DMA routines.
+
+Doing all of this generic crap is nice for writing generic drivers,
+but terrible for what the generated code will look like.  This kind of
+stuff tends to silently accumulate, and it's really hard to delete once
+it's there.
+
+-- 
+David S. Miller <davem@redhat.com>

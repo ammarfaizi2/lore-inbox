@@ -1,61 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261699AbTCQAYF>; Sun, 16 Mar 2003 19:24:05 -0500
+	id <S261672AbTCQAXM>; Sun, 16 Mar 2003 19:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261709AbTCQAYE>; Sun, 16 Mar 2003 19:24:04 -0500
-Received: from packet.digeo.com ([12.110.80.53]:5791 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261699AbTCQAYD>;
-	Sun, 16 Mar 2003 19:24:03 -0500
-Date: Sun, 16 Mar 2003 16:34:44 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Brian Davids <dlister@yossman.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64-bk multiple oops on boot
-Message-Id: <20030316163444.4d495d59.akpm@digeo.com>
-In-Reply-To: <3E75138C.7030607@yossman.net>
-References: <3E75138C.7030607@yossman.net>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261674AbTCQAXM>; Sun, 16 Mar 2003 19:23:12 -0500
+Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:270 "HELO
+	jose.vato.org") by vger.kernel.org with SMTP id <S261672AbTCQAXL>;
+	Sun, 16 Mar 2003 19:23:11 -0500
+From: "Tim Pepper" <tpepper@vato.org>
+Date: Sun, 16 Mar 2003 16:33:58 -0800
+To: Thomas Hood <jdthood0@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org, achirica@users.sourceforge.net
+Subject: Re: Cisco Aironet 340 oops with 2.4.20
+Message-ID: <20030316163358.A25887@jose.vato.org>
+Mail-Followup-To: Tim Pepper <tpepper>, Thomas Hood <jdthood0@yahoo.co.uk>,
+	linux-kernel@vger.kernel.org, achirica@users.sourceforge.net
+References: <1047751880.4798.4.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Mar 2003 00:34:38.0015 (UTC) FILETIME=[FDBE6CF0:01C2EC1C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1047751880.4798.4.camel@thanatos>; from jdthood0@yahoo.co.uk on Sat, Mar 15, 2003 at 07:11:20PM +0100
+X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Davids <dlister@yossman.net> wrote:
->
-> I get the following oopsen during booting with 2.5.64-bk pulled at 
-> around 10 AM EST today...  system is running RedHat Phoebe 8.0.94 beta, 
-> gcc 3.2.1
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
->   printing eip:
-> c01a4c9b
-> *pde = 00000000
-> Oops: 0000
-> CPU:    0
-> EIP:    0060:[<c01a4c9b>]    Not tainted
-> EFLAGS: 00010283
-> EIP is at devfs_get_ops+0xb/0x40
+I've got a caveat to my previously posted 'works for me'.  Before I'd
+notice that my net connection was no longer moving and then see the oops
+in my log if I looked.	With the cvs driver I still tend to see that my
+net connection dies sometimes, but no oops.  I've found hotplugging the pcmcia
+card brings it back to life.
 
-Does this help?
+It seems like I hit this with either driver primarily if I've put my
+laptop to sleep earlier in its current uptime.  Is there possibly a
+deadlock somewhere around the previously oopsing code and/or the airo_cs
+interaction with apm?
 
-diff -puN fs/devfs/base.c~devfs-oops-fix fs/devfs/base.c
---- 25/fs/devfs/base.c~devfs-oops-fix	2003-03-16 16:33:16.000000000 -0800
-+++ 25-akpm/fs/devfs/base.c	2003-03-16 16:33:49.000000000 -0800
-@@ -1802,8 +1802,11 @@ int devfs_generate_path (devfs_handle_t 
- static struct file_operations *devfs_get_ops (devfs_handle_t de)
- {
-     struct file_operations *ops = de->u.cdev.ops;
--    struct module *owner = ops->owner;
-+    struct module *owner;
- 
-+    if (!ops)
-+	return NULL;
-+    owner = ops->owner;
-     read_lock (&de->parent->u.dir.lock);  /*  Prevent module from unloading  */
-     if ( (de->next == de) || !try_module_get (owner) )
-     {   /*  Entry is already unhooked or module is unloading  */
-
-_
-
+t.
+-- 
+*********************************************************
+*  tpepper@vato dot org             * Venimus, Vidimus, *
+*  http://www.vato.org/~tpepper     * Dolavimus         *
+*********************************************************

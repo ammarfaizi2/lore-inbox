@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263853AbUCZAdW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263865AbUCZAdB
+	id S263878AbUCZA5f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:57:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbUCZAx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:33:01 -0500
-Received: from mail.tpgi.com.au ([203.12.160.58]:49575 "EHLO mail2.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S263853AbUCZAGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:06:34 -0500
-Subject: Re: swsusp with highmem, testing wanted
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Reply-To: ncunningham@users.sourceforge.net
-To: Pavel Machek <pavel@suse.cz>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040325235440.GL2179@elf.ucw.cz>
-References: <20040324235702.GA497@elf.ucw.cz>
-	 <1080185300.1147.62.camel@gaston> <20040325120250.GC300@elf.ucw.cz>
-	 <1080254461.1195.40.camel@gaston> <20040325225946.GI2179@elf.ucw.cz>
-	 <1080254675.7097.16.camel@calvin.wpcb.org.au>
-	 <20040325235440.GL2179@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1080256008.7294.30.camel@calvin.wpcb.org.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2.norlug 
-Date: Fri, 26 Mar 2004 11:06:48 +1200
+	Thu, 25 Mar 2004 19:53:57 -0500
+Received: from mta04-svc.ntlworld.com ([62.253.162.44]:40937 "EHLO
+	mta04-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263856AbUCZAfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:35:33 -0500
+From: Richard Browning <richard@redline.org.uk>
+Organization: Redline Software Engineering
+To: svenud@ozemail.com.au
+Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
+Date: Fri, 26 Mar 2004 00:36:02 +0000
+User-Agent: KMail/1.6.1
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+References: <Pine.LNX.4.44.0403240740480.2318-100000@poirot.grange> <200403251304.56877.richard@redline.org.uk> <1080254860.23157.3.camel@dually>
+In-Reply-To: <1080254860.23157.3.camel@dually>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Message-Id: <200403260036.03058.richard@redline.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thursday 25 March 2004 22:47, Sven Dowideit wrote:
+> same as you - dual 2.8G Xeon - though my crash seems to be happening
+> both with and without HT :(
 
-On Fri, 2004-03-26 at 11:54, Pavel Machek wrote:
-> > 10x more code is true, but we also need to ask, how much of that is more
-> > functionality? How much is debugging code (that can be removed)? How
-> > much is comments?
-> 
-> Do you think you could strip down features + debugging etc so that
-> swsusp2 is only, say, 3x bigger than swsusp1? It would certainly make
-> merging easier.
+I'm busy with a deadline at the mo' but I'll stick in a GeForce over t'weekend 
+and see owt it goes.
 
-Well, I'll certainly clean up the debugging code. I know that much of it
-isn't needed any more. I'll try not to remove comments though :> (I know
-it's not simple and straightforward to understand how it works, so I
-want to comment it as well as I can. As I said the other day, I don't
-intend to disappear into the wild blue yonder, but I don't know what the
-future will bring).
-
-> > 10x implies there's needless bloat and that the two are otherwise
-> > equivalent. That's simply not true.
-> 
-> If I implied that I should appologize. (Sorry.) swsusp2 *has* more
-> features, many of them make it faster.
-
-No offense taken. I just wanted to make it clear we're not comparing
-apples with apples here.
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6253 0250 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
-
+R

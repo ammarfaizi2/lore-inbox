@@ -1,182 +1,208 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312896AbSDBTZ4>; Tue, 2 Apr 2002 14:25:56 -0500
+	id <S312916AbSDBTeH>; Tue, 2 Apr 2002 14:34:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312898AbSDBTZr>; Tue, 2 Apr 2002 14:25:47 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8197 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S312896AbSDBTZe>; Tue, 2 Apr 2002 14:25:34 -0500
-Date: Tue, 2 Apr 2002 21:25:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: -aa VM splitup
-Message-ID: <20020402212517.C26986@dualathlon.random>
-In-Reply-To: <20020401200202.Q1331@dualathlon.random> <Pine.LNX.4.10.10204020916560.313-100000@mikeg.wen-online.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S312901AbSDBTds>; Tue, 2 Apr 2002 14:33:48 -0500
+Received: from host225242.arnet.net.ar ([200.45.225.242]:62145 "HELO
+	abyss.thymbra.com") by vger.kernel.org with SMTP id <S312899AbSDBTda>;
+	Tue, 2 Apr 2002 14:33:30 -0500
+Message-ID: <32954.200.45.226.162.1017776187.squirrel@thymbra.com>
+Date: Tue, 2 Apr 2002 16:36:27 -0300 (ART)
+Subject: Re: IRQ routing conflicts / Assigning IRQ 0 to ethernet
+From: "Luis Falcon" <lfalcon@thymbra.com>
+To: <bryanr@bryanr.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.5)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_20020402163627_31571"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 02, 2002 at 09:28:51AM +0200, Mike Galbraith wrote:
-> Only thing interesting during testing was that 2.4.19pre5aa1
-> lost by a consistant ~15% in the move a tree around test.
+------=_20020402163627_31571
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-I'm not sure what your problem is but I made a fast check on the
-performance difference between 2.4.6 and 2.4.19pre5aa1:
+Bryan,
 
-2.4.19pre5aa1 mem=1200M:
+Thanks a lot for your response.
+In fact the IRQ routing conflict has been solved !
 
-time dd if=/dev/zero of=test bs=4096 count=$[1500*1024*1024/4096] ; time sync ; time dd if=/dev/zero of=test bs=4096 count=$[1500*1024*1024/4096] ; time sync
-384000+0 records in
-384000+0 records out
+What is still pending is the assignment of a valid IRQ to the Ethernet card
+( device 00:05.0 ) and Sound Card ( 00:07.5 ). So, at this point, the
+ethernet card doesn't work.
+ does not work.
 
-real    0m48.776s
-user    0m0.380s
-sys     0m11.850s
+Here's the latest dmesg.
 
-real    0m24.589s
-user    0m0.000s
-sys     0m0.290s
-384000+0 records in
-384000+0 records out
+Regards,
+Luis
 
-real    0m45.774s
-user    0m0.330s
-sys     0m12.190s
 
-real    0m26.813s
-user    0m0.010s
-sys     0m0.290s
 
-time dd if=test of=/dev/null bs=4096 count=$[1500*1024*1024/4096]; time dd if=test of=/dev/null bs=4096 count=$[1500*1024*1024/4096]
-384000+0 records in
-384000+0 records out
+I'm attaching the latest dmesg.
 
-real    1m2.269s
-user    0m0.250s
-sys     0m12.070s
-384000+0 records in
-384000+0 records out
+> try the latest acpi patch from http://sf.net/projects/acpi/
+>
+> -Bryan
+>
+> Luis Falcon wrote:
+>> The main problem is that it can't assign an interrupt for the
+>> controller, plus I get irq routing conflicts on other devices...
 
-real    1m2.284s
-user    0m0.240s
-sys     0m12.510s
 
-(andrew test below, just in case)
 
-time dd if=/dev/zero of=test bs=5000 count=$[1500*1024*1024/5000] ; time sync ; time dd if=/dev/zero of=test bs=5000 count=$[1500*1024*1024/5000] ; time sync
-314572+0 records in
-314572+0 records out
+------=_20020402163627_31571
+Content-Type: application/octet-stream; name="latest.dmesg"
+Content-Disposition: attachment; filename="latest.dmesg"
+Content-Transfer-Encoding: base64
 
-real    0m49.273s
-user    0m0.430s
-sys     0m12.420s
+TGludXggdmVyc2lvbiAyLjQuMTggKHJvb3RAaW5mZXJubykgKGdjYyB2ZXJzaW9uIDIuOTYgMjAw
+MDA3MzEgKFJlZCBIYXQgTGludXggNy4xIDIuOTYtOTgpKSAjNCBUdWUgQXByIDIgMTQ6MzI6NDEg
+QVJUIDIwMDIKQklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgogQklPUy1lODIwOiAwMDAw
+MDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAwMDA5ZjgwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAw
+MDAwMDAwMDlmODAwIC0gMDAwMDAwMDAwMDBhMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAw
+MDAwMDAwMDAwZWIwMDAgLSAwMDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDog
+MDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAwMWVmZjAwMDAgKHVzYWJsZSkKIEJJT1MtZTgyMDog
+MDAwMDAwMDAxZWZmMDAwMCAtIDAwMDAwMDAwMWVmZmZjMDAgKEFDUEkgZGF0YSkKIEJJT1MtZTgy
+MDogMDAwMDAwMDAxZWZmZmMwMCAtIDAwMDAwMDAwMWYwMDAwMDAgKEFDUEkgTlZTKQogQklPUy1l
+ODIwOiAwMDAwMDAwMGZmZmUwMDAwIC0gMDAwMDAwMDEwMDAwMDAwMCAocmVzZXJ2ZWQpCkFDUEk6
+IGhhdmUgd2FrZXVwIGFkZHJlc3MgMHhjMDAwMTAwMApPbiBub2RlIDAgdG90YWxwYWdlczogMTI2
+OTYwCnpvbmUoMCk6IDQwOTYgcGFnZXMuCnpvbmUoMSk6IDEyMjg2NCBwYWdlcy4Kem9uZSgyKTog
+MCBwYWdlcy4KQUNQSTogUlNEUCAodjAwMCBQVExURCAgICAgICAgICAgICAgICAgICAgICApIEAg
+MHgwMDBmNzAzMApBQ1BJOiBSU0RUICh2MDAxIFBUTFREICAgIFJTRFQgICAwMTU0MC4wMDAwMCkg
+QCAweDFlZmZiYTYyCkFDUEk6IEZBRFQgKHYwMDEgVlQ4NjAzIFRXSVNURVIgIDAxNTQwLjAwMDAw
+KSBAIDB4MWVmZmZiNjQKQUNQSTogQk9PVCAodjAwMSBQVExURCAgJFNCRlRCTCQgMDE1NDAuMDAw
+MDApIEAgMHgxZWZmZmJkOApLZXJuZWwgY29tbWFuZCBsaW5lOiBhdXRvIEJPT1RfSU1BR0U9bGlu
+dXggcm8gcm9vdD0zMDIgQk9PVF9GSUxFPS9ib290L2J6SW1hZ2UKSW5pdGlhbGl6aW5nIENQVSMw
+CkRldGVjdGVkIDk5OS44NDEgTUh6IHByb2Nlc3Nvci4KQ29uc29sZTogY29sb3VyIFZHQSsgODB4
+MjUKQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxOTkyLjI5IEJvZ29NSVBTCk1lbW9yeTogNDk3
+NTY4ay81MDc4NDBrIGF2YWlsYWJsZSAoMTE3OGsga2VybmVsIGNvZGUsIDk4ODRrIHJlc2VydmVk
+LCAzNDFrIGRhdGEsIDE5MmsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5LWNhY2hlIGhhc2ggdGFi
+bGUgZW50cmllczogNjU1MzYgKG9yZGVyOiA3LCA1MjQyODggYnl0ZXMpCklub2RlLWNhY2hlIGhh
+c2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA2LCAyNjIxNDQgYnl0ZXMpCk1vdW50LWNh
+Y2hlIGhhc2ggdGFibGUgZW50cmllczogODE5MiAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQpCdWZm
+ZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3JkZXI6IDUsIDEzMTA3MiBieXRl
+cykKUGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDEzMTA3MiAob3JkZXI6IDcsIDUyNDI4
+OCBieXRlcykKQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQsIGNhcHM6IDAzODdmOWZmIDAwMDAwMDAw
+IDAwMDAwMDAwLCB2ZW5kb3IgPSAwCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAx
+NksKQ1BVOiBMMiBjYWNoZTogMjU2SwpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAwMzg3
+ZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFUgc2VyaWFsIG51bWJlciBkaXNhYmxl
+ZC4KSW50ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3VwcG9ydGVkLgpJbnRlbCBtYWNo
+aW5lIGNoZWNrIHJlcG9ydGluZyBlbmFibGVkIG9uIENQVSMwLgpDUFU6ICAgICBBZnRlciBnZW5l
+cmljLCBjYXBzOiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6ICAgICAg
+ICAgICAgIENvbW1vbiBjYXBzOiAwMzgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApD
+UFU6IEludGVsIFBlbnRpdW0gSUlJIChDb3BwZXJtaW5lKSBzdGVwcGluZyAwYQpFbmFibGluZyBm
+YXN0IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuCkVuYWJsaW5nIHVubWFza2VkIFNJTUQg
+RlBVIGV4Y2VwdGlvbiBzdXBwb3J0Li4uIGRvbmUuCkNoZWNraW5nICdobHQnIGluc3RydWN0aW9u
+Li4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJWApBQ1BJOiBCdXMgRHJp
+dmVyIHJldmlzaW9uIDIwMDIwMzI5CkFDUEk6IENvcmUgU3Vic3lzdGVtIHJldmlzaW9uIDIwMDIw
+MzI5ClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGZkODFlLCBsYXN0IGJ1
+cz0xClBDSTogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDEKIHRieGZhY2UtMDEwMSBbMDNdIEFj
+cGlfbG9hZF90YWJsZXMgICAgICA6IEFDUEkgVGFibGVzIHN1Y2Nlc3NmdWxseSBsb2FkZWQKUGFy
+c2luZyBNZXRob2RzOi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4KMTE1IENvbnRyb2wgTWV0aG9kcyBmb3VuZCBhbmQgcGFyc2VkICg0MTEg
+bm9kZXMgdG90YWwpCkFDUEkgTmFtZXNwYWNlIHN1Y2Nlc3NmdWxseSBsb2FkZWQgYXQgcm9vdCBj
+MDJiZWY3OApldnhmZXZudC0wMDgwIFswNF0gQWNwaV9lbmFibGUgICAgICAgICAgIDogVHJhbnNp
+dGlvbiB0byBBQ1BJIG1vZGUgc3VjY2Vzc2Z1bApFeGVjdXRpbmcgYWxsIERldmljZSBfU1RBIGFu
+ZF9JTkkgbWV0aG9kczouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLgo0
+MSBEZXZpY2VzIGZvdW5kIGNvbnRhaW5pbmc6IDQxIF9TVEEsIDMgX0lOSSBtZXRob2RzCkNvbXBs
+ZXRpbmcgUmVnaW9uL0ZpZWxkL0J1ZmZlci9QYWNrYWdlIGluaXRpYWxpemF0aW9uOi4uLi4uLi4u
+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u
+LgpfaW5pdGlhbGl6ZWQgOC8xNSBSZWdpb25zIDEwLzExIEZpZWxkcyAyNi8yNyBCdWZmZXJzIDIy
+LzIyIFBhY2thZ2VzICg0MTEgbm9kZXMpCkFDUEk6IEludGVycHJldGVyIGVuYWJsZWQKQUNQSTog
+VXNpbmcgUElDIGZvciBpbnRlcnJ1cHQgcm91dGluZwpBQ1BJOiBTeXN0ZW0gW3Jvb3RdIChzdXBw
+b3J0cyBTMCBTMSBTNCBTNSkKQUNQSTogUENJIFJvb3QgQnJpZGdlIFtQQ0kwXSAoMDA6MDA6MDAu
+MDApClVua25vd24gYnJpZGdlIHJlc291cmNlIDA6IGFzc3VtaW5nIHRyYW5zcGFyZW50CkFDUEk6
+IFBDSSBJbnRlcnJ1cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5fUFJUXQogICAgICAwMDow
+MDowMVtBXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQ1swXQogICAgICAwMDowMDowN1tBXSAtPiBc
+X1NCXy5QQ0kwLlBJQl8uTE5LQVswXQogICAgICAwMDowMDowN1tCXSAtPiBcX1NCXy5QQ0kwLlBJ
+Ql8uTE5LQlswXQogICAgICAwMDowMDowN1tDXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQ1swXQog
+ICAgICAwMDowMDowN1tEXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LRFswXQogICAgICAwMDowMDow
+NVtBXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQVswXQogICAgICAwMDowMDowNltBXSAtPiBcX1NC
+Xy5QQ0kwLlBJQl8uTE5LQVswXQogICAgICAwMDowMDowQ1tBXSAtPiBcX1NCXy5QQ0kwLlBJQl8u
+TE5LQVswXQogICAgICAwMDowMDowQ1tCXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQlswXQogICAg
+ICAwMDowMDowRFtBXSAtPiBcX1NCXy5QQ0kwLlBJQl8uTE5LQVswXQpBQ1BJOiBQQ0kgSW50ZXJy
+dXB0IExpbmsgW0xOS0FdIChJUlFzICoxMCkKQUNQSTogUENJIEludGVycnVwdCBMaW5rIFtMTktC
+XSAoSVJRcyAqMTApCkFDUEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LQ10gKElSUXMgKjUpCkFD
+UEk6IFBDSSBJbnRlcnJ1cHQgTGluayBbTE5LRF0gKElSUXMgKjUpCkFDUEk6IFBDSSBJbnRlcnJ1
+cHQgUm91dGluZyBUYWJsZSBbXF9TQl8uUENJMC5QUEJfLl9QUlRdCiAgICAgIDAwOjAxOjAwW0Fd
+IC0+IFxfU0JfLlBDSTAuUElCXy5MTktBWzBdCiAgICAgIDAwOjAxOjAwW0JdIC0+IFxfU0JfLlBD
+STAuUElCXy5MTktCWzBdCiAgICAgIDAwOjAxOjAwW0NdIC0+IFxfU0JfLlBDSTAuUElCXy5MTktD
+WzBdCiAgICAgIDAwOjAxOjAwW0RdIC0+IFxfU0JfLlBDSTAuUElCXy5MTktEWzBdCkFDUEk6IFBv
+d2VyIFJlc291cmNlIFtQRkFOXSAob24pClBDSTogUHJvYmluZyBQQ0kgaGFyZHdhcmUKUENJOiBV
+c2luZyBBQ1BJIGZvciBJUlEgcm91dGluZwpQQ0k6IFZpYSBJUlEgZml4dXAgZm9yIDAwOjA3LjUs
+IGZyb20gMjU1IHRvIDAKTGludXggTkVUNC4wIGZvciBMaW51eCAyLjQKQmFzZWQgdXBvbiBTd2Fu
+c2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0eSBORVQzLjAzOQpJbml0aWFsaXppbmcgUlQg
+bmV0bGluayBzb2NrZXQKU3RhcnRpbmcga3N3YXBkCkpvdXJuYWxsZWQgQmxvY2sgRGV2aWNlIGRy
+aXZlciBsb2FkZWQKcHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwgZHJpdmVy
+IHZlcnNpb24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9QT1JUUyBTSEFSRV9JUlEgU0VS
+SUFMX1BDSSBlbmFibGVkCnR0eVMwMCBhdCAweDAzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBCnR0
+eVMwMSBhdCAweDAyZjggKGlycSA9IDMpIGlzIGEgMTY1NTBBClJlYWwgVGltZSBDbG9jayBEcml2
+ZXIgdjEuMTBlCmJsb2NrOiAxMjggc2xvdHMgcGVyIHF1ZXVlLCBiYXRjaD0zMgpVbmlmb3JtIE11
+bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMz
+TUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9
+eHgKVlBfSURFOiBJREUgY29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAzOQpWUF9JREU6IGNo
+aXBzZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHByb2Jl
+IGlycXMgbGF0ZXIKaWRlOiBBc3N1bWluZyAzM01IeiBzeXN0ZW0gYnVzIHNwZWVkIGZvciBQSU8g
+bW9kZXM7IG92ZXJyaWRlIHdpdGggaWRlYnVzPXh4ClZQX0lERTogVklBIHZ0ODJjNjg2YiAocmV2
+IDQwKSBJREUgVURNQTEwMCBjb250cm9sbGVyIG9uIHBjaTAwOjA3LjEKICAgIGlkZTA6IEJNLURN
+QSBhdCAweDEwMjAtMHgxMDI3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1BLCBoZGI6cGlvCiAgICBp
+ZGUxOiBCTS1ETUEgYXQgMHgxMDI4LTB4MTAyZiwgQklPUyBzZXR0aW5nczogaGRjOkRNQSwgaGRk
+OnBpbwpoZGE6IEZVSklUU1UgTUhOMjIwMEFULCBBVEEgRElTSyBkcml2ZQpoZGM6IFFTSSBEVkQt
+Uk9NIFNEUi0wODEsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUKaWRlMCBhdCAweDFmMC0weDFmNyww
+eDNmNiBvbiBpcnEgMTQKaWRlMSBhdCAweDE3MC0weDE3NywweDM3NiBvbiBpcnEgMTUKaGRhOiAz
+OTA3MDA4MCBzZWN0b3JzICgyMDAwNCBNQikgdy8yMDQ4S2lCIENhY2hlLCBDSFM9MjQzMi8yNTUv
+NjMsIFVETUEoMTAwKQpoZGM6IEFUQVBJIDI0WCBEVkQtUk9NIGRyaXZlLCA1MTJrQiBDYWNoZSwg
+RE1BClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpQYXJ0aXRpb24gY2hlY2s6
+CiBoZGE6IGhkYTEgaGRhMiBoZGEzCkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNCkZEQyAw
+IGlzIGEgcG9zdC0xOTkxIDgyMDc3CkxpbnV4IGFncGdhcnQgaW50ZXJmYWNlIHYwLjk5IChjKSBK
+ZWZmIEhhcnRtYW5uCmFncGdhcnQ6IE1heGltdW0gbWFpbiBtZW1vcnkgdG8gdXNlIGZvciBhZ3Ag
+bWVtb3J5OiA0MjRNCmFncGdhcnQ6IFVuc3VwcG9ydGVkIFZpYSBjaGlwc2V0IChkZXZpY2UgaWQ6
+IDA2MDUpLCB5b3UgbWlnaHQgd2FudCB0byB0cnkgYWdwX3RyeV91bnN1cHBvcnRlZD0xLgphZ3Bn
+YXJ0OiBubyBzdXBwb3J0ZWQgZGV2aWNlcyBmb3VuZC4KTGludXggS2VybmVsIENhcmQgU2Vydmlj
+ZXMgMy4xLjIyCiAgb3B0aW9uczogIFtwY2ldIFtjYXJkYnVzXQp1c2IuYzogcmVnaXN0ZXJlZCBu
+ZXcgZHJpdmVyIGh1YgpzcHVyaW91cyA4MjU5QSBpbnRlcnJ1cHQ6IElSUTcuClllbnRhIElSUSBs
+aXN0IDA4ODAsIFBDSSBpcnExMApTb2NrZXQgc3RhdHVzOiAzMDAwMDAwNgpZZW50YSBJUlEgbGlz
+dCAwODgwLCBQQ0kgaXJxMTAKU29ja2V0IHN0YXR1czogMzAwMDA0MTAKdWhjaS5jOiBVU0IgVW5p
+dmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZhY2UgZHJpdmVyIHYxLjEKdWhjaS5jOiBVU0Ig
+VUhDSSBhdCBJL08gMHgxMDAwLCBJUlEgNQp1c2IuYzogbmV3IFVTQiBidXMgcmVnaXN0ZXJlZCwg
+YXNzaWduZWQgYnVzIG51bWJlciAxCmh1Yi5jOiBVU0IgaHViIGZvdW5kCmh1Yi5jOiAyIHBvcnRz
+IGRldGVjdGVkCk5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9yIE5FVDQuMApJUCBQcm90b2NvbHM6
+IElDTVAsIFVEUCwgVENQLCBJR01QCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNDA5
+NiBidWNrZXRzLCAzMktieXRlcwpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQgKGVzdGFibGlz
+aGVkIDMyNzY4IGJpbmQgMzI3NjgpCk5FVDQ6IFVuaXggZG9tYWluIHNvY2tldHMgMS4wL1NNUCBm
+b3IgTGludXggTkVUNC4wLgpram91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBz
+ZWNvbmRzCkVYVDMtZnM6IG1vdW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2Rl
+LgpWRlM6IE1vdW50ZWQgcm9vdCAoZXh0MyBmaWxlc3lzdGVtKSByZWFkb25seS4KRnJlZWluZyB1
+bnVzZWQga2VybmVsIG1lbW9yeTogMTkyayBmcmVlZApBZGRpbmcgU3dhcDogMTAxMjA4NGsgc3dh
+cC1zcGFjZSAocHJpb3JpdHkgLTEpCkVYVDMgRlMgMi40LTAuOS4xNywgMTAgSmFuIDIwMDIgb24g
+aWRlMCgzLDIpLCBpbnRlcm5hbCBqb3VybmFsCmtqb3VybmFsZCBzdGFydGluZy4gIENvbW1pdCBp
+bnRlcnZhbCA1IHNlY29uZHMKRVhUMyBGUyAyLjQtMC45LjE3LCAxMCBKYW4gMjAwMiBvbiBpZGUw
+KDMsMSksIGludGVybmFsIGpvdXJuYWwKRVhUMy1mczogbW91bnRlZCBmaWxlc3lzdGVtIHdpdGgg
+b3JkZXJlZCBkYXRhIG1vZGUuCmNzOiBJTyBwb3J0IHByb2JlIDB4MGMwMC0weDBjZmY6IGNsZWFu
+LgpjczogSU8gcG9ydCBwcm9iZSAweDAxMDAtMHgwNGZmOiBleGNsdWRpbmcgMHgzNzgtMHgzN2Yg
+MHg0ZDAtMHg0ZDcKY3M6IElPIHBvcnQgcHJvYmUgMHgwYTAwLTB4MGFmZjogY2xlYW4uCmNzOiBt
+ZW1vcnkgcHJvYmUgMHhhMDAwMDAwMC0weGEwZmZmZmZmOiBjbGVhbi4KeGlyYzJwc19jcy5jIDEu
+MzEgMTk5OC8xMi8wOSAxOTozMjo1NSAoZGQ5am4ra3ZoKQpldGgwOiBNSUkgbGluayBwYXJ0bmVy
+OiBmZmZmCmV0aDA6IE1JSSBzZWxlY3RlZApldGgwOiBtZWRpYSAxMDBCYXNlVCwgc2lsaWNvbiBy
+ZXZpc2lvbiA1CmV0aDA6IFhpcmNvbTogcG9ydCAweDMwMCwgaXJxIDExLCBod2FkZHIgMDA6MTA6
+QTQ6QjY6MDM6MUUKdHR5UzAzIGF0IHBvcnQgMHgwMmU4IChpcnEgPSAxMSkgaXMgYSAxNjU1MEEK
+ZXRoMDogTUlJIGxpbmsgcGFydG5lcjogMDVlMQpldGgwOiBNSUkgc2VsZWN0ZWQKZXRoMDogbWVk
+aWEgMTAwQmFzZVQsIHNpbGljb24gcmV2aXNpb24gMApDU0xJUDogY29kZSBjb3B5cmlnaHQgMTk4
+OSBSZWdlbnRzIG9mIHRoZSBVbml2ZXJzaXR5IG9mIENhbGlmb3JuaWEKUFBQIGdlbmVyaWMgZHJp
+dmVyIHZlcnNpb24gMi40LjEKZXRoMDogTUlJIGxpbmsgcGFydG5lcjogMDVlMQpldGgwOiBNSUkg
+c2VsZWN0ZWQKZXRoMDogbWVkaWEgMTAwQmFzZVQsIHNpbGljb24gcmV2aXNpb24gNQoKQXByICAy
+IDE2OjA1OjIyIGluZmVybm8ga2VybmVsOiBQQ0k6IEVuYWJsaW5nIGRldmljZSAwMDowNS4wICgw
+MDAwIC0+IDAwMDMpCkFwciAgMiAxNjowNToyMiBpbmZlcm5vIGtlcm5lbDogUENJOiBObyBJUlEg
+a25vd24gZm9yIGludGVycnVwdCBwaW4gQSBvZiBkZXZpY2UKMDA6MDUuMC4gUGxlYXNlIHRyeSB1
+c2luZyBwY2k9Ymlvc2lycS4KQXByICAyIDE2OjA1OjIyIGluZmVybm8ga2VybmVsOiBQQ0k6IFNl
+dHRpbmcgbGF0ZW5jeSB0aW1lciBvZiBkZXZpY2UgMDA6MDUuMCB0bwo2NApBcHIgIDIgMTY6MDU6
+MjIgaW5mZXJubyBrZXJuZWw6IGV0aDE6IEFETXRlayBDb21ldCByZXYgMTcgYXQgMHgxYzAwLCAw
+MDo5MDo5NjoxRDpEOTowRiwgSVJRIDAuCg==
 
-real    0m25.064s
-user    0m0.000s
-sys     0m0.300s
-314572+0 records in
-314572+0 records out
+------=_20020402163627_31571--
 
-real    0m49.567s
-user    0m0.350s
-sys     0m12.070s
-
-real    0m25.618s
-user    0m0.010s
-sys     0m0.320s
-
-official 2.4.6 mem=1200M:
-
-time dd if=/dev/zero of=test bs=4096 count=$[1500*1024*1024/4096] ; time sync ; time dd if=/dev/zero of=test bs=4096 count=$[1500*1024*1024/4096] ; time sync
-384000+0 records in
-384000+0 records out
-
-real    0m37.425s
-user    0m0.590s
-sys     0m14.900s
-
-real    0m33.751s
-user    0m0.000s
-sys     0m0.100s
-384000+0 records in
-384000+0 records out
-
-real    0m34.182s
-user    0m0.500s
-sys     0m14.780s
-
-real    0m35.487s
-user    0m0.000s
-sys     0m0.160s
-
-time dd if=test of=/dev/null bs=4096 count=$[1500*1024*1024/4096]; time dd if=test of=/dev/null bs=4096 count=$[1500*1024*1024/4096]
-384000+0 records in
-384000+0 records out
-
-real    1m2.978s
-user    0m0.230s
-sys     0m11.330s
-384000+0 records in
-384000+0 records out
-
-real    1m2.660s
-user    0m0.290s
-sys     0m11.050s
-
-time dd if=/dev/zero of=test bs=5000 count=$[1500*1024*1024/5000] ; time sync ; time dd if=/dev/zero of=test bs=5000 count=$[1500*1024*1024/5000] ; time sync
-314572+0 records in
-314572+0 records out
-
-real    0m37.602s
-user    0m0.450s
-sys     0m15.270s
-
-real    0m36.123s
-user    0m0.000s
-sys     0m0.180s
-314572+0 records in
-314572+0 records out
-
-real    0m36.118s
-user    0m0.460s
-sys     0m15.820s
-
-real    0m33.486s
-user    0m0.020s
-sys     0m0.160s
-
-As you can see the write/read raw performance is the same, dominated
-only by raw disk speed. I'm not sure how can you write or read to disk
-faster with 2.4.6. Also note that raw speed with total cache trashing is
-quite unrelated to the VM if balance_dirty()/bdflush works sanely.
-
-One thing that cames to mind is the fact the old 2.4.6 balance_dirty()
-was passing over .ndirty buffers before breaking the loop, now we stop
-much earlier, so we may take less advantage of some cpu cache doing so,
-that may matter on slow cpu machines, for my box clearly doesn't matter.
-
-Are you sure the 15% of performance you're talking about isn't your disk
-that keeps writing when your workload finishes? I mean, see the sync
-time, it decreases because the latest kernels have lower bdflush sync
-percentages, that's normal and expected. You should take the sync time
-into account too of course. If you want the level of dirty buffers in
-the system to be larger you only need to tweak bdflush, the default has
-to be conservative to be fair with the users that are only reading.
-
-The difference between 2.4.6 and the latest VM code should kick in when
-the VM really starts to matter.
-
-It is possible that your read/write mixed workload gets the elevator
-into the equation too. But the most important thing is that raw
-read/write speed with total cache trashing is fast, and that's the case,
-so whatever involvement with mixed read/write load it has to be only an
-elevator thing or a bdflush tuning parameter changable via sysctl.
-
-Andrea

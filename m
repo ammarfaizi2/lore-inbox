@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311594AbSCaE14>; Sat, 30 Mar 2002 23:27:56 -0500
+	id <S311600AbSCaFdS>; Sun, 31 Mar 2002 00:33:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311600AbSCaE1p>; Sat, 30 Mar 2002 23:27:45 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:55690 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S311594AbSCaE1i>; Sat, 30 Mar 2002 23:27:38 -0500
-Message-ID: <3CA6819F.3090007@wanadoo.fr>
-Date: Sun, 31 Mar 2002 05:25:19 +0200
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
+	id <S311618AbSCaFdJ>; Sun, 31 Mar 2002 00:33:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58640 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311600AbSCaFcz>;
+	Sun, 31 Mar 2002 00:32:55 -0500
+Message-ID: <3CA69F33.90B37E83@zip.com.au>
+Date: Sat, 30 Mar 2002 21:31:31 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Timothy Murphy <tim@birdsnest.maths.tcd.ie>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.7
-In-Reply-To: <20020330232307.A2673@birdsnest.maths.tcd.ie>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] fix loop deadlock
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Murphy wrote:
-> I'm sure this has been recognised,
-> but I would point out that sys_nfsservctl is not "undefined"
-> if NFSD is not chosen.
+2.5 is missing a chunk from 2.4
 
-I've noticed 2.5.7 fails to build without tcp/ip enabled :
-sock.c:559: `TCP_LISTEN' undeclared
-sock.c:1192: `TCP_CLOSE' undeclared
-*and* without nfs choosen for the reason you give.
+--- 2.5.7/fs/buffer.c~loop-deadlock	Sat Mar 30 21:18:13 2002
++++ 2.5.7-akpm/fs/buffer.c	Sat Mar 30 21:18:22 2002
+@@ -992,7 +992,7 @@ static int balance_dirty_state(void)
+ 
+ 	/* First, check for the "real" dirty limit. */
+ 	if (dirty > soft_dirty_limit) {
+-		if (dirty > hard_dirty_limit)
++		if (dirty > hard_dirty_limit && !(current->flags & PF_NOIO))
+ 			return 1;
+ 		return 0;
+ 	}
 
-Pierre
--- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
 
+>From an efficiency POV loop is looking rather hilarious:
+
+c013da84 kmem_cache_alloc                             30   0.0355
+c0239bc0 __make_request                               41   0.0321
+c02457e0 transfer_none                                90   1.2500
+c0148480 create_bounce                               171   0.2007
+c0138a00 generic_file_write                          305   0.1540
+c014d558 write_some_buffers                        10028  28.4886
+c0151db5 .text.lock.buffer                         29229  47.2197
+00000000 total                                     40308   0.0195
+
+Probably we can fix this using the BH_Launder bit from
+Andrea's kit.
+
+-

@@ -1,179 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262924AbSKYMSt>; Mon, 25 Nov 2002 07:18:49 -0500
+	id <S263026AbSKYMZD>; Mon, 25 Nov 2002 07:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262959AbSKYMSt>; Mon, 25 Nov 2002 07:18:49 -0500
-Received: from web14102.mail.yahoo.com ([216.136.172.132]:1344 "HELO
-	web14102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262924AbSKYMSr>; Mon, 25 Nov 2002 07:18:47 -0500
-Message-ID: <20021125122602.47257.qmail@web14102.mail.yahoo.com>
-Date: Mon, 25 Nov 2002 04:26:02 -0800 (PST)
-From: Helmut Apfelholz <helmutapfel@yahoo.com>
-Subject: 2.40.20-rc2 oops
+	id <S263039AbSKYMZD>; Mon, 25 Nov 2002 07:25:03 -0500
+Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:8833
+	"EHLO www.piet.net") by vger.kernel.org with ESMTP
+	id <S263026AbSKYMZC>; Mon, 25 Nov 2002 07:25:02 -0500
+Date: Mon, 25 Nov 2002 04:32:19 -0800
+From: Piet/Pete Delaney <piet@www.piet.net>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Cc: Piet Delaney <piet@www.piet.net>, Andrew Morton <akpm@digeo.com>
+Subject: aic7xxx driver potentially sleeping with spin lock held in linux-2.5.48 (mm1 patch)
+Message-ID: <20021125123219.GA3103@www.piet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I've seen following oops today on my server UP server.
-The kernel has modules disabled. This is UP PIII, 1Gb,
-3ware 8 port card.
+I'm getting a scsi problem in the  aic7xxx driver sleeping while the preempt_count() != 0. 
+Looks like we are holding a spinlock where the slab allocator could go to sleep. 
 
-Please advice.
+======================================================================================================================================================================================== 
+                                                            linux-2.5.48 with mm1 patch without SMP Enabled
+======================================================================================================================================================================================== 
+(gdb) where 
+#0  printk (fmt=0xc3fb1d48 " 
+#1  0xc0108f9b in dump_stack () at arch/i386/kernel/traps.c:232 
+#2  0xc0115be8 in __might_sleep (file=0xc035a28e "mm/slab.c", line=1304) at kernel/sched.c:2254 
+#3  0xc012ecef in kmem_flagcheck (cachep=0xc3fff440, flags=496) at mm/slab.c:1304 
+#4  0xc012f584 in kmalloc (size=104, flags=496) at mm/slab.c:1636 
+#5  0xc029104d in aic7xxx_alloc_aic_dev (p=0xc3f7d56c, SDptr=0xc3ed3c00) at drivers/scsi/aic7xxx_old.c:6636 
+#6  0xc029717d in aic7xxx_queue (cmd=0xc3efca00, fn=0xc0280f04 <scsi_done>) at drivers/scsi/aic7xxx_old.c:10341 
+#7  0xc0280a26 in scsi_dispatch_cmd (SCpnt=0xc3efca00) at drivers/scsi/scsi.c:852                                <--- spin lock grabed at Line 851 just prior to call to queuecommand() 
+#8  0xc0285ed2 in scsi_request_fn (q=0xc3ed3c28) at drivers/scsi/scsi_lib.c:1061 
+#9  0xc0253715 in blk_insert_request (q=0xc3ed3c28, rq=0xc3efc88c, at_head=0, data=0xc3efc800) at drivers/block/ll_rw_blk.c:1456 
+#10 0xc02852b7 in scsi_insert_special_req (SRpnt=0xc3efc800, at_head=0) at drivers/scsi/scsi_lib.c:112 
+#11 0xc0280c35 in scsi_do_req (SRpnt=0xc3efc800, cmnd=0xc3fb1ee8, buffer=0xc0549ed4, bufflen=36, done=0xc02802ec <scsi_wait_done>, timeout=6000, retries=3) at drivers/scsi/scsi.c:1022 
+#12 0xc0280b6d in scsi_wait_req (SRpnt=0xc3efc800, cmnd=0xc3fb1ee8, buffer=0xc0549ed4, bufflen=36, timeout=6000, retries=3) at drivers/scsi/scsi.c:912 
+#13 0xc0286c63 in scsi_probe_lun (sreq=0xc3efc800, inq_result=0xc0549ed4 "", bflags=0xc3fb1f1c) at drivers/scsi/scsi_scan.c:1142 
+#14 0xc0287165 in scsi_probe_and_add_lun (sdevscan=0xc3ed3c00, sdevnew=0x0, bflagsp=0xc3fb1f3c) at drivers/scsi/scsi_scan.c:1485 
+#15 0xc0287679 in scsi_scan_target (sdevscan=0xc3ed3c00, shost=0xc3f7d400, channel=0, id=0) at drivers/scsi/scsi_scan.c:1906 
+#16 0xc028779e in scan_scsis (shost=0xc3f7d400, hardcoded=0, hchannel=0, hid=0, hlun=0) at drivers/scsi/scsi_scan.c:2031 
+#17 0xc02824fd in scsi_add_host (shost=0xc3f7d400) at drivers/scsi/hosts.c:311 
+#18 0xc028298b in scsi_register_host (shost_tp=0xc04422a0) at drivers/scsi/hosts.c:552 
+#19 0xc04f2f59 in init_this_scsi_driver () at drivers/scsi/scsi_module.c:38 
+#20 0xc04e26e4 in do_initcalls () at init/main.c:467 
+#21 0xc04e2713 in do_basic_setup () at init/main.c:492 
+#22 0xc0105096 in init (unused=0x0) at init/main.c:529 
+(gdb) 
+========================================================================================================================================================================================= 
 
-TIA
-Helmut
+The scsi adapter is likely disabled (I'm not using it). The same configuration is 
+working fine with the Redhat 8.0 linux-2.4.18-14 kernel NON-SMP kernel.  The 2.4.18-14 
+SMP kernel however isn't booting. 
 
-> ksymoops 2.4.4 on i686 2.4.20-rc2.  Options used
->      -v vmlinux (specified)
->      -K (specified)
->      -L (specified)
->      -o /lib/modules/2.4.20-rc2/ (default)
->      -m System.map (specified)
-> 
-> No modules in ksyms, skipping objects
-> Nov 25 10:50:59 x5 kernel: Unable to handle kernel
-> paging request at virtual address 09771a94
-> Nov 25 10:50:59 x5 kernel: c012d3f2
-> Nov 25 10:50:59 x5 kernel: *pde = 00000000
-> Nov 25 10:50:59 x5 kernel: Oops: 0000
-> Nov 25 10:50:59 x5 kernel: CPU:    0
-> Nov 25 10:50:59 x5 kernel: EIP:    0010:[<c012d3f2>]
->    Not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> Nov 25 10:50:59 x5 kernel: EFLAGS: 00010206
-> Nov 25 10:50:59 x5 kernel: eax: 09771a88   ebx:
-> 00000000   ecx: 00000000   edx: c027b768
-> Nov 25 10:50:59 x5 kernel: esi: d98312e0   edi:
-> 00001000   ebp: 00001000   esp: c2e79f90
-> Nov 25 10:50:59 x5 kernel: ds: 0018   es: 0018   ss:
-> 0018
-> Nov 25 10:50:59 x5 kernel: Process pop3d (pid: 2908,
-> stackpage=c2e79000)
-> Nov 25 10:50:59 x5 kernel: Stack: fffffffd c011508b
-> 00000046 c2e79fc4 0000000a c0273a40 dfa882e0
-> c010831c 
-> Nov 25 10:50:59 x5 kernel:        c2e78000 00001000
-> 0806e6a0 bfffc3c8 c0106d93 00000001 0806e6a0
-> 00001000 
-> Nov 25 10:50:59 x5 kernel:        00001000 0806e6a0
-> bfffc3c8 00000004 c010002b 0000002b 00000004
-> 420dace4 
-> Nov 25 10:50:59 x5 kernel: Call Trace:   
-> [<c011508b>] [<c010831c>] [<c0106d93>]
-> Nov 25 10:50:59 x5 kernel: Code: 8b 58 0c 8b 43 08
-> f6 80 f0 00 00 00 02 74 2a 85 db 74 12 8b 
-> 
-> >>EIP; c012d3f2 <sys_write+a2/f0>   <=====
-> Trace; c011508b <do_softirq+4b/90>
-> Trace; c010831c <do_IRQ+9c/b0>
-> Trace; c0106d93 <system_call+33/38>
-> Code;  c012d3f2 <sys_write+a2/f0>
-> 00000000 <_EIP>:
-> Code;  c012d3f2 <sys_write+a2/f0>   <=====
->    0:   8b 58 0c                  mov   
-> 0xc(%eax),%ebx   <=====
-> Code;  c012d3f5 <sys_write+a5/f0>
->    3:   8b 43 08                  mov   
-> 0x8(%ebx),%eax
-> Code;  c012d3f8 <sys_write+a8/f0>
->    6:   f6 80 f0 00 00 00 02      testb 
-> $0x2,0xf0(%eax)
-> Code;  c012d3ff <sys_write+af/f0>
->    d:   74 2a                     je     39
-> <_EIP+0x39> c012d42b <sys_write+db/f0>
-> Code;  c012d401 <sys_write+b1/f0>
->    f:   85 db                     test   %ebx,%ebx
-> Code;  c012d403 <sys_write+b3/f0>
->   11:   74 12                     je     25
-> <_EIP+0x25> c012d417 <sys_write+c7/f0>
-> Code;  c012d405 <sys_write+b5/f0>
->   13:   8b 00                     mov    (%eax),%eax
-> 
-> Nov 25 10:50:59 x5 kernel:  <1>Unable to handle
-> kernel paging request at virtual address 09771ae4
-> Nov 25 10:50:59 x5 kernel: c012ce8a
-> Nov 25 10:50:59 x5 kernel: *pde = 00000000
-> Nov 25 10:50:59 x5 kernel: Oops: 0000
-> Nov 25 10:50:59 x5 kernel: CPU:    0
-> Nov 25 10:50:59 x5 kernel: EIP:    0010:[<c012ce8a>]
->    Not tainted
-> Nov 25 10:50:59 x5 kernel: EFLAGS: 00010206
-> Nov 25 10:50:59 x5 kernel: eax: 09771ac0   ebx:
-> d98312e0   ecx: 00000032   edx: d98312e0
-> Nov 25 10:50:59 x5 kernel: esi: 00000000   edi:
-> d96c6880   ebp: 00000000   esp: c2e79e34
-> Nov 25 10:50:59 x5 kernel: ds: 0018   es: 0018   ss:
-> 0018
-> Nov 25 10:50:59 x5 kernel: Process pop3d (pid: 2908,
-> stackpage=c2e79000)
-> Nov 25 10:50:59 x5 kernel: Stack: 000007ff d96c6880
-> 00000001 c011385c d98312e0 d96c6880 00000000
-> d97aaca0 
-> Nov 25 10:50:59 x5 kernel:        c2e78000 0000000b
-> c0113e48 d96c6880 00000000 0000001f df00df64
-> c2e79f5c 
-> Nov 25 10:50:59 x5 kernel:        c01fe0ae 09771a94
-> c02086b8 c0200018 c01f0018 ffffff00 c0107339
-> 00000010 
-> Nov 25 10:50:59 x5 kernel: Call Trace:   
-> [<c011385c>] [<c0113e48>] [<c01f0018>] [<c0107339>]
-> [<c010f6f7>]
-> Nov 25 10:50:59 x5 kernel:   [<c01e8205>]
-> [<c01b46dc>] [<c0120f4f>] [<c01b48f7>] [<c010f380>]
-> [<c0106e84>]
-> Nov 25 10:50:59 x5 kernel:   [<c012d3f2>]
-> [<c011508b>] [<c010831c>] [<c0106d93>]
-> Nov 25 10:50:59 x5 kernel: Code: 8b 50 24 85 d2 74
-> 07 53 ff 50 24 59 89 c6 57 53 e8 41 3c 01 
-> 
-> >>EIP; c012ce8a <filp_close+2a/60>   <=====
-> Trace; c011385c <put_files_struct+4c/d0>
-> Trace; c0113e48 <do_exit+a8/210>
-> Trace; c01f0018 <unix_release_sock+38/1d0>
-> Trace; c0107339 <die+59/70>
-> Trace; c010f6f7 <do_page_fault+377/4ab>
-> Trace; c01e8205 <inet_sendmsg+35/40>
-> Trace; c01b46dc <sock_sendmsg+6c/90>
-> Trace; c0120f4f <do_generic_file_read+22f/430>
-> Trace; c01b48f7 <sock_write+a7/c0>
-> Trace; c010f380 <do_page_fault+0/4ab>
-> Trace; c0106e84 <error_code+34/3c>
-> Trace; c012d3f2 <sys_write+a2/f0>
-> Trace; c011508b <do_softirq+4b/90>
-> Trace; c010831c <do_IRQ+9c/b0>
-> Trace; c0106d93 <system_call+33/38>
-> Code;  c012ce8a <filp_close+2a/60>
-> 00000000 <_EIP>:
-> Code;  c012ce8a <filp_close+2a/60>   <=====
->    0:   8b 50 24                  mov   
-> 0x24(%eax),%edx   <=====
-> Code;  c012ce8d <filp_close+2d/60>
->    3:   85 d2                     test   %edx,%edx
-> Code;  c012ce8f <filp_close+2f/60>
->    5:   74 07                     je     e
-> <_EIP+0xe> c012ce98 <filp_close+38/60>
-> Code;  c012ce91 <filp_close+31/60>
->    7:   53                        push   %ebx
-> Code;  c012ce92 <filp_close+32/60>
->    8:   ff 50 24                  call   *0x24(%eax)
-> Code;  c012ce95 <filp_close+35/60>
->    b:   59                        pop    %ecx
-> Code;  c012ce96 <filp_close+36/60>
->    c:   89 c6                     mov    %eax,%esi
-> Code;  c012ce98 <filp_close+38/60>
->    e:   57                        push   %edi
-> Code;  c012ce99 <filp_close+39/60>
->    f:   53                        push   %ebx
-> Code;  c012ce9a <filp_close+3a/60>
->   10:   e8 41 3c 01 00            call   13c56
-> <_EIP+0x13c56> c0140ae0 <dnotify_flush+0/60>
-> 
+-- 
+piet@www.piet.net
 
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus – Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com

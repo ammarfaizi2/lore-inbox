@@ -1,86 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUFTWYo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUFTW0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265970AbUFTWYo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 18:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUFTWYo
+	id S265971AbUFTW0V (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 18:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265973AbUFTW0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 18:24:44 -0400
-Received: from cantor.suse.de ([195.135.220.2]:6813 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265970AbUFTWYg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 18:24:36 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SUSE Labs
-To: Martin Schlemmer <azarah@nosferatu.za.org>
+	Sun, 20 Jun 2004 18:26:21 -0400
+Received: from wblv-235-33.telkomadsl.co.za ([165.165.235.33]:23479 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265971AbUFTWZ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 18:25:58 -0400
 Subject: Re: [PATCH 0/2] kbuild updates
-Date: Mon, 21 Jun 2004 00:26:43 +0200
-User-Agent: KMail/1.6.2
-Cc: arjanv@redhat.com, Sam Ravnborg <sam@ravnborg.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       Andreas Gruenbacher <agruen@suse.de>,
        Geert Uytterhoeven <geert@linux-m68k.org>,
        Kai Germaschewski <kai@germaschewski.name>
-References: <20040620211905.GA10189@mars.ravnborg.org> <1087767752.2805.18.camel@laptop.fenrus.com> <1087768362.14794.53.camel@nosferatu.lan>
-In-Reply-To: <1087768362.14794.53.camel@nosferatu.lan>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406210026.43988.agruen@suse.de>
+In-Reply-To: <20040620221824.GA10586@mars.ravnborg.org>
+References: <20040620211905.GA10189@mars.ravnborg.org>
+	 <1087767034.14794.42.camel@nosferatu.lan>
+	 <20040620220319.GA10407@mars.ravnborg.org>
+	 <20040620221824.GA10586@mars.ravnborg.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-h/t8mXIf+kgMMRRAFCfJ"
+Message-Id: <1087770318.14794.76.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 21 Jun 2004 00:25:18 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 20 June 2004 23:52, Martin Schlemmer wrote:
-> On Sun, 2004-06-20 at 23:42, Arjan van de Ven wrote:
-> > > Given, but to 'use' the kbuild infrastructure, you must still call it
-> > > via:
-> > >
-> > >   make -C _path_to_sources M=`pwd`
-> >
-> > I see no problem with requiring this though; requiring a correct
-> > makefile is perfectly fine with me, and this is the only and documented
-> > way for 2.6 already.
-> > (And it's also the only way to build modules against Fedora Core 2
-> > kernels by the way)
->
-> I did not mean I have a problem with that.  Say you take svgalib, and
-> you want the build system to automatically compile the kernel module,
-> you might do something like:
->
-> ---
-> build_2_6_module:
-> 	@make -C /lib/modules/`uname -r`/build M=`PWD`
-> ---
->
-> will break with proposed patch ...
 
-No it won't.
+--=-h/t8mXIf+kgMMRRAFCfJ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-You always need to figure out $(objtree) to build external modules, with or 
-without a separate output directory. Many modules don't need to know 
-$(srctree) explicitly at all.
+On Mon, 2004-06-21 at 00:18, Sam Ravnborg wrote:
+> On Mon, Jun 21, 2004 at 12:03:19AM +0200, Sam Ravnborg wrote:
+> > If I get just one good example I will go for the object directory, but
+> > what I have seen so far is whining - no examples.
+>=20
+> Now I recall why I did not like the object directory.
+> I will break all modules using the kbuild infrastructure!
+>=20
 
-In case you want to do something depending on the sources/confguration, there 
-are two ways:
-  - follow the new source symlink,
-  - let kbuild take you to $(srctree): When the makefile in the M directory
-    is included, the current working directory is $(srctree). besides, all the
-    usual variables like $(srctree), $(objtree), CONFIG_* variables, etc. are
-    all available. That's a good time to check for features, etc.
+Below do not really explain this - care to be more detailed?
 
-> And the point I wanted to make was that AFIAK
-> '/lib/modules/`uname -r`/build' is an interface to figure
-> out where the _sources_ for the current running kernel are
-> located.
+> Why, because there is no way the to find the output directory except
+> specifying both directories.
+> One could do:
+> make -C /lib/modules/`uname -r`/source O=3D/lib/modules/`uname -r`/build =
+M=3D`pwd`
+>=20
 
-That's a misconception. At the minimum, you want to be able to build the 
-module. Directly messing with the sources is usually wrong. I know external 
-module authors like to do that nevertheless; in a few cases it's actually 
-useful. Most of the time it really is not. Most external modules have totally 
-braindead/broken makefiles.
+Huh?  Explain to me how else you would do builds that have separate
+output directory?  And what is the difference from above to:
 
-Regards,
--- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
+make -C /lib/modules/`uname -r`/build O=3D/lib/modules/`uname -r`/object M=
+=3D`pwd`
+
+except that you will _not_ cause existing stuff to break?
+
+> So the currect choice is:
+> 1) Break modules that actually dive into the src, grepping, including or =
+whatever
+> 2) Break all modules using kbuild infrastructure, including the above one=
+s
+>=20
+> I go for 1), introducing minimal breakage.
+>=20
+> And please keep in mind. The breakage wil _only_ be visible when kernels =
+are
+> shipped with separate output directory.
+
+How is that?  In both cases the 'build' symlink do not point to the
+source anymore.
+
+> If kernels are shipped with no output files at all then one can just
+> compile the kernel. Seems to be the Fedora way. No breakage happens.
+>=20
+> If kernels are shipped with mixed source and output then no breakage happ=
+ens.
+>=20
+> If kernels are shipped with separate source and output then we better bre=
+ak
+> as few modules as possible. And the introduced change actually minimize b=
+reakage.
+>=20
+> So the patch will not change.
+>=20
+> 	Sam
+--=20
+Martin Schlemmer
+
+--=-h/t8mXIf+kgMMRRAFCfJ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBA1g7OqburzKaJYLYRAtWOAJ4nkcOkGw/gtnUfUgkQ7mZsuSi+rACfW2nw
+DtRZZrU9gJheWMePzXheh0o=
+=oY+p
+-----END PGP SIGNATURE-----
+
+--=-h/t8mXIf+kgMMRRAFCfJ--
+

@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289658AbSAKJwp>; Fri, 11 Jan 2002 04:52:45 -0500
+	id <S288428AbSAKJya>; Fri, 11 Jan 2002 04:54:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289588AbSAKJwa>; Fri, 11 Jan 2002 04:52:30 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:52937 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289051AbSAKJwP>; Fri, 11 Jan 2002 04:52:15 -0500
-Message-Id: <200201110952.g0B9q8Y03754@jupiter.cs.uni-dortmund.de>
-To: Bernard Dautrevaux <Dautrevaux@microprocess.com>
-cc: "'gcc@gcc.gnu.org'" <gcc@gcc.gnu.org>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] C undefined behavior fix 
-In-Reply-To: Message from Bernard Dautrevaux <Dautrevaux@microprocess.com> 
-   of "Tue, 08 Jan 2002 12:12:58 +0100." <17B78BDF120BD411B70100500422FC6309E409@IIS000> 
-From: Horst von Brand <brand@tigger.cs.uni-dortmund.de>
-Date: Fri, 11 Jan 2002 10:52:08 +0100
+	id <S289124AbSAKJyU>; Fri, 11 Jan 2002 04:54:20 -0500
+Received: from ns.suse.de ([213.95.15.193]:42509 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289051AbSAKJyM>;
+	Fri, 11 Jan 2002 04:54:12 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de.suse.lists.linux.kernel> <E16Oocq-0005tX-00@the-village.bc.nu.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 11 Jan 2002 10:54:07 +0100
+In-Reply-To: Alan Cox's message of "11 Jan 2002 00:22:35 +0100"
+Message-ID: <p737kqpp60w.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernard Dautrevaux <Dautrevaux@microprocess.com> said:
-
-[...]
-
-> So at least for the first test, gcc-3.1 generates the same (anoying) code as
-> 2.95.3. I'm quite sure this is legal, as I can't see in the standard if when
-> writing:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 > 
-> 	volatile unsigned int x:8;
-> 
-> I define:
-> 	1) a volatile 8-bit field to be interpreted as an unsigned int.
-> 	2) an 8-bit field which is part of a volatile unsigned int.
+> The kernel isnt there to fix up the fact authors can't read. Its also very
+> hard to get emulations right. I grant that this wasn't helped by the fact
+> the gcc x86 folks also couldnt read the pentium pro manual correctly.
 
-If the whole is volatile (x must be inside a struct) make that volatile.
-Sounds quite natural to me...
--- 
-Horst von Brand			     http://counter.li.org # 22616
+One corner case where emulation would IMHO make sense would be CMPXCHG8.
+It would allow to do efficient inline mutexes in pthreads, and hit the
+emulation only on 386/486. cpu feature flag checking is unfortunately
+not an option normally for inline code.
+
+-Andi (who would have already done it if he had an 486/386 to test) 

@@ -1,46 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267389AbTAGORi>; Tue, 7 Jan 2003 09:17:38 -0500
+	id <S267399AbTAGO2k>; Tue, 7 Jan 2003 09:28:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267390AbTAGORi>; Tue, 7 Jan 2003 09:17:38 -0500
-Received: from bitmover.com ([192.132.92.2]:8870 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267389AbTAGORh>;
-	Tue, 7 Jan 2003 09:17:37 -0500
-Date: Tue, 7 Jan 2003 06:26:13 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Richard Stallman <rms@gnu.org>
-Cc: lm@bitmover.com, acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030107142612.GO17602@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Richard Stallman <rms@gnu.org>, lm@bitmover.com,
-	acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
-References: <200301050802.h0582u4214558@saturn.cs.uml.edu> <E18Vaoa-0002Pm-00@fencepost.gnu.org> <20030106173705.GP1386@work.bitmover.com> <E18Vtxy-0002c2-00@fencepost.gnu.org>
+	id <S267401AbTAGO2k>; Tue, 7 Jan 2003 09:28:40 -0500
+Received: from nimbus19.internetters.co.uk ([209.61.216.65]:1965 "HELO
+	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
+	id <S267399AbTAGO2j>; Tue, 7 Jan 2003 09:28:39 -0500
+Subject: Re: Why do some net drivers require __OPTIMIZE__?
+From: Alex Bennee <alex@braddahead.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1041867367.17472.40.camel@irongate.swansea.linux.org.uk>
+References: <1041863609.21044.11.camel@cambridge.braddahead> 
+	<1041867367.17472.40.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-3mdk 
+Date: 07 Jan 2003 14:33:07 +0000
+Message-Id: <1041949988.21044.37.camel@cambridge.braddahead>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18Vtxy-0002c2-00@fencepost.gnu.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 08:40:26AM -0500, Richard Stallman wrote:
->     It is the ultimate in hypocrisy to ask others for something you aren't 
->     willing to do yourself.  I, for one, will remind you of this every time
->     you bring up GNU/Linux in this list.
+On Mon, 2003-01-06 at 15:36, Alan Cox wrote:
+> > Does anybody know the history behind those lines? Do they serve any
+> > purpose now or in the past? Should I be nervous about compiling the
+> > kernel at a *lower* than normal optimization level? After all
+> > optimizations are generally processor specific and shouldn't affect the
+> > meaning of the C.
 > 
-> These two cases are similar, but not in the way you think.  In both
-> cases a large structure that is basically GNU or of GNU has a
-> component that is Linux or of Linux.
-> 
-> So why do we treat them differently?  In general, there's no ethical
-> obligation to cite each and every component of a larger structure in
-> the structure's name.  
+> Some of our inline and asm blocks assume things like optimisation. Killing
+> that check and adding -finline-functions ought to be enough to get what
+> you expect.
 
-Great.  So not only is there no legal need to cite GNU in the Linux 
-name, there is no ethical obligation either.  Thanks for clearing 
-that up.
+It appears to go deeper than a few network drivers. Droping to -O0
+breaks a host of other sections (ipc, sockets etc.) for less than
+obvious reasons. The only source files that seem to depend on the
+__OPTIMIZE__ define are a few of the other drivers and the byteswap
+macros.
+
+I'll investigate the gcc pages to see if there is anyway to allow
+optimisation without the out-of-order stuff that makes tracing the start
+up so hard. *sigh*
+
+I assume I can't drop the -fomit-frame-pointer for the same reason
+(inline and asm blocks assuming register assigment?).
+
+On a related note should enabling -g on the kernel CFLAGS be ok? For
+some reason vmlinux kernels compiled with -g (even after being stripped)
+seem to break the bootmem allocator on my setup. I'm trying to track
+down if this is due to some linker weirdness due to the symbol table
+being bigger than physical memory even though its not actually being
+loaded into the system.
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Alex Bennee
+Senior Hacker, Braddahead Ltd
+The above is probably my personal opinion and may not be that of my
+employer
+

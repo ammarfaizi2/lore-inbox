@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbVCDS7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262986AbVCDS7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262994AbVCDS7b (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 13:59:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbVCDSzr
+	id S262986AbVCDS7d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 13:59:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbVCDSzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 13:55:47 -0500
-Received: from S010600c0f014b14a.ss.shawcable.net ([70.64.60.7]:6410 "HELO
-	discworld.dyndns.org") by vger.kernel.org with SMTP id S262972AbVCDSue
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:50:34 -0500
-Date: Fri, 4 Mar 2005 12:50:05 -0600
-From: Charles Cazabon <linux@discworld.dyndns.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304185005.GA7576@discworld.dyndns.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <1109894511.21781.73.camel@localhost.localdomain> <20050303182820.46bd07a5.akpm@osdl.org> <1109933804.26799.11.camel@localhost.localdomain> <20050304032820.7e3cb06c.akpm@osdl.org> <1109940685.26799.18.camel@localhost.localdomain> <Pine.LNX.4.58.0503040959030.25732@ppc970.osdl.org>
+	Fri, 4 Mar 2005 13:55:39 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4561 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262984AbVCDSlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:41:53 -0500
+Date: Fri, 4 Mar 2005 10:41:24 -0800
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
+       Chris Wright <chrisw@osdl.org>, jgarzik@pobox.com, olof@austin.ibm.com,
+       paulus@samba.org, rene@exactcode.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+Message-ID: <20050304184124.GC29857@kroah.com>
+References: <20050303225542.GB16886@austin.ibm.com> <20050303175951.41cda7a4.akpm@osdl.org> <20050304022424.GA26769@austin.ibm.com> <20050304055451.GN5389@shell0.pdx.osdl.net> <20050303220631.79a4be7b.akpm@osdl.org> <4227FC5C.60707@pobox.com> <20050304062016.GO5389@shell0.pdx.osdl.net> <20050303222335.372d1ad2.akpm@osdl.org> <20050304162755.GA28179@kroah.com> <Pine.LNX.4.58.0503041031110.25732@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503040959030.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.58.0503041031110.25732@ppc970.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Fri, Mar 04, 2005 at 10:38:10AM -0800, Linus Torvalds wrote:
 > 
-> What I'd like to set up is the reverse. The same way the "wild" kernels
-> tend to layer on top of my standard kernel, I'd like to have a lower
-> level, the "anti-wild" kernel.  Something that is comprised of patches
-> that _everybody_ can agree on, and that doesn't get anything else. AT ALL.
 > 
-> And that means that such a kernel would not get all patches that you'd 
-> want. That's fine.
+> On Fri, 4 Mar 2005, Greg KH wrote:
+> > 
+> > Ok, based on consensus, I've applied this one too.
+> 
+> Btw, I don't think your process works. You never really gave people the
+> time to object. So for that reason you applied the first trivial raid6
+> thing, and it turned out to be wrong.
 
-Let's see if I understand your intent: this new tree would be a better base
-for things like -ac than the mainline Linus kernel.  It would always be a
-single short branch off the latest mainline stable kernel.  It would probably
-form a good base for vendor kernels and other stability-needed kernels, but by
-itself wouldn't necessarily be at that level of predictability.
+I agree.
 
-Does that accurately sum up what you're trying to get across?
+> I think the patches need to have a rule like "they live outside the sucker 
+> tree for at least two days". And during that time, anybody can vote them 
+> down (which would move them to "unapplied" status, at which point somebody 
+> else might decide that for _their_ tree it's still the right thing to do).
+> 
+> And if at the end of two days, they still haven't gotten enough "yes"  
+> votes, they'd go into "limbo" status, with one extra grace-period (ie a
+> reminder on whatever list about a patch that is dying). And if it can't 
+> get enough "yeah, sure" votes even after that, it goes into the same 
+> "unapplied" list.
+> 
+> In other words, I think this really does want some automation. It
+> shouldn't be fully automated (at the very least, somebody needs to
+> actually check that things patch and fix up the changeset comments etc),
+> but the _rules_ should be automated. Otherwise they'll always be broken
+> because of "_this_ time it's obvious", which is against the point.
 
-Charles
--- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:               http://pyropus.ca/software/
------------------------------------------------------------------------
+Ok, Chris and I are going to sit down and work this all out on Tuesday.
+I'll hold off on applying or releasing anything else until we fully
+describe the process, and set up the infrastructure.
+
+I'll slow down now :)
+
+thanks,
+
+greg k-h

@@ -1,105 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261928AbSJISSx>; Wed, 9 Oct 2002 14:18:53 -0400
+	id <S261941AbSJISVC>; Wed, 9 Oct 2002 14:21:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261935AbSJISSx>; Wed, 9 Oct 2002 14:18:53 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:35303 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261928AbSJISSt> convert rfc822-to-8bit; Wed, 9 Oct 2002 14:18:49 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andrew Theurer <habanero@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Erich Focht <efocht@ess.nec.de>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [PATCH] pooling NUMA scheduler with initial load balancing
-Date: Wed, 9 Oct 2002 13:13:21 -0500
-X-Mailer: KMail [version 1.4]
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200210091826.20759.efocht@ess.nec.de> <1548227964.1034159598@[10.10.2.3]> <200210091258.08379.habanero@us.ibm.com>
-In-Reply-To: <200210091258.08379.habanero@us.ibm.com>
+	id <S261942AbSJISVC>; Wed, 9 Oct 2002 14:21:02 -0400
+Received: from relaydal.nai.com ([161.69.213.5]:20200 "EHLO RelayDAL.nai.com")
+	by vger.kernel.org with ESMTP id <S261941AbSJISVB>;
+	Wed, 9 Oct 2002 14:21:01 -0400
+Message-ID: <1D4F16D4D695D21186A300A0C9DCF9838F611F@LOS-83-207.nai.com>
+From: Andrew_Purtell@NAI.com
+To: tytso@mit.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: two problems using EXT3 htrees
+Date: Wed, 9 Oct 2002 13:29:21 -0500 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210091313.21197.habanero@us.ibm.com>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 October 2002 12:58 pm, Andrew Theurer wrote:
-> > I'm testing on 2.5.41-mm1 ... your patches still apply clean. That
-> > has a whole bunch of nice NUMA mods, you might want to try that
-> > instead? All the changes in there will end up in mainline real soon
-> > anyway ;-)
-> >
-> > One minor warning:
-> >
-> > arch/i386/kernel/smpboot.c: In function `smp_cpus_done':
-> > arch/i386/kernel/smpboot.c:1199: warning: implicit declaration of
-> > function `bld_pools'
-> >
-> > And the same panic:
-> >
-> > Starting migration thread for cpu 3
-> > Bringing up 4
-> > CPU>dividNOWrro!
->
-> I got the same thing on 2.5.40-mm1.  It looks like it may be a a divide by
-> zero in calc_pool_load.  I am attempting to boot a band-aid version right
-> now.  OK, got a little further:
->
-A little more detail:
-Code: f7 f3 3b 45 e4 7e 06 89 45 e4 89 7d ec 8b 45 d8 8b 00 39 f0 
-EFLAGS: 00010046
-eax: 00000001   ebx: 00000000   ecx: 00000003   edx: 00000000
-esi: c02c98c4   edi: c39c5880   ebp: f0199ee8   esp: f0199ec0
-ds: 0068   es: 0068   ss: 0068
-Stack: c39c58a0 c02c94c8 c02c993c 00000000 c02c94c4 00000000 0000007d c02c94a0 
-       00000001 00000003 f0199f1c c0117bec c02c94a0 00000003 00000003 00000001 
-       00000000 c01135d1 f01a3f10 00000000 00000003 f01c1740 c02cb4e0 f0199f44 
-Call Trace: [<c0117bec>] [<c01135d1>] [<c0117eed>] [<c0122587>] [<c0105420>] 
-[<c0125e60>] [<c0113ca7>] [<c0105420>] [<c010818e>] [<c
-0105420>] [<c0105420>] [<c010544a>] [<c01054ea>] [<c011cf50>]
-Code: f7 f3 3b 45 e4 7e 06 89 45 e4 89 7d ec 8b 45 d8 8b 00 39 f0 
-Using defaults from ksymoops -t elf32-i386 -a i386
+I recently patched my 2.4.19 kernel with EXT3 dir_index support and tried
+it out on my 80GB EXT3 data partition. This partition is used to cache CVS
+and BK checkouts from 17 or so different software projects, some of them 
+quite large (linux-kernel, GNOME2, and GNU src come to mind) and so it
+contains thousands of directories and hundreds of thousands of files. I 
+serve this via NFS to a couple of clients. Using htrees on this file
+system would seem to be a good idea in theory.
+
+(First let me state that this kernel has also been patched with the
+"International Kernel Patch" for 2.4.18 but I don't believe this patch
+touches any of EXT3 or JBD.)
+
+Setting the dir_index feature flag and running e2fsck -fD (1.30-WIP) went
+without a hitch. However, my problems started almost immediately.
+
+First, there is some interaction with knfsd and the nfsfs on the clients
+(also 2.4.19) where a large directory can put the client into an endless
+loop when iterating directory entries. I have an exported directory
+that contains 849 Ogg Vorbis files that would lock 'ls' etc. every time.
+
+Also, I encountered a problem when building GNOME2 using a script that
+first unpacks a tarball of the module, does a CVS update, repacks the
+updated module, then does a configure/build/install cycle, then removes
+the working sources. 
+
+Intermittently this triggers a race where a file is deleted but the 
+directory metadata is not entirely updated, leading to a condition where a
+file partially exists, e.g.
+
+  # rm -rf some-large-project
+  rm: some-large-project/CVS/Entries: Input/Ouput error.
+  rm: some-large-project/CVS: Directory not empty.
+  rm: some-large-project: Directory not empty.
+  # cd some-large-project/CVS
+  # ls
+  Entries: Input/Output error.
+
+I wrote a very simple utility that calls unlink() directly:
+
+  # unlink Entries
+
+This succeeds in clearing the bogus entry but EXT3 complains:
+
+  kernel: EXT3-fs warning (device ide0(3,65)): ext3-unlink:
+    Deleting nonexistent file (9012125), 0
+
+Of these two problems the latter is only a nuisance but the former
+rendered my NFS exports useless, so I had to revert the filesystem.
+Clearing the dir_index feature flag and then running e2fsck did the trick.
+
+If there is any additional information I can provide, please let me know.
 
 
->>esi; c02c98c4 <runqueues+424/15800>
->>edi; c39c5880 <END_OF_CODE+36419c4/????>
->>ebp; f0199ee8 <END_OF_CODE+2fe1602c/????>
->>esp; f0199ec0 <END_OF_CODE+2fe16004/????>
-
-Trace; c0117bec <load_balance+8c/140>
-Trace; c01135d1 <smp_call_function_interrupt+41/90>
-Trace; c0117eed <scheduler_tick+24d/390>
-Trace; c0122587 <tasklet_hi_action+77/c0>
-Trace; c0105420 <default_idle+0/50>
-Trace; c0125e60 <update_process_times+40/50>
-Trace; c0113ca7 <smp_apic_timer_interrupt+117/120>
-Trace; c0105420 <default_idle+0/50>
-Trace; c010818e <apic_timer_interrupt+1a/20>
-Trace; c0105420 <default_idle+0/50>
-Trace; c0105420 <default_idle+0/50>
-Trace; c010544a <default_idle+2a/50>
-Trace; c01054ea <cpu_idle+3a/50>
-Trace; c011cf50 <printk+140/180>
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   f7 f3                     div    %ebx
-Code;  00000002 Before first symbol
-   2:   3b 45 e4                  cmp    0xffffffe4(%ebp),%eax
-Code;  00000005 Before first symbol
-   5:   7e 06                     jle    d <_EIP+0xd> 0000000d Before first 
-symbol
-Code;  00000007 Before first symbol
-   7:   89 45 e4                  mov    %eax,0xffffffe4(%ebp)
-Code;  0000000a Before first symbol
-   a:   89 7d ec                  mov    %edi,0xffffffec(%ebp)
-Code;  0000000d Before first symbol
-   d:   8b 45 d8                  mov    0xffffffd8(%ebp),%eax
-Code;  00000010 Before first symbol
-  10:   8b 00                     mov    (%eax),%eax
-Code;  00000012 Before first symbol
-  12:   39 f0                     cmp    %esi,%eax
-
-
-
-
+Andrew Purtell                                     andrew_purtell@nai.com
+Network Associates Technologies, Inc.                     Los Angeles, CA

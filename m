@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUFGRoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUFGRpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264955AbUFGRoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 13:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbUFGRoJ
+	id S264949AbUFGRpb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 13:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUFGRpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 13:44:09 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:60071 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S264955AbUFGRoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 13:44:04 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Roger Luethi <rl@hellgate.ch>
-Date: Mon, 7 Jun 2004 19:43:56 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Matrox Kconfig
+	Mon, 7 Jun 2004 13:45:31 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:44479 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S264949AbUFGRpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 13:45:04 -0400
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Missing BKL in sys_chroot() for 2.6
+Date: Sun, 6 Jun 2004 19:58:48 +0200
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <8A46A014187@vcnet.vc.cvut.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406061958.48262.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Jun 04 at 13:40, Roger Luethi wrote:
-> The descriptions for CONFIG_FB_MATROX_G450 and CONFIG_FB_MATROX_G100A
-> in drivers/video/Kconfig (current 2.6) are confusing: Both want to be
-> selected for Matrox G100, G200, G400 based video cards.
-> 
-> In the menu, it's
-> 
-> # G100/G200/G400/G450/G550 support (sets FB_MATROX_G100, FB_MATROX_G450)
-> #   G100/G200/G400 support     (sets FB_MATROX_G100)
-> #   G400 second head support
-> 
-> where the second depends on the first _not_ being selected.
-> 
-> How about this instead?
-> 
-> # Gxxx (generic) (sets FB_MATROX_G100)
-> #   G400 second head (depends FB_MATROX_GXXX, FB_MATROX_I2C)
->              (sets FB_MATROX_G450)
-> #   G450/550 support (depends on FB_MATROX_GXXX)
+(PLEASE cc me on replies as I'm not subscribed).
 
-Please no. It was this way in 2.4.x, and I was receiving at least
-two complaints a week that their G450 does not work with their
-system.
+Set_fs_root *claims* it wants the BKL held:
 
-G400's second head has nothing to do with G450/G550, so there is
-no reason why G400 second head should set FB_MATROX_G450...
+/*
+ * Replace the fs->{rootmnt,root} with {mnt,dentry}. Put the old values.
+ * It can block. Requires the big lock held.
+ */
+void set_fs_root(struct fs_struct *fs, struct vfsmount *mnt,
+                 struct dentry *dentry)
 
-If anything, then let's remove G100/G200/G400 choice completely,
-making G450/G550 support unconditional.
-                                            Petr Vandrovec
+But sys_chroot ignores this. So I attach this patch (apply with patch -p1 -l). 
+Maybe the solution is to kill that comment, maybe not (sys_pivot_root() calls 
+chroot_fs_refs() -> set_fs_root() with the BKL held, but that has a lot of 
+reasons other than this). If that comment is correct, however, it probably 
+holds even for set_fs_altroot(), since it's similar. So this patch adds it.
+
+
+TESTING: none, I'm sure about the inconsistency, a lot less about the solution 
+(no kernel manual explains the BKL, since it is a relict; except the ones who 
+still says it blocks all the rest of the kernel, while I think it is just a 
+recursive and "sleepable" spinlock - am I correct?).
+
+--- vanilla-linux-2.6.6/fs/open.c.saved 2004-05-10 21:37:11.000000000 +0200
++++ vanilla-linux-2.6.6/fs/open.c       2004-06-06 19:40:20.000000000 +0200
+@@ -581,8 +581,13 @@
+        if (!capable(CAP_SYS_CHROOT))
+                goto dput_and_out;
+
++       lock_kernel();
++
+        set_fs_root(current->fs, nd.mnt, nd.dentry);
+        set_fs_altroot();
++
++       unlock_kernel();
++
+        error = 0;
+ dput_and_out:
+        path_release(&nd);
+--- vanilla-linux-2.6.6/fs/namei.c.saved        2004-05-10 21:37:09.000000000 
++0200
++++ vanilla-linux-2.6.6/fs/namei.c      2004-06-06 19:49:25.000000000 +0200
+@@ -814,6 +814,9 @@
+        return 1;
+ }
+
++/*
++ * Requires the big lock held.
++ */
+ void set_fs_altroot(void)
+ {
+        char *emul = __emul_prefix();
+
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+
 

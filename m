@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269043AbRHPXf2>; Thu, 16 Aug 2001 19:35:28 -0400
+	id <S269068AbRHPXgS>; Thu, 16 Aug 2001 19:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269092AbRHPXfT>; Thu, 16 Aug 2001 19:35:19 -0400
-Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:916 "EHLO
-	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
-	id <S269043AbRHPXfL>; Thu, 16 Aug 2001 19:35:11 -0400
-Message-ID: <3B7C58BB.6D67DD7A@bigfoot.com>
-Date: Thu, 16 Aug 2001 16:35:23 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20p6ai i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.20pre series and booting problem
-In-Reply-To: <20010815172631.A17156@elektroni.ee.tut.fi>
+	id <S269067AbRHPXgJ>; Thu, 16 Aug 2001 19:36:09 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:26656 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S269068AbRHPXft>; Thu, 16 Aug 2001 19:35:49 -0400
+Date: Fri, 17 Aug 2001 01:35:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: Mark Hemment <markhe@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Align VM locks
+Message-ID: <20010817013552.F8726@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0108162006270.3340-300000@alloc.wat.veritas.com> <Pine.LNX.4.33.0108161625160.5368-100000@touchme.toronto.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0108161625160.5368-100000@touchme.toronto.redhat.com>; from bcrl@redhat.com on Thu, Aug 16, 2001 at 04:27:11PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make bzimage?
+On Thu, Aug 16, 2001 at 04:27:11PM -0400, Ben LaHaise wrote:
+> Here's the patch I sent a few days ago that provides a couple of generic
+> kmap_atomic entries for exactly this purpose and uses them for page cache
+> access.  Not only does it avoid unneeded shootdowns, but it means that
+> spurious schedules won't happen under extreme loads.
 
-Petri Kaukasoina wrote:
-> 
-> Hi
-> 
-> I just tried to compile kernels from the 2.2.20pre series for the first
-> time. 2.2.20pre3 boots ok but pre5-pre9 do not:
-> 
-> Uncompressing Linux...
-> 
-> Out of memory
-> 
->   -- System halted
-> 
-> I'm sorry if I this is well-known: I haven't been following the list very
-> closely lately. Maybe it has something to do with this:
-> 
-> o       Add support for the 2.4 boot extensions to 2.2  (H Peter Anvin)
-> 
-> I tried with gcc-2.7.2.3 + binutils-2.9.1.0.25 and with egcs-1.1.2 +
-> binutils-2.11.90.0.19. On a 486 with 48 M RAM and lilo 21.7-5 and on a
-> Pentium MMX with 64 M RAM and lilo 19.
---
+if you want to take this route you don't need to define KM_USER*, just
+rename KM_BOUNCE_WRITE to KM_KERNEL and use it always.
+
+Andrea

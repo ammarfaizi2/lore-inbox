@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143888AbRAHOm1>; Mon, 8 Jan 2001 09:42:27 -0500
+	id <S143837AbRAHOo1>; Mon, 8 Jan 2001 09:44:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143863AbRAHOmR>; Mon, 8 Jan 2001 09:42:17 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:3589 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S143888AbRAHOmH>; Mon, 8 Jan 2001 09:42:07 -0500
+	id <S144089AbRAHOoR>; Mon, 8 Jan 2001 09:44:17 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:7628 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S143837AbRAHOoJ>; Mon, 8 Jan 2001 09:44:09 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Christoph Hellwig <hch@caldera.de>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Subject: Re: Patch (repost): cramfs memory corruption fix
-To: cr@sap.com (Christoph Rohland)
-Date: Mon, 8 Jan 2001 14:42:18 +0000 (GMT)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        adam@yggdrasil.com (Adam J. Richter), parsley@roanoke.edu,
-        linux-kernel@vger.kernel.org, riel@conectiva.com.br (Rik van Riel)
-In-Reply-To: <qwwwvc6tbau.fsf@sap.com> from "Christoph Rohland" at Jan 08, 2001 02:37:13 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <200101081419.PAA26150@ns.caldera.de>
+Organisation: SAP LinuxLab
+Date: 08 Jan 2001 15:43:19 +0100
+In-Reply-To: Christoph Hellwig's message of "Mon, 8 Jan 2001 15:19:25 +0100"
+Message-ID: <qwwofxit88o.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14FdV7-0004gd-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 7 Jan 2001, Linus Torvalds wrote:
-> > I wonder what to do about this - the limits are obviously useful, as
-> > would the "use swap-space as a backing store" thing be. At the same
-> > time I'd really hate to lose the lean-mean-clean ramfs.
-> 
-> Let me repeat on this issue: shmem.c has everything needed for this
-> despite read and write and they should be really easy to add. 
-> 
-> I did not plan to write them in the near future because I did not
-> think that this is a really wanted feature. But I can look into it.
+Hi Christoph,
 
-I have been thinking about this. I think we should merge the size limiting code
-with the example clean ramfs code. Having spent a while debugging the LFS
-checks and some other funnies I realised one problem with the ramfs in
-2.4.0 as an example. It does not demonstrate error cases, which the new one
-does.
+On Mon, 8 Jan 2001, Christoph Hellwig wrote:
+> I had a prototype tmpfs in -test10 (ro so) times.  It based on ramfs
+> for all the metadata stuff and used the (old) shmfs code for
+> swap-backed data.  The only real problem the code had, was that it
+> needed a ->allocpage address_space method in place of
+> page_cache_alloc() to directly swap-in pages in ->read.  IF anyone
+> is interested I could forward port it to 2.4.0 and the new shmfs.
 
+Be aware that there is nothing left from the old shm memory/swap
+handling in 2.4.0. It is a copy of ramfs plus additions for swap and
+resource limits
+
+If you would be willing to add the read and write functions to the new
+coding I would be very happy.
+
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

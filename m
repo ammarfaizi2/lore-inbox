@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266832AbTGGHqa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 03:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266843AbTGGHq3
+	id S261365AbTGGIDd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 04:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbTGGIDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 03:46:29 -0400
-Received: from dp.samba.org ([66.70.73.150]:34227 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266838AbTGGHqS (ORCPT
+	Mon, 7 Jul 2003 04:03:33 -0400
+Received: from [213.229.38.66] ([213.229.38.66]:11426 "HELO mail.falke.at")
+	by vger.kernel.org with SMTP id S261365AbTGGIDc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 03:46:18 -0400
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] [resend patch] CONFIG_X86_GENERIC description fixup
-Date: Mon, 07 Jul 2003 17:57:54 +1000
-Message-Id: <20030707080052.8F4282C459@lists.samba.org>
+	Mon, 7 Jul 2003 04:03:32 -0400
+Message-ID: <3F092CB5.9010008@winischhofer.net>
+Date: Mon, 07 Jul 2003 10:17:57 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en, de, de-de, de-at, sv
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+       James Simmons <jsimmons@infradead.org>
+Subject: sisfb update/patch for 2.5.74
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Stewart Smith <stewart@linux.org.au>
 
-  as per thread on lkml a little while ago, a better explanation
-  of the X86_GENERIC config option follows. The person who questioned
-  it originally seemed to like this improved version, so that's one point :)
-  
-  
+Here is a patch for sisfb and 2.5.74:
 
---- trivial-2.5.74-bk4/arch/i386/Kconfig.orig	2003-07-07 17:36:54.000000000 +1000
-+++ trivial-2.5.74-bk4/arch/i386/Kconfig	2003-07-07 17:36:54.000000000 +1000
-@@ -303,9 +303,13 @@
- config X86_GENERIC
-        bool "Generic x86 support" 
-        help
--       	  Including some tuning for non selected x86 CPUs too.
--	  when it has moderate overhead. This is intended for generic 
--	  distributions kernels.
-+	  Instead of just including optimizations for the selected
-+	  x86 variant (e.g. PII, Crusoe or Athlon), include some more
-+	  generic optimizations as well. This will make the kernel
-+	  perform better on x86 CPUs other than that selected.
-+
-+	  This is really intended for distributors who need more
-+	  generic optimizations.
- 
- #
- # Define implied options from the CPU selection here
+http://www.winischhofer.net/sis/sisfb_patch_2.5.74.gz
+
+It resolves the compilation issues and updates the driver to its current 
+version.
+
+This patch makes the one in James' collection of (yet unapplied) fbdev 
+patches obsolete.
+
+Thomas
+
 -- 
-  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-  Don't blame me: the Monkey is driving
-  File: Stewart Smith <stewart@linux.org.au>: [resend patch] CONFIG_X86_GENERIC description fixup
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
+twini AT xfree86 DOT org
+
+
+
+
+

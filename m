@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbTFCW0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 18:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTFCW0t
+	id S261773AbTFCWcz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 18:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbTFCWcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 18:26:49 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:26265 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261702AbTFCW0r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 18:26:47 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] kill recreate_proc_ide_device()
-Date: Wed, 4 Jun 2003 00:39:49 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
+	Tue, 3 Jun 2003 18:32:55 -0400
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:49168
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id S261773AbTFCWcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 18:32:20 -0400
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33EB7@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Cc: "'linux-serial'" <linux-serial@vger.kernel.org>,
+       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>
+Subject: [PATCH] serial.c 2.4.20 - ST16654 xmit data loss
+Date: Tue, 3 Jun 2003 15:45:47 -0700 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200306040039.49395.bzolnier@elka.pw.edu.pl>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fixes transmit FIFO overrun that affects ST16654 UART only.
+Bug found by William King [William.King@dadaboom.com]
+Symptom: random loss of transmit data, worse at low baud rates.
+Cause: on 16654 UART, default transmit FIFO trigger level is 8
+       instead of zero, so full FIFO depth is not available 
+       when transmit interrupt arrives. Race between UART 
+       transmitting last 8 bytes still in TX FIFO and driver 
+       writing full FIFO length of new data to TX FIFO.
 
-Just tiny cleanup, please apply.
---
-Bartlomiej
-
-[ide] kill recreate_proc_ide_device(), it is unused and not needed
-
- drivers/ide/ide-proc.c |   28 ----------------------------
- include/linux/ide.h    |    1 -
- 2 files changed, 29 deletions(-)
-
-diff -puN drivers/ide/ide-proc.c~recreate_proc_ide_device drivers/ide/ide-proc.c
---- linux-2.5.70-bk8/drivers/ide/ide-proc.c~recreate_proc_ide_device	Wed Jun  4 00:06:42 2003
-+++ linux-2.5.70-bk8-root/drivers/ide/ide-proc.c	Wed Jun  4 00:06:42 2003
-@@ -729,34 +729,6 @@ void create_proc_ide_drives(ide_hwif_t *
- 
- EXPORT_SYMBOL(create_proc_ide_drives);
- 
--void recreate_proc_ide_device(ide_hwif_t *hwif, ide_drive_t *drive)
--{
--	struct proc_dir_entry *ent;
--	struct proc_dir_entry *parent = hwif->proc;
--	char name[64];
--
--	if (drive->present && !drive->proc) {
--		drive->proc = proc_mkdir(drive->name, parent);
--		if (drive->proc)
--			ide_add_proc_entries(drive->proc, generic_drive_entries, drive);
--
--/*
-- * assume that we have these already, however, should test FIXME!
-- * if (driver) {
-- *      ide_add_proc_entries(drive->proc, generic_subdriver_entries, drive);
-- *      ide_add_proc_entries(drive->proc, driver->proc, drive);
-- * }
-- *
-- */
--		sprintf(name,"ide%d/%s", (drive->name[2]-'a')/2, drive->name);
--		ent = proc_symlink(drive->name, proc_ide_root, name);
--		if (!ent)
--			return;
--	}
--}
--
--EXPORT_SYMBOL(recreate_proc_ide_device);
--
- void destroy_proc_ide_device(ide_hwif_t *hwif, ide_drive_t *drive)
- {
- 	ide_driver_t *driver = drive->driver;
-diff -puN include/linux/ide.h~recreate_proc_ide_device include/linux/ide.h
---- linux-2.5.70-bk8/include/linux/ide.h~recreate_proc_ide_device	Wed Jun  4 00:06:42 2003
-+++ linux-2.5.70-bk8-root/include/linux/ide.h	Wed Jun  4 00:06:42 2003
-@@ -1115,7 +1115,6 @@ typedef struct {
- #ifdef CONFIG_PROC_FS
- extern void proc_ide_create(void);
- extern void proc_ide_destroy(void);
--extern void recreate_proc_ide_device(ide_hwif_t *, ide_drive_t *);
- extern void destroy_proc_ide_device(ide_hwif_t *, ide_drive_t *);
- extern void destroy_proc_ide_drives(ide_hwif_t *);
- extern void create_proc_ide_interfaces(void);
-
-_
-
+diff -Naur -X dontdiff.txt linux-2.4.20/drivers/char/serial.c
+patched-2.4.20/drivers/char/serial.c
+--- linux-2.4.20/drivers/char/serial.c	Thu Nov 28 15:53:12 2002
++++ patched-2.4.20/drivers/char/serial.c	Tue May 27 15:14:58 2003
+@@ -306,8 +306,8 @@
+ 	{ "TI16750", 64, UART_CLEAR_FIFO | UART_USE_FIFO},
+ 	{ "Startech", 1, 0},	/* usurped by cyclades.c */
+ 	{ "16C950/954", 128, UART_CLEAR_FIFO | UART_USE_FIFO},
+-	{ "ST16654", 64, UART_CLEAR_FIFO | UART_USE_FIFO |
+-		  UART_STARTECH }, 
++	{ "ST16654", 64-8, UART_CLEAR_FIFO | UART_USE_FIFO |
++		  UART_STARTECH },	/* ST16654 xmit trigger lvl = 8 */
+ 	{ "XR16850", 128, UART_CLEAR_FIFO | UART_USE_FIFO |
+ 		  UART_STARTECH },
+ 	{ "RSA", 2048, UART_CLEAR_FIFO | UART_USE_FIFO }, 

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSHTJWb>; Tue, 20 Aug 2002 05:22:31 -0400
+	id <S316750AbSHTJif>; Tue, 20 Aug 2002 05:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316750AbSHTJWb>; Tue, 20 Aug 2002 05:22:31 -0400
-Received: from miranda.axis.se ([193.13.178.2]:22408 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S316728AbSHTJWa>;
-	Tue, 20 Aug 2002 05:22:30 -0400
-From: johan.adolfsson@axis.com
-Message-ID: <01a301c2482c$51a00e40$b9b270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Johan Adolfsson" <johan.adolfsson@axis.com>
-Subject: [RFC] Improved add_timer_randomness for __CRIS__ (instead of rdtsc())
-Date: Tue, 20 Aug 2002 11:31:10 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S316753AbSHTJif>; Tue, 20 Aug 2002 05:38:35 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:39175 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316750AbSHTJif>;
+	Tue, 20 Aug 2002 05:38:35 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Stephane Wirtel <stephane.wirtel@belgacom.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: compil error with a LC_ALL="fr_BE@euro" !!! why ? 
+In-reply-to: Your message of "Tue, 20 Aug 2002 11:21:01 +0200."
+             <20020820092101.GA19395@debian> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Tue, 20 Aug 2002 19:42:27 +1000
+Message-ID: <32252.1029836547@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cris architecture don't have any tsc, but it has a couple of
-timer registers that can be used to get better than jiffie resolution.
+On Tue, 20 Aug 2002 11:21:01 +0200, 
+Stephane Wirtel <stephane.wirtel@belgacom.net> wrote:
+>the compiler is gcc-3.2, don't forget this information.
+>make[1]: Entre dans le répertoire `/root/linux-2.4.20-pre4/kernel'
+>make all_targets
+>make[2]: Entre dans le répertoire `/root/linux-2.4.20-pre4/kernel'
+>gcc-3.2 -D__KERNEL__ -I/root/linux-2.4.20-pre4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon    -nostdinc  -DKBUILD_BASENAME=sched  -fno-omit-frame-pointer -c -o sched.o sched.c
+>Dans le fichier inclus à partir de /root/linux-2.4.20-pre4/include/linux/wait.h:13,
+>          à partir de /root/linux-2.4.20-pre4/include/linux/fs.h:12,
+>          à partir de /root/linux-2.4.20-pre4/include/linux/capability.h:17,
+>          à partir de /root/linux-2.4.20-pre4/include/linux/binfmts.h:5,
+>          à partir de /root/linux-2.4.20-pre4/include/linux/sched.h:9,
+>          à partir de /root/linux-2.4.20-pre4/include/linux/mm.h:4,
+>          à partir de sched.c:23:
+>/root/linux-2.4.20-pre4/include/linux/kernel.h:10:20: stdarg.h: Aucun fichier ou répertoire de ce type
 
-I set the time to a 40 us resolution counter with a slight
-"jump" since lower 8 bit only counts from 0 to 249,
-the patch does not take wrapping of the register into account either
-to save some cycles, is that a problem or a good thing?
+Against 2.4.20-pre4.
 
-The num is xor:d with the value from 2 timer registers,
-which in turn contains different fields breifly described below.
-
-Does the patch below look sane?
-
-/Johan Adolfsson
-
-
---- random.c    7 Dec 2001 16:53:17 -0000       1.10
-+++ random.c    20 Aug 2002 09:10:04 -0000
-@@ -746,6 +746,15 @@ static void add_timer_randomness(struct
-        __u32 high;
-        rdtsc(time, high);
-        num ^= high;
-+#elif defined (__CRIS__)
-+       /* R_TIMER0_DATA, 8 bit, 40 us resolution, counting down from 250 */
-+       /* R_TIMER_DATA, 4*8 bit, timer1, timer0, 38.4kHz, 7.3728MHz */
-+       /* R_PRESCALE_STATUS, upper 16 bit: 320ns resolution,
-+          lower 16 bit: 40 ns resolution, ~10 bits used,
-+          counting down from 1000 */
-+       time = jiffies << 8;
-+       time |= (TIMER0_DIV - *R_TIMER0_DATA);
-+       num ^= *R_PRESCALE_STATUS ^ *R_TIMER_DATA;
- #else
-        time = jiffies;
- #endif
-
+--- Makefile.orig	Tue Aug 20 19:41:05 2002
++++ Makefile	Tue Aug 20 19:41:16 2002
+@@ -260,7 +260,7 @@ include arch/$(ARCH)/Makefile
+ # 'kbuild_2_4_nostdinc :=' or -I/usr/include for kernel code and you are not UML
+ # then your code is broken!  KAO.
+ 
+-kbuild_2_4_nostdinc	:= -nostdinc $(shell $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
++kbuild_2_4_nostdinc	:= -nostdinc -iwithprefix include
+ export kbuild_2_4_nostdinc
+ 
+ export	CPPFLAGS CFLAGS CFLAGS_KERNEL AFLAGS AFLAGS_KERNEL
 

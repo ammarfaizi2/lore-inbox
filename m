@@ -1,55 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277154AbRJHVxp>; Mon, 8 Oct 2001 17:53:45 -0400
+	id <S277156AbRJHVyp>; Mon, 8 Oct 2001 17:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277156AbRJHVxf>; Mon, 8 Oct 2001 17:53:35 -0400
-Received: from t2.redhat.com ([199.183.24.243]:58608 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S277154AbRJHVx3>; Mon, 8 Oct 2001 17:53:29 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E15qcua-00010T-00@the-village.bc.nu> 
-In-Reply-To: <E15qcua-00010T-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dmccr@us.ibm.com (Dave McCracken), torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-Subject: Re: [PATCH] Provide system call to get task id 
-Mime-Version: 1.0
+	id <S277164AbRJHVyg>; Mon, 8 Oct 2001 17:54:36 -0400
+Received: from [216.163.180.10] ([216.163.180.10]:26999 "EHLO
+	c0mailgw06.prontomail.com") by vger.kernel.org with ESMTP
+	id <S277162AbRJHVyX>; Mon, 8 Oct 2001 17:54:23 -0400
+Message-ID: <3BC22084.22061F19@starband.net>
+Date: Mon, 08 Oct 2001 17:54:12 -0400
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.4.11-5 Compile Error AIC7XXX_OLD.C
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Oct 2001 22:53:41 +0100
-Message-ID: <12421.1002578021@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am want to try out emu10k1-2.4.11-pre5.patch to fix the static problem
+in kernels > 2.4.7, and I came across this while trying to upgrade:
 
-While we're at it, we should probably be exporting the tgid from 
-/proc/$pid/status.
+System information is below the error:
 
-Index: fs/proc/array.c
-===================================================================
-RCS file: /inst/cvs/linux/fs/proc/array.c,v
-retrieving revision 1.5.2.32
-diff -u -r1.5.2.32 array.c
---- fs/proc/array.c	2001/08/07 08:10:59	1.5.2.32
-+++ fs/proc/array.c	2001/10/08 21:52:30
-@@ -151,12 +151,13 @@
- 	read_lock(&tasklist_lock);
- 	buffer += sprintf(buffer,
- 		"State:\t%s\n"
-+		"Tgid:\t%d\n"
- 		"Pid:\t%d\n"
- 		"PPid:\t%d\n"
- 		"TracerPid:\t%d\n"
- 		"Uid:\t%d\t%d\t%d\t%d\n"
- 		"Gid:\t%d\t%d\t%d\t%d\n",
--		get_task_state(p),
-+		get_task_state(p), p->tgid,
- 		p->pid, p->pid ? p->p_opptr->pid : 0, 0,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
+make -C scsi
+make[2]: Entering directory `/usr/src/linux-2.4.10/drivers/scsi'
+make all_targets
+make[3]: Entering directory `/usr/src/linux-2.4.10/drivers/scsi'
+ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o
+scsicam.
+o scsi_proc.o scsi_error.o scsi_obsolete.o scsi_queue.o scsi_lib.o
+scsi_merge.o
+scsi_dma.o scsi_scan.o scsi_syms.o
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.10/include -Wall
+-Wstrict-prototypes -Wno-
+trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpref
+erred-stack-boundary=2 -march=i686    -c -o aic7xxx_old.o aic7xxx_old.c
+aic7xxx_old.c:11966: parse error before string constant
+aic7xxx_old.c:11966: warning: type defaults to `int' in declaration of
+`MODULE_LICENSE'
+aic7xxx_old.c:11966: warning: function declaration isn't a prototype
+aic7xxx_old.c:11966: warning: data definition has no type or storage
+class
+make[3]: *** [aic7xxx_old.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.10/drivers/scsi'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.10/drivers/scsi'
+make[1]: *** [_subdir_scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.10/drivers'
+make: *** [_dir_drivers] Error 2
+[root@war linux]#
 
---
-dwmw2
+It makes MODULE_LICENSE an int, need to make it a string, not sure how
+though, know very little about C.
+Line 11966: MODULE_LICENSE("Dual BSD/GPL");
+
+
+
+System Software:
+Distribution: Red Hat Linux release 7.1 (Seawolf)
+    autoconf: 2.52
+     autogen: 5.2.9
+    automake: 1.5
+    binutils: 2.11.2
+      esound: 0.2.23
+         gcc: 2.95.3
+     gettext: 0.10.40
+       glibc: 2.2.2
+        glib: 1.2.10
+  gnome-libs: 1.2.8
+         gtk: 1.2.10
+       imlib: 1.9.11
+     kdelibs: 2.2.1
+      kernel: 2.4.7
+     libtool: 1.4.2
+     openssl: 0.9.6b
+       orbit: 0.5.7
+   orbit-idl: 0.6.8
+        perl: 5.6.1
+          qt: 2.3.1
+         rpm: 4.0.2
+         sdl: 1.2.2
+     xfree86: 4.0.99.2
+        xml2: 2.4.5
+         xml: 1.8.16
 
 

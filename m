@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbUGLU4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbUGLVFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263032AbUGLU4v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 16:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUGLU4u
+	id S262547AbUGLVFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263040AbUGLVFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 16:56:50 -0400
-Received: from mailadmin.wku.edu ([161.6.18.52]:50921 "EHLO mailadmin.wku.edu")
-	by vger.kernel.org with ESMTP id S263032AbUGLU4t (ORCPT
+	Mon, 12 Jul 2004 17:05:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:4775 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262547AbUGLVFK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 16:56:49 -0400
-From: "Bikram Assal" <bikram.assal@wku.edu>
-Subject: Upgrading from RHL 7.3 to RHEL AS3 and using same old partiton
- on Raid Array
-To: linux-kernel@vger.kernel.org
-X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
-Date: Mon, 12 Jul 2004 15:56:47 -0500
-Message-ID: <web-72140815@mailadmin.wku.edu>
-MIME-Version: 1.0
+	Mon, 12 Jul 2004 17:05:10 -0400
+Date: Mon, 12 Jul 2004 14:04:09 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Charles R. Anderson" <cra@WPI.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: v2.6 IGMPv3 implementation
+Message-Id: <20040712140409.3575b900.davem@redhat.com>
+In-Reply-To: <20040712203056.GI7822@angus.ind.WPI.EDU>
+References: <20040712203056.GI7822@angus.ind.WPI.EDU>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 12 Jul 2004 16:30:56 -0400
+"Charles R. Anderson" <cra@WPI.EDU> wrote:
 
+> /* Multicast source filter calls */
+> #define SIOCSIPMSFILTER        0x89a0          /* set mcast src filter (ipv4) */
+> #define SIOCGIPMSFILTER 0x89a1         /* get mcast src filter (ipv4) */
+> #define SIOCSMSFILTER  0x89a2          /* set mcast src filter (proto indep) */
+> #define SIOCGMSFILTER  0x89a3          /* get mcast src filter (proto indep) */
+> 
+> These do not appear in the Linus kernel, though.  Does anyone know the
+> status of these ioctls and the IGMPv3 implementation in general?
 
-I have 2 questions.
+We didn't use ioctls, we used socket options.  See:
 
-1) I m planning on upgrading from RHL 7.3 to RHEL AS3.
-Is it possible to upgrade from RHL 7.3 to RHEL AS3 using the installation CD instead of going for the fresh install ?
+include/linux/in.h
 
+Specifically IP_MSFILTER and friends.
 
-2) Currently, we have been using DELL Raid Array.
-At boot time, the system mounts the linux partition on the Raid Array.
-
-I wanted to ask whether it is possible to keep the same old partition on Raid Array without losing any data on it and mounting that same partition after RHEL AS3 is installed on the system. Would I just need to add an entry in the /etc/fstab file to mount the linux partition on the Raid Array ???
-
-Currently the partition is created on a logical device /dev/sdb1.
-
-I hope I do not have to create the filesystem on Raid Array device again because of a fresh install because with that I would have to take backup of all the data on some other device and then recreate filesystem on the Raid Array and restore all the files again.
-
-Please let me know what do you think about it.
-
-
-- Bikram
+BTW, unlike you claim, the IGMPv3 stack implementation has been in the
+kernel for a long time, much before 2.6.7  It is even in the current
+2.4.x sources as well.

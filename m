@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293687AbSCFRDM>; Wed, 6 Mar 2002 12:03:12 -0500
+	id <S293705AbSCFRGy>; Wed, 6 Mar 2002 12:06:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293689AbSCFRDG>; Wed, 6 Mar 2002 12:03:06 -0500
-Received: from gate.perex.cz ([194.212.165.105]:25353 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S293687AbSCFRA0>;
-	Wed, 6 Mar 2002 12:00:26 -0500
-Date: Wed, 6 Mar 2002 17:57:54 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: <perex@pnote.perex-int.cz>
-To: Paul Davis <pbd@op.net>
-cc: Ulrich Zadow <ulrich.zadow@ARTCOM.DE>,
-        "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [Alsa-devel] Timer?
-In-Reply-To: <200203061631.LAA17147@renoir.op.net>
-Message-ID: <Pine.LNX.4.33.0203061741300.2187-100000@pnote.perex-int.cz>
+	id <S293696AbSCFRF6>; Wed, 6 Mar 2002 12:05:58 -0500
+Received: from zamok.crans.org ([138.231.136.6]:50148 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S293701AbSCFRFE>;
+	Wed, 6 Mar 2002 12:05:04 -0500
+To: arjanv@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xmms segfaulting on 2.4.18 and 2.4.19-pre2-ac2 + oops
+In-Reply-To: <m3pu2hn1z2.fsf@neo.loria> <3C864048.27DF51E4@redhat.com>
+X-PGP-KeyID: 0xF22A794E
+X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
+From: Vincent Bernat <bernat@free.fr>
+In-Reply-To: <3C864048.27DF51E4@redhat.com> (Arjan van de Ven's message of
+ "Wed, 06 Mar 2002 16:14:00 +0000")
+Organization: Kabale Inc
+Date: Wed, 06 Mar 2002 18:05:01 +0100
+Message-ID: <m31yexfwzm.fsf@neo.loria>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
+ i686-pc-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Paul Davis wrote:
+OoO Lors de la soirée naissante du mercredi 06 mars 2002, vers 17:14,
+Arjan van de Ven <arjanv@redhat.com> disait:
 
-> >Is there any documentation on the timer api that goes beyond what's on the als
-> >a-project pages? We're trying to sync Video and Audio, and all we need is a wa
-> >y to query the current time relative to some arbitrary start point.
-> 
-> i don't believe that the timer API has much to do with this. its more
-> a way of getting a trigger from a timer, not of reading time per se.
-> 
-> to sync audio + video you have to keep track of the number of frames
-> you've delivered to both streams. the audio stream is giving you
-> exactly the same timing info (albeit implicitly) as it would do if you
-> used as a timer.
+>> I encounter problems with xmms segfaulting on two different
+>> kernels. The first one is 2.4.18-xfs-preempt-lockbreak-bttv. I use
+>> alsa drivers (0.90.0b12) for my SB PCI 128 card. The second one is
+>> 2.4.19-pre2-ac2 with shawn patch (xfs + rmap 12g) and preempt patch.
+>> 
 
-You're right. But it would be really nice to have a continuous timer 
-source in some resolution (microseconds?) available for all platforms
-to satisfy synchronization requirements. 
+> might be worth testing without preempt to rule that out...
 
-It's not probably required exactly for this example where timing from one
-audio target is sufficient, but I can imagine several applications
-synchronized together. As far as I know, Linux has not a continous timer.
-I am ready to work on this issue. It is very simple to create an interface
-with one ioctl returning struct timeval with the absolute timer value
-measured from system boot on i386 using rdtsc instruction.
-
-Perhaps, I'm trying to reinvent wheel, so please, let me know, if someone 
-solved this issue.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project  http://www.alsa-project.org
-SuSE Linux    http://www.suse.com
-
-
-
+I will try to catch the next oops to its correctness then I will try
+without preempt.
+-- 
+panic("huh?\n");
+	2.2.16 /usr/src/linux/arch/i386/kernel/smp.c

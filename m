@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135586AbRDSICY>; Thu, 19 Apr 2001 04:02:24 -0400
+	id <S135587AbRDSICo>; Thu, 19 Apr 2001 04:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135587AbRDSICO>; Thu, 19 Apr 2001 04:02:14 -0400
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:3851 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S135586AbRDSICI>; Thu, 19 Apr 2001 04:02:08 -0400
-Date: Thu, 19 Apr 2001 09:02:03 +0100 (BST)
-From: Steve Hill <steve@navaho.co.uk>
-To: TroyBenjegerdes <hozer@drgw.net>
-cc: TorreyHoffman <torrey.hoffman@myrio.com>, linux-kernel@vger.kernel.org
-Subject: Re: An improved natsemi driver for 2.2
-In-Reply-To: <20010418234719.B20259@altus.drgw.net>
-Message-ID: <Pine.LNX.4.21.0104190856020.1278-100000@sorbus.navaho>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135588AbRDSICe>; Thu, 19 Apr 2001 04:02:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47369 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135587AbRDSIC2>;
+	Thu, 19 Apr 2001 04:02:28 -0400
+Date: Thu, 19 Apr 2001 09:02:20 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Cross-referencing frenzy
+Message-ID: <20010419090220.A2291@flint.arm.linux.org.uk>
+In-Reply-To: <20010418233445.A28628@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010418233445.A28628@thyrsus.com>; from esr@thyrsus.com on Wed, Apr 18, 2001 at 11:34:45PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Apr 2001, TroyBenjegerdes wrote:
+On Wed, Apr 18, 2001 at 11:34:45PM -0400, Eric S. Raymond wrote:
+> Especially look for CONFIG_* symbols that only occur in .c or .h files.
+> I think almost every one of those lines represents a bug that needs to be
+> fixed.
 
-> Well, on kernel 2.2.19 on a 'regular' PC box (celeron 533), it works
-> better than the 1.07b version from scyld.com, but it still gets tripped up
-> pretty bad by nfs traffic. (Have you tried NFS on your board at all?). It
+It'd be easier to read if they were alphanumerically sorted.
 
-Not tried NFS yet...  Although, using the patch that I posted, everything
-seems to work ok and then occasionally I get a big slow down - I haven't
-had time to look to see what this is (it may even be something completely
-unrelated like the kernel flushing buffers to disk)...  I'll hopefully
-test it sometime this week.
+The ones that show up in arch/arm/def-configs are purely because I've been
+keeping back the updates to these files; each time the config structure
+changes, I get a nice big patch from people with the new def-configs.  I
+didn't want to inflict this too regularly on people.
 
--- 
-
-- Steve Hill
-System Administrator         Email: steve@navaho.co.uk
-Navaho Technologies Ltd.       Tel: +44-870-7034015
-
-        ... Alcohol and calculus don't mix - Don't drink and derive! ...
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

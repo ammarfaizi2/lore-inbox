@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313676AbSDURve>; Sun, 21 Apr 2002 13:51:34 -0400
+	id <S313687AbSDURzd>; Sun, 21 Apr 2002 13:55:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313666AbSDURvd>; Sun, 21 Apr 2002 13:51:33 -0400
-Received: from dsl-213-023-040-105.arcor-ip.net ([213.23.40.105]:10388 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S313692AbSDURuu>;
-	Sun, 21 Apr 2002 13:50:50 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>, CaT <cat@zip.com.au>
-Subject: Re: Suggestion re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Sat, 20 Apr 2002 19:50:14 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <20020421171629.GK4640@zip.com.au> <20020421104046.J10525@work.bitmover.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16yz02-0000lC-00@starship>
+	id <S313688AbSDURzc>; Sun, 21 Apr 2002 13:55:32 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:22436 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313687AbSDURza>;
+	Sun, 21 Apr 2002 13:55:30 -0400
+Date: Sun, 21 Apr 2002 13:55:29 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020421135529.A8142@havoc.gtf.org>
+In-Reply-To: <20020421101731.D10525@work.bitmover.com> <20020421132203.E4479@havoc.gtf.org> <E16yyya-0000l7-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 21 April 2002 19:40, Larry McVoy wrote:
-> On Mon, Apr 22, 2002 at 03:16:29AM +1000, CaT wrote:
-> > On Fri, Apr 19, 2002 at 11:02:04PM +0200, Daniel Phillips wrote:
-> > > > That would actually make the development process MORE open than it was
-> > > > before BK, and might make even non-BK people appreciate BK more simply
-> > > > because there is a real point to it.
-> > > 
-> > > Well, it would be more like working in a fishbowl anyway.  The part that's
-> > > missing is the discussion.  Just looking at the recent traffic... there's
-> > 
-> > Ok. I admit I haven't read through the entire thread. It's a wee bit big
-> > and painful so excuse me if this has already been suggested but... If
-> > this is the biggest (or one of the biggest) sticking points then why not
-> > get BK to email the lk mailing list when there's a patch submitted with
+On Sat, Apr 20, 2002 at 07:48:44PM +0200, Daniel Phillips wrote:
+> On Sunday 21 April 2002 19:22, Jeff Garzik wrote:
+> > Daniel Phillips wrote:
+> > > How much less convenient is it to click on a link?  So much harder that it's
+> > > worth pissing off some key developers?
+
+> > Linus has already explained why he put it into the kernel sources.
+
+> So far the only argument I've seen is: it's convenient.  Did I miss something?
+
+> The convenience argument is bogus.  A url is just as convenient,
+
+If you say this, then you either missed, or are willfully ignoring,
+what Linus said.  Search for the string "helsinki.fi".
+
+
+> > And, who are these key developers you are speaking for?
 > 
-> I can certainly do this for the tree on bkbits.net, i.e., it emails the
-> lk list when it gets new work.  Linus?
+> They can introduce themselves if they wish.  Or you can ask around.
 
-Horse, barn.  We need a solution that works before the patch gets applied.
+I am asking.  My previous post was asking.  Who are you speaking for?
 
-Perhaps that's what you're talking about?
+	Jeff
 
--- 
-Daniel
+
+

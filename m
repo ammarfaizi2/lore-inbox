@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272219AbTGYQ0k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 12:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272221AbTGYQ0k
+	id S272221AbTGYQmF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 12:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272222AbTGYQmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 12:26:40 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:5849 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S272219AbTGYQ0k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 12:26:40 -0400
-To: Dana Lacoste <dana.lacoste@peregrine.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can we keep it toned down a bit in here?
-References: <1059146119.968.74.camel@dlacoste.ottawa.loran.com>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Fri, 25 Jul 2003 18:41:44 +0200
-In-Reply-To: <1059146119.968.74.camel@dlacoste.ottawa.loran.com> (Dana
- Lacoste's message of "25 Jul 2003 11:15:19 -0400")
-Message-ID: <87d6fya793.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
-MIME-Version: 1.0
+	Fri, 25 Jul 2003 12:42:04 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:22024 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S272221AbTGYQmD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 12:42:03 -0400
+Date: Fri, 25 Jul 2003 18:57:09 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: John Belmonte <jvb@prairienet.org>, Ben Collins <bcollins@debian.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net,
+       Michael Wawrzyniak <gan@planetlaz.com>
+Subject: Re: [PATCH] bad strlcpy conversion breaks toshiba_acpi
+Message-ID: <20030725165709.GA670@win.tue.nl>
+References: <3F2142CE.4090608@prairienet.org> <20030725161510.GA31565@vana.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725161510.GA31565@vana.vc.cvut.cz>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dana Lacoste <dana.lacoste@peregrine.com> writes:
+On Fri, Jul 25, 2003 at 06:15:10PM +0200, Petr Vandrovec wrote:
 
-> Like maybe an advocacy list instead of a development list?
+> Nope. Kernel strlcpy implementation is crap and I do not believe that there
+> is single place in the kernel which can live with current implementation. 
+> 
+> Take a look at ftp://ftp.openbsd.org/pub/OpenBSD/src/lib/libc/string/strlcpy.c 
+> or at http://www.courtesan.com/todd/papers/strlcpy.html - it copies
+> at most size-1 characters. Nothing about characters beyond specified size 
+> in the article.
+> 
+> Kernel should use strnlen() to get string length, if coding loop like
+> OpenBSD does is unacceptable.
 
-<news:comp.os.linux.advocacy>
-<http://groups.google.com/groups?group=comp.os.linux.advocacy>
+strlcpy is for strings, not for character arrays.
+The *BSD version accesses the source past the size-1 characters that are copied:
+	while (*s++)
+		;
+Thus, replacing strncpy (used to copy character arrays, possibly not 0-terminated)
+by strlcpy is wrong.
 
-Regards, Olaf.

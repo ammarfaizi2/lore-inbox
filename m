@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263080AbUK0AeT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263096AbUK0Aed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263080AbUK0AeT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 19:34:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbUK0Aas
+	id S263096AbUK0Aed (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 19:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbUKZX4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 19:30:48 -0500
-Received: from baythorne.infradead.org ([81.187.226.107]:11220 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S263080AbUK0A1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 19:27:10 -0500
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Matthew Wilcox <matthew@wil.cx>, Alexandre Oliva <aoliva@redhat.com>,
-       dhowells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-In-Reply-To: <41A7C68D.3060302@domdv.de>
-References: <19865.1101395592@redhat.com>
-	 <orvfbtzt7t.fsf@livre.redhat.lsd.ic.unicamp.br>
-	 <20041125210137.GD2849@parcelfarce.linux.theplanet.co.uk>
-	 <1101422103.19141.0.camel@localhost.localdomain>
-	 <41A7C68D.3060302@domdv.de>
-Content-Type: text/plain
-Message-Id: <1101515200.21273.4320.camel@baythorne.infradead.org>
+	Fri, 26 Nov 2004 18:56:33 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:26565 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263089AbUKZTnG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:43:06 -0500
+Date: Thu, 25 Nov 2004 12:17:28 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-0
+Message-ID: <20041125111728.GA18084@elte.hu>
+References: <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041124112745.GA3294@elte.hu> <21889.195.245.190.93.1101377024.squirrel@195.245.190.93> <20041125111344.GA17786@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Sat, 27 Nov 2004 00:26:40 +0000
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041125111344.GA17786@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-27 at 01:13 +0100, Andreas Steinmetz wrote:
-> And how do you want to deal with the fact that up to now all the 
-> netfilter headers required for userspace programming live in the kernel 
-> include tree? Now this has been like this for quite some years. Shall 
-> one no longer use netfilter?
 
-Don't get me started on fucking netfilter. Have you tried running 32-bit
-userspace on a 64-bit kernel recently? Throw away the fucking netfilter
-shite and burn it.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
--- 
-dwmw2
+> > [...] Jackd XRUN rates are pretty low and on the same level (e.g. less
+> > than 5 per hour with the default jack_test3.1 test), [...]
+> 
+> could you post the jack_test summary outputs?
 
+also, could you change JACKD_PRIO from 20 to 50? Otherwise normal IRQ
+handlers (IDE, etc.) will preempt jackd.
 
+(the test-clients inherit this prio 50 setting, right?)
+
+	Ingo

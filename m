@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264889AbSKJOqo>; Sun, 10 Nov 2002 09:46:44 -0500
+	id <S264892AbSKJOs2>; Sun, 10 Nov 2002 09:48:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264890AbSKJOqo>; Sun, 10 Nov 2002 09:46:44 -0500
-Received: from host194.steeleye.com ([66.206.164.34]:12555 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S264889AbSKJOqn>; Sun, 10 Nov 2002 09:46:43 -0500
-Message-Id: <200211101453.gAAErOb10864@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: torvalds@transmeta.com, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: BOGUS: megaraid changes
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 10 Nov 2002 09:53:23 -0500
-From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S264894AbSKJOs1>; Sun, 10 Nov 2002 09:48:27 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:55563 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S264892AbSKJOsZ>; Sun, 10 Nov 2002 09:48:25 -0500
+Date: Sun, 10 Nov 2002 15:55:08 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Romain Lievin <rlievin@free.fr>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kconfig (gconf): GTK tool released, please test...
+In-Reply-To: <20021110132750.GB6256@free.fr>
+Message-ID: <Pine.LNX.4.44.0211101502460.2113-100000@serv>
+References: <20021110132750.GB6256@free.fr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus - will you please stop merging plain dangerous "lets pretend we
-> never have errors" patches. I've got proper fixes for megaraid to use
-> the new_eh if you want them, but merging stuff so that people don't
-> even notice the problem is *WRONG*
+Hi,
 
-This one came in through my scsi tree.  How about we fix the issue in a 
-different way:  I can add an option in SCSI to check for the new eh methods 
-and if it doesn't find any at all, panic the system saying that this driver 
-has no error handling but if you reboot with the scsi_no_error_handling option 
-it won't panic again?
+On Sun, 10 Nov 2002, Romain Lievin wrote:
 
-James
+> I worked on a kernel configuration tool similar to Qconf but written with 
+> GTK+... You will find it at <http://tilp.info/perso/gconfig.html>.
 
+I needed the patch below to get it working at all. sym_get_choice_value() 
+might return a NULL pointer. The choice value is only updated if the 
+choice symbol is yes and even then it can be NULL, if no choice value is 
+visible.
+I couldn't select 'Adaptec AIC7xxx support'. Choice symbols are special 
+tristate symbols, beside having the tristate value it also points to a 
+choice value.
+The autoexpand mode is very annoying, even after changing a single symbol 
+everything is expanded again. Keyboard support is basically nonexistent.
+
+Anyway, it looks interesting, but still needs quite some work. :)
+
+bye, Roman
+
+--- src/callbacks.c.org	2002-11-10 15:12:12.000000000 +0100
++++ src/callbacks.c	2002-11-10 15:11:59.000000000 +0100
+@@ -648,7 +648,8 @@
+ 				def_menu = child;
+ 		}
+ 		
+-		row[5] = g_strdup(menu_get_prompt(def_menu));
++		if (def_menu)
++			row[5] = g_strdup(menu_get_prompt(def_menu));
+ 	}
+ 		
+ 	type = sym_get_type(sym);
 

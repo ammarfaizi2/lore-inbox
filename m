@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264954AbRGADNG>; Sat, 30 Jun 2001 23:13:06 -0400
+	id <S264959AbRGADSr>; Sat, 30 Jun 2001 23:18:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264956AbRGADMp>; Sat, 30 Jun 2001 23:12:45 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:36114 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264954AbRGADMo>;
-	Sat, 30 Jun 2001 23:12:44 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Andreas Hartmann <andihartmann@freenet.de>
-cc: "Kernel-Mailingliste" <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.5ac19] reproduceable Kernel crashes 
-In-Reply-To: Your message of "Sat, 30 Jun 2001 16:47:21 +0200."
-             <01063015302700.00954@athlon> 
-Mime-Version: 1.0
+	id <S264958AbRGADS1>; Sat, 30 Jun 2001 23:18:27 -0400
+Received: from [130.130.68.25] ([130.130.68.25]:25845 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S264957AbRGADSZ>; Sat, 30 Jun 2001 23:18:25 -0400
+Message-ID: <3B3E95F5.5AFCF5DD@uow.edu.au>
+Date: Sun, 01 Jul 2001 13:16:05 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Joshua Schmidklofer <menion@fmtc.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 - IpConfig, BOOTP not functioning.
+In-Reply-To: <3B3D0B4A.9040603@fmtc.com>
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 01 Jul 2001 13:12:38 +1000
-Message-ID: <6927.993957158@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Jun 2001 16:47:21 +0200, 
-Andreas Hartmann <andihartmann@freenet.de> wrote:
->Warning (compare_maps): mismatch on symbol unix_socket_table  , unix says 
->e08b11e0, /lib/modules/2.4.5-ac19/kernel/net/unix/unix.o says e08b0e40.  
->Ignoring /lib/modules/2.4.5-ac19/kernel/net/unix/unix.o entry
->Trace; e0a4c45d <[unix].bss.end+19ae76/382a79>
->Trace; e0a4c535 <[unix].bss.end+19af4e/382a79>
+Joshua Schmidklofer wrote:
+> 
+> Kernel developers,
+>    I hate to burden you with menial quetions, but:   How does ipconfig
+> get called & initialized?
 
-The mismatch and the weird entries in the trace imply that you ran
-ksymoops with a different set of modules from the failing system.  This
-is a common problem when decoding an oops after a reboot, the current
-set of modules does not match the set at the time of failure so
-ksymoops gets bad data.
+The magic happens right at the end of ipconfig.c:
 
-The easiest fix is to follow the procedure in 'man insmod', section
-KSYMOOPS ASSISTANCE.  Create directory /var/log/ksymoops, reproduce the
-problem then decode the oops giving ksymoops the relevant ksyms.<date>
-and modules.<date> files.  That way you guarantee that you are decoding
-the oops using the correct set of symbols.  When you have a clean
-decode, mail it to linux-kernel.
+__setup("ip=", ip_auto_config_setup);
+__setup("nfsaddrs=", nfsaddrs_config_setup);
 
+When the kernel boots it runs init/main.c:parse_options() to parse
+the kernel boot command line.  The function init/main.c:checksetup()
+will call ip_auto_config_setup() when it sees an argument of the
+form "ip=XXXX" on the command line.
+
+If there is no `ip=' argument then ip_auto_config_setup() will
+not be called at all.
+
+-

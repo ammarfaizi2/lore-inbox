@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293654AbSCESLe>; Tue, 5 Mar 2002 13:11:34 -0500
+	id <S293658AbSCESLe>; Tue, 5 Mar 2002 13:11:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293658AbSCESLP>; Tue, 5 Mar 2002 13:11:15 -0500
-Received: from fcaglp.fcaglp.unlp.edu.ar ([163.10.4.1]:31159 "EHLO
-	fcaglp.fcaglp.unlp.edu.ar") by vger.kernel.org with ESMTP
-	id <S293653AbSCESLL>; Tue, 5 Mar 2002 13:11:11 -0500
-Message-ID: <3C850A19.2690120A@fcaglp.fcaglp.unlp.edu.ar>
-Date: Tue, 05 Mar 2002 15:10:33 -0300
-From: "Eduardo A. Suarez" <esuarez@fcaglp.fcaglp.unlp.edu.ar>
-Organization: Observatorio Astronomico de La Plata
-X-Mailer: Mozilla 4.7 [en] (X11; I; SunOS 5.8 sun4m)
-X-Accept-Language: Spanish/Argentina, es-AR, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: suse-sparc@suse.com
-Subject: Kernel 2.4.19-pre2
+	id <S293653AbSCESLP>; Tue, 5 Mar 2002 13:11:15 -0500
+Received: from mnh-1-09.mv.com ([207.22.10.41]:38662 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S293654AbSCESLM>;
+	Tue, 5 Mar 2002 13:11:12 -0500
+Message-Id: <200203051812.NAA03363@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages 
+In-Reply-To: Your message of "Tue, 05 Mar 2002 08:37:29 PST."
+             <3C84F449.8090404@zytor.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 05 Mar 2002 13:12:19 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hpa@zytor.com said:
+> Actually, yes, esp. since the only case you have been able to bring up
+> is  one of the sysadmin being a moron. 
 
-I have this error in sparc10 when I try to boot 2.4.19-pre2:
+Really?  And you're unconcerned about the impact on the rest of the system
+of a UML grabbing (say) 128M of memory when it starts up?  Especially if it
+may never use it?
 
-PROMLIB obio_ranges 5
-Fixup b f0203b4c doesn't refer to a SETHI at f00156c0[8b500000]
+And I don't see anything wrong with starting a bunch of UMLs with a total
+maximum memory exceeding the available tmpfs as long as they don't all need
+all that memory at once.  And, if they do, the patch I just posted will let
+them deal fairly sanely with the situation.
 
-2.4.19-pre1 boots fine.
+				Jeff
 
-Thanks,
-Eduardo.-

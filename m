@@ -1,78 +1,236 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292942AbSCRLQj>; Mon, 18 Mar 2002 06:16:39 -0500
+	id <S292968AbSCRLSt>; Mon, 18 Mar 2002 06:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292968AbSCRLQa>; Mon, 18 Mar 2002 06:16:30 -0500
-Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:52563
-	"EHLO fugmann.dhs.org") by vger.kernel.org with ESMTP
-	id <S292942AbSCRLQO>; Mon, 18 Mar 2002 06:16:14 -0500
-Message-ID: <3C95CC7D.8070101@fugmann.dhs.org>
-Date: Mon, 18 Mar 2002 12:16:13 +0100
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020315
+	id <S292957AbSCRLSl>; Mon, 18 Mar 2002 06:18:41 -0500
+Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:38318 "EHLO
+	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
+	id <S292968AbSCRLSb>; Mon, 18 Mar 2002 06:18:31 -0500
+Date: Mon, 18 Mar 2002 12:20:45 +0100 (CET)
+From: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        Andreas Dilger <adilger@clusterfs.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Cleanup port 0x80 use (was: Re: IO delay ...) 
+In-Reply-To: <4463.1016444358@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.33.0203181218300.9609-100000@biker.pdb.fsc.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Q: 2.4 Scheduler 
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, 18 Mar 2002, Keith Owens wrote:
 
-I have some specific questions concering the implementation of the 
-scheduler in 2.4.18, which I hope you would please answer for me.
+> Recent 2.4 and 2.5 kernels have include/linux/stringify.h.  This should
+> work.
 
-Question #1:
-Has anyone documented the functionality of the current scheduler? It
-seems that the algorithm used is very sparse explained (although very
-easy to understand by looking at the code), and the comments in the
-code does not always what the purpose of a function is, but rather how
-it works.
+OK, that's it. Thanks a lot Keith!
 
-Question #2:
-In the schedule function, a 'goodness' value is calculated for all
-processes, and the maximum is remembered. If this value is zero, tasks
-gets a new quantum. The question here is which tasks. Take a look at the
-code below. (shed.c, 617)
+Please find the new patch below.
+Martin
 
-/* Do we need to re-calculate counters? */
-if (unlikely(!c)) {
-	struct task_struct *p;
-
-	spin_unlock_irq(&runqueue_lock);
-	read_lock(&tasklist_lock);
-	for_each_task(p)
-		p->counter = (p->counter >> 1) + NICE_TO_TICKS(p->nice);
-	read_unlock(&tasklist_lock);
-	spin_lock_irq(&runqueue_lock);
-	goto repeat_schedule;
-}
-
-What I do not understand here is the 'for_all_tasks'. Its defined in
-sched.h, line 870:
-
-#define for_each_task(p) \
-	for (p = &init_task ; (p = p->next_task) != &init_task ; )
-
-Would someone please explain the structure of this - Its very hard to
-see what this list consists of. Also if anyone has the time to give some 
-more general information on 'struct task' I would be happy - It's a big 
-structure, and it's hard to track down where the structure is modified, 
-and why.
+-- 
+Martin Wilck                Phone: +49 5251 8 15113
+Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
+Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
+D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
 
 
-Question #3:
-What is the main purpose of 'reschedule_idle.'? In the UP case, its
-all about removing the current task from the CPU, but a more detailed
-explanation would be nice. Of course I'm interested in the SMP case.
+--- ./include/asm-i386/io.h.orig	Fri Mar 15 17:23:15 2002
++++ ./include/asm-i386/io.h	Fri Mar 15 18:30:03 2002
+@@ -221,17 +221,9 @@
 
-I hope that some of you would be so kind as to spend some time to
-answer these questions.  The reason for me asking is, that I'm trying
-to document the scheduler (from a theoretical point of view). I also
-plan to describe the works of Ingo's O(1) scheduler in 2.5, but I
-haven't started looking at that yet.
+ #endif /* __KERNEL__ */
 
-Thanks in advance
-Anders Fugmann
+-#ifdef SLOW_IO_BY_JUMPING
+-#define __SLOW_DOWN_IO "\njmp 1f\n1:\tjmp 1f\n1:"
+-#else
+-#define __SLOW_DOWN_IO "\noutb %%al,$0x80"
+-#endif
+-
+-#ifdef REALLY_SLOW_IO
+-#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO
+-#else
+-#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO
+-#endif
++/* Moved the __SLOW_DOWN_IO macros to a separate file
++ * that can be included by setup.S */
++#include <asm/iodelay.h>
+
+ #ifdef CONFIG_MULTIQUAD
+ extern void *xquad_portio;    /* Where the IO area was mapped */
+--- ./include/asm-i386/floppy.h.orig	Fri Mar 15 17:23:15 2002
++++ ./include/asm-i386/floppy.h	Fri Mar 15 17:55:04 2002
+@@ -89,8 +89,7 @@
+ 	jmp 5f
+ 4:     	movb (%2),%0
+ 	outb %b0,%w4
+-5:	decw %w4
+-	outb %0,$0x80
++5:	decw %w4" __SLOW_DOWN_IO "
+ 	decl %1
+ 	incl %2
+ 	testl %1,%1
+--- ./include/asm-i386/iodelay.h.orig	Fri Mar 15 18:31:01 2002
++++ ./include/asm-i386/iodelay.h	Mon Mar 18 12:17:20 2002
+@@ -0,0 +1,25 @@
++#ifndef _ASM_IODELAY_H
++#define _ASM_IODELAY_H
++
++/*
++ * The dummy IO port to use for delays.
++ * Change only if you really know what you're doing !!
++ * Default value: 0x80.
++ * Other values that have been suggested: 0x19, 0x42, 0xe2, 0xed.
++ */
++#define __SLOW_DOWN_IO_PORT 0x80
++
++#ifdef SLOW_IO_BY_JUMPING
++#define __SLOW_DOWN_IO "\njmp 1f\n1:\tjmp 1f\n1:"
++#else
++#include <linux/stringify.h>
++#define __SLOW_DOWN_IO "\noutb %%al,$" __stringify(__SLOW_DOWN_IO_PORT)
++#endif
++
++#ifdef REALLY_SLOW_IO
++#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO __SLOW_DOWN_IO
++#else
++#define __FULL_SLOW_DOWN_IO __SLOW_DOWN_IO
++#endif
++
++#endif
+--- ./drivers/char/serial.c.orig	Fri Mar 15 17:23:15 2002
++++ ./drivers/char/serial.c	Fri Mar 15 17:24:13 2002
+@@ -3661,12 +3661,12 @@
+ 		scratch = serial_inp(info, UART_IER);
+ 		serial_outp(info, UART_IER, 0);
+ #ifdef __i386__
+-		outb(0xff, 0x080);
++		outb(0xff,__SLOW_DOWN_IO_PORT);
+ #endif
+ 		scratch2 = serial_inp(info, UART_IER);
+ 		serial_outp(info, UART_IER, 0x0F);
+ #ifdef __i386__
+-		outb(0, 0x080);
++		outb(0xff,__SLOW_DOWN_IO_PORT);
+ #endif
+ 		scratch3 = serial_inp(info, UART_IER);
+ 		serial_outp(info, UART_IER, scratch);
+--- ./drivers/char/riscom8.c.orig	Fri Mar 15 17:23:15 2002
++++ ./drivers/char/riscom8.c	Fri Mar 15 17:24:13 2002
+@@ -278,10 +278,10 @@
+
+ 	/* Are the I/O ports here ? */
+ 	rc_out(bp, CD180_PPRL, 0x5a);
+-	outb(0xff, 0x80);
++	outb(0xff, __SLOW_DOWN_IO_PORT);
+ 	val1 = rc_in(bp, CD180_PPRL);
+ 	rc_out(bp, CD180_PPRL, 0xa5);
+-	outb(0x00, 0x80);
++	outb(0x00, __SLOW_DOWN_IO_PORT);
+ 	val2 = rc_in(bp, CD180_PPRL);
+
+ 	if ((val1 != 0x5a) || (val2 != 0xa5))  {
+--- ./drivers/scsi/atp870u.c.orig	Fri Mar 15 17:23:15 2002
++++ ./drivers/scsi/atp870u.c	Fri Mar 15 17:24:13 2002
+@@ -1042,7 +1042,7 @@
+ 	tmport = dev->ioport + 0x1b;
+ 	outb(0x02, tmport);
+
+-	outb(0, 0x80);
++	outb(0, __SLOW_DOWN_IO_PORT);
+
+ 	val = 0x0080;		/* bsy	*/
+ 	tmport = dev->ioport + 0x1c;
+@@ -1051,7 +1051,7 @@
+ 	outw(val, tmport);
+ 	val |= 0x0004;		/* msg	*/
+ 	outw(val, tmport);
+-	inb(0x80);		/* 2 deskew delay(45ns*2=90ns) */
++	inb(__SLOW_DOWN_IO_PORT);  /* 2 deskew delay(45ns*2=90ns) */
+ 	val &= 0x007f;		/* no bsy  */
+ 	outw(val, tmport);
+ 	mydlyu(0xffff); 	/* recommanded SCAM selection response time */
+@@ -1062,7 +1062,7 @@
+ 	if ((inb(tmport) & 0x04) != 0) {
+ 		goto wait_nomsg;
+ 	}
+-	outb(1, 0x80);
++	outb(1, __SLOW_DOWN_IO_PORT);
+ 	mydlyu(100);
+ 	for (n = 0; n < 0x30000; n++) {
+ 		if ((inb(tmport) & 0x80) != 0) {	/* bsy ? */
+@@ -1078,13 +1078,13 @@
+ 	}
+ 	goto TCM_SYNC;
+ wait_io1:
+-	inb(0x80);
++	inb(__SLOW_DOWN_IO_PORT);
+ 	val |= 0x8003;		/* io,cd,db7  */
+ 	outw(val, tmport);
+-	inb(0x80);
++	inb(__SLOW_DOWN_IO_PORT);
+ 	val &= 0x00bf;		/* no sel     */
+ 	outw(val, tmport);
+-	outb(2, 0x80);
++	outb(2, __SLOW_DOWN_IO_PORT);
+ TCM_SYNC:
+ 	mydlyu(0x800);
+ 	if ((inb(tmport) & 0x80) == 0x00) {	/* bsy ? */
+@@ -1103,18 +1103,18 @@
+ 	val &= 0x00ff;		/* synchronization  */
+ 	val |= 0x3f00;
+ 	fun_scam(dev, &val);
+-	outb(3, 0x80);
++	outb(3, __SLOW_DOWN_IO_PORT);
+ 	val &= 0x00ff;		/* isolation	    */
+ 	val |= 0x2000;
+ 	fun_scam(dev, &val);
+-	outb(4, 0x80);
++	outb(4, __SLOW_DOWN_IO_PORT);
+ 	i = 8;
+ 	j = 0;
+ TCM_ID:
+ 	if ((inw(tmport) & 0x2000) == 0) {
+ 		goto TCM_ID;
+ 	}
+-	outb(5, 0x80);
++	outb(5, __SLOW_DOWN_IO_PORT);
+ 	val &= 0x00ff;		/* get ID_STRING */
+ 	val |= 0x2000;
+ 	k = fun_scam(dev, &val);
+--- ./drivers/video/sis/sis_main.c.orig	Fri Mar 15 17:23:15 2002
++++ ./drivers/video/sis/sis_main.c	Fri Mar 15 17:27:16 2002
+@@ -2308,7 +2308,7 @@
+ 	u8 reg;
+ 	int nRes;
+
+-	outb (0x77, 0x80);
++	outb (0x77, __SLOW_DOWN_IO_PORT);
+
+ 	if (sisfb_off)
+ 		return -ENXIO;
+--- ./arch/i386/boot/setup.S.orig	Fri Mar 15 17:23:15 2002
++++ ./arch/i386/boot/setup.S	Fri Mar 15 20:50:13 2002
+@@ -54,6 +54,7 @@
+ #include <asm/boot.h>
+ #include <asm/e820.h>
+ #include <asm/page.h>
++#include <asm/iodelay.h>
+
+ /* Signature words to ensure LILO loaded us right */
+ #define SIG1	0xAA55
+@@ -1001,7 +1002,7 @@
+
+ # Delay is needed after doing I/O
+ delay:
+-	outb	%al,$0x80
++	outb    %al,$__SLOW_DOWN_IO_PORT
+ 	ret
+
+ # Descriptor tables
+
+
 

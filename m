@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266339AbRGQM7R>; Tue, 17 Jul 2001 08:59:17 -0400
+	id <S266293AbRGQMz5>; Tue, 17 Jul 2001 08:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266378AbRGQM7H>; Tue, 17 Jul 2001 08:59:07 -0400
-Received: from alcove.wittsend.com ([130.205.0.20]:8656 "EHLO
-	alcove.wittsend.com") by vger.kernel.org with ESMTP
-	id <S266339AbRGQM6t>; Tue, 17 Jul 2001 08:58:49 -0400
-Date: Tue, 17 Jul 2001 08:58:49 -0400
-From: "Michael H. Warfield" <mhw@wittsend.com>
-To: Alex Buell <alex.buell@tahallah.demon.co.uk>
-Cc: "Michael H. Warfield" <mhw@wittsend.com>,
-        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Duplicate '..' in /lib
-Message-ID: <20010717085849.D4692@alcove.wittsend.com>
-Mail-Followup-To: Alex Buell <alex.buell@tahallah.demon.co.uk>,
-	"Michael H. Warfield" <mhw@wittsend.com>,
-	Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010717083318.B4692@alcove.wittsend.com> <Pine.LNX.4.33.0107171343410.8409-100000@tahallah.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.2i
-In-Reply-To: <Pine.LNX.4.33.0107171343410.8409-100000@tahallah.demon.co.uk>; from alex.buell@tahallah.demon.co.uk on Tue, Jul 17, 2001 at 01:44:44PM +0100
+	id <S266339AbRGQMzr>; Tue, 17 Jul 2001 08:55:47 -0400
+Received: from mail.nep.net ([12.23.44.24]:36111 "HELO nep.net")
+	by vger.kernel.org with SMTP id <S266293AbRGQMzb>;
+	Tue, 17 Jul 2001 08:55:31 -0400
+Message-ID: <19AB8F9FA07FB0409732402B4817D75A0389F5@FILESERVER.SRF.srfarms.com>
+From: "Ryan C. Bonham" <Ryan@srfarms.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: Adaptec 2400A
+Date: Tue, 17 Jul 2001 09:04:16 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 17, 2001 at 01:44:44PM +0100, Alex Buell wrote:
-> On Tue, 17 Jul 2001, Michael H. Warfield wrote:
+Sorry, for needlessly posting to the mailinglist, i was being stupid for a
+moment... (BAD DRIVER DISK) :)  
 
-> > It's gotten decidedly MORE hostile out there in the last year or two
-> > with the appearance of these scripted worms, like Ramen, L1on, and
-> > TSIG, that people can just tack more exploits onto and release in the
-> > wild.
+-----Original Message-----
+From: Ryan C. Bonham [mailto:Ryan@srfarms.com]
+Sent: Tuesday, July 17, 2001 8:24 AM
+To: Linux-Kernel
+Subject: Adaptec 2400A
 
-> What security sites would you recommend pointing my browser at in order to
-> check on latest exploits and solutions to get rid of them?
 
-	I generally recommend some of the following:
+Hi,
 
-	www.securityfocus.com
-	www.securityportal.com
-	packetstorm.security.com
-		(Oh, gee, that's now packetstormsecurity.org)
+First i apologize i realize this mailing list isn't the best place to post
+this question. That said i am trying to install Redhat 7.1 on a new machine.
+The computer has an adaptec 2400A IDE RAID controller card on it. Out of the
+box, redhat doesn't see the card so it can't find a drive to install on. The
+card comes with drivers for redhat 6.0-7.0. SO basically i read that to mean
+anything other then the 2.4 kernel.. I just want to know if anyone knows of
+a driver for redhat 7.1?  Thanks in advance
 
-	www.rootshell.com use to be pretty good, but it's been getting
-long in the tooth lately and hasn't changed in ages.
-
-	Each of those has additional links to other sites.
-
-	Then find the security pages for your distro.  RedHat, Turbo,
-and most of the other good ones have pages for errata's and security
-announcements.  Find them and check them out.
-
-	Couple of good books out there too...  I helped write "Hacking
-Linux Exposed" and Bob Toxin has "Real World Linux Security" that you
-might find interesting.
-
-> -- 
-> Hey, they *are* out to get you, but it's nothing personal.
-> 
-> http://www.tahallah.demon.co.uk
-
--- 
- Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
-  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
-  NIC whois:  MHW9      |  An optimist believes we live in the best of all
- PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-
+Ryan Bonham
+ryan@srfarms.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

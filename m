@@ -1,87 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262498AbRE0WOY>; Sun, 27 May 2001 18:14:24 -0400
+	id <S262511AbRE0WXE>; Sun, 27 May 2001 18:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262511AbRE0WOO>; Sun, 27 May 2001 18:14:14 -0400
-Received: from pc1-camb6-0-cust57.cam.cable.ntl.com ([62.253.135.57]:20358
-	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S262498AbRE0WOE>; Sun, 27 May 2001 18:14:04 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Abramo Bagnara <abramo@alsa-project.org>, linux@arm.linux.org.uk,
-        davem@caip.rutgers.edu, anton@linuxcare.com.au,
-        Ralf Baechle <ralf@oss.sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures 
-In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
-   of "Sun, 27 May 2001 23:07:38 +0200." <Pine.NEB.4.33.0105272301280.8551-100000@mimas.fachschaften.tu-muenchen.de> 
-In-Reply-To: <Pine.NEB.4.33.0105272301280.8551-100000@mimas.fachschaften.tu-muenchen.de> 
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1121109888P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 27 May 2001 23:10:00 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E1548jY-0004D2-00@kings-cross.london.uk.eu.org>
+	id <S262514AbRE0WWz>; Sun, 27 May 2001 18:22:55 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:64252 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262511AbRE0WWl>;
+	Sun, 27 May 2001 18:22:41 -0400
+Date: Sun, 27 May 2001 18:22:23 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: svbj@online.no
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: BUG?: 2.4.5 breaks reiserfs (kernel BUG)
+In-Reply-To: <3B113742.518984CD@bjerkeset.com>
+Message-ID: <Pine.GSO.4.21.0105271813320.3848-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1121109888P
-Content-Type: text/plain; charset=us-ascii
-
->--- include/asm-arm/atomic.h.old	Sun May 27 22:30:58 2001
->+++ include/asm-arm/atomic.h	Sun May 27 22:58:20 2001
->@@ -12,6 +12,7 @@
->  *   13-04-1997	RMK	Made functions atomic!
->  *   07-12-1997	RMK	Upgraded for v2.1.
->  *   26-08-1998	PJB	Added #ifdef __KERNEL__
->+ *   27-05-2001	APB     Removed #ifdef __KERNEL__
->  */
-> #ifndef __ASM_ARM_ATOMIC_H
-> #define __ASM_ARM_ATOMIC_H
->@@ -30,7 +31,6 @@
-
-This is no good.  The ARM kernel just doesn't provide any atomic primitives 
-that will work in user space.  If you want atomicity you have to use 
-libpthread.
-
-p.
 
 
+On Sun, 27 May 2001, Bjerkeset, Svein Olav wrote:
 
---==_Exmh_-1121109888P
-Content-Type: application/pgp-signature
+> Hi,
+> 
+> Today I downloaded kernel 2.4.5 and compiled it. The kernel worked fine
+> until
+> I tried to halt the computer. When trying to unmount the reiserfs
+> filesystems,
+> the system freezes with the following output:
+> 
+> journal_begin called without kernel lock held
+> kernel BUG at journal.c:423!
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+	Yes. My fault - badly merged patch in -pre6, actually.
+Details:
+	* kill_super() gets called without BKL, but doesn't grab BKL around
+the calls of ->write_super() and ->put_super()
+	* by the time when it calls these methods filesystem is quiet. I.e.
+nothing else has a chance to touch its data structures. So actually only
+reiserfs (which checks that we hold BKL) had noticed.
+	* It _is_ a bug - changing locking rules is for 2.5.
 
-Content-Type: text/plain; charset=us-ascii
+Fix:
+--- fs/super.c	Fri May 25 21:51:14 2001
++++ fs/super.c	Sun May 27 00:21:53 2001
+@@ -873,6 +873,7 @@
+ 	}
+ 	spin_unlock(&dcache_lock);
+ 	down_write(&sb->s_umount);
++	lock_kernel();
+ 	sb->s_root = NULL;
+ 	/* Need to clean after the sucker */
+ 	if (fs->fs_flags & FS_LITTER)
+@@ -901,6 +902,7 @@
+ 	put_filesystem(fs);
+ 	sb->s_type = NULL;
+ 	unlock_super(sb);
++	unlock_kernel();
+ 	up_write(&sb->s_umount);
+ 	if (bdev) {
+ 		blkdev_put(bdev, BDEV_FS);
 
->--- include/asm-arm/atomic.h.old	Sun May 27 22:30:58 2001
->+++ include/asm-arm/atomic.h	Sun May 27 22:58:20 2001
->@@ -12,6 +12,7 @@
->  *   13-04-1997	RMK	Made functions atomic!
->  *   07-12-1997	RMK	Upgraded for v2.1.
->  *   26-08-1998	PJB	Added #ifdef __KERNEL__
->+ *   27-05-2001	APB     Removed #ifdef __KERNEL__
->  */
-> #ifndef __ASM_ARM_ATOMIC_H
-> #define __ASM_ARM_ATOMIC_H
->@@ -30,7 +31,6 @@
-
-This is no good.  The ARM kernel just doesn't provide any atomic primitives 
-that will work in user space.  If you want atomicity you have to use 
-libpthread.
-
-p.
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999 (debian)
-
-iD8DBQE7EXs4VTLPJe9CT30RAvUbAKDaa1jAUofWYw0z0u808GhOfWEj5QCfW2j+
-n/gYS07GAolG6ISDUbOKDnY=
-=2+Qj
------END PGP SIGNATURE-----
-
---==_Exmh_-1121109888P--

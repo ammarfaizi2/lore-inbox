@@ -1,46 +1,186 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314221AbSEFGah>; Mon, 6 May 2002 02:30:37 -0400
+	id <S314123AbSEFGfR>; Mon, 6 May 2002 02:35:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314227AbSEFGag>; Mon, 6 May 2002 02:30:36 -0400
-Received: from melancholia.rimspace.net ([210.23.138.19]:40456 "EHLO
-	melancholia.danann.net") by vger.kernel.org with ESMTP
-	id <S314221AbSEFGaf>; Mon, 6 May 2002 02:30:35 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: Linux-2.5.14..
-In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com>
-From: Daniel Pittman <daniel@rimspace.net>
-Organization: Not today, thank you, Mother.
-Date: Mon, 06 May 2002 16:30:28 +1000
-Message-ID: <87g015bxff.fsf@enki.rimspace.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.5 (bamboo,
- i686-pc-linux)
-MIME-Version: 1.0
+	id <S314126AbSEFGfQ>; Mon, 6 May 2002 02:35:16 -0400
+Received: from surf.viawest.net ([216.87.64.26]:52186 "EHLO surf.viawest.net")
+	by vger.kernel.org with ESMTP id <S314123AbSEFGfP>;
+	Mon, 6 May 2002 02:35:15 -0400
+Date: Sun, 5 May 2002 23:35:09 -0700
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.14 - sound again.
+Message-ID: <20020506063509.GA28966@wizard.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux/2.5.13 (i686)
+X-uptime: 11:10pm  up 1 day, 20:46,  2 users,  load average: 1.01, 1.00, 0.58
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 May 2002, Linus Torvalds wrote:
-> There's a lot of stuff that has happened in the 2.5.x series lately,
-> and you can see the gory details in the ChangeLog files that accompany
-> releases these days, but I thought I'd point out 2.5.14, since it has
-> some interesting fundamental changes to how dirty state is maintained
-> in the VM.
-> 
-> (The big changes were actually in 2.5.12, but 2.5.13 contained various
-> minor fixes and tweaks, and 2.5.14 contains a number of fixes
-> especially wrt truncate, so hopefully it's fairly _stable_ as of
-> 2.5.14.)
 
->From the look of the changelog at least a few of the file corruption
-bugs with ext3, 2k block file systems and 2.5 have been fixed. Should I
-expect this release to address the problems I was seeing?
+        Looks like ALSA went bung again in 2.5.14. sound/core/misc.c still 
+fails to compile when running make modules. Jaroslav's patch takes care of 
+this, though another pops up:
 
-        Daniel
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.10/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE 
+-DMODVERSIONS -include /usr/src/linux-2.5.10/include/linux/modversions.h  
+-DKBUILD_BASENAME=opl3_drums  -c -o opl3_drums.o opl3_drums.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.10/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=i686 -malign-functions=4  -DMODULE 
+-DMODVERSIONS -include /usr/src/linux-2.5.10/include/linux/modversions.h  
+-DKBUILD_BASENAME=opl3_oss  -c -o opl3_oss.o opl3_oss.c
+opl3_oss.c:25: parse error before `*'
+opl3_oss.c:25: warning: function declaration isn't a prototype
+opl3_oss.c:26: parse error before `*'
+opl3_oss.c:26: warning: function declaration isn't a prototype
+opl3_oss.c:27: parse error before `*'
+opl3_oss.c:27: warning: function declaration isn't a prototype
+opl3_oss.c:28: parse error before `*'
+opl3_oss.c:28: warning: function declaration isn't a prototype
+opl3_oss.c:29: parse error before `*'
+opl3_oss.c:29: warning: function declaration isn't a prototype
+opl3_oss.c:49: parse error before `oss_callback'
+opl3_oss.c:49: warning: type defaults to `int' in declaration of `oss_callback'
+opl3_oss.c:50: unknown field `owner' specified in initializer
+opl3_oss.c:50: warning: initialization makes integer from pointer without a 
+cast
+opl3_oss.c:51: unknown field `open' specified in initializer
+opl3_oss.c:51: warning: excess elements in scalar initializer
+opl3_oss.c:51: warning: (near initialization for `oss_callback')
+opl3_oss.c:52: unknown field `close' specified in initializer
+opl3_oss.c:52: warning: excess elements in scalar initializer
+opl3_oss.c:52: warning: (near initialization for `oss_callback')
+opl3_oss.c:53: unknown field `ioctl' specified in initializer
+opl3_oss.c:53: warning: excess elements in scalar initializer
+opl3_oss.c:53: warning: (near initialization for `oss_callback')
+opl3_oss.c:54: unknown field `load_patch' specified in initializer
+opl3_oss.c:54: warning: excess elements in scalar initializer
+opl3_oss.c:54: warning: (near initialization for `oss_callback')
+opl3_oss.c:55: unknown field `reset' specified in initializer
+opl3_oss.c:55: warning: excess elements in scalar initializer
+opl3_oss.c:55: warning: (near initialization for `oss_callback')
+opl3_oss.c:56: warning: data definition has no type or storage class
+opl3_oss.c: In function `snd_opl3_oss_event_input':
+opl3_oss.c:64: structure has no member named `oss_chset'
+opl3_oss.c: In function `snd_opl3_oss_free_port':
+opl3_oss.c:74: structure has no member named `oss_chset'
+opl3_oss.c: In function `snd_opl3_oss_create_port':
+opl3_oss.c:85: structure has no member named `oss_chset'
+opl3_oss.c:86: structure has no member named `oss_chset'
+opl3_oss.c:88: structure has no member named `oss_chset'
+opl3_oss.c:99: structure has no member named `oss_chset'
+opl3_oss.c:100: structure has no member named `oss_chset'
+opl3_oss.c:106: structure has no member named `oss_chset'
+opl3_oss.c:107: structure has no member named `oss_chset'
+opl3_oss.c:108: structure has no member named `oss_chset'
+opl3_oss.c: In function `snd_opl3_init_seq_oss':
+opl3_oss.c:118: `snd_seq_oss_reg_t' undeclared (first use in this function)
+opl3_oss.c:118: (Each undeclared identifier is reported only once
+opl3_oss.c:118: for each function it appears in.)
+opl3_oss.c:118: `arg' undeclared (first use in this function)
+opl3_oss.c:118: warning: statement with no effect
+opl3_oss.c:119: parse error before `*'
+opl3_oss.c:121: `SNDRV_SEQ_DEV_ID_OSS' undeclared (first use in this function)
+opl3_oss.c:122: `dev' undeclared (first use in this function)
+opl3_oss.c:125: structure has no member named `oss_seq_dev'
+opl3_oss.c:129: `SYNTH_TYPE_FM' undeclared (first use in this function)
+opl3_oss.c:131: `FM_TYPE_ADLIB' undeclared (first use in this function)
+opl3_oss.c:134: `FM_TYPE_OPL3' undeclared (first use in this function)
+opl3_oss.c: In function `snd_opl3_free_seq_oss':
+opl3_oss.c:149: structure has no member named `oss_seq_dev'
+opl3_oss.c:150: structure has no member named `oss_seq_dev'
+opl3_oss.c:151: structure has no member named `oss_seq_dev'
+opl3_oss.c: At top level:
+opl3_oss.c:158: parse error before `*'
+opl3_oss.c:159: warning: function declaration isn't a prototype
+opl3_oss.c: In function `snd_opl3_open_seq_oss':
+opl3_oss.c:160: `closure' undeclared (first use in this function)
+opl3_oss.c:163: `arg' undeclared (first use in this function)
+opl3_oss.c:170: structure has no member named `oss_chset'
+opl3_oss.c:171: structure has no member named `oss_chset'
+opl3_oss.c: At top level:
+opl3_oss.c:181: parse error before `*'
+opl3_oss.c:182: warning: function declaration isn't a prototype
+opl3_oss.c: In function `snd_opl3_close_seq_oss':
+opl3_oss.c:185: `arg' undeclared (first use in this function)
+opl3_oss.c: At top level:
+opl3_oss.c:210: parse error before `*'
+opl3_oss.c:212: warning: function declaration isn't a prototype
+opl3_oss.c: In function `snd_opl3_load_patch_seq_oss':
+opl3_oss.c:216: `arg' undeclared (first use in this function)
+opl3_oss.c:219: `format' undeclared (first use in this function)
+opl3_oss.c:219: `FM_PATCH' undeclared (first use in this function)
+opl3_oss.c:219: `OPL3_PATCH' undeclared (first use in this function)
+opl3_oss.c:220: storage size of `sbi' isn't known
+opl3_oss.c:232: `count' undeclared (first use in this function)
+opl3_oss.c:236: `buf' undeclared (first use in this function)
+opl3_oss.c:220: warning: unused variable `sbi'
+opl3_oss.c: At top level:
+opl3_oss.c:323: parse error before `*'
+opl3_oss.c:325: warning: function declaration isn't a prototype
+opl3_oss.c: In function `snd_opl3_ioctl_seq_oss':
+opl3_oss.c:328: `arg' undeclared (first use in this function)
+opl3_oss.c:330: `cmd' undeclared (first use in this function)
+opl3_oss.c:331: `SNDCTL_FM_LOAD_INSTR' undeclared (first use in this function)
+opl3_oss.c:335: `SNDCTL_SYNTH_MEMAVL' undeclared (first use in this function)
+opl3_oss.c:338: `SNDCTL_FM_4OP_ENABLE' undeclared (first use in this function)
+opl3_oss.c:332: warning: unreachable code at beginning of switch statement
+opl3_oss.c: At top level:
+opl3_oss.c:349: parse error before `*'
+opl3_oss.c:350: warning: function declaration isn't a prototype
+opl3_oss.c: In function `snd_opl3_reset_seq_oss':
+opl3_oss.c:353: `arg' undeclared (first use in this function)
+make[3]: *** [opl3_oss.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.5.10/sound/drivers/opl3'
+make[2]: *** [_modsubdir_opl3] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.5.10/sound/drivers'
+make[1]: *** [_modsubdir_drivers] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.10/sound'
+make: *** [_mod_sound] Error 2
 
+        Revelant parts of .config below.
+
+CONFIG_SOUND=m
+
+#
+# Open Sound System
+#
+
+CONFIG_SOUND_PRIME=m
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_VMIDI=m
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_YM3812=m
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=m
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_MEMORY=y
+CONFIG_SND_DEBUG_DETECT=y
+CONFIG_SND_MPU401=m
+CONFIG_SND_ENS1371=m
+CONFIG_SND_FM801=m
+
+                                                        BL.
 -- 
-I keep my head above the surface, trying to breath, looking for land.
-I keep an eye at the distant horizon waiting for help, clutching the sky.
-        -- Covenant, _Phoenix_
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
+

@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265900AbUGTOdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265964AbUGTOhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265900AbUGTOdw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 10:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUGTOdv
+	id S265964AbUGTOhM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 10:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265962AbUGTOhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 10:33:51 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:22989 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265900AbUGTOdm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 10:33:42 -0400
-Date: Tue, 20 Jul 2004 10:36:54 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.7 crash
-In-Reply-To: <2E314DE03538984BA5634F12115B3A4E62E8B9@email1.mitretek.org>
-Message-ID: <Pine.LNX.4.58.0407201018070.21932@montezuma.fsmlabs.com>
-References: <2E314DE03538984BA5634F12115B3A4E62E8B9@email1.mitretek.org>
+	Tue, 20 Jul 2004 10:37:11 -0400
+Received: from gandalf.impreva.com ([212.29.208.227]:17866 "EHLO
+	gandalf.webcohort.com") by vger.kernel.org with ESMTP
+	id S265958AbUGTOe5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 10:34:57 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: module name is KBUILD_MODNAME
+Date: Tue, 20 Jul 2004 17:36:01 +0200
+Message-ID: <96242ACDF1723A4BBF70D21211FB9B2306368E@shrek.webcohort.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: module name is KBUILD_MODNAME
+Thread-Index: AcRubxDYert/zd/1QnisMkm9yfr5jQ==
+From: "Idan Spektor" <idan@imperva.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jul 2004, Piszcz, Justin Michael wrote:
+Hi All,
+I am migrating my loadable module to work with the 2.6 kernel.
+I have actually managed to make everything working except for
+one thing. When I am loading my module (using the new
+modprobe), its name, as appearing in lsmod, is KBUILD_MODNAME instead
+of the module's real name. What am I missing? Is there
+a define for the module's name that I should add somewhere?
 
-> After running a session for a long period of time, I was going to
-> shutdown my machine, when I went to shutdown:
-> Kernel 2.6.7 crashed w/ VMWare 4.5.2.
->
-> I could not copy/paste text because it had crashed at the time, so here
-> is a screenshot:
-> http://installkernel.tripod.com/kernel.png (32KiB)
-> Any idea what happened here?
+ Kind Regards
+  Idan
 
-Try and reproduce the oops with a recent kernel (2.6.8-rc2) then log the
-entire error by using the vmware serial to file option, then boot the
-kernel with console=ttyS0,38400.

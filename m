@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131344AbRCHMRN>; Thu, 8 Mar 2001 07:17:13 -0500
+	id <S131335AbRCHM0M>; Thu, 8 Mar 2001 07:26:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131345AbRCHMRD>; Thu, 8 Mar 2001 07:17:03 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:19918 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131344AbRCHMQt>;
-	Thu, 8 Mar 2001 07:16:49 -0500
-Date: Thu, 8 Mar 2001 12:14:17 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: 64-bit capable block device layer
-Message-ID: <20010308121417.B14121@redhat.com>
-In-Reply-To: <20010307184749.A4653@suse.de> <Pine.LNX.4.33.0103071504250.1409-100000@duckman.distro.conectiva> <20010307195323.D4653@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010307195323.D4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 07:53:23PM +0100
+	id <S131339AbRCHM0C>; Thu, 8 Mar 2001 07:26:02 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:34291 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131335AbRCHMZu>; Thu, 8 Mar 2001 07:25:50 -0500
+Date: Thu, 8 Mar 2001 09:24:13 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Andrew Morton <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: Questions - Re: [PATCH] documentation for mm.h
+In-Reply-To: <5.0.2.1.2.20010308095213.00a59040@pop.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.33.0103080923310.1409-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 8 Mar 2001, Anton Altaparmakov wrote:
+> At 22:33 07/03/2001, Rik van Riel wrote:
+> [snip]
+> >  typedef struct page {
+> >+       struct list_head list;          /* ->mapping has some page lists. */
+> >+       struct address_space *mapping;  /* The inode (or ...) we belong to. */
+> >+       unsigned long index;            /* Our offset within mapping. */
+>
+> Assuming index is in bytes (it looks like it is): Shouldn't index of type
 
-On Wed, Mar 07, 2001 at 07:53:23PM +0100, Jens Axboe wrote:
-> > 
-> > OTOH, I'm not sure what problems it could give to make this
-> > a compile-time option...
-> 
-> Plus compile time options are nasty :-). It would probably make
-> bigger sense to completely skip all the merging etc for low end
-> machines. I think they already do this for embedded kernels (ie
-> removing ll_rw_blk.c and elevator.c). That avoids most of the
-> 64-bit arithmetic anyway.
+It's in units of PAGE_CACHE_SIZE. I've corrected the documentation.
 
-It's not just a sector-number and ll_rw_blk/elevator issue.  The limit
-goes all the way up to the users of the block device, be they the
-filesystem, buffer cache or block read/write layer.  
+> [snip]
+> >+ * During disk I/O, PG_locked is used. This bit is set before I/O
+> >+ * and reset when I/O completes. page->wait is a wait queue of all
+> >+ * tasks waiting for the I/O on this page to complete.
+>
+> Is this physical I/O only or does it include a driver
+> writing/reading the page?
 
-This is especially true for filesystems like XFS which need a 512-byte
-blocksize.  At least with ext2 you can set the blocksize to 4kB and
-get some of the benefit of larger block devices without having to
-overflow the 32-bit block number.
+I'm not sure ... anyone ?
 
-Cheers,
- Stephen
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+

@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268483AbUJMGiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268532AbUJMGm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268483AbUJMGiN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 02:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbUJMGiN
+	id S268532AbUJMGm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 02:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbUJMGm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 02:38:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:9343 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268483AbUJMGiL (ORCPT
+	Wed, 13 Oct 2004 02:42:28 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:53421 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269157AbUJMGli (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 02:38:11 -0400
-Message-ID: <b2fa632f041012233864cc3296@mail.gmail.com>
-Date: Wed, 13 Oct 2004 12:08:10 +0530
-From: Raj <inguva@gmail.com>
-Reply-To: Raj <inguva@gmail.com>
-To: eshwar <eshwar@moschip.com>
-Subject: Re: Write USB Device Driver entry not called
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <001401c4b796$abcddfb0$41c8a8c0@Eshwar>
+	Wed, 13 Oct 2004 02:41:38 -0400
+Date: Wed, 13 Oct 2004 16:39:55 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+Message-ID: <20041013063955.GA2079@frodo>
+References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar>
-	 <b2fa632f0410122315753f8886@mail.gmail.com>
-	 <001401c4b796$abcddfb0$41c8a8c0@Eshwar>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041012231945.2aff9a00.akpm@osdl.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Oct 2004 23:22:02 +0530, eshwar <eshwar@moschip.com> wrote:
-> Open is sucessfull.... I don't think the problem the flags of open
-> 
-Try this: open("/dev/usb/dabusb10",O_WRONLY | O_APPEND );
+Hi Andrew,
 
-######
-raj
-######
+On Tue, Oct 12, 2004 at 11:19:45PM -0700, Andrew Morton wrote:
+> Nathan Scott <nathans@sgi.com> wrote:
+> >
+> >  So, any ideas what happened to 2.6.9?
+> 
+> Does reverting the below fix it up?
+
+Reverting that one improves things slightly - I move up from
+~4MB/sec to ~17MB/sec; thats just under a third of the 2.6.8
+numbers I was seeing though, unfortunately.
+
+cheers.
+
+-- 
+Nathan

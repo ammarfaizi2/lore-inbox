@@ -1,43 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129439AbRBAVZY>; Thu, 1 Feb 2001 16:25:24 -0500
+	id <S129111AbRBAV1Y>; Thu, 1 Feb 2001 16:27:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131168AbRBAVZO>; Thu, 1 Feb 2001 16:25:14 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:16132 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131860AbRBAVZD>;
-	Thu, 1 Feb 2001 16:25:03 -0500
-Message-ID: <20010201134005.A119@bug.ucw.cz>
-Date: Thu, 1 Feb 2001 13:40:05 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: David Woodhouse <dwmw2@infradead.org>, Joe deBlaquiere <jadb@redhat.com>
-Cc: yodaiken@fsmlabs.com, Andrew Morton <andrewm@uow.edu.au>,
-        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-In-Reply-To: <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com> <20010129084410.B32652@hq.fsmlabs.com> <30672.980867280@redhat.com> <3A76E155.2030905@redhat.com> <5797.980871554@redhat.com>
+	id <S129154AbRBAV1O>; Thu, 1 Feb 2001 16:27:14 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:46563 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129111AbRBAV0y>;
+	Thu, 1 Feb 2001 16:26:54 -0500
+Date: Thu, 1 Feb 2001 21:25:08 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Christoph Hellwig <hch@caldera.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, bsuparna@in.ibm.com,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+Message-ID: <20010201212508.G11607@redhat.com>
+In-Reply-To: <20010201193221.D11607@redhat.com> <200102012046.VAA16746@ns.caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <5797.980871554@redhat.com>; from David Woodhouse on Tue, Jan 30, 2001 at 04:19:14PM +0000
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200102012046.VAA16746@ns.caldera.de>; from hch@caldera.de on Thu, Feb 01, 2001 at 09:46:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> >  I wasn't thinking of running the kernel XIP from writable, but even
-> > trying to do that from the filesystem is a mess. If you're going to be
-> >  that way about it...
+On Thu, Feb 01, 2001 at 09:46:27PM +0100, Christoph Hellwig wrote:
+
+> > Right now we can take a kiobuf and turn it into a bunch of
+> > buffer_heads for IO.  The io_count lets us track all of those sub-IOs
+> > so that we know when all submitted IO has completed, so that we can
+> > pass the completion callback back up the chain without having to
+> > allocate yet more descriptor structs for the IO.
 > 
-> Heh. I am. Read-only XIP is going to be doable, but writable XIP means that
-> any time you start to write to the flash chip, you have to find all
-> the
+> > Again, remove this and the IO becomes more heavyweight because we need
+> > to create a separate struct for the info.
+> 
+> No.  Just allow passing the multiple of the devices blocksize over
+> ll_rw_block.
 
-I thought that Vtech Helio folks already have XIP supported...
-								Pavel
+That was just one example: you need the sub-ios just as much when
+you split up an IO over stripe boundaries in LVM or raid0, for
+example.  Secondly, ll_rw_block needs to die anyway: you can expand
+the blocksize up to PAGE_SIZE but not beyond, whereas something like
+ll_rw_kiobuf can submit a much larger IO atomically (and we have
+devices which don't start to deliver good throughput until you use
+IO sizes of 1MB or more).
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> >> and the lack of
+> >> scatter gather in one kiobuf struct (you always need an array)
+> 
+> > Again, _all_ data being sent down through the block device layer is
+> > either in buffer heads or is page aligned.
+> 
+> That's the point.  You are always talking about the block-layer only.
+
+I'm talking about why the minimal, generic solution doesn't provide
+what the block layer needs.
+
+
+> > Obviously, extra code will be needed to scan kiobufs if we do that,
+> > and unless we have both per-page _and_ per-kiobuf start/offset pairs
+> > (adding even further to the complexity), those scatter-gather lists
+> > would prevent us from carving up a kiobuf into smaller sub-ios without
+> > copying the whole (expanded) vector.
+> 
+> No.  I think I explained that in my last mail.
+
+How?
+
+If I've got a vector (page X, offset 0, length PAGE_SIZE) and I want
+to split it in two, I have to make two new vectors (page X, offset 0,
+length n) and (page X, offset n, length PAGE_SIZE-n).  That implies
+copying both vectors.
+
+If I have a page vector with a single offset/length pair, I can build
+a new header with the same vector and modified offset/length to split
+the vector in two without copying it.
+
+> > Possibly, but I remain to be convinced, because you may end up with a
+> > mechanism which is generic but is not well-tuned for any specific
+> > case, so everything goes slower.
+> 
+> As kiobufs are widely used for real IO, just as containers, this is
+> better then nothing.
+
+Surely having all of the subsystems working fast is better still?
+
+> And IMHO a nice generic concepts that lets different subsystems work
+> toegther is a _lot_ better then a bunch of over-optimized, rather isolated
+> subsytems.  The IO-Lite people have done a nice research of the effect of
+> an unified IO-Caching system vs. the typical isolated systems.
+
+I know, and IO-Lite has some major problems (the close integration of
+that code into the cache, for example, makes it harder to expose the
+zero-copy to user-land).
+
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

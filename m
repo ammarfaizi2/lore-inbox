@@ -1,30 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286712AbSA2XV0>; Tue, 29 Jan 2002 18:21:26 -0500
+	id <S286339AbSA2XRO>; Tue, 29 Jan 2002 18:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286411AbSA2XUG>; Tue, 29 Jan 2002 18:20:06 -0500
-Received: from balu.sch.bme.hu ([152.66.208.40]:55465 "EHLO balu.sch.bme.hu")
-	by vger.kernel.org with ESMTP id <S287111AbSA2XTu>;
-	Tue, 29 Jan 2002 18:19:50 -0500
-Date: Wed, 30 Jan 2002 00:19:27 +0100 (MET)
-From: Pozsar Balazs <pozsy@sch.bme.hu>
-To: Dave Jones <davej@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.2-dj7
-In-Reply-To: <20020129225526.A3064@suse.de>
-Message-ID: <Pine.GSO.4.30.0201300018450.940-100000@balu>
+	id <S286821AbSA2XPx>; Tue, 29 Jan 2002 18:15:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:65033 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286756AbSA2XOm>; Tue, 29 Jan 2002 18:14:42 -0500
+Subject: Re: Linux 2.4.18pre7-ac1
+To: kristian.peters@korseby.net (Kristian)
+Date: Tue, 29 Jan 2002 23:27:23 +0000 (GMT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020129221545.4e9a253e.kristian.peters@korseby.net> from "Kristian" at Jan 29, 2002 10:15:45 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Vhet-0005Ut-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Compiling fails with the following output:
+> 
+> ld: cannot open ipt_ah.o: No such file or directory
 
-> 2.5.2-dj7
+Thats a bug in the base 2.4.18pre7
 
-> o   Workaround some broken PS/2 mice.			(Vojtech Pavlik)
+> Maybe that was meant with
+> > several 18pre7 netfilter bugs left unfixed for now
 
-What is this about exactly?
-
--- 
-Balazs Pozsar
-
+Yep 

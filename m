@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266206AbUFYExh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266209AbUFYFTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266206AbUFYExh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 00:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUFYExh
+	id S266209AbUFYFTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 01:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266211AbUFYFTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 00:53:37 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:16115 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S266199AbUFYExf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 00:53:35 -0400
-Message-ID: <40DBAFB0.5000109@nortelnetworks.com>
-Date: Fri, 25 Jun 2004 00:53:04 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Fri, 25 Jun 2004 01:19:13 -0400
+Received: from smtp.polymtl.ca ([132.207.4.11]:17600 "EHLO smtp.polymtl.ca")
+	by vger.kernel.org with ESMTP id S266209AbUFYFTL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 01:19:11 -0400
+Message-ID: <1088140750.40dbb5ce0fd50@www.imp.polymtl.ca>
+Date: Fri, 25 Jun 2004 07:19:10 +0200
+From: Guillaume Thouvenin <guillaume.thouvenin@polymtl.ca>
+To: linux-kernel@vger.kernel.org
+Subject: [Patch] Enhanced Linux System Accounting for 2.6.7
 MIME-Version: 1.0
-To: Wichert Akkerman <wichert@wiggy.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sys_gettimeofday racy or not?
-References: <20040625002057.GA3052@wiggy.net>
-In-Reply-To: <20040625002057.GA3052@wiggy.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 192.90.72.1
+X-Poly-FromMTA: (c4.si.polymtl.ca [132.207.4.29]) at Fri, 25 Jun 2004 05:19:10 +0000
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.26.0.3; VDF 6.26.0.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wichert Akkerman wrote:
-> This just happened to catch my eye and it's probably perfectly
-> valid, but if so please educate me on why it is. In kernel/time.c
-> sys_gettimeofday() there is this code:
-> 
->         if (unlikely(tz != NULL)) {
->                 if (copy_to_user(tz, &sys_tz, sizeof(sys_tz)))
->                         return -EFAULT;
->         }
-> 
-> what prevents sys_tz from being changed while this code runs?
+Hello,
 
-Nothing at all.
+    Here is a new patch for kernel 2.6.7. You can download it from 
+sourceforge at 
+http://prdownloads.sourceforge.net/elsa/patch-2.6.7-elsa?download
+  
+    This patch provides structures and functions to do accounting
+for a group of process. There is two parts. 
 
-I suspect most people don't worry about it, since its use is deprecated.  The 
-man page for gettimeofday() says "The use of the timezone struct is obsolete".
+  On one hand there is two APIs that allow the creation and the 
+destruction of an item called a "bank" that will contain an 
+group of processes. There is also two other routines that can 
+add or remove processes in a bank.
 
-Chris
+  On the other hand, you have the accounting mechanism that used bank
+to perform BSD-like accounting for a group of process. We used ioctl()
+interface to create/destroy a bank and also to add/remove a process in
+a bank. Currently, device driver is dev/elsacct and the major number
+is dynamically allocated, therefore you need to check the number in the
+/proc/devices and create the corresponding device. A sample code is
+given at:
+http://cvs.sourceforge.net/viewcvs.py/elsa/tests/elsa_cmd.c?rev=1.7&view=markup
+ 
+    Currently we do BSD-like accounting. The next step is to identify what
+kind of metrics can be interesting for accounting. We started to describe
+that point on a withpaper that is available at:
+http://sourceforge.net/docman/display_doc.php?docid=23446&group_id=105806
+This paper describes differences between two accounting systems that are
+ELSA and CSA.
+ 
+    Every comments are welcome, 
+
+The ELSA poject team (http://elsa.sourceforge.net)

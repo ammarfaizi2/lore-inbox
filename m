@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315425AbSEVWpO>; Wed, 22 May 2002 18:45:14 -0400
+	id <S315445AbSEVWqZ>; Wed, 22 May 2002 18:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSEVWpM>; Wed, 22 May 2002 18:45:12 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:7133 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315425AbSEVWpJ>;
-	Wed, 22 May 2002 18:45:09 -0400
-Date: Wed, 22 May 2002 15:44:01 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org,
-        andrea@suse.de, riel@surriel.com, akpm@zip.com.au
-Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
-Message-ID: <386750000.1022107441@flay>
-In-Reply-To: <Pine.LNX.4.33.0205221421180.1531-100000@penguin.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S315455AbSEVWqZ>; Wed, 22 May 2002 18:46:25 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:5831 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315445AbSEVWqX>;
+	Wed, 22 May 2002 18:46:23 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 23 May 2002 00:46:23 +0200 (MEST)
+Message-Id: <UTC200205222246.g4MMkNL26024.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.17 /dev/port
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If we could get the apps (well, Oracle) to co-operate, we could just use
->> clone ;-) Having this transparent for shmem segments would be really nice.
-> 
-> The thing is, we won't get Oracle to rewrite a lot for a completely
-> threaded system. And clone does _not_ come with a way to share only parts
-> of the VM, and never will - that's fundamentally against the way "struct 
-> mm_struct" works. 
+> Anybody: if you've ever used /dev/ports, holler _now_.
 
-We're actually playing with Oracle apps - I'm told they already run on threaded
-mode on NT ... I personally get the feeling that Oracle's commitment to Linux is 
-distinctly half-hearted. The whole support matrix debacle was pretty indicative, 
-IMHO. All personal opinion, I speaketh not for IBM.
- 
-> Oracle is apparently already used to magic shmem-like things, so doing 
-> that is probably acceptable to them.
+Holler.
 
-We can but try, but I still think some transparent magic would be implementable.
 
-M.
+In my eyes /dev/port is a rather unimportant corner
+of the kernel. Removing it does not streamline anything,
+we hear that it saves 454 bytes. A worthy goal, but..
+
+Today a few things use /dev/port. Some low level mouse,
+keyboard and console utilities. kbdrate. hwclock.
+
+Is it needed? Hardly - most uses can be replaced by inb()
+and outb(). But I am not sure why that would be better.
+And I seem to recall that hwclock on some flavours of Alpha
+really needed the /dev/port way. But I may be mistaken.
+
+
+I have also seen systems that used /dev/port as
+the implementation of inb() and and outb():
+ outb(int p, char v) { lseek(fd,p,0); write(fd,&v,1); }
+That way one could access keyboard, sound, rtc etc
+while the underlying hardware was rather different from i86.
+
+
+A further advantage of having /dev/port is that it allows one
+to set keyboard or mouse or whatever properties from anything
+that is able to access a file. But outb() or ioctl() probably
+require something close to a C environment.
+Probably this is what Alan is saying.
+
+
+It is rather unimportant, but there are a few uses, and removing it
+does not really have any positive effect. Quickly the 454 bytes
+won will be lost again to the new ioctls, and to the filesystem
+that Al develops to set the border colour of the monitor screen
+and become a bleeding edge developer too.
+
+
+Andries
 

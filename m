@@ -1,74 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264007AbTEONFx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 09:05:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264008AbTEONFx
+	id S264018AbTEONOA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 09:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264015AbTEONOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 09:05:53 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:8446 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S264007AbTEONFv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 09:05:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Mike Touloumtzis <miket@bluemug.com>
-Subject: Re: The disappearing sys_call_table export.
-Date: Thu, 15 May 2003 08:17:41 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Ahmed Masud <masud@googgun.com>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Yoav Weiss <ml-lkml@unpatched.org>, linux-kernel@vger.kernel.org
-References: <20030514074403.GA18152@bluemug.com> <20030514205847.GA18514@bluemug.com> <Pine.LNX.4.53.0305141724220.12328@chaos>
-In-Reply-To: <Pine.LNX.4.53.0305141724220.12328@chaos>
-MIME-Version: 1.0
-Message-Id: <03051508174100.25285@tabby>
-Content-Transfer-Encoding: 7BIT
+	Thu, 15 May 2003 09:14:00 -0400
+Received: from smtp2.server.rpi.edu ([128.113.2.2]:64396 "EHLO
+	smtp2.server.rpi.edu") by vger.kernel.org with ESMTP
+	id S264012AbTEONN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 09:13:56 -0400
+Mime-Version: 1.0
+Message-Id: <p0521061dbae942d9af19@[128.113.24.47]>
+In-Reply-To: <BKEGKPICNAKILKJKMHCAKEDODAAA.Riley@Williams.Name>
+References: <BKEGKPICNAKILKJKMHCAKEDODAAA.Riley@Williams.Name>
+Date: Thu, 15 May 2003 09:26:26 -0400
+To: "Riley Williams" <Riley@Williams.Name>, "Russ Allbery" <rra@stanford.edu>,
+       "Linus Torvalds" <torvalds@transmeta.com>
+From: Garance A Drosihn <drosih@rpi.edu>
+Subject: RE: [OpenAFS-devel] Re: [PATCH] PAG support, try #2
+Cc: "Jan Harkes" <jaharkes@cs.cmu.edu>, "David Howells" <dhowells@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>,
+       <openafs-devel@openafs.org>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 May 2003 16:32, Richard B. Johnson wrote:
-> On Wed, 14 May 2003, Mike Touloumtzis wrote:
-> > On Wed, May 14, 2003 at 06:34:30AM -0400, Ahmed Masud wrote:
-> > > Level of security is a matter of trust.  Should the kernel trust a
-> > > distribution provider? No, that is not a reasonable request, because we
-> > > do not control their environment and evaluation proceedures and there
-> > > are no guarentees between the channel that provides the operating
-> > > system to the time it gets installed on a system.
-> >
-> > I don't understand why people are willing to base security arguments
-> > on some sort of bizarre adversarial relationship between the kernel and
-> > the system tools.
-> >
-> > No Unix (even a "secure" one) is designed to run all security-critical
-> > code in the kernel.  That would be a bad design anyway, since it would
-> > run lots of code at an unwarranted privilege level.  "login" is not
-> > part of the kernel.  "su" is not part of the kernel".  The boot loader
-> > is not part of the kernel.  And so on.
-> >
-> > There is no issue of "trust" between the kernel and the distribution
-> > provider.  The distribution provider provides a system, which (like all
-> > Unix-derived systems) is modular and thus has multiple independent
-> > components with security functions.  The sum of those parts is what you
-> > should evaluate for security.  Yes, the system should include proper
-> > isolation mechanisms to prevent improper privilege escalations.  But it
-> > doesn't make sense to even think about what the kernel should do when
-> > the untrusted distribution provides a malicious "/sbin/init".
+At 7:04 AM +0100 5/15/03, Riley Williams wrote:
+>Hi Russ.
 >
-> Not even malicious. For years, it was accepted that if you had
-> physical possesion of a computing system, you could do anything
-> with it that it was capable of.
+>  > If a single process is in possession of multiple sets of
+>  > credentials at the same time, how does the file system code
+>  > in the kernel know which ones to use for a given operation
+>  > with a network file system?
 >
-> Not so, with the latest Red Hat distribution (9). You can no longer
-> set init=/bin/bash at the boot prompt.... well you can set it, but
-> then you get an error about killing init. This caused a neighbor
-> a lot of trouble when she accidentally put a blank line in the
-> top of /etc/passwd. Nobody could log-in. I promised to show her
-> how to "break in", but I wasn't able to. I had to take her hard-disk
-> to my house, mount it, and fix the password file. All these "attempts"
-> at so-called security do is make customers pissed.
+>I am in possession of multiple sets of credentials - my driving
+>licence, my passport, my works pass, my bank cards, my store
+>cards, to name just a few. How does the entity I am interacting
+>with know which one they are interested in, I wonder...
 
-I fix those errors with by booting the Slackware CD with the live 
-filesystem...
+You have this analogy at the wrong level.  I must admit that I
+have not looked at the code which everyone is discussing, so
+maybe it is the code which is confusing people who have not
+dealt with a PAG before.
 
-No dependancies on any of the regular disks - then I can fix anything within
-reason (haven't tried md raids though).
+Yes, you (as a person) have multiple credentials, but they are
+from different "cells".  A PAG can contain multiple credentials
+from different AFS cells, but it can only contain one credential
+from any one cell.  So, for instance, you have a driver's license,
+and a dozen other cards.  However, if the police pull you over and
+you hand them two different driver's license from the same state,
+and those licenses have different names, and you say "I am both of
+these people", then you are probably going to find yourself in
+some pretty serious trouble.
+
+The credential we're talking about here is your AFS userid (that
+is the credential which is stored in a PAG --> NOTE that it is
+*not* the pag itself, the pag is just a collection of credentials).
+So, having multiple AFS userids from a single cell at the same
+moment is exactly the same as saying a single process is two
+different unix userids at the same moment.
+
+Please realize that actually I'd love to have a way to be two
+AFS userids at the same moment, and one might get some ideas
+from the unix notion of setuid() vs seteuid().  But that is
+the set of questions that you'd need to answer if you want a
+single PAG to hold more than one token-from-a-single-cell at
+the exact same moment.  Some process is going to open a single
+file, and it will have to make access-checks when opening that
+single file, and you want those access checks to see "two
+different people" at the same moment -- even though those two
+people may have explicitly different access to the file.
+
+>Best wishes from Riley.
+
+Best wishes in return.  Cheerio.
+
+Unfortunately I'm late for meeting right now, so I have to run.
+I should be back in, uh, about eight or nine hours.  I hate days
+like this...
+
+-- 
+Garance Alistair Drosehn            =   gad@gilead.netel.rpi.edu
+Senior Systems Programmer           or  gad@freebsd.org
+Rensselaer Polytechnic Institute    or  drosih@rpi.edu

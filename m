@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265868AbRF2L5a>; Fri, 29 Jun 2001 07:57:30 -0400
+	id <S265871AbRF2MAk>; Fri, 29 Jun 2001 08:00:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265871AbRF2L5U>; Fri, 29 Jun 2001 07:57:20 -0400
-Received: from metastasis.f00f.org ([203.167.249.89]:22913 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S265868AbRF2L5F>;
-	Fri, 29 Jun 2001 07:57:05 -0400
-Date: Fri, 29 Jun 2001 23:56:19 +1200
-To: Christopher Smith <x@xman.org>
-Cc: Dan Maas <dmaas@dcine.com>, John Fremlin <vii@users.sourceforge.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: A signal fairy tale
-Message-ID: <20010629235619.A11379@weta.f00f.org>
-In-Reply-To: <fa.d69j5vv.ej8irj@ifi.uio.no> <fa.h2rpibv.87m5bp@ifi.uio.no> <5.1.0.14.0.20010629012354.02b759d0@imap.xman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.0.20010629012354.02b759d0@imap.xman.org>
-User-Agent: Mutt/1.3.18i
-From: cw@f00f.org (Chris Wedgwood)
+	id <S265872AbRF2MAa>; Fri, 29 Jun 2001 08:00:30 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:61163 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S265871AbRF2MAR> convert rfc822-to-8bit;
+	Fri, 29 Jun 2001 08:00:17 -0400
+Message-ID: <3B3C6DCB.5711888E@Sun.COM>
+Date: Fri, 29 Jun 2001 13:00:11 +0100
+From: Craig McLean <Craig.McLean@Sun.COM>
+Reply-To: Craig.McLean@Sun.COM
+Organization: Sun Microsystems
+X-Mailer: Mozilla 4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: hacksaw@hacksaw.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <200106290322.EAA04600@mauve.demon.co.uk> <m2ithfr0et.fsf@mandrakesoft.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 29, 2001 at 01:26:29AM -0700, Christopher Smith wrote:
+Hacksaw <hacksaw@hacksaw.org> opined:
+> Given that seeing as much as possible on a potentially
+> small screen would be good, maybe tighter would be 
+> nice. In example:
+> 
+> kswapd:    v1.8
+> pty        Devices: 256 Unix98 ptys configured
+> serial:    v5.05b (2001-05-03) with 
+>            Options: MANY_PORTS SHARE_IRQ SERIAL_PCI
+>            Devices: ttyS00 at 0x03f8 (irq = 4) is a 16550A
+>                     ttyS01 at 0x02f8 (irq = 3) is a 16550A
+> rtclock:   v1.10d
+> ide:       v6.31
 
-> P.S.: What do you mean by explicit binding between event queues and
-> threads? I'm not sure I see what this gains you.
+Perhaps a boot time option such as:
 
-Cache affinity presumably?
+lilo boot: newkernel debug=xxxxxxx
 
+Where each 'x' is an option given to each driver and modules as they're
+loaded, say 'v' for 'show version', 'o' for 'show options', 'd' for
+'show devices managed' and so on. You could even have a 'p' for 'give
+mad props' if you wanted :-).
+No 'debug=' could then simply cause the kernel to kprint any info from
+drivers/modules that failed to load, else keep schtum.
+Just my £0.02.
 
-
-  --cw
+Craig.
+--
+Craig McLean				P: 01276 423905
+Proactive Technical Analyst		M: 07801 459497
+Sun Microsystems Proactive Services	E: craig.mclean@sun.com

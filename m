@@ -1,65 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269511AbUICBno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269553AbUICBnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269511AbUICBno (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 21:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269523AbUICBhj
+	id S269553AbUICBnn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 21:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269540AbUICBkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 21:37:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1462 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269511AbUICBd6 (ORCPT
+	Thu, 2 Sep 2004 21:40:25 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:40119 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S269532AbUICBjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:33:58 -0400
-Date: Thu, 2 Sep 2004 18:31:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "" <pmarques@grupopie.com>
-Cc: sam@ravnborg.org, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org,
-       mpm@selenic.com
-Subject: Re: [PATCH] kallsyms: speed up /proc/kallsyms
-Message-Id: <20040902183156.14c066ec.akpm@osdl.org>
-In-Reply-To: <1094175114.4137c98a2b4ae@webmail.grupopie.com>
-References: <4134DEF4.8090001@grupopie.com>
-	<1094016277.17828.53.camel@bach>
-	<4135AFBE.1000707@grupopie.com>
-	<20040901192755.GC7219@mars.ravnborg.org>
-	<41362694.9070101@grupopie.com>
-	<20040901195132.GA15432@mars.ravnborg.org>
-	<41370C7E.4020304@grupopie.com>
-	<20040902221733.GA8868@mars.ravnborg.org>
-	<1094175114.4137c98a2b4ae@webmail.grupopie.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 2 Sep 2004 21:39:33 -0400
+Message-ID: <4137CB47.1070805@slaphack.com>
+Date: Thu, 02 Sep 2004 20:39:19 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: Oliver Neukum <oliver@neukum.org>, Spam <spam@tnonline.net>,
+       Hans Reiser <reiser@namesys.com>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <4136E0B6.4000705@namesys.com> <1117111836.20040902115249@tnonline.net> <200409021309.04780.oliver@neukum.org>            <4137BE36.5020504@slaphack.com> <200409030118.i831IUc6006797@turing-police.cc.vt.edu>
+In-Reply-To: <200409030118.i831IUc6006797@turing-police.cc.vt.edu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"" <pmarques@grupopie.com> wrote:
->
-> Quoting Sam Ravnborg <sam@ravnborg.org>:
-> 
-> > On Thu, Sep 02, 2004 at 01:05:18PM +0100, Paulo Marques wrote:
-> >  
-> > > All 3 patches will be against 2.6.9-rc1-mm2. I'm just saying
-> > > this to make sure I understood correctly what I'm supposed to
-> > > do.
-> > 
-> > Preferable on top of Linus - latest.
-> 
-> I was preparing to do just that, but bumped into a simple problem.
-> 
-> If I patch against Linus tree, then the 3 patches suggested by
-> Rusty Russell make no sense, because the Linus tree still has stem
-> compression. So there is no inconsistency bug and there are no
-> comments to add, there is only a single patch to go from stem
-> compression to the new compression scheme.
-> 
-> It does not sound so bad to have just one patch that appears at 
-> 2.6.9-rc2 that says "change kallsyms compression scheme", so I 
-> have no problem producing this patch.
-> 
-> I'm now holding on to avoid start sending patches against
-> different trees and make a total mess :(
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In that case please prepare diffs against -mm.  I've dropped a
-snapshot patch against 2.6.9-rc1 at
-http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2
+Valdis.Kletnieks@vt.edu wrote:
+| On Thu, 02 Sep 2004 19:43:34 CDT, David Masover said:
+|
+|
+|>And on apps.  Should I teach OpenOffice.org to do version control?
+|>Seems a lot easier to just do it in the kernel, and teach everything to
+|>do version control in one fell swoop.
+|
+|
+| Including files you didn't really want to keep version control of?
+
+No one said you have to apply it to everything.  Only that you can.
+Right now vim cannot do version control, AFAIK.  But you could do
+something like:
+	echo 1 > foo/version_control
+	vim foo
+
+Default would be off, of course.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQTfLR3gHNmZLgCUhAQKybRAAkF4sqLUCJEfpDNvKEyv8MJGcy0w+qV12
+3Rf50OQeeurZMZrnli0vNIuSIWwIsGI+j7qbj1mlfi+Ps3dAjOlKXav3tGoGshLl
+HH/Wl9XvGPOAWlIQOqqBGAyno8sDIvHAjh5lH3C7m+9/2Ao7s1G/bQ+hm/deYPJK
+WPZxExd/1BdchrbjNjbfWHKrD6LdF/GBa/Vbj1F8m95WEvxsfbDnSTwb5HhvcUxD
+TtqwkINmx7Tle2p9q7PcgR7y76dmcyoWw82ST3BfF/AbGauMQAr0h6jNjvzclfgJ
+yrIOwGXdR3pn8ZK8dHVct79N0f+PYFdeAzLYxMZR2vefB2enQolbbs6Lf7X60g2g
+5hrH/ezenFJIZMPhQtlJqBaFuA5GHw9B2An6VbOmDm7sSOFyHSlKoCUFlJ/I5nZd
+Bcn46lhNxvTJhu3tvnvDqTB8f0/yVYt5QfoBFA1mzHKig2iNN6vr2xLGdWSLU6XD
+vRjy+KyVC+PvjL13E0JrjXy9UuqY7CH2xAunSgLJ2cvfRmNRoVoV1hkp3McQcUqF
+GiD3s0REcztlvsrP+DxKLRtPpnOJi5By5NmZpJkiPdVB9zpIsL/Ia7KL/A7IGGh3
+IF3t/xSUmjgrek01SeadHqsIngeWQ+F8fiars7NtzNhrvRgPVfDVheey3vhQjFxM
+3kDKH+I9rGk=
+=3+nq
+-----END PGP SIGNATURE-----

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263711AbUBRF7X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 00:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbUBRF7W
+	id S264275AbUBRGB4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 01:01:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUBRGB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 00:59:22 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:13455
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S263711AbUBRF7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 00:59:21 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Marc Lehmann <pcg@schmorp.de>
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Date: Tue, 17 Feb 2004 20:49:38 -0600
-User-Agent: KMail/1.5.4
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202043.GD17015@schmorp.de>
-In-Reply-To: <20040216202043.GD17015@schmorp.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Feb 2004 01:01:56 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:20996 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S264275AbUBRGBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 01:01:55 -0500
+Date: Wed, 18 Feb 2004 06:57:44 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.25-rc4
+Message-ID: <20040218055744.GC15660@alpha.home.local>
+References: <Pine.LNX.4.58L.0402180207540.4852@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402172049.38887.rob@landley.net>
+In-Reply-To: <Pine.LNX.4.58L.0402180207540.4852@logos.cnet>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 February 2004 14:20, Marc Lehmann wrote:
-> On Mon, Feb 16, 2004 at 11:48:35AM -0800, Linus Torvalds <torvalds@osdl.org> 
-wrote:
-> > works on the raw byte sequence and isn't confused). Basically accept the
-> > fact that UTF-8 strings can contain "garbage", and don't try to fix it
-> > up.
->
-> But you are wrong, UTF-8 strings never contain garbage. UTF-8 is
-> well-defined and is always proper UTF-8. It's a tautology.
+Hi Marcelo,
 
-Would you please learn the difference between "you are wrong" and "I 
-disagree"?
+On Wed, Feb 18, 2004 at 02:11:24AM -0300, Marcelo Tosatti wrote:
+> Here goes release candidate 4, including a few small fixes.
+> 
+> If nothing bad shows up, this will become final.
 
-Rob
+Well, I would have liked to see the ACPI poweroff fix I sent a few days ago,
+but Len said he doesn't have time to review it this week. It's a shame since
+at least two of my machines which powered off correctly with very older ACPI
+versions now need it, so I don't think I'm the only one in this case :-(
 
+Other than that, I'm fairly happy with at least -rc2 (not tested latest
+releases yet).
+
+Cheers,
+Willy
 

@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268648AbUHaXBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268527AbUHaXBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268648AbUHaXBc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 19:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUHaW7d
+	id S268527AbUHaXBd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 19:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268677AbUHaW7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 18:59:33 -0400
-Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:18089 "EHLO
-	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268568AbUHaWzo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 18:55:44 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Erik Mouw <erik@harddisk-recovery.com>,
-       Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-Subject: Re: Driver retries disk errors.
-References: <20040830163931.GA4295@bitwizard.nl>
-	<1093952715.32684.12.camel@localhost.localdomain>
-	<20040831135403.GB2854@bitwizard.nl>
-	<1093961570.597.2.camel@localhost.localdomain>
-	<20040831155653.GD17261@harddisk-recovery.com>
-	<1093965233.599.8.camel@localhost.localdomain>
-From: Christer Weinigel <christer@weinigel.se>
-Organization: Weinigel Ingenjorsbyra AB
-Date: 01 Sep 2004 00:55:40 +0200
-In-Reply-To: <1093965233.599.8.camel@localhost.localdomain>
-Message-ID: <m3isay9atv.fsf@zoo.weinigel.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 31 Aug 2004 18:59:13 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44528 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268527AbUHaW4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 18:56:43 -0400
+Date: Wed, 1 Sep 2004 00:56:34 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, pedro_m@yahoo.com
+Subject: Re: [patch] update email address of Pedro Roque Marques (fwd)
+Message-ID: <20040831225634.GZ3466@fs.tum.de>
+References: <20040831221353.GX3466@fs.tum.de> <20040831153853.7a40c6cb.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040831153853.7a40c6cb.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-
-> Retries also pop up in other less obvious cases and conveniently paper
-> over a wide variety of timeouts, power management quirks and drives just
-> having a random fit. Eight is probably excessive in all cases.
+On Tue, Aug 31, 2004 at 03:38:53PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> > The patch below (already ACK'ed by Pedro Roque Marques) updates his 
+> > email address.
 > 
-> For non hard disk cases many devices do want and need retry.
+> Sigh.  People move all the time.  Methinks it would be better to just put
+> your name into the .c files and force people to consult MAINTAINERS/CREDITS
+> to find the email address.
 
-For ripping CDs I'd prefer if the application could control retries
-and not default to what the CD player prefers.
+I have no strong opinion on this issue.
 
-I have a CD, KLF -- Ultra Rare Tracks, and unfortunately someone I
-borrowed it to managed to literally stomp on it, so the record has a
-lot of scratches.  I would very much like to rip as much as possible
-of this CD so that I can at least listen to part of it, but every time
-I have tried the CD player just gets stuck in an endless retry loop.
+All I dislike are email addresses that bounce when sending a Cc of a 
+patch.
 
-The same thing happens when trying to rip a "copy controlled" CD,
-which is also pretty irritating since this means that I can't rip my
-Teddybears Stockholm CD and put the songs on my iPod.
+But how do you plan to handle the email addresses in MODULE_AUTHOR?
+Most people who see them don't have a MAINTAINERS/CREDITS on their 
+computer (the same is true for email addresses in printk's).
 
-  /Christer
+cu
+Adrian
 
 -- 
-"Just how much can I get away with and still go to heaven?"
 
-Freelance consultant specializing in device driver programming for Linux 
-Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

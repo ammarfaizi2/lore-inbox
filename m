@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272234AbTGYRok (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 13:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272235AbTGYRok
+	id S272236AbTGYRjy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 13:39:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272235AbTGYRjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 13:44:40 -0400
-Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:17012 "HELO
-	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S272234AbTGYRoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 13:44:37 -0400
-Subject: Re: forkpty with streams
-From: Andrew Barton <andrevv@users.sourceforge.net>
-To: aebr@win.tue.nl
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030725152751.GA606@win.tue.nl>
-References: <1059089316.8596.14.camel@localhost>
-	 <20030725152751.GA606@win.tue.nl>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1059130744.13184.11.camel@localhost>
+	Fri, 25 Jul 2003 13:39:53 -0400
+Received: from mail.kroah.org ([65.200.24.183]:50866 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S272230AbTGYRjv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 13:39:51 -0400
+Date: Fri, 25 Jul 2003 13:54:47 -0400
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: davem@redhat.com, arjanv@redhat.com, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove module reference counting.
+Message-ID: <20030725175447.GB2410@kroah.com>
+References: <20030725173900.D7DE12C2A9@lists.samba.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2-3mdk 
-Date: 25 Jul 2003 10:59:04 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725173900.D7DE12C2A9@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-25 at 15:27, Andries Brouwer wrote:
-> On Thu, Jul 24, 2003 at 11:28:36PM +0000, Andrew Barton wrote:
+On Fri, Jul 25, 2003 at 04:00:18AM +1000, Rusty Russell wrote:
+> Hi all,
 > 
-> > I've got the 2.4 kernel, and I'm trying to use the forkpty() system call
+> 	When the initial module patch was submitted, it made modules
+> start isolated, so they would not be accessible until (if)
+> initialization had succeeded.  This broke partition scanning, and was
+> immediately reverted, leaving us with a module reference count scheme
+> identical to the previous one (just a faster implementation): we still
+> have cases where modules can be access on failed load.
 > 
-> forkpty is not a system call
-> 
-> > with the standard I/O stream functions. The calls to forkpty() and
-> > fdopen() and fprintf() all return successfully, but the data never seems
-> > to get to the child process.
-> 
-> > 	pid = forkpty (&fd, 0, 0, 0);
-> > 	if (pid == 0) {
-> > 		execlp ("sh", "sh", (void *)0);
-> > 	} else {
-> > 		F = fdopen (fd, "w");
-> > 		fprintf (F, "exit\n");
-> > 		fflush (F);
-> > 		wait (0);
-> > 	}
-> 
-> Let me see. Your sh gets input from this pseudotty and sends its
-> output there again. But you never read that filedescriptor.
-> No doubt things will improve if you let the parent read from fd.
-> 
-> Andries
+> 	Then Dave decided that the work of reference counting network
+> driver modules everywhere is too invasive, so network driver modules
+> now have zero reference counts always.  The idea is that if you don't
+> want the module removed, don't do it.  ie. only remove the module if
+> there's a bug, or you want to replace it.
 
-Before I tried using streams, I just used write() to communicate with
-the ptty, but I had the same problem. I found that if I put a read()
-call before and after the write(), it worked. But why? Is this some kind
-of I/O voodoo? How does the reading affect the writing?
+Hm, as long as we add a kobject to the module structure, so that users
+of a module can be tracked somehow to know if it is safe to unload the
+module or not.
 
-You mentioned that things would improve if I let the parent read from
-fd. Will this work using streams? I have tried opening fd in "r+" mode,
-but in that case I end up reading my own data. Do I need to lay an
-fflush() somewhere inbetween? What is it exactly that causes the data to
-be sent to the parent?
+This is because there is a difference between device reference counts,
+and code reference counts, which is why I added the module owner logic
+to sysfs attributes, to prevent code from being unloaded when the device
+might already be gone.
 
-I appreciate the help.
+So can the following situation still work with this proposed patch:
+	- device created
+	- sysfs files created associated with that device
+	- user opens sysfs file
+	- user disconnects sysfs files.
+	- device goes away, driver no longer references device, but
+	  kobject count is still incremented.
+	- driver associated with device is unloaded.
+	- user reads sysfs file previously opened (which calls into
+	  module memory that is now gone.)
 
+Can we still prevent this from happening now?  I think if we add a
+kobject (or something, we still need a kobject to get module
+parameters so might as well use that), we might be safe.
+
+thanks,
+
+greg k-h

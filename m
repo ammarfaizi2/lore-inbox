@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273789AbRI0SYf>; Thu, 27 Sep 2001 14:24:35 -0400
+	id <S273791AbRI0S0Z>; Thu, 27 Sep 2001 14:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273791AbRI0SYZ>; Thu, 27 Sep 2001 14:24:25 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:10246 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S273789AbRI0SYH>; Thu, 27 Sep 2001 14:24:07 -0400
-Date: Thu, 27 Sep 2001 20:24:35 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Suggest TASK_KILLABLE state to overcome most D state trouble
-Message-ID: <20010927202435.A19466@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S273792AbRI0S0P>; Thu, 27 Sep 2001 14:26:15 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:10248 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S273791AbRI0SZ6>; Thu, 27 Sep 2001 14:25:58 -0400
+Message-ID: <3BB36F4C.B33A517@delusion.de>
+Date: Thu, 27 Sep 2001 20:26:20 +0200
+From: "Udo A. Steinberg" <reality@delusion.de>
+Organization: Disorganized
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac14 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Alan Cox <laughing@shared-source.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac16
+In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Alan Cox wrote:
+> 
+> 
+> 2.4.9-ac16
 
-I am develpoing a network filesystem and I come across the problem with
-noninteruptible waiting (the same as with NFS). Unfortunately there are
-some cases, where waiting interuptibly and returning ERESTARTSYS is
-difficult to imposible to do (when upcall is done, it must be remembered,
-for the restarted syscall, but the syscall may not get restarted).
+Hi Alan,
 
-I can see 2 ways out for most cases.
+Not really a big issue, but still worth mentioning:
 
-The simpler one: add a TASK_KILLABLE state, that would be between INTERUPTIBLE
-and NONINTERUPTIBLE. It could be interupted only with SIGKILL (I first thought
-SIGSTOP too but that one shouldn't matter). In that case the syscall knows
-it's canceled. I think most waiting in D state can be changed to be killable.
-Mainly when handling page-fault (which may wait on network, that is even
-indefinitely in case of failure). It won't make the system behave very nicely
-in case of network failure, but would at least allow killing locked processes.
+In file included from /usr/src/linux-2.4.9-ac/include/linux/modversions.h:5,
+                 from btaudio.c:1:
+/usr/src/linux-2.4.9-ac/include/linux/modules/53c700.ver:1: warning: `__ver_NCR_700_detect' redefined
+/usr/src/linux-2.4.9-ac/include/linux/modules/53c700-mem.ver:1: warning: this is the location of the previous definition
+/usr/src/linux-2.4.9-ac/include/linux/modules/53c700.ver:3: warning: `__ver_NCR_700_release' redefined
+/usr/src/linux-2.4.9-ac/include/linux/modules/53c700-mem.ver:3: warning: this is the location of the previous definition
 
-The more complicated would be to change the signal handling to allow hook
-to be called when the syscall won't be restarted so the driver could
-get rid of now invalid state information.
+This is just one of many occurances.
 
-Does a patch adding a TASK_KILLABLE state have a chance to get in (in 2.5)?
-Or can anybody thik of more elegant solution?
-
---------------------------------------------------------------------------------
-                  				- Jan Hudec `Bulb' <bulb@ucw.cz>
+-Udo.

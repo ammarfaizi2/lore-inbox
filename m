@@ -1,296 +1,482 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263131AbTFGLq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTFGLpr
+	id S263103AbTFGLpV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 07:45:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTFGLpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 07:45:47 -0400
-Received: from dp.samba.org ([66.70.73.150]:27113 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263131AbTFGLov (ORCPT
+	Sat, 7 Jun 2003 07:45:21 -0400
+Received: from dp.samba.org ([66.70.73.150]:26601 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263103AbTFGLov (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 7 Jun 2003 07:44:51 -0400
 From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16097.53391.364090.367854@argo.ozlabs.ibm.com>
-Date: Sat, 7 Jun 2003 21:46:23 +1000
+Message-ID: <16097.53638.261084.917085@argo.ozlabs.ibm.com>
+Date: Sat, 7 Jun 2003 21:50:30 +1000
 To: torvalds@transmeta.com
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix check warnings in drivers/macintosh
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix check warnings in PPP code
 X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus,
 
-This patch removes the warnings that the `check' program came up with
-in drivers/macintosh.  This involves adding __user in various places
-and fixing some non-ANSI function definitions for functions that take
-no arguments.
+This patch removes the warnings that the check program came up with in
+the PPP code: ppp_async.c, ppp_deflate.c and ppp_generic.c.  This
+involved adding __user and converting K&R-style function definitions
+to ANSI-style.  I also took the time to add some extra comments to
+ppp_deflate.c explaining in more detail what each function does and
+what its arguments are.
 
 Please apply.
 
 Thanks,
 Paul.
 
-diff -urN linux-2.5/drivers/macintosh/adb.c pmac-2.5/drivers/macintosh/adb.c
---- linux-2.5/drivers/macintosh/adb.c	2003-05-08 16:27:25.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/adb.c	2003-06-07 17:45:03.000000000 +1000
-@@ -749,7 +749,7 @@
+diff -urN linux-2.5/drivers/net/ppp_async.c pmac-2.5/drivers/net/ppp_async.c
+--- linux-2.5/drivers/net/ppp_async.c	2003-04-25 09:17:22.000000000 +1000
++++ pmac-2.5/drivers/net/ppp_async.c	2003-06-07 17:45:00.000000000 +1000
+@@ -427,12 +427,12 @@
+ 		break;
+ 
+ 	case PPPIOCGXASYNCMAP:
+-		if (copy_to_user((void *) arg, ap->xaccm, sizeof(ap->xaccm)))
++		if (copy_to_user((void __user *) arg, ap->xaccm, sizeof(ap->xaccm)))
+ 			break;
+ 		err = 0;
+ 		break;
+ 	case PPPIOCSXASYNCMAP:
+-		if (copy_from_user(accm, (void *) arg, sizeof(accm)))
++		if (copy_from_user(accm, (void __user *) arg, sizeof(accm)))
+ 			break;
+ 		accm[2] &= ~0x40000000U;	/* can't escape 0x5e */
+ 		accm[3] |= 0x60000000U;		/* must escape 0x7d, 0x7e */
+diff -urN linux-2.5/drivers/net/ppp_deflate.c pmac-2.5/drivers/net/ppp_deflate.c
+--- linux-2.5/drivers/net/ppp_deflate.c	2003-05-07 14:25:43.000000000 +1000
++++ pmac-2.5/drivers/net/ppp_deflate.c	2003-06-07 19:36:29.000000000 +1000
+@@ -57,29 +57,31 @@
+ 
+ #define DEFLATE_OVHD	2		/* Deflate overhead/packet */
+ 
+-static void	*z_comp_alloc __P((unsigned char *options, int opt_len));
+-static void	*z_decomp_alloc __P((unsigned char *options, int opt_len));
+-static void	z_comp_free __P((void *state));
+-static void	z_decomp_free __P((void *state));
+-static int	z_comp_init __P((void *state, unsigned char *options,
++static void	*z_comp_alloc(unsigned char *options, int opt_len);
++static void	*z_decomp_alloc(unsigned char *options, int opt_len);
++static void	z_comp_free(void *state);
++static void	z_decomp_free(void *state);
++static int	z_comp_init(void *state, unsigned char *options,
+ 				 int opt_len,
+-				 int unit, int hdrlen, int debug));
+-static int	z_decomp_init __P((void *state, unsigned char *options,
++				 int unit, int hdrlen, int debug);
++static int	z_decomp_init(void *state, unsigned char *options,
+ 				   int opt_len,
+-				   int unit, int hdrlen, int mru, int debug));
+-static int	z_compress __P((void *state, unsigned char *rptr,
++				   int unit, int hdrlen, int mru, int debug);
++static int	z_compress(void *state, unsigned char *rptr,
+ 				unsigned char *obuf,
+-				int isize, int osize));
+-static void	z_incomp __P((void *state, unsigned char *ibuf, int icnt));
+-static int	z_decompress __P((void *state, unsigned char *ibuf,
+-				int isize, unsigned char *obuf, int osize));
+-static void	z_comp_reset __P((void *state));
+-static void	z_decomp_reset __P((void *state));
+-static void	z_comp_stats __P((void *state, struct compstat *stats));
+-
+-static void
+-z_comp_free(arg)
+-    void *arg;
++				int isize, int osize);
++static void	z_incomp(void *state, unsigned char *ibuf, int icnt);
++static int	z_decompress(void *state, unsigned char *ibuf,
++				int isize, unsigned char *obuf, int osize);
++static void	z_comp_reset(void *state);
++static void	z_decomp_reset(void *state);
++static void	z_comp_stats(void *state, struct compstat *stats);
++
++/**
++ *	z_comp_free - free the memory used by a compressor
++ *	@arg:	pointer to the private state for the compressor.
++ */
++static void z_comp_free(void *arg)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+@@ -91,13 +93,21 @@
+ 	}
+ }
+ 
+-/*
+- * Allocate space for a compressor.
++/**
++ *	z_comp_alloc - allocate space for a compressor.
++ *	@options: pointer to CCP option data
++ *	@opt_len: length of the CCP option at @options.
++ *
++ *	The @options pointer points to the a buffer containing the
++ *	CCP option data for the compression being negotiated.  It is
++ *	formatted according to RFC1979, and describes the window
++ *	size that the peer is requesting that we use in compressing
++ *	data to be sent to it.
++ *
++ *	Returns the pointer to the private state for the compressor,
++ *	or NULL if we could not allocate enough memory.
+  */
+-static void *
+-z_comp_alloc(options, opt_len)
+-    unsigned char *options;
+-    int opt_len;
++static void *z_comp_alloc(unsigned char *options, int opt_len)
+ {
+ 	struct ppp_deflate_state *state;
+ 	int w_size;
+@@ -135,11 +145,23 @@
+ 	return NULL;
+ }
+ 
+-static int
+-z_comp_init(arg, options, opt_len, unit, hdrlen, debug)
+-    void *arg;
+-    unsigned char *options;
+-    int opt_len, unit, hdrlen, debug;
++/**
++ *	z_comp_init - initialize a previously-allocated compressor.
++ *	@arg:	pointer to the private state for the compressor
++ *	@options: pointer to the CCP option data describing the
++ *		compression that was negotiated with the peer
++ *	@opt_len: length of the CCP option data at @options
++ *	@unit:	PPP unit number for diagnostic messages
++ *	@hdrlen: ignored (present for backwards compatibility)
++ *	@debug:	debug flag; if non-zero, debug messages are printed.
++ *
++ *	The CCP options described by @options must match the options
++ *	specified when the compressor was allocated.  The compressor
++ *	history is reset.  Returns 0 for failure (CCP options don't
++ *	match) or 1 for success.
++ */
++static int z_comp_init(void *arg, unsigned char *options, int opt_len,
++		       int unit, int hdrlen, int debug)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+@@ -160,9 +182,14 @@
+ 	return 1;
+ }
+ 
+-static void
+-z_comp_reset(arg)
+-    void *arg;
++/**
++ *	z_comp_reset - reset a previously-allocated compressor.
++ *	@arg:	pointer to private state for the compressor.
++ *
++ *	This clears the history for the compressor and makes it
++ *	ready to start emitting a new compressed stream.
++ */
++static void z_comp_reset(void *arg)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+@@ -170,12 +197,19 @@
+ 	zlib_deflateReset(&state->strm);
+ }
+ 
+-int
+-z_compress(arg, rptr, obuf, isize, osize)
+-    void *arg;
+-    unsigned char *rptr;	/* uncompressed packet (in) */
+-    unsigned char *obuf;	/* compressed packet (out) */
+-    int isize, osize;
++/**
++ *	z_compress - compress a PPP packet with Deflate compression.
++ *	@arg:	pointer to private state for the compressor
++ *	@rptr:	uncompressed packet (input)
++ *	@obuf:	compressed packet (output)
++ *	@isize:	size of uncompressed packet
++ *	@osize:	space available at @obuf
++ *
++ *	Returns the length of the compressed packet, or 0 if the
++ *	packet is incompressible.
++ */
++int z_compress(void *arg, unsigned char *rptr, unsigned char *obuf,
++	       int isize, int osize)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 	int r, proto, off, olen, oavail;
+@@ -251,19 +285,24 @@
+ 	return olen;
+ }
+ 
+-static void
+-z_comp_stats(arg, stats)
+-    void *arg;
+-    struct compstat *stats;
++/**
++ *	z_comp_stats - return compression statistics for a compressor
++ *		or decompressor.
++ *	@arg:	pointer to private space for the (de)compressor
++ *	@stats:	pointer to a struct compstat to receive the result.
++ */
++static void z_comp_stats(void *arg, struct compstat *stats)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+ 	*stats = state->stats;
+ }
+ 
+-static void
+-z_decomp_free(arg)
+-    void *arg;
++/**
++ *	z_decomp_free - Free the memory used by a decompressor.
++ *	@arg:	pointer to private space for the decompressor.
++ */
++static void z_decomp_free(void *arg)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+@@ -275,13 +314,21 @@
+ 	}
+ }
+ 
+-/*
+- * Allocate space for a decompressor.
++/**
++ *	z_decomp_alloc - allocate space for a decompressor.
++ *	@options: pointer to CCP option data
++ *	@opt_len: length of the CCP option at @options.
++ *
++ *	The @options pointer points to the a buffer containing the
++ *	CCP option data for the compression being negotiated.  It is
++ *	formatted according to RFC1979, and describes the window
++ *	size that we are requesting the peer to use in compressing
++ *	data to be sent to us.
++ *
++ *	Returns the pointer to the private state for the decompressor,
++ *	or NULL if we could not allocate enough memory.
+  */
+-static void *
+-z_decomp_alloc(options, opt_len)
+-    unsigned char *options;
+-    int opt_len;
++static void *z_decomp_alloc(unsigned char *options, int opt_len)
+ {
+ 	struct ppp_deflate_state *state;
+ 	int w_size;
+@@ -317,11 +364,24 @@
+ 	return NULL;
+ }
+ 
+-static int
+-z_decomp_init(arg, options, opt_len, unit, hdrlen, mru, debug)
+-    void *arg;
+-    unsigned char *options;
+-    int opt_len, unit, hdrlen, mru, debug;
++/**
++ *	z_decomp_init - initialize a previously-allocated decompressor.
++ *	@arg:	pointer to the private state for the decompressor
++ *	@options: pointer to the CCP option data describing the
++ *		compression that was negotiated with the peer
++ *	@opt_len: length of the CCP option data at @options
++ *	@unit:	PPP unit number for diagnostic messages
++ *	@hdrlen: ignored (present for backwards compatibility)
++ *	@mru:	maximum length of decompressed packets
++ *	@debug:	debug flag; if non-zero, debug messages are printed.
++ *
++ *	The CCP options described by @options must match the options
++ *	specified when the decompressor was allocated.  The decompressor
++ *	history is reset.  Returns 0 for failure (CCP options don't
++ *	match) or 1 for success.
++ */
++static int z_decomp_init(void *arg, unsigned char *options, int opt_len,
++			 int unit, int hdrlen, int mru, int debug)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+@@ -343,9 +403,14 @@
+ 	return 1;
+ }
+ 
+-static void
+-z_decomp_reset(arg)
+-    void *arg;
++/**
++ *	z_decomp_reset - reset a previously-allocated decompressor.
++ *	@arg:	pointer to private state for the decompressor.
++ *
++ *	This clears the history for the decompressor and makes it
++ *	ready to receive a new compressed stream.
++ */
++static void z_decomp_reset(void *arg)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 
+@@ -353,8 +418,13 @@
+ 	zlib_inflateReset(&state->strm);
+ }
+ 
+-/*
+- * Decompress a Deflate-compressed packet.
++/**
++ *	z_decompress - decompress a Deflate-compressed packet.
++ *	@arg:	pointer to private state for the decompressor
++ *	@ibuf:	pointer to input (compressed) packet data
++ *	@isize:	length of input packet
++ *	@obuf:	pointer to space for output (decompressed) packet
++ *	@osize:	amount of space available at @obuf
+  *
+  * Because of patent problems, we return DECOMP_ERROR for errors
+  * found by inspecting the input data and for system problems, but
+@@ -369,13 +439,8 @@
+  * bug, so we return DECOMP_FATALERROR for them in order to turn off
+  * compression, even though they are detected by inspecting the input.
+  */
+-int
+-z_decompress(arg, ibuf, isize, obuf, osize)
+-    void *arg;
+-    unsigned char *ibuf;
+-    int isize;
+-    unsigned char *obuf;
+-    int osize;
++int z_decompress(void *arg, unsigned char *ibuf, int isize,
++		 unsigned char *obuf, int osize)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 	int olen, seq, r;
+@@ -474,14 +539,13 @@
+ 	return olen;
+ }
+ 
+-/*
+- * Incompressible data has arrived - add it to the history.
++/**
++ *	z_incomp - add incompressible input data to the history.
++ *	@arg:	pointer to private state for the decompressor
++ *	@ibuf:	pointer to input packet data
++ *	@icnt:	length of input data.
+  */
+-static void
+-z_incomp(arg, ibuf, icnt)
+-    void *arg;
+-    unsigned char *ibuf;
+-    int icnt;
++static void z_incomp(void *arg, unsigned char *ibuf, int icnt)
+ {
+ 	struct ppp_deflate_state *state = (struct ppp_deflate_state *) arg;
+ 	int proto, r;
+diff -urN linux-2.5/drivers/net/ppp_generic.c pmac-2.5/drivers/net/ppp_generic.c
+--- linux-2.5/drivers/net/ppp_generic.c	2003-06-02 18:02:30.000000000 +1000
++++ pmac-2.5/drivers/net/ppp_generic.c	2003-06-07 17:47:39.000000000 +1000
+@@ -387,7 +387,7 @@
  	return 0;
  }
  
--static ssize_t adb_read(struct file *file, char *buf,
-+static ssize_t adb_read(struct file *file, char __user *buf,
+-static ssize_t ppp_read(struct file *file, char *buf,
++static ssize_t ppp_read(struct file *file, char __user *buf,
  			size_t count, loff_t *ppos)
  {
- 	int ret;
-@@ -810,7 +810,7 @@
+ 	struct ppp_file *pf = file->private_data;
+@@ -436,7 +436,7 @@
  	return ret;
  }
  
--static ssize_t adb_write(struct file *file, const char *buf,
-+static ssize_t adb_write(struct file *file, const char __user *buf,
+-static ssize_t ppp_write(struct file *file, const char *buf,
++static ssize_t ppp_write(struct file *file, const char __user *buf,
  			 size_t count, loff_t *ppos)
  {
- 	int ret/*, i*/;
-diff -urN linux-2.5/drivers/macintosh/apm_emu.c pmac-2.5/drivers/macintosh/apm_emu.c
---- linux-2.5/drivers/macintosh/apm_emu.c	2003-05-23 14:58:26.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/apm_emu.c	2003-06-07 14:38:16.000000000 +1000
-@@ -180,7 +180,7 @@
- 	return 0;
- }
- 
--static ssize_t do_read(struct file *fp, char *buf, size_t count, loff_t *ppos)
-+static ssize_t do_read(struct file *fp, char __user *buf, size_t count, loff_t *ppos)
- {
- 	struct apm_user *	as;
- 	size_t			i;
-diff -urN linux-2.5/drivers/macintosh/macserial.c pmac-2.5/drivers/macintosh/macserial.c
---- linux-2.5/drivers/macintosh/macserial.c	2003-06-07 08:57:42.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/macserial.c	2003-06-07 14:35:34.000000000 +1000
-@@ -1496,7 +1496,7 @@
- 			if (c <= 0)
- 				break;
- 
--			c -= copy_from_user(tmp_buf, buf, c);
-+			c -= copy_from_user(tmp_buf, (void __user *) buf, c);
- 			if (!c) {
- 				if (!ret)
- 					ret = -EFAULT;
-@@ -1694,7 +1694,7 @@
-  */
- 
- static int get_serial_info(struct mac_serial * info,
--			   struct serial_struct * retinfo)
-+			   struct serial_struct __user * retinfo)
- {
- 	struct serial_struct tmp;
-   
-@@ -1716,7 +1716,7 @@
- }
- 
- static int set_serial_info(struct mac_serial * info,
--			   struct serial_struct * new_info)
-+			   struct serial_struct __user * new_info)
- {
- 	struct serial_struct new_serial;
- 	struct mac_serial old_info;
-@@ -1876,15 +1876,15 @@
- 			return set_modem_info(info, cmd, (unsigned int *) arg);
- 		case TIOCGSERIAL:
- 			return get_serial_info(info,
--					       (struct serial_struct *) arg);
-+					(struct serial_struct __user *) arg);
- 		case TIOCSSERIAL:
- 			return set_serial_info(info,
--					       (struct serial_struct *) arg);
-+					(struct serial_struct __user *) arg);
- 		case TIOCSERGETLSR: /* Get line status register */
- 			return get_lsr_info(info, (unsigned int *) arg);
- 
- 		case TIOCSERGSTRUCT:
--			if (copy_to_user((struct mac_serial *) arg,
-+			if (copy_to_user((struct mac_serial __user *) arg,
- 					 info, sizeof(struct mac_serial)))
- 				return -EFAULT;
- 			return 0;
-@@ -2432,7 +2432,7 @@
- 
- /* Ask the PROM how many Z8530s we have and initialize their zs_channels */
- static void
--probe_sccs()
-+probe_sccs(void)
- {
- 	struct device_node *dev, *ch;
- 	struct mac_serial **pp;
-diff -urN linux-2.5/drivers/macintosh/nvram.c pmac-2.5/drivers/macintosh/nvram.c
---- linux-2.5/drivers/macintosh/nvram.c	2002-12-06 13:56:46.000000000 +1100
-+++ pmac-2.5/drivers/macintosh/nvram.c	2003-06-07 17:46:01.000000000 +1000
-@@ -39,11 +39,11 @@
- 	return file->f_pos;
- }
- 
--static ssize_t read_nvram(struct file *file, char *buf,
-+static ssize_t read_nvram(struct file *file, char __user *buf,
- 			  size_t count, loff_t *ppos)
- {
- 	unsigned int i;
--	char *p = buf;
-+	char __user *p = buf;
- 
- 	if (verify_area(VERIFY_WRITE, buf, count))
- 		return -EFAULT;
-@@ -56,11 +56,11 @@
- 	return p - buf;
- }
- 
--static ssize_t write_nvram(struct file *file, const char *buf,
-+static ssize_t write_nvram(struct file *file, const char __user *buf,
- 			   size_t count, loff_t *ppos)
- {
- 	unsigned int i;
--	const char *p = buf;
-+	const char __user *p = buf;
- 	char c;
- 
- 	if (verify_area(VERIFY_READ, buf, count))
-@@ -83,12 +83,12 @@
- 		case PMAC_NVRAM_GET_OFFSET:
- 		{
- 			int part, offset;
--			if (copy_from_user(&part,(void*)arg,sizeof(part))!=0)
-+			if (copy_from_user(&part, (void __user*)arg, sizeof(part)) != 0)
- 				return -EFAULT;
- 			if (part < pmac_nvram_OF || part > pmac_nvram_NR)
- 				return -EINVAL;
- 			offset = pmac_get_partition(part);
--			if (copy_to_user((void*)arg,&offset,sizeof(offset))!=0)
-+			if (copy_to_user((void __user*)arg, &offset, sizeof(offset)) != 0)
- 				return -EFAULT;
+ 	struct ppp_file *pf = file->private_data;
+@@ -617,7 +617,7 @@
+ 	case PPPIOCGIDLE:
+ 		idle.xmit_idle = (jiffies - ppp->last_xmit) / HZ;
+ 		idle.recv_idle = (jiffies - ppp->last_recv) / HZ;
+-		if (copy_to_user((void *) arg, &idle, sizeof(idle)))
++		if (copy_to_user((void __user *) arg, &idle, sizeof(idle)))
  			break;
+ 		err = 0;
+ 		break;
+@@ -646,7 +646,7 @@
+ 
+ 	case PPPIOCGNPMODE:
+ 	case PPPIOCSNPMODE:
+-		if (copy_from_user(&npi, (void *) arg, sizeof(npi)))
++		if (copy_from_user(&npi, (void __user *) arg, sizeof(npi)))
+ 			break;
+ 		err = proto_to_npindex(npi.protocol);
+ 		if (err < 0)
+@@ -655,7 +655,7 @@
+ 		if (cmd == PPPIOCGNPMODE) {
+ 			err = -EFAULT;
+ 			npi.mode = ppp->npmode[i];
+-			if (copy_to_user((void *) arg, &npi, sizeof(npi)))
++			if (copy_to_user((void __user *) arg, &npi, sizeof(npi)))
+ 				break;
+ 		} else {
+ 			ppp->npmode[i] = npi.mode;
+@@ -673,24 +673,22 @@
+ 		struct sock_filter *code = NULL;
+ 		int len;
+ 
+-		if (copy_from_user(&uprog, (void *) arg, sizeof(uprog)))
++		if (copy_from_user(&uprog, (void __user *) arg, sizeof(uprog)))
++			break;
++		err = -ENOMEM;
++		len = uprog.len * sizeof(struct sock_filter);
++		code = kmalloc(len, GFP_KERNEL);
++		if (code == 0)
++			break;
++		err = -EFAULT;
++		if (copy_from_user(code, (void __user *) uprog.filter, len)) {
++			kfree(code);
++			break;
++		}
++		err = sk_chk_filter(code, uprog.len);
++		if (err) {
++			kfree(code);
+ 			break;
+-		if (uprog.len > 0 && uprog.len < 65536) {
+-			err = -ENOMEM;
+-			len = uprog.len * sizeof(struct sock_filter);
+-			code = kmalloc(len, GFP_KERNEL);
+-			if (code == 0)
+-				break;
+-			err = -EFAULT;
+-			if (copy_from_user(code, uprog.filter, len)) {
+-				kfree(code);
+-				break;
+-			}
+-			err = sk_chk_filter(code, uprog.len);
+-			if (err) {
+-				kfree(code);
+-				break;
+-			}
  		}
-diff -urN linux-2.5/drivers/macintosh/via-cuda.c pmac-2.5/drivers/macintosh/via-cuda.c
---- linux-2.5/drivers/macintosh/via-cuda.c	2003-04-28 08:28:50.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/via-cuda.c	2003-06-07 14:38:00.000000000 +1000
-@@ -213,7 +213,7 @@
- 
- #ifdef CONFIG_ADB
- static int
--cuda_probe()
-+cuda_probe(void)
+ 		filtp = (cmd == PPPIOCSPASS)? &ppp->pass_filter: &ppp->active_filter;
+ 		ppp_lock(ppp);
+@@ -879,7 +877,7 @@
  {
- #ifdef CONFIG_PPC
-     if (sys_ctrler != SYS_CTRLER_CUDA)
-@@ -258,7 +258,7 @@
-     } while (0)
+ 	struct ppp *ppp = dev->priv;
+ 	int err = -EFAULT;
+-	void *addr = (void *) ifr->ifr_ifru.ifru_data;
++	void __user *addr = (void __user *) ifr->ifr_ifru.ifru_data;
+ 	struct ppp_stats stats;
+ 	struct ppp_comp_stats cstats;
+ 	char *vers;
+@@ -1952,9 +1950,9 @@
+ 	unsigned char ccp_option[CCP_MAX_OPTION_LENGTH];
  
- static int
--cuda_init_via()
-+cuda_init_via(void)
- {
-     out_8(&via[DIRB], (in_8(&via[DIRB]) | TACK | TIP) & ~TREQ);	/* TACK & TIP out */
-     out_8(&via[B], in_8(&via[B]) | TACK | TIP);			/* negate them */
-@@ -407,7 +407,7 @@
- }
- 
- static void
--cuda_start()
-+cuda_start(void)
- {
-     struct adb_request *req;
- 
-@@ -427,7 +427,7 @@
- }
- 
- void
--cuda_poll()
-+cuda_poll(void)
- {
-     unsigned long flags;
- 
-diff -urN linux-2.5/drivers/macintosh/via-pmu.c pmac-2.5/drivers/macintosh/via-pmu.c
---- linux-2.5/drivers/macintosh/via-pmu.c	2003-06-05 22:27:37.000000000 +1000
-+++ pmac-2.5/drivers/macintosh/via-pmu.c	2003-06-07 17:46:48.000000000 +1000
-@@ -195,7 +195,7 @@
- #endif /* CONFIG_PMAC_PBOOK */
- static int proc_read_options(char *page, char **start, off_t off,
- 			int count, int *eof, void *data);
--static int proc_write_options(struct file *file, const char *buffer,
-+static int proc_write_options(struct file *file, const char __user *buffer,
- 			unsigned long count, void *data);
- 
- #ifdef CONFIG_ADB
-@@ -290,7 +290,7 @@
- #endif /* CONFIG_PMAC_BACKLIGHT */
- 
- int __openfirmware
--find_via_pmu()
-+find_via_pmu(void)
- {
- 	if (via != 0)
- 		return 1;
-@@ -371,7 +371,7 @@
- 
- #ifdef CONFIG_ADB
- static int __openfirmware
--pmu_probe()
-+pmu_probe(void)
- {
- 	return vias == NULL? -ENODEV: 0;
- }
-@@ -510,7 +510,7 @@
- device_initcall(via_pmu_dev_init);
- 
- static int __openfirmware
--init_pmu()
-+init_pmu(void)
- {
- 	int timeout;
- 	struct adb_request req;
-@@ -815,7 +815,7 @@
- }
- 			
- static int __pmac
--proc_write_options(struct file *file, const char *buffer,
-+proc_write_options(struct file *file, const char __user *buffer,
- 			unsigned long count, void *data)
- {
- 	char tmp[33];
-@@ -1112,7 +1112,7 @@
- }
- 
- static void __pmac
--pmu_start()
-+pmu_start(void)
- {
- 	struct adb_request *req;
- 
-@@ -1136,7 +1136,7 @@
- }
- 
- void __openfirmware
--pmu_poll()
-+pmu_poll(void)
- {
- 	if (!via)
- 		return;
-@@ -2402,7 +2402,7 @@
- }
- 
- static ssize_t  __pmac
--pmu_read(struct file *file, char *buf,
-+pmu_read(struct file *file, char __user *buf,
- 			size_t count, loff_t *ppos)
- {
- 	struct pmu_private *pp = file->private_data;
-@@ -2455,7 +2455,7 @@
- }
- 
- static ssize_t __pmac
--pmu_write(struct file *file, const char *buf,
-+pmu_write(struct file *file, const char __user *buf,
- 			 size_t count, loff_t *ppos)
- {
- 	return 0;
+ 	err = -EFAULT;
+-	if (copy_from_user(&data, (void *) arg, sizeof(data))
++	if (copy_from_user(&data, (void __user *) arg, sizeof(data))
+ 	    || (data.length <= CCP_MAX_OPTION_LENGTH
+-		&& copy_from_user(ccp_option, data.ptr, data.length)))
++		&& copy_from_user(ccp_option, (void __user *) data.ptr, data.length)))
+ 		goto out;
+ 	err = -EINVAL;
+ 	if (data.length > CCP_MAX_OPTION_LENGTH

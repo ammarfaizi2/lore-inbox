@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264361AbTK2RRM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 12:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbTK2RRL
+	id S263812AbTK2RXu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 12:23:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTK2RXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 12:17:11 -0500
-Received: from holomorphy.com ([199.26.172.102]:46277 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264361AbTK2RQx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 12:16:53 -0500
-Date: Sat, 29 Nov 2003 09:16:46 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Larry McVoy <lm@work.bitmover.com>, Tim Cambrant <tim@cambrant.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Too soon for stable release?
-Message-ID: <20031129171646.GB19856@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Larry McVoy <lm@work.bitmover.com>, Tim Cambrant <tim@cambrant.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20031129174916.GA4592@cambrant.com> <20031129170104.GA15333@work.bitmover.com>
+	Sat, 29 Nov 2003 12:23:49 -0500
+Received: from adsl-63-201-230-223.dsl.snfc21.pacbell.net ([63.201.230.223]:38925
+	"HELO www.r-net.sk") by vger.kernel.org with SMTP id S263812AbTK2RXr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 12:23:47 -0500
+From: "E l e c t r i c i a n" <proj_mgr8@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: R E S U M E
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031129170104.GA15333@work.bitmover.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Sat, 29 Nov 2003 09:19:53
+Message-Id: <S263812AbTK2RXr/20031129172347Z+13438@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 06:49:16PM +0100, Tim Cambrant wrote:
->> I am sorry if this offends someone or if I'm totally on the wrong track
->> here, but it seems odd to actually call the Beaver On Detox "stable",
->> considering the amount of misc. problems people have been having the
->> last week with -test11. 
 
-On Sat, Nov 29, 2003 at 09:01:04AM -0800, Larry McVoy wrote:
-> The "stable" series of the kernel is never really stable for a while. 
-> A better way to think of it is as "that place where things become stable
-> by refusing to take any new changes except bug fixes".  
-> The news media hasn't picked up on this yet, they seem to think that
-> 2.6.0 is something that will be useful.  It won't be, there will be a
-> period of months during which things stablize and then you'll see the
-> distros pick up the release.  I don't remember where it was exactly
-> (2.4.18?) but Red Hat waited quite a while before switching to 2.4
-> from 2.2.  This is normal and it works out quite well in practice.
 
-ISTR something about 2.4.9 lasting far, far, far, far, far, far longer
-than it should have... and it's not dead yet!!!
 
-2.6 is likely to buck this trend anyway.
+Resume from: 		RICH' S		for Job, Consulting, Installation or Service 
 
--- wli
+
+E L E C T R I C I A N
+
+
+Tel. (408) 482-2102           rysio3@yahoo.com
+    
+
+
+WIRING & INSTALLATION
+
+Hands on electrical installations perform fitting, mounting, laying cables on Commercial, Industrial, residential new & existing buildings.
+
+Electrical Power Supply for Lights, Plugs, Receptacles, Panels, & Fuse boxes, Emergency Generators wiring and testing, Transformers, Power Lines & conduit layout, bending and mounting, parking lighting, lamps, Signs, switches, posts and underground installations.
+
+Shopping Centers; grocery stories, hardware stories, restaurants & residential - housing areas, computer business & fast food units installation & buildings; Solar Panels, Sun Tracking, Flywheel Storage & cars electric systems modify, Natural Energy in Remote areas install. 
+
+LOW VOLTAGE
+
+12 / 24 Volt audio & video equipment, Computer & data network wiring, data backup and UPS; Monitoring Video Control & backup tapes set up and mounting, electro-optical assemblies & subsystems. DC Power Supply, Switch & Motion sensors Alarm. Fire & safety systems install.
+
+Fiber Optics systems, PLC setup, Master Control Center, cable modems & cable TV install. Network, UPS Battery Backup mounting and charging systems; Power supply testing, troubleshooting, and analyzing to a components level. Solar Signs, Electric Vehicles Design, Assembly & Installations. CC TV & Cameras, Security Systems & Sensors for Safety, Fire sprinklers and traffic Monitoring & Door Control. 
+
+TECHNICIAN
+
+Use lab & shop equipment, mechanical, electrical & electronic tools, measurement & testing equipment,  video cameras & microscopes. Support scientists & electronic engineers. Mechanical & Electro-Mechan. Design.
+
+OFFICE, ELECTRICAL AND MECHANICAL PROJECTS
+
+Electrical & Network Sketches, one line diagrams, and "as is" drawings update. Customizing Electronic and Electrical Components & Parts, Layouts electronic and electrical schematic, connectors and mechanical detailing. Quotes, supply, bids and job estimating. SOLAR PROJECTS.
+
+Customers contact, inspection, project mgmt & supervision of electricians & material handling; Use CAD, Windows and applications;
+
+ELECTRICAL & MAINTENANCE SERVICE   US Citizen; open for travel
+.
+
+
+

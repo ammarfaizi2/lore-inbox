@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVAHXBJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVAHW7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbVAHXBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 18:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVAHXBJ
+	id S261240AbVAHW7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVAHW7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 18:01:09 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:10909 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261270AbVAHXAq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 18:00:46 -0500
-Date: Sat, 8 Jan 2005 15:00:03 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: cijoml@volny.cz, linux-kernel@vger.kernel.org, vojtech@suse.cz
-Cc: linux-usb-deve@lists.sourceforge.net
-Subject: Re: for USB guys - strange things in dmesg
-Message-ID: <20050108150003.4adfdd7e@lembas.zaitcev.lan>
-In-Reply-To: <mailman.1104438600.3923.linux-kernel2news@redhat.com>
-References: <mailman.1104438600.3923.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Sat, 8 Jan 2005 17:59:52 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:14043 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261240AbVAHW7p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:59:45 -0500
+Date: Sat, 8 Jan 2005 16:56:30 -0600
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 0/4][RFC] Genetic Algorithm Library
+Message-ID: <20050108165630.4c4e2efa@localhost>
+In-Reply-To: <41DFEBFE.1030602@andrew.cmu.edu>
+References: <20050106100844.53a762a0@localhost>
+	<41DFE8B7.9070909@andrew.cmu.edu>
+	<41DFEBFE.1030602@andrew.cmu.edu>
+Organization: LTC
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Dec 2004 21:13:00 +0100, Michal Semler <cijoml@volny.cz> wrote:
+On Sat, 08 Jan 2005 09:19:42 -0500
+James Bruce <bruce@andrew.cmu.edu> wrote:
 
-> when inserting my Bluetooth dongle into USB port, I get into dmesg this:
-> Bluetooth: RFCOMM ver 1.4
-> Bluetooth: RFCOMM socket layer initialized
-> Bluetooth: RFCOMM TTY layer initialized
-> drivers/usb/input/hid-core.c: input irq status -84 received
+> Ok I've read the patch and see you do indeed have crossover; Now I have 
+> a different question.  What is the motivation for generating two 
+> children at once, instead of just one?    Genes values shouldn't get 
+> "lost" since the parents are being kept around anyway.  Also, since the 
+> parameters in general will not have a meaningful ordering, it might make 
+> sense for the generic crossover to be the "each gene randomly picked 
+> from one of the two parents" approach.  In practice  I've found that to 
+> mix things up a bit better in the parameter optimization problems I've 
+> done with GAs.
 
->[.... LONG flood of the same messages ....]
+The intitial motivation for creating two children at once was so each
+parent could pass on all of their genes.  The 75% of the parent's genes
+might be in child A, but the other 25% would be in child B.  
 
-> drivers/usb/input/hid-core.c: input irq status -84 received
-> usb 3-1: USB disconnect, address 3
-> drivers/usb/input/hid-core.c: input irq status -84 received
-> drivers/usb/input/hid-core.c: can't resubmit intr, 0000:00:1d.2-1/input1, status -19
-> usb 3-1: new full speed USB device using uhci_hcd and address 4
-> Bluetooth: HCI USB driver ver 2.7
+Thinking about it more, there should be no reason that all of a parent's
+genes have to be passed on in a child.  It would not be too difficult to
+have each gene come randomly from one of the two parents.  I'll add that
+in on the next rev of the patches. 
 
-What happens here is that the device disconnects itself during or after
-it's initialized.
-
-Once the HC hardware detects the disconnect, future URBs will end with
--84 error. However, the HID driver does not do anything about it.
-It continues to attempt to resubmit until the khubd does its processing
-and enters its disconnect method. In extreme cases, it is possible to
-have this submit-and-error-and-repeat loop to monopolize the CPU and
-prevent khubd from working ever, thus effectively locking up the box.
-Fortunately, in 2.6 kernel we standardized error codes, and thus drivers
-like hid can rely on -84 meaning a disconnect and not something else.
-In such case, hid has to stop resubmitting before its disconnect method
-is executed.
-
-This is relevant to all drivers which submit interrupt URBs. One driver
-which does it correctly is mct_u232 (surprisingly enough), so the code
-can be taken from there.
-
--- Pete
+Thanks,
+Jake 

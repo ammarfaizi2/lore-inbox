@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUGZX6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265691AbUGZX7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUGZX6A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 19:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUGZX6A
+	id S265691AbUGZX7l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 19:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUGZX7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 19:58:00 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:10225 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266186AbUGZX55
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 19:57:57 -0400
-Subject: Re: [PATCH] fix readahead breakage for sequential after random
-	reads
-From: Ram Pai <linuxram@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040726162950.7f4a3cf4.akpm@osdl.org>
-References: <E1BmKAd-0001hz-00@dorka.pomaz.szeredi.hu>
-	 <20040726162950.7f4a3cf4.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1090886218.8416.3.camel@dyn319181.beaverton.ibm.com>
+	Mon, 26 Jul 2004 19:59:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34467 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265691AbUGZX71 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 19:59:27 -0400
+Date: Mon, 26 Jul 2004 16:57:54 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [RFC][2.6.8-rc1-mm1] perfctr inheritance locking issue
+Message-Id: <20040726165754.1a4eda43.akpm@osdl.org>
+In-Reply-To: <200407201122.i6KBMbPR021614@harpo.it.uu.se>
+References: <200407201122.i6KBMbPR021614@harpo.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Jul 2004 16:56:58 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-	Yes the patch fixes a valid bug.
-
-	
-RP
-
-On Mon, 2004-07-26 at 16:29, Andrew Morton wrote:
-> Miklos Szeredi <miklos@szeredi.hu> wrote:
-> >
-> > Current readahead logic is broken when a random read pattern is
-> >  followed by a long sequential read.  The cause is that on a window
-> >  miss ra->next_size is set to ra->average, but ra->average is only
-> >  updated at the end of a sequence, so window size will remain 1 until
-> >  the end of the sequential read.
-> > 
-> >  This patch fixes this by taking the current sequence length into
-> >  account (code taken from towards end of page_cache_readahead()), and
-> >  also setting ra->average to a decent value in handle_ra_miss() when
-> >  sequential access is detected.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> Andrew,
 > 
-> Thanks.   Do you have any performance testing results from this patch?
+> There is another locking problem with the per-process
+> performance counter inheritance changes I sent you.
 > 
+> I currently use task_lock(tsk) to synchronise accesses
+> to tsk->thread.perfctr, when that pointer could change.
+> 
+> The write_lock_irq(&tasklist_lock) in release_task() is
+> needed to prevent ->parent from changing while releasing the
+> child, but the parent's ->thread.perfctr must also be locked.
+> However, sched.h explicitly forbids holding task_lock()
+> simultaneously with write_lock_irq(&tasklist_lock). Ouch.
 
+That's ghastly.
+
+ * Nests both inside and outside of read_lock(&tasklist_lock).
+ * It must not be nested with write_lock_irq(&tasklist_lock),
+ * neither inside nor outside.
+
+Manfred, where did you discover the offending code?
+
+> My options seem to boil down to one of the following:
+> 1. Forget task_lock(), always take the tasklist_lock.
+>    This should work but would lock the task list briefly at
+>    operations like set_cpus_allowed(), and creating/deleting
+>    a task's perfctr state object. I don't like that.
+> 2. Add a 'spinlock_t perfctr_lock;' to the thread_struct,
+>    next to the perfctr state pointer. This is much cleaner,
+>    but increases the size of the thread struct slightly.
+> 
+> I think I prefer option #2. Any objections to that?
+
+Would be better to just sort out the locking, then take task_lock() inside
+tasklist_lock.  That was allegedly the rule in 2.4.

@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbUKVRZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbUKVQzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbUKVRZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 12:25:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbUKVRZP
+	id S262207AbUKVQzh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbUKVQoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 12:25:15 -0500
-Received: from null.rsn.bth.se ([194.47.142.3]:64195 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S262259AbUKVRUB (ORCPT
+	Mon, 22 Nov 2004 11:44:04 -0500
+Received: from mail.suse.de ([195.135.220.2]:24781 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262177AbUKVQWP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 12:20:01 -0500
-Subject: Re: Linux 2.6.9 pktgen module causes INIT process respawning and
-	sickness
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: "Jeff V. Merkey" <jmerkey@devicelogics.com>
-Cc: linux-kernel@vger.kernel.org, jmerkey@drdos.com
-In-Reply-To: <419E6E5D.2000709@devicelogics.com>
-References: <419E6B44.8050505@devicelogics.com>
-	 <419E6E5D.2000709@devicelogics.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-iZ19agDxGW9kghhpWm3q"
-Message-Id: <1101143995.1125.12.camel@tux.rsn.bth.se>
+	Mon, 22 Nov 2004 11:22:15 -0500
+Date: Mon, 22 Nov 2004 17:22:14 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ray Bryant <raybry@sgi.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>, holt@sgi.com,
+       Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
+       John Hawkes <hawkes@tomahawk.engr.sgi.com>
+Subject: Re: [Lse-tech] scalability of signal delivery for Posix Threads
+Message-ID: <20041122162214.GE21861@wotan.suse.de>
+References: <41A20AF3.9030408@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 22 Nov 2004 18:19:56 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41A20AF3.9030408@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 22, 2004 at 09:51:15AM -0600, Ray Bryant wrote:
+> (Obviously, one solution is to recode the application to send fewer signals
+> per thread as the number of threads increase.  However, we are concerned by
+> the fact that a user application, of any kind, can be constructed in a way
+> that causes system to become responsive and would like to find a solutiuon
+> that would let us correctly execute the program as described.)
 
---=-iZ19agDxGW9kghhpWm3q
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I suspect there are hundreds or thousands of ways on such a big system to 
+exploit some lock to make the system unresponsive.  If you wanted
+to fix them all your would be in a large scale redesign effort. 
+It's not clear why this particular case is special.
 
-On Fri, 2004-11-19 at 23:06, Jeff V. Merkey wrote:
-> Additionally, when packets sizes 64, 128, and 256 are selected, pktgen=20
-> is unable to achieve > 500,000 pps (349,000 only on my system).
-> A Smartbits generator can achieve over 1 million pps with 64 byte=20
-> packets on gigabit.  This is one performance
-> issue for this app.  However, at 1500 and 1048 sizes, gigabit saturation=20
-> is achievable.=20
+> Since signals are sent much more often than sigaction() is called, it would
+> seem to make more sense to make sigaction() take a heavier weight lock of
 
-What hardware are you using? 349kpps is _low_ performance at 64byte
-packets.
+At least in traditional signal semantics you have to call sigaction
+or signal in each signal handler to reset the signal. So that 
+assumption is not necessarily true.
 
-Here you can see Roberts (pktgen author) results when testing diffrent
-e1000 nics at diffrent bus speeds. He also tested 2port and 4port e1000
-cards, the 4port nics have an pci-x bridge...
+> It seems to me that scalability would be improved if we moved the siglock 
+> from
+> the sighand structure to the task_struct.  (keep reading, please...)  Code 
+> that manipulates the current task signal data only would just obtain that 
+> lock.  Code that needs to change the sighand structure (e. g. sigaction())
+> would obtain all of the siglock's of all tasks using the same sighand 
+> structure.  A list of those task_struct's would be added to the sighand
+> structure to enable finding these structurs without having to take the
+> task_list_lock and search for them.
 
-http://robur.slu.se/Linux/net-development/experiments/2004/040808-pktgen
+Taking all these locks without risking deadlock would be tricky.
+You could just use a ring, but would need to point to a common
+anchor and always start from there to make sure all lock grabbers
+aquire the locks in the same order.
 
-I get a lot higher than 349kpps with an e1000 desktop adapter running at
-32bit/66MHz.
-=20
---=20
-/Martin
+> Anyway, we would be interested in the community's ideas about dealing with
+> this signal delivery scalability issue, and, comments on the solution above
+> or suggestions for alternative solutions are welcome.
 
---=-iZ19agDxGW9kghhpWm3q
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+How about you figure out a fast path of some signals that can work
+without locking: e.g. no load balancing needed, no queued signal, etc. 
+and then just do the delivery of SIGPROF lockless? Or just ignore it
+since the original premise doesn't seem to useful.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+-Andi
 
-iD8DBQBBoh+7Wm2vlfa207ERArC4AKC0xqX3R5V1l3kBkVgYamsjH7PSDwCfQWYk
-1FYnHSQ7vt13zhSkr6G0Z9Y=
-=+Pd4
------END PGP SIGNATURE-----
-
---=-iZ19agDxGW9kghhpWm3q--

@@ -1,49 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279481AbRJXGzl>; Wed, 24 Oct 2001 02:55:41 -0400
+	id <S279483AbRJXHjB>; Wed, 24 Oct 2001 03:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279483AbRJXGzc>; Wed, 24 Oct 2001 02:55:32 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:6951 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S279481AbRJXGzZ>; Wed, 24 Oct 2001 02:55:25 -0400
-Message-ID: <3BD6653E.70906@blue-labs.org>
-Date: Wed, 24 Oct 2001 02:52:46 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011019
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Petr Titera <owl@century.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: issue: deleting one IP alias deletes all
-In-Reply-To: <Pine.LNX.4.33.0110240042570.1210-100000@u.domain.uli> <3BD65188.1060203@blue-labs.org> <02b601c15c53$c02f4990$0800a8c0@century.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S279457AbRJXHiv>; Wed, 24 Oct 2001 03:38:51 -0400
+Received: from postfix1-2.free.fr ([213.228.0.130]:48294 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S279482AbRJXHif> convert rfc822-to-8bit; Wed, 24 Oct 2001 03:38:35 -0400
+Subject: Re: linux-2.4.13..
+From: christophe barbe <christophe.barbe.ml@online.fr>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 24 Oct 2001 09:39:05 +0200
+Message-Id: <1003909145.1101.9.camel@turing>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I agree that the documentation for 'ip' is sparse or hard to grok. 
- Learn by example.  I have some scripts on http://blue-labs.org/, the 
-rc.* scripts.  These two scripts are my live scripts and cover a lot of 
-things from simple to advanced.
+Normally we send only failure reports but after the 2.4.11 and 2.4.12 I
+would like to thank you, Linus, for you dedication.
+I enjoy the linux kernel as a OS user and as a source code reader (as
+far as I can).
 
-(comments appreciated for corrections or improvements)
+2.4.13 builds and boots perfectly for me.
 
-David
+Christophe Barbé ...
 
-Petr Titera wrote:
+PS: If the DMCA and other scary stuff bother you too much, what about
+exiling in Paris in France ;-)
 
->>Actually it is quite sane.  The tool is not.
->>
->>Switch to 'ip' instead of 'ifconfig', several large distros now include
->>it.  Addresses can be added and removed completely indiscriminately on
->>interfaces.
->>
->I'd like to, but there's nothing like documentation with it.
->
->Petr
->
->P.S.: Yes I know about examples in Linux 2.4 routing, but manpage would be
->nicer.
->
-
+le mer 24-10-2001 at 07:52 Linus Torvalds a écrit :
+> 
+> Things seem to be calming down a bit, which is nice.
+> 
+> Of course, it might possibly also be that everybody is off flaming about
+> the DMCA and getting no work done ;)
+> 
+> Whatever the cause, here's a 2.4.13. See if you can break it,
+> 
+> 		Linus
+> 
+> ----
+> final:
+>  - page write-out throttling
+>  - Pete Zaitcev: ymfpci sound driver update (make Civ:CTP happy with it)
+>  - Alan Cox: i2o sync-up
+>  - Andrea Arcangeli: revert broken x86 smp_call_function patch
+>  - me: handle VM write load more gracefully. Merge parts of -aa VM
+> 
+> pre6:
+>  - Stephen Rothwell: APM idle time handling fixes, docbook update, cleanup
+>  - Jeff Garzik: network driver updates
+>  - Greg KH: USB updates
+>  - Al Viro: UFS update, binfmt_misc rewrite.
+>  - Andreas Dilger: /dev/random fixes
+>  - David Miller: network/sparc updates
+> 
+> pre5:
+>  - Greg KH: usbnet fix
+>  - Johannes Erdfelt: uhci.c bulk queueing fixes
+> 
+> pre4:
+>  - Al Viro: mnt_list init
+>  - Jeff Garzik: network driver update (license tags, tulip driver)
+>  - David Miller: sparc, net updates
+>  - Ben Collins: firewire update
+>  - Gerd Knorr: btaudio/bttv update
+>  - Tim Hockin: MD cleanups
+>  - Greg KH, Petko Manolov: USB updates
+>  - Leonard Zubkoff: DAC960 driver update
+> 
+> pre3:
+>  - Jens Axboe: clean up duplicate unused request list
+>  - Jeff Mahoney: reiserfs endianness finishing touches
+>  - Hugh Dickins: some further swapoff fixes and cleanups
+>  - prepare-for-Alan: move drivers/i2o into drivers/message/i2o
+>  - Leonard Zubkoff: 2TB disk device fixes
+>  - Paul Schroeder: mwave config enable
+>  - Urban Widmark: fix via-rhine double free..
+>  - Tom Rini: PPC fixes
+>  - NIIBE Yutaka: SuperH update
+> 
+> pre2:
+>  - Alan Cox: more merging
+>  - Ben Fennema: UDF module license
+>  - Jeff Mahoney: reiserfs endian safeness
+>  - Chris Mason: reiserfs O_SYNC/fsync performance improvements
+>  - Jean Tourrilhes: wireless extension update
+>  - Joerg Reuter: AX.25 updates
+>  - David Miller: 64-bit DMA interfaces
+> 
+> pre1:
+>  - Trond Myklebust: deadlock checking in lockd server
+>  - Tim Waugh: fix up parport wrong #define
+>  - Christoph Hellwig: i2c update, ext2 cleanup
+>  - Al Viro: fix partition handling sanity check.
+>  - Trond Myklebust: make NFS use SLAB_NOFS, and not play games with PF_MEMALLOC
+>  - Ben Fennema: UDF update
+>  - Alan Cox: continued merging
+>  - Chris Mason: get /proc buffer memory sizes right after buf-in-page-cache
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

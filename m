@@ -1,39 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVCBODb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVCBOFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVCBODb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:03:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVCBODb
+	id S262297AbVCBOFt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:05:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVCBOFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:03:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:8906 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262301AbVCBODQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:03:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=jV+jd8VDrwd1dhXyF6cdRhbzhmCMn2OlCObhbxRAsQ3T3PfNhXb9gVQzodAF5S5SCVZOW9gnT946sWOt1r2EoLjw/ql5fk6xhJtNRpuX/KJB2xZzJgUxJ4oD+M4fIKdchAtARx8+lw1IYIBGYEqs4Gzxn5XF3UM1RSSfM9w9Usg=
-Message-ID: <4225C799.2000502@gmail.com>
-Date: Wed, 02 Mar 2005 09:03:05 -0500
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 09:05:49 -0500
+Received: from smtp.cs.aau.dk ([130.225.194.6]:9099 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S262302AbVCBOFP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:05:15 -0500
+From: Kristian =?iso-8859-1?q?S=F8rensen?= <ks@cs.aau.dk>
+Organization: Aalborg University
+To: Christophe Lucas <clucas@rotomalug.org>
+Subject: Re: UserMode bug in 2.6.11-rc5? autolearn=disabled version=3.0.2
+Date: Wed, 2 Mar 2005 15:05:15 +0100
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200503021236.26561.ks@cs.aau.dk> <20050302134533.GE13075@rhum.iomeda.fr> <200503021459.39846.ks@cs.aau.dk>
+In-Reply-To: <200503021459.39846.ks@cs.aau.dk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
-References: <422550FC.9090906@gmail.com> <20050302012331.746bf9cb.akpm@osdl.org> <4225C613.7010701@gmail.com>
-In-Reply-To: <4225C613.7010701@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503021505.16139.ks@cs.aau.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops, should have read all the messages before posting!
+On Wednesday 02 March 2005 14:59, Kristian Sørensen wrote:
+> On Wednesday 02 March 2005 14:45, Christophe Lucas wrote:
+> > Kristian Sørensen (ks@cs.aau.dk) wrote:
+> > > Hi!
+> > >
+> > > I've just tried usermode Linux with a 2.6.11-rc5 kernel. My kernel
+> > > boots, but when the shell is to be spawned it freezes:
+> > > ----
+> > > INIT: Entering runlevel: 2
+> > > Starting system log daemon: syslogd.
+> > > Starting kernel log daemon: klogd.
+> > > Starting internet superserver: inetd.
+> > > Starting deferred execution scheduler: atd.
+> > > Starting periodic command scheduler: cron.
+> > > INIT: Id "0" respawning too fast: disabled for 5 minutes
+> > > INIT: Id "1" respawning too fast: disabled for 5 minutes
+> > > INIT: Id "2" respawning too fast: disabled for 5 minutes
+> > > INIT: Id "c" respawning too fast: disabled for 5 minutes
+> > > INIT: no more processes left in this runlevel
+> > > ----
+> > >
+> > > I've attached the .config for both 2.6.10 (working perfectly) and the
+> > > one for 2.6.11-rc5. The root filesystem this:
+> > > http://prdownloads.sourceforge.net/user-mode-linux/Debian-3.0r0.ext2.bz
+> > >2
+> >
+> > Hi,
+> >
+> > What do you have in your /etc/inittab of your root_fs ?
+> > I think you sould replace tty0 by vc/0 such as.
+> >
+> > I have had this on a kernel 2.6.10 and debian-3.1 root_fs.
+> >
+> > 	~Christophe
+>
+> Hey! Thanks - that fixed the problem! :-D
+Damn :-( Now the terminal is ready - but the passwords is not reconized (both 
+in 2.6.10 and 2.6.11-rc5) :-/
 
-I'll try the fix you said, I knew it'd be something like that.
+-- 
+Kristian Sørensen
+- The Umbrella Project  --  Security for Consumer Electronics
+  http://umbrella.sourceforge.net
 
-> 
-> It's attached.
-> 
-> BTW, is attaching things like this the preferred method?
-> 
+E-mail: ipqw@users.sf.net, Phone: +45 29723816

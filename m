@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130241AbRCCDT5>; Fri, 2 Mar 2001 22:19:57 -0500
+	id <S130260AbRCCD07>; Fri, 2 Mar 2001 22:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130253AbRCCDTh>; Fri, 2 Mar 2001 22:19:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:30480 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130241AbRCCDTZ>;
-	Fri, 2 Mar 2001 22:19:25 -0500
-Date: Sat, 3 Mar 2001 04:19:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Mario Hermann <ario@eikon.tum.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: report bug: System reboots when accessing a loop-device over a second loop-device with 2.4.2-ac7
-Message-ID: <20010303041922.C1535@suse.de>
-In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de> <20010301172145.T21518@suse.de> <3A9FADAB.F37E5449@eikon.tum.de> <20010302162824.H408@suse.de> <3A9FDD80.FD075386@eikon.tum.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="eAbsdosE1cNLO4uF"
-Content-Disposition: inline
-In-Reply-To: <3A9FDD80.FD075386@eikon.tum.de>; from ario@eikon.tum.de on Fri, Mar 02, 2001 at 06:50:56PM +0100
+	id <S130257AbRCCD0t>; Fri, 2 Mar 2001 22:26:49 -0500
+Received: from mercury.ST.HMC.Edu ([134.173.57.219]:17161 "HELO
+	mercury.st.hmc.edu") by vger.kernel.org with SMTP
+	id <S130253AbRCCD0n>; Fri, 2 Mar 2001 22:26:43 -0500
+From: Nate Eldredge <neldredge@hmc.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15008.25709.185798.826060@mercury.st.hmc.edu>
+Date: Fri, 2 Mar 2001 19:26:37 -0800
+To: linux-kernel@vger.kernel.org
+Subject: Oddity with /proc/sys/net/ipv4/conf/all
+X-Mailer: VM 6.76 under Emacs 20.5.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+According to Documentation/networking/ip-sysctl.txt:
 
---eAbsdosE1cNLO4uF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+conf/all/* is special and changes the settings for all interfaces.
 
-On Fri, Mar 02 2001, Mario Hermann wrote:
-> But with old 2.2 - Material stored on DVD-RAM. 
-> 
->   losetup -e blowfish /dev/loop0 /dev/sr3
->   lsoetup -e serpent /dev/loop1 /dev/loop0
-> 
-> it doesn't work.
+However, I did this:
 
-(replied to Mario earlier, for reference here's the patch).
+mercury:~# echo 1 >/proc/sys/net/ipv4/conf/all/log_martians 
+mercury:~# cat /proc/sys/net/ipv4/conf/all/log_martians 
+1
+mercury:~# cat /proc/sys/net/ipv4/conf/lo/log_martians 
+0
+mercury:~# cat /proc/sys/net/ipv4/conf/eth0/log_martians 
+0
 
-Yet another miscount and IV off, I apparently missed the latter
-when the other IV calculations were fixed. I've verified block
-crypto here now.
+So it looks like the changes are not reflected in the individual
+interfaces.  What's going on?
+
+Also, can anyone tell me how to test whether these options are
+working?  (For instance, how can I send myself a martian packet, to
+see if it is logged?)  I considered the possibility that the option
+really is on, and sysctl just doesn't report it, but I didn't know how
+to find out.
+
+This is kernel 2.4.2-ac7.
 
 -- 
-Jens Axboe
 
-
---eAbsdosE1cNLO4uF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename=loop-ac10-1
-
---- /opt/kernel/linux-2.4.2-ac10/drivers/block/loop.c	Sat Mar  3 04:16:23 2001
-+++ drivers/block/loop.c	Sat Mar  3 04:18:54 2001
-@@ -345,8 +345,6 @@
- 		struct buffer_head *rbh = bh->b_private;
- 
- 		rbh->b_end_io(rbh, uptodate);
--		if (atomic_dec_and_test(&lo->lo_pending))
--			up(&lo->lo_bh_mutex);
- 		loop_put_buffer(bh);
- 	} else
- 		loop_add_bh(lo, bh);
-@@ -479,6 +477,7 @@
- 
- 		IV = (bh->b_rsector / (bh->b_size >> 9));
- 		IV += lo->lo_offset / bh->b_size;
-+		IV >>= 2;
- 
- 		ret = lo_do_transfer(lo, READ, bh->b_data, rbh->b_data,
- 				     bh->b_size, IV);
-
---eAbsdosE1cNLO4uF--
+Nate Eldredge
+neldredge@hmc.edu

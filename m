@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbTJGN67 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 09:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTJGN66
+	id S262379AbTJGOQw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 10:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTJGOQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 09:58:58 -0400
-Received: from www02.ies.inet6.fr ([62.210.153.202]:13963 "EHLO
-	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S262351AbTJGN65
+	Tue, 7 Oct 2003 10:16:51 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:60863 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262379AbTJGOQu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 09:58:57 -0400
-Message-ID: <3F82C69E.5060609@inet6.fr>
-Date: Tue, 07 Oct 2003 15:58:54 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030903 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE errors with 2.6.0-test* and SIS5513
-References: <20031006193401.GA30170@irq.dk>
-In-Reply-To: <20031006193401.GA30170@irq.dk>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 7 Oct 2003 10:16:50 -0400
+Date: Tue, 7 Oct 2003 07:16:36 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Larry McVoy <lm@bitmover.com>, Pascal Schmidt <der.eremit@email.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+Message-ID: <20031007141636.GA910@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Larry McVoy <lm@bitmover.com>, Pascal Schmidt <der.eremit@email.de>,
+	linux-kernel@vger.kernel.org
+References: <Dnwo.1ew.15@gated-at.bofh.it> <DnPL.3XB.11@gated-at.bofh.it> <DsvX.3yN.1@gated-at.bofh.it> <E1A6a6A-0000qT-00@neptune.local> <20031006183857.GA3508@work.bitmover.com> <1065516037.22491.267.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1065516037.22491.267.camel@hades.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Kjær said the following on 10/06/2003 09:34 PM:
+On Tue, Oct 07, 2003 at 09:40:37AM +0100, David Woodhouse wrote:
+> This is not about whether a licence _can_ demand this. We know it can --
+> it can demand the ritual sacrifice of your first-born, and all that
+> means is that if you don't agree, you don't get to use the software in
+> question??.
 
->Hi!
->
->I'm having problems with the 2.6 kernels and the SIS5513 IDE chipset.
->
->  
->
-
-Does kernel parameter noapic change anything ?
-
-Could you attach your .config file and the output of lspci -vvxxx ?
-
-Best regards,
-
+No, that's the point you have been missing all along.  Any unenforceable 
+clause is null and void.  Read section 7 of the GPL and a little law.
+You can't enforce unenforceable clauses by revoking the license.
 -- 
-Lionel Bouton - inet6
----------------------------------------------------------------------
-   o              Siege social: 51, rue de Verdun - 92158 Suresnes
-  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
-/ /\  /_  / /_   France
-\/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
-  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
-
-
-
-
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

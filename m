@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271483AbRHPFHq>; Thu, 16 Aug 2001 01:07:46 -0400
+	id <S271478AbRHPF13>; Thu, 16 Aug 2001 01:27:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271476AbRHPFHg>; Thu, 16 Aug 2001 01:07:36 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:39695 "EHLO
-	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S271478AbRHPFHU>; Thu, 16 Aug 2001 01:07:20 -0400
-Date: Thu, 16 Aug 2001 13:08:46 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: <jes@trained-monkey.org>
-cc: <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 64 bit bug in video1394.c
-In-Reply-To: <200108160449.f7G4nu619552@savage.trained-monkey.org>
-Message-ID: <Pine.LNX.4.33.0108161307180.1401-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271481AbRHPF1U>; Thu, 16 Aug 2001 01:27:20 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:49558 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271478AbRHPF1O>; Thu, 16 Aug 2001 01:27:14 -0400
+Date: Wed, 15 Aug 2001 23:26:47 -0600
+Message-Id: <200108160526.f7G5Qlx05483@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: devfsd-v1.3.16 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi, all. I've just released version 1.3.16 of my devfsd (devfs
+daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
 
-Can't you just redefine int to unsigned long for 64-bit system?
+Tarball directly available from:
+ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
 
-On Thu, 16 Aug 2001 jes@trained-monkey.org wrote:
+This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
+(or later).
 
-> Hi
->
-> drivers/message/i2o/i2o_block.c cpu flags in 'int' which breaks on 64
-> bit boxes.
->
-> Here's a patch.
->
+The main changes are:
 
+- Move opendir(3) call to <do_scan_and_service>
+
+- Be more tolerant of some system errors
+
+- Fixed file descriptor leak in <action_copy>.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

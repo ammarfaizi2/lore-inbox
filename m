@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316587AbSGHKTY>; Mon, 8 Jul 2002 06:19:24 -0400
+	id <S316840AbSGHK5M>; Mon, 8 Jul 2002 06:57:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSGHKTX>; Mon, 8 Jul 2002 06:19:23 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49426 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316587AbSGHKTW>; Mon, 8 Jul 2002 06:19:22 -0400
-Date: Mon, 8 Jul 2002 06:16:07 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@arcor.de>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-       Werner Almesberger <wa@almesberger.net>, Keith Owens <kaos@ocs.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-In-Reply-To: <E17RRum-0001Y5-00@starship>
-Message-ID: <Pine.LNX.3.96.1020708060405.21693A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316842AbSGHK5L>; Mon, 8 Jul 2002 06:57:11 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:25360 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316840AbSGHK5K>;
+	Mon, 8 Jul 2002 06:57:10 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Peter Oberparleiter <oberpapr@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.18/2.5.24 kernel/module.c - minor bugs 
+In-reply-to: Your message of "Mon, 08 Jul 2002 10:27:50 +0200."
+             <200207080828.g688Sdo51968@d06relay02.portsmouth.uk.ibm.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 08 Jul 2002 20:59:37 +1000
+Message-ID: <17075.1026125977@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jul 2002, Daniel Phillips wrote:
+On Mon, 8 Jul 2002 10:27:50 +0200, 
+Peter Oberparleiter <oberpapr@softhome.net> wrote:
+>this patch fixes two minor bugs in kernel/module.c in current linux
+>kernel versions (2.4.18/2.5.24) which could cause problems in some
+>rare situations:
+>1. A size-check in sys_create_module is off by one. The check reads
+>2. In case "struct module" used by insmod is larger than the one used
+>by the kernel (e.g. newer version), module loading will fail.
 
-> That's not nice.  It requires the calling code to know it's calling a
-> module and it imposes the inc/dec overhead on callers even when the
-> target isn't compiled as a module.
+Looks good.  Linus/Marcelo, please apply.
 
-I don't think so... the module knows, there's a bit of hard code for the
-module anyway, so that could do the inc/dec and know when the module was
-in the "about to be removed" state. It's not clear if "it works most of
-the time now" means we just need to address some simple corner cases or if
-the whole design of modules needs to be reimplemented to really sweep out
-the corners, and they're not "simple" at all.
+========================================
+--- linux-2.4.17/kernel/module.c	Sun Nov 11 20:23:14 2001
++++ linux-2.4.17-modfix/kernel/module.c	Mon Jul  8 09:50:57 2002
+@@ -303,7 +303,7 @@
+ 		error = namelen;
+ 		goto err0;
+ 	}
+-	if (size < sizeof(struct module)+namelen) {
++	if (size < sizeof(struct module)+namelen+1) {
+ 		error = -EINVAL;
+ 		goto err1;
+ 	}
+@@ -482,10 +482,10 @@
+ 		error = n_namelen;
+ 		goto err2;
+ 	}
+-	if (namelen != n_namelen || strcmp(n_name, mod_tmp.name) != 0) {
++	if (namelen != n_namelen || strcmp(n_name, name_tmp) != 0) {
+ 		printk(KERN_ERR "init_module: changed module name to "
+ 				"`%s' from `%s'\n",
+-		       n_name, mod_tmp.name);
++		       n_name, name_tmp);
+ 		goto err3;
+ 	}
+ 
+========================================
 
-This has the feeling that someone could say "we could just..." at any
-time, and the whole problem would vanish.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+>Regards,
+>  Peter Oberparleiter
 

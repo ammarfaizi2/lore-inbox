@@ -1,47 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277511AbRJKC3p>; Wed, 10 Oct 2001 22:29:45 -0400
+	id <S277879AbRJKCk1>; Wed, 10 Oct 2001 22:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277811AbRJKC3f>; Wed, 10 Oct 2001 22:29:35 -0400
-Received: from femail31.sdc1.sfba.home.com ([24.254.60.21]:12970 "EHLO
-	femail31.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S277511AbRJKC3X>; Wed, 10 Oct 2001 22:29:23 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Andreas Dilger <adilger@turbolabs.com>
-Subject: Re: Tainted Modules Help Notices
-Date: Wed, 10 Oct 2001 18:29:01 -0400
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15rQjC-0000m2-00@the-village.bc.nu> <m2itdnf6a9.fsf@anano.mitica> <20011010172832.P10443@turbolinux.com>
-In-Reply-To: <20011010172832.P10443@turbolinux.com>
-MIME-Version: 1.0
-Message-Id: <01101018290109.11498@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S277811AbRJKCkS>; Wed, 10 Oct 2001 22:40:18 -0400
+Received: from hermes.toad.net ([162.33.130.251]:44510 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S277879AbRJKCkD>;
+	Wed, 10 Oct 2001 22:40:03 -0400
+Subject: [PATCH] 2.4.10-ac11 bootflag.c cleanup
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 10 Oct 2001 22:39:43 -0400
+Message-Id: <1002767986.7435.52.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 October 2001 19:28, Andreas Dilger wrote:
+Here's a new version of the bootflag.c patch which ONLY
+cleans up the code by adding some macros and such, but
+doesn't change what it does ... except for one thing: it
+doesn't clear the register entirely if the previous value
+is invalid, but instead prints a warning message and clears
+the _reserved_ bits, leaving the DIAG and BOOTING flags
+alone.
 
-> Given that "subversion" will only mean editing the text output of ksymoops
-> to not display the "tainted" flag, I don't see it to be a big barrier to
-> entry.  If it is in the FAQ (or documented elsewhere) that "if ksymoops
-> says 'tainted: 1' submit your bug reports only to the vendor" it will be
-> a small matter to delete that line, and if this is NOT documented anywhere
-> it will not reduce the number of bug submissions, which was the original
-> goal.
+It has been explained to me that we don't want to clear the
+BOOTING flag here; we are going to wait for the whole boot
+process to complete, and then clear it.
 
-If it gets them to read the FAQ, it's done it's job already!
+If I want to fiddle with the SBFlags I'll do it via /dev/nvram,
+as Alan suggested.  Dave Jones is preparing a utility to allow
+that.
 
-What the flag REALLY means is "I didn't read the FAQ."  In order to know to 
-change it, they have to know why it's there...
+--
+Thomas
 
-And it's not to reduce submissions, it's to let Kernel hackers discard them 
-more quickly.  (No force on earth can stop clueless requests for tech 
-support.  It's like trying to stop spam.  All you can do is filter it more 
-effectively.)
+The patch:
+--- linux-2.4.10-ac11/arch/i386/kernel/bootflag.c	Wed Oct 10 22:08:50 2001
++++ linux-2.4.10-ac11-fix/arch/i386/kernel/bootflag.c	Wed Oct 10 22:29:38 2001
+@@ -15,6 +15,14 @@
+ 
+ #include <linux/mc146818rtc.h>
+ 
++
++#define SBF_RESERVED (0x78)
++#define SBF_PNPOS    (1<<0)
++#define SBF_BOOTING  (1<<1)
++#define SBF_DIAG     (1<<2)
++#define SBF_PARITY   (1<<7)
++
++
+ struct sbf_boot
+ {
+ 	u8 sbf_signature[4];
+@@ -59,7 +67,7 @@
+ 		return 0;
+ 
+ 	if (sb.sbf_len == 39)
+-		printk (KERN_WARNING "ACPI BOOT descriptor is wrong length (%d)\n",
++		printk (KERN_WARNING "SBF: ACPI BOOT descriptor is wrong length (%d)\n",
+ 			sb.sbf_len);
+ 
+ 	sbf_port = sb.sbf_cmos;	/* Save CMOS port */
+@@ -84,10 +92,12 @@
+ 	unsigned long flags;
+ 	if(sbf_port != -1)
+ 	{
+-		v &= ~(1<<7);
++		v &= ~SBF_PARITY;
+ 		if(!parity(v))
+-			v|=1<<7;
+-			
++			v|=SBF_PARITY;
++
++		printk(KERN_INFO "SBF: Setting boot flags 0x%x\n",v);
++
+ 		spin_lock_irqsave(&rtc_lock, flags);
+ 		CMOS_WRITE(v, sbf_port);
+ 		spin_unlock_irqrestore(&rtc_lock, flags);
+@@ -108,7 +118,7 @@
+ 
+ static int __init sbf_value_valid(u8 v)
+ {
+-	if(v&0x78)		/* Reserved bits */
++	if(v&SBF_RESERVED)		/* Reserved bits */
+ 		return 0;
+ 	if(!parity(v))
+ 		return 0;
+@@ -120,25 +130,14 @@
+ {
+ 	u8 v = sbf_read();
+ 	if(!sbf_value_valid(v))
+-		v = 0;
++		printk(KERN_WARNING "SBF: Simple boot flag value 0x%x read from CMOS RAM was invalid\n",v);
++	v &= ~SBF_RESERVED;
+ #if defined(CONFIG_PNPBIOS)
+-	/* Tell the BIOS to fast init as we are a PnP OS */
+-	v |= (1<<0);	/* Set PNPOS flag */
++	v |= SBF_PNPOS;
+ #endif
+ 	sbf_write(v);
+ }
+ 
+-#ifdef NOT_USED
+-void linux_booted_ok(void)
+-{
+-	u8 v = sbf_read();
+-	if(!sbf_value_valid(v))
+-		return;
+-	v &= ~(1<<1);	/* Clear BOOTING flag */
+-	sbf_write(v);
+-}
+-#endif /* NOT_USED */
+-
+ static int __init sbf_init(void)
+ {
+ 	unsigned int i;
+@@ -237,7 +236,7 @@
+ 		if(sbf_struct_valid(rp))
+ 		{
+ 			/* Found the BOOT table and processed it */
+-			printk(KERN_INFO "Simple Boot Flag extension found and enabled.\n");
++			printk(KERN_INFO "SBF: Simple Boot Flag extension found and enabled.\n");
+ 		}
+ 		iounmap((void *)rp);
+ 	}
 
-
-Rob

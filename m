@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313159AbSDDMRD>; Thu, 4 Apr 2002 07:17:03 -0500
+	id <S312212AbSDDM2p>; Thu, 4 Apr 2002 07:28:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313160AbSDDMQy>; Thu, 4 Apr 2002 07:16:54 -0500
-Received: from ns.suse.de ([213.95.15.193]:10001 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S313159AbSDDMQs>;
-	Thu, 4 Apr 2002 07:16:48 -0500
-Date: Thu, 4 Apr 2002 14:16:47 +0200
-From: Dave Jones <davej@suse.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.7-dj3
-Message-ID: <20020404141647.T20040@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020404054923.A28437@suse.de> <Pine.NEB.4.44.0204040946500.7845-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S293722AbSDDM2Y>; Thu, 4 Apr 2002 07:28:24 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:63243 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293680AbSDDM2W>; Thu, 4 Apr 2002 07:28:22 -0500
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+To: tigran@aivazian.fsnet.co.uk (Tigran Aivazian)
+Date: Thu, 4 Apr 2002 12:54:06 +0100 (BST)
+Cc: kaos@ocs.com.au (Keith Owens), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        andrea@suse.de (Andrea Arcangeli),
+        arjanv@redhat.com (Arjan van de Ven), hugh@veritas.com (Hugh Dickins),
+        mingo@redhat.com (Ingo Molnar),
+        stelian.pop@fr.alcove.com (Stelian Pop),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204041041530.1475-100000@einstein.homenet> from "Tigran Aivazian" at Apr 04, 2002 11:22:15 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16t5oc-0005kr-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 09:50:32AM +0200, Adrian Bunk wrote:
- > pdc4030.c: In function `promise_multwrite':
- > pdc4030.c:447: warning: passing arg 2 of `bio_kmap_irq' makes pointer from
- > integer without a cast
- > pdc4030.c: In function `promise_rw_disk':
- > pdc4030.c:664: structure has no member named `channel'
+> There should be no "licensing implications" but simply the (documented)
+> fact that if a proprietary module writer is stupid enough to make a
+> MODULE_SYMBOLS_INTERNAL claim his module will break far more often both
+> with respect to existence _and_ semantics/implemention of those entries
 
-Ok, I'm confused.
-This is a compile failure from 2.5.8-pre1.
-The line numbers don't even match up to whats in -dj3
+Using any internals of the Linux kernel has licensing implications. 
 
-Forgot to apply -dj3 patch ?
+> exported only "internally". But that is their own problem -- we should
+> neither help them nor prevent them from doing their work and earning their
 
-    Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+So why are you trying to put me out of business by allowing people to use
+my code in ways the GPL doesn't permit. That cuts both ways.

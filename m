@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261307AbSJCVV3>; Thu, 3 Oct 2002 17:21:29 -0400
+	id <S261337AbSJCVfB>; Thu, 3 Oct 2002 17:35:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261323AbSJCVV3>; Thu, 3 Oct 2002 17:21:29 -0400
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.232.94]:3076
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S261307AbSJCVV2>; Thu, 3 Oct 2002 17:21:28 -0400
-Date: Thu, 3 Oct 2002 17:29:23 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Patch release - 2.4.20-pre7-rmap14a-shawn12d.1
-Message-ID: <Pine.LNX.4.44.0210031728370.11204-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261323AbSJCVfB>; Thu, 3 Oct 2002 17:35:01 -0400
+Received: from gw.openss7.com ([142.179.199.224]:3082 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S261337AbSJCVeN>;
+	Thu, 3 Oct 2002 17:34:13 -0400
+Date: Thu, 3 Oct 2002 15:39:43 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: export of sys_call_table
+Message-ID: <20021003153943.E22418@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a patch release
-=======================
+I see that RH, in their infinite wisdom, have seen fit to remove
+the export of sys_call_table in 8.0 kernels breaking any loadable
+modules that wish to implement non-implemented system calls such
+as LiS's or iBCS implementation of putmsg/getmsg.
 
-xfs-2.4.20-pre7-rmap14a-uml-shawn12d.1 against 2.4.19 vanilla. (October 3rd, 2002)
+sys_call_table is exported in current 2.4 and 2.5 kernels.
 
-- Fixed KDB compile errors (due to changes in page structure)
+Until now, loadable modules have been able to just overwrite
+the non implemented point in the sys_call_table when they load
+and putting it back when they unload.  There is no mechanism
+for registering system calls.
 
-- Fixed symbol error (vmap) when not using XFS file system
+What is the kernel.org take on this?
 
-- Fixed symbol error (grab_cache_page) missing in pagemap.h
+--brian
 
-
-you can get it at:
-
-http://xfs.sh0n.net/2.4/testing/linux-shawn12d.1.diff.patch
-
-Note: Site is having connectivity issues right now (the machine looks dead
-;))
-
-
---
-Shawn Starr, sh0n.net, <spstarr@sh0n.net>
-Maintainer: -shawn kernel patches: http://xfs.sh0n.net/2.4/
-
+-- 
+Brian F. G. Bidulock    ¦ The reasonable man adapts himself to the ¦
+bidulock@openss7.org    ¦ world; the unreasonable one persists in  ¦
+http://www.openss7.org/ ¦ trying  to adapt the  world  to himself. ¦
+                        ¦ Therefore  all  progress  depends on the ¦
+                        ¦ unreasonable man. -- George Bernard Shaw ¦

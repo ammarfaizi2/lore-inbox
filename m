@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264252AbTFCARQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 20:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbTFCARQ
+	id S264312AbTFCAZB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 20:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264338AbTFCAZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 20:17:16 -0400
-Received: from dyn-ctb-210-9-244-45.webone.com.au ([210.9.244.45]:6917 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S264252AbTFCARP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 20:17:15 -0400
-Message-ID: <3EDBEC27.9070705@cyberone.com.au>
-Date: Tue, 03 Jun 2003 10:30:31 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] 2.5.70-mm2 with contest
-References: <200306030806.49885.kernel@kolivas.org> <20030602151644.06252b28.akpm@digeo.com>
-In-Reply-To: <20030602151644.06252b28.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Jun 2003 20:25:00 -0400
+Received: from vitelus.com ([64.81.243.207]:30732 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S264312AbTFCAY7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 20:24:59 -0400
+Date: Mon, 2 Jun 2003 17:37:39 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BKCVS issue
+Message-ID: <20030603003739.GG14878@vitelus.com>
+References: <20030602211436.GF14878@vitelus.com> <200306021937.03013.rob@landley.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306021937.03013.rob@landley.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 02, 2003 at 07:37:02PM -0400, Rob Landley wrote:
+> On Monday 02 June 2003 17:14, Aaron Lehmann wrote:
+> > For the past few days, it seems like every time something changes in
+> > BK, the bkcvs repository has all of its files touched. At least, all
+> > files in the repository have a P preceding their names on a cvs up.
+> >
+> > It's not intolerable, but I was wondering if anyone's aware of it.
+> 
+> CVS thinks of changes as having been applied in a certain order, with each 
+> cange applying to the result of previous changes.
 
-
-Andrew Morton wrote:
-
->Con Kolivas <kernel@kolivas.org> wrote:
->
->>io_load:
->>Kernel         [runs]   Time    CPU%    Loads   LCPU%   Ratio
->>2.5.69              4   343     22.7    120.5   19.8    4.29
->>2.5.69-mm3          4   319     24.5    105.3   18.1    4.04
->>2.5.69-mm5          4   137     56.9    49.6    19.0    1.73
->>2.5.69-mm6          4   150     52.0    53.4    18.7    1.92
->>2.5.70              5   326     21.5    112.9   18.7    4.13
->>2.5.70-mm2          4   115     67.0    42.0    19.1    1.47
->>large drop in time with one large file write
->>
->
->We're hitting nearly 90% CPU here.  That is really excellent.
->
-Yes, the contest results have held up nicely after those big
-changes to AS which is good.
-
-It will be interesting to see what happens if we set the
-ext3 journal write paths as PF_SYNCWRITE. I'll try some tests
-a bit later today.
-
+I understand that they are built on different models, but I had
+thought the bk->cvs translator was somewhat intelligent. I had never
+seen all the files in the CVS repository touched until a few days ago.
+That's why I brought this up.

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288197AbSAHSNm>; Tue, 8 Jan 2002 13:13:42 -0500
+	id <S288211AbSAHSVW>; Tue, 8 Jan 2002 13:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288206AbSAHSNd>; Tue, 8 Jan 2002 13:13:33 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50950 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288197AbSAHSNT>;
-	Tue, 8 Jan 2002 13:13:19 -0500
-Message-ID: <3C3B36B4.8F7426BF@mandrakesoft.com>
-Date: Tue, 08 Jan 2002 13:13:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@transmeta.com, hch@caldera.com, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] preempt abstraction
-In-Reply-To: <10940.1010511619@warthog.cambridge.redhat.com>
+	id <S288206AbSAHSVN>; Tue, 8 Jan 2002 13:21:13 -0500
+Received: from holomorphy.com ([216.36.33.161]:25048 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S288208AbSAHSVD>;
+	Tue, 8 Jan 2002 13:21:03 -0500
+Date: Tue, 8 Jan 2002 10:20:37 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org, riel@surriel.com, mjc@kernel.org,
+        bcrl@redhat.com, akpm@zip.com.au, phillips@bonn-fries.net
+Subject: Re: hashed waitqueues
+Message-ID: <20020108102037.J10391@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, riel@surriel.com, mjc@kernel.org,
+	bcrl@redhat.com, akpm@zip.com.au, phillips@bonn-fries.net
+In-Reply-To: <20020104094049.A10326@holomorphy.com> <E16MeqE-0001Ea-00@starship.berlin> <20020104173923.B10391@holomorphy.com> <E16Mgoj-0001Ew-00@starship.berlin> <20020104210611.C10391@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020104210611.C10391@holomorphy.com>; from wli@holomorphy.com on Fri, Jan 04, 2002 at 09:06:11PM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
->         ftp://infradead.org/pub/people/dwh/preempt-252p10.diff.bz2
+On January 5, 2002 02:39 am, William Lee Irwin III wrote:
+>>> 2 or 3 shift/adds is really not possible, the population counts of the
+>>> primes in those ranges tends to be high, much to my chagrin.
 
-> It also replaces instances of:
-> 
->         if (current->need_resched())
->                 schedule();
-> 
-> With:
-> 
->         preempt();
+On Sat, Jan 05, 2002 at 03:44:06AM +0100, Daniel Phillips wrote:
+>> It doesn't really have to be a prime, being relatively prime is also 
+>> good, i.e., not too many or too small factors.  Surely there's a multiplier 
+>> in the right range with just two prime factors that can be computed with 3 
+>> shift-adds.
+
+The (theoretically) best 64-bit prime with 5 high bits I found is:
+
+11673330234145374209 == 0xa200000000100001
+which has continued fraction of p/2^64
+	= 0,1,1,1,2,1,1,1,1,1,1,1073740799,2,1,1,1,1,6,1,1,5,1023,1,4,1,1,3,3
+
+and the (theoretically) best 64-bit prime with 4 high bits I found is:
+11529215046068994049 == 0xa000000000080001
+which has continued fraction of p/2^64
+	= 0,1,1,1,2,549754765313,1,1,1,1,1,4095,2,1,1,1,1,2,1,2
+
+(the continued fractions terminate after the points given here)
+
+Which of the two would be better should depend on whether the penalty
+against the distribution for the sixth term of the 4-bit prime is worse
+than the computational expense of the extra shift/add for the 5-bit prime.
+
+I need to start benching this stuff.
 
 
-Regardless of the benefit of abstracting access to
-current->need_resched, I've always thought something like this was
-needed for code cleanliness as well.  Since yield is now in 2.5.2-preXX,
-why not add your patch too.  Nice...
-
-	Jeff
-
-
-
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+Cheers,
+Bill

@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269698AbUICRjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269611AbUICRjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269698AbUICRjj (ORCPT <rfc822;willy@w.ods.org>);
+	id S269611AbUICRjj (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 3 Sep 2004 13:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269709AbUICRhg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUICRh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:37:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:27523 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269698AbUICRdm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:33:42 -0400
-Date: Fri, 3 Sep 2004 10:33:38 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
-Message-Id: <20040903173341.15321.1534.35811@sam.engr.sgi.com>
-Subject: [PATCH] Cpusets - Dont export proc_cpuset_operations
+	Fri, 3 Sep 2004 13:37:58 -0400
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:38791 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S269611AbUICRfU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 13:35:20 -0400
+To: Eric Mudama <edmudama@gmail.com>
+Cc: Greg Stark <gsstark@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Brad Campbell <brad@wasp.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
+	<87u0ugt0ml.fsf@stark.xeocode.com>
+	<1094209696.7533.24.camel@localhost.localdomain>
+	<87d613tol4.fsf@stark.xeocode.com>
+	<1094219609.7923.0.camel@localhost.localdomain>
+	<877jrbtkds.fsf@stark.xeocode.com>
+	<1094224166.8102.7.camel@localhost.localdomain>
+	<871xhjti4b.fsf@stark.xeocode.com>
+	<311601c904090310083d057c25@mail.gmail.com>
+In-Reply-To: <311601c904090310083d057c25@mail.gmail.com>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 03 Sep 2004 13:35:08 -0400
+Message-ID: <87pt53s1bn.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove gratuitous EXPORT_SYMBOL of proc_cpuset_operations.
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Eric Mudama <edmudama@gmail.com> writes:
 
-Index: 2.6.9-rc1/kernel/cpuset.c
-===================================================================
---- 2.6.9-rc1.orig/kernel/cpuset.c	2004-09-03 09:02:29.000000000 -0700
-+++ 2.6.9-rc1/kernel/cpuset.c	2004-09-03 09:02:34.000000000 -0700
-@@ -1500,4 +1500,3 @@ struct file_operations proc_cpuset_opera
- 	.llseek		= seq_lseek,
- 	.release	= single_release,
- };
--EXPORT_SYMBOL(proc_cpuset_operations);
+> Today's (and tomorrow's) generation of SATA drives will never ever
+> generate a 0x59 status... the error and DRQ bits become mutually
+> exclusive.  
+
+This is a very recent Maxtor drive, a 7Y250M0. It's not the new drives that
+were recently announced but I think it's the most recent you can find in
+stores.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+greg
+

@@ -1,54 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264399AbTICVJn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 17:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264406AbTICVJn
+	id S264296AbTICU3z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 16:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbTICU22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 17:09:43 -0400
-Received: from 64.221.211.208.ptr.us.xo.net ([64.221.211.208]:38528 "HELO
-	mail.keyresearch.com") by vger.kernel.org with SMTP id S264399AbTICVJl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 17:09:41 -0400
-Subject: Re: devfs to be obsloted by udev?
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Greg KH <greg@kroah.com>, Justin Cormack <justin@street-vision.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Ed Sweetman <ed.sweetman@wmich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030903191701.GA12532@mars.ravnborg.org>
-References: <3F54A4AC.1020709@wmich.edu>
-	 <200309022219.02549.bzolnier@elka.pw.edu.pl>
-	 <1062581929.30060.197.camel@lotte.street-vision.com>
-	 <20030903184140.GA1651@kroah.com>
-	 <20030903191701.GA12532@mars.ravnborg.org>
-Content-Type: text/plain
-Message-Id: <1062623380.30752.217.camel@serpentine.internal.keyresearch.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 03 Sep 2003 14:09:40 -0700
+	Wed, 3 Sep 2003 16:28:28 -0400
+Received: from [129.219.49.179] ([129.219.49.179]:13208 "EHLO nwn.nanovoid.com")
+	by vger.kernel.org with ESMTP id S264214AbTICU12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 16:27:28 -0400
+Message-ID: <3F564EAE.20805@nanovoid.com>
+Date: Wed, 03 Sep 2003 14:27:26 -0600
+From: "Blake B." <shadoi@nanovoid.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test 4 and USB
+References: <Pine.LNX.3.96.1030903154731.9300A-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1030903154731.9300A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-03 at 12:17, Sam Ravnborg wrote:
+Hmm... once I mounted the usbfs, and had the proper modules loaded 
+(uhci-usb, etc...) /proc/bus/usb was populated.
 
-> Can some one sched a bit more light on what is seeked to get it integrated
-> in the build.
+My guess is the appropriate modules are not being loaded for whatever 
+hardware you/they have.
 
-See my previous response to Greg.
+-b-
 
-The only outstanding build issue is that the userspace stuff gets
-rebuilt unconditionally on every make, and I don't know why.  You're
-welcome to clone the repo at http://klibc.bkbits.net:8080/2.5-klibc and
-figure it out.
+Bill Davidsen wrote:
+>>Read /linux-kernel-source/Documentation/usb/proc_usb_info.txt
+> 
+> 
+> I must be missing something, the mount command from that file doesn't
+> seem to solve the original poster's problem, the /proc/bus/usb is still
+> empty...
+> 
+> ================================================================
+> 
+> From root@oddball.prodigy.com Wed Sep  3 15:47:22 2003
+> Subject: USB proc stuff
+> From: root <root@oddball.prodigy.com>
+> Date: Wed, 3 Sep 2003 13:19:15 -0400
+> To: davidsen@tmr.com
+> 
+> oddball:root> mount -t usbfs none /proc/bus/usb
+> oddball:root> df
+> Filesystem           1k-blocks      Used Available Use% Mounted on
+> /dev/hda3              2522076   2338380     55580  98% /
+> /dev/hda1                23302     20030      2069  91% /boot
+> /dev/hda5              1510032    265388   1167936  19% /home
+> /dev/hdb3              1474320    897712    501716  65% /usr/src
+> none                     46776         0     46776   0% /dev/shm
+> oddball:root> mount -t usbfs none /proc/bus/usb
+> mount: none already mounted or /proc/bus/usb busy
+> mount: according to mtab, none is already mounted on /proc/bus/usb
+> oddball:root> lc /proc/bus/usb
+> oddball:root> l -aR /proc/bus/usb
+> /proc/bus/usb:
+> total 0
+> drwxr-xr-x    2 root            0 Sep  3 13:17 .
+> dr-xr-xr-x    6 root            0 Sep  3 13:17 ..
+> oddball:root> lc /sys/b
+> block  bus
+> oddball:root> lc /sys/bus/usb/
+> devices/  drivers/
+> oddball:root>
+> ================================================================
+> 
+> I did the mount, checked that it worked, and the data still seems
+> missing. Before you ask, lc is an alias for "ls -CF" and a leftover
+> reflex from a previous o/s.
+> 
+> I did drag and drop on the mount command from the file you quote, o/s is
+> 2.4.0-test4 with only Nick's v7 scheduler patch.
+> 
 
->  Kai G. did a big update in this area some time ago -
-> but maybe more is needed?
-
-The build integration in the repo above is based on Kai's changes,
-forward ported from 2.5.60 or so.  You are more than welcome to prettify
-the hacking I had to do to get it working.
-
-	<b
 

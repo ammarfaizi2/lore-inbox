@@ -1,71 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbUBVNk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 08:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbUBVNk4
+	id S261248AbUBVNnY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 08:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbUBVNnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 08:40:56 -0500
-Received: from mail-10.iinet.net.au ([203.59.3.42]:48877 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261247AbUBVNkz
+	Sun, 22 Feb 2004 08:43:24 -0500
+Received: from mail.convergence.de ([212.84.236.4]:53670 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261248AbUBVNnV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 08:40:55 -0500
-Subject: kernel: NETDEV WATCHDOG: eth0: transmit timed out
-From: Sven Dowideit <svenud@ozemail.com.au>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1077457080.1208.17.camel@sven>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 23 Feb 2004 00:38:00 +1100
+	Sun, 22 Feb 2004 08:43:21 -0500
+Message-ID: <4038B1E9.60601@convergence.de>
+Date: Sun, 22 Feb 2004 14:43:05 +0100
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: i2c-yosemite
+References: <20040222104106.714de992.khali@linux-fr.org> <20040222103036.A29210@infradead.org>
+In-Reply-To: <20040222103036.A29210@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an IBM thinkpad T21 that has a 3Com ethernet card that has not
-been working in a long while (with ACPI turned on).
+Hello,
 
-Recently (the last 2-3 releases or so) it has also been getting the
-following messages (until i remember to to an ifconfgi eth0 down)
+On 22.02.2004 11:30, Christoph Hellwig wrote:
+> On Sun, Feb 22, 2004 at 10:41:06AM +0100, Jean Delvare wrote:
+> 
+>>If everyone reimplements what already exists, the kernel is likely to go
+>>bigger with no benefit. Also, you won't be able to use all user-space
+>>tools that already exist,
 
-Feb 23 00:22:00 sven kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Feb 23 00:22:35 sven last message repeated 3 times
-Feb 23 00:23:35 sven last message repeated 5 times
-Feb 23 00:24:35 sven last message repeated 5 times
-Feb 23 00:25:35 sven last message repeated 5 times
-Feb 23 00:26:00 sven last message repeated 2 times
+Agreed.
 
+>>Please explain to us why you cannot/don't want to use the existing i2c
+>>subsystem.
 
-the other weird thing, is that my computer pauses every few seconds, for
-a second, and it seems like this symptom goes away after the ifconfig
-down. 
+> Yupp.  While we're at it what should we do with the i2c reimplementations
+> in alsa and dvb?
 
+The current dvb "i2c" implementation is only about 10k straight-forward 
+code. Besides the name, there isn't much code duplication, because 
+essential stuff (for example struct i2c_msg) is already hijacked from i2c.h.
 
-any ideas?
+The problem with dvb i2c is, that the very first engineers didn't think 
+of the bus as a general purpose bus, but more like "hey, we know what 
+we're doing".
 
-cheers
+In former times when DVB wasn't in the kernel, we tried to use the 
+in-kernel i2c subsystem. One problem was, that all kind of drivers tried 
+to probe the DVB i2c busses, which really confused some i2c adapters. I 
+admit that this has been solved lately with the newly introduced "usage 
+ids".
 
-Sven
+There isn't much code duplication for the i2c helper chipsets drivers 
+either, because it's very unlikely that you'll find them outside 
+so-called DVB frontends.
 
-------------------------------------------------------------------
-00:03.0 Ethernet controller: 3Com Corporation 3c556B Hurricane CardBus
-(rev 20)
-        Subsystem: 3Com Corporation: Unknown device 6356
-        Flags: bus master, medium devsel, latency 64, IRQ 11
-        I/O ports at 1800 [size=256]
-        [virtual] Memory at e8101400 (32-bit, non-prefetchable)
-[size=128]
-        [virtual] Memory at e8101000 (32-bit, non-prefetchable)
-[size=128]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [50] Power Management version 2
+The biggest problem is, however, that some of the used chipsets (mainly 
+the demodulators) encapsulate all i2c traffic that has to go "beyond" 
+them (mainly to the tuners). They have a thing called "i2c repeater" 
+which has to be enabled and disabled by special i2c commands, sometimes 
+in a magic fashion.
 
+This is possible if you know exactly what i2c mesages you are sending, 
+but the guy who wrote the code told me that he wasn't able to get it 
+fully running with the kernel i2c system.
 
-eth0      Link encap:Ethernet  HWaddr FF:FF:FF:FF:FF:FF  
-          BROADCAST MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:21 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:11 Base address:0x1800 
+This might have changed in the past, but it hasn't been checked lately.
 
+For the long term (ie. 2.7 and 2.8), we're planning to use kernel i2c 
+again, but currently nobody dares to touch the code because it's running 
+very stable.
 
+CU
+Michael.

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261351AbSJHWEo>; Tue, 8 Oct 2002 18:04:44 -0400
+	id <S263485AbSJHWBA>; Tue, 8 Oct 2002 18:01:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261321AbSJHWEn>; Tue, 8 Oct 2002 18:04:43 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14341 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261320AbSJHWEk>; Tue, 8 Oct 2002 18:04:40 -0400
-Date: Tue, 8 Oct 2002 15:12:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Patrick Mochel <mochel@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] embedded struct device Re: [patch] IDE driver model update
-In-Reply-To: <Pine.GSO.4.21.0210081735370.5897-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.44.0210081510550.1226-100000@home.transmeta.com>
+	id <S263488AbSJHWA7>; Tue, 8 Oct 2002 18:00:59 -0400
+Received: from pc132.utati.net ([216.143.22.132]:7330 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S263486AbSJHWAs>; Tue, 8 Oct 2002 18:00:48 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0  -  (NUMA))
+Date: Tue, 8 Oct 2002 13:06:15 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+References: <E17ydRY-0003uQ-00@starship> <20021008161555.GA2913@think.thunk.org> <3DA33455.4065101E@digeo.com>
+In-Reply-To: <3DA33455.4065101E@digeo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20021008220613.C2C33544@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 08 October 2002 03:39 pm, Andrew Morton wrote:
 
-On Tue, 8 Oct 2002, Alexander Viro wrote:
-> That would be nice, if it worked that way.  As it is we have
-> 
-> driver allocates foo
-> driver grabs a reference to foo->dev
-> ....
-> somebody else grabs/drops temporary references to foo->dev
-> ....
-> driver call put_device(&foo->dev)
-> driver frees structures refered from foo.
-> driver frees foo.
-> 
-> _IF_ the last two steps were done by ->release(), your arguments would
-> work.  Actually they are done by driver right after the put_device() call.
+> Well the current Orlov patch will spread top-level directories,
+> so as long as /home is a mountpoint, we're fine.
+>
+> For more generalality, yes, I think a new chattr flag on the
+> parent directory which says "spread my subdirectories out"
+> would be a good solution.
 
-Right. But that's a driver bug, and it's because this whole thing is 
-fairly new.
+Individual sysadmins may not use it much, but getting distributions to put it 
+in their install/upgrade software isn't too unlikely...
 
-There aren't that many things that actually play with these things (mainly 
-the PCI and the USB layer, and individual drivers shouldn't care, it's 
-just the bus layer that does all of this), so we should be able to fix the 
-cases cleanly.
-
-		Linus
-
+Rob

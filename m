@@ -1,122 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbUCFGhU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 01:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUCFGhU
+	id S261615AbUCFHNd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 02:13:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUCFHNd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 01:37:20 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:56236 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S261604AbUCFGhQ (ORCPT
+	Sat, 6 Mar 2004 02:13:33 -0500
+Received: from [61.173.110.30] ([61.173.110.30]:11021 "HELO 67.72.78.212")
+	by vger.kernel.org with SMTP id S261615AbUCFHNc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 01:37:16 -0500
-Subject: [BKPATCH] ACPI for 2.6
-From: Len Brown <len.brown@intel.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1078555020.12999.3200.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 06 Mar 2004 01:37:00 -0500
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Mar 2004 02:13:32 -0500
+Message-ID: <9u6c-o8-se$$10029r@pxz4woc>
+From: "" <achopp@uymail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ELECTRONIC CHECK ACCEPTANCE
+Date: Sat, 06 Mar 04 12:03:35 GMT
+X-Mailer: MIME-tools 5.503 (Entity 5.501)
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="_0__._BF2F_BD..A_D_"
+X-Priority: 1
+X-MSMail-Priority: High
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus, please do a 
+This is a multi-part message in MIME format.
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.4
+--_0__._BF2F_BD..A_D_
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
--Len
+Dear Friend,
 
-ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.4/acpi-20040220-2.6.4.diff.gz
+Discover how you can set-up to debit your customers checking/savings accou=
+nts electronically
+for the payment of your goods and services and never need to wait for a pa=
+per check again.
 
-This will update the following files:
+***New world class*** web based software system allows you to perform EFT =
+(Electronic Funds Transfer)
+transactions on your customers checking accounts and get paid immediately =
+for your goods and services.
 
- Documentation/kernel-parameters.txt |    5 
- MAINTAINERS                         |    2 
- arch/i386/Kconfig                   |   22 +
- arch/i386/kernel/acpi/boot.c        |  329 +++++++++++++++---------
- arch/i386/kernel/bootflag.c         |  170 ------------
- arch/i386/kernel/mpparse.c          |    2 
- arch/i386/kernel/setup.c            |    5 
- arch/i386/pci/Makefile              |    1 
- arch/i386/pci/common.c              |    9 
- arch/i386/pci/mmconfig.c            |  109 +++++++
- arch/i386/pci/pci.h                 |    3 
- arch/x86_64/kernel/acpi/boot.c      |    5 
- arch/x86_64/kernel/mpparse.c        |    2 
- drivers/acpi/Kconfig                |   12 
- drivers/acpi/executer/exfldio.c     |    7 
- drivers/acpi/hardware/hwgpe.c       |    8 
- drivers/acpi/hardware/hwregs.c      |    6 
- drivers/acpi/hardware/hwsleep.c     |   66 ++++
- drivers/acpi/namespace/nseval.c     |    4 
- drivers/acpi/namespace/nsutils.c    |    6 
- drivers/acpi/namespace/nsxfname.c   |    7 
- drivers/acpi/pci_link.c             |    2 
- drivers/acpi/resources/rsxface.c    |   18 +
- drivers/acpi/tables.c               |    9 
- drivers/acpi/utilities/uteval.c     |   60 ++++
- drivers/acpi/utilities/utglobal.c   |    7 
- include/acpi/acconfig.h             |    2 
- include/acpi/acglobal.h             |   25 -
- include/acpi/actypes.h              |    3 
- include/acpi/acutils.h              |    4 
- include/asm-i386/acpi.h             |    1 
- include/asm-i386/fixmap.h           |    3 
- include/asm-ia64/acpi.h             |    2 
- include/asm-x86_64/acpi.h           |    1 
- include/linux/acpi.h                |   35 ++
- 35 files changed, 604 insertions(+), 348 deletions(-)
+To learn more about this exciting program please visit:
 
-through these ChangeSets:
 
-<len.brown@intel.com> (04/03/01 1.1557.74.5)
-   [ACPI] delete ACPI table parsing code from bootflags module
-
-<len.brown@intel.com> (04/03/01 1.1500.39.9)
-   [ACPI] Support for PCI MMCONFIG for PCI Express (Matt Wilcox)
-
-<len.brown@intel.com> (04/03/01 1.1500.39.8)
-   [ACPI] acpi_boot_init() cleanup suggested by Matt Wilcox
-   HPET doesn't depend on IOAPIC
-
-<len.brown@intel.com> (04/02/27 1.1493.1.21)
-   [ACPI] ACPICA 20040220 from Bob Moore
-   
-   Implemented execution of _SxD methods for Device objects in the
-   GetObjectInfo interface.
-   
-   Fixed calls to _SST method to pass the correct arguments.
-   
-   Added a call to _SST on wake to restore to "working" state.
-   
-   Check for End-Of-Buffer failure case in the WalkResources interface.
-   
-   Integrated fix for 64-bit alignment issue in acglobal.h by moving two
-   structures to the beginning of the file.
-   
-   After wake, clear GPE status register(s) before enabling GPEs.
-   
-   After wake, clear/enable power button.
-   (Perhaps we should clear/enable all fixed events upon wake.)
-   
-   Fixed a couple of possible memory leaks in the Namespace manager.
-
-<len.brown@intel.com> (04/02/27 1.1493.1.20)
-   [ACPI] include CONFIG_ACPI_RELAXED_AML code always
-     add acpi=strict option to disable platform workarounds
-
-<len.brown@intel.com> (04/02/26 1.1612.8.2)
-   [ACPI] delete unnecessary dmesg lines, fix spelling
-
-<len.brown@intel.com> (04/02/25 1.1612.6.2)
-   ACPI URL update
+                                      http://mightyfine.biz/shebyt/d.html
 
 
 
+
+
+ 
+To be removed from further mailings:
+
+Please visit: http://mayaswell.biz/shebyt/p/r/
+
+--_0__._BF2F_BD..A_D_--
 

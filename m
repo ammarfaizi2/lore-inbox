@@ -1,66 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273635AbRIURPG>; Fri, 21 Sep 2001 13:15:06 -0400
+	id <S273942AbRIURT4>; Fri, 21 Sep 2001 13:19:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273626AbRIUROq>; Fri, 21 Sep 2001 13:14:46 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:10255 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S273635AbRIUROg>;
-	Fri, 21 Sep 2001 13:14:36 -0400
-Date: Fri, 21 Sep 2001 19:14:58 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spurious interrupt with ac kernel but not with vanilla 2.4.9
-In-Reply-To: <E15kTiW-0000X2-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0109211905530.31425-100000@Expansa.sns.it>
+	id <S273668AbRIURTr>; Fri, 21 Sep 2001 13:19:47 -0400
+Received: from [217.6.75.131] ([217.6.75.131]:60888 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S273990AbRIURTf>; Fri, 21 Sep 2001 13:19:35 -0400
+Message-ID: <3BAB78B4.CB631C9A@internetwork-ag.de>
+Date: Fri, 21 Sep 2001 19:28:20 +0200
+From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Reply-To: tip@prs.de
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.4.10-pre13: ATM drivers cause panic (II)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Forgot ksymoops -- 
+Hi,
+
+the following ATM drivers cause linux to panic during boot (if one of the cards
+is inserted :-))
+iphase
+fore200e
+he
+
+Machine is a 2 PIII, 3GB, Asus CUR-DLS motherboard - tried NOAPIC, MAXCPUS, same
+difference.
+When installing as a module I'll get the following trace below.
+Any help is greatly appreciated!
+
+Thanks
+
+Immanuel
+
+P.S. If you need more info please let me know what kind...
 
 
-On Fri, 21 Sep 2001, Alan Cox wrote:
+Sep 21 18:03:41 ipat01 kernel: invalid operand: 0000
+Sep 21 18:03:41 ipat01 kernel: CPU:    0
+Sep 21 18:03:41 ipat01 kernel: EIP:    0010:[atm_dev_register+289/308]
+Sep 21 18:03:41 ipat01 kernel: EFLAGS: 00010202
+Sep 21 18:03:41 ipat01 kernel: eax: 00000001   ebx: f75303c0   ecx: 0000006f
+edx: 0000120c
+Sep 21 18:03:41 ipat01 kernel: esi: f898ca09   edi: f753042c   ebp: 00000000
+esp: f619beb8
+Sep 21 18:03:41 ipat01 kernel: ds: 0018   es: 0018   ss: 0018
+Sep 21 18:03:41 ipat01 kernel: Process insmod (pid: 1078, stackpage=f619b000)
+Sep 21 18:03:41 ipat01 kernel: Stack: f898d410 00000000 f898d460 c4322800
+f89880a6 f898ca09 f898d3c0 ffffffff
+Sep 21 18:03:41 ipat01 kernel:        00000000 f898d410 c4322800 f898d460
+00000000 c4322800 c024871e c4322800
+Sep 21 18:03:41 ipat01 kernel:        f898d410 c4322800 f898d460 00000000
+00005580 c0248784 f898d460 c4322800
+Sep 21 18:03:41 ipat01 kernel: Call Trace: [<f898d410>] [<f898d460>]
+[<f89880a6>] [<f898ca09>] [<f898d3c0>]
+Sep 21 18:03:41 ipat01 kernel:    [<f898d410>] [<f898d460>]
+[pci_announce_device+54/84] [<f898d410>] [<f898d460>]
+[pci_register_driver+72/96]
+Sep 21 18:03:41 ipat01 kernel:    [<f898d460>] [<f8988063>] [<f898c8bf>]
+[<f898d460>] [sys_init_module+1357/1580] [<f8988060>]
+Sep 21 18:03:41 ipat01 kernel:    [system_call+51/56]
+Sep 21 18:03:41 ipat01 kernel:
+Sep 21 18:03:41 ipat01 kernel: Code: 0f 0b c6 05 14 74 34 c0 01 89 d8 5b 5e 5f
+5d c3 8d 76 00 53
 
-> > I noticed that on the abit kt7A MBs that i have, with via KT133A chipset,
-> > after i installed the kernel 2.4.9-ac10 (ac11 and 12 as well),
-> > at boot i get this message,
-> >
-> > Sep 21 11:52:11 DarkStar kernel: ice 00:0b.0
-> > Sep 21 11:52:11 DarkStar kernel: spurious 8259A interrupt: IRQ7.
-> >  immediatelly before scsi adaptec detection and inizzializzation.
->
-> Thats indicating an IRQ appeared and vanished. IRQ 7 is the IRQ that happens
-> to occur for this.
->
-> > I was thinking to an HW problem, but with vanilla 2.4.9 kernel I do not
-> > get this message, and the code in arch/i386/kernel/i8259.c that should
-> > detect this spurious interrup is just the same on those two kernels.
-> > Changes are related to X86_IO_APIC, and I think this is the reason why
-> > this spurious interrupt is detected, but I would like to know if i should
-> > think I have some HW problem going on that stardard kernels do not detect.
->
-> The APIC only applies to multiprocessor boxes unless you are building with
-> uniprocessor apic support. Build a non SMP kernel without apic support
-> and let me know what that does
-
-yes, i was using a non SMP kernel with both apic and io_apic support
-enabled.
-
-actally:
-
-with APIC support
-and
-without IO_APIC support
-
-I do not get this message again, but I am so sorry, because my processor
-has integrated APIC support.
-
-I just made another test on a dual Athlon 1200 Mhz per CPU on an MB with
-AMD chipset, and here this problem does not appear.
-
-Thanx
-
-Luigi
+Trace; f898d410 <[he]he_pci_tbl+0/50>
+Trace; f898d460 <[he]he_driver+0/27>
+Trace; f89880a6 <[he]__module_parm_desc_disable64+6/d4>
+Trace; f898ca09 <[he].rodata.start+9/8bf>
+Trace; f898d3c0 <[he]he_ops+0/40>
+Trace; f898d410 <[he]he_pci_tbl+0/50>
+Trace; f898d460 <[he]he_driver+0/27>
+Trace; f898d460 <[he]he_driver+0/27>
+Trace; f8988063 <[he]he_init_one+3/2c>
+Trace; f898c8bf <[he]he_init+b/38>
+Trace; f898d460 <[he]he_driver+0/27>
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f 0b                     ud2a   
+Code;  00000002 Before first symbol
+   2:   c6 05 14 74 34 c0 01      movb   $0x1,0xc0347414
+Code;  00000009 Before first symbol
+   9:   89 d8                     mov    %ebx,%eax
+Code;  0000000b Before first symbol
+   b:   5b                        pop    %ebx
+Code;  0000000c Before first symbol
+   c:   5e                        pop    %esi
+Code;  0000000d Before first symbol
+   d:   5f                        pop    %edi
+Code;  0000000e Before first symbol
+   e:   5d                        pop    %ebp
+Code;  0000000f Before first symbol
+   f:   c3                        ret    
+Code;  00000010 Before first symbol
+  10:   8d 76 00                  lea    0x0(%esi),%esi
+Code;  00000013 Before first symbol
+  13:   53                        push   %ebx
 
 
+
+--
+Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+interNetwork AG                         Phone:  +49-(0)611-1731-121
+Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de

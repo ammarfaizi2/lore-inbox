@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVBKVhz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVBKVkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVBKVhz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 16:37:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVBKVhy
+	id S262353AbVBKVkN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 16:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVBKVkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 16:37:54 -0500
-Received: from smtp-vbr11.xs4all.nl ([194.109.24.31]:34062 "EHLO
-	smtp-vbr11.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262351AbVBKVhr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 16:37:47 -0500
-Date: Fri, 11 Feb 2005 22:37:31 +0100
-From: Erik van Konijnenburg <ekonijn@xs4all.nl>
-To: Greg KH <gregkh@suse.de>
-Cc: andersen@codepoet.org, Christian Borntr?ger <christian@borntraeger.net>,
-       Bill Nottingham <notting@redhat.com>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-Message-ID: <20050211223731.A1635@banaan.localdomain>
-Mail-Followup-To: Greg KH <gregkh@suse.de>, andersen@codepoet.org,
-	Christian Borntr?ger <christian@borntraeger.net>,
-	Bill Nottingham <notting@redhat.com>,
-	linux-hotplug-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20050211004033.GA26624@suse.de> <20050211031823.GE29375@nostromo.devel.redhat.com> <1108104417.32129.7.camel@localhost.localdomain> <200502111719.23163.christian@borntraeger.net> <20050211170144.GA16074@suse.de> <20050211190153.GA8110@codepoet.org> <20050211192323.GA19787@suse.de>
+	Fri, 11 Feb 2005 16:40:13 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37510 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262353AbVBKVjx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 16:39:53 -0500
+Subject: Re: Ext2/3 32-bit stat() wrap for ~2TB files
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       "Theodore Ts'o" <tytso@mit.edu>, Alex Tomas <alex@clusterfs.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050211212736.GD16520@schnapps.adilger.int>
+References: <1108155135.1944.196.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050211212736.GD16520@schnapps.adilger.int>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1108157964.1944.209.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050211192323.GA19787@suse.de>; from gregkh@suse.de on Fri, Feb 11, 2005 at 11:23:23AM -0800
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 11 Feb 2005 21:39:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 11, 2005 at 11:23:23AM -0800, Greg KH wrote:
-> On Fri, Feb 11, 2005 at 12:01:54PM -0700, Erik Andersen wrote:
-> > On Fri Feb 11, 2005 at 09:01:44AM -0800, Greg KH wrote:
-> > > It's not only pci, but all types of busses need this kind of "coldplug"
-> > > functionality.  And yes, I have plans to provide that functionality in
-> > > this package too.
-> > > 
-> > > In fact, if anyone looking to contribute some well defined and easy to
-> > > test code... :)
-> > 
-> > The pcimodules patch to pciutils does this sortof coldplug device
-> > scanning for pci devices:
-> > http://www.linuxfromscratch.org/patches/downloads/pciutils/pciutils-2.1.11-pcimodules-1.patch
+Hi,
+
+On Fri, 2005-02-11 at 21:27, Andreas Dilger wrote:
+
+> > Trouble is, that limit *should* be an i_blocks limit, because i_blocks
+> > is still 32-bits, and (more importantly) is multiplied by the fs
+> > blocksize / 512 in stat(2) to return st_blocks in 512-byte chunks. 
+> > Overflow 2^32 sectors in i_blocks and stat(2) wraps.
 > 
-> Yes, but that uses the modules.pcimap files, which we want to get rid of
-> someday.  It also uses the /proc/pci interface instead of sysfs, so it
-> probably doesn't handle machines with pci domains very well...
+> I agree.  The problem AFAIR is that the i_blocks accounting is done in
+> the quota code, so it was a challenge to get it right, and the i_size
+> limit was easier to do.
 
-Could you give pointers to the "get rid of modules.pcimap" discussion?
+The i_size limit is also wrong for dense files; I'd be satisfied with
+just getting it right!  i_blocks handling through the quota calls is
+cleaner these days, but I don't think that's a particularly satisfactory
+solution --- reaching maximum file size has all sorts of specific
+semantics such as sending SIGXFSZ which you don't really want to have to
+replicate.
 
-Thanks.
-Erik
+>   Until now I don't think anyone has created
+> dense 2TB files, so the sparse limit was enough.
+
+Yep.
+
+> Note also that there was a patch to extend i_blocks floating around
+> (pretty small hack to use one of the reserved fields), and it might make
+> sense to get this into the kernel before we actually need it.
+
+True, but it's not really a problem right now --- i_blocks is counted in
+fs blocksize units, so we're nowhere near overflowing that.  It's only
+when stat() converts it to st_blocks' 512-byte units that we get into
+trouble within the kernel.
+
+> > 	if (res > (512LL << 32) - (1 << bits))
+> > 		res = (512LL << 32) - (1 << bits);
+> 
+> So, for the quick fix we could reduce this by the number of expected
+> [td]indirect blocks and submit that to 2.4 also.
+
+Agreed.
+
+--Stephen
+

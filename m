@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272485AbRIKPoN>; Tue, 11 Sep 2001 11:44:13 -0400
+	id <S272489AbRIKPsy>; Tue, 11 Sep 2001 11:48:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272489AbRIKPoE>; Tue, 11 Sep 2001 11:44:04 -0400
-Received: from luggage.tecc.co.uk ([193.128.6.129]:37094 "HELO
-	relay.tecc.co.uk") by vger.kernel.org with SMTP id <S272485AbRIKPnv>;
-	Tue, 11 Sep 2001 11:43:51 -0400
-Message-ID: <3B9E3F75.CAC7DAD2@tecc.co.uk>
-Date: Tue, 11 Sep 2001 16:44:37 +0000
-From: Ken Williams <ken@tecc.co.uk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.18pre21 i686)
-X-Accept-Language: en
+	id <S272493AbRIKPso>; Tue, 11 Sep 2001 11:48:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27654 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272489AbRIKPsi>; Tue, 11 Sep 2001 11:48:38 -0400
+Date: Tue, 11 Sep 2001 08:48:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <20010911153729Z16241-1367+14@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33.0109110843010.8078-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: srinivas.surabhi@wipro.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: how to see .so contents
-In-Reply-To: <3B9E4E62.494FBAE4@wipro.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 11 Sep 2001, Daniel Phillips wrote:
+>
+> But see my post in this thread where I created a simple test to show that,
+> even when we pre-read *all* the inodes in a directory, there is no great
+> performance win.
 
-"s.srinivas" wrote:
-> 
-> hi all,
-> 
->     Its a silly question i tried with all my friends but of no use.
-> Could any one tell me how to know the contents(modules) that
-> are contained in any .so (shared objects) file.
-> 
-> say for ex. for archive  file    ar  -t  .a file name     is used  .
+Note that I suspect that because the inode tree _is_ fairly dense, you
+don't actually need to do much read-ahead in most cases. Simply because
+you automatically do read-ahead _always_: when somebody reads a 128-byte
+inode, you (whether you like it or not) always "read-ahead" the 31 inodes
+around it on a 4kB filesystem.
 
+So we _already_ do read-ahead by a "factor of 31". Whether we can improve
+that or not by increasing it to 63 inodes, who knows?
 
+I actually think that the "start read-ahead for inode blocks when you do
+readdir" might be a bigger win, because that would be a _new_ kind of
+read-ahead that we haven't done before, and might improve performance for
+things like "ls -l" in the cold-cache situation..
 
+(Although again, because the inode is relatively small to the IO cache
+size, it's probably fairly _hard_ to get a fully cold-cache inode case. So
+I'm not sure even that kind of read-ahead would actually make any
+difference at all).
 
-  I think what you want is 'objdump'
+		Linus
 
-  try
-        /usr/bin/objdump -f shared_object.so
-
-
-  see the man pages for more info.
-
-
-   Regards,
-
-
- Ken
-
-
- 
-> thank  u all in advance.
-> 
-> regards
-> srinivas
-> 
->   ------------------------------------------------------------------------
->                            Name: Wipro_Disclaimer.txt
->    Wipro_Disclaimer.txt    Type: Plain Text (text/plain)
->                        Encoding: 7bit

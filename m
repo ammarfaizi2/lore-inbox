@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265883AbTIJWih (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 18:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbTIJWiL
+	id S265923AbTIJWq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 18:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265924AbTIJWq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 18:38:11 -0400
-Received: from gprs147-211.eurotel.cz ([160.218.147.211]:53376 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265883AbTIJWhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 18:37:04 -0400
-Date: Thu, 11 Sep 2003 00:36:40 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: What happened to SUSPEND_SAVE_STATE?
-Message-ID: <20030910223640.GD257@elf.ucw.cz>
-References: <20030910201124.GA11449@elf.ucw.cz> <20030910204940.GA11571@elf.ucw.cz> <20030910232527.O30046@flint.arm.linux.org.uk>
+	Wed, 10 Sep 2003 18:46:29 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32518 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265923AbTIJWpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 18:45:47 -0400
+Date: Wed, 10 Sep 2003 23:45:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jon Fairbairn <Jon.Fairbairn@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Omnibook PCMCIA slots unusable after suspend.
+Message-ID: <20030910234538.S30046@flint.arm.linux.org.uk>
+Mail-Followup-To: Jon Fairbairn <Jon.Fairbairn@cl.cam.ac.uk>,
+	linux-kernel@vger.kernel.org
+References: <15685.1063228952@cl.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030910232527.O30046@flint.arm.linux.org.uk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15685.1063228952@cl.cam.ac.uk>; from Jon.Fairbairn@cl.cam.ac.uk on Wed, Sep 10, 2003 at 10:22:32PM +0100
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Sep 10, 2003 at 10:22:32PM +0100, Jon Fairbairn wrote:
+> In short: I'm using an HP Ombibook 800CT, have started using
+> a Carbus PCMCIA network card and am losing the card after
+> suspends.
 
-> > > What happened to SUSPEND_SAVE_STATE?
-> > 
-> > SUSPEND_NOTIFY seems dead, too. Should I simply ignore level parameter
-> > in pcmcia_socket_dev_suspend?
+I'm only interested in the 2.6.0-test5 results.
+
+Please run lspci -vvb twice - once when you have just booted
+the machine, and once when you resume.
+
+
+> Sep  4 21:39:10 graffito kernel: Linux Kernel Card Services 3.1.22
+> Sep  4 21:39:10 graffito kernel:   options:  [pci] [cardbus] [pm]
+> Sep  4 21:39:10 graffito kernel: PCI: Found IRQ 9 for device 00:04.0
+> Sep  4 21:39:10 graffito kernel: PCI: Found IRQ 7 for device 00:04.1
+> Sep  4 21:39:10 graffito kernel: Yenta IRQ list 0448, PCI irq9
+> Sep  4 21:39:10 graffito kernel: Socket status: 30000020
+> Sep  4 21:39:10 graffito kernel: Yenta IRQ list 0448, PCI irq7
+> Sep  4 21:39:10 graffito kernel: Socket status: 30000006
 > 
-> No.  Apply this patch (it's cut down from the stuff which is pending
-> for Linus - I hope I didn't make any mistakes doing that 8))
+> but after "apm --suspend" I get the same except:
+> 
+> Sep  6 23:23:55 graffito kernel: Socket status: 66012d18
+> ...
+> Sep  6 23:23:55 graffito kernel: Socket status: 2a035c8a
 
-Thanks, but:
+It looks like the cardbus controller configuration wasn't correctly
+restored.
 
-> diff -Nru a/drivers/pcmcia/i82365.c b/drivers/pcmcia/i82365.c
-> --- a/drivers/pcmcia/i82365.c	Wed Sep 10 23:18:34 2003
-> +++ b/drivers/pcmcia/i82365.c	Wed Sep 10 23:18:34 2003
-> @@ -1351,11 +1351,27 @@
->  
->  /*====================================================================*/
->  
-> +static int i82365_suspend(struct device *dev, u32 state, u32 level)
-> +{
-> +	int ret = 0;
-> +	if (level == SUSPEND_SAVE_STATE)
-> +		ret = pcmcia_socket_dev_suspend(dev, state);
-> +	return ret;
-> +}
-> +
-> +static int i82365_resume(struct device *dev, u32 level)
-> +{
-> +	int ret = 0;
-> +	if (level == RESUME_RESTORE_STATE)
-> +		ret = pcmcia_socket_dev_resume(dev);
-> +	return ret;
-> +}
-> +
->  static struct device_driver i82365_driver = {
->  	.name = "i82365",
->  	.bus = &platform_bus_type,
-> -	.suspend = pcmcia_socket_dev_suspend,
-> -	.resume = pcmcia_socket_dev_resume,
-> +	.suspend = i82365_suspend,
-> +	.resume = i82365_resume,
->  };
->  
->  static struct platform_device i82365_device = {
-
-I was not able to find *any* place in the tree that would call suspend
-with SUSPEND_SAVE_STATE as level. Maybe just my grep was wrong?
-
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

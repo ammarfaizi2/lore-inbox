@@ -1,39 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbUJ1Ovd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUJ1Ovc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbUJ1Ovd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 10:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbUJ1Osu
+	id S261681AbUJ1Ovc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbUJ1OtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 10:48:50 -0400
-Received: from ida.rowland.org ([192.131.102.52]:2820 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S261692AbUJ1Oqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 10:46:55 -0400
-Date: Thu, 28 Oct 2004 10:46:54 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Colin Leroy <colin@colino.net>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] 2.6.10-rc1 OHCI usb error messages
-In-Reply-To: <200410271559.37540.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0410281044070.1088-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 10:49:10 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24968 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261683AbUJ1OsW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 10:48:22 -0400
+Date: Thu, 28 Oct 2004 10:06:51 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, javier@marcet.info,
+       linux-kernel@vger.kernel.org, kernel@kolivas.org,
+       barry <barry@disus.com>
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+Message-ID: <20041028120650.GD5741@logos.cnet>
+References: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, David Brownell wrote:
+On Mon, Oct 25, 2004 at 06:33:35PM -0400, Rik van Riel wrote:
+> On Mon, 25 Oct 2004, Rik van Riel wrote:
+> > On Mon, 25 Oct 2004, Andrew Morton wrote:
+> > > Rik van Riel <riel@redhat.com> wrote:
+> > > >
+> > > > -		if (referenced && page_mapping_inuse(page))
+> > > > +		if (referenced && sc->priority && page_mapping_inuse(page))
+> > > 
+> > > Makes heaps of sense, but I'd like to exactly understand why people are
+> > > getting oomings before doing something like this.  I think we're still
+> > > waiting for a testcase?
+> > 
+> > I'm now running Yum on a (virtual) system with 96MB RAM and
+> > 100MB swap.  This used to get an OOM kill very quickly, but
+> > still seems to be running now, after 20 minutes.
+> 
+> It completed, without being OOM killed like before.
 
-> So:  since it's not being actively used then, why shouldn't the
-> root hub (or any other device) be suspended?  During boot, or at
-> any other time.  So long as it works when you plug in a USB device,
-> it looks to me like everything is behaving quite reasonably.
+Barry,
 
-The root hub _is_ actively being used during initial probing and 
-enumeration, even though no devices may be plugged into it.  Is it 
-guaranteed that the root hub isn't suspended until after 
-usb_register_root_hub returns?
+Can you please test Rik's patch with your spurious OOM kill testcase?
 
-Alan Stern
+===== mm/vmscan.c 1.231 vs edited =====
+--- 1.231/mm/vmscan.c	Sun Oct 17 01:07:24 2004
++++ edited/mm/vmscan.c	Mon Oct 25 17:38:56 2004
+@@ -379,7 +379,7 @@
+ 
+ 		referenced = page_referenced(page, 1);
+ 		/* In active use or really unfreeable?  Activate it. */
+-		if (referenced && page_mapping_inuse(page))
++		if (referenced && sc->priority && page_mapping_inuse(page))
+ 			goto activate_locked;
+ 
+ #ifdef CONFIG_SWAP
+@@ -715,7 +715,7 @@
+ 		if (page_mapped(page)) {
+ 			if (!reclaim_mapped ||
+ 			    (total_swap_pages == 0 && PageAnon(page)) ||
+-			    page_referenced(page, 0)) {
++			    (page_referenced(page, 0) && sc->priority)) {
+ 				list_add(&page->lru, &l_active);
+ 				continue;
+ 			}
 

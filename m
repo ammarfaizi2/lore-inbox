@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314096AbSF2Tfz>; Sat, 29 Jun 2002 15:35:55 -0400
+	id <S314101AbSF2TpI>; Sat, 29 Jun 2002 15:45:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314101AbSF2Tfy>; Sat, 29 Jun 2002 15:35:54 -0400
-Received: from 213-97-251-19.uc.nombres.ttd.es ([213.97.251.19]:19078 "EHLO
-	mortadelo") by vger.kernel.org with ESMTP id <S314096AbSF2Tfs>;
-	Sat, 29 Jun 2002 15:35:48 -0400
-Date: Sat, 29 Jun 2002 21:43:13 +0200
+	id <S314149AbSF2TpH>; Sat, 29 Jun 2002 15:45:07 -0400
+Received: from 213-97-251-19.uc.nombres.ttd.es ([213.97.251.19]:20102 "EHLO
+	mortadelo") by vger.kernel.org with ESMTP id <S314101AbSF2TpG>;
+	Sat, 29 Jun 2002 15:45:06 -0400
+Date: Sat, 29 Jun 2002 21:52:35 +0200
 From: Ragnar Hojland Espinosa <ragnar@linalco.com>
-To: "Kerl, John" <John.Kerl@Avnet.com>
-Cc: "'David Weeks'" <dweeks02@tampabay.rr.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Twister chipset... other stuff...  sheesh...
-Message-ID: <20020629194313.GA28230@linalco.com>
-References: <C08678384BE7D311B4D70004ACA371050B763539@amer22.avnet.com>
+To: Miles Lane <miles@megapathdsl.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Where are the journal notes from the Kernel Summit at OLS?
+Message-ID: <20020629195234.GB28230@linalco.com>
+References: <1025371273.15977.1.camel@turbulence.megapathdsl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <C08678384BE7D311B4D70004ACA371050B763539@amer22.avnet.com>
+In-Reply-To: <1025371273.15977.1.camel@turbulence.megapathdsl.net>
 User-Agent: Mutt/1.3.28i
 Organization: Mediocrity Naysayers Ltd
 X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 28, 2002 at 06:15:17PM -0700, Kerl, John wrote:
-> is 42 MB (ctags -R) vs. 13 MB (make tags).
-> 
-> Also, you shouldn't (TM) have to search the tags
-> file yourself.  Emacs & vi & vim have commands such
-> as "show me the file this symbol is in", with just
-> a few keystrokes, and the editor will do the grunt
-> work of searching the tags file for you, as well as
-> getting you back where you came from ("tag stack").
-> All you have to do is tell the editor where the tags
-> file is. (Sorry to be vague on *how*, but I'm a vim
+On Sat, Jun 29, 2002 at 10:21:12AM -0700, Miles Lane wrote:
+> I saw one batch of notes from the first day and nothing since.
+> Anyone know if more notes have been put on the web?
 
-Also see man ref(1) and less -t for everyday tools.
+You can find interesting mp3/oggs at:
+
+http://linuxkernel.foundries.sourceforge.net/article.pl?sid=02/06/26/0116225
+
 -- 
 ____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
 \ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming

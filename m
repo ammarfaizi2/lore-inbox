@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135815AbRDZSDE>; Thu, 26 Apr 2001 14:03:04 -0400
+	id <S135810AbRDZSDy>; Thu, 26 Apr 2001 14:03:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135810AbRDZSCz>; Thu, 26 Apr 2001 14:02:55 -0400
-Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:10400
-	"HELO zcars0m9.nortelnetworks.com") by vger.kernel.org with SMTP
-	id <S133004AbRDZSCf>; Thu, 26 Apr 2001 14:02:35 -0400
-Message-ID: <3AE862A7.60D12F62@nortelnetworks.com>
-Date: Thu, 26 Apr 2001 14:02:15 -0400
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+	id <S135813AbRDZSDo>; Thu, 26 Apr 2001 14:03:44 -0400
+Received: from idiom.com ([216.240.32.1]:25605 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S135810AbRDZSDd>;
+	Thu, 26 Apr 2001 14:03:33 -0400
+Message-ID: <3AE87D74.5D75BB8@namesys.com>
+Date: Thu, 26 Apr 2001 12:56:36 -0700
+From: Hans Reiser <reiser@namesys.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: interesting problem with raw sockets
-In-Reply-To: <E14pqyb-0004bf-00@the-village.bc.nu>
+To: Jeff Mahoney <jeffm@suse.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Reiserfs List <reiserfs-list@namesys.com>
+Subject: Re: [reiserfs-list] [PATCH/URL] Endian Safe ReiserFS
+In-Reply-To: <3AE85F24.1010208@suse.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Mahoney wrote:
 
-I have a piece of code that is trying to use sendmsg() on a raw socket to inject
-a UDP packet onto an ethernet link.  The destination IP address is set to
-another machine on the same subnet, and the packet arrives at its destination.
-Thus far all is well.
+>    I've just completed my port of ReiserFS to be endian safe. The patch
+> has been tested successfully on x86 (UP/SMP), ppc (UP/SMP), and
+> UltraSparc (UP). I've received reports that it also works successfully
+> on mips (UP).
+>
+>    The patch preserves the little-endian disk format, so a disk can be
+> moved across architectures. The on-disk format has not been altered, so
+> the code can be patched in without disruption to users with existing
+> reiserfs filesystems (like myself :)). There are no VFS changes.
+>
+>    Due to the patches affecting all of ReiserFS, the patch is quite
+> large (180K), and so in the interests of preserving bandwidth for
+> everyone, I've decided to post a URL to the patch instead.
+>
+>    The patch can be found at:
+> http://penguinppc.org/~jeffm/releases/endian-safe-reiserfs-for-2.4.4-pre7.final.bz2
+>
+>    More information, including the endian safe utiltities, can be found
+> at http://penguinppc.org/~jeffm.
+>
+>    -Jeff
 
-However, inspection of the ethernet headers using tcpdump shows that rather than
-being addressed directly to the MAC address of the destination, the packet is
-instead being sent to the gateway, which then appears to forward it on to the
-destination.  It almost appears as though the kernel doesn't realize that the IP
-address is on the same subnet.
+You might consider sending the patch to the maintainer of ReiserFS.
 
-Here's where it gets interesting.  I grabbed what I thought was all the socket
-setup and sending code from the misbehaving application and stuck them into a
-tiny program that builds and sends empty packets with arbitrary source and
-destination addresses.  Tcpdump shows this program behaving as expected--ie the
-destination MAC address in the ethernet header is set to the MAC address of the
-destination, not the MAC address of the gateway.
+Hans
 
-Does anyone have any clue what might be going on?  I'm almost ready to try
-strace and kernel debugging....
-
-Thanks,
-
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

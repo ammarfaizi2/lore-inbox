@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290570AbSA3UcR>; Wed, 30 Jan 2002 15:32:17 -0500
+	id <S290565AbSA3Ubr>; Wed, 30 Jan 2002 15:31:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290572AbSA3UcI>; Wed, 30 Jan 2002 15:32:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43780 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S290570AbSA3Uby>; Wed, 30 Jan 2002 15:31:54 -0500
-Message-ID: <3C585824.50606@zytor.com>
-Date: Wed, 30 Jan 2002 12:31:32 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
+	id <S290572AbSA3Ub2>; Wed, 30 Jan 2002 15:31:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9477 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290570AbSA3UbS>; Wed, 30 Jan 2002 15:31:18 -0500
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+To: tao@acc.umu.se (David Weinehall)
+Date: Wed, 30 Jan 2002 20:43:48 +0000 (GMT)
+Cc: yoder1@us.ibm.com (Kent E Yoder), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <20020130205839.S1735@khan.acc.umu.se> from "David Weinehall" at Jan 30, 2002 08:58:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Ville Herva <vherva@niksula.hut.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: master.kernel.org status
-In-Reply-To: <3C57A9BF.60100@zytor.com> <20020130202648.GE341293@niksula.cs.hut.fi>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16W1a8-0008MS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Herva wrote:
-
+> > Is this the best way to make sure the PCI cache is flushed for writes that 
+> > need to happen immediately?  I don't see many other drivers doing it...
 > 
->>Whew...
->>
->>Thanks to a tip from Leonard Zubkoff I've successfully reconstructed the 
->>data on master.kernel.org. 
-> 
-> After the well-deserved sleep, would you (or Leonard) care to share the tip?
->
+> Wouldn't creating a flush_and_writew() or similar be an idea here?
 
-
-It's rather card-specific, but here goes:
-
-a) On a DAC960PRL, use the "daccf" utility, not "ezsetup" which is what
-the Mylex web page recommends (THIS ONE IS THE REASON FOR THE FAILURE IN
-THE FIRST PLACE.)
-
-b) After "ezsetup" screws over your configuration, you *may* be able to
-recover it by running "daccf -o" and restoring the configuration EXACTLY
-AS IT WAS ORIGINALLY SET UP.  DO NOT START A REBUILD OF THE ARRAY.
-
-c) After (b), DO NOT WRITE TO THE ARRAY.  (Boot from a floppy or
-SuperRescue CD, then try to access the drives readonly.)  Apparenly the
-firmware won't actually write to the disks and start any kind of
-reconstruction (which would be fatal to your data if you got step (b)
-wrong) until any write operations happen to the disk set.
-
-	-hpa
-
-
+You can't write a generic function for it. The PCI rules are all quite
+simple and well documented, unfortunately it a book nobody has 8)

@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbULBHbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbULBHrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbULBHbw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 02:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbULBHbw
+	id S261227AbULBHrO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 02:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbULBHrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 02:31:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32678 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261159AbULBHbu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 02:31:50 -0500
-Message-ID: <41AEC4D7.4060507@pobox.com>
-Date: Thu, 02 Dec 2004 02:31:35 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, clameter@sgi.com,
-       hugh@veritas.com, benh@kernel.crashing.org, nickpiggin@yahoo.com.au,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
- tests
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain><Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com><Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org><Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com><Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org><Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com><Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org><41AEB44D.2040805@pobox.com><20041201223441.3820fbc0.akpm@osdl.org><41AEBAB9.3050705@pobox.com> <20041201230217.1d2071a8.akpm@osdl.org> <179540000.1101972418@[10.10.2.4]>
-In-Reply-To: <179540000.1101972418@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Dec 2004 02:47:13 -0500
+Received: from [61.48.53.101] ([61.48.53.101]:49130 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261227AbULBHrJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 02:47:09 -0500
+Date: Wed, 1 Dec 2004 23:37:27 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412020737.iB27bR826761@adam.yggdrasil.com>
+To: chrisw@osdl.org
+Subject: Re: [Patch?] Teach sysfs_get_name not to use a dentry
+Cc: akpm@osdl.org, greg@kroah.com, linux-kernel@vger.kernel.org,
+       maneesh@in.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> Yeah, probably. Though the stress tests catch a lot more than the 
-> functionality ones. The big pain in the ass is drivers, because I don't
-> have a hope in hell of testing more than 1% of them.
+Chris Wright wrote:
+>* Adam J. Richter (adam@yggdrasil.com) wrote:
+>> -static int create_dir(struct kobject * k, struct dentry * p,
+>> -		      const char * n, struct dentry ** d)
+>> +static int create_dir(void *element, struct dentry * p,
+>> +		      const char * n, struct dentry ** d, int type)
 
-My dream is that hardware vendors rotate their current machines through 
-a test shop :)  It would be nice to make sure that the popular drivers 
-get daily test coverage.
+>Hmm, I did not look closely, but moving from well-typed to untyped void *
+>doesn't look nice.
 
-	Jeff, dreaming on
+	The reason for the change comes from the fact that there are
+two different kinds of directories in a sysfs tree: one representing
+a kobject, and one representing an attribute_group.  Previously, both
+types of directories saved a pointer to the kobject (in the case of
+the attribute group, the parent directory is a kobject).  Now, however,
+the attribute group saves a pointer to the struct attribute group,
+so that the name of the attribute group can be accessed without
+referencing the dentry.  So, the value that create_dir sets
+sysfs_dirent.s_element to really can be to more than one type
+depending on who is calling create_dir (and, by the way,
+sysfs_dirent.s_element is used to point to a few different
+data types, not just these two, and setting sysfs_dirent.s_element
+is the only thing that create_dir does with that parameter).
 
+	You might wonder how an attribute group's kobject is
+determined within sysfs, if we are no longer saving that pointer in
+sysfs_dirent.s_element.  It turns out that cases where the parent
+kobject needs to be determined from the attribute group in sysfs
+only occur in when the attribute group's dentry is available, so
+the kobject is available as sysfs_dirent->s_dentry->d_parent->s_fsdata.
 
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261890AbUBHDaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 22:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUBHDaZ
+	id S262030AbUBHDuc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 22:50:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUBHDuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 22:30:25 -0500
-Received: from wilma.widomaker.com ([204.17.220.5]:56843 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S261890AbUBHDaT
+	Sat, 7 Feb 2004 22:50:32 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35268 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262030AbUBHDu3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 22:30:19 -0500
-Date: Sat, 7 Feb 2004 22:09:14 -0500
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Adaptec aic7xxx driver problems?
-Message-ID: <20040208030914.GE10344@widomaker.com>
+	Sat, 7 Feb 2004 22:50:29 -0500
+Date: Sun, 8 Feb 2004 03:50:28 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: walt <wa1ter@myrealbox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [2.6.1] Kernel panic with ppa driver updates
+Message-ID: <20040208035028.GD21151@parcelfarce.linux.theplanet.co.uk>
+References: <fa.db71fu4.1gju7jo@ifi.uio.no> <fa.n1cha2m.1hhep3a@ifi.uio.no> <4025AE98.3090601@myrealbox.com> <20040208034855.GC21151@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Message-Flag: Microsoft Loves You!
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040208034855.GC21151@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Feb 08, 2004 at 03:48:55AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Sat, Feb 07, 2004 at 07:35:52PM -0800, walt wrote:
+> > Only one of the print statements was executed, apparently:
+> > 
+> > ppa: Version 2.07 (for Linux 2.4.x)
+> > dev = dfd67940, dev->cur_cmd = 7232b2df
+> > Unable to handle kernel paging request at virtual address 7232b403
+> >  printing eip:
+> > c027bc25
+> > 
+> > The remainder of the message was identical to the previous post -- no
+> > extra printed messages anywhere.
+> 
+> Aaaaaargh....  dev = memset(dev, 0, sizeof(dev)); - spot the bug here...
 
-Are there known issues with the Adaptec drivers on x86 systems?
-
-Since upgrading to kernel 2.6.1, I get system lockups every few days to
-a few weeks.
-
-There are no messages, no warnings, not even debugging information.
-
-The only thing I notice is that the SCSI bus appears to be hung, and the
-system halts.  Sometimes the bus hangs before the system stops, but not
-always.
-
-Doesn't happen under any 2.4.x kernel, and I do not believe it happened
-on the 2.6 betas I tried.
-
-What would be the possible reasons for not getting any debug
-information?  I do not have kernel debugging enabled, but do have SCSI
-debugging in place.
-
-If I enable kernel debugging, is that more likely to find something?
-
-In the past when I had this problem, it was usually a kernel or driver
-issue, and I rarely was able to get any debug information, but I'm open
-to suggestions.
-
-I cannot reproduce this problem on demand though.  It does happen when
-there is moderate SCSI traffic, but doesn't seem to happen at the
-highest SCSI bus loads.
-
-I tried to cause the crash this week, but could not.  Thirty minutes
-after I finally gave up, it happened.
-
-Still have no information to go on, but I thought I would ask here in
-case someone else is seeing trouble.
-
-
--- 
-shannon "AT" widomaker.com -- [4649 5920 4320 204e 4452 5420 5348 5920 4820
-2056 2054 434d 2048 4d54 2045 204e 5259 4820 444e 0a53]
+s/dev = // - it's not _that_ bad ;-)

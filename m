@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVC3VHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVC3VLs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbVC3VHA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 16:07:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVC3VFU
+	id S261686AbVC3VLs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 16:11:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC3VLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 16:05:20 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:28616 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261862AbVC3VD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 16:03:57 -0500
-Subject: Re: [RFD] 'nice' attribute for executable files
-From: Lee Revell <rlrevell@joe-job.com>
-To: Wiktor <victorjan@poczta.onet.pl>
-Cc: 7eggert@gmx.de, linux-kernel@vger.kernel.org
-In-Reply-To: <424ACEA9.6070401@poczta.onet.pl>
-References: <fa.ed33rit.1e148rh@ifi.uio.no>
-	 <E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>
-	 <424ACEA9.6070401@poczta.onet.pl>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 16:03:56 -0500
-Message-Id: <1112216636.18237.6.camel@mindpipe>
+	Wed, 30 Mar 2005 16:11:24 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:9358 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261773AbVC3VJD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 16:09:03 -0500
+Date: Wed, 30 Mar 2005 23:06:46 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andi Kleen <ak@muc.de>, Asfand Yar Qazi <ay1204@qazi.f2s.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+Message-ID: <20050330210646.GA26746@electric-eye.fr.zoreil.com>
+References: <4242865D.90800@qazi.f2s.com> <20050324093032.GA14022@havoc.gtf.org> <20050324162706.GJ17865@csclub.uwaterloo.ca> <42432A9F.3090507@pobox.com> <m1ekdz3hz0.fsf@muc.de> <424B013B.3010109@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424B013B.3010109@pobox.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 18:07 +0200, Wiktor wrote:
-> Bodo Eggert wrote:
-> > Wiktor <victorjan@poczta.onet.pl> wrote:
-> >>so i thought that it would be nice to add an attribute to file
-> >>(changable only for root) that would modify nice value of process when
-> >>it starts. if there is one byte free in ext2/3 file metadata, maybe it
-> >>could be used for that? i think that it woundn't be more dangerous than
-> >>setuid bit.
-> > 
-> > I guess there should be a maximum renice value ulimit instead, which would
-> > allow running allmost any user task on a higher nice level, except the
-> > important stuff, with the additional benefit of being able to temporarily
-> > renice some tasks until the more important work is done.
-> > 
-> > I remember something similar being discussed for realtime tasks, but I don't
-> > remember the outcome.
+Jeff Garzik <jgarzik@pobox.com> :
+> Andi Kleen wrote:
+[r8169 driver]
+> >It does not seem to support DAC (or rather it breaks with DAC enabled), 
+> >which makes it not very useful on any machine with >3GB of memory.
 > 
-> my xmms problem is unimportant here, i've posted this thread to propose 
-> some new feature in filesystem, not to solve problem with multimedia player!
-> 
-> max renice ulimit is quite good idea, but it allows to change nice of 
-> *any* process user has permissions to. it could be implemented also, but 
->   the idea of 'nice' file attribute is to allow *only* some process be 
-> run with lower nice. what's more, that nice would be *always* the same 
-> (at process startup)!
+> Driver bug.  I can futz with it and get it to do 64-bit on my Athlon64.
 
-Please see the voluminous realtime-lsm threads for some objections to
-this approach.
+Care to send a patch ?
 
-Lee
-
+--
+Ueimor

@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312310AbSCYGLT>; Mon, 25 Mar 2002 01:11:19 -0500
+	id <S312321AbSCYGVl>; Mon, 25 Mar 2002 01:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312314AbSCYGLA>; Mon, 25 Mar 2002 01:11:00 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:11539 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S312310AbSCYGK5>; Mon, 25 Mar 2002 01:10:57 -0500
-Message-ID: <3C9EBF13.4FEBB158@zip.com.au>
-Date: Sun, 24 Mar 2002 22:09:23 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S312320AbSCYGVb>; Mon, 25 Mar 2002 01:21:31 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:34691 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S312314AbSCYGVU>; Mon, 25 Mar 2002 01:21:20 -0500
+Date: Sun, 24 Mar 2002 23:21:16 -0700
+Message-Id: <200203250621.g2P6LG023329@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
 To: Rusty Russell <rusty@rustcorp.com.au>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [patch] smaller kernels
-In-Reply-To: <3C982824.60091B4A@zip.com.au> <20020325165605.7d9c1d6e.rusty@rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: bit ops on unsigned long? 
+In-Reply-To: <E16pM5N-0000zb-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+Rusty Russell writes:
+> In message <200203250245.g2P2jQa20821@vindaloo.ras.ucalgary.ca> you write:
+> > Rusty Russell writes:
+> > > Richard: 3 bugs in devfs.  Particularly note that the memset was
+> > > bogus.  I can't convince myself that your memcpy & memset stuff is
+> > > right anyway, given that you can ONLY treat them as unsigned longs
+> > > (ie. bit 31 will be in byte 0 or byte 3, depending on endianness).
+> > 
+> > Yes, the memset is bogus because I didn't cast the pointer to a
+> > char * or void *.
 > 
-> On Tue, 19 Mar 2002 22:11:48 -0800
-> Andrew Morton <akpm@zip.com.au> wrote:
+> Yes.
 > 
-> > This is the result of a search-and-destroy mission against
-> > oft-repeated strings in the kernel text.  These come about
-> > due to the toolchain's inability to common up strings between
-> > compilation units.
+> > The memcpy should be fine, though. And so should
+> > everything else, because the bitfield array is allocated in 16 byte
+> > multiples.
 > 
-> The name is horrible.  BUG() stands out: perhaps "BUG_LITE()"?
+> No:
+[...]
+> These changed are required because otherwise you try to do set_bit on
+> something not aligned as a long on all archs.
 
-out_of_line_bug()? It's a bit ornate I guess, but it tells
-you what it does when you look at it.
+But of course. I'm not denying that. Naturally the type should be
+changed. I thought that was obvious so I didn't bother agreeing. But
+in fact, it already *is* aligned on a long boundary. Better, in
+fact. It's aligned on a 16 byte boundary. Even though the type was
+__u32.
 
-> And I'm not sure DaveM'll appreciate this:
+> (Turning to the gallery) I assert: if you're going to do bitops on it,
+> make it a "unsigned long".
+
+Agreed.
+
+> > So there should be no issues with big vs. little endian,
+> > since memset/memcpy operations are done in blocks of sufficient
+> > alignment.
 > 
-> >  static inline char *__skb_pull(struct sk_buff *skb, unsigned int len)
-> >  {
-> >       skb->len-=len;
-> > -     if (skb->len < skb->data_len)
-> > -             BUG();
-> >       return  skb->data+=len;
-> >  }
+> I think you're right, as long as length is always a multiple of
+> sizeof(long).  This is not obvious from this hunk of code alone, which
+> is why I queried it...
+> 
+>     if (space->num_free < 1)
+>     {
+> 	if (space->length < 16) length = 16;
+> 	else length = space->length << 1;
 
-OK, we can out that back (out-of-line) for -pre6.
+Assuming sizeof (long) <= 16 bytes, then length will always be a
+multiple of sizeof (long). So, even for a 128 bit CPU, this code is
+fine. It might break down on a 256 bit CPU...
 
--
+Anyway, it looks like we're in agreement.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

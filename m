@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261386AbSKBSt1>; Sat, 2 Nov 2002 13:49:27 -0500
+	id <S266048AbSKBSlM>; Sat, 2 Nov 2002 13:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261390AbSKBSt1>; Sat, 2 Nov 2002 13:49:27 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:10506 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S261386AbSKBStZ>; Sat, 2 Nov 2002 13:49:25 -0500
-Date: Sat, 2 Nov 2002 15:55:08 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-Message-ID: <20021102185508.GF27926@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	"Matt D. Robinson" <yakker@aparity.com>,
-	Rusty Russell <rusty@rustcorp.com.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-References: <1036157313.12693.15.camel@irongate.swansea.linux.org.uk> <Pine.LNX.3.96.1021101235904.29692B-100000@gatekeeper.tmr.com>
+	id <S266049AbSKBSlM>; Sat, 2 Nov 2002 13:41:12 -0500
+Received: from holomorphy.com ([66.224.33.161]:34443 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266048AbSKBSlG>;
+	Sat, 2 Nov 2002 13:41:06 -0500
+Date: Sat, 2 Nov 2002 10:46:12 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: akpm@zip.com.au, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Hot/cold allocation -- swsusp can not handle hot pages
+Message-ID: <20021102184612.GI23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Pavel Machek <pavel@ucw.cz>, akpm@zip.com.au,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20021102181900.GA140@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1021101235904.29692B-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <20021102181900.GA140@elf.ucw.cz>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Nov 02, 2002 at 12:00:18AM -0500, Bill Davidsen escreveu:
-> On 1 Nov 2002, Alan Cox wrote:
+On Sat, Nov 02, 2002 at 07:19:00PM +0100, Pavel Machek wrote:
+> Swsusp counts free pages, and relies on fact that when it allocates
+> page there's one free page less. That is no longer true with hot
+> pages.
+> I attempted to work it around but it seems I am getting hot pages even
+> when I ask for cold one. This seems to fix it. Does it looks like
+> "possibly mergable" patch?
+> --- clean/mm/page_alloc.c	2002-11-01 00:37:44.000000000 +0100
+> +++ linux-swsusp/mm/page_alloc.c	2002-11-01 22:53:47.000000000 +0100
+> @@ -361,7 +361,7 @@
+>  	unsigned long flags;
+>  	struct page *page = NULL;
+>  
+> -	if (order == 0) {
+> +	if ((order == 0) && !cold) {
+>  		struct per_cpu_pages *pcp;
+>  
+>  		pcp = &zone->pageset[get_cpu()].pcp[cold];
 > 
-> > On Fri, 2002-11-01 at 06:36, Linus Torvalds wrote:
-> > > This never works. Be honest. Nobody takes out features, they are stuck 
-> > > once they get in. 
-> > 
-> > Linus I've asked a couple of times about killing sound/oss off now ALSA
-> > is integrated 8) While you are on the rant how about that ;)
-> 
-> Good point, that continues to disprove the theory that having one thing in
-> the kernel prevents development of a similar feature.
 
-SPX was also removed (hey, it never worked anyway) and probably econet and
-ATM will be removed as well if nobody jumps to fix it (I mean net/atm, not
-drivers/atm, but I'm not sure the later will be useful without the former).
+This doesn't seem to be doing what you want, even if it seems to work.
+If you want there to be one free page less, then allocating it will
+work regardless. What are you looking for besides that? If it's not
+already working you want some additional semantics. Could this involve
+is_head_of_free_region()? That should be solvable with a per-cpu list
+shootdown algorithm to fully merge all the buddy bitmap things.
 
-- Arnaldo
+
+Bill

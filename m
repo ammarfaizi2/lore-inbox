@@ -1,67 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266129AbRG1BjZ>; Fri, 27 Jul 2001 21:39:25 -0400
+	id <S266130AbRG1BpZ>; Fri, 27 Jul 2001 21:45:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266130AbRG1BjR>; Fri, 27 Jul 2001 21:39:17 -0400
-Received: from [209.195.52.30] ([209.195.52.30]:26654 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S266129AbRG1BjK>;
-	Fri, 27 Jul 2001 21:39:10 -0400
-Date: Fri, 27 Jul 2001 17:23:07 -0700 (PDT)
-From: David Lang <dlang@diginsite.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <cw@f00f.org>, <ppeiffer@free.fr>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA KT133A / athlon / MMX
-In-Reply-To: <E15QEP3-0006TF-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0107271718550.29714-100000@dlang.diginsite.com>
+	id <S266150AbRG1BpQ>; Fri, 27 Jul 2001 21:45:16 -0400
+Received: from mailb.telia.com ([194.22.194.6]:4358 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S266130AbRG1BpI>;
+	Fri, 27 Jul 2001 21:45:08 -0400
+Message-Id: <200107280144.DAA25730@mailb.telia.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Roger Larsson <roger.larsson@norran.net>
+To: linux-mm@kvack.org
+Subject: [PATCH] MAX_READAHEAD gives doubled throuput
+Date: Sat, 28 Jul 2001 03:40:49 +0200
+X-Mailer: KMail [version 1.2.3]
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I have a 1u box at my des that has two MSI boards in it with 1.2G athlons.
-at the moment they are both running 2.4.5 (athlon optimized), one box has
-no problems at all while the other dies (no video, no keyboard, etc)
-within an hour of being booted.
+Hi all,
 
-systems have no sound enabled, 512MB ram, 20G ata100 drives. D-Link quad
-fast ethernet cards.
+Got wondering why simultaneous streaming is so much slower than normal...
 
-if you have any patch you would like me to test on these boxes let me know
-(I am arranging to ship this one and three others like it that each have
-one working and one failing system in them back to the factory to get the
-MLB swapped out on the one that is failing.
+Are there any reasons nowadays why we should not attempt to read ahead more 
+than 31 pages at once?
 
-David Lang
+31 pages equals 0.1 MB, it is read from the HD in 4 ms => very close to the 
+average access times. Resulting in a maximum of half the possible speed.
 
+With this patch copy and diff throughput are increased from 14 respective 11 
+MB/s to 27 and 28 !!!
 
- On Fri, 27 Jul 2001, Alan Cox wrote:
+I enable the profiling as well... (one printk warning fixed)
 
-> Date: Fri, 27 Jul 2001 21:40:09 +0100 (BST)
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: cw@f00f.org
-> Cc: alan@lxorguk.ukuu.org.uk, ppeiffer@free.fr, linux-kernel@vger.kernel.org
-> Subject: Re: VIA KT133A / athlon / MMX
->
-> > On Fri, Jul 27, 2001 at 09:19:21PM +0100, Alan Cox wrote:
-> >     Its heavily tied to certain motherboards. Some people found a
-> >     better PSU fixed it, others that altering memory settings
-> >     helped. And in many cases, taking it back and buying a different
-> >     vendors board worked.
-> >
-> > Does anyone know *why* stuff breaks? surely VIA do as they have a fix
-> > for (some, all?) cases of breakage?
->
-> At the moment the big problem is I don't have enough reliable info to
-> see patterns that I can give to VIA for study. VIAs fixes for board problems
-> are for the fifo problem normally seen with the 686B and SB Live but
-> sometimes in other cases.
->
-> (and it seems also we have a few via + promise weirdnesses on all sorts of
->  boards not yet explained)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+/RogerL
+
+*******************************************
+Patch prepared by: roger.larsson@norran.net
+
+--- linux/mm/filemap.c.orig	Fri Jul 27 21:31:41 2001
++++ linux/mm/filemap.c	Sat Jul 28 03:01:05 2001
+@@ -744,10 +744,8 @@
+ 	return NULL;
+ }
+ 
+-#if 0
+ #define PROFILE_READAHEAD
+ #define DEBUG_READAHEAD
+-#endif
+ 
+ /*
+  * Read-ahead profiling information
+@@ -791,13 +789,13 @@
+ 		}
+ 
+ 		printk("Readahead average:  max=%ld, len=%ld, win=%ld, async=%ld%%\n",
+-			total_ramax/total_reada,
+-			total_ralen/total_reada,
+-			total_rawin/total_reada,
+-			(total_async*100)/total_reada);
++		       total_ramax/total_reada,
++		       total_ralen/total_reada,
++		       total_rawin/total_reada,
++		       (total_async*100)/total_reada);
+ #ifdef DEBUG_READAHEAD
+-		printk("Readahead snapshot: max=%ld, len=%ld, win=%ld, raend=%Ld\n",
+-			filp->f_ramax, filp->f_ralen, filp->f_rawin, filp->f_raend);
++		printk("Readahead snapshot: max=%ld, len=%ld, win=%ld, raend=%ld\n",
++		       filp->f_ramax, filp->f_ralen, filp->f_rawin, filp->f_raend);
+ #endif
+ 
+ 		total_reada	= 0;
+--- linux/include/linux/blkdev.h.orig	Fri Jul 27 21:36:37 2001
++++ linux/include/linux/blkdev.h	Sat Jul 28 02:51:10 2001
+@@ -184,7 +184,7 @@
+ #define PageAlignSize(size) (((size) + PAGE_SIZE -1) & PAGE_MASK)
+ 
+ /* read-ahead in pages.. */
+-#define MAX_READAHEAD	31
++#define MAX_READAHEAD	511
+ #define MIN_READAHEAD	3
+ 
+ #define blkdev_entry_to_request(entry) list_entry((entry), struct request, 
+queue)

@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317472AbSGONIP>; Mon, 15 Jul 2002 09:08:15 -0400
+	id <S315721AbSGONRx>; Mon, 15 Jul 2002 09:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317480AbSGONIO>; Mon, 15 Jul 2002 09:08:14 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:30471 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317472AbSGONIN>; Mon, 15 Jul 2002 09:08:13 -0400
-Date: Mon, 15 Jul 2002 14:10:59 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] make spin_is_locked use an explicit signed char case
-Message-ID: <20020715141059.A13659@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
+	id <S315746AbSGONRw>; Mon, 15 Jul 2002 09:17:52 -0400
+Received: from unthought.net ([212.97.129.24]:31648 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S315721AbSGONRw>;
+	Mon, 15 Jul 2002 09:17:52 -0400
+Date: Mon, 15 Jul 2002 15:20:45 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RAID problem - please hlp
+Message-ID: <20020715132045.GB7756@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200207141626.55442.roy@karlsbakk.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200207141626.55442.roy@karlsbakk.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a trivial patch from the XFS tree and allows to use spinlock
-debugging with code that is compiled with -funsigned-char.  XFS itself
-shouldn't need -funsigned-char anymore, but doing the right thing in
-spinlock.h doesn't cost anything.
+On Sun, Jul 14, 2002 at 04:26:55PM +0200, Roy Sigurd Karlsbakk wrote:
+> 
+> On Saturday 13 July 2002 21:14, you wrote:
+> 
+> hi all
+> 
+> How can I force RAID devices to get status non-failed? I have a so-called 4
+> out of 15 devices failed, and it failes to start.
+> 
+> The true devices have _not_ failed!
+> 
+> That is - md[0123] are just fine, and as they generally are on the same drives 
+> as md4, something _should_ be possible
+> 
 
+http://unthought.net/Software-RAID.HOWTO/Software-RAID.HOWTO-6.html#ss6.1
 
---- linux/include/asm-i386/spinlock.h~	Sun Jun 23 21:38:01 2002
-+++ linux/include/asm-i386/spinlock.h	Tue Jun 18 15:10:28 2002
-@@ -39,7 +39,7 @@
-  * We make no fairness assumptions. They have a cost.
-  */
- 
--#define spin_is_locked(x)	(*(volatile char *)(&(x)->lock) <= 0)
-+#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
- 
- #define spin_lock_string \
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbULQNLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbULQNQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262804AbULQNLb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 08:11:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbULQNLb
+	id S262801AbULQNQp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 08:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbULQNQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 08:11:31 -0500
-Received: from mail.renesas.com ([202.234.163.13]:39146 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262804AbULQNLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 08:11:21 -0500
-Date: Fri, 17 Dec 2004 22:11:08 +0900 (JST)
-Message-Id: <20041217.221108.840832167.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-rc3-mm1] m32r: Update 4-level page table support
- (was Re: [PATCH 8/17] 4level support for m32r)
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <417CAA05.mail3YV11VZXC@wotan.suse.de>
-References: <417CAA05.mail3YV11VZXC@wotan.suse.de>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 17 Dec 2004 08:16:45 -0500
+Received: from neopsis.com ([213.239.204.14]:18158 "EHLO
+	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
+	id S262801AbULQNQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 08:16:44 -0500
+Message-ID: <41C2DCBC.1080302@dbservice.com>
+Date: Fri, 17 Dec 2004 14:18:52 +0100
+From: Tomas Carnecky <tom@dbservice.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Morris <jmorris@redhat.com>
+Cc: Patrick McHardy <kaber@trash.net>, Bryan Fulton <bryan@coverity.com>,
+       netdev@oss.sgi.com, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Coverity] Untrusted user data in kernel
+References: <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
+In-Reply-To: <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Neopsis-MailScanner-Information: Please contact the ISP for more information
+X-Neopsis-MailScanner: Found to be clean
+X-MailScanner-From: tom@dbservice.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+James Morris wrote:
+> That's what I meant, you need the capability to do anything bad :-)
+> 
 
-More updates for 4-level support for m32r.
-This patch is needed to fix compile error of -mm tree for m32r.
-Please apply.
+But.. even if you have the 'permission' to do bad things, it shouldn't 
+be possible.
 
-Regards,
+It's a bug, and only because you can't exploit it if you haven't the 
+right capabilities doesn't make the bug disappear.
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+IMHO such things (passing values between user/kernel space) should 
+always be checked.
 
-diff -ruNp a/arch/m32r/mm/fault.c b/arch/m32r/mm/fault.c
---- a/arch/m32r/mm/fault.c	2004-12-16 11:37:01.000000000 +0900
-+++ b/arch/m32r/mm/fault.c	2004-12-16 11:37:46.000000000 +0900
-@@ -122,7 +122,7 @@ asmlinkage void do_page_fault(struct pt_
- 
- 	/*
- 	 * We fault-in kernel-space virtual memory on-demand. The
--	 * 'reference' page table is init_mm.pgd.
-+	 * 'reference' page table is init_mm.pml4.
- 	 *
- 	 * NOTE! We MUST NOT take any locks for this case. We may
- 	 * be in an interrupt or a critical region, and should
-@@ -343,7 +343,7 @@ vmalloc_fault:
- 
- 		pgd = (pgd_t *)*(unsigned long *)MPTB;
- 		pgd = offset + (pgd_t *)pgd;
--		pgd_k = init_mm.pgd + offset;
-+		pgd_k = init_mm.pml4 + offset;
- 
- 		if (!pgd_present(*pgd_k))
- 			goto no_context;
-diff -ruNp a/arch/m32r/mm/init.c b/arch/m32r/mm/init.c
---- a/arch/m32r/mm/init.c	2004-12-16 11:37:01.000000000 +0900
-+++ b/arch/m32r/mm/init.c	2004-12-15 13:02:27.000000000 +0900
-@@ -142,7 +142,7 @@ void __init paging_init(void)
- 	/* We don't need kernel mapping as hardware support that. */
- 	pg_dir = swapper_pg_dir;
- 
--	for (i = 0 ; i < USER_PTRS_PER_PGD * 2 ; i++)
-+	for (i = 0 ; i < USER_PGDS_IN_LAST_PML4 * 2 ; i++)
- 		pgd_val(pg_dir[i]) = 0;
- #endif /* CONFIG_MMU */
- 	hole_pages = zone_sizes_init();
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
-
+tom

@@ -1,63 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBOX2T>; Thu, 15 Feb 2001 18:28:19 -0500
+	id <S129135AbRBOXkK>; Thu, 15 Feb 2001 18:40:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbRBOX2A>; Thu, 15 Feb 2001 18:28:00 -0500
-Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:65296 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S129066AbRBOX15>; Thu, 15 Feb 2001 18:27:57 -0500
-Date: Thu, 15 Feb 2001 15:27:53 -0800
-Message-Id: <200102152327.f1FNRrZ04871@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: Richard A Nelson <cowboy@vnet.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-ac$x and timer oddities
-In-Reply-To: <Pine.LNX.4.33.0102151510010.2238-100000@badlands.lexington.ibm.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
+	id <S129119AbRBOXkA>; Thu, 15 Feb 2001 18:40:00 -0500
+Received: from ns.arraycomm.com ([199.74.167.5]:56977 "HELO
+	bastion.arraycomm.com") by vger.kernel.org with SMTP
+	id <S129321AbRBOXjs>; Thu, 15 Feb 2001 18:39:48 -0500
+Message-Id: <5.0.2.1.2.20010215153520.02498628@pop.arraycomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Thu, 15 Feb 2001 15:38:16 -0800
+To: linux-kernel@vger.kernel.org
+From: Jasmeet Sidhu <jsidhu@arraycomm.com>
+Subject: Re: IDE DMA Problems...system hangs
+In-Reply-To: <E14T8wg-00061Z-00@the-village.bc.nu>
+In-Reply-To: <5.0.2.1.2.20010214123238.023ea9c0@pop.arraycomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Feb 2001 15:57:09 -0500 (EST), Richard A Nelson <cowboy@vnet.ibm.com> wrote:
-> The machine boots and runs for some time without problems, but then
-> something makes the clock *very* jittery:
-> 
-> *  xscreensaver kicks in after almost no time (even betwixt quick
->    keystrokes and in the middle of mouse movement), and the password prompt
->    timer zips down to nothing post haste
-> *  neworking apps gets a time-out on almost all connections (netscape, ftp, etc)
-> *  It can take quite a while for focus to change after moving the mouse
-> *  The machine will hang (hard - CAD or SYSREQ B do nothing) after a
->    variable amount of time (>8 hours)
-> 
-> I think this may've even started at 2.4.0, but seems to have gotten
-> worse recently.
 
-This patch (from Vojtech Pavlik) might help. Alan included it in 2.2.19pre,
-so I'm not sure why he didn't add it to 2.4ac as well.
+ >>I've not changed anything related to DMA handling specifically. The current
+ >>-ac does have a fix for a couple of cases where an IDE reset on the promise
+ >>could hang the box dead. That may be the problem.
 
-If it doesn't apply cleanly, do it by hand.
+I tried the new patches (2.4.1-ac13) and it seemed very stable.  After 
+moving about 50GB of data to the raid5, the system crashed.  here is the 
+syslog... (the system had been up for about 20 hours)
 
-Hope this helps,
-Ion
+Feb 14 03:48:53 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 14 03:48:53 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+<snip - about 40 lines exact same hdo: error>
+Feb 14 19:35:52 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 14 19:35:52 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 14 19:35:52 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 14 20:13:06 bertha kernel: hdi: dma_intr: bad DMA status
+Feb 14 20:13:06 bertha kernel: hdi: dma_intr: status=0x50 { DriveReady 
+SeekComplete }
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-------------------------
---- linux-2.2.17/arch/i386/kernel/time.c.old	Sat Oct 28 00:04:09 2000
-+++ linux-2.2.17/arch/i386/kernel/time.c	Sat Oct 28 00:02:10 2000
-@@ -452,6 +452,14 @@
- 		count = inb_p(0x40);    /* read the latched count */
- 		count |= inb(0x40) << 8;
- 
-+		if (count > LATCH-1) {
-+			outb_p(0x34, 0x43);
-+		        outb_p(LATCH & 0xff, 0x40);
-+			outb(LATCH >> 8, 0x40);
-+			count = LATCH - 1;
-+		}
-+
-+
- 		count = ((LATCH-1) - count) * TICK_SIZE;
- 		delay_at_last_interrupt = (count + LATCH/2) / LATCH;
- 	}
+Feb 15 01:26:34 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 15 01:26:34 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 15 01:26:34 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 15 01:26:34 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 15 01:26:38 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 15 01:26:38 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 15 01:45:06 bertha kernel: hdo: dma_intr: status=0x53 { DriveReady 
+SeekComplete Index Error }
+Feb 15 01:45:06 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 15 01:45:06 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 15 01:45:06 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 15 01:45:06 bertha kernel: hdo: dma_intr: status=0x51 { DriveReady 
+SeekComplete Error }
+Feb 15 01:45:06 bertha kernel: hdo: dma_intr: error=0x84 { DriveStatusError 
+BadCRC }
+Feb 15 01:54:01 bertha kernel: hdg: timeout waiting for DMA
+<SYSTEM FROZEN>
+
+Jasmeet
+
+
+At 08:54 PM 2/14/2001 +0000, Alan Cox wrote:
+> > >You will get horribly bad performance off raid5 if you have stripes on 
+> both
+> > >hda/hdb  or hdc/hdd etc.
+> >
+> > If I am reading this correctly, then by striping on both hda/hdb and
+> > /hdc/hdd you mean that I have two drives per ide channel.  In other words,
+> > you think I have a Master and a Slave type of a setup?  This is
+> > incorrect.  Each drive on the system is a master.  I have 5 promise cards
+>
+>Ok then your performance should be fine (at least reasonably so, the lack
+>of tagged queueing does hurt)
+>
+> > ide chanel, the penalty should not be much in terms of performance.  Maybe
+> > its just that the hdparam utility is not a good tool for benchamarking a
+> > raid set?
+>
+>Its not a good raid benchmark tool but its a good indication of general 
+>problems.
+>Bonnie is a good tool for accurate assessment.
+>
+> > disable DMA if its giving it a lot of problems, but it should not hang.  I
+> > have been experiencing this for quite a while with the newer
+> > kernels.  Should I try the latest ac13 patch?  I glanced of the changes 
+> and
+> > didnt seem like anything had changed regarding the ide subsystem.
+>
+>I've not changed anything related to DMA handling specifically. The current
+>-ac does have a fix for a couple of cases where an IDE reset on the promise
+>could hang the box dead. That may be the problem.
+>
+> > Is there anyway I can force the kernel to output more messages...maybe 
+> that
+> > could help narrow down the problem?
+>
+>Ask andre@linux-ide.org. He may know the status of the promise support
+

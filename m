@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318309AbSGRSjX>; Thu, 18 Jul 2002 14:39:23 -0400
+	id <S318320AbSGRSow>; Thu, 18 Jul 2002 14:44:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318311AbSGRSjX>; Thu, 18 Jul 2002 14:39:23 -0400
-Received: from moutvdom.kundenserver.de ([195.20.224.130]:46327 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S318309AbSGRSjW>; Thu, 18 Jul 2002 14:39:22 -0400
-Date: Thu, 18 Jul 2002 20:43:45 +0200
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19-rc2-ac1
-Message-ID: <20020718184345.GA235@chiara.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200207181545.g6IFjgG24953@devserv.devel.redhat.com> <20020718181213Z318284-686+2229@vger.kernel.org>
+	id <S318321AbSGRSov>; Thu, 18 Jul 2002 14:44:51 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1781 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318320AbSGRSov>; Thu, 18 Jul 2002 14:44:51 -0400
+Subject: Re: [PATCH] strict VM overcommit for stock 2.4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Robert Love <rml@tech9.net>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0207181930170.30902-100000@divine.city.tvnet.hu>
+References: <Pine.LNX.4.30.0207181930170.30902-100000@divine.city.tvnet.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 18 Jul 2002 20:58:43 +0100
+Message-Id: <1027022323.8154.38.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020718181213Z318284-686+2229@vger.kernel.org>
-Organization: private site in Mannheim/Germany
-X-PGP-Key: Use PGP! Get my key at http://www.cavy.de/hd.key
-User-Agent: Mutt/1.5.1i (Linux 2.4.19-rc1-ac7 i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Jul 18 2002, Rudmer van Dijk wrote:
+On Thu, 2002-07-18 at 18:31, Szakacsits Szabolcs wrote:
+> 
+> On Thu, 18 Jul 2002, Szakacsits Szabolcs wrote:
+> > And my point (you asked for comments) was that, this is only (the
+> > harder) part of the solution making Linux a more reliable (no OOM
+> > killing *and* root always has the control) and cost effective platform
+> > (no need for occasionally very complex and continuous resource limit
+> > setup/adjusting, especially for inexpert home/etc users).
+> 
+> Ahh, I figured out your target, embedded devices. Yes it's good for
+> that but not enough for general purpose.
 
-> build ok, but panics at boot.
- 
-> panic occured after these messages:
-> <snip>
-> hda: QUANTUM FIREBALLP AS20.5, ATA DISK drive
-> hdc: HL-DT-ST CD-RW GCE-8240B, ATAPI CD/DVD-ROM drive
-> hdd: IOMEGA ZIP 100 ATAPI, ATAPI FLOPPY drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-[....]
+Adjusting the percentages to have a root only zone is doable. It helps
+in some conceivable cases but not all. Do people think its important, if
+so I'll add it
 
-Just a "me too", exactly the same here.
-
--- 
-# Heinz Diehl, 68259 Mannheim, Germany

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbUCCMWo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 07:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUCCMWo
+	id S262454AbUCCMZS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 07:25:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUCCMZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 07:22:44 -0500
-Received: from mail.aei.ca ([206.123.6.14]:52960 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262450AbUCCMWm (ORCPT
+	Wed, 3 Mar 2004 07:25:18 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:64394 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262454AbUCCMZK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 07:22:42 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Greg KH <greg@kroah.com>
-Subject: Re: [ANNOUNCE] udev 021 release
-Date: Wed, 3 Mar 2004 07:22:17 -0500
-User-Agent: KMail/1.5.93
-Cc: Michael Weiser <michael@weiser.dinsnail.net>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net>
-In-Reply-To: <20040303095615.GA89995@weiser.dinsnail.net>
-MIME-Version: 1.0
+	Wed, 3 Mar 2004 07:25:10 -0500
+Date: Wed, 3 Mar 2004 13:25:06 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 ide-cd DMA ripping
+Message-ID: <20040303122506.GS9196@suse.de>
+References: <20040303113756.GQ9196@suse.de> <200403031226.22015.s0348365@sms.ed.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403030722.17632.edt@aei.ca>
+In-Reply-To: <200403031226.22015.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 03, 2004 04:56 am, Michael Weiser wrote:
-> Normally with static /dev one has a /dev/dsp device for example. As soon
-> as an application tries to open it the kernel would try to load a module
-> "sound" or "char-major-something" if sound support isn't compiled into
-> it. Now with udev I'll never get /dev/dsp in the first place and there's
-> no mechanism like devfs's file open monitoring and subsequent device
-> file creation. So my idea is to initialise /dev with some static files,
-> for hardware I know is there but hasn't had a driver loaded yet. My
-> question is: Is there a nicer and more elegant way than just unpacking a
-> tarball into /dev before starting udevd? A tarball would also break a
-> (theoretical) use of dynamic major/minor numbers by the kernel.
+On Wed, Mar 03 2004, Alistair John Strachan wrote:
+> On Wednesday 03 March 2004 11:37, you wrote:
+> > Hi,
+> >
+> > 2.6 still uses PIO for CDROMREADAUDIO cdda ripping, which is less than
+> > optimal of course... This patch uses the block layer infrastructure to
+> > enable zero copy DMA ripping through CDROMREADAUDIO.
+> >
+> > I'd appreciate people giving this a test spin. Patch is against
+> > 2.6.4-rc1 (well current BK, actually).
+> >
+> [snip] 
+> 
+> Is this a general optimisation, i.e. will the rip methods used by
+> cdda2wav and cdparanoia, etc. be optimised, or do you need some
+> specific userspace tools to utilise it?
 
-Would it be possible to have something in the module itself?  i.e. We create
-a new macro to add info that a script can use.  This info could live in a new file 
-in lib/modules or in the actual module.  This could be used to create the static 
-setup dynamicly.
+The patch only affects CDROMREADAUDIO ioctl. cdda2wav (with recent
+libscg) will use SG_IO, which works equally well already. cdparanoia
+uses CDROMREADAUDIO as well iirc, if it can use /dev/sg* sg v2
+interface. I'm not completely sure, if you send me an strace of the
+process in question I can tell you for sure :)
 
-This item keeps coming up as the one feature that devfs has and udev 
-does not.  It keeps getting dismissed.  Users seem to actually want it...
-
-Ed Tomlinson 
+-- 
+Jens Axboe
 

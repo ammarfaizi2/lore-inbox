@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbSJ3D67>; Tue, 29 Oct 2002 22:58:59 -0500
+	id <S263968AbSJ3EBb>; Tue, 29 Oct 2002 23:01:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263785AbSJ3D67>; Tue, 29 Oct 2002 22:58:59 -0500
-Received: from host-217-146-15-39.warsun.com ([217.146.15.39]:260 "HELO
-	vger.kernel.org") by vger.kernel.org with SMTP id <S263760AbSJ3D66>;
-	Tue, 29 Oct 2002 22:58:58 -0500
-From: "SMITH HARRISON" <mdtooshtech@yahoo.com>
-Date: Wed, 30 Oct 2002 04:05:01
+	id <S263977AbSJ3EBb>; Tue, 29 Oct 2002 23:01:31 -0500
+Received: from employees.nextframe.net ([212.169.100.200]:12029 "EHLO
+	sexything.nextframe.net") by vger.kernel.org with ESMTP
+	id <S263968AbSJ3EBa>; Tue, 29 Oct 2002 23:01:30 -0500
+Date: Wed, 30 Oct 2002 05:19:45 +0100
+From: Morten Helgesen <morten.helgesen@nextframe.net>
 To: linux-kernel@vger.kernel.org
-Subject: REQUEST.....
-MIME-Version: 1.0
-Content-Type: text/plain;charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20021030035858Z263760-32597+11963@vger.kernel.org>
+Subject: [PATCH 2.5.45 - net/ipv4/syncookies.c] "structure has no member named `window'"
+Message-ID: <20021030051945.D512@sexything>
+Reply-To: morten.helgesen@nextframe.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-Editor: VIM - Vi IMproved 6.0
+X-Keyboard: PFU Happy Hacking Keyboard
+X-Operating-System: Slackware Linux (of course)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-								TOOSHTECH NIG LTD
-								6 SOLOKI STREET
-								AGUDA SURULERE 
-								LAGOS 
-								NIGERIA.		
+Hey, 
 
-DEAR SIR,
+the one-liner below is needed to compile 2.5.45. 
 
-I HEREBY WRITE AS THE MANAGING DIRECTOR OF THE ABOVE COMPANY.
+please apply.
 
-WE ARE HEREBY REQUESTING TO BE ONE OF YOUR MARKETERS AND SALES DISTRIBUTORS .
+== Morten
 
-WE ARE MARKETERS OF COMMUNICATION EQUIPMENTS AND WE ARE VERY GOOD AND RELIABLE AT DOING THIS.
+-- 
 
-DUE TO THE HIGH DEMAND FOR GSM MOBILE PHONES IN OUR COUNTRY. WE STAND TO MAKE A VERY GOOD AND PROFITABLE BUSINESS WITH YOUR COMPANY SUPPLING US GSM PHONES AT A VERY PROFITABLE RATE.
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
 
-WE PROMISE A VERY GOOD AND PROFITABLE OUTCOME FOR BOTH PARTIES
+mvh
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+admin@nextframe.net / 93445641
+http://www.nextframe.net
 
-THANK YOU FOR YOUR COOPERATION .
 
-YOURS FAITHFULLY
-SMITH HARRISON
+--- clean-linux-2.5.45/net/ipv4/syncookies.c    Wed Oct 30 02:28:17 2002
++++ patched-linux-2.5.45/net/ipv4/syncookies.c  Wed Oct 30 05:14:08 2002
+@@ -189,7 +189,7 @@
+        }
 
-FOR TOOSHTECH NIG LTD
-	
+        /* Try to redo what tcp_v4_send_synack did. */
+-       req->window_clamp = rt->u.dst.window;
++       req->window_clamp = dst_metric(&rt->u.dst, RTAX_WINDOW);
+        tcp_select_initial_window(tcp_full_space(sk), req->mss,
+                                  &req->rcv_wnd, &req->window_clamp,
+                                  0, &rcv_wscale);
+

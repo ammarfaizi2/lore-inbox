@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136191AbRDVQEM>; Sun, 22 Apr 2001 12:04:12 -0400
+	id <S136192AbRDVQJN>; Sun, 22 Apr 2001 12:09:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136192AbRDVQEC>; Sun, 22 Apr 2001 12:04:02 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:32011 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S136191AbRDVQDz>;
-	Sun, 22 Apr 2001 12:03:55 -0400
+	id <S136193AbRDVQJD>; Sun, 22 Apr 2001 12:09:03 -0400
+Received: from t2.redhat.com ([199.183.24.243]:57842 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S136192AbRDVQIu>; Sun, 22 Apr 2001 12:08:50 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010422114648.G28605@thyrsus.com> 
+In-Reply-To: <20010422114648.G28605@thyrsus.com>  <20010422133947.A21908@se1.cogenit.fr> <Pine.GSO.4.21.0104220819490.28681-100000@weyl.math.psu.edu> 
 To: esr@thyrsus.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
+Cc: Alexander Viro <viro@math.psu.edu>, Francois Romieu <romieu@cogenit.fr>,
         CML2 <linux-kernel@vger.kernel.org>,
         kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-In-Reply-To: <20010421164659.A4704@thyrsus.com> <E14r6oh-0004Zu-00@the-village.bc.nu> <20010421194916.B14896@thyrsus.com>
-From: Jes Sorensen <jes@linuxcare.com>
-Date: 22 Apr 2001 18:02:38 +0200
-In-Reply-To: "Eric S. Raymond"'s message of "Sat, 21 Apr 2001 19:49:16 -0400"
-Message-ID: <d3ae582a8x.fsf@lxplus015.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
-MIME-Version: 1.0
+Subject: Re: Request for comment -- a better attribution system 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Sun, 22 Apr 2001 17:07:55 +0100
+Message-ID: <27871.987955675@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Eric" == Eric S Raymond <esr@thyrsus.com> writes:
 
-Eric> Alan Cox <alan@lxorguk.ukuu.org.uk>:
->> I actually prefer MAINTAINERS because it breaks things down by area
->> and reflects the actual maintainership and areas covered. Something
->> that per file does not
+esr@thyrsus.com said:
+>  I've had my nose rubbed in how things really work.  That's why I want
+> to fix the things that are broken about how things really work.
 
-Eric> Instead of arguing this point, I will demonstrate a solution
-Eric> with working code.  -- <a
+Then you're going to conjure up maintainers for the code which is currently 
+orphaned?
 
-A MAINTAINERS file does not need code, as Horst said, no more
-specialized tools!
+For most stuff, the way to co-ordinate global changes is to discuss it on
+l-k. If there's an active maintainer for parts which are affected, and if
+they care, they'll respond to mail on l-k. That statement is a tautology
+with my definition of 'active maintainer'. 
 
-Jes
+Bug reports are a red herring - users don't bother. They'll continue to 
+sent idiotic bug reports to l-k for stuff which has already been reported 
+and fixed, however we try to make life easy for them.
+
+BTW, please try to ensure your .sig remains within the 4 lines recommended
+by RFC1855. I appreciate that it's randomly chosen - but I also believe that
+it's not beyond your capability to ensure that excessively long quotes are
+not selected by whatever script provides the text to your MUA. If your 
+political statement du jour cannot be expressed in one or two lines, it's 
+inappropriate to include in mail to public fora.
+
+--
+dwmw2
+
+

@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVC2VRd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVC2VOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVC2VRd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 16:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVC2VOj
+	id S261448AbVC2VOS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 16:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVC2VNa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 16:14:39 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:65031 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261252AbVC2VNm
+	Tue, 29 Mar 2005 16:13:30 -0500
+Received: from mx03.cybersurf.com ([209.197.145.106]:51617 "EHLO
+	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S261448AbVC2VMF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 16:13:42 -0500
-Date: Tue, 29 Mar 2005 23:13:45 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: James Courtier-Dutton <James@superbug.co.uk>, Takashi Iwai <tiwai@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       alsa-devel@alsa-project.org, Jaroslav Kysela <perex@suse.cz>
-Subject: Re: [Alsa-devel] Re: 2.6.12-rc1-mm3, sound card lost id
-Message-Id: <20050329231345.281e7323.khali@linux-fr.org>
-In-Reply-To: <1112129571.5141.18.camel@mindpipe>
-References: <20050325002154.335c6b0b.akpm@osdl.org>
-	<20050326111945.5eb58343.khali@linux-fr.org>
-	<s5hr7hyiqra.wl@alsa2.suse.de>
-	<20050329195721.385717aa.khali@linux-fr.org>
-	<1112127424.5141.7.camel@mindpipe>
-	<20050329224630.069cda56.khali@linux-fr.org>
-	<1112129571.5141.18.camel@mindpipe>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 29 Mar 2005 16:12:05 -0500
+Subject: Re: [Patch] net: fix build break when CONFIG_NET_CLS_ACT is not set
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Neil Horman <nhorman@redhat.com>
+Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       netdev <netdev@oss.sgi.com>
+In-Reply-To: <20050329202506.GI22447@hmsendeavour.rdu.redhat.com>
+References: <20050329202506.GI22447@hmsendeavour.rdu.redhat.com>
+Content-Type: text/plain
+Organization: jamalopolous
+Message-Id: <1112130720.1076.112.camel@jzny.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 29 Mar 2005 16:12:01 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Lee,
 
-> Here is the patch (against ALSA CVS) in its preferred format.  You
-> will probably have to apply it by hand.  If the mixer settings can't
-> be restored you'll have to do it manually or edit asound.state by
-> hand.
+This is being discussed on netdev at the moment. Thomas Graf is working
+on a patch.
+Thanks for the effort though.
+
+cheers,
+jamal
+
+On Tue, 2005-03-29 at 15:25, Neil Horman wrote:
+> Patch to fix build break that occurs when CONFIG_NET_CLS_ACT is not set.
 > 
-> Lee
+> Signed-off-by: Neil Horman <nhorman@redhat.com>
 > 
-> Index: alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c
-> ===================================================================
-> RCS file: /cvsroot/alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c,v
-> retrieving revision 1.49
-> diff -u -r1.49 emu10k1_main.c
-> --- alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c	27 Mar 2005 14:00:54 -0000	1.49
-> +++ alsa/alsa-kernel/pci/emu10k1/emu10k1_main.c	29 Mar 2005 20:51:44 -0000
-> @@ -693,6 +693,10 @@
->  	 .driver = "EMU10K1", .name = "SBLive! Platinum [CT4760P]", 
->  	 .emu10k1_chip = 1,
->  	 .ac97_chip = 1} ,
-> +	{.vendor = 0x1102, .device = 0x0002, .subsystem = 0x80271102,
-> +	 .driver = "EMU10K1", .name = "SBLive! Value [CT4832]", 
-> +	 .emu10k1_chip = 1,
-> +	 .ac97_chip = 1} ,
->  	{.vendor = 0x1102, .device = 0x0002,
->  	 .driver = "EMU10K1", .name = "SB Live [Unknown]", 
->  	 .emu10k1_chip = 1,
+>  cls_fw.c      |    3 ++-
+>  cls_route.c   |    3 ++-
+>  cls_tcindex.c |    3 ++-
+>  cls_u32.c     |    2 ++
+>  4 files changed, 8 insertions(+), 3 deletions(-)
+> 
 
-Unsurprisingly, my card is now named CT4832. I had to edit
-/etc/asound.state manually to get my mixer settings back (with some
-warnings, but I get some sound).
 
-Not sure I quite see the idea of renaming from "Live", which the user
-will understand, to (I suppose) the exact chip name on the card, while
-the user has certainly no idea what it is. But heh I'm not an ALSA
-developer, there must be a good reason.
-
-Thanks,
--- 
-Jean Delvare

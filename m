@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283265AbRLMIsk>; Thu, 13 Dec 2001 03:48:40 -0500
+	id <S283717AbRLMIw3>; Thu, 13 Dec 2001 03:52:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283723AbRLMIsd>; Thu, 13 Dec 2001 03:48:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23947 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S283265AbRLMIsS>;
-	Thu, 13 Dec 2001 03:48:18 -0500
-Date: Thu, 13 Dec 2001 00:47:43 -0800 (PST)
-Message-Id: <20011213.004743.13770830.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: landley@trommello.org, hch@ns.caldera.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 & OOM killer screw up (fwd)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E16ERXw-0004JK-00@the-village.bc.nu>
-In-Reply-To: <20011213063625.QQJV11490.femail23.sdc1.sfba.home.com@there>
-	<E16ERXw-0004JK-00@the-village.bc.nu>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S283733AbRLMIwT>; Thu, 13 Dec 2001 03:52:19 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:16836
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S283723AbRLMIwM>; Thu, 13 Dec 2001 03:52:12 -0500
+Date: Thu, 13 Dec 2001 03:41:35 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML2 1.9.7 is available
+Message-ID: <20011213034135.A8267@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011212023556.A8819@thyrsus.com> <16992.1008153373@ocs3.intra.ocs.com.au>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <16992.1008153373@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Wed, Dec 12, 2001 at 09:36:13PM +1100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens <kaos@ocs.com.au>:
+> Dangling symlink kernel-tree/scripts/tree.py breaks the CML2 install,
+> rm kernel-tree/scripts/tree.py first.
 
-   > > For BSD advocates it might be a problem that these are unified diffs
-   > > that are only applyable with GPL-licensed patch(1) version..
-   
-I'm back quoting twice, sorry I've lost the original attribution.
+Fixed.
+ 
+> There are still discrepancies between the output produced by different
+> forms of make *config.  I am also seeing spurious deduction messages
+> which may be related or may be a separate problem.
 
-But anyways didn't the original Larry Wall patch do unified diffs?
-I thought it did, and I recall that wasn't GPL licensed.
+Separate problem. 
+
+> Why are those deduction messages appearing in menuconfig?  I just did
+> make oldconfig, the config should be stable.  I did not change anything
+> in menuconfig, just saved it.
+
+The deduction messages are happening because the side-effect forcing
+logic fires whenever a symbol is set.  It has no way of knowing
+whether or not the forced symbol will occur later in the config being read.
+This 
+
+> Why is the output after menuconfig WITH NO CHANGES different from
+> the oldconfig that went into menuconfig?
+
+I think it's because of the different timing of menu visits (forcing computation
+of choice-menu defaults at different times).  I'm going to run some experiments
+to see if I can pin this down.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"The state calls its own violence `law', but that of the individual `crime'"
+	-- Max Stirner

@@ -1,136 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbRBHNHT>; Thu, 8 Feb 2001 08:07:19 -0500
+	id <S129033AbRBHNX2>; Thu, 8 Feb 2001 08:23:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129149AbRBHNHJ>; Thu, 8 Feb 2001 08:07:09 -0500
-Received: from mail.zmailer.org ([194.252.70.162]:14852 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S129033AbRBHNGy>;
-	Thu, 8 Feb 2001 08:06:54 -0500
-Date: Thu, 8 Feb 2001 15:06:32 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: linux-kernel@vger.kernel.org
-Subject: DNS goofups galore...
-Message-ID: <20010208150632.K15688@mea-ext.zmailer.org>
-Mime-Version: 1.0
+	id <S129149AbRBHNXS>; Thu, 8 Feb 2001 08:23:18 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:41232 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S129033AbRBHNXA>; Thu, 8 Feb 2001 08:23:00 -0500
+Message-ID: <3A82A8FA.CB9B2F29@evision-ventures.com>
+Date: Thu, 08 Feb 2001 15:11:06 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Ben LaHaise <bcrl@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.10.10102060959520.1257-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+Linus Torvalds wrote:
+> 
+> On Tue, 6 Feb 2001, Ben LaHaise wrote:
+> >
+> > On Tue, 6 Feb 2001, Stephen C. Tweedie wrote:
+> >
+> > > The whole point of the post was that it is merging, not splitting,
+> > > which is troublesome.  How are you going to merge requests without
+> > > having chains of scatter-gather entities each with their own
+> > > completion callbacks?
+> >
+> > Let me just emphasize what Stephen is pointing out: if requests are
+> > properly merged at higher layers, then merging is neither required nor
+> > desired.
+> 
+> I will claim that you CANNOT merge at higher levels and get good
+> performance.
+> 
+> Sure, you can do read-ahead, and try to get big merges that way at a high
+> level. Good for you.
+> 
+> But you'll have a bitch of a time trying to merge multiple
+> threads/processes reading from the same area on disk at roughly the same
+> time. Your higher levels won't even _know_ that there is merging to be
+> done until the IO requests hit the wall in waiting for the disk.
 
-  Do inform your DNS administrators that they better do things
-correctly, or email won't work.  (Nor much else..)
+Merging is a hardware tighted optimization, so it should happen, there
+we you
+really have full "knowlendge" and controll of the hardware -> namely the
+device driver. 
 
-Some people are telling around heretic information that it is
-all right to use IP(v4) address literal TEXT in places which
-are intended for NAMES.
+> Qutie frankly, this whole discussion sounds worthless. We have solved this
+> problem already: it's called a "buffer head". Deceptively simple at higher
+> levels, and lower levels can easily merge them together into chains and do
+> fancy scatter-gather structures of them that can be dynamically extended
+> at any time.
+> 
+> The buffer heads together with "struct request" do a hell of a lot more
+> than just a simple scatter-gather: it's able to create ordered lists of
+> independent sg-events, together with full call-backs etc. They are
+> low-cost, fairly efficient, and they have worked beautifully for years.
+> 
+> The fact that kiobufs can't be made to do the same thing is somebody elses
+> problem. I _know_ that merging has to happen late, and if others are
+> hitting their heads against this issue until they turn silly, then that's
+> their problem. You'll eventually learn, or you'll hit your heads into a
+> pulp.
 
-As a result, the mind-set of "address is ok here" leads to nasty
-surprises with $ORIGIN append rules, etc.   See below and deduce
-what is missing from the original zone file.  Answer at the end.
+Amen.
 
-As I got today two of these goofups in bounce reports, I decided
-to write a bulletin to get your attention of wrong information
-being floated around:
-
-
-    -- Lookup of MX/A for 'cyclades.com'
-    -> DNSreply: len=171 rcode=0 qd=1 an=1 ns=3 ar=3
-    -> 84802s MX[0] p=10 '209.81.55.2.cyclades.com'
-    -> getaddrinfo(INET, '209.81.55.2.cyclades.com','0') -> r=-5 (no address associated with name); ai=%p
-    -> No addresses for '209.81.55.2.cyclades.com'[0]
-    -> nmx=1 maxpref=66000 realname=''
-    => NONE of MXes support SMTP!
-
-    -- Lookup of MX/A for 'gsl.kralupy.cz'
-    -> DNSreply: len=143 rcode=0 qd=1 an=1 ns=2 ar=2
-    -> 85291s MX[0] p=10 '194.213.206.70.kralupy.cz'
-    -> getaddrinfo(INET, '194.213.206.70.kralupy.cz','0') -> r=-2 (name or service is not known); ai=%p
-    -> No addresses for '194.213.206.70.kralupy.cz'[0]
-    -> nmx=1 maxpref=66000 realname=''
-    => NONE of MXes support SMTP!
-
-
-% dig mx cyclades.com
-......
-;; ANSWER SECTION:
-cyclades.com.           1D IN MX        10 209.81.55.2.cyclades.com.
-
-;; AUTHORITY SECTION:
-cyclades.com.           1D IN NS        209.81.55.2.cyclades.com.
-cyclades.com.           1D IN NS        209.81.59.2.cyclades.com.
-cyclades.com.           1D IN NS        209.81.9.151.cyclades.com.
-cyclades.com.           1D IN NS        200.230.227.66.cyclades.com.
-......
-
-% dig mx gsl.kralupy.cz
-......
-;; ANSWER SECTION:
-gsl.kralupy.cz.         1D IN MX        10 194.213.206.70.kralupy.cz.
-
-;; AUTHORITY SECTION:
-kralupy.cz.             1D IN NS        kpy01.kralupy.cz.
-kralupy.cz.             1D IN NS        sa.kra.cesnet.cz.
-......
-
-
-  In case of  cyclades.com  the DNS administrator has made a double
-mistake by listing IP addresses also in NS pointers -- while the usual
-resolver codes use  gethostbyname() (or getaddrinfo()), the DNS servers
-are different animals alltogether.
-
-The IPv4 address-LIKE data in MX records works mostly due to (an unhappy)
-coincidence in the usual BSD/bind resolver libraries, where gethostbyname()
-has also habit of parsing address literal to binary address.
-
-NSes and MXes must ALWAYS point to NAMEs with A/AAAA/A6 records for
-them, specifically those names MUST NOT be CNAMEs.   With NSes the
-proper glue resolving is even more important.  The DNS servers won't
-work quickly if they need to go fishing pointer data far and wide.
-
-Indeed they will abandon the search quite soon if resolving needs
-very deep recursions (more than 2-3 levels) for things like "to find
-the NSes for zone X one looks up zone Y NSes, learns that they are
-pointing to zone Z, looks it up and is delegated to zone W, now finding
-Address of DNS server of Z, asking it, finding address of NS of Y,
-asking there data for zone X ...
-
-Now you think that nobody can be that stupid.
-Unfortunately that is quite common.
-
-Therefore (the thinking goes) having IP address literals in place of
-Domain Names will short the resolving path, and yield quicker convergence.
-Nice, but for NS pointers it doesn't matter what you put into your own
-zone, only what is on the zone ABOVE yours will matter.
-
-
-Always do suspect your own (email) DNS setup, stupidities like these
-above are creeping around.
-
-
-How VGER sees your DNS setup situation can be asked from web-page:
-
-  http://vger.kernel.org/mxverify.html
-
-by giving your email address there.
-
-
-
-Answer to the self-education question above:
-
-  The NAME fields in usual BIND systems get appended the current $ORIGIN
-  string value when the data in the field does not end with a dot:
-
-  Wrong:     IN MX 10  11.22.33.44
-  "Right":   IN MX 10  11.22.33.44.
-
-  The second appears at DNS lookup as "IN MX 10 11.22.33.44", which
-  is the intention aiming to use quite common misfeatures of system
-  libraries.  THERE IS NO GUARANTEE OF IT WORKING AT NON-UNIX SYSTEMS!
-  Indeed there is no guarantee of it working at UNIX systems either!
-
-/Matti Aarnio
+-- 
+- phone: +49 214 8656 283
+- job:   STOCK-WORLD Media AG, LEV .de (MY OPPINNIONS ARE MY OWN!)
+- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
+ru_RU.KOI8-R
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268832AbRHKUKC>; Sat, 11 Aug 2001 16:10:02 -0400
+	id <S268835AbRHKUeI>; Sat, 11 Aug 2001 16:34:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268834AbRHKUJv>; Sat, 11 Aug 2001 16:09:51 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27658 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268832AbRHKUJg>; Sat, 11 Aug 2001 16:09:36 -0400
-Subject: Re: [PATCH] Adaptec I2O RAID driver (kernel 2.4.7)
-To: Deanna_Bonds@adaptec.com (Bonds, Deanna)
-Date: Sat, 11 Aug 2001 21:12:03 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'),
-        Deanna_Bonds@adaptec.com (Bonds Deanna), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <no.id> from "Bonds, Deanna" at Aug 11, 2001 03:36:49 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Vf76-0003IH-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S268837AbRHKUd6>; Sat, 11 Aug 2001 16:33:58 -0400
+Received: from [24.64.63.13] ([24.64.63.13]:63680 "EHLO
+	smail-cal.shawcable.com") by vger.kernel.org with ESMTP
+	id <S268835AbRHKUdo>; Sat, 11 Aug 2001 16:33:44 -0400
+Date: Sat, 11 Aug 2001 13:32:00 -0700 (PDT)
+From: Daniel Bertrand <d.bertrand@ieee.org>
+Subject: Re: [Emu10k1-devel] [PATCH] emu10k1 againt kernel 2.4.8
+In-Reply-To: <Pine.LNX.4.33.0108111318420.847-100000@localhost.localdomain>
+X-X-Sender: <d_bertra@kilrogg>
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+Cc: linux-kernel@vger.kernel.org,
+        emu10k1-devel <emu10k1-devel@opensource.creative.com>
+Message-id: <Pine.LNX.4.33.0108111313450.959-100000@kilrogg>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I coded that, I took a snapshot of the i2o routines at 2.2.18 (I
-> think).  I still have requirement to support customers running 2.2.12 with
+Hi,
 
-Ok those will break in two cases - failed table reads and timeouts on post
-waits that then complete later. Its probably ok since you know those wont
-fail on your card
 
-> support the older kernels.  I could not find a nice way of doing something
-> similar in those kernels (2.2.12 again).  
+On Sat, 11 Aug 2001, Rui Sousa wrote:
 
-2.2.12 has known and fixed security holes so nobody should be using it 8)
- 
-I'll read over this version tomorrow morning
+> Are there any "beginner" instructions for the tools?
+
+Not yet, I'm working on it. The documentation included for now is for
+installation of the driver from CVS, anyone reading it should keep that in
+mind.
+
+> Will you be mantaining this tarball? If so we can point people
+> there from "Configure.help".
+
+The ~dbertrand/ link was a quick hack (as I don't have write access to the
+rest of the website). We should setup a proper download page linked from
+the front page.
+
+
+>
+> Rui Sousa
+> > Hi,
+> >
+> > Here's an 'emergency' tarball of the userland tools to go with it:
+> >
+> > http://opensource.creative.com/~dbertrand/emu-tools-0.9.tar.gz
+> >
+> >
+> >
+> >
+> > On Sat, 11 Aug 2001, Rui Sousa wrote:
+> >
+> > >
+> > > Patch against kernel 2.4.8:
+> > > 1. Fixes makefiles changes (can now be compiled as a module).
+> > > 2. Reverts addition of joystick.c
+> > > 3. Enables emu10k1 sequencer support.
+> > > 4. Adds documentation for the driver new features.
+> > >
+> > > Please apply,
+> > >
+> > > Rui Sousa
+> > >
+> >
+> >
+>
+>
+
+-- 
+Daniel Bertrand
+

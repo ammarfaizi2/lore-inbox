@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271865AbRIDAPH>; Mon, 3 Sep 2001 20:15:07 -0400
+	id <S271864AbRIDAUH>; Mon, 3 Sep 2001 20:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271863AbRIDAO6>; Mon, 3 Sep 2001 20:14:58 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:47073 "EHLO
+	id <S271863AbRIDAT6>; Mon, 3 Sep 2001 20:19:58 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:34018 "EHLO
 	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S271862AbRIDAOt>; Mon, 3 Sep 2001 20:14:49 -0400
-Date: Mon, 3 Sep 2001 20:14:06 -0400
+	id <S271864AbRIDATk>; Mon, 3 Sep 2001 20:19:40 -0400
+Date: Mon, 3 Sep 2001 20:20:00 -0400
 From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200109040014.f840E6m00316@devserv.devel.redhat.com>
-To: mikpe@csd.uu.se, Floydsmith@aol.com
-Cc: linux-kernel@vger.kernel.org, linux-tape@vger.kernel.org
-Subject: Re: idetape broke in 2.4.x-2.4.9-ac5 (write OK but not read) ide-scsi works in 2.4.4
-In-Reply-To: <mailman.999367801.660.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.999367801.660.linux-kernel2news@redhat.com>
+Message-Id: <200109040020.f840K0e00860@devserv.devel.redhat.com>
+To: adam@yggdrasil.com, linux-kernel@vger.kernel.org
+Subject: Re: pci_alloc_consistent for small allocations?
+In-Reply-To: <mailman.999443581.14164.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.999443581.14164.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Kernel 2.4.9-ac5 on  i686
-> >then
-> >ide-tape: ht0: I/O error, pc =  8, key =  5, asc = 2c, ascq =  0
-> >tar: /dev/ht0: Cannot read: Input/output error
-> >(writes work OK though)
+> 	In looking at the ieee1394 OHCI driver, I noticed that it
+> appears to make 104 calls to pci_alloc_consistent for data structures
+> that are 16 or 64 bytes.  Currently, on x86, pci_alloc_consistent
+> allocates at least one full page per call, so it looks like the
+> ohci1394 driver allocates 416kB per controller as a result of these
+> data structures.
 
-> - block size: The 2.4 ide-tape driver only works reliably if you
->   write data with the correct block size. If you don't write full
->   blocks the last block of data may not be readable.
+Sounds you are looking at a very obsolete codebase -or-
+something backed out pci_pool_alloc()/pci_pool_free()
+from the recent kernel...
 
-I fixed that some time ago, it's in current -ac
-if not in Linus's tree. The bug has nothing to do
-with the ASC=2c problem the original poster complained.
-
-> - HP's not-quite ATAPI drives: Don't know about your model, but the
->   HP 14(?)GB model is believed to deviate from ATAPI standards.
-
-Colorado sucks... I think I have a bug pending about it,
-did not look well yet. IIRC it was giving ASC=24, not 2c.
-I'll look it up.
+If you can reproduce this on 2.4.8, send me a note
+with detailed description of whatever you were doing
+to get your number 104, I'll fix or disspel it.
 
 -- Pete

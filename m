@@ -1,68 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262807AbSKUBhw>; Wed, 20 Nov 2002 20:37:52 -0500
+	id <S262804AbSKUBlA>; Wed, 20 Nov 2002 20:41:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262803AbSKUBhw>; Wed, 20 Nov 2002 20:37:52 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20284 "EHLO
-	flossy.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262800AbSKUBhu>; Wed, 20 Nov 2002 20:37:50 -0500
-Date: Wed, 20 Nov 2002 20:46:25 -0500
-From: Doug Ledford <dledford@redhat.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: RFC - new raid superblock layout for md driver
-Message-ID: <20021121014625.GA14063@redhat.com>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org,
-	linux-raid@vger.kernel.org
-References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au> <20021120160259.GW806@nic1-pc.us.oracle.com> <15836.7011.785444.979392@notabene.cse.unsw.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262859AbSKUBlA>; Wed, 20 Nov 2002 20:41:00 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:13551 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262804AbSKUBk6>; Wed, 20 Nov 2002 20:40:58 -0500
+Date: Wed, 20 Nov 2002 17:56:27 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: davidel@xmailserver.org
+cc: hannal@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [RFC,PATCH] remove extra sys_ in epoll system call
+Message-ID: <58880000.1037843786@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <15836.7011.785444.979392@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 10:31:47AM +1100, Neil Brown wrote:
-> I see MD and DM as quite different, though I haven't looked much as DM
-> so I could be wrong.
 
-I haven't yet played with the new dm code, but if it's like I expect it to 
-be, then I predict that in a few years, or maybe much less, md and dm will 
-be two parts of the same whole.  The purpose of md is to map from a single 
-logical device to all the underlying physical devices.  The purpose of :VM 
-code in general is to handle the creation, orginization, and mapping of 
-multiple physical devices into a single logical device.  LVM code is 
-usually shy on advanced mapping routines like RAID5, relying instead on 
-underlying hardware to handle things like that while the LVM code itself 
-just concentrates on physical volumes in the logical volume similar to how 
-linear would do things.  But, the things LVM does do that are very handy, 
-are things like adding a new disk to a volume group and having the volume 
-group automatically expand to fill the additional space, making it 
-possible to increase the size of a logical volume on the fly.
+Davide,
 
-When you get right down to it, MD is 95% advanced mapping of physical
-disks with different possibilities for redundancy and performance.  DM is
-95% advanced handling of logical volumes including snapshot support,
-shrink/grow on the fly support, labelling, sharing, etc.  The best of both
-worlds would be to make all of the MD modules be plug-ins in the DM code
-so that anyone creating a logical volume from a group of physical disks
-could pick which mapping they want used; linear, raid0, raid1, raid5, etc.  
-You would also want all the md modules inside the DM/LVM core to support
-the advanced features of LVM, with the online resizing being the primary
-one that the md modules would need to implement and export an interface
-for.  I would think that the snapshot support would be done at the LVM/DM
-level instead of in the individual md modules.
+	Is sys part of the name of epoll? That will make the
+system call actually sys_sys_epoll_*. This patch removes
+the extra sys in the places where it is not needed if that is
+the case. If it is supposed to be sys_sys then the asmlinkage
+calls should be changes to reflect that. Let me know what you
+think.
 
-Anyway, that's my take on how the two *should* go over the next year or 
-so, who knows if that's what will actually happen.
+Hanna
 
+-----
+diff -Nru linux-2.5.48/arch/um/kernel/sys_call_table.c 
+linux-epoll/arch/um/kernel/sys_call_table.c
+--- linux-2.5.48/arch/um/kernel/sys_call_table.c	Sun Nov 17 20:29:52 2002
++++ linux-epoll/arch/um/kernel/sys_call_table.c	Wed Nov 20 16:25:48 2002
+@@ -487,9 +487,9 @@
+ 	[ __NR_free_hugepages ] = sys_ni_syscall,
+ 	[ __NR_exit_group ] = sys_exit_group,
+ 	[ __NR_lookup_dcookie ] = sys_lookup_dcookie,
+-	[ __NR_sys_epoll_create ] = sys_epoll_create,
+-	[ __NR_sys_epoll_ctl ] = sys_epoll_ctl,
+-	[ __NR_sys_epoll_wait ] = sys_epoll_wait,
++	[ __NR_epoll_create ] = sys_epoll_create,
++	[ __NR_epoll_ctl ] = sys_epoll_ctl,
++	[ __NR_epoll_wait ] = sys_epoll_wait,
+         [ __NR_remap_file_pages ] = sys_remap_file_pages,
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+ 	ARCH_SYSCALLS
+diff -Nru linux-2.5.48/include/asm-i386/unistd.h 
+linux-epoll/include/asm-i386/unistd.h
+--- linux-2.5.48/include/asm-i386/unistd.h	Sun Nov 17 20:29:49 2002
++++ linux-epoll/include/asm-i386/unistd.h	Wed Nov 20 17:30:51 2002
+@@ -258,9 +258,9 @@
+ #define __NR_free_hugepages	251
+ #define __NR_exit_group		252
+ #define __NR_lookup_dcookie	253
+-#define __NR_sys_epoll_create	254
+-#define __NR_sys_epoll_ctl	255
+-#define __NR_sys_epoll_wait	256
++#define __NR_epoll_create	254
++#define __NR_epoll_ctl		255
++#define __NR_epoll_wait		256
+ #define __NR_remap_file_pages	257
+ #define __NR_set_tid_address	258
+
+diff -Nru linux-2.5.48/include/asm-ppc/unistd.h 
+linux-epoll/include/asm-ppc/unistd.h
+--- linux-2.5.48/include/asm-ppc/unistd.h	Sun Nov 17 20:29:27 2002
++++ linux-epoll/include/asm-ppc/unistd.h	Wed Nov 20 17:30:24 2002
+@@ -240,9 +240,9 @@
+ #define __NR_free_hugepages	233
+ #define __NR_exit_group		234
+ #define __NR_lookup_dcookie	235
+-#define __NR_sys_epoll_create	236
+-#define __NR_sys_epoll_ctl	237
+-#define __NR_sys_epoll_wait	238
++#define __NR_epoll_create	236
++#define __NR_epoll_ctl		237
++#define __NR_epoll_wait		238
+ #define __NR_remap_file_pages	239
+
+ #define __NR(n)	#n
+

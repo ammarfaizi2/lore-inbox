@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264322AbTIITna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264348AbTIITn3
+	id S264318AbTIITr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTIITr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:43:29 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64781
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264322AbTIITn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:43:27 -0400
-Date: Tue, 9 Sep 2003 12:43:45 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: G?bor L?n?rt <lgb@lgb.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: precise characterization of ext3 atomicity
-Message-ID: <20030909194345.GD28279@matchmail.com>
-Mail-Followup-To: G?bor L?n?rt <lgb@lgb.hu>, linux-kernel@vger.kernel.org
-References: <20030904085537.78c251b3.akpm@osdl.org> <3F576176.3010202@namesys.com> <20030904091256.1dca14a5.akpm@osdl.org> <3F57676E.7010804@namesys.com> <20030904181540.GC13676@matchmail.com> <3F578656.60005@namesys.com> <20030904132804.D15623@schatzie.adilger.int> <3F57AF79.1040702@namesys.com> <20030909130902.GE3944@openzaurus.ucw.cz> <20030909192107.GB22952@vega.digitel2002.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030909192107.GB22952@vega.digitel2002.hu>
-User-Agent: Mutt/1.5.4i
+	Tue, 9 Sep 2003 15:47:57 -0400
+Received: from mx2.it.wmich.edu ([141.218.1.94]:43702 "EHLO mx2.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S264318AbTIITrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 15:47:55 -0400
+Message-ID: <3F5E2E6F.6050803@wmich.edu>
+Date: Tue, 09 Sep 2003 15:47:59 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: scsi.h type problems?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 09, 2003 at 09:21:07PM +0200, G?bor L?n?rt wrote:
-> On Tue, Sep 09, 2003 at 03:09:02PM +0200, Pavel Machek wrote:
-> > > Yup.  That's why we confine it to a (finite #defined number) set of 
-> > > operations within one sys_reiser4 call.  At some point we will allow 
-> > > trusted user space processes to span multiple system calls (mail 
-> > > server applicances, database appliances, etc., might find this 
-> > > useful).  You might consider supporting sys_reiser4 at some point.
-> > 
-> > 
-> > Well, if you want that API to be widely usable, you should invent
-> > better name than sys_reiser4 :-).
-> 
-> Like ActiveFSControll or such? ;-)
+in scsi.h there on line 215 is a list of variabls of type u8, now this 
+is not defined as a type anywhere in scsi.h and with the only include (2 
+includes i might add) is types.h.  This file does not define any type 
+u8, rather there is a type __u8 that defines u_int8_t.  This looks like 
+a mistake in scsi.h to me. Is there any reason why this is not wrong?
 
-How about sys_group_journal_ops?
+
+
+This is found in vanilla kernels from at least test4 and i bet further 
+back as well.
+

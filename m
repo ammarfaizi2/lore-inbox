@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbRF0Gfc>; Wed, 27 Jun 2001 02:35:32 -0400
+	id <S265280AbRF0Gkm>; Wed, 27 Jun 2001 02:40:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265277AbRF0GfX>; Wed, 27 Jun 2001 02:35:23 -0400
-Received: from nw171.netaddress.usa.net ([204.68.24.71]:29880 "HELO
-	nw171.netaddress.usa.net") by vger.kernel.org with SMTP
-	id <S265201AbRF0GfP> convert rfc822-to-8bit; Wed, 27 Jun 2001 02:35:15 -0400
-Message-ID: <20010627063513.18205.qmail@nw171.netaddress.usa.net>
-Date: 27 Jun 2001 00:35:13 MDT
-From: Blesson Paul <blessonpaul@usa.net>
+	id <S265279AbRF0Gkd>; Wed, 27 Jun 2001 02:40:33 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:30730 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S265280AbRF0GkS>; Wed, 27 Jun 2001 02:40:18 -0400
+Date: 27 Jun 2001 08:31:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Subject: Re: [Re: Process creating]
-X-Mailer: USANET web-mailer (34FM.0700.17C.01)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Message-ID: <83fdx3Dmw-B@khms.westfalen.de>
+In-Reply-To: <3B395FE5.1070208@zytor.com>
+Subject: Re: [PATCH] User chroot
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <200106270332.f5R3WxU277042@saturn.cs.uml.edu> <3B395FE5.1070208@zytor.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Android
-                        IPC is my last resort. The reason is that, my present
-project is to convert a present software to run in beowlf. I am using Mosix
-which enables me to parralize the software through forking. The present
-software is highly data oriented and highly  complicated. If all the processes
-manipulates the data in the same memory area, I need not look into IPC.
-Moreover there is less need for synchronisation since the data are readonly.
-The memory mapping in  different systems are done by Mosix. It somehow enables
-me to use all the memory in different systems as if they are of single one    
-      
-                             by
-                                   Blesson
- 
-Android <android@abac.com> wrote:
+hpa@zytor.com (H. Peter Anvin)  wrote on 26.06.01 in <3B395FE5.1070208@zytor.com>:
 
->1  If I point  to a address 0x434343 in P1 and  P2, will it point to the
->same memory area.
->2  If not, I need two processes to use same process area, how to do that
->3  Will linux kernel support threading
->                             Actually I first thought about shared memory.
-But
->for my application, I need huge memory area upto 50MB or more. So 50MB of
->shared memory is no good. So I looking for any other alternatives
+> Albert D. Cahalan wrote:
 >
->                        by
->                                   Blesson
+> >
+> > Normal users can use an environment provided for them.
+> >
+> > While trying to figure out why the "heyu" program would not
+> > work on a Red Hat box, I did just this. As root I set up all
+> > the device files needed, along Debian libraries and the heyu
+> > executable itself. It was annoying that I couldn't try out
+> > my chroot environment as a regular user.
+> >
+> > Creating the device files isn't a big deal. It wouldn't be
+> > hard to write a setuid app to make the few needed devices.
+> > If we had per-user limits, "mount --bind /dev/zero /foo/zero"
+> > could be allowed. One way or another, devices can be provided.
+> >
+>
+>
+> Hell no!  This would give the user a way to subvert root or other
+> system-provided things by having device nodes or such appear where they
+> aren't expected.  NOT GOOD.
 
-1: P1 and P2 have different physical areas of memory. This is how 
-protection works.
-
-2: Why do they need to share the same memory? You can have your second
-process
-communicate with your first process through IPC.
-
-3: Linux supports threading if you include the thread library, and use the 
-appropriate
-threading process calls.
-
-Another thing you can do is have a common space on the hard drive. It's not 
-as fast as RAM,
-but it's one solution.
-
-                                                        -- Ted
+Well, only allow them where you expect them then. That's easy enough.
 
 
-
+MfG Kai

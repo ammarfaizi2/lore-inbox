@@ -1,41 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263615AbUDPTSL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 15:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUDPTSH
+	id S262190AbUDPTUp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 15:20:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbUDPTUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 15:18:07 -0400
-Received: from wilma.widomaker.com ([204.17.220.5]:7955 "EHLO
-	wilma.widomaker.com") by vger.kernel.org with ESMTP id S263615AbUDPTR4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 15:17:56 -0400
-Date: Fri, 16 Apr 2004 15:11:00 -0400
-From: Charles Shannon Hendrix <shannon@widomaker.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS and kernel 2.6.x
-Message-ID: <20040416191059.GC408@widomaker.com>
-References: <20040416011401.GD18329@widomaker.com> <1082079061.7141.85.camel@lade.trondhjem.org> <20040415185355.1674115b.akpm@osdl.org> <1082084048.7141.142.camel@lade.trondhjem.org> <20040416045924.GA4870@linuxace.com> <1082093346.7141.159.camel@lade.trondhjem.org> <20040416144433.GE2253@logos.cnet> <408001E6.7020001@treblig.org> <1082132015.2581.30.camel@lade.trondhjem.org>
+	Fri, 16 Apr 2004 15:20:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37798 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262190AbUDPTUN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 15:20:13 -0400
+Date: Fri, 16 Apr 2004 12:19:55 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Ken Ashcraft <ken@coverity.com>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, coreteam@netfilter.org
+Subject: Re: [CHECKER] Probable security holes in 2.6.5
+Message-ID: <20040416121955.Y22989@build.pdx.osdl.net>
+References: <1082134916.19301.7.camel@dns.coverity.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1082132015.2581.30.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1082134916.19301.7.camel@dns.coverity.int>; from ken@coverity.com on Fri, Apr 16, 2004 at 10:01:57AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fri, 16 Apr 2004 @ 09:13 -0700, Trond Myklebust said:
-
-> Then "some of you" can send in a proper bugreport in the usual format if
-> and when that problem actually occurs.
+* Ken Ashcraft (ken@coverity.com) wrote:
+> [BUG] overflow in SMP_ALIGN?
+> /home/kash/linux/linux-2.6.5/net/ipv6/netfilter/ip6_tables.c:1156:do_replace: ERROR:TAINT: 1144:1156:Passing unbounded user value "(tmp).size" as arg 2 to function "copy_from_user", which uses it unsafely in model [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [SINK_MODEL=(lib,copy_from_user,user,trustingsink)]    [PATH=] 
+> 	struct ip6t_replace tmp;
+> 	struct ip6t_table *t;
+> 	struct ip6t_table_info *newinfo, *oldinfo;
+> 	struct ip6t_counters *counters;
 > 
-> So far I have NOTHING to tell me there is a problem here. Just a load of
-> people going ballistic over hot air....
+> Start --->
+> 	if (copy_from_user(&tmp, user, sizeof(tmp)) != 0)
+> 		return -EFAULT;
+> 
+> 	/* Pedantry: prevent them from hitting BUG() in vmalloc.c --RR */
+> 	if ((SMP_ALIGN(tmp.size) >> PAGE_SHIFT) + 2 > num_physpages)
+> 		return -ENOMEM;
+> 
+> 	newinfo = vmalloc(sizeof(struct ip6t_table_info)
+> 			  + SMP_ALIGN(tmp.size) * NR_CPUS);
+> 	if (!newinfo)
+> 		return -ENOMEM;
+> 
+> Error --->
+> 	if (copy_from_user(newinfo->entries, user + sizeof(tmp),
+> 			   tmp.size) != 0) {
+> 		ret = -EFAULT;
+> 		goto free_newinfo;
 
-Several people are reporting a problem and discussing it, but I don't
-see any of them going ballistic.
+I don't think there's an overflow here.  Just possiblity of large
+allocations.  Seems sane to me to have some limits.  Also nothing
+seems to sanity check against the tmp.num_counters sized vmalloc().
+I do believe these are protected by capable() check.
 
+> ---------------------------------------------------------
+> [BUG] overflow in SMP_ALIGN?
+> /home/kash/linux/linux-2.6.5/net/ipv4/netfilter/arp_tables.c:891:do_replace: ERROR:TAINT: 875:891:Passing unbounded user value "(tmp).size" as arg 2 to function "copy_from_user", which uses it unsafely in model [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [SINK_MODEL=(lib,copy_from_user,user,trustingsink)]    [PATH=] 
+> 	struct arpt_replace tmp;
+> 	struct arpt_table *t;
+> 	struct arpt_table_info *newinfo, *oldinfo;
+> 	struct arpt_counters *counters;
+> 
+> Start --->
+> 	if (copy_from_user(&tmp, user, sizeof(tmp)) != 0)
+> 
+> 	... DELETED 10 lines ...
+> 
+> 	newinfo = vmalloc(sizeof(struct arpt_table_info)
+> 			  + SMP_ALIGN(tmp.size) * NR_CPUS);
+> 	if (!newinfo)
+> 		return -ENOMEM;
+> 
+> Error --->
+> 	if (copy_from_user(newinfo->entries, user + sizeof(tmp),
+> 			   tmp.size) != 0) {
+> 		ret = -EFAULT;
+> 		goto free_newinfo;
 
+There's a couple checks here:
 
+	/* Hack: Causes ipchains to give correct error msg --RR */
+	if (len != sizeof(tmp) + tmp.size)
+		return -ENOPROTOOPT;
+
+	/* Pedantry: prevent them from hitting BUG() in vmalloc.c --RR */
+	if ((SMP_ALIGN(tmp.size) >> PAGE_SHIFT) + 2 > num_physpages)
+		return -ENOMEM;
+
+Are these sufficient to limit considering the allocation is sized by
+'SMP_ALIGN(tmp.size) * NR_CPUS'?  And nothing checking tmp.num_counters.
+Again, protected by capable().
+
+> ---------------------------------------------------------
+> [BUG] overflow in SMP_ALIGN?
+> /home/kash/linux/linux-2.6.5/net/ipv4/netfilter/ip_tables.c:1074:do_replace: ERROR:TAINT: 1058:1074:Passing unbounded user value "(tmp).size" as arg 2 to function "copy_from_user", which uses it unsafely in model [SOURCE_MODEL=(lib,copy_from_user,user,taintscalar)] [SINK_MODEL=(lib,copy_from_user,user,trustingsink)]    [PATH=] 
+> 	struct ipt_replace tmp;
+> 	struct ipt_table *t;
+> 	struct ipt_table_info *newinfo, *oldinfo;
+> 	struct ipt_counters *counters;
+> 
+> Start --->
+> 	if (copy_from_user(&tmp, user, sizeof(tmp)) != 0)
+> 
+> 	... DELETED 10 lines ...
+> 
+> 	newinfo = vmalloc(sizeof(struct ipt_table_info)
+> 			  + SMP_ALIGN(tmp.size) * NR_CPUS);
+> 	if (!newinfo)
+> 		return -ENOMEM;
+> 
+> Error --->
+> 	if (copy_from_user(newinfo->entries, user + sizeof(tmp),
+> 			   tmp.size) != 0) {
+> 		ret = -EFAULT;
+> 		goto free_newinfo;
+
+same here.
+
+thanks,
+-chris
 -- 
-shannon "AT" widomaker.com -- ["Secrecy is the beginning of tyranny." --
-Unknown]
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

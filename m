@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbSKSCdx>; Mon, 18 Nov 2002 21:33:53 -0500
+	id <S265019AbSKSCwG>; Mon, 18 Nov 2002 21:52:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261399AbSKSCdx>; Mon, 18 Nov 2002 21:33:53 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:48132 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261398AbSKSCdw>; Mon, 18 Nov 2002 21:33:52 -0500
-Date: Tue, 19 Nov 2002 02:40:32 +0000
-From: John Levon <levon@movementarian.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Module Refcount & Stuff mini-FAQ
-Message-ID: <20021119024032.GA99837@compsoc.man.ac.uk>
-References: <20021118230821.8F3822C241@lists.samba.org>
+	id <S265114AbSKSCwG>; Mon, 18 Nov 2002 21:52:06 -0500
+Received: from mnh-1-30.mv.com ([207.22.10.62]:18693 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S265019AbSKSCwF>;
+	Mon, 18 Nov 2002 21:52:05 -0500
+Message-Id: <200211190303.WAA06025@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] UML device configuration reporting
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021118230821.8F3822C241@lists.samba.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *18DyJU-000CkV-00*8Hh21B6HCQo* (Manchester Computing, University of Manchester)
+Date: Mon, 18 Nov 2002 22:03:30 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 19, 2002 at 09:58:56AM +1100, Rusty Russell wrote:
+Please pull 
+	http://jdike.stearns.org:5000/mconfig-2.5
 
->    The previous code required to implement the two module loading
->    system call, the module querying system call, and the /proc/ksyms
->    output, required a little more code than the current x86 linker.
+This update allows the UML device drivers to report their configurations
+to the host.
 
-This makes it sound like you're not bringing /proc/ksyms back (or an
-equivalent to let userspace know where modules are loaded). I hope this
-isn't the case...
+				Jeff
 
-regards
-john
 
--- 
-Khendon's Law: If the same point is made twice by the same person,
-the thread is over.
+ arch/um/drivers/chan_kern.c     |   66 ++++++++++++++++++++++++++++-
+ arch/um/drivers/fd.c            |    6 ++
+ arch/um/drivers/line.c          |   91 +++++++++++++++++++++++++++++++++++-----
+ arch/um/drivers/mconsole_kern.c |   62 +++++++++++++++++++++++++--
+ arch/um/drivers/null.c          |    5 +-
+ arch/um/drivers/port_user.c     |    9 +++
+ arch/um/drivers/pty.c           |   17 ++++++-
+ arch/um/drivers/ssl.c           |   32 +++++++++++++-
+ arch/um/drivers/stdio_console.c |   30 ++++++++++++-
+ arch/um/drivers/tty.c           |    8 ++-
+ arch/um/drivers/ubd_kern.c      |   39 +++++++++++++++++
+ arch/um/drivers/xterm.c         |    4 +
+ arch/um/include/chan_kern.h     |    3 +
+ arch/um/include/chan_user.h     |    3 -
+ arch/um/include/line.h          |   11 +++-
+ arch/um/include/mconsole_kern.h |   16 ++++++-
+ 16 files changed, 371 insertions(+), 31 deletions(-)
+
+ChangeSet@1.843, 2002-11-18 15:57:40-05:00, jdike@uml.karaya.com
+  Merged the get_config changes from 2.4.
+
+

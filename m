@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265674AbSJSUsx>; Sat, 19 Oct 2002 16:48:53 -0400
+	id <S265678AbSJSU6n>; Sat, 19 Oct 2002 16:58:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265675AbSJSUsx>; Sat, 19 Oct 2002 16:48:53 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:44722 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S265674AbSJSUsx>; Sat, 19 Oct 2002 16:48:53 -0400
-Message-ID: <3DB1C9B2.3030500@kegel.com>
-Date: Sat, 19 Oct 2002 14:08:02 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: "Charles 'Buck' Krasic" <krasic@acm.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-aio <linux-aio@kvack.org>
-Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
-References: <Pine.LNX.4.44.0210181241300.1537-100000@blue1.dev.mcafeelabs.com>	<3DB0AD79.30401@netscape.com> <20021019065916.GB17553@mark.mielke.cc>	<3DB19AE6.6020703@kegel.com> <xu4u1jitg5v.fsf@brittany.cse.ogi.edu> <xu4ptu6tc5t.fsf@brittany.cse.ogi.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265680AbSJSU6n>; Sat, 19 Oct 2002 16:58:43 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:34176 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265678AbSJSU6l>;
+	Sat, 19 Oct 2002 16:58:41 -0400
+Date: Sat, 19 Oct 2002 23:04:34 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Jens Axboe <axboe@suse.de>, Jan Dittmer <jan@jandittmer.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: Oops on boot with TCQ enabled (VIA KT133A)
+Message-ID: <20021019230434.A800@ucw.cz>
+References: <200210190241.49618.jan@jandittmer.de> <20021019091518.GG871@suse.de> <20021019222403.B3018@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021019222403.B3018@ucw.cz>; from vojtech@suse.cz on Sat, Oct 19, 2002 at 10:24:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Charles 'Buck' Krasic wrote:
- >>In summary, a short count is every bit as reliable as EAGAIN to know
- >>that it is safe to wait on epoll_getevents.
- >
-> Whoops.  I just realized a flaw in my own argument.  
+On Sat, Oct 19, 2002 at 10:24:03PM +0200, Vojtech Pavlik wrote:
+
+> > It's not an oops, and it's not causes by TCQ either. The above is simply
+> > a reminder to fix the ide init sequence, because it's probe sequence
+> > tries to use drive->disk before it has been set up. That is worked
+> > around, but stack is dumped for good measure. So you can feel
+> > comfortable using 2.5.44 regardless.
+> > 
+> > But I'm curious about TCQ on your system, since another VIA user
+> > reported problems. Does it appear to work for you?
 > 
-> With read, a short count might precede EOF.  Indeed, in that case,
-> calling epoll_getevents would cause the connection to get stuck.
+> It definitely works on my VIA just fine.
 
-Maybe epoll should be extended with a specific EOF event.
-Then short reads would be fine.
-- Dan
+Famous last words. I tried to play with the /proc using_tcq setting and
+got a filesystem corruption immediately.
 
+-- 
+Vojtech Pavlik
+SuSE Labs

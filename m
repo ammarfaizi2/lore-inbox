@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289578AbSAONlJ>; Tue, 15 Jan 2002 08:41:09 -0500
+	id <S289500AbSAONq2>; Tue, 15 Jan 2002 08:46:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289549AbSAONlA>; Tue, 15 Jan 2002 08:41:00 -0500
-Received: from pat.uio.no ([129.240.130.16]:50323 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S289578AbSAONkv>;
-	Tue, 15 Jan 2002 08:40:51 -0500
-MIME-Version: 1.0
+	id <S289507AbSAONqS>; Tue, 15 Jan 2002 08:46:18 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16400 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289500AbSAONqK>; Tue, 15 Jan 2002 08:46:10 -0500
+Date: Tue, 15 Jan 2002 13:57:56 +0000
+From: Alan Cox <alan@aunt-tillie.org>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: "T. A." <tkhoadfdsaf@hotmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        esr@thyrsus.com
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020115135756.A19738@lightning.swansea.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@aunt-tillie.org>,
+	Giacomo Catenazzi <cate@debian.org>,
+	"T. A." <tkhoadfdsaf@hotmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	esr@thyrsus.com
+In-Reply-To: <fa.fslncfv.r6o11i@ifi.uio.no> <fa.hqe5uev.c60cjs@ifi.uio.no> <3C4427F6.3010703@debian.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15428.12621.682479.589568@charged.uio.no>
-Date: Tue, 15 Jan 2002 14:40:29 +0100
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, Hans-Peter Jansen <hpj@urpla.net>,
-        linux-kernel@vger.kernel.org,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [BUG] symlink problem with knfsd and reiserfs 
-In-Reply-To: <15428.14268.730698.637522@laputa.namesys.com>
-In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de>
-	<15428.6953.453942.415989@charged.uio.no>
-	<15428.14268.730698.637522@laputa.namesys.com>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C4427F6.3010703@debian.org>; from cate@debian.org on Tue, Jan 15, 2002 at 02:00:38PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Nikita Danilov <Nikita@Namesys.COM> writes:
+On Tue, Jan 15, 2002 at 02:00:38PM +0100, Giacomo Catenazzi wrote:
+> How many people try new kernel with the wrong CPU configuration?
+> (and mornally user know the name of own CPU, with netcards this is
+> more difficult).
 
-     > Yes, inode->i_generation is stored in the file handle:
-     > fs/reiserfs/inode.c:reiserfs_dentry_to_fh().
+All of us get the CPU wrong. By using modules however I don't have to guess
+the PCI devices. My system already did that. I just need the configurator
+to hit M a lot and to work out which root devices are for the initrd.
 
-But what is stored in inode->i_generation? AFAICS
+The code for that exists
 
-     inode->i_generation = le32_to_cpu (INODE_PKEY (inode)->k_dir_id);
+> PCI, USB and ISAPNP detection works well.
+> ISA is a further step.
+> I will send Eric the new detections and database for new probes (for ISA
+> and others) drivers. So I hope also the ISA thread will end.
 
-which appears not to be a unique generation count. Isn't that instead
-the directory's object id?
+I suspect ISA is a dead loss - but again build all the modules, the user
+system already has the right ones to load configured.
 
-The point of i_generation is to provide a unique number that changes
-every time you reuse the inode number.
+Alan
 
-Cheers,
-  Trond

@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268168AbUHKTD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268175AbUHKTIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268168AbUHKTD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268173AbUHKTD3
+	id S268175AbUHKTIA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 15:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268176AbUHKTIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:03:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32428 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268168AbUHKTD1 (ORCPT
+	Wed, 11 Aug 2004 15:08:00 -0400
+Received: from pop.gmx.net ([213.165.64.20]:61646 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268175AbUHKTH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:03:27 -0400
-Subject: Re: Building on platforms other than Linux
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Benno <benjl@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040811185453.GA7217@mars.ravnborg.org>
-References: <20040811091349.GX862@cse.unsw.edu.au>
-	 <20040811185453.GA7217@mars.ravnborg.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-T+jmJ1TXWbGOb/xdGYsy"
-Organization: Red Hat UK
-Message-Id: <1092250991.2816.21.camel@laptop.fenrus.com>
+	Wed, 11 Aug 2004 15:07:58 -0400
+X-Authenticated: #4399952
+Date: Wed, 11 Aug 2004 21:18:08 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+Message-Id: <20040811211808.48bd6b1d@mango.fruits.de>
+In-Reply-To: <20040811124342.GA17017@elte.hu>
+References: <20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu>
+	<20040810132654.GA28915@elte.hu>
+	<1092174959.5061.6.camel@mindpipe>
+	<20040811073149.GA4312@elte.hu>
+	<20040811074256.GA5298@elte.hu>
+	<1092210765.1650.3.camel@mindpipe>
+	<20040811090639.GA8354@elte.hu>
+	<20040811141649.447f112f@mango.fruits.de>
+	<20040811124342.GA17017@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 11 Aug 2004 21:03:11 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 11 Aug 2004 14:43:42 +0200
+Ingo Molnar <mingo@elte.hu> wrote:
 
---=-T+jmJ1TXWbGOb/xdGYsy
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> so you can only trigger the latencies via mlockall-test if jackd is
+> also running? Or do the latencies only trigger in jackd (and related 
+> programs)?
+
+Hi,
+
+i also want to say that some of the sprocadic xruns i see do also not
+seem to be cause by latencies. The preempt timing reports i saw where
+rather results of the xrun_debug reports i think..
+
+How do i come to this conclusion? Well i have jack running w/o ALSA
+xrun_debug reports but with preempt timing running for quite a while and
+i see about the same number of xruns as before, but i don't see any
+preempt timing reports anymore...
+
+So i think jackd itself is doing some weird stuff. Or the driver of my
+soundcard. 
+
+Flo
 
 
-> [I recall Red Hat already disables the shared library??]
-
-we don't do no such thing, sir. :-)
-
-
---=-T+jmJ1TXWbGOb/xdGYsy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD4DBQBBGm1vxULwo51rQBIRAv8HAJ9+zxomSjLQCrN9sqtVQknGWlPu3QCVEDPE
-xo6kiJyKX6MysOhKPF06MQ==
-=u2p1
------END PGP SIGNATURE-----
-
---=-T+jmJ1TXWbGOb/xdGYsy--
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/
 

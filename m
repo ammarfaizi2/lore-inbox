@@ -1,147 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267729AbTADAMy>; Fri, 3 Jan 2003 19:12:54 -0500
+	id <S267745AbTADA0C>; Fri, 3 Jan 2003 19:26:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267731AbTADAMt>; Fri, 3 Jan 2003 19:12:49 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:40632 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267729AbTADAMk>;
-	Fri, 3 Jan 2003 19:12:40 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sat, 4 Jan 2003 01:21:11 +0100 (MET)
-Message-Id: <UTC200301040021.h040LB128544.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: inquiry in scsi_scan.c
+	id <S267744AbTADAYs>; Fri, 3 Jan 2003 19:24:48 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:65447 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S267743AbTADAY1>;
+	Fri, 3 Jan 2003 19:24:27 -0500
+Subject: 2.5.54: Re: [PATCH][CFT] kexec (rewrite) for 2.5.52
+From: Andy Pfiffer <andyp@osdl.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>, suparna@in.ibm.com
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Werner Almesberger <wa@almesberger.net>
+In-Reply-To: <20021231200519.A2110@in.ibm.com>
+References: <m1smwql3av.fsf@frodo.biederman.org> 
+	<20021231200519.A2110@in.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 03 Jan 2003 16:32:51 -0800
+Message-Id: <1041640372.12182.51.camel@andyp>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got a new USB device and noticed some scsi silliness while playing with it.
+On Tue, 2002-12-31 at 06:35, Suparna Bhattacharya wrote:
+> On Sun, Dec 22, 2002 at 04:07:52AM -0700, Eric W. Biederman wrote:
+> > 
+> > I have recently taken the time to dig through the internals of
+> > kexec to see if I could make my code any simpler and have managed
+> > to trim off about 100 lines, and have made the code much more
+> > obviously correct.
+> > 
+> > Anyway, I would love to know in what entertaining ways this code blows
+> > up, or if I get lucky and it doesn't.  I probably will not reply back
+> > in a timely manner as I am off to visit my parents, for Christmas and
+> > New Years.  
+> > 
 
-A bug in scsi_scan.c is
+Eric,
 
-        sdev->inquiry = kmalloc(sdev->inquiry_len, GFP_ATOMIC);
-        memcpy(sdev->inquiry, inq_result, sdev->inquiry_len);
-        sdev->vendor = (char *) (sdev->inquiry + 8);
-        sdev->model = (char *) (sdev->inquiry + 16);
-        sdev->rev = (char *) (sdev->inquiry + 32);
+The patch applied cleanly to 2.5.54 for me.
 
-since it happens that inquiry_len is short (in my case it is 5)
-and the vendor/model/rev pointers are wild.
-Catting /proc/scsi/scsi now yields random garbage.
+The kexec portion works just fine and the reboot discovers all of the
+memory on my system using kexec_tools 1.8.
 
-I made a patch but hesitated between a small patch and a larger one.
-Why do we have this malloced inquiry field? As far as I can see
-nobody uses it. And the comment in scsi_add_lun() advises us
-not to save the inquiry, precisely what we did until recently.
-So, should this change from 2.5.11 be reverted?
+However, something has recently changed in the 2.5.5x series that causes
+the reboot to hang while calibrating the delay loop after a kexec
+reboot:
 
-Andries
+setup16_end: 00091b2f
+Synchronizing SCSI caches: 
+Shutting down devices      
+Starting new kernel  
+Linux version 2.5.54 (andyp@joe) (gcc version 2.95.3 20010315 (SuSE)) #2
+SMP Fri Jan 3 21:36:51 PST 2003
+Video mode to be used for restore is ffff
+BIOS-provided physical RAM map:          
+ BIOS-e820: 0000000000000000 - 000000000009dc00 (usable)
+ BIOS-e820: 000000000009dc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000027fed140 (usable)  
+ BIOS-e820: 0000000027fed140 - 0000000027ff0000 (ACPI data)
+ BIOS-e820: 0000000027ff0000 - 0000000028000000 (reserved) 
+ BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+639MB LOWMEM available.                                   
+found SMP MP-table at 0009ddd0
+hm, page 0009d000 reserved twice.
+hm, page 0009e000 reserved twice.
+hm, page 0009d000 reserved twice.
+hm, page 0009e000 reserved twice.
+WARNING: MP table in the EBDA can be UNSAFE, contact
+linux-smp@vger.kernel.org if you experience SMP problems!
+On node 0 totalpages: 163821  
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 159725 pages, LIFO batch:16
+  HighMem zone: 0 pages, LIFO batch:1     
+Intel MultiProcessor Specification v1.4
+    Virtual Wire compatibility mode.   
+OEM ID: IBM ENSW Product ID: xSeries 220  APIC at: 0xFEE00000
+Processor #0 6:8 APIC version 17                             
+I/O APIC #14 Version 17 at 0xFEC00000.
+I/O APIC #13 Version 17 at 0xFEC01000.
+Enabling APIC mode:  Flat.  Using 2 I/O APICs
+Processors: 1                                
+IBM machine detected. Enabling interrupts during APM calls.
+IBM machine detected. Disabling SMBus accesses.            
+Building zonelist for node : 0                 
+Kernel command line: auto BOOT_IMAGE=linux-2.5 ro root=805
+console=ttyS0,9600n8
+Initializing
+CPU#0                                                             
+Detected 799.578 MHz processor.
+Console: colour VGA+ 80x25     
+Calibrating delay loop... 
+
+<wedged>
+
+This happens with -and- without the separate "hwfixes" chunk of code
+(that patch carries forward and continues to apply cleanly).
+
+It would appear that clock interrupts are no long arriving (ticks always
+equals jiffies).
+
+You can download the kexec patches for 2.5.54 from OSDL's PLM service:
+(apologies in advance for the long URL):
+https://www.osdl.org/cgi-bin/plm?module=search&search_patch=kexec-rewrite&search_created=Anytime&search_format=detailed&action=run_patch_search&sort_field=idDESC
+
+If the URL is mangled, go here:
+https://www.osdl.org/cgi-bin/plm?module=search
+and then put "kexec-rewrite" into the "Patch Name or ID" box,
+and then press "Submit Query".
+
+Key:
+kexec-rewrite-2.5.54-1-of-3-1 == your rewrite from 2002-12-22
+kexec-rewrite-2.5.54-2-of-3-1 == your "hwfixes" from 2.5.48ish
+kexec-rewrite-2.5.54-3-of-3-1 == ignore it (changes CONFIG_KEXEC=y for PLM)
+
+Regards,
+Andy
 
 
-[My present scsi_scan.c differes quite a lot from a stock one.
-Already fixed the scsi_check_id_size() some time ago.
-Below some diff fragments from today.]
-
-+/*
-+ * Do an INQUIRY with given length (minimum 5, maximum 255).
-+ * Note: many devices react badly when given an unexpected length.
-+ */
-+static int
-+scsi_do_inquiry(Scsi_Request *sreq, char *buffer, int len) {
-+       Scsi_Device *sdev = sreq->sr_device;
-+       unsigned char cmd[6];
-+       int res;
-+
-+       SCSI_LOG_SCAN_BUS(3, printk(KERN_INFO "scsi scan: INQUIRY (len %d) "
-+                                   "to host %d channel %d id %d lun %d\n",
-+                                   len, sdev->host->host_no, sdev->channel,
-+                                   sdev->id, sdev->lun));
-+
-+       memset(cmd, 0, 6);
-+       cmd[0] = INQUIRY;
-+       cmd[4] = len;
-+       sreq->sr_cmd_len = 0;
-+       sreq->sr_data_direction = SCSI_DATA_READ;
-+       memset(buffer, 0, len);
-+
-+       scsi_wait_req(sreq, (void *) cmd, (void *) buffer, len,
-+                     SCSI_TIMEOUT + 4 * HZ, 3);
-+
-+       res = sreq->sr_result;
-+       SCSI_LOG_SCAN_BUS(3, printk(res ? KERN_INFO "scsi scan: "
-+                                   "INQUIRY returned code 0x%x\n" :
-+                                   KERN_INFO "scsi scan: INQUIRY OK\n", res));
-+       return res;
-+}
-
-+/*
-+ * The inquiry length is  inq_result[4] + 5  unless overridden.
-+ */
-+static int
-+valid_inquiry_lth(int bflags, unsigned char *inq_result) {
-+       int len = ((bflags & BLIST_INQUIRY_36) ? 36 :
-+                  (bflags & BLIST_INQUIRY_58) ? 58 :
-+                  inq_result[4] + 5);
-+       if (len > 255)
-+               len = 36;       /* sanity */
-+       return len;
-+}
-
-Text in scsi_probe_lun(), including two reactions to comments:
-
-static void
-scsi_probe_lun(Scsi_Request *sreq, char *inq_result, int *bflags)
-{
-        Scsi_Device *sdev = sreq->sr_device;    /* a bit ugly */
-        unsigned char scsi_cmd[MAX_COMMAND_SIZE];
-        int res, possible_inq_resp_len;
-
-        /* first issue an inquiry with conservative alloc_length */
-        res = scsi_do_inquiry(sreq, inq_result, 36);
-
-        if (res) {
-                if ((driver_byte(res) & DRIVER_SENSE) != 0 &&
-                    (sreq->sr_sense_buffer[2] & 0xf) == UNIT_ATTENTION &&
-                    sreq->sr_sense_buffer[12] == 0x28 &&
-                    sreq->sr_sense_buffer[13] == 0) {
-                        /* not-ready to ready transition - good */
-                        /* dpg: bogus? INQUIRY never returns UNIT_ATTENTION */
-                        /* aeb: seen with an USB CF card reader */
-                } else
-                        /*
-                         * assume no peripheral if any other sort of error
-                         */
-                        return;
-        }
-
-        /*
-         * Get any flags for this device.
-         *
-         * Some devices return only 5 bytes for an INQUIRY, but the memset
-         * in scsi_do_inquiry makes sure that scsi_get_device_flags() gets
-         * well-defined arguments.
-         */
-        *bflags = scsi_get_device_flags(&inq_result[8], &inq_result[16]);
-
-        possible_inq_resp_len = valid_inquiry_lth(*bflags, inq_result);
-
-        if (possible_inq_resp_len > 36) {       /* do additional INQUIRY */
-                res = scsi_do_inquiry(sreq, inq_result, possible_inq_resp_len);
-                if (res)
-                        return;
-
-                /*
-                 * The INQUIRY can change, this means the length can change.
-                 */
-                possible_inq_resp_len = valid_inquiry_lth(*bflags, inq_result);
-        }
-
-        sdev->inquiry_len = possible_inq_resp_len;
-
-        /*
-         * Abort if the response length is less than 36?
-         * No, some USB devices just produce the minimal 5-byte INQUIRY.
-         *
-         * ...
-         */
 
 

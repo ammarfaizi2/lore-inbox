@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbUKRXld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbUKRUtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbUKRXld (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262917AbUKRUtj
+	id S262955AbUKRUtY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 15:49:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262948AbUKRUtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 15:49:39 -0500
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:13034 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262904AbUKRUrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 15:47:41 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
-To: Werner Almesberger <wa@almesberger.net>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@nurfuerspam.de
-Date: Thu, 18 Nov 2004 21:48:01 +0100
-References: <fa.ev73q5c.ejcnom@ifi.uio.no> <fa.es1mdq5.76ib8j@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
+	Thu, 18 Nov 2004 15:49:07 -0500
+Received: from gold.pobox.com ([208.210.124.73]:61378 "EHLO gold.pobox.com")
+	by vger.kernel.org with ESMTP id S262906AbUKRUsw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 15:48:52 -0500
+Date: Thu, 18 Nov 2004 12:48:41 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
+Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+Subject: Re: Linux 2.4.28-rc4
+Message-ID: <20041118204841.GA11682@ip68-4-98-123.oc.oc.cox.net>
+References: <419B1813.80002@ttnet.net.tr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1CUtCE-0000us-00@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <419B1813.80002@ttnet.net.tr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
+On Wed, Nov 17, 2004 at 11:21:23AM +0200, O.Sezer wrote:
+> >Jakub JelÌnek:
+> >  o binfmt_elf: handle p_filesz == 0 on PT_INTERP section
+> 
+> Another FYI: There were two successive binfmt_elf 2.6-backports posted
+> by Barry Nathan here;  "ELF fixes for executables with huge BSS":
+> 
+> http://marc.theaimsgroup.com/?t=109850369800001&r=1&w=2
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=109850420711579&w=2
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=109850420729735&w=2
+> 
+> but it may be too late for 2.4.28.
 
-> A process could declare itself as usual suspect. This would then be
-> recorded as a per-task flag, to be inherited by children. Now, one
-> could write a launcher like this:
+Marcelo and I discussed this via private e-mail; it's in the queue for
+2.4.29-pre. I think in the end we both agreed that it's too late in the
+2.4.28 cycle to include these patches.
 
-You'll have some precompiled binaries causing trouble, while other
-precompiled binaries will be killed while you want them to stay alife.
-Sometimes you'll have the same binary (e.g. perl or java) running a
-"notme"-task like watching the log for intrusion while at the same time
-processing a very large image.
+-Barry K. Nathan <barryn@pobox.com>
 
-The best solution I can think of is attaching a kill priority (similar to
-the nice value). Before killing, this value would be added to lg_2(memsize),
-and the least desirable process would "win", even if it's sshd running wild.
-
-
-
-For the trashing problem: I like the idea of sending a signal to stop the
-process, but it should rather be a request to stop that can be caught by
-the process. A SETI-like task could save its workset and free the memory
-instead, a browser would discard it's memory cache and pause loading
-Images for the sites etc.
--- 
-The newest and least experienced soldier will usually win the Congressional
-Medal Of Honor.
-
-Friﬂ, Spammer: abuse@online-loanz.com cxePdomFs@suncoastrewards.com

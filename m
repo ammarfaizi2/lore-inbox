@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264352AbRFNBI6>; Wed, 13 Jun 2001 21:08:58 -0400
+	id <S264342AbRFNBKI>; Wed, 13 Jun 2001 21:10:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264345AbRFNBIs>; Wed, 13 Jun 2001 21:08:48 -0400
-Received: from 64-42-29-14.atgi.net ([64.42.29.14]:58372 "HELO
-	mail.clouddancer.com") by vger.kernel.org with SMTP
-	id <S264342AbRFNBIf>; Wed, 13 Jun 2001 21:08:35 -0400
-To: linux-kernel@vger.kernel.org
+	id <S264371AbRFNBJ6>; Wed, 13 Jun 2001 21:09:58 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14094 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264342AbRFNBJr>; Wed, 13 Jun 2001 21:09:47 -0400
+Date: Wed, 13 Jun 2001 22:09:40 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Daniel Dickman <ddickman@nyc.rr.com>
+Cc: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>,
+        Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: obsolete code must die
-In-Reply-To: <9g91gb$11p$1@ns1.clouddancer.com>
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> <9g91gb$11p$1@ns1.clouddancer.com>
-Reply-To: klink@clouddancer.com
-Message-Id: <20010614010834.2ECD678599@mail.clouddancer.com>
-Date: Wed, 13 Jun 2001 18:08:34 -0700 (PDT)
-From: klink@clouddancer.com (Colonel)
+In-Reply-To: <004701c0f46e$11a8a9e0$480e6c42@almlba4sy7xn6x>
+Message-ID: <Pine.LNX.4.33.0106132207340.11235-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In list.kernel, you wrote:
->
->Anyone concerned about the current size of the kernel source code? I am, and
+On Wed, 13 Jun 2001, Daniel Dickman wrote:
 
-No.  Since you are up to date with the latest in everything, I cannot
-see why you would be concerned about a few megabytes in your gigabyte
-drives.
+> Thanks for your email. I am aware of the "traditions" of the
+> Linux kernel, and this is really why I wanted to start a
+> discussion going about this.
 
+OK, so you almost certainly ARE a troll:
 
->i386, i486
->The Pentium processor has been around since 1995. Support for these older
-
-No.  Both of my cheap on-site systems for occasional access are 486s.
-Why would I spend money for a system that is hardly ever used?
-
-
->ISA bus, MCA bus, EISA bus
->PCI is the defacto standard. Get rid of CONFIG_BLK_DEV_ISAPNP,
->CONFIG_ISAPNP, etc
-
-No.  There are still plenty of unique ISA cards around.
+1) proposing to remove support for hardware many of us use
+   every day
+2) on purpose going against tradition
+3) replying private email back to the list
+4) and all this using  Microsoft Outlook ;)
 
 
->MFM/RLL/XT/ESDI hard drive support
->Does anyone still *have* an RLL drive that works? At the very least get rid
+The hints pointing towards "troll, Troll, TROLL" are
+overwhelming.
 
-OK, I haven't seen one of these for nearly 10 years.
+Lets stop the thread here.
 
+thanks,
 
->parallel/serial/game ports
->More controversial to remove this, since they are *still* in pretty wide
->use -- but USB and IEEE 1394 are the way to go. No ifs ands or buts.
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-Send me the funds to replace my laser printers please.
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
->a.out
->Who needs it anymore. I love ELF.
-
-OK, everything that I had in a.out was converted within a year of
-ELF's introduction.
-
-
->I really think doing a clean up is worthwhile. Maybe while looking for stuff
-
-You left out all the old non-IDE CDROM drives.
- 
-
-<PS. thanks for the testing of my new archive>

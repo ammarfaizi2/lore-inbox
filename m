@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbTJWUXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 16:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTJWUXY
+	id S261806AbTJWUXR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 16:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTJWUXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 16:23:24 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44284 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261807AbTJWUXU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 16:23:20 -0400
-Message-ID: <3F9838B4.5010401@mvista.com>
-Date: Thu, 23 Oct 2003 13:23:16 -0700
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: john stultz <johnstul@us.ibm.com>, Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix time after suspend-to-*
-References: <20031022233306.GA6461@elf.ucw.cz> <1066866741.1114.71.camel@cog.beaverton.ibm.com> <20031023081750.GB854@openzaurus.ucw.cz>
-In-Reply-To: <20031023081750.GB854@openzaurus.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 23 Oct 2003 16:23:17 -0400
+Received: from ns.suse.de ([195.135.220.2]:8632 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261806AbTJWUXP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 16:23:15 -0400
+Date: Thu, 23 Oct 2003 22:23:14 +0200
+From: Olaf Hering <olh@suse.de>
+To: laurent.ml@linuxfr.org
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.23-pre8
+Message-ID: <20031023202314.GA18436@suse.de>
+References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet> <wazza.87ad7sf07j.fsf@message.id>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <wazza.87ad7sf07j.fsf@message.id>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>>+static int pit_resume(struct sys_device *dev)
->>>+{
->>>+	if (got_clock_diff) {	/* Must know time zone in order to set clock */
->>>+		xtime.tv_sec = get_cmos_time() + clock_cmos_diff;
->>>+		xtime.tv_nsec = 0; 
->>>+	} 
->>>+	return 0;
->>>+}
->>>+
-> 
-> ...
-> 
->>Forgive me, I'm not totally familiar w/ the sysfs/pm stuff, but normally
->>you need to have the xtime_lock to safely manipulate xtime. Also,
->>couldn't you just call settimeofday() instead?  The bit about manually
->>setting the timezone also confuses me, as we don't normally do this at
->>bootup in the kernel.  
->>
-> 
-> 
-> I took it straight from apm.c... But it is well possible that it needs
-> some locking. OTOH this runs with interrupts disabled, perhaps
-> thats enough?
+ On Thu, Oct 23, laurent.ml@linuxfr.org wrote:
 
-I lost (never saw) the first of this thread, BUT, if this is 2.6, I strongly 
-recommend that settimeofday() NOT be called.  It will try to adjust 
-wall_to_motonoic, but, as this appears to be a correction for time lost while 
-sleeping, wall_to_monotonic should not change.
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+> 
+> >   o [IRDA]: Fix build with gcc-3.4
+> 
+> Tell me if I'm wrong, it seems 2 comas are missing.
 
-As to locking, ints off for UP, but you need the full lock for SMP systems.
+That patch is ok, thanks for spotting. It seems I had that not in my
+.config
+
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+USB is for mice, FireWire is for men!
 
+sUse lINUX ag, nÜRNBERG

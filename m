@@ -1,89 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290793AbSAaBIS>; Wed, 30 Jan 2002 20:08:18 -0500
+	id <S290792AbSAaBQ6>; Wed, 30 Jan 2002 20:16:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290792AbSAaBIJ>; Wed, 30 Jan 2002 20:08:09 -0500
-Received: from codepoet.org ([166.70.14.212]:22720 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S290790AbSAaBHx>;
-	Wed, 30 Jan 2002 20:07:53 -0500
-Date: Wed, 30 Jan 2002 18:07:52 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] fix for 2.4.18-pre7 SCSI namespace conflict
-Message-ID: <20020131010752.GA26871@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <20020130234847.GA25577@codepoet.org> <E16W5AC-0000a5-00@the-village.bc.nu>
+	id <S290795AbSAaBQt>; Wed, 30 Jan 2002 20:16:49 -0500
+Received: from mail1.amc.com.au ([203.15.175.2]:13829 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S290792AbSAaBQf>;
+	Wed, 30 Jan 2002 20:16:35 -0500
+Message-Id: <5.1.0.14.0.20020131115023.02652d60@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 31 Jan 2002 12:16:29 +1100
+To: linux-kernel@vger.kernel.org
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: A modest proposal -- We need a patch penguin
+Cc: Daniel Egger <degger@fhm.edu>, Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <1012396396.32247.2.camel@sonja>
+In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
+ <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16W5AC-0000a5-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Jan 31, 2002 at 12:33:16AM +0000, Alan Cox wrote:
-> > This is in the latest -ac kernels?  Cool, I'll go take a close
-> > look.  I'm very anxious to see a SCSI layer that doesn't suck
-> > get put in place,
-> 
-> The scsi mid layer is a seperate problem, and its getting there already in
-> 2.5. Chunks of nasty scsi special cases keep dissappearing with the bio stuff
-> 
-> The NCR5380 stuff fixes what was an amazingly crufty unmaintained driver
+At 02:13 PM 30/01/02 +0100, Daniel Egger wrote:
+>Am Mit, 2002-01-30 um 00.50 schrieb Linus Torvalds:
+>
+> > Or look at USB: I get the USB patches from Greg, and he gets them from
+> > various different people. Johannes Erdfelt is the maintainer for uhci.c,
+> > and he sends them to Greg, not to me.
+>
+>What about creating a small document that states who's the correct
+>recipient for a subsystem? This would prevent dotzends of questions
+>like "Where do I send my patches?" and turn them into a RTFF.
 
-Nice work.  Just for giggles I decided to compile in the whole
-pile of SCSI drivers.  Some namespace issues vs NCR5380 popped up
-pretty quickly...  It turns out that pas16.c, t128.c, dmx3191d.c,
-and dtc.c have taken the misguided approach of doing a 
-    #include "NCR5380.c" 
-Ick!  Clearly there is an important uniform SCSI driver layer
-that is entirely missing since driver authors are tempted to save  
-time by doing wholesale #includes of other drivers....
+A reworking of MAINTAINERS could be beneficial and help achieve this.
 
-Anyways, here is the bug:
+Linus mentioned that he prefers to look at the code to see who to talk to. 
+Others have mentioned this may be nice, but makes it hard to get some sort 
+of overall view, plus since programmers can be inconsistent in stuff like 
+this, it may not always happen. How about we turn the problem upside down, 
+and figure out how to get the code easily referenced in MAINTAINERS?
 
-    pas16.o: In function `NCR5380_timer_fn':
-    pas16.o(.text+0x35c): multiple definition of `NCR5380_timer_fn'
-    g_NCR5380.o(.text+0x2ec): first defined here
-    t128.o: In function `NCR5380_timer_fn':
-    t128.o(.text+0x2cc): multiple definition of `NCR5380_timer_fn'
-    g_NCR5380.o(.text+0x2ec): first defined here
-    dmx3191d.o: In function `NCR5380_timer_fn':
-    dmx3191d.o(.text+0x2bc): multiple definition of `NCR5380_timer_fn'
-    g_NCR5380.o(.text+0x2ec): first defined here
-    dtc.o: In function `NCR5380_timer_fn':
-    dtc.o(.text+0x30c): multiple definition of `NCR5380_timer_fn'
-    g_NCR5380.o(.text+0x2ec): first defined here
-    make[3]: *** [scsidrv.o] Error 1
-    make[3]: Leaving directory `/home/andersen/imager/linux/drivers/scsi'
-    make[2]: *** [first_rule] Error 2
-    make[2]: Leaving directory `/home/andersen/imager/linux/drivers/scsi'
-    make[1]: *** [_subdir_scsi] Error 2
-    make[1]: Leaving directory `/home/andersen/imager/linux/drivers'
-    make: *** [_dir_drivers] Error 2
+What I'm thinking is that we could add (multiple?) lines into MAINTAINERS 
+that specify the actual FILES in the kernel (in reference to linux/) that 
+someone works on or maintains. We don't have to list every file (wildcards, 
+regex's, etc, can work too), plus you can list the maintainers of various 
+areas of the code (such as generic maintainers of all the files under a 
+part of the kernel file tree) by just listing what directories they 
+control. Something so that it's dead simple to extract who maintains this file.
+
+Here's a possible example:
+
+Say I'm looking at the SiS/Trident Audio Driver, and I have a patch I want 
+to send to a maintainer. The file I'm working on is:
+
+linux/drivers/sound/trident.*
+
+If I could easily search MAINTAINERS for who maintains this file, I'm made. 
+If I can't find that, I start trimming the search (to say 
+linux/drivers/sound/, which would be the sound maintainer).
+
+If we say add an F: field to maintainers (at the end of the maintainers 
+record), you can easily do things like...
+
+grep -B 10 "F: linux/drivers/sound/trident" /usr/src/linux/MAINTAINERS
+
+...and get some sort of results (-B is "before context, which displays 
+lines before the found line, and is quite useful in this sort of situation) 
+that help. This is just a quick and dirty example, and I'm sure someone 
+could easily write a small script that could parse the output better, do 
+things like automatically cut the search back till it finds a match, etc.
+
+This could also be used to figure out a tree of who does what, which is 
+probably not a bad idea.
+
+Just an idea of course. *grin*
 
 
-Here is a trivial and "obviously correct" fix.
+Stuart Young - sgy@amc.com.au
+(aka Cefiar) - cefiar1@optushome.com.au
 
---- linux/drivers/scsi.orig/NCR5380.c	Fri Dec 21 10:41:55 2001
-+++ linux/drivers/scsi/NCR5380.c	Wed Jan 30 17:56:42 2002
-@@ -612,7 +612,7 @@
-  *	Locks: disables irqs, takes and frees io_request_lock
-  */
-  
--void NCR5380_timer_fn(unsigned long unused)
-+static void NCR5380_timer_fn(unsigned long unused)
- {
- 	struct Scsi_Host *instance;
- 
- -Erik
+[All opinions expressed in the above message are my]
+[own and not necessarily the views of my employer..]
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

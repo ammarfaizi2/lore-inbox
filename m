@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbUKRVSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbUKRVU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbUKRVSt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 16:18:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUKRVQg
+	id S261178AbUKRVU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 16:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUKRVS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 16:16:36 -0500
-Received: from almesberger.net ([63.105.73.238]:52491 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S261173AbUKRVP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 16:15:59 -0500
-Date: Thu, 18 Nov 2004 18:15:41 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: 7eggert@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
-Message-ID: <20041118181540.U28844@almesberger.net>
-References: <fa.ev73q5c.ejcnom@ifi.uio.no> <fa.es1mdq5.76ib8j@ifi.uio.no> <E1CUtCE-0000us-00@be1.7eggert.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CUtCE-0000us-00@be1.7eggert.dyndns.org>; from 7eggert@gmx.de on Thu, Nov 18, 2004 at 09:48:01PM +0100
+	Thu, 18 Nov 2004 16:18:57 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:36274 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261178AbUKRVRR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 16:17:17 -0500
+Date: Thu, 18 Nov 2004 22:17:10 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Tomas Carnecky <tom@dbservice.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel thoughts of a Linux user
+In-Reply-To: <419D10DF.4040902@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.53.0411182216160.16465@yvahk01.tjqt.qr>
+References: <200411181859.27722.gjwucherpfennig@gmx.net> <419CFF73.3010407@dbservice.com>
+ <Pine.LNX.4.53.0411182146060.29376@yvahk01.tjqt.qr> <419D10DF.4040902@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert wrote:
-> You'll have some precompiled binaries causing trouble, while other
-> precompiled binaries will be killed while you want them to stay alife.
+>> So they could make themselves a favor and run something like seti@home.
+>
+>That does consume more energy than just sitting at idle.  I've seen some
+>estimates of how much it costs to run seti 24/7 rather than just sit idle, and
+>the price was something like $80/year.
 
-That's why you could use a wrapper.
+For CPUs which don't have some sort of speedstep, it does not matter.
+(Please correct me if I am wrong. It might be that HLT cycles are still more
+power-conservative even without speedstep than 24/7 on the FPU.)
 
-> Sometimes you'll have the same binary (e.g. perl or java) running a
-> "notme"-task like watching the log for intrusion while at the same time
-> processing a very large image.
 
-The wrapper could also not be part of the regular execution, and
-you'd only use it if you really need it, much like nice, chroot,
-etc.
-
-> The best solution I can think of is attaching a kill priority (similar to
-> the nice value). Before killing, this value would be added to lg_2(memsize),
-> and the least desirable process would "win", even if it's sshd running wild.
-
-I'm extremely sceptical about solutions that require the user to
-quantify things. In the world of QoS, if you give users a knob
-to play with, the'll stare at in confusion, and ask for the
-"faster" button. I don't think the OOM case is much different.
-
-A "victim" (or a "precious") flag has the advantage that the user
-doesn't need to estimate peak demands, but still doesn't depend
-solely on the verdict of some arcane algorithm working behind
-the scenes.
-
-> For the trashing problem: I like the idea of sending a signal to stop the
-> process, but it should rather be a request to stop that can be caught by
-> the process.
-
-Good idea. That would also help with the problem of browsers
-immediately asking to be brought back to life, so that they can
-spin the banner ads some more.
-
-- Werner
-
+Jan Engelhardt
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

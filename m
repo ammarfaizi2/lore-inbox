@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317686AbSGJXrp>; Wed, 10 Jul 2002 19:47:45 -0400
+	id <S317683AbSGJXrd>; Wed, 10 Jul 2002 19:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317687AbSGJXro>; Wed, 10 Jul 2002 19:47:44 -0400
-Received: from jalon.able.es ([212.97.163.2]:48537 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S317685AbSGJXrl>;
-	Wed, 10 Jul 2002 19:47:41 -0400
-Date: Thu, 11 Jul 2002 01:50:20 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Linux <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-Message-ID: <20020710235020.GA2113@werewolf.able.es>
-References: <Pine.LNX.4.44.0207101559460.5067-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44.0207101559460.5067-100000@hawkeye.luckynet.adm>; from thunder@ngforever.de on Thu, Jul 11, 2002 at 00:01:08 +0200
-X-Mailer: Balsa 1.3.6
+	id <S317685AbSGJXrd>; Wed, 10 Jul 2002 19:47:33 -0400
+Received: from ns1.system-techniques.com ([199.33.245.254]:21656 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S317683AbSGJXrb>; Wed, 10 Jul 2002 19:47:31 -0400
+Date: Wed, 10 Jul 2002 19:49:33 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Mukesh Rajan <mrajan@ics.uci.edu>
+cc: kobras@tat.physik.uni-tuebingen.de,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: HDD test bench
+In-Reply-To: <Pine.SOL.4.20.0207101636590.10900-100000@hobbit.ics.uci.edu>
+Message-ID: <Pine.LNX.4.44.0207101948100.5583-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2002.07.11 Thunder from the hill wrote:
->Hi,
+	Hello Mukesh ,  This is one that Benno Senoner <sbenno@gardena.net>
+	announced to the linux-fsdevel list some time back .  Hth ,  JimL
+
+http://www.linuxdj.com/hdrbench
+
+On Wed, 10 Jul 2002, Mukesh Rajan wrote:
+
+> hi,
 >
->On Wed, 10 Jul 2002, Andrew Morton wrote:
->> That makes a ton of sense.
->> 
->> > But on the other hand, increasing HZ has perf/latency benefits, yes? Have
->> > these been quantified?
->> 
->> Not that I'm aware of.  And I'd regard any such claims with some
->> scepticism.
->> 
->> > I'd either like to see a HZ that has balanced
->> > power/performance, or could we perhaps detect we are on a system that cares
->> > about power (aka a laptop) and tweak its value at runtime?
+> i am currently exploring some power optimization algorithm for HDs
+> exploiting multiple power states.
 >
->Want a config option? Either int or bool (CONFIG_LOW_HZ). It's not too 
->much effort.
+> i am looking for suggestions to generate a test bench simulating user
+> activity. i will have to open and read/write to files on the basis of a
+> trace file. currently i'm doing it in a very ad hoc fashion. i have some
+> 100 dummy files of varying sizes and generating random read/write
+> requests. any better way would be appreciated.
+>
+> thanks,
+> mukesh
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
 
-How about a <boot> option ? linux hz=[low,high]
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 
-It is runtime, but just one time.
 
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-rc1-jam2, Mandrake Linux 8.3 (Cooker) for i586
-gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)

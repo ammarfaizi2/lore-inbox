@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272749AbRILLSC>; Wed, 12 Sep 2001 07:18:02 -0400
+	id <S272758AbRILLSC>; Wed, 12 Sep 2001 07:18:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272758AbRILLRv>; Wed, 12 Sep 2001 07:17:51 -0400
-Received: from t2.redhat.com ([199.183.24.243]:64249 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S272755AbRILLRm>; Wed, 12 Sep 2001 07:17:42 -0400
-Message-ID: <3B9F4467.237097F1@redhat.com>
-Date: Wed, 12 Sep 2001 12:17:59 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6.4smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Black <mblack@csihq.com>, linux-kernel@vger.kernel.org
-Subject: Re: Bug still on 2.4.10?
-In-Reply-To: <00d301c13b79$56982e20$e1de11cc@csihq.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S272755AbRILLRw>; Wed, 12 Sep 2001 07:17:52 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:16139 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S272749AbRILLRj>;
+	Wed, 12 Sep 2001 07:17:39 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Distributors: /lib/modules/`uname -r`/pcmcia will be removed
+Date: Wed, 12 Sep 2001 21:17:01 +1000
+Message-ID: <1633.1000293421@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black wrote:
-> 
-> This is on 2.4.8 but I get the funny feeling this maybe hasn't been fixed
-> yet for 2.4.10:
-> 
-> Sep 11 06:58:08 yeti kernel: md: fsck.ext3(pid 151) used obsolete MD
-> ioctl(4717), upgrade your software to use new ictls.
-> I'm runing:
-> Parallelizing fsck version 1.23 (15-Aug-2001)
-> Unless maybe I just need to recompile it???
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Upgrade to 1.24 or downgrade to 1.22; 1.23 uses the wrong ioctl for some
-operations....
+Content-Type: text/plain; charset=us-ascii
+
+Older versions of pcmcia-cs used insmod with hard coded paths, newer
+versions use modprobe with just the module name and let modutils take
+care of find the module.  /lib/modules/`uname -r`/pcmcia was created in
+2.4 kernels as a temporary measure, to give pcmcia users a chance to
+upgrade their packages.  Alas, I found a distribution with a pcmcia
+install script that uses insmod and a hard coded pathname.  That will
+fail in kernel 2.5, /lib/modules/`uname -r`/pcmcia will not exist.  It
+will also fail in kernel 2.4 for anybody testing kbuild 2.5.
+
+There is never a good reason to use insmod or hard code a pathname for
+standard kernel modules in 2.4 onwards.  Use modprobe and let modutils
+do the work.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE7n0Qri4UHNye0ZOoRAm5cAJ9eY6c/9zJMMaKXpYSsOIFya6FcuQCgsGVC
+WCMppjaEUY/taKdavWOdYtk=
+=0KGB
+-----END PGP SIGNATURE-----
+

@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266743AbSIRO20>; Wed, 18 Sep 2002 10:28:26 -0400
+	id <S266778AbSIROpk>; Wed, 18 Sep 2002 10:45:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266754AbSIRO20>; Wed, 18 Sep 2002 10:28:26 -0400
-Received: from holomorphy.com ([66.224.33.161]:10218 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266743AbSIRO2Z>;
-	Wed, 18 Sep 2002 10:28:25 -0400
-Date: Wed, 18 Sep 2002 07:28:23 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
-Message-ID: <20020918142823.GT3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <20020918002240.GB2179@holomorphy.com> <Pine.LNX.4.44.0209181136180.2750-100000@localhost.localdomain>
+	id <S266839AbSIROpk>; Wed, 18 Sep 2002 10:45:40 -0400
+Received: from mail.coastside.net ([207.213.212.6]:11227 "EHLO
+	mail.coastside.net") by vger.kernel.org with ESMTP
+	id <S266778AbSIROpj> convert rfc822-to-8bit; Wed, 18 Sep 2002 10:45:39 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209181136180.2750-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Message-Id: <p05111a09b9ae41850a64@[207.213.214.37]>
+In-Reply-To: <1032328456.5812.16.camel@zole.jblinux.net>
+References: <1032328456.5812.16.camel@zole.jblinux.net>
+Date: Wed, 18 Sep 2002 07:46:32 -0700
+To: Ole =?iso-8859-1?Q?Andr=E9?= Vadla =?iso-8859-1?Q?Ravn=E5s?= 
+	<oleavr-lkml@jblinux.net>,
+       linux-kernel@vger.kernel.org
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Re: Virtual to physical address mapping
+Content-Type: text/plain; charset="iso-8859-1" ; format="flowed"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 18, 2002 at 12:11:30PM +0200, Ingo Molnar wrote:
-> so i think the most we could get is to actually eliminate the pidhash and
-> use the idtag hash for it. This would concentrate all the performance
-> efforts on the idtag hash.
+At 7:54am +0200 9/18/02, Ole André Vadla Ravnås wrote:
+>I've noticed that ifconfig shows a base address and an interrupt
+>number.. However, I can't get that base address to correspond to
+>anything in /proc/iomem, which means that I can't determine which PCI
+>device (in this case) it corresponds to (guess the base address is
+>virtual). What I want is to find a way to get the PCI bus and device no
+>for the network device, but is this at all possible without altering the
+>kernel?
 
-I eventually had special-case handling of IDTAG_PID so that it did not
-use idtags, but chained tasks directly, and removing the pidhash as goals.
-
-
-On Wed, Sep 18, 2002 at 12:11:30PM +0200, Ingo Molnar wrote:
-> another, locking improvement is possible as well:
->  - the idtag spinlock should be eliminated, we can reuse the tasklist lock
->    for it - in the exit and fork path we hold it already. This also means
->    we can walk an ID list by read-locking the tasklist lock.
-> the idtag spinlock is already superfluous i think, because the idtag task
-> list is only safely walked if we read-lock the task list. So it's not like
-> anyone could hash in a new idtag while we walk the list.
-> What do you think?
-
-ISTR the idtag_lock was for cases where the hashtable was modified
-while the tasklist_lock was only held for reading. Basically, once
-those are resolved, the idtag_lock goes away.
-
-
-Cheers,
-Bill
+ETHTOOL_GDRVINFO will do that directly, if the driver supports it.
+-- 
+/Jonathan Lundell.

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313479AbSDUP77>; Sun, 21 Apr 2002 11:59:59 -0400
+	id <S312344AbSDUQFL>; Sun, 21 Apr 2002 12:05:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313482AbSDUP76>; Sun, 21 Apr 2002 11:59:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20751 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313479AbSDUP7y>; Sun, 21 Apr 2002 11:59:54 -0400
-Date: Sun, 21 Apr 2002 16:59:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
+	id <S313480AbSDUQFK>; Sun, 21 Apr 2002 12:05:10 -0400
+Received: from pc3-camc5-0-cust13.cam.cable.ntl.com ([80.4.125.13]:32173 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S312344AbSDUQFK>;
+	Sun, 21 Apr 2002 12:05:10 -0400
+Date: Sun, 21 Apr 2002 17:02:19 +0100
+Message-Id: <200204211602.g3LG2JL29325@fenrus.demon.nl>
+From: arjan@fenrus.demon.nl
 To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Rob Landley <landley@trommello.org>, Jeff Garzik <garzik@havoc.gtf.org>,
-        Anton Altaparmakov <aia21@cantab.net>, linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020421165944.A20834@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0204201039130.19512-100000@home.transmeta.com> <E16ygxR-0000cY-00@starship> <20020421080030.44E2647B@merlin.webofficenow.com> <E16yx1z-0000jV-00@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16yx1z-0000jV-00@starship>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.9-31 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 05:44:07PM +0200, Daniel Phillips wrote:
-> Here's my wrapup...
+In article <E16yx1z-0000jV-00@starship> you wrote:
 
-What a shame...
+> It used to be that every major change would start with an [RFC].  Now the
+> typical way is to build private concensus between a few well-placed
+> individuals and go straight from there to feeding patches.  At least,
+> that's my impression of the trend.
 
-> This may in fact be nothing more than a fear.  However if there is any
-> chance I'm talking about a real phenomenon then I would indeed be remiss in
-> failing to draw attention to it.
+I disagree with you here. A short 2.5 list:
 
-I've been trying to get you to quantify this further.  So far, all we've
-seen are half-sides of the story.  Please give the full story:
+BIO - Jens posted patches for MONTHS to lkml (or changelogs with the patch
+      on kernel.org); plenty of room for discussion 
+O(1) scheduler - discussed quite a bit on lkml before Linus merged it
+Preempt - discussed to the extreme before being merged
+Ratcache - posted for months and discussed a lot on lkml
+Andrew Morten's death-to-buffer - posted to lkml quite a bit, but of course
+         it needs to work before it can be judged
+VFS - you already said that you can see what's going on here
 
-1. Quantify how much discussion about GNU patches there is on LKML in
-   total.
-2. Quantify how much discussion about BK merges there is on LKML.
+Now that leaves drivers and stuff. Well, for drivers, the maintainer
+submitting updates, especially minor ones, directly to Linus
+or the subsystem maintainer is fine by me. 
 
-And now this is the important bit that hasn't been done:
 
-  Including how many of each class:
-  a) have been included into Linus' tree.
-  b) have not been included into Linus' tree.
-
-Then you can come up with sensible figures that actually mean something,
-rather than some vague fear about a phenomenon that may in fact be a
-fantasy.
-
-Facts.  Facts.  Facts.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html

@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVA0Qn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVA0Qrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbVA0Qn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 11:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbVA0Qn6
+	id S262658AbVA0Qrm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 11:47:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVA0Qrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 11:43:58 -0500
-Received: from mail.gmx.net ([213.165.64.20]:5306 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262575AbVA0Qnw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 11:43:52 -0500
-X-Authenticated: #14349625
-Message-Id: <5.2.1.1.2.20050127172657.00bd6410@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Thu, 27 Jan 2005 17:31:12 +0100
-To: Ingo Molnar <mingo@elte.hu>, Cal <hihone@bigpond.net.au>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D8
-Cc: "Jack O'Quin" <joq@io.com>, linux <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>
-In-Reply-To: <20050127085120.GF22482@elte.hu>
-References: <41F84BDF.3000506@bigpond.net.au>
- <20050124125814.GA31471@elte.hu>
- <20050125135613.GA18650@elte.hu>
- <41F6C5CE.9050303@bigpond.net.au>
- <41F6C797.80403@bigpond.net.au>
- <20050126100846.GB8720@elte.hu>
- <41F7C2CA.2080107@bigpond.net.au>
- <87acqwnnx1.fsf@sulphur.joq.us>
- <41F7DA1B.5060806@bigpond.net.au>
- <87vf9km31j.fsf@sulphur.joq.us>
- <41F84BDF.3000506@bigpond.net.au>
+	Thu, 27 Jan 2005 11:47:41 -0500
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:10482 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S262658AbVA0Qrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 11:47:36 -0500
+Date: Thu, 27 Jan 2005 17:47:34 +0100
+From: Michael Gernoth <simigern@stud.uni-erlangen.de>
+To: linux-kernel@vger.kernel.org
+Subject: AT-Keyboard probing too strict in current bk?
+Message-ID: <20050127164734.GA12899@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-Antivirus: avast! (VPS 0453-1, 12/31/2004), Outbound message
-X-Antivirus-Status: Clean
-X-Y-GMX-Trusted: 0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:51 AM 1/27/2005 +0100, Ingo Molnar wrote:
+Hi,
 
->* Cal <hihone@bigpond.net.au> wrote:
->
-> > Sorry for the delay, some sleep required. A build without SMP also
-> > fails, with multiple oops.
-> >   <http://www.graggrag.com/200501271213-oops/>.
->
->thanks, this pinpointed the bug - i've uploaded the -D8 patch to the
->usual place:
->
->   http://redhat.com/~mingo/rt-limit-patches/
->
->does it fix your crash? Mike Galbraith reported a crash too that i think
->could be the same one.
+since the introduction of libps2 in the mainline 2.6 kernel I had the
+issue that my keyboard[1] was no longer recognized.
+The cause of this is that my "keyboard" responds to all commands with
+an acknowledgement (0xFA), even if the command is not implemented. One
+of those not implemented commands is 0xF2 (ATKBD_GETID_CMD).
 
-Yeah, my crash log is 120KB longer, but it looks the same, and is also 
-fixed by D8.
+In drivers/input/keyboard/atkbd.c ATKBD_GETID_CMD is used to probe
+for the keyboard, and if this fails, another method of detecting
+the keyboard is used. It seems that in 2.6.10 atkbd_command
+indicated that my keyboard did not successfully execute the command,
+but in the current bk-version ps2_command is used, which indicates
+a successfull execution, leaving behind invalid keyboard-ids.
+This leads to the kernel ignoring my keyboard.
 
-         -Mike 
+I fixed the problem in my keyboard-converter, but I don't know if
+the checking in keyboard-probing shouldn't be changed to catch that
+case, too. I have included a patch which does that.
 
+Regards,
+  Michael
+
+[1] SUN Type 5 keyboard connected to a self-built sun->ps2 adapter
+
+
+--- 1.73/drivers/input/keyboard/atkbd.c	2005-01-06 17:42:09 +01:00
++++ edited/drivers/input/keyboard/atkbd.c	2005-01-27 17:27:03 +01:00
+@@ -512,7 +512,8 @@
+  */
+ 
+ 	param[0] = param[1] = 0xa5;	/* initialize with invalid values */
+-	if (ps2_command(ps2dev, param, ATKBD_CMD_GETID)) {
++	if (ps2_command(ps2dev, param, ATKBD_CMD_GETID) ||
++	    (param[0] == 0xa5 && param[1] == 0xa5)) {
+ 
+ /*
+  * If the get ID command failed, we check if we can at least set the LEDs on

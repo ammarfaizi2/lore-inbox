@@ -1,98 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbUDGCZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 22:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbUDGCZ1
+	id S263448AbUDGCVU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 22:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUDGCVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 22:25:27 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:55732 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S263444AbUDGCZU (ORCPT
+	Tue, 6 Apr 2004 22:21:20 -0400
+Received: from cc15467-a.groni1.gr.home.nl ([217.120.147.78]:41298 "HELO
+	boetes.org") by vger.kernel.org with SMTP id S263448AbUDGCVS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 22:25:20 -0400
-Message-Id: <200404070225.i372PIn9003521@eeyore.valparaiso.cl>
-To: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel stack challenge 
-In-Reply-To: Your message of "Tue, 06 Apr 2004 14:15:50 MST."
-             <20040406211550.30263.qmail@web40514.mail.yahoo.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 06 Apr 2004 22:25:18 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 6 Apr 2004 22:21:18 -0400
+Date: Wed, 7 Apr 2004 04:21:29 +0200
+From: Han Boetes <han@mijncomputer.nl>
+To: linux-kernel@vger.kernel.org
+Subject: With recent kernels find gets stuck at nothing.
+Message-ID: <20040407022151.GA8445@boetes.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Key: http://www.xs4all.nl/~hanb/keys/Han_pubkey.gpg
+X-GPG-Fingerprint: EB66 D194 AB3F 4C57 49EF 6795 44AE E0D8 3F38 7301
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+Hi,
 
-[...]
+To debug why the locate cronjob got stuck I tracked down is going on:
 
-> I didn't just pick up LISP - I EXPLAINED my reasons.
-> if you missed my explanation here is a short summary.
-> 
-> 1. I needed solution to implement some procedural
-> functionality within the kernel. 
+So I run this little script:
 
-Fair enough, if really needed.
+#!/bin/sh
+find / ! \( -fstype jfs -or -fstype reiserfs -or -fstype ext2 -or -fstype ext3 -or -fstype afs -or -fstype xfs \) -prune -or -path /tmp -prune -or -path /var/tmp -prune -or -path /var/spool -prune -or -path /usr/tmp -prune -or -path /mnt -prune -or -print
 
->                                  This functionality
-> should be expressed with some high level language
-> (shorter development time and more compact source
-> code).
+Now the odd thing happens quite frequently: It's gets stuck just in the
+middle of some directory. When this happens I can not start any new
+applications. It stays this way until I go to the firebird window which
+gets itself back from swap memory (it seems) and then the find command
+continues.
 
-That it is _expressed_ in a sky-high-level-language has nothing at all to
-do with _implementing_ said language (fully?) inside the kernel. Heck, the
-kernel has no built-in C compiler + development environment + runtime
-either!
+I run kernel-2.6.5 with jfs as filesystem and I do not use
+preempting. I have an athlon 1700+ and 256mb memory.
 
->        This functionality should be
-> loadable/unloadable to the kernel.
 
-A compact, easy to interpret blob pushed into the kernel, a module hooking
-into the "right places", ...
+I hope this is sufficient information to be able to repeat this
+problem. Otherwise please let me know what additional information you
+want to know.
 
-> 2. Size of the interpreter should be minimal.
 
-Zero is just about right for me.
 
-> 3. Kind of real time - no ordinary garbage collector.
-> And automatic memory management at the same time.
-
-Oxymoron.
-
-> 4. Easiest syntax possible - so interpreter would be
-> compact. Simpler - the better :-) I don't like
-> complicated things :-)
-
-Why do you need the interpreter in kernel? If you do need it, why does it
-have to be a general-purpose language, and not an "interpreter" for a
-stylized data structure, carefully designed for the task?
-
-> 5. Well known. So there would be people around who
-> already know this language and expectations are clear.
-> And there are books around about this language.
-
-C is fine in that sense. Even much better than LISP. Specially among the
-sysadmin/kernel hacker/general Unix geek crowd...
-
-> 6. Ability to handle/represent complex data
-> structures.
-
-C qualifies.
-
-> 7. Errors/bugs in loadable functions should not cause
-> trouble for other tasks and kernel itself. (To the
-> extent possible for sure).
-
-Hard to do in any case. Just be careful...
-
-> 8. It should be universal (general purpose) language
-> which gives ability to make any manipulations with
-> numbers, strings, bits and data structures. So I would
-> be sure that functionality I want to express is not
-> limited by the language.
-
-But _why_? 
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+# Han

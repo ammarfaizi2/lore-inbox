@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbUDOTrd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 15:47:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUDOTrd
+	id S263117AbUDOTvF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 15:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDOTvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 15:47:33 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:50560 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S263142AbUDOTr3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 15:47:29 -0400
-Date: Thu, 15 Apr 2004 21:47:48 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>, Grzegorz Kulewski <kangur@polcom.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5: keyboard lockup on a Toshiba laptop
-Message-ID: <20040415194748.GB3903@ucw.cz>
-References: <200404071222.21397.rjwysocki@sisk.pl> <Pine.LNX.4.58.0404071227430.10871@alpha.polcom.net> <200404071321.01520.rjwysocki@sisk.pl> <20040407113004.GA2574@ucw.cz> <20040415185414.GF18971@charite.de>
+	Thu, 15 Apr 2004 15:51:05 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:44456 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263117AbUDOTvB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 15:51:01 -0400
+Subject: RE: IO-APIC on nforce2 [PATCH]
+From: Len Brown <len.brown@intel.com>
+To: Allen Martin <AMartin@nvidia.com>
+Cc: ross@datscreative.com.au,
+       Christian =?ISO-8859-1?Q?Kr=F6ner?= 
+	<christian.kroener@tu-harburg.de>,
+       Linux-Nforce-Bugs <Linux-Nforce-Bugs@exchange.nvidia.com>,
+       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FB9D@mail-sc-6-bk.nvidia.com>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FB9D@mail-sc-6-bk.nvidia.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082058625.24423.161.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040415185414.GF18971@charite.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 15 Apr 2004 15:50:25 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 08:54:14PM +0200, Ralf Hildebrandt wrote:
-> * Vojtech Pavlik <vojtech@suse.cz>:
-> 
-> > > Look, I've been using different variants of the 2.6.x kernels on this very 
-> > > machine/distro since early 2.6.0-test and I hadn't seen _anything_ like this 
-> > > before 2.6.5-rc2 (then I saw something like this first).  I _really_ don't 
-> > > think it's a distribution-related issue.
-> > 
-> > Maybe you could enable debugging in i8042.c, and look at the log around
-> > the unexpected reconnect of the keyboard.
-> 
-> How? Enlighten us...
+On Thu, 2004-04-15 at 14:33, Allen Martin wrote:
 
-Edit i8042.c, #define DEBUG.
+> It was a bug in our original nForce reference BIOS that we gave out to vendors.  Since then we fixed the reference BIOS, but since it was after products shipped, most of the motherboard vendors won't pick up the change unless they get complaints from customers.
+> 
+> We've fixed it for our reference BIOS for future products though.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Great!
+
+Knowing this makes the path clear.
+As we expected, an automatic workaround based on chip-set would
+fail because some BIOS's are fixed and some are not.
+So we either leave the workaround as manual bootparam
+or try to enumerate all BIOS versions with the bug
+in dmi_scan.  I'm content to do the former.  If distros
+have trouble supporting nforce2 systems, they may want to add
+to the later.
+
+thanks,
+-Len
+
+ps.
+I'm also excited to see a linux-nforce-bugs@exchange.nvidia.com alias
+on your note.  Perhaps you can explain how we should use it.  Should
+this alias be included on discussions of the more important issue --
+the system hang that seems to be related to HALT in idle/C1?
+
+

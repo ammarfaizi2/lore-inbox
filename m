@@ -1,452 +1,323 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbUCFSsq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 13:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUCFSsq
+	id S261707AbUCFSwA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 13:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUCFSv5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 13:48:46 -0500
-Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:6528 "EHLO
-	jm.kir.nu") by vger.kernel.org with ESMTP id S261702AbUCFSs3 (ORCPT
+	Sat, 6 Mar 2004 13:51:57 -0500
+Received: from zadnik.org ([194.12.244.90]:11398 "EHLO lugburz.zadnik.org")
+	by vger.kernel.org with ESMTP id S261703AbUCFSvk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 13:48:29 -0500
-Date: Sat, 6 Mar 2004 10:46:23 -0800
-From: Jouni Malinen <jkmaline@cc.hut.fi>
-To: James Morris <jmorris@redhat.com>, "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
-Message-ID: <20040306184623.GB3963@jm.kir.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Sat, 6 Mar 2004 13:51:40 -0500
+Date: Sat, 6 Mar 2004 20:51:10 +0200 (EET)
+From: Grigor Gatchev <grigor@serdica.org>
+X-X-Sender: grigor@lugburz.zadnik.org
+To: Christer Weinigel <christer@weinigel.se>
+Cc: Grigor Gatchev <grigor@zadnik.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: A Layered Kernel: Proposal
+In-Reply-To: <m365dqoym3.fsf@zoo.weinigel.se>
+Message-ID: <Pine.LNX.4.44.0403062049560.13053-100000@lugburz.zadnik.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Current Linux crypto API does not seem to have generic mechanism for
-adding keyed digest algorithms that are not using HMAC construction.
-IEEE 802.11i/WPA uses such an algorithm in TKIP and getting this to
-crypto API would be useful in order to be able to share more code of
-TKIP implementation.
 
-One straightforward way of adding support for Michael MIC is to add an
-optional setkey operation for digest algorithms. The included patch
-(against Linux 2.6.4-rc2) does exactly this and also includes an
-implementation of Michael MIC. Another option would be to add a new
-algorithm type for keyed hash algorithms, but that seemed unnecessary
-for this purpose. Is the modification of digest type acceptable way of
-adding support for a keyed digest algorithm that does not use HMAC?
+Here it is. Get your axe ready! :-)
 
-The patch includes test vectors for Michael MIC and I have tested this
-with the Host AP driver and TKIP. Getting this into crypto API is one of
-the first steps in replacing the internal crypto algorithm
-implementation in the Host AP driver code and I would appreciate it if
-this would be applied to Linux 2.6 tree.
+---
+
+Driver Model Types: A Short Description.
+
+(Note:  This is NOT a complete description of a layer,
+according to the kernel layered model I dared to offer.  It
+concerns only the hardware drivers in a kernel.)
 
 
+Direct binding models:
 
-diff -upr linux-2.6.4-rc2.orig/Documentation/crypto/api-intro.txt linux-2.6.4-rc2/Documentation/crypto/api-intro.txt
---- linux-2.6.4-rc2.orig/Documentation/crypto/api-intro.txt	2004-03-05 21:55:12.000000000 -0800
-+++ linux-2.6.4-rc2/Documentation/crypto/api-intro.txt	2004-03-05 22:28:38.090693088 -0800
-@@ -186,6 +186,7 @@ Original developers of the crypto algori
-   Dag Arne Osvik (Serpent)
-   Brian Gladman (AES)
-   Kartikey Mahendra Bhatt (CAST6)
-+  Jouni Malinen (Michael MIC)
- 
- SHA1 algorithm contributors:
-   Jean-Francois Dive
-diff -upr linux-2.6.4-rc2.orig/crypto/Kconfig linux-2.6.4-rc2/crypto/Kconfig
---- linux-2.6.4-rc2.orig/crypto/Kconfig	2004-03-05 22:12:13.347396824 -0800
-+++ linux-2.6.4-rc2/crypto/Kconfig	2004-03-05 22:11:00.152524136 -0800
-@@ -151,6 +151,15 @@ config CRYPTO_DEFLATE
- 	  
- 	  You will most probably want this if using IPSec.
- 
-+config CRYPTO_MICHAEL_MIC
-+	tristate "Michael MIC keyed digest algorithm"
-+	depends on CRYPTO
-+	help
-+	  Michael MIC is used for message integrity protection in TKIP
-+	  (IEEE 802.11i). This algorithm is required for TKIP, but it
-+	  should not be used for other purposes because of the weakness
-+	  of the algorithm.
-+
- config CRYPTO_TEST
- 	tristate "Testing module"
- 	depends on CRYPTO
-diff -upr linux-2.6.4-rc2.orig/crypto/Makefile linux-2.6.4-rc2/crypto/Makefile
---- linux-2.6.4-rc2.orig/crypto/Makefile	2004-03-05 22:13:30.891608312 -0800
-+++ linux-2.6.4-rc2/crypto/Makefile	2004-03-05 22:07:55.211639424 -0800
-@@ -22,5 +22,6 @@ obj-$(CONFIG_CRYPTO_AES) += aes.o
- obj-$(CONFIG_CRYPTO_CAST5) += cast5.o
- obj-$(CONFIG_CRYPTO_CAST6) += cast6.o
- obj-$(CONFIG_CRYPTO_DEFLATE) += deflate.o
-+obj-$(CONFIG_CRYPTO_MICHAEL_MIC) += michael_mic.o
- 
- obj-$(CONFIG_CRYPTO_TEST) += tcrypt.o
-diff -upr linux-2.6.4-rc2.orig/crypto/digest.c linux-2.6.4-rc2/crypto/digest.c
---- linux-2.6.4-rc2.orig/crypto/digest.c	2004-02-17 19:57:12.000000000 -0800
-+++ linux-2.6.4-rc2/crypto/digest.c	2004-03-05 22:18:14.429504000 -0800
-@@ -42,6 +42,15 @@ static void final(struct crypto_tfm *tfm
- 	tfm->__crt_alg->cra_digest.dia_final(crypto_tfm_ctx(tfm), out);
- }
- 
-+static int setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int keylen)
-+{
-+	u32 flags;
-+	if (tfm->__crt_alg->cra_digest.dia_setkey == NULL)
-+		return -1;
-+	return tfm->__crt_alg->cra_digest.dia_setkey(crypto_tfm_ctx(tfm),
-+						     key, keylen, &flags);
-+}
-+
- static void digest(struct crypto_tfm *tfm,
-                    struct scatterlist *sg, unsigned int nsg, u8 *out)
- {
-@@ -72,6 +81,7 @@ int crypto_init_digest_ops(struct crypto
- 	ops->dit_update	= update;
- 	ops->dit_final	= final;
- 	ops->dit_digest	= digest;
-+	ops->dit_setkey	= setkey;
- 	
- 	return crypto_alloc_hmac_block(tfm);
- }
-diff -upr linux-2.6.4-rc2.orig/crypto/tcrypt.c linux-2.6.4-rc2/crypto/tcrypt.c
---- linux-2.6.4-rc2.orig/crypto/tcrypt.c	2004-02-17 19:59:11.000000000 -0800
-+++ linux-2.6.4-rc2/crypto/tcrypt.c	2004-03-05 22:53:14.400259920 -0800
-@@ -112,6 +112,10 @@ test_hash (char * algo, struct hash_test
- 		sg[0].length = hash_tv[i].psize;
- 
- 		crypto_digest_init (tfm);
-+		if (tfm->crt_u.digest.dit_setkey) {
-+			crypto_digest_setkey (tfm, hash_tv[i].key,
-+					      hash_tv[i].ksize);
-+		}
- 		crypto_digest_update (tfm, sg, 1);
- 		crypto_digest_final (tfm, result);
- 
-@@ -564,6 +568,8 @@ do_test(void)
- 		test_hmac("sha1", hmac_sha1_tv_template, HMAC_SHA1_TEST_VECTORS);		
- 		test_hmac("sha256", hmac_sha256_tv_template, HMAC_SHA256_TEST_VECTORS);
- #endif		
-+
-+		test_hash("michael_mic", michael_mic_tv_template, MICHAEL_MIC_TEST_VECTORS);
- 		break;
- 
- 	case 1:
-@@ -638,6 +644,10 @@ do_test(void)
- 		test_cipher ("cast6", MODE_ECB, DECRYPT, cast6_dec_tv_template, CAST6_DEC_TEST_VECTORS);
- 		break;
- 
-+	case 16:
-+		test_hash("michael_mic", michael_mic_tv_template, MICHAEL_MIC_TEST_VECTORS);
-+		break;
-+
- #ifdef CONFIG_CRYPTO_HMAC
- 	case 100:
- 		test_hmac("md5", hmac_md5_tv_template, HMAC_MD5_TEST_VECTORS);
-diff -upr linux-2.6.4-rc2.orig/crypto/tcrypt.h linux-2.6.4-rc2/crypto/tcrypt.h
---- linux-2.6.4-rc2.orig/crypto/tcrypt.h	2004-02-17 19:59:27.000000000 -0800
-+++ linux-2.6.4-rc2/crypto/tcrypt.h	2004-03-05 22:53:36.807853448 -0800
-@@ -30,6 +30,8 @@ struct hash_testvec {
- 	char digest[MAX_DIGEST_SIZE];
- 	unsigned char np;
- 	unsigned char tap[MAX_TAP];		
-+	char key[128]; /* only used with keyed hash algorithms */
-+	unsigned char ksize;
- };
- 
- struct hmac_testvec {	
-@@ -1578,4 +1580,54 @@ struct comp_testvec deflate_decomp_tv_te
- 	},
- };
- 
-+/*
-+ * Michael MIC test vectors from IEEE 802.11i
-+ */
-+#define MICHAEL_MIC_TEST_VECTORS 6
-+
-+struct hash_testvec michael_mic_tv_template[] =
-+{
-+	{
-+		.key = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
-+		.ksize = 8,
-+		.plaintext = { },
-+		.psize = 0,
-+		.digest = { 0x82, 0x92, 0x5c, 0x1c, 0xa1, 0xd1, 0x30, 0xb8 }
-+	},
-+	{
-+		.key = { 0x82, 0x92, 0x5c, 0x1c, 0xa1, 0xd1, 0x30, 0xb8 },
-+		.ksize = 8,
-+		.plaintext = { 'M' },
-+		.psize = 1,
-+		.digest = { 0x43, 0x47, 0x21, 0xca, 0x40, 0x63, 0x9b, 0x3f }
-+	},
-+	{
-+		.key = { 0x43, 0x47, 0x21, 0xca, 0x40, 0x63, 0x9b, 0x3f },
-+		.ksize = 8,
-+		.plaintext = { 'M', 'i' },
-+		.psize = 2,
-+		.digest = { 0xe8, 0xf9, 0xbe, 0xca, 0xe9, 0x7e, 0x5d, 0x29 }
-+	},
-+	{
-+		.key = { 0xe8, 0xf9, 0xbe, 0xca, 0xe9, 0x7e, 0x5d, 0x29 },
-+		.ksize = 8,
-+		.plaintext = { 'M', 'i', 'c' },
-+		.psize = 3,
-+		.digest = { 0x90, 0x03, 0x8f, 0xc6, 0xcf, 0x13, 0xc1, 0xdb }
-+	},
-+	{
-+		.key = { 0x90, 0x03, 0x8f, 0xc6, 0xcf, 0x13, 0xc1, 0xdb },
-+		.ksize = 8,
-+		.plaintext = { 'M', 'i', 'c', 'h' },
-+		.psize = 4,
-+		.digest = { 0xd5, 0x5e, 0x10, 0x05, 0x10, 0x12, 0x89, 0x86 }
-+	},
-+	{
-+		.key = { 0xd5, 0x5e, 0x10, 0x05, 0x10, 0x12, 0x89, 0x86 },
-+		.ksize = 8,
-+		.plaintext = { 'M', 'i', 'c', 'h', 'a', 'e', 'l' },
-+		.psize = 7,
-+		.digest = { 0x0a, 0x94, 0x2b, 0x12, 0x4e, 0xca, 0xa5, 0x46 },
-+	}
-+};
- #endif	/* _CRYPTO_TCRYPT_H */
-diff -upr linux-2.6.4-rc2.orig/include/linux/crypto.h linux-2.6.4-rc2/include/linux/crypto.h
---- linux-2.6.4-rc2.orig/include/linux/crypto.h	2004-02-17 19:57:21.000000000 -0800
-+++ linux-2.6.4-rc2/include/linux/crypto.h	2004-03-05 22:15:16.142607728 -0800
-@@ -76,6 +76,8 @@ struct digest_alg {
- 	void (*dia_init)(void *ctx);
- 	void (*dia_update)(void *ctx, const u8 *data, unsigned int len);
- 	void (*dia_final)(void *ctx, u8 *out);
-+	int (*dia_setkey)(void *ctx, const u8 *key,
-+	                  unsigned int keylen, u32 *flags);
- };
- 
- struct compress_alg {
-@@ -157,6 +159,8 @@ struct digest_tfm {
- 	void (*dit_final)(struct crypto_tfm *tfm, u8 *out);
- 	void (*dit_digest)(struct crypto_tfm *tfm, struct scatterlist *sg,
- 	                   unsigned int nsg, u8 *out);
-+	int (*dit_setkey)(struct crypto_tfm *tfm,
-+	                  const u8 *key, unsigned int keylen);
- #ifdef CONFIG_CRYPTO_HMAC
- 	void *dit_hmac_block;
- #endif
-@@ -282,6 +286,15 @@ static inline void crypto_digest_digest(
- 	tfm->crt_digest.dit_digest(tfm, sg, nsg, out);
- }
- 
-+static inline int crypto_digest_setkey(struct crypto_tfm *tfm,
-+                                       const u8 *key, unsigned int keylen)
-+{
-+	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_DIGEST);
-+	if (tfm->crt_digest.dit_setkey == NULL)
-+		return -1;
-+	return tfm->crt_digest.dit_setkey(tfm, key, keylen);
-+}
-+
- static inline int crypto_cipher_setkey(struct crypto_tfm *tfm,
-                                        const u8 *key, unsigned int keylen)
- {
---- linux-2.6.4-rc2.orig/crypto/michael_mic.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.4-rc2/crypto/michael_mic.c	2004-03-05 22:07:06.956975248 -0800
-@@ -0,0 +1,193 @@
-+/*
-+ * Cryptographic API
-+ *
-+ * Michael MIC (IEEE 802.11i/TKIP) keyed digest
-+ *
-+ * Copyright (c) 2004 Jouni Malinen <jkmaline@cc.hut.fi>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/string.h>
-+#include <linux/crypto.h>
-+
-+
-+struct michael_mic_ctx {
-+	u8 pending[4];
-+	size_t pending_len;
-+
-+	u32 l, r;
-+};
-+
-+
-+static inline u32 rotl(u32 val, int bits)
-+{
-+	return (val << bits) | (val >> (32 - bits));
-+}
-+
-+
-+static inline u32 rotr(u32 val, int bits)
-+{
-+	return (val >> bits) | (val << (32 - bits));
-+}
-+
-+
-+static inline u32 xswap(u32 val)
-+{
-+	return ((val & 0x00ff00ff) << 8) | ((val & 0xff00ff00) >> 8);
-+}
-+
-+
-+#define michael_block(l, r)	\
-+do {				\
-+	r ^= rotl(l, 17);	\
-+	l += r;			\
-+	r ^= xswap(l);		\
-+	l += r;			\
-+	r ^= rotl(l, 3);	\
-+	l += r;			\
-+	r ^= rotr(l, 2);	\
-+	l += r;			\
-+} while (0)
-+
-+
-+static inline u32 get_le32(const u8 *p)
-+{
-+	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-+}
-+
-+
-+static inline void put_le32(u8 *p, u32 v)
-+{
-+	p[0] = v;
-+	p[1] = v >> 8;
-+	p[2] = v >> 16;
-+	p[3] = v >> 24;
-+}
-+
-+
-+static void michael_init(void *ctx)
-+{
-+	struct michael_mic_ctx *mctx = ctx;
-+	mctx->pending_len = 0;
-+}
-+
-+
-+static void michael_update(void *ctx, const u8 *data, unsigned int len)
-+{
-+	struct michael_mic_ctx *mctx = ctx;
-+
-+	if (mctx->pending_len) {
-+		int flen = 4 - mctx->pending_len;
-+		if (flen > len)
-+			flen = len;
-+		memcpy(&mctx->pending[mctx->pending_len], data, flen);
-+		mctx->pending_len += flen;
-+		data += flen;
-+		len -= flen;
-+
-+		if (mctx->pending_len < 4)
-+			return;
-+
-+		mctx->l ^= get_le32(mctx->pending);
-+		michael_block(mctx->l, mctx->r);
-+		mctx->pending_len = 0;
-+	}
-+
-+	while (len >= 4) {
-+		mctx->l ^= get_le32(data);
-+		michael_block(mctx->l, mctx->r);
-+		data += 4;
-+		len -= 4;
-+	}
-+
-+	if (len > 0) {
-+		mctx->pending_len = len;
-+		memcpy(mctx->pending, data, len);
-+	}
-+}
-+
-+
-+static void michael_final(void *ctx, u8 *out)
-+{
-+	struct michael_mic_ctx *mctx = ctx;
-+	u8 *data = mctx->pending;
-+
-+	/* Last block and padding (0x5a, 4..7 x 0) */
-+	switch (mctx->pending_len) {
-+	case 0:
-+		mctx->l ^= 0x5a;
-+		break;
-+	case 1:
-+		mctx->l ^= data[0] | 0x5a00;
-+		break;
-+	case 2:
-+		mctx->l ^= data[0] | (data[1] << 8) | 0x5a0000;
-+		break;
-+	case 3:
-+		mctx->l ^= data[0] | (data[1] << 8) | (data[2] << 16) |
-+			0x5a000000;
-+		break;
-+	}
-+	michael_block(mctx->l, mctx->r);
-+	/* l ^= 0; */
-+	michael_block(mctx->l, mctx->r);
-+
-+	put_le32(out, mctx->l);
-+	put_le32(out + 4, mctx->r);
-+}
-+
-+
-+static int michael_setkey(void *ctx, const u8 *key, unsigned int keylen,
-+			  u32 *flags)
-+{
-+	struct michael_mic_ctx *mctx = ctx;
-+	if (keylen != 8) {
-+		if (flags)
-+			*flags = CRYPTO_TFM_RES_BAD_KEY_LEN;
-+		return -1;
-+	}
-+	mctx->l = get_le32(key);
-+	mctx->r = get_le32(key + 4);
-+	return 0;
-+}
-+
-+
-+static struct crypto_alg michael_mic_alg = {
-+	.cra_name	= "michael_mic",
-+	.cra_flags	= CRYPTO_ALG_TYPE_DIGEST,
-+	.cra_blocksize	= 8,
-+	.cra_ctxsize	= sizeof(struct michael_mic_ctx),
-+	.cra_module	= THIS_MODULE,
-+	.cra_list	= LIST_HEAD_INIT(michael_mic_alg.cra_list),
-+	.cra_u		= { .digest = {
-+	.dia_digestsize	= 8,
-+	.dia_init	= michael_init,
-+	.dia_update	= michael_update,
-+	.dia_final	= michael_final,
-+	.dia_setkey	= michael_setkey } }
-+};
-+
-+
-+static int __init michael_mic_init(void)
-+{
-+	return crypto_register_alg(&michael_mic_alg);
-+}
-+
-+
-+static void __exit michael_mic_exit(void)
-+{
-+	crypto_unregister_alg(&michael_mic_alg);
-+}
-+
-+
-+module_init(michael_mic_init);
-+module_exit(michael_mic_exit);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_DESCRIPTION("Michael MIC");
-+MODULE_AUTHOR("Jouni Malinen <jkmaline@cc.hut.fi>");
+In these models, kernel layers that use drivers bind to
+their functions more or less directly.  (The degree of
+directness and the specific methods depend much on the
+specific implementation.)  This is as opposed to the
+indirect binding models, where driver is expected to provide
+first a description what it can do, and binding is done
+after that, depending on the description provided.
 
 
+Chaotic Model
 
--- 
-Jouni Malinen                                            PGP id EFC895FA
+This is not a specific model, but rather a lack of any model
+that is designed in advance.  Self-made OS most often start
+with it, and add a model on a later stage, when more drivers
+appear.
+
+Advantages:
+
+The model itself requires no design efforts at all.
+
+No fixed sets of functions to conform to.  Every coder is
+free to implement whatever they like.
+
+Unlimited upgradeability - a new super-hardware driver is
+not bound by a lower common denominator.
+
+Gives theoretically the best performance possible, as no
+driver is bound to conform to anything but to the specific
+hadrware abilities.
+
+Disadvantages:
+
+Upper layers can rely on nothing with it.  As more than one
+driver for similar devices (eg.  sound cards) adds, upper
+layers must check the present drivers for every single
+function - which is actually implementing an in-built driver
+model.  (Where its place is not, and therefore in a rather
+clumsy way.)
+
+Summary:
+
+Good for homebrewn OS alikes, and for specific hardware that
+is not subject to differencies, eg.  some mainframe that may
+have only one type of NIC, VDC etc.  Otherwise, practically
+unusable - the lack of driver systematics severely limits
+the kernel internal flexibility.  Often upgraded with
+functions that identify for each driver what it is capable
+of, or requiring some (typically low) common denominator.
+
+
+Common Denominator Model
+
+With it, hardware drivers are separated in groups - eg.  NIC
+drivers, sound drivers, IDE drivers.  Within a group, all
+drivers export the same set of functions.
+
+This set sometimes covers only the minimal set of
+functionalities, shared by all hardware in the group - in
+this case it acts as a smallest common denominator.  Other
+possibility is a largest common denominator - to include
+functions for all functionalities possible for the group,
+and if the specific hardware doesn't support them directly,
+to either emulate them, or to signal for an invalid
+function.  Intermediate denominator levels are possible,
+too.
+
+The larger the common denominator, and the less emulation
+("bad function" signal instead), the closer the model goes
+to the chaotic model.
+
+Advantages:
+
+It requires little model design (esp.  the smallest common
+denominator types), and as little driver design as possible.
+(You may create an excellent design, of course, but you are
+not required to.)  You can often re-use most of the design
+of the other drivers in the group.
+
+It practically doesn't require a plan, or coordination.  The
+coder just tries either to give the functionality that is
+logical (if this is the first driver in a new group), or
+tries to give the same functionality that the other drivers
+in the group give.
+
+Coupling the driver to the upper levels that use it is very
+simple and easy.  You practically don't need to check what
+driver actually is down there.  You know what it can offer,
+no matter the hardware, and don't need to check what the
+denominator level ac ually is, unlike the chaotic model.
+
+It encapsulates well the hardware groups, and fixes them to
+a certain level of development.  This decreases the
+frequency of the knowledge refresh for the programmers, and
+to some extent the need for upper levels rewrite.
+
+Disadvantages:
+
+The common denominator denies to the upper level the exact
+access to underlaying hardware functionality, and thus
+decreases the performance.  With hardware that is below the
+denominator line, you risk getting a lot of emulation, which
+you potentially could avoid to a large degree on the upper
+level (it is often better informed what exactly is desired).
+With hardware above the denominator line, you may be denied
+access to built-in, hardware-accelerated higher level
+functions, that would increase performance and save you
+doing everything in your code.
+
+Once the denominator level is fixed, it is hard to move
+without seriously impairing the backwards compatibility.
+The hardware, however, advances, and offers built-in
+upper-level functions and new abilities.  Thus, this model
+quickly obsoletes its denominator levels (read:
+performance and usability).
+
+The larger the common denominator, the more design work the
+model requires.  (And the quicker it obsoletes, given the
+need to keep with the front.)
+
+Summary:
+
+This model is the opposite of the chaotic model.  It is
+canned and predictable, but non-flexible and with generally
+bad performance.  Model upgrades are often needed (and done
+more rarely, at the expense of losing efficiency), and often
+carry major rewrites of other code with them.
+
+
+Discussion:
+
+These two models are the opposites of the scale.  They are
+rarely, if ever, used in clear form.  Most often, a driver
+model will combine them to some extent, falling somewhere in
+the middle.
+
+The simplest combination is defining a (typically low)
+common denominator, and going chaotic above.  While it
+theoretically provides both full access to the hardware
+abilities and something granted to base on, the granted is
+little, and the full access is determinable like with the
+chaotic model, in a complex way.
+
+This combination also has some advantages:
+
+Where more flexibility and performance is needed, you may go
+closer to the chaotic model.  And where more replaceability
+and predictability is needed, you may go closer to the CD
+model.  The result will be a driver model that gives more
+assets where they are really needed, and also has more
+negatives, but in an area where they aren't that important.
+
+If the optimum for a specific element, eg.  driver group,
+shifts, you may always make the shift obvious.  Then, moving
+the model balance for this element will be more readily
+accepted by all affected by it.
+
+Another way to combine the models is to break the big
+denominator levels into multiple sublevels, and to provide a
+way to describe the driver's sublevel, turning this model
+into indirect binding type.
+
+All this group of models, however, has a big drawback:
+really good replaceability is provided only very close to
+the common denominator end of the scale, where flexibiility,
+performance, upgradeability and usability already tend to
+suffer.  Skillful tuning may postpone the negatives to a
+degree, but not forever.  Attempts to solve this problem are
+made by developing driver models with indirect binding.
+
+
+Indirect binding models:
+
+With this model, drivers are expected to provide first a
+description what they can do, and what they cannot.  Then,
+the code that uses the driver binds to it, using the
+description.
+
+Most of these models take the many assets of the chaotic
+model as a base, and try to add the good replaceability and
+function set predictability of the common denominator model.
+
+
+Class-like model
+
+In it, the sets of functions that drivers offer are
+organized in a class-like manner.  Every class has a defined
+set of functions.  Classes create a hierarchy, like the
+classes of OOP languages.  (Drivers do not necessarily have
+to be written in an OO language, or to be accessed only
+from such one.)  A class typically implements all functions
+found in its predecessor, and adds more (but, unlike OOP
+classes, rarely reuses predecessor code).
+
+Classes and their sets of functions are pre-defined, but the
+overall model is extendable without changing what is
+present.  When a new type of device appears, or a new device
+offers functionality above the current classes appropriate
+for it, a new class may be defined.  The description of the
+class is created, approved and registered (earlier stages
+may be made by a driver writer, later - by a central body),
+and is made available to the concerned.
+
+Every driver has a mandatory set of functions that report
+the driver class identification.  Using them, an upper layer
+can quickly define what functionality is present.  After
+this, the upper layer binds to the driver much like in the
+direct binding models.
+
+Advantages:
+
+If properly implemented, gives practically the same
+performance as the chaotic model.  Additional checking is
+performed only once, when the driver is loaded.  Class
+defining may be fine-grained enough to allow for practically
+exact covering of the hardware functionality.
+
+The upgradeability and usability of the specific drivers are
+practically the same as those of the chaotic model.  And the
+model global extendability and upgradeability, if properly
+designed, are practically limitless.
+
+If properly designed, gives nearly the same replaceability
+as the CD model.  (The things to check are more, but much
+less than with the chaotic model.  What you will find in
+each of them is usually well documented.  And the check
+procedure is standard and simple.)
+
+Disadvantages:
+
+The model itself requires more design and maintenance work
+than the direct binding models (except the larger CD
+models).  (Actually, the amount of maintenance work is the
+same as with any CD model, but the work comes before the
+need for it is felt by everybody.)
+
+Discussion:
+
+This is probably the best of all driver models I have
+examined more carefully.  Unhappily, most implementations I
+have seen are rather clumsy, to say the least.
+
+
+Function map model
+
+This model is actually a largest common denominator model,
+extended with the ability to provide a map of the
+implemented functions.  In the simplest case, the map is a
+bitspace, where every bit marks whether its function is
+implemented.  In other cases, the map is a space of accesses
+(eg.  function pointers).
+
+Advantages:
+
+In some architectures and platforms, this is a very
+convenient way to describe a function array.
+
+The model is simple, and therefore easy to use.
+
+Disadvantages:
+
+The model has all disadvantages of a LCD model.
+
+Discussion:
+
+The advantages of the model are relatively little, while the
+disadvantages are big.  For this reason, it is used mostly
+as an addition to another model - eg.  to the class-like
+model.
+
+
+Global discussion:
+
+The models list provided here is rather global, This is
+intentional:  while designing, one must clarify one level at
+a time, much like with coding.
+
+The list also is incomplete.  For example, I never had the
+time to look properly for ideas into the OS/2 SOM, and it is
+said to work very well, and provide excellent performance.
+Of interest might be also more details of the QNX driver
+model.  Someone with in-depth knowledge of these might be
+able to enhance this list.
+
+----
+

@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281189AbRKTRyB>; Tue, 20 Nov 2001 12:54:01 -0500
+	id <S281188AbRKTRwB>; Tue, 20 Nov 2001 12:52:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281184AbRKTRv7>; Tue, 20 Nov 2001 12:51:59 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:20355 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S281188AbRKTRvp>; Tue, 20 Nov 2001 12:51:45 -0500
-Date: Tue, 20 Nov 2001 12:40:58 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <3BFA8F87.9FB4C13E@nortelnetworks.com>
-Message-ID: <Pine.LNX.3.95.1011120123312.8047A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281183AbRKTRvs>; Tue, 20 Nov 2001 12:51:48 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:1808 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S281184AbRKTRvd>; Tue, 20 Nov 2001 12:51:33 -0500
+Date: Tue, 20 Nov 2001 20:51:05 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Richard Henderson <rth@redhat.com>
+Cc: Jay.Estabrook@compaq.com, linux-kernel@vger.kernel.org
+Subject: Re: [alpha] cleanup opDEC workaround
+Message-ID: <20011120205105.A15395@jurassic.park.msu.ru>
+In-Reply-To: <20011119232355.C16091@redhat.com> <20011120133150.A9033@jurassic.park.msu.ru> <20011120090818.A16366@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011120090818.A16366@redhat.com>; from rth@redhat.com on Tue, Nov 20, 2001 at 09:08:18AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Nov 2001, Christopher Friesen wrote:
+On Tue, Nov 20, 2001 at 09:08:18AM -0800, Richard Henderson wrote:
+> Oh, it depended on this one.
 
-> "Richard B. Johnson" wrote:
-> > 
-> > On Tue, 20 Nov 2001, Wolfgang Rohdewald wrote:
-> > 
-> > > On Tuesday 20 November 2001 15:51, J.A. Magallon wrote:
-> > > > When a page is deleted for one executable (because we can re-read it from
-> > > > on-disk binary), it is discarded, not paged out.
-> > >
-> > > What happens if the on-disk binary has changed since loading the program?
-> > > -
-> > 
-> > It can't. That's the reason for `install` and other methods of changing
-> > execututable files (mv exe-file exe-file.old ; cp newfile exe-file).
-> > The currently open, and possibly mapped file can be re-named, but it
-> > can't be overwritten.
-> 
-> Actually, with NFS (and probably others) it can.  Suppose I change the file on
-> the server, and it's swapped out on a client that has it mounted.  When it swaps
-> back in, it can get the new information.
-> 
-> Chris
+Ok, but with opDEC_fix = 8 we actually skip to addt/stt, so that asm
+probably should be rearranged to
 
-I note that NFS files don't currently return ETXTBSY, but this is a bug.
-It is 'known' to the OS that the NFS mounted file-system is busy because
-you can't unmount the file-system while an executable is running. If
-you can trash it (as you can on Linux), it is surely a bug.
+		"fmov $f31, $f0\n\t"
+		"cvttq/svm $f31, $f31\n\t"
+		"addt $f31, $f31, $f31\n\t"
+		"cmpteq $f31, $f31, $f0\n\t"
+		"stt $f0, %0"
 
-Alan explained a few years ago that NFS was "stateless". Nevertheless
-it is still a bug.
+Further, if fp emulation isn't compiled in, we'll have kernel mode
+instruction fault. A quick fix appears to be
 
-Cheers,
-Dick Johnson
+			regs.pc += opDEC_fix;
++			if (opDEC_fix == 8)
++				return;
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Did I missed something?
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Ivan.

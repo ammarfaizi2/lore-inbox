@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264582AbRFTTmm>; Wed, 20 Jun 2001 15:42:42 -0400
+	id <S264579AbRFTThV>; Wed, 20 Jun 2001 15:37:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264585AbRFTTmc>; Wed, 20 Jun 2001 15:42:32 -0400
-Received: from sal.qcc.sk.ca ([198.169.27.3]:28942 "HELO sal.qcc.sk.ca")
-	by vger.kernel.org with SMTP id <S264582AbRFTTmY>;
-	Wed, 20 Jun 2001 15:42:24 -0400
-Date: Wed, 20 Jun 2001 13:42:21 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
+	id <S264580AbRFTThL>; Wed, 20 Jun 2001 15:37:11 -0400
+Received: from wet.kiss.uni-lj.si ([193.2.98.10]:62732 "EHLO
+	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
+	id <S264579AbRFTThF>; Wed, 20 Jun 2001 15:37:05 -0400
+Content-Type: text/plain;
+  charset="iso-8859-2"
+From: Rok =?iso-8859-2?q?Pape=BE?= <rok.papez@kiss.uni-lj.si>
+Reply-To: rok.papez@kiss.uni-lj.si
 To: linux-kernel@vger.kernel.org
-Subject: Re: Threads FAQ entry incomplete
-Message-ID: <20010620134221.C12357@qcc.sk.ca>
-In-Reply-To: <20010620104800.D1174@w-mikek2.des.beaverton.ibm.com> <lx66drf04u.fsf@pixie.isr.ist.utl.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <lx66drf04u.fsf@pixie.isr.ist.utl.pt>; from yoda@isr.ist.utl.pt on Wed, Jun 20, 2001 at 07:59:29PM +0100
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+Date: Wed, 20 Jun 2001 21:36:09 +0200
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01062021360901.02282@strader.home>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rodrigo Ventura <yoda@isr.ist.utl.pt> wrote:
-> 
-> BTW, I have a question: Can the availability of dual-CPU boards for intel
-> and amd processors, rather then tri- or quadra-CPU boards, be explained with
-> the fact that the performance degrades significantly for three or more CPUs?
-> Or is there a technological and/or comercial reason behind?
+Hi!
 
-Commercial reasons.  Cost per motherboard/chipset goes way up as the number of
-CPUs supported goes up.  For each CPU that a chipset supports, it has to add a
-lot of pins/lands, and chipsets are already typically land-limited.
-Motherboard trace complexity (and therefore number of layers) goes up.  Add to
-that that the potential market goes down as CPUs goes up.
+It's hard not to reply to this kind of message but there is so much
+"anti-thread hype" here that someone obviously has to stand up to it.
+This reply isn't aimed just at Larry but at all the anti-thread-rant
+people with 0 threads == 0 problems attitude.
 
-You can buy 4-, 8-, and 16-way motherboards for Intel CPUs (don't know about
-more).  But the 16-way ones will cost as much as a house.
+On Tuesday 19 June 2001 18:09, Larry McVoy wrote:
+>     "If you think you need threads then your processes are too fat"
+>     ``Think of it this way: threads are like salt, not like pasta. You
+>     like salt, I like salt, we all like salt. But we eat more pasta.''
 
-Charles
+Here are more from the same basket you obviously got the first quote from:
+
+------------------------------------
+Virtual memory is only for unskilled programmers who don't know how to use
+overlays.
+------------------------------------
+Protected memory is a constant 10% CPU hog needed only by undisciplined
+programmers who can't keep their memory writes in their own process space.
+------------------------------------
+
+> Threads are a really bad idea.
+
+I could *say* the same about Alans co-routines and Async IO :-). But it
+would be foolish of me to criticize something I haven't used.
+
+There is more than one way how to skin a dinosaur. And threads are one
+way of doing it. You don't like it ? FINE. But don't go bashing it.
+
+Probably most people bash threads becouse of a silly way POSIX designed
+(designed is an overstatement) their pthread API and becouse UNIX was
+around before threads thus probably making every UNIX thread support a
+hacked and not a designed tool.
+Other OSes have certainly proven threads to be nice and usable.
+
+And here is another one for you quotes page:
+------------------------------------
+If you can't stick your head out of your own backyard please... don't
+go and crtiticize the world... :-)
+------------------------------------
+
 -- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
-Any opinions expressed are just that -- my opinions.
------------------------------------------------------------------------
+best regards,
+Rok Pape¾.

@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbULXQRm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbULXQSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbULXQRm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Dec 2004 11:17:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbULXQRm
+	id S261258AbULXQSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Dec 2004 11:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbULXQSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Dec 2004 11:17:42 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:1986 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261232AbULXQRf (ORCPT
+	Fri, 24 Dec 2004 11:18:50 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:28562 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261235AbULXQSb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Dec 2004 11:17:35 -0500
-Date: Fri, 24 Dec 2004 08:17:07 -0800 (PST)
+	Fri, 24 Dec 2004 11:18:31 -0500
+Date: Fri, 24 Dec 2004 08:18:26 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-mm@kvack.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Prezeroing V2 [0/3]: Why and When it works
-In-Reply-To: <Pine.LNX.4.58.0412231325420.2654@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0412240812190.6505@schroedinger.engr.sgi.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: akpm@osdl.org, linux-ia64@vger.kernel.org, torvalds@osdl.org,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: Prezeroing V2 [2/4]: add second parameter to clear_page() for
+ all arches
+In-Reply-To: <20041224083337.GA1043@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0412240818030.6505@schroedinger.engr.sgi.com>
 References: <B8E391BBE9FE384DAA4C5C003888BE6F02900FBD@scsmsx401.amr.corp.intel.com>
  <41C20E3E.3070209@yahoo.com.au> <Pine.LNX.4.58.0412211154100.1313@schroedinger.engr.sgi.com>
  <Pine.LNX.4.58.0412231119540.31791@schroedinger.engr.sgi.com>
- <16843.13418.630413.64809@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0412231325420.2654@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412231132170.31791@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0412231133130.31791@schroedinger.engr.sgi.com>
+ <20041224083337.GA1043@openzaurus.ucw.cz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Dec 2004, Linus Torvalds wrote:
+On Fri, 24 Dec 2004, Pavel Machek wrote:
 
-> So if we make the "what load is considered low" tunable, a system
-> administrator can use that to make it more aggressive. And indeed, you
-> might have a cron-job that says "be more aggressive at clearing pages
-> between 2AM and 4AM in the morning" or something - if you have so much
-> memory that it actually matters if you clear the memory just occasionally.
+> Hi!
 >
-> And the tunable load-average check has another advantage: if you want to
-> benchmark it, you can first set it to true zero (basically never), and run
-> the benchmark, and then you can set it to something very agressive ("clear
-> pages every five seconds regardless of load") and re-run.
+> > o Extend clear_page to take an order parameter for all architectures.
+> >
 >
-> Does this sound sane? Christoph - can you try making the "scrub deamon" do
-> that? Instead of the "scrub-low" and "scrub-high" (or in _addition_ to
-> them), do a "scub-load" thing that takes a scaled integer, and compares it
-> with "avenrun[0]" in kernel/timer.c: calc_load() when the average is
-> updated every five seconds..
+> I believe you sould leave clear_page() as is, and introduce
+> clear_pages() with two arguments.
 
-Sure V3 will have that. So far the impact of zeroing is quite minimal
-on IA64 (even without using hardware), the big zeroing happens immediately
-after activating it anyways. I have not seen any measurable effect on
-benchmarks even with 4G allocations on a 6G machine.
-
-> Personally, at least for a desktop usage, I think that the load average
-> would work wonderfully well. I know my machines are often at basically
-> zero load, and then having low-latency zero-pages when I sit down sounds
-> like a good idea. Whether there is _enough_ free memory around for a
-> 5-second thing to work out well, I have no idea..
-
-The CPU can do a couple of Gigs of zeroing per second per CPU and the
-zeroing zeros local RAM. On my 6G machine with 8 Cpus it can only
-take a fraction of a second to zero all RAM.
-
-Merry Christmas, I am off till now next year. SGI mandatory holiday
-shutdown so all addicts have to go cold turkey ;-)
-
+Did that in V1 and Andi Kleen complained about it.

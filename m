@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272855AbRILPLo>; Wed, 12 Sep 2001 11:11:44 -0400
+	id <S272065AbRILPpz>; Wed, 12 Sep 2001 11:45:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272857AbRILPLe>; Wed, 12 Sep 2001 11:11:34 -0400
-Received: from cm038.32.234.24.lvcm.com ([24.234.32.38]:15232 "EHLO osafo.com")
-	by vger.kernel.org with ESMTP id <S272855AbRILPLX>;
-	Wed, 12 Sep 2001 11:11:23 -0400
-Message-ID: <3B9F7B06.9060600@osafo.com>
-Date: Wed, 12 Sep 2001 08:11:02 -0700
-From: Colin Frank <kernel@osafo.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
+	id <S271587AbRILPpp>; Wed, 12 Sep 2001 11:45:45 -0400
+Received: from bacchus.veritas.com ([204.177.156.37]:15842 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S271498AbRILPpe>; Wed, 12 Sep 2001 11:45:34 -0400
+Date: Tue, 11 Sep 2001 01:14:58 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109111919260.1581-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109110059390.1420-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Eric.VanBuggenhaut@AdValvas.be
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PCMCIA_APA1480 not linked to any code ?
-In-Reply-To: <20010911021342.A2682@eric.ath.cx>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 11 Sep 2001, Marcelo Tosatti wrote:
+> 
+> - swapin_readahead() finds used entry on swap map. (valid_swaphandles)
+> - user of this entry deletes the swap map entry, so it becomes free. Then:
+> 
+> CPU0					CPU1
+> read_swap_cache_async()			try_to_swap_out()
+> Second __find_get_page() fails
+> 					get_swap_page() returns swap
+> 					entry which CPU0 is trying to read
+> 					from.
+> swap_duplicate() for the entry
+> succeeds: CPU1 just allocated it.
+> 					
+> add_to_swap_cache()			add_to_swap_cache()
 
-This card is now handled by the the (aic7xxx) HOTPLUG PCI interface.
-It is not at all clear on the docs, but do NOT use the apa1480_cb dirver.
-It crashes my 2.4.x system.
+Yes, well spotted, you are right that there's a malign race here.
 
-Configure the kernel 2.4.9 with:
-    CONFIG_HOTPLUG=y
-    CONFIG_CARDBUS=y
-    CONFIG_SCSI_AIC7XXX=m
+It may be made more likely by my swapoff changes (not bumping swap
+count in valid_swaphandles), but it's not been introduced by those
+changes.  Though usually swapin_readahead/valid_swaphandles covers
+(includes) the particular swap entry which do_swap_page actually
+wants to bring in, under pressure that's not always so, and then
+the race you outline can occur with the "bare" read_swap_cache_async
+for which there was no bumping.  Furthermore, you can play your
+scenario with valid_swaphandles through to add_to_swap_cache on CPU0
+interposed between the get_swap_page and add_to_swap_cache on CPU1
+(if interrupt on CPU1 diverts it).
 
-# modprobe aic7xxx
-Sep 12 07:56:36 localhost kernel: PCI: Enabling device 05:00.0 (0006 -> 
-0007)
-Sep 12 07:56:36 localhost kernel: ahc_pci:5:0:0: Host Adapter Bios 
-disabled.  Using default SCSI device parameters
-Sep 12 07:56:36 localhost kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI 
-SCSI HBA DRIVER, Rev 6.2.1
-Sep 12 07:56:36 localhost kernel:         <Adaptec 1480A Ultra SCSI 
-adapter>
-Sep 12 07:56:36 localhost kernel:         aic7860: Ultra Single Channel 
-A, SCSI Id=7, 3/255 SCBs
-Sep 12 07:56:36 localhost kernel:
+So it doesn't look like the solution will be to reintroduce bumping
+the swap count in valid_swaphandles.  It needs the locking here to
+be properly sorted out, probably without deceptive recourse to BKL.
+I'll try to think this through this evening (but won't be surprised
+if someone beats me to it).
 
-card "Adaptec APA-1480 SCSI Host Adapter"
-  manfid 0x012f, 0xcb01
-  bind "aic7xxx"
-  bind "apa1480_cb"
-
-To keep pcmcia from autoloading apa1480_cb when the card is inserted,
-Edit: /etc/pcmcia/config
-comment out the "apa1480_cb" stuff or try to replace it with aic7xxx
-
-Ref: Kernel help on HOTPLUG, and
-Colin Frank
-
-
-Eric Van Buggenhaut wrote:
-
->I'm with 2.4.9 source tree.
->
->Documentation/Configure.help documents a CONFIG_PCMCIA_APA1480 but this option
->doesn't lead to any code ?!
->
->femto:/usr/src/linux-2.4.9[0]# grep -r CONFIG_PCMCIA_APA1480 *
->Documentation/Configure.help:CONFIG_PCMCIA_APA1480
->femto:/usr/src/linux-2.4.9[0]#
->
->Am I missing something ?
->
->Thanks.
->
->Please CC me any answer/comment.
->
-
+Valuable find, thank you!
+Hugh
 

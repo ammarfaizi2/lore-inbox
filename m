@@ -1,87 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261755AbSJIOtW>; Wed, 9 Oct 2002 10:49:22 -0400
+	id <S261792AbSJIOxO>; Wed, 9 Oct 2002 10:53:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261758AbSJIOtW>; Wed, 9 Oct 2002 10:49:22 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:36085 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261755AbSJIOtV>; Wed, 9 Oct 2002 10:49:21 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20021009144414.GZ26771@phunnypharm.org> 
-References: <20021009144414.GZ26771@phunnypharm.org>  <20021009.045845.87764065.davem@redhat.com> <18079.1034115320@passion.cambridge.redhat.com> <20021008.175153.20269215.davem@redhat.com> <200210091149.g99BnWQ5000628@pool-141-150-241-241.delv.east.verizon.net> <7908.1034165878@passion.cambridge.redhat.com> <3DA4392B.8070204@pobox.com> 
-To: Ben Collins <bcollins@debian.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: BK kernel commits list 
+	id <S261793AbSJIOxO>; Wed, 9 Oct 2002 10:53:14 -0400
+Received: from poup.poupinou.org ([195.101.94.96]:11836 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S261792AbSJIOxL>; Wed, 9 Oct 2002 10:53:11 -0400
+Date: Wed, 9 Oct 2002 16:58:50 +0200
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Ducrot Bruno <poup@poupinou.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] I8042_CMD_AUX_TEST oddities for some mouses.
+Message-ID: <20021009145850.GA13709@poup.poupinou.org>
+References: <20021008144523.GA983@poup.poupinou.org> <20021008180913.A19339@ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed ;
-	boundary="==_Exmh_-9483239040"
-Date: Wed, 09 Oct 2002 15:55:00 +0100
-Message-ID: <27367.1034175300@passion.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021008180913.A19339@ucw.cz>
+User-Agent: Mutt/1.3.28i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multipart MIME message.
+On Tue, Oct 08, 2002 at 06:09:13PM +0200, Vojtech Pavlik wrote:
+> On Tue, Oct 08, 2002 at 04:45:23PM +0200, Ducrot Bruno wrote:
+> 
+> > Some aux ports report false values when we send a I8042_CMD_AUX_TEST,
+> > which prevent an 'good' probe :(
+> > 
+> > The values I am aware are 0x01 and PSMOUSE_RET_ACK (taken from FreeBSD).
+> > 
+> > My own accupoint return 0x02.  I suggest then to do something like
+> 
+> Do you have any accupoint docs?
 
---==_Exmh_-9483239040
-Content-Type: text/plain; charset=us-ascii
+No.  Sorry.
 
-
-bcollins@debian.org said:
->  Just please make sure that the changeset info where it describes all
-> the files in the delta. I.e. the ones that are moved, deleted, new.
-> There's no way to deduce moves from the patch. 
-
-This bit?
-
-# This patch includes the following deltas:
-#                  ChangeSet    1.713   -> 1.714
-#       arch/i386/math-emu/poly.h       1.3     -> 1.4
-#
-
-Any idea how to get it other than 'bk export -tpatch | sed' ?
-
-I need to do some real work... play with ths script and sort it out between 
-yourselves :)
+This is an accupoint II, with specs only available via a NDA :((
+I will be very happy to get them, because this one have 4 buttons,
+and 2 of them are 'programable' (as claimed by toshiba),
+but I don't know how.
 
 
---
-dwmw2
+> 
+> > attached file (but perhaps with a config, or force option)?
+> 
+> I guess the only way is to remove the test altogether, as the values are
+> defined:
+> 
+> 00 : OK
+> 01 : Clock Error
+> 02 : Data Error
+> 03 : Clock + Data Error
+> fa : Undefined (OK)
+> ff : Unknown Error (common => OK)
+> 
+> Other values don't happen.
+> 
+> Most controllers return 00. Some ff, some fa. Now if we're going to take
+> 01 and 02 as OK as well, then everything is OK and we don't have to test
+> at all.
 
+Ok.  Agreed.
 
---==_Exmh_-9483239040
-Content-Type: application/x-sh ; name="mailcset.sh"
-Content-Description: mailcset.sh
-Content-Disposition: attachment; filename="mailcset.sh"
+I think also that this perticuliar problem occur _only_
+with the toshiba satellite 3000-100 and 3000-400 (as reported by FBSD users),
+so I guess I have to send a patch for a dmi_scan.c workaround.
 
-#!/bin/sh
-# $Id: mailcset.sh,v 1.6 2002/10/09 14:53:29 dwmw2 Exp $
+Cheers,
 
-CSET=$1
-
-# Hmmm. How to get just the first line in a dspec without 'head -1'?
-echo -n "Subject: " ; bk changes -r$CSET -d'$each(:C:){(:C:)\n}' | head -1
-
-# Grrr. bk prs needs an 'rfc822 datestamp' keyword.
-DATE="`bk changes -r$CSET -d':D: :T: :TZ: \n' | sed 's/\([+-]..\):/\1/'`"
-# How can I preserve timezone information?
-echo -n "Date: " ; date -d "$DATE" -R -u
-echo "X-BK-Repository: `hostname`:`pwd`"
-echo "X-BK-ChangeSetKey: `bk changes -r$CSET -d:CSETKEY:`"
-echo "From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>"
-echo "To: BK Commits List: ;"
-echo
-bk changes -r$CSET -d':G: :I:, :D: :T::TZ:, :USER:@:HOST:\n\n$each(:C:){\t(:C:)\n}'
-echo
-echo
-bk export -h -tpatch -r$CSET > ~/tmp/bkpatch.$$
-diffstat < ~/tmp/bkpatch.$$
-echo
-echo
-cat ~/tmp/bkpatch.$$
-rm ~/tmp/bkpatch.$$
-
---==_Exmh_-9483239040--
-
-
+-- 
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269428AbRHTVh0>; Mon, 20 Aug 2001 17:37:26 -0400
+	id <S269463AbRHTVhG>; Mon, 20 Aug 2001 17:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269454AbRHTVhH>; Mon, 20 Aug 2001 17:37:07 -0400
-Received: from firewall.fesppr.br ([200.238.157.11]:1270 "EHLO smtp2.fesppr.br")
-	by vger.kernel.org with ESMTP id <S269436AbRHTVhA>;
-	Mon, 20 Aug 2001 17:37:00 -0400
-To: linux-kernel@vger.kernel.org
-Subject: IPX in 2.4.[5-9]
-Message-ID: <998343425.3b818301718cd@webmail.fesppr.br>
-Date: Mon, 20 Aug 2001 18:37:05 -0300 (BRT)
-From: Alexandre Hautequest <hquest@fesppr.br>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-User-Agent: IMP/PHP IMAP webmail program 2.2.4
-X-Originating-IP: 172.16.40.2
-X-WebMail-Company: Fundacao de Estudos Sociais do Parana
+	id <S269428AbRHTVg4>; Mon, 20 Aug 2001 17:36:56 -0400
+Received: from mercury.is.co.za ([196.4.160.222]:44041 "HELO mercury.is.co.za")
+	by vger.kernel.org with SMTP id <S269436AbRHTVgr>;
+	Mon, 20 Aug 2001 17:36:47 -0400
+Date: Mon, 20 Aug 2001 23:37:18 +0200
+From: Dewet Diener <linux-kernel@dewet.org>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Riley Williams <rhw@MemAlpha.CX>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 partition unmountable
+Message-ID: <20010820233718.A10130@darkwing.flatlit.net>
+In-Reply-To: <20010818235211.A24646@darkwing.flatlit.net> <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org> <20010820191046.D4389@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010820191046.D4389@redhat.com>; from sct@redhat.com on Mon, Aug 20, 2001 at 07:10:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all.
+On Mon, Aug 20, 2001 at 07:10:46PM +0100, Stephen C. Tweedie wrote:
+> >  > I'll probably have to take the drive back, and see if it now mounts
+> >  > in the original system :-/
+> > 
+> > That might help...
+> 
+> Indeed, I'd like to see what that gives you.
 
-What's the actual IPX support in linux? Is it broken since 2.4.7? Or i just need
-to recompile my tools against a new kernel version -- the old ones was compiled
-in a 2.4.5 -- with any patch, option, whatever?
+Well, haven't had a chance to stick it in again, but after I repaired 
+it with e2fsck off a backup superblock, I'm assuming it will work fine...
 
-hquest@condor:~$ dmesg
-(snip)
-IPX Portions Copyright (c) 1995 Caldera, Inc.
-IPX Portions Copyright (c) 2000, 2001 Conectiva, Inc.
-hquest@condor:~$ /sbin/ifconfig -v eth0    
-eth0      Link encap:Ethernet  HWaddr 00:00:F8:08:BD:A1  
-          inet addr:172.16.40.2  Bcast:172.16.255.255  Mask:255.255.0.0
-          IPX/Ethernet 802.2 addr:AC100000:0000F808BDA1
-(snip)
-hquest@condor:~$ slist
-slist: Server not found (0x8847) in ncp_open
-hquest@condor:~$ _
+> One quick question: are either of the machines big-endian (HPPA, PPC
+> etc)?
 
-Not flaming anyone, just questioning.
+Nope, just plain PIII and AMD :)
 
-Please cc me, as im not subscribed to list.
+> Cheers, 
+>  Stephen
 
-TIA
-
---
-Alexandre Hautequest - hquest at fesppr.br
-Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
-Centro de Administração de Redes - CAR
-"Eu acreditava no sistema. Até que eles formataram minha família"
-
-Registered Linux User #116289 http://counter.li.org/
-
-"Ninguém é melhor do que todos nós juntos."
-Equipe Zeus Competições - www.gincaneiros-zeus.com.br
-
--------------------------------------------------
-Esta mensagem foi enviada pelo WebMail da FESP.
-Conheça a FESP: http://www.fesppr.br/
+Regards,
+Dewet

@@ -1,31 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315811AbSEJFWU>; Fri, 10 May 2002 01:22:20 -0400
+	id <S315812AbSEJFf0>; Fri, 10 May 2002 01:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315812AbSEJFWT>; Fri, 10 May 2002 01:22:19 -0400
-Received: from [62.240.94.4] ([62.240.94.4]:57478 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S315811AbSEJFWS>;
-	Fri, 10 May 2002 01:22:18 -0400
-Date: Fri, 10 May 2002 08:22:15 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Kingsley Foreman <kingsley@uglypunk.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Confidential Proposal
-Message-ID: <20020510082215.P1442@mea-ext.zmailer.org>
-In-Reply-To: <20020510042958Z315804-22652+3640@vger.kernel.org> <008e01c1f7dd$3a79d2e0$460fa8c0@Sabine>
-Mime-Version: 1.0
+	id <S315814AbSEJFfZ>; Fri, 10 May 2002 01:35:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15112 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315812AbSEJFfZ>;
+	Fri, 10 May 2002 01:35:25 -0400
+Message-ID: <3CDB5CC5.2621C68C@zip.com.au>
+Date: Thu, 09 May 2002 22:38:13 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: davidm@hpl.hp.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: maximum block size in buffer_head
+In-Reply-To: <E1762h0-00086K-00@wailua.hpl.hp.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 02:13:23PM +0930, Kingsley Foreman wrote:
-> ive got this 4 times today does someone want to ban it from the list
+David Mosberger wrote:
+> 
+> The current Linux kernel (both 2.4.xx and 2.5.xx) declare the b_size
+> member in struct buffer_head as an "unsigned short".  This obviously
+> limits the maximum block size to something less than 65536.  This is
+> bad because on some platforms (e.g., ia64), the page size can be up to
+> 64KB large.
+> 
+> Two questions:
+> 
+>  - does anyone object to widening b_size to "unsigned int"?
 
+Sounds OK to me for 2.5.
 
-  Good morning.
+I do have vague plans to remove b_data and to replace all instances
+with buffer_data(), which would kmap the page and calculate the address.
+Not that I've really thought this through...
 
-Yeah, I entered something of that  into TABOO-patterns, lets
-see how well it bites..
+This may lead to the introduction of a `b_offset'.  Which would be 16
+bits, which would snuggle in with the 16-bit b_size.   But I would
+scale both these values by 256 or 512,  for the reasons which you
+identify.
 
-/Matti Aarnio
+For 2.4, a 32-bit b_size would push sizeof(buffer_head) from 96 up
+to 100 bytes, which does not pack as well into the slab.  This would
+be an intensely unpopular move.  So you'd have to ifdef it.  Which
+makes it an ia64-only problem, which greatly improves your merge
+chances ;)
+
+>  - does anyone know of any other code paths where the block
+>    size is assumed to fit into 16 bits?
+
+Not off the top, but they're probably there.
+
+-

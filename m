@@ -1,87 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318232AbSHDVUy>; Sun, 4 Aug 2002 17:20:54 -0400
+	id <S318269AbSHDVby>; Sun, 4 Aug 2002 17:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318234AbSHDVUy>; Sun, 4 Aug 2002 17:20:54 -0400
-Received: from dialin-145-254-149-035.arcor-ip.net ([145.254.149.35]:19182
-	"HELO schottelius.org") by vger.kernel.org with SMTP
-	id <S318232AbSHDVUx>; Sun, 4 Aug 2002 17:20:53 -0400
-Date: Sun, 4 Aug 2002 07:42:28 +0200
-From: Nico Schottelius <nico-mutt@schottelius.org>
+	id <S318270AbSHDVbx>; Sun, 4 Aug 2002 17:31:53 -0400
+Received: from pD9E2319C.dip.t-dialin.net ([217.226.49.156]:38860 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318269AbSHDVbw>; Sun, 4 Aug 2002 17:31:52 -0400
+Date: Sun, 4 Aug 2002 15:35:20 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
 To: Thunder from the hill <thunder@ngforever.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.29 / 2.5.31 floppy/apm support
-Message-ID: <20020804054228.GA11639@schottelius.org>
-References: <20020803050752.GA2976@schottelius.org> <Pine.LNX.4.44.0208031231450.5119-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208031231450.5119-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.4.18
+cc: Nico Schottelius <nico-mutt@schottelius.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: floppy issue also in 2.4.18 ?  / 2.5 solution
+In-Reply-To: <Pine.LNX.4.44.0208041529520.10270-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0208041535000.10270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+diff -ruN linux-2.5.29/drivers/block/floppy.c linux-2.5.29.fix-floppy/drivers/block/floppy.c
+--- linux-2.5.29/drivers/block/floppy.c	Thu Jul 25 01:27:30 2002
++++ linux-2.5.29.fix-floppy/drivers/block/floppy.c	Sat Jul 27 14:14:29 2002
+@@ -3699,6 +3699,10 @@
+ 		UDRS->fd_ref = 0;
+ 	}
+ 	floppy_release_irq_and_dma();
++
++	/* undo ++bd_openers in floppy_open() */
++	--inode->i_bdev->bd_openers;
++
+ 	return 0;
+ }
+ 
+@@ -3791,6 +3795,43 @@
+ 		invalidate_buffers(mk_kdev(FLOPPY_MAJOR,old_dev));
+ 	}
+ 
++	/* Problems:
++	 * 1. floppy_open() triggers a call to submit_bio(), but
++	 *    bdev->bd_queue may be NULL since it is not set up until
++	 *    after floppy_open() has returned. Prior to 2.5.18, NULL
++	 *    queues were initialised when needed.
++	 * 2. fs/block_dev.c:do_open() changes bdev's block size
++	 *    after floppy_open() has returned. For some reason, this
++	 *    causes data corruption durings writes.
++	 * 3. fs/block_dev.c:do_open() sets bdev->bd_inode->i_size to 0
++	 *    after floppy_open() has returned. This cases ENOSPC errors
++	 *    on writes.
++	 * Workarounds:
++	 * 1. bdev->bd_queue is initialised here.
++	 * 2. Set bdev block size equal to the hardsect/queue size.
++	 *    This seems to cure the data corruption problem for raw
++	 *    accesses. VFS accesses to mounted floppies still cause
++	 *    data corruption for unknown reasons.
++	 * 3. Set i_size to 1.44M and bd_offset to 0.
++	 * 2&3. ++bdev->bd_openers to bypass do_open()'s changes.
++	 *    floppy_release() does a --bdev->bd_openers.
++	 */
++	{
++		struct block_device *bdev = inode->i_bdev;
++		kdev_t dev = inode->i_rdev;
++		struct blk_dev_struct *p = blk_dev + major(dev);
++
++		if (p->queue)
++			bdev->bd_queue = p->queue(dev);
++		else
++			bdev->bd_queue = &p->request_queue;
++		bdev->bd_block_size = bdev_hardsect_size(bdev);
++		bdev->bd_inode->i_blkbits = blksize_bits(block_size(bdev));
++		bdev->bd_offset = 0;
++		bdev->bd_inode->i_size = 1440 * 1024;
++		++bdev->bd_openers;
++	}
++
+ 	/* Allow ioctls if we have write-permissions even if read-only open.
+ 	 * Needed so that programs such as fdrawcmd still can work on write
+ 	 * protected disks */
+@@ -4228,8 +4269,6 @@
+ {
+ 	int i,unit,drive;
+ 
+-	register_sys_device(&device_floppy);
+-
+ 	raw_cmd = NULL;
+ 
+ 	devfs_handle = devfs_mk_dir (NULL, "floppy", NULL);
+@@ -4356,6 +4395,9 @@
+ 			register_disk(NULL, mk_kdev(MAJOR_NR,TOMINOR(drive)+i*4),
+ 					1, &floppy_fops, 0);
+ 	}
++
++	register_sys_device(&device_floppy);
++
+ 	return have_no_fdc;
+ }
+ 
+@@ -4538,6 +4580,7 @@
+ {
+ 	int dummy;
+ 		
++	unregister_sys_device(&device_floppy);
+ 	devfs_unregister (devfs_handle);
+ 	devfs_unregister_blkdev(MAJOR_NR, "fd");
+ 
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Thunder from the hill [Sat, Aug 03, 2002 at 12:37:51PM -0600]:
-> On Sat, 3 Aug 2002, Nico Schottelius wrote:
-> > I am currently trying to find a kernel, which supports wifi, floppy,apm.
->=20
-> Well, you won't find any. The days when the floppy driver still worked we=
-=20
-> didn't have wifi, I think.
-
-At least we only had old wi-fi extensions [btw, wi-fi =3D=3D wireless netwo=
-rks].
-I currently tried to run it with 2.4.18 and it works mostly, only when tryi=
-ng
-to boot on the other P133 system [as described in my other mail], the system
-only hangs.
-
-> Someone just has to adopt floppy to the new vfs=20
-> api, and we'll be happy. However, most of us are into different things,=
-=20
-> and some of us don't even have a floppy.
-
-Most of my computers even have 2 floppies [my old boss gave them out for
-free and I thought copying directly would be fast...which is just false!
-Copying directly with one FDC is about 20 times slower! Possibly a problem
-with out floppy driver ?]
-
-> > I am still hoping that in 2.5.31/32 floppy and apm will work again.
->=20
-> unlikely(eGiven someone cares)...
-
-seems like lkml consists of more people using apples without FDC :(
-
-Nico
-
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
-
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9TL7DtnlUggLJsX0RAntKAJ9ZtYL/NrAL5ifKzd4N61UoJ1bD+wCdHJtd
-gcMzvEDBK2A5roZVS7geTXc=
-=f5zU
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--

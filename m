@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129045AbQKPBXd>; Wed, 15 Nov 2000 20:23:33 -0500
+	id <S129187AbQKPBYn>; Wed, 15 Nov 2000 20:24:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129522AbQKPBXX>; Wed, 15 Nov 2000 20:23:23 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:41222 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129045AbQKPBXR>; Wed, 15 Nov 2000 20:23:17 -0500
-Date: Wed, 15 Nov 2000 16:52:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries Brouwer <aeb@veritas.com>
-cc: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>, emoenke@gwdg.de,
-        eric@andante.org, linux-kernel@vger.kernel.org
-Subject: Re: BUG: isofs broken (2.2 and 2.4)
-In-Reply-To: <20001116011138.A27272@veritas.com>
-Message-ID: <Pine.LNX.4.10.10011151638420.3216-100000@penguin.transmeta.com>
+	id <S129132AbQKPBYd>; Wed, 15 Nov 2000 20:24:33 -0500
+Received: from falcon.prod.itd.earthlink.net ([207.217.120.74]:25782 "EHLO
+	falcon.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129187AbQKPBYW>; Wed, 15 Nov 2000 20:24:22 -0500
+From: dep <dennispowell@earthlink.net>
+To: "Karnik, Rahul" <rakarnik@davidson.edu>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: VIA IDE bug with WD drive?
+Date: Wed, 15 Nov 2000 19:56:43 -0500
+X-Mailer: KMail [version 1.2]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1DE3DA661DC2D31190030090273D1E6A0153FA97@pobox.davidson.edu>
+In-Reply-To: <1DE3DA661DC2D31190030090273D1E6A0153FA97@pobox.davidson.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00111519564300.04831@depoffice.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 15 November 2000 19:30, Karnik, Rahul wrote:
 
+| I get the following error if I try to enable DMA on my Abit KT7
+| motherboard with a VIA2C686 chipset:
+|
+| hdb: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest
+| } hdb: timeout waiting for DMA
+| hda: DMA disabled
+| hdb: DMA disabled
+| ide0: reset: success
 
-On Thu, 16 Nov 2000, Andries Brouwer wrote:
-> 
-> Has there been a kernel version that could read these?
-> It looks like it proclaims blocksize 512 and uses blocksize 2048 or so.
-
-The (de_len == 0) check in do_isofs_readdir() seems to imply that the
-blocksize is always 2048. So at the very least something is inconsistent.
-We use ISOFS_BUFFER_SIZE(inode) (512 in this case) for some sector sizes,
-and then ISOFS_BLOCK_SIZE (2048) for others. 
-
-But the way isofs_bmap() works, we need to work with
-ISOFS_BUFFER_SIZE(inode). And I don't know if directories are always
-_aligned_ at 2048 bytes even if they should be blocked at 2k.
-
-Looking at the isofs lookup() logic, it will actually handle split
-entries, instead of complaining about them. And I suspect readdir() did
-too at some point, and the code was just removed (probably due to
-excessive confusion) when one of the many readdir() reorganizations was
-done. 
-
-readdir() probably worked a long time ago.
-
-Is the thing documented somewhere? It looks like we should just allow
-entries that are split and not complain about them. We have the temporary
-buffer for it already..
-
-		Linus
-
+i get the same thing, along with a crc error, over and over on a 
+20-gig WD IDE drive. alternately puzzling and frightening. 
+apparently, wd uses some nonstandard goofball error checking thing 
+that just doesn't work with linux at present. it *seems* to do no 
+harm.
+-- 
+dep
+--
+Everyone is entitled to his own opinion but not his own facts.
+                                    -- Daniel Patrick Moynahan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

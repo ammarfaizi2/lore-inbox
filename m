@@ -1,229 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S287505AbUKBCVI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S280856AbUKBDMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S287505AbUKBCVI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 21:21:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S381257AbUKAXN0
+	id S280856AbUKBDMI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 22:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S379981AbUKAXAD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 18:13:26 -0500
-Received: from mail.kroah.org ([69.55.234.183]:7844 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S323706AbUKAV7U convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 16:59:20 -0500
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.10-rc1
-In-Reply-To: <10993462761946@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Mon, 1 Nov 2004 13:57:56 -0800
-Message-Id: <1099346276701@kroah.com>
+	Mon, 1 Nov 2004 18:00:03 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:33221 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S281822AbUKAVqz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 16:46:55 -0500
+Date: Mon, 1 Nov 2004 15:43:45 -0600
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: schwidefsky@de.ibm.com
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: s390 drivers compilation
+Message-ID: <20041101214345.GC2613@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2443, 2004/11/01 13:03:53-08:00, akpm@osdl.org
+Hi Martin,
 
-[PATCH] sysfs backing store: use sysfs_dirent based tree in dir file operations
+I get this on 2.6.10-rc1-bk11. 
 
-From: Maneesh Soni <maneesh@in.ibm.com>
+  CC [M]  drivers/s390/net/netiucv.o
+  CC [M]  drivers/s390/net/fsm.o
+  CC [M]  drivers/s390/net/smsgiucv.o
+  CC [M]  drivers/s390/net/ctcmain.o
+drivers/s390/net/ctcmain.c: In function `ch_action_setmode':
+drivers/s390/net/ctcmain.c:1221: warning: `saveflags' might be used uninitialized in this function
+drivers/s390/net/ctcmain.c: In function `ch_action_restart':
+drivers/s390/net/ctcmain.c:1497: warning: `saveflags' might be used uninitialized in this function
+drivers/s390/net/ctcmain.c: In function `ch_action_txretry':
+drivers/s390/net/ctcmain.c:1648: warning: `saveflags' might be used uninitialized in this function
+drivers/s390/net/ctcmain.c: In function `ch_action_haltio':
+drivers/s390/net/ctcmain.c:1331: warning: `saveflags' might be used uninitialized in this function
+  CC [M]  drivers/s390/net/ctctty.o
+  CC [M]  drivers/s390/net/ctcdbug.o
+  CC [M]  drivers/s390/net/qeth_main.o
+drivers/s390/net/qeth_main.c: In function `qeth_ipv6_generate_eui64':
+drivers/s390/net/qeth_main.c:5015: error: structure has no member named `dev_id'
+drivers/s390/net/qeth_main.c:5016: error: structure has no member named `dev_id'
+drivers/s390/net/qeth_main.c: In function `qeth_netdev_init':
+drivers/s390/net/qeth_main.c:5568: error: structure has no member named `dev_id'
+drivers/s390/net/qeth_main.c:5570: error: structure has no member named `generate_eui64'
+make[2]: *** [drivers/s390/net/qeth_main.o] Error 1
+make[1]: *** [drivers/s390/net] Error 2
+make: *** [drivers/s390] Error 2
 
-o This patch implements the sysfs_dir_operations file_operations strucutre for
-  sysfs directories. It uses the sysfs_dirent based tree for ->readdir() and
-  ->lseek() methods instead of simple_dir_operations which use dentry based
-  tree.
+Looks like struct netdevice is missing dev_id and generate_eui64 fields in include/linux/netdevice.h.
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+Thanks
+Maneesh
 
-
- fs/sysfs/dir.c   |  141 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- fs/sysfs/mount.c |    2 
- fs/sysfs/sysfs.h |    2 
- 3 files changed, 143 insertions(+), 2 deletions(-)
-
-
-diff -Nru a/fs/sysfs/dir.c b/fs/sysfs/dir.c
---- a/fs/sysfs/dir.c	2004-11-01 13:37:04 -08:00
-+++ b/fs/sysfs/dir.c	2004-11-01 13:37:04 -08:00
-@@ -70,7 +70,7 @@
- static int init_dir(struct inode * inode)
- {
- 	inode->i_op = &simple_dir_inode_operations;
--	inode->i_fop = &simple_dir_operations;
-+	inode->i_fop = &sysfs_dir_operations;
- 
- 	/* directory inodes start off with i_nlink == 2 (for "." entry) */
- 	inode->i_nlink++;
-@@ -232,6 +232,145 @@
- 
- 	return error;
- }
-+
-+static int sysfs_dir_open(struct inode *inode, struct file *file)
-+{
-+	struct dentry * dentry = file->f_dentry;
-+	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
-+
-+	down(&dentry->d_inode->i_sem);
-+	file->private_data = sysfs_new_dirent(parent_sd, NULL);
-+	up(&dentry->d_inode->i_sem);
-+
-+	return file->private_data ? 0 : -ENOMEM;
-+
-+}
-+
-+static int sysfs_dir_close(struct inode *inode, struct file *file)
-+{
-+	struct dentry * dentry = file->f_dentry;
-+	struct sysfs_dirent * cursor = file->private_data;
-+
-+	down(&dentry->d_inode->i_sem);
-+	list_del_init(&cursor->s_sibling);
-+	up(&dentry->d_inode->i_sem);
-+	sysfs_put(file->private_data);
-+
-+	return 0;
-+}
-+
-+/* Relationship between s_mode and the DT_xxx types */
-+static inline unsigned char dt_type(struct sysfs_dirent *sd)
-+{
-+	return (sd->s_mode >> 12) & 15;
-+}
-+
-+static int sysfs_readdir(struct file * filp, void * dirent, filldir_t filldir)
-+{
-+	struct dentry *dentry = filp->f_dentry;
-+	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
-+	struct sysfs_dirent *cursor = filp->private_data;
-+	struct list_head *p, *q = &cursor->s_sibling;
-+	ino_t ino;
-+	int i = filp->f_pos;
-+
-+	switch (i) {
-+		case 0:
-+			ino = dentry->d_inode->i_ino;
-+			if (filldir(dirent, ".", 1, i, ino, DT_DIR) < 0)
-+				break;
-+			filp->f_pos++;
-+			i++;
-+			/* fallthrough */
-+		case 1:
-+			ino = parent_ino(dentry);
-+			if (filldir(dirent, "..", 2, i, ino, DT_DIR) < 0)
-+				break;
-+			filp->f_pos++;
-+			i++;
-+			/* fallthrough */
-+		default:
-+			if (filp->f_pos == 2) {
-+				list_del(q);
-+				list_add(q, &parent_sd->s_children);
-+			}
-+			for (p=q->next; p!= &parent_sd->s_children; p=p->next) {
-+				struct sysfs_dirent *next;
-+				const char * name;
-+				int len;
-+
-+				next = list_entry(p, struct sysfs_dirent,
-+						   s_sibling);
-+				if (!next->s_element)
-+					continue;
-+
-+				name = sysfs_get_name(next);
-+				len = strlen(name);
-+				if (next->s_dentry)
-+					ino = next->s_dentry->d_inode->i_ino;
-+				else
-+					ino = iunique(sysfs_sb, 2);
-+
-+				if (filldir(dirent, name, len, filp->f_pos, ino,
-+						 dt_type(next)) < 0)
-+					return 0;
-+
-+				list_del(q);
-+				list_add(q, p);
-+				p = q;
-+				filp->f_pos++;
-+			}
-+	}
-+	return 0;
-+}
-+
-+static loff_t sysfs_dir_lseek(struct file * file, loff_t offset, int origin)
-+{
-+	struct dentry * dentry = file->f_dentry;
-+
-+	down(&dentry->d_inode->i_sem);
-+	switch (origin) {
-+		case 1:
-+			offset += file->f_pos;
-+		case 0:
-+			if (offset >= 0)
-+				break;
-+		default:
-+			up(&file->f_dentry->d_inode->i_sem);
-+			return -EINVAL;
-+	}
-+	if (offset != file->f_pos) {
-+		file->f_pos = offset;
-+		if (file->f_pos >= 2) {
-+			struct sysfs_dirent *sd = dentry->d_fsdata;
-+			struct sysfs_dirent *cursor = file->private_data;
-+			struct list_head *p;
-+			loff_t n = file->f_pos - 2;
-+
-+			list_del(&cursor->s_sibling);
-+			p = sd->s_children.next;
-+			while (n && p != &sd->s_children) {
-+				struct sysfs_dirent *next;
-+				next = list_entry(p, struct sysfs_dirent,
-+						   s_sibling);
-+				if (next->s_element)
-+					n--;
-+				p = p->next;
-+			}
-+			list_add_tail(&cursor->s_sibling, p);
-+		}
-+	}
-+	up(&dentry->d_inode->i_sem);
-+	return offset;
-+}
-+
-+struct file_operations sysfs_dir_operations = {
-+	.open		= sysfs_dir_open,
-+	.release	= sysfs_dir_close,
-+	.llseek		= sysfs_dir_lseek,
-+	.read		= generic_read_dir,
-+	.readdir	= sysfs_readdir,
-+};
- 
- EXPORT_SYMBOL_GPL(sysfs_create_dir);
- EXPORT_SYMBOL_GPL(sysfs_remove_dir);
-diff -Nru a/fs/sysfs/mount.c b/fs/sysfs/mount.c
---- a/fs/sysfs/mount.c	2004-11-01 13:37:04 -08:00
-+++ b/fs/sysfs/mount.c	2004-11-01 13:37:04 -08:00
-@@ -43,7 +43,7 @@
- 	inode = sysfs_new_inode(S_IFDIR | S_IRWXU | S_IRUGO | S_IXUGO);
- 	if (inode) {
- 		inode->i_op = &simple_dir_inode_operations;
--		inode->i_fop = &simple_dir_operations;
-+		inode->i_fop = &sysfs_dir_operations;
- 		/* directory inodes start off with i_nlink == 2 (for "." entry) */
- 		inode->i_nlink++;	
- 	} else {
-diff -Nru a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
---- a/fs/sysfs/sysfs.h	2004-11-01 13:37:04 -08:00
-+++ b/fs/sysfs/sysfs.h	2004-11-01 13:37:04 -08:00
-@@ -20,6 +20,8 @@
- extern int sysfs_follow_link(struct dentry *, struct nameidata *);
- extern void sysfs_put_link(struct dentry *, struct nameidata *);
- extern struct rw_semaphore sysfs_rename_sem;
-+extern struct super_block * sysfs_sb;
-+extern struct file_operations sysfs_dir_operations;
- 
- struct sysfs_symlink {
- 	char * link_name;
-
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Austin
+email: maneesh@in.ibm.com
+Phone: 1-512-838-1896 Fax: 
+T/L : 6781896

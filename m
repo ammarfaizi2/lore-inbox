@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbTLSQ2H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 11:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSQ2H
+	id S263462AbTLSQbL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 11:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLSQbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 11:28:07 -0500
-Received: from main.gmane.org ([80.91.224.249]:52124 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263491AbTLSQ2E (ORCPT
+	Fri, 19 Dec 2003 11:31:11 -0500
+Received: from slimnet.xs4all.nl ([194.109.194.192]:22418 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S263462AbTLSQbG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 11:28:04 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Fri, 19 Dec 2003 11:31:06 -0500
+Subject: [2.6.0 cpufreq] longhaul trouble
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
 To: linux-kernel@vger.kernel.org
-From: nick black <dank@suburbanjihad.net>
-Subject: Re: 2.6-test11 framebuffer Matrox
-Date: Fri, 19 Dec 2003 16:28:01 +0000 (UTC)
-Message-ID: <brv8uh$but$1@sea.gmane.org>
-References: <200312190314.13138.schwientek@web.de>
-Reply-To: dank@reflexsecurity.com
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+Content-Type: text/plain
+Message-Id: <1071851531.9835.5.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 19 Dec 2003 17:32:11 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200312190314.13138.schwientek@web.de>, Steffen Schwientek wrote:
-> My Matrox-framebuffer is not working properly. Build direct into the
-> kernel, the monitor will be black with some stripes at startup, just the
-> reset button works.
-> Build as a modules, the same happens if I load the module.
+When I insert the longhaul cpufreq module on my VIA EPIA 800 the system
+completely freezes. It does not give any oops or other helpful error
+message.
 
-I've managed to get my AGP G400 working in the following setups under
-2.6.0 since -test7:
+Through ACPI I can only use the throttling function, I can not switch
+between 400 and 800 MHz.
 
-with Petr's patch, reverting to 2.4 interfaces:
-  video=matroxfb:vesa:0x1bb gives me a great fbcon.  I can either use
-  X's fbdev driver at the same resolution, or the mga driver at any
-  resolution, with no problems.
+Jurgen
 
-without Petr's patch:
-  video=matroxfb:vesa:0x1bb gives me a great fbcon.  I can only use
-  X's fbdev driver at the same resolution; the mga driver at any
-  resolution causes massive console corruption upon switching from X to
-  console and causing any screen changes.  Also, I get a large white
-  block underneath the logo on boot.
-	
--- 
-nick black <dank@reflexsecurity.com>
-"np:  nondeterministic polynomial-time
-the class of dashed hopes and idle dreams." - the complexity zoo
+output of /proc/cpu
+
+processor       : 0
+vendor_id       : CentaurHauls
+cpu family      : 6
+model           : 7
+model name      : VIA Ezra
+stepping        : 8
+cpu MHz         : 800.048
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu de tsc msr cx8 mtrr pge mmx 3dnow
+bogomips        : 1595.80
+
 

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129523AbRAPJHM>; Tue, 16 Jan 2001 04:07:12 -0500
+	id <S129735AbRAPJUc>; Tue, 16 Jan 2001 04:20:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129604AbRAPJHC>; Tue, 16 Jan 2001 04:07:02 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:21562 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S129523AbRAPJGy>; Tue, 16 Jan 2001 04:06:54 -0500
-Message-ID: <3A640F2A.E326922F@linux.com>
-Date: Tue, 16 Jan 2001 01:06:50 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac6 i686)
-X-Accept-Language: en
+	id <S129604AbRAPJUX>; Tue, 16 Jan 2001 04:20:23 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:6417 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129735AbRAPJUI>;
+	Tue, 16 Jan 2001 04:20:08 -0500
+Date: Tue, 16 Jan 2001 10:19:39 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Jonathan Thackray <jthackray@zeus.com>
+Subject: Re: [patch] sendpath() support, 2.4.0-test3/-ac9
+In-Reply-To: <Pine.LNX.4.30.0101152049580.14995-100000@twinlark.arctic.org>
+Message-ID: <Pine.LNX.4.30.0101161016250.673-100000@elte.hu>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.4.0-ac6, 'rm' stalls in wait_on_buffer
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has this issue been addressed?  When I delete something large..say a
-mozilla cvs tree, rm will stall for about 10-30 seconds every few
-minutes in wait_on_buffer.
 
-It's an IDE drive, nothing fancy on the system, it's a standard pII w/
-256 megs, about 50megs free.  'sync' also stalls similarly.
+On Mon, 15 Jan 2001, dean gaudet wrote:
 
-Ideas?
+> > just for kicks i've implemented sendpath() support.
+> >
+> > _syscall4 (int, sendpath, int, out_fd, char *, path, off_t *, off, size_t, size)
+>
+> hey so how do you implement transmit timeouts with sendpath() ?
+> (i.e. drop the client after 30 seconds of no progress.)
 
--d
+well this problem is not unique to sendpath(), sendfile() has it as well.
 
---
-..NOTICE fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
+in TUX i've added per-socket connection timers, and i believe something
+like this should be done in Apache as well - timers are IMO not a good
+enough excuse for avoiding event-based IO models and using select() or
+poll().
 
-
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

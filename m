@@ -1,72 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281082AbRKDSiO>; Sun, 4 Nov 2001 13:38:14 -0500
+	id <S280508AbRKDSmQ>; Sun, 4 Nov 2001 13:42:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281132AbRKDShV>; Sun, 4 Nov 2001 13:37:21 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:46094 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S281091AbRKDSf3>;
-	Sun, 4 Nov 2001 13:35:29 -0500
-Date: Sun, 4 Nov 2001 19:35:20 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org, groudier@club-internet.fr
-Subject: Re: Adaptec vs Symbios performance
-Message-Id: <20011104193520.1867ae7e.skraw@ithnet.com>
-In-Reply-To: <200111041810.fA4IAQY68511@aslan.scsiguy.com>
-In-Reply-To: <20011104151726.06193c01.skraw@ithnet.com>
-	<200111041810.fA4IAQY68511@aslan.scsiguy.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S280377AbRKDSlJ>; Sun, 4 Nov 2001 13:41:09 -0500
+Received: from unthought.net ([212.97.129.24]:50648 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S281124AbRKDSjl>;
+	Sun, 4 Nov 2001 13:39:41 -0500
+Date: Sun, 4 Nov 2001 19:39:38 +0100
+From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
+To: Tim Jansen <tim@tjansen.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011104193938.H14001@unthought.net>
+Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
+	Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104172742Z16629-26013+37@humbolt.nl.linux.org> <20011104184159.E14001@unthought.net> <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <160RwJ-2D3EHoC@fmrl05.sul.t-online.com>; from tim@tjansen.de on Sun, Nov 04, 2001 at 07:27:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Nov 2001 11:10:26 -0700 "Justin T. Gibbs" <gibbs@scsiguy.com> wrote:
+On Sun, Nov 04, 2001 at 07:27:16PM +0100, Tim Jansen wrote:
+> On Sunday 04 November 2001 18:41, you wrote:
+> > The "fuzzy parsing" userland has to do today to get useful information
+> > out of many proc files today is not nice at all. 
+> 
+> I agree, but you dont need a binary format to achieve this. A WELL-DEFINED 
+> format is sufficient. XML is one of them, one-value-files another one. The 
+> "fuzzy parsing" only happens because the files try to be friendly for human 
+> readers.
 
-> >On Sat, 03 Nov 2001 22:47:39 -0700 "Justin T. Gibbs" <gibbs@scsiguy.com>
-wrote
-> Show me where the real problem is, and I'll fix it.  I'll add the bottom
-> half handler too eventually, but I don't see it as a pressing item.  I'm
-> much more interested in why you are seeing the behavior you are and exactly
-> what, quantitatively, that behavior is.
+You need syntax or "transport", and then you need semantics.  My approach
+is identical to XML except it doesn't give you kilobytes of human-unreadable
+text.
 
-Hm, what more specific can I tell you, than:
+You could use text, with binary you save the extra conversions along with
+errors from parsers or bad use of sscanf()/sprintf()/...   K.I.S.S.   :)
 
-Take my box with
+I see a good point in using one-value-files though, except I think there's
+some type information missing.
 
-Host: scsi1 Channel: 00 Id: 03 Lun: 00
-  Vendor: TEAC     Model: CD-ROM CD-532S   Rev: 1.0A
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 08 Lun: 00
-  Vendor: IBM      Model: DDYS-T36950N     Rev: S96H
-  Type:   Direct-Access                    ANSI SCSI revision: 03
+> 
+> 
+> > It eats CPU, it's error-prone, and all in all it's just "wrong".
+> 
+> How much of your CPU time is spent parsing /proc files?
 
-and an aic7xxx driver. Start xcdroast an read a cd image. You get something
-between 2968,4 and 3168,2 kB/s throughput measured from xcdroast.
+[albatros:joe] $ time vmstat 1
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  0  0 113908   3184   1892 130584   1   1     3     3   61    43   9   5  86
+ 1  0  0 113908   3064   1896 130700   0   0     8     0 2301  1148   8   2  90
+ 0  0  0 113908   3064   1896 130700   0   0     0     0 2026   893   7   2  91
+ 0  0  0 113908   3064   1896 130700   0   0     0     0 1877   829   3   4  93
+ 0  0  0 113908   3068   1896 130696   0   0     0     0 1946   942   5   3  92
+ 0  0  0 113908   3072   1896 130696   0   0     0     0 2009  1034   7   5  88
+ 0  0  0 113908   3064   1896 130704   0   0     0     0 3706  2336   4   5  90
+ 0  0  0 113908   3064   1900 130688   0   0     0     0 2341  1671  10   3  87
+ 0  0  0 113908   3064   1900 130736   0   0     0     0 2431  1869  15   5  79
+ 2  0  0 113908   3064   1900 130764   0   0     0    88 2346  1440  12   3  85
+^C
 
-Now redo this with a Tekram controller (which is sym53c1010) and you get
-throughput of 3611,1 to 3620,2 kB/s.
-No special stuff or background processes or anything else involved. I wonder
-how much simpler a test could be.
-Give me values to compare from _your_ setup.
+real	0m9.486s
+user	0m0.070s
+sys	0m0.120s
 
-If you redo this test with nfs-load (copy files from some client to your
-test-box acting as nfs-server) you will end up at 1926 - 2631 kB/s throughput
-with aic, but 3395 - 3605 kB/s with symbios.
-
-If you need more on that picture, then redo the last and start _some_
-application in the background during the test (like mozilla). Time how long it
-takes until the application is up and running. 
-If you are really unlucky you have your mail-client open during test and let it
-get mails via pop3 in a MH folder (lots of small files). You have a high chance
-that your mail-client is unusable until xcdroast is finished with cd reading -
-but not with symbios.
-
-??
-
-Regards,
-Stephan
+[albatros:joe] $ 
 
 
+A *very* simple program (top is probably a lot worse!) uses 1% on my Dual 1.4
+GHz Athlon.
+
+Those TEN lines of status output cost me 336 MILLION clock cycles.
+
+> 
+> 
+> > However - having a human-readable /proc that you can use directly with
+> > cat, echo,  your scripts,  simple programs using read(), etc.   is
+> > absolutely a *very* cool feature that I don't want to let go.  It is just
+> > too damn practical.
+> 
+> You shouldn't use them in scripts because they are likely to break. That's 
+> the whole point. At least not when you want to distribute the scripts to 
+> others. And BTW the one-value-files are much easier to parse for scripts than 
+> any other solution that I have seen so far, including the current /proc 
+> interface.
+
+I agree that there's some really good points in using single-value files.
+
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

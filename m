@@ -1,71 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbULBOsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbULBOtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbULBOsz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 09:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbULBOsy
+	id S261647AbULBOtX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 09:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbULBOtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 09:48:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10514 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261646AbULBOsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 09:48:52 -0500
-Date: Thu, 2 Dec 2004 14:48:36 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: John Mock <kd6pag@qsl.net>
-Cc: Andrew Morton <akpm@osdl.org>, zadiglist@zadig.ca,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
-Message-ID: <20041202144836.A7760@flint.arm.linux.org.uk>
-Mail-Followup-To: John Mock <kd6pag@qsl.net>, Andrew Morton <akpm@osdl.org>,
-	zadiglist@zadig.ca,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <E1CZmgM-0000Lb-00@penngrove.fdns.net>
+	Thu, 2 Dec 2004 09:49:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:35685 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261647AbULBOtF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 09:49:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding;
+        b=n76ONe4RUPzswmfNpn4FKwCEBEhe7OLnr2QM/Fxxg1ng+6BzmiKjlp3Ve+RpUE/6LQ0cuj0mr9gkzM8octP+Xs8fDewUv/9NeysIZYtvMnDgcDJxUcUIbR7+98aVWsJZfiwifXAeTMgIyG4Y7eFgxHEnQ4NACKYx7qY6/yjDnqA=
+Message-ID: <3b2b32004120206497a471367@mail.gmail.com>
+Date: Thu, 2 Dec 2004 09:49:04 -0500
+From: Linh Dang <dang.linh@gmail.com>
+Reply-To: Linh Dang <dang.linh@gmail.com>
+To: Paul Mackerras <paulus@samba.org>
+Subject: [PATCH][PPC32] enhancement to virt_to_bus/bus_to_virt (resent with spell-checked subject line)
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E1CZmgM-0000Lb-00@penngrove.fdns.net>; from kd6pag@qsl.net on Thu, Dec 02, 2004 at 12:51:22AM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 12:51:22AM -0800, John Mock wrote:
-> A second crash involving software suspend looks
-> like it might be 'UART' related, but i'm not sure if i can reproduce that
-> one easily (as i'm not running that kernel).
+In 2.6.9 on non-APUS ppc32 platforms, virt_to_bus() will just subtract
+KERNELBASE  from the the virtual address. bus_to_virt() will perform
+the reverse operation.
 
-Please try this patch.
+This patch will make virt_to_bus():
 
---- linux-2.6-serial/drivers/serial/serial_core.c	Wed Dec  1 10:41:10 2004
-+++ linux/drivers/serial/serial_core.c	Thu Dec  2 13:34:47 2004
-@@ -1877,7 +1877,21 @@
- 	 * Re-enable the console device after suspending.
- 	 */
- 	if (uart_console(port)) {
--		uart_change_speed(state, NULL);
-+		struct termios termios;
-+
-+		/*
-+		 * First try to use the console cflag setting.
-+		 */
-+		memset(&termios, 0, sizeof(struct termios));
-+		termios.c_cflag = port->cons->cflag;
-+
-+		/*
-+		 * If that's unset, use the tty termios setting.
-+		 */
-+		if (state->info && state->info->tty && termios.c_cflag == 0)
-+			termios = *state->info->tty->termios;
-+
-+		port->ops->set_termios(port, &termios, NULL);
- 		console_start(port->cons);
- 	}
- 
+     - perform the current operation if the virtual address is between
+       KERNELBASE and ioremap_bot.
 
+     - use iopa() (as on APUS platform) otherwise.
+
+The patch will make bus_to_virt():
+
+     - perform the current operation if the bus address is between
+       PCI_DRAM_OFFSET and (ioremap_bot - KERNELBASE + PCI_DRAM_OFFSET).
+
+     - use mm_ptov() (as on APUS platform) otherwise.
+
+
+The patch also changes virt_to_phys()/phys_to_virt() in a similar way.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Linh Dang
+
+--- include/asm-ppc/io.h~2.6.9	2004-11-12 14:24:46.000000000 -0500
++++ include/asm-ppc/io.h	2004-12-02 09:42:32.000000000 -0500
+@@ -6,10 +6,11 @@
+ #include <linux/types.h>
+ 
+ #include <asm/page.h>
+ #include <asm/byteorder.h>
+ #include <asm/mmu.h>
++#include <asm/pgtable.h>
+ 
+ #define SIO_CONFIG_RA	0x398
+ #define SIO_CONFIG_RD	0x399
+ 
+ #define SLOW_DOWN_IO
+@@ -222,49 +223,60 @@ extern void io_block_mapping(unsigned lo
+  * have to be modified [mapped] appropriately.
+  */
+ extern inline unsigned long virt_to_bus(volatile void * address)
+ {
+ #ifndef CONFIG_APUS
+-        if (address == (void *)0)
++	if (unlikely(address == (void *)0))
+ 		return 0;
++	if (likely((address >= (void*) KERNELBASE) &&
++		   (address < ((void*) ioremap_bot))))
+         return (unsigned long)address - KERNELBASE + PCI_DRAM_OFFSET;
+-#else
+-	return iopa ((unsigned long) address);
++	else
+ #endif
++		return iopa ((unsigned long) address);
+ }
+ 
+ extern inline void * bus_to_virt(unsigned long address)
+ {
+ #ifndef CONFIG_APUS
+-        if (address == 0)
++	if (unlikely (address == 0))
+ 		return NULL;
++	if (likely((address >= PCI_DRAM_OFFSET) &&
++		   (address < (ioremap_bot - KERNELBASE + PCI_DRAM_OFFSET))))
+         return (void *)(address - PCI_DRAM_OFFSET + KERNELBASE);
+-#else
+-	return (void*) mm_ptov (address);
++	else
+ #endif
++		return (void*) mm_ptov (address);
+ }
+ 
+ /*
+  * Change virtual addresses to physical addresses and vv, for
+  * addresses in the area where the kernel has the RAM mapped.
+  */
+ extern inline unsigned long virt_to_phys(volatile void * address)
+ {
+ #ifndef CONFIG_APUS
++	if (unlikely(address == (void *)0))
++		return 0;
++	if (likely((address >= (void*) KERNELBASE) &&
++		   (address < ((void*) ioremap_bot))))
+ 	return (unsigned long) address - KERNELBASE;
+-#else
+-	return iopa ((unsigned long) address);
++	else
+ #endif
++		return iopa ((unsigned long) address);
+ }
+ 
+ extern inline void * phys_to_virt(unsigned long address)
+ {
+ #ifndef CONFIG_APUS
++	if (unlikely (address == 0))
++		return NULL;
++	if (likely(address < (ioremap_bot - KERNELBASE)))
+ 	return (void *) (address + KERNELBASE);
+-#else
+-	return (void*) mm_ptov (address);
++	else
+ #endif
++		return (void*) mm_ptov (address);
+ }
+ 
+ /*
+  * Change "struct page" to physical address.
+  */

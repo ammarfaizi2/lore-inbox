@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265680AbTB0RpT>; Thu, 27 Feb 2003 12:45:19 -0500
+	id <S265736AbTB0Rsw>; Thu, 27 Feb 2003 12:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265686AbTB0RpT>; Thu, 27 Feb 2003 12:45:19 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:63750 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265680AbTB0RpS>;
-	Thu, 27 Feb 2003 12:45:18 -0500
-Date: Thu, 27 Feb 2003 09:47:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 7/8] dm: __LOW macro fix no. 2
-Message-ID: <20030227174705.GB22191@kroah.com>
-References: <20030226170537.GA8289@fib011235813.fsnet.co.uk> <20030226171249.GG8369@fib011235813.fsnet.co.uk> <20030226181454.GA16350@kroah.com> <20030227095522.GA6312@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
+	id <S265809AbTB0Rsw>; Thu, 27 Feb 2003 12:48:52 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:61945 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265736AbTB0Rsu>; Thu, 27 Feb 2003 12:48:50 -0500
+Message-ID: <3E5E50C4.1070906@us.ibm.com>
+Date: Thu, 27 Feb 2003 09:54:12 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Levon <levon@movementarian.org>
+CC: oprofile-list@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oops running oprofile in 2.5.62
+References: <3E5DB057.60503@us.ibm.com> <20030227173704.GA76419@compsoc.man.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030227095522.GA6312@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 27, 2003 at 09:55:22AM +0000, Joe Thornber wrote:
-> Greg,
+John Levon wrote:
+> On Wed, Feb 26, 2003 at 10:29:43PM -0800, Dave Hansen wrote:
 > 
-> Any happier with this ?  The second hunk of the patch may disappear at
-> some point.
+>>I'm pretty sure it happened on this line in oprofile_add_sample():
+>>	cpu_buf->buffer[cpu_buf->pos].eip = eip;
+>>
+>>Unable to handle kernel paging request at virtual address f8c3c000
+> 
+> Odd. UP or SMP ? Were you shutting down oprofile at the time (or did the
+> daemon crash ? check /var/lib/oprofile/oprofiled.log)
 
-Much nicer, thanks.
+16-way NUMAQ :)  It was in the middle of a dbench run, so nothing
+critical was happening with oprofile.
 
-greg k-h
+> The only thing I can think is that the buffer got freed then we  got an
+> NMI afterwards (which obviously isn't supposed to happen...)
+
+The irqbalance code is causing some funniness on these machines, so it
+might be related.  I'll speak up if I see it again.
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

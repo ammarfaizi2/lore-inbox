@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271373AbTGWWfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 18:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271376AbTGWWfQ
+	id S271364AbTGWWi2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 18:38:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271367AbTGWWi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 18:35:16 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:40099 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S271373AbTGWWfK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 18:35:10 -0400
-Date: Wed, 23 Jul 2003 15:46:25 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Martin Diehl <lists@mdiehl.de>, Adrian Bunk <bunk@fs.tum.de>,
-       "Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
-       jgarzik@pobox.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-Message-ID: <20030723224625.GA1511@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Martin Diehl <lists@mdiehl.de>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	"Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
-	jgarzik@pobox.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0307232234350.717-100000@serv> <Pine.LNX.4.10.10307231528070.14556-100000@master.linux-ide.org>
+	Wed, 23 Jul 2003 18:38:28 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:21670 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S271364AbTGWWi1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 18:38:27 -0400
+Date: Thu, 24 Jul 2003 00:53:33 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1-ac3 still broken on Adaptec I2O
+Message-ID: <20030723225333.GC16244@louise.pinerecords.com>
+References: <20030723201801.GB32585@rdlg.net> <20030723212224.A527@infradead.org> <20030723220037.GC32585@rdlg.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10307231528070.14556-100000@master.linux-ide.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+In-Reply-To: <20030723220037.GC32585@rdlg.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 03:32:31PM -0700, Andre Hedrick wrote:
-> So lets cheer Roman for the wisdom of letting it all be free and everyone
-> can take from the pie and never give back.
+> [Robert.L.Harris@rdlg.net]
+> 
+> While I'm anything but a qualified coder I'm willing to test code on
+> this bugger or other help where soundly possible.
 
-Roman forgets that he doesn't speak for everyone, he makes statements like
-"the GPL is all about ..." as if he was elected the leader of the free
-software world and everyone agrees with him.  Some people people agree with
-him but a lot of people don't.  Unfortunately, in these sorts of discussions,
-the sane people tend to stay out of it and the fruitcakes come crawling out
-of the woodwork to tell you that you are doing it wrong and that you just
-don't get it.
+Would you people please stop replying above the original messages?
 
-Your procmail may set ye free, just use it.
+One could say this evil (pioneered by certain silly mail clients btw)
+has been spreading like plague around here lately.
+
+Quoting the lkml FAQ ->
+(REG) And please reply after the quoted text, not before it (as per RFC
+1855).  It's very confusing to see a reply before the quoted context.  And
+it's embarrassing: it makes you look like a newbie.  Change your mailer if
+necessary, if the one you have makes it hard to do reply-after-quoting.
+I know some people like to quote the entire message they are replying to,
+so they put their reply right at the top so people won't give up after the
+first page of quoted material.  Don't do it.  It's annoying.  Just learn to
+stop quoting everything.  No-one wants to see it all anyway (list archives
+allow people to see everything if they missed it).  You're not helping
+yourself anyway, as you're more likely to be ignored if you
+reply-before-quoting.
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Tomas Szepe <szepe@pinerecords.com>

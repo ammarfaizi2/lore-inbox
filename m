@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283268AbRLXW5G>; Mon, 24 Dec 2001 17:57:06 -0500
+	id <S283588AbRLXXL7>; Mon, 24 Dec 2001 18:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283467AbRLXW44>; Mon, 24 Dec 2001 17:56:56 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:20230
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S283268AbRLXW4s>; Mon, 24 Dec 2001 17:56:48 -0500
-Date: Mon, 24 Dec 2001 14:55:54 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Stanislav Meduna <stano@meduna.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE CDROM locks the system hard on media error
-In-Reply-To: <200112242137.fBOLbcU08347@meduna.org>
-Message-ID: <Pine.LNX.4.10.10112241455260.14431-100000@master.linux-ide.org>
+	id <S283718AbRLXXLt>; Mon, 24 Dec 2001 18:11:49 -0500
+Received: from miranda.axis.se ([193.13.178.2]:20132 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S283588AbRLXXLf>;
+	Mon, 24 Dec 2001 18:11:35 -0500
+Message-ID: <B6B64A8D263A4945BB5DCF3F9F400EB49546F2@mailse02.axis.se>
+From: Peter Kjellerstedt <peter.kjellerstedt@axis.com>
+To: "'Dr. David Alan Gilbert'" <gilbertd@treblig.org>,
+        linux-kernel@vger.kernel.org
+Subject: RE: The Linux Kernel Source Finder
+Date: Tue, 25 Dec 2001 00:10:49 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> -----Original Message-----
+> From: Dr. David Alan Gilbert [mailto:gilbertd@treblig.org] 
+> Sent: Sunday, December 23, 2001 18:07
+> To: linux-kernel@vger.kernel.org
+> Subject: The Linux Kernel Source Finder
+> 
+> Hi,
+>       http://www.treblig.org/Linux_kernel_source_finder.html
+> 
+>   At this address you can find a web page where I'm trying to list the
+> source of kernel source for all architectures and platforms.
+> I'm currently missing a good reference for the s390 and cris
+> architectures and some of the others are guesses on my part.
 
-Only in UltraDMA for all devices.
-Switch to MWDMA2 and it is all cool.
+For CRIS see http://developer.axis.com/
 
-On Mon, 24 Dec 2001, Stanislav Meduna wrote:
-
-> Hello,
-> 
-> > If it is DMAing and there is a 1us transaction delay it is toast.
-> 
-> Oh... But why does the whole kernel lock up?
-> 
-> > Intel PIIX4 AB/EB is a NO-NO for doing ATAPI on.
-> 
-> Only when using DMA or generally?
-> 
-> Maybe there should be some "quirk" disallowing this or at least
-> warn when the user happens to select this?
-> 
-> Regards
-> -- 
->                                       Stano
-> 
-
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
+//Peter

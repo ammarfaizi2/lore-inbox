@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263343AbTCUAS7>; Thu, 20 Mar 2003 19:18:59 -0500
+	id <S263155AbTCUAQ7>; Thu, 20 Mar 2003 19:16:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263345AbTCUAS7>; Thu, 20 Mar 2003 19:18:59 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:32221 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S263343AbTCUAS4>;
-	Thu, 20 Mar 2003 19:18:56 -0500
-Date: Thu, 20 Mar 2003 17:13:23 +0200 (IST)
-From: Shmulik Hen <hshmulik@intel.com>
-X-X-Sender: hshmulik@jrslxjul4.npdj.intel.com
-To: Bonding Developement list <bonding-devel@lists.sourceforge.net>,
-       Bonding Announce list <bonding-announce@lists.sourceforge.net>,
-       Linux Net Mailing list <linux-net@vger.kernel.org>,
-       Linux Kernel Mailing list <linux-kernel@vger.kernel.org>,
-       Oss SGI Netdev list <netdev@oss.sgi.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: [Bonding][patch set] - Adding IEEE 802.3ad Dynamic link aggregation
- support
-Message-ID: <Pine.LNX.4.44.0303201534360.10351-100000@jrslxjul4.npdj.intel.com>
+	id <S263337AbTCUAQ7>; Thu, 20 Mar 2003 19:16:59 -0500
+Received: from port-212-202-184-28.reverse.qdsl-home.de ([212.202.184.28]:12967
+	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
+	id <S263155AbTCUAQ6>; Thu, 20 Mar 2003 19:16:58 -0500
+Message-ID: <3E7A5C08.9060609@trash.net>
+Date: Fri, 21 Mar 2003 01:25:44 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030318 Debian/1.3-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RESEND] [PATCH]: missing cli() in isdn_net.c
+Content-Type: multipart/mixed;
+ boundary="------------070404030705050805090508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------070404030705050805090508
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following set of 7(+2) patches add support for 802.3ad link
-aggregation mode on top of the latest release of bonding from source-forge 
-(2.4.20-20030317). They also handle a set of bug fixes that were
-discovered during the past several weeks of an extensive testing effort
-done by our QA group. This comes as one of several enhancements Intel has
-decided to contribute to the open source community. This code is ported
-from our iANS product which has been around for some time. We are in the
-process of porting our advanced networking features from iANS to the
-bonding driver. In future releases we plan to add more features,
-improvements and adapting the code for 2.5.x kernels.
+Hi,
+this patch fixes a missing cli() in isdn_net.c.
 
-The first 2 patches add support for point-to-point protocols to the
-2.4.20/2.4.21-pre5 kernels in the net subtree, and are a pre-requisite for
-the 802.3ad feature. The following patches only modify the bonding files.
-
--- 
-| Shmulik Hen                                    |
-| Israel Design Center (Jerusalem)               |
-| LAN Access Division                            |
-| Intel Communications Group, Intel corp.        |
-|                                                |
-| Anti-Spam: shmulik dot hen at intel dot com    |
+Regards,
+Patrick
 
 
+--------------070404030705050805090508
+Content-Type: text/plain;
+ name="isdn-net-missing-cli.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="isdn-net-missing-cli.diff"
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1053  -> 1.1054 
+#	drivers/isdn/isdn_net.c	1.15    -> 1.16   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/03/18	kaber@trash.net	1.1054
+# [ISDN]: fix missing cli() in isdn_net.c
+# --------------------------------------------
+#
+diff -Nru a/drivers/isdn/isdn_net.c b/drivers/isdn/isdn_net.c
+--- a/drivers/isdn/isdn_net.c	Fri Mar 21 00:58:13 2003
++++ b/drivers/isdn/isdn_net.c	Fri Mar 21 00:58:13 2003
+@@ -2831,6 +2831,7 @@
+ 
+ 			/* If binding is exclusive, try to grab the channel */
+ 			save_flags(flags);
++			cli();
+ 			if ((i = isdn_get_free_channel(ISDN_USAGE_NET,
+ 				lp->l2_proto, lp->l3_proto, drvidx,
+ 				chidx, lp->msn)) < 0) {
 
-
-
+--------------070404030705050805090508--
 

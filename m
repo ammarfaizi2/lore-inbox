@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316709AbSHBW0Y>; Fri, 2 Aug 2002 18:26:24 -0400
+	id <S313638AbSHBW3f>; Fri, 2 Aug 2002 18:29:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317378AbSHBW0Y>; Fri, 2 Aug 2002 18:26:24 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:41996 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316709AbSHBW0Y>;
-	Fri, 2 Aug 2002 18:26:24 -0400
-Date: Fri, 2 Aug 2002 15:27:58 -0700
-From: Greg KH <greg@kroah.com>
-To: Stephen Cameron <steve.cameron@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.30 breaks cciss driver?
-Message-ID: <20020802222758.GA1687@kroah.com>
-References: <20020802154751.A1943@zuul.cca.cpqcorp.net>
+	id <S317251AbSHBW3f>; Fri, 2 Aug 2002 18:29:35 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:59399 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S313638AbSHBW3e>; Fri, 2 Aug 2002 18:29:34 -0400
+Date: Fri, 2 Aug 2002 15:32:30 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: David Ford <david+cert@blue-labs.org>,
+       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-usb-users] Re: Linux booting from USB HD / USB interface devices
+Message-ID: <20020802153230.E31990@one-eyed-alien.net>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	David Ford <david+cert@blue-labs.org>,
+	linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20020728123329.C12344@one-eyed-alien.net> <Pine.LNX.4.33L2.0208021348560.14068-100000@dragon.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="uCPdOCrL+PnN2Vxy"
 Content-Disposition: inline
-In-Reply-To: <20020802154751.A1943@zuul.cca.cpqcorp.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 05 Jul 2002 21:12:40 -0700
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33L2.0208021348560.14068-100000@dragon.pdx.osdl.net>; from rddunlap@osdl.org on Fri, Aug 02, 2002 at 02:03:02PM -0700
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2002 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02, 2002 at 03:47:51PM -0500, Stephen Cameron wrote:
-> 
-> I just saw this problem with 2.5.30.
-> 
-> I can't mount my 2nd volume on a cciss controller (SmartArray 5i)
-> 
-> < /dev/cciss/c0d1p1 /u1
-> No such device or address
-> 
-> The first volume, /dev/cciss/c0d0p1, works fine
-> (I'm booted from it.)
-> 
-> Reboot 2.5.29, both volumes work fine.
-> 
-> I don't have time to look into this right now,
-> but I thought I'd mention it in case someone else
-> does have time.  Looks like there was some partition 
-> code and/or devfs changes...
 
-Are you running in "devfs=only" mode?  If so, the changes I made
-probably are the cause of this.
+--uCPdOCrL+PnN2Vxy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+On Fri, Aug 02, 2002 at 02:03:02PM -0700, Randy.Dunlap wrote:
+> My turn for a question:
+> What files do I need to copy to a USB boot disk to be able to
+> successfully boot a Linux kenrel?
+> I'm already building the kernel with usb-storage support and all of
+> the required SCSI support in the kernel.
 
-greg k-h
+You should have a full linux install on that disk.  It is, after all, going
+to be the root fs.
+
+> Won't I need to put the kernel as the primary boot image,
+> i.e., don't use a boot loader on the USB storage device,
+> since the boot loader won't have USB storage I/O capabilities?
+
+Depends on your motherboard.  Some BIOSes allow loaders like LILO to work
+because they provide the translation between the int13h calls and the USB
+stack.
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+I see you've been reading alt.sex.chubby.sheep voraciously.
+					-- Tanya
+User Friendly, 11/24/97
+
+--uCPdOCrL+PnN2Vxy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9Swh+IjReC7bSPZARAvsUAJwIG56AiCIYd7foSShLMFVD+fe5ZACgkpru
+e4PrY2sU0KzDufCZ/aJZIP8=
+=C4A6
+-----END PGP SIGNATURE-----
+
+--uCPdOCrL+PnN2Vxy--

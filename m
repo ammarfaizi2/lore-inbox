@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUGRNMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264012AbUGRN1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbUGRNMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 09:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbUGRNMZ
+	id S264012AbUGRN1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 09:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUGRN1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 09:12:25 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:8368 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S263971AbUGRNMY (ORCPT
+	Sun, 18 Jul 2004 09:27:39 -0400
+Received: from [202.76.92.172] ([202.76.92.172]:25348 "EHLO main.coppice.org")
+	by vger.kernel.org with ESMTP id S264012AbUGRN1i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 09:12:24 -0400
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, John Hawkes <hawkes@sgi.com>,
-       Martin Hicks <mort@wildopensource.com>,
-       Shai Fultheim <Shai@ScaleMP.com>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-References: <200407151829.20069.jbarnes@engr.sgi.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 18 Jul 2004 09:12:13 -0400
-In-Reply-To: <200407151829.20069.jbarnes@engr.sgi.com>
-Message-ID: <yq08ydhsbma.fsf@wildopensource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Sun, 18 Jul 2004 09:27:38 -0400
+Message-ID: <40FA7A83.60800@coppice.org>
+Date: Sun, 18 Jul 2004 21:26:27 +0800
+From: Steve Underwood <steveu@coppice.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8 rc2 still has keyboard trouble
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jesse" == Jesse Barnes <jbarnes@engr.sgi.com> writes:
+Hi all,
 
-Jesse> Nick, we've had this patch floating around for awhile now and
-Jesse> I'm wondering what you think.  It's needed to boot systems with
-Jesse> lots (e.g. 256) nodes, but could probably be done another way.
-Jesse> Do you think we should create a scheduler domain for every 64
-Jesse> nodes or something?  Any other NUMA folks have thoughts about
-Jesse> these values?
+It seems widely reported that recent versions of Linux do not work 
+properly with non-USB keyboards and mice when built for SMP. I just 
+tried 2.6.8rc2, and the problem is still there. The workaround many 
+people have is to turn off USB legacy support in their BIOS. On my Tyan 
+2665 motherboard there is no BIOS option to do this. If I turn off USB 
+support completely in the BIOS my machine runs OK, but then...... well, 
+I want USB working :-) With a non-SMP kernel I do not have any problems.
 
-vSMP could use something like this as well. I think Martin Hicks
-already did an arch-aware patch for setting these things.
+Is this problem being actively addressed by anyone, or is the "turn off 
+legacy support" workaround considered an adequate fix?
 
-Jes
+Regards,
+Steve
+

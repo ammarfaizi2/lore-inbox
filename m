@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVCVTFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVCVTJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbVCVTFm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 14:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVCVTFm
+	id S261660AbVCVTJd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 14:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVCVTJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 14:05:42 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:56543 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261659AbVCVTFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 14:05:32 -0500
-Subject: Re: [PATCH] - Fusion-MPT much faster as module
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, kenneth.w.chen@intel.com
-In-Reply-To: <91888D455306F94EBD4D168954A9457C01AEB0A8@nacos172.co.lsil.com>
-References: <91888D455306F94EBD4D168954A9457C01AEB0A8@nacos172.co.lsil.com>
-Content-Type: text/plain
-Date: Tue, 22 Mar 2005 13:05:23 -0600
-Message-Id: <1111518323.5520.60.camel@mulgrave>
+	Tue, 22 Mar 2005 14:09:33 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:11395 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261660AbVCVTJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 14:09:31 -0500
+Date: Tue, 22 Mar 2005 20:09:32 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: 2.6.12-rc1-mm1: REISER4_FS <-> 4KSTACKS
+Message-ID: <20050322190932.GC27733@wohnheim.fh-wedel.de>
+References: <20050321025159.1cabd62e.akpm@osdl.org> <20050322171340.GE1948@stusta.de> <20050322185605.GB27733@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050322185605.GB27733@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-22 at 11:40 -0700, Moore, Eric Dean wrote:
-> History on this:
-> Between the 3.01.16 and 3.01.18, we introduced new method
-> to passing command line options to the driver.  Some of the
-> command line options are used for fine tuning dv(domain
-> validation) in the driver.  By accident, these command line options were
-> wrapped around #ifdef MODULE in the 3.01.18 version of the driver.
-> What this meant is when the driver is compiled built-in the kernel,
-> the optimal settings for dv were ignored, thus poor performance.  
+On Tue, 22 March 2005 19:56:05 +0100, Jörn Engel wrote:
+> 
+> stackframes for call path too long (2808):
 
-OK, I'll add this to the queue.
+Maybe I should change the output.  "too long" simply means "user gave
+a stack limit below this value".  2808 bytes is the most expensive
+path for reiser4 without recursion, so my limit was 2800. ;)
 
-Could I just point out that if your driver actually printed the results
-of negotiation, this would have been an awful lot easier to debug.
+Jörn
 
-Additionally, if you used the SPI transport class domain validation, the
-issue wouldn't have arisen in the first place.
-
-James
-
-
+-- 
+When people work hard for you for a pat on the back, you've got
+to give them that pat.
+-- Robert Heinlein

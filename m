@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265497AbUEZLlq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265501AbUEZLnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265497AbUEZLlq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 07:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUEZLlp
+	id S265501AbUEZLnM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 07:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265498AbUEZLnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 07:41:45 -0400
-Received: from mibi02.meb.uni-bonn.de ([131.220.21.3]:15364 "EHLO
-	mibi02.meb.uni-bonn.de") by vger.kernel.org with ESMTP
-	id S265497AbUEZLlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 07:41:44 -0400
-Subject: Re: PROBLEM: Linux-2.6.6 with dm-crypt hangs on SMP boxes
-From: "Dr. Ernst Molitor" <molitor@uni-bonn.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org,
-       Christophe Saout <christophe@saout.de>,
-       "Dr. Ernst Molitor" <molitor@uni-bonn.de>,
-       "Dr. Ernst Molitor" <em@cfce.de>
-In-Reply-To: <1085430830.7365.24.camel@felicia>
-References: <1085043539.18199.20.camel@felicia>
-	<20040521185640.6bf88bdb.akpm@osdl.org>  <1085430830.7365.24.camel@felicia>
-Content-Type: text/plain
+	Wed, 26 May 2004 07:43:12 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54196 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265501AbUEZLnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 07:43:07 -0400
+From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'John Bradford'" <john@grabjohn.com>
+Cc: "'William Lee Irwin III'" <wli@holomorphy.com>, <orders@nodivisions.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: why swap at all?
+Date: Wed, 26 May 2004 04:46:53 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 26 May 2004 13:41:31 +0200
-Message-Id: <1085571692.16063.10.camel@mibi02>
-Mime-Version: 1.0
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <40B467DA.4070600@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcRDBo+F4Ob4sLpWTkWfS+f+LvquIgAD6PSw
+Message-Id: <S265501AbUEZLnH/20040526114307Z+464@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux gurus, 
+>> 
+>> That's true, but it's not a magical property of swap space
+>> - extra physical
+>> RAM would do more or less the same thing.
+>> 
 
-sorry having to say so: My 2.6.6bk8 test box, with kernel option
-nolapic, died a few minutes ago, while printing a couple of pages on a
-printer attached to it via USB. Currently, nolapic seems to alleviate,
-but not cure the problem.
+> Well it is a magical property of swap space, because extra RAM
+> doesn't allow you to replace unused memory with often used memory.
 
-I'd happily try and do any check you might want to suggest to further
-pinpoint the problem.
+> The theory holds true no matter how much RAM you have. Swap can
+> improve performance. It can be trivially demonstrated.
 
-Best wishes and regards, 
+I bet you have demonstrated this. It strikes me of an observation that could
+be made in a lab environment. But your failing to realize that:
 
-Ernst
+1) you will fill physical memory with pages eventually or your not doing
+work.
+
+2) pages do not just silently move to the swap device. They move as a result
+of a memory shortfall
+
+3) once physical memory is full, file system I/O will only benefit from
+reads that incur a minor fault. All other file system operations are bound
+by the rate you can reclaim pages from physical memory.
+
+4) non-filesystem backed pages are still effected the same way, nothing has
+changed. When you run your next filesystem related operation, those pages
+will be faulted into physical memory, and something will be evicted to it's
+backing store (remember, memory is full).
+
+--Buddy
 

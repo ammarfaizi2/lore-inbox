@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315202AbSFXTkV>; Mon, 24 Jun 2002 15:40:21 -0400
+	id <S315210AbSFXUA2>; Mon, 24 Jun 2002 16:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315204AbSFXTkU>; Mon, 24 Jun 2002 15:40:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34528 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S315202AbSFXTkT>;
-	Mon, 24 Jun 2002 15:40:19 -0400
-Date: Mon, 24 Jun 2002 12:33:56 -0700 (PDT)
-Message-Id: <20020624.123356.82809701.davem@redhat.com>
-To: manand@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: efficient copy_to_user and copy_from_user routines in Linux
- Kernel
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OFCB119CD8.D6AE7B3D-ON85256BE2.006AC911@raleigh.ibm.com>
-References: <OFCB119CD8.D6AE7B3D-ON85256BE2.006AC911@raleigh.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S315214AbSFXUA1>; Mon, 24 Jun 2002 16:00:27 -0400
+Received: from NODE1.HOSTING-NETWORK.COM ([66.186.193.1]:55051 "HELO
+	hosting-network.com") by vger.kernel.org with SMTP
+	id <S315210AbSFXUA1>; Mon, 24 Jun 2002 16:00:27 -0400
+Subject: 2.4.19-rc1 error in depmod with mtd
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 24 Jun 2002 12:54:03 -0700
+Message-Id: <1024948445.2225.127.camel@shire.arnor.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Mala Anand" <manand@us.ibm.com>
-   Date: Mon, 24 Jun 2002 14:34:08 -0500
+When attempting to make modules_install,
 
-   The 2.5.19 copy routines use the movsl instruction.  We found that when the
-   src or dst addresses are not aligned on 8 bytes, performance can be
-   improved
-   by using the integer registers instead of the movsl instruction.  For
-   tcpip,
-   the src or dst addresses are often misaligned.
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.19-rc1/kernel/drivers/mtd/maps/sc520cdp.o
+depmod: 	mtd_concat_create_R606fc87b
+depmod: 	mtd_concat_destroy_R9c645004
+make: *** [_modinst_post] Error 1
 
-If the code is going to become so much larger, move the implementation
-out of the header file and into arch/i386/lib/foo.S
+- - -
+Torrey Hoffman
+thoffman@arnor.net
+torrey.hoffman@myrio.com
 
-It makes no sense to inline it anymore if it is going to be
-implemented with so many instructions.

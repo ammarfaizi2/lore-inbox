@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbULFN4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbULFOBT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbULFN4O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 08:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULFN4O
+	id S261523AbULFOBT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 09:01:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbULFOBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 08:56:14 -0500
-Received: from v6.netlin.pl ([62.121.136.6]:39432 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261526AbULFN4M (ORCPT
+	Mon, 6 Dec 2004 09:01:19 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:55257 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261523AbULFOAj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 08:56:12 -0500
-Message-ID: <41B464B3.8020807@pointblue.com.pl>
-Date: Mon, 06 Dec 2004 14:54:59 +0100
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel list <linux-kernel@vger.kernel.org>
-Cc: coreteam@netfilter.org
-Subject: ip contrack problem, not strictly followed RFC, DoS very much possible
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 6 Dec 2004 09:00:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=eAcHFesVeJM01/+dn4Txl1snnF5r64I90zQyIRszDRyeAVcU+2OYE2lUgBdTvs8wbPA+z237zbuZfq2l6hGdGj06uklgjLNqC+0f7h1fVl3Bb+kvzcxxKyo0llvUuFMMjT6Y5NF5gWFxK5G5jg54CJdPY2NNEGU2XBP+6318Cwk=
+Message-ID: <58cb370e041206060018aaacf1@mail.gmail.com>
+Date: Mon, 6 Dec 2004 15:00:38 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jan Panteltje <panteltje@yahoo.com>
+Subject: Re: 2.6.9 slows down everything
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41B463BA.5080008@yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <41B463BA.5080008@yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list
+On Mon, 06 Dec 2004 14:50:50 +0100, Jan Panteltje <panteltje@yahoo.com> wrote:
+> Slow slow slow, compile takes looooong time..../
+> even with all modules removed.
+> Even the mouse becomes sluggy
+> top shops no excessive CPU usage.
+> I am back to 2.4.25,
 
-There is little bug, eversince, no author would agree to correct it 
-(dunno why) in ip_conntrack_proto_tcp.c:91:
-unsigned long ip_ct_tcp_timeout_established =   5 DAYS;
-
-Making it 5 days, makes linux router vournable to (D)DoS attacks. You 
-can fill out conntrack hash tables very quickly, making it virtually 
-dead. This computer will only respond to direct action, from keyboard, 
-com port. This is insane, it just blocks it self, and does nothing, no 
-fallback scenario, nothing.
-As far as I remember ( I have to look and find exact place where it's 
-writen ), RFC specifies this timeout as max 100s. 5 days is insane, and 
-no argumentation will explain it. I would suggest changing it to 100 
-SECS and remove line:
-#define DAYS * 24 HOURS
-
-as it won't be used anymore.
-
-If someone has argumentation for 5 days timeout, please speak out. In 
-everyday life, router, desktop, server usage 100s is enough there, and 
-makes my life easier, as many other linux admins.
+OK... and what is the point of your post?
+If you want to report bugs please read REPORTING-BUGS first.
 
 Thanks.
-
--- 
-GJ

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317102AbSHYKX3>; Sun, 25 Aug 2002 06:23:29 -0400
+	id <S317107AbSHYKhU>; Sun, 25 Aug 2002 06:37:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSHYKX3>; Sun, 25 Aug 2002 06:23:29 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:7172 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317102AbSHYKX3>; Sun, 25 Aug 2002 06:23:29 -0400
-Date: Sun, 25 Aug 2002 12:27:34 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
+	id <S317112AbSHYKhU>; Sun, 25 Aug 2002 06:37:20 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:47286 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317107AbSHYKhT>; Sun, 25 Aug 2002 06:37:19 -0400
+Date: Sun, 25 Aug 2002 12:58:18 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
 To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Kerenyi Gabor <wom@tateyama.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Toon van der Pas <toon@vanvergehaald.nl>, <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] make localconfig
-Message-ID: <20020825102734.GC310@louise.pinerecords.com>
-References: <200208250657.PAA11049@cttsv008.ctt.ne.jp> <Pine.LNX.4.44.0208250320360.3234-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208250320360.3234-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
-X-Uptime: 3 min
+In-Reply-To: <Pine.LNX.4.44.0208241522061.3234-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0208251256130.28574-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	This is supposed to be a first step into a new direction where
-> 	we no  longer copy vendor packages  from the vendor  CD to the
-> 	system in the first place, but rather compile new packages for
-> 	each  system, hoping  that  somewhen the  boxes  will be  fast
-> 	enough  to handle  it  in  no time.  It's  basically a  binary
-> 	distribution -> source distribution transition.
+On Sat, 24 Aug 2002, Thunder from the hill wrote:
 
-You might also like to take a look at Gentoo Linux, which I hear does
-precisely this, except with all the packages the user chooses to install.
-(Hopefully I've not malformed the name of the distro too much.)
+> Oh, please. This was not my intention. I was just suggesting something 
+> like this could be done in the real world, also don't I have these ideas. 
+> I just think it might save you some time when you've accidently rm'd your 
+> .config, and all you want to have is a .config for the local box. Also 
+> wouldn't I load all the modules one by one, possibly.
+> 
+> If you think it's a _deadly_bad_idea_to_do_ please tell me. It is, after 
+> all, just an RFC, means I request you to comment on this. I could even ask 
+> for kernel protection for the mice.
 
-T.
+For this kind of thing, code talks. Otherwise no one will take heed.
+
+	Zwane
+-- 
+function.linuxpower.ca
+

@@ -1,37 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132516AbRD2GUf>; Sun, 29 Apr 2001 02:20:35 -0400
+	id <S135682AbRD2Grk>; Sun, 29 Apr 2001 02:47:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132691AbRD2GU0>; Sun, 29 Apr 2001 02:20:26 -0400
-Received: from mail.gator.com ([63.197.87.182]:19217 "EHLO mail.gator.com")
-	by vger.kernel.org with ESMTP id <S132516AbRD2GUW>;
-	Sun, 29 Apr 2001 02:20:22 -0400
-From: "George Bonser" <george@gator.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Subjective 2.4.4 performance report
-Date: Sat, 28 Apr 2001 23:22:38 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJEEDNCOAA.george@gator.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S135680AbRD2GrV>; Sun, 29 Apr 2001 02:47:21 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:50189 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S135571AbRD2GrJ>;
+	Sun, 29 Apr 2001 02:47:09 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3-ac*, 2.4.4, tc/lk201 files missing
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 29 Apr 2001 16:47:02 +1000
+Message-ID: <32737.988526822@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will know better when the load ramps up next week but 2.4.4 (with Al
-Viro's prune_icache() patch) just seems to "feel" better than the previous
-2.4 kernels did. This is a UP Pentium-III with 256MB RAM used as a web
-server with about 100 connections open as I write this and serving about 50
-requests/sec.
+Both 2.4.3-ac* and 2.4.4 have this in drivers/tc/Makefile
 
-Note this machine does not run X or have any users logged in, it is just a
-plain old web server (Debian Woody and Apache).
+obj-$(CONFIG_VT) += lk201.o lk201-map.o lk201-remap.o
+lk201-map.c: lk201-map.map
+        loadkeys --mktable lk201-map.map > lk201-map.c
 
-Now that I have said this it will likely turn into a smoking heap of
-silicon.
+None of lk201.c, lk201-remap.c, lk201-map.map are in the kernel tree.
+Where are these missing files?
 

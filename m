@@ -1,82 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318546AbSHPQrV>; Fri, 16 Aug 2002 12:47:21 -0400
+	id <S318552AbSHPQrb>; Fri, 16 Aug 2002 12:47:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318552AbSHPQrV>; Fri, 16 Aug 2002 12:47:21 -0400
-Received: from wasala.fi ([212.50.129.162]:8463 "EHLO wasala.fi")
-	by vger.kernel.org with ESMTP id <S318546AbSHPQrU>;
-	Fri, 16 Aug 2002 12:47:20 -0400
-Date: Fri, 16 Aug 2002 19:50:57 +0300
-From: Antti Salmela <asalmela@iki.fi>
-To: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.4.20-pre1-ac3, SMP (Dual PIII)
-Message-ID: <20020816195057.A26010@wasala.fi>
-References: <20020814145454.A21254@wasala.fi> <1029328630.26226.21.camel@irongate.swansea.linux.org.uk> <20020814161037.A22388@wasala.fi> <1029331629.26227.36.camel@irongate.swansea.linux.org.uk> <20020814185505.A23923@wasala.fi> <20020814173057.18028.qmail@thales.mathematik.uni-ulm.de> <1029375182.28236.31.camel@irongate.swansea.linux.org.uk> <20020816141718.4766.qmail@thales.mathematik.uni-ulm.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020816141718.4766.qmail@thales.mathematik.uni-ulm.de>; from ehrhardt@mathematik.uni-ulm.de on Fri, Aug 16, 2002 at 04:17:18PM +0200
+	id <S318560AbSHPQrb>; Fri, 16 Aug 2002 12:47:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48397 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318552AbSHPQr3>; Fri, 16 Aug 2002 12:47:29 -0400
+Date: Fri, 16 Aug 2002 09:54:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] user-vm-unlock-2.5.31-A2
+In-Reply-To: <Pine.LNX.4.44.0208161144040.3062-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0208160936480.2243-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 04:17:18PM +0200, Christian Ehrhardt wrote:
-> On Thu, Aug 15, 2002 at 02:33:02AM +0100, Alan Cox wrote:
-> > Thanks - your analysis is informative to say the least. It looks like
-> > the PIV load balancing code is the problem. 
-> 
-> The (untested) patch below should correct this problem along with
-> a locking oddity (last hunk) that IMHO either needs fixing or a BIG
-> comment. Be prepared for a few (up to 4) lines of fuzz due to additional
-> BUG_ONs in both versions of the file.
 
-With this patch I could boot 2.4.20-pre2-ac3 and it has now run nearly an
-hour without any problems.
+On Fri, 16 Aug 2002, Ingo Molnar wrote:
+> 
+> okay, this is the misunderstanding then. If it fork()s and then uses some
+> threading (which uses clone()) then in all cases i know about it must be
+> linked against some threading library. Otherwise Y couldnt do a clone()  
+> call and expect threading to work.
 
->      regards   Christian Ehrhardt
-> 
-> [1] http://www.atnf.csiro.au/people/rgooch/benchmarks/linux-scheduler.html
-> 
-> 
-> --- /usr/src/linux-2.4.20-pre1-ac3/kernel/sched.c	Thu Aug 15 20:03:01 2002
-> +++ sched.c	Fri Aug 16 16:15:57 2002
-> @@ -769,7 +772,7 @@
->  			set_tsk_need_resched(p);
->  
->  			/* put it at the end of the queue: */
-> -			dequeue_task(p, rq->active);
-> +			dequeue_task(p, p->array);
->  			enqueue_task(p, rq->active);
->  		}
->  		goto out;
-> @@ -785,7 +788,7 @@
->  	if (p->sleep_avg)
->  		p->sleep_avg--;
->  	if (!--p->time_slice) {
-> -		dequeue_task(p, rq->active);
-> +		dequeue_task(p, p->array);
->  		set_tsk_need_resched(p);
->  		p->prio = effective_prio(p);
->  		p->time_slice = TASK_TIMESLICE(p);
-> @@ -1396,7 +1399,7 @@
->  	 */
->  	if (likely(current->prio == MAX_PRIO-1)) {
->  		if (current->time_slice <= 1) {
-> -			dequeue_task(current, rq->active);
-> +			dequeue_task(current, array);
->  			enqueue_task(current, rq->expired);
->  		} else
->  			current->time_slice--;
-> @@ -1411,7 +1414,7 @@
->  		list_add_tail(&current->run_list, array->queue + current->prio);
->  		__set_bit(current->prio, array->bitmap);
->  	}
-> -	spin_unlock(&rq->lock);
-> +	rq_unlock (rq);
->  
->  	schedule();
->  
+But of course it would. You can make your own async-io-like things by just 
+using clone() directly, that's what all the original clone() users were.
 
--- 
-Antti Salmela
+>		 So right now 'threading' is a property that comes with the
+> process image at exec()  time. But this must not be so from a conceptual
+> angle, so i agree with you.
+
+Even from a practical angle, it's not a "global" property. Sure, the code 
+that does the clone() itself must have come in through the execve() (or 
+through a loadable library later on), so in that sense you can think of it 
+as a global thing - since the code must obviously be in the address space 
+that the clone thing shares.
+
+But a lot of the clone() decisions can be local, without anythign else 
+really knowing about the fact that something started up a thread. The most 
+trivial example is simply something like the appended, which just does a 
+asynchronous read (yeah yeah, stupid example, but it's basically a 
+threaded "cat").
+
+Notice how none of this depends on any global state, so a library could do
+the clone() without the caller even knowing that it does part of its work
+in a local thread (it obviously wouldn't be doing anything this stupid,
+but an async writer thread for sound output etc is not impossible to
+imagine in a game library or something like that).
+
+In fact, inside libraries there may well be reasons _not_ to use a global 
+threading model like pthreads, because the library might want to take 
+advantage of things like separate file descriptor address spaces etc that 
+clone() can give it.
+
+		Linus
+
+---
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+
+#include <sched.h>
+
+#define UNFINISHED (-1000)
+
+struct iodesc {
+	int fd, len, status;
+	void *buffer;
+};
+
+int io_fn(void *_desc)
+{
+	struct iodesc *desc = _desc;
+
+	desc->status = read(desc->fd, desc->buffer, desc->len);
+	_exit(0);
+}
+
+int main()
+{
+	char buffer[4096];
+	struct iodesc desc = { 0, sizeof(buffer), UNFINISHED, buffer };
+
+	clone(io_fn, malloc(4096)+4096, CLONE_VM | CLONE_FILES | CLONE_FS | CLONE_DETACHED, &desc);
+	while (desc.status == UNFINISHED)
+		sched_yield();
+	write(1, buffer, desc.status);
+}
+

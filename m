@@ -1,67 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265174AbTLFOkh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 09:40:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265175AbTLFOkg
+	id S265175AbTLFOmV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 09:42:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265181AbTLFOmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 09:40:36 -0500
-Received: from zork.zork.net ([64.81.246.102]:41346 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S265174AbTLFOk0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 09:40:26 -0500
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Colin Coe <colin@coesta.com>, linux-kernel@vger.kernel.org
-Subject: IRQ balancing
-References: <3350.192.168.1.3.1070677965.squirrel@www.coesta.com>
-	<20031206024251.GG8039@holomorphy.com>
-Reply-To: Sean Neakums <sneakums@zork.net>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, Colin Coe
- <colin@coesta.com>,  linux-kernel@vger.kernel.org
-Date: Sat, 06 Dec 2003 14:40:19 +0000
-In-Reply-To: <20031206024251.GG8039@holomorphy.com> (William Lee Irwin,
- III's message of "Fri, 5 Dec 2003 18:42:51 -0800")
-Message-ID: <6u1xri2eng.fsf_-_@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 6 Dec 2003 09:42:21 -0500
+Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:33169
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S265175AbTLFOmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 09:42:17 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+From: Ian Kumlien <pomac@vapor.com>
+To: Craig Bradney <cbradney@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1070717770.13004.11.camel@athlonxp.bradney.info>
+References: <1070676480.1989.15.camel@big.pomac.com>
+	 <1070717770.13004.11.camel@athlonxp.bradney.info>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CDuUCLesZYWADrIrPSUR"
+Message-Id: <1070721735.1991.20.camel@big.pomac.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Dec 2003 15:42:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
 
-> On Sat, Dec 06, 2003 at 10:32:45AM +0800, Colin Coe wrote:
->> This indicates to me that the processing load is being evenly distributed
->> accross the two processes.  Under v2.6.0-testxx however, 'cat
->> /proc/interrupts' shows this:
->> [root@host root]# cat /proc/interrupts
->>            CPU0       CPU1
->>   0:     633122         30    IO-APIC-edge  timer
->>   1:        207              IO-APIC-edge  i8042
->>   2:                              XT-PIC  cascade
->>   4:         48          1    IO-APIC-edge  serial
->>   5:        449          1   IO-APIC-level  eth1
->>  10:        135          1   IO-APIC-level  aic7xxx
->>  11:       1447          1   IO-APIC-level  eth0
->>  12:         61              IO-APIC-edge  i8042
->>  14:                       IO-APIC-level  CS46XX
->>  15:      14982          1   IO-APIC-level  megaraid
->
-> 2.6 does balancing across packages, not logical cpus, so this will
-> happen and it will be largely harmless, except for what appears to
-> be some kind of bug where it's stealing the timer from logical cpu 1.
+--=-CDuUCLesZYWADrIrPSUR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I noticed something similar way back when, and what I took away from
-the ensuing discussion (which may be complete poppycock) was:
+On Sat, 2003-12-06 at 14:36, Craig Bradney wrote:
+> On Sat, 2003-12-06 at 03:08, Ian Kumlien wrote:=20
+> > You could always move eth0 to a different slot. Other than that, you ca=
+n
+> > do manual config for the irq's in the bios, but it shouldn't be
+> > needed...
+>=20
+> eth0 is the 3com onboard on the a7n8x deluxe...=20
 
-  "IRQ balancing" means having individual IRQs run on the same CPU as
-  much as possible, which (I assume) mitigates cacheline bouncing or
-  something along those lines.  It does not mean having each IRQ
-  serviced equally by each CPU.  The kernel's default policy is now to
-  have all IRQs run on CPU0, with "noirqbalance"'s effect being to
-  have the IRQs be serviced by CPUs in a round-robin fashion.
-  noirqbalance is intended to be used when one is runing a userspace
-  IRQ balancing policy daemon, such as the one written by Arjan Van de
-  Ven (http://people.redhat.com/arjanv/irqbalance/).
+I find that so odd... My on board network controller is a realtec phys
+controlled by a nvidia mac. Same goes for audio.
 
--- 
-Not bad, for a human.
+> Having finally woken up (me not the pc), uptime here is now 12 hours..
+> (without the CPU Disconnect athcool run, just the kernel patch). I did
+> run the athcool program to check the result though:
+>=20
+> nVIDIA nForce2 (10de 01e0) found
+> 'Halt Disconnect and Stop Grant Disconnect' bit is enabled.
+
+nVIDIA nForce2 (10de 01e0) found
+'Halt Disconnect and Stop Grant Disconnect' bit is enabled.
+
+
+> Perhaps my motherboard and cpu doesnt have a problem with disconnect and
+> just the IRQ issue, perhaps because its only a few weeks old. It would
+> make sense in some ways given that my system has only one of the
+> problems given the uptime I have been able to reach.
+
+Mine is 2 weeks old or so..=20
+
+> My hangs have always been when I have used the PC.. and often completed
+> a task and then a few seconds later it goes.
+
+Mine always seems to hang after a certain amount of time... When id
+didn't do a grep in the kernel lib.
+
+Btw, i have UDMA100 disks.. 2 disks on primary and 2 cdroms on
+secondary... I dunno if this could make any difference..
+
+> Will see in time I guess
+
+Good luck =3D)
+
+--=20
+Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
+
+--=-CDuUCLesZYWADrIrPSUR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/0erH7F3Euyc51N8RAgl9AJ9NWaQ72nbW3jDN1BIdG+RUFyXnSQCfRnUs
+S7p7RzIuBl4dmEcQAOlUNdI=
+=mrd7
+-----END PGP SIGNATURE-----
+
+--=-CDuUCLesZYWADrIrPSUR--
+

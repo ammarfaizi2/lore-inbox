@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317546AbSHHJgZ>; Thu, 8 Aug 2002 05:36:25 -0400
+	id <S317568AbSHHJhI>; Thu, 8 Aug 2002 05:37:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317561AbSHHJgZ>; Thu, 8 Aug 2002 05:36:25 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:33803 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317546AbSHHJgY>; Thu, 8 Aug 2002 05:36:24 -0400
-Message-ID: <3D523B25.5080105@evision.ag>
-Date: Thu, 08 Aug 2002 11:34:29 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: martin@dalecki.de, "Adam J. Richter" <adam@yggdrasil.com>,
-       alan@lxorguk.ukuu.org.uk, Andries.Brouwer@cwi.nl, johninsd@san.rr.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
-References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
+	id <S317576AbSHHJhI>; Thu, 8 Aug 2002 05:37:08 -0400
+Received: from slider.rack66.net ([212.3.252.135]:16146 "EHLO
+	slider.rack66.net") by vger.kernel.org with ESMTP
+	id <S317568AbSHHJgx>; Thu, 8 Aug 2002 05:36:53 -0400
+Date: Thu, 8 Aug 2002 11:43:32 +0200
+From: Filip Van Raemdonck <filipvr@xs4all.be>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: OT: Doom (Re: libc4 4.7.6)
+Message-ID: <20020808094332.GD8975@debian>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20020808091643.GC8975@debian> <Pine.LNX.4.43.0208081117240.25339-100000@cibs9.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.43.0208081117240.25339-100000@cibs9.sns.it>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Ingo Molnar napisa?:
-> On Thu, 8 Aug 2002, Marcin Dalecki wrote:
+On Thu, Aug 08, 2002 at 11:18:15AM +0200, venom@sns.it wrote:
+> On Thu, 8 Aug 2002, Filip Van Raemdonck wrote:
+> > On Thu, Aug 08, 2002 at 11:06:09AM +0200, venom@sns.it wrote:
+> > >
+> > > I still have it, to play sdoom with full sound and music ;), since
+> > > the elf binary has no patch to support music.
+> >
+> > You do realize that you can grab the Doom sources and recompile your own,
+> > or don't you?
 > 
-> 
->>>| the boot loader (read.S).  Currently, the kernel value is given precedence;
->>>| I am seriously reviewing this issue.
->>>
->>>	I just wonder if this is the problem that you are experiencing
->>>rather than anything that was new in 2.5.29.
->>
->>Yes.
-> 
-> 
-> folks, please keep in mind that this is a system that i just dont
-> reconfigure at whim. It's a proven, known system i use for testing and
-> nothing else. Suddenly it stopped working somewhere between 2.5.20 and
-> 2.5.30. No lilo upgrade, no nothing, 2 years old binaries:
-> 
->   [mingo@a mingo]$ ls -l /sbin/lilo
->   -rwxr-xr-x    1 root     root        59324 Aug 23  2000 /sbin/lilo
+> I did, there is sound support, then, but I was unable to listen the music
+> (it think is just a midi format)
 
-Yes sure. It is simply a very old bug in lilo, which the kernel worked
-around and did fight against in a diallectic way.
+I don't think it's midi, but there are a number of source ports which do play
+music fine. One I can immediately think of is prboom (prboom.sf.net).
+Google around for others.
 
+
+Regards,
+
+Filip
+
+-- 
+"There is a 90% chance that this message was written when the author's been
+ up longer than he should have. Please disregard any senseless drivel."
+	-- Chris Armstrong

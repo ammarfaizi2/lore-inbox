@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261663AbSJAPHP>; Tue, 1 Oct 2002 11:07:15 -0400
+	id <S261692AbSJAPMB>; Tue, 1 Oct 2002 11:12:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261668AbSJAPHP>; Tue, 1 Oct 2002 11:07:15 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:32899 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261663AbSJAPHP>;
-	Tue, 1 Oct 2002 11:07:15 -0400
-Date: Tue, 1 Oct 2002 16:15:25 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: "David L. DeGeorge" <dld@degeorge.org>, linux-kernel@vger.kernel.org
-Subject: Re: CPU/cache detection wrong
-Message-ID: <20021001151525.GA32467@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-	"David L. DeGeorge" <dld@degeorge.org>,
-	linux-kernel@vger.kernel.org
-References: <20021001111826.GA18583@suse.de> <Pine.GSO.3.96.1021001153347.13606C-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.3.96.1021001153347.13606C-100000@delta.ds2.pg.gda.pl>
-User-Agent: Mutt/1.4i
+	id <S261694AbSJAPMB>; Tue, 1 Oct 2002 11:12:01 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:45029 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S261692AbSJAPMA>; Tue, 1 Oct 2002 11:12:00 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40: undefined reference to `errno'
+Date: Tue, 1 Oct 2002 16:52:21 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210011652.21954.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 03:35:54PM +0200, Maciej W. Rozycki wrote:
-
-
- > > Some of the tualatins have an errata which makes L2 cache sizing
- > > impossible. They actually report they have 0K L2 cache. By checking
- > > the CPU model, we can guess we have at least 256K (which is where Linux
- > > got that number from in your case). But this however means the 512K
- > > models will report as 256K too.
- > > To work around it, boot with cachesize=512 and all will be good.
- > 
- >  Strange -- why not to default to 256K and override it with the value
- > obtained from a cache descriptor if != 0, then?
-
-Because the cache descriptor IS zero. So we default to 256K.
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o kernel/built-in.o mm/built-in.o fs/built-in.o ipc/built-in.o security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux
+init/built-in.o: In function `init':
+init/built-in.o(.text+0xf1): undefined reference to `errno'
+init/built-in.o(.text+0x124): undefined reference to `errno'
+init/built-in.o(.text+0x136): undefined reference to `errno'
+init/built-in.o(.text+0x163): undefined reference to `errno'
+init/built-in.o(.text+0x17d): undefined reference to `errno'
+init/built-in.o(.text+0x192): more undefined references to `errno' follow
+make[1]: *** [.tmp_vmlinux] Error 1

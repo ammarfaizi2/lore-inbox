@@ -1,27 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319256AbSIEWwa>; Thu, 5 Sep 2002 18:52:30 -0400
+	id <S319272AbSIEW57>; Thu, 5 Sep 2002 18:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319255AbSIEWw3>; Thu, 5 Sep 2002 18:52:29 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:26892 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S319256AbSIEWwV>; Thu, 5 Sep 2002 18:52:21 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200209052256.g85Murs21995@devserv.devel.redhat.com>
-Subject: Re: IDE cleanup (against 2.5.33) -- who takes these?
-To: pavel@ucw.cz (Pavel Machek)
-Date: Thu, 5 Sep 2002 18:56:53 -0400 (EDT)
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20020905222830.GA24863@elf.ucw.cz> from "Pavel Machek" at Sep 06, 2002 12:28:30 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S319273AbSIEW57>; Thu, 5 Sep 2002 18:57:59 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:47753 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319272AbSIEW56>; Thu, 5 Sep 2002 18:57:58 -0400
+Message-ID: <3D77E24C.8020808@us.ibm.com>
+Date: Thu, 05 Sep 2002 16:01:32 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020822
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Nivedita Singhvi <niv@us.ibm.com>
+CC: Troy Wilson <tcw@tempest.prismnet.com>, jamal <hadi@cyberus.ca>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+References: <200209052211.g85MBFdm099387@tempest.prismnet.com> <1031265571.3d77dd23caec4@imap.linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Who takes cleanup patches against 2.5.33? Alan is it you or should it
-> go directly to Linus?
+Nivedita Singhvi wrote:
+> SpecWeb99 doesnt execute the path that might benefit the 
+> most from this patch - sendmsg() of large files - large writes
+> going down..
 
-Via Andre please, and small cleanups like that can wait while we get
-the big stuff done
+For those of you who don't know Specweb well, the average size of a request 
+is about 14.5 kB.  The largest files are ~5mb, but the largest top out at 
+just under a meg.
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

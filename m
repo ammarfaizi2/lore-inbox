@@ -1,71 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUIOR7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUIOSB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266888AbUIOR7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 13:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUIOR7h
+	id S267259AbUIOSB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266878AbUIOSAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 13:59:37 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:65523 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266888AbUIOR6l
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 13:58:41 -0400
-Message-ID: <414881C2.4090909@mvista.com>
-Date: Wed, 15 Sep 2004 10:54:10 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Wed, 15 Sep 2004 14:00:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15064 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267184AbUIOR5h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 13:57:37 -0400
+Date: Wed, 15 Sep 2004 10:57:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Being more anal about iospace accesses..
+In-Reply-To: <20040915173236.GE6158@wohnheim.fh-wedel.de>
+Message-ID: <Pine.LNX.4.58.0409151045530.2333@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org>
+ <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org>
+ <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915165450.GD6158@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.58.0409151004370.2333@ppc970.osdl.org> <20040915173236.GE6158@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-CC: Christoph Lameter <clameter@sgi.com>, john stultz <johnstul@us.ibm.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com, jimix@us.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
-       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-References: <1094700768.29408.124.camel@cog.beaverton.ibm.com> <413FDC9F.1030409@mvista.com> <1094756870.29408.157.camel@cog.beaverton.ibm.com> <4140C1ED.4040505@mvista.com> <Pine.LNX.4.58.0409131420500.490@schroedinger.engr.sgi.com> <1095114307.29408.285.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0409141045370.6963@schroedinger.engr.sgi.com> <41479369.6020506@mvista.com> <Pine.LNX.4.58.0409142024270.10739@schroedinger.engr.sgi.com> <4147F774.6000800@mvista.com> <20040915085450.GA5242@dominikbrodowski.de>
-In-Reply-To: <20040915085450.GA5242@dominikbrodowski.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
-> On Wed, Sep 15, 2004 at 01:04:04AM -0700, George Anzinger wrote:
+
+
+On Wed, 15 Sep 2004, Jörn Engel wrote:
 > 
->>>One could do this but we want to have a tickless system. The tick is only
->>>necessary if the time needs to be adjusted.
->>
->>I really think a tickless system, for other than UML systems, is a loosing 
->>thing.  The accounting overhead on context switch (which increases as the 
->>number of switchs per second) will cause more overhead than a periodic 
->>accounting tick once a respectable load appears.
+> But it still leaves me confused.  Before I had this code:
 > 
-> 			 ^^^^^^^^^^^^^^^^
+> 	struct regs {
+> 		uint32_t status;
+> 		...
+> 	}
 > 
-> On a largely idle system (like notebooks on battery power in typical use)
-> the accounting overhead will be less a problem. However, the CPU being 
-> woken up each millisecond will cause an increased battery usage. So if 
-> the load is less than a certain threshold, tickless systems do make much 
-> sense.
+> 	...
+> 
+> 	struct regs *regs = ioremap(...);
+> 	uint32_t status = regs->status;
+> 	...
+> 
+> So now I should do it like this:
+> 
+> 	#define REG_STATUS 0
+> 
+> 	...
+> 
+> 	void __iomem *regs = ioremap(...);
+> 	uint32_t status = readl(regs + REG_STATUS);
 
-At MontaVista I have been working on a thing we call VST which looks ahead in 
-the timer list and, finding nothing for N ticks, turns off the ticker until that 
-time.  It is not tickless, unless the system is idle, but then it can go 
-tickless for as long as the max value that can be programmed on the wakeup 
-timer.  Interrupts prior to that time will, of course, also wake the system.
+No, you can certainly continue to use non-void pointers. The "void __iomem
+*" case is just the typeless one, exactly equivalent to regular void
+pointer usage.
 
-Seems like the best of both worlds to me.
+So let me clarify my original post with two points:
 
-An early version of this is on the HRT sourceforge site.
+ - if your device only supports MMIO, you might as well just use the old 
+   interfaces. The new interface will _also_ work, but there is no real 
+   advantage, unless you count the "pci_iomap()" as a simpler interface.
 
+   The new interface is really only meaningful for things that want to 
+   support _both_ PIO and MMIO. It's also, perhaps, a bit syntactically 
+   easier to work with, so some people might prefer that for that 
+   reason. See my comments further down on the auto-sizing. BUT it doesn't 
+   make the old interfaces go away by any means, and I'm not even
+   suggesting that people should re-write drivers just for the hell of it.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+   In short: if you don't go "ooh, that will simplify XXX", then you 
+   should just ignore the new interfaces.
 
+ - you can _absolutely_ use other pointers than "void *". You should 
+   annotate them with "__iomem" if you want to be sparse-clean (and it 
+   often helps visually to clarify the issue), but gcc won't care, the 
+   "__iomem" annotation is purely a extended check.
+
+So you can absolutely still continue with
+
+	struct mydev_iolayout {
+		__u32 status;
+		__u32 irqmask;
+		...
+
+	struct mydev_iolayout __iomem *regs = pci_map(...);
+	status = ioread32(&regs.status);
+
+which is often a lot more readable, and thus in fact _preferred_. It also
+adds another level of type-checking, so I applaud drivers that do this.
+
+Now, I'm _contemplating_ also allowing the "get_user()" kind of "unsized" 
+access function for the new interface. Right now all the old (and the new) 
+access functions are all explicitly sized. But for the "struct layout" 
+case, it's actually often nice to just say
+
+	status = ioread(&regs.status);
+
+and the compiler can certainly figure out the size of the register on its
+own. This was impossible with the old interface, because the old 
+interfaces didn't even take a _pointer_, much less one that could be sized 
+up automatically.
+
+(The auto-sizing is something that "get_user()" and "put_user()" have
+always done, and it makes them very easy to use. It involved a few pretty
+ugly macros, but hey, that's all hidden away, and is actually pretty
+simple in the end).
+
+		Linus

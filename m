@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129807AbQKTAIa>; Sun, 19 Nov 2000 19:08:30 -0500
+	id <S130472AbQKTAMk>; Sun, 19 Nov 2000 19:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130483AbQKTAIV>; Sun, 19 Nov 2000 19:08:21 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:34057
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129807AbQKTAIG>; Sun, 19 Nov 2000 19:08:06 -0500
-Date: Sun, 19 Nov 2000 15:37:56 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Sean B. Estabrooks" <sean@Debugs.org>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: ATA/IDE: dmaproc error 14 testers wanted!
-In-Reply-To: <01CBB9212067C547A572CA1AE8757EB50C00@EMAIL.debugs.org>
-Message-ID: <Pine.LNX.4.10.10011191537290.20388-100000@master.linux-ide.org>
+	id <S130320AbQKTAMa>; Sun, 19 Nov 2000 19:12:30 -0500
+Received: from [213.8.184.104] ([213.8.184.104]:43270 "EHLO callisto.yi.org")
+	by vger.kernel.org with ESMTP id <S130472AbQKTAMW>;
+	Sun, 19 Nov 2000 19:12:22 -0500
+Date: Mon, 20 Nov 2000 01:38:53 +0200 (IST)
+From: Dan Aloni <karrde@callisto.yi.org>
+To: Taisuke Yamada <tai@imasy.or.jp>
+cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old
+ BIOS
+In-Reply-To: <200011192311.eAJNBUj02708@research.imasy.or.jp>
+Message-ID: <Pine.LNX.4.21.0011200112300.991-100000@callisto.yi.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-/pub/linux/kernel/people/hedrick/ide-2.2.17/README
-/pub/linux/kernel/people/hedrick/ide-2.2.17/ide.2.2.17.all.20001118.patch.bz2
-
-There you go Sean, hope that helps.
-
-Cheers,
-
-On Sun, 19 Nov 2000, Sean B. Estabrooks wrote:
+On Mon, 20 Nov 2000, Taisuke Yamada wrote:
 
 > 
-> > It is on kernel.org and the README tells you what to do to enable the stub
-> > in ide-dma.c If it works let me know!
+> > > > This patch is not good...[snip]
+> > >
+> > > Please retest with hdc=...
+> >
+> > Ok, I've booted without the parameter, and without the jumper on
+> > clipping mode (I'll do it tommorow, it's 1AM now) got something
+> > similiar to what you've written, and everything looks ok.
 > 
-> Andre,
+> Great, so it worked.
 > 
->       Where on kernel.org are you hiding the README and patch files you
-> mention?
+> # Since it worked, please discard my message I sent you to wait.
 > 
->            Regards,
->                 Sean
+> > Now it reports 90069839 - one sector less. Any damage risk to
+> > my filesystems?
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+> Hmm, that will be trouble if you access that last sector. I'll
+> take a look at it after I came back from my work (It's 8AM now
+> and got to go to work :-).
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+Well, I could patch it so it adds that one sector ;-) But that's not the
+right way. The true number of sectors is 90069840, since 90069839 doesn't
+divide by the number of *real* heads (6) and the number of recording zones
+(15). So it needs fixing.
+
+-- 
+Dan Aloni 
+dax@karrde.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

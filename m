@@ -1,49 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135396AbREHVEv>; Tue, 8 May 2001 17:04:51 -0400
+	id <S135395AbREHVQB>; Tue, 8 May 2001 17:16:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135380AbREHVEl>; Tue, 8 May 2001 17:04:41 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:41231 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S135396AbREHVE3>;
-	Tue, 8 May 2001 17:04:29 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200105082104.f48L4FJ132293@saturn.cs.uml.edu>
-Subject: Re: OT: ps source?
-To: pierre.rousselet@wanadoo.fr (Pierre Rousselet)
-Date: Tue, 8 May 2001 17:04:15 -0400 (EDT)
-Cc: jbourne@MtRoyal.AB.CA (James Bourne), fred4160@yahoo.com (Fred Fleck),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3AF7A005.4EA9E37A@wanadoo.fr> from "Pierre Rousselet" at May 08, 2001 09:28:05 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135363AbREHVPv>; Tue, 8 May 2001 17:15:51 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:9920 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S135491AbREHVPj>;
+	Tue, 8 May 2001 17:15:39 -0400
+Message-Id: <m14xEp5-000OWpC@amadeus.home.nl>
+Date: Tue, 8 May 2001 22:15:11 +0100 (BST)
+From: arjan@fenrus.demon.nl (Arjan van de Ven)
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+cc: linux-kernel@vger.kernel.org
+X-Newsgroups: fenrus.linux.kernel
+In-Reply-To: <3AF2FF93.44A2C49@colorfullife.com> <E14vnMM-00084d-00@the-village.bc.nu>
+User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Rousselet writes:
-> James Bourne wrote:
+In article <E14vnMM-00084d-00@the-village.bc.nu> you wrote:
+> Arjan - care to unroll the tail 320 bytes of copying from the main loop ?
 
->> From the procps man page:
->>        Albert Cahalan <acahalan@cs.uml.edu> rewrote ps  for  full
->>        Unix98  and  BSD  support,  along with some ugly hacks for
->>        obsolete and foreign syntax.
->> 
->>        Michael K. Johnson <johnsonm@redhat.com>  is  the  current
->>        maintainer.
-
-There has been a bit of a fork actually... sorry.
-
-> Right. For international support procps-2.0.7 is the one to choose with
-> the patch procps-2.0.7-intl.patch.
-
-That one is quite buggy. The parser is broken ("ps -o %p" fails),
-you can get a core dump if you get unlucky with the System.map file,
-the BSD-style process selection is incorrect... I've fixed about 100
-bugs and introduced only a few.
-
-What you really ought to use is the Debian package. That gives you
-my source plus a few fixes that I don't have yet. Head over to
-www.debian.org and drill down to the "unstable" package. There you
-will find a source tarball and a patch file for it.
-
+I'll see what I can do to make us not loose too much speed.

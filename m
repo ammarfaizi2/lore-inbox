@@ -1,79 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbRCPB7L>; Thu, 15 Mar 2001 20:59:11 -0500
+	id <S129478AbRCPCIO>; Thu, 15 Mar 2001 21:08:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129469AbRCPB7B>; Thu, 15 Mar 2001 20:59:01 -0500
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:24305 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S129460AbRCPB6s>; Thu, 15 Mar 2001 20:58:48 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200103160051.f2G0pgH00998@webber.adilger.int>
-Subject: Re: [util-linux] Re: magic device renumbering was -- Re: Linux 2.4.2ac20
-In-Reply-To: <UTC200103152331.AAA2159588.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl"
- at "Mar 16, 2001 00:31:07 am"
-To: Andries.Brouwer@cwi.nl
-Date: Thu, 15 Mar 2001 17:51:42 -0700 (MST)
-CC: adilger@turbolinux.com, lars@larsshack.org, mikpe@csd.uu.se,
-        amnet@amnet-comp.com, hch@caldera.de, jjasen1@umbc.edu,
-        linux-kernel@vger.kernel.org, util-linux@math.uio.no
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129486AbRCPCIE>; Thu, 15 Mar 2001 21:08:04 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:51033 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S129478AbRCPCHw>; Thu, 15 Mar 2001 21:07:52 -0500
+Message-ID: <3AB17547.9020507@blue-labs.org>
+Date: Thu, 15 Mar 2001 18:07:03 -0800
+From: David <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac4 i686; en-US; 0.8.1) Gecko/20010314
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] report
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries writes:
-> > I've implemented a patch for util-linux-2.11a
-> > which adds LABEL support to mkswap(8) and swapon/swapoff(8).
-> 
-> But I would prefer a somewhat more ambitious approach.
-> 
-> My first thought was: why label individual swap partitions?
-> I almost never want to distinguish swap partitions, and just do
-> "swapon -a". In case one wants to guard against changing device names,
-> why not add an option -A so that "swapon -A" does swapon on each
-> partition with a swap signature?
-> 
-> However, that would greatly increase the risk that exists already
-> today: someone has a swap partition, and does mkfs.foo, and
-> it so happens that foofs does not use the sector with the swapsignature.
-> Now this foofs partition has a swap signature, but we would be very
-> unhappy if it were used as swap space.
+2.4.2-ac4
 
-I think the LABEL is a good intermediate step for people not using LVM.
-It basically allows your /etc/fstab to not have _any_ device names in it.
-I'm not sure I would be happy with auto-mounting swap partitions,
-especially because this would overwrite any data in the partition.  Bad.
+Mar 15 18:02:49 Huntington-Beach kernel: end_request: I/O error, dev 
+16:41 (hdd), sector 9512
+Mar 15 18:02:49 Huntington-Beach kernel: hdd: drive not ready for command
+Mar 15 18:02:48 Huntington-Beach kernel: hdd: drive not ready for command
+Mar 15 18:02:49 Huntington-Beach kernel: hdd: status error: status=0x00 { }
+Mar 15 18:02:49 Huntington-Beach kernel: hdd: drive not ready for command
+Mar 15 18:02:49 Huntington-Beach kernel: journal-601, buffer write failed
+Mar 15 18:02:49 Huntington-Beach kernel: kernel BUG at prints.c:332!
+Mar 15 18:02:49 Huntington-Beach kernel: invalid operand: 0000
+Mar 15 18:02:49 Huntington-Beach kernel: CPU:    0
+Mar 15 18:02:49 Huntington-Beach kernel: EIP:    
+0010:[reiserfs_panic+357/440]
+Mar 15 18:02:49 Huntington-Beach kernel: EFLAGS: 00010282
+Mar 15 18:02:49 Huntington-Beach kernel: eax: 0000001c   ebx: c0420e40   
+ecx: cf190000   edx: c03a4008
+Mar 15 18:02:49 Huntington-Beach kernel: esi: c39a5ecc   edi: c39a5ebc   
+ebp: 00000000   esp: c39a5e90
+Mar 15 18:02:49 Huntington-Beach kernel: ds: 0018   es: 0018   ss: 0018
+Mar 15 18:02:49 Huntington-Beach kernel: Process sync (pid: 30559, 
+stackpage=c39a5000)
+Mar 15 18:02:49 Huntington-Beach kernel: Stack: c031a785 c031aa74 
+0000014c d1526154 00000002 00000000 cfeb0c00 c0421240
+Mar 15 18:02:49 Huntington-Beach kernel:        c39a5ebc c39a5eb8 
+c39a4000 00000000 c0193a6f cfeb0c00 c031cd20 00000002
+Mar 15 18:02:49 Huntington-Beach kernel:        00000012 00000010 
+00000000 d1526188 d152617c 00000003 00000000 00000003
+Mar 15 18:02:49 Huntington-Beach kernel: Call Trace: [<d1526154>] 
+[flush_commit_list+659/908] [<d1526188>] [<d152617c>] 
+[do_journal_end+1935/2652] [<d1526154>] [<d1543000>]
+Mar 15 18:02:50 Huntington-Beach kernel:        
+[flush_old_commits+391/420] [reiserfs_write_super+21/32] 
+[sync_supers+118/172] [fsync_dev+23/48] [sys_sync+7/16] [system_call+51/56]
+Mar 15 18:02:50 Huntington-Beach kernel:
+Mar 15 18:02:50 Huntington-Beach kernel: Code: 0f 0b 83 c4 0c 83 7c 24 
+28 00 74 17 8b 7c 24 28 80 7f 11 00
 
-> The real problem is that our disks usually do not have a volume label.
-> Outside of all file systems.
-> The "signatures" that we rely on today are located in different places,
-> so that a filesystem can have several valid signatures at the same time.
-> And we first know where to look when we know the type already.
-> 
-> Design a Linux partition table format, where a partition descriptor
-> has fields start, end, fstype, fslabel, and the whole disk has a vollabel.
-> Put it in sector 0-N for an all-Linux disk, and in sectors pointed at
-> by a classical DOS-type partition table entry when the disk is shared.
-> 
-> (Maybe I already did that once - it sounds so familiar now that I write
-> this. Then why was it not pursued? Maybe LVM already does these things?)
-
-LVM will handle the disk and "partition" naming and size issues.
-
-It does NOT currently handle the fstype names, but this _could_ be
-determined via magic numbers, as now.  In the "(struct dentry *)->vfsmnt"
-thread, I was trying to work out a way to get mountpoint information
-for LVM.  In the end, I think I will store most of the /etc/fstab line
-into a field in the LV header, so it is easily retrievable.  This would
-also include the fstype, and mount/dump/fsck options.  It would _not_
-store the device name.
-
-The proposed solution would be to have mount(8) write the mount info to
-the disk (for logical volumes only, of course) at mount time.  I suppose
-the fs type, options, mountpoint could come from either /etc/fstab or
-from the command-line, since mount(8) is already parsing all of this info.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

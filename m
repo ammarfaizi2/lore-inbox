@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264980AbUEQL7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUEQMIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264980AbUEQL7j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 07:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264977AbUEQL7j
+	id S264977AbUEQMIl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 08:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264982AbUEQMIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 07:59:39 -0400
-Received: from taco.zianet.com ([216.234.192.159]:14609 "HELO taco.zianet.com")
-	by vger.kernel.org with SMTP id S264982AbUEQL6f (ORCPT
+	Mon, 17 May 2004 08:08:41 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:45467 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264977AbUEQMIj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 07:58:35 -0400
-From: Steven Cole <elenstev@mesatop.com>
+	Mon, 17 May 2004 08:08:39 -0400
+Date: Mon, 17 May 2004 17:34:43 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
-Date: Mon, 17 May 2004 05:58:03 -0600
-User-Agent: KMail/1.6.1
-Cc: torvalds@osdl.org, lm@bitmover.com, wli@holomorphy.com, hugh@veritas.com,
-       adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
-       linux-kernel@vger.kernel.org
-References: <200405132232.01484.elenstev@mesatop.com> <20040517002506.34022cb8.akpm@osdl.org> <20040517004626.4377a496.akpm@osdl.org>
-In-Reply-To: <20040517004626.4377a496.akpm@osdl.org>
-MIME-Version: 1.0
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: [2.6.6-mm3] sysfs backing store ver 0.6
+Message-ID: <20040517120443.GB1249@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405170558.04065.elenstev@mesatop.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 May 2004 01:46 am, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> >  If an application does mmap(MAP_SHARED) of, say, a 2048 byte file and then
-> >  extends it:
-> > 
-> >  	p = mmap(..., fd, ...);
-> >  	ftructate(fd, 4096);
-> >  	p[3000] = 1;
-> > 
-> >  A racing block_write_full_page() could fail to notice the extended i_size
-> >  and would decide to zap those 2048 bytes anyway.
-> 
-> This should plug it.
+Hello Andrew,
 
-I'll test this tonight when I get back to this home machine.
+Please find the following patch set for sysfs backing store for 2.6.6-mm3 
+kernel. I have fixed the rejects and there are also a few code changes.
 
-Thanks, and thanks to Bitmover for providing the resources to help chase this bug.
+The main change is related to providing protection against vulnerability of 
+parent dentry going off before the sysfs file being deleted. If you have 
+seen there was a oops message reported with 2.6.6-mm1 in which parent 
+dentry's ref count is zero when it was trying to remove a sysfs link.
 
-Steven
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108422899203505&w=2
+
+The changes I did are in fs/sysfs/inode.c:sysfs_hash_and_remove() and
+sysfs_remove_dir(), where it is now checking s_dentry field of the 
+corresponding sysfs_dirent to get the dentry (if valid) of the file 
+being deleted. Apart from being safe against parent dentry going off 
+before the child, this change also avoids allocating the dentry in the 
+removal path by not doing the lookup. 
+
+Please include the following patches in the next -mm and also note that they
+all depend on the fix-sysfs-symlinks.patch, I just mailed.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108479506507825&w=2
+
+Thanks
+Maneesh
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-25268553
+T/L : 9243696

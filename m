@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280669AbRKFWyJ>; Tue, 6 Nov 2001 17:54:09 -0500
+	id <S280685AbRKFW46>; Tue, 6 Nov 2001 17:56:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280665AbRKFWxz>; Tue, 6 Nov 2001 17:53:55 -0500
-Received: from ldap.austria.eu.net ([193.81.83.3]:36037 "EHLO
-	hausmasta.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S280656AbRKFWvy>; Tue, 6 Nov 2001 17:51:54 -0500
-Message-ID: <3BE86986.F975DEB9@eunet.at>
-Date: Tue, 06 Nov 2001 23:51:50 +0100
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: modules load, but do not initialize
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.21)
+	id <S280682AbRKFW4p>; Tue, 6 Nov 2001 17:56:45 -0500
+Received: from 122-VALL-X9.libre.retevision.es ([62.83.211.122]:16395 "EHLO
+	ragnar-hojland.com") by vger.kernel.org with ESMTP
+	id <S280660AbRKFWzD>; Tue, 6 Nov 2001 17:55:03 -0500
+Date: Sun, 4 Nov 2001 12:14:49 +0100
+From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SMART IDE drives
+Message-ID: <20011104121449.A6141@ragnar-hojland.com>
+In-Reply-To: <Pine.LNX.4.30.0111022001190.6396-100000@mustard.heime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0111022001190.6396-100000@mustard.heime.net>; from roy@karlsbakk.net on Fri, Nov 02, 2001 at 08:03:39PM +0100
+Organization: Mediocrity Naysayers Ltd
+X-Homepage: http://lightside.eresmas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Nov 02, 2001 at 08:03:39PM +0100, Roy Sigurd Karlsbakk wrote:
+> hi
+> 
+> I've seen the /proc/ide/ide./hd./smart_(thresholds|values) files in 2.4,
+> and I just wonder... Are there any available software to check these? Does
+> the kernel do it, or is that some future project.
 
-I found a strange behaviour today: I'm experimenting with a boot floppy
-with its own little linux on it, based on kernel 2.4.14. 
-
-I get the same effects when I really boot the disk, or if I chroot()
-into the directory which will later get imaged to disk: I can load and
-unload modules (with insmod, lsmod, rmmod, modprobe), but it looks like
-they never get initialised. I know for shure that some modules should
-write something to syslog or the console, delay a bit (esp
-ide-probe-mod), and, last but not least, provide a device or something.
-Nothing of this happens.
-
-Well, something happens after a few tries: it ooopses...
-
-What's happening here?
-
-I can provide any info you like or need. 
-
-
-bye, Michael
-
+ide-smart at http://lightside.eresmas.com
 -- 
-netWorks                                          Vox: +43 316  698260
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4                                   GSM: +43 676 3079941
-A-8045 Graz, Austria                          e-mail: reinelt@eunet.at
+____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+ =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+   U     chaos and madness await thee at its end."

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261712AbTIYGXp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 02:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbTIYGXp
+	id S261713AbTIYG3V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 02:29:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbTIYG3V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 02:23:45 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:55561 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261712AbTIYGXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 02:23:44 -0400
-Date: Thu, 25 Sep 2003 07:23:43 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Steven Dake <sdake@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH} fix defect with kobject memory leaks during del_gendisk
-Message-ID: <20030925072343.A4636@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steven Dake <sdake@mvista.com>, linux-kernel@vger.kernel.org,
-	mochel@osdl.org
-References: <1064444526.13033.355.camel@persist.az.mvista.com>
+	Thu, 25 Sep 2003 02:29:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46232 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261713AbTIYG3U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 02:29:20 -0400
+Date: Wed, 24 Sep 2003 23:29:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: overridex@punkass.com, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] 2.6: joydev is too eager claiming input devices
+Message-Id: <20030924232912.7e41d9f9.akpm@osdl.org>
+In-Reply-To: <200309250012.48522.dtor_core@ameritech.net>
+References: <1064459037.19555.3.camel@nazgul.overridex.net>
+	<200309250012.48522.dtor_core@ameritech.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1064444526.13033.355.camel@persist.az.mvista.com>; from sdake@mvista.com on Wed, Sep 24, 2003 at 04:02:06PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 24, 2003 at 04:02:06PM -0700, Steven Dake wrote:
-> Unfortunately it appears that del_gendisk uses kobject_del to delete the
-> kobject.  If the kobject has a ktype release function, it is not called
-> in the kobject_del call path, but only in kobject_unregister.
+Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+>
+> Could you please try the following patch (it is incremental against the 
+>  previous one and should apply to the -mm)
 
-That's intentional.  gendisks (like everything using kobjects) are
-reference counted and ->release is unly called after the last reference
-goes away, for gendisks that would be the last put_disk call.
+I ran that patch[1] past Vojtech yesterday and he then fixed the problem
+which it was addressing by other means within his tree.
 
-Unless you miss the put_disk call (which md certainly has) there's
-no memeory leak.
+So what we should do is to ask Vojtech to share that change with us so Dan
+can test it, please.
+
+
+[1] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm4/broken-out/joydev-exclusions.patch
+

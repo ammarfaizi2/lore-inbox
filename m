@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311246AbSCQBpd>; Sat, 16 Mar 2002 20:45:33 -0500
+	id <S311244AbSCQBoX>; Sat, 16 Mar 2002 20:44:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311251AbSCQBp0>; Sat, 16 Mar 2002 20:45:26 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:13572 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311246AbSCQBpP>;
-	Sat, 16 Mar 2002 20:45:15 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Anton Blanchard <anton@samba.org>, lse-tech@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] 7.52 second kernel compile 
-In-Reply-To: Your message of "Sat, 16 Mar 2002 09:37:00 -0800."
-             <730219199.1016271418@[10.10.2.3]> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 17 Mar 2002 12:45:03 +1100
-Message-ID: <25310.1016329503@ocs3.intra.ocs.com.au>
+	id <S311246AbSCQBoN>; Sat, 16 Mar 2002 20:44:13 -0500
+Received: from twinlark.arctic.org ([204.107.140.52]:44295 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP
+	id <S311244AbSCQBoF>; Sat, 16 Mar 2002 20:44:05 -0500
+Date: Sat, 16 Mar 2002 17:44:04 -0800 (PST)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: /dev/md0: Device or resource busy
+Message-ID: <Pine.LNX.4.33.0203161709140.7016-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Mar 2002 09:37:00 -0800, 
-"Martin J. Bligh" <Martin.Bligh@us.ibm.com> wrote:
->Are you still doing something like this?
-># MAKE="make -j14" /usr/bin/time make -j14 bzImage
->
->I tried setting the MAKE variable as well as doing the -j,
->but it actually made kernel compile time slower - what difference
->does it make on your machine? Can somebody clarify what this
->actually does, as opposed to the -j on the command line?
+i'm using 2.4.19-pre3-ac1 (on debian woody) and i was playing with md. it
+appears impossible to "raidstop /dev/md0" when i'm using the 0xfd
+autodetect partition type.
 
-It depends on which version of make you are using.  make 3.78 onwards
-has a built in job scheduler which shares the value of -j across its
-children, yea unto the nth generation.  Earlier versions of make did a
-simplistic 'run -j copies of make at the top level' and did not
-propagate -j to the lower levels.
+i have 3 other md devices which i can stop no problem (even with 0xfd
+autodetection), just not /dev/md0.
 
-With the recursive makefiles and make < 3.78 you need MAKE="make -j" to
-get a decent speedup because of the lack of choices at the top level
-Makefile.  With make >= 3.79 you do not need MAKE="make -j14", it can
-interfere with make's own scheduler.  See also make -l LOAD.
+% raidstop /dev/md0
+/dev/md0: Device or resource busy
+
+i don't have any filesystem mounted on md0, and "lsof | grep md" doesn't
+show anything.
+
+% dmesg | grep md0
+md: created md0
+md0: max total readahead window set to 124k
+md0: 1 data-disks, max readahead per data-disk: 124k
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: updating md0 RAID superblock on device
+md: md0 still in use.
+
+if i change the partition type to 0xda (is there something more
+appropriate?), and let /etc/init.d/raid2 do the "raidstart /dev/md0" then
+i can raidstop /dev/md0 no problem.
+
+is there maybe a reference counting problem when 0xfd is in use?
+
+note that my other md partitions are all 0xfd ... and i can raidstop them
+just fine.  (although i have to do it in a particular order since /dev/md3
+is a stripe of /dev/md{1,2}, which are mirrors. /dev/md1 happens to be
+other partitions on the same disks as /dev/md0.)
+
+-dean
 

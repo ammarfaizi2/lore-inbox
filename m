@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbUKKSxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbUKKSxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbUKKSxk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 13:53:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbUKKSxO
+	id S262313AbUKKSxl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 13:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbUKKSwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 13:53:14 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34538 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262321AbUKKRXR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 12:23:17 -0500
-Date: Thu, 11 Nov 2004 09:22:21 -0800
-From: Greg KH <greg@kroah.com>
-To: Tim Hockin <thockin@google.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: small PCI probe patch for odd 64 bit BARs
-Message-ID: <20041111172221.GB18538@kroah.com>
-References: <20041111044809.GE19615@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041111044809.GE19615@google.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 11 Nov 2004 13:52:54 -0500
+Received: from [194.90.79.130] ([194.90.79.130]:50190 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S262316AbUKKRTd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 12:19:33 -0500
+Message-ID: <41939F21.2040008@argo.co.il>
+Date: Thu, 11 Nov 2004 19:19:29 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041012
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@novell.com>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: mmap vs. O_DIRECT
+References: <cmtsoo$j55$1@gatekeeper.tmr.com>	 <1100121230.4739.1.camel@betsy.boston.ximian.com>  <41937C1A.30800@tmr.com>	 <1100187716.5358.5.camel@localhost> <1100193219.5358.25.camel@localhost>
+In-Reply-To: <1100193219.5358.25.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Nov 2004 17:19:31.0981 (UTC) FILETIME=[9BAA43D0:01C4C812]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 10, 2004 at 08:48:09PM -0800, Tim Hockin wrote:
-> The current PCI probe code breaks for 64 bit BARs that do not decode a
-> full 64 bits.  Example:
-> 
-> We have a device that uses a 64 bit BAR.  When you write all Fs to the
-> BARs, you get:
-> 
-> 	000000ff ffff0000
-> 
-> It wants 64k, in the first TB of RAM.  The current code totally borks on
-> this.
-> 
-> Simple patch against 2.6.9:
+Robert Love wrote:
 
-As Andrew pointed out, you didn't even compile test this patch, not nice.
+>The closest you can come to normal I/O without the page cache is by
+>doing posix_fadvise() to prune your cache pages after you touch them.
+>  
+>
+Or you can use aio with O_DIRECT.
 
-thanks,
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-greg k-h

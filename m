@@ -1,131 +1,227 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbULIJci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbULIJts@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbULIJci (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 04:32:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbULIJcf
+	id S261465AbULIJts (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 04:49:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbULIJtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 04:32:35 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:4507 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261159AbULIJc2 (ORCPT
+	Thu, 9 Dec 2004 04:49:47 -0500
+Received: from wylie.me.uk ([82.68.155.89]:52411 "EHLO mail.wylie.me.uk")
+	by vger.kernel.org with ESMTP id S261465AbULIJti (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 04:32:28 -0500
-Date: Thu, 9 Dec 2004 10:32:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-Message-ID: <20041209093211.GC14516@elte.hu>
-References: <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu> <1102526018.25841.308.camel@localhost.localdomain> <32950.192.168.1.5.1102529664.squirrel@192.168.1.5> <1102532625.25841.327.camel@localhost.localdomain> <32788.192.168.1.5.1102541960.squirrel@192.168.1.5> <1102543904.25841.356.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Thu, 9 Dec 2004 04:49:38 -0500
+From: "Alan J. Wylie" <alan@wylie.me.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1102543904.25841.356.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <16824.8109.697757.673632@devnull.wylie.me.uk>
+Date: Thu, 9 Dec 2004 09:49:33 +0000
+To: linux-kernel@vger.kernel.org
+Cc: "EC" <wingman@waika9.com>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+Subject: 2.4.29-pre1 OOPS early in boot with Intel ICH5 SATA controller
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+See also: <http://lkml.org/lkml/2004/12/3/68>
 
-> On Wed, 2004-12-08 at 21:39 +0000, Rui Nuno Capela wrote:
-> > 
-> > Almost there, perhaps not...
-> > 
-> > It doesn't solve the problem completely, if not at all. What was kind of a
-> > deterministic failure now seems probabilistic: the fault still occur on
-> > unplugging the usb-storage stick, but not everytime as before.
-> > 
-> 
-> OK, so I would say that this is part of a fix, but there are others.
-> There are lots of changes done to the slab.c file by Ingo.  The change I
-> made (and that is just a quick patch, it needs real work), was only in a
-> place that was obvious that there could be problems. 
-> 
-> Are you running an SMP machine? If so, than the patch I gave you is
-> definitely not enough. 
+With 2.4.27 patched with
 
-one of Rui's boxes is an SMP system - which would explain why the bug
-goes from an 'always crash' to 'spurious crash'. (if Rui's laptop
-triggers this problem too then there must be something else going on as
-well.)
+<http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.4/2.4.27-rc3-libata1.patch.bz2>
 
-> Ingo really scares me with all the removing of local_irq_disables in
-> the rt mode. I'm not sure exactly what is going on there, and why they
-> can, or should be removed. Ingo?
+the system works. I have not been able to make it work with any later
+2.4 kernel
 
-it is done so that the SLAB code can be fully preempted too. The SLAB
-code is of central importance to the -RT project, if it's not fully
-preemptible then that has a ripple effect on other subsystems (timer,
-signal code, file handling, etc.).
+Motherboard: Supermicro X6DA8-G2
 
-So while making it fully preemptible was quite challenging (==dangerous,
-scary), i couldnt just keep the SLAB using raw spinlocks, due to the
-locking dependencies. (nor did i have any true inner desire to keep it
-non-preemptible - the point of PREEMPT_RT is to have everything
-preemptible. I want to see how much preemption the Linux kernel can take
-=B-) It has held up surprisingly well i have to say.)
+[snippet from LSPCI -v]
+------------------------------------------------------------------------------
+00:1f.2 IDE interface: Intel Corp. 82801EB Ultra ATA Storage Controller (rev 02) (prog-if 8a [Master SecP PriP])
+        Subsystem: Super Micro Computer Inc: Unknown device 5680
+        Flags: bus master, 66Mhz, medium devsel, latency 0, IRQ 18
+        I/O ports at <ignored>
+        I/O ports at <ignored>
+        I/O ports at <ignored>
+        I/O ports at <ignored>
+        I/O ports at 18e0 [size=16]
 
-to make the SLAB code fully preemptible, there were two main aspects
-that i had to fix:
+[I hope I've got the patching right]
+------------------------------------------------------------------------------
 
- 1) irq context execution
- 2) process preemption
+# rm -r linux-2.4.28/
+# tar xIf linux-2.4.28.tar.bz2 
+# cd linux-2.4.28/
+# bzip2 -dc  ../patch-2.4.29-pre1.bz2     | patch -p 1 --quiet
+# bzip2 -dc  ../patch-2.4.29-pre1-bk5.bz2 | patch -p 1 --quiet
 
-in the -RT kernel all IRQ contexts execute in a separate process
-context, so the SLAB code is never called from a true IRQ context -
-hence problem #1 is solved. As far as #1 is concerned, the
-local_irq_disable()s are not needed anymore.
+[grep -v "^#" .config]
+------------------------------------------------------------------------------
+CONFIG_X86=y
+CONFIG_UID16=y
 
-the other aspect is process<->process preemption - which can still occur
-in the -RT kernel (and is the whole point of the PREEMPT_RT feature). 
-This means that the per-CPU assumptions within slab.c break.
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_HAS_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_F00F_WORKS_OK=y
+CONFIG_NOHIGHMEM=y
+CONFIG_X86_TSC=y
 
-To solve this i've turned the unlocked per-CPU SLAB code to be
-controlled by the cachep->spinlock. (on RT only - on non-RT kernels the
-SLAB code should be largely unmodified - this is why all that _rt and
-_nort API trickery is done.) Since the SLAB code is thus locked by
-cachep->spinlock on PREEMPT_RT, other tasks cannot interfere with the
-internal data structures.
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
 
-Finally, there was still the problem of the use of smp_processor_id() -
-the non-RT SLAB code (rightfully) assumes that smp_processor_id() is
-constant, but this is not true for the RT code - which can be preempted
-anytime (still holding the spinlock of course) and can be migrated to
-another CPU.
+CONFIG_PCMCIA=y
+CONFIG_CARDBUS=y
 
-To solve this problem i am saving smp_processor_id() once, before we use
-any per-CPU data structure for the first time, and this constant CPU ID
-value is cached and used throughout the whole SLAB processing pass.
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_RTC_IS_GMT=y
 
-[ Since in the RT case we lock the cachep exclusively, it's not a
-problem if the 'old' CPU's ID is used as an index - as long as the index
-is consistent. Most of the time the current CPU's ID will be used so we
-preserve most of the performance advantages (==cache-hotness) of per-CPU
-SLABs on SMP systems too. (except for the locking, which is serialized
-on RT.) ]
+CONFIG_PNP=y
 
-SLAB draining was an oversight - it's mainly called when there is VM
-pressure (which is not a stricly necessary feature, so i disabled it),
-but i forgot about the module-unload case where it's a correctness
-feature. Your patch is a good starting point, i'll try to fix it on SMP
-too.
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_RAID1=y
+CONFIG_BLK_DEV_LVM=y
 
-	Ingo
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+
+CONFIG_SCSI_SATA=y
+CONFIG_SCSI_ATA_PIIX=y
+
+CONFIG_NETDEVICES=y
+
+CONFIG_NET_PCMCIA=y
+CONFIG_PCMCIA_PCNET=y
+CONFIG_NET_PCMCIA_RADIO=y
+CONFIG_PCMCIA_RAYCS=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+
+CONFIG_RTC=y
+
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_VGA_CONSOLE=y
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=0
+
+[last lines of output on screen]
+------------------------------------------------------------------------------
+SCSI subsystem driver revision: 1.00
+ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0x18E0 irq 14
+ata1:dev 0 ATA, max UDMA/133, 398297088 sectors: lba48
+ata1:dev 0 configured for UDMA/133 
+
+[decoded output of ksymoops]
+------------------------------------------------------------------------------
+ksymoops 2.4.9 on i686 2.4.27.  Options used
+     -V (default)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m /boot/System.map (specified)
+
+Unable to handle kernel NULL pointer dereference at virtual address 00000050
+  c01ccd07
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0010:[<c01ccd07>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: f7e5007c   ecx: 00000000   edx: 00000002
+esi: f7e50000   edi: f7e50220   ebp: f7e50220   esp: c19b1f0c
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c19b1000)
+Stack: f7e5007c f7e50000 c19bed00 f7e50220 00000000 c19bed00 00000000 c19bed20
+       c01cce91 f7e50220 c19bed00 00000000 c02746cc c19beda0 000003f6 00000286
+       0000000e f7e75c00 00000000 f7e50220 00000001 c0105000 c02a05c0 c01ccf8d
+Call Trace: [<c01cce91>] [<c0105000>] [<c01ccf8d>] [<c01bd49b>] [<c01d27ec>]
+  [<c0105000>] [<c01050b9>] [<c01057de>] [<c0105090>]
+Code: ff 50 50 89 da 85 c0 75 12 8b 5c 24 14 89 d0 8b 74 24 18 8b
+
+
+>>EIP; c01ccd07 <ata_host_add+57/80>   <=====
+
+Trace; c01cce91 <ata_device_add+161/200>
+Trace; c0105000 <_stext+0/0>
+Trace; c01ccf8d <ata_scsi_detect+5d/90>
+Trace; c01bd49b <scsi_register_host+2fb/310>
+Trace; c01d27ec <pci_register_driver+5c/60>
+Trace; c0105000 <_stext+0/0>
+Trace; c01050b9 <init+29/150>
+Trace; c01057de <arch_kernel_thread+2e/40>
+Trace; c0105090 <init+0/150>
+
+Code;  c01ccd07 <ata_host_add+57/80>
+00000000 <_EIP>:
+Code;  c01ccd07 <ata_host_add+57/80>   <=====
+   0:   ff 50 50                  call   *0x50(%eax)   <=====
+Code;  c01ccd0a <ata_host_add+5a/80>
+   3:   89 da                     mov    %ebx,%edx
+Code;  c01ccd0c <ata_host_add+5c/80>
+   5:   85 c0                     test   %eax,%eax
+Code;  c01ccd0e <ata_host_add+5e/80>
+   7:   75 12                     jne    1b <_EIP+0x1b>
+Code;  c01ccd10 <ata_host_add+60/80>
+   9:   8b 5c 24 14               mov    0x14(%esp),%ebx
+Code;  c01ccd14 <ata_host_add+64/80>
+   d:   89 d0                     mov    %edx,%eax
+Code;  c01ccd16 <ata_host_add+66/80>
+   f:   8b 74 24 18               mov    0x18(%esp),%esi
+Code;  c01ccd1a <ata_host_add+6a/80>
+  13:   8b 00                     mov    (%eax),%eax
+
+  <0>Kernel panic: Attempted to kill init!
+
+
+-- 
+Alan J. Wylie                                          http://www.wylie.me.uk/
+"Perfection [in design] is achieved not when there is nothing left to add,
+but rather when there is nothing left to take away."
+  -- Antoine de Saint-Exupery

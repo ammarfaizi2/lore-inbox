@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264476AbTGGUxR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 16:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTGGUxQ
+	id S264450AbTGGUvr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 16:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264476AbTGGUvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 16:53:16 -0400
-Received: from hermes.cicese.mx ([158.97.1.34]:52186 "EHLO hermes.cicese.mx")
-	by vger.kernel.org with ESMTP id S264476AbTGGUxD (ORCPT
+	Mon, 7 Jul 2003 16:51:47 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:24453 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264450AbTGGUvp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 16:53:03 -0400
-Message-ID: <3F09E110.78A3D89E@cicese.mx>
-Date: Mon, 07 Jul 2003 14:07:28 -0700
-From: Serguei Miridonov <mirsev@cicese.mx>
-Reply-To: mirsev@cicese.mx
-Organization: CICESE Research Center, Ensenada, B.C., Mexico
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: ru, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: diemumiee@gmx.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ATI IGP Support and System Freeze when running hwclock
-References: <20030706144114.GA23881@durix.hallo.net>
-		 <1057513936.1029.5.camel@dhcp22.swansea.linux.org.uk>
-		 <20030706232315.GA32461@durix.hallo.net> <1057560242.2412.3.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii
+	Mon, 7 Jul 2003 16:51:45 -0400
+Date: Mon, 7 Jul 2003 14:00:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org, devfs@oss.sgi.com
+Subject: Re: [PATCH][2.5.74] devfs lookup deadlock/stack corruption combined
+ patch
+Message-Id: <20030707140010.4268159f.akpm@osdl.org>
+In-Reply-To: <200307072306.15995.arvidjaar@mail.ru>
+References: <E198K0q-000Am8-00.arvidjaar-mail-ru@f23.mail.ru>
+	<20030706120315.261732bb.akpm@osdl.org>
+	<20030706175405.518f680d.akpm@osdl.org>
+	<200307072306.15995.arvidjaar@mail.ru>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
-> On Llu, 2003-07-07 at 00:23, diemumiee@gmx.de wrote:
-> > I installed 2.4.21-ac with acpi. Acpi works great, but the whole system
-> > freezes when i try to run "hwclock --adjust --localtime". The module
-> > rtc.o gets loaded before the call to hwclock.
+Andrey Borzenkov <arvidjaar@mail.ru> wrote:
 >
-> Its something about ACPI combined with ALi real time clocks. Its still
-> a mystery. Dropping the rtc module from the build should fix it
+> I finally hit a painfully trivial way to reproduce another long standing devfs 
+> problem - deadlock between devfs_lookup and devfs_d_revalidate_wait.
 
-You may also rename /dev/rtc to /dev/rtcdevice or something else. When the
-kernel is fixed, you may rename it back.
+uh.
 
---
-Serguei Miridonov
+> The current fix is to move re-acquire of i_sem after all 
+> devfs_d_revalidate_wait waiters have been waked up.
+
+Directory modifications appear to be under write_lock(&dir->u.dir.lock); so
+that obvious problem is covered.  Your patch might introduce a race around
+_devfs_get_vfs_inode() - two CPUs running that against the same inode at
+the same time?
+
+> Andrew, I slightly polished original stack corruption version to look more 
+> consistent with the rest of devfs;
+
+I think it's Lindent time.
 
 

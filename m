@@ -1,63 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130534AbRBAR4O>; Thu, 1 Feb 2001 12:56:14 -0500
+	id <S131373AbRBAR5y>; Thu, 1 Feb 2001 12:57:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131326AbRBAR4E>; Thu, 1 Feb 2001 12:56:04 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:31737 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130534AbRBARzx>; Thu, 1 Feb 2001 12:55:53 -0500
-Date: Thu, 1 Feb 2001 15:54:44 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, David Gould <dg@suse.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: [PATCH] vma limited swapin readahead
-In-Reply-To: <20010201182021.N1173@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.21.0102011552180.1321-100000@duckman.distro.conectiva>
+	id <S131350AbRBAR5p>; Thu, 1 Feb 2001 12:57:45 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51983 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131394AbRBAR5Y>; Thu, 1 Feb 2001 12:57:24 -0500
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
+To: hch@caldera.de (Christoph Hellwig)
+Date: Thu, 1 Feb 2001 17:58:09 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hch@caldera.de (Christoph Hellwig),
+        sct@redhat.com (Stephen C. Tweedie), lord@sgi.com (Steve Lord),
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+In-Reply-To: <20010201184950.A448@caldera.de> from "Christoph Hellwig" at Feb 01, 2001 06:49:50 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14ONzo-0004kq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Feb 2001, Ingo Oeser wrote:
-> On Thu, Feb 01, 2001 at 02:45:04PM -0200, Rik van Riel wrote:
-> > One solution could be to put (most of) the swapin readahead
-> > pages on the inactive_dirty list, so pressure by readahead
-> > on the resident pages is smaller and the not used readahead
-> > pages are reclaimed faster.
+> > Linus basically designed the original kiobuf scheme of course so I guess
+> > he's allowed to dislike it. Linus disliking something however doesn't mean
+> > its wrong. Its not a technically valid basis for argument.
 > 
-> Shouldn't they be on inactive_clean anyway?
+> Sure.  But Linus saing that he doesn't want more of that (shit, crap,
+> I don't rember what he said exactly) in the kernel is a very good reason
+> for thinking a little more aboyt it.
 
-No, the inactive_clean pages are reclaimed before the
-other inactive pages, and we want to give all pages
-an equal chance to be used when we put them on the
-inactive list.
+No. Linus is not a God, Linus is fallible, regularly makes mistakes and
+frequently opens his mouth and says stupid things when he is far too busy.
 
-This is especially true for freshly read in swap cache
-pages, because we _expect_ that some of them will be
-used.
+> Espescially if most arguments look right to one after thinking more about
+> it...
 
-> Or do I still not get the new linux mm design? ;-(
+I agree with the issues about networking wanting lightweight objects, Im
+unconvinced however the existing setup for networking is sanely applicable
+for real world applications in other spaces.
 
-Read mm/swap.c::deactivate_page_nolock(), my decision to
-put all clean inactive pages directly on inactive_clean
-lead to the fact that dirty pages would stick around
-forever and page reclaim could be quite unfair towards
-clean pages. This was changed later to put all inactive
-pages on the inactive_dirty list first and have them
-more fairly reclaimed in page_launder.
+Take video capture. I want to stream 60Mbytes/second in multi-megabyte
+chunks between my capture cards and a high end raid array. The array wants
+1Mbyte or large blocks per I/O to reach 60Mbytes/second performance.
 
-regards,
+This btw isnt benchmark crap like most of the zero copy networking, this is
+a real world application..
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+The current buffer head stuff is already heavier than the kio stuff. The
+networking stuff isnt oriented to that kind of I/O and would end up
+needing to do tons of extra processing.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+> For disk I/O it makes the handling a little easier for the cost of the
+> additional offset/length fields.
+
+I remain to be convinced by that. However you do get 64bytes/cacheline on
+a real processor nowdays so if you touch any of that 64byte block you are
+practically zero cost to fill the rest. 
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281780AbRLZQdv>; Wed, 26 Dec 2001 11:33:51 -0500
+	id <S282684AbRLZQfK>; Wed, 26 Dec 2001 11:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281809AbRLZQdk>; Wed, 26 Dec 2001 11:33:40 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:22797 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S281780AbRLZQdd>;
-	Wed, 26 Dec 2001 11:33:33 -0500
-Date: Wed, 26 Dec 2001 17:33:07 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "James Stevenson" <mistral@stev.org>
-Cc: jlladono@pie.xtec.es, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x kernels, big ide disks and old bios
-Message-Id: <20011226173307.34e25fe6.skraw@ithnet.com>
-In-Reply-To: <001a01c18d77$a9e92ca0$0801a8c0@Stev.org>
-In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org>
-	<001a01c18d77$a9e92ca0$0801a8c0@Stev.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S282400AbRLZQfA>; Wed, 26 Dec 2001 11:35:00 -0500
+Received: from swan.mail.pas.earthlink.net ([207.217.120.123]:61143 "EHLO
+	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S281843AbRLZQer>; Wed, 26 Dec 2001 11:34:47 -0500
+Message-ID: <3C2855EF.DC7F584F@home.com>
+Date: Tue, 25 Dec 2001 05:33:19 -0500
+From: Paul Boley <pboley@home.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: severe slowdown with 2.4 series w/heavy disk access
+In-Reply-To: <E16JFVe-00024J-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Dec 2001 19:09:22 -0000
-"James Stevenson" <mail-lists@stev.org> wrote:
-
-> Hi
+Alan Cox wrote:
 > 
-> i have the same problem weith a 40GB disk
-> its not a linux problem but a bios / disk problem
+> >              total       used       free     shared    buffers
+> > cached
+> > Mem:        417472     412192       5280          0      20632
+> > 315680
 > 
-> my workaround:
+> Thyose values dont show any problems. In fact your machine seems to think it
+> had a ton of free memory to waste and has let it fill up with stuff that has
+> been accessed - just on the chance that it may be reused.
 > 
-> dont set the jumper on the disk to make it look smaller.
-> this however will stop it working in the bios so you need to
-> disable the disk in the bios completly and turn off the ide
-> auto detection process in the bios this is because it will
-> probably hang if you try to use it :)
+> It hasn't even felt enough memory pressure to start swapping. When you
+> say it "becomes slow", what precisely becomes slow ?
+
+When this happens in X, the mouse drags and skips, any processes running
+(like tar/gzip. ls in an empty dir takes about 10 seconds) slow down,
+and it happens usually for about 10sec-2min, often for no apparent
+reason.  The big decompression was just a way I can easily duplicate
+it.  Oddly enough though, according to top, it caches all that memory at
+once, and my free goes down to 5 megs, with the system hanging/slow to
+respond, for 10sec-2min.  Even typing in the console has delay before
+the characters appear, and according to top, tar and gz are both using
+under 1% cpu while this happens, and about 50% of the cpu is in use by
+the system (not by any processes that I can see.  kupdated goes up to
+about 0.3% during this)
+
 > 
-> linux will then pick the disk up from the ide controller.
+> Also what disks do you have and how are they set up ?
+> -
 
-I tried this one some time ago, and had to find out, that I was not able to
-write to the upper cylinders of the disk. You can check this out _before_ using
-the drive via dd from /dev/zero to your /dev/drive and look at the results.
+/dev/hdb3 on / type ext2 (rw)
+/dev/hdb4 on /home type ext2 (rw)
+/dev/hda1 on /dos/c type vfat (rw)
+/dev/hdb1 on /dos/d type vfat (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /proc type proc (rw)
 
-Regards,
-Stephan
-
+and my swap is /dev/hdb2

@@ -1,126 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264946AbTFTV5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 17:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264955AbTFTV5Y
+	id S264948AbTFTVyt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 17:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbTFTVyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 17:57:24 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:52371 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264946AbTFTVzM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 17:55:12 -0400
-Date: Fri, 20 Jun 2003 15:09:13 -0700
-From: Bob Miller <rem@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [CFT PATCH 2.5.72] Remove check_region and MOD_*_USE_COUNT from mixcomwd.c
-Message-ID: <20030620220913.GD2063@doc.pdx.osdl.net>
-Mime-Version: 1.0
+	Fri, 20 Jun 2003 17:54:46 -0400
+Received: from webmail.netapps.org ([12.162.17.40]:53420 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264943AbTFTVye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 17:54:34 -0400
+To: trivial@rustcorp.com.au, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix compilation with CONFIG_MELAN
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 20 Jun 2003 15:08:29 -0700
+Message-ID: <52el1ol7vm.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 20 Jun 2003 22:08:31.0934 (UTC) FILETIME=[7C689DE0:01C33778]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replaced the call to MOD_INC_USE_COUNT with a __module_get() when 
-forcing the module to not be unloadable.
+This patch fixes compilation when CONFIG_MELAN is turned on.
+The problem is that <asm-i386/mach-default/mach_resources.h> includes
+the bogus construction
 
-Also removed the check_region() calls and restructured things to only
-use request_region().
+#ifdef CONFIG_MELAN
+standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
+standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
+#endif
 
-If someone with the hardware for this watchdog could build this as
-a module and let me know how things work I'd be most grateful.
+at the top level.  I tried this with Debian's gcc 2.95 and Red Hat's
+gcc 3.2, and neither will accept it (they complain about a duplicate
+declaration of standard_io_resources when building arch/i386/setup.c).
 
---
-Bob Miller                                      Email: rem@osdl.org
-Open Source Development Lab                     Phone: 503.626.2455 Ext. 17
+To duplicate this, you can do "make defconfig" and then go into "make
+menuconfig" and change "Processor family" to "Elan".  Building that
+config fails for me.
 
-diff -Nru a/drivers/char/watchdog/mixcomwd.c b/drivers/char/watchdog/mixcomwd.c
---- a/drivers/char/watchdog/mixcomwd.c	Fri Jun 20 13:57:08 2003
-+++ b/drivers/char/watchdog/mixcomwd.c	Fri Jun 20 13:57:08 2003
-@@ -95,7 +95,12 @@
- 	mixcomwd_ping();
- 	
- 	if (nowayout) {
--		MOD_INC_USE_COUNT;
-+		/*
-+		 * fops_get() code via open() has already done
-+		 * a try_module_get() so it is safe to do the
-+		 * __module_get().
-+		 */
-+		__module_get(THIS_MODULE);
- 	} else {
- 		if(mixcomwd_timer_alive) {
- 			del_timer(&mixcomwd_timer);
-@@ -211,30 +216,34 @@
- {
- 	int id;
+I assume the following is what was intended.
+
+ - Roland
+
+===== include/asm-i386/mach-default/mach_resources.h 1.1 vs edited =====
+--- 1.1/include/asm-i386/mach-default/mach_resources.h	Thu Mar 13 17:17:51 2003
++++ edited/include/asm-i386/mach-default/mach_resources.h	Fri Jun 20 15:06:05 2003
+@@ -9,18 +9,22 @@
  
--	if(check_region(port+MIXCOM_WATCHDOG_OFFSET,1)) {
-+	port += MIXCOM_WATCHDOG_OFFSET;
-+	if (!request_region(port, 1, "MixCOM watchdog")) {
- 		return 0;
- 	}
- 	
--	id=inb_p(port + MIXCOM_WATCHDOG_OFFSET) & 0x3f;
-+	id=inb_p(port) & 0x3f;
- 	if(id!=MIXCOM_ID) {
-+		release_region(port, 1);
- 		return 0;
- 	}
--	return 1;
-+	return port;
- }
+ struct resource standard_io_resources[] = {
+ 	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
++#ifndef CONFIG_MELAN
+ 	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
++#else
++	{ "pic1", 0x20, 0x21, IORESOURCE_BUSY },
++#endif
+ 	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
+ 	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
+ 	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
++#ifndef CONFIG_MELAN
+ 	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
++#else
++	{ "pic2", 0xa0, 0xa1, IORESOURCE_BUSY },
++#endif
+ 	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+ 	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
+ };
+-#ifdef CONFIG_MELAN
+-standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
+-standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
+-#endif
  
- static int __init flashcom_checkcard(int port)
- {
- 	int id;
- 	
--	if(check_region(port + FLASHCOM_WATCHDOG_OFFSET,1)) {
-+	port += FLASHCOM_WATCHDOG_OFFSET;
-+	if (!request_region(port, 1, "MixCOM watchdog")) {
- 		return 0;
- 	}
- 	
--	id=inb_p(port + FLASHCOM_WATCHDOG_OFFSET);
-+	id=inb_p(port);
-  	if(id!=FLASHCOM_ID) {
-+		release_region(port, 1);
- 		return 0;
- 	}
-- 	return 1;
-+ 	return port;
-  }
-  
- static int __init mixcomwd_init(void)
-@@ -244,17 +253,17 @@
- 	int found=0;
+ #define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
  
- 	for (i = 0; !found && mixcomwd_ioports[i] != 0; i++) {
--		if (mixcomwd_checkcard(mixcomwd_ioports[i])) {
-+		watchdog_port = mixcomwd_checkcard(mixcomwd_ioports[i]);
-+		if (watchdog_port) {
- 			found = 1;
--			watchdog_port = mixcomwd_ioports[i] + MIXCOM_WATCHDOG_OFFSET;
- 		}
- 	}
- 	
- 	/* The FlashCOM card can be set up at 0x300 -> 0x378, in 0x8 jumps */
- 	for (i = 0x300; !found && i < 0x380; i+=0x8) {
--		if (flashcom_checkcard(i)) {
-+		watchdog_port = flashcom_checkcard(i);
-+		if (watchdog_port) {
- 			found = 1;
--			watchdog_port = i + FLASHCOM_WATCHDOG_OFFSET;
- 		}
- 	}
- 	
-@@ -263,9 +272,6 @@
- 		return -ENODEV;
- 	}
- 
--	if (!request_region(watchdog_port,1,"MixCOM watchdog"))
--		return -EIO;
--		
- 	ret = misc_register(&mixcomwd_miscdev);
- 	if (ret)
- 	{

@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132881AbRDEMdt>; Thu, 5 Apr 2001 08:33:49 -0400
+	id <S132880AbRDEMd6>; Thu, 5 Apr 2001 08:33:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132878AbRDEMcu>; Thu, 5 Apr 2001 08:32:50 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:34820 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S132879AbRDEMce>;
-	Thu, 5 Apr 2001 08:32:34 -0400
-Date: Thu, 5 Apr 2001 15:31:45 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Bart Trojanowski <bart@jukie.net>,
-        Manoj Sontakke <manojs@sasken.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: which gcc version?
-Message-ID: <20010405153145.C873@mea-ext.zmailer.org>
-In-Reply-To: <20010405150219.B873@mea-ext.zmailer.org> <Pine.LNX.4.21.0104051930580.2687-100000@pcc65.sasi.com> <Pine.LNX.4.30.0104050732080.13246-100000@localhost> <20010405150219.B873@mea-ext.zmailer.org> <25567.986473592@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <25567.986473592@redhat.com>; from dwmw2@infradead.org on Thu, Apr 05, 2001 at 01:26:32PM +0100
+	id <S132878AbRDEMdv>; Thu, 5 Apr 2001 08:33:51 -0400
+Received: from rdu163-40-153.nc.rr.com ([24.163.40.153]:18443 "EHLO
+	kaitan.hacknslash.net") by vger.kernel.org with ESMTP
+	id <S132880AbRDEMdX>; Thu, 5 Apr 2001 08:33:23 -0400
+Date: Thu, 5 Apr 2001 08:32:36 -0400 (EDT)
+From: Jeff Layton <jtlayton@bigfoot.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbols on SPARC with depmod -ae
+In-Reply-To: <15052.25810.619907.25595@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0104050830420.26901-100000@kaitan.hacknslash.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 05, 2001 at 01:26:32PM +0100, David Woodhouse wrote:
-> matti.aarnio@zmailer.org said:
-> > 	To think of it, there really should be explicitely callable
-> > 	versions of these with LinuxKernel names for them, not gcc
-> > 	builtins.   That way people would *know* they are doing
-> > 	something, which is potentially very slow.
-> > 	(And the API would not change from underneath them.) 
+Yep the module loaded fine. Must be a problem with depmod then. Thanks for
+the info!
+
+caladan:~# modprobe ip_conntrack
+caladan:~# lsmod
+Module                  Size  Used by
+ip_conntrack           19840   0  (unused)
+
+--
+Jeff Layton (jtlayton@bigfoot.com)
+
+    "In order for you to profit from your mistakes, you have to get out and
+     make some."
+        -- Anonymous
+
+On Thu, 5 Apr 2001, David S. Miller wrote:
+
 > 
-> Like include/asm-*/div64.h::do_div()?
+> Jeff Layton writes:
+>  > Anyway here's what I get, should I be concerned about this?
+> ...
+>  > caladan:~# /sbin/depmod -ae -F /boot/System.map-2.4.2
+>  > depmod: *** Unresolved symbols in
+>  > /lib/modules/2.4.2/kernel/drivers/block/loop.o
+>  > depmod:         .div
+>  > depmod:         .urem
+>  > depmod:         .umul
+>  > depmod:         .udiv
+>  > depmod:         .rem
+>  > depmod: *** Unresolved symbols in
+> 
+> Try to load one of the modules which show the problem, does
+> it work?  If so, it is a bug in depmod's handling of these
+> ".foo" symbols.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
+> 
 
-	Like that (*) - but that has limited value spaces,
-	the divider can be at most 32 bits, probably far less.
-
-> --
-> dwmw2
-
-/Matti Aarnio
-
-(*) Trying to recall when I, and few others, created that beast.
-    The divisor code in itself isn't mine, but the idea of supporting
-    %Ld at printk() most definitely is..

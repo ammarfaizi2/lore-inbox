@@ -1,83 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265027AbSJWOYl>; Wed, 23 Oct 2002 10:24:41 -0400
+	id <S265024AbSJWOWs>; Wed, 23 Oct 2002 10:22:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265030AbSJWOYl>; Wed, 23 Oct 2002 10:24:41 -0400
-Received: from host179.debill.org ([64.245.56.179]:17345 "EHLO mail.debill.org")
-	by vger.kernel.org with ESMTP id <S265027AbSJWOXp>;
-	Wed, 23 Oct 2002 10:23:45 -0400
-Date: Wed, 23 Oct 2002 09:29:56 -0500
-To: jbradford@dial.pipex.com
-Cc: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Report Status
-Message-ID: <20021023142956.GA1317@debill.org>
-References: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina> <200210231226.g9NCQcBr004068@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210231226.g9NCQcBr004068@darkstar.example.net>
-User-Agent: Mutt/1.3.28i
-From: erik@debill.org
+	id <S265025AbSJWOWr>; Wed, 23 Oct 2002 10:22:47 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:51016 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S265024AbSJWOWV>; Wed, 23 Oct 2002 10:22:21 -0400
+Message-ID: <3DB6B20B.B02BE681@cinet.co.jp>
+Date: Wed, 23 Oct 2002 23:28:27 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.44-pc98smp i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: "'LKML '" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (13/26) key board
+References: <E6D19EE98F00AB4DB465A44FCF3FA46903A30A@ns.cinet.co.jp> <20021023112628.F28139@ucw.cz>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 01:26:38PM +0100, jbradford@dial.pipex.com wrote:
-> >                                2.5 Kernel Problem Reports as of 22 Oct
-> >    Status                 Discussion  Problem Title
-> >
-> > --------------------------------------------------------------------------
-> >    open                   17 Oct 2002 IDE not powered down on shutdown
-> >   55. http://marc.theaimsgroup.com/?l=linux-kernel&m=103476420012508&w=2
-> > 
-> > --------------------------------------------------------------------------
-> >
-> > --------------------------------------------------------------------------
-> >    open                   22 Oct 2002 2.5.44 fs corruption
-> >   77. http://marc.theaimsgroup.com/?l=linux-kernel&m=103532467828806&w=2
-> > 
-> > --------------------------------------------------------------------------
+Vojtech Pavlik wrote:
 > 
-> Any possibility that the above two problems are related - I.E. disks
-> are not being flushed properly on shutdown?
+> On Wed, Oct 23, 2002 at 02:09:12PM +0900, Osamu Tomita wrote:
+> > Thanks for comments.
+> >
+> > -----Original Message-----
+> > From: Vojtech Pavlik
+> > To: Osamu Tomita
+> > Cc: LKML; Linus Torvalds
+> > Sent: 2002/10/22 19:43
+> > Subject: Re: [PATCH][RFC] add support for PC-9800 architecture (13/26)
+> > keyboard
+> >
+> > > I won't merge this unless it's cleaned up, kana support either made
+> > > generic or put into keymaps, and the below problems resolved.
+> >
+> > > ... no way I'll add another default keymap when now we have unified
+> > > keycodes. And we do support japanese keycodes/keymappings.
+> > Japanese keycodes/keymapping support! We are very happy. IMHO To realize
+> > this, emulations include shift-state modifier are needed??
+> > Please point me where is source code, and we don't touch defkeymaps.
+> 
+> Tell me what exactly you need and if it cannot be done, I'll try to
+> implement it in a generic way.
+Thanks! Our needs are very simple. We want to get identical letter(keycode?)
+with key top letter. For example, get "{" by shift + "[", "+" by shift + ";".
+hardware of jp106 keyboard is similar with us keyboard, but key top letters
+have differeces. Also PC-9800 keyboard has similar key top letter, according 
+to JIS(Japanese Industrial Standards).
+So I always load keymap when use jp106 keyboard.
+ 
+> > >> diff -urN linux/drivers/char/keyboard.c
+> > > Either there is a need for a special kanji mode changing function for
+> > > japanese keyboards or there is not. Either way, it isn't PC-98 specific.
+> 
+> > I think it's for emergency(or rescue) purpose. For example, system cannot
+> > boot due to illegal kanji named file, input kenji to select one and change
+> > it. We plan direct character code input. In kanji-mode, do convert from
+> > hex numeric input to kanji. But not implemented yet.
+> 
+> No problem, but this should be handled by a keymap (if possible). If
+> not, the keymap code needs to be extended to be able to handle this.
+I'll try, But I cannot do soon.
 
-Nope.  Mine didn't get to shutdown.  Basically the whole system went
-nuts - I couldn't run commands other than shell builtins, eth0
-transmit timeouts, IDE complaining about attempts to access beyond the
-end of device.  I couldn't do a proper shutdown - hard to sudo
-shutdown -r now when you can execute anything.
+> > >> +#ifndef CONFIG_PC9800
+> > >>  #define KBD_DEFLEDS 0
+> > >> +#else
+> > >> +#define KBD_DEFLEDS (1 << VC_NUMLOCK)
+> > >> +#endif
+> > > You want numlock on by default?
+(snip)
+> > >>  static void fn_scroll_forw(struct vc_data *vc)
+> > >>  {
+> > >> +#ifndef CONFIG_PC9800
+> > >>    scrollfront(0);
+> > >> +#else
+> > >> +  scrollfront(3);
+> > >> +#endif
+> > >>  }
+> > > Huh?
+> > Due to our implementation of console driver. For old PC-9800, we use only
+> > video ram. If don't, scrolling is _very_ slow. So our console can scroll
+> > less than half lines of screen. If call with 0, screen doesn't scroll.
+> 
+> I see. However, I believe this should be handled in your implementation
+> of the scrolling, and not affecting keyboard.c code.
+I agree. This should be in VT module.
 
-The first thing to show in the log was:
+> > >> diff -urN linux/include/linux/logibusmouse.h
+> > linux98/include/linux/logibusmouse.h
+> > >> --- linux/include/linux/logibusmouse.h     Tue Aug  3 01:54:29 1999
+> > >> +++ linux98/include/linux/logibusmouse.h   Fri Aug 17 22:15:13 2001
+> > > Hmm, this file isn't used at all in 2.5. Why patching it?
+> > IMHO Those (pc_keyb.h too) are remaining to compile user mode application.
+> > I think it's a very rare, but ....
+> 
+> pc_keyb.h maybe. logibusmouse.h definitely not, no application is
+> supposed to use those defines.
+I see. I remove it from patch.
 
-Oct 22 06:27:40 hagbard kernel: is_tree_node: node level 0 does not match to the expected one 1
-Oct 22 06:27:40 hagbard kernel: vs-5150: search_by_key: invalid format found in block 2162976. Fsck?
-Oct 22 06:27:40 hagbard kernel: is_tree_node: node level 0 does not match to the expected one 1
-Oct 22 06:27:40 hagbard kernel: vs-5150: search_by_key: invalid format found in block 2162976. Fsck?
-Oct 22 06:27:40 hagbard kernel: is_tree_node: node level 3748 does not match to the expected one 1
-Oct 22 06:27:40 hagbard kernel: vs-5150: search_by_key: invalid format found in block 80570. Fsck?
-Oct 22 06:27:40 hagbard kernel: is_tree_node: node level 4831 does not match to the expected one 1
-Oct 22 06:27:40 hagbard kernel: vs-5150: search_by_key: invalid format found in block 80626. Fsck?
-Oct 22 06:27:40 hagbard kernel: is_tree_node: node level 3760 does not match to the expected one 1
-Oct 22 06:27:40 hagbard kernel: vs-5150: search_by_key: invalid format found in block 80655. Fsck?
-Oct 22 06:27:40 hagbard kernel: vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find stat data of [1040516 1315261 0x0 SD]
-Oct 22 06:27:40 hagbard kernel: is_tree_node: node level 269 does not match to the expected one 1
-
-after 3 seconds of that:
-
-Oct 22 06:27:43 hagbard kernel: attempt to access beyond end of device
-Oct 22 06:27:43 hagbard kernel: ide0(3,2): rw=0, want=928907664, limit=6152895
-Oct 22 06:27:43 hagbard kernel: attempt to access beyond end of device
-Oct 22 06:27:43 hagbard kernel: ide0(3,2): rw=0, want=1208618096, limit=6152895
-
-which went on for a few iterations, then:
-
-Oct 22 06:28:33 hagbard kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Oct 22 06:28:33 hagbard kernel: eth0: Transmit timed out: status 0150  0c00 at 3896/3957 command 00001622.
-Oct 22 06:29:23 hagbard kernel: NETDEV WATCHDOG: eth0: transmit timed out
-Oct 22 06:29:23 hagbard kernel: eth0: Transmit timed out: status 0150  0c00 at 3958/4018 command 00020000.
-
-
-Interestingly enough, reiserfs didn't complain on reboot.  it was only
-the root fs (on ext2/3) that complained - and had lots of problems.
-
-
-Erik
+Regards
+Osamu Tomita

@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUDHTwT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUDHTwD
+	id S262528AbUDHT7h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:59:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbUDHT7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:52:03 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:5092 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262182AbUDHTt6 (ORCPT
+	Thu, 8 Apr 2004 15:59:03 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:40167 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262499AbUDHTvT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:49:58 -0400
-Date: Thu, 8 Apr 2004 12:49:21 -0700
+	Thu, 8 Apr 2004 15:51:19 -0400
+Date: Thu, 8 Apr 2004 12:50:39 -0700
 From: Paul Jackson <pj@sgi.com>
 To: Paul Jackson <pj@sgi.com>
 Cc: colpatch@us.ibm.com, wli@holomorphy.com, rusty@rustcorp.com.au,
        linux-kernel@vger.kernel.org
-Subject: Patch 6c/23 - Bitmaps, Cpumasks and Nodemasks
-Message-Id: <20040408124921.6517e05a.pj@sgi.com>
+Subject: Patch 22/23 - Bitmaps, Cpumasks and Nodemasks
+Message-Id: <20040408125039.50a7e768.pj@sgi.com>
 In-Reply-To: <20040408115050.2c67311a.pj@sgi.com>
 References: <20040408115050.2c67311a.pj@sgi.com>
 Organization: SGI
@@ -26,512 +26,646 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P6c.remove_old_cpumask_files - Remove 26 no longer used cpumask headers.
-	With the cpumask rewrite in the previous patch, these
-	various include/asm-*/cpumask*.h headers are no longer used.
+P22.nodemask_ia64 - Matthew Dobson's [PATCH]_nodemask_t_ia64_changes_[6_7]
+        Changes to ia64 specific code.
 
-Index: 2.6.5.bitmap/include/asm-alpha/cpumask.h
+Index: 2.6.5.bitmap/arch/ia64/kernel/acpi.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-alpha/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-alpha/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_ALPHA_CPUMASK_H
--#define _ASM_ALPHA_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_ALPHA_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-arm/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/kernel/acpi.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/kernel/acpi.c	2004-04-08 04:46:14.000000000 -0700
+@@ -448,14 +448,15 @@
+ 	}
+ 
+ 	/* calculate total number of nodes in system from PXM bitmap */
+-	numnodes = 0;		/* init total nodes in system */
++	nodes_clear(node_online_map);	/* init total nodes in system */
+ 
+ 	memset(pxm_to_nid_map, -1, sizeof(pxm_to_nid_map));
+ 	memset(nid_to_pxm_map, -1, sizeof(nid_to_pxm_map));
+ 	for (i = 0; i < MAX_PXM_DOMAINS; i++) {
+ 		if (pxm_bit_test(i)) {
+-			pxm_to_nid_map[i] = numnodes;
+-			nid_to_pxm_map[numnodes++] = i;
++			pxm_to_nid_map[i] = num_online_nodes();
++			nid_to_pxm_map[num_online_nodes()] = i;
++			node_set_online(num_online_nodes());
+ 		}
+ 	}
+ 
+@@ -464,7 +465,7 @@
+ 		node_memblk[i].nid = pxm_to_nid_map[node_memblk[i].nid];
+ 
+ 	/* assign memory bank numbers for each chunk on each node */
+-	for (i = 0; i < numnodes; i++) {
++	for_each_online_node(i) {
+ 		int bank;
+ 
+ 		bank = 0;
+@@ -477,7 +478,7 @@
+ 	for (i = 0; i < srat_num_cpus; i++)
+ 		node_cpuid[i].nid = pxm_to_nid_map[node_cpuid[i].nid];
+ 
+-	printk(KERN_INFO "Number of logical nodes in system = %d\n", numnodes);
++	printk(KERN_INFO "Number of logical nodes in system = %d\n", num_online_nodes());
+ 	printk(KERN_INFO "Number of memory chunks in system = %d\n", num_node_memblks);
+ 
+ 	if (!slit_table) return;
+@@ -497,8 +498,8 @@
+ 
+ #ifdef SLIT_DEBUG
+ 	printk("ACPI 2.0 SLIT locality table:\n");
+-	for (i = 0; i < numnodes; i++) {
+-		for (j = 0; j < numnodes; j++)
++	for_each_online_node(i) {
++		for_each_online_node(j)
+ 			printk("%03d ", node_distance(i,j));
+ 		printk("\n");
+ 	}
+Index: 2.6.5.bitmap/arch/ia64/kernel/smpboot.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-arm/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-arm/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_ARM_CPUMASK_H
--#define _ASM_ARM_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_ARM_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-arm26/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/kernel/smpboot.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/kernel/smpboot.c	2004-04-08 04:46:14.000000000 -0700
+@@ -470,7 +470,7 @@
+ {
+ 	int cpu, i, node;
+ 
+-	for(node=0; node<MAX_NUMNODES; node++)
++	for_each_node(node)
+ 		cpus_clear(node_to_cpu_mask[node]);
+ 	for(cpu = 0; cpu < NR_CPUS; ++cpu) {
+ 		/*
+Index: 2.6.5.bitmap/arch/ia64/mm/discontig.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-arm26/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-arm26/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_ARM26_CPUMASK_H
--#define _ASM_ARM26_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_ARM26_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-cris/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/mm/discontig.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/mm/discontig.c	2004-04-08 04:46:14.000000000 -0700
+@@ -68,7 +68,7 @@
+ 	/*
+ 	 * All nids with memory.
+ 	 */
+-	if (nnode == numnodes)
++	if (nnode == num_online_nodes())
+ 		return;
+ 
+ 	/*
+@@ -77,10 +77,11 @@
+ 	 * For reassigned CPU nodes a nid can't be arrived at
+ 	 * until after this loop because the target nid's new
+ 	 * identity might not have been established yet. So
+-	 * new nid values are fabricated above numnodes and
++	 * new nid values are fabricated above num_online_nodes() and
+ 	 * mapped back later to their true value.
+ 	 */
+-	for (nid = 0, i = 0; i < numnodes; i++)  {
++	nid = 0;
++	for_each_online_node(i) {
+ 		if (test_bit(i, (void *) nodes_with_mem)) {
+ 			/*
+ 			 * Save original nid value for numa_slit
+@@ -100,12 +101,12 @@
+ 			cpunid = nid;
+ 			nid++;
+ 		} else
+-			cpunid = numnodes;
++			cpunid = num_online_nodes();
+ 
+ 		for (cpu = 0; cpu < NR_CPUS; cpu++)
+ 			if (node_cpuid[cpu].nid == i) {
+ 				/* For nodes not being reassigned just fix the cpu's nid. */
+-				if (cpunid < numnodes) {
++				if (cpunid < num_online_nodes()) {
+ 					node_cpuid[cpu].nid = cpunid;
+ 					continue;
+ 				}
+@@ -113,15 +114,17 @@
+ 				/*
+ 				 * For nodes being reassigned, find best node by
+ 				 * numa_slit information and then make a temporary
+-				 * nid value based on current nid and numnodes.
++				 * nid value based on current nid and num_online_nodes().
+ 				 */
+-				for (slit = 0xff, k = numnodes + numnodes, j = 0; j < numnodes; j++)
++				slit = 0xff;
++				k = 2 * num_online_nodes();
++				for_each_online_node(j)
+ 					if (i == j)
+ 						continue;
+ 					else if (test_bit(j, (void *) nodes_with_mem)) {
+-						cslit = numa_slit[i * numnodes + j];
++						cslit = numa_slit[i * num_online_nodes() + j];
+ 						if (cslit < slit) {
+-							k = numnodes + j;
++							k = num_online_nodes() + j;
+ 							slit = cslit;
+ 						}
+ 					}
+@@ -134,11 +137,11 @@
+ 	 * Fixup temporary nid values for CPU-only nodes.
+ 	 */
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++)
+-		if (node_cpuid[cpu].nid == (numnodes + numnodes))
++		if (node_cpuid[cpu].nid == (2 * num_online_nodes()))
+ 			node_cpuid[cpu].nid = nnode - 1;
+ 		else
+ 			for (i = 0; i < nnode; i++)
+-				if (node_flip[i] == (node_cpuid[cpu].nid - numnodes)) {
++				if (node_flip[i] == (node_cpuid[cpu].nid - num_online_nodes())) {
+ 					node_cpuid[cpu].nid = i;
+ 					break;
+ 				}
+@@ -150,11 +153,12 @@
+ 	for (i = 0; i < nnode; i++)
+ 		for (j = 0; j < nnode; j++)
+ 			numa_slit_fix[i * nnode + j] =
+-				numa_slit[node_flip[i] * numnodes + node_flip[j]];
++				numa_slit[node_flip[i] * num_online_nodes() + node_flip[j]];
+ 
+ 	memcpy(numa_slit, numa_slit_fix, sizeof (numa_slit));
+ 
+-	numnodes = nnode;
++	for(i = 0; i < nnode; i++)
++		node_set_online(i);
+ 
+ 	return;
+ }
+@@ -353,7 +357,7 @@
+ 	struct bootmem_data *bdp;
+ 	int node;
+ 
+-	for (node = 0; node < numnodes; node++) {
++	for_each_online_node(node) {
+ 		pg_data_t *pdp = mem_data[node].pgdat;
+ 
+ 		bdp = pdp->bdata;
+@@ -384,11 +388,11 @@
+ 	int cpu, node;
+ 	pg_data_t *pgdat_list[NR_NODES];
+ 
+-	for (node = 0; node < numnodes; node++)
++	for_each_online_node(node)
+ 		pgdat_list[node] = mem_data[node].pgdat;
+ 
+ 	/* Copy the pg_data_t list to each node and init the node field */
+-	for (node = 0; node < numnodes; node++) {
++	for_each_online_node(node) {
+ 		memcpy(mem_data[node].node_data->pg_data_ptrs, pgdat_list,
+ 		       sizeof(pgdat_list));
+ 	}
+@@ -412,15 +416,15 @@
+ 
+ 	reserve_memory();
+ 
+-	if (numnodes == 0) {
++	if (num_online_nodes() == 0) {
+ 		printk(KERN_ERR "node info missing!\n");
+-		numnodes = 1;
++		node_set_online(0);
+ 	}
+ 
+ 	min_low_pfn = -1;
+ 	max_low_pfn = 0;
+ 
+-	if (numnodes > 1)
++	if (num_online_nodes() > 1)
+ 		reassign_cpu_only_nodes();
+ 
+ 	/* These actually end up getting called by call_pernode_memory() */
+@@ -431,7 +435,7 @@
+ 	 * Initialize the boot memory maps in reverse order since that's
+ 	 * what the bootmem allocator expects
+ 	 */
+-	for (node = numnodes - 1; node >= 0; node--) {
++	for (node = num_online_nodes() - 1; node >= 0; node--) {
+ 		unsigned long pernode, pernodesize, map;
+ 		struct bootmem_data *bdp;
+ 
+@@ -612,12 +616,12 @@
+ 	efi_memmap_walk(find_largest_hole, &max_gap);
+ 
+ 	/* so min() will work in count_node_pages */
+-	for (node = 0; node < numnodes; node++)
++	for_each_online_node(node)
+ 		mem_data[node].min_pfn = ~0UL;
+ 
+ 	efi_memmap_walk(filter_rsvd_memory, count_node_pages);
+ 
+-	for (node = 0; node < numnodes; node++) {
++	for_each_online_node(node) {
+ 		memset(zones_size, 0, sizeof(zones_size));
+ 		memset(zholes_size, 0, sizeof(zholes_size));
+ 
+Index: 2.6.5.bitmap/arch/ia64/mm/hugetlbpage.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-cris/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-cris/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_CRIS_CPUMASK_H
--#define _ASM_CRIS_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_CRIS_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-generic/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/mm/hugetlbpage.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/mm/hugetlbpage.c	2004-04-08 04:46:14.000000000 -0700
+@@ -42,12 +42,11 @@
+ 	struct page *page = NULL;
+ 
+ 	if (list_empty(&hugepage_freelists[nid])) {
+-		for (nid = 0; nid < MAX_NUMNODES; ++nid)
++		for_each_node(nid)
+ 			if (!list_empty(&hugepage_freelists[nid]))
+ 				break;
+ 	}
+-	if (nid >= 0 && nid < MAX_NUMNODES &&
+-	    !list_empty(&hugepage_freelists[nid])) {
++	if (node_possible(nid) && !list_empty(&hugepage_freelists[nid])) {
+ 		page = list_entry(hugepage_freelists[nid].next, struct page, list);
+ 		list_del(&page->list);
+ 	}
+@@ -59,7 +58,7 @@
+ 	static int nid = 0;
+ 	struct page *page;
+ 	page = alloc_pages_node(nid, GFP_HIGHUSER, HUGETLB_PAGE_ORDER);
+-	nid = (nid + 1) % numnodes;
++	nid = (nid + 1) % num_online_nodes();
+ 	return page;
+ }
+ 
+@@ -557,7 +556,7 @@
+ 	int i;
+ 	struct page *page;
+ 
+-	for (i = 0; i < MAX_NUMNODES; ++i)
++	for_each_node(i)
+ 		INIT_LIST_HEAD(&hugepage_freelists[i]);
+ 
+ 	for (i = 0; i < htlbpage_max; ++i) {
+Index: 2.6.5.bitmap/arch/ia64/mm/numa.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,40 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_H
--#define __ASM_GENERIC_CPUMASK_H
--
--#include <linux/config.h>
--#include <linux/kernel.h>
--#include <linux/threads.h>
--#include <linux/types.h>
--#include <linux/bitmap.h>
--
--#if NR_CPUS > BITS_PER_LONG && NR_CPUS != 1
--#define CPU_ARRAY_SIZE		BITS_TO_LONGS(NR_CPUS)
--
--struct cpumask
--{
--	unsigned long mask[CPU_ARRAY_SIZE];
--};
--
--typedef struct cpumask cpumask_t;
--
--#else
--typedef unsigned long cpumask_t;
--#endif
--
--#ifdef CONFIG_SMP
--#if NR_CPUS > BITS_PER_LONG
--#include <asm-generic/cpumask_array.h>
--#else
--#include <asm-generic/cpumask_arith.h>
--#endif
--#else
--#include <asm-generic/cpumask_up.h>
--#endif
--
--#if NR_CPUS <= 4*BITS_PER_LONG
--#include <asm-generic/cpumask_const_value.h>
--#else
--#include <asm-generic/cpumask_const_reference.h>
--#endif
--
--#endif /* __ASM_GENERIC_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-generic/cpumask_arith.h
+--- 2.6.5.bitmap.orig/arch/ia64/mm/numa.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/mm/numa.c	2004-04-08 04:46:14.000000000 -0700
+@@ -54,12 +54,12 @@
+ {
+ 	int i, err = 0;
+ 
+-	sysfs_nodes = kmalloc(sizeof(struct node) * numnodes, GFP_KERNEL);
++	sysfs_nodes = kmalloc(sizeof(struct node) * num_online_nodes(), GFP_KERNEL);
+ 	if (!sysfs_nodes) {
+ 		err = -ENOMEM;
+ 		goto out;
+ 	}
+-	memset(sysfs_nodes, 0, sizeof(struct node) * numnodes);
++	memset(sysfs_nodes, 0, sizeof(struct node) * num_online_nodes());
+ 
+ 	sysfs_cpus = kmalloc(sizeof(struct cpu) * NR_CPUS, GFP_KERNEL);
+ 	if (!sysfs_cpus) {
+@@ -69,7 +69,7 @@
+ 	}
+ 	memset(sysfs_cpus, 0, sizeof(struct cpu) * NR_CPUS);
+ 
+-	for (i = 0; i < numnodes; i++)
++	for_each_online_node(i)
+ 		if ((err = register_node(&sysfs_nodes[i], i, 0)))
+ 			goto out;
+ 
+Index: 2.6.5.bitmap/arch/ia64/sn/fakeprom/fpmem.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask_arith.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask_arith.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,49 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_ARITH_H
--#define __ASM_GENERIC_CPUMASK_ARITH_H
--
--/*
-- * Arithmetic type -based cpu bitmaps. A single unsigned long is used
-- * to contain the whole cpu bitmap.
-- */
--
--#define cpu_set(cpu, map)		set_bit(cpu, &(map))
--#define cpu_clear(cpu, map)		clear_bit(cpu, &(map))
--#define cpu_isset(cpu, map)		test_bit(cpu, &(map))
--#define cpu_test_and_set(cpu, map)	test_and_set_bit(cpu, &(map))
--
--#define cpus_and(dst,src1,src2)		do { dst = (src1) & (src2); } while (0)
--#define cpus_or(dst,src1,src2)		do { dst = (src1) | (src2); } while (0)
--#define cpus_clear(map)			do { map = 0; } while (0)
--#define cpus_complement(map)		do { map = ~(map); } while (0)
--#define cpus_equal(map1, map2)		((map1) == (map2))
--#define cpus_empty(map)			((map) == 0)
--#define cpus_addr(map)			(&(map))
--
--#if BITS_PER_LONG == 32
--#define cpus_weight(map)		hweight32(map)
--#elif BITS_PER_LONG == 64
--#define cpus_weight(map)		hweight64(map)
--#endif
--
--#define cpus_shift_right(dst, src, n)	do { dst = (src) >> (n); } while (0)
--#define cpus_shift_left(dst, src, n)	do { dst = (src) << (n); } while (0)
--
--#define any_online_cpu(map)			\
--({						\
--	cpumask_t __tmp__;			\
--	cpus_and(__tmp__, map, cpu_online_map);	\
--	__tmp__ ? first_cpu(__tmp__) : NR_CPUS;	\
--})
--
--#define CPU_MASK_ALL	(~((cpumask_t)0) >> (8*sizeof(cpumask_t) - NR_CPUS))
--#define CPU_MASK_NONE	((cpumask_t)0)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce(map)		((unsigned long)(map))
--#define cpus_promote(map)		({ map; })
--#define cpumask_of_cpu(cpu)		({ ((cpumask_t)1) << (cpu); })
--
--#define first_cpu(map)			__ffs(map)
--#define next_cpu(cpu, map)		find_next_bit(&(map), NR_CPUS, cpu + 1)
--
--#endif /* __ASM_GENERIC_CPUMASK_ARITH_H */
-Index: 2.6.5.bitmap/include/asm-generic/cpumask_array.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/fakeprom/fpmem.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/fakeprom/fpmem.c	2004-04-08 04:46:14.000000000 -0700
+@@ -26,7 +26,7 @@
+  *
+  *		32 bit		32 bit
+  *
+- * 		numnodes	numcpus
++ * 		num_nodes	numcpus
+  *
+  *		16 bit   16 bit		   32 bit
+  *		nasid0	cpuconf		membankdesc0
+@@ -59,7 +59,7 @@
+ #endif
+ 
+ /*
+- * For SN, this may not take an arg and gets the numnodes from 
++ * For SN, this may not take an arg and gets the num_nodes from 
+  * the prom variable or by traversing klcfg or promcfg
+  */
+ int
+@@ -144,7 +144,7 @@
+ int
+ build_efi_memmap(void *md, int mdsize)
+ {
+-	int		numnodes = GetNumNodes() ;
++	int		num_nodes = GetNumNodes() ;
+ 	int		cnode,bank ;
+ 	int		nasid ;
+ 	node_memmap_t	membank_info ;
+@@ -153,7 +153,7 @@
+ 	long		paddr, hole, numbytes;
+ 
+ 
+-	for (cnode=0;cnode<numnodes;cnode++) {
++	for (cnode=0; cnode<num_nodes; cnode++) {
+ 		nasid = GetNasid(cnode) ;
+ 		membank_info = GetMemBankInfo(cnode) ;
+ 		for (bank=0;bank<MD_BANKS_PER_NODE;bank++) {
+Index: 2.6.5.bitmap/arch/ia64/sn/io/machvec/pci_bus_cvlink.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask_array.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask_array.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,54 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_ARRAY_H
--#define __ASM_GENERIC_CPUMASK_ARRAY_H
--
--/*
-- * Array-based cpu bitmaps. An array of unsigned longs is used to contain
-- * the bitmap, and then contained in a structure so it may be passed by
-- * value.
-- */
--
--#define CPU_ARRAY_SIZE		BITS_TO_LONGS(NR_CPUS)
--
--#define cpu_set(cpu, map)		set_bit(cpu, (map).mask)
--#define cpu_clear(cpu, map)		clear_bit(cpu, (map).mask)
--#define cpu_isset(cpu, map)		test_bit(cpu, (map).mask)
--#define cpu_test_and_set(cpu, map)	test_and_set_bit(cpu, (map).mask)
--
--#define cpus_and(dst,src1,src2)	bitmap_and((dst).mask,(src1).mask, (src2).mask, NR_CPUS)
--#define cpus_or(dst,src1,src2)	bitmap_or((dst).mask, (src1).mask, (src2).mask, NR_CPUS)
--#define cpus_clear(map)		bitmap_clear((map).mask, NR_CPUS)
--#define cpus_complement(map)	bitmap_complement((map).mask, (map).mask, NR_CPUS)
--#define cpus_equal(map1, map2)	bitmap_equal((map1).mask, (map2).mask, NR_CPUS)
--#define cpus_empty(map)		bitmap_empty(map.mask, NR_CPUS)
--#define cpus_addr(map)		((map).mask)
--#define cpus_weight(map)		bitmap_weight((map).mask, NR_CPUS)
--#define cpus_shift_right(d, s, n)	bitmap_shift_right((d).mask, (s).mask, n, NR_CPUS)
--#define cpus_shift_left(d, s, n)	bitmap_shift_left((d).mask, (s).mask, n, NR_CPUS)
--#define first_cpu(map)		find_first_bit((map).mask, NR_CPUS)
--#define next_cpu(cpu, map)	find_next_bit((map).mask, NR_CPUS, cpu + 1)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce(map)	((map).mask[0])
--#define cpus_promote(map)	({ cpumask_t __cpu_mask = CPU_MASK_NONE;\
--					__cpu_mask.mask[0] = map;	\
--					__cpu_mask;			\
--				})
--#define cpumask_of_cpu(cpu)	({ cpumask_t __cpu_mask = CPU_MASK_NONE;\
--					cpu_set(cpu, __cpu_mask);	\
--					__cpu_mask;			\
--				})
--#define any_online_cpu(map)			\
--({						\
--	cpumask_t __tmp__;			\
--	cpus_and(__tmp__, map, cpu_online_map);	\
--	find_first_bit(__tmp__.mask, NR_CPUS);	\
--})
--
--
--/*
-- * um, these need to be usable as static initializers
-- */
--#define CPU_MASK_ALL	{ {[0 ... CPU_ARRAY_SIZE-1] = ~0UL} }
--#define CPU_MASK_NONE	{ {[0 ... CPU_ARRAY_SIZE-1] =  0UL} }
--
--#endif /* __ASM_GENERIC_CPUMASK_ARRAY_H */
-Index: 2.6.5.bitmap/include/asm-generic/cpumask_const_reference.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	2004-04-08 04:46:14.000000000 -0700
+@@ -791,7 +791,6 @@
+ 	struct list_head *ln;
+ 	struct pci_bus *pci_bus = NULL;
+ 	struct pci_dev *pci_dev = NULL;
+-	extern int numnodes;
+ 	int cnode, ret;
+ #ifdef CONFIG_PROC_FS
+ 	extern void register_sn_procfs(void);
+@@ -814,7 +813,7 @@
+ 
+ 	sgi_master_io_infr_init();
+ 
+-	for (cnode = 0; cnode < numnodes; cnode++) {
++	for_each_online_node(cnode) {
+ 		extern void intr_init_vecblk(cnodeid_t);
+ 		intr_init_vecblk(cnode);
+ 	}
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/klconflib.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask_const_reference.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask_const_reference.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,29 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_CONST_REFERENCE_H
--#define __ASM_GENERIC_CPUMASK_CONST_REFERENCE_H
--
--struct cpumask_ref {
--	const cpumask_t *val;
--};
--
--typedef const struct cpumask_ref cpumask_const_t;
--
--#define mk_cpumask_const(map)		((cpumask_const_t){ &(map) })
--#define cpu_isset_const(cpu, map)	cpu_isset(cpu, *(map).val)
--
--#define cpus_and_const(dst,src1,src2)	cpus_and(dst,*(src1).val,*(src2).val)
--#define cpus_or_const(dst,src1,src2)	cpus_or(dst,*(src1).val,*(src2).val)
--
--#define cpus_equal_const(map1, map2)	cpus_equal(*(map1).val, *(map2).val)
--
--#define cpus_copy_const(map1, map2)	bitmap_copy((map1).mask, (map2).val->mask, NR_CPUS)
--
--#define cpus_empty_const(map)		cpus_empty(*(map).val)
--#define cpus_weight_const(map)		cpus_weight(*(map).val)
--#define first_cpu_const(map)		first_cpu(*(map).val)
--#define next_cpu_const(cpu, map)	next_cpu(cpu, *(map).val)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce_const(map)		cpus_coerce(*(map).val)
--#define any_online_cpu_const(map)	any_online_cpu(*(map).val)
--
--#endif /* __ASM_GENERIC_CPUMASK_CONST_REFERENCE_H */
-Index: 2.6.5.bitmap/include/asm-generic/cpumask_const_value.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/klconflib.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/klconflib.c	2004-04-08 04:46:14.000000000 -0700
+@@ -62,7 +62,7 @@
+ 		    (start->brd_nasid == nasid))
+ 			return start;
+ 
+-		if (numionodes == numnodes)
++		if (numionodes == num_online_nodes())
+ 			start = KLCF_NEXT_ANY(start);
+ 		else
+ 			start = KLCF_NEXT(start);
+@@ -95,7 +95,7 @@
+ 		    (start->brd_nasid == nasid))
+ 			return start;
+ 
+-		if (numionodes == numnodes)
++		if (numionodes == num_online_nodes())
+ 			start = KLCF_NEXT_ANY(start);
+ 		else
+ 			start = KLCF_NEXT(start);
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/klgraph.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask_const_value.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask_const_value.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,21 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_CONST_VALUE_H
--#define __ASM_GENERIC_CPUMASK_CONST_VALUE_H
--
--typedef const cpumask_t cpumask_const_t;
--
--#define mk_cpumask_const(map)		(map)
--#define cpu_isset_const(cpu, map)	cpu_isset(cpu, map)
--#define cpus_and_const(dst,src1,src2)	cpus_and(dst, src1, src2)
--#define cpus_or_const(dst,src1,src2)	cpus_or(dst, src1, src2)
--#define cpus_equal_const(map1, map2)	cpus_equal(map1, map2)
--#define cpus_empty_const(map)		cpus_empty(map)
--#define cpus_copy_const(map1, map2)	do { map1 = (cpumask_t)map2; } while (0)
--#define cpus_weight_const(map)		cpus_weight(map)
--#define first_cpu_const(map)		first_cpu(map)
--#define next_cpu_const(cpu, map)	next_cpu(cpu, map)
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_coerce_const(map)		cpus_coerce(map)
--#define any_online_cpu_const(map)	any_online_cpu(map)
--
--#endif /* __ASM_GENERIC_CPUMASK_CONST_VALUE_H */
-Index: 2.6.5.bitmap/include/asm-generic/cpumask_up.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/klgraph.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/klgraph.c	2004-04-08 04:46:14.000000000 -0700
+@@ -279,7 +279,7 @@
+ 	char path_buffer[100];
+ 	int rv;
+ 
+-	for (cnode = 0; cnode < numnodes; cnode++) {
++	for_each_online_node(cnode) {
+ 		nasid = COMPACT_TO_NASID_NODEID(cnode);
+ 		brd = find_lboard_class_any((lboard_t *)KL_CONFIG_INFO(nasid),
+ 				KLTYPE_ROUTER);
+@@ -413,7 +413,7 @@
+ 	cnodeid_t cnode;
+ 	lboard_t *brd;
+ 
+-	for (cnode = 0; cnode < numnodes; cnode++) {
++	for_each_online_node(cnode) {
+ 		nasid = COMPACT_TO_NASID_NODEID(cnode);
+ 		brd = find_lboard_class_any((lboard_t *)KL_CONFIG_INFO(nasid),
+ 				KLTYPE_ROUTER);
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/ml_SN_init.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-generic/cpumask_up.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-generic/cpumask_up.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,59 +0,0 @@
--#ifndef __ASM_GENERIC_CPUMASK_UP_H
--#define __ASM_GENERIC_CPUMASK_UP_H
--
--#define cpus_coerce(map)	(map)
--
--#define cpu_set(cpu, map)		do { (void)(cpu); cpus_coerce(map) = 1UL; } while (0)
--#define cpu_clear(cpu, map)		do { (void)(cpu); cpus_coerce(map) = 0UL; } while (0)
--#define cpu_isset(cpu, map)		((void)(cpu), cpus_coerce(map) != 0UL)
--#define cpu_test_and_set(cpu, map)	((void)(cpu), test_and_set_bit(0, &(map)))
--
--#define cpus_and(dst, src1, src2)					\
--	do {								\
--		if (cpus_coerce(src1) && cpus_coerce(src2))		\
--			cpus_coerce(dst) = 1UL;				\
--		else							\
--			cpus_coerce(dst) = 0UL;				\
--	} while (0)
--
--#define cpus_or(dst, src1, src2)					\
--	do {								\
--		if (cpus_coerce(src1) || cpus_coerce(src2))		\
--			cpus_coerce(dst) = 1UL;				\
--		else							\
--			cpus_coerce(dst) = 0UL;				\
--	} while (0)
--
--#define cpus_clear(map)			do { cpus_coerce(map) = 0UL; } while (0)
--
--#define cpus_complement(map)						\
--	do {								\
--		cpus_coerce(map) = !cpus_coerce(map);			\
--	} while (0)
--
--#define cpus_equal(map1, map2)		(cpus_coerce(map1) == cpus_coerce(map2))
--#define cpus_empty(map)			(cpus_coerce(map) == 0UL)
--#define cpus_addr(map)			(&(map))
--#define cpus_weight(map)		(cpus_coerce(map) ? 1UL : 0UL)
--#define cpus_shift_right(d, s, n)	do { cpus_coerce(d) = 0UL; } while (0)
--#define cpus_shift_left(d, s, n)	do { cpus_coerce(d) = 0UL; } while (0)
--#define first_cpu(map)			(cpus_coerce(map) ? 0 : 1)
--#define next_cpu(cpu, map)		1
--
--/* only ever use this for things that are _never_ used on large boxen */
--#define cpus_promote(map)						\
--	({								\
--		cpumask_t __tmp__;					\
--		cpus_coerce(__tmp__) = map;				\
--		__tmp__;						\
--	})
--#define cpumask_of_cpu(cpu)		((void)(cpu), cpus_promote(1))
--#define any_online_cpu(map)		(cpus_coerce(map) ? 0 : 1)
--
--/*
-- * um, these need to be usable as static initializers
-- */
--#define CPU_MASK_ALL	1UL
--#define CPU_MASK_NONE	0UL
--
--#endif /* __ASM_GENERIC_CPUMASK_UP_H */
-Index: 2.6.5.bitmap/include/asm-h8300/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/ml_SN_init.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/ml_SN_init.c	2004-04-08 04:46:14.000000000 -0700
+@@ -38,7 +38,7 @@
+ 	/* Allocate per-node platform-dependent data */
+ 	
+ 	nasid = COMPACT_TO_NASID_NODEID(node);
+-	if (node >= numnodes) /* Headless/memless IO nodes */
++	if (node >= num_online_nodes()) /* Headless/memless IO nodes */
+ 		hubinfo = (hubinfo_t)alloc_bootmem_node(NODE_DATA(0), sizeof(struct hubinfo_s));
+ 	else
+ 		hubinfo = (hubinfo_t)alloc_bootmem_node(NODE_DATA(node), sizeof(struct hubinfo_s));
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/ml_SN_intr.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-h8300/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-h8300/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_H8300_CPUMASK_H
--#define _ASM_H8300_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_H8300_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-i386/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/ml_SN_intr.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/ml_SN_intr.c	2004-04-08 04:46:14.000000000 -0700
+@@ -256,12 +256,12 @@
+ 	cnodeid_t candidate_node;
+ 	cpuid_t cpuid;
+ 
+-	if (last_node >= numnodes)
++	if (last_node >= num_online_nodes())
+ 		last_node = 0;
+ 
+ 	for (candidate_node = last_node + 1; candidate_node != last_node;
+ 			candidate_node++) {
+-		if (candidate_node == numnodes)
++		if (candidate_node == num_online_nodes())
+ 			candidate_node = 0;
+ 		cpuid = intr_cpu_choose_from_node(candidate_node);
+ 		if (cpuid != CPU_NONE)
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/ml_iograph.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-i386/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-i386/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_I386_CPUMASK_H
--#define _ASM_I386_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_I386_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-m68k/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/ml_iograph.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/ml_iograph.c	2004-04-08 04:46:14.000000000 -0700
+@@ -680,7 +680,7 @@
+ 		DBG("init_all_devices: Done io_init_node() for cnode %d\n", cnodeid);
+ 	}
+ 
+-	for (cnodeid = 0; cnodeid < numnodes; cnodeid++) {
++	for_each_online_node(cnodeid) {
+ 		/*
+ 	 	 * Update information generated by IO init.
+ 		 */
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/module.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-m68k/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-m68k/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_M68K_CPUMASK_H
--#define _ASM_M68K_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_M68K_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-m68knommu/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/module.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/module.c	2004-04-08 04:46:14.000000000 -0700
+@@ -195,7 +195,7 @@
+      * First pass just scan for compute node boards KLTYPE_SNIA.
+      * We do not support memoryless compute nodes.
+      */
+-    for (node = 0; node < numnodes; node++) {
++    for_each_online_node(node) {
+ 	nasid = COMPACT_TO_NASID_NODEID(node);
+ 	board = find_lboard_nasid((lboard_t *) KL_CONFIG_INFO(nasid), nasid, KLTYPE_SNIA);
+ 	ASSERT(board);
+@@ -210,7 +210,7 @@
+     /*
+      * Second scan, look for headless/memless board hosted by compute nodes.
+      */
+-    for (node = numnodes; node < numionodes; node++) {
++    for (node = num_online_nodes(); node < numionodes; node++) {
+ 	nasid_t		nasid;
+ 	char		serial_number[16];
+ 
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-m68knommu/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-m68knommu/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_M68KNOMMU_CPUMASK_H
--#define _ASM_M68KNOMMU_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_M68KNOMMU_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-mips/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/pcibr/pcibr_dvr.c	2004-04-08 04:46:14.000000000 -0700
+@@ -2639,7 +2639,7 @@
+ 		if (brd->brd_flags & LOCAL_MASTER_IO6) {
+ 			return 1;
+ 		}
+-                if (numionodes == numnodes)
++                if (numionodes == num_online_nodes())
+                         brd = KLCF_NEXT_ANY(brd);
+                 else
+                         brd = KLCF_NEXT(brd);
+@@ -2652,7 +2652,7 @@
+ 		if (brd->brd_flags & LOCAL_MASTER_IO6) {
+ 			return 1;
+ 		}
+-                if (numionodes == numnodes)
++                if (numionodes == num_online_nodes())
+                         brd = KLCF_NEXT_ANY(brd);
+                 else
+                         brd = KLCF_NEXT(brd);
+Index: 2.6.5.bitmap/arch/ia64/sn/io/sn2/shub.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-mips/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-mips/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_MIPS_CPUMASK_H
--#define _ASM_MIPS_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_MIPS_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-parisc/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/io/sn2/shub.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/io/sn2/shub.c	2004-04-08 04:46:14.000000000 -0700
+@@ -167,7 +167,7 @@
+ 	int		nasid;
+ 
+         cnode = (cnodeid_t)(u64)file->f_dentry->d_fsdata;
+-        if (cnode < 0 || cnode >= numnodes)
++        if (cnode < 0 || cnode >= num_online_nodes())
+                 return -ENODEV;
+ 
+         switch (cmd) {
+Index: 2.6.5.bitmap/arch/ia64/sn/kernel/setup.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-parisc/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-parisc/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_PARISC_CPUMASK_H
--#define _ASM_PARISC_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_PARISC_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-ppc/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/kernel/setup.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/kernel/setup.c	2004-04-08 04:46:14.000000000 -0700
+@@ -221,7 +221,7 @@
+ {
+ 	int	cnode;
+ 
+-	for (cnode=0; cnode< numnodes; cnode++)
++	for_each_online_node(cnode)
+ 		if (is_shub_1_1(cnodeid_to_nasid(cnode)))
+ 			shub_1_1_found = 1;
+ }
+@@ -369,16 +369,16 @@
+ 		panic("overflow of cpu_data page");
+ 
+ 	memset(pda->cnodeid_to_nasid_table, -1, sizeof(pda->cnodeid_to_nasid_table));
+-	for (cnode=0; cnode<numnodes; cnode++)
++	for_each_online_node(cnode)
+ 		pda->cnodeid_to_nasid_table[cnode] = pxm_to_nasid(nid_to_pxm_map[cnode]);
+ 
+-	numionodes = numnodes;
++	numionodes = num_online_nodes();
+ 	scan_for_ionodes();
+ 
+         /*
+          * Allocate & initalize the nodepda for each node.
+          */
+-        for (cnode=0; cnode < numnodes; cnode++) {
++	for_each_online_node(cnode) {
+ 		nodepdaindr[cnode] = alloc_bootmem_node(NODE_DATA(cnode), sizeof(nodepda_t));
+ 		memset(nodepdaindr[cnode], 0, sizeof(nodepda_t));
+         }
+@@ -395,7 +395,7 @@
+ 	 * The following routine actually sets up the hubinfo struct
+ 	 * in nodepda.
+ 	 */
+-	for (cnode = 0; cnode < numnodes; cnode++) {
++	for_each_online_node(cnode) {
+ 		init_platform_nodepda(nodepdaindr[cnode], cnode);
+ 		bte_init_node (nodepdaindr[cnode], cnode);
+ 	}
+@@ -483,7 +483,7 @@
+ 
+ 	if (nodepda->node_first_cpu == cpuid) {
+ 		int	buddy_nasid;
+-		buddy_nasid = cnodeid_to_nasid(numa_node_id() == numnodes-1 ? 0 : numa_node_id()+ 1);
++		buddy_nasid = cnodeid_to_nasid(numa_node_id() == num_online_nodes()-1 ? 0 : numa_node_id()+ 1);
+ 		pda->pio_shub_war_cam_addr = (volatile unsigned long*)GLOBAL_MMR_ADDR(nasid, SH_PI_CAM_CONTROL);
+ 	}
+ 
+Index: 2.6.5.bitmap/arch/ia64/sn/kernel/sn2/prominfo_proc.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-ppc/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-ppc/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_PPC_CPUMASK_H
--#define _ASM_PPC_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_PPC_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-ppc64/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/kernel/sn2/prominfo_proc.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/kernel/sn2/prominfo_proc.c	2004-04-08 04:46:14.000000000 -0700
+@@ -320,16 +320,15 @@
+ 	TRACE();
+ 
+ 	DPRINTK("running on cpu %d\n", smp_processor_id());
+-	DPRINTK("numnodes %d\n", numnodes);
++	DPRINTK("num_online_nodes() %d\n", num_online_nodes());
+ 
+-	proc_entries = kmalloc(numnodes * sizeof(struct proc_dir_entry *),
++	proc_entries = kmalloc(num_online_nodes() * sizeof(struct proc_dir_entry *),
+ 			       GFP_KERNEL);
+ 
+ 	sgi_prominfo_entry = proc_mkdir("sgi_prominfo", NULL);
+ 
+-	for (cnodeid = 0, entp = proc_entries;
+-	     cnodeid < numnodes;
+-	     cnodeid++, entp++) {
++	entp = proc_entries;
++	for_each_online_node(cnodeid) {
+ 		sprintf(name, "node%d", cnodeid);
+ 		*entp = proc_mkdir(name, sgi_prominfo_entry);
+ 		nasid = cnodeid_to_nasid(cnodeid);
+@@ -339,6 +338,7 @@
+ 		create_proc_read_entry(
+ 			"version", 0, *entp, read_version_entry,
+ 			lookup_fit(nasid));
++		entp++;
+ 	}
+ 
+ 	return 0;
+@@ -353,13 +353,13 @@
+ 
+ 	TRACE();
+ 
+-	for (cnodeid = 0, entp = proc_entries;
+-	     cnodeid < numnodes;
+-	     cnodeid++, entp++) {
++	entp = proc_entries;
++	for_each_online_node(cnodeid) {
+ 		remove_proc_entry("fit", *entp);
+ 		remove_proc_entry("version", *entp);
+ 		sprintf(name, "node%d", cnodeid);
+ 		remove_proc_entry(name, sgi_prominfo_entry);
++		entp++;
+ 	}
+ 	remove_proc_entry("sgi_prominfo", NULL);
+ 	kfree(proc_entries);
+Index: 2.6.5.bitmap/arch/ia64/sn/kernel/sn2/sn2_smp.c
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-ppc64/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-ppc64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_PPC64_CPUMASK_H
--#define _ASM_PPC64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_PPC64_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-s390/cpumask.h
+--- 2.6.5.bitmap.orig/arch/ia64/sn/kernel/sn2/sn2_smp.c	2004-04-05 02:41:32.000000000 -0700
++++ 2.6.5.bitmap/arch/ia64/sn/kernel/sn2/sn2_smp.c	2004-04-08 04:46:14.000000000 -0700
+@@ -183,7 +183,7 @@
+ 
+ 	mycnode = numa_node_id();
+ 
+-	for (cnode = 0; cnode < numnodes; cnode++) {
++	for_each_online_node(cnode) {
+ 		if (is_headless_node(cnode) || cnode == mycnode)
+ 			continue;
+ 		nasid = cnodeid_to_nasid(cnode);
+Index: 2.6.5.bitmap/include/asm-ia64/numa.h
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-s390/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-s390/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_S390_CPUMASK_H
--#define _ASM_S390_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_S390_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-sh/cpumask.h
+--- 2.6.5.bitmap.orig/include/asm-ia64/numa.h	2004-04-05 02:41:33.000000000 -0700
++++ 2.6.5.bitmap/include/asm-ia64/numa.h	2004-04-08 04:46:14.000000000 -0700
+@@ -59,7 +59,7 @@
+  */
+ 
+ extern u8 numa_slit[MAX_NUMNODES * MAX_NUMNODES];
+-#define node_distance(from,to) (numa_slit[from * numnodes + to])
++#define node_distance(from,to) (numa_slit[from * num_online_nodes() + to])
+ 
+ extern int paddr_to_nid(unsigned long paddr);
+ 
+Index: 2.6.5.bitmap/include/asm-ia64/sn/sn2/sn_private.h
 ===================================================================
---- 2.6.5.bitmap.orig/include/asm-sh/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-sh/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_SH_CPUMASK_H
--#define _ASM_SH_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_SH_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-sparc/cpumask.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-sparc/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-sparc/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_SPARC_CPUMASK_H
--#define _ASM_SPARC_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_SPARC_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-sparc64/cpumask.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-sparc64/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-sparc64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_SPARC64_CPUMASK_H
--#define _ASM_SPARC64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_SPARC64_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-um/cpumask.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-um/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-um/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_UM_CPUMASK_H
--#define _ASM_UM_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_UM_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-v850/cpumask.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-v850/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-v850/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_V850_CPUMASK_H
--#define _ASM_V850_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_V850_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-x86_64/cpumask.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-x86_64/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-x86_64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_X86_64_CPUMASK_H
--#define _ASM_X86_64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_X86_64_CPUMASK_H */
-Index: 2.6.5.bitmap/include/asm-ia64/cpumask.h
-===================================================================
---- 2.6.5.bitmap.orig/include/asm-ia64/cpumask.h	2004-04-08 01:08:17.000000000 -0700
-+++ 2.6.5.bitmap/include/asm-ia64/cpumask.h	1969-12-31 16:00:00.000000000 -0800
-@@ -1,6 +0,0 @@
--#ifndef _ASM_IA64_CPUMASK_H
--#define _ASM_IA64_CPUMASK_H
--
--#include <asm-generic/cpumask.h>
--
--#endif /* _ASM_IA64_CPUMASK_H */
+--- 2.6.5.bitmap.orig/include/asm-ia64/sn/sn2/sn_private.h	2004-04-05 02:41:33.000000000 -0700
++++ 2.6.5.bitmap/include/asm-ia64/sn/sn2/sn_private.h	2004-04-08 04:46:14.000000000 -0700
+@@ -87,9 +87,7 @@
+ void install_klidbg_functions(void);
+ 
+ /* klnuma.c */
+-extern void replicate_kernel_text(int numnodes);
+ extern unsigned long get_freemem_start(cnodeid_t cnode);
+-extern void setup_replication_mask(int maxnodes);
+ 
+ /* init.c */
+ extern cnodeid_t get_compact_nodeid(void);	/* get compact node id */
 
 
 -- 

@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265035AbUD2XEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264995AbUD2XMf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265035AbUD2XEn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 19:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUD2XEm
+	id S264995AbUD2XMf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 19:12:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265028AbUD2XMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 19:04:42 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:63756 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265035AbUD2XD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 19:03:27 -0400
-Message-ID: <40918AD2.9060602@techsource.com>
-Date: Thu, 29 Apr 2004 19:08:02 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
-       akpm@osdl.org, brettspamacct@fastclick.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <40904A84.2030307@yahoo.com.au>	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>	<20040429133613.791f9f9b.pj@sgi.com>	<409175CF.9040608@techsource.com>	<20040429144737.3b0c736b.pj@sgi.com>	<40917F1E.8040106@techsource.com> <20040429154632.4ca07cf9.pj@sgi.com>
-In-Reply-To: <20040429154632.4ca07cf9.pj@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Apr 2004 19:12:35 -0400
+Received: from radius8.csd.net ([204.151.43.208]:11156 "EHLO
+	bastille.tuells.org") by vger.kernel.org with ESMTP id S264995AbUD2XMc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 19:12:32 -0400
+Date: Thu, 29 Apr 2004 17:12:43 -0600
+From: marcus hall <marcus@tuells.org>
+To: linux-kernel@vger.kernel.org
+Subject: mmap returns incorrect data
+Message-ID: <20040429231243.GA8216@bastille.tuells.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a system based on 2.5.59 kernel for arm.  This system was previously
+running OK with all filesystems on a stratoflash chip, but I have recently
+moved the filesystems to a compact flash chip.  Some filesystems are
+cramfs, and some have changed from jffs2 to ext3 along with the move.
 
+I am having trouble with ldconfig not recognizing some files as being valid.
+The files that cause the problem are files that are on an ext3 filesystem
+on the CF.  Other files on a cramfs filesystem seem to work reliably.
+It seems that ldconfig mmap()s the file into its address space, and what
+it sees doesn't match what is in the file.  If I pre-read the file before
+running ldconfig, so that the contents get into the cache, then ldconfig
+proceeds normally.
 
-Paul Jackson wrote:
+Working through various layers, I see that the generic_file_mmap() gets
+called and sets things up OK, then when ldconfig references the file, the
+page fault correctly invokes filemap_nopage(), which calls
+page_cache_readaround().  By the time page_cache_readaround() returns,
+the page has been added to mapping->page_tree, and the page is added to
+ldconfig's address space.
 
-> 
-> In other words, I wouldn't agree with your take that it's a matter of
-> not trusting the application, better to GUESS.  
+I can see where page_cache_readaround() gets to ext3_readpages() and then
+to ext3_get_block() to put the requests (page_cache_readahead() asks for
+16 pages) onto the queue, then __do_page_cache_readahead() calls
+blk_run_queues() to unplug the queues, but it isn't clear (yet!) where
+we wait until the blocks are read in before returning from
+page_cache_readaround().
 
-Okay.
+The CF interface has a real delay between starting a request and getting
+an interrupt when the card is ready, which the mtd driver I was using before
+doesn't do, so I am guessing that this may be the source of my problems.
+But it isn't clear why the cramfs files don't suffer from this problem (since
+they are also on the CF).
 
-> Rather I would say that
-> there is a preference, and a good one at that, to not use an excessive
-> number of knobs as a cop-out to avoid working hard to get the widest
-> practical range of cases to behave reasonably, without intervention, and
-> a preference to keep what knobs that are there short, sweet and
-> minimally interacting.
-> 
+Is there any known issue in this area?  Where should I be focusing my
+attention?
 
-Agreed.  And this is why I suggested not adding another knob but rather 
-going with the existing nice value.
+Thanks for any suggestions!
 
-Mind you, this shouldn't necessarily be done without some kind of 
-experimentation.  Put two knobs in the kernel and try varying them  to 
-each other to see what sorts of jobs, if any, would benefit in a 
-disparity between cpu-nice and io-nice.  If there IS a significant 
-difference, then add the extra knob.  If there isn't, then don't.
+Marcus Hall
+marcus@tuells.org
 
-Another possibility would be to have one knob that controls cpu-nice, 
-and another knob that controls io-nice minus cpu-nice, so if you REALLY 
-want to make them different, you can, but typically, they are set to be 
-the same.
 

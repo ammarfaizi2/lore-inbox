@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264875AbTL0WsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 17:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbTL0WsZ
+	id S264870AbTL0XI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 18:08:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264874AbTL0XI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 17:48:25 -0500
-Received: from 82-43-130-207.cable.ubr03.mort.blueyonder.co.uk ([82.43.130.207]:53645
-	"EHLO efix.biz") by vger.kernel.org with ESMTP id S264875AbTL0WsX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 17:48:23 -0500
-Subject: Re: OSS sound emulation broken between 2.6.0-test2 and test3
-From: Edward Tandi <ed@efix.biz>
-To: Henrik Storner <henrik-kernel@hswn.dk>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <bskv6j$aje$1@ask.hswn.dk>
-References: <1072535590.12308.250.camel@nosferatu.lan>
-	 <1080000.1072475704@[10.10.2.4]>	 <1072479167.21020.59.camel@nosferatu.lan>
-	 <1480000.1072479655@[10.10.2.4]> <1072480660.21020.64.camel@nosferatu.lan>
-	 <1640000.1072481061@[10.10.2.4]> <1072482611.21020.71.camel@nosferatu.lan>
-	 <2060000.1072483186@[10.10.2.4]>	 <1072500516.12203.2.camel@duergar>
-	 <8240000.1072511437@[10.10.2.4]> <1072523478.12308.52.camel@nosferatu.lan>
-	 <1072525450.3794.8.camel@wires.home.biz>
-	 <1072527874.12308.100.camel@nosferatu.lan>
-	 <1072530488.2906.1.camel@wires.home.biz>
-	 <1072535590.12308.250.camel@nosferatu.lan>
-	 <1072544151.8611.18.camel@wires.home.biz>  <bskv6j$aje$1@ask.hswn.dk>
-Content-Type: text/plain
-Message-Id: <1072565484.2698.9.camel@wires.home.biz>
+	Sat, 27 Dec 2003 18:08:27 -0500
+Received: from mail2.bluewin.ch ([195.186.4.73]:19851 "EHLO mail2.bluewin.ch")
+	by vger.kernel.org with ESMTP id S264870AbTL0XI0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Dec 2003 18:08:26 -0500
+Date: Sun, 28 Dec 2003 00:07:58 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Rik van Riel <riel@surriel.com>, torvalds@osdl.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: Page aging broken in 2.6
+Message-ID: <20031227230757.GA25229@k3.hellgate.ch>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Rik van Riel <riel@surriel.com>, torvalds@osdl.org,
+	benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+	andrea@suse.de
+References: <1072423739.15458.62.camel@gaston> <Pine.LNX.4.58.0312260957100.14874@home.osdl.org> <1072482941.15458.90.camel@gaston> <Pine.LNX.4.58.0312261626260.14874@home.osdl.org> <1072485899.15456.96.camel@gaston> <Pine.LNX.4.58.0312261649070.14874@home.osdl.org> <Pine.LNX.4.55L.0312262147030.7686@imladris.surriel.com> <20031226190045.0f4651f3.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5-2mdk 
-Date: Sat, 27 Dec 2003 22:51:25 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031226190045.0f4651f3.akpm@osdl.org>
+X-Operating-System: Linux 2.6.0-test11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-12-27 at 21:56, Henrik Storner wrote:
-> In <1072544151.8611.18.camel@wires.home.biz> Edward Tandi <ed@efix.biz> writes:
-> 
-> >I would say the symptoms are that the music starts playing OK bit after
-> >a short period (18-19 seconds), the music changes overall speed (by a
-> >semi-tone or so). When it does this, the sound also starts to break up.
-> 
-> Just a "me too" post - I've been trying out 2.6.0 over the past couple
-> of days, and this is the only real issue I've encountered. Just like
-> you describe, the pace of the music playing speeds up slightly, and
-> there are some mis-sounds for a few seconds. Then it comes back to
-> normal.
+On Fri, 26 Dec 2003 19:00:45 -0800, Andrew Morton wrote:
+> The current behaviour seems better from a theoretical point of view.  All
+> we want to know is the reference pattern - whether it is one process
+> referencing the page frequently or 100 processes referencing it
+> infrequently shouldn't matter.  And if we want to give mapped pages more
 
-Yes, it lasts for about 5 seconds then continues as normal. The problem
-then re-occurs about 1.5-2.5 minutes after that. The recurrence after
-that becomes harder to predict.
+It can matter. Evicting a page that is infrequently referenced by many
+processes increases the chance that all runnable processes block waiting
+for that same page later. The likelihood of that happening grows under
+memory pressure, when "infrequently" may actually be "quite often" and
+when disk I/O is congested (resulting in higher disk access times).
 
-Interestingly, if you leave XMMS playing long enough (over an hour) such
-as listening to a vorbis radio stream, it finally goes into permanent
-break-up mode. It's so bad that you really have to stop playing and
-start again (no need to shut down XMMS though).
+You won't have the same effect when evicting a page that is referenced
+by one process only, no matter how frequently.
 
-Ed-T.
+Having all processes blocked is indeed one problem of 2.6 under memory
+pressure. I don't know what the cause is, though.
 
-
+Roger

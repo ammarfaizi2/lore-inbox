@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136374AbREDN0J>; Fri, 4 May 2001 09:26:09 -0400
+	id <S136381AbREDNdj>; Fri, 4 May 2001 09:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136375AbREDNZ7>; Fri, 4 May 2001 09:25:59 -0400
-Received: from ns.suse.de ([213.95.15.193]:35844 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S136374AbREDNZs> convert rfc822-to-8bit;
-	Fri, 4 May 2001 09:25:48 -0400
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Todd Inglett <tinglett@vnet.ibm.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP races in proc with thread_struct
-In-Reply-To: <8541.988980403@ocs3.ocs-net>
-X-Yow: It's a lot of fun being alive...  I wonder if my bed is made?!?
-From: Andreas Schwab <schwab@suse.de>
-Date: 04 May 2001 15:11:37 +0200
-In-Reply-To: <8541.988980403@ocs3.ocs-net> (Keith Owens's message of "Fri, 04 May 2001 22:46:43 +1000")
-Message-ID: <jer8y52r92.fsf@hawking.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.103
+	id <S136384AbREDNda>; Fri, 4 May 2001 09:33:30 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:51637 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S136381AbREDNdU>; Fri, 4 May 2001 09:33:20 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Jacek Kopecky <jacek@idoox.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: tmpfs doesn't update free memory stats?
+In-Reply-To: <Pine.LNX.4.33.0105041159301.31964-100000@bimbo.in.idoox.com>
+Organisation: SAP LinuxLab
+Date: 04 May 2001 15:13:09 +0200
+In-Reply-To: <Pine.LNX.4.33.0105041159301.31964-100000@bimbo.in.idoox.com>
+Message-ID: <m3g0eltfyy.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> writes:
+Hi Jacek,
 
-|> On Fri, 04 May 2001 07:34:20 -0500, 
-|> Todd Inglett <tinglett@vnet.ibm.com> wrote:
-|> >But this is where hell breaks loose.  Every process has a valid parent
-|> >-- unless it is dead and nobody cares.  Process N has already exited and
-|> >released from the tasklist while its parent was still alive.  There was
-|> >no reason to reparent it.  It just got released.  So N's task_struct has
-|> >a dangling ptr to its parent.  Nobody is holding the parent task_struct,
-|> >either.  When the parent died memory for its task_struct was released. 
-|> >This is ungood.
-|> 
-|> Wrap the reference to the parent task structure with exception table
-|> recovery code, like copy_from_user().
+On Fri, 4 May 2001, Jacek Kopecky wrote:
+>  I'm not in the list, please cc your replies to me.
+>  After upgrading to 2.4.4 I started using tmpfs for /tmp and I
+> noticed a strange behavior:
+> 
+>  dd if=/dev/zero of=blah bs=1024 count=102400
+> 	# increased my used swap space by approx. 100MiB (correct)
+>  rm blah
+> 	# did not decrease it back
+> 
+>  Multiple retries showed what looked like a random behavior of
+> the used swap stats. Is this a correct behavior? Should the swap
+> stats be dismissed as 'unreliable'? I expected that when creating
+> a 100MiB file in memory it should increase the swap (or memory)
+> usage by cca 100MiB and that removing a file from tmpfs means
+> freeing the memory.
 
-Exception tables only protect accesses to user virtual memory.  Kernel
-memory references must always be valid in the first place.
+It will be adjusted under memory pressure. At this time there is no
+way to release swap cached pages without the potential of deadlocks.
 
-Andreas.
+This is not nice but the only short term solution and should not
+affect anything besides stats.
 
--- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+Greetings
+		Christoph
+
+

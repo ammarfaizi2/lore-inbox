@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263810AbSITWyQ>; Fri, 20 Sep 2002 18:54:16 -0400
+	id <S263883AbSITXBi>; Fri, 20 Sep 2002 19:01:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263835AbSITWyQ>; Fri, 20 Sep 2002 18:54:16 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:15025 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S263810AbSITWyQ>; Fri, 20 Sep 2002 18:54:16 -0400
-Message-ID: <20020920225828.4517.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-15"
+	id <S263910AbSITXBi>; Fri, 20 Sep 2002 19:01:38 -0400
+Received: from jalon.able.es ([212.97.163.2]:51102 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S263883AbSITXBh>;
+	Fri, 20 Sep 2002 19:01:37 -0400
+Date: Sat, 21 Sep 2002 01:06:34 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020920230634.GA1555@werewolf.able.es>
+References: <Pine.NEB.4.44.0209201144270.2586-100000@mimas.fachschaften.tu-muenchen.de> <3D8B7157.6040205@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 21 Sep 2002 06:58:28 +0800
-Subject: Re: [chatroom benchmark version 1.0.1] Results
-X-Originating-Ip: 193.76.202.244
-X-Originating-Server: ws4-4.us4.outblaze.com
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3D8B7157.6040205@redhat.com>; from drepper@redhat.com on Fri, Sep 20, 2002 at 21:04:55 +0200
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I'm back with the results of the following script:
-#!/bin/sh
-> `uname -r`_total.results
-for i in `seq 1 1 10`
-do
-	./chat_c 127.0.0.1 30 1000 9999 >>`uname -r`_total.results
-done
-grep Average `uname -r`_total.results | awk '{tot+=$4}; END {print "Average throughput: " tot/NR " messages per second"}' > `uname -r`.average
 
-Here the results:
-2.5.33-preemption.average:Average throughput: 60943.9 messages per second
-2.5.33.average:Average throughput: 61779.8 messages per second
-2.5.36-preemption.average:Average throughput: 60877.2 messages per second
-2.5.36.average:Average throughput: 60858.7 messages per second
-2.5.37-preemption.average: Average throughput: 61896.1 messages per second
+On 2002.09.20 Ulrich Drepper wrote:
+>-----BEGIN PGP SIGNED MESSAGE-----
+>Hash: SHA1
+>
+>Adrian Bunk wrote:
+>
+>> My personal estimation is that Debian will support kernel 2.4 in it's
+>> stable distribution until 2006 or 2007 (this is based on the experience
+>> that Debian usually supports two stable kernel series and the time between
+>> stable releases of Debian is > 1 year). What is the proposed way for
+>> distributions to deal with this?
+>
+>Two ways:
+>
+>- - continue to use the old code
+>
+>- - backport the required functionality
+>
 
-Comments?
+Could you post a list of requirements ? For example:
+- kernel: futexes, per_cpu_areas
+- toolchain: binutils version + RH-patches, gcc version
+- glibc: 2.2.xxxx
+etc...
 
-Ciao,
-            Paolo
+Perhaps it is not so difficult, for example futexes are in -aa for 2.4,
+Mandrake has gcc-3.2, etc...
+
+Are you pushing hard for the infrastructure you need to get in standard
+source trees (ie, changes to gcc, binutils...) ??
+
+Thanks.
+
 -- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.20-pre7-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbTILLb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 07:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTILLb5
+	id S261312AbTILLkU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 07:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbTILLkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 07:31:57 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:19328 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261237AbTILLb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 07:31:56 -0400
-Date: Fri, 12 Sep 2003 12:45:29 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200309121145.h8CBjTGg000313@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org, Roman.Kagan@itep.ru
-Subject: Re: Problem: IDE data corruption with VIA chipsets on2.4.20-19.8+others
-Cc: R.E.Wolff@BitWizard.nl
+	Fri, 12 Sep 2003 07:40:20 -0400
+Received: from angband.namesys.com ([212.16.7.85]:17306 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S261312AbTILLkS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 07:40:18 -0400
+Date: Fri, 12 Sep 2003 15:40:16 +0400
+From: Oleg Drokin <green@namesys.com>
+To: Jesse Yurkovich <yurkjes@iit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bad directories w/Reiserfs on linux-2.6.0-test4
+Message-ID: <20030912114016.GA7778@namesys.com>
+References: <200309112144.09097.yurkjes@iit.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309112144.09097.yurkjes@iit.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Anyway, speaking about SMART, some "smartd" was interfering with
-> > normal operation on one of our systems and we saw similar "nasty"
-> > stuff on that system until I removed "smartd". 
-> > 
-> > Aug 10 06:54:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > Aug 10 06:54:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-> > Aug 10 06:54:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > Aug 10 06:54:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
-> > Aug 10 07:24:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > Aug 10 07:24:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-> > Aug 10 07:24:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > Aug 10 07:24:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
-> > Aug 10 08:24:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > Aug 10 08:24:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-> > Aug 10 08:24:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-> > Aug 10 08:24:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
->
-> You probably have SMART disabled on those drives by BIOS, and smartd is
-> not smart enough to enable it before trying to use it so the drives
-> complain.
+Hello!
 
-Quite possible.
+On Thu, Sep 11, 2003 at 09:44:09PM -0500, Jesse Yurkovich wrote:
 
-> I had the same problem on my GigaByte mobo where the BIOS
-> setup didn't even provide an option to turn SMART on (like earlier Award
-> BIOSes did).
+> >interesting... do you get the same empty dir (no . and ..) with ls?
+> Yikes!!! -- hadn't noticed (CVS directory is bad for some reason)
+> $ cd datatable-backup/CVS
+> $ ls -la
+> total 0			<-- not good   . and .. are not there
+> whoa ... where did my parent go :(
 
-For some reason, both of my Gigabyte GA-7VA motherboards seem to
-disable SMART when I reboot.
+So perhaps it is good idea to run reiserfsck (pick recent reiserfsprogs from ftp.namesys.com)
 
-> Check with smartctl -i /dev/hdX.  Enable with smartctl -e /dev/hdX
-> _before_ starting smartd.
+The reason for this is unknown, though.
 
-You may need to use smartctl -e /dev/hdX every time you boot.
-
-John.
+Bye,
+    Oleg

@@ -1,67 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273883AbRIRTvQ>; Tue, 18 Sep 2001 15:51:16 -0400
+	id <S273888AbRIRTu5>; Tue, 18 Sep 2001 15:50:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273884AbRIRTvI>; Tue, 18 Sep 2001 15:51:08 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:4618 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S273883AbRIRTuz>; Tue, 18 Sep 2001 15:50:55 -0400
-Date: Tue, 18 Sep 2001 15:51:21 -0400
-From: Arjan van de Ven <arjanv@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: Preliminary testing results for 2.4.10-pre11
-Message-ID: <20010918155121.B26279@devserv.devel.redhat.com>
+	id <S273885AbRIRTur>; Tue, 18 Sep 2001 15:50:47 -0400
+Received: from mail4.svr.pol.co.uk ([195.92.193.211]:57696 "EHLO
+	mail4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S273883AbRIRTuc>; Tue, 18 Sep 2001 15:50:32 -0400
+Date: Tue, 18 Sep 2001 20:39:46 +0100
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] multipath RAID personality, 2.4.10-pre9
+Message-ID: <20010918203946.A12814@wyvern>
+Reply-To: adrian.bridgett@iname.com
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, linux-raid@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010916150806.E1541@turbolinux.com> <Pine.LNX.4.33.0109170113010.3960-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0109170113010.3960-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.20i
+From: Adrian Bridgett <adrian.bridgett@iname.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Sep 17, 2001 at 01:16:56 +0200 (+0000), Ingo Molnar wrote:
+[snip]
+> > [...] Also, it is my understanding that with some multipath hardware,
+> > if you read from the "backup" path it will kill access to the primary
+> > path (this can be used when more than one system access shared disk
+> > for failover).  As a result, we should always read from the "primary"
+> > path for each disk unless there is an error.
+> 
+> yes, and this is being done currently, only the primary path is used.
 
-In the Red Hat testlab, Bob Matthews has run the stress-test part of our
-normal "release signoff tests" on 2.4.10pre11 to evaluate the new VM for
-stability. 
+Do you have plans to change this?  I know that the SDD software for AIX load
+balances between paths (and I think EMC's Powerpaths do for AIX too), DMP
+(from Veritas) for Solaris doesn't.
 
-So far, tests were done on 2 different machines, both using a kernel
-compiled with PAE support (HIGHMEM64G).
+In fact that brings up another point - which path do you use by default?  If
+you have the SAN situation where you have a farm of servers each with two FC
+cards two two FC switches and then to two ports on a storage array, you
+don't want everything going to the first switch.  Just picking one path to
+use at random would be preferable (unless you want to swap every other
+servers cables around).
 
-"Test4" is a 4xPIII machine with 2Gb RAM and 4Gb swap
-"Test30" is a 2xPIII machine with 1GB RAM and 2Gb swap
+One thing I know SDD does is that it doesn't use a path which has started
+working again until it's been working for a little while.  I had a quick
+newbie grok through the code and couldn't see anything like that.  Just an
+idea.
 
-Neither of these machines passed the test; 2.4.7-ac3 (as used in Red Hat
-beta Roswell 2) and 2.4.9-ac kernels do pass these tests.
+Just doing a quick read I came across this comment:
 
-Test4:  Random failures of memtst, apparently due to OOM. Random failure of
-file system tests, cause unknown.
++ * TODO: now if there are 2 multipaths in the same 2 devices, performance
++ * degrades dramatically because position is multipath, not device based.
++ * This should be changed to be device based. Also atomic sequential
++ * reads should be somehow balanced.
 
-Test30:  Random failures of memtst, TTCP, the file system tests and the
-floating point tests, all apparently due to OOM.  OOM killed test harness,
-can not continue.
+shouldn't that read "more than one multipath to the same device"?
 
-("OOM" is "OOM killing process X" and "VM: killing process X")
+I presume it's not limited to 2 multipaths?
 
-Similar behavior has been obseverved with the 2.4.6-ac5 kernel, which at the
-time turned out to have the bug that the VM subsystem never waited for ANY
-io to complete, which meant the kernel couldn't satisfy new allocations
-while there were actually plenty of dirty pages around.
+Thanks
 
+Adrian
 
-About the test
---------------
-
-The test can be downloaded from http://people.redhat.com/bmatthews/cerberus
-and consists of a superset of the Cerberus testsuite as published by VA
-Linux, and is used by Red Hat and other distributions to test the stability
-of kernels for distribution releases.
-
-The tests scale to memory, but make sure that at least 500Mb (for small
-machines) or 1Gb (for bigger machines) swapspace is "slack" eg, on a 2GB Ram
-/ 4Gb swap machine, no more than 5Gb is used for the workload. The test is
-by no means a speed-indication, only a stability test.
-
-
-Greetings,
-  Arjan van de Ven
+Email: adrian.bridgett@iname.com
+Windows NT - Unix in beta-testing. GPG/PGP keys available on public key servers
+Debian GNU/Linux  -*-  By professionals for professionals  -*-  www.debian.org

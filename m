@@ -1,46 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317536AbSGESmm>; Fri, 5 Jul 2002 14:42:42 -0400
+	id <S317537AbSGESr6>; Fri, 5 Jul 2002 14:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317537AbSGESml>; Fri, 5 Jul 2002 14:42:41 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:16004 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S317536AbSGESml>; Fri, 5 Jul 2002 14:42:41 -0400
-Date: Fri, 5 Jul 2002 21:45:03 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Re: prevent breaking a chroot() jail?
-Message-ID: <20020705184503.GQ1548@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org
-References: <1025877004.11004.59.camel@zaphod> <ag4nob$sgq$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ag4nob$sgq$1@cesium.transmeta.com>
-User-Agent: Mutt/1.3.25i
+	id <S317538AbSGESr5>; Fri, 5 Jul 2002 14:47:57 -0400
+Received: from clavin.cs.tamu.edu ([128.194.130.106]:45557 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id <S317537AbSGESr4>;
+	Fri, 5 Jul 2002 14:47:56 -0400
+Date: Fri, 5 Jul 2002 13:50:30 -0500 (CDT)
+From: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+To: george anzinger <george@mvista.com>
+cc: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel timers vs network card interrupt
+In-Reply-To: <3D2538AD.E255167C@mvista.com>
+Message-ID: <Pine.SOL.4.10.10207051344120.21592-100000@dogbert>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 05, 2002 at 11:15:39AM -0700, you [H. Peter Anvin] wrote:
+Hi, 
+	Do you know if there are existing tools to test the network driver
+latency (between time to start the interrupt handler (irq.c) and time to
+start tasklet (bh))?
+
+	Thanks!
+Xinwen Fu
+
+
+On Thu, 4 Jul 2002, george anzinger wrote:
+
+> Xinwen - Fu wrote:
+> > 
+> >         In fact I want a timer (either in user level or kernel level).
+> > This timer (hope it is a periodic timer) must expire at the interval that
+> > I specify. For example, if I
+> > want that the timer expires at 10ms, it should never be fired at
+> > 10.0000000001ms or
+> > 9.9999999999ms. That is the key part that I want!
 > 
-> This sounds like a job for [dum de dum dum] capabilities... remember,
-> on Linux root hasn't been almighty for a very long time, it's just a
-> matter of which capabilities you retain.  Of course, if you really
-> want to be safe, you might end up with a rather castrated root inside
-> the chroot shell.
+> 10 nines!  Lots of luck.  You need to spend a LOT more money
+> than I have.  Cesium clocks may be able to do this, but not
+> computers...
 > 
-> If you really want to jail something, use UML.
+> But first, please define "fire".  If you mean that the
+> interrupt is generated at this rate, well we can do maybe  4
+> or 5 nines.  If, on the other hand you mean "your timer
+> function gets cpu cycles", I don't think you will find a
+> machine that can do much better than one or 2 nines.  Even
+> if the timer is the only interrupt, you still have interrupt
+> off times and cache indeterminism to contend with.
+> 
+> If the idea is to to "tickle" some hardware with this
+> signal, you will do better to not involve a computer in the
+> link.
+> 
+> The utime project had some software that would schedule a
+> timer tick early and then loop reading the TSC until the
+> "exact" time.  This still has the problems of interrupts and
+> cache misses, but it is probably the only way to approach
+> what you want.  Nothing magic, you just figure the worst
+> case latency and set your timer to expire early enough to be
+> ahead of the appointed time.  Then you loop on the TSC
+> waiting for your exact time.
+> 
+> -g
+> > 
+> >         Have an idea?
+> > 
+> >         Thanks!
+> > 
+> > Xinwen Fu
+> > 
+> > On Thu, 4 Jul 2002, george anzinger wrote:
+> > 
+> > > "Richard B. Johnson" wrote:
+> > > >
+> > > > On Wed, 3 Jul 2002, Xinwen - Fu wrote:
+> > > >
+> > > > > Hi, all,
+> > > > >       I'm curious that if a network card interrupt happens at the same
+> > > > > time as the kernel timer expires, what will happen?
+> > > > >
+> > > > >       It's said the kernel timer is guaranteed accurate. But if
+> > > > > interrupts are not masked off, the network interrupt also should get
+> > > > > response when a kernel timer expires. So I don't know who will preempt
+> > > > > who.
+> > > > >
+> > > > >       Thanks for information!
+> > > > >
+> > > > > Xinwen Fu
+> > > >
+> > > > The highest priority interrupt will get serviced first. It's the timer.
+> > > > Interrupts are serviced in priority-order. Hardware "remembers" which
+> > > > ones are pending so none are lost if some driver doesn't do something
+> > > > stupid.
+> > >
+> > > That is true as far as it goes, HOWEVER, timers are serviced
+> > > by bottom half code which is run at the end of the
+> > > interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
+> > > servicing can be interrupted by an interrupt and thus be
+> > > delayed.
+> > >
+> > > --
+> > > George Anzinger   george@mvista.com
+> > > High-res-timers:
+> > > http://sourceforge.net/projects/high-res-timers/
+> > > Real time sched:  http://sourceforge.net/projects/rtsched/
+> > > Preemption patch:
+> > > http://www.kernel.org/pub/linux/kernel/people/rml
+> > >
+> 
+> -- 
+> George Anzinger   george@mvista.com
+> High-res-timers: 
+> http://sourceforge.net/projects/high-res-timers/
+> Real time sched:  http://sourceforge.net/projects/rtsched/
+> Preemption patch:
+> http://www.kernel.org/pub/linux/kernel/people/rml
+> 
 
-ISTR UML had some security problems (guest processes being able to disrupt
-host processes or just guest processes being able to disrupt other guest
-processes). Have those been resolved yet? 
-
-Do people use it in production? Last I heard someone had evaluated it, it
-had ended up consuming way too much CPU per "jail" for whatever reason.
-Perhaps things are better already...
-
-
--- v --
-
-v@iki.fi

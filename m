@@ -1,81 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268860AbUIMTGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUIMTK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268860AbUIMTGw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 15:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268870AbUIMTGw
+	id S268861AbUIMTK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 15:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268884AbUIMTK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 15:06:52 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:37587 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S268860AbUIMTGq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 15:06:46 -0400
-Date: Mon, 13 Sep 2004 21:06:35 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [no patch] broken use of mm_release / deactivate_mm
-Message-ID: <20040913190633.GA22639@apps.cwi.nl>
+	Mon, 13 Sep 2004 15:10:28 -0400
+Received: from pauli.thundrix.ch ([213.239.201.101]:18638 "EHLO
+	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S268861AbUIMTKU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 15:10:20 -0400
+Date: Mon, 13 Sep 2004 21:07:41 +0200
+From: Tonnerre <tonnerre@thundrix.ch>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Paul Jakma <paul@clubi.ie>, Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified) Denial of Service Attack
+Message-ID: <20040913190741.GD19399@thundrix.ch>
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf> <1095008692.11736.11.camel@localhost.localdomain> <20040912192331.GB8436@hout.vanvergehaald.nl> <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org> <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org> <20040913041846.GD2780@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="iVCmgExH7+hIHJ1A"
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040913041846.GD2780@alpha.home.local>
+X-GPG-KeyID: 0x8BE1C38D
+X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
+X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent kernels have a bug in fork(). Things can be improved a bit
-by commenting out the lines
 
-        /* Get rid of any cached register state */
-        deactivate_mm(tsk, mm);
+--iVCmgExH7+hIHJ1A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-in fork.c:mm_release().
+Salut,
 
-What happens at a fork, is that a long sequence of things is done,
-and if a failure occurs all previous things are undone. Thus
-(in copy_process()):
+On Mon, Sep 13, 2004 at 06:18:47AM +0200, Willy Tarreau wrote:
+> > The BGP state machine should instead, in normal operation, have=20
+> > only treated Hold time expired as the definitive sign of "peer is=20
+> > down" and allowed reconnects.
+>=20
+> It should not necessarily wait for the time-out, but at least wait for
+> a few reconnect errors.
 
-        if ((retval = copy_mm(clone_flags, p)))
-                goto bad_fork_cleanup_signal;
-        if ((retval = copy_namespace(clone_flags, p)))
-                goto bad_fork_cleanup_mm;
-        retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
-        if (retval)
-                goto bad_fork_cleanup_namespace;
+Problem  there: you  can fake  connection errors  almost as  easily as
+sending an RST packet, so the DoS might reappear, might it not?
 
-...
+				Tonnerre
 
-bad_fork_cleanup_namespace:
-        exit_namespace(p);
-bad_fork_cleanup_mm:
-        exit_mm(p);
-        if (p->active_mm)
-                mmdrop(p->active_mm);
-bad_fork_cleanup_signal:
-...
+--iVCmgExH7+hIHJ1A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Thus, we may do exit_mm() when an attempted fork fails.
-The argument of exit_mm() is this new, not completeley initialized
-task_struct.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.2 (GNU/Linux)
 
-Now exit.c:exit_mm(p) does mm_release(p,p->mm), and this
-mm_release() does deactivate_mm(), a macro that clears %fs and %gs.
-Ach. A segfault is the result.
+iD4DBQFBRe/8/4bL7ovhw40RAns4AKCEHPFN5dKLrmwgdJuE+UK2w5pdNQCXdE7t
+Ipp+iizNsDSClV0ExUFb+w==
+=RsZd
+-----END PGP SIGNATURE-----
 
-More is wrong with mm_release(). It examines p->clear_child_tid,
-and possibly does put_user(0, tidptr);.
-Oops.
-
-In our case p->clear_child_tid had not yet been initialized for
-the child, that happens in copy_thread() that we never reached.
-So this is the value the parent had.
-
-Also the call
-	enter_lazy_tlb(mm, current);
-seems strange in this context.
-
-It seems to me that the proper action is some reshuffling
-of this code. Maybe it is cleanest to separate the cleanup
-code for a failed fork entirely from the code for an exiting
-process.
-
-Andries
+--iVCmgExH7+hIHJ1A--

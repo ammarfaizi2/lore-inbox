@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316503AbSFZMSg>; Wed, 26 Jun 2002 08:18:36 -0400
+	id <S316530AbSFZMbn>; Wed, 26 Jun 2002 08:31:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316519AbSFZMSf>; Wed, 26 Jun 2002 08:18:35 -0400
-Received: from [211.91.104.237] ([211.91.104.237]:61193 "EHLO lury")
-	by vger.kernel.org with ESMTP id <S316503AbSFZMSe>;
-	Wed, 26 Jun 2002 08:18:34 -0400
-From: "seawang" <lury2@pa18.com>
-Subject: =?GB2312?B?0ru22be5tcS827jxvavE+rXExvPStbDhyc/N+CDD4rfRytTTww==?=
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-	charset="GB2312"
-Date: Wed, 26 Jun 2002 20:19:04 +0800
-X-Priority: 3
-X-Mailer: jpfree Group Mail Express V1.0
-Message-Id: <20020626121834Z316503-22020+10708@vger.kernel.org>
+	id <S316532AbSFZMbm>; Wed, 26 Jun 2002 08:31:42 -0400
+Received: from ns.suse.de ([213.95.15.193]:14098 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316530AbSFZMbl>;
+	Wed, 26 Jun 2002 08:31:41 -0400
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24: auto_fs.h typo.
+References: <200206251759.34690.schwidefsky@de.ibm.com>
+	<afb4im$6nl$1@cesium.transmeta.com>
+X-Yow: There's a little picture of ED MCMAHON doing BAD THINGS to JOAN
+ RIVERS
+ in a $200,000 MALIBU BEACH HOUSE!!
+From: Andreas Schwab <schwab@suse.de>
+Date: Wed, 26 Jun 2002 14:31:41 +0200
+In-Reply-To: <afb4im$6nl$1@cesium.transmeta.com> ("H. Peter Anvin"'s message
+ of "25 Jun 2002 18:15:02 -0700")
+Message-ID: <je7kkm8bma.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.3.50 (ia64-suse-linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-您是否为这样的问题而烦恼：花高价设计了网页，却达不到实际效果，维护困难，修改还需要专业
-人员...海天网在国内抢先推出自助建站通服务，能彻底解决您的问题。
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-自助建站通是基于网络的帮助中小企业轻松建设网站的一种很方便的服务，您不需要专业知识，只
-要会打字就可以建设自己公司的网站。
+|> Followup to:  <200206251759.34690.schwidefsky@de.ibm.com>
+|> By author:    Martin Schwidefsky <schwidefsky@de.ibm.com>
+|> In newsgroup: linux.dev.kernel
+|> >
+|> > Hi Linus,
+|> > my last patch for include/linux/auto_fs.h contained a typo that removed the
+|> > trailing underscores from __x86_64__.
+|> > 
+|> > blue skies,
+|> >   Martin.
+|> > 
+|> > diff -urN linux-2.5.24/include/linux/auto_fs.h linux-2.5.24-s390/include/linux/auto_fs.h
+|> > --- linux-2.5.24/include/linux/auto_fs.h	Fri Jun 21 00:53:40 2002
+|> > +++ linux-2.5.24-s390/include/linux/auto_fs.h	Fri Jun 21 14:46:59 2002
+|> > @@ -45,7 +45,7 @@
+|> >   * If so, 32-bit user-space code should be backwards compatible.
+|> >   */
+|> >  
+|> > -#if defined(__sparc__) || defined(__mips__) || defined(__x86_64) \
+|> > +#if defined(__sparc__) || defined(__mips__) || defined(__x86_64__) \
+|> >   || defined(__powerpc__) || defined(__s390__)
+|> >  typedef unsigned int autofs_wqt_t;
+|> >  #else
+|> > 
+|> 
+|> Please change this to:
+|> 
+|> #ifndef __alpha__
 
-该服务使得建站变得像做游戏一样简单，用户只要选择模板，填几个表格，10分钟就可以建成贵司
-的网站。之后还可以随时对页面进行修改和维护，做到建站、维护不求人。
+What about __ia64__?
 
-·免费赠送国际顶级域名一个
-·内嵌客户留言/电子订单及计数器系统
-·电信级主机，高速、稳定，防宕机保证，价格仅市场均价1/3
+Andreas.
 
-您还有什么理由不选择吗？何况只需 500元/年 的低价，而且还可免费试用，您觉得满意再付款购买。
-
-欲了解详情，请登陆海天企业网的网站，网址： http://www.seawang.com
-
-
-
----------------------------------
-海天企业网[Seawang.com]
-技术支持QQ: 67082
-如果这封信打扰了您,我们向您表示道歉,本信请勿回复。请推荐给您的朋友,也许他们正好需要.
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 N黵nberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

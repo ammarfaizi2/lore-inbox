@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbUCEX6d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 18:58:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbUCEX6d
+	id S261497AbUCFAF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 19:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUCFAF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 18:58:33 -0500
-Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:26506 "EHLO
-	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
-	id S261477AbUCEX6b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 18:58:31 -0500
-Message-ID: <40491414.2060404@matchmail.com>
-Date: Fri, 05 Mar 2004 15:58:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Timothy Miller <miller@techsource.com>
-CC: Nick Piggin <piggin@cyberone.com.au>, Kyle Wong <kylewong@southa.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: questions about io scheduler
-References: <088201c40293$5b27ce80$9c02a8c0@southa.com> <40484643.7070104@cyberone.com.au> <404905E1.70709@matchmail.com> <4049121D.1060405@techsource.com>
-In-Reply-To: <4049121D.1060405@techsource.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 5 Mar 2004 19:05:58 -0500
+Received: from gate.crashing.org ([63.228.1.57]:32459 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261497AbUCFAF4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 19:05:56 -0500
+Subject: [PATCH] High BAT initialization wrong
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1078531490.5702.137.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Mar 2004 11:04:51 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller wrote:
-> 
-> 
-> Mike Fedyk wrote:
-> 
->> Nick Piggin wrote:
->>
->>>
->>>
->>> Kyle Wong wrote:
->>>
->>>> 2. Does io scheduler works with md RAID? Correct me if I'm wrong,
->>>> io-schedular <-->  md driver <--> harddisks.
->>>>
->>>>
->>>
->>> It goes md driver -> io schedulers -> hard disks.
->>
->>
->>
->> There is an IO scheduler per disk.
->>
->> So MD submits the data to each disk through the IO scheduler.
->>
->> This allows you to have the heads on each disk in the array at 
->> different locations, and helps keep response times lower for seeky loads.
-> 
-> 
-> Say you've got a RAID1.  In this case, MD could send the read request to 
-> either device.  How does it decide which one to use?
+Hi !
 
-The one with the drive head closest to the data.
+The code initializing the "high" BATs on CPUs like the 750FX got
+broken when copied over from 2.4. This cause random problems with
+machines using those CPUs (iBook 2s typically). Please apply this
+fix asap. Thanks.
+
+===== arch/ppc/kernel/head.S 1.41 vs edited =====
+--- 1.41/arch/ppc/kernel/head.S	Tue Feb 17 05:37:14 2004
++++ edited/arch/ppc/kernel/head.S	Sat Mar  6 11:03:00 2004
+@@ -1492,22 +1492,22 @@
+ 	 * seems that doesn't affect our ability to actually
+ 	 * write to these SPRs.
+ 	 */
+-	mtspr	SPRN_DBAT4U,r20
+-	mtspr	SPRN_DBAT4L,r20
+-	mtspr	SPRN_DBAT5U,r20
+-	mtspr	SPRN_DBAT5L,r20
+-	mtspr	SPRN_DBAT6U,r20
+-	mtspr	SPRN_DBAT6L,r20
+-	mtspr	SPRN_DBAT7U,r20
+-	mtspr	SPRN_DBAT7L,r20
+-	mtspr	SPRN_IBAT4U,r20
+-	mtspr	SPRN_IBAT4L,r20
+-	mtspr	SPRN_IBAT5U,r20
+-	mtspr	SPRN_IBAT5L,r20
+-	mtspr	SPRN_IBAT6U,r20
+-	mtspr	SPRN_IBAT6L,r20
+-	mtspr	SPRN_IBAT7U,r20
+-	mtspr	SPRN_IBAT7L,r20
++	mtspr	SPRN_DBAT4U,r10
++	mtspr	SPRN_DBAT4L,r10
++	mtspr	SPRN_DBAT5U,r10
++	mtspr	SPRN_DBAT5L,r10
++	mtspr	SPRN_DBAT6U,r10
++	mtspr	SPRN_DBAT6L,r10
++	mtspr	SPRN_DBAT7U,r10
++	mtspr	SPRN_DBAT7L,r10
++	mtspr	SPRN_IBAT4U,r10
++	mtspr	SPRN_IBAT4L,r10
++	mtspr	SPRN_IBAT5U,r10
++	mtspr	SPRN_IBAT5L,r10
++	mtspr	SPRN_IBAT6U,r10
++	mtspr	SPRN_IBAT6L,r10
++	mtspr	SPRN_IBAT7U,r10
++	mtspr	SPRN_IBAT7L,r10
+ END_FTR_SECTION_IFSET(CPU_FTR_HAS_HIGH_BATS)
+ 	blr
+ 
+
+

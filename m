@@ -1,104 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265631AbUBJBMU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 20:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265626AbUBJBLW
+	id S265433AbUBJBdu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 20:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbUBJBdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 20:11:22 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:7351 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S265621AbUBJBKy (ORCPT
+	Mon, 9 Feb 2004 20:33:49 -0500
+Received: from mail.tmr.com ([216.238.38.203]:59149 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S265433AbUBJBds (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 20:10:54 -0500
-Date: Mon, 9 Feb 2004 17:10:52 -0800
-To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Remove net notifier
-Message-ID: <20040210011052.GD673@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Mon, 9 Feb 2004 20:33:48 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Does anyone still care about BSD ptys?
+Date: 10 Feb 2004 01:33:09 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <c09ccl$qkl$1@gatekeeper.tmr.com>
+References: <c07c67$vrs$1@terminus.zytor.com> <c07i5r$ctq$1@news.cistron.nl> <20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk>
+X-Trace: gatekeeper.tmr.com 1076376789 27285 192.168.12.62 (10 Feb 2004 01:33:09 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir262_notifier.diff :
-~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] remove unused code : device notifier handler.
+In article <20040209100940.GF21151@parcelfarce.linux.theplanet.co.uk>,
+ <viro@parcelfarce.linux.theplanet.co.uk> wrote:
+| On Mon, Feb 09, 2004 at 08:59:39AM +0000, Miquel van Smoorenburg wrote:
+| > In article <c07c67$vrs$1@terminus.zytor.com>,
+| > H. Peter Anvin <hpa@zytor.com> wrote:
+| > >Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?  I'm
+| > >thinking of restructuring the pty system slightly to make it more
+| > >dynamic and to make use of the new larger dev_t, and I'd like to get
+| > >rid of the BSD ptys as part of the same patch.
+| > 
+| > bootlogd(8) which is used by Debian and Suse is started as the
+| > first thing at boottime. It needs a pty, and tries to use /dev/pts
+| > if it's there but falls back to BSD style pty's if /dev/pts isn't
+| > mounted - which will be the case 99% of the time.
+| 
+| So what's the problem with calling mount(2)?
 
-
-diff -u -p linux/net/irda/irsyms.d7.c linux/net/irda/irsyms.c
---- linux/net/irda/irsyms.d7.c	Mon Feb  9 15:46:55 2004
-+++ linux/net/irda/irsyms.c	Mon Feb  9 15:47:05 2004
-@@ -193,45 +193,6 @@ static struct packet_type irda_packet_ty
- };
- 
- /*
-- * Function irda_device_event (this, event, ptr)
-- *
-- *    Called when a device is taken up or down
-- *
-- */
--static int irda_device_event(struct notifier_block *this, unsigned long event,
--			     void *ptr)
--{
--	struct net_device *dev = (struct net_device *) ptr;
--	
--        /* Reject non IrDA devices */
--	if (dev->type != ARPHRD_IRDA) 
--		return NOTIFY_DONE;
--	
--        switch (event) {
--	case NETDEV_UP:
--		IRDA_DEBUG(3, "%s(), NETDEV_UP\n", __FUNCTION__);
--		/* irda_dev_device_up(dev); */
--		break;
--	case NETDEV_DOWN:
--		IRDA_DEBUG(3, "%s(), NETDEV_DOWN\n", __FUNCTION__);
--		/* irda_kill_by_device(dev); */
--		/* irda_rt_device_down(dev); */
--		/* irda_dev_device_down(dev); */
--		break;
--	default:
--		break;
--        }
--
--        return NOTIFY_DONE;
--}
--
--static struct notifier_block irda_dev_notifier = {
--	irda_device_event,
--	NULL,
--	0
--};
--
--/*
-  * Function irda_notify_init (notify)
-  *
-  *    Used for initializing the notify structure
-@@ -272,9 +233,6 @@ int __init irda_init(void)
- 	/* Add IrDA packet type (Start receiving packets) */
-         dev_add_pack(&irda_packet_type);
- 
--	/* Notifier for Interface changes */
--	register_netdevice_notifier(&irda_dev_notifier);
--
- 	/* External APIs */
- #ifdef CONFIG_PROC_FS
- 	irda_proc_register();
-@@ -307,9 +265,6 @@ void __exit irda_cleanup(void)
- 
- 	/* Remove IrDA packet type (stop receiving packets) */
-         dev_remove_pack(&irda_packet_type);
--	
--	/* Stop receiving interfaces notifications */
--        unregister_netdevice_notifier(&irda_dev_notifier);
- 	
- 	/* Remove higher layers */
- 	irsock_cleanup();
-
+Other than making an optional part of the kernel required... Not
+impossible but something to consider.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

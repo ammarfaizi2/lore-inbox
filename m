@@ -1,91 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287029AbSAGUzW>; Mon, 7 Jan 2002 15:55:22 -0500
+	id <S287040AbSAGVFC>; Mon, 7 Jan 2002 16:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287037AbSAGUzM>; Mon, 7 Jan 2002 15:55:12 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:58246 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S287029AbSAGUzI>; Mon, 7 Jan 2002 15:55:08 -0500
-Message-ID: <3C3A0B1A.6441FC74@folkwang-hochschule.de>
-Date: Mon, 07 Jan 2002 21:54:50 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
-	<nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+	id <S287045AbSAGVEn>; Mon, 7 Jan 2002 16:04:43 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:21435 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S287040AbSAGVEj>; Mon, 7 Jan 2002 16:04:39 -0500
+Message-ID: <3C3A0EB0.24F9F1C9@nortelnetworks.com>
+Date: Mon, 07 Jan 2002 16:10:08 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: nettings@folkwang-hochschule.de
-Subject: 2.4.17 usbnet usb.c: USB device not accepting new address
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Georgi Chorbadzhiyski <gf@top.bg>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: LKML signal to noise ratio-- improvement
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBKEKPEEAA.znmeb@aracnet.com> <1010428317.1441.38.camel@keller> <3C3A072E.2060304@top.bg>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello * !
+Georgi Chorbadzhiyski wrote:
+> 
+> Georg Nikodym wrote:
+> 
+> > On Tue, 2001-12-25 at 22:13, M. Edward Borasky wrote:
+> >
+> >
+> >>necessary. Still, the biggest improvement I'd like to see on LKML is a
+> >>usable search engine / archive.
+> >>
+> >
+> > Uh... groups.google.com fills this need quite nicely.
+> >
+> > Specifically, try: http://groups.google.com/groups?group=linux.kernel
+> 
+> Umm that would be: http://groups.google.com/groups?group=fa.linux.kernel
+> :)
 
-when i try to connect my ipaq to the desktop via usbnet, i see the
-following:
+Did you try the link?  It works.  There are multiple newsgroups on the list, 
+you can also use:
 
- kernel: hub.c: port 2, portstatus 103, change 0, 12 Mb/s
- kernel: hub.c: USB new device connect on bus1/2, assigned device
-number 6
- kernel: usb.c: USB device not accepting new address=6 (error=-110)
-
-i don't get an usbn network device when i do ifconfig -a.
-
-i'm using 2.4.17 on a dual p3/600, mobo is asus p2b-ds.
-
-the following usb-related modules are present:
-usbnet                 10848   0  (unused)
-mousedev                3904   0
-hid                    12576   0  (unused)
-input                   3488   0  [mousedev hid]
-usb-uhci               21760   0  (unused)
-usbcore                54688   1  [usbnet hid usb-uhci]
-
-i have never been able to use usbnet since i have the ipaq. iirc, 
-my first try was with 2.4.10-acsomething.
-
-from a google search i found that some people recommended to boot
-with noapic, but i'm not sure whether this is feasible on an smp
-system. other than that, the problem seems to be known but yet
-unresolved. 
-
-here are some snippets from my .config:
-
-kleineronkel:/usr/src/linux # cat .config|grep APIC
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-
-kleineronkel:/usr/src/linux # cat .config|grep USB
-CONFIG_USB=m
-CONFIG_USB_DEBUG=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI=m
-CONFIG_USB_AUDIO=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_HID=m
-CONFIG_USB_WACOM=m
-CONFIG_USB_DC2XX=m
-CONFIG_USB_MDC800=m
-CONFIG_USB_SCANNER=m
-CONFIG_USB_MICROTEK=m
-CONFIG_USB_HPUSBSCSI=m
-CONFIG_USB_USBNET=m
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-
-thanks in advance for any insights,
-
-regards,
-
-jörn
+http://groups.google.com/groups?group=mlist.linux.kernel
 
 
 -- 
-Jörn Nettingsmeier     
-home://Kurfürstenstr.49.45138.Essen.Germany      
-phone://+49.201.491621
-http://spunk.dnsalias.org
-http://www.linuxdj.com/audio/lad/
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,61 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129029AbQJ3XqE>; Mon, 30 Oct 2000 18:46:04 -0500
+	id <S129041AbQJ3Xsq>; Mon, 30 Oct 2000 18:48:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129041AbQJ3Xpy>; Mon, 30 Oct 2000 18:45:54 -0500
-Received: from ns.caldera.de ([212.34.180.1]:4871 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129029AbQJ3Xpk>;
-	Mon, 30 Oct 2000 18:45:40 -0500
-Date: Tue, 31 Oct 2000 00:45:00 +0100
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        Keith Owens <kaos@ocs.com.au>
-Subject: Re: test10-pre7
-Message-ID: <20001031004500.A16524@caldera.de>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	linux-kernel@vger.kernel.org, Keith Owens <kaos@ocs.com.au>
-In-Reply-To: <200010302332.AAA15959@ns.caldera.de> <Pine.LNX.4.10.10010301536340.3595-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.10.10010301536340.3595-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Oct 30, 2000 at 03:40:24PM -0800
+	id <S129658AbQJ3Xsf>; Mon, 30 Oct 2000 18:48:35 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:1289 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129041AbQJ3XsZ>; Mon, 30 Oct 2000 18:48:25 -0500
+Date: Mon, 30 Oct 2000 15:47:59 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Keith Owens <kaos@ocs.com.au>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test10-pre7 
+In-Reply-To: <12109.972949137@ocs3.ocs-net>
+Message-ID: <Pine.LNX.4.10.10010301541000.3595-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 03:40:24PM -0800, Linus Torvalds wrote:
+
+
+On Tue, 31 Oct 2000, Keith Owens wrote:
 > 
+> >It is NEVER acceptable to change the order of object files.
 > 
-> On Tue, 31 Oct 2000, Christoph Hellwig wrote:
-> > 
-> > It is simple - but a change in _every_ makefile is required.
-> > And it is not really needed for old-style makefiles.
+> It is NEVER acceptable to change the order of object files, but only
+> for those files where the developer has explicitly said what the order
+> must be.  In the case of USB, the developers say usb.o must be first,
+> the rest can be in any order.
+
+How much do you want to bet that this can and will change if people were
+made aware of how easy ordering can be?
+
+I think we have too many "subtle" rules already.
+
+We should have some REALLY simple and to-the-point rules. Namely:
+
+ - object files get linked in the order specified
+
+No ifs, buts, "except when the user doesn't care", or anything like that.
+No extra new logic with fancy new names for FIRST and LAST objects. No,
+that's the wrong thing.
+
+> >	ALL_O = $(O_OBJS)
+> >
+> >and the meaning of $OX_OBJS is the _subset_ of object file that have
+> >SYMTAB objects.
 > 
-> Actually, you don't have to change every makefile, because you CAN do this
-> all with a simple backwards-compatibility layer, something like:
-> 
-> 	OXONLY = $(filter-out $(O_OBJS), $(OX_OBJS))
-> 	ALL_O = $(OXONLY) $(O_OBJS)
-> 
-> which is a no-op for a "proper" makefile that follows the new rules
-> (OXONLY will be empty, because all OX_OBJS files will be part of O_OBJS),
-> but it will make old-style stuff act the same..
+> We do not have an automatic way of detecting SYMTAB objects, OX_OBJS is
+> the only way that 2.4 kbuild can tell if an source has SYMTAB or not.
 
-Ok, that should do the job - but it is horribly ugly ...
+I _know_.
 
-> I'd actually prefer to just change every Makefile, but hey, I think
-> something like the above (untested) would make them work unmodified too.
+I'm saying that we should not care. OX_OBJS still exists, but it has
+nothing to do with _linking_. It has everything to do with the build
+rules.
 
-But when we are changing makefiles everywhere - why not do the proper think
-and let the new-style makefiles share their code?
+OX_OBJS is just a list of files that have exports.
 
-(I have a patch ready - it just needs some forward-porting and testing)
+It won't affect linking. It will only affect the list of SYMTAB_OBJS,
+_nothing_ more.
 
-	Christoph
+For example, the old-style kernel/Makefile, you'd have O_OBJS containing
+signal.o and sys.o. As would OX_OBJS. They'd be in both places, because
+O_OBJS would tell that yes, we want to link it into the kernel, and
+OX_OBJS would tell that yes, we need to generate symtab informaiton for
+the files in question.
 
--- 
-Always remember that you are unique.  Just like everyone else.
+The two things are entirely orthogonal, as far as I can see. Except
+historically we've mixed them up (OX_OBJS + O_OBJS is the link-list,
+O_OBJS is the symtab information). And this mixup is what the problems
+come from.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

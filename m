@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVALLMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVALLT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVALLMP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 06:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVALLMP
+	id S261159AbVALLT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 06:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVALLT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 06:12:15 -0500
-Received: from [217.8.180.76] ([217.8.180.76]:53004 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261151AbVALLMJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 06:12:09 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: Andrew Walrond <andrew@walrond.org>
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.10.0
-Date: Wed, 12 Jan 2005 12:11:23 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200501081613.27460.mmazur@kernel.pl> <200501121049.10219.andrew@walrond.org>
-In-Reply-To: <200501121049.10219.andrew@walrond.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200501121211.23475.mmazur@kernel.pl>
+	Wed, 12 Jan 2005 06:19:28 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21395
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S261159AbVALLTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 06:19:25 -0500
+Subject: Re: User space out of memory approach
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Edjard Souza Mota <edjard@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ilias Biris <xyz.biris@gmail.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <4d6522b9050112013123535a0b@mail.gmail.com>
+References: <3f250c71050110134337c08ef0@mail.gmail.com>
+	 <4d6522b9050110144017d0c075@mail.gmail.com>
+	 <20050110200514.GA18796@logos.cnet>
+	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+	 <4d6522b90501101803523eea79@mail.gmail.com>
+	 <1105433093.17853.78.camel@tglx.tec.linutronix.de>
+	 <1105461106.16168.41.camel@localhost.localdomain>
+	 <4e1a70d1050111111614670f32@mail.gmail.com>
+	 <4e1a70d10501111246391176b@mail.gmail.com>
+	 <1105477069.17853.126.camel@tglx.tec.linutronix.de>
+	 <4d6522b9050112013123535a0b@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 12 Jan 2005 12:19:23 +0100
+Message-Id: <1105528763.17853.215.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ¶roda 12 styczeñ 2005 11:49, Andrew Walrond wrote:
-> Upgrading from 2.6.9.1 to 2.6.10.0 causes a mysql build failure on x86:
->
-> gcc -DDEFAULT_CHARSET_HOME=\"/pkg/mysql.1\"
-> -DDATADIR=\"/pkg/mysql.1/state\" -DSHAREDIR=\"/pkg/mysql.1/share/mysql\"
-> -DDONT_USE_RAID -DMYSQL_CLIENT -fPIC -I. -I. -I.. -I../include -O3
-> -DDBUG_OFF -march=i686 -O2 -MT password.lo -MD -MP -MF .deps/password.Tpo
-> -c password.c  -fPIC -DPIC -o .libs/password.o In file included from
-> ../include/my_global.h:291,
->                  from password.c:62:
-> /usr/include/asm/atomic.h: In function `atomic_add_return':
-> /usr/include/asm/atomic.h:189: error: `boot_cpu_data' undeclared (first use
-> in this function)
->
-> It builds fine on x86_64 though. I don't know where the fault lies here;
-> mysql, libc-headers or linux-2.6.10, so this is just a FYI.
+On Wed, 2005-01-12 at 11:31 +0200, Edjard Souza Mota wrote:
+> propose a new selection mechanism. This misinterpretation is misleading the
+> discussion of whether it may have som use in embedded devices or not.
+> Even though, I believe that for PCs environment it has a great potential
+> when you think that admins don't stay all the time in front of a computer.
+> Once and while they also have a rest :). In these cases, instead of simply
+> start ranking a deamon could dispatch a msg to her/him saying the system
+> is approaching a red zone.
 
-Looks like you've linked your kernel's config.h to llh and that causes the 
-problem. You shouldn't do that unless you have a specific reason to, 
-otherwise you might end up with problems I'm unable to test for (I can't 
-check every possible combination of kernel CONFIG_'s).
+Pretty intriguing. Maybe the daemon waits for the answer mail then,
+where the admin confirms to select the daemon as the preferrable victim
+of oom. 
 
-I'll state that more clearly in the docs.
+tglx
 
 
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again

@@ -1,75 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316135AbSEZOzO>; Sun, 26 May 2002 10:55:14 -0400
+	id <S316161AbSEZP0Q>; Sun, 26 May 2002 11:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316136AbSEZOzN>; Sun, 26 May 2002 10:55:13 -0400
-Received: from mail7.svr.pol.co.uk ([195.92.193.21]:15620 "EHLO
-	mail7.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S316135AbSEZOzM>; Sun, 26 May 2002 10:55:12 -0400
-Posted-Date: Sun, 26 May 2002 13:53:38 GMT
-Date: Sun, 26 May 2002 14:53:37 +0100 (BST)
-From: Riley Williams <rhw@InfraDead.Org>
-Reply-To: Riley Williams <rhw@InfraDead.Org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <3CEBC496.9030900@evision-ventures.com>
-Message-ID: <Pine.LNX.4.21.0205260915330.29968-100000@Consulate.UFP.CX>
+	id <S316162AbSEZP0P>; Sun, 26 May 2002 11:26:15 -0400
+Received: from inje.iskon.hr ([213.191.128.16]:5001 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S316161AbSEZP0O>;
+	Sun, 26 May 2002 11:26:14 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@zip.com.au>, cr@sap.com
+Subject: 2.5.18 / ext3 / oracle trouble
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Sun, 26 May 2002 17:26:07 +0200
+Message-ID: <877klr2ank.fsf@atlas.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Martin.
+Hi!
 
-> #include <linux/io.h>
-> #include <stdio.h>
-> #include <stdlib.h>
-> 
-> int main(char *argv[], int argc)
-> {
->	int port = aoit(argv[0]);
->	int byte = aoit(argv[1]);
->
->	if (port > 0)
->		return inb(port);		
->	else {
->		outb(port, byte);
->		return 0;
->	}
-> }
+After lots of testing, I can say that 2.5.18 works great in all three
+modes of ext3 for all but one purpose. Oracle database still gets
+corrupted during insert load. More precisely, online redo log gets
+corrupted, database panics and restore is in order.
 
-Interesting code. Did you really mean to have the program name as the
-port number, or should that be argv[1] and argv[2] instead? Also, what
-is it supposed to do? A quick analysis makes no sense of it.
+This leads me to thinking that there's something wrong with sysv
+shared memory in 2.5.x. Although the problem could also be in fsync()
+or swap_out() & co. paths, it's yet to be discovered.
 
-Would the following be what you had intended?
+It could also be that journaled mode helps the trouble, and it could
+be that some swapping makes it more certain, but none of these two
+facts are proved for sure. Take it as an observation.
 
-	#include <linux/io.h>
-	#include <stdio.h>
-	#include <stdlib.h>
+Christoph, I don't know if you're still taking care of shmem in 2.5.x,
+so take my apologies if you didn't want to see this email.
 
-	int main(int argc, char **argv) {
-	    int byte, port, result = 0;
-
-	    switch (argc) {
-		case 2:
-		    port = atoi(argv[1]);
-		    result = inb(port);
-		    break;
-
-		case 3:
-		    port = atoi(argv[1]);
-		    byte = atoi(argv[2]);
-		    outb(port, byte);
-		    break;
-
-		default:
-		    fprintf(stderr, "Usage: %s port [byte]\n", argv[0]);
-		    break;
-	    }
-	    return result;
-	}
-
-Best wishes from Riley.
-
+Regards,
+-- 
+Zlatko

@@ -1,121 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129911AbRATDmu>; Fri, 19 Jan 2001 22:42:50 -0500
+	id <S130187AbRATESl>; Fri, 19 Jan 2001 23:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130187AbRATDmk>; Fri, 19 Jan 2001 22:42:40 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:55048 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129911AbRATDme>; Fri, 19 Jan 2001 22:42:34 -0500
-Date: Fri, 19 Jan 2001 23:52:36 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org, Rajagopal Ananthanarayanan <ananth@sgi.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>
-Subject: Re: [RFC] generic IO write clustering 
-In-Reply-To: <Pine.LNX.4.31.0101201355560.1071-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0101192311090.6167-100000@freak.distro.conectiva>
+	id <S130756AbRATESW>; Fri, 19 Jan 2001 23:18:22 -0500
+Received: from bom3.vsnl.net.in ([202.54.4.24]:50185 "HELO bom3.vsnl.net.in")
+	by vger.kernel.org with SMTP id <S130187AbRATESE>;
+	Fri, 19 Jan 2001 23:18:04 -0500
+Message-ID: <006801c08297$bc7aa240$655c36ca@s1n9c1>
+From: "Linux Admin" <linuxadmin@softhome.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: boot.img & initrd.img
+Date: Sat, 20 Jan 2001 09:46:06 +0530
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi guys ...
 
-On Sat, 20 Jan 2001, Rik van Riel wrote:
+new to the list. need help ?
 
-> Is there ever a reason NOT to do the best possible IO
-> clustering at write time ?
-> 
-> Remember that disk writes do not cost memory and have
-> no influence on the resident set ... completely unlike
-> read clustering, which does need to be limited.
+can anyone please guide to me to an how-to or documentation on how to make a
+custom boot.img & initrd.img ?
 
-You dont want to have too many ongoing writes at the same time to avoid
-complete starvation of the system. We already do this, and have to, in a
-quite a few places.
+thanks in advance..
 
-> >   - By doing the write clustering at a higher level, we avoid a ton of
-> >     filesystems duplicating the code.
-> >
-> > So what I suggest is to add a "cluster" operation to struct address_space
-> > which can be used by the VM code to know the optimal IO transfer unit in
-> > the storage device. Something like this (maybe we need an async flag but
-> > thats a minor detail now):
-> >
-> >         int (*cluster)(struct page *, unsigned long *boffset,
-> > 		unsigned long *poffset);
-> 
-> Makes sense, except that I don't see how (or why) the _VM_
-> should "know the optimal IO transfer unit". This sounds more
-> like a job for the IO subsystem and/or the filesystem, IMHO.
-
-The a_ops->cluster() operation will make the VM aware of the contiguous
-pages which can be clustered.
-
-The VM does not know about _any_ fs lowlevel details (which are hidden
-behind ->cluster()), including buffer_head's.
-
-> 
-> > "page" is from where the filesystem code should start its search
-> > for contiguous pages. boffset and poffset are passed by the VM
-> > code to know the logical "backwards offset" (number of
-> > contiguous pages going backwards from "page") and "forward
-> > offset" (cont pages going forward from "page") in the inode.
-> 
-> Yes, this makes a LOT of sense. I really like a pagecache
-> helper function so the filesystems can build their writeout
-> clusters easier.
-
-The address space owners (filesystems _and_ swap for this case) do not
-need to implement the writeout clustering at all because we're doing it at
-the VM _without_ having to know about low-level details.
-
-Take a look at this somewhat pseudo-code:
-
-int cluster_write (struct page *page)
-{
-        struct address_space *mapping = page->mapping;
-	unsigned long boffset, poffset;
-        int nr_pages;
-
-	...
-	/* How much pages can we write for free? */
-        nr_pages = mapping->a_ops->cluster(page, &boffset, &poffset);
-	...	
-
-	page_cluster_flush(page, csize); 
-}
-
-/*
- * @page: dirty page from where to start the search
- * @csize: maximum size of the cluster
- */
-int page_cluster_flush(struct page *page, int csize)
-{
-        struct *cpages[csize];
-        struct address_space *mapping = page->mapping;
-        struct inode *inode = mapping->host;
-        unsigned long end_index = inode->i_size >> PAGE_CACHE_SHIFT;
-        unsigned long index = page->index;
-        unsigned long curr_index = page->index;
-
-	cpages[csize] = page;
-	count = 1;
-
-	/* Search for clusterable dirty pages behind */
-	....
-	/* Search for clusterable dirty pages ahead */
-	...
-	/* Write all of them */
-	for(i=0; i<count; i++) {
-		ClearPageDirty(cpages[i]);
-		writepage(cpages[i]);  
-	...
-}
-
-This way we have _one_ clean implementation of write clustering without
-any lowlevel crap involved. Try to imagine the amount of code people will
-manage to write in their own fs's to implement write clustering.
-
+parag mehta
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

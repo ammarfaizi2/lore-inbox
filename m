@@ -1,109 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUEFR4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUEFSC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUEFR4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 13:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUEFR4F
+	id S261779AbUEFSC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 14:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbUEFSC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 13:56:05 -0400
-Received: from outmx007.isp.belgacom.be ([195.238.3.234]:10988 "EHLO
-	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S261763AbUEFRz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 13:55:59 -0400
-Subject: [2.6.6-rc3-mm2] genhd-unregister warn handling
-From: FabF <Fabian.Frederick@skynet.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-0Zmfqh6RoF4mCr0N4iLF"
-Message-Id: <1083866562.5865.6.camel@bluerhyme.real3>
+	Thu, 6 May 2004 14:02:59 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:10871 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261779AbUEFSC5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 14:02:57 -0400
+Date: Thu, 6 May 2004 20:08:53 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: dongzai007@sohu.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: beginner of a driver-developer
+Message-ID: <20040506180853.GB2034@mars.ravnborg.org>
+Mail-Followup-To: dongzai007@sohu.com, linux-kernel@vger.kernel.org
+References: <7475352.1083848708542.JavaMail.postfix@mx0.mail.sohu.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 06 May 2004 20:02:43 +0200
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx007.isp.belgacom.be)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7475352.1083848708542.JavaMail.postfix@mx0.mail.sohu.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 06, 2004 at 09:05:08PM +0800, dongzai007@sohu.com wrote:
+> I am a beginner of a driver-developer.
+> I got some problems.
+> 
+> you know some structs such as "file_operation" were defined in Header Files.when I define a struct in .C files,i always got errors below:
+> 
+> fops has an incomplete type
+> storage size of 'fops' isn't known
+> 
+> In my .C files , I defined as followed:
+> 
+> .....................
+> struct file_operation fops;
+> .....................
+> 
+> How can i solve this sort of problems. Thank you.
 
---=-0Zmfqh6RoF4mCr0N4iLF
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+In this particular case you did not include the header file that defines the
+file_operations struct.
+May I suggest you read "Linux Device drivers" by Jonathan Corbet.
+It's available somewhere on the net, but I can recommend the paper version.
+On lwn.net there is also a nice series of articles refelcting the changes
+from 2.4 -> 2.6, also made by said Jonathan Corbet.
 
-Andrew,
 
-	Here's a patch against 2.6.6-rc3-mm2 genhd.c unregister_blkdev
-
-	-Standardize function for void xxx
-	-Split uncorresponding return
-	-Add printks
-	-Merge kfree to positive case
-
-	Could you apply ?
-
-Regards,
-Fabian
-
---=-0Zmfqh6RoF4mCr0N4iLF
-Content-Disposition: attachment; filename=genhd1.diff
-Content-Type: text/x-patch; name=genhd1.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-diff -Naur orig/drivers/block/genhd.c edited/drivers/block/genhd.c
---- orig/drivers/block/genhd.c	2004-04-04 05:37:06.000000000 +0200
-+++ edited/drivers/block/genhd.c	2004-05-06 19:52:56.000000000 +0200
-@@ -116,31 +116,33 @@
- 
- EXPORT_SYMBOL(register_blkdev);
- 
--/* todo: make void - error printk here */
--int unregister_blkdev(unsigned int major, const char *name)
-+void unregister_blkdev(unsigned int major, const char *name)
- {
- 	struct blk_major_name **n;
- 	struct blk_major_name *p = NULL;
- 	int index = major_to_index(major);
- 	unsigned long flags;
--	int ret = 0;
- 
- 	down_write(&block_subsys.rwsem);
- 	spin_lock_irqsave(&major_names_lock, flags);
- 	for (n = &major_names[index]; *n; n = &(*n)->next)
- 		if ((*n)->major == major)
- 			break;
--	if (!*n || strcmp((*n)->name, name))
--		ret = -EINVAL;
-+	if (!*n)
-+		printk(KERN_WARNING "Unable to unregister block device with major %d", major);
- 	else {
--		p = *n;
--		*n = p->next;
-+		if (strcmp((*n)->name, name))
-+			printk(KERN_WARNING "Unable to unregister %s.Major name does not correspond", name);
-+		else {
-+			/*name was found in blk_major_name table.Skip it*/
-+			p = *n;
-+			*n = p->next;
-+			kfree(p);
-+		}
- 	}
- 	spin_unlock_irqrestore(&major_names_lock, flags);
- 	up_write(&block_subsys.rwsem);
--	kfree(p);
- 
--	return ret;
- }
- 
- EXPORT_SYMBOL(unregister_blkdev);
-diff -Naur orig/include/linux/fs.h edited/include/linux/fs.h
---- orig/include/linux/fs.h	2004-05-05 17:58:57.000000000 +0200
-+++ edited/include/linux/fs.h	2004-05-06 19:19:26.000000000 +0200
-@@ -1216,7 +1216,7 @@
- #endif
- 
- extern int register_blkdev(unsigned int, const char *);
--extern int unregister_blkdev(unsigned int, const char *);
-+extern void unregister_blkdev(unsigned int, const char *);
- extern struct block_device *bdget(dev_t);
- extern void bd_set_size(struct block_device *, loff_t size);
- extern void bd_forget(struct inode *inode);
-
---=-0Zmfqh6RoF4mCr0N4iLF--
-
+	Sam

@@ -1,80 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267417AbTAVKYV>; Wed, 22 Jan 2003 05:24:21 -0500
+	id <S267418AbTAVKc6>; Wed, 22 Jan 2003 05:32:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267418AbTAVKYU>; Wed, 22 Jan 2003 05:24:20 -0500
-Received: from smtp1.BelWue.de ([129.143.2.12]:60384 "EHLO smtp1.BelWue.DE")
-	by vger.kernel.org with ESMTP id <S267417AbTAVKYT>;
-	Wed, 22 Jan 2003 05:24:19 -0500
-Date: Wed, 22 Jan 2003 11:33:22 +0100 (MET)
-From: Oliver Tennert <tennert@science-computing.de>
-To: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
-cc: kw@science-computing.de
-Subject: NFS client problem and IO blocksize
-Message-ID: <Pine.GHP.4.02.10301221121260.4286-100000@alderaan.science-computing.de>
+	id <S267421AbTAVKc6>; Wed, 22 Jan 2003 05:32:58 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:36868 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267418AbTAVKc5>;
+	Wed, 22 Jan 2003 05:32:57 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301221042.h0MAgQjK000389@darkstar.example.net>
+Subject: Re: Bad TCP checksums - can you solve the puzzle?
+To: 21442@gmx.net (Matjaz Omerzel)
+Date: Wed, 22 Jan 2003 10:42:26 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E2E6D84.8D485EF3@gmx.net> from "Matjaz Omerzel" at Jan 22, 2003 11:08:04 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Network card is verified and working. IP checksums never fail (0 packets
+> lost after two days of flood ping). TCP works with same kernel, same NIC
+> but on a different machine (Athlon 950) as well as with same machine,
+> same NIC and Windows 98. Needless to say, it works with different
+> machine (PIII) and different OS (Win2k).
+> 
+> Machine is verified, it has been working reliably for years. If, instead
+> of Tornado, I use a 3Com 3C509B (10Mbit EISA), the TCP works perfectly.
+> But if Tornado card was defective, TCP should also work with Via Rhine
+> (DFE-530TX) - but it DOESN'T. (However, drivers via-rhine and 3c59x I
+> believe were made by the same author, just in case that makes any sense)
 
-Hi,
+Is the bus speed of the 486, and the other machine you tested the
+3x905C-TX in the same?  The 486 sounds like it has EISA and PCI busses
+- are you sure that the PCI bus is set to the correct clock speed?
 
-I sem to have a problem with a 2.4.20 kernel + Trond's NFS client patches
-+ some of Neil Brown's server patches.
-
-The problem seems to be restricted to NFS client functionality, though, as
-it also occurs when the NFS server is a totally different platform.
-
-The problem is that the rsize/wsize options seem to be ignored:
-
-hal9000:/home/tennert # mount -o nfsvers=3,udp,rsize=1024,wsize=1024
-ilka2000:/scr /mnt
-hal9000:/home/tennert # stat /mnt/Snatch.avi 
-  File: `/mnt/Snatch.avi'
-  Size: 724893696       Blocks: 1415816    IO Block: 4096   Regular File
-
-hal9000:/home/tennert # umount /mnt
-hal9000:/home/tennert # mount -o nfsvers=3,udp,rsize=8192,wsize=8192
-ilka2000:/scr /mnt
-hal9000:/home/tennert # stat /mnt/Snatch.avi 
-  File: `/mnt/Snatch.avi'
-  Size: 724893696       Blocks: 1415816    IO Block: 4096   Regular File
-
-hal9000:/home/tennert # umount /mnt
-hal9000:/home/tennert # mount -o nfsvers=3,udp,rsize=32768,wsize=32768
-ilka2000:/scr /mnt
-hal9000:/home/tennert # stat /mnt/Snatch.avi 
-  File: `/mnt/Snatch.avi'
-  Size: 724893696       Blocks: 1415816    IO Block: 4096   Regular File
-
-If TCP instead of UDP is taken as transport protocol, the behaviour is
-still the same, i.e. the IO blocksize of the file does not change at all!
-
-In this case the underlying physical file system is XFS.
-
-Beware! I don't think the NFS server is to blame, because (with different
-client machines and same kernel ) I get the same behaviour when the NFS
-server platform is AIX, e.g.
-
-It also occurred (on an older installation) that if the rsizw/wsize is
-taken very small, e.g. 512 or 1024 Byte, a listing of the directory fails
-to show any files at all, although the mount worked well.
-
-Could you help me any further?
-
-Best regards
-
-Oliver 
-
-		   Dr. Oliver Tennert
-                    
-  		   +49 -7071 -9457-598
-                          
- 		   e-mail: O.Tennert@science-computing.de
-  		   science + computing AG
-  		   Hagellocher Weg 71                  
-   		   D-72070 Tuebingen                  
-                                     
-
-
+John.

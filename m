@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293184AbSB1PYw>; Thu, 28 Feb 2002 10:24:52 -0500
+	id <S292872AbSB1Plb>; Thu, 28 Feb 2002 10:41:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293445AbSB1PYo>; Thu, 28 Feb 2002 10:24:44 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:48162 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293423AbSB1PWl>; Thu, 28 Feb 2002 10:22:41 -0500
-Date: Thu, 28 Feb 2002 10:22:24 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Barubary <barubary@cox.net>, linux-kernel@vger.kernel.org,
-        Rick Stevens <rstevens@vitalstream.com>
-Subject: Re: Big file support
-Message-ID: <20020228102224.G8011@redhat.com>
-In-Reply-To: <3C7D3587.8080609@vitalstream.com> <006301c1bfc9$a5c6de90$a7eb0544@CX535256D> <20020227223426.N23151@mea-ext.zmailer.org>
+	id <S293189AbSB1Pip>; Thu, 28 Feb 2002 10:38:45 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:35598 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S293426AbSB1Pg7>; Thu, 28 Feb 2002 10:36:59 -0500
+Message-Id: <200202281536.g1SFaqF02079@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Chris Mason <mason@suse.com>, "Stephen C. Tweedie" <sct@redhat.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
+In-Reply-To: Message from Chris Mason <mason@suse.com> 
+   of "Fri, 22 Feb 2002 13:14:21 EST." <1064010000.1014401661@tiny> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020227223426.N23151@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Wed, Feb 27, 2002 at 10:34:26PM +0200
+Date: Thu, 28 Feb 2002 09:36:52 -0600
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 10:34:26PM +0200, Matti Aarnio wrote:
-> There are several filesystems which are 64-bit/large-file supporting,
-> but also some which are inherently incapable to exceed 2G or 4G.
-> 
-> It looks like the LOOP driver lands in between -- it should be LFS
-> capable, but it isn't.
+Doug Gilbert prompted me to re-examine my notions about SCSI drive caching, 
+and sure enough the standard says (and all the drives I've looked at so far 
+come with) write back caching enabled by default.
 
-Loop is LFS capable.  I know that we shipped LFS enabled loop utilities 
-for 7.2, probably 7.1 as well.  They were missed in the first batch of 
-LFS conversions, and several distributions are lagging behind in this 
-area.
+Since this is a threat to the integrity of Journalling FS in power failure 
+situations now, I think it needs to be addressed with some urgency.
 
-		-ben
+The "quick fix" would obviously be to get the sd driver to do a mode select at 
+probe time to turn off the WCE and RCD bits (this will place the cache into 
+write through mode), which would match the assumptions all the JFSs currently 
+make.  I'll see if I can code up a quick patch to do this.
+
+A longer term solution might be to keep the writeback cache but send down a 
+SYNCHRONIZE CACHE command as part of the back end completion of a barrier 
+write, so the fs wouldn't get a completion until the write was done and all 
+the dirty cache blocks flushed to the medium.
+
+Clearly, there would also have to be a mechanism to flush the cache on 
+unmount, so if this were done by ioctl, would you prefer that the filesystem 
+be in charge of flushing the cache on barrier writes, or would you like the sd 
+device to do it transparently?
+
+James
+
+

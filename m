@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267546AbTBDXCg>; Tue, 4 Feb 2003 18:02:36 -0500
+	id <S267550AbTBDXLi>; Tue, 4 Feb 2003 18:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267547AbTBDXCf>; Tue, 4 Feb 2003 18:02:35 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:32222 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id <S267546AbTBDXCf>;
-	Tue, 4 Feb 2003 18:02:35 -0500
-References: <1044385759.1861.46.camel@localhost.localdomain.suse.lists.linux.kernel>
-            <200302041935.h14JZ69G002675@darkstar.example.net.suse.lists.linux.kernel>
-            <b1pbt8$2ll$1@penguin.transmeta.com.suse.lists.linux.kernel>
-            <p73znpbpuq3.fsf@oldwotan.suse.de>
-            <3E4045D1.4010704@rogers.com>
-In-Reply-To: <3E4045D1.4010704@rogers.com> 
-From: b_adlakha@softhome.net
-To: Jeff Muizelaar <muizelaar@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gcc 2.95 vs 3.21 performance
-Date: Tue, 04 Feb 2003 16:12:09 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+	id <S267552AbTBDXLi>; Tue, 4 Feb 2003 18:11:38 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:24822 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267550AbTBDXLg>;
+	Tue, 4 Feb 2003 18:11:36 -0500
+Subject: Re: [PATCH][2.5.59-bk]Sysfs interface for ZT5550 Redundant Host
+	Controller
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: Scott Murray <scottm@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Stanley Wang <stanley.wang@linux.co.intel.com>
+In-Reply-To: <20030204230808.GB15544@kroah.com>
+References: <1044397997.1114.6.camel@vmhack> 
+	<20030204230808.GB15544@kroah.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Originating-IP: [210.214.82.90]
-Message-ID: <courier.3E4048C9.00003149@softhome.net>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Feb 2003 15:19:31 -0800
+Message-Id: <1044400772.1114.12.camel@vmhack>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Muizelaar writes: 
-
-> Andi Kleen wrote: 
+On Tue, 2003-02-04 at 15:08, Greg KH wrote:
+> On Tue, Feb 04, 2003 at 02:33:15PM -0800, Rusty Lynch wrote:
+> > Last week I finally got access to a decent (but old) technical specification
+> > for the ZT5550 redundant host controller.  The document was published for
+> > the ZT5550C, but I am hoping that newer versions of the RHC just add more
+> > functionality to all the documented reserved bits in the document I am looking
+> > at.
+> > 
+> > The following patch adds a sysfs interface to most of the bits accessible
+> > via the indirect register (through the HCINDEX and HCDATA addresses in the
+> > Command and Status Register (CSR).  The only bits I did not add access to
+> > were the ones that are cleared by reading. There are a lot of bits to get 
+> > access to, which makes this patch a little bigger then I first expected, 
+> > so I created a new config option so only people who actually want to mess 
+> > with the RHC would pay for it.
+> > 
+> > Enabling this code will cause a new directory called zt5550_rhc to be
+> > created in the root of sysfs, with the following tree:
 > 
->> If you want small and fast use lcc. 
->> 
->> Unfortunately it's not completely free (some weird license), doesn't
->> really support real inline assembly and generates rather bad code 
->> compared to gcc. 
->> 
->> I'm still looking forward to Open Watcom (http://www.openwatcom.org) - 
->> they are near self hosting on Linux. The inline assembly is very VC++ 
->> style though; very different from gcc and worse you have to write it in
->> Intel syntax. 
->> 
->> Another alternative would be TenDRA, but it also has no inline assembly
->> and it's C understanding can be only described as "fascist". 
->> 
->> If you don't care about free software you could also use the Intel
->> compiler, which seems to be often faster in compile time than gcc now
->> and can already compile kernels. 
->> 
-> There is also tcc (http://fabrice.bellard.free.fr/tcc/)
-> It claims to support gcc-like inline assembler, appears to be much smaller 
-> and faster than gcc. Plus it is GPL so the liscense isn't a problem 
-> either.
-> Though, I am not really sure of the quality of code generated or of how 
-> mature it is. 
+> Ick, don't place directories in the root of sysfs, unless you want Pat
+> to come after you with a big stick. 
 > 
-> -Jeff
+> What's wrong with putting this directory either under the pci device
+> that is the zt5550 (if it is a pci device), or at the least, under the
+> devices/ directory.
 
-wow, looks like some teenage kid like me made it...
-its a 170 kb gzipped tar!
-nice for a C compiler...But i'm not sure if it could compile half of the 
-linux kernel successfully... 
+It was just laziness. I can create a new subsystem that isn't rooted in 
+any other subsystem without any other information.  I'll go figure out
+how to root this in the zt5550 device directory.
+
+> 
+> Other than that, I like your macro abuse :)
+> 
+
+Yea, one thing leads to another.  If wouldn't have stopped myself then
+the entire file would have been implemented as one macro line.
+
+> thanks,
+> 
+> greg k-h
+
+

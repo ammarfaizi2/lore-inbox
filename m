@@ -1,102 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUJESoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUJESpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUJESoq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUJESmm
+	id S265222AbUJESpM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUJESpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:42:42 -0400
-Received: from mail.gmx.net ([213.165.64.20]:40675 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263117AbUJESm1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:42:27 -0400
-X-Authenticated: #885628
-Date: Tue, 5 Oct 2004 20:49:49 +0200
-From: Dominik Vogt <dominik.vogt@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: dominik.vogt@gmx.de
-Subject: SECURITY BUG: Symlink exploit in 2.6.8 ia64 build scripts
-Message-ID: <20041005184949.GA24154@gmx.de>
-Reply-To: dominik.vogt@gmx.de
+	Tue, 5 Oct 2004 14:45:11 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24498 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S264668AbUJESox
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 14:44:53 -0400
+Date: Tue, 5 Oct 2004 20:41:17 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone (me too???)
+Message-ID: <20041005184117.GA5730@electric-eye.fr.zoreil.com>
+References: <200410031905.25980.gustavo@compunauta.com> <E1CEF0d-0001E9-00@chiark.greenend.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-PGP-Key: http://www.dominikvogt.de/gpg/pubkey.asc
+In-Reply-To: <E1CEF0d-0001E9-00@chiark.greenend.org.uk>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matthew Garrett <mgarrett@chiark.greenend.org.uk> :
+[...]
+> The GPL requires that source be available to anyone who receives a copy
+> of the binaries. There are three ways to do this, only two of which
+> apply to commercial distribution. You can either:
+> 
+> a) Provide the source alongside the binaries, or
+> b) Provide a written offer (a text file on a CD is fine) for the source
+> 
+> You never need to provide the source to anyone you don't provide the
+> binaries to - however, anyone who you do give the source to is free to
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Section 3.b of the in-kernel COPYING file states "any third party".
 
-The 2.6.8 kernel sources (and earlier 2.6.x versions) are
-susceptible to temporary filename attacks.  In the arch/ia64
-branch, there are several scripts that are vulnerable to known
-temporary filename attacks:
-
-  scripts/check-gas
-  scripts/toolchain-flags
-  sn/runsim
-
-All three write to temporary files named out$$, out$$.o or tmp.$$
-where $$ is replaced with the process pid.
-
-A local attacker can use symlinks to let the build processes
-overwrite any file if they are executed as root.
-
-Exploit script:
-
-  $ cd /tmp || exit 1
-  $ for i in `seq 32767`; do ln -s owned out.$i.o; done
-  $ cd <path_to_2.6.8 sources>
-  $ make ARCH=ia64
-
-should demonstrate the problem, but I can't test it as I don't
-have an ia64 cross compiler.  However, I can see that, for
-example, the line
-
-   gcc -c <path>/arch/ia64/scripts/check-gas-asm.S -o /tmp/out29763.o
-
-is executed, and if I remove the contents of check-gas-asm.S, the
-symlink attack does work (i.e. the file /tmp/owned is
-overwritten).
-
-Proposed fix:
-
-Normally, I would fix that by using the mktemp command to generate
-the temporary filenames, but I'm not sure that is acceptable for
-the kernel:
-
-  umask 077
-  out=`mktemp "$tmp/outXXXXXXXX.o"` || exit 1
-
-An alternate solution might be
-
-  umask 077
-  set -C
-
-(Please CC me)
-
-Ciao
-
-Dominik ^_^  ^_^
-
- --
-Dominik Vogt, dominik.vogt@gmx.de
-
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQFBYuzNmeSprTOr4tgRAs1CAJ9itnpG/5jg1DdRYe3a8nyCcZ5LFgCggfup
-tY7z1DkHBCZ8S+AcpZw7MBk=
-=roeU
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--
+--
+Ueimor

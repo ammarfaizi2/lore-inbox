@@ -1,113 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVATSfD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVATSfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVATSfD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 13:35:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVATSaJ
+	id S261865AbVATSfB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 13:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVATSa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 13:30:09 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:62160 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261402AbVATSZ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 13:25:27 -0500
-Date: Thu, 20 Jan 2005 19:25:04 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: [patch, BK-curr] rename 'lock' to 'slock' in asm-i386/spinlock.h
-Message-ID: <20050120182504.GB26985@elte.hu>
-References: <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org> <20050120164038.GA15874@elte.hu> <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org> <20050120175313.GA22782@elte.hu> <20050120182227.GA26985@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050120182227.GA26985@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 20 Jan 2005 13:30:28 -0500
+Received: from pop-a065d19.pas.sa.earthlink.net ([207.217.121.253]:50850 "EHLO
+	pop-a065d19.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S261731AbVATS3t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 13:29:49 -0500
+From: John Mock <kd6pag@qsl.net>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: re: 2.6.11-rc1 vs. PowerMac 8500/G3 (and VAIO laptop) [usb-storage oops]
+Message-Id: <E1Crh3W-0001KD-00@penngrove.fdns.net>
+Date: Thu, 20 Jan 2005 10:29:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Is that really new to 2.6.11-rc1? The kernel byte-swaps the bcdUSB,
+> idVendor, idProduct, and bcdDevice fields in the device descriptor. It
+> should probably swap them back before copying it up to userspace.
 
-this x86 patch, against BK-curr, renames spinlock_t's 'lock' field to
-'slock', to protect against spinlock_t/rwlock_t type mismatches.
+Yes, it happens with 2.6.11-rc1 on my PowerPC, but not with 2.6.10 (or
+before), or on my Sony VAIO laptop. However, it does not prevent it from
+recognizing devices and/or having 'hotplug' load the appropriate module.
 
-build- and boot-tested on x86 SMP+PREEMPT and SMP+!PREEMPT.
+Alas, when it does load 'usb-storage', it generally gets an oops, as
+previously described, which seems to prevent the use of that device.
 
-	Ingo
+Not being able to use USB devices on the PPC (nor fireware on the VAIO
+laptop after suspending) cause grief for me; 'lsusb' is just a minor
+annoyance by comparison.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+PLEASE let me know if there's anything i can do to help track this down!
 
---- linux/include/asm-i386/spinlock.h.orig
-+++ linux/include/asm-i386/spinlock.h
-@@ -15,7 +15,7 @@ asmlinkage int printk(const char * fmt, 
-  */
- 
- typedef struct {
--	volatile unsigned int lock;
-+	volatile unsigned int slock;
- #ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
- #endif
-@@ -43,7 +43,7 @@ typedef struct {
-  * We make no fairness assumptions. They have a cost.
-  */
- 
--#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
-+#define spin_is_locked(x)	(*(volatile signed char *)(&(x)->slock) <= 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
- 
- #define spin_lock_string \
-@@ -83,7 +83,7 @@ typedef struct {
- 
- #define spin_unlock_string \
- 	"movb $1,%0" \
--		:"=m" (lock->lock) : : "memory"
-+		:"=m" (lock->slock) : : "memory"
- 
- 
- static inline void _raw_spin_unlock(spinlock_t *lock)
-@@ -101,7 +101,7 @@ static inline void _raw_spin_unlock(spin
- 
- #define spin_unlock_string \
- 	"xchgb %b0, %1" \
--		:"=q" (oldval), "=m" (lock->lock) \
-+		:"=q" (oldval), "=m" (lock->slock) \
- 		:"0" (oldval) : "memory"
- 
- static inline void _raw_spin_unlock(spinlock_t *lock)
-@@ -123,7 +123,7 @@ static inline int _raw_spin_trylock(spin
- 	char oldval;
- 	__asm__ __volatile__(
- 		"xchgb %b0,%1"
--		:"=q" (oldval), "=m" (lock->lock)
-+		:"=q" (oldval), "=m" (lock->slock)
- 		:"0" (0) : "memory");
- 	return oldval > 0;
- }
-@@ -138,7 +138,7 @@ static inline void _raw_spin_lock(spinlo
- #endif
- 	__asm__ __volatile__(
- 		spin_lock_string
--		:"=m" (lock->lock) : : "memory");
-+		:"=m" (lock->slock) : : "memory");
- }
- 
- static inline void _raw_spin_lock_flags (spinlock_t *lock, unsigned long flags)
-@@ -151,7 +151,7 @@ static inline void _raw_spin_lock_flags 
- #endif
- 	__asm__ __volatile__(
- 		spin_lock_string_flags
--		:"=m" (lock->lock) : "r" (flags) : "memory");
-+		:"=m" (lock->slock) : "r" (flags) : "memory");
- }
- 
- /*
+			         -- JM

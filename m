@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131627AbRDCMvV>; Tue, 3 Apr 2001 08:51:21 -0400
+	id <S131461AbRDCMyC>; Tue, 3 Apr 2001 08:54:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131474AbRDCMvM>; Tue, 3 Apr 2001 08:51:12 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:24266 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S131461AbRDCMu5>; Tue, 3 Apr 2001 08:50:57 -0400
-Message-ID: <3AC9C577.920036CD@coplanar.net>
-Date: Tue, 03 Apr 2001 08:43:36 -0400
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S131669AbRDCMxw>; Tue, 3 Apr 2001 08:53:52 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41477 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131461AbRDCMxp>; Tue, 3 Apr 2001 08:53:45 -0400
+Subject: Re: Larger dev_t
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Tue, 3 Apr 2001 13:53:22 +0100 (BST)
+Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), Andries.Brouwer@cwi.nl,
+        torvalds@transmeta.com, hpa@transmeta.com,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+In-Reply-To: <3AC9BEEF.A2EC0CA@evision-ventures.com> from "Martin Dalecki" at Apr 03, 2001 02:15:43 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: David Lang <dlang@diginsite.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Ian Soboroff <ian@cs.umbc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: /proc/config idea
-In-Reply-To: <E14kPuE-0007xK-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14kQJI-00081v-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> > One thing I certainly miss: DevFS is not mandatory (yet).
+> 
+> That's "only" due to the fact that DevFS is an insanely racy and
+> instable
+> piece of CRAP. I'm unhappy it's there anyway...
 
-> > a module for 2.4.3 will work for any 2.4.3 kernel that supports modules
-> > at all (except for the SMP vs UP issue) so it's not the same thing as
-> > trying to figure out which if the 2.4.3 kernels matches what you are
-> > running.
->
-> Nope. The 2.4 kernel ABI depends upon a mixture of config options including the
-> cpu type, as well as the compiler version being used. The API is intended to
-> be constant throughout 2.4 (but isnt yet totally solid due to bug fixing
-> activity). We don't care about the ABI because we are source code based
->
-
-Is it possible to identify *all* the dependencies and include symbols (or by some
-other
-method) have these dependencies checked by insmod?  It would be simply
-smashing to have it all inherently bullet proof. (i know never say never, but
-lower maintenance then or simpler for users or something)
+It certainly seems to have some race conditions but other than that and the
+slight problem it puts policy in the kernel it seems ok. I'd prefer it was
+userspace and implemented via /sbin/hotplug - but that isnt possible yet and
+opens a whole other set of interesting races to ponder
 

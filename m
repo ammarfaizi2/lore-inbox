@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315871AbSENQvv>; Tue, 14 May 2002 12:51:51 -0400
+	id <S315870AbSENQvi>; Tue, 14 May 2002 12:51:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315872AbSENQvu>; Tue, 14 May 2002 12:51:50 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:46093 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id <S315871AbSENQvs>;
-	Tue, 14 May 2002 12:51:48 -0400
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200205141632.RAA16255@gw.chygwyn.com>
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-To: chen_xiangping@emc.com (chen, xiangping)
-Date: Tue, 14 May 2002 17:32:27 +0100 (BST)
-Cc: jes@wildopensource.com ('Jes Sorensen'), linux-kernel@vger.kernel.org
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A52@srgraham.eng.emc.com> from "chen, xiangping" at May 14, 2002 12:07:30 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S315871AbSENQvi>; Tue, 14 May 2002 12:51:38 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:14997 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315870AbSENQvg>;
+	Tue, 14 May 2002 12:51:36 -0400
+Date: Tue, 14 May 2002 18:51:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Neil Conway <nconway.list@ukaea.org.uk>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.15 IDE 61
+Message-ID: <20020514165113.GT17509@suse.de>
+In-Reply-To: <E177dYp-00083c-00@the-village.bc.nu> <3CE11F90.5070701@evision-ventures.com> <3CE13943.FBD5B1D6@ukaea.org.uk> <20020514163241.GR17509@suse.de> <3CE13F99.5BDED3DF@ukaea.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-The TCP stack should auto-tune the amount of memory that it uses, so that
-SO_SNDBUF, cat >/proc/sys/net/core/[rw]mem_default etc. is not required. The
-important settings for TCP sockets are only /proc/sys/net/ipv4/tcp_[rw]mem
-and tcp_mem I think (at least if I've understood the code correctly).
-
-Since I think we are talking about only a single nbd device, there should
-only be a single socket thats doing lots of I/O in this case, or is this
-machine doing other heavy network tasks ?
+On Tue, May 14 2002, Neil Conway wrote:
+> > To really serialize operations the queue _must_ be shared with whoever
+> > requires serialiation.
 > 
-> But how to avoid system hangs due to running out of memory?
-> Is there a safe guide line? Generally slow is tolerable, but
-> crash is not.
+> Why will this help?  The hardware can still be doing DMA on hda while
+> the queue's request_fn is called quite legitimately for a hdb request -
+> and the IDE code MUST impose the serialization here to avoid hitting the
+> cable with commands destined for hdb. (For example, by waiting for
+> !channel->busy.)
+
+Current IDE code leaves a request on the list until it has completed
+(this is ignoring TCQ of course), so there's no way that you could start
+serving a second request before the first one completes.
+
+> > If not, the problem will have to be solved at the IDE level, not the
+> > block level. And that has not looked pretty in the past.
 > 
-I agree. I also think your earlier comments about the buffer flushing are
-correct as being the most likely cause.
+> I just can't see a way for the block level to remove the need for the
+> busy flag.  I _think_ Alan just agreed with me.  I'm not sure but I get
+> the impression that you are saying the IDE code doesn't need to do this
+> serialization...
 
-I don't think the system has "run out" exactly, more just got itself into
-a state where the code path writing out dirty blocks has been blocked
-due to lack of freeable memory at that moment and where the process
-freeing up memory has blocked waiting for the nbd device. It may well
-be that there is freeable memory, just that for whatever reason no
-process is trying to free it.
+To be honest, I haven't given it too much thought right now. The nice
+thing about the queue level serialization is that it all happens
+automagically for IDE, without having it maintain any busy state on that
+itself.
 
-The LVM team has had a similar problem in dealing with I/O which needs
-extra memory in order to complete, so I'll ask them for some ideas. Also
-I'm going to try and come up with some patches to eliminate some of the
-possible theories so that we can narrow down the options,
+However, I may just talking out of my ass and implementation details
+will mean it's still better to at least manage some of the serialization
+at the ide level.
 
-Steve
+-- 
+Jens Axboe
 

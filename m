@@ -1,59 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131878AbRAJAVo>; Tue, 9 Jan 2001 19:21:44 -0500
+	id <S132398AbRAJAWP>; Tue, 9 Jan 2001 19:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131888AbRAJAVe>; Tue, 9 Jan 2001 19:21:34 -0500
-Received: from 108-VALL-X11.libre.retevision.es ([62.83.209.108]:128 "HELO
-	lightside.2y.net") by vger.kernel.org with SMTP id <S131785AbRAJAVS>;
-	Tue, 9 Jan 2001 19:21:18 -0500
-Date: Tue, 9 Jan 2001 17:11:07 +0100
-From: Ragnar Hojland Espinosa <ragnar@fuckmpaa.com>
-To: J Sloan <jjs@toyota.com>
-Cc: "Michael D. Crawford" <crawford@goingware.com>,
-        linux-kernel@vger.kernel.org, newbie@xfree86.org
-Subject: Re: [OT]: DRI doesn't work on 2.4.0 but does on prerelease-ac5
-Message-ID: <20010109171107.A1470@lightside.2y.net>
-In-Reply-To: <3A5A087F.F1C45380@goingware.com> <3A5A4585.5036A11C@toyota.com> <20010109005707.A1347@lightside.2y.net> <3A5A5D4B.7E9D5183@toyota.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 0.95.6i
-In-Reply-To: <3A5A5D4B.7E9D5183@toyota.com>; from J Sloan on Mon, Jan 08, 2001 at 04:37:32PM -0800
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://maculaisdeadsoimmovingit/lightside
+	id <S132395AbRAJAWG>; Tue, 9 Jan 2001 19:22:06 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:43788 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S131888AbRAJAVu>;
+	Tue, 9 Jan 2001 19:21:50 -0500
+Date: Wed, 10 Jan 2001 01:20:10 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Robert Kaiser <rob@sysgo.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Anybody got 2.4.0 running on a 386 ?
+In-Reply-To: <01011001040704.03050@rob>
+Message-ID: <Pine.LNX.4.30.0101100109270.11542-100000@e2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 04:37:32PM -0800, J Sloan wrote:
-> Ragnar Hojland Espinosa wrote:
-> > Well, the real problem is that (at least Voodoo3) DRI didn't work _before_
-> > with the "latest" test and pre kernels, and X < 4.0.2 (unless there was some
-> > combination I didn't manage to find) even if it was using the correct
-> > library.
 
-> That's odd, perhaps we should compare notes -
+On Wed, 10 Jan 2001, Robert Kaiser wrote:
 
-Seeing that it _finally_ worked (that qbert spongies xscreensaver thing is
-hilarious:) I cleaned up all the logs, along with the mesas and glides
-builds .. so right now all I have is a working setup (which I can't complain
-about)
+> Sorry, no ext2fs in this kernel (it is for a diskless embedded
+> system). I seem to recall though that the problem at one point
+> magically went away when I disabled the FPU emulation, but I have not
+> been able to reproduce this recently, so I'm not sure. Making minor
+> changes to the kernel code (such as adding/removing some test-prints)
+> certainly does not affect the behavior.
 
-> I have been getting good accelerated 3D from my voodoo3
-> since around 2.3.36, except for one brief period around
-> 2.3.99-something where some critical kernel code changed.
+math-FPU emulation takes up quite some space in the kernel image, so this
+could indeed be the case. Could you disable any non-boot-essential
+subsystem (networking, or the serial driver, or anything else), to
+significantly reduce the image size?
 
-IIRC I started trying to make it work around 2.3.99 but wasn't as fortunate
-as you since as mentioned it just refused to work.
- 
-> BTW I am using the X server from 3dfx.com -
+> > Or if that part is not mapped
+> > correctly (which does happen sometimes as well).
+>
+> What could I do to check/fix this ?
 
-Ah, that could have something to do with it, because I always used the
-(mirrorerd) xfree86.org binaries.
--- 
-____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
-\ o.O|                                                   2F0D27DE025BE2302C
- =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
-   U     chaos and madness await thee at its end."
+i had this a couple of times while doing the 3-level pagetables and
+related highmem stuff (and i might even have added this bug ...), and
+typically i just printed out the pagetables to a serial console and
+analyzed them manually :-|
+
+> > and are you sure it crashes there? [are you putting delays between your
+> > printouts?]
+>
+> I have put a "halting statement" (i.e. "while(1);") after my printouts to make
+> sure execution does not go any further than that point. I moved this halting
+> statement ahead in the code line by line until the crash would occur again.
+> So, yes, I am pretty sure.
+
+(okay, that certainly is a proof. I had to ask.)
+
+> > it accesses mem_map variable, which is near to the end of the kernel
+> > image, so it could indeed something of that sort. An uncompressed kernel
+> > image (including the data area) must not be bigger than 4MB (IIRC).
+>
+> According to my System.map file, mem_map is at 0xc0244f78. Does that help ?
+
+not really. Could you write a small function that just reads the kernel
+image from the first symbol to the last one, and see whether it crashes?
+(read it into a volatile variable to make sure GCC reads it.) Kernel image
+goes from _stext to _end - you can access it with something like this:
+
+void test_image (void)
+{
+	extern char _stext;
+	extern char _end;
+
+	volatile char data;
+	char *ptr = &_stext;
+
+	while (ptr < _end)
+		data = *ptr++;
+}
+
+another problem could be if the kernel image is in a place that is somehow
+invalid physical RAM. We uncompress it into address 1MB physical (and
+assume there is enough space from that point on to uncompress
+successfully, without actually checking it), which should work on all 'PC
+architecture compatible' systems. (other bootloaders use this method
+frequently as well.)
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

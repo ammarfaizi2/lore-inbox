@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbTKNU4L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTKNU4L
+	id S264594AbTKNVE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 16:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbTKNVE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:56:11 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:32392 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S262410AbTKNU4I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:56:08 -0500
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Some thoughts about stable kernel development
-References: <m3u15de669.fsf@defiant.pm.waw.pl> <3FAE9026.60500@stesmi.com>
-	<m3ekwd8w2m.fsf@defiant.pm.waw.pl> <3FB25A28.1070800@stesmi.com>
-	<m3oevh7cnu.fsf@defiant.pm.waw.pl> <3FB333B2.2090006@stesmi.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 13 Nov 2003 20:55:37 +0100
-In-Reply-To: <3FB333B2.2090006@stesmi.com>
-Message-ID: <m3wua411s6.fsf@defiant.pm.waw.pl>
+	Fri, 14 Nov 2003 16:04:26 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:34690
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264594AbTKNVEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 16:04:24 -0500
+Date: Fri, 14 Nov 2003 16:01:38 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Jens Gecius <jens@gecius.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: hardlock oops on 2.6.0-test3 smp
+In-Reply-To: <87n0azj8ti.fsf@maniac.gecius.de>
+Message-ID: <Pine.LNX.4.53.0311141559320.27998@montezuma.fsmlabs.com>
+References: <87n0azj8ti.fsf@maniac.gecius.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski <stesmi@stesmi.com> writes:
+On Fri, 14 Nov 2003, Jens Gecius wrote:
 
-> x.y.z+1 pre/rc q does not contain
-> something that x.y.z pre/rc r has is NOT easy. We both know that
-> me and you will have no problem whatsoever with this scheme. So it's
-> not about me and you. I just think it will confuse some people that's
-> all.
+> Hi!
+> 
+> Just came back from vacation and found this nasty screen:
+> 
+> Oops 0002 [<#1>]
+> CPU: 1
+> EIP: 0060:[<c91386f3>] Not tainted
+> EFLAGS: 00010082
+> EIP is at detach_pid+0x23/0x110
+> eax: 6b6b6b6b  ebx: 6b6b6b6b  ecx: d379ba20  edx: d379b970
+> esi: 6b6b6b6b  edi: 00100100  ebp: 00000000  esp: f5641ef8
+> ds: 007b  es: 007b  ss: 0668
+> Process tcplogd (pid: 1712, threadinfo=f5640000 task=f7606670)
+> Stack: d379b920 d379b920 f5640000 d379bf1c c012641c d379b920 c0126522 d379b920
+>        d379b9c4 d379b920 bfffd28c 00000000 0000674b c01285db d379b920 f4be6774
+>        00000000 c026af61 d379b920 d379b920 f7606670 d379b9c4 f760670c c0128acd
+> Call Trace: [<c01264c1>] __unhash_process+0x5c/0xb0
+>             [<c0126522>] release_task+0xb2/0x250
+>             [<c01285db>] wait_task_zombie+0x1ab/0x230
+>             [<c026af61>] selinux_task_wait+0x41/0x50
+>             [<c0128acd>] sys_wait4+0x24d/0x260
+>             [<c011fd40>] default_wake_funktion+0x0/0x30
+>             [<c011fd40>] default_wake_funktion+0x0/0x30
+>             [<c010b4cb>] syscall_call+0x7/0xb
+> Code: 89 58 04 89 03 c7 41 04 00 03 30 00 89 ba b0 00 00 00 f0 ff
 
-That's correct. It seems I have misunderstood your previous email.
+This has been fixed, try running -test9
 
-This scheme aims for less workload on the maintainers (compared to
-different test + stable trees, as with many popular projects) -
-the added bit of complexity at least seems to scale well.
+Thanks
 
-Users already have to live with 2.5.1 being a little older than 2.4.22.
-
-testing/* patches are IMHO not for people who may have problems (bigger
-than just a moment of confusion) with such things - they will have much
-more problems reporting a bug should they found one.
-
-I know this isn't an ideal solution, that's the best I'm currently aware
-of: we'd gain much shorter devel cycle at a really small cost.
-I agree entirely with Alan and his opinion expressed in this thread.
--- 
-Krzysztof Halasa, B*FH

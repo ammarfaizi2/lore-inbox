@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316840AbSFFG7V>; Thu, 6 Jun 2002 02:59:21 -0400
+	id <S316831AbSFFG55>; Thu, 6 Jun 2002 02:57:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316846AbSFFG7U>; Thu, 6 Jun 2002 02:59:20 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:62445 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316840AbSFFG7T>; Thu, 6 Jun 2002 02:59:19 -0400
+	id <S316836AbSFFG54>; Thu, 6 Jun 2002 02:57:56 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:47010 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S316831AbSFFG5y>; Thu, 6 Jun 2002 02:57:54 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org, frankeh@watson.ibm.com
-Subject: [PATCH] Futex update I: Trivial comment removal
-Date: Thu, 06 Jun 2002 17:01:14 +1000
-Message-Id: <E17FrGk-0003j9-00@wagner.rustcorp.com.au>
+Subject: [PATCH] Futex II: Copy-from-user can fail.
+Date: Thu, 06 Jun 2002 17:02:19 +1000
+Message-Id: <E17FrHn-0003jK-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Name: Obsolete comment replacement
+OK, so AFAICT copy_from_user can fail, so shouldn't BUG.
+
+Name: Copy-from-user FUTEX bugfix
 Author: Rusty Russell
-Status: Trivial
+Status: Tested on 2.5.20
 
-D: This comment refers to the original implementation.
+D: This patch handles the case where copy_from_user fails (it could
+D: have been unmapped from this address space by another thread).
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.20/kernel/futex.c working-2.5.20-afutex/kernel/futex.c
---- linux-2.5.20/kernel/futex.c	Sat May 25 14:35:00 2002
-+++ working-2.5.20-afutex/kernel/futex.c	Wed Jun  5 18:42:17 2002
-@@ -35,12 +35,7 @@
- #include <linux/time.h>
- #include <asm/uaccess.h>
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.20.18383/kernel/futex.c linux-2.5.20.18383.updated/kernel/futex.c
+--- linux-2.5.20.18383/kernel/futex.c	Sat May 25 14:35:00 2002
++++ linux-2.5.20.18383.updated/kernel/futex.c	Wed Jun  5 19:00:47 2002
+@@ -155,13 +155,14 @@
+ 	set_current_state(TASK_INTERRUPTIBLE);
+ 	queue_me(head, &q, page, offset);
  
--/* These mutexes are a very simple counter: the winner is the one who
--   decrements from 1 to 0.  The counter starts at 1 when the lock is
--   free.  A value other than 0 or 1 means someone may be sleeping.
--   This is simple enough to work on all architectures, but has the
--   problem that if we never "up" the semaphore it could eventually
--   wrap around. */
-+/* Simple "sleep if unchanged" interface. */
+-	/* Page is pinned, can't fail */
+-	if (get_user(curval, uaddr) != 0)
+-		BUG();
++	/* Page is pinned, but may no longer be in this address space. */
++	if (get_user(curval, uaddr) != 0) {
++		ret = -EFAULT;
++		goto out;
++	}
  
- /* FIXME: This may be way too small. --RR */
- #define FUTEX_HASHBITS 6
- 
+ 	if (curval != val) {
+ 		ret = -EWOULDBLOCK;
+-		set_current_state(TASK_RUNNING);
+ 		goto out;
+ 	}
+ 	time = schedule_timeout(time);
+@@ -174,6 +175,7 @@
+ 		goto out;
+ 	}
+  out:
++	set_current_state(TASK_RUNNING);
+ 	/* Were we woken up anyway? */
+ 	if (!unqueue_me(&q))
+ 		return 0;
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

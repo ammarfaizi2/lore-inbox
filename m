@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVBVRGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVBVRQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVBVRGX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 12:06:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVBVRGW
+	id S261162AbVBVRQy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 12:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVBVRQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 12:06:22 -0500
-Received: from gsstark.mtl.istop.com ([66.11.160.162]:14477 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S261187AbVBVRGT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 12:06:19 -0500
-To: Jens Axboe <axboe@suse.de>
-Cc: Greg Stark <gsstark@mit.edu>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] scsi/sata write barrier support
-References: <20050127120244.GO2751@suse.de> <87acpxurwf.fsf@stark.xeocode.com>
-	<20050222071340.GC2835@suse.de>
-In-Reply-To: <20050222071340.GC2835@suse.de>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 22 Feb 2005 12:06:09 -0500
-Message-ID: <874qg4v81q.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 22 Feb 2005 12:16:54 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:25478 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261155AbVBVRQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 12:16:51 -0500
+Date: Tue, 22 Feb 2005 11:16:56 -0600
+From: mikem <mikem@beardog.cca.cpqcorp.net>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: CSMI questions
+Message-ID: <20050222171656.GA5953@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+All,
+I hate to dredge this up again, but, when Eric Moore submitted changes for MPT
+Fusion driver containing the CSMI ioctls it was rejected. There was talk on
+the linux-scsi list about it being a horrible interface, among other things.
+There were also comments about there being a Linux only approach. Personally,
+I like that idea but it's not good from a business perspective. Especially
+because HP, Dell, and others support more than one OS. Having a unique set of
+management apps for each OS would be very cumbersome.
 
-Jens Axboe <axboe@suse.de> writes:
+We've also been looking at how to use sysfs rather than ioctls.
+ 
+Some look reasonable, others seem to be restricted by sysfs itself. 
+1. only ASCII files are allowed
+2. if multiple attributes are contained in one file, who parses out the data?
+3. one buffer of size (PAGE_SIZE) may not hold all of the data required
 
-> fsync has been working all along, since the initial barrier support for
-> ide. only ext3 and reiserfs support it.
+Maybe I'm missing something. If any sysfs experts would like to help me
+understand, I'm all ears.
 
-Really? That's huge news. Since what kernel version(s) is that?
+The spec is available at: http://www.t10.org/ftp/t10/document.04/04-345r1.pdf
 
-What about a non-journaled fs, or at least a meta-data-only-journaled fs?
-Journaled FS's don't mix well with transaction based databases since they're
-basically doing their own journaling anyways.
-
--- 
-greg
-
+I'd also like an (brief) explanation of why ioctls are so bad. I've seen the 
+reasons of them never going away, etc. But from the beginning of time (UNIX)
+ioctls have been the preferred method of user space/kernel communication.

@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261347AbSKBTrt>; Sat, 2 Nov 2002 14:47:49 -0500
+	id <S261382AbSKBUIf>; Sat, 2 Nov 2002 15:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261349AbSKBTrt>; Sat, 2 Nov 2002 14:47:49 -0500
-Received: from pasky.ji.cz ([62.44.12.54]:9204 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S261347AbSKBTrr>;
-	Sat, 2 Nov 2002 14:47:47 -0500
-Date: Sat, 2 Nov 2002 20:57:31 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Andries.Brouwer@cwi.nl
-Cc: marcelo@connectiva.com.br, hch@lst.de, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, viro@math.psu.edu
-Subject: Re: [PATCH] [2.4.19] Extended /proc/partitions
-Message-ID: <20021102195731.GA2535@pasky.ji.cz>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, marcelo@connectiva.com.br,
-	hch@lst.de, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	viro@math.psu.edu
-References: <UTC200211021919.gA2JJMk20461.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <UTC200211021919.gA2JJMk20461.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S261375AbSKBUIf>; Sat, 2 Nov 2002 15:08:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1032 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261372AbSKBUId>; Sat, 2 Nov 2002 15:08:33 -0500
+Message-ID: <3DC3C1AA.7060602@zytor.com>
+Date: Sat, 02 Nov 2002 04:14:34 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Porter <porter@cox.net>
+CC: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+Subject: Re: [BK PATCHES] initramfs merge, part 1 of N
+References: <3DC38939.90001@pobox.com> <20021102101239.A9442@home.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sat, Nov 02, 2002 at 08:19:22PM CET, I got a letter,
-where Andries.Brouwer@cwi.nl told me, that...
-> (1) These ioctls are used by existing programs. So, for example,
-> 	# hdparm -g /dev/hda5
-> will give you the starting offset (in 512-byte sectors) of /dev/hda5.
-> Even better may be a command like
-> 	# blockdev --report
+Matt Porter wrote:
+> On Sat, Nov 02, 2002 at 03:13:45AM -0500, Jeff Garzik wrote:
 > 
-> (2) Several programs, like mount, *fdisk, blockdev, read
-> /proc/partitions. Changing the format will break all of these.
-> So, it is best not to change anything, but if you do, only add
-> fields at the end.
+>>#4 - move mounting root to userspace
+>>
+>>People probably breathed a sigh of relief at patch #3, they will heave a 
+>>bigger sigh for this patch :)   This moves mounting of the root 
+>>filesystem to early userspace, including getting rid of 
+>>NFSroot/bootp/dhcp code in the kernel.
 > 
-..snip..
 > 
-> Given this uncertainty about what comes after the currently present
-> fields, it is now impossible to add anything new, unless all programs
-> using /proc/partitions also parse the header line.
-> It is best to consider /proc/partitions frozen. Linux 2.5 has
-> driverfs, and although "cat /proc/partitions" is much more convenient
-> than searching around in driverfs (sysfs), no doubt blockdev will be
-> changed so as to report on sysfs, when that exists and is mounted.
+> For those of us who only develop on nfsroot-based systems, does this
+> step include adding userspace network interface configuration and
+> bootp/dhcp client functionality to kinit?  I want to assume that
+> "getting rid of NFSroot/bootp/dhcp" means moving that particular
+> functionality as part of this step.  Just wondering what the
+> short-term impact will be on the poor embedded guys. :)
+> 
 
-Ah.. I see, then please disregard the patches. Didn't realize that hdparm
-already can do it nor that it's exported thru driverfs in 2.5, sorry.
+Probably not to kinit, but to early userspace, yes.  There is no real 
+reason to put everything into kinit, and a lot of these things we have 
+already written up as part of the klibc bundle.
 
--- 
- 
-				Petr "Pasky" Baudis
-.
-This host is a black hole at HTTP wavelengths. GETs go in, and nothing
-comes out, not even Hawking radiation.
-                -- Graaagh the Mighty on rec.games.roguelike.angband
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/
+	-hpa
+
+
+

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265543AbTFMVkI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 17:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265542AbTFMVkH
+	id S265544AbTFMVpB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 17:45:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265546AbTFMVmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 17:40:07 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:35292 "EHLO minime.uib.es")
-	by vger.kernel.org with ESMTP id S265543AbTFMVga (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 17:36:30 -0400
-From: Ricardo Galli <gallir@uib.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.21 released  (acpi)
-Date: Fri, 13 Jun 2003 23:49:20 +0200
-User-Agent: KMail/1.5.2
+	Fri, 13 Jun 2003 17:42:21 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:14597 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S265548AbTFMVly
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 17:41:54 -0400
+Date: Fri, 13 Jun 2003 15:55:37 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: James Bourne <jbourne@hardrock.org>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-uv1 patch released
+Message-ID: <209030000.1055541336@caspian.scsiguy.com>
+In-Reply-To: <Pine.LNX.4.44.0306131542570.24382-100000@cafe.hardrock.org>
+References: <Pine.LNX.4.44.0306131542570.24382-100000@cafe.hardrock.org>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200306132349.22072.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you don't like it, just disable it. For lots of other people with new 
-> laptops the latest ACPI is mandatory.
-...
->> For me acpid is not workin well. When I use acpid on ECS_L7VTA-00-C (BIOS-1.6)
->> the network card (integrated with main borad) is not working, DHCPd client is
->> time outing and there is no routing via that hardware ;-)
- 
-Not for Dell Latitude (X200), no battery detected, no suspend, button doesn't
-shutdown nicely (it just switches the machine off). So, still surviving with APM, 
-even in 2.5.70.
+> Thanks.  I've turned the 20030603.tar.gz file into a patch and added it to
+> the updates patch I host to allow people a single point to download errata
+> for the 2.4.21 kernel.
+> 
+> Unfortunately I have never used BK nor have I any intention at this point,
+> so I hope the tar ball will reflect the same information.  I have included a
+> pointer to the SRC directory for people to follow as well.
 
-And, yes, I already reported several times since 2.5.68 and 2.4.21-rc2-acX
+I would just like Marcelo to take the BK version if/when he incorperates
+a newer drop into his BK tree.
 
-But I vote for XFS.
-
--- 
-  ricardo
+--
+Justin
 

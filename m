@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264746AbSJVPDl>; Tue, 22 Oct 2002 11:03:41 -0400
+	id <S261429AbSJVPRJ>; Tue, 22 Oct 2002 11:17:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264726AbSJVPDk>; Tue, 22 Oct 2002 11:03:40 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:38925 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S264746AbSJVPDg>; Tue, 22 Oct 2002 11:03:36 -0400
-Date: Tue, 22 Oct 2002 16:09:44 +0100
-From: John Levon <levon@movementarian.org>
-To: Corey Minyard <cminyard@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI request/release
-Message-ID: <20021022150944.GC70310@compsoc.man.ac.uk>
-References: <3DB4AABF.9020400@mvista.com> <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com>
+	id <S262813AbSJVPRJ>; Tue, 22 Oct 2002 11:17:09 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:27577 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261429AbSJVPRH>; Tue, 22 Oct 2002 11:17:07 -0400
+Subject: Re: running 2.4.2 kernel under 4MB Ram
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Amol Kumar Lad <amolk@ishoni.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <1035333109.2200.2.camel@amol.in.ishoni.com>
+References: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk> 
+	<1035333109.2200.2.camel@amol.in.ishoni.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 22 Oct 2002 16:39:24 +0100
+Message-Id: <1035301164.31917.78.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DB54C53.9010603@mvista.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 08:02:11AM -0500, Corey Minyard wrote:
+On Wed, 2002-10-23 at 01:31, Amol Kumar Lad wrote:
+> It means that I _cannot_ run 2.4.2 on a 4MB box. 
+> Actually my embedded system already has 2.4.2 running on a 16Mb. I was
+> looking for a way to run it in 4Mb. 
+> So Is upgrade to 2.4.19 the only option ??
 
-> Ok.  I'd be inclined to leave the high-usage things where they are, 
-> although it would be nice to be able to make the NMI watchdog a module. 
-> oprofile should probably stay where it is.  Do you have an alternate 
-> implementation that would be more efficient?
+You should move to a later kernel anyway 2.4.2 has a lot of bugs
+including some security ones.
 
-I'm beginning to think you're right. You should ask Keith Owens if kdb
-etc. can use your API successfully.
-
-> >>dev_name could be removed, although it would be nice for reporting 
-> >>
-> >Reporting what ? from where ?
-> >
-> Registered NMI users in procfs.
-
-Then if you add such code, you can add dev_name ... I hate code that
-does nothing ...
-
-> Yes.  But I don't understand why they would be used in the notifier code.
-
-I'm trying to reduce code duplication - you do basically the same thing
-notifier register/unregister does.
-
-btw, the stuff you add to header files should all be in asm-i386/nmi.h
-IMHO.
-
-It would make it clear that there's a fast-path "set nmi handler" and
-the slow one, and you can document the difference there, if that's what
-we're going to do.
-
-regards
-john
-
--- 
-"Lots of companies would love to be in our hole."
-	- Scott McNealy

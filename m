@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263966AbSJVO4P>; Tue, 22 Oct 2002 10:56:15 -0400
+	id <S262811AbSJVOye>; Tue, 22 Oct 2002 10:54:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263968AbSJVO4P>; Tue, 22 Oct 2002 10:56:15 -0400
-Received: from rakshak.ishoni.co.in ([164.164.83.140]:9660 "EHLO
-	arianne.in.ishoni.com") by vger.kernel.org with ESMTP
-	id <S263966AbSJVO4O>; Tue, 22 Oct 2002 10:56:14 -0400
-Subject: Re: running 2.4.2 kernel under 4MB Ram
-From: Amol Kumar Lad <amolk@ishoni.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk>
-References: <1035281203.31873.34.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 22 Oct 2002 20:31:43 -0400
-Message-Id: <1035333109.2200.2.camel@amol.in.ishoni.com>
+	id <S261429AbSJVOyd>; Tue, 22 Oct 2002 10:54:33 -0400
+Received: from bitmover.com ([192.132.92.2]:41376 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262811AbSJVOyb>;
+	Tue, 22 Oct 2002 10:54:31 -0400
+Date: Tue, 22 Oct 2002 08:00:37 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: James Blackwell <jblack@linuxguru.net>
+Cc: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
+Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
+Message-ID: <20021022080037.A1500@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	James Blackwell <jblack@linuxguru.net>,
+	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
+References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com> <3DB4B455.921467D3@digeo.com> <20021021193131.G20688@work.bitmover.com> <E183sO7-0003td-00@comet.linuxguru.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E183sO7-0003td-00@comet.linuxguru.net>; from jblack@linuxguru.net on Tue, Oct 22, 2002 at 02:19:35AM -0400
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It means that I _cannot_ run 2.4.2 on a 4MB box. 
-Actually my embedded system already has 2.4.2 running on a 16Mb. I was
-looking for a way to run it in 4Mb. 
-So Is upgrade to 2.4.19 the only option ??
+On Tue, Oct 22, 2002 at 02:19:35AM -0400, James Blackwell wrote:
+> [Larry is evil and is just trying to get rich]
 
--- Amol
+I'm sorry you feel that way.  I don't agree at all with what you are
+saying.  If what you are saying was true we would have shut down the
+free version of the product long ago.  That fact that we don't now,
+given attacks such as yours, is perhaps the strongest indicator of our
+commitment to Linux.
 
-
-On Tue, 2002-10-22 at 06:06, Alan Cox wrote:
-> On Tue, 2002-10-22 at 19:54, Amol Kumar Lad wrote:
-> > Hi,
-> >  I want to run 2.4.2 kernel on my embedded system that has only 4 Mb
-> > SDRAM . Is it possible ?? Is there any constraint for the minimum
-> SDRAM
-> > requirement for linux 2.4.2
-> 
-> You want to run something a lot newer than 2.4.2. 2.4.19 will run on a
-> 4Mb box, and with Rik's rmap vm seems to be run better than 2.2. That
-> will depend on the workload.
-
-
+I did a little digging to figure out who you are and I'm a bit confused.
+My Linux involvement predates yours by only a few years, we've both
+been here for a long time.  Unless you are saying that 10 years ago
+I hatched this evil plot to hijack the Linux kernel, your statements
+simply are not supported by history.  Which anyone can check out, thanks
+to Google groups.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

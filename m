@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUISSss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262329AbUISTJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUISSss (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 14:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbUISSss
+	id S262329AbUISTJG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 15:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUISTJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 14:48:48 -0400
-Received: from quechua.inka.de ([193.197.184.2]:38823 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262071AbUISSsr (ORCPT
+	Sun, 19 Sep 2004 15:09:06 -0400
+Received: from mail1.ewetel.de ([212.6.122.12]:18860 "EHLO mail1.ewetel.de")
+	by vger.kernel.org with ESMTP id S262329AbUISTJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 14:48:47 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: udev is too slow creating devices
-Date: Sun, 19 Sep 2004 20:53:15 +0200
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
-Message-Id: <pan.2004.09.19.18.53.14.171322@dungeon.inka.de>
-References: <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch> <4148637F.9060706@debian.org> <20040915185116.24fca912.Ballarin.Marc@gmx.de> <20040915180056.GA23257@kroah.com>
-To: linux-kernel@vger.kernel.org
+	Sun, 19 Sep 2004 15:09:02 -0400
+Date: Sun, 19 Sep 2004 21:08:50 +0200 (CEST)
+From: Pascal Schmidt <pascal.schmidt@email.de>
+To: "P. Benie" <pjb1008@eng.cam.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Design for setting video modes, ownership of sysfs attributes
+In-Reply-To: <Pine.HPX.4.58L.0409191541030.24772@punch.eng.cam.ac.uk>
+Message-ID: <Pine.LNX.4.60.0409192106200.617@neptune.local>
+References: <2FYdH-10h-5@gated-at.bofh.it> <2G6Et-6D7-31@gated-at.bofh.it>
+ <2G6Et-6D7-31@gated-at.bofh.it> <E1C92WT-00005z-7q@localhost>
+ <Pine.HPX.4.58L.0409191541030.24772@punch.eng.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004 18:17:02 +0000, Greg KH wrote:
-> There is, just run your stuff off of /etc/dev.d/ and stop relying on a
-> device node to be present after modprobe returns.
+On Sun, 19 Sep 2004, P. Benie wrote:
 
-But installation scripts will need to sleep/loop after fdisk,
-till the devices are created, right?
+> If you're going to subvert an fd, use stdin, not stdout.
+> stdin is less valuable most commands use argv rather than stdin, and it
+> allows you to retreive the output of a command using the shell `backtick`
+> operators.
 
-And I'm currently mknod'ing /dev/md* devices before creating
-the kernel structures with mkraid (which needs the device inode).
-Is there any other way to do this? 
+The point is, you need to make a choice if you want to infer the
+tty from an fd. You can't assume stdin and stdout point to the same
+console. And if we talk about video mode settings, why would I want
+to use the fd that the command gets keyboard input from?
 
-sure, in the long run designs like dm with a special control
-device are a better than this hack for md. 
-Also I wonder how dm works: will dmsetup create the /dev inode
-itself, or use udev to do that? would I need the sleep/loop 
-in a script creating device mappings to wait for the inode?
+The shell backtick obviously uses stdout of the command inside
+the backticks. ;)
 
-Regards, Andreas
-
+-- 
+Ciao,
+Pascal

@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284965AbRLFEKM>; Wed, 5 Dec 2001 23:10:12 -0500
+	id <S284968AbRLFEVM>; Wed, 5 Dec 2001 23:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284966AbRLFEKC>; Wed, 5 Dec 2001 23:10:02 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:297 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S284965AbRLFEJn>; Wed, 5 Dec 2001 23:09:43 -0500
-Message-ID: <3C0EEF86.90101@redhat.com>
-Date: Wed, 05 Dec 2001 23:09:42 -0500
-From: Doug Ledford <dledford@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
-X-Accept-Language: en-us
+	id <S284969AbRLFEVD>; Wed, 5 Dec 2001 23:21:03 -0500
+Received: from mangalore.zip.com.au ([203.12.97.48]:12558 "EHLO
+	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
+	id <S284968AbRLFEUu>; Wed, 5 Dec 2001 23:20:50 -0500
+Message-ID: <3C0EF20C.36449AAB@zip.com.au>
+Date: Wed, 05 Dec 2001 20:20:28 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Nathan Bryant <nbryant@optonline.net>
-CC: Mario Mikocevic <mozgy@hinet.hr>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0EB1F2.7050007@optonline.net> <3C0EB46C.4010806@optonline.net> <3C0EBAEF.5090402@redhat.com> <3C0EC219.8010107@redhat!.com> <3C0EE865.1090607@red! hat.com> <3C0EEDCE.2060404@optonline.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch] scalable timers implementation, 2.4.16, 2.5.0
+In-Reply-To: Your message of "Wed, 05 Dec 2001 14:13:17 -0800."
+	             <3C0E9BFD.BC189E17@zip.com.au> <E16Bo4c-00031f-00@wagner>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Bryant wrote:
-
-> ok that works
+Rusty Russell wrote:
 > 
+> In message <3C0E9BFD.BC189E17@zip.com.au> you write:
+> > Rusty Russell wrote:
+> > >
+> > > PS.  Also would be nice to #define del_timer del_timer_sync, and have a
+> > >      del_timer_async for those (very few) cases who really want this.
+> >
+> > That could cause very subtle deadlocks.   I'd prefer to do:
+> >
+> > #define del_timer_async       del_timer
+> 
+> I'd prefer to audit them all, create a patch, and remove del_timer.
+> Doing it slowly usually means things just get forgotten, then hacked
+> around when it finally gets ripped out.
 
-OK, I've reloaded a new 0.10 version of the driver to my web site.  At 
-this point, I'm calling this driver done until I hear otherwise.  If you 
-have problems, or suspect you might have problems with this driver, or 
-just want to make sure you *won't* have problems with this driver, test 
-and speak now or possibly end up having to hack it yourself later ;-)
+um.  Auditing them all is a big task:
 
-http://people.redhat.com/dledford/i810_audio.c.gz
+akpm-1:/usr/src/linux-2.4.17-pre4> grep -r del_timer . | wc
+    800    2064   48299
+akpm-1:/usr/src/linux-2.4.17-pre4> grep -r del_timer_sync . | wc 
+     85     245    5384
 
--- 
+I tried it, when I was a young man.
 
-  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
-       Please check my web site for aic7xxx updates/answers before
-                       e-mailing me about problems
+One mindset would be to just replace all the del_timer calls
+with del_timer_sync by default, and to then look for the below
+deadlock pattern.   But if you do this, Alexey shouts at you,
+because his code actually gets del_timer right, by looking at
+its return value.
 
+I'd urge you to reconsider.  We have a *lot* of timer deletion
+races in Linux, and squashing them all in one patch just isn't
+feasible.
+
+> The deadlock you're referring to is, I assume, del_timer_sync() called
+> inside the timer itself?  Can you think of any other dangerous cases?
+
+Nope.  The deadlock is where the caller of del_timer_sync holds
+some lock which would prevent the completion of the timer handler.
+It happens, and is sometimes subtle.
+
+drivers/video/txfxfb.c is an unsubtle example.
+
+-

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261810AbTCQReG>; Mon, 17 Mar 2003 12:34:06 -0500
+	id <S261824AbTCQRgZ>; Mon, 17 Mar 2003 12:36:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261804AbTCQRdX>; Mon, 17 Mar 2003 12:33:23 -0500
-Received: from dp.samba.org ([66.70.73.150]:34523 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S261810AbTCQRdL>;
-	Mon, 17 Mar 2003 12:33:11 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Oliver Neukum <oliver@neukum.name>
-Subject: Re: PCI driver module unload race? 
-Cc: Greg KH <greg@kroah.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
-In-reply-to: Your message of "Tue, 11 Mar 2003 17:07:09 BST."
-             <200303111707.09119.oliver@neukum.name> 
-Date: Mon, 17 Mar 2003 00:13:39 +1100
-Message-Id: <20030317174406.B3B012C2D8@lists.samba.org>
+	id <S261817AbTCQRfe>; Mon, 17 Mar 2003 12:35:34 -0500
+Received: from [213.196.47.88] ([213.196.47.88]:23570 "HELO slash.drecomm.nl")
+	by vger.kernel.org with SMTP id <S261814AbTCQRes>;
+	Mon, 17 Mar 2003 12:34:48 -0500
+Message-ID: <1047923169.3e7609e17dcab@slash.drecomm.nl>
+Date: Mon, 17 Mar 2003 18:46:09 +0100
+From: Michiel Klaver <michiel@drecomm.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Tyan tiger 2466 mpx dual processor problem
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 62.163.71.65
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <200303111707.09119.oliver@neukum.name> you write:
-> 
-> > This means the module refcount must remain at 0, even after it's bound to
-> > devices. Changing this would require a change in visible behavior, and
-> > require an extra step by a user to disconnect the driver before they
-> > unload the module.
-> 
-> Yes, that would mean changing behaviour. On the other hand, we require
-> new module utilities for 2.6 anyway, so why not?
+My Tyan Tiger MPX 2466 mobo has two AMD Athlon MP 2400+ CPU's, but when running 
+a standard RedHat or Debian Kernel (i686-smp) it will only recognize one CPU.
 
-Because I think it's silly, from a user point of view.  Why are you
-removing the module, after all?
+When I build my own kernel (2.4.20) with athlon support (k7-smp) it will crash 
+at boot time.
 
-Anyway, a pre-removal notifier in sys_module_delete would have the
-same effect (with the same issues if the refcount isn't 0 after all,
-and you then want to fail the rmmod).
+My problem is that I can only log-in remotely, and a console monitor is not 
+(yet) available, so I have no clue about error messages... :(
+Lucky me to use the lilo -R option, so it will return to the default kernel 
+after an APC reboot.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+What could cause this behaviour?
+
+What should be the BIOS settings for MPS (1.1/1.4)? APIC (on/off)?
+
+Thanks in advance,
+
+Michiel Klaver
+The Netherlands.
+

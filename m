@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317886AbSGWAf7>; Mon, 22 Jul 2002 20:35:59 -0400
+	id <S317905AbSGWAhs>; Mon, 22 Jul 2002 20:37:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSGWAf7>; Mon, 22 Jul 2002 20:35:59 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:7684 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317886AbSGWAfz>;
-	Mon, 22 Jul 2002 20:35:55 -0400
-Date: Mon, 22 Jul 2002 17:39:05 -0700
+	id <S317900AbSGWAgw>; Mon, 22 Jul 2002 20:36:52 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:8196 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317892AbSGWAgT>;
+	Mon, 22 Jul 2002 20:36:19 -0400
+Date: Mon, 22 Jul 2002 17:39:35 -0700
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
 Subject: Re: [BK PATCH] LSM changes for 2.5.27
-Message-ID: <20020723003905.GC660@kroah.com>
-References: <20020723003702.GA660@kroah.com> <20020723003806.GB660@kroah.com>
+Message-ID: <20020723003935.GD660@kroah.com>
+References: <20020723003702.GA660@kroah.com> <20020723003806.GB660@kroah.com> <20020723003905.GC660@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020723003806.GB660@kroah.com>
+In-Reply-To: <20020723003905.GC660@kroah.com>
 User-Agent: Mutt/1.4i
 X-Operating-System: Linux 2.2.21 (i586)
 Reply-By: Mon, 24 Jun 2002 23:35:26 -0700
@@ -26,175 +26,175 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.683   -> 1.683.1.1
-#	    security/dummy.c	1.1     -> 1.2    
-#	security/capability.c	1.1     -> 1.2    
+#	           ChangeSet	1.683.1.1 -> 1.683.1.2
+#	  arch/ppc/config.in	1.36    -> 1.37   
+#	arch/sparc/config.in	1.15    -> 1.16   
+#	arch/s390x/config.in	1.8     -> 1.9    
+#	arch/mips64/config.in	1.13    -> 1.14   
+#	arch/ppc64/config.in	1.9     -> 1.10   
+#	  arch/arm/config.in	1.35    -> 1.36   
+#	arch/alpha/config.in	1.22    -> 1.23   
+#	arch/x86_64/config.in	1.10    -> 1.11   
+#	 arch/s390/config.in	1.9     -> 1.10   
+#	arch/sparc64/config.in	1.29    -> 1.30   
+#	   arch/sh/config.in	1.11    -> 1.12   
+#	 arch/cris/config.in	1.15    -> 1.16   
+#	 arch/mips/config.in	1.13    -> 1.14   
+#	 arch/m68k/config.in	1.14    -> 1.15   
+#	arch/parisc/config.in	1.8     -> 1.9    
+#	 arch/ia64/config.in	1.23    -> 1.24   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/07/22	adam@skullslayer.rod.org	1.683.1.1
-# [PATCH] LSM to designated initializers
-# 
-# Over the last few days there has been discussion on the
-# LKML list about converting struct initializers from the
-#     field:    val,
-# format into
-#     .field =  val,
-# 
-# I have included a patch that will do this for both the
-# dummy and capabilities files.
+# 02/07/22	greg@kroah.com	1.683.1.2
+# LSM: fixed up all of the other archs (non i386) to include the security config menu.
 # --------------------------------------------
 #
-diff -Nru a/security/capability.c b/security/capability.c
---- a/security/capability.c	Mon Jul 22 17:26:07 2002
-+++ b/security/capability.c	Mon Jul 22 17:26:07 2002
-@@ -387,41 +387,41 @@
- }
+diff -Nru a/arch/alpha/config.in b/arch/alpha/config.in
+--- a/arch/alpha/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/alpha/config.in	Mon Jul 22 17:26:04 2002
+@@ -393,4 +393,5 @@
  
- static struct security_operations capability_ops = {
--	ptrace:				cap_ptrace,
--	capget:				cap_capget,
--	capset_check:			cap_capset_check,
--	capset_set:			cap_capset_set,
--	capable:			cap_capable,
--	sys_security:			cap_sys_security,
-+	.ptrace =			cap_ptrace,
-+	.capget =			cap_capget,
-+	.capset_check =			cap_capset_check,
-+	.capset_set =			cap_capset_set,
-+	.capable =			cap_capable,
-+	.sys_security =			cap_sys_security,
- 	
--	bprm_alloc_security:		cap_bprm_alloc_security,
--	bprm_free_security:		cap_bprm_free_security,
--	bprm_compute_creds:		cap_bprm_compute_creds,
--	bprm_set_security:		cap_bprm_set_security,
--	bprm_check_security:		cap_bprm_check_security,
-+	.bprm_alloc_security =		cap_bprm_alloc_security,
-+	.bprm_free_security =		cap_bprm_free_security,
-+	.bprm_compute_creds =		cap_bprm_compute_creds,
-+	.bprm_set_security =		cap_bprm_set_security,
-+	.bprm_check_security =		cap_bprm_check_security,
- 	
--	task_create:			cap_task_create,
--	task_alloc_security:		cap_task_alloc_security,
--	task_free_security:		cap_task_free_security,
--	task_setuid:			cap_task_setuid,
--	task_post_setuid:		cap_task_post_setuid,
--	task_setgid:			cap_task_setgid,
--	task_setpgid:			cap_task_setpgid,
--	task_getpgid:			cap_task_getpgid,
--	task_getsid:			cap_task_getsid,
--	task_setgroups:			cap_task_setgroups,
--	task_setnice:			cap_task_setnice,
--	task_setrlimit:			cap_task_setrlimit,
--	task_setscheduler:		cap_task_setscheduler,
--	task_getscheduler:		cap_task_getscheduler,
--	task_wait:			cap_task_wait,
--	task_kill:			cap_task_kill,
--	task_prctl:			cap_task_prctl,
--	task_kmod_set_label:		cap_task_kmod_set_label,
--	task_reparent_to_init:		cap_task_reparent_to_init,
-+	.task_create =			cap_task_create,
-+	.task_alloc_security =		cap_task_alloc_security,
-+	.task_free_security =		cap_task_free_security,
-+	.task_setuid =			cap_task_setuid,
-+	.task_post_setuid =		cap_task_post_setuid,
-+	.task_setgid =			cap_task_setgid,
-+	.task_setpgid =			cap_task_setpgid,
-+	.task_getpgid =			cap_task_getpgid,
-+	.task_getsid =			cap_task_getsid,
-+	.task_setgroups =		cap_task_setgroups,
-+	.task_setnice =			cap_task_setnice,
-+	.task_setrlimit =		cap_task_setrlimit,
-+	.task_setscheduler =		cap_task_setscheduler,
-+	.task_getscheduler =		cap_task_getscheduler,
-+	.task_wait =			cap_task_wait,
-+	.task_kill =			cap_task_kill,
-+	.task_prctl =			cap_task_prctl,
-+	.task_kmod_set_label =		cap_task_kmod_set_label,
-+	.task_reparent_to_init =	cap_task_reparent_to_init,
- 	
--	register_security:		cap_register,
--	unregister_security:		cap_unregister,
-+	.register_security =		cap_register,
-+	.unregister_security =		cap_unregister,
- };
+ endmenu
  
- #if defined(CONFIG_SECURITY_CAPABILITIES_MODULE)
-diff -Nru a/security/dummy.c b/security/dummy.c
---- a/security/dummy.c	Mon Jul 22 17:26:07 2002
-+++ b/security/dummy.c	Mon Jul 22 17:26:07 2002
-@@ -197,40 +197,40 @@
- }
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/arm/config.in b/arch/arm/config.in
+--- a/arch/arm/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/arm/config.in	Mon Jul 22 17:26:04 2002
+@@ -658,4 +658,5 @@
+ dep_bool '    Kernel low-level debugging messages via UART2' CONFIG_DEBUG_CLPS711X_UART2 $CONFIG_DEBUG_LL $CONFIG_ARCH_CLPS711X
+ endmenu
  
- struct security_operations dummy_security_ops = {
--	ptrace:				dummy_ptrace,
--	capget:				dummy_capget,
--	capset_check:			dummy_capset_check,
--	capset_set:			dummy_capset_set,
--	capable:			dummy_capable,
--	sys_security:			dummy_sys_security,
-+	.ptrace =			dummy_ptrace,
-+	.capget =			dummy_capget,
-+	.capset_check =			dummy_capset_check,
-+	.capset_set =			dummy_capset_set,
-+	.capable =			dummy_capable,
-+	.sys_security =			dummy_sys_security,
- 	
--	bprm_alloc_security:		dummy_bprm_alloc_security,
--	bprm_free_security:		dummy_bprm_free_security,
--	bprm_compute_creds:		dummy_bprm_compute_creds,
--	bprm_set_security:		dummy_bprm_set_security,
--	bprm_check_security:		dummy_bprm_check_security,
-+	.bprm_alloc_security =		dummy_bprm_alloc_security,
-+	.bprm_free_security =		dummy_bprm_free_security,
-+	.bprm_compute_creds =		dummy_bprm_compute_creds,
-+	.bprm_set_security =		dummy_bprm_set_security,
-+	.bprm_check_security =		dummy_bprm_check_security,
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/cris/config.in b/arch/cris/config.in
+--- a/arch/cris/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/cris/config.in	Mon Jul 22 17:26:04 2002
+@@ -228,5 +228,7 @@
+   int ' Profile shift count' CONFIG_PROFILE_SHIFT 2
+ fi
  
--	task_create:			dummy_task_create,
--	task_alloc_security:		dummy_task_alloc_security,
--	task_free_security:		dummy_task_free_security,
--	task_setuid:			dummy_task_setuid,
--	task_post_setuid:		dummy_task_post_setuid,
--	task_setgid:			dummy_task_setgid,
--	task_setpgid:			dummy_task_setpgid,
--	task_getpgid:			dummy_task_getpgid,
--	task_getsid:			dummy_task_getsid,
--	task_setgroups:			dummy_task_setgroups,
--	task_setnice:			dummy_task_setnice,
--	task_setrlimit:			dummy_task_setrlimit,
--	task_setscheduler:		dummy_task_setscheduler,
--	task_getscheduler:		dummy_task_getscheduler,
--	task_wait:			dummy_task_wait,
--	task_kill:			dummy_task_kill,
--	task_prctl:			dummy_task_prctl,
--	task_kmod_set_label:		dummy_task_kmod_set_label,
--	task_reparent_to_init:		dummy_task_reparent_to_init,
-+	.task_create =			dummy_task_create,
-+	.task_alloc_security =		dummy_task_alloc_security,
-+	.task_free_security =		dummy_task_free_security,
-+	.task_setuid =			dummy_task_setuid,
-+	.task_post_setuid =		dummy_task_post_setuid,
-+	.task_setgid =			dummy_task_setgid,
-+	.task_setpgid =			dummy_task_setpgid,
-+	.task_getpgid =			dummy_task_getpgid,
-+	.task_getsid =			dummy_task_getsid,
-+	.task_setgroups =		dummy_task_setgroups,
-+	.task_setnice =			dummy_task_setnice,
-+	.task_setrlimit =		dummy_task_setrlimit,
-+	.task_setscheduler =		dummy_task_setscheduler,
-+	.task_getscheduler =		dummy_task_getscheduler,
-+	.task_wait =			dummy_task_wait,
-+	.task_kill =			dummy_task_kill,
-+	.task_prctl =			dummy_task_prctl,
-+	.task_kmod_set_label =		dummy_task_kmod_set_label,
-+	.task_reparent_to_init =	dummy_task_reparent_to_init,
- 	
--	register_security:		dummy_register,
--	unregister_security:		dummy_unregister,
-+	.register_security =		dummy_register,
-+	.unregister_security =		dummy_unregister,
- };
+-source lib/Config.in
+ endmenu
++
++source security/Config.in
++source lib/Config.in
+diff -Nru a/arch/ia64/config.in b/arch/ia64/config.in
+--- a/arch/ia64/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/ia64/config.in	Mon Jul 22 17:26:04 2002
+@@ -263,3 +263,5 @@
+ fi
  
+ endmenu
++
++source security/Config.in
+diff -Nru a/arch/m68k/config.in b/arch/m68k/config.in
+--- a/arch/m68k/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/m68k/config.in	Mon Jul 22 17:26:04 2002
+@@ -549,4 +549,5 @@
+ 
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/mips/config.in b/arch/mips/config.in
+--- a/arch/mips/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/mips/config.in	Mon Jul 22 17:26:04 2002
+@@ -503,4 +503,5 @@
+ fi
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/mips64/config.in b/arch/mips64/config.in
+--- a/arch/mips64/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/mips64/config.in	Mon Jul 22 17:26:04 2002
+@@ -248,4 +248,5 @@
+ fi
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/parisc/config.in b/arch/parisc/config.in
+--- a/arch/parisc/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/parisc/config.in	Mon Jul 22 17:26:04 2002
+@@ -200,4 +200,5 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/ppc/config.in b/arch/ppc/config.in
+--- a/arch/ppc/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/ppc/config.in	Mon Jul 22 17:26:04 2002
+@@ -628,3 +628,6 @@
+    bool 'Support for early boot texts over serial port' CONFIG_SERIAL_TEXT_DEBUG
+ fi
+ endmenu
++
++source security/Config.in
++
+diff -Nru a/arch/ppc64/config.in b/arch/ppc64/config.in
+--- a/arch/ppc64/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/ppc64/config.in	Mon Jul 22 17:26:04 2002
+@@ -220,4 +220,5 @@
+ fi
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/s390/config.in b/arch/s390/config.in
+--- a/arch/s390/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/s390/config.in	Mon Jul 22 17:26:04 2002
+@@ -75,4 +75,5 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/s390x/config.in b/arch/s390x/config.in
+--- a/arch/s390x/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/s390x/config.in	Mon Jul 22 17:26:04 2002
+@@ -78,4 +78,5 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/sh/config.in b/arch/sh/config.in
+--- a/arch/sh/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/sh/config.in	Mon Jul 22 17:26:04 2002
+@@ -369,4 +369,5 @@
+ fi
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/sparc/config.in b/arch/sparc/config.in
+--- a/arch/sparc/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/sparc/config.in	Mon Jul 22 17:26:04 2002
+@@ -242,4 +242,5 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/sparc64/config.in b/arch/sparc64/config.in
+--- a/arch/sparc64/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/sparc64/config.in	Mon Jul 22 17:26:04 2002
+@@ -293,4 +293,5 @@
+ 
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in
+diff -Nru a/arch/x86_64/config.in b/arch/x86_64/config.in
+--- a/arch/x86_64/config.in	Mon Jul 22 17:26:04 2002
++++ b/arch/x86_64/config.in	Mon Jul 22 17:26:04 2002
+@@ -229,4 +229,5 @@
+ fi
+ endmenu
+ 
++source security/Config.in
+ source lib/Config.in

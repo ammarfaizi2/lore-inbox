@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278207AbRJRX34>; Thu, 18 Oct 2001 19:29:56 -0400
+	id <S278206AbRJRX3z>; Thu, 18 Oct 2001 19:29:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278203AbRJRX3q>; Thu, 18 Oct 2001 19:29:46 -0400
-Received: from air-1.osdl.org ([65.201.151.5]:49425 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S278206AbRJRX3i>;
-	Thu, 18 Oct 2001 19:29:38 -0400
-Date: Thu, 18 Oct 2001 16:30:05 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@osdlab.pdx.osdl.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <20011018221828.23673@smtp.wanadoo.fr>
-Message-ID: <Pine.LNX.4.33.0110181601250.9099-100000@osdlab.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278207AbRJRX3q>; Thu, 18 Oct 2001 19:29:46 -0400
+Received: from [200.47.148.193] ([200.47.148.193]:60679 "EHLO core.domain")
+	by vger.kernel.org with ESMTP id <S278203AbRJRX33>;
+	Thu, 18 Oct 2001 19:29:29 -0400
+Date: Tue, 16 Oct 2001 14:29:59 -0300
+From: martin sepulveda <msepulveda@joydivision.com.ar>
+To: linux-kernel@vger.kernel.org
+Subject: Re: load 1 at idle, 2.4.12-ac3
+Message-Id: <20011016142959.75fd63b9.msepulveda@joydivision.com.ar>
+In-Reply-To: <20011018161607.D2467@mikef-linux.matchmail.com>
+In-Reply-To: <20011016135322.02ed0f97.martin@joydivision.com.ar>
+	<20011016140041.2f26c95c.msepulveda@joydivision.com.ar>
+	<20011018161607.D2467@mikef-linux.matchmail.com>
+X-Mailer: Sylpheed version 0.6.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux for the whole world
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+what it was? a paused xmms plugin in development (xmms was stoped)
 
-> That's why I prefer more explicit semantics:
->
->  - Prepare sleep: Allocate enough memory to save state. For most
-> devices, it will be a fixed quantity. In the case of devices that need
-> per-request allocation, like USB of firewire, just allocate a limited
-> pool. That means that you will eventually cause serialisation to
-> happen when not needed and hurt perfs, but nobody will care at this
-> point ;)
->
->  - Suspend activity: There you lock your IO queues, set your busy flag
-> or whatever, and wait for any pending IO to be completed. Interrupts
-> are enabled, scheduling as well (and other CPUs). Each driver is
-> responsible to properly block a process issuing a request (which should
-> not be a problem to implement for most of them, a single semaphore
-> is enough for simple drivers, drivers with IO queues just need to
-> leave requests in the queues, etc...)
->
->  - Set power state: Here you shut your device down for real. Interrupt
-> are disabled. Only one CPU is still active (the others can be put in
-> whatever state your arch allow, like a sleep loop or whatever...).
+talk about shame :)
 
-Ok, so we need another walk before we go to sleep.
+M.
 
-But, first a question - does the swap device need to absolutely be the
-last thing to stop taking requests? Or, can it stop after everything is
-done allocating memory?
 
-> The actual state save can be in step 2 or 3, we don't really care,
-> it depends mostly on what is more convenient for the driver writer.
+On Thu, 18 Oct 2001 16:16:07 -0700
+Mike Fedyk <mfedyk@matchmail.com> wrote:
 
-For most devices, it seems it could happen in the first, as well. They
-should be fine with stopping I/O requests early on. It's only special
-cases like swap and maybe one or two others that need an extra step,
-right?
+> On Tue, Oct 16, 2001 at 02:00:41PM -0300, martin sepulveda wrote:
+> > forget it!
+> > i've found what it was, and it is certainly *not* the kernel :)
+> > 
+> > thanks anyway, and sorry
+> > 
+> 
+> What was it?  A process stuck in D state?  Something like dist.net or seti?
+> 
+> Reminds me of recently when my X server (a couple days ago from
+> debian-unstable) cought a memory leak, and my system was swapping like
+> crazy.  I thought it was something to do with the shmem problem I found a
+> while back, but I looked at /proc/meminfo and no errors with shmem.  Finally
+> I checked top...
+> 
+> Unfortunately, the OOM killer killed a few things, all except for my X
+> server that was causing the problem.
+> 
+> Mike
 
-	-pat
-
+-- 
+Talent does what it can, genius what it must.
+I do what I get paid to do.

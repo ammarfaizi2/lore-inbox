@@ -1,58 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263274AbTJUT1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 15:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263276AbTJUT1N
+	id S263262AbTJUTXd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 15:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTJUTXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 15:27:13 -0400
-Received: from a0.complang.tuwien.ac.at ([128.130.173.25]:11281 "EHLO
-	a0.complang.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S263274AbTJUT1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 15:27:10 -0400
-X-mailer: xrn 9.03-beta-14
-From: anton@mips.complang.tuwien.ac.at (Anton Ertl)
-Subject: Re: [PATCH] ide write barrier support
-To: linux-kernel@vger.kernel.org
-X-Newsgroups: linux.kernel
-In-reply-to: <IXzh.61g.5@gated-at.bofh.it>
-Date: Tue, 21 Oct 2003 19:24:16 GMT
-Message-ID: <2003Oct21.212416@a0.complang.tuwien.ac.at>
+	Tue, 21 Oct 2003 15:23:33 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:31471 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S263262AbTJUTXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 15:23:31 -0400
+Message-ID: <1066764198.5424d9a4ec004@carlthompson.net>
+X-Priority: 3 (Normal)
+Date: Tue, 21 Oct 2003 12:23:18 -0700
+From: Carl Thompson <cet@carlthompson.net>
+To: dongili@supereva.it
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
+Subject: Re: [PATCH] 3/3 Dynamic cpufreq governor and updates to ACPI
+	P-state driver
+References: <88056F38E9E48644A0F562A38C64FB60077914@scsmsx403.sc.intel.com>
+	<1066725533.5237.3.camel@laptop.fenrus.com>
+	<20031021095925.GB893@inferi.kami.home> <20031021101737.GA31352@wiggy.net>
+	<20031021105234.GF893@inferi.kami.home>
+In-Reply-To: <20031021105234.GF893@inferi.kami.home>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.0.174
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
->Completely disabling write back caching on IDE drives totally kills
->performance typically, they are just not meant to be driven this way.
+I know Linus wrote this but...
 
-It has a significant performance impact, but I would not call it
-"totally kills performance".  In Section 7 of
+> ...
 
-http://www.complang.tuwien.ac.at/papers/czezatke%26ertl00/
+> A quote from Peter Anvin:
+>
+>   "What is worse is that the interface is, in my opinion, fundamentally
+>    broken for *ALL* CPUs.  It doesn't present a policy interface to the
+>    kernel, instead it presents a frequency-setting interface and expect
+>    the policy to be done in userspace.  The kernel is the only part of
+> the
+>    system which has sufficient information (idle times of all CPUs, for
+>    example) to do a decent job managing the CPU frequency efficiently.
+>    On Transmeta CPUs this policy should simply be passed down to CMS, of
+>    course; on other CPUs the kernel needs to manage it."
+>
+> In other words: there is no valid way that a _user_ can set the policy
+> right now: the user can set the frequency, but since any sane policy
+> depends on how busy the CPU is, the user isn't even, the right person to
+> _do_ that, since the user doesn't _know_.
 
-you can find some numbers for ext2 with and without write-back caching
-(and for other file systems without write-back caching).  The slowdown
-was about a factor 1.5 for an un-tar benchmark and 1 for an rm
-benchmark (and of course 1 for the read-dominated tar and find
-benchmarks).
+But userspace _can_ know the idle statistics for each CPU.  It's easily read
+from /proc/stat.
 
-IMO the OS should turn off write-back caching on all devices that have
-journaling, log-structured or soft-updated file systems mounted,
-unless the OS ensures correctness through write barriers, explicit
-flushes or somesuch.  I certainly turn off write-back caching on all
-drives with ext3 file systems.
+> Also note that policy is not just about how busy the CPU is, but also
+> about how _hot_ the CPU is. Again, a user-mode application (that maybe
+> polls the situation every minute or so), simply _cannot_ handle this
+> situation. You need to have the ability to poll the CPU tens of times a
+> second to react to heat events, and clearly user mode cannot do that
+> without impacting performance in a big way.
 
-So I hope to see write barrier support in the Linux kernel at some
-point in the future.
+Well, my "cpuspeed" daemon has been doing exactly this without problems for
+the better part of a year on many laptops tested by me and others.  Polling
+the CPU temperature every second or two seems quite sufficient to head off
+any heat related problems (including on problematic systems like the Sony
+Vaio FXA series).  It doesn't appear to necessary to poll faster on current
+hardware even with severe load spikes.  (Obviously, hardware failures in
+the cooling system are another matter but the CPUs internal protection
+should handle that.)
 
-Concerning disk behaviour, I have certainly seen disks (with
-write-back caching turned on) that don't write a block for many
-seconds, while they write other, later (from the view of the CPU)
-blocks.  See
+My cpuspeed daemon uses a negligable amount of CPU so it doesn't seem like a
+terrible solution...
 
-http://www.complang.tuwien.ac.at/anton/hdtest/
+(As mentioned previously, CPUs that change their own speed are a separate
+issue.)
 
-- anton
--- 
-M. Anton Ertl                    Some things have to be seen to be believed
-anton@mips.complang.tuwien.ac.at Most things have to be believed to be seen
-http://www.complang.tuwien.ac.at/anton/home.html
+Carl Thompson
+
+> ...
+
+

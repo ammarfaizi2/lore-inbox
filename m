@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289496AbSAJPa6>; Thu, 10 Jan 2002 10:30:58 -0500
+	id <S289499AbSAJPbs>; Thu, 10 Jan 2002 10:31:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289499AbSAJPas>; Thu, 10 Jan 2002 10:30:48 -0500
-Received: from motgate2.mot.com ([136.182.1.10]:45037 "EHLO motgate2.mot.com")
-	by vger.kernel.org with ESMTP id <S289496AbSAJPag>;
-	Thu, 10 Jan 2002 10:30:36 -0500
-Date: Thu, 10 Jan 2002 10:30:14 -0500
-Message-Id: <200201101530.g0AFUEA00462@hyper.wm.sps.mot.com>
-From: Peter Barada <pbarada@mail.wm.sps.mot.com>
-To: fjh@cs.mu.oz.au
-CC: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020110124702.B30669@hg.cs.mu.oz.au> (message from Fergus
-	Henderson on Thu, 10 Jan 2002 12:47:02 +1100)
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <20020108012734.E23665@werewolf.able.es> <20020109204043.T1027-100000@gerard> <20020110004952.A11641@werewolf.able.es> <200201100019.g0A0JOM32110@hyper.wm.sps.mot.com> <20020110124702.B30669@hg.cs.mu.oz.au>
+	id <S289501AbSAJPbc>; Thu, 10 Jan 2002 10:31:32 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:60069
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S289499AbSAJPbW>; Thu, 10 Jan 2002 10:31:22 -0500
+Date: Thu, 10 Jan 2002 08:30:59 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Zygo Blaxell <uixjjji1@umail.furryterror.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Moving zlib so that others may use it
+Message-ID: <20020110153059.GX13931@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <24080.1010637887@kao2.melbourne.sgi.com> <3C3D22F8.1080201@acm.org> <a1jnbs$r0s$1@shippou.furryterror.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a1jnbs$r0s$1@shippou.furryterror.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 10, 2002 at 04:37:00AM -0500, Zygo Blaxell wrote:
+> In article <3C3D22F8.1080201@acm.org>, Corey Minyard  <minyard@acm.org> wrote:
+> >Keith Owens wrote:
+> >
+> >>On Wed, 09 Jan 2002 22:23:31 -0600, 
+> >>Corey Minyard <minyard@acm.org> wrote:
+> >>>Keith Owens wrote:
+> [...]
+> >Building zlib as a
+> >>module guarantees that you cannot use it in a boot loader, forcing you
+> >>to maintain multiple versions of zlib.c.  If you are going to use one
+> >>version of zlib then you should try to handle bootloaders as well.
+> [...]
+> >I don't know about the bootloaders.  I'm not sure you can make the 
+> >requirement
+> >to have them compiled the same as the kernel, since they may have different
+> >compilation requirements in the boot loader.
+> 
+> Ummm, you can't use an in-kernel anything in a bootloader.  How do you
+> uncompress an in-kernel zlib.o without an out-of-kernel zlib.o lying
+> around somewhere?
 
->No, you're wrong here.  That would violate the following provisions of
->the C99 standard, because the two accesses to `a' would not have occurred.
->(It would also violate similar provisions of the C89 and C++ standards.)
->The "as if" rule -- which is stated in 5.1.2.3 [#3] in C99 -- is explicitly
->defined to NOT allow optimizing away accesses to volatile objects.
->
-> |        [#3] In the abstract machine, all expressions are  evaluated
-> |        as  specified  by  the  semantics.  An actual implementation
-> |        need not evaluate part of an expression  if  it  can  deduce
-> |        that  its  value is not used and that no needed side effects
-> |        are produced (including any caused by calling a function  or
-> |        accessing a volatile object).
-
-Ahh, I see now said the blind man...  When I read over this, I homed in
-on "An actual emplementation need not evaluate part of the expression
-if it can deduce that its value is not needed", and conveniently
-skipped the rest of the sentence.
-
-My Bad.
+Well, when your 'bootloader' is in arch/$(ARCH)/boot, you can rather
+easily.  I think there's a few archs which grab lib/lib.a right now.
 
 -- 
-Peter Barada                                   Peter.Barada@motorola.com
-Wizard                                         781-852-2768 (direct)
-WaveMark Solutions(wholly owned by Motorola)   781-270-0193 (fax)
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

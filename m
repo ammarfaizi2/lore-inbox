@@ -1,78 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276899AbRJCHTu>; Wed, 3 Oct 2001 03:19:50 -0400
+	id <S276901AbRJCHnZ>; Wed, 3 Oct 2001 03:43:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276900AbRJCHTk>; Wed, 3 Oct 2001 03:19:40 -0400
-Received: from wiprom2mx1.wipro.com ([203.197.164.41]:18088 "EHLO
-	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
-	id <S276899AbRJCHTe>; Wed, 3 Oct 2001 03:19:34 -0400
-Message-ID: <3BBABC41.50203@wipro.com>
-Date: Wed, 03 Oct 2001 12:50:33 +0530
-From: "BALBIR SINGH" <balbir.singh@wipro.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [QUESTION] ISA overhead
-Content-Type: multipart/mixed;
-	boundary="------------InterScan_NT_MIME_Boundary"
+	id <S276902AbRJCHnQ>; Wed, 3 Oct 2001 03:43:16 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.121.50]:57274 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S276901AbRJCHm7>; Wed, 3 Oct 2001 03:42:59 -0400
+Date: Wed, 3 Oct 2001 03:44:51 -0400
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
+Subject: ltp on 2.4.11-pre2 and 2.4.10-ac4 (athlon on ext2)
+Message-ID: <20011003034451.A2596@earthlink.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This is a multi-part message in MIME format.
+Linux Test Project suite on 2.4.11-pre2 and 2.4.10-ac4.  
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+This isn't a duplicate.  This machine recently had reiserfs errors 
+during LTP.  Here are tests with ext2.  (I'm re-running ltp on reiserfs too)
 
-With 2.5 coming soon, something about ISA has been bothering me.
+Kernel versions: 	2.4.10-ac4 and 2.4.11-pre2
+kernel .config:		identical
+Filesystem:		ext2
+Distro: 		Linux From Scratch 3.0
+glibc:			2.2.4
+LTP version:		20010925
 
-All DMA has been limited to 16MB, this is ofcourse going to go
-away with the PCI DMA patch which allows PCI-DMA to use all the
-memory (4GB for 32 bit cards). All the setup of page-frames, etc
-is done with the knowledge of ISA.
+Hardware:
+AMD Athlon 1333 mhz
+IWill KK266 motherboard
+512 megs RAM
+1024 megs swap
 
-I was wondering if ISA should be treated as a special case in 2.5
-and only if the ISA bus and/or ISA device is present should we do
-the 16MB setup. Are there other devices (like MCA) limited to doing
-16 MB or so of DMA?, if so they too should be handled as a special case.
+Test process:
+boot kernel
+login 3 console ttys
+run "vmstat 8 >logfile" and tail it
+run "for" loop to repeat LTP 3 times and log results
+tail -f LTP results files
+light use of links and irc clients.
+no X.
 
-I think this is the correct approach, now that all available devices
-are almost PCI. The default DMA space should be 32 bit, with special
-devices or buses like ISA being handled differently. The current code
-should be hidden under a #ifdef and be enabled only if CONFIG_
-ISA_DMA or something similar is set.
-
-Comments, suggestions
-
-Balbir
-
-PS: Please do not worry about the attachment, I have no control over it.
-
-"Accepting criticism is the fastest way to learn the right things"
-- Just made it up (I am no longer scared of being flamed)
+There was a PASS for 10670 to 10676 tests.
 
 
+LTP isn't a benchmark,  but here are some growfile i/o results:
 
---------------InterScan_NT_MIME_Boundary
-Content-Type: text/plain;
-	name="Wipro_Disclaimer.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="Wipro_Disclaimer.txt"
+Linux rushmore 2.4.10-ac4    941824 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.10-ac4    939209 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.10-ac4    932649 iterations on 41 files in 760 seconds
 
-----------------------------------------------------------------------------------------------------------------------
-Information transmitted by this E-MAIL is proprietary to Wipro and/or its Customers and
-is intended for use only by the individual or entity to which it is
-addressed, and may contain information that is privileged, confidential or
-exempt from disclosure under applicable law. If you are not the intended
-recipient or it appears that this mail has been forwarded to you without
-proper authority, you are notified that any use or dissemination of this
-information in any manner is strictly prohibited. In such cases, please
-notify us immediately at mailto:mailadmin@wipro.com and delete this mail
-from your records.
-----------------------------------------------------------------------------------------------------------------------
+Linux rushmore 2.4.11-pre2   914028 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.11-pre2   920055 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.11-pre2   924409 iterations on 41 files in 760 seconds
+
+All growfiles commands completed successfully!
 
 
---------------InterScan_NT_MIME_Boundary--
+Unique test PASS
+
+1st 2.4.11-pre2 run
+recv01      3  PASS  :  invalid recv buffer successful
+
+Unique test failures
+
+1st 2.4.10-ac4
+nanosleep02    1  FAIL  :  Child execution not suspended for 5 seconds
+nanosleep02    1  FAIL  :  child process exited abnormally
+
+
+
+vmstat steady state after the three runs:
+
+2.4.10-ac4
+
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  0  0 266620  68132 157876  11848   0   0     0     0  104    71   0   0 100
+
+2.4.11-pre2
+
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  0  0  12808 483932   2188  14368   1   0     1     0  103    71   0   0 100
+
+
+That is a snippet from the logfile after 3 runs completed.  It is not 
+the result of a single iteration of "vmstat".
+
+
+
+
+Here are some earlier results that were not using the same .config file.
+In these tests I was playing mp3's, running top, ps, etc watching what
+the tests do.  These were all with reiserfs.
+
+Linux rushmore 2.4.9-ac10 756999 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac10 903693 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac10 910502 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac17 728331 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac17 899508 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac17 903786 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac17 908911 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac17 914780 iterations on 41 files in 760 seconds
+Linux rushmore 2.4.9-ac18 907163 iterations on 41 files in 760 seconds
+
+-- 
+Randy Hron
+Linux News at http://lwn.net/
+-- 
+Randy Hron
+= Linux - because it's all about freedom =
+Linux News at http://lwn.net/
+

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290229AbSBORLv>; Fri, 15 Feb 2002 12:11:51 -0500
+	id <S290285AbSBORRc>; Fri, 15 Feb 2002 12:17:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290236AbSBORLl>; Fri, 15 Feb 2002 12:11:41 -0500
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:58630 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S290229AbSBORLc>; Fri, 15 Feb 2002 12:11:32 -0500
-Date: Fri, 15 Feb 2002 17:11:24 +0000
-From: Anton Altaparmakov <aia21@mole.bio.cam.ac.uk>
-To: Jos Hulzink <josh@stack.nl>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.5-pre1: mounting NTFS partitions -t VFAT
-In-Reply-To: <20020215112031.S68580-100000@toad.stack.nl>
-Message-ID: <Pine.SGI.4.33.0202151704500.893186-100000@mole.bio.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290284AbSBORRV>; Fri, 15 Feb 2002 12:17:21 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:18448
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S290259AbSBORRO>; Fri, 15 Feb 2002 12:17:14 -0500
+Date: Fri, 15 Feb 2002 11:51:47 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>, dirk.hohndel@intel.com
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215115147.A7528@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linux-Kernel list <linux-kernel@vger.kernel.org>,
+	dirk.hohndel@intel.com
+In-Reply-To: <3C6D3D9A.565EC59D@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C6D3D9A.565EC59D@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Feb 15, 2002 at 11:55:54AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Feb 2002, Jos Hulzink wrote:
-> Due to a recent change of filesystems, I found the following: 2.5.5-pre1
-> mounts my NTFS (win2k) partition as VFAT partition, if told to do so. The
-> kernel returns errors, but the mount is there. One write to the partition
-> was enough to destroy the entire NTFS partition.
->
-> Due to filesystem damage, I didn't test the behaviour of the VFAT driver
-> on other filesystems yet.
->
-> Kernel 2.4.17 also returns errors, but there the mount fails.
->
-> Will try to debug the problem myself this afternoon. Sounds like the VFAT
-> procedure ignores some errors.
+Jeff Garzik <jgarzik@mandrakesoft.com>:
+> I would find this pathetic, if it didn't make me so mad.
+> Making an end run around the system, are we, Eric?
 
-At a guess (V)FAT is not checking the OEM identifier in the bootsector
-which for NTFS is defined as "NTFS " (i.e. NTFS followed by four ASCII
-spaces, 0x20 char code. The OEMid is at offset 3 (bytes) into the
-bootsector.
+No.  I'm doing what Dirk Hohndel recommended I do during a phone call
+that happened at his initiative, last Friday morning.  
 
-If you just add a check to (v)fat boot sector sanity verification (it
-does have one right? if not it REALLY ought to have one...) and make sure
-the OEMid is not the ntfs one the fat driver will never touch the ntfs
-partition. Even better if it would check for the correct FAT oem id but I
-think there may be several different ones so it may be easier to just make
-sure it is not NTFS.
+What "system" would you be referring to, anyway, Jeff?  Is there some
+reason a respected open-source developer like Dirk who has concerns
+should not have a conversation with Linus to address problems he thinks
+are significant?  Is there some reason I should not have asked the kbuild
+team members to give him appropriate background?
 
-Best regards,
-
-Anton
-
+I don't understand what is upsetting you.  Is there some rule that all
+conversations with Linus must go through Jeff Garzik?  If so, I was never
+informed of it.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129433AbRBLWAe>; Mon, 12 Feb 2001 17:00:34 -0500
+	id <S129031AbRBLV7e>; Mon, 12 Feb 2001 16:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129536AbRBLWAP>; Mon, 12 Feb 2001 17:00:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32005 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129433AbRBLWAL>; Mon, 12 Feb 2001 17:00:11 -0500
-Subject: Re: LARGE bug with 2.4.1ac10 and loop filesystem
-To: mirceac@interplus.ro (Mircea Ciocan)
-Date: Mon, 12 Feb 2001 21:58:43 +0000 (GMT)
-Cc: Linux-kernel@vger.kernel.org
-In-Reply-To: <3A8855DB.8EEC1170@interplus.ro> from "Mircea Ciocan" at Feb 12, 2001 11:30:03 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129433AbRBLV7Y>; Mon, 12 Feb 2001 16:59:24 -0500
+Received: from ip290.boanxx1.adsl.tele.dk ([193.89.189.36]:3456 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130097AbRBLV7J>; Mon, 12 Feb 2001 16:59:09 -0500
+From: "John B. Jacobsen" <jbj_ss@mail.tele.dk>
+Message-Id: <200102122150.f1CLoNC00878@localhost.localdomain>
+Subject: RedHat 7.0 4.1 / lpd warning
+To: linux-kernel@vger.kernel.org
+Date: Mon, 12 Feb 2001 22:50:23 +0100 (CET)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14SQze-0008Ds-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->         Kernel 2.4.1ac9 works OK from that point of view.
+I got the following warning when I compiled
+kernel 2.4.0 and 2.4.1 :
 
-That was Im afraid pure luck. Jens is currently sorting out the loop problems
-and has test patches
+Starting lpd: Warning - lp: cannot open lp device '/dev/lp0' - No such device
+Warning - dj: cannot open lp device '/dev/lp0' - No such device
+
+Why is that ? /dev/lp surely exists !
+
+regards
+
+John
+  
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

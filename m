@@ -1,53 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288944AbSAETr2>; Sat, 5 Jan 2002 14:47:28 -0500
+	id <S281255AbSAETuR>; Sat, 5 Jan 2002 14:50:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288940AbSAETrS>; Sat, 5 Jan 2002 14:47:18 -0500
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:60400 "HELO
-	dardhal") by vger.kernel.org with SMTP id <S288944AbSAETrI>;
-	Sat, 5 Jan 2002 14:47:08 -0500
-Date: Sat, 5 Jan 2002 20:47:00 +0100
-From: =?iso-8859-1?Q?Jos=E9_Luis_Domingo_L=F3pez?= 
-	<jdomingo@internautas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020105194700.GB1283@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0112292256490.24031-100000@imladris.surriel.com> <3C2F04F6.7030700@athlon.maya.org> <3C309CDC.DEA9960A@megsinet.net> <20011231185350.1ca25281.skraw@ithnet.com> <3C351012.9B4D4D6@megsinet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3C351012.9B4D4D6@megsinet.net>
-User-Agent: Mutt/1.3.25i
+	id <S273261AbSAETt5>; Sat, 5 Jan 2002 14:49:57 -0500
+Received: from cs182172.pp.htv.fi ([213.243.182.172]:28549 "EHLO
+	cs182172.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S280725AbSAETtr>; Sat, 5 Jan 2002 14:49:47 -0500
+Message-ID: <3C3758B3.9A84693C@welho.com>
+Date: Sat, 05 Jan 2002 21:49:07 +0200
+From: Mika Liljeberg <Mika.Liljeberg@welho.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: mingo@elte.hu
+CC: Davide Libenzi <davidel@xmailserver.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
+In-Reply-To: <Pine.LNX.4.33.0201051232020.2542-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 03 January 2002, at 20:14:42 -0600,
-M.H.VanLeeuwen wrote:
+Ingo Molnar wrote:
+> this method of 'global RT tasks' has the following practical advantage: it
+> reduces the statistical scheduling latency of RT tasks better than any
+> other solution, because the scheduler *cannot* know in advance which CPU
+> will be able to get the RT task first. Think about it, what if the CPU,
+> that appears to be the least busy for the scheduler, happens to be
+> spinning within some critical section? The best method is to let every CPU
+> go into the scheduler as fast as possible, and let the fastest one win.
 
-> Here is what I've run thus far.  I'll add nfs file copy into the mix also...
-> System: SMP 466 Celeron 192M RAM, running KDE, xosview, and other minor apps.
->
-I applied your little patch "vmscan.patch.2.4.17.c" to a plain 2.4.17
-source tree, recompiled, and tried it. Swap usage is _much_ less than in
-original 2.4.17: hardware is a Pentium166 with 64 MB RAM and 75 MB
-swap, and my workload includes X 4.1.x, icewm, nightly Mozilla, several
-rxvt, gkrellm, some MP3 listening via XMMS, xchat, several links web
-browsers and a couple of little daemons runnig.
+Well, different RT tasks have different requirements and when multiple
+RT tasks are competing for the CPUs it gets more interesting. For
+instance, suppose that I have the MAC protocol for a software radio
+running on a dedicated CPU, clocking out a radio frame every 1 ms with
+very high time synchronization requirements. For this application I
+definately don't want my CPU suddenly racing to the door to see why the
+doorbell rang. :) This seems to suggest that it should be possible for a
+task to make itself non-interruptible, in which case it would not even
+receive reschedule IPIs for the global RT tasks.
 
-I have not done scientific measures on swap usage, but with your patch
-it seems caches don't grow too much, and swap is usually 10-20 MB lower
-than using plain 2.4.17. I have also observed in /proc/meminfo that
-"Inactive:" seems to be much lower with your patch.
+It also seems to me that when the number of CPUs gets higher, the
+average latency improvent gained for each additional CPU gets less and
+less. Perhaps for SMP systems with a high number of CPUs it would be
+more scalable to only interrupt a subset of the CPUs for the RT tasks in
+the global queue.
 
-If someone wants more tests/numbers done/reported, just ask.
+> George Anzinger @ Montavista has suggested the following extension to this
+> concept: besides having such global RT tasks, for some RT usages it makes
+> sense to have per-CPU 'affine' RT tasks. I think that makes alot of sense
+> as well, because if you care more about scalability than latencies, then
+> you can still flag your process to be 'CPU affine RT task', which wont be
+> included in the global queue, and thus you wont see the global locking
+> overhead and 'CPUs racing to run RT tasks'. I have reserved some priority
+> bitspace for such purposes.
 
-Hope this helps.
+This sounds like the very thing, although I think that key word here is
+"non-interruptible" rather than just "CPU-affine". If this is what you
+meant, I apologize for wasting everybody's time.
 
--- 
-José Luis Domingo López
-Linux Registered User #189436     Debian Linux Woody (P166 64 MB RAM)
- 
-jdomingo AT internautas DOT   org  => Spam at your own risk
+Regards,
 
+	MikaL

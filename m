@@ -1,24 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281297AbRKMAoT>; Mon, 12 Nov 2001 19:44:19 -0500
+	id <S281298AbRKMAr7>; Mon, 12 Nov 2001 19:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281298AbRKMAoC>; Mon, 12 Nov 2001 19:44:02 -0500
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:63505 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S281297AbRKMAnh>;
-	Mon, 12 Nov 2001 19:43:37 -0500
-Message-ID: <3BF06C63.6E34C24A@nyc.rr.com>
-Date: Mon, 12 Nov 2001 19:42:11 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S281326AbRKMArj>; Mon, 12 Nov 2001 19:47:39 -0500
+Received: from marine.sonic.net ([208.201.224.37]:1629 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S281298AbRKMArb>;
+	Mon, 12 Nov 2001 19:47:31 -0500
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Mon, 12 Nov 2001 16:47:27 -0800
+From: Mike Castle <dalgoda@ix.netcom.com>
 To: linux-kernel@vger.kernel.org
-Subject: PCMCIA and 2.4.15-pre4
+Subject: Re: File System Performance
+Message-ID: <20011112164727.C6749@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net> <3BEFF9D1.3CC01AB3@zip.com.au> <00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net> <3BF02702.34C21E75@zip.com.au> <200111121959.fACJxsj08462@vindaloo.ras.ucalgary.ca> <20011112150740.B32099@mikef-linux.matchmail.com> <200111130004.fAD04v912703@vindaloo.ras.ucalgary.ca> <20011112160822.E32099@mikef-linux.matchmail.com> <200111130026.fAD0QVK13232@vindaloo.ras.ucalgary.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200111130026.fAD0QVK13232@vindaloo.ras.ucalgary.ca>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having trouble with 2.4.15 and PCMCIA.  Anyone seeing similar
-problems?
+On Mon, Nov 12, 2001 at 05:26:31PM -0700, Richard Gooch wrote:
+> Having an option for tar would allow the user to make the choice.
+> Ultimately, the user knows best (or at least can, if they care enough
+> to sit down and think about it) what the access patterns will be.
+
+It also has the benefit of possibly being useful on other systems besides
+Linux.
+
+How many other systems suffers from the same/similar issue?
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

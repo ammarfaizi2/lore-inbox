@@ -1,27 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbUAUQst (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 11:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbUAUQst
+	id S265975AbUAUQxW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 11:53:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUAUQxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 11:48:49 -0500
-Received: from mail44-s.fg.online.no ([148.122.161.44]:56566 "EHLO
-	mail44-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S263609AbUAUQss (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 11:48:48 -0500
-To: linux-kernel@vger.kernel.org
-Subject: logging all input and output on a tty
-From: Esben Stien <executiv@online.no>
-Date: 21 Jan 2004 17:48:03 +0100
-Message-ID: <87ad4h5juk.fsf@online.no>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Jan 2004 11:53:22 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:39309 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S265975AbUAUQxV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 11:53:21 -0500
+Subject: Re: [patch] selinux build fix
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Kernel List <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <20040121161331.GA2531@bytesex.org>
+References: <20040121161331.GA2531@bytesex.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1074703969.9767.144.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Wed, 21 Jan 2004 11:52:49 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been trying to get an answer to tty logging for a long time without anyone able to answer. I want to log everything that is written to and from a certain tty. I expect this to be a kernel module. Anyone have any pointers where I can look?. Is there an existing module?
+On Wed, 2004-01-21 at 11:13, Gerd Knorr wrote:
+> trivial one: uses __init and thus needs linux/init.h
+
+Thanks for the fix.
 
 -- 
-b0ef
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

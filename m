@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQKMEFf>; Sun, 12 Nov 2000 23:05:35 -0500
+	id <S129819AbQKMFPU>; Mon, 13 Nov 2000 00:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKMEFQ>; Sun, 12 Nov 2000 23:05:16 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:10067 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129103AbQKMEFH>; Sun, 12 Nov 2000 23:05:07 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Peter H. Ruegg" <lkml@incense.org>
-cc: dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
-Subject: Re: Compile error with 2.4.0-test11-pre3 PCMCIA 
-In-Reply-To: Your message of "Sun, 12 Nov 2000 23:41:20 BST."
-             <Pine.GSO.4.21.0011122336350.18948-100000@stinky.trash.net> 
+	id <S130216AbQKMFPL>; Mon, 13 Nov 2000 00:15:11 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:34813 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S129819AbQKMFO5>;
+	Mon, 13 Nov 2000 00:14:57 -0500
+Date: Sun, 12 Nov 2000 21:14:41 -0800
+From: Greg KH <greg@wirex.com>
+To: tytso@mit.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
+Message-ID: <20001112211441.A24015@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, tytso@mit.edu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 13 Nov 2000 15:03:43 +1100
-Message-ID: <2616.974088223@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org>; from tytso@mit.edu on Sun, Nov 12, 2000 at 02:39:09PM -0500
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Nov 2000 23:41:20 +0100 (MET), 
-"Peter H. Ruegg" <lkml+nospam@incense.org> wrote:
->I just tried to compile my first 2.4-Kernel. While dep, bzImage and
->modules all seemed to work well, I've got the following errors while
->trying to make modules_install:
->
->depmod: *** Unresolved symbols in /lib/modules/2.4.0-test11-pre3/pcmcia/serial_cs.o
->depmod: 	mod_timer_R1f13d309
+On Sun, Nov 12, 2000 at 02:39:09PM -0500, tytso@mit.edu wrote:
+>      * USB: fix setting urb->dev in printer, acm, bluetooth, all serial
+>        drivers (Greg KH) {CRITICAL} (test10-pre1)
 
-Probably old version of modutils.  See Documentation/Changes.
+Confirmed, this is in the latest version and is fixed.
 
+thanks,
+
+greg k-h
+
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

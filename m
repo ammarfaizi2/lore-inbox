@@ -1,82 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293071AbSCRVpg>; Mon, 18 Mar 2002 16:45:36 -0500
+	id <S293041AbSCRVo0>; Mon, 18 Mar 2002 16:44:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293053AbSCRVpW>; Mon, 18 Mar 2002 16:45:22 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:26887 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S293048AbSCRVpI>;
-	Mon, 18 Mar 2002 16:45:08 -0500
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Mon, 18 Mar 2002 14:43:32 -0700
-To: linux-kernel@vger.kernel.org
-Subject: Print symbolic address of kernel and modules without extra data
-Message-ID: <20020318144332.F4783@host110.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S293048AbSCRVoR>; Mon, 18 Mar 2002 16:44:17 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:13278 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S293041AbSCRVoK>;
+	Mon, 18 Mar 2002 16:44:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [PATCH] get_pid() performance fix
+Date: Mon, 18 Mar 2002 16:44:58 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: "Rajan Ravindran" <rajancr@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <OF810580E6.8672B341-ON85256B73.005AF9B8@pok.ibm.com> <20020315183610.212993FE06@smtp.linux.ibm.com> <87zo19jdu7.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020318214402.10A833FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just added this to the PPC debugger and the strongARM panic code when I
-realized that I'm going to have to add this to MIPS, too.  Rather than
-that, I'll send it here with the hope that someone finds it useful.
+On Saturday 16 March 2002 12:12 am, OGAWA Hirofumi wrote:
+> Hubertus Franke <frankeh@watson.ibm.com> writes:
+> > On Friday 15 March 2002 10:16 am, OGAWA Hirofumi wrote:
+> > > Whoops! I'm sorry. previous email was the middle of writing.
+> > >
+> > > Hubertus Franke <frankeh@watson.ibm.com> writes:
+> > > > +	if (i == PID_MAP_SIZE) {
+> > > > +		if (again) {
+> > > > +			/* we didn't find any pid , sweep and try again */
+> > > > +			again = 0;
+> > > > +			memset(pid_map, 0, PID_MAP_SIZE * sizeof(unsigned long));
+> > > > +			last_pid = RESERVED_PIDS;
+> > > > +			goto repeat;
+> > > > +		}
+> > > > +		next_safe = RESERVED_PIDS;
+> > > > +		return 0;
+> > >
+> > > Probably, the bug is here. No bug ....
+> > >
+> > >
+> > >   +	next_safe = RESERVED_PIDS;	/* or 0 */
+> > >
+> > > > +	read_unlock(&tasklist_lock);
+> > > > +	spin_unlock(&lastpid_lock);
+> > > > +	return 0;
+> > > >  }
+> > >
+> > > Basically nice, I think.
+> > >
+> > > BTW, How about using the __set_bit(), find_next_zero_bit(), and
+> > > find_next_bit() in get_pid_by_map().
+> > >
+> > > Thanks for nice work.
+> >
+> > OGAWA, honestly I only tried testcase 2.
+> > But looking at your suggestion its not clear to me whether
+> > there is a bug.
+> > Remember we need to determine a valid interval [ last_pid .. next_safe ).
+> > In the pid_map function, if no pid is available, then
+> > [ PID_MAX .. PID_MAX ) will be returned.
+> > The other path should also end up with this as well.
+> > Could you  point where you see this not happening.
+>
+> Maybe my point was unclear. Sorry.
+>
+> Please consider what happens after using up pid. Then,
+> get_pid_by_map() returns 0.
+>
+> And last_pid = 0, next_safe = RESERVED_PIDS.  After it, get_pid()
+> returns the values between 0 and RESERVED_PIDS.
+>
+> And the line which I added is also the same reason.
+>
+> Regards.
 
-Consider this my contribution at the kernel-debugger and other dangerous
-technologies altar.
-
-Given an address, it prints out the symbolic name for it by digging
-through the module symbol table rather than stuffing gobs of system.map
-data into the kernel image.  It'll only pick up on EXPORT_SYMBOL() symbols
-but it's a lot better than having to figure out what has happened in a
-module that I've loaded on an embedded board with now r/w filesystem.
-
-#if defined(CONFIG_MODULES)
-#include <linux/module.h>
-
-static void lookup_print_addr(unsigned long addr)
-{
-	extern unsigned long *_end;
-	unsigned long best_match = 0; /* so far */
-	char best_match_string[60] = {0, }; /* so far */
-#if defined(CONFIG_MODULES)
-	struct module *mod;
-	struct module_symbol *sym;
-	int j;
-#endif
-
-	/* user addresses - just print user and return -- Cort */
-	if ( addr < PAGE_OFFSET )
-	{
-		printk("(user)");
-		return;
-	}
-
-	for (mod = module_list; mod; mod = mod->next)
-	{
-		for ( j = 0, sym = mod->syms; j < mod->nsyms; ++j, ++sym)
-		{
-			/* is this a better match than what we've
-			 * found so far? -- Cort */
-			if ( (sym->value < addr) &&
-			     ((addr - sym->value) < (addr - best_match)) )
-			{
-				best_match = sym->value;
-				/* kernelmodule.name is "" so we
-				 * have a special case -- Cort */
-				if ( mod->name[0] == 0 )
-					sprintf(best_match_string, "%s",
-						sym->name);
-				else
-					sprintf(best_match_string, "%s:%s",
-						sym->name, mod->name);
-			}
-		}
-	}
-
-	if ( best_match )
-		printk("(%s + 0x%x)", best_match_string, addr - best_match);
-	else
-		printk("(???)");
-}
-#endif /* CONFIG_MODULES */
+Hirofumi, yes you are right, "the thought was there, but the implementation 
+was weak".
+Proofs again, all these benchmarks are not enough. I'll make a new patch 
+soon and resubmit.
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

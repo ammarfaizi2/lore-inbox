@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269610AbUJFXgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269649AbUJFXgF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269610AbUJFXgE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:36:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269649AbUJFXcj
+	id S269649AbUJFXgF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUJFXcX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:32:39 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:14861 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S269581AbUJFXZb
+	Wed, 6 Oct 2004 19:32:23 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:58361 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S269610AbUJFX2f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:25:31 -0400
-Date: Thu, 07 Oct 2004 08:25:51 +0900 (JST)
-Message-Id: <20041007.082551.03458322.yoshfuji@linux-ipv6.org>
-To: aebr@win.tue.nl
-Cc: alan@lxorguk.ukuu.org.uk, davem@davemloft.net, martijn@entmoot.nl,
-       joris@eljakim.nl, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20041006221512.GE4523@pclin040.win.tue.nl>
-References: <00f201c4abf1$0444c3e0$161b14ac@boromir>
-	<1097094326.29871.9.camel@localhost.localdomain>
-	<20041006221512.GE4523@pclin040.win.tue.nl>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 6 Oct 2004 19:28:35 -0400
+Date: Wed, 06 Oct 2004 16:29:06 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Hanna Linder <hannal@us.ibm.com>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       paulus@samba.org, benh@kernel.crashing.org
+Subject: Re: [PATCH 2.6] [3/12] gemini_pci.c replace pci_find_device with pci_get_device
+Message-ID: <56110000.1097105346@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <307270000.1096934114@w-hlinder.beaverton.ibm.com>
+References: <307270000.1096934114@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20041006221512.GE4523@pclin040.win.tue.nl> (at Thu, 7 Oct 2004 00:15:12 +0200), Andries Brouwer <aebr@win.tue.nl> says:
+--On Monday, October 04, 2004 04:55:14 PM -0700 Hanna Linder <hannal@us.ibm.com> wrote:
 
-> (There may be many objections - maybe such a setup would break
-> more user space programs. Or maybe there are more ways select
-> is broken than just the "discarded because of bad checksum" way.
-> But it seems too early to just say "too bad, our select is not
-> the POSIX one".)
+> As pci_find_device is going away I have replaced this call with pci_get_device.
+> If someone with a PPC system could verify it I would appreciate it.
+> 
+> Hanna Linder
+> IBM Linux Technology Center
+> 
+> Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-select() != pselect(). :-)
+Reroll this patch to use new macro
 
---yoshfuji
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/gemini_pci.c linux-2.6.9-rc3-mm2patch2/arch/ppc/platforms/gemini_pci.c
+--- linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/gemini_pci.c	2004-09-29 20:04:25.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch2/arch/ppc/platforms/gemini_pci.c	2004-10-06 16:22:53.979890256 -0700
+@@ -15,7 +15,7 @@ void __init gemini_pcibios_fixup(void)
+ 	int i;
+ 	struct pci_dev *dev = NULL;
+ 	
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
++	for_each_pci_dev(dev) {
+ 		for(i = 0; i < 6; i++) {
+ 			if (dev->resource[i].flags & IORESOURCE_IO) {
+ 				dev->resource[i].start |= (0xfe << 24);
+

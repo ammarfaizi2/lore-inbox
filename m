@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270420AbTHETFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 15:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270429AbTHETFs
+	id S270618AbTHETBr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 15:01:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTHETBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 15:05:48 -0400
-Received: from holomorphy.com ([66.224.33.161]:34694 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270420AbTHETFq (ORCPT
+	Tue, 5 Aug 2003 15:01:47 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:65509 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S270618AbTHETBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 15:05:46 -0400
-Date: Tue, 5 Aug 2003 12:06:59 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] revert to static = {0}
-Message-ID: <20030805190659.GT32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>, Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <20030805174429.GA26933@gtf.org> <Pine.LNX.4.44.0308051949130.1849-100000@localhost.localdomain>
-Mime-Version: 1.0
+	Tue, 5 Aug 2003 15:01:45 -0400
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FINALLY caught a panic
+References: <20030805122354.GL13456@rdlg.net>
+	<Pine.LNX.4.53.0308050818130.7244@montezuma.mastecende.com>
+	<20030805135046.GO13456@rdlg.net>
+	<Pine.LNX.4.53.0308051003070.7244@montezuma.mastecende.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 05 Aug 2003 17:29:58 +0200
+In-Reply-To: <Pine.LNX.4.53.0308051003070.7244@montezuma.mastecende.com>
+Message-ID: <m3oez4t955.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308051949130.1849-100000@localhost.localdomain>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003, Jeff Garzik wrote:
->> If it's const, it shouldn't be linked into anything at all... right?
+Zwane Mwaikambo <zwane@arm.linux.org.uk> writes:
 
-On Tue, Aug 05, 2003 at 07:51:41PM +0100, Hugh Dickins wrote:
-> Sorry, Jeff, I don't get your point.
+> > Code:  Bad EIP value.
+> > 
+> > >>EIP; 8011c560 Before first symbol   <=====
+> > Trace; c011c47d <tasklet_hi_action+5d/90>
+> > Trace; c011c1ff <do_softirq+6f/d0>
+> > Trace; c0108bdb <do_IRQ+db/f0>
+> > Trace; c0105400 <default_idle+0/40>
+> > Trace; c0105400 <default_idle+0/40>
+> > Trace; c010ae78 <call_do_IRQ+5/d>
+> > Trace; c0105400 <default_idle+0/40>
+> > Trace; c0105400 <default_idle+0/40>
+> > Trace; c010542c <default_idle+2c/40>
+> > Trace; c01054a2 <cpu_idle+42/60>
+> > Trace; c0117e7f <release_console_sem+8f/a0>
+> > Trace; c0117d8e <printk+11e/140>
+> > 
+> >  <0>Kernel panic: Aiee, killing interrupt handler!
+> 
+> It looks like someone freed a tasklet without removing it.
 
-I suspect this assumes const values will get constant folded, which I'm
-not sure is the case, though it certainly sounds legal and worthwhile
-for a compiler to do when reasonable (i.e. for small structures and/or
-extractions of small fields of const structures).
-
-
--- wli
+Not sure, note that EIP=0x80xxx and not 0xC0xxx.
+-- 
+Krzysztof Halasa
+Network Administrator

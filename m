@@ -1,87 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264938AbSLTT03>; Fri, 20 Dec 2002 14:26:29 -0500
+	id <S265305AbSLTT33>; Fri, 20 Dec 2002 14:29:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264969AbSLTT03>; Fri, 20 Dec 2002 14:26:29 -0500
-Received: from packet.digeo.com ([12.110.80.53]:27298 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264938AbSLTT02>;
-	Fri, 20 Dec 2002 14:26:28 -0500
-Message-ID: <3E0370C1.21909EF5@digeo.com>
-Date: Fri, 20 Dec 2002 11:34:25 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH]Timer list init is done AFTER use
-References: <3E02D81F.13A5A59D@mvista.com> <3E02F073.BF57207C@digeo.com> <3E0350CA.6B99F722@mvista.com>
+	id <S265325AbSLTT33>; Fri, 20 Dec 2002 14:29:29 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8711 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265305AbSLTT2x>;
+	Fri, 20 Dec 2002 14:28:53 -0500
+Date: Fri, 20 Dec 2002 11:33:54 -0800
+From: Greg KH <greg@kroah.com>
+To: Burton Windle <bwindle@fint.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Please use the 'usbfs' filetype instead
+Message-ID: <20021220193354.GE12128@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20021220190538.GC12128@kroah.com> <Pine.LNX.4.43.0212201417500.2382-100000@morpheus> <20021220193050.GD12128@kroah.com> <20021220190538.GC12128@kroah.com> <Pine.LNX.4.43.0212201417500.2382-100000@morpheus> <Pine.LNX.4.43.0212201327410.2382-100000@morpheus> <20021220190538.GC12128@kroah.com> <Pine.LNX.4.43.0212201327410.2382-100000@morpheus>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Dec 2002 19:34:25.0592 (UTC) FILETIME=[CDFA4B80:01C2A85E]
+Content-Disposition: inline
+In-Reply-To: <20021220193050.GD12128@kroah.com> <Pine.LNX.4.43.0212201417500.2382-100000@morpheus> <20021220190538.GC12128@kroah.com> <Pine.LNX.4.43.0212201327410.2382-100000@morpheus>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
+Copied to lkml for others to refer to once 2.5.53 comes out...
+
+On Fri, Dec 20, 2002 at 01:29:41PM -0500, Burton Windle wrote:
+> Hello. I'm getting this message once per bootup, but I can't figure out
+> why.
 > 
-> Andrew Morton wrote:
-> >
-> > george anzinger wrote:
-> > >
-> > > On SMP systems the timer list init is done by way of a
-> > > cpu_notifier call.  This has two problems:
-> > >
-> > > 1.) Timers are started WAY before the cpu_notifier call
-> > > chain is executed.  In particular the console blanking timer
-> > > is deleted and inserted every time printk() is called.  That
-> > > this does not fail is only because the kernel has yet to
-> > > protect location zero.
-> >
-> > But init_timers() directly calls timer_cpu_notify(), which directly
-> > calls init_timers_cpu().
-> >
-> > So your patch appears to be a no-op for the boot CPU.
+> uhci-hcd 00:07.2: Intel Corp. 82371AB/EB/MB PIIX4
+> uhci-hcd 00:07.2: irq 11, io base 0000cce0
+> Please use the 'usbfs' filetype instead, the 'usbdevfs' name is depreciated.
+> drivers/usb/core/hcd.c: new USB bus registered, assigned bus number 1
+> hub 1-0:0: USB hub found
+> hub 1-0:0: 2 ports detected
 > 
-> That is correct.  The problem is when cpu_init is called for
-> the secondary cpus.  It almost immediately calls printk.
+> I see this change just started in 2.5.52-bk4. My /etc/fstab doesn't have
+> usbdevfs, it has usbfs.
+> 
+> I've grepped my entire /etc, and don't find any references to 'usbdevfs'.
+> Is this a warning about the kernel using it, or user-space using that
+> name? Can you offer a clue where I might find this, and correct it?
 
-OK.  So until that CPU sees it bit come on in smp_commenced_mask()
-it's not allowed to assume that it is running yet.
+Is this a Red Hat machine?
+If so, look in /etc/rc.sysinit.  That's where Red Hat mounts usbdevfs.
 
-> ...
-> My comments here are a wonderment if
-> this is the right thing to do when doing a hot swap of the
-> cpu.  I sort of doubt that this is correct.
+For a Debian box, it's done in /etc/hotplug/usb.rc.  I don't know where
+the other distros do this, but it's probably one of the above two
+places.
 
-I agree.  And from a quick read it does seem that ia32 is
-doing the right thing apart from calling printk.
+Don't worry, the usbdevfs name will stick around and work through 2.6,
+I'm just trying to warn people that it will go away in 2.7.
 
-I don't think we should make changes to the timer code because
-who knows what assumptions other console drivers could be making?
+Also, more recent 2.4 kernels support the usbfs name, if you want to
+change the rc.sysinit file and not worry about it anymore.
 
-I don't think we should carefully remove all printk() calls because
-printk() is supposed to be robust, and always callable.
+Hope this helps,
 
-The logical thing is to implement arch_consoles_callable().  Does
-this look workable?
-
-
-
---- 25/kernel/printk.c~ga	Fri Dec 20 11:32:05 2002
-+++ 25-akpm/kernel/printk.c	Fri Dec 20 11:33:14 2002
-@@ -43,7 +43,11 @@
- #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
- 
- #ifndef arch_consoles_callable
--#define arch_consoles_callable() (1)
-+/*
-+ * Some console drivers may assume that per-cpu resources have been allocated.
-+ * So don't allow them to be called by this CPU until it is officially up.
-+ */
-+#define arch_consoles_callable() cpu_online(smp_processor_id())
- #endif
- 
- /* printk's without a loglevel use this.. */
-
-_
+greg k-h

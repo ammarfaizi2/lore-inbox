@@ -1,33 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131300AbRBNTi5>; Wed, 14 Feb 2001 14:38:57 -0500
+	id <S131340AbRBNTta>; Wed, 14 Feb 2001 14:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131311AbRBNTih>; Wed, 14 Feb 2001 14:38:37 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24337 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131135AbRBNTiG>; Wed, 14 Feb 2001 14:38:06 -0500
-Subject: Re: longjmp problem
-To: labruna@cli.di.unipi.it (Elena Labruna)
-Date: Wed, 14 Feb 2001 19:38:10 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0102120802270.3423-100000@delta19.cli.di.unipi.it> from "Elena Labruna" at Feb 12, 2001 08:10:01 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131344AbRBNTtT>; Wed, 14 Feb 2001 14:49:19 -0500
+Received: from nic-31-c31-100.mn.mediaone.net ([24.31.31.100]:4224 "EHLO
+	nic-31-c31-100.mn.mediaone.net") by vger.kernel.org with ESMTP
+	id <S131340AbRBNTtN>; Wed, 14 Feb 2001 14:49:13 -0500
+Date: Wed, 14 Feb 2001 13:48:52 -0600 (CST)
+From: "Scott M. Hoffman" <scott@mediaone.net>
+X-X-Sender: <scott@nic-31-c31-100.mn.mediaone.net>
+Reply-To: <scott1021@mediaone.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops from updatedb?
+Message-ID: <Pine.LNX.4.32.0102141347190.1329-200000@nic-31-c31-100.mn.mediaone.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14T7kj-0005ne-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: MULTIPART/MIXED; BOUNDARY="521692191-370833262-982180132=:1329"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm working with a C package written by other
-> on a linux machine with kernel version 2.2.14,
-> often in a calls of longjmp routine
-> the system crash with a SIGSEGV signal. 
->  
-> Anyone can tell me if it can be a kernel problem ?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Unlikely. If it was kernel related you would see an Oops. 
+--521692191-370833262-982180132=:1329
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+Sorry about the last message, somehow got just the plain oops there.
 
 
+--521692191-370833262-982180132=:1329
+Content-Type: TEXT/plain; name="oops.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.32.0102141348520.1329@nic-31-c31-100.mn.mediaone.net>
+Content-Description: 
+Content-Disposition: attachment; filename="oops.txt"
 
+a3N5bW9vcHMgMi4zLjcgb24gaTY4NiAyLjQuMi1wcmUzLiAgT3B0aW9ucyB1
+c2VkDQogICAgIC1WIChkZWZhdWx0KQ0KICAgICAtayAvcHJvYy9rc3ltcyAo
+c3BlY2lmaWVkKQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0K
+ICAgICAtbyAvbGliL21vZHVsZXMvMi40LjItcHJlMy8gKGRlZmF1bHQpDQog
+ICAgIC1tIC91c3Ivc3JjL2xpbnV4L1N5c3RlbS5tYXAgKGRlZmF1bHQpDQoN
+CkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IFVuYWJs
+ZSB0byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZSBh
+dCB2aXJ0dWFsIGFkZHJlc3MgMDAwMDAwMDQNCkZlYiAxNCAwNDowMjozNyBu
+aWMtMzEtYzMxLTEwMCBrZXJuZWw6IGMwMTMyNzExDQpGZWIgMTQgMDQ6MDI6
+MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiAqcGRlID0gMDAwMDAwMDANCkZl
+YiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IE9vcHM6IDAw
+MDINCkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IENQ
+VTogICAgMA0KRmViIDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEtMTAwIGtlcm5l
+bDogRUlQOiAgICAwMDEwOltfX3JlbW92ZV9pbm9kZV9xdWV1ZSsxNy8zMl0N
+CkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IEVGTEFH
+UzogMDAwMTAyMDYNCkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBr
+ZXJuZWw6IGVheDogMDAwMDAwMDAgICBlYng6IGM2MzIyOGMwICAgZWN4OiAw
+MDAwMDAwMCAgIGVkeDogMDAwMDAwMDANCkZlYiAxNCAwNDowMjozNyBuaWMt
+MzEtYzMxLTEwMCBrZXJuZWw6IGVzaTogYzYzMjI4YzAgICBlZGk6IGM2MzIy
+OGMwICAgZWJwOiAwMDAwMDAwMCAgIGVzcDogYzRjYzdkNjQNCkZlYiAxNCAw
+NDowMjozNyBuaWMtMzEtYzMxLTEwMCBrZXJuZWw6IGRzOiAwMDE4ICAgZXM6
+IDAwMTggICBzczogMDAxOA0KRmViIDE0IDA0OjAyOjM3IG5pYy0zMS1jMzEt
+MTAwIGtlcm5lbDogUHJvY2VzcyB1cGRhdGVkYiAocGlkOiAzNzczLCBzdGFj
+a3BhZ2U9YzRjYzcwMDApDQpGZWIgMTQgMDQ6MDI6MzcgbmljLTMxLWMzMS0x
+MDAga2VybmVsOiBTdGFjazogYzAxMzRiZjkgYzYzMjI4YzAgMDAwMDAwMDMg
+YzIyN2UyODAgMDAwMDAwMDAgMDAwMDAwMDAgYzAxNTAzOWMgMDAwMDAwMDAg
+DQpGZWIgMTQgMDQ6MDI6MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiAgICAg
+ICAgYzEwYTY2NmMgMDAwMDAwMDAgMDAwMDAwMDcgYzAxMmIxYjcgYzEwYTY2
+NmMgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAgDQpGZWIgMTQgMDQ6MDI6
+MzcgbmljLTMxLWMzMS0xMDAga2VybmVsOiAgICAgICAgMDAwMDAwMDAgMDAw
+MDE2YmIgMDAwMDQwYzggMDAwMDAwMDAgMDAwMDEwMDAgMDAwMDAwMGQgMDAw
+MDAzMDMgMDAwMzBlYTkgDQpGZWIgMTQgMDQ6MDI6MzcgbmljLTMxLWMzMS0x
+MDAga2VybmVsOiBDYWxsIFRyYWNlOiBbdHJ5X3RvX2ZyZWVfYnVmZmVycysx
+MDUvMzY4XSBbZXh0Ml9nZXRfYmxvY2srNDQvMTI2NF0gW3BhZ2VfbGF1bmRl
+cis4NzEvMjIwOF0gW3JlZmlsbF9mcmVlbGlzdCszMS80OF0gW2dldGJsaysy
+NTAvMjU2XSBbZXh0Ml9nZXRibGsrMTA2LzIyNF0gW2V4dDJfcmVhZF9pbm9k
+ZSsyNTgvOTc2XSANCkZlYiAxNCAwNDowMjozNyBuaWMtMzEtYzMxLTEwMCBr
+ZXJuZWw6IENvZGU6IDg5IDUwIDA0IDg5IDAyIGMzIDg5IGY2IDhkIGJjIDI3
+IDAwIDAwIDAwIDAwIDhiIDU0IDI0IDA0IDMxIA0KVXNpbmcgZGVmYXVsdHMg
+ZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkzODYNCg0KQ29kZTsg
+IDAwMDAwMDAwIEJlZm9yZSBmaXJzdCBzeW1ib2wNCjAwMDAwMDAwIDxfRUlQ
+PjoNCkNvZGU7ICAwMDAwMDAwMCBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICAw
+OiAgIDg5IDUwIDA0ICAgICAgICAgICAgICAgICAgbW92ICAgICVlZHgsMHg0
+KCVlYXgpDQpDb2RlOyAgMDAwMDAwMDMgQmVmb3JlIGZpcnN0IHN5bWJvbA0K
+ICAgMzogICA4OSAwMiAgICAgICAgICAgICAgICAgICAgIG1vdiAgICAlZWF4
+LCglZWR4KQ0KQ29kZTsgIDAwMDAwMDA1IEJlZm9yZSBmaXJzdCBzeW1ib2wN
+CiAgIDU6ICAgYzMgICAgICAgICAgICAgICAgICAgICAgICByZXQgICAgDQpD
+b2RlOyAgMDAwMDAwMDYgQmVmb3JlIGZpcnN0IHN5bWJvbA0KICAgNjogICA4
+OSBmNiAgICAgICAgICAgICAgICAgICAgIG1vdiAgICAlZXNpLCVlc2kNCkNv
+ZGU7ICAwMDAwMDAwOCBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICA4OiAgIDhk
+IGJjIDI3IDAwIDAwIDAwIDAwICAgICAgbGVhICAgIDB4MCglZWRpLDEpLCVl
+ZGkNCkNvZGU7ICAwMDAwMDAwZiBCZWZvcmUgZmlyc3Qgc3ltYm9sDQogICBm
+OiAgIDhiIDU0IDI0IDA0ICAgICAgICAgICAgICAgbW92ICAgIDB4NCglZXNw
+LDEpLCVlZHgNCkNvZGU7ICAwMDAwMDAxMyBCZWZvcmUgZmlyc3Qgc3ltYm9s
+DQogIDEzOiAgIDMxIDAwICAgICAgICAgICAgICAgICAgICAgeG9yICAgICVl
+YXgsKCVlYXgpDQoNCg==
+--521692191-370833262-982180132=:1329--

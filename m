@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264883AbUD2QxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUD2Q4C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbUD2QxP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 12:53:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUD2QxP
+	id S264884AbUD2Q4C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 12:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUD2Q4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 12:53:15 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:31971 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264883AbUD2QxN (ORCPT
+	Thu, 29 Apr 2004 12:56:01 -0400
+Received: from fire.osdl.org ([65.172.181.4]:50081 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S264884AbUD2Qz7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 12:53:13 -0400
-Date: Thu, 29 Apr 2004 09:50:50 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       brettspamacct@fastclick.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <51560000.1083257450@flay>
-In-Reply-To: <20040428194039.4b1f5d40.akpm@osdl.org>
-References: <409021D3.4060305@fastclick.com><20040428170106.122fd94e.akpm@osdl.org><409047E6.5000505@pobox.com><40905127.3000001@fastclick.com><20040428180038.73a38683.akpm@osdl.org><16528.23219.17557.608276@cargo.ozlabs.ibm.com><20040428185342.0f61ed48.akpm@osdl.org> <20040428194039.4b1f5d40.akpm@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Apr 2004 12:55:59 -0400
+Subject: Re: Linux 2.6.6-rc3
+From: Craig Thomas <craiger@osdl.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040429005959.GB5692@zip.com.au>
+References: <Pine.LNX.4.58.0404271858290.10799@ppc970.osdl.org>
+	 <1083200520.1923.111.camel@bullpen.pdx.osdl.net>
+	 <20040429005959.GB5692@zip.com.au>
+Content-Type: text/plain
+Message-Id: <1083258653.1923.159.camel@bullpen.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 29 Apr 2004 10:10:53 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  I suspect rsync is taking two passes across the source files for its
->>  checksumming thing.  If so, this will defeat the pagecache use-once logic. 
->>  The kernel sees the second touch of the pages and assumes that there will
->>  be a third touch.
+On Wed, 2004-04-28 at 17:59, CaT wrote:
+> On Wed, Apr 28, 2004 at 06:02:00PM -0700, Craig Thomas wrote:
+> > On Tue, 2004-04-27 at 19:03, Linus Torvalds wrote:
+> > > s390, cifs, ntfs, ppc, ppc64, cpufreq upates. Oh, and DVB and USB.
+> > > 
+> > > I'm hoping to do a final 2.6.6 later this week, so I'm hoping as many 
+> > > people as possible will test this.
+> > 
+> > OSDL is nearly complete with their automated tests.  Tests 
+> > completed so far:
 > 
-> OK, a bit of fiddling does indicate that if a file is present on both
-> client and server, and is modified on the client, the rsync client will
-> indeed touch the pagecache pages twice.  Does this describe the files which
-> you're copying at all?
-> 
-> One thing you could do is to run `watch -n1 cat /proc/meminfo'.  Cause lots
-> of memory to be freed up then do the copy.  Monitor the size of the active
-> and inactive lists.  If the active list is growing then we know that rsync
-> is touching pages twice.
-> 
-> That would be an unfortunate special-case.
+> Would it be possible to get results for the latest 2.4 to compare it
+> with? To see if it looks like it's doing better, worse or thesame. 2.4
+> comes out less often so it shouldn't be much of a hassle (right? :)
 
-Personally, I think that the use-twice logic is a bit of a hack that mostly
-works. If we moved to a method where we kept an eye on which pages are 
-associated with which address_space (for mapped pages) or which process
-(for anonymous pages) we'd have a much better shot at stopping any one
-process / file from monopolizing the whole of system memory. 
+Done and posted.  
 
-We'd also be able to favour memory for files that are still open over ones 
-that have been closed, and recognize linear access scan patterns per file,
-and reclaim more agressively from the overscanned areas, and favour higher
-prio tasks over lower prio ones (including, but not limited to interactive).
-
-Global LRU (even with the tweaks it has in Linux) doesn't seem optimal.
-
-M.
+The DBT3-pgsql test will fail on 2.4 at this time due to LVM2
+and PostgreSQL interoperability issues with the 2.6 kernel.  We
+have been focusing on the 2.6 kernel, so we have not had a chance to
+get that test working on 2.4, but if anyone wants to fix it for 2.4,
+we'll be more than happy to run it.
 

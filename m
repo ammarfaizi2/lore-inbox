@@ -1,50 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbTCZSiX>; Wed, 26 Mar 2003 13:38:23 -0500
+	id <S261407AbTCZSgc>; Wed, 26 Mar 2003 13:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbTCZSiX>; Wed, 26 Mar 2003 13:38:23 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62736 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261401AbTCZSiU>; Wed, 26 Mar 2003 13:38:20 -0500
-Date: Wed, 26 Mar 2003 10:34:26 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Greg KH <greg@kroah.com>, <linux-usb-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] USB changes for 2.5.66
-In-Reply-To: <Pine.LNX.3.96.1030326131317.8110E-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44.0303261029220.15530-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261623AbTCZSgc>; Wed, 26 Mar 2003 13:36:32 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:55248 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261407AbTCZSgb>; Wed, 26 Mar 2003 13:36:31 -0500
+Subject: Re: Can not open '/dev/sg0' - attach failed.
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Norbert Wolff <norbert_wolff@t-online.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030326173446.3980a177.norbert_wolff@t-online.de>
+References: <20030326173446.3980a177.norbert_wolff@t-online.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048704454.598.11.camel@teapot>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 26 Mar 2003 19:47:34 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 26 Mar 2003, Bill Davidsen wrote:
+On Wed, 2003-03-26 at 18:34, Norbert Wolff wrote:
+> On Wed, 26 Mar 2003 21:00:22 +0530
+> "Subramanian, M (MED)" <M.Subramanian@geind.ge.com> wrote:
 > 
-> Another "bk-only" patch. Guess I'd better look at the free (as in license,
-> not cost) clone again.
+> > cdrecord error
+> > ==============
+> > 
+> > scsibus: 1 target: 0 lun: 0
+> > Cannot open '/dev/sg0'
+> > 
+> > lsmod
+> > 
+> > Module                  Size  Used by
+> > sg                     26688   0 
+> > ide-scsi                8352   0 
+> > ide-cd                 26848   0 
+> > cdrom                  27232   0  [ide-cd]
+> 
+> High !
+> 
+> Your cdrom-Module seems to use the ide-cd-driver, so cdrecord's lib which needs 
+> SCSI-emulation for IDE-Drives (I think your CD-RW is an IDE-one ?) cannot work.
+> 
+> You need to load the sr-Driver (Driver for SCSI-CDRoms) instead of the
+> ide-cd-driver.
 
-Well, since BK has made it so trivial for me to merge with Greg, the thing 
-is already integrated into my tree, and as a result the patches should 
-already have been sent out on the patch lists by the robots, and the 
-snapshots will follow shortly as the automation decides to kick in.
+Maybe he should boot the kernel with "hdx=ide-scsi" appended to force
+using IDE-SCSI emulation on his CD-RW drive.
 
-In short, give BK the credit it deserves. You get all the information you
-want, and the fact that you depend on and force yourself to use inferior
-tools is not the fault of BK.
-
-In other words: _despite_ your luddite ways you actually have more
-information available to you than you would have had without BK.
-
-So stop whining about BK. Put up or shut up - you get timely non-BK 
-snapshots, and the fact that others see the value of their tools in the 
-things they do for them shouldn't be an issue for _you_.
-
-Stay in the stone age if you wish, but don't expect your stone-age 
-muscle-propellered log car to go as fast as the rocket of the future. And 
-don't complain to us who don't want to expend energy on stuff that 
-shouldn't need it. We've got better tools.
-
-			Linus
+Another possibility is reconfiguring cdrecord to use "ATAPI=" or
+"/dev/hdx" device naming conventions, thus using ATAPI instead of 
+IDE-SCSI. I have been doing this as IDE-SCSI in 2.5 is not stable
+enough.
+> 
+> ______________________________________________________________________
+>        Felipe Alfaro Solana
+>    Linux Registered User #287198
+> http://counter.li.org
 

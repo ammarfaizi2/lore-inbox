@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbULECmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbULECrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbULECmv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 21:42:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbULECmv
+	id S261231AbULECrv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 21:47:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbULECru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 21:42:51 -0500
-Received: from hera.kernel.org ([63.209.29.2]:6549 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261230AbULECmn (ORCPT
+	Sat, 4 Dec 2004 21:47:50 -0500
+Received: from holomorphy.com ([207.189.100.168]:35527 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261231AbULECrt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 21:42:43 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: kernel CVS is malfunctioning
-Date: Sun, 5 Dec 2004 02:42:38 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cotsiu$iuf$1@terminus.zytor.com>
-References: <20041204032723.GX32635@dualathlon.random> <m3is7iezcu.fsf@athlon.kvaalen.no>
+	Sat, 4 Dec 2004 21:47:49 -0500
+Date: Sat, 4 Dec 2004 18:47:13 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Andrea Arcangeli <andrea@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
+Message-ID: <20041205024713.GM2714@holomorphy.com>
+References: <20041130180337.GT4365@dualathlon.random> <E1Cajei-00040t-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1102214558 19408 127.0.0.1 (5 Dec 2004 02:42:38 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sun, 5 Dec 2004 02:42:38 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1Cajei-00040t-00@mta1.cl.cam.ac.uk>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <m3is7iezcu.fsf@athlon.kvaalen.no>
-By author:    =?iso-8859-1?q?H=E5vard_Kv=E5len?= <havardk@kvaalen.no>
-In newsgroup: linux.dev.kernel
->
-> Andrea Arcangeli <andrea@suse.de> writes:
-> 
-> > The kernel CVS seems screwed. cvsps -x --bkcvs tells there are 2
-> > checkins.
-> 
-> This has already been reported to linux-kernel:
-> 
-> | From: Larry McVoy <lm@bitmover.com>
-> | To: linux-kernel@vger.kernel.org
-> | Subject: [BK2CVS] locking problems on kernel.org
-> | Date:  Fri, 3 Dec 2004 06:53:07 -0800
-> | Message-Id: <200412031453.iB3Er70l003000@work.bitmover.com>
-> |
-> | The last few days the locking mechanism on kernel.org has been broken.
-> | The result is that the CVS export tree isn't getting updated.  I've mailed
-> | the admins and gotten no response, does anyone know who manages that
-> | machine?
-> 
+On Tue, Nov 30, 2004 at 01:16:56PM +0000, Ian Pratt wrote:
+>> Only sparc implements io_remap_page_range differently from
+>> remap_pte_range and from Wli answer I understand it's probably ok for
+>> sparc to use io_remap_page_range outside ram.
 
-I sent back a reply saying "we don't see anything wrong with the
-locking mechanism, details please?"
+On Sat, Dec 04, 2004 at 11:49:32PM +0000, Ian Pratt wrote:
+> So, do we think the best /dev/mem patch is to change the call to
+> io_remap_page_range, and have a #ifdef for the SPARC case until
+> the number of arguments gets unified?
 
-Now, the *UPLOAD* mechanism was broken for a while.  That has been
-fixed.
+Yes, that effort is not going to be completed in a timely fashion, so
+the #ifdef will have to do for now. I'll clean up the #ifdef once I
+actually get back to working on it and do the sweep.
 
-	-hpa
+
+-- wli

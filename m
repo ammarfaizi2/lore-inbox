@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131936AbRAPUER>; Tue, 16 Jan 2001 15:04:17 -0500
+	id <S131876AbRAPUER>; Tue, 16 Jan 2001 15:04:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131848AbRAPUEI>; Tue, 16 Jan 2001 15:04:08 -0500
-Received: from vela.salleURL.edu ([130.206.42.85]:6665 "EHLO vela.salleURL.edu")
-	by vger.kernel.org with ESMTP id <S131876AbRAPUEE>;
-	Tue, 16 Jan 2001 15:04:04 -0500
-Date: Tue, 16 Jan 2001 21:17:53 +0000 (GMT)
-From: Carles Pina i Estany <is08139@salleURL.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Name of SCSI Device
-Message-ID: <Pine.LNX.4.30.0101162111550.15252-100000@vela.salleURL.edu>
+	id <S131936AbRAPUEH>; Tue, 16 Jan 2001 15:04:07 -0500
+Received: from h57s242a129n47.user.nortelnetworks.com ([47.129.242.57]:46553
+	"EHLO zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S131848AbRAPUD6>; Tue, 16 Jan 2001 15:03:58 -0500
+Message-ID: <3A64A6EF.7851AE1E@nortelnetworks.com>
+Date: Tue, 16 Jan 2001 14:54:23 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> of "Tue,
+            16 Jan 2001 12:04:57 EST." <3A647F39.EC62BB81@didntduck.org> <20010116182307Z131259-403+875@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@americasm01.nt.com>
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Timur Tabi wrote:
+ 
+> And this is a problem that has plagues all PC operating systems, but has never
+> been a problem on the Macintosh.  Why?  Because the Mac was designed to handle
+> this problem, but the PC never was.
+> 
+> The Mac never enumerates its devices like the PC does (no C: D: etc, no
+> /dev/sda, /dev/sdb, or anything like that).  It also remembers the boot device
+> in its EEPROM (the Startup Disk Control Panel handles this).
 
-Hi,
+Are you sure about that?  According to my documentation on installing linux on a G4
+with scsi disks, you need to specify a device enumeration string like the following
+to tell the system where to look for the boot device:
 
-When we install a IDE hard disk drive, and configure as Master and connect
-on Primary IDE Interface, this disk WILL BE ALWAYS hda. We can install
-other hard disks (e.g. hdb, hdc...) but the disk that it is connected as
-hda, will not change.
+/pci@f2000000/pci-bridge@d/ATTO,ExpressPCIProUL2D@4,1/@6:5
 
-If we install a SCSI hard disk drive, with ID3, an nothing on ID1 or ID2,
-will be sda. If we install a new disk on ID1, the drive that before was
-sda now change the name to sdb.
+where the '6' is the SCSI ID of the drive, and the '5' is the partition number of the
+boot partition.  So if you change SCSI IDs or add a new partition and change the
+partition numbering of the drive, your computer can't boot anymore.
 
-Or, if we have:
-sda ID1
-sdb ID2
-sdc ID3
-sdd ID4
+Chris
 
-And we remove sda, then sdb change to sda, sdc to sdb, sdd to sdc.
 
-Why the name of hard disk drive of SCSI Controller are not fixed?
-ID0=sda
-ID1=sdb
-ID2=sdc
-...
-
-Then, it is possible that we must change /etc/fstab
-
-Then, if I have a disk with ID3, I can connect on all computers and ALWAYS
-is sdc, I don't count how many disks are before, etc.
-
-I don't understand why the name change...
-
-There are any reason?
-
-Thank you very much.
-
-----
-Carles Pina i Estany
-   E-Mail: cpina@linuxfan.com || #ICQ: 14446118 || Nick: Pinux
-   URL: http://www.salleurl.edu/~is08139
-   Ley de Murphy: Si algo puede fallar, fall<NO CARRIER>
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

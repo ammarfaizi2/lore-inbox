@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313063AbSC0TBB>; Wed, 27 Mar 2002 14:01:01 -0500
+	id <S313077AbSC0TEV>; Wed, 27 Mar 2002 14:04:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313071AbSC0TAv>; Wed, 27 Mar 2002 14:00:51 -0500
-Received: from mail.gmx.net ([213.165.64.20]:12602 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S313063AbSC0TAo>;
-	Wed, 27 Mar 2002 14:00:44 -0500
-Message-ID: <3CA216C2.8CA0D6F5@gmx.net>
-Date: Wed, 27 Mar 2002 20:00:18 +0100
-From: Gunther Mayer <gunther.mayer@gmx.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S313076AbSC0TEN>; Wed, 27 Mar 2002 14:04:13 -0500
+Received: from windsormachine.com ([206.48.122.28]:27150 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S313071AbSC0TD4>; Wed, 27 Mar 2002 14:03:56 -0500
+Date: Wed, 27 Mar 2002 14:03:44 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+In-Reply-To: <Pine.LNX.4.44.0203271038020.22241-100000@twin.uoregon.edu>
+Message-ID: <Pine.LNX.4.33.0203271403130.30692-100000@router.windsormachine.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: USB Microsoft Natural KeyB not recogniced as a HID device
-In-Reply-To: <20020325183011.GA29011@kroah.com> <Pine.LNX.4.30.0203251957590.5375-200000@stud.fbi.fh-darmstadt.de> <20020325192216.GD29011@kroah.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
-> On Mon, Mar 25, 2002 at 08:07:21PM +0100, Jan-Marek Glogowski wrote:
-> > Hi Greg
-> >
-> > [schnipp]
-> > > Can you try the patches at:
-> > >       http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101684196109355
-> > > and also:
-> > >       http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101684207509482
-> > >
-> > > And let us know if they help you out?
-> > [schnapp]
-> >
-> > Applied both patches - the keyboard is detected again, but I still have
-> > some errors in the lsusb-output (see attachment).
+
+On Wed, 27 Mar 2002, Joel Jaeggli wrote:
+
+> On Wed, 27 Mar 2002, Mike Dresser wrote:
 >
-> Sounds like a device that is lying about it's strings.  If the device
-> works, I wouldn't worry about it :)
+> > On Wed, 27 Mar 2002, Alan Cox wrote:
+> >
+> > > Neither. It will drop to a much lower clock speed. You can set it to overheat
+> > > and blow up but thats a mostly undocumented mtrr 8) The default behaviour is
+> >
+> > Will Tom's Hardware Guide film this for us, if we ask politely? :)
+>
+> they've already filmed one not catching fire...
 
-Greg, bad guessing. This is not the device's fault but the linux usb
-drivers are buggy.
+It's the undocumented mtrr that I'm interested in!
 
-The messages:
-        bInterfaceClass cannot get string descriptor 1, error = Broken
-pipe(32)
-        cannot get string descriptor 2, error = Broken pipe(32)
-
-go away after "rmmod hid" (or whatever driver is using the device).
-
-This is a long standing bug.
-
-Regards, Gunther
+mike
 

@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262648AbSJWQ16>; Wed, 23 Oct 2002 12:27:58 -0400
+	id <S265071AbSJWQc6>; Wed, 23 Oct 2002 12:32:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbSJWQ16>; Wed, 23 Oct 2002 12:27:58 -0400
-Received: from [213.95.15.193] ([213.95.15.193]:36356 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262648AbSJWQ15>;
-	Wed, 23 Oct 2002 12:27:57 -0400
-To: Stephen Smalley <sds@tislabs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove sys_security
-References: <20021023155457.L2732@redhat.com.suse.lists.linux.kernel> <Pine.GSO.4.33.0210231112420.7042-100000@raven.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 23 Oct 2002 18:33:58 +0200
-In-Reply-To: Stephen Smalley's message of "23 Oct 2002 18:11:10 +0200"
-Message-ID: <p73fzuxru6h.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S265077AbSJWQc6>; Wed, 23 Oct 2002 12:32:58 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:62176 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S265071AbSJWQc5>; Wed, 23 Oct 2002 12:32:57 -0400
+Message-ID: <3DB6CF9E.327E165F@us.ibm.com>
+Date: Wed, 23 Oct 2002 09:34:38 -0700
+From: Nivedita Singhvi <niv@us.ibm.com>
+X-Mailer: Mozilla 4.72 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+CC: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: O_DIRECT sockets? (was [RESEND] tuning linux for high network 
+ performance?)
+References: <200210231218.18733.roy@karlsbakk.net> <20021023130101.GA646@outpost.ds9a.nl> <3DB6B96F.A0DE47BF@us.ibm.com> <200210231726.21135.roy@karlsbakk.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley <sds@tislabs.com> writes:
+Roy Sigurd Karlsbakk wrote:
 
-> If we migrate SELinux to using extended attributes to store file security
-> contexts (pending their merging into 2.5), 
+> I'm doing O_DIRECT read (from disk), so it needs to be user -> kernel, then.
+> 
+> any chance of using O_DIRECT to the socket?
 
+Hmm, I'm still not clear on why you cannot use sendfile()?
+I was not aware of any upper limit to the file size in order
+for sendfile() to be used?  From what little I know, this 
+is exactly the kind of situation that sendfile was intended
+to benefit. 
 
-You can already use extended attributes in 2.5. Just not with ext2/3/reiserfs
-yet, only with JFS and XFS.
-
-
--Andi
+thanks,
+Nivedita

@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbULKAOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbULKASa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261876AbULKAOf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 19:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbULKAOf
+	id S261882AbULKASa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 19:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbULKASa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 19:14:35 -0500
-Received: from fw.osdl.org ([65.172.181.6]:23482 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261876AbULKAOb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 19:14:31 -0500
-Date: Fri, 10 Dec 2004 16:18:35 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: clameter@sgi.com, torvalds@osdl.org, benh@kernel.crashing.org,
-       nickpiggin@yahoo.com.au, linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: page fault scalability patch V12 [0/7]: Overview and
- performance tests
-Message-Id: <20041210161835.5b0b0828.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0412102346470.521-100000@localhost.localdomain>
-References: <20041210141258.491f3d48.akpm@osdl.org>
-	<Pine.LNX.4.44.0412102346470.521-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 10 Dec 2004 19:18:30 -0500
+Received: from 66.238.42.11.ptr.us.xo.net ([66.238.42.11]:37030 "EHLO
+	mail.petta-tech.com") by vger.kernel.org with ESMTP id S261882AbULKASY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 19:18:24 -0500
+Date: Fri, 10 Dec 2004 16:18:23 -0800
+From: Eric Wong <eric@petta-tech.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Julien Langer <jlanger@zigweb.de>, linux-kernel@vger.kernel.org
+Subject: Re: Sil3112 and Seagate ST3160023AS
+Message-ID: <20041211001823.GA14951@r40.bogomips.org>
+References: <1102691231.3921.13.camel@moeff> <41B9E224.9030705@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Content-Disposition: inline
+In-Reply-To: <41B9E224.9030705@pobox.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> On Fri, 10 Dec 2004, Andrew Morton wrote:
-> > Hugh Dickins <hugh@veritas.com> wrote:
-> > >
-> > > > > (I do wonder why do_anonymous_page calls mark_page_accessed as well as
-> > > > > lru_cache_add_active.  The other instances of lru_cache_add_active for
-> > > > > an anonymous page don't mark_page_accessed i.e. SetPageReferenced too,
-> > > > > why here?  But that's nothing new with your patch, and although you've
-> > > > > reordered the calls, the final page state is the same as before.)
-> > 
-> > The point is a good one - I guess that code is a holdover from earlier
-> > implementations.
-> > 
-> > This is equivalent, no?
-> 
-> Yes, it is equivalent to use SetPageReferenced(page) there instead.
-> But why is do_anonymous_page adding anything to lru_cache_add_active,
-> when its other callers leave it at that?  What's special about the
-> do_anonymous_page case?
 
-do_swap_page() is effectively doing the same as do_anonymous_page(). 
-do_wp_page() and do_no_page() appear to be errant.
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Jeff Garzik <jgarzik@pobox.com> wrote:
+> Julien Langer wrote:
+> >Is there a way to disable this fix, which slows down my drive, since it
+> >worked fine for a long time without this fix on older kernel versions?
+> >I'm using the deprecated ide driver for the sil controller, not libata.
+>=20
+> Unfortunately it's just a matter of time until you hit a problem,=20
+> without the errata fix that causes the performance loss.
+=20
+It's been 11 months with my ST3160023AS 3.05 and SiI 3112 (rev 02) under
+fairly heavy use and I haven't noticed anything wrong.
+
+I think I've read somewhere that rev 2 of the SiI 3112 is safe, and that
+might be why I'm alright.  Unfortunately, the sata_sil blacklist
+implementation I wrote at the time doesn't seem to account for the
+revision of either the drive nor the controller.
+
+My experiences: (purely anecdotal evidence, ymmv)
+
+Stability has been nothing but solid, the box they're on is on 24/7 as
+an NFS server housing mainly FLAC audio and multiple Arch archives and
+a build daemon (which means revision libraries and working trees exist
+too)
+
+Neither Arch archives/working trees/revision libraries nor my FLAC audio
+collection has shown any inconsistency (but then again MD5 used by both
+Arch and FLAC has been proven broken lately).  I'll fix up an Arch
+script to check the SHA1 and the MD5 checksums sometime this weekend
+(the newer commits are double checksummed).  Arch revision library
+consistency is checked by tla via inode signatures, and those haven't
+burped on me, either.
+
+--=20
+Eric Wong
+
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBujzPcodMowuNYfcRAiyoAJ0Ul0WvWYx1t9SdQSlfsoh/JrSFlQCdFtAz
+FSclsseixRF27xz72MNFF9Q=
+=uryk
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--

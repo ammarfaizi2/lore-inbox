@@ -1,38 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268700AbTBZJcz>; Wed, 26 Feb 2003 04:32:55 -0500
+	id <S268696AbTBZJn0>; Wed, 26 Feb 2003 04:43:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268701AbTBZJcz>; Wed, 26 Feb 2003 04:32:55 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:31236 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S268700AbTBZJcy>; Wed, 26 Feb 2003 04:32:54 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200302260944.h1Q9idTZ000538@81-2-122-30.bradfords.org.uk>
-Subject: Re: syslog full of kernel BUGS, frequent intermittent instability
-To: coyote1@cytanet.com.cy (wyleus)
-Date: Wed, 26 Feb 2003 09:44:39 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030226041214.71e1ddc7.coyote1@cytanet.com.cy> from "wyleus" at Feb 26, 2003 04:12:14 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268697AbTBZJn0>; Wed, 26 Feb 2003 04:43:26 -0500
+Received: from packet.digeo.com ([12.110.80.53]:1734 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268696AbTBZJnY>;
+	Wed, 26 Feb 2003 04:43:24 -0500
+Date: Wed, 26 Feb 2003 01:54:09 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: schlicht@uni-mannheim.de, torvalds@transmeta.com, hugh@veritas.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5] fix preempt-issues with smp_call_function()
+Message-Id: <20030226015409.78e8e1fb.akpm@digeo.com>
+In-Reply-To: <20030226103742.GA29250@suse.de>
+References: <200302251908.55097.schlicht@uni-mannheim.de>
+	<20030226103742.GA29250@suse.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Feb 2003 09:53:34.0533 (UTC) FILETIME=[ED37B750:01C2DD7C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My recently installed Mandrake 9.0 has been unstable since day one.
-> The syslog is full of kernel BUG lines (see below), the crashes are
-> frequent, and I don't know how to reproduce them - recognize no
-> pattern to them.
+Dave Jones <davej@codemonkey.org.uk> wrote:
+>
+> On Tue, Feb 25, 2003 at 07:08:48PM +0100, Thomas Schlichter wrote:
+> 
+>  > here is a patch to solve all (I hope I missed none) possible problems that 
+>  > could occur on SMP machines running a preemptible kernel when 
+>  > smp_call_function() calls a function which should be also executed on the 
+>  > current processor.
+>  > 
+>  > This patch is based on the one Dave Jones sent to the LKML last friday and 
+>  > applies to the linux kernel version 2.5.63.
+> 
+> Just one comment. You moved quite a few of the preempt_disable/enable
+> pairs outside of the CONFIG_SMP checks.  The issue we're working against
+> here is to try and prevent preemption and ending up on a different CPU.
+> As this cannot happen if CONFIG_SMP=n, I don't see why you've done this.
+> 
 
-[snip]
+Just in two places.
 
-Since you have eliminated a lot of the hardware, I would check whether
-the PSU is working correctly, if necessary by swapping in a spare one
-for a day or two.
 
-The easiest way to exercise the machine is probably to do kernel
-compiles in a loop.  Memtest will exercise the memory, but not
-particularly exercise the CPU.
+ arch/i386/kernel/ldt.c   |    6 ++++--
+ arch/x86_64/kernel/ldt.c |    6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-John.
+diff -puN arch/i386/kernel/ldt.c~on_each_cpu-ldt-cleanup arch/i386/kernel/ldt.c
+--- 25/arch/i386/kernel/ldt.c~on_each_cpu-ldt-cleanup	2003-02-26 01:51:27.000000000 -0800
++++ 25-akpm/arch/i386/kernel/ldt.c	2003-02-26 01:52:21.000000000 -0800
+@@ -55,13 +55,15 @@ static int alloc_ldt(mm_context_t *pc, i
+ 	wmb();
+ 
+ 	if (reload) {
++#ifdef CONFIG_SMP
+ 		preempt_disable();
+ 		load_LDT(pc);
+-#ifdef CONFIG_SMP
+ 		if (current->mm->cpu_vm_mask != (1 << smp_processor_id()))
+ 			smp_call_function(flush_ldt, 0, 1, 1);
+-#endif
+ 		preempt_enable();
++#else
++		load_LDT(pc);
++#endif
+ 	}
+ 	if (oldsize) {
+ 		if (oldsize*LDT_ENTRY_SIZE > PAGE_SIZE)
+diff -puN arch/x86_64/kernel/ldt.c~on_each_cpu-ldt-cleanup arch/x86_64/kernel/ldt.c
+--- 25/arch/x86_64/kernel/ldt.c~on_each_cpu-ldt-cleanup	2003-02-26 01:51:36.000000000 -0800
++++ 25-akpm/arch/x86_64/kernel/ldt.c	2003-02-26 01:52:37.000000000 -0800
+@@ -60,13 +60,15 @@ static int alloc_ldt(mm_context_t *pc, i
+ 	pc->size = mincount;
+ 	wmb();
+ 	if (reload) {
++#ifdef CONFIG_SMP
+ 		preempt_disable();
+ 		load_LDT(pc);
+-#ifdef CONFIG_SMP
+ 		if (current->mm->cpu_vm_mask != (1<<smp_processor_id()))
+ 			smp_call_function(flush_ldt, 0, 1, 1);
+-#endif
+ 		preempt_enable();
++#else
++		load_LDT(pc);
++#endif
+ 	}
+ 	if (oldsize) {
+ 		if (oldsize*LDT_ENTRY_SIZE > PAGE_SIZE)
+
+_
+

@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbRC3OaX>; Fri, 30 Mar 2001 09:30:23 -0500
+	id <S131468AbRC3Ouf>; Fri, 30 Mar 2001 09:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131466AbRC3OaO>; Fri, 30 Mar 2001 09:30:14 -0500
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:4112 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S131446AbRC3OaH>; Fri, 30 Mar 2001 09:30:07 -0500
-Date: Fri, 30 Mar 2001 15:29:21 +0100
-From: Tim Waugh <twaugh@redhat.com>
-To: Juan Piernas Canovas <piernas@ditec.um.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19 && ppa: total lockup. No problem with 2.2.17
-Message-ID: <20010330152921.Q10553@redhat.com>
-In-Reply-To: <Pine.LNX.4.21.0103301519370.13429@ditec.um.es> <Pine.LNX.4.21.0103301554310.14247-100000@ditec.um.es>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="K1SnTjlYS/YgcDEx"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0103301554310.14247-100000@ditec.um.es>; from piernas@ditec.um.es on Fri, Mar 30, 2001 at 03:55:01PM +0200
+	id <S131472AbRC3Ou0>; Fri, 30 Mar 2001 09:50:26 -0500
+Received: from [207.246.91.243] ([207.246.91.243]:1806 "HELO thor")
+	by vger.kernel.org with SMTP id <S131468AbRC3OuM>;
+	Fri, 30 Mar 2001 09:50:12 -0500
+Date: Fri, 30 Mar 2001 09:48:18 -0500
+From: "J. Scott Kasten" <jsk@tetracon-eng.net>
+To: Michael Peddemors <michael@linuxmagic.com>
+cc: David Konerding <dek_ml@konerding.com>, linux-kernel@vger.kernel.org
+Subject: Re: OOM killer???
+In-Reply-To: <20010330024815Z130448-406+5643@vger.kernel.org>
+Message-ID: <Pine.SGI.4.10.10103300942140.14106-100000@thor.tetracon-eng.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---K1SnTjlYS/YgcDEx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Just to throw my own observations into the war, I have to agree with David
+K. here.  This needs to be some sort of module and/or interface.  Get the
+policy into a replaceable user space module.
 
-On Fri, Mar 30, 2001 at 03:55:01PM +0200, Juan Piernas Canovas wrote:
+One of the hot areas for the kernel right now is for embedded systems.
+They need an entirely different strategy than for a desk top.  I'm working
+on such a thing now were we don't even have an enabled swap space and the
+OOM is causing us no end of trouble as we start dipping below 1MB "free"
+system memory.
 
-> The kernel configuration is the same in both 2.2.17 and 2.2.19.
-> Perhaps, the problem is not in the ppa module, but in the parport,
-> parport_pc or parport_probe modules.
+On 29 Mar 2001, Michael Peddemors wrote:
 
-There weren't any parport changes in 2.2.18->2.2.19, and the ones in
-2.2.17->2.2.18 won't affect you unless you are using a PCI card.
+> Looking over the last few weeks of postings, there are just WAY to many
+> conflicting ways that people want the OOM to work..  Although an
+> incredible amount of good work has gone into this, people are definetely
+> not happy about the benifits of OOM ...  About 10 different approaches
+> are being made to change the rule based systems pertaining to WHEN the
+> OOM will fire, but in the end, still not everyone will be happy..
 
-Could you please try this patch and let me know if the behaviour
-changes?
+<SNIP>
 
-Thanks,
-Tim.
-*/
+> On 29 Mar 2001 07:41:44 -0800, David Konerding wrote:
+> 
+> > Now, if you're going to implement OOM, when it is absolutely necessary, at the very
+> > least, move the policy implementation out of the kernel.  One of the general
+> > philosophies of Linux has been to move policy out of the kernel.  In this case, you'd
+> > just have a root owned process with locked pages that can't be pre-empted, which
+> > implemented the policy.  You'll never come up with an OOM policy that will fit
+> > everybody's needs unless it can be tuned for  particular system's usage, and it's
+> > going to be far easier to come up with that policy if it's not in the kernel.
 
---- linux/drivers/scsi/ppa.h.eh	Fri Mar 30 15:27:43 2001
-+++ linux/drivers/scsi/ppa.h	Fri Mar 30 15:27:52 2001
-@@ -178,7 +178,6 @@
- 		eh_device_reset_handler:	NULL,			\
- 		eh_bus_reset_handler:		ppa_reset,		\
- 		eh_host_reset_handler:		ppa_reset,		\
--		use_new_eh_code:		1,			\
- 		bios_param:			ppa_biosparam,		\
- 		this_id:			-1,			\
- 		sg_tablesize:			SG_ALL,			\
-
---K1SnTjlYS/YgcDEx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6xJhAONXnILZ4yVIRAjk7AJwIETfSX4VC+MwqUCO1jItdFhBh/gCeN4SS
-gMAhMcA9dxLspoDw09/mpCw=
-=p7lK
------END PGP SIGNATURE-----
-
---K1SnTjlYS/YgcDEx--

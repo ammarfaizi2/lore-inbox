@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbRFFM17>; Wed, 6 Jun 2001 08:27:59 -0400
+	id <S262934AbRFFMpq>; Wed, 6 Jun 2001 08:45:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262389AbRFFM1t>; Wed, 6 Jun 2001 08:27:49 -0400
-Received: from innominate.intercity.it ([151.39.132.18]:35827 "HELO ashland")
-	by vger.kernel.org with SMTP id <S262355AbRFFM1n>;
-	Wed, 6 Jun 2001 08:27:43 -0400
-To: linux-kernel@vger.kernel.org
-Subject: temperature standard - global config option?
-From: davidw@apache.org (David N. Welton)
-Date: 06 Jun 2001 14:27:22 +0200
-Message-ID: <87snhdvln9.fsf@apache.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S262923AbRFFMph>; Wed, 6 Jun 2001 08:45:37 -0400
+Received: from iproxy2.ericsson.dk ([130.228.248.99]:30883 "EHLO
+	iproxy2.ericsson.dk") by vger.kernel.org with ESMTP
+	id <S262856AbRFFMpU>; Wed, 6 Jun 2001 08:45:20 -0400
+Message-ID: <3B1E24ED.544FA1D7@fabbione.net>
+Date: Wed, 06 Jun 2001 14:41:17 +0200
+From: Fabbione <fabbione@fabbione.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [OFFTOPIC] lmc_utils + 2.4.5
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
+	I was testing the kernel support for the LMC1200 interface (E1/T1)
+and like specified in the help menu a user land tool is needed to
+configure
+the interface. But during the compilation time is reporting this error
 
-[ please CC replies to me ]
+/usr/include/linux/timer.h:17: field `list' has incomplete type
 
-Perusing the kernel sources while investigating watchdog drivers, I
-notice that in some places, Fahrenheit is used, and in some places,
-Celsius.  It would seem logical to me to have a global config option,
-so that you *know* that you talk devices either in F or C.
+and compilation fails.
 
-I searched the archives for discussions regarding this, but didn't
-find anything, apologies if I missed something.
+I'm using Debian unstable latest update, kernel 2.4.5 and lmc utils
+1.34.15
+Does someone have any idea on how to fix it?????
 
--- 
-David N. Welton
-Free Software: http://people.debian.org/~davidw/
-   Apache Tcl: http://tcl.apache.org/
-     Personal: http://www.efn.org/~davidw/
-         Work: http://www.innominate.com/
+I can provide anykind of info if needed.
+
+Thanks a lot
+Best Regards
+Fabio

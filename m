@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261935AbUC1QTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 11:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbUC1QTQ
+	id S261947AbUC1Q0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 11:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUC1Q0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 11:19:16 -0500
-Received: from mxfep01.bredband.com ([195.54.107.70]:50922 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S261935AbUC1QTM convert rfc822-to-8bit (ORCPT
+	Sun, 28 Mar 2004 11:26:13 -0500
+Received: from CS2075.cs.fsu.edu ([128.186.122.75]:31137 "EHLO mail.cs.fsu.edu")
+	by vger.kernel.org with ESMTP id S261947AbUC1Q0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 11:19:12 -0500
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: status of Linux on Alpha?
-References: <yw1xsmftnons.fsf@ford.guide>
-	<20040328201719.A14868@jurassic.park.msu.ru>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Sun, 28 Mar 2004 18:19:10 +0200
-In-Reply-To: <20040328201719.A14868@jurassic.park.msu.ru> (Ivan Kokshaysky's
- message of "Sun, 28 Mar 2004 20:17:19 +0400")
-Message-ID: <yw1xoeqhndvl.fsf@ford.guide>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Sun, 28 Mar 2004 11:26:11 -0500
+Message-ID: <1080491171.9b65f4fce8899@system.cs.fsu.edu>
+Date: Sun, 28 Mar 2004 11:26:11 -0500
+From: khandelw@cs.fsu.edu
+To: linux-kernel@vger.kernel.org
+Subject: ps/top doesn't show the process on a smp kernel ;)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 68.84.18.28
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky <ink@jurassic.park.msu.ru> writes:
+Hello,
+    This is the simple program that I tried on a - 2.4.20-30.9smp #1 SMP Wed Feb
+4 20:36:46 EST 2004 i686 i686 i386 GNU/Linux (kernel) machine.
 
-> On Sun, Mar 28, 2004 at 02:26:15PM +0200, Måns Rullgård wrote:
->> There was a thread a while ago about some odd problems with 2.6.4 on
->> Alpha.  Were those problems ever resolved?
->
-> No idea. I wasn't able to reproduce them. Perhaps it has something
-> to do with particular drivers (raid, XFS or something else).
+The ps command doesn't show me the process.  /proc/ shows that these process are
+present in the system. When I uncomment the call getpid(). Then it shows me the
+process. I am not able to understand this behavior and I hope this is the right
+place to post this question/bug.
 
-Well, I'm using both raid and xfs...
 
->> Is anything past 2.6.3 stable on Alpha?
->
-> There was nothing special about 2.6.4. Those problems must be present
-> in 2.6.3 and earlier kernels as well.
+<snip>
 
-So you're saying that if 2.6.3 is stable, 2.6.4 and later should be
-fine too?
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
--- 
-Måns Rullgård
-mru@kth.se
+int main()
+{
+    int i = 3;
+    pid_t pid, pidarr[3];
+
+    for(i = 0; i < 3;i ++) {
+        if ( (pid = fork()) == 0) {
+            while(1){
+                /* getpid(); */
+            }
+        }
+        pidarr[i] = pid;
+    }
+    for(i = 0; i < 3;i ++) {
+        waitpid(pidarr[i], NULL, 0);
+    }
+    return 0;
+}
+
+</snip>

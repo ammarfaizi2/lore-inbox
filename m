@@ -1,251 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbTHZSA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:00:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTHZSA7
+	id S262920AbTHZR5C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 13:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTHZR5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:00:59 -0400
-Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:45953
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262575AbTHZSA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:00:28 -0400
-Date: Tue, 26 Aug 2003 13:59:26 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Where'd my second proc go?
-In-Reply-To: <20030826164122.GY16183@rdlg.net>
-Message-ID: <Pine.LNX.4.53.0308261352510.6876@montezuma.fsmlabs.com>
-References: <20030826151225.GT16183@rdlg.net> <Pine.LNX.4.53.0308261124200.6876@montezuma.fsmlabs.com>
- <20030826154343.GU16183@rdlg.net> <Pine.LNX.4.53.0308261207180.6876@montezuma.fsmlabs.com>
- <20030826161409.GW16183@rdlg.net> <Pine.LNX.4.53.0308261217580.6876@montezuma.fsmlabs.com>
- <20030826164122.GY16183@rdlg.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810560-620541998-1061920744=:6876"
-Content-ID: <Pine.LNX.4.53.0308261359130.6876@montezuma.fsmlabs.com>
+	Tue, 26 Aug 2003 13:57:01 -0400
+Received: from almesberger.net ([63.105.73.239]:55050 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262920AbTHZR46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 13:56:58 -0400
+Date: Tue, 26 Aug 2003 14:56:36 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Juergen Quade <quade@hsnr.de>, kuznet@ms2.inr.ac.ru
+Cc: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: tasklet_kill will always hang for recursive tasklets on a UP
+Message-ID: <20030826145636.E1212@almesberger.net>
+References: <20030826024808.B3448@almesberger.net> <Pine.LNX.4.44.0308260010480.31955-100000@localhost.localdomain> <20030826043802.D1212@almesberger.net> <20030826083200.GB13812@hsnr.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030826083200.GB13812@hsnr.de>; from quade@hsnr.de on Tue, Aug 26, 2003 at 10:32:00AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Juergen Quade wrote:
+> Can this work reliable?
 
----1463810560-620541998-1061920744=:6876
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.53.0308261359131.6876@montezuma.fsmlabs.com>
+Hmm, actually, no. On UP, yes. But on SMP, you might tasklet_kill
+while the tasklet is running, but before it has had a chance to
+tasklet_schedule itself. tasklet_schedule will have no effect in
+this case.
 
-On Tue, 26 Aug 2003, Robert L. Harris wrote:
+Alexey, if my observation is correct, the property
 
-> 
-> Thus spake Zwane Mwaikambo (zwane@linuxpower.ca):
-> 
-> > On Tue, 26 Aug 2003, Robert L. Harris wrote:
-> > 
-> > > I'll try and get a window, this is a production box so I can't keep
-> > > rebooting it.  just put 'append="debug"' in the lilo.conf and reboot?
-> > > (headless server)
-> > 
-> > Yep, the other dmesg had missing parts..
-> 
-> Attaching it gzip'd.
+| * If tasklet_schedule() is called, then tasklet is guaranteed
+|   to be executed on some cpu at least once after this.
 
-Hmm could you try running the attached and sending the output, that might 
-help if not, i'll need you to send over a dmesg from a working kernel.
+does not hold if using tasklet_kill on SMP.
 
-Thanks,
-	Zwane
----1463810560-620541998-1061920744=:6876
-Content-Type: APPLICATION/X-GZIP; NAME="mptable-2.0.15a.tgz"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.53.0308261359040.6876@montezuma.fsmlabs.com>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="mptable-2.0.15a.tgz"
+- Werner
 
-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
-QIECBQoUKLwt/AfVZRk+AHgAAA==
-
----1463810560-620541998-1061920744=:6876--
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

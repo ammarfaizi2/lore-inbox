@@ -1,91 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292339AbSBPJeD>; Sat, 16 Feb 2002 04:34:03 -0500
+	id <S292331AbSBPJiy>; Sat, 16 Feb 2002 04:38:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292338AbSBPJdx>; Sat, 16 Feb 2002 04:33:53 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:28863 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S292334AbSBPJdk>; Sat, 16 Feb 2002 04:33:40 -0500
-Message-ID: <3C6E26F0.3070808@wanadoo.fr>
-Date: Sat, 16 Feb 2002 10:31:28 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S292332AbSBPJio>; Sat, 16 Feb 2002 04:38:44 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:15631 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292331AbSBPJij>; Sat, 16 Feb 2002 04:38:39 -0500
+Message-ID: <3C6E2886.8070600@evision-ventures.com>
+Date: Sat, 16 Feb 2002 10:38:14 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.18-rc1 es1370 fix 
-In-Reply-To: <20020214161730.A8112@bytesex.org>
+To: Pavel Machek <pavel@suse.cz>
+CC: Vojtech Pavlik <vojtech@suse.cz>, Jens Axboe <axboe@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Re: IDE cleanup for 2.5.4-pre3
+In-Reply-To: <20020208231346.GA1209@elf.ucw.cz> <20020211094230.E1957@suse.de> <20020211134443.GC20854@atrey.karlin.mff.cuni.cz> <20020211181013.K729@suse.de> <20020213225326.A10409@suse.cz> <20020214094046.B37@toy.ucw.cz> <3C6CC19C.3040608@evision-ventures.com> <20020215204510.GD5019@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
->   Hi,
-> 
-> This patch (against 2.5.5-pre1) fixes the es1370 driver (the virt_to_bus thing).
+Pavel Machek wrote:
 
-The same applies to 2.4.18-rc1
+>Hi!
+>
+>>It seems bigger as it is at first glance, however if you start to read 
+>>it at ide.h, the rest should
+>>be, well,  obivous...
+>>
+>
+>Ouch, its *big*. You should probably start pushing it to Jens ASAP,
+>because if you'll clean up it a bit more, you'll end with really big
+>patch which rewrites whole drivers/ide... [Not that it would be a bad
+>thing.]
+>
 
------------------------------ cut here --------------------------
---- linux.orig/drivers/sound/es1370.c	Sat Feb 16 09:33:37 2002
-+++ linux/drivers/sound/es1370.c	Sat Feb 16 09:41:02 2002
-@@ -374,6 +374,10 @@
-  		unsigned subdivision;
-  	} dma_dac1, dma_dac2, dma_adc;
+Well the atomic part of the patch is rather small if you look at it. But 
+in hell unfortunately there is
+no way around to make the consequences smaller. I would be much happier 
+if it could be
+done otherway around... but I see no way if one want's to preserve the 
+drivers in a functional state.
 
-+ 
-/* The following buffer is used to point the phantom write channel to. */
-+ 
-unsigned char *bugbuf_cpu;
-+ 
-dma_addr_t bugbuf_dma;
-+
-  	/* midi stuff */
-  	struct {
-  		unsigned ird, iwr, icnt;
-@@ -392,13 +396,6 @@
+>My favourite cleanup would be 
+>
+>struct ide_drive_s {} ide_drive_t;
+>
+>=>
+>
+>struct ide_drive {};
+>
+>and replacing all ide_drive_t with struct ide_drive...
+>
 
-  static LIST_HEAD(devs);
+That will happen.
 
--/*
-- * The following buffer is used to point the phantom write channel to,
-- * so that it cannot wreak havoc. The attribute makes sure it doesn't
-- * cross a page boundary and ensures dword alignment for the DMA engine
-- */
--static unsigned char bugbuf[16] __attribute__ ((aligned (16)));
--
-  /* 
---------------------------------------------------------------------- */
 
-  static inline unsigned ld2(unsigned int x)
-@@ -2649,8 +2646,9 @@
-  	outl(s->ctrl, s->io+ES1370_REG_CONTROL);
-  	outl(s->sctrl, s->io+ES1370_REG_SERIAL_CONTROL);
-  	/* point phantom write channel to "bugbuf" */
-+ 
-s->bugbuf_cpu = pci_alloc_consistent(pcidev,16,&s->bugbuf_dma);
-  	outl((ES1370_REG_PHANTOM_FRAMEADR >> 8) & 15, s->io+ES1370_REG_MEMPAGE);
-- 
-outl(virt_to_bus(bugbuf), s->io+(ES1370_REG_PHANTOM_FRAMEADR & 0xff));
-+ 
-outl(s->bugbuf_dma, s->io+(ES1370_REG_PHANTOM_FRAMEADR & 0xff));
-  	outl(0, s->io+(ES1370_REG_PHANTOM_FRAMECNT & 0xff));
-  	pci_set_master(pcidev);  /* enable bus mastering */
-  	wrcodec(s, 0x16, 3); /* no RST, PD */
-@@ -2717,6 +2715,7 @@
-  	unregister_sound_mixer(s->dev_mixer);
-  	unregister_sound_dsp(s->dev_dac);
-  	unregister_sound_midi(s->dev_midi);
-+ 
-pci_free_consistent(dev, 16, s->bugbuf_cpu, s->bugbuf_dma);
-  	kfree(s);
-  	pci_set_drvdata(dev, NULL);
-}
-
--- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
 

@@ -1,23 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbUBWEnp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 23:43:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUBWEnp
+	id S261810AbUBWEpU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 23:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUBWEpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 23:43:45 -0500
-Received: from www1.mail.lycos.com ([209.202.220.140]:57487 "HELO lycos.com")
-	by vger.kernel.org with SMTP id S261806AbUBWEno (ORCPT
+	Sun, 22 Feb 2004 23:45:19 -0500
+Received: from www1.mail.lycos.com ([209.202.220.140]:16528 "HELO lycos.com")
+	by vger.kernel.org with SMTP id S261810AbUBWEoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 23:43:44 -0500
+	Sun, 22 Feb 2004 23:44:15 -0500
 To: "Robin Rosenberg" <robin.rosenberg.lists@dewire.com>,
        "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-Date: Mon, 23 Feb 2004 09:43:30 +0500
+Date: Mon, 23 Feb 2004 09:44:01 +0500
 From: "vishwas manral" <vishwas.manral@lycos.com>
-Message-ID: <GEEGLONMDDKOLIAA@mailcity.com>
+Message-ID: <DMOCIEPNKDKOLIAA@mailcity.com>
 Mime-Version: 1.0
 Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
 X-Sent-Mail: off
 Reply-To: vishwas.manral@lycos.com
+X-Expiredinmiddle: true
 X-Mailer: MailCity Service
 X-Priority: 3
 Subject: Re: Badness in pci_find_subsys

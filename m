@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264481AbUAaBFU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 20:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264488AbUAaBFU
+	id S264488AbUAaBFo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 20:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUAaBFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 20:05:20 -0500
-Received: from mail.kroah.org ([65.200.24.183]:21710 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264481AbUAaBFP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 20:05:15 -0500
-Date: Fri, 30 Jan 2004 17:05:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace pci_pool with generic dma_pool
-Message-ID: <20040131010515.GH10860@kroah.com>
-References: <20040131003205.GA24967@plexity.net>
+	Fri, 30 Jan 2004 20:05:44 -0500
+Received: from smtp-out6.xs4all.nl ([194.109.24.7]:57098 "EHLO
+	smtp-out6.xs4all.nl") by vger.kernel.org with ESMTP id S264488AbUAaBFf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 20:05:35 -0500
+Subject: ide-cdrom / atapi burning bug - 2.6.1
+From: Mans Matulewicz <cybermans@xs4all.nl>
+Reply-To: cybermans@xs4all.nl
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1075511134.5412.59.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040131003205.GA24967@plexity.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 31 Jan 2004 02:05:34 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 30, 2004 at 05:32:05PM -0700, Deepak Saxena wrote:
-> 
-> All,
-> 
-> This set of patches against 2.6.2-rc2 removes the PCI-specific pci_pool 
-> structure and replaces it with a generic dma_pool. For compatibility with 
-> existing PCI drivers, macros are provided that map pci_pool_* to dma_pool_*.
-> This is extremely useful for architecture that have non-PCI devices but 
-> require DMA buffer pools. A good example is USB, where we've had to make
-> some hacks in the ARM implementation of the DMA API to get around the
-> USB's usage of the PCI DMA API and pci_pools with non-PCI device.
-> The patch has been tested on x86, ppc, and xscale (ARM).
-> 
-> Patch portions are posted as replies to this email.
-> 
-> If this patch is accepted, I'll post a follow-on patch to the USB list 
-> to clean up the USB layer to only use the generic DMA functions instead 
-> of the PCI functions.
+Hi,
+After replacing my 2.4.22  with a 2.6.1 kernel I tried ATAPI cd burning.
+This totally fails. Most of the CD's are corrupt and my system totally
+locks up when erasing an cdrw (reset button was the option I needed to
+reboot my system) . k3b reports cd is completely burned but fails are
+not identical or totally unreadable. I tried it both with an tainted
+(nvidia) and an untainted (nv) kernel: same results. With ide-scsi
+burning in 2.4.x I had no problems. 
 
-These patches look sane.  I'll apply them to my PCI tree this weekend,
-which will propagate to the -mm tree.  If nothing breaks there, I'll
-send them on to Linus after 2.6.2 comes out.
+Software:
+Distro: gentoo
+Kernel: 2.6.1 stock 
+cdrtools: 2.01_alpha25
+cdrdao: 1.1.7-r3
+k3b: 0.10.3
 
-thanks a lot for this.
+Hardware
+Cpu: Athlon XP 1700+ (palomino)
+Mobo: ASUS A7V333 (kt333) 
+Ide interface: VIA Technologies, In VT82C586/B/686A/B PI (rev 6).
+	/dev/hda 40 gig ibm harddisc
+	/dev/hdb liteon LTR16102B (the troublemaker)
+	/dev/hdc 120 gig hitachi harddisc
+	/dev/hdd toshiba dvd player
+Dma is on
 
-greg k-h
+(ver linux script:
+Linux meanmachine 2.6.1 #1 SMP Fri Jan 30 21:54:39 CET 2004 i686 AMD
+Athlon(TM) XP 1700+ AuthenticAMD GNU/Linux
+ 
+Gnu C                  3.2.3
+Gnu make               3.80
+util-linux             2.11z
+mount                  2.11z
+module-init-tools      0.9.15-pre4
+e2fsprogs              1.34
+PPP                    2.4.1
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.1.12
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               5.0.91
+Modules Loaded         w83781d i2c_sensor i2c_viapro i2c_core
+iptable_mangle ipt_state iptable_filter ipt_MASQUERADE iptable_nat
+ip_conntrack ip_tables hci_usb bluetooth pwc videodev uhci_hcd ehci_hcd
+snd_seq_midi snd_emu10k1_synth snd_emux_synth snd_seq_virmidi
+snd_seq_midi_event snd_seq_midi_emul snd_seq snd_emu10k1 snd_rawmidi
+snd_seq_device snd_ac97_codec snd_util_mem snd_hwdep snd_pcm_oss snd_pcm
+snd_page_alloc snd_timer snd_mixer_oss snd soundcore sd_mod scsi_mod
+)
+

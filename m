@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264938AbTLFDII (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 22:08:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264942AbTLFDII
+	id S264943AbTLFDKO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 22:10:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbTLFDKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 22:08:08 -0500
-Received: from holomorphy.com ([199.26.172.102]:47061 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264938AbTLFDIG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 22:08:06 -0500
-Date: Fri, 5 Dec 2003 19:07:55 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Colin Coe <colin@coesta.com>, linux-kernel@vger.kernel.org
-Subject: Re: SMP broken on Dell PowerEdge 4100/200 under 2.6.0-testxx?
-Message-ID: <20031206030755.GI8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nick Piggin <piggin@cyberone.com.au>, Colin Coe <colin@coesta.com>,
-	linux-kernel@vger.kernel.org
-References: <3350.192.168.1.3.1070677965.squirrel@www.coesta.com> <20031206024251.GG8039@holomorphy.com> <3FD14396.5070205@cyberone.com.au>
+	Fri, 5 Dec 2003 22:10:14 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:62684 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S264943AbTLFDKL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 22:10:11 -0500
+Date: Fri, 5 Dec 2003 20:20:42 -0700
+From: Jesse Allen <the3dfxdude@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+Message-ID: <20031206032042.GA248@tesore.local>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F877@mail-sc-6.nvidia.com> <20031205201812.GA10538@localnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FD14396.5070205@cyberone.com.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031205201812.GA10538@localnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 06, 2003 at 01:48:54PM +1100, Nick Piggin wrote:
-> Although in this case Colin has 2 PPro 200s.
-> Colin - process load should be evenly distributed between CPUs, and this
-> is generally the most important thing. Big networking loads (most commonly)
-> can put a lot of time into processing interrupts though.
-
-That is rather busted, then.
-
-Colin, could you try booting with noirqbalance on the kernel command
-line?
+On Fri, Dec 05, 2003 at 09:18:12PM +0100, cheuche+lkml@free.fr wrote:
+> On Fri, Dec 05, 2003 at 11:11:39AM -0800, Allen Martin wrote:
+> With a little patch in arch/i386/kernel/mpparse.c in the acpi section, I
+> managed to get the timer interrupt back on IO-APIC-edge, maybe the nmi
+> watchdog could work with the ioapic then ?
+> 
 
 
--- wli
+Like reported, with the patch the timer uses IO-APIC-edge, and the noise on IRQ 7 is gone, but still unable to catch a lockup with nmi_watchdog.
+
+=(
+
+Jesse

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267256AbTGWIGb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 04:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271155AbTGWIG0
+	id S267978AbTGWIMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 04:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268047AbTGWIMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 04:06:26 -0400
-Received: from web41609.mail.yahoo.com ([66.218.93.109]:52114 "HELO
-	web41609.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S267256AbTGWIFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 04:05:41 -0400
-Message-ID: <20030723082046.42027.qmail@web41609.mail.yahoo.com>
-Date: Wed, 23 Jul 2003 10:20:46 +0200 (CEST)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: announce: kmsgdump update for 2.5.75
-To: "Randy.Dunlap" <rddunlap@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Cc: willy@meta-x.org
-In-Reply-To: <20030718140309.623ff4c9.rddunlap@osdl.org>
+	Wed, 23 Jul 2003 04:12:21 -0400
+Received: from netix1.demon.co.uk ([212.228.80.161]:2063 "EHLO netunix.com")
+	by vger.kernel.org with ESMTP id S267978AbTGWIMT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 04:12:19 -0400
+Date: Wed, 23 Jul 2003 09:33:40 +0100 (BST)
+From: "C.Newport" <crn@netunix.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: Otto Solares <solca@guug.org>, <hch@infradead.org>, <zaitcev@redhat.com>,
+       <linux-kernel@vger.kernel.org>, <sparclinux@vger.kernel.org>,
+       <debian-sparc@lists.debian.org>
+Subject: Re: sparc scsi esp depends on pci & hangs on boot
+In-Reply-To: <20030723002737.376d93ca.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0307230926170.26107-100000@hek.netunix.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy, all.
+On Wed, 23 Jul 2003, David S. Miller wrote:
 
-OK finally I tested 2.5.74, 2.5.75 and 2.6.0-test1 on a PIII/800. They
-all allowed be to get to the interactive screen after Sysrq-D (eventhough
-the keyboard was dead after that, as always on this crappy machine/bios).
+> If the architecture wants to support such situations,
+> then the implementation needs to vector off to different
+> operations based upon the actual bus type.
+>
+> Even though technically devices having SBUS and PCI variants could do
+> this, none do currently, and also I do not use the generic device
+> model in the SBUS layer, therefore I'm not going to add such multi-bus
+> support to what Sparc uses for dma-mapping.h
 
-I noticed that you had a #define KDEBUG which puts printk's at every
-checkpoint. I wonder if it's not risky to do this within the last ones,
-when the machine is nearly ready to reboot. I'm not sure if this could
-work with serial consoles or frame buffer. Could you please retry with
-#undef KDEBUG ?
+Ouch - As I mentioned a few days ago, the Ex000 range can have a
+mixture of SBUS and PCI. This configuration is becoming increasingly
+common as these machines are upgraded to attach to SAN stuff and
+other FCAL variants for which there is no SBUS card.
 
-BTW, I'm not certain that the current code is still totally compatible
-with standard kernel reboot techniques. I've read through it rather
-quickly and compare it to other functions such as machine_real_restart(),
-etc... It may be possible that we have to stop/notify some subsystems
-prior to this.
-
-FYI, on this machine, I enabled ACPI and local APIC, but disabled preempt.
-Unfortunately, I don't have enough time to recheck with different combinations
-of these options.
-
-Hoping this helps a bit...
-
-Cheers,
-Willy
+Please take a few moments to keep this, it works at the moment.
 
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com

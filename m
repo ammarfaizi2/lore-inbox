@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263732AbTDNTlK (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263767AbTDNTks (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 15:40:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:52883 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263760AbTDNTkm (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 15:40:42 -0400
-Date: Mon, 14 Apr 2003 12:54:38 -0700
-From: Greg KH <greg@kroah.com>
-To: oliver@neukum.name
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] /sbin/hotplug multiplexor
-Message-ID: <20030414195438.GA4952@kroah.com>
-References: <20030414190032.GA4459@kroah.com> <200304142116.45303.oliver@neukum.org>
+	id S263863AbTDNTFg (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263859AbTDNTFd (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 15:05:33 -0400
+Received: from AMarseille-201-1-4-175.abo.wanadoo.fr ([217.128.74.175]:50215
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263863AbTDNTEr (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 15:04:47 -0400
+Subject: RE: Subtle semantic issue with sleep callbacks in drivers
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84725A261@orsmsx401.jf.intel.com>
+References: <F760B14C9561B941B89469F59BA3A84725A261@orsmsx401.jf.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1050347907.5575.89.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304142116.45303.oliver@neukum.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 14 Apr 2003 21:18:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2003 at 09:16:45PM +0200, Oliver Neukum wrote:
-> 
-> > Any objections or comments?  If not, I'll make the changes in the
-> > linux-hotplug project and release a new version based on this.
-> 
-> Yes, consider what this does if you connect to a FibreChannel
-> grid. You are pushing system load by at least an order of magnitude.
 
-When you add a FibreChannel grid, the devices are discovered in
-sequential order, with SCSI IO happening between each device discovered.
-In talking to the SCSI people, that should be about 30ms per device
-found at the quickest.  So there's no /sbin/hotplug process storm :)
+> All I am saying is that on Windows, the driver gets no help from the
+> BIOS, APM, or ACPI, but yet it restores the video to full working
+> condition. I understand that this sounds complicated, but since there is
+> an implementation that already does this then I think we have to assume
+> it's possible. :) Perhaps we should start with older, simpler gfx hw, or
+> maybe POST the bios, but only as an interim solution until gfx drivers
+> get better in this area.
 
-And even if there is, we have to be able to handle such a load under
-normal situations anyway :)
+It's definitely possible as MacOS does that as well. But I doubt
+the card vendors will ever provide us with the necessary informations...
 
-thanks,
+Ben.
 
-greg k-h

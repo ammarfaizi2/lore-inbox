@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264166AbUDBUhT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 15:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264167AbUDBUhT
+	id S264159AbUDBUfU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 15:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264166AbUDBUfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 15:37:19 -0500
-Received: from postfix4-1.free.fr ([213.228.0.62]:45213 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S264166AbUDBUhR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 15:37:17 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Drivers *dropped* between releases? (sis5513.c)
-Mail-Copies-To: never
-X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
-From: Roland Mas <roland.mas@free.fr>
-Date: Fri, 02 Apr 2004 22:37:12 +0200
-Message-ID: <87n05uw1zb.fsf@mirexpress.internal.placard.fr.eu.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+	Fri, 2 Apr 2004 15:35:20 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:18585
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264159AbUDBUfN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 15:35:13 -0500
+Date: Fri, 2 Apr 2004 22:35:14 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       hugh@veritas.com, vrajesh@umich.edu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040402203514.GR21341@dualathlon.random>
+References: <20040402001535.GG18585@dualathlon.random> <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain> <20040402011627.GK18585@dualathlon.random> <20040401173649.22f734cd.akpm@osdl.org> <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org> <20040402164634.GF21341@dualathlon.random> <20040402195927.A6659@infradead.org> <20040402192941.GP21341@dualathlon.random> <20040402205410.A7194@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040402205410.A7194@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Apr 02, 2004 at 08:54:10PM +0100, Christoph Hellwig wrote:
+> On Fri, Apr 02, 2004 at 09:29:41PM +0200, Andrea Arcangeli wrote:
+> > page->private indicates:
+> > 
+> > >>> (0xc0772380L-0xc07721ffL)/32
+> > 12L
+> > 
+> > that's the 12th page in the array.
+> > 
+> > can you check in the asm (you should look at address c0048c7c) if it's
+> > the first bug that triggers?
+> > 
+> > 	if (page[1].index != order)
+> > 		bad_page(__FUNCTION__, page);
+> 
+> No, it's the second one (and yes, I get lots of theses backtraces, unless
+> I counted wrongly 19 this time)
 
-Just got myself a new El Cheapo PC, motherboard is an "ASRock K7S8X".
-IDE chipset is SiS746FX.  Tried installing Debian (latest beta3 of the
-installer, based on kernel 2.4.25) on it, but I couldn't: the IDE
-detection code would load the sis5513 module, then sort of hand for
-various amounts of time (during which the loggers complained about
-"hda: lost interrupt" and "hdc: lost interrupt").  Eventually, a
-timeout would be reached, but the hard drive (hda) woud still not be
-usable, and the CD-ROM drive (hdc) wouldn't be usable anymore (after
-having been used as a source for loading the modules).
+how can that be the second one? (I deduced it was the first one because
+it cannot be the second one and the offset didn't look at the very end
+of the function). This is the second one:
 
-  I've looked around a bit, and it seems that sis5513.c has seen a
-change between 2.4.21 and 2.4.22 removing support for the SiS746
-chipset.  Well, removing lines mentionint it, at least, but I'm not
-enough of a guru to see what it should change.
+		if (!PageCompound(p))
+			bad_page(__FUNCTION__, p);
 
-  So I'm wondering, is this a mistake from my part (which I'll do my
-best to solve), from the debian-installer (in which case I'll report
-it to them), or has this support really been dropped, in which case
-could it please be re-enabled?
+but bad_page shows p->flags == 0x00080008 and 1<<PG_compound ==
+0x80000.
 
-  Thanks for any hint,
+So PG_compound is definitely set for "p" and it can't be the second one
+triggering.
 
-Roland.
--- 
-Roland Mas
-
-C'est dans la boue la plus nauséeuse que plongent les racines de
-l'étincelante fleur de lotus. -- in Sri Raoul le petit yogi (Gaudelette)
+Can you double check? Maybe we should double check the asm. Something
+sounds fundamentally wrong in the asm, sounds like a miscompilation,
+which compiler are you using?

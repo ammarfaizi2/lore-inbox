@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269249AbRHQAcL>; Thu, 16 Aug 2001 20:32:11 -0400
+	id <S269238AbRHQAbm>; Thu, 16 Aug 2001 20:31:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269226AbRHQAcC>; Thu, 16 Aug 2001 20:32:02 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:44812 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S269212AbRHQAbx>; Thu, 16 Aug 2001 20:31:53 -0400
-Date: Fri, 17 Aug 2001 02:31:48 +0200 (CEST)
-From: Urban Widmark <urban@teststation.com>
-To: Dennis Bjorklund <db@zigo.dhs.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19: d-link dfe530-tx, Transmit timed out
-In-Reply-To: <Pine.LNX.4.33.0108161810440.18106-100000@cosmo.zigo.dhs.org>
-Message-ID: <Pine.LNX.4.30.0108170219330.20670-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269212AbRHQAbb>; Thu, 16 Aug 2001 20:31:31 -0400
+Received: from mnh-1-02.mv.com ([207.22.10.34]:61196 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S269238AbRHQAbR>;
+	Thu, 16 Aug 2001 20:31:17 -0400
+Message-Id: <200108170146.UAA05171@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        phillips@bonn-fries.net (Daniel Phillips),
+        davem@redhat.com (David S. Miller), tpepper@vato.org,
+        f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.9 does not compile [PATCH] 
+In-Reply-To: Your message of "Fri, 17 Aug 2001 00:35:02 +0100."
+             <5.1.0.14.2.20010817002825.00b1e4e0@pop.cus.cam.ac.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 16 Aug 2001 20:46:10 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Aug 2001, Dennis Bjorklund wrote:
+aia21@cam.ac.uk said:
+> Really? Could you point out an example where using ... typeof(x) __x;
+> typeof(y) __y; ... in the macros wouldn't work? - I just tried a few
+> examples I thought wouldn't work (side-effects ones) but I was
+> pleasantly  surprised to that gcc always produced the exact same
+> assembler output for  both the 3 arg and the 2 arg + typeof macros. 
 
-> kernel: via-rhine.c:v1.08b-LK1.0.0 12/14/2000  Written by Donald Becker
-> kernel:   http://www.scyld.com/network/via-rhine.html
-> kernel: eth1: VIA VT6102 Rhine-II at 0xe400, 00:50:ba:6e:76:63, IRQ 9.
-> kernel: eth1: MII PHY found at address 8, status 0x782d advertising 01e1 Link 40a1.
-> [...]
-> kernel: eth1: Transmit timed out, status 0000, PHY status 782d, resetting..
-> (a lot of these)
-> 
-> I know this thread was up a year ago but there doesn't seem to have been a
-> solution.  I also remember that there where patches that was supposed to
-> reset the card when this happens, but obviously they never got into the
-> kernel.
+Try min(a, min(b, c)).  Look at the cpp expansion and notice all the variable
+name clashes.
 
-I don't remember actual patches from a year ago. Current 2.4.x has code
-that resets the via-rhine.
+We went through this on #kernel one night, and Alan concocted some amazingly
+gross unique identifier generators as a result.  To me, this looks like the 
+best way to do this.
 
-Since you run on 2.2 the drivers from www.scyld.com are an option (not
-sure what the 2.4 status is on those). They are similar to the in-kernel
-version but not identical. If you do test, any difference in behaviour is
-intresting.
-
-
-> I should probably throw out this stupid card and get something else. Any
-> suggestion of a card working well in linux? The computer is a P90 so a
-
-The 3c905C (3c59x) has been working just fine for me. But then so has the
-via-rhine cards I have.
-
-/Urban
+				Jeff
 

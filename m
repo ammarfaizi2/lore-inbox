@@ -1,48 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263753AbRFLXB0>; Tue, 12 Jun 2001 19:01:26 -0400
+	id <S263756AbRFLXD4>; Tue, 12 Jun 2001 19:03:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263756AbRFLXBR>; Tue, 12 Jun 2001 19:01:17 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47629 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263753AbRFLXBC>; Tue, 12 Jun 2001 19:01:02 -0400
-Date: Wed, 13 Jun 2001 01:00:17 +0200
-From: Jan Kara <jack@suse.cz>
-To: Paul Menage <pmenage@ensim.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com, alan@redhat.com
-Subject: Re: [PATCH] Inode quota allocation loophole (2.4)
-Message-ID: <20010613010017.B28910@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <E159jIv-0004W5-00@pmenage-dt.ensim.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E159jIv-0004W5-00@pmenage-dt.ensim.com>; from pmenage@ensim.com on Tue, Jun 12, 2001 at 01:13:36AM -0700
+	id <S263760AbRFLXDq>; Tue, 12 Jun 2001 19:03:46 -0400
+Received: from medusa.sparta.lu.se ([194.47.250.193]:25666 "EHLO
+	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
+	id <S263756AbRFLXDh>; Tue, 12 Jun 2001 19:03:37 -0400
+Date: Tue, 12 Jun 2001 23:48:51 +0200 (MET DST)
+From: Bjorn Wesen <bjorn@sparta.lu.se>
+To: linux-kernel@vger.kernel.org
+Subject: Via-rhine in 2.4.5 still requires cold-boot
+Message-ID: <Pine.LNX.3.96.1010612234709.31447A-100000@medusa.sparta.lu.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Just for the record, the via-rhine.c in 2.4.5 still does not work if you
+soft-boot the computer (at least one a machine here), MAC address shows up
+as 00:00:00:00:00:00 and it fails - but a cold boot (power cable off, no
+standby power) makes it work.
 
-> Currently, dquot_initialize() is a no-op if the inode being initialized
-> isn't a regular file, directory or symlink. This means that calling
-> DQUOT_ALLOC_INODE() on a named pipe or AF_UNIX socket has no effect (the
-> same applies to devices, but this is less likely to be a problem as
-> random users can't create them); as a result a user can exhaust the
-> filesystem's inodes even when they have a quota limit. This problem is
-> exploitable in 2.2.19 and 2.4.2, and appears to be present in all kernel
-> versions that I've looked at.
-> 
-> I presume that the reason for not putting quotas on pipes and sockets is
-> that it's slightly more efficient not to do so. If that's the case, then
-> the simplest solution would be to remove the checks in fs/dquot.c (patch
-> below for 2.4.5 - patch for 2.2 in following email). Are there any
-> undesirable consequences to pipes, sockets and devices having non-NULL
-> pointers in i_dquot[]?
-  I must admit that I don't know why we don't count quotas also for device/pipe/socket
-inodes. This behaviour was there for ages :). Maybe it's time to change it.
-I can't think of any problems which can be with it... Your patch seems to be fine.
+I read something that we'd need to reload the EEPROM on the boards or
+something if a cold-boot solves a problem. Well it does. :)
 
-								Honza
---
-Jan Kara <jack@suse.cz>
-SuSE Labs
+/BW
+

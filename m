@@ -1,157 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbUKHWT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbUKHWWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261272AbUKHWT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 17:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUKHWT5
+	id S261269AbUKHWWS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 17:22:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUKHWWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 17:19:57 -0500
-Received: from alog0167.analogic.com ([208.224.220.182]:11136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261275AbUKHWTQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 17:19:16 -0500
-Date: Mon, 8 Nov 2004 17:15:14 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Adrian Bunk <bunk@stusta.de>
-cc: Pawe?? Sikora <pluto@pld-linux.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] kill IN_STRING_C
-In-Reply-To: <20041108212713.GH15077@stusta.de>
-Message-ID: <Pine.LNX.4.61.0411081640320.8258@chaos.analogic.com>
-References: <20041107142445.GH14308@stusta.de> <20041108161935.GC2456@wotan.suse.de>
- <20041108163101.GA13234@stusta.de> <200411081904.13969.pluto@pld-linux.org>
- <20041108183120.GB15077@stusta.de> <Pine.LNX.4.61.0411081410560.6407@chaos.analogic.com>
- <20041108212713.GH15077@stusta.de>
+	Mon, 8 Nov 2004 17:22:18 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:20356 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261269AbUKHWWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 17:22:02 -0500
+Date: Mon, 8 Nov 2004 16:21:27 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.19
+In-Reply-To: <20041108091619.GA9897@elte.hu>
+Message-ID: <Pine.LNX.4.58.0411081620400.1229@gradall.private.brainfood.com>
+References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
+ <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu>
+ <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
+ <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu>
+ <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu>
+ <20041108091619.GA9897@elte.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Nov 2004, Adrian Bunk wrote:
+On Mon, 8 Nov 2004, Ingo Molnar wrote:
 
-> On Mon, Nov 08, 2004 at 02:12:18PM -0500, linux-os wrote:
->>
->> On this compiler 3.3.3, -O2 will cause it to use strcpy().
 >
-> Not for me:
+> i have released the -V0.7.19 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
 >
->        .file   "test.c"
->        .section        .rodata.str1.1,"aMS",@progbits,1
-> .LC0:
->        .string "%s"
->        .text
->        .p2align 4,,15
-> .globl test
->        .type   test, @function
-> test:
->        pushl   %ebp
->        movl    %esp, %ebp
->        subl    $12, %esp
->        movl    %eax, 8(%esp)
->        movl    $.LC0, %eax
->        movl    %eax, 4(%esp)
->        movl    $buf, (%esp)
->        call    sprintf
->        movl    %ebp, %esp
->        popl    %ebp
->        ret
->        .size   test, .-test
-> .globl buf
->        .bss
->        .align 32
->        .type   buf, @object
->        .size   buf, 128
-> buf:
->        .zero   128
->        .section        .note.GNU-stack,"",@progbits
->        .ident  "GCC: (GNU) 3.3.5 (Debian 1:3.3.5-2)"
+>    http://redhat.com/~mingo/realtime-preempt/
 >
+> this release includes fixes only.
 >
+> Changes since -V0.7.18:
 >
-> Are you using exactly my example file?
-> Are you using the complete gcc command line as shown by "make V=1"?
-> Which gcc 3.3.3 are you using?
->
+>  - fixed a merge bug introduced in -V0.7.18, breaking bit-spinlocks used
+>    by ext3's journalling code. This could/should fix the kjournald crash
+>    reported by Adam Heath, Gunther Persoons and Eran Mann. Bug triggered
+>    on !SMP kernels only.
 
-No, I am using (no headers):
--------------------
-extern int sprintf(char *, const char *,...);
-extern int puts(const char *);
-static const char hello[]="Hello";
-int xxx(void);
-int xxx(){
-    char buf[0x100];
-    sprintf(buf, "%s", hello);
-    puts(buf);
-    return 0;
-}
---------------------
+The last kernel I tried was v0.7.13, so I doubt it was a recent introduction.
 
-Compiled as:
-
-gcc -O2 -Wall -S -o xxx xxx.c
-
-I get:
-
- 	.file	"xxx.c"
- 	.section	.rodata
- 	.type	hello, @object
- 	.size	hello, 6
-hello:
- 	.string	"Hello"
- 	.text
- 	.p2align 2,,3
-.globl xxx
- 	.type	xxx, @function
-xxx:
- 	pushl	%ebp
- 	movl	%esp, %ebp
- 	pushl	%ebx
- 	subl	$268, %esp
- 	pushl	$hello
- 	leal	-264(%ebp), %ebx
- 	pushl	%ebx
- 	call	strcpy
- 	movl	%ebx, (%esp)
- 	call	puts
- 	xorl	%eax, %eax
- 	movl	-4(%ebp), %ebx
- 	leave
- 	ret
- 	.size	xxx, .-xxx
- 	.section	.note.GNU-stack,"",@progbits
- 	.ident	"GCC: (GNU) 3.3.3 20040412 (Red Hat Linux 3.3.3-7)"
-
-
-If I don't use -O2, I get the sprintf() call. If I use
-the constant string "Hello" instead of the allocated string,
-it just bypasses everything and calls puts() directly.
-
-If I use -fno-builtin, then it doesn't bypass sprintf().
-However, there is no ISO C standard of "built-in" so
-I don't think any compiler should default to something
-that is undefined and decide to do whatever its current
-whims are. Certainly, a compiler that has some capabilities,
-not defined by a standard, should be able to use those
-capabilities, but it certainly shouldn't decide to do
-these things on its own.
-
-Reviewing `man gcc` I see where I should be able to
-find out what the built-in commands are:
-
- 	gcc -dumpspecs
-
-However, this man page is wrong because I don't get a
-listing of any built-in functions, only the linking
-and compiler defaults.
-
-The compiler is a tool. It should be just like other
-tools. Any killer options should be something that
-take a special effort to turn ON. It shouldn't default
-to firing the bullet out both ends of the barrel!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+Will try something newer soon.

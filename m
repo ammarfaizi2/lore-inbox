@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbTJGMdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 08:33:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbTJGMdk
+	id S262285AbTJGMid (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 08:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTJGMid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 08:33:40 -0400
-Received: from gate.perex.cz ([194.212.165.105]:58290 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S262288AbTJGMdi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 08:33:38 -0400
-Date: Tue, 7 Oct 2003 14:33:21 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, andrea@suse.com,
-       riel@redhat.com, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] memory counting fix
-In-Reply-To: <Pine.LNX.4.44.0310070844030.1494-100000@logos.cnet>
-Message-ID: <Pine.LNX.4.53.0310071427510.1357@pnote.perex-int.cz>
-References: <Pine.LNX.4.44.0310070844030.1494-100000@logos.cnet>
+	Tue, 7 Oct 2003 08:38:33 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:64009 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S262285AbTJGMic
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 08:38:32 -0400
+To: linux-kernel@vger.kernel.org
+Subject: devfs vs. udev
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: Tue, 07 Oct 2003 14:38:27 +0200
+Message-ID: <yw1xad8dfcjg.fsf@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Marcelo Tosatti wrote:
 
->
-> I dont see why reserved pages shouldnt be counted in the processes RSS.
->
-> What I'm missing here, Jaroslav?
+I noticed this in the help text for devfs in 2.6.0-test6:
 
-Note that zap_pte_range() in mm/memory.c does not free the reserved pages:
+	  Note that devfs has been obsoleted by udev,
+	  <http://www.kernel.org/pub/linux/utils/kernel/hotplug/>.
+	  It has been stripped down to a bare minimum and is only provided for
+	  legacy installations that use its naming scheme which is
+	  unfortunately different from the names normal Linux installations
+	  use.
 
-                        if (VALID_PAGE(page) && !PageReserved(page))
-                                freed ++;
+Now, this puzzles me, for a few of reasons.  Firstly, not long ago,
+devfs was spoken of as the way to go, and all drivers were rewritten
+to support it.  Why this sudden change?  Secondly, that link only
+leads me to a package describing itself as an experimental
+proof-of-concept thing, not to be used for anything serious.  How can
+something that incomplete obsolete a working system like devfs?
+Thirdly, udev appears to respond to hotplug events only.  How is it
+supposed to handle device files not corresponding to any physical
+device?  Finally, I quite liked the idea of a virtual filesystem for
+/dev.  It reduced the clutter quite a bit.  As for the naming scheme,
+it could easily be changed.
 
-I think that the drivers should not take care about correcting the mm->rss
-counter itself and we have exactly same patch in 2.6.
 
-						Jaroslav
-
-> On Tue, 30 Sep 2003, Jaroslav Kysela wrote:
->
-> > Hi,
-> >
-> > 	this fixes rss pages counting for drivers which returns a reserved
-> > page from the nopage callback (like ALSA). Thank you for applying to the
-> > 2.4 tree.
-> >
-> > ===== memory.c 1.56 vs edited =====
-> > --- 1.56/mm/memory.c	Fri Apr  5 20:06:57 2002
-> > +++ edited/memory.c	Tue Sep 30 13:10:20 2003
-> > @@ -1287,7 +1287,8 @@
-> >  	 */
-> >  	/* Only go through if we didn't race with anybody else... */
-> >  	if (pte_none(*page_table)) {
-> > -		++mm->rss;
-> > +		if (!PageReserved(new_page))
-> > +			++mm->rss;
-> >  		flush_page_to_ram(new_page);
-> >  		flush_icache_page(vma, new_page);
-> >  		entry = mk_pte(new_page, vma->vm_page_prot);
->
-> I dont see why
->
->
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+-- 
+Måns Rullgård
+mru@users.sf.net

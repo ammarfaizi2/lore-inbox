@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269077AbUJERZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269068AbUJER2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269077AbUJERZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269100AbUJERZ4
+	id S269068AbUJER2h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269042AbUJER2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:25:56 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:10419 "EHLO
+	Tue, 5 Oct 2004 13:28:37 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:3252 "EHLO
 	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S269077AbUJERZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:25:35 -0400
-Message-Id: <200410051724.i95HOs627803@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@redhat.com>, "Con Kolivas" <kernel@kolivas.org>
-Cc: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-Subject: RE: bug in sched.c:activate_task()
-Date: Tue, 5 Oct 2004 10:25:01 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcSqqEli6RExtJ3bQte0JntDx1ykoQAVrRww
-In-Reply-To: <Pine.LNX.4.58.0410050250580.4941@devserv.devel.redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	id S269104AbUJER1m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:27:42 -0400
+Date: Tue, 5 Oct 2004 10:27:07 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       jeffpc@optonline.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       trivial@rustcorp.com.au, rusty@rustcorp.com.au, greg@kroah.com
+Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper call
+Message-ID: <20041005102706.A27795@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20041003100857.GB5804@optonline.net> <20041003162012.79296b37.akpm@osdl.org> <20041004102220.A3304@unix-os.sc.intel.com> <20041004123725.58f1e77c.akpm@osdl.org> <20041004124355.A17894@unix-os.sc.intel.com> <20041005012556.A22721@unix-os.sc.intel.com> <20041005101823.223573d9.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041005101823.223573d9.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 05, 2004 at 10:18:23AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote on Monday, October 04, 2004 11:55 PM
-> On Tue, 5 Oct 2004, Con Kolivas wrote:
->
-> > 	unsigned long long delta = now - next->timestamp;
+On Tue, Oct 05, 2004 at 10:18:23AM -0700, Andrew Morton wrote:
+> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
 > >
-> > 	if (next->activated == 1)
-> > 		delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
-> >
-> > is in schedule() before we update the timestamp, no?
->
-> indeed ... so the patch is just random incorrect damage that happened to
-> distrub the scheduler fixing some balancing problem. Kenneth, what
-> precisely is the balancing problem you are seeing?
+> > 	Here is what I have come up with(please take a look at this patch).
+> >  I was successfully able to get rid of cpu_run_sbin_hotplug() function, but
+> >  when I call kobject_hotplug() function, it is finding 
+> >  top_kobj->kset->hotplug_ops set to NULL and hence returns without calling
+> >  call_usermodehelper(). Not sure if this is a bug in kobject_hotplug(), 
+> >  I feel kobject_hotplug() function should continue even if 
+> >  top_kobj->kset-hotplug_ops is NULL.
+> 
+> Yes, it doesn't seem necessary.  We could give cpu_sysdev_class a
+> valid-but-empty hotplug_ops but it seems simpler and more general to do it
+> in kobject_hotplug().
 
-We are seeing truck load of move_task() which was originated from newly
-idle load balance.  The problem is load balancing going nuts moving tons
-of tasks around and what we are seeing is cache misses for the application
-shots up to the roof and suffering from cache threshing.
-
-- Ken
-
+I tried that, but I found that parent "cpu" directory i.e
+/sys/devices/system/cpu itself was not getting created. Any clues?
 

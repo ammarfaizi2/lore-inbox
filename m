@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276203AbRI1Rlk>; Fri, 28 Sep 2001 13:41:40 -0400
+	id <S276201AbRI1Rlk>; Fri, 28 Sep 2001 13:41:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276202AbRI1Rld>; Fri, 28 Sep 2001 13:41:33 -0400
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:36752 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S276201AbRI1RlY>; Fri, 28 Sep 2001 13:41:24 -0400
-Date: Fri, 28 Sep 2001 18:40:08 +0100
-From: Dave Jones <davej@suse.de>
-To: powertweak-linux@lists.sourceforge.net
-Cc: linuxperf@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Powertweak 0.99.3
-Message-ID: <20010928184008.A2355@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	powertweak-linux@lists.sourceforge.net, linuxperf@nl.linux.org,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S276203AbRI1Rlc>; Fri, 28 Sep 2001 13:41:32 -0400
+Received: from [209.195.52.30] ([209.195.52.30]:47632 "HELO [209.195.52.30]")
+	by vger.kernel.org with SMTP id <S276202AbRI1Rl0>;
+	Fri, 28 Sep 2001 13:41:26 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Bobby Hitt <bobhitt@bscnet.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Fri, 28 Sep 2001 09:21:11 -0700 (PDT)
+Subject: Re: 2 GB file limitation
+In-Reply-To: <043801c14831$d4ba2190$092cdb3f@bobathome>
+Message-ID: <Pine.LNX.4.40.0109280920360.19506-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 0.99.3 of the multi-purpose performance tuning / hardware
-configuration tool 'Powertweak' has been released.
+?? slackware 8 has large file support (I've been useing it for a while
+now)
 
-You can find tarballs at
-	http://sourceforge.net/project/showfiles.php?group_id=253
-RPMs/Debs will follow soon.
+David Lang
 
-regards,
+On Fri, 28 Sep 2001, Bobby Hitt wrote:
 
-Dave.
-
-Release notes follow:
-v0.99.3 [Release 21. -- The 'voon' release ]
-
-- Bugfixes:
-  - Daemon now handles >1 HUP. 
-  - Daemon applies settings on getting a HUP.
-  - SMART code doesn't keep device fd open anymore.
-  - Make install no longer overwrites existing config files.
-  - CDROM backend now respects min/max settings in /proc
-  - CPU backend now handles SMP boxes properly.
-  - CPU backend handles steppings correctly.
-  - Close open fds lying around at daemon creation time (Debian bug 111840) 
-
-- New Features:
-  - Tweaks that have changed value since the daemon has loaded
-    now reflect their current state in the UIs.
-  - Subtrees are now sorted alphabetically in UIs. 
-  - Powerdown joystick port option for ymf744b sound card.
-  - Daemon --no-info option to skip `info' tweaks. 
-  - Pentium III & AMD Athlon XML added.
-  - Informational MTRR backend added.
-
-- Architectural changes:
-  - CPU backend now only does CPU identification once
-    at init time, not every time a tweak is allocated.
-    End result : Lower backend memory usage.
-  - All backends had destructors auditted & cleaned up.
-  - Addition of GetValueRaw() method to tweak struct meant
-    backend init paths got much cleaner.
-  - Removal of lots of useless/old/duplicated code.
-  - Tweak allocation methods changed to accept tweaktype argument.
-  - Standarise some XML tags between backends.
-  - powertweakd now becomes a daemon before loading tweaks.
-
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+> Date: Fri, 28 Sep 2001 11:25:40 -0400
+> From: Bobby Hitt <bobhitt@bscnet.com>
+> To: linux-kernel@vger.kernel.org
+> Subject: 2 GB file limitation
+>
+> Hello,
+>
+> Thanks to all that provided input for my problem. All good info. Seems that
+> Slackware distributions, even the latest has the latest tar and gzip
+> programs. I'm going to snatch them off the RedHat site and install.
+>
+> Thanks again!
+>
+> Bobby
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,94 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267259AbTBDNCO>; Tue, 4 Feb 2003 08:02:14 -0500
+	id <S267252AbTBDNBk>; Tue, 4 Feb 2003 08:01:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267257AbTBDNCM>; Tue, 4 Feb 2003 08:02:12 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:57739 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S267254AbTBDNCH>;
-	Tue, 4 Feb 2003 08:02:07 -0500
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S267254AbTBDNBk>; Tue, 4 Feb 2003 08:01:40 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:42257 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S267252AbTBDNBj>; Tue, 4 Feb 2003 08:01:39 -0500
+Message-ID: <3E3FBC1C.167E779A@aitel.hist.no>
+Date: Tue, 04 Feb 2003 14:11:56 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.59 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
+To: Padraig@Linux.ie
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc 2.95 vs 3.21 performance
+References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com> <3E3F9C82.7000607@Linux.ie>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15935.48132.280312.291631@harpo.it.uu.se>
-Date: Tue, 4 Feb 2003 14:11:32 +0100
-To: linux-kernel@ton.iguana.be (Ton Hospel)
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, alan@lxorguk.ukuu.org.uk
-Subject: Re: two x86_64 fixes for 2.4.21-pre3
-In-Reply-To: <b1nb4i$crp$1@post.home.lunix>
-References: <15921.37163.139583.74988@harpo.it.uu.se>
-	<b1nb4i$crp$1@post.home.lunix>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ton Hospel writes:
- > In article <15921.37163.139583.74988@harpo.it.uu.se>,
- > 	Mikael Pettersson <mikpe@csd.uu.se> writes:
- > >  #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
- > >  
- > > +#define __save_and_cli(x)	do { __save_flags(x); __cli(); } while(0);
- > > +#define __save_and_sti(x)	do { __save_flags(x); __sti(); } while(0);
- > > +
- > 
- > The extra ; after the while(0) look wrong.
- > 
- > >  #define restore_flags(x) __global_restore_flags(x)
- > > +#define save_and_cli(x) do { save_flags(x); cli(); } while(0);
- > > +#define save_and_sti(x) do { save_flags(x); sti(); } while(0);
- > 
- > Same here
+Padraig@Linux.ie wrote:
+[...]
+> Interesting. I just noticed that I get 50% decrease in
+> the speed of my program if I just insert a printf(). I.E.
+> my program is like:
+> 
+> printf()
+> for(;;) {
+>      do_sorting_loop_test();
+> }
+> 
+> If I remove the initial printf it doubles in speed?
+> I assume this is some weird caching thing?
 
-Good catch. Those #defines were copied from include/asm-i386/system.h which
-contains the same extraneous semicolons. The patch below cleans this up.
+Looks like a cacheline alignment issue to me.
+This loop of yours occupy x cachelines on your cpu,
+moving it in memory by adding the printf
+might cause it to ocupy x+1 cachelines.
+That might be noticeable if x is a really small number,
+such as 1.
 
-/Mikael
+> gcc is 3.2.1 (same happens for 2.95..)
+> 
+> <boggle>
+> Note this is with -O3. If I don't specify -O then
+> leaving the printf in speeds things up by about 15%
+> </boggle>
 
---- linux-2.4.21-pre4/include/asm-i386/system.h.~1~	2003-01-31 15:20:56.000000000 +0100
-+++ linux-2.4.21-pre4/include/asm-i386/system.h	2003-02-04 14:04:48.000000000 +0100
-@@ -322,8 +322,8 @@
- /* used in the idle loop; sti takes one instruction cycle to complete */
- #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
- 
--#define __save_and_cli(x)	do { __save_flags(x); __cli(); } while(0);
--#define __save_and_sti(x)	do { __save_flags(x); __sti(); } while(0);
-+#define __save_and_cli(x)	do { __save_flags(x); __cli(); } while(0)
-+#define __save_and_sti(x)	do { __save_flags(x); __sti(); } while(0)
- 
- /* For spinlocks etc */
- #if 0
-@@ -348,8 +348,8 @@
- #define sti() __global_sti()
- #define save_flags(x) ((x)=__global_save_flags())
- #define restore_flags(x) __global_restore_flags(x)
--#define save_and_cli(x) do { save_flags(x); cli(); } while(0);
--#define save_and_sti(x) do { save_flags(x); sti(); } while(0);
-+#define save_and_cli(x) do { save_flags(x); cli(); } while(0)
-+#define save_and_sti(x) do { save_flags(x); sti(); } while(0)
- 
- #else
- 
---- linux-2.4.21-pre4/include/asm-x86_64/system.h.~1~	2003-01-31 15:22:57.000000000 +0100
-+++ linux-2.4.21-pre4/include/asm-x86_64/system.h	2003-02-04 14:05:07.000000000 +0100
-@@ -246,8 +246,8 @@
- /* used in the idle loop; sti takes one instruction cycle to complete */
- #define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
- 
--#define __save_and_cli(x)      do { __save_flags(x); __cli(); } while(0);
--#define __save_and_sti(x)      do { __save_flags(x); __sti(); } while(0);
-+#define __save_and_cli(x)      do { __save_flags(x); __cli(); } while(0)
-+#define __save_and_sti(x)      do { __save_flags(x); __sti(); } while(0)
- 
- /* For spinlocks etc */
- #define local_irq_save(x) 	do { warn_if_not_ulong(x); __asm__ __volatile__("# local_irq_save \n\t pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory"); } while (0)
-@@ -266,8 +266,8 @@
- #define sti() __global_sti()
- #define save_flags(x) ((x)=__global_save_flags())
- #define restore_flags(x) __global_restore_flags(x)
--#define save_and_cli(x) do { save_flags(x); cli(); } while(0);
--#define save_and_sti(x) do { save_flags(x); sti(); } while(0);
-+#define save_and_cli(x) do { save_flags(x); cli(); } while(0)
-+#define save_and_sti(x) do { save_flags(x); sti(); } while(0)
- 
- #else
- 
+Sure - going from -O3 to -O changes code generation so
+your loop code hits the cachelines differently.
+In this case the printf moved the loop into
+better alignment.
+
+My advice is to put your test loop in a function of its own,
+and do the printing in the function that calls it.
+functions are always aligned the same (good) way so
+that calling them will be fast.
+
+You can tune the speed of your inner loop by experimenting
+with the insertion of one or more NOP asms in front
+of the loop.  Just be aware that all such tuning is wasted once
+you change anything at all in that function - you'll have to
+re-do the tuning each time. 
+
+The compiler should ideally align the loops for maximum performance.
+That can be hard though, considering all the different processors
+that might run your program.  And aligning everything optimally
+could waste a _lot_ of code space - so do this only for
+small loops with lots of iterations.
+
+Helge Hafting

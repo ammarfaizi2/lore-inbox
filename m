@@ -1,143 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264592AbTDPUtV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 16:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264593AbTDPUtV
+	id S264584AbTDPVAb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 17:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264587AbTDPVAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 16:49:21 -0400
-Received: from h007.c000.snv.cp.net ([209.228.32.71]:4837 "HELO
-	c000.snv.cp.net") by vger.kernel.org with SMTP id S264592AbTDPUtS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 16:49:18 -0400
-X-Sent: 16 Apr 2003 21:01:11 GMT
-Message-ID: <00a801c3045b$4b6f3460$6901a8c0@athialsinp4oc1>
-From: "Brien" <admin@brien.com>
-To: "Robert White" <rwhite@casabyte.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <PEEPIDHAKMCGHDBJLHKGCEMNCHAA.rwhite@casabyte.com>
-Subject: Re: my dual channel DDR 400 RAM won't work on any linux distro
-Date: Wed, 16 Apr 2003 17:01:03 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 16 Apr 2003 17:00:31 -0400
+Received: from iucha.net ([209.98.146.184]:1845 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id S264584AbTDPVA3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 17:00:29 -0400
+Date: Wed, 16 Apr 2003 16:12:23 -0500
+To: Dave Jones <davej@codemonkey.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
+Message-ID: <20030416211223.GH29143@iucha.net>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@digeo.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030415133608.A1447@cuculus.switch.gts.cz> <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com> <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net> <20030415154355.08ef6672.akpm@digeo.com> <20030416004556.GD29143@iucha.net> <1050493328.28591.42.camel@dhcp22.swansea.linux.org.uk> <20030416131536.GF29143@iucha.net> <20030416135819.GB18358@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a8sldprk+5E/pDEv"
+Content-Disposition: inline
+In-Reply-To: <20030416135819.GB18358@suse.de>
+X-message-flag: Outlook: Where do you want [your files] to go today?
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.3i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->but I suspect it has to do with
-> tolerances, timing, and evil gremlins that live under SIMMs and exact a
-toll
-> on non-union data
 
-darn those gremlins! have any repellent?
+--a8sldprk+5E/pDEv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(sorry if this seems like junk to some people--not going to make it a habit)
+On Wed, Apr 16, 2003 at 02:58:19PM +0100, Dave Jones wrote:
+> On Wed, Apr 16, 2003 at 08:15:36AM -0500, Florin Iucha wrote:
+>=20
+>  > 00:00.0 Host bridge: Silicon Integrated Systems [SiS] 735 Host (rev 01)
+>  > 01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R200 QL
+>  > [Radeon 8500 LE]
+>  >=20
+>  > Maybe the AGP code is trying to push some bits in the wrong
+>  > port/address?
+>=20
+> SiS driver internals haven't changed (at least not under my hands),
+> so it should be poking the same bits in the same registers as the
+> 2.4 driver does. The only 'bits in wrong address' type bug outstanding
+> in agpgart is that the gatt_table address is potentially allocated as
+> a 64bit address and truncated to fit into 32bits, but that will only bite
+> you on a 64bit host that uses the generic gatt allocation routines.
+> (Namely x86-64).
 
------ Original Message -----
-From: "Robert White" <rwhite@casabyte.com>
-To: "Brien" <admin@brien.com>; <linux-kernel@vger.kernel.org>
-Sent: Wednesday, April 16, 2003 4:53 PM
-Subject: RE: my dual channel DDR 400 RAM won't work on any linux distro
+Should I try 2.4.20? I can not try -ac kernels because all my filesystems
+are xfs.
 
+florin
 
-> I had one-hell of a problem myself relating to memory on my new cutting
-edge
-> motherboard.  The problem, it turned out, had everything to do with the
-> motherboard and the often marginal quality of the ram.  Much investigation
-> revealed that there were only a few manufacturers of ram that the MoBoard
-> would "support"
->
-> In lay speak, I could put any damn thing I wanted into the first slot, but
-> anything I did with the second and subsequent slots went all haywire.
->
-> The BS layman's speak they gave me at the store was that they had seen a
-lot
-> of cases where having "double sided SIMMs" (they were oh-so-usefully
-> classifying the memory based on whether there were chips on just one side,
-> or on both sides of the circuit card 8-) in the second and subsequent
-slots
-> never worked.
->
-> Translating that somewhat vague set of observations by less than top-shelf
-> observers, and the really scavenging across the manufacturer site where
-they
-> listed the specific manufacturer and model numbers of supported SIMs which
-> were only compatible in specific sets.  (e.g. two of "these" or three of
-> "those" with no mix-and-match.)  This netted me the following wisdom:
->
-> 1) Mother Board claims of "up to N gig" are highly contingent.
-> 2) It is nearly impossible to find those contingencies.
-> 3) That is especially true before purchase.
-> 4) The conformant products were all high end components.
->
-> This further suggests:
->
-> 5) Manufacturers are not being completely scrupulous WRT Standards
-> conformance.
-> 6) Retailers are not well educated about the limits induced by #5.
-> 7) If you want a given amount of memory, make sure you get it all on one
-> SIMM, on in a matched set, or pre-installed by someone who has the
-resources
-> to match a set for you.
->
-> 8) Individual experience varies *WIDELY* even with the same brand and
-model
-> of MoBoard and SIMM.
->
-> 9) <sarcasm> This is probably a plot to force people to buy the
-over-priced
-> 1Gig SIMMs instead of a pair of reasonably priced 512K SIMMs </sarcasm>
->
-> I don't know the "real cause"(tm) but I suspect it has to do with
-> tolerances, timing, and evil gremlins that live under SIMMs and exact a
-toll
-> on non-union data.  At these speeds 1-half of one percent error can exceed
-> the noise-floor almost immediately.
->
-> Rob.
->
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Brien
-> Sent: Wednesday, April 16, 2003 7:59 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: my dual channel DDR 400 RAM won't work on any linux distro
->
->
-> (I posted this on some forums and they recommended that I try here)
->
-> Hi,
->
-> I have a Gigabyte SINXP1394 motherboard, and 2 Kingston 512 MB DDR 400 (CL
-> 2.5) RAM modules installed. Whenever I try to install any Linux
-> distribution, I always get a black screen after the kernel loads, when I
-> have dual channel enabled; If I take out 1 of the RAM modules (either
-one),
-> everything works as it should -- it's not a bad module (works perfectly
-> under Windows by the way). I can't disable dual channel without taking out
-> half of my RAM, and I really do not want to run with only half of it. Does
-> anyone have any idea how I can fix this problem, or is it something that
-> needs to be updated in the kernel?
->
-> Thanks for any info.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+--=20
 
+"NT is to UNIX what a doughnut is to a particle accelerator."
 
+--a8sldprk+5E/pDEv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+ncc3NLPgdTuQ3+QRAsWmAKCcodS8mbxZneijJtQStak0fEWppACcCgGh
+ofGI+KIcMWMpf9HdS6Ybm1g=
+=0iZM
+-----END PGP SIGNATURE-----
+
+--a8sldprk+5E/pDEv--

@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUJOSQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268260AbUJOSQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268236AbUJOSQk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 14:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUJOSQk
+	id S268260AbUJOSQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 14:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268268AbUJOSQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 14:16:40 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:22243 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S268236AbUJOSQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 14:16:38 -0400
-Date: Fri, 15 Oct 2004 20:14:46 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: Hugh Dickins <hugh@veritas.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-Message-ID: <20041015181446.GF17849@dualathlon.random>
-References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain> <1097846353.2674.13298.camel@cube> <20041015162000.GB17849@dualathlon.random> <1097857912.2669.13548.camel@cube> <20041015171355.GD17849@dualathlon.random> <1097862714.2666.13650.camel@cube>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097862714.2666.13650.camel@cube>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+	Fri, 15 Oct 2004 14:16:48 -0400
+Received: from mail4.utc.com ([192.249.46.193]:1735 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S268260AbUJOSQp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 14:16:45 -0400
+Message-ID: <41701401.5070403@cybsft.com>
+Date: Fri, 15 Oct 2004 13:16:33 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu>
+In-Reply-To: <20041015102633.GA20132@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 01:51:56PM -0400, Albert Cahalan wrote:
-> Sure. That's not because of RSS. It's for TRS and DRS,
-> which are supposed to be RSS-like values specific to
-> text (code) and data.
-
-And they're not RSS-like right now if you pick them from statm, the only
-RSS-like variable is rss itself in 2.6 ;).
-
-	*data = mm->total_vm - mm->shared_vm
-
-all those are virtual, not physical. dunno about 2.4, but I doubt 2.4
-would be much different, rss + shared where the only physical driven
-things in 2.4 IIRC. (now only rss is left, and Hugh's patch adds
-anon_rss back)
-
-to me TRS and DRS have always been _virtual_ when I read the ps output,
-obviously since DRS tends to be orders of magnitude bigger than RSS
-itself ;).
-
-> The VM size of text is TSIZ, and of data is DSIZ.
-> These numbers, while useful, are not the same thing.
-
-those should come out of statm pretty nicely.
-
-> A user can configure top to display other columns if
-> he has a box that can't handle /proc/*/statm well.
-> The file will not be read if it is not needed.
-> Start top, then do:
+Ingo Molnar wrote:
+> i have released the -U3 PREEMPT_REALTIME patch:
 > 
-> f     enters field modification screen
-> o     disable VIRT
-> q     disable RES
-> t     disable SHR
-> n     disable %MEM
-> enter exits field modification screen
-> W     writes a ~/.toprc file
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
 > 
-> So, what is the problem again?  :-)
 
-that you can't get those values efficiently. Even assuming you're ok to
-drop shared by disabling SHR, it wouldn't help, without a kernel API
-change.
+I have gotten a couple of interesting traces on my dual 2.6G Xeon 
+workstation here at the office. These were both generated running tests 
+on (oddly enough) my own trace buffer that I am working on for a client 
+here. The test basically consists of 100 threads putting data into the 
+trace buffer concurrently and then one reader thread draining it and 
+populating a multi-dimensional array to make sure all of the data is 
+accounted for and not corrupted. All threads are running at a normal 
+priority since the test is for correctness not performance. The traces 
+are here:
 
-> Well, as long as it makes the users happy... I don't personally
-> care, except to say that I don't care to document all sorts
-> of kernel-specific variations. It gets hopelessly messy.
+http://www.cybsft.com/testresults/26workstation/2.6.9-rc4-mm1-VP/
 
-Yep, I believe users could be happy with Hugh's rss-anon_rss variant.
+kr

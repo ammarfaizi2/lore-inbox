@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290421AbSA3SdW>; Wed, 30 Jan 2002 13:33:22 -0500
+	id <S290333AbSA3SdX>; Wed, 30 Jan 2002 13:33:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290333AbSA3ScB>; Wed, 30 Jan 2002 13:32:01 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:56844 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S290421AbSA3Sbj>; Wed, 30 Jan 2002 13:31:39 -0500
-Date: Wed, 30 Jan 2002 19:31:36 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Pozsar Balazs <pozsy@sch.bme.hu>,
-        Dave Jones <davej@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.2-dj7
-Message-ID: <20020130193136.B2487@suse.cz>
-In-Reply-To: <E16Vie4-0005gE-00@the-village.bc.nu> <Pine.LNX.4.10.10201301018200.7609-100000@www.transvirtual.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10201301018200.7609-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Wed, Jan 30, 2002 at 10:22:02AM -0800
+	id <S290388AbSA3ScH>; Wed, 30 Jan 2002 13:32:07 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:7301 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S290422AbSA3Sbq>; Wed, 30 Jan 2002 13:31:46 -0500
+Date: Wed, 30 Jan 2002 13:34:16 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Dan Maas <dmaas@dcine.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP/IP Speed
+In-Reply-To: <00b501c1a9ba$93544830$1a01a8c0@allyourbase>
+Message-ID: <Pine.LNX.3.95.1020130132830.16759A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 10:22:02AM -0800, James Simmons wrote:
+On Wed, 30 Jan 2002, Dan Maas wrote:
 
-> > >    In dmi_scan.c there is a hook to deal with the PS/2 mouse on Dell
-> > > Latitude C600. Can someone with this machine test the new input drivers on
-> > > it. I like to see if we need some kind of fix for this device.
+> > When I ping two linux machines on a private link, I get 0.1 ms delay.
+> > When I send large TCP/IP stream data between them, I get almost
+> > 10 megabytes per second on a 100-base link. Wonderful.
 > > 
-> > You I suspect will. When the machine resumes it likes to re-enable the mouse
-> > pad irrespective of whether it is being used - so you get an IRQ12. Even
-> > more fun if you ignore that IRQ you dont get keyboard events because the
-> > microcontroller (or SMM code impersonating it - who knows these days) is
-> > waiting for the ps/2 event to be handled first.
+> > However, if I send 64 bytes from one machine and send it back, simple
+> > TCP/IP strean connection, it takes 1 millisecond to get it back? There
+> > seems to be some artifical delay somewhere.  How do I turn this OFF?
 > 
-> Oh man is that brain dead. 
-
-The i8042 has a single byte output buffer shared by both the keyboard
-and a mouse. If it's full, no more data is accepted from the keyboard or
-mouse. Hence the problem above.
-
-> > The alternative (possibly cleaner) fix on those machines would be to turn
-> > the PS/2 port on always and process/discard output if its not wanted by
-> > the user
+> Stupid question - did you turn Nagle off?
 > 
-> This could be easily arranged with the new input drivers with it modular
-> design. Since for the ix86 platform most people will want PS/2 input
-> support to be built in. The only expection are the USB only users. I guess
-> with the Dell Latitude C600 we will have to force i8042.c to be built in. 
-> Vojtech what do you think about this solution?
+> int one = 1;
+> setsockopt(fd, SOL_TCP, TCP_NDELAY, &one);
+> 
+> (I think; typing from memory...)
+> 
+> Regards,
+> Dan
+> 
 
-I don't think we need to have it built in. If we need keyboard support
-(which is likely), we'll have it, and if we don't need keyboard, then
-we can safely ignore the IRQ12 as well.
+I did, but I thought it was a TCP option, not a socket option.
+I will change it and see if it does anything. Currently, it
+seems like a no-op, no errors, but does nothing. 
 
-And i8042.c, once power management is implemented in it, will reset the
-keyboard controller and flush its buffers upon resume from sleep anyway.
-(A problem may arise if the machine doesn't tell us about sleep/wake and
-handles it all in SMM ...)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Early in code:
+
+int on = 1;
+
+#define ON &on
+
+
+Where accept is called. Returned socket value is set to nodelay. 
+
+        len = sizeof(addr);
+        if((hs = accept(s, SSAP &addr, &len))) == FAIL)
+            ERRORS(Accept);
+        if(setsockopt(hs, IPPROTO_TCP, TCP_NODELAY, ON, sizeof(on)) == FAIL)
+            ERRORS(Setsockopt);
+
+
+
+So, maybe it's supposed to be SOL_TCP?  I'll look for it.
+
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

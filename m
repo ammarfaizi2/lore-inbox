@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268938AbRG0TaI>; Fri, 27 Jul 2001 15:30:08 -0400
+	id <S268940AbRG0Tb2>; Fri, 27 Jul 2001 15:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268939AbRG0T36>; Fri, 27 Jul 2001 15:29:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58123 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268938AbRG0T3s>; Fri, 27 Jul 2001 15:29:48 -0400
-Subject: Re: Linux 2.4.7-ac1 PNP Oops on shutdown
-To: reality@delusion.de (Udo A. Steinberg)
-Date: Fri, 27 Jul 2001 20:31:09 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <no.id> from "Udo A. Steinberg" at Jul 27, 2001 08:49:19 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268941AbRG0TbS>; Fri, 27 Jul 2001 15:31:18 -0400
+Received: from cs159246.pp.htv.fi ([213.243.159.246]:45222 "EHLO
+	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S268940AbRG0TbE>; Fri, 27 Jul 2001 15:31:04 -0400
+Message-ID: <3B61C16F.AD4A1B24@pp.htv.fi>
+Date: Fri, 27 Jul 2001 22:30:55 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: bvermeul@devel.blackstar.nl
+CC: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS / 2.4.6 / Data Corruption
+In-Reply-To: <Pine.LNX.4.33.0107272037380.16051-100000@devel.blackstar.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15QDKH-0006KQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> 2.4.7-ac1 oopses reproduceably during every shutdown. As far as I can tell,
-> 2.4.6-ac5 didn't exhibit this behaviour.
+bvermeul@devel.blackstar.nl wrote:
+> 
+> Possibly. We're talking 130 kByte in total. The above is the reason why
+> I don't like using reiserfs on my development system. My files get
+> completely garbled, with the data randomly distributed over the files 
 
->From the trace that looks what I would expect
+How about using notail -option?
 
-> >>EIP; c0112b5d <complete+1d/a0>   <=====
-> Trace; c011792d <complete_and_exit+d/20>
-> Trace; c01dde51 <pnp_dock_thread+d1/e0>
-> Trace; c01054c8 <kernel_thread+28/40>
-> Code;  c0112b5d <complete+1d/a0>
-> 00000000 <_EIP>:
-> Code;  c0112b5d <complete+1d/a0>   <=====
->    0:   8b 03                     mov    (%ebx),%eax   <=====
+ - Jussi
 
-Its oopsing in the complete_and_exit changes killing the PnP docking thread.
-
-A quick look over the code and I have to admit I don't see why that happened
-I'll ponder it later
-
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

@@ -1,226 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264427AbTDXEff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 00:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264424AbTDXEfe
+	id S264421AbTDXEfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 00:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264429AbTDXEfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 00:35:34 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:159 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264420AbTDXEfX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 00:35:23 -0400
-Date: Thu, 24 Apr 2003 10:22:22 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: bcrl@redhat.com, akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Filesystem AIO read-write patches
-Message-ID: <20030424102221.A2166@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-Mime-Version: 1.0
+	Thu, 24 Apr 2003 00:35:41 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:28036 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264421AbTDXEf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 00:35:28 -0400
+Date: Wed, 23 Apr 2003 21:47:25 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Jamie Lokier <jamie@shareable.org>, Matthias Schniedermeyer <ms@citd.de>,
+       Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <29360000.1051159644@[10.10.2.4]>
+In-Reply-To: <20030424003742.J3557@almesberger.net>
+References: <1508310000.1051116963@flay>
+ <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay>
+ <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay>
+ <20030424001134.GD26806@mail.jlokier.co.uk>
+ <20030423214332.H3557@almesberger.net>
+ <20030424011137.GA27195@mail.jlokier.co.uk>
+ <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]>
+ <20030424003742.J3557@almesberger.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a revised version of the filesystem AIO patches
-for 2.5.68.
+>> You turn it off once, and your distro keeps it that way. Doesn't seem
+>> that onerous to me. 
+> 
+> Okay, so now your distribution is aware of this configuration
+> issue.
 
-It is built on a variation of the simple retry based 
-scheme originally suggested by Ben LaHaise. 
+Can be. But does something sensible without it.
+ 
+>> Indeed. Initial impression of people upgrading a kernel from 2.4 to 2.5/6
+>> is that "sound doesn't work in 2.5/6". Not good.
+> 
+> ... but now it isn't. What gives ?
 
-Why ?
-------
-Because 2.5 is still missing real support for regular 
-filesystem AIO (but for O_DIRECT). 
+Not sure what you mean. Load kernel, load xmms. hit play. Sound comes out.
+Goodness.
+ 
+> (Besides, you've just added the "silent" flag as another config item
+> besides the volume setting, using different interfaces, different
+> permissions, etc.)
 
-ext2, jfs and nfs define the fops aio interfaces aio_read 
-and aio_write to default to generic_file_aio_read/write.
-However these routines show fully synchronous behaviour
-unless the file was opened with O_DIRECT. This means that 
-an io_submit could merrily block for regular aio read/write
-operations, while an application thinks its doing async 
-i/o.
+Yeah. But the default options now do something non-confusing.
+ 
+>> And all for the fact that when the user sets up the system, it just
+>> works. With sensible defaults. Instead of being an elitist piece of
+>> crap that only l33t g33ks can use.
+> 
+> Fine. But this discussion isn't about the end-user experience,
+> but about where a certain parameter should be set, and what its
+> transient default value should be.
 
-How ?
-------
-The approach we took was to identify and focus on
-the most significant blocking points (seconded by 
-observations from initial experimentation and profiling 
-results), and convert them to retry exit points. 
+Umm. This discussion is exactly about the end-user experience.
+And it's not a transient default ... it's the initial default.
 
-Retries start at a very high level, driven directly by 
-the aio infrastructure (In future if the in-kernel fs
-apis change, then retries could be modified to happen  
-one level below, i.e. at the api level). They are kicked 
-off via async wait queue functions. In synchronous i/o 
-context the default wait queue entries are synchronous 
-hence don't cause an exit at a retry point.
+> Unexperienced users will just install a set of packages to upgrade
+> to a new kernel. So this change can just be included in one of
+> these upgrades. No superhuman effort needed.
 
-One of the considerations was to try to take a careful
-and less intrusive route with minimal changes to existing
-synchronous i/o paths. The intent was to achieve a 
-reasonable level of asynchrony in a way that could then
-be further optimized and tuned for workloads of relevance.
+So we can fix it in userspace, and decided a sensible non-zero default
+there, but are somehow incapable of doing that *inside* the kernel? Sorry,
+I don't buy that. 
 
-The Patches:
------------
-(which I'll be mailing out as responses to this note)
-01aioretry.patch 	: Base aio retry infrastructure 
-02aiord.patch	 	: Filesystem aio read 
-03aiowr.patch	 	: Minimal filesystem aio write 
-			(for all archs and all filesystems 
-			 using generic_file_aio_write)
-04down_wq-86.patch 	: An asynchronous semaphore down
-		     	implementation (currently x86 
-			only)
-05aiowrdown_wq.patch 	: Uses async down for aio write
-06bread_wq.patch	: Async bread implementation
-07ext2getblk_wq.patch	: Async get block support for 
-			  the ext2 filesystem
+There is a middle ground between "clueless newbie" and "geek who spends
+their whole life configuring Linux, and is happy to change 2000 settings on
+every install" ... something like "person who just wants to get on with it,
+and not fiddle endlessly with things that should just work".
+ 
+> As far as those are concerned who painstakingly build their own
+> kernel, update the things listed in Documentation/Changes, avoid
+> suble traps like CONFIG_SERIO_I8042, don't get confused by needing
+> new module utilities, etc., I'm fairly confident that they'll
+> consider setting the volume a rather minor challenge.
+> 
+> And you could even take the sting out of this one by adding an
+> appropriate warning to Documentation/Changes. That's a about all
+> the kernel-side support this issue deserves.
 
-Observations
---------------
-As a quick check to find out if this really works, I could
-observe a decent reduction in the time spent in io_submit 
-(especially for large reads) when the file is not already 
-cached (e.g. first time access). For the write case, I 
-found that I had to add the async get block support 
-to get a perceptable benefit. For the cached case, there
-wasn't any observable difference, which is expected.
-The patch didn't seem to be hurting synchronous read/
-write performance for a simple test.
+The old "document the bugs" arguement. I've been there before - Dynix/PTX.
+We ended up with 1000 pages of utter crap for users to wade through as
+"release notes". I got into the habit of taking a printed out copy to
+meetings and whenever anyone uttered the phrase "but it's documented in the
+release notes" I could thump the monster down on the table and say "find
+it". They never could by the end of the meeting.
 
-Another thing I tried out was to temporarily move the 
-retries into io_getevents rather than worker threads
-just as a sanity check for any gross impact on cpu 
-utilization. That seemed OK too. 
+Bugs should be fixed, not documented.
 
-Of course thorough performance testing is needed and
-would show up places where there is scope for 
-tuning, and how it affects overall system performance
-numbers.
-
-I have been playing with it for a while now, and so 
-far its been running OK for me. 
-
-I would welcome feedback, bug reports, test results etc.
-
-Full diffstat:
-
-aiordwr-rollup.patch:
-......................
- arch/i386/kernel/i386_ksyms.c |    2 
- arch/i386/kernel/semaphore.c  |   30 ++-
- drivers/block/ll_rw_blk.c     |   21 +-
- fs/aio.c                      |  371 +++++++++++++++++++++++++++++++++---------
- fs/buffer.c                   |   54 +++++-
- fs/ext2/inode.c               |   44 +++-
- include/asm-i386/semaphore.h  |   27 ++-
- include/linux/aio.h           |   32 +++
- include/linux/blkdev.h        |    1 
- include/linux/buffer_head.h   |   30 +++
- include/linux/errno.h         |    1 
- include/linux/init_task.h     |    1 
- include/linux/pagemap.h       |   19 ++
- include/linux/sched.h         |    2 
- include/linux/wait.h          |    2 
- include/linux/writeback.h     |    4 
- kernel/fork.c                 |    9 -
- mm/filemap.c                  |   97 +++++++++-
- mm/page-writeback.c           |   17 +
- 19 files changed, 616 insertions(+), 148 deletions(-)
-
-[The patches are also available for download on the
- Linux Scalability Effort project site
-(http://sourceforge.net/projects/lse)
-Categorized under the "aio" release in IO Scalability 
-section
-http://sourceforge.net/project/showfiles.php?group_id=8875]
-
-A rollup version containing all the 7 patches 
-(aiordwr-rollup.patch) would be made available as well
-
-Major additions/changes since previous versions posted:
-------------------------------------------------------
-- Introduced _wq versions of low level routines like
-  lock_page_wq, wait_on_page_bit_wq etc, which take the 
-  wait_queue entry as a parameter (Thanks to Christoph
-  Hellwig for suggesting the new and much better 
-  names :)). 
-- Reorganized code to avoid having to use the do_sync_op() 
-  wrapper (because the forced emulation of the i/o wait 
-  context seemed an overhead and not very elegant).
-- (New)Implementation of asynchronous semaphore down 
-  operation for x86 (down_wq).
-- Have dropped the async block allocation portions from the
-  async ext2_get_block patch after a discussion with Stephen
-  Tweedie (the i/o patterns we anticipate are less likely
-  to extend file sizes)
-- Fixes use_mm() to clear lazy tlb setting (I traced some 
-  of the strange hangs I was seeing for large reads to this)
-- Removed the aio_run_iocbs() acceleration from io_getevents,
-  now that the above problem is gone.
-
-Todos/TBDs:
-----------
-- Support for down_wq on other archs or provide compatibility 
-  definitions for archs where it is not implemented
-  (Need feedback on this)
-- Should the cond_resched() calls in read/write be 
-  converted to retry points (would need ctx specific worker 
-  threads) ?
-- Look at async get block implementations for other 
-  filesystems (e.g. jfs) ?
-- Optional: Check if it makes sense to use retry model for 
-  o_direct (or change sync o_direct to wait for completion 
-  of async o_direct) ? 
-- Upgrade to Ben's aio api changes (collapse of api parameters
-  into an rw_iocb) if and when it gets merged
-
-A few comments on low level implementation details:
---------------------------------------------------
-io_wait context
--------------------
-The task->io_wait field reflects the wait context in which
-a task is executing its i/o operations. For synchronous i/o
-task->io_wait is NULL, and the wait context is local on
-stack; for threads doing io submits or retries on behalf 
-of async i/o callers, tsk->io_wait is the wait queue 
-function entry to be notified on completion of a condition 
-required for i/o to progress. 
-
-Low level _wq routines take a wait queue parameter, so
-they can be invoked in either async or sync mode, even
-if running in async context (e.g servicing a page fault
-during an async retry). 
-
-Routines which are expected to be async whenever they are 
-running in async context and sync when running in sync 
-context do not need to provide a wait queue parameter.
-
-do_sync_op()
----------------
-The do_sync_op() wrappers are not typically needed anymore
-for sync versions of the operations; passing NULL to the
-corresponding _wq functions suffices. 
-
-However, there may be weird cases where we may have several 
-levels of nesting like:
-A()->B()->C()->D()->F()->iowait() 
-It may seem unnatural to pass a wait queue argument all 
-the way through, but if we need to force sync behaviour 
-in a certain case even if it is called under async context, 
-and have async behaviour in another, then we may need to 
-resort to using do_sync_op() (e.g if we had kept the 
-ext2 async block allocation modifications). 
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+M.
 

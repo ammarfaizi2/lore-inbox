@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263662AbUCUPHG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 10:07:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUCUPHG
+	id S263664AbUCUP1F (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 10:27:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUCUP1E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 10:07:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:19587 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263662AbUCUPHD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 10:07:03 -0500
-Date: Sun, 21 Mar 2004 10:08:04 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Clay Haapala <chaapala@cisco.com>
-cc: Jouni Malinen <jkmaline@cc.hut.fi>, "David S. Miller" <davem@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
-In-Reply-To: <yqujr7vpiwmv.fsf@chaapala-lnx2.cisco.com>
-Message-ID: <Xine.LNX.4.44.0403211006190.16503-100000@thoron.boston.redhat.com>
+	Sun, 21 Mar 2004 10:27:04 -0500
+Received: from 62.79.102.158.adsl.arc.worldonline.dk ([62.79.102.158]:15889
+	"EHLO mail.bitplanet.net") by vger.kernel.org with ESMTP
+	id S263664AbUCUP1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 10:27:03 -0500
+Message-ID: <405DB433.30409@bitplanet.net>
+Date: Sun, 21 Mar 2004 16:26:43 +0100
+From: =?UTF-8?B?S3Jpc3RpYW4gSMO4Z3NiZXJn?= <krh@bitplanet.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Len Brown <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ACPI IRQ routing problems with Thinkpad T40
+References: <A6974D8E5F98D511BB910002A50A6647615F5EEF@hdsmsx402.hd.intel.com> <1079839652.7279.845.camel@dhcppc4>
+In-Reply-To: <1079839652.7279.845.camel@dhcppc4>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004, Clay Haapala wrote:
-
-> I've redone the crypto crc32c implementation to make use of Jouni's
-> setkey() digest api.  So now crypto crc32c checksums are just another
-> type of digest, rather than a new CRYPTO_ALG type.
+Len Brown wrote:
+>>I've been trying to track down a problem where an interrupt from a
+>>cardbus card is being routed incorrectly.
 > 
-> This implementation is still a wrapper for the actual computation
-> routine in lib/libcrc32c, per previous requests.  The patch below
-> includes the code under lib and crypto.  It requires Jouni's previous
-> patches to be applied, and was tested on 2.6.4 kernel source.
+> Kristian,
+> Please test the "proposed final patch" here:
 > 
-> Let me know how it looks, especially if I should add further tests in
-> tcrypt.
+> http://bugzilla.kernel.org/show_bug.cgi?id=1564
 
-This looks fine, could you split it into two patches, one with the 
-libcrc32c code and then one with the crypto algorithm?
+Great, that fixes it.
 
-Also, in the configuration help, "This implementation uses lib/crc32c"  
-should be ""This implementation uses lib/libcrc32c".
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Thanks,
+Kristian

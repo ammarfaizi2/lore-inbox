@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313906AbSDJWEA>; Wed, 10 Apr 2002 18:04:00 -0400
+	id <S313909AbSDJWHz>; Wed, 10 Apr 2002 18:07:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313909AbSDJWD7>; Wed, 10 Apr 2002 18:03:59 -0400
-Received: from linuxfromscratch.org ([198.186.203.81]:57873 "EHLO
-	linuxfromscratch.org") by vger.kernel.org with ESMTP
-	id <S313906AbSDJWD6>; Wed, 10 Apr 2002 18:03:58 -0400
-Date: Wed, 10 Apr 2002 18:03:52 -0400
-From: Gerard Beekmans <gerard@linuxfromscratch.org>
-To: "Herbert G. Fischer" <nospam@pontoip.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Full RAM problem with IDE UDMA active
-Message-ID: <20020410220352.GA778@gwaihir.linuxfromscratch.org>
-In-Reply-To: <20020410213044.8661.qmail@hm60.locaweb.com.br>
+	id <S313910AbSDJWHz>; Wed, 10 Apr 2002 18:07:55 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:24572 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S313909AbSDJWHy>; Wed, 10 Apr 2002 18:07:54 -0400
+Date: Wed, 10 Apr 2002 15:07:15 -0700
+From: Chris Wright <chris@wirex.com>
+To: Robert Love <rml@tech9.net>
+Cc: Duncan Sands <duncan.sands@math.u-psud.fr>,
+        Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8-pre2: preempt: exits with preempt_count 1
+Message-ID: <20020410150715.A1550@figure1.int.wirex.com>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	Duncan Sands <duncan.sands@math.u-psud.fr>,
+	Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16vHbV-0000M5-00@baldrick> <1018463295.6681.18.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Linux From Scratch
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 06:30:44PM +0000, Herbert G. Fischer wrote:
-> When I do varios disk read-write operations (ex.: copying some ISO from one 
-> partition to another), my RAM gets almost FULL. It keeps growing in usage 
-> during the read-write operation. But when the operation finishes, the memory 
-> keeps FULL, even after running a sync command. The swap isn't used in 
-> this case.
+* Robert Love (rml@tech9.net) wrote:
+> On Wed, 2002-04-10 at 08:53, Duncan Sands wrote:
 > 
-> I think that UDMA uses a lot of memory without deallocing it.
+> > error: halt[411] exited with preempt_count 1
+> > 
+> > This was after about 24 hours of up time.  What can I do to help
+> > track down this locking problem?
 > 
-> Look:
->              total       used       free     shared    buffers     cached
-> Mem:        772368     645884     126484          0      85072     393896
-> -/+ buffers/cache:     166916     605452
-> Swap:      1044188          0    1044188
+> It is not a big deal.  The issue is that in the system shutdown code,
+> something does not release a lock but just figures "the system is going
+> down, what is the point?"  It is probably the BKL ...
+> 
+> For the sake of code readability and having nothing quit with a nonzero
+> preempt_count, we should explicitly drop the lock, but it is not hurting
+> anything (now, if you get this message elsewhere, there may be a
+> problem).
 
-It may appear that you only have 126,484 KB free RAM, but that doesn't
-include the cached memory. The second line shows your actual free RAM which
-is 605,452 KB (roughly 590 MB free out of 750 MB or so RAM). This memory
-(cached) will be made available to the system when something needs it.
- 
--- 
-Gerard Beekmans
-www.linuxfromscratch.org
+ditto with nfs.  doesn't require a system shutdown, just stopping the
+nfs server.
 
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+error: nfsd[983] exited with preempt_count 1
+error: rpciod[994] exited with preempt_count 1
+error: lockd[993] exited with preempt_count 1
+
+cheers,
+-chris

@@ -1,33 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129146AbRBLSGF>; Mon, 12 Feb 2001 13:06:05 -0500
+	id <S129426AbRBLSLP>; Mon, 12 Feb 2001 13:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129426AbRBLSFz>; Mon, 12 Feb 2001 13:05:55 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:772 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129146AbRBLSFm>; Mon, 12 Feb 2001 13:05:42 -0500
-Subject: Re: Linux 2.2.19pre10
-To: cowboy@vnet.ibm.com (Richard A Nelson)
-Date: Mon, 12 Feb 2001 18:06:17 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0102121253340.22778-100000@badlands.lexington.ibm.com> from "Richard A Nelson" at Feb 12, 2001 01:00:24 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129527AbRBLSLH>; Mon, 12 Feb 2001 13:11:07 -0500
+Received: from [206.245.154.69] ([206.245.154.69]:64009 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S129426AbRBLSKu>; Mon, 12 Feb 2001 13:10:50 -0500
+Date: Mon, 12 Feb 2001 13:10:48 -0500 (EST)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: linux-kernel@vger.kernel.org
+Subject: shared memory problem
+Message-ID: <Pine.LNX.4.10.10102121304250.24584-100000@athena.intergrafix.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SNMh-0007fo-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> First, I'm glad I wasn't hallucinating, and that the mail did indeed get
-> seen by someone.
-> 
-> Second, instead of reverting, can't we simply move those two lines up a
-> bit:
 
-Possibly but its a minor item that doesnt really matter anyway so leaving it
-is fine
+I've been using the 2.2.x series successfully, latest i used
+was 2.2.19pre7.
+Today i upgraded to 2.4.1-ac9 and noticed that shared memory shows 0.
+I searched the list archive briefly and someone said the stats have been
+broken since sometime in 2.3, but my system also shows my swap being used
+up a great deal (100MB whereas i'm rarely using more than 5MB (and that
+only at loaded times, which this isn't))
+
+this server is dedicated for apache web serving, and CONFIG_TMPFS is not
+configured in/any shm fs mounted. I didn't have this in 2.2 either.
+
+here's my /proc/meminfo and ipcs info..any help or advice is appreciated.
+
+
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  327745536 319848448  7897088        0 17149952 199004160
+Swap: 133885952 108236800 25649152
+MemTotal:       320064 kB
+MemFree:          7712 kB
+MemShared:           0 kB
+Buffers:         16748 kB
+Cached:         194340 kB
+Active:         159896 kB
+Inact_dirty:     48692 kB
+Inact_clean:      2500 kB
+Inact_target:      252 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       320064 kB
+LowFree:          7712 kB
+SwapTotal:      130748 kB
+SwapFree:        25048 kB
+
+
+ipcs -lm
+
+------ Shared Memory Limits --------
+max number of segments = 4096
+max seg size (kbytes) = 32768
+max total shared memory (kbytes) = 8388608
+min seg size (bytes) = 1
+
+ipcs -m shows many segments used by apache servers.
+
+------ Shared Memory Segments --------
+shmid     owner     perms     bytes     nattch    status
+0         young-w   600       46084     3         dest
+32769     nobody    600       46084     6         dest
+<snipped about 170 more..>
+
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
+
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263113AbTHVMbk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 08:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTHVMbk
+	id S263112AbTHVMnr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 08:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263168AbTHVMlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 08:31:40 -0400
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:34459 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S263113AbTHVLHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 07:07:44 -0400
-Message-ID: <20030822110830.15262.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	Fri, 22 Aug 2003 08:41:10 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:14602 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263180AbTHVMCy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Aug 2003 08:02:54 -0400
+Subject: [PATCH 2.6.0-test3][PCMCIA] vx_entry.c: remove release timer
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: linux-pcmcia@lists.infradead.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Luis Medinas" <metalgodin@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 22 Aug 2003 19:08:30 +0800
-Subject: Re: Problem with 2.6-testXX and alcatel speedtouch usb modem
-X-Originating-Ip: 194.65.14.75
-X-Originating-Server: ws5-8.us4.outblaze.com
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 22 Aug 2003 17:54:27 +0530
+Message-Id: <1061555067.1108.19.camel@lima.royalchallenge.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I try to make this modem working.
->It works very well on kernel 2.4 series.
->It work with some kernel 2.6 until test2-mm1.
->But since test2-mm1, the newer kernel doesn't work anymore.
->There is 2 related drivers for this modem.
->The one which is included in the kernel and which can be found here :
->http://www.linux-usb.org/SpeedTouch/
->and the one which I've always used until now :
->speedtouch.sourceforge.net
+sound/pcmcia/vx/vx_entry.c:
+This patch removes the PCMCIA timer release functionality which is no
+longer required. Without this the module can not be compiled and
+generates the following compiler error:
 
->when I notice that the old one doesn't work anymore, I try with the driver 
->which included in the kernel, without success.
+sound/pcmcia/vx/vx_entry.c: In function `snd_vxpocket_attach':
+sound/pcmcia/vx/vx_entry.c:151: structure has no member named `release'
+sound/pcmcia/vx/vx_entry.c:152: structure has no member named `release'
+sound/pcmcia/vx/vx_entry.c: In function `snd_vxpocket_detach':
+sound/pcmcia/vx/vx_entry.c:232: structure has no member named `release'
+sound/pcmcia/vx/vx_entry.c: In function `vxpocket_event':
+sound/pcmcia/vx/vx_entry.c:329: structure has no member named `release'
 
->It crashed when I do "pppd call adsl".
->I can load the firmware.
 
-Looks like this is happening to all 2.6.0-test3 users with speedtouch usb modems
-And i heard that speedtouch.sf.net developers want to leave 2.6 tree stabilize more a little bit to continue develop drivers with the correct support.
+vx_entry.c |   12 ++----------
+1 files changed, 2 insertions(+), 10 deletions(-)
 
-Im sure we can help test drivers with the correct support for 2.6 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
 
-Powered by Outblaze
+diff -urN linux-2.6.0-test3-bk9/sound/pcmcia/vx/vx_entry.c linux-2.6.0-test3-nvk/sound/pcmcia/vx/vx_entry.c
+--- linux-2.6.0-test3-bk9/sound/pcmcia/vx/vx_entry.c	2003-08-21 20:09:28.000000000 +0530
++++ linux-2.6.0-test3-nvk/sound/pcmcia/vx/vx_entry.c	2003-08-22 17:32:18.000000000 +0530
+@@ -34,10 +34,8 @@
+ static int vxpocket_event(event_t event, int priority, event_callback_args_t *args);
+ 
+
+-static void vxpocket_release(u_long arg)
++static void vxpocket_release(dev_link_t* link)
+ {
+-	dev_link_t *link = (dev_link_t *)arg;
+-	
+ 	if (link->state & DEV_CONFIG) {
+ 		/* release cs resources */
+ 		CardServices(ReleaseConfiguration, link->handle);
+@@ -56,7 +54,7 @@
+ 	struct snd_vxp_entry *hw;
+ 	dev_link_t *link = &vxp->link;
+ 
+-	vxpocket_release((u_long)link);
++	vxpocket_release(link);
+ 
+ 	/* Break the link with Card Services */
+ 	if (link->handle)
+@@ -148,9 +146,6 @@
+ 	link->irq.Handler = &snd_vx_irq_handler;
+ 	link->irq.Instance = chip;
+ 
+-	link->release.function = &vxpocket_release;
+-	link->release.data = (u_long)link;
+-
+ 	link->conf.Attributes = CONF_ENABLE_IRQ;
+ 	link->conf.Vcc = 50;
+ 	link->conf.IntType = INT_MEMORY_AND_IO;
+@@ -229,8 +224,6 @@
+ {
+ 	vx_core_t *chip = snd_magic_cast(vx_core_t, link->priv, return);
+ 
+-	del_timer(&link->release);
+-
+ 	snd_printdd(KERN_DEBUG "vxpocket_detach called\n");
+ 	/* Remove the interface data from the linked list */
+ 	if (hw) {
+@@ -326,7 +319,6 @@
+ 		snd_printdd(KERN_DEBUG "CARD_REMOVAL..\n");
+ 		link->state &= ~DEV_PRESENT;
+ 		if (link->state & DEV_CONFIG) {
+-			mod_timer(&link->release, jiffies + HZ/20);
+ 			chip->chip_status |= VX_STAT_IS_STALE;
+ 		}
+ 		break;
+

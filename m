@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263655AbUDFHuV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 03:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263659AbUDFHuV
+	id S263659AbUDFI0O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 04:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263663AbUDFI0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 03:50:21 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:46993 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263655AbUDFHuU
+	Tue, 6 Apr 2004 04:26:14 -0400
+Received: from stress.telefonica.net ([213.4.129.135]:59254 "EHLO
+	tnetsmtp2.mail.isp") by vger.kernel.org with ESMTP id S263659AbUDFI0M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 03:50:20 -0400
-Date: Tue, 6 Apr 2004 09:47:07 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: =?unknown-8bit?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: Linux-Kernel List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osd.org>, Manfred Spraul <manfred@colorfullife.com>,
-       netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
-Message-ID: <20040406094707.A29666@electric-eye.fr.zoreil.com>
-References: <200404060108.19488.Dieter.Nuetzel@hamburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+	Tue, 6 Apr 2004 04:26:12 -0400
+From: Xan <DXpublica@telefonica.net>
+Reply-To: DXpublica@telefonica.net
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: [kernel.org] md5 for verifying downloads of kernel [right post]
+Date: Tue, 6 Apr 2004 10:26:05 +0200
+User-Agent: KMail/1.6.1
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0404052150570.13902-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.44.0404052150570.13902-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200404060108.19488.Dieter.Nuetzel@hamburg.de>; from Dieter.Nuetzel@hamburg.de on Tue, Apr 06, 2004 at 01:08:19AM +0200
-X-Organisation: Land of Sunshine Inc.
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404061026.05377.DXpublica@telefonica.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel <Dieter.Nuetzel@hamburg.de> :
-[...]
-> Isn't the "current" RTL8169s (32/64) driver much outdated?
-> 
-> I got a version # 1.6 with all my cards.
+Dimarts 06 Abril 2004 03:52, en/na Mark Hahn (<Mark Hahn 
+<hahn@physics.mcmaster.ca>>) va escriure:
+> > Is it possible to put in webpage and in ftp a link and a file,
+> > respectively, of the md5 sums (or any other checking file program) of all
+> > kernel files?.
+>
+> why are you not satisfied with the current GnuPG signatures on
+> kernel tars and patch files?
+>
+> ie
+> ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-2.6.1.tar.gz.sign
+>
+> > With this, anyone could see if the downloaded kernel file (usually more
+> > than 30MB) is well-downloaded.
+>
+> indeed, tars and patches have been signed for a long time.
 
-This version has been merged in -mm since late 2003. Complete history is
-available on the netdev mailing list.
+Okay. I did not know that. Now I satisfied ;-). But, I think a "miss": the 
+webmaster of kernel.org could link the signature of all kernel files (?). 
+That is, could we have got something like:
 
->From memory, there should be a Tx descriptor overflow bug in # 1.6 (see
-tx_interrupt). You may want to change some bits in your #1.6 version.
+The latest stable version of the Linux kernel is:  	2.6.5 	2004-04-04 04:17 
+UTC 	F 	V 	VI 	C 	Changelog SIGN
 
-There is a regression related to link removal in the current -mm/jg-netdev
-version (-mm stands behind jg-netdev where I hope to push what is posted
-on the netdev mailing list). Stay tuned. :o)
+where SIGN links to 2.6.5 signature?
 
---
-Ueimor
+Sorry, but I think that the reference to signature page in kernel.org is not 
+of all visible. It's in a more low possition, I think.
+
+Sorry for ask that,
+Xan.

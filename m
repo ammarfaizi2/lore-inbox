@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbTJNPXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 11:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTJNPXN
+	id S262360AbTJNPUF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 11:20:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTJNPUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 11:23:13 -0400
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:31124
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262522AbTJNPXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 11:23:11 -0400
-From: John Mock <kd6pag@qsl.net>
-To: linux-kernel@vger.kernel.org
-Originally-cc: Ben Collins <bcollins@debian.org>
-Subject: Re: slab corruption of hpsb_packet from ohci1394 + sbp2 on 2.6.0-test7
-Message-Id: <E1A9R0v-0001Ui-00@penngrove.fdns.net>
-Date: Tue, 14 Oct 2003 08:23:09 -0700
+	Tue, 14 Oct 2003 11:20:05 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:39121 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262360AbTJNPUC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 11:20:02 -0400
+Date: Tue, 14 Oct 2003 08:19:50 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [PATCH] Make pmdisk suspend more reliable
+Message-ID: <20031014151950.GA11710@atomide.com>
+References: <20031012161828.GA1728@atomide.com> <20031012180703.GA2328@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031012180703.GA2328@mars.ravnborg.org>
+User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt http://www.mutt.org/
+X-URL: http://www.muru.com/ http://www.atomide.com
+X-Accept-Language: fi en
+X-Location: USA, California, San Francisco
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Resending again due to broken DNS apparently causing messages to be rejected.]
+Hi,
 
-Thank you very much, Ben, for a most helpful response.  Getting the 'tarball' 
-from:
-	http://www.linux1394.org/viewcvs/
+* Sam Ravnborg <sam@ravnborg.org> [031012 11:07]:
+> On Sun, Oct 12, 2003 at 09:18:28AM -0700, Tony Lindgren wrote:
+> 
+> >  extern int pmdisk_arch_suspend(int resume);
+> > +extern int wakeup_bdflush(long nr_pages);
+> 
+> Prototypes in .c files is never a good idea.
+> wakeup_bdflush is prototyped in include/linux/writeback.h
 
-and using its directory 'ieee1394/trunk/' in place of '.../drivers/ieee394'
-indeed allows 'modprobe ohci1394' to succeed and CD/RW operations to occur.
-There are still glitches, though, as 'rmmod sbp2' or 'rmmod ohci1394' give 
-me backtrace(s), bug reports of which have been sent privately (and will 
-be cheerfully provided upon request).  Software suspend also does not work
-properly with the associated device, but i have no idea whether that ever
-worked and does not appear to affect other non-CD/RW operations.
+I guess you mean to #include <linux/writeback.h> instead of extern, or
+did I misunderstand what you meant?
 
-I will provide a summary of other VAIO R505EL issues with 2.6.0-test* in a
-separate post after i've gotten further with debugging an 'ide-cs' problem.
+There may be more to the suspend image not getting to the disk besides
+flushing, I'm now wondering if it works with IDE DMA enabled, but not
+without DMA. I'll try to investigate it a bit further.
 
-Thanks again for the bug fix, as now i should be able to run a more modern
-kernel to write data CDs.
-				-- JM
-
-
-P.S. Reading via WWW archive rather than subscribing; please reply directly
-if you want something to be seen quickly.
+Tony

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSHTOOe>; Tue, 20 Aug 2002 10:14:34 -0400
+	id <S318965AbSHTOM4>; Tue, 20 Aug 2002 10:12:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318862AbSHTOOd>; Tue, 20 Aug 2002 10:14:33 -0400
-Received: from popelka.ms.mff.cuni.cz ([195.113.16.198]:29203 "EHLO
-	popelka.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S318253AbSHTOOd>; Tue, 20 Aug 2002 10:14:33 -0400
-Date: Tue, 20 Aug 2002 16:26:20 +0200
-From: jack@suse.cz
-To: "Dmitry N. Hramtsov" <hdn@nsu.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vfsv0 quota patch
-Message-ID: <20020820162620.G21149@popelka.ms.mff.cuni.cz>
-References: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>; from hdn@nsu.ru on Mon, Aug 19, 2002 at 12:26:31PM +0700
+	id <S318959AbSHTOM4>; Tue, 20 Aug 2002 10:12:56 -0400
+Received: from mail.iok.net ([62.249.129.22]:39690 "EHLO mars.iok.net")
+	by vger.kernel.org with ESMTP id <S318965AbSHTOMz>;
+	Tue, 20 Aug 2002 10:12:55 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Holger Schurig <h.schurig@mn-logistik.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: new driver: multimedia card (mmc) framework, patch against 2.4.19
+Date: Tue, 20 Aug 2002 16:07:27 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200208201607.27397.h.schurig@mn-logistik.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 19, 2002 at 12:26:31PM +0700, Dmitry N. Hramtsov wrote:
-> 
-> Hello All,
-> 
-> Could you tell me where can I get vfsv0 quota patch for 2.4.19 or
-> 2.4.20-preX?  Unfortunately, link
-> 
-> ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/
-> 
-> does not work cause host atrey.karlin.mff.cuni.cz inaccessible.
-  The computer will be probably offline for a while (as far as I know
-  there are problems with electricity etc...). But you can also
-  use -ac versions of kernel which should contain latest quota patches
-  (actually more recent that on my ftp site...).
+> At the moment, access to the information required to write a driver for SD
+> or SDIO requires signing and NDA that precludes the release of an open
+> source driver, so only MMC is supported at this time.
 
-  								Honza
+I'm interested to write the device driver for the Intel PXA 250. See if this 
+chip is uncrippled enought to get it working. I'm only trying to do the MMC 
+part, I'm not interested in SD.
+
+Do you by any chance have me a pointer to MMC related documentation (in other 
+words: to the specs) ?
+
+The MMC interface of the PXA250 processor is written in chaper 15 of the 
+Developers's Manual from Intel, see 
+http://developer.intel.com/design/pca/applicationsprocessors/manuals/278522-001.htm
+

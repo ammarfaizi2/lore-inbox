@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUIAUDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUIAUHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267598AbUIAUDY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 16:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUIAT5t
+	id S267601AbUIAUHM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 16:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267604AbUIAUHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 15:57:49 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:55070 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267517AbUIATyi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 15:54:38 -0400
-Date: Wed, 1 Sep 2004 21:56:48 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: blaisorblade_spam@yahoo.it
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/3] kbuild - remove old LDFLAGS_BLOB from Makefiles.
-Message-ID: <20040901195648.GB15432@mars.ravnborg.org>
-Mail-Followup-To: blaisorblade_spam@yahoo.it, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20040830194430.30C042C6E@zion.localdomain>
+	Wed, 1 Sep 2004 16:07:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:32439 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267601AbUIAUHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:07:09 -0400
+Date: Wed, 1 Sep 2004 13:06:23 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: John Hesterberg <jh@sgi.com>
+Cc: Limin Gu <limin@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       jlan@engr.sgi.com, erikj@sgi.com, chrisw@osdl.org
+Subject: Re: [PATCH] improving JOB kernel/user interface
+Message-ID: <20040901130623.F1924@build.pdx.osdl.net>
+References: <4134FE16.2000308@engr.sgi.com> <20040901193829.GJ5886@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040830194430.30C042C6E@zion.localdomain>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040901193829.GJ5886@sgi.com>; from jh@sgi.com on Wed, Sep 01, 2004 at 02:38:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 09:44:30PM +0200, blaisorblade_spam@yahoo.it wrote:
+* John Hesterberg (jh@sgi.com) wrote:
+> The current job /proc ioctl interface is really a fake-syscall interface.
+> We only did that so that our product didn't have to lock into a syscall
+> number that would eventually be used by something else.
 > 
-> The LDFLAGS_BLOB var (which used to be defined in arch Makefiles) is now unused,
-> as specified inside usr/initramfs_data.S. So this patch removes the remaining
-> references.
-> 
-> A separate patch is provided to remove it from UML, and another to update docs.
-> 
-> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+> The easiest thing for us would probably be to turn it back into a system
+> call, if that would be acceptable for inclusion into the kernel.  We're
+> open to other job interfaces, such as a real /proc character interface,
+> or a new virtual filesystem, or a device driver using ioctls.
 
-Thanks.
+But that system call would still be a single mutliplexor for many calls, right?
+Not ideal.  Have you tried to map to an fs?  It's nice and contained, and may be a
+simple mapping.  Question comes with CKRM, and if they'll have similar needs.  If
+that's the case, first class syscalls (no multiplexor) may be way to go.
 
-Your patches caused rejects in my tree, so I applied them
-by hand as a single patch.
-
-In makefiles.txt I just removed the LDFLAGS_BLOB section.
-
-	Sam
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

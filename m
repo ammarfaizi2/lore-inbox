@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318151AbSHIFWN>; Fri, 9 Aug 2002 01:22:13 -0400
+	id <S318152AbSHIFdu>; Fri, 9 Aug 2002 01:33:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318152AbSHIFWN>; Fri, 9 Aug 2002 01:22:13 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:59611 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S318151AbSHIFWM>; Fri, 9 Aug 2002 01:22:12 -0400
-Message-ID: <20020809052550.12233.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "sanket rathi" <sanket@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 09 Aug 2002 13:25:50 +0800
-Subject: Kernel Oops
-X-Originating-Ip: 202.54.40.36
-X-Originating-Server: ws4-4.us4.outblaze.com
+	id <S318153AbSHIFdt>; Fri, 9 Aug 2002 01:33:49 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1154 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318140AbSHIFds>;
+	Fri, 9 Aug 2002 01:33:48 -0400
+Date: Thu, 8 Aug 2002 22:30:27 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.30 scsi_scan.c cleanup/rewrite
+Message-ID: <20020808223027.A21774@eng2.beaverton.ibm.com>
+References: <20020808140616.A28275@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020808140616.A28275@eng2.beaverton.ibm.com>; from patmans@us.ibm.com on Thu, Aug 08, 2002 at 02:06:16PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have written a driver for kernel 2.2.14-5.
-but some time when i try to break application through crtl-C i get kernel oops :-
-because at that time machine freezes so i am not able to catch whole message waht i can read is :
+On Thu, Aug 08, 2002 at 02:06:16PM -0700, Patrick Mansfield wrote:
+> Hi -
+> 
+> Attached is cleanup/rewrite patch for scsi_scan.c against 2.5.30.
+> 
 
-Code : 89 02 85 c0 74 03 89 50 04 b8 01 00 00 00 eb 02 31 c0 c7 41
-Aiee, killing interrupt handler
-Kernel panic: Attempt to kill the idle task!
-In interrupt handler - not syncing
+There's a bug for adapters with multiple channels (like the ServeRAID
+with ips driver) not being properly scanned - it scans channel 0 again
+rather than going to the next channel - patch on top of the original
+patch:
 
-But this problen is unpredictable generally it does not comes. Can any body help me in this that what could be the problem
+--- 1.23/drivers/scsi/scsi_scan.c	Thu Aug  8 09:48:01 2002
++++ edited/drivers/scsi/scsi_scan.c	Thu Aug  8 16:19:31 2002
+@@ -1939,6 +1939,7 @@
+ 
+ 	sdevscan->host = shost;
+ 	sdevscan->id = id;
++	sdevscan->channel = channel;
+ 	/*
+ 	 * Scan LUN 0, if there is some response, scan further. Ideally, we
+ 	 * would not configure LUN 0 until all LUNs are scanned.
 
+Complete patch against 2.5.30 is now at:
 
-Thanks in advance
--- 
-Get your free email from www.linuxmail.org 
+http://www-124.ibm.com/storageio/gen-io/patch-scsi_scan-2.5.30-2.gz
 
+The modified scsi_scan.c file:
 
-Powered by Outblaze
+http://www-124.ibm.com/storageio/gen-io/scsi_scan.c-2.5.30-2.gz
+
+Thanks.
+
+-- Patrick Mansfield

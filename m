@@ -1,38 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129033AbQKCWeI>; Fri, 3 Nov 2000 17:34:08 -0500
+	id <S130089AbQKCWgs>; Fri, 3 Nov 2000 17:36:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130543AbQKCWd6>; Fri, 3 Nov 2000 17:33:58 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:55462 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129033AbQKCWdk>;
-	Fri, 3 Nov 2000 17:33:40 -0500
-Date: Fri, 3 Nov 2000 14:18:35 -0800
-Message-Id: <200011032218.OAA12790@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: phil@fifi.org
-CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <87n1fgvl7a.fsf@tantale.fifi.org> (message from Philippe Troin on
-	03 Nov 2000 12:45:29 -0800)
-Subject: Re: 2.2.x BUG & PATCH: recvmsg() does not check msg_controllen correctly
-In-Reply-To: <87n1fgvl7a.fsf@tantale.fifi.org>
+	id <S131099AbQKCWgi>; Fri, 3 Nov 2000 17:36:38 -0500
+Received: from inet-smtp3.oracle.com ([205.227.43.23]:22769 "EHLO
+	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
+	id <S130089AbQKCWgZ>; Fri, 3 Nov 2000 17:36:25 -0500
+Message-ID: <3A033DE6.F4CD60C1@oracle.com>
+Date: Fri, 03 Nov 2000 14:36:22 -0800
+From: Josue Emmanuel Amaro <Josue.Amaro@oracle.com>
+Organization: Linux Strategic Business Unit, Oracle Corporation
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en,pdf
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Value of TASK_UNMAPPED_SIZE on 2.4
+In-Reply-To: <fa.d4dt9vv.1gm6abv@ifi.uio.no> <fa.ebii26v.1mgevrq@ifi.uio.no> <80snp8reck.fsf@orthanc.exbit-technology.com> <20001103214613.C17349@athlon.random>
+Content-Type: multipart/mixed;
+ boundary="------------26C1F364FA1E656AEB3027F1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------26C1F364FA1E656AEB3027F1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-The real bug is in the setting of MSG_TRUNC (which is the only side
-effect of your change).  So the better fix is:
+Andrea,
 
---- net/core/scm.c.~1~	Tue Jun 15 09:19:30 1999
-+++ net/core/scm.c	Fri Nov  3 14:18:06 2000
-@@ -251,7 +251,7 @@
- 			msg->msg_controllen -= cmlen;
- 		}
- 	}
--	if (i < fdnum)
-+	if (i < fdnum || (fdnum && fdmax <= 0))
- 		msg->msg_flags |= MSG_CTRUNC;
- 
- 	/*
+We will give it a try.
+
+How difficult would it be to move that patch to 2.4?
+
+It would be great if it could be a kernel configuration time option.
+
+Regards,
+
+Andrea Arcangeli wrote:
+
+> On Fri, Nov 03, 2000 at 09:27:07PM +0100, Kai Harrekilde-Petersen wrote:
+> > Is this available as a patch, or preferably as a compilation option to
+>
+> They're available here:
+>
+>         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.14/bigmem-large-mapping-1.bz2
+>         ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.14/bigmem-large-task-1.bz2
+>
+> But they're against 2.2.x + bigmem. The first one is still valid (and it's
+> similar to the one discussed here). The second one doesn't apply to 2.4.x
+> and both vmlinux.lds and PAGE_OFFSET should be changed that way to
+> make it to work there.
+>
+> Andrea
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+
+--
+=======================================================================
+  Josue Emmanuel Amaro                         Josue.Amaro@oracle.com
+  Linux Products Manager                       Phone:   650.506.1239
+  Intel and Linux Technologies Group           Fax:     650.413.0167
+=======================================================================
+
+
+--------------26C1F364FA1E656AEB3027F1
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="Josue.Amaro.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for Josue Emmanuel Amaro
+Content-Disposition: attachment;
+ filename="Josue.Amaro.vcf"
+
+begin:vcard 
+n:Amaro;Josue Emmanuel
+tel;cell:650-245-5131
+tel;fax:650-413-0167
+tel;work:650-506-1239
+x-mozilla-html:FALSE
+url:http://www.oracle.com
+org:Intel and Linux Technologies
+version:2.1
+email;internet:Josue.Amaro@oracle.com
+title:Sr.Product Manager - Linux
+adr;quoted-printable:;;500 Oracle Parkway=0D=0AMS1ip4;Redwood Shores;CA;94065;United States
+fn:Josue Emmanuel Amaro
+end:vcard
+
+--------------26C1F364FA1E656AEB3027F1--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVDEJof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVDEJok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVDEJof (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVDEJn2
+	id S261654AbVDEJok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVDEJmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:43:28 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.24]:3705 "EHLO smtp7.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261682AbVDEJjv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:39:51 -0400
-X-ME-UUID: 20050405093949309.077C370000AB@mwinf0701.wanadoo.fr
-Date: Tue, 5 Apr 2005 11:36:28 +0200
-To: Ian Campbell <ijc@hellion.org.uk>
-Cc: Christoph Hellwig <hch@lst.de>, Sven Luther <sven.luther@wanadoo.fr>,
-       "Theodore Ts'o" <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050405093628.GC26377@pegasos>
-References: <20050404182753.GC31055@pegasos> <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693447.3086.116.camel@icampbell-debian>
+	Tue, 5 Apr 2005 05:42:32 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:53949 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261677AbVDEJhw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:37:52 -0400
+Subject: Re: [RFC] shared subtrees
+From: Ram <linuxram@us.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050116160213.GB13624@fieldses.org>
+	 <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
+	 <20050116184209.GD13624@fieldses.org>
+	 <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1112693868.4258.105.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <1112693447.3086.116.camel@icampbell-debian>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 05 Apr 2005 02:37:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 10:30:47AM +0100, Ian Campbell wrote:
-> On Tue, 2005-04-05 at 11:11 +0200, Christoph Hellwig wrote:
-> > On Tue, Apr 05, 2005 at 09:49:25AM +0100, Ian Campbell wrote:
-> > > I don't think you did get a rejection, a few people said that _they_
-> > > weren't going to do it, but if you want to then go ahead. I think people
-> > > are just fed up of people bringing up the issue and then failing to do
-> > > anything about it -- so prove them wrong ;-)
+On Sun, 2005-01-16 at 22:11, Al Viro wrote:
+> On Sun, Jan 16, 2005 at 01:42:09PM -0500, J. Bruce Fields wrote:
+> > On Sun, Jan 16, 2005 at 06:06:56PM +0000, Al Viro wrote:
+> > > On Sun, Jan 16, 2005 at 11:02:13AM -0500, J. Bruce Fields wrote:
+> > > > On Thu, Jan 13, 2005 at 10:18:51PM +0000, Al Viro wrote:
+> > > > > 	6. mount --move
+> > > > > prohibited if what we are moving is in some p-node, otherwise we move
+> > > > > as usual to intended mountpoint and create copies for everything that
+> > > > > gets propagation from there (as we would do for rbind).
+> > > > 
+> > > > Why this prohibition?
+> > > 
+> > > How do you propagate that?  We can weaken that to "in a p-node that
+> > > owns something or contains more than one vfsmount", but it's not
+> > > worth the trouble, AFAICS.
 > > 
-> > Actually patches to add firmware loader support to tg3 got rejected.
+> > I guess I'm not seeing what there is to propagate.  If the vfsmount we
+> > are moving is mounted under a vfsmount that's in a p-node, then there'd
+> > be something to propagate, but since the --move doesn't change the
+> > structure of mounts underneath the moved mountpoint, I wouldn't expect
+> > any changes to be propagated from it to other mountpoints.
 > > 
-> > Which is think is very unfortunately as we set the highlevel goal to
-> > move drivers over to it.
+> > I must be missing something fundamental....
 > 
-> I didn't know that -- you are right that it is unfortunate.
-> 
-> I thought Sven was talking (at least short term) about adding copyright
-> statements/exemptions/something to the binary blobs where they are now.
+> No - I have been missing a typo.  Make that "if mountpoint of what we
+> are moving...".
 
-Yes, indeed, i am searching for a short-time clarification, but in the long
-term the separate firmware solution is indeed better, altough more work and
-more involved.
+Ok. I have been spending time lately on implementing this RFC. So time
+for some questions.
 
-That said, the work to identify the firmware blobs and clarify their
-copyright/licencing situation is common for both alternatives.
+If the vfsmount that is being moved is mounted within a shared-vfsmount
+(i.e is in p-node) why should the move operation be prohibited?
 
-Friendly,
+The way I look at it is: umount the vfsmount, propogate the unmount
+event to all corresponding vfsmounts, and mount the vfsmount struct at
+its destination and if applicable propogate the mount event.
 
-Sven Luther
+An example:
+
+     If A is a vfsmount contained in pnode p  and B is a vfsmount
+mounted on A, and B is moved to a mountpoint on vfsmount C the
+operations involved are:
+
+1. umount B from A and  propogate the unmount to all vfsmount 	contained
+in p as well as recursively to all slave-pnodes 
+         and slave vfsstructs.
+2. mount B on the mountpoint in C, and if C is in
+   some p-node,  propogate the mount to all vfsmounts in that
+   pnode as well as recursively to its slave p-nodes and
+   slave vfsstructs.
+
+
+
+RP
+
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 

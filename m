@@ -1,110 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263781AbUE1Sm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263784AbUE1SpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263781AbUE1Sm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 14:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUE1Sm5
+	id S263784AbUE1SpY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 14:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbUE1SpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 14:42:57 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:32044 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S263781AbUE1Smx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 14:42:53 -0400
-Subject: [PATCH][RFC] 2.6.6 tty_io.c hangup locking
-From: Paul Fulghum <paulkf@microgate.com>
-To: Jurjen Oskam <jurjen@stupendous.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040527174509.GA1654@quadpro.stupendous.org>
-References: <20040527174509.GA1654@quadpro.stupendous.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1085769769.2106.23.camel@deimos.microgate.com>
+	Fri, 28 May 2004 14:45:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2734 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263784AbUE1SpQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 14:45:16 -0400
+Date: Fri, 28 May 2004 20:44:11 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+Message-ID: <20040528184411.GE9898@devserv.devel.redhat.com>
+References: <7F740D512C7C1046AB53446D372001730182BB40@scsmsx402.amr.corp.intel.com> <2750000.1085769212@flay>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 28 May 2004 13:42:50 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ryJZkp9/svQ58syV"
+Content-Disposition: inline
+In-Reply-To: <2750000.1085769212@flay>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch removes unnecessary disabling of
-interrupts when processing hangup for tty devices.
 
-This was introduced way back in August 1998
-with patch 2.1.115 when the original hangup processing was
-changed from cli/sti to lock_kernel()/unlock_kernel().
+--ryJZkp9/svQ58syV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Up to now, this did not cause any actual problems.
-In 2.6.X this causes a warning if any of the called functions
-(flush_buffer/write_wakeup) call spin_xxx_bh() functions.
+On Fri, May 28, 2004 at 11:33:32AM -0700, Martin J. Bligh wrote:
+> Here's my start at a list ... I'm sure it's woefully incomplete.
+> 
+> 1. Utilize all CPUs roughly evenly for IRQ processing load (anything that's
+> not measured by the scheduler at least, because it's unfair to other 
+> processes).
 
-Warning is in spin_unlock_bh (kernel/softirq.c:122)
+yep; irqbalance approximates irq processing load by irq count, which seems
+to be ok-ish so far.
 
-An example is drivers/net/ppp_synctty.c write_wakeup.
-This has been reported several times by different people.
+> Also, we may well have more than 1 CPU's worth of traffic to
+> process in a large network server.
 
-The flush_buffer/write_wakeup calls are also called
-when processing ioctl for tty devices, without disabling
-interrupts using only lock_kernel()/unlock_kernel().
+One NIC? I've yet to see that ;)
 
-tty->ldisc.flush_buffer()
-	tty_ioctl.c
-		ioctl(TCSETSF) -> set_termios()
-		ioctl(TCSETAF) -> set_termios()
-		ioctl(TCFLSH)
+> 2. Provide some sort of cache-affinity for network interrupt processing,
+> which also helps us not get into out-of-order packet situations.
 
-tty->driver.flush_buffer()
-	tty_ioctl.c
-		ioctl(TCFLSH)
+yep; irqbalance does that 
 
-tty->ldisc.write_wakeup()
-	tty_ioctl.c
-		ioctl(TCOON)  -> start_tty()
-		ioctl(TCIOFF) -> send_prio_char() -> start_tty()
-		ioctl(TCION)  -> send_prio_char() -> start_tty()
+> 3. Utilize idle CPUs where possible to shoulder the load.
 
-So removal of the interrupt disable/enable from around
-these calls in tty_io.c do_tty_hangup(), implements locking
-the same as the ioctl calls.
+this is in direct conflict with 2; esp since cpus are idle very short times
+all the time in busy scenarios (and non-busy scenarios are boring wrt irq
+loadf ;)
 
-I have tested this patch on an SMP machine with 2.6.6.
-
-I welcome comments and testing by others, particularly those
- who have seen the softirq.c message when doing ppp
-(synchronous PPP, PPPoATM etc) that use the ppp_synctty.c
-
-Paul Fulghum
-paulkf@microgate.com
-
-
---- linux-2.6.6/drivers/char/tty_io.c	2004-05-28 08:26:47.000000000 -0500
-+++ linux-2.6.6-mg1/drivers/char/tty_io.c	2004-05-28 08:31:05.000000000 -0500
-@@ -442,21 +442,13 @@
- 	}
- 	file_list_unlock();
- 	
--	/* FIXME! What are the locking issues here? This may me overdoing things..
--	* this question is especially important now that we've removed the irqlock. */
--	{
--		unsigned long flags;
--
--		local_irq_save(flags); // FIXME: is this safe?
--		if (tty->ldisc.flush_buffer)
--			tty->ldisc.flush_buffer(tty);
--		if (tty->driver->flush_buffer)
--			tty->driver->flush_buffer(tty);
--		if ((test_bit(TTY_DO_WRITE_WAKEUP, &tty->flags)) &&
--		    tty->ldisc.write_wakeup)
--			(tty->ldisc.write_wakeup)(tty);
--		local_irq_restore(flags); // FIXME: is this safe?
--	}
-+	if (tty->ldisc.flush_buffer)
-+		tty->ldisc.flush_buffer(tty);
-+	if (tty->driver->flush_buffer)
-+		tty->driver->flush_buffer(tty);
-+	if ((test_bit(TTY_DO_WRITE_WAKEUP, &tty->flags)) &&
-+	    tty->ldisc.write_wakeup)
-+		(tty->ldisc.write_wakeup)(tty);
  
- 	wake_up_interruptible(&tty->write_wait);
- 	wake_up_interruptible(&tty->read_wait);
+> 4. Provide such a solution for all architectures.
 
+irqbalanced in principle arch independent since the /proc interface is quite
+generic..
 
+--ryJZkp9/svQ58syV
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAt4h6xULwo51rQBIRAkC8AJ0dgvJwyEdXMUvWrvcEra6tbXJZiACfZ0CY
+o6uZbyxnRW6SM2w8uIw4VIw=
+=j+4E
+-----END PGP SIGNATURE-----
+
+--ryJZkp9/svQ58syV--

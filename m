@@ -1,39 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266927AbSL3LYf>; Mon, 30 Dec 2002 06:24:35 -0500
+	id <S266917AbSL3LdB>; Mon, 30 Dec 2002 06:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266933AbSL3LYf>; Mon, 30 Dec 2002 06:24:35 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62147 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266927AbSL3LYe>;
-	Mon, 30 Dec 2002 06:24:34 -0500
-Date: Mon, 30 Dec 2002 11:31:22 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       cpufreq@www.linux.org.uk
-Subject: Re: [PATCH 2.5.53] cpufreq: longhaul cleanup
-Message-ID: <20021230113122.GC11633@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk
-References: <20021228231233.GB1310@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021228231233.GB1310@brodo.de>
-User-Agent: Mutt/1.4i
+	id <S266918AbSL3LdB>; Mon, 30 Dec 2002 06:33:01 -0500
+Received: from c3po.skynet.be ([195.238.3.237]:22611 "EHLO c3po.skynet.be")
+	by vger.kernel.org with ESMTP id <S266917AbSL3Lc5> convert rfc822-to-8bit;
+	Mon, 30 Dec 2002 06:32:57 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hans Lambrechts <hans.lambrechts@skynet.be>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre2: CPU0 handles all interrupts
+Date: Mon, 30 Dec 2002 12:40:04 +0100
+User-Agent: KMail/1.4.3
+References: <200212281056.58419.hans.lambrechts@skynet.be> <200212281103.36973.rcooper@jamesconeyisland.com> <1041212142.1474.33.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1041212142.1474.33.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212301240.04998.hans.lambrechts@skynet.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 29, 2002 at 12:12:33AM +0100, Dominik Brodowski wrote:
- > Clean up searching code for best frequency and add some safety checks.
+On Monday 30 December 2002 02:35, you wrote:
+> On Sat, 2002-12-28 at 17:03, Ron Cooper wrote:
+> > Mine does this too.  2.4.20.  Iwill dp400 board running dual 2.4Ghz
+> > Xeons with HT enabled.
+> >
+> > I have to boot by passing "noapic" to the kernel, otherwise
+> > /cat/proc/interrupts will show the interrupt numbers wrong,
+> > however. not doing this changes nothing.
+>
+> "noapic" will deliver all IRQ's to IRQ0. Note btw - IRQ numbers *do*
+> change in APIC mode
 
-Looks ok from a cursory glance, but one thing I'm wondering is
-if some of this code can be factored out a little. There seems to
-be some duplication between the various CPU drivers.
+Hi Alan,
+maybe this snippet from patch-2.4.21-pre2.gz is the culprit:
 
-		Dave
+diff -Naur -X /home/marcelo/lib/dontdiff linux-2.4.20/arch/i386/kernel/apic.c linux-2.4.21/arch/i386/kernel/apic.c
+--- linux-2.4.20/arch/i386/kernel/apic.c        2002-12-18 18:27:05.000000000 +0000
++++ linux-2.4.21/arch/i386/kernel/apic.c        2002-12-18 18:58:08.000000000 +0000
+@@ -261,6 +261,16 @@
+        apic_write_around(APIC_LVT1, value);
+ }
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
++static unsigned long calculate_ldr(unsigned long old)
++{
++       unsigned long id;
++       if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
++               id = physical_to_logical_apicid(hard_smp_processor_id());
++       else
++               id = 1UL << smp_processor_id();
++       return (old & ~APIC_LDR_MASK)|SET_APIC_LOGICAL_ID(id);
++}
++
+ void __init setup_local_APIC (void)
+ {
+        unsigned long value, ver, maxlvt;
+@@ -298,15 +308,16 @@
+                 * for us. Otherwise put the APIC into clustered or flat
+                 * delivery mode. Must be "all ones" explicitly for 82489DX.
+                 */
+-               apic_write_around(APIC_DFR, APIC_DFR_FLAT);
++               if(clustered_apic_mode == CLUSTERED_APIC_XAPIC)
++                       apic_write_around(APIC_DFR, APIC_DFR_CLUSTER);
++               else
++                       apic_write_around(APIC_DFR, APIC_DFR_FLAT);
+
+                /*
+                 * Set up the logical destination ID.
+                 */
+                value = apic_read(APIC_LDR);
+-               value &= ~APIC_LDR_MASK;
+-               value |= (1<<(smp_processor_id()+24));
+-               apic_write_around(APIC_LDR, value);
++               apic_write_around(APIC_LDR, calculate_ldr(value));
+        }
+

@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUHKQRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268091AbUHKQSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268085AbUHKQRD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 12:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268091AbUHKQRD
+	id S268091AbUHKQSX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 12:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268094AbUHKQSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 12:17:03 -0400
-Received: from amsfep18-int.chello.nl ([213.46.243.13]:37936 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S268085AbUHKQOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 12:14:48 -0400
-Subject: Re: [patch] preempt-smp.patch, 2.6.8-rc3-mm2
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       LKML <linux-kernel@vger.kernel.org>, Robert Love <rml@ximian.com>
-In-Reply-To: <20040809140103.GA18106@elte.hu>
-References: <20040809102125.GA12391@elte.hu>
-	 <20040809032523.40250fe8.akpm@osdl.org> <20040809104533.GA13710@elte.hu>
-	 <20040809140103.GA18106@elte.hu>
-Content-Type: text/plain
-Date: Wed, 11 Aug 2004 18:14:46 +0200
-Message-Id: <1092240886.6554.20.camel@twins>
+	Wed, 11 Aug 2004 12:18:23 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:20152 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268091AbUHKQSG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 12:18:06 -0400
+Date: Wed, 11 Aug 2004 09:17:32 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [PATCH] new bitmap list format (for cpusets)
+Message-Id: <20040811091732.411edb6d.pj@sgi.com>
+In-Reply-To: <20040811131155.GA4239@in.ibm.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040811131155.GA4239@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.91 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+Dinakar wrote:
+> Considering that cpu_possible_map does not get fully initialized
+> until smp_prepare_cpus gets called by init(), I thought it right
+> to move cpuset_init() to after smp initialization.
 
-from the preempt-smp patch:
+Thank-you.  I suspect you're right.
 
-@@ -306,6 +306,21 @@ static int invalidate_list(struct list_h
- 		struct list_head * tmp = next;
- 		struct inode * inode;
- 
-+		/*
-+		 * Preempt if necessary. To make this safe we use a dummy
-+		 * inode as a marker - we can continue off that point.
-+		 * We rely on this sb's inodes (including the marker) not
-+		 * getting reordered within the list during umount. Other
-+		 * inodes might get reordered.
-+		 */
-+		if (need_resched_lock()) {
-+			list_add_tail(mark, next);
-+			spin_unlock(&inode_lock);
-+			cond_resched();
-+			spin_lock(&inode_lock);
-+			tmp = next = mark->next;
-+			list_del(mark);
-+		}
- 		next = next->next;
- 		if (tmp == head)
- 			break;
+Could you also provide some motivation for the other changes in your
+patch, moving struct cpuset, enum cpuset_flagbits_t, and struct cpuset
+top_cpuset definitions from kernel/cpuset.c to include/linux/cpuset.h?
+I had found it rather pleasing that these structures did not need to
+be known outside of kernel/cpuset.c.
 
+Another approach that might work, in order to ensure that the top_cpuset
+has its cpus_allowed set to the proper value of cpu_possible_map, would
+be to add a routine, say cpuset_init_smp(), called from init/main.c
+init() just after smp_init() returns, to update the cpus_allowed in
+top_cpuset from the fully initialized value of cpu_possible_map.  This
+seems to resemble the call sched_init_smp(), also made in init/main.c
+init() just after smp_init() returns, to finish initializing some sched
+stuff.
 
-why use cond_resched in the loop if you use need_resched_lock in the condition?
-cond_resched does not do the cpu_relax. Nor is it quite nice to use 
-cond_resched_lock there since it would increment preempt_check_count again
-causing the step to be 2 which in turn will make one miss the cpu_relax condition.
+If you take your approach, should we remove the __init qualifier from
+kernel/cpuset.c cpuset_init()?
 
-Peter Zijlstra
-
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

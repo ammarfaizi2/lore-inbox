@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbUL3VtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbUL3Vvu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbUL3VtY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 16:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUL3VtY
+	id S261720AbUL3Vvu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 16:51:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUL3Vvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 16:49:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:29708 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261721AbUL3VtV (ORCPT
+	Thu, 30 Dec 2004 16:51:49 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:18198 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261720AbUL3Vvq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 16:49:21 -0500
+	Thu, 30 Dec 2004 16:51:46 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=heBKMKmwi/w4vPRNRoMrtdjCx7NNIJyXmZG5CSQ/Ug/45Hiy6dtngap39Mjdo/bIVzfgUCAIpM49BOQrw63rEn6zSaSeuVGWY3WdqNfxFF2roWRKyTWhvHU8QJDGI51A2zpTXStEm02WbwiBeeHHH7pO1na0LnxImRkis7w5klM=
-Message-ID: <58cb370e041230134826287c5@mail.gmail.com>
-Date: Thu, 30 Dec 2004 22:48:53 +0100
+        b=bSbmcCEirNuRP7HcG1IyD7uuH3VKtpUj0VOJyXgk4TabsLdsi+GhMhiRQ0EbG0AweRkdMK40kpoWnwy8ueD2iMlZS6faLPGz4C3+zKwnkRiXcawQ9NDJ/UHnZwI2pWjdSY4BAGBGZApr4HSAaksQcbVPEqux7pwAQwZwZzkxQBY=
+Message-ID: <58cb370e041230135065254660@mail.gmail.com>
+Date: Thu, 30 Dec 2004 22:50:48 +0100
 From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jason Gaston <jason.d.gaston@intel.com>
-Subject: Re: [PATCH] PATA support for Intel ICH7 - 2.6.10 - repost
-Cc: jgarzik@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200412300613.07427.jason.d.gaston@intel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PATCH: 2.6.10 - Add support for CSB6 RAID
+Cc: torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1104156116.20898.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <200412300613.07427.jason.d.gaston@intel.com>
+References: <1104156116.20898.7.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Thu, 30 Dec 2004 06:13:07 -0800, Jason Gaston
-<jason.d.gaston@intel.com> wrote:
-> Reposting patch with word wrap turned off.  Please let me know if this is still not formated correctly.
-> 
-> This patch adds the Intel ICH7 DID's to the pci_ids.h file and updates the piix driver and related files for PATA support.
-
-this patch also seems to add PIRQ support
-
-> If acceptable, please apply.
-> 
-> Thanks,
+On Mon, 27 Dec 2004 14:01:56 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> The serverworks chips include a raid variant that the 2.6 driver didn't
+> support. This enables support for this and removes a pile of #if and
+> other pointless obfuscations. This removes the need to use various
+> vendor binary only drivers for CSB6 RAID
 
 applied

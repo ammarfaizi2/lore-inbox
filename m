@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319531AbSIGWTT>; Sat, 7 Sep 2002 18:19:19 -0400
+	id <S319532AbSIGWu1>; Sat, 7 Sep 2002 18:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319534AbSIGWTT>; Sat, 7 Sep 2002 18:19:19 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:55559 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S319531AbSIGWTT>; Sat, 7 Sep 2002 18:19:19 -0400
-Date: Sat, 7 Sep 2002 15:23:51 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: file locking looks strange
-Message-ID: <20020907222350.GA24809@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <44499.213.68.24.98.1031409116.rocnet@deathstar.of.rocnet.de>
-Mime-Version: 1.0
+	id <S319534AbSIGWu0>; Sat, 7 Sep 2002 18:50:26 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49808 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319532AbSIGWu0>;
+	Sat, 7 Sep 2002 18:50:26 -0400
+Message-ID: <3D7A8718.E626D3C7@digeo.com>
+Date: Sat, 07 Sep 2002 16:09:12 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Daniel Phillips <phillips@arcor.de>, trond.myklebust@fys.uio.no,
+       Chuck Lever <cel@citi.umich.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+References: <E17natE-0006OB-00@starship> <Pine.LNX.4.44L.0209071547250.1857-100000@imladris.surriel.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <44499.213.68.24.98.1031409116.rocnet@deathstar.of.rocnet.de>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Sep 2002 22:55:00.0289 (UTC) FILETIME=[98415310:01C256C1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 07, 2002 at 04:31:56PM +0200, Claus Rosenberger wrote:
-> How i can informations about file locking for applications.
+Rik van Riel wrote:
 > 
-> if i open a document with one application on the terminalserver and try to
-> open the same document  in another session i can write on the second
-> session. this happens for example with openoffice. how i can really lock
-> the file if one application open this doc for reading and writing ?
+> On Sat, 7 Sep 2002, Daniel Phillips wrote:
+> > On Friday 06 September 2002 00:19, Andrew Morton wrote:
+> > > I'm not sure what semantics we really want for this.  If we were to
+> > > "invalidate" a mapped page then it would become anonymous, which
+> > > makes some sense.
+> >
+> > There's no need to leave the page mapped, you can easily walk the rmap list
+> > and remove the references.
+> 
+> A pagefaulting task can have claimed a reference to the page
+> and only be waiting on the lock we're currently holding.
 
-start with 'man -k lock|grep file'  That will give you some
-starting points.  If you need more any book on UNIX or Linux
-programming that doesn't list both methods isn't worth buying.
+Yup.  In which case it comes away with an anonymous page.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+I'm very unkeen about using the inaccurate invalidate_inode_pages
+for anything which matters, really.   And the consistency of pagecache
+data matters.
 
-		Remember Cernan and Schmitt
+NFS should be using something stronger.  And that's basically
+vmtruncate() without the i_size manipulation.  Hold i_sem,
+vmtruncate_list() for assured pagetable takedown, proper page
+locking to take the pages out of pagecache, etc.
+
+Sure, we could replace the page_count() heuristic with a
+page->pte.direct heuristic.  Which would work just as well.  Or
+better.  Or worse.  Who knows?
+
+
+Guys, can we sort out the NFS locking so that it is possible to
+take the correct locks to get the 100% behaviour?

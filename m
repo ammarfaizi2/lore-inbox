@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268120AbUJOB6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268074AbUJOCBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268120AbUJOB6c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 21:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268130AbUJOB6c
+	id S268074AbUJOCBc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 22:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268101AbUJOCBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 21:58:32 -0400
-Received: from ozlabs.org ([203.10.76.45]:42205 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268129AbUJOB6K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 21:58:10 -0400
-Subject: Re: [STACK] >3k call path in ide
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       michael@metaparadigm.com,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugh@veritas.com
-In-Reply-To: <20040610161021.7997ad9d.akpm@osdl.org>
-References: <20040609122921.GG21168@wohnheim.fh-wedel.de>
-	 <40C72B68.1030404@metaparadigm.com>
-	 <20040609162949.GC29531@wohnheim.fh-wedel.de>
-	 <20040609122721.0695cf96.akpm@osdl.org>
-	 <20040610225938.GF3340@wohnheim.fh-wedel.de>
-	 <20040610161021.7997ad9d.akpm@osdl.org>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1097805499.22673.65.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 11:58:19 +1000
-Content-Transfer-Encoding: 8bit
+	Thu, 14 Oct 2004 22:01:31 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:33458 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S268074AbUJOCB3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 22:01:29 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Date: Thu, 14 Oct 2004 22:00:51 -0400 (EDT)
+To: Roland Dreier <roland@topspin.com>
+Cc: karim@opersys.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Thomas Zanussi <trz@us.ibm.com>,
+       Robert Wisniewski <bob@watson.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
+In-Reply-To: <52u0swddpk.fsf@topspin.com>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+	<20041011215909.GA20686@elte.hu>
+	<20041012091501.GA18562@elte.hu>
+	<20041012123318.GA2102@elte.hu>
+	<20041012195424.GA3961@elte.hu>
+	<20041013061518.GA1083@elte.hu>
+	<20041014002433.GA19399@elte.hu>
+	<416F0071.3040304@opersys.com>
+	<20041014234603.GA22964@elte.hu>
+	<416F14B4.8070002@opersys.com>
+	<52u0swddpk.fsf@topspin.com>
+X-Mailer: VM 6.43 under 20.4 "Emerald" XEmacs  Lucid
+Message-ID: <16751.12005.419748.661651@kix.watson.ibm.com>
+From: Robert Wisniewski <bob@watson.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-11 at 09:10, Andrew Morton wrote:
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
-> >
-> > read_page_state doesn't exist in 2.6.7-rc3 or 2.6.6-mm5.  How is it
-> > defined?
-> 
-> It was in 2.6.7-rc3-mm1.
-> 
-> 
-> 
-> struct page_state is large (148 bytes) and we put them on the stack in awkward
-> code paths (page reclaim...)
-> 
-> So implement a simple read_page_state() which can be used to pluck out a
-> single member from the all-cpus page_state accumulators.
-> 
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
-...
-> +unsigned long __read_page_state(unsigned offset)
-> +{
-> +	unsigned long ret = 0;
-> +	int cpu;
-> +
-> +	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-> +		unsigned long in;
-> +
-> +		if (!cpu_possible(cpu))
-> +			continue;
+Theoretically a problem, in practice not, i.e., good enough for soft/normal
+real-time, not hard real-time; probably wouldn't want my heart monitor on
+it, but then I wouldn't be using Linux for that either :-)
 
-for_each_cpu(cpu) here perhaps?
+Robert Wisniewski
+The K42 MP OS Project
+Advanced Operating Systems
+Scalable Parallel Systems
+IBM T.J. Watson Research Center
+914-945-3181
+http://www.research.ibm.com/K42/
+bob@watson.ibm.com
 
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
 
+Roland Dreier writes:
+ >     Karim> cmpxchg (basically: try reserve; if fail retry; else
+ >     Karim> write), with per-cpu buffers.
+ > 
+ > Not sure if I really understand the context where Ingo would use this,
+ > but this lockless scheme doesn't seem to be safe for realtime; the
+ > retry can potentially happen an arbitrary number of times.
+ > 
+ >  - Roland

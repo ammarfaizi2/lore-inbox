@@ -1,40 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbUL3RV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUL3RYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261676AbUL3RV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 12:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbUL3RV6
+	id S261677AbUL3RYI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 12:24:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUL3RYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 12:21:58 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:23149 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261676AbUL3RV5 (ORCPT
+	Thu, 30 Dec 2004 12:24:07 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:44935 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261677AbUL3RX4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 12:21:57 -0500
+	Thu, 30 Dec 2004 12:23:56 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=kaZsqHkor4UcOwvdkzxwFm9zohLDdPEGfiFSfZawDX2fgdWmqEbljGEI0xW0LLPkbNjzUlzSU/AiQvQCi+qbgGFBWlC012sAki+enDlVorrYx0jDd/+14nl4MqL0boX3fzS+4EECBjaIyqnugSCEkAYGcAcMCPNFK6MWpy2mbWM=
-Message-ID: <9e4733910412300918750b47e8@mail.gmail.com>
-Date: Thu, 30 Dec 2004 12:18:24 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Dave Airlie <airlied@gmail.com>
-Subject: Re: [bk pull] drm core/personality split
-Cc: Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <21d7e997041229234860454564@mail.gmail.com>
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ioHQS/P7O2Gj6nJ9MJuASoJ9Nwf8q/Mns/oH0IKu+LLrdueFhH+PI1ys/8SQw4eeOCnmhJa+uwj0BOyGFhhvDWv1azNQIPkKod+SmYX5aqQbQlfRjZEx1CZ+DyL2NS9JHc4hM3oP9jwHu+iFPztSx7/+MNnHYiesPYYImnC7/KA=
+Message-ID: <105c793f041230092344e152d7@mail.gmail.com>
+Date: Thu, 30 Dec 2004 12:23:55 -0500
+From: Andrew Haninger <ahaning@gmail.com>
+Reply-To: Andrew Haninger <ahaning@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Logitech PS/2 touchpad on 2.6.X not working along bottom and right sides.
+In-Reply-To: <105c793f04123009183bcc7dd1@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0412300733380.25314@skynet>
-	 <21d7e997041229234860454564@mail.gmail.com>
+References: <105c793f04122907116b571ebf@mail.gmail.com>
+	 <cr16ho$eh1$1@tangens.hometree.net>
+	 <105c793f041230080734d71c4a@mail.gmail.com>
+	 <200412301203.44484.dtor_core@ameritech.net>
+	 <105c793f04123009183bcc7dd1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Dec 2004 18:48:25 +1100, Dave Airlie <airlied@gmail.com> wrote:
-> > of .h files to .c files and removes all the DRM() macros.
+And again, the previously-unforwarded-to-the-list bit.
 
-Does this include the changes to get rid of intermodule too?
+-Andy
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+
+> Yes, you can. Booting with psmouse.proto=bare will force the touchpad
+> into standard PS/2 mode. You may also try booting with
+> psmouse.proto=imps and psmouse.proto=exps - maybe one of these 2 will
+> give you virtual scrolling.
+>
+> If psmouse is compiled as a module you will have to add
+>
+>         options psmouse proto=bare
+>
+> to your /etc/modprobe.conf
+>
+> Btw, what device/protocol are you using in X? I'd advise setting it
+> to "dev/input/mice" and "ExplorerPS/2" so if your touchad is indeed
+> sending scroll events X would use them. Could you post your config,
+> please?
+
+I'm using the /dev/mouse device for X with protocol 'auto'.
+
+Here's the relevant portion of my XF86Config:
+
+Section "InputDevice"
+        Identifier  "Mouse0"
+        Driver      "mouse"
+        Option      "Protocol" "auto"
+        Option      "Device" "/dev/mouse"
+EndSection
+
+Unfortunately, I'm not currently physically at the machine (I only
+have ssh access currently), so I can't try this stuff right away.
+However, I will try your suggestions when I'm next at the machine
+later today.
+
+(Also, I'm now realizing that my subject for this thread was wrong, so
+I've edited it a bit.)

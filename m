@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbTEIHlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 03:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbTEIHkU
+	id S262347AbTEIHqt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 03:46:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbTEIHqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 03:40:20 -0400
-Received: from siaab1aa.compuserve.com ([149.174.40.1]:42943 "EHLO
-	siaab1aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S262334AbTEIHkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 03:40:17 -0400
-Date: Fri, 9 May 2003 03:50:31 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
+	Fri, 9 May 2003 03:46:48 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:52747 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262347AbTEIHqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 03:46:48 -0400
+Date: Fri, 9 May 2003 08:59:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: The disappearing sys_call_table export.
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Message-ID: <200305090352_MC3-1-3815-126F@compuserve.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
+Message-ID: <20030509085924.B12170@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Chuck Ebbert <76306.1226@compuserve.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200305090352_MC3-1-3815-126F@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200305090352_MC3-1-3815-126F@compuserve.com>; from 76306.1226@compuserve.com on Fri, May 09, 2003 at 03:50:31AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Fri, May 09, 2003 at 03:50:31AM -0400, Chuck Ebbert wrote:
+>   Security-sensitive upper layers like virus scanners and loggers
+> would want to do it that way.  The upper layer might even just log
+> the fact that mount happened and then stay out of the way after that.
 
->>   So when I register my filesystem, can I indicate that I want to be
->> layered over top of the ext3 driver and get control anytime someone
->> mounts an ext3 fileystem, so I can decide whether the volume being
->> mounted is one that I want to intercept open/read/write requests for?
->
-> That would assume you had a right to dictate that the administrator
-> couldnt mount other file systems without your stacking.
-
-  Security-sensitive upper layers like virus scanners and loggers
-would want to do it that way.  The upper layer might even just log
-the fact that mount happened and then stay out of the way after that.
+Maybe _they_ want it.  We don't want it, though.

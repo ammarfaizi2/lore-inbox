@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129679AbRB0Vh2>; Tue, 27 Feb 2001 16:37:28 -0500
+	id <S129607AbRB0VqS>; Tue, 27 Feb 2001 16:46:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129709AbRB0VhT>; Tue, 27 Feb 2001 16:37:19 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62674 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129679AbRB0VhI>;
-	Tue, 27 Feb 2001 16:37:08 -0500
-Date: Tue, 27 Feb 2001 16:37:06 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "David L. Nicol" <david@kasey.umkc.edu>
-cc: Zack Brown <zbrown@tumblerings.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Will Mosix go into the standard kernel?
-In-Reply-To: <3A9C1A3A.8BC1BCF2@kasey.umkc.edu>
-Message-ID: <Pine.GSO.4.21.0102271630300.4105-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129709AbRB0VqI>; Tue, 27 Feb 2001 16:46:08 -0500
+Received: from f204.law10.hotmail.com ([64.4.15.204]:44562 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129607AbRB0Vpv>;
+	Tue, 27 Feb 2001 16:45:51 -0500
+X-Originating-IP: [195.23.160.251]
+From: "Mack Stevenson" <mackstevenson@hotmail.com>
+To: dwguest@win.tue.nl, hpa@transmeta.com, hpa@zytor.com, eccesys@topmail.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ISO-8859-1 completeness of kernel fonts?
+Date: Tue, 27 Feb 2001 22:45:45 +0100
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F204n2n8NyMSU1ZnmoH00013d1c@hotmail.com>
+X-OriginalArrivalTime: 27 Feb 2001 21:45:45.0991 (UTC) FILETIME=[A4030170:01C0A106]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Thank you for your help; I'll try to use a psf editor on the Sun 12x22 font 
+in the new kbd package.
 
+Cheers,
 
-On Tue, 27 Feb 2001, David L. Nicol wrote:
-
-> /proc/cluster/....	this would be standard root point for clustering stuff
-> 
-> /proc/mosix would go away, become proc/cluster/mosix
-> 
-> and the same with whatever bproc puts into /proc; that stuff would move to
-> /proc/cluster/bproc
-
-#include <std_rants/Thou_Shalt_Not_Shite_Into_Procfs>
-
-Guys, if you want a large subtree in /proc - whack yourself over the head
-until you realize that you want an fs of your own. I'll be more than
-happy to help with both parts.
+Mack
+_________________________________________________________________________
+Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
 

@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264315AbUAGXn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbUAGXn6
+	id S265478AbUAGXsM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 18:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265501AbUAGXsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:43:58 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:24071 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S264315AbUAGXnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:43:51 -0500
-Date: Thu, 8 Jan 2004 00:40:34 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-In-Reply-To: <20040107211134.GR1882@matchmail.com>
-Message-ID: <Pine.LNX.4.56.0401080032570.9700@jju_lnx.backbone.dif.dk>
-References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it>
- <m3ad50tmlq.fsf@averell.firstfloor.org> <3FFC46EB.9050201@zytor.com>
- <3FFC7469.3050700@sun.com> <20040107211134.GR1882@matchmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 18:48:12 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43532 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265478AbUAGXsF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 18:48:05 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Best Low-cost IDE RAID Solution For 2.6.x? (OT?)
+Date: 7 Jan 2004 23:35:56 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bti54s$7sn$1@gatekeeper.tmr.com>
+References: <20031228180424.GA16622@mail-infomine.ucr.edu> <20031229190327.B5729@animx.eu.org> <20031230065439.GA1517@louise.pinerecords.com> <20031230094157.A7191@animx.eu.org>
+X-Trace: gatekeeper.tmr.com 1073518556 8087 192.168.12.62 (7 Jan 2004 23:35:56 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20031230094157.A7191@animx.eu.org>,
+Wakko Warner  <wakko@animx.eu.org> wrote:
+| > > > nice about bad sectors as most hardware raid controllers.  On the other 
+| > > > hand the md driver kicks the ass of nearly every raid controller I've tried.
+| > > 
+| > > Faster than the mylex extreme raid 2000?  or one of the higher end adaptecs?
+| > 
+| > Even faster than HP/Compaq cciss hwraid setups, yes.
+| 
+| I've personally not had any experience with any hardware raid other than the
+| mylex DAC960 family.
+| 
+| One thing that keeps me from using the linux raid sw is the fact it can't be
+| partitioned.  I thought about lvm/evms, but I'm unwilling to make an initrd to
+| set it up (mounting root).  Unfortunately boot loaders don't seem to support
+| anything other than raid1. (Mostly lilo, but I'm not sure grub would do this
+| either)
 
+What? You do the RAID on partitions, so you can do anything you want.
+They don't aven have to be the same type RAID, I once ran fours drives
+with a small 0+1 partiton (2+2) for reliability and read performance,
+and a large partition of the rest of the drives RAID-5. Different stripe
+size, because one array had many small reads and the other many large
+reads.
 
-On Wed, 7 Jan 2004, Mike Fedyk wrote:
-
-> On Wed, Jan 07, 2004 at 04:04:41PM -0500, Mike Waychison wrote:
-> > H. Peter Anvin wrote:
-> >
-> > >>Also when /home or other important fs are mounted via autofs there is
-> > >>not much practical difference between a hung kernel and a hung
-> > >>daemon. You have to reboot the system anyways.
-> > >
-> > >
-> > >a) Guess which one is easier to debug?
-> >
-> > When they may both equally hang your machine, neither.
->
-> Let's see.
->
-> If it's in userspace, then setup your debug area in an area your system
-> doesn't depend on, and wham, the hang won't affect the entire system anymore.
->
-> Also, if you have /home automounted then it only affects the users on /home,
-> and root's $home should be /home...
->
-
->From a user point of view I have to agree with you. Keeping it out of the
-kernel makes perfect sense to me.
-
-Easier to test your setup - errors will not hang the box.
-
-In the case the implementation is buggy a daemon can easily be restarted
-nightly without disrupting other things running on the box (a nightly
-reboot is not as friendly).
-
-
->From a developer point of view, I also agree.
-
-Debugging kernel code is in general a much harder thing to do than
-debugging a userspace daemon. I'd also guess that more people will be
-inclined to contribute development time to a userspace program than a
-kernel based implementation - just the fact that it's in-kernel will be
-percieved as having a much higher barrier-to-entry and I suspect that fact
-alone might discourage potential contributers.
-
-
-- Jesper Juhl
-
+You can do anything you have the guts to do, except change partition
+size once you are setup.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

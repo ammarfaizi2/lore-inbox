@@ -1,52 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131438AbQK2WBS>; Wed, 29 Nov 2000 17:01:18 -0500
+        id <S130573AbQK2WZf>; Wed, 29 Nov 2000 17:25:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132117AbQK2WBH>; Wed, 29 Nov 2000 17:01:07 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:45572
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S131438AbQK2WAu>; Wed, 29 Nov 2000 17:00:50 -0500
-Date: Wed, 29 Nov 2000 13:30:10 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: James A Sutherland <jas88@cam.ac.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-        "Henning P. Schmiedehausen" <hps@tanstaafl.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Fasttrak100 questions...
-In-Reply-To: <00112921145000.11020@dax.joh.cam.ac.uk>
-Message-ID: <Pine.LNX.4.10.10011291317160.1743-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+        id <S130642AbQK2WZZ>; Wed, 29 Nov 2000 17:25:25 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:10412 "EHLO hera.cwi.nl")
+        by vger.kernel.org with ESMTP id <S130573AbQK2WZP>;
+        Wed, 29 Nov 2000 17:25:15 -0500
+Date: Wed, 29 Nov 2000 22:54:03 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011292154.WAA150996.aeb@aak.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
+Subject: Re: corruption
+Cc: linux-kernel@vger.kernel.org, tigran@veritas.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, James A Sutherland wrote:
+> ISTR bug reports looking like that and IIRC they were never resolved.
 
-> Nope. RMS defined the terms which apply to GPL code. You are free to define any
-> other terms you like for your own code, but it is no longer GPLed in that case.
+Have you looked at the report by Daniel Phillips?
 
-And the code for FASTTRAK is not GPL, James we did this once before.
-If Promise were to promote and tell people to link the object to the
-kernel every again, I will begin a law suit.  Because the harm and damage
-caused to the ATA subsystem is not repairable.  The damages are not
-limited.
-
-Now I worked with Promise to get this all clean as a module that could be
-updated as there kernel evolves.  If all of you go and SCREW up the work I
-did to try an allow a company that is not generally friendly to Linux as
-far as IP and technology issues are related, then I will stop trying to
-get them to expose the IP for the RAID signatures to export to the Linux
-SOFT RAID.
-
-THIS WILL ROYALLY SCREW EVERYBODY!  HAHAHAHA.
-
-Now do not go dorking things that I am trying to make make public.
-This is really pissing me off!
-
-Andre Hedrick
-Linux ATA Development
-
+http://marc.theaimsgroup.com/?l=linux-kernel&m=95162877201890&w=2
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

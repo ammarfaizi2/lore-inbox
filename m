@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265720AbRFXDH7>; Sat, 23 Jun 2001 23:07:59 -0400
+	id <S265728AbRFXEql>; Sun, 24 Jun 2001 00:46:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265722AbRFXDHu>; Sat, 23 Jun 2001 23:07:50 -0400
-Received: from marine.sonic.net ([208.201.224.37]:18190 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S265720AbRFXDHm>;
-	Sat, 23 Jun 2001 23:07:42 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Sat, 23 Jun 2001 20:07:27 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Microsoft and Xenix.
-Message-ID: <20010623200727.A5272@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org
+	id <S265727AbRFXEqb>; Sun, 24 Jun 2001 00:46:31 -0400
+Received: from [203.143.19.4] ([203.143.19.4]:13061 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S265726AbRFXEq1>;
+	Sun, 24 Jun 2001 00:46:27 -0400
+Date: Sun, 24 Jun 2001 09:52:19 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Anatoly Ivanov <avi@levi.spb.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 and gcc v3 final
+Message-ID: <20010624095219.A562@bee.lk>
+In-Reply-To: <Pine.LNX.4.21.0106212143320.9295-100000@localhost.localdomain> <3B32E5C5.2040401@levi.spb.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <86256A75.00106D55.00@smtpnotes.altec.com>
-User-Agent: Mutt/1.3.18i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B32E5C5.2040401@levi.spb.ru>; from avi@levi.spb.ru on Fri, Jun 22, 2001 at 10:29:25AM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 23, 2001 at 09:41:29PM -0500, Wayne.Brown@altec.com wrote:
-> Ah, yes, the RT/PC.  That brings back some fond memories.  My first exposure to
-> Unix was with AIX on the RT.  I still have some of those weird-sized RT AIX
-> manuals around somewhere...
+On Fri, Jun 22, 2001 at 10:29:25AM +0400, Anatoly Ivanov wrote:
+> 
+> I hope that lk-developers would fix it one day.
 
-We always ran AOS on RT's.  Actually, the server was the only RT, the rest
-were some other model that was basically a PS/2 (286) that booted DOS, then
-booted the other same chip that the RT used that was on a daughter card.
+Multi-string literals is a nice little ANSI C feature that appears everywhere.
+Why it is necessary to "fix" them?
 
-AOS was basically IBM's version of BSD.  Academic Operating System.
+Anuradha
 
-mrc
 -- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+
+Debian GNU/Linux (kernel 2.4.6-pre5)
+
+For some reason a glaze passes over people's faces when you say
+"Canada".  Maybe we should invade South Dakota or something.
+		-- Sandra Gotlieb, wife of the Canadian ambassador to the U.S.
+

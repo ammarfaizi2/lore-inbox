@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129935AbQKAS4a>; Wed, 1 Nov 2000 13:56:30 -0500
+	id <S131217AbQKATFV>; Wed, 1 Nov 2000 14:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130525AbQKAS4V>; Wed, 1 Nov 2000 13:56:21 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:21494 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129935AbQKAS4H>; Wed, 1 Nov 2000 13:56:07 -0500
-Date: Wed, 1 Nov 2000 16:48:04 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: David Mansfield <lkml@dm.ultramaster.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process,
-  2.4.0-test10
-In-Reply-To: <3A006340.93822A@dm.ultramaster.com>
-Message-ID: <Pine.LNX.4.21.0011011643050.6740-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131260AbQKATFL>; Wed, 1 Nov 2000 14:05:11 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:42735 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S131217AbQKATFD>;
+	Wed, 1 Nov 2000 14:05:03 -0500
+Date: Wed, 1 Nov 2000 11:04:26 -0800
+From: Greg KH <greg@wirex.com>
+To: "Carlos E. Gorges" <carlos@vb.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ipac usb abnt2 (others?) keyboard fix
+Message-ID: <20001101110426.A5890@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	"Carlos E. Gorges" <carlos@vb.com.br>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <00110100263206.01274@quarks.techlinux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00110100263206.01274@quarks.techlinux>; from carlos@vb.com.br on Tue, Oct 31, 2000 at 11:46:26PM -0200
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, David Mansfield wrote:
+On Tue, Oct 31, 2000 at 11:46:26PM -0200, Carlos E. Gorges wrote:
+> 2.2.17 fix need a suse usb backport patch ( I use test2-pre2 ).
 
-> I'd like to report what seems like a performance problem in the latest
-> kernels.  Actually, all recent kernels have exhibited this problem, but
-> I was waiting for the new VM stuff to stabilize before reporting it. 
-> 
-> My test is: run 7 processes that each allocate and randomly
-> access 32mb of ram (on a 256mb machine).  Even though 7*32MB =
-> 224MB, this still sends the machine lightly into swap.  The
-> machine continues to function fairly smoothly for the most part.  
-> I can do filesystem operations, run new programs, move desktops
-> in X etc.
-> 
-> Except: programs which access /proc/<pid>/stat stall for an
-> inderminate amount of time.  For example, 'ps' and 'vmstat'
-> stall BADLY in these scenarios.  I have had the stalls last over
-> a minute in higher VM pressure situations.
+FWIW, if you are using USB on the 2.2.x series, use 2.2.18preX as the
+backport patch is in there, plus a whole lot of other updates.
 
-I have one possible reason for this ....
+thanks,
 
-1) the procfs process does (in fs/proc/array.c::proc_pid_stat)
-	down(&mm->mmap_sem);
+greg k-h
 
-2) but, in order to do that, it has to wait until the process
-   it is trying to stat has /finished/ its page fault, and is
-   not into its next one ...
-
-3) combine this with the elevator starvation stuff (ask Jens
-   Axboe for blk-7 to alleviate this issue) and you have a
-   scenario where processes using /proc/<pid>/stat have the
-   possibility to block on multiple processes that are in the
-   process of handling a page fault (but are being starved)
-
-regards,
-
-Rik
---
-"What you're running that piece of shit Gnome?!?!"
-       -- Miguel de Icaza, UKUUG 2000
-
-http://www.conectiva.com/		http://www.surriel.com/
-
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

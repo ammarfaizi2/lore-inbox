@@ -1,32 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289989AbSBKSXJ>; Mon, 11 Feb 2002 13:23:09 -0500
+	id <S290028AbSBKS1s>; Mon, 11 Feb 2002 13:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290017AbSBKSWz>; Mon, 11 Feb 2002 13:22:55 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:34313 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S289989AbSBKSWP>;
-	Mon, 11 Feb 2002 13:22:15 -0500
-Date: Mon, 11 Feb 2002 12:55:08 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Tom Lord <lord@regexps.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: a new arch feature "for Linus"
-Message-ID: <20020211125507.B37@toy.ucw.cz>
-In-Reply-To: <200202100913.BAA29987@morrowfield.home>
+	id <S290017AbSBKS1i>; Mon, 11 Feb 2002 13:27:38 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:26491 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290047AbSBKS10>; Mon, 11 Feb 2002 13:27:26 -0500
+Date: Mon, 11 Feb 2002 13:27:25 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: John Weber <weber@nyc.rr.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.4 Sound Driver Problem
+Message-ID: <20020211132725.A18726@devserv.devel.redhat.com>
+In-Reply-To: <E16aKwN-0007Ro-00@the-village.bc.nu> <3C6809C2.1030808@nyc.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200202100913.BAA29987@morrowfield.home>; from lord@regexps.com on Sun, Feb 10, 2002 at 01:13:15AM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C6809C2.1030808@nyc.rr.com>; from weber@nyc.rr.com on Mon, Feb 11, 2002 at 01:13:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> Date: Mon, 11 Feb 2002 13:13:22 -0500
+> From: John Weber <weber@nyc.rr.com>
 
-> [1] "Lines of Development" is a trademark of BitMover, Inc.
+> I am looking at both 2.5.4 and 2.4.18-pre9.
 
-Is this joke or serious?
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+OK. Marcelo is not removing virt_to_bus any time soon, so ymfpci
+in 2.4.18 is not going to have it removed. There were some other
+interesting fixes, so I want 2.4.18 to be testing those. Sure,
+for 2.4.19 I can add pci_alloc_XXX. The patch to do it is in my
+tree and I am using it on my laptop. It is not a priority though.
 
+Linus tree is different. I feel pretty safe dumping all fixes
+that I receive into it as soon as they get tested on my laptop.
+If his sound stops working, he'll let me know pretty quick.
+Thus, the ymfpci in 2.5.4 uses pci_alloc_consistent.
+
+> In my copy of sound_alloc_dmap(), I see a direct call to 
+> __get_free_pages to allocate the buffer and a call to virt_to_bus.
+
+This is wonderful, but how is this related to ymfpci?
+Config.in makes you to build sound.o if you select
+CONFIG_SOUND_YMFPCI, but that's pretty irrelevant.
+The ymfpci should load fine without sound.o, it only needs
+soundcore.o.
+
+OTOH, if you just want to fix dmabuf.c, by all means be my guest.
+
+-- Pete
+
+P.S. I changed i810_audio to use pci_alloc_consistent too, it is
+somewhere in dledford's queue.

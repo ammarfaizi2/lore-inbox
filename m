@@ -1,60 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268231AbUJGVhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268406AbUJGVVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268231AbUJGVhh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 17:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268079AbUJGVf5
+	id S268406AbUJGVVX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269772AbUJGVUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 17:35:57 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:52353 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S268224AbUJGVfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:35:12 -0400
-Message-Id: <200410072135.i97LZ18n008420@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: root@chaos.analogic.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Probable module bug in linux-2.6.5-1.358 
-In-Reply-To: Your message of "Thu, 07 Oct 2004 16:48:42 EDT."
-             <Pine.LNX.4.61.0410071640250.3287@chaos.analogic.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com> <1097175903.29576.12.camel@localhost.localdomain> <1097175596.31547.111.camel@localhost.localdomain>
-            <Pine.LNX.4.61.0410071640250.3287@chaos.analogic.com>
+	Thu, 7 Oct 2004 17:20:14 -0400
+Received: from smtp3.Stanford.EDU ([171.67.16.138]:12758 "EHLO
+	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S268107AbUJGVKV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 17:10:21 -0400
+Subject: Re: 2.6.9rc2-mm4 oops
+From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, mingo@elte.hu,
+       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
+       Bernhard Rosenkraenzer <bero@arklinux.org>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+In-Reply-To: <200410071431.20400.bjorn.helgaas@hp.com>
+References: <1096571653.11298.163.camel@cmn37.stanford.edu>
+	 <1096653158.7485.17.camel@cmn37.stanford.edu>
+	 <200410011633.10171.bjorn.helgaas@hp.com>
+	 <200410071431.20400.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097183386.3310.261.camel@cmn37.stanford.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_106308423P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 Oct 2004 14:09:46 -0700
 Content-Transfer-Encoding: 7bit
-Date: Thu, 07 Oct 2004 17:35:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_106308423P
-Content-Type: text/plain; charset=us-ascii
+On Thu, 2004-10-07 at 13:31, Bjorn Helgaas wrote:
+> On Friday 01 October 2004 4:33 pm, Bjorn Helgaas wrote:
+> > On Friday 01 October 2004 11:52 am, Fernando Pablo Lopez-Lezcano wrote:
+> > > On Fri, 2004-10-01 at 08:04, Bjorn Helgaas wrote:
+> > > >  Also, can you look up the bad address
+> > > > (e.g., f8881920) in /proc/kallsyms? 
+> > > 
+> > > This is what I find:
+> > > f8880f80 ? __mod_vermagic5      [xor]
+> > > f8880fcd ? __module_depends     [xor]
+> > > f8881000 t acpi_button_init     [button]
+> > > f8881000 t init_module  [button]
+> > > f8884000 t xor_pII_mmx_2        [xor]
+> > > f8884130 t xor_pII_mmx_3        [xor]
+> > 
+> > You are remembering that /proc/kallsyms isn't sorted, right?
+> > 
+> > If you still can't match the address to anything interesting,
+> > can you see whether it's related to any of the other modules
+> > (i.e., see whether it happens even if you don't load any of
+> > the other ACPI drivers, or try leaving out any other drivers
+> > you can get along without)?  Maybe try loading an ACPI driver
+> > other than floppy, at the same point in the module load sequence,
+> > to see if the problem is specific to floppy, or if floppy is
+> > just an innocent bystander?
+> > 
+> > I looked at all the callers of acpi_bus_register_driver(), and
+> > they all look fine (except the hpet one I found yesterday).  But
+> > maybe there's something I missed, or maybe the acpi_bus_drivers
+> > list got corrupted somehow.
+> > 
+> > If you don't load the floppy driver, is the system stable?
 
-On Thu, 07 Oct 2004 16:48:42 EDT, "Richard B. Johnson" said:
+Even if I load it (unsuccesfully - there's actually no floppy) the
+system _appears_ to be fine. If I remember correctly this happens in the
+context of device discovery (kudzu). 
 
-> Naaah. I included it in my module as a joke. Steve didn't take
-> it as a joke and forwarded it to you. It shows that the whole
-> MODULE_LICENSE("Whatever") is a joke. Not only that, I can
-> simply change /proc/sys/kernel/tainted to 0 before submitting
-> a bug report.
+> Any update on all this?  I've tried to reproduce the problem on
+> my Athlon box, but so far I've been unsuccessful.
 
-Hey. It's your conscience.  Personally, I rank it right up there with
-lying to your physician regarding your symptoms, and for the same reasons.
+Sorry for the delay, too busy as usual. 
 
-As for shipping code like that - that's just downright dishonest.
+BTW, what I sent was actually sorted. I'll see if I can get more
+information later today (I have not forgotten). 
 
---==_Exmh_106308423P
-Content-Type: application/pgp-signature
+-- Fernando
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFBZbaFcC3lWbTT17ARAuDeAKDW/RvEsu6Wa/TUUVtExZBFL87DMACfbVzV
-d5B6nQCbpsHWa+qIe3CzDQs=
-=OJft
------END PGP SIGNATURE-----
-
---==_Exmh_106308423P--

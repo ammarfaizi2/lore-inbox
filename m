@@ -1,126 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVBPTuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVBPTzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVBPTuU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 14:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVBPTuU
+	id S261850AbVBPTzO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 14:55:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVBPTzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 14:50:20 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:16560 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261488AbVBPTuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 14:50:05 -0500
-Date: Wed, 16 Feb 2005 20:49:52 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Pty is losing bytes
-In-Reply-To: <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0502161147510.15340@scrub.home>
-References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
- <je1xbhy3ap.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org>
- <Pine.LNX.4.61.0502160405410.15339@scrub.home> <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Feb 2005 14:55:14 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:35546 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261541AbVBPTyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 14:54:12 -0500
+Date: Wed, 16 Feb 2005 14:54:01 -0500
+From: John M Flinchbaugh <john@hjsoft.com>
+To: Reinhard Tartler <siretart@stud.uni-erlangen.de>
+Cc: linux-kernel@vger.kernel.org, linux-thinkpad@linux-thinkpad.org
+Subject: Re: Thinkpad R40 freezes after swsusp resume
+Message-ID: <20050216195400.GA31729@butterfly.hjsoft.com>
+References: <20050210124636.GA10677@butterfly.hjsoft.com> <slrnd16sk6.4g9.siretart@faui06.informatik.uni-erlangen.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+In-Reply-To: <slrnd16sk6.4g9.siretart@faui06.informatik.uni-erlangen.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 15 Feb 2005, Linus Torvalds wrote:
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> So I'd still worry whether that added -1 actually fixes the bug, or just 
-> means that a off-by-one has to now be off-by-two to be noticeable..
+On Wed, Feb 16, 2005 at 04:16:38PM +0000, Reinhard Tartler wrote:
+> > I can suspend my R40 with swsusp, then boot it and resume fine=20
+> > most of
+> > the time.
+> > I'd say nearly 50$ of the time though, the machine will freeze=20
+> > within 5
+> > minutes of resuming.
+> > SysRq doesn't work, no oops when in console mode, no network, no=20
+> > disk
+> > activity, just frozen.  Occassionally, I've seen a line or 2 of
+> > pixels on my X screen get corrupted.
+> Do you happen to use the madwifi drivers? If you are you might be
+> affected by bad interaction from madwifi with laptop mode patches.=20
+> This
+> has been reported to ubuntu in
+> https://bugzilla.ubuntu.com/show_bug.cgi?id=3D6108
+>=20
+> Unfortunatly, the only known fix up to now is to disable either=20
+> madwifi
+> oder laptop-mode. :(
 
-You're right, even if one just writes 4095 bytes, it will also drop 
-tty->read_cnt characters later.
+I use the ipw2100.sf.net drivers, and I've gotten the freeze without
+even having those modules loaded, so I doubt that's it.
 
-> Does that make sense to you? Maybe the "input full, but no canon_data" 
-> special case would be better handled in the read path, rather than the 
-> write path?
+I'm currently testing booting with acpi=3Doff.  While, I've not had a
+freeze yet (nearly 2 days), I may take your advice and test with
+laptop-mode disabled as well, since I could definitely tolerate the loss
+of laptop-mode better than the loss of my ACPI events and info.
+--=20
+John M Flinchbaugh
+john@hjsoft.com
 
-There might be no reader at this time. The basic problem is that this 
-should be handled in the receive_buf path, but for that it had to return 
-the numbers of characters written (or dropped in the no canon_data case). 
-Relying on receive_room value instead is rather bogus.
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Below is a new patch, which also fixes problems with very long lines.
-1. if receive_room() returns a small number, write_chan() has to 
-continue writing, otherwise it will sleep with nobody waking it up.
-2. we mustn't simply drop eol characters in n_tty_receive_char otherwise 
-canon_data isn't increased and the reader isn't woken up.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-bye, Roman
+iD8DBQFCE6TYCGPRljI8080RAo8UAJ41HUwOokg/wtMMABrLkPZFLGPovQCaAkKR
+o9nP0aAvnb0AoUeIGP323R4=
+=FiJ2
+-----END PGP SIGNATURE-----
 
- n_tty.c |   33 +++++++++++++++------------------
- 1 files changed, 15 insertions(+), 18 deletions(-)
-
-Index: linux-2.6/drivers/char/n_tty.c
-===================================================================
---- linux-2.6.orig/drivers/char/n_tty.c	2005-02-16 16:01:35.000000000 +0100
-+++ linux-2.6/drivers/char/n_tty.c	2005-02-16 19:17:13.053000548 +0100
-@@ -770,10 +770,8 @@ send_signal:
- 		}
- 		if (c == '\n') {
- 			if (L_ECHO(tty) || L_ECHONL(tty)) {
--				if (tty->read_cnt >= N_TTY_BUF_SIZE-1) {
-+				if (tty->read_cnt >= N_TTY_BUF_SIZE-1)
- 					put_char('\a', tty);
--					return;
--				}
- 				opost('\n', tty);
- 			}
- 			goto handle_newline;
-@@ -790,10 +788,8 @@ send_signal:
- 			 * XXX are EOL_CHAR and EOL2_CHAR echoed?!?
- 			 */
- 			if (L_ECHO(tty)) {
--				if (tty->read_cnt >= N_TTY_BUF_SIZE-1) {
-+				if (tty->read_cnt >= N_TTY_BUF_SIZE-1)
- 					put_char('\a', tty);
--					return;
--				}
- 				/* Record the column of first canon char. */
- 				if (tty->canon_head == tty->read_head)
- 					tty->canon_column = tty->column;
-@@ -862,12 +858,9 @@ static int n_tty_receive_room(struct tty
- 	 * that erase characters will be handled.  Other excess
- 	 * characters will be beeped.
- 	 */
--	if (tty->icanon && !tty->canon_data)
--		return N_TTY_BUF_SIZE;
--
--	if (left > 0)
--		return left;
--	return 0;
-+	if (left <= 0)
-+		left = tty->icanon && !tty->canon_data;
-+	return left;
- }
- 
- /**
-@@ -1473,13 +1466,17 @@ static ssize_t write_chan(struct tty_str
- 			if (tty->driver->flush_chars)
- 				tty->driver->flush_chars(tty);
- 		} else {
--			c = tty->driver->write(tty, b, nr);
--			if (c < 0) {
--				retval = c;
--				goto break_out;
-+			while (nr > 0) {
-+				c = tty->driver->write(tty, b, nr);
-+				if (c < 0) {
-+					retval = c;
-+					goto break_out;
-+				}
-+				if (!c)
-+					break;
-+				b += c;
-+				nr -= c;
- 			}
--			b += c;
--			nr -= c;
- 		}
- 		if (!nr)
- 			break;
+--dDRMvlgZJXvWKvBx--

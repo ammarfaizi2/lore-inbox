@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279547AbRKSROy>; Mon, 19 Nov 2001 12:14:54 -0500
+	id <S280293AbRKSRRZ>; Mon, 19 Nov 2001 12:17:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280254AbRKSROf>; Mon, 19 Nov 2001 12:14:35 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:6903 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S280251AbRKSROZ>;
-	Mon, 19 Nov 2001 12:14:25 -0500
-Date: Mon, 19 Nov 2001 10:13:40 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: DD-ing from device to device.
-Message-ID: <20011119101340.I1308@lynx.no>
-Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200111181326.OAA28770@cave.bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <200111181326.OAA28770@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Sun, Nov 18, 2001 at 02:26:19PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S280254AbRKSRRT>; Mon, 19 Nov 2001 12:17:19 -0500
+Received: from james.kalifornia.com ([208.179.59.2]:42110 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S280293AbRKSRRG>; Mon, 19 Nov 2001 12:17:06 -0500
+Message-ID: <3BF93E36.5040603@blue-labs.org>
+Date: Mon, 19 Nov 2001 12:15:34 -0500
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011119
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+CC: vda@port.imtp.ilyichevsk.odessa.ua, James A Sutherland <jas88@cam.ac.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: x bit for dirs: misfeature?
+In-Reply-To: <200111191647.KAA36330@tomcat.admin.navo.hpc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 18, 2001  14:26 +0100, Rogier Wolff wrote:
-> I should NOT get a "file too large" error when copying from a device
-> to a device, right?
-> 
-> I should NOT get a "file too large" if the files are openeed using
-> the "O_LARGEFILE" option, right?
-> 
-> read(4, ""..., 1048576) = 1048576
-> write(5, ""..., 1048576) = 1048576
-> read(4, ""..., 1048576) = 1048576
-> write(5, ""..., 1048576) = 1048575
-> write(5, ".", 1)                     = -1 EFBIG (File too large)
-> 
-> 
-> 
-> This is on 2.2.14. I Could swear we made a working copy of a disk 30
-> minutes earlier....
+>
+>
+>>I know. I'd like to hear anybody who have a directory with r!=x
+>>on purpose (and quite curious on that purpose). UNIX gugus, anybody?
+>>
+>
+>It's used to hide files in anonymous FTP for for one. It prevents you from
+>retrieving files that you don't know the name of. Yes, a brute force attempt
+>to open MAY work to find the unknown file, it will take a long time, and you
+>are most likely to be detected. The anonymous FTP use is usually in an incoming
+>directory - the files are put there from remote individuals, and are hidden
+>(unless someone is a good guesser/or a poor name chosen) until the
+>administrator examines/moves them.
+>
 
-Hmm, you mean 2.4.14 I take it?  There is another report saying 2.4.14
-also "Creating partitions under 2.4.14", and I have read several more
-recently but am unsure of the exact kernel version.  What fs are you
-using, just in case it matters?
+I use it for more than just ftp.  I chmod 710 ~ and have ~ in the 
+web/email groups.  It stops prying eyes unless they know what the 
+filename is.
 
-I know for sure that 2.4.13+ext3 is working mostly OK, as I have been
-playing with multi-TB file sizes (sparse of course) although there is
-a minor bug in the case where you hit the fs size maximum.  I'm glad
-my patch isn't in yet, or I would be getting flak over this I'm sure.
-
-The only problem is that I can't see anything in the 2.4.14 patch which
-would cause this problem.  All the previous reports had to do with
-ulimit, caused by su'ing to root instead of logging into root, but I'm
-not sure exactly where the problem lies.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+David
 

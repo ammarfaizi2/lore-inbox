@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135916AbRD0IC6>; Fri, 27 Apr 2001 04:02:58 -0400
+	id <S131191AbRD0ID6>; Fri, 27 Apr 2001 04:03:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135922AbRD0ICt>; Fri, 27 Apr 2001 04:02:49 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2976 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S135916AbRD0ICc>;
-	Fri, 27 Apr 2001 04:02:32 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S135944AbRD0IDt>; Fri, 27 Apr 2001 04:03:49 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:54220 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135922AbRD0IDk>; Fri, 27 Apr 2001 04:03:40 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Padraig Brady <padraig@antefacto.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ramdisk/tmpfs/ramfs/memfs ?
+In-Reply-To: <3AE879AE.387D3B78@antefacto.com>
+Organisation: SAP LinuxLab
+Date: 27 Apr 2001 09:58:47 +0200
+In-Reply-To: <3AE879AE.387D3B78@antefacto.com>
+Message-ID: <m31yqeojt4.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15081.10132.61529.136589@pizda.ninka.net>
-Date: Fri, 27 Apr 2001 01:02:28 -0700 (PDT)
-To: Matthias Andree <matthias.andree@gmx.de>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4-pre7 build failure w/ IP NAT and ipchains
-In-Reply-To: <20010427025315.A25473@burns.dt.e-technik.uni-dortmund.de>
-In-Reply-To: <20010427025315.A25473@burns.dt.e-technik.uni-dortmund.de>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Padraig,
 
-Your configuration seems impossible, somehow the config system allowed
-you to set CONFIG_IP_NF_COMPAT_IPCHAINS without setting
-CONFIG_IP_NF_CONNTRACK.
+On Thu, 26 Apr 2001, Padraig Brady wrote:
+> 2. Is tmpfs is basically swap and /tmp together in a ramdisk?
+>    The advantage being you need to reserve less RAM for both
+>    together than seperately?
 
-Later,
-David S. Miller
-davem@redhat.com
+tmpfs is ramfs+swap+limits. It is not using ramdisks and is not
+related to them.
+
+> 3. If I've no backing store (harddisk?) is there any advantage 
+>    of using tmpfs instead of ramfs? Also does tmpfs need a 
+>    backing store?
+
+Probably yes, since you spare a little bit kernel memory. most of
+tmpfs is unconditionally in the kernel for shared mappings. So the
+actual CONFIG_TMPFS only adds some small functions to the kernel to
+export this to usre space.
+
+Greetings
+		Christoph
+
+

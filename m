@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316296AbSELAQa>; Sat, 11 May 2002 20:16:30 -0400
+	id <S315262AbSELAUH>; Sat, 11 May 2002 20:20:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316299AbSELAQ3>; Sat, 11 May 2002 20:16:29 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:55559 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316296AbSELAQ3>;
-	Sat, 11 May 2002 20:16:29 -0400
-Message-ID: <018701c1f94a$6db13270$5cedfea9@andreas>
-From: "Andreas Eibach" <a.eibach@gmx.net>
-To: "David Ford" <david+cert@blue-labs.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <86256BB5.004DEF7D.00@smtpnotes.altec.com> <3CDD3034.5010808@blue-labs.org>
-Subject: Re: [OT] Re: Confidential Proposal
-Date: Sun, 12 May 2002 02:17:23 +0200
+	id <S315263AbSELAUG>; Sat, 11 May 2002 20:20:06 -0400
+Received: from pl174.dhcp.adsl.tpnet.pl ([217.98.31.174]:30339 "EHLO
+	blurp.slackware.pl") by vger.kernel.org with ESMTP
+	id <S315262AbSELAUF>; Sat, 11 May 2002 20:20:05 -0400
+Date: Sun, 12 May 2002 02:22:41 +0200 (CEST)
+From: Pawel Kot <pkot@ziew.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <linux-ntfs-dev@lists.sourceforge.net>
+Subject: [ANNOUNCE] NTFS 2.0.7a for Linux 2.4.18
+Message-ID: <Pine.LNX.4.33.0205120221070.6469-100000@blurp.slackware.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
------ Original Message -----
-From: "David Ford" <david+cert@blue-labs.org>
-To: <Wayne.Brown@altec.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, May 11, 2002 4:52 PM
-Subject: [OT] Re: Confidential Proposal
+Backported NTFS 2.0.7 from 2.5.x to 2.4.18 is available from linux-ntfs
+project page:
+http://linux-ntfs.sf.net/downloads.html
 
+See the ChangeLog and Anton's announce for the Changes in NTFS 2.0.7.
 
-> A lot of innocents would die due to the eh...(searches for polite word),
-> "skilled" spam tracers.
-Well, I've gathered a quite decent list of KOREAN [1] advertisement agencies
-and/or shops of all kinds in my GMX spam blocking list I could mail to the
-list maintainers (not openly!) if need be.
+If anyone is interested I may also create the incremental patch (2.0.6b ->
+2.0.7a)
 
-Andreas
-
-[1] sorry for all the Korean people participating in this list, but it's a
-fact that 90% of ALL spam I get a day is from Korean origin. Some could be
-whois'ed as open relays of Korean elementary schools. And this doesn't and
-doesn't get better, rather even _worse_ with every day that passes *sigh*
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 

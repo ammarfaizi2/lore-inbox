@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbUCDKAf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 05:00:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUCDKAf
+	id S261775AbUCDKCv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 05:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUCDKCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 05:00:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:14469 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261710AbUCDKAO (ORCPT
+	Thu, 4 Mar 2004 05:02:51 -0500
+Received: from dinsnail.net ([217.160.166.159]:8096 "EHLO heinz.dinsnail.net")
+	by vger.kernel.org with ESMTP id S261775AbUCDKCt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 05:00:14 -0500
-Date: Thu, 4 Mar 2004 05:00:06 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: Dinesh Ahuja <mdlinux7@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Using the Native POSIX Threading Library (NPTL) instead of linuxthreads.
-Message-ID: <20040304100006.GQ31589@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20040304093805.18936.qmail@web8304.mail.in.yahoo.com>
+	Thu, 4 Mar 2004 05:02:49 -0500
+Date: Thu, 4 Mar 2004 10:27:59 +0100
+From: Michael Weiser <michael@weiser.dinsnail.net>
+To: Greg KH <greg@kroah.com>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-hotplug-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 021 release
+Message-ID: <20040304092759.GA95456@weiser.dinsnail.net>
+References: <20040303000957.GA11755@kroah.com> <20040303095615.GA89995@weiser.dinsnail.net> <200403030722.17632.edt@aei.ca> <20040303151433.GC25687@kroah.com> <20040304012233.GB22511@wonderland.linux.it> <20040304012813.GD2207@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040304093805.18936.qmail@web8304.mail.in.yahoo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040304012813.GD2207@kroah.com>
+User-Agent: Mutt/1.4.2.1i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 04, 2004 at 09:38:05AM +0000, Dinesh Ahuja wrote:
-> Hi Everbody,
-> 
-> I am new to Linux world and fascinated with it. I have
-> an experience of 2.5 years in C++,C,COM,ATL,VC++ and
-> want to get into Linux World.I have build and
-> installed Linux Kernel 2.6.0 after struggling for four
-> days.
-> 
-> I installed Linux 2.6.0 so that I should be able to
-> work with NPTL which is POSIX1.b compliant. But, when
-> I see ma for mq_open and mq_close functions, it
-> doesn't shows me anything.
-
-NPTL doesn't support _POSIX_MESSAGE_PASSING yet, because the
-kernel doesn't support it yet (patches are floating around though
-and as soon as kernel starts supporting NPTL will add support
-for it).
-
-> How can I see the detailed descriptions of the
-> services provided by NPTL ? Please suggest me what are
-
-#include <unistd.h> and check the various _POSIX_* macros
-(or browse /usr/include/{,nptl/}bits/posix_opt.h) or use sysconf/getconf
-(for mq_* sysconf (_SC_MESSAGE_PASSING) or getconf MESSAGE_PASSING).  See
-http://www.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap02.html
-for details.
-
-	Jakub
+On Wed, Mar 03, 2004 at 05:28:13PM -0800, Greg KH wrote:
+> > This does not solve the problem of drivers which do not have matching
+> > hardware, like PPP and loop device. I do not mind unconditionally loading
+> > these modules at boot, but there has to be a way to recognize them: I do
+> > not think it is acceptable to load *all* modules available on the system
+> > (what is the point of having a modular kernel then?).
+> Then have your "use the loop device" or "use the ppp device" load the
+> module before it is used.  Or manually create the dev node and hope that
+> kmod and its aliases work...
+AFAICS both require root privileges and the latter will break with
+dynamic device numbers issued by the kernel. The previous model enabled
+normal users to have the kernel adjust to their current requirements
+dynamically without the need of being root.
+-- 
+bye, Micha

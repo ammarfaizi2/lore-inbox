@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317872AbSGZRjh>; Fri, 26 Jul 2002 13:39:37 -0400
+	id <S317876AbSGZRSY>; Fri, 26 Jul 2002 13:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317878AbSGZRjh>; Fri, 26 Jul 2002 13:39:37 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:11397 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S317872AbSGZRjg>;
-	Fri, 26 Jul 2002 13:39:36 -0400
-Date: Fri, 26 Jul 2002 10:42:58 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] lock assertion macros for 2.5.28
-Message-ID: <20020726174258.GC793866@sgi.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20020725233047.GA782991@sgi.com> <20020726120918.GA22049@reload.namesys.com>
+	id <S317881AbSGZRSY>; Fri, 26 Jul 2002 13:18:24 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:60553 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S317876AbSGZRSY>;
+	Fri, 26 Jul 2002 13:18:24 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Fri, 26 Jul 2002 11:14:33 -0600
+To: Larry McVoy <lm@work.bitmover.com>, Alexander Viro <viro@math.psu.edu>,
+       Larry McVoy <lm@bitmover.com>, Federico Ferreres <fferreres@ojf.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+Message-ID: <20020726111433.P9768@host110.fsmlabs.com>
+References: <20020726094259.H760@work.bitmover.com> <Pine.GSO.4.21.0207261247360.21586-100000@weyl.math.psu.edu> <20020726100747.J760@work.bitmover.com> <20020726110826.N9768@host110.fsmlabs.com> <20020726101856.O760@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020726120918.GA22049@reload.namesys.com>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020726101856.O760@work.bitmover.com>; from lm@bitmover.com on Fri, Jul 26, 2002 at 10:18:56AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 04:09:18PM +0400, Joshua MacDonald wrote:
-> In reiser4 we are looking forward to having a MUST_NOT_HOLD (i.e.,
-> spin_is_not_locked) assertion for kernel spinlocks.  Do you know if any
-> progress has been made in that direction?
+http://www.fool.com/news/foth/2001/foth011108.htm
 
-Well, I had that in one version of the patch, but people didn't think
-it would be useful.  Maybe you'd like to check out Oliver's comments
-at http://marc.theaimsgroup.com/?l=linux-kernel&m=102644431806734&w=2
-and respond?  If there's demand for MUST_NOT_HOLD, I'd be happy to add
-it since it should be easy.  But if you're using it to enforce lock
-ordering as Oliver suggests, then there are probably more robust
-solutions.
-
-Thanks,
-Jesse
+} Wasn't there a South Park episode making fun of the dot coms where they
+} were starting a business and someone asked about the plan and they said
+} 
+} 	Step 1: Idea
+} 	Step 2: Err...
+} 	Step 3: Make money
+} 
+} Or something like that.  Where ever it was, it was pretty funny, it was 
+} quite obvious that the vast majority of the failures could be traced
+} to a lack of a step 2.  Seems so simple, doesn't it?
+} 
+} On Fri, Jul 26, 2002 at 11:08:26AM -0600, Cort Dougan wrote:
+} > "Bat-Boy creates open-source project"
+} 
+} -- 
+} ---
+} Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

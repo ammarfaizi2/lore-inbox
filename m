@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292229AbSCDIVJ>; Mon, 4 Mar 2002 03:21:09 -0500
+	id <S292233AbSCDIV3>; Mon, 4 Mar 2002 03:21:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292237AbSCDIVA>; Mon, 4 Mar 2002 03:21:00 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:61452 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S292223AbSCDIUn>; Mon, 4 Mar 2002 03:20:43 -0500
-From: Helge Hafting <helgehaf@idb.hist.no>
-Date: Mon, 4 Mar 2002 09:19:28 +0100
-To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Message-ID: <20020304081928.GA21138@hh.idb.hist.no>
-In-Reply-To: <200202281536.g1SFaqF02079@localhost.localdomain> <E16heCm-0000Q5-00@starship.berlin> <757370000.1015212846@tiny>
-Mime-Version: 1.0
+	id <S292237AbSCDIVV>; Mon, 4 Mar 2002 03:21:21 -0500
+Received: from ccs.covici.com ([209.249.181.196]:4253 "EHLO ccs.covici.com")
+	by vger.kernel.org with ESMTP id <S292233AbSCDIVM>;
+	Mon, 4 Mar 2002 03:21:12 -0500
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch??: linux-2.5.6-pre1/drivers/scsi/advansys.c DMA-mapping
+ fixes
+In-Reply-To: <200202281528.HAA06493@baldur.yggdrasil.com>
+From: John Covici <covici@ccs.covici.com>
+Date: Mon, 04 Mar 2002 03:20:10 -0500
+In-Reply-To: <200202281528.HAA06493@baldur.yggdrasil.com> ("Adam J.
+ Richter"'s message of "Thu, 28 Feb 2002 07:28:47 -0800")
+Message-ID: <m3vgcc3ft1.fsf@ccs.covici.com>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1.90
+ (i686-pc-linux-gnu)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <757370000.1015212846@tiny>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 03, 2002 at 10:34:07PM -0500, Chris Mason wrote:
-[...]
-> 3) Some drives may not be very smart about ordered tags.  We need
-> to figure out which is faster, using the ordered tag or using a
-> simple cache flush (when writeback is on).  The good news about
-> the cache flush is that it doesn't require major surgery in the
-> scsi error handlers.
+I got the following error when trying to install the advansys scsi
+driver as a module:
 
-Isn't that a userspace thing?  I.e. use ordered tags in the best
-way possible for drives that _are_ smart about ordered tags.
-Let the admin change that with a hdparm-like utility
-if testing (or specs) confirms that this particular
-drive takes a performance hit.  
 
-I thing the days of putting up with any stupid hw is
-slowly going away.  Linux is a serious server os these
-days, and disk makers will be smart about ordered tags
-if some server os do benefit from it.  It won't
-really cost them much either.  
+depmod:         virt_to_bus_not_defined_use_pci_map
 
-Old hw is another story of course - some sort of
-fallback might be useful for that. But probably
-not for next year's drives. :-)
+Any assistance would be appreciated.
 
-Helge Hafting
+on Thu, 28 Feb 2002 07:28:47 -0800 "Adam J. Richter" <adam@yggdrasil.com> wrote:
+
+> 	The following is my attempt to at porting
+> linux-2.5.6-pre1/drivers/scsi/advansys.c to the new DMA mapping
+> scheme described in linux-2.5.6-pre1/Documentation/DMA-mapping.txt.
+>
+> 	Since I do not have an advansys card and I'm a bit green
+> at doing these conversions, I would appreciate it someone who knows
+> the advansys driver could take a look at this stuff and either
+> tell me if I have missed something or take it from here.

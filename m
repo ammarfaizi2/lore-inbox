@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265708AbTBXRXd>; Mon, 24 Feb 2003 12:23:33 -0500
+	id <S261295AbTBXRdB>; Mon, 24 Feb 2003 12:33:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266323AbTBXRXd>; Mon, 24 Feb 2003 12:23:33 -0500
-Received: from pat.uio.no ([129.240.130.16]:16117 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S265708AbTBXRXc>;
-	Mon, 24 Feb 2003 12:23:32 -0500
-MIME-Version: 1.0
+	id <S261353AbTBXRdB>; Mon, 24 Feb 2003 12:33:01 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:3596 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261295AbTBXRdA>; Mon, 24 Feb 2003 12:33:00 -0500
+Date: Mon, 24 Feb 2003 17:43:12 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] pcmcia: bus pcmcia_bus_type, driver_socket as interface
+Message-ID: <20030224174312.A9951@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org
+References: <20030224162259.GA2277@brodo.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15962.22381.294644.724830@charged.uio.no>
-Date: Mon, 24 Feb 2003 18:33:33 +0100
-To: Oleg Drokin <green@namesys.com>
-Cc: Andrew Morton <akpm@digeo.com>, vs@namesys.com, nikita@namesys.com,
-       jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 iget5_locked port attempt to 2.4 (supposedly fixed NFS version this time)
-In-Reply-To: <20030224202619.A18641@namesys.com>
-References: <20030220175309.A23616@namesys.com>
-	<20030220154924.7171cbd7.akpm@digeo.com>
-	<20030221220341.A9325@namesys.com>
-	<20030221200440.GA23699@delft.aura.cs.cmu.edu>
-	<20030224132145.A7399@namesys.com>
-	<15962.19783.182617.822504@charged.uio.no>
-	<20030224200323.A18408@namesys.com>
-	<15962.21418.869267.676983@charged.uio.no>
-	<20030224202619.A18641@namesys.com>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030224162259.GA2277@brodo.de>; from linux@brodo.de on Mon, Feb 24, 2003 at 05:22:59PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Oleg Drokin <green@namesys.com> writes:
+On Mon, Feb 24, 2003 at 05:22:59PM +0100, Dominik Brodowski wrote:
+> Hi!
+> 
+> Patch #1: pcmcia-2.5.62-bus_drivers-3
+> These patches add a new bus_type pcmcia_bus_type, and registers all pcmcia
+> drivers with this bus. This is still done using the "old" registration
+> calls; but over the long term this will move -- so that the pcmcia core
+> knows about module->owner, for example.
+> 
+> Patch #2: pcmcia-2.5.62-ds-1
+> This starts a change of "Driver Servies" to become a "interface" to
+> pcmcia_socket-class devices. The interface_add_data call is commented out
+> due to a driver model bug (deadlock) Patrick Mochel already knows about. Due
+> to this, removing a driver services module or a socket won't currently work.
 
-     > Hello!  On Mon, Feb 24, 2003 at 06:17:30PM +0100, Trond
-     > Myklebust wrote:
-    >> >> like that keeps turning the clock backward on the server,
-    >> >> then the NFS client has no chance of recognizing which
-    >> >> attribute updates are the more recent ones.
-    >> > Ok, I stopped ntpd. Will see what will happen. ;) Aha, it
-    >> > died already: doread: read: Input/output error
-    >> Silly question: Are you perhaps testing using the 'soft' mount
-    >> option?
+This looks really nice!  Could you post an example driver converted to use
+pcmcia_register_driver() and friends?
 
-     > Hm. I just mount it as mount server:/tmp /mnt -t nfs no extra
-     > options. So I guess no, I do not have wthis soft stuff.
-
-...and there were no accompanying messages logged by syslog? In
-principle the NFS client is always supposed to supply an error message
-when it generates an EIO.
-
-Cheers,
-  Trond

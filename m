@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262643AbVBYHwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVBYICR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262643AbVBYHwa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 02:52:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVBYHwa
+	id S262648AbVBYICR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 03:02:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbVBYICR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 02:52:30 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:62567 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262643AbVBYHwY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 02:52:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=AcU6oAq8lPUCnbMzbGdX7wAnkLbWjXxSlRJAO4DfrV3pV2NfFaVCtu4R6ICI3nQXTZaLfRSuhOR5TfA+T38H0GrpwBrTMMD4Gk/Qkh4hfPMn+WJv0iNV7xMVI6/54b3XrHnUGHjSmW9A3Hq97iX/MQdBUQXKvGu9AvX51mQ7B5Q=
-Message-ID: <421ED92D.4040905@gmail.com>
-Date: Fri, 25 Feb 2005 09:52:13 +0200
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark McPherson <mark@mahonia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc2-mm5 -- Some
-References: <pan.2004.03.30.06.06.42.430786@mahonia.com>
-In-Reply-To: <pan.2004.03.30.06.06.42.430786@mahonia.com>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA94D6291B60B29DDDEC1AC5A"
+	Fri, 25 Feb 2005 03:02:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:13998 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262648AbVBYICN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 03:02:13 -0500
+Subject: Re: [2.6 patch] unexport do_settimeofday
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050224212448.367af4be.akpm@osdl.org>
+References: <20050224233742.GR8651@stusta.de>
+	 <20050224212448.367af4be.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 25 Feb 2005 09:02:04 +0100
+Message-Id: <1109318525.6290.32.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA94D6291B60B29DDDEC1AC5A
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Mark McPherson wrote:
-> Hello all,
+On Thu, 2005-02-24 at 21:24 -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > 
+> >  I haven't found any possible modular usage of do_settimeofday in the 
+> >  kernel.
 > 
-> I have a Shuttle XPC with an nForce2 chipset.
+> Please,
 > 
-> Here's something which shows up in dmesg after booting
-> 2.6.5-rc2-mm5; it does not appear in the Linux tree up through
-> 2.6.5-rc2-bk9. 
+> - Add deprecated_if_module
 > 
-> My external IEEE1394 drive attaches and detaches and
-> transfers data without apparent complaint.
+> - Use it for do_settimeofday()
+> 
+> - Add do_settimeofday to Documentation/feature-removal-schedule.txt
+> -
 
-Wait, do you mean that it works only with 2.6.5-rc2-mm5, or that it works fine 
-in all kernels after 2.6.5-rc2-bk9?
-
-These are pretty old kernels... What about newer ones?
-
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+for _set_ time of day? I really can't imagine anyone messing with that.
+_get_... sure. but set???
 
 
---------------enigA94D6291B60B29DDDEC1AC5A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFCHtkwA7Qvptb0LKURAiBQAJ9t3JcFVu31sB/j2K7EbpEX2+wHjwCfaGDO
-g51QVVGTOGLGdliRwsHb154=
-=wJPJ
------END PGP SIGNATURE-----
-
---------------enigA94D6291B60B29DDDEC1AC5A--

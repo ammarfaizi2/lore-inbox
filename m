@@ -1,104 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130092AbQLSMgJ>; Tue, 19 Dec 2000 07:36:09 -0500
+	id <S129652AbQLSNAT>; Tue, 19 Dec 2000 08:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130120AbQLSMf7>; Tue, 19 Dec 2000 07:35:59 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:52751 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S130092AbQLSMfr>;
-	Tue, 19 Dec 2000 07:35:47 -0500
-Message-ID: <3A3F1E6A.AAEC9F5F@goingware.com>
-Date: Tue, 19 Dec 2000 08:38:02 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux Quality Database Project
-Content-Type: text/plain; charset=us-ascii
+	id <S129780AbQLSNAK>; Tue, 19 Dec 2000 08:00:10 -0500
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:57511 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S129652AbQLSM7w>; Tue, 19 Dec 2000 07:59:52 -0500
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@fi.muni.cz>
+Subject: Oops with 2.4.0-test13pre3 - swapoff
+Message-ID: <3A3F548A.6E6F2B1B@fi.muni.cz>
+Date: Tue, 19 Dec 2000 12:28:58 GMT
+X-Nntp-Posting-Host: decibel.fi.muni.cz
 Content-Transfer-Encoding: 7bit
+X-Accept-Language: Czech, en
+Content-Type: text/plain; charset=iso-8859-2
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17pre9-AGP-IDE i586)
+Organization: unknown
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last may I posted a message to the list with the subject "Organized
-Linux QA?" asking if there'd be any interest
-in building a web database to collect bug reports in linux kernel test
-versions and to make it easier to search for
-bugs (and success reports) based on things like hardware configuration
-and kernel configuration (the database would parse .config files and you
-could search by the options in it).
+Hi
 
-My original message is archived at:
+This is oops I've got when rebooting after some heavy disk activity on
+my SMP system:
 
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0005.3/1437.html
+Written by hand:
 
-and was posted Wed, May 31 2000.  You can read the brief thread that
-ensued from the archives.
+kernel BUG swap_state.c:78!
+-- invalid operand: 0000
+EIP: 0010:[<c01e20fd>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+Stack: c0206c16 c0206e2f 0000004e
+Call Trace: [<c0206c16>] [<c0206e2f>] [<c012e1a5>] [<c012e1ce>]
+[<c0130d0d>] 
+[<c0130ddc>] [<c012eb5d>] [<c012ed24>] [<c01328d4>] [<c0108ef3>]
+Code: 0f 0b 83 c4 0c 8b 43 18 f6 c4 02 74 07 8b 43 18 a8 01 75 16
 
-I felt the process of reporting a bug to the linux-kernel list and
-staying on the list to ensure the bug got fixed and stayed fix was
-likely to be intimidating to a lot of the people who might otherwise be
-helpful to you in reporting bugs.
-I thought a web application like this would encourage more users to
-participate, basically you'd need to know enough to apply a patch, build
-a kernel from source and log the results into a web form.
+>>EIP; c01e20fd <unix_stream_sendmsg+225/308>   <=====
+Trace; c0206c16 <tvecs+2f1e/c8bc>
+Trace; c0206e2f <tvecs+3137/c8bc>
+Trace; c012e1a5 <delete_from_swap_cache_nolock+5d/74>
+Trace; c012e1ce <delete_from_swap_cache+12/5c>
+Trace; c0130d0d <shmem_unuse_inode+89/120>
+Trace; c0130ddc <shmem_unuse+38/4c>
+Trace; c012eb5d <try_to_unuse+f5/170>
+Trace; c012ed24 <sys_swapoff+14c/2b0>
+Trace; c01328d4 <sys_read+bc/c4>
+Trace; c0108ef3 <system_call+33/38>
+Code;  c01e20fd <unix_stream_sendmsg+225/308>
 
-Things got kind of nuts in my consulting business for a while (I also
-got married, on July 22, to a woman from Newfoundland - I'm from
-California) and I couldn't deal with this for a while.  But my life is
-settling down a bit and I'd like to take this back up.
+00000000 <_EIP>:
+Code;  c01e20fd <unix_stream_sendmsg+225/308>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c01e20ff <unix_stream_sendmsg+227/308>
+   2:   83 c4 0c                  add    $0xc,%esp
+Code;  c01e2102 <unix_stream_sendmsg+22a/308>
+   5:   8b 43 18                  mov    0x18(%ebx),%eax
+Code;  c01e2105 <unix_stream_sendmsg+22d/308>
+   8:   f6 c4 02                  test   $0x2,%ah
+Code;  c01e2108 <unix_stream_sendmsg+230/308>
+   b:   74 07                     je     14 <_EIP+0x14> c01e2111
+<unix_stream_sendmsg+239/308>
+Code;  c01e210a <unix_stream_sendmsg+232/308>
+   d:   8b 43 18                  mov    0x18(%ebx),%eax
+Code;  c01e210d <unix_stream_sendmsg+235/308>
+  10:   a8 01                     test   $0x1,%al
+Code;  c01e210f <unix_stream_sendmsg+237/308>
+  12:   75 16                     jne    2a <_EIP+0x2a> c01e2127
+<unix_stream_sendmsg+24f/308>
 
-So far the project has nothing but a home page saying what it's about,
-but it's hosted at SunSITE Denmark
-(http://sunsite.dk), which has a powerful server and provides a lot of
-services to the open source community:
 
-http://linuxquality.sunsite.dk
-
-If you'd like to participate or know someone who would there's
-instructions on subscribing to the database developer's mailing list on
-the page (send an empty message to linuxquality-dev-subscribe@sunsite.dk
-)
-
-Of course, the sort of programming one usually does for a
-database-backed web application is typically different than kernel
-programming so I don't expect many of you will want to help write the
-thing.  But I would appreciate having some of you participate in the
-design so that we can ensure the result will serve your needs, and
-passing this message on to web applications programmers who you think
-might want to participate.
-
-I want to say right off that it is not my objective to impose some kind
-of corporate quality process on the Linux kernel developers.  That would
-be pretty presumptuous of me as I've never been a kernel developer, let
-alone any kind of leader in the Linux community.  So there will be
-explicitly no requirement that any developer participate at all to work
-with the bug database - I'm not suggesting you all should start tracking
-your open bugs on my database or closing them when they're fixed or
-referring them back to testers as is the usual practice in big company
-software projects.
-
-I do want to provide configurable levels of participation, ranging from
-a request that submitted bugs in a particular component just be
-forwarded to the linux-kernel list, to mailing problem summaries to a
-developer who would then browse the database, to the possibility of
-interacting regularly with the database.
-
-It would be fine if the database served as a passive repository of bug
-info that you could browse at your leisure.
-
-(I'm not subscribed to the linux-kernel list, but will be reading it off
-an archive.  Subscribing last spring filled my inbox so full that it
-overflowed /tmp on my hosting service when I ran elm).
-
-Regards,
-
-Michael D. Crawford
-GoingWare Inc. -Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.
+             There are three types of people in the world:
+               those who can count, and those who can't.
+  Zdenek Kabelac  http://i.am/kabi/ kabi@i.am {debian.org; fi.muni.cz}
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263801AbUECReF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263806AbUECRyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263801AbUECReF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 13:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263803AbUECReF
+	id S263806AbUECRyz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 13:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUECRyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 13:34:05 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:17886 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S263801AbUECReD (ORCPT
+	Mon, 3 May 2004 13:54:55 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:41679 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S263806AbUECRyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 13:34:03 -0400
-Date: Mon, 3 May 2004 19:33:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Junfeng Yang <yjf@stanford.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, mc@stanford.edu,
-       Madanlal S Musuvathi <madan@stanford.edu>,
-       "David L. Dill" <dill@cs.stanford.edu>, Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [Ext2-devel] [CHECKER] warnings in fs/ext3/namei.c (2.4.19) where disk read errors get ignored, causing non-empty dir to be deleted
-Message-ID: <20040503173320.GA10655@wohnheim.fh-wedel.de>
-References: <Pine.GSO.4.44.0404262339360.7250-100000@elaine24.Stanford.EDU> <20040427074455.GD30529@schnapps.adilger.int> <20040503141001.GA23656@wohnheim.fh-wedel.de> <20040503161606.GJ1334@schnapps.adilger.int>
+	Mon, 3 May 2004 13:54:52 -0400
+Date: Mon, 3 May 2004 10:57:35 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Zoltan.Menyhart@bull.net
+Cc: drepper@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: NUMA API - wish list
+Message-Id: <20040503105735.39bee800.pj@sgi.com>
+In-Reply-To: <40963FAB.DF49BC3E@nospam.org>
+References: <409201BE.9000909@redhat.com>
+	<40963FAB.DF49BC3E@nospam.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040503161606.GJ1334@schnapps.adilger.int>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 May 2004 10:16:06 -0600, Andreas Dilger wrote:
-> On May 03, 2004  16:10 +0200, Jörn Engel wrote:
-> > 
-> > Do you mind if I doubt the sanity of whoever made that decision?  When
-> > my hard drive fails, I don't care about writing to the fs too much
-> > anymore, I want to *notice* the failure early and to *read* as much as
-> > possible, then put the drive on a pile for test hardware.
-> 
-> If that's what you want, then mount the filesystem with "errors=remount-ro"
-> and you will get it.  You can even mount it with "errors=panic" so that the
-> node reboots and does a full fsck immediately.  For users that have a few
-> bad blocks on their disk and can't afford to throw the whole disk away this
-> is a reasonable course of action.
+> The operating systems should provide for abstractions of the actual ...
 
-Ok, "errors=remount-ro" is good enough for me.  For the record, do
-non-historic disks with a few bad blocks still exist?  I though the
-driver firmware already detected those and used spare blocks at one
-side of the disk as a replacement.  Nicely visible when sequential
-read performance over the whole disk has a few non-continuous spots.
+True ... so long as you don't confuse "operating system" with "kernel".
 
-Jörn
+Most of what you describe can and should be in user space, as what I
+call "system software", constructed of libraries, daemons, utilities
+and specific language support.
+
+Having the kernel support the abstraction of "file", to hide details of
+sectors, channels and devices has been a great success.  But the kernel
+doesn't need to support every such abstraction, such as in this case
+"abstract computers" with certain amounts of compute, memory and i/o
+resources.
+
+Rather the kernel only needs to provide the essential primitives, such
+as cpu and memory placement, jobs (as related set of tasks), and access
+to primitive topology and hardware attributes.
+
+(Your spam encoded from address "Zoltan.Menyhart_AT_bull.net@nospam.org"
+is a minor annoyance ...).
 
 -- 
-Geld macht nicht glücklich.
-Glück macht nicht satt.
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVAEJkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVAEJtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVAEJkR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 04:40:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVAEJkR
+	id S262326AbVAEJtw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 04:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVAEJtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 04:40:17 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:23556 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262303AbVAEJkI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 04:40:08 -0500
-Message-ID: <41DBB5F6.6070801@cantab.net>
-Date: Wed, 05 Jan 2005 09:40:06 +0000
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
+	Wed, 5 Jan 2005 04:49:51 -0500
+Received: from mail.dif.dk ([193.138.115.101]:11238 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262326AbVAEJto (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 04:49:44 -0500
+Date: Wed, 5 Jan 2005 10:45:38 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-mtd <linux-mtd@lists.infradead.org>,
+       David Woodhouse <dwmw2@redhat.com>,
+       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wh.fh-wedel.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove unnessesary casts from drivers/mtd/maps/nettel.c
+ and kill two warnings
+In-Reply-To: <41DB343F.5070207@snapgear.com>
+Message-ID: <Pine.LNX.4.61.0501051044060.6112@jjulnx.backbone.dif.dk>
+References: <Pine.LNX.4.61.0412262202510.3552@dragon.hygekrogen.localhost>
+ <41DB343F.5070207@snapgear.com>
 MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Bjorn Helgaas <bjorn.helgaas@hp.com>, aryix <aryix@softhome.net>,
-       lug-list@lugmen.org.ar, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: dmesg: PCI interrupts are no longer routed automatically.........
-References: <20041229095559.5ebfc4d4@sophia>  <1104862721.1846.49.camel@eeyore>  <Pine.LNX.4.61.0501041342070.5445@chaos.analogic.com> <1104867678.1846.80.camel@eeyore> <Pine.LNX.4.61.0501041447420.5310@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0501041447420.5310@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Jan 2005 09:43:22.0703 (UTC) FILETIME=[FF061DF0:01C4F30A]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
+On Wed, 5 Jan 2005, Greg Ungerer wrote:
+
 > 
-> For instance,  Level interrupts from PLX chips on the PCI bus
-> can (read do) generate interrupts when some of the BARS are
-> being configured. Once you get an unhandled interrupt, you
-> are dead because there's nothing to reset the line.
+> Sorry for the slow response, I have been out on vacation the
+> last couple of weeks :-)
+> 
+I Hope you had a nice vacation. :)
 
-Why not unconditionally clear all interrupts after configuring the chip?
+> 
+> Jesper Juhl wrote:
+> > I took a look at the cause for these warnings in the 2.6.10 kernel,
+> > 
+> > drivers/mtd/maps/nettel.c:361: warning: assignment makes pointer from
+> > integer without a cast
+> > drivers/mtd/maps/nettel.c:395: warning: assignment makes pointer from
+> > integer without a cast
+> > 
+> > and as far as I can see the casts in there (to unsigned long and back to
+> > void*) are completely unnessesary ('virt' in 'struct map_info' is a void
+> > __iomem *), and getting rid of those casts buys us a warning free build.
+> > 
+> > Are there any reasons not to apply the patch below?
+> > Unfortunately I don't have hardware to test this patch, so it has been
+> > compile tested only.
+> 
+> Looks good to me. I have applied it to my working tree.
+> Do you want me to send it to Linus?
+> 
 
-David Vrabel
+I'd appreciate that.
+
+-- 
+Jesper Juhl
+

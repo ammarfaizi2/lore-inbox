@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281418AbRKMBDt>; Mon, 12 Nov 2001 20:03:49 -0500
+	id <S281367AbRKMBFj>; Mon, 12 Nov 2001 20:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281355AbRKMBDk>; Mon, 12 Nov 2001 20:03:40 -0500
-Received: from vt-lakechamplain2b-184.bur.adelphia.net ([24.50.101.184]:53644
-	"EHLO sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S281415AbRKMBDg>; Mon, 12 Nov 2001 20:03:36 -0500
-Date: Mon, 12 Nov 2001 20:03:15 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: <wstearns@sparrow.websense.net>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: John Weber <weber@nyc.rr.com>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA and 2.4.15-pre4
-In-Reply-To: <3BF06C63.6E34C24A@nyc.rr.com>
-Message-ID: <Pine.LNX.4.33.0111121958470.6117-100000@sparrow.websense.net>
+	id <S281326AbRKMBFc>; Mon, 12 Nov 2001 20:05:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59140 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S281422AbRKMBEI>; Mon, 12 Nov 2001 20:04:08 -0500
+Subject: Re: Linux 2.4.15-pre4 - merge with Alan
+To: jamagallon@able.es (J . A . Magallon)
+Date: Tue, 13 Nov 2001 01:11:36 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20011113004303.C1531@werewolf.able.es> from "J . A . Magallon" at Nov 13, 2001 12:43:03 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E163S6y-0007pw-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good day, John,
+> -		 */
+> -		return scsi_check_sense(SCpnt);
+> +		return SUCCESS;
+>  	default:
+>  		return FAILED;
+>  	}
+> 
+> Is really needed ?
 
-On Mon, 12 Nov 2001, John Weber wrote:
-
-> I am having trouble with 2.4.15 and PCMCIA.  Anyone seeing similar
-> problems?
-
-	I hate to say it, but your question isn't all that useful in its
-current form.  What kinds of problems?  What pcmcia version?  What kernel
-configuration?  What error messages?  Functional problems?  Compiling
-problems?  Cosmetic problems?  Are they reproducable?  How can we
-reproduce the problem?
-	Please see http://www.stearns.org/doc/howtoask.v8.html
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	"Architect: someone who knows the difference between what could be
-done and what should be done".
-	-- Larry McVoy <lm@bitmover.com>
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
+I think so but its only for specific cases like shared busses

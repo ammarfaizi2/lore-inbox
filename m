@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267173AbTAFWs3>; Mon, 6 Jan 2003 17:48:29 -0500
+	id <S267166AbTAFWsU>; Mon, 6 Jan 2003 17:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267178AbTAFWs3>; Mon, 6 Jan 2003 17:48:29 -0500
-Received: from mail.icehouse.net ([204.203.53.2]:38148 "HELO mail.icehouse.net")
-	by vger.kernel.org with SMTP id <S267173AbTAFWs1>;
-	Mon, 6 Jan 2003 17:48:27 -0500
-From: "Kaleb Pederson" <kibab@icehouse.net>
-To: "Lkml" <linux-kernel@vger.kernel.org>
-Subject: windows=stable, linux=5 reboots/50 min
-Date: Mon, 6 Jan 2003 22:57:03 -0800
-Message-ID: <LDEEIFJOHNKAPECELHOAKEJFCCAA.kibab@icehouse.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S267173AbTAFWsT>; Mon, 6 Jan 2003 17:48:19 -0500
+Received: from ip68-0-152-218.tc.ph.cox.net ([68.0.152.218]:13199 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S267166AbTAFWsT>; Mon, 6 Jan 2003 17:48:19 -0500
+Date: Mon, 6 Jan 2003 15:56:52 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Tomas Szepe <szepe@pinerecords.com>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH] configurable LOG_BUF_SIZE
+Message-ID: <20030106225652.GI796@opus.bloom.county>
+References: <20030106212608.GQ5984@louise.pinerecords.com> <Pine.LNX.4.33L2.0301061359470.15416-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0301061359470.15416-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After a recent hard drive crash, I re-installed Linux to a new hard drive.
-After about 2 weeks, my system now spontaneously reboots about once per 10
-minutes (on avg.).  I'm assuming I messed up something in my kernel
-configuration as Windows is still stable. To verify that it wasn't the new
-hard drive (or use of different controller) I formatted a segment of it
-under Windows and copied 7+ gb of data onto it while doing other things
-without problem.
+On Mon, Jan 06, 2003 at 02:04:52PM -0800, Randy.Dunlap wrote:
+> On Mon, 6 Jan 2003, Tomas Szepe wrote:
+> 
+> | > [rddunlap@osdl.org]
+> |
+> | > | |---------------------------------------------------------------------------
+> | > | | I'd probably be happier if the current one didn't even _ask_ the user (or|
+> | > | | only asked the user if kernel debugging is enabled), and just silently   |
+> | > | | defaulted to the normal values.                                          |
+> | > | |---------------------------------------------------------------------------
+> | >
+> | Randy,
+> |
+> | this looks correct to me.  Maybe using if/endif instead of the two
+> | 'depends on' would make the entry more explicit to the eye of a future
+> | beholder.
+> 
+> Hey Tomas,
+> 
+> Thanks for looking and giving me your comments.
+> 
+> if/endif would be useful there, especially if there was also an 'else'
+> available...
 
-The system will reboot as early as after detecting the hard drives and
-before loading the root filesystem or anytime thereafter - sometimes in
-logging into the console, sometimes in X.
+I think that's by design (if / else is limiting, which is why you have a
+very flexible depends syntax).  That looks exactly like what we do in
+arch/ppc/Kconfig.  Maybe a comment 'tho to make it more explicit what's
+being done and why would be in order here however.
 
-My system configuration is as follows:
-
-Microstar 694D-Pro-AR
-Dual PIII - 800's - not overclocked
-Nice 450 Watt PS
-Onboard Promise PDC20265
-Onboard AC97Audio - Disabled
-Soundblaster Live
-2 Hard drives
- - 1=IBM-40gb on Promise Controller
- - 1=WD-80gb on onboard UDMA/66 controller (previous configuration was also
-on promise)
-USB Keyboard/Mouse/Scanner
-Intel EEPro100
-NVidia TNT2 Utlra (considering the system sometimes crashes before I enter X
-and before the NVidia driver is loaded, my kernel has not been tainted at
-this point).
-
-I don't get any messages is /var/log/... nor do I get an oops.  I have tried
-this under 2.4.19, 2.4.20, and 2.4.21-pre2 (all compiled with gcc-2.95.3)
-and I get the same behavior.  I have noticed no similarities between the
-crashes.  At this point, I have no idea how to isolate it other than to
-start removing every single unnecessary kernel module/option from my .config
-and recompiling.  Any suggestions?  Want to see a grep of my .config?
-
-TIA,
-
---Kaleb
-PS: Although I'm going to try to monitor the list for the next few days,
-please CC me in case I miss it.
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

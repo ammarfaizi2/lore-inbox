@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318297AbSHEFku>; Mon, 5 Aug 2002 01:40:50 -0400
+	id <S318317AbSHEFni>; Mon, 5 Aug 2002 01:43:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318300AbSHEFku>; Mon, 5 Aug 2002 01:40:50 -0400
-Received: from cartero.austria.eu.net ([193.154.160.153]:21928 "EHLO
-	cartero.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S318297AbSHEFkt>; Mon, 5 Aug 2002 01:40:49 -0400
-Date: Mon, 5 Aug 2002 07:44:22 +0200
-From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-X-Mailer: The Bat! (v1.61) Personal
-Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-Organization: Chaos is just another way of organisation
-X-Priority: 3 (Normal)
-Message-ID: <130123236514.20020805074422@eunet.at>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-ac2
-In-Reply-To: <200208042057.57130.Devilkin-LKML@blindguardian.org>
-References: <200208041746.g74Hkgr24437@devserv.devel.redhat.com>
- <200208042057.57130.Devilkin-LKML@blindguardian.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S318318AbSHEFni>; Mon, 5 Aug 2002 01:43:38 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18879 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318317AbSHEFnh>;
+	Mon, 5 Aug 2002 01:43:37 -0400
+Date: Sun, 04 Aug 2002 22:34:47 -0700 (PDT)
+Message-Id: <20020804.223447.05930294.davem@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       vamsi_krishna@in.ibm.com
+Subject: Re: [PATCH] kprobes for 2.5.30 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020805041904.783374450@lists.samba.org>
+References: <20020801.191449.101696880.davem@redhat.com>
+	<20020805041904.783374450@lists.samba.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Devilkin, 
+   From: Rusty Russell <rusty@rustcorp.com.au>
+   Date: Mon, 05 Aug 2002 14:14:12 +1000
 
-Sunday, August 4, 2002, 8:57:57 PM, Devilkin wrote,
-and I answered on Montag, 05. August 2002, 07:39:48 with this ...
+   In message <20020801.191449.101696880.davem@redhat.com> you write:
+   > A nice enhancement would be to move the kprobe table and
+   > other generic bits into a common area so that it did not
+   > need to be duplicated as other arches add kprobe support.
+   
+   Done.  Look better?
 
-
-> There seems to be some problem with VIA IDE IRQ's on 2.4.19-ac2.
-
-> With 2.4.19-ac2 i get the following message in the logs:
-
-> PCI: No IRQ known for interrupt pin A of device 00:07.1. Please try using 
-> pci=biosirq.
-
-> 00:07.1 is the IDE Interface on my mainboard!
-
-Well, with my VIA Crap here I can't confirm this problem. I see
-nothing in my logs. I have a VT82Cx86 (is KT133 ?? or something) stuff in
-here. But I will try tocompile 2.4.19-ac2 at my office computer where
-I have a KT233 VIA chipset.
-
-best regards, Clemens
--- 
-_________/\_____________________              ^_^             ()~()
-Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
-ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
-http://www.animeundmanga.at | http://www.gullevek.org  \_____________
-
+That's exactly how I wanted the generic stuff split out,
+it's perfect.

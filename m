@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131363AbRBDOTl>; Sun, 4 Feb 2001 09:19:41 -0500
+	id <S131544AbRBDO4F>; Sun, 4 Feb 2001 09:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131544AbRBDOTb>; Sun, 4 Feb 2001 09:19:31 -0500
-Received: from selene.cps.intel.com ([192.198.165.10]:12551 "EHLO
-	selene.cps.intel.com") by vger.kernel.org with ESMTP
-	id <S131363AbRBDOTS>; Sun, 4 Feb 2001 09:19:18 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27119@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: kernel memory allocations alignment
-Date: Sun, 4 Feb 2001 06:19:03 -0800 
+	id <S131803AbRBDOz4>; Sun, 4 Feb 2001 09:55:56 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:19547 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S131544AbRBDOzv>; Sun, 4 Feb 2001 09:55:51 -0500
+Message-ID: <3A7D6C66.749318E1@kalifornia.com>
+Date: Sun, 04 Feb 2001 06:51:18 -0800
+From: Ben Ford <ben@kalifornia.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: David Woodhouse <dwmw2@infradead.org>
+CC: James Sutherland <jas88@cam.ac.uk>, Russell King <rmk@arm.linux.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Pavel Machek <pavel@suse.cz>, andrew.grover@intel.com,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Better battery info/status files
+In-Reply-To: <Pine.LNX.4.30.0102041354060.17227-100000@imladris.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+David Woodhouse wrote:
 
-When using kmalloc(size_t size), do I get a guaranty that the memory region
-allocated is aligned according to the size specified ?
-More to the point, if I call kmalloc for type int on an IA64 architecture is
-the pointer going to be 8 bytes aligned ?
+> On Sun, 4 Feb 2001, James Sutherland wrote:
+>
+> > For the end-user, the ability to see readings in other units would be
+> > useful - how many people on this list work in litres/metres/kilometres,
+> > and how many in gallons/feet/miles? Probably enough in both groups that
+> > neither could count as universal...
+>
+> Yeah. We can have this as part of the locale settings, changable by
+> echoing the desired locale string to /proc/sys/kernel/lc_all.
+>
+> -
+
+Just an idea, . .  but isn't this something better done in userland?
+
+(ben@Deacon)-(06:49am Sun Feb  4)-(ben)
+$ date  +%s
+981298161
+(ben@Deacon)-(06:49am Sun Feb  4)-(ben)
+$ date  +%c
+Sun Feb  4 06:49:24 2001
 
 
-	Shmulik Hen
-	Software Engineer
-	Linux Advanced Networking Services
-	Network Communications Group, Israel (NCGj)
-	Intel Corporation Ltd.
-
+-b
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

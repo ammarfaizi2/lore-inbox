@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264303AbRGDLdv>; Wed, 4 Jul 2001 07:33:51 -0400
+	id <S262702AbRGDMCD>; Wed, 4 Jul 2001 08:02:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264072AbRGDLdl>; Wed, 4 Jul 2001 07:33:41 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:57263 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264303AbRGDLd1>;
-	Wed, 4 Jul 2001 07:33:27 -0400
-Message-ID: <3B42FF02.DD6E63ED@mandrakesoft.com>
-Date: Wed, 04 Jul 2001 07:33:22 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S263416AbRGDMBx>; Wed, 4 Jul 2001 08:01:53 -0400
+Received: from pat.uio.no ([129.240.130.16]:50914 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S262702AbRGDMBp>;
+	Wed, 4 Jul 2001 08:01:45 -0400
+To: Dima Brodsky <dima@cs.ubc.ca>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: RPC: rpciod waiting on sync task!
+In-Reply-To: <20010703164436.A20309@cascade.cs.ubc.ca>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 04 Jul 2001 14:01:33 +0200
+In-Reply-To: Dima Brodsky's message of "Tue, 3 Jul 2001 16:44:36 -0700"
+Message-ID: <shs1ynwdhsy.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.4.6-final changelog entry
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i summarized it for irc, so if it saves effort...
+>>>>> " " == Dima Brodsky <dima@cs.ubc.ca> writes:
 
-jg's 2.4.6-final changelog:
-- minor config.in fixes
-- mtd nand/spia update
-- TI cardbus fix      
-- u810 audio put_user fix
-- ialloc.c fix, mode, plus DQUOT_INIT
-- ELOOP in namei.c
-- if (!mm) return in proc/base.c
-- replace mm/mmap.c change:
-free += swapper_space.nrpages;
+     > Hi, I modified the linux NFS client, kernel 2.4.5 and
+     > 2.4.6-pre7, to send an extra SETATTR, with special values,
+     > within nfs_open and nfs_release so that I would be able to
+     > track file open and close.  For the server I am using a
+     > slightly modified linux user level nfs server.
 
--- 
-Jeff Garzik      | "I respect faith, but doubt is
-Building 1024    |  what gives you an education."
-MandrakeSoft     |           -- Wilson Mizner
+     > What I noticed is that after this change I get:
+
+     > RPC: rpciod waiting on sync task!
+
+That probably means that you've put this setattr code somewhere in the
+rpciod read,write or delete callbacks.
+
+You should never mix asynchronous and synchronous calls as this can
+cause the rpciod task to deadlock by waiting on itself...
+
+Cheers,
+  Trond

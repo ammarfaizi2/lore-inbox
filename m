@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264814AbRFSWSt>; Tue, 19 Jun 2001 18:18:49 -0400
+	id <S264815AbRFSWXJ>; Tue, 19 Jun 2001 18:23:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264815AbRFSWSj>; Tue, 19 Jun 2001 18:18:39 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:19863 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264814AbRFSWS3>;
-	Tue, 19 Jun 2001 18:18:29 -0400
-Message-ID: <3B2FCFB3.3E0DCC6E@mandrakesoft.com>
-Date: Tue, 19 Jun 2001 18:18:27 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Philip Blundell <philb@gnu.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Tomasz =?iso-8859-1?Q?K=B3oczko?=" <kloczek@rudy.mif.pg.gda.pl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20-pre4
-In-Reply-To: <E15CS0l-0006co-00@the-village.bc.nu>  <3B2FC899.3F0105F1@mandrakesoft.com> <E15CTag-0000Eb-00@kings-cross.london.uk.eu.org>
+	id <S264816AbRFSWW7>; Tue, 19 Jun 2001 18:22:59 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:19212 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264815AbRFSWWy>;
+	Tue, 19 Jun 2001 18:22:54 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac15 -- Unresolved symbols "gameport_register_port" 
+In-Reply-To: Your message of "Tue, 19 Jun 2001 19:33:26 +0200."
+             <20010619193326.A295@suse.cz> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Jun 2001 08:22:47 +1000
+Message-ID: <24417.992989367@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philip Blundell wrote:
-> I don't think -fno-builtin has any bearing on whether gcc will emit calls to
-> memcpy;
+On Tue, 19 Jun 2001 19:33:26 +0200, 
+Vojtech Pavlik <vojtech@suse.cz> wrote:
+>On Wed, Jun 20, 2001 at 12:43:02AM +1000, Keith Owens wrote:
+>> drivers/char/Makefile says
+>> subdir-$(CONFIG_INPUT) += joystick
+>
+>Ouch. Forgot about this one. I guess it'd be better to fix this, because
+>the gameport code really is independent on input.
 
-Good point.  The subject was about the compiler adding function calls to
-code, and I started talking about the compiler removing them...
+The number of gameport devices is large enough to justify their own
+subdirectory, drivers/char/gameport instead of being lumped in with the
+joysticks.  What do you think?
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |

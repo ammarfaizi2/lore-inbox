@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131917AbRANJwP>; Sun, 14 Jan 2001 04:52:15 -0500
+	id <S131404AbRANKGT>; Sun, 14 Jan 2001 05:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131819AbRANJwF>; Sun, 14 Jan 2001 04:52:05 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:42916 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131917AbRANJvq>; Sun, 14 Jan 2001 04:51:46 -0500
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: david+validemail@kalifornia.com, linux-kernel@vger.kernel.org
-Subject: Re: shmem or swapfs? was: [Patch] make shm filesystem part configurable
-In-Reply-To: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <200101132014.f0DKEJh153332@saturn.cs.uml.edu>
-Message-ID: <m3itnih3eb.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+	id <S131827AbRANKGJ>; Sun, 14 Jan 2001 05:06:09 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:48906 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131404AbRANKF6>;
+	Sun, 14 Jan 2001 05:05:58 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go? 
+In-Reply-To: Your message of "Sun, 14 Jan 2001 09:43:21 -0000."
+             <Pine.LNX.4.30.0101140922430.4887-100000@imladris.demon.co.uk> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: 14 Jan 2001 10:56:08 +0100
+Date: Sun, 14 Jan 2001 21:05:51 +1100
+Message-ID: <13920.979466751@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Albert,
+On Sun, 14 Jan 2001 09:43:21 +0000 (GMT), 
+David Woodhouse <dwmw2@infradead.org> wrote:
+>On Sun, 14 Jan 2001, Keith Owens wrote:
+>> That forces the maintenance load back onto the binary supplier and
+>> removes the questions from l-k, including many of the oops reports with
+>> binary only drivers in the module list.
+>
+>No. The correct response to that is _already_ "You have a binary-only
+>module. Even in the kernel it was compiled against, you are not supported.
+>Goodbye".
 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
+I wish that Linus had never agreed to binary only modules.  But as long
+as they are allowed, I want to detect problems with binary only modules
+before they hit the rest of the kernel and end up as questions on l-k.
 
-> Admins already know what "tmpfs" means, so you should just call
-> your filesystem that. I know it isn't a pretty name, but in the
-> interest of reducing confusion, you should use the existing name.
-> 
-> Don't think of it as just "for /tmp". It is for temporary storage.
-> The name is a reminder that you shouldn't store archives in tmpfs.
-
-OK right now I see two alternatives for the name: "tmpfs" for the SUN
-admins and "vmfs" for expressing what it does and to be in line with
-"ramfs". Any votes?
-
-> Again for compatibility, Sun's size option would be useful.
-> 
-> -o size=111222333      Size in bytes, rounded up by page size.
-> -o size=111222k        Size in kilobytes (base-2 or ISO standard?)
-> -o size=111m           Size in megabytes (base-2 or ISO standard?)
-> 
-> I'd prefer k for ISO standard and K for base-2.
-> Of course m isn't millibytes, but that isn't horrible.
-
-No, I would go for base-2 only. That's what we typically mean with K
-and M in the IT world. To be case sensitive is IMHO overkill and
-confusing.
-
-Greetings
-                Christoph 
+Note I said allowed, not supported.  I refuse to support any binary
+only modules, my standard response to problems logged against binary
+modules is "remove them and reproduce the problem".  Checking for ABI
+violations is not supporting binary modules, it is detecting that they
+are stuffed and telling the user to go pester their supplier instead of
+polluting l-k with questions that will be ignored.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

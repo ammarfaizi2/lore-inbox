@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267351AbTACAh2>; Thu, 2 Jan 2003 19:37:28 -0500
+	id <S267352AbTACAi0>; Thu, 2 Jan 2003 19:38:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267352AbTACAh2>; Thu, 2 Jan 2003 19:37:28 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:36626 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267351AbTACAh1>; Thu, 2 Jan 2003 19:37:27 -0500
-Date: Fri, 3 Jan 2003 00:45:57 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: __NR_exit_group for 2.4-O(1)
-Message-ID: <20030103004557.A10881@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030103001522.GA1539@werewolf.able.es> <20030103003244.A10586@infradead.org> <20030103003617.GC1539@werewolf.able.es>
-Mime-Version: 1.0
+	id <S267353AbTACAi0>; Thu, 2 Jan 2003 19:38:26 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:59848 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S267352AbTACAiZ>;
+	Thu, 2 Jan 2003 19:38:25 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown error (please help direct it)
+References: <20030102152438.GB12769@godzilla.fibrespeed.net>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 02 Jan 2003 23:18:00 +0100
+In-Reply-To: <20030102152438.GB12769@godzilla.fibrespeed.net>
+Message-ID: <m3lm23urfr.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030103003617.GC1539@werewolf.able.es>; from jamagallon@able.es on Fri, Jan 03, 2003 at 01:36:17AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2003 at 01:36:17AM +0100, J.A. Magallon wrote:
-> > Your libc isn't the one from RH's new beta, is it? :)
-> > 
+"Michael T. Babcock" <mbabcock@fibrespeed.net> writes:
+
+> I have this in my logs from yesterday, with no clear indication as to
+> what subsystem it relates to.  Please help me direct this to the
+> appropriate
+> persons (and CC me, if possible, in any replies).  There are no kernel
+> messages
+> for several minutes before or after these lines.
 > 
-> Nope, Mandrake Cooker glibc-2.3.1-6.
+> 13:50:28 vpn kernel:   Flags; bus-master 1, dirty 2677573(5) current 2677
+> 13:50:28 vpn kernel:   Transmit list 00000000 vs. c57ad340.
+> 13:50:28 vpn kernel:   0: @c57ad200  length 800005ea status 000105ea
+> 13:50:28 vpn kernel:   1: @c57ad240  length 800003b2 status 000103b2
 
-glibc only tries to use sys_exit_group if the kernel headers it's compiled
-against define __NR_exit_group.  AFAIK only the current RH beta ships
-a kernel with a 2.4 backport of all the threading changes during 2.5, so
-it might be worth asking the mdk glibc maintainer we he got his kernel
-headers from.. (either redhat or 2.5 :))
+[etc]
 
+Looks like network card driver detected something wrong with list of
+packets queued for transmission.
+
+What card and kernel is it?
+-- 
+Krzysztof Halasa
+Network Administrator
+Happy New Year!

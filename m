@@ -1,102 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271250AbTGQLdh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:33:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTGQLdg
+	id S271184AbTGQLcF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 07:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271250AbTGQLcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:33:36 -0400
-Received: from lns-th2-5f-81-56-227-145.adsl.proxad.net ([81.56.227.145]:8838
-	"EHLO smtp.ced-2.eu.org") by vger.kernel.org with ESMTP
-	id S271250AbTGQLct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:32:49 -0400
-Message-ID: <3F168CDB.8030906@ifrance.com>
-Date: Thu, 17 Jul 2003 13:47:39 +0200
-From: =?ISO-8859-1?Q?C=E9dric?= <cedriccsm2@ifrance.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: fr-fr, fr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test1-osdl2 : doesn't compile
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 17 Jul 2003 07:32:05 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:43537 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S271184AbTGQLcC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 07:32:02 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
+Date: Thu, 17 Jul 2003 11:46:56 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bf62bg$9cp$1@news.cistron.nl>
+References: <20030716184609.GA1913@kroah.com> <20030717122600.A2302@pclin040.win.tue.nl> <bf5uqb$3ei$1@news.cistron.nl> <20030717131955.D2302@pclin040.win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1058442416 9625 62.216.29.200 (17 Jul 2003 11:46:56 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <20030717131955.D2302@pclin040.win.tue.nl>,
+Andries Brouwer  <aebr@win.tue.nl> wrote:
+>On Thu, Jul 17, 2003 at 10:46:35AM +0000, Miquel van Smoorenburg wrote:
+>
+>> The filesystem driver itself must convert from native rdev to linux 32:32.
+>
+>Look at the mknod utility.
+>The user types major,minor.
+>The system call uses dev_t.
+>This means that user space needs to be able to combine
+>major,minor into a dev_t.
 
-I tried to compile linux 2.6.0-test1-osdl2 but I cannot.
+Ah, I see. That is a different issue - converting the 32-bit dev_t
+from userspace into a 32:32 internal representation.
 
-(my config compiles with linus' -test1)
-(using gcc 3.2)
+But, a utility like mknod currently only knows about 8:8 anyway.
+It needs to be patched to know about >8:>8 ... why not add
+64bit (32:32) dev_t syscalls at the same time ?
 
-Log:
+I mean, if the 64 bit dev_t is not going to be exposed to userspace,
+why bother with it in the kernel ? And if it /is/ going to be
+exposed to userspace, why bother with a 32 bit encoding ?
 
-gmake[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-   CHK     include/linux/compile.h
-   GEN     .version
-   CHK     include/linux/compile.h
-   UPD     include/linux/compile.h
-   CC      init/version.o
-   LD      init/built-in.o
-   LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o: In function `kernel_thread':
-arch/i386/kernel/built-in.o(.text+0x321): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o: In function `syscall_call':
-arch/i386/kernel/built-in.o(.text+0x2549): undefined reference to 
-`syscall_entry_trace_active'
-arch/i386/kernel/built-in.o: In function `syscall_exit':
-arch/i386/kernel/built-in.o(.text+0x256d): undefined reference to 
-`syscall_exit_trace_active'
-arch/i386/kernel/built-in.o: In function `trace_real_syscall_entry':
-arch/i386/kernel/built-in.o(.text+0x35b6): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o(.text+0x35e8): undefined reference to 
-`trace_get_config'
-arch/i386/kernel/built-in.o: In function `trace_real_syscall_exit':
-arch/i386/kernel/built-in.o(.text+0x3696): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o: In function `do_divide_error':
-arch/i386/kernel/built-in.o(.text+0x37fd): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o(.text+0x3852): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o: In function `do_int3':
-arch/i386/kernel/built-in.o(.text+0x38ed): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o(.text+0x3948): undefined reference to 
-`trace_event'
-arch/i386/kernel/built-in.o(.text+0x39dd): more undefined references to 
-`trace_event' follow
-arch/i386/kernel/built-in.o: In function `sys_call_table':
-arch/i386/kernel/built-in.o(.data+0x7c4): undefined reference to `sys_trace'
-arch/i386/mm/built-in.o: In function `do_page_fault':
-arch/i386/mm/built-in.o(.text+0x517): undefined reference to `trace_event'
-arch/i386/mm/built-in.o(.text+0x555): undefined reference to `trace_event'
-kernel/built-in.o: In function `try_to_wake_up':
-kernel/built-in.o(.text+0x1d1): undefined reference to `trace_event'
-kernel/built-in.o: In function `schedule':
-kernel/built-in.o(.text+0x1360): undefined reference to `trace_event'
-kernel/built-in.o: In function `do_fork':
-kernel/built-in.o(.text+0x57cf): undefined reference to `trace_event'
-kernel/built-in.o: In function `do_exit':
-kernel/built-in.o(.text+0x85b7): undefined reference to 
-`trace_destroy_owners_events'
-kernel/built-in.o(.text+0x85c1): undefined reference to 
-`trace_free_all_handles'
-kernel/built-in.o(.text+0x85d4): undefined reference to `trace_event'
-kernel/built-in.o: In function `sys_wait4':
-kernel/built-in.o(.text+0x90a4): undefined reference to `trace_event'
-kernel/built-in.o: In function `it_real_fn':
-kernel/built-in.o(.text+0x95e1): undefined reference to `trace_event'
-kernel/built-in.o: In function `do_setitimer':
-kernel/built-in.o(.text+0x9713): undefined reference to `trace_event'
-kernel/built-in.o: In function `do_softirq':
-kernel/built-in.o(.text+0xa430): undefined reference to `trace_event'
-kernel/built-in.o(.text+0xa70c): more undefined references to 
-`trace_event' follow
-gmake: *** [.tmp_vmlinux1] Error 1
-
--- 
-Cédric Barboiron
+Mike.
 

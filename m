@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312783AbSCZW5F>; Tue, 26 Mar 2002 17:57:05 -0500
+	id <S312806AbSCZXIj>; Tue, 26 Mar 2002 18:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312798AbSCZW4z>; Tue, 26 Mar 2002 17:56:55 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:50336 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S312783AbSCZW4q>;
-	Tue, 26 Mar 2002 17:56:46 -0500
-Date: Tue, 26 Mar 2002 14:52:02 -0800 (PST)
-Message-Id: <20020326.145202.122762468.davem@redhat.com>
-To: maxk@qualcomm.com
-Cc: rml@tech9.net, fisaksen@bewan.com, mitch@sfgoth.com,
+	id <S312803AbSCZXIa>; Tue, 26 Mar 2002 18:08:30 -0500
+Received: from ns.suse.de ([213.95.15.193]:24837 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312806AbSCZXIN>;
+	Tue, 26 Mar 2002 18:08:13 -0500
+Date: Wed, 27 Mar 2002 00:08:06 +0100
+From: Dave Jones <davej@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: maxk@qualcomm.com, rml@tech9.net, fisaksen@bewan.com, mitch@sfgoth.com,
         linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
         alan@redhat.com, alan@lxorguk.ukuu.org.uk
 Subject: Re: [PATCH] ATM locking fix.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <5.1.0.14.2.20020307141124.084dbde8@mail1.qualcomm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020327000806.B7501@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"David S. Miller" <davem@redhat.com>, maxk@qualcomm.com,
+	rml@tech9.net, fisaksen@bewan.com, mitch@sfgoth.com,
+	linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+	alan@redhat.com, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <5.1.0.14.2.20020307141124.084dbde8@mail1.qualcomm.com> <20020326.145202.122762468.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 26, 2002 at 02:52:02PM -0800, David S. Miller wrote:
+ > ATM sorely needs a maintainer.  Any of the kernel janitors want to
+ > learn how ATM works? :-))))
 
-I'm applying this patch with some minor cleanups of my own.
+Isn't someone maintaining it outside the tree somewhere ?
+Or was that the hamradio stuff ?
 
-I went and then checked around for atm_find_dev() users to
-make sure they held the atm_dev_lock, and I discovered several pieces
-of "hidden treasure".
-
-Firstly, have a look at net/atm/common.c:atm_ioctl() and how it
-accesses userspace while holding atm_dev_lock.  That is just the
-tip of the iceberg.
-
-ATM sorely needs a maintainer.  Any of the kernel janitors want to
-learn how ATM works? :-))))
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

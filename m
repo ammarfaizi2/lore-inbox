@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264443AbRFTQ5Z>; Wed, 20 Jun 2001 12:57:25 -0400
+	id <S264479AbRFTREP>; Wed, 20 Jun 2001 13:04:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264454AbRFTQ5P>; Wed, 20 Jun 2001 12:57:15 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:21126 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S264443AbRFTQ5J>; Wed, 20 Jun 2001 12:57:09 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Mike Porter <mike@UDel.Edu>, bert hubert <ahu@ds9a.nl>
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Date: Wed, 20 Jun 2001 07:56:10 -0400
-X-Mailer: KMail [version 1.2]
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.31.0106201027220.17484-100000@copland.udel.edu>
-In-Reply-To: <Pine.SOL.4.31.0106201027220.17484-100000@copland.udel.edu>
+	id <S264480AbRFTREF>; Wed, 20 Jun 2001 13:04:05 -0400
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:46098 "HELO
+	mail.cvsnt.org") by vger.kernel.org with SMTP id <S264479AbRFTRDx>;
+	Wed, 20 Jun 2001 13:03:53 -0400
+Message-ID: <3B30D776.5090902@magenta-netlogic.com>
+Date: Wed, 20 Jun 2001 18:03:50 +0100
+From: Tony Hoyle <tmh@magenta-netlogic.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-ac13 i686; en-US; rv:0.9.1) Gecko/20010618
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <01062007561003.00776@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Russell Leighton <russell.leighton@247media.com>,
+        linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
+Subject: Re: [OT] Threads, inelegance, and Java
+In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 10:35, Mike Porter wrote:
-> > But that foregoes the point that the code is far more complex and harder
-> > to make 'obviously correct', a concept that *does* translate well to
-> > userspace.
->
-> One point is that 'obviously correct' is much harder to 'prove' for
-> threads (or processes with shared memory) than you might think.
-> With a state machine, you can 'prove' that object accesses won't
-> conflict much more easily.  With a threaded or process based model,
-> you have to spend considerable time thinking about multiple readers
-> and writers and locking.
->
-> One metric I use to evaluate program complexity is how big of a
-> headache I get when trying to prove something "correct".
-> Multi-process or multi-threaded code hurts more than a well written
-> state machine.
+Davide Libenzi wrote:
 
-The same applies to security though.  There's programmers out there we're 
-unwilling to give the tools to create race conditions, but we expect them to 
-write stuff that won't allow a box on the internet to be own3d in under 24 
-hours...
 
-Obvious isn't always correct...
+> 1) HW is cheaper than software engineers time
 
-Rob
+
+Compared to E1000s???  You must be talking about some *really* expensive 
+engineers!
+
+
+> 2) to find Java developers is easier than to find C developers
+
+
+Depends on where you are in the world.  It's certainly not true here 
+(everyone knows C/C++...  Haven't had a java developer apply for a job 
+in months).
+
+ 
+> 3) the ETA of the same project developed in Java is shorter than the same
+>         project done in C
+
+
+Depends on the developers.  Good developers can churn out the same 
+project to roughly the same timescale in any language (except possibly 
+assembly).
+
+Java is useful if you need the cross platform bit & the target users 
+aren't technically savvy enough to recompile.  For an in-house app where 
+you control the hardware you'd be better off using a C/C++/RAD & doing 
+it native.
+
+Tony
+
+
+(Just came back from a .NET conference...  MS are currently rewriting 
+all their apps in bytecode... whoopee...  They're even porting *games* 
+to run on it.  I can see it now 'MS Flight Simulator .NET' (Requires 
+quad Pentium 4 1.6Ghz minimum) :-o )
+
+Tony
+
+-- 
+"Two weeks before due date, the programmers work 22 hour days
+  cobbling an application from... (apparently) one programmer
+  bashing his face into the keyboard." -- Dilbert
+
+tony@hoyle.geek 
+	http://www.tony.hoyle.geek
+tmh@nothing-on.tv 
+http://www.nothing-on.tv
+

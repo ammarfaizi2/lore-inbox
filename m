@@ -1,30 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130887AbRAYR1Y>; Thu, 25 Jan 2001 12:27:24 -0500
+	id <S132027AbRAYRmh>; Thu, 25 Jan 2001 12:42:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133029AbRAYR1F>; Thu, 25 Jan 2001 12:27:05 -0500
-Received: from quechua.inka.de ([212.227.14.2]:13096 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S130887AbRAYR0t>;
-	Thu, 25 Jan 2001 12:26:49 -0500
-From: Bernd Eckenfels <inka-user@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: hotmail not dealing with ECN
-Message-Id: <E14LqAf-0000Dx-00@sites.inka.de>
-Date: Thu, 25 Jan 2001 18:26:53 +0100
+	id <S132577AbRAYRm1>; Thu, 25 Jan 2001 12:42:27 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8576 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S132027AbRAYRmJ>; Thu, 25 Jan 2001 12:42:09 -0500
+Date: Thu, 25 Jan 2001 12:41:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Pete Zaitcev <zaitcev@metabyte.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: patchlet for cs46xx
+In-Reply-To: <3A70588B.4692D937@metabyte.com>
+Message-ID: <Pine.LNX.3.95.1010125123928.9456A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> you wrote:
-> Just curious if others have noticed that hotmail is unable to deal with
-> ECN and wondering if this is a standard that should be encouraged, as in
-> should I tell hotmail that perhaps they should look into supporting it, or
-> should I not waste my breath and echo 0 > /proc/sys/net/ipv4/tcp_ecn?
+On Thu, 25 Jan 2001, Pete Zaitcev wrote:
 
-I told them by mail that they have a small problem which will get bigger. I
-think it is best if everyone who has problems with it tell them.
+> Sorry for the nitpicking, bust since 2.4 is now "stable"...
+> -- Pete
+> 
+[SNIPPED...]
+>From what I tested, copy_to/from_user, now seg-faults the caller directly.
+If the function returns, it worked. Therefore you will never get a
+chance to return -EFAULT.
 
-Greetings
-Bernd
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

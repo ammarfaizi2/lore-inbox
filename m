@@ -1,48 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVAIA5I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVAIBI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVAIA5I (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 19:57:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVAIA5I
+	id S262175AbVAIBI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 20:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbVAIBI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 19:57:08 -0500
-Received: from colin2.muc.de ([193.149.48.15]:7186 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262171AbVAIA5F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 19:57:05 -0500
-Date: 9 Jan 2005 01:57:04 +0100
-Date: Sun, 9 Jan 2005 01:57:04 +0100
-From: Andi Kleen <ak@muc.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andreas Schwab <schwab@suse.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: uselib()  & 2.6.X?
-Message-ID: <20050109005704.GA25274@muc.de>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl> <20050107170712.GK29176@logos.cnet> <1105136446.7628.11.camel@localhost.localdomain> <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org> <20050107221255.GA8749@logos.cnet> <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org> <je8y73zl35.fsf@sykes.suse.de> <m1zmzjv757.fsf@muc.de> <1105227025.12004.2.camel@localhost.localdomain>
+	Sat, 8 Jan 2005 20:08:29 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:60049 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S262175AbVAIBIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 20:08:20 -0500
+Subject: [PATCH] Security-Enhanced Linux back port for 2.4 rev.0.3
+	(20050108)
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: linux-kernel@vger.kernel.org
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@epoch.ncsc.mil>,
+       russell@coker.com.au
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6ftTo+bNs4wShzrD8VQz"
+Date: Sun, 09 Jan 2005 02:07:35 +0100
+Message-Id: <1105232856.24876.58.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105227025.12004.2.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 08, 2005 at 11:30:25PM +0000, Alan Cox wrote:
-> On Sad, 2005-01-08 at 23:21, Andi Kleen wrote:
-> > > I don't think it was ever being used for anything besides a.out so IMHO it
-> > > should depend on BINFMT_AOUT.
-> > 
-> > I will disable it from 64bit x86-64. I would recommend that all other
-> > ELF only architectures do the same.
-> 
-> Presumably x86-64 runs 32bit a.out binaries however ? Disabling it now
-> is a bit pointless since its finally been audited 8)
 
-Yes. I disabled it only for 64bit programs of course. For 32bit it is
-dependent on CONFIG_IA32_AOUT.
+--=-6ftTo+bNs4wShzrD8VQz
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Actually you can still call it from 64bit if you really want if you use 
-int 0x80.
+Hi,
 
--Andi
+During the past week, I've progressively worked on the back porting of
+the latest features and fixes applied to 2.6 SELinux-related code, so,
+we can now make use of them in 2.4.
+
+I know that 2.4 is in maintenance mode, but this was mainly just for my
+own fun and learning profit, even if there are some technical reasons to
+do it.
+
+Documentation and tracking is available at:
+http://selinux.tuxedo-es.org/2.4-backport/
+
+The patches can be retrieved by checking out the 2.4-backport module in
+the SELinux CVS at SourceForge.Net:
+
+http://cvs.sourceforge.net/viewcvs.py/selinux/2.4-backport/
+
+Under ./pre-patches/ you can find the latest patches that are not yet
+stable:
+http://cvs.sourceforge.net/viewcvs.py/selinux/2.4-backport/pre-patches/
+
+ASAP i will try to validate it's capabilities and see what's working and
+what's not, and this will happen after i solve some personal
+infrastructure problems.
+
+The BTS at http://selinux.tuxedo-es.org/tracking/ should be used to
+report bugs and so on.
+I would appreciate a lot any type of help, testing would be surely
+appreciated, and any type of feedback would be good too (even if you
+want to say it's crap, which i don't think so ;) ).
+
+If there's someone that made this possible, it's Stephen D. Smalley
+which helped me giving me his attention and time to solve my extensive
+lack of knowledge and skills.
+
+Also i want to say thanks to Russell Coker from Red Hat for giving me
+access to a testing machine where i can run out the back port kernel
+patches, and also for helping me when understanding how the SELinux
+policy works.
+
+Currently, I'm researching on a possible bug introduced by an incorrect
+back porting of the latest anonymous memory mappings control features.
+Also, dynamic context transitions and mount contexts are not supported
+because of lack of some code that makes me almost unable to back port
+them without doing extra, geekish, hacking in the kernel core and memory
+management stuff (help really welcome).
+
+In short, the back port is now fully supporting up to v18 policies which
+includes almost the Netlink classes (not fully back ported support, even
+for ipv6 and some other things may be not fully supported as well) and
+the policy booleans, etc (v15->v17).
+
+Those who are using or testing the 0.2 revision are encouraged to move
+to latest 0.3 pre-patches, as a kernel oops due to inexistent (and
+superfluous) SLAB_PANIC handling has been solved since past 0.2
+revisions.
+
+Cheers,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
+[2048g/9AE91A22] Hardened Debian head developer & project manager
+http://www.tuxedo-es.org - http://lorenzo.debian-hardened.org
+
+--=-6ftTo+bNs4wShzrD8VQz
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB4IPXDcEopW8rLewRAufYAKCVQsUZucpcPgIWqFQE95j4730D5ACfSZEJ
+C2zD6RFUH589QwF6a9KW03M=
+=QVwf
+-----END PGP SIGNATURE-----
+
+--=-6ftTo+bNs4wShzrD8VQz--
+

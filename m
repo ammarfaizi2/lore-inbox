@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbUBXBE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 20:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbUBXBE6
+	id S262128AbUBXBHx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 20:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUBXBG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 20:04:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27840 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262120AbUBXBE5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 20:04:57 -0500
-Message-ID: <403AA30A.2090601@pobox.com>
-Date: Mon, 23 Feb 2004 20:04:10 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
+	Mon, 23 Feb 2004 20:06:28 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:15123 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262128AbUBXBGI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 20:06:08 -0500
+Date: Tue, 24 Feb 2004 01:06:05 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: small n_tty patch.
+Message-ID: <Pine.LNX.4.44.0402240104500.17027-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: Mipam <mipam@ibb.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: broadcom bcm5703 support in 2.6.3?
-References: <Pine.LNX.4.33.0402231043430.30027-100000@ux1.ibb.net>
-In-Reply-To: <Pine.LNX.4.33.0402231043430.30027-100000@ux1.ibb.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mipam wrote:
-> And in here i only see broadcom tigon3 support
 
-> Where should i be in the config of the kernel to enable bcm5703 support?
+Remove kd.h. We don't need this header. Use the inline functions to set 
+the current process state.
 
-
-CONFIG_TIGON3
-
-	Jeff
-
-
+--- n_tty.c	2004-02-23 00:06:05.000000000 -0800
++++ /usr/src/ruby-2.6/drivers/char/n_tty.c	2004-02-23 00:10:20.000000000 -0800
+@@ -40,7 +40,6 @@
+ #include <linux/tty.h>
+ #include <linux/timer.h>
+ #include <linux/ctype.h>
+-#include <linux/kd.h>
+ #include <linux/mm.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
+@@ -1091,7 +1090,7 @@
+ 			set_bit(TTY_DONT_FLIP, &tty->flags);
+ 			continue;
+ 		}
+-		current->state = TASK_RUNNING;
++		set_current_state(TASK_RUNNING);
+ 
+ 		/* Deal with packet mode. */
+ 		if (tty->packet && b == buf) {
+@@ -1170,7 +1169,7 @@
+ 	if (!waitqueue_active(&tty->read_wait))
+ 		tty->minimum_to_wake = minimum;
+ 
+-	current->state = TASK_RUNNING;
++	set_current_state(TASK_RUNNING);
+ 	size = b - buf;
+ 	if (size) {
+ 		retval = size;
+@@ -1246,7 +1245,7 @@
+ 		schedule();
+ 	}
+ break_out:
+-	current->state = TASK_RUNNING;
++	set_current_state(TASK_RUNNING);
+ 	remove_wait_queue(&tty->write_wait, &wait);
+ 	return (b - buf) ? b - buf : retval;
+ }
 

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTEFEj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 00:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTEFEj1
+	id S262364AbTEFEqC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 00:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTEFEqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 00:39:27 -0400
-Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:16289 "EHLO
-	pelerin.serpentine.com") by vger.kernel.org with ESMTP
-	id S262358AbTEFEj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 00:39:26 -0400
-Subject: [CFT] klibc-based userspace ipconfig and nfsroot replacements
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052196718.15298.17.camel@camp4.serpentine.com>
+	Tue, 6 May 2003 00:46:02 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:4 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id S262364AbTEFEqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 00:46:01 -0400
+Date: Tue, 6 May 2003 06:58:22 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: crypt@ihug.co.nz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: status of matrox framebuffer drivers.
+Message-ID: <20030506045822.GD5326@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+References: <20030506023653.GA23098@python.graveyard>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 05 May 2003 21:51:58 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030506023653.GA23098@python.graveyard>
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've done some work within the framework of klibc and initramfs to
-replace the in-kernel ipconfig and nfsroot code.  A snapshot of the
-klibc CVS tree is available at:
+From: crypt@ihug.co.nz <crypt@ihug.co.nz>
+Date: Tue, May 06, 2003 at 02:36:54PM +1200
+> Hi I was just wondering if there was any work being done to get the
+> matrox framebuffer drivers updated so that they would compile under the
+> 4.5 series kernels.
+> 
+> They seem to have been broken for a long time.
+> 
+If you read this list you might notice that Petr Vandovec is hard at
+work, and a patch for 2.5.69 is available, as was one for 2.5.68, for
+2.5.67, etc etc.
 
-    http://www.speakeasy.org/~bos/klibc-20020505.tar.bz2
+ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/
 
-This contains a klibc tree that builds against 2.5.68 and 2.5.69 (at
-least on x86), along with three programs of interest:
+The patch for 2.5.69 is 2.5.68-c1248, but it applies without
+difficulties.
 
-      * ipconfig was written by Russell King several months ago.  I've
-        removed bit rot from the code and made some changes so that it
-        handles both DHCP and static configuration.
-      * nfsmount is a filesystem mounter for NFS v2 and v3, UDP and
-        TCP.  Tested only against Linux servers so far.
-      * kinit is a single statically-linked binary that incorporates
-        both ipconfig and nfsmount, and which can be dropped into an
-        initramfs filesystem for use as /sbin/init.  It parses
-        /proc/cmdline for "ip=" and "nfsroot=" sections, performs IP
-        configuration, NFS mounting, and finally does a pivot_root to
-        the freshly-mounted filesystem.
-
-I don't yet have quite enough hardware handy to be able to test the last
-10 lines of code in kinit without substantial inconvenience, but It
-Should Work (TM).
-
-If you're interested in kicking the tyres and ironing out problems, you
-may want to subscribe to the klibc mailing list so that HPA and others
-can see what's going on:
-
-    http://www.zytor.com/mailman/listinfo/klibc
-
-Otherwise, please send problem reports to me directly.
-
-	<b
-
+HTH,
+Jurriaan
+-- 
+And I thought that the Borg were bad...
+Debian (Unstable) GNU/Linux 2.5.69 4112 bogomips load av: 0.51 0.34 0.31

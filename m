@@ -1,60 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbTLLSx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 13:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbTLLSx7
+	id S261799AbTLLTAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 14:00:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTLLTAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 13:53:59 -0500
-Received: from mail.linuxtv.org ([212.84.236.4]:33694 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S261775AbTLLSx5
+	Fri, 12 Dec 2003 14:00:09 -0500
+Received: from outmail.nrtc.org ([204.145.144.17]:30298 "EHLO
+	exchange.nrtc.coop") by vger.kernel.org with ESMTP id S261799AbTLLTAH convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 13:53:57 -0500
-Date: Fri, 12 Dec 2003 19:53:57 +0100
-From: Johannes Stezenbach <js@convergence.de>
-To: Greg KH <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11: i2c-dev.h for userspace
-Message-ID: <20031212185357.GB32169@convergence.de>
-Mail-Followup-To: Johannes Stezenbach <js@convergence.de>,
-	Greg KH <greg@kroah.com>, sensors@stimpy.netroedge.com,
-	linux-kernel@vger.kernel.org
-References: <20031212145652.GA30747@convergence.de> <20031212175656.GA2933@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031212175656.GA2933@kroah.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Dec 2003 14:00:07 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: 2.4.23 is freezing my systems hard after 24-48 hours
+Date: Fri, 12 Dec 2003 14:00:07 -0500
+Message-ID: <F7F4B5EA9EBD414D8A0091E80389450569D3C9@exchange.nrtc.coop>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.23 is freezing my systems hard after 24-48 hours
+Thread-Index: AcPA4ibmK5gi8xAUSbWYc1P9AihMZg==
+From: "Jeremy Kusnetz" <JKusnetz@nrtc.org>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 09:56:57AM -0800, Greg KH wrote:
-> On Fri, Dec 12, 2003 at 03:56:52PM +0100, Johannes Stezenbach wrote:
-> > 
-> > I had some trouble compiling a userspace application
-> > which uses the I2C device interface (the DirectFB
-> > Matrox driver). Apparently some stuff has been removed
-> > from i2c-dev.h
-> 
-> Yes it has.  Do not use the kernel headers in your userspace
-> application.  If you need this interface, use the updated i2c-dev.h that
-> is in the lmsensors release.  That is the proper file.
+I've read that enabling ip-chains compatibility would cause this, but I do not have this feature enabled at all.
 
-I think you create a mess here. Other drivers have usable
-API include files in /usr/include/linux, why are i2c.h and i2c-dev.h
-special?
+I have a cluster of 8 servers all doing the same thing that I upgraded to a stock 2.4.23 kernel, after that period of time one random one will lock up hard.  No output to screen, can't sysrq or anything, only physically hitting the power button can get me out of it.  I've gotten nothing in any of my logs to give any indication on what's going on.
 
-While I can understand why the ioctl wrappers have been removed
-from the kernel include file i2c-dev.h I fail to see the logic
-in having a different i2c-dev.h for userspace, or generally breaking
-the kernel includes for userspace.
+They don't seem to come when the server is under load, but more on how long the server has been up.  Actually I do have this kernel running in my development environment, but none of those machines have ever locked up, it seems they need some load to eventually cause this to happen.
 
-It seems to me that there is no package that I could install to make
-the correct i2c-dev.h available for userspace programs, and the only
-way to fix the DirectFB Matrox driver so it compiles with 2.4 and
-2.6 kernel headers is to copy the correct i2c-dev.h into the
-DirectFB source tree.
+I had been running 2.4.20 with no problems before the upgrade.
 
-I think that sucks.
-
-
-Johannes
+I haven't tried running a bk series kernel yet, in the mean time I've downgraded to 2.4.22 with the do_brk patch.  I haven't had this kernel up long enough to see if it will crash.

@@ -1,38 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbTILV43 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 17:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbTILV42
+	id S261933AbTILWCM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 18:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbTILWCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 17:56:28 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59662
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261918AbTILV40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 17:56:26 -0400
-Date: Fri, 12 Sep 2003 14:56:31 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Kyle Rose <krose+linux-kernel@krose.org>
-Cc: Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Large-file corruption. ReiserFS? VFS?
-Message-ID: <20030912215631.GH30584@matchmail.com>
-Mail-Followup-To: Kyle Rose <krose+linux-kernel@krose.org>,
-	Oleg Drokin <green@namesys.com>, linux-kernel@vger.kernel.org
-References: <87r82noyr9.fsf@nausicaa.krose.org> <20030912153935.GA2693@namesys.com> <20030912175917.GB30584@matchmail.com> <20030912184001.GA9245@namesys.com> <20030912205446.GD30584@matchmail.com> <87ekylg1kb.fsf@nausicaa.krose.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87ekylg1kb.fsf@nausicaa.krose.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 12 Sep 2003 18:02:12 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:58864 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S261933AbTILWCH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 18:02:07 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [2.4.23-pre3] Cache size for Centrino CPU incorrect
+Date: Fri, 12 Sep 2003 15:02:03 -0700
+Message-ID: <7F740D512C7C1046AB53446D3720017304A790@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.4.23-pre3] Cache size for Centrino CPU incorrect
+Thread-Index: AcN5bGsEM6rmuwKaSKWTkjRJbdTNtAADDd1w
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Jan De Luyck" <lkml@kcore.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Sep 2003 22:02:03.0823 (UTC) FILETIME=[7FC693F0:01C37979]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 05:05:24PM -0400, Kyle Rose wrote:
-> > Does this affect 2.4 also?
+This is a bit old, but try.
+
+Thanks,
+Jun
+------
+--- linux-2.4.21/arch/i386/kernel/setup.c	2003-06-13
+07:51:29.000000000 -0700
++++ new/arch/i386/kernel/setup.c	2003-07-08 17:21:48.000000000
+-0700
+@@ -2246,6 +2249,8 @@
+ 	{ 0x83, LVL_2,      512 },
+ 	{ 0x84, LVL_2,      1024 },
+ 	{ 0x85, LVL_2,      2048 },
++	{ 0x86, LVL_2,      512 },
++	{ 0x87, LVL_2,      1024 },
+ 	{ 0x00, 0, 0}
+ };
+
+> -----Original Message-----
+> From: Jan De Luyck [mailto:lkml@kcore.org]
+> Sent: Friday, September 12, 2003 1:18 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: [2.4.23-pre3] Cache size for Centrino CPU incorrect
 > 
-> As I said, this did not affect 2.4, at least not uniformly: I
-> regularly created DVD ISO images larger than 4GB under 2.4.2{0,1,2}
-> without problems.
-
-Ok, thanks.  I'm glad it wasn't in 2.4
-
-EOST
+> Hello List,
+> 
+> I just noticed this:
+> 
+> devilkin@precious:~$ cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 9
+> model name      : Intel(R) Pentium(R) M processor 1600MHz
+> stepping        : 5
+> cpu MHz         : 599.511
+> cache size      : 0 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov
+pat
+> clflush dts acpi mmx fxsr sse sse2 tm pbe tm2 est
+> bogomips        : 1196.85
+> 
+> Somehow, the cache size doesn't seem to be correct. Spec info tells me
+> that this cpu
+> has indeed a 1024kb cache.
+> 
+> Any patches to test?
+> 
+> Thankx
+> 
+> Jan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbSL1DbC>; Fri, 27 Dec 2002 22:31:02 -0500
+	id <S265437AbSL1DpB>; Fri, 27 Dec 2002 22:45:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbSL1DbB>; Fri, 27 Dec 2002 22:31:01 -0500
-Received: from h-64-105-35-71.SNVACAID.covad.net ([64.105.35.71]:17592 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265414AbSL1DbB>; Fri, 27 Dec 2002 22:31:01 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 27 Dec 2002 19:39:13 -0800
-Message-Id: <200212280339.TAA25950@adam.yggdrasil.com>
-To: manfred@colorfulllife.com
-Subject: Re:  [RFT][PATCH] generic device DMA implementation
-Cc: dvaid-b@pacbell.net, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
+	id <S265446AbSL1DpB>; Fri, 27 Dec 2002 22:45:01 -0500
+Received: from dp.samba.org ([66.70.73.150]:64447 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265437AbSL1DpA>;
+	Fri, 27 Dec 2002 22:45:00 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, william stinson <wstinson@wanadoo.fr>,
+       trivial@rustcorp.com.au
+Subject: [PATCH] Mark deprecated functions so they give a warning on use
+Date: Sat, 28 Dec 2002 11:57:10 +1100
+Message-Id: <20021228035319.903502C04B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-12-17 Manfred Spraul wrote the following, which I am taking
-out of order:
+If anyone can think of a better way, please share.  This should speed
+up the removal of functions like check_region() (which, despite
+William's janitorial efforts, is still not at the stage where it can
+be removed).
 
->+Warnings:  Memory coherency operates at a granularity called the cache
->+line width. [...]
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-	That's a description of "inconsistent" memory.  "Consistent"
-memory does not have the cache line problems.  It is uncached.
-Architectures that cannot allocate memory with this property cannot
-allocate consistent memory, and accomodating what I think motivated
-James to take a whack at this.
+Name: Mark deprecated functions so they give a warning on use
+Author: Rusty Russell
+Status: Trivial
 
->The driver must use the normal memory barrier instructions even in 
->coherent memory.
+D: Should speed elimination of deprecated functions (eg. check_region,
+D: deprecated since 2.3, still used in about 120 files).
+D:
+D: This patch causes an "unused label" warning: hopefully unusual
+D: enough to make people look twice. eg:
+D:  drivers/net/depca.c: In function `isa_probe':
+D:  drivers/net/depca.c:1413: warning: label `DEPRECATED_use_request_region_return_value' defined but not used
 
-	I know Documentation/DMA-mapping.txt says that, and I
-understand that wmb() is necessary with consistent memory, but I
-wonder if rmb() really is, at least if you've declared the data
-structures in question as volatile to prevent reordering of reads by
-the compiler.
-
->- kmalloc (32,GFP_KERNEL) returns a 32-byte object, even if the cache
->line size is 128 bytes.  The 4 objects in the cache line could be used
->by four different users. - sendfile() with an odd offset.
-
-	+1 Insightful
-
-	I think we could use a GFP_ flag for kmallocs that are
-intended for DMA (typically networking and USB packets) that would
-cause the memory allocation to be aligned and rounded up to a multiple
-of cache line size.  There probably are only a dozen or so such
-kmallocs, but I think it's enough so that having a kmalloc flag
-would result in a smaller kernel than without it.
-
-	As you've pointed out with your sendfile() example, the
-problem you've identified goes beyond kmalloc.  I'm still mulling it
-over, but it's worth noting that it is not a new problem introduced by
-the generic DMA interface.  Thanks for raising it though.  I hadn't
-thought of it before.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.53/include/linux/compiler.h working-2.5.53-deprecated/include/linux/compiler.h
+--- linux-2.5.53/include/linux/compiler.h	2002-12-28 11:12:34.000000000 +1100
++++ working-2.5.53-deprecated/include/linux/compiler.h	2002-12-28 11:51:08.000000000 +1100
+@@ -19,4 +19,10 @@
+   ({ unsigned long __ptr;					\
+     __asm__ ("" : "=g"(__ptr) : "0"(ptr));		\
+     (typeof(ptr)) (__ptr + (off)); })
++
++/* Used to give a warning on use of deprecated functions.  eg:
++   #define some_old_function(arg) \
++	__DEPRECATED(use_newfunction_instead), __some_old_function(arg)
++*/
++#define __DEPRECATED(msg) ({DEPRECATED_##msg: 1; })
+ #endif /* __LINUX_COMPILER_H */
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.53/include/linux/ioport.h working-2.5.53-deprecated/include/linux/ioport.h
+--- linux-2.5.53/include/linux/ioport.h	2002-10-31 12:37:01.000000000 +1100
++++ working-2.5.53-deprecated/include/linux/ioport.h	2002-12-28 11:51:46.000000000 +1100
+@@ -7,6 +7,7 @@
+ 
+ #ifndef _LINUX_IOPORT_H
+ #define _LINUX_IOPORT_H
++#include <linux/compiler.h>
+ 
+ /*
+  * Resources are tree-like, allowing
+@@ -102,7 +103,7 @@ extern int allocate_resource(struct reso
+ extern struct resource * __request_region(struct resource *, unsigned long start, unsigned long n, const char *name);
+ 
+ /* Compatibility cruft */
+-#define check_region(start,n)	__check_region(&ioport_resource, (start), (n))
++#define check_region(start,n)	__DEPRECATED(use_request_region_return_value), __check_region(&ioport_resource, (start), (n))
+ #define release_region(start,n)	__release_region(&ioport_resource, (start), (n))
+ #define check_mem_region(start,n)	__check_region(&iomem_resource, (start), (n))
+ #define release_mem_region(start,n)	__release_region(&iomem_resource, (start), (n))

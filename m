@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267593AbSLFTsf>; Fri, 6 Dec 2002 14:48:35 -0500
+	id <S265656AbSLFUBh>; Fri, 6 Dec 2002 15:01:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267594AbSLFTsf>; Fri, 6 Dec 2002 14:48:35 -0500
-Received: from pc-80-195-35-2-ed.blueyonder.co.uk ([80.195.35.2]:45188 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S267593AbSLFTse>; Fri, 6 Dec 2002 14:48:34 -0500
-Subject: Re: [patch] fix the ext3 data=journal unmount bug
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>,
-       ext3 users list <ext3-users@redhat.com>
-In-Reply-To: <3DF0FE4F.5F473D5E@digeo.com>
-References: <3DF0F69E.FF0E513A@digeo.com> <1039203287.9244.97.camel@tiny> 
-	<3DF0FE4F.5F473D5E@digeo.com>
+	id <S265705AbSLFUBh>; Fri, 6 Dec 2002 15:01:37 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:52493
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S265656AbSLFUBg>; Fri, 6 Dec 2002 15:01:36 -0500
+Subject: Re: Detecting threads vs processes with ps or /proc
+From: Robert Love <rml@tech9.net>
+To: Nick LeRoy <nleroy@cs.wisc.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200212061356.16022.nleroy@cs.wisc.edu>
+References: <200212060924.02162.nleroy@cs.wisc.edu>
+	 <1039204112.1943.2142.camel@phantasy>
+	 <200212061356.16022.nleroy@cs.wisc.edu>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 19:57:55 +0000
-Message-Id: <1039204675.5301.55.camel@sisko.scot.redhat.com>
+Organization: 
+Message-Id: <1039205353.1943.2191.camel@phantasy>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 06 Dec 2002 15:09:13 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2002-12-06 at 14:56, Nick LeRoy wrote:
 
-On Fri, 2002-12-06 at 19:45, Andrew Morton wrote:
+> I was considerring doing something like this as well.  From your
+> experience,  does it work reliably?
 
-> > I see what ext3 gains from your current patch in the unmount case, but
-> > the sync case is really unchanged because of interaction with kupdate.
+It never fails to detect threads (no false negatives).
+
+It does sometimes detect child processes that forked but did not exec as
+threads (false positives).  The failure case is when a program forks,
+does not call exec, and the children go on to execute the exact same
+code (so they look and act just like threads, but they have unique
+addresses spaces).
+
+One thing to note: if you can modify the kernel and procps, you can just
+export the value of task->mm out of /proc.  It is a gross hack, and
+perhaps a security issue, but that will work 100%.  Same ->mm implies
+thread.
+
+> Do you need to apply a small 'fudge factor' (aka 
+> VMsize.1 ~= VMsize.2)?
+
+No, they need to be exact.  The stats are pulled from the same structure
+in the kernel so they need to be perfect.
+
+> > It is the default behavior.  Flag `-m' turns it off.
+> >
+> > See thread_group() and flag_threads().
 > 
-> True.  And I'd like /bin/sync to _really_ be synchronous because
-> I use `reboot -f' all the time.  Even though SuS-or-POSIX say that
-> sync() only needs to _start_ the IO.  That's rather silly.
+> I assume these are functions in the tools themselves?
 
-But at the same time I'd like to avoid sync becoming serialised on its
-writes.  If you've got a lot of filesystems mounted, doing each
-filesystem's sync sequentially and synchronously is going to be a lot
-slower than allowing async syncs.  In other words, for sync(2) we really
-want async commit submission followed by a synchronous wait for
-completion.  And that's probably more churn than I'd like to see at this
-stage for 2.4.
+Yep.  Both ps and top have support.  There is a patch on the website
+that added the feature, so you can take a look at that.
 
-Cheers, 
- Stephen
+Red Hat 8.0 has support in their version of procps 2.0.7, too. 
+Otherwise it was added in 2.0.8.  The current version is 2.0.10.
+
+We have a mailing list at procps-list@redhat.com where this sort of
+discussion is welcome.
+
+	Robert Love
 

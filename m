@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264359AbUBRNyM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267064AbUBRNyM
+	id S266195AbUBROAR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:00:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUBROAQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:54:12 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:2026 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S264359AbUBRNyK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:54:10 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Zoltan NAGY <nagyz@nefty.hu>
-Date: Wed, 18 Feb 2004 14:53:43 +0200
+	Wed, 18 Feb 2004 09:00:16 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:14806
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S266195AbUBROAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 09:00:13 -0500
+Message-ID: <40336BA5.6090500@tmr.com>
+Date: Wed, 18 Feb 2004 08:41:57 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: v2.6 in vmware?
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <10ADD433537@vcnet.vc.cvut.cz>
+To: gene.heskett@verizon.net
+CC: JG <jg@cms.ac>, linux-kernel@vger.kernel.org
+Subject: Re: could someone plz explain those ext3/hard disk errors
+References: <20040208175346.767881A96E1@23.cms.ac> <20040209014722.GA22683@stout.hampshire.edu> <20040209095227.AF4261A9ACF@23.cms.ac> <200402090652.12434.gene.heskett@verizon.net>
+In-Reply-To: <200402090652.12434.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Feb 04 at 14:37, Zoltan NAGY wrote:
-> I've been trying to get 2.6.x working in vmware4, but it drops some
-> oopses during init... I cannot provide details, but I'm sure that it
-> does not just me who are having problems with it..
+Gene Heskett wrote:
+	[___snip___]
+> This thread seems to be related to a slashdot story about a 
+> mis-formulated epoxy-b that went into production circa 18-20 months 
+> ago.  It contains a time bomb chemical reaction involving trace 
+> anounts of red phosphorus, and is said to be the reason all HD makers 
+> went to a 1 year warranty.  You may have to google for the story now 
+> as I don't have a record of the link, sorry.
 
-Definitely you are... I do not know about any problems with running
-2.6.x as a guest under VMware. 
+http://www.geek.com/news/geeknews/2004Feb/gee20040210023815.htm
 
-Which VMware version you use? If you are using anything older than 
-WS4.0.5 then upgrade, preferrably to 4.5RC3.
-                                                Petr Vandrovec
-                                                
-
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,87 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318007AbSHLNjR>; Mon, 12 Aug 2002 09:39:17 -0400
+	id <S318009AbSHLNmX>; Mon, 12 Aug 2002 09:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318009AbSHLNjR>; Mon, 12 Aug 2002 09:39:17 -0400
-Received: from ppp-217-133-217-5.dialup.tiscali.it ([217.133.217.5]:18580 "EHLO
-	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S318007AbSHLNjR>;
-	Mon, 12 Aug 2002 09:39:17 -0400
-Subject: Re: [patch] tls-2.5.31-C3
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Alexandre Julliard <julliard@winehq.com>
-In-Reply-To: <Pine.LNX.4.44.0208121708050.19150-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0208121708050.19150-100000@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-HhJYdyLdCSo1waA0JRc0"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 12 Aug 2002 15:43:01 +0200
-Message-Id: <1029159781.4713.52.camel@ldb>
+	id <S318014AbSHLNmX>; Mon, 12 Aug 2002 09:42:23 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:34821 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S318009AbSHLNmU>; Mon, 12 Aug 2002 09:42:20 -0400
+Date: Mon, 12 Aug 2002 14:46:05 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ravikiran G Thirumalai <kiran@in.ibm.com>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com
+Subject: Re: [patch 1 of 2] Scalable statistics counters
+Message-ID: <20020812144605.A4595@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ravikiran G Thirumalai <kiran@in.ibm.com>,
+	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
+	dipankar@in.ibm.com
+References: <20020812183524.B1992@in.ibm.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020812183524.B1992@in.ibm.com>; from kiran@in.ibm.com on Mon, Aug 12, 2002 at 06:35:24PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 12, 2002 at 06:35:24PM +0530, Ravikiran G Thirumalai wrote:
+> Hi Andrew,
+> Here is the new statctr patch with some of the changes suggested by Christoph.
+> Do you think the foll patch is ready to get into the mainline kernel now? 
+> If so, will you forward this to Linus or shall I send the patch to him?
+> The following patch works on 2.5.31. I will be mailing out the 2.5.31
+> version of Dipankar's kmalloc_percpu dynamic memory allocator in a separate
+> mail (since statctrs depend on them ).
 
---=-HhJYdyLdCSo1waA0JRc0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+But you ignored the most important suggestion.  Using proc_calc_metrics()
+in new code is a mistake.  It's a sign you want to use the seq_file
+interface.  And exporting it outside proc_misc.c is an even bigger mistake.
 
-On Mon, 2002-08-12 at 17:12, Ingo Molnar wrote:
-> 
-> On 12 Aug 2002, Luca Barbieri wrote:
-> 
-> > Numbers:
-> > unconditional copy of 2 tls descs: 5 cycles
-> > this patch with 1 tls desc: 26 cycles
-> > this patch with 8 tls descs: 52 cycles
-> 
-> [ 0 tls descs: 2 cycles. ]
-Yes but common multithreaded applications will have at least 1 for
-pthreads.
-
-> but yes, this is rougly what i'd say this approach costs.
-> 
-> > lldt: 51 cycles
-> > lgdt: 50 cycles
-> > context switch: 2000 cycles (measured with pipe read/write and vmstat so
-> > it's not very accurate)
-> 
-> > So this patch causes a 1% context switch performance drop for
-> > multithreaded applications.
-> 
-> how did you calculate this?
-((26 - 5) / 2000) * 100 ~= 1
-Benchmarks done in kernel mode (2.4.18) with interrupts disabled on a
-Pentium3 running the rdtsc timed benchmark in a loop 1 million times
-with 8 unbenchmarked iterations to warm up caches and with the time to
-execute an empty benchmark subtracted.
-
-> glibc multithreaded applications can avoid the
-> lldt via using the TLS, and thus it's a net win.
-Surely, this patch is better than the old LDT method but much worse than
-the 2-TLS one.
-
-So I would use the 2-TLS approach plus my patch plus the syscall and
-segment.h improvements of the tls-2.5.31-C3 patch plus support for
-setting the 0x40 segment around APM calls.
-
-BTW, are there any programs that would benefit from having more than 2
-user-settable GDT entries but that don't need more than about 8?
-(assuming we have a fixed flat code and data segment and 0x40 segment)
-
-
---=-HhJYdyLdCSo1waA0JRc0
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9V7tldjkty3ft5+cRAqmqAJ9DyHv3Akxkeu0qdFzOiJekQFpCGQCdGpCP
-xMKgpfSqJne8+5OOVNXBxOI=
-=xbvI
------END PGP SIGNATURE-----
-
---=-HhJYdyLdCSo1waA0JRc0--

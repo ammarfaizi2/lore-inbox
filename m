@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272230AbRHWFwu>; Thu, 23 Aug 2001 01:52:50 -0400
+	id <S272023AbRHWG40>; Thu, 23 Aug 2001 02:56:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272231AbRHWFwk>; Thu, 23 Aug 2001 01:52:40 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:11427 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S272230AbRHWFw1>; Thu, 23 Aug 2001 01:52:27 -0400
-Date: Wed, 22 Aug 2001 23:52:40 -0600
-Message-Id: <200108230552.f7N5qeo06460@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: devfsd-v1.3.18 available
+	id <S272209AbRHWG4Q>; Thu, 23 Aug 2001 02:56:16 -0400
+Received: from fe000.worldonline.dk ([212.54.64.194]:61714 "HELO
+	fe000.worldonline.dk") by vger.kernel.org with SMTP
+	id <S272023AbRHWG4H>; Thu, 23 Aug 2001 02:56:07 -0400
+Date: Thu, 23 Aug 2001 08:59:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: Adam Radford <aradford@3WARE.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: Re: [patch] 3Ware 64 bit locking issues
+Message-ID: <20010823085902.M604@suse.de>
+In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EAE47@siamese> <m3g0ajncgh.fsf@trained-monkey.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3g0ajncgh.fsf@trained-monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.18 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
+On Wed, Aug 22 2001, Jes Sorensen wrote:
+> >>>>> "Adam" == Adam Radford <aradford@3WARE.com> writes:
+> 
+> Adam> Thanks for flags type fix and redundant pushf/popf fix.
+> Adam> Regarding your question about the error handling routines, the
+> Adam> 3ware driver uses the new style scsi error handling, so looking
+> Adam> through scsi_error.c, all calls to
+> Adam> hostt->eh_abort_handler() and hostt->eh_host_reset_handler() are
+> Adam> wrapped with a spin_lock_irqsave(&io_request_lock, flags) and
+> Adam> spin_unlock_irqrestore(&io_request_lock, flags) so they should
+> Adam> be okay.
+> 
+> Hmm ok. However, since Jens is working on killing the io_request_lock
+> so something will need to get done when that happens.
+> 
+> Jens, what is the strategy for that?
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+Lots of the lower level hooks are done with io_request_lock required,
+the only one I've killed so far is ->detect() and that was mainly
+because it didn't fit with the new scheme (per-host locking, host not
+inited at this time). IMO it was a mistake to ever grab io_request_lock
+(or any other lock, for that matter) before calling into the lower
+levels -- it's not very clean and it makes progressing to a better
+locking structure harder.
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+Basically we want to move the locking down a notch, so the mid layer is
+not responsible for providing reentrance protection for the low level
+drivers. It will be painfull...
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+-- 
+Jens Axboe
 
-The main changes are:
-
-- Removed harmless false positives in PERMISSIONS action
-
-- Return ID=0 rather than exiting on failed lookup in passwd or group
-  databases
-
-- Do not exit in EXECUTE action if fork(2) fails
-
-- Added documentation on regular subexpression support. Thanks to Adam
-  J. Richter.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129038AbQJ0Nln>; Fri, 27 Oct 2000 09:41:43 -0400
+	id <S129050AbQJ0NpD>; Fri, 27 Oct 2000 09:45:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129084AbQJ0Nle>; Fri, 27 Oct 2000 09:41:34 -0400
-Received: from styx.suse.cz ([195.70.145.226]:1521 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129038AbQJ0Nl1>;
-	Fri, 27 Oct 2000 09:41:27 -0400
-Date: Fri, 27 Oct 2000 15:41:22 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: bart@etpmod.phys.tue.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
-Message-ID: <20001027154122.A923@suse.cz>
-In-Reply-To: <20001026173244.B8290@suse.cz> <200010271205.OAA31607@gum04.etpnet.phys.tue.nl>
+	id <S129084AbQJ0Nox>; Fri, 27 Oct 2000 09:44:53 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:44642 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129050AbQJ0Non>; Fri, 27 Oct 2000 09:44:43 -0400
+Date: Fri, 27 Oct 2000 15:44:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: mauelshagen@sistina.com, linux-kernel@vger.kernel.org
+Subject: Re: LVM snapshotting broken?
+Message-ID: <20001027154409.A13469@athlon.random>
+In-Reply-To: <20001027004404.A1282@athlon.random> <Pine.LNX.4.21.0010271131020.25174-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200010271205.OAA31607@gum04.etpnet.phys.tue.nl>; from bart@etpmod.phys.tue.nl on Fri, Oct 27, 2000 at 02:04:58PM +0200
+In-Reply-To: <Pine.LNX.4.21.0010271131020.25174-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Fri, Oct 27, 2000 at 11:32:06AM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 27, 2000 at 02:04:58PM +0200, bart@etpmod.phys.tue.nl wrote:
+On Fri, Oct 27, 2000 at 11:32:06AM -0200, Rik van Riel wrote:
+> Have you checked if the CONTENT of the snapshot is indeed
+> the right LV and not the other one?
 
-> > Interesting. If it's caused by SCSI as well (might be), then it's not
-> > caused by heavy IDE activity but rather than that it could be heavy
-> > BusMastering activity instead (The IDE chip does BM as well).
-> > 
-> > I'm still wondering if it could be a Linux kernel bug (bad/concurrent
-> > accesses to the i8253 registers), this has to be checked.
-> > 
-> 
-> How sure are you that the chip is actually buggy? I ran into something
-> similar a while ago, when I mixed the two arguments to an outb in a driver, 
-> and ended up writing MYPORT into the timer instead of 0x40 into MYPORT.
+laser:~ # mke2fs /dev/vg1/lv1 &>/dev/null
+laser:~ # mount /dev/vg1/lv1 /mnt
+laser:~ # >/mnt/ciao
+laser:~ # ls /mnt
+.  ..  ciao  lost+found
+laser:~ # umount /mnt
+laser:~ # lvcreate -s -n lv1-snap /dev/vg1/lv1 -L 400M
+lvcreate -- INFO: using default snapshot chunk size of 64 KB
+lvcreate -- doing automatic backup of "vg1"
+lvcreate -- logical volume "/dev/vg1/lv1-snap" successfully created
 
-I'm *not* sure. It just looks like a reasonable explanation. It doesn't
-happen on Intel chips and older VIA chips, it only happens on new VIA
-chips, and the code is the same all the time. Also, it happens both with
-2.2 and 2.4 kernels ...
+laser:~ # mount /dev/vg1/lv1 /mnt
+laser:~ # rm /mnt/ciao
+laser:~ # umount /mnt
+laser:~ # mount /dev/vg1/lv1-snap /mnt
+mount: block device /dev/vg1/lv1-snap is write-protected, mounting read-only
+laser:~ # ls /mnt/
+.  ..  ciao  lost+found
+laser:~ # 
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129930AbQL2X3k>; Fri, 29 Dec 2000 18:29:40 -0500
+	id <S131728AbQL2XbJ>; Fri, 29 Dec 2000 18:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130061AbQL2X33>; Fri, 29 Dec 2000 18:29:29 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:63754 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129930AbQL2X3T>;
-	Fri, 29 Dec 2000 18:29:19 -0500
-Message-ID: <3A4D169E.B60B356F@innominate.de>
-Date: Fri, 29 Dec 2000 23:56:30 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
-X-Accept-Language: en
+	id <S130061AbQL2Xa7>; Fri, 29 Dec 2000 18:30:59 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:13777 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S131728AbQL2Xas>; Fri, 29 Dec 2000 18:30:48 -0500
+Date: Fri, 29 Dec 2000 22:55:19 +0000 (GMT)
+From: Dave Gilbert <gilbertd@treblig.org>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS oddity (2.4.0test13pre4ac2 server, 2.0.36/2.2.14 clients)
+In-Reply-To: <14924.64601.485759.167765@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.10.10012292252450.26235-100000@tardis.home.dave>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: File I/O benchmarks for various kernel
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been using dbench a lot lately for reality checks on various kernel
-mods, and out of interest I decided to run benchmarks with it on a few
-different kernel versions.  I noticed a major difference between 2.2 and
-2.4 kernels - 2.4 is running the benchmarks about 3 times faster than
-2.2, and it seems to be getting faster with each step towards 2.4.0.  On
-the other hand, 2.2 seems to be getting slower.  Here are a few points
-on the curve.
+On Sat, 30 Dec 2000, Neil Brown wrote:
 
-  Test machine: 64 meg, 500 Mhz K6, IDE, Ext2, Blocksize=4K
-  Test: dbench 48
+> > So where did the gilbertd directory go ?
+> 
+> Is there any chance that /home/gilbertd is a mount point?
 
-  Kernel                 Throughput      Elapsed Time
-  ------                 ----------      ------------
-  2.2.16                 3.1 MB/sec      33 min 53 secs
-  2.2.18                 2.8 MB/sec      38 min 10 secs
-  2.2.19-pre3            2.7 MB/sec      39 min 44 secs
-  2.4.0-test12           7.3 MB/sec      14 min 32 secs
-  2.4.0-test13-pre4      9.5 MB/sec      11 min 06 secs
-  2.4.0-test13-pre5     10.8 MB/sec       9 min 48 secs
+Nope; from the server:
 
-Dbench was written by Andrew Tridgell to measure disk performance under
-simulated samba network traffic load.  The '48' means it's simulating
-the file access patterns of 48 network clients, all doing heavy io at
-the same time.
+[root@tardis gcc]# mount
+/dev/hdc6 on / type ext2 (rw)
+none on /proc type proc (rw)
+/dev/hdc3 on /discs/c3 type ext2 (ro)
+/dev/hdc4 on /discs/c4 type ext2 (rw)
+/dev/hdc7 on /discs/c7 type ext2 (rw)
+/dev/hdc8 on /discs/c8 type ext2 (rw)
 
-For anyone interested in checking these results on their own hardware,
-dbench is available at:
+(/home is actually /discs/c4/home).
 
-  ftp://samba.org/pub/tridge/dbench/dbench-1.1.tar.gz
+/etc/exports is:
 
---
-Daniel
+/discs/c4 sol(rw,no_root_squash,insecure) gort klaatu 
+     oaktree(rw,no_root_squash,insecure)  
+/discs/c3 sol(rw,no_root_squash,insecure) gort klaatu
+     oaktree(rw,no_root_squash,insecure)  
+/mnt/dvd sol(rw,no_root_squash,insecure)
+
+Server is tardis, client is sol.
+
+
+> Can you get a tcpdump (-s 1024) of the network traffic while this is
+> happening?
+
+Yep; to avoid posting to the list I've put it at:
+http://www.treblig.org/nfs_bug_netlog
+
+its 14K and is the output of:
+
+ /usr/sbin/tcpdump -vv -x -s 1024 host sol and tardis > /tmp/netlog 2>&1
+
+Thanks,
+
+Dave
+
+-- 
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert      | Running GNU/Linux on       |  Happy  \ 
+\   gro.gilbert @ treblig.org |  Alpha, x86, ARM and SPARC |  In Hex /
+ \ ___________________________|___ http://www.treblig.org  |________/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

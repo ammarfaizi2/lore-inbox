@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317549AbSGJQvc>; Wed, 10 Jul 2002 12:51:32 -0400
+	id <S317544AbSGJQvE>; Wed, 10 Jul 2002 12:51:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317546AbSGJQvb>; Wed, 10 Jul 2002 12:51:31 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18446 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S317549AbSGJQv0>; Wed, 10 Jul 2002 12:51:26 -0400
-Subject: Re: [STATUS 2.5]  July 10, 2002
-To: thunder@ngforever.de (Thunder from the hill)
-Date: Wed, 10 Jul 2002 18:17:13 +0100 (BST)
-Cc: bunk@fs.tum.de (Adrian Bunk),
-       boissiere@adiglobal.com (Guillaume Boissiere),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0207101027380.5067-100000@hawkeye.luckynet.adm> from "Thunder from the hill" at Jul 10, 2002 10:31:05 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317546AbSGJQvD>; Wed, 10 Jul 2002 12:51:03 -0400
+Received: from relay01.valueweb.net ([216.219.253.235]:25094 "EHLO
+	relay01.valueweb.net") by vger.kernel.org with ESMTP
+	id <S317544AbSGJQvB>; Wed, 10 Jul 2002 12:51:01 -0400
+Message-ID: <3D2C66D9.AF14035A@opersys.com>
+Date: Wed, 10 Jul 2002 12:54:49 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
+To: Thunder from the hill <thunder@ngforever.de>
+CC: Adrian Bunk <bunk@fs.tum.de>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       bob <bob@watson.ibm.com>, Richard Moore <richardj_moore@uk.ibm.com>
+Subject: Re: [STATUS 2.5]  July 10, 2002
+References: <Pine.LNX.4.44.0207101027380.5067-100000@hawkeye.luckynet.adm>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17SL5W-0007Ra-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >    - Better event logging for enterprise systems
-> Linus was scared we could break old syslog parsers.
 
-This is still in discussion. The real issue is not breaking syslog parsers
-(in fact its a way to make sure they dont break in future) but to get 
+Thunder from the hill wrote:
+> > >    - Build option for Linux Trace Toolkit (LTT)
+> 
+> Nobody seemed to be interested in this toolkit. The (s|l)trace toolkit and
+> kdb seemed to be sufficient for the most developers. (I don't whine here
+> either.)
 
--	Accurate reporting
--	Error classifications
--	Error manuals
--	Translations
-etc
+It's somewhat unfair to compare LTT to s/ltrace or kdb because they
+don't serve the same purposes. The other thread on "Enhanced profiling"
+should have made this very clear by now.
 
-done in a way that doesnt make the kernel ugly. Thats non trivial. I need
-to schedule a discussion with some IBM folks about part of this 
+I've spoken to many key kernel developers about this and they all saw
+its inclusion as being positive, but they also all said the same thing:
+it's really Linus' decision.
 
+In light of the recent discussions, it would be really nice to get a
+definitive statement about LTT's inclusion in 2.5.
 
-Alan
+Cheers,
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

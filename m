@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268301AbUJOSrq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268306AbUJOSvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268301AbUJOSrq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 14:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268306AbUJOSrq
+	id S268306AbUJOSvr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 14:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268312AbUJOSvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 14:47:46 -0400
-Received: from holomorphy.com ([207.189.100.168]:23692 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268301AbUJOSre (ORCPT
+	Fri, 15 Oct 2004 14:51:47 -0400
+Received: from NEUROSIS.MIT.EDU ([18.95.3.133]:49540 "EHLO neurosis.jim.sh")
+	by vger.kernel.org with ESMTP id S268306AbUJOSvX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 14:47:34 -0400
-Date: Fri, 15 Oct 2004 11:47:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Hugh Dickins <hugh@veritas.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton OSDL <akpm@osdl.org>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: per-process shared information
-Message-ID: <20041015184713.GO5607@holomorphy.com>
-References: <Pine.LNX.4.44.0410151207140.5682-100000@localhost.localdomain> <1097846353.2674.13298.camel@cube> <20041015162000.GB17849@dualathlon.random> <1097857912.2669.13548.camel@cube> <20041015171355.GD17849@dualathlon.random> <1097862714.2666.13650.camel@cube> <20041015181446.GF17849@dualathlon.random> <20041015183025.GN5607@holomorphy.com> <20041015184009.GG17849@dualathlon.random>
+	Fri, 15 Oct 2004 14:51:23 -0400
+Date: Fri, 15 Oct 2004 14:51:07 -0400
+From: Jim Paris <jim@jtan.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PCI IRQ problems: "nobody cared!"
+Message-ID: <20041015185107.GA1828@jim.sh>
+References: <20041015083722.GA3315@jim.sh> <1097846385.9857.18.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041015184009.GG17849@dualathlon.random>
-Organization: The Domain of Holomorphy
+In-Reply-To: <1097846385.9857.18.camel@localhost.localdomain>
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 15, 2004 at 11:30:25AM -0700, William Lee Irwin III wrote:
->> I just checked in with some Oracle people and the primary concern
->> is splitting up RSS into shared and private. Given either shared
->> or private the other is calculable.
+> I posted a patch to poll when we find IRQ's have gone astray. It needs
+> redoing versus Ingo's new 2.6.9 IRQ code but should apply cleanly to
+> 2.6.8. You can the boot with "irqpoll" as a boot option and the box
+> should survive.
 
-On Fri, Oct 15, 2004 at 08:40:09PM +0200, Andrea Arcangeli wrote:
-> can you define private a bit more? Is private the page_count == 1 like
-> 2.4? Or is "private" == anonymous? that's the only question.
-> In Hugh's patch private == "anonymous". With 2.4 private == "page_count
-> == 1" (which is a subset of anonymous).
+You rock!  irqpoll works like a charm.  I get the same error in the
+same place, but now all of my devices still work.  I don't see any
+obvious performance impact (although I haven't tested it much).
 
-Private should be "anonymous" as far as I can tell. What's actually
-going on is that they're trying to estimate per-process user memory
-footprints so that the amount of client load that should be distributed
-to a given box may be estimated from that. They at least used to
-believe (I've since debunked this) that 2.4.x reported this information.
-Their task (and hence our reporting) is not providing the complete
-information to determine per-process memory footprints for general
-workloads, rather it's known up-front that no fork()-based COW sharing
-is going on in Oracle's case, so in this case, "anonymous" very happily
-corresponds to "process-private". In fact, the /proc/ changes to report
-threads only under the directory hierarchy of some distinguished thread
-assists in this estimation effort.
+I applied this irqpoll patch:
+  http://groups.google.com/groups?selm=2BunT-6Be-15%40gated-at.bofh.it
+and then some minor fixes (see below).
+
+The log for this boot are at
+  https://jim.sh/svn/jim/devl/toughbook/log/irqpoll.txt
+in case anyone is interested.
+
+-jim
 
 
--- wli
+diff -urN ac/arch/i386/kernel/irq.c jim/arch/i386/kernel/irq.c
+--- ac/arch/i386/kernel/irq.c	2004-10-15 13:18:46.000000000 -0400
++++ jim/arch/i386/kernel/irq.c	2004-10-15 13:18:26.000000000 -0400
+@@ -391,11 +391,11 @@
+ 	{
+ 		if((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE)
+ 		{
++			int ok;
+ #ifdef CONFIG_4KSTACKS
+ 			u32 *isp;
+ 			union irq_ctx * curctx;
+ 			union irq_ctx * irqctx;
+-			int ok;
+ 
+ 			curctx = (union irq_ctx *) current_thread_info();
+ 			irqctx = hardirq_ctx[smp_processor_id()];
+@@ -435,7 +435,7 @@
+ #else
+ 			spin_unlock(&desc->lock);
+ 
+-			ok = misrouted_irq(irq, desc, regs);
++			ok = misrouted_irq(irq, regs);
+ 
+ 			spin_lock(&desc->lock);
+ #endif
+

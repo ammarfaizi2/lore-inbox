@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266077AbTGLPhG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 11:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbTGLPhG
+	id S266108AbTGLPn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 11:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbTGLPn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 11:37:06 -0400
-Received: from c180224.adsl.hansenet.de ([213.39.180.224]:16024 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S266077AbTGLPhA
+	Sat, 12 Jul 2003 11:43:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43141 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266108AbTGLPnz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 11:37:00 -0400
-Message-ID: <3F102E8E.4030507@portrix.net>
-Date: Sat, 12 Jul 2003 17:51:42 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
+	Sat, 12 Jul 2003 11:43:55 -0400
+Message-ID: <3F103018.6020008@pobox.com>
+Date: Sat, 12 Jul 2003 11:58:16 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: agpgart, nforce2, radeon and agp fastwrite
+To: Jamie Lokier <jamie@shareable.org>
+CC: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+References: <20030711140219.GB16433@suse.de> <20030712152406.GA9521@mail.jlokier.co.uk>
+In-Reply-To: <20030712152406.GA9521@mail.jlokier.co.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jamie Lokier wrote:
+> Dave Jones wrote:
+> 
+>>- Some people seem to have trouble running rpm, most notably Red Hat 9 users.
+>>  This is a known bug of rpm.
+>>  Workaround: run "export LD_ASSUME_KERNEL=2.2.5", before running rpm.
+> 
+> 
+> Ah, _thank you_.
+> 
+> It's not an rpm bug, as such; it's a problem/bug with DB4, the
+> Berkeley DB library.
+> 
+> I just spent 2 hours trying to figure out why rpm was failing.
+> write() returning EINVAL for no reason?  Finally spotted that O_DIRECT
+> was the significant bit.
 
-just took me half a hour to figure out. On nforce2 you have to disable 
-agp fastwrites, otherwise X locks hard on startup with the following 
-(from serial console).
+You got it.  db4+O_DIRECT == blah.  (I just had a conversation yesterday 
+with rpm's maintainer about what the problems are)
 
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected NVIDIA nForce2 chipset
-agpgart: Maximum main memory to use for agp memory: 816M
-agpgart: AGP aperture is 128M @ 0xd0000000
-[drm] Initialized radeon 1.9.0 20020828 on minor 0
-agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-agpgart: Putting AGP V2 device at 0000:00:00.0 into 2x mode
-agpgart: Putting AGP V2 device at 0000:02:00.0 into 2x mode
+One problem is O_DIRECT should return an error on open(2) or fcntl(2), 
+not write(2).
 
-No response, neither by ping, nor sysrq or anything else. just dead.
-I already defined AGP_DEBUG in agp.h but that doesn't make it noisier.
+Another problem appears to be that db does not know about the alignment 
+requirements of O_DIRECT.
 
-# lspci -v
-02:00.0 VGA compatible controller: ATI Technologies Inc Radeon R200 QL 
-[Radeon )
-         Subsystem: Hercules: Unknown device 0000
-         Flags: bus master, stepping, 66Mhz, medium devsel, latency 32, 
-IRQ 5
-         Memory at d8000000 (32-bit, prefetchable) [size=128M]
-         I/O ports at a000 [size=256]
-         Memory at e2000000 (32-bit, non-prefetchable) [size=64K]
-         Expansion ROM at <unassigned> [disabled] [size=128K]
-         Capabilities: [58] AGP version 2.0
-         Capabilities: [50] Power Management version 2
 
-Without AGP Fastwrites turned on, it all works wonderful. Just if 
-anybody encounters the same problem.
-Mainboard is nForce2 based, graphics is radeon 8500le (R200).
+> End result: I copied an rpm database from another machine.  It's wrong
+> for this machine, but nearly right.  Ah well.
+> 
+> If I'd only known about the LD_ASSUME_KERNEL fix sooner.
 
-Jan
+Unfortunately, LD_ASSUME_KERNEL is a lucky hack, not a fix.  rpm dlopens 
+a pam .so.  LD_ASSUME_KERNEL doesn't work for that .so, only for rpm 
+itself...  fun ensues.
 
--- 
-Linux rubicon 2.5.75-mm1-jd1 #2 SMP Fri Jul 11 12:49:37 CEST 2003 i686
+	Jeff
+
+
 

@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267126AbSKSTbu>; Tue, 19 Nov 2002 14:31:50 -0500
+	id <S267144AbSKSTjn>; Tue, 19 Nov 2002 14:39:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267133AbSKSTbu>; Tue, 19 Nov 2002 14:31:50 -0500
-Received: from 166.Red-80-36-134.pooles.rima-tde.net ([80.36.134.166]:1664
-	"EHLO apocalipsis") by vger.kernel.org with ESMTP
-	id <S267126AbSKSTbs>; Tue, 19 Nov 2002 14:31:48 -0500
-Date: Tue, 19 Nov 2002 20:38:57 +0100
-From: "Juan M. de la Torre" <jmtorre@gmx.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sys_init_module refuses to load module without init code/data sections
-Message-ID: <20021119193857.GA406@apocalipsis>
+	id <S267145AbSKSTjn>; Tue, 19 Nov 2002 14:39:43 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:59122 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S267144AbSKSTjl>; Tue, 19 Nov 2002 14:39:41 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <7FA0E2B042A@vcnet.vc.cvut.cz> 
+References: <7FA0E2B042A@vcnet.vc.cvut.cz> 
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, arashi@arashi.yi.org
+Subject: Re: [PATCH] mii module broken under new scheme 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Date: Tue, 19 Nov 2002 19:46:31 +0000
+Message-ID: <14517.1037735191@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  load_module() stores in mod->init_size the size of init data and init
- code sections, and later allocs (using module_alloc()) mod->init_size
- bytes. 
+VANDROVE@vc.cvut.cz said:
+>  Rusty told me that it is intentional. Add
+> no_module_init;
+> at the end of module. He even sent patch which fixes dozen of such
+> modules (15 I had on my system...) to Linus, but it get somehow lost.
 
-  If the module has not init data and init code sections mod->init_size
- is 0, so module_alloc() will return NULL and load_module() will abort
- loading the module with -ENOMEM.
+> Only question is whether we want to have it this way or no.
 
- Possible patch attached, sorry if this is a known issue.
+Some questions you might want to consider before that one:
 
- Best regards,
-  Juanma
+1. How do we handle "insmod -odummy0 dummy.o ; insmod -odummy1 dummy.o"
 
+2. When does the module name differ from the filename (modulo .o) ?
 
---- linux-2.5.48/kernel/module.c.orig   Tue Nov 19 20:08:52 2002
-+++ linux-2.5.48/kernel/module.c        Tue Nov 19 20:37:47 2002
-@@ -972,13 +972,15 @@
-        memset(ptr, 0, mod->core_size);
-        mod->module_core = ptr;
+3. Given your answers to #1 and #2, is the module name redundant anyway?
 
--       ptr = module_alloc(mod->init_size);
--       if (!ptr) {
--               err = -ENOMEM;
--               goto free_core;
--       }
--       memset(ptr, 0, mod->init_size);
--       mod->module_init = ptr;
-+       if (mod->init_size) {
-+               ptr = module_alloc(mod->init_size);
-+               if (!ptr) {
-+                       err = -ENOMEM;
-+                       goto free_core;
-+               }
-+               memset(ptr, 0, mod->init_size);
-+               mod->module_init = ptr;
-+       }
+--
+dwmw2
 
-        /* Transfer each section which requires ALLOC, and set sh_offset
-           fields to absolute addresses. */
-
--- 
-/jm
 

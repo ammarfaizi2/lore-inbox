@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbTAQR3e>; Fri, 17 Jan 2003 12:29:34 -0500
+	id <S267620AbTAQRkf>; Fri, 17 Jan 2003 12:40:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267613AbTAQR3d>; Fri, 17 Jan 2003 12:29:33 -0500
-Received: from bay2-dav69.bay2.hotmail.com ([65.54.246.204]:33031 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id <S267534AbTAQR3d>;
-	Fri, 17 Jan 2003 12:29:33 -0500
-X-Originating-IP: [24.186.227.45]
-From: "Mark F." <daracerz@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.59 - Compaq 900z - No Go..
-Date: Fri, 17 Jan 2003 11:49:10 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <BAY2-DAV69nJkxWwBvt0000440f@hotmail.com>
-X-OriginalArrivalTime: 17 Jan 2003 17:38:26.0263 (UTC) FILETIME=[3D75F670:01C2BE4F]
+	id <S267622AbTAQRkf>; Fri, 17 Jan 2003 12:40:35 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:43407 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267620AbTAQRke>;
+	Fri, 17 Jan 2003 12:40:34 -0500
+Date: Fri, 17 Jan 2003 12:49:28 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Cc: alan@redhat.com, akpm@digeo.com
+Subject: cs89x0 in 2.5 (was Re: eepro100 - 802.1q - mtu size)
+Message-ID: <20030117174928.GA8304@gtf.org>
+References: <20030117145357.GA1139@paradigm.rfc822.org> <20030117160840.GR12676@stingr.net> <20030117162818.GA1074@gtf.org> <20030117172719.GA31343@codemonkey.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030117172719.GA31343@codemonkey.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Fri, Jan 17, 2003 at 05:27:19PM +0000, Dave Jones wrote:
+> On Fri, Jan 17, 2003 at 11:28:18AM -0500, Jeff Garzik wrote:
+> 
+>  > The reason why the patch was not accepted is that it changes one magic
+>  > number to another magic number, and without chipset docs, I had no idea
+>  > what either magic number really meant.
+> 
+> Whilst on the subject of magic numbers in net drivers, did we ever get
+> to the bottom of 2.4's ChangeSet 1.587.9.20 
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/2.5.48/split-dj1/net-cs89x0-media-corrections.diff
 
-After trying the recent latest release, the compilation mode is an ok except
-for some warning and module install issues.
-Anyways, when I configure the kernel into the boot loader, and I try to boot
-it up it fails after each repeated attempt.  All that happens is that it
-starts the Kernel Boot Up, gets to the line that says "Uncompressing
-Kernel...." and the it just hard reboots the computer.  Does this after each
-repeated chance.  Currently trying to play around with whch drivers I am
-loading into the kernel to see if I am able to eliminate something
 
-Computer is basically an AMD Athlon 1600 with the Radeon IGP Chipset for
-those who don't know.  (Yes, with previous builds, think was 2.5.54 is
-booted, and works on 2.4.21-pre3)
+IIRC it came from -ac tree without explanation, and I think akpm said it
+broke stuff.  Since it has an alive maintainer (akpm), I would rather
+let Alan and Andrew fight it out :)  Whatever they decide is fine with
+me for 2.5.
 
-Mark
+	Jeff
+
+
+

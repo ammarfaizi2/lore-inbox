@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318957AbSHMHWy>; Tue, 13 Aug 2002 03:22:54 -0400
+	id <S318955AbSHMHVZ>; Tue, 13 Aug 2002 03:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318958AbSHMHWx>; Tue, 13 Aug 2002 03:22:53 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:28946 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S318957AbSHMHWw>; Tue, 13 Aug 2002 03:22:52 -0400
-Message-ID: <3D58B518.99C23D85@aitel.hist.no>
-Date: Tue, 13 Aug 2002 09:28:24 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.31 i686)
-X-Accept-Language: no, en, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: large page patch (fwd) (fwd)
-References: <Pine.LNX.3.96.1020812230127.7583D-100000@gatekeeper.tmr.com>
+	id <S318957AbSHMHVZ>; Tue, 13 Aug 2002 03:21:25 -0400
+Received: from [62.40.73.125] ([62.40.73.125]:28339 "HELO Router")
+	by vger.kernel.org with SMTP id <S318955AbSHMHVY>;
+	Tue, 13 Aug 2002 03:21:24 -0400
+Date: Tue, 13 Aug 2002 09:24:52 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: "Woodruff, Robert J" <woody@co.intel.com>
+Cc: "'daniel sheltraw'" <l5gibson@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: kernel to user-space communication
+Message-ID: <20020813072451.GA26847@vagabond>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
+	"Woodruff, Robert J" <woody@co.intel.com>,
+	'daniel sheltraw' <l5gibson@hotmail.com>,
+	linux-kernel@vger.kernel.org
+References: <D9223EB959A5D511A98F00508B68C20C0BFB80E7@orsmsx108.jf.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <D9223EB959A5D511A98F00508B68C20C0BFB80E7@orsmsx108.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Mon, Aug 12, 2002 at 10:52:45AM -0700, Woodruff, Robert J wrote:
+> There are a couple of techniques one can use.
+> First, you can set up a piece of memory that is shared
+> between the kernel and the user process and when the 
+> interrupt occurs, set a flag in memory. The user process
+> can poll the memory to see if an interrupt happened.
 > 
-> On Mon, 12 Aug 2002, Helge Hafting wrote:
+> Coarse, you might not want to waist CPU polling all day,
+> so you could use signals (like SIGUSR1) to block, and have the 
+> kernel send the signal when the interrupt occurs. Only problem
+> with signals is that they are not stackable.
 
-> > My office desktop machine (256M RAM) rarely swaps more than 10M
-> > during work with 2.5.30.  It used to go some 70M into swap
-> > after a few days of writing, browsing, and those updatedb runs.
-> 
-> Now tell us how someone who isn't a VM developer can tell if that's bad or
-> good. Is it good because it didn't swap more than it needed to, or bad
-> because there were more things it could have swapped to make more buffer
-> room?
+You don't waste CPU polling all day! The name 'poll' seems to imply
+that, but it does not use CPU wile waiting (what it does is looks if
+event is already pending and add current to wait queue on each
+descriptor - the function that makes data available then wakes it up).
+And it's a whole lot faster than signals. Signal setup is slower than
+context switch.
 
-It feels more responsive too - which is no surprise.  Like most users,
-I don't _expect_ to wait for swapin when pressing a key or something.
-Waiting for file io seems to be less of a problem, that stuff
-_is_ on disk after all.  I guess many people who knows a little about
-computers feel this way.  People that don't know what a "disk" is
-may be different and more interested in total waiting.
+> Another technique is to implement the concept of a wait object,
+> you write a simple driver that manages these. The user process
+> does an ioctl to the wait object driver when it wants to wait for 
+> an interrupt. The ioctl sleeps if the interrupt has not occurred.
+> The kernel then calls wakeup when the interrupt 
+> happens and the ioctl completes. 
+> We implemented a mechanism like this for InfiniBand,
+> which allows user level I/O to the hardware and we needed a way to
+> signal I/O completions (interrupts) to the user process. 
+> If you are interested
+> in an example, take a look at the early reference InfiniBand code
+> at http://sourceforge.net/projects/infiniband.
 
-On the serious side: vmstat provides more than swap info.  It also
-lists block io, where one might see if the block io goes up or down.
-I suggest to find some repeatable workload with lots of file & swap
-io, and see how much we get of each.  My guess is that rmap
-results in less io to to the same job.  Not only swap io, but
-swap+file io too.  The design is more capable of selecting
-the _right_ page to evict. (Assuming that page usage may
-tell us something useful.)  So the only questions left is
-if the current implementation is good, and if the
-improved efficiency makes up for the memory overhead.
+Which is _exactly_ what poll does, just more work! (because you have to
+write things poll_wait would do for you and you have to be very
+careful).
 
-> 
-> Serious question, tuning the -aa VM sometimes makes the swap use higher,
-> even as the response to starting small jobs while doing kernel compiles or
-> mkisofs gets better. I don't normally tune -ac kernels much, so I can't
-> comment there.
-
-Swap is good if there's lots of file io and
-lots of unused apps sitting around.  And bad if there's a large working
-set and little _repeating_ file io.  Such as the user switching between
-a bunch of big apps working on few files.  And perhaps some
-non-repeating
-io like updatedb or mail processing...
-
-Helge Hafting
-
-Helge Hafting
+-------------------------------------------------------------------------------
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>

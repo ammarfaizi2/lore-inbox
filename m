@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131973AbRDJTmu>; Tue, 10 Apr 2001 15:42:50 -0400
+	id <S131958AbRDJTml>; Tue, 10 Apr 2001 15:42:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131974AbRDJTml>; Tue, 10 Apr 2001 15:42:41 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:44816 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131973AbRDJTm3>; Tue, 10 Apr 2001 15:42:29 -0400
-Date: Tue, 10 Apr 2001 12:42:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Howells <dhowells@cambridge.redhat.com>
-cc: Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix
-In-Reply-To: <11851.986925762@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.31.0104101229150.13071-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131974AbRDJTma>; Tue, 10 Apr 2001 15:42:30 -0400
+Received: from aragorn.ics.muni.cz ([147.251.4.33]:49312 "EHLO
+	aragorn.ics.muni.cz") by vger.kernel.org with ESMTP
+	id <S131958AbRDJTmO>; Tue, 10 Apr 2001 15:42:14 -0400
+Newsgroups: cz.muni.redir.linux-kernel
+Path: news
+From: Zdenek Kabelac <kabi@i.am>
+Subject: Re: No 100 HZ timer !
+Message-ID: <3AD3620F.85BB9B11@i.am>
+Date: Tue, 10 Apr 2001 19:42:07 GMT
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Nntp-Posting-Host: dual.fi.muni.cz
+Content-Transfer-Encoding: 7bit
+X-Accept-Language: cs, en
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <E14n1vV-0004gX-00@the-village.bc.nu>
+Mime-Version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-RTL3.0 i686)
+Organization: unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> > Games would like to be able to page flip at vertical refresh time --
+> > <1ms accuracy please.  Network traffic shaping benefits from better than
+> 
+> This is an X issue. I was talking with Jim Gettys about what is needed to
+> get the relevant existing X extensions for this working
+
+I've already proposed my /dev/vbi device (currently works only for MGA
+card)
+- read returns when VBI occures - works quite well...
+(currently in avifile CVS tree)
+
+Anyway in good all days AmigaOS had interrupt service where devices
+where sending timer request - they were queued and timer device was
+serving
+them in order - I don't see the reason why we should implement this
+differently.
+If there is no real reason to interrupt system more then 100Hz
+periodicity
+then this is ok - scheduler will simple send time request for
+rescheduling in 10ms.
+
+Why we should create 1KHz timers or so when this way seems to be much
+more
+elegant and will work even on XXGHz systems.
 
 
-On Tue, 10 Apr 2001, David Howells wrote:
->
-> Here's a patch that fixes RW semaphores on the i386 architecture. It is very
-> simple in the way it works.
+bye
 
-XADD only works on Pentium+.
-
-That's no problem if we make this SMP-specific - I doubt anybody actually
-uses SMP on i486's even if the machines exist, as I think they all had
-special glue logic that Linux would have trouble with anyway. But the
-advantages of being able to use one generic kernel that works on plain UP
-i386 machines as well as SMP P6+ machines is big enough that I would want
-to be able to say "CONFIG_X86_GENERIC" + "CONFIG_SMP".
-
-Even if it would be noticeably slower (ie a fallback to a spinlock might
-be perfectly ok).
-
-If you do this, I woul dsuggest having asm-i386/{rwsem.h|rwsem-xadd.h},
-and just having a
-
-	#ifndef CONFIG_XADD
-	#include <asm/rwsem.h>
-	#else
-	#include <asm/rwsem-xadd.h>
-	#endif
-
-(And adding "CONFIG_XADD" to the list of generated optimization
-configuration options in arch/i386/config.in, of course).
-
-That way we don't make the semaphore.h file even more unreadable.
-
-
-		Linus
-
+kabi@i.am
 

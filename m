@@ -1,81 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbTKNUm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262788AbTKNUm1
+	id S264300AbTKNU6I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 15:58:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTKNU6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:42:27 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:58042 "EHLO
-	dagobah.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261947AbTKNUm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:42:26 -0500
-Date: Fri, 14 Nov 2003 21:37:37 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: [2.6] Nonsense-messages from iptables + co.
-Message-ID: <20031114203737.GI6937@obroa-skai.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.netfilter.org>
-References: <20031114132054.GA646@merlin.emma.line.org> <20031114151004.GE2395@obroa-skai.de.gnumonks.org> <20031114200119.GA27789@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Rmm1Stw9KgbdL9/H"
-Content-Disposition: inline
-In-Reply-To: <20031114200119.GA27789@merlin.emma.line.org>
-X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.4.23-pre7-ben0
-X-Date: Today is Pungenday, the 26th day of The Aftermath in the YOLD 3169
-User-Agent: Mutt/1.5.4i
+	Fri, 14 Nov 2003 15:58:08 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:1664
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264300AbTKNU6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 15:58:05 -0500
+Date: Fri, 14 Nov 2003 15:57:06 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test9-mm3
+In-Reply-To: <3210000.1068786449@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.53.0311141555130.27998@montezuma.fsmlabs.com>
+References: <20031112233002.436f5d0c.akpm@osdl.org> <3210000.1068786449@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 13 Nov 2003, Martin J. Bligh wrote:
 
---Rmm1Stw9KgbdL9/H
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > - Several ext2 and ext3 allocator fixes.  These need serious testing on big
+> >   SMP.
+> 
+> Survives kernbench and SDET on ext2 at least on 16-way. I'll try ext3
+> later.
 
-On Fri, Nov 14, 2003 at 09:01:19PM +0100, Matthias Andree wrote:
-
-> > I guess it was Rusty.  The idea message is a funny way of telling you
-> > that you are sending incomplete ip headers.
->=20
-> Am I? what's with the *_limit() function called before the printk?
-
-it's a generic network rate limiting function.  It prevents the same
-message from being logged and logged again (and thus flooding your
-syslog).
-
-> > Something that is not likely to occur unless you are trying to send
-> > corrupt packets via raw ip sockets...
->=20
-> Not at the times when these occurred.
-
-there seemed to be a bug that I was unaware of, and according to other
-mails in this thread it has been fixed.
-=20
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---Rmm1Stw9KgbdL9/H
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/tT0RXaXGVTD0i/8RApkEAJsEg3wPDHHXLEuImo0KOu664P3J+QCfaCC9
-iD83iiPSOXKldXorCBNRb9U=
-=17iT
------END PGP SIGNATURE-----
-
---Rmm1Stw9KgbdL9/H--
+It's actually triple faulting my laptop (K6 family=5 model=8 step=12) when 
+i have CONFIG_X86_4G enabled and try and run X11. The same kernel is fine 
+on all my other test boxes. Any hints?

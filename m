@@ -1,108 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269891AbUJGXK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269917AbUJGXMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269891AbUJGXK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 19:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269897AbUJGXIi
+	id S269917AbUJGXMF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 19:12:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269897AbUJGXLH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 19:08:38 -0400
-Received: from smtp08.auna.com ([62.81.186.18]:30421 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S269914AbUJGXHB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 19:07:01 -0400
-Date: Thu, 07 Oct 2004 23:06:53 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.9-rc3-mm3
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-References: <20041007015139.6f5b833b.akpm@osdl.org>
-	<200410071041.20723.sandersn@btinternet.com>
-	<20041007025007.77ec1a44.akpm@osdl.org>
-	<20041007114040.GV9106@holomorphy.com>
-	<1097184341l.10532l.0l@werewolf.able.es>
-	<1097185597l.10532l.1l@werewolf.able.es>
-	<20041007150708.5d60e1c3.akpm@osdl.org>
-	<1097188883l.6408l.1l@werewolf.able.es>
-	<20041007155441.5a8e8e3a.akpm@osdl.org>
-In-Reply-To: <20041007155441.5a8e8e3a.akpm@osdl.org> (from akpm@osdl.org on
-	Fri Oct  8 00:54:41 2004)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1097190413l.6408l.3l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+	Thu, 7 Oct 2004 19:11:07 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:6313
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S269913AbUJGXJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 19:09:04 -0400
+Date: Thu, 7 Oct 2004 16:07:49 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: msipkema@sipkema-digital.com, cfriesen@nortelnetworks.com,
+       hzhong@cisco.com, jst1@email.com, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk, davem@redhat.com
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Message-Id: <20041007160749.7c77b810.davem@davemloft.net>
+In-Reply-To: <20041007230019.GA31684@mark.mielke.cc>
+References: <00e501c4ac9a$556797d0$b83147ab@amer.cisco.com>
+	<41658C03.6000503@nortelnetworks.com>
+	<015f01c4acbe$cf70dae0$161b14ac@boromir>
+	<4165B9DD.7010603@nortelnetworks.com>
+	<20041007150035.6e9f0e09.davem@davemloft.net>
+	<000901c4acc4$26404450$161b14ac@boromir>
+	<20041007152400.17e8f475.davem@davemloft.net>
+	<20041007224242.GA31430@mark.mielke.cc>
+	<20041007154722.2a09c4ab.davem@davemloft.net>
+	<20041007230019.GA31684@mark.mielke.cc>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Oct 2004 19:00:19 -0400
+Mark Mielke <mark@mark.mielke.cc> wrote:
 
-On 2004.10.08, Andrew Morton wrote:
-> "J.A. Magallon" <jamagallon@able.es> wrote:
-> >
-> > Thanks, that made it work again !!
-> > 
-> > Total set of patches to boot:
-> > - your latest fix
-> > - revert optimize profile + Andi's patch
-> > - uhci fix (still needed ?)
-> 
-> I don't know anything about the uhci fix.  Sending a changelogged,
-> signed-off patch would hep get the ball rolling.
+> Just say "it's a bug, but one we have chosen not to fix for practical
+> reasons." That would have kept me out of this discussion. Saying the
+> behaviour is correct and that POSIX is wrong - that raises hairs -
+> both the question kind, and the concern kind.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109690445623905&w=2
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-===== drivers/usb/host/uhci-hcd.c 1.134 vs edited =====
---- 1.134/drivers/usb/host/uhci-hcd.c	2004-09-30 13:58:40 -04:00
-+++ edited/drivers/usb/host/uhci-hcd.c	2004-10-04 10:37:21 -04:00
-@@ -2412,7 +2412,7 @@
- 		goto up_failed;
- 
- 	retval = pci_register_driver(&uhci_pci_driver);
--	if (retval)
-+	if (retval < 0)
- 		goto init_failed;
- 
- 	return 0;
-
-
-> 
-> > - e100 fix (only thing I have seen at the moment...)
-> 
-> What's this and why is it needed?
-
-Original thread:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109631322832372&w=2
-
-Patch:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109632033331453&w=2
-
-
-> 
-> > - 1Gb lowmem
-> > 
-> > How about including the last one in -mm, for testing ? I use it in a server
-> > and in my home workstation and it works fine (even with nvidia drivers ;) ).
-> 
-> Never seen it before.
-> 
-> 
-
-Patch by Con Kolivas. It allows to use 1Gb without highmem. The magic number
-of 1Gb is so common that I think it useful...
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109582272410486&w=2
-Patch:
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-rc2/2.6.9-rc2-ck2/patches/1g_lowmem1_i386.diff
-
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc3-mm3 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
-
-
+If anything, I'm saying we're not POSIX compliant in this case
+by choice.

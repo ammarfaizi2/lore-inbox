@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264934AbSJVStG>; Tue, 22 Oct 2002 14:49:06 -0400
+	id <S264933AbSJVSsp>; Tue, 22 Oct 2002 14:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264935AbSJVStG>; Tue, 22 Oct 2002 14:49:06 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:26862 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S264934AbSJVStD>; Tue, 22 Oct 2002 14:49:03 -0400
-Date: Tue, 22 Oct 2002 14:55:10 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <20021022145510.H20957@redhat.com>
-References: <1035310934.31917.124.camel@irongate.swansea.linux.org.uk> <E184442-0001zQ-00@w-gerrit2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E184442-0001zQ-00@w-gerrit2>; from gh@us.ibm.com on Tue, Oct 22, 2002 at 11:47:37AM -0700
+	id <S264934AbSJVSsp>; Tue, 22 Oct 2002 14:48:45 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:10717 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S264933AbSJVSso>; Tue, 22 Oct 2002 14:48:44 -0400
+Date: Tue, 22 Oct 2002 16:54:43 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Tim Hockin <thockin@sun.com>
+Cc: Jesse Pollard <pollard@admin.navo.hpc.mil>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH 1/4] fix NGROUPS hard limit (resend)
+In-Reply-To: <3DB59722.2090701@sun.com>
+Message-ID: <Pine.LNX.4.44L.0210221653420.1648-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 11:47:37AM -0700, Gerrit Huizenga wrote:
-> Hmm.  Isn't it great that 2.6/3.0 will be stable soon and we can
-> start working on this for 2.7/3.1?
+On Tue, 22 Oct 2002, Tim Hockin wrote:
+> Jesse Pollard wrote:
+>
+> > And I really doubt that anybody has 10000 unique groups (or even
+> > close to that) running under any system. The center I'm at has
+> > some of the largest UNIX systems ever made, and there are only
+> > about 600 unique groups over the entire center. The largest number
+> > of groups a user can be in is 32. And nobody even comes close.
+>
+> I'm glad it doesn't affect you.  If it was a more common problem, it
+> would have been solved a long time ago.  It does affect some people,
+> though.  Maybe they can redesign their group structures, but why not
+> remove this arbitrary limit, since we can?
 
-Sure, but we should delete the syscalls now and just use the filesystem 
-as the intermediate API.
+For anoncvs this is a common problem.
 
-		-ben
+Each project has its own group and the anoncvs user needs
+access to all (write access in order to make lock files).
+
+regards,
+
+Rik
 -- 
-"Do you seek knowledge in time travel?"
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

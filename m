@@ -1,52 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUGBAqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266373AbUGBBBV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265971AbUGBAqI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 20:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUGBAqH
+	id S266373AbUGBBBV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 21:01:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266378AbUGBBBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 20:46:07 -0400
-Received: from holomorphy.com ([207.189.100.168]:42938 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265971AbUGBAqF (ORCPT
+	Thu, 1 Jul 2004 21:01:21 -0400
+Received: from [171.67.16.125] ([171.67.16.125]:27542 "EHLO smtp2.Stanford.EDU")
+	by vger.kernel.org with ESMTP id S266373AbUGBBBQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 20:46:05 -0400
-Date: Thu, 1 Jul 2004 17:45:38 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mpm@selenic.com, paul@linuxaudiosystems.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK
-Message-ID: <20040702004538.GF21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, mpm@selenic.com,
-	paul@linuxaudiosystems.com, linux-kernel@vger.kernel.org
-References: <200406301341.i5UDfkKX010518@localhost.localdomain> <20040701180356.GI5414@waste.org> <20040701181401.GB21066@holomorphy.com> <20040701154554.30063e97.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040701154554.30063e97.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 1 Jul 2004 21:01:16 -0400
+Date: Thu, 1 Jul 2004 18:01:00 -0700 (PDT)
+From: Yichen Xie <yxie@cs.stanford.edu>
+X-X-Sender: yxie@kaki.stanford.edu
+To: linux-kernel@vger.kernel.org
+Subject: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary database
+Message-ID: <Pine.LNX.4.44.0407011747040.4015-100000@kaki.stanford.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 03:45:54PM -0700, Andrew Morton wrote:
-> In fairness, the CPU scheduler has been spinning like a top for a
-> couple of years, and it still ain't settled.
-> That's just the one in Linus's tree, let alone the umpteen rewrites
-> which are floating about.
+Hi all, 
 
-I've not seen much deep material there. Policy tweaks seem to be
-what's gone on in mainline, and frankly most of the purported rewrites
-are just that. I guess the ones that nuked the duelling queue silliness
-are trying qualify but even they're leaving the load balancer untouched
-and are carrying over large fractions of their predecessors unaltered.
-The stuff that's gone around looks minor. It's not like they're teaching
-sched.c to play cpu tetris for gang scheduling or Kalman filtering
-profiling feedback to stripe tasks using different cpu resources across
-SMT siblings or playing graph games to meet RT deadlines, so it doesn't
-look like very much at all is going on to me.
+We are a group of researchers at Stanford working on program analysis
+algorithms.  We have been building a precision enhanced program analysis
+engine at Stanford, and our first application was to derive mutex/lock
+behavior in the linux kernel. In the process, we found 99 likely
+synchronization errors in linux kernel version 2.6.5:
 
-It's pretty obvious why everyone and their brother is grinding out
-purported scheduler rewrites: the code is self-contained, however,
-nothing interesting is coming of all this. Never been for have so many
-patches been written against the same file, accomplishing so little.
+    http://glide.stanford.edu/linux-lock/err1.html (69 errors)
+    http://glide.stanford.edu/linux-lock/err2.html (30 errors)
 
--- wli
+err1.html consists of potential double locks/unlocks. Acquiring a lock
+twice in a row may result in a system hang, and releasing a lock more than
+once with certain mutex functions (e.g. up) may cause critical section
+violations.
+
+err2.html consists of reports on inconsistent output lock states on
+function exit. These errors usually correspond to missed lock operations
+on error paths. (filenames in this report correspond to where a function
+is declared, so CTAGS may come in handy to find the actual implementation
+of the function).
+
+In the error reports, functions are hyperlinked to their derived
+summaries, and those of their callees (since the analysis spans function
+calls, the error condition of a particular function usually depend on the
+locking behavior of its callees).
+
+For example, in function "radeon_pm_program_v2clk" (first error report in
+err1.html), the tool flagged an error at line 323 of
+"drivers/video/aty/radeon_pm.c". Line 323 invokes two macros, OUTPLL, and
+INPLL. OUTPLL acquires "rinfo->reg_lock", and then evaluates "addr", which
+is calculated, in this case, by calling _INPLL. By clicking on the link
+"drivers/video/aty/radeon_pm.c:radeon_pm_program_v2clk", we can see that
+_INPLL requires "rinfo->reg_lock" be unheld on entry (confirmed by looking
+at its definition), which is not satisfied in this example. So this is a
+double lock error and could potentially lead to a deadlock on MP systems.
+
+We also have a separate web interface to the summary database at:
+
+	http://glide.stanford.edu/linux-lock/
+
+For example, typing "fh_put" in the input box gives
+
+=========
+ SUMMARY 
+=========
+FUNCTION SUMMARY: 'include/linux/nfsd/nfsfh.h:fh_put'
+{
+  dcache_lock(global): [unlocked -> unlocked]
+  fhp(param#0)->fh_dentry->d_lock: [unlocked -> unlocked]
+  fhp(param#0)->fh_dentry->d_inode->i_sem: [locked -> unlocked]
+}
+
+Each line in the function summary correspond to the requirements and
+effects on one particular lock. For example, fh_put requires that the
+global lock variable dcache_lock be unheld on entry, and it'll remain
+unheld on exit. It also requires fhp->fh_dentry->d_inode->i_sem be held on
+entry and it'll release it on exit. (note: please ignore summaries for
+lock premitives like spin_lock or down_interruptible; models for these
+functions are built into the checker and the derived summaries are not
+used).
+
+We have found that some modules in the kernel has functions with
+complicated synchronization behavior (esp. in filesystems), and we hope
+summaries generated by this tool could be useful not only for bug finding,
+but also for documentation purposes as well.
+
+The analysis is intraprocedurally "path sensitive", so it won't be fooled
+by cases like
+
+     if (flag & BLOCKING) spin_lock(&l);
+     ...
+     if (flag & BLOCKING) spin_unlock(&l);
+
+or
+
+     if (!spin_trylock(&l))
+	return -EAGAIN;
+     ...
+     spin_unlock(&l);
+
+The analysis algorithm models values (down to individual bits) and
+pointers in the program with a boolean satisfiability solver with high
+precision, and we're actively looking for other properties involving
+(heavy) data dependencies where naive analysis would fail. Suggestions and
+insights from the linux kernel community will be more than welcome!
+
+As always, feedbacks and confirmations will be greatly appreciated!
+
+Best regards,
+Yichen Xie
+<yxie@cs.stanford.edu>
+

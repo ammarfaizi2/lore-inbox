@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266429AbTGJTgX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 15:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266430AbTGJTgX
+	id S266430AbTGJTti (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 15:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbTGJTti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 15:36:23 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:39691 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S266429AbTGJTgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 15:36:21 -0400
-Message-ID: <3F0DC518.3010301@kolumbus.fi>
-Date: Thu, 10 Jul 2003 22:57:12 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Thu, 10 Jul 2003 15:49:38 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:29928 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266430AbTGJTth
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 15:49:37 -0400
+Date: Thu, 10 Jul 2003 22:04:02 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Steven Dake <sdake@mvista.com>
+cc: <linux-kernel@vger.kernel.org>, <andre@linux-ide.org>,
+       <frankt@promise.com>
+Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patch
+ attached to fix
+In-Reply-To: <3F0DC337.50903@mvista.com>
+Message-ID: <Pine.SOL.4.30.0307102202340.22284-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?YOSHIFUJI_Hideaki_/_=3F=3F=3F=3F?= 
-	<yoshfuji@linux-ipv6.org>
-CC: cat@zip.com.au, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       pekkas@netcore.fi
-Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
-References: <20030710154302.GE1722@zip.com.au> <20030711.005542.04973601.yoshfuji@linux-ipv6.org>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 10.07.2003 22:52:21,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 10.07.2003 22:51:48,
-	Serialize complete at 10.07.2003 22:51:48
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-But 3ffe:8001:000c:ffff::36 is _not_ subnet routers anycast address. Anyway, looks like a bug to me...
+Do you have "Special FastTrak Feature" enabled?
 
+--
+Bartlomiej
 
---Mika
+On Thu, 10 Jul 2003, Steven Dake wrote:
 
-
-YOSHIFUJI Hideaki / ???? wrote:
-
->In article <20030710154302.GE1722@zip.com.au> (at Fri, 11 Jul 2003 01:43:03 +1000), CaT <cat@zip.com.au> says:
+> Folks,
 >
->  
+> After I upgraded to 2.4.21, I noticed my Gigabyte motherboard with
+> onboard IDE Promise 20276 FastTrack RAID no longer works.  The following
+> patch fixes the problem, which appears to be an incomplete list of
+> devices in the ide setup code.  There are probably other fasttrack RAID
+> adaptors that should be added to the setup code, but I don't know what
+> they are.
 >
->>With 2.4.21-pre2 I can get a nice tunnel going over my ppp connection
->>and as such get ipv6 connectivity. I think went to 2.4.21 and then to
->>2.4.22-pre4 and bringing up the tunnel fails as follows:
->>    
->>
->:
->  
->
->>ip addr add 3ffe:8001:000c:ffff::37/127 dev sit1
->> ip route add ::/0 via 3ffe:8001:000c:ffff::36 
->>RTNETLINK answers: Invalid argument
->>    
->>
->
->This is not bug, but rather misconfiguration;
->you cannot use prefix::, which is mandatory subnet routers 
->anycast address, as unicast address.
->
->Thank you.
->
->  
->
-
+> Thanks
+> -steve
 

@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262636AbSJVOOF>; Tue, 22 Oct 2002 10:14:05 -0400
+	id <S262665AbSJVOVo>; Tue, 22 Oct 2002 10:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262665AbSJVOOF>; Tue, 22 Oct 2002 10:14:05 -0400
-Received: from relay.muni.cz ([147.251.4.35]:24286 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S262636AbSJVOOE>;
-	Tue, 22 Oct 2002 10:14:04 -0400
-Date: Tue, 22 Oct 2002 16:19:57 +0200
-From: Jan Kasprzak <kas@informatics.muni.cz>
+	id <S262681AbSJVOVo>; Tue, 22 Oct 2002 10:21:44 -0400
+Received: from dmx.imc.nl ([213.201.163.76]:30983 "EHLO imcdmx.wox.org")
+	by vger.kernel.org with ESMTP id <S262665AbSJVOVn>;
+	Tue, 22 Oct 2002 10:21:43 -0400
+Message-ID: <3DB55FE9.9060104@imc.nl>
+Date: Tue, 22 Oct 2002 16:25:45 +0200
+From: Roelf Schreurs <rosc@imc.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre11 /proc/partitions read
-Message-ID: <20021022161957.N26402@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Muni-Virus-Test: Clean
+Subject: source for 2.4.18-10 (redhat)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello, world!\n
+Hi
 
-	while trying to figure out why my "vgchange -a y" sometimes works
-and sometimes does not, I've come to the following problem:
+I'm upgrading to 2.4.18-10 (on redhat 7.3), and therefore need some files.
+On updates.redhat.com I found:
+kernel-2.4.18-10.i686.rpm
+kernel-bigmem-2.4.18-10.i686.rpm
+kernel-debug-2.4.18-10.i686.rpm
+kernel-smp-2.4.18-10.i686.rpm
 
-# dd if=/proc/partitions bs=512|wc -l
-1+1 records in
-1+1 records out
-     12
-
-# dd if=/proc/partitions bs=128k|wc -l
-0+1 records in
-0+1 records out
-     32
-
-
-	I.e. if you read the /proc/partitions in single read() call,
-it gets read OK. However, if you read() with smaller-sized blocks,
-you get the truncated contents.
-
-	Are applications expected to read the whole /proc file
-in one read()?
-
--Yenya
+Do I need kernel-source.2.4.18-10.i686.rpm and 
+kernel-doc-2.4.18-10.i686.rpm and if yes, where do I find it.
+I guess the doc is not too important, but the source seems to be important.
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|-- If you start doing things because you hate others and want to screw  --|
-|-- them over the end result is bad.   --Linus Torvalds to the BBC News  --|
+Roelf
+
+Chaos reigns within.
+Reflect, repent, and reboot.
+Order shall return.
+
+

@@ -1,109 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264040AbTKGWCY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:02:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTKGWA2
+	id S264124AbTKGWC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:02:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTKGWBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:00:28 -0500
-Received: from smtp2.clb.oleane.net ([213.56.31.18]:53161 "EHLO
-	smtp2.clb.oleane.net") by vger.kernel.org with ESMTP
-	id S263973AbTKGJZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 04:25:58 -0500
-Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual
-	content is read (only directory structure)
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: Jens Axboe <axboe@suse.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20031107090924.GB616@suse.de>
-References: <20031105084002.GX1477@suse.de>
-	 <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org>
-	 <20031107082439.GB504@suse.de> <1068195038.21576.1.camel@ulysse.olympe.o2t>
-	 <20031107090924.GB616@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-I9GActTLtSLpPd9uelT5"
-Organization: Adresse personnelle
-Message-Id: <1068197144.21576.32.camel@ulysse.olympe.o2t>
+	Fri, 7 Nov 2003 17:01:05 -0500
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:59665 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264028AbTKGJ6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 04:58:17 -0500
+Date: Fri, 7 Nov 2003 09:58:14 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Message-ID: <20031107095814.A2363@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Matthew Wilcox <willy@debian.org>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B060ED69@AVEXCH02.qlogic.org> <20031106175306.GG26869@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 07 Nov 2003 10:25:44 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031106175306.GG26869@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Thu, Nov 06, 2003 at 05:53:06PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 06, 2003 at 05:53:06PM +0000, Matthew Wilcox wrote:
+> > 
+> > 	o Build process -- (three module interface for the ISPs), I
+> > 	  personally like the idea of a shared library module used
+> > 	  between the different ISP drivers.  Many others have voiced
+> > 	  their frustrations with the single driver-binary for each
+> > 	  ISP type that the directive from management is to have a
+> > 	  single binary for all *future* products including the 
+> > 	  ISP23xx (ISP2300/ISP2310/ISP2312/ISP2322) chips.
+> > 
+> > 	  That unfortunately leaves ISP2100 and ISP2200 on the
+> > 	  periphery of development efforts.
+> 
+> I wouldn't see a problem with having a structure like this:
+> 
+> ql2100.c
+> ql2200.c
+> ql23xx.c
+> qllib.c
+> 
+> and linking in whichever files are selected.  But you definitely only want
+> to build qllib.c once.
 
---=-I9GActTLtSLpPd9uelT5
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+Well, if you look at the driver you'll need all files except the firmware
+anyway.  And now that we have the request_firmware interface anyway I'd
+bebetter to move that out of the module, at least once initramfs settles down
+a bit.
 
-Le ven 07/11/2003 =E0 10:09, Jens Axboe a =E9crit :
-> On Fri, Nov 07 2003, Nicolas Mailhot wrote:
-> > Le ven 07/11/2003 =E0 09:24, Jens Axboe a =E9crit :
-> > > On Wed, Nov 05 2003, Alan Stern wrote:
-> >=20
-> > > > In any case, it quite likely _does_ point to a driver bug.  But sin=
-ce
-> > > > sddr09_read_data() was handed this sg entry and didn't change it, i=
-f there
-> > > > is such a bug it must lie in a higher-level driver.  Maybe the scsi=
- layer,=20
-> > > > maybe the block layer, maybe the memory-management system, maybe th=
-e file=20
-> > > > system.  That was my original point.
-> > >=20
-> > > Well, the sg entry looks perfectly valid. And that was my original
-> > > point :-). And that is why I said it looks like a driver bug, not in
-> > > upper layers. How much memory did the system that crashed have? If th=
-e
-> > > system has highmem, try testing with scsi_calculate_bounce_limit()
-> > > unconditionally returning BLK_BOUNCE_HIGH.
-> >=20
-> > The system has 1 GiB of memory, ie just enough to make stuff like
-> > radeonfb fail
->=20
-> Try with this debug patch then, does it work now?
->=20
-> =3D=3D=3D=3D=3D drivers/scsi/scsi_lib.c 1.77 vs edited =3D=3D=3D=3D=3D
-> --- 1.77/drivers/scsi/scsi_lib.c	Tue Oct 14 09:28:06 2003
-> +++ edited/drivers/scsi/scsi_lib.c	Fri Nov  7 10:08:52 2003
-> @@ -1215,6 +1215,7 @@
-> =20
->  u64 scsi_calculate_bounce_limit(struct Scsi_Host *shost)
->  {
-> +#if 0
->  	struct device *host_dev;
-> =20
->  	if (shost->unchecked_isa_dma)
-> @@ -1229,6 +1230,9 @@
->  	 * hardware have no practical limit.
->  	 */
->  	return BLK_BOUNCE_ANY;
-> +#else
-> +	return BLK_BOUNCE_HIGH;
-> +#endif
->  }
-> =20
->  struct request_queue *scsi_alloc_queue(struct scsi_device *sdev)
+The issue is more lots of tiny ifdefs - those in the C source could be easily
+hidden using pdev->device comparisms (and I think I'm gonna submit a patch
+for that soon, the driver already does that for ISP23XX variants without
+a proper abstraction).  Those in the headers are a bit more difficult as the
+register layout is a bit different sometimes.  But with doing these as unions
+instead of ifdefs and splitted subroutines this should be managæble as well,
+the feral driver already does this nicely.
 
-Will try this evening when I have physical access to the system. (It's
-difficult to plug a USB device via ssh;)
-
-Cheers,
-
---=20
-Nicolas Mailhot
-
---=-I9GActTLtSLpPd9uelT5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/q2UXI2bVKDsp8g0RAjQZAJ0TOLz4TB1xCwBTNFu52pUT6eY2bwCgqKYT
-xAc7yy6trAv8D4bNGC504GE=
-=z14l
------END PGP SIGNATURE-----
-
---=-I9GActTLtSLpPd9uelT5--
-
+-- 
+Christoph Hellwig <hch@lst.de>		-	Freelance Hacker
+Contact me for driver hacking and kernel development consulting

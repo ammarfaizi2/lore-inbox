@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262856AbVAFQyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbVAFQ5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262856AbVAFQyr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 11:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262881AbVAFQyq
+	id S262881AbVAFQ5i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 11:57:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbVAFQ5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 11:54:46 -0500
-Received: from av3-2-sn3.vrr.skanova.net ([81.228.9.110]:50134 "EHLO
-	av3-2-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S262856AbVAFQyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 11:54:44 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
-       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] ALPS touchpad detection fix
-From: Peter Osterlund <petero2@telia.com>
-Date: 06 Jan 2005 17:54:33 +0100
-Message-ID: <m3wtuqxzue.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Thu, 6 Jan 2005 11:57:38 -0500
+Received: from ns.suse.de ([195.135.220.2]:3484 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262881AbVAFQ5g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 11:57:36 -0500
+Date: Thu, 6 Jan 2005 17:57:15 +0100
+From: Andi Kleen <ak@suse.de>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       Andrew Morton <akpm@osdl.org>, Takashi Iwai <tiwai@suse.de>, ak@suse.de,
+       mingo@elte.hu, rlrevell@joe-job.com, linux-kernel@vger.kernel.org,
+       pavel@suse.cz, discuss@x86-64.org, gordon.jin@intel.com,
+       alsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
+Message-ID: <20050106165715.GH1830@wotan.suse.de>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050106145356.GA18725@infradead.org> <20050106163559.GG5772@vana.vc.cvut.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050106163559.GG5772@vana.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My ALPS touchpad is not recognized because the device gets confused by
-the Kensington ThinkingMouse probe.  It responds with "00 00 14"
-instead of the expected "00 00 64" to the "E6 report".
+On Thu, Jan 06, 2005 at 05:35:59PM +0100, Petr Vandrovec wrote:
+> BTW, vmmon will still require register_ioctl32_conversion as we are using
+> (abusing) it to be able to issue 64bit ioctls from 32bit application.  I
+> assume that there is no supported way how to issue 64bit ioctls from 32bit
+> aplication anymore after you disallow system-wide translations to be registered
+> by modules.
 
-Resetting the device before attempting the ALPS probe fixes the
-problem.
+Why are you issuing 64bit ioctls from 32bit applications? 
 
-Signed-off-by: Peter Osterlund <petero2@telia.com>
----
-
- linux-petero/drivers/input/mouse/psmouse-base.c |    1 +
- 1 files changed, 1 insertion(+)
-
-diff -puN drivers/input/mouse/psmouse-base.c~alps-fix drivers/input/mouse/psmouse-base.c
---- linux/drivers/input/mouse/psmouse-base.c~alps-fix	2005-01-06 17:33:15.000000000 +0100
-+++ linux-petero/drivers/input/mouse/psmouse-base.c	2005-01-06 17:33:46.000000000 +0100
-@@ -451,6 +451,7 @@ static int psmouse_extensions(struct psm
- /*
-  * Try ALPS TouchPad
-  */
-+	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
- 	if (max_proto > PSMOUSE_IMEX && alps_detect(psmouse, set_properties) == 0) {
- 		if (!set_properties || alps_init(psmouse) == 0)
- 			return PSMOUSE_ALPS;
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+-Andi

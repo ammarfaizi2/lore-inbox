@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUJBXVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267612AbUJBX3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUJBXVj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 19:21:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUJBXVj
+	id S267612AbUJBX3q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 19:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267618AbUJBX3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 19:21:39 -0400
-Received: from gizmo06bw.bigpond.com ([144.140.70.41]:47326 "HELO
-	gizmo06bw.bigpond.com") by vger.kernel.org with SMTP
-	id S267607AbUJBXVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 19:21:35 -0400
-Message-ID: <415F37F9.6060002@bigpond.net.au>
-Date: Sun, 03 Oct 2004 09:21:29 +1000
+	Sat, 2 Oct 2004 19:29:46 -0400
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:57063 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S267612AbUJBX3n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 19:29:43 -0400
+Message-ID: <415F39E3.3080406@bigpond.net.au>
+Date: Sun, 03 Oct 2004 09:29:39 +1000
 From: Peter Williams <pwil3058@bigpond.net.au>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Hubertus Franke <frankeh@watson.ibm.com>
-CC: dipankar@in.ibm.com, Paul Jackson <pj@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, mbligh@aracnet.com, lse-tech@lists.sourceforge.net,
-       hch@infradead.org, steiner@sgi.com, jbarnes@sgi.com,
-       sylvain.jeaugey@bull.net, djh@sgi.com, linux-kernel@vger.kernel.org,
-       colpatch@us.ibm.com, Simon.Derr@bull.net, ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com> <20040805190500.3c8fb361.pj@sgi.com> <247790000.1091762644@[10.10.2.4]> <200408061730.06175.efocht@hpce.nec.com> <20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com> <20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com> <20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com>
-In-Reply-To: <415ED3E3.6050008@watson.ibm.com>
+CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, ckrm-tech@lists.sourceforge.net,
+       efocht@hpce.nec.com, lse-tech@lists.sourceforge.net, hch@infradead.org,
+       steiner@sgi.com, jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com, llp@CS.Princeton.EDU
+Subject: Re: [ckrm-tech] Re: [Lse-tech] [PATCH] cpusets - big numa cpu and
+ memory placement
+References: <NIBBJLJFDHPDIBEEKKLPCEFLCHAA.mef@cs.princeton.edu> <415ED4A4.1090001@watson.ibm.com> <20041002105305.2caf97ae.pj@sgi.com> <415EF069.7090902@watson.ibm.com>
+In-Reply-To: <415EF069.7090902@watson.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,80 +32,55 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hubertus Franke wrote:
 > 
-> OK, let me respond to this (again...) from the perspective of cpus.
-> This should to some extend also cover Andrew's request as well as
-> Paul's earlier message.
 > 
-> I see cpumem sets to be orthogonal to CKRM cpu share allocations.
-> AGAIN.
-> I see cpumem sets to be orthogonal to CKRM cpu share allocations.
+> Paul Jackson wrote:
 > 
-> In its essense, "cpumem sets" is a hierarchical mechanism of sucessively 
-> tighter constraints on the affinity mask of tasks.
+>> Hubertus wrote:
+>>
+>>> Marc, cpusets lead to physical isolation.
+>>
+>>
+>>
+>> This is slightly too terse for my dense brain to grok.
+>> Could you elaborate just a little, Hubertus?  Thanks.
+>>
 > 
-> The O(1) scheduler today does not know about cpumem sets. It operates
-> on the level of affinity masks to adhere to the constraints specified 
-> based on cpu masks.
+> A minimal quote from your website :-)
+> 
+> "CpuMemSets provides a new Linux kernel facility that enables system 
+> services and applications to specify on which CPUs they may be 
+> scheduled, and from which nodes they may allocate memory."
+> 
+> Since I have addressed the cpu section it seems obvious that
+> in order to ISOLATE different workloads, you associate them onto
+> non-overlapping cpusets, thus technically they are physically isolated
+> from each other on said chosen CPUs.
+> 
+> Given that cpuset hierarchies translate into cpu-affinity masks,
+> this desired isolation can result in lost cycles globally.
 
-This is where I see the need for "CPU sets".  I.e. as a 
-replacement/modification to the CPU affinity mechanism basically adding 
-an extra level of abstraction to make it easier to use for implementing 
-the type of isolation that people seem to want.  I say this because, 
-strictly speaking and as you imply, the current affinity mechanism is 
-sufficient to provide that isolation BUT it would be a huge pain to 
-implement.
-
-The way I see it you just replace the task's affinity mask with a 
-pointer to its "CPU set" which contains the affinity mask shared by 
-tasks belonging to that set (and this is used by try_to_wake_up() and 
-the load balancing mechanism to do their stuff instead of the per task 
-affinity mask).  Then when you want to do something like take a CPU away 
-from one group of tasks and give it to another group of tasks it's just 
-a matter of changing the affinity masks in the sets instead of visiting 
-every one of the tasks individually and changing their masks.  There 
-should be no need to explicitly move tasks off the "lost" CPU after such 
-a change as it should/could be done next time that they go through 
-try_to_wake_up() and/or finish a time slice.  Moving a task from one CPU 
-set to another would be a similar process to the current change of 
-affinity mask.
-
-There would, of course, need to be some restriction on the movement of 
-CPUs from one set to another so that you don't end up with an empty set 
-with live tasks, etc.
-
-A possible problem is that there may be users whose use of the current 
-affinity mechanism would be broken by such a change.  A compile time 
-choice between the current mechanism and a set based mechanism would be 
-a possible solution.  Of course, this proposed modification wouldn't 
-make any sense with less than 3 CPUs.
-
-PS Once CPU sets were implemented like this, configurable CPU schedulers 
-(such as (blatant plug :-)) ZAPHOD) could have "per CPU set" 
-configurations, CKRM could do its (CPU management stuff) stuff within a 
-CPU set, etc.
+This argument if followed to its logical conclusion would advocate the 
+abolition of CPU affinity masks completely.
 
 > 
-> The CKRM cpu scheduler also adheres to affinity mask constraints and 
-> frankly does not care how they are set.
+> I believe this to be orthogonal to share settings. To me both
+> are extremely desirable features.
 > 
-> So I do not see what at the scheduler level the problem will be.
-> If you want system isolation you deploy cpumem sets. If you want overall 
->  share enforcement you choose ckrm classes.
-> In addition you can use both with the understanding that cpumem sets can 
-> and will not be violated even if that means that shares are not maintained.
+> I also pointed out that if you separate mechanism from API, it
+> is possible to move the CPU set API under the CKRM framework.
+> I have not thought about the memory aspect.
 > 
-> Since you want orthogonality, cpumem sets could be implemented as a
-> different "classtype". They would not belong to the taskclass and thus 
-> are independent from what we consider the task class.
+> -- Hubertus
 > 
 > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> The tricky stuff comes in from the fact that CKRM assumes a system wide 
-> definition of a class and a system wide "calculation" of shares.
 
-Doesn't sound insurmountable or particularly tricky :-).
 
-Peter
 -- 
 Peter Williams                                   pwil3058@bigpond.net.au
 

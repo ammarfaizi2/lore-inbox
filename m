@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266677AbUBQVsA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 16:48:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266664AbUBQVpO
+	id S266627AbUBQVkn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 16:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUBQVhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 16:45:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12767 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266652AbUBQVme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 16:42:34 -0500
-Date: Tue, 17 Feb 2004 13:43:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Florian Schanda <ma1flfs@bath.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 99% System load
-Message-Id: <20040217134350.0da17784.akpm@osdl.org>
-In-Reply-To: <200402172116.18254.ma1flfs@bath.ac.uk>
-References: <200402111423.02217.ma1flfs@bath.ac.uk>
-	<20040211234413.3d90df5d.akpm@osdl.org>
-	<200402172116.18254.ma1flfs@bath.ac.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Tue, 17 Feb 2004 16:37:34 -0500
+Received: from mail.shareable.org ([81.29.64.88]:10885 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266637AbUBQVhS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 16:37:18 -0500
+Date: Tue, 17 Feb 2004 21:37:14 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: JFS default behavior
+Message-ID: <20040217213714.GI24311@mail.shareable.org>
+References: <1076886183.18571.14.camel@m222.net81-64-248.noos.fr> <20040216062152.GB5192@pegasys.ws> <20040216155534.GA17323@mail.shareable.org> <20040217064755.GC9466@pegasys.ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040217064755.GC9466@pegasys.ws>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schanda <ma1flfs@bath.ac.uk> wrote:
->
-> Finally it happened again. I attached the output of that dmesg.
-> 
-> > It would help if you could make a note of the PIDs of the hung processes,
-> > so they can be correlated with the sysrq output.
-> 
-> The PIDs hanging are 3303, 3305, 3306, 3307.
+jw schultz wrote:
+> Your concrete example is a good one.  Where did that
+> filename come from?  It would seem to have come from the
+> keyboard via a tty (or simulator) which also had to display
+> it.  I'd say this is an argument for the terminal to display
+> UTF-8 and convert intput into UTF-8.  That is something that
+> seems to be not consistantly done as yet.  Ultimately it
+> seems to be a responsiblity of the user interface, whether
+> tty or GUI.  Until that happens the shells might be able to
+> fill the gap, however poorly.
 
-It _looks_ like all four CPUs are madly taking timer interrupts.  Which
-tends to point at some APIC problem, failing to clear the interrupt source.
-But if that happened one wouldn't expect userspace to remain in a runnable
-state, and you say that you can still run commands.
+Many terminals will not ever display UTF-8.  Think: all the serial terminals.
 
-> An advance warning: I had the nvidia driver (yes, I know, closed source makes 
-> debugging impossible) loaded, and before the trace begins, there are some 
-> messages of that module:
+This is why I think "stty utf8" or something along those lines would
+be useful.  The terminal itself doesn't have to talk UTF-8; however,
+the applications talking with /dev/tty would always see UTF-8.
 
-It is probably unrelated, but I'd suggest that you not use the nvidia
-driver for a while, verify that the lockup happens without it loaded.
+That seems to solve most of the practical user interface problems of
+the command line, in one single clean place.
 
+-- Jamie

@@ -1,97 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVA1AoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVA1AwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVA1AoU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 19:44:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVA1Akv
+	id S261340AbVA1AwG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 19:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVA1AwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 19:40:51 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:52930
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261352AbVA1Aja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 19:39:30 -0500
-Date: Thu, 27 Jan 2005 16:34:44 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Robert.Olsson@data.slu.se, akpm@osdl.org, torvalds@osdl.org,
-       alexn@dsv.su.se, kas@fi.muni.cz, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-Id: <20050127163444.1bfb673b.davem@davemloft.net>
-In-Reply-To: <20050128001701.D22695@flint.arm.linux.org.uk>
-References: <20050123095608.GD16648@suse.de>
-	<20050123023248.263daca9.akpm@osdl.org>
-	<20050123200315.A25351@flint.arm.linux.org.uk>
-	<20050124114853.A16971@flint.arm.linux.org.uk>
-	<20050125193207.B30094@flint.arm.linux.org.uk>
-	<20050127082809.A20510@flint.arm.linux.org.uk>
-	<20050127004732.5d8e3f62.akpm@osdl.org>
-	<16888.58622.376497.380197@robur.slu.se>
-	<20050127164918.C3036@flint.arm.linux.org.uk>
-	<20050127123326.2eafab35.davem@davemloft.net>
-	<20050128001701.D22695@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 27 Jan 2005 19:52:05 -0500
+Received: from alephnull.demon.nl ([212.238.201.82]:36520 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S261340AbVA1Asa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 19:48:30 -0500
+Date: Fri, 28 Jan 2005 01:48:25 +0100
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: "David S. Miller" <davem@davemloft.net>, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, greg@kroah.com,
+       akpm@osdl.org
+Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100, xircom_tulip_cb, iph5526
+Message-ID: <20050128004825.GA5359@xi.wantstofly.org>
+References: <41F952F4.7040804@pobox.com> <20050127225725.F3036@flint.arm.linux.org.uk> <20050127153114.72be03e2.davem@davemloft.net> <20050128001430.C22695@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050128001430.C22695@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jan 2005 00:17:01 +0000
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Fri, Jan 28, 2005 at 12:14:30AM +0000, Russell King wrote:
 
-> Yes.  Someone suggested this evening that there may have been a recent
-> change to do with some IPv6 refcounting which may have caused this
-> problem.  Is that something you can confirm?
+> The fact of the matter is that eepro100.c works on ARM, e100.c doesn't.
 
-Yep, it would be this change below.  Try backing it out and see
-if that makes your leak go away.
+Hmmm, I recall e100 working fine on a Radisys ENP-2611, which has a
+IXP2400 (xscale) in big-endian mode, running 2.6.  This particular
+board had its root fs NFS-mounted and pumped several hundreds of
+gigabytes through the NIC during a period of at least a few months,
+and I never saw any problems.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/01/14 20:41:55-08:00 herbert@gondor.apana.org.au 
-#   [IPV6]: Fix locking in ip6_dst_lookup().
-#   
-#   The caller does not necessarily have the socket locked
-#   (udpv6sendmsg() is one such case) so we have to use
-#   sk_dst_check() instead of __sk_dst_check().
-#   
-#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-#   Signed-off-by: David S. Miller <davem@davemloft.net>
-# 
-# net/ipv6/ip6_output.c
-#   2005/01/14 20:41:34-08:00 herbert@gondor.apana.org.au +3 -3
-#   [IPV6]: Fix locking in ip6_dst_lookup().
-#   
-#   The caller does not necessarily have the socket locked
-#   (udpv6sendmsg() is one such case) so we have to use
-#   sk_dst_check() instead of __sk_dst_check().
-#   
-#   Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-#   Signed-off-by: David S. Miller <davem@davemloft.net>
-# 
-diff -Nru a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
---- a/net/ipv6/ip6_output.c	2005-01-27 16:07:21 -08:00
-+++ b/net/ipv6/ip6_output.c	2005-01-27 16:07:21 -08:00
-@@ -745,7 +745,7 @@
- 	if (sk) {
- 		struct ipv6_pinfo *np = inet6_sk(sk);
- 	
--		*dst = __sk_dst_check(sk, np->dst_cookie);
-+		*dst = sk_dst_check(sk, np->dst_cookie);
- 		if (*dst) {
- 			struct rt6_info *rt = (struct rt6_info*)*dst;
- 	
-@@ -772,9 +772,9 @@
- 			     && (np->daddr_cache == NULL ||
- 				 !ipv6_addr_equal(&fl->fl6_dst, np->daddr_cache)))
- 			    || (fl->oif && fl->oif != (*dst)->dev->ifindex)) {
-+				dst_release(*dst);
- 				*dst = NULL;
--			} else
--				dst_hold(*dst);
-+			}
- 		}
- 	}
- 
+Something tells me that the next time I try it, it won't work at all.
+
+
+--L

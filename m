@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYHeF>; Thu, 25 Jan 2001 02:34:05 -0500
+	id <S129534AbRAYHiQ>; Thu, 25 Jan 2001 02:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132249AbRAYHdz>; Thu, 25 Jan 2001 02:33:55 -0500
-Received: from web8001.in.yahoo.com ([203.199.70.19]:46088 "HELO
-	web8001.mail.in.yahoo.com") by vger.kernel.org with SMTP
-	id <S129444AbRAYHdk>; Thu, 25 Jan 2001 02:33:40 -0500
-Message-ID: <20010125073748.13257.qmail@web8001.mail.in.yahoo.com>
-Date: Thu, 25 Jan 2001 07:37:48 +0000 (GMT)
-From: Rahul <callrahulonly@yahoo.co.in>
-Subject: Can anybody help me regarding Remote Desktop Protocol
-To: linux-kernel@vger.kernel.org
+	id <S131516AbRAYHiH>; Thu, 25 Jan 2001 02:38:07 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:16905 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129921AbRAYHhv>;
+	Thu, 25 Jan 2001 02:37:51 -0500
+Message-ID: <3A6FD7A0.B45964A8@innominate.com>
+Date: Thu, 25 Jan 2001 08:37:04 +0100
+From: Juri Haberland <juri.haberland@innominate.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Jeremy Hansen <jeremy@xxedgexx.com>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi friends,
-         I am working in India, and i want to
-implement remote desktop protocol for my thin client
-so i downloaded the source from the site
-www.rdesktop.org and thereafter i tried to execute the
-command and i got the following messages :
+Jeremy Hansen wrote:
+> 
+> Just curious if others have noticed that hotmail is unable to deal with
+> ECN and wondering if this is a standard that should be encouraged, as in
+> should I tell hotmail that perhaps they should look into supporting it, or
+> should I not waste my breath and echo 0 > /proc/sys/net/ipv4/tcp_ecn?
 
-bash# rdesktop -l 192.168.1.121(my server's IP
-address) rdesktop: A Remote Desktop Protocol Client
-version 1.0.0. Copyright(c) 1999-2000 Matt Chapman
-see http://www.rdesktop.org/ for more information
+Forget it. I mailed them and this is the answer:
 
-Connection successful
-read: Connection reset by peer
-ERROR: expected DT, got 240
-Broken pipe
+"As ECN is not a widely used internet standard, and as Cisco does not
+have a stable OS for their routers that accepts ECN, anyone attempting
+to access our site through a gateway or from a computer that uses ECN
+will be unable to do so."
 
-can any one help me regarding this and tell me why
-this message is coming and if possible give me the
-name of site were i can find free source for RDP and
-documentation also.
+Juri
 
-Eagerly waiting for your responce
-With regards
-
-Rahul Chowdhury
-SPA Computers Ltd.
-100 Ft road,
-HAL II Stage
-Bangalore
-India
-
-____________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.co.in address at http://mail.yahoo.co.in
+-- 
+juri.haberland@innominate.com
+system engineer                                         innominate AG
+clustering & security                            the linux architects
+tel: +49-30-308806-45   fax: -77            http://www.innominate.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

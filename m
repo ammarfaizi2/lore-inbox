@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbUKVUs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbUKVUu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUKVUs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 15:48:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbUKVUs0
+	id S262385AbUKVUu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 15:50:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbUKVUui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 15:48:26 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:60188 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262391AbUKVUqs
+	Mon, 22 Nov 2004 15:50:38 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:61876 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262384AbUKVUay
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 15:46:48 -0500
-Date: Mon, 22 Nov 2004 21:46:53 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: kbuild/kconfig: [BK PATCH] fixes/updates for 2.6.10
-Message-ID: <20041122204653.GA7108@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 22 Nov 2004 15:30:54 -0500
+From: Duncan Sands <duncan.sands@math.u-psud.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sparse segfaults
+Date: Mon, 22 Nov 2004 21:30:45 +0100
+User-Agent: KMail/1.6.2
+Cc: Linus Torvalds <torvalds@osdl.org>, Mitchell Blank Jr <mitch@sfgoth.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+References: <20041120143755.E13550@flint.arm.linux.org.uk> <20041122183956.GA50325@gaz.sfgoth.com> <Pine.LNX.4.58.0411221047140.20993@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0411221047140.20993@ppc970.osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411222130.46247.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
-Please include the following in 2.6.10:
+> I suspect (but don't have any real argument to back that up) is that the
+> gcc "extended lvalues" fell out as a side effect from how gcc ended up
+> doing some random semantic tree parsing, and it wasn't really "designed"
+> per se, as much as just a random implementation detail. Then somebody 
+> noticed it, and said "cool" and documented it.
 
-o Fix speling error in init/Kconfig
-o major update to Documentation/kbuild/modules.txt
+Generalized lvalues have been removed.  Check out
+http://gcc.gnu.org/ml/gcc/2004-11/msg00604.html
 
-To pull:
-	bk pull bk://linux-sam.bkbits.net/kbuild
+All the best,
 
- Documentation/kbuild/modules.txt |  487 +++++++++++++++++++++++++++++++++------
- init/Kconfig                     |    2 
- 2 files changed, 420 insertions(+), 69 deletions(-)
-
-	Sam
+Duncan.

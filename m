@@ -1,146 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbSKZNef>; Tue, 26 Nov 2002 08:34:35 -0500
+	id <S265402AbSKZNqM>; Tue, 26 Nov 2002 08:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbSKZNef>; Tue, 26 Nov 2002 08:34:35 -0500
-Received: from smtp.laposte.net ([213.30.181.11]:41168 "EHLO smtp.laposte.net")
-	by vger.kernel.org with ESMTP id <S265270AbSKZNed>;
-	Tue, 26 Nov 2002 08:34:33 -0500
-Date: Tue, 26 Nov 2002 14:41:44 +0100
-Message-Id: <H66RDK$A51F2CB58537836203238D57286D3D15@laposte.net>
-Subject: =?iso-8859-1?Q?Re:[PATCH]_[2.4]_AGP_Support_for_VIA_KT400?=
-MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: multipart/mixed; boundary="_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248"
-From: "=?iso-8859-1?Q?Nicolas_Mailhot?=" <nicolas.mailhot@laposte.net>
-To: "=?iso-8859-1?Q?ldelgass?=" <ldelgass@retinalburn.net>
-Cc: "=?iso-8859-1?Q?linux-kernel?=" <linux-kernel@vger.kernel.org>
-Cc: "=?iso-8859-1?Q?marcelo?=" <marcelo@connectiva.com.br>
-Cc: "=?iso-8859-1?Q?alan?=" <alan@lxorguk.ukuu.org.uk>
-Cc: "=?iso-8859-1?Q?jw?=" <jw@tks6.net>
-X-XaM3-API-Version: 3.2 R24 (B47)
-X-type: 0
-X-SenderIP: 194.214.220.17
+	id <S265570AbSKZNqM>; Tue, 26 Nov 2002 08:46:12 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:21379 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S265402AbSKZNqL>;
+	Tue, 26 Nov 2002 08:46:11 -0500
+Date: Tue, 26 Nov 2002 14:53:22 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: torvalds@transmeta.com
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ncpfs seems to need the timer init
+Message-ID: <20021126135322.GA30362@vana>
+References: <200211260411.gAQ4BUo24135@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211260411.gAQ4BUo24135@hera.kernel.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Tue, Nov 26, 2002 at 02:12:52AM +0000, Linux Kernel Mailing List wrote:
 
-> Hello,=0D=0A> =0D=0A> Here is a small patch to support agp for the VIA =
-KT400=0D=0Anorthbridge.  It's=0D=0A> against 2.4.20-rc3 and is based on N=
-icolas Mailhot's patch=0D=0Afor 2.5 which=0D=0A> was included in 2.5.49. =
- It adds the PCI id and registers=0D=0Athe VIA generic=0D=0A> setup routi=
-ne for the chipset.  I've tested it successfully=0D=0Aon a Gigabyte=0D=0A=
-> GA-7VAXP (KT400) with a Radeon 7500 using DRI and various GL=0D=0Aapps/=
-games.  =0D=0A> If this has already been submitted, just ignore it -- but=
- I=0D=0Ahadn't seen a=0D=0A> patch for 2.4 appear on lkml or the BitKeepe=
-r site yet.=0D=0A> =0D=0A> Nicolas' patch for 2.5 on lkml:=0D=0A>=0D=0Aht=
-tp://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D103786946803970&w=3D2=0D=
-=0A> =0D=0A> Bugzilla entry for 2.5 is here:=0D=0A> http://bugme.osdl.org=
-/show_bug.cgi?id=3D14=0D=0A=0D=0AIn fact I've been cleaning up a bit the =
-2.4 version before=0D=0Asubmitting it -- the entries for other VIA chips =
-are a bit=0D=0Amore convoluted and I suspect the first patch is not as=0D=
-=0Acomplete as it should be. In fact I think I'll post a 2.5=0D=0Afollowu=
-p soon.=0D=0A=0D=0APlease do not apply the first patch and use this one i=
-nstead.=0D=0AI didn't tested it myself (not enough time) but Johannes=0D=0A=
-Winkelmann reports it as ok. It's pretty straightforward=0D=0Aanyway, jus=
-t id lists all over the place.=0D=0A=0D=0ABest regards,=0D=0A=0D=0A-- =0D=
-=0ANicolas Mailhot=0A=0AAcc=E9dez au courrier =E9lectronique de La Poste =
-: www.laposte.net ;=0A3615 LAPOSTENET (0,13 =80/mn) ; t=E9l : 08 92 68 13=
- 50 (0,34=80/mn)"=0A=0A
---_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248
-Content-Type: application/octet-stream;
-	name="kt400-2.4.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="kt400-2.4.patch"
+Linus, please revert this. It is changeset 
 
-ZGlmZiAtdU5yIGxpbnV4LTIuNC4yMC1yYzMub3JpZy9kcml2ZXJzL2NoYXIvYWdwL2FncGdh
-cnRfYmUuYyBsaW51eC0yLjQuMjAtcmMzL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9iZS5j
-DQotLS0gbGludXgtMi40LjIwLXJjMy5vcmlnL2RyaXZlcnMvY2hhci9hZ3AvYWdwZ2FydF9i
-ZS5jCTIwMDItMTEtMjUgMjE6Mjg6MTIuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi40
-LjIwLXJjMy9kcml2ZXJzL2NoYXIvYWdwL2FncGdhcnRfYmUuYwkyMDAyLTExLTI1IDIxOjQ0
-OjIyLjAwMDAwMDAwMCArMDEwMA0KQEAgLTQ3MTQsNiArNDcxNCwxMiBAQA0KIAkJIlZpYSIs
-DQogCQkiQXBvbGxvIFBybyBLVDI2NiIsDQogCQl2aWFfZ2VuZXJpY19zZXR1cCB9LA0KKyAg
-ICAgICAgeyBQQ0lfREVWSUNFX0lEX1ZJQV84Mzc3XzAsDQorCQlQQ0lfVkVORE9SX0lEX1ZJ
-QSwNCisJCVZJQV9BUE9MTE9fS1Q0MDAsDQorCQkiVmlhIiwNCisJCSJBcG9sbG8gUHJvIEtU
-NDAwIiwNCisJCXZpYV9nZW5lcmljX3NldHVwIH0sDQogCXsgMCwNCiAJCVBDSV9WRU5ET1Jf
-SURfVklBLA0KIAkJVklBX0dFTkVSSUMsDQpkaWZmIC11TnIgbGludXgtMi40LjIwLXJjMy5v
-cmlnL2RyaXZlcnMvY2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaCBsaW51eC0yLjQuMjAtcmMz
-L2RyaXZlcnMvY2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaA0KLS0tIGxpbnV4LTIuNC4yMC1y
-YzMub3JpZy9kcml2ZXJzL2NoYXIvZHJtL2RybV9hZ3BzdXBwb3J0LmgJMjAwMi0xMS0yNSAy
-MToyODoxMi4wMDAwMDAwMDAgKzAxMDANCisrKyBsaW51eC0yLjQuMjAtcmMzL2RyaXZlcnMv
-Y2hhci9kcm0vZHJtX2FncHN1cHBvcnQuaAkyMDAyLTExLTI1IDIxOjQzOjU5LjAwMDAwMDAw
-MCArMDEwMA0KQEAgLTI3OSw2ICsyNzksOCBAQA0KIAkJCWJyZWFrOw0KIAkJY2FzZSBWSUFf
-QVBPTExPX0tUMTMzOgloZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gS1QxMzMiOw0KIAkJ
-CWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExPX0tUNDAwOiAgaGVhZC0+Y2hpcHNldCA9ICJW
-SUEgQXBvbGxvIEtUNDAwIjsNCisJCQlicmVhazsNCiAJCWNhc2UgVklBX0FQT0xMT19QUk86
-IAloZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9sbG8gUHJvIjsNCiAJCQlicmVhazsNCiANCmRp
-ZmYgLXVOciBsaW51eC0yLjQuMjAtcmMzLm9yaWcvZHJpdmVycy9jaGFyL2RybS00LjAvYWdw
-c3VwcG9ydC5jIGxpbnV4LTIuNC4yMC1yYzMvZHJpdmVycy9jaGFyL2RybS00LjAvYWdwc3Vw
-cG9ydC5jDQotLS0gbGludXgtMi40LjIwLXJjMy5vcmlnL2RyaXZlcnMvY2hhci9kcm0tNC4w
-L2FncHN1cHBvcnQuYwkyMDAyLTAyLTI1IDIwOjM3OjU3LjAwMDAwMDAwMCArMDEwMA0KKysr
-IGxpbnV4LTIuNC4yMC1yYzMvZHJpdmVycy9jaGFyL2RybS00LjAvYWdwc3VwcG9ydC5jCTIw
-MDItMTEtMjUgMjE6NDQ6NTMuMDAwMDAwMDAwICswMTAwDQpAQCAtMjc1LDYgKzI3NSw4IEBA
-DQogCQkJYnJlYWs7DQogCQljYXNlIFZJQV9BUE9MTE9fS1QxMzM6CWhlYWQtPmNoaXBzZXQg
-PSAiVklBIEFwb2xsbyBLVDEzMyI7IA0KIAkJCWJyZWFrOw0KKwkJY2FzZSBWSUFfQVBPTExP
-X0tUNDAwOiAgaGVhZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIEtUNDAwIjsNCisJCQlicmVh
-azsNCiAjZW5kaWYNCiANCiAJCWNhc2UgVklBX0FQT0xMT19QUk86IAloZWFkLT5jaGlwc2V0
-ID0gIlZJQSBBcG9sbG8gUHJvIjsNCmRpZmYgLXVOciBsaW51eC0yLjQuMjAtcmMzLm9yaWcv
-ZHJpdmVycy9wY2kvcGNpLmlkcyBsaW51eC0yLjQuMjAtcmMzL2RyaXZlcnMvcGNpL3BjaS5p
-ZHMNCi0tLSBsaW51eC0yLjQuMjAtcmMzLm9yaWcvZHJpdmVycy9wY2kvcGNpLmlkcwkyMDAy
-LTExLTI1IDIxOjI4OjE1LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yMC1yYzMv
-ZHJpdmVycy9wY2kvcGNpLmlkcwkyMDAyLTExLTI1IDIzOjI1OjUzLjAwMDAwMDAwMCArMDEw
-MA0KQEAgLTU4Miw2ICs1ODIsNyBAQA0KIAk2MDAzICBDUyA0NjE0LzIyLzI0IFtDcnlzdGFs
-Q2xlYXIgU291bmRGdXNpb24gQXVkaW8gQWNjZWxlcmF0b3JdDQogCQkxMDEzIDQyODAgIENy
-eXN0YWwgU291bmRGdXNpb24gUENJIEF1ZGlvIEFjY2VsZXJhdG9yDQogCQkxNjgxIDAwNTAg
-IEhlcmN1bGVzIEdhbWUgVGhlYXRlciBYUA0KKwkJMTY4MSBhMDExICBIZXJjdWxlcyBGb3J0
-aXNzaW1vIElJSSA3LjENCiAJNjAwNCAgQ1MgNDYxNC8yMi8yNCBbQ3J5c3RhbENsZWFyIFNv
-dW5kRnVzaW9uIEF1ZGlvIEFjY2VsZXJhdG9yXQ0KIAk2MDA1ICBDcnlzdGFsIENTNDI4MSBQ
-Q0kgQXVkaW8NCiAJCTEwMTMgNDI4MSAgQ3J5c3RhbCBDUzQyODEgUENJIEF1ZGlvDQpAQCAt
-MjY3OCw2ICsyNjc5LDcgQEANCiAJMDUwNSAgVlQ4MkM1MDUNCiAJMDU2MSAgVlQ4MkM1NjEN
-CiAJMDU3MSAgVlQ4MkM1ODZCIFBJUEMgQnVzIE1hc3RlciBJREUNCisJCTE0NTggNTAwMiBH
-QS03VkFYIE1haW5ib2FyZA0KIAkwNTc2ICBWVDgyQzU3NiAzViBbQXBvbGxvIE1hc3Rlcl0N
-CiAJMDU4NSAgVlQ4MkM1ODVWUCBbQXBvbGxvIFZQMS9WUFhdDQogCTA1ODYgIFZUODJDNTg2
-L0EvQiBQQ0ktdG8tSVNBIFtBcG9sbG8gVlBdDQpAQCAtMjcyNiw2ICsyNzI4LDcgQEANCiAJ
-CTE0NjIgMzA5MSAgTVMtNjMwOSBPbmJvYXJkIEF1ZGlvDQogCQkxNWRkIDc2MDkgIE9uYm9h
-cmQgQXVkaW8NCiAJMzA1OSAgVlQ4MjMzIEFDOTcgQXVkaW8gQ29udHJvbGxlcg0KKwkJMTQ1
-OCBhMDAyICBHQS03VkFYIE9uYm9hcmQgQXVkaW8gKFJlYWx0ZWsgQUxDNjUwKSANCiAJMzA2
-NSAgVlQ2MTAyIFtSaGluZS1JSV0NCiAJCTExODYgMTQwMCAgREZFLTUzMFRYIHJldiBBDQog
-CQkxMTg2IDE0MDEgIERGRS01MzBUWCByZXYgQg0KQEAgLTI3MzksNiArMjc0Miw3IEBADQog
-CTMxMDIgIFZUODY2MiBIb3N0IEJyaWRnZQ0KIAkzMTAzICBWVDg2MTUgSG9zdCBCcmlkZ2UN
-CiAJMzEwNCAgVVNCIDIuMA0KKwkJMTQ1OCA1MDA0ICBHQS03VkFYIE1haW5ib2FyZA0KIAkz
-MTA5ICBWVDgyMzNDIFBDSSB0byBJU0EgQnJpZGdlDQogCTMxMTIgIFZUODM2MSBbS0xFMTMz
-XSBIb3N0IEJyaWRnZQ0KIAkzMTI4ICBWVDg3NTMgW1A0WDI2NiBBR1BdDQpAQCAtMjc0Nyw2
-ICsyNzUxLDkgQEANCiAJMzE0OCAgUDRNMjY2IEhvc3QgQnJpZGdlDQogCTMxNTYgIFAvS04y
-NjYgSG9zdCBCcmlkZ2UNCiAJMzE3NyAgVlQ4MjMzQSBJU0EgQnJpZGdlDQorCQkxNDU4IDUw
-MDEgR0EtN1ZBWCBNYWluYm9hcmQNCisJMzE4OSAgVlQ4Mzc3IFtLVDQwMCBBR1BdIEhvc3Qg
-QnJpZGdlDQorCQkxNDU4IDUwMDAgR0EtN1ZBWCBNYWluYm9hcmQNCiAJNTAzMCAgVlQ4MkM1
-OTYgQUNQSSBbQXBvbGxvIFBST10NCiAJNjEwMCAgVlQ4NUMxMDBBIFtSaGluZSBJSV0NCiAJ
-ODIzMSAgVlQ4MjMxIFtQQ0ktdG8tSVNBIEJyaWRnZV0NCkBAIC0yNzY3LDYgKzI3NzQsNyBA
-QA0KIAliMTAyICBWVDgzNjIgQUdQIEJyaWRnZQ0KIAliMTAzICBWVDg2MTUgQUdQIEJyaWRn
-ZQ0KIAliMTEyICBWVDgzNjEgW0tMRTEzM10gQUdQIEJyaWRnZQ0KKwliMTY4ICBWVDgyMzUg
-UENJIEJyaWRnZQ0KIDExMDcgIFN0cmF0dXMgQ29tcHV0ZXJzDQogCTA1NzYgIFZJQSBWVDgy
-QzU3ME1WIFtBcG9sbG9dIChXcm9uZyB2ZW5kb3IgSUQhKQ0KIDExMDggIFByb3Rlb24sIElu
-Yy4NCmRpZmYgLXVOciBsaW51eC0yLjQuMjAtcmMzLm9yaWcvaW5jbHVkZS9saW51eC9wY2lf
-aWRzLmggbGludXgtMi40LjIwLXJjMy9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaA0KLS0tIGxp
-bnV4LTIuNC4yMC1yYzMub3JpZy9pbmNsdWRlL2xpbnV4L3BjaV9pZHMuaAkyMDAyLTExLTI1
-IDIxOjI4OjIzLjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIuNC4yMC1yYzMvaW5jbHVk
-ZS9saW51eC9wY2lfaWRzLmgJMjAwMi0xMS0yNSAyMzozMjoyNi4wMDAwMDAwMDAgKzAxMDAN
-CkBAIC05ODYsNyArOTg2LDggQEANCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzND
-XzAJMHgzMTA5DQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84MzYxCQkweDMxMTINCiAj
-ZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzNBCQkweDMxNDcNCisjZGVmaW5lIFBDSV9E
-RVZJQ0VfSURfVklBXzgzNzdfMAkweDMxODkNCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklB
-Xzg2QzEwMEEJMHg2MTAwDQogI2RlZmluZSBQQ0lfREVWSUNFX0lEX1ZJQV84MjMxCQkweDgy
-MzENCiAjZGVmaW5lIFBDSV9ERVZJQ0VfSURfVklBXzgyMzFfNAkweDgyMzUNCi0tLSBsaW51
-eC0yLjQuMjAtcmMzL2luY2x1ZGUvbGludXgvYWdwX2JhY2tlbmQuaC5vcmlnCTIwMDItMTEt
-MjYgMTA6MDk6MDkuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi40LjIwLXJjMy9pbmNs
-dWRlL2xpbnV4L2FncF9iYWNrZW5kLmgJMjAwMi0xMS0yNiAxMDowOTo0MC4wMDAwMDAwMDAg
-KzAxMDANCkBAIC02MCw2ICs2MCw3IEBADQogCVZJQV9BUE9MTE9fUFJPLA0KIAlWSUFfQVBP
-TExPX0tYMTMzLA0KIAlWSUFfQVBPTExPX0tUMTMzLA0KKwlWSUFfQVBPTExPX0tUNDAwLA0K
-IAlTSVNfR0VORVJJQywNCiAJQU1EX0dFTkVSSUMsDQogCUFNRF9JUk9OR0FURSw=
+alan@lxorguk.ukuu.org.uk|ChangeSet|20021126021252|43411
 
---_=__=_XaM3_Boundary.1038318104.2A.329634.42.29009.52.42.101010.20248--
+Timer is already initialized few lines above in the code. If you'll look
+through fs/ncpfs/inode.c history, you'll find that I already asked once
+for removing this redundant timer initialization, but unfortunately it
+found its way to the tree again :-(
 
+I prefer having init_timer() and timeout_tm setup separate, as now
+I can safely call del_timer in shutdown without having to test
+whether I'm in UDP or TCP code...
+
+					Thanks,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz
+
+> ChangeSet 1.842.42.99, 2002/11/25 18:12:52-08:00, alan@lxorguk.ukuu.org.uk
+> 
+> 	[PATCH] ncpfs seems to need the timer init
+> 
+> 
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.842.42.98 -> 1.842.42.99
+> #	    fs/ncpfs/inode.c	1.36    -> 1.37   
+> #
+> 
+>  inode.c |    1 +
+>  1 files changed, 1 insertion(+)
+> 
+> 
+> diff -Nru a/fs/ncpfs/inode.c b/fs/ncpfs/inode.c
+> --- a/fs/ncpfs/inode.c	Mon Nov 25 20:11:32 2002
+> +++ b/fs/ncpfs/inode.c	Mon Nov 25 20:11:32 2002
+> @@ -575,6 +575,7 @@
+>  	} else {
+>  		INIT_WORK(&server->rcv.tq, ncpdgram_rcv_proc, server);
+>  		INIT_WORK(&server->timeout_tq, ncpdgram_timeout_proc, server);
+> +		init_timer(&server->timeout_tm);
+>  		server->timeout_tm.data = (unsigned long)server;
+>  		server->timeout_tm.function = ncpdgram_timeout_call;
+>  	}

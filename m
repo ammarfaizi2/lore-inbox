@@ -1,408 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270529AbTGNFdd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 01:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270530AbTGNFdd
+	id S270531AbTGNFex (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 01:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270532AbTGNFew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 01:33:33 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:8612 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S270529AbTGNFdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 01:33:25 -0400
-Subject: Re: [PATCH] /proc/bus/pci* changes
-From: Albert Cahalan <albert@users.sf.net>
-To: Greg KH <greg@kroah.com>
-Cc: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>, akpm@digeo.com,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20030714045304.GB19392@kroah.com>
-References: <1058154708.747.1391.camel@cube>
-	 <20030714045304.GB19392@kroah.com>
-Content-Type: multipart/mixed; boundary="=-/PAB5IuzI483EJcwc6uI"
-Organization: 
-Message-Id: <1058161200.749.1454.camel@cube>
+	Mon, 14 Jul 2003 01:34:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13224 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S270531AbTGNFen (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 01:34:43 -0400
+Date: Mon, 14 Jul 2003 07:49:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Chris Mason <mason@suse.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: RFC on io-stalls patch
+Message-ID: <20030714054918.GD843@suse.de>
+References: <Pine.LNX.4.55L.0307081651390.21817@freak.distro.conectiva> <20030710135747.GT825@suse.de> <1057932804.13313.58.camel@tiny.suse.com> <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com> <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 14 Jul 2003 01:40:01 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030713191921.GI16313@dualathlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-/PAB5IuzI483EJcwc6uI
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Mon, 2003-07-14 at 00:53, Greg KH wrote:
-> On Sun, Jul 13, 2003 at 11:51:48PM -0400, Albert Cahalan wrote:
-> > The existing /proc/bus/pci/*/* files are a
-> > hack involving ioctl and out-of-bounds mmap.
-> > The following patch starts a transition to
-> > something sane while keeping compatibility.
-> > 
-> > Typical user-space drivers for polled devices
-> > should be easy to port to the new interface.
-> > The X server will need some per-arch enhancements
-> > to handle write-combining (non-x86 lack MTRRs)
-> > and the use of multiple VGA-style devices.
-> > 
-> > In the new interface, pci/00/00.0 is a symbolic
-> > link to a ../../pci*/bus0/dev0/fn0/config-space
-> > file, where the '*' is typically 0. (PCI domain)
-> > Simple and direct per-resource mmap() is provided,
-> > via pci0/bus0/dev0/fn0/bar0 and so on.
+On Sun, Jul 13 2003, Andrea Arcangeli wrote:
+> On Sun, Jul 13, 2003 at 11:01:16AM +0200, Jens Axboe wrote:
+> > No I don't have anything specific, it just seems like a bad heuristic to
+> > get rid of. I can try and do some testing tomorrow. I do feel strongly
 > 
-> Why put all of these extra directories in /proc?  We talked about this
-> before...
->
-> What are you trying to "transition to"?  What do you want to see this
-> look like when you are finished?
+> well, it's not an heuristic, it's a simplification and it will certainly
+> won't provide any benefit (besides saving some hundred kbytes of ram per
+> harddisk that is a minor benefit).
 
-The directory structure may well be finished,
-at least until it is time to remove the old
-interfaces. (in a few years I guess)
+You are missing my point - I don't care about loosing the extra request
+list, I never said anything about that in this thread. I care about
+loosing the reserved requests for reads. And we can do that just fine
+with just holding back a handful of requests.
 
-What's missing is the ability to pass cache-control
-info through the mmap() interface. This is useful
-for non-PCI purposes as well. Some thought will be
-required, as there is a set of commonly useful
-settings among all the arch-specific features.
+> > that we should at least make sure to reserve a few requests for reads
+> > exclusively, even if you don't agree with the oversized check. Anything
+> > else really contradicts all the io testing we have done the past years
+> > that shows how important it is to get a read in ASAP. And doing that in
+> 
+> Important for latency or throughput? Do you know which is the benchmarks
+> that returned better results with the two queues, what's the theory
+> behind this?
 
-> And are you prepared to patch all of
-> the userspace programs that currently rely on the existing interface
-> (like XFree86 for one)?
+Forget the two queues, noone has said anything about that. The reserved
+reads are important for latency reasons, not throughput.
 
-The existing interface STILL WORKS. Apps can
-transition over time, in part or in whole.
-("in part" meaning to use the old hacks on
-the new pathname, gaining PCI domain support)
-
-It's important to get the new interface in
-ASAP, so that all the obscure (in-house, etc.)
-user-space drivers can start to transition.
-The X server is less of a worry, because it
-is a very active project.
-
-> Also, I don't think you are handling the pci domain space in your patch,
-> or am I just missing it?
-
-You missed it: third paragraph, first email
-
-Example:
-You have two devices with the same bus
-number (5), device number (4), and function
-number (2). One is in domain 0, and the
-other is in domain 42. You get:
-
-pci0/bus5/dev4/fn2/config-space
-pci42/bus5/dev4/fn2/config-space
-
-Depending on what pci_name_bus does with
-the conflict, you'll get one or two symlinks
-from the old name(s). You'll also get some
-correctly-sized files to represent the
-resources. For example:
-
-pci0/bus5/dev4/fn2/bar0
-pci0/bus5/dev4/fn2/bar1
-pci0/bus5/dev4/fn2/bar2
-pci42/bus5/dev4/fn2/bar0
-
-> And your patch was linewrapped :)
-
-Damn. I thought only the local display was messed up.
-Anybody know how to make Evolution behave?
-Here's an attachment:
-
-
---=-/PAB5IuzI483EJcwc6uI
-Content-Disposition: attachment; filename=pci.diff
-Content-Type: text/x-patch; name=pci.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
-
-diff -Naurd old/drivers/pci/proc.c new/drivers/pci/proc.c
---- old/drivers/pci/proc.c	2003-07-13 23:10:29.000000000 -0400
-+++ new/drivers/pci/proc.c	2003-07-13 23:09:06.000000000 -0400
-@@ -199,6 +199,14 @@
- 	int write_combine;
- };
- 
-+
-+/*
-+ * 2001-05-20 Alexander Viro "BTW, -pre4 got new bunch of ioctls. On procfs, no less."
-+ * 2001-05-20 Linus Torvalds "This particular braindamage is not too late to fix.."
-+ * 2003-06-30 Matthew Wilcox "The current fugly ioctl really has to go."
-+ *
-+ * Damn, this lives in 2.6.xx, but at least a new interface is in place.
-+ */
- static int proc_bus_pci_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
- {
- 	const struct proc_dir_entry *dp = PDE(inode);
-@@ -240,6 +248,7 @@
- }
- 
- #ifdef HAVE_PCI_MMAP
-+/* old interface */
- static int proc_bus_pci_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file->f_dentry->d_inode;
-@@ -379,43 +388,215 @@
- 
- struct proc_dir_entry *proc_bus_pci_dir;
- 
-+
-+#ifdef HAVE_PCI_MMAP
-+
-+struct pci_bar_private {
-+	struct pci_dev *pdev;
-+	int bar;
-+};
-+
-+
-+/* For now, a wrapper. Next fixes: do a proper per-arch version of this, plus mmap flags. */
-+static int pci_bar_mmap_page_range(struct pci_dev *pdev, struct vm_area_struct *vma, int bar)
-+{
-+	enum pci_mmap_state type;  /* which PCI address space, MMIO or IO ports? */
-+	unsigned busaddr;
-+	unsigned npages;
-+	int ret;
-+	
-+	type = pci_resource_flags(pdev,bar) & IORESOURCE_MEM ? pci_mmap_mem : pci_mmap_io;
-+
-+	/* check size limit */
-+	npages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
-+	if(npages + vma->vm_pgoff > pci_resource_len(pdev,bar) >> PAGE_SHIFT)
-+		return -EINVAL;
-+
-+	/* Eeew. Make the old per-arch interface happy. */
-+	/* Too bad  "busaddr = pci_resource_start(pdev,bar)"  only works on i386 */
-+	pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0 + bar * 4, &busaddr);
-+	vma->vm_pgoff += busaddr >> PAGE_SHIFT;
-+
-+	/* vma ought to choose: uncache, write-combine, write-back... */
-+	ret = pci_mmap_page_range(pdev, vma, type, 0);
-+	if (ret<0)
-+		return ret;
-+	return 0;
-+}
-+
-+
-+static int proc_pci_bar_mmap(struct file *file, struct vm_area_struct *vma)
-+{
-+	struct inode *inode = file->f_dentry->d_inode;
-+	const struct proc_dir_entry *dp = PDE(inode);
-+	struct pci_bar_private *private = dp->data;
-+
-+	int ret;
-+
-+	if (!capable(CAP_SYS_RAWIO))
-+		return -EPERM;
-+
-+	ret = pci_bar_mmap_page_range(private->pdev, vma, private->bar);
-+	if (ret < 0)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int proc_pci_bar_open(struct inode *inode, struct file *file)
-+{
-+	return 0;
-+}
-+
-+static int proc_pci_bar_release(struct inode *inode, struct file *file)
-+{
-+	kfree(file->private_data);
-+	file->private_data = NULL;
-+
-+	return 0;
-+}
-+#endif /* HAVE_PCI_MMAP */
-+
-+static struct file_operations proc_pci_bar_operations = {
-+#ifdef HAVE_PCI_MMAP
-+	.open		= proc_pci_bar_open,
-+	.release	= proc_pci_bar_release,
-+	.mmap		= proc_pci_bar_mmap,
-+#ifdef HAVE_ARCH_PCI_GET_UNMAPPED_AREA
-+	.get_unmapped_area = get_pci_unmapped_area,
-+#endif /* HAVE_ARCH_PCI_GET_UNMAPPED_AREA */
-+#endif /* HAVE_PCI_MMAP */
-+};
-+
-+/* TODO: per-arch way to hang a proc_dir_entry off of a pci domain */
-+#ifdef CONFIG_PCI_DOMAINS
-+static struct proc_dir_entry *procdom[0x10000];
-+#else
-+static struct proc_dir_entry *procdom[1];
-+#endif
-+
- int pci_proc_attach_device(struct pci_dev *dev)
- {
- 	struct pci_bus *bus = dev->bus;
- 	struct proc_dir_entry *de, *e;
- 	char name[16];
-+	char target[48];  /* sized for ../../pci65535/bus255/dev31/fn7/config-space */
-+	int i;
- 
- 	if (!proc_initialized)
- 		return -EACCES;
- 
--	if (!(de = bus->procdir)) {
--		if (pci_name_bus(name, bus))
--			return -EEXIST;
--		de = bus->procdir = proc_mkdir(name, proc_bus_pci_dir);
-+	/* Create new-style /proc/bus/pci65535/bus255/dev31/fn7/config-space & friends. */
-+	if (!(de = bus->procbus)) {
-+		if (!( de = procdom[pci_domain_nr(bus)] )) {
-+			sprintf(name, "pci%u", pci_domain_nr(bus));
-+			de = procdom[pci_domain_nr(bus)] = proc_mkdir(name, proc_bus);
-+			if (!de)
-+				return -ENOMEM;
-+		}
-+		sprintf(name, "bus%u", bus->number);
-+		de = bus->procbus = proc_mkdir(name, de);
- 		if (!de)
- 			return -ENOMEM;
- 	}
--	sprintf(name, "%02x.%x", PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--	e = dev->procent = create_proc_entry(name, S_IFREG | S_IRUGO | S_IWUSR, de);
-+
-+	if (!( de = bus->procdevs[PCI_SLOT(dev->devfn)] )) {
-+		sprintf(name, "dev%u", PCI_SLOT(dev->devfn));
-+		de = bus->procdevs[PCI_SLOT(dev->devfn)] = proc_mkdir(name, bus->procbus);
-+		if (!de)
-+			return -ENOMEM;
-+	}
-+
-+	sprintf(name, "fn%u", PCI_FUNC(dev->devfn));
-+	de = dev->procfn = proc_mkdir(name, de);
-+	if (!de)
-+		return -ENOMEM;
-+
-+	e = dev->proccfg = create_proc_entry("config-space", S_IFREG | S_IRUGO | S_IWUSR, de);
- 	if (!e)
- 		return -ENOMEM;
- 	e->proc_fops = &proc_bus_pci_operations;
- 	e->data = dev;
- 	e->size = PCI_CFG_SPACE_SIZE;
- 
-+	/* one entry per resource */
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE && pci_resource_start(dev,i); i++) {
-+		struct pci_bar_private *private;
-+		private = kmalloc(sizeof(*private), GFP_KERNEL);
-+		if (!private)
-+			return -ENOMEM;
-+		private->pdev = dev;
-+		private->bar = i;
-+		sprintf(name, "bar%u", i);
-+		e = dev->procbar[i] = create_proc_entry(name, S_IFREG | S_IRUGO | S_IWUSR, dev->procfn);
-+		if (!e)
-+			return -ENOMEM;
-+		e->proc_fops = &proc_pci_bar_operations;
-+		e->data = private;
-+		e->size = pci_resource_len(dev,i);
-+	}
-+
-+	/* Create old-style /proc/bus/pci/ff/1f.7 entry as a symlink. */
-+	if (!(de = bus->procdir)) {
-+		if (pci_name_bus(name, bus))
-+			return -EEXIST;     /* fail if name taken by some other PCI domain */
-+		de = bus->procdir = proc_mkdir(name, proc_bus_pci_dir);
-+		if (!de)
-+			return -ENOMEM;
-+	}
-+	sprintf(name, "%02x.%x", PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+	sprintf(target, "../../pci%d/bus%d/dev%d/fn%d/config-space", pci_domain_nr(bus), bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+	dev->procent = proc_symlink(name, de, target);
-+	if (!dev->procent)
-+		return -ENOMEM;
-+
- 	return 0;
- }
- 
- int pci_proc_detach_device(struct pci_dev *dev)
- {
- 	struct proc_dir_entry *e;
-+	int i;
- 
-+	/* old-style */
- 	if ((e = dev->procent)) {
- 		if (atomic_read(&e->count))
- 			return -EBUSY;
- 		remove_proc_entry(e->name, dev->bus->procdir);
- 		dev->procent = NULL;
- 	}
-+	/* the config-space file */
-+	if ((e = dev->proccfg)) {
-+		if (atomic_read(&e->count))
-+			return -EBUSY;
-+		remove_proc_entry(e->name, dev->procfn);
-+		dev->proccfg = NULL;
-+	}
-+	/* one entry per resource */
-+	for (i = 0; i < DEVICE_COUNT_RESOURCE && pci_resource_start(dev,i); i++) {
-+		e = dev->procbar[i];
-+		if(!e)
-+			continue;
-+		if(atomic_read(&e->count))
-+			return -EBUSY;
-+		remove_proc_entry(e->name, dev->procfn);
-+		dev->procbar[i] = NULL;
-+	}
-+	/* the per-fn directory */
-+	if ((e = dev->procfn)) {
-+		if (atomic_read(&e->count))
-+			return -EBUSY;
-+		kfree(e->data);
-+		remove_proc_entry(e->name, dev->bus->procdevs[PCI_SLOT(dev->devfn)]);
-+		dev->procfn = NULL;
-+	}
-+	/* the per-dev directory */
-+	if ((e = dev->bus->procdevs[PCI_SLOT(dev->devfn)])) {
-+		if (atomic_read(&e->count))
-+			return -EBUSY;
-+		remove_proc_entry(e->name, dev->bus->procbus);
-+		dev->bus->procdevs[PCI_SLOT(dev->devfn)] = NULL;
-+	}
- 	return 0;
- }
- 
-@@ -441,6 +622,9 @@
- 	struct proc_dir_entry *de = bus->procdir;
- 	if (de)
- 		remove_proc_entry(de->name, proc_bus_pci_dir);
-+	de = bus->procbus;
-+	if (de)
-+		remove_proc_entry(de->name, procdom[pci_domain_nr(bus)]);
- 	return 0;
- }
- 
-diff -Naurd old/include/linux/pci.h new/include/linux/pci.h
---- old/include/linux/pci.h	2003-07-13 23:09:45.000000000 -0400
-+++ new/include/linux/pci.h	2003-07-13 23:09:17.000000000 -0400
-@@ -371,7 +371,10 @@
- 	struct pci_bus	*subordinate;	/* bus this device bridges to */
- 
- 	void		*sysdata;	/* hook for sys-specific extension */
--	struct proc_dir_entry *procent;	/* device entry in /proc/bus/pci */
-+	struct proc_dir_entry *procent;	/* in /proc/bus/pci (old-style) */
-+	struct proc_dir_entry *procfn;	/* in /proc/bus/pci* (new-style) */
-+	struct proc_dir_entry *proccfg;	/* config-space (new-style) */
-+	struct proc_dir_entry *procbar[DEVICE_COUNT_RESOURCE];	/* per-bar entries */
- 
- 	unsigned int	devfn;		/* encoded device & function index */
- 	unsigned short	vendor;
-@@ -454,7 +457,9 @@
- 
- 	struct pci_ops	*ops;		/* configuration access functions */
- 	void		*sysdata;	/* hook for sys-specific extension */
--	struct proc_dir_entry *procdir;	/* directory entry in /proc/bus/pci */
-+	struct proc_dir_entry *procdir;	/* old-style /proc/bus/pci entry */
-+	struct proc_dir_entry *procbus;	/* new-style /proc/bus/pci* entry */
-+	struct proc_dir_entry *procdevs[32];	/* new-style /proc/bus/pci* per-slot */
- 
- 	unsigned char	number;		/* bus number */
- 	unsigned char	primary;	/* number of primary bridge */
-
---=-/PAB5IuzI483EJcwc6uI--
+-- 
+Jens Axboe
 

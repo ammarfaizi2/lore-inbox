@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269206AbRHQASw>; Thu, 16 Aug 2001 20:18:52 -0400
+	id <S269186AbRHQATL>; Thu, 16 Aug 2001 20:19:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269226AbRHQASm>; Thu, 16 Aug 2001 20:18:42 -0400
-Received: from www.ccsi.com ([216.236.168.10]:28866 "EHLO ccsi.com")
-	by vger.kernel.org with ESMTP id <S269186AbRHQAS1>;
-	Thu, 16 Aug 2001 20:18:27 -0400
-Message-Id: <200108170013.f7H0DoO21290@ccsi.com>
-Content-Type: text/plain; charset=US-ASCII
-From: leroyljr <leroyljr@ccsi.com>
-Reply-To: leroyljr@ccsi.com
-To: linux-kernel@vger.kernel.org
-Subject: Failure to Compile AIC7xxx Driver
-Date: Thu, 16 Aug 2001 19:15:38 -0500
-X-Mailer: KMail [version 1.3]
+	id <S269207AbRHQATB>; Thu, 16 Aug 2001 20:19:01 -0400
+Received: from c526559-a.rchdsn1.tx.home.com ([24.11.31.247]:43905 "EHLO
+	ledzep.dyndns.org") by vger.kernel.org with ESMTP
+	id <S269186AbRHQASv>; Thu, 16 Aug 2001 20:18:51 -0400
+Message-ID: <3B7C62F1.71471DFA@home.com>
+Date: Thu, 16 Aug 2001 19:18:57 -0500
+From: Jordan <ledzep37@home.com>
+Organization: University of Texas at Dallas - Student
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.8-ac5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.x-ac? SMP on a Via 82c694X
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If nobody has brought this up yet, I want to report this issue.
+Is anyone else having trouble rebooting/halting their SMP box using the
+ac kernel series since 2.4.6-ac2?  I use a Tyan Tiger 230 and have been
+having that particular problem ans 2.4.6-ac2 was the last kernel that
+could successfully reboot/halt (all others since then hang at "INIT: No
+More Processes At This Run Level").  Also, is anyone out there using an
+Asus CUV4X-DLS, and if so does it work reliably, including the on-board
+audio, ethernet and SCSI?  Thanks for any information.
 
-Here is what happened when I tried to build the aic7xxx driver for 2.4.9:
-
-aicasm/aicasm_scan.l: In function `yylex':
-aicasm/aicasm_scan.l:115: `T_VERSION' undeclared (first use in this function)
-aicasm/aicasm_scan.l:115: (Each undeclared identifier is reported only once
-aicasm/aicasm_scan.l:115: for each function it appears in.)
-aicasm/aicasm_scan.l:132: `T_STRING' undeclared (first use in this function)
-
-This is for the new driver, BTW.
-
-If this has already been brought up, sorry for being redudant.  Send flames 
-and letter bombs to my address.
+Jordan Breeding

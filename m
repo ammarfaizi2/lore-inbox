@@ -1,117 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269778AbRHaX1K>; Fri, 31 Aug 2001 19:27:10 -0400
+	id <S269787AbRHaXgc>; Fri, 31 Aug 2001 19:36:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269756AbRHaX1B>; Fri, 31 Aug 2001 19:27:01 -0400
-Received: from maild.telia.com ([194.22.190.101]:23550 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id <S269752AbRHaX0y>;
-	Fri, 31 Aug 2001 19:26:54 -0400
-Message-Id: <200108312327.f7VNR3Y11857@maild.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Russell King <rmk@arm.linux.org.uk>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Subject: Re: [PATCH] __alloc_pages cleanup -R6 Was: Re: Memory Problem in 2.4.10-pre2 / __alloc_pages failed
-Date: Sat, 1 Sep 2001 01:22:32 +0200
-X-Mailer: KMail [version 1.3]
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20010829140706.3fcb735c.skraw@ithnet.com> <200108302357.BAA11235@mailb.telia.com> <20010831084335.A4222@flint.arm.linux.org.uk>
-In-Reply-To: <20010831084335.A4222@flint.arm.linux.org.uk>
+	id <S269786AbRHaXgX>; Fri, 31 Aug 2001 19:36:23 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:34557 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S269756AbRHaXgP>; Fri, 31 Aug 2001 19:36:15 -0400
+Subject: Re: [RFD] readonly/read-write semantics
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-fsdevel@vger.kernel.org, linux-fsdevel-owner@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
+        Linus Torvalds <torvalds@transmeta.com>
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF8E62B3C8.CD1E8E23-ON87256AB9.007E8B1A@boulder.ibm.com>
+From: "Bryan Henderson" <hbryan@us.ibm.com>
+Date: Fri, 31 Aug 2001 16:35:07 -0700
+X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 08/31/2001 05:35:09 PM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday den 31 August 2001 09:43, Russell King wrote:
-> On Fri, Aug 31, 2001 at 01:53:24AM +0200, Roger Larsson wrote:
-> > Some ideas implemented in this code:
-> > * Reserve memory below min for atomic and recursive allocations.
-> > * When being min..low on free pages, free one more than you want to
-> > allocate. * When being low..high on free pages, free one less than
-> > wanted. * When above high - don't free anything.
-> > * First select zones with more than high free memory.
-> > * Then those with more than high 'free + inactive_clean -
-> > inactive_target' * When freeing - do it properly. Don't steal direct
-> > reclaimed pages
->
-> Hmm, I wonder.
->
-> I have a 1MB DMA zone, and 31MB of normal memory.
->
-> The machine has been running lots of programs for some time, but not under
-> any VM pressure. 
 
-OK, zones have about PAGES_LOW pages free - these are buddied together as
-good as they possibly can. Since direct reclaims put the page on the free
-list first before allocating one.
+1) I want to see files open for write have nothing to do with it.  Unix
+open/close is not a transaction, it's just a connection.  Some applications
+manage to use open/close as a transaction, but we're seeing less and less
+of that as more sophisticated facilities for transactions become available.
 
-> I now come to open a device which requires 64K in 8K
-> pages from the DMA zone.  What happens?
+How many times have we all been frustrated trying to remount read only when
+some log file that hasn't been written to for hours is open for write?
 
-First - is it atomic or not? (device sounds like atomic)
+A file write is in progress when a write() system call hasn't returned, not
+when the file is open for write.
 
-If it is atomic:
-1) you get one chance, no retries in __alloc_pages. [not changed]
-2) you get one from those already free, no reclaims possible [not changed]
-3) you are allowed to allocate below PAGES_MIN [not changed]
-The result will depend on how many pages were free, if there are enough order
-1 buddies.
-With my algorithm it the number of free pages of all zones are very likely to
-be close to PAGES_LOW since it tries to move towards it.
-The original algorithm is harder to analyze, free pages will not grow unless
-one hits PAGES_MIN and then kreclaimd gets started.
+Someone who wants to coordinate his mounts with the applications that use
+them should use an external locking scheme.
 
-As a test I hit Magic-SysRq-M (256 MB RAM):
+2) I'd like to see a readonly mount state defined as "the filesystem will
+not change.  Period."  Not for system calls in progress, not for cache
+synchronization, not to set an "unmounted" flag, not for writes that are
+queued in the device driver or device.  (That last one may stretch
+feasability, but it's a worthy goal anyway).
 
-Free pages:        3836kB (     0kB HighMem) ( Active: 21853, inactive_dirty: 
-19101, inactive_clean: 392, free: 959 (383 766 1149) )
-0*4kB 1*8kB 8*16kB 8*32kB 4*64kB 3*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB
- = 1800kB)
-1*4kB 0*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 0*2048kB
- = 2036kB)
- = 0kB)
+3) A system call to put a mount into readonly state should not return until
+all writes in progress have completed out to the medium, and the cache is
+clean.  It should sync the cache, of course, and do whatever closing of the
+filesystem an unmount would do.  Any attempt to start a new write during
+this wait (which constitutes another mount state) should fail.
 
-And a while later I hit it again:
-( Active: 22300, inactive_dirty: 18742, inactive_clean: 587, free: 947 (383 
-766 1149) )
-3*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB
- = 1028kB)
-80*4kB 39*8kB 3*16kB 3*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 0*2048kB
- = 2760kB)
+I was thinking an option to fail immediately instead of waiting for writes
+to complete might be useful, but then I couldn't think of any write in
+progress that would take enough time to make it worthwhile.  As long as any
+new system call counts as a new write.
 
-For non atomic higher order allocations: There are more changes.
-1) Tries to free the same number of pages that it want to alloc later.
-2) Does not allow allocs when there are less than PAGES_MIN. [BUG in current 
-code, see earlier patch - higher order non atomic allocs could drain the free
-reserve if there are a lot of inactive clean pages...]
-3) Retries only while there is free shortage - this could be changed...
-  until all zones has more than PAGES_HIGH free. Or until there are no
-  inactive clean pages left. But why favor non atomic over atomic in this
-  way?
+The same thinking applies to an option to kill writes in progress without
+waiting.  Unless maybe it means to skip the cache synchronization.
 
->
-> I suspect that the chances of it failing will be significantly higher with
-> this algorithm - do you have any thoughts for this?
->
+4) I don't think it has any semantic relevance, but as part of this, I'd
+also like to see the FS implementation stop considering read only mount
+status to be a file permission issue.  (Today, it does in some places, but
+doesn't in others).
 
-Do you still think the risk is higher?
-Stephans problem seems to be that this alloc runs over and over...
+I don't know enough about how filesystem drivers use the "readonly" state
+today for damage control when errors happen, so I won't give an opinion on
+that.  But it sounds like it would probably be that quiescing state I
+mentioned in (3), not the readonly state I mentioned in (2).
 
-> I don't think we should purely select the allocation zone based purely on
-> how much free it contains, but also if it's special (like the DMA zone).
->
 
-It does prioritize due to the order the zones are checked in.
-
-> You can't clean in-use slab pages out on demand like you can for fs
-> cache/user pages.
-
-/RogerL
-
--- 
-Roger Larsson
-Skellefteå
-Sweden

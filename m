@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282771AbRLLWc4>; Wed, 12 Dec 2001 17:32:56 -0500
+	id <S282838AbRLLWfg>; Wed, 12 Dec 2001 17:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282707AbRLLWcr>; Wed, 12 Dec 2001 17:32:47 -0500
-Received: from ns.censoft.com ([208.219.23.2]:48339 "EHLO ns.censoft.com")
-	by vger.kernel.org with ESMTP id <S282771AbRLLWch>;
-	Wed, 12 Dec 2001 17:32:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jordan Crouse <jordanc@censoft.com>
-Reply-To: jordanc@censoft.com
-Organization: The Microwindows Project
-To: "Herman Oosthuysen" <Herman@WirelessNetworksInc.com>,
-        "Galappatti, Kishantha" <Kishantha.Galappatti@gs.com>,
-        "'lkml'" <linux-kernel@vger.kernel.org>
-Subject: Re: Bluetooth support on Linux
-Date: Wed, 12 Dec 2001 15:28:37 -0700
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <D28C5BE01ECBD41198ED00D0B7E4C9DA08E1AF3A@gsny31e.ny.fw.gs.com> <000701c1835b$5cca29e0$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
-In-Reply-To: <000701c1835b$5cca29e0$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16EHvT-0004D1-00@ns.censoft.com>
+	id <S282817AbRLLWfR>; Wed, 12 Dec 2001 17:35:17 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:2176 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S282838AbRLLWez>;
+	Wed, 12 Dec 2001 17:34:55 -0500
+Date: Wed, 12 Dec 2001 23:34:53 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: tech_info@vmware.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Unable to handle kernel NULL pointer dereference at virtual address 00000004 (VMWARE,2.4.16 and 2.4.17-pre7)
+Message-ID: <20011212233453.A3795@ulima.unil.ch>
+In-Reply-To: <20011210164505.A3770@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011210164505.A3770@ulima.unil.ch>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ut a generic Bluetooth driver isn't something that can
-> easily be included in the Kernel itself, since the modules are still
-> evolving too rapidly.  
+On Mon, Dec 10, 2001 at 04:45:05PM +0100, Gregoire Favre wrote:
+> Hello,
+> 
+> I try to use VMWARE 3.0 under 2.4.16 and had problems, so I try under
+> 2.4.17-pre7, with same results:
+> 
+> ble to handle kernel NULL pointer dereference at virtual address 00000004
+> ...
 
-I disagree.  Between the Bluez and Affix projects, it is just as easy to 
-write a new bluetooth driver as it is to write an new ethernet or sound 
-driver.   I worked on a Bluetooth project recently (using the Bluez stack), 
-and everything was very easy and it worked flawlessly (thanks to Maksim 
-Krasnyanskiy and his team).
-  
-What's missing right now are the user land applications to make the bluetooth 
-more useful.  The Windows world is replete with cute little programs that 
-make sonar noises while they discover, and provide simple user interfaces for 
-printing and whatever little else the Windows box allows.  While our 
-functionality is all there, we have no auto discovery, and no easy way for 
-users to get discovered and connected.
+Shame on me: I compiled my kernel with gcc (which is 3.02) and
+vmware-config.pl take kgcc (if I have well understood) as default, which
+wasn't working that good...
 
-With a little effort in the user's direction, bluetooth could be a very 
-useful thing.  And since Microsoft has chosen not to provide a bluetooth 
-stack of their own (at least not in XP), Linux has the potential to be *the* 
-OS when it comes to Bluetooth.  
+Sorry, now I could try vmware ;-)
 
-Jordan
+Thanks,
 
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

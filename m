@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271058AbUJVKjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271069AbUJVKsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271058AbUJVKjO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 06:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271060AbUJVKjO
+	id S271069AbUJVKsF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 06:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271068AbUJVKsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 06:39:14 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:1547 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271058AbUJVKjL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 06:39:11 -0400
-Date: Fri, 22 Oct 2004 11:39:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-mm1
-Message-ID: <20041022103910.GB17526@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20041022032039.730eb226.akpm@osdl.org>
+	Fri, 22 Oct 2004 06:48:05 -0400
+Received: from holomorphy.com ([207.189.100.168]:50113 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S271069AbUJVKsD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 06:48:03 -0400
+Date: Fri, 22 Oct 2004 03:47:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, raybry@sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Hugepages demand paging V1 [1/4]: demand paging core
+Message-ID: <20041022104734.GL17038@holomorphy.com>
+References: <B05667366EE6204181EABE9C1B1C0EB501F2ADFB@scsmsx401.amr.corp.intel.com> <Pine.LNX.4.58.0410212151310.3524@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0410212155170.3524@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.58.0410212155170.3524@schroedinger.engr.sgi.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   - reiser4: not sure, really.  The namespace extensions were disabled,
->     although all the code for that is still present.  Linus's filesystem
->     criterion used to be "once lots of people are using it, preferably when
->     vendors are shipping it".  That's a bit of a chicken and egg thing though.
->     Needs more discussion.
+On Thu, Oct 21, 2004 at 09:56:27PM -0700, Christoph Lameter wrote:
+> +static void scrub_one_pmd(pmd_t * pmd)
+> +{
+> +	struct page *page;
+> +
+> +	if (pmd && !pmd_none(*pmd) && !pmd_huge(*pmd)) {
+> +		page = pmd_page(*pmd);
+> +		pmd_clear(pmd);
+> +		dec_page_state(nr_page_table_pages);
+> +		page_cache_release(page);
+> +	}
+> +}
 
-Your tree also has various rejected core changes for it still.
+It would be nicer to fix the pagetable leak (over the lifetime of a
+process) in the core instead of sprinkling hugetlb with this.
 
-> +add-simple_alloc_dentry-to-libfs.patch
-> 
->  Code refactoring
 
-I think this should go into fs/dcache.c and be called something
-like d_alloc_name or similar.
-
-> +hfs-export-type-creator-via-xattr.patch
-
-I haven't heard an answer on the comments on this on on -fsdevel yet..
-
-> +make-__sigqueue_alloc-a-general-helper.patch
-> 
->  posix timer code tweaks
-
-Any reason it's marked inline now?
-
+-- wli

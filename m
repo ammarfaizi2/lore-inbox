@@ -1,92 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVDDUun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVDDUyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVDDUun (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDDUc4
+	id S261390AbVDDUyi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVDDUvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:32:56 -0400
-Received: from smtp-vbr2.xs4all.nl ([194.109.24.22]:56327 "EHLO
-	smtp-vbr2.xs4all.nl") by vger.kernel.org with ESMTP id S261386AbVDDUZR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:25:17 -0400
-In-Reply-To: <42511BD8.4060608@osvik.no>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger> <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com> <3821024b00b47598e66f504c51437f72@xs4all.nl> <42511BD8.4060608@osvik.no>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <c3057294a216d19047bdca201fc97e2f@xs4all.nl>
+	Mon, 4 Apr 2005 16:51:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:57059 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261405AbVDDUtt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 16:49:49 -0400
+Message-ID: <4251A830.5030905@osdl.org>
+Date: Mon, 04 Apr 2005 13:48:48 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
+Subject: Re: [PATCH] network configs: disconnect network options from drivers
+References: <20050330234709.1868eee5.randy.dunlap@verizon.net> <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org> <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org> <20050404195051.GA12364@mars.ravnborg.org>
+In-Reply-To: <20050404195051.GA12364@mars.ravnborg.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>, Andreas Schwab <schwab@suse.de>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Grzegorz Kulewski <kangur@polcom.net>,
-       Kenneth Johansson <ken@kenjo.org>
-From: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: Use of C99 int types
-Date: Mon, 4 Apr 2005 22:30:52 +0200
-To: Dag Arne Osvik <da@osvik.no>
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Sam-
 
-On Apr 4, 2005, at 12:50 PM, Dag Arne Osvik wrote:
+Sam Ravnborg wrote:
+> On Sun, Apr 03, 2005 at 08:30:13PM -0700, Randy.Dunlap wrote:
+> 
+>>Any comments on this new version?
+> 
+> The new Networking menu looks unstructured.
+> And the net/Kconfig file contains a lot of config snippets that does not
+> belong there.
+> So I took a stamp on it with focus on:
+> - Move config bits to appropriate places, creating several new Kconfig
+>   files
+Very Good.
 
-> Renate Meijer wrote:
->
->>
->> On Apr 4, 2005, at 12:08 AM, Kyle Moffett wrote:
->>
->>> On Apr 03, 2005, at 16:25, Kenneth Johansson wrote:
->>>
->>>> But is this not exactly what Dag Arne Osvik was trying to do ??
->>>> uint_fast32_t means that we want at least 32 bits but it's OK with
->>>> more if that happens to be faster on this particular architecture.
->>>> The problem was that the C99 standard types are not defined anywhere
->>>> in the kernel headers so they can not be used.
->>>
->>>
->>> Uhh, so what's wrong with "int" or "long"?
->>
->
-> Nothing, as long as they work as required.  And Grzegorz Kulewski 
-> pointed out that unsigned long is required to be at least 32 bits, 
-> fulfilling the present need for a 32-bit or wider type.
+> - Made uses of menus more consistent at least on first and second level
+Very Good again.
 
->> My point exactly, though I agree with Kenneth that adding the C99 
->> types
->> would be a Good Thing.
->
->
-> If it leads to better code, then indeed it would be.
+> - Move submenu to the top
+> - Rename top menu to "Networking" and located it just before
+>  "File systems"
 
-At least a 32 bit integer is guaranteed to stay an 32 bit integer 
-(should one be required)
-though multiple incarnations of the compiler.
+I still prefer Networking to come before Device Drivers FWIW.
+Just makes some kind of hierarchical sense to me.
 
->   However, Al Viro disagrees and strongly hints they would lead to 
-> worse code.
+> The patch became much larger. The win is that the top-level
+> net/Kconfig contains much less cruft.
+> 
+> Many of the 56 lines added are due to the additional files.
+> I did not (on purpose) change any functionality.
+> 
+> Only bit that I am worried about is the statement in SCTP:
+> 	depends on IPV6 || IPV6=n
+> 
+> That looked like a noop to me. It had the sideeffect that SCTP
+> menu entries where idented an extra level which was not desireable
+> with currect layout.
 
-When used improperly. The #define Al Viro objected to, is 
-objectionable. It's highly
-misleading, as Mr. Viro pointed out. I fail to see where he made 
-comments on stdint.h
-as such.
+Yeah, I was having several identation problems.
 
->> And if you don't, you imply some special requirement, which, if none 
->> really exists, is
->> misleading.
->
-> And in this case there is such a requirement.
+> Comments appreciated.
 
-Apart from the integer having 32 bits?
+Nice job overall.  Especially nice to move ATM, bridge, DECNET,
+ECONET, etc., to their own Kconfig files so that they are more
+manageable.
 
->   Anyway, I've already decided to use unsigned long as a replacement 
-> for uint_fast32_t in my implementation.
+I propose that the new file net/atm/Kconfig be sourced somewhere.
 
-Ok. I can live with that.
+I'll look at it more to see if I have any other comments.
 
-Regards,
+> Patch on top of rc2.
+> 
+> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+> ---
+> 
+> 
+> 	Sam
+> 	
+>  drivers/Kconfig               |    5 
+>  drivers/net/Kconfig           |    5 
+>  drivers/net/appletalk/Kconfig |   28 ++
+>  net/8021q/Kconfig             |   21 +
+>  net/Kconfig                   |  541 +++---------------------------------------
+>  net/atm/Kconfig               |   77 +++++
+>  net/bridge/Kconfig            |   32 ++
+>  net/bridge/netfilter/Kconfig  |    1 
+>  net/core/Kconfig              |   67 +++++
+>  net/decnet/Kconfig            |   24 +
+>  net/econet/Kconfig            |   34 ++
+>  net/ipv4/netfilter/Kconfig    |    5 
+>  net/ipv6/Kconfig              |   20 +
+>  net/ipx/Kconfig               |   33 ++
+>  net/lapb/Kconfig              |   24 +
+>  net/packet/Kconfig            |   26 ++
+>  net/sched/Kconfig             |   40 +++
+>  net/sctp/Kconfig              |    5 
+>  net/unix/Kconfig              |   22 +
+>  net/wanrouter/Kconfig         |   31 ++
+>  net/x25/Kconfig               |   35 ++
+>  21 files changed, 567 insertions(+), 509 deletions(-)
 
-Renate Meijer. 
+Thanks!
 
+-- 
+~Randy

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132126AbRC1S24>; Wed, 28 Mar 2001 13:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132128AbRC1S2q>; Wed, 28 Mar 2001 13:28:46 -0500
-Received: from cc78409-a.hnglo1.ov.nl.home.com ([213.51.107.234]:48645 "EHLO dexter.hensema.xs4all.nl") by vger.kernel.org with ESMTP id <S132126AbRC1S2d>; Wed, 28 Mar 2001 13:28:33 -0500
-Date: Wed, 28 Mar 2001 20:22:45 +0200
-From: Erik Hensema <erik@hensema.xs4all.nl>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NTP on 2.4.2?
-Message-ID: <20010328202245.B3304@hensema.xs4all.nl>
-References: <20010323162345.A24604@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132128AbRC1Scq>; Wed, 28 Mar 2001 13:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132137AbRC1Scg>; Wed, 28 Mar 2001 13:32:36 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:44557 "EHLO mailout01.sul.t-online.com") by vger.kernel.org with ESMTP id <S132128AbRC1ScV>; Wed, 28 Mar 2001 13:32:21 -0500
+Message-ID: <3AC22E18.1DD50338@t-online.de>
+Date: Wed, 28 Mar 2001 20:31:52 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linas@linas.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mouse problems in 2.4.2 -> lost byte
+References: <20010327204551.623181B7A5@backlot.linas.org>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <20010323162345.A24604@flint.arm.linux.org.uk>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 23, 2001 at 04:23:45PM +0000, Russell King wrote:
-> I'm having problems getting my 2.4.2 kernel to synchronise properly.  For
-> some reason, NTP is insisting on making time offset adjustments.
-
-It isn't a GMT vs localtime issue, I presume?
+linas@linas.org wrote:
 > 
-> Is anyone else using NTP with 2.4.2, and if so, are you synchronising
-> properly?
+> It's been rumoured that Gunther Mayer said:
+> >
+> > > I am experiencing debilitating intermittent mouse problems & was about
+> > ...
+> > > Symptoms:
+> > > After a long time of flawless operation (ranging from nearly a week to
+> > > as little as five minutes), the X11 pointer flies up to top-right corner,
+> >                                                           ^^^^^^^^^^^^^^^^
+> > > and mostly wants to stay there.  Moving the mouse causes a cascade of
+> > > spurious button-press events get generated.
+> >
+> > This is easily explained: some byte of the mouse protocol was lost.
+> 
+> Bing!
+> 
+> That's it! This would also explain why gpm seems to work i.e. correctly
+> process the events, even when X11 can't.  I will take this up on the
+> Xf86 lists ...
+> 
+> > (Some mouse protocols are even designed to allow
+> >  easy resync/recovery by fixed bit patterns!)
+> 
+> This mouse seems to set every fourth byte to zero, which should allow
+> syncing ...
 
-Yes, working fine for me.
+The fourth byte is propably the wheel or 5 button support, see
+http://www.microsoft.com/hwdev/input/5b_wheel.htm
+to get a hint about mouse protocol variations.
 
-> (I'm using the RH7.0 version of ntp-4.0.99j here)
-
-Suse 6.3, xntp-4.0.98d-0, mostly vanilla kernel 2.4.2
-
--- 
-Erik Hensema (erik@hensema.xs4all.nl)
+Getting resync right is not as easy as detecting zero bytes. You
+should account for wild protocol variations in the world wide mouse
+population, too.

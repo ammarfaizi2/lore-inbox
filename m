@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292643AbSCDSME>; Mon, 4 Mar 2002 13:12:04 -0500
+	id <S292638AbSCDSPO>; Mon, 4 Mar 2002 13:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292639AbSCDSLr>; Mon, 4 Mar 2002 13:11:47 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:27917 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S292635AbSCDSLd>; Mon, 4 Mar 2002 13:11:33 -0500
-Message-Id: <200203041811.g24IBRQ09280@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Chris Mason <mason@suse.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
-In-Reply-To: Message from Chris Mason <mason@suse.com> 
-   of "Mon, 04 Mar 2002 12:48:44 EST." <1225610000.1015264124@tiny> 
-Mime-Version: 1.0
+	id <S292635AbSCDSPE>; Mon, 4 Mar 2002 13:15:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13320 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292638AbSCDSOr>; Mon, 4 Mar 2002 13:14:47 -0500
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+To: jdike@karaya.com (Jeff Dike)
+Date: Mon, 4 Mar 2002 18:29:27 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200203041742.MAA02717@ccure.karaya.com> from "Jeff Dike" at Mar 04, 2002 12:42:43 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 04 Mar 2002 12:11:27 -0600
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16hxDD-00007f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mason@suse.com said:
-> Sorry, what do you mean by multi-threaded back end completion of the
-> transaction?  
+> If UML can detect pages which tmpfs can't back as they leave the allocator,
+> then it can prevent the rest of the UML kernel from getting randomly SIGBUSed
+> as it touches those pages.
 
-It's an old idea from databases with fine grained row level locking.  To alter 
-data in a single row, you reserve space in the rollback log, take the row 
-lock, write the transaction description, write the data, undo the transaction 
-description and release the rollback log space and row lock.  These actions 
-are sequential, but there may be many such transactions going on in the table 
-simultaneously.  The way I've seen a database do this is to set up the actions 
-as linked threads which are run as part of the completion routine of the 
-previous thread.  Thus, you don't need to wait for the update to complete, you 
-just kick off the transaction.   You are prevented from stepping on your own 
-transaction because if you want to alter the same row again you have to wait 
-for the row lock to be released.  The row locks are the "barriers" in this 
-case, but they preserve the concept of transaction independence.  Of course, 
-most DB transactions involve many row locks and you don't even want to get 
-into what the deadlock detection algorithms look like...
+Yes I follow this.  I don't understand how it is related to your intended
+solution.
 
-I always imagined a journalled filesystem worked something like this, since 
-most of the readers/writers will be acting independently there shouldn't be so 
-much deadlock potential.
+> To recap in case it got lost in the confusion, I want __alloc_pages to call
+> an arch hook before it return memory, turning every instance of
 
-James
+alloc_pages is only called at the time the backing page is created - by
+then it doesnt matter - its too late. You'd need to hack up the same code
+areas that are used for mlock MCL_FUTURE not alloc_pages
 
+> Given that we are talking about tmpfs running out of space, the host still
+> has plenty of free memory, and UML kernel stacks can receive the SIGBUS
+> (because they've been allocated with this mechanism), is this still 
+> objectionable?
+
+With the vm no overcommit code the tmpfs cannot run out of space filling
+in pages, only when you make a tmpfs file larger. The code guarantees there
+are swap pages available to back between offset 0 and the file size.  A
+write extending a tmpfs file may fail reporting the disk full.
+
+The code guarantees (modulo bugs of course!) that the total number of
+pages that could be created by touching addresses that have already been
+mapped including accounting for tmpfs on the basis above never exceeds the
+number of pages available.
+
+The bugs at the moment being 
+	1. ptrace isnt accounted for its special weirdnesses
+	2. MAP_NORESERVE isnt forcibly accounted in these modes as required
 

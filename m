@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262684AbRFWUbX>; Sat, 23 Jun 2001 16:31:23 -0400
+	id <S262609AbRFWUYD>; Sat, 23 Jun 2001 16:24:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262715AbRFWUbN>; Sat, 23 Jun 2001 16:31:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:40007 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S262684AbRFWUbC>; Sat, 23 Jun 2001 16:31:02 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: For comment: draft BIOS use document for the kernel
-In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Jun 2001 14:26:32 -0600
-In-Reply-To: <E15DTfd-0003gI-00@the-village.bc.nu>
-Message-ID: <m1u217aqo7.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S262626AbRFWUXw>; Sat, 23 Jun 2001 16:23:52 -0400
+Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:31441 "EHLO
+	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
+	id <S262609AbRFWUXi>; Sat, 23 Jun 2001 16:23:38 -0400
+Message-ID: <3B34FADC.E73ACFC6@ameritech.net>
+Date: Sat, 23 Jun 2001 15:23:56 -0500
+From: watermodem <aquamodem@ameritech.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Jason McMullan <jmcmullan@linuxcare.com>, linux-kernel@vger.kernel.org
+Subject: Re: What are the VM motivations??
+In-Reply-To: <Pine.LNX.4.33L.0106212122190.4442-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Rik van Riel wrote:
+> 
+> On Thu, 21 Jun 2001, Jason McMullan wrote:
+> 
+> >       Or heck, let's just make the VM a _real_ Neural Network,
+> > that self trains itself to the load you put on the system.
+> > Hideously complex and evil?
+> 
+> Considering the amount of parameters the neural network
+> would have to tune, and the fact that there are no easy
+> parameters to tune, good luck...
+> 
 
-> Linux 2.4 BIOS usage reference
+Would never work with the ac-series.  Not enough time
+to form a neural pattern between builds.  There is
+a semi-prior art here.  Unix on the Tandem (now Compaq) 
+Helix shipped (and maybe still does) with a Neural Net
+for system sanity and tuning.  Only problem is that 
+the learning period usually exceeds the average time
+between installing releases (communications customers).  
+8^)
 
-Pretty decent.  It misses a lot of hardware details that we still
-depend on the BIOS to reliably setup for us.
+Now if it was a FAST LEARNER...
 
-I've got code that does all of this so, setup on a couple of
-boards so it should just be a matter of tracking it down and including
-it in the documentation.
 
-If there is interest I'll start tracking it down as soon as I have a
-free minute.
-
-Eric
+> > the floor, eating that stale cheese doodle. It can't do any
+> > worse job on VM that some of the VM patches I've seen...
+> 
+> You'd be surprised.
+> 
+> Rik
+> --
+> Executive summary of a recent Microsoft press release:
+>    "we are concerned about the GNU General Public License (GPL)"
+> 
+>                 http://www.surriel.com/
+> http://www.conectiva.com/       http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

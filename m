@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269885AbUJHB1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269844AbUJHBdC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269885AbUJHB1N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 21:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUJHBXy
+	id S269844AbUJHBdC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 21:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269820AbUJHBdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 21:23:54 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:1998 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269903AbUJGWvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:51:10 -0400
-Date: Thu, 07 Oct 2004 15:51:44 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-cc: kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
-       hannal@us.ibm.com, paulus@samba.org
-Subject: [PATCH 2.6][7/12] pcore.c replace pci_find_device with pci_get_device
-Message-ID: <30730000.1097189504@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 7 Oct 2004 21:33:00 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:28544
+	"HELO home.linuxace.com") by vger.kernel.org with SMTP
+	id S269844AbUJGWGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:06:46 -0400
+Date: Thu, 7 Oct 2004 15:06:40 -0700
+From: Phil Oester <kernel@linuxace.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Process start times moving in reverse on 2.6.8.1
+Message-ID: <20041007220640.GA18303@linuxace.com>
+References: <20041004190054.GA29409@linuxace.com> <20041004163511.5624c52c.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20041004163511.5624c52c.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 04, 2004 at 04:35:11PM -0700, Andrew Morton wrote:
+> Phil Oester <kernel@linuxace.com> wrote:
+> > Notice the two minute difference between now and what the
+> > process start time is.  Uptime on this box is 48 days, so
+> > it is a gradual drift.
+> > 
+> > Any ideas on this?  Or has it been fixed since 2.6.8.1?
+> 
+> It's allegedly fixed by
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/broken-out/fix-process-start-times.patch
+> but I've seen no confirmation of that.
 
-As pci_find_device is going away I've replaced it with pci_get_device and pci_dev_put.
-If someone with a PPC system could test it I would appreciate it.
+After running a patched 2.6.9-rc3-bk7 box for a day vs a freshly
+rebooted 2.6.8.1, I can confirm that process start times seem
+to coincide with current time, while the 2.6.8.1 box is already
+out of sync.
 
-Thanks.
+I'd say this is a keeper, but can track it longer if you prefer.
 
-Hanna Linder
-IBM Linux Technology Center
-
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-
----
-
-diff -Nrup linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/pcore.c linux-2.6.9-rc3-mm2patch2/arch/ppc/platforms/pcore.c
---- linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/pcore.c	2004-09-29 20:03:45.000000000 -0700
-+++ linux-2.6.9-rc3-mm2patch2/arch/ppc/platforms/pcore.c	2004-10-07 15:30:31.839323128 -0700
-@@ -89,7 +89,7 @@ pcore_pcibios_fixup(void)
- {
- 	struct pci_dev *dev;
- 
--	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
-+	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
- 				PCI_DEVICE_ID_WINBOND_83C553,
- 				0)))
- 	{
-@@ -108,6 +108,7 @@ pcore_pcibios_fixup(void)
- 		 */
-  		outb(0x00, PCORE_WINBOND_PRI_EDG_LVL);
- 		outb(0x1e, PCORE_WINBOND_SEC_EDG_LVL);
-+		pci_dev_put(dev);
- 	}
- }
- 
+Phil
 

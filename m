@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279317AbRKXTab>; Sat, 24 Nov 2001 14:30:31 -0500
+	id <S279951AbRKXTjL>; Sat, 24 Nov 2001 14:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279617AbRKXTaL>; Sat, 24 Nov 2001 14:30:11 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:32006 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S279317AbRKXTaC>;
-	Sat, 24 Nov 2001 14:30:02 -0500
-Date: Sat, 24 Nov 2001 17:29:38 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Journaling pointless with today's hard disks?
-In-Reply-To: <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de>
-Message-ID: <Pine.LNX.4.33L.0111241729110.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279617AbRKXTjC>; Sat, 24 Nov 2001 14:39:02 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35866 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S279418AbRKXTit>; Sat, 24 Nov 2001 14:38:49 -0500
+Date: Sat, 24 Nov 2001 20:39:01 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Phil Sorber <aafes@psu.edu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.15aa1
+Message-ID: <20011124203901.Q1419@athlon.random>
+In-Reply-To: <20011124085028.C1419@athlon.random> <1006629351.1470.8.camel@praetorian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <1006629351.1470.8.camel@praetorian>; from aafes@psu.edu on Sat, Nov 24, 2001 at 02:15:50PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Nov 2001, Florian Weimer wrote:
+On Sat, Nov 24, 2001 at 02:15:50PM -0500, Phil Sorber wrote:
+> On Sat, 2001-11-24 at 02:50, Andrea Arcangeli wrote:
+> > Only in 2.4.15aa1: 00_iput-unmount-corruption-fix-1
+> > 
+> > 	Fix iput umount corruption.
+> 
+> Is this the problem that Al put out a patch for yesterday? And is his
+> patch been tested and working?
 
-> They do, even IBM admits that (on
->
->         http://www.cooling-solutions.de/dtla-faq
->
-> you find a quote from IBM confirming this).  IBM says it's okay,
+it's an alternate fix (goes back to the pre8 way).
 
-That quote is priceless. I know I'll be avoiding IBM
-disks from now on ;)
+> 
+> > Only in 2.4.15aa1: 00_read_super-stale-inode-1
+> > 
+> > 	If read_super fails avoid lefting stale inodes queued into
+> > 	the superblock.
+> 
+> What is this? How dangerous is it?
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
+pre8 and all previous kernels could left a stale inode if read_super
+failed after an iget [see the discussion with Al on l-k]. this patch
+should fix it in practice for all fs in the kernel.
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Andrea

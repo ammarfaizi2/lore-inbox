@@ -1,74 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272053AbTG2T5K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 15:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272054AbTG2T5K
+	id S272065AbTG2UHY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 16:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272126AbTG2UHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 15:57:10 -0400
-Received: from maild.telia.com ([194.22.190.101]:18172 "EHLO maild.telia.com")
-	by vger.kernel.org with ESMTP id S272053AbTG2T5F convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 15:57:05 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@norran.net>
-To: "ismail (cartman) donmez" <kde@myrealbox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm1
-Date: Tue, 29 Jul 2003 21:59:16 +0200
-User-Agent: KMail/1.5.9
-References: <20030727233716.56fb68d2.akpm@osdl.org> <200307290833.02848.kde@myrealbox.com>
-In-Reply-To: <200307290833.02848.kde@myrealbox.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>
+	Tue, 29 Jul 2003 16:07:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5000 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S272065AbTG2UHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 16:07:22 -0400
+Date: Tue, 29 Jul 2003 17:02:59 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.22-pre9
+Message-ID: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200307292159.17137.roger.larsson@norran.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 29 July 2003 07.33, ismail (cartman) donmez wrote:
-> Hi,
->
-> Some things I noticed:
->
-> -- snip --
->
-> 2- Con's patch makes KDE's sound daemon skip ( aRts ) when using Juk ( KDE
-> JukeBox ) [ to skip just minimize/maximize any window fast ] . Seems like
-> problem is at aRts decoding as mplayer -ao arts works fine without skips.
->
 
-Is mplayer suid root? (allow SCHED_FIFO/RR usage)
-To get the equivalent function you need artswrapper to be suid root,
-and "Run soundserver with realtime priority" feature enabled in aRTs config.
+Hi,
 
-[Dangerous with multiuser setups - user can add a plug in that loops forever 
-with higher priority than all other processes -> dead system.
-The SCHED_SOFTRR patch would be a very welcome addition.
-a) No need for suid root, artswrapper tries to use SCHED_FIFO
+Here goes -pre9, yet another step in 2.4.22 direction.
 
-   Davide - SCHED_FIFO should also be handled as a SCHED_SOFTRR request!
-   Not only SCHED_RR (SCHED_FIFO is more frequently used!)
+It contains a bunch of Netfilter fixes, set of IEEE1394 fixes, couple of
+knfsd fixes amongst others.
 
-b) Automatic prevention of overuse 
-]
+Expect -pre10 tomorrow.
 
-If this is not the case - my mplayer is not suid root.
-aRTs adds some overhead to allow mixing audio from several applications.
-(even if this is not necessary on some audio boards like SB Live!)
-To get the same kind of overhead you should run mplayer with output through 
-arts...
 
-artsdsp mplayer ...
+Summary of changes from v2.4.22-pre8 to v2.4.22-pre9 v2.422-pre9
+============================================
 
-The final thing to check is KDE Audio Buffer Size (if this is small then it 
-won't matter if mplayer uses a big buffer...)
+<jones:ingate.com>:
+  o [IGMP]: linux/igmp.h needs asm/byteorder.h
 
-/RogerL
+<martin.bene:icomedias.com>:
+  o [NETFILTER]: Add missing include to ip_conntrack_core.h
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+<pp:netppl.fi>:
+  o Avoid annoying "can't emulate rawmode" messages with logitech cordless mice
+
+<vherva:niksula.hut.fi>:
+  o NMI watchdog documentation
+
+Adrian Bunk:
+  o [NETFILTER]: Add missing Configure.help entry for ipt_recent
+  o MTD Configure.help cleanups
+
+Andreas Gruenbacher:
+  o Fix warning in fs/binfmt_elf.c
+
+Ben Collins:
+  o Include param.h for HZ in ieee1394
+  o Interim IEEE-1394 fixes
+
+Harald Welte:
+  o [NETFILTER]: Fix a bug in the IRC DCC command parser of ip_conntrack_irc
+
+Maciej Soltysiak:
+  o [NETFILTER]: Make REJECT target compliant with RFC 1812
+
+Marcelo Tosatti:
+  o Changed EXTRAVERSION to -pre9
+
+Neil Brown:
+  o knfsd - Convert error code to nfserror code in nfsd_symlink
+  o knfsd - BKL is missing in once place in knfsd
+  o md -  Resolve problem with refcounting of md arrays
+
+Olof Johansson:
+  o [RANDOM]: Fix SMP deadlock in __check_and_rekey()
+
+Patrick McHardy:
+  o [NET]: Fix signnedness test in socket filter code
+  o [NETFILTER]: Fix problems with iptables MIRROR target
+  o [NETFILTER]: Fix issues with iptables REJECT and MIRROR targets wrt. policy routing
+  o [NETFILTER]: Fix locking of ipt_helper
+  o [NETFILTER]: Drop reference to conntrack after removing confirmed expectation
+
+Tom Rini:
+  o PPC32: Allow eth0 and eth1 to work on MPC8xx boards with QS6612 PHYs
+  o PPC32: Correctly set intfreq / busfreq on the Motorola 860FADS
+

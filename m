@@ -1,42 +1,28 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314343AbSD0SaY>; Sat, 27 Apr 2002 14:30:24 -0400
+	id <S314351AbSD0ScS>; Sat, 27 Apr 2002 14:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314351AbSD0SaX>; Sat, 27 Apr 2002 14:30:23 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:16275 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S314343AbSD0SaP>;
-	Sat, 27 Apr 2002 14:30:15 -0400
-Date: Sat, 27 Apr 2002 14:30:14 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Christoph Lameter <christoph@lameter.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OFF TOPIC] BK license change
-In-Reply-To: <Pine.LNX.4.44.0204271103290.5887-100000@k2-400.lameter.com>
-Message-ID: <Pine.GSO.4.21.0204271425030.25240-100000@weyl.math.psu.edu>
+	id <S314352AbSD0ScR>; Sat, 27 Apr 2002 14:32:17 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60433 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314351AbSD0ScQ>; Sat, 27 Apr 2002 14:32:16 -0400
+Subject: Re: [PATCH] 2.4.18 - CMI9738 codec support in ac97_codec.c
+To: eclark@ee.tcd.ie
+Date: Sat, 27 Apr 2002 19:50:45 +0100 (BST)
+Cc: ollie@sis.com.tw, linux-kernel@vger.kernel.org
+In-Reply-To: <20020427044051.SM00304@moog.mee.tcd.ie> from "Ed  Clark" at Apr 27, 2002 05:01:55 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E171XHR-0000IF-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+<original deleted - your mailer needs debugging so it wordwraps text/plain
+ as per the RFC's>
 
-
-On Sat, 27 Apr 2002, Christoph Lameter wrote:
-
-> The best thing would be to stop this egg-dance around open sourceness and
-> release BK under GPL. This is wasting too much time. Trying to use a
-
-1001st time, CHOICE OF LICENSE BELONGS AUTHOR OF CODE IN QUESTION, dimwit.
-How many times should that be repeated until it sinks down?
-
-> I do not even know how BK works and I am not interested ...
-> just offended by ppl making access to development kernel source code
-> difficult
-
-... and who the hell would these people be?  I _AM_ interested since
-I'm not using BK and I'm working on aforementioned development kernel
-source.  Care to enlighten me?
-
-Until you've got real arguments (ones that would include some proof
-if the claims you've made) - fuck off and stop polluting l-k with
-your drivel.
-
+I'd rather keep the core AC97 code clean. It would be much nicer to have
+the driver handle this case, since for a partially implemented codec only
+the card driver really knows the right strategy.

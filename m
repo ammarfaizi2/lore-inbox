@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264490AbTFQAjM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 20:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTFQAjM
+	id S264488AbTFQAeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 20:34:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTFQAeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 20:39:12 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:47242 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S264490AbTFQAjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 20:39:03 -0400
-Date: Tue, 17 Jun 2003 01:52:55 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Subject: FRAMEBUFFER (and console)
-Message-Id: <20030617015255.3016cb99.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 16 Jun 2003 20:34:50 -0400
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:24845 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id S264479AbTFQAeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 20:34:14 -0400
+Date: Mon, 16 Jun 2003 19:48:00 -0500
+From: Art Haas <ahaas@airmail.net>
+To: sparclinux@vger.kernel.org, ultralinux@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] C99 initializers for asm-sparc/include/xor.h
+Message-ID: <20030617004800.GD21500@artsapartment.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi.
 
-Is there any way to give the console a kick in the pants?
+These two patches fix the xor.h files to use C99 initializers. The
+patches are against the current BK, and both are untested as I don't
+have access to the hardware.
 
-My framebuffer (and therefore system console, by definition) come up
-rather late.
+Art Haas
 
-It seems the console doesnt care to check for drivers comming up after a
-certain time, and thus I get no output despite the driver working.
-
-I'd like to do something like console_rescan_my_damn_device() if
-possible :-)
-
-My only option right now appears to be to set up a dummy framebuffer
-prior to real one starting up.
-
-TIA.
-
+===== include/asm-sparc/xor.h 1.2 vs edited =====
+--- 1.2/include/asm-sparc/xor.h	Tue Feb  5 01:53:56 2002
++++ edited/include/asm-sparc/xor.h	Mon Jun 16 18:10:35 2003
+@@ -250,11 +250,11 @@
+ }
+ 
+ static struct xor_block_template xor_block_SPARC = {
+-	name: "SPARC",
+-	do_2: sparc_2,
+-	do_3: sparc_3,
+-	do_4: sparc_4,
+-	do_5: sparc_5,
++	.name	= "SPARC",
++	.do_2	= sparc_2,
++	.do_3	= sparc_3,
++	.do_4	= sparc_4,
++	.do_5	= sparc_5,
+ };
+ 
+ /* For grins, also test the generic routines.  */
+===== include/asm-sparc64/xor.h 1.2 vs edited =====
+--- 1.2/include/asm-sparc64/xor.h	Tue Feb  5 01:54:46 2002
++++ edited/include/asm-sparc64/xor.h	Mon Jun 16 18:22:58 2003
+@@ -388,11 +388,11 @@
+ ");
+ 
+ static struct xor_block_template xor_block_VIS = {
+-        name: "VIS",
+-        do_2: xor_vis_2,
+-        do_3: xor_vis_3,
+-        do_4: xor_vis_4,
+-        do_5: xor_vis_5,
++        .name	= "VIS",
++        .do_2	= xor_vis_2,
++        .do_3	= xor_vis_3,
++        .do_4	= xor_vis_4,
++        .do_5	= xor_vis_5,
+ };
+ 
+ #define XOR_TRY_TEMPLATES       xor_speed(&xor_block_VIS)
 -- 
-Spyros lair: http://www.mnementh.co.uk/   ||||   Maintainer: arm26 linux
+Man once surrendering his reason, has no remaining guard against absurdities
+the most monstrous, and like a ship without rudder, is the sport of every wind.
 
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.
+-Thomas Jefferson to James Smith, 1822

@@ -1,42 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281895AbRLLU1r>; Wed, 12 Dec 2001 15:27:47 -0500
+	id <S281932AbRLLUd1>; Wed, 12 Dec 2001 15:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281887AbRLLU1h>; Wed, 12 Dec 2001 15:27:37 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:6530 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S281895AbRLLU1Y>; Wed, 12 Dec 2001 15:27:24 -0500
-Date: Wed, 12 Dec 2001 15:27:19 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: name-server in the kernel
-Message-ID: <Pine.LNX.3.95.1011212151834.29042A-100000@chaos.analogic.com>
+	id <S282081AbRLLUdS>; Wed, 12 Dec 2001 15:33:18 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:47110 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S281932AbRLLUdJ>;
+	Wed, 12 Dec 2001 15:33:09 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Pozsar Balazs <pozsy@sch.bme.hu>
+Date: Wed, 12 Dec 2001 21:32:53 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: FBdev remains in unusable state
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <BCF1AF35606@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12 Dec 01 at 21:14, Pozsar Balazs wrote:
+> > No. vesafb does not work together with mga driver in X (although
+> > I believe that vesafb works with XFree mga driver, only Matrox driver
+> > is binary bad citizen).
+> 
+> I don't clearly understand you. I am using mga driver which is in the
+> official xfrr86 release.
 
-I deleted the name of the one who made the query. Of course
-you could do the M$ way (bad network neighbor). You have the
-routing information from within the kernel. Therefore, you
-can query every possible address on port 53. This will eventually
-get you some machine that pretends to be a name-server for the
-domain.
+In that case even xfree mga driver cannot return hardware back to previous
+state. It is expected and documented.
+ 
+> > Neither. X restore R/W registers to their previous values, while write-only
+> > registers to their values for normal text mode. Yes, there is a
+> > 'workaround'. Use (much faster) matroxfb.
+> 
+> What if setting those W-only registers to their appropiate values on
+> console-switches?
 
-I don't suggest you do this, though.  If you need IP addresses
-or name-to-address translation inside a module or a kernel-driver,
-something is broken in the design, probably an understanding of
-what the kernel is.
+It is hardware dependent and undocumented. matroxfb does it...
 
-Cheers,
-Dick Johnson
+> Why isn't it done by the vesafb driver?
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+vesafb is VBE2.0 based. It does not know how to touch hardware, it uses
+LILO to do all this dirty work.
 
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+> How is the mga fb driver handle handling this situation better?
 
+Because of it actually drives hardware, instead of touching it once before
+boot, and then trusting all citizens that it will work. So it can restore
+any mode it wants, on any head it wants.
+ 
+> ps: My problem is that I have to use exactly the same kernel on different
+> machines, and I need fb. If not all machines have mga, than mga fb is
+> no-go.
+
+I do not understand. If you'll compile both vesafb & matroxfb into kernel,
+and you'll boot with
+
+Linux vga=769 video=matrox:vesa:769 
+
+on computers with Matrox inside you'll have /dev/fb0 accelerated fb,
+and /dev/fb1 VESAFB 'do not use' (maybe vesafb even will not load
+as framebuffer will be already acquired by matroxfb, but I never tested
+it). On computers without Matrox you'll have /dev/fb0 VESAFB and 
+/dev/fb1 will not exist at all.
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
+P.S.: Also try 'Option "UseFBDev"' in /etc/X11/XF86Config-4 driver
+section. I think that with this option X11 mga driver will not stomp 
+on your hardware, and instead it will refuse any videmode != vesafb
+one.
 

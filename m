@@ -1,111 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282823AbRLTJlO>; Thu, 20 Dec 2001 04:41:14 -0500
+	id <S282848AbRLTJlY>; Thu, 20 Dec 2001 04:41:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282702AbRLTJlF>; Thu, 20 Dec 2001 04:41:05 -0500
-Received: from camus.xss.co.at ([194.152.162.19]:16908 "EHLO camus.xss.co.at")
-	by vger.kernel.org with ESMTP id <S282640AbRLTJkq>;
-	Thu, 20 Dec 2001 04:40:46 -0500
-Message-ID: <3C21B21A.DF8110F2@xss.co.at>
-Date: Thu, 20 Dec 2001 10:40:42 +0100
-From: Andreas Haumer <andreas@xss.co.at>
-Organization: xS+S
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-CC: linux-kernel@vger.kernel.org, monika@xss.co.at
-Subject: Re: Deadlock: Linux-2.2.18, sym53c8xx, Compaq ProLiant, HP Ultrium
-In-Reply-To: <20011219191306.Y1668-100000@gerard>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S282702AbRLTJlO>; Thu, 20 Dec 2001 04:41:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11018 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S282688AbRLTJk7>; Thu, 20 Dec 2001 04:40:59 -0500
+Date: Thu, 20 Dec 2001 09:37:10 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: hpa@zytor.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PCI updates - 32-bit IO support
+Message-ID: <20011220093710.C29925@flint.arm.linux.org.uk>
+In-Reply-To: <20011218235024.N13126@flint.arm.linux.org.uk> <9vrmea$mef$1@cesium.transmeta.com> <20011219.213019.35013739.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011219.213019.35013739.davem@redhat.com>; from davem@redhat.com on Wed, Dec 19, 2001 at 09:30:19PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gérard,
+On Wed, Dec 19, 2001 at 09:30:19PM -0800, David S. Miller wrote:
+> Don't the PCI specs actually talk about 24-bits in fact?
+> 
+> Russell does you box really have the full 32-bits or is it
+> really just 24-bits?
 
-thanks for your reply!
+Shrug - the chip documentation isn't good enough to indicate either.
 
-Gérard Roudier wrote:
-> 
-> On Wed, 19 Dec 2001, Andreas Haumer wrote:
-> 
-[...]
-> 
-> > Dec 10 15:00:01 server kernel: st0: Error with sense data: Info
-> > fld=0x8000, Current st09:00: sense key Hardware Error
-> > Dec 10 15:00:01 server kernel: Additional sense indicates Internal
-> > target failure
-> 
-> This one is the result of a REQUEST SENSE performed due probably to a
-> CHECK condition SCSI status reported by the device. It is not a SCSI
-> transport problem. The device just reports an error to the application
-> client. This is not a normal situation but happens very often.
-> 
-Ok.
+What I do know is:
 
-> > [...]
-> >
-> >    After that, the amanda process hangs in state "D" and
-> >    cannot be killed anymore. The machine itself is still
-> >    working.
-> >    This _seems_ to be the indication of an error of the
-> >    HP Ultrium itself, though the drive works quite fine
-> >    otherwise...
-> 
-> The 'D' states indicates that the process is waiting for something without
-> being interruptible. This may be due to it not having been waken up on the
+- setting the bridge and eepro100 up with 16-bit IO addresses causes PCI
+  master aborts.
+- setting the bridge and eepro100 up with 32-bit IO addresses which
+  correspond to the host MMIO region, it works perfectly.
 
-I knew that...
+It appears that the first bridge converts the mmio access into a PCI
+IO read/write cycle without any address translation.  So, when I
+access mmio 0x90011000, it would appear to cause a PCI IO cycle at
+the same address.
 
-> IO error. The sym53c8xx driver did its work by performing the REQUEST
-> SENSE, but something in upper layer seem not to complete the IO.
-> 
-That's what I wasn't sure about...
+The MMIO region for this bus is 0x90010000 - 0x9001ffff, so its impossible
+to test the effect of different upper 16-bits.
 
-[...]
-> 
-> > b) Does the st0 error message indicate it should be replaced?
-> 
-> Probably not. But it is very poor an information about the real issue.
-> 
-I know, but I have the problem to decide how to proceed in this
-situation...
+I suppose I could waste some time by getting Linux to generate lots of IO
+cycles and scoping the PCI bus lines to find the PCI address, but I think
+its rather academic in light of the above.
 
-> > c) Is there a bug in the sym53c8xx driver which makes the
-> >    amanda process hang uninterruptable when this error occurs?
-> 
-> Not known. But possible, even if in my opinion, the driver is not at
-> fault.
-> 
-Ok.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-[...]
-> 
-> There are probably still bugs in the driver, but none are intentionnal,
-> beleive me.
-> 
-I honestly do believe you! :-)
-
-> > The Ultrium hardware error is not reproducable at will. It
-> > just happens every now and then.
-> > Next thing I will try is to use a different SCSI controller
-> > (Adaptec 29160 or the like) to see if the hanging process
-> > occurs with a different SCSI driver, too.
-> 
-> This is indeed something to try.
-> I am very interested in the result.
-> 
-The controller change is scheduled on December 28th.
-We'll then see how it works in the next weeks/months.
-I'll keep you (and LKML) informend...
-
-Thank you.
-
-- andreas
-
--- 
-Andreas Haumer                     | mailto:andreas@xss.co.at
-*x Software + Systeme              | http://www.xss.co.at/
-Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
-A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317051AbSFQV4N>; Mon, 17 Jun 2002 17:56:13 -0400
+	id <S317066AbSFQWIY>; Mon, 17 Jun 2002 18:08:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317056AbSFQV4M>; Mon, 17 Jun 2002 17:56:12 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:15825 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S317051AbSFQV4M>; Mon, 17 Jun 2002 17:56:12 -0400
-Date: Tue, 18 Jun 2002 07:43:02 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Initcall depends
-Message-Id: <20020618074302.1bc72b56.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.44.0206162007160.30474-100000@chaos.physics.uiowa.edu>
-References: <E17JkO6-0000nW-00@wagner.rustcorp.com.au>
-	<Pine.LNX.4.44.0206162007160.30474-100000@chaos.physics.uiowa.edu>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S317059AbSFQWIX>; Mon, 17 Jun 2002 18:08:23 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:46823 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S317058AbSFQWIW>; Mon, 17 Jun 2002 18:08:22 -0400
+Date: Mon, 17 Jun 2002 18:08:18 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: /proc/scsi/map
+Message-ID: <20020617180818.C30391@redhat.com>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>
+References: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl>; from garloff@suse.de on Sat, Jun 15, 2002 at 03:36:06PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jun 2002 20:17:44 -0500 (CDT)
-Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de> wrote:
-> As you're taking the effort of running some code to figure out the right 
-> ordering anyway, have you considered using the the information which is 
-> already there today, for all code which can be compiled modular.
+On Sat, Jun 15, 2002 at 03:36:06PM +0200, Kurt Garloff wrote:
+> Hi SCSI users,
+> 
+> from people using SCSI devices, there's one question that turns up again 
+> and again: How can one assign stable device names to SCSI devices in
+> case there are devices that may or may not be switched on or connected.
 
-Unfortunately, this is rather painful:
 
-	1) File A contains an initcall.
-	2) Find Module A which File A is part of.
-	3) For each exported symbol used by Module A
-		4) Find Module B which exports this symbol.
-		5) Find Files B which make up Module B.
-		6) For each initcall in Files B, insert a dependency.
+> Life would be easier if the scsi subsystem would just report which SCSI
+> device (uniquely identified by the controller,bus,target,unit tuple) belongs
+> to which high-level device. The information is available in the kernel.
 
-Any clues for (2) and (5)?
-Rusty.
+Umm, this patently fails to meet the criteria you posted of "stable device 
+name".  Adding a controller to a system is just as likely to blow this 
+naming scheme to hell as it is to blow the traditional linux /dev/sd? 
+scheme.  IOW, even though the /proc/scsi/map file looks nice and usefull, 
+it fails to solve the very problem you are trying to solve.
+
+
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

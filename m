@@ -1,43 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVCERja@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVCERjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261686AbVCERja (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 12:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVCERja
+	id S261687AbVCERjr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 12:39:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVCERjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 12:39:30 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:31717 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261686AbVCERj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 12:39:27 -0500
-Date: Sat, 05 Mar 2005 12:39:26 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: bk-ieee1394.patch
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503051239.26942.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Sat, 5 Mar 2005 12:39:47 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:46985 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261687AbVCERjk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 12:39:40 -0500
+Message-ID: <4229EEDA.2030307@us.ibm.com>
+Date: Sat, 05 Mar 2005 09:39:38 -0800
+From: Badari Pulavarty <pbadari@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
+References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>	<20050304162331.4a7dfdb8.akpm@osdl.org>	<1109982557.7236.65.camel@dyn318077bld.beaverton.ibm.com>	<20050304164553.29811e8f.akpm@osdl.org>	<1109984528.7236.72.camel@dyn318077bld.beaverton.ibm.com> <20050304171651.013ff333.akpm@osdl.org>
+In-Reply-To: <20050304171651.013ff333.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> 
+>> 	iblock = index << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits);
+> 
+> 
+> It would still be nice to add a comment in here...
+> 
+> 
+>>+	if (test_opt(inode->i_sb, NOBH) && !page_has_buffers(page)) {
+>>+		if (!PageUptodate(page)) {
+>>+			struct buffer_head map_bh;
+>>+			bh = &map_bh;
+>>+			bh->b_state = 0;
+>>+			clear_buffer_mapped(bh);
+>>+			ext3_get_block(inode, iblock, bh, 0);
+>>+			if (!buffer_mapped(bh)) 
+>>+				goto unlock;
+>>+			err = -EIO;
+>>+			set_bh_page(bh, page, 0);
+>>+			bh->b_this_page = 0;
+>>+			bh->b_size = 1 << inode->i_blkbits;
+>>+			ll_rw_block(READ, 1, &bh);
+>>+			wait_on_buffer(bh);
+>>+			if (!buffer_uptodate(bh))
+>>+				goto unlock;
+>>+			SetPageMappedToDisk(page);
+>>+		}
+>>+		kaddr = kmap_atomic(page, KM_USER0);
+>>+		memset(kaddr + offset, 0, length);
+>>+		flush_dcache_page(page);
+>>+		kunmap_atomic(kaddr, KM_USER0);
+>>+		set_page_dirty(page);
+>>+		err = 0;
+>>+		goto unlock;
+>>+	}
+>>+	
+>> 	if (!page_has_buffers(page))
+>> 		create_empty_buffers(page, blocksize, 0);
+> 
+> 
+> Given that we're about to go add buffers to the page, why not do that
+> first, and use the page's own buffer_head rather than cooking up a local
+> one?  Then we can simply use sb_bread().
+> 
+> 
 
-Just a quick note to advise that the above patch works very well 
-indeed in the testing I just did with my Sony DCR-TRV460 movie 
-camera.  I was even able to watch it in live mode, which I wasn't 
-able to do before.  Good patch, please make sure it gets into 2.6.12 
-if not before.
+Only reason for cooking up the local one is not to attach the buffer to
+the page forever. That will end up forcing other routines (like 
+writepage/writepages) go thro "confused" code. I was hoping not to
+attach buffers if they are not really needed.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+But again, doing it the way you suggested will make the code more
+readable.
+
+Thanks,
+Badari

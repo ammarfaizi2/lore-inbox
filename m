@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262801AbREOPsw>; Tue, 15 May 2001 11:48:52 -0400
+	id <S261309AbREOQCw>; Tue, 15 May 2001 12:02:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262799AbREOPsm>; Tue, 15 May 2001 11:48:42 -0400
-Received: from g126.dialup.pcsystems.de ([212.63.44.126]:38648 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S262801AbREOPs1>;
-	Tue, 15 May 2001 11:48:27 -0400
-Message-ID: <3B014FA5.D0BF4111@pcsystems.de>
-Date: Tue, 15 May 2001 17:47:49 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S261405AbREOQCm>; Tue, 15 May 2001 12:02:42 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:54285
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S261309AbREOQC3>; Tue, 15 May 2001 12:02:29 -0400
+Date: Tue, 15 May 2001 12:00:43 -0400
+From: Chris Mason <mason@suse.com>
+To: Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>
+cc: Chris Wedgwood <cw@f00f.org>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+Message-ID: <1087040000.989942443@tiny>
+In-Reply-To: <Pine.GSO.4.21.0105150424310.19333-100000@weyl.math.psu.edu>
+X-Mailer: Mulberry/2.0.8 (Linux/x86)
 MIME-Version: 1.0
-To: mirabilos <eccesys@topmail.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Device Numbers, LILO
-In-Reply-To: <20010515121635.B5C402F84AC@www.topmail.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-mirabilos wrote:
 
-> >That's not the issue.  LILO takes whatever you pass to root= and converts
-> >it to a device number at /sbin/lilo time.  An idiotic practice on the
-> >part of LILO, in my opinion, that ought to have been fixed a long time
-> >ago.
->
-> That's why you have to use append="root=blah" for devfs :)
+On Tuesday, May 15, 2001 04:33:57 AM -0400 Alexander Viro
+<viro@math.psu.edu> wrote:
 
-I don't really think you have to. With 'lba32'
-enabled (maybe also without that ... ) and just using lilo
-normally it works with devfs.
+> 
+> 
+> On Tue, 15 May 2001, Linus Torvalds wrote:
+> 
+>> Looks like there are 19 filesystems that use the buffer cache right now:
+>> 
+>> 	grep -l bread fs/*/*.c | cut -d/ -f2 | sort -u | wc
+>> 
+>> So quite a bit of work involved.
+> 
+> Reiserfs... Dunno. They've got a private (slightly mutated) copy of
+> ~60% of fs/buffer.c. 
 
+But, putting the log and the metadata in the page cache makes memory
+pressure and such cleaner, so this is one of my goals for 2.5.  reiserfs
+will still have alias issues due to the packed tails (one copy in the
+btree, another in the page), but it will be no worse than it is now.
 
-Nico
-
-ps: lilo.conf:
-
-boot=/dev/discs/disc0/disc
-lba32
-...
-image = /boot/244nospeak
-  root = /dev/root
-  label = nospeak
-  append = "LOC=HOME"
-
-
-
-flapp:~/bootdisk # lilo -V
-LILO version 21.6
-
-
+-chris
 

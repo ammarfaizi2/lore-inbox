@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262058AbSIYS7i>; Wed, 25 Sep 2002 14:59:38 -0400
+	id <S262054AbSIYSzU>; Wed, 25 Sep 2002 14:55:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262059AbSIYS7h>; Wed, 25 Sep 2002 14:59:37 -0400
-Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:21635 "EHLO
-	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262058AbSIYS7h>; Wed, 25 Sep 2002 14:59:37 -0400
-Date: Wed, 25 Sep 2002 16:04:15 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Mark Mielke <mark@mark.mielke.cc>
-cc: Mark Veltzer <mark@veltzer.org>, Peter Svensson <petersv@psv.nu>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Offtopic: (was Re: [ANNOUNCE] Native POSIX Thread Library 0.1)
-In-Reply-To: <20020925145727.B14820@mark.mielke.cc>
-Message-ID: <Pine.LNX.4.44L.0209251602170.22735-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262055AbSIYSzU>; Wed, 25 Sep 2002 14:55:20 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:65446 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S262054AbSIYSzS> convert rfc822-to-8bit; Wed, 25 Sep 2002 14:55:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.5.38-mm2 dbench $N times
+Date: Wed, 25 Sep 2002 13:51:58 -0500
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <3D9103EB.FC13A744@digeo.com> <297318451.1032908628@[10.10.2.3]>
+In-Reply-To: <297318451.1032908628@[10.10.2.3]>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209251351.58355.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Sep 2002, Mark Mielke wrote:
+On Wednesday 25 September 2002 1:03 am, Martin J. Bligh wrote:
+> >> Not sure. This is boot bay SCSI crud, but single-disk FC looks
+> >> *worse* for no obvious reason. Multiple disk tests do much better
+> >> (about matching the el-scruffo PC numbers above).
+> >
+> > dbench 16 on that sort of machine is a memory bandwidth test.
+> > And a dcache lock exerciser.  It basically doesn't touch the
+> > disk.  Something very bad is happening.
+>
+> Does dbench have any sort of CPU locality between who read it
+> into pagecache, and who read it out again? If not, you stand
+> 7/8 chance of being on the wrong node, and getting 1/20 of the
+> mem bandwidth ....
 
-> I missed this one. Does this mean that fork() bombs will have limited
-> effect on root? :-)
+Pretty sure each dbench child does it's own write/read to only it's own data.  
+There is no sharing that I am aware of between the processes.   How about 
+running in tmpfs to avoid any disk IO at all?  
 
-Indeed. A user can easily run 100 while(1) {} loops, but to the
-other users in the system it'll feel just like 1 loop...
+Also, what's the policy for home node assignment on fork?  Are all of these 
+children getting the same home node assingnment??
 
-> I definately want this, even on my home machine. I've always found it
-> to be a sort of fatal flaw that per-user resource scheduling did not
-> exist on the platforms of my choice.
-
-It has existed since 2.2.14 or so ;)
-
-I just didn't get around to forward-porting it to newer 2.4
-kernels, until last weekend.
-
-cheers,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Spamtraps of the month:  september@surriel.com trac@trac.org
+-Andrew
 

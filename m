@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVBPOjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVBPOk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262025AbVBPOjn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 09:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVBPOjn
+	id S262027AbVBPOk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 09:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbVBPOk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 09:39:43 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:32111 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262025AbVBPOjl (ORCPT
+	Wed, 16 Feb 2005 09:40:27 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:49627 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262027AbVBPOkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 09:39:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=k+BOgloyBj+S8tWcEx45TTjP2Q+u6sQ/vpy/jxJZLhuBwCfuY3K8dTFeWplUAKPaLr44psb9CV7NhKUjzjTTWdGi8oAcxxD7zyCF0M9bs10x/AEdyQbTsDjdlm821n2Jokpx7YJT9+yX/O7cBlJAprgV1uFApIHUdua0ypFeYa0=
-Message-ID: <28d670ae050216063960cc4ba9@mail.gmail.com>
-Date: Wed, 16 Feb 2005 15:39:40 +0100
-From: Marcin Kuk <marcin.kuk@gmail.com>
-Reply-To: Marcin Kuk <marcin.kuk@gmail.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Toshiba Laptop DMA problem
+	Wed, 16 Feb 2005 09:40:17 -0500
+Date: Wed, 16 Feb 2005 15:41:59 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Romano Giannetti <romanol@upco.es>, Vojtech Pavlik <vojtech@suse.cz>,
+       Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
+Message-ID: <20050216144156.GA4372@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Romano Giannetti <romanol@upco.es>, Vojtech Pavlik <vojtech@suse.cz>,
+	Matthew Garrett <mgarrett@chiark.greenend.org.uk>,
+	linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+References: <20050210161809.GK3493@crusoe.alcove-fr> <E1D0dqo-00041G-00@chiark.greenend.org.uk> <20050214105837.GE3233@crusoe.alcove-fr> <20050214203211.GA8007@ucw.cz> <20050215161412.GC20951@pern.dea.icai.upco.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215161412.GC20951@pern.dea.icai.upco.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, Feb 15, 2005 at 05:14:12PM +0100, Romano Giannetti wrote:
 
-If you will help me to set DMA in my Toshiba Laptop I can care about
-this and I will make patches for other users.
-I know that is frequent problem.
+> On Mon, Feb 14, 2005 at 09:32:11PM +0100, Vojtech Pavlik wrote:
+> >  
+> > Yes, I'd like to see that. The other possible way is have the input
+> > layer generate ACPI events for power-related keys.
+> > 
+> 
+> I beg your pardon, but I have a very strange problem with ACPI event on a
+> Sony laptop. Probably it's completely unraleted, but if you have time to
+> have a look, it is on bugzilla too:
+> 
+> http://bugme.osdl.org/show_bug.cgi?id=4124
 
-If you are interested please reply to me.
+Strange indeed.
 
-Best Regards
+First thing to test is to disable sonypi (either rebuild a kernel
+without it or rename the module so it will not get loaded again),
+then reboot and see if you still have problems.
 
-Marcin Kuk
+If you do, the problem is ACPI/input related.
+
+If you don't, the strangeness comes from some interraction with
+sonypi.
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

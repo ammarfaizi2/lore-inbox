@@ -1,68 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262499AbUEORel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbUEORhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUEORel (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 13:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbUEORek
+	id S262459AbUEORhS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 13:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUEORhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 13:34:40 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:49064 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S262388AbUEOReh (ORCPT
+	Sat, 15 May 2004 13:37:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:8167 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262459AbUEORhR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 13:34:37 -0400
-Date: Sat, 15 May 2004 13:34:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Marc Singer <elf@buici.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][DOC] writing IDE driver guidelines
-Message-ID: <20040515173430.GA28873@havoc.gtf.org>
-References: <200405151923.50343.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405151923.50343.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
+	Sat, 15 May 2004 13:37:17 -0400
+Date: Sat, 15 May 2004 10:37:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olaf Hering <olh@suse.de>
+cc: Greg KH <greg@kroah.com>, Erik Rigtorp <erkki@linux.nu>, akpm@osdl.org,
+       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] [BK PATCH] USB changes for 2.6.6
+In-Reply-To: <20040515113251.GA27011@suse.de>
+Message-ID: <Pine.LNX.4.58.0405151034500.10718@ppc970.osdl.org>
+References: <20040514224516.GA16814@kroah.com> <20040515113251.GA27011@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 15, 2004 at 07:23:50PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> - do not believe in popular myth that driver code
->   can be of less quality than core kernel code
-
-chuckle :)
 
 
-> - don't copy without thinking ugly and bogus code
->   (there is still lot of such in IDE)
+On Sat, 15 May 2004, Olaf Hering wrote:
+>  On Fri, May 14, Greg KH wrote:
+> 
+> >  drivers/usb/misc/cytherm.c           |    9 
+> 
+> current Linus tree does not compile:
 
-Agreed, but I think most driver authors will not know what is ugly
-and bogus code, otherwise they would probably not copy it... (I hope!)
+Replace all "led" with "cytherm". The code was crap, and would never have
+compiled with debugging on anyway. 
 
-
-> - host drivers should request/release IO resource
->   themelves and set hwif->mmio to 2
-
-Don't you mean, hwif->mmio==2 for MMIO hardware?
-
-
-> - ide_init_hwif_ports() is obsolete and dying,
->   define IDE_ARCH_NO_OBSOLETE_INIT in <asm/ide.h>
-
-hmmmm.  Please consider reversing this:
-
-Make ide_init_hwif_ports() present _only_ if IDE_ARCH_OBSOLETE_INIT
-is defined.
-
-Then add that define for all arches that still use ide_init_hwif_ports().
-
-
-> - define ide_default_irq(), ide_init_default_irq()
->   and ide_default_io_base() to (0)
-
-Maybe provide generic definitions, so that new arches don't even
-have to care about this?
-
-	Jeff
-
-
-
+		Linus

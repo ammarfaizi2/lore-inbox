@@ -1,87 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbTHYMRI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 08:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTHYMRI
+	id S261719AbTHYMSu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 08:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbTHYMSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 08:17:08 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:54736 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S261230AbTHYMRC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 08:17:02 -0400
-Message-ID: <052a01c36b02$9de086f0$24ee4ca5@DIAMONDLX60>
-From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Jamie Lokier" <jamie@shareable.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <003701c36972$a980e1d0$78ee4ca5@DIAMONDLX60> <20030825042414.GC20529@mail.jlokier.co.uk>
-Subject: Re: Input issues - key down with no key up
-Date: Mon, 25 Aug 2003 21:15:40 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 25 Aug 2003 08:18:50 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:13829 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261719AbTHYMSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 08:18:49 -0400
+Subject: Re: 2.6.0-pre4 hangs if acpi enabled
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: =?ISO-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       acpi-devel <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <20030825113313.GA10691@lps.ens.fr>
+References: <20030825113313.GA10691@lps.ens.fr>
+Content-Type: text/plain; charset=iso-8859-15
+Message-Id: <1061813912.710.18.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 25 Aug 2003 14:18:33 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jamie Lokier" <jamie@shareable.org> replied to me:
+On Mon, 2003-08-25 at 13:33, Éric Brunet wrote:
+> Hi,
+> 
+> When booting 2.6.0-pre4 on my intel P4 with a shuttle motherboard, the
+> computer hangs after printing
+> 
+> 	hda: max request size: 128KiB
+> 	hda: 234441648 sectors (120034 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
+> 	 hda: hda1 hda2 hda4 < hda5 hda6 hda7 >
+> 	mice: PS/2 mouse device common for all mice
+> 
+> No scroll from the keyboard, no sys-rq, Caps-lock doesn't lit the led on
+> the keyboard. The computer is completely frozen.
 
-> > For Japanese versions of Windows 95 or 98 or NT4, of course the Japanese
-> > keys do produce input.  Of course the Japanese layout driver is
-> > involved.  I don't recall if the lower-level keyboard driver has a name
-> > that distinguishes it from the US-101 driver, but the binaries are
-> > almost certainly different.
+Well, if you are using ACPI, then this is a know behaviour with -test4
+releases. It's ACPI related. Please, take a look at the following bug
+report:
 
-[And for Japanese versions of Windows 2000 and Windows XP, of course the
-Japanese keys do produce input.  Of course the Japanese layout driver is
-involved, but also the lower-level driver is named for the Japanese-106
-keyboard.]
+http://bugzilla.kernel.org/show_bug.cgi?id=1123
 
-> Do you know what the Japanese keys do under Linux?
+During boot, the kernel checks for i8042 AUX/MUX ports, tries
+registering IRQ #12 and then hangs. I fixed the problem on my i845DE
+motherboard by flashing a new BIOS with APIC and IOAPIC support. Then, I
+recompiled 2.6.0-test4 with APIC and IOAPIC support and the hangs went
+away.
 
-I don't recall them doing anything under Linux.  I think I've read some
-people say that the Japanese keys yield spaces for them, which would not be
-too bad because three of those keys are next to the space bar anyway.  But I
-think I get no input at all for them, which also isn't too bad (mostly -- 
-but see below).
+If you can't use/compile APIC and IOAPIC for your motherboard, try
+booting the kernel with "pci=noacpi" as a workaround. This will prevent
+from using ACPI IRQ routing and use standard PCI IRQ routing. Also, if
+you have the time, please, attach your "dmidecode" and "acpidmp" to the
+bug report at the above URL.
 
-Of course the problem which is too bad is getting no input for the keys
-yen-sign or-bar and backslash underscore.
-
-In 2.4, after the USB-to-emulated-PS/2 translation level in the driver was
-finally patched, I think that all of the Japanese keys were finally patched
-to yield the same as the PS/2 translations of the USB keys.  The patch was
-different from the one which I sent which was ignored, for which the
-difference is OK (the effect is the same) but it really bugged me that it
-was ignored for months.  Anyway, after the patch in 2.4, the potential of
-letting the Japanese keys do something in Linux depended only on the
-possibility of acting at the PS/2 layer or above.
-
-In 2.6, I have a feeling that there might be one or two levels of breakage,
-as there has been for the yen-sign or-bar and backslash underscore keys.
-Sorry I neglected to test them two days ago.  But for that matter, the test
-which I reported two days ago seems to have been ignored again.  I can only
-volunteer about one day a week, but some people get paid to do this as their
-job, and I wonder why my report has been ignored.
-
-Now, I think I've read that ATOK can run under Linux.  Monopolysoft's IME is
-based on ATOK's IME so a lot of people are used to it.  There are also other
-IMEs under development for Linux.  For me and at least one other Usenetter
-in Japan, it is a nuisance that Shift+Space turns on the X-11 IME, because
-we often type it when we just want a space (if our thumb is still on the
-Shift key from typing the previous character).  It really would be nice if
-we could configure the hankaku/zenkaku key to turn the IME on or off the way
-ATOK and Monopolysoft do, and then configure Shift+Space to just input a
-Space.  But this would depend on making the Japanese keys do something in
-Linux.  By the way the hankaku/zenkaku key is the one which isn't next to
-the space bar, it's in the position which yields ` and ~ on a US keyboard.
-
-(As for why the hankaku/zenkaku key turns the IME on and off instead of
-switching between hankaku and zenkaku, the reason is yet another compound of
-hacks, but people are used to it now.  Actually Alt+hankaku/zenkaku does
-still also turn the IME on and off as it always did.  Except under Linux of
-course.  I think it's still a no-op under Linux.)
+Thanks!
 

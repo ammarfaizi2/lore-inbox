@@ -1,216 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316217AbSGGRZK>; Sun, 7 Jul 2002 13:25:10 -0400
+	id <S316223AbSGGRiG>; Sun, 7 Jul 2002 13:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316250AbSGGRZJ>; Sun, 7 Jul 2002 13:25:09 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40878 "EHLO
+	id <S316250AbSGGRiF>; Sun, 7 Jul 2002 13:38:05 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:64176 "EHLO
 	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S316217AbSGGRZH>; Sun, 7 Jul 2002 13:25:07 -0400
-Date: Sun, 7 Jul 2002 19:27:18 +0200 (MET DST)
+	id <S316223AbSGGRiE>; Sun, 7 Jul 2002 13:38:04 -0400
+Date: Sun, 7 Jul 2002 19:40:18 +0200 (MET DST)
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: Zwane Mwaikambo <zwane@linuxpower.ca>
 cc: Martin Dalecki <dalecki@evision-ventures.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: ata_special_intr, ide_do_drive_cmd deadlock
 In-Reply-To: <Pine.LNX.4.44.0207071922350.1441-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.SOL.4.30.0207071915310.1945-200000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.SOL.4.30.0207071931240.9224-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1254324197-1026062838=:1945"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----559023410-1254324197-1026062838=:1945
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+While at it, please don't spent too much time on locking.
+I reverted it to what 2.4.x (early 2.5?) kernels do and it should
+work fine, remeber IDE_BUSY bit protects us from reentering
+ide_do_request() (while it is set nothing will pass down this function
+and REQ_STARTED request's flag protects from block layer.
 
+Locking will be slightly changed/fixed but not now, but after fixing many
+much more urgent issues...
+I simply dont want to waste time on fixing locking n times.
 
-On Sun, 7 Jul 2002, Zwane Mwaikambo wrote:
-
-> On Sun, 7 Jul 2002, Zwane Mwaikambo wrote:
->
-> > > If it was IDE 95, or IDE 95 on atapi device it is known, noted in 95's
-> > > changelog and fixed in 96...
-> >
-> > On ATA disk, with 2.5.25 stock and the deadlock is still there (visual
-> > inspection) in IDE 97
->
-> Sorry perhaps let me elaborate, i was doing a dd if=/dev/hdX of=file then
-> the drive dropped down to PIO, thats when i reckon i hit do_recalibrate.
-> This was on 2.5.25.
-
-do_recalibrate is called under lock and it tries to acquire lock, so
-deadlock, you was the first to notice it and you have even added FIXME
-to the code... ;-)
-
-Do you realise that 2.5.25 have IDE 93 and it should be fixed in IDE 96.
-
-BTW: know problem with 96 is broken ide_timer_expiry().
-Attached IDE 98 (or not) prepatch should fix it.
-
+Regards
 --
 Bartlomiej
 
->
-> Thanks,
-> 	Zwane Mwaikambo
->
-> --
-> function.linuxpower.ca
->
->
->
 
----559023410-1254324197-1026062838=:1945
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ide-98-pre.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.4.30.0207071927180.1945@mion.elka.pw.edu.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="ide-98-pre.diff"
-
-ZGlmZiAtdXIgLVgvaG9tZS9kb250ZGlmZiBsaW51eC0yLjUuMjQvZHJpdmVy
-cy9pZGUvYWxpbTE1eDMuYyBsaW51eC9kcml2ZXJzL2lkZS9hbGltMTV4My5j
-DQotLS0gbGludXgtMi41LjI0L2RyaXZlcnMvaWRlL2FsaW0xNXgzLmMJVHVl
-IEp1bCAgMiAyMzo1NDoxNiAyMDAyDQorKysgbGludXgvZHJpdmVycy9pZGUv
-YWxpbTE1eDMuYwlUaHUgSnVsICA0IDE5OjUzOjA2IDIwMDINCkBAIC0zNjIs
-OCArMzYyLDEwIEBADQogDQogc3RhdGljIHZvaWQgX19pbml0IGFsaTE1eDNf
-aW5pdF9kbWEoc3RydWN0IGF0YV9jaGFubmVsICpjaCwgdW5zaWduZWQgbG9u
-ZyBkbWFiYXNlKQ0KIHsNCi0JaWYgKChkbWFiYXNlKSAmJiAobTUyMjlfcmV2
-aXNpb24gPCAweDIwKSkNCisJaWYgKGRtYWJhc2UgJiYgKG01MjI5X3Jldmlz
-aW9uIDwgMHgyMCkpIHsNCisJCWNoLT5hdXRvZG1hID0gMDsNCiAJCXJldHVy
-bjsNCisJfQ0KIA0KIAlhdGFfaW5pdF9kbWEoY2gsIGRtYWJhc2UpOw0KIH0N
-CmRpZmYgLXVyIC1YL2hvbWUvZG9udGRpZmYgbGludXgtMi41LjI0L2RyaXZl
-cnMvaWRlL2lkZS1wY2kuYyBsaW51eC9kcml2ZXJzL2lkZS9pZGUtcGNpLmMN
-Ci0tLSBsaW51eC0yLjUuMjQvZHJpdmVycy9pZGUvaWRlLXBjaS5jCVR1ZSBK
-dWwgIDIgMjM6NTQ6MTYgMjAwMg0KKysrIGxpbnV4L2RyaXZlcnMvaWRlL2lk
-ZS1wY2kuYwlGcmkgSnVsICA1IDAwOjQ3OjI4IDIwMDINCkBAIC0zMTMsMTMg
-KzMxMywxNCBAQA0KIAkgKiBhbHJlYWR5IGVuYWJsZWQgYnkgdGhlIHByaW1h
-cnkgY2hhbm5lbCBydW4uDQogCSAqLw0KIAlwY2lfc2V0X21hc3RlcihkZXYp
-Ow0KKw0KKwlpZiAoYXV0b2RtYSkNCisJCWNoLT5hdXRvZG1hID0gMTsNCisN
-CiAJaWYgKGQtPmluaXRfZG1hKQ0KIAkJZC0+aW5pdF9kbWEoY2gsIGRtYV9i
-YXNlKTsNCiAJZWxzZQ0KIAkJYXRhX2luaXRfZG1hKGNoLCBkbWFfYmFzZSk7
-DQotDQotCWlmIChjaC0+ZG1hX2Jhc2UgJiYgYXV0b2RtYSkNCi0JCWNoLT5h
-dXRvZG1hID0gMTsNCiAjZW5kaWYNCiANCiBub19kbWE6DQpkaWZmIC11ciAt
-WC9ob21lL2RvbnRkaWZmIGxpbnV4LTIuNS4yNC9kcml2ZXJzL2lkZS9pZGUt
-dGFza2ZpbGUuYyBsaW51eC9kcml2ZXJzL2lkZS9pZGUtdGFza2ZpbGUuYw0K
-LS0tIGxpbnV4LTIuNS4yNC9kcml2ZXJzL2lkZS9pZGUtdGFza2ZpbGUuYwlU
-dWUgSnVsICAyIDE3OjM1OjQ3IDIwMDINCisrKyBsaW51eC9kcml2ZXJzL2lk
-ZS9pZGUtdGFza2ZpbGUuYwlGcmkgSnVsICA1IDAxOjMwOjQxIDIwMDINCkBA
-IC0yMjAsNyArMjIwLDcgQEANCiAJZWxzZSBpZiAoIWJsa19xdWV1ZV9lbXB0
-eSgmZHJpdmUtPnF1ZXVlKSkNCiAJCXF1ZXVlX2hlYWQgPSBxdWV1ZV9oZWFk
-LT5wcmV2OwkvKiBpZGVfZW5kIGFuZCBpZGVfd2FpdCAqLw0KIA0KLQlxLT5l
-bGV2YXRvci5lbGV2YXRvcl9hZGRfcmVxX2ZuKHEsIHJxLCBxdWV1ZV9oZWFk
-KTsNCisJX19lbHZfYWRkX3JlcXVlc3QocSwgcnEsIHF1ZXVlX2hlYWQpOw0K
-IA0KIAlkb19pZGVfcmVxdWVzdChxKTsNCiANCmRpZmYgLXVyIC1YL2hvbWUv
-ZG9udGRpZmYgbGludXgtMi41LjI0L2RyaXZlcnMvaWRlL2lkZS5jIGxpbnV4
-L2RyaXZlcnMvaWRlL2lkZS5jDQotLS0gbGludXgtMi41LjI0L2RyaXZlcnMv
-aWRlL2lkZS5jCVR1ZSBKdWwgIDIgMTc6MzY6MjMgMjAwMg0KKysrIGxpbnV4
-L2RyaXZlcnMvaWRlL2lkZS5jCUZyaSBKdWwgIDUgMDE6MjE6MzAgMjAwMg0K
-QEAgLTI3Nyw2ICsyNzcsNyBAQA0KIAkJCWF0YV9zZXRfaGFuZGxlcihkcml2
-ZSwgcmVzZXRfcG9sbGZ1bmMsIEhaLzIwLCBOVUxMKTsNCiAJCQlyZXQgPSBp
-ZGVfc3RhcnRlZDsJLyogY29udGludWUgcG9sbGluZyAqLw0KIAkJfSBlbHNl
-IHsNCisJCQljaC0+cG9sbF90aW1lb3V0ID0gMDsJLyogZG9uZSBwb2xsaW5n
-ICovDQogCQkJcHJpbnRrKCIlczogcmVzZXQgdGltZWQgb3V0LCBzdGF0dXM9
-MHglMDJ4XG4iLCBjaC0+bmFtZSwgZHJpdmUtPnN0YXR1cyk7DQogCQkJKytk
-cml2ZS0+ZmFpbHVyZXM7DQogCQkJcmV0ID0gaWRlX3N0b3BwZWQ7DQpAQCAt
-Mjg0LDYgKzI4NSw3IEBADQogCX0gZWxzZSAgew0KIAkJdTggc3RhdDsNCiAN
-CisJCWNoLT5wb2xsX3RpbWVvdXQgPSAwOwkvKiBkb25lIHBvbGxpbmcgKi8N
-CiAJCXByaW50aygiJXM6IHJlc2V0OiAiLCBjaC0+bmFtZSk7DQogCQlpZiAo
-KHN0YXQgPSBHRVRfRVJSKCkpID09IDEpIHsNCiAJCQlwcmludGsoInN1Y2Nl
-c3NcbiIpOw0KQEAgLTMxNCw3ICszMTYsNiBAQA0KIA0KIAkJcmV0ID0gaWRl
-X3N0b3BwZWQ7DQogCX0NCi0JY2gtPnBvbGxfdGltZW91dCA9IDA7CS8qIGRv
-bmUgcG9sbGluZyAqLw0KIA0KIAlyZXR1cm4gcmV0Ow0KIH0NCkBAIC0zMzcs
-MjUgKzMzOCwxNyBAQA0KIHN0YXRpYyBpZGVfc3RhcnRzdG9wX3QgZG9fcmVz
-ZXQxKHN0cnVjdCBhdGFfZGV2aWNlICpkcml2ZSwgaW50IHRyeV9hdGFwaSkN
-CiB7DQogCXVuc2lnbmVkIGludCB1bml0Ow0KLQl1bnNpZ25lZCBsb25nIGZs
-YWdzOw0KIAlzdHJ1Y3QgYXRhX2NoYW5uZWwgKmNoID0gZHJpdmUtPmNoYW5u
-ZWw7DQogDQotCS8qIEZJWE1FOiAgLS1iem9sbmllciAqLw0KLQlfX3NhdmVf
-ZmxhZ3MoZmxhZ3MpOwkvKiBsb2NhbCBDUFUgb25seSAqLw0KLQlfX2NsaSgp
-OwkJLyogbG9jYWwgQ1BVIG9ubHkgKi8NCi0NCiAJLyogRm9yIGFuIEFUQVBJ
-IGRldmljZSwgZmlyc3QgdHJ5IGFuIEFUQVBJIFNSU1QuICovDQotCWlmICh0
-cnlfYXRhcGkpIHsNCi0JCWlmIChkcml2ZS0+dHlwZSAhPSBBVEFfRElTSykg
-ew0KLQkJCWNoZWNrX2NyY19lcnJvcnMoZHJpdmUpOw0KLQkJCWF0YV9zZWxl
-Y3QoZHJpdmUsIDIwKTsNCi0JCQlPVVRfQllURShXSU5fU1JTVCwgSURFX0NP
-TU1BTkRfUkVHKTsNCi0JCQljaC0+cG9sbF90aW1lb3V0ID0gamlmZmllcyAr
-IFdBSVRfV09SU1RDQVNFOw0KLQkJCWF0YV9zZXRfaGFuZGxlcihkcml2ZSwg
-YXRhcGlfcmVzZXRfcG9sbGZ1bmMsIEhaLzIwLCBOVUxMKTsNCi0JCQlfX3Jl
-c3RvcmVfZmxhZ3MoZmxhZ3MpOwkvKiBsb2NhbCBDUFUgb25seSAqLw0KKwlp
-ZiAodHJ5X2F0YXBpICYmIGRyaXZlLT50eXBlICE9IEFUQV9ESVNLKSB7DQor
-CQljaGVja19jcmNfZXJyb3JzKGRyaXZlKTsNCisJCWF0YV9zZWxlY3QoZHJp
-dmUsIDIwKTsNCisJCU9VVF9CWVRFKFdJTl9TUlNULCBJREVfQ09NTUFORF9S
-RUcpOw0KKwkJY2gtPnBvbGxfdGltZW91dCA9IGppZmZpZXMgKyBXQUlUX1dP
-UlNUQ0FTRTsNCisJCWF0YV9zZXRfaGFuZGxlcihkcml2ZSwgYXRhcGlfcmVz
-ZXRfcG9sbGZ1bmMsIEhaLzIwLCBOVUxMKTsNCiANCi0JCQlyZXR1cm4gaWRl
-X3N0YXJ0ZWQ7DQotCQl9DQorCQlyZXR1cm4gaWRlX3N0YXJ0ZWQ7DQogCX0N
-CiANCiAJLyoNCkBAIC0zNjUsOCArMzU4LDcgQEANCiAJZm9yICh1bml0ID0g
-MDsgdW5pdCA8IE1BWF9EUklWRVM7ICsrdW5pdCkNCiAJCWNoZWNrX2NyY19l
-cnJvcnMoJmNoLT5kcml2ZXNbdW5pdF0pOw0KIA0KLQlfX3Jlc3RvcmVfZmxh
-Z3MoZmxhZ3MpOwkvKiBsb2NhbCBDUFUgb25seSAqLw0KLQ0KKwkvKiBGSVhN
-RTogYW5kIHRoZW4gd2Ugc2hvdWxkIHJlc2V0IGl0ICAtLWJ6b2xuaWVyICov
-DQogCXJldHVybiBpZGVfc3RhcnRlZDsNCiB9DQogDQpAQCAtNTQ3LDYgKzUz
-OSw4IEBADQogCXU4IHN0YXQgPSBkcml2ZS0+c3RhdHVzOw0KIA0KIAllcnIg
-PSBhdGFfZHVtcChkcml2ZSwgcnEsIG1zZyk7DQorDQorCS8qIEZJWE1FOiBh
-dCBsZWFzdCAhZHJpdmUgY2hlY2sgaXMgYm9ndXMgIC0tYnpvbG5pZXIgKi8N
-CiAJaWYgKCFkcml2ZSB8fCAhcnEpDQogCQlyZXR1cm4gaWRlX3N0b3BwZWQ7
-DQogDQpAQCAtNzAzLDcgKzY5Nyw3IEBADQogCQkvKiBUaGlzIGRldmljZSBp
-cyBzbGVlcGluZyBhbmQgd2FpdGluZyB0byBiZSBzZXJ2aWNlZA0KIAkJICog
-bGF0ZXIgdGhhbiBhbnkgb3RoZXIgZGV2aWNlIHdlIGNoZWNrZWQgdGh1cyBm
-YXIuDQogCQkgKi8NCi0JCWlmIChkcml2ZS0+c2xlZXAgJiYgKCFzbGVlcCB8
-fCB0aW1lX2FmdGVyKHNsZWVwLCBkcml2ZS0+c2xlZXApKSkNCisJCWlmIChk
-cml2ZS0+c2xlZXAgJiYgKCFzbGVlcCB8fCB0aW1lX2FmdGVyKGRyaXZlLT5z
-bGVlcCwgc2xlZXApKSkNCiAJCQlzbGVlcCA9IGRyaXZlLT5zbGVlcDsNCiAJ
-fQ0KIA0KQEAgLTcyOSw3ICs3MjMsNyBAQA0KIA0KIAkJLyogVGhlcmUgYXJl
-IG5vIHJlcXVlc3QgcGVuZGluZyBmb3IgdGhpcyBkZXZpY2UuDQogCQkgKi8N
-Ci0JCWlmIChsaXN0X2VtcHR5KCZkcml2ZS0+cXVldWUucXVldWVfaGVhZCkp
-DQorCQlpZiAoYmxrX3F1ZXVlX2VtcHR5KCZkcml2ZS0+cXVldWUpKQ0KIAkJ
-CWNvbnRpbnVlOw0KIA0KIAkJLyogVGhpcyBkZXZpY2Ugc3RpbGwgd2FudHMg
-dG8gcmVtYWluIGlkbGUuDQpAQCAtOTE2LDcgKzkxMCw3IEBADQogCWRlbF90
-aW1lcigmY2gtPnRpbWVyKTsNCiANCiAJaWYgKCFjaC0+ZHJpdmUpIHsNCi0J
-CXByaW50ayhLRVJOX0VSUiAiJXM6IElSUSBoYW5kbGVyIHdhcyBOVUxMXG4i
-LCBfX0ZVTkNUSU9OX18pOw0KKwkJcHJpbnRrKEtFUk5fRVJSICIlczogY2hh
-bm5lbC0+ZHJpdmUgd2FzIE5VTExcbiIsIF9fRlVOQ1RJT05fXyk7DQogCQlj
-aC0+aGFuZGxlciA9IE5VTEw7DQogCX0gZWxzZSBpZiAoIWNoLT5oYW5kbGVy
-KSB7DQogDQpAQCAtOTM2LDcgKzkzMCw3IEBADQogDQogCQkvKiBwYXJhbm9p
-YSAqLw0KIAkJaWYgKCF0ZXN0X2FuZF9zZXRfYml0KElERV9CVVNZLCBjaC0+
-YWN0aXZlKSkNCi0JCQlwcmludGsoS0VSTl9FUlIgIiVzOiAlczogSVJRIGhh
-bmRsZXIgd2FzIG5vdCBidXN5PyFcbiIsDQorCQkJcHJpbnRrKEtFUk5fRVJS
-ICIlczogJXM6IGNoYW5uZWwgd2FzIG5vdCBidXN5PyFcbiIsDQogCQkJCQlk
-cml2ZS0+bmFtZSwgX19GVU5DVElPTl9fKTsNCiANCiAJCWlmIChjaC0+ZXhw
-aXJ5KSB7DQpAQCAtOTY2LDEyICs5NjAsMTMgQEANCiAJCWhhbmRsZXIgPSBj
-aC0+aGFuZGxlcjsNCiAJCWNoLT5oYW5kbGVyID0gTlVMTDsNCiANCi0JCWNo
-ID0gZHJpdmUtPmNoYW5uZWw7DQorCQlzcGluX3VubG9jayhjaC0+bG9jayk7
-DQogI2lmIERJU0FCTEVfSVJRX05PU1lOQw0KIAkJZGlzYWJsZV9pcnFfbm9z
-eW5jKGNoLT5pcnEpOw0KICNlbHNlDQogCQlkaXNhYmxlX2lycShjaC0+aXJx
-KTsJLyogZGlzYWJsZV9pcnFfbm9zeW5jID8/ICovDQogI2VuZGlmDQorCQkv
-KiBGSVhNRTogSVJRcyBhcmUgYWxyZWFkeSBkaXNhYmxlZCBieSBzcGluX2xv
-Y2tfaXJxc2F2ZSgpICAtLWJ6b2xuaWVyICovDQogCQlfX2NsaSgpOwkvKiBs
-b2NhbCBDUFUgb25seSwgYXMgaWYgd2Ugd2VyZSBoYW5kbGluZyBhbiBpbnRl
-cnJ1cHQgKi8NCiAJCWlmIChjaC0+cG9sbF90aW1lb3V0KSB7DQogCQkJcmV0
-ID0gaGFuZGxlcihkcml2ZSwgZHJpdmUtPnJxKTsNCkBAIC0xMDIwLDYgKzEw
-MTUsNyBAQA0KIAkJCXJldCA9IGF0YV9lcnJvcihkcml2ZSwgZHJpdmUtPnJx
-LCAiaXJxIHRpbWVvdXQiKTsNCiANCiAJCWVuYWJsZV9pcnEoY2gtPmlycSk7
-DQorCQlzcGluX2xvY2tfaXJxKGNoLT5sb2NrKTsNCiANCiAJCWlmIChyZXQg
-PT0gaWRlX3N0b3BwZWQpDQogCQkJY2xlYXJfYml0KElERV9CVVNZLCBjaC0+
-YWN0aXZlKTsNCmRpZmYgLXVyIC1YL2hvbWUvZG9udGRpZmYgbGludXgtMi41
-LjI0L2RyaXZlcnMvaWRlL3BkYzIwMnh4LmMgbGludXgvZHJpdmVycy9pZGUv
-cGRjMjAyeHguYw0KLS0tIGxpbnV4LTIuNS4yNC9kcml2ZXJzL2lkZS9wZGMy
-MDJ4eC5jCVR1ZSBKdWwgIDIgMjM6NTQ6MTYgMjAwMg0KKysrIGxpbnV4L2Ry
-aXZlcnMvaWRlL3BkYzIwMnh4LmMJRnJpIEp1bCAgNSAwMDo1MTowMiAyMDAy
-DQpAQCAtMTY1LDkgKzE2NSw2IEBADQogCXU4IERQOw0KICNlbmRpZg0KIA0K
-LQlpZiAoZHJpdmUtPmRuID4gMykgLyogRklYTUU6IHJlbW92ZSB0aGlzIC0t
-Ymt6ICovDQotCQlyZXR1cm4gLTE7DQotDQogCWRyaXZlX3BjaSA9IDB4NjAg
-KyAoZHJpdmUtPmRuIDw8IDIpOw0KIA0KIAlpZiAoKGRyaXZlLT50eXBlICE9
-IEFUQV9ESVNLKSAmJiAoc3BlZWQgPCBYRkVSX1NXX0RNQV8wKSkNCmRpZmYg
-LXVyIC1YL2hvbWUvZG9udGRpZmYgbGludXgtMi41LjI0L2RyaXZlcnMvaWRl
-L3NpczU1MTMuYyBsaW51eC9kcml2ZXJzL2lkZS9zaXM1NTEzLmMNCi0tLSBs
-aW51eC0yLjUuMjQvZHJpdmVycy9pZGUvc2lzNTUxMy5jCVR1ZSBKdWwgIDIg
-MjM6NTQ6MTYgMjAwMg0KKysrIGxpbnV4L2RyaXZlcnMvaWRlL3NpczU1MTMu
-YwlGcmkgSnVsICA1IDAwOjUwOjMwIDIwMDINCkBAIC0yNzMsOSArMjczLDYg
-QEANCiAJICAgICAgIGRyaXZlLT5kbiwgcGlvLCB0aW1pbmcpOw0KICNlbmRp
-Zg0KIA0KLQlpZiAoZHJpdmUtPmRuID4gMykJLyogRklYTUU6IHJlbW92ZSB0
-aGlzICAtLWJreiAqLw0KLQkJcmV0dXJuIDE7DQotDQogCWRyaXZlX3BjaSA9
-IDB4NDAgKyAoZHJpdmUtPmRuIDw8IDEpOw0KIA0KIAkvKiByZWdpc3RlciBs
-YXlvdXQgY2hhbmdlZCB3aXRoIG5ld2VyIEFUQTEwMCBjaGlwcyAqLw0K
----559023410-1254324197-1026062838=:1945--

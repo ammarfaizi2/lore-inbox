@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263879AbUDFPtu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 11:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbUDFPtt
+	id S263877AbUDFPuf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 11:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263871AbUDFPt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 11:49:49 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:2572 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S263876AbUDFPsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 11:48:38 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Thomas Bach <blox@tiscali.de>
-Newsgroups: linux.kernel
-Subject: Re: Workaround for ReiserFS on root-filesystem
-Date: Mon, 05 Apr 2004 22:28:05 +0200
-Organization: Tiscali Germany
-Message-ID: <c4ujgl$28qq$1@ulysses.news.tiscali.de>
-References: <1I0Gz-63o-3@gated-at.bofh.it> <1I0Gz-63o-5@gated-at.bofh.it> <1I0Gz-63o-1@gated-at.bofh.it> <1I0Qg-6b0-5@gated-at.bofh.it>
-NNTP-Posting-Host: p213.54.49.246.tisdip.tiscali.de
+	Tue, 6 Apr 2004 11:49:59 -0400
+Received: from bay2-f23.bay2.hotmail.com ([65.54.247.23]:265 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id S263877AbUDFPtj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 11:49:39 -0400
+X-Originating-IP: [209.172.74.2]
+X-Originating-Email: [idht4n@hotmail.com]
+From: "David L" <idht4n@hotmail.com>
+To: dwmw2@infradead.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mtd - No flash chips recognised.
+Date: Tue, 06 Apr 2004 08:49:35 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: ulysses.news.tiscali.de 1081266517 74586 213.54.49.246 (6 Apr 2004 15:48:37 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Tue, 6 Apr 2004 15:48:37 +0000 (UTC)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040317
-X-Accept-Language: de-de, de, en
-In-Reply-To: <1I0Qg-6b0-5@gated-at.bofh.it>
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY2-F23KWQTHL2bti200002529@hotmail.com>
+X-OriginalArrivalTime: 06 Apr 2004 15:49:36.0195 (UTC) FILETIME=[C30F6930:01C41BEE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz wrote:
-> On Mon, Apr 05, 2004 at 09:57:48PM +0200, Thomas Bach wrote:
-> 
->>Daniel Andersen wrote:
->>
->>>>I use ReiserFS for my root-filesystem while trying to upgrade to a newer
->>>>kernel-version (still using 2.4.20) I got a error, that / could not be
->>>>remounted read/write. After googling a bit I stumbled over the fact that
->>>>ReiserFS as root-filesystem doesn't work since version 2.4.22 (or
->>>>something like this).
- >
->  It works for me here:
-> 
-> /dev/ide/host0/bus0/target0/lun0/part4 on / type reiserfs (rw,sync)
-> 
-> Linux mother 2.6.5 #10 Sun Apr 4 08:59:08 CEST 2004 i686 unknown unknown GNU/Linux
-> 
-> It always worked - with 2.4.x, 2.5.x, 2.6.x up to 2.6.5.
+>On Fri, 2004-04-02 at 08:39 -0800, David L wrote:
+> > I'm trying to use 2.6.4 with a Mobile DiskOnChip.  I get the message
+> > "No flash chips recognised".  It looks like the DoC_IdentChip function
+> > in doc2001.c is finding a nand_flash_id of 0xa5, which isn't one of the
+> > ids listed in nand_ids.c.
+>
+>Er, then it should surely be saying 'No recognised DiskOnChip found' or
+>something to that effect?
 
-OK! I am a bit confused. Could you perhaps pass me your /etc/fstab and 
-grub.conf/lilo.conf entrys?
+Here's what it says:
 
-Thanks,
-Thomas Bach (hopefull that he hasn't to reinstall all this stuff here)
+INFTL: inftlcore.c $Revision: 1.14 $, inftlmount.c $Revision: 1.11 $
+DiskOnChip Millennium Plus found at address 0xC8000
+No flash chips recognised.
+Possible DiskOnChip with unknown ChipID FF found at 0xca000
+Possible DiskOnChip with unknown ChipID 33 found at 0xcc000
+Possible DiskOnChip with unknown ChipID 76 found at 0xce000
+Possible DiskOnChip with unknown ChipID 00 found at 0xd0000
+Possible DiskOnChip with unknown ChipID 00 found at 0xd2000
+Possible DiskOnChip with unknown ChipID FF found at 0xd4000
+Possible DiskOnChip with unknown ChipID FF found at 0xd6000
+Possible DiskOnChip with unknown ChipID FF found at 0xd8000
+Possible DiskOnChip with unknown ChipID FF found at 0xda000
+Possible DiskOnChip with unknown ChipID 00 found at 0xdc000
+Possible DiskOnChip with unknown ChipID 00 found at 0xde000
+Possible DiskOnChip with unknown ChipID FF found at 0xe0000
+Possible DiskOnChip with unknown ChipID FF found at 0xe2000
+Possible DiskOnChip with unknown ChipID FF found at 0xe4000
+DiskOnChip failed TOGGLE test, dropping.
+Possible DiskOnChip with unknown ChipID 00 found at 0xe8000
+Possible DiskOnChip with unknown ChipID 0F found at 0xea000
+Possible DiskOnChip with unknown ChipID 74 found at 0xec000
+Possible DiskOnChip with unknown ChipID 00 found at 0xee000
+
+_________________________________________________________________
+Free up your inbox with MSN Hotmail Extra Storage! Multiple plans available. 
+http://join.msn.com/?pgmarket=en-us&page=hotmail/es2&ST=1/go/onm00200362ave/direct/01/
 

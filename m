@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133018AbREAMQT>; Tue, 1 May 2001 08:16:19 -0400
+	id <S135318AbREAMlr>; Tue, 1 May 2001 08:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133120AbREAMQJ>; Tue, 1 May 2001 08:16:09 -0400
-Received: from cs.columbia.edu ([128.59.16.20]:679 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S133018AbREAMQA>;
-	Tue, 1 May 2001 08:16:00 -0400
-Date: Tue, 1 May 2001 05:15:57 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.19 locks up on SMP
-In-Reply-To: <15086.42872.321353.67228@charged.uio.no>
-Message-ID: <Pine.LNX.4.33.0105010514340.14530-100000@age.cs.columbia.edu>
+	id <S135339AbREAMlh>; Tue, 1 May 2001 08:41:37 -0400
+Received: from web5202.mail.yahoo.com ([216.115.106.170]:13070 "HELO
+	web5202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135318AbREAMl0>; Tue, 1 May 2001 08:41:26 -0400
+Message-ID: <20010501124124.1532.qmail@web5202.mail.yahoo.com>
+Date: Tue, 1 May 2001 05:41:24 -0700 (PDT)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: New rtl8139 driver prevents ssh from exiting.
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 May 2001, Trond Myklebust wrote:
+The kernel thread the new rtl8139 driver spawns
+apparently wants to write to stdout, because it counts
+as an unfinished process that prevents an ssh session
+from exiting.
 
-> Did you apply the following patch which I put out on the lists a
-> couple of weeks ago?
+I have a script that remotely reconfigures subnets in
+a vpn, which gets run via an ssh in through eth0 and
+does, among other things:
 
-No, I was testing with 2.2.19 and then I started going back into the 
-2.2.19pre series until I found the culprit.
+ifconfig eth1 down
+ifconfig eth1 up
 
-I'll give your patch a spin tomorrow, after I catch some zzz's. :-)
+Hence kicking off the thread.  I have to run "killall
+eth1" at the end of the script to make ssh exit. 
+(This doesn't seem to have any negative impact on
+eth1's functioning.)
 
-Thanks,
-Ion
+Anybody feel like shedding light on this?
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Rob
 
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

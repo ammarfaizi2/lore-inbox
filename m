@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276647AbRJUTjI>; Sun, 21 Oct 2001 15:39:08 -0400
+	id <S276665AbRJUTtU>; Sun, 21 Oct 2001 15:49:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276651AbRJUTis>; Sun, 21 Oct 2001 15:38:48 -0400
-Received: from shake.vivendi.hu ([213.163.0.180]:18306 "EHLO
-	vega.digitel2002.hu") by vger.kernel.org with ESMTP
-	id <S276647AbRJUTij>; Sun, 21 Oct 2001 15:38:39 -0400
-Date: Sun, 21 Oct 2001 21:39:06 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: Federico Sevilla III <jijo@leathercollection.ph>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2 vs. ext3?
-Message-ID: <20011021213906.B19390@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBEEKODPAA.znmeb@aracnet.com> <Pine.LNX.4.40.0110220306280.21933-100000@gusi.leathercollection.ph>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0110220306280.21933-100000@gusi.leathercollection.ph>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: vega Linux 2.4.12 i686
+	id <S276661AbRJUTtL>; Sun, 21 Oct 2001 15:49:11 -0400
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:11678 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S276659AbRJUTs4>;
+	Sun, 21 Oct 2001 15:48:56 -0400
+Message-ID: <3BD326C6.FB226EA9@pobox.com>
+Date: Sun, 21 Oct 2001 12:49:26 -0700
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bernd Eckenfels <ecki@lina.inka.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+In-Reply-To: <E15vO29-0008ED-00@calista.inka.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 03:13:38AM +0800, Federico Sevilla III wrote:
-> Basically ext3 builds on ext2 to add journalling support, which means
-> significantly less (almost nil) fsck time in the eventuality of an unclean
-> powerdown.
+Bernd Eckenfels wrote:
 
-By the way ... And what's about index usage in ext2(ext3) directories?
-Some months ago there was a benchmark sheet publicated in this list and
-it shown major performance win on handling large directories. Is it considered
-to include into ext2/ext3 implementation in Linus or Alan Cox series of kernels?
-Or probably did I miss something?
- 
-> For now XFS and JFS provide patches to allow you to get working kernel
-> support for them. I personally use XFS and have found that it is very
-> stable, as have a lot of other fellow XFS users. I'm not saying it's the
-> absolute best. But I'm saying it's great, and is fairly stable. :)
+> Well, it is not a question of moving X or Office into Kernel Space. But
+> current development clearly shows, that some things like Video Card Access
+> need Kernel Support. IMHO the Amount of GDI related Functions in NT Kernel
+> are too much, but X11 is not exactly the Windowing System you can consider
+> well suited for Desktop and Game Use.
 
-Yes, our country-wide proxy server is XFS/Linux based.
+That strikes me as odd, can you explain further?
 
-- Gabor
+I have had a wonderful experience with XF86
+as a daily work environment and entertainment
+platform (multimedia, 3d intetrnet gaming etc).
+
+cu
+
+jjs
+

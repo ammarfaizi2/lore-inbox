@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279472AbRKKOdc>; Sun, 11 Nov 2001 09:33:32 -0500
+	id <S279462AbRKKOdX>; Sun, 11 Nov 2001 09:33:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281063AbRKKOdX>; Sun, 11 Nov 2001 09:33:23 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:44730 "EHLO
+	id <S281063AbRKKOdM>; Sun, 11 Nov 2001 09:33:12 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:18618 "EHLO
 	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S279472AbRKKOdK>; Sun, 11 Nov 2001 09:33:10 -0500
-Date: 11 Nov 2001 12:06:00 +0200
+	id <S279462AbRKKOc7>; Sun, 11 Nov 2001 09:32:59 -0500
+Date: 11 Nov 2001 12:27:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8Ce2D-PXw-B@khms.westfalen.de>
-In-Reply-To: <20011104211118.U14001@unthought.net>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <8Ce2E6lmw-B@khms.westfalen.de>
+In-Reply-To: <Pine.GSO.4.33.0111071409530.17287-100000@sweetums.bluetronic.net>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
 X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.GSO.4.21.0111041502390.21449-100000@weyl.math.psu.edu> <viro@math.psu.edu> <20011104205248.Q14001@unthought.net> <Pine.GSO.4.21.0111041502390.21449-100000@weyl.math.psu.edu> <20011104211118.U14001@unthought.net>
+In-Reply-To: <Pine.LNX.4.30.0111071212430.9535-100000@gib.soccerchix.org> <Pine.GSO.4.33.0111071409530.17287-100000@sweetums.bluetronic.net>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jakob@unthought.net (Jakob ¥stergaard)  wrote on 04.11.01 in <20011104211118.U14001@unthought.net>:
-[quoteto.xps]
-> On Sun, Nov 04, 2001 at 03:06:27PM -0500, Alexander Viro wrote:
-> >
-> >
-> > On Sun, 4 Nov 2001, [iso-8859-1] Jakob %stergaard wrote:
-> >
-> > > So just ignore square brackets that have "=" " " and ">" between them ?
-> > >
-> > > What happens when someone decides  "[---->   ]" looks cooler ?
-> >
-> > First of all, whoever had chosen that output did a fairly idiotic thing.
-> > But as for your question - you _do_ know what regular expressions are,
-> > don't you?  And you do know how to do this particular regex without
-> > any use of library functions, right?
->
-> A regex won't tell me if  345987 is a signed or unsigned 32-bit or 64-bit
-> integer,  or if it's a double.
+jfbeam@bluetopia.net (Ricky Beam)  wrote on 07.11.01 in <Pine.GSO.4.33.0111071409530.17287-100000@sweetums.bluetronic.net>:
 
-You do not *need* that information at runtime. If you think you do, you're  
-doing something badly wrong.
+> As for code maint. and kernel changes breaking things... both happen already
+> with the text based system.  Binary structures can be constructed to be
+> extensible without breaking old tools.  Plus, the information exported from
+> the kernel (in the case of processes) need not change with every version
+> of the kernel.
 
-I cannot even imagine what program would want that information.
+And the exact same thing can be done with ASCII, too - only easier.
 
-> Sure, implement arbitrary precision arithmetic in every single app out there
-> using /proc....
+> I don't think people realize just how many CPU cycles are being needlessly
+> expended in passing information between the kernel and the user.  When I
+> have the time, I'll add binary interfaces for various things and show
+> exactly how expensive the existing system is -- all for the sake of being
+> able to use 'cat' and 'grep'.
 
-Bullshit. Implement whatever arithmetic is right *for your problem*. And  
-notice when the value you get doesn't fit so you can tell the user he  
-needs a newer version. That's all.
+I consider those cycles *very* well spent. Being able to use those common  
+tools is rather important to very many people.
 
-There's no reason whatsoever to care what data type the kernel used.
+Let's write a /proc ASCII coding rules document. It should document well a  
+few (*very* few) generic formats to use for new entries, and big fat  
+warnings about ever changing the format of existing tables, and it should  
+be easy to find in /Documentation/ - and we should immediately jump on  
+anyone who violates it without, in advance, discussing the problem he's  
+trying to solve, and convincing us that they can't be solved any other  
+way.
+
+I don't much care how those formats look, as long as they're easy to parse  
+and to extend compatibly, and *few*.
 
 MfG Kai

@@ -1,88 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265933AbUBJQ4j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 11:56:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUBJQ4j
+	id S266049AbUBJRPn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 12:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266028AbUBJRNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 11:56:39 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31660 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265933AbUBJQyd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 11:54:33 -0500
-Subject: Re: Linux 2.6.3-rc2 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
-References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1076432452.16758.1.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 10 Feb 2004 09:00:52 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Feb 2004 12:13:36 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:4109 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266058AbUBJRL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 12:11:58 -0500
+Date: Tue, 10 Feb 2004 17:11:55 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Olaf Hering <olh@suse.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ieee1394 and fbdev oops in 2.6.3rc2
+In-Reply-To: <20040210165202.GA7590@suse.de>
+Message-ID: <Pine.LNX.4.44.0402101708450.6294-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile stats for the last couple kernel releases.  We are down about 30
-warnings in the allmodconfig builds!
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.3-rc2      0w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      0w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+> Oops: Exception in kernel mode, sig: 4 [#2]
+> NIP: C0101000 LR: C0100F90 SP: EF185CF0 REGS: ef185c40 TRAP: 0700    Not tainted
+> MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+> TASK = ef1938a0[4325] 'X' Last syscall: 54 
+> GPR00: 00000002 EF185CF0 EF1938A0 EFFA3C00 EF185CF8 00000000 EF185D94 00000000 
+> GPR08: 00000000 FFFFFF00 00000001 00000000 28004884 101E6A58 101EEE08 101EED88 
+> GPR16: 101EF108 101EEF88 101EEE08 7FFFF438 101ECCF8 101E0000 101E0000 101E0000 
+> GPR24: 00000001 C02EBA40 000000A0 00000040 00000400 00000010 EFFA3C00 00000008 
+> Call trace:
+>  [<c01011ac>] fbcon_switch+0x11c/0x288
+>  [<c00c56c4>] redraw_screen+0x1c0/0x22c
+>  [<c00c027c>] complete_change_console+0x44/0xf8
+>  [<c00bfa34>] vt_ioctl+0x16c0/0x1d60
+>  [<c00b8604>] tty_ioctl+0x160/0x5d4
+>  [<c006c51c>] sys_ioctl+0xdc/0x2fc
+>  [<c0007c7c>] ret_from_syscall+0x0/0x44
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
-
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
-
+This is very strange. No patches have gone in that affects fbcon_switch. 
+Which kernel are you using and is this error repeatable?
 
 

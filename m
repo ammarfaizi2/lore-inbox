@@ -1,57 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUDHT3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 15:29:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUDHT3h
+	id S262356AbUDHTdM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 15:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbUDHTdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 15:29:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25753 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262266AbUDHT3f (ORCPT
+	Thu, 8 Apr 2004 15:33:12 -0400
+Received: from Kiwi.CS.UCLA.EDU ([131.179.128.19]:3286 "EHLO kiwi.cs.ucla.edu")
+	by vger.kernel.org with ESMTP id S262356AbUDHTdG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 15:29:35 -0400
-Date: Thu, 8 Apr 2004 12:29:30 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       Nick.Holloway@pyrites.org.uk
-Subject: Re: [PATCH 2.6] Add missing MODULE_PARAM to dummy.c (and MAINTAINERShip)
-Message-ID: <20040408122930.S21045@build.pdx.osdl.net>
-References: <20040408174823.GA13335@localhost> <20040408105440.G22989@build.pdx.osdl.net> <20040408185903.GA21236@localhost>
-Mime-Version: 1.0
+	Thu, 8 Apr 2004 15:33:06 -0400
+To: Jim Meyering <jim@meyering.net>
+Cc: bug-coreutils@gnu.org, Andrew Morton <akpm@osdl.org>,
+       Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org,
+       Andy Isaacson <adi@hexapodia.org>
+Subject: Re: dd PATCH: add conv=direct
+References: <Pine.GSO.4.21.0404071627530.9017-100000@dirac.phys.uwm.edu>
+	<87r7uzlzz7.fsf@penguin.cs.ucla.edu> <85k70qsp71.fsf@pi.meyering.net>
+From: Paul Eggert <eggert@CS.UCLA.EDU>
+Date: Thu, 08 Apr 2004 12:32:46 -0700
+In-Reply-To: <85k70qsp71.fsf@pi.meyering.net> (Jim Meyering's message of
+ "Thu, 08 Apr 2004 13:07:30 +0200")
+Message-ID: <87vfkaw9i9.fsf@penguin.cs.ucla.edu>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040408185903.GA21236@localhost>; from linux-kernel@24x7linux.com on Thu, Apr 08, 2004 at 08:59:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jose Luis Domingo Lopez (linux-kernel@24x7linux.com) wrote:
-> On Thursday, 08 April 2004, at 10:54:40 -0700,
-> Chris Wright wrote:
-> 
-> > this is going backwards.  module_param is the newer (preferred) interface.
-> > 
-> I (incorrectly) based my assumptions on the fact that "modinfo dummy"
-> didn't return any information about the module parameter. I also had a
-> look at some other modules, like "bonding", "rtl8139", and I assumed
-> that the MODULE_* macros were the 2.6.x way of doing things.
+Jim Meyering <jim@meyering.net> writes:
 
-It's a mix.  module_param(), MODULE_PARM_DESC(), MODULE_LICENSE(),
-MODULE_AUTHOR(), MODULE_DESCRIPTION().
+> 2004-04-08  Jim Meyering  <jim@meyering.net>
+>
+> 	* src/dd.c (set_fd_flags): Don't OR in -1 when fcntl fails.
 
-So the whole patch isn't bad, just the bit like:
--module_param()
-+MODULE_PARM()
+Doesn't that fix generate worse code in the usual case, since it
+causes two conditional branches instead of one?
 
-> I was obviously wrong, sorry for the waste of time (anyways, it seems
-> there are several kernel modules waiting to be updated, maybe I should
-> give them a look and learn something and try to "fix" them).
+How about this further patch?  It relies on common subexpression
+elimination, but that's common these days.
 
-Sure, although some of these changes may not be accepted simply because
-they create noise, patch conflicts etc at a time where stability is more
-important.  So new code should use the new ones, old code may not all be
-converted for some time.
+2004-04-08  Paul Eggert  <eggert@twinsun.com>
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+	* src/dd.c (set_fd_flags): Don't test old_flags < 0 twice.
+
+Index: src/dd.c
+===================================================================
+RCS file: /home/meyering/coreutils/cu/src/dd.c,v
+retrieving revision 1.157
+diff -p -u -r1.157 dd.c
+--- src/dd.c	8 Apr 2004 15:25:39 -0000	1.157
++++ src/dd.c	8 Apr 2004 19:17:02 -0000
+@@ -1014,7 +1014,7 @@ copy_with_unblock (char const *buf, size
+ }
+ 
+ /* Set the file descriptor flags for FD that correspond to the nonzero bits
+-   in FLAGS.  The file's name is NAME.  */
++   in ADD_FLAGS.  The file's name is NAME.  */
+ 
+ static void
+ set_fd_flags (int fd, int add_flags, char const *name)
+@@ -1022,9 +1022,9 @@ set_fd_flags (int fd, int add_flags, cha
+   if (add_flags)
+     {
+       int old_flags = fcntl (fd, F_GETFL);
+-      int new_flags = old_flags < 0 ? add_flags : (old_flags | add_flags);
+       if (old_flags < 0
+-	  || (new_flags != old_flags && fcntl (fd, F_SETFL, new_flags) == -1))
++	  || (old_flags != (old_flags | add_flags)
++	      && fcntl (fd, F_SETFL, old_flags | add_flags) == -1))
+ 	error (EXIT_FAILURE, errno, _("setting flags for %s"), quote (name));
+     }
+ }

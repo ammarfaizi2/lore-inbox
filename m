@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269446AbTGJPmk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 11:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269400AbTGJPlO
+	id S269459AbTGJQCw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 12:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269455AbTGJQCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 11:41:14 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:6162 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269379AbTGJPjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 11:39:08 -0400
-Date: Thu, 10 Jul 2003 16:53:46 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>, jack@suse.cz
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_QFMT_V2 vs. `VFS v0 quota format support'
-Message-ID: <20030710165346.A28322@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>, jack@suse.cz,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.GSO.4.21.0307101748020.3972-100000@vervain.sonytel.be>
+	Thu, 10 Jul 2003 12:02:52 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:28678 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S266365AbTGJQCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 12:02:51 -0400
+Date: Fri, 11 Jul 2003 01:18:58 +0900 (JST)
+Message-Id: <20030711.011858.117900702.yoshfuji@linux-ipv6.org>
+To: pekkas@netcore.fi
+Cc: cat@zip.com.au, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       yoshfuji@linux-ipv6.org
+Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling broken
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Pine.LNX.4.44.0307101906160.18224-100000@netcore.fi>
+References: <20030711.005542.04973601.yoshfuji@linux-ipv6.org>
+	<Pine.LNX.4.44.0307101906160.18224-100000@netcore.fi>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0307101748020.3972-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Thu, Jul 10, 2003 at 05:50:33PM +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 05:50:33PM +0200, Geert Uytterhoeven wrote:
-> 
-> Why does the help text for CONFIG_QFMT_V2 say `VFS v0 quota format support' and
-> not `VFS v2 quota format support'?
+In article <Pine.LNX.4.44.0307101906160.18224-100000@netcore.fi> (at Thu, 10 Jul 2003 19:08:20 +0300 (EEST)), Pekka Savola <pekkas@netcore.fi> says:
 
-Ask Jan, that's the name he's been using all through the development of
-the patch and in the quota tools.
+> While technically correct, I'm still not sure if this is (pragmatically) 
+> the correct approach.  It's OK to set a default route to go to the 
+> subnet routers anycast address (so, setting a route to prefix:: should 
+> not give you EINVAL).
 
+But, on the other side cannot use prefix::, and
+the setting is rather non-sense.
+
+We should educate people not to use /127; use /64 instead.
+v6ops? :-)
+
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

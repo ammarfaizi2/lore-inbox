@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273004AbTHKSiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273002AbTHKShE
+	id S272885AbTHKSVu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272898AbTHKSVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:37:04 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:34945 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S272956AbTHKSfy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:35:54 -0400
-Date: Mon, 11 Aug 2003 14:33:50 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test3 VGA console inevitable?
-In-Reply-To: <20030809154340.GB5396@www.13thfloor.at>
-Message-ID: <Pine.GSO.4.33.0308111431210.7750-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	Mon, 11 Aug 2003 14:21:21 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:48516 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S272885AbTHKSUU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 14:20:20 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 11 Aug 2003 20:31:32 +0200
+From: Gerd Knorr <kraxel@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Christoph Bartelmus <columbus@hit.handshake.de>,
+       lirc-list@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811183132.GB17777@bytesex.org>
+References: <1059820741.3116.24.camel@laurelin> <20030807214311.GC211@elf.ucw.cz> <1060334463.5037.13.camel@defiant.flameeyes> <20030808231733.GF389@elf.ucw.cz> <8rZ2nqa1z9B@hit-columbus.hit.handshake.de> <20030811124744.GB1733@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030811124744.GB1733@elf.ucw.cz>
+X-GPG-Fingerprint: 79C4 EE94 CC44 6DD4 58C6  3088 DBB7 EC73 8750 D2C4  [1024D/8750D2C4]
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Aug 2003, Herbert [iso-8859-1] Pötzl wrote:
->ahh got it, one has to select
-> ->  Remove kernel features (for embedded systems)
->
->then VT/VGA_CONSOLE can be removed ...
+> I converted lirc_gpio into input/ layer (and killed support for
+> hardware I do not have; sorry but it was essential to keep code
+> small). Ported driver looks like this; I believe it looks better than
+> old code. Patch is here.
 
-Yes, that is an "idiot proofing" change for 2.6 so people don't accidentally
-turn off the video and keyboard -- as will happen if a 2.4 .config is used
-in 2.6.
+And IMHO it will be even better if it is linked directly into the bttv
+driver and bttv itself registers as input device.  All the complicated
+probing using the functions exported by bttv will go away.  The whole
+construct is only needed because lirc isn't part of the standard
+kernel ...
 
-(It took me a minute to realize why the options for turning off input weren't
- avaliable... on sparc64 no less.)
-
---Ricky
-
+  Gerd
 

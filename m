@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbUA3WHC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 17:07:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUA3WHC
+	id S264353AbUA3WDK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 17:03:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbUA3WDK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 17:07:02 -0500
-Received: from stewie.egr.unlv.edu ([131.216.22.9]:4525 "EHLO
-	mail.egr.unlv.edu") by vger.kernel.org with ESMTP id S263639AbUA3WG7
+	Fri, 30 Jan 2004 17:03:10 -0500
+Received: from lakemtao02.cox.net ([68.1.17.243]:49373 "EHLO
+	lakemtao02.cox.net") by vger.kernel.org with ESMTP id S264356AbUA3WDB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 17:06:59 -0500
-Subject: fh_verify: no root_squashed access hundreds of times a second
-From: Andrew Gray <grayaw@egr.unlv.edu>
+	Fri, 30 Jan 2004 17:03:01 -0500
+From: "Eric Von York Sr." <yorkfamily@ieee.org>
 To: linux-kernel@vger.kernel.org
-Organization: University of Nevada Las Vegas - College of Engineering
-Message-Id: <1075500418.12519.128.camel@blargh>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Subject: menuconfig error 
+Date: Fri, 30 Jan 2004 17:04:41 -0500
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Jan 2004 14:06:58 -0800
+Content-Disposition: inline
+Message-Id: <200401301704.41570.yorkfamily@ieee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not subscribed to the linux-kernel list, I would appreciate a CC on
-any replies, but I will be watching the list as well.
+encountered the following error while trying to customize 2.4.22-10mdk on
+Mandrake Linux 9.2 . I was in the sound module, and when I clicked on the 
+alsa sub-menu it barfed - and always does at this point. 
 
-I am using kernel 2.4.24 on a heavily-used NFS server.  I am receiving
-hundreds of messages like:
 
-"kernel: fh_verify: no root_squashed access at sessions/lastsession."
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-in my messages log, usually accompanied by a "last message repeated 6497
-times" a minute or so later.  I'm gathering it is just reporting it is
-denying root access to a share, which is fine and exactly what I asked
-for.  Is there anyway to shut this logging off without just wiping the
-line from fs/nfsd/nfsfh.c?  I really can't afford to be rebooting the
-box to install a new kernel right now.  I've searched google,
-linux-kernel, and other resources, and while I've found others with the
-same problem, no solutions have been posted.
+ Q> scripts/Menuconfig: line 832: MCmenu78: command not found
 
--- 
-Andrew Gray
-Systems Administrator
-College of Engineering
-University of Nevada, Las Vegas
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
 
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
 

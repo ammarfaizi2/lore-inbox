@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278769AbRKDFPj>; Sun, 4 Nov 2001 00:15:39 -0500
+	id <S278789AbRKDF0T>; Sun, 4 Nov 2001 00:26:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278789AbRKDFPa>; Sun, 4 Nov 2001 00:15:30 -0500
-Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:30394 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S278769AbRKDFPX>; Sun, 4 Nov 2001 00:15:23 -0500
-Message-ID: <08dd01c164ef$db350190$1a01a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "victor" <ixnay@infonegocio.com>
-Cc: <linux-kernel@vger.kernel.org>, "Alan Cox" <alan@redhat.com>
-In-Reply-To: <fa.it8dqhv.r6qaig@ifi.uio.no>
-Subject: Re: linux 2.2.20 compile fails on alpha
-Date: Sun, 4 Nov 2001 00:16:27 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S278797AbRKDF0K>; Sun, 4 Nov 2001 00:26:10 -0500
+Received: from nic-131-c196-222.mw.mediaone.net ([24.131.196.222]:49413 "EHLO
+	moonweaver.awesomeplay.com") by vger.kernel.org with ESMTP
+	id <S278789AbRKDFZ6>; Sun, 4 Nov 2001 00:25:58 -0500
+Subject: Re: Via Onboard Audio - Round #2
+From: Sean Middleditch <elanthis@awesomeplay.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BE4CC20.5FFEC4B5@mandrakesoft.com>
+In-Reply-To: <1004849558.457.15.camel@stargrazer> 
+	<3BE4CC20.5FFEC4B5@mandrakesoft.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+X-Mailer: Evolution/0.16.100 (Preview Release)
+Date: 04 Nov 2001 00:30:18 -0500
+Message-Id: <1004851818.457.24.camel@stargrazer>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> asm/pci.h: In function `pci_controller_num':
-> asm/pci.h:62: structure has no member named `pci_host_index'
-> asm/pci.h:63: warning: control reaches end of non-void function
-> make: *** [init/main.o] Error 1
+On Sun, 2001-11-04 at 00:03, Jeff Garzik wrote:
+> 
+> You cannot, through driver options.
+> 
+> The IRQ routing conflict is definitely the problem.  You can try booting
+> with "PNP OS: No" and maybe other irq options are hidden in your BIOS
+> setup under an advanced menu.
+> 
 
-I was able to get 2.2.20 to compile by changing asm/pci.h line 62 to
-"pci_hose_index" (s/host/hose/); see the struct definition at the top of
-that file. Also I needed to add "#include <asm/errno.h>" to the same file to
-get the definition of ENXIO... Be warned, I have not actually booted the
-resulting kernel.
+There is no option.  Trust me, I know BIOS setups, and unless they
+really hid the option well (I.E., not having it in the menus at all)
+it's not there.  The audio worked fine in WindowXP, obviously an OS and
+drivers can handle it.  This is a limitation and/or problem with Linux
+and it's Via Audio driver.  How can I get around this, or do I need to
+reinstall WindowsXP to use the audio?
 
-Are pci_hose_* really meant to be named like that, or was it an overzealous
-search-and-replace?
+(Sorry if I sounded harsh, but I just got done bitching at a couple
+companies pissing me off lately... I'm not in a put-up-with-crap mood
+right now  ^,^  After I sleep a little I will behave better, I promise.)
 
-Regards,
-Dan
+Thanks guys,
+Sean Etc.
+
+> -- 
+> Jeff Garzik      | Only so many songs can be sung
+> Building 1024    | with two lips, two lungs, and one tongue.
+> MandrakeSoft     |         - nomeansno
+> 
+
 

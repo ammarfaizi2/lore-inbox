@@ -1,152 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267244AbTBIMBD>; Sun, 9 Feb 2003 07:01:03 -0500
+	id <S267256AbTBIMGB>; Sun, 9 Feb 2003 07:06:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267245AbTBIMAn>; Sun, 9 Feb 2003 07:00:43 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:3664
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S267244AbTBIL6M>; Sun, 9 Feb 2003 06:58:12 -0500
-Date: Sun, 9 Feb 2003 07:06:56 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5][9/15] smp_call_function/_on_cpu - ppc64
-Message-ID: <Pine.LNX.4.50.0302090651490.2812-100000@montezuma.mastecende.com>
+	id <S267254AbTBIMEA>; Sun, 9 Feb 2003 07:04:00 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:56976 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267256AbTBIMC5>;
+	Sun, 9 Feb 2003 07:02:57 -0500
+Date: Sun, 9 Feb 2003 13:18:16 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Roland McGrath <roland@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@digeo.com>, Arjan van de Ven <arjanv@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: heavy handed exit() in latest BK
+In-Reply-To: <200302091156.h19BuoH07869@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.44.0302091305180.5085-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- smp.c |   95 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 files changed, 91 insertions(+), 4 deletions(-)
 
-Index: linux-2.5.59-bk/arch/ppc64/kernel/smp.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.59-bk/arch/ppc64/kernel/smp.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 smp.c
---- linux-2.5.59-bk/arch/ppc64/kernel/smp.c	9 Feb 2003 09:08:33 -0000	1.1.1.1
-+++ linux-2.5.59-bk/arch/ppc64/kernel/smp.c	9 Feb 2003 09:23:30 -0000
-@@ -430,7 +430,7 @@
+On Sun, 9 Feb 2003, Roland McGrath wrote:
+
+> >  - session-IDs and group-IDs are set outside the tasklist lock. This
+> >    causes breakage in the USB code. The correct fix is to do this:
+> 
+> This is outside the part of the code that I've touched lately.
+
+yes, i introduced the bug with the new pidhash. Here's the fix, against
+BK-curr.
+
+	Ingo
+
+--- linux/include/linux/sched.h.orig	
++++ linux/include/linux/sched.h	
+@@ -503,6 +503,8 @@
+ extern struct   mm_struct init_mm;
  
- void smp_send_stop(void)
- {
--	smp_call_function(stop_this_cpu, NULL, 1, 0);
-+	smp_call_function(stop_this_cpu, NULL, 0);
+ extern struct task_struct *find_task_by_pid(int pid);
++extern void set_special_pids(pid_t session, pid_t pgrp);
++extern void __set_special_pids(pid_t session, pid_t pgrp);
+ 
+ /* per-UID process charging. */
+ extern struct user_struct * alloc_uid(uid_t);
+--- linux/fs/jffs/intrep.c.orig	
++++ linux/fs/jffs/intrep.c	
+@@ -3344,8 +3344,7 @@
+ 	lock_kernel();
+ 	exit_mm(c->gc_task);
+ 
+-	current->session = 1;
+-	current->pgrp = 1;
++	set_special_pids(1, 1);
+ 	init_completion(&c->gc_thread_comp); /* barrier */ 
+ 	spin_lock_irq(&current->sighand->siglock);
+ 	siginitsetinv (&current->blocked, sigmask(SIGHUP) | sigmask(SIGKILL) | sigmask(SIGSTOP) | sigmask(SIGCONT));
+--- linux/kernel/exit.c.orig	
++++ linux/kernel/exit.c	
+@@ -254,6 +254,29 @@
+ 	write_unlock_irq(&tasklist_lock);
  }
  
- /*
-@@ -458,7 +458,6 @@
-  * [SUMMARY] Run a function on all other CPUs.
-  * <func> The function to run. This must be fast and non-blocking.
-  * <info> An arbitrary pointer to pass to the function.
-- * <nonatomic> currently unused.
-  * <wait> If true, wait (atomically) until function has completed on other CPUs.
-  * [RETURNS] 0 on success, else a negative status code. Does not return until
-  * remote CPUs are nearly ready to execute <<func>> or are or have executed.
-@@ -466,8 +465,7 @@
-  * You must not call this function with disabled interrupts or from a
-  * hardware interrupt handler or from a bottom half handler.
-  */
--int smp_call_function (void (*func) (void *info), void *info, int nonatomic,
--		       int wait)
-+int smp_call_function (void (*func) (void *info), void *info, int wait)
- { 
- 	struct call_data_struct data;
- 	int ret = -1, cpus = num_online_cpus()-1;
-@@ -525,6 +523,95 @@
- out:
- 	HMT_medium();
- 	spin_unlock(&call_lock);
-+	return ret;
++void __set_special_pids(pid_t session, pid_t pgrp)
++{
++	struct task_struct *curr = current;
++
++	if (curr->session != session) {
++		detach_pid(curr, PIDTYPE_SID);
++		curr->session = session;
++		attach_pid(curr, PIDTYPE_SID, session);
++	}
++	if (curr->pgrp != pgrp) {
++		detach_pid(curr, PIDTYPE_PGID);
++		curr->pgrp = pgrp;
++		attach_pid(curr, PIDTYPE_PGID, pgrp);
++	}
 +}
 +
-+/*
-+ * smp_call_function_on_cpu - Runs func on all processors in the mask
-+ *
-+ * @func: The function to run. This must be fast and non-blocking.
-+ * @info: An arbitrary pointer to pass to the function.
-+ * @wait: If true, wait (atomically) until function has completed on other CPUs.
-+ * @mask The bitmask of CPUs to call the function
-+ * 
-+ * Returns 0 on success, else a negative status code. Does not return until
-+ * remote CPUs are nearly ready to execute func or have executed it.
-+ *
-+ * You must not call this function with disabled interrupts or from a
-+ * hardware interrupt handler or from a bottom half handler.
-+ */
++void set_special_pids(pid_t session, pid_t pgrp)
++{
++	write_lock_irq(&tasklist_lock);
++	__set_special_pids(session, pgrp);
++	write_unlock_irq(&tasklist_lock);
++}
 +
-+int smp_call_function_on_cpu (void (*func) (void *info), void *info, int wait,
-+				unsigned long mask)
-+{ 
-+	struct call_data_struct data;
-+	int ret = 0, cpu, i, num_cpus = hweight64(mask);
-+	unsigned long timeout;
-+
-+	if (num_cpus == 0)
-+		return -EINVAL;
-+
-+	cpu = get_cpu();
-+	if ((1UL << cpu) & mask) {
-+		put_cpu_no_resched();
-+		return -EINVAL;
-+	}
-+
-+	data.func = func;
-+	data.info = info;
-+	atomic_set(&data.started, 0);
-+	data.wait = wait;
-+	if (wait)
-+		atomic_set(&data.finished, 0);
-+
-+	spin_lock(&call_lock);
-+	call_data = &data;
-+	wmb();
-+	/* Send a message to all other CPUs and wait for them to respond */
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_online(i) && ((1UL << i) & mask))
-+			smp_message_pass(i, PPC_MSG_CALL_FUNCTION, 0, 0);
-+	}
-+
-+	/* Wait for response */
-+	timeout = SMP_CALL_TIMEOUT;
-+	while (atomic_read(&data.started) != num_cpus) {
-+		HMT_low();
-+		if (--timeout == 0) {
-+			if (debugger)
-+				debugger(0);
-+			printk("smp_call_function on cpu %d: other cpus not "
-+			       "responding (%d)\n", cpu,
-+			       atomic_read(&data.started));
-+			ret = -EIO;
-+			goto out;
-+		}
-+	}
-+
-+	if (wait) {
-+		timeout = SMP_CALL_TIMEOUT;
-+		while (atomic_read(&data.finished) != num_cpus) {
-+			HMT_low();
-+			if (--timeout == 0) {
-+				if (debugger)
-+					debugger(0);
-+				printk("smp_call_function on cpu %d: other "
-+				       "cpus not finishing (%d/%d)\n",
-+				       cpu,
-+				       atomic_read(&data.finished),
-+				       atomic_read(&data.started));
-+				ret = -EIO;
-+				goto out;
-+			}
-+		}
-+	}
-+
-+	ret = 0;
-+
-+out:
-+	HMT_medium();
-+	spin_unlock(&call_lock);
-+	put_cpu_no_resched();
- 	return ret;
- }
+ /*
+  *	Put all the gunge required to become a kernel thread without
+  *	attached user resources in one place where it belongs.
+@@ -271,8 +294,7 @@
+ 	 */
+ 	exit_mm(current);
  
+-	current->session = 1;
+-	current->pgrp = 1;
++	set_special_pids(1, 1);
+ 	current->tty = NULL;
+ 
+ 	/* Become as one with the init task */
+--- linux/kernel/kmod.c.orig	
++++ linux/kernel/kmod.c	
+@@ -100,8 +100,7 @@
+ 	int i;
+ 	struct task_struct *curtask = current;
+ 
+-	curtask->session = 1;
+-	curtask->pgrp = 1;
++	set_special_pids(1, 1);
+ 
+ 	use_init_fs_context();
+ 
+--- linux/kernel/sys.c.orig	
++++ linux/kernel/sys.c	
+@@ -1021,16 +1021,7 @@
+ 		goto out;
+ 
+ 	current->leader = 1;
+-	if (current->session != current->pid) {
+-		detach_pid(current, PIDTYPE_SID);
+-		current->session = current->pid;
+-		attach_pid(current, PIDTYPE_SID, current->pid);
+-	}
+-	if (current->pgrp != current->pid) {
+-		detach_pid(current, PIDTYPE_PGID);
+-		current->pgrp = current->pid;
+-		attach_pid(current, PIDTYPE_PGID, current->pid);
+-	}
++	__set_special_pids(current->pid, current->pid);
+ 	current->tty = NULL;
+ 	current->tty_old_pgrp = 0;
+ 	err = current->pgrp;
+

@@ -1,128 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbTJCXeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 19:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbTJCXeQ
+	id S261538AbTJCXhE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 19:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbTJCXhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 19:34:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21929 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261464AbTJCXd6 (ORCPT
+	Fri, 3 Oct 2003 19:37:04 -0400
+Received: from [205.180.85.17] ([205.180.85.17]:45744 "EHLO mail.fastclick.net")
+	by vger.kernel.org with ESMTP id S261538AbTJCXet (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 19:33:58 -0400
-Date: Fri, 3 Oct 2003 16:25:32 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: cherry <cherry@osdl.org>, akpm <akpm@osdl.org>
-Subject: [PATCH] applicom: fix LEAK, unwind on errors;
-Message-Id: <20031003162532.62130e39.rddunlap@osdl.org>
-In-Reply-To: <200310032246.h93Mker6018458@cherrypit.pdx.osdl.net>
-References: <200310032246.h93Mker6018458@cherrypit.pdx.osdl.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Oct 2003 19:34:49 -0400
+Message-ID: <3F7E0704.4020009@fastclick.com>
+Date: Fri, 03 Oct 2003 16:32:20 -0700
+From: Brett <brettspamacct@fastclick.com>
+Reply-To: brettspamacct@fastclick.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kevin Kahley <kkahley@cs.uic.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: exclusive memory held by a process
+References: <Pine.GSO.4.10.10310031721300.28068-100000@ernie.cs.uic.edu>
+In-Reply-To: <Pine.GSO.4.10.10310031721300.28068-100000@ernie.cs.uic.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Oct 2003 15:46:40 -0700 John Cherry <cherry@osdl.org> wrote:
-
-| drivers/char/applicom.c:260:2: warning: #warning "LEAK"
-| drivers/char/applicom.c:524:2: warning: #warning "Je suis stupide. DW. - copy*user in cli"
-| drivers/char/applicom.c:67: warning: `applicom_pci_tbl' defined but not used
-
-
-Here's a patch for applicom.c.
-David Woodhouse has reviewed and okayed it, although he no
-longer has hardware to test it.
-
-Any other reviews/comments on it?
-If not, I'll ask Andrew to merge it.
-
---
-~Randy
+I asked the same question yesterday.  If you look in /prod/[pid]/maps 
+you can see the memory layout per process. Maybe you could find this 
+information out by looking through the maps files? I didn't get a 
+response about this but I'm still going to try this.
 
 
-patch_name:	applicom_leak.patch
-patch_version:	2003-09-17.11:06:35
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	fix ioremap() leak and #warning;
-		unwind init on errors;
-		don't save irq on request_irq() failure;
-product:	Linux
-product_versions: 2.6.0-test5 (and -test6)
-maintainer:	David Woodhouse (dwmw2@infradead.org)
-diffstat:	=
- drivers/char/applicom.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+Good luck,
+
+Brett
+
+Kevin Kahley wrote:
+
+> I am working with a pc system that has no swap space and no hard disk.
+> I have direct control over 3 processes on this system and need to
+> guarantee that they never use more than 190 MB of memory.  I have been
+> getting the information about memory usage from /proc/*pid*/status but can
+> not seem to make exact sense of what it is reporting.  Here are the values
+> I am getting:
+> 
+> Name:	g
+> State:	S (sleeping)
+> Tgid:	292
+> Pid:	292
+> PPid:	284
+> TracerPid:	0
+> Uid:	0	0	0	0
+> Gid:	0	0	0	0
+> FDSize:	256
+> Groups:	
+> VmSize:	    7772 kB
+> VmLck:	    7772 kB
+> VmRSS:	    7772 kB
+> VmData:	    4284 kB
+> VmStk:	      32 kB
+> VmExe:	    1028 kB
+> VmLib:	    1760 kB
+> SigPnd:	0000000000000000
+> SigBlk:	0000000080000000
+> SigIgn:	0000000000010000
+> SigCgt:	0000000380000000
+> CapInh:	0000000000000000
+> CapPrm:	00000000fffffeff
+> CapEff:	00000000fffffeff
+> 
+> 
+> Name:	s
+> State:	S (sleeping)
+> Tgid:	288
+> Pid:	288
+> PPid:	287
+> TracerPid:	0
+> Uid:	0	0	0	0
+> Gid:	0	0	0	0
+> FDSize:	32
+> Groups:	
+> VmSize:	   83248 kB
+> VmLck:	   83248 kB
+> VmRSS:	   83244 kB
+> VmData:	   81256 kB
+> VmStk:	      20 kB
+> VmExe:	      84 kB
+> VmLib:	    1760 kB
+> SigPnd:	0000000000000000
+> SigBlk:	0000000080000000
+> SigIgn:	0000000000000000
+> SigCgt:	7ffffffffffbfeff
+> CapInh:	0000000000000000
+> CapPrm:	00000000fffffeff
+> CapEff:	00000000fffffeff
+> 
+> 
+> Name:	v
+> State:	S (sleeping)
+> Tgid:	248
+> Pid:	248
+> PPid:	1
+> TracerPid:	0
+> Uid:	0	0	0	0
+> Gid:	0	0	0	0
+> FDSize:	32
+> Groups:	
+> VmSize:	   85576 kB
+> VmLck:	   85576 kB
+> VmRSS:	   77436 kB
+> VmData:	   74780 kB
+> VmStk:	      20 kB
+> VmExe:	     476 kB
+> VmLib:	    2452 kB
+> SigPnd:	0000000000000000
+> SigBlk:	0000000080000000
+> SigIgn:	0000000000000000
+> SigCgt:	00000003e78074ff
+> CapInh:	0000000000000000
+> CapPrm:	00000000fffffeff
+> CapEff:	00000000fffffeff
+> 
+> 
+> I have read in many places that VmSize is the total in-memory size of the
+> running process, but does this include memory that is being shared?  I
+> thought about adding VmRSS, VmData, and VmStk, but that is greater than
+> VmSize?   Can anyone tell me what is the amount of memory solely used by a
+> process?  It's my understanding that my system should crash if these three
+> processes exceed 190 MB, but using /proc/*pid* values does not confirm
+> this...
+> 
+> please CC me on any responses:  kkahley@cs.uic.edu
+> 
+> Thank you much in advance.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
-diff -Naurp ./drivers/char/applicom.c~appleak ./drivers/char/applicom.c
---- ./drivers/char/applicom.c~appleak	2003-09-08 12:50:29.000000000 -0700
-+++ ./drivers/char/applicom.c	2003-09-17 11:06:01.000000000 -0700
-@@ -192,7 +192,7 @@ int __init applicom_init(void)
- {
- 	int i, numisa = 0;
- 	struct pci_dev *dev = NULL;
--	void *RamIO;
-+	void *RamIO, *maxRamIO;
- 	int boardno;
- 
- 	printk(KERN_INFO "Applicom driver: $Id: ac.c,v 1.30 2000/03/22 16:03:57 dwmw2 Exp $\n");
-@@ -214,6 +214,7 @@ int __init applicom_init(void)
- 
- 		if (!RamIO) {
- 			printk(KERN_INFO "ac.o: Failed to ioremap PCI memory space at 0x%lx\n", dev->resource[0].start);
-+			pci_disable_device(dev);
- 			return -EIO;
- 		}
- 
-@@ -225,12 +226,14 @@ int __init applicom_init(void)
- 						  (unsigned long)RamIO,0))) {
- 			printk(KERN_INFO "ac.o: PCI Applicom device doesn't have correct signature.\n");
- 			iounmap(RamIO);
-+			pci_disable_device(dev);
- 			continue;
- 		}
- 
- 		if (request_irq(dev->irq, &ac_interrupt, SA_SHIRQ, "Applicom PCI", &dummy)) {
- 			printk(KERN_INFO "Could not allocate IRQ %d for PCI Applicom device.\n", dev->irq);
- 			iounmap(RamIO);
-+			pci_disable_device(dev);
- 			apbs[boardno - 1].RamIO = 0;
- 			continue;
- 		}
-@@ -257,10 +260,9 @@ int __init applicom_init(void)
- 
- 	/* Now try the specified ISA cards */
- 
--#warning "LEAK"
--	RamIO = ioremap(mem, LEN_RAM_IO * MAX_ISA_BOARD);
-+	maxRamIO = ioremap(mem, LEN_RAM_IO * MAX_ISA_BOARD);
- 
--	if (!RamIO) 
-+	if (!maxRamIO) 
- 		printk(KERN_INFO "ac.o: Failed to ioremap ISA memory space at 0x%lx\n", mem);
- 
- 	for (i = 0; i < MAX_ISA_BOARD; i++) {
-@@ -285,7 +287,8 @@ int __init applicom_init(void)
- 				iounmap((void *) RamIO);
- 				apbs[boardno - 1].RamIO = 0;
- 			}
--			apbs[boardno - 1].irq = irq;
-+			else
-+				apbs[boardno - 1].irq = irq;
- 		}
- 		else
- 			apbs[boardno - 1].irq = 0;
-@@ -296,6 +299,8 @@ int __init applicom_init(void)
- 	if (!numisa)
- 		printk(KERN_WARNING"ac.o: No valid ISA Applicom boards found at mem 0x%lx\n",mem);
- 
-+	iounmap(maxRamIO);
-+
-  fin:
- 	init_waitqueue_head(&FlagSleepRec);
- 

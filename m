@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281771AbRKUXHJ>; Wed, 21 Nov 2001 18:07:09 -0500
+	id <S281990AbRKUXPU>; Wed, 21 Nov 2001 18:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281968AbRKUXHA>; Wed, 21 Nov 2001 18:07:00 -0500
-Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:26661 "EHLO
-	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S281771AbRKUXGm>;
-	Wed, 21 Nov 2001 18:06:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-To: linux-kernel@vger.kernel.org
-Subject: Ext3 not supported by kernel !!!!!
-Date: Wed, 21 Nov 2001 23:07:31 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S281991AbRKUXPL>; Wed, 21 Nov 2001 18:15:11 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:34690 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S281990AbRKUXOy>;
+	Wed, 21 Nov 2001 18:14:54 -0500
+Message-ID: <3BFC3567.8CC3023F@pobox.com>
+Date: Wed, 21 Nov 2001 15:14:47 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: J S Concepts
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.15-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
-X-OriginalArrivalTime: 21 Nov 2001 23:06:14.0072 (UTC) FILETIME=[1E10F380:01C172E1]
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Ext3 not supported by kernel !!!!!
+In-Reply-To: <EXCH01SMTP01eaCYPct00001063@smtp.netcabo.pt>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again guys, i manage to compile the 2.4.14 kernel just fine, and did all 
-the steps:
+Miguel Maria Godinho de Matos wrote:
 
-make  menuconfig
-make dep
-( didn't do make clean though )
-make modules
-make modules install
-cp arch/i386/boot/bzImage /boot/vzmiluz-2.4.14
-mkinitrd /boot/initrd-2.4.14.img
+> Hi again guys, i manage to compile the 2.4.14 kernel just fine, and did all
+> the steps:
+>
+> Then i rebooted and was expecting a happy ending though it not happened.
+> after loading the kernel, when linux was suppose to mount the modules, the
+> file system and so, an error appeard!!
+>
+> fs ext3 not supported by kernel
 
-edited my lilo and updated it ( /sbin/lilo )
+ext3 is not supported by 2.4.14 -
 
-Then i rebooted and was expecting a happy ending though it not happened.
-after loading the kernel, when linux was suppose to mount the modules, the 
-file system and so, an error appeard!!
+However you have some options here.
 
-fs ext3 not supported by kernel
+- Get the ext3 kernel patches from Andrew Morton's site
+- Update your kernel to 2.4.15-pre8, which has ext3 support
+- Edit your fstab to mount the filesystems as type "auto" not ext3
 
-kernel panic...... bla bla bla
+cu
 
-after that i reentered linux with my working kernel and did bzdisk just to 
-check!
+jjs
 
-then i rebooted and linux booted because the kernel needn't be mounted as it 
-is in the floppy and initrf.immg as well.
-
-though when red hat came to mount the file system, instead of the beautifull 
-[ ok ], a [ failed ] appeard, again with the error message:
-
-fs ext3 not supported by kernel!
-
-This was for what i  think something i misschoose in the make config step am 
-i right??'
-
-If so can one of u tell me which menu contains the ext3 support for the 
-kernel compilation.
-
-tks again, Astinus

@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315717AbSEILeK>; Thu, 9 May 2002 07:34:10 -0400
+	id <S315711AbSEILdt>; Thu, 9 May 2002 07:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315718AbSEILeJ>; Thu, 9 May 2002 07:34:09 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:38023 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S315717AbSEILeH>;
-	Thu, 9 May 2002 07:34:07 -0400
-Message-ID: <3CDA5EA4.E565F1D7@colorfullife.com>
-Date: Thu, 09 May 2002 13:33:56 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Dave Engebretsen <engebret@vnet.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Memory Barrier Definitions
+	id <S315717AbSEILds>; Thu, 9 May 2002 07:33:48 -0400
+Received: from stingr.net ([212.193.32.15]:3713 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S315711AbSEILdr>;
+	Thu, 9 May 2002 07:33:47 -0400
+Date: Thu, 9 May 2002 15:33:46 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Some useless cleanup
+Message-ID: <20020509113346.GB1125@stingr.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020509102841.GA1125@stingr.net> <200205091102.g49B2AX25891@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Tanya
+X-Mailer: Roxio Easy CD Creator 5.0
+X-RealName: Stingray Greatest Jr
+Organization: Bedleham International
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Replying to Denis Vlasenko:
+> Well, it isn't bad, but what's the point in multiple
+> set_xxxxxx(char *dst, char *src) functions?
+> 
+> Maybe it makes more sense to have a generic macro
+> which copies string into char[N] buffer, avoiding overflow.
+> 
 
->
-> An example of where these primitives get us into trouble is the use of
-> wmb() to order two stores which are only to system memory (where a
-> lwsync would do for ppc64) and for a store to system memory followed by
-> a store to I/O (many examples in drivers).
->
-2 questions:
+Generic plan. I has something in mind when asked, but not this ...
 
-1) Does that only affect memory barriers, or both memory barriers and
-spinlocks?
+Actually in task_t.comm we have 2 cases
+1. strncpy(a, b, sz)
+2. snprintf(a, n, blah-blah...)
 
-example (from drivers/net/natsemi.c)
+I thought somebody will beat me for completely eliminating strcpyn and
+replacing it with snprintf in ALL CASES which is more expensive.
 
-cpu0:
-	spin_lock(&lock);
-	writew(1, ioaddr+PGSEL);
-	...
-	writew(0, ioaddr+PGSEL);
-	spin_unlock(&lock);
+> A macro:
+> 
+> #define STRNCPY(dst,src) \
+> 	do { \
+> 		/* todo: put clever check that dst is char[] here */ \
+> 		strncpy((dst), (src), sizeof(dst)-1); \
+> 		dst[sizeof(dst)-1] = '\0'; \
+> 	} while(0)
 
-cpu1:
-	spin_lock(&lock);
-	readw(ioaddr+whatever);	// assumes that the register window is 0.
+Abstracting .comm access can result in, finally, replacing comm[16] with,
+for example, *comm
 
-writew(1, ioaddr+PGSEL) selects a register window of the NIC. Are writew
-and the spinlock synchonized on ppc64?
+Or if we require to do match_comm (netfilter match, connections belong to
+process specified by name) job we can patchhook somewhere in set_xxx to
+avoid excessive for_each_tasked strcmps.
 
-2) when you write "system memory", is that memory allocated with
-kmalloc/gfp, or also memory allocated with pci_alloc_consistent()?
+... more?
 
-I've always assumed that
-	pci_alloc_consistent_ptr->data=0;
-	writew(0, ioaddr+TRIGGER);
-
-is ordered, i.e. the memory write happens before the writew. Is that
-guaranteed?
-
---
-	Manfred
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4

@@ -1,176 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261569AbSJNLnF>; Mon, 14 Oct 2002 07:43:05 -0400
+	id <S261593AbSJNLsv>; Mon, 14 Oct 2002 07:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261586AbSJNLnF>; Mon, 14 Oct 2002 07:43:05 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:32479 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S261569AbSJNLnD>; Mon, 14 Oct 2002 07:43:03 -0400
-Date: Mon, 14 Oct 2002 13:47:35 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: netfilter-devel@lists.netfilter.org, toml@internode.on.net,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: Fw: PROBLEM: Conntrack/NAT bug
-Message-ID: <20021014134735.S13233@sunbeam.de.gnumonks.org>
-References: <20021010.062046.47003148.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="neJKo2vCRXM/Q6OJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20021010.062046.47003148.davem@redhat.com>; from davem@redhat.com on Thu, Oct 10, 2002 at 06:20:46AM -0700
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.19-pre10-newnat-pptp
-X-Date: Today is Setting Orange, the 56th day of Bureaucracy in the YOLD 3168
+	id <S261594AbSJNLsv>; Mon, 14 Oct 2002 07:48:51 -0400
+Received: from netlx009.civ.utwente.nl ([130.89.1.91]:63966 "EHLO
+	netlx009.civ.utwente.nl") by vger.kernel.org with ESMTP
+	id <S261593AbSJNLsu>; Mon, 14 Oct 2002 07:48:50 -0400
+From: caligula@cam029208.student.utwente.nl
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.42:  Debug: sleeping function called from illegal context at mm/slab.c:1374
+Date: Mon, 14 Oct 2002 11:56:09 GMT
+Reply-To: caligula@cam029208.student.utwente.nl
+Message-ID: <3daaaf03.911341@cam029208.student.utwente.nl>
+X-Mailer: Forte Free Agent 1.21/32.243
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ave people
 
---neJKo2vCRXM/Q6OJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+When using xmms with oss output I found this message in my dmesg.
+Kernel has alsa sound with oss emulation.
 
-On Thu, Oct 10, 2002 at 06:20:46AM -0700, Tom Lanyon wrote:
+Full dmesg/kernelconfig/lspci can be found at
+cam029208.student.utwente.nl/~caligula/kernel/
 
-> [1.] One line summary of the problem:   Some sort of coding problem in
-> conntrack.
+ALSA device list:
+  #0: VIA 82C686A/B at 0xdc00, irq 10
 
-It's not a bug in the code, it's a bug in the debugging ASSERT macros, as=
-=20
-correctly pointed out by Martin Josefsson. =20
+Debug: sleeping function called from illegal context at mm/slab.c:1374
+Call Trace:
+ [<c0115042>] __might_sleep+0x52/0x60
+ [<c012f8b1>] kmalloc+0x61/0x200
+ [<c01f72b6>] snd_pci_hack_alloc_consistent+0x56/0xc0
+ [<c01f3264>] __snd_kmalloc+0x14/0x80
+ [<c01f32e0>] snd_hidden_kmalloc+0x10/0x20
+ [<c022584d>] build_via_table+0x9d/0x1c0
+ [<c022584d>] build_via_table+0x9d/0x1c0
+ [<c0225dac>] snd_via82xx_setup_periods+0x2c/0x120
+ [<c0226191>] snd_via82xx_playback_prepare+0xb1/0xc0
+ [<c02093f7>] snd_pcm_prepare+0x127/0x230
+ [<c020b97f>] snd_pcm_playback_ioctl1+0x3af/0x3c0
+ [<c012ae5e>] find_get_page+0x1e/0x40
+ [<c012bb83>] filemap_nopage+0x103/0x280
+ [<c01327b9>] __alloc_pages+0x79/0x250
+ [<c020be07>] snd_pcm_kernel_playback_ioctl+0x27/0x30
+ [<c01fdab6>] snd_pcm_oss_prepare+0x16/0x60
+ [<c01fdb38>] snd_pcm_oss_make_ready+0x38/0x50
+ [<c01fdefa>] snd_pcm_oss_write1+0x3a/0x160
+ [<c020005b>] snd_pcm_oss_write+0x6b/0xa0
+ [<c013d8aa>] vfs_write+0xba/0x150
+ [<c013d9a8>] sys_write+0x28/0x40
+ [<c010716f>] syscall_call+0x7/0xb
 
-The issue is that we are nesting readlocks, because ip_ct_find_proto()
-grabs itself a readlock on ip_conntrack_lock.
 
-The patch below now exports the non-locking __ip_ct_find_proto() function,
-thus no more grabbing a nested readlock.
-
-I wanted to go for a different solution, since exporting __ functions is
-not exactly clean coding style - but due to the circumstances other solutio=
-ns
-look even more ugly.
-
-Dave, please apply the following fix (again by Martin Josefsson), Thanks.
-
-
-diff -x '*.orig' -urN linux-2.4.20-pre8-ac3.orig/include/linux/netfilter_ip=
-v4/ip_conntrack_core.h linux-2.4.20-pre8-ac3/include/linux/netfilter_ipv4/i=
-p_conntrack_core.h
---- linux-2.4.20-pre8-ac3.orig/include/linux/netfilter_ipv4/ip_conntrack_co=
-re.h	2002-10-10 15:41:55.000000000 +0200
-+++ linux-2.4.20-pre8-ac3/include/linux/netfilter_ipv4/ip_conntrack_core.h	=
-2002-10-10 16:07:16.000000000 +0200
-@@ -17,7 +17,7 @@
- struct ip_conntrack_protocol;
- extern struct ip_conntrack_protocol *ip_ct_find_proto(u_int8_t protocol);
- /* Like above, but you already have conntrack read lock. */
--extern struct ip_conntrack_protocol *__find_proto(u_int8_t protocol);
-+extern struct ip_conntrack_protocol *__ip_ct_find_proto(u_int8_t protocol);
- extern struct list_head protocol_list;
-=20
- /* Returns conntrack if it dealt with ICMP, and filled in skb->nfct */
-diff -x '*.orig' -urN linux-2.4.20-pre8-ac3.orig/net/ipv4/netfilter/ip_conn=
-track_core.c linux-2.4.20-pre8-ac3/net/ipv4/netfilter/ip_conntrack_core.c
---- linux-2.4.20-pre8-ac3.orig/net/ipv4/netfilter/ip_conntrack_core.c	2002-=
-10-10 15:41:57.000000000 +0200
-+++ linux-2.4.20-pre8-ac3/net/ipv4/netfilter/ip_conntrack_core.c	2002-10-10=
- 16:07:16.000000000 +0200
-@@ -74,7 +74,7 @@
- 	return protocol =3D=3D curr->proto;
- }
-=20
--struct ip_conntrack_protocol *__find_proto(u_int8_t protocol)
-+struct ip_conntrack_protocol *__ip_ct_find_proto(u_int8_t protocol)
- {
- 	struct ip_conntrack_protocol *p;
-=20
-@@ -92,7 +92,7 @@
- 	struct ip_conntrack_protocol *p;
-=20
- 	READ_LOCK(&ip_conntrack_lock);
--	p =3D __find_proto(protocol);
-+	p =3D __ip_ct_find_proto(protocol);
- 	READ_UNLOCK(&ip_conntrack_lock);
- 	return p;
- }
-diff -x '*.orig' -urN linux-2.4.20-pre8-ac3.orig/net/ipv4/netfilter/ip_conn=
-track_standalone.c linux-2.4.20-pre8-ac3/net/ipv4/netfilter/ip_conntrack_st=
-andalone.c
---- linux-2.4.20-pre8-ac3.orig/net/ipv4/netfilter/ip_conntrack_standalone.c=
-	2002-10-10 15:41:57.000000000 +0200
-+++ linux-2.4.20-pre8-ac3/net/ipv4/netfilter/ip_conntrack_standalone.c	2002=
--10-10 16:07:16.000000000 +0200
-@@ -71,7 +71,7 @@
- 	len +=3D sprintf(buffer + len, "use=3D%u proto=3D%u ",
- 		      atomic_read(&expect->use), expect->tuple.dst.protonum);
- 	len +=3D print_tuple(buffer + len, &expect->tuple,
--			   __find_proto(expect->tuple.dst.protonum));
-+			   __ip_ct_find_proto(expect->tuple.dst.protonum));
- 	len +=3D sprintf(buffer + len, "\n");
- 	return len;
- }
-@@ -81,7 +81,7 @@
- {
- 	unsigned int len;
- 	struct ip_conntrack_protocol *proto
--		=3D __find_proto(conntrack->tuplehash[IP_CT_DIR_ORIGINAL]
-+		=3D __ip_ct_find_proto(conntrack->tuplehash[IP_CT_DIR_ORIGINAL]
- 			       .tuple.dst.protonum);
-=20
- 	len =3D sprintf(buffer, "%-8s %u %lu ",
-@@ -361,6 +361,7 @@
- EXPORT_SYMBOL(ip_ct_selective_cleanup);
- EXPORT_SYMBOL(ip_ct_refresh);
- EXPORT_SYMBOL(ip_ct_find_proto);
-+EXPORT_SYMBOL(__ip_ct_find_proto);
- EXPORT_SYMBOL(ip_ct_find_helper);
- EXPORT_SYMBOL(ip_conntrack_expect_related);
- EXPORT_SYMBOL(ip_conntrack_change_expect);
-diff -x '*.orig' -urN linux-2.4.20-pre8-ac3.orig/net/ipv4/netfilter/ip_nat_=
-core.c linux-2.4.20-pre8-ac3/net/ipv4/netfilter/ip_nat_core.c
---- linux-2.4.20-pre8-ac3.orig/net/ipv4/netfilter/ip_nat_core.c	2002-10-10 =
-16:10:49.000000000 +0200
-+++ linux-2.4.20-pre8-ac3/net/ipv4/netfilter/ip_nat_core.c	2002-10-10 16:10=
-:36.000000000 +0200
-@@ -739,7 +739,7 @@
- 	int ret =3D 1;
-=20
- 	MUST_BE_READ_LOCKED(&ip_conntrack_lock);
--	proto =3D ip_ct_find_proto((*pskb)->nh.iph->protocol);
-+	proto =3D __ip_ct_find_proto((*pskb)->nh.iph->protocol);
- 	if (proto->exp_matches_pkt)
- 		ret =3D proto->exp_matches_pkt(exp, pskb);
-=20
-
-> Thanks for your help
-
-Thanks for your help (i mean it!).
-
-> Tom Lanyon
-> toml@internode.on.net
-
---=20
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"If this were a dictatorship, it'd be a heck of a lot easier, just so long
- as I'm the dictator."  --  George W. Bush Dec 18, 2000
-
---neJKo2vCRXM/Q6OJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE9qq7XXaXGVTD0i/8RAsGYAJ9QAPQ/C0wG8uRdILF/Q7rhWGq1ugCfWPIi
-PL+101dV+iKbq7iCDvOlsnQ=
-=MvaZ
------END PGP SIGNATURE-----
-
---neJKo2vCRXM/Q6OJ--

@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267986AbRHATjm>; Wed, 1 Aug 2001 15:39:42 -0400
+	id <S268053AbRHATuC>; Wed, 1 Aug 2001 15:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268008AbRHATjc>; Wed, 1 Aug 2001 15:39:32 -0400
-Received: from d122251.upc-d.chello.nl ([213.46.122.251]:17419 "EHLO
-	arnhem.blackstar.nl") by vger.kernel.org with ESMTP
-	id <S267986AbRHATj1>; Wed, 1 Aug 2001 15:39:27 -0400
-From: bvermeul@devel.blackstar.nl
-Date: Wed, 1 Aug 2001 21:42:19 +0200 (CEST)
-To: Jussi Laako <jlaako@pp.htv.fi>
-cc: Russell King <rmk@arm.linux.org.uk>, Per Jessen <per.jessen@enidan.com>,
-        <linux-kernel@vger.kernel.org>, <linux-laptop@vger.kernel.org>
-Subject: Re: PCMCIA control I82365 stops working with 2.4.4
-In-Reply-To: <3B68557B.7816FE4B@pp.htv.fi>
-Message-ID: <Pine.LNX.4.33.0108012139330.31291-100000@devel.blackstar.nl>
+	id <S268051AbRHATtw>; Wed, 1 Aug 2001 15:49:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268053AbRHATtl>; Wed, 1 Aug 2001 15:49:41 -0400
+Date: Wed, 1 Aug 2001 15:49:27 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <3B6859B2.F1E2C95B@nortelnetworks.com>
+Message-ID: <Pine.LNX.3.95.1010801154207.1042A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Jussi Laako wrote:
 
-> Russell King wrote:
-> >
-> > Use the yenta module instead of the i82365 module.
->
-> Kills (deadlocks) my Toshiba Satellite when loaded as module (complains
-> about missing interrupts). When built into kernel it just complains but
-> doesn't lockup the machine.
->
-> Older kernels/pcmcia-cs i82365 was working fine. (2.2.x and early 2.4.x)
->
-> I should have stayed with RedHat 6.2, but I wanted journaling filesystem...
->
-> Maybe I'm doing something wrong but dunno what.
+> george anzinger wrote:
+> 
+> > The testing I have done seems to indicate a lower overhead on a lightly
+> > loaded system, about the same overhead with some load, and much more
+> > overhead with a heavy load.  To me this seems like the wrong thing to
+> 
 
-Try going to your bios and setting the PCMCIA adapter to Cardbus/16bit
-instead of Auto. The Toshiba Topic chipsets are buggy, change their PCI
-identifiers with different bios settings, and are just a plain pain in the
-ass to get working. Then use the yenta driver (preferrably in kernel), and
-I think you will find it works now. :)
+Doesn't the "tick-less" system presume that somebody, somewhere, will
+be sleeping sometime during the 1/HZ interval so that the scheduler
+gets control?
 
-Bas Vermeulen, who has had some bad experiences with Toshiba laptops. And
-it's impossible to get specs for em too.
+If everybody's doing:
 
--- 
-"God, root, what is difference?"
-	-- Pitr, User Friendly
+	for(;;)
+          number_crunch();
 
-"God is more forgiving."
-	-- Dave Aronson
+And no I/O is pending, how does the jiffy count get bumped?
+
+I think the "tick-less" system relies upon a side-effect of
+interactive use that can't be relied upon for design criteria.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

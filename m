@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313080AbSDDBgi>; Wed, 3 Apr 2002 20:36:38 -0500
+	id <S313082AbSDDBk3>; Wed, 3 Apr 2002 20:40:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313082AbSDDBg3>; Wed, 3 Apr 2002 20:36:29 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:30898 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S313080AbSDDBgT>;
-	Wed, 3 Apr 2002 20:36:19 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cleanup KERNEL_VERSION definition and linux/version.h 
-In-Reply-To: Your message of "Thu, 04 Apr 2002 10:12:29 +0900."
-             <20020404011251Z313077-616+5298@vger.kernel.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Apr 2002 11:36:06 +1000
-Message-ID: <17913.1017884166@kao2.melbourne.sgi.com>
+	id <S313083AbSDDBkT>; Wed, 3 Apr 2002 20:40:19 -0500
+Received: from mail-src.takas.lt ([212.59.31.66]:7342 "EHLO mail.takas.lt")
+	by vger.kernel.org with ESMTP id <S313082AbSDDBkD>;
+	Wed, 3 Apr 2002 20:40:03 -0500
+Date: Thu, 4 Apr 2002 03:32:41 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re[2]: Update on Promise 100TX2 + Serverworks IDE issues -- 2.2.20
+To: "jim@rubylane.com" <jim@rubylane.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <20020403025820.4561.qmail@london.rubylane.com>
+X-Mailer: Mahogany 0.64.2 'Sparc', compiled for Linux 2.4.18-rc4 i686
+Message-ID: <ISPFE11vdnznMEmPzhz00000d07@mail.takas.lt>
+X-OriginalArrivalTime: 04 Apr 2002 01:40:01.0961 (UTC) FILETIME=[A341D190:01C1DB79]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Apr 2002 10:12:29 +0900, 
-Hiroyuki Toda <might@might.dyn.to> wrote:
->
->Keith> This file will change completely in 2.5 when kbuild 2.5 goes in.  Why
->Keith> does it need to be rearranged in 2.4?
->
->Will kbuild 2.5 go in 2.4 tree also?
+On Tue, 2 Apr 2002 18:58:20 -0800 (PST) "jim@rubylane.com" <jim@rubylane.com> wrote:
 
-No, but version.h is working at the moment in 2.4.  Why change it?
+j> This board does claim to support UDMA33 and Linux says the MB IDE
+j> ports are in UDMA33 mode.  Works fine in just PIO mode.  Slower, but
+j> at least it doesn't trash drives.
+
+j> This board says:
+j> 
+j> ServerWorks OSB4: IDE controller on PCI bus 00 dev 79
+j> ServerWorks OSB4: chipset revision 0
+
+IIRC downgrading DMA to MDMA2 should help.
+
+Regards,
+Nerijus
 

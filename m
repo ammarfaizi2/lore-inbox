@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268340AbUJTPaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268334AbUJTP3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268340AbUJTPaO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268279AbUJTP2M
+	id S268334AbUJTP3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 11:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268323AbUJTP2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:28:12 -0400
-Received: from krynn.se.axis.com ([193.13.178.10]:5813 "EHLO krynn.se.axis.com")
-	by vger.kernel.org with ESMTP id S268166AbUJTPVr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:21:47 -0400
-From: "Mikael Starvik" <mikael.starvik@axis.com>
-To: "'Hugh Dickins'" <hugh@veritas.com>,
-       "Mikael Starvik" <mikael.starvik@axis.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: 2.6.9 PageAnon bug
-Date: Wed, 20 Oct 2004 17:21:44 +0200
-Message-ID: <BFECAF9E178F144FAEF2BF4CE739C66818F59B@exmail1.se.axis.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66801960A13@exmail1.se.axis.com>
+	Wed, 20 Oct 2004 11:28:19 -0400
+Received: from adsl-66-141-207-172.dsl.tulsok.swbell.net ([66.141.207.172]:38529
+	"EHLO bronco.mcalesterlinux.net") by vger.kernel.org with ESMTP
+	id S268028AbUJTPUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 11:20:46 -0400
+Date: Wed, 20 Oct 2004 10:19:39 -0500
+From: Harold C King <hcking@mcalesterlinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: Lost 24 bit color using 2.6.9 and Xorg 6.8.1
+Message-Id: <20041020101939.432989c2.hcking@mcalesterlinux.net>
+Organization: McAlesterLinux.net
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ah, sorry for messing CRIS up, I was unaware of that.
+The 24 bit color now fails using Xorg 6.8.1 and the released 2.6.9 kernel.
+The video drivers involved werer i810 (and intel_agp).  This was tried on
+two different systems with the same results (separate kernel compiles too).
+Note, the screen resolution setting doesn't seem to effect the problem.
 
-Well, it's kind of odd nowadays to have the freedom of arbitrary alignment. 
+These systems were running 2.6.8.1 at 24 bit color with no problems.
 
->I don't think that's ugly, and the comment is good.
->It only actually needs "aligned(2)", would that be better?
+The error messages in the Xorg.0.log varies, however on one system received:
 
-Yes, aligned(2) is enough.
+    space: 63692 wanted 65528
 
->But what does "aligned(2)" or "aligned(4)" do on 64-bit machines -
->any danger of it aligning stupidly?  I think not, but know little.
+On the other the problem was an X lockup upon ICEWM menu selection, no log entry.
 
-Same here, we need input from the 64-bit world (or make it aligned(8)).
 
->>Another possible patch would be to move i_data above i_bytes and i_sock.
->Really?  Precarious, I think you'd still need to insist on alignment.
+Anyone have an idea how to proceed?
 
-I agree that there may be compilers out there that actually pads the
-structure to make the members unaligned. So you are correct, aligned()
-should be used to be safe (until memory allocation routines start to return
-unaligned addresses).
+Hal
 
-Will you send this upstream to Andrew?
 
-Thanks for the quick response!
-/Mikael
+   
 

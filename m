@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268088AbUJCTHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUJCTW3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268088AbUJCTHW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 15:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268089AbUJCTHW
+	id S268089AbUJCTW3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 15:22:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJCTW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 15:07:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:9409 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268088AbUJCTHV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 15:07:21 -0400
-Message-ID: <9e47339104100312075ed923e0@mail.gmail.com>
-Date: Sun, 3 Oct 2004 15:07:20 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Hanno Meyer-Thurow <h.mth@web.de>
-Subject: Re: 2.6.9-rc3-mm1, bk-pci patch, USB hubs
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041003210237.1c1a6132.h.mth@web.de>
+	Sun, 3 Oct 2004 15:22:28 -0400
+Received: from pat.uio.no ([129.240.130.16]:62680 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268089AbUJCTV4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Oct 2004 15:21:56 -0400
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, iwamoto@valinux.co.jp,
+       haveblue@us.ibm.com, Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       piggin@cyberone.com.au, arjanv@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20041004.033559.71092746.taka@valinux.co.jp>
+References: <20041002183349.GA7986@logos.cnet>
+	 <20041003.131338.41636688.taka@valinux.co.jp>
+	 <20041003140723.GD4635@logos.cnet>
+	 <20041004.033559.71092746.taka@valinux.co.jp>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1096831287.9667.61.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041003210237.1c1a6132.h.mth@web.de>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 03 Oct 2004 21:21:27 +0200
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't check them individually, I just reverted the group. UHCI
-fails for me, this fixes it. EHCI and OHCI are of unknown status for
-me since I don't know if they failed too.
+På su , 03/10/2004 klokka 20:35, skreiv Hirokazu Takahashi:
 
-On Sun, 3 Oct 2004 21:02:37 +0200, Hanno Meyer-Thurow <h.mth@web.de> wrote:
-> Hi Jon,
-> 
-> > These changes make the USB hub module fail to load. I get a trap in
-> > kmem_cache_alloc called from uhci_alloc_urb_private. Reverting them
-> > fixes it.
-> 
-> I use EHCI and UHCI and i just had to revert only the part for UHCI. EHCI works just fine here!
+> Pages for NFS also might be pinned with network problems.
+> One of the ideas is to restrict NFS to allocate pages from
+> specific memory region, sot that all memory except the region
+> can be hot-removed. And it's possible to implementing whole
+> migrate_page method, which may handled stuck pages.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Why do you want to special-case this?
+
+The above is a generic condition: any filesystem can suffer from the
+equivalent problem of a failure or slow response in the underlying
+device. Making an NFS-specific hack is just counter-productive to
+solving the generic problem.
+
+Cheers,
+  Trond
+

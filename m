@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274120AbRISRgT>; Wed, 19 Sep 2001 13:36:19 -0400
+	id <S274117AbRISRfj>; Wed, 19 Sep 2001 13:35:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274121AbRISRf7>; Wed, 19 Sep 2001 13:35:59 -0400
-Received: from air-1.osdlab.org ([65.201.151.5]:38153 "EHLO
-	osdlab.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S274120AbRISRf5>; Wed, 19 Sep 2001 13:35:57 -0400
-Message-ID: <3BA8D723.51F17211@osdlab.org>
-Date: Wed, 19 Sep 2001 10:34:27 -0700
-From: "Randy.Dunlap" <rddunlap@osdlab.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-CC: Alan <alan@lxorguk.ukuu.org.uk>, crutcher+kernel@datastacks.com,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Magic SysRq +# in 2.4.9-ac/2.4.10-pre12
-In-Reply-To: <3BA8C01D.79FBD7C3@osdlab.org> <20010919193105.E7179@arthur.ubicom.tudelft.nl>
+	id <S274119AbRISRf3>; Wed, 19 Sep 2001 13:35:29 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:7431 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S274118AbRISRfV>;
+	Wed, 19 Sep 2001 13:35:21 -0400
+Message-ID: <XFMail.20010919103903.davidel@xmailserver.org>
+X-Mailer: XFMail 1.5.0 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3BA8BBC9.EA1D0636@kegel.com>
+Date: Wed, 19 Sep 2001 10:39:03 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+To: Dan Kegel <dank@kegel.com>
+Subject: Re: [PATCH] /dev/epoll update ...
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+        "Christopher K. St. John" <cks@distributopia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Mouw wrote:
+
+On 19-Sep-2001 Dan Kegel wrote:
+> "Christopher K. St. John" wrote:
+>>  The Banga, Mogul and Druschel[1] paper (which I understand
+>> was the inspiration for the Solaris /dev/poll which was the
+>> inspiration for /dev/epoll?) talks about having the poll
+>> return the current state of new descriptors. As far as I can
+>> tell, /dev/epoll only gives you events on state changes. So,
+>> for example, if you accept() a new socket and add it to the
+>> interest list, you (probably) won't get a POLLIN. That's
+>> not fatal, but it's awkward.
+>>...
+>>  My vote would be to always report the initial state, but
+>> that would make the driver a little more complicated.
+>> 
+>>  What are the preferred semantics?
 > 
-> On Wed, Sep 19, 2001 at 08:56:13AM -0700, Randy.Dunlap wrote:
-> > I have an IBM model KB-9910 keyboard.  When I use
-> > Alt+SysRQ+number (number: 0...9) on it to change the
-> > console loglevel, only keys 5 and 6 have the desired
-> > effect.  I used showkey -s to view the scancodes from
-> > the other <number> keys, but showkey didn't display
-> > anything for them.  Any other suggestions?
+> Taking an extreme but justifiable position for discussion's sake:
 > 
-> Same over here with an IBM PS/2 keyboard that originally came with an
-> IBM PS2 model 55SX. The IBM keyboard is connected to an Asus M8300
-> laptop. The keyboard of that laptop has the interesting "feature" that
-> Alt-SysRQ-m sets the loglevel to 0, and Alt-SysRQ-[suob] also set the
-> loglevel to a different value instead of doing their job.
+> Stevens [UNPV1, in chapter on nonblocking accept] suggests that readiness
+> notifications from the OS should only be considered hints, and that user
+> programs should behave properly even if the OS feeds it false readiness
+> events.  
+> 
+> Thus one possible approach would be for /dev/epoll (or users of /dev/epoll)
+> to assume that an fd is initially ready for all (normal) events, and just
+> try handling them all.  That probably involves a single system call
+> to read() (or possibly a call to both write() and read(), or a call to accept(),
+> or a call to getsockopt() in the case of nonblocking connect), so the overhead
+> isn't very high.
 
-I'm having this (my same) problem on a different test system/keyboard,
-and I'm beginning to think that it's not a keyboard problem,
-but I don't have any evidence of that one way or the other.
+I think there's an advantage instead.
+With the usual scheme :
 
-I've tested 2.4.2, 2.4.5, 2.4.6, 2.4.7, 2.4.9, and 2.4.10-pre,
-and all exhibit the same problem.
+        select()/poll();
+        recv()/send();
 
-~Randy
+you always issue two system calls each time, while with :
+
+        while (recv()/send() == FAIL) {
+                wait_event();
+        }
+
+you're going to issue two calls only in certain conditions.
+
+
+
+
+- Davide
+

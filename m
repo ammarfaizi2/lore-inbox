@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265728AbRFXEql>; Sun, 24 Jun 2001 00:46:41 -0400
+	id <S265727AbRFXEql>; Sun, 24 Jun 2001 00:46:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265727AbRFXEqb>; Sun, 24 Jun 2001 00:46:31 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:13061 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S265726AbRFXEq1>;
-	Sun, 24 Jun 2001 00:46:27 -0400
-Date: Sun, 24 Jun 2001 09:52:19 +0600
+	id <S265726AbRFXEqc>; Sun, 24 Jun 2001 00:46:32 -0400
+Received: from [203.143.19.4] ([203.143.19.4]:12549 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S265725AbRFXEqZ>;
+	Sun, 24 Jun 2001 00:46:25 -0400
+Date: Sat, 23 Jun 2001 10:53:36 +0600
 From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Anatoly Ivanov <avi@levi.spb.ru>
+To: John R Lenton <john@grulic.org.ar>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 and gcc v3 final
-Message-ID: <20010624095219.A562@bee.lk>
-In-Reply-To: <Pine.LNX.4.21.0106212143320.9295-100000@localhost.localdomain> <3B32E5C5.2040401@levi.spb.ru>
+Subject: Re: How to compile on one machine and install on another?
+Message-ID: <20010623105336.A357@bee.lk>
+In-Reply-To: <Pine.LNX.4.33.0106191646330.17727-100000@localhost.localdomain> <20010619185033.A2970@grulic.org.ar>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B32E5C5.2040401@levi.spb.ru>; from avi@levi.spb.ru on Fri, Jun 22, 2001 at 10:29:25AM +0400
+In-Reply-To: <20010619185033.A2970@grulic.org.ar>; from john@grulic.org.ar on Tue, Jun 19, 2001 at 06:50:33PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 22, 2001 at 10:29:25AM +0400, Anatoly Ivanov wrote:
+On Tue, Jun 19, 2001 at 06:50:33PM -0300, John R Lenton wrote:
 > 
-> I hope that lk-developers would fix it one day.
+> make-kpkg takes care of all that for you (it's part of kernel-package)
 
-Multi-string literals is a nice little ANSI C feature that appears everywhere.
-Why it is necessary to "fix" them?
+It does. But only for Debian users like you and me.
+
+Regards,
 
 Anuradha
 
 -- 
 
-Debian GNU/Linux (kernel 2.4.6-pre5)
+Penguin : Linux 2.4.6-pre5 on an i586
 
-For some reason a glaze passes over people's faces when you say
-"Canada".  Maybe we should invade South Dakota or something.
-		-- Sandra Gotlieb, wife of the Canadian ambassador to the U.S.
+"Language shapes the way we think, and determines what we can think about."
+-- B. L. Whorf
 

@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262867AbUKXVc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262858AbUKXVeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262867AbUKXVc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 16:32:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUKXVcn
+	id S262858AbUKXVeh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 16:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUKXVdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 16:32:43 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:16533 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262778AbUKXVa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 16:30:29 -0500
-Subject: Re: Suspend 2 merge: 22/51: Suspend2 lowlevel code.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0411240931470.7171@musoma.fsmlabs.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101296166.5805.279.camel@desktop.cunninghams>
-	 <Pine.LNX.4.61.0411240931470.7171@musoma.fsmlabs.com>
-Content-Type: text/plain
-Message-Id: <1101331206.3895.40.camel@desktop.cunninghams>
+	Wed, 24 Nov 2004 16:33:06 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:41658 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262778AbUKXVct
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 16:32:49 -0500
+Date: Wed, 24 Nov 2004 13:32:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Maneesh Soni <maneesh@in.ibm.com>,
+       "Christopher S. Aker" <caker@theshore.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc2-bk7 - kernel BUG at fs/sysfs/file.c:87!
+Message-ID: <20041124213231.GA3132@kroah.com>
+References: <002c01c4d25b$3e8b9b10$0201a8c0@hawk> <20041124204138.GA2543@in.ibm.com> <20041124211800.GQ13847@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 08:20:06 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041124211800.GQ13847@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2004-11-25 at 03:42, Zwane Mwaikambo wrote:
-> Ok,
-> 	Do you see anything missing (from an implementation point of view) 
-> for the following?
+On Wed, Nov 24, 2004 at 10:18:00PM +0100, Jens Axboe wrote:
+> On Wed, Nov 24 2004, Maneesh Soni wrote:
+> > On Wed, Nov 24, 2004 at 07:26:43PM +0000, Christopher S. Aker wrote:
+> > > Doing "cat /sys/block/sda/queue/iosched/show_status" produces the following BUG:
+> > > 
+> > > ------------[ cut here ]------------
+> > > kernel BUG at fs/sysfs/file.c:87!
+> > 
+> > I think you are using cfq io scheduler. show_status is from cfq_ioched. Looks 
+> > like return value freom cfq_status_show() is going beyond one page. 
+> > read/write buffer for sysfs text attribute files is limited to one page. 
 > 
-> Suspend:
-> 	1) suspend all cpus, save cpu0
-> 	2) proceed with state saving on cpu0 only
-> 	3) begin suspend
-> 	
-> Resume:
-> 	1) begin resume
-> 	2) offline all currently online cpus
-> 	3) proceed with state restoring
-> 	4) online all previously online cpus
+> Yeah, with many processes that is easy to hit. I dunno how to fix it
+> yet, is it possible to combine sysfs with the seq stuff? The file should
+> just be deleted, though.
 
-That's roughly what we're doing now, apart from the offlining/onlining.
-I had considered trying to take better advantage of SMP support (perhaps
-run a decompression thread on one CPU and the writer on the other, eg),
-so we might want to apply this just to the region immediately around the
-atomic copy/restore. That makes me wonder, though, what the advantage is
-to switching to using the hotplug functionality - is it x86 only, or
-more cross platform? (If more cross platform, that might possibly be an
-advantage over the current code).
+sysfs files should have only 1 value per file.  You really have a single
+value that is bigger than a page size?  :)
 
-> A lot of the subsystems which have work split across cpus will now have 
-> work migrated across to cpu0, in that regard, which have you made swsusp 
-> savvy? It looks like the timer changes might need looking at any others?
+thanks,
 
-All of the other threads, including the migration threads, are frozen,
-so I don't believe that anything gets migrated to CPU0. I'll double
-check when I next suspend.
-
-As to the timers, I fully agree. Thawing them needs a mechanism for
-keeping the per-cpu timers staggered.
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+greg k-h

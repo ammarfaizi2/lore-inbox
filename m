@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVA1A4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVA1A7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVA1A4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 19:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVA1A4J
+	id S261371AbVA1A7m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 19:59:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVA1A5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 19:56:09 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56291 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261347AbVA1Axs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 19:53:48 -0500
-Date: Thu, 27 Jan 2005 16:53:30 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: mingo@elte.hu, pwil3058@bigpond.net.au, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.10-rc2] sched: fix ->nr_uninterruptible handling
- bugs
-Message-Id: <20050127165330.6f388054.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0411161509190.2222@ppc970.osdl.org>
-References: <20041116113209.GA1890@elte.hu>
-	<419A7D09.4080001@bigpond.net.au>
-	<20041116232827.GA842@elte.hu>
-	<Pine.LNX.4.58.0411161509190.2222@ppc970.osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 27 Jan 2005 19:57:12 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:63170
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261360AbVA1AxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 19:53:13 -0500
+Date: Thu, 27 Jan 2005 16:48:43 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       greg@kroah.com, akpm@osdl.org
+Subject: Re: [ANN] removal of certain net drivers coming soon: eepro100,
+ xircom_tulip_cb, iph5526
+Message-Id: <20050127164843.08bdb307.davem@davemloft.net>
+In-Reply-To: <20050128001430.C22695@flint.arm.linux.org.uk>
+References: <41F952F4.7040804@pobox.com>
+	<20050127225725.F3036@flint.arm.linux.org.uk>
+	<20050127153114.72be03e2.davem@davemloft.net>
+	<20050128001430.C22695@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A long time ago, Linus wrote:
-> An atomic op is pretty much as expensive as a spinlock/unlock pair on x86.  
-> Not _quite_, but it's pretty close.
+On Fri, 28 Jan 2005 00:14:30 +0000
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Are both read and modify atomic ops relatively expensive on some CPUs,
-or is it just modify atomic ops?
+> The fact of the matter is that eepro100.c works on ARM, e100.c doesn't.
+> There's a message from me back on 30th June 2004 at about 10:30 BST on
+> this very list which generated almost no interest from anyone...
 
-(Ignoring for this question the possibility that a mix of read and
-modify ops could heat up a cache line on multiprocessor systems, and
-focusing for the moment just on the CPU internals ...)
+I see.  Since eepro100 just uses a fixed set of RX buffers in the
+ring (ie. the DMA links are never changed) it works.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401
+This adapter was definitely developed for a system that has to have
+PCI device DMA and CPU cached data accesses in the same coherency
+space in order to use their weird RX chaining thing.
+
+So essentially, e100 needs to have it's RX logic rewritten so that
+it uses a static RX descriptor set of buffers and skb_copy()'s them
+to push the packets into the stack.

@@ -1,40 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266173AbUJEWPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUJEWQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266173AbUJEWPu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 18:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUJEWPt
+	id S266127AbUJEWQu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 18:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266115AbUJEWQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 18:15:49 -0400
-Received: from zero.aec.at ([193.170.194.10]:11535 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S266115AbUJEWPj (ORCPT
+	Tue, 5 Oct 2004 18:16:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:43019 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266127AbUJEWQn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 18:15:39 -0400
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: question about MTRR areas on x86_64
-References: <2M5w2-y8-3@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 06 Oct 2004 00:15:35 +0200
-In-Reply-To: <2M5w2-y8-3@gated-at.bofh.it> (Markus Lidel's message of "Wed,
- 06 Oct 2004 00:00:22 +0200")
-Message-ID: <m3vfdox14o.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 5 Oct 2004 18:16:43 -0400
+Message-ID: <35fb2e59041005151661d7a0b4@mail.gmail.com>
+Date: Tue, 5 Oct 2004 23:16:34 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: "valdis.kletnieks@vt.edu" <valdis.kletnieks@vt.edu>
+Subject: Re: block till hotplug is done?
+Cc: Harald Dunkel <harald.dunkel@t-online.de>,
+       Andreas Jellinghaus <aj@dungeon.inka.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200410052038.i95Kc8VM004041@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1097005927.4953.4.camel@simulacron> <4163005B.2090000@t-online.de>
+	 <200410052038.i95Kc8VM004041@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Lidel <Markus.Lidel@shadowconnect.com> writes:
->
-> Could it be because the machine has too much memory, or is there a bug in the I2O driver?
+On Tue, 05 Oct 2004 16:38:08 -0400, valdis.kletnieks@vt.edu
+<valdis.kletnieks@vt.edu> wrote:
+> On Tue, 05 Oct 2004 22:13:15 +0200, Harald Dunkel said:
+> > Andreas Jellinghaus wrote:
+> > > Hi,
+> > >
+> > > is there any way to block till all hotplug events are handled/
+> > > the hotplug processes terminated?
+> > >
+> >
+> > while [ "`ps | grep /sbin/hotplug | grep -v grep`" ]; do sleep 1; done
+> 
+> Save a process:
+> 
+> while [ "`ps | grep '/sbin/[h]otplug'`" ]; do sleep 1; done
 
-The problem comes from the BIOS who set up reg00 to be overlapping
-over other areas. The Linux MTRR driver cannot deal with overlapping
-MTRRs, in fact it is sometimes impossible because it could run
-out of registers or violate some of the MTRR restrictions.
+Why not sit a script in /etc/dev.d and have that wake up your fsck
+script by signalling a flag file somewhere or somesuch - I think this
+is the preferable to do stuff with udev, Greg?
 
-It's a long standing problem, eventual fix will be to get rid
-of MTRRs completely and only use PAT. But it needs a bit more work.
-
--Andi
-
+Jon.

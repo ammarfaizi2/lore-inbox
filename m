@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281957AbRKUTrV>; Wed, 21 Nov 2001 14:47:21 -0500
+	id <S281966AbRKUTzE>; Wed, 21 Nov 2001 14:55:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281961AbRKUTrL>; Wed, 21 Nov 2001 14:47:11 -0500
-Received: from amsfep11-int.chello.nl ([213.46.243.19]:45840 "EHLO
-	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S281960AbRKUTrG>; Wed, 21 Nov 2001 14:47:06 -0500
-Date: Wed, 21 Nov 2001 20:46:59 +0100
-From: Jeroen Vreeken <pe1rxq@amsat.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-hams <linux-hams@vger.kernel.org>, tomi.manninen@hut.fi,
-        dg2fef@afthd.tu-darmstadt.de
-Subject: Re: [PATCH] Using sock_orphan in ax25 and netrom
-Message-ID: <20011121204659.C1187@jeroen.pe1rxq.ampr.org>
-In-Reply-To: <20011120154610.A189@jeroen.pe1rxq.ampr.org> <20011121194223.A1187@jeroen.pe1rxq.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20011121194223.A1187@jeroen.pe1rxq.ampr.org>; from pe1rxq@amsat.org on Wed, Nov 21, 2001 at 19:42:23 +0100
-X-Mailer: Balsa 1.1.0
+	id <S281965AbRKUTyx>; Wed, 21 Nov 2001 14:54:53 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:8068 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S281961AbRKUTyp>; Wed, 21 Nov 2001 14:54:45 -0500
+Message-ID: <002801c172c6$3e23a8e0$f5976dcf@nwfs>
+From: "Jeff Merkey" <jmerkey@timpanogas.org>
+To: "Arjan van de Ven" <arjan@fenrus.demon.nl>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E166S8l-0007hs-00@fenrus.demon.nl> <002401c172ba$b46bed20$f5976dcf@nwfs> <20011121191607.A32418@fenrus.demon.nl>
+Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
+Date: Wed, 21 Nov 2001 12:53:51 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001.11.21 19:42:23 +0100 Jeroen Vreeken wrote:
-> Appearantly my patch from yesterday was a bit premature...
-> 
-> It looks like the ax25 and netrom stack do some magic with the dead
-> sockets
-> that is not compatible with sock_orphan. I will try and see if I can
-> track
-> them down.
 
-Found the cause in datagram_poll() in datagram.c:
+----- Original Message -----
+From: "Arjan van de Ven" <arjan@fenrus.demon.nl>
+To: "Jeff Merkey" <jmerkey@timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, November 21, 2001 12:16 PM
+Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
+opcode
 
 
-        if (sock_writeable(sk))
-                mask |= POLLOUT | POLLWRNORM | POLLWRBAND;
-        else
-                set_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
+> On Wed, Nov 21, 2001 at 11:31:15AM -0700, Jeff Merkey wrote:
+>
+> > I would anticipate seeing this problem with their kernel source RPM.  In
+> > fact, I do, you have to do a make distclean before you can use it
+because
+> > of the way their rpm script munges all the versioned trees into a tmp
+area
+> > during RPM creation. There's only one source tree (usually the last one
+> > they built) and lots of binary rpm versions from the one tree (i.e.
+i386,
+> > i686, etc.).
+>
+> Yes and during the build the modversions and depenency info  etc for each
+> version is nicely stored in separate directories which is later combined
+> into one tree with #if's for the proper currently running kernel.
+>
+> Have you even looked at the kernel-source RPM ?
 
-Since our socket is dead its not writeable and the code tries to set
-sk->socket->flags
-However sk->socket has been set to NULL by sock_orphan()
-Adding a check for this solves the problem:
+Yes.  I based a Linux distribution on RedHat's 6.2 last year, and I am
+**VERY** familiar with your anaconda installer and kernel.src.rpm build
+modules.  I know the 7.X stuff got a hell of a lot better, but customers
+still have to sterilize the build area are your rpm gets installed in order
+to build external kernel modules.
 
-        if (sock_writeable(sk))
-                mask |= POLLOUT | POLLWRNORM | POLLWRBAND;
-        else
-                if (sk->socket)
-                        set_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
+Jeff
 
-Is there a reason datagram_poll() should not check this? (Or another place
-to do it)
-If not I will make a new patch including this change.
-
-Jeroen
-
+>
+> Greetings,
+>   Arjan van de Ven
+>   Red Hat Linux kernel maintainer
 

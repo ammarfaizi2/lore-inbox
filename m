@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263533AbUCTUVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 15:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbUCTUVs
+	id S263529AbUCTU2B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 15:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263535AbUCTU2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 15:21:48 -0500
-Received: from lhr63.pie.net.pk ([202.125.140.140]:41442 "EHLO
-	www.beaconet.net") by vger.kernel.org with ESMTP id S263533AbUCTUVq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 15:21:46 -0500
-Message-Id: <200403202020.i2KKKCt5011295@www.beaconet.net>
-From: "SAR" <sar_696@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Sttop Spreading Hatred
-Date: Sun, 21 Mar 2004 01:20:10 +0500
-X-Mailer: Mach5 Mailer-2.50 PID{4ca6be40-6853-11d8-9033-994f30a86c34} RC{Arif ur Rehman}
-Reply-To: sar_696@hotmail.com
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----000000000000000000000"
+	Sat, 20 Mar 2004 15:28:01 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50905
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263529AbUCTU17 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 15:27:59 -0500
+Date: Sat, 20 Mar 2004 21:28:50 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040320202850.GH9009@dualathlon.random>
+References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320121345.2a80e6a0.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040320121345.2a80e6a0.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------000000000000000000000
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+On Sat, Mar 20, 2004 at 12:13:45PM -0800, Andrew Morton wrote:
+> fyi, we don't need the check in page_referenced() and try_to_unmap()
+> because do_no_page() does not place pages on the LRU.  It is the ->nopage
 
-Subject: Stop Spreading Hatred
+yes I've noticed.
 
+> I agree that ->nopage implementations should not be doing what that driver
+> is doing.  ->nopage is defined to return a page*: it's crazy to be
+> returning someting from there which isn't covered by mem_map[].
 
-I think being a Muslim you are not working for peace. You are misguided, mistaken and spreading hatred through disinformation and false accusations, which is resulting in death and miseries for number of innocent people living around the world at the hands of merciless KILLER MUSLIMS and also bringing bad name to MOHAMMED as Founder Of Islam.
+I may have been wrong about that sorry, it's still not certain though,
+but I had a bug in the code that would mistake a sigbus for a page_t
+outside the mem_map, so it could have been a sigbus not a non-ram page.
 
-Try and work for peace and reconciliation, and prove to the WORLD through your deeds that MOHAMMED teaches "love & peace" and not Cruelty, Inhumanity and "Hatred & Killing" of the innocent civilians.
+Also in the meantime I noticed with NUMA it's impossible to handle
+non-ram correctly in ->nopage, at least if using the current
+page_to_pfn.
 
-S.A.R
+> I just don't think it's important enough to be able to cope with
+> non-mem_map[] "memory" in do_no_page(), so I agree that requiring ->mmap()
+> to synchronously instantiate the pte's and retaining the debug check in
+> do_no_page() is a good idea.
 
+I agree, I reistantiated the debug check because we cannot handle
+non-ram from there if it's numa (actually discontigmem). If alsa uses
+non-ram pages it must be fixed, but I've an hope it was a sigbus
+trouble. We'll know more in a few more hours.
 
+(btw, Martin definitely triggered the sigbus with numa, the 0x3()
+dereference was a the page_t address to read page->flags >> 24)
 
-------000000000000000000000--
+it's good to have reminded the API cannot handle non-ram.

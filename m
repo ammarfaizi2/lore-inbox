@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318787AbSHWMx3>; Fri, 23 Aug 2002 08:53:29 -0400
+	id <S318786AbSHWMwS>; Fri, 23 Aug 2002 08:52:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318790AbSHWMx3>; Fri, 23 Aug 2002 08:53:29 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27378 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S318787AbSHWMx2>;
-	Fri, 23 Aug 2002 08:53:28 -0400
-Date: Fri, 23 Aug 2002 08:57:34 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Tom <tom@lemuria.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page_alloc bug
-Message-ID: <20020823125734.GA8854@www.kroptech.com>
-References: <20020823090527.A7715@lemuria.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020823090527.A7715@lemuria.org>
-User-Agent: Mutt/1.3.28i
+	id <S318787AbSHWMwS>; Fri, 23 Aug 2002 08:52:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318786AbSHWMwR>; Fri, 23 Aug 2002 08:52:17 -0400
+Date: Fri, 23 Aug 2002 08:56:21 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: ic@aleph1.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: process 0
+In-Reply-To: <20020823121115.GA31534@aleph1.net>
+Message-ID: <Pine.LNX.3.95.1020823085056.169A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 23, 2002 at 09:05:27AM +0200, Tom wrote:
-> first time reporting a kernel bug, so please tell me if you need any
-> other details. I'm following the instructions on kernel.org as closely
-> as I can.
+On Fri, 23 Aug 2002 ic@aleph1.net wrote:
 
-Actually, you need to follow them a little closer if you want anyone to
-help you. Perhaps you missed this paragraph in REPORTING-BUGS:
+> Hi.
+> Maybe this is a little off topic, but does what is the real status of
+> Process 0 (swapper) ?
+> Some people keep telling me it doesn't exist, but on some kernel crashes
+> I can see "process swapper (pid 0, process nr 0, ...)"
+> 
+> Can someone help me ?
 
-     If the failure includes an "OOPS:" type message in your log or on screen
-     please read "Documentation/oops-tracing.txt" before posting your bug
-     report. This explains what you should do with the "Oops" information to
-     make it useful to the recipient.
+Well, it kind-of exists. It's what the CPU does when there is nothing
+else to do. Sort of like:
 
-> (5) Output of oops:
-> not sure if this is it, but here is what is displayed on the console:
-> kernel BUG at page_alloc.c:91!
-> invalid operand: 0000
-> CPU: 0
-> EIP: 0010:[<c012b96d>] Tainted: P
-                                  ^
-What proprietary modules did you have loaded when this BUG() was hit? nVidia,
-perhaps? Reproduce the problem from a cold boot without ever having loaded the
-closed-source module(s). If you can't, go talk to whomever made the module; the
-community cannot help you solve a problem when we can't see the code.
+		for(;;)
+                    schedule();
 
---Adam
+It's also where it 'goes' if init returns <grin>.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

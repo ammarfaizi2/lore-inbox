@@ -1,82 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267421AbUH1JyL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267403AbUH1J6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267421AbUH1JyL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 05:54:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267399AbUH1JwO
+	id S267403AbUH1J6G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 05:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267435AbUH1J5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 05:52:14 -0400
-Received: from anubis.medic.chalmers.se ([129.16.30.218]:62196 "EHLO
-	anubis.medic.chalmers.se") by vger.kernel.org with ESMTP
-	id S267411AbUH1Jqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 05:46:32 -0400
-Message-ID: <413054AE.98FCE658@fy.chalmers.se>
-Date: Sat, 28 Aug 2004 11:47:26 +0200
-From: Andy Polyakov <appro@fy.chalmers.se>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,sv,ru
-MIME-Version: 1.0
+	Sat, 28 Aug 2004 05:57:30 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:59290 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S267403AbUH1JxT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 05:53:19 -0400
+Date: Sat, 28 Aug 2004 09:53:07 +0000 (UTC)
+From: dulle <dulle@free.fr>
+Reply-To: dulle@free.fr
 To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: [PATCH] ide-cd.c to mount multi-session DVD
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.60.0408280858090.1577@ganymede.chateauneuf.fr>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811839-1502480738-1093683503=:1577"
+Content-ID: <Pine.LNX.4.60.0408280908160.1609@ganymede.chateauneuf.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With respect to http://marc.theaimsgroup.com/?l=linux-kernel&m=108827602322464&w=2
-I'd like to nominate the attached patch. And while we're on ide-cd.c
-track I also wonder why has dma alignment requirement been hardened?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
--	blk_queue_dma_alignment(drive->queue, 3);
-+	blk_queue_dma_alignment(drive->queue, 31);
+---1463811839-1502480738-1093683503=:1577
+Content-Type: TEXT/PLAIN; CHARSET=X-UNKNOWN; FORMAT=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <Pine.LNX.4.60.0408280908161.1609@ganymede.chateauneuf.fr>
 
-I can find requirement for minimal lenght reasonable, but who aligns
-pointers at 32 byte boundary? Cheers. A.
 
-8<-------8<-------8<-------8<-------8<-------8<-------8<-------8<-------
---- ./drivers/ide/ide-cd.c.orig	Tue Aug 24 18:54:42 2004
-+++ ./drivers/ide/ide-cd.c	Fri Aug 27 20:31:27 2004
-@@ -2356,26 +2356,32 @@
- 	/* Read the multisession information. */
- 	if (toc->hdr.first_track != CDROM_LEADOUT) {
- 		/* Read the multisession information. */
--		stat = cdrom_read_tocentry(drive, 0, 1, 1, (char *)&ms_tmp,
-+		int ask_for_msf=0;
-+#if ! STANDARD_ATAPI
-+		if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
-+			ask_for_msf=1;
-+#endif
-+		stat = cdrom_read_tocentry(drive, 0, ask_for_msf, 1,
-+					   (char *)&ms_tmp,
- 					   sizeof(ms_tmp), sense);
- 		if (stat) return stat;
- 	} else {
--		ms_tmp.ent.addr.msf.minute = 0;
--		ms_tmp.ent.addr.msf.second = 2;
--		ms_tmp.ent.addr.msf.frame  = 0;
-+		ms_tmp.ent.addr.lba = 0;
- 		ms_tmp.hdr.first_track = ms_tmp.hdr.last_track = CDROM_LEADOUT;
- 	}
- 
-+	toc->last_session_lba = be32_to_cpu(ms_tmp.ent.addr.lba);
-+	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
-+
- #if ! STANDARD_ATAPI
--	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd)
-+	if (CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd
-+	    && toc->hdr.first_track != CDROM_LEADOUT) {
- 		msf_from_bcd (&ms_tmp.ent.addr.msf);
-+		toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
-+						    ms_tmp.ent.addr.msf.second,
-+						    ms_tmp.ent.addr.msf.frame);
-+	}
- #endif  /* not STANDARD_ATAPI */
--
--	toc->last_session_lba = msf_to_lba (ms_tmp.ent.addr.msf.minute,
--					    ms_tmp.ent.addr.msf.second,
--					    ms_tmp.ent.addr.msf.frame);
--
--	toc->xa_flag = (ms_tmp.hdr.first_track != ms_tmp.hdr.last_track);
- 
- 	/* Now try to get the total cdrom capacity. */
- 	stat = cdrom_get_last_written(cdi, &last_written);
+Craig Milo Rogers wrote:
+
+>       Hmmm... a poster on Slashdot claims that entropy measurements
+>imply that the pwcx code is interpolating rather that truly
+>decompressing.
+
+That  is  clearly  false.   Amateur   astronomers   have
+extensively used the pwc  webcams  for  years  now,  and
+these type of applications is most demanding in term  of
+resolution. And amateur astronomers  know  what  CCD  is
+about, and would not be fooled by such a flaw.
+
+Moreover the CCD chip inside philips cameras  (at  least
+those using a CCD and not a CMOS) is a (roughly) 640x480
+chip (sony ICX098) http://www.sony.co.jp/~semicon/japan-
+ese/img/sonyj01/e6803249.pdf that probably costs 5 or  6
+times the price of a 160x120 chip.
+
+These cams do have a 640x480 chip and process images  in
+consequence, slashdot or not.
+
+And their hardware is extremely robust and efficient.
+
+Also as a not uninterested user, and a bit off-topic,  I
+just want to underline the impact that those webcams and
+pwc may have in totally unexpected domains, making  them
+far more than just gadgets.
+
+The quality  of  those  webcams  by  Philips  (and  some
+others), and the versatility of the pwc  driver  have  a
+leading role in the  -real-  revolution  that  planetary
+astronomical  imaging   has   experienced   since   they
+appeared. A simple web search  on  'webcam'  and  either
+'jupiter', 'saturn', 'mars' will confirm that for a  few
+years these gadgets  have  outperformed  (for  different
+reasons) specialized astronomical CCD  cameras  (costing
+20, 50 or 100 times more)  in  that  particular  domain.
+(just check
+http://www.ort.cuhk.edu.hk/ericng/webcam/planets.htm
+for some jaw-dropping shots)
+
+The  amateur  astronomer  community  has  had   valuable
+exchange with Nemosoft in order to get the best of these
+devices, and the result is a typical example of what can
+be achieved when combining new  ideas  and  open  source
+projects.
+
+Regards
+-- Fran=E7ois Meyer
+---1463811839-1502480738-1093683503=:1577--

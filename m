@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbUBUJhp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 04:37:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbUBUJhp
+	id S261539AbUBUKJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 05:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbUBUKJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 04:37:45 -0500
-Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:57989 "EHLO
-	cambrant.com") by vger.kernel.org with ESMTP id S261537AbUBUJho
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 04:37:44 -0500
-Date: Sat, 21 Feb 2004 10:36:01 +0100
-From: tim@cambrant.com
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove MOD_DEC_USE_COUNT from i2o_block.c
-Message-ID: <20040221093601.GA32094@cambrant.com>
+	Sat, 21 Feb 2004 05:09:25 -0500
+Received: from pop.gmx.de ([213.165.64.20]:35467 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261539AbUBUKJY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 05:09:24 -0500
+X-Authenticated: #222435
+Date: Sat, 21 Feb 2004 11:09:48 +0100
+From: Jonas Diemer <diemer@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Sound choppy when switching scaling_gov
+Message-Id: <20040221110948.5f023281.diemer@gmx.de>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please go easy on me if this patch is stupid, because it's not really
-my patch. Someone told me these were removable alltogether since they
-are deprecated, so I found one of them in John Cherry's compile stats
-and simply removed it. Please apply in case it's not idiotic. Thanks.
+Hi!
 
-Applies against Linux 2.6.3.
+I am experiencing choppy sound playback with xmms. For example, when I
+keep switching workspaces in my WindowManager, the sound is nearly not
+usable. But also during normal work, mp3 playback is somewhat chopy.
 
+This only occurs after I change the scaling_gov. Not after every change
+though. If it happens, and I change the scaling gov again, sound
+eventually is ok again.
 
+I have a Pentium III 1.13GHz Laptop with a snd_intel8x0 soundchip. The
+CPU (should) run at 733Mhz in powersave, so mp3 playback should be ok...
 
---- linux/drivers/message/i2o/i2o_block.c.orig	2004-02-21 10:04:45.895274304 +0100
-+++ linux/drivers/message/i2o/i2o_block.c	2004-02-21 10:23:53.234852176 +0100
-@@ -1503,9 +1503,6 @@ void i2ob_del_device(struct i2o_controll
- 	 * Decrease usage count for module
- 	 */	
- 
--	while(i2ob_dev[unit].refcnt--)
--		MOD_DEC_USE_COUNT;
--
- 	i2ob_dev[unit].refcnt = 0;
- 	
- 	i2ob_dev[i].tid = 0;
+My Kernel is 2.6.2 (haven't tried the new one yet).
+
+regards
+Jonas
+
+PS: CC me in your replies, please.

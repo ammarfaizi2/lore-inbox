@@ -1,145 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129555AbQJ2VRz>; Sun, 29 Oct 2000 16:17:55 -0500
+	id <S129538AbQJ2VUz>; Sun, 29 Oct 2000 16:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129556AbQJ2VRp>; Sun, 29 Oct 2000 16:17:45 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:46089 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S129555AbQJ2VRh>;
-	Sun, 29 Oct 2000 16:17:37 -0500
-Date: Sun, 29 Oct 2000 22:17:28 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200010292117.WAA02364@db0bm.ampr.org>
-To: linux-kernel@vger.kernel.org
-Subject: Oops in 2.4.0-test10-pre6
+	id <S129662AbQJ2VUf>; Sun, 29 Oct 2000 16:20:35 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:10327
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129556AbQJ2VUc>; Sun, 29 Oct 2000 16:20:32 -0500
+Date: Sun, 29 Oct 2000 23:12:57 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Arjan van de Ven <arjan@fenrus.demon.nl>
+Cc: linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu, corey@world.std.com
+Subject: Re: Compile error in drivers/ide/osb4.c in 240-t10p6
+Message-ID: <20001029231257.J625@jaquet.dk>
+In-Reply-To: <20001029144822.B622@jaquet.dk> <m13psPR-000OXnC@amadeus.home.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <m13psPR-000OXnC@amadeus.home.nl>; from arjan@fenrus.demon.nl on Sun, Oct 29, 2000 at 02:22:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> This patch, and a lot of others of a similar nature, are in my test10pre6
+> compile patch at 
+[snip]
 
-This oops is not a new one .. I've it for quite a long time.
-It always happens when starting a hamradio program called 'ulistd'.
-There is not any problem at all with this program and the 2.2.17 or 2.2.18prex
-The system is frozen. I can access the 'magic keys'.
+(Added a bit to the cc list)
 
+Hi Arjan.
 
-My configuration is Pentium 200MMX / 64Mb SDRAM with :
-------------------------------------------------------
-Linux debian-f5ibh 2.4.0-test10 #1 ven oct 27 14:11:33 CEST 2000 i586 unknown
-Kernel modules         2.3.19
-Gnu C                  2.95.2
-Binutils               2.9.5.0.41
-Linux C Library        2.1.3
-Dynamic linker         ldd: version 1.9.11
-Procps                 2.0.6
-Mount                  2.10o
-Net-tools              2.05
-Console-tools          0.2.3
-Sh-utils               2.0
-Modules Loaded         parport_pc lp parport mousedev usb-uhci hid usbcore input autofs4 rtc serial isa-pnp unix
+Thanks for the pointer. However my test build still barfs in the final
+link phase because we (in t10p6) morphed drivers/pcmcia/cs.c::pcmcia_
+request_irq into (the static) cs_request_irq. The rename part
+broke the two other places in cs.c where pcmcia_request_irq was
+referenced and the static part made its usage in drivers/net/pcmcia/
+ray_cs.c a bit awkward.
 
+Since I won't presume to question the decision to rename the function
+the following patch propagates the rename to the rest of the kernel.
+Furthermore, I presumed to remove the static part so that the ray_cs
+driver was free to use it. I have added David Hinds and Corey Thomas
+(the raylink driver maintainer) to the cc on this mail so they can
+decide what the proper solution is.
 
-This is the raw oops :
-----------------------
-Unable to handle kernel paging request at virtual address fffffffc
- printing eip:
-c0113f83
-*pde = 00001063
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c0113f83>]
-EFLAGS: 00010013
-eax: fffffff8 ebx: c133acc0 ecx: c0dd8f68 edx: 00000001
-esi: c3e6b760 edi: 00000000 ebp: c01e3f40 esp: c01e3f20
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 0, stackpage = c01e3000)
-Stack: c133acc0 c3e6b760 c02136dc c0dd8f6c 00000246 00000000 00000001 00000021
-       c01e3fa4 c017be75 c133acc0 c017b75f c133acc0 00000000 c017c2e3 c3e6b760
-	Call Trace: [<c017be75>] [<c017b75f>] [<c017c2e3>] [<c017de13>] [<c0119650>] [<c010a161> [<c0107120>]
-                    [<ffffe000>] [<c0108e40>] [<c0107120>] [<ffffe000>] [<c0107148>] [<c01071a7>] [<00105000>] [<c0100192>]
-Code: 8b 48 04 8b 3f 8b 11 89 d0 24 df 85 45 fc 74 e4 8b 5d fc 21
-Aiee, killing interrupt handler.
-Kernel panic: Attempted to kill the idle task!
-In interrupt handler - not syncing.
+Meanwhile, this patch makes my test kernel build:
 
 
-And this is the oops processed by ksymoops :
---------------------------------------------
-ksymoops 2.3.4 on i586 2.4.0-test10.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.0-test10/ (default)
-     -m /boot/System.map-2.4.0-test10 (default)
+--- linux-240-t10p6-clean/drivers/pcmcia/cs.c	Sun Oct 29 09:51:13 2000
++++ linux/drivers/pcmcia/cs.c	Sun Oct 29 22:52:22 2000
+@@ -1836,7 +1836,7 @@
+     
+ ======================================================================*/
+ 
+-static int cs_request_irq(client_handle_t handle, irq_req_t *req)
++int cs_request_irq(client_handle_t handle, irq_req_t *req)
+ {
+     socket_info_t *s;
+     config_t *c;
+@@ -2284,7 +2284,7 @@
+     case RequestIO:
+ 	return pcmcia_request_io(a1, a2); break;
+     case RequestIRQ:
+-	return pcmcia_request_irq(a1, a2); break;
++	return cs_request_irq(a1, a2); break;
+     case RequestWindow:
+     {
+ 	window_handle_t w;
+@@ -2376,7 +2376,7 @@
+ EXPORT_SYMBOL(pcmcia_report_error);
+ EXPORT_SYMBOL(pcmcia_request_configuration);
+ EXPORT_SYMBOL(pcmcia_request_io);
+-EXPORT_SYMBOL(pcmcia_request_irq);
++EXPORT_SYMBOL(cs_request_irq);
+ EXPORT_SYMBOL(pcmcia_request_window);
+ EXPORT_SYMBOL(pcmcia_reset_card);
+ EXPORT_SYMBOL(pcmcia_resume_card);
+--- linux-240-t10p6-clean/drivers/net/pcmcia/ray_cs.c	Sun Oct 29 09:49:52 2000
++++ linux/drivers/net/pcmcia/ray_cs.c	Sun Oct 29 22:52:53 2000
+@@ -560,7 +560,7 @@
+     /* Now allocate an interrupt line.  Note that this does not
+        actually assign a handler to the interrupt.
+     */
+-    CS_CHECK(pcmcia_request_irq, link->handle, &link->irq);
++    CS_CHECK(cs_request_irq, link->handle, &link->irq);
+     dev->irq = link->irq.AssignedIRQ;
+     
+     /* This actually configures the PCMCIA socket -- setting up
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
 
-Unable to handle kernel paging request at virtual address fffffffc
-c0113f83
-*pde = 00001063
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c0113f83>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010013
-eax: fffffff8 ebx: c133acc0 ecx: c0dd8f68 edx: 00000001
-esi: c3e6b760 edi: 00000000 ebp: c01e3f40 esp: c01e3f20
-ds: 0018 es: 0018 ss: 0018
-Stack: c133acc0 c3e6b760 c02136dc c0dd8f6c 00000246 00000000 00000001 00000021
-       c01e3fa4 c017be75 c133acc0 c017b75f c133acc0 00000000 c017c2e3 c3e6b760
-        Call Trace: [<c017be75>] [<c017b75f>] [<c017c2e3>] [<c017de13>] [<c0119650>] [<c010a161> [<c0107120>]
-                    [<ffffe000>] [<c0108e40>] [<c0107120>] [<ffffe000>] [<c0107148>] [<c01071a7>] [<00105000>] [<c0100192>]
-Code: 8b 48 04 8b 3f 8b 11 89 d0 24 df 85 45 fc 74 e4 8b 5d fc 21
-
->>EIP; c0113f83 <__wake_up+57/130>   <=====
-Trace; c017be75 <sock_def_write_space+2d/74>
-Trace; c017b75f <sock_wfree+17/30>
-Trace; c017c2e3 <__kfree_skb+7f/114>
-Trace; c017de13 <net_tx_action+4f/b0>
-Trace; c0119650 <do_softirq+40/64>
-Trace; c010a161 <do_IRQ+a1/b0>
-Trace; c0107120 <default_idle+0/28>
-Trace; ffffe000 <END_OF_CODE+3b79d901/????>
-Trace; c0108e40 <ret_from_intr+0/20>
-Trace; c0107120 <default_idle+0/28>
-Trace; ffffe000 <END_OF_CODE+3b79d901/????>
-Trace; c0107148 <poll_idle+0/20>
-Trace; c01071a7 <cpu_idle+3f/54>
-Trace; 00105000 Before first symbol
-Trace; c0100192 <L6+0/2>
-Code;  c0113f83 <__wake_up+57/130>
-00000000 <_EIP>:
-Code;  c0113f83 <__wake_up+57/130>   <=====
-   0:   8b 48 04                  mov    0x4(%eax),%ecx   <=====
-Code;  c0113f86 <__wake_up+5a/130>
-   3:   8b 3f                     mov    (%edi),%edi
-Code;  c0113f88 <__wake_up+5c/130>
-   5:   8b 11                     mov    (%ecx),%edx
-Code;  c0113f8a <__wake_up+5e/130>
-   7:   89 d0                     mov    %edx,%eax
-Code;  c0113f8c <__wake_up+60/130>
-   9:   24 df                     and    $0xdf,%al
-Code;  c0113f8e <__wake_up+62/130>
-   b:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
-Code;  c0113f91 <__wake_up+65/130>
-   e:   74 e4                     je     fffffff4 <_EIP+0xfffffff4> c0113f77 <__wake_up+4b/130>
-Code;  c0113f93 <__wake_up+67/130>
-  10:   8b 5d fc                  mov    0xfffffffc(%ebp),%ebx
-Code;  c0113f96 <__wake_up+6a/130>
-  13:   21 00                     and    %eax,(%eax)
-
-Aiee, killing interrupt handler.
-Kernel panic: Attempted to kill the idle task!
-
-1 warning issued.  Results may not be reliable.
-
----
-Regards
-		jean-luc
+"God prevent we should ever be twenty years without a revolution." 
+  -- Thomas Jefferson
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbUCCBBd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 20:01:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbUCCBBd
+	id S262313AbUCCBE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 20:04:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbUCCBE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 20:01:33 -0500
-Received: from smtp812.mail.sc5.yahoo.com ([66.163.170.82]:53349 "HELO
-	smtp812.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262306AbUCCBBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 20:01:31 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Ben Collins <bcollins@debian.org>
-Subject: Re: 2.6.4-rc1: OOPS when daisy-chaining ieee1394 devices
-Date: Tue, 2 Mar 2004 20:01:24 -0500
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org
-References: <200403012229.35742.dtor_core@ameritech.net> <20040302041849.GQ1078@phunnypharm.org>
-In-Reply-To: <20040302041849.GQ1078@phunnypharm.org>
+	Tue, 2 Mar 2004 20:04:59 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63735 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262313AbUCCBE4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 20:04:56 -0500
+Message-ID: <40452F33.1060203@mvista.com>
+Date: Tue, 02 Mar 2004 17:04:51 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Pavel Machek <pavel@ucw.cz>, "Amit S. Kale" <akale@users.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: kgdb: fix kgdbeth compilation and make it init late enough
+References: <20040302112500.GA485@elf.ucw.cz> <20040302153250.GE16434@smtp.west.cox.net> <20040302222827.GD1225@elf.ucw.cz> <20040302224301.GK20227@smtp.west.cox.net>
+In-Reply-To: <20040302224301.GK20227@smtp.west.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403022001.24938.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 March 2004 11:18 pm, Ben Collins wrote:
-> On Mon, Mar 01, 2004 at 10:29:34PM -0500, Dmitry Torokhov wrote:
-> > Hi,
-> > 
-> > Got the following oops when trying to power up DVD burner daisy chained to
-> > a WD hard drive. Reproducible with latest -bk as well as with ieee1394 patch
-> > from -mm tree. This is a regression as it was somewhat worked with earlier
-> > 2.6 kernels (well, earlier kernels could only log in into the last powered
-> > device, reconnecting to devices sitting earlier in chain was always failing),
-> > but there was no oopses.
+Tom Rini wrote:
+> On Tue, Mar 02, 2004 at 11:28:27PM +0100, Pavel Machek wrote:
 > 
-> Let me know if this patch works for you.
 > 
+>>Hi!
+>>
+>>
+>>>>CONFIG_NO_KGDB_CPUS can not be found anywhere in the patches => its
+>>>>probably not needd any more.
+>>>
+>>>I don't know if we can do that.  There's some funky locking stuff done
+>>>on SMP, which for some reason can't be done to NR_CPUS (or, no one has
+>>>tried doing that).
+>>
+>>There was no CONFIG_NO_KGDB_CPUS anywhere else in the CVS, that means
+>>that test could not have been right.
+> 
+> 
+> That doesn't mean the right answer is to remove it.  However, after
+> talking with George (who might speak up now anyhow) for 2.6 we can just
+> do the SMP locking stuff at NR_CPUS, since that's configurable.
 
-It works very nicely, no more oopses and I can even access both daisy-chained
-devices simultaneously.
+The old CONFIG_NO_KGDB_CPUS only affected the kgdb_info array.  Its only purpose 
+was to shorten the array as it I displayed it fairly often and having a bunch of 
+unused stuff at the end was a bother.  Now that 2.6 lets you define this, it is 
+no longer needed.
 
-Great job, thanks!
+> 
 
 -- 
-Dmitry
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+

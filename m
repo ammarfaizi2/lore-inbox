@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263321AbSLaQJM>; Tue, 31 Dec 2002 11:09:12 -0500
+	id <S263342AbSLaQJm>; Tue, 31 Dec 2002 11:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263342AbSLaQJL>; Tue, 31 Dec 2002 11:09:11 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:6021
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263321AbSLaQJJ>; Tue, 31 Dec 2002 11:09:09 -0500
-Subject: Re: 2.4.21-pre2 IDE problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marijn Ros <marijn@mad.scientist.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87isxa4c1k.fsf@214pc221.sshunet.nl>
-References: <87isxa4c1k.fsf@214pc221.sshunet.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Dec 2002 16:59:36 +0000
-Message-Id: <1041353976.17415.11.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S263362AbSLaQJm>; Tue, 31 Dec 2002 11:09:42 -0500
+Received: from cs.huji.ac.il ([132.65.16.30]:53767 "EHLO cs.huji.ac.il")
+	by vger.kernel.org with ESMTP id <S263342AbSLaQJj>;
+	Tue, 31 Dec 2002 11:09:39 -0500
+Date: Tue, 31 Dec 2002 18:18:01 +0200 (IST)
+From: Amar Lior <lior@cs.huji.ac.il>
+To: linux-kernel@vger.kernel.org
+cc: Amar Lior <lior@cs.huji.ac.il>
+Subject: PROBLEM
+Message-ID: <Pine.LNX.4.20_heb2.08.0212311805480.29415-100000@mos214.cs.huji.ac.il>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-31 at 12:18, Marijn Ros wrote:
-> However, when I try the new 2.4.21-pre2 taskfile IO setting, I get a
-> 'hda: lost interrupt' message every 30 seconds (the timeout period I
-> guess) during disk IO, making the machine unusable. I know this
-> setting is experimental, but I guess you would like to know about my
-> problems before the old code is phased out completely.
+Hi all,
 
-Taskfile I/O as opposed to ioctl is broken for PIO. I know about this
-and I've disabled it. I don't plan to fix that path for 2.4 but to keep
-the old read/write paths to reduce risk
+I found a bug that cause the kernel to lockup.
+
+The problem is in mm/shmem.c do_shmem_file_read() (the tmpfs)
+
+at line 959 there is a call to file_read_actor(desc, page, offset, nr);
+
+The problem is that inside the function file_read_actor() desc->error is
+set to -EFAULT (this happens when the buffer supplied by the user for the 
+read is wrong)
+but there is no check right after the return from file_read_actor() to
+test this situation.
+
+The result is that the desc->count field always stay the same and the
+while loop in do_shmem_file_read never end and the kernel locksup.
+
+The fix is very simple just add the following line after the call to 
+file_read_actor():
+
+-------------------
+if(desc->error)
+	break
+-------------------
+
+
+If you need any other info please mail me
+
+Regards
+
+--lior
+
+
+________________________________________________________________   
+Lior Amar                       Distributed Computing Lab MOSIX
+E-mail  : lior@cs.huji.ac.il                           
+________________________________________________________________   
 

@@ -1,63 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279614AbRKATdg>; Thu, 1 Nov 2001 14:33:36 -0500
+	id <S279628AbRKATgQ>; Thu, 1 Nov 2001 14:36:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279622AbRKATd0>; Thu, 1 Nov 2001 14:33:26 -0500
-Received: from smtp-rt-12.wanadoo.fr ([193.252.19.60]:46315 "EHLO
-	tamaris.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S279614AbRKATdM>; Thu, 1 Nov 2001 14:33:12 -0500
-Message-ID: <3BE1A308.7030400@wanadoo.fr>
-Date: Thu, 01 Nov 2001 20:31:20 +0100
-From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-Organization: Home PC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: fr, en
+	id <S279630AbRKATgH>; Thu, 1 Nov 2001 14:36:07 -0500
+Received: from [217.6.75.131] ([217.6.75.131]:48050 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S279628AbRKATf6> convert rfc822-to-8bit; Thu, 1 Nov 2001 14:35:58 -0500
+Message-ID: <3BE1A649.4718E3B2@internetwork-ag.de>
+Date: Thu, 01 Nov 2001 20:45:13 +0100
+From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Ricardo Martins <thecrown@softhome.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
-In-Reply-To: <3BE1777F.30705@softhome.net> <3BE1A042.7030806@softhome.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Sven Koch <haegar@sdinet.de>
+CC: Fernando Netto <Fernando_Netto@cmsoftware.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Is there a MAX TCP/UDP CONNECTIONS limit in Kernel?
+In-Reply-To: <Pine.LNX.4.40.0111011931471.7334-100000@space.comunit.de>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+... there may be some sort of "implicit" limit resulting from the kernel memory.
+I've run into the same problem but a fix is easy.  Get the 3.5G patch from
+Andrea's patch series (the -aa one), and modify it to NOT have 3.5GB of user
+memory but 2.5 or 2 GB for example. Worked fine for me...
+Cheers,
+
+Immanuel
 
 
-Ricardo Martins wrote:
+Sven Koch wrote:
 
->  >> Procedure
->  >> In X windows (version 4.1.0 compiled from the sources) when writing
->  >> "exit" in xterm to close the terminal emulator, the window freezes, and
->  >> from that moment on, every process becomes "unkillable", including 
-> xterm
->  >> and X (ps also freezes), and there's no way to shutdown GNU/Linux in a
->  >> sane way (must hit reset or poweroff).
-> 
-> 
->  >I can see the problem here with 2.4.13. I don't know if it's kernel
->  >related, I'm used using rxvt, never xterm.
-> 
->  >It looks like xterm takes the terminal where you started X from.
-> 
->  >Are you using devfs ?
-> 
-> 
->  >Pierre
-> 
-> 
-> Pierre, yes, i'm using devfs that seems to be the problem, do you know 
-> how to fix it ?
- 
-Is it devfs or xterm which needs to be fixed ? I would
+> On Thu, 1 Nov 2001, Fernando Netto wrote:
+>
+> > I´m having problems with concurrent TCP/UDP connections in my machine and
+> > wondered if there is a limit in Kernel of "how many connections can be open
+> > simoultaneously".
+>
+> Are you talking of inbound, or outbound connections?
+>
+> Inbound-connections are mostly limited by the available filehandles and by
+> how much server-processes your box can handle.
+>
+> Outbound-connections are limited by the local portrange, changeable
+> in /proc/sys/net/ipv4/ip_local_port_range
+> (ran into this on one of my proxy servers, having thousands of connections
+> in the state CLOSING, TIME_WAIT and LAST_ACK - after
+> echo "1024 16383" >/proc/sys/net/ipv4/ip_local_port_range the box at
+> least stays working)
+>
+> > If someone know something about limitations and how to tune it up about this
+> > matter, please don´t forget to put my address in CC as I´m not a signer of
+> > this list.
+>
+> c'ya
+> sven
+>
+> --
+>
+> The Internet treats censorship as a routing problem, and routes around it.
+> (John Gilmore on http://www.cygnus.com/~gnu/)
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-suggest to switch to rxvt which works fine with/without devfs.
+--
+Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+interNetwork AG                         Phone:  +49-(0)611-1731-121
+Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
 
 
-Pierre
-
--- 
-------------------------------------------------
-  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
-------------------------------------------------
 

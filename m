@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266615AbTCCQOQ>; Mon, 3 Mar 2003 11:14:16 -0500
+	id <S266434AbTCCQJ4>; Mon, 3 Mar 2003 11:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266640AbTCCQOQ>; Mon, 3 Mar 2003 11:14:16 -0500
-Received: from [62.38.16.106] ([62.38.16.106]:25216 "EHLO pfn1.pefnos")
-	by vger.kernel.org with ESMTP id <S266615AbTCCQOP>;
-	Mon, 3 Mar 2003 11:14:15 -0500
-From: "P. Christeas" <p_christ@hol.gr>
-To: Pavel Machek <pavel@suse.cz>, bert hubert <ahu@ds9a.nl>,
-       Nigel Cunningham <ncunningham@clear.net.nz>,
-       Roger Luethi <rl@hellgate.ch>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] Re: S4bios support for 2.5.63
-Date: Mon, 3 Mar 2003 18:23:16 +0200
-User-Agent: KMail/1.5
-References: <20030226211347.GA14903@elf.ucw.cz> <20030303123551.GA19859@outpost.ds9a.nl> <20030303124133.GH20929@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20030303124133.GH20929@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S266615AbTCCQJ4>; Mon, 3 Mar 2003 11:09:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39442 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266434AbTCCQJz>;
+	Mon, 3 Mar 2003 11:09:55 -0500
+Date: Mon, 3 Mar 2003 16:20:22 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Stack usage in random.c
+Message-ID: <20030303162022.I7301@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303031823.17050.p_christ@hol.gr>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > [ pruned mr Grover from the CC list ]
-> >
-> > On Mon, Mar 03, 2003 at 01:23:25PM +0100, Pavel Machek wrote:
-> > > Well, it does not happen on my machines, but I've already seen it
-> > > happen on computer with two harddrives.
-> >
-> > This is a laptop with only one. Anything I can do to help, let me know.
-> > Alan has suggested that an IDE transaction was still in progress, perhaps
-> > a small wait could prove/disprove this assumption?
->
-> Start adding printks to see whats going on. Try going ext2. Try
-> killing sys_sync() from kernel/suspend.c.
->
-> 									Pavel
 
-This looks like the problem I've been reporting since 2.5.5x . On my machine 
-(HP XE3GC) I get a rare chance that this happens. 
-One raw hack I have been using to get around that, is my 'sleep' script (for 
-S1):
-/etc/init.d/ypbind stop 	#i.e. prepare the system
-sleep 9		#allow me to lock the screen etc.
+Jeff Garzik whined about how much stack space was being used by
+extract_entropy().  So I went and looked and reclaimed 352 bytes of stack.
+Damn SHA ...
 
-sync			#This is where I reduce the chance I have dirty buffers
-sleep 1		# calm down
-echo 1 >/proc/acpi/sleep	#sleep now
+It's actually worse (better?) than that -- xfer_secondary_pool() can call
+extract_entropy() again, so I may have saved over 700 bytes of stack
+usage here.  It's safe for xfer_secondary_pool() to share its parent's
+tmp because it hasn't been used at this point.
 
-That won't fix the bug, of course, but shows what may go wrong..
+--- linux-2.5.63/drivers/char/random.c	2003-02-24 13:05:06.000000000 -0600
++++ linux-2.5.63-random/drivers/char/random.c	2003-03-03 08:05:24.000000000 -0600
+@@ -1228,10 +1228,8 @@
+  * at which point we do a "catastrophic reseeding".
+  */
+ static inline void xfer_secondary_pool(struct entropy_store *r,
+-				       size_t nbytes)
++				       size_t nbytes, __u32 *tmp)
+ {
+-	__u32	tmp[TMP_BUF_SIZE];
+-
+ 	if (r->entropy_count < nbytes * 8 &&
+ 	    r->entropy_count < r->poolinfo.POOLBITS) {
+ 		int nwords = min_t(int,
+@@ -1284,7 +1282,7 @@
+ 		r->entropy_count = r->poolinfo.POOLBITS;
+ 
+ 	if (flags & EXTRACT_ENTROPY_SECONDARY)
+-		xfer_secondary_pool(r, nbytes);
++		xfer_secondary_pool(r, nbytes, tmp);
+ 
+ 	DEBUG_ENT("%s has %d bits, want %d bits\n",
+ 		  r == sec_random_state ? "secondary" :
 
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,94 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266020AbSL3Utz>; Mon, 30 Dec 2002 15:49:55 -0500
+	id <S262210AbSL3Uxj>; Mon, 30 Dec 2002 15:53:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266038AbSL3Uty>; Mon, 30 Dec 2002 15:49:54 -0500
-Received: from ra.abo.fi ([130.232.213.1]:22695 "EHLO ra.abo.fi")
-	by vger.kernel.org with ESMTP id <S266020AbSL3Utx>;
-	Mon, 30 Dec 2002 15:49:53 -0500
-Date: Mon, 30 Dec 2002 22:58:16 +0200 (EET)
-From: Marcus Alanen <maalanen@ra.abo.fi>
-To: trivial@rustcorp.com.au
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.5] opti92x-ad1848 second check_region fixup
-In-Reply-To: <Pine.LNX.4.44.0212302222530.30703-100000@tuxedo.abo.fi>
-Message-ID: <Pine.LNX.4.44.0212302254060.30703-100000@tuxedo.abo.fi>
+	id <S262266AbSL3Uxj>; Mon, 30 Dec 2002 15:53:39 -0500
+Received: from mailproxy1.netcologne.de ([194.8.194.222]:15257 "EHLO
+	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
+	id <S262210AbSL3Uxj> convert rfc822-to-8bit; Mon, 30 Dec 2002 15:53:39 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: =?iso-8859-1?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
+Reply-To: joergprante@netcologne.de
+To: margitsw@t-online.de (Margit Schubert-While)
+Subject: Re: [PATCHSET] 2.4.21-pre2-jp15
+Date: Mon, 30 Dec 2002 22:00:37 +0100
+User-Agent: KMail/1.4.3
+References: <4.3.2.7.2.20021230212528.00b5fc80@pop.t-online.de>
+In-Reply-To: <4.3.2.7.2.20021230212528.00b5fc80@pop.t-online.de>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200212302200.37424.joergprante@netcologne.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changes check_region in snd_card_opti9xx_detect() to request_region,
-with appropriate release_region. opti9xx_free() releases this region 
-using chip->res_mc_base.
+>          Sorry, the patch doesn't change anything.
+>          I am compiling with PREEMPT off.
+>          Looking at sysrq.c , I would say that a couple of
+>          #ifdef's are missing. The code in the handle_preempt
+>          function, I think should be ifdef'd on CONFIG_PREEMPT_LOG
+>
+>          Margit
 
-Since the _detect case now uses request_region, we can't do the same 
-request_region afterwards, that would fail. So we move it inside the 
-__ISAPNP__ case.
+Hi Margit,
 
-#
-# create_patch: opti_2-2002-12-30-A.patch
-# Date: Mon Dec 30 22:53:33 EET 2002
-#
-diff -Naurd --exclude-from=/home/maalanen/linux/base/diff_exclude opti_1-2.5.53/sound/isa/opti9xx/opti92x-ad1848.c opti_2-2.5.53/sound/isa/opti9xx/opti92x-ad1848.c
---- opti_1-2.5.53/sound/isa/opti9xx/opti92x-ad1848.c	Mon Dec 30 20:19:47 2002
-+++ opti_2-2.5.53/sound/isa/opti9xx/opti92x-ad1848.c	Mon Dec 30 20:48:08 2002
-@@ -1674,13 +1674,14 @@
- 		if ((err = snd_opti9xx_init(chip, i)) < 0)
- 			return err;
- 
--		if (check_region(chip->mc_base, chip->mc_base_size))
-+		if ((chip->res_mc_base = request_region(chip->mc_base, chip->mc_base_size, "opti9xx_detect")) == NULL)
- 			continue;
- 
- 		value = snd_opti9xx_read(chip, OPTi9XX_MC_REG(1));
- 		if ((value != 0xff) && (value != inb(chip->mc_base + 1)))
- 			if (value == snd_opti9xx_read(chip, OPTi9XX_MC_REG(1)))
- 				return 1;
-+		release_region(chip->mc_base, chip->mc_base_size);
- 	}
- #else	/* OPTi93X */
- 	for (i = OPTi9XX_HW_82C931; i >= OPTi9XX_HW_82C930; i--) {
-@@ -1690,7 +1691,7 @@
- 		if ((err = snd_opti9xx_init(chip, i)) < 0)
- 			return err;
- 
--		if (check_region(chip->mc_base, chip->mc_base_size))
-+		if ((chip->res_mc_base = request_region(chip->mc_base, chip->mc_base_size, "opti93x_detect")) == NULL)
- 			continue;
- 
- 		spin_lock_irqsave(&chip->lock, flags);
-@@ -1703,6 +1704,7 @@
- 		snd_opti9xx_write(chip, OPTi9XX_MC_REG(7), 0xff - value);
- 		if (snd_opti9xx_read(chip, OPTi9XX_MC_REG(7)) == 0xff - value)
- 			return 1;
-+		release_region(chip->mc_base, chip->mc_base_size);
- 	}
- #endif	/* OPTi93X */
- 
-@@ -1993,6 +1995,12 @@
- 		}
- 		if (hw <= OPTi9XX_HW_82C930)
- 			chip->mc_base -= 0x80;
-+
-+		if ((chip->res_mc_base = request_region(chip->mc_base, chip->mc_base_size, "OPTi9xx MC")) == NULL) {
-+			snd_card_free(card);
-+			return -ENOMEM;
-+		}
-+
- 	} else {
- #endif	/* __ISAPNP__ */
- 		if ((error = snd_card_opti9xx_detect(card, chip)) < 0) {
-@@ -2002,11 +2010,6 @@
- #ifdef __ISAPNP__
- 	}
- #endif	/* __ISAPNP__ */
--
--	if ((chip->res_mc_base = request_region(chip->mc_base, chip->mc_base_size, "OPTi9xx MC")) == NULL) {
--		snd_card_free(card);
--		return -ENOMEM;
--	}
- 
- #ifdef __ISAPNP__
- 	if (!isapnp) {
+you should enable preemptive kernel logging only if you selected preemptive 
+kernel.
+
+In the case of preempt logging turned off, the show_preempt_log() function 
+should evaluate to an empty function
+
+#define show_preempt_log()	do { } while(0)
+
+as defined in <linux/sched.h>
+
+Best regards,
+
+Jörg
 

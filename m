@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266171AbUBQN1G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 08:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266176AbUBQN1G
+	id S266167AbUBQNXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 08:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266169AbUBQNXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 08:27:06 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:58313 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S266171AbUBQN1B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 08:27:01 -0500
-Date: Tue, 17 Feb 2004 14:26:54 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: linux-kernel@vger.kernel.org, linux-gcc@vger.kernel.org,
-       Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: Kernel Cross Compiling
-In-Reply-To: <20040213205743.GA30245@MAIL.13thfloor.at>
-Message-ID: <Pine.LNX.4.55.0402171421080.8356@jurand.ds.pg.gda.pl>
-References: <20040213205743.GA30245@MAIL.13thfloor.at>
-Organization: Technical University of Gdansk
+	Tue, 17 Feb 2004 08:23:46 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:32947 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S266167AbUBQNXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 08:23:45 -0500
+Date: Tue, 17 Feb 2004 08:23:34 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@azure.engin.umich.edu
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <Linux-MM@kvack.org>
+Subject: Re: [PATCH] mremap NULL pointer dereference fix
+In-Reply-To: <Pine.LNX.4.58.0402162203230.2154@home.osdl.org>
+Message-ID: <Pine.SOL.4.44.0402170821070.13429-100000@azure.engin.umich.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004, Herbert Poetzl wrote:
 
->    mips/mips64:
-> 	seem to use the 'obsoleted' -mcpu= option
-> 	which results in a cc1: error: invalid option 
-> 	`cpu=<cpu-here>'
 
- FYI, this has been addressed in the MIPS CVS tree not so long ago, so
-changes are not merged to the mainline yet.  Actually, even the CVS
-version isn't fully complete yet -- a small update is still pending
-approval.  The problem isn't related to doing a build with cross-tools --
-it happens when building natively as well.
+> To trigger the bug you have to have _just_ the right memory usage, I
+> suspect. You literally have to have the destination page directory
+> allocation unmap the _exact_ source page (which has to be clean) for the
+> bug to hit.
+>
 
- Otherwise, cross-compilation is the usual way of doing builds for MIPS
-and it works in general.
+To trigger the bug, I have to run my test program in a "while true;"
+loop for an hour or so.
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> So I suspect the oops only triggers on the machine that the trigger
+> program was written for.
+>
+> Your version of the patch saves a goto in the source, but results in an
+> extra goto in the generated assembly unless the compiler is clever enough
+> to notice the double test for NULL.
+>
+> Never mind, that's a micro-optimization, and your version is cleaner.
+> Let's go with it if Rajesh can verify that it fixes the problem for him.
+
+I will test the patch and report.
+
+Thanks,
+Rajesh
+
+

@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268008AbUIPL6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267961AbUIPMAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268008AbUIPL6G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 07:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUIPL4I
+	id S267961AbUIPMAG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 08:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUIPL6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 07:56:08 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:1459 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S268032AbUIPLza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 07:55:30 -0400
-Subject: Pause!
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1095335819.5006.236.camel@laptop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 16 Sep 2004 21:57:00 +1000
-Content-Transfer-Encoding: 7bit
+	Thu, 16 Sep 2004 07:58:52 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:24589 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S268036AbUIPL5l convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 07:57:41 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: top hogs CPU in 2.6: kallsyms_lookup is very slow
+Date: Thu, 16 Sep 2004 14:57:08 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200409161428.27425.vda@port.imtp.ilyichevsk.odessa.ua> <20040916114515.GP9106@holomorphy.com>
+In-Reply-To: <20040916114515.GP9106@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200409161457.08544.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> > Specifically:
+> > top on idle machine sucks ~40% CPU while in 2.4
+> > it takes only ~6%
+> > I recompiled 2.6 with HZ=100 and with slab debugging
+> > off. This helped a bit (wget was slow too),
+> > but top still hogs CPU.
+> > I did 'strace -T -tt top b n 1' under both kernels,
+> > postprocessed it a bit:
+>
+> The following patches in -mm are likely to help top(1).
+>
+> kallsyms-data-size-reduction--lookup-speedup.patch
+>   kallsyms data size reduction / lookup speedup
+>
+> inconsistent-kallsyms-fix.patch
+>   Inconsistent kallsyms fix
+>
+> kallsyms-correct-type-char-in-proc-kallsyms.patch
+>   kallsyms: correct type char in /proc/kallsyms
+>
+> kallsyms-fix-sparc-gibberish.patch
+>   kallsyms: fix sparc gibberish
 
-I'm going to pause there for tonight, let the dust settle, take on board
-suggestions and catch some zzzzs before posting more patches.
+Thanks.
 
-Regards,
+> As for all syscalls/etc. being slower by 50%-100%, I suggest toning
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+s/all/many/:
 
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
+uname <0.000142> š š š š š š š uname <0.000217>		25% slower
+brk <0.000176> š š š š š š š š brk <0.000174>		no change
+open <0.000218> š š š š š š š šopen <0.000335>		33% slower
+fstat64 <0.000104> š š š š š š fstat64 <0.000191>	90% slower
+
+or maybe strace simply isn't very accurate and adds signinficant
+noise to the measured delta?
+
+> down HZ (we desperately need to go tickless) and seeing if it persists.
+> Also please check that time isn't twice as fast as it should be in 2.6.
+
+I recompiled 2.6 with HZ=100. It's not it.
+Time is running normally too.
+--
+vda
 

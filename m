@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316831AbSGBRqK>; Tue, 2 Jul 2002 13:46:10 -0400
+	id <S316842AbSGBRxI>; Tue, 2 Jul 2002 13:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316836AbSGBRqJ>; Tue, 2 Jul 2002 13:46:09 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:25772
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316831AbSGBRqJ>; Tue, 2 Jul 2002 13:46:09 -0400
-Date: Tue, 2 Jul 2002 10:48:31 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Oliver Neukum <oliver@neukum.name>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-Message-ID: <20020702174831.GP20920@opus.bloom.county>
-References: <20020702155319.25599.qmail@eklektix.com> <200207021807.06174.oliver@neukum.name>
-Mime-Version: 1.0
+	id <S316843AbSGBRxH>; Tue, 2 Jul 2002 13:53:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59664 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316842AbSGBRxH>;
+	Tue, 2 Jul 2002 13:53:07 -0400
+Message-ID: <3D21EA60.D4545AAC@zip.com.au>
+Date: Tue, 02 Jul 2002 11:01:04 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Dax Kelson <dax@GuruLabs.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3Com 3c905C Tornado (newish 2.4.x) improper frame processing
+References: <1025631796.8314.43.camel@porthos>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207021807.06174.oliver@neukum.name>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 06:07:06PM +0200, Oliver Neukum wrote:
-
-> > developing drivers and such.  Aunt Tillie would no longer be able to
-> > remove modules from her kernel, but that's not likely to bother her too
-> > much...
+Dax Kelson wrote:
 > 
-> It would very much bother uncle John, who is in high availability.
+> A frame with a destination address of FF:00:00:00:00:00 shouldn't be
+> processed, unless the card has been told to listen to that multicast
+> address.
+> 
+> Driver/Card information:
+> -------------------
+> 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+> 00:10.0: 3Com PCI 3c905C Tornado at 0xe000. Vers LK1.1.1600:10.0
+> 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
+> -------------------
 
-Then the HA kernel turns on the ability to still remove modules, along
-with all of the other things needed in an HA environment but not
-elsewhere.  Provided removing a module doesn't become a horribly racy,
-barely usable bit of functionality, which I hope it won't.
+There's a full implementation of hardware hashed filtering in
+3com's GPL'ed 3c90x driver.  But nobody got around to pilfering
+it.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+-

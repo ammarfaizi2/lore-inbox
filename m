@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130399AbRALMBu>; Fri, 12 Jan 2001 07:01:50 -0500
+	id <S131138AbRALME3>; Fri, 12 Jan 2001 07:04:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131187AbRALMBk>; Fri, 12 Jan 2001 07:01:40 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:9488 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S130399AbRALMBX>;
-	Fri, 12 Jan 2001 07:01:23 -0500
-Date: Fri, 12 Jan 2001 14:01:15 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: Danny ter Haar <dth@lin-gen.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PRoblem with pcnet32 under 2.4.0 , was :Drivers under 2.4
-In-Reply-To: <20010112125010.A6371@lin-gen.com>
-Message-ID: <Pine.LNX.4.30.0101121357370.707-100000@prime.sun.ac.za>
+	id <S131166AbRALMET>; Fri, 12 Jan 2001 07:04:19 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:27410 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131138AbRALMEN>;
+	Fri, 12 Jan 2001 07:04:13 -0500
+Message-ID: <3A5EF208.4013B5F7@innominate.de>
+Date: Fri, 12 Jan 2001 13:01:12 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Where did vm_operations_struct->unmap in 2.4.0 go?
+In-Reply-To: <20010112031247.E10035@nightmaster.csn.tu-chemnitz.de> <24827.979266656@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jan 2001, Danny ter Haar wrote:
-> According to Hans Grobler:
-> > If you're willing, would you please follow "REPORTING-BUGS" and send some
-> > more info. Also cat /proc/interrupts. This one's intriging...
+Keith Owens wrote:
+> I want to completely remove this multi layered method for setting
+> initialisation order and go back to basics.  I want the programmer to
+> say "initialise E and F after G, H and I".  The kernel build system
+> works out the directed graph of initialisation order then controls the
+> execution of startup code to satisfy this graph.
 
-Thanks for the report (still studying it).
+I don't doubt you will come up with a workable solution at build time. 
+However, working out a valid graph at execution time is trivial and
+efficient, given a list of precedence relations of the kind you're
+suggesting.  In fact you don't even have to work out the graph before
+starting the initialization, it's also trivial to keep a count of
+unsatisfied initialization conditions at the beginning of each
+initialization sequence and block until the count goes to zero.  (In
+essence, evaluate a priority sort on the fly.)
 
-> lspci -vx output:
->
-> 00:0f.0 Ethernet controller: Advanced Micro Devices [AMD] 79c970 [PCnet LANCE] (
-
-What about the other devices?
-
-> irq  0:     16840 timer                 irq  9:         0 acpi, PCnet/FAST III
-
-Ok, this may not mean much, but have you tried compiling without acpi?
-Just to remove some variables...
-
--- Hans
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

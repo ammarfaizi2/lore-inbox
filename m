@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271434AbTGQOWC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 10:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271459AbTGQOWC
+	id S271462AbTGQObB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 10:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271463AbTGQObB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 10:22:02 -0400
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:6151 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id S271434AbTGQOWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 10:22:00 -0400
-Message-Id: <200307171436.h6HEasHt032576@sirius.nix.badanka.com>
-Date: Thu, 17 Jul 2003 16:36:54 +0200
-From: Henrik Persson <nix@syndicalist.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VESA Framebuffer dead in 2.6.0-test1
-In-Reply-To: <20030716172331.3bd3610e.ttimo@idsoftware.com>
-References: <200307161406.h6GE6iHt002041@sirius.nix.badanka.com>
-	<200307161608.34637.m.watts@eris.qinetiq.com>
-	<20030716172331.3bd3610e.ttimo@idsoftware.com>
-X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 17 Jul 2003 10:31:01 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:12198 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S271462AbTGQObA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 10:31:00 -0400
+Date: Thu, 17 Jul 2003 16:45:49 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-ac2 issues / Toshiba Laptop keyboard
+Message-ID: <20030717144549.GL7864@charite.de>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030717141847.GF7864@charite.de> <1058452714.9048.4.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058452714.9048.4.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a heads-up for you that made the same mistake in the
-menuconfig-jungle as I did:
+* Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
-If you want framebuffer console support, don't forget the
-CONFIG_FRAMEBUFFER_CONSOLE ;o)
+> > * eepro100 is b0rked:
+> > 
+> > eepro100: Unknown symbol mii_ethtool_sset
+> > eepro100: Unknown symbol mii_link_ok
+> > eepro100: Unknown symbol mii_check_link
+> > eepro100: Unknown symbol mii_nway_restart
+> > eepro100: Unknown symbol mii_ethtool_gset
+> 
+> You must load mii as well. The module tools should be doing that if
+> you are using modprobe
+
+I see.
+
+> > * The IDE ATA disk works, but upon reboot, the machine does NOT find
+> >   the IDE harddisk anymore! Tis means I have to turn the machine off
+> >   and on again (since it has no reset button)
+> 
+> Curious. Could be the BIOS doesn't know how to do hard disk power
+> management especially if its quite an old PC 
+
+It's last year's model. Not quite old I'd say.
 
 -- 
-Henrik Persson  nix@syndicalist.net  http://nix.badanka.com
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix

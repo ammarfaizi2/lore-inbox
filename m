@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265898AbUFDSS2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265908AbUFDSSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265898AbUFDSS2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:18:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUFDSS2
+	id S265908AbUFDSSF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265898AbUFDSSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:18:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13038 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265898AbUFDSSN (ORCPT
+	Fri, 4 Jun 2004 14:18:05 -0400
+Received: from mail.kroah.org ([65.200.24.183]:13751 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265908AbUFDSRd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:18:13 -0400
-Date: Fri, 4 Jun 2004 11:18:04 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
-Subject: Re: mlock as non-root: use rlimits
-Message-ID: <20040604111804.T22989@build.pdx.osdl.net>
-References: <20040604112845.GA28413@devserv.devel.redhat.com> <20040604151251.GD16897@devserv.devel.redhat.com>
+	Fri, 4 Jun 2004 14:17:33 -0400
+Date: Fri, 4 Jun 2004 11:15:28 -0700
+From: Greg KH <greg@kroah.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Paul Jackson <pj@sgi.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, ak@suse.de
+Subject: Re: [PATCH] fix sys cpumap for > 352 NR_CPUS
+Message-ID: <20040604181528.GA11527@kroah.com>
+References: <20040602161115.1340f698.pj@sgi.com> <1086222156.29391.337.camel@bach> <20040603162712.GA3291@kroah.com> <20040603093807.33bc670d.pj@sgi.com> <20040603165142.GA3959@kroah.com> <1086312466.7990.884.camel@bach>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040604151251.GD16897@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, Jun 04, 2004 at 05:12:51PM +0200
+In-Reply-To: <1086312466.7990.884.camel@bach>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Arjan van de Ven (arjanv@redhat.com) wrote:
-> non-root" issue, which recently cropped up again in relation to hugetlbfs
-> and Oracle. The proposed solution comes down to using the MEMLOCK rlimit,
-> which previously was used to restrict how much memory *root* processes can
-> mlock as limit for non-root processes, and let root (well CAP_IPC_LOCK
-> processes) mlock to infinity (which was the rlimit default anyway).
-> The default behavior of the kernel doesn't change with this patch, but with
-> this patch the sysadmin can use the standard rlimit mechanism (eg via PAM
-> usually) to allow specific users to mlock memory, for example the oracle
-> database user account.
->                                                                               
-> Comments?
+On Fri, Jun 04, 2004 at 11:27:46AM +1000, Rusty Russell wrote:
+> On Fri, 2004-06-04 at 02:51, Greg KH wrote:
+> > Just be aware of the size and code your show() function to be defensive
+> > and not overrun that size.
+> 
+> This is where we have a philosophical difference.  As I understand it,
+> the rule is, "don't put big things in attributes".  If we want to change
+> that rule, we need to do more work, like pass the length to the show
+> function, and handle -ENOMEM by reallocating and looping.
 
-Hi Arjan, how is this different from the last time this patch was posted?
+We don't want to change the rule, it's a good rule.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108087017610947&w=2
+> But I think the /rule/ is a good one: if you need to handle something
+> arbitrarily large, DON'T USE THIS INTERFACE, because there is no way to
+> do that correctly.  This allows us to handle 99.9% of cases as a
+> one-liner, which I think has great merit.
 
-The hugetlbfs and SHM_LOCK bits don't work well with rlimits.  For
-example, it's trivial to corrupt the locked_vm count with a SHM_LOCK
-segment.  I like this, but I think it only works with mlock().  Did I
-miss something?
+Agreed.
+
+> I think we should guarantee any kernel primitive fits into the space:
+> this means it should comfortably fit printing a cpumask_t.  I would
+> argue for a #error inside the cpumask or sysfs code which ensures we can
+> fit two cpumasks (~7000 CPUs on page-size 4096), so we explode early if
+> this ever becomes a problem, and a runtime sanity check inside the sysfs
+> code to BUG on overrun.
+
+Again, this seems to be a issue with the code that is trying to export a
+cpumask_t.  I suggest you keep the check inside that code and keep it
+out of the sysfs core, which does not need it for 99.99% of the cases.
 
 thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+greg k-h

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272423AbRIKMRi>; Tue, 11 Sep 2001 08:17:38 -0400
+	id <S272424AbRIKMNi>; Tue, 11 Sep 2001 08:13:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272427AbRIKMRS>; Tue, 11 Sep 2001 08:17:18 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:53450 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S272423AbRIKMRJ>; Tue, 11 Sep 2001 08:17:09 -0400
-Date: Tue, 11 Sep 2001 17:52:27 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: andrea@suse.de
-Cc: linux-kernel@vger.kernel.org, Paul Mckenney <paul.mckenney@us.ibm.com>
-Subject: Re: 2.4.10pre7aa1
-Message-ID: <20010911175227.A2199@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S272423AbRIKMN2>; Tue, 11 Sep 2001 08:13:28 -0400
+Received: from [203.197.249.146] ([203.197.249.146]:51162 "EHLO
+	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
+	id <S272424AbRIKMNP>; Tue, 11 Sep 2001 08:13:15 -0400
+Message-ID: <3B9E4E62.494FBAE4@wipro.com>
+Date: Tue, 11 Sep 2001 23:18:18 +0530
+From: "s.srinivas" <srinivas.surabhi@wipro.com>
+Reply-To: srinivas.surabhi@wipro.com
+X-Mailer: Mozilla 4.51 [en] (X11; I; Linux 2.2.5-15 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: how to see .so contents
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010911135735.T715@athlon.random> you wrote:
-> On Tue, Sep 11, 2001 at 05:23:01PM +0530, Dipankar Sarma wrote:
->> In article <20010911131238.N715@athlon.random> you wrote:
->> > many thanks. At the moment my biggest concern is about the need of
->> > call_rcu not to be starved by RT threads (keventd can be starved so then
->> > it won't matter if krcud is RT because we won't start using it).
->> 
->> > Andrea
->> 
->> I think we can avoid keventd altogether by using a periodic timer (say 10ms)
->> to check for completion of an RC update. The timer may be active
->> only if only if there is any RCU going on in the system - that way
->> we still don't have any impact on the rest of the kernel.
 
-> the timer can a have bigger latency than keventd calling wait_for_rcu
-> so it should be a loss in a stright bench with light load, but OTOH we
-> only care about getting those callbacks executed eventually and the
-> advantage I can see is that the timer cannot get starved.
+This is a multi-part message in MIME format.
 
-> Andrea
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-What kind of timer latencies are we talking about ? I would not be
-too concerned if the RCU timers execute in 40ms instead of requested
-10ms. The question is are there situations where they can get delayed
-by minutes ?
+hi all,
 
-Thanks
-Dipankar
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+    Its a silly question i tried with all my friends but of no use.
+Could any one tell me how to know the contents(modules) that
+are contained in any .so (shared objects) file.
+
+say for ex. for archive  file    ar  -t  .a file name     is used  .
+
+thank  u all in advance.
+
+regards
+srinivas
+
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+The Information contained and transmitted by this E-MAIL is proprietary to Wipro and/or its Customer and is intended 
+for use only by the individual or entity to which it is addressed, and may contain information that is privileged,
+confidential or exempt from disclosure under applicable law. If this is a forwarded message, the content of this
+E-MAIL may not have been sent with the authority of the Company. If you are not the intended recipient, an agent
+of the intended recipient or a  person responsible for delivering the information to the named recipient,  you are
+notified that any use, distribution, transmission, printing, copying or dissemination of this information in any way
+or in any manner is strictly prohibited. If you have received this communication in error, please delete this mail &
+notify us immediately at mailadmin@wipro.com
+
+--------------InterScan_NT_MIME_Boundary--

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290113AbSBOQvB>; Fri, 15 Feb 2002 11:51:01 -0500
+	id <S290192AbSBOQwL>; Fri, 15 Feb 2002 11:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290185AbSBOQul>; Fri, 15 Feb 2002 11:50:41 -0500
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:57850 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S290156AbSBOQuj>; Fri, 15 Feb 2002 11:50:39 -0500
-Date: Fri, 15 Feb 2002 17:50:35 +0100 (MET)
-From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
-X-X-Sender: sithglan@faui02.informatik.uni-erlangen.de
-To: linux-kernel@vger.kernel.org
-Subject: Problems compiling the 2.4.17 kernel drivers/char/char.o(.text.init+0xfbe):
- undefined reference to `early_serial_setup'
-Message-ID: <Pine.GSO.4.44.0202151745400.3105-100000@faui02.informatik.uni-erlangen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290081AbSBOQwE>; Fri, 15 Feb 2002 11:52:04 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:31241 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S290185AbSBOQvx>; Fri, 15 Feb 2002 11:51:53 -0500
+Message-Id: <200202151651.g1FGpjs02083@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Chris Mason <mason@suse.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>,
+        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] queue barrier support 
+In-Reply-To: Message from Chris Mason <mason@suse.com> 
+   of "Fri, 15 Feb 2002 11:28:35 EST." <3998280000.1013790514@tiny> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 15 Feb 2002 11:51:45 -0500
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You find my config under
-http://wwwcip.informatik.uni-erlangen.de/~sithglan/config
-I get the following error:
+mason@suse.com said:
+> While I've got linux-scsi cc'd, I'll reask a question from yesterday.
+> Do the targets with write back caches usually ignore the order tag,
+> doing the write in the most efficient way possible instead? 
 
-...snip...
-make[1]: Leaving directory `/tmp/linux/arch/i386/lib'
-ld -m elf_i386 -T /tmp/linux/arch/i386/vmlinux.lds -e stext
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o
-\
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o
-fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/char/char.o drivers/block/block.o
-drivers/misc/misc.o drivers/net/net.o drivers/media/media.o
-drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/net/appletalk/appletalk.o
-drivers/net/tokenring/tr.o drivers/net/wan/wan.o drivers/ide/idedriver.o
-drivers/cdrom/driver.o drivers/pci/driver.o drivers/net/pcmcia/pcmcia_net.o
-drivers/net/wireless/wireless_net.o drivers/pnp/pnp.o drivers/video/video.o
-drivers/net/hamradio/hamradio.o drivers/md/mddev.o \
-        net/network.o \
-        /tmp/linux/arch/i386/lib/lib.a /tmp/linux/lib/lib.a
-/tmp/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/char/char.o: In function `setup_serial_acpi':
-drivers/char/char.o(.text.init+0xfbe): undefined reference to
-`early_serial_setup'
-make: *** [vmlinux] Error 1
+I'll try to answer, although I'm not quite sure of the basis of the question.
 
+No ordinary SCSI drive that's not on a battery backed circuit should *ever* 
+use writeback caching.  They should all come by default as write through.  In 
+this case, the tag is acknowleged as completed only when the write has made it 
+to the medium.
 
-Greetings, Thomas
+If you alter the drive parameter page to turn on write back caching, it's 
+caveat emptor.  Since you're now telling the drive that you consider hitting 
+the cache to be equivalent to hitting the medium (because you know better 
+about power failures and the like) it is undefined by the standards how the 
+drives write from the cache to the medium---and you shouldn't care about this 
+if you have arranged your system to do write back caching.  They will 
+acknowlege the tag as completed as soon as it hits the cache, and the ordered 
+tag will be order it commits to the cache.
 
-Please reply directly to me because I am not on the list at moment.
+Note, for high end disk arrays, the reverse is usually true since they often 
+have internal battery backups for their caches and drives.
+
+If you lose power to the drive that does write back caching before the cache 
+flushes, all the indications you've given the journalling fs about write 
+commits are voided and the fs is probably inconsistent and not recoverable by 
+a journal replay.
+
+Note also that on system shutdown, most devices that use write back caching 
+are also expecting a cache flush instruction from the node, which Linux 
+doesn't send.
+
+James
 
 

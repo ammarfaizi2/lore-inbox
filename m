@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129576AbRB0Qno>; Tue, 27 Feb 2001 11:43:44 -0500
+	id <S129589AbRB0Qte>; Tue, 27 Feb 2001 11:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129577AbRB0Qnf>; Tue, 27 Feb 2001 11:43:35 -0500
-Received: from mail.surgient.com ([63.118.236.3]:40205 "EHLO
-	bignorse.SURGIENT.COM") by vger.kernel.org with ESMTP
-	id <S129576AbRB0QnZ>; Tue, 27 Feb 2001 11:43:25 -0500
-Message-ID: <A490B2C9C629944E85CE1F394138AF957FC3E1@bignorse.SURGIENT.COM>
-From: "Collins, Tom" <Tom.Collins@Surgient.com>
-To: linux-kernel@vger.kernel.org
-Subject: Dynamically altering code segments
-Date: Tue, 27 Feb 2001 10:43:02 -0600
+	id <S129607AbRB0QtY>; Tue, 27 Feb 2001 11:49:24 -0500
+Received: from atapco.demon.co.uk ([194.222.134.57]:48389 "EHLO
+	atapco.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129589AbRB0QtP>; Tue, 27 Feb 2001 11:49:15 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102271648.f1RGmLr08116@brick.arm.linux.org.uk>
+Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
+To: anton@linuxcare.com.au (Anton Blanchard)
+Date: Tue, 27 Feb 2001 16:48:21 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010228001800.C2207@linuxcare.com> from "Anton Blanchard" at Feb 28, 2001 12:18:00 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+Anton Blanchard writes:
+> > I'm seeing odd behaviour with rsync over ssh between two x86 machines -
+> > one if the is an UP PIII (Katmai) running 2.4.2 (isdn-gw) and the other
+> > is an UP Pentium 75-200 (pilt-gw) running 2.2.15pre13 with some custom
+> > serial driver hacks (for running Amplicon cards with their ISA interrupt-
+> > sharing scheme).
+> 
+> What version of ssh are you using? Older versions would use blocking IO
+> which would result in deadlocks (and angry emails wrongly blaming rsync :)
 
-This is my first post, so if this is off topic for this list, please direct
-me
-to another one that is more appropriate.  Thanks
+Note that I proved that it was sitting in select(), and therefore can't be
+blocking.
 
-That said, I am wanting to dynamically modify the kernel in specific places
-to
-implement a custom kernel trace mechanism.  The general idea is that, when
-the
-"trace" is off, there are NOP instruction sequences at various places in the
-kernel.  When the "trace" is turned on, those same NOPs are replaced by JMPs
-to code that implements the trace (such as logging events, using the MSR and
-PMC's etc..).
-
-This was a trick that was done in my old days of OS/2 performance tools 
-developement to get trace information from the running kernel.  In that
-case, 
-we simply remapped the appropriate code segments to data segments (I think
-back then it was called 'aliasing code segments') and used that segment to 
-make changes to the kernel code on the fly.
-
-Is it possible to do the same thing in Linux?
-
-Thanks
-
-Tom
-
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

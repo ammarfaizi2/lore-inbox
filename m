@@ -1,86 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268214AbRGXQlB>; Tue, 24 Jul 2001 12:41:01 -0400
+	id <S267928AbRGXQjV>; Tue, 24 Jul 2001 12:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268219AbRGXQkv>; Tue, 24 Jul 2001 12:40:51 -0400
-Received: from smtp-rt-5.wanadoo.fr ([193.252.19.159]:39163 "EHLO
-	bassia.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S268214AbRGXQkm>; Tue, 24 Jul 2001 12:40:42 -0400
-Message-ID: <3B5DA57F.5779D623@wanadoo.fr>
-Date: Tue, 24 Jul 2001 18:42:39 +0200
-From: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
-Organization: CoolSite
-X-Mailer: Mozilla 4.74 [fr] (X11; U; Linux 2.4.4-sb i686)
-X-Accept-Language: French, fr, en
+	id <S268214AbRGXQjL>; Tue, 24 Jul 2001 12:39:11 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:46345 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267928AbRGXQjD>; Tue, 24 Jul 2001 12:39:03 -0400
+Date: Tue, 24 Jul 2001 09:37:39 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Nathan Laredo <nlaredo@transmeta.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: patch for allowing msdos/vfat nfs exports
+In-Reply-To: <Pine.GSO.4.21.0107232053040.23359-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0107240929560.29354-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-        linux-fsdev@vger.kernel.org, martizab@libertsurf.fr,
-        rusty@rustcorp.com.au
-Subject: Re: Yet another linux filesytem: with version control
-In-Reply-To: <Pine.LNX.4.33L.0107232027120.20326-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-Hi Rik,
+On Mon, 23 Jul 2001, Alexander Viro wrote:
+>
+> On Mon, 23 Jul 2001, Nathan Laredo wrote:
+>
+> > +	result = d_alloc_root(inode);
+> > +	if (result == NULL) {
+> > +	         iput(inode);
+> > +	         return ERR_PTR(-ENOMEM);
+> > +	}
+> > +	result->d_flags |= DCACHE_NFSD_DISCONNECTED;
+> > +	return result;
+>
+> Erm... AFAICS it got a race - think of doing that for directory when
+> dentry is already gone, but inode still in cache. You will get
+> nfsd_findparent() called and that will give funny results on FAT.
 
-Rik van Riel a écrit :
-> 
-> On Tue, 24 Jul 2001, Jerome de Vivie wrote:
-> > You only set a global variable to select on which configuration
-> > you want to work. You can't do it simplier Rik: everything else
-> > is transparent: read, write, ... !
-> 
-> *nod*
-> 
-> Sounds like a great idea indeed.
+Note that the code was definitely cribbed from reiserfs, and when I stole
+it I had this very strong feeling that "This really should be supported in
+the VFS layer instead of hidden in the low-level filesystems".
 
-thx ;-)
+We are, after all, working with very internal knowledge of not only the
+way the dentry lists are attached to the inode, but also about the whole
+DISCONNECTED thing etc.
 
-> 
-> > > Now if you want to make this kernel-accessible, why
-> > > not make a userland NFS daemon which uses something
-> > > like bitkeeper or PRCS as its backend ?
-> > >
-> > > The system would then look like this:
-> > >
-> > >  _____    _______    _____    _____
-> > > |     |  |       |  |     |  |     |
-> > > | SCM |--| UNFSD |--| NET |--| NFS |
-> > > |_____|  |_______|  |_____|  |_____|
-> >
-> > Your architecture is too complex for me.
+> The worst thing being, it _will_ get a decently-looking inode. Inode that
+> will point to the same blocks as parent directory, but will be completely
+> independent (different location).
 
-I've re-thought my draft and... your architecture is 
-not so complex ! 
+Absolutely. And some of the NFS-export problems won't even be avoidable at
+all: FAT does not have a notion of inode versions etc, and we do not have
+a way to fix that.
 
-Here's pros for userland SCM:
--easier to write
--easier to maintain (and no synchronization with kernel dvlp)
--work under every type of FS
--portable
--force me not to touch FS and properly write interface between
-the SCM extension and the FS.
+However, what we could do is add more sanity-testing, and for example also
+add the parent inode location to the dentry_to_fh code. We have space.
 
+The patch was a fairly quick hack. What it does show is that (a) the
+dentry_to_fh approach is actually a very usable one in itself and wasn't
+just an ugly reiserfs hack, and (b) FAT _can_ be exported.
 
-And cons:
--Multiple entry point to access data ( => risk of inconsistancy)
--Perhaps, a filesystem is the best place to put file (...even 
-for multiple-version files)
+The reason I asked Nathan to post the damn thing instead of just applying
+it to the tree was to get these kinds of comments, and hopefully move the
+VFS stuff to a VFS location, ie start exporting a vfs_inode_to_dentry()
+function that reiserfs, FAT and quite possibly others can sanely share.
 
-As it was mention by A. Viro, do it in the kernel may lead
-to "devfs like" problems (...even after big simplifictions
-like "one node for all version of a file").
+Al, Neil, care to work something out between you? I saw that Neil had
+something already..
 
-I've change a bit my opinion: i'm not sure that userland
-is the best place (...because there are cons pending) but,
-i'm now nearest the userland solution of "hacking a nfsd".
+			Linus
 
-j.
-
--- 
-Jerome de Vivie 	jerome . de - vivie @ wanadoo . fr

@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135861AbREIFlX>; Wed, 9 May 2001 01:41:23 -0400
+	id <S135589AbREIGA2>; Wed, 9 May 2001 02:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135867AbREIFlN>; Wed, 9 May 2001 01:41:13 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:37876
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S135861AbREIFlD>; Wed, 9 May 2001 01:41:03 -0400
-Date: Tue, 8 May 2001 22:41:45 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: what causes Machine Check exception? revisited (2.2.18)
-Message-ID: <20010508224145.A17301@mikef-linux.matchmail.com>
-Mail-Followup-To: Mike Fedyk <mfedyk@matchmail.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105071127100.20861-100000@suhkur.cc.ioc.ee> <E14wihd-0003LT-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S135867AbREIGAS>; Wed, 9 May 2001 02:00:18 -0400
+Received: from otter.mbay.net ([206.40.79.2]:48399 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S135589AbREIGAH> convert rfc822-to-8bit;
+	Wed, 9 May 2001 02:00:07 -0400
+From: jalvo@mbay.net (John Alvord)
+To: Larry McVoy <lm@bitmover.com>
+Cc: Marty Leisner <leisner@rochester.rr.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Wow! Is memory ever cheap!
+Date: Wed, 09 May 2001 05:59:41 GMT
+Message-ID: <3b13d85d.102553842@mail.mbay.net>
+In-Reply-To: <lm@bitmover.com> <200105090424.AAA05768@soyata.home> <20010508222210.B14758@work.bitmover.com>
+In-Reply-To: <20010508222210.B14758@work.bitmover.com>
+X-Mailer: Forte Agent 1.5/32.451
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14wihd-0003LT-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 07, 2001 at 11:57:17AM +0100
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 07, 2001 at 11:57:17AM +0100, Alan Cox wrote:
-> Generally it indicates a CPU problem but I've see it caused by overclocking
-> and poorly fitted heatsinks
-I've been able to trigger a Machine check error on PPC when trying to boot
-directly from OF with a COFF kernel.  The system has worked perfectly with
-BootX.
+On Tue, 8 May 2001 22:22:10 -0700, Larry McVoy <lm@bitmover.com>
+wrote:
+>
+>Just to make sure you understand:  I think ECC is a fine thing.  If I'm
+>running systems with no other integrity checks, I'll take ECC and like it.
+>However, having ECC does not mean that I trust that my data is safe,
+>that is most certainly not a true statement.  The bus, the disks, the
+>disk controller, the disk driver, the buffer cache, etc, can all corrupt
+>the data.   Oh, yeah, let's not forget NFS.  I have seen each and every
+>one of those things corrupt data.
 
-I wonder why this is the first non-x86 report...
+This is an interesting observation of a truth that was well known in
+the second generation computers of the 1950s and 1960s. I first worked
+at John Hancock... they had a bunch of 7074 machines. All those
+systems made use of programmed checksums in each tape block and in
+each full file. The reason was that those machines did not have ECC...
+they did have parity checking if I remember right. With IBM's third
+generation computers (S/360s) and probably other manufacturers, ECC
+became a standard feature. Parity checking was added through different
+data paths such as channel memory, buffer memory, etc. There was so
+much protection added that the programmed checksums became
+superfluous.
 
-Mike
+There were still odd moments. I remember working on an Amdahl computer
+problem where some internal data paths... where the contents of one
+register moved to an internal storage area... and the path did not
+have parity. There was a machine fault... the path was electrically
+open, so the contents of the register always became zero. But since it
+wasn't parity checked, there was no machine check. I remember another
+problem on the IBM 3033. Cosmic rays (really) caused one bit errors in
+channel memory. That was parity but not ECC so you got a weird channel
+check. Back at the diagnosis ranch, the board looked good. It was only
+when someone noticed that the rate of such problems was proportional
+to the height above sea level that the light bulb went on.
+
+The lesson is that when paths are not checked, hardware or software,
+data being held or transformed can change. Old lesson but a good one
+to know.
+
+john alvord

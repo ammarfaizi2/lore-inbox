@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUGANvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265312AbUGANww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbUGANvl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 09:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUGANvk
+	id S265312AbUGANww (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 09:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265285AbUGANvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 09:51:40 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53129 "EHLO
+	Thu, 1 Jul 2004 09:51:44 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54153 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265248AbUGANvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S265265AbUGANvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 1 Jul 2004 09:51:32 -0400
-Date: Tue, 29 Jun 2004 23:40:52 +0200
+Date: Thu, 1 Jul 2004 15:33:08 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Sergio Vergata <vergata@stud.fbi.fh-darmstadt.de>
-Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-Message-ID: <20040629214052.GO698@openzaurus.ucw.cz>
-References: <200406270032.12897.vergata@stud.fbi.fh-darmstadt.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       PARISC list <parisc-linux@lists.parisc-linux.org>
+Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
+Message-ID: <20040701133308.GQ698@openzaurus.ucw.cz>
+References: <1088266111.1943.15.camel@mulgrave> <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org> <20040626221802.GA12296@taniwha.stupidest.org> <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org> <1088290477.3790.2.camel@localhost.localdomain> <20040627000541.GA13325@taniwha.stupidest.org> <1088347046.26753.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200406270032.12897.vergata@stud.fbi.fh-darmstadt.de>
+In-Reply-To: <1088347046.26753.3.camel@localhost.localdomain>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> So i don't use Apic and so acpi works now after powering on the machine and 
-> booting with acpi resume kernel all get to work again. Only sometimes, don't 
-> know why and in witch circumstances, the system boots the kernel and find the 
-> Image in Swapspace, but reading that image says that this is an corruptet 
-> image and stop booting, now if I power the system whith resume=noresume the 
-> kernel boots up find the Image in swap (why that) and restore this found 
-> image back to an running system at the last state. Strange ! After the system 
+> > I'm all for that, except last I counted there are about 5000 users of
+> > jiffies.  What do you suggest as a replacement API?
+> 
+> For a lot of them they shouldn't be polling. For those that do in
+> most cases something like
+> 
+> 	struct timeout_timer t;
+> 
+> 	timeout_set(t, 5 * HZ)
+> 	timeout_cancel(t)
+> 
+> 	if(timeout_expired(t))
+> 
+> Where timeout_timer is effectively an existing timer of add_timer
+> style and a single variable. The code to build that kind of timer
+> on top of add_timer is trivial.
 
-fsck now, and never ever resume second time.
-If resume fails, force fsck and re-mkswap.
-				Pavel
-
-> boots everything goes back to work. Only the IRQ problem remains and 
-> hibernating and resuming again will work. 
-> 
-> Finaly I have an request: could the acpi_wakeup_devices be addet to some patch 
-> set ? Or preferable to kerneltree it self?! 
-> 
-> 
-> So i hope someone will read this, and maybe report the same problems, or 
-> better an hint what it could be :-) 
-> 
-> CU Sergio
-> 
-> - -- 
-> Microsoft is to operating systems & security ....
->              .... what McDonalds is to gourmet cooking
-> 
-> PGP-Key http://vergata.it/GPG/F17FDB2F.asc
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.4 (GNU/Linux)
-> 
-> iD8DBQFA3fllVP5w5vF/2y8RAiPlAKC4pA4mg4Pi2UtNLl+qW+lK1SJbIQCfWjnv
-> 9/G8l8GRh7z3h2CzXFIcUs4=
-> =xEU+
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Plus some get_jiffies api for stuff like printk ratelimit would be needed,
+right?
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

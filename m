@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVCVRx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVCVR4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVCVRx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 12:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVCVRx7
+	id S261488AbVCVR4m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 12:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVCVR4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 12:53:59 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:16361
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261480AbVCVRxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 12:53:54 -0500
-Date: Tue, 22 Mar 2005 09:52:21 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: nickpiggin@yahoo.com.au, tony.luck@intel.com, akpm@osdl.org,
-       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
-Message-Id: <20050322095221.2b912c83.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0503220548250.5484@goblin.wat.veritas.com>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F03210DD4@scsmsx401.amr.corp.intel.com>
-	<20050321150205.4af39064.davem@davemloft.net>
-	<1111464894.5125.34.camel@npiggin-nld.site>
-	<20050321212955.6a0f2b61.davem@davemloft.net>
-	<Pine.LNX.4.61.0503220548250.5484@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Mar 2005 12:56:41 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:3462 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261488AbVCVR4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 12:56:24 -0500
+Subject: [patch 1/1] kconfig: trivial cleanup
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
+       zippel@linux-m68k.org, kbuild-devel@lists.sourceforge.net
+From: blaisorblade@yahoo.it
+Date: Tue, 22 Mar 2005 17:36:39 +0100
+Message-Id: <20050322163639.17AD1E7BB6@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005 06:08:38 +0000 (GMT)
-Hugh Dickins <hugh@veritas.com> wrote:
 
-> > It just wants the range of page tables liberated.  I guess
-> > essentially PMD_SIZE is the granularity.
-> 
-> I _think_ that answer means that my current code is fine in this respect.
-> But I'm not entirely convinced.  Since sparc64 is the only architecture
-> which implements a flush_tlb_pgtables which actually uses start,end,
-> we do need to suit your needs there - informed reassurance welcome!
+CC: Roman Zippel <zippel@linux-m68k.org>, <kbuild-devel@lists.sourceforge.net>
 
-Ok.  This interface is meant to deal with platforms that virtually
-map their page tables, usually for faster TLB miss processing.
+Replace a menu_add_prop mimicking menu_add_prompt with the latter.
 
-As stated, IA64 does this just as sparc64 does, however they flush
-their linear page table virtual mappings in a different place.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-This by definition means that the granularity is PMD_SIZE.  That
-is the smallest chunk of page table, ie. what a pte_t chunk maps.
+ linux-2.6.11-paolo/scripts/kconfig/zconf.y |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-> > It's funny since this code aparently works fine on ia64 which
-> > is fully 3-level too.  Hmm...
-> 
-> Yes, odd.  I'll have to have another think later on.
-
-I'll play around with some of the patches you posted today and
-get back to you.
+diff -puN scripts/kconfig/zconf.y~kbuild-cleanup scripts/kconfig/zconf.y
+--- linux-2.6.11/scripts/kconfig/zconf.y~kbuild-cleanup	2005-03-22 17:34:36.000000000 +0100
++++ linux-2.6.11-paolo/scripts/kconfig/zconf.y	2005-03-22 17:35:14.000000000 +0100
+@@ -443,7 +443,7 @@ prompt_stmt_opt:
+ 	  /* empty */
+ 	| prompt if_expr
+ {
+-	menu_add_prop(P_PROMPT, $1, NULL, $2);
++	menu_add_prompt(P_PROMPT, $1, $2);
+ };
+ 
+ prompt:	  T_WORD
+_

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272973AbTHKSg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 14:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272941AbTHKSes
+	id S272875AbTHKSqb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 14:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273052AbTHKSoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 14:34:48 -0400
-Received: from mail1.scram.de ([195.226.127.111]:62987 "EHLO mail1.scram.de")
-	by vger.kernel.org with ESMTP id S272875AbTHKSeD (ORCPT
+	Mon, 11 Aug 2003 14:44:46 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:21965 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S273028AbTHKSnQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 14:34:03 -0400
-Date: Mon, 11 Aug 2003 20:33:23 +0200 (CEST)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@gfrw1044.bocc.de
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       <dahinds@users.sourceforge.net>
-Subject: Re: PCI1410 Interrupt Problems
-In-Reply-To: <20030807000914.J16116@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308112028300.10344-100000@gfrw1044.bocc.de>
+	Mon, 11 Aug 2003 14:43:16 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: ---- Start SpamAssassin results
-  0.50 points, 5 required;
-  * -0.5 -- Has a In-Reply-To header
-  *  0.0 -- Message-Id indicates a non-spam MUA (Pine)
-  * -0.5 -- BODY: Contains what looks like a quoted email text
-  *  0.9 -- RBL: Received via a relay in dnsbl.njabl.org
-  [RBL check: found 145.115.226.217.dnsbl.njabl.org., type: 127.0.0.3]
-  *  0.6 -- RBL: Received via a relay in relays.osirusoft.com
-  [RBL check: found 145.115.226.217.relays.osirusoft.com., type: 127.0.0.3]
-  ---- End of SpamAssassin results
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16183.58300.408086.272654@napali.hpl.hp.com>
+Date: Mon, 11 Aug 2003 11:43:08 -0700
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH][2.6] WARN_ON_STACK_VAR aka fighting variable lifetime bugs
+In-Reply-To: <Pine.LNX.4.53.0308091430410.32166@montezuma.mastecende.com>
+References: <Pine.LNX.4.53.0308091430410.32166@montezuma.mastecende.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+>>>>> On Sat, 9 Aug 2003 15:29:41 -0400 (EDT), Zwane Mwaikambo <zwane@arm.linux.org.uk> said:
 
-> Unfortunately, there are some hacks in the kernel at the moment which
-> mess up the Cardbus IRQ routing by touching this register - the kernel
-> should not be the one to play with hardware design specific register
-> settings, especially when they are applied without thought across
-> many hardware variants.
+  Zwane> --- linux-2.6.0-test2-irq/include/asm-ia64/bug.h	30 Jul 2003 00:06:30 -0000	1.1.1.1
+  Zwane> +++ linux-2.6.0-test2-irq/include/asm-ia64/bug.h	9 Aug 2003 19:14:09 -0000
+  Zwane> +#define WARN_ON_STACK_VAR(ptr) do { \
+  Zwane> +	unsigned long __ti = (unsigned long)current_thread_info(); \
+  Zwane> +	WARN_ON((__ti & (unsigned long)(ptr)) == __ti); \
+  Zwane> +} while (0)
 
-after thinking a bit, i believe, you're right here. Initially, i just
-wanted to have an option to mess with this register, but there is already
-the setpci tool which can do exactly this. So for now, i just added the
-setpci command to my modules.conf and i'm set.
+Note that on ia64 we don't use bit-masking to calculate the
+task-pointer.  Instead, thread-info follows the task structure.  This
+is done such that the task-structure, thread-info, and kernel stack
+can be mapped by a single (pinned) TLB entry.
 
-It's just a shame that PCI/Cardbus bridge manufacturers try to save a few
-cents by not soldering the configuration EEPROM to their board and supply
-some specialized drivers for Win just to make their crap work. So if you
-place 2 different cards in the same PC with the same PCI1410 but different
-pin mapping, you're doomed...
+The correct check for a variable being on the stack of the current
+task would be something like this:
 
---jochen
+	((unsigned long)(ptr) - (unsigned long) current) < IA64_STK_OFFSET
 
+(IA64_STK_OFFSET is declared by <asm/ptrace.h>).
+
+Thanks,
+
+	--david

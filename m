@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbTDHUkD (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:40:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbTDHUkD (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:40:03 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:43743 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S261757AbTDHUkB (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 16:40:01 -0400
-Date: Tue, 8 Apr 2003 22:51:36 +0200
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] aic7* claims all checked EISA io ranges (was: [MAILER-DAEMON@rumms.uni-mannheim.de: Returned mail: see transcript for details])
-Message-ID: <20030408205136.GA8144@schiele.local>
-References: <20030408071845.GA10002@schiele.local> <3566580000.1049834178@aslan.btc.adaptec.com>
+	id S261767AbTDHUla (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 16:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbTDHUla (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 16:41:30 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:10204 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261767AbTDHUl3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Apr 2003 16:41:29 -0400
+Subject: Re: KERNEL PROFILING
+From: Andy Pfiffer <andyp@osdl.org>
+To: shesha bhushan <bhushan_vadulas@hotmail.com>
+Cc: rddunlap@osdl.org,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       kernelnewbies@nl.linux.org
+In-Reply-To: <20030408130348.11e3946b.rddunlap@osdl.org>
+References: <F20Lig41UjdSkleUBUh0001d797@hotmail.com>
+	 <20030408130348.11e3946b.rddunlap@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049835184.2445.45.camel@andyp.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-In-Reply-To: <3566580000.1049834178@aslan.btc.adaptec.com>
-User-Agent: Mutt/1.4i
-From: Robert Schiele <rschiele@uni-mannheim.de>
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 08 Apr 2003 13:53:04 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> | 
+> | Hi
+> | If I use the command line option "profile=2" while booting the system, why 
+> | /proc/profile file is not created? Should I have to create it manually?
+> | 
+> | Thanking You'
+> | Shesha
 
-On Tue, Apr 08, 2003 at 02:36:19PM -0600, Justin T. Gibbs wrote:
-> > Hello.
-> >=20
-> > Some days ago a bug was introduced in aic7xxx by applying the aic7xxx d=
-river
-> > upgrade to both the 2.4 and the 2.5 tree.
->=20
-> This particular defect was corrected in all versions of the aic7xxx
-> driver released by me after March 9th.  See the driver CHANGELOG in
-> the driver source distribution for details.
->=20
-> http://people.FreeBSD.org/~gibbs/linux/SRC/
+You might want to double check your kernel command line after the system
+has booted with "cat /proc/cmdline" and look for the "profile=2"
+parameter.
 
-Thanks for your note.  Hope you didn't feel offended.  At least this was not
-my intention.  I just wanted to notify all people related to the affected
-driver.
-
-So it's up to the kernel tree maintainers to bring this fix into their tree=
-s.
-
-Robert
-
---=20
-Robert Schiele			Tel.: +49-621-181-2517
-Dipl.-Wirtsch.informatiker	mailto:rschiele@uni-mannheim.de
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQE+kzZYxcDFxyGNGNcRAqVrAJ9rRFnfqBkqPPjkkgScUD7AEzobKwCfSJNY
-m72g6rjXgsTnc28SXHElbnA=
-=sDF0
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+% cat /proc/cmdline 
+auto BOOT_IMAGE=linux-2.5.67 ro root=805 console=ttyS0,9600n8 profile=2
+%
 

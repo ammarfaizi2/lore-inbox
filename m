@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268502AbUI2O46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268582AbUI2O5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268502AbUI2O46 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268650AbUI2Oyr
+	id S268582AbUI2O5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268637AbUI2Oyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:54:47 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:22486 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S268490AbUI2OYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:24:39 -0400
-Subject: Re: [Patch] Fix oops on rmmod usb-storage
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Hannes Reinecke <hare@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <1096463876.15905.23.camel@localhost.localdomain>
-References: <415A67B8.2080003@suse.de>  <1096466196.2028.8.camel@mulgrave> 
-	<1096463876.15905.23.camel@localhost.localdomain>
-Content-Type: text/plain
+	Wed, 29 Sep 2004 10:54:40 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:29605 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S268502AbUI2O1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:27:17 -0400
+Message-ID: <415AC640.3090407@tungstengraphics.com>
+Date: Wed, 29 Sep 2004 15:27:12 +0100
+From: Keith Whitwell <keith@tungstengraphics.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Discuss issues related to the xorg tree <xorg@freedesktop.org>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New DRM driver model - gets rid of DRM() macros!
+References: <9e4733910409280854651581e2@mail.gmail.com> <20040929133759.A11891@infradead.org> <415AB8B4.4090408@tungstengraphics.com> <20040929143129.A12651@infradead.org> <415ABA34.9080608@tungstengraphics.com> <415AC2B3.6070900@tungstengraphics.com> <20040929151601.A13135@infradead.org>
+In-Reply-To: <20040929151601.A13135@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 29 Sep 2004 10:24:28 -0400
-Message-Id: <1096467874.1762.15.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-29 at 09:17, Alan Cox wrote:
-> On Mer, 2004-09-29 at 14:56, James Bottomley wrote:
-> > The key to the solution of this problem is to know what USB is trying to
-> > do with the dead device.  SCSI is trying to be polite and explicitly
-> > kill the outstanding commands before it removes the HBA.  Presumably USB
-> > is returning something that says this can't be done so the EH gets all
-> > the way up to offlining.
+Christoph Hellwig wrote:
+> On Wed, Sep 29, 2004 at 03:12:03PM +0100, Keith Whitwell wrote:
 > 
-> Its nothing to do with USB, rmmod with eh running crashes all the other
-> SCSI drivers I've tested too. After the state transition fails you get
-> kobject related errors and a crash. 
+>>Thinking about it, it may not have been a problem of crashing, but rather that 
+>>  the behaviour visible from a program attempting to read (or poll) was 
+>>different with noop versions of these functions to NULL versions, and that was 
+>>causing problems.  This is 18 months ago, so yes, I'm being vague.
+>>
+>>The X server does look at this file descriptor, which is where the problem 
+>>would have arisen, but only the gamma & maybe ffb drivers do anything with it.
+> 
+> 
+> Indeed, for read you're returning 0 now instead of the -EINVAL from common
+> code when no ->read is present.  I'd say the current drm behaviour is a bug,
+> but if X drivers rely on it.
 
-There is no crash in the log ... there was only a state transition
-complaint.
+I'd agree, but it's a widely distributed bug.  I guess we can fix it in the X 
+server, but even better would be to rip out the code as it's fundamentally 
+misguided, based on a wierd idea that the kernel would somehow ask the X 
+server to perform a context switch between two userspace clients...
 
-I think the solution is in the eh and its simply not to try to ready the
-device on SDEV_CANCEL (no point readying a device you're being asked to
-kill).
-
-James
-
-
+Keith

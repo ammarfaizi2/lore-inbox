@@ -1,79 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268538AbUHRBKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266894AbUHRBTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268538AbUHRBKb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 21:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUHRBKb
+	id S266894AbUHRBTO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 21:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266895AbUHRBTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 21:10:31 -0400
-Received: from c24.177.115.247.mad.wi.charter.com ([24.177.115.247]:25333 "EHLO
-	stabby.com") by vger.kernel.org with ESMTP id S268538AbUHRBKD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 21:10:03 -0400
-Message-ID: <32955.24.196.136.110.1092791402.squirrel@stabby.com>
-Date: Tue, 17 Aug 2004 20:10:02 -0500 (CDT)
-Subject: Toshiba laptop keyboard lockup/freezing revisited
-From: "Nathaniel Case" <nacase@wisc.edu>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Tue, 17 Aug 2004 21:19:14 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:25002 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266894AbUHRBTL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 21:19:11 -0400
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+From: Albert Cahalan <albert@users.sf.net>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       george anzinger <george@mvista.com>, Andrew Morton OSDL <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       lkml <linux-kernel@vger.kernel.org>, voland@dmz.com.pl,
+       nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       david+powerix@blue-labs.org
+In-Reply-To: <1092791363.2429.319.camel@cog.beaverton.ibm.com>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+	 <Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>
+	 <412285A5.9080003@mvista.com>
+	 <1092782243.2429.254.camel@cog.beaverton.ibm.com>
+	 <Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>
+	 <1092787863.2429.311.camel@cog.beaverton.ibm.com>
+	 <1092781172.2301.1654.camel@cube>
+	 <1092791363.2429.319.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1092782754.5759.1679.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 17 Aug 2004 18:45:54 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 2004-08-17 at 21:09, john stultz wrote:
+> On Tue, 2004-08-17 at 15:19, Albert Cahalan wrote:
+> > On Tue, 2004-08-17 at 20:11, john stultz wrote:
+> > 
+> > > --- 1.62/fs/proc/array.c	2004-08-05 13:36:53 -07:00
+> > > +++ edited/fs/proc/array.c	2004-08-17 17:08:07 -07:00
+> > > @@ -356,7 +356,14 @@
+> > >  	read_unlock(&tasklist_lock);
+> > >  
+> > >  	/* Temporary variable needed for gcc-2.96 */
+> > > -	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
+> > > +	/* convert timespec -> nsec*/
+> > > +	start_time = (unsigned long long)task->start_time.tv_sec * NSEC_PER_SEC 
+> > > +				+ task->start_time.tv_nsec;
+> > > +	/* convert nsec -> ticks */
+> > > +	start_time *= HZ;
+> > > +	do_div(start_time, NSEC_PER_SEC);
+> > > +	/* convert ticks -> USER_HZ ticks */
+> > > +	start_time = jiffies_64_to_clock_t(start_time);
+> > 
+> > This would overflow in about 6 months at 1024 USER_HZ.
+> > Various possible alternatives:
+> 
+> Everybody sing: Thanks, nice catch/Here's an updated patch!
+> 
+> -john
+> 
+> ===== fs/proc/array.c 1.62 vs edited =====
+> --- 1.62/fs/proc/array.c	2004-08-05 13:36:53 -07:00
+> +++ edited/fs/proc/array.c	2004-08-17 18:03:55 -07:00
+> @@ -356,7 +356,13 @@
+>  	read_unlock(&tasklist_lock);
+>  
+>  	/* Temporary variable needed for gcc-2.96 */
+> -	start_time = jiffies_64_to_clock_t(task->start_time - INITIAL_JIFFIES);
+> +	/* convert timespec -> nsec*/
+> +	start_time = (unsigned long long)task->start_time.tv_sec * NSEC_PER_SEC 
+> +				+ task->start_time.tv_nsec;
+> +	/* convert nsec -> ticks */
+> +	do_div(start_time, NSEC_PER_SEC/HZ);
+> +	/* convert ticks -> USER_HZ ticks */
+> +	start_time = jiffies_64_to_clock_t(start_time);
 
-A few months ago there were some posts about an issue where the keyboard
-would lockup (seemingly at random) on some systems (I specifically recall
-Toshiba Satellite laptops being susceptible).
+NSEC_PER_SEC/HZ isn't an integer when HZ is 1024.
+Also, you're doing two conversions. You can go directly
+from nanoseconds to USER_HZ, without using HZ at all.
 
-This started happening somewhere around kernel 2.6.5.  I also experience
-this in 2.6.7 on my Toshiba Satellite S173 (but never in 2.4).
+I think you really need the #if for this.
+It could go in a header if you like, creating
+a timespec_to_clock_t macro for use in proc.
 
-When it would happen, I was usually able to get the keyboard back by
-hitting various combinations of left-shift + F2.  The lockup would happen
-both in and out of X.  The easiest way I found to reproduce it is to just
-go in a console and rapidly mash keys including the left shift key.  The
-message I get in syslog when it happens is this:
 
-input: AT Translated Set 2 keyboard on isa0060/serio0
-
-Digging into this a bit, I found one change that seemed to be most related
-to the bug.  The change was to the interrupt handler in
-drivers/input/serio.c:
-
-@@ -195,6 +195,9 @@
-                 ret = serio->dev->interrupt(serio, data, flags, regs);
-        } else {
-                if (!flags) {
-+                       if ((serio->type == SERIO_8042 ||
-+                               serio->type == SERIO_8042_XL) && (data !=
-0xaa))
-+                                       return ret;
-                        serio_rescan(serio);
-                        ret = IRQ_HANDLED;
-                }
-
-I sprinkled some printk()'s around and saw that it was sometimes getting
-"data = 0xab" when the lockup would occur.
-
-I don't fully understand this code since I didn't dig into it too deeply,
-but I was able to eliminate the lockups for myself by adding "&& (data !=
-0xab)" in addition to checking for 0xaa to that line.  I'm thinking that
-0xaa and/or 0xab might be related to the scan-code sequences for the
-left-shift key break-code, but I couldn't really find definitive
-documentation on this stuff.  Somewhere I read that 0xaa means that a
-self-test has passed in addition to being the break code for left-shift.
-
-Note that Toshiba Satellite keyboards have been known to have problems in
-the past, so this may very well be a hardware bug.
-
-Thoughts from anyone who worked on the serio or i8042 driver?   Or anyone
-else who has seen this problem?
-
-Please CC replies to me as I am not subscribed to the list.
-
---
-Nate Case <nacase@wisc.edu>

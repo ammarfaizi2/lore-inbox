@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290747AbSAYSfd>; Fri, 25 Jan 2002 13:35:33 -0500
+	id <S290769AbSAYShn>; Fri, 25 Jan 2002 13:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290773AbSAYSfY>; Fri, 25 Jan 2002 13:35:24 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43925 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S290747AbSAYSfI>; Fri, 25 Jan 2002 13:35:08 -0500
-Date: Fri, 25 Jan 2002 11:34:59 -0700
-Message-Id: <200201251834.g0PIYxj02545@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Rainer Krienke <krienke@uni-koblenz.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
-In-Reply-To: <20020125124110.A357@devserv.devel.redhat.com>
-In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com>
-	<200201240858.g0O8wnH03603@bliss.uni-koblenz.de>
-	<20020124121649.A7722@devserv.devel.redhat.com>
-	<200201250728.g0P7SDH26738@bliss.uni-koblenz.de>
-	<20020125124110.A357@devserv.devel.redhat.com>
+	id <S290730AbSAYSh3>; Fri, 25 Jan 2002 13:37:29 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:46294 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S290773AbSAYShM>;
+	Fri, 25 Jan 2002 13:37:12 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AEC@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Stephan von Krawczynski'" <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: Machine Check Exception ?
+Date: Fri, 25 Jan 2002 10:37:11 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Note: nfs-list removed from Cc:ed because slow^Wsourcefore has a
-broken mail configuration which always bounces my email]
+I used to get these all the time as well (with a very
+similar hardware setup) and although I have never
+identified exactly what was wrong (still using 2.2.x)
+I don't get them any more after doing this :
+1 - switched from IDE to SCSI
+2 - changed RAM vendors (yes, this was unpleasant)
+and, most significantly :
+3 - made sure the BIOS had the correct microcode update
+    for the CPU.  the one it had was out of date, and
+    changing to the latest from Intel solved a LOT of
+    instability issues....
 
-Pete Zaitcev writes:
-> > From: Rainer Krienke <krienke@uni-koblenz.de>
-> > Date: Fri, 25 Jan 2002 08:28:13 +0100
+> -----Original Message-----
+> From: Stephan von Krawczynski [mailto:skraw@ithnet.com]
+> Sent: January 25, 2002 11:48
+> To: Marcel Kunath
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Machine Check Exception ?
 > 
-> > > Rainer, you missed the point. Nobody cares about small things
-> > > such as "cannot start nfsd" while your 4096 mounts patch
-> > > simply CORRUPTS YOUR DATA TO HELL.
-> > 
-> > Well I never said, I really knew what I was doing:-).  Thats exacly why I 
-> > asked about why to use more major devices? OK the anser to this question 
-> > seems to be that minor devices may only be 8 bit due to the static nature of 
-> > some kernel structures. Right?
 > 
-> Close enough... Actual reason is the implementation of MINOR().
+> On Fri, 25 Jan 2002 07:37:24 -0500 (EST)
+> "Marcel Kunath" <kunathma@pilot.msu.edu> wrote:
 > 
-> > > If you need more than 1200 mounts, you have to add more majors
-> > > to my patch. There is a number of them between 115 and 198.
-> > > I suspect scalability problems may become evident
-> > > with this approach, but it will work.
-> > 
-> > The solution Richard posted seems to be interesting at this point isn't it?
+> > Whats the mobo?
 > 
-> I thought about the rgooch's suggestion, it sounds good for 2.5.
-> Red Hat do not ship devfs enabled currently, and I cannot use his
-> allocation function if someone uses static majors, or some modules
-> may not load. The patch does include a safety element (majorhog_xxx)
-> that reserves majors properly. The devfs would make that unnecessary.
-
-The allocation function should be safe, since it only gives majors
-which are not assigned in devices.txt. Drivers which statically grab
-unassigned majors are broken, and *will* trip over each other at some
-point.
-
-As I said before, I can move the major allocation function into a
-generic place and not have it depend on CONFIG_DEVFS_FS. So it doesn't
-have to matter if RH ship devfs or not.
-
-BTW: please Cc: me, otherwise I may not see responses.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+> Ok,here we go:
+> 
+> diehard:~ # lspci 
+> 00:00.0 Host bridge: Intel Corporation 440BX/ZX - 82443BX/ZX 
+> Host bridge (rev 03)
+> 00:01.0 PCI bridge: Intel Corporation 440BX/ZX - 82443BX/ZX 
+> AGP bridge (rev 03)
+> 00:04.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 02)
+> 00:04.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+> 00:04.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01)
+> 00:04.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 02)
+> 00:09.0 SCSI storage controller: Symbios Logic Inc. (formerly 
+> NCR) 53c810 (rev 23)
+> 00:0a.0 PCI bridge: Intel Corporation 80960RP [i960 RP 
+> Microprocessor/Bridge] (rev 05)
+> 00:0a.1 RAID bus controller: Mylex Corporation DAC960PX (rev 05)
+> 00:0b.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast 
+> Etherlink] (rev 74)
+> 01:00.0 VGA compatible controller: S3 Inc. 86c368 [Trio 
+> 3D/2X] (rev 02)
+> 
+> Regards,
+> Stephan
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

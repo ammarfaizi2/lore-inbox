@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262380AbSKKXy4>; Mon, 11 Nov 2002 18:54:56 -0500
+	id <S263321AbSKLABF>; Mon, 11 Nov 2002 19:01:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbSKKXyz>; Mon, 11 Nov 2002 18:54:55 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:57950 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id <S262380AbSKKXyy>; Mon, 11 Nov 2002 18:54:54 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
-References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
-	<20021111.151929.31543489.davem@redhat.com>
-	<52r8drn0jk.fsf_-_@topspin.com>
-	<20021111.153845.69968013.davem@redhat.com>
-	<1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 11 Nov 2002 16:01:43 -0800
-In-Reply-To: <1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
-Message-ID: <52isz3mza0.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S264692AbSKLABF>; Mon, 11 Nov 2002 19:01:05 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:65259 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S263321AbSKLABE>; Mon, 11 Nov 2002 19:01:04 -0500
+Date: Mon, 11 Nov 2002 16:16:11 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: hannal@us.ibm.com
+Subject: [PATCH 2.4] Backport of container_of macro
+Message-ID: <14650000.1037060171@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 12 Nov 2002 00:01:39.0968 (UTC) FILETIME=[AD19A800:01C289DE]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-    >>>>> On Mon, 2002-11-11 at 23:38, David S. Miller wrote:
+This nifty little macro is used a lot in 2.5 but does not exist
+in 2.4 yet. Here is a patch to include it.
 
-    Dave> So how are apps able to specify such larger hw addresses to
-    Dave> configure a driver if IFHWADDRLEN is still 6?
+Hanna
 
-    Dave> I'm not going to increase MAX_ADDR_LEN if there is no user
-    Dave> ABI capable of configuring such larger addresses properly.
+ kernel.h |   11 +++++++++++
+ 1 files changed, 11 insertions(+)
 
-    Alan> The kernel just ignores it. We support multiple devices with
-    Alan> larger address lengths. Its mostly a legacy constant
+diff -Nru linux-2.4.20-rc1/include/linux/kernel.h 
+linux-container_of/include/linux/kernel.h
+--- linux-2.4.20-rc1/include/linux/kernel.h	Mon Nov 11 15:23:09 2002
++++ linux-container_of/include/linux/kernel.h	Mon Nov 11 15:23:16 2002
+@@ -174,6 +174,17 @@
+ extern void __out_of_line_bug(int line) ATTRIB_NORET;
+ #define out_of_line_bug() __out_of_line_bug(__LINE__)
 
-What drivers in the kernel are there with address length more than
-MAX_ADDR_LEN?  What do they put dev->addr_len and dev->dev_addr?
++/*
++ * container_of - cast a member of a structure out to the containing 
+structure
++ *
++ * @ptr:        the pointer to the member.
++ * @type:       the type of the container struct this is embedded in.
++ * @member:     the name of the member within the struct.
++ */
++#define container_of(ptr, type, member) ({                      \
++	const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
++	(type *)( (char *)__mptr - offsetof(type,member) );})
++
+ #endif /* __KERNEL__ */
 
-Thanks,
-  Roland  <roland@topspin.com>
+ #define SI_LOAD_SHIFT	16
+

@@ -1,514 +1,1311 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267772AbUGWQAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267832AbUGWQHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267772AbUGWQAr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 12:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267808AbUGWP7w
+	id S267832AbUGWQHg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 12:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267826AbUGWQG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 11:59:52 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:17798 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S267810AbUGWPlY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 11:41:24 -0400
-Date: Fri, 23 Jul 2004 08:49:41 -0700
+	Fri, 23 Jul 2004 12:06:56 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:49029 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S267469AbUGWPpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 11:45:47 -0400
+Date: Fri, 23 Jul 2004 08:49:04 -0700
 From: inaky.perez-gonzalez@intel.com
 To: linux-kernel@vger.kernel.org
 Cc: inaky.perez-gonzalez@intel.com, robustmutexes@lists.osdl.org
-Subject: [RFC/PATCH] FUSYN 11/11: Modifications to the core: scheduler
-Message-ID: <0407230849.fdYd7bfdSc9d3aId2bsdQb1cccraydZb17066@intel.com>
+Subject: [RFC/PATCH] FUSYN 4/11: kernel fulocks
+Message-ID: <0407230849.Ycdbec6bWb9dtb.bHbUaebDcmdEcSdtb17066@intel.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <0407230849.IbGdeaVc4cHb1asaZc5cubdcLdZaaaCb17066@intel.com>
+In-Reply-To: <0407230848.ZdKcBcybgaBd6ddd6cVdacuaIaRd6dha17066@intel.com>
 X-Mailer: patchbomb 0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for priority boosting, hooks into the scheduling
-code.
+These are the "mutexes" for using within kernel space. As
+with fuqueues, they also include the stuff to build on top of
+them (esentially to perform user space support).
 
-As we modify the task struct, fix the init_task. Currently
-ugly as hell, needs to be improved.
+Included is also the addition of to new E* error codes for
+denoting a mutex whose owner has died (EOWNERDEAD) or a mutex
+that is not recoverable from that situation
+(ENOTRECOVERABLE).
 
 
- arch/i386/kernel/init_task.c |    1 
- include/linux/init_task.h    |   31 ++++++++++++
- include/linux/sched.h        |   22 ++++++++-
- kernel/exit.c                |    2 
- kernel/fork.c                |    2 
- kernel/sched.c               |  103 +++++++++++++++++++++++++++++++++++++------
- kernel/signal.c              |   14 +++++
- 7 files changed, 160 insertions(+), 15 deletions(-)
+ include/asm-alpha/errno.h   |    3 
+ include/asm-generic/errno.h |    3 
+ include/asm-mips/errno.h    |    3 
+ include/asm-parisc/errno.h  |    2 
+ include/asm-sparc/errno.h   |    3 
+ include/asm-sparc64/errno.h |    3 
+ include/linux/fulock.h      |  455 ++++++++++++++++++++++++++
+ kernel/fulock.c             |  743 ++++++++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 1215 insertions(+)
 
---- include/linux/init_task.h:1.1.1.5 Tue Apr 6 01:51:36 2004
-+++ include/linux/init_task.h Wed May 26 22:14:47 2004
-@@ -60,6 +60,32 @@
- extern struct group_info init_groups;
+--- include/asm-generic/errno.h:1.1.1.1 Thu Jul 10 12:27:27 2003
++++ include/asm-generic/errno.h Thu May 27 00:34:06 2004
+@@ -97,4 +97,7 @@
+ #define	ENOMEDIUM	123	/* No medium found */
+ #define	EMEDIUMTYPE	124	/* Wrong medium type */
  
- /*
-+ * Initialize the init task fuqueue's and fulock side
-+ *
-+ * Ugly as hell--any ideas on how to make this look better? The
-+ * problem is that we remove stuff from the task struct when we
-+ * disable FUSYN or FULOCK.
-+ */
-+#ifndef CONFIG_FUSYN
-+#  define FUQUEUE_INIT_TASK(a) /* Emtpy, nothing to init */
-+#else           /* #ifndef CONFIG_FUSYN */
-+#  define FUQUEUE_INIT_TASK(task)					\
-+	,	/* Grumble, mumble, @od damn it	*/			\
-+	.fuqueue_wait_lock = SPIN_LOCK_UNLOCKED,			\
-+	.fuqueue_wait = NULL,						\
-+	.fuqueue_waiter	= NULL
-+#  ifndef CONFIG_FULOCK
-+#    define FULOCK_INIT_TASK(a) /* Emtpy, nothing to init */
-+#  else         /* #ifndef CONFIG_FULOCK */
-+#    define FULOCK_INIT_TASK(task)					\
-+	,	/* Grumble, mumble, @od damn it	*/			\
-+	.fulock_olist = plist_INIT (&(task).fulock_olist, BOTTOM_PRIO),	\
-+	.fulock_olist_lock = SPIN_LOCK_UNLOCKED
-+#  endif
-+#endif /* #ifndef CONFIG_FUSYN
-+ */
++#define EOWNERDEAD	125	/* Mutex owner died */
++#define ENOTRECOVERABLE 126	/* Mutex state is not recoverable */
 +
-+/*
-  *  INIT_TASK is used to set up the first task table, touch at
-  * your own risk!. Base=0, limit=0x1fffff (=2MB)
-  */
-@@ -72,6 +98,7 @@
- 	.lock_depth	= -1,						\
- 	.prio		= MAX_PRIO-20,					\
- 	.static_prio	= MAX_PRIO-20,					\
-+	.boost_prio	= BOTTOM_PRIO,					\
- 	.policy		= SCHED_NORMAL,					\
- 	.cpus_allowed	= CPU_MASK_ALL,					\
- 	.mm		= NULL,						\
-@@ -111,7 +138,9 @@
- 	.alloc_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.proc_lock	= SPIN_LOCK_UNLOCKED,				\
- 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
--	.journal_info	= NULL,						\
-+	.journal_info	= NULL						\
-+	FUQUEUE_INIT_TASK(tsk)						\
-+	FULOCK_INIT_TASK(tsk),						\
- }
- 
- 
---- include/linux/sched.h:1.1.1.14 Tue Apr 6 01:51:36 2004
-+++ include/linux/sched.h Wed Jun 9 23:36:40 2004
-@@ -29,6 +29,7 @@
- #include <linux/completion.h>
- #include <linux/pid.h>
- #include <linux/percpu.h>
-+#include <linux/plist.h>    /* fulock ownership list */
- 
- struct exec_domain;
- 
-@@ -174,6 +175,9 @@
- 
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
- extern signed long FASTCALL(schedule_timeout(signed long timeout));
-+struct timeout;
-+#define	MAX_SCHEDULE_TIMEOUT_EXT ((struct timeout *) ~0)
-+extern void FASTCALL(schedule_timeout_ext (const struct timeout *timeout));
- asmlinkage void schedule(void);
- 
- struct namespace;
-@@ -286,6 +290,7 @@
- #define MAX_RT_PRIO		MAX_USER_RT_PRIO
- 
- #define MAX_PRIO		(MAX_RT_PRIO + 40)
-+#define BOTTOM_PRIO		INT_MAX
- 
- #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
- 
-@@ -330,6 +335,8 @@
- };
- 
- 
-+struct fuqueue;
-+struct fuqueue_waiter;
- struct io_context;			/* See blkdev.h */
- void exit_io_context(void);
- 
-@@ -369,7 +376,7 @@
- 
- 	int lock_depth;		/* Lock depth */
- 
--	int prio, static_prio;
-+	int prio, static_prio, boost_prio;
- 	struct list_head run_list;
- 	prio_array_t *array;
- 
-@@ -493,6 +500,15 @@
- 
- 	unsigned long ptrace_message;
- 	siginfo_t *last_siginfo; /* For ptrace use.  */
-+#ifdef CONFIG_FUSYN   /* FIXME: I don't really like this... */
-+	struct fuqueue *fuqueue_wait;		/* waiting for this qeueue */
-+	struct fuqueue_waiter *fuqueue_waiter;	/* waiting for this qeueue */
-+	spinlock_t fuqueue_wait_lock;
-+#endif
-+#ifdef CONFIG_FULOCK   /* FIXME: I don't really like this... */
-+	struct plist fulock_olist;		/* Fulock ownership list */
-+	spinlock_t fulock_olist_lock;
-+#endif
- };
- 
- static inline pid_t process_group(struct task_struct *tsk)
-@@ -557,6 +573,9 @@
- extern int task_curr(task_t *p);
- extern int idle_cpu(int cpu);
- 
-+/* Set the boost priority */
-+extern unsigned __prio_boost (task_t *, int);
-+
- void yield(void);
- 
- /*
-@@ -599,6 +618,7 @@
- extern unsigned long itimer_next;
- extern void do_timer(struct pt_regs *);
- 
-+extern int try_to_wake_up(struct task_struct *p, unsigned int state, int sync);
- extern int FASTCALL(wake_up_state(struct task_struct * tsk, unsigned int state));
- extern int FASTCALL(wake_up_process(struct task_struct * tsk));
- #ifdef CONFIG_SMP
---- kernel/exit.c:1.1.1.11 Tue Apr 6 01:51:37 2004
-+++ kernel/exit.c Wed May 26 22:14:57 2004
-@@ -22,6 +22,7 @@
- #include <linux/profile.h>
- #include <linux/mount.h>
- #include <linux/proc_fs.h>
-+#include <linux/fulock.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -771,6 +772,7 @@
- 	}
- 
- 	acct_process(code);
-+	exit_fulocks(tsk);
- 	__exit_mm(tsk);
- 
- 	exit_sem(tsk);
---- kernel/fork.c:1.1.1.14 Tue Apr 6 01:51:37 2004
-+++ kernel/fork.c Wed May 26 22:14:57 2004
-@@ -31,6 +31,7 @@
- #include <linux/futex.h>
- #include <linux/ptrace.h>
- #include <linux/mount.h>
-+#include <linux/fulock.h>
- 
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -964,6 +965,7 @@
- 		goto bad_fork_cleanup_signal;
- 	if ((retval = copy_namespace(clone_flags, p)))
- 		goto bad_fork_cleanup_mm;
-+	init_fulocks(p);
- 	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
- 	if (retval)
- 		goto bad_fork_cleanup_namespace;
---- kernel/sched.c:1.1.1.18 Tue Apr 6 01:51:37 2004
-+++ kernel/sched.c Wed Jun 23 00:07:06 2004
-@@ -33,6 +33,7 @@
- #include <linux/suspend.h>
- #include <linux/blkdev.h>
- #include <linux/delay.h>
-+#include <linux/fuqueue.h>
- #include <linux/smp.h>
- #include <linux/timer.h>
- #include <linux/rcupdate.h>
-@@ -356,13 +357,10 @@
-  *
-  * Both properties are important to certain workloads.
-  */
--static int effective_prio(task_t *p)
-+static inline int __effective_prio(task_t *p)
- {
- 	int bonus, prio;
- 
--	if (rt_task(p))
--		return p->prio;
--
- 	bonus = CURRENT_BONUS(p) - MAX_BONUS / 2;
- 
- 	prio = p->static_prio - bonus;
-@@ -372,6 +370,13 @@
- 		prio = MAX_PRIO-1;
- 	return prio;
- }
-+static int effective_prio(task_t *p)
-+{
-+	int new_prio;
-+	new_prio = rt_task(p)? p->prio : __effective_prio(p);
-+	return min (new_prio, p->boost_prio);
-+}
-+
- 
- /*
-  * __activate_task - move a task to the runqueue.
-@@ -647,7 +652,7 @@
-  *
-  * returns failure only if the task is already active.
-  */
--static int try_to_wake_up(task_t * p, unsigned int state, int sync)
-+int try_to_wake_up(task_t * p, unsigned int state, int sync)
- {
- 	unsigned long flags;
- 	int success = 0;
-@@ -733,6 +738,8 @@
- 	 */
- 	p->thread_info->preempt_count = 1;
  #endif
-+	/* Initially the task has no priority boosting */
-+	p->boost_prio = BOTTOM_PRIO;
- 	/*
- 	 * Share the timeslice between parent and child, thus the
- 	 * total amount of pending timeslices in the system doesn't change,
-@@ -1772,6 +1779,9 @@
-  * There are circumstances in which we can try to wake a task which has already
-  * started to run but is not in state TASK_RUNNING.  try_to_wake_up() returns
-  * zero in this (rare) case, and we handle it by continuing to scan the queue.
-+ *
-+ * fuqueue_wait_cancel needs to hook up here to properly rescheduler
-+ * priority inheritance/protected tasks. Check its doc to learn why.
-  */
- static void __wake_up_common(wait_queue_head_t *q, unsigned int mode,
- 			     int nr_exclusive, int sync)
-@@ -1783,6 +1793,7 @@
- 		unsigned flags;
- 		curr = list_entry(tmp, wait_queue_t, task_list);
- 		flags = curr->flags;
-+		fuqueue_waiter_cancel(curr->task, -EINTR);
- 		if (curr->func(curr, mode, sync) &&
- 		    (flags & WQ_FLAG_EXCLUSIVE) &&
- 		    !--nr_exclusive)
-@@ -1965,12 +1976,17 @@
+--- include/asm-mips/errno.h:1.1.1.1 Thu Jul 10 12:27:27 2003
++++ include/asm-mips/errno.h Thu May 27 00:34:06 2004
+@@ -111,6 +111,9 @@
+ #define ENOMEDIUM	159	/* No medium found */
+ #define EMEDIUMTYPE	160	/* Wrong medium type */
  
- void scheduling_functions_end_here(void) { }
++#define EOWNERDEAD      161	/* Mutex owner died */
++#define ENOTRECOVERABLE 162	/* Mutex state is not recoverable */
++
+ #define EDQUOT		1133	/* Quota exceeded */
  
+ #ifdef __KERNEL__
+--- include/asm-parisc/errno.h:1.1.1.1 Thu Jul 10 12:27:28 2003
++++ include/asm-parisc/errno.h Thu May 27 00:34:07 2004
+@@ -67,6 +67,8 @@
+ #define	EREMOTEIO	181	/* Remote I/O error */
+ #define	ENOMEDIUM	182	/* No medium found */
+ #define	EMEDIUMTYPE	183	/* Wrong medium type */
++#define EOWNERDEAD	184	/* Mutex owner died */
++#define ENOTRECOVERABLE 185	/* Mutex state is not recoverable */
+ 
+ /* We now return you to your regularly scheduled HPUX. */
+ 
+--- include/asm-sparc/errno.h:1.1.1.1 Thu Jul 10 12:27:32 2003
++++ include/asm-sparc/errno.h Thu May 27 00:34:07 2004
+@@ -102,4 +102,7 @@
+ #define	ENOMEDIUM	125	/* No medium found */
+ #define	EMEDIUMTYPE	126	/* Wrong medium type */
+ 
++#define EOWNERDEAD	127	/* Mutex owner died */
++#define ENOTRECOVERABLE 128	/* Mutex state is not recoverable */
++
+ #endif
+--- include/asm-sparc64/errno.h:1.1.1.1 Thu Jul 10 12:27:32 2003
++++ include/asm-sparc64/errno.h Thu May 27 00:34:07 2004
+@@ -102,4 +102,7 @@
+ #define ENOMEDIUM       125     /* No medium found */
+ #define EMEDIUMTYPE     126     /* Wrong medium type */
+ 
++#define EOWNERDEAD	127	/* Mutex owner died */
++#define ENOTRECOVERABLE 128	/* Mutex state is not recoverable */
++
+ #endif /* !(_SPARC64_ERRNO_H) */
+--- /dev/null	Thu Jul 22 14:30:56 2004
++++ include/linux/fulock.h Tue Jul 20 02:39:07 2004
+@@ -0,0 +1,455 @@
++
 +/*
-+ * Note the initialization of old_prio and new_dynamic_prio. If we
-+ * fall back through 'out_unlock', they will help to skip the call to
-+ * fuqueue_waiter_chprio(). 
++ * Fast User real-time/pi/pp/robust/deadlock SYNchronization
++ * (C) 2002-2003 Intel Corp
++ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
++ *
++ * Licensed under the FSF's GNU Public License v2 or later.
++ *
++ * Based on normal futexes (futex.c), (C) Rusty Russell.
++ * Please refer to Documentation/fusyn.txt for more info.
++ *
++ * Quickie guide:
++ *
++ * struct fulock = fulock_INIT (&fulock);
++ *
++ * fulock_init (&fulock);
++ * fulock_release (&fulock);
++ * fulock_lock (&fulock, TIMEOUT);
++ * fulock_unlock (&fulock, UNLOCK_TYPE);
++ * fulock_ctl (&fulock, COMMAND)
 + */
- void set_user_nice(task_t *p, long nice)
- {
- 	unsigned long flags;
- 	prio_array_t *array;
- 	runqueue_t *rq;
--	int old_prio, new_prio, delta;
-+	int old_prio = p->prio, new_prio, delta;
- 
- 	if (TASK_NICE(p) == nice || nice < -20 || nice > 19)
- 		return;
-@@ -1993,11 +2009,12 @@
- 	if (array)
- 		dequeue_task(p, array);
- 
--	old_prio = p->prio;
- 	new_prio = NICE_TO_PRIO(nice);
- 	delta = new_prio - old_prio;
- 	p->static_prio = NICE_TO_PRIO(nice);
- 	p->prio += delta;
-+	old_prio = p->prio;
-+	p->prio = min (p->prio, p->boost_prio);
- 
- 	if (array) {
- 		enqueue_task(p, array);
-@@ -2010,6 +2027,7 @@
- 	}
- out_unlock:
- 	task_rq_unlock(rq, &flags);
-+	fuqueue_waiter_chprio(p, old_prio);
- }
- 
- EXPORT_SYMBOL(set_user_nice);
-@@ -2102,20 +2120,79 @@
- 	return pid ? find_task_by_pid(pid) : current;
- }
- 
++
++#ifndef __linux_fulock_h__
++#define __linux_fulock_h__
 +
 +/**
-+ * Boost the priority of a task from a new dynamic priority. 
++ * User space provided fulock flags
 + *
-+ * On SCHED_NORMAL, sets boost_prio in as __effective_prio()
-+ * would do to get the same prio when it is reinserted in the list.
-+ * 
-+ * @p: Pointer to the task in question
-+ * @prio: New boost priority to set
-+ * @returns: !0 if the final new dynamic priority of the task has
-+ * changed, 0 otherwise.
-+ *
-+ * This does not do fuqueue priority propagation (to avoid infinite
-+ * recursion in the fuqueue code).
++ * fulocks/ufulocks are *always* robust, it is up to the caller to
++ * emulate a hang if a robust behavior is not desired. However, the
++ * NOT_RM (not robust mutex) flag is kept and checked on exit and if
++ * there are owned fulocks, a warning will be printed.
 + */
-+unsigned __prio_boost(task_t *p, int prio)
-+{
-+	runqueue_t *rq;
-+	prio_array_t *array;
-+	long flags;
-+       int old_prio, new_dynamic_prio, newprio;
++enum {
++	FULOCK_FL_USER_MK =	0xfffff000, /* Flags provided by user space */
++	FULOCK_FL_PI =		0x80000000, /* Priority inherit */
++	FULOCK_FL_PP =		0x40000000, /* Priority protected */
++	FULOCK_FL_RM_SUN =	0x20000000, /* Robust mutex (sun style) */
++	FULOCK_FL_RM =		0x10000000, /* Robust mutex [warns only] */
++	FULOCK_FL_KCO =		0x08000000, /* No fast path, KCO mode always */
++	__FULOCK_FL_KCO =	FULOCK_FL_KCO | FULOCK_FL_PP,
++	FULOCK_FL_ERROR_CHK =	0x04000000, /* Perform POSIX error checks */
++/* Priority ceiling masks */
++	FULOCK_FL_PP_PLC_MK =	0x00f00000, /* Policy */
++	FULOCK_FL_PP_PRIO_MK =	0x000ff000  /* Priority */
++};
 +
-+	if (p->boost_prio == prio)
-+		return 0;
-+	
-+	rq = task_rq_lock(p, &flags);
-+	old_prio = p->prio;
-+	array = p->array;
-+	if (array)
-+		deactivate_task(p, task_rq(p));
-+	p->boost_prio = prio;
-+	new_dynamic_prio = p->policy != SCHED_NORMAL?
-+		MAX_USER_RT_PRIO - 1 - p->rt_priority
-+		: __effective_prio(p);
-+	newprio = min (new_dynamic_prio, p->boost_prio);
-+	p->prio = newprio;
-+	if (array) {
-+		__activate_task(p, task_rq(p));
-+		if (rq->curr == p) {
-+			if (p->prio > old_prio)
-+				resched_task(rq->curr);
-+		}
-+		else if (TASK_PREEMPTS_CURR (p, rq))
-+			resched_task(rq->curr);
-+	}
-+	task_rq_unlock (rq, &flags);
-+	return old_prio != newprio;
++/** Ways to unlock a fulock */
++enum fulock_unlock_type {
++	FULOCK_UNLOCK_SERIAL = 0, /* Transfer ownership to 1st waiter, wake up */
++	FULOCK_UNLOCK_PARALLEL,   /* Unlock fulock, wakeup 1st waiter */
++	FULOCK_UNLOCK_AUTO        /* SERIAL if 1st waiter's prio is RT */
++};
++
++/** Fulock health state */
++enum fulock_st {
++	FULOCK_ST_HEALTHY,   /* Normal, healthy */
++	FULOCK_ST_DEAD,	     /* Some previous owner died */
++	FULOCK_ST_NR	     /* idem, plus cannot be recovered */
++};
++
++
++/** Fulock control actions */
++enum fulock_ctl {
++	FULOCK_CTL_NOP = 0,   /* No-op, just return actual health state */
++	FULOCK_CTL_HEAL,      /* Move from dead to healthy */
++	FULOCK_CTL_NR,	      /* Move from dead to not-recoverable */
++	FULOCK_CTL_RELEASE,   /* Destroy the fulock/ufulock it */
++	FULOCK_CTL_INIT = FULOCK_CTL_RELEASE,
++	FULOCK_CTL_WAITERS,   /* Do we have waiters? */
++	FULOCK_CTL_LOCKED,    /* Is it locked? */
++	FULOCK_CTL_SETPRIOCEIL	/* Set the priority ceiling */
++};
++
++
++/**
++ * vfulock: fulock value in the user space word. Denotes the lock
++ * state and health state of the lock. If it is not this, is the PID
++ * (or cookie) of the owner who fast locked.
++ */
++enum vfulock {
++	VFULOCK_UNLOCKED  = 0x00000000,	/* Unlocked */
++	VFULOCK_HEALTHY	  = VFULOCK_UNLOCKED, /* KCO mode: the lock is healthy */
++	VFULOCK_WP	  = 0xfffffffd,	/* Waiters blocked in the kernel */
++	VFULOCK_DEAD	  = 0xfffffffe,	/* dead, kernel controls ownership */
++	VFULOCK_NR	  = 0xffffffff	/* fulock is not-recoverable */
++};
++
++#ifdef __KERNEL__
++
++#include <linux/config.h>
++#include <linux/fusyn-debug.h>
++
++#ifndef CONFIG_FULOCK
++struct task_struct;
++static inline
++void exit_fulocks(struct task_struct *dummy) {}
++static inline
++void init_fulocks(struct task_struct *dummy) {}
++
++#else /* #ifndef CONFIG_FULOCK */
++
++#include <linux/fuqueue.h>
++#include <linux/plist.h>
++#include <linux/vlocator.h>
++#include <asm/errno.h>
++
++/* Internal fulock flags */
++enum {
++	FULOCK_FL_NR =		0x00000100, /* not recoverable */
++	FULOCK_FL_DEAD =	0x00000200, /* dead-owner */
++	FULOCK_FL_NEEDS_SYNC =	0x00000800, /* Need sync from user space */
++	FULOCK_FL_PP_MK =	0x000000ff  /* raw priority ceiling */
++};
++
++struct fulock;
++
++/** Operations on a fulock. */
++struct fulock_ops 
++{
++	struct fuqueue_ops fuqueue;
++	unsigned (* owner_set) (struct fulock *, struct task_struct *);
++	unsigned (* owner_reset) (struct fulock *);
++	enum fulock_unlock_type (* unlock_type) (int *, struct fulock *,
++						 struct fuqueue_waiter *,
++						 enum fulock_unlock_type,
++						 void *) ;
++	void (* unqueue) (struct fulock *, struct fuqueue_waiter *,
++			  enum fulock_unlock_type, void *);
++	void (* exit) (struct fulock *); /* called from do_exit() context */
++};
++
++/* In-kernel fulock operations */
++extern struct fulock_ops fulock_ops;
++extern struct fulock_ops ufulock_ops;
++extern struct vlocator_ops ufulock_vops;
++
++
++/** A fulock, mutex usable from the kernel. */
++struct fulock {
++	struct fuqueue fuqueue;
++	struct task_struct *owner;
++	unsigned flags;
++	struct plist olist_node;
++};
++
++
++/** Initialize a @fulock with given ops */
++static inline
++void __fulock_init (struct fulock *fulock, struct fulock_ops *ops)
++{
++	__fuqueue_init (&fulock->fuqueue, &ops->fuqueue);
++	fulock->owner = NULL;
++	fulock->flags = 0;
++	plist_init (&fulock->olist_node, BOTTOM_PRIO);
++}
++
++/** Statically initialize a @fulock with given ops */
++#define __fulock_INIT(fulock, fulock_ops) {				\
++	.fuqueue = __fuqueue_INIT (&(fulock)->fuqueue,			\
++				   &(fulock_ops)->fuqueue),		\
++	.owner = NULL,							\
++	.flags = 0,							\
++	.olist_node = plist_INIT (&(fulock)->olist_node, BOTTOM_PRIO)	\
++}
++
++/** Initialize a @fulock for usage within the kernel */
++static inline
++void fulock_init (struct fulock *fulock, int flags)
++{
++	__fulock_init (fulock, &fulock_ops);
++	BUG_ON (flags & FULOCK_FL_PP && flags & FULOCK_FL_PI);
++	fulock->flags = flags;
++}
++
++/** Statically initialize a @fulock for usage within the kernel */
++#define fulock_INIT(fulock) __fulock_INIT (fulock, &fulock_ops)
++
++
++/* Primitives for locking/unlocking/waiting/signalling */
++extern int __fulock_lock (struct fulock *,  struct fuqueue_waiter *,
++			  const struct timeout *);
++extern void __fulock_unlock (struct fulock *fulock,
++			     enum fulock_unlock_type unlock_type, void *);
++extern void __fulock_unlock_unqueue (struct fulock *, struct fuqueue_waiter *,
++				     enum fulock_unlock_type);
++extern int __fulock_ctl (struct fulock *fulock, enum fulock_ctl ctl, void *);
++extern void __fulock_requeue (struct fuqueue *fuqueue,
++			      struct fulock *fulock, void *);
++extern void __fulock_kill_message (struct fulock *);
++extern void exit_fulocks (struct task_struct *task);
++
++/** More internal stuff for building on top of fulock */
++extern void init_fulocks (struct task_struct *);
++extern unsigned __fulock_op_waiter_cancel (struct fuqueue *,
++					   struct fuqueue_waiter *);
++extern struct task_struct * __fulock_op_waiter_chprio (
++	struct task_struct *, struct fuqueue *, struct fuqueue_waiter *);
++extern void fulock_op_unqueue (struct fulock *fulock,
++			       struct fuqueue_waiter *w,
++			       enum fulock_unlock_type unlock_type,
++			       void *priv);
++
++/** Release a fulock -- now it is unusable [use fulock_init()] */
++static inline
++void fulock_release (struct fulock *fulock)
++{
++	__fulock_ctl (fulock, FULOCK_CTL_RELEASE, NULL);
 +}
 +
 +
- /* Actually do priority change: must hold rq lock. */
- static void __setscheduler(struct task_struct *p, int policy, int prio)
- {
-+	int newprio, oldprio;
-+
- 	BUG_ON(p->array);
- 	p->policy = policy;
- 	p->rt_priority = prio;
- 	if (policy != SCHED_NORMAL)
--		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-+		newprio = MAX_USER_RT_PRIO-1 - p->rt_priority;
- 	else
--		p->prio = p->static_prio;
-+		newprio = p->static_prio;
-+	oldprio = p->prio;
-+	p->prio = min (newprio, p->boost_prio);
- }
- 
- /*
-  * setscheduler - change the scheduling policy and/or RT priority of a thread.
++/**
++ * Lock a fulock, maybe wait for it to be available.
 + * 
-+ * Note the initialization of old_prio. If we fall back through
-+ * 'out_unlock*', it will help to skip the call to
-+ * fuqueue_waiter_chprio(); this way we avoid the extra check on
-+ * 'retval == 0'.
-  */
- static int setscheduler(pid_t pid, int policy, struct sched_param __user *param)
- {
-@@ -2150,7 +2227,7 @@
- 	 * runqueue lock must be held.
- 	 */
- 	rq = task_rq_lock(p, &flags);
--
-+	oldprio = p->prio;
- 	if (policy < 0)
- 		policy = p->policy;
- 	else {
-@@ -2186,7 +2263,6 @@
- 	if (array)
- 		deactivate_task(p, task_rq(p));
- 	retval = 0;
--	oldprio = p->prio;
- 	__setscheduler(p, policy, lp.sched_priority);
- 	if (array) {
- 		__activate_task(p, task_rq(p));
-@@ -2204,9 +2280,9 @@
- 
- out_unlock:
- 	task_rq_unlock(rq, &flags);
-+	fuqueue_waiter_chprio(p, oldprio);
- out_unlock_tasklist:
- 	read_unlock_irq(&tasklist_lock);
--
- out_nounlock:
- 	return retval;
- }
-@@ -2868,6 +2944,7 @@
- 	struct task_struct *p;
- 	struct runqueue *rq;
- 	unsigned long flags;
-+	unsigned old_prio;
- 
- 	switch (action) {
- 	case CPU_UP_PREPARE:
-@@ -2877,8 +2954,10 @@
- 		kthread_bind(p, cpu);
- 		/* Must be high prio: stop_machine expects to yield to it. */
- 		rq = task_rq_lock(p, &flags);
-+		old_prio = p->prio;
- 		__setscheduler(p, SCHED_FIFO, MAX_RT_PRIO-1);
- 		task_rq_unlock(rq, &flags);
-+		fuqueue_waiter_chprio(p, old_prio);
- 		cpu_rq(cpu)->migration_thread = p;
- 		break;
- 	case CPU_ONLINE:
---- kernel/signal.c:1.1.1.12 Tue Apr 6 01:51:37 2004
-+++ kernel/signal.c Wed Jun 23 00:06:23 2004
-@@ -21,6 +21,7 @@
- #include <linux/binfmts.h>
- #include <linux/security.h>
- #include <linux/ptrace.h>
-+#include <linux/fuqueue.h>
- #include <asm/param.h>
- #include <asm/uaccess.h>
- #include <asm/siginfo.h>
-@@ -521,6 +522,7 @@
- 	return signr;
- }
- 
++ * See __fulock_lock() for complete docs.
++ */
++static inline
++int fulock_lock (struct fulock *fulock, const struct timeout *timeout) 
++{
++	struct fuqueue_waiter w = fuqueue_waiter_INIT (current);
++	int result;
++	do {
++		spin_lock_irq (&fulock->fuqueue.lock);
++		result = __fulock_lock (fulock, &w, timeout);
++	} while (result == -EAGAIN);
++	return result;
++}
 +
- /*
-  * Tell a process that it has a new active signal..
-  *
-@@ -544,12 +546,20 @@
- 	 * executing another processor and just now entering stopped state.
- 	 * By calling wake_up_process any time resume is set, we ensure
- 	 * the process will wake up and handle its stop or death signal.
-+	 * 
-+	 * fuqueue_waiter_cancel needs to hook up here to properly rescheduler
-+	 * priority inheritance/protected tasks. The reason is that
-+	 * when we resched a process that has boosted another one, we
-+	 * need to kick its butt off the CPU (and lower its priority) ASAP
-+	 * so that 't' can run.
- 	 */
- 	mask = TASK_INTERRUPTIBLE;
- 	if (resume)
- 		mask |= TASK_STOPPED;
--	if (!wake_up_state(t, mask))
-+	fuqueue_waiter_cancel(t, -EINTR);
-+	if (!wake_up_state(t, mask)) {
- 		kick_process(t);
++
++/**
++ * Unlock a fulock, wake up waiter(s)
++ *
++ * @f:	     fulock.
++ * @howmany: Wake up this many waiters; if 0, wake up only one,
++ *	     forcing a serialization in the acquisition of the
++ *	     futex, so that no other task (in user or kernel space)
++ *	     can acquire it.
++ * @returns: Number of tasks woken up, < 0 errno code on error.
++ *
++ * Can be called from any context [I hope].
++ */
++static inline
++void fulock_unlock (struct fulock *fulock,
++		    enum fulock_unlock_type unlock_type)
++{
++	unsigned long flags;
++	
++	ftrace ("(%p, %d)\n", fulock, unlock_type);
++	
++	spin_lock_irqsave (&fulock->fuqueue.lock, flags);
++	__fulock_unlock (fulock, unlock_type, NULL);
++	spin_unlock_irqrestore (&fulock->fuqueue.lock, flags);
++}
++
++
++/**
++ * Requeue a fuqueue to a fulock, maybe make the first one owner.
++ *
++ * Can be called from any context [I hope].
++ */
++static inline
++void fulock_requeue (struct fuqueue *fuqueue, struct fulock *fulock)
++{
++	unsigned long flags;
++	
++	ftrace ("(%p, %p)\n", fuqueue, fulock);
++	
++	spin_lock_irqsave (&fulock->fuqueue.lock, flags);
++	_raw_spin_lock (&fuqueue->lock);
++	if (!__fuqueue_empty (fuqueue))
++		__fulock_requeue (fuqueue, fulock, NULL);
++	_raw_spin_unlock (&fuqueue->lock);
++	spin_unlock_irqrestore (&fulock->fuqueue.lock, flags);
++}
++
++
++/**
++ * Manipulate the state of a fulock
++ *
++ * @f: fulock to set
++ * @ctl: Control command to modify the fulock's state.
++ * @returns: 'enum fulock_st' health state; < 0 errno code on
++ *	     error.
++ *
++ * FIXME: this function set is kind of too convoluted, I am afraid.
++ *
++ * Can be called from only from process context, as it checks for
++ * current being the current owner.
++ */
++static inline
++int fulock_ctl (struct fulock *fulock, enum fulock_ctl ctl)
++{
++	int result;
++	unsigned long flags;
++	ftrace ("(%p, %d)\n", fulock, ctl);
++	
++	spin_lock_irqsave (&fulock->fuqueue.lock, flags);
++	result = __fulock_ctl (fulock, ctl, NULL);
++	spin_unlock_irqrestore (&fulock->fuqueue.lock, flags);
++	return result;
++}
++
++
++/** A ufulock, tied to a user-space vm address. */
++struct ufulock {
++	struct fulock fulock;
++	struct vlocator vlocator;
++	struct page *page;
++};
++
++
++/** @Return true if the fulock @f has no waiters. */
++static inline
++unsigned __fulock_empty (const struct fulock *f)
++{
++	return __fuqueue_empty (&f->fuqueue);
++}
++
++
++/** [Internal] Make task @task the owner of fulock @f. */
++static inline
++unsigned __fulock_op_owner_set (struct fulock *fulock,
++				struct task_struct *task)
++{
++	unsigned prio_changed;
++	
++	ftrace ("(%p, %p [%d])\n", fulock, task, task->pid);
++	
++	fulock->owner = task;
++	prio_changed = plist_add (&task->fulock_olist, &fulock->olist_node);
++	return prio_changed;
++}
++
++
++/** [Internal] Reset ownership of fulock @f. */
++static inline
++unsigned __fulock_op_owner_reset (struct fulock *fulock)
++{
++	unsigned prio_changed;
++	struct task_struct *owner = fulock->owner;
++	
++	ftrace ("(%p)\n", fulock);
++  
++	prio_changed = plist_del (&owner->fulock_olist, &fulock->olist_node);
++	fulock->owner = NULL;
++	return prio_changed;
++}
++
++
++/**
++ * Determine the appropiate way to unlock a fulock.
++ *
++ * @pcode: where to store the wake up code for the waiter
++ * @fulock: fulock being unlocked
++ * @w: waiter that is going to be unblocked to obtain the fulock.
++ * @unlock_type: tentative unlock method selected by the user.
++ * @priv: private pointer for use in an specific way.
++ *
++ * If the waiters comes from a requeue, it will become a serial
++ * unlock, no matter what. If auto, it will depend on if the task to
++ * be given ownership is RT or not (serial for FIFO/RR, normal for
++ * timesharing). 
++ * 
++ * Needs to be inline for ufulock_op_unlock_type() to pick up.
++ */
++static inline
++enum fulock_unlock_type
++fulock_op_unlock_type (int *pcode, struct fulock *fulock,
++		       struct fuqueue_waiter *w,
++		       enum fulock_unlock_type unlock_type, void *priv) 
++{
++	int code;
++	
++	if (w->flags & FUQUEUE_WT_FL_QUEUE) {
++		unlock_type = FULOCK_UNLOCK_SERIAL;
++		code = fulock->flags & FULOCK_FL_DEAD?
++			-EOWNERDEAD : FUQUEUE_WAITER_GOT_LOCK;
 +	}
- }
++	else {
++		if (unlock_type == FULOCK_UNLOCK_AUTO)
++			unlock_type = rt_task (w->task)?
++				FULOCK_UNLOCK_SERIAL : FULOCK_UNLOCK_PARALLEL;
++		if (unlock_type == FULOCK_UNLOCK_SERIAL)
++			code = fulock->flags & FULOCK_FL_DEAD? -EOWNERDEAD : 0;
++		else
++			code = -EAGAIN;
++	}
++	*pcode = code;
++	return unlock_type;
++}
++
++
++/** Do we have fast-path support in the arch? */
++enum {
++#ifdef __HAVE_ARCH_CMPXCHG
++	VFULOCK_FAST = 1
++#else
++	VFULOCK_FAST = 0
++#endif
++};
++
++
++/**
++ * Atomic compare and swap with a twist.
++ *
++ * @value     Pointer to the value to compare and swap.
++ * @old_value Value that *value has to have for the swap to occur.
++ * @new_value New value to set it *value == old_value.
++ * @return    !0 if the swap succeeded. 0 if failed.
++ *
++ * Used for locking a vfulock. It exists to wrap arch-specific cache
++ * idiosyncrasies.
++ *
++ * WARNING FIXME: we need a way to handle the idiosyncrasies. Some
++ *                arches have weird cache management schemes that show
++ *                when we modify a kmapped area and user space doesn't
++ *                see the change. This should be hook in here or
++ *                something.
++ */
++static inline
++unsigned vfulock_acas (volatile unsigned *value,
++		       unsigned old_value, unsigned new_value)
++{
++#ifdef __HAVE_ARCH_CMPXCHG
++	unsigned result = cmpxchg (value, old_value, new_value);
++	return result == old_value;
++#else
++	return 0;
++#endif
++}
++
++
++/**
++ * Set an ufulock's associated value.
++ *
++ * @vfulock: Pointer to the address of the ufulock to contain for.
++ * @value:    New value to assign.
++ *
++ * This exists to wrap arch-specific cache idiosyncrasies.
++ *
++ * WARNING FIXME: we need a way to handle the idiosyncrasies. Some
++ *                arches have weird cache management schemes that show
++ *                when we modify a kmapped area and user space doesn't
++ *                see the change. This should be hook in here or
++ *                something.
++ */
++static inline
++void vfulock_set (volatile unsigned *vfulock, unsigned value)
++{
++	*vfulock = value;
++}
++
++#endif /* #ifndef CONFIG_FULOCK */
++#endif /* #ifdef __KERNEL__ */
++#endif /* #ifndef __linux_fulock_h__ */
+--- /dev/null	Thu Jul 22 14:30:56 2004
++++ kernel/fulock.c Tue Jul 20 02:40:17 2004
+@@ -0,0 +1,743 @@
++
++/*
++ * Fast User real-time/pi/pp/robust/deadlock SYNchronization
++ * (C) 2002-2003 Intel Corp
++ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
++ *
++ * Licensed under the FSF's GNU Public License v2 or later.
++ *
++ * Based on normal futexes (futex.c), (C) Rusty Russell.
++ * Please refer to Documentation/fusyn.txt for more info.
++ */
++
++#include <linux/fulock.h>
++#include <linux/plist.h>
++#include <linux/time.h>	    /* struct timespec */
++#include <linux/sched.h>
++#include <linux/errno.h>
++
++/* FIXME: TODO: FIFO mode for the waiters list: simply make
++ *              wlist_nodes INT_MAX. */ 
++
++/**
++ * @returns !0 if the ops are those of a fulock or ufulock.
++ *
++ * The compiler will optimize it pretty good.
++ */
++static inline
++unsigned fulock_test_ops (struct fuqueue_ops *ops)
++{
++	if (ops == &fulock_ops.fuqueue)
++		return !0;
++#ifdef CONFIG_UFULOCK
++	if (ops == &ufulock_ops.fuqueue)
++		return !0;
++#endif
++	return 0;
++}
++
++/**
++ * A waiter on this fulock was added, removed or reprioritized and
++ * that caused the wlist priority to change, so we must update the
++ * fulock priority in the owner's ownership list.
++ *
++ * @fulock: The defendant [nossir, I haven't been groklawing]. 
++ * @returns: !0 if the boost priority for the owner was changed.
++ *
++ * It is possible that the lock is not owned if we did a parallel
++ * unlock, so we have to check for that case.
++ * 
++ * WARNING: Needs to be called with IRQs and preemtion disabled.
++ */
++static
++unsigned __fulock_prio_update (struct fulock *fulock)
++{
++	unsigned prio_changed;
++	struct task_struct *owner;
++	int prio;
++	unsigned result = 0;
++
++	ftrace ("(%p)\n", fulock);
++
++	owner = fulock->owner;
++	prio = plist_prio (&fulock->fuqueue.wlist);
++	if (owner == NULL) {
++		prio_changed = plist_prio (&fulock->olist_node) != prio;
++		__plist_chprio (&fulock->olist_node, prio);
++		goto out;
++	}
++	/* reposition this fulock on it's owner's ownership list */
++	_raw_spin_lock (&owner->fulock_olist_lock);
++	prio_changed = plist_chprio (&owner->fulock_olist,
++				     &fulock->olist_node, prio);
++	_raw_spin_unlock (&owner->fulock_olist_lock);
++	/* there is a new maximum on the list? maybe chprio the owner */
++	if (prio_changed)
++		result = __prio_boost (owner, prio);
++out:
++	return prio_changed;
++}
++
++
++
++
++/**
++ * Test if 'current' would deadlock if it waits for a fulock.
++ *
++ * Simple as it is, it looks ugly as hell. Basically, the fulock we
++ * are about to lock will have an owner, so we check the owner; if it
++ * is us, deadlock, if not, we see if the fulock is waiting for
++ * anything; if so, we check it is a fulock, and if so, who's the
++ * owner; if it is us, then deadlock, if not, start again ...
++ *
++ * Now, the trick is to keep the reference counts, and the locks and
++ * all the crap. A single lock for everything would be *so* beautiful
++ * (and not scalable :).
++ * 
++ * @fulock: the fulock to check
++ * @returns: 0 if ok, < 0 errno on error.
++ *
++ * This *should* be safe being lock-less [famous last words].
++ *
++ * WARNING: Needs to be called with IRQs and preemtion disabled.
++ */
++int __fulock_check_deadlock (struct fulock *fulock)
++{
++	int result = 0;
++	struct fuqueue_ops *ops;
++	struct task_struct *owner;
++	struct task_struct *task = current;
++	struct fuqueue *fuqueue;
++	
++	ftrace ("(%p, %p)\n", task, fulock);
++	
++	/* first fulock to trace is already locked and we won't unlock it */
++	owner = fulock->owner;
++	if (owner == NULL)
++		goto out;
++	result = -EDEADLK;
++	if (owner == task)
++		goto out;
++	get_task_struct (owner);
++next:
++	result = 0;
++	/* Who is the owner waiting for? safely acquire and lock it */
++	_raw_spin_lock (&owner->fuqueue_wait_lock);
++	fuqueue = owner->fuqueue_wait;
++	if (fuqueue == NULL)				/* Ok, not waiting */
++		goto out_owner_unlock;
++	if (!_raw_spin_trylock (&fuqueue->lock)) {	/* Spin dance... */
++		_raw_spin_unlock (&owner->fuqueue_wait_lock);
++		goto next;
++	}
++	ops = fuqueue->ops;
++	if (ops->get)
++		ops->get (fuqueue);
++	_raw_spin_unlock (&owner->fuqueue_wait_lock);	
++	put_task_struct (owner);
++	
++	/* Is a fulock whatever the owner is waiting for? */
++	if (!fulock_test_ops (ops))
++		goto out_fuqueue_unlock;
++	fulock = container_of (fuqueue, struct fulock, fuqueue);
++	owner = fulock->owner;		      /* Who's the fulock's owner? */
++	if (unlikely (owner == NULL))	      /* Released before we locked it? */
++		goto out_fuqueue_unlock;	
++	result = -EDEADLK;		      /* It is us? ooops */
++	if (owner == task)
++		goto out_fuqueue_unlock;
++	
++	/* What's the owner waiting for? Proceed to it */
++	get_task_struct (owner);
++	_raw_spin_unlock (&fulock->fuqueue.lock);
++	if (ops->put)
++		ops->put (fuqueue);
++	goto next;
++
++out_owner_unlock:
++	_raw_spin_unlock (&owner->fuqueue_wait_lock);
++	put_task_struct (owner);
++	return result;
++	
++out_fuqueue_unlock:
++	_raw_spin_unlock (&fulock->fuqueue.lock);
++	if (ops->put)
++		ops->put (fuqueue);
++out:
++	return result;
++}
++
++
++/**
++ * Check if a process is allowed to lock a PP fulock.
++ *
++ * @fulock: fulock to check on.
++ * @returns: 0 if ok, errno code on error (disallowed)
++ */
++int __fulock_pp_allowed (struct fulock *fulock)
++{
++#warning FIXME: finish _pp_allowed()
++#if 0
++	int policy = fulock->flags & FULOCK_FL_PP_PLC_MK >> 20;
++	int priority = fulock->flags & FULOCK_FL_PP_PRIO_MK >> 12;
++	int prio;
++
++	if (policy != SCHED_NORMAL)
++		prio = MAX_USER_RT_PRIO - 1 - priority;
++	else
++		prio = priority;
++	fulock->flags &= ~FULOCK_FL_PP_PRIO_MK;
++	fulock->flags |= prio & FULOCK_FL_PP_PRIO_MK;
++#warning FIXME: interaction with PI? Compare against static, not dynamic?
++	if (prio > current->prio)
++		return -EINVAL;
++#endif
++	return -ENOSYS;
++}
++
++
++/**
++ * [Try]lock a fulock
++ *
++ * @fulock: Fulock to lock.
++ * 
++ * @timeout: Pointer on struct describing how long to wait for the
++ *           timeout. If NULL, just trylock (don't block), if ~0, wait
++ *           for ever, otherwise, wait as specified by the pointed to
++ *           struct. 
++ *
++ * @returns: 0	     Acquired the fulock
++ *	     -EOWNERDEAD  Acquired the fulock, some previous owner died.
++ *	     -ENOTRECOVERABLE  Not acquired, fulock is not recoverable
++ *	     -EBUSY  Not acquired, it is locked [and trylock was
++ *		     requested].
++ *	     -EAGAIN Not acquired, try again [FIXME: change this,
++ *		     POSIX uses it for mutexes].
++ *	     *	     Not acquired, error.
++ *
++ * Can ONLY be called from process context. Note unlocks the fulock's
++ * spinlock on return and re-enables IRQs and preemption.
++ *
++ * WARNING: Needs to be called with IRQs and preemtion disabled [the
++ * fuqueue lock acquired with spin_lock_irq()].
++ *
++ * Note that some operations involving flag reading don't need locking
++ * because for changing those values, we calling task needs to be the
++ * owner of the fulock, and once we come out of wait without errors,
++ * we are the owners.
++ */
++int __fulock_lock (struct fulock *fulock,
++		   struct fuqueue_waiter *w,
++		   const struct timeout *timeout)
++{
++	unsigned prio_changed;
++	int result = 0;
++	int prio = BOTTOM_PRIO;
++	struct fulock_ops *ops =
++		container_of (fulock->fuqueue.ops, struct fulock_ops, fuqueue);
++	
++	ftrace ("(%p [flags 0x%x], %p)\n", fulock, fulock->flags, timeout);
++	
++	/* Verify if we can lock */
++	result = -ENOTRECOVERABLE;
++	if (fulock->flags & FULOCK_FL_NR)
++		goto out_unlock;
++	if (fulock->flags & FULOCK_FL_PP
++	    && (result = __fulock_pp_allowed (fulock)))
++		goto out_unlock;
++	if (fulock->owner == NULL)
++		goto its_unlocked;
++	/* Nchts, we have to wait. */
++	result = -EBUSY;
++	if (!timeout)
++		goto out_unlock;
++	if (fulock->flags & (FULOCK_FL_ERROR_CHK | FULOCK_FL_PI)
++	    && (result = __fulock_check_deadlock (fulock)))
++		goto out_unlock;
++	prio_changed = __fuqueue_waiter_queue (&fulock->fuqueue, w);
++	if (prio_changed
++	    && fulock->flags & FULOCK_FL_PI
++	    && __fulock_prio_update (fulock))
++		__fuqueue_waiter_chprio (fulock->owner);
++	return __fuqueue_waiter_block (&fulock->fuqueue, w, timeout);
++
++its_unlocked:		/* whoa! take it, it's free */
++	result = fulock->flags & FULOCK_FL_DEAD? -EOWNERDEAD : 0;
++	_raw_spin_lock (&current->fulock_olist_lock);
++	prio_changed = ops->owner_set (fulock, w->task);
++	if (prio_changed) {
++		/* The ownership list's prio changed, update boost */
++		prio = plist_prio (&fulock->olist_node);
++		__prio_boost (current, prio);
++	}
++	_raw_spin_unlock (&current->fulock_olist_lock);
++out_unlock:
++	_raw_spin_unlock (&fulock->fuqueue.lock);
++	local_irq_enable();
++	preempt_enable();
++	return result;
++}
++
++
++/**
++ * Grunt for the unlock work: take care of the waking up part.
++ *
++ * Unqueue the first waiter and either transfer ownership to it
++ * (serial wake up) or not (parallel). If transferring and the fulock
++ * is PI, propagate the fulock's fuqueue priority to the fulock (to
++ * it's ownership list). Then register the fulock in the new owner's
++ * ownership list and maybe boost him. We always do the boost (not
++ * caring if PI or PP) because if it is neither, the new_oprio would
++ * be INT_MAX, and that will never cause a boost.
++ *
++ * Note we don't need to do a boost propagation; if somebody happens
++ * to wake up the guy before we do, he will see its w->result still
++ * unmodified from INT_MAX and will have to take this fulock's
++ * spinlock to cancel its wait [see __fuqueue_waiter_block()]--he will
++ * have to wait until WE release the spinlock, so he is not able to do
++ * anything that would require a prio boost propagation.
++ *
++ * @unlock_type:
++ *           How to unlock, serialized or parallel.
++ *
++ * NOTE: Assumes the fulock is NOT EMPTY.
++ *       Does not unboost the old owner
++ */
++void __fulock_unlock_unqueue (struct fulock *fulock, struct fuqueue_waiter *w,
++			      enum fulock_unlock_type unlock_type)
++{
++	unsigned wprio_changed, oprio_changed;
++	int new_wprio, new_oprio;
++	struct fulock_ops *ops =
++		container_of (fulock->fuqueue.ops, struct fulock_ops, fuqueue);
++	struct task_struct *new_owner = w->task;
++	
++        wprio_changed = fuqueue_waiter_unqueue (&fulock->fuqueue, w);
++        if (unlock_type == FULOCK_UNLOCK_SERIAL) {
++		if (wprio_changed && fulock->flags & FULOCK_FL_PI) {
++			new_wprio = plist_prio (&fulock->fuqueue.wlist);
++			__plist_chprio (&fulock->olist_node, new_wprio);
++		}
++		_raw_spin_lock (&new_owner->fulock_olist_lock);
++		oprio_changed = ops->owner_set (fulock, new_owner);
++		if (oprio_changed) {			
++			new_oprio = plist_prio (&new_owner->fulock_olist);
++			__prio_boost (new_owner, new_oprio);
++		}
++		_raw_spin_unlock (&new_owner->fulock_olist_lock);
++        }
++}
++
++
++/**
++ * Unlock a fulock, wake up waiter(s) [internal version]
++ *
++ * @fulock: Address for the fulock (kernel space).
++ * @unlock_type: How to unlock, serialized, parallel or auto (serial
++ *               if first waiter is real-time).
++ * @priv: private pointer to pass to different fulock-type specific
++ *        ops.
++ */
++void __fulock_unlock (struct fulock *fulock,
++		      enum fulock_unlock_type unlock_type,
++		      void *priv)
++{
++	int new_oprio, code;
++	struct fulock_ops *ops =
++		container_of (fulock->fuqueue.ops, struct fulock_ops, fuqueue);
++	struct task_struct *old_owner;
++	struct fuqueue_waiter *w;
++        
++	ftrace ("(%p, %d, %p)\n", fulock, unlock_type, priv);
++
++	/* Unlock the fulock */
++	old_owner = fulock->owner;
++	if (old_owner == NULL)		/* Unlocked? */
++		goto out;
++	_raw_spin_lock (&old_owner->fulock_olist_lock);
++	ops->owner_reset (fulock);
++	if (__fulock_empty (fulock))    /* nobody to wake */
++		goto out_unboost;
++	_raw_spin_unlock (&old_owner->fulock_olist_lock);
++
++	/* Get the guy we have to wake up, decide how */
++	w = __fuqueue_first (&fulock->fuqueue);
++	unlock_type = ops->unlock_type (&code, fulock, w, unlock_type, priv);
++	
++	/* (Maybe) transfer ownership, unqueue */
++	ops->unqueue (fulock, w, unlock_type, priv);
++	w->result = code;
++	wmb();
++	wake_up_process (w->task);
++	/* Now we can unboost (if we have to). prio_changed can be
++	 * true only if PI or PP (and the prio actually changed) */
++	_raw_spin_lock (&old_owner->fulock_olist_lock);
++out_unboost:
++	new_oprio = plist_prio (&old_owner->fulock_olist);
++	if (new_oprio != old_owner->prio
++	    && __prio_boost (old_owner, new_oprio))
++		__fuqueue_waiter_chprio (old_owner);
++	_raw_spin_unlock (&old_owner->fulock_olist_lock);
++out:
++	return;
++}
++
++
++/**
++ * Requeue all waiters from a fuqueue to a fulock.
++ *
++ * @fuqueue:      Pointer to the fuqueue.
++ * @fulock:	  Pointer to the fulock.
++ * @fulock_flags: Flags for the fulock.
++ * @returns: 0 if ok, < 0 errno code on error.
++ *
++ * We place all the waiters on the fuqueue in the ufulock's
++ * fuqueue--in such a way that unlock recognizes it is not a fulock
++ * waiter per se.
++ *
++ * We might catch the ufulock is unlocked, this may only happen if we
++ * got the spinlock to the fulock in the middle of a parallel wake up
++ * sequence.
++ * 
++ * USER CONTEXT ONLY
++ *
++ * Expects the fulock spinlocked, IRQs and preemption disabled. The
++ * fuqueue should not be locked.
++ */
++void __fulock_requeue (struct fuqueue *fuqueue,
++		       struct fulock *fulock, void *priv)
++{
++	int code;
++	enum fulock_unlock_type unlock_type = FULOCK_UNLOCK_SERIAL;
++	unsigned prio_changed;
++	struct fulock_ops *ops =
++		container_of (fulock->fuqueue.ops, struct fulock_ops, fuqueue);
++	struct fuqueue_waiter *w;
++	
++	ftrace ("(%p, %p, %p)\n", fuqueue, fulock, priv);
++	
++	/* Move everybody, hop, hop! */
++	prio_changed = plist_splice_init (&fulock->fuqueue.wlist,
++					  &fuqueue->wlist);
++	if (fulock->owner == NULL) {
++		/* Unlocked? Wake up the first guy */
++		w = __fuqueue_first (&fulock->fuqueue);
++		unlock_type = ops->unlock_type (&code, fulock, w,
++						unlock_type, priv);
++		/* Assign/transfer ownership, unqueue */
++		ops->unqueue (fulock, w, unlock_type, priv);
++		w->result = code;
++		wmb();
++		wake_up_process (w->task);
++	}
++	else if (prio_changed
++		 && fulock->flags & FULOCK_FL_PI
++		 && __fulock_prio_update (fulock))
++		__fuqueue_waiter_chprio (fulock->owner);
++	return;
++}
++
++
++/**
++ * Modify/query the internal state of a fulock.
++ *
++ * @fulock: fulock to modify. 
++ * @ctl: control command to issue.
++ * @returns: depending; < 0 errno code on error, 0 if ok, except
++ * health state for CTL_NOP
++ */
++int __fulock_ctl (struct fulock *fulock, enum fulock_ctl ctl, void *priv)
++{
++	int result = 0;
++
++	ftrace ("(%p, %d)\n", fulock, ctl);
++	
++	/* Gather actual state */
++	
++	/* Now, what to do? */
++	switch (ctl) {
++		/* Nothing, so just say how are we standing */
++	case FULOCK_CTL_NOP:
++		if (fulock->flags & FULOCK_FL_NR)
++			result = FULOCK_ST_NR;
++		else if (fulock->flags & FULOCK_FL_DEAD)
++			result = FULOCK_ST_DEAD;
++		else
++			result = FULOCK_ST_HEALTHY;
++		break;
++
++		/* Destroy the fulock--use fulock_init() to re-use */
++	case FULOCK_CTL_RELEASE:
++		__fuqueue_wake (&fulock->fuqueue, (size_t) ~0, -ENOENT);
++		__fulock_unlock (fulock, FULOCK_UNLOCK_SERIAL, priv);
++		fulock->flags |= FULOCK_FL_NR;
++		break;
++		
++		/* Mark it healthy */
++	case FULOCK_CTL_HEAL:
++		result = -EINVAL;
++		if (!(fulock->flags & FULOCK_FL_DEAD))
++			break;
++		result = -EPERM;
++		if (fulock->owner != current)	/* Who are you? */
++			break;
++		fulock->flags &= ~FULOCK_FL_DEAD;
++		result = 0;
++		break;
++		
++	    /* Make it not recoverable; wake up every waiter with error;
++	     * unlock. */ 
++	case FULOCK_CTL_NR:
++		result = -EINVAL;
++		if (!(fulock->flags & FULOCK_FL_DEAD))
++			break;
++		result = -EPERM;
++		if (fulock->owner != current)	/* Who are you? */
++			break;
++		__fuqueue_wake (&fulock->fuqueue, (size_t) ~0, -ENOTRECOVERABLE);
++		__fulock_unlock (fulock, FULOCK_UNLOCK_SERIAL, priv);
++		fulock->flags &= ~FULOCK_FL_DEAD;
++		fulock->flags |= FULOCK_FL_NR;
++		result = 0;
++		break;
++
++		/* Set the prio ceiling */
++	case FULOCK_CTL_SETPRIOCEIL:
++#if 0
++#warning FIXME: this is most probably WRONG
++#warning FIXME: Finish me, set prio ceil
++		result = -EINVAL;
++		if (!(fulock->flags & FULOCK_FL_PP))
++			break;
++		result = -EPERM;
++		if (fulock->owner != current)	/* Who are you? */
++			break;
++		_raw_spin_lock (&owner->fulock_olist_lock);
++		prio = fulock->flags & FULOCK_FL_PP_MK;
++		prio_changed = plist_chprio (&current->fulock_olist,
++					     &fulock->olist_node, prio);
++		_raw_spin_unlock (&owner->fulock_olist_lock);
++		if (prio_changed)
++			__prio_boost (owner, prio);
++#endif
++		result = -ENOSYS;
++		break;	
++		
++	default:
++		result = -EINVAL;
++	}
++	return result;
++}
++
++
++/**
++ * Set the priority of a fulock waiter.
++ *
++ * @task: task to re-prioritize 
++ * @fuqueue: fuqueue of the fulock the task is waiting for [locked]
++ * @w: waiter @task is waiting on in @fuqueue.
++ * @returns: NULL (if there is no need to propagate), task where
++ * propagation would need to continue.	 
++ *
++ * This does not set the prio of the process itself!
++ * 
++ * WARNING: Needs to be called with IRQs and preemtion disabled.
++ */
++struct task_struct * __fulock_op_waiter_chprio (
++	struct task_struct *task, struct fuqueue *fuqueue,
++	struct fuqueue_waiter *w)
++{
++	struct fuqueue_ops *ops;
++	struct fulock *fulock;
++	unsigned prio_changed;
++	
++	ftrace ("(%p [%d], %p, %p)\n", task, task->pid, fuqueue, w);
++	
++	/* Verify this is really a fulock */
++	ops = fuqueue->ops;
++	BUG_ON (!fulock_test_ops (ops));
++	fulock = container_of (fuqueue, struct fulock, fuqueue);
++	/* Update the waiter's position in the fulock's wlist */
++	prio_changed = plist_chprio (&fuqueue->wlist, &w->wlist_node,
++				     task->prio);
++	/* The prio change of the waiter caused the wlist prio to
++	 * change; if we are PI, we change the prio of the fulock AND
++	 * if that changed the prio of the owner, return it. */
++	if (prio_changed
++	    && fulock->flags & FULOCK_FL_PI
++	    && __fulock_prio_update (fulock))
++		return fulock->owner;
++	return NULL;
++}
++
++
++/**
++ * Grunt for the unlock work: unqueue and maybe transfer ownership
++ *
++ * Unqueue the first waiter and either transfer ownership to it
++ * (serial wake up) or not (parallel). If transferring and the fulock
++ * is PI, propagate the fulock's fuqueue priority to the fulock (to
++ * it's ownership list). Then register the fulock in the new owner's
++ * ownership list and maybe boost him. We always do the boost (not
++ * caring if PI or PP) because if it is neither, the new_oprio would
++ * be INT_MAX, and that will never cause a boost.
++ *
++ * Note we don't need to do a boost propagation; if somebody happens
++ * to wake up the guy before we do, he will see its w->result still
++ * unmodified from INT_MAX and will have to take this fulock's
++ * spinlock to cancel its wait [see __fuqueue_waiter_block()]--he will
++ * have to wait until WE release the spinlock, so he is not able to do
++ * anything that would require a prio boost propagation.
++ *
++ * @unlock_type:
++ *           How to unlock, serialized or parallel.
++ *
++ * NOTE: Assumes the fulock is NOT EMPTY.
++ *       Does not unboost the old owner
++ */
++void fulock_op_unqueue (struct fulock *fulock, struct fuqueue_waiter *w,
++			enum fulock_unlock_type unlock_type, void *priv)
++{
++	unsigned wprio_changed, oprio_changed;
++	int new_wprio, new_oprio;
++	struct fulock_ops *ops =
++		container_of (fulock->fuqueue.ops, struct fulock_ops, fuqueue);
++	struct task_struct *new_owner = w->task;
++	
++	ftrace ("(%p, %p, %d, %p)\n", fulock, w, unlock_type, priv);
++	
++        wprio_changed = fuqueue_waiter_unqueue (&fulock->fuqueue, w);
++        if (unlock_type == FULOCK_UNLOCK_SERIAL) {
++		if (wprio_changed && fulock->flags & FULOCK_FL_PI) {
++			new_wprio = plist_prio (&fulock->fuqueue.wlist);
++			__plist_chprio (&fulock->olist_node, new_wprio);
++		}
++		_raw_spin_lock (&new_owner->fulock_olist_lock);
++		oprio_changed = ops->owner_set (fulock, new_owner);
++		if (oprio_changed) {			
++			new_oprio = plist_prio (&new_owner->fulock_olist);
++			__prio_boost (new_owner, new_oprio);
++		}
++		_raw_spin_unlock (&new_owner->fulock_olist_lock);
++        }
++}
++
++
++/**
++ * Initialize fulock specific stuff for a newly cloned task.
++ */
++void init_fulocks (struct task_struct *task)
++{
++	__ftrace (0, "(task %p)\n", task);
++	
++	spin_lock_init (&task->fuqueue_wait_lock);
++	task->fuqueue_wait = NULL;
++	task->fuqueue_waiter = NULL;
++	spin_lock_init (&task->fulock_olist_lock);
++	plist_init (&task->fulock_olist, BOTTOM_PRIO);
++}
++
++
++/**
++ * Mark @fulock as dead and warns if not robust, @returns 0 if it was
++ * dead already, !0 otherwise.
++ */
++void __fulock_kill_message (struct fulock *fulock)
++{
++	if (!(fulock->flags & FULOCK_FL_RM))
++		printk (KERN_WARNING "Task %d [%s] exited holding non-robust "
++			"fulock %p; waiters might block for ever\n",
++			current->pid, current->comm, fulock);	
++}
++
++
++/** Release as dead a @fulock because the owner is exiting. */
++static
++void fulock_op_exit (struct fulock *fulock)
++{
++	ftrace ("(%p)\n", fulock);
++
++	_raw_spin_lock (&fulock->fuqueue.lock);
++	if (fulock->owner == current) {
++		__fulock_kill_message (fulock);
++		__fulock_unlock (fulock, FULOCK_UNLOCK_SERIAL, NULL);
++	}
++	_raw_spin_unlock (&fulock->fuqueue.lock);	  
++}
++
++
++/**
++ * When @task exits, release all the fulocks it holds as dead.
++ *
++ * We have to discriminate between ufulocks and locks; when it is an
++ * ufulock, we just need to see if we have to put() the reference that
++ * the owner had or not (when the ownership is successfully passed to
++ * somebody else, we don't have to put it).
++ */
++#warning FIXME: hook up to exec()?
++void exit_fulocks (struct task_struct *task)
++{
++	struct plist *itr;
++	struct fulock *fulock;
++	struct fulock_ops *ops;
++	unsigned long flags;
++	
++	if (DEBUG > 0 && !plist_empty (&task->fulock_olist))
++		ftrace ("(%p [%d])\n", task, task->pid);
++
++	/* FIXME: there is a better way to do this, but I feel toooo
++	 * thick today -- the problem is fulock->ops->exit() is going
++	 * to take fulock_olist_lock to reset the ownership...so
++	 * whatever it is, we have to call without holding it. */
++	spin_lock_irqsave (&task->fulock_olist_lock, flags);
++	while (!plist_empty (&task->fulock_olist)) {
++		itr = plist_first (&task->fulock_olist);
++		fulock = container_of (itr, struct fulock, olist_node);
++		ops = container_of (fulock->fuqueue.ops,
++				    struct fulock_ops, fuqueue);
++		if (ops->fuqueue.get)
++			ops->fuqueue.get (&fulock->fuqueue);
++		spin_unlock_irqrestore (&task->fulock_olist_lock, flags);
++		
++		ops->exit (fulock);
++		
++		if (ops->fuqueue.put)
++			ops->fuqueue.put (&fulock->fuqueue);
++		spin_lock_irqsave (&task->fulock_olist_lock, flags);
++	}
++	spin_unlock_irqrestore (&task->fulock_olist_lock, flags);
++}
++
++
++/** Cancel @task's wait on @fuqueue and update the wait list priority */
++unsigned __fulock_op_waiter_cancel (struct fuqueue *fuqueue,
++				    struct fuqueue_waiter *w)
++{
++	unsigned prio_changed;
++	struct fulock *fulock =
++		container_of (fuqueue, struct fulock, fuqueue);
++	
++	ftrace ("(%p, %p [%d], %p)\n",
++		fuqueue, w, w->task->pid, w);
++
++	prio_changed = __fuqueue_op_waiter_cancel (fuqueue, w);
++	if (prio_changed && fulock->flags & FULOCK_FL_PI
++	    && __fulock_prio_update (fulock))
++		__fuqueue_waiter_chprio (fulock->owner);
++	return prio_changed;
++}
++
++
++/** Fulock operations */
++struct fulock_ops fulock_ops = {
++	.fuqueue = {
++		.get = NULL,
++		.put = NULL,
++		.waiter_cancel = __fulock_op_waiter_cancel,
++		.waiter_chprio = __fulock_op_waiter_chprio
++	},
++	.owner_set = __fulock_op_owner_set,
++	.owner_reset = __fulock_op_owner_reset,
++	.exit = fulock_op_exit
++};
++
+--- include/asm-alpha/errno.h:1.1.1.1 Thu Jul 10 12:27:32 2003
++++ include/asm-alpha/errno.h Thu May 27 00:34:06 2004
+@@ -111,4 +111,7 @@
+ #define ENOMEDIUM	129	/* No medium found */
+ #define EMEDIUMTYPE	130	/* Wrong medium type */
  
- /*
-@@ -672,6 +682,8 @@
- 				set_tsk_thread_flag(t, TIF_SIGPENDING);
- 				state |= TASK_INTERRUPTIBLE;
- 			}
-+			/* FIXME: I am not that sure we need to cancel here */
-+			fuqueue_waiter_cancel(t, -EINTR);
- 			wake_up_state(t, state);
- 
- 			t = next_thread(t);
---- arch/i386/kernel/init_task.c:1.1.1.4 Tue Apr 6 00:21:44 2004
-+++ arch/i386/kernel/init_task.c Wed May 26 21:14:03 2004
-@@ -4,6 +4,7 @@
- #include <linux/init.h>
- #include <linux/init_task.h>
- #include <linux/fs.h>
-+#include <linux/fuqueue.h>
- 
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
++#define EOWNERDEAD	131	/* Mutex owner died */
++#define ENOTRECOVERABLE 132	/* Mutex state is not recoverable */
++
+ #endif

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVDEQ7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVDEQ7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVDEQ7l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbVDEQ4F
+	id S261825AbVDEQ7t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVDEQuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:56:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12483 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261833AbVDEQys (ORCPT
+	Tue, 5 Apr 2005 12:50:19 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62617 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261818AbVDEQsj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:54:48 -0400
-Date: Tue, 5 Apr 2005 12:54:05 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       Herbert Xu <herbert@gondor.apana.org.au>, <rml@novell.com>,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Netlink Connector / CBUS
-In-Reply-To: <1112684596.28858.4.camel@uganda>
-Message-ID: <Xine.LNX.4.44.0504051252480.12117-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 5 Apr 2005 12:48:39 -0400
+Date: Tue, 5 Apr 2005 09:45:39 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: [00/11] -stable review
+Message-ID: <20050405164539.GA17299@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Apr 2005, Evgeniy Polyakov wrote:
+This is the start of the stable review cycle for the 2.6.11.7 release.
+There are 8 patches in this series, all will be posted as a response to
+this one.  If anyone has any issues with these being applied, please let
+us know.  If anyone is a maintainer of the proper subsystem, and wants
+to add a Signed-off-by: line to the patch, please respond with it.
 
-> On Tue, 2005-04-05 at 01:05 -0400, James Morris wrote: 
-> > Evgeniy,
-> > 
-> > Please send networking patches to netdev@oss.sgi.com.
-> 
-> It was sent there two times.
+These patches are sent out with a number of different people on the Bcc:
+line.  If you wish to be a reviewer, please email stable@linux.com to
+add your name to the list.  If you want to be off the reviewer list,
+also email us.
 
-I googled around quite a lot to track the origin of the patches down but
-didn't do the obvious and look in the netdev archives, sorry.
+Responses should be made by Thursday, April 7, 17:00 UTC.  Anything
+received after that time, might be too late.
 
+thanks,
 
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+the -stable release team 
 

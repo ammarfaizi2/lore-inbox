@@ -1,65 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266243AbUITLEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266236AbUITLI0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266243AbUITLEo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 07:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUITLEo
+	id S266236AbUITLI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 07:08:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUITLI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 07:04:44 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:35269 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S266243AbUITLEU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 07:04:20 -0400
-Date: Mon, 20 Sep 2004 13:06:31 +0200
-From: DervishD <lkml@dervishd.net>
-To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOM & [OT] util-linux-2.12e
-Message-ID: <20040920110631.GJ5482@DervishD>
-Mail-Followup-To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-References: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <UTC200409192205.i8JM52C25370.aeb@smtp.cwi.nl>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-PopBeforeSMTPSenders: raul@dervishd.net
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 20 Sep 2004 07:08:26 -0400
+Received: from NS-1.e-dict.net ([62.197.1.27]:1763 "EHLO e-dict.net")
+	by vger.kernel.org with ESMTP id S266249AbUITLIA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 07:08:00 -0400
+From: "Ingo Freund" <Ingo.Freund@e-dict.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: three days running fine, then memory allocation errors
+Date: Mon, 20 Sep 2004 13:07:54 +0200
+Message-ID: <NEBBILBHKLDLOMLDGKGNIEKKCIAA.Ingo.Freund@e-dict.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Andries :)
+Hello,
 
- * Andries.Brouwer@cwi.nl <Andries.Brouwer@cwi.nl> dixit:
-> If we would put the mount options in /proc/mounts, and introduced
-> a comment convention (say, the part starting with \: is ignored by
-> the kernel but can be used by programs reading /proc/mounts),
-> then /etc/mtab can die. Comments? Better solutions?
+I hope you guys can help, I cannot use any kernel 2.4 >23 without
+the here described problem.
 
-    If you add a comment convention to /proc/mounts so you can use it
-as a substitute for /etc/mtab, you will probably break the apps that
-use /etc/mtab. I was wondering, then... does the kernel *read*
-/proc/mounts contents? If the answer is no, then you can add all
-syntactic noise you want to /proc/mounts, exporting options needed
-for userspace programs, with no problem. You can make /proc/mounts to
-look like /etc/mtab. That will solve most of the problems.
+Searching the web for solutions to my problem I have already found 
+a thread in a mailing list but no solution was mentioned, also the 
+guys who talked about the error didn't answer to my direct mail.
 
-    If the kernel needs to read /proc/mounts, then you have a
-problem: you will need /etc/mtab as long as you have to use loop
-devices, user mounts, etc.
+The machine is a two xeon cpu database server without any other service 
+except sshd running. I do some tests on the ICP-Vortex GDT controller 
+every 2 minutes by using 
+# cat /proc/scsi/gdt/2
+but the output of cat stops without beeing completed.
 
-    Raúl Núñez de Arenas Coronado
+This is what I see in the syslog file every time when I use the cat
+command (the messages beginn after 3 days uptime):
+--> /var/log/messages
+kernel: __alloc_pages: 0-order allocation failed (gfp=0x21/0)
 
+What do you propose to do for I can get the information I need for 
+longer than three days without reboot? This is a highly used database
+server in production environment.
+
+Kernel version (from /proc/version):
+Linux version 2.4.27 (root@widbrz01) (gcc version 3.3.1 
+
+
+# cat /proc/meminfo 
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  2118139904 2074345472 43794432        0 151343104 1742090240
+Swap: 6407458816 48291840 6359166976
+MemTotal:      2068496 kB
+MemFree:         42768 kB
+MemShared:           0 kB
+Buffers:        147796 kB
+Cached:        1694548 kB
+SwapCached:       6712 kB
+Active:         223620 kB
+Inactive:      1709760 kB
+HighTotal:     1179628 kB
+HighFree:         2080 kB
+LowTotal:       888868 kB
+LowFree:         40688 kB
+SwapTotal:     6257284 kB
+SwapFree:      6210124 kB
+
+# cat /proc/sys/kernel/shmmax 
+1069547520
+
+# cat /proc/sys/kernel/shmall 
+1073741824
+
+Please let me know if there are any informations you need.
+Thanks in advance for your answer,
+regards
+ingo.
 -- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+// ---------------------------------------------------------------------
+// e-dict GmbH & Co. KG
+// Ingo Freund         
+// Alter Steinweg 3    
+// D-20459 Hamburg/Germany                E-Mail: Ingo.Freund@e-dict.net
+// ---------------------------------------------------------------------
+

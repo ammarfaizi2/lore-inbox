@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVACWZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVACWZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVACWZc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 17:25:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVACWXB
+	id S261907AbVACWZb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 17:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVACWXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 17:23:01 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:16266 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261907AbVACWP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 17:15:56 -0500
-Subject: Re: [PATCH] get/set FAT filesystem attribute bits
-From: Nicholas Miell <nmiell@comcast.net>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <41D9C111.2090504@zytor.com>
-References: <41D9B1C4.5050507@zytor.com>
-	 <1104787447.3604.9.camel@localhost.localdomain>
-	 <41D9BA8B.2000108@zytor.com>
-	 <1104788816.3604.17.camel@localhost.localdomain>
-	 <41D9C111.2090504@zytor.com>
-Content-Type: text/plain
-Date: Mon, 03 Jan 2005 14:10:43 -0800
-Message-Id: <1104790243.3604.23.camel@localhost.localdomain>
+	Mon, 3 Jan 2005 17:23:13 -0500
+Received: from holomorphy.com ([207.189.100.168]:2719 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261906AbVACWPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 17:15:22 -0500
+Date: Mon, 3 Jan 2005 14:15:16 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Colin Coe <colin@coesta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Max CPUs on x86_64 under 2.6.x
+Message-ID: <20050103221516.GV29332@holomorphy.com>
+References: <44438.202.154.120.74.1104760841.squirrel@www.coesta.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <44438.202.154.120.74.1104760841.squirrel@www.coesta.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-01-03 at 14:02 -0800, H. Peter Anvin wrote:
-> Nicholas Miell wrote:
-> > 
-> > That's why I put fatattrs in the system namespace, which is wholly owned
-> > by the Linux kernel. Any theoretical FAT-with-xattrs variant would put
-> > those xattrs in the user namespace.
-> > 
-> > On another note, NTFS-style xattrs (aka named streams) are unrelated to
-> > Linux xattrs. A named stream is a separate file with a funny name, while
-> > a Linux xattr is a named extension to struct stat.
->  >
-> 
-> OK, that does make it more sensible.  I do note, however, that ext2/ext3 
-> do not seem to export their attributes (chattr/lsattr) in this way; I do 
-> also note that the xattr code wherever it has been implemented is just 
-> painfully complex.
-> 
-> I'll see if I can weed it down to some kind of sane size.
-> 
-> 	-hpa
+On Mon, Jan 03, 2005 at 10:00:41PM +0800, Colin Coe wrote:
+> Why is the number of CPUs on the x86_64 architecture only 8 but under i386
+> it is 255?
+> I've searched the list archives and Google but can't find an answer.
 
-Yeah, I contemplated adding system.fattattrs, system.ntfsattrs, and
-system.linuxattrs (for the ext2 attrs that have popped up in several
-other filesystems) a while ago, but xattrs seem to be the red-headed
-left-handed stepchild of the Linux VFS and I lost interest in the
-project.
+i386 machines have had interrupt controllers and "large scale" systems
+(to the extent that 32-bit machines can be so) developed for some time.
+x86-64 machines are newer, and it is the maintainer's preference to
+start with a fresh codebase for the APIC.
 
-Nice to see someone else interested in it, though.
--- 
-Nicholas Miell <nmiell@comcast.net>
+So what you see is not a reflection of x86-64's capabilities, but
+rather, of the newness of the architecture and the codebase's desire
+to be "legacy-free" in manners that don't pose the threat of causing
+immediate problems.
 
+It is not now limiting the capabilities of x86-64 machines because
+x86-64 machines of 64 cpus or larger have yet to be produced. For the
+record, I'm unaware of SSI i386 machines larger than 64 processors.
+255 represents nothing more than a theoretical limit of hardware
+capabilities, and no i386 machine larger than 64 processors has ever
+been constructed to the best of my knowledge.
+
+
+-- wli

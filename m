@@ -1,49 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267299AbSKPPrZ>; Sat, 16 Nov 2002 10:47:25 -0500
+	id <S267302AbSKPQQ5>; Sat, 16 Nov 2002 11:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267300AbSKPPrZ>; Sat, 16 Nov 2002 10:47:25 -0500
-Received: from mx11.dmz.fedex.com ([199.81.193.118]:65287 "EHLO
-	mx11.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S267299AbSKPPrY>; Sat, 16 Nov 2002 10:47:24 -0500
-Date: Sat, 16 Nov 2002 23:52:42 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Andries Brouwer <aebr@win.tue.nl>
-Subject: re: VFAT mount (bug or feature?
-Message-ID: <Pine.LNX.4.44.0211162349160.1208-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/16/2002
- 11:54:15 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 11/16/2002
- 11:54:19 PM,
-	Serialize complete at 11/16/2002 11:54:19 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267300AbSKPQQ5>; Sat, 16 Nov 2002 11:16:57 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:18091 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S267302AbSKPQQz>;
+	Sat, 16 Nov 2002 11:16:55 -0500
+Date: Sat, 16 Nov 2002 09:23:41 -0700
+From: yodaiken@fsmlabs.com
+To: Stelian Pop <stelian.pop@fr.alcove.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: lan based kgdb
+Message-ID: <20021116092341.A30010@hq.fsmlabs.com>
+References: <3DD5591E.A3D0506D@efi.com> <334960000.1037397999@flay> <ar3op8$f20$1@penguin.transmeta.com> <20021115222430.GA1877@tahoe.alcove-fr> <3DD57A5F.87119CB4@digeo.com> <20021115225932.GC1877@tahoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021115225932.GC1877@tahoe.alcove-fr>; from stelian.pop@fr.alcove.com on Fri, Nov 15, 2002 at 11:59:32PM +0100
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 15, 2002 at 11:59:32PM +0100, Stelian Pop wrote:
+> On Fri, Nov 15, 2002 at 02:51:11PM -0800, Andrew Morton wrote:
+> 
+> > > Using USB instead of the serial line or the network card would be
+> > > the best IMHO, because:
+> > 
+> > Here is the kgdb stub's "send a byte" function:
+> > 
+> > static void
+> > write_char(int chr)
+> > {
+> >        while (!(inb(gdb_port + UART_LSR) & UART_LSR_THRE)) ;
+> > 
+> >        outb(chr, gdb_port + UART_TX);
+> > }
+> > 
+> > Need I say more?
+> 
+> I already know that, but this is not the point. The point is that
+> more and more boxes have no serial (or paralel) ports. 
+> 
+> But even on those boxes, sometimes I'd just love to be able to use
+> kgdb. And I can't.
+> 
+> Ok, it will have to be at a higher level than the inb/outb serial
+> transport implementation (with possible bad effects on what can
+> and what cannot be debugged), but still, I feel there is a need
+> for that.
 
-On Wed, Nov 13, 2002 at 01:47:04AM +0100, Udo A. Steinberg wrote:
+> USB (with USB-to-serial adapter), network, ieee1394 would be 
+> acceptable replacements for me.
 
->> In my /etc/fstab I have the following entry:
->>
->> /dev/hda1  /win   vfat   defaults,umask=022  1 1
->>
->> Why does 2.5.47 have user/group restricted permissions on the mount
->> point and all its subdirectories, despite the umask setting?
+Have you ever looked at a USB or 1394 driver? The nice thing about
+serial is that the software to make it work is trivial. A debugger that 
+relies on a 5000 line driver is quite suspect.
 
-> Yes. This is due to a somewhat buggy change in 2.5.43.
+> 
 
-This is buggy in 2.4.20-rc1 as well.
+> 
+> Stelian.
+> -- 
+> Stelian Pop <stelian.pop@fr.alcove.com>
+> Alcove - http://www.alcove.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-drwxr--r--   40 root     root         4096 Jan  1  1970 /dos
-
-Any patch for 2.4.20-rcx?
-
-
-Thanks,
-Jeff
-[ jchua@fedex.com ]
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
 

@@ -1,155 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVAZXxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVAZXxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVAZXxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVAZXuJ
+	id S262514AbVAZXxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262201AbVAZXwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:50:09 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:36263 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262142AbVAZTap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:30:45 -0500
-Message-ID: <41F7EFF4.40303@comcast.net>
-Date: Wed, 26 Jan 2005 14:31:00 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-CC: Linus Torvalds <torvalds@osdl.org>, Bill Davidsen <davidsen@tmr.com>,
-       Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: thoughts on kernel security issues
-References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <200501191947.j0JJlf3j024206@turing-police.cc.vt.edu> <41F6604B.4090905@tmr.com> <Pine.LNX.4.58.0501250741210.2342@ppc970.osdl.org> <41F6816D.1020306@tmr.com> <41F68975.8010405@comcast.net> <Pine.LNX.4.58.0501251025510.2342@ppc970.osdl.org> <41F691D6.8040803@comcast.net> <Pine.LNX.4.58.0501251054400.2342@ppc970.osdl.org> <41F6A5F8.5030100@comcast.net> <20050126160620.GE23182@speedy.student.utwente.nl>
-In-Reply-To: <20050126160620.GE23182@speedy.student.utwente.nl>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 26 Jan 2005 18:52:13 -0500
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:36882 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262210AbVAZT4N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 14:56:13 -0500
+Date: Wed, 26 Jan 2005 20:56:19 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Mark A. Greer" <mgreer@mvista.com>
+Cc: Greg KH <greg@kroah.com>, LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
+Message-Id: <20050126205619.4c0b41fa.khali@linux-fr.org>
+In-Reply-To: <41F6F1D5.90601@mvista.com>
+References: <41F6F1D5.90601@mvista.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Mark,
 
+> Marvell makes a line of host bridge for PPC and MIPS systems.  On
+> those  bridges is an i2c controller.  This patch adds the driver for
+> that i2c  controller.
+> 
+> Please let me know if you see any problems with this patch.
 
+I do not feel qualified for a full review of this code. However, I
+noticed the following minor issues:
 
-Sytse Wielinga wrote:
-> On Tue, Jan 25, 2005 at 03:03:04PM -0500, John Richard Moser wrote:
-> 
->>That being said, you should also consider (unless somebody forgot to
->>tell me something) that it takes two source trees to make a split-out
->>patch.  The author also has to chew down everything but the feature he
->>wants to split out.  I could probably log 10,000 man-hours splitting up
->>GrSecurity.  :)
-> 
-> 
-> I'd try out Andrew's patch scripts if I were you. If you're making a patch to
-> the kernel, you'd best keep it in separate patches from the beginning, and
-> that's exactly what those scripts are very useful for.
-> 
-> 
->>>It's also a lot easier to find the (inevitable) bugs. Either you already 
->>>have a clue ("try reverting that one patch") or you can do things like 
->>>binary searching. The bugs introduced a patch often have very little to do 
->>>with the thing a patch fixes - exactly because the patch _fixes_ 
->>>something, it's been tested with that particular problem, and the new 
->>>problem it introduces is usually orthogonal.
->>
->>true. Very very true.
->>
->>With things like Gr, there's like a million features.  Normally the
->>first step I take is "Disable it all".  If it still breaks, THEN THERE'S
->>A PROBLEM.  If it works, then the binary searching begins.
-> 
-> 
-> So how do you think you would do a binary search within big patches, if it
-> would take you 10,000 man-hours to split up the patch? Disabling a lot of
-> small patches is easy, disabling a part of a big one takes a lot more work.
-> 
+> +config I2C_MV64XXX
+> +	tristate "Marvell mv64xxx I2C Controller"
+> +	depends on I2C && MV64X60
 
-'make menuconfig' is not a lot more work wtf
+&& EXPERIMENTAL?
 
+> diff -Nru a/include/linux/i2c-id.h b/include/linux/i2c-id.h
+> --- a/include/linux/i2c-id.h	2005-01-25 18:15:24 -07:00
+> +++ b/include/linux/i2c-id.h	2005-01-25 18:15:24 -07:00
+> @@ -200,6 +200,7 @@
+>  
+>  #define I2C_ALGO_SIBYTE 0x150000	/* Broadcom SiByte SOCs		*/
+>  #define I2C_ALGO_SGI	0x160000        /* SGI algorithm                */
+> +#define I2C_ALGO_MV64XXX 0x170000       /* Marvell mv64xxx i2c ctlr     */
 
-[*] Grsecurity
-  Security Level (Custom)  --->
-  Address Space Protection  --->
-  Role Based Access Control Options  --->
-  Filesystem Protections  --->
-  Kernel Auditing  --->
-  Executable Protections  --->
-  Network Protections  --->
-  Sysctl support  --->
-  Logging Options  --->
+0x170000 is reserved within the legacy i2c project for an USB algorithm,
+and 0x180000 for virtual busses. Could you please use 0x190000 instead,
+so as to avoid future collisions?
 
-?? Address Space Protection ??
- [ ] Deny writing to /dev/kmem, /dev/mem, and /dev/port
- [ ] Disable privileged I/O
- [*] Remove addresses from /proc/<pid>/[maps|stat]
- [*] Deter exploit bruteforcing
- [*] Hide kernel symbols
+> -#define MV64340_I2C_SLAVE_ADDR                                      0xc000
+> -#define MV64340_I2C_EXTENDED_SLAVE_ADDR                             0xc010
+> -#define MV64340_I2C_DATA                                            0xc004
+> -#define MV64340_I2C_CONTROL                                         0xc008
+> -#define MV64340_I2C_STATUS_BAUDE_RATE                               0xc00C
+> -#define MV64340_I2C_SOFT_RESET                                      0xc01c
+> +#define	MV64XXX_I2C_CTLR_NAME					"mv64xxx i2c"
+> +#define MV64XXX_I2C_OFFSET					    0xc000
+> +#define MV64XXX_I2C_REG_BLOCK_SIZE				    0x0020
 
-Need I continue?  There's some 30 or 40 more options I could show.  If
-you can't use your enter, left, right, up, y, n, and ? keys, you're
-crippled and won't be able to patch and unpatch crap either.
+You have a tab instead of space before MV64XXX_I2C_CTLR_NAME, it seems.
+Also, you want to align the numerical values using only tabs, no space.
 
-> 
->>>Which is why lots of small patches usually have _different_ bug behaviour
->>>than the patch they fix. To go back to the A+B fix: the bug they fix may
->>>be fixed only by the _combination_ of the patch, but the bug they cause is
->>>often an artifact of _one_ of the patches.
->>>
->>
->>Wasn't talking about bugfixes, see above.
-> 
-> 
-> Oh, so you're saying that security fixes don't cause bugs? Great world you live
-> in, then...
-> 
-
-I didn't say that.  I said I wasn't talking about bugfix patches.  I
-wasn't talking about "mremap(0,0) gives you root," I was talking about
-"preventing following links under X conditions breaks nothing legitimate
-but deadstops /tmp races" or "properly setting CPU protections for
-PROT_EXEC stops code injection" or "ASLR stops ret2libc attacks."
-
-If you people ever bothered to read what I say, you wouldn't continually
-say stupid shit like <me> You get milk from cows <you> wtf idiot
-chocolate milk doens't come from chocolate cows
-
-> 
->>>IOW, splitting the patches up makes them
->>> - easier to merge
->>> - easier to verify
->>> - easier to debug
->>>
->>>and combining them has _zero_ advantages (whatever bug the combined patch
->>>fix _will_ be fixed by the series of individual patches too - even if the
->>>splitting was buggy in some respect, you are pretty much guaranteed of
->>>this, since the bug you were trying to fix is the _one_ thing you are
->>>really testing for). 
->>
->>Lots of work to split up a patch though.
-> 
-> 
-> See above.
-> 
->     Sytse
-> 
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB9+/zhDd4aOud5P8RAsZzAJ4rUryqsKc1OcfT4Nwc1m/lJtePPwCfXMWx
-fEoc1nSxOfEzjJNZRDx6qYQ=
-=NYJe
------END PGP SIGNATURE-----
+Thanks,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

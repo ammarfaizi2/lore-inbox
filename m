@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265986AbUHFOtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268072AbUHFOww@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265986AbUHFOtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268074AbUHFOtQ
+	id S268072AbUHFOww (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268075AbUHFOww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:49:16 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:27595 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S265986AbUHFOtK (ORCPT
+	Fri, 6 Aug 2004 10:52:52 -0400
+Received: from c3-1d224.neo.lrun.com ([24.93.233.224]:131 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S268072AbUHFOwm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:49:10 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: block layer sg, bsg
-Date: Fri, 6 Aug 2004 03:03:40 -0400
-User-Agent: KMail/1.6.2
-Cc: yoshfuji@linux-ipv6.org, ak@muc.de, jgarzik@pobox.com, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-References: <20040804191850.GA19224@havoc.gtf.org> <20040804.165113.06226042.yoshfuji@linux-ipv6.org> <20040804205837.6fda9a50.davem@redhat.com>
-In-Reply-To: <20040804205837.6fda9a50.davem@redhat.com>
-MIME-Version: 1.0
+	Fri, 6 Aug 2004 10:52:42 -0400
+Date: Fri, 6 Aug 2004 10:44:33 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: linux@dominikbrodowski.de, akpm@osdl.org, rml@ximian.com,
+       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
+Subject: Re: [PATCH] pcmcia driver model support [4/5]
+Message-ID: <20040806104433.GH11641@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de,
+	akpm@osdl.org, rml@ximian.com, linux-kernel@vger.kernel.org,
+	linux-pcmcia@lists.infradead.org
+References: <20040805222820.GE11641@neo.rr.com> <20040806114320.A13653@flint.arm.linux.org.uk> <20040806103538.GG11641@neo.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408060303.40261.phillips@arcor.de>
+In-Reply-To: <20040806103538.GG11641@neo.rr.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+On Fri, Aug 06, 2004 at 10:35:38AM +0000, Adam Belay wrote:
+> On Fri, Aug 06, 2004 at 11:43:20AM +0100, Russell King wrote:
+> > On Thu, Aug 05, 2004 at 10:28:20PM +0000, Adam Belay wrote:
+> > > It is not safe to use the skt_sem in pcmcia_validate_mem.  This patch
+> > > fixes a real world bug, and without it many systems will fail to shutdown
+> > > properly.
+> > 
+> > However, we need to take this semaphore here to prevent the socket state
+> > changing.  It sounds from your description that we're hitting yet another
+> > stupid recursion bug in PCMCIA...
+> 
+> It's worth noting that we don't hold skt_sem in pcmcia_get_first_tuple (and
+> possibly others), but we probably should be.  This may have been to prevent
+> recursion bugs.
+> 
+> > 
+> > It sounds like we shouldn't be holding skt_sem when we wait for userspace
+> > to reply to the ejection request.
+> 
+> The situation is rather complicated.  pcmcia_eject_card itself has to hold
+> skt_sem to ensure the socket state remains correct.  We could always release
+> the semaphore while sending the event, and then grab it again.  Of course we
+> would have to check if the socket is still present a second time in the same
+> function.  How does this look (untested)?
 
-On Wednesday 04 August 2004 23:58, David S. Miller wrote:
-> On Wed, 04 Aug 2004 16:51:13 -0700 (PDT)
->
-> YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> wrote:
-> > > Well, 32bit ipsec on x86-64/ia64 is a NOP because of that.
-> >
-> > Hmm, I don't get the point.
-> > What part (or which structore) is broken?
->
-> On x86-64 and ia64 they have a large issue because the ia32
-> emulation layer has to handle the fact that "long long" types
-> do not require 8-byte alignment, whereas 64-bit natively
-> they do.
+Sorry, the last patch was incorrect.
 
-I'm making heavy use of struct read/writes in the cluster snapshot block 
-device, so I need to get this sorted out.
-
-Somewhere I got the idea that if a structure is declared with attribute 
-PACKED, gcc will generate alignment-independent code (e.g., access each field 
-byte by byte) on alignment-restricted architectures.  So if what I imagine 
-about gcc is true, what issues remain?  These structs have to be declared 
-packed anyway and with fixed field sizes, or the layout will vary across 
-architectures.
-
-Regards,
-
-Daniel
+--- a/drivers/pcmcia/cs.c	2004-08-05 21:28:48.000000000 +0000
++++ b/drivers/pcmcia/cs.c	2004-08-06 10:42:34.000000000 +0000
+@@ -2056,9 +2056,14 @@
+ 			break;
+ 		}
+ 
++		up(&skt->skt_sem);
+ 		ret = send_event(skt, CS_EVENT_EJECTION_REQUEST, CS_EVENT_PRI_LOW);
+-		if (ret != 0) {
+-			ret = -EINVAL;
++		if (ret != 0)
++			return -EINVAL;
++		down(&skt->skt_sem);
++
++		if (!(skt->state & SOCKET_PRESENT)) {
++			ret = -ENODEV;
+ 			break;
+ 		}
+ 

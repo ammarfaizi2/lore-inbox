@@ -1,95 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262411AbTCPFf0>; Sun, 16 Mar 2003 00:35:26 -0500
+	id <S262421AbTCPFoz>; Sun, 16 Mar 2003 00:44:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbTCPFf0>; Sun, 16 Mar 2003 00:35:26 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:35715 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262411AbTCPFfZ>; Sun, 16 Mar 2003 00:35:25 -0500
-Date: Sat, 15 Mar 2003 21:45:50 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Bill Huey <billh@gnuppy.monkey.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: 2.5.64-mjb4 (scalability / NUMA patchset)
-Message-ID: <12150000.1047793549@[10.10.2.4]>
-In-Reply-To: <20030316044524.GA6757@gnuppy.monkey.org>
-References: <169550000.1046895443@[10.10.2.4]> <475260000.1047172886@[10.10.2.4]> <85960000.1047532556@[10.10.2.4]> <10770000.1047787269@[10.10.2.4]> <20030316044524.GA6757@gnuppy.monkey.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262425AbTCPFoy>; Sun, 16 Mar 2003 00:44:54 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:64961 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S262421AbTCPFox>; Sun, 16 Mar 2003 00:44:53 -0500
+Date: Sat, 15 Mar 2003 23:55:41 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, <colpatch@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] NUMAQ subarchification
+In-Reply-To: <1047791157.1963.212.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44.0303152353520.10374-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erg. Could you send me your config file?
+On 15 Mar 2003, James Bottomley wrote:
 
-M.
+> On Sat, 2003-03-15 at 20:53, Kai Germaschewski wrote:
+> > I think VPATH has never been meant to be used for anything like this, it 
+> > could be make to work, though it would interfere with the separate src/obj 
+> > thing. But I don't think it's a good idea, we'll have object files 
+> > magically appear without any visible source file, that's just too obscure.
+> 
+> Well...There is a slightly different solution.
+> 
+> What if the summit/numaq setup.c simply contained 
+> 
+> #include "../mach-default/setup.c"
+> 
+> ?
+> 
+> Not that I like doing this, but it solves the "magic" appearace of the
+> object file and it's perfectly clear to anyone editing the file where it
+> really comes from.
 
---On Saturday, March 15, 2003 20:45:24 -0800 Bill Huey <billh@gnuppy.monkey.org> wrote:
+Yes, that'd work as well. Just for reference, my suggestion: - Take
+whatever you like best ;)
 
-> On Sat, Mar 15, 2003 at 08:01:09PM -0800, Martin J. Bligh wrote:
->> The patchset contains mainly scalability and NUMA stuff, and anything 
->> else that stops things from irritating me. It's meant to be pretty stable, 
->> not so much a testing ground for new stuff.
->> 
->> I'd be very interested in feedback from anyone willing to test on any 
->> platform, however large or small.
->> 
->> NOTE - you will have to apply -bk3 before applying this release.
->> ftp://ftp.kernel.org/pub/linux/kernel/v2.5/snapshots/patch-2.5.64-bk3.bz2
->> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.64/patch-2.5.64-bk3-mjb4.bz2
->> 
->> additional:
->> 
->> http://www.aracnet.com/~fletch/linux/2.5.59/pidmaps_nodepages
-> 
-> In file included from include/asm-i386/mach-summit/mach_mpparse.h:4,
->                  from arch/i386/kernel/summit.c:32:
-> include/asm-i386/mach-summit/mach_apic.h: In function `init_apic_ldr':
-> include/asm-i386/mach-summit/mach_apic.h:37: warning: implicit declaration of function `apic_write_around'
-> include/asm-i386/mach-summit/mach_apic.h:38: warning: implicit declaration of function `apic_read'
-> include/asm-i386/mach-summit/mach_apic.h: In function `clustered_apic_check':
-> include/asm-i386/mach-summit/mach_apic.h:56: `nr_ioapics' undeclared (first use in this function)
-> include/asm-i386/mach-summit/mach_apic.h:56: (Each undeclared identifier is reported only once
-> include/asm-i386/mach-summit/mach_apic.h:56: for each function it appears in.)
-> include/asm-i386/mach-summit/mach_apic.h: At top level:
-> include/asm-i386/mach-summit/mach_apic.h:94: warning: `struct mpc_config_translation' declared inside parameter list
-> include/asm-i386/mach-summit/mach_apic.h:94: warning: its scope is only this definition or declaration, which is probably not what you want
-> include/asm-i386/mach-summit/mach_apic.h:94: warning: `struct mpc_config_processor' declared inside parameter list
-> include/asm-i386/mach-summit/mach_apic.h: In function `mpc_apic_id':
-> include/asm-i386/mach-summit/mach_apic.h:97: dereferencing pointer to incomplete type
-> include/asm-i386/mach-summit/mach_apic.h:98: dereferencing pointer to incomplete type
-> include/asm-i386/mach-summit/mach_apic.h:98: `CPU_FAMILY_MASK' undeclared (first use in this function)
-> include/asm-i386/mach-summit/mach_apic.h:99: dereferencing pointer to incomplete type
-> include/asm-i386/mach-summit/mach_apic.h:99: `CPU_MODEL_MASK' undeclared (first use in this function)
-> include/asm-i386/mach-summit/mach_apic.h:100: dereferencing pointer to incomplete type
-> include/asm-i386/mach-summit/mach_apic.h:101: dereferencing pointer to incomplete type
-> include/asm-i386/mach-summit/mach_apic.h: In function `check_phys_apicid_present':
-> include/asm-i386/mach-summit/mach_apic.h:113: `phys_cpu_present_map' undeclared (first use in this function)
-> In file included from arch/i386/kernel/summit.c:32:
-> include/asm-i386/mach-summit/mach_mpparse.h: At top level:
-> include/asm-i386/mach-summit/mach_mpparse.h:9: warning: `struct mpc_config_translation' declared inside parameter list
-> include/asm-i386/mach-summit/mach_mpparse.h:9: warning: `struct mpc_config_bus' declared inside parameter list
-> include/asm-i386/mach-summit/mach_mpparse.h: In function `mpc_oem_bus_info':
-> include/asm-i386/mach-summit/mach_mpparse.h:11: warning: implicit declaration of function `Dprintk'
-> include/asm-i386/mach-summit/mach_mpparse.h:11: dereferencing pointer to incomplete type
-> include/asm-i386/mach-summit/mach_mpparse.h: At top level:
-> include/asm-i386/mach-summit/mach_mpparse.h:15: warning: `struct mpc_config_translation' declared inside parameter list
-> include/asm-i386/mach-summit/mach_mpparse.h:15: warning: `struct mpc_config_bus' declared inside parameter list
-> include/asm-i386/mach-summit/mach_mpparse.h:20: warning: `struct mp_config_table' declared inside parameter list
-> arch/i386/kernel/summit.c: In function `setup_pci_node_map_for_wpeg':
-> arch/i386/kernel/summit.c:93: `mp_bus_id_to_node' undeclared (first use in this function)
-> arch/i386/kernel/summit.c: In function `setup_summit':
-> arch/i386/kernel/summit.c:133: `mp_bus_id_to_node' undeclared (first use in this function)
-> make[1]: *** [arch/i386/kernel/summit.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
-> 
-> -------------------------------------------------------------------------------
-> 
-> bill
-> 
-> 
+--Kai
+
+
+===== arch/i386/Kconfig 1.48 vs edited =====
+--- 1.48/arch/i386/Kconfig	Sat Mar  8 16:50:37 2003
++++ edited/arch/i386/Kconfig	Sat Mar 15 23:00:18 2003
+@@ -97,6 +97,16 @@
+ 
+ endchoice
+ 
++config X86_DEFAULT_SETUP
++	bool
++	default y
++	depends on X86_PC || X86_NUMAQ || X86_SUMMIT || X86_BIGSMP
++
++config X86_DEFAULT_TOPOLOGY
++	bool
++	default y
++	depends on X86_PC || X86_NUMAQ || X86_SUMMIT || X86_BIGSMP
++
+ 
+ choice
+ 	prompt "Processor family"
+===== arch/i386/Makefile 1.48 vs edited =====
+--- 1.48/arch/i386/Makefile	Tue Mar  4 17:09:44 2003
++++ edited/arch/i386/Makefile	Sat Mar 15 23:29:32 2003
+@@ -50,38 +50,33 @@
+ 
+ CFLAGS += $(cflags-y)
+ 
+-# Default subarch .c files
+-mcore-y  := mach-default
+-
+ # Voyager subarch support
+ mflags-$(CONFIG_X86_VOYAGER)	:= -Iinclude/asm-i386/mach-voyager
+-mcore-$(CONFIG_X86_VOYAGER)	:= mach-voyager
++mcore-$(CONFIG_X86_VOYAGER)	:= arch/i386/mach-voyager/
+ 
+ # VISWS subarch support
+ mflags-$(CONFIG_X86_VISWS)	:= -Iinclude/asm-i386/mach-visws
+-mcore-$(CONFIG_X86_VISWS)	:= mach-visws
++mcore-$(CONFIG_X86_VISWS)	:= arch/i386/mach-visws/
+ 
+ # NUMAQ subarch support
+ mflags-$(CONFIG_X86_NUMAQ)	:= -Iinclude/asm-i386/mach-numaq
+-mcore-$(CONFIG_X86_NUMAQ)	:= mach-default
+ 
+ # BIGSMP subarch support
+ mflags-$(CONFIG_X86_BIGSMP)	:= -Iinclude/asm-i386/mach-bigsmp
+-mcore-$(CONFIG_X86_BIGSMP)	:= mach-default
+ 
+-#Summit subarch support
+-mflags-$(CONFIG_X86_SUMMIT) := -Iinclude/asm-i386/mach-summit
+-mcore-$(CONFIG_X86_SUMMIT)  := mach-default
++# Summit subarch support
++mflags-$(CONFIG_X86_SUMMIT)	:= -Iinclude/asm-i386/mach-summit
+ 
+ # default subarch .h files
+-mflags-y += -Iinclude/asm-i386/mach-default
++mflags-y 			+= -Iinclude/asm-i386/mach-default
+ 
+ head-y := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
+ 
+ libs-y 					+= arch/i386/lib/
+ core-y					+= arch/i386/kernel/ \
+ 					   arch/i386/mm/ \
+-					   arch/i386/$(mcore-y)/
++					   arch/i386/mach-default/ \
++					   $(mcore-y)
+ drivers-$(CONFIG_MATH_EMULATION)	+= arch/i386/math-emu/
+ drivers-$(CONFIG_PCI)			+= arch/i386/pci/
+ # FIXME: is drivers- right ?
+===== arch/i386/mach-default/Makefile 1.8 vs edited =====
+--- 1.8/arch/i386/mach-default/Makefile	Sun Dec 22 06:08:42 2002
++++ edited/arch/i386/mach-default/Makefile	Sat Mar 15 22:57:13 2003
+@@ -4,4 +4,5 @@
+ 
+ EXTRA_CFLAGS	+= -I../kernel
+ 
+-obj-y				:= setup.o topology.o
++obj-$(CONFIG_X86_DEFAULT_SETUP)		+= setup.o
++obj-$(CONFIG_X86_DEFAULT_TOPOLOGY)	+= topology.o
 
 

@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312181AbSDIXQW>; Tue, 9 Apr 2002 19:16:22 -0400
+	id <S312194AbSDIXVo>; Tue, 9 Apr 2002 19:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312194AbSDIXQV>; Tue, 9 Apr 2002 19:16:21 -0400
-Received: from dyn-212-129-51-155.ppp.tiscali.fr ([212.129.51.155]:33410 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S312181AbSDIXQU>; Tue, 9 Apr 2002 19:16:20 -0400
-Date: Wed, 10 Apr 2002 01:11:20 +0200 (CEST)
-From: Rui Sousa <rui.p.m.sousa@clix.pt>
-X-X-Sender: rsousa@localhost.localdomain
-To: "J. Dow" <jdow@earthlink.net>
-cc: "T. A." <tkhoadfdsaf@hotmail.com>, <root@chaos.analogic.com>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kurt Wall <kwall@kurtwerks.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: C++ and the kernel
-In-Reply-To: <018201c1e010$a5fc52c0$1125a8c0@wednesday>
-Message-ID: <Pine.LNX.4.44.0204100107050.1541-100000@localhost.localdomain>
+	id <S312208AbSDIXVn>; Tue, 9 Apr 2002 19:21:43 -0400
+Received: from 66-133-183-62.fod.frontiernet.net ([66.133.183.62]:7066 "EHLO
+	66-133-183-62.fod.frontiernet.net") by vger.kernel.org with ESMTP
+	id <S312194AbSDIXVn>; Tue, 9 Apr 2002 19:21:43 -0400
+Message-Id: <200204092257.g39Mvrb30910@66-133-183-62.fod.frontiernet.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Russell Miller <rmiller@duskglow.com>
+Reply-To: rmiller@duskglow.com
+Organization: If you only saw my house...
+To: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 data corruption issues
+Date: Tue, 9 Apr 2002 17:57:50 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: barry@Know-Where.com (Barry Bakalor)
+In-Reply-To: <200204090252.g392qNb24499@66-133-183-62.fod.frontiernet.net> <200204090604.g3964rX01196@Port.imtp.ilyichevsk.odessa.ua>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Apr 2002, J. Dow wrote:
+On Tuesday 09 April 2002 06:08 am, Denis Vlasenko wrote:
 
-> From: "T. A." <tkhoadfdsaf@hotmail.com>
-> 
-> >     Who the heck said anything about rewriting the kernel?  I'm just looking
-> > into coding a C++ framework for those whom may like to use it in modules,
-> > mostly for hack value.
-> 
-> May I humbly suggest that this list is not a good place for this discussion.
-> Attitudes are quite ossified for many good reasons and probably a few bad  
-> reasons...
+> What is your GCC version?
+>
+2.96 20000731 (Redhat Linux 7.1 2.96-98)
 
-I hate to get into this discussion(1)... but could you at least read a 
-little bit beyond the subject line before answering. The bits like "who that 
-heck said anything about rewriting the kernel?" and "hack value"...
+> It was Linux? What kernel version? Did you try copying with that kernel?
+>
+Kernel 2.2.16.  I believe we did but we didn't verify the copies, regardless, 
+we never found any problems with it.
 
-Rui Sousa
+> You may try to repeat your test with:
+> * newer / older kernel (maybe this is a kernel bug?)
+> * newer GCC (miscompiled kernel?)
+> * different fs (ext3 bug?)
+> * different hardware (last resort to rule out hw problems)
 
-(1) Yeah, ok I did it any way.
+I'll do this.  I doubt it's a miscompiled kernel, gcc problems usually cause 
+crashes, not such subtle problems.
 
+--Russell
+
+-- 
+Russell Miller
+rmiller@duskglow.com
+Somewhere in Northwestern Iowa

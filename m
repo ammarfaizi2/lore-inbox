@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUGGCSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264815AbUGGC3l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUGGCSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 22:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUGGCSM
+	id S264815AbUGGC3l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 22:29:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264850AbUGGC3l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 22:18:12 -0400
-Received: from heimdall.doit.wisc.edu ([144.92.197.159]:40835 "EHLO
-	smtp5.wiscmail.wisc.edu") by vger.kernel.org with ESMTP
-	id S264791AbUGGCSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 22:18:10 -0400
-Date: Tue, 06 Jul 2004 21:20:50 -0500
-From: John Lenz <jelenz@students.wisc.edu>
-Subject: Re: [2.6 patch] Canonically reference files in Documentation/ code
- comments part
-In-reply-to: <20040706213645.GP28324@fs.tum.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org,
-       Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>
-Message-id: <20040707022050.GA23184@hydra.mshome.net>
-MIME-version: 1.0
-X-Mailer: Balsa 2.0.17
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Spam-Score: 
-X-Spam-Report: IsSpam=no, TrustedSender=yes, SenderIP=128.105.111.115,
- Server=avs-1, Version=4.6.0.99824, Antispam-Core: 4.6.1.104326,
- Antispam-Data: 2004.7.6.106122
-References: <20040706213645.GP28324@fs.tum.de>
+	Tue, 6 Jul 2004 22:29:41 -0400
+Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:47221 "HELO
+	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264815AbUGGC3j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 22:29:39 -0400
+Message-ID: <40EB600C.8020603@yahoo.com.au>
+Date: Wed, 07 Jul 2004 12:29:32 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm6
+References: <20040705023120.34f7772b.akpm@osdl.org>	<20040706125438.GS21066@holomorphy.com>	<20040706233618.GW21066@holomorphy.com> <20040706170247.5bca760c.davem@redhat.com>
+In-Reply-To: <20040706170247.5bca760c.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> diff -up old-doc-2.5/drivers/pcmcia/sa1100_generic.c doc-2.5/drivers/pcmcia/sa1100_generic.c
-> --- old-doc-2.5/drivers/pcmcia/sa1100_generic.c	Fri Jan  9 17:27:47 2004
-> +++ doc-2.5/drivers/pcmcia/sa1100_generic.c	Fri Jan  9 18:14:20 2004
-> @@ -30,7 +30,7 @@
->      
->  ======================================================================*/
->  /*
-> - * Please see linux/Documentation/arm/SA1100/PCMCIA for more information
-> + * Please see Documentation/arm/SA1100/PCMCIA for more information
->   * on the low-level kernel interface.
->   */
->  
+David S. Miller wrote:
+> On Tue, 6 Jul 2004 16:36:18 -0700
+> William Lee Irwin III <wli@holomorphy.com> wrote:
+> 
+> 
+>>I have it isolated down to the sched-clean-init-idle.patch and
+>>sched-clean-fork.patch. sched-clean-init-idle.patch fails to build without
+>>the second of those two applied, so I didn't do any work to narrow it down
+>>further.
+> 
+> 
+> One thing to note is that we don't currently call the
+> wake_up_forked_process() thing in our SMP idle bootup
+> dispatcher in arch/sparc64/kernel/smp.c
+> 
+> Perhaps that is somehow related to the problems.
+> In that case the culprit would be the first patch,
+> sched-clean-init-idle.patch
+> 
 
-This file does not exist in 2.6.  It exists in 2.4.  I believe the documentation file
-was removed because in 2.5 the interface changed but the documentation was never 
-updated.  This entire comment should just be removed.
+Yes, I missed sparc64 due to the lack of wake_up_forked_process. Dang.
+
+Well, what used to happen is that wake_up_forked_process would put the
+idle task on the runqueue like a regular process, then init_idle would
+take it off again.
+
+However after the patch, init_idle simply does all the work itself,
+and doesn't have to deal with removal from the runqueue. Now sparc64
+uses "kernel_thread" to clone its idle tasks, which *does* put the
+process onto the runqueue. init_idle then also makes it the idle task.
+This is probably why it blows up.
+
+I guess another small function to remove the task from the runqueue
+before calling init_idle for those arches that want it would be the
+way to go.
+
+Sorry, this is my fault. Got to run now, but I'll send a patch to try
+in a few hours if someone hasn't already.

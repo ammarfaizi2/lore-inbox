@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbULQQDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbULQQGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbULQQDy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 11:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULQQDx
+	id S261416AbULQQGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 11:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULQQGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 11:03:53 -0500
-Received: from web25007.mail.ukl.yahoo.com ([217.12.10.43]:7816 "HELO
-	web25007.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261442AbULQQDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 11:03:45 -0500
-Message-ID: <20041217160345.95366.qmail@web25007.mail.ukl.yahoo.com>
-Date: Fri, 17 Dec 2004 16:03:45 +0000 (GMT)
-From: Steven Newbury <s_j_newbury@yahoo.co.uk>
-Subject: Adaptec driver suspend bug ahc_dv_0 
-To: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 17 Dec 2004 11:06:23 -0500
+Received: from holomorphy.com ([207.189.100.168]:58837 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261416AbULQQGP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 11:06:15 -0500
+Date: Fri, 17 Dec 2004 08:05:52 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20041217160552.GZ771@holomorphy.com>
+References: <41BF1983.mailP9C1B91GB@suse.de.suse.lists.linux.kernel> <p73acsg1za1.fsf@bragg.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73acsg1za1.fsf@bragg.suse.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Using current bk linus kernel 20041216)
-When attempting to use ACPI sleep states on this system, one of the Adaptec
-driver kernel threads fails to stop:
+On Tue, Dec 14, 2004 at 07:59:50PM +0100, Andi Kleen wrote:
+> I suspect xen64 will be rather different from xen32 anyways
+> because as far as I can see the tricks Xen32 uses to be
+> fast (segment limits) just plain don't work on 64bit
+> because the segments don't extend into 64bit space.
+> So having both in one architecture may also end up messy.
+> And i386 and x86-64 are in many pieces very different anyways,
+> I have my doubts that trying to mesh them together in arch/xen
+> will be very pretty.
 
-Dec 17 00:32:47 comet kernel:  stopping tasks failed (1 tasks remaining)
-Dec 17 00:32:47 comet kernel: Restarting tasks...<6> Strange, ahc_dv_0 not stop
+I have an inkling that the xen implementors may have plots of
+additional architecture ports. If it really is x86/x86-64 -only it
+isn't worth bothering with a separate arch/ dir, but it would be if it
+were ported to a large number of architectures.
 
-The ahc_dv_0 thread then spins using 100% CPU in System until the computer is
-rebooted.
+Maybe they're modelling it after UML which has its own arch/ dir but
+then grabs assorted things from other architectures; in that event I
+wouldn't consider it so misguided.
 
-lspci output:
-
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo PRO133x]
-(rev 44)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo MVP3/Pro133x
-AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] (rev 12)
-00:07.1 IDE interface: VIA Technologies, Inc.
-VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-Controller (rev 08)
-00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management (rev 20)
-00:08.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
-00:09.0 Ethernet controller: Accton Technology Corporation EN-1216 Ethernet
-Adapter (rev 11)
-00:0b.0 Multimedia audio controller: ESS Technology ES1969 Solo-1 Audiodrive
-(rev 01)
-01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 04)
+Probably best if the implementors chimed in about all this.
 
 
-=====
-Steve
-
-
-	
-	
-		
-___________________________________________________________ 
-ALL-NEW Yahoo! Messenger - all new features - even more fun! http://uk.messenger.yahoo.com
+-- wli

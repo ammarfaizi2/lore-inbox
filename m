@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263112AbREaQyI>; Thu, 31 May 2001 12:54:08 -0400
+	id <S263113AbREaRBS>; Thu, 31 May 2001 13:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263109AbREaQx6>; Thu, 31 May 2001 12:53:58 -0400
-Received: from zmsvr04.tais.net ([12.106.80.12]:32014 "EHLO zmsvr04.tais.net")
-	by vger.kernel.org with ESMTP id <S263106AbREaQxu>;
-	Thu, 31 May 2001 12:53:50 -0400
+	id <S263115AbREaRBJ>; Thu, 31 May 2001 13:01:09 -0400
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:9265 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id <S263113AbREaRAy>; Thu, 31 May 2001 13:00:54 -0400
+Date: Thu, 31 May 2001 18:58:41 +0200
+Message-Id: <200105311658.f4VGwfX02382@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
 To: linux-kernel@vger.kernel.org
-Cc: kErNeL-kRaCkEr@home.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFCA65A58C.155A1FB1-ON88256A5D.005BDA7A@tais.net>
-From: Ramil.Santamaria@tais.toshiba.com
-Date: Thu, 31 May 2001 09:53:43 -0700
-X-MIMETrack: Serialize by Router on zmsvr04/tais_external(Release 5.0.6a |January 17, 2001) at
- 05/31/2001 09:53:50 AM
+Subject: Re: reiserfs_read_inode2
+In-Reply-To: <877710000.991317458@tiny>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: E233 4EB2 BC46 44A7 C5FC  14C7 54ED 2FE8 FEB9 8835
+X-Key-ID: 829B1533
+User-Agent: tin/1.5.9-20010522 ("Blue Water") (UNIX) (Linux/2.4.5 (i586))
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor issue with bootsect.s.
+In article <877710000.991317458@tiny> you wrote:
+>> portraits:~# dmesg
+>> vs-13042: reiserfs_read_inode2: [2299 593873 0x0 SD] not found
+>> vs-13048: reiserfs_iget: bad_inode. Stat data of (2299 593873) not found
+>> vs-13042: reiserfs_read_inode2: [2299 593807 0x0 SD] not found
+>> vs-13048: reiserfs_iget: bad_inode. Stat data of (2299 593807) not found
+>> 
+>> 2.4.5 with lock_kernel/unlock patch,reiserfsprogs 3.x.0h, RH 7.1
 
-The single instance of the lds assembly instruction includes the comment of
-!  ds:si is source
-...
-seg fs
-lds  si,(bx)        !     ds:si is source
-...
-Is this comment not in reverse order (i.e should be lds
-dest,src)................
+> In this case, it probably means you are serving NFS from that disk, which
+> needs extra patches.  Are you?
 
+No. There is news spool and squid spool - not available by NFS.
 
-Ramil J.Santamaria
-Toshiba America Information Systems
-ramil.santamaria@tais.toshiba.com
-
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

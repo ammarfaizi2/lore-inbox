@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbRCSLlD>; Mon, 19 Mar 2001 06:41:03 -0500
+	id <S131459AbRCSLpe>; Mon, 19 Mar 2001 06:45:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131458AbRCSLkm>; Mon, 19 Mar 2001 06:40:42 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:5385 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131446AbRCSLkb>;
-	Mon, 19 Mar 2001 06:40:31 -0500
-Date: Mon, 19 Mar 2001 12:39:42 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gettimeofday question
-Message-ID: <20010319123941.A18699@pcep-jamie.cern.ch>
-In-Reply-To: <200103031249.f23Cn4R01208@flint.arm.linux.org.uk> <20010319073356.A16622@flint.arm.linux.org.uk>
+	id <S131460AbRCSLpY>; Mon, 19 Mar 2001 06:45:24 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:31559 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S131459AbRCSLpP>; Mon, 19 Mar 2001 06:45:15 -0500
+Date: Mon, 19 Mar 2001 13:44:16 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] how to catch HW fault
+Message-ID: <20010319134416.F5316@niksula.cs.hut.fi>
+In-Reply-To: <A9FD1B186B99D4119BCC00D0B75B4D8104D4AA30@xch01ykf.rim.net> <Pine.LNX.4.21.0103182107460.20316-100000@schoen3.schoen.nl> <20010319123519.E5316@niksula.cs.hut.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010319073356.A16622@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Mon, Mar 19, 2001 at 07:33:56AM +0000
+In-Reply-To: <20010319123519.E5316@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Mon, Mar 19, 2001 at 12:35:19PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> > I've noticed that one of my machines here suffers from the "time going
-> > backwards problem" and so started thinking about the x86 solution.
-> > 
-> > I've come to the conclusion that it has a hole which could cause it
-> > to return the wrong time in one specific case:
-> > 
-> > - in do_gettimeofday(), we disable irqs (read_lock_irqsave)
-> > - the ISA timer wraps, but we've got interrupts disabled, so no update
-> >   of xtime or jiffies occurs
-> > - in do_slow_gettimeoffset(), we read the timer, which has wrapped
-> > - since jiffies_p != jiffies, we do not apply any correction
-> > - our idea of time is now one jiffy slow.
-> 
-> I never heard any response to this.  Could some knowledgeable person please
-> take a look at it?
+On Mon, Mar 19, 2001 at 12:35:19PM +0200, you [Ville Herva] claimed:
+> I quickly hacked up an user space memory tester, and sure enough it
+> reported an error after five
 
-do_slow_gettimeoffset() is supposed to correct for wrapping.
-But where it says:
+If anyone is interested in the said hack (some already mailed me that they
+are), I made it available at
 
-	#define BUGGY_NEPTUN_TIMER
+http://v.iki.fi/~vherva/memburn.c
 
-		if( jiffies_t == jiffies_p ) {
-		    if( count > count_p ) {
-			      /* the nutcase */
+Disclaimer: it's just a quick hack, please use memtest86 if possible.
+Memburn does have one found memory error under its belt, though ;).
 
-Shouldn't that say "count < count_p"?
 
--- Jamie
+-- v --
+
+v@iki.fi

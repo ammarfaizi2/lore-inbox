@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268181AbRG3CWA>; Sun, 29 Jul 2001 22:22:00 -0400
+	id <S268280AbRG3Cek>; Sun, 29 Jul 2001 22:34:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268273AbRG3CVu>; Sun, 29 Jul 2001 22:21:50 -0400
-Received: from hongkong.com ([202.84.12.153]:41886 "HELO hongkong.com")
-	by vger.kernel.org with SMTP id <S268181AbRG3CVj>;
-	Sun, 29 Jul 2001 22:21:39 -0400
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+	id <S268278AbRG3Cea>; Sun, 29 Jul 2001 22:34:30 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:64825 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S268280AbRG3CeU>; Sun, 29 Jul 2001 22:34:20 -0400
+Message-ID: <3B64C68C.3020009@kalifornia.com>
+Date: Sun, 29 Jul 2001 19:29:32 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010722
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-ID: <j3989269898240.29692@mail1.hongkong.com>
-Date: Mon, 30 Jul 2001 10:17:59 +0800 (CST)
-From: antonpoon@hongkong.com
-To: linux-kernel@vger.kernel.org
-Subject: Upgrade device driver for kernel 2.4
-X-Priority: 3
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: "J . A . Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel archives format
+In-Reply-To: <20010730013504.A1418@werewolf.able.es> <01073002302602.01194@starship>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+Daniel Phillips wrote:
 
-I've written a Character Set LCD device driver for kernel 2.2,  now I need to use kernel 2.4, what changes do I need to make to the device driver and config files? any web pages for reference?
+>It would be nice to see an official corporate sponsor step up to the 
+>plate to provide funding for a really definitive archive site.  Two 
+>features I'd like to see:
+>
+>  - Google-quality archive search engine
+>  
+>
+Alternatively, you can use Google itself.  Can somebody who's used the 
+free SiteSearch let us know how often your site gets indexed?
 
-I wish to be personally CC'ed the answers/comments posted to the list in response to my posting. Thank you.
+http://www.google.com/services/free.html
 
-Best Regards,
-Anton
+-b
 
-----------------------------------------------
- 歡迎使用HongKong.com郵件系統
- Thank you for using hongkong.com Email system
+-- 
+Please note - If you do not have the same beliefs as we do, you are
+going to burn in Hell forever.
+
+
 

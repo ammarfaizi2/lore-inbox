@@ -1,68 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264392AbUBHXbS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 18:31:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264410AbUBHXbS
+	id S264410AbUBHXtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 18:49:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbUBHXtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 18:31:18 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:37860 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264392AbUBHXbM (ORCPT
+	Sun, 8 Feb 2004 18:49:16 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:59132 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S264410AbUBHXtO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 18:31:12 -0500
-Date: Mon, 9 Feb 2004 00:30:52 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Bernd Schubert <Bernd.Schubert@tc.pci.uni-heidelberg.de>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: psmouse.c, throwing 3 bytes away
-Message-ID: <20040208233052.GA17570@ucw.cz>
-References: <20040208215935.GA13280@ucw.cz> <20040208221933.92D0B3F1B@latitude.mynet.no-ip.org> <20040208230314.GA21937@fubini.pci.uni-heidelberg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Feb 2004 18:49:14 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Hefty, Sean" <sean.hefty@intel.com>
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Mon, 9 Feb 2004 00:43:57 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, infiniband-general@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20040208230314.GA21937@fubini.pci.uni-heidelberg.de>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200402090044.14247.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 09, 2004 at 12:03:14AM +0100, Bernd Schubert wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sun, Feb 08, 2004 at 11:19:32PM +0100, aeriksson@fastmail.fm wrote:
-> > 
-> > > 
-> > > > Problem still occurs :-(
-> > > 
-> > > I have good news - I've managed to reliably reproduce the bug on my
-> > > machine and that means I now have a good chance to find and fix it.
-> > > 
-> > 
-> > Another data point. I just tried switching to a non-preempt kernel as
-> > was suggested by someone. The problem still occurs.
+On Fri, 6 Feb 2004, Hefty, Sean wrote:
 
-> Hello,
-> 
-> on IBM Thinkpads R31 this is also easiliy to reproduce:
-> 
-> For 2.6. one only needs to read from /proc/apm or /proc/acpic/...
-> and the mouse becomes crazy and one gets the throwing 2 bytes away
-> messages in the log files. By fast reading in an endless loop even
-> input from the keyboard is ignored.
-> 
-> For 2.4. this only happens on reading from /proc/apm, somehow acpi is not
-> affected in 2.4. kernel versions.
-> 
-> Well, for R31's it is said that it is the bad bios, but maybe its
-> related? Any ideas why it doesn't happen with acpi and 2.4.? 
+> We want to continue to discuss specific details about what's needed to
+> add the code into the kernel.  Here's a list of modifications that I
+> think are needed so far:
+>
+> * Update the code to make direct calls for atomic operations.
+> * Verify the use of spinlock calls.
+> * Reformat the code for tab spacing and curly brace usage.
+> * Elimination of typedefs.
 
-There are many reasons why it can happen. I'm currently debugging the
-one where no APM or ACPI or anything else is needed.
+Some more hints:
+* Understand how to use ioctls: Your current code can't possibly
+  work in 32 bit emulation mode, e.g. when running i386 libs on ia64.
+  You are also completely ignoring the ioctl 'command' argument.
+* Try to reduce the number of necessary ioctls: 90 different commands
+  for a single device is just overkill.
+* Don't try to hide system calls behind a character device (/dev/cl_dev).
+  Someone will find it sooner or later.
+* Don't reimplement devfs (poorly), what your are trying to achieve is
+  far easier done with a misc device and udev. call_user_mode_helper
+  should only be used for running hotplug.
+* Get rid of IN and OUT in declarations. If a pointer is const, it's an
+  input.
+* Declare functions static when they are only used in the file they are
+  defined in. Put extern declarations into headers.
+* put EXPORT_SYMBOL statements right next to the symbol, not in a seperate
+  file.
+* Information about drivers/devices should go to sysfs instead of procfs.
+* Don't use vmalloc. 
+* aside from spinlocks and atomics, there are some more files in complib
+  that can easily be removed by using linux primitives directly (e.g.
+  kmalloc, list_head, semaphore, work_queue)
+* Use C99 named struct initializers instead of their deprecated gcc 
+  counterparts.
 
-> My knowlege of the kernel interals is quite low and pretty much limited
-> to the basic vfs area, so could you please give me some good advises how to
-> debug this?
+> And, yes, knowing some of these issues up front will save the trouble of
+> submitting code that will be immediately rejected.
 
-You can enable DEBUG in i8042.c, and then look at 'dmesg' when the
-problem happens. There will be a missing byte in the stream ...
+Right, but that should not stop you from providing a BK tree or a diff
+file that lets you build ibal in a linux tree. As a starting point, just
+drop all of ibal and complib into some tree so people can look at it
+without having to figure out how you are building stuff.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+	Arnd <><
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAJsm/5t5GS2LDRf4RArCIAJ9JEkinmx1yeSZQGS7X6rMaDYjuZwCgl9us
++7w/ZNbFl1ZAiLaIrp/rsso=
+=repY
+-----END PGP SIGNATURE-----
+

@@ -1,37 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbUC0NtU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 08:49:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbUC0NtU
+	id S261741AbUC0N5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 08:57:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbUC0N5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 08:49:20 -0500
-Received: from mail.shareable.org ([81.29.64.88]:18578 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261717AbUC0NtT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 08:49:19 -0500
-Date: Sat, 27 Mar 2004 13:49:02 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 15/22] /dev/random: kill unrolled SHA code
-Message-ID: <20040327134902.GC21884@mail.shareable.org>
-References: <16.524465763@selenic.com> <40638AB1.7080201@pobox.com> <20040326035905.GE8366@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040326035905.GE8366@waste.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 27 Mar 2004 08:57:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4750 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261741AbUC0N5Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 08:57:24 -0500
+Date: Sat, 27 Mar 2004 05:57:22 -0800
+From: John Cherry <cherry@osdl.org>
+Message-Id: <200403271357.i2RDvMwb020844@cherrypit.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: IA32 (2.6.5-rc2 - 2004-03-26.22.30) - 1 New warnings (gcc 3.2.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
-> > So we go from "fast" to "I hope it gets faster in the future"?
-> 
-> No, we go from "moderately fast and dead code duplicated in /crypto"
-> to "same speed and one step closer to merging with /crypto". This bit
-> can be dropped for now, I've got the other bits deeper in my queue.
-
-I suggest applying this patch.  All it does is delete unused code.
-
--- Jamie
+drivers/acpi/events/evmisc.c:143: warning: too many arguments for format

@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265997AbSKFI3w>; Wed, 6 Nov 2002 03:29:52 -0500
+	id <S265559AbSKFIV5>; Wed, 6 Nov 2002 03:21:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265999AbSKFI3w>; Wed, 6 Nov 2002 03:29:52 -0500
-Received: from modemcable074.85-202-24.mtl.mc.videotron.ca ([24.202.85.74]:46598
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S265997AbSKFI3u>; Wed, 6 Nov 2002 03:29:50 -0500
-Date: Wed, 6 Nov 2002 03:37:03 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Philippe Elie <phil.el@wanadoo.fr>
-cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.45 odd deref in serial_in
-In-Reply-To: <3DC88B21.3030202@wanadoo.fr>
-Message-ID: <Pine.LNX.4.44.0211060330490.27141-100000@montezuma.mastecende.com>
+	id <S265996AbSKFIV4>; Wed, 6 Nov 2002 03:21:56 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:16787 "EHLO
+	mail.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S265559AbSKFIVz>; Wed, 6 Nov 2002 03:21:55 -0500
+Date: Wed, 6 Nov 2002 08:28:30 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+X-X-Sender: mb@jester.mews
+To: Keith Owens <kaos@ocs.com.au>
+cc: Andrew Morton <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20-rc1 dirty ext2 mount error 
+In-Reply-To: <21861.1036564011@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.44.0211060823290.1535-100000@jester.mews>
+X-URL: http://www.theBachChoir.org.uk/
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Auth-User: mb
+X-uvscan-result: clean (189LY6-0004qW-00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Nov 2002, Philippe Elie wrote:
+At 17:26 +1100 Keith Owens wrote:
 
->  > [<c023d9d8>] serial8250_console_write+0x68/0x1f0
->  > [<c0121459>] __call_console_drivers+0x49/0x50
->  > [<c0121541>] call_console_drivers+0x71/0x100
->  > [<c012196d>] release_console_sem+0xbd/0x170
->  > [<c01217cc>] printk+0x18c/0x220
->  > [<c01170d5>] nmi_add_task+0xc5/0xe0
->  > [<c01177e0>] nmi_watchdog_tick+0x0/0x120
-> 
-> the oops occur during a NMI so I wonder how a NMI
-> can occur and clobber ebx
+>>> The root partition was originally ext3.  fstab now contains
+>>> 
+>>> /dev/sda1               /                       ext2    defaults        1 1
+>>> 
+>>> Booting 2.4.20-rc1 (ext3 as a module, not loaded yet) with a dirty / gets
+>>> 
+>>> EXT2-fs: sd(8,1): couldn't mount because of unsupported optional features (4).
+>>> Drop back to 2.4.18 and it works, automatically running fsck.ext2 -a /dev/sda1.
 
-Actually it didn't occur during the NMI, it just appears to be that way 
-(ie don't consider the nmi_watchdog_tick ;) nmi_add_task is a registration 
-function and is called from normal kernel context.
+>Come up on 2.4.18-14 from RH.  It detects ext3 and cleans the journal,
+>even though fstab says ext2.  Then ext2 does fsck.ext2 -a /dev/sda1.  I
+>guess the question is why ext3 is being used when fstab says ext2?
 
-	Zwane
--- 
-function.linuxpower.ca
+My guess answer is that /etc/fstab lives on / and can't be read till it's 
+mounted. 2.4.18-14 has the ext3 modules loaded from initrd so the kernel 
+can have 2 guesses at how to mount /
+
+>Especially when that stuffs up booting into other kernels that do not
+>have ext3 support at all.
+
+Maybe you need to tune2fs -O ^has_journal /dev/sda1, or build an initrd 
+which doesn't load the ext3 modules.
+
+Matt
 

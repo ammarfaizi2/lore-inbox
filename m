@@ -1,72 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbUKCTvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbUKCTwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbUKCTvN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUKCTkI
+	id S261824AbUKCTwd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUKCTv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:40:08 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:44669 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261835AbUKCTiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:38:08 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2)
-Date: Wed, 3 Nov 2004 20:28:44 +0100
-User-Agent: KMail/1.7.1
-Cc: Chris Wedgwood <cw@f00f.org>, Jeff Dike <jdike@addtoit.com>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Gerd Knorr <kraxel@bytesex.org>
-References: <20041103113736.GA23041@taniwha.stupidest.org> <1099482457.16445.1.camel@imp.csi.cam.ac.uk> <20041103120829.GA23182@taniwha.stupidest.org>
-In-Reply-To: <20041103120829.GA23182@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411032028.44376.blaisorblade_spam@yahoo.it>
+	Wed, 3 Nov 2004 14:51:58 -0500
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:19342
+	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
+	id S261824AbUKCTkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 14:40:46 -0500
+Subject: [patch 1/1] ptrace POKEUSR: add comment about the DR7 check.
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it,
+       roland@redhat.com, ak@suse.de
+From: blaisorblade_spam@yahoo.it
+Date: Wed, 03 Nov 2004 20:02:26 +0100
+Message-Id: <20041103190226.101DF3636F@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 13:08, Chris Wedgwood wrote:
-> On Wed, Nov 03, 2004 at 11:47:38AM +0000, Anton Altaparmakov wrote:
-> > You have two %d but only one argument.  You seem to have forgotten
-> > an "old_pid, " in there.
 
-> kill(..., SIGKILL) doesn't work to kill host-OS processes created in
-> the exec path in TT mode --- for this we need PTRACE_KILL (it did work
-> in previous kernels, but not by design).  Without this process will
-> accumulate on the host-OS (although the won't be visible inside UML).
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+Cc: Roland McGrath <roland@redhat.com>, Andi Kleen <ak@suse.de>
 
-> Signed-off-by: Chris Wedgwood <cw@f00f.org>
-> ---
->
-> Index: cw-current/arch/um/kernel/tt/exec_user.c
-> ===================================================================
-> --- cw-current.orig/arch/um/kernel/tt/exec_user.c 2004-11-03
-> 02:10:18.064830204 -0800 +++
-> cw-current/arch/um/kernel/tt/exec_user.c 2004-11-03 04:05:00.435843464
-> -0800 @@ -35,7 +35,8 @@
->    tracer_panic("do_exec failed to get registers - errno = %d",
->          errno);
->
-> - kill(old_pid, SIGKILL);
-> + if (ptrace(PTRACE_KILL, old_pid, NULL, NULL))
-> +  printk("Warning: ptrace(PTRACE_KILL, %d, ...) saw %d\n", old_pid,
-> errno);
->
->   if(ptrace_setregs(new_pid, regs) < 0)
->    tracer_panic("do_exec failed to start new proc - errno = %d",
+(Please CC me on replies as I'm not subscribed).
 
-I'm going to test this. I thought that Gerd Knorr patch (which I sent cc'ing 
-LKML and most of you) already solved this (I actually modified that one, 
-replacing his SIGCONT kill()ing with a PTRACE_KILL, but I did this in the 
-places he identified). I guess that old_pid should either already be dead 
-there or going to die after a little, but I'm going to check (after I get UML 
-to run in the current snapshot...)
+Ok, the typo on last patch has been corrected (replaced "explaination" with
+"explanation").
 
-For now, please hold on this.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+The DR7 register on i386/x86_64 has a special meaning, so there is a special
+check to do. Since the code is rather difficult, I added an explaination about
+it. Also, while studying the i386 Intel Manual, I saw that x86_64, even on
+32bit emulation, allows using values which are disallowed on i386. It's almost
+obvious that what it allows is setting a 8-byte wide data watchpoint (in fact
+I double checked the AMD manuals, just in case, and this is true; I couldn't
+find a mention of this in my Intel manuals).
 
+But since the original ia32 emulation code has this comment:
+
+	/* You are not expected to understand this ... I don't neither. */
+
+I am dubious that the code in ptrace32.c is wrong: does x86_64 supports
+8byte-wide watchpoints in 32-bit emulation? I've checked the AMD manual Vol.
+2 (no. 24593), which says that to set the length to 8 bits "long mode must be
+enabled". This means, actually, that the current code is safe, notwithstanding
+the comment (which I removed).
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ vanilla-linux-2.6.9-paolo/arch/i386/kernel/ptrace.c   |   30 ++++++++++++++++++
+ vanilla-linux-2.6.9-paolo/arch/x86_64/ia32/ptrace32.c |    3 +
+ vanilla-linux-2.6.9-paolo/arch/x86_64/kernel/ptrace.c |    2 +
+ 3 files changed, 34 insertions(+), 1 deletion(-)
+
+diff -puN arch/x86_64/ia32/ptrace32.c~ptrace-POKEUSR-x86-comment-about-DR7-check arch/x86_64/ia32/ptrace32.c
+--- vanilla-linux-2.6.9/arch/x86_64/ia32/ptrace32.c~ptrace-POKEUSR-x86-comment-about-DR7-check	2004-11-03 00:20:33.000000000 +0100
++++ vanilla-linux-2.6.9-paolo/arch/x86_64/ia32/ptrace32.c	2004-11-03 19:49:10.429500408 +0100
+@@ -109,7 +109,8 @@ static int putreg32(struct task_struct *
+ 
+ 	case offsetof(struct user32, u_debugreg[7]):
+ 		val &= ~DR_CONTROL_RESERVED;
+-		/* You are not expected to understand this ... I don't neither. */
++		/* See arch/i386/kernel/ptrace.c for an explanation of
++		 * this awkward check.*/
+ 		for(i=0; i<4; i++)
+ 			if ((0x5454 >> ((val >> (16 + 4*i)) & 0xf)) & 1)
+ 			       return -EIO;
+diff -puN arch/i386/kernel/ptrace.c~ptrace-POKEUSR-x86-comment-about-DR7-check arch/i386/kernel/ptrace.c
+--- vanilla-linux-2.6.9/arch/i386/kernel/ptrace.c~ptrace-POKEUSR-x86-comment-about-DR7-check	2004-11-03 00:20:33.000000000 +0100
++++ vanilla-linux-2.6.9-paolo/arch/i386/kernel/ptrace.c	2004-11-03 00:20:33.000000000 +0100
+@@ -345,6 +345,36 @@ asmlinkage int sys_ptrace(long request, 
+ 			  if(addr < (long) &dummy->u_debugreg[4] &&
+ 			     ((unsigned long) data) >= TASK_SIZE-3) break;
+ 			  
++			  /* Sanity-check data. Take one half-byte at once with
++			   * check = (val >> (16 + 4*i)) & 0xf. It contains the
++			   * R/Wi and LENi bits; bits 0 and 1 are R/Wi, and bits
++			   * 2 and 3 are LENi. Given a list of invalid values,
++			   * we do mask |= 1 << invalid_value, so that
++			   * (mask >> check) & 1 is a correct test for invalid
++			   * values.
++			   *
++			   * R/Wi contains the type of the breakpoint /
++			   * watchpoint, LENi contains the length of the watched
++			   * data in the watchpoint case.
++			   *
++			   * The invalid values are:
++			   * - LENi == 0x10 (undefined), so mask |= 0x0f00.
++			   * - R/Wi == 0x10 (break on I/O reads or writes), so
++			   *   mask |= 0x4444.
++			   * - R/Wi == 0x00 && LENi != 0x00, so we have mask |=
++			   *   0x1110.
++			   *
++			   * Finally, mask = 0x0f00 | 0x4444 | 0x1110 == 0x5f54.
++			   *
++			   * See the Intel Manual "System Programming Guide",
++			   * 15.2.4
++			   *
++			   * Note that LENi == 0x10 is defined on x86_64 in long
++			   * mode (i.e. even for 32-bit userspace software, but
++			   * 64-bit kernel), so the x86_64 mask value is 0x5454.
++			   * See the AMD manual no. 24593 (AMD64 System
++			   * Programming)*/
++
+ 			  if(addr == (long) &dummy->u_debugreg[7]) {
+ 				  data &= ~DR_CONTROL_RESERVED;
+ 				  for(i=0; i<4; i++)
+diff -puN arch/x86_64/kernel/ptrace.c~ptrace-POKEUSR-x86-comment-about-DR7-check arch/x86_64/kernel/ptrace.c
+--- vanilla-linux-2.6.9/arch/x86_64/kernel/ptrace.c~ptrace-POKEUSR-x86-comment-about-DR7-check	2004-11-03 00:20:33.000000000 +0100
++++ vanilla-linux-2.6.9-paolo/arch/x86_64/kernel/ptrace.c	2004-11-03 19:49:25.985135592 +0100
+@@ -323,6 +323,8 @@ asmlinkage long sys_ptrace(long request,
+ 			ret = 0;
+ 			break;
+ 		case offsetof(struct user, u_debugreg[7]):
++			/* See arch/i386/kernel/ptrace.c for an explanation of
++			 * this awkward check.*/
+ 				  data &= ~DR_CONTROL_RESERVED;
+ 				  for(i=0; i<4; i++)
+ 					  if ((0x5454 >> ((data >> (16 + 4*i)) & 0xf)) & 1)
+_

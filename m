@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280937AbRKCKo3>; Sat, 3 Nov 2001 05:44:29 -0500
+	id <S280938AbRKCKzV>; Sat, 3 Nov 2001 05:55:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280938AbRKCKoK>; Sat, 3 Nov 2001 05:44:10 -0500
-Received: from wiproecmx2.wipro.com ([164.164.31.6]:42476 "EHLO
+	id <S280939AbRKCKzM>; Sat, 3 Nov 2001 05:55:12 -0500
+Received: from wiproecmx2.wipro.com ([164.164.31.6]:46574 "EHLO
 	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
-	id <S280937AbRKCKnu>; Sat, 3 Nov 2001 05:43:50 -0500
+	id <S280938AbRKCKzB>; Sat, 3 Nov 2001 05:55:01 -0500
 Reply-To: <sivakumar.kuppusamy@wipro.com>
 From: "Sivakumar Kuppusamy" <sivakumar.kuppusamy@wipro.com>
 To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: Locks in kernel
-Date: Fri, 2 Nov 2001 16:37:49 +0530
-Message-ID: <001701c1638e$9bd332e0$5f08720a@wipro.com>
+Subject: VM: Killing process
+Date: Fri, 2 Nov 2001 16:49:01 +0530
+Message-ID: <001901c16390$2c815b40$5f08720a@wipro.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
 	boundary="------------InterScan_NT_MIME_Boundary"
@@ -32,29 +32,34 @@ Content-Type: text/plain;
 Content-Transfer-Encoding: 7bit
 
 Hi All,
-I am having doubts in locking mechanism in Linux 2.2 kernel code. 
+We are getting the message "VM: Killing process pimd" when we are
+running our application pimd. Found from somewhere that this a OOM
+situation. We used a memory leak finding tool "ccmalloc" and found
+that our applicaition is not leaking any memory. 
 
-We have done modifications in the Linux kernel code to support our
-application which runs at the user space. The modification done in 
-the Linux kernel is to maintain a table of data(like a routing table),
-which will be updated by the applicaition with appropriate data. This
-data will be used by the kernel for other processing. 
+Info abt pimd:
+Our application is interacting with the kernel, which(kernel) will 
+give the packets it received from the network to the "pimd"
+through a socket(for taking some decisions). This happens only when 
+the packets arrive at a high data rate(say 100MBPS in ethernet LAN).
+We found that during this happens, the kernel is giving each packet
+(multicast) it receives to the application and the application is 
+dropping it. 
 
-We are using "up" & "down" functions for locking global data in the kernel.
-Our code in kernel will get called when a IP packet is received. During
-that time we are trying to lock that global data and retrieve some
-info from that. Is this a correct way to do. We are also locking 
-the global data when it gets updated from the application. Since 
-ip_rcv() gets called from bottom_half(), can we do any locking
-stuff there? We faced kernel panicking when the application locked
-the global data and got scheduled to continue later(with lock held). 
-That time ip_rcv() got called and we are trying to acquire the lock
-which is held by the scheduled process. This made the kernel panic.
+After sometime we get a message "VM:killing process pimd" and pimd
+gets killed. Or we get message for every packet saying copy_to_user()
+failed. 
 
-How should we approach this problem? Shouldn't we use any locking in
-the code which is called by the bottom_half()? 
+Is this a 
+- memory leakage problem with our application or
+- Memory leakage with the kernel patches we made or
+- due to packets coming at the very high rate and each packet 
+  is sent to user thru a socket which eventually might get full.
 
-Thanks in advance for your replies,
+Any idea on how to handle(avoid) this? Are we not supposed to send
+packets at this high rate to the user space? 
+
+Thanks in advance
 Siva
 
 --------------InterScan_NT_MIME_Boundary

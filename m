@@ -1,41 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263046AbTHaWwI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263042AbTHaWv3
+	id S263032AbTHaWsc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbTHaWsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:51:29 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:62916 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263033AbTHaWtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:49:23 -0400
-Subject: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Herbert Poetzl <herbert@13thfloor.at>
-Cc: "Zach, Yoav" <yoav.zach@intel.com>, akpm@osdl.org, torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030831221230.GA9725@DUK2.13thfloor.at>
-References: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
-	 <20030831221230.GA9725@DUK2.13thfloor.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062370098.12058.5.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Sun, 31 Aug 2003 23:48:19 +0100
+	Sun, 31 Aug 2003 18:48:32 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47290 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263032AbTHaWsZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 18:48:25 -0400
+Date: Sun, 31 Aug 2003 15:48:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       <linux-kernel@vger.kernel.org>, <jun.nakajima@intel.com>
+Subject: Re: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take
+ 2
+In-Reply-To: <20030831222414.GA29923@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0308311541520.28947-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-08-31 at 23:12, Herbert Poetzl wrote:
-> what non-readable files need to be interpreted/executed?
-> why is this case relevant?
-> why not simply make it user-land readable?
 
-If you are running binaries for another architecture via software
-emulation (for example qemu running x86 binaries on your S/390 
-transparently) then you want exec only binaries to work with an
-otherwise trusted interpreter [Getting the interpreter trust stuff
-right is really hard btw - so ironically it probably has to be setuid
-anyway so you can't steal the handle]
+On Sun, 31 Aug 2003, Erik Andersen wrote:
+>
+> Been there done that, got the scars to prove it.  do_div() is a
+> macro that acts sortof like the ISO C99 lldiv(3) function.
 
+No.
+
+You missed a very important part of do_div() - it has _totally_ different 
+numerical range than a regular /, % or lldiv() call.
+
+All of /, % and lldiv() work on 64-bit numbers. do_div() DOES NOT!
+
+do_div() very much is all about:
+
+	***   32-bit divisor  ***
+
+which also implies that the remainder is 32-bit.
+
+And the fact is, such a division is a lot faster than a full 64-bit 
+division. On a _lot_ of architectures, but notably so on x86.
+
+It is _not_ a 64-bit divide, and that's not only important, it's the 
+whole _reason_d'etre_ for the whole function. See?
+
+So by continually confusing it with a 64-bit divide (either by confusing 
+it with lldiv() or those horrible gcc internal __{div|mod}di3u things), 
+you miss the whole point of the function.
+
+		Linus
+ 
 

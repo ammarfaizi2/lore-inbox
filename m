@@ -1,48 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286207AbRL0ELX>; Wed, 26 Dec 2001 23:11:23 -0500
+	id <S286217AbRL0E1P>; Wed, 26 Dec 2001 23:27:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286210AbRL0ELN>; Wed, 26 Dec 2001 23:11:13 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:47374 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286207AbRL0ELE>;
-	Wed, 26 Dec 2001 23:11:04 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [RFC] Remove section .text.lock
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 27 Dec 2001 15:10:50 +1100
-Message-ID: <11665.1009426250@ocs3.intra.ocs.com.au>
+	id <S286214AbRL0E1E>; Wed, 26 Dec 2001 23:27:04 -0500
+Received: from mailout3-eri1.midsouth.rr.com ([24.165.200.8]:49831 "EHLO
+	mailout3-eri1.midsouth.rr.com") by vger.kernel.org with ESMTP
+	id <S286210AbRL0E07>; Wed, 26 Dec 2001 23:26:59 -0500
+From: "Stephen M. Williams" <mrsteve@midsouth.rr.com>
+To: "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: Vacation
+Date: Wed, 26 Dec 2001 22:26:51 -0600
+Message-ID: <000d01c18e8e$b525ad10$6401a8c0@swilliam>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <3C2A68AE.6030902@vitalstream.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I plan to stop using section .text.lock for out of line code.  Using a
-special section for out of line code can generate dangling refernces to
-discarded sections, the dangling references are flagged as an error by
-binutils 2.11.92.0.12 onwards.  See the l-k discussion in thread
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100909932003300&w=2
+LOL, no doubt.  Have a good, well deserved vacation Marcelo.
 
-After the above discussion there is general agreement (well, nobody
-disagreed) that .text.lock can be replaced with .subsection 1.  It
-still gives out of line code but without the dangling reference problem
-because all references are within the same section.  It can even
-generate better code, intra section branches can be smaller than inter
-section branches.
+Sincerely,
+	A lurker of the list that doesn't know how to program and is amazed and the
+mind power here.
 
-I am going through 2.4.18-pre1 looking at all references to .text.lock
-and converting them, removing vmlinux.lds entries and dead comments at
-the same time.  Most of the changes are obvious, only i386, ia64, m68k
-and arm are really using .text.lock, the rest are copy and paste lines
-in vmlinux.lds and are already redundant.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Rick Stevens
+Sent: Wednesday, December 26, 2001 6:18 PM
+To: lkml
+Subject: Re: Vacation
 
-ARM is a problem.  It does not use .text.lock for spinlocks (UP only),
-instead it uses .text.lock for __do_softirq, __down_failed and friends.
-AFAICT this is completely pointless, these routines only occur once so
-they are already out of line.  .text.lock should be used for the code
-that calls these functions and only on the fail path, I see no point in
-putting the functions themselves in .text.lock.  Can somebody explain
-why these arm functions are in section .text.lock instead of normal
-.text?
+
+Steve Bergman wrote:
+
+> On Wed, 2001-12-26 at 15:20, Marcelo Tosatti wrote:
+>
+>
+>>I'm going out on vacation (beach, weee) tomorrow (Thursday), and I'll
+>>return around Jan 4.
+>>
+>>Unfortunately there will be no Internet connection at the place I'll stay,
+sorry.
+>>
+>>
+>
+> Hmmm.  I guess someone should email MS informing them that the stable
+> Linux kernel is currently unmaintained.  That way they can add it to
+> their "Dispelling the Linux Hype" web page.
+>
+> Just kidding, of course... ;-)
+>
+> Enjoy your vacation, Marcelo! :-)
+
+
+Don't give the Redmond guys ideas!  Sheesh!  For that, we will pelt you
+with an entire set of Windows for Workgroups floppies!  Ouch!
+
+----------------------------------------------------------------------
+- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
+- 949-743-2010 (Voice)                    http://www.vitalstream.com -
+-                                                                    -
+-                  Heisenberg _may_ have slept here                  -
+----------------------------------------------------------------------
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbUK2PmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbUK2Pm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbUK2PmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 10:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUK2PmJ
+	id S261742AbUK2Pm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 10:42:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUK2Pm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 10:42:09 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:17037 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261737AbUK2PlY (ORCPT
+	Mon, 29 Nov 2004 10:42:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:42403 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261736AbUK2Pkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 10:41:24 -0500
-Date: Mon, 29 Nov 2004 23:40:41 +0800
-From: hugang@soulinfo.com
-To: akpm@digeo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: ppcfix.diff
-Message-ID: <20041129154041.GB4616@hugang.soulinfo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Mon, 29 Nov 2004 10:40:42 -0500
+Date: Mon, 29 Nov 2004 10:39:32 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: davem@davemloft.net, Jean-Luc Cooke <jlcooke@certainkey.com>,
+       Andrew McDonald <andrew@mcdonald.org.uk>,
+       Kyle McMartin <kyle@debian.org>, Jean-Francois Dive <jef@linuxbe.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] cry[to/ : make some code static
+In-Reply-To: <20041129031636.GS4390@stusta.de>
+Message-ID: <Xine.LNX.4.44.0411291039130.6506-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew Morton:
+On Mon, 29 Nov 2004, Adrian Bunk wrote:
 
-Please apply this patch, to fix compile error in debian woody.
-$gcc -v
-Reading specs from /usr/lib/gcc-lib/powerpc-linux/2.95.4/specs
-gcc version 2.95.4 20011002 (Debian prerelease)
+> The patch below makes some needlessly global code static.
 
---- 2.6.9-lzf/arch/ppc/syslib/open_pic.c	2004-11-26 12:32:58.000000000 +0800
-+++ 2.6.9/arch/ppc/syslib/open_pic.c	2004-11-28 23:16:58.000000000 +0800
-@@ -776,7 +776,8 @@ static void openpic_mapirq(u_int irq, cp
- 	if (ISR[irq] == 0)
- 		return;
- 	if (!cpus_empty(keepmask)) {
--		cpumask_t irqdest = { .bits[0] = openpic_read(&ISR[irq]->Destination) };
-+		cpumask_t irqdest;
-+		irqdest.bits[0] = openpic_read(&ISR[irq]->Destination);
- 		cpus_and(irqdest, irqdest, keepmask);
- 		cpus_or(physmask, physmask, irqdest);
- 	}
+Looks fine to me.
+
+
+- James
 -- 
---
-Hu Gang / Steve
-Linux Registered User 204016
-GPG Public Key: http://soulinfo.com/~hugang/hugang.asc
+James Morris
+<jmorris@redhat.com>
+
+

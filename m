@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266292AbSKOOZz>; Fri, 15 Nov 2002 09:25:55 -0500
+	id <S266298AbSKOOfg>; Fri, 15 Nov 2002 09:35:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbSKOOZy>; Fri, 15 Nov 2002 09:25:54 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:6830 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266292AbSKOOZy>; Fri, 15 Nov 2002 09:25:54 -0500
-Subject: Re: [lkcd-general] Re: [lkcd-devel] Re: What's left over.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andy Pfiffer <andyp@osdl.org>,
-       Mike Galbraith <efault@gmx.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-devel@lists.sourceforge.net, lkcd-general@lists.sourceforge.net,
-       lkcd-general-admin@lists.sourceforge.net, mjbligh@us.ibm.com,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, suparna@linux.ibm.com,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Werner Almesberger <wa@almesberger.net>,
-       "Matt D. Robinson" <yakker@aparity.com>
-In-Reply-To: <OF942537A3.58B16398-ON80256C72.0034E435@portsmouth.uk.ibm.com>
-References: <OF942537A3.58B16398-ON80256C72.0034E435@portsmouth.uk.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 15 Nov 2002 14:57:26 +0000
-Message-Id: <1037372246.20050.13.camel@irongate.swansea.linux.org.uk>
+	id <S266307AbSKOOfg>; Fri, 15 Nov 2002 09:35:36 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16059 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S266298AbSKOOff>;
+	Fri, 15 Nov 2002 09:35:35 -0500
+Date: Fri, 15 Nov 2002 14:40:20 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: David Crooke <dave@convio.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Dual athlon XP 1800 problems
+Message-ID: <20021115144020.GA13039@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, David Crooke <dave@convio.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3DD4CD06.2010009@convio.com> <1037372088.19971.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037372088.19971.11.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-11-15 at 09:38, Richard J Moore wrote:
-> 
-> 
-> > It would take a special hook that ran after the notifiers, and
-> > device_shutdown.  At least in the normal case running what shutdown
-> > code we can is fairly important.  And hooking the notifier lists
-> > would not give a guarantee of going last.
-> 
-> Kernel Hooks would help here - that has a priority mechanism.
+On Fri, Nov 15, 2002 at 02:54:48PM +0000, Alan Cox wrote:
+ > Make sure you have a current BIOS on dual athlon boxes, the earlier
+ > bioses were not terribly good on the whole. Make sure you have a PS/2
+ > mouse in the mouse port even if you aren;t going to use it
 
-I'd rather have a set of clearly defined notifiers so that I don't have
-to know about priority, just when I want to act
+Unless he's lucky with steppings, it's also possible he's being
+bitten by running XP's instead of MPs.
 
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

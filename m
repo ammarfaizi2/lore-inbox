@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270778AbTGNT6z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 15:58:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270758AbTGNT4w
+	id S270770AbTGNUAe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:00:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270755AbTGNUAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 15:56:52 -0400
-Received: from dsl3-63-249-88-76.cruzio.com ([63.249.88.76]:61057 "EHLO
-	athlon.cichlid.com") by vger.kernel.org with ESMTP id S270755AbTGNT4O
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 15:56:14 -0400
-Date: Mon, 14 Jul 2003 13:11:00 -0700
-From: Andrew Burgess <aab@cichlid.com>
-Message-Id: <200307142011.h6EKB0o29221@athlon.cichlid.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /proc/sys/fs/file-max broken in 2.4.22-pre5
+	Mon, 14 Jul 2003 16:00:20 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:51939 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S270770AbTGNT4x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 15:56:53 -0400
+Date: Mon, 14 Jul 2003 22:10:56 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Nigel Cunningham <ncunningham@clear.net.nz>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Thoughts wanted on merging Software Suspend enhancements
+Message-ID: <20030714201056.GB24964@ucw.cz>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030713193114.GD570@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030713193114.GD570@elf.ucw.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy wrote:
+On Sun, Jul 13, 2003 at 09:31:14PM +0200, Pavel Machek wrote:
 
->On Sun, Jul 13, 2003 at 03:31:54PM -0700, Andrew Burgess wrote:
+> Hi!
 > 
->> root@athlon:/root # echo 60000 > /proc/sys/fs/file-max
->> root@athlon:/root # cc file-max.c 
->> root@athlon:/root # a.out
->> Too many open files
->> opened 1021 files
->> root@athlon:/root # uname -a
->> Linux athlon 2.4.22-pre5 #2 SMP Sun Jul 13 12:38:04 PDT 2003 i686 unknown
->
->ulimit -n ?
+> > > And no escape. Doing something from keyboard is *ugly*. Magic sysrq is
+> > > ugly, too, but its usefull enough to outweight that.
+> > 
+> > Can't you just use the Suspend button? :)
+> 
+> At least that's less ugly than Escape. If it is the same button that
+> would wake machine up when it finished suspend... I guess that makes
+> sense.
 
-It works without ulimit on earlier kernels but sure enough this
-fixed it on 22-pre5. Thank you!
+How about making it to be any key?
 
-I assume ignoring ulimit was a bug that is now fixed?
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318355AbSGYHEa>; Thu, 25 Jul 2002 03:04:30 -0400
+	id <S318357AbSGYHHs>; Thu, 25 Jul 2002 03:07:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318357AbSGYHEa>; Thu, 25 Jul 2002 03:04:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12809 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318355AbSGYHE3>; Thu, 25 Jul 2002 03:04:29 -0400
-Message-ID: <3D3FA3B2.9090200@zytor.com>
-Date: Thu, 25 Jul 2002 00:07:30 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en-us, en, sv
+	id <S318359AbSGYHHs>; Thu, 25 Jul 2002 03:07:48 -0400
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:516
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S318357AbSGYHHs> convert rfc822-to-8bit; Thu, 25 Jul 2002 03:07:48 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: Checksum problem: 2.4.19-pre3 w/ 3COM Card + Wrong card model
+Date: Thu, 25 Jul 2002 03:12:04 -0400
+User-Agent: KMail/1.4.5
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@clusterfs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Header files and the kernel ABI
-References: <aho5ql$9ja$1@cesium.transmeta.com> <20020725065109.GO574@clusterfs.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200207250312.04347.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
-> 
-> I had thought on this briefly in the past, and my take would be for these
-> ABI definition files to live directly in /usr/include/linux for user space
-> (just as glibc puts its own sanitized copy of the kernel headers there)
-> and the appropriate ABI headers are included as needed from the kernel.
-> 
+The error below comes from enabling ERPOM boot on the network card. When this 
+is disabled the Checksum error goes away.
 
-Given no legacy, I would agree with this, but I think it would imply bad 
-legacy both on the kernel and the libc (it's not just glibc, either) side.
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+02:05.0: 3Com PCI 3c982 Dual Port Server Cyclone at 0xa400. Vers LK1.1.16
+ ***INVALID CHECKSUM 002f*** <6>Linux agpgart interface v0.99 (c) Jeff 
+Hartmann
 
-> The kernel side would be something like <linux/scsi.h> includes
-> <linux/abi/scsi.h> or whatever, but in the future this can be included
-> directly as needed throughout the kernel.  The existing kernel
-> <linux/*.h> headers would also have extra kernel-specific data in them.
-> 
-> The same could be done with the user-space headers, but I think that
-> is missing the point that the linux/abi/*.h headers should define _all_
-> of the abi, so we may as well just use that directly.
+This model is the wrong detected card. 
 
-Except now the paths are gratuitously different between kernel 
-programming and non-kernel programming, and we create a much harder 
-migration problem.  I'd rather leave the linux/* namespace to the 
-user-space libc to do whatever backwards compatibility cruft they may 
-consider necessary, for example, <linux/io.h> might #include <sys/io.h> 
-since some user space apps bogusly included the former name.  Leaving 
-that namespace available for backwards compatibility hacks avoids those 
-kinds of problems.
+It should be the 3C980C-TXM 10/100
 
-> Essentially "all" this would mean is that we take the existing headers,
-> remove everything which is inside #ifdef __KERNEL__ (and all of the
-> other kernel-specific non-abi headers that are included) and we are
-> done.  The kernel header now holds only things that were inside the
-> #ifdef __KERNEL__ (or should have been), and #include <linux/abi/foo.h>.
-
-Exactly.
-
-	-hpa
-
-
+Shawn.

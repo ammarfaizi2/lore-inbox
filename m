@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbUDOWDu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 18:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUDOWDu
+	id S262547AbUDOWIt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 18:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262920AbUDOWIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 18:03:50 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:25838 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262235AbUDOWDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 18:03:48 -0400
-Message-ID: <407F06BD.3010905@nortelnetworks.com>
-Date: Thu, 15 Apr 2004 18:03:41 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Fabian Frederick <Fabian.Frederick@skynet.be>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: NFS proc entry
-References: <1082060754.9112.2.camel@bluerhyme.real3> <1082065633.7141.52.camel@lade.trondhjem.org>
-In-Reply-To: <1082065633.7141.52.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 15 Apr 2004 18:08:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38623 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262547AbUDOWIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 18:08:47 -0400
+Date: Thu, 15 Apr 2004 15:10:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: maneesh@in.ibm.com, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
+Message-Id: <20040415151059.1136058e.akpm@osdl.org>
+In-Reply-To: <20040415213600.GD13578@kroah.com>
+References: <20040402043814.GA6993@in.ibm.com>
+	<Pine.LNX.4.44L0.0404021629210.889-100000@ida.rowland.org>
+	<20040406101320.GB1270@in.ibm.com>
+	<20040414132015.GD5422@in.ibm.com>
+	<20040415213600.GD13578@kroah.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> På to , 15/04/2004 klokka 13:25, skreiv Fabian Frederick:
+Greg KH <greg@kroah.com> wrote:
+>
+> This patch looks sane, Andrew, can you let it sit in your -mm tree for a
+> while to see if anything breaks with it?
 
->>	Do we have some /proc entry for realtime NFS access point report /
->>client like showmount does with RPC ?
+It needs work to make it live alongside ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm6/broken-out/sysfs-d_fsdata-race-fix-2.patch
 
-> Exactly what possible justification would there be for putting something
-> like that into the kernel?
-
-I agree with you that it's kind of messy to put this in the kernel.
-
-However, with the current setup filesystem monitoring deamons must fork 
-off a child for each mount, since statfs() can block for many seconds if 
-the server has gone away.
+What are we doing with sysfs-d_fsdata-race-fix-2 btw?
 
 
-Chirs

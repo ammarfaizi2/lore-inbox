@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262987AbVDBEF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVDBEFH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbVDBEF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 23:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262988AbVDBEF0
+	id S261679AbVDBEFH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 23:05:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262987AbVDBEFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 23:05:26 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:63447 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262987AbVDBEFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 23:05:18 -0500
-Date: Fri, 1 Apr 2005 20:05:10 -0800
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, mingo@elte.hu,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: [patch] sched: improve pinned task handling again!
-Message-ID: <20050401200509.C5598@unix-os.sc.intel.com>
-References: <20050401185812.A5598@unix-os.sc.intel.com> <424E0D58.1070700@yahoo.com.au>
+	Fri, 1 Apr 2005 23:05:07 -0500
+Received: from mail.kroah.org ([69.55.234.183]:56755 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261679AbVDBEFE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 23:05:04 -0500
+Date: Fri, 1 Apr 2005 20:04:49 -0800
+From: Greg KH <gregkh@suse.de>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, prarit@sgi.com
+Subject: Re: PCI: fix an oops in some pci devices on hotplug remove when their resources are being freed.
+Message-ID: <20050402040448.GA16943@kroah.com>
+References: <11123992702166@kroah.com> <11123992703458@kroah.com> <20050402011023.GG21986@parcelfarce.linux.theplanet.co.uk> <20050402033141.GA16556@kroah.com> <20050402035330.GH21986@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <424E0D58.1070700@yahoo.com.au>; from nickpiggin@yahoo.com.au on Sat, Apr 02, 2005 at 01:11:20PM +1000
+In-Reply-To: <20050402035330.GH21986@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 02, 2005 at 01:11:20PM +1000, Nick Piggin wrote:
-> How important is this? Any application to real workloads? Even if
-> not, I agree it would be nice to improve this more. I don't know
-> if I really like this approach - I guess due to what it adds to
-> fastpaths.
-
-Ken initially observed with older kernels(2.4 kernel with Ingo's sched), it was 
-happening with few hundred processes. 2.6 is not that bad and it improved
-with recent fixes. It is not very important. We want to raise the flag
-and see if we can comeup with a decent solution.
-
-We changed nr_running from "unsigned long" to "unsigned int". So on 64-bit
-architectures, our change to fastpath is not a big deal.
-
+On Sat, Apr 02, 2005 at 04:53:30AM +0100, Matthew Wilcox wrote:
 > 
-> Now presumably if the all_pinned logic is working properly in the
-> first place, and it is correctly causing balancing to back-off, you
-> could tweak that a bit to avoid livelocks? Perhaps the all_pinned
-> case should back off faster than the usual doubling of the interval,
-> and be allowed to exceed max_interval?
+> So yes, please revert this patch.  There is no way it can possibly
+> affect anything.
 
-Coming up with that number(how much to exceed) will be a big task. It depends
-on number of cpus and how fast they traverse the runqueue,...
+Agreed.  It's now reverted and is queued for Linus to pull from.
 
-thanks,
-suresh
+Thanks for reviewing this.
+
+greg k-h

@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264271AbRFOIqH>; Fri, 15 Jun 2001 04:46:07 -0400
+	id <S264272AbRFOIxr>; Fri, 15 Jun 2001 04:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264272AbRFOIpr>; Fri, 15 Jun 2001 04:45:47 -0400
-Received: from hood.tvd.be ([195.162.196.21]:44848 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S264271AbRFOIpj>;
-	Fri, 15 Jun 2001 04:45:39 -0400
-Date: Fri, 15 Jun 2001 10:42:48 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+	id <S264273AbRFOIxi>; Fri, 15 Jun 2001 04:53:38 -0400
+Received: from bzq-128-3.bezeqint.net ([212.179.127.3]:30994 "HELO arava.co.il")
+	by vger.kernel.org with SMTP id <S264272AbRFOIxX>;
+	Fri, 15 Jun 2001 04:53:23 -0400
+Date: Fri, 15 Jun 2001 11:52:28 +0300 (IDT)
+From: Matan Ziv-Av <matan@svgalib.org>
+Reply-To: Matan Ziv-Av <matan@svgalib.org>
 To: "David S. Miller" <davem@redhat.com>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Tom Gall <tom_gall@vnet.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Going beyond 256 PCI buses
-In-Reply-To: <15145.3254.105970.424506@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.05.10106151041590.32503-100000@callisto.of.borg>
+cc: James Simmons <jsimmons@transvirtual.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VGA handling was [Re: Going beyond 256 PCI buses]
+In-Reply-To: <15145.19442.773217.177804@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21_heb2.09.0106151148580.924-100000@matan.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, 14 Jun 2001, David S. Miller wrote:
-> Albert D. Cahalan writes:
->  > >>    /proc/bus/PCI/0/0/3/0/config   config space
->  > >
->  > > Which breaks xfree86 instantly.  This fix is unacceptable.
->  > 
->  > Nope. Keep /proc/bus/pci until Linux 3.14 if you like.
->  > The above is /proc/bus/PCI. That's "PCI", not "pci".
->  > We still have /proc/pci after all.
+
+> James Simmons writes:
+>  >  Actually this weekend I'm working on this for the console system. I
+>  > plan to get my TNT card and 3Dfx card both working at the same time both in
+>  > VGA text mode. If you also really want to get multiple card in vga text
+>  > mode it is going to get far more complex in a multihead besides the
+>  > problem of multiple buses.
 > 
-> Oh I see.
+> You going to have to enable/disable I/O, MEM access, and VGA pallette
+> snooping in the PCI_COMMAND register of both boards every time you go
+> from rendering text on one to rendering text on the other.If there
+> are bridges leading to either device, you may need to fiddle with VGA
+> forwarding during each switch as well.
 > 
-> Well, xfree86 and other programs aren't going to look there, so
-> something had to be done about the existing /proc/bus/pci/* hierarchy.
-> 
-> To be honest, xfree86 needs the controller information not for the
-> sake of device probing, it needs it to detect resource conflicts.
+> You'll also need a semaphore or similar to control this "active VGA"
+> state.
 
-Well, those resource conflicts shouldn't be there in the first place. They
-should be handled by the OS.
+Why do that? You ignore the vga regions of all the cards except for the
+primary, and program all other cards by accessing their PCI mapped
+regions, which are programmed not to overlap, so they are completely
+independent.
+This is what nvvgacon does for using text mode of secondary nvidia card. 
 
-Gr{oetje,eeting}s,
+-- 
+Matan Ziv-Av.                         matan@svgalib.org
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSC0Skg>; Wed, 27 Mar 2002 13:40:36 -0500
+	id <S313073AbSC0SrH>; Wed, 27 Mar 2002 13:47:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313073AbSC0Sk0>; Wed, 27 Mar 2002 13:40:26 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:920 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S313070AbSC0SkT>; Wed, 27 Mar 2002 13:40:19 -0500
-Date: Wed, 27 Mar 2002 10:40:14 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: joelja@twin.uoregon.edu
-To: Mike Dresser <mdresser_l@windsormachine.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
-In-Reply-To: <Pine.LNX.4.33.0203271334320.30692-100000@router.windsormachine.com>
-Message-ID: <Pine.LNX.4.44.0203271038020.22241-100000@twin.uoregon.edu>
+	id <S313072AbSC0Sqr>; Wed, 27 Mar 2002 13:46:47 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:60600 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S313071AbSC0Sqq>;
+	Wed, 27 Mar 2002 13:46:46 -0500
+Date: Wed, 27 Mar 2002 19:46:24 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Networking with slow CPUs
+Message-ID: <Pine.LNX.4.33.0203271944020.16178-100000@callisto.local>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Mar 2002, Mike Dresser wrote:
+Hi,
 
-> On Wed, 27 Mar 2002, Alan Cox wrote:
-> 
-> > Neither. It will drop to a much lower clock speed. You can set it to overheat
-> > and blow up but thats a mostly undocumented mtrr 8) The default behaviour is
-> 
-> Will Tom's Hardware Guide film this for us, if we ask politely? :)
+in the 2.2 series there was a switch for "CPU is too slow to handle full
+bandwidth" which has gone in 2.4. Can anybody tell me the reason for this?
 
-they've already filmed one not catching fire...
- 
-> mike
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Is there a possibility to "harden" a small machine (33 MHz embedded
+device) against e.g. flood pings from the outside world?
 
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
---    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
-The accumulation of all powers, legislative, executive, and judiciary, in 
-the same hands, whether of one, a few, or many, and whether hereditary, 
-selfappointed, or elective, may justly be pronounced the very definition of
-tyranny. - James Madison, Federalist Papers 47 -  Feb 1, 1788
-
+Robert
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
 

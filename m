@@ -1,76 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279715AbRKAUR6>; Thu, 1 Nov 2001 15:17:58 -0500
+	id <S279728AbRKAUVH>; Thu, 1 Nov 2001 15:21:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279708AbRKAURs>; Thu, 1 Nov 2001 15:17:48 -0500
-Received: from mustard.heime.net ([194.234.65.222]:29348 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S279700AbRKAURf>; Thu, 1 Nov 2001 15:17:35 -0500
-Message-Id: <200111012017.VAA02942@mustard.heime.net>
-Date: Thu, 01 Nov 2001 20:17:24 +0000
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Reply-To: roy@karlsbakk.net
-To: adilger@turbolabs.com
-Cc: reiser@namesys.com, linux-kernel@vger.kernel.org
-X-Mailer: phpGroupWare (http://www.phpgroupware.org)
-Subject: Re: writing a plugin for reiserfs compression
-MIME-version: 1.0
-Content-type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-description: Mail message body
+	id <S279725AbRKAUU6>; Thu, 1 Nov 2001 15:20:58 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:38415 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S279717AbRKAUUp>; Thu, 1 Nov 2001 15:20:45 -0500
+Date: Thu, 1 Nov 2001 18:20:04 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Derek Glidden <dglidden@illusionary.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2 and 2.4 VM systems analysed
+In-Reply-To: <3BE1A790.25B7E6F5@illusionary.com>
+Message-ID: <Pine.LNX.4.33L.0111011818490.447-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger (adilger@turbolabs.com) wrote*: 
+On Thu, 1 Nov 2001, Derek Glidden wrote:
+
+> "An analysis of three Linux kernel VM systems"
 >
->On Nov 01, 2001  18:14 +0100, Roy Sigurd Karlsbakk wrote:
->> Novell NetWare has a feature I really like. It's a file compression
->> feature they've been having since version 4.0 (or 4.10) of the OS.
->
->Yes, there is a patch for ext2 that does this as well.
+> http://www.nks.net/linux-vm.html
 
-ok...
 
-I just thought there was a patch doing windows nt-like 
-compress-em-all-realtime-and-get-doomed!
+Nice, finally somebody has taken the time to do
+some more rigourous testing ;)
 
->> New attributes must be added somehow. 'ls' and 'find' and perhaps other
->> files must be modified to take advantage of this. The compression job can
->> be a simple script with something like
->>
->>  find . -type f ! --compressed ! --dont-compress / -exec fcomp {} \;
->>
->> (and check can't compress and force compression).
+I like this document...
 
-There already exists a patch for reiserfs which uses the same interface
-to file attributes that ext2 and ext3 use.
+regards,
 
-ok? with batched compression?
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
 
->Also, ext2 already has a "compressed", "do not compress", and "dirty"
->attributes.  They are currently not all user modifyable for ext2
->filesystems via chattr/lsattr, but that doesn't mean they cannot be
->on reiserfs.
->
->> There must be a way to access the compressed files directly to make
->> backups more efficient - backing up already compressed files's a good
->> thing.
->
->Yes, there is also such an attribute for "raw" access I think.
->
->Making the user-space interface and tools as compatible as possible is
->a good thing, IMHO, just like "ls", "cp", etc all work regardless of
->the underlying filesystem.
+http://www.surriel.com/		http://distro.conectiva.com/
 
-yes, but it's kinda nice to have some way of checking a file's attributes for a 
-sysadmin...
-
->As a note to whoever at namesys created the reiserfs patch to add the
->"notail" flag (overloading the "nodump" flag).  I would much rather
->that a new "notail" flag be allocated for this.  I will contact Ted
->Ted Ts'o to get a flag assigned.  This will avoid any problems in the
->future, and may also be useful at some time for ext2.
-
-Do you think the other flags I mentioned may be useful?
-
-roy

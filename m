@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbULPDpG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbULPEBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbULPDpG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 22:45:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbULPDpG
+	id S261920AbULPEBj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 23:01:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbULPEBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 22:45:06 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:5079 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261917AbULPDpB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 22:45:01 -0500
-Message-ID: <41C0F67D.4000506@zytor.com>
-Date: Wed, 15 Dec 2004 18:44:13 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 15 Dec 2004 23:01:39 -0500
+Received: from ns.suse.de ([195.135.220.2]:10126 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261920AbULPEBi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 23:01:38 -0500
+Date: Thu, 16 Dec 2004 05:01:37 +0100
+From: Andi Kleen <ak@suse.de>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "J.A. Magallon" <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What if?
-References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>	 <1101976424l.5095l.0l@werewolf.able.es>	 <1101984361.28965.10.camel@tara.firmix.at>	 <cpkc5i$84f$1@terminus.zytor.com>  <1102972125l.7475l.0l@werewolf.able.es> <1103158646.3585.35.camel@localhost.localdomain>
-In-Reply-To: <1103158646.3585.35.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Andi Kleen <ak@suse.de>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20041216040136.GA30555@wotan.suse.de>
+References: <p73acsg1za1.fsf@bragg.suse.de> <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk> <20041215044927.GF27225@wotan.suse.de> <1103155782.3585.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103155782.3585.29.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Llu, 2004-12-13 at 21:08, J.A. Magallon wrote:
+On Thu, Dec 16, 2004 at 12:09:44AM +0000, Alan Cox wrote:
+> On Mer, 2004-12-15 at 04:49, Andi Kleen wrote:
+> > I think that's definitely the wrong way. Also in Linux 
+> > the standard strategy is to first clean up and restructure/refactor 
+> > code and then merge, not the other way round.
 > 
->>>Type-safe linkage, mainly.  That actually would be a nice thing.
->>>
->>And let the compiler do all what now is done by hand wrt driver methods,
->>inheritance, specialized methods and so on, with a 1000% increase in security
->>because compiler does not forget to do thinks, like we do ;)
-> 
-> This is not a C++ thing per se however. A future gcc could do type safe
-> linkage of C programs instead of C++.
+> Must be two different Linux OS's out there then. I thought it was
+> - get interfaces right
 
-Yes, but there is also no really big deal compiling C code with a C++ 
-compiler.  Yes, it was a disaster in 0.99.14, but that was 10 years ago.
+That is exactly the part that is wrong currently imho. The arch/xen
+interface is a mess and in its current form unlikely to be maintainable.
 
-There is a huge difference between "C compiled with a C++ compiler" and 
-the "go crazy with keeping the programmer in the dark" concept proposed 
-by Mr. Magallon.
-
-	-hpa
+-Andi

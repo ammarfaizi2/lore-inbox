@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129314AbQLKJqt>; Mon, 11 Dec 2000 04:46:49 -0500
+	id <S129792AbQLKJt7>; Mon, 11 Dec 2000 04:49:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130460AbQLKJqj>; Mon, 11 Dec 2000 04:46:39 -0500
-Received: from [203.116.59.242] ([203.116.59.242]:33296 "HELO
-	pisces.starnet.gov.sg") by vger.kernel.org with SMTP
-	id <S129314AbQLKJqa>; Mon, 11 Dec 2000 04:46:30 -0500
-Message-ID: <004b01c06352$f6e8e4a0$050010ac@starnet.gov.sg>
-From: "Corisen" <csyap@starnet.gov.sg>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu> <3A17A667.EED80785@marxmeier.com>
-Subject: warning during make modules
-Date: Mon, 11 Dec 2000 17:15:53 +0800
+	id <S129765AbQLKJtt>; Mon, 11 Dec 2000 04:49:49 -0500
+Received: from mail11.voicenet.com ([207.103.0.37]:60889 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S129688AbQLKJtl>;
+	Mon, 11 Dec 2000 04:49:41 -0500
+Message-ID: <3A349C12.4000408@voicefx.com>
+Date: Mon, 11 Dec 2000 04:19:14 -0500
+From: "John O'Donnell" <johnod@voicefx.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18 i686; en-US; m18) Gecko/20001130
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: YUP- Almost 2.2.18
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm compiling kernel 2.4.0-test11 uder RH7. i've changed the CC= line to use
-kgcc, executed "make clean" and "make mrproper". "make menuconfig" and "make
-dep" went smoothly. however during the "make modules" process, several
-warning messages (shown below) appeared:
+Alan,
+I was trying to re-install my VMware with the latest 2.2.18 kernel.
+It failed to try to re-compile the modules.
 
-{standard input}: Assembler messages:
-{standard input}:8: Warning: Ignoring changed section attributes for
-.modinfo
+--------------------
+What is the location of the directory of C header files that match your 
+running kernel? [/usr/src/linux/include]
 
-pls kindly advise how can i resolve the warning messages, or can i can
-safely igonre the warning messages?
+The directory of kernel headers (version 2.2.17) does not match your 
+running
+kernel (version 2.2.18). Consequently, even if the compilation of the 
+module wassuccessful, the module would not load into the running kernel.
+-----------------------
 
-thanks.
+Upon inspection of /usr/src/linux/include/linux/version.h
+it plainly says 2.2.17.... ????  I changed it to 2.2.18 and all is well.
+Johnny O
 
+-- 
+=== Never ask a geek why, just nod your head and slowly back away.===
++==============================+====================================+
+| John O'Donnell (Sr. Systems Engineer, Net Admin, Webmaster, etc.) |
+| Voice FX Corporation (a subsidiary of Student Advantage)          |
+| One Plymouth Meeting         |     E-Mail: johnod@voicefx.com     |
+| Suite 610                    |           www.voicefx.com          |
+| Plymouth Meeting, PA 19462   |         www.campusdirect.com       |
++==============================+====================================+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

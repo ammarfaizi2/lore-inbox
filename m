@@ -1,37 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUJAUk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266505AbUJAUqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUJAUk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUJAUju
+	id S266505AbUJAUqU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUJAUl6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:39:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:56000 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266488AbUJAUdJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:33:09 -0400
-Message-ID: <f8ca0a1504100113335eca90bb@mail.gmail.com>
-Date: Fri, 1 Oct 2004 13:33:04 -0700
-From: Roland Dreier <roland.list@gmail.com>
-Reply-To: Roland Dreier <roland.list@gmail.com>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: Hard lockup on IBM ThinkPad T42
-Cc: Martin Hermanowski <martin@mh57.de>, linux-thinkpad@linux-thinkpad.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <f8ca0a150409301812f2da74d@mail.gmail.com>
+	Fri, 1 Oct 2004 16:41:58 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:37767 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S266561AbUJAUk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 16:40:26 -0400
+Subject: Re: [PATCH] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+In-Reply-To: <87k6ubcccl.fsf@sulphur.joq.us>
+References: <1094967978.1306.401.camel@krustophenia.net>
+	 <20040920202349.GI4273@conscoop.ottawa.on.ca>
+	 <20040930211408.GE4273@conscoop.ottawa.on.ca>
+	 <1096581213.24868.19.camel@krustophenia.net>
+	 <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net>
+	 <87k6ubcccl.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Message-Id: <1096663225.27818.12.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 01 Oct 2004 16:40:25 -0400
 Content-Transfer-Encoding: 7bit
-References: <f8ca0a1504093011206230ddea@mail.gmail.com>
-	 <20040930205851.GA6911@mh57.de>
-	 <f8ca0a1504093014456cf072a1@mail.gmail.com>
-	 <20040930222712.GB4607@marowsky-bree.de>
-	 <f8ca0a150409301812f2da74d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last night I upgraded the ipw2200 driver from 0.9 to 0.11, and since
-then I haven't had any lockups (13 hours of uptime -- pretty pathetic
-in the Linux scheme of things but much better than what I was getting
-before).
+On Fri, 2004-10-01 at 00:05, Jack O'Quin wrote:
+> Chris Wright <chrisw@osdl.org> writes:
+> 
+> > This uses the basic rlimits infrastructure.  You can manage it manually
+> > in a shell with ulimit -l, or you can use pam (pam_limits) to configure
+> > per uid limits.  There's a pam doc that describes limits, and a manpage
+> > for ulimit.  It's really easy to use, and should eliminate the need for
+> > the mlock part of that module.
+> 
+> Thanks for the pointer, Chris.
+> 
+> I'll see if I can figure out a way to make that useable for musicians.
+> 
+> The ulimit approach is way too cumbersome.
 
- - Roland
+Agreed.  The whole point of getting realtime-lsm in the kernel is to
+make it _easier_ to get a linux audio (or other realtime system) up and
+running.  Would it be feasible to use rlimits to let users run
+SCHED_FIFO processes?  The ulimit approach would probably be acceptable
+if it subsumed all the functionality of the realtime-lsm module.
+
+Lee
+

@@ -1,53 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267929AbUHETob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267881AbUHETqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267929AbUHETob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 15:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267926AbUHETob
+	id S267881AbUHETqc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 15:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267914AbUHETqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 15:44:31 -0400
-Received: from fmr99.intel.com ([192.55.52.32]:35979 "EHLO
-	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
-	id S267920AbUHEToU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 15:44:20 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Fastboot] Re: [BROKEN PATCH] kexec for ia64
-Date: Thu, 5 Aug 2004 12:44:05 -0700
-Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB00750E615@fmsmsx406.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Fastboot] Re: [BROKEN PATCH] kexec for ia64
-Thread-Index: AcR7CHCCIob3VnJSQN6+umx3WgNrxgAG1mgQ
-From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
-To: "Grant Grundler" <iod00d@hp.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, <linux-ia64@vger.kernel.org>,
-       "Jesse Barnes" <jbarnes@engr.sgi.com>, <linux-kernel@vger.kernel.org>,
-       <fastboot@osdl.org>
-X-OriginalArrivalTime: 05 Aug 2004 19:44:05.0319 (UTC) FILETIME=[90E51D70:01C47B24]
+	Thu, 5 Aug 2004 15:46:31 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:16644 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id S267881AbUHETqJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 15:46:09 -0400
+Subject: cciss updates [5/6] id change for V100 controller for 2.6.8-rc3
+From: mikem <mike.miller@hp.com>
+To: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1091735128.4826.25.camel@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 05 Aug 2004 14:45:28 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Wed, Aug 04, 2004 at 08:14:55PM -0600, Eric W. Biederman wrote:
->> VGA/serial console devices rarely need to do be bus masters so they
->> should be fine.
->
->yeah - you are right. I wasn't thinking.
->Can anyone comment on UGA or other console devices?
+Patch 5 of 6
 
-UGA is essentially a PCI device.  It uses the EFI PCI I/O 
-protocol which gets glued to the kernels pci layer...at least in 
-a prototype.  
+This patch fixes the vendor ID for our cciss based SATA controller due
+out later this year and adds the new PCI ID to pci_ids.h.
+Also changes DRIVER_NAME to HP CCISS.
+Applies to 2.6.8-rc3. Please apply patches in order.
 
-I haven't looked at the latest kexec patch.  How is it handling
-the call to EFI's SetVirtualAddressMap()?  Is it part of the config
-associated with kexec to do efi calls in physical mode only so that
-it doesn't have to contend with potential follow-on invocations 
-resultant from "the next" kernel's initialization?
+Thanks,
+mikem
+-------------------------------------------------------------------------------
+diff -burNp lx268-rc3-p004/drivers/block/cciss.c
+lx268-rc3/drivers/block/cciss.c
+--- lx268-rc3-p004/drivers/block/cciss.c	2004-08-05 11:16:03.000000000
+-0500
++++ lx268-rc3/drivers/block/cciss.c	2004-08-05 14:16:11.567565016 -0500
+@@ -46,14 +46,14 @@
+ #include <linux/completion.h>
+ 
+ #define CCISS_DRIVER_VERSION(maj,min,submin)
+((maj<<16)|(min<<8)|(submin))
+-#define DRIVER_NAME "Compaq CISS Driver (v 2.6.2)"
++#define DRIVER_NAME "HP CCISS Driver (v 2.6.2)"
+ #define DRIVER_VERSION CCISS_DRIVER_VERSION(2,6,2)
+ 
+ /* Embedded module documentation macros - see modules.h */
+ MODULE_AUTHOR("Hewlett-Packard Company");
+ MODULE_DESCRIPTION("Driver for HP Controller SA5xxx SA6xxx version
+2.6.2");
+ MODULE_SUPPORTED_DEVICE("HP SA5i SA5i+ SA532 SA5300 SA5312 SA641 SA642
+SA6400"
+-			" SA6i");
++			" SA6i V100");
+ MODULE_LICENSE("GPL");
+ 
+ #include "cciss_cmd.h"
+@@ -82,7 +82,7 @@ const struct pci_device_id cciss_pci_dev
+ 		0x0E11, 0x4091, 0, 0, 0},
+ 	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
+ 		0x0E11, 0x409E, 0, 0, 0},
+-	{ PCI_VENDOR_ID_COMPAQ, PCI_DEVICE_ID_COMPAQ_CISSC,
++	{ PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_CISS,
+ 		0x103C, 0x3211, 0, 0, 0},
+ 	{0,}
+ };
+diff -burNp lx268-rc3-p004/include/linux/pci_ids.h
+lx268-rc3/include/linux/pci_ids.h
+--- lx268-rc3-p004/include/linux/pci_ids.h	2004-08-05 09:56:00.000000000
+-0500
++++ lx268-rc3/include/linux/pci_ids.h	2004-08-05 14:16:33.841178912
+-0500
+@@ -670,6 +670,7 @@
+ #define PCI_DEVICE_ID_HP_SX1000_IOC	0x127c
+ #define PCI_DEVICE_ID_HP_DIVA_EVEREST	0x1282
+ #define PCI_DEVICE_ID_HP_DIVA_AUX	0x1290
++#define PCI_DEVICE_ID_HP_CISS		0x3211
+ 
+ #define PCI_VENDOR_ID_PCTECH		0x1042
+ #define PCI_DEVICE_ID_PCTECH_RZ1000	0x1000
 
-matt
+

@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268699AbUHTTbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268700AbUHTTbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268699AbUHTTbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUHTTad
+	id S268700AbUHTTbP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:31:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268699AbUHTTap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:30:33 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:61880 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S268662AbUHTT2d (ORCPT
+	Fri, 20 Aug 2004 15:30:45 -0400
+Received: from [212.174.90.104] ([212.174.90.104]:14096 "HELO 169.254.18.31")
+	by vger.kernel.org with SMTP id S268681AbUHTT3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:28:33 -0400
-Message-ID: <41264F8F.6030608@colorfullife.com>
-Date: Fri, 20 Aug 2004 21:22:55 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-CC: paulmck@us.ibm.com, "Martin J. Bligh" <mbligh@aracnet.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org, wli@holomorphy.com,
-       schwidefsky@de.ibm.com
-Subject: Re: kernbench on 512p
-References: <200408191216.33667.jbarnes@engr.sgi.com> <200408192016.10064.jbarnes@engr.sgi.com> <20040820155717.GF1243@us.ibm.com> <200408201324.32464.jbarnes@engr.sgi.com>
-In-Reply-To: <200408201324.32464.jbarnes@engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 15:29:21 -0400
+From: "EmlakAraBul" <emlakarabul@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: EmlakAraBul.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-9"
+Content-Transfer-Encoding: 8bit
+Date: Fri, 20 Aug 2004 22:29:20 +0300
+Reply-To: "EmlakAraBul" <emlakarabul@yahoo.com>
+Message-Id: <S268681AbUHTT3V/20040820193014Z+834@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
+Emlakta Tek Adresde Buluþalým...
 
->Looks like a bit more context has changed.  Manfred, care to respin against 
->-mm3 so I can test?
->
->  
->
-No problem.
-Btw, who removed rcu_restart_cpu: s390 must call it after changing 
-nohz_cpu_mask. Otherwise a 32-bit wraparound will lead to false 
-quiescent states.
+www.emlakarabul.com
 
---
-    Manfred
+Ücretsiz ilanýnýzý verin, arayýn...
+
+Güncel Konut Kredileri Hakkýnda bilgi alýn...
+ 
+Konut kredisi hesaplama makinasý ile alternatif kredileri hesaplayýn...
+
+Aradýðýnýz emlaðýn ilanýný girin...
+
+Konut Sigortalarý, Hukuki Danýþman...
+
+Tam size göre...

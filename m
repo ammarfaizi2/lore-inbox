@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135776AbRDYAwG>; Tue, 24 Apr 2001 20:52:06 -0400
+	id <S135772AbRDYAu0>; Tue, 24 Apr 2001 20:50:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135777AbRDYAv5>; Tue, 24 Apr 2001 20:51:57 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:33031 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S135776AbRDYAvi>;
-	Tue, 24 Apr 2001 20:51:38 -0400
-Date: Tue, 24 Apr 2001 17:52:22 -0700 (PDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Daniel Stone <daniel@kabuki.openfridge.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Aaron Lehmann <aaronl@vitelus.com>,
-        imel96@trustix.co.id, Alexander Viro <viro@math.psu.edu>,
-        linux-kernel@vger.kernel.org
+	id <S135776AbRDYAuQ>; Tue, 24 Apr 2001 20:50:16 -0400
+Received: from h24-76-51-210.vf.shawcable.net ([24.76.51.210]:6909 "EHLO
+	whiskey.enposte.net") by vger.kernel.org with ESMTP
+	id <S135772AbRDYAuD>; Tue, 24 Apr 2001 20:50:03 -0400
+To: linux-kernel@vger.kernel.org
+Path: whiskey.fireplug.net!not-for-mail
+From: sl@whiskey.fireplug.net (Stuart Lynne)
+Newsgroups: list.linux-kernel
 Subject: Re: [PATCH] Single user linux
-In-Reply-To: <20010425103456.D11099@piro.kabuki.openfridge.net>
-Message-ID: <Pine.LNX.4.10.10104241751010.6846-100000@innerfire.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: 24 Apr 2001 17:48:31 -0700
+Organization: fireplug
+Distribution: local
+Message-ID: <9c56sv$d17$1@whiskey.enposte.net>
+In-Reply-To: <988158045.12859@whiskey.enposte.net>
+Reply-To: sl@fireplug.net
+X-Newsreader: trn 4.0-test67 (15 July 1998)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Apr 2001, Daniel Stone wrote:
+In article <988158045.12859@whiskey.enposte.net>,
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> > Quit being a naysayer. UNIX on a PDA is a wet dream.
+>> What real value does it have, apart from the geek "look at me, I'm using
+>> bash" value?
+>
+>It means I can do anything on my ipaq I can do anywhere else. I can run 
+>multiple apps at a time. I can run X11. I can run the palm emulator even ;)
+>
+>Its the same reason Linux is valuable on an S/390 mainframe. Its a common pool
+>of apps, environments and tools. Anything your PC can do, my ipaq can do.
 
-> OK. "time make bzImage". Of course, mine's really slow (and I will consider
-> myself publically humiliated if my only Linux machine is beaten on a kernel
-> compile by an iPAQ). I 'spose, if it only goes into suspend, the ability to
-> write "uptime" on it constitutes a walking penis extension after a while?
+Or even if you only ever use the builtin apps on your Linux PDA, it means you 
+didn't subsidize Microsoft.
 
-When I first started I compiled my linux kernels on a 386 dx with 8 mb ram
-heh.  I think a lot of the current PDAs are faster.
-
-	Gerhard
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
+-- 
+                                            __O 
+Lineo - For Embedded Linux Solutions      _-\<,_ 
+PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
+Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532

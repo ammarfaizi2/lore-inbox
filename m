@@ -1,53 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269963AbUJNEPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269965AbUJNES3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269963AbUJNEPb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 00:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269973AbUJNEP3
+	id S269965AbUJNES3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 00:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269966AbUJNES3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 00:15:29 -0400
-Received: from asav1.lyse.net ([213.167.96.68]:52932 "EHLO asav1.lyse.net")
-	by vger.kernel.org with ESMTP id S269963AbUJNENe (ORCPT
+	Thu, 14 Oct 2004 00:18:29 -0400
+Received: from main.gmane.org ([80.91.229.2]:53134 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269965AbUJNESQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 00:13:34 -0400
-From: Alexander Wigen <alex@wigen.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
-Date: Thu, 14 Oct 2004 14:06:58 +0000
-User-Agent: KMail/1.7
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <416A6CF8.5050106@kharkiv.com.ua> 
-	<200410131932.28896.alex@wigen.net> <20041013174251.GB17291@kroah.com>
-In-Reply-To: <20041013174251.GB17291@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410141406.58960.alex@wigen.net>
-X-imss-version: 2.7
-X-imss-result: Passed
-X-imss-scores: Clean:99.90000 C:21 M:1 S:5 R:5
-X-imss-settings: Baseline:4 C:4 M:4 S:3 R:3 (1.0000 4.0000)
+	Thu, 14 Oct 2004 00:18:16 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kevin Puetz <puetzk@puetzk.org>
+Subject: Re: single linked list header in kernel?
+Date: Wed, 13 Oct 2004 23:18:10 -0500
+Message-ID: <ckkum3$i0b$1@sea.gmane.org>
+References: <416C1F48.4040407@nortelnetworks.com> <pan.2004.10.13.05.50.46.937470@smurf.noris.de> <416D4255.9080501@nortelnetworks.com> <pan.2004.10.13.18.25.41.367757@smurf.noris.de> <20041014001619.GA19436@thundrix.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 12-219-2-179.client.mchsi.com
+User-Agent: KNode/0.8.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 October 2004 17:42, Greg KH wrote:
-> On Wed, Oct 13, 2004 at 07:32:28PM +0000, Alexander Wigen wrote:
-> > May I add that I have some problems with a pl2303 GPS device which causes
-> > kernel panics when I pull it out of the USB port.
-> >
-> > I don't know if it can be related, the device works fine until I unplug
-> > it.
->
-> On what kernel version do you have these problems?
+Tonnerre wrote:
 
-I had the problem on two laptops and a stationary machine running 2.4.20. I 
-dug out the old gps device and am happy to say the problem is gone on 
-2.6.8.1. I don't have a 2.4 kernel handy so I can't say if the problem is 
-still present in the 2.4 branch.
+> Salut,
+> 
+> On Wed, Oct 13, 2004 at 08:25:43PM +0200, Matthias Urlichs wrote:
+>> I dunno, though -- open-coding a singly-linked list isn't that much of a
+>> problem; compared to a doubly-linked one, there's simply fewer things
+>> that can go horribly wrong. :-/
+> 
+> The problem is that
+> 
+> 1. you have to use circular lists
+> 
+> 2. going forward is  O(1), going backward is O(N).  This doesn't sound
+>    like a problem,  but deleting from lists and  alike requires you to
+>    go back in the list.
+> 
+> I guess  that if  you have lists  that you  edit a lot,  double linked
+> lists should be  less overhead. However, if you only  walk the lists a
+> lot, both models should perform equally well.
+> 
+> Insertion is faster, but that's the only good news..
+> 
+> I'm all against them, though. ;)
+> 
+> Tonnerre
 
-Cheers
-Alexander Wigen
--- 
-Homepage: http://www.wigen.net   Mail: alex@wigen.net
-Why is the time of day with the slowest traffic called rush hour?
+And of course there's the ever-infamous 'two-half-linked list' (for want of
+a better name).  If you really need O(1) access in both directions but the
+constant factor isn't terribly important, it *is* (surprisingly) possible
+to achieve this without any size overhead in the list elements, though the
+code and iterator sizes will be a little higher and the "number of things
+that can go horribly wrong will swell impressively". 
+
+Read on only if you a) already know what I have in mind, but want to tell my
+I described it wrong or b) genuinely enjoy disgustingly clever trickery, or
+c) the previous, plus have some specific need to make an uncorrupted
+programmer's head explode. Do NOT read on if you are intending to implement
+what I describe, unless you have a damned good reason not to use a sane
+doubly-linked list :-)
+
+What you do is take advantage of the fact that when iterating, it's usually
+pretty straightforward to make your 'iterator' keep track of of the
+previous node as the current one. Then, instead of storing a 'next' pointer
+or a 'previous' pointer in the node, you store the two XORed together (or
+choose your favorite mixing function, there are many viable choices). Then,
+when you are at a node, you can recover the pointer for whichever direction
+you are travelling in by XORing the mix from the node with your stored
+'previous' pointer, thus giving you whichever neighbor you didn't already
+know. Then you can move to the next node (prev=current, current=neighbor)
+and do it again. Or just swap prev and current if you want to go the other
+direction.
+
+So, you end up with:
+O(1) forward and reverse iteration
+only 1 pointer of overhead per node
+
+but, you pay for it with:
+2 pointers of size for a moveable iterator pointing to a node
+an extra fetch (though probably still in a register if you're in a tight
+loop) and an XOR for every step along the chain.
+

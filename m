@@ -1,66 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274162AbRJFMUQ>; Sat, 6 Oct 2001 08:20:16 -0400
+	id <S274064AbRJFMS4>; Sat, 6 Oct 2001 08:18:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275122AbRJFMUG>; Sat, 6 Oct 2001 08:20:06 -0400
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:57101 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S274162AbRJFMTx>; Sat, 6 Oct 2001 08:19:53 -0400
-Date: Sat, 6 Oct 2001 13:20:23 +0100 (BST)
-From: <chris@scary.beasts.org>
-X-X-Sender: <cevans@sphinx.mythic-beasts.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: VM: 2.4.10ac4 vs. 2.4.11pre2
-Message-ID: <Pine.LNX.4.33.0110061252450.17262-100000@sphinx.mythic-beasts.com>
+	id <S274162AbRJFMSq>; Sat, 6 Oct 2001 08:18:46 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:16402 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S274064AbRJFMSg>;
+	Sat, 6 Oct 2001 08:18:36 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15294.63138.941581.771248@cargo.ozlabs.ibm.com>
+Date: Sat, 6 Oct 2001 22:18:42 +1000 (EST)
+To: "David S. Miller" <davem@redhat.com>
+Cc: jes@sunsite.dk, James.Bottomley@HansenPartnership.com,
+        linuxopinion@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: how to get virtual address from dma address
+In-Reply-To: <20011006.013819.17864926.davem@redhat.com>
+In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain>
+	<d3n136tc48.fsf@lxplus014.cern.ch>
+	<15294.47999.501719.858693@cargo.ozlabs.ibm.com>
+	<20011006.013819.17864926.davem@redhat.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David S. Miller writes:
 
-Hi,
+> I can not even count on one hand how many people I've helped
+> converting, who wanted a bus_to_virt() and when I showed them
+> how to do it with information the device provided already they
+> said "oh wow, I never would have thought of that".  That process
+> won't happen as often with the suggested feature.
 
-Here are some test results. Results are averaged over multiple runs.
-Comments and conclusions below.
+Well, let's see if we can come up with a way to achieve this goal as
+well as the other.
 
-                     2.4.11pre2        2.4.10ac4
-dbench 8             34Mbyte/sec       40Mbyte/sec
-dbench 32            7.7Mbyte/sec      14Mbyte/sec
-bonnie++ write       17.5Mbyte/sec     18Mbyte/sec
-bonnie++ rewrite     5.6Mbyte/sec      5.8Mbyte/sec
-bonnie++ read        24Mbyte/sec       24.5Mbyte/sec
-kernel stress build  212min24s         229m54s
-linear swap test     1m30s             2m15s
-bonnie++ creat()     7200              9600  [*]
-bonnie++ stat()      2100              9000  [*]
-bonnie++ unlink()    5300              30000 [*]
+I look at all the hash-table stuff in the usb-ohci driver and I think
+to myself about all the complexity that is there (and I haven't
+managed to convince myself yet that it is actually SMP-safe) and all
+the time wasted doing that stuff, when on probably 95% of the
+machines that use the usb-ohci driver, the hashing stuff is totally
+unnecessary.  I am talking about powermacs, which don't have an iommu,
+and where the reverse mapping is as simple as adding a constant.
 
-[*] either the ext2 directory optimization in 2.4.10ac is influencing the
-test, or 2.4.11pre2 VM has a problem caching inodes.
+That was my second argument, which you didn't reply to - that doing
+the reverse mapping is very simple on some platforms, and so the right
+place to do reverse mapping is in the platform-aware code, not in the
+drivers.  On other platforms the reverse mapping is more complex, but
+the complexity is bounded by the complexity that is already there in
+drivers like the usb-ohci driver.
 
-Comments + conclusions
-----------------------
+> I am adamently against generic infrastructure to do this.  Yes, it's
+> social engineering, tough cookies... it's social engineering that I
+> know is working :-)
 
-- The 2.4.11pre2 VM is considerably more stable, where "stable" is defined
-as repeatable test scores and consistent performance. The 2.4.10ac4 VM is
-all over the place.
+Well, I don't maintain any of the affected drivers, so it's not an
+issue that affects me personally.
 
-- Both kernels exhibit similar interactive response under load.
+Maybe we want a reverse-mapping API with a copyright notice on it that
+says you can't use it unless you have written permission from David
+S. Miller.  Just joking, but I do think that we should see if we can
+think of something that achieves that sort of effect while still
+making the facilities available for the drivers that truly do need it.
 
-- The 2.4.11pre2 VM performs substantially better in tests which invoke
-swapping.
-
-- Surprisingly, the 2.4.10ac4 kernel does much much better at dbench. The
-2.4.11pre2 performance is alleged to have regressed since 2.4.10pre10?
-
-- I have not tried 2.4.11pre4, but the report of streaming i/o causing
-swapping is concerning.
-
-
-Note that the above results were generated using a very simple (and
-extensible) script. VM developers would do well to spend the 30 seconds
-writing a similar script, and post results along with proposed VM patches.
-
-Cheers
-Chris
-
+Regards,
+Paul.

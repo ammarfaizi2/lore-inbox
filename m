@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262767AbREaHNa>; Thu, 31 May 2001 03:13:30 -0400
+	id <S262873AbREaHXU>; Thu, 31 May 2001 03:23:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262873AbREaHNV>; Thu, 31 May 2001 03:13:21 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:7812 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S262767AbREaHNI>; Thu, 31 May 2001 03:13:08 -0400
-Message-ID: <3B15EF16.89B18D@idcomm.com>
-Date: Thu, 31 May 2001 01:13:26 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac5-1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel-list <linux-kernel@vger.kernel.org>
-Subject: missing sysrq
+	id <S262989AbREaHXK>; Thu, 31 May 2001 03:23:10 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:11136 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S262873AbREaHWv>;
+	Thu, 31 May 2001 03:22:51 -0400
+Date: Thu, 31 May 2001 08:08:45 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.5-ac4 es1371.o unresolved symbols
+Message-ID: <20010531080845.A808@suse.cz>
+In-Reply-To: <20010530181531.A12836@suse.cz> <13404.991272546@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <13404.991272546@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, May 31, 2001 at 11:29:06AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have compiled the magic sysrq as enabled in most kernels I've used for
-quite a while. Most recently 2.4.5-ac5, on a RH 7.1 SMP machine with
-APIC disabled. The /etc/sysctl.conf contains this line:
-kernel.sysrq = 1
+On Thu, May 31, 2001 at 11:29:06AM +1000, Keith Owens wrote:
+> On Wed, 30 May 2001 18:15:31 +0200, 
+> Vojtech Pavlik <vojtech@suse.cz> wrote:
+> >On Wed, May 30, 2001 at 02:46:42PM +1000, Keith Owens wrote:
+> >> This is messy.  gameport.h is included by code outside the joystick
+> >> directory and it needs to expand differently based on whether
+> >> gameport.o is compiled or not.  Also gameport.o needs to be built in if
+> >> _any_ consumers are built in (either joystick or sound), it needs to be
+> >> a module otherwise.  Lots of cross config and cross directory
+> >> dependencies :(.
+> >
+> >What about this solution? It's a little cleaner.
+> >
+> >diff -urN linux-2.4.5-ac4/drivers/char/joystick/Config.in linux/drivers/char/joystick/Config.in
+> >+tristate 'Game port support' CONFIG_INPUT_GAMEPORT
+> >+   dep_tristate '  Classic ISA/PnP gameports' CONFIG_INPUT_NS558 $CONFIG_INPUT_GAMEPORT
+> 
+> CONFIG_INPUT_GAMEPORT must be a derived symbol, not a user selected
+> symbol.  CONFIG_INPUT_GAMEPORT is 'n' if no gameport drivers are
+> installed.  It is 'm' if all gameport drivers are modules *and* all
+> users of gameport_register_port() are modules, otherwise it is 'y'.
+> 
+> With your patch, if a user selects CONFIG_INPUT_GAMEPORT=m and
+> CONFIG_SOUND_ES1370=y then the built in es1370 driver has unresolved
+> references to gameport_register_port() which is in a module, vmlinux
+> will not link.  That is why I derived CONFIG_INPUT_GAMEPORT based on
+> the config options in two separate directories.
 
-However, if I go to /proc/sys/kernel/sysrq does not exist. Nor is it
-possible for root to echo to that file name. Attempts to use the magic
-sysrq keys, such as for sync, prove that it truly is not enabled, or is
-otherwise missing. Has something changed in the enabling of magic sysrq?
-Or is this one of those strange "it should be there" things?
+Have you tried the patch? Because the gameport.h define has:
 
-A second observation, maybe related (maybe not), is the
-/var/log/messages line:
-sysctl: error: permission denied on key 'vm.freepages'
+#if defined(CONFIG_INPUT_GAMEPORT) || (defined(CONFIG_INPUT_GAMEPORT_MODULE) && defined(MODULE))
+void gameport_register_port(struct gameport *gameport);
+void gameport_unregister_port(struct gameport *gameport);
+#else
+void __inline__ gameport_register_port(struct gameport *gameport) { return; }
+void __inline__ gameport_unregister_port(struct gameport *gameport) { return; }
+#endif
 
-This particular line has occurred since install of RH 7.1, even with its
-original kernel, but continues into 2.4.5-ac5. The relevant line in
-/etc/sysctl.conf:
-vm.freepages = 383 766 1149
+I think it should work.
 
-This line is how the original RH 7.1 install set it up. This particular
-machine has 256 MB of ram, and somewhat over a 1 GB of swap. Is the
-vm.freepages not intended to be set in /etc/sysctl.conf? Or maybe the
-specs are off for this particular hardware? I know a lot of vm changes
-are going on in the kernel, and wondering if this could be something
-that used to be supported but no longer is.
-
-D. Stimits, stimits@idcomm.com
+-- 
+Vojtech Pavlik
+SuSE Labs

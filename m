@@ -1,56 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUGPW7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUGPXjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264430AbUGPW7N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 18:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUGPW7N
+	id S266631AbUGPXjY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 19:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUGPXjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 18:59:13 -0400
-Received: from main.gmane.org ([80.91.224.249]:21962 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264430AbUGPW7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 18:59:12 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Volker Braun <volker.braun@physik.hu-berlin.de>
-Subject: Re: ACPI Hibernate and Suspend Strange behavior 2.6.7/-mm1
-Date: Fri, 16 Jul 2004 18:59:08 -0400
-Message-ID: <pan.2004.07.16.22.59.06.759930@physik.hu-berlin.de>
-References: <A6974D8E5F98D511BB910002A50A6647615FEF48@hdsmsx403.hd.intel.com> <1089054013.15671.48.camel@dhcppc4> <pan.2004.07.06.14.14.47.995955@physik.hu-berlin.de> <slrncfb55n.dkv.jgoerzen@christoph.complete.org> <pan.2004.07.14.23.28.53.135582@physik.hu-berlin.de> <20040716170052.GC8264@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: carrot.hep.upenn.edu
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-Cc: linux-thinkpad@linux-thinkpad.org
+	Fri, 16 Jul 2004 19:39:23 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19403 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S266631AbUGPXjV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 19:39:21 -0400
+Message-ID: <40F86677.2070607@comcast.net>
+Date: Fri, 16 Jul 2004 16:36:23 -0700
+From: "Amit D. Chaudhary" <amit_c@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dsaxena@plexity.net, linux-kernel@vger.kernel.org
+Subject: Re: MAX_DMA_ADDRESS in include/asm/asm-i386/dma.h (2.6.x and 2.4.x)
+References: <40F84A87.5050403@comcast.net> <20040716214721.GA20741@plexity.net> <40F852AE.8060703@comcast.net> <20040716222859.GA21647@plexity.net>
+In-Reply-To: <20040716222859.GA21647@plexity.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Jul 2004 19:00:52 +0200, Pavel Machek wrote:
->> > And, if I would shine
->> > a bright light on the screen, I could make out text on it.  In other
->> > words, the backlight was off but it was still displaying stuff.
+
+
+Deepak Saxena wrote:
+> On Jul 16 2004, at 15:11, Amit D. Chaudhary was caught saying:
 > 
-> If it is still there after half an hour, its certainly part of the problem.
+>>Deepak,
+>>
+>>I am missing what you are directing me to.
+>>
+>>If it is,
+>>pci_alloc_consistent(), linux-2.4.25/arch/i386/kernel/pci-dma.c
+>>dma_alloc_coherent(), linux-2.6.8-rc1/arch/i386/kernel/pci-dma.c
+>>
+>>They internally seem to __get_free_pages()
+> 
+> 
+> Correct, but take a second look at the code (2.6):
+> 
+>         void *ret;
+>         /* ignore region specifiers */
+>         gfp &= ~(__GFP_DMA | __GFP_HIGHMEM);
+> 
+>         if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
+>                 gfp |= GFP_DMA;
+> 
+>         ret = (void *)__get_free_pages(gfp, get_order(size));
+> 
+> It uses GFP_DMA iff your coherent_dma_mask is != 0xffffffff.  Assuming
+> your device can address a the full 32-bit PCI address space, you
+> need to set the coherent_dma_mask appropriately and you will get
+> buffers from all addressable lowmem. I don't do much x86, so not
+> sure how you go about allocating highmem DMA buffers.
+Thanks, noted and verified.
 
-I agree in principle, but I'm also open to the possibility of a very
-faint afterimage.
+This chip cannot DMA with a memory buffer returned by kmalloc without a 
+GFP_DMA flag, that is memory addresses like 0xf67e0000, it works with 
+0xcxxx xxxx.
 
-I see two possibilities to "turn off the back light":
+I verified it by modifying the code and trying it out.
 
-1) Push the tiny sensor next to the hinge over the "access ibm" button
-manually. This cuts power to the backlight (assuming you did not associate
-suspend or anything to the ensuing "LID" acpi event). I can still see the
-screen rather clearly, just without the backlight. Its easy to read text
-even in a moderately lit room.
+>>The memory need not be page size, as a matter of fact, using a large 
+>>consecutive block, for example using alloc_bootmem_low() during kernel 
+>>bootup, will simplify the data transfer and result in no internal 
+>>fragmentation, it does introduce inflexibility in changing the size and 
+>>other issues.
+> 
+> 
+> If you are using alloc_bootmem_low(), all you should have to do after
+> allocating the memory is call pci_dma_map_single()/map_sg() to get PCI-DMA 
+> addresses. You still should have no reason to touch MAX_DMA_ADDRESS.
+This was a backup approach, I mentioned to provide details about the 
+memory being allocated. I would like to avoid this approach. See reasons 
+above.
 
-2) use "radeontool light off". This cuts power to the backlight
-and the lcd. I cannot see the slightest thing on the display, it goes
-completely black as if the computer were switched off.
-
-John, could you please comment on what you see during ACPI S3?
-
-Best,
-Volker
-
-
+Amit

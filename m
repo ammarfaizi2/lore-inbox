@@ -1,35 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263552AbTIBFkq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 01:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTIBFkp
+	id S263531AbTIBFkO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 01:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263549AbTIBFkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 01:40:45 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:9866 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S263552AbTIBFkn (ORCPT
+	Tue, 2 Sep 2003 01:40:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38814 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263531AbTIBFkH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 01:40:43 -0400
-Date: Tue, 2 Sep 2003 06:40:08 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030902054008.GB7619@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829103943.A18608@home.com> <20030901060040.GH748@mail.jlokier.co.uk> <52oey4ifut.fsf@topspin.com> <20030901191647.A8701@home.com>
+	Tue, 2 Sep 2003 01:40:07 -0400
+Date: Mon, 1 Sep 2003 22:40:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: bonganilinux@mweb.co.za, linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [OOPS][RESEND] 2.6.0-test4-mm4
+Message-Id: <20030901224016.1f469483.akpm@osdl.org>
+In-Reply-To: <20030901223056.2700543d.akpm@osdl.org>
+References: <E19tuSv-00059A-00@rammstein.mweb.co.za>
+	<20030901153647.1ff6bf1d.akpm@osdl.org>
+	<20030902064223.7a6dc372.bonganilinux@mweb.co.za>
+	<20030901223056.2700543d.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030901191647.A8701@home.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Porter wrote:
-> Exactly.  After reading some other subthreads I see the other version of
-> "cache coherency" that Jamie is interested in.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> This should fix it up.
 
-Indeed, quite a lot of systems don't offer cache coherence with
-peripherals, other CPUs (if any) and in some cases even with other
-tasks on the same CPU.  Isn't memory fun? :)
+oops, that had a use-after-free as well.
 
--- Jamie
+I don't really see a sane way of maintaining kobj->k_name going into
+t->release(), so the release() implementations will just have to handle a
+NULL kobj->k_name.
+
+
+diff -puN lib/kobject.c~kobject-unlimited-name-lengths-use-after-free-fix lib/kobject.c
+--- 25/lib/kobject.c~kobject-unlimited-name-lengths-use-after-free-fix	2003-09-01 22:20:27.000000000 -0700
++++ 25-akpm/lib/kobject.c	2003-09-01 22:36:16.000000000 -0700
+@@ -443,15 +443,20 @@ void kobject_cleanup(struct kobject * ko
+ {
+ 	struct kobj_type * t = get_ktype(kobj);
+ 	struct kset * s = kobj->kset;
++	char *name = NULL;
+ 
+ 	pr_debug("kobject %s: cleaning up\n",kobject_name(kobj));
++
++	if (kobj->k_name != kobj->name)
++		name = kobj->k_name;
++	kobj->k_name = NULL;
+ 	if (t && t->release)
+ 		t->release(kobj);
+ 	if (s)
+ 		kset_put(s);
+-	if (kobj->k_name != kobj->name)
+-		kfree(kobj->k_name);
+-	kobj->k_name = NULL;
++
++	if (name)
++		kfree(name);
+ }
+ 
+ /**
+
+_
+

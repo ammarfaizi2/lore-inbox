@@ -1,97 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269801AbUJAOpN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269799AbUJAOwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269801AbUJAOpN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 10:45:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269799AbUJAOpN
+	id S269799AbUJAOwR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 10:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269802AbUJAOwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 10:45:13 -0400
-Received: from ppsw-1.csi.cam.ac.uk ([131.111.8.131]:51908 "EHLO
-	ppsw-1.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S269801AbUJAOoH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 10:44:07 -0400
-Subject: Re: Windows Logical Disk Manager error
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Marcin =?iso-8859-2?Q?Gibu=B3a?= <mg@iceni.pl>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410011626.09995@senat>
-References: <200409231254.12287@senat> <200410010149.19951@senat>
-	 <1096619799.17297.22.camel@imp.csi.cam.ac.uk>  <200410011626.09995@senat>
-Content-Type: text/plain; charset=UTF-8
-Organization: University of Cambridge Computing Service, UK
-Message-Id: <1096641835.17297.45.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 01 Oct 2004 15:43:56 +0100
-Content-Transfer-Encoding: 8BIT
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Fri, 1 Oct 2004 10:52:17 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:35346 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269799AbUJAOwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 10:52:16 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Ralph Corderoy <ralph@inputplus.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
+Date: Fri, 1 Oct 2004 17:52:04 +0300
+User-Agent: KMail/1.5.4
+References: <200409291344.i8TDiMv11397@blake.inputplus.co.uk>
+In-Reply-To: <200409291344.i8TDiMv11397@blake.inputplus.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410011752.04994.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 15:26, Marcin Gibuła wrote:
-> > I would not advise you to use volume6 without the md driver.  You are
-> > then missing the last 32kb off the end and you never know when they
+On Wednesday 29 September 2004 16:44, Ralph Corderoy wrote:
+[snip]
+
+> All my correspondence is attached but the most interesting is message 9
+> where I spell out the license requirements to Brian Eaton, 10 where he
+> yesterday asked for my address, and 11 where he re-stated they've don't
+> have to discuss it with me.  I think they're failing to comply with
+> section 3.  There's other minor things too in the manual that I've
+> highlighted.  They're right in saying they've no obligation to discuss
+> their compliance with me.  I'm hoping that by posting here a copyright
+> holder will query their apparent lack of compliance and Amstrad will be
+> happy to converse with them.
 > 
-> Well, I can't even build it... mdadm failes and driver complains with
-> md: Dev sda2 smaller than chunk_size: 0k < 32k
-> Different chunk size doesn't make any difference.
+> To re-iterate, there's no source code or written offer in the box.  They
+> say they'll provide a URL to an E3 owner on proof of ownership but
+> that's insufficient.  The situation is made more complex by the E3
+> downloading software updates, including seemingly the kernel, so they'll
+> be multiple versions to provide source for over time.
 
-That is a bug in the md driver then.
+You did an awesome work. I will save this message as an example
+just in case I will need to do something similar.
 
-> > direction.  Fortunately you can fix this case by using the "--rounding="
-> > parameter to mdadm.  So if you have a cluster size of 4k try
-> > --rounding=4.  (If you don't know your cluster size enable debugging in
-> > the ntfs driver and then do the mount and "dmesg | grep cluster_size"
-> > will tell you the answer.  To enable debugging in the driver it must be
-> > compiled with debugging enabled and you need to, as root, do: "echo 1 >
-> > /proc/sys/fs/ntfs-debug" after loading the module if modular and before
-> > doing the mount command.)
-> 
-> According to ntfs driver output my cluster size is indeed 4kb, but it still 
-> failes to read mounted fs.
-> 
-> Error is now:
-> NTFS-fs error (device md1): ntfs_readdir(): Actual VCN (0x20006500680054) of 
-> index buffer is different from expected VCN (0x4). Directory inode 0x5 is 
-> corrupt or driver bug.
-
-So the number has changed.  Means it is aligning the two pieces
-differently.  But still not correctly.  Actually, having looked at the
-dump of your LDM database again, it is not rounding anything at all. It
-behaves exactly like the NT4 fault tolerant arrays, i.e. it uses all
-512-byte sectors to store data.
-
-You can see it from:
-
-Volume2 Size: 0x05AB2EA2 (46437 MB)
-    Volume2-01
-      Disk2-01   VolumeOffset: 0x00000000 Offset: 0x00000000 Length:
-0x033A186B
-      Disk2-02   VolumeOffset: 0x033A186B Offset: 0x033A18AA Length:
-0x02711637
-
-Disk2-01 contains 0x033a186B sectors == 5413987 in decimal an you can
-see the number is odd and hence the Linux md driver cannot work as it
-uses 1024 bytes minimum so it can never work.  )-:
-
-Disk2-02 starts at the offset Disk2-01 stops and hence the Linux md
-driver again cannot work.
-
-Sorry but with current Linux md driver and tools it is not possible to
-make your linear arrays work.
-
-> Oh, and my system (and kernel) is x86-64 if it matters.
-
-It doesn't.
-
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+Unfortunately I have no E3. Hope someone who has will contact you.
+--
+vda
 

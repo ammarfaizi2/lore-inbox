@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315928AbSILOeV>; Thu, 12 Sep 2002 10:34:21 -0400
+	id <S315942AbSILOfK>; Thu, 12 Sep 2002 10:35:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315942AbSILOeV>; Thu, 12 Sep 2002 10:34:21 -0400
-Received: from h-66-166-207-97.SNVACAID.covad.net ([66.166.207.97]:3472 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S315928AbSILOeU>; Thu, 12 Sep 2002 10:34:20 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 12 Sep 2002 07:39:01 -0700
-Message-Id: <200209121439.HAA04166@adam.yggdrasil.com>
-To: ookhoi@humilis.net
-Subject: Re: 2.5.34 on Sony PictureBook fails to boot
-Cc: linux-kernel@vger.kernel.org
+	id <S315946AbSILOfJ>; Thu, 12 Sep 2002 10:35:09 -0400
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:16648 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S315942AbSILOfG>; Thu, 12 Sep 2002 10:35:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: Johan Brodin <d98jobro@dtek.chalmers.se>, linux-kernel@vger.kernel.org
+Subject: Re: Init - how does it work?
+Date: Thu, 12 Sep 2002 09:39:45 -0700
+User-Agent: KMail/1.4.3
+References: <Pine.GSO.4.10.10209121620340.13583-100000@licia.dtek.chalmers.se>
+In-Reply-To: <Pine.GSO.4.10.10209121620340.13583-100000@licia.dtek.chalmers.se>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209120939.45643.nleroy@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Ookhoi <ookhoi@humilis.net>
+On Thursday 12 September 2002 07:27, Johan Brodin wrote:
+> Hi!
+>
+> I am new to this list, so I will take one second to present myself.
+> My name is Johan and I am a 23-year old student at Chalmers university of
+> technology in Sweden. The reason for joining this list is that I am
+> currently doing my Master Thesis Project in Computer Science and
+> Engineering. My thesis is namned "Design of dependable distributed
+> UNIX-based systems" and one issue that I am looking into is process
+> supervision.
+>
+> I tried to configure init to start and respawn processes and this worked
+> great, no problems at all, but what really would make me happy is if
+> someone of all you subscribers to this list could explain how this feature
+> (respawn) works. How is init told that it must respawn the process? and
+> such things! If someone could find the time to help me out, I would be
+> very grateful.
 
->> 	Attempting to boot 2.5.34 compiled with SMP on a Sony
->> PictureBook results in the computer being reset before the kernel
->> activates the console.
+Well, I'd reccomend reading the sources...
 
->Which picturebook? (intel or crusoe cpu?)
+But, the short answer is SIGCHLD.  A process can get a SIGCHLD sent to it when 
+a child process terminates.  Init maintains a list of child processes; when 
+it gets a SIGCHLD, it knows that one of them dies, and restarts it.  
+Obviously, this is somewhat oversimplified, but it's in general how to 
+occomplish these things.
 
-	PCG-C1VN (Transmeta).  Sorry for not specifying that originally.
+Hope this helps.  BTW, I'm pretty sure that this is coverred in a lot of 
+books.  I'd start with the Stevens book (I don't remember the exact name of 
+it off hand, however; something like "Unix systems programming").
 
->And why smp? Just curious.
+-Nick
 
-	To have on kernel for many systems and for preempt.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

@@ -1,60 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261646AbSJUUhZ>; Mon, 21 Oct 2002 16:37:25 -0400
+	id <S261650AbSJUUic>; Mon, 21 Oct 2002 16:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261644AbSJUUhZ>; Mon, 21 Oct 2002 16:37:25 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4616 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261646AbSJUUhW>; Mon, 21 Oct 2002 16:37:22 -0400
-Date: Mon, 21 Oct 2002 16:41:45 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rob Landley <landley@trommello.org>
-cc: Jurriaan <thunder7@xs4all.nl>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Any hope of fixing shutdown power off for SMP?
-In-Reply-To: <200210202058.29291.landley@trommello.org>
-Message-ID: <Pine.LNX.3.96.1021021163731.4564A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261659AbSJUUic>; Mon, 21 Oct 2002 16:38:32 -0400
+Received: from ip008.siteplanet.com.br ([200.245.54.8]:3346 "EHLO
+	plutao.siteplanet.com.br") by vger.kernel.org with ESMTP
+	id <S261650AbSJUUi2> convert rfc822-to-8bit; Mon, 21 Oct 2002 16:38:28 -0400
+Subject: Re: [PATCH 2.0] Fixed kernel stuff
+From: Fernando Alencar =?ISO-8859-1?Q?Mar=F3stica?= <famarost@unimep.br>
+To: David Weinehall <tao@acc.umu.se>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021015211103.GV26715@khan.acc.umu.se>
+References: <1034548634.543.1.camel@nitrogenium>
+	<20021014220527.GU26715@khan.acc.umu.se>
+	<1034708558.427.0.camel@nitrogenium> 
+	<20021015211103.GV26715@khan.acc.umu.se>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 21 Oct 2002 17:49:04 -0200
+Message-Id: <1035229745.625.0.camel@nitrogenium>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, Rob Landley wrote:
+> Since you are doing changes to the VM, I would like detail descriptions
+> of what each change does, and why it is necessary, stability- or
+> security-wise. I will not accept changes to the VM subsystem unless
+> there is a valid reason; let the early v2.4-series be witness to why
+> this is a good stance.
+David, 
 
-> On Sunday 20 October 2002 21:45, Bill Davidsen wrote:
-> > On Sun, 20 Oct 2002, Jurriaan wrote:
+I've must install Linux on AMD386 DX40, HD Maxtor 160MB, 8MB RAM for 
+this task i used kernel 2.0.39. 
 
-> > > 2.5.43 will power down my smp VP6 board if I replace the BUG() calls in
-> > > arch/i386/kernel/apm.c with warnings. Somehow, the kernel doesn't
-> > > succesfully schedule itself to run on CPU 0. However, for my bios that
-> > > isn't needed.
-> >
-> > Are you using the real-mode call? Perhaps I should try NOT doing that, and
-> > see if it solves the problem. That used to be the solution, but things
-> > change.
+When I compiled kernel 2.0.39, I noticed some `warnings` which I
+corrected as mentioned previously.
+
+Then I inspected the VM subsystem code, where found any stuff 
+that could be cleanup and improved, such as: 
+
+
++#define clear_page(page)       memset((void *)(page), 0, PAGE_SIZE) 
++#define copy_page(to,from)     memcpy((void *)(to), (void *)(from),
+PAGE_SIZE) 
+
+
+> Speedups are generally not counted as a valid reason, unless we're
+> talking a change in the order of a magnitude or more. Code cleanup
+> might be a good reason, but then I'll merge it into the 2.0.41-tree
+> instead; this will probably be the case for your lxdialog-fixes, since
+> I'm cleaning up that code anyway for 2.0.41.
+LOL!
+The main reason this patch is cleanup and better code standartize. 
+I think thats code cleanup is good reason too!
+
+ 
+> Regards: David Weinehall
+> -- 
+>  /> David Weinehall <tao@acc.umu.se> /> Northern lights wander      <\
+> //  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+> \>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 > 
-> None of my systems will power down on UP if I enable the "local apic support 
-> on uniprocessors" option.
-> 
-> Something about the APIC code prevents the power down from occuring.  The 
-> symptoms are as you describe: the drives spin down, and the power goes off 
-> immediately if you press the button (instead of having to hold it down), but 
-> the power doesn't go off by itself.
-> 
-> Works fine if I compile without local APIC support.
 
-Hum, and you can quote me on that. I don't have that particular problem at
-all, my problem is only with SMP. And on several machines I note that the
-code to lock up SMP machines unless you use "noapic" isn't compatible with
-2.4, haven't had the lockup yet. Wish that would migrate back to 2.4!
-
-Anyway, my kernels are SMP, and if I boot "nosmp" they work fine with
-every APIC in sight enabled. This may or may not be the same problem, you
-could build an SMP kernel and boot it "nosmp" with APIC on and see what
-that does (if you're curious).
+Have fun! 
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Fernando Alencar Maróstica
+Graduate Student, Computer Science
+Linux Register User Id #281457
+
+University Methodist of Piracicaba
+Departament of Computer Science
+home: http://www.unimep.br/~famarost
 

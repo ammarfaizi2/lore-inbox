@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130322AbQK3Qz5>; Thu, 30 Nov 2000 11:55:57 -0500
+        id <S130380AbQK3RP3>; Thu, 30 Nov 2000 12:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130380AbQK3Qzr>; Thu, 30 Nov 2000 11:55:47 -0500
-Received: from uu194-7-68-2.unknown.uunet.be ([194.7.68.2]:28408 "EHLO
-        bartok.iverlek.kotnet.org") by vger.kernel.org with ESMTP
-        id <S130322AbQK3Qpc>; Thu, 30 Nov 2000 11:45:32 -0500
-Date: Thu, 30 Nov 2000 17:11:37 +0100
-From: Arnaud Installe <ainstalle@filepool.com>
-To: Ray Bryant <raybry@austin.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: high load & poor interactivity on fast thread creation
-Message-ID: <20001130171137.A1851@bartok.filepool.com>
-In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org> <3A266895.F522A0E2@austin.ibm.com>
+        id <S129977AbQK3RPU>; Thu, 30 Nov 2000 12:15:20 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:27416 "EHLO
+        penguin.e-mind.com") by vger.kernel.org with ESMTP
+        id <S130592AbQK3RAh>; Thu, 30 Nov 2000 12:00:37 -0500
+Date: Thu, 30 Nov 2000 17:29:47 +0100
+From: Andrea Arcangeli <andrea@e-mind.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Bob Tanner <tanner@real-time.com>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: do_try_free_pages failed for python
+Message-ID: <20001130172947.E8189@athlon.random>
+In-Reply-To: <20001129183919.B7640@real-time.com> <Pine.LNX.4.21.0011301405450.26098-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A266895.F522A0E2@austin.ibm.com>; from raybry@austin.ibm.com on Thu, Nov 30, 2000 at 08:47:49AM -0600
+In-Reply-To: <Pine.LNX.4.21.0011301405450.26098-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Nov 30, 2000 at 02:06:55PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 08:47:49AM -0600, Ray Bryant wrote:
-> The IBM implementations of the Java language use native threads --
-> the result is that every time you do a Java thread creation, you
-> end up with a new cloned process.  Now this should be pretty fast,
+On Thu, Nov 30, 2000 at 02:06:55PM -0200, Rik van Riel wrote:
+> still had lots of swap free, this may mean that VM
+> in 2.2 still has some bugs left ...
 
-Well, I think the problem is that it is *too* fast.  :-/  What I think
-happens is that a lot of threads get created at the same time, and they
-all run a bit of initialization code.  This way a lot of processes are in
-the running state, so that the load average gets *very* high, which makes
-the system very unresponsive.
+I guess it's the free_before_allocate band-aid that hurts in 2.2. That subtle
+race condition is fixed efficiently in VM-global with per-process freelist
+flushed atomically to the global freelist before allocation, so I'd suggest him
+to try to reproduce on VM-global-7.
 
-Could this be correct ?  Also, I haven't seen this happen with NT.  Could
-it be that Java on NT uses user-mode threading and creates threads much
-more slowly, resulting in a lower load ?
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre18/VM-global-2.2.18pre18-7.bz2
 
-> so I am surprised that it stalls like that.  It is possible this
-> is a scheduler effect.  Do you have a program example you can
-> share with us?
-
-So I suppose it is a scheduler effect.  Can this be solved on the kernel
-side (a /proc/sys setting perhaps ?), or should a check be built-in into
-the software that no more than a certain number of threads are created per
-time unit ?
-
-> Also, it is a little old now (by Internet standards) but you 
-> might take a look at this paper we did at the beginning of 
-> the year: 
->  
-> http://www-4.ibm.com/software/developer/library/java2/index.html
-
-I've already read this one.  I'll have to re-read it to freshen up my
-memory.
-
-							Arnaud
-
--- 
-Arnaud Installe						<ainstalle@filepool.com>
-
-Absence is to love what wind is to fire.  It extinguishes the small,
-it enkindles the great.
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

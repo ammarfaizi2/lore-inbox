@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132950AbRBRPMg>; Sun, 18 Feb 2001 10:12:36 -0500
+	id <S132980AbRBRPRs>; Sun, 18 Feb 2001 10:17:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132980AbRBRPM0>; Sun, 18 Feb 2001 10:12:26 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1042 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S132950AbRBRPMV>; Sun, 18 Feb 2001 10:12:21 -0500
-Date: Sun, 18 Feb 2001 09:05:34 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-To: Grant Grundler <grundler@cup.hp.com>
-cc: Philipp Rumpf <prumpf@mandrakesoft.mandrakesoft.com>,
-        Tim Waugh <twaugh@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.2-pre3: parport_pc init_module bug 
-In-Reply-To: <200102141725.JAA11515@milano.cup.hp.com>
-Message-ID: <Pine.LNX.3.96.1010218090322.1287D-100000@mandrakesoft.mandrakesoft.com>
+	id <S133005AbRBRPRi>; Sun, 18 Feb 2001 10:17:38 -0500
+Received: from t4o61p52.telia.com ([195.67.228.232]:6951 "EHLO k-7.stesmi.com")
+	by vger.kernel.org with ESMTP id <S132980AbRBRPRV>;
+	Sun, 18 Feb 2001 10:17:21 -0500
+Message-ID: <3A8FE852.2F61720C@hanse.com>
+Date: Sun, 18 Feb 2001 16:20:50 +0100
+From: Stefan Smietanowski <stefan@hanse.com>
+Organization: Hanse Communication
+X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dennis <dennis@etinc.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com> <5.0.0.25.0.20010217150612.0390d950@mail.etinc.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001, Grant Grundler wrote:
+Hi.
 
-> Philipp Rumpf wrote:
-> > Jeff Garzik wrote:
-> > > Looks ok, but I wonder if we should include this list in the docs.
-> > > These is stuff defined by the PCI spec, and this list could potentially
-> > > get longer...  (opinions either way wanted...)
+Thought I'd toss my 0.02sek into the discussion.
+
+> > > objective, arent we?
+> >Nope. Are you claiming to be?
+> >
+> > > For example, if there were six different companies that marketed ethernet
+> > > drivers for the eepro100, you'd have a choice of which one to buy..perhaps
+> >... Rant deleted
+> >
+> >I had a problem with eepro100.
+> >It was fixed same night cause I had the source.
+> >Don't even try to compare with MickyS**t.
 > 
-> Having people look things up in the spec isn't very user friendly.
-> Finding a copy of the PCI 2.1 or 2.2 spec I could pass on to others
-> (outside of HP) was a problem last year. The best I could do then
-> (legally) was point them to "PCI Systems Architecture" published
-> by MindShare.
+> good commercial drivers dont need fixing. another point. You are arguing
+> that having source is required to fix crappy code, which i agree with.
 
-_PCI Systems Architecture_ is an awesome book, definitely.
+Ok, tell that to my SBLive that absolutely loves jumping and jittering
+on my SMP box under Win2k. Creative have been notified. Ever since they
+released their first driver for it...
 
-AFAIK there are two avenues to go, when getting the PCI specs.
-Become a PCI SIG member (much $$$), or buy a CD-ROM.
+So if they would've had their driver out in the open I'm sure SOMEONE,
+if not me, would've squashed the bug already.
 
-For US$50, a non-member can purchase a CD-ROM from the PCI SIG
-which includes the latest versions of all the PCI specifications,
-in PDF format, as well as a hardcopy of the PCI 2.2 spec itself.
-Great deal, I recommend it for anybody intersted in hacking PCI.
+So you're right, good commercial drivers don't need fixing.
+Also, good open-source drivers don't need fixing.
+Good drivers don't need fixing! Of course they don't!
 
-	Jeff
+But crap coding is crap coding no matter what license/distribution form
+you put it under, be it open source, closed source or whatnot.
 
-
-
-
+// Stefan

@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUDBVLB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 16:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbUDBVLB
+	id S264150AbUDBV3n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 16:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264179AbUDBV3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 16:11:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:32737 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264121AbUDBVLA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 16:11:00 -0500
-Date: Fri, 2 Apr 2004 13:13:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Hartmann <andihartmann@freenet.de>
-Cc: mason@suse.com, linux-kernel@vger.kernel.org
-Subject: Re: Very poor performance with 2.6.4
-Message-Id: <20040402131309.238729bb.akpm@osdl.org>
-In-Reply-To: <406DD2E2.7030602@A88be.a.pppool.de>
-References: <40672F39.5040702@p3EE062D5.dip0.t-ipconnect.de>
-	<20040328200710.66a4ae1a.akpm@osdl.org>
-	<4067BF2C.8050801@p3EE060D4.dip0.t-ipconnect.de>
-	<1080570227.20685.93.camel@watt.suse.com>
-	<406D21F6.8080005@A88c0.a.pppool.de>
-	<20040402022348.00d55268.akpm@osdl.org>
-	<406DD2E2.7030602@A88be.a.pppool.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 2 Apr 2004 16:29:43 -0500
+Received: from aef.wh.uni-dortmund.de ([129.217.129.132]:35002 "EHLO
+	stan.ping.de") by vger.kernel.org with ESMTP id S264150AbUDBV3l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 16:29:41 -0500
+X-IMAP-Sender: rene
+Date: Fri, 2 Apr 2004 22:25:07 +0200
+X-OfflineIMAP-x676639941-52656d6f7465-494e424f582e4f7574626f78: 1080941365-0909439951674
+From: Rene Engelhard <rene@rene-engelhard.de>
+To: linux-kernel@vger.kernel.org
+Subject: immediate hibernate after resume!?
+Message-ID: <20040402202507.GA4609@rene-engelhard.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1; x-action=pgp-signed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Operating-System: Debian GNU/Linux
+X-PGP-Key: 248AEB73
+X-PGP-Fingerprint: 41FA F208 28D4 7CA5 19BB  7AD9 F859 90B0 248A EB73
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Hartmann <andihartmann@freenet.de> wrote:
->
-> > What device drivers are running at the time?  disk/network/usb/etc?
-> 
-> Module                  Size  Used by    Not tainted
-> eepro100               19828   1  (autoclean)
-> mii                     2480   0  (autoclean) [eepro100]
-> sis900                 13036   1  (autoclean)
-> crc32                   2880   0  (autoclean) [sis900]
-> usb-storage            26416   0  (unused)
-> scsi_mod               87488   0  [usb-storage]
-> uhci                   25436   0  (unused)
-> usbcore                62316   0  [usb-storage uhci]
-> lvm-mod                44416  12  (autoclean)
-> unix                   15308  13  (autoclean)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-No.  I mean which drivers were actually doing significant amounts of work
-during the test?
+[ please Cc me as I am not on l-k ]
 
-(you appear to not have any disks)
+Hi,
+
+I use swsusp as it is in 2.6.x.
+
+If I do a echo 4 > /proc/acpi/sleep the laptop hibernates and resumes
+ok.
+
+If I do a echo 3 > /proc/acpi/sleep then the laptop does suspend-to-ram
+right, but the resume is a problem: it resumes fine, but after the
+resume it _immediately and automatically_ starts to go into hibernation
+mode!? This is annying since there are situations where I want the
+laptop just suspend-to-ram instead of hibernate..
+
+WTF is going on here? Any ideas?
+
+Grüße/Regards,
+
+René
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAbcwj+FmQsCSK63MRAv5nAJ99y2xbGzm/glndBqZ33IMaGyLvwQCdEl84
+nqfyvBEuoG6SdA9XOPA1754=
+=98du
+-----END PGP SIGNATURE-----

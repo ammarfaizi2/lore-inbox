@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbUBTMxp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 07:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbUBTMxC
+	id S261232AbUBTM6A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 07:58:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbUBTM5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 07:53:02 -0500
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:22877 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261200AbUBTMsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 07:48:39 -0500
-Date: Fri, 20 Feb 2004 13:48:24 +0100
-Message-Id: <200402201248.i1KCmO2r004323@callisto.of.borg>
+	Fri, 20 Feb 2004 07:57:55 -0500
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:32321 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261228AbUBTMzK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 07:55:10 -0500
+Date: Fri, 20 Feb 2004 13:54:55 +0100
+Message-Id: <200402201254.i1KCst8Q004410@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 414] Dummy dma mapping
+Subject: [PATCH 400] Amifb modedb bug
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a dummy <asm-generic/dma-mapping-broken.h> for systems that don't support
-the new DMA API, and make m68k use it if !CONFIG_PCI
+Amifb: Fix bugs in the video mode database:
+  - ntsc-lace lacks the yres value
+  - a2024-15 is 15 Hz, not 10
 
---- /dev/null	2004-02-08 10:50:36.000000000 +0100
-+++ linux-m68k-2.6.3/include/asm-generic/dma-mapping-broken.h	2004-02-19 21:15:19.000000000 +0100
-@@ -0,0 +1,22 @@
-+#ifndef _ASM_GENERIC_DMA_MAPPING_H
-+#define _ASM_GENERIC_DMA_MAPPING_H
-+
-+/* This is used for archs that do not support DMA */
-+
-+
-+static inline void *
-+dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
-+		   int flag)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void
-+dma_free_coherent(struct device *dev, size_t size, void *cpu_addr,
-+		    dma_addr_t dma_handle)
-+{
-+	BUG();
-+}
-+
-+#endif /* _ASM_GENERIC_DMA_MAPPING_H */
---- linux-2.6.3/include/asm-m68k/dma-mapping.h	2003-07-29 18:19:20.000000000 +0200
-+++ linux-m68k-2.6.3/include/asm-m68k/dma-mapping.h	2004-02-13 16:14:30.000000000 +0100
-@@ -5,6 +5,8 @@
- 
- #ifdef CONFIG_PCI
- #include <asm-generic/dma-mapping.h>
-+#else
-+#include <asm-generic/dma-mapping-broken.h>
+--- linux-2.6.3/drivers/video/amifb.c	2003-05-27 19:03:30.000000000 +0200
++++ linux-m68k-2.6.3/drivers/video/amifb.c	2004-02-02 15:38:21.000000000 +0100
+@@ -832,7 +832,7 @@
+ 	FB_SYNC_BROADCAST, FB_VMODE_NONINTERLACED | FB_VMODE_YWRAP
+     }, {
+ 	/* 640x400, 15 kHz, 60 Hz interlaced (NTSC) */
+-	"ntsc-lace", 60, 640, TAG_HIRES, 106, 86, 88, 33, 76, 4,
++	"ntsc-lace", 60, 640, 400, TAG_HIRES, 106, 86, 88, 33, 76, 4,
+ 	FB_SYNC_BROADCAST, FB_VMODE_INTERLACED | FB_VMODE_YWRAP
+     }, {
+ 	/* 640x256, 15 kHz, 50 Hz (PAL) */
+@@ -927,7 +927,7 @@
+ 	0, FB_VMODE_NONINTERLACED | FB_VMODE_YWRAP
+     }, {
+ 	/* 1024x800, 15 Hz */
+-	"a2024-15", 10, 1024, 800, TAG_HIRES, 0, 0, 0, 0, 0, 0,
++	"a2024-15", 15, 1024, 800, TAG_HIRES, 0, 0, 0, 0, 0, 0,
+ 	0, FB_VMODE_NONINTERLACED | FB_VMODE_YWRAP
+     }
  #endif
- 
- #endif  /* _M68K_DMA_MAPPING_H */
 
 Gr{oetje,eeting}s,
 

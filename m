@@ -1,67 +1,323 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265062AbUFMNHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUFMN3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbUFMNHI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 09:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUFMNHI
+	id S265060AbUFMN3f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 09:29:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265065AbUFMN3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 09:07:08 -0400
-Received: from nmts-mur.murom.net ([213.177.124.6]:15016 "EHLO ns1.murom.ru")
-	by vger.kernel.org with ESMTP id S265056AbUFMNGp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 09:06:45 -0400
-Date: Sun, 13 Jun 2004 17:06:30 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Andi Kleen <ak@muc.de>
+	Sun, 13 Jun 2004 09:29:35 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:36915 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S265060AbUFMN3Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 09:29:24 -0400
+Subject: Re: [PATCH][RFC] 2.6.6 tty_io.c hangup locking
+From: Paul Fulghum <paulkf@microgate.com>
+To: Jurjen Oskam <jurjen@stupendous.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: timer + fpu stuff locks up computer
-Message-ID: <20040613130630.GB2236@sirius.home>
-References: <26h3z-t3-15@gated-at.bofh.it> <26hGq-Zr-29@gated-at.bofh.it> <26isF-1Im-11@gated-at.bofh.it> <26lJU-4lC-23@gated-at.bofh.it> <m3isdwo2et.fsf@averell.firstfloor.org>
+In-Reply-To: <20040613090543.GA29699@quadpro.stupendous.org>
+References: <20040527174509.GA1654@quadpro.stupendous.org>
+	 <1085769769.2106.23.camel@deimos.microgate.com>
+	 <20040613090543.GA29699@quadpro.stupendous.org>
+Content-Type: text/plain
+Message-Id: <1087133357.16761.11.camel@at2.pipehead.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GID0FwUMdk1T2AWN"
-Content-Disposition: inline
-In-Reply-To: <m3isdwo2et.fsf@averell.firstfloor.org>
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sun, 13 Jun 2004 08:29:17 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-06-13 at 04:05, Jurjen Oskam wrote:
+> On Fri, May 28, 2004 at 01:42:50PM -0500, Paul Fulghum wrote:
+> 
+> > The following patch removes unnecessary disabling of
+> > interrupts when processing hangup for tty devices.
+> > 
+> > This was introduced way back in August 1998
+> > with patch 2.1.115 when the original hangup processing was
+> > changed from cli/sti to lock_kernel()/unlock_kernel().
+> 
+> I applied this patch to vanilla 2.2.5, and have been running with it
+> for a week or two. During that time, I frequently used PPP. For testing, I
+> interrupted the connection when sending and/or receiving data.
+> 
+> I didn't experience any problems whatsoever. 
 
---GID0FwUMdk1T2AWN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Could I persuade you to also try this patch for ppp_synctty.c?
+If I remember correctly, you were using this module for PPPoE.
 
-On Sun, Jun 13, 2004 at 12:08:10AM +0200, Andi Kleen wrote:
-> One problem on 486s/P5s would be the race that is described in D.2.1.3
-> of Volume 1 of the Intel architecture manual when the FPU is in MSDOS
-> compatibility. When that happens we can still get the exception later
-> (e.g. on a following fwait which the kernel can still execute). The
-> only way to handle that would be to check in the exception handler,
-> like my patch did.
+It also fixes the softirq warning, but from a different angle.
+The tty_io.c patch will not be accepted until tty locking is
+completely reworked (which won't happen anytime soon).
+The patch below mirrors changes to ppp_async.c which have
+already been accepted.
 
-But in head.S we set the NE flag in CR0 for all 486 or better
-processors, so the MSDOS compatibility mode is not used, and we don't
-need to care about this race.
+The ppp_synctty patch also fixes some callbacks to allow
+calls from hard interrupt context. I have been
+banging on it for a week with no problems.
 
-> However my patch was also not complete, since it
-> didn't handle it for all fwaits in the kernel.
+So, if possible, revert the tty_io.c patch, apply this one, and
+continue your testing.
 
-Looked at your patch...  I was also thinking about something similar.
+Thanks,
+Paul
 
-You treat exception 16 and IRQ13 the same - is this really correct?
-Asynchronous IRQ13 might break things.  But this would be visible only
-on a real 80386+80387 - does someone still have such hardware? ;)
+--- linux-2.6.6/drivers/net/ppp_synctty.c       2004-04-03 21:36:57.000000000 -0600
++++ linux-2.6.6-mg1/drivers/net/ppp_synctty.c   2004-06-02
+15:01:35.177725315 -0500
+@@ -65,7 +65,9 @@
+        struct sk_buff  *tpkt;
+        unsigned long   last_xmit;
+ 
+-       struct sk_buff  *rpkt;
++       struct sk_buff_head rqueue;
++
++       struct tasklet_struct tsk;
+ 
+        atomic_t        refcnt;
+        struct semaphore dead_sem;
+@@ -88,6 +90,7 @@
+ static int ppp_sync_send(struct ppp_channel *chan, struct sk_buff
+*skb);
+ static int ppp_sync_ioctl(struct ppp_channel *chan, unsigned int cmd,
+                          unsigned long arg);
++static void ppp_sync_process(unsigned long arg);
+ static int ppp_sync_push(struct syncppp *ap);
+ static void ppp_sync_flush_output(struct syncppp *ap);
+ static void ppp_sync_input(struct syncppp *ap, const unsigned char
+*buf,
+@@ -217,6 +220,9 @@
+        ap->xaccm[3] = 0x60000000U;
+        ap->raccm = ~0U;
+ 
++       skb_queue_head_init(&ap->rqueue);
++       tasklet_init(&ap->tsk, ppp_sync_process, (unsigned long) ap);
++
+        atomic_set(&ap->refcnt, 1);
+        init_MUTEX_LOCKED(&ap->dead_sem);
+ 
+@@ -267,10 +273,10 @@
+         */
+        if (!atomic_dec_and_test(&ap->refcnt))
+                down(&ap->dead_sem);
++       tasklet_kill(&ap->tsk);
+ 
+        ppp_unregister_channel(&ap->chan);
+-       if (ap->rpkt != 0)
+-               kfree_skb(ap->rpkt);
++       skb_queue_purge(&ap->rqueue);
+        if (ap->tpkt != 0)
+                kfree_skb(ap->tpkt);
+        kfree(ap);
+@@ -369,17 +375,24 @@
+        return 65535;
+ }
+ 
++/*
++ * This can now be called from hard interrupt level as well
++ * as soft interrupt level or mainline.
++ */
+ static void
+ ppp_sync_receive(struct tty_struct *tty, const unsigned char *buf,
+-                 char *flags, int count)
++                 char *cflags, int count)
+ {
+        struct syncppp *ap = sp_get(tty);
++       unsigned long flags;
+ 
+        if (ap == 0)
+                return;
+-       spin_lock_bh(&ap->recv_lock);
+-       ppp_sync_input(ap, buf, flags, count);
+-       spin_unlock_bh(&ap->recv_lock);
++       spin_lock_irqsave(&ap->recv_lock, flags);
++       ppp_sync_input(ap, buf, cflags, count);
++       spin_unlock_irqrestore(&ap->recv_lock, flags);
++       if (skb_queue_len(&ap->rqueue))
++               tasklet_schedule(&ap->tsk);
+        sp_put(ap);
+        if (test_and_clear_bit(TTY_THROTTLED, &tty->flags)
+            && tty->driver->unthrottle)
+@@ -394,8 +407,8 @@
+        clear_bit(TTY_DO_WRITE_WAKEUP, &tty->flags);
+        if (ap == 0)
+                return;
+-       if (ppp_sync_push(ap))
+-               ppp_output_wakeup(&ap->chan);
++       set_bit(XMIT_WAKEUP, &ap->xmit_flags);
++       tasklet_schedule(&ap->tsk);
+        sp_put(ap);
+ }
+ 
+@@ -449,9 +462,9 @@
+                if (get_user(val, (int *) arg))
+                        break;
+                ap->flags = val & ~SC_RCV_BITS;
+-               spin_lock_bh(&ap->recv_lock);
++               spin_lock_irq(&ap->recv_lock);
+                ap->rbits = val & SC_RCV_BITS;
+-               spin_unlock_bh(&ap->recv_lock);
++               spin_unlock_irq(&ap->recv_lock);
+                err = 0;
+                break;
+ 
+@@ -512,6 +525,32 @@
+ }
+ 
+ /*
++ * This is called at softirq level to deliver received packets
++ * to the ppp_generic code, and to tell the ppp_generic code
++ * if we can accept more output now.
++ */
++static void ppp_sync_process(unsigned long arg)
++{
++       struct syncppp *ap = (struct syncppp *) arg;
++       struct sk_buff *skb;
++
++       /* process received packets */
++       while ((skb = skb_dequeue(&ap->rqueue)) != NULL) {
++               if (skb->len == 0) {
++                       /* zero length buffers indicate error */
++                       ppp_input_error(&ap->chan, 0);
++                       kfree_skb(skb);
++               }
++               else
++                       ppp_input(&ap->chan, skb);
++       }
++
++       /* try to push more stuff out */
++       if (test_bit(XMIT_WAKEUP, &ap->xmit_flags) && ppp_sync_push(ap))
++               ppp_output_wakeup(&ap->chan);
++}
++
++/*
+  * Procedures for encapsulation and framing.
+  */
+ 
+@@ -600,7 +639,6 @@
+        struct tty_struct *tty = ap->tty;
+        int tty_stuffed = 0;
+ 
+-       set_bit(XMIT_WAKEUP, &ap->xmit_flags);
+        if (!spin_trylock_bh(&ap->xmit_lock))
+                return 0;
+        for (;;) {
+@@ -667,15 +705,44 @@
+  * Receive-side routines.
+  */
+ 
+-static inline void
+-process_input_packet(struct syncppp *ap)
++/* called when the tty driver has data for us. 
++ *
++ * Data is frame oriented: each call to ppp_sync_input is considered
++ * a whole frame. If the 1st flag byte is non-zero then the whole
++ * frame is considered to be in error and is tossed.
++ */
++static void
++ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
++               char *flags, int count)
+ {
+        struct sk_buff *skb;
+        unsigned char *p;
+-       int code = 0;
+ 
+-       skb = ap->rpkt;
+-       ap->rpkt = 0;
++       if (count == 0)
++               return;
++
++       if (ap->flags & SC_LOG_INPKT)
++               ppp_print_buffer ("receive buffer", buf, count);
++
++       /* stuff the chars in the skb */
++       if ((skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2)) == 0) {
++               printk(KERN_ERR "PPPsync: no memory (input pkt)\n");
++               goto err;
++       }
++       /* Try to get the payload 4-byte aligned */
++       if (buf[0] != PPP_ALLSTATIONS)
++               skb_reserve(skb, 2 + (buf[0] & 1));
++
++       if (flags != 0 && *flags) {
++               /* error flag set, ignore frame */
++               goto err;
++       } else if (count > skb_tailroom(skb)) {
++               /* packet overflowed MRU */
++               goto err;
++       }
++
++       p = skb_put(skb, count);
++       memcpy(p, buf, count);
+ 
+        /* strip address/control field if present */
+        p = skb->data;
+@@ -693,59 +760,15 @@
+        } else if (skb->len < 2)
+                goto err;
+ 
+-       /* pass to generic layer */
+-       ppp_input(&ap->chan, skb);
++       /* queue the frame to be processed */
++       skb_queue_tail(&ap->rqueue, skb);
+        return;
+ 
+- err:
+-       kfree_skb(skb);
+-       ppp_input_error(&ap->chan, code);
+-}
+-
+-/* called when the tty driver has data for us. 
+- *
+- * Data is frame oriented: each call to ppp_sync_input is considered
+- * a whole frame. If the 1st flag byte is non-zero then the whole
+- * frame is considered to be in error and is tossed.
+- */
+-static void
+-ppp_sync_input(struct syncppp *ap, const unsigned char *buf,
+-               char *flags, int count)
+-{
+-       struct sk_buff *skb;
+-       unsigned char *sp;
+-
+-       if (count == 0)
+-               return;
+-
+-       /* if flag set, then error, ignore frame */
+-       if (flags != 0 && *flags) {
+-               ppp_input_error(&ap->chan, *flags);
+-               return;
+-       }
+-
+-       if (ap->flags & SC_LOG_INPKT)
+-               ppp_print_buffer ("receive buffer", buf, count);
+-
+-       /* stuff the chars in the skb */
+-       if ((skb = ap->rpkt) == 0) {
+-               if ((skb = dev_alloc_skb(ap->mru + PPP_HDRLEN + 2)) ==
+0) {
+-                       printk(KERN_ERR "PPPsync: no memory (input
+pkt)\n");
+-                       ppp_input_error(&ap->chan, 0);
+-                       return;
+-               }
+-               /* Try to get the payload 4-byte aligned */
+-               if (buf[0] != PPP_ALLSTATIONS)
+-                       skb_reserve(skb, 2 + (buf[0] & 1));
+-               ap->rpkt = skb;
+-       }
+-       if (count > skb_tailroom(skb)) {
+-               /* packet overflowed MRU */
+-               ppp_input_error(&ap->chan, 1);
+-       } else {
+-               sp = skb_put(skb, count);
+-               memcpy(sp, buf, count);
+-               process_input_packet(ap);
++err:
++       /* queue zero length packet as error indication */
++       if (skb || (skb = dev_alloc_skb(0))) {
++               skb_trim(skb, 0);
++               skb_queue_tail(&ap->rqueue, skb);
+        }
+ }
+ 
 
---GID0FwUMdk1T2AWN
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAzFFWW82GfkQfsqIRApU6AJ9vcEelNI31jSePaPbuYQiBMhEwbQCfY2IH
-ceh3O6amLtQxb8qMK9+GrNE=
-=VyFe
------END PGP SIGNATURE-----
-
---GID0FwUMdk1T2AWN--

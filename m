@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287204AbSBZXAu>; Tue, 26 Feb 2002 18:00:50 -0500
+	id <S287386AbSBZXDk>; Tue, 26 Feb 2002 18:03:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287149AbSBZXAn>; Tue, 26 Feb 2002 18:00:43 -0500
-Received: from jalon.able.es ([212.97.163.2]:18399 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S286959AbSBZXAe>;
-	Tue, 26 Feb 2002 18:00:34 -0500
-Date: Wed, 27 Feb 2002 00:00:24 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Steve Lord <lord@sgi.com>
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        "Dennis, Jim" <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+	id <S286959AbSBZXDb>; Tue, 26 Feb 2002 18:03:31 -0500
+Received: from tolkor.sgi.com ([192.48.180.13]:44931 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id <S287386AbSBZXDQ>;
+	Tue, 26 Feb 2002 18:03:16 -0500
 Subject: Re: Congrats Marcelo,
-Message-ID: <20020227000024.G6197@werewolf.able.es>
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com> <20020226140644.U12832@lynx.adilger.int> <1014760581.5993.159.camel@jen.americas.sgi.com>
+From: Steve Lord <lord@sgi.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andreas Dilger <adilger@turbolabs.com>,
+        Dennis Jim <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16fqZK-0002NE-00@the-village.bc.nu>
+In-Reply-To: <E16fqZK-0002NE-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 26 Feb 2002 16:59:34 -0600
+Message-Id: <1014764374.5993.183.camel@jen.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1014760581.5993.159.camel@jen.americas.sgi.com>; from lord@sgi.com on mar, feb 26, 2002 at 22:56:21 +0100
-X-Mailer: Balsa 1.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-02-26 at 16:59, Alan Cox wrote:
+> > Someone has got to kill this assumption people have about XFS, it
+> > makes much smaller changes than some things which have gone in,
+> > the odd VM rewrite here and there to name some. Given that we now
+> 
+> Which was a complete disaster. IBM submitted Jfs into the -ac tree with
+> no lines of code changed outside fs/jfs. That is really the benchmark.
 
-On 20020226 Steve Lord wrote:
->On Tue, 2002-02-26 at 15:06, Andreas Dilger wrote:
->> On Feb 26, 2002  12:38 -0800, Dennis, Jim wrote:
->> >  Now I need to know about the status of several unofficial patches:
->> 
->> While my word is by no means official, my general understanding is:
->> 
->> > 	XFS
->> 
->> Not for 2.4 - just too many changes to the core kernel code.
->
->Someone has got to kill this assumption people have about XFS, it
->makes much smaller changes than some things which have gone in,
->the odd VM rewrite here and there to name some. Given that we now
->have official EA system calls, the last chunk of stuff to resolve
->is quota. This is being worked on with Jan Kara.
->
 
-AFAIK, it does not so many changes but duplicates half the fs 
-infrastructure already present in kernel just to have a common
-codebase with IRIX.
+Alan, I agree the VM changes had their issues, bad example, but LOTs of
+things have gone into 2.4 which are more impactive than XFS, I just want
+to get out of this image of XFS being the filesystem which ate the
+kernel.
 
-Is this still true ?
-Is anybody working in kill all the dups ?
- 
+Yes jfs went in cleanly, because they reimplemented their filesystem
+from the ground up, and had a large budget to do it. XFS does not fit
+so cleanly because we brought along some features other filesystems did
+not have:
+
+  o Posix ACL support
+  o The ability to do online filesystem dumps which are coherent with
+    the system call interface
+  o delayed allocation of file data
+  o DMAPI
+
+As it is we did all of these, and we seem to have half the Linux NAS
+vendors in the world building xfs into their boxes.
+
+Steve
+
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-jam1 #1 SMP Tue Feb 26 00:06:55 CET 2002 i686
+
+Steve Lord                                      voice: +1-651-683-3511
+Principal Engineer, Filesystem Software         email: lord@sgi.com

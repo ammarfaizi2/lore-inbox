@@ -1,64 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbUACHyS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 02:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUACHyS
+	id S262827AbUACJHP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 04:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUACJGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 02:54:18 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:36358
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262782AbUACHyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 02:54:15 -0500
-Date: Fri, 2 Jan 2004 23:51:29 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Christophe Saout <christophe@saout.de>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: CPRM ?? Re: Possibly wrong BIO usage in ide_multwrite
-In-Reply-To: <1073047522.4239.6.camel@leto.cs.pocnet.net>
-Message-ID: <Pine.LNX.4.10.10401022348030.31033-100000@master.linux-ide.org>
+	Sat, 3 Jan 2004 04:06:21 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:51283 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265942AbUACJEb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 04:04:31 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 7/7] SiS AUX port
+Date: Sat, 3 Jan 2004 04:03:44 -0500
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <200401030350.43437.dtor_core@ameritech.net> <200401030402.16745.dtor_core@ameritech.net> <200401030403.03783.dtor_core@ameritech.net>
+In-Reply-To: <200401030403.03783.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401030403.45760.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Christophe,
-
-Fair enough, and point taken.  Thanks for the clarification.
-
-I am puzzled by the need to modify buffers on the fly inside the FSM.
-This is straight out of some unpublished information, so it struck a raw
-nerve.  Just be aware this tends to follow the design and could be used
-for such.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
+===================================================================
 
 
+ChangeSet@1.1577, 2004-01-03 02:54:28-05:00, dtor_core@ameritech.net
+  Input: Do not ignore AUX port if chipset fails to disable it
+         (SiS seems to have trouble disabling AUX port, other
+          than that the port works fine).
 
-On Fri, 2 Jan 2004, Christophe Saout wrote:
 
-> Am Fr, den 02.01.2004 schrieb Andre Hedrick um 05:43:
-> 
-> > I am sorry but adding in a splitter to CPRM is not acceptable.
-> > Digital Rights Management in the kernel is not acceptable to me, period.
-> > 
-> > Maybe I have misread your intent and the contents on your website.
-> >
-> > Device-Mappers are one thing, intercepting buffers in the taskfile FSM
-> > transport is another.  This stinks of CPRM at this level, regardless of
-> > your intent.  Do correct me if I am wrong.
-> 
-> I can assure you I was never having DRM or anything like this in mind
-> nor making fundamental changes to the IDE layer. It was just that
-> ++bi_idx that bugged me. Must be a misunderstanding, sorry. :)
-> 
-> The only thing I'm having on my website is a device-mapper target that
-> does basically the same as cryptoloop tries to. It's just about
-> encrypting sensitive data on top of any other device, nothing else.
-> 
-> 
+ i8042.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
+
+===================================================================
+
+
+
+diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	Sat Jan  3 03:10:31 2004
++++ b/drivers/input/serio/i8042.c	Sat Jan  3 03:10:31 2004
+@@ -598,8 +598,10 @@
+ 	
+ 	if (i8042_command(&param, I8042_CMD_AUX_DISABLE))
+ 		return -1;
+-	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (~param & I8042_CTR_AUXDIS))
+-		return -1;	
++	if (i8042_command(&param, I8042_CMD_CTL_RCTR) || (~param & I8042_CTR_AUXDIS)) {
++		printk(KERN_WARNING "Failed to disable AUX port, but continuing anyway... Is this a SiS?\n");
++		printk(KERN_WARNING "If AUX port is really absent please use the 'i8042.noaux' option.\n");
++	}
+ 
+ 	if (i8042_command(&param, I8042_CMD_AUX_ENABLE))
+ 		return -1;

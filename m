@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVATDax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262027AbVATDih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbVATDax (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 22:30:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVATDYc
+	id S262027AbVATDih (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 22:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262024AbVATDih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 22:24:32 -0500
-Received: from mail.suse.de ([195.135.220.2]:31187 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262031AbVATDX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 22:23:27 -0500
-Message-Id: <20050120032510.682620000@suse.de>
-References: <20050120020124.110155000@suse.de>
-Date: Thu, 20 Jan 2005 03:01:24 +0100
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andrew Tridgell <tridge@osdl.org>, "Stephen C. Tweedie" <sct@redhat.com>,
-       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
-       linux-kernel@vger.kernel.org
-Subject: [patch 2/5] Set the EXT3_FEATURE_COMPAT_EXT_ATTR for in-inode xattrs
-Content-Disposition: inline; filename=ea-xattr-update-sb.diff
+	Wed, 19 Jan 2005 22:38:37 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:2691 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S262027AbVATDbL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 22:31:11 -0500
+Date: Thu, 20 Jan 2005 13:30:19 +1000
+From: David McCullough <davidm@snapgear.com>
+To: James Morris <jmorris@redhat.com>
+Cc: Fruhwirth Clemens <clemens@endorphin.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz,
+       Michal Ludvig <michal@logix.cz>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers at a time
+Message-ID: <20050120033019.GD9407@beast>
+References: <1105793137.16065.17.camel@ghanima> <Xine.LNX.4.44.0501181147490.24891-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0501181147490.24891-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The xattr feature was only set when creating an xattr block. Also set it
-when creating in-inode xattrs.
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Jivin James Morris lays it down ...
+> On Sat, 15 Jan 2005, Fruhwirth Clemens wrote:
+> 
+> > However, developing two different APIs isn't particular efficient. I
+> > know, at the moment there isn't much choice, as J.Morris hasn't commited
+> > to acrypto in anyway.
+> 
+> There is also the OCF port (OpenBSD crypto framework) to consider, if 
+> permission to dual license from the original authors can be obtained.
 
-Index: linux-2.6.11-latest/fs/ext3/xattr.c
-===================================================================
---- linux-2.6.11-latest.orig/fs/ext3/xattr.c
-+++ linux-2.6.11-latest/fs/ext3/xattr.c
-@@ -823,7 +823,6 @@ getblk_failed:
- 			error = ext3_journal_dirty_metadata(handle, new_bh);
- 			if (error)
- 				goto cleanup;
--			ext3_xattr_update_super_block(handle, sb);
- 		}
- 	}
- 
-@@ -1001,6 +1000,7 @@ ext3_xattr_set_handle(handle_t *handle, 
- 		}
- 	}
- 	if (!error) {
-+		ext3_xattr_update_super_block(handle, inode->i_sb);
- 		inode->i_ctime = CURRENT_TIME_SEC;
- 		error = ext3_mark_iloc_dirty(handle, inode, &is.iloc);
- 		/*
+For anyone looking for the OCF port for linux,  you can find the latest
+release here:
 
---
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+	http://lists.logix.cz/pipermail/cryptoapi/2004/000261.html
 
+One of the drivers uses the existing kernel crypto API to implement
+a SW crypto engine for OCF.
+
+As for permission to use a dual license,  I will gladly approach the
+authors if others feel it is important to know the possibility of it at this
+point,
+
+Cheers,
+Davidm
+
+-- 
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

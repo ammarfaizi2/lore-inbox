@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319088AbSH2C2U>; Wed, 28 Aug 2002 22:28:20 -0400
+	id <S319078AbSH2C0A>; Wed, 28 Aug 2002 22:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319090AbSH2C2T>; Wed, 28 Aug 2002 22:28:19 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:51439 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S319088AbSH2C2S>; Wed, 28 Aug 2002 22:28:18 -0400
-Message-ID: <3D6D880B.8090401@snapgear.com>
-Date: Thu, 29 Aug 2002 12:33:47 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.32uc1 (MMU-less patches)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S319080AbSH2CZ7>; Wed, 28 Aug 2002 22:25:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:42883 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319078AbSH2CZ5>;
+	Wed, 28 Aug 2002 22:25:57 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.32-mm1 
+In-reply-to: Your message of "Wed, 28 Aug 2002 09:47:19 MST."
+             <3D6CFE97.DA554FA9@zip.com.au> 
+Date: Thu, 29 Aug 2002 11:20:57 +1000
+Message-Id: <20020828213041.13C3F2C0F7@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <3D6CFE97.DA554FA9@zip.com.au> you write:
+> Heinz Diehl wrote:
+> > 
+> > ...
+> > fs/fs.o(.text+0x5932): undefined reference to cpu_possible'
+> 
+> Bah.  Sorry about that.  cpu_possible() appears to be undefined
+> for uniprocessor builds.
 
-Hi All,
+Yes.
 
-A new MMU-less patch, linux-2.5.32uc1. You can get it at:
+> +
+> +#define cpu_possible(cpu)	((cpu) == 0)
+> +
 
-   http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/
+This is fine: techically it's:
+	BUG_ON(cpu != 0);
 
-A few minor fixes:
+Since you can never invoke cpu_possible(cpu) or cpu_online(cpu) for
+cpu >= NR_CPUS.
 
-. Fixed incorrect setting of totalram_pages in arch mm init
-. Added some vmalloc_ routines to fix module support
-. Added m68knommu config support for security and lib sub-systems
-. Added Config.help to arch/m68knommu
-
-Regards
-Greg
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

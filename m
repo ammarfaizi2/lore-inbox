@@ -1,21 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbUAXLNv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 06:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266908AbUAXLNv
+	id S266913AbUAXLWF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 06:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUAXLWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 06:13:51 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59821 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264553AbUAXLNv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 06:13:51 -0500
-Date: Sat, 24 Jan 2004 03:13:49 -0800
-From: John Cherry <cherry@osdl.org>
-Message-Id: <200401241113.i0OBDnfH017530@cherrypit.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA32 (2.6.2-rc1 - 2004-01-23.22.30) - 2 New warnings (gcc 3.2.2)
+	Sat, 24 Jan 2004 06:22:05 -0500
+Received: from gizmo03bw.bigpond.com ([144.140.70.13]:51426 "HELO
+	gizmo03bw.bigpond.com") by vger.kernel.org with SMTP
+	id S266913AbUAXLWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 06:22:03 -0500
+Message-ID: <40125540.A33B8AB2@eyal.emu.id.au>
+Date: Sat, 24 Jan 2004 22:21:36 +1100
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.25-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.25-pre7
+References: <Pine.LNX.4.58L.0401231652020.19820@logos.cnet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/kernel/dmi_scan.c:287: warning: `apm_is_horked_d850md' defined but not used
-fs/xfs/xfs_log_recover.c:1534: warning: `flags' might be used uninitialized in this function
+Marcelo Tosatti wrote:
+> Here goes -pre number 7 of 2.4.25 series.
+
+cp aty128fb.o clgenfb.o cyber2000fb.o fbcon-afb.o fbcon-cfb16.o
+fbcon-cfb2.o fbc
+on-cfb24.o fbcon-cfb32.o fbcon-cfb4.o fbcon-cfb8.o fbcon-hga.o
+fbcon-ilbm.o fbco
+n-iplan2p2.o fbcon-iplan2p4.o fbcon-iplan2p8.o fbcon-mac.o fbcon-mfb.o
+fbcon-vga
+-planes.o fbcon-vga.o fbgen.o hgafb.o it8181fb.o mdacon.o neofb.o
+pm2fb.o pm3fb.
+o radeonfb.o sstfb.o tdfxfb.o tridentfb.o vfb.o vga16fb.o
+/lib/modules/2.4.25-pr
+e7/kernel/drivers/video/
+cp: cannot stat `it8181fb.o': No such file or directory
+make[2]: *** [_modinst__] Error 1
+make[2]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre/drivers/video'
+
+There are no it8181fb.* files there.
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

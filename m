@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290796AbSCDBfP>; Sun, 3 Mar 2002 20:35:15 -0500
+	id <S290797AbSCDBiP>; Sun, 3 Mar 2002 20:38:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290797AbSCDBfG>; Sun, 3 Mar 2002 20:35:06 -0500
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:36875
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S290796AbSCDBe4>; Sun, 3 Mar 2002 20:34:56 -0500
-Date: Mon, 4 Mar 2002 02:34:30 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Manfred Spraul <manfred@colorfullife.com>,
-        "Patrick R. McManus" <mcmanus@ducksong.com>
-Subject: [PATCH] SiS IDE, several fixes
-Message-ID: <20020304023430.A26562@bouton.inet6-interne.fr>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Manfred Spraul <manfred@colorfullife.com>,
-	"Patrick R. McManus" <mcmanus@ducksong.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S290818AbSCDBiF>; Sun, 3 Mar 2002 20:38:05 -0500
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:52955 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S290797AbSCDBh4>;
+	Sun, 3 Mar 2002 20:37:56 -0500
+Message-ID: <3C82CFE0.4050804@tmsusa.com>
+Date: Sun, 03 Mar 2002 17:37:36 -0800
+From: J Sloan <joe@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: latency & real-time-ness.
+In-Reply-To: <E16hhLZ-00067I-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
 
-found time to read e-mails and write code.
+>>It might be very difficult to fix up the
+>>low latency patch for the latest -ac,
+>>
+>
+>You should be able to just dump out the vm part of it - Rik put that into
+>rmap anyuway afaik
+>
+Ah, excellent - good to know, I'll check
+that out tonight -
 
-- 730 fix (this ATA100 chipset uses the ATA66 family register layout)
-- Hang if UDMA is not set by BIOS fix (thanks to Manfred Spraul)
+BTW 2.4.19-pre2-ac1 was pretty good for
+me - The GUI remained snappy and the
+mp3s played smoothly all while running
+dbench 128 - The O(1) scheduler and rmap
+stuff look like a win -
 
-If you have a 730 chipset or if you couldn't boot without ide=nodma please
-test latest patch and report the results to me.
+Joe
 
-Patch against 2.4.18:
-
-http://inet6.dyn.dhs.org/sponsoring/sis5513/sis.patch.20020304_1
-or
-http://gyver.homeip.net/sis5513/sis.patch.20020304_1
-
-Full driver (drop-in replacement of linux/drivers/ide):
-
-http://inet6.dyn.dhs.org/sponsoring/sis5513/sis5513-v0.13.c
-or
-http://gyver.homeip.net/sis5513/sis5513-v0.13.c
-
-LB.

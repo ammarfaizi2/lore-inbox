@@ -1,72 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131240AbRAHTgq>; Mon, 8 Jan 2001 14:36:46 -0500
+	id <S131680AbRAHT6c>; Mon, 8 Jan 2001 14:58:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131547AbRAHTgg>; Mon, 8 Jan 2001 14:36:36 -0500
-Received: from big-relay-1.ftel.co.uk ([192.65.220.123]:37552 "EHLO
-	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
-	id <S131240AbRAHTgZ>; Mon, 8 Jan 2001 14:36:25 -0500
-Date: Mon, 8 Jan 2001 19:36:20 GMT
-Message-Id: <200101081936.f08JaJj24581@old-callisto.ftel.co.uk>
-From: Paul Flinders <P.Flinders@ftel.co.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.2/2.4 on MSI 694D Pro-AIR (MS-6321)
+	id <S131569AbRAHT6V>; Mon, 8 Jan 2001 14:58:21 -0500
+Received: from mailer.psc.edu ([128.182.58.100]:21260 "EHLO mailer.psc.edu")
+	by vger.kernel.org with ESMTP id <S132617AbRAHT6I>;
+	Mon, 8 Jan 2001 14:58:08 -0500
+Date: Mon, 8 Jan 2001 14:58:04 -0500 (EST)
+From: John Heffner <jheffner@psc.edu>
+To: Tim Sailer <sailer@bnl.gov>
+cc: linux-kernel@vger.kernel.org, jfung@bnl.gov
+Subject: Re: Network Performance?
+In-Reply-To: <20010108090644.A12440@bnl.gov>
+Message-ID: <Pine.NEB.4.05.10101081415330.3675-100000@dexter.psc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 8 Jan 2001, Tim Sailer wrote:
 
-Has anyone got either 2.2.x or 2.4.0 booted on the above motherboard?
+> > What is the round-trip time on the WAN?
+> > 
+> > Packet loss?
+> 
+> 101 packets transmitted, 101 packets received, 0% packet loss
+> round-trip min/avg/max = 109.6/110.3/112.2 ms
 
-This board has an integrated Promise Fasttrack ATA/100 controller - I
-know that to support the hardware RAID I need the binary only drivers
-from Promise but I'd rather not use these if software RAID works as
-there's no source, however I'm not getting that far.
+Packet loss and RTT can be greatly affected by how much data you're
+sending through a path, so a simple ping is probably not adequate.
 
-All the kernels that I've tried hang either after identifying the
-on-board IDE controllers if they don't have support for the promise
-chipset or after identifying the first channel on the Promise if they
-do
+Also, even a much smaller packet loss rate than 1/100 could really kill
+your throughput.
 
-The last boot messages printed are:
+> > Does the problem occur in both directions?
+> 
+> Good question. I'll find out.
+> 
+> > Are you _sure_ the window size is being set correctly? How
+> > is it being set?
+> 
+> I'm fairly sure. We echo the value to the file. catting it back
+> shows the correct value. If we go lower than default, it slows
+> down even more.
 
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller on PCI bus 00 dev 39
-VP_IDE: Chipset Revision 16
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: Via vt82c686a IDE Controller on PCI 0:7.1
-    ide0: BM-DMA at 0xb000-0xb007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xb008-0xb00f, BIOS settings: hdc:DMA, hdd:pio
-PDC20265: IDE controller on PCI bus 00 dev 60
-PDC20265: Chipset Revision 2
-PDC20265: not 100% native mode: will probe irqs later
-PDC20265: (U)DMA Burst Bit ENABLED Primary MASTER Mode Secondary MASTER Mode.
-    ide2: BM-DMA at 0xdc00-0xdc07, BIOS settings: hde:pio, hdf:pio
+You have to be certain you restart any applications currently running, but
+it seems like you're probably already doing that, since you observe a
+slow-down with smaller windows.
 
-Then it hangs requiring power cycling.
+Is window scaling enabled in the kernel?
+(/proc/sys/net/ipv4/tcp_window_scaling)
 
-I'm not sure whether the I/O address reported by the promise driver is
-correct - the promise BIOS shows the I/O address for the first channel
-as 0xCC00.
+You said you're using this as a proxy.  To rule out the real ftp server
+machine as a problem, are you doing an FTP directly from the Linux machine
+to your destination?
 
-There are two Maxtor 33073H3 30G drives connected as master & slave on
-channel 1 (yes, I know that they should be master on channel 1 and
-master on channel 2 - we're getting hold of some more cables but I
-assume that is not the cause of the kernel hang). The Promise BIOS
-utility shows them being in UDMA mode 5
+Also, your destination machine must have an appropriate receive
+window/buffer.
 
-The board has 2x 866 Mhz PIIIs (kernel compiled for SMP but using a UP
-kernel gives the same result), it's BIOS is version 3.0. There doesn't
-seem to be an option to disable the Promise controller otherwise I
-would.  There also doesn't seem to be the option of not using controller
-as a "normal" ATA/100 IDE controller either unless the act of _not_
-configuring any RAID arrays is sufficient.
+> > Are you able to generate TCP dumps when the problem is happening?
+> 
+> We can, if it will help.
 
-Is this a configuration with known problems?
+Viewing a trace of the connection is often the most informative and
+effective means of debugging a connection.  One note, traces should
+probably be collected from the sender.  Receiver traces rarely contain
+useful information.
 
-TIA
+Other questions: What kind of router(s) are you using?  How big are its
+buffers?  What drop algorithm does it use?  Have you successfully had any
+bulk TCP flows (from other OS's) go through this particular path at near
+the full 80Mb?
 
-Paul
+There are a number of difficulties that may occur when trying to get full
+bandwidth out of a long fat pipe (LFP).  You certainly aren't the only one
+having problems.  Unfortunately it often takes a TCP expert to diagnose
+the problem (or problems), since there are so many possible problems.
+
+  -John
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281441AbRKPOw6>; Fri, 16 Nov 2001 09:52:58 -0500
+	id <S281440AbRKPOw2>; Fri, 16 Nov 2001 09:52:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281442AbRKPOws>; Fri, 16 Nov 2001 09:52:48 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:23289 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S281441AbRKPOwm>; Fri, 16 Nov 2001 09:52:42 -0500
-Date: Fri, 16 Nov 2001 14:52:31 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Ben Collins <bcollins@debian.org>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: Bug in ext3
-Message-ID: <20011116145231.A6528@redhat.com>
-In-Reply-To: <20011115092452.Z329@visi.net> <3BF3F9ED.17D55B35@zip.com.au>, <3BF3F9ED.17D55B35@zip.com.au> <20011115153442.A329@visi.net> <3BF42A1A.5AE96A78@zip.com.au> <20011115160232.H329@visi.net>
+	id <S281441AbRKPOwT>; Fri, 16 Nov 2001 09:52:19 -0500
+Received: from samar.sasken.com ([164.164.56.2]:54229 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S281440AbRKPOwF>;
+	Fri, 16 Nov 2001 09:52:05 -0500
+From: Sureshkumar Kamalanathan <skk@sasken.com>
+Subject: dev_queue_xmit()
+Date: Fri, 16 Nov 2001 20:21:59 +0530
+Organization: Sasken Communication Technologies Limited
+Message-ID: <3BF5280F.3ED0DD80@sasken.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011115160232.H329@visi.net>; from bcollins@debian.org on Thu, Nov 15, 2001 at 04:02:32PM -0500
+Content-Transfer-Encoding: 7bit
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
+X-News-Gateway: ncc-z.sasken.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
+  Good day!
+  I am making some changes to the ethernet header for all outgoing
+packets.  I need to add a tag to it.  This tag will be recognised by the
+target machine.
+  Currently, I am putting this tag addition code in dev_queue_xmit(). 
+It doesn't work.  When I do gdb (remote gdb), I found that
+skb->mac.ethernet was 0.  What does it mean?
+  Is the ethernet header removed by the calling functions of
+dev_queue_xmit()?
+  And, if I have to do changes to all outgoing ethernet packets, which
+is the appropriate function?  Isn't dev_queue_xmit() the correct one?
+  
+  Thanks a lot in advance,
 
-On Thu, Nov 15, 2001 at 04:02:32PM -0500, Ben Collins wrote:
-> 
-> Seems it does have the field set. I guess the bug is then that if there
-> is no journal, then it shoudl fail to mount it, so ext2 will take over.
+Regards,
+Suresh.
 
-It _did_ fail to mount it, and ext2 _did_ take over: that's why, when
-ext2 found something else wrong with the filesystem, the errors
-looked like
-
-  EXT2-fs error (device sd(8,20)): ext2_free_blocks: Freeing blocks not
-  in datazone - block = 4294965248, count = 6872
-
-which were marked as ext2 warnings, not ext3 warnings.
-
-Cheers,
- Stephen
+-- 
+Sureshkumar Kamalanathan,
+Ph: 5578300 Extn: 8072.
+Sasken Communication Technologies Limited, Bangalore.
+(Formerly, Silicon Automation Systems.)

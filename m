@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262613AbREWKhg>; Wed, 23 May 2001 06:37:36 -0400
+	id <S263038AbREWKqQ>; Wed, 23 May 2001 06:46:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262614AbREWKh0>; Wed, 23 May 2001 06:37:26 -0400
-Received: from web13402.mail.yahoo.com ([216.136.175.60]:3603 "HELO
-	web13402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262613AbREWKhR>; Wed, 23 May 2001 06:37:17 -0400
-Message-ID: <20010523103715.87782.qmail@web13402.mail.yahoo.com>
-Date: Wed, 23 May 2001 12:37:15 +0200 (CEST)
-From: =?iso-8859-1?q?Cesar=20Da=20Silva?= <thunderlight1@yahoo.com>
-Reply-To: cesar.da.silva@cyberdude.com
-Subject: Request for comments on a thesis about Linux vs. IRIX, Solaris, AIX, HP-UX, and Tru64 UNIX.
+	id <S263043AbREWKqG>; Wed, 23 May 2001 06:46:06 -0400
+Received: from maila.telia.com ([194.22.194.231]:24261 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S263038AbREWKpx>;
+	Wed, 23 May 2001 06:45:53 -0400
+Date: Wed, 23 May 2001 12:45:06 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <anedah-9@sm.luth.se>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: Kernel 2.4.x TODO
+Message-ID: <20010523124506.A14654@sm.luth.se>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <80256A55.003665DF.00@DCSTRANS.COM>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <80256A55.003665DF.00@DCSTRANS.COM>; from Martin.Garton@DCSTRANS.COM on Wed, May 23, 2001 at 10:54:04AM +0000
+X-Unexpected-Header: The Spanish Inquisition
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-I'm looking for some help on reviewing my thesis about
-comparing the kernel functions/features in Linux,
-HP-UX, Solaris, IRIX, AIX, and Tru64 UNIX.
+Martin.Garton@DCSTRANS.COM <Martin.Garton@DCSTRANS.COM> wrote:
 
-I would appreciate if you also could point out some
-other features that I should add to my list (in the
-tables, on page 25-28 on the postscript file) and
-point me  to the right documentation that mentions
-that feature.
+> Was the TODO list at http://linux24.sourceforge.net just meant to be useful
+> before 2.4.0 was released?
 
-My thesis is available on:
-http://www.student.hig.se/~na98csa/linux/
+It would be interesting to know how many of these issues have been fixed by
+now.
+-- 
 
-or in postscrip format:
-http://www.student.hig.se/~na98csa/linux/xjobb.ps
-
-Could you please reply to this message through e-mail
-(na98csa@student.hig.se), please.
-
-Thanks in advance,
-Cesar da Silva
-
-_____________________________________________________
-Do You Yahoo!?
-Ditt_namn@yahoo.se - skaffa en gratis mailadress på http://mail.yahoo.se
+André Dahlqvist <anedah-9@sm.luth.se>

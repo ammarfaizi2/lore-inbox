@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316489AbSE3Ico>; Thu, 30 May 2002 04:32:44 -0400
+	id <S316491AbSE3Ije>; Thu, 30 May 2002 04:39:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316488AbSE3Icn>; Thu, 30 May 2002 04:32:43 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:39947 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S316481AbSE3Icn>; Thu, 30 May 2002 04:32:43 -0400
-Message-ID: <3CF5E41D.1000604@loewe-komp.de>
-Date: Thu, 30 May 2002 10:34:37 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
+	id <S316492AbSE3Ijd>; Thu, 30 May 2002 04:39:33 -0400
+Received: from blue.gradwell.net ([195.149.39.10]:15251 "HELO
+	blue.gradwell.net") by vger.kernel.org with SMTP id <S316491AbSE3Ijd>;
+	Thu, 30 May 2002 04:39:33 -0400
+Message-ID: <3CF5E6E8.40509@dcrdev.demon.co.uk>
+Date: Thu, 30 May 2002 09:46:32 +0100
+From: Dan Creswell <dan@dcrdev.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: a_new_hope@gmx.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Off-Topic: We need your Help! Please help Cargolifter!
-In-Reply-To: <200205300333.16821.flood@flood-net.de> <15757.1022724626@www56.gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: PCI - docos/where to start?
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a_new_hope@gmx.de wrote:
-> @ Andi
-> 
-> 
->>This is definitively the wrong place for a mail like this.
->>
-> That's why i wrote:
-> "We apologie for being off-topic.
-> We think that this airsphip is very important for
-> the whole humanity, especially in times of disasters.
-> We can't let this project die, that would be a big loss."
-> If i a have offended you i apologize again, sorry.
-> 
+Hi,
 
-Be careful with this. Otherwise when I get bored I might sue you
-and your company. What you are doing is ILLEGAL.
+I've got a new laptop here with a chipset that isn't currently properly 
+identified/configured by linux (it's Intel 845MP based - specifically, 
+Linux doesn't recognise the ISA bridge component which controls sound 
+card etc.).
 
-Oh, did I hurt you? That's why I say sorry.
+I'd like to fix this up myself so I was wondering if someone could give 
+me some pointers to bits of kernel code/documentation I should be 
+looking at before undertaking this work?
+
+Thanks,
+
+Dan.
+
 

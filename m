@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131531AbRARTqq>; Thu, 18 Jan 2001 14:46:46 -0500
+	id <S130847AbRARTpg>; Thu, 18 Jan 2001 14:45:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135571AbRARTqg>; Thu, 18 Jan 2001 14:46:36 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36878 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135569AbRARTqQ>; Thu, 18 Jan 2001 14:46:16 -0500
-Date: Thu, 18 Jan 2001 11:45:45 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>, Rick Jones <raj@cup.hp.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <20010118203802.D28276@athlon.random>
-Message-ID: <Pine.LNX.4.10.10101181144380.18387-100000@penguin.transmeta.com>
+	id <S132643AbRARTp0>; Thu, 18 Jan 2001 14:45:26 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:26466 "EHLO
+	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S130847AbRARTpN>; Thu, 18 Jan 2001 14:45:13 -0500
+Date: Thu, 18 Jan 2001 21:52:02 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Padraig Brady <Padraig@AnteFacto.com>
+cc: dmeyer@dmeyer.net, linux-kernel@vger.kernel.org
+Subject: Re: Documenting stat(2)
+In-Reply-To: <3A66D93C.8090500@AnteFacto.com>
+Message-ID: <Pine.LNX.4.21.0101182150060.27730-100000@server.serve.me.nl>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> Nope stat should return the details of the symlink
+> whereas lstat should return the details of the symlink target.
 
-On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
-> 
-> I'm all for TCP_CORK but it has the disavantage of two syscalls for doing the
-> flush of the outgoing queue to the network. And one of those two syscalls is
-> spurious. Certainly it makes perfect sense that the uncork flushes the outgoing
-> queue, but I think we should have a way to flush it without exiting the cork-mode.
-> I believe most software only needs to SIOCPUSH after sending the data and just
-> before waiting the reply.
+It's the other way around according to the manpage, and my code also says
+it's the other way around.
 
-Sure, I agree. Something like SIOCPUSH would fit very well into the
-TCP_CORK mentality.
+It's logical the way it is.. 
 
-			Linus
+I use lstat to check if a config file is a symlink, and if it is, it
+refuses to open it. 
+
+
+
+	Igmar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,115 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131375AbRCSJQq>; Mon, 19 Mar 2001 04:16:46 -0500
+	id <S131387AbRCSJrZ>; Mon, 19 Mar 2001 04:47:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131376AbRCSJQh>; Mon, 19 Mar 2001 04:16:37 -0500
-Received: from imladris.infradead.org ([194.205.184.45]:46609 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S131375AbRCSJQd>;
-	Mon, 19 Mar 2001 04:16:33 -0500
-Date: Mon, 19 Mar 2001 09:15:37 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.CX>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: <Andries.Brouwer@cwi.nl>, <viro@math.psu.edu>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        <seberino@spawar.navy.mil>
-Subject: Re: [PATCH] Improved version reporting
-In-Reply-To: <200103190650.f2J6o1S240830@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.30.0103190846590.21272-100000@infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131376AbRCSJrO>; Mon, 19 Mar 2001 04:47:14 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:29965 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S131385AbRCSJrJ>;
+	Mon, 19 Mar 2001 04:47:09 -0500
+Date: Mon, 19 Mar 2001 11:46:15 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: watermodem <aquamodem@ameritech.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Jiffy question and sound.
+Message-ID: <20010319114615.E23336@mea-ext.zmailer.org>
+In-Reply-To: <3AB5A53F.F8B0373B@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3AB5A53F.F8B0373B@ameritech.net>; from aquamodem@ameritech.net on Mon, Mar 19, 2001 at 12:20:47AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Albert.
+On Mon, Mar 19, 2001 at 12:20:47AM -0600, watermodem wrote:
+> With the 2.4.0 kernel the loops_per_sec field was replaced (for i386)
+> with current_cpu_data.loops_per_jiffy.
+...
+> #define LOOPS_PER_SEC current_cpu_data.loops_per_jiffy * 100
 
- >>> The rule should be like this:
- >>>
- >>>	List the lowest version number required to get
- >>>	2.2.xx-level features while running a 2.4.xx kernel.
+  The intention was to accomodate systems with faster than 2 GHz clock
+  at which the LOOPS_PER_SEC counter spins around a bit too fast..
+  ('signed long' at i386 handles 0..2G just fine, then it thinks the sign
+   got inverted..  'unsigned long' works fine until 4 GHz processors.)
 
- >> That's a meaningless definition, and can only be taken as such. What
- >> use would such a list be to somebody wishing (like I recently was) to
- >> upgrade a system running the 2.0.12 kernel so it runs the 2.4.2
- >> kernel instead?
+  Why does the ALSA need  LOOPS_PER_SEC ?
+  Is it doing timing by busy-looping ?
 
- > ...
+> Now compiling the same  ALSA modules with 2.4.2 this problem happens
+> much quicker and you don't need any other activity.  In fact it is hard
+> to play more than half a song.  (MP3)
+> It doesn't matter if what set of music players or tools I use the
+> problem is quite visible.
+> 
+> When I boot back to the original 2.2.x kernel everything is perfect.   
+> 
+> So I guess I have a few questions here.
+>  1)   Is a jiffy 100th of a second or is it smaller  (so my loop count
+> is starving things.) (10ms) ?
 
- >>> Basically I ask: would existing scripts for a 2.2.xx kernel
- >>> break? If the old mount can still do what it used to do, then
- >>> "mount" need not be listed at all.
+	"HZ" is the answer.  E.g. Alpha has HZ=1024, while i386 has HZ=100
+	Nearly all architectures have different values based on what some
+	other UNIX uses at given system.
 
- >> Replace that "a 2.2.xx" with "my current" and remove all restrictions
- >> on what the current kernel is, and that becomes an important question.
+>  2)   Why is it so much worse in 2.4.2 than 2.4.0?
+>  3)   Any other "gotch's" that are important to watch for when moving
+> 2.2.x drivers to 2.4.x?
 
- > No, not "my current" but "the previous stable". I say "2.2.xx" because
- > that is the previous stable kernel.
+	The FAQ may have some pointers to "porting drivers to 2.4" documents.
 
-Again, saying either "2.2.xx" or "the previous stable" is meaningless.
-Saying "The 2.2 kernel series" might have some meaning if it was not
-for the fact that the requirements differ for different members of
-that (or any other) kernel series.
+> Thanks....
+> Watermodem
+> -
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On Saturday night, I had the pleasure of upgrading a system from the
-2.2.4 kernel to the 2.4.2 one, and another system from the 2.2.14
-kernel to the 2.4.2 one. Although the target kernel version was the
-same, several subsystems needed upgrading on the former that did NOT
-need upgrading on the latter, and that was just to compile the thing!
-
-According to you, both of these upgrades would have required EXACTLY
-THE SAME upgrades to be made, but that isn't the case.
-
- > If you upgrade from 2.0.xx, you should read the 2.2.xx changes file.
-
-Fairy Nuff.
-
-However, your argument still fails, simply because of its reliance on
-the assumption that an entire kernel series has static requirements
-when such just isn't the case.
-
- > The important thing is to avoid version number inflation. I don't
- > even bother reading the changes file, because I know it is bogus.
- > Nearly all of my old software works great with a 2.4.xx kernel.
-
-The fact that you said "Nearly all" shows that your argument is false,
-since your argument has been that NO software needs upgrading.
-
-Can I suggest that you re-read my previous missive, and actually look
-at the points raised. If you do, we might just get a sensible
-discussion on this subject...
-
-Incidentally, your argument to date has assumed that everybody always
-installs every single kernel version. In my opinion, that is a very
-dangerous assumption to make. A more responsible assumption would be
-that the person wishing to upgrade to the version in this particular
-kernel source tree has a random system installed, and wishes to know:
-
- 1. What is the absolute minimum upgrades required to compile the
-    kernel in the source tree I have just downloaded?
-
- 2. What is the absolute minimum upgrades required to install the
-    kernel in the source tree I have just downloaded and compiled?
-
- 3. What is the absolute minimum upgrades required to enable me
-    to run the kernel I have just compiled from this source tree,
-    assuming that I wish to retain the use of the shell scripts
-    that I developed under my previous kernel?
-
- 4. What other upgrades are recommended for reasons of system
-    security or stability?
-
- 5. What further upgrades are required to enable me to make use
-    of the advertised new facilities in this kernel?
-
- 6. What additional subsystems could be upgraded if desired?
-
- 7. I note that some upgrades are only required if certain of the
-    subsystems are installed. Which upgrades are these, and which
-    subsystems are they dependant on?
-
-Personally, I'd be quite willing to work on a system to document the
-requirements and classifying each requirement according to the above
-system. However, as a pre-requisite, I would need agreement that such
-was (a) worth doing, and (b) of interest to the kernel developers.
-
-Best wishes from Riley.
-
+/Matti Aarnio

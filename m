@@ -1,54 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270862AbRHXDzu>; Thu, 23 Aug 2001 23:55:50 -0400
+	id <S270919AbRHXEXs>; Fri, 24 Aug 2001 00:23:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270905AbRHXDza>; Thu, 23 Aug 2001 23:55:30 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:3334 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S270862AbRHXDzW>; Thu, 23 Aug 2001 23:55:22 -0400
-Date: Thu, 23 Aug 2001 23:55:25 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: File System Limitations
-In-Reply-To: <01082322391300.12871@bits.linuxball>
-Message-ID: <Pine.LNX.4.33.0108232354230.14247-100000@terbidium.openservices.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+	id <S270905AbRHXEXi>; Fri, 24 Aug 2001 00:23:38 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:22035 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269777AbRHXEX1>;
+	Fri, 24 Aug 2001 00:23:27 -0400
+Date: Fri, 24 Aug 2001 01:23:32 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Pete Marvin King <pmking@ntsp.nec.co.jp>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: socket problem
+Message-ID: <20010824012332.B1022@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Pete Marvin King <pmking@ntsp.nec.co.jp>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3B864198.9E132BFB@ntsp.nec.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3B864198.9E132BFB@ntsp.nec.co.jp>; from pmking@ntsp.nec.co.jp on Fri, Aug 24, 2001 at 11:59:21AM +0000
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Aug 2001, Fred wrote:
+Em Fri, Aug 24, 2001 at 11:59:21AM +0000, Pete Marvin King escreveu:
+> 
+>     Is it possible to increase the maximum sockets that can be opened
+> simultaneously?
+> I'd like it to reach 1024, is it possible?
+> 
+>     I'm currently doing a stress test on postgres. we created a dummy
+> client that would
+> connect to it 1024 times. But is just stops at 324,
+> postgres reports : " postmaster: StreamConnection: accept: Too many open
+> files in system".
+> 
+>     I don't think the problem is not with the file descriptors. Is it
+> the max num of sockets?
+> or maybe the maximum number of files that can be opened?
+> 
+>     Any help would be greatly appreciated.
 
-> I tried dd (GNU fileutils) 4.0.36 (redhat 7.1)
-> and compiled and installed dd (fileutils) 4.1
->
-> still
-> [root@bits /a5]# /usr/fileutils/bin/dd if=/dev/zero of=./tgb count=4000 bs=1M
-> File size limit exceeded (core dumped)
-> [root@bits /a5]# ls
-> total 2098436
->       8 drwxr-xr-x    7 root     root         8192 Aug 23 22:07 .
->    1120 -rwxr-xr-x    1 root     root      1146880 Aug 23 22:07 core
-> 2097152 -rwxr-xr-x    1 root     root     2147483647 Aug 23 22:07 tgb
->
-> no errors in /var/log/messages
->
->
-> some system info
-> amd k6-II 500
-> 256 MB ram
-> Ali 1541/3 chipset
-> WD 20GB 7200 rpm and WD 13GB 540 rpm on one cable
-> kernel-2.4.9
-> /a5 directory above is /dev/hda5 a vfat partition (is this the problem?)
->
->
-> TIA
-> Fred
+increase te max number of fds in /proc/sys/fs/file-max and in ulimit -n
 
-The problem is that dd was not compiled with -D_FILE_OFFSET_BITS=64.
+[root@brinquedo /root]# cat ~acme/max_sockets.c
+#include <sys/types.h>
+#include <sys/socket.h>
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+int main(void)
+{
+        int nr_sockets = 0;
 
+        while(socket(PF_INET, SOCK_STREAM, 0) > 0)
+                ++nr_sockets;
+        printf("nr_sockets=%d\n", nr_sockets);
+        return 0;
+}
+[root@brinquedo /root]# ulimit -n
+4096
+[root@brinquedo /root]# ./max_sockets
+nr_sockets=4093
+[root@brinquedo /root]# ulimit -n 8192
+[root@brinquedo /root]# ./max_sockets
+nr_sockets=7600
+[root@brinquedo /root]# ulimit -n 16384
+[root@brinquedo /root]# ./max_sockets
+nr_sockets=7601
+[root@brinquedo /root]# cat /proc/sys/fs/file-max
+8192
+[root@brinquedo /root]# echo 20000 > /proc/sys/fs/file-max
+[root@brinquedo /root]# ./max_sockets
+nr_sockets=16381
+
+- Arnaldo

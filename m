@@ -1,88 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268484AbTGIRiK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 13:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268485AbTGIRiK
+	id S268486AbTGIR6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 13:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268502AbTGIR6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 13:38:10 -0400
-Received: from imag.imag.fr ([129.88.30.1]:38571 "EHLO imag.imag.fr")
-	by vger.kernel.org with ESMTP id S268484AbTGIRiE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 13:38:04 -0400
-Date: Wed, 9 Jul 2003 19:52:37 +0200
-From: Jean-Luc Richier <Jean-Luc.Richier@imag.fr>
-To: pekkas@netcore.fi
-Cc: linux-kernel@vger.kernel.org
-Subject: Bug in Linux 2.5.74 IPv6 routing
-Message-ID: <20030709195237.A8550@horus.imag.fr>
+	Wed, 9 Jul 2003 13:58:24 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:11457 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S268486AbTGIR5V
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 13:57:21 -0400
+Subject: Re: Compile failure 2.4.22-pre3-ac1
+From: Steven Cole <elenstev@mesatop.com>
+To: Midian <midian@ihme.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <1057772247.3757.9.camel@midux>
+References: <20030709124915.3d98054b.ak@suse.de>
+	 <1057750022.6255.41.camel@dhcp22.swansea.linux.org.uk>
+	 <20030709134109.65efa245.ak@suse.de>
+	 <1057769607.6262.63.camel@dhcp22.swansea.linux.org.uk>
+	 <20030709185823.1f243367.ak@suse.de>
+	 <1057770255.6255.70.camel@dhcp22.swansea.linux.org.uk>
+	 <1057772247.3757.9.camel@midux>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057774256.8754.46.camel@spc9.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2us
-X-MailScanner: Found to be clean
-X-MailScanner-Information: Please contact the ISP for more information
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 09 Jul 2003 12:10:56 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a bug in IPv6 route calculation since kernel 2.5.71. It affects
-all routes with prefix length != 0 (mod 8)
-The bug is as follows:
-do:	ip -6 route add 2000::/3 via 2001:688:121:10::1
-	ip -6 route
-It shows a route for ::/3, not for 2000::/3
+On Wed, 2003-07-09 at 11:37, Midian wrote:
+> Hello Alan,
+> I've tryed to compile 2.4.22-pre3-ac1, but every time I get this error:
+> 
+> arch/i386/kernel/kernel.o(.text.init+0x7803): In function
+> `setup_ioapic_ids_from_mpc':
+> : undefined reference to `xapic_support'
+> arch/i386/kernel/kernel.o(.text.init+0x7a16): In function
+> `setup_ioapic_ids_from_mpc':
+> : undefined reference to `xapic_support'
+> make: *** [vmlinux] Error 1
+> 
+> I've tryed to search for patches from the mailing list with no luck, is
+> there some patches for this?
+> 
+> Regards
 
-The bug was introduced when changing function ipv6_addr_prefix to inline
-status (and moving it from net/ipv6/route.c to include/net/ipv6.h).
+I posted this workaround here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105760102522650&w=2
 
-At the same time the = and the memset in the function have been swapped.
-(cf patch 1 below). With the new code, with a prefix length = 3, the
-function first sets the correct value in pfx->s6_addr[0] and AFTER does a
-memset(pfx->s6_addr + 0, 0, 16 - 0) which overwrites pfx->s6_addr[0].
-The previous was doing the memset first.
+but as Adrian Bunk pointed out in a response, the problem is that
+"changes to arch/i386/kernel/mpparse.c got lost at the update of -ac to -pre3".
 
-There are 2 solutions to correct this bug:
-- The first solution is to restore the order between = and memset (see patch 1).
-  But I suppose that there is a reason for this swap. In fact the old code does
-  not work if the 2 addr arguments are equal, the new code (corrected) works.
-- So I suggest an other solution (see patch 2): if the prefix length is not
-  0 mod 8, increase o, as pfx->s6_addr[o) is already set.
+If you want to be slightly more adventurous than using my
+workaround patch, you could copy the mpparse.c file from 2.4.21-ac4.
+That was compile tested but not run tested.
 
+Steven
 
-PATCH 1: (reverse to previous code)
---- linux-2.5.74/include/net/ipv6.h.DIST	2003-07-02 22:53:44.000000000 +0200
-+++ linux-2.5.74/include/net/ipv6.h	2003-07-09 19:03:13.195128011 +0200
-@@ -276,10 +276,10 @@
- 	    b = plen & 0x7;
- 
- 	memcpy(pfx->s6_addr, addr, o);
--	if (b != 0)
--		pfx->s6_addr[o] = addr->s6_addr[o] & (0xff00 >> b);
- 	if (o < 16)
- 		memset(pfx->s6_addr + o, 0, 16 - o);
-+	if (b != 0)
-+		pfx->s6_addr[o] = addr->s6_addr[o] & (0xff00 >> b);
- }
- 
- #ifndef __HAVE_ARCH_ADDR_SET
-
-PATCH 2: avoid overwriting the set value
---- linux-2.5.74/include/net/ipv6.h.DIST	2003-07-02 22:53:44.000000000 +0200
-+++ linux-2.5.74/include/net/ipv6.h	2003-07-09 18:51:25.000000000 +0200
-@@ -276,8 +276,10 @@
- 	    b = plen & 0x7;
- 
- 	memcpy(pfx->s6_addr, addr, o);
--	if (b != 0)
-+	if (b != 0) {
- 		pfx->s6_addr[o] = addr->s6_addr[o] & (0xff00 >> b);
-+		o++;
-+	}
- 	if (o < 16)
- 		memset(pfx->s6_addr + o, 0, 16 - o);
- }
-
-
--- 
-Jean-Luc RICHIER (Jean-Luc.Richier@Imag.Fr  richier@imag.fr)
-Laboratoire Logiciels, Systemes et Reseaux (LSR-IMAG)
-IMAG-CAMPUS, BP 72, F-38402 St Martin d'Heres Cedex
-Tel : +33 4 76 82 72 32 Fax : +33 4 76 82 72 87

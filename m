@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266177AbTLIJ2Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 04:28:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266168AbTLIJ16
+	id S263963AbTLIJgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 04:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266179AbTLIJgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 04:27:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37604 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266178AbTLIJ1t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 04:27:49 -0500
-Date: Tue, 9 Dec 2003 01:16:30 -0800
-From: Greg KH <greg@kroah.com>
-To: Matthew Reppert <repp0017@tc.umn.edu>
-Cc: Bob <recbo@nishanet.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       witukind@nsbm.kicks-ass.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-ID: <20031209091630.GA2753@kroah.com>
-References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com> <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org> <3FD577E7.9040809@nishanet.com> <1070955596.25311.19.camel@minerva>
+	Tue, 9 Dec 2003 04:36:50 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:13954 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263963AbTLIJgq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 04:36:46 -0500
+Subject: Re: ACPI global lock macros
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Paul Menage <menage@google.com>
+Cc: agrover@groveronline.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+In-Reply-To: <3FD59441.2000202@google.com>
+References: <3FD59441.2000202@google.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5mPuSqYGK/AtJOUNx7a3"
+Organization: Red Hat, Inc.
+Message-Id: <1070962573.5223.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1070955596.25311.19.camel@minerva>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 09 Dec 2003 10:36:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 01:39:56AM -0600, Matthew Reppert wrote:
-> 
-> My guess is, unfortunately, udev probably won't handle this any time
-> soon. (Or, if it does, through some possibly clever mechanism that, as
-> someone unfamiliar with the relevant bits of the system, I can't see.)
 
-udev will never handle it.  That's not its job.
+--=-5mPuSqYGK/AtJOUNx7a3
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I'd be interested in a solution to this, mostly out of curiosity since
-> it seems like it might be interesting, but I don't see a nice one coming
-> easily. I wouldn't mind someone more clueful telling me I'm wrong,
-> though. At the least, it means more people being receptive to moving
-> to udev.
+On Tue, 2003-12-09 at 10:22, Paul Menage wrote:
+> Hi Andy,
+>=20
+> The ACPI_ACQUIRE_GLOBAL_LOCK() macro in include/asm-i386/acpi.h looks a=20
+> little odd:
 
-Solution for a problem that is non-existant on a properly configured
-system?  Why?  :)
+maybe the odd thing is that it exists at all?
+(eg why does ACPI need to have it's own locking primitives...)
 
+--=-5mPuSqYGK/AtJOUNx7a3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-greg k-h
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/1ZeMxULwo51rQBIRAp66AKCfETUoMHAFHUqrURd40Vr/Rr58VgCeJvkp
+goeDjc/qFd+iX3VLVRwGuQc=
+=dGep
+-----END PGP SIGNATURE-----
+
+--=-5mPuSqYGK/AtJOUNx7a3--

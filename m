@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289741AbSAJWUj>; Thu, 10 Jan 2002 17:20:39 -0500
+	id <S289724AbSAJWYj>; Thu, 10 Jan 2002 17:24:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289740AbSAJWUY>; Thu, 10 Jan 2002 17:20:24 -0500
-Received: from e24.nc.us.ibm.com ([32.97.136.230]:63398 "EHLO
-	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289744AbSAJWUS>; Thu, 10 Jan 2002 17:20:18 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201102220.g0AMKF503938@eng2.beaverton.ibm.com>
-Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 10 Jan 2002 14:20:15 -0800 (PST)
-Cc: pbadari@us.ibm.com (Badari Pulavarty), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16OnQ6-0005gz-00@the-village.bc.nu> from "Alan Cox" at Jan 10, 2002 09:11:34 PM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S289738AbSAJWY3>; Thu, 10 Jan 2002 17:24:29 -0500
+Received: from azvale.lnk.telstra.net ([139.130.147.152]:54024 "EHLO
+	portal.dffa.com.au") by vger.kernel.org with ESMTP
+	id <S289724AbSAJWYS>; Thu, 10 Jan 2002 17:24:18 -0500
+Date: Fri, 11 Jan 2002 06:21:25 +0800 (WST)
+From: David C P Gray <davidg@enet.com.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: eth0: entered promiscuous mode
+In-Reply-To: <E16Omo1-000099-00@sites.inka.de>
+Message-ID: <Pine.LNX.4.33.0201110614520.2227-100000@iago.enet.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> > Something like sd_attach() could get this info from template and
-> > set a flag in blk_dev. (or in a gloal array).
-> 
-> I didnt think blk_dev was per minor ?
-> 
 
-hmm.. I see where you are going.  I guess I need to have of a pointer
-to arrary of MAX_MINOR. But I can use similar technique as "blksize_size"
-arrary. 
+On Thu, 10 Jan 2002, Bernd Eckenfels wrote:
 
-Otherwise, I can have gloabl arrary similar to "blksize_size".
+> In article <20020110205946.GB24838@zhadum.bjavor.d2g.com> you wrote:
+> > Can somebody please tell me what the above message means?
+>
+> it means you run a root program which requested the network card to go into
+> promic mode. promisc mode means, the card will receive all packets on the
+> wire, not only those destinated to the card. a few sniffing/scan
+> detector/accounting apps require this, and some legal apps for network
+> configuration (like dhcp/bootp/... ) and arpwatch may require it.
 
-Thanks,
-Badari
+VMware can also trigger this message. It uses promiscuous mode to
+provide access to the LAN for guest OS sessions.
+
+Cheers,
+David.
+
+
+

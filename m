@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTEMBQz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 21:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbTEMBQz
+	id S263087AbTEMBWM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 21:22:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbTEMBWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 21:16:55 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:26837 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S262451AbTEMBQy (ORCPT
+	Mon, 12 May 2003 21:22:12 -0400
+Received: from [218.19.173.37] ([218.19.173.37]:260 "EHLO zhangtao.treble.net")
+	by vger.kernel.org with ESMTP id S263087AbTEMBWK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 21:16:54 -0400
-Date: Tue, 13 May 2003 02:29:33 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Subject: re-scanning the PCI bus after boot for configurable device...
-Message-ID: <Pine.LNX.4.53.0305130225240.20908@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 May 2003 21:22:10 -0400
+Date: Tue, 13 May 2003 09:35:06 +0800
+From: zhangtao <zhangtao@zhangtao.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: LinuxKernel MailList <linux-kernel@vger.kernel.org>
+Subject: Re: Which one should I contact about linux-kernel's NLS support
+ such as codepage 936?
+Message-Id: <20030513093506.03104c9e.zhangtao@zhangtao.org>
+In-Reply-To: <1052737621.31246.7.camel@dhcp22.swansea.linux.org.uk>
+References: <20030512100534.1ba6ecd6.zhangtao@zhangtao.org>
+	<1052737621.31246.7.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12 May 2003 12:07:02 +0100
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-hi,
-	I've got a PCI card that has an FPGA on it which I want to program
-at run time, and then load a device driver for depending on what I've
-loaded in to the FPGA,
+> On Llu, 2003-05-12 at 03:05, zhangtao wrote:
+> > Hi, Everyone,
+> > 
+> >   I have some patch about kernel's NLS, such as Codepage 936, 932, 949, 950. 
+> > 
+> >   How can I contact the owner or public my patch ?
+> 
+> I saw then and while they look ok I've been trying to find someone
+> familiar with these code pages to review them
+> 
+> 
+Linux Kernel 2.4.x NLS Patch, This Patch is used to correct problems of translation tables of CP932, CP936, CP949 and CP950.
 
-The FPGA is downloaded via JTAG so that is all fine, but if I boot Linux,
-download over the JTAG, how can I get Linux to see the device? can I use
-the hotplugging support or do I still need to do more work? I know the
-hotplug allows for PCMCIA and CompactPCI to add devices after boot, but
-this is plain PCI but the device won't be there until the system is
-running,
+There are 2 problems:
 
-I know I can in theory put an image in the FPGA from an EEPROM which
-enough to get by, but I'd rather not put an EEPROM anywhere near the board
-if possible,
+1. Translation Tables
+In the "linux/fs/nls_cp936.c (ncl_cp932.c, nls_cp949.c and nls_cp950.c)", the translation tables were downloaded from
+    http://www.microsoft.com/typography/unicode/unicodecp.htm,
+but the page was not found. The new Codepage is located at:
+    http://www.microsoft.com/globaldev/reference/cphome.mspx.
 
-Thanks,
-Dave.
+After examination the old one and new one, can find much more different,
+e.g., 0x8179 in the CP936 should be corresponding with 0x4E82 in Unicode,
+NOT 0xF91B. So, need rebuid the C program.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied@skynet.ie
-pam_smb / Linux DecStation / Linux VAX / ILUG person
+2. Area between 0x80 and 0xFF in the Unicode 
+The area between 0x80 and 0xFF in the Unicode, is not be corresponding with CP932, CP936, CP949 and CP950: part of this can have corresponding letters,
+others not have. The old uni2char() function is not correct for dealing with this area, because it let 0x80-0xFF keep the same, but it's not true.
+
+e.g., the Unicode letter 0x00A4 should be corresponding with 0xA1E8 of the Codepage 936, not keep itself.
+
+
 

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262999AbUDARh6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 12:37:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUDARh6
+	id S262983AbUDARkL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 12:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUDARiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 12:37:58 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:1250 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262999AbUDARh4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 12:37:56 -0500
-Message-ID: <406C523F.8030300@austin.ibm.com>
-Date: Thu, 01 Apr 2004 11:32:47 -0600
-From: Olof Johansson <olof@austin.ibm.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040304)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       anton@samba.org
-Subject: Re: Oops in get_boot_pages at reboot
-References: <Pine.A41.4.44.0403312015050.29064-100000@forte.austin.ibm.com> <406C4D3F.4070600@colorfullife.com>
-In-Reply-To: <406C4D3F.4070600@colorfullife.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 1 Apr 2004 12:38:52 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:6804 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263000AbUDARis
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 12:38:48 -0500
+Subject: Re: disable-cap-mlock
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, kenneth.w.chen@intel.com,
+       Chris Wright <chrisw@osdl.org>
+In-Reply-To: <20040401171625.GE791@holomorphy.com>
+References: <20040401135920.GF18585@dualathlon.random>
+	 <20040401164825.GD791@holomorphy.com>
+	 <20040401165952.GM18585@dualathlon.random>
+	 <20040401171625.GE791@holomorphy.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1080841071.25431.155.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Apr 2004 12:37:51 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+On Thu, 2004-04-01 at 12:16, William Lee Irwin III wrote:
+> +static int capability_sysctl_capable(task_t *task, int cap)
+> +{
+> +	if (cap < 0 || cap >= ARRAY_SIZE(capability_sysctl_state))
+> +		return -EINVAL;
+> +	switch (capability_sysctl_state[cap]) {
+> +		case CAPABILITY_SYSCTL_ROOT:
+> +			if (current->uid == 0)
+> +				return 0;
+> +			/* fall through */
 
-> mem_init_done is ppc specific. Is there an equivalent to system_running 
-> that is not set to 0 during reboot?
+See dummy_capable for the root logic, i.e.:
+       if (cap_is_fs_cap (cap) ? task->fsuid == 0 : task->euid == 0)
+               return 0;
 
-Doh, my bad. :(  I'm not able to spot any other suitable variable myself.
+Note that you shouldn't assume that task == current.  The intent is to
+support capability checks against other processes as well, e.g. the old
+OOM killer code performed such checks as part of deciding which process
+to kill.
 
-system_running is checked in call_usermodehelper(), so keeping it at 1 
-across devices_shutdown() might cause problems(?).
+Why fall through as opposed to just returning -EPERM?
 
-
--Olof
+What prevents any uid 0 process from changing these sysctl settings
+(aside from SELinux, if you happen to use it and configure the policy
+accordingly)?
 
 -- 
-Olof Johansson                                        Office: 4F005/905
-Linux on Power Development                            IBM Systems Group
-Email: olof@austin.ibm.com                          Phone: 512-838-9858
-All opinions are my own and not those of IBM
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

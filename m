@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVANRzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVANSGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVANRzg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 12:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVANRzg
+	id S261245AbVANSGE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 13:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVANSGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 12:55:36 -0500
-Received: from orb.pobox.com ([207.8.226.5]:43992 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261242AbVANRzd (ORCPT
+	Fri, 14 Jan 2005 13:06:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35252 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261245AbVANSGA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 12:55:33 -0500
-Date: Fri, 14 Jan 2005 09:55:27 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Dave Jones <davej@redhat.com>, "Barry K. Nathan" <barryn@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050114175527.GA4745@ip68-4-98-123.oc.oc.cox.net>
-References: <20050114002352.5a038710.akpm@osdl.org> <20050114150714.GA4501@ip68-4-98-123.oc.oc.cox.net> <20050114165612.GB19208@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114165612.GB19208@redhat.com>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 14 Jan 2005 13:06:00 -0500
+Message-ID: <002301c4fa63$9d9d3b10$6900a8c0@comcast.net>
+From: "John Hawkes" <hawkes@sgi.com>
+To: "Robert Love" <rml@novell.com>, "John McCutchan" <ttb@tentacle.dhs.org>,
+       "John Hawkes" <hawkes@tomahawk.engr.sgi.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <200501132356.j0DNujUY016224@tomahawk.engr.sgi.com> <1105663758.6027.215.camel@localhost>  <1105666283.15782.2.camel@vertex> <1105669742.6027.243.camel@localhost>
+Subject: Re: 2.6.10-mm3 scaling problem with inotify
+Date: Fri, 14 Jan 2005 10:05:21 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 11:56:12AM -0500, Dave Jones wrote:
-> For *some* users. It still affects others.
-> My Compaq Evo showed the bug with 2.6.9 vanilla, went away with 2.6.10
-> vanilla.
+From: "Robert Love" <rml@novell.com>
+...
+> John Hawkes: Attached patch implements the dget() optimization in the
+> same manner as dnotify.  Compile-tested but not booted.
+>
+> Let me know!
+...
+> inotify: don't do dget() unless we have to
+>
+>  drivers/char/inotify.c |   14 +++++++++++---
+>  1 files changed, 11 insertions(+), 3 deletions(-)
 
-Ok, I didn't know that.
+The patch shows a substantial 4x improvement for my specific workload (@64p),
+although I can still envision workloads that will stimulate high spinlock
+contention from spin_lock(&dentry->d_lock).  First things first -- let's get
+this fix into the -mm tree.  Thanks!
 
-Anyway, I've dug a bit deeper into my particular case, and there's now
-some more information here:
-http://bugme.osdl.org/show_bug.cgi?id=4041
+John Hawkes
 
--Barry K. Nathan <barryn@pobox.com>

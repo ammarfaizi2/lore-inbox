@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281309AbRKLICo>; Mon, 12 Nov 2001 03:02:44 -0500
+	id <S281314AbRKLIDe>; Mon, 12 Nov 2001 03:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281312AbRKLIC1>; Mon, 12 Nov 2001 03:02:27 -0500
-Received: from mail.n-online.net ([195.30.220.100]:7941 "HELO
-	mohawk.n-online.net") by vger.kernel.org with SMTP
-	id <S281309AbRKLICL>; Mon, 12 Nov 2001 03:02:11 -0500
-Date: Mon, 12 Nov 2001 08:59:51 +0100
-From: Thomas Foerster <puckwork@madz.net>
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?Re:_Kernel_Module_/_Patch_with_implements_=22sshfs=22?=
-X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
+	id <S281313AbRKLIDY>; Mon, 12 Nov 2001 03:03:24 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44431 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281312AbRKLIDO>;
+	Mon, 12 Nov 2001 03:03:14 -0500
+Date: Mon, 12 Nov 2001 00:03:05 -0800 (PST)
+Message-Id: <20011112.000305.45744181.davem@redhat.com>
+To: andrea@suse.de
+Cc: mathijs@knoware.nl, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
+Subject: Re: [PATCH] fix loop with disabled tasklets
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011112021142.O1381@athlon.random>
+In-Reply-To: <20011110152845.8328F231A4@brand.mmohlmann.demon.nl>
+	<20011110173751.C1381@athlon.random>
+	<20011112021142.O1381@athlon.random>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20011112080214Z281309-17408+13481@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Andrea Arcangeli <andrea@suse.de>
+   Date: Mon, 12 Nov 2001 02:11:42 +0100
 
-> A simpler way is to use the kio_fish
-> And since it is KDE all KDE programs will be able to use it :-)
-> (To be sure I tried to create a file with advanced editor and save it
->  remote - it worked! :-)
+   I'm just guessing: the scheduler isn't yet functional when
+   spawn_ksoftirqd is called.
 
-Seems nice, but the problem is :
+The scheduler is fully functional, this isn't what is going wrong.
 
-I'm not using X :)
+Look at my other email from last night.  At this point in the booting
+process, what would we possibly switch to if ksoftirqd is in running
+state constantly?  No other kernel thread is of a higher priority if
+the only things running are the idle threads and ksoftird.  This is
+basically what I think is happening on sparc32.
 
-What i want to do is :
+Right?
 
-Mount our external Webserver from our internal Administration Server via 100MBit LAN
-connection.
-
-Thanx,
-  Thomas
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

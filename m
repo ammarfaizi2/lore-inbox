@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbTA1WYP>; Tue, 28 Jan 2003 17:24:15 -0500
+	id <S261451AbTA1W3t>; Tue, 28 Jan 2003 17:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261451AbTA1WYP>; Tue, 28 Jan 2003 17:24:15 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:4364 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261427AbTA1WYO>;
-	Tue, 28 Jan 2003 17:24:14 -0500
-Date: Tue, 28 Jan 2003 14:30:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Stanley Wang <stanley.wang@linux.co.intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
-Subject: Re: [Pcihpd-discuss] Re: [RFC] Get rid of all procfs stuff for PCI subsystem.
-Message-ID: <20030128223034.GM7382@kroah.com>
-References: <20030128215644.GA7382@kroah.com> <Pine.LNX.4.44.0301281718090.10921-100000@rancor.yyz.somanetworks.com>
+	id <S261593AbTA1W3t>; Tue, 28 Jan 2003 17:29:49 -0500
+Received: from ns.suse.de ([213.95.15.193]:14098 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261451AbTA1W3s>;
+	Tue, 28 Jan 2003 17:29:48 -0500
+Date: Tue, 28 Jan 2003 23:39:09 +0100
+From: Andi Kleen <ak@suse.de>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+Message-ID: <20030128223909.GA16611@wotan.suse.de>
+References: <20030122080322.GB3466@bjl1.asuk.net.suse.lists.linux.kernel> <Pine.LNX.4.33L2.0301281139570.30636-100000@dragon.pdx.osdl.net.suse.lists.linux.kernel> <20030128213621.GA29036@bjl1.asuk.net.suse.lists.linux.kernel> <p73hebtym5d.fsf@oldwotan.suse.de> <Pine.LNX.4.50.0301281421520.2085-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301281718090.10921-100000@rancor.yyz.somanetworks.com>
+In-Reply-To: <Pine.LNX.4.50.0301281421520.2085-100000@blue1.dev.mcafeelabs.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 05:21:37PM -0500, Scott Murray wrote:
+On Tue, Jan 28, 2003 at 02:24:52PM -0800, Davide Libenzi wrote:
+> On Tue, 28 Jan 2003, Andi Kleen wrote:
 > 
-> Is there a plan to update pci-utils to work with sysfs?  lspci is a pretty
-> valuable debugging tool, it would be a shame to lose the use of it in 2.6.
+> > Jamie Lokier <jamie@shareable.org> writes:
+> > >
+> > > Which suggests that all the architectures are fine with all these
+> > > "int" returns, except IA64.
+> >
+> > x86-64 needs long returns too.
+> >
+> > I think I fixed all of them, if you noticed any missing please let me now.
+> 
+> #define __NR_epoll_create       ???
+> #define __NR_epoll_ctl          ???
+> #define __NR_epoll_wait         ???
+> 
+> That in 2.5.59 return "int". I posted the patch to make them return
+> "long" to Linus ( Andrew got it ) this weekend.
 
-I'm pretty sure it works without the /proc pci stuff already (well the
-big tables in there, I think it still needs the individual pci device
-entries.)
+Sorry I meant I fixed all x86-64 specific syscalls returning int.
 
-And yes, sysfs support would be nice, hint, hint, hint...  :)
-
-thanks,
-
-greg k-h
+-Andi

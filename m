@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265806AbSKAWco>; Fri, 1 Nov 2002 17:32:44 -0500
+	id <S265803AbSKAW1N>; Fri, 1 Nov 2002 17:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265808AbSKAWco>; Fri, 1 Nov 2002 17:32:44 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:28066 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265806AbSKAWch>;
-	Fri, 1 Nov 2002 17:32:37 -0500
-Date: Fri, 1 Nov 2002 14:34:59 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andrew Morton <akpm@digeo.com>
-cc: Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-       <kernel-janitor-discuss@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: might_sleep() in copy_{from,to}_user and friends?
-In-Reply-To: <3DC25CA5.B15848E0@digeo.com>
-Message-ID: <Pine.LNX.4.33L2.0211011431230.28320-100000@dragon.pdx.osdl.net>
+	id <S265804AbSKAW1N>; Fri, 1 Nov 2002 17:27:13 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:51420 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S265803AbSKAW1L>; Fri, 1 Nov 2002 17:27:11 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A49F@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ACPI patches updated
+Date: Fri, 1 Nov 2002 14:33:33 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Andrew Morton wrote:
+Hi all,
 
-| Arnd Bergmann wrote:
-| >
-| > I have been looking for more places in 2.5 that can be marked
-| > might_sleep() and noticed that all the functions in asm/uaccess.h
-| > are not marked although they sleep if the memory they access
-| > has to be paged in.
-| >
-| > After adding might_sleep() in ten places in asm-i386/uaccess.h
-| > and arch/i386/lib/usercopy.c, I have been running this kernel
-| > for about two weeks.
-|
-| This is an excellent point.  If someone is holding a lock
-| across a uaccess function and userspace has passed the address
-| of a valid but not-present page we will hit the "atomic copy_user"
-| path.  Userspace will be returned an EFAULT and will be left
-| scratching its head, wondering what it did wrong.
-|
-| Or the kernel will deadlock, of course.
-|
-| I don't think we need to add the check to anything other than
-| ia32.  That will pick up the great bulk of any problems, and
-| arch-specific code won't be doing these copies much anyway.
+ACPI patches dated 20021101 is now released at http://sf.net/projects/acpi
+<http://sf.net/projects/acpi>  for both 2.4.x and 2.5.x. It includes a fix
+for a bug causing processor and thermal drivers to fail to load, as well as
+a few others.
 
-Another thing to consider is that the rate-limiting in
-__might_sleep() hides lots of instances being reported -- or at
-least it did when I removed that rate-limiting and had to wait
-for 2-3 minutes for all of that scrolling to finish.
+Thanks -- Regards -- Andy
 
-I guess that if enough people test it and give feedback, we'll see
-and fix all of them eventually...
+----------------------------------------
+01 November 2002.  Summary of changes for version 20021101.
 
--- 
-~Randy
-"I'm a healthy mushroom."
+1) Linux
+
+Fixed a problem introduced in the previous release where the
+Processor and Thermal objects were not recognized and
+installed in /proc.  This was related to the scope type change
+described below.
+
+2) ACPI CA Core Subsystem:
+
+Fixed a problem where platforms that have a GPE1 block but no
+GPE0 block were not handled correctly.  This resulted in a
+"GPE overlap" error message.  GPE0 is no longer required.
+
+Removed code added in the previous release that inserted nodes
+into the namespace in alphabetical order.  This caused some
+side-effects on various machines.  The root cause of the
+problem is still under investigation since in theory, the
+internal ordering of the namespace nodes should not matter.
+
+Enhanced error reporting for the case where a named object is
+not found during control method execution.  The full ACPI
+namepath (name reference) of the object that was not found is
+displayed in this case.
+
+Note: as a result of the overhaul of the namespace object
+types in the previous release, the namespace nodes for the
+predefined scopes (_TZ, _PR, etc.) are now of the type
+ACPI_TYPE_LOCAL_SCOPE instead of ACPI_TYPE_ANY.  This
+simplifies the namespace management code but may affect code
+that walks the namespace tree looking for specific object
+types.
+
+
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
+
 

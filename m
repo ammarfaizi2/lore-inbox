@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbTIYThh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 15:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbTIYThh
+	id S261514AbTIYTvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 15:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTIYTvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 15:37:37 -0400
-Received: from pat.uio.no ([129.240.130.16]:45564 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261692AbTIYThf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 15:37:35 -0400
-To: Steve Dickson <SteveD@redhat.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, nfs@lists.sourceforge.net,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] Re: [PATCH v2] reduce NFS stack usage
-References: <mailman.1064420466.30286.linux-kernel2news@redhat.com>
-	<3F7335B4.1070002@RedHat.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 25 Sep 2003 12:37:25 -0700
-In-Reply-To: <3F7335B4.1070002@RedHat.com>
-Message-ID: <shsk77w3bii.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Thu, 25 Sep 2003 15:51:55 -0400
+Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:41645 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id S261514AbTIYTvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 15:51:53 -0400
+Message-ID: <3F734762.4020600@davehollis.com>
+Date: Thu, 25 Sep 2003 15:52:02 -0400
+From: David T Hollis <dhollis@davehollis.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+To: Bradley Chapman <kakadu_croc@yahoo.com>
+CC: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test broke RPM 4.2 on Red Hat 9 in a VERY weird way
+References: <20030925171025.98557.qmail@web40911.mail.yahoo.com>
+In-Reply-To: <20030925171025.98557.qmail@web40911.mail.yahoo.com>
+X-Enigmail-Version: 0.76.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steve Dickson <SteveD@redhat.com> writes:
+Bradley Chapman wrote:
 
-     > Also, not like there much choice in matter, but I wonder what
-     > type of performance hit (if any) there will be by making these
-     > routines call kmalloc()... lookups and readdirs are pretty
-     > popular ops...
+>
+>I tried it the first way and I got the same error. I've already upgraded my glibc;
+>do I need to reboot to 2.4.22-ac2 and upgrade some other system component, like
+>ld.so?
+>
+>Brad
+>
+>
+>=====
+>Brad Chapman
+>
+>
+>  
+>
+A few ways to solve this:
+What I did before upgrading RPM was:
+export LD_ASSUME_KERNEL=2.2.5
+rpm -Uvh blah.rpm
 
-There are always alternatives...
+If you upgrade to rpm that is in RedHat Rawhide (current 4.2.1-0.30), 
+this problem goes away.  You may need to upgrade your glibc as well, I'm 
+currently at 2.3.2-91 from Rawhide.
 
-If really this is a problem, how about slabifying the structs
-nfs_fattr and/or nfs_fh?
-
-Also, since nfs_entry is only large due to the fh and fattr fields
-which are unused unless you have READDIRPLUS (in which case they are
-converted to pointers anyhow), how about kicking them out of
-nfs_entry altogether?
-
-Cheers,
-  Trond

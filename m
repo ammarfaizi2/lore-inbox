@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268913AbRG0SGU>; Fri, 27 Jul 2001 14:06:20 -0400
+	id <S268924AbRG0SGu>; Fri, 27 Jul 2001 14:06:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268919AbRG0SGA>; Fri, 27 Jul 2001 14:06:00 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:34577 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S268913AbRG0SFw>;
-	Fri, 27 Jul 2001 14:05:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: Robert Schiele <rschiele@uni-mannheim.de>
-Subject: Re: [PATCH] Re: 2.4.8-pre1 build error in drivers/parport/parport_pc.c
-Date: Fri, 27 Jul 2001 12:04:37 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <01072619531103.06728@localhost.localdomain> <20010727101241.A15014@schiele.swm.uni-mannheim.de>
-In-Reply-To: <20010727101241.A15014@schiele.swm.uni-mannheim.de>
+	id <S268922AbRG0SGl>; Fri, 27 Jul 2001 14:06:41 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56074 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268919AbRG0SGX>; Fri, 27 Jul 2001 14:06:23 -0400
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+To: samudrala@us.ibm.com (Sridhar Samudrala)
+Date: Fri, 27 Jul 2001 19:07:40 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        samudrala@us.ibm.com (Sridhar Samudrala), linux-kernel@vger.kernel.org,
+        linux-net@vger.kernel.org, lartc@mailman.ds9a.nl,
+        diffserv-general@lists.sourceforge.net, kuznet@ms2.inr.ac.ru,
+        rusty@rustcorp.com.au
+In-Reply-To: <Pine.LNX.4.21.0107271036390.14246-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Jul 27, 2001 11:01:00 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-Message-Id: <01072712043700.01181@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15QC1U-0006C6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Friday 27 July 2001 02:12, Robert Schiele wrote:
-> On Thu, Jul 26, 2001 at 07:53:11PM -0600, Steven Cole wrote:
-> > I got the following errors building 2.4.8-pre1.
-> >
-> > parport_pc.c:257: redefinition of `parport_pc_write_data'
-> > /usr/src/linux-2.4.8-pre1/include/linux/parport_pc.h:45:
-> > `parport_pc_write_data' previously defined here parport_pc.c:262:
-> > redefinition of `parport_pc_read_data'
-> > /usr/src/linux-2.4.8-pre1/include/linux/parport_pc.h:53:
-> > `parport_pc_read_data' previously defined here ...
-> > make[3]: *** [parport_pc.o] Error 1
-> > make[3]: Leaving directory `/usr/src/linux-2.4.8-pre1/drivers/parport'
->
-> Hmm, these functions are multiply defined, namely in the c source and
-> in it's header file. I see no reason why someone should do this. The
-> problem was hidden in older kernel releases by the fact that these
-> functions were declared "extern __inline__" which is absolutely
-> nonsense in my opinion. So the solution should be to just remove these
-> inline functions from the c source file, which can be done with the
-> following simple and stupid patch.
->
-> This should be the correct solution, or did I miss the vital point?
->
-> Robert
+> There are couple of reasons why prioritization in kernel works better than at 
+> user level. 
+> * The kernel mechanisms are more efficient and scalable than the user space
+>   mechanism. Non compliant connection requests are discarded earlier reducing the
+>   queuing time of the compliant requests, in particular less CPU is consumed and
+>   the context switch to userspace is avoided. 
 
-Your patch works for me.  Thank you.  I can now print from my parallel port
-printer using 2.4.8-pre1.  FWIW, here is my gcc version:
+Im not sure this is that true. I just added a user space implementation to
+thttpd to favour one network range and close under load on others to keep
+capacity there. Its a ten minute hack, and Im still seeing the same 1400
+hits per second or so I was before.
 
-[steven@localhost steven]$ gcc -v
-Reading specs from /usr/lib/gcc-lib/i586-mandrake-linux/2.96/specs
-gcc version 2.96 20000731 (Linux-Mandrake 8.0 2.96-0.47mdk)
-
-Steven
+Alan

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312412AbSDCWWa>; Wed, 3 Apr 2002 17:22:30 -0500
+	id <S312426AbSDCWYu>; Wed, 3 Apr 2002 17:24:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312418AbSDCWWU>; Wed, 3 Apr 2002 17:22:20 -0500
-Received: from ns.exp-math.uni-essen.de ([132.252.150.18]:27663 "EHLO
-	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id <S312412AbSDCWWA>; Wed, 3 Apr 2002 17:22:00 -0500
-Date: Thu, 4 Apr 2002 00:21:58 +0200 (MESZ)
-From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
-To: linux-kernel@vger.kernel.org
-Subject: Is this /dev/sg security hole from 2.2.* already fixed?
-Message-Id: <Pine.A32.3.95.1020404001954.18784A-100000@werner.exp-math.uni-essen.de>
-Mime-Version: 1.0
+	id <S312425AbSDCWYk>; Wed, 3 Apr 2002 17:24:40 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7183 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S312418AbSDCWY2>;
+	Wed, 3 Apr 2002 17:24:28 -0500
+Date: Wed, 3 Apr 2002 19:24:07 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Gerd Knorr <kraxel@bytesex.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.3.95.1020403171242.12859A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44L.0204031922570.18660-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry,
+On Wed, 3 Apr 2002, Richard B. Johnson wrote:
 
-I probably should just check myself in recent 2.4.* kernels, but I don't
-have one at hand on an SCSI capable machine.
+> Well, you can't have it both ways. If you want the world to use
+> Linux, then the companies that spend their money making programs
+> and drivers that work with Linux are going to have to be able
+> to keep their own hard-earned code from their competitors, or the
+> companies that hire the Engineers that write the code will soon
+> be out-of-business, their work having been stolen by others.
 
-Playing around with generic scsi on my 2.2.18 SCSI based Intel machine, I
-noticed that if one reads a large allocated SCSI reply packet from the
-/dev/sg device, but the physical scsi device did only use part of the
-allocated reply space, then the remaining, unused bytes of the reply
-packet are not initialized. 
+That's the perfect argument for making some symbols GPL-only,
+after all Redhat, SuSE, Conectiva, etc. wouldn't want to have
+vmware and Veritas use their work without giving anything back ...
 
-Typically they seem to contain data from other files (some no longer used
-diskbuffers or so) [in my case: C-source of the same program].
+regards,
 
-In case of several accesses to /dev/sg device (same process or same
-program run anew on a different /dev/sg device) the remaining bytes
-often contained data of previously issued, longer generic scsi
-transactions.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Esp. since AFAIK /dev/sg can be used by non-root users (given write access
-to /dev/sg) and other peoples data might pop up in the uninitialized reply
-packet, I consider this an (albeit difficult to exploit) security hole.
-
-I assume such a simple problem must have been detected and solved already,
-but I can't get a specific answer from any search machine or list archive.
-
-Can someone please comment or try on recent kernels?
-
-THX,
-Michael.
-
-
---
-
-Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
-or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
-any machine in the net, it's very likely it's me.
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

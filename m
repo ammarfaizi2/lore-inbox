@@ -1,117 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbVAFSD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVAFSDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbVAFSD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 13:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbVAFR46
+	id S262939AbVAFSDc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 13:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVAFRvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:56:58 -0500
-Received: from tag.witbe.net ([81.88.96.48]:15567 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S262932AbVAFRxV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:53:21 -0500
-Message-Id: <200501061753.j06HrJ101272@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Jan De Luyck'" <lkml@kcore.org>,
-       "'Steve Iribarne'" <steve.iribarne@dilithiumnetworks.com>
-Cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
-Subject: Re: ARP routing issue
-Date: Thu, 6 Jan 2005 18:53:19 +0100
-Organization: AS2917
+	Thu, 6 Jan 2005 12:51:13 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:39554 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262941AbVAFRup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:50:45 -0500
+Date: Thu, 6 Jan 2005 09:50:14 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Ray Bryant <raybry@sgi.com>
+cc: Andi Kleen <ak@muc.de>, Steve Longerbeam <stevel@mvista.com>,
+       Hugh Dickins <hugh@veritas.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, andrew morton <akpm@osdl.org>
+Subject: Re: page migration patchset
+In-Reply-To: <41DD608A.80003@sgi.com>
+Message-ID: <Pine.LNX.4.58.0501060947470.16240@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0501052008160.8705-100000@localhost.localdomain>
+ <41DC7EAD.8010407@mvista.com> <20050106144307.GB59451@muc.de> <41DD608A.80003@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <200501061711.59301.lkml@kcore.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcT0CrSZiWR5VUhLSoGcYdaWVJMuAwADdRrQ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 6 Jan 2005, Ray Bryant wrote:
 
-Have a look at /proc/sys/net/conf/XXX/arp_filter :
+> > If nothing happens soon regarding the "other" hugetlb code I will
+> > forward port my SLES9 code. It already has NUMA policy support.
+> I too have been frustrated by this process.  I think Christoph Lameter
+> at SGI is looking at forward porting the "old" lazy hugetlbpage allocation
+> code.  Of course, the proof is in the "doing" of this and I am not sure
+> what other priorities he has at the moment.
 
-        
-arp_filter - BOOLEAN
-        1 - Allows you to have multiple network interfaces on the same
-        subnet, and have the ARPs for each interface be answered
-        based on whether or not the kernel would route a packet from
-        the ARP'd IP out that interface (therefore you must use source
-        based routing for this to work). In other words it allows control
-        of which cards (usually 1) will respond to an arp request.
+Sorry I did not have time to continue the huge stuff in face of other
+things that came up in the fall. I ported the stuff to 2.6.10 yesterday
+but it still needs some rework.
 
-        0 - (default) The kernel can respond to arp requests with addresses
-        from other interfaces. This may seem wrong but it usually makes
-        sense, because it increases the chance of successful communication.
-        IP addresses are owned by the complete host on Linux, not by
-        particular interfaces. Only for more complex setups like load-
-        balancing, does this behaviour cause problems.
-
-Regards,
-Paul
-
-Paul Rolland, rol(at)as2917.net
-ex-AS2917 Network administrator and Peering Coordinator
-
---
-
-Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
-
-"Some people dream of success... while others wake up and work hard at it" 
-
-  
-
-> -----Message d'origine-----
-> De : linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] De la part de Jan De Luyck
-> Envoyé : jeudi 6 janvier 2005 17:12
-> À : Steve Iribarne
-> Cc : linux-kernel@vger.kernel.org; linux-net@vger.kernel.org
-> Objet : Re: ARP routing issue
-> 
-> On Thursday 06 January 2005 17:06, Steve Iribarne wrote:
-> > Hi Jan,
-> >
-> >
-> > -> default gateway is set to 10.0.22.1, on eth0.
-> > ->
-> > -> Problem is, if I try to ping from another network
-> > -> (10.216.0.xx) to 10.0.24.xx, i see the following ARP request:
-> > ->
-> > -> arp who-has 10.0.22.1 tell 10.0.24.xx
-> > ->
-> >
-> > You see that coming out the eth0 interface??
-> >
-> > If that is the case it is most definately wrong.  Assuming that your
-> > masks are setup properly.  But I haven't worked on the 2.4 
-> kernel for a
-> > long time so I'm not so sure if what you are seeing is a 
-> bug that has
-> > been fixed.
-> 
-> The network information is:
-> eth0 10.0.22.xxx mask 255.255.255.0
-> eth1 10.0.24.xxx mask 255.255.255.0
-> 
-> routing:
-> 10.0.22.0 0.0.0.0 255.255.255.0 eth0
-> 10.0.24.0 0.0.0.0 255.255.255.0 eth1
-> 0.0.0.0  10.0.22.1 0.0.0.0  eth0
-> 
-> Jan
-> 
-> -- 
-> If a man slept by day, he had little time to work.  That was a
-> satisfying notion to Escargot.
->   -- "The Stone Giant", James P. Blaylock
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+Could you sent me the most up to date version of the SLES9 stuff including
+any unintegrated changes? I can work though this next week I believe and
+post a new huge pages patch.

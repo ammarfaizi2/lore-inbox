@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSEXAYC>; Thu, 23 May 2002 20:24:02 -0400
+	id <S317055AbSEXAXZ>; Thu, 23 May 2002 20:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317057AbSEXAX7>; Thu, 23 May 2002 20:23:59 -0400
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:21253
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S317056AbSEXAXw>; Thu, 23 May 2002 20:23:52 -0400
-Date: Fri, 24 May 2002 02:23:51 +0200
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [reiserfs-dev] Re: IDE problem: linux-2.5.17
-Message-ID: <20020524022351.A8230@bouton.inet6-interne.fr>
-Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFC5B.3030701@evision-ventures.com> <20020523193959.A2613@namesys.com> <3CED004A.6000109@evision-ventures.com> <20020523234720.A7495@bouton.inet6-interne.fr> <20020524005525.H27005@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
+	id <S317056AbSEXAXY>; Thu, 23 May 2002 20:23:24 -0400
+Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:32517 "HELO
+	kelownamail.packeteer.com") by vger.kernel.org with SMTP
+	id <S317055AbSEXAXX>; Thu, 23 May 2002 20:23:23 -0400
+From: "Stephane Charette" <scharette@packeteer.com>
+To: "Austin Gonyou" <austin@digitalroadkill.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Thu, 23 May 2002 17:23:23 -0700
+Reply-To: "Stephane Charette" <scharette@packeteer.com>
+X-Mailer: PMMail 2000 Standard (2.10.2010) For Windows 2000 (5.0.2195;2)
+In-Reply-To: <1022193715.7292.74.camel@UberGeek>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Recent kernel SMP scalability Benchmark/White-paper References.
+Message-Id: <20020524002323Z317055-22651+51447@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 12:55:25AM +0200, Vojtech Pavlik wrote:
-> 
-> If you rewrite the whole drive with zeros (or the original data) sector
-> by sector, the uncorrectable errors will go away. I've done this to my
-> 307030 and it works fine again. (Fortunately for me the errors were only
-> in my swap partition).
-> 
+On 23 May 2002 17:41:55 -0500, Austin Gonyou wrote:
 
-Don't know for the whole drive yet (currently running) but when I did a mkraid
-on a raid5 array using 4 partitions on the same drive the sync thread ended
-and left the array in degraded mode after a bunch of :
-May 24 02:05:06 twins kernel: hdd: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-May 24 02:05:06 twins kernel: hdd: dma_intr: error=0x40 { UncorrectableError }, LBA sect=2097375, sector=2097298
-May 24 02:05:06 twins kernel: end_request: I/O error, dev 16:41 (hdd), sector 2097298
+>I was looking around on google web, google groups, lkml digests,
+>Intel.com, RedHat, SuSe, SGI.com, osdl.com, etc for some benchmarks of
+>recent 2.4.x kernels, say 2.4.x > 16, with references to SMP scalability
+>problems or successes, etc. Mainly centering around 4-way/8-way x86
+>testing in terms of memory bandwidth/utilization, threading performance,
+>etc. 
 
-Then I tried to zero the offending sectors with a slight margin :
-[root@twins root]# dd if=/dev/zero of=/dev/hdd1 count=200 bs=512 seek=2097200
-dd: writing /dev/hdd1': Erreur d'entrée/sortie
-113+0 enregistrements lus.
-112+0 enregistrements écrits.
+All I've found so far is:
 
-Same error each time, seems sector 2097312 is not my friend.
+http://www.usenix.org/publications/library/proceedings/als2000/full_papers/bryantscale/bryantscale.pdf
 
-dd if=/dev/zero of=/dev/hdd bs=<cylinder_size> running.
+which is based on the 2.2.14-SMP -vs- 2.3.99-SMP kernels.
 
-Too bad lsof doesn't show offsets...
-I can't tell if dd passed the offending sector :-|
+>I'm hoping to create a white-paper internally, and hopefully externally
+>at some point, which can be maintained so others don't have to do the
+>same arduous task of trying to find recent data as it pertains to said
+>statistics.
 
-LB.
+If you find anything else, or get forwarded any information, please post the relevant information where possible.  There are many of us looking for benchmark information on recent 2.4.x kernels.  Seems like a few companies/projects are currently looking at the costs/benefits/risks of moving up to the new kernel.
+
+Regards,
+
+Stephane Charette
+
+
+

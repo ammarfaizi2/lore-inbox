@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUG2Q3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268213AbUG2QBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267482AbUG2Q3W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 12:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbUG2Q1L
+	id S268213AbUG2QBO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 12:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUG2P4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 12:27:11 -0400
-Received: from nacho.alt.net ([207.14.113.18]:48068 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id S267704AbUG2QWq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 12:22:46 -0400
-Date: Thu, 29 Jul 2004 09:22:40 -0700 (PDT)
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
-In-Reply-To: <20040729122107.GA1024@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0407290909410.30975-100000@nacho.alt.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Delivery-Agent: TMDA/1.0.2 (Bold Forbes)
-From: Chris Caputo <ccaputo@alt.net>
+	Thu, 29 Jul 2004 11:56:04 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:14808 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S267608AbUG2Puv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 11:50:51 -0400
+Subject: Re: [PATCH] Delete cryptoloop
+From: Christophe Saout <christophe@saout.de>
+To: James Morris <jmorris@redhat.com>
+Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Xine.LNX.4.44.0407282025440.12996-100000@dhcp83-76.boston.redhat.com>
+References: <Xine.LNX.4.44.0407282025440.12996-100000@dhcp83-76.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y9B1DMJNEBF3y1snMl3E"
+Date: Thu, 29 Jul 2004 17:50:39 +0200
+Message-Id: <1091116240.12054.9.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.91 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004, Arjan van de Ven wrote:
-> On Thu, Jul 29, 2004 at 07:57:55AM -0300, Marcelo Tosatti wrote:
-> > On Thu, Jul 29, 2004 at 09:54:29AM +0200, Arjan van de Ven wrote:
-> > > On Wed, Jul 28, 2004 at 11:27:41PM -0700, Chris Caputo wrote:
-> > > > On Wed, 28 Jul 2004, Marcelo Tosatti wrote:
-> > > > > Changing the affinity writes new values to the IOAPIC registers, I can't see
-> > > > > how that could interfere with the atomicity of a spinlock operation. I dont
-> > > > > understand why you think irqbalance could affect anything.
-> > > > 
-> > > > Because when I stop running irqbalance the crashes no longer happen.
-> > > 
-> > > what is the irq distribution when you do that?
-> > > Can you run irqbalance for a bit to make sure there's a static distribution
-> > > of irq's and then disable it and see if it survives ?
-> > 
-> > Chris, Yes I'm also running irqbalance. 
-> > 
-> > Arjan, what is an easy way for me to make irqbalance change the affinity
-> > as crazy on the SMP 8way box, just for a test?
-> 
-> there is a sleep(10 seconds) in the code, if you change that to something
-> really short and then cause irq burst rates on different devices...
 
-I messed with that at one point and didn't have a noticible improvement in
-getting the crash to happen.  I'd recommend not going lower than sleep(1)
-since that still gives irqbalance some time to amass stats prior to the
-next iteration.
+--=-y9B1DMJNEBF3y1snMl3E
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 29 Jul 2004, Arjan van de Ven wrote:
-> what is the irq distribution when you do that?
+Am Mittwoch, den 28.07.2004, 20:27 -0400 schrieb James Morris:
 
-You mean like what does "cat /proc/interrupts" show?  One thing I could do
-is have a "watch -n 1 cat /proc/interrupts" running in one screen while
-the tests are running, and then when the crash happens copy/paste the
-results.  Would that be useful?
+> > James Morris  wrote:
+> > >It would be good if we could get some further review on the issue by a=
+n=20
+> > >independent, well known cryptographer.
+> >=20
+> > I'd be glad to review it if someone can point me to a clear, concise
+> > description of the scheme (trying to extract the spec from the code
+> > is too much work for me).
+>=20
+> That would be great.  It would be best to do this review for dm-crypt. =20
+>=20
+> Christophe, is there a detailed description of the existing scheme?
 
-> Can you run irqbalance for a bit to make sure there's a static
-> distribution of irq's and then disable it and see if it survives ?
+I can explain it here, it's pretty simple:
 
-I've had mixed results with this.  In theory the list corruption can
-happen while irqbalance has been running, and then after stopping it, days
-later the crash can happen when a corrupted list item is finally accessed.
+IV =3D sector number (little endian, 32 bits), pad with zeroes
 
-Should I try the run-once/oneshot feature of irqbalance on boot, and then
-leave it off and see if anything happens?
+The actual content is then encoded using the selected cipher and key in
+CBC mode.
 
-Thanks,
-Chris
+For those who don't know what exactly that means:
 
+C[0] =3D E(IV     xor P[0])
+C[1] =3D E(C[0]   xor P[1])
+...
+C[n] =3D E(C[n-1] xor P[n])
+
+C is the encrypted data, P the plaintext data. The block size is given
+by the cipher (usually 128 bit or something like that). E is the
+encryption using cipher and key.
+
+This is done for every sector.
+
+The weakness is that the IV is known. You can write specially crafted
+blocks on the disk and have a known plaintext for the first block.
+
+Also see: http://clemens.endorphin.org/OnTheProblemsOfCryptoloop
+
+One simple way to avoid this would be to compute the IV in a different
+way, something based on key and sector number.
+
+
+--=-y9B1DMJNEBF3y1snMl3E
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBCRzPZCYBcts5dM0RArEyAKCLw1Z3PrXDfDsxP+vaSQYKk5OfEgCdEb1f
+Z9C7SLaqvf5tZ3GnE/uF9iM=
+=nyjS
+-----END PGP SIGNATURE-----
+
+--=-y9B1DMJNEBF3y1snMl3E--
 

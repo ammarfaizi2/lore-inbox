@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264991AbSJWNgU>; Wed, 23 Oct 2002 09:36:20 -0400
+	id <S264990AbSJWNfS>; Wed, 23 Oct 2002 09:35:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264992AbSJWNgU>; Wed, 23 Oct 2002 09:36:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42501 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264991AbSJWNgR>;
-	Wed, 23 Oct 2002 09:36:17 -0400
-Date: Wed, 23 Oct 2002 14:42:27 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: kernel hooks interface available to non-GPL modules?
-Message-ID: <20021023144227.O27461@parcelfarce.linux.theplanet.co.uk>
+	id <S264991AbSJWNfS>; Wed, 23 Oct 2002 09:35:18 -0400
+Received: from prosun.first.gmd.de ([194.95.168.2]:30469 "EHLO
+	prosun.first.gmd.de") by vger.kernel.org with ESMTP
+	id <S264990AbSJWNfR>; Wed, 23 Oct 2002 09:35:17 -0400
+Subject: slowdown after suspend to disk on 2.4.{9,10,17-current} kernels.
+From: Soeren Sonnenburg <sonnenburg@informatik.hu-berlin.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 23 Oct 2002 15:41:26 +0200
+Message-Id: <1035380486.25072.19.camel@calculon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all!
 
-+EXPORT_SYMBOL(hook_exit_deregister);
-+EXPORT_SYMBOL(hook_exit_arm);
-+EXPORT_SYMBOL(hook_exit_disarm);
-+EXPORT_SYMBOL(_hook_initialise);
-+EXPORT_SYMBOL(_hook_terminate);
-+EXPORT_SYMBOL(_hook_exit_register);
+I have a samsung NV5000 notebook here. After I put the notebook into the
+suspend to disk mode and then turn it on again it runs very very slow
+(My test method for now was the logout button in gdm. When that is
+clicked the screen is filled with a 01010101 pattern. It takes like 8
+seconds after a suspend to disk and <1s before).
 
-I'm not sure this is a great idea.  OK, your DECLARE_HOOK macros are _GPL
-(and why are they _NOVERS_GPL?  Surely this is the exact kind of thing
-you want versioned?), but I wouldn't have to use the DECLARE_HOOK macros,
-would I?
+I tried several kernels: 2.4.{9,10,17,18,19,20-pre11) without success.
+I turned off any powermanagement in the bios and tried all the
+combinations of BIOS vs ACPI/APM/OFF without any change. I tried to apm
+-s , ALLOW_INTERRUPTS, ... without success.
 
-If you thought the LSM GPL furore was bad, this one would be worse.
+Since I heard of buggy gcc variants included in redhat I compiled the
+20-pre11 kernel using gcc2.95 on a different machine. Also I tried
+setting to i386 up to PIII .... still same behaviour.
 
--- 
-Revolutions do not require corporate support.
+Then I booted a standard Redhat 7.2 (IIRC) 2.4.9-34 kernel,which worked
+as expected (no slowdown, however other issues which I hoped were fixed
+in the meantime). Also compiling that one with the options I used for
+the above tests makes the notebook work.
+
+It looks like there is no newer bios on samsungs web-page. I don't know
+how I can find the real cause
+
+Thanks for any ideas,
+Soeren.
+

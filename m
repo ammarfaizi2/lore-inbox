@@ -1,80 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268719AbTCCTCp>; Mon, 3 Mar 2003 14:02:45 -0500
+	id <S268721AbTCCTBK>; Mon, 3 Mar 2003 14:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268720AbTCCTCg>; Mon, 3 Mar 2003 14:02:36 -0500
-Received: from packet.digeo.com ([12.110.80.53]:33520 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268719AbTCCTB5>;
-	Mon, 3 Mar 2003 14:01:57 -0500
-Date: Mon, 3 Mar 2003 11:08:34 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.63-mjb2 (scalability / NUMA patchset)
-Message-Id: <20030303110834.031e6d98.akpm@digeo.com>
-In-Reply-To: <20030303131955.GA4655@rushmore>
-References: <20030303131955.GA4655@rushmore>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S268719AbTCCTBK>; Mon, 3 Mar 2003 14:01:10 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:56029 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S268718AbTCCTBF>; Mon, 3 Mar 2003 14:01:05 -0500
+Message-ID: <3E63A8CB.2090307@nortelnetworks.com>
+Date: Mon, 03 Mar 2003 14:11:07 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: terje.eggestad@scali.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       linux-net@vger.kernel.org
+Subject: Re: anyone ever done multicast AF_UNIX sockets?
+References: <3E638C51.2000904@nortelnetworks.com>	<20030303.085504.105424448.davem@redhat.com>	<3E6399F1.10303@nortelnetworks.com> <20030303.095641.87696857.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Mar 2003 19:12:17.0936 (UTC) FILETIME=[CEC9D100:01C2E1B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rwhron@earthlink.net wrote:
->
-> > Pleeeeeeze remember to specify basic things such as the machine,
-> > amount of memory and especially the filesystem type in use.
+David S. Miller wrote:
+>    From: Chris Friesen <cfriesen@nortelnetworks.com>
+>    Date: Mon, 03 Mar 2003 13:07:45 -0500
+>    
+>    Suppose I have a process that waits on UDP packets, the unified local 
+>    IPC that we're discussing, other unix sockets, and stdin.  It's awfully 
+>    nice if the local IPC can be handled using the same select/poll 
+>    mechanism as all the other messaging.
 > 
-> >> on uniprocessor K6/2 475 Mhz with 384 MB ram
-> and two IDE drives on ext2.
+> So use UDP, you still haven't backed up your performance
+> claims.  Experiment, set the SO_NO_CHECK socket option to
+> "1" and see if that makes a difference performance wise
+> for local clients.
 
-Ah, thanks.
+I did provide numbers for UDP latency, which is more critical for my own 
+application since most messages fit within a single packet.  I haven't 
+done UDP bandwidth testing--I need to check how lmbench did it for the 
+unix socket and do the same for UDP.  Local TCP was far slower than unix 
+sockets though.
 
-> Could it be a disk driver issue?  Maybe 2.4 has some IDE
-> enhancements that aren't in 2.5 yet.
+> But if performance is "so important", then you shouldn't really be
+> shying away from the shared memory suggestion and nothing is going to
+> top that (it eliminates all the copies, using flat out AF_UNIX over
+> UDP only truly eliminates some header processing, nothing more, the
+> copies are still there with AF_UNIX).
 
-Well I tested the AIM7 dbase workload yesterday on 256MB IDE.  2.4 and 2.5
-have the same throughput, down to a fraction of one percent.  The entire
-working set appeared to be around 200MB so there was no reading from disk at
-all.  Just 25 minutes of trickling out very slow O_SYNC writes.  The thing is
-dominated by disk seek time.
+Yes, I realize that the receiver still has to do a copy.  With large 
+messages this could be an issue.  With small messages, I had assumed 
+that the cost of a recv() wouldn't be that much worse than the cost of 
+the sender doing a kill() to alert the receiver that a message is 
+waiting.  Maybe I was wrong.
 
-> Here is AIM7 dbase on quad Xeon with 3.75 GB ram over ext2:
-> 
-> AIM7 dbase workload
-> kernel                   Tasks   Jobs/Min         Real    CPU  
-> 2.5.62-mm2               32     555.9            342.0   155.2 
-> 2.4.21-pre4aa1           32     554.4            342.8   142.3 
-> 2.4.21-pre4aa3           32     551.9            344.4   149.6 
-> 2.4.21-pre4-ac3          32     473.8            401.2   147.7 
-> 2.5.62                   32     473.6            401.3   148.2 
-> 2.5.63-mjb2              32     472.5            402.3   161.5 
-> 2.5.63                   32     471.6            403.1   153.1 
-> 2.2.24-rc3               32     431.9            440.1   165.7 
-> 
-> 2.5.62-mm2 has the feral driver.  aa has the QLogic 6.x driver.
+It might be interesting to try a combination of sysV msg queue and 
+signals to see how it stacks up.  Project for tonight.
 
-Well if there is any difference in drive caching policy then one would expect
-to see large differences.  Using writeback caching in the disk (which is
-considered cheating) would speed things up.  But I'd be surprised if
-2.5-vs-2.4 IDE affected the drive's caching policy.
+Chris
 
-> Those two kernels rule AIM7 dbase and fserver on quad Xeon with
-> QLA2200.  I tested earlier 2.5 and aa with/without the newer
-> QLogic drivers.  It was _the_most_important_ factor for AIM7
-> dbase and fserver.  Perhaps AIM7 dbase and fserver really suck.
-> They seem rather impervious to other improvements in the kernel.
 
-Yes, they do.
 
-> > Care to share your aim7 database methodology with me?
-> 
-> AIM7 dbase takes a mixture of AIM9 micro activities and runs 
-> them in proportion to what it's developers found a circa 1996 
-> database running.  
 
-AIM7 dbase would probably be more interesting if it created a larger working
-set.
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

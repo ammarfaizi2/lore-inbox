@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbQLWUbR>; Sat, 23 Dec 2000 15:31:17 -0500
+	id <S129458AbQLWUlN>; Sat, 23 Dec 2000 15:41:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129823AbQLWUbH>; Sat, 23 Dec 2000 15:31:07 -0500
-Received: from uberbox.mesatop.com ([208.164.122.9]:6665 "EHLO
-	uberbox.mesatop.com") by vger.kernel.org with ESMTP
-	id <S129532AbQLWUa4>; Sat, 23 Dec 2000 15:30:56 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.0-test13-pre4 fix drivers/ieee1394/Makefile
-Date: Sat, 23 Dec 2000 11:17:08 -0700
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
-Cc: ebi4@ozob.net
-MIME-Version: 1.0
-Message-Id: <00122311170801.07144@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S129532AbQLWUky>; Sat, 23 Dec 2000 15:40:54 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:857 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129458AbQLWUkt>; Sat, 23 Dec 2000 15:40:49 -0500
+Date: Sat, 23 Dec 2000 21:10:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Todd M. Roy" <toddroy@softhome.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lvm 0.8 to 0.9 conversion?
+Message-ID: <20001223211017.A29082@athlon.random>
+In-Reply-To: <3A44FBF7.46EDB9EB@softhome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A44FBF7.46EDB9EB@softhome.net>; from toddroy@softhome.net on Sat, Dec 23, 2000 at 02:24:39PM -0500
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebi4 wrote:
->ld: cannot open drivers/ieee1394/ieee1394.a: No such file or directory
->make: *** [vmlinux] Error 1
+On Sat, Dec 23, 2000 at 02:24:39PM -0500, Todd M. Roy wrote:
+> 
+> Now that in 2.4.0-test12-pre4, lvm 0.9 has replaced 0.8, is it possible
+> to do a conversion of lvm created physical volumes, volume groups
+> and logical volumes from 0.8 to 0.9?
 
-Changing the order of a few lines in linux/drivers/ieee1394/Makefile fixes 
-this problem.  Here is the patch:
-Steven
+on-disk format isn't changed so no conversion is needed. You only
+need to upgrade the lvm tools to use the new kernel driver, grab the tools from
+www.sistina.com.
 
-diff -u linux/drivers/ieee1394/Makefile.orig linux/drivers/ieee1394/Makefile
---- linux/drivers/ieee1394/Makefile.orig        Sat Dec 23 11:03:06 2000
-+++ linux/drivers/ieee1394/Makefile     Sat Dec 23 11:04:08 2000
-@@ -23,7 +23,7 @@
- obj-$(CONFIG_IEEE1394_VIDEO1394) += video1394.o
- obj-$(CONFIG_IEEE1394_RAWIO) += raw1394.o
- 
-+include $(TOPDIR)/Rules.make
-+
- ieee1394.o: $(ieee1394-objs)
-        $(LD) -r -o $@ $(ieee1394-objs)
--
--include $(TOPDIR)/Rules.make
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

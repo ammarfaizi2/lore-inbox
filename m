@@ -1,81 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUFRWRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265689AbUFRWVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUFRWRW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 18:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUFRWLB
+	id S265689AbUFRWVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 18:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUFRWQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 18:11:01 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:52443 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S265241AbUFRWKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 18:10:25 -0400
-Date: Sat, 19 Jun 2004 00:10:20 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: jsimmons@pentafluge.infradead.org, Rik van Riel <riel@redhat.com>,
-       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       William Lee Irwin III <wli@holomorphy.com>, Jens Axboe <axboe@suse.de>,
-       Andrew Morton <akpm@osdl.org>, 4Front Technologies <dev@opensound.com>
-Subject: Re: Stop the Linux kernel madness
-Message-ID: <20040618221020.GU20632@lug-owl.de>
-Mail-Followup-To: viro@parcelfarce.linux.theplanet.co.uk,
-	jsimmons@pentafluge.infradead.org, Rik van Riel <riel@redhat.com>,
-	Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>,
-	4Front Technologies <dev@opensound.com>
-References: <40D33C58.1030905@am.sony.com> <Pine.LNX.4.44.0406181604270.8065-100000@chimarrao.boston.redhat.com> <20040618200848.GL20632@lug-owl.de> <Pine.LNX.4.56.0406182150500.26434@pentafluge.infradead.org> <20040618220501.GL12308@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7WVq5Zg08SAD/Y+V"
+	Fri, 18 Jun 2004 18:16:39 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:60875 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S265422AbUFRWPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 18:15:12 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Ricky Beam <jfbeam@bluetronic.net>,
+       Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: SATA 3112 errors on 2.6.7
+Date: Sat, 19 Jun 2004 00:18:03 +0200
+User-Agent: KMail/1.5
+Cc: <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.33.0406181221310.25702-100000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.GSO.4.33.0406181221310.25702-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040618220501.GL12308@parcelfarce.linux.theplanet.co.uk>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+Message-Id: <200406190018.03500.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 18 of June 2004 18:28, Ricky Beam wrote:
+> On Fri, 18 Jun 2004, Matthias Urlichs wrote:
+> >>>Current sda: sense key Medium Error
+> >>
+> >>There's likely nothing wrong with your drives.  Something about that
+> >>driver and the hardware aren't playing nice.
+> >
+> >What does the drive's SMART error log report?
+>
+> No errors.
+>
+> >I would consider swapping the power supply. Last year I had *four* 120 GB
+> >drives fail on me before I changed the thing. Zero problems since.
+>
+> Moral: stop buying crappy power supplies. :-)
+>
+> My power supply is fine.  If the PS were at fault, the same thing would
+> be happening all the time, not just when linux tries to throw 200 sectors
+> at a time at the drives.  Windows has been stressing these drives far more
+> than linux and there's been zero idication of any problems.  As I said,
+> writing in O_DIRECT mode to the array @ _35MB/s_ never reports a DMA
+> timeout -- I'll start increasing the buffer size to see where the cracking
+> point is.
 
---7WVq5Zg08SAD/Y+V
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Are your drives out of Seagate, maybe?  If not, what make are they?
 
-On Fri, 2004-06-18 23:05:01 +0100, viro@parcelfarce.linux.theplanet.co.uk <=
-viro@parcelfarce.linux.theplanet.co.uk>
-wrote in message <20040618220501.GL12308@parcelfarce.linux.theplanet.co.uk>:
-> On Fri, Jun 18, 2004 at 10:03:51PM +0100, jsimmons@pentafluge.infradead.o=
-rg wrote:
+rjw
 
-> You know, that would sound much more impressive if drivers *already* *in*
-> *the* *tree* would get fixed.
-
-Reminds me that there were some 20 drivers for differently attached
-lance network chips in the kernel source tree:)
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---7WVq5Zg08SAD/Y+V
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA02hLHb1edYOZ4bsRAsBbAJ9wLL7Zloi8v3Q6EmKn+d1oX/s2xgCgjmqQ
-1k+fHEamJKuwNZszaBysYBs=
-=iLrb
------END PGP SIGNATURE-----
-
---7WVq5Zg08SAD/Y+V--
+-- 
+Rafael J. Wysocki,
+SiSK
+[tel. (+48) 605 053 693]
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

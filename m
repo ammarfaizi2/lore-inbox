@@ -1,90 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265206AbTL1Ey7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Dec 2003 23:54:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbTL1Ey7
+	id S265056AbTL1ExR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Dec 2003 23:53:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbTL1ExR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Dec 2003 23:54:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8624 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265206AbTL1Ey4 (ORCPT
+	Sat, 27 Dec 2003 23:53:17 -0500
+Received: from mail.rdslink.ro ([193.231.236.20]:55014 "EHLO mail.rdslink.ro")
+	by vger.kernel.org with ESMTP id S265056AbTL1ExP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Dec 2003 23:54:56 -0500
-Date: Sat, 27 Dec 2003 20:53:30 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Anton Ertl <anton@mips.complang.tuwien.ac.at>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Page Colouring (was: 2.6.0 Huge pages not working as expected)
-In-Reply-To: <m1smj596t1.fsf@ebiederm.dsl.xmission.com>
-Message-ID: <Pine.LNX.4.58.0312272046400.2274@home.osdl.org>
-References: <179fV-1iK-23@gated-at.bofh.it> <179IS-1VD-13@gated-at.bofh.it>
- <2003Dec27.212103@a0.complang.tuwien.ac.at> <Pine.LNX.4.58.0312271245370.2274@home.osdl.org>
- <m1smj596t1.fsf@ebiederm.dsl.xmission.com>
+	Sat, 27 Dec 2003 23:53:15 -0500
+Date: Sat, 27 Dec 2003 19:44:22 +0200 (EET)
+From: caszonyi@rdslink.ro
+X-X-Sender: sony@grinch.ro
+Reply-To: Calin Szonyi <caszonyi@rdslink.ro>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: panic in bttv_risc_planar
+In-Reply-To: <2890000.1072499316@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.53.0312271940420.573@grinch.ro>
+References: <Pine.LNX.4.53.0312262105560.537@grinch.ro> <2850000.1072477728@[10.10.2.4]>
+ <Pine.LNX.4.53.0312270235570.7966@grinch.ro> <2890000.1072499316@[10.10.2.4]>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 26 Dec 2003, Martin J. Bligh wrote:
 
-
-On Sat, 27 Dec 2003, Eric W. Biederman wrote:
-> Linus Torvalds <torvalds@osdl.org> writes:
+> > I'm not familiar with addr2line :-(
+> > I was trying this command line(the result is below):
+> >  //usr/src/linux-2.6.0 $ addr2line -e ./vmlinux 320
+> > ??:0
 > >
-> > Basically: prove me wrong. People have tried before. They have failed. 
-> > Maybe you'll succeed. I doubt it, but hey, I'm not stopping you.
-> 
-> For anyone taking you up on this I'd like to suggest two possible
-> directions.
-> 
-> 1) Increasing PAGE_SIZE in the kernel.
+> > I obtain the same result if i use 0x140 instead of 320 (320 is decimal
+> > for 0x140)
+>
+> "addr2line -e ./vmlinux 0xc0333f60" if I recall correctly
+> (the full address, not the offset within the function). Might not need
+> the 0x in front.
+>
 
-Yes. This is something I actually want to do anyway for 2.7.x. Dan 
-Phillips had some patches for this six months ago.
+here is what addr2line says
+root@grinch -19:39:14- 0 jobs, ver 2.05b.0 4
+ //usr/src/linux-2.6.0 $ addr2line -e ./vmlinux c0333f60
+/usr/src/linux-2.6.0/drivers/media/video/bttv-risc.c:195
 
-You have to be careful, since you have to be able to mmap "partial pages", 
-which is what makes it less than trivial, but there are tons of reasons to 
-want to do this, and cache coloring is actually very much a secondary 
-concern.
+the line  is:
 
-> 2) Creating zones for the different colors.  Zones were not
->    implemented last time, this was tried.
+*(rp++)=cpu_to_le32(sg_dma_address(vsg)+voffset);
 
-Hey, I can tell you that you _will_ fail.
 
-Zones are actually a wonderful example of the kinds of problems you get
-into when you have pages of different types aka "colors". We've had
-nothing but trouble trying to balance different zones against each other,
-and those problems were in fact _the_ reason for 99% of all the VM
-problems in 2.4.x.
+> But I think maybe Linus already told you what it is ;-)
+>
 
-Trying to use them for cache colors would be "interesting". 
+I did the change that Linus suggested and so far so good (no problems)
 
-Not to mention that it's impossible to coalesce pages across zones.
+> M.
+>
 
-> Both of those should be minimal impact to the complexity
-> of the current kernel. 
+Thanks to all
 
-Minimal? I don't think so. Zones are basically impossible, and page size 
-changes will hopefully happen during 2.7.x, but not due to page coloring.
+Bye
+Calin
 
-> I don't know where we will wind up but the performance variation's
-> caused by cache conflicts in today's applications are real, and easily
-> measurable.  Giving the growing increase in performance difference
-> between CPUs and memory Amdahl's Law shows this will only grow
-> so I think this is worth looking at.
-
-Absolutely wrong.
-
-Why? Because the fact is, that as memory gets further and further away 
-from CPU's, caches have gotten further and further away from being direct 
-mapped. 
-
-Cache coloring is already a very questionable win for four-way 
-set-associative caches. I doubt you can even _see_ it for eight-way or 
-higher associativity caches.
-
-In other words: the pressures you mention clearly do exist, but they are 
-all driving direct-mapped caches out of the market, and thus making page
-coloring _less_ interesting rather than more.
-
-		Linus

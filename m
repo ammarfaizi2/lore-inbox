@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132150AbRCVTFR>; Thu, 22 Mar 2001 14:05:17 -0500
+	id <S132155AbRCVTVr>; Thu, 22 Mar 2001 14:21:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132152AbRCVTFH>; Thu, 22 Mar 2001 14:05:07 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:31248 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S132150AbRCVTEv>;
-	Thu, 22 Mar 2001 14:04:51 -0500
-Message-ID: <20010322200408.A5404@win.tue.nl>
-Date: Thu, 22 Mar 2001 20:04:08 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: "Patrick O'Rourke" <orourke@missioncriticallinux.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <20010322124727.A5115@win.tue.nl> <Pine.LNX.4.21.0103221200410.21415-100000@imladris.rielhome.conectiva>
-Mime-Version: 1.0
+	id <S132163AbRCVTVh>; Thu, 22 Mar 2001 14:21:37 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:48647 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S132162AbRCVTVZ>; Thu, 22 Mar 2001 14:21:25 -0500
+Message-ID: <3ABA5089.9DE6E8B7@Hell.WH8.TU-Dresden.De>
+Date: Thu, 22 Mar 2001 20:20:41 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac21 i686)
+X-Accept-Language: en, de-DE
+MIME-Version: 1.0
+To: kraxel@strusel007.de, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Weird bttv errors and video hangs with 2.4.2-ac21
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.4.21.0103221200410.21415-100000@imladris.rielhome.conectiva>; from Rik van Riel on Thu, Mar 22, 2001 at 12:01:43PM -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, Mar 22, 2001 at 12:01:43PM -0300, Rik van Riel wrote:
+Hi,
 
-> > Last month I had a computer algebra process running for a week.
-> > Killed. But this computation was the only task this machine had.
-> > Its sole reason of existence.
-> > Too bad - zero information out of a week's computation.
-> > 
-> > Clearly, Linux cannot be reliable if any process can be killed
-> > at any moment. I am not happy at all with my recent experiences.
-> 
-> Note that the OOM killer in 2.4 won't kick in until your machine
-> is out of both memory and swap, see mm/oom_kill.c::out_of_memory().
+With -ac21 I'm getting occasional long delays in video output with xawtv
+or the picture totally freezes until I click with the mouse in the xawtv
+window. dmesg shows:
 
-Nevertheless, this process does malloc and malloc returns the requested
-memory. If a malloc fails the computer algebra process has the choice
-between various alternatives. Present a prompt, so that the user can
-examine variables and intermediate results, or request a dump to disk
-of the status of the computation. Or choose an alternative algorithm,
-at some other point of the space-time tradeoff curve.
-But no error return from malloc - just "Killed". Ach.
+bttv0: PLL: 28636363 => 35468950 ... ok
+bttv0: irq: OCERR risc_count=0fb54810
+bttv0: irq: OCERR risc_count=0fb54810
+bttv0: irq: OCERR risc_count=0fb54810
+bttv0: irq: SCERR risc_count=0fb54810
+bttv0: irq: SCERR risc_count=0fb54810
+bttv0: aiee: error loops
+bttv0: resetting chip
+bttv0: PLL: 28636363 => 35468950 ... ok
+bttv0: irq: OCERR risc_count=0fb54810
+bttv0: irq: OCERR risc_count=0fb54820
+bttv0: irq: OCERR risc_count=0fb54810
+bttv0: irq: OCERR risc_count=0fb54810
+bttv0: irq: SCERR risc_count=0fb54810
+bttv0: aiee: error loops
+bttv0: irq: SCERR risc_count=0c898014
+bttv0: aiee: error loops
+bttv0: resetting chip
+bttv0: PLL: 28636363 => 35468950 ... ok
+bttv0: irq: OCERR risc_count=0fb54810
 
-Andries
+All of this did not happen with -ac20 under the exact same circumstances,
+so -ac21 does something which the bttv driver (0.7.57) doesn't quite like.
+
+Regards,
+Udo.

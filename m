@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVDDJx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVDDJzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVDDJx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 05:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDDJx7
+	id S261193AbVDDJzq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 05:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVDDJzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 05:53:59 -0400
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:33173 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261200AbVDDJxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 05:53:46 -0400
-Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Li Shaohua <shaohua.li@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>, Len Brown <len.brown@intel.com>
-In-Reply-To: <1112606651.4194.391.camel@sli10-desk.sh.intel.com>
-References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
-	 <20050403193750.40cdabb2.akpm@osdl.org>
-	 <1112582553.4194.349.camel@sli10-desk.sh.intel.com>
-	 <20050403194807.32fd761a.akpm@osdl.org>
-	 <1112582947.4194.352.camel@sli10-desk.sh.intel.com>
-	 <1112601670.3757.6.camel@desktop.cunningham.myip.net.au>
-	 <1112604263.4194.367.camel@sli10-desk.sh.intel.com>
-	 <20050404091027.GA14765@elf.ucw.cz>
-	 <1112606651.4194.391.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain
-Message-Id: <1112608527.3757.19.camel@desktop.cunningham.myip.net.au>
+	Mon, 4 Apr 2005 05:55:46 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:5173 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261193AbVDDJzj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 05:55:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=bjcKjUzKtIiu+pRa+gCJHSWxE9LHWai+pizkwfN2DV1+2lpmr8GbBdcmfKCuS5yNcn6tdjRh5J2ocV1aDDDFA5moIsHbkJbqsHRzANB1D5LfJGpRe+uiiigBBX1xbqYjtebd9zpPu6NfsZNY6umAppkpcFJmRlWrFmbrEhy0+sc=
+Message-ID: <c0310912050404025520a3fd80@mail.gmail.com>
+Date: Mon, 4 Apr 2005 18:55:38 +0900
+From: Piotr Muszynski <piotru@gmail.com>
+Reply-To: Piotr Muszynski <piotru@gmail.com>
+To: prasanna@in.ibm.com
+Subject: Re: module for controlling kprobes with /proc
+Cc: linux-kernel@vger.kernel.org, Keith Owens <kaos@sgi.com>
+In-Reply-To: <20050404083507.GG1715@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 04 Apr 2005 19:55:27 +1000
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050404083507.GG1715@in.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Li.
+Hello Prasanna,
 
-On Mon, 2005-04-04 at 19:24, Li Shaohua wrote:
-> > so that cpu_up mechanism can handle them?
-> If S4 also calls a smp_prepare_cpu, then the patches don't break S4. If
-> people don't complain warm boot a CPU is slow, I'd like S4 also use
-> smp_prepare_cpu.
+On Apr 4, 2005 5:35 PM, Prasanna S Panchamukhi <prasanna@in.ibm.com> wrote:
+> why /proc ?
 
-So you have some more changes? Can I get a monolithic patch to try, when
-you're ready?
+Thank you for your remarks. I originally thought of writing a simple
+CLI app  to sit over /proc , do basic sanity checks and be simple to
+use.
 
-Thanks!
+> You can use a combination of SysRq key to enter a kprobe command line prompt.
+> Initially you can define a dummy breakpoint for command line prompt and accept
+> commands from thereon.
+> Later display the list of features add/remove/display breakpoint, backtrace etc.
+> Also once you hit a breakpoint you give a command line prompt and user can backtrace/ dump some global memory, dump registers etc.
+> 
+> Let me know if you need more information.
 
-Nigel
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+Yes please, I would be grateful.
+TIA
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+Piotr

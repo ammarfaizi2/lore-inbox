@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272521AbTHSSKP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 14:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272447AbTHSSIz
+	id S272628AbTHSSNu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272584AbTHSSM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 14:08:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:16012 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S272623AbTHSSAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 14:00:37 -0400
-Date: Tue, 19 Aug 2003 10:53:07 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Richard Underwood <richard@aspectgroup.co.uk>
-Cc: skraw@ithnet.com, willy@w.ods.org, alan@lxorguk.ukuu.org.uk,
-       carlosev@newipnet.com, lamont@scriptkiddie.org, davidsen@tmr.com,
-       bloemsaa@xs4all.nl, marcelo@conectiva.com.br, netdev@oss.sgi.com,
-       linux-net@vger.kernel.org, layes@loran.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819105307.0b0a6491.davem@redhat.com>
-In-Reply-To: <353568DCBAE06148B70767C1B1A93E625EAB5C@post.pc.aspectgroup.co.uk>
-References: <353568DCBAE06148B70767C1B1A93E625EAB5C@post.pc.aspectgroup.co.uk>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 14:12:57 -0400
+Received: from granite.aspectgroup.co.uk ([212.187.249.254]:2291 "EHLO
+	letters.pc.aspectgroup.co.uk") by vger.kernel.org with ESMTP
+	id S272871AbTHSSFR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 14:05:17 -0400
+Message-ID: <353568DCBAE06148B70767C1B1A93E625EAB5D@post.pc.aspectgroup.co.uk>
+From: Richard Underwood <richard@aspectgroup.co.uk>
+To: "'David S. Miller'" <davem@redhat.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>
+Cc: willy@w.ods.org, alan@lxorguk.ukuu.org.uk, carlosev@newipnet.com,
+       lamont@scriptkiddie.org, davidsen@tmr.com, bloemsaa@xs4all.nl,
+       marcelo@conectiva.com.br, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       layes@loran.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: RE: [2.4 PATCH] bugfix: ARP respond on all devices
+Date: Tue, 19 Aug 2003 19:05:13 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 18:56:18 +0100
-Richard Underwood <richard@aspectgroup.co.uk> wrote:
+David S. Miller wrote:
+> 
+> In the ARP request we are using the source address in the packet we
+> are building for output.
+> 
+	Well, you shouldn't be! The ARP request represents all FUTURE
+packets being sent out that interface, not just the one single packet that
+happened to kick of this ARP request.
 
-> 	Which nicely sums up the bug, really.
+> If ARP doesn't work using that source address, we can only assume IP
+> communication is not possible either.
+> 
+	That's clearly not a valid assumption. For a start it precludes IP
+routeing, but I've also demonstrated it not to be the case with a simple
+multi-homed server.
 
-Ok, then how would you propose to be able to send
-packets out an interface _before_ we have addresses
-assigned to it?
+	Thanks,
 
-Linux allows that, and in fact it's a useful feature.
-
-Consider MSG_DONTROUTE as well.
-
-BTW, this ARP source address algorithm we use comes from
-ipv6, it would be instructive to go and see why they do
-things the way they do.
+		Richard

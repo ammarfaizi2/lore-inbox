@@ -1,37 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUDPI22 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 04:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbUDPI22
+	id S262750AbUDPIhF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 04:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262772AbUDPIhE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 04:28:28 -0400
-Received: from mail.shareable.org ([81.29.64.88]:31906 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262766AbUDPI20
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 04:28:26 -0400
-Date: Fri, 16 Apr 2004 09:27:30 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Allen Martin <AMartin@nvidia.com>, ross@datscreative.com.au,
-       Christian =?iso-8859-1?Q?Kr=F6ner?= 
-	<christian.kroener@tu-harburg.de>,
-       Linux-Nforce-Bugs <Linux-Nforce-Bugs@exchange.nvidia.com>,
-       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Subject: Re: IO-APIC on nforce2 [PATCH]
-Message-ID: <20040416082730.GB22226@mail.shareable.org>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FB9D@mail-sc-6-bk.nvidia.com> <1082058625.24423.161.camel@dhcppc4>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1082058625.24423.161.camel@dhcppc4>
-User-Agent: Mutt/1.4.1i
+	Fri, 16 Apr 2004 04:37:04 -0400
+Received: from mail.dsa-ac.de ([62.112.80.99]:22794 "EHLO k2.dsa-ac.de")
+	by vger.kernel.org with ESMTP id S262750AbUDPIhB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 04:37:01 -0400
+Date: Fri, 16 Apr 2004 10:36:57 +0200 (CEST)
+From: Guennadi Liakhovetski <gl@dsa-ac.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: [OT] Capitals in kernel directory-names
+Message-ID: <Pine.LNX.4.33.0404161029380.1869-100000@pcgl.dsa-ac.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
-> As we expected, an automatic workaround based on chip-set would
-> fail because some BIOS's are fixed and some are not.
+linux-2.6.5$ find . -name "*[A-Z]*" -type d
+./arch/m68knommu/platform/68360/uCquicc
+./arch/m68knommu/platform/5407/MOTOROLA
+./arch/m68knommu/platform/5407/CLEOPATRA
+./arch/m68knommu/platform/68VZ328
+./arch/m68knommu/platform/5282/MOTOROLA
+./arch/m68knommu/platform/68EZ328
+./arch/m68knommu/platform/5307/MP3
+./arch/m68knommu/platform/5307/ARNEWSH
+./arch/m68knommu/platform/5307/CLEOPATRA
+./arch/m68knommu/platform/5307/NETtel
+./arch/m68knommu/platform/5307/MOTOROLA
+./arch/m68knommu/platform/5272/MOTOROLA
+./arch/m68knommu/platform/5272/NETtel
+./arch/m68knommu/platform/5206e/MOTOROLA
+./arch/m68knommu/platform/5206e/eLITE
+./arch/m68knommu/platform/5249/MOTOROLA
+./arch/m68knommu/platform/5206/ARNEWSH
+./arch/um/os-Linux
+./include/asm-ppc64/iSeries
+./Documentation
+./Documentation/DocBook
+./Documentation/arm/SA1100
+./Documentation/arm/XScale
+./Documentation/arm/XScale/IOP3XX
+./Documentation/arm/XScale/ADIFCC
+./Documentation/sound/alsa/DocBook
+./Documentation/BK-usage
 
-Does the workaround actually fail with the fixed BIOSes?
+Which drives to a conclusion, that generally kernel-developers
+(rightfully) dislike capital letters in file- and, even more so, in
+directory-names. And the only directories named with capitals are some
+arch-specifics, and Documentation. Well, was the latter named so to avoid
+using the doc(umentation) pattern?:-)
 
--- Jamie
+Regards
+Guennadi
+---------------------------------
+Guennadi Liakhovetski, Ph.D.
+DSA Daten- und Systemtechnik GmbH
+Pascalstr. 28
+D-52076 Aachen
+Germany
+

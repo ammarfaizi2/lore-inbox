@@ -1,106 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266139AbUIIUyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUIIU53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266139AbUIIUyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 16:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUIIUyU
+	id S266186AbUIIU53 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 16:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUIIUyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 16:54:20 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:2034 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S266139AbUIIUxf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 16:53:35 -0400
-Message-ID: <4140C1ED.4040505@mvista.com>
-Date: Thu, 09 Sep 2004 13:49:49 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Christoph Lameter <clameter@sgi.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-References: <1094159238.14662.318.camel@cog.beaverton.ibm.com>	 <1094159379.14662.322.camel@cog.beaverton.ibm.com>	 <4137CB3E.4060205@mvista.com> <1094193731.434.7232.camel@cube>	 <41381C2D.7080207@mvista.com>	 <1094239673.14662.510.camel@cog.beaverton.ibm.com>	 <4138EBE5.2080205@mvista.com>	 <1094254342.29408.64.camel@cog.beaverton.ibm.com>	 <41390622.2010602@mvista.com>	 <1094666844.29408.67.camel@cog.beaverton.ibm.com>	 <413F9F17.5010904@mvista.com>	 <1094691118.29408.102.camel@cog.beaverton.ibm.com>	 <Pine.LNX.4.58.0409082005370.28366@schroedinger.engr.sgi.com>	 <1094700768.29408.124.camel@cog.beaverton.ibm.com>	 <413FDC9F.1030409@mvista.com> <1094756870.29408.157.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1094756870.29408.157.camel@cog.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Sep 2004 16:54:40 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:11442 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266137AbUIIUxA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 16:53:00 -0400
+Date: Thu, 9 Sep 2004 22:51:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org, Florian Schmidt <mista.tapas@gmx.net>,
+       "K.R. Foley" <kr@cybsft.com>, Mark_H_Johnson@Raytheon.com,
+       scott@timesys.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+Message-ID: <20040909205141.GA8968@elte.hu>
+References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu> <1094758399.1362.268.camel@krustophenia.net> <1094762629.1362.320.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094762629.1362.320.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Wed, 2004-09-08 at 21:31, George Anzinger wrote:
-> 
->>john stultz wrote:
->>
->>>I'm not sure about the busy wait bit, but yes, at some point I'd like to
->>>see the timer subsystem use the timeofday subsystem instead of jiffies
->>>for its timekeeping. 
->>>
->>
->>Yes, I think this is the way we want to go.  Here are the "rubs" I see:
->>
->>a.) resolution.  If you don't put a limit on this you will invite timer storms. 
->>  Currently, by using 1/HZ resolution, all timer "line up" on ticks and reduce 
->>the interrupt overhead that would occur if we actually tried to give "exactly" 
->>what was asked for.  This is a matter of math and can be handled (assuming we 
->>resist the urge to go shopping :))
-> 
-> 
-> Well, basically we have the same resolution as we do today. Right now
-> you specify the time in jiffies which has different resolutions
-> depending on configuration, so I'm not sure I see the problem. I mean, I
-> guess someone could be off put when they ask for a 1 ns expiration time
-> and it returns in 1 ms, but I thought timers followed sleep() semantics,
-> so it shouldn't be that much of an issue.  
 
-What we get down to here is setting up a tick source that depends on the clock. 
-  This issue of resolution, as I said, is easy to solve.
-> 
-> 
->>b.) For those platforms with repeating timers that can not "hit" our desired 
->>resolution (i.e. 1/HZ) there is an additional overhead to program the timer each 
->>interrupt.   In principle we do this in the HRT patch, but there we only do it 
->>for high resolution timers, which we assume are rather rare.  It is good to have 
->>a low res timer that is also accurate.  Even better if we can keep the overhead 
->>low by not having to reprogram a timer each tick.
->>
->>In the ideal world we would have a hardware repeating timer that is reasonably 
->>accurate (we might want to correct it every second or so) to generate the low 
->>res timing interrupts and a high res timer that we can program quickly for high 
->>resolution interrupts.
-> 
-> 
-> Even in this case, inaccurate hardware timers can only cause a single
-> tick jitter. The current problem we're seeing is that the timer
-> inaccuracy accumulates, so if we're 1% off, a sleep(600) returns 6
-> seconds late. Using the time source instead of jiffies for expiration
-> would avoid the accumulation, so we'd be at most a single tick late.
-> 
-> Or is the problem more subtle?
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-No, I think you have it.  The x86 problem, in this regard, is that the "clock" 
-xtal is only connected to the pm timer and the PIT, both of which are slow to 
-access (not to mention all the hardware errors).  The x86 TSC is driven by 
-another xtal which, to the best of my knowledge, is not a "clock" grade xtal. 
-We also don't know what the actual TSC frequency is, thus the calibration loop.
+> > I believe Scott Wood suggested a fix back when I first reported this,
+> > have to check my mailbox.  Scott?
+> 
+> Nope, checking the original thread, Scott pointed out that any RT
+> process will have mlockall'ed anyway and thus won't be affected by
+> this latency.  So, this one would be cool to fix, but it's not a
+> problem as such.
 
-What we get down to, and what others have said, is that the TSC is great for 
-interpolation but bad as a long term clock.
+RT threads will be affected by this latency just as much because it's a
+non-preemptable critical section. You are right in that an RT task wont
+see the overhead itself because it doesnt generate swap entries.
 
-I suspect that a time solution that required us to reprogram the PIT each tick 
-would not fly, just because of the access overhead.  One that required 
-reprogramming the PIT every second or so _might_ be ok.
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+	Ingo

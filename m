@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130653AbQLHQPV>; Fri, 8 Dec 2000 11:15:21 -0500
+	id <S129545AbQLHQYe>; Fri, 8 Dec 2000 11:24:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131382AbQLHQPM>; Fri, 8 Dec 2000 11:15:12 -0500
-Received: from bryant.dsc.k12.ar.us ([165.29.94.240]:46854 "HELO
-	bryant.k12.ar.us") by vger.kernel.org with SMTP id <S130653AbQLHQOv>;
-	Fri, 8 Dec 2000 11:14:51 -0500
-From: "Barry Smoke" <bsmoke@bryant.dsc.k12.ar.us>
-To: <linux-kernel@vger.kernel.org>
-Subject: rage 128 mobility m/p and kernel DRI
-Date: Fri, 8 Dec 2000 10:23:50 -0600
-Message-ID: <IMEKIDMFAEBICGFFGJPKAENDCPAA.bsmoke@bryant.k12.ar.us>
+	id <S129752AbQLHQYY>; Fri, 8 Dec 2000 11:24:24 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:5124 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129545AbQLHQYO>;
+	Fri, 8 Dec 2000 11:24:14 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: caperry@edolnx.net
+Subject: Re: Kernel Development Documentation?
+Date: Fri, 8 Dec 2000 16:17:01 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, Ben LaHaise <bcrl@redhat.com>
+In-Reply-To: <E144O3Q-0003vP-00@the-village.bc.nu>
+In-Reply-To: <E144O3Q-0003vP-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Message-Id: <00120816515701.00491@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a development kernel with DRI for the ati rage 128 mobility m/p
-processor?
-DRI is available for the rage 128, but it is not working on this chipset.
-This seems to be the only way to get hardware acceleration working on
-XFree86 4.0, without reverting back to 3
-The attempted compile of this was on a debian woody dist, with x4.0
-I tried the current kernel 2.4.0-test11
-Windows reports the chip as a rage mobility-p agp 1x, agp2x
+On Fri, 08 Dec 2000, Alan Cox wrote:
+> > Is there a project underway that documents how things like the VM, the Memory
+> > Manger, what a a specific driver needs to do, what it needs to return, how it is
+> > called, what do all those files in arch/whatever do?  Are there bits and pieces
 
-I am not subscribed to this list, so...
-Please reply to:
-barry@arhosting.com
+Of course we are not really talking Linux api here - these are internal
+interfaces.  The Linux syscalls themselves are reasonably
+well-documented.  The internal interfaces... weeelllll...
 
-Thanks,
-Barry Smoke
-Network Administrator
-Bryant Public Schools
+  http://lxr.linux.no
 
+I know exactly how it feels when first getting into the internal kernel
+interfaces - for me that was barely a year ago.  I wanted at that time
+to try and fix all the documentation problems as I went, but it quickly
+turned into a choice between doing useful development and doing useful
+documentation.  Guess which one I chose.  I sincerely hope that others
+will make the opposite choice, and the linux hacking world will be a
+better place.
+
+> For the kernel stuff there is a project to put documentation about functions
+> and what they do inline into the kernel. Its slow progress. Trying to do 
+> anything formal and structured isnt going to be productive until the 
+> documentation is much much more complete
+> 
+> For syscalls Andries Brouwer maintains a man page collection (and writes many
+> of them). He takes submissions.
+
+   http://www.win.tue.nl/math/dw/personalpages/aeb/linux/
+
+Wow, that's useful.  Also check out:
+
+  http://kernelnewbies.org/links/
+
+with many high quality links to kernel documentation around the web.
+
+Tigran Aivazian has been preparing 'Linux Kernel Internals' which is
+*highly recommended* and 100% free.  Why don't you get together with
+him, and Gary Lawrence Murphy (see his monthy kernel wiki nag)?
+
+Personally, I try to do the right thing and submit at least one piece
+of documentation per month to somebody's documenation project but...
+it's not always so easy to free up the required hour or two.  This
+month my feeble attempt consisted of nagging Ben LaHaise to submit a
+particularly lucid email he sent me as a code comment.
+
+Maybe next month will be better.
+
+-- 
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,28 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311262AbSDQRlU>; Wed, 17 Apr 2002 13:41:20 -0400
+	id <S293131AbSDQRpW>; Wed, 17 Apr 2002 13:45:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311320AbSDQRlU>; Wed, 17 Apr 2002 13:41:20 -0400
-Received: from windsormachine.com ([206.48.122.28]:49674 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S311262AbSDQRlT>; Wed, 17 Apr 2002 13:41:19 -0400
-Date: Wed, 17 Apr 2002 13:41:16 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/raid performance
-In-Reply-To: <20020417173629.GA32736@dark.x.dtu.dk>
-Message-ID: <Pine.LNX.4.33.0204171338580.25995-100000@router.windsormachine.com>
+	id <S311320AbSDQRpV>; Wed, 17 Apr 2002 13:45:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34382 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S293131AbSDQRpU>; Wed, 17 Apr 2002 13:45:20 -0400
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 boot enhancements, boot bean counting 8/11
+In-Reply-To: <m1elhegt1c.fsf@frodo.biederman.org>
+	<3CBDA073.6010700@evision-ventures.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 17 Apr 2002 11:37:53 -0600
+Message-ID: <m1sn5ufcpa.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I checked and it is actually a 400W powersupply. Sorry about that.
+Martin Dalecki <dalecki@evision-ventures.com> writes:
 
-What is the max current on the +5/+12/whatever combo.
-I've frequently seen power supplies that have max current on the three or
-four voltages, and then the rest is left over for the small stuff.
+> Eric W. Biederman wrote:
+> > Linus please apply,
+> > Rework the actual build/link step for kernel images.  - remove the need for
+> > objcopy
+> > - Kill the ROOT_DEV Makefile variable, the implementation
+> >   was only half correct and there are much better ways
+> >   to specify your root device than modifying the kernel Makefile.
+> > - Don't loose information when the executable is built
+> 
+> Coudl you please use sufficiently large fields for kdev_t variables?
+> This way if we once have bigger device id spaces one will not have
+> to mess with the boot code again.
+> Thank you.
 
-Mike
+1) This patch doesn't change anything except to document which fields
+   are present, and how big they are, and no there isn't enough room
+   to trivially expand these fields.
+2) Exporting kdev_t from the kernel would be very bad.
+3) swapdev is long dead, and root_dev while it works is unnecessary,
+   you can specify it on the command line just fine.
 
+So we already are future proofed, and the change you suggest would be
+a bad one.  The compiled in command line fully supports the ability
+to set your root device, so no functionality is lost.
+
+Like I said in my intro a lot of this code simply makes what the boot
+processes is currently doing more visible.
+
+Eric

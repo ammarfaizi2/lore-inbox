@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbTFZNNK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 09:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTFZNNK
+	id S261180AbTFZNTR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 09:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbTFZNTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 09:13:10 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:11791 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S261773AbTFZNNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 09:13:05 -0400
-Date: Thu, 26 Jun 2003 15:27:34 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Pavel Machek <pavel@suse.cz>
-cc: Jean Tourrilhes <jt@hpl.hp.com>, Neil Brown <neilb@cse.unsw.edu.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Provide refrigerator support for irda
-In-Reply-To: <20030625184509.GB5028@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306252308070.14534-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 Jun 2003 09:19:17 -0400
+Received: from mail.hometree.net ([212.34.181.120]:26302 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S261180AbTFZNTQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 09:19:16 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: bkbits.net is down
+Date: Thu, 26 Jun 2003 13:33:28 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <bdesn8$m5n$1@tangens.hometree.net>
+References: <20030621135812.GE14404@work.bitmover.com> <20030621190944.GA13396@work.bitmover.com> <20030622002614.GA16225@work.bitmover.com> <20030623053713.GA6715@work.bitmover.com> <20030625013302.GB2525@work.bitmover.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1056634408 22711 212.34.181.4 (26 Jun 2003 13:33:28 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 26 Jun 2003 13:33:28 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Jun 2003, Pavel Machek wrote:
+Larry McVoy <lm@bitmover.com> writes:
 
-> > Admittedly I didn't care about swsusp so far. Given the big fat warning on 
-> > top of Documentation/swsusp.txt I would not even try and i personally 
-> > don't see what I would miss without swsusp.
-> 
-> That's okay... Just support your DMA-ing devices are supported.
+>Anyway, we put 2.5.70 on bkbits.net which is a Tyan dual PII motherboard
+>w/ serverworks IDE and we started getting data corruption.  So I just
+>installed 2.4.21 and we'll see if that works better.  
 
-No matter whether it would be ISA-DMA or PCI busmastering I guess?
+I will never understand while you insist running a _production_ server on
+some beta and alpha quality kernels.
 
-Not sure whether we can claim most irda drivers ready for swsusp then.
-vlsi_ir should be fine and for irda-usb I assume it would be up to the
-hcd - but don't know about the others...
+Why don't you simply pull a RedHat, SuSE, Mandrake, debian or anything
+else release version distribution, put it on your box and let it
+provide the service? And if anything breaks you have a vendor to
+ask. Gee, look they would make money from supporting open source
+software. :-)
 
-> > For the meantime, I think we should apply this if somebody would explain 
-> > what's going on here.
-> 
-> We need kernel thread to sleep at defined place. Process running
-> userspace can be stopped any time, but processes running in kernel can
-> be only stopped at defined places, to avoid unexpected surprises.
+	Regards
+		Henning
 
-Ok, thanks for explaining!
 
-> If it is possible to sleep at place "a", and no locks needed for
-> suspend are held at "a", inserting 
-> 
-> 	if (current->flags & PF_FREEZE)
-> 		refrigerator(PF_IOTHREAD);
-> 
-> is the right thing to do.
 
-Ok, so the proposed patch is doing the right thing and should be applied.
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
 
-Pavel, two more questions:
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire
 
-* For a kernel compiled with CONFIG_SWSUSP=n, may I assume PF_FREEZE would 
-  never be set or at least refrigerator would be noop?
-
-* Isn't there a race on SMP (and probably UP with CONFIG_PREEMPT) when 
-  PF_FREEZE gets modified by another cpu right after the test?
-
-Thanks
-Martin
-
+--- Quote of the week: "It is pointless to tell people anything when
+you know that they won't process the message." --- Jonathan Revusky

@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278327AbRJSK3x>; Fri, 19 Oct 2001 06:29:53 -0400
+	id <S278357AbRJSLLV>; Fri, 19 Oct 2001 07:11:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278359AbRJSK3n>; Fri, 19 Oct 2001 06:29:43 -0400
-Received: from mail-01.med.umich.edu ([141.214.93.149]:12426 "EHLO
-	mail-01.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S278356AbRJSK3c> convert rfc822-to-8bit; Fri, 19 Oct 2001 06:29:32 -0400
-Message-Id: <sbcfc887.096@mail-01.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0
-Date: Fri, 19 Oct 2001 06:29:59 -0400
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <linux-kernel@vger.kernel.org>, <x55k@yahoo.com>
-Subject: Re: UNABLE TO BOOT WITH 2nd SCSI DRIVE
+	id <S278359AbRJSLLM>; Fri, 19 Oct 2001 07:11:12 -0400
+Received: from oriloff.manu.com.au ([203.37.120.101]:17929 "EHLO
+	oriloff.manu.com.au") by vger.kernel.org with ESMTP
+	id <S278357AbRJSLLG>; Fri, 19 Oct 2001 07:11:06 -0400
+From: Nathan Hand <nathanh@manu.com.au>
+Date: Fri, 19 Oct 2001 21:11:31 +1000
+To: linux-kernel@vger.kernel.org
+Cc: nathanh@manu.com.au
+Subject: [PATCH] composite audio for bt878
+Message-ID: <20011019211131.B9554@manu.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/mixed; boundary="GID0FwUMdk1T2AWN"
 Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, I can see a problem. You say the IBM is ID 0.
 
-The driver says it's ID 6. That means your new drive, as ID1, will become sda.
+--GID0FwUMdk1T2AWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I think the jumper is wrong on your IBM.
+Composite audio for bttv card type 0x10 spews static although the
+video is fine. Audio bitmask is wrong. One-line patch fixes it.
 
-Nik
 
+--GID0FwUMdk1T2AWN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="bttv-cards.c.diff"
 
->>> jimmy <x55k@yahoo.com> 10/19/01 05:55AM >>>
-Hello Russell,
+--- kernel-source-2.4.9/drivers/media/video/bttv-cards.c.orig	Fri Oct 19 20:56:43 2001
++++ kernel-source-2.4.9/drivers/media/video/bttv-cards.c	Fri Oct 19 20:56:48 2001
+@@ -365,7 +365,7 @@
+ 	svhs:		2,
+ 	gpiomask:	0x01fe00,
+ 	muxsel:		{ 2, 3, 1, 1},
+-	audiomux:	{ 0x01c000, 0, 0x018000, 0x014000, 0x002000, 0 },
++	audiomux:	{ 0x01c000, 0, 0x004000, 0x014000, 0x002000, 0 },
+ 	needs_tvaudio:	1,
+ 	pll:		PLL_28,
+ 	tuner_type:	-1,
 
-> You've given all the information for the case that
-> works, but no information
-> about the case that doesn't work.
-
-That is because the server is 8000 miles away from me
-(other side of the contient) and I am unable to obtain
-all the error messages except the kernel panic (last).
-
-FYI, /dev/sda had ID:0 (old drive) and new drive had
-ID:1. I have tried all ID configurations but nothing
-worked on 2 drive system.
-
-> What whould be really useful is the above message
-> fragment for the case
-> where it doesn't boot, particularly which drives
-> it's seeing and the
-> order it's seeing them.
-
-It might also be helpful to note that the following
-error shows for both drives before kernel panic:
-
-"parity error detected in Data-in phase"
-
-So, I assume the order of drives are fine. I am
-clueless.
-
-Many thanks.
-
-Jimmy
-
-PS: yahoo is being rejected by your mail server.
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org 
-More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-Please read the FAQ at  http://www.tux.org/lkml/
-
+--GID0FwUMdk1T2AWN--

@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287868AbSANHDN>; Mon, 14 Jan 2002 02:03:13 -0500
+	id <S288871AbSANHGD>; Mon, 14 Jan 2002 02:06:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288864AbSANHDE>; Mon, 14 Jan 2002 02:03:04 -0500
-Received: from [203.143.19.4] ([203.143.19.4]:11017 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S288850AbSANHCt>;
-	Mon, 14 Jan 2002 02:02:49 -0500
-Date: Mon, 14 Jan 2002 13:02:05 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] kernelconf-0.1.1 - menu dependencies working
-Message-ID: <20020114130205.A10156@lklug.pdn.ac.lk>
+	id <S288850AbSANHFy>; Mon, 14 Jan 2002 02:05:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:49161 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287984AbSANHFk>;
+	Mon, 14 Jan 2002 02:05:40 -0500
+Date: Mon, 14 Jan 2002 08:05:29 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.2-pre11/drivers/loop.c bio question
+Message-ID: <20020114080529.D13929@suse.de>
+In-Reply-To: <200201121631.IAA06475@baldur.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201121631.IAA06475@baldur.yggdrasil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 12 2002, Adam J. Richter wrote:
+> 	Has anyone out there tried to use linux-2.5.2-pre11/drivers/loop.c?
+> In my hacked version of loop.c, do_bio_blockbacked is often
+> called with a bio that has bio->bi_idx set to 1 rather than 0
+> (and with bi->bi_vcnt == 1), so it thinks it has no transfers to do.
+> When I add the kludge of doing "bio->bi_idx = 0;" at the beginning
+> of the routine, then it works fine.
 
-Here goes another release of kernelconf...
+Must be some of your changes, end_that_request_last is the one that
+increments the index and that is not called for loop requests.
 
-Highlights are, expression parsing (almost complate), expression evaluation,
-and menu dependencies.  Most work was done on menuconfig.
+> 	It is possible that my problem is self-inflicted because I
+> am using a version that I have adopted the "initial value" patch to,
+> and I also added a temporary hack to force the requests to be processed
+> one sector at a time, like so:
+> 
+>         blk_queue_max_segment_size(BLK_DEFAULT_QUEUE(MAJOR_NR), 512);
 
-0.2.0 will contain full support for dependencies, derived values and menu
-dependencies. 0.1.1 has most necessary infrastructure to handle expressions,
-but I want to go through the code again to make sure that everything is fine,
-before trying anything further.  Also, refinements and cleanups are necessary
-for some parts of the code.
-
-Notice that I am trying to keep kernelconf interface compatible with CML1 at
-the initial stages.
-
-URLs:
-    http://www.bee.lk/people/anuradha/kernelconf/
-    http://www.lklug.pdn.ac.lk/~anuradha/kernelconf/
-
-Version 0.1.1
-  - Menu dependancies in menuconfig
-  - Expression evaluating (mostly boolean)
-  - Expression parsing (almost complete)
-  - Fixed menuconfig not to alter parent menu items twice
-  - Prompt for saving new configuration on exit
-  - Return to parent menu after radio button selection (menuconfig)
-  - Radio button menus display current selection (menuconfig)
-  - Unlink tempory files created by menuconfig
-  - More symbols and dependencies in config files
-
-Version 0.1.0
-  - Added menuconfig using lxdialog
-  - Added help support (doesn't use Configure.help)
-  - Added selection support in ttyconfig
-  - Made ttyconfig much better
-  - Added more symbols and menu-items to i386.conf file from CML1
-  - Added some comments from Configure.help to i386.conf file
-  - A lot (too numerous to mention) of code cleanups and bugfixes
-  - New bugs ;)
-
-Version 0.0.1
-  - Reads and parses symbols and menus from .conf files into a binary tree
-  - Menu hiearachy is functional for boolean and tristate symbols
-  - make ttyconfig works for boolean and tristate symbols
-  - Writing .config and autoconf.h works for boolean and tristate symbols
-  - Just a couple of symbols and menu items in the i386.conf file
-
-	Anuradha
+Well that change has absolutely zero impact on loop, so you cannot
+possibly see any changes from that. Besides, _if_ it would have an
+effect you did not limit the segment size to 512 bytes -- there is no
+splitting going on, so you would still receive up to 4k of data at the
+time per segment.
 
 -- 
-
-Debian GNU/Linux (kernel 2.4.16-xfs)
-
-When a float occurs on the same page as the start of a supertabular
-you can expect unexpected results.
-	-- Documentation of supertabular.sty
+Jens Axboe
 

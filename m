@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261839AbSKLQON>; Tue, 12 Nov 2002 11:14:13 -0500
+	id <S261317AbSKLQwl>; Tue, 12 Nov 2002 11:52:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266092AbSKLQON>; Tue, 12 Nov 2002 11:14:13 -0500
-Received: from netrealtor.ca ([216.209.85.42]:28172 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S261839AbSKLQOM>;
-	Tue, 12 Nov 2002 11:14:12 -0500
-Date: Tue, 12 Nov 2002 11:26:27 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Kent Borg <kentborg@borg.org>
-Cc: Adam Voigt <adam@cryptocomm.com>, linux-kernel@vger.kernel.org
-Subject: Re: File Limit in Kernel?
-Message-ID: <20021112162627.GB6811@mark.mielke.cc>
-References: <1037115535.1439.5.camel@beowulf.cryptocomm.com> <20021112110149.A9492@borg.org>
-Mime-Version: 1.0
+	id <S261424AbSKLQwl>; Tue, 12 Nov 2002 11:52:41 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:9706 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261317AbSKLQwl>; Tue, 12 Nov 2002 11:52:41 -0500
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE][PATCH] 2.5.46: access permission filesystem 0.11
+Date: Tue, 12 Nov 2002 17:59:12 +0100
+Message-ID: <877kfin2qn.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021112110149.A9492@borg.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12, 2002 at 11:01:49AM -0500, Kent Borg wrote:
-> On Tue, Nov 12, 2002 at 10:38:55AM -0500, Adam Voigt wrote:
-> > I have a directory with 39,000 files in it, and I'm trying to use the cp
-> > command to copy them into another directory, 
-> > [...]
-> > "argument list too long"
-> No, it is not a kernel limit, it is a limit to your shell (bash, for
-> example).  Look at xargs to get around it.
+This patch adds a new permission managing file system. Furthermore, it
+adds two modules, which make use of this file system.
 
->From "man execve":
+One module allows granting capabilities based on user-/groupid. The
+second module allows to grant access to lower numbered ports based on
+user-/groupid, too.
 
-       E2BIG  The argument list is too big.
+Changes:
+- moved locking from spinlock to semaphore
 
->From "man sysconf":
+This patch is available at:
+<http://home.t-online.de/home/olaf.dietsche/linux/accessfs/>
 
-       _SC_ARG_MAX
-              The  maximum  length of the arguments to the exec()
-              family of functions;  the  corresponding  macro  is
-              ARG_MAX.
-
-On my RedHat 8.0 box:
-
-       $ getconf ARG_MAX
-       131072
-
-It is definately a kernel limitation, although as other people have
-pointed out, there are common userspace solutions to the problem.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Regards, Olaf.

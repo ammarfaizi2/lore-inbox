@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbTFFHv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 03:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbTFFHv0
+	id S264694AbTFFHuj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 03:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264703AbTFFHuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 03:51:26 -0400
-Received: from dp.samba.org ([66.70.73.150]:9128 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264668AbTFFHvW (ORCPT
+	Fri, 6 Jun 2003 03:50:39 -0400
+Received: from rth.ninka.net ([216.101.162.244]:38785 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S264694AbTFFHui (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 03:51:22 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Fri, 6 Jun 2003 03:50:38 -0400
+Subject: Re: GE traffic statistics (/proc/net/dev)
+From: "David S. Miller" <davem@redhat.com>
+To: uaca@alumni.uv.es
 Cc: linux-kernel@vger.kernel.org
-Subject: __check_region in ide code?
-Date: Fri, 06 Jun 2003 17:34:24 +1000
-Message-Id: <20030606080454.89EC12C018@lists.samba.org>
+In-Reply-To: <20030605142005.GA9292@pusa.informat.uv.es>
+References: <20030605142005.GA9292@pusa.informat.uv.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054886644.23214.0.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Jun 2003 01:04:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bart,
+On Thu, 2003-06-05 at 07:20, uaca@alumni.uv.es wrote:
+> I found very extrange that, for this device, stats on /proc/net/dev updates 
+> each second (more or less), that is, not in sub-second intervals. Again note
+> this only happens for this device and not for other NIC card (Fast-Ethernet 
+> card, e100).
 
-	I notice that drivers/ide/ide-probe.c's hwif_check_region()
-still uses check_region().  If it really does want to use it to probe
-and not reserve, I think we should stop it warning there.
+The chip only periodically sends updated statistics to main
+memory via DMA, the interval can be changed using the
+'ethtool' utility.
 
-	There's nothing inherently *wrong* with check_region, it's
-just deprecated to trap the old (now racy) idiom of "if
-(check_region(xx)) reserve_region(xx)".  There's no reason not to
-introduce a probe_region if IDE really wants it.
-
-Of course, some people will start "fixing" drivers by
-s/check_region/probe_region/ when we do this, but that's the risk we
-take.
-
-It should also allow us to easily get rid of that stupid warning in
-ksyms.c...
-
-Thoughts?
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+-- 
+David S. Miller <davem@redhat.com>

@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbTH1UZd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 16:25:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264282AbTH1UZd
+	id S264289AbTH1Ulw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 16:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTH1Ulw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 16:25:33 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:19723 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S264278AbTH1UZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 16:25:28 -0400
-Date: Thu, 28 Aug 2003 22:25:26 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Cc: Andries Brouwer <aebr@win.tue.nl>, root@chaos.analogic.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: usb-storage: how to ruin your hardware(?)
-Message-ID: <20030828222526.A2441@pclin040.win.tue.nl>
-References: <20030828154454.A2343@pclin040.win.tue.nl> <200308281618.h7SGIMMp014455@wildsau.idv.uni.linz.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200308281618.h7SGIMMp014455@wildsau.idv.uni.linz.at>; from kernel@wildsau.idv.uni.linz.at on Thu, Aug 28, 2003 at 06:18:22PM +0200
+	Thu, 28 Aug 2003 16:41:52 -0400
+Received: from ns1.citynetwireless.net ([209.218.71.4]:48388 "EHLO
+	mail.citynetwireless.net") by vger.kernel.org with ESMTP
+	id S264289AbTH1Ujm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 16:39:42 -0400
+Message-ID: <006f01c36da5$0cd171b0$0500000a@bp>
+From: "Ro0tSiEgE LKML" <lkml@ro0tsiege.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Re: Missing natsemi PCI ID
+Date: Thu, 28 Aug 2003 15:43:34 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 28, 2003 at 06:18:22PM +0200, H.Rosmanith (Kernel Mailing List) wrote:
+both modprobe and insmod natsemi say "No such device" trying to load it,
+that's the only error there is, and the distribution is Debian 3.0.
 
-> > [If you only think about cylinder boundaries: cylinders do not exist,
-> > and cylinder boundaries do not exist either. So that in itself does
-> > not mean a thing.]
-> 
-> well ... I would assume that a proper "emulation" of a harddisk by a
-> flashdrive would also look like a real harddisk, with correct
-> cylinder boundaries. But obviously, this is not the case. Should
-> I get a new drive, I will mail you the strange-looking partiotion-table:
-> it will look like "physical start at (0,3,3)" or similar.
-
-Didnt you get formatting utilities to repair such situations?
-
-But concerning cylinders: Also harddisks do not have cylinders in the
-partition table sense. Disk geometry is a fiction. If you print a
-partition table and it looks ugly given one fiction, this just means
-that you can invent some other fiction that makes it look nicer.
-There is no underlying reality to these cylinder boundaries.
 

@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292261AbSBBJho>; Sat, 2 Feb 2002 04:37:44 -0500
+	id <S292259AbSBBJ5V>; Sat, 2 Feb 2002 04:57:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292260AbSBBJhf>; Sat, 2 Feb 2002 04:37:35 -0500
-Received: from tapu.f00f.org ([63.108.153.39]:50877 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S292259AbSBBJhR>;
-	Sat, 2 Feb 2002 04:37:17 -0500
-Date: Sat, 2 Feb 2002 01:35:56 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Steve Lord <lord@sgi.com>
-Cc: Andrew Morton <akpm@zip.com.au>, Ricardo Galli <gallir@uib.es>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Chris Mason <mason@suse.com>
-Subject: Re: O_DIRECT fails in some kernel and FS
-Message-ID: <20020202093554.GA7207@tapu.f00f.org>
-In-Reply-To: <E16WkQj-0005By-00@antoli.uib.es> <3C5AFE2D.95A3C02E@zip.com.au> <1012597538.26363.443.camel@jen.americas.sgi.com>
+	id <S292260AbSBBJ5K>; Sat, 2 Feb 2002 04:57:10 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:8455 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S292259AbSBBJ47>;
+	Sat, 2 Feb 2002 04:56:59 -0500
+Date: Sat, 2 Feb 2002 10:56:12 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Brak <brak@waste.org>, linux-kernel@vger.kernel.org,
+        "Leonard N. Zubkoff" <lnz@dandelion.com>, Dave Jones <davej@suse.de>
+Subject: Re: PROBLEM: 2.5.3 DAC960 won't compile
+Message-ID: <20020202105612.M12156@suse.de>
+In-Reply-To: <Pine.LNX.4.44.0202011752200.7986-100000@waste.org> <20020202062116.7b4fb074.johnpol@2ka.mipt.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1012597538.26363.443.camel@jen.americas.sgi.com>
-User-Agent: Mutt/1.3.27i
-X-No-Archive: Yes
+In-Reply-To: <20020202062116.7b4fb074.johnpol@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 01, 2002 at 03:05:38PM -0600, Steve Lord wrote:
+On Sat, Feb 02 2002, Evgeniy Polyakov wrote:
+> On Fri, 1 Feb 2002 17:54:18 -0600 (CST)
+> Brak <brak@waste.org> wrote:
+> 
+> > 
+> > When compiling the 2.5.3 kernel it errors out on the DAC960
+> > 
+> 
+> I hope this patch will help you.
+> 
+>   This program is distributed in the hope that it will be useful, but
+>   WITHOUT ANY WARRANTY, without even the implied warranty of
+> MERCHANTABILITY  or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+> Public License  for complete details.
+> 
+> So, this patch may broke things...
 
-    > ext2 is the only filesystem which has O_DIRECT support.
+Please don't send this patch in for inclusion, it's broken it several
+places. Subtly broken, which means it could take ages for it to be fixed
+for real... Hint: a bio can contain more than one page.
 
-    And XFS ;-)
+I really do appreciate folks trying to fix up block drivers, but please
+send the patches through me for verification.
 
-I sent reiserfs O_DIRECT support patches to someone a while ago.  I
-can look to ressurect these (assuming I can find them!)
+Plus, DAC960 will break as soon as ->address disappears from the
+scatterlist. It has been in dire need of a pci api conversion for a
+loooong time. Leonard, what is the status on this?
 
-Chris Mason is always going to be a better source for these anyhow, he
-certainly understands any complex nuances there may be.  Chris, do you
-have any cycles to comment on this please?
+-- 
+Jens Axboe
 
-
-
-
-  --cw

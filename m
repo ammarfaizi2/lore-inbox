@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264522AbSIQUwV>; Tue, 17 Sep 2002 16:52:21 -0400
+	id <S264529AbSIQUyK>; Tue, 17 Sep 2002 16:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264529AbSIQUwV>; Tue, 17 Sep 2002 16:52:21 -0400
-Received: from holomorphy.com ([66.224.33.161]:27366 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264522AbSIQUwU>;
-	Tue, 17 Sep 2002 16:52:20 -0400
-Date: Tue, 17 Sep 2002 13:48:19 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
+	id <S264538AbSIQUyJ>; Tue, 17 Sep 2002 16:54:09 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:896 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S264529AbSIQUyJ>;
+	Tue, 17 Sep 2002 16:54:09 -0400
+Date: Tue, 17 Sep 2002 15:58:54 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Helge Hafting <helgehaf@aitel.hist.no>
+cc: linux-kernel@vger.kernel.org, <neilb@cse.unsw.edu.au>
 Subject: Re: 2.5 Problem Report Status
-Message-ID: <20020917204819.GO3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0209162050140.10084-100000@dad.molina>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209162050140.10084-100000@dad.molina>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <3D8721FB.70B74C27@aitel.hist.no>
+Message-ID: <Pine.LNX.4.44.0209171554001.988-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 16, 2002 at 08:57:43PM -0500, Thomas Molina wrote:
-> Following is from my web page at:
-> http://members.cox.net/tmolina/kernprobs/status.html
-> Upon request from several lkml subscribers I've converted from my 
-> hand-created thread links to links pointing at the lkml archives, as well 
-> as including live links here.
+On Tue, 17 Sep 2002, Helge Hafting wrote:
 
-I wonder what happened to the issues I reported, since none of them have
-gone away.
+> Thomas Molina wrote:
+> 
+> > 14   RAID boot problem          open                  2.5.34
+> > 
+> This one got fixed in 2.5.34-bk6 and is ok in 2.5.35.
+> 
+> One may boot from a root RAID-1 now, if it don't
+> need to resync.
+> 
+> The kernel dies within a minute or two 
+> if it has to resync a sufficiently big
+> raid-1 though - by freezing solid.  Sometimes
+> with several 0-order allocation failures first.
+> this is a known problem.
 
+That was pretty much what I was gathering from the ongoing discussion on 
+another thread, but thanks for confirming.  It sounds as if there is a bit 
+of work to do, but as long as folks are satisfied with the workarounds 
+I'll mark this close and make a note for my "long-term" file to ask about 
+later.
 
-Bill

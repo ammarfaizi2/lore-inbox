@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267300AbRGKMXj>; Wed, 11 Jul 2001 08:23:39 -0400
+	id <S267302AbRGKM1j>; Wed, 11 Jul 2001 08:27:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267301AbRGKMX3>; Wed, 11 Jul 2001 08:23:29 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29572 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S267300AbRGKMXU>;
-	Wed, 11 Jul 2001 08:23:20 -0400
-Message-ID: <3B4C4533.26A5B28A@mandrakesoft.com>
-Date: Wed, 11 Jul 2001 08:23:15 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre3 i686)
-X-Accept-Language: en
+	id <S267301AbRGKM13>; Wed, 11 Jul 2001 08:27:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:61704 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267296AbRGKM1P>;
+	Wed, 11 Jul 2001 08:27:15 -0400
+Date: Wed, 11 Jul 2001 14:23:21 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Jordan <ledzep37@home.com>, Jordan Breeding <jordan.breeding@inet.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>,
+        <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Discrepancies between /proc/cpuinfo and Dave J's x86info
+In-Reply-To: <Pine.LNX.4.21.0107111239460.1306-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.30.0107111421300.2003-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>,
-        Patrick Mochel <mochel@transmeta.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        saw@saw.sw.com.sg
-Subject: Re: 2.4.6.-ac2: Problems with eepro100
-In-Reply-To: <Pine.LNX.4.33.0107111413380.19006-100000@chaos.tp1.ruhr-uni-bochum.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kai Germaschewski wrote:
-> 
-> On Wed, 11 Jul 2001, Martin Knoblauch wrote:
-> 
-> > > Do a register dump of working and dead-after-PM-transition, including
-> > > PCI config registers, and look for differences.  Also look for
-> > > differences in your host and PCI-PCI bridge PCI config registers.
-> >
-> >  Instructions on how to do the dumps? Sorry, I have not been that deep
-> > into these matters until now :-)
-> 
-> For the PCI things: Do a lspci -vvxxx at the various stages of working /
-> not working and diff them. For the chip registers - well, I didn't look
-> into this yet, but it'll be a bit harder, I suppose. (Maybe the maintainer
-> has some hints?)
+On Wed, 11 Jul 2001, Hugh Dickins wrote:
 
-download eepro-diag.c from ftp://www.scyld.com/diag/
+> As others have said, cpuid level 3 corresponds to Processor Serial
+> Number enabled.  I think what you have here is a machine on which
+> the BIOS has disabled PSN on the first CPU, but left it enabled on the
+> second CPU, and so the kernel has then disabled it on the second CPU.
+
+I'll bet that's exactly what it is. Good work.
+
+This patch (against 247pre6) should keep the cpuinfo in sync with the real
+state of the CPU..
+
+regards,
+
+Dave.
 
 -- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
+
+diff -urN --exclude-from=/home/davej/.exclude linux-247pre7/arch/i386/kernel/setup.c linux-dj/arch/i386/kernel/setup.c
+--- linux-247pre7/arch/i386/kernel/setup.c	Wed Jul 11 13:16:10 2001
++++ linux-dj/arch/i386/kernel/setup.c	Wed Jul 11 13:18:27 2001
+@@ -1994,6 +1994,7 @@
+ 		wrmsr(0x119,lo,hi);
+ 		printk(KERN_NOTICE "CPU serial number disabled.\n");
+ 		clear_bit(X86_FEATURE_PN, &c->x86_capability);
++		c->cpuid_level--;
+ 	}
+ }
+
+

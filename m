@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbTANK1B>; Tue, 14 Jan 2003 05:27:01 -0500
+	id <S262210AbTANKYv>; Tue, 14 Jan 2003 05:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbTANK1B>; Tue, 14 Jan 2003 05:27:01 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:57860 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262266AbTANK1A>; Tue, 14 Jan 2003 05:27:00 -0500
-Message-ID: <3E23E82E.26E1833A@aitel.hist.no>
-Date: Tue, 14 Jan 2003 11:36:30 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.5.55 i686)
-X-Accept-Language: no, en, en
+	id <S262224AbTANKYv>; Tue, 14 Jan 2003 05:24:51 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:49633 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262210AbTANKYt>; Tue, 14 Jan 2003 05:24:49 -0500
+Date: Tue, 14 Jan 2003 08:33:22 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "" <tytso@thunk.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][RESEND] disassociate_ctty SMP fix
+Message-ID: <Pine.LNX.4.50L.0301140832500.26759-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Alexander Kellett <lypanov@kde.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: any chance of 2.6.0-test*? -> goto example
-References: <Pine.LNX.4.44.0301121208020.14031-100000@home.transmeta.com> <1042404503.1208.95.camel@RobsPC.RobertWilkens.com> <20030112224829.GA29534@alpha.home.local> <1042419236.3162.257.camel@RobsPC.RobertWilkens.com> <20030113013133.GA31596@alpha.home.local> <20030113161045.GA19270@groucho.verza.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Kellett wrote:
-[...]
-> As much as I absolutely love the utility of this
-> piece of code you really do have to admit that it
-> _is_ rather difficult to understand :)
-> 
-It is hard for everybody - until we get used to it.  Then it
-is just another normal thing. :-)
+[resend #1]
 
-> Is it so flawed of me to expect that some day this
-> code could be rewritten in an extremely clean
-> fashion and compilers made to do the work that
-> was put in to make this fast?
+Hi,
 
-This is not flawed - but we actually need that compiler
-to exist, and become _common_ before replacing
-hand-optimizations with clean code.  Feel free to join
-the gcc team and make the world better...
+the following patch, against today's BK tree, fixes a small
+SMP race in disassociate_ctty.  This function gets called
+from do_exit, without the BKL held.
 
-Helge Hafting
+However, it sets the *tty variable before grabbing the bkl,
+then makes decisions on what the variable was set to before
+the lock was grabbed, despite the fact that another process
+could modify its ->tty pointer in this same function.
+
+please apply
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+
+
+===== drivers/char/tty_io.c 1.50 vs edited =====
+--- 1.50/drivers/char/tty_io.c	Sat Dec  7 16:23:16 2002
++++ edited/drivers/char/tty_io.c	Sat Jan 11 11:37:34 2003
+@@ -577,7 +577,7 @@
+  */
+ void disassociate_ctty(int on_exit)
+ {
+-	struct tty_struct *tty = current->tty;
++	struct tty_struct *tty;
+ 	struct task_struct *p;
+ 	struct list_head *l;
+ 	struct pid *pid;
+@@ -585,6 +585,7 @@
+
+ 	lock_kernel();
+
++	tty = current->tty;
+ 	if (tty) {
+ 		tty_pgrp = tty->pgrp;
+ 		if (on_exit && tty->driver.type != TTY_DRIVER_TYPE_PTY)

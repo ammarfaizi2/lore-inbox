@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261446AbSI2RON>; Sun, 29 Sep 2002 13:14:13 -0400
+	id <S261443AbSI2ROB>; Sun, 29 Sep 2002 13:14:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261447AbSI2RON>; Sun, 29 Sep 2002 13:14:13 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:52514 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261446AbSI2ROL> convert rfc822-to-8bit;
-	Sun, 29 Sep 2002 13:14:11 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@gmx.net>
-To: "Theodore Ts'o" <tytso@mit.edu>, "Christopher Li" <chrisl@gnuchina.org>,
-       "Ryan Cumming" <ryan@completely.kicks-ass.org>
-Subject: Re: ARGS [PATCH] fix htree dir corrupt after fsck -fD
-Date: Sun, 29 Sep 2002 19:19:14 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209291918.55303.m.c.p@gmx.net>
+	id <S261446AbSI2ROB>; Sun, 29 Sep 2002 13:14:01 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:901 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261443AbSI2ROA>;
+	Sun, 29 Sep 2002 13:14:00 -0400
+Date: Sun, 29 Sep 2002 18:22:47 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Zach Brown <zab@zabbo.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.39 list_head debugging
+Message-ID: <20020929172247.GA23543@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Zach Brown <zab@zabbo.net>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org
+References: <20020929015852.K13817@bitchcake.off.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020929015852.K13817@bitchcake.off.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ryan,
+On Sun, Sep 29, 2002 at 01:58:52AM -0400, Zach Brown wrote:
+ > +static inline struct list_head * __list_valid(struct list_head *list)
+ > +{
+ > +	BUG_ON(list == NULL);
+ > +	BUG_ON(list->next == NULL);
+ > +	BUG_ON(list->prev == NULL);
+ > +	BUG_ON(list->next->prev != list);
+ > +	BUG_ON(list->prev->next != list);
+ > +	BUG_ON((list->next == list) && (list->prev != list));
+ > +	BUG_ON((list->prev == list) && (list->next != list));
+ > +
+ > +	return list;
+ > +}
+ > +#else 
+ > +
+ > +#define __list_valid(args...)
+ > +
+ > +#endif
 
-> I am running your program now over an hour without any corruption on the 
-> loopback mounted ext3 filesystem.
-shit, I thought testing over an hour (10mins your program, umount, fsck -fD 
-test.img in a loop) is enough but it isn't. Damn f*ck :(
+Two points (both related to return type).
+1, why is it needed ? none of the macros seems to check it.
+2, will this work for the #define __list_valid(args...) case ?
 
-root@codeman:[/] # fsck -fD test.img 
-fsck 1.29 (24-Sep-2002)
-e2fsck 1.29 (24-Sep-2002)
-Truncating orphaned inode 6871 (uid=0, gid=0, mode=0103244, size=0)
-Pass 1: Checking inodes, blocks, and sizes
-Pass 2: Checking directory structure
-Problem in HTREE directory inode 2 (/): bad block number 3291184.
-Clear HTree index<y>? yes
 
-Pass 3: Checking directory connectivity
-/lost+found not found.  Create<y>? yes
-
-Pass 3A: Optimizing directories
-Optimizing directories:  2
-Pass 4: Checking reference counts
-Pass 5: Checking group summary information
-
-this occured just after I sent my first mail :((
+		Dave
 
 -- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

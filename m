@@ -1,42 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263104AbRFCOCn>; Sun, 3 Jun 2001 10:02:43 -0400
+	id <S264193AbRFDNG2>; Mon, 4 Jun 2001 09:06:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263102AbRFCOCW>; Sun, 3 Jun 2001 10:02:22 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:64401 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262945AbRFCOCN>;
-	Sun, 3 Jun 2001 10:02:13 -0400
-Date: Sun, 3 Jun 2001 17:59:11 +0400
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac7
-Message-ID: <20010603175911.A1143@linuxhacker.ru>
-In-Reply-To: <200106030746.f537kSZ12820@linuxhacker.ru> <E156VvF-0004D1-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E156VvF-0004D1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Jun 03, 2001 at 12:19:52PM +0100
+	id <S264244AbRFDNGS>; Mon, 4 Jun 2001 09:06:18 -0400
+Received: from lotus.ariel.com ([204.249.107.2]:29893 "EHLO cranmail.ariel.com")
+	by vger.kernel.org with ESMTP id <S264193AbRFDNGI>;
+	Mon, 4 Jun 2001 09:06:08 -0400
+From: "Ariel Linux Kernel Development" <linux-kernel@ariel.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.2 TTY race condition (do_tty_hangup and tty_release)
+Date: Mon, 4 Jun 2001 09:05:10 -0400
+Message-ID: <OIBBKHIAILDFLNOGGFMNIEGGCBAA.linux-kernel@ariel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I am running linux 2.2.14 with a 96-modem board and have been getting kernel
+oops'es.  These generally only occur when I am running the system under constant
+swapping conditions.
 
-On Sun, Jun 03, 2001 at 12:19:52PM +0100, Alan Cox wrote:
-> > AC> 2.4.5-ac7
-> > AC> o       Make USB require PCI                            (me)
-> > Huh?!
-> > How about people from StrongArm sa11x0 port, who have USB host controller (in
-> > sa1111 companion chip) but do not have PCI?
-> The strongarm doesnt have a USB master but a slave.
-SA11x0 have USB slave, but once you add sa1111 companion chip,
-you have OHCI compliant USB master, too (and still no PCI)
+After much diagnosis, I have found the following sequence of events causes the
+oops:
 
-> > How about ISA USB host controllers?
-> They do not exist. 
-Hm. I though I have seen some, but not sure right now.
-I'll tell you if I will be able to find any.
+	- do_tty_hangup called for the TTY
+		- ldisc.open() called for the TTY
+		- ldisc.open blocks (probably waiting for memory)
+	- tty_release called for the same TTY
+		- release_dev() called
+		- release_dev() completes
+	- tty_release completes
 
-Bye,
-    Oleg
+I know that ldisc.open is blocking because I never see the message that
+indicates it has completed.
+
+Then the oops occurs:
+
+	>>EIP; 205d3335 Before first symbol   <=====
+	Trace; c01a6e20 <reset_buffer_flags+5c/64>
+	Trace; c01a8632 <n_tty_open+82/b0>
+	Trace; c01a4826 <do_tty_hangup+18a/294>
+	Trace; c02161a0 <NR_TYPES+7c0/1620>
+	Trace; c01131fe <tq_sched_kthread+52/70>
+	Trace; c01fcf2a <tvecs+2d6/41ec>
+	Trace; c011327e <tq_sched_kthread_start+62/6c>
+	Trace; c01fcf40 <tvecs+2ec/41ec>
+	Trace; c0106000 <get_options+0/78>
+	Trace; c0108853 <kernel_thread+23/38>
+
+Note that the tq_scheduler list is being run out of a kernel thread here instead
+of being executed directly by schedule(); this was necessary to eliminate a
+kernel panic.
+
+Given this, how should this race condition be avoided?  It seems that the TTY
+structure has a life outside its use in the file structure since hangups can
+occur on the TTY at any time.  Would it make sense to break the strong
+association between the TTY structures and the file handling?  Then, the file
+interface could be a client of the TTY service, as would the driver when it
+wants to propagate asynchronous events.
+
+As such, each would then do its own "get" and "put" operations on the TTY
+structures.
+
+Also, is there a short-term solution that would prevent the problem?
+
+-art
+
+P.S. Please CC: me on replies.
+

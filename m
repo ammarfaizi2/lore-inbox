@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272882AbRITQzo>; Thu, 20 Sep 2001 12:55:44 -0400
+	id <S273189AbRITRFP>; Thu, 20 Sep 2001 13:05:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274565AbRITQzf>; Thu, 20 Sep 2001 12:55:35 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:48908 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S272882AbRITQzU>;
-	Thu, 20 Sep 2001 12:55:20 -0400
-Message-ID: <XFMail.20010920095851.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S274565AbRITRFF>; Thu, 20 Sep 2001 13:05:05 -0400
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:23967 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP
+	id <S273189AbRITRE6>; Thu, 20 Sep 2001 13:04:58 -0400
+Message-ID: <3BAA21B1.B579D368@pp.inet.fi>
+Date: Thu, 20 Sep 2001 20:04:49 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19aa2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <3BA95C87.5272E764@kegel.com>
-Date: Thu, 20 Sep 2001 09:58:51 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Dan Kegel <dank@kegel.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: "steve j. kondik" <shade@chemlab.org>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: encrypted swap on loop in 2.4.10-pre12?
+In-Reply-To: <1000912739.17522.2.camel@discord>
+			<3BA907F6.3586811C@pp.inet.fi> <20010920081353.H588@suse.de>
+			<3BA9DC30.DA46A008@pp.inet.fi>  <20010920142555.B588@suse.de> <1000991848.569.1.camel@discord>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"steve j. kondik" wrote:
+> loop-aes does not work to encrypt swap using 2.4.10-pre12.  the same
+> panic results during mkswap.
 
-On 20-Sep-2001 Dan Kegel wrote:
-> One more question: if I guess wrong initially about how many
-> file descriptors I'll be monitoring with /dev/epoll, and I need
-> to increase the size of the area inside /dev/epoll in the middle of
-> my scan through the results, what is the proper sequence of calls?
-> 
-> Some possibilities:
-> 
-> 1)  EP_ALLOC, and continue scanning through the results
-> 
-> 2)  EP_FREE, EP_ALLOC, EP_POLL because old results are now invalid
-> 
-> 3)  EP_FREE, EP_ALLOC, write new copies of all the old fds to /dev/epoll, 
->     EP_POLL, and start new scan
-> 
-> I bet it's #3.  Am I right?
+Did you remove _any_ of the kernel compile time generated files from kernel
+source tree? Some of those generated files are _required_ to correctly
+compile modules.
 
-I'm coding a solution that try to minimize the reallocation cost even if it's better
-to preallocate the number of fds without changing it.
-If you think to handle 200000 fds in your system the memory cost of the epoll
-allocation is nothing compared to the file*, socket buffer, etc...
-
-
-
-
-- Davide
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

@@ -1,61 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278269AbRJSB0b>; Thu, 18 Oct 2001 21:26:31 -0400
+	id <S278266AbRJSB53>; Thu, 18 Oct 2001 21:57:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278268AbRJSB0M>; Thu, 18 Oct 2001 21:26:12 -0400
-Received: from mail12.speakeasy.net ([216.254.0.212]:52236 "EHLO
-	mail12.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S278266AbRJSBZ4>; Thu, 18 Oct 2001 21:25:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: Davide Libenzi <davidel@xmailserver.org>,
-        "David E. Weekly" <dweekly@legato.com>
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-Date: Thu, 18 Oct 2001 21:26:28 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0110181720370.970-100000@blue1.dev.mcafeelabs.com>
-In-Reply-To: <Pine.LNX.4.40.0110181720370.970-100000@blue1.dev.mcafeelabs.com>
+	id <S278270AbRJSB5T>; Thu, 18 Oct 2001 21:57:19 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48398 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278266AbRJSB5B>; Thu, 18 Oct 2001 21:57:01 -0400
+Date: Thu, 18 Oct 2001 18:56:37 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Robert Cohen <robert.cohen@anu.edu.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Misaligned write performance: was Re: [Bench] Fileserving
+ performance problems
+In-Reply-To: <3BCF851D.5080607@anu.edu.au>
+Message-ID: <Pine.LNX.4.33.0110181850001.1489-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011019012601Z278266-17408+2209@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 18 October 2001 20:22, Davide Libenzi wrote:
-> On Thu, 18 Oct 2001, David E. Weekly wrote:
-> > Hey all,
-> >
-> > I was trying to speed up kernel compiles experimentally by moving the
-> > source tree into tmpfs and compiling there. It seemed to work okay and
-> > crunched through the dep phase and most of the main build phase just
-> > fine, but then it hit a file, got an internal segfault, and stopped. I
-> > tried again -- this time make itself segfaulted. Three more times of make
-> > segfaulting -- a strace on make didn't reveal what was failing. Then
-> > strace started segfaulting. Eventually "ls" segfaulted and the machine
-> > needed to be manually rebooted. Ouch!
-> >
-> > I ran the full memtest86 suite on the machine, and it passed with flying
-> > colors. So the memory proper is okay.
-> >
-> > I come to one of two conclusions: this is a wierd problem with my north
-> > bridge, or there's something funky going on with tmpfs.
-> >
-> > Is tmpfs stable?
->
-> Or, is /dev/epoll stable ? :)
-> I'm running it both on UP and 2 way SMP w/o problems from July.
-> Just try w/o /dev/epoll
->
->
->
-> - Davide
 
-It works fine here, cept i get that damn 
-ld: bvmlinux: Not enough room for program headers (allocated 2, need 3)
-ld: final link failed: Bad value
-error now when i compile on tmpfs that i didn't get when i compiled on the 
-hdd with 2.4.10-acX.  It's only started happening since using 2.4.12-ac3.  
-I've only used this kernel so i dont know if it's 2.4.12 or the ac3 part.   
-anyways it got to that point in about 3:30 seconds . . which is about 5 
-seconds faster than disk.   
+On Fri, 19 Oct 2001, Robert Cohen wrote:
+>
+> However, look what happens if I run 5 copies at once.
+>
+> writing to file of size 60  Megs with buffers of 5000 bytes
+> writing to file of size 60  Megs with buffers of 5000 bytes
+> writing to file of size 60  Megs with buffers of 5000 bytes
+> writing to file of size 60  Megs with buffers of 5000 bytes
+> writing to file of size 60  Megs with buffers of 5000 bytes
+> write elapsed time=33.96 seconds, write_speed=1.77
+> write elapsed time=37.43 seconds, write_speed=1.60
+> write elapsed time=37.74 seconds, write_speed=1.59
+> write elapsed time=37.93 seconds, write_speed=1.58
+> write elapsed time=40.74 seconds, write_speed=1.47
+> rewrite elapsed time=512.44 seconds, rewrite_speed=0.12
+> rewrite elapsed time=518.59 seconds, rewrite_speed=0.12
+> rewrite elapsed time=518.05 seconds, rewrite_speed=0.12
+> rewrite elapsed time=518.96 seconds, rewrite_speed=0.12
+> rewrite elapsed time=517.08 seconds, rewrite_speed=0.12
+>
+> Here we see a factor of about 15 between write speed and rewrite speed.
+> That seems a little extreme.
+
+The cumulative plain write speed (non-rewrite) doesn't change much,
+because plain writes can be re-ordered and running five copies at once
+isn't THAT big of a deal (ie still ends up seeking much more than just one
+file would, but it's not catastrophic).
+
+> >From the amount of seeking happening, I believe that all the reads are
+> being done as single page separate reads. Surely there should be some
+> readahead happening.
+
+Well, we _could_ do read-ahead even for the read-modify-write, but the
+fact is that it doesn't tend to be worth it for real-life loads.
+
+That's because read-modify-write is _usually_ of the type where you lseek,
+and modify a smallish thing in-place: anybody who cares about performance
+and does consecutive modifications should have coalesced them anyway, so
+only made-up benchmarks actually show the problem.
+
+> I tested the same program under Solaris and I get about a factor of 2
+> difference regardless whether its one copy or 5 copies.
+
+I wouldn't be surprised if Solaris just always reads ahead. Most "big
+iron" unixes try very very hard to make all IO in big chunks, whether it
+is necessary or not.
+
+> I believe that this is an odd situation and sure it only happens for
+> badly written program. I can see that it would be stupid to optimise for
+> this situation.
+> But do we really need to do this badly for this case?
+
+Well, if you find a real application that cares, I might change my mind,
+but right now read-ahead looks like a waste of time to me.. Does anybody
+really do re-write in practice?
+
+(Yes, I know about databases, but they tend to want to be cached anyway,
+and tend to do direct block IO, not sub-block read-modify-write).
+
+		Linus
+

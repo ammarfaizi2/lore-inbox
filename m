@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266479AbUHSPJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266476AbUHSPJA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266479AbUHSPJB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 11:09:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUHSPGQ
+	id S266476AbUHSPJA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 11:09:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266479AbUHSPGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 11:06:16 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:50364 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S266479AbUHSPEg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 11:04:36 -0400
-Message-ID: <4124C135.7050200@rtr.ca>
-Date: Thu, 19 Aug 2004 11:03:17 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: new tool:  blktool
-References: <411FD744.2090308@pobox.com> <411FF170.9070700@rtr.ca> <411FF37E.7070001@pobox.com> <41201DCA.2090204@rtr.ca> <4120E693.8070700@pobox.com>
-In-Reply-To: <4120E693.8070700@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 19 Aug 2004 11:06:32 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:54727 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266450AbUHSPE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 11:04:26 -0400
+Subject: Re: CD/DVD record
+From: David Woodhouse <dwmw2@infradead.org>
+To: root@chaos.analogic.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0408191039490.19454@chaos>
+References: <Pine.LNX.4.53.0408190917140.19253@chaos>
+	 <1092918833.28129.22.camel@localhost.localdomain>
+	 <Pine.LNX.4.53.0408191039490.19454@chaos>
+Content-Type: text/plain
+Message-Id: <1092927862.14552.2171.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Thu, 19 Aug 2004 16:04:23 +0100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> But HDIO_DRIVE_CMD is rather easy to implement as well,
->> and perhaps both should be there for an overlap.
->>
->> Especially since the former is in rather widespread use right now.
->> Yup, it's missing a separate data-phase parameter,
->> and lots of taskfile stuff, but it's configured by default
->> into every kernel (the same is not true for taskfile support),
->> and there's really only a few limited cases of it being used
->> for non-data commands:  IDENTIFY, SMART, and the odd READ/WRITE
->> SECTOR (pio, single sector).
-> 
-> 
-> If HDIO_DRIVE_CMD was easy to do, I would have already done it.  I agree 
-> with you that supporting it has benefits, but you are ignoring the 
-> obstacles:
+On Thu, 2004-08-19 at 10:41 -0400, Richard B. Johnson wrote:
+> > "Driving consists of basically pressing down the pedals and moving
+> >  the wheel, an four year old could do it"
+> >
+> Good morning, Alan!  Gotta have legs long enough to reach, though.
 
-"Ignoring"?  Hardly.  I even listed a few of them above.
-But in practice, HDIO_DRIVE_CMD only requires support for a very
-limited set of commands.  It was never intended for arbitrary
-command acceptance.  And it's not like Joe User can abuse it,
-since it requires SYSADMIN and RAWIO capabilities to execute.
+Or a periscope.
 
-The command subset that accounts for just about all uses of it today is:
-
-SET_FEATURES, SMART, IDENTIFY, READ_SECTOR, WRITE_SECTOR.
-Period.
-
-Pretty easy to support those, especially in SATA.
-I know, since I've just taken a couple of hours and added it
-to my SATA/RAID driver (a queuing controller with tag support).
-
-For more generic interface, Curtis's document looks rather good.
-But for backward compatibility with existing tools like the
-smartmontools and hdparm, all that is needed is a limited subset
-of HDIO_DRIVE_CMD (for the opcodes listed above) and also
-the closely related HDIO_DRIVE_TASK ioctl for some of the SMART
-commands (all non-data).
-
-Cheers
 -- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")
+dwmw2
+

@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263653AbUD2Gmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263641AbUD2HgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbUD2Gmf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 02:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbUD2Gme
+	id S263641AbUD2HgT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 03:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbUD2HgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 02:42:34 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:18037 "EHLO
-	damned.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S263653AbUD2GlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 02:41:16 -0400
-To: linux-kernel@vger.kernel.org
-Subject: uspend to Disk - Kernel 2.6.4 vs. r50p
-Message-Id: <20040429064115.9A8E814D@damned.travellingkiwi.com>
-Date: Thu, 29 Apr 2004 07:41:15 +0100 (BST)
-From: hamish@travellingkiwi.com (Hamie)
+	Thu, 29 Apr 2004 03:36:19 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8464 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263641AbUD2HgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 03:36:18 -0400
+Date: Thu, 29 Apr 2004 08:36:08 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Marc Singer <elf@buici.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-ID: <20040429083608.A8169@flint.arm.linux.org.uk>
+Mail-Followup-To: Marc Singer <elf@buici.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+	brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040429042047.GB26845@buici.com>; from elf@buici.com on Wed, Apr 28, 2004 at 09:20:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 28, 2004 at 09:20:47PM -0700, Marc Singer wrote:
+> Russell King is working on a lot of things for the MMU code in ARM.
+> I'm waiting to see where he ends up.  I believe he's planning on
+> removing the lazy PTE release logic.
 
-I have an r50p running debian unstable with kernel 2.6.4, compiled from scratch using the source from kernel.org, no patching (i.e. for swsusp etc).
+Essentially it came to a grinding halt due to the shere size of the
+task of sorting out the crappy includes, which is far to large for a
+stable kernel.
 
-Most things work fine (2.6.5 broke USB for me, so I'm still at 2.6.4), but I want suspend to disk (or suspend to RAM for that matter) to work.
+I may go back to the original problem and sort it a different way,
+but for the time being, I'm occupied in other areas.
 
-But.
-
-echo -n disk > /proc/power/state
-
-results in the (Correct?) text screen that says it's going to do the suspend etc... But then just wakes straight up. here's the logs from kern.log
-Apr 29 06:44:12 ballbreaker kernel: Stopping tasks: =======================================================================|
-Apr 29 06:44:12 ballbreaker kernel: Freeing memory: .......................................|
-Apr 29 06:44:12 ballbreaker kernel: hdc: start_power_step(step: 0)
-Apr 29 06:44:12 ballbreaker kernel: hdc: completing PM request, suspend
-Apr 29 06:44:12 ballbreaker kernel: hda: start_power_step(step: 0)
-Apr 29 06:44:12 ballbreaker kernel: hda: start_power_step(step: 1)
-Apr 29 06:44:12 ballbreaker kernel: hda: complete_power_step(step: 1, stat: 50, err: 0)
-Apr 29 06:44:12 ballbreaker kernel: hda: completing PM request, suspend
-Apr 29 06:44:12 ballbreaker kernel: PM: Attempting to suspend to disk.
-Apr 29 06:44:12 ballbreaker kernel: PM: snapshotting memory.
-Apr 29 06:44:12 ballbreaker kernel: PCI: Setting latency timer of device 0000:00:1d.0 to 64
-Apr 29 06:44:12 ballbreaker kernel: PCI: Setting latency timer of device 0000:00:1d.1 to 64
-Apr 29 06:44:12 ballbreaker kernel: PCI: Setting latency timer of device 0000:00:1d.2 to 64
-Apr 29 06:44:13 ballbreaker kernel: PCI: Setting latency timer of device 0000:00:1f.5 to 64
-Apr 29 06:44:13 ballbreaker kernel: hda: Wakeup request inited, waiting for !BSY...
-Apr 29 06:44:13 ballbreaker kernel: hda: start_power_step(step: 1000)
-Apr 29 06:44:13 ballbreaker kernel: blk: queue de7f5df8, I/O limit 4095Mb (mask 0xffffffff)
-Apr 29 06:44:13 ballbreaker kernel: hda: completing PM request, resume
-Apr 29 06:44:13 ballbreaker kernel: hdc: Wakeup request inited, waiting for !BSY...
-Apr 29 06:44:13 ballbreaker kernel: hdc: start_power_step(step: 1000)
-Apr 29 06:44:13 ballbreaker kernel: hdc: completing PM request, resume
-Apr 29 06:44:13 ballbreaker kernel: Restarting tasks... done
-
-
-Anyone know why it doesn't actually power off? Info on this phenomenon seems to be a bit sparse, but there seems to be a few people reporting it on various laptops...
-
-What is the story on suspend to disk anyway? Should we use the kernel code? swsusp patches & resume2? pmdisk patches?  Damnit I just want it to work... I'd even use straight FN-F4 except my video won't wake up afterwards... Currently I have to reboot several times a day (i.e. whenever I want to move my thinkpad from one place to another). very frustrating...
-
-TIA
- hamish. 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

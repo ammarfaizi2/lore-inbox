@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbTFZRg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 13:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTFZRg1
+	id S262252AbTFZRp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 13:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTFZRp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 13:36:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33993 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262179AbTFZRgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 13:36:25 -0400
-Date: Thu, 26 Jun 2003 19:50:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.22-pre1] menuconfig oddity
-Message-ID: <20030626175032.GA24661@fs.tum.de>
-References: <200306231927.57946.jan-hinnerk_reichert@hamburg.de>
+	Thu, 26 Jun 2003 13:45:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:35229 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262252AbTFZRpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 13:45:25 -0400
+Date: Fri, 27 Jun 2003 03:55:54 +1000
+From: Anton Blanchard <anton@samba.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] irq handling code consolidation (common part)
+Message-ID: <20030626175554.GA22089@krispykreme>
+References: <20030626110247.GT9679@pazke>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200306231927.57946.jan-hinnerk_reichert@hamburg.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030626110247.GT9679@pazke>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 23, 2003 at 07:27:57PM +0200, Jan-Hinnerk Reichert wrote:
-> Hi,
+
+> the irq handling consolidation patch returns from the dead !
+> Now with runaway irq detection code included !
 > 
-> first I want to say that I could compile 2.4.22-pre1 without problems and 
-> everything works fine for 4 hours on a desktop machine with little load.
-> 
-> However, I had a small problem during my installation:
-> 
-> After the first compilation and reboot, I started menuconfig again and all 
-> subentries of "ACPI support" were gone. I took a brief look at the .config, 
-> but there were at least some entries.
-> 
-> So I ignored this, changed my config via menuconfig, recompiled and rebooted 
-> and ACPI was gone ;-(
-> 
-> After copying my old config and "make oldconfig", everything was back to 
-> normal. Unfortunately i wasn't able to reproduce this error.
-> 
-> I just wanted to let you know...
+> This patch (against 2.5.73) contains common part of it.
 
-Did you accidentially enable "CPU Enumeration Only" in the
-"ACPI support" menu?
+Great! Well it wasnt dead, I was also keeping it up to date and sending
+it on to akpm :)
 
-If this isn't the problem, please send your .config.
+I have two suggestions that will help in my crusade to kill NR_IRQS.
 
->  Jan-Hinnerk
+1. define irq_desc, irq_valid, for_each_irq in include/linux/irq.h if
+HAVE_ARCH_IRQ_DESC isnt defined (instead of in each architecture).
+Basically I want to start using these macros in a few places and dont
+want to break every architecture that hasnt converted to the new scheme.
 
-cu
-Adrian
+On the other hand if we decide to move the irq descriptor definition
+into each arch as hch suggested, this wont be necessary as all archs
+will break anyway :)
 
--- 
+2. define irq_atoi that converts an irq into a printable string. We have
+a bunch of #ifdef CONFIG_SPARC stuff we can then get rid of, and other
+archs can start using it if wanted (eg on ppc64 I can subtract our
+software offset so the irqs printed match the hardware)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Anton

@@ -1,63 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263718AbTIHXIT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 19:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTIHXIT
+	id S263744AbTIHXC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 19:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTIHXC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 19:08:19 -0400
-Received: from [80.190.232.4] ([80.190.232.4]:10937 "EHLO srv02.rooty.de")
-	by vger.kernel.org with ESMTP id S263718AbTIHXIJ (ORCPT
+	Mon, 8 Sep 2003 19:02:29 -0400
+Received: from mail.kroah.org ([65.200.24.183]:27850 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263744AbTIHXC1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 19:08:09 -0400
-Message-ID: <002f01c3765e$0f125950$0419a8c0@firestarter.shnet.org>
-From: "Dennis Freise" <Cataclysm@final-frontier.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: New ATI FireGL driver supports 2.6 kernel
-Date: Tue, 9 Sep 2003 01:07:57 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Antivirus-Scanned: Clean
-X-Spam-Score: 0.0 (/)
-X-Spam-Report: 0.0/5.0
-	This mail is probably spam.  The original message has been attached
-	along with this report, so you can recognize or block similar unwanted
-	mail in future.  See http://spamassassin.org/tag/ for more details.
-	Content preview:  > > The ATI drivers are NOT binary-only! >
-	http://www.codemonkey.org.uk/projects/agp/binary.shtml Mhh, ATI
-	seriously sucks. Really. > Linking GPL code to binary .o files, and
-	then disabling the > MODULE_LICENSE("GPL") smells pretty fishy to me.
-	[...] 
-	Content analysis details:   (0.00 points, 5 required)
+	Mon, 8 Sep 2003 19:02:27 -0400
+Date: Mon, 8 Sep 2003 16:02:24 -0700
+From: Greg KH <greg@kroah.com>
+To: jdow <jdow@earthlink.net>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: problem with "Gadget filesystem" config prompt (bk10)
+Message-ID: <20030908230224.GA3047@kroah.com>
+References: <Pine.LNX.4.44.0309081137260.15517-100000@localhost.localdomain> <20030908221102.GA2953@kroah.com> <043301c37659$d0074490$2eedfea9@kittycat>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <043301c37659$d0074490$2eedfea9@kittycat>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  > The ATI drivers are NOT binary-only!
-> http://www.codemonkey.org.uk/projects/agp/binary.shtml
+On Mon, Sep 08, 2003 at 03:37:40PM -0700, jdow wrote:
+> From: "Greg KH" <greg@kroah.com> Monday, 2003 September, 08 15:11
+> 
+> > On Mon, Sep 08, 2003 at 11:40:46AM -0400, Robert P. J. Day wrote:
+> > >
+> > >   just doing a "make oldconfig", from bk9 -> bk10, being prompted for
+> the
+> > > USB_GADGETFS (Gadget filesystem), which asks
+> > >
+> > >   ... [N/m/?]  (NEW)
+> > >
+> > > without thinking, i typed "y" (not noticing that that was not a valid
+> > > answer), and what i got back was:
+> > >
+> > > Say "y" to link the driver statically, or "m" to build a
+> > > dynamically linked module called "gadgetfs".
+> > >
+> > >   which suggests that "y" *is* a valid response (when clearly it isn't).
+> > > someone might want to clarify this.
+> >
+> > You got the help information for this option.  And "y" is a valid option
+> > if one of the parent options is selected as "y".  Not much you can do
+> > here...
+> 
+> Perhaps the incorrect prompt could be fixed?
 
-Mhh, ATI seriously sucks. Really.
+Patches are always welcome.
 
-> Linking GPL code to binary .o files, and then disabling the
-> MODULE_LICENSE("GPL") smells pretty fishy to me.
-
-This whole situation stinks - ATI plays games with open source, using the
-free parts to complement their own components and on the other hand prevent
-implementation by kernel-developers... maybe there should be more talking
-going on between hardware-manufacturers and linux-developers, because my
-ATI-GraKa (9800 Pro) STILL does not work - not with 2.4.x, not with 2.6.x,
-even with all the newest versions (problem not based on ATI drivers, but on
-agpgart KT400 / AGP3 issues)
-Since all compoments do work on W*nd*ws, I seriously wonder how much M$ pays
-to ATI to prevent linux-driver development.
-
-My apologies for being wrong about the bin-only-part...
-
-Greetings,
-Dennis
-
-
+greg k-h

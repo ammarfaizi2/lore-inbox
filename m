@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbRHSRgR>; Sun, 19 Aug 2001 13:36:17 -0400
+	id <S268582AbRHSRxW>; Sun, 19 Aug 2001 13:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268199AbRHSRgH>; Sun, 19 Aug 2001 13:36:07 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.121]:54793 "EHLO paip.net")
-	by vger.kernel.org with ESMTP id <S267534AbRHSRfx>;
-	Sun, 19 Aug 2001 13:35:53 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: /dev/random in 2.4.6
-Date: 19 Aug 2001 17:32:42 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <9lot7q$pmg$4@abraham.cs.berkeley.edu>
-In-Reply-To: <20010817171834.A24850@thunk.org> <NOEJJDACGOHCKNCOGFOMKEFFDEAA.davids@webmaster.com> <20010819111357.A3504@thunk.org>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 998242362 26320 128.32.45.153 (19 Aug 2001 17:32:42 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 19 Aug 2001 17:32:42 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S268598AbRHSRxM>; Sun, 19 Aug 2001 13:53:12 -0400
+Received: from mail.mesatop.com ([208.164.122.9]:26125 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S268582AbRHSRw7>;
+	Sun, 19 Aug 2001 13:52:59 -0400
+Message-Id: <200108191753.f7JHr8e27206@thor.mesatop.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Luigi Genoni <kernel@Expansa.sns.it>, "Eric S. Raymond" <esr@thyrsus.com>
+Subject: Re: Swap size for a machine with 2GB of memory
+Date: Sun, 19 Aug 2001 11:52:50 -0400
+X-Mailer: KMail [version 1.2.3]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, <gars@lanm-pc.com>
+In-Reply-To: <Pine.LNX.4.33.0108191916350.5840-100000@Expansa.sns.it>
+In-Reply-To: <Pine.LNX.4.33.0108191916350.5840-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso  wrote:
->On Fri, Aug 17, 2001 at 03:05:39PM -0700, David Schwartz wrote:
->> 	This is a non-issue providing the entropy pool code correctly
->> estimates the amount of entropy. The Linux entropy code is written
->> so that there is no harm from putting fully known or partially known
->> numbers into the pool provided that the pool does not overestimate
->> the amount of entropy in those numbers.
->
->The problem is that by being able to perfectly observe packets on the
->LAN, you know a lot more about the numbers that are going in, and it's
->therefore extremely likely that the entropy estimate will be
->overestimated.  
+On Sunday 19 August 2001 01:29 pm, Luigi Genoni wrote:
+[snipped]
+> On my ultrasparc linux with 4 GByte of RAM running 2.4.X kernels,
+> I needed to add a 8 GB disk just for
+> swap (16 partitions of 512 MB each one).
+--------^^
+Just curious, in linux-2.4.9/include/linux/swap.h line 11, we have:
 
-Right.  Therefore, it seems to me that the correct thing to do is to
-add network timings into the pool using an entropy estimate of zero.
+#define MAX_SWAPFILES 8
+
+Did you change this to 16, or does this not matter anymore?  
+This value is the same in 2.4.8-ac7.
+
+Steven

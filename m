@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUIWCKs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUIWCwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268148AbUIWCKs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 22:10:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268153AbUIWCKp
+	id S268153AbUIWCwl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 22:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268149AbUIWCwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 22:10:45 -0400
-Received: from ozlabs.org ([203.10.76.45]:57557 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268146AbUIWCJr (ORCPT
+	Wed, 22 Sep 2004 22:52:41 -0400
+Received: from syr-24-58-209-251.twcny.rr.com ([24.58.209.251]:25349 "HELO
+	geo.vu.nl") by vger.kernel.org with SMTP id S268153AbUIWCw0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 22:09:47 -0400
-Date: Thu, 23 Sep 2004 10:17:54 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       amodra@bigpond.net.au
-Subject: Re: 2.6.8 link failure for powerpc-970?
-Message-ID: <20040923001754.GB2825@krispykreme>
-References: <414E93BC.4080107@kegel.com> <1095669339.2800.3.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1095669339.2800.3.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.6+20040818i
+	Wed, 22 Sep 2004 22:52:26 -0400
+Message-ID: <6d2601c4a119$93d10369$282cfaf5@geo.vu.nl>
+From: "Darrin Barton" <darrinbarton_qu@ibwpan.gda.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Get  =?ISO-8859-1?Q?=20v=ECagra?= for a great price.
+Date: Thu, 23 Sep 2004 01:59:17 -0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
 Hi,
 
-> use this patch
-> --- linux-2.6.8/arch/ppc64/Makefile~    2004-09-03 13:02:48.372244432
-> +0200
-> +++ linux-2.6.8/arch/ppc64/Makefile     2004-09-03 13:02:48.372244432
-> +0200
-> @@ -28,5 +28,7 @@
->  LDFLAGS_vmlinux        := -Bstatic -e $(KERNELLOAD) -Ttext
-> $(KERNELLOAD)
->  CFLAGS         += -msoft-float -pipe -mminimal-toc -mtraceback=none
-> +
-> +CFLAGS += $(call cc-option,-mcall-aixdesc)
+We have a new offer for you. Buy cheap Vìagra through our online store.
+- Private online ordering 
+- No prescription required
+- World wide shipping
 
-We shouldnt need this with the two recent patches from Alan Modra
-(add -synthetic to nm in arch/ppc64/Makefile and add an opd section
-in the ppc64 vmlinux.lds).
+Order your drugs offshore and save over 70%!
 
-Anton
+Click here: http://888-luvu.com/meds/
+
+Best regards,
+Donald Cunfingham
+
+
+
+No thanks: http://888-luvu.com/rm.html
+

@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263780AbRFCW4q>; Sun, 3 Jun 2001 18:56:46 -0400
+	id <S263210AbRFCPGr>; Sun, 3 Jun 2001 11:06:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263799AbRFCW4g>; Sun, 3 Jun 2001 18:56:36 -0400
-Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:49728 "EHLO
-	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S263780AbRFCWK1>; Sun, 3 Jun 2001 18:10:27 -0400
-Message-ID: <3B1AB5BA.8060805@humboldt.co.uk>
-Date: Sun, 03 Jun 2001 23:10:02 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.8.1+) Gecko/20010502
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marc Lehmann <pcg@goof.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Axel Thimm <Axel.Thimm@physik.fu-berlin.de>,
+	id <S263167AbRFCPFh>; Sun, 3 Jun 2001 11:05:37 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:41454 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S263015AbRFCPF0>; Sun, 3 Jun 2001 11:05:26 -0400
+Date: Sun, 3 Jun 2001 11:02:39 -0400
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Michael Rothwell <rothwell@holly-springs.nc.us>, Andries.Brouwer@cwi.nl,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Au-Ja <doelf@au-ja.de>, Yiping Chen <YipingChen@via.com.tw>,
-        support@msi.com.tw, info@msi-computer.de, support@via-cyrix.de,
-        John R Lenton <john@grulic.org.ar>
-Subject: Re: VIA's Southbridge bug: Latest (pseudo-)patch
-In-Reply-To: <20010519110721.A1415@pua.nirvana> <20010601171848.F467@cerebro.laendle> <3B17B4B0.9A805766@mandrakesoft.com> <20010601221637.B13797@cerebro.laendle>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: keyboard hook?
+Message-ID: <20010603110239.A4982@513.holly-springs.nc.us>
+Mail-Followup-To: Michael Rothwell <rothwell@holly-springs.nc.us>,
+	James Simmons <jsimmons@transvirtual.com>, Andries.Brouwer@cwi.nl,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux console project <linuxconsole-dev@lists.sourceforge.net>
+In-Reply-To: <991518977.5581.0.camel@gromit> <Pine.LNX.4.10.10106022028040.9396-100000@transvirtual.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10106022028040.9396-100000@transvirtual.com>; from jsimmons@transvirtual.com on Sat, Jun 02, 2001 at 08:40:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Lehmann wrote:
+Thanks, I'm loking through your driver now. Does the input api already/currently support ps2 keyboards?
 
+-M
 
-> Aren't PCI delayed transaction supposed to be handled by the pci master
-> (e.g. my northbridge), not by the (software) driver for my pdc(?) I would
-> also be surprised if my pdc actually used that feature, not to speak of
-> the fact that the promise + harddisk worked fine in another computer (the
-> data corruption was easily detectable, one couldn't even write 500megs
-> without altered bytes).
-
-
-Wrong way round. You're right that the pci master is supposed to handle 
-delayed transactions, but during data transfer the pdc is the pci master 
-and the northbridge is the PCI target.
-
--- 
-Adrian Cox   http://www.humboldt.co.uk/
-
+On Sat, Jun 02, 2001 at 08:40:04PM -0700, James Simmons wrote:
+> 
+> Hi!
+> 
+>    Your best bet for a kernel driver is to use the linux input api like
+> the usb keyboard do. The drivers are pretty simple to write and since all
+> the keyboard drivers will be port over to this api it will save a lot of 
+> work done the road. If you need help let me know. I will be glad to help.
+> It sounds alot alike the p2 to serial driver just placed in our CVS. You
+> can access our CVS by doing 
+> 
+> cvs -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole login
+> 
+> cvs -z3 -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole co ruby
+> 
+> The driver is in ruby/linux/drivers/input as ps2serkbd.c.
+> 
+> > I'm beginning the process of writing a driver for the "Qoder"
+> > keyboard-fob barcode scanner made by InterMec. It communicates with the
+> > host computer using the PS/2 port by way of a "dock" that sits in
+> > between the keyboard and the computer.
+>  
+> > One of them is "turn
+> > numlock light on," which I can do with an ioctl from userspace (as root,
+> > anyway), but also caps lock, num lock and carriage-return scancodes.
+> 
+> EV_LED
+> 
+> > The CueCat driver written by Pierre Coupard also modifies the keyboard
+> > driver. It would be nice if it was possible to load modules that hook
+> > into keyboard processing without requiring a kernel patch. And perhaps
+> > there is, but I haven't run across it yet.
+> 
+> input api :-)
+>  

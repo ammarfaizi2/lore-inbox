@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUAAOKe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 09:10:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUAAOKe
+	id S264442AbUAAONt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 09:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUAAONt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 09:10:34 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:62468 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263544AbUAAOKd (ORCPT
+	Thu, 1 Jan 2004 09:13:49 -0500
+Received: from holomorphy.com ([199.26.172.102]:63432 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264442AbUAAONr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 09:10:33 -0500
-Date: Thu, 1 Jan 2004 15:10:27 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neale Banks <neale@lowendale.com.au>, paul@clubi.ie,
+	Thu, 1 Jan 2004 09:13:47 -0500
+Date: Thu, 1 Jan 2004 06:13:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Michel D?nzer <michel@daenzer.net>
+Cc: Jon Smirl <jonsmirl@yahoo.com>,
+       dri-devel <dri-devel@lists.sourceforge.net>,
        linux-kernel@vger.kernel.org
-Subject: Re: chmod of active swap file blocks
-Message-ID: <20040101151027.A2411@pclin040.win.tue.nl>
-References: <Pine.LNX.4.56.0312291719160.16956@fogarty.jakma.org> <Pine.LNX.4.05.10401011905310.31562-100000@marina.lowendale.com.au> <20040101021241.31830e30.akpm@osdl.org>
+Subject: Re: [Dri-devel] 2.6 kernel change in nopage
+Message-ID: <20040101141338.GE22443@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Michel D?nzer <michel@daenzer.net>, Jon Smirl <jonsmirl@yahoo.com>,
+	dri-devel <dri-devel@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20031231182148.26486.qmail@web14918.mail.yahoo.com> <1072958618.1603.236.camel@thor.asgaard.local> <20040101133301.GB3242@holomorphy.com> <1072965029.1603.261.camel@thor.asgaard.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040101021241.31830e30.akpm@osdl.org>; from akpm@osdl.org on Thu, Jan 01, 2004 at 02:12:41AM -0800
+In-Reply-To: <1072965029.1603.261.camel@thor.asgaard.local>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 01, 2004 at 02:12:41AM -0800, Andrew Morton wrote:
-> Neale Banks <neale@lowendale.com.au> wrote:
-> >
-> > How much of the original problem goes away if swapon(8) were to refuse to
-> >  activate a file/device which has ownership/mode which it doesn't like?
-> 
-> I think swapon(8) should at least warn when the swapfile has inappropriate
-> permissions.  It's an obvious and outright security hole.
+On Thu, 2004-01-01 at 14:33, William Lee Irwin III wrote:
+>> Okay, you did something weird with nopage args, but I thought I did
+>> the equivalent of this in the original patch?
 
-swapon had this warning for a while, but that generated lots of complaints.
-Now this message is printed only when the -v (verbose) flag is given.
+On Thu, Jan 01, 2004 at 02:50:30PM +0100, Michel D?nzer wrote:
+> This is about the canonical DRM code in the DRI tree.
 
+I'm sorry, I'm not going to drive myself insane trying to deal with
+yet another overweight and insanely ugly BSD emulation layer. I'll
+stick with canonical kernel.org sources, thank you very much.
+
+
+-- wli

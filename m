@@ -1,71 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVCVWma@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVCVWp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbVCVWma (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 17:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVCVWm2
+	id S261734AbVCVWp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 17:45:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVCVWp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 17:42:28 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:56736 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262153AbVCVWls convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 17:41:48 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 22 Mar 2005 17:45:27 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:58603
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261734AbVCVWng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 17:43:36 -0500
+Date: Tue, 22 Mar 2005 14:41:51 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: akpm@osdl.org, nickpiggin@yahoo.com.au, tony.luck@intel.com,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] freepgt: free_pgtables use vma list
+Message-Id: <20050322144151.5b08b047.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0503222142280.9761@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0503212048040.1970@goblin.wat.veritas.com>
+	<20050322034053.311b10e6.akpm@osdl.org>
+	<Pine.LNX.4.61.0503221617440.8666@goblin.wat.veritas.com>
+	<20050322110144.3a3002d9.davem@davemloft.net>
+	<20050322112125.0330c4ee.davem@davemloft.net>
+	<20050322112329.70bde057.davem@davemloft.net>
+	<Pine.LNX.4.61.0503221931150.9348@goblin.wat.veritas.com>
+	<20050322123301.090cbfa6.davem@davemloft.net>
+	<Pine.LNX.4.61.0503222142280.9761@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH 1/5] freepgt: free_pgtables use vma list
-Date: Tue, 22 Mar 2005 14:40:55 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F03211751@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/5] freepgt: free_pgtables use vma list
-Thread-Index: AcUvD9lTs3aswzO2S7i+xMDoOzJZlwAHXfDg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Hugh Dickins" <hugh@veritas.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>, <akpm@osdl.org>,
-       <benh@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 22 Mar 2005 22:40:57.0298 (UTC) FILETIME=[36B95B20:01C52F30]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> be changed to use pgd_addr_end() to gather up all the vma that
->> are mapped by a single pgd instead of just spanning out the next
->> PMD_SIZE?
->
->Oh, I don't think so.  I suppose it could be done at this level,
->but then the lower levels would go back to searching through lots
->of unnecessary cachelines to find the significant entries, and
->we might as well throw out the whole set of patches (which will
->soon happen anyway if we can't find why they're not working!).
+On Tue, 22 Mar 2005 21:51:39 +0000 (GMT)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-Then I don't see how we decide when to clear a pointer at each
-level.  Are there counters of how many entries are active in each
-table at all levels (pgd/pud/pmd/pte)?
+> I still can't see what's wrong with the code that's already
+> there.  My brain is seizing up, I'm taking a break.
 
-Consider the case where two or more vmas are mapped at addresses that
-share a pgd entry, but are far enough apart that you don't want
-to coalesce them.  First call down through that pgd entry must
-leave the pointer to the pud (or pmd/pte for systems with less
-levels) so that the next call can still get to the pud/pmd/pte
-to clear out entries for the other vma.  But without counters
-(at all levels) you don't know when you are all done with a table,
-or whether you need to leave it for the next call.
+Ok, meanwhile I'll do a brain dump of what I think this
+code should be doing.
 
-If you want to pursue this, then there are probably some fields
-in the page_t for the page that is being used as a pgd/pud/pmd/pte
-that are available (do all architectures allocate whole pages for
-all levels of the page tree?)
+Let's take an example free_pgd_range() call.  Say the
+address parameters are:
 
-Alternatively you could modify the use of floor/ceiling as they
-are passed down from the top level to indicate the progressively
-greater address ranges that have been dealt with ... but I'm not
-completely convinced that gives you enough information.  You would
-need to do careful extension of the ceiling at each level to make
-sure that you reach out to the end of of each table at each level
-to account for gaps between vmas (which would result in no future
-calldown hitting this part of the table).
+addr	0x10000
+end	0xa4000
+floor	0x00000
+ceiling	0xb2000
 
--Tony
+(This example comes from my exit_mmap() VMA dump earlier
+ in this thread.  If you disable the VMA skipping optimization
+ the first call to free_pgd_range() has these parameters.)
+
+What ought this free_pgd_range() call do?  This range of
+addresses, from floor to ceiling, is smaller than a PMD_SIZE
+(which on sparc64 is 1 << 23).  Therefore it should clear
+no PGD or PUD entries.
+
+Yet, it does clear them, specifically:
+
+free_pgd_range():
+	1) mask addr (0x10000) to PMD_MASK, addr is now 0
+	2) addr < floor (0x00000) test does not pass
+	3) mask ceiling (0xb2000) to PMD_MASK, ceiling is now 0 too
+	4) end - 1 > ceiling - 1 test does not pass
+	5) addr > end - 1 test does not pass either
+	6) We now loop one PGDIR_SIZE at a time from
+           addr (0x00000) to end (0xa4000), calling
+	   down into...
+free_pud_range():
+	1) addr=0, end=0xa4000, floor=0, ceiling=0
+	2) We loop one PUD_SIZE at a time from
+	   addr (0x00000) to end (0xa4000), calling
+	   down into...
+free_pmd_range():
+	1) addr=0, end=0xa4000, floor=0, ceiling=0
+	2) We loop one PMD_SIZE at a time from
+	   addr (0x00000) to end (0xa4000), calling
+	   down into...
+free_pte_range():
+
+And later when we finish the loops in free_pmd_range()
+and free_pud_range() we do pud_clear() and pgd_clear()
+respectively, both wrong.
+
+The source of the problems seems to be how ceiling began
+at the top of the call chain as 0xb2000, but when we
+masked it with PMD_MASK that set it to zero, which means
+"top of address space" in these functions.  That's not
+what we want.
+
+I added a quick hack to the simulator I posted, where
+we mask ceiling in free_pgd_range(), I do it like this:
+
+	if (ceiling) {
+		ceiling &= PMD_MASK;
+		if (!ceiling)
+			return;
+	}
+
+and things seem to behave.  I'll try to analyze things
+further and test this out on a real kernel, but all of
+these adjustments at the top of free_pgd_range() really
+start to look like pure spaghetti. :-)

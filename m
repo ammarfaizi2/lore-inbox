@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbULMAKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbULMALU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbULMAKL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Dec 2004 19:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbULMAKK
+	id S262175AbULMALU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Dec 2004 19:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbULMALU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Dec 2004 19:10:10 -0500
-Received: from mail01.syd.optusnet.com.au ([211.29.132.182]:7134 "EHLO
-	mail01.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262115AbULMAKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Dec 2004 19:10:03 -0500
-References: <20041211142317.GF16322@dualathlon.random> <20041212163547.GB6286@elf.ucw.cz> <20041212222312.GN16322@dualathlon.random> <41BCD5F3.80401@kolivas.org> <20041212234256.GK6272@elf.ucw.cz>
-Message-ID: <cone.1102896588.31702.10669.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrea Arcangeli <andrea@suse.de>,
+	Sun, 12 Dec 2004 19:11:20 -0500
+Received: from mailhost.somanetworks.com ([216.126.67.42]:47255 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id S262175AbULMALN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Dec 2004 19:11:13 -0500
+Date: Sun, 12 Dec 2004 19:11:10 -0500 (EST)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: pcihpd-discuss@lists.sourceforge.net, greg@kroah.com,
        linux-kernel@vger.kernel.org
-Subject: Re: dynamic-hz
-Date: Mon, 13 Dec 2004 11:09:48 +1100
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Subject: Re: [2.6 patch] drivers/pci/hotplug/ : simply use MODULE
+In-Reply-To: <20041211165459.GV22324@stusta.de>
+Message-ID: <Pine.LNX.4.58.0412121908500.23843@rancor.yyz.somanetworks.com>
+References: <20041211165459.GV22324@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek writes:
+On Sat, 11 Dec 2004, Adrian Bunk wrote:
 
-> Hi!
+> The patch below lets five files under drivers/pci/hotplug/ simply use 
+> MODULE to check whether they are compiled as part of a module.
 > 
->> >The overhead is a single l1 cacheline in the paths manipulating HZ
->> >(rather than having an immediate value hardcoded in the asm, it reads it
->> >from a memory location not in the icache). Plus there are some
->> >conversion routines in the USER_HZ usages. It's not a measurable
->> >difference.
->> 
->> Just being devils advocate here...
->> 
->> I had variable Hz in my tree for a while and found there was one 
->> solitary purpose to setting Hz to 100; to silence cheap capacitors.
->> 
->> The rest of my users that were setting Hz to 100 for so-called 
->> performance gains were doing so under the false impression that cpu 
->> usage was lower simply because of the woefully inaccurate cpu usage 
->> calcuation at 100Hz.
->> 
->> The performance benefit, if any, is often lost in noise during 
->> benchmarks and when there, is less than 1%. So I was wondering if you 
->> had some specific advantage in mind for this patch? Is there some 
->> arch-specific advantage? I can certainly envision disadvantages to lower Hz.
+> MODULE is the common idiom for checking whether a file is built as part 
+> of a module.
 > 
-> Actually, I measured about 1W power savings with HZ=100. That's about
-> as much as spindown of disk saves...
+> In theory, my patch shouldn't have made any difference, but if you look 
+> closely, the previous #if's in cpcihp_generic.c and cpci_hotplug_pci.c 
+> weren't correct.
 
-How does the popular proprietary operating system cope with this? My 
-understanding is they run 1000Hz yet they have good power saving and quiet 
-capacitors. Presumably they do a lot less per timer tick?
+Yep, those were never fixed after the drivers/hotplug to 
+drivers/pci/hotplug move, my bad for not checking things
+better after that was done.
 
-Cheers,
-Con
+Thanks,
 
+Scott
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com

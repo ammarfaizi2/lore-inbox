@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268511AbRG3Lpn>; Mon, 30 Jul 2001 07:45:43 -0400
+	id <S268516AbRG3L4n>; Mon, 30 Jul 2001 07:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268530AbRG3Lpd>; Mon, 30 Jul 2001 07:45:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29967 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268511AbRG3LpS>; Mon, 30 Jul 2001 07:45:18 -0400
-Subject: Re: Test mail
-To: indigoid@higherplane.net (john slee)
-Date: Mon, 30 Jul 2001 12:46:18 +0100 (BST)
-Cc: lethal@ChaoticDreams.ORG (Paul Mundt), linux-kernel@vger.kernel.org
-In-Reply-To: <20010730214522.C1183@higherplane.net> from "john slee" at Jul 30, 2001 09:45:22 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268533AbRG3L4e>; Mon, 30 Jul 2001 07:56:34 -0400
+Received: from bish.net ([208.139.225.12]:61327 "EHLO bish.net")
+	by vger.kernel.org with ESMTP id <S268516AbRG3L4X>;
+	Mon, 30 Jul 2001 07:56:23 -0400
+Date: Mon, 30 Jul 2001 07:55:42 -0400 (EDT)
+From: Mark <mark@bish.net>
+Reply-To: Mark <mark@bish.net>
+To: Jonathan Hudson <jonathan@daria.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel version 2.4.7 compile errors (fwd)
+In-Reply-To: <20010730094356.C74F210800@trespassersw.daria.co.uk>
+Message-ID: <Pine.LNX.3.96.1010730075301.654G-100000@bish.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15RBV4-0003d0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-> they ARE a big deal.  someone, somewhere pays for the traffic.  they
-> didn't CHOOSE to be flooded with virii/worms.  but their upstream won't
-> be nice and say "aw you got hit by some email virus i wont bill you for
-> that traffic..."
+NOTE: I'm not subscribed - please Cc: mark@bish.net
 
-Its more than that. Its the same smug arrogance that is going to get a lot
-of people nasty shocks one day
+On Mon, 30 Jul 2001, Jonathan Hudson wrote:
+>
+>Dodgy RAM. Had the same problem some time ago. The machine would run
+>memtest86 as long as you like, no problem. Compile a kernel and I'd
+>get these bit errors. Reboot, powercycle, look at the file -- no
+>problem, probably compile next time.
+>
+>Replacing the RAM fixed the problem.
+>
+>
 
-ELM, Pine and Mutt have all at various times had holes that could have been
-used to write an exact Unix equivalent of the windows virus. 
-<img src="file:/dev/mouse"> hangs some web browser email 4 years after the
-bug was reported and so on...
+I already replaced the RAM and did the power cycle.
 
 
-Alan
+------------------------------------------------------------------------
+| Mark Bishop  (mark@bish.net)         |             Computer Engineer |
+| 813.258.2390                         |             Network Engineer  |
+| http://bish.net                      |          Embedded Programmer  |
+
+
+

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263130AbRE1Tqk>; Mon, 28 May 2001 15:46:40 -0400
+	id <S263134AbRE1TlK>; Mon, 28 May 2001 15:41:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263132AbRE1Tqa>; Mon, 28 May 2001 15:46:30 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:49419 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S263130AbRE1TqL>; Mon, 28 May 2001 15:46:11 -0400
-Date: Mon, 28 May 2001 21:44:37 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Nico Schottelius <nicos@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: unresolved symbols printk ?
-Message-ID: <20010528214437.A9384@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3B128437.7C166E53@pcsystems.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B128437.7C166E53@pcsystems.de>; from nicos@pcsystems.de on Mon, May 28, 2001 at 07:00:39PM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S263144AbRE1TlA>; Mon, 28 May 2001 15:41:00 -0400
+Received: from [130.113.218.59] ([130.113.218.59]:11080 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S263143AbRE1Tko>; Mon, 28 May 2001 15:40:44 -0400
+Date: Mon, 28 May 2001 15:39:00 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: Jens Axboe <axboe@suse.de>
+cc: andre@linux-ide.org, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch]: ide dma timeout retry in pio
+In-Reply-To: <20010528203421.N9102@suse.de>
+Message-ID: <Pine.LNX.4.10.10105281533400.25183-100000@coffee.psychology.mcmaster.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 07:00:39PM +0200, Nico Schottelius wrote:
-> I am having problems with loading modules:
-> I always get the unresolved symbols message.
-> I didn't find any documentation for that, can you help me ?
+> request, when we hit a dma timout. In this case, what we really want to
+> do is retry the request in pio mode and revert to normal dma operations
+> later again.
 
-You did read question 8.8 from the linux-kernel mailing list FAQ?
+really?  do we know the nature of the DMA engine problem well enough?
+is there a reason to believe that it'll work better "later"?
+I guess I was surprised at resorting to PIO - couldn't we just
+break the request up into smaller chunks, still using DMA?
 
-  http://www.tux.org/lkml/#s8-8
+I seem to recall Andre saying that the problem arises when the 
+ide DMA engine looses PCI arbitration during a burst.  shorter 
+bursts would seem like the best workaround if this is the problem...
 
+resorting to PIO would be such a shame, not only because it eats
+CPU so badly, but also because it has no checksum like UDMA...
 
-Erik
+thanks, mark hahn.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,111 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVAXTHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVAXTHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVAXTHw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 14:07:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVAXTHK
+	id S261571AbVAXTHx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 14:07:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVAXTGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 14:07:10 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:36069 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261571AbVAXTEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 14:04:22 -0500
-Date: Mon, 24 Jan 2005 12:10:25 -0800
-From: long <tlnguyen@snoqualmie.dp.intel.com>
-Message-Id: <200501242010.j0OKAPIr003363@snoqualmie.dp.intel.com>
-To: greg@kroah.com
-Subject: Re:[PATCH] PCI: add PCI Express Port Bus Driver subsystem
-Cc: linux-kernel@vger.kernel.org, tom.l.nguyen@intel.com
+	Mon, 24 Jan 2005 14:06:20 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23564 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261576AbVAXTFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 14:05:51 -0500
+Date: Mon, 24 Jan 2005 20:05:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Jurriaan <thunder7@xs4all.nl>, Andrew Morton <akpm@osdl.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050124190546.GP3515@stusta.de>
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124175449.GK3515@stusta.de> <20050124214336.2c555b53@zanzibar.2ka.mipt.ru> <20050124184111.GA9335@middle.of.nowhere> <20050124222302.6f962097@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050124222302.6f962097@zanzibar.2ka.mipt.ru>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, January 18, 2005 5:03 PM Greg KH wrote:
->> >
->> >That would be great, but it doesn't show up that way on my box.  All
->> >of
->> >the portX devices are in /sys/devices/ which is what I don't think
->> >you
->> >want.  I would love for them to have the parent of the pci_dev
->> >structure
->> >:)
->> 
->> Agree. Thanks for your inputs. The patch below include the changes
->> based on your previous post.
->
->Hm, that seems like a pretty big patch just to add a pointer to a parent
->device :)
->
->What really does this patch do?  What does the sysfs tree now look like?
+On Mon, Jan 24, 2005 at 10:23:02PM +0300, Evgeniy Polyakov wrote:
+> On Mon, 24 Jan 2005 19:41:11 +0100
+> Jurriaan <thunder7@xs4all.nl> wrote:
+> 
+> > From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+> > Date: Mon, Jan 24, 2005 at 09:43:36PM +0300
+> > > On Mon, 24 Jan 2005 18:54:49 +0100
+> > > Adrian Bunk <bunk@stusta.de> wrote:
+> > > 
+> > > > It seems noone who reviewed the SuperIO patches noticed that there are 
+> > > > now two modules "scx200" in the kernel...
+> > > 
+> > > They are almost mutually exlusive(SuperIO contains more advanced), 
+> > > so I do not see any problem here.
+> > > Only one of them can be loaded in a time.
+> > > 
+> > > So what does exactly bother you?
+> > > 
+> > lsmod in bugreports giving unspecific results, for example.
+> 
+> If you load scx200 from superio subsystem, then obviously you can not
+> use old i2c/acb modules which require old scx200.
+> And vice versa.
+> 
+> One needs to load exactly what he wants.
 
-Before changes:
+You did not understand what Jurriaan said:
 
-The patch makes the parent of the device pointing to the pci_dev
-structure. The parents portX devices are in /sys/devices which
-should be removed based on your suggestions. Below is /sys/devices
-before any changes made.
+Even if it was working, "lsmod" would not be able to tell which of the 
+two modules was loaded.
 
-/sys/devices
-	|
-	__ ide0 
-	|
-	__ pci0000:00
-	|
-	__ pnp0
-	|
-	__ port1
-	|	|
-	|  	__ port1.00
-	|	|
-	|	__ port1.01
-	|	.
-	|	.
-	|	.
-	|
-	__ port2
-	|
- 	__ port3
-	|
-	__ system
+This would cause much headache for many people.
 
-After changes:
+> > Kind regards,
+> > Jurriaan
+> 
+> 	Evgeniy Polyakov
 
-The parents portX devices are no longer necessary because port1.00
-and port1.01 devices shoud have the parent of the pci_dev structure
-(based on your suggestion). The patch does the following changes:
+cu
+Adrian
 
-- remove code creating and handling the parent portX devices.
-- rename portX.YZ to pcieYZ (for example port1.00 renamed to pcie00)
-  since portX is no longer needed.
-- make pcieYZ have the parent of the pci_dev structure.
+-- 
 
-Below is /sys/devices after changes made to the patch.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-/sys/devices
-	|
-	__ ide0 
-	|
-	__ pci0000:00
-	|	|
-	|	__ 0000:00:00.0
-	|	|
-	|	__ 0000:00:04.0
-	|	|	|
-	|	.	__ class
-	|	.	|
-	|	.	__ pcie00
-	|		|
-	|		__ pcie01
-	|		.
-	|		.	
-	|		.
-	|
-	__ platform
-	|
-	__ pnp0
-	|
-	__ system
-
-
-Please let me know what you think of the changes.
-
-Thanks,
-Long

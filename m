@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbTELTu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 15:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTELTu4
+	id S262571AbTELT7A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 15:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbTELT7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 15:50:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:59277 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262438AbTELTuz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 15:50:55 -0400
-Date: Mon, 12 May 2003 11:57:58 -0700 (PDT)
-Message-Id: <20030512.115758.39166911.davem@redhat.com>
-To: chas@cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] make clip modular
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200305121933.h4CJXM511323@relax.cmf.nrl.navy.mil>
-References: <200305121933.h4CJXM511323@relax.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 12 May 2003 15:59:00 -0400
+Received: from ns.indranet.co.nz ([210.54.239.210]:15316 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id S262571AbTELT67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 15:58:59 -0400
+Date: Tue, 13 May 2003 08:11:40 +1200
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Tuncer M zayamut Ayaz <tuncer.ayaz@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+Message-ID: <71066878.1052813500@[192.168.1.249]>
+In-Reply-To: <200305120620.h4C6K64j061741@ns.indranet.co.nz>
+References: <3191078.1052695705@[192.168.1.249]>
+ 	<17308.1052658225@www4.gmx.net>	<443147.1052742876@[192.168.1.249]>
+ <200305120620.h4C6K64j061741@ns.indranet.co.nz>
+X-Mailer: Mulberry/3.0.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@cmf.nrl.navy.mil>
-   Date: Mon, 12 May 2003 15:33:22 -0400
 
-   this patch lets one build clip as a module.
-   
-This doesn't work and is quite racey.
 
-   +			if (!atm_clip_ops || !try_module_get(atm_clip_ops->owner)) {
+--On Monday, 12 May 2003 8:17 a.m. +0200 Tuncer M zayamut Ayaz 
+<tuncer.ayaz@gmx.de> wrote:
 
-Q: What prevents atm_clip_ops from going NULL between the
-   !atm_clip_ops test and the atm_clip_ops->owner dereference?
 
-A: Nothing.
+> one thing none of you most probably wants to hear:
+> if this "APM idle calls" is that "HLT" stuff, then I have to tell you
+> that on win32 I had not such problems while using the CpuIdle tool.
+> sorry.
 
-Therefore you have to protect these things some how, I would
-suggest using a semaphore, put it right next to atm_clip_ops
-and hold it around register, derferegister, and code sequence
-like this one trying to get a reference to it.
+No, HLT on idle is always on in Linux.  APM idle is a separate feature, 
+which Windows never did (although Windows does do the equivalent thing with 
+ACPI).
 
-The various ioctl hooks in net/socket.c are good models to
-work from.
 
-MPOA/LEC/MPC probably have nearly identical bugs and it would
-be great if you could fix them up too.
+> any PCMCIA fixes already available in linus -bk?
+
+I don't know.
+
+>
+> does CpuFreq depend on ACPI ? just in case i8k1 doesn't have proper
+> ACPI support.
+
+No, it doesn't depend on ACPI.
+

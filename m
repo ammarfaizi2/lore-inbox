@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268217AbRHFM2f>; Mon, 6 Aug 2001 08:28:35 -0400
+	id <S268243AbRHFMaP>; Mon, 6 Aug 2001 08:30:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268150AbRHFM2Z>; Mon, 6 Aug 2001 08:28:25 -0400
-Received: from 20dyn53.com21.casema.net ([213.17.90.53]:47115 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S268202AbRHFM2O>; Mon, 6 Aug 2001 08:28:14 -0400
-Message-Id: <200108061223.OAA28861@cave.bitwizard.nl>
-Subject: Re: rio_init, tty_io call confusion.  2.4.8-pre4
-In-Reply-To: <E15TjO9-0000rK-00@the-village.bc.nu> from Alan Cox at "Aug 6, 2001
- 01:21:41 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 6 Aug 2001 14:23:51 +0200 (MEST)
-CC: Keith Owens <kaos@ocs.com.au>, R.E.Wolff@BitWizard.nl,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S268218AbRHFMaF>; Mon, 6 Aug 2001 08:30:05 -0400
+Received: from weta.f00f.org ([203.167.249.89]:58768 "EHLO weta.f00f.org")
+	by vger.kernel.org with ESMTP id <S268150AbRHFM3s>;
+	Mon, 6 Aug 2001 08:29:48 -0400
+Date: Tue, 7 Aug 2001 00:30:43 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: linux-kernel@vger.kernel.org
+Cc: Lech Szychowski <lech.szychowski@pse.pl>
+Subject: Re: getty problems
+Message-ID: <20010807003043.C23937@weta.f00f.org>
+In-Reply-To: <20010806142703.A25428@lech.pse.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010806142703.A25428@lech.pse.pl>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > drivers/char/tty_io calls rio_init and gets a link error when rio is
-> > linked into the kenrel because rio_init is declared as static.  However
-> > rio_init is also declared as module_init() so it gets called twice, one
-> > from tty_io and once from the kernel initcall code.  One of those calls
-> > has to go.  If you keep the tty_io call then rio_init cannot be static.
-> 
-> The tty_io call appears to be stale
+On Mon, Aug 06, 2001 at 02:27:04PM +0200, Lech Szychowski wrote:
 
-Agreed, thought so too, but haven't had the time to look into
-it. Alan, while you're at it, can you remove the call and we'll try to
-test "in kernel" and "as a module" ASAP. (which looks as if it's going
-to be months, as we're swamped with other stuff.....)
+    2.4.7-ac7:
+    open("/dev/tty9", O_RDWR|O_NONBLOCK)    = -1 ENODEV (No such device)
+    
+    And yes, I believe I have terminal support compiled in:
 
-			Roger. 
+/prox/devices says?
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+
+
+  --cw

@@ -1,155 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUGNTNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265199AbUGNTPk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUGNTNM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 15:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUGNTNL
+	id S265199AbUGNTPk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 15:15:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUGNTPk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 15:13:11 -0400
-Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:42489 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S265229AbUGNTLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 15:11:35 -0400
-Message-ID: <40F58438.2040904@torque.net>
-Date: Wed, 14 Jul 2004 15:06:32 -0400
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en, es-es, es
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       viro@parcelfarce.linux.theplanet.co.uk, Jeff Garzik <jgarzik@pobox.com>,
-       Mikael Pettersson <mikpe@csd.uu.se>, akpm@osdl.org,
-       dgilbert@interlog.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [PATCH][2.6.8-rc1-mm1] drivers/scsi/sg.c gcc341 inlining fix
-References: <200407141216.i6ECGHxg008332@harpo.it.uu.se> <40F562FC.50806@pobox.com> <20040714165419.GF7308@fs.tum.de> <200407141931.12249.bzolnier@elka.pw.edu.pl> <20040714183335.GG7308@fs.tum.de>
-In-Reply-To: <20040714183335.GG7308@fs.tum.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 14 Jul 2004 15:15:40 -0400
+Received: from mail.homelink.ru ([81.9.33.123]:4268 "EHLO eltel.net")
+	by vger.kernel.org with ESMTP id S265199AbUGNTOm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 15:14:42 -0400
+Date: Wed, 14 Jul 2004 23:14:39 +0400
+From: Andrew Zabolotny <zap@homelink.ru>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Backlight and LCD module patches [1]
+Message-Id: <20040714231439.776d7b76.zap@homelink.ru>
+In-Reply-To: <20040714061138.GC11803@kroah.com>
+References: <20040617223514.2e129ce9.zap@homelink.ru>
+	<20040617194739.GA15983@kroah.com>
+	<20040618015504.661a50a9.zap@homelink.ru>
+	<20040617220510.GA4122@kroah.com>
+	<20040618095559.20763766.zap@homelink.ru>
+	<20040624213452.GC2477@kroah.com>
+	<20040627002152.20e2da7d.zap@homelink.ru>
+	<20040714061138.GC11803@kroah.com>
+Organization: home
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
+ epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
+ rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Wed, Jul 14, 2004 at 07:31:12PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
->>FYI 'inlining fix' was just merged as part of viro's sparse cleanups
->>
->>I still would like somebody to comment on idea of converting sg.c
->>to use standard inlines from <linux/time.h> ...
-> 
-> 
-> I've already discussed this with Doug a few days ago, and he agreed.
-> 
-> Below is my current patch against 2.6.8-rc1-mm1.
-> 
-> I'm not yet 100% sure whether it's correct, so please double-check it.
+On Tue, 13 Jul 2004 23:11:38 -0700
+Greg KH <greg@kroah.com> wrote:
 
-Adrian,
-This patch looks fine.
+> > It's not a question of b/l driver needing the framebuffer driver; it's the
+> > other way around: the framebuffer driver needs the b/l drivers (needs so
+> > much that it can fail initialization in some cases if it doesn't find the
+> > corresponding b/l device).
+> Ok, then put a pointer in the fb driver to the backlight.
+> And a pointer in the backlight to the fb.  What's wrong with that?
+Then arises the same question, but upside down. How the backlight driver will
+find the corresponding framebuffer device to put a pointer to himself into?
 
-Doug Gilbert
+For example, mediaq 11xx chip can be connected to the PCI bus (apart from the
+fact that it can be connected to embedded CPUs directly), so suppose there are
+several PCI cards, every card has a LCD connected to it. Now you have a bl/lcd
+driver that can drive those LCDs; how you can know which LCD is connected to
+which framebuffer? You will have to do the same: examine the device structure
+and find the PCI device id, slot number and such - there are simply no other
+ways.
 
-> 
-> [patch] kill local sg_ms_to_jif/sg_jif_to_ms functions and use
->         msecs_to_jiffies/jiffies_to_msecs instead
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-> 
-> --- linux-2.6.8-rc1-mm1-full-3.4/drivers/scsi/sg.c.old	2004-07-14 20:19:09.000000000 +0200
-> +++ linux-2.6.8-rc1-mm1-full-3.4/drivers/scsi/sg.c	2004-07-14 20:21:50.000000000 +0200
-> @@ -205,8 +205,6 @@
->  static Sg_request *sg_add_request(Sg_fd * sfp);
->  static int sg_remove_request(Sg_fd * sfp, Sg_request * srp);
->  static int sg_res_in_use(Sg_fd * sfp);
-> -static int sg_ms_to_jif(unsigned int msecs);
-> -static inline unsigned sg_jif_to_ms(int jifs);
->  static int sg_allow_access(unsigned char opcode, char dev_type);
->  static int sg_build_direct(Sg_request * srp, Sg_fd * sfp, int dxfer_len);
->  static Sg_device *sg_get_dev(int dev);
-> @@ -612,7 +610,7 @@
->  			return -EBUSY;	/* reserve buffer already being used */
->  		}
->  	}
-> -	timeout = sg_ms_to_jif(srp->header.timeout);
-> +	timeout = msecs_to_jiffies(srp->header.timeout);
->  	if ((!hp->cmdp) || (hp->cmd_len < 6) || (hp->cmd_len > sizeof (cmnd))) {
->  		sg_remove_request(sfp, srp);
->  		return -EMSGSIZE;
-> @@ -929,7 +927,7 @@
->  					    srp->header.driver_status;
->  					rinfo[val].duration =
->  					    srp->done ? srp->header.duration :
-> -					    sg_jif_to_ms(
-> +					    jiffies_to_msecs(
->  						jiffies - srp->header.duration);
->  					rinfo[val].orphan = srp->orphan;
->  					rinfo[val].sg_io_owned = srp->sg_io_owned;
-> @@ -1251,7 +1249,7 @@
->  	srp->header.resid = SCpnt->resid;
->  	/* N.B. unit of duration changes here from jiffies to millisecs */
->  	srp->header.duration =
-> -	    sg_jif_to_ms(jiffies - (int) srp->header.duration);
-> +	    jiffies_to_msecs(jiffies - srp->header.duration);
->  	if (0 != SRpnt->sr_result) {
->  		memcpy(srp->sense_b, SRpnt->sr_sense_buffer,
->  		       sizeof (srp->sense_b));
-> @@ -2575,30 +2573,6 @@
->  	free_pages((unsigned long) buff, order);
->  }
->  
-> -static int
-> -sg_ms_to_jif(unsigned int msecs)
-> -{
-> -	if ((UINT_MAX / 2U) < msecs)
-> -		return INT_MAX;	/* special case, set largest possible */
-> -	else
-> -		return ((int) msecs <
-> -			(INT_MAX / 1000)) ? (((int) msecs * HZ) / 1000)
-> -		    : (((int) msecs / 1000) * HZ);
-> -}
-> -
-> -static inline unsigned
-> -sg_jif_to_ms(int jifs)
-> -{
-> -	if (jifs <= 0)
-> -		return 0U;
-> -	else {
-> -		unsigned int j = (unsigned int) jifs;
-> -		return (j <
-> -			(UINT_MAX / 1000)) ? ((j * 1000) / HZ) : ((j / HZ) *
-> -								  1000);
-> -	}
-> -}
-> -
->  static unsigned char allow_ops[] = { TEST_UNIT_READY, REQUEST_SENSE,
->  	INQUIRY, READ_CAPACITY, READ_BUFFER, READ_6, READ_10, READ_12,
->  	MODE_SENSE, MODE_SENSE_10, LOG_SENSE
-> @@ -2961,7 +2935,7 @@
->  	for (k = 0; (fp = sg_get_nth_sfp(sdp, k)); ++k) {
->  		seq_printf(s, "   FD(%d): timeout=%dms bufflen=%d "
->  			   "(res)sgat=%d low_dma=%d\n", k + 1,
-> -			   sg_jif_to_ms(fp->timeout),
-> +			   jiffies_to_msecs(fp->timeout),
->  			   fp->reserve.bufflen,
->  			   (int) fp->reserve.k_use_sg,
->  			   (int) fp->low_dma);
-> @@ -2997,8 +2971,8 @@
->  				seq_printf(s, " dur=%d", hp->duration);
->  			else
->  				seq_printf(s, " t_o/elap=%d/%d",
-> -				  new_interface ? hp->timeout : sg_jif_to_ms(fp->timeout),
-> -				  sg_jif_to_ms(hp->duration ? (jiffies - hp->duration) : 0));
-> +				  new_interface ? hp->timeout : jiffies_to_msecs(fp->timeout),
-> +				  jiffies_to_msecs(hp->duration ? (jiffies - hp->duration) : 0));
->  			seq_printf(s, "ms sgat=%d op=0x%02x\n", usg,
->  				   (int) srp->data.cmd_opcode);
->  		}
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+So I basically propose the same way - but unified from the bl/lcd driver
+perspective: bl/lcd looks at the framebuffer device structure and decides
+if it corresponds to the respective device or not. But this operation is
+initiated by the framebuffer device, not by bl/lcd, since the bl/lcd
+infrastructure already has a list of all bl/lcd drivers.
 
+--
+Greetings,
+   Andrew

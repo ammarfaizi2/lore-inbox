@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbULZPet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbULZPhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbULZPet (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 10:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbULZPeT
+	id S261684AbULZPhV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 10:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbULZPg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 10:34:19 -0500
-Received: from coderock.org ([193.77.147.115]:33248 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261674AbULZPdK (ORCPT
+	Sun, 26 Dec 2004 10:36:56 -0500
+Received: from coderock.org ([193.77.147.115]:34016 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261675AbULZPdR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 10:33:10 -0500
-Subject: [patch 6/6] delete unused file
+	Sun, 26 Dec 2004 10:33:17 -0500
+Subject: [patch 5/6] delete unused file
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org
 From: domen@coderock.org
-Date: Sun, 26 Dec 2004 16:33:12 +0100
-Message-Id: <20041226153257.0F3501F126@trashy.coderock.org>
+Date: Sun, 26 Dec 2004 16:33:08 +0100
+Message-Id: <20041226153253.3C9301F125@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -25,99 +25,423 @@ Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj/include/linux/byteorder/pdp_endian.h |   88 --------------------------------
- 1 files changed, 88 deletions(-)
+ kj/drivers/pcmcia/au1000_pb1x00.c |  412 --------------------------------------
+ 1 files changed, 412 deletions(-)
 
-diff -L include/linux/byteorder/pdp_endian.h -puN include/linux/byteorder/pdp_endian.h~remove_file-include_linux_byteorder_pdp_endian.h /dev/null
---- kj/include/linux/byteorder/pdp_endian.h
+diff -L drivers/pcmcia/au1000_pb1x00.c -puN drivers/pcmcia/au1000_pb1x00.c~remove_file-drivers_pcmcia_au1000_pb1x00.c /dev/null
+--- kj/drivers/pcmcia/au1000_pb1x00.c
 +++ /dev/null	2004-12-24 01:21:08.000000000 +0100
-@@ -1,88 +0,0 @@
--#ifndef _LINUX_BYTEORDER_PDP_ENDIAN_H
--#define _LINUX_BYTEORDER_PDP_ENDIAN_H
--
+@@ -1,412 +0,0 @@
 -/*
-- * Could have been named NUXI-endian, but we use the same name as in glibc.
-- * hopefully only the PDP and its evolutions (old VAXen in compatibility mode)
-- * should ever use this braindead byteorder.
-- * This file *should* work, but has not been tested.
 - *
-- * little-endian is 1234; big-endian is 4321; nuxi/pdp-endian is 3412
+- * Alchemy Semi Pb1x00 boards specific pcmcia routines.
 - *
-- * I thought vaxen were NUXI-endian, but was told they were correct-endian
-- * (little-endian), though indeed there existed NUXI-endian machines
-- * (DEC PDP-11 and old VAXen in compatibility mode).
-- * This makes this file a bit useless, but as a proof-of-concept.
+- * Copyright 2002 MontaVista Software Inc.
+- * Author: MontaVista Software, Inc.
+- *         	ppopov@mvista.com or source@mvista.com
 - *
-- * But what does a __u64 look like: is it 34127856 or 78563412 ???
-- * I don't dare imagine! Hence, no 64-bit byteorder support yet.
-- * Hopefully, there 64-bit pdp-endian support shouldn't ever be required.
+- * ########################################################################
 - *
+- *  This program is free software; you can distribute it and/or modify it
+- *  under the terms of the GNU General Public License (Version 2) as
+- *  published by the Free Software Foundation.
+- *
+- *  This program is distributed in the hope it will be useful, but WITHOUT
+- *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+- *  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+- *  for more details.
+- *
+- *  You should have received a copy of the GNU General Public License along
+- *  with this program; if not, write to the Free Software Foundation, Inc.,
+- *  59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
 - */
+-#include <linux/module.h>
+-#include <linux/init.h>
+-#include <linux/delay.h>
+-#include <linux/ioport.h>
+-#include <linux/kernel.h>
+-#include <linux/tqueue.h>
+-#include <linux/timer.h>
+-#include <linux/mm.h>
+-#include <linux/proc_fs.h>
+-#include <linux/types.h>
 -
--#ifndef __PDP_ENDIAN
--#define __PDP_ENDIAN 3412
+-#include <pcmcia/version.h>
+-#include <pcmcia/cs_types.h>
+-#include <pcmcia/cs.h>
+-#include <pcmcia/ss.h>
+-#include <pcmcia/bulkmem.h>
+-#include <pcmcia/cistpl.h>
+-#include <pcmcia/bus_ops.h>
+-#include "cs_internal.h"
+-
+-#include <asm/io.h>
+-#include <asm/irq.h>
+-#include <asm/system.h>
+-
+-#include <asm/au1000.h>
+-#include <asm/au1000_pcmcia.h>
+-
+-#define debug(fmt, arg...) do { } while (0)
+-
+-#ifdef CONFIG_MIPS_PB1000
+-#include <asm/pb1000.h>
+-#define PCMCIA_IRQ AU1000_GPIO_15
+-#elif defined (CONFIG_MIPS_PB1500)
+-#include <asm/pb1500.h>
+-#define PCMCIA_IRQ AU1000_GPIO_11   /* fixme */
+-#elif defined (CONFIG_MIPS_PB1100)
+-#include <asm/pb1100.h>
+-#define PCMCIA_IRQ AU1000_GPIO_11
 -#endif
--#ifndef __PDP_ENDIAN_BITFIELD
--#define __PDP_ENDIAN_BITFIELD
+-
+-static int pb1x00_pcmcia_init(struct pcmcia_init *init)
+-{
+-#ifdef CONFIG_MIPS_PB1000
+-	u16 pcr;
+-	pcr = PCR_SLOT_0_RST | PCR_SLOT_1_RST;
+-
+-	au_writel(0x8000, PB1000_MDR); /* clear pcmcia interrupt */
+-	au_sync_delay(100);
+-	au_writel(0x4000, PB1000_MDR); /* enable pcmcia interrupt */
+-	au_sync();
+-
+-	pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,0);
+-	pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,1);
+-	au_writel(pcr, PB1000_PCR);
+-	au_sync_delay(20);
+-	  
+-	return PCMCIA_NUM_SOCKS;
+-
+-#else /* fixme -- take care of the Pb1500 at some point */
+-
+-	u16 pcr;
+-	pcr = au_readw(PB1100_MEM_PCMCIA) & ~0xf; /* turn off power */
+-	pcr &= ~(PB1100_PC_DEASSERT_RST | PB1100_PC_DRV_EN);
+-	au_writew(pcr, PB1100_MEM_PCMCIA);
+-	au_sync_delay(500);
+-	return PCMCIA_NUM_SOCKS;
+-#endif
+-}
+-
+-static int pb1x00_pcmcia_shutdown(void)
+-{
+-#ifdef CONFIG_MIPS_PB1000
+-	u16 pcr;
+-	pcr = PCR_SLOT_0_RST | PCR_SLOT_1_RST;
+-	pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,0);
+-	pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,1);
+-	au_writel(pcr, PB1000_PCR);
+-	au_sync_delay(20);
+-	return 0;
+-#else
+-	u16 pcr;
+-	pcr = au_readw(PB1100_MEM_PCMCIA) & ~0xf; /* turn off power */
+-	pcr &= ~(PB1100_PC_DEASSERT_RST | PB1100_PC_DRV_EN);
+-	au_writew(pcr, PB1100_MEM_PCMCIA);
+-	au_sync_delay(2);
+-	return 0;
+-#endif
+-}
+-
+-static int 
+-pb1x00_pcmcia_socket_state(unsigned sock, struct pcmcia_state *state)
+-{
+-	u32 inserted0, inserted1;
+-	u16 vs0, vs1;
+-
+-#ifdef CONFIG_MIPS_PB1000
+-	vs0 = vs1 = (u16)au_readl(PB1000_ACR1);
+-	inserted0 = !(vs0 & (ACR1_SLOT_0_CD1 | ACR1_SLOT_0_CD2));
+-	inserted1 = !(vs1 & (ACR1_SLOT_1_CD1 | ACR1_SLOT_1_CD2));
+-	vs0 = (vs0 >> 4) & 0x3;
+-	vs1 = (vs1 >> 12) & 0x3;
+-#else
+-	vs0 = (au_readw(PB1100_BOARD_STATUS) >> 4) & 0x3;
+-	inserted0 = !((au_readl(SYS_PINSTATERD) >> 9) & 0x1); /* gpio 9 */
 -#endif
 -
--#include <linux/byteorder/swab.h>
--#include <linux/byteorder/swabb.h>
+-	state->ready = 0;
+-	state->vs_Xv = 0;
+-	state->vs_3v = 0;
+-	state->detect = 0;
 -
--#define __constant_htonl(x) ___constant_swahb32((x))
--#define __constant_ntohl(x) ___constant_swahb32((x))
--#define __constant_htons(x) ___constant_swab16((x))
--#define __constant_ntohs(x) ___constant_swab16((x))
--#define __constant_cpu_to_le64(x) I DON'T KNOW
--#define __constant_le64_to_cpu(x) I DON'T KNOW
--#define __constant_cpu_to_le32(x) ___constant_swahw32((x))
--#define __constant_le32_to_cpu(x) ___constant_swahw32((x))
--#define __constant_cpu_to_le16(x) ((__u16)(x)
--#define __constant_le16_to_cpu(x) ((__u16)(x)
--#define __constant_cpu_to_be64(x) I DON'T KNOW
--#define __constant_be64_to_cpu(x) I DON'T KNOW
--#define __constant_cpu_to_be32(x) ___constant_swahb32((x))
--#define __constant_be32_to_cpu(x) ___constant_swahb32((x))
--#define __constant_cpu_to_be16(x) ___constant_swab16((x))
--#define __constant_be16_to_cpu(x) ___constant_swab16((x))
--#define __cpu_to_le64(x) I DON'T KNOW
--#define __le64_to_cpu(x) I DON'T KNOW
--#define __cpu_to_le32(x) ___swahw32((x))
--#define __le32_to_cpu(x) ___swahw32((x))
--#define __cpu_to_le16(x) ((__u16)(x)
--#define __le16_to_cpu(x) ((__u16)(x)
--#define __cpu_to_be64(x) I DON'T KNOW
--#define __be64_to_cpu(x) I DON'T KNOW
--#define __cpu_to_be32(x) __swahb32((x))
--#define __be32_to_cpu(x) __swahb32((x))
--#define __cpu_to_be16(x) __swab16((x))
--#define __be16_to_cpu(x) __swab16((x))
--#define __cpu_to_le64p(x) I DON'T KNOW
--#define __le64_to_cpup(x) I DON'T KNOW
--#define __cpu_to_le32p(x) ___swahw32p((x))
--#define __le32_to_cpup(x) ___swahw32p((x))
--#define __cpu_to_le16p(x) (*(__u16*)(x))
--#define __le16_to_cpup(x) (*(__u16*)(x))
--#define __cpu_to_be64p(x) I DON'T KNOW
--#define __be64_to_cpup(x) I DON'T KNOW
--#define __cpu_to_be32p(x) __swahb32p((x))
--#define __be32_to_cpup(x) __swahb32p((x))
--#define __cpu_to_be16p(x) __swab16p((x))
--#define __be16_to_cpup(x) __swab16p((x))
--#define __cpu_to_le64s(x) I DON'T KNOW
--#define __le64_to_cpus(x) I DON'T KNOW
--#define __cpu_to_le32s(x) ___swahw32s((x))
--#define __le32_to_cpus(x) ___swahw32s((x))
--#define __cpu_to_le16s(x) do {} while (0)
--#define __le16_to_cpus(x) do {} while (0)
--#define __cpu_to_be64s(x) I DON'T KNOW
--#define __be64_to_cpus(x) I DON'T KNOW
--#define __cpu_to_be32s(x) __swahb32s((x))
--#define __be32_to_cpus(x) __swahb32s((x))
--#define __cpu_to_be16s(x) __swab16s((x))
--#define __be16_to_cpus(x) __swab16s((x))
+-	if (sock == 0) {
+-		if (inserted0) {
+-			switch (vs0) {
+-				case 0:
+-				case 2:
+-					state->vs_3v=1;
+-					break;
+-				case 3: /* 5V */
+-					break;
+-				default:
+-					/* return without setting 'detect' */
+-					printk(KERN_ERR "pb1x00 bad VS (%d)\n",
+-							vs0);
+-					return;
+-			}
+-			state->detect = 1;
+-		}
+-	}
+-	else  {
+-		if (inserted1) {
+-			switch (vs1) {
+-				case 0:
+-				case 2:
+-					state->vs_3v=1;
+-					break;
+-				case 3: /* 5V */
+-					break;
+-				default:
+-					/* return without setting 'detect' */
+-					printk(KERN_ERR "pb1x00 bad VS (%d)\n",
+-							vs1);
+-					return;
+-			}
+-			state->detect = 1;
+-		}
+-	}
 -
--#include <linux/byteorder/generic.h>
+-	if (state->detect) {
+-		state->ready = 1;
+-	}
 -
--#endif /* _LINUX_BYTEORDER_PDP_ENDIAN_H */
+-	state->bvd1=1;
+-	state->bvd2=1;
+-	state->wrprot=0; 
+-	return 1;
+-}
+-
+-
+-static int pb1x00_pcmcia_get_irq_info(struct pcmcia_irq_info *info)
+-{
+-
+-	if(info->sock > PCMCIA_MAX_SOCK) return -1;
+-
+-	/*
+-	 * Even in the case of the Pb1000, both sockets are connected
+-	 * to the same irq line.
+-	 */
+-	info->irq = PCMCIA_IRQ;
+-
+-	return 0;
+-}
+-
+-
+-static int 
+-pb1x00_pcmcia_configure_socket(const struct pcmcia_configure *configure)
+-{
+-	u16 pcr;
+-
+-	if(configure->sock > PCMCIA_MAX_SOCK) return -1;
+-
+-#ifdef CONFIG_MIPS_PB1000
+-	pcr = au_readl(PB1000_PCR);
+-
+-	if (configure->sock == 0) {
+-		pcr &= ~(PCR_SLOT_0_VCC0 | PCR_SLOT_0_VCC1 | 
+-				PCR_SLOT_0_VPP0 | PCR_SLOT_0_VPP1);
+-	}
+-	else  {
+-		pcr &= ~(PCR_SLOT_1_VCC0 | PCR_SLOT_1_VCC1 | 
+-				PCR_SLOT_1_VPP0 | PCR_SLOT_1_VPP1);
+-	}
+-
+-	pcr &= ~PCR_SLOT_0_RST;
+-	debug("Vcc %dV Vpp %dV, pcr %x\n", 
+-			configure->vcc, configure->vpp, pcr);
+-	switch(configure->vcc){
+-		case 0:  /* Vcc 0 */
+-			switch(configure->vpp) {
+-				case 0:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_GND,
+-							configure->sock);
+-					break;
+-				case 12:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_12V,
+-							configure->sock);
+-					break;
+-				case 50:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_5V,
+-							configure->sock);
+-					break;
+-				case 33:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_3V,
+-							configure->sock);
+-					break;
+-				default:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,
+-							configure->sock);
+-					printk("%s: bad Vcc/Vpp (%d:%d)\n", 
+-							__FUNCTION__, 
+-							configure->vcc, 
+-							configure->vpp);
+-					break;
+-			}
+-			break;
+-		case 50: /* Vcc 5V */
+-			switch(configure->vpp) {
+-				case 0:
+-					pcr |= SET_VCC_VPP(VCC_5V,VPP_GND,
+-							configure->sock);
+-					break;
+-				case 50:
+-					pcr |= SET_VCC_VPP(VCC_5V,VPP_5V,
+-							configure->sock);
+-					break;
+-				case 12:
+-					pcr |= SET_VCC_VPP(VCC_5V,VPP_12V,
+-							configure->sock);
+-					break;
+-				case 33:
+-					pcr |= SET_VCC_VPP(VCC_5V,VPP_3V,
+-							configure->sock);
+-					break;
+-				default:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,
+-							configure->sock);
+-					printk("%s: bad Vcc/Vpp (%d:%d)\n", 
+-							__FUNCTION__, 
+-							configure->vcc, 
+-							configure->vpp);
+-					break;
+-			}
+-			break;
+-		case 33: /* Vcc 3.3V */
+-			switch(configure->vpp) {
+-				case 0:
+-					pcr |= SET_VCC_VPP(VCC_3V,VPP_GND,
+-							configure->sock);
+-					break;
+-				case 50:
+-					pcr |= SET_VCC_VPP(VCC_3V,VPP_5V,
+-							configure->sock);
+-					break;
+-				case 12:
+-					pcr |= SET_VCC_VPP(VCC_3V,VPP_12V,
+-							configure->sock);
+-					break;
+-				case 33:
+-					pcr |= SET_VCC_VPP(VCC_3V,VPP_3V,
+-							configure->sock);
+-					break;
+-				default:
+-					pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,
+-							configure->sock);
+-					printk("%s: bad Vcc/Vpp (%d:%d)\n", 
+-							__FUNCTION__, 
+-							configure->vcc, 
+-							configure->vpp);
+-					break;
+-			}
+-			break;
+-		default: /* what's this ? */
+-			pcr |= SET_VCC_VPP(VCC_HIZ,VPP_HIZ,configure->sock);
+-			printk(KERN_ERR "%s: bad Vcc %d\n", 
+-					__FUNCTION__, configure->vcc);
+-			break;
+-	}
+-
+-	if (configure->sock == 0) {
+-	pcr &= ~(PCR_SLOT_0_RST);
+-		if (configure->reset)
+-		pcr |= PCR_SLOT_0_RST;
+-	}
+-	else {
+-		pcr &= ~(PCR_SLOT_1_RST);
+-		if (configure->reset)
+-			pcr |= PCR_SLOT_1_RST;
+-	}
+-	au_writel(pcr, PB1000_PCR);
+-	au_sync_delay(300);
+-
+-#else
+-
+-	pcr = au_readw(PB1100_MEM_PCMCIA) & ~0xf;
+-
+-	debug("Vcc %dV Vpp %dV, pcr %x, reset %d\n", 
+-			configure->vcc, configure->vpp, pcr, configure->reset);
+-
+-
+-	switch(configure->vcc){
+-		case 0:  /* Vcc 0 */
+-			pcr |= SET_VCC_VPP(0,0);
+-			break;
+-		case 50: /* Vcc 5V */
+-			switch(configure->vpp) {
+-				case 0:
+-					pcr |= SET_VCC_VPP(2,0);
+-					break;
+-				case 50:
+-					pcr |= SET_VCC_VPP(2,1);
+-					break;
+-				case 12:
+-					pcr |= SET_VCC_VPP(2,2);
+-					break;
+-				case 33:
+-				default:
+-					pcr |= SET_VCC_VPP(0,0);
+-					printk("%s: bad Vcc/Vpp (%d:%d)\n", 
+-							__FUNCTION__, 
+-							configure->vcc, 
+-							configure->vpp);
+-					break;
+-			}
+-			break;
+-		case 33: /* Vcc 3.3V */
+-			switch(configure->vpp) {
+-				case 0:
+-					pcr |= SET_VCC_VPP(1,0);
+-					break;
+-				case 12:
+-					pcr |= SET_VCC_VPP(1,2);
+-					break;
+-				case 33:
+-					pcr |= SET_VCC_VPP(1,1);
+-					break;
+-				case 50:
+-				default:
+-					pcr |= SET_VCC_VPP(0,0);
+-					printk("%s: bad Vcc/Vpp (%d:%d)\n", 
+-							__FUNCTION__, 
+-							configure->vcc, 
+-							configure->vpp);
+-					break;
+-			}
+-			break;
+-		default: /* what's this ? */
+-			pcr |= SET_VCC_VPP(0,0);
+-			printk(KERN_ERR "%s: bad Vcc %d\n", 
+-					__FUNCTION__, configure->vcc);
+-			break;
+-	}
+-
+-	au_writew(pcr, PB1100_MEM_PCMCIA);
+-	au_sync_delay(300);
+-
+-	if (!configure->reset) {
+-		pcr |= PB1100_PC_DRV_EN;
+-		au_writew(pcr, PB1100_MEM_PCMCIA);
+-		au_sync_delay(100);
+-		pcr |= PB1100_PC_DEASSERT_RST;
+-		au_writew(pcr, PB1100_MEM_PCMCIA);
+-		au_sync_delay(100);
+-	}
+-	else {
+-		pcr &= ~(PB1100_PC_DEASSERT_RST | PB1100_PC_DRV_EN);
+-		au_writew(pcr, PB1100_MEM_PCMCIA);
+-		au_sync_delay(100);
+-	}
+-#endif
+-	return 0;
+-}
+-
+-struct pcmcia_low_level pb1x00_pcmcia_ops = { 
+-	pb1x00_pcmcia_init,
+-	pb1x00_pcmcia_shutdown,
+-	pb1x00_pcmcia_socket_state,
+-	pb1x00_pcmcia_get_irq_info,
+-	pb1x00_pcmcia_configure_socket
+-};
 _

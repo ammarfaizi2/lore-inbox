@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277541AbRJaAkp>; Tue, 30 Oct 2001 19:40:45 -0500
+	id <S278597AbRJaAzu>; Tue, 30 Oct 2001 19:55:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278189AbRJaAk1>; Tue, 30 Oct 2001 19:40:27 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:60421 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S277541AbRJaAkP>;
-	Tue, 30 Oct 2001 19:40:15 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S278653AbRJaAzk>; Tue, 30 Oct 2001 19:55:40 -0500
+Received: from modem-4092.leopard.dialup.pol.co.uk ([217.135.159.252]:28682
+	"EHLO Mail.MemAlpha.cx") by vger.kernel.org with ESMTP
+	id <S278597AbRJaAzW>; Tue, 30 Oct 2001 19:55:22 -0500
+Posted-Date: Wed, 31 Oct 2001 00:51:29 GMT
+Date: Wed, 31 Oct 2001 00:51:29 +0000 (GMT)
+From: Riley Williams <rhw@MemAlpha.cx>
+Reply-To: Riley Williams <rhw@MemAlpha.cx>
+To: Marko Rauhamaa <marko@pacujo.nu>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Need blocking /dev/null
+In-Reply-To: <20011030035221.6E5611FE7D@varmo.pacujo.nu>
+Message-ID: <Pine.LNX.4.21.0110310046000.19579-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15327.18461.543095.591869@cargo.ozlabs.ibm.com>
-Date: Wed, 31 Oct 2001 11:38:53 +1100 (EST)
-To: linux-kernel@vger.kernel.org
-Subject: Re: please revert bogus patch to vmscan.c
-In-Reply-To: <20011030183058.O1340@athlon.random>
-In-Reply-To: <20011030175417.K1340@athlon.random>
-	<XFMail.20011030182326.pochini@shiny.it>
-	<20011030183058.O1340@athlon.random>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli writes:
+Hi Marko.
 
-> On Tue, Oct 30, 2001 at 06:23:26PM +0100, Giuliano Pochini wrote:
-> > 
-> > >> #ifdef ?
-> > >
-> > > yes, but not for ppc, for alpha and all other archs without accessed bit
-> > > provided in hardware (and cached in the tlb).
-> > 
-> > PPCs have that bits. I'm not sure if they are cached in the tbl.
-> 
-> yes, this is why it won't need to define the HAVE_NO_ACCESS_BIT_IN_TLB,
-> only alpha will.  but again I'm not sure if it worth given we just
-> reduced the flush frequency of an order of magnitude.
+> PS Are /dev/null and /dev/zero also redundant?
 
-I don't think it has to do with whether the accessed bit is maintained
-by hardware or by software.  On PPC, we actually maintain the accessed
-and dirty bits in software - we don't use the hardware-maintained
-R (referenced) and C (changed) bits, because they are in the HPTEs
-(the PTEs in the hash table), and it is hard to get back from a linux
-pte value to the corresponding HPTE.  The performance impact of
-maintaining the accessed and dirty bits in software is negligible
-according to the benchmarks I have done, and it is much much simpler
-than trying to use the hardware R and C bits.
+I regularly use both...
 
-Paul.
+ 1. Find a download that doesn't appear where one expected it...
+
+	find / -name "wanted-but-lost-download" 2> /dev/null
+
+ 2. Create a loop-mounted partition to populate as a CD image before
+    burning the CD in question.
+
+	dd if=/dev/zero bs=1048576 count=750 of=/tmp/cd.img
+	mke2fs /tmp/cd.img
+	mount -o loop /tmp/cd.img /img/cd
+
+ 3. Create a loop-mounted partition to populate as a floppy image.
+
+	dd if=/dev/zero bs=1024 count=1440 of=/tmp/floppy.img
+	mke2fs /tmp/floppy.img
+	mount -o loop /tmp/floppy.img /img/floppy
+
+Neither has alternatives that make sense as far as I can see.
+
+Best wishes from Riley.
+

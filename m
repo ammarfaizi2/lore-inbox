@@ -1,107 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267981AbTGOMcK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 08:32:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267557AbTGOMbg
+	id S267686AbTGOMna (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 08:43:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267884AbTGOMlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 08:31:36 -0400
-Received: from mail.convergence.de ([212.84.236.4]:39840 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S267563AbTGOMGN convert rfc822-to-8bit
+	Tue, 15 Jul 2003 08:41:50 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:56962 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S267686AbTGOMhF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 08:06:13 -0400
-Subject: [PATCH 16/17] Update the av7110 DVB driver
-In-Reply-To: <10582716601905@convergence.de>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Tue, 15 Jul 2003 14:21:00 +0200
-Message-Id: <10582716601185@convergence.de>
+	Tue, 15 Jul 2003 08:37:05 -0400
+Date: Tue, 15 Jul 2003 14:51:43 +0200
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] XBox Gaming System subarchitecture.
+Message-ID: <20030715125143.GC759@h55p111.delphi.afb.lu.se>
+References: <20030714124933.GB20708@h55p111.delphi.afb.lu.se> <20030714135948.GA27930@suse.de> <20030714142152.GC20708@h55p111.delphi.afb.lu.se> <20030714142838.GA29413@suse.de> <20030714145429.GD20708@h55p111.delphi.afb.lu.se> <m1ptkcx8tp.fsf@frodo.biederman.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Michael Hunold (LinuxTV.org CVS maintainer) 
-	<hunold@convergence.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1ptkcx8tp.fsf@frodo.biederman.org>
+User-Agent: Mutt/1.5.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *19cPHT-0003Zh-00*Tw5HiYjABZs*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[DVB] - fix DMX_GET_STC to get the msb right
-[DVB] - follow changes in saa7146 driver core, separate some data for DVB-C and DVB-S cards
-diff -uNrwB --new-file linux-2.6.0-test1.work/drivers/media/dvb/ttpci/av7110.c linux-2.6.0-test1.patch/drivers/media/dvb/ttpci/av7110.c
---- linux-2.6.0-test1.work/drivers/media/dvb/ttpci/av7110.c	2003-07-15 10:59:54.000000000 +0200
-+++ linux-2.6.0-test1.patch/drivers/media/dvb/ttpci/av7110.c	2003-07-07 13:28:54.000000000 +0200
-@@ -3257,7 +3258,7 @@
- 	DEB_EE(("av7110: fwstc = %04hx %04hx %04hx %04hx\n",
- 			fwstc[0], fwstc[1], fwstc[2], fwstc[3]));
- 
--	*stc =  (((uint64_t)fwstc[2] & 1) << 32) |
-+	*stc =  (((uint64_t)(~fwstc[2]) & 1) << 32) |
- 		(((uint64_t)fwstc[1])     << 16) | ((uint64_t)fwstc[0]);
- 	*base = 1;
- 
-@@ -4327,6 +4328,9 @@
- 	{ 0, 0 }
- };
- 
-+static struct saa7146_ext_vv av7110_vv_data_st;
-+static struct saa7146_ext_vv av7110_vv_data_c;
-+
- static int av7110_attach (struct saa7146_dev* dev, struct saa7146_pci_extension_data *pci_ext)
- {
- 	struct av7110 *av7110 = NULL;
-@@ -4344,7 +4348,16 @@
- 
- 	DEB_EE(("dev: %p, av7110: %p\n",dev,av7110));
- 
--	if (saa7146_vv_init(dev)) {
-+	/* special case DVB-C: these cards have an analog tuner
-+	   plus need some special handling, so we have separate
-+	   saa7146_ext_vv data for these... */
-+	if (dev->pci->subsystem_vendor == 0x110a) {
-+		ret = saa7146_vv_init(dev, &av7110_vv_data_c);
-+	} else {
-+		ret = saa7146_vv_init(dev, &av7110_vv_data_st);
-+	}
-+	
-+	if ( 0 != ret) {
- 		ERR(("cannot init capture device. skipping.\n"));
- 		kfree(av7110);
- 		return -1;
-@@ -4689,10 +4702,10 @@
- }
- 
- 
--static struct saa7146_ext_vv av7110_vv_data = {
-+static struct saa7146_ext_vv av7110_vv_data_st = {
- 	.inputs		= 1,
- 	.audios 	= 1,
--	.capabilities	= V4L2_CAP_TUNER,
-+	.capabilities	= 0,
- 	.flags		= SAA7146_EXT_SWAP_ODD_EVEN,
- 
- 	.stds		= &standard[0],
-@@ -4703,9 +4716,23 @@
- 	.ioctl		= av7110_ioctl,
- };
- 
-+static struct saa7146_ext_vv av7110_vv_data_c = {
-+	.inputs		= 1,
-+	.audios 	= 1,
-+	.capabilities	= V4L2_CAP_TUNER,
-+	.flags		= 0,
-+
-+	.stds		= &standard[0],
-+	.num_stds	= sizeof(standard)/sizeof(struct saa7146_standard),
-+	.std_callback	= &std_callback, 
-+
-+	.ioctls		= &ioctls[0],
-+	.ioctl		= av7110_ioctl,
-+};
-+
-+
- static struct saa7146_extension av7110_extension = {
- 	.name		= "dvb\0",
--	.ext_vv_data	= &av7110_vv_data,
- 
- 	.module		= THIS_MODULE,
- 	.pci_tbl	= &pci_tbl[0],
+On Tue, Jul 15, 2003 at 06:39:46AM -0600, Eric W. Biederman wrote:
+> Have you tried running memtest86 on the box?  Except when you have more
+> than 2GB memtest86 does not enable paging, so another code sequence can
+> reproduce this bug memtest86 is likely to do it.
 
+That was a very interesting idea... But I guess memtest86 wont be very fun
+without a vga-bios.
 
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

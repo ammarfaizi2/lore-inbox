@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263184AbUCMUbG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 15:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUCMUbG
+	id S263185AbUCMUrc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 15:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263186AbUCMUrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 15:31:06 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:3799 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S263184AbUCMUbF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 15:31:05 -0500
-Date: Sat, 13 Mar 2004 21:25:49 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Arnd Bergmann <arnd@arndb.de>, bunk@fs.tum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1: unknown symbols cauased by remove-more-KERNEL_SYSCALLS.patch
-Message-ID: <20040313212549.A15834@electric-eye.fr.zoreil.com>
-References: <20040310233140.3ce99610.akpm@osdl.org> <200403121014.40889.arnd@arndb.de> <20040312012942.5fd30052.akpm@osdl.org> <200403121035.02977.arnd@arndb.de> <20040312014809.4f2b280e.akpm@osdl.org> <20040312100851.GA12892@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040312100851.GA12892@redhat.com>; from davej@redhat.com on Fri, Mar 12, 2004 at 10:08:51AM +0000
-X-Organisation: Land of Sunshine Inc.
+	Sat, 13 Mar 2004 15:47:32 -0500
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:26586 "HELO
+	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S263185AbUCMUrH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 15:47:07 -0500
+X-qfilter-stat: ok
+X-Analyze: Velop Mail Shield v0.0.4
+Date: Sat, 13 Mar 2004 17:47:03 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: Rick Knight <rick_knight@rlknight.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Intel 536EP Modem
+In-Reply-To: <40536865.5010008@rlknight.com>
+Message-ID: <Pine.LNX.4.58.0403131739450.8351@pervalidus.dyndns.org>
+References: <40536865.5010008@rlknight.com>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@redhat.com> :
-[...]
-> The DVB folks claimed to be working on fixing this up a few weeks back,
-> still not seen any patches though.
+It's a winmodem, so this is off topic here. What you see in the
+sources are things to identify it with lspci etc, not to make
+it work.
 
-Which drivers can be considered to be good examples for the firmware 
-framework ?
+Check
+http://developer.intel.com/design/modems/support/drivers.htm .
+Unfortunately, you get what you pay for. I own such a crap (as
+a backup, because I have ADSL), actually, the 537, and Intel
+doesn't even list drivers for my model (only for the 537EP),
+but I could get them at
+http://linmodems.technion.ac.il/packages/Intel/537/ . And yes,
+there's no 2.6 support, another reason to stay away from such
+winmodems.
 
---
-Ueimor
+On Sat, 13 Mar 2004, Rick Knight wrote:
+
+> I have an Intel 536EP modem I would like to be able to use with linux. I
+> have kernel 2.6.3 installed. I notice that the  modem is detected by the
+> system and several files in the kernel source tree have make reference
+> to it...
+>
+> Is it possible to get this modem to work?
+
+-- 
+http://www.pervalidus.net/contact.html

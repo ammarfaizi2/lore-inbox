@@ -1,38 +1,34 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154325-19799>; Sat, 8 Aug 1998 12:45:42 -0400
-Received: from zero.aec.at ([195.3.98.22]:27178 "HELO zero.aec.at" ident: "qmailr") by vger.rutgers.edu with SMTP id <154407-19799>; Sat, 8 Aug 1998 11:26:58 -0400
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Cc: taral@mail.utexas.edu (Taral), rubini@pop.systemy.it, linux-kernel@vger.rutgers.edu
-Subject: Re: rshaper-1.01, for linux-2.0
-References: <m0z56qq-000aNFC@the-village.bc.nu>
-From: Andi Kleen <ak@muc.de>
-Date: 08 Aug 1998 16:56:13 +0200
-In-Reply-To: alan@lxorguk.ukuu.org.uk's message of Sat, 8 Aug 1998 12:07:55 +0100 (BST)
-Message-ID: <k27m0j5xpu.fsf@zero.aec.at>
-X-Mailer: Gnus v5.4.41/Emacs 20.2
+Received: by vger.rutgers.edu id <154712-14319>; Tue, 11 Aug 1998 08:44:46 -0400
+Received: from gate.guardian.no ([195.1.254.2]:63132 "HELO lucifer.guardian.no" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154872-14319>; Tue, 11 Aug 1998 07:59:37 -0400
+Message-ID: <19980811143934.26903@lucifer.guardian.no>
+Date: Tue, 11 Aug 1998 14:39:34 +0200
+From: Alexander Kjeldaas <astor@guardian.no>
+To: linux-kernel@vger.rutgers.edu
+Subject: Linux Capability FAQ v0.2
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.89i
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-alan@lxorguk.ukuu.org.uk (Alan Cox) writes:
+Linux Capability FAQ v0.2 is available from
 
-> > Actually, if you're clever with the window, you can limit incoming traffic.
-> 
-> Try playing with the window on a UDP session, on a header with IP-AH or
-> IP-ESP present etc. There are fudged ways of emulating receive flow control
-> for tcp - both fiddling with the packets to fake window sizes (dangerous)
-> or dropping some acks (running a model on the receive side to see which frames
-> didnt logically make it through) but nothing will keep the flow right on
-> the receive side the moment someone uses something like NFS or realaudio
-> over it
+ftp://ftp.guardian.no/pub/free/linux/capabilities/capfaq.txt
 
-If Real Audio uses some congestion avoidance algorithm it should be 
-possible to model the conditions that get the sender to slow down.
-SunRPC/NFS uses congestion avoidance so it is possible. One possible
-way would be too simply do the shaping for incoming traffic and wait
-until congestion avoidance on the sender kicks in.
+Changes from v0.1:
 
-Some links for TCP rate control are at http://www.packeteer.com/tcprate/
+  * Added Q6: How can I use capabilities to make sure Mr. Evil Luser
+              (eluser) can't exploit my "suid" programs?
+  * Added Q9: I noticed that the capability.h file lacks some
+              capabilities that are needed to fully emulate 2.0
+              securelevel.  Is there a patch for this?
+  * other questions rewritten + spelling fixes
 
--Andi
+astor
+
+-- 
+ Alexander Kjeldaas, Guardian Networks AS, Trondheim, Norway
+ http://www.guardian.no/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

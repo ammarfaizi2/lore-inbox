@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264208AbRFFWhX>; Wed, 6 Jun 2001 18:37:23 -0400
+	id <S264213AbRFFWkD>; Wed, 6 Jun 2001 18:40:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264212AbRFFWhN>; Wed, 6 Jun 2001 18:37:13 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1438 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S264208AbRFFWg7>;
-	Wed, 6 Jun 2001 18:36:59 -0400
-Date: Wed, 6 Jun 2001 18:36:57 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "David S. Miller" <davem@redhat.com>
-cc: "La Monte H.P. Yarroll" <piggy@em.cig.mot.com>,
-        "Matt D. Robinson" <yakker@alacritech.com>,
-        linux-kernel@vger.kernel.org, sctp-developers-list@cig.mot.com
-Subject: Re: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister
- table
-In-Reply-To: <15134.43914.98253.998655@pizda.ninka.net>
-Message-ID: <Pine.GSO.4.21.0106061832220.10233-100000@weyl.math.psu.edu>
+	id <S264215AbRFFWj5>; Wed, 6 Jun 2001 18:39:57 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:60172 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S264213AbRFFWjr>; Wed, 6 Jun 2001 18:39:47 -0400
+Date: Wed, 6 Jun 2001 15:39:04 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        tytso@mit.edu,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [driver] New life for Serial mice
+In-Reply-To: <20010606220832.A31009@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10106061527580.12135-100000@transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > It would be nice if we had 
+> > 
+> > 1) A seperate serial directory under drivers.
+> > 
+> > 2) A nice structure that input devices and the tty layer can use. It is
+> >    just a waste to go threw the tty layer for input devices. It would also
+> >    make serial driver writing easier if the api is designed right :-) 
+> 
+> I am planning some day (don't know when yet though) to convert the 16x50
+> driver over to the serial_core stuff.
 
-On Wed, 6 Jun 2001, David S. Miller wrote:
+I ported it over to my tree. I will have to figure out how to incorporate
+the input serial stuff without breaking all the input drivers we have. In
+CVS we have alot of them. This will make life so much easier since all I
+will have to do is change one file for changes I make to the tty layer. I
+have improved andrew mortons console patch to work with multiple consoles
+and for different types of console devices. Instead of altering all the 
+console drivers I'm planning on intergrating the locking into the tty
+layer. That patch is needed for serial devices as well as video terminals.
+Your work might help speed up devleopement.
 
-> This allows people to make proprietary implementations of TCP under
-> Linux.  And we don't want this just as we don't want to add a way to
-> allow someone to do a proprietary Linux VM.
+> NB, Ted Tytso mentioned something at the 2.5 conference about integrating
+> some of the serial layer with the tty layer.
 
-	Erm... What stops those who want to do such implementations
-from using AF_PACKET and handling the whole thing in userland?
+What does he have in mind? I like to keep my VT changes in sync with what
+he has in mind.
 

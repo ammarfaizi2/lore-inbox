@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265727AbSLBIsz>; Mon, 2 Dec 2002 03:48:55 -0500
+	id <S261305AbSLBIxx>; Mon, 2 Dec 2002 03:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265732AbSLBIsy>; Mon, 2 Dec 2002 03:48:54 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:60108 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S265727AbSLBIsy>;
-	Mon, 2 Dec 2002 03:48:54 -0500
-Date: Mon, 2 Dec 2002 09:56:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux-kernel@vger.kernel.org, Con Kolivas <conman@kolivas.net>
-Subject: Re: [PATCH] 2.4.20-rmap15a
-Message-ID: <20021202085610.GU16942@suse.de>
-References: <200212012155.30534.m.c.p@wolk-project.de> <Pine.LNX.4.44L.0212011921420.15981-200000@imladris.surriel.com> <20021202081524.GQ16942@suse.de> <3DEB1F2C.E03517D7@digeo.com>
+	id <S261663AbSLBIxx>; Mon, 2 Dec 2002 03:53:53 -0500
+Received: from f130.law3.hotmail.com ([209.185.241.130]:45061 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id <S261305AbSLBIxw>;
+	Mon, 2 Dec 2002 03:53:52 -0500
+X-Originating-IP: [192.115.130.1]
+From: "Nadav Rotem" <nadav256@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 02 Dec 2002 01:01:15 -0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DEB1F2C.E03517D7@digeo.com>
+Content-Type: text/plain; format=flowed
+Message-ID: <F1306u7WP0YpGmx3qmM0001808b@hotmail.com>
+X-OriginalArrivalTime: 02 Dec 2002 09:01:15.0914 (UTC) FILETIME=[5EEDF6A0:01C299E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 02 2002, Andrew Morton wrote:
-> Jens Axboe wrote:
-> > 
-> > On Sun, Dec 01 2002, Rik van Riel wrote:
-> > > > So, here my patch proposal. Ontop of 2.4.20-rmap15a.
-> > >
-> > > Looks good, now lets test it.  If the patch is as needed as you
-> > > say we should push it to marcelo ;)
-> > 
-> > Yes lets for heavens sake not fix the problem, merge the hack.
-> 
-> If it fails to find a merge or insert the current 2.4 elevator
-> will stick a read at the far end of the request queue.  That's
-> quite arbitrary, and is the worst possible thing to do with it.
-> 
-> read-latency2 will put the read a tunable distance from the head.
-> Add a few embellishments to avoid permanent writer starvation,
-> and that's basically all it does.
+to whom it may concern,
 
-I just think that the design of the thing is ugly. It's clamped on to
-the current elevator instead of redoing the core based on the principles
-of read-starvation that it introduces (this is the only good thing that
-has come out of the patch).
+I am having some problems with recent kernels. The SIS DRI module since 
+2.4.18 through 2.4.20 will not compile ^H ^H ^H Link properly. The Error I 
+get is undefined reference to sis_free() and sis_malloc(). I believe it has 
+to do with the dependencies or make file linking with a missing .o file.
 
-> So rather than just keeping on calling it a "hack" could you please
-> describe what is actually wrong with the idea?
+The problem occures whenever I try to compile the module into the kernel ( 
+[*] sis ).
+when I try to compile it as a module it fails when I go through "make 
+modules_install" with the same error.
 
-I've never said that the idea is wrong, it's the solution that is an
-ugly hack.
+The problem is in the Xfree 4.1 DRI driver (I didnt try Xfree 4.0 DRI 
+driver). The regular kernel X sis driver works just fine just with no DRI 
+support.
 
--- 
-Jens Axboe
+I am running Redhat 7.3 - 2.4.18 &&  2.4.20.
+I believe it is not a local problem since I "make clean" or "make mrproper" 
+and I had no problems with compiling older kernels. It also happens on new 
+downloaded kernels. A friend also told me that he had some problems with the 
+Sis module when compiling the frame buffer. I am not sure if it is related 
+but he said that it does produce similar errors. (debian-current)
+
+
+Thanks,
+Nadav
+
+
+
+
+_________________________________________________________________
+Add photos to your e-mail with MSN 8. Get 2 months FREE*. 
+http://join.msn.com/?page=features/featuredemail
 

@@ -1,87 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132947AbRDERjv>; Thu, 5 Apr 2001 13:39:51 -0400
+	id <S132950AbRDERkv>; Thu, 5 Apr 2001 13:40:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132950AbRDERjk>; Thu, 5 Apr 2001 13:39:40 -0400
-Received: from jalon.able.es ([212.97.163.2]:1764 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S132947AbRDERj3>;
-	Thu, 5 Apr 2001 13:39:29 -0400
-Date: Thu, 5 Apr 2001 19:38:40 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Joseph Carter <knghtbrd@debian.org>, Bart Trojanowski <bart@jukie.net>,
-        "'linux-kernel @ vger . kernel . org'" <linux-kernel@vger.kernel.org>
-Subject: Re: asm/unistd.h
-Message-ID: <20010405193840.A5365@werewolf.able.es>
-In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER> <Pine.LNX.4.30.0104050901500.13496-100000@localhost> <20010405072628.C22001@debian.org> <jevgojiew7.fsf@hawking.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <jevgojiew7.fsf@hawking.suse.de>; from schwab@suse.de on Thu, Apr 05, 2001 at 16:45:44 +0200
-X-Mailer: Balsa 1.1.3
+	id <S132953AbRDERkm>; Thu, 5 Apr 2001 13:40:42 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:30726 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S132950AbRDERk0>;
+	Thu, 5 Apr 2001 13:40:26 -0400
+Date: Thu, 05 Apr 2001 19:39:42 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: Looking for a card with working TV-out in linux
+To: linux-fbdev@vuser.vu.union.edu, linux-kernel@vger.kernel.org,
+        linuxconsole-dev@lists.sourceforge.net
+Message-id: <3ACCADDE.2E72B1BE@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.7 [en] (WinNT; U)
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-On 04.05 Andreas Schwab wrote:
-> 
-> Try this and watch your compiler complaining:
-> 
-> #define foo() { }
-> #define bar() do { } while (0)
-> void mumble ()
-> {
->         if (1) foo(); else bar();
->         if (2) bar(); else foo();
-> }
-> 
+I am looking for a gfx card to purchase for use with Linux.
 
-Perhaps it is time to USE gcc, yet the kernel can be built only with gcc.
-IE, use statement expressions.
+Requirements :
+ - working TV-out ( S-Video or composite-video ), I mean really working
+   and supported in linux, not "it works if the BIOS initializes it and
+   Linux doesn't touch it"
+ - video support ( in HW and linux-SW ) is desired ( color space conversion,
+   video overlays and stuff )
+ - PCI interface ( I plan later to multihead with another AGP card and also
+   want to keep the price low )
+ - 3D acceleration welcome ( with XFree86 support ), but not that important
+ - low price :-)
 
-Try this:
+( message posted to linux-fbdev@vu.union.edu, linux-kernel@vger.kernel.org
+  and to linuxconsole-dev@lists.sourceforge.net mail lists , please CC me
+  the replies and excuse me if some of them are inappropriate  )
 
-#define foo() ({ })
-#define bar() do { } while (0)
-void mumble ()
-{
-	if (1) foo(); else bar();
-	if (2) bar(); else foo();
-}
-
-and see you compiler shutup.
-You can even declare vars inside the ({ ... }) block,
-so all the
-
-#define bar(x) do { use_1(x); use_2(x); } while (0)
-
-could be written like:
-
-#define bar(x) ({ use_1(x); use_2(x); })
-
-Even you can use <typeof>:
-
-#define swap(a,b) \
-({ typeof(a) tmp = a; \
-   a = b; \
-   b = tmp; \
-})
-
-int main()
-{
-	int a,b;
-	double c,d;
-	
-	swap(a,b);
-	swap(c,d);
-}
-
-Its correct in egcs-1.1.2 and up, so it is safe for use in kernel 2.4.
-Do not know if previuous gcc eats it up.
 
 -- 
-J.A. Magallon                                          #  Let the source
-mailto:jamagallon@able.es                              #  be with you, Luke... 
-
-Linux werewolf 2.4.3-ac3 #1 SMP Thu Apr 5 00:28:45 CEST 2001 i686
-
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

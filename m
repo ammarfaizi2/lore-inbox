@@ -1,141 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVCaH2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVCaHa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVCaH2g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 02:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262530AbVCaH2c
+	id S262542AbVCaHa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 02:30:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVCaH3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 02:28:32 -0500
-Received: from mail.renesas.com ([202.234.163.13]:42734 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262531AbVCaHXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 02:23:10 -0500
-Date: Thu, 31 Mar 2005 16:23:04 +0900 (JST)
-Message-Id: <20050331.162304.723210008.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, fujiwata@linux-m32r.org,
-       takata@linux-m32r.org
-Subject: [PATCH 2.6.12-rc1-mm3] m32r: build fix for CONFIG_DISCONTIGMEM
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 31 Mar 2005 02:29:09 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:43136 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262539AbVCaH0D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 02:26:03 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Date: Thu, 31 Mar 2005 02:26:02 -0500
+User-Agent: KMail/1.8
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Stefan Seyfried <seife@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Isaacson <adi@hexapodia.org>
+References: <20050329181831.GB8125@elf.ucw.cz> <1112135477.29392.16.camel@desktop.cunningham.myip.net.au> <20050329223519.GI8125@elf.ucw.cz>
+In-Reply-To: <20050329223519.GI8125@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503310226.03495.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes build error for CONFIG_DISCONTIGMEM.
-Please apply.
+On Tuesday 29 March 2005 17:35, Pavel Machek wrote:
+> Hi!
+> 
+> > > We currently freeze processes for suspend-to-ram, too. I guess that
+> > > disable_usermodehelper is probably better and that in_suspend() should
+> > > only be used for sanity checks... go with disable_usermodehelper and
+> > > sorry for the noise.
+> > 
+> > Here's another possibility: Freeze the workqueue that
+> > call_usermodehelper uses (remember that code I didn't push hard enough
+> > to Andrew?), and let invocations of call_usermodehelper block in
+> > TASK_UNINTERRUPTIBLE. In refrigerating processes, don't choke on
+> 
+> There may be many devices in the system, and you are going to need
+> quite a lot of RAM for all that... That's why they do not queue it
+> during boot, IIRC. Disabling usermode helper seems right.
 
-	* arch/m32r/mm/discontig.c: Fix build error for CONFIG_DISCONTIGMEM.
-	* arch/m32r/kernel/setup.c: ditto.
+Ok, what do you think about this one?
 
-	* arch/m32r/mm/discontig.c:
-	- Add topology_init.
-	- Cosmetics: change indentation of comments.
+===================================================================
 
-Thanks,
+swsusp: disable usermodehelper after generating memory snapshot and
+        before resuming devices, so when device fails to resume we
+        won't try to call hotplug - userspace stopped anyway.
 
-Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- arch/m32r/kernel/setup.c |   31 +++++++++++++++++++++++--------
- arch/m32r/mm/discontig.c |    1 +
- 2 files changed, 24 insertions(+), 8 deletions(-)
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
-diff -ruNp a/arch/m32r/kernel/setup.c b/arch/m32r/kernel/setup.c
---- a/arch/m32r/kernel/setup.c	2005-03-31 16:18:18.640005019 +0900
-+++ b/arch/m32r/kernel/setup.c	2005-03-31 16:17:55.848982566 +0900
-@@ -7,8 +7,6 @@
-  *                            Hitoshi Yamamoto
+ include/linux/kmod.h  |    3 +++
+ kernel/kmod.c         |   14 +++++++++++++-
+ kernel/power/disk.c   |    2 ++
+ kernel/power/swsusp.c |    1 -
+ 4 files changed, 18 insertions(+), 2 deletions(-)
+
+Index: dtor/kernel/power/disk.c
+===================================================================
+--- dtor.orig/kernel/power/disk.c
++++ dtor/kernel/power/disk.c
+@@ -205,6 +205,8 @@ int pm_suspend_disk(void)
+ 
+ 	if (in_suspend) {
+ 		pr_debug("PM: writing image.\n");
++		usermodehelper_disable();
++		device_resume();
+ 		error = swsusp_write();
+ 		if (!error)
+ 			power_down(pm_disk_mode);
+Index: dtor/kernel/power/swsusp.c
+===================================================================
+--- dtor.orig/kernel/power/swsusp.c
++++ dtor/kernel/power/swsusp.c
+@@ -853,7 +853,6 @@ static int suspend_prepare_image(void)
+ int swsusp_write(void)
+ {
+ 	int error;
+-	device_resume();
+ 	lock_swapdevices();
+ 	error = write_suspend_image();
+ 	/* This will unlock ignored swap devices since writing is finished */
+Index: dtor/kernel/kmod.c
+===================================================================
+--- dtor.orig/kernel/kmod.c
++++ dtor/kernel/kmod.c
+@@ -124,6 +124,8 @@ struct subprocess_info {
+ 	int retval;
+ };
+ 
++static int usermodehelper_disabled;
++
+ /*
+  * This is the task which runs the usermode application
   */
+@@ -240,7 +242,7 @@ int call_usermodehelper(char *path, char
+ 	if (!khelper_wq)
+ 		return -EBUSY;
  
--/* $Id$ */
--
- #include <linux/config.h>
- #include <linux/init.h>
- #include <linux/stddef.h>
-@@ -24,6 +22,9 @@
- #include <linux/seq_file.h>
- #include <linux/timex.h>
- #include <linux/tty.h>
-+#include <linux/cpu.h>
-+#include <linux/nodemask.h>
-+
- #include <asm/processor.h>
- #include <asm/pgtable.h>
- #include <asm/io.h>
-@@ -52,7 +53,7 @@ struct cpuinfo_m32r boot_cpu_data;
- #ifdef CONFIG_BLK_DEV_RAM
- extern int rd_doload;	/* 1 = load ramdisk, 0 = don't load */
- extern int rd_prompt;	/* 1 = prompt for ramdisk, 0 = don't prompt */
--extern int rd_image_start;  /* starting block # of image */
-+extern int rd_image_start;	/* starting block # of image */
- #endif
+-	if (path[0] == '\0')
++	if (usermodehelper_disabled || path[0] == '\0')
+ 		return 0;
  
- #if defined(CONFIG_VGA_CONSOLE)
-@@ -273,6 +274,21 @@ void __init setup_arch(char **cmdline_p)
- 	paging_init();
+ 	queue_work(khelper_wq, &work);
+@@ -249,6 +251,16 @@ int call_usermodehelper(char *path, char
  }
+ EXPORT_SYMBOL(call_usermodehelper);
  
-+static struct cpu cpu[NR_CPUS];
-+
-+static int __init topology_init(void)
++void usermodehelper_enable(void)
 +{
-+	int cpu_id;
-+
-+	for (cpu_id = 0; cpu_id < NR_CPUS; cpu_id++)
-+		if (cpu_possible(cpu_id))
-+			register_cpu(&cpu[cpu_id], cpu_id, NULL);
-+
-+	return 0;
++	usermodehelper_disabled = 0;
 +}
 +
-+subsys_initcall(topology_init);
++void usermodehelper_disable(void)
++{
++	usermodehelper_disabled = 1;
++}
 +
- #ifdef CONFIG_PROC_FS
- /*
-  *	Get CPU information for use by the procfs.
-@@ -285,7 +301,7 @@ static int show_cpuinfo(struct seq_file 
- #ifdef CONFIG_SMP
- 	if (!cpu_online(cpu))
- 		return 0;
--#endif  /* CONFIG_SMP */
-+#endif	/* CONFIG_SMP */
- 
- 	seq_printf(m, "processor\t: %ld\n", cpu);
- 
-@@ -359,7 +375,7 @@ struct seq_operations cpuinfo_op = {
- 	stop:	c_stop,
- 	show:	show_cpuinfo,
- };
--#endif  /* CONFIG_PROC_FS */
-+#endif	/* CONFIG_PROC_FS */
- 
- unsigned long cpu_initialized __initdata = 0;
- 
-@@ -399,7 +415,6 @@ void __init cpu_init (void)
+ void __init usermodehelper_init(void)
+ {
+ 	khelper_wq = create_singlethread_workqueue("khelper");
+Index: dtor/include/linux/kmod.h
+===================================================================
+--- dtor.orig/include/linux/kmod.h
++++ dtor/include/linux/kmod.h
+@@ -34,7 +34,10 @@ static inline int request_module(const c
  #endif
  
- 	/* Set up ICUIMASK */
--	outl(0x00070000, M32R_ICU_IMASK_PORTL);   /* imask=111 */
-+	outl(0x00070000, M32R_ICU_IMASK_PORTL);		/* imask=111 */
- }
--#endif  /* defined(CONFIG_CHIP_VDEC2) ... */
--
-+#endif	/* defined(CONFIG_CHIP_VDEC2) ... */
-diff -ruNp a/arch/m32r/mm/discontig.c b/arch/m32r/mm/discontig.c
---- a/arch/m32r/mm/discontig.c	2005-03-31 16:18:18.649003632 +0900
-+++ b/arch/m32r/mm/discontig.c	2005-03-31 15:28:45.000000000 +0900
-@@ -11,6 +11,7 @@
- #include <linux/bootmem.h>
- #include <linux/mmzone.h>
- #include <linux/initrd.h>
-+#include <linux/nodemask.h>
+ #define try_then_request_module(x, mod...) ((x) ?: (request_module(mod), (x)))
++
+ extern int call_usermodehelper(char *path, char *argv[], char *envp[], int wait);
+ extern void usermodehelper_init(void);
++extern void usermodehelper_enable(void);
++extern void usermodehelper_disable(void);
  
- #include <asm/setup.h>
- 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+ #endif /* __LINUX_KMOD_H__ */

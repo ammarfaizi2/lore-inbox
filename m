@@ -1,97 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265171AbSLMR0F>; Fri, 13 Dec 2002 12:26:05 -0500
+	id <S261581AbSLMR3c>; Fri, 13 Dec 2002 12:29:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265187AbSLMR0F>; Fri, 13 Dec 2002 12:26:05 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:45316 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265171AbSLMR0B>;
-	Fri, 13 Dec 2002 12:26:01 -0500
-Date: Fri, 13 Dec 2002 09:32:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Andrew Morton <akpm@digeo.com>, lvm-devel@sistina.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: dmfs for 2.5.51
-Message-ID: <20021213173209.GC27800@kroah.com>
-References: <20021213012618.GH23509@kroah.com> <3DF93CC9.979CA988@digeo.com> <20021213052551.GB25099@kroah.com> <20021213095806.GC1117@reti>
+	id <S265187AbSLMR3c>; Fri, 13 Dec 2002 12:29:32 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:59016 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261581AbSLMR3a>;
+	Fri, 13 Dec 2002 12:29:30 -0500
+Date: Fri, 13 Dec 2002 17:36:56 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Valdis.Kletnieks@vt.edu
+Cc: Petr Konecny <pekon@informatics.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.5[01]]: Xircom Cardbus broken (PCI resource collisions)
+Message-ID: <20021213173656.GC1633@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Valdis.Kletnieks@vt.edu, Petr Konecny <pekon@informatics.muni.cz>,
+	linux-kernel@vger.kernel.org
+References: <200212131345.gBDDjw27002677@turing-police.cc.vt.edu> <200212131633.gBDGX0617899@anxur.fi.muni.cz> <200212131718.gBDHIw27008173@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021213095806.GC1117@reti>
+In-Reply-To: <200212131718.gBDHIw27008173@turing-police.cc.vt.edu>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 09:58:06AM +0000, Joe Thornber wrote:
-> On Thu, Dec 12, 2002 at 09:25:51PM -0800, Greg KH wrote:
-> > On Thu, Dec 12, 2002 at 05:50:01PM -0800, Andrew Morton wrote:
-> > > hm.  The whole thing seems hokey to me.  Not sure why.
-> > 
-> > I agree.  It doesn't feel right.  I mean, doing a mkdir(1) to create a
-> > device, which causes files to be created automagically in that
-> > directory?  Something needs to change here, and I proposed a single file
-> > to write to that creates the device, but was shot down by the author.
-> 
-> Greg, I didn't mean to make it sound like I was shooting you down, I
-> just said that we'd leave it as it was for now.
+On Fri, Dec 13, 2002 at 12:18:58PM -0500, Valdis.Kletnieks@vt.edu wrote:
+ > On Fri, 13 Dec 2002 17:33:00 +0100, Petr Konecny <pekon@informatics.muni.cz>  said:
+ > > > I see why the if/continue was added - you don't want to be
+ > > > calling device_register()/pci_insert_device() if
+ > > > pci_enable_device() loses.  I don't see why 2.5.50 moved the
+ > > > code up after pci_setup_device(). There's an outside chance
+ > > > that the concept of moving the call was correct, but that it
+ > > > should have been moved to between the calls to
+ > > > pci_assign_resource() and pci_readb().  If that's the case,
+ > > > then you're correct as well....
+ > > I can confirm that this indeed works. I moved the two lines before
+ > > pci_readb and the card works (every character you now read went through
+ > > it). Who shall submit a patch to Linus ?
+ > 
+ > The problem is this from the 2.5.50 Changelog that Linus posted:
+ > 
+ > Dave Jones <davej@suse.de>:
+ > ...
+ >   o make cardbus PCI enable earlier
+ > 
+ > I'm willing to submit a patch, but I think Dave has to make the call whether
+ > it should be backed out entirely, or moved after pci_assign_resource().
+ > I certainly don't understand the code *or* PCI well enough to decide between
+ > those two option...
 
-Sorry, I didn't mean it that way.  I understand and was trying to reach
-more people.  Looks like I succeded :)
+It's my understanding that pci_enable_device() *must* be called
+before we fiddle with dev->resource, dev->irq and the like.
 
-> Having written the
-> code I wanted a bit more feedback.  When I started writing the fs
-> interface a couple of people expressed concerns that I should try and
-> map things properly onto fs semantics and not just create a single
-> file.  Given Andrews comment I guess I haven't done a good job.  Could
-> you flesh out your single file idea a bit more please, there's a lot
-> of functionality to shoe horn in there.
+		Dave
 
-Ok, I'll go work on that and see how it turns out.
-
-> > > > ...
-> > > > +  echo -e "0 56 linear /dev/hda3 0\n56 102344 linear /dev/hda4 0" > table
-> > > 
-> > > Maybe this is why.
-> > 
-> > Heh, yeah, welcome to parsers in the kernel :)
-> > But the dm code today does much the same thing with ioctls, passing a
-> > string down to the loaded modules below it.  So there is a bit of
-> > president.  Even if it is ugly :)
-> 
-> y, the dm targets have always accepted their arguments as ascii
-> strings.  So the file system interface just adds code to split the
-> input into lines, and then sscanf the first three elements of the line
-> - this is probably less code than the marshalling of binary data that
-> is done in the ioctl interface.
-> 
-> I see the fact that we're using ascii data as being the big advantage
-> of the fs interface, which neccessarily means doing a small amount of
-> parsing in kernel.  You can't have things both ways.
-
-I agree, I like the interface.  It's just a little strange the first
-time you see it.
-
-> > > > ...
-> > > > +static struct page *find_page(struct dmfs_file *f, loff_t len, int fill)
-> > > 
-> > > This is called under spinlock.
-> > > 
-> > > > ...
-> > > > +                       void *addr = (void *) __get_free_page(GFP_KERNEL);
-> > > 
-> > > whoops.
-> 
-> My fault :(
-> 
-> > Nice catch.  I'm not sure that the find_page(), __io() and friends
-> > functions are really needed at all.
-> 
-> It would be nice to get rid of them, what shall we replace them with ?
-
-Something like only creating one page as I did in the dev file, or the
-seq_file interface.  I'll play around with the sizes of the files to see
-how to fix this up.
-
-thanks,
-
-greg k-h
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

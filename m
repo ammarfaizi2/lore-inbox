@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130575AbRAZTZn>; Fri, 26 Jan 2001 14:25:43 -0500
+	id <S129299AbRAZTbY>; Fri, 26 Jan 2001 14:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131388AbRAZTZd>; Fri, 26 Jan 2001 14:25:33 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:59638 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S130575AbRAZTZS>; Fri, 26 Jan 2001 14:25:18 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101261924.f0QJOWH15609@webber.adilger.net>
-Subject: Re: Renaming lost+found
-In-Reply-To: <20010126141350.Q6979@capsi.com> from Rob Kaper at "Jan 26, 2001
- 02:13:50 pm"
-To: Rob Kaper <cap@capsi.com>
-Date: Fri, 26 Jan 2001 12:24:32 -0700 (MST)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S129400AbRAZTbN>; Fri, 26 Jan 2001 14:31:13 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:61154 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129299AbRAZTbC>;
+	Fri, 26 Jan 2001 14:31:02 -0500
+Date: Fri, 26 Jan 2001 14:43:06 -0500 (EST)
+From: Chris Meadors <clubneon@hereintown.net>
+To: Daniel Chemko <dchemko@intrinsyc.com>
+cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <3A72074E.2115A9CE@intrinsyc.com>
+Message-ID: <Pine.LNX.4.31.0101261438300.30912-100000@rc.priv.hereintown.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Kaper writes:
-> Is there a way to rename lost+found ?? It bothers me to see it in ls all the
-> time because 99.9% of my time it's just useless and I really think
-> .lost+found (a hidden file) would make much more sense for daily use. I
-> assume this would require some ext2 changes as well as a patch to e2fsck
-> etc. (with backwards compatibility of course)
+On Fri, 26 Jan 2001, Daniel Chemko wrote:
 
-You could also just delete it, but then you run into problems when e2fsck
-is run on a broken filesystem.  Use ext3 instead.  The lost+found dir is
-in many (most?) Unix filesystems, for use when things go bad.
+> Microsoft are bad for dropping ICMP because of security.. .I mean try pinging
+> microsoft.com...
 
-You _could_ change it to be a hidden file, but then you would have to
-remember where it was after e2fsck moves half of your files into it
-after a crash.  It probably wouldn't be too much work to change e2fsck.
-You also need to change mke2fs and mklost+found as well.
+It's down, ha ha, Microsoft is down!  I'm joking of course.  But you don't
+know how many times my techs have told me that.  It's either that, or
+something is seeming a little strange on our network, and to trouble
+shoot, they ping microsoft.com and don't get a responce.  Then they call
+me at home, to tell me that our T1s are down.
 
-Cheers, Andreas
+I wonder how much bandwidth was used up by people pinging MS to trouble
+shoot when they still allowed ICMP packets through.
+
+-Chris
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Two penguins were walking on an iceberg.  The first penguin said to the
+second, "you look like you are wearing a tuxedo."  The second penguin
+said, "I might be..."                         --David Lynch, Twin Peaks
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

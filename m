@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131562AbRDBX5V>; Mon, 2 Apr 2001 19:57:21 -0400
+	id <S131666AbRDCAAL>; Mon, 2 Apr 2001 20:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRDBX5L>; Mon, 2 Apr 2001 19:57:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:41734 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131562AbRDBX47>;
-	Mon, 2 Apr 2001 19:56:59 -0400
-Date: Tue, 3 Apr 2001 01:53:30 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andi Kleen <ak@suse.de>, "J . A . Magallon" <jamagallon@able.es>,
-   linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] multiline string cleanup
-Message-ID: <20010403015330.A31118@gruyere.muc.suse.de>
-In-Reply-To: <20010330234804.A27780@werewolf.able.es> <oupd7avyng5.fsf@pigdrop.muc.suse.de> <3AC9102C.D053506F@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S131573AbRDCAAC>; Mon, 2 Apr 2001 20:00:02 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:58578 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131586AbRDBX74>;
+	Mon, 2 Apr 2001 19:59:56 -0400
+Message-ID: <3AC91253.34E3C9DA@mandrakesoft.com>
+Date: Mon, 02 Apr 2001 19:59:15 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-20mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Douglas Gilbert <dougg@torque.net>, Peter Daum <gator@cs.tu-berlin.de>,
+   linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: scsi bus numbering
+In-Reply-To: <200104022050.f32KoRs93074@aslan.scsiguy.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AC9102C.D053506F@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Apr 02, 2001 at 07:50:04PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 02, 2001 at 07:50:04PM -0400, Jeff Garzik wrote:
-> Andi Kleen wrote:
-> > "J . A . Magallon" <jamagallon@able.es> writes:
-> > > This is one other try to make kernel sources gcc-3.0 friendly. This cleans
-> > > some muti-line asm strings in checksum.h and floppy.h (this were the only
-> > > ones reported in my kernel build, perhaps there are more in drivers I do
-> > > not use).
-> 
-> > I surely hope the gcc guys will just remove that silly warning again, because
-> > it makes it impossible to write readable inline assembly now.
-> 
-> If it's a silly warning, then we should turn it off in linux/Makefile. 
-> I dunno that the kernel can dictate to gcc here what to do...
+"Justin T. Gibbs" wrote:
+> It is bogus that this stuff depends on link order to function
+> correctly.
 
-It unfortunately cannot be turned off ATM (it is "deprecation warning" where
-someone is trying to warn you that the next release of gcc may not support
-multi line strings anymore). 
+No, it is simply one more rule, and one that is not immediately
+obvious.  Take heart though.  Like Rolaids, 2.5's updated makefile
+system will bring relief...
 
-> Also some multiline string cleanups have already made it into the kernel
-> -- though that is not conclusive, as it may just be maintainer
-> preference.
+Make sure to add a comment, when you update the 2.4 makefile where link
+order is significant.  (as it is not, in all cases)
 
-Longer inline assembly without multi strings is hard to read and very nasty
-to edit, so I don't see that as a "cleanup", but as a pessimization towards
-less maintainable code.
-
-
--Andi
-
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279842AbRK0Oor>; Tue, 27 Nov 2001 09:44:47 -0500
+	id <S279902AbRK0OrF>; Tue, 27 Nov 2001 09:47:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279902AbRK0Oof>; Tue, 27 Nov 2001 09:44:35 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:63239 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S279842AbRK0OoV>;
-	Tue, 27 Nov 2001 09:44:21 -0500
-Message-ID: <XFMail.20011127154132.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S279903AbRK0Oq6>; Tue, 27 Nov 2001 09:46:58 -0500
+Received: from femail30.sdc1.sfba.home.com ([24.254.60.20]:5624 "EHLO
+	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S279902AbRK0Oqv>; Tue, 27 Nov 2001 09:46:51 -0500
+Message-ID: <3C03A702.EBE823C9@ecf.utoronto.ca>
+Date: Tue, 27 Nov 2001 09:45:22 -0500
+From: Mark Richards <richard@ecf.utoronto.ca>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
-Date: Tue, 27 Nov 2001 15:41:32 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: "Martin A. Brooks" <martin@jtrix.com>
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+To: Helge Hafting <helgehaf@idb.hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Multiplexing filesystem
+In-Reply-To: <3C030FB4.C3303BE4@ecf.utoronto.ca> <3C036A83.F23E6EBE@idb.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27-Nov-2001 Martin A. Brooks wrote:
->> As far as I remember this was talked about earlier. Different mobos,
->> chipsets, processor brands, but always IRQ 7. /me wonders.
-> 
-> In my research before posting, a common thread seemed to be the presence of
-> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
-> 
+Helge Hafting wrote:
 
-Yes (epic100).
+>
+> Coda already do what you want:
+> Files are kept on a server, and copied to your local disk when
+> you use it.  You may even disconnect when working on the local
+> copy - your changes will be propagated back to the server
+> whenever you reconnect to the network.
+> The copying is indeed completely transparent.
+>
+> If you need reservation - use the permission system.
+> A suid program simply makes _you_ owner, and only
+> the owner gets write permission.  This is your check-out
+> program.  Check-in consists of changing ownership
+> back to root (or some userid allocated to the versioning system)
+>
+> Helge Hafting
 
-> Martin A. Brooks
-> 
-> 
-> 
-> 
+I'll look into Coda, but ideally I wouldn't have to copy each file to the local
+workstation when I use it, only when it is reserved for editing.  Also, I'd like to
+be able to store the local copy anywhere on the filesystem, if possible.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Mark
+

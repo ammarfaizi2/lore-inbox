@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131363AbRAOWM5>; Mon, 15 Jan 2001 17:12:57 -0500
+	id <S131598AbRAOWTs>; Mon, 15 Jan 2001 17:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131773AbRAOWMu>; Mon, 15 Jan 2001 17:12:50 -0500
-Received: from d-dialin-1772.addcom.de ([62.96.166.92]:18926 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S131617AbRAOWMf>; Mon, 15 Jan 2001 17:12:35 -0500
-Date: Mon, 15 Jan 2001 23:13:35 +0100 (CET)
-From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-To: Ronny Buchmann <rbla@gmx.de>
-cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: bug (isdn-subsystem?) in 2.4.0
-In-Reply-To: <3A63469D.9010403@gmx.de>
-Message-ID: <Pine.LNX.4.30.0101152306480.2419-100000@vaio>
+	id <S131774AbRAOWTj>; Mon, 15 Jan 2001 17:19:39 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:22802 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S131617AbRAOWT2>; Mon, 15 Jan 2001 17:19:28 -0500
+From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
+Organization: Netzwerkadministrator WH8/DD
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Bug in swapfs (2.4.0-ac9)
+Date: Mon, 15 Jan 2001 23:19:26 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
+X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01011523192600.00565@backfire>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Jan 2001, Ronny Buchmann wrote:
+I think I've found a bug in swapfs:
 
-> i have the following problem with kernel 2.4.0 (also with -ac6):
->
-> kernel BUG at slab.c:1095!
-> invalid operand: 0000
-> CPU: 0
+fstab:
+swapfs          /dev/shm        swapfs  defaults 0 0
+swapfs         /tmp    swapfs  defaults 0 0
 
-I could reproduce the problem, the appended patch fixes it here. Linus,
-could you please apply this for 2.4.1?
+When I hit <enter> on a tar.gz file in Midnight Commander nothing happens. If 
+I do a umonut /tmp and hit <enter> again it works as It should (I see the 
+archived files).
+Nearly the same Problem with the Acrobat Reader pluin for Netscape. It shows 
+only a blank page when /tmp is swapfs.
 
-> ......
->
-> (if you need the other numbers or anything else, ask me, i can reproduce
-> it easily)
+I've noticed that it's possible to mount /tmp more than once. mount shows then
+[snip]
+swapfs on /dev/shm type swapfs (rw)
+swapfs on /tmp type swapfs (rw)
+swapfs on /tmp type swapfs (rw)
+swapfs on /tmp type swapfs (rw)
+swapfs on /tmp type swapfs (rw)
 
-A decoded oops would be nice the next time, see
+The permissions for /tmp are rwxrwxrwt, and even -omode=777,exec didn't help.
 
-	<your linux kernel source>/REPORTING-BUGS
+Any Ideas?
 
-However, you gave enough information for me to reproduce the problem, so
-it's fine this time.
-
-Thanks,
---Kai
-
---- linux-2.4.1-pre2/drivers/isdn/isdn_v110.c%	Sun Aug  6 21:43:42 2000
-+++ linux-2.4.1-pre2/drivers/isdn/isdn_v110.c	Mon Jan 15 22:31:43 2001
-@@ -102,7 +102,7 @@
- 	int i;
- 	isdn_v110_stream *v;
-
--	if ((v = kmalloc(sizeof(isdn_v110_stream), GFP_KERNEL)) == NULL)
-+	if ((v = kmalloc(sizeof(isdn_v110_stream), GFP_ATOMIC)) == NULL)
- 		return NULL;
- 	memset(v, 0, sizeof(isdn_v110_stream));
- 	v->key = key;
-@@ -134,7 +134,7 @@
- 	v->b = 0;
- 	v->skbres = hdrlen;
- 	v->maxsize = maxsize - hdrlen;
--	if ((v->encodebuf = kmalloc(maxsize, GFP_KERNEL)) == NULL) {
-+	if ((v->encodebuf = kmalloc(maxsize, GFP_ATOMIC)) == NULL) {
- 		kfree(v);
- 		return NULL;
- 	}
-
-
+-Gregor
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

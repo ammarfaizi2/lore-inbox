@@ -1,101 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262311AbUKQNNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbUKQNPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262311AbUKQNNv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 08:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbUKQNNu
+	id S262313AbUKQNPt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 08:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbUKQNOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 08:13:50 -0500
-Received: from [32.97.182.141] ([32.97.182.141]:57308 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262311AbUKQNNS (ORCPT
+	Wed, 17 Nov 2004 08:14:09 -0500
+Received: from cantor.suse.de ([195.135.220.2]:5064 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262303AbUKQNLp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 08:13:18 -0500
-Date: Wed, 17 Nov 2004 18:45:52 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] kprobes: dont steal interrupts from vm86
-Message-ID: <20041117131552.GA11053@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru>
+	Wed, 17 Nov 2004 08:11:45 -0500
+Date: Wed, 17 Nov 2004 13:08:19 +0100
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Dropped patch: mm/mempolicy.c:sp_lookup()
+Message-ID: <20041117120819.GG4620@wotan.suse.de>
+References: <200411162259_MC3-1-8ED8-6C32@compuserve.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4192638C.6040007@aknet.ru>
-User-Agent: Mutt/1.4i
+In-Reply-To: <200411162259_MC3-1-8ED8-6C32@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hello,
-
+On Tue, Nov 16, 2004 at 10:54:09PM -0500, Chuck Ebbert wrote:
+> On Wed, 17 Nov 2004 at 02:00:20 +0100, Andi Kleen wrote:
 > 
-> Prasanna S Panchamukhi wrote:
-> >>With kprobes enabled, vm86 doesn't feel
-> >>good. The problem is that kprobes steal
-> >>the interrupts (mainly int3 I think) from
-> >>it for no good reason.
-> >If the int3 is not registered through kprobes,
-> >kprobes handler does not handle it and it falls through the
-> >normal int3 handler AFAIK.
-> I was considering this, but I convinced
-> myself that checking the VM flag is good
-> in any case, because, as I presume, you
-> never need the interrupts from v86. Or do
-> you?
-> If there is a bug in kprobes, it would be
-> good to fix either, but I just think it
-> will not make my patch completely useless.
+> > On Mon, Nov 15, 2004 at 11:15:51PM -0500, Chuck Ebbert wrote:
+> > > Andrea posted this one-liner a while ago as part of a larger patch.  He said
+> > > it fixed return of the wrong policy in some conditions.  Was this a valid fix?
+> >
+> > Yes it was.
 > 
-Yes, there is a small bug in kprobes. Kprobes int3 handler
-was returning wrong value. Please check out if the patch
-attached with this mail fixes your problem.
+>   At least it wasn't dropped -- it's in -mm as part of
+> fix-for-mpol-mm-corruption-on-tmpfs, though it's unrelated to tmpfs.
+> (That patch contains three separate changes...)
+> 
+>   Should just this part, which changes '<' to '<=', be pushed upstream?
 
-Please let me know if you have any issues.
+Yes. I'm sure Andrea will take care of that himself. 
 
-Thanks
-Prasanna
-
--- 
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
-
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kprobes-vm86-interrupt-miss.patch"
-
-
-This patch fixes the problem reported by Stas Sergeev, that kprobes steals
-the virtual-8086 exceptions. This fix modifies kprobe_handler() to return 0 when in
-virtual-8086 mode.
-
-
----
-
- linux-2.6.10-rc2-prasanna/arch/i386/kernel/kprobes.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
-diff -puN arch/i386/kernel/kprobes.c~kprobes-vm86-interrupt-miss arch/i386/kernel/kprobes.c
---- linux-2.6.10-rc2/arch/i386/kernel/kprobes.c~kprobes-vm86-interrupt-miss	2004-11-17 18:30:11.000000000 +0530
-+++ linux-2.6.10-rc2-prasanna/arch/i386/kernel/kprobes.c	2004-11-17 18:38:20.000000000 +0530
-@@ -117,6 +117,10 @@ static inline int kprobe_handler(struct 
- 	p = get_kprobe(addr);
- 	if (!p) {
- 		unlock_kprobes();
-+		if (regs->eflags & VM_MASK)
-+		/*we are in virtual-8086 mode, return 0*/
-+			goto no_kprobe;
-+
- 		if (*addr != BREAKPOINT_INSTRUCTION) {
- 			/*
- 			 * The breakpoint instruction was removed right
-
-_
-
---jRHKVT23PllUwdXP--
+-Andi

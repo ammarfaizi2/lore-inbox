@@ -1,80 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264918AbSJPEfR>; Wed, 16 Oct 2002 00:35:17 -0400
+	id <S264928AbSJPEmu>; Wed, 16 Oct 2002 00:42:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264919AbSJPEfR>; Wed, 16 Oct 2002 00:35:17 -0400
-Received: from packet.digeo.com ([12.110.80.53]:40178 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264918AbSJPEfP>;
-	Wed, 16 Oct 2002 00:35:15 -0400
-Message-ID: <3DACEDE0.7FB25F02@digeo.com>
-Date: Tue, 15 Oct 2002 21:41:04 -0700
+	id <S264929AbSJPEmu>; Wed, 16 Oct 2002 00:42:50 -0400
+Received: from packet.digeo.com ([12.110.80.53]:48626 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264928AbSJPEmt>;
+	Wed, 16 Oct 2002 00:42:49 -0400
+Message-ID: <3DACEFA6.4BFACC13@digeo.com>
+Date: Tue, 15 Oct 2002 21:48:38 -0700
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux v2.5.43
-References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0210152040540.1708-100000@penguin.transmeta.com> <3DACEDE0.7FB25F02@digeo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 16 Oct 2002 04:41:05.0302 (UTC) FILETIME=[3CDD5B60:01C274CE]
+X-OriginalArrivalTime: 16 Oct 2002 04:48:39.0265 (UTC) FILETIME=[4B729D10:01C274CF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> A huge merging frenzy for the feature freeze,
-
-Doesn't compile on ia32 uniprocessor.  The owner of
-changeset 1.852 is hereby debited 31 CPUs.
-
-Also, non-IO_APIC kernels have not been linking for some time.
-
-Here is a quick fix for both problems.
+And here's a fix for CONFIG_MD:
 
 
-
- include/asm-i386/apic.h |    4 ++--
- include/asm-i386/smp.h  |    2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
---- 2.5.43/include/asm-i386/smp.h~mpparse-fix	Tue Oct 15 21:26:18 2002
-+++ 2.5.43-akpm/include/asm-i386/smp.h	Tue Oct 15 21:26:31 2002
-@@ -37,6 +37,7 @@
-  #endif /* CONFIG_CLUSTERED_APIC */
- #endif 
- 
-+#define BAD_APICID 0xFFu
- #ifdef CONFIG_SMP
- #ifndef __ASSEMBLY__
- 
-@@ -65,7 +66,6 @@ extern void zap_low_mappings (void);
-  * the real APIC ID <-> CPU # mapping.
-  */
- #define MAX_APICID 256
--#define BAD_APICID 0xFFu
- extern volatile int cpu_to_physical_apicid[NR_CPUS];
- extern volatile int physical_apicid_to_cpu[MAX_APICID];
- extern volatile int cpu_to_logical_apicid[NR_CPUS];
---- 2.5.43/include/asm-i386/apic.h~mpparse-fix	Tue Oct 15 21:34:03 2002
-+++ 2.5.43-akpm/include/asm-i386/apic.h	Tue Oct 15 21:34:05 2002
-@@ -7,8 +7,6 @@
- #include <asm/apicdef.h>
- #include <asm/system.h>
- 
--#ifdef CONFIG_X86_LOCAL_APIC
--
- #define APIC_DEBUG 0
- 
- #if APIC_DEBUG
-@@ -17,6 +15,8 @@
- #define Dprintk(x...)
+--- 2.5.43/fs/partitions/check.c~md-fix	Tue Oct 15 21:45:51 2002
++++ 2.5.43-akpm/fs/partitions/check.c	Tue Oct 15 21:47:07 2002
+@@ -522,9 +522,8 @@ int rescan_partitions(struct gendisk *di
+ 			continue;
+ 		add_partition(disk, p, from, size);
+ #if CONFIG_BLK_DEV_MD
+-		if (!state->parts[j].flags)
+-			continue;
+-		md_autodetect_dev(bdev->bd_dev+p);
++		if (state->parts[p].flags)
++			md_autodetect_dev(bdev->bd_dev+p);
  #endif
- 
-+#ifdef CONFIG_X86_LOCAL_APIC
-+
- /*
-  * Basic functions accessing APICs.
-  */
+ 	}
+ 	kfree(state);
 
 .

@@ -1,85 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTAEBRh>; Sat, 4 Jan 2003 20:17:37 -0500
+	id <S262506AbTAEBSD>; Sat, 4 Jan 2003 20:18:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbTAEBRg>; Sat, 4 Jan 2003 20:17:36 -0500
-Received: from cibs9.sns.it ([192.167.206.29]:17933 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S262425AbTAEBRE>;
-	Sat, 4 Jan 2003 20:17:04 -0500
-Date: Sun, 5 Jan 2003 02:25:35 +0100 (CET)
-From: venom@sns.it
-To: Joshua Stewart <joshua.stewart@comcast.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Tryint to enable support for lm_sensors
-In-Reply-To: <1041728668.3881.1.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.43.0301050223450.23425-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262580AbTAEBSC>; Sat, 4 Jan 2003 20:18:02 -0500
+Received: from ppp-217-133-221-34.dialup.tiscali.it ([217.133.221.34]:45441
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S262506AbTAEBR5>; Sat, 4 Jan 2003 20:17:57 -0500
+Date: Sun, 5 Jan 2003 02:18:44 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix sysenter iopl
+Message-ID: <20030105011844.GA4948@ldb>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-loock in the directory
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-lm_sensors-2.6.5/kernel
+This patch fixes the handling of IOPL in 2.5.54 when sysenter is used.
 
-and you will find the sources of the modules you need.
+Currently when entering kernel mode, IOPL is not changed and it is not
+presserved across context switches: thus, in the kernel, the IOPL
+value is random. =20
 
-Just be carefull editing the main Makefile, and everything should work.
+This is not a problem when using iret, because it restores eflags, but
+the sysexit code currently doesn't, which means that that IOPL becomes
+random in user mode too which is of course not good.
 
-Luigi
+This patch fixes the problem by saving eflags across context switches
+(it could also be fixed by adding a popfl at the end of the sysenter
+code).
 
 
-On Sat, 4 Jan 2003, Joshua Stewart wrote:
+diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
+*' --exclude=3D'atmsar.*' linux-2.5.54/include/asm-i386/system.h linux-2.5.=
+54-ldb/include/asm-i386/system.h
+--- linux-2.5.54/include/asm-i386/system.h	2003-01-02 04:20:51.000000000 +0=
+100
++++ linux-2.5.54-ldb/include/asm-i386/system.h	2003-01-04 19:06:07.00000000=
+0 +0100
+@@ -12,7 +12,8 @@ struct task_struct;	/* one of the strang
+ extern void FASTCALL(__switch_to(struct task_struct *prev, struct task_str=
+uct *next));
+=20
+ #define switch_to(prev,next,last) do {					\
+-	asm volatile("pushl %%esi\n\t"					\
++	asm volatile("pushfl\n\t"					\
++		     "pushl %%esi\n\t"					\
+ 		     "pushl %%edi\n\t"					\
+ 		     "pushl %%ebp\n\t"					\
+ 		     "movl %%esp,%0\n\t"	/* save ESP */		\
+@@ -24,6 +25,7 @@ extern void FASTCALL(__switch_to(struct=20
+ 		     "popl %%ebp\n\t"					\
+ 		     "popl %%edi\n\t"					\
+ 		     "popl %%esi\n\t"					\
++		     "popfl\n\t"					\
+ 		     :"=3Dm" (prev->thread.esp),"=3Dm" (prev->thread.eip)	\
+ 		     :"m" (next->thread.esp),"m" (next->thread.eip),	\
+ 		      "a" (prev), "d" (next));				\
 
-> Date: Sat, 04 Jan 2003 20:04:28 -0500
-> From: Joshua Stewart <joshua.stewart@comcast.net>
-> To: venom@sns.it
-> Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: Tryint to enable support for lm_sensors
->
-> I installed the 2.6.5 version, but it didn't include the modules, just a
-> lost of docs and the sensors and sensors-detect applications.  Any guess
-> where I get the actual modules?
->
-> On Sat, 2003-01-04 at 17:18, venom@sns.it wrote:
-> >
-> > you are missin lm_sensors-2.6.5 packages.
-> > The modules you are talking about do not come with kernel sources, but are
-> > included in another package.
-> >
-> > bests
-> > Luigi
-> >
-> > On Sat, 4 Jan 2003, Joshua Stewart wrote:
-> >
-> > > Date: Sat, 04 Jan 2003 17:23:55 -0500
-> > > From: Joshua Stewart <joshua.stewart@comcast.net>
-> > > To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> > > Subject: Tryint to enable support for lm_sensors
-> > >
-> > > What options (int make xconfig) do I have to enable to get the i2c-via
-> > > and i2c-viapro modules to build .  I realized that the kernels and
-> > > modules that Redhat provided included these two modules, but when I
-> > > built a 2.4.20 kernel (downloaded from kernel.org) those modules were
-> > > not built.  I chose support for i2c as a module and the i2c-proc and
-> > > i2c-core modules were built just fine.  What am I missing?
-> > >
-> > > Josh
-> > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
->
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+F4fzdjkty3ft5+cRAkRJAJ0Ty7cyqLw4DZfMTRiP/Hbf2WRKxwCfSeli
+V0DBrd8iPPZQpl2qM+hFDdo=
+=pUG+
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--

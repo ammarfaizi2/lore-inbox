@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289094AbSAJAUT>; Wed, 9 Jan 2002 19:20:19 -0500
+	id <S289096AbSAJAWt>; Wed, 9 Jan 2002 19:22:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289096AbSAJAUA>; Wed, 9 Jan 2002 19:20:00 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:28862 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S289094AbSAJATm>; Wed, 9 Jan 2002 19:19:42 -0500
-From: "Daniel J Blueman" <daniel.blueman@btinternet.com>
-To: "'Martin Josefsson'" <gandalf@wlug.westbo.se>,
-        "'Ville Herva'" <vherva@niksula.hut.fi>
-Cc: "'Andrew Morton'" <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-        "'Jani Forssell'" <jani.forssell@viasys.com>
-Subject: RE: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
-Date: Thu, 10 Jan 2002 00:19:38 -0000
-Message-ID: <001401c1996c$7d8dd790$0100a8c0@icarus>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.21.0201100025440.14057-100000@tux.rsn.bth.se>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S289098AbSAJAWl>; Wed, 9 Jan 2002 19:22:41 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:1432
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S289096AbSAJAWe>; Wed, 9 Jan 2002 19:22:34 -0500
+Date: Wed, 9 Jan 2002 19:07:36 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: Re: IDE Patch (fwd)
+Message-ID: <20020109190736.A3745@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200201091946.g09JkrA27407@snark.thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200201091946.g09JkrA27407@snark.thyrsus.com>; from landley@trommello.org on Wed, Jan 09, 2002 at 06:59:37AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I havn't followed this thread but I have a machine with an
-> Asus A7V motherboard with KT133 chipset and we had massive 
-> corruption before christmas, both ide and network had 
-> corrupted packets. and now after christmas we ran memtest86 
-> on it and a 256MB module was very very broken. and we got 
-> alot of Oopses and all kinds of strange stuff happened.
-> 
-> We've replaved that memory module now and now it's better but
-> I have to say that the KT133 or atleast the Asus A7V 
-> motherboard seems to be quite broken. we have a lot of 
-> spurious irq's and the ide controllers freak when but under 
-> some load and start getting irq timeouts and resets the ide 
-> channels over and over again with some delay in between when 
-> it kind of works, slow as hell but works.
+> Two helpful people have now responded, I'd appreciate if the next
+> release of the patch contained these as patch hunks for Configure.help.
 
-There are known issues with the VIA 82C686A/B chipset south-bridge and
-IDE in particular. Make sure you have the latest BIOS and latest VIA
-4in1 drivers to workaround the IDE corruption and other known issues
-(sound problems with certain soundcards).
+I've grabbed a copy of Andre's help entries, and will stick them in the
+master Configure.help as soon as I hear the patch is going in.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Dan
-___________________
-Daniel J Blueman
-
+"The state calls its own violence `law', but that of the individual `crime'"
+	-- Max Stirner

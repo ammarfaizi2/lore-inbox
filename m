@@ -1,55 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265843AbUAEUqh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 15:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUAEUqg
+	id S265182AbUAEUeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 15:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUAEUeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 15:46:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:27624 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265843AbUAEUqd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 15:46:33 -0500
-Date: Mon, 5 Jan 2004 12:46:27 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: John Gardiner Myers <jgmyers@speakeasy.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch/revised] wake_up_info() ...
-In-Reply-To: <3FF9BAD3.9040804@speakeasy.net>
-Message-ID: <Pine.LNX.4.58.0401051239110.2153@home.osdl.org>
-References: <fa.kf16nao.126qarq@ifi.uio.no> <3FF9BAD3.9040804@speakeasy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jan 2004 15:34:50 -0500
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:32194 "EHLO
+	mwinf0304.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S265182AbUAEUer (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 15:34:47 -0500
+Date: Mon, 5 Jan 2004 21:34:44 +0100
+From: Romain Lievin <romain@rlievin.dyndns.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Buddy Lucas <b.lucas@ohra.nl>, Roman Zippel <zippel@linux-m68k.org>
+Subject: [PATCH] gconfig segfaults & compile error fix
+Message-ID: <20040105203444.GA2201@rlievin.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+
+this patch fix a segfault problem (Roman Zippel) as well as some compile warnings (Buddy Lucas).
+
+Patch was against 2.6.0.
+
+Thanks, Romain.
+======================[ cut here ]=========================
+diff -Naur linux-2.6.0/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
+--- linux-2.6.0/scripts/kconfig/gconf.c	2003-12-18 03:59:41.000000000 +0100
++++ linux/scripts/kconfig/gconf.c	2003-12-24 15:31:06.000000000 +0100
+@@ -1,7 +1,7 @@
+ /* Hey EMACS -*- linux-c -*- */
+ /*
+  *
+- * Copyright (C) 2002-2003 Romain Lievin <roms@lpg.ticalc.org>
++ * Copyright (C) 2002-2003 Romain Lievin <roms@tilp.info>
+  * Released under the terms of the GNU GPL v2.0.
+  *
+  */
+@@ -1047,6 +1047,8 @@
+ 		return FALSE;
+ 
+ 	gtk_tree_model_get_iter(model2, &iter, path);
++	if(!gtk_tree_store_iter_is_valid(model2, &iter))
++		return FALSE;
+ 	gtk_tree_model_get(model2, &iter, COL_MENU, &menu, -1);
+ 
+ 	col = column2index(column);
+@@ -1172,7 +1174,7 @@
+ 
+ 	gtk_widget_realize(tree2_w);
+ 	gtk_tree_view_set_cursor(view, path, NULL, FALSE);
+-	gtk_widget_grab_focus(GTK_TREE_VIEW(tree2_w));
++	gtk_widget_grab_focus(tree2_w);
+ 
+ 	return FALSE;
+ }
+@@ -1401,7 +1403,6 @@
+ 	struct symbol *sym;
+ 	struct property *prop;
+ 	struct menu *menu1, *menu2;
+-	static GtkTreePath *path = NULL;
+ 
+ 	if (src == &rootmenu)
+ 		indent = 1;
+@@ -1526,7 +1527,7 @@
+ 		if (((menu != &rootmenu) && !(menu->flags & MENU_ROOT)) ||
+ 		    (view_mode == FULL_VIEW)
+ 		    || (view_mode == SPLIT_VIEW))*/
+-		if ((view_mode == SINGLE_VIEW) && (menu->flags & MENU_ROOT) 
++		if (((view_mode == SINGLE_VIEW) && (menu->flags & MENU_ROOT)) 
+ 		|| (view_mode == FULL_VIEW) || (view_mode == SPLIT_VIEW)) {
+ 			indent++;
+ 			display_tree(child);
+
+-- 
+Romain Li�vin (roms):         <roms@tilp.info>
+Web site:                     http://tilp.info
+"Linux, y'a moins bien mais c'est plus cher !"
 
 
-On Mon, 5 Jan 2004, John Gardiner Myers wrote:
->
-> It would seem better if info were a void *, to permit sending more than 
-> a single unsigned long.
 
-The argument against that is that since there is basically no 
-synchronization here, you can't pass a pointer to some random object. So 
-by default, you should think of the cookie as "pass-by-value", ie not a 
-pointer. That way there are no liveness issues: there is no issue about 
-what happens to the data when the recipient is actually scheduled 
-(possibly _much_ much after the actual wakeup).
 
-Also, the forseeable actual use of this piece of data is purely integer:
-things like the POLLIN | POLLOUT flags. There may never be any other use.
 
-Also, passing in an "unsigned long" does not preclude using a data area
-for more complex cases: if the users do their own synchronization around
-the waitqueue on a higher level, and a pointer is a valid thing to use,
-you can cast that "unsigned long" to a pointer. This is very common kernel
-usage: it may not be "portable" in the theoretical sense, but it's deeply
-embedded in the kernel that you can pass pointers as just bitpatters that
-fit in an "unsigned long".
 
-The basic rule should be: don't build complex infrastructure. Build simple
-infrastructure that you can build complexity on top of if you ever need
-it. This was my reaction, and apparently Manfred Spraul reacted the same
-way.
-
-		Linus

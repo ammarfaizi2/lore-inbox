@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpK5EWS4lLweWQD2VcqqJibo+eA==
+thread-index: AcQVo/umUdGaWflQSkufmoDn/PvnaA==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 08:38:52 +0000
-Message-ID: <02e901c415a4$ae44c9a0$d100000a@sbs2003.local>
+Delivery-date: Fri, 02 Jan 2004 20:34:06 +0000
+Message-ID: <005c01c415a3$fba67820$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Mar 2004 16:39:11 +0100
+From: "Linus Torvalds" <torvalds@osdl.org>
 X-Mailer: Microsoft CDO for Exchange 2000
+To: <Administrator@smtp.paston.co.uk>
+Cc: <akpm@osdl.org>, <ak@suse.de>, <linux-kernel@vger.kernel.org>,
+        <albert.cahalan@ccur.com>, <jim.houston@ccur.com>
+Subject: Re: siginfo_t fracturing, especially for 64/32-bit compatibility mode
+In-Reply-To: <20040102194909.GA2990@rudolph.ccur.com>
 Content-Class: urn:content-classes:message
+References: <20040102194909.GA2990@rudolph.ccur.com>
 Importance: normal
 Priority: normal
-Date: Mon, 29 Mar 2004 16:44:11 +0100
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-From: "Vojtech Pavlik" <vojtech@suse.cz>
-To: <Administrator@smtp.paston.co.uk>
-Cc: "Vojtech Pavlik" <vojtech@suse.cz>, "Andrew Morton" <akpm@osdl.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: New set of input patches
-References: <200401030350.43437.dtor_core@ameritech.net> <200401050059.25031.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <200401050059.25031.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.4i
+Content-Type: TEXT/PLAIN;
+	charset="US-ASCII"
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:44:13.0656 (UTC) FILETIME=[AF81DD80:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:39:12.0421 (UTC) FILETIME=[FBF50D50:01C415A3]
 
-On Mon, Jan 05, 2004 at 12:59:24AM -0500, Dmitry Torokhov wrote:
 
-> I made 3 more input patches:
-> 
-> - compile fix in 98busmose driver (it still had its interrupt routine
->   returning voooid instead of irqreturn_t)
-> - the rest of mouse devices converted to the new way of handling kernel
->   parameters and document them in kernel-parametes.txt
-> - convert tsdev module to the new way of handling kernel parameters and
->   document them in kernle-parameters.txt.
-> 
-> The patches can be found at the following addresses:
-> http://www.geocities.com/dt_or/input/2_6_1-rc1/
-> http://www.geocities.com/dt_or/input/2_6_1-rc1-mm1/
-> 
-> Vojtech, Andrew,
-> 
-> are you interested in these kind of patches and should I take a stab at
-> converting joysticks diectory as well?
 
-Yup, I am. :) Not sure if it's 2.6.[12] stuff, but it needs to be done
-sooner or later.
+On Fri, 2 Jan 2004, Joe Korty wrote:
+>
+> siginfo_t processing is fragile when in 32 bit compatibility mode on
+> a 64 bit processor.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+It shouldn't be.
+
+Inside the kernel, we should always use the "native" format (ie 64-bit). 
+The fact that 64-bit architectures are broken is their bug, and the proper 
+way to fix it is to make sure that everything always uses the native 
+format.
+
+We should _not_ play games with si_code etc. There is no reason to do so, 
+since every entrypointe knows _statically_ whether it is given a 32-bit or 
+64-bit version. That's a lot less fragile than depending on a field that 
+is filled in by the user.
+
+		Linus

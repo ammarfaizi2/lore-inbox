@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314458AbSEVVp5>; Wed, 22 May 2002 17:45:57 -0400
+	id <S314558AbSEVVqU>; Wed, 22 May 2002 17:46:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314558AbSEVVp4>; Wed, 22 May 2002 17:45:56 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48136 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314458AbSEVVpz>; Wed, 22 May 2002 17:45:55 -0400
+	id <S314645AbSEVVqU>; Wed, 22 May 2002 17:46:20 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37779 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S314558AbSEVVqT>; Wed, 22 May 2002 17:46:19 -0400
+Date: Wed, 22 May 2002 17:46:14 -0400
+From: Doug Ledford <dledford@redhat.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>,
+        "M. Edward Borasky" <znmeb@aracnet.com>, linux-kernel@vger.kernel.org
 Subject: Re: Have the 2.4 kernel memory management problems on large machines been fixed?
-To: Martin.Bligh@us.ibm.com (Martin J. Bligh)
-Date: Wed, 22 May 2002 23:05:17 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        wli@holomorphy.com (William Lee Irwin III),
-        znmeb@aracnet.com (M. Edward Borasky), linux-kernel@vger.kernel.org,
-        andrea@suse.de, riel@surriel.com, torvalds@transmeta.com,
-        akpm@zip.com.au
-In-Reply-To: <366680000.1022091897@flay> from "Martin J. Bligh" at May 22, 2002 11:24:57 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+Message-ID: <20020522174614.B2819@redhat.com>
+Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, bert hubert <ahu@ds9a.nl>,
+	"M. Edward Borasky" <znmeb@aracnet.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E17AXWu-0001vL-00@the-village.bc.nu> <1404136612.1022057787@[10.10.2.3]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AeEP-0002wE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If my spies are correct, 7.3AS kernel is still based off the old 2.4.9 VM, with
-> no rmap at present ... correct? I presume 7.3 is 2.4.18 or so VM with rmap?
+On Wed, May 22, 2002 at 08:56:28AM -0700, Martin J. Bligh wrote:
+> > 7.3 has some of what is needed but not all. 
+> 
+> Can you outline the changes in this area? I want to make sure we're
+> not all fighting the same problems seperately ;-) I know bounce
+> buffers is one large element of that, though I believe you still
+> only go up to 4Gb, unless I'm mistaken?
 
-<Red Hat Marketing>There is no such product as 7.3AS</Red Hat Marketing> ;) 
+Yes, it only goes up to 4Gb.  It's because of the error handling code in 
+the SCSI mid-layer and above, it fails to properly handle the >4gb sg 
+entries on error conditions.  I'm working on that now and should have it 
+fixed soon.
 
-The AS 2.1 kernel is 2.4.9 based for enterprise stability with the pre
-Linus being hit by cosmic rays VM fixed and tuned for enterprise workloads.
-
-7.3 is the rmap VM
-
-Alan
+-- 
+  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
+         Red Hat, Inc. 
+         1801 Varsity Dr.
+         Raleigh, NC 27606
+  

@@ -1,213 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267927AbUHPUHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267922AbUHPUHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267927AbUHPUHG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 16:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267922AbUHPUHG
+	id S267922AbUHPUHl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 16:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267933AbUHPUHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 16:07:06 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:22014 "EHLO
-	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S267933AbUHPUGF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 16:06:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C483CC.7D5E0FE0"
-Subject: [PATCH][linux-usb-devel] Early USB handoff
-Date: Mon, 16 Aug 2004 13:06:17 -0700
-Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B68E6@scl-exch2k.phoenix.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][linux-usb-devel] Early USB handoff
-Thread-Index: AcSDzID+pBFJBOtzRI+Dq4cy7Qa5Ag==
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <linux-kernel@vger.kernel.org>, <linux-usb-devel@lists.sourceforge.net>
-Cc: <zaitcev@redhat.com>, <alan@lxorguk.ukuu.org.uk>
-X-OriginalArrivalTime: 16 Aug 2004 20:06:05.0098 (UTC) FILETIME=[7616A8A0:01C483CC]
+	Mon, 16 Aug 2004 16:07:41 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34055 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267922AbUHPUHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 16:07:36 -0400
+Date: Mon, 16 Aug 2004 21:07:30 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
+Message-ID: <20040816210729.A25893@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <Pine.LNX.4.61.0408151932370.12687@scrub.home> <20040815174028.GM1387@fs.tum.de> <Pine.LNX.4.61.0408160043270.12687@scrub.home> <20040816195733.GZ1387@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040816195733.GZ1387@fs.tum.de>; from bunk@fs.tum.de on Mon, Aug 16, 2004 at 09:57:33PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Mon, Aug 16, 2004 at 09:57:33PM +0200, Adrian Bunk wrote:
+> On Mon, Aug 16, 2004 at 12:47:05AM +0200, Roman Zippel wrote:
+> > The use of select is already a crotch here, so there's no real correct 
+> > handling. There are a few possibilities:
+> > - if you select FW_LOADER, you have to select HOTPLUG too
+> > - if you select FW_LOADER, you have to depend on HOTPLUG
+> > - FW_LOADER itself can select HOTPLUG
+> 
+> Solution 2 is what my patch tried.
+> 
+> Thinking about them, I'd prefer solution 3. But with solution 1 or 3, 
+> I'm sure people like Russell King will scream since this will make it 
+> non-trivial to de-select HOTPLUG.
 
-------_=_NextPart_001_01C483CC.7D5E0FE0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Let me make my position over the use of "select" clear: I do not
+oppose its appropriate use, where that is defined as selecting
+another configuration option for which the user has no visibility.
 
-Hello everybody,
+In the above case, it _may_ make sense (I haven't looked deeply
+into it yet) to:
 
-  Here is slightly improved early USB legacy handoff patch for 2.4.27
-(original patch is here:
-http://www.mail-archive.com/linux-usb-devel%40lists.sourceforge.net/msg2
-6803.html).=20
-  Patch includes support for EHCI handoff, and not only hands off legacy
-support, but also helps avoiding 'shared interrupt problem' when BIOS
-leaves USB controller programmed in native mode with PCI IRQ enabled
-(legacy free mode).
-  I've tested it on a number of machines (mostly laptops) for UHCI &
-OHCI, but PC with EHCI BIOS legacy support was hard to find. I tried
-Intel D865GRH, but seems like BIOS there have some problems (like lock
-up during POST when flash drive plugged in), and does not adhere EHCI
-handoff protocol.
-  Handoff is under no-usb-legacy option.
+- make _all_ drivers which need FW_LOADER select it
+- make _all_ drivers which currently depend on HOTPLUG select it
+- make FW_LOADER select HOTPLUG
+- remove user questions for FW_LOADER and HOTPLUG
 
-Thanks,
-Aleks.
+That means that FW_LOADER and HOTPLUG are automatically selected
+whenever the configuration requires them and are automatically
+deselected when it doesn't need them, and you don't have to worry
+about whether you can disable them now or after finding the
+thousand and one configuration symbols which need to be turned off
+first.
 
-------_=_NextPart_001_01C483CC.7D5E0FE0
-Content-Type: text/plain;
-	name="usb_patch.txt"
-Content-Transfer-Encoding: base64
-Content-Description: usb_patch.txt
-Content-Disposition: attachment;
-	filename="usb_patch.txt"
+However, keeping the option user-visible _and_ using select is
+problematical to say the least.
 
-ZGlmZiAtcnVOIGxpbnV4LTIuNC4yNy9Eb2N1bWVudGF0aW9uL2tlcm5lbC1wYXJhbWV0ZXJzLnR4
-dCBsaW51eC0yLjQuMjctZml4L0RvY3VtZW50YXRpb24va2VybmVsLXBhcmFtZXRlcnMudHh0Ci0t
-LSBsaW51eC0yLjQuMjcvRG9jdW1lbnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQJMjAwNC0w
-OC0wNyAxNjoyNjowNC4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNC4yNy1maXgvRG9jdW1l
-bnRhdGlvbi9rZXJuZWwtcGFyYW1ldGVycy50eHQJMjAwNC0wOC0xNiAxMToyNjoxNS4wMDAwMDAw
-MDAgLTA3MDAKQEAgLTYzNSw3ICs2MzUsOSBAQAogCXVhcnQ2ODUwPQlbSFcsU09VTkRdCiAgCiAJ
-dXNiZml4CQlbQlVHUz1JQS02NF0gCi0gCisKKwluby11c2ItbGVnYWN5CVtIV10gRGlzYWJsZXMg
-QklPUyBTTU0gVVNCIExlZ2FjeS9OYXRpdmUgU3VwcG9ydAorCiAJdmlkZW89CQlbRkJdIGZyYW1l
-IGJ1ZmZlciBjb25maWd1cmF0aW9uLgogCiAJdmdhPQkJW0JPT1RdIG9uIGl4Mzg2LCBzZWxlY3Qg
-YSBwYXJ0aWN1bGFyIHZpZGVvIG1vZGUKZGlmZiAtcnVOIGxpbnV4LTIuNC4yNy9kcml2ZXJzL3Bj
-aS9xdWlya3MuYyBsaW51eC0yLjQuMjctZml4L2RyaXZlcnMvcGNpL3F1aXJrcy5jCi0tLSBsaW51
-eC0yLjQuMjcvZHJpdmVycy9wY2kvcXVpcmtzLmMJMjAwNC0wOC0wNyAxNjoyNjowNS4wMDAwMDAw
-MDAgLTA3MDAKKysrIGxpbnV4LTIuNC4yNy1maXgvZHJpdmVycy9wY2kvcXVpcmtzLmMJMjAwNC0w
-OC0xNiAxMjoyNjo1My4wMDAwMDAwMDAgLTA3MDAKQEAgLTcyNiw2ICs3MjYsMjIyIEBACiAJcGNp
-ZWhwX21zaV9xdWlyayA9IDE7CiB9CiAKKworI2RlZmluZSBVSENJX1VTQkxFR1NVUAkJMHhjMAkJ
-LyogbGVnYWN5IHN1cHBvcnQgKi8KKyNkZWZpbmUgVUhDSV9VU0JDTUQJCTAJCS8qIGNvbW1hbmQg
-cmVnaXN0ZXIgKi8KKyNkZWZpbmUgVUhDSV9VU0JTVFMJCTIJCS8qIHN0YXR1cyByZWdpc3RlciAq
-LworI2RlZmluZSBVSENJX1VTQklOVFIJCTQJCS8qIGludGVycnVwdCByZWdpc3RlciAqLworI2Rl
-ZmluZSBVSENJX1VTQkxFR1NVUF9ERUZBVUxUCTB4MjAwMAkJLyogb25seSBQSVJRIGVuYWJsZSBz
-ZXQgKi8KKyNkZWZpbmUgVUhDSV9VU0JDTURfUlVOCQkoMSA8PCAwKQkvKiBSVU4vU1RPUCBiaXQg
-Ki8KKyNkZWZpbmUgVUhDSV9VU0JDTURfR1JFU0VUCSgxIDw8IDIpCS8qIEdsb2JhbCByZXNldCAq
-LworI2RlZmluZSBVSENJX1VTQkNNRF9DT05GSUdVUkUgICAoMSA8PCA2KQkvKiBjb25maWcgc2Vt
-YXBob3JlICovCisjZGVmaW5lIFVIQ0lfVVNCU1RTX0hBTFRFRAkoMSA8PCA1KQkvKiBIQ0hhbHRl
-ZCBiaXQgKi8KKworI2RlZmluZSBPSENJX0NPTlRST0wJCTB4MDQKKyNkZWZpbmUgT0hDSV9DTURT
-VEFUVVMJCTB4MDgKKyNkZWZpbmUgT0hDSV9JTlRSU1RBVFVTCQkweDBjCisjZGVmaW5lIE9IQ0lf
-SU5UUkVOQUJMRQkJMHgxMAorI2RlZmluZSBPSENJX0lOVFJESVNBQkxFCTB4MTQKKyNkZWZpbmUg
-T0hDSV9PQ1IJCSgxIDw8IDMpCS8qIG93bmVyc2hpcCBjaGFuZ2UgcmVxdWVzdCAqLworI2RlZmlu
-ZSBPSENJX0NUUkxfSVIJCSgxIDw8IDgpCS8qIGludGVycnVwdCByb3V0aW5nICovCisjZGVmaW5l
-IE9IQ0lfSU5UUl9PQwkJKDEgPDwgMzApCS8qIG93bmVyc2hpcCBjaGFuZ2UgKi8KKworI2RlZmlu
-ZSBFSENJX0hDQ19QQVJBTVMJCTB4MDgJCS8qIGV4dGVuZGVkIGNhcGFiaWxpdGllcyAqLworI2Rl
-ZmluZSBFSENJX1VTQkNNRAkJMAkJLyogY29tbWFuZCByZWdpc3RlciAqLworI2RlZmluZSBFSENJ
-X1VTQkNNRF9SVU4JCSgxIDw8IDApCS8qIFJVTi9TVE9QIGJpdCAqLworI2RlZmluZSBFSENJX1VT
-QlNUUwkJNAkJLyogc3RhdHVzIHJlZ2lzdGVyICovCisjZGVmaW5lIEVIQ0lfVVNCU1RTX0hBTFRF
-RAkoMSA8PCAxMikJLyogSENIYWx0ZWQgYml0ICovCisjZGVmaW5lIEVIQ0lfVVNCSU5UUgkJOAkJ
-LyogaW50ZXJydXB0IHJlZ2lzdGVyICovCisjZGVmaW5lIEVIQ0lfVVNCTEVHU1VQCQkwCQkvKiBs
-ZWdhY3kgc3VwcG9ydCByZWdpc3RlciAqLworI2RlZmluZSBFSENJX1VTQkxFR1NVUF9CSU9TCSgx
-IDw8IDE2KQkvKiBCSU9TIHNlbWFwaG9yZSAqLworI2RlZmluZSBFSENJX1VTQkxFR1NVUF9PUwko
-MSA8PCAyNCkgICAgICAgLyogT1Mgc2VtYXBob3JlICovCisjZGVmaW5lIEVIQ0lfVVNCTEVHQ1RM
-U1RTCTQJCS8qIGxlZ2FjeSBzdXBwb3J0IGNvbnRyb2wvc3RhdHVzICovCisjZGVmaW5lIEVIQ0lf
-VVNCTEVHQ1RMU1RTX1NPT0UJKDEgPDwgMTMpCS8qIFNNSSBvbiBvd25lcnNoaXAgY2hhbmdlICov
-CisKK2ludCBkaXNhYmxlX2xlZ2FjeV91c2IgX19pbml0ZGF0YSA9IDA7CitzdGF0aWMgaW50IF9f
-aW5pdCB1c2JfbGVnYWN5X2Rpc2FibGUoY2hhciAqc3RyKQoreworCWRpc2FibGVfbGVnYWN5X3Vz
-YiA9IDE7CisJcmV0dXJuIDA7Cit9CitfX3NldHVwKCJuby11c2ItbGVnYWN5IiwgdXNiX2xlZ2Fj
-eV9kaXNhYmxlKTsKKworc3RhdGljIHZvaWQgX19pbml0IHF1aXJrX3VzYl9kaXNhYmxlX2VoY2ko
-c3RydWN0IHBjaV9kZXYgKnBkZXYpCit7CisJaW50IHdhaXRfdGltZSwgZGVsdGE7CisJY2hhciAq
-YmFzZSwgKm9wX3JlZ19iYXNlOworCXUzMiBoY2NfcGFyYW1zLCB2YWwsIHRlbXA7CisJdTggY2Fw
-X2xlbmd0aDsKKworCWJhc2UgPSBpb3JlbWFwX25vY2FjaGUocGNpX3Jlc291cmNlX3N0YXJ0KHBk
-ZXYsIDApLAorCQkJICAgICAgIHBjaV9yZXNvdXJjZV9sZW4ocGRldiwgMCkpOworCWlmIChiYXNl
-ID09IE5VTEwpIHJldHVybjsKKworCWNhcF9sZW5ndGggPSByZWFkYiggYmFzZSk7CisJb3BfcmVn
-X2Jhc2UgPSBiYXNlICsgY2FwX2xlbmd0aDsKKwloY2NfcGFyYW1zID0gcmVhZGwoIGJhc2UgKyBF
-SENJX0hDQ19QQVJBTVMpOworCWhjY19wYXJhbXMgPSAoaGNjX3BhcmFtcyA+PiA4KSAmIDB4ZmY7
-CisJaWYgKCBoY2NfcGFyYW1zICkgeworCQlwY2lfcmVhZF9jb25maWdfZHdvcmQoIHBkZXYsIAor
-CQkJCSAgICAgICBoY2NfcGFyYW1zICsgRUhDSV9VU0JMRUdTVVAsCisJCQkJICAgICAgICZ2YWwp
-OworCQlpZiAoICgodmFsICYgMHhmZikgPT0gMSkgJiYgKHZhbCAmIEVIQ0lfVVNCTEVHU1VQX0JJ
-T1MpICkgeworCQkJLyoqCisJCQkgKiBPaywgQklPUyBpcyBpbiBzbW0gbW9kZSwgdHJ5IHRvIGhh
-bmQgb2ZmLi4uCisJCQkgKi8KKwkJCXBjaV9yZWFkX2NvbmZpZ19kd29yZCggcGRldiwKKwkJCQkJ
-ICAgICAgIGhjY19wYXJhbXMgKyBFSENJX1VTQkxFR0NUTFNUUywKKwkJCQkJICAgICAgICZ0ZW1w
-KTsKKwkJCXBjaV93cml0ZV9jb25maWdfZHdvcmQoIHBkZXYsCisJCQkJCQloY2NfcGFyYW1zICsg
-RUhDSV9VU0JMRUdDVExTVFMsCisJCQkJCQl0ZW1wIHwgRUhDSV9VU0JMRUdDVExTVFNfU09PRSk7
-CisJCQl2YWwgfD0gRUhDSV9VU0JMRUdTVVBfT1M7CisJCQlwY2lfd3JpdGVfY29uZmlnX2R3b3Jk
-KCBwZGV2LCAKKwkJCQkJCWhjY19wYXJhbXMgKyBFSENJX1VTQkxFR1NVUCwgCisJCQkJCQl2YWwp
-OworCisJCQl3YWl0X3RpbWUgPSA1MDA7CisJCQlkbyB7CisJCQkJc2V0X2N1cnJlbnRfc3RhdGUo
-VEFTS19VTklOVEVSUlVQVElCTEUpOworCQkJCXNjaGVkdWxlX3RpbWVvdXQoIChIWioxMCs5OTkp
-LzEwMDApOworCQkJCXdhaXRfdGltZSAtPSAxMDsKKwkJCQlwY2lfcmVhZF9jb25maWdfZHdvcmQo
-IHBkZXYsCisJCQkJCQkgICAgICAgaGNjX3BhcmFtcyArIEVIQ0lfVVNCTEVHU1VQLAorCQkJCQkJ
-ICAgICAgICZ2YWwpOworCQkJfSB3aGlsZSAoIHdhaXRfdGltZSAmJiAodmFsICYgRUhDSV9VU0JM
-RUdTVVBfQklPUykgKTsKKwkJCWlmICggIXdhaXRfdGltZSApIHsKKwkJCQkvKioKKwkJCQkgKiB3
-ZWxsLCBwb3NzaWJseSBidWdneSBCSU9TLi4uCisJCQkJICovCisJCQkJcHJpbnRrKCBLRVJOX1dB
-Uk5JTkcgIkVIQ0kgZWFybHkgQklPUyBoYW5kb2ZmIGZhaWxlZCAoQklPUyBidWcgPylcbiIpOwor
-CQkJCXBjaV93cml0ZV9jb25maWdfZHdvcmQoIHBkZXYsCisJCQkJCQkJaGNjX3BhcmFtcyArIEVI
-Q0lfVVNCTEVHU1VQLAorCQkJCQkJCUVIQ0lfVVNCTEVHU1VQX09TKTsKKwkJCQlwY2lfd3JpdGVf
-Y29uZmlnX2R3b3JkKCBwZGV2LAorCQkJCQkJCWhjY19wYXJhbXMgKyBFSENJX1VTQkxFR0NUTFNU
-UywKKwkJCQkJCQkwKTsKKwkJCX0KKwkJfQorCX0KKworCS8qKgorCSAqIGhhbHQgRUhDSSAmIGRp
-c2FibGUgaXRzIGludGVycnVwdHMgaW4gYW55IGNhc2UKKwkgKi8KKwl2YWwgPSByZWFkbCggb3Bf
-cmVnX2Jhc2UgKyBFSENJX1VTQlNUUyk7CisJaWYgKCAodmFsICYgRUhDSV9VU0JTVFNfSEFMVEVE
-KSA9PSAwICkgeworCQl2YWwgPSByZWFkbCggb3BfcmVnX2Jhc2UgKyBFSENJX1VTQkNNRCk7CisJ
-CXZhbCAmPSB+RUhDSV9VU0JDTURfUlVOOworCQl3cml0ZWwoIHZhbCwgb3BfcmVnX2Jhc2UgKyBF
-SENJX1VTQkNNRCk7CisKKwkJd2FpdF90aW1lID0gMjAwMDsKKwkJZGVsdGEgPSAxMDA7CisJCWRv
-IHsKKwkJCXdyaXRlbCggMHgzZiwgb3BfcmVnX2Jhc2UgKyBFSENJX1VTQlNUUyk7CisJCQl1ZGVs
-YXkoIGRlbHRhKTsKKwkJCXdhaXRfdGltZSAtPSBkZWx0YTsKKwkJCXZhbCA9IHJlYWRsKCBvcF9y
-ZWdfYmFzZSArIEVIQ0lfVVNCU1RTKTsKKwkJCWlmICggKHZhbCA9PSB+KHUzMikwKSB8fCAKKwkJ
-CSAgICAgKHZhbCAmIEVIQ0lfVVNCU1RTX0hBTFRFRCkpIHsKKwkJCQlicmVhazsKKwkJCX0KKwkJ
-fSB3aGlsZSAoIHdhaXRfdGltZSA+IDApOworCX0KKwl3cml0ZWwoIDAsIG9wX3JlZ19iYXNlICsg
-RUhDSV9VU0JJTlRSKTsKKwl3cml0ZWwoIDB4M2YsIG9wX3JlZ19iYXNlICsgRUhDSV9VU0JTVFMp
-OworCisJaW91bm1hcChiYXNlKTsKKworCXJldHVybjsKK30KKworc3RhdGljIHZvaWQgX19pbml0
-IHF1aXJrX3VzYl9kaXNhYmxlX3NtbV9iaW9zKHN0cnVjdCBwY2lfZGV2ICpwZGV2KQoreworCWlu
-dCB3YWl0X3RpbWUsIGRlbHRhOworCisJaWYgKCFkaXNhYmxlX2xlZ2FjeV91c2IpCisJCXJldHVy
-bjsKKworCWlmIChwZGV2LT5jbGFzcyA9PSAoKFBDSV9DTEFTU19TRVJJQUxfVVNCIDw8IDgpIHwg
-MHgwMCkpIHsgLyogVUhDSSAqLworCQlpbnQgaTsKKwkJdW5zaWduZWQgbG9uZyBiYXNlID0gMDsK
-KwkJdTE2IHZhbCwgc3RzOworCisJCWZvciAoaSA9IDA7IGkgPCBQQ0lfUk9NX1JFU09VUkNFOyBp
-KyspCisJCQlpZiAoKHBjaV9yZXNvdXJjZV9mbGFncyhwZGV2LCBpKSAmIElPUkVTT1VSQ0VfSU8p
-KSB7CisJCQkJYmFzZSA9IHBjaV9yZXNvdXJjZV9zdGFydChwZGV2LCBpKTsKKwkJCQlicmVhazsK
-KwkJCX0KKworCQlpZiAoIWJhc2UpCisJCQlyZXR1cm47CisKKwkJLyoKKwkJICogc3RvcCBjb250
-cm9sbGVyCisJCSAqLworCQlzdHMgPSBpbncoYmFzZSArIFVIQ0lfVVNCU1RTKTsKKwkJdmFsID0g
-aW53KGJhc2UgKyBVSENJX1VTQkNNRCk7CisJCXZhbCAmPSB+KHUxNikoVUhDSV9VU0JDTURfUlVO
-IHwgVUhDSV9VU0JDTURfQ09ORklHVVJFKTsKKwkJb3V0dyh2YWwsIGJhc2UgKyBVSENJX1VTQkNN
-RCk7CisKKwkJLyoKKwkJICogd2FpdCB3aGlsZSBpdCBzdG9wcyBpZiBpdCB3YXMgcnVubmluZwor
-CQkgKi8KKwkJaWYgKCAoc3RzICYgVUhDSV9VU0JTVFNfSEFMVEVEKSA9PSAwICkKKwkJeworCQkJ
-d2FpdF90aW1lID0gMTAwMDsKKwkJCWRlbHRhID0gMTAwOworCisJCQlkbyB7CisJCQkJb3V0dygw
-eDFmLCBiYXNlICsgVUhDSV9VU0JTVFMpOworCQkJCXVkZWxheSggZGVsdGEpOworCQkJCXdhaXRf
-dGltZSAtPSBkZWx0YTsKKwkJCQl2YWwgPSBpbncoYmFzZSArIFVIQ0lfVVNCU1RTKTsKKwkJCQlp
-ZiAodmFsICYgVUhDSV9VU0JTVFNfSEFMVEVEKQorCQkJCQlicmVhazsKKwkJCX0gd2hpbGUgKCB3
-YWl0X3RpbWUgPiAwICk7CisJCX0KKworCQkvKgorCQkgKiBkaXNhYmxlIGludGVycnVwdHMgJiBs
-ZWdhY3kgc3VwcG9ydAorCQkgKi8KKwkJb3V0dygwLCBiYXNlICsgVUhDSV9VU0JJTlRSKTsKKwkJ
-b3V0dygweDFmLCBiYXNlICsgVUhDSV9VU0JTVFMpOworCQlwY2lfcmVhZF9jb25maWdfd29yZChw
-ZGV2LCBVSENJX1VTQkxFR1NVUCwgJnZhbCk7CisJCWlmICggdmFsICYgMHhiZiApIAorCQkJcGNp
-X3dyaXRlX2NvbmZpZ193b3JkKHBkZXYsIFVIQ0lfVVNCTEVHU1VQLCAKKwkJCQkJICAgICAgVUhD
-SV9VU0JMRUdTVVBfREVGQVVMVCk7CisKKwl9IGVsc2UgaWYgKHBkZXYtPmNsYXNzID09ICgoUENJ
-X0NMQVNTX1NFUklBTF9VU0IgPDwgOCkgfCAweDEwKSkgeyAvKiBPSENJICovCisJCWNoYXIgKmJh
-c2UgPSBpb3JlbWFwX25vY2FjaGUocGNpX3Jlc291cmNlX3N0YXJ0KHBkZXYsIDApLAorCQkJCQkg
-ICAgIHBjaV9yZXNvdXJjZV9sZW4ocGRldiwgMCkpOworCQlpZiAoYmFzZSA9PSBOVUxMKSByZXR1
-cm47CisKKwkJaWYgKHJlYWRsKGJhc2UgKyBPSENJX0NPTlRST0wpICYgT0hDSV9DVFJMX0lSKSB7
-CisJCQl3YWl0X3RpbWUgPSA1MDA7IC8qIDAuNSBzZWNvbmRzICovCisJCQl3cml0ZWwoT0hDSV9J
-TlRSX09DLCBiYXNlICsgT0hDSV9JTlRSRU5BQkxFKTsKKwkJCXdyaXRlbChPSENJX09DUiwgYmFz
-ZSArIE9IQ0lfQ01EU1RBVFVTKTsKKwkJCXdoaWxlICggKHdhaXRfdGltZSA+IDApICYmIAorCQkJ
-CXJlYWRsKGJhc2UgKyBPSENJX0NPTlRST0wpICYgT0hDSV9DVFJMX0lSKSB7CisJCQkJd2FpdF90
-aW1lIC09IDEwOworCQkJCXNldF9jdXJyZW50X3N0YXRlKFRBU0tfVU5JTlRFUlJVUFRJQkxFKTsK
-KwkJCQlzY2hlZHVsZV90aW1lb3V0KCAoSFoqMTAgKyA5OTkpIC8gMTAwMCk7CisJCQl9CisJCX0K
-KworCQkvKgorCQkgKiBkaXNhYmxlIGludGVycnVwdHMKKwkJICovCisJCXdyaXRlbCh+KHUzMikw
-LCBiYXNlICsgT0hDSV9JTlRSRElTQUJMRSk7CisJCXdyaXRlbCh+KHUzMikwLCBiYXNlICsgT0hD
-SV9JTlRSU1RBVFVTKTsKKworCQlpb3VubWFwKGJhc2UpOworCX0gZWxzZSBpZiAocGRldi0+Y2xh
-c3MgPT0gKChQQ0lfQ0xBU1NfU0VSSUFMX1VTQiA8PCA4KSB8IDB4MjApKSB7IC8qIEVIQ0kgKi8K
-KwkJcXVpcmtfdXNiX2Rpc2FibGVfZWhjaSggcGRldik7CisJfQorCisJcmV0dXJuOworfQorCiAv
-KgogICogIFRoZSBtYWluIHRhYmxlIG9mIHF1aXJrcy4KICAqLwpAQCAtODE2LDYgKzEwMzIsNyBA
-QAogCXsgUENJX0ZJWFVQX0hFQURFUiwJUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklDRV9J
-RF9JTlRFTF84MjgwMUJBXzAsCWFzdXNfaGlkZXNfc21idXNfbHBjIH0sCiAKIAl7IFBDSV9GSVhV
-UF9GSU5BTCwJUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklDRV9JRF9JTlRFTF9TTUNILCAg
-cXVpcmtfcGNpZWhwX21zaSB9LAorCXsgUENJX0ZJWFVQX0ZJTkFMLAlQQ0lfQU5ZX0lELAkJUENJ
-X0FOWV9JRCwJCXF1aXJrX3VzYl9kaXNhYmxlX3NtbV9iaW9zIH0sCiAJCiAJeyAwIH0KIH07CmRp
-ZmYgLXJ1TiBsaW51eC0yLjQuMjcvaW5jbHVkZS9hc20taTM4Ni9zbXBib290LmggbGludXgtMi40
-LjI3LWZpeC9pbmNsdWRlL2FzbS1pMzg2L3NtcGJvb3QuaAotLS0gbGludXgtMi40LjI3L2luY2x1
-ZGUvYXNtLWkzODYvc21wYm9vdC5oCTIwMDQtMDgtMDcgMTY6MjY6MDYuMDAwMDAwMDAwIC0wNzAw
-CisrKyBsaW51eC0yLjQuMjctZml4L2luY2x1ZGUvYXNtLWkzODYvc21wYm9vdC5oCTIwMDQtMDgt
-MTYgMTE6Mjk6NDUuMDAwMDAwMDAwIC0wNzAwCkBAIC0xNSw2ICsxNSw3IEBACiBleHRlcm4gdW5z
-aWduZWQgY2hhciBpbnRfZGVsaXZlcnlfbW9kZTsKIGV4dGVybiB1bnNpZ25lZCBpbnQgaW50X2Rl
-c3RfYWRkcl9tb2RlOwogZXh0ZXJuIGludCBjeWNsb25lX3NldHVwKGNoYXIqKTsKK2V4dGVybiBp
-bnQgZGlzYWJsZV9sZWdhY3lfdXNiOwogCiBzdGF0aWMgaW5saW5lIHZvaWQgZGV0ZWN0X2NsdXN0
-ZXJlZF9hcGljKGNoYXIqIG9lbSwgY2hhciogcHJvZCkKIHsKQEAgLTI5LDYgKzMwLDcgQEAKIAkJ
-ZXNyX2Rpc2FibGUgPSAxOwogCQkvKlN0YXJ0IGN5Y2xvbmUgY2xvY2sqLwogCQljeWNsb25lX3Nl
-dHVwKDApOworCQlkaXNhYmxlX2xlZ2FjeV91c2IgPSAxOwogCS8qIGNoZWNrIGZvciBBQ1BJIHRh
-YmxlcyAqLwogCX0gZWxzZSBpZiAoIXN0cm5jbXAob2VtLCAiSUJNIiwgMykgJiYKIAkgICAgKCFz
-dHJuY21wKHByb2QsICJTRVJWSUdJTCIsIDgpIHx8CkBAIC00MSw2ICs0Myw3IEBACiAJCWVzcl9k
-aXNhYmxlID0gMTsKIAkJLypTdGFydCBjeWNsb25lIGNsb2NrKi8KIAkJY3ljbG9uZV9zZXR1cCgw
-KTsKKwkJZGlzYWJsZV9sZWdhY3lfdXNiID0gMTsKIAl9IGVsc2UgaWYgKCFzdHJuY21wKG9lbSwg
-IklCTSBOVU1BIiwgOCkpewogCQljbHVzdGVyZWRfYXBpY19tb2RlID0gQ0xVU1RFUkVEX0FQSUNf
-TlVNQVE7CiAJCWFwaWNfYnJvYWRjYXN0X2lkID0gQVBJQ19CUk9BRENBU1RfSURfQVBJQzsK
-
-------_=_NextPart_001_01C483CC.7D5E0FE0--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273741AbRI0Tga>; Thu, 27 Sep 2001 15:36:30 -0400
+	id <S273696AbRI0TbK>; Thu, 27 Sep 2001 15:31:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273747AbRI0TgV>; Thu, 27 Sep 2001 15:36:21 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:13561 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273741AbRI0TgK>;
-	Thu, 27 Sep 2001 15:36:10 -0400
-Date: Thu, 27 Sep 2001 15:36:31 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Alan Cox <laughing@shared-source.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.9-ac16 swapoff 2*vfree
-In-Reply-To: <Pine.LNX.4.21.0109271956420.1095-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0109271535500.1671-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273705AbRI0TbA>; Thu, 27 Sep 2001 15:31:00 -0400
+Received: from borg.org ([208.218.135.231]:31492 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S273696AbRI0Tas>;
+	Thu, 27 Sep 2001 15:30:48 -0400
+Date: Thu, 27 Sep 2001 15:31:14 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.9-ac16
+Message-ID: <20010927153114.A4190@borg.org>
+In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Thu, Sep 27, 2001 at 06:51:07PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It's working for me.  I have loaded up three X sessions, and bunches
+of software running.  My 500 MHz PIII with 192 MB of RAM and 255 MB of
+swap in current use is certainly willing to take some time if I try to
+get from one X session to another.  And some Netscape windows seem
+stubborn about refreshing, but I think it's looking good.
+
+Having been a complainer, I hereby say it seems fixed.
 
 
-On Thu, 27 Sep 2001, Hugh Dickins wrote:
-
-> 2.4.9-ac16 swapoff warns "Trying to vfree() nonexistent vm area":
-> the new (outside locks) vfree added, the old (inside) not removed.
-
-Oh, crap... Thanks for spotting.
- 
-> Hugh
-> 
-> --- 2.4.9-ac16/mm/swapfile.c	Thu Sep 27 19:10:00 2001
-> +++ linux/mm/swapfile.c	Thu Sep 27 19:43:12 2001
-> @@ -636,7 +636,6 @@
->  	p->swap_device = 0;
->  	p->max = 0;
->  	swap_map = p->swap_map;
-> -	vfree(p->swap_map);
->  	p->swap_map = NULL;
->  	p->flags = 0;
->  	swap_device_unlock(p);
-> 
-> 
-
+-kb, the Kent who of course had to put the preemption patch in there
+too.

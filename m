@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUGMDEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263085AbUGMDJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263040AbUGMDEx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 23:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUGMDEx
+	id S263085AbUGMDJo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 23:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbUGMDJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 23:04:53 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8360 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263040AbUGMDEw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 23:04:52 -0400
-Message-ID: <40F35140.6020509@pobox.com>
-Date: Mon, 12 Jul 2004 23:04:32 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 12 Jul 2004 23:09:44 -0400
+Received: from muss.CIS.McMaster.CA ([130.113.64.9]:2719 "EHLO
+	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
+	id S263085AbUGMDJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 23:09:42 -0400
+From: Gabriel Devenyi <devenyga@mcmaster.ca>
+To: ck@vds.kolivas.org
+Subject: Re: [ck] Re: Preempt Threshold Measurements
+Date: Mon, 12 Jul 2004 23:09:43 -0400
+User-Agent: KMail/1.6.2
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+References: <200407121943.25196.devenyga@mcmaster.ca> <200407122248.50377.devenyga@mcmaster.ca> <20040713025502.GR21066@holomorphy.com>
+In-Reply-To: <20040713025502.GR21066@holomorphy.com>
 MIME-Version: 1.0
-To: "Robert M. Stockmann" <stock@stokkie.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SATA disk device naming ?
-References: <Pine.LNX.4.44.0407130415430.15806-100000@hubble.stokkie.net>
-In-Reply-To: <Pine.LNX.4.44.0407130415430.15806-100000@hubble.stokkie.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200407122309.43088.devenyga@mcmaster.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert M. Stockmann wrote:
-> Hi,
-> 
-> After a rather tiresome nightly sit through, we discovered that when
-> going from kernel 2.6.3 to kernel 2.6.7 the SATA disk device naming
-> on at least the AMD64 platform changes from : /dev/hde and up 
-> to /dev/sda and up. What a total disaster. 
+Ah good, thanks for the suggestion on how to improve this... Now, what exactly 
+is that, and where/how do I change it.... (I really should start/finish that 
+"understanding the linux kernel" book of mine)
 
 
-Whoever builds your kernels changed around the kernel configuration on you.
+-- 
+Gabriel Devenyi
+devenyga@mcmaster.ca
 
-SATA "disk naming" (what driver you use) did not change from 2.6.3 to 2.6.7.
-
-	Jeff
-
-
+On Monday 12 July 2004 22:55, William Lee Irwin III wrote:
+> On Mon, Jul 12, 2004 at 10:48:50PM -0400, Gabriel Devenyi wrote:
+> > Well I'm not particularly educated in kernel internals yet, here's some
+> > reports from the system when its running.
+> > 6ms non-preemptible critical section violated 4 ms preempt threshold
+> > starting at do_munmap+0xd2/0x140 and ending at do_munmap+0xeb/0x140
+> >  [<c014007b>] do_munmap+0xeb/0x140
+> >  [<c01163b0>] dec_preempt_count+0x110/0x120
+> >  [<c014007b>] do_munmap+0xeb/0x140
+> >  [<c014010f>] sys_munmap+0x3f/0x60
+> >  [<c0103ee1>] sysenter_past_esp+0x52/0x71
+>
+> Looks like ZAP_BLOCK_SIZE may be too large for you. Lowering that some
+> may "help" this. It's probably harmless, but try lowering that to half
+> of whatever it is now, or maybe 64*PAGE_SIZE. It may be worthwhile
+> to restructure how the preemption points are done in unmap_vmas() so
+> we don't end up in some kind of tuning nightmare.
+>
+>
+> -- wli
+> _______________________________________________
+> ck@vds.kolivas.org
+> ck mailing list - unmoderated. Please reply-to-all when posting.
+> http://bhhdoa.org.au/mailman/listinfo/ck

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbTDMLBB (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 07:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263445AbTDMLBB (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 07:01:01 -0400
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:24194 "HELO
+	id S263461AbTDMLDr (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 07:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263462AbTDMLDr (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 07:03:47 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:42114 "HELO
 	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S263444AbTDMLA7 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 07:00:59 -0400
+	id S263461AbTDMLDq (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 07:03:46 -0400
 Subject: Re: 2.5.67-mm2
 From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Shane Shrybman <shrybman@sympatico.ca>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1050200256.2110.1.camel@mars.goatskin.org>
-References: <1050200256.2110.1.camel@mars.goatskin.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <200304130317.h3D3HprZ021939@turing-police.cc.vt.edu>
+References: <20030412180852.77b6c5e8.akpm@digeo.com>
+	 <1050198928.597.6.camel@teapot.felipe-alfaro.com>
+	 <200304130317.h3D3HprZ021939@turing-police.cc.vt.edu>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1050232349.593.0.camel@teapot.felipe-alfaro.com>
+Message-Id: <1050232513.593.2.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 13 Apr 2003 13:12:30 +0200
+Date: 13 Apr 2003 13:15:13 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-04-13 at 04:17, Shane Shrybman wrote:
-> Hi,
+On Sun, 2003-04-13 at 05:17, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 13 Apr 2003 03:55:29 +0200, Felipe Alfaro Solana said:
 > 
-> 2.5.67-mm2 hangs just after "ok, booting the kernel", 2.5.67-mm1 worked
-> fine with the same config. This on a uniproc, k7, ide machine.
+> > Any patches for CardBus/PCMCIA support? It's broken for me since
+> > 2.5.66-mm2 (it works with 2.5.66-mm1) probably due to PCI changes or the
+> > new PCMCIA state machine: if I boot my machine with my 3Com CardBus NIC
+> > plugged in, the kernel deadlocks while checking the sockets, but it
+> > works when booting with the card unplugged, and then plugging it back
+> > once the system is stable (for example, init 1).
+> 
+> Also seeing this with a Xircom card under vanilla 2.5.67.
+> 
+> lspci reports this card as:
+> 
+> 03:00.0 Ethernet controller: Xircom Cardbus Ethernet 10/100 (rev 03)
+> 03:00.1 Serial controller: Xircom Cardbus Ethernet + 56k Modem (rev 03)
+> 
+> Russel King posted an analysis back on April 1, which indicated he knew
+> about the problem, understood it, and was working on it.
 
-I'm experiencing exactly the same as you... It worked fine with
-2.5.67-mm1 and 2.5.67-bk3.
+Yeah! I know, but I wrote him and didn't get a response, so I'm a little
+bit worried. I assume he'll be too busy.
+
 -- 
 Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
 See http://www.fsf.org/philosophy/no-word-attachments.html

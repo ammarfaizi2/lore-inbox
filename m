@@ -1,80 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVDEOwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVDEOxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVDEOwe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:52:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVDEOwe
+	id S261769AbVDEOxW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVDEOxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:52:34 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:57258 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261767AbVDEOw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:52:28 -0400
-X-ME-UUID: 20050405145227406.631661C00289@mwinf0606.wanadoo.fr
-Date: Tue, 5 Apr 2005 16:49:04 +0200
-To: Troy Benjegerdes <hozer@hozed.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Sven Luther <sven.luther@wanadoo.fr>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       davem@redhat.com
-Subject: Re: PATCH: separate non-GPL tg3 firmware from GPL driver file
-Message-ID: <20050405144904.GA25311@pegasos>
-References: <20050405141258.GS26127@kalmia.hozed.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050405141258.GS26127@kalmia.hozed.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Tue, 5 Apr 2005 10:53:13 -0400
+Received: from hades.almg.gov.br ([200.198.60.36]:38784 "EHLO
+	hades.almg.gov.br") by vger.kernel.org with ESMTP id S261769AbVDEOw6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 10:52:58 -0400
+Message-ID: <4252A65A.9030109@almg.gov.br>
+Date: Tue, 05 Apr 2005 11:53:14 -0300
+From: Humberto Massa <humberto.massa@almg.gov.br>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+MIME-Version: 1.0
+To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <20050405135701.GA24361@pegasos>
+In-Reply-To: <20050405135701.GA24361@pegasos>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 09:12:58AM -0500, Troy Benjegerdes wrote:
-> Please either apply the following somewhere, or consider this a request 
-> for the human-readable version of the "tg3TsoFwText" string, per the GPL
-> requirements.
 
-Notice that the same thing comes from (one of) the drivers distributed by
-broadcom directly from :
+Sven Luther wrote:
 
-  http://www.broadcom.com/drivers/driver-sla.php?driver=570x-Linux
+ >On Tue, Apr 05, 2005 at 09:03:21AM -0300, Humberto Massa wrote:
+ >
+ >>Theodore Ts'o wrote:
+ >>
+ >>>You know, the fact that Red Hat, SuSE, Ubuntu, and pretty much all
+ >>>other commercial distributions have not been worried about getting
+ >>>sued for this alleged GPL'ed violation makes it a lot harder for me
+ >>>(and others, I'm sure) take Debian's concerns seriously.
+ >>
+ >>I said in other e-mail, and I will repeat: it's not their (Debian's)
+ >>fault. Their responsibility is greater. Why? Because when RedHat puts
+ >>something it shouldn't in their distro it's *their* assets that will
+ >>answer for some copyright violation damages. In Debian's case, it's
+ >>the assets of: some DDs, the mirror network, derived-distro
+ >>distributors, CD vendors, etc... This is just a case of Debian being
+ >>"fiscally responsible", i.e., not treating other people's money as
+ >>trash.
+ >
+ >
+ >This is where you are wrong, and i believe this is caused because you
+ >don't understand how debian works on this.
 
-$ cat fw_lso05.h
-/******************************************************************************/
-/*                                                                            */
-/* Broadcom BCM5700 Linux Network Driver, Copyright (c) 2000 - 2003 Broadcom  */
-/* Corporation.                                                               */
-/* All rights reserved.                                                       */
-/*                                                                            */
-/* This program is free software; you can redistribute it and/or modify       */
-/* it under the terms of the GNU General Public License as published by       */
-/* the Free Software Foundation, located in the file LICENSE.                 */
-/*                                                                            */
-/* (c) COPYRIGHT 2001-2004 Broadcom Corporation, ALL RIGHTS RESERVED.         */
-/*                                                                            */
-/*  Name: F W _ L S O 0 5. H                                                  */
-/*  Author : Kevin Tran                                                       */
-/*  Version: 1.2                                                              */
-/*                                                                            */
-/* Module Description:  This file contains firmware binary code of TCP        */
-/* Segmentation firmware (BCM5705).                                           */
-/*                                                                            */
-/* History:                                                                   */
-/*    08/10/02 Kevin Tran       Incarnation.                                  */
-/*    02/02/04 Kevin Tran       Added Support for BCM5788.                    */
-/******************************************************************************/
-...
-U32 t3StkOffLd05FwText[(0xe90/4) + 1] = {
-0xc004003, 0x0, 0x10f04, 
-0x0, 0x10000003, 0x0, 0xd, 
-0xd, 0x3c1d0001, 0x37bde000, 0x3a0f021, 
-0x3c100001, 0x26100000, 0xc004010, 0x0, 
-...
+I was not commenting on Debian works; I was commenting on civil and
+criminal liabilities. If Debian, knowingly or not, distributes a
+copyrights-infringing work, the work's package(s) maintainer(s) are
+civil and criminally liable, and so are: CD distributors where said work
+is distributed in the CD, derived-distro distributors, and the mirror
+network members. Why? Because they are all distributing infringing
+works.
 
-It is specially ironic to see the GPL advertizement and the firmware binary
-words together :)
+Let me explain how this works. In 1999, the police went into a
+videostore in the city where I worked as a paralegal in the DA's office.
+There were a lot of pirated VHS tapes there (without the "not pirated"
+holographic seal that our MPAA-equivalent gives to the members to glue
+on their tapes/DVDs). The guy from the videostore did not make the
+copies, but he distributed (renting is a form of distribution, yes) the
+infringing works, so... unless he proves that he had all the good
+reasons to think that the works he bought were non-infringing (for
+instance, if they all had seals like the "official" one,
+undistinguishable by the naked eye), he is liable for the infringement.
+And so, the guy got some years of jailtime, plus some hefty fines.
 
-Will contact their driver support team, and see what it gives.
+ >The ftp-master are the ones reviewing the licencing problems, and they
+ >are the ones handling the infrastructure, and putting their
+ >responsability on the stake. If they feel that some piece of software
+ >has dubious legal issues which come at a risk of having them personally
+ >come on the receiving end of a legal case, then they will say, no, we
+ >don't distribute this software, and that is the end of it.
 
-Friendly,
+This is not the only thing that is at stake, as I demonstrated /
+illustrated by my anecdote above. But yes, probably ftp-master guys are
+liable, too.
 
-Sven Luther
+ >The other point is that other entities, like redhat, or suse (which is
+ >now novel and thus ibm) and so have stronger backbones, and can more
+ >easily muster the ressources to fight of a legal case, even one which
+ >is a dubious one, especially given the particularities of the US
+ >judicial system, where it is less important to be right, and more
+ >important to have lot of money to throw at your legal machine. Debian
+ >has nothing such, and SPI which would stand for this, is not really
+ >upto it either, so in this case, apart from all ideology and fanatism,
+ >it is for purely pragmatic reasons that they don't distribute
+ >undistributable files from the non-free part of our archive. You would
+ >do the same in their case.
+ >
+ >Also, you have to ask yourself what the above mentioned companies where
+ >to do if they where to be made aware of the issue, and ask their
+ >lawyers to attend this. Also you have to consider the case of some of
+ >those companies ending in the arms of a legally predative company and
+ >pulling another SCO at us.
+
+Yes and yes. But their lawyers have an option Debian does not, also:
+they can negotiate ($$$) an exclusive license to redistribute. As in:
+"Novell can redistribute this work in their Linux distro, at will". This
+would not be DFSG-free.
+
+ >
+ >Friendly,
+ >
+ >Sven Luther
+
+Friendly, HTH,
+Massa
+
 

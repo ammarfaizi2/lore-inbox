@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316933AbSEVKfs>; Wed, 22 May 2002 06:35:48 -0400
+	id <S290289AbSEVKmx>; Wed, 22 May 2002 06:42:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316934AbSEVKfr>; Wed, 22 May 2002 06:35:47 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:7699 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316933AbSEVKfr>;
-	Wed, 22 May 2002 06:35:47 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200205221035.g4MAZN9103286@saturn.cs.uml.edu>
+	id <S290593AbSEVKmw>; Wed, 22 May 2002 06:42:52 -0400
+Received: from AMontpellier-201-1-3-85.abo.wanadoo.fr ([193.252.1.85]:7148
+	"EHLO awak") by vger.kernel.org with ESMTP id <S290289AbSEVKmv> convert rfc822-to-8bit;
+	Wed, 22 May 2002 06:42:51 -0400
 Subject: Re: suspend-to-{RAM,disk} for 2.5.17
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Wed, 22 May 2002 06:35:22 -0400 (EDT)
-Cc: xavier.bestel@free.fr (Xavier Bestel),
-        torvalds@transmeta.com (Linus Torvalds), pavel@ucw.cz (Pavel Machek),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-        acpi-devel@lists.sourceforge.net (ACPI mailing list)
-In-Reply-To: <3CEB5EF4.604@evision-ventures.com> from "Martin Dalecki" at May 22, 2002 11:03:48 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        ACPI mailing list <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <3CEB5EF4.604@evision-ventures.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 22 May 2002 12:42:28 +0200
+Message-Id: <1022064150.16864.5.camel@bip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
+Le mer 22/05/2002 à 11:03, Martin Dalecki a écrit :
 > Uz.ytkownik Xavier Bestel napisa?:
-
->> Compressing pages will speed up the process, and doing it on the fly
->
+> 
+> > Compressing pages will speed up the process, and doing it on the fly
+> 
 > Did you ever in you life tar czvf ./some_dir and have a look at top?!
 
-lzo isn't such a CPU hog
+I just tried to verify; on my laptop (Armada 1700 w/ pII 300 & IBM
+Travelstar) I have roughly 20% idle CPU during tar zcf. Laptop HDs are
+slow.
+
+

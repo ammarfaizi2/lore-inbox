@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263482AbTJOQQI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 12:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbTJOQQI
+	id S263539AbTJOQZK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 12:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbTJOQZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 12:16:08 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:22950 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263482AbTJOQQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 12:16:05 -0400
-X-Sender-Authentication: net64
-Date: Wed, 15 Oct 2003 18:16:02 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
+	Wed, 15 Oct 2003 12:25:10 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:22710 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263539AbTJOQZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 12:25:07 -0400
+Subject: Re: Transparent compression in the FS
+From: David Woodhouse <dwmw2@infradead.org>
+To: josh@temp123.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: incoming packet latency in 2.4.[18-20]
-Message-Id: <20031015181602.07fd0959.skraw@ithnet.com>
-In-Reply-To: <3F8D6BB0.7060809@nortelnetworks.com>
-References: <3F8D6BB0.7060809@nortelnetworks.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+In-Reply-To: <1066163449.4286.4.camel@Borogove>
+References: <1066163449.4286.4.camel@Borogove>
+Content-Type: text/plain
+Message-Id: <1066235105.14783.1602.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2.dwmw2.3) 
+Date: Wed, 15 Oct 2003 17:25:06 +0100
 Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Oct 2003 11:45:52 -0400
-Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+On Tue, 2003-10-14 at 16:30 -0400, Josh Litherland wrote:
+> Are there any filesystems which implement the transparent compression
+> attribute ?  (chattr +c)
 
-> 
-> There is an issue with incoming packet latency in the kernels mentioned.
-> 
-> It seems that if you send in a burst of messages, the amount of time it 
-> takes to wake the listening process is dependent on the size of the 
-> message burst.  2.4.18-2.4.20 all show this behaviour, 2.6 doesn't.
-> 
-> Some numbers for a udp message size of 2 bytes:
-> 
-> 1 packet, average latency 12 usecs
-> 10 packets, average latency 66 usecs
-> 100 packets, average latency 477 usecs
-> 
-> Is this a known issue?  Is there an easy way to fix this, or is it 
-> something inherent in the 2.4 architecture?
+JFFS2 doesn't implement 'chattr +c', which is in fact an EXT2-private
+ioctl. But it does do transparent compression.
 
-Can you verify these numbers with 2.4.22 and 2.4.23-pre7 ?
+-- 
+dwmw2
 
-Regards,
-Stephan

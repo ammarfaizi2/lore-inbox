@@ -1,124 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317856AbSGVSZZ>; Mon, 22 Jul 2002 14:25:25 -0400
+	id <S317849AbSGVSUX>; Mon, 22 Jul 2002 14:20:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317857AbSGVSZZ>; Mon, 22 Jul 2002 14:25:25 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59900 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317856AbSGVSZX>; Mon, 22 Jul 2002 14:25:23 -0400
-Subject: Re: [PATCH] low-latency zap_page_range
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, riel@conectiva.com.br,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.44.0207221103430.2928-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0207221103430.2928-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Jul 2002 11:28:21 -0700
-Message-Id: <1027362501.932.56.camel@sinai>
+	id <S317850AbSGVSUW>; Mon, 22 Jul 2002 14:20:22 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:26496 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id <S317849AbSGVSUO>;
+	Mon, 22 Jul 2002 14:20:14 -0400
+Date: Mon, 22 Jul 2002 20:23:07 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: torvalds@transmeta.com
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: [PATCH] ipx use of cli/sti
+Message-ID: <20020722182307.GA5932@vana.vc.cvut.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 11:05, Linus Torvalds wrote:
+Hi Linus,
+  patch below removes cli/sti from SPX registration
+code in IPX. I decided to use normal rw_semaphore instead
+of net_family_{write,read}_{lock,unlock} used in
+net/socket.c.
 
-> On 22 Jul 2002, Robert Love wrote:
-> >
-> > Sure.  What do you think of this?
-> 
-> How about adding an "cond_resched_lock()" primitive?
+  I left SPX code itself alone: I do not use it and
+last time I checked it it was very unreliable reliable
+transport.
+				Thanks,
+					Petr Vandrovec
 
-And this patch is an updated zap_page_range() now using the new approach
-I posted and Linus's suggested cond_resched_lock method (previous
-patch).
 
-Personally I still prefer the simpler loop method... note that the
-cond_resched_lock() assumes that the lock depth is ALWAYS 1 - e.g., we
-explicitly call schedule.  A safer alternative would be break_spin_lock
-which will preemptively reschedule automatically, but only if
-preempt_count==0 (and only with the preemptible kernel enabled).
 
-This patch also has the other cleanups/optimizations from the original
-zap_page_range patch - same patch as before but with the new method. 
-Patch is against 2.5 BK.
-
-	Robert Love
-
-diff -urN linux-2.5.27/mm/memory.c linux/mm/memory.c
---- linux-2.5.27/mm/memory.c	Sat Jul 20 12:11:17 2002
-+++ linux/mm/memory.c	Mon Jul 22 11:18:10 2002
-@@ -390,8 +390,8 @@
+--- linux-2.5.27-c683/net/ipx/af_ipx.c.orig	2002-07-22 15:32:51.000000000 +0200
++++ linux-2.5.27-c683/net/ipx/af_ipx.c	2002-07-22 20:10:39.000000000 +0200
+@@ -145,6 +145,7 @@
+ static struct proto_ops ipx_dgram_ops;
+ 
+ static struct net_proto_family *spx_family_ops;
++static DECLARE_RWSEM(spx_family_ops_lock);
+ 
+ static ipx_route *ipx_routes;
+ static rwlock_t ipx_routes_lock = RW_LOCK_UNLOCKED;
+@@ -1929,10 +1930,13 @@
+ 			 * From this point on SPX sockets are handled
+ 			 * by af_spx.c and the methods replaced.
+ 			 */
++			down_read(&spx_family_ops_lock);
+ 			if (spx_family_ops) {
+ 				ret = spx_family_ops->create(sock, protocol);
++				up_read(&spx_family_ops_lock);
+ 				goto decmod;
+ 			}
++			up_read(&spx_family_ops_lock);
+ 			/* Fall through if SPX is not loaded */
+ 		case SOCK_STREAM:       /* Allow higher levels to piggyback */
+ 		default:
+@@ -2463,20 +2467,27 @@
+ 
+ int ipx_register_spx(struct proto_ops **p, struct net_proto_family *spx)
  {
- 	pgd_t * dir;
- 
--	if (address >= end)
--		BUG();
-+	BUG_ON(address >= end);
+-        if (spx_family_ops)
+-                return -EBUSY;
+-        cli();
+-        MOD_INC_USE_COUNT;
+-        *p = &ipx_dgram_ops;
+-        spx_family_ops = spx;
+-        sti();
++	int err;
 +
- 	dir = pgd_offset(vma->vm_mm, address);
- 	tlb_start_vma(tlb, vma);
- 	do {
-@@ -402,33 +402,43 @@
- 	tlb_end_vma(tlb, vma);
- }
- 
--/*
-- * remove user pages in a given range.
-+#define ZAP_BLOCK_SIZE	(256 * PAGE_SIZE) /* how big a chunk we loop over */
-+
-+/**
-+ * zap_page_range - remove user pages in a given range
-+ * @vma: vm_area_struct holding the applicable pages
-+ * @address: starting address of pages to zap
-+ * @size: number of bytes to zap
-  */
- void zap_page_range(struct vm_area_struct *vma, unsigned long address, unsigned long size)
- {
- 	struct mm_struct *mm = vma->vm_mm;
- 	mmu_gather_t *tlb;
--	pgd_t * dir;
--	unsigned long start = address, end = address + size;
-+	unsigned long end, block;
- 
--	dir = pgd_offset(mm, address);
-+	spin_lock(&mm->page_table_lock);
- 
- 	/*
--	 * This is a long-lived spinlock. That's fine.
--	 * There's no contention, because the page table
--	 * lock only protects against kswapd anyway, and
--	 * even if kswapd happened to be looking at this
--	 * process we _want_ it to get stuck.
-+	 * This was once a long-held spinlock.  Now we break the
-+	 * work up into ZAP_BLOCK_SIZE units and relinquish the
-+	 * lock after each interation.  This drastically lowers
-+	 * lock contention and allows for a preemption point.
- 	 */
--	if (address >= end)
--		BUG();
--	spin_lock(&mm->page_table_lock);
--	flush_cache_range(vma, address, end);
-+	while (size) {
-+		block = (size > ZAP_BLOCK_SIZE) ? ZAP_BLOCK_SIZE : size;
-+		end = address + block;
-+
-+		flush_cache_range(vma, address, end);
-+		tlb = tlb_gather_mmu(mm, 0);
-+		unmap_page_range(tlb, vma, address, end);
-+		tlb_finish_mmu(tlb, address, end);
-+
-+		cond_resched_lock(&mm->page_table_lock);
-+
-+		address += block;
-+		size -= block;
++	err = -EBUSY;
++	down_write(&spx_family_ops_lock);
++        if (!spx_family_ops) {
++	        MOD_INC_USE_COUNT;
++        	*p = &ipx_dgram_ops;
++	        spx_family_ops = spx;
 +	}
- 
--	tlb = tlb_gather_mmu(mm, 0);
--	unmap_page_range(tlb, vma, address, end);
--	tlb_finish_mmu(tlb, start, end);
- 	spin_unlock(&mm->page_table_lock);
++        up_write(&spx_family_ops_lock);
+         return 0;
  }
  
-
+ int ipx_unregister_spx(void)
+ {
+-        spx_family_ops = NULL;
+-        MOD_DEC_USE_COUNT;
++	down_write(&spx_family_ops_lock);
++	if (spx_family_ops) {
++	        spx_family_ops = NULL;
++        	MOD_DEC_USE_COUNT;
++	}
++	up_write(&spx_family_ops_lock);
+         return 0;
+ }
+ 

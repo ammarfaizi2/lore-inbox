@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265392AbTL2Uem (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbTL2Uem
+	id S265383AbTL2U22 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:28:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbTL2U21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:34:42 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:9688 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S265392AbTL2Udd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:33:33 -0500
-Date: Mon, 29 Dec 2003 13:34:48 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is it safe to ignore UDMA BadCRC errors?
-Message-ID: <20031229203448.GD27234@bounceswoosh.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us> <20031229195235.GC26821@bounceswoosh.org> <20031229202432.GA8418@spacken.de>
+	Mon, 29 Dec 2003 15:28:27 -0500
+Received: from CPE-24-163-214-136.mn.rr.com ([24.163.214.136]:20420 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S265383AbTL2U2Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 15:28:25 -0500
+Subject: Re: best AMD motherboard for Linux
+From: Shawn <core@enodev.com>
+To: Patrick Plattes <patrick@erdbeere.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031228211048.GA5870@erdbeere.net>
+References: <3FEF0AFD.4040109@yahoo.com>
+	 <20031228172008.GA9089@c0re.hysteria.sk> <3FEF0AFD.4040109@yahoo.com>
+	 <20031228174828.GF3386@DervishD>  <20031228211048.GA5870@erdbeere.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1072729704.8769.3.camel@www.enodev.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20031229202432.GA8418@spacken.de>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 29 Dec 2003 14:28:24 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29 at 21:24, Florian Schuele wrote:
->i wrote a mail to this list a few days ago.
->i have the same error messages as the above.
->but _only_ with kernel 2.6.0, _not_ with 2.4.20 ...
->thats strange. isnt it?
->after i little traffic on the hd`s the system freezes.
+I run the Asus KT600 w/ SATA, and all is dandy here. I love it, as my
+UP_IOAPIC works (is wired correctly) unlike on my Biostar board.
 
-Your error message wasn't the same.
-
-You reported status 0x51 with error code 0x04.  That is the generic
-catch-all error message, which usually refers to aborted commands.
-Unfortunately, it's tough to know what command the system was
-attempting to issue when your drive aborted the command.  There may be
-some IDE debugging code you can enable to attempt to find out, but I
-don't know exactly how to do that, a linux IDE person will need to
-speak up... i'm just a generic IDE person.
-
-The previous poster reported 0x51 with error code 0x80, that is
-specifically UDMA CRC errors, and I diagnosed it as such.
-
---
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+On Sun, 2003-12-28 at 15:10, Patrick Plattes wrote:
+> On Sun, Dec 28, 2003 at 06:48:28PM +0100, DervishD wrote:
+> >     Hi Eugene :)
+> >
+> >     Oh, ye olde kernel hacker... who hasn't write a line of code in
+> > the kernel... Have you tried to be polite and stop making noise in
+> > [...]
+> 
+> hey, be cool :)
+> 
+> and eugene: there are some websites, which are able to help you -
+> normally much faster and better than any mailing-list can do. normally
+> the distributor has a database with supported hardware. if you
+> distributer has no database online have a look at websites from other
+> distributors, maybe:
+> http://hardwaredb.suse.de/?LANG=en_UK
+> http://hardware.redhat.com/hcl/
+> 
+> or:
+> http://www.linuxhardware.org/
+> 
+> i think that you will finde an answer much faster, than anybody can
+> write an e-mail ;)
+> 
+> cu
+> pp
+> 

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSKHONG>; Fri, 8 Nov 2002 09:13:06 -0500
+	id <S262046AbSKHORK>; Fri, 8 Nov 2002 09:17:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262045AbSKHONG>; Fri, 8 Nov 2002 09:13:06 -0500
-Received: from 24-216-100-96.charter.com ([24.216.100.96]:34178 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id <S262040AbSKHONF>;
-	Fri, 8 Nov 2002 09:13:05 -0500
-Date: Fri, 8 Nov 2002 09:19:31 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.19 + patch-20-pre11 Broken NVidia FB
-Message-ID: <20021108141931.GA1319@rdlg.net>
-Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S262055AbSKHORK>; Fri, 8 Nov 2002 09:17:10 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:61922 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S262046AbSKHORJ>;
+	Fri, 8 Nov 2002 09:17:09 -0500
+Date: Fri, 8 Nov 2002 15:22:55 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Rusty Trivial Russell <trivial@rustcorp.com.au>
+Subject: Re: [PATCH] SCSI on non-ISA systems
+In-Reply-To: <20021108135742.A22790@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0211081522050.23267-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Nov 2002, Russell King wrote:
+> On Fri, Nov 08, 2002 at 02:46:40PM +0100, Geert Uytterhoeven wrote:
+> > Since 2.5.31, the compilation of kernel/dma.c is conditional on
+> > CONFIG_GENERIC_ISA_DMA. However, drivers/scsi/hosts.c unconditionally calls
+> > free_dma(), which breaks machines with SCSI that don't have ISA.
+> 
+> This isn't actually the original purpose of CONFIG_GENERIC_ISA_DMA (it
+> was to allow an architecture to provide ISA-like DMA without having to
+> use the ISA DMA request/free functions - eg, they need to claim interrupts
+> on request_dma() and free them on free_dma()).
 
+Then what's the correct(TM) fix? Unconditionally #define
+CONFIG_GENERIC_ISA_DMA, so it behaves like before?
 
-  Rebuilt my home machine last night.  Used my 2.4.18 .config file as
-passing it down the chain as always.  Made the kernel with the standard
-alias and rebooted.  BRIGHT GREEN screen.  Rebooted to an older 2.4.18
-kernel, changed a few options, no go.  On a guess I removed the
-FrameBuffer option from the console menu and tried again.  Box is up and
-working great.  In addition, when the FB was compiled into the kernel or
-as a module X wouldn't work, said it couldn't find the NVidia kernel
-module.  Excluding the kernel frame buffer worked great.
+> However, since this function isn't used on ARM, it doesn't affect me,
+> and so I don't have any problem with this patch. 8)
 
-P4-2Ghz, 1Gig of ram, GForce3-64Meg.
+Hehe ;-)
 
-Robert
+Gr{oetje,eeting}s,
 
+						Geert
 
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | PGP Key ID: FC96D405
-                               
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-FYI:
- perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

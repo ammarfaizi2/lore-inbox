@@ -1,43 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267758AbTAXPlI>; Fri, 24 Jan 2003 10:41:08 -0500
+	id <S267757AbTAXPl5>; Fri, 24 Jan 2003 10:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267761AbTAXPlI>; Fri, 24 Jan 2003 10:41:08 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8452 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267758AbTAXPlH>;
-	Fri, 24 Jan 2003 10:41:07 -0500
-Date: Fri, 24 Jan 2003 16:46:47 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Kevin Lawton <kevinlawton2001@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-Message-ID: <20030124154647.GA20371@elf.ucw.cz>
-References: <20030122182341.66324.qmail@web80309.mail.yahoo.com>
+	id <S267761AbTAXPl5>; Fri, 24 Jan 2003 10:41:57 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:55829 "EHLO
+	poup.poupinou.org") by vger.kernel.org with ESMTP
+	id <S267757AbTAXPlx>; Fri, 24 Jan 2003 10:41:53 -0500
+Date: Fri, 24 Jan 2003 16:51:01 +0100
+To: Sergio Visinoni <piffio@arklinux.org>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@sourceforge.net
+Subject: Re: [ACPI] [TRIVIAL] Re: [PATCH] ACPI update (20030122)
+Message-ID: <20030124155101.GZ18109@poup.poupinou.org>
+References: <F760B14C9561B941B89469F59BA3A84725A131@orsmsx401.jf.intel.com> <20030124032222.A9061@piffio.homelinux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030122182341.66324.qmail@web80309.mail.yahoo.com>
+In-Reply-To: <20030124032222.A9061@piffio.homelinux.org>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+From: Ducrot Bruno <ducrot@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Jan 24, 2003 at 03:22:22AM +0100, Sergio Visinoni wrote:
+> * Grover, Andrew (andrew.grover@intel.com) wrote:
+> > (2.4) S4BIOS support (Ducrot Bruno)
+> 
+> Attached is the missing s4bios portion (the
+> acpi_enter_sleep_state_s4bios function ) + fixes to make it
+> build correctly on a 2.4.20 tree.
+> 
+> It should apply correctly on 2.4.21-pre3 as well (not tested).
+> 
 
-> I'm working on running Linux as a guest OS inside a
-> lightweight cut-down plex86 environment.  My goal is to
-> run a stock Linux kernel, which can be slimmed down to
-> the essentials via kernel configuration, since a guest
-> OS doesn't need to drive much hardware.
+It should be OK (I think..)
 
-Can you explain a bit more about plex86? I thought plex86 aims to be
-complete machine emulation, capable of running winNT (for example). I
-don't think M$ will accept such a patch from you...
+Appart the following chunk:
 
-Or will it only increase performance when running under plex86?
+--- linux-2.4.20/drivers/acpi/hardware/hwsleep.c.s4bios~	2003-01-24 02:35:41.000000000 +0100
++++ linux-2.4.20/drivers/acpi/hardware/hwsleep.c	2003-01-24 02:35:53.000000000 +0100
+@@ -339,6 +387,8 @@
+ 
+ 	ACPI_FUNCTION_TRACE ("acpi_leave_sleep_state");
+ 
++	/* Be sure to have BM arbitration */
++	status = acpi_set_register (ACPI_BITREG_ARB_DISABLE, 0, ACPI_MTX_LOCK);
+ 
+ 	/* Ensure enter_sleep_state_prep -> enter_sleep_state ordering */
+ 
+@@ -371,8 +421,5 @@
+ 		return_ACPI_STATUS (status);
+ 	}
+ 
+-	/* Disable BM arbitration */
+-	status = acpi_set_register (ACPI_BITREG_ARB_DISABLE, 0, ACPI_MTX_LOCK);
+-
+ 	return_ACPI_STATUS (status);
+ }
 
-								Pavel
+
+which is a bug fix for a different purpose.
+
+We can not trust the bios when we have to enter the _WAK method.
+Those we re-enable the BM arbitration before (the comment Disable
+is actually a mistake).
+
+Cheers,
+
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Ducrot Bruno
+
+--  Which is worse:  ignorance or apathy?
+--  Don't know.  Don't care.

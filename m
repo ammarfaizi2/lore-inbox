@@ -1,134 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275155AbRJAPgB>; Mon, 1 Oct 2001 11:36:01 -0400
+	id <S275172AbRJAPnT>; Mon, 1 Oct 2001 11:43:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275161AbRJAPfu>; Mon, 1 Oct 2001 11:35:50 -0400
-Received: from Cambot.lecs.CS.UCLA.EDU ([131.179.144.110]:13584 "EHLO
-	cambot.lecs.cs.ucla.edu") by vger.kernel.org with ESMTP
-	id <S275155AbRJAPff>; Mon, 1 Oct 2001 11:35:35 -0400
-Message-Id: <200110011536.f91Fa2k21097@cambot.lecs.cs.ucla.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices 
-In-Reply-To: <200109290118.f8T1Ixk05717@cambot.lecs.cs.ucla.edu> 
+	id <S275173AbRJAPnJ>; Mon, 1 Oct 2001 11:43:09 -0400
+Received: from fw.tnt.de ([194.55.63.2]:57199 "EHLO de188w20.intra.tnt.de")
+	by vger.kernel.org with ESMTP id <S275172AbRJAPm7>;
+	Mon, 1 Oct 2001 11:42:59 -0400
+X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
+Subject: nfs - high_memory
+To: <linux-kernel@vger.kernel.org>
+Message-ID: <OFA1C23172.3BD81DE2-ONC1256AD8.0055FBCE@intra.tnt.de>
+From: Michael.May@tnt.de
+Date: Mon, 1 Oct 2001 17:43:28 +0200
+X-MIMETrack: Serialize by Router on DE188W20/SRV/DE/TNT/TPG(Release 5.0.8 |June 18, 2001) at
+ 01.10.2001 17:43:28
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <21094.1001950562.1@cambot.lecs.cs.ucla.edu>
-Date: Mon, 01 Oct 2001 08:36:02 -0700
-From: Jeremy Elson <jelson@circlemud.org>
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Folks,
 
-Sorry to follow-up to my own post.  A few people pointed out that
-v1.00 had some Makefile problems that prevented it from building.
-I've released v1.02, which should be fixed.
+when you're interested in, here is a little Problem, appeared on weekend.
+I'm proud to got 1.5 GB of Memory in my workstation, and with the new
+kernel
+2.4.10, the nfs-client won't run anymore.
+I think, there is a little problem with the high-memory mapping, but I
+can't solve it.
+On work, there is not such a problem, because my computer got only 256 MB
+RAM.
 
-Best,
-Jer
+Here is the message:
 
-Jeremy Elson writes:
->On behalf of Sensoria Corporation, I'm happy to announce the first
->public release of FUSD, a Linux Framework for User-Space Devices.
->
->Briefly, FUSD lets you write user-space daemons that can respond to
->device-file callbacks on files in /dev.  These device files look and
->act just like any other device file from the point of view of a
->process trying to use them.  When the FUSD kernel module receives a
->file callback on a device being managed from user-space, it marshals
->the arguments into a message (including data copied from the caller,
->if necessary), blocks the caller, and sends the message to the daemon
->managing the device.  When the daemon generates a reply, the process
->happens in reverse, and the caller is unblocked.
->
->More information can be found at the official FUSD home page:
->http://www.circlemud.org/~jelson/software/fusd
->
->I've pasted a portion of the README file below, which has a somewhat
->more detailed description of what FUSD is and does.  A much more
->comprehensive user manual is available on the web page (above).
->
->Best regards,
->Jeremy
->
->--------
->
->
->WHAT IS FUSD?
->=============
->
->FUSD (pronounced "fused") is a Linux framework for proxying device
->file callbacks into user-space, allowing device files to be
->implemented by daemons instead of kernel code.  Despite being
->implemented in user-space, FUSD devices can look and act just like any
->other file under /dev which is implemented by kernel callbacks.
->
->A user-space device driver can do many of the things that kernel
->drivers can't, such as perform a long-running computation, block while
->waiting for an event, or read files from the file system.  Unlike
->kernel drivers, a user-space device driver can use other device
->drivers--that is, access the network, talk to a serial port, get
->interactive input from the user, pop up GUI windows, or read from
->disks.  User-space drivers implemented using FUSD can be much easier to
->debug; it is impossible for them to crash the machine, are easily
->traceable using tools such as gdb, and can be killed and restarted
->without rebooting.  FUSD drivers don't have to be in C--Perl, Python,
->or any other language that knows how to read from and write to a file
->descriptor can work with FUSD.  User-space drivers can be swapped out,
->whereas kernel drivers lock physical memory.
->
->FUSD drivers are conceptually similar to kernel drivers: a set of
->callback functions called in response to system calls made on file
->descriptors by user programs.  FUSD's C library provides a device
->registration function, similar to the kernel's devfs_register_chrdev()
->function, to create new devices.  fusd_register() accepts the device
->name and a structure full of pointers.  Those pointers are callback
->functions which are called in response to certain user system
->calls--for example, when a process tries to open, close, read from, or
->write to the device file.  The callback functions should conform to
->the standard definitions of POSIX system call behavior.  In many ways,
->the user-space FUSD callback functions are identical to their kernel
->counterparts.
->
->The proxying of kernel system calls that makes this kind of program
->possible is implemented by FUSD, using a combination of a kernel
->module and cooperating user-space library.  The kernel module
->implements a character device, /dev/fusd, which is used as a control
->channel between the two.  fusd_register() uses this channel to send a
->message to the FUSD kernel module, telling the name of the device the
->user wants to register.  The kernel module, in turn, registers that
->device with the kernel proper using devfs.  devfs and the kernel don't
->know anything unusual is happening; it appears from their point of
->view that the registered devices are simply being implemented by the
->FUSD module.
->
->Later, when kernel makes a callback due to a system call (e.g. when
->the character device file is opened or read), the FUSD kernel module's
->callback blocks the calling process, marshals the arguments of the
->callback into a message and sends it to user-space.  Once there, the
->library half of FUSD unmarshals it and calls whatever user-space
->callback the FUSD driver passed to fusd_register().  When that
->user-space callback returns a value, the process happens in reverse:
->the return value and its side-effects are marshaled by the library
->and sent to the kernel.  The FUSD kernel module unmarshals this
->message, matches it up with a corresponding outstanding request, and
->completes the system call.  The calling process is completely unaware
->of this trickery; it simply enters the kernel once, blocks, unblocks,
->and returns from the system call---just as it would for any other
->blocking call.
->
->One of the primary design goals of FUSD is stability.  It should
->not be possible for a FUSD driver to corrupt or crash the kernel,
->either due to error or malice.  Of course, a buggy driver itself may
->corrupt itself (e.g., due to a buffer overrun).  However, strict error
->checking is implemented at the user-kernel boundary which should
->prevent drivers from corrupting the kernel or any other user-space
->process---including the errant driver's own clients, and other FUSD
->drivers.
->
->For more information, please see the comprehensive documentation in
->the 'doc' directory.
->
-> Jeremy Elson <jelson@circlemud.org>
-> Sensoria Corporation
-> September 28, 2001
+meikel1:/usr/src/linux # insmod nfs
+Using /lib/modules/2.4.10/kernel/fs/nfs/nfs.o
+/lib/modules/2.4.10/kernel/fs/nfs/nfs.o: unresolved symbol kunmap_high
+/lib/modules/2.4.10/kernel/fs/nfs/nfs.o: unresolved symbol
+highmem_start_page
+/lib/modules/2.4.10/kernel/fs/nfs/nfs.o: unresolved symbol kmap_high
+
+
+System-overview:
+
+  Checking the system meikel1  30.09.01. 16:56:54 - Up since 1 h 02 3
+ System is meikel1.privat, the OS is linux on Processortype i386
+ Running is Kernel 2.4.10, version #1 SMP Sun Sep 30 15:16:11 CEST 2001
+
+ 2 CPU('s) detected,  Type is Pentium III;
+ frequency is 801/801/ MHz,
+ ( 1599.07/ 1602.35/) BogoMIPS
+
+ Memory |   Installed |   available |    used     |
+ -------|-------------|-------------|-------------|
+ phys.  |  1546104 kB |  1496928 kB |    49176 kB |
+ swap   |   313296 kB |   313296 kB |        0 kB |
+ total  |  1859400 kB |  1810224 kB |    49176 kB |
+
+ IDE:
+ hda: disk Maxtor 90750D6 7157 Mbytes
+ hdb: disk HP 1600 A 1554 Mbytes
+ hdc: cdrom LTN382
+
+ Harddisks:
+ sda (4303.65 MB)  sdb (4303.65 MB)  hda (7157.39 MB)  hdb (1554.77 MB)
+
+ sda1 (20.9844 MB) mounted on /boot
+ sda5 (4128.98 MB) mounted on /
+ sdb5 (1000.98 MB) mounted on /usr/lib
+ sdb6 (3127.98 MB) mounted on /usr/src
+
+ Logical Volumes
+ /dev/vg00 - (1.52 GB) /dev/hdb1(1552/1552)
+
+ PCI-devices found:
+ 00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo
+PRO133x] (rev c4)
+ 00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo
+MVP3/Pro133x AGP]
+ 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South]
+(rev 23)
+ 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
+ 00:07.3 Bridge: VIA Technologies, Inc. VT82C596 Power Management (rev 30)
+ 00:08.0 VGA compatible Card: nVidia Corp. Riva TnT 128 [NV04] (rev 04)
+ 00:09.0 Ethernet Card: Digital Equipment Corp. DECchip 21142/43 (rev 41)
+ 00:0b.0 Unknown mass storage Card: Triones Technologies, Inc. HPT366 (rev
+03)
+ 00:0c.0 SCSI storage Card: Adaptec AHA-294x / AIC-7871 (rev 03)
+
+ SCSI-Devices :
+ scsi0:00:00:00 scsi-02-HardDisk IBM DCHS04W rev.6464
+ scsi0:00:01:00 scsi-02-HardDisk IBM DCHS04W rev.6464
+ scsi0:00:03:00 scsi-02-CD-ROM SANYO CRD-254S rev.1.06
+ scsi0:00:05:00 scsi-02-Scanner Model Scanner rev.3.01
+
+ 1  NIC('s) found:
+ NIC  |   IP-Address    |    SN-Mask      |    Broadcast    |   HW-Address
+|
+      |   ipv6-addr     |                 |                 |
+|
+
+-----|-----------------|-----------------|-----------------|------------------|
+ eth0 |     192.168.2.5 |   255.255.255.0 |   192.168.2.255 |
+00:40:C7:99:E1:21
+      |     fe80:00:240:c7ff:fe99:e121/10 |
+
+Hope, this message is useful to you, if not don't hesitate to mail.
+With kind regards
+
+Michael May
+

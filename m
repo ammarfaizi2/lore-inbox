@@ -1,65 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265837AbUFXWRt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUFXWaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265837AbUFXWRt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 18:17:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265793AbUFXWPt
+	id S265768AbUFXWaH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 18:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265760AbUFXW2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 18:15:49 -0400
-Received: from gprs214-211.eurotel.cz ([160.218.214.211]:56449 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265828AbUFXWDe (ORCPT
+	Thu, 24 Jun 2004 18:28:03 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34445 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265883AbUFXWUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 18:03:34 -0400
-Date: Fri, 25 Jun 2004 00:03:18 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: alan <alan@clueserver.org>
-Cc: "Fao, Sean" <Sean.Fao@dynextechnologies.com>, linux-kernel@vger.kernel.org,
-       Amit Gud <gud@eth.net>
-Subject: Re: Elastic Quota File System (EQFS)
-Message-ID: <20040624220318.GE20649@elf.ucw.cz>
-References: <20040624213041.GA20649@elf.ucw.cz> <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org>
+	Thu, 24 Jun 2004 18:20:47 -0400
+Date: Thu, 24 Jun 2004 15:23:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org, apw@shadowen.org
+Subject: Re: [PATCH] fix GFP zone modifier interators
+Message-Id: <20040624152333.79b36a90.akpm@osdl.org>
+In-Reply-To: <200406242140.i5OLeZV4028038@voidhawk.shadowen.org>
+References: <200406242140.i5OLeZV4028038@voidhawk.shadowen.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0406241347560.18047-100000@www.fnordora.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andy Whitcroft <apw@shadowen.org> wrote:
+>
+> For each node there are a defined list of MAX_NR_ZONES zones.
+> These are selected as a result of the __GFP_DMA and __GFP_HIGHMEM
+> zone modifier flags being passed to the memory allocator as part of
+> the GFP mask.  Each node has a set of zone lists, node_zonelists,
+> which defines the list and order of zones to scan for each flag
+> combination.  When initialising these lists we iterate over
+> modifier combinations 0 .. MAX_NR_ZONES.  However, this is only
+> correct when there are at most ZONES_SHIFT flags.  If another flag
+> is introduced zonelists for it would not be initialised.
 
-> > On one school server, theres 10MB quota. (Okay, its admins are
-> > BOFHs^H^H^H^H^HSISAL). Everyone tries to run mozilla there (because
-> > its installed as default!), and immediately fills his/her quota with
-> > cache files, leading to failed login next time (gnome just will not
-> > start if it can't write to ~).
-> > 
-> > Imagine mozilla automatically marking cache files "elastic".
-> > 
-> > That would solve the problem -- mozilla caches would go away when disk
-> > space was demanded, still mozilla's on-disk caching would be effective
-> > when there is enough disk space.
-> 
-> How does Mozilla (or any process) react when its files are deleted from 
-> under it?  Would the file remain until all the open processes close the 
-> file or would it just "disappear"? 
+I don't get it.  If you were going to add a new zone, identified by
+__GFP_WHATEVER then you'd need to increase MAX_NR_ZONES
+anyway, wouldn't you?
 
-Of course, if mozilla marked them "elastic" it should better be
-prepared for they disappearance. I'd disappear them with simple
-unlink(), so they'd physically survive as long as someone held them
-open.
+I'm sure you're right, but I haven't worked on this stuff in months and
+it's obscure.  Care to explain a little more?
 
->  Would it delete entire directories or 
-> just some of the files?  How does it choose?  (First up against the delete 
-> when the drive space fills...)
+> This patch introduces GFP_ZONEMODS (based on GFP_ZONEMASK) as a
+> bound for the number of modifier combinations.
 
-Probably just some of the files... Or you could delete directory, too,
-if it was marked "elastic". What to delete first... probably file with
-oldest access time? Or random file, with chance of being selected
-proportional to file size?
+The "ZONEMODS" identifier doesn't really grab me.  ZONETYPES, or something?
 
-I'm not implementing it, I'm just arguing that it is usefull.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Either way, please add a big fat comment over it, explaining to the poor reader
+what its semantic meaning is.

@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268554AbUHLNiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268563AbUHLNlp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268554AbUHLNiI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 09:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268559AbUHLNiI
+	id S268563AbUHLNlp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 09:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268559AbUHLNlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 09:38:08 -0400
-Received: from quechua.inka.de ([193.197.184.2]:41923 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S268554AbUHLNiE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 09:38:04 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux SATA RAID FAQ
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <20040812113413.GA19252@alpha.home.local>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Thu, 12 Aug 2004 15:38:02 +0200
+	Thu, 12 Aug 2004 09:41:44 -0400
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:36485 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S268563AbUHLNlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 09:41:12 -0400
+Date: Thu, 12 Aug 2004 09:41:00 -0400
+From: Nathan Bryant <nbryant@optonline.net>
+Subject: Re: [PATCH] SCSI midlayer power management
+In-reply-to: <1092314892.1755.5.camel@mulgrave>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@ucw.cz>,
+       Linux SCSI Reflector <linux-scsi@vger.kernel.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Message-id: <411B736C.7030103@optonline.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+References: <4119611D.60401@optonline.net> <20040811080935.GA26098@elf.ucw.cz>
+ <411A1B72.1010302@optonline.net> <1092231462.2087.3.camel@mulgrave>
+ <1092267400.2136.24.camel@gaston> <1092314892.1755.5.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040812113413.GA19252@alpha.home.local> you wrote:
-> I like it. It's fairly simple. I'm always amazed how many people do really
-> believe that these cards provide hardware RAID !!! The problem is when you
-> ask a reseller to add a real hardware RAID card in a system you purchase
-> and you end up with a cheap silicon image... It happened to us once and it's
-> not funny at all.
+James Bottomley wrote:
 
-Speaing of that, does that mean that other OSes (i.e. Windows) are using
-BIOS provided code to do raid, or do they also have raid software drivers
-and the bios is only used on bootup for signature detection and formatting?
+>Why?  We don't do a bus reset on boot, why should we need to do one on
+>resume?  For FC, the equivalent, a LIP Reset can be rather nasty on a
+>SAN and should be avoided.
+>  
+>
+that can be host specific. aic7xxx does a bus reset on boot, so i 
+preserved this on resume.
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+don't know why they do it, but they do.
+
+>The slight problem is probably going to be knowing that we may need to
+>spin up devices (for internal ones) before resuming operation.
+>  
+>
+that's easy for system suspend, but somewhat harder for device suspend

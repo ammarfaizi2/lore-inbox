@@ -1,38 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272165AbRH3Lm0>; Thu, 30 Aug 2001 07:42:26 -0400
+	id <S272163AbRH3LdH>; Thu, 30 Aug 2001 07:33:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272166AbRH3LmG>; Thu, 30 Aug 2001 07:42:06 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:13842 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S272165AbRH3Ll6>;
-	Thu, 30 Aug 2001 07:41:58 -0400
-Message-ID: <20010830154914.A13392@castle.nmd.msu.ru>
-Date: Thu, 30 Aug 2001 15:49:14 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: John paul R <jpr200012@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dell inspiron 8000 eepro100 problems
-In-Reply-To: <20010822080412.33733.qmail@web9307.mail.yahoo.com>
+	id <S272166AbRH3Lc5>; Thu, 30 Aug 2001 07:32:57 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:35332 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S272163AbRH3Lco>;
+	Thu, 30 Aug 2001 07:32:44 -0400
+Date: Sun, 26 Aug 2001 13:08:59 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Reiserfs: how to mount without journal replay?
+Message-ID: <20010826130858.A39@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010822080412.33733.qmail@web9307.mail.yahoo.com>; from "John paul R" on Wed, Aug 22, 2001 at 01:04:12AM
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 22, 2001 at 01:04:12AM -0700, John paul R wrote:
-[snip]
-> sometimes it may take 10 hours to start. what happens
-> is i lose my ability to connect to anything whether it
-> be telnet, web browsing, ssh, etc. but i can still
-> ping sites by ip address. if i am plugged in behind my
-> router i can ping and connect to other boxes on my
-> network (i've been browsing through a proxy on one of
-> them while trying to figure out what the problem is).
-[snip]
+Hi!
 
-The fact that you can still ping sites by IP is important.
-1. Check if it's DNS-related problem.
-2. Check if packet size matters.
+For recovering broken machine, I'd like to mount without replaying journal.
+[reiserfs panics while replaying journal; seems there are still some bugs
+hidden in there]. Unfortunately, "nolog" option does not seem imlemented.
+Are there experimental to do that?
+								Pavel
+PS: Please CC me.
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 
-	Andrey

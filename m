@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264467AbTLVVKa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 16:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTLVVK3
+	id S264510AbTLVVSa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 16:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTLVVSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 16:10:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7644 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264467AbTLVVK2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 16:10:28 -0500
-Date: Mon, 22 Dec 2003 13:11:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: colpatch@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, jbarnes@sgi.com
-Subject: Re: [PATCH] Simplify node/zone field in page->flags
-Message-Id: <20031222131126.66bef9a2.akpm@osdl.org>
-In-Reply-To: <3FE74B43.7010407@us.ibm.com>
-References: <3FE74B43.7010407@us.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 22 Dec 2003 16:18:30 -0500
+Received: from pri-dns1.mtco.com ([207.179.200.251]:48353 "HELO
+	pri-dns1.mtco.com") by vger.kernel.org with SMTP id S264510AbTLVVS3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 16:18:29 -0500
+From: Tom Felker <tcfelker@mtco.com>
+To: Stan Bubrouski <stan@ccs.neu.edu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: SCO's infringing files list
+Date: Mon, 22 Dec 2003 15:19:04 -0600
+User-Agent: KMail/1.5.4
+References: <1072125736.1286.170.camel@duergar>
+In-Reply-To: <1072125736.1286.170.camel@duergar>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312221519.04677.tcfelker@mtco.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson <colpatch@us.ibm.com> wrote:
+On Monday 22 December 2003 2:42 pm, Stan Bubrouski wrote:
+> Guys,
 >
-> Currently we keep track of a pages node & zone in the top 8 bits (on 
-> 32-bit arches, 10 bits on 64-bit arches) of page->flags.  We typically 
-> compute the field as follows:
-> 	node_num * MAX_NR_ZONES + zone_num = 'nodezone'
-> 
-> It's non-trivial to break this 'nodezone' back into node and zone 
-> numbers.  This patch modifies the way we compute the index to be:
-> 	(node_num << ZONE_SHIFT) | zone_num
-> 
-> This makes it trivial to recover either the node or zone number with a 
-> simple bitshift.  There are many places in the kernel where we do things 
-> like: page_zone(page)->zone_pgdat->node_id to determine the node a page 
-> belongs to.  With this patch we save several pointer dereferences, and 
-> it all boils down to shifting some bits.
+> According to the totally inept, idiotic, SCO group, these files are
+> copyrighted by them (and recently by Novell I might add):
 
-This conflicts with (is a superset of) 
+> include/asm-i386/errno.h
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm5/broken-out/ZONE_SHIFT-from-NODES_SHIFT.patch
+> Any thoughts?
+>
+> -sb
 
-I suspect you've sent a replacement patch, yes?  If Jesse is OK with the
-new patch I'll do the swap, thanks.
+The original errno.h, from linux-0.01, says it was taken from minix, and goes 
+up to 40.  Between linux-0.96c and linux-0.97, that file was replaced with 
+the present version, which includes the error strings and goes up to 121.
+
+Where did the 0.97 to present version come from?
+
+-- 
+Tom Felker, <tcfelker@mtco.com>
+<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
+
+Everything else about computers has become cheaper and faster.  Why
+not software?
 

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318304AbSIFFka>; Fri, 6 Sep 2002 01:40:30 -0400
+	id <S318344AbSIFFmT>; Fri, 6 Sep 2002 01:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318344AbSIFFka>; Fri, 6 Sep 2002 01:40:30 -0400
-Received: from webmail22.rediffmail.com ([203.199.83.144]:29625 "HELO
-	webmail22.rediffmail.com") by vger.kernel.org with SMTP
-	id <S318304AbSIFFk3>; Fri, 6 Sep 2002 01:40:29 -0400
-Date: 6 Sep 2002 05:37:18 -0000
-Message-ID: <20020906053718.32530.qmail@webmail22.rediffmail.com>
-MIME-Version: 1.0
-From: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
-Reply-To: "Nandakumar  NarayanaSwamy" <nanda_kn@rediffmail.com>
+	id <S318345AbSIFFmT>; Fri, 6 Sep 2002 01:42:19 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.10]:35079 "EHLO
+	net.cc.swin.edu.au") by vger.kernel.org with ESMTP
+	id <S318344AbSIFFmS>; Fri, 6 Sep 2002 01:42:18 -0400
+From: Tim Connors <tconnors@astro.swin.edu.au>
 To: linux-kernel@vger.kernel.org
-Subject: Illegal Instruction
-Content-type: text/plain;
-	format=flowed
-Content-Disposition: inline
+Subject: Re: Attention to Scheduler Workers!!!
+In-Reply-To: <Pine.LNX.4.44L.0209051021120.1857-100000@imladris.surriel.com>
+References: <20020905043227.63466.qmail@web20009.mail.yahoo.com> <Pine.LNX.4.44L.0209051021120.1857-100000@imladris.surriel.com>
+X-Face: "0\RuOFb6AcQ}B_F/^%;;AmS%><zZ_q?N1w1%1voDY7#Ywj~qRaL7].8HB'2~pDUS|{E=$R\-s?;+p!RCe:w||kS\T@[(eQHB*-8u;~)ZP4;QYUI`|GJ)NS\`jLbW<e'R*y+Od,S5D+Vz++a<[$g'>"qr*^0t%eriBMe_x]B7&@b8_\i<A/A@T
+Message-ID: <slrn-0.9.7.4-17981-5635-200209061536-j.$random.luser@swin.edu.au>
+Date: Fri, 6 Sep 2002 15:46:51 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+In linux.kernel, you wrote:
+> On Wed, 4 Sep 2002, shakira banu wrote:
+> 
+>>  robin.we plan to change to shortest remaining time
+>>  first.this is our proposa.
 
-My kernel is crashing when i try to insmod a driver. I am getting 
-the following error messages
+Trying to get people to do your homework question, huh?
 
+>>  could u please give ur valuable suggestions reg. the
+>> project?
+> 
+> Well, first you'll need a subsystem to look into the
+> future, so you know how much remaining time each
+> process has.
 
-insmod:19] Illegal instruction 000003e8 at c0015cf4 ra=c0088dd4
-[[insmod:19] Illegal instruction c000d9d4 at c000b6a4 
-ra=c000b69c
+There are now theories as to a changing fine structure constant, so
+the speed of light can change as we look back in the past. Once we are
+able to change the speed of light ourselves, well, this should become
+trivial.
 
-When i tried to locate this happens when i call rt_usleep 
-function.
-This is the piece of code where i call nano2count.
+-- 
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
 
-void mysleep (uint32 micro_sec)
-{
-    RTIME delay;
+This is a dirty hack!  It might burn your PC and kill your cat!
+  -- mpg123.c source
 
-    delay = nano2count (micro_sec * 1000LL);
-    rt_sleep (delay);
-}
-
-I am exactly getting the insmod error when there is a call to 
-nano2count.
-Note : RTIME is of type "long long".
-The CPU i am using is IDT RC32334.
-
-Can any body help me to solve this?
-
-with best regards,
-Nanda

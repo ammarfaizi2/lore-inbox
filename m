@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbRHARIS>; Wed, 1 Aug 2001 13:08:18 -0400
+	id <S267620AbRHARQ2>; Wed, 1 Aug 2001 13:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267620AbRHARII>; Wed, 1 Aug 2001 13:08:08 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:6478 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267633AbRHARH6>; Wed, 1 Aug 2001 13:07:58 -0400
-Date: Wed, 1 Aug 2001 17:39:51 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: ext3-users@redhat.com
-Cc: Sean Hunter <sean@uncarved.com>, linux-kernel@vger.kernel.org
-Subject: Re: Strane remount behaviour with ext3-2.4-0.9.4
-Message-ID: <20010801173951.I3744@redhat.com>
-In-Reply-To: <20010727104049.B6311@uncarved.com> <200107271715.f6RHFea24226@lynx.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200107271715.f6RHFea24226@lynx.adilger.int>; from adilger@turbolinux.com on Fri, Jul 27, 2001 at 11:15:39AM -0600
+	id <S267633AbRHARQT>; Wed, 1 Aug 2001 13:16:19 -0400
+Received: from femail41.sdc1.sfba.home.com ([24.254.60.35]:20145 "EHLO
+	femail41.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S267620AbRHARQJ>; Wed, 1 Aug 2001 13:16:09 -0400
+Date: Wed, 1 Aug 2001 13:18:40 -0400 (EDT)
+From: Garett Spencley <gspen@home.com>
+X-X-Sender: <gspen@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [very OT] DMCA loop hole
+In-Reply-To: <Pine.BSO.4.33.0108010137240.7994-100000@aaieee.daisy-chan.org>
+Message-ID: <Pine.LNX.4.33L2.0108011312310.904-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> And do you seriously think you're going to convince
+> Ashcroft and company to prosecute Symantec for getting rid of a virus even
+> if it is DMCA 'protected'?
 
-On Fri, Jul 27, 2001 at 11:15:39AM -0600, Andreas Dilger wrote:
+Yeah what people keep forgetting is that DMCA is _federal_ law. There is
+no suing. You can not sue someone because they violated the DMCA. Instead
+you have to report them to the federal authorities and they take it into
+their hands.
 
-> > servers.  Since the server in question is a farily security-sensitive box, my
-> > /usr partition is mounted read only except when I remount rw to install
-> > packages.
-> 
-> If it is a security-sensitive box, you need to at least use data=ordered or
-> data=journal.  Using data=writeback allows the possibility that after a crash
-> one user might be able to read data from deleted files of another user (note
-> that reiserfs currently only runs the equivalent of data=writeback).
+That's the reason Dmitri's still in jail. As much as Adobe feels
+sorry for what they did to him (who knows if they actually do at all but
+my point is it doesn't matter anyway), there are no charges that Adobe can
+drop. It is a federal case, not a civil one.
 
-Agreed, and for most workloads data=ordered will have very little
-performance difference from data=writeback.
+So if you encrypted a virus it would be up to the federal authorities to
+decide if cracking it was in violation of the DMCA. And since the
+government has proved time and time again that they feel that they are
+above the law (not just the U.S gov I should add, I'm Canadian and I get
+the same crap from mine from time to time) there is very little chance
+that they wouldn't throw your ass in jail and laugh at any blurb you gave
+them about the DMCA.
 
-> You _could_ leave out the data=writeback from /etc/fstab (default is ordered),
-> and you will be able to remount OK.  Also, Andrew made a patch which allowed
-> you to specify the data= mode on remount, as long it is the same. 
+But IANAL so I could be wrong....
 
-Indeed, but I'll need to make sure that the remount with no data= mode
-also works (that should be legal.)
+-- 
+Garett Spencley
 
-Cheers,
- Stephen
+I encourage you to encrypt e-mail sent to me using PGP
+My public key is available on PGP key servers (http://keyservers.net)
+Key fingerprint: 8062 1A46 9719 C929 578C BB4E 7799 EC1A AB12 D3B9
+

@@ -1,24 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277551AbRJKAOg>; Wed, 10 Oct 2001 20:14:36 -0400
+	id <S277556AbRJKASG>; Wed, 10 Oct 2001 20:18:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277556AbRJKAOY>; Wed, 10 Oct 2001 20:14:24 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:58822 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S277552AbRJKAN5>; Wed, 10 Oct 2001 20:13:57 -0400
-Date: Wed, 10 Oct 2001 20:14:30 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200110110014.f9B0EUZ17509@devserv.devel.redhat.com>
-To: boukanov@fi.uib.no, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11 : long delay in USB during boot
-In-Reply-To: <mailman.1002751443.22681.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.1002751443.22681.linux-kernel2news@redhat.com>
+	id <S277552AbRJKAR4>; Wed, 10 Oct 2001 20:17:56 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:48043
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S277559AbRJKARi>; Wed, 10 Oct 2001 20:17:38 -0400
+Date: Wed, 10 Oct 2001 17:17:28 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Mike Borrelli <mike@nerv-9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.10-ac10 ppc fixes
+Message-ID: <20011010171728.A10830@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <Pine.LNX.4.21.0110101146220.10995-100000@asuka.nerv-9.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0110101146220.10995-100000@asuka.nerv-9.net>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> uhci.c: USB UHCI at I/O 0x1060, IRQ 5
-> usb: raced timeout, pipe 0x80000000 status 0 time left 0
+On Wed, Oct 10, 2001 at 11:51:29AM -0700, Mike Borrelli wrote:
 
-http://marc.theaimsgroup.com/?l=linux-usb-devel&m=100272539324633&w=2
+> This patch contains the changes required to get the latest (ATM) version
+> of Alan's tree to compile on the powerpc.
+> 
+> The patch is located at: http://www.nerv-9.net/ as either
+> patch-2.4.10-ac10mb.bz2 or patch-2.4.10-ac10mb.gz
 
--- Pete
+Erm, when did they break?  Paul sent in (and I swear I saw 'em accepted)
+patches to -ac6 or 7.  This is just updating to the stuff in 2.4.11
+which will make it's way to Alan shortly (esp if the next ext3 is vs
+-ac10).
+
+In fact, I see some regressions even:
+linux/arch/ppc/kernel/setup.c really should be bogus (and I hope this
+isn't in Linus tree...)
+linux/drivers/char/serial.c should _never_ make it out of the ppc tree
+as it's a hack that can die shortly.  And ncr885 is dead.
+
+Alan, please don't apply this.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

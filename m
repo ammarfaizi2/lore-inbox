@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264635AbSKDCkR>; Sun, 3 Nov 2002 21:40:17 -0500
+	id <S264622AbSKDChV>; Sun, 3 Nov 2002 21:37:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264636AbSKDCkQ>; Sun, 3 Nov 2002 21:40:16 -0500
-Received: from siaar2aa.compuserve.com ([149.174.40.137]:12863 "EHLO
-	siaar2aa.compuserve.com") by vger.kernel.org with ESMTP
-	id <S264635AbSKDCkP>; Sun, 3 Nov 2002 21:40:15 -0500
-Message-ID: <3DC5DF14.34483A96@compuserve.com>
-Date: Sun, 03 Nov 2002 18:44:37 -0800
-From: Jennie Haywood <jehaywood@compuserve.com>
-X-Mailer: Mozilla 4.61 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S264627AbSKDChV>; Sun, 3 Nov 2002 21:37:21 -0500
+Received: from smtp01.fields.gol.com ([203.216.5.131]:30887 "EHLO
+	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
+	id <S264622AbSKDChU>; Sun, 3 Nov 2002 21:37:20 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       Jos Hulzink <josh@stack.nl>
+In-Reply-To: <20021103193734.GC2516@pasky.ji.cz>
+References: <20021103193734.GC2516@pasky.ji.cz> <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
+Subject: Re: Petition against kernel configuration options madness...
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+From: Miles Bader <miles@gnu.org>
+Date: 04 Nov 2002 11:43:18 +0900
+Message-ID: <87y98a6omx.fsf@tc-1-100.kawasaki.gol.ne.jp>
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: [lkcd-general] Re: What's left over.
-References: <Pine.LNX.3.96.1021103082813.5197A-100000@gatekeeper.tmr.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Abuse-Complaints: abuse@gol.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-
+Petr Baudis <pasky@ucw.cz> writes:
+> > Too bad you don't have any suggestions. I completely agree this should
+> > be simplified, while I wouldn't be happy to lose the possibility of not
+> > compiling AT keyboard support in.
 >
-> On 1 Nov 2002, Alan Cox wrote:
->
-> > On Fri, 2002-11-01 at 06:34, Bill Davidsen wrote:
-> > >   From the standpoint of just the driver that's true. However, the remote
-> > > machine and all the network bits between them are a string of single
-> > > points of failure. Isn't it good that both disk and network can be
-> > > supported.
-> >
-> The AIX support has a group just to beat on dumps customers send. What
-> more evidence is needed that people can and do use the capability.
->
+> Well, why can't it be enabled by default? Other options are as well, and it's
+> IMHO sane to enable keyboard and mice support by default. It should clear up
+> the initial confusion as well.
 
-AIX has 4 people doing dumps in Austin (otherwise known as ZTRANS).  There are
-others in other countries.
-The folks from other countries were brought to Austin for training (usually for 3
-months).
-There is usually one person in L3 doing dumps in Austin for service, although
-every subsystem has someone that specializes in reading dumps for that subsystem.
+Keep in mind that All the World's Not a PC.  No doubt those options are
+enabled on the majority of kernels, by number, but linux supports many,
+many types of systems, and I'll bet on fair number of them, it doesn't
+make much sense to enable psaux mouse support!
 
-The first 4 people only do a scan of the dump to see if it's a known problem.  If
-it's not
-a known problem AND it's in AIX code it goes to whoever it is that owns that
-subsystem.
+So ... instead of saying `default y' for these options, how about saying
+`default IM_ON_A_PC' where IM_ON_A_PC is defined somehow.  How, I don't
+know; it could be a separate config question in a very obvious place,
+perhaps itself having `default X86'.
 
-Dumps are only the beginning with AIX.   Trace hooks along with dumps are VERY
-useful.
-The trace hooks are also what the performance people use.
+Perhaps this should really be two flags, one IM_ON_A_PC meaning `typical
+i386 pc with legacy devices', and the other, more general, being
+something like IM_ON_A_WORKSTATION.  Then wierd things like psaux would
+say `default IM_ON_A_PC', but more general things like keyboards would
+say `default IM_ON_A_WORKSTATION'.
 
-The Linux kernel  is _extremely_  painful to debug compared to AIX.
+[Yeah, those names are sucky, I know...]
 
+Thanks,
 
---
-Jennie Haywood
-jehaywood@compuserve.com
-Everyone is crazy. It's just a matter of degree.
-jehaywood@yahoo.com
--
-The oak tree in your backyard is just a nut that held its ground.
-
-
+-Miles
+-- 
+[|nurgle|]  ddt- demonic? so quake will have an evil kinda setting? one that 
+            will  make every christian in the world foamm at the mouth? 
+[iddt]      nurg, that's the goal 

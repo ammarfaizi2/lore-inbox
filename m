@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266423AbTGES6s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 14:58:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266429AbTGES6s
+	id S266429AbTGETOb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 15:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266433AbTGETOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 14:58:48 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:56024 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266423AbTGES6r (ORCPT
+	Sat, 5 Jul 2003 15:14:31 -0400
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:5780 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266429AbTGETOa convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 14:58:47 -0400
-Date: Sat, 5 Jul 2003 12:14:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1
-Message-Id: <20030705121416.62afd279.akpm@osdl.org>
-In-Reply-To: <200307051728.12891.phillips@arcor.de>
-References: <20030703023714.55d13934.akpm@osdl.org>
-	<200307050216.27850.phillips@arcor.de>
-	<200307051728.12891.phillips@arcor.de>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jul 2003 15:14:30 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
+       GOTO Masanori <gotom@debian.or.jp>
+Subject: [PATCH 2.4.21-bk1] NinjaSCSI compile warning fix
+Date: Sat, 5 Jul 2003 19:32:26 +0200
+User-Agent: KMail/1.5.2
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200307051932.36743.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@arcor.de> wrote:
->
-> The situation re scheduling in 2.5 feels much as 
-> the vm situation did in 2.3
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I've been trying to avoid thinking about that comparison.
+Hi.
 
-I don't think it's really, really bad at present.  Just "should be a bit
-better".
+fixes "Warning: extra tokens at end of #endif directive"
+compiletime warnings.
 
-> Kgdb is no help in 
-> diagnosing, as the kgdb stub also goes comatose, or at least the serial link 
-> does.  No lockups have occurred so far when I was not interacting with the 
-> system via the keyboard or mouse.  Suggestions?
 
-Enable IO APIC, Local APIC, nmi watchdog.  Use serial console, see if you
-can get a sysrq trace out of it.  That's `^A F T' in minicom.
+- --- drivers/scsi/nsp32.h.orig   2003-06-13 20:52:42.000000000 +0200
++++ drivers/scsi/nsp32.h        2003-07-05 19:22:42.000000000 +0200
+@@ -425,5 +425,5 @@
+ #define BUSPHASE_STATUS      ( BUSMON_STATUS      & BUSMON_PHASE_MASK )
+ #define BUSPHASE_SELECT      ( BUSMON_SEL | BUSMON_IO )
+ 
+- -#endif _NSP32_H
++#endif /* _NSP32_H */
+ /* end */
+- --- drivers/scsi/nsp32_io.h.orig        2003-06-13 20:52:42.000000000 +0200
++++ drivers/scsi/nsp32_io.h     2003-07-05 19:23:30.000000000 +0200
+@@ -265,5 +265,5 @@
+        nsp32_multi_write4(base, FIFO_DATA_LOW, buf, count);
+ }
+ 
+- -#endif _NSP32_IO_H
++#endif /* _NSP32_IO_H */
+ /* end */
 
-I mean, it _has_ to be either stuck with interrupts on, or stuck with them off.
+- -- 
+Regards Michael Buesch
+http://www.8ung.at/tuxsoft
+ 19:24:46 up 27 min,  3 users,  load average: 1.11, 1.31, 1.14
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/Bwu0oxoigfggmSgRAoLxAKCCru2aWaBkwPhi+QOre7l3zk2xowCeM3h/
+j4n9XSErLXxcat8XAVHCRO8=
+=duVk
+-----END PGP SIGNATURE-----
+
+

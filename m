@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269523AbTHJOqS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 10:46:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269555AbTHJOqS
+	id S269575AbTHJOyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 10:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTHJOyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 10:46:18 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:50700 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S269523AbTHJOqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 10:46:17 -0400
-Date: Mon, 11 Aug 2003 00:46:01 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: "David S. Miller" <davem@redhat.com>
-cc: Matt Mackall <mpm@selenic.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-In-Reply-To: <20030809131715.17a5be2e.davem@redhat.com>
-Message-ID: <Mutt.LNX.4.44.0308110035090.7218-100000@excalibur.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Aug 2003 10:54:16 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:16132 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269575AbTHJOyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 10:54:15 -0400
+Date: Sun, 10 Aug 2003 15:54:13 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/9] convert drivers/scsi to virt_to_pageoff()
+Message-ID: <20030810155413.B18400@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
+	davem@redhat.com, linux-kernel@vger.kernel.org
+References: <20030810.201009.77128484.yoshfuji@linux-ipv6.org> <20030810123148.A10435@infradead.org> <20030810045121.31ef7ccc.davem@redhat.com> <20030810.210322.104562682.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030810.210322.104562682.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Sun, Aug 10, 2003 at 09:03:22PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Aug 2003, David S. Miller wrote:
-
-> > Also, I posted to cryptoapi-devel that I need a way to disable the
-> > unconditional padding on the hash functions.
+On Sun, Aug 10, 2003 at 09:03:22PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> BTW, drivers/scsi/3w-xxxx.c says:
 > 
-> James, comments?
+>    1.02.00.029 - Add missing pci_free_consistent() in tw_allocate_memory().
+>                  Replace pci_map_single() with pci_map_page() for highmem.
+>                  Check for tw_setfeature() failure.
+> 
+> Have problems in pci_map_single() with highmem already gone away?
 
-Yes, a flag could be added for crypto_alloc_tfm() which disables padding
-for digests (e.g. CRYPTO_TFM_DIGEST_NOPAD).
-
-Given that there are a still a number of unresolved issues, e.g. making
-the crypto api (or a subset thereof) mandatory, perhaps it would be more 
-appropriate to slate these changes for 2.7 and then backport to 2.6 once 
-stable.
-
-
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
-
+pci_map_single can't support highmem, but the case you converted can't
+be highmem either.  There's other places in the driver where we get handed
+scatterlists that can contain highmem pages and thus need to be handled
+with pci_map_page or better with pci_map_sg.
 

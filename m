@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTHTSnY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 14:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbTHTSnY
+	id S262082AbTHTSfz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 14:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTHTSfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 14:43:24 -0400
-Received: from pat.uio.no ([129.240.130.16]:25766 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262128AbTHTSnW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 14:43:22 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16195.49464.935754.526386@charged.uio.no>
-Date: Wed, 20 Aug 2003 11:43:04 -0700
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6
-In-Reply-To: <20030820192409.A2868@pclin040.win.tue.nl>
-References: <3F4268C1.9040608@redhat.com>
-	<shszni499e9.fsf@charged.uio.no>
-	<20030820192409.A2868@pclin040.win.tue.nl>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Wed, 20 Aug 2003 14:35:54 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:35589 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262082AbTHTSfp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 14:35:45 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: SCO's "proof"
+Date: 20 Aug 2003 18:27:31 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bi0eij$f13$1@gatekeeper.tmr.com>
+References: <3F422809.7080806@yahoo.com> <20030819145213.GC5582@gallifrey> <20030819150137.GA22521@gevaerts.be> <lt4r0du0t3.fsf@colina.demon.co.uk>
+X-Trace: gatekeeper.tmr.com 1061404051 15395 192.168.12.62 (20 Aug 2003 18:27:31 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Andries Brouwer <aebr@win.tue.nl> writes:
+In article <lt4r0du0t3.fsf@colina.demon.co.uk>,
+Colin Paul Adams  <colin@colina.demon.co.uk> wrote:
+| >>>>> "Frank" == Frank Gevaerts <frank@gevaerts.be> writes:
+| 
+|     >> > minnie.tuhs.org/UnixTree/V7/usr/sys/sys/malloc.c.html
+|     >> > 
+|     >> > Ok, SCO: This was easy. Now, show us the other many examples.
+|     >> 
+|     >> Is it? What the hell was the copyright on that code?
+| 
+|     Frank> AFAIK it was released under a BSD license by Caldera...
+| 
+| But Caldera are SCO now, aren't they? Are they going to sue themselves!?
 
-     > I don't think it will. My analysis of yesterday night was:
-     > - no silly rename is done
-     > - this is because d_count equals 1
-     > - this is because we have two different dentries for the same
-     >   file
-     > - this is caused by the fragment
-
-     >         /* If we're doing an exclusive create, optimize away
-     >         the lookup */ if (nfs_is_exclusive_create(dir, nd))
-     >                 return NULL;
-
-     > in nfs/dir.c.  Do you agree?
-
-No... The above snippet just short-circuits the process of doing an
-RPC call in order to look the file up on the *server*. Doing such a
-lookup would be wrong since it can race with a file creation on
-another NFS client.
-IOW the result of the above 2 lines should be the immediate creation
-of a negative dentry (i.e. one without an inode) that open_namei() can
-pass on to vfs_create().
-
-When we get to the unlink() call, we shouldn't be hitting nfs_lookup()
-at all unless something somewhere is causing this first dentry to be
-permanently dropped out of the dcache.
-
-In short the scenario should be that
-
-  - mkstemp() does an open(O_EXCL) -> nfs_lookup() creates hashed
-    negative dentry -> nfs_create() then does an O_EXCL call to the
-    server and instantiates the dentry.
-
-  - unlink() walks the pathname -> finds the existing dentry using
-    cached_lookup() and only calls down to nfs_lookup_revalidate().
-
-Cheers,
-  Trond
+Thay should! Oh wait, you said sue, not shoot... nevermind.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

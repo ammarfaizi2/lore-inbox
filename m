@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318983AbSHFEcA>; Tue, 6 Aug 2002 00:32:00 -0400
+	id <S318944AbSHFA3G>; Mon, 5 Aug 2002 20:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318984AbSHFEcA>; Tue, 6 Aug 2002 00:32:00 -0400
-Received: from 24.213.60.124.up.mi.chartermi.net ([24.213.60.124]:20125 "EHLO
-	front2.chartermi.net") by vger.kernel.org with ESMTP
-	id <S318983AbSHFEb5>; Tue, 6 Aug 2002 00:31:57 -0400
-From: Nathaniel Russell <reddog83@chartermi.net>
-Reply-To: reddog83@chartermi.net
-Organization: RedDog GNu/Linux
-To: reddog83@chartermi.net
-Subject: [PATCH] trivial patch for 2.4.20-pre1 8139too.c driver
-Date: Tue, 6 Aug 2002 00:31:58 +0000
-X-Mailer: KMail [version 1.4]
-Cc: linux-kernel@vger.kernel.org
+	id <S318948AbSHFA3F>; Mon, 5 Aug 2002 20:29:05 -0400
+Received: from maddog.sal.wisc.edu ([144.92.179.20]:19251 "EHLO
+	maddog.sal.wisc.edu") by vger.kernel.org with ESMTP
+	id <S318944AbSHFA3F>; Mon, 5 Aug 2002 20:29:05 -0400
+From: Richard Bonomo <bonomo@sal.wisc.edu>
+Message-Id: <200208060032.g760WZP107993@maddog.sal.wisc.edu>
+Subject: backups/dumps/caches
+To: linux-kernel@vger.kernel.org
+Date: Mon, 5 Aug 2002 19:32:34 -0500 (CDT)
+Cc: bonomo@maddog.sal.wisc.edu (Richard Bonomo)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_A5CEF4H3ZVOVIV1L60IR"
-Message-Id: <200208060031.58600.reddog83@chartermi.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_A5CEF4H3ZVOVIV1L60IR
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Hello!
 
-This patch removes unneeded code for the Realtek driver this patch does n=
-ot
-harm the performance of the driver at all it just removes dead code
---------------Boundary-00=_A5CEF4H3ZVOVIV1L60IR
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="diff"
+I have been trying to come up to speed on
+the issue of dumping file systems from
+2.4.x kernels using dumps.  I located 
+Linus' unequivocal words about the dangers
+of using dump.   I have a couple of questions:
 
-diff -urN linux-2.4/drivers/net/8139too.c.tmp linux/drivers/net/8139too.c
---- linux-2.4/drivers/net/8139too.c.tmp	Mon Aug  5 18:06:03 2002
-+++ linux/drivers/net/8139.c	Tue Aug  6 00:09:20 2002
-@@ -211,7 +211,6 @@
- 	RTL8139 = 0,
- 	RTL8139_CB,
- 	SMC1211TX,
--	/*MPX5030,*/
- 	DELTA8139,
- 	ADDTRON8139,
- 	DFE538TX,
-@@ -230,7 +229,6 @@
- 	{ "RealTek RTL8139 Fast Ethernet", RTL8139_CAPS },
- 	{ "RealTek RTL8139B PCI/CardBus", RTL8139_CAPS },
- 	{ "SMC1211TX EZCard 10/100 (RealTek RTL8139)", RTL8139_CAPS },
--/*	{ MPX5030, "Accton MPX5030 (RealTek RTL8139)", RTL8139_CAPS },*/
- 	{ "Delta Electronics 8139 10/100BaseTX", RTL8139_CAPS },
- 	{ "Addtron Technolgy 8139 10/100BaseTX", RTL8139_CAPS },
- 	{ "D-Link DFE-538TX (RealTek RTL8139)", RTL8139_CAPS },
-@@ -245,7 +243,6 @@
- 	{0x10ec, 0x8139, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8139 },
- 	{0x10ec, 0x8138, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RTL8139_CB },
- 	{0x1113, 0x1211, PCI_ANY_ID, PCI_ANY_ID, 0, 0, SMC1211TX },
--/*	{0x1113, 0x1211, PCI_ANY_ID, PCI_ANY_ID, 0, 0, MPX5030 },*/
- 	{0x1500, 0x1360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DELTA8139 },
- 	{0x4033, 0x1360, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ADDTRON8139 },
- 	{0x1186, 0x1300, PCI_ANY_ID, PCI_ANY_ID, 0, 0, DFE538TX },
+1. Do the same warnings apply to XFS and xfsdump?
+   (Is the caching system used with the newer
+    kernel used only with certain file system types?)
 
---------------Boundary-00=_A5CEF4H3ZVOVIV1L60IR--
+2. Perhaps, naively, is it possible to shut off
+  caching temporarily (and without rebooting),
+  accepting the performance hit, while a dump
+  is done, and then restart caching afterwards?
 
+Please cc a reply directly to me (bonomo@sal.wisc.edu),
+as I am not a regular member of this list (at least,
+not yet...)
+
+Thank you!
+
+Richard B.
+
+-- 
+************************************************
+Richard Bonomo
+UW Space Astronomy Laboratory
+ph: (608) 263-4683 telefacsimile: (608) 263-0361
+SAL-related email: bonomo@sal.wisc.edu
+all other email: bonomo@ece.wisc.edu
+web page URL: http://www.cae.wisc.edu/~bonomo
+************************************************

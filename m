@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314841AbSEUPtX>; Tue, 21 May 2002 11:49:23 -0400
+	id <S314961AbSEUPxW>; Tue, 21 May 2002 11:53:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314889AbSEUPtW>; Tue, 21 May 2002 11:49:22 -0400
-Received: from exchange.macrolink.com ([64.173.88.99]:53514 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S314841AbSEUPtV>; Tue, 21 May 2002 11:49:21 -0400
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A7832@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Anton Altaparmakov'" <aia21@cantab.net>
-Cc: ivangurdiev@linuxfreemail.com, LKML <linux-kernel@vger.kernel.org>
-Subject: RE: Compiler question....
-Date: Tue, 21 May 2002 08:49:21 -0700
+	id <S314987AbSEUPxV>; Tue, 21 May 2002 11:53:21 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:12160 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S314961AbSEUPxU>; Tue, 21 May 2002 11:53:20 -0400
+Date: Tue, 21 May 2002 11:53:58 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Calin A. Culianu" <calin@ajvar.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Lazy Newbie Question
+In-Reply-To: <Pine.LNX.4.33L2.0205211133180.14445-100000@rtlab.med.cornell.edu>
+Message-ID: <Pine.LNX.3.95.1020521114635.1232B-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002, Anton Altaparmakov wrote:
+On Tue, 21 May 2002, Calin A. Culianu wrote:
+
 > 
-> The error messages the compiler is generating are completely 
-> bogus because the unnamed fields ARE of type struct or union. 
-> It's just that they are typedeffed so that the words "struct" 
-> and "union" do not appear. IMO that is a screwup by gcc...
+> Whats the best way to do the equivalent of a stat() on a char * pathname
+> from inside a kernel module?  Don't ask why I need to do this.. I know it
+> sounds evil but I just need to do it...  Basically I need to find out the
+> minor number of a device file.
+> 
 
-Agreed, IIRC, didn't ANSI C spec address this specific point? That any two
-types which contain matching simple types must be considered to match,
-regardless of how they were declared, typedef or explicitly. e.g. Unlike
-Pascal, typedef does not create "new" types. It creates aggregates of simple
-types. 
+No. You never "need to do it". Some user-mode task, somewhere, installs
+your module. That same task can open your device and via ioctl() tell
+it anything it needs to know.
 
-Ed
+A "file" is something the kernel handles on behalf of a task. That
+task has a context which, amongst other things, allows the kernel
+to assign file-descriptors. The kernel is not a task. It does not
+have a "context". Of course it can create one and it can steal one.
+These are the two methods used inside the kernel to handle "files".
 
----------------------------------------------------------------- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
-----------------------------------------------------------------
+And, unless the kernel task "thread" is permanent, it's a dirty
+way of corrupting the kernel.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

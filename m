@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUGGVPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265474AbUGGVR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265354AbUGGVPH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 17:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265474AbUGGVPH
+	id S265474AbUGGVR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 17:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUGGVR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 17:15:07 -0400
-Received: from cantor.suse.de ([195.135.220.2]:39907 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265354AbUGGVPC (ORCPT
+	Wed, 7 Jul 2004 17:17:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5603 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265474AbUGGVRY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 17:15:02 -0400
-Subject: Re: Unnecessary barrier in sync_page()?
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20040707210608.GS28479@dualathlon.random>
-References: <20040707175724.GB3106@logos.cnet>
-	 <20040707182025.GJ28479@dualathlon.random>
-	 <20040707112953.0157383e.akpm@osdl.org>
-	 <20040707184202.GN28479@dualathlon.random>
-	 <1089233823.3956.80.camel@watt.suse.com>
-	 <20040707210608.GS28479@dualathlon.random>
-Content-Type: text/plain
-Message-Id: <1089234901.3956.88.camel@watt.suse.com>
+	Wed, 7 Jul 2004 17:17:24 -0400
+Date: Wed, 7 Jul 2004 14:14:06 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Bryce Harrington <bryce@osdl.org>
+Cc: akpm@osdl.org, wli@holomorphy.com, ltp-list@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, testdev@osdl.org
+Subject: Re: [LTP] Re: Recent changes in LTP test results
+Message-Id: <20040707141406.2a46cf82.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0407071334460.22452-100000@osdlab.pdx.osdl.net>
+References: <20040706191009.279aed14.akpm@osdl.org>
+	<Pine.LNX.4.33.0407071334460.22452-100000@osdlab.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 07 Jul 2004 17:15:01 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-07 at 17:06, Andrea Arcangeli wrote:
-> On Wed, Jul 07, 2004 at 04:57:04PM -0400, Chris Mason wrote:
-> > I wasn't worried about the locked bit when I added the barrier, my goal
-> > was to order things with people that set page->mapping to null.
-> 
-> page->mapping cannot change from NULL to non-NULL there.
-> 
-> it can only change from non-NULL to NULL, and there's no way to
-> serialize with the truncate without taking the page lock.
-> 
-> The one extremely important fix you did around the same time, has been
-> to "cache" the value of "mapping" in the kernel stack, so that it
-> remains the same during the while function (so that it cannot start
-> non-NULL an finish NULL). But the smp_mb() itself cannot make a
-> difference as far as I can tell.
+On Wed, 7 Jul 2004 13:48:52 -0700 (PDT)
+Bryce Harrington <bryce@osdl.org> wrote:
 
-As Andrew pointed out back then, page->mapping can go to null, but even
-if we have a stale copy of page->mapping, the mapping can't be freed. 
-So you're right that it should be enough to keep the change to cache the
-value of mapping.  
+> I have retested with ltp-full-20040603.  This version of LTP hangs on
+> our system but fortunately completes most of the tests before doing so.
+> It indicates that it still encounters the same errors, e.g.:
 
-I was hunting the backing dev info bugs back then, and seem to have
-talked myself into the barriers while testing...
+It hangs (actually, it OOPS's) on accept01, which is fixed in the current
+BK sources via this patch:
 
--chris
-
-
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/06 22:02:06-07:00 davem@nuts.davemloft.net 
+#   [IPV4]: Set UDP accept back to sock_no_accept.
+#   
+#   Setting it to inet_accept causes UDP accept attempts
+#   to OOPS.  In particular, accept01 from LTP tries this.
+#   
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+# net/ipv4/af_inet.c
+#   2004/07/06 22:01:31-07:00 davem@nuts.davemloft.net +1 -1
+#   [IPV4]: Set UDP accept back to sock_no_accept.
+#   
+#   Setting it to inet_accept causes UDP accept attempts
+#   to OOPS.  In particular, accept01 from LTP tries this.
+#   
+#   Signed-off-by: David S. Miller <davem@redhat.com>
+# 
+diff -Nru a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
+--- a/net/ipv4/af_inet.c	2004-07-07 14:09:13 -07:00
++++ b/net/ipv4/af_inet.c	2004-07-07 14:09:13 -07:00
+@@ -823,7 +823,7 @@
+ 	.bind =		inet_bind,
+ 	.connect =	inet_dgram_connect,
+ 	.socketpair =	sock_no_socketpair,
+-	.accept =	inet_accept,
++	.accept =	sock_no_accept,
+ 	.getname =	inet_getname,
+ 	.poll =		datagram_poll,
+ 	.ioctl =	inet_ioctl,

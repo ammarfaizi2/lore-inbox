@@ -1,61 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269826AbUH0A7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269841AbUH0BOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269826AbUH0A7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269794AbUH0AyO
+	id S269841AbUH0BOY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 21:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269856AbUH0A74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:54:14 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19627 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S269757AbUHZXwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 19:52:30 -0400
-Message-ID: <412E77BE.5070005@namesys.com>
-Date: Thu, 26 Aug 2004 16:52:30 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+	Thu, 26 Aug 2004 20:59:56 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:28304 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S269818AbUH0A4D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:56:03 -0400
+Message-ID: <412E868E.7070808@kolivas.org>
+Date: Fri, 27 Aug 2004 10:55:42 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Spam <spam@tnonline.net>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com,
-       reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com>	<20040825152805.45a1ce64.akpm@osdl.org>	<112698263.20040826005146@tnonline.net>	<Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>	<1453698131.20040826011935@tnonline.net>	<20040825163225.4441cfdd.akpm@osdl.org>	<20040825233739.GP10907@legion.cup.hp.com>	<20040825234629.GF2612@wiggy.net>	<1939276887.20040826114028@tnonline.net>	<20040826024956.08b66b46.akpm@osdl.org>	<839984491.20040826122025@tnonline.net>	<20040826032457.21377e94.akpm@osdl.org>	<742303812.20040826125114@tnonline.net> <20040826035500.00b5df56.akpm@osdl.org>
-In-Reply-To: <20040826035500.00b5df56.akpm@osdl.org>
-X-Enigmail-Version: 0.85.0.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Nuno Silva <nuno.silva@vgertech.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: 2.6.9-rc1-mm1
+References: <20040826014745.225d7a2c.akpm@osdl.org> <412DC47B.4000704@kolivas.org> <200408261636.06857.rjw@sisk.pl> <412E11ED.7040300@kolivas.org> <52540000.1093553736@flay> <412E7004.3070503@kolivas.org> <412E824F.90704@vgertech.com> <412E8475.5000505@kolivas.org> <93300000.1093567895@flay>
+In-Reply-To: <93300000.1093567895@flay>
+X-Enigmail-Version: 0.84.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB21E78ACF1CFAD9BC13163E3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB21E78ACF1CFAD9BC13163E3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->
->No.  All of the applications which you initially identified can be
->implemented by putting the various bits of data into a single file and
->getting applications to agree on the format of that file.
->
->For example, some image file formats already support embedded metadata, do
->they not?
->
->-
->  
->
-and that leads to vasts numbers of file formats, all of which require 
-special code to parse them, and apps that don't duplicate that code 
-can't access the data, and it is a software engineering mistake.  
-Uniform interfaces greatly reduce the cost of an OS and increase its 
-expressive power.  Closure is the most important and least understood 
-principle of OS design.
+Martin J. Bligh wrote:
+> --On Friday, August 27, 2004 10:46:45 +1000 Con Kolivas <kernel@kolivas.org> wrote:
+> 
+> 
+>>Nuno Silva wrote:
+>>
+>>>Con Kolivas wrote:
+>>>
+>>>>If you're talking about using the embedded image viewer in kde, that 
+>>>>spins on wait and wastes truckloads of cpu (a perfect example of poor 
+>>>>coding). Try loading it an external viewer and it will be 1000 times 
+>>>>faster. If you're talking about it keeping the disk too busy on the 
+>>>>other hand, that's I/O scheduling.
+>>>>
+>>>
+>>>The question is: "can a poorly coded app hang the system for 30secs?"
+>>>
+>>>That's a DoS ;-)
+>>
+>>It does not hang the system, only it's dependant tasks (ie other kde thingies)
+> 
+> 
+> the display app (not KDE), however, at least seems to deny X of enough time 
+> that the mouse cursor won't move. Much badness! ;-)
 
-By contrast, suppose everything was stored in files and directories.  
-Every app can afford the coding cost to learn about files and 
-directories.  Data can freely bounce from one object to another in the 
-OS because the APIs for the objects are all the same.  That's increased 
-expressive power.  The number of connections between objects determines 
-the expressive power of the OS, not the number of objects in it.  
-Unified namespaces do a lot for an OS.
+Yes, priority inversion is a nasty thing indeed.
 
-Hans
+Cheers,
+Con
+
+--------------enigB21E78ACF1CFAD9BC13163E3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBLoaQZUg7+tp6mRURAqIUAJ42W+UobsWzBH1rErooXajKhfkbKQCggEB1
+Wo+xKgGkoUiU6oAnci/wy2k=
+=xfiN
+-----END PGP SIGNATURE-----
+
+--------------enigB21E78ACF1CFAD9BC13163E3--

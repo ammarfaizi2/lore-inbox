@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266631AbSKLRe4>; Tue, 12 Nov 2002 12:34:56 -0500
+	id <S266637AbSKLRaO>; Tue, 12 Nov 2002 12:30:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266639AbSKLRe4>; Tue, 12 Nov 2002 12:34:56 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8964 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266631AbSKLRez>;
-	Tue, 12 Nov 2002 12:34:55 -0500
-Date: Tue, 12 Nov 2002 18:41:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, benh@kernel.crashing.org,
-       Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-Message-ID: <20021112174110.GA187@elf.ucw.cz>
-References: <20021110115408.GA22068@atrey.karlin.mff.cuni.cz> <EDC461A30AC4D511ADE10002A5072CAD04C7A4C9@orsmsx119.jf.intel.com> <3205.1036707953@passion.cambridge.redhat.com> <7810.1036996696@passion.cambridge.redhat.com>
+	id <S266639AbSKLRaO>; Tue, 12 Nov 2002 12:30:14 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:41433 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S266637AbSKLRaN>;
+	Tue, 12 Nov 2002 12:30:13 -0500
+Date: Tue, 12 Nov 2002 17:36:42 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       "'mingo@redhat.com'" <mingo@redhat.com>,
+       "'Mark Mielke'" <mark@mark.mielke.cc>, linux-kernel@vger.kernel.org
+Subject: Re: Users locking memory using futexes
+Message-ID: <20021112173642.GA14034@bjl1.asuk.net>
+References: <A46BBDB345A7D5118EC90002A5072C7806CAC921@orsmsx116.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7810.1036996696@passion.cambridge.redhat.com>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CAC921@orsmsx116.jf.intel.com>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Perez-Gonzalez, Inaky wrote:
+> Good thing is - I just found out after reading twice - that FUTEX_FD does
+> not lock the page in memory, so that is one case less to worry about. 
 
-> >  Yes... But how should "generic" battery info look like?
-> > On apm you only know percentages and ETA left.
-> > On acpi you know voltages, capacities and present rate.
-> > On zaurus you only know voltages.
-> > It will be quite hard to decide "one correct interface". It should
-> > probably be called "/proc/power".
-> 
-> Battery info call returns a structure where some elements can be 'unknown'. 
-> ACPI does it like that already, IIRC -- it's not mandatory to actually fill 
-> in every field correctly. 
+Oh yes it does - the page isn't unpinned until wakeup or close.
+See where it says in futex_fd():
 
-Would you care to suggest how battery info should look like?
-								Pavel
--- 
-When do you have heart between your knees?
+	page = NULL;
+out:
+	if (page)
+		unpin_page(page);
+
+Rusty's got a good point about pipe() though.
+
+Btw, maybe GnuPG can use this "feature" to lock it's crypto memory in RAM :)
+
+-- Jamie

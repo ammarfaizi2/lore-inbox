@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316221AbSEKOK5>; Sat, 11 May 2002 10:10:57 -0400
+	id <S316222AbSEKOT3>; Sat, 11 May 2002 10:19:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316222AbSEKOK4>; Sat, 11 May 2002 10:10:56 -0400
-Received: from vitelus.com ([64.81.243.207]:9738 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id <S316221AbSEKOK4>;
-	Sat, 11 May 2002 10:10:56 -0400
-Date: Sat, 11 May 2002 07:09:52 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S316223AbSEKOT3>; Sat, 11 May 2002 10:19:29 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:30795 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S316222AbSEKOT2> convert rfc822-to-8bit;
+	Sat, 11 May 2002 10:19:28 -0400
+Message-Id: <200205111418.g4BEIa629620@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Linus Torvalds <torvalds@transmeta.com>, Lincoln Dale <ltd@cisco.com>
+Subject: Re: O_DIRECT performance impact on 2.4.18 (was: Re: [PATCH] 2.5.14  IDE 56)
+Date: Sat, 11 May 2002 16:18:35 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Andrew Morton <akpm@zip.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Padraig Brady <padraig@antefacto.com>,
+        Anton Altaparmakov <aia21@cantab.net>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 57
-Message-ID: <20020511140952.GB6102@vitelus.com>
-In-Reply-To: <Pine.LNX.4.44.0205052046590.1405-100000@home.transmeta.com> <3CD7BA24.9050205@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.0i
+In-Reply-To: <Pine.LNX.4.44.0205100854370.2230-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 07, 2002 at 01:27:32PM +0200, Martin Dalecki wrote:
-> Tue May  7 02:37:49 CEST 2002 ide-clean-57
-> 
-> Nuke /proc/ide.
+On Friday 10 May 2002 17:55, Linus Torvalds wrote:
+> On Fri, 10 May 2002, Lincoln Dale wrote:
+> > so O_DIRECT in 2.4.18 still shows up as a 55% performance hit versus no
+> > O_DIRECT. anyone have any clues?
+>
+> Yes.
+>
+> O_DIRECT isn't doing any read-ahead.
+>
+> For O_DIRECT to be a win, you need to make it asynchronous.
 
-I actually agree with you here. /proc has turned into a bloated mess
-of unparsable text files. It would be nice if we could move some of
-this information to a uniform sysctl() interface. I hope you'll work a
-bit on that (if it isn't already implemented!).
+Will the use of O_DIRECT affect disk elevatoring?
+
+Sorry if this is OT - I just need to know
+
+Please cc: to me as I'm not on the list
+
+roy

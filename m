@@ -1,60 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSGUUjf>; Sun, 21 Jul 2002 16:39:35 -0400
+	id <S313477AbSGUUkN>; Sun, 21 Jul 2002 16:40:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313477AbSGUUjf>; Sun, 21 Jul 2002 16:39:35 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37642 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S313416AbSGUUjf>; Sun, 21 Jul 2002 16:39:35 -0400
-Date: Sun, 21 Jul 2002 21:42:39 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A1
-Message-ID: <20020721214239.C26376@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0207212038350.23450-100000@localhost.localdomain> <20020721205800.B26376@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020721205800.B26376@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sun, Jul 21, 2002 at 08:58:01PM +0100
+	id <S313537AbSGUUkN>; Sun, 21 Jul 2002 16:40:13 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46011 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S313477AbSGUUkJ>;
+	Sun, 21 Jul 2002 16:40:09 -0400
+Date: Sun, 21 Jul 2002 22:41:36 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
+Subject: [patch] "big IRQ lock" removal, 2.5.27-A5
+In-Reply-To: <Pine.LNX.4.44.0207212121050.24336-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0207212237270.26342-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 21, 2002 at 08:58:01PM +0100, Russell King wrote:
-> On Sun, Jul 21, 2002 at 08:50:35PM +0200, Ingo Molnar wrote:
-> > (the serial subsystem is disabled for example.)
-> 
-> As far as the serial stuff goes:
-> 
-> - William Irvin and Zwane Mwaikambo have been testing it, found a
->   deadlock, now fixed. (yay)
-> 
-> - Zwane reports that serial console doesn't work for him.  Oddly,
->   it works here on a Netwinder (which has all the bits'n'pieces to
->   be close enough to a PC with a PCI bus, southbridge, and standard
->   serial ports at standard IO bases and standard IRQs) so I'm at a
->   loss why this works for me but not Zwane.
-> 
-> I'm just sorting out a 2.5.26-rmk1 release, then update to 2.5.27,
-> make sure it builds, and then I'll be sending the serial stuff to
-> Linus.  Until then, I've no idea if any patch I create will apply
-> to 2.5.27.
-> 
-> Gimme about an hour or so and I'll have the patch ready.
 
-Ok, 2.5.27 doesn't seem to touch any of the affected files; the patch
-still applies.  In such a short time period, I've not been able to
-confirm that it actually works with 2.5.27, only with 2.5.26.
+reviewed and fixed the apm.c hacks, it's now using the proper spinlocks
+and not cli()/sti(). Latest full patch is at:
 
-Here's the complete patch; it's rather large, so for mortals it's
-available from:
+    http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-A5
 
-  http://www.arm.linux.org.uk/cvs/serial-2.5.26-3.diff.bz2
+(the apm.c changes are attached as well.)
 
-I'm going to send it in mail to Linus separately.
+	Ingo
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--- linux/arch/i386/kernel/apm.c.orig	Sun Jul 21 20:37:10 2002
++++ linux/arch/i386/kernel/apm.c	Sun Jul 21 22:36:42 2002
+@@ -222,6 +222,8 @@
+ 
+ #include <linux/sysrq.h>
+ 
++extern rwlock_t xtime_lock;
++extern spinlock_t i8253_lock;
+ extern unsigned long get_cmos_time(void);
+ extern void machine_real_restart(unsigned char *, int);
+ 
+@@ -1141,40 +1143,25 @@
+ 
+ static void set_time(void)
+ {
+-	unsigned long	flags;
+-
+-	if (got_clock_diff) {	/* Must know time zone in order to set clock */
+-		save_flags(flags);
+-		cli();
++	if (got_clock_diff)	/* Must know time zone in order to set clock */
+ 		CURRENT_TIME = get_cmos_time() + clock_cmos_diff;
+-		restore_flags(flags);
+-	}
+ }
+ 
+ static void get_time_diff(void)
+ {
+ #ifndef CONFIG_APM_RTC_IS_GMT
+-	unsigned long	flags;
+-
+ 	/*
+ 	 * Estimate time zone so that set_time can update the clock
+ 	 */
+-	save_flags(flags);
+ 	clock_cmos_diff = -get_cmos_time();
+-	cli();
+ 	clock_cmos_diff += CURRENT_TIME;
+ 	got_clock_diff = 1;
+-	restore_flags(flags);
+ #endif
+ }
+ 
+-static void reinit_timer(void)
++static inline void reinit_timer(void)
+ {
+ #ifdef INIT_TIMER_AFTER_SUSPEND
+-	unsigned long	flags;
+-
+-	save_flags(flags);
+-	cli();
+ 	/* set the clock to 100 Hz */
+ 	outb_p(0x34,0x43);		/* binary, mode 2, LSB/MSB, ch 0 */
+ 	udelay(10);
+@@ -1182,7 +1169,6 @@
+ 	udelay(10);
+ 	outb(LATCH >> 8 , 0x40);	/* MSB */
+ 	udelay(10);
+-	restore_flags(flags);
+ #endif
+ }
+ 
+@@ -1203,13 +1189,21 @@
+ 		}
+ 		printk(KERN_CRIT "apm: suspend was vetoed, but suspending anyway.\n");
+ 	}
++	/* serialize with the timer interrupt */
++	write_lock_irq(&xtime_lock);
++
++	/* protect against access to timer chip registers */
++	spin_lock(&i8253_lock);
++
+ 	get_time_diff();
+-	cli();
+ 	err = set_system_power_state(APM_STATE_SUSPEND);
+ 	reinit_timer();
+ 	set_time();
+ 	ignore_normal_resume = 1;
+-	sti();
++
++	spin_unlock(&i8253_lock);
++	write_unlock_irq(&xtime_lock);
++
+ 	if (err == APM_NO_ERROR)
+ 		err = APM_SUCCESS;
+ 	if (err != APM_SUCCESS)
+@@ -1232,8 +1226,12 @@
+ {
+ 	int	err;
+ 
++	/* serialize with the timer interrupt */
++	write_lock_irq(&xtime_lock);
+ 	/* If needed, notify drivers here */
+ 	get_time_diff();
++	write_unlock_irq(&xtime_lock);
++
+ 	err = set_system_power_state(APM_STATE_STANDBY);
+ 	if ((err != APM_SUCCESS) && (err != APM_NO_ERROR))
+ 		apm_error("standby", err);
+@@ -1321,7 +1319,9 @@
+ 			ignore_bounce = 1;
+ 			if ((event != APM_NORMAL_RESUME)
+ 			    || (ignore_normal_resume == 0)) {
++				write_lock_irq(&xtime_lock);
+ 				set_time();
++				write_unlock_irq(&xtime_lock);
+ 				pm_send_all(PM_RESUME, (void *)0);
+ 				queue_event(event, NULL);
+ 			}
+@@ -1336,7 +1336,9 @@
+ 			break;
+ 
+ 		case APM_UPDATE_TIME:
++			write_lock_irq(&xtime_lock);
+ 			set_time();
++			write_unlock_irq(&xtime_lock);
+ 			break;
+ 
+ 		case APM_CRITICAL_SUSPEND:
 

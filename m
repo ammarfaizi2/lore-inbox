@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280804AbRK1WCt>; Wed, 28 Nov 2001 17:02:49 -0500
+	id <S280825AbRK1WPV>; Wed, 28 Nov 2001 17:15:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280807AbRK1WCj>; Wed, 28 Nov 2001 17:02:39 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:56783 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S280804AbRK1WCa>;
-	Wed, 28 Nov 2001 17:02:30 -0500
-Date: Wed, 28 Nov 2001 22:58:42 +0100 (MET)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200111282158.WAA02746@harpo.it.uu.se>
-To: torvalds@transmeta.com
+	id <S280808AbRK1WPM>; Wed, 28 Nov 2001 17:15:12 -0500
+Received: from mailrelay.netcologne.de ([194.8.194.96]:40648 "EHLO
+	mailrelay.netcologne.de") by vger.kernel.org with ESMTP
+	id <S280828AbRK1WPB>; Wed, 28 Nov 2001 17:15:01 -0500
+Message-ID: <00c301c1785a$069803a0$25aefea9@ecce>
+From: "[MOc]cda*mirabilos" <mirabilos@netcologne.de>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200111282158.WAA02746@harpo.it.uu.se>
 Subject: Re: 2.4.16 Compiler warning
-Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org, mblack@csihq.com
+Date: Wed, 28 Nov 2001 22:14:19 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Nov 2001 16:19:35 +0100 (CET), Kai Germaschewski wrote:
->On Wed, 28 Nov 2001, Mike Black wrote:
->
->> This appears to be a non-fatal warning....does this need to be cleaned up?
->> [...]
->> {standard input}: Assembler messages:
->> {standard input}:1107: Warning: indirect lcall without `*'
->> {standard input}:1192: Warning: indirect lcall without `*'
->> [...]
->
->I believe this cannot be cleaned up in 2.4 because it breaks older 
->binutils. However, what about the appended patch for 2.5?
+> >> This appears to be a non-fatal warning....does this need to be
+cleaned up?
+> >> [...]
+> >> {standard input}: Assembler messages:
+> >> {standard input}:1107: Warning: indirect lcall without `*'
+> >> {standard input}:1192: Warning: indirect lcall without `*'
 
-Kai's patch is almost identical to what I've been applying to every 2.3/2.4
-kernel for the last year, ever since RedHat included a newer binutils
-which printed these "indirect lcall without `*'" warnings.
-My patch kit also fixes an occurrence in bootsect.S -- see below.
+IIRC I've had them since 2.0.33 I started dealing with Linux...
 
-This really ought to go into 2.5 ASAP, IMHO.
-
-/Mikael
-
---- linux-2.4.17-pre1/arch/i386/boot/bootsect.S.~1~	Fri Nov 23 22:40:14 2001
-+++ linux-2.4.17-pre1/arch/i386/boot/bootsect.S	Wed Nov 28 20:33:06 2001
-@@ -236,7 +236,7 @@
- rp_read:
- #ifdef __BIG_KERNEL__			# look in setup.S for bootsect_kludge
- 	bootsect_kludge = 0x220		# 0x200 + 0x20 which is the size of the
--	lcall	bootsect_kludge		# bootsector + bootsect_kludge offset
-+	lcall	*bootsect_kludge	# bootsector + bootsect_kludge offset
- #else
- 	movw	%es, %ax
- 	subw	$SYSSEG, %ax

@@ -1,57 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263729AbUDMUIf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 16:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbUDMUIf
+	id S263722AbUDMUJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 16:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263727AbUDMUJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 16:08:35 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:11982 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S263726AbUDMUIa (ORCPT
+	Tue, 13 Apr 2004 16:09:23 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:28901 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263722AbUDMUJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 16:08:30 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+	Tue, 13 Apr 2004 16:09:20 -0400
+Date: Tue, 13 Apr 2004 13:09:08 -0700
+From: Grant Grundler <iod00d@hp.com>
 To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, Andi Kleen <ak@suse.de>
 Subject: Re: [PATCH] PCI MSI Kconfig consolidation
-Date: Tue, 13 Apr 2004 14:08:17 -0600
-User-Agent: KMail/1.6.1
-Cc: <linux-kernel@vger.kernel.org>, <linux-ia64@vger.kernel.org>,
-       "Andi Kleen" <ak@suse.de>
+Message-ID: <20040413200908.GF6559@cup.hp.com>
 References: <C7AB9DA4D0B1F344BF2489FA165E502404058232@orsmsx404.jf.intel.com>
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502404058232@orsmsx404.jf.intel.com>
-MIME-Version: 1.0
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404131408.17248.bjorn.helgaas@hp.com>
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502404058232@orsmsx404.jf.intel.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 April 2004 1:16 pm, Nguyen, Tom L wrote:
-> On Tuesday, April 13, Bjorn Helgaas wrote:
-> 
-> > This consolidates the PCI MSI configuration into drivers/pci/Kconfig,
-> > removing it from the i386, x86_64, and ia64 Kconfig.
-> >
-> > It also changes the default for ia64 from "y" to "n".  The default on
-> > i386 is "n" already, and I'm not sure why ia64 should be different.
-> 
+On Tue, Apr 13, 2004 at 12:16:10PM -0700, Nguyen, Tom L wrote:
 > It looks good; however, it may create a confusion on ia64 because ia64 
 > is already vector-based indexing. 
 
-No.  This is one reason why I think the MSI configuration symbol
-should be CONFIG_PCI_MSI, not CONFIG_PCI_USE_VECTOR.
+Ok. Can you submit another patch to cleanup the wording so it's clear
+this option only changes ia32 IRQ support?
 
-The fact that external interrupts in the ia64 architecture include a
-number, and that we happen to call that number a "vector", has
-nothing to do with PCI MSI.
+The key feature is MSI support (which I think depends on vector-based
+indexing) which is arch independent.
 
-In fact, I think there's a whole lot more architecture-specific
-knowledge that has leaked across into drivers/pci/msi.[ch].  For
-example, the MSI capability basically defines just a message address
-register and a message data register.  It does not define anything
-about the interpretation of either address or data.  So all the stuff
-in struct msg_data and struct msg_address (vector, delivery_mode,
-level, trigger, dest_id, dest_mode, redirection_hint) looks to me
-like Intel-specific knowledge that should be encapsulated in the
-arch code.
+grant

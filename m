@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315375AbSGQQ1C>; Wed, 17 Jul 2002 12:27:02 -0400
+	id <S315265AbSGQQit>; Wed, 17 Jul 2002 12:38:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315416AbSGQQ1C>; Wed, 17 Jul 2002 12:27:02 -0400
-Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:54927 "EHLO
-	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
-	id <S315375AbSGQQ1B>; Wed, 17 Jul 2002 12:27:01 -0400
-Date: Wed, 17 Jul 2002 12:29:55 -0400
-From: Jason Lunz <lunz@reflexsecurity.com>
-To: zhengchuanbo <zhengcb@netpower.com.cn>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how to improve the throughput of linux network
-Message-ID: <20020717162955.GA8858@reflexsecurity.com>
-References: <200207172216104.SM00792@zhengcb>
-Mime-Version: 1.0
+	id <S315374AbSGQQis>; Wed, 17 Jul 2002 12:38:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65041 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315265AbSGQQis>;
+	Wed, 17 Jul 2002 12:38:48 -0400
+Message-ID: <3D35A024.1635E12E@zip.com.au>
+Date: Wed, 17 Jul 2002 09:49:40 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cantab.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/13] lseek speedup
+References: <3D3598F0.FBBA9DB6@zip.com.au> <5.1.0.14.2.20020717171311.00b00380@pop.cus.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200207172216104.SM00792@zhengcb>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In gmane.linux.kernel, you wrote:
-> i got the patch for NAPI,and patched it on linux2.4.18. it worked. the
-> throughput of 128bytes frame improve from 60% to more than 90%. it
-> seems that it has no influnce to frames bigger than 256.
+Anton Altaparmakov wrote:
 > 
-> but there is still some problem. when i tested the throught of 64bytes
-> frame,some error occured. in the begining it works well. but after
-> several times of try the linux router can not receive any packets at
-> all.(i found that by run ifconfig when the smartbits is testing). for
-> the other frames it worked very well.
+> >  Now, why are we taking i_sem for lseek/readdir
+> >exclusion and not a per-file lock?
 > 
-> so what's wrong with my test? is there some problem with the patch?
+> Because it also excludes against directory modifications, etc. Just imagine
+> what "rm somefile" or "mv somefile otherfile" or "touch newfile" would do
+> to the directory contents and what a concurrent readdir() would do... A
+> very loud *BANG* is the only thing that springs to mind...
 
-Quite possibly. Are you still using the eepro100 NAPI driver? I doubt
-that it's gotten wide testing.
+That's different.  i_size, contents of things, yes - i_sem for
+those.
 
-The patch at http://gtf.org/lunz/linux/net/ comes from here:
-ftp://robur.slu.se/pub/Linux/net-development/NAPI/eepro100/eepro100-napi-020619.tar.gz
+But protection of struct file should not be via any per-inode thing.
 
-The NAPI conversion was done by fxzhang@ict.ac.cn (see the README); you
-may want to ask him about problems you're having.
+> btw. the directory modification locking rules are written up in
+> Documentation/filesystems/directory-locking by our very own VFS maintainer
+> Al Viro himself... (-;
 
--- 
-Jason Lunz			Reflex Security
-lunz@reflexsecurity.com		http://www.reflexsecurity.com/
+Doesn't cover lseek...
+
+-

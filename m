@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbULOPJL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbULOPTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbULOPJL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 10:09:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbULOPJK
+	id S262358AbULOPTB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 10:19:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbULOPTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 10:09:10 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:53737 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S262364AbULOPI7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 10:08:59 -0500
-Date: Wed, 15 Dec 2004 07:08:46 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andi Kleen <ak@suse.de>
-cc: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH 0/3] NUMA boot hash allocation interleaving
-Message-ID: <690790000.1103123325@[10.10.2.4]>
-In-Reply-To: <20041215071734.GO27225@wotan.suse.de>
-References: <Pine.SGI.4.61.0412141140030.22462@kzerza.americas.sgi.com> <9250000.1103050790@flay> <20041214191348.GA27225@wotan.suse.de> <19030000.1103054924@flay> <Pine.SGI.4.61.0412141720420.22462@kzerza.americas.sgi.com> <20041215040854.GC27225@wotan.suse.de> <686170000.1103094885@[10.10.2.4]> <20041215071734.GO27225@wotan.suse.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 15 Dec 2004 10:19:01 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:22447 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262358AbULOPS7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 10:18:59 -0500
+Date: Wed, 15 Dec 2004 07:18:41 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Time sliced cfq with basic io priorities
+Message-ID: <20041215151840.GA1265@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20041213125046.GG3033@suse.de> <20041213130926.GH3033@suse.de> <20041213175721.GA2721@suse.de> <20041214133725.GG3157@suse.de> <20041214213155.GA2057@us.ibm.com> <20041215063628.GL3157@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20041215063628.GL3157@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andi Kleen <ak@suse.de> wrote (on Wednesday, December 15, 2004 08:17:34 +0100):
-
-> On Tue, Dec 14, 2004 at 11:14:46PM -0800, Martin J. Bligh wrote:
->> Well hold on a sec. We don't need to use the hugepages pool for this,
->> do we? This is the same as using huge page mappings for the whole of
->> kernel space on ia32. As long as it's a kernel mapping, and 16MB aligned
->> and contig, we get it for free, surely?
+On Wed, Dec 15, 2004 at 07:36:28AM +0100, Jens Axboe wrote:
+> On Tue, Dec 14 2004, Paul E. McKenney wrote:
+> > If only one task is referencing the list at all, no need for RCU or for
+> > any other synchronization mechanism.  If multiple threads are referencing
+> > the list, I cannot find any pure readers.  If multiple threads are updating
+> > the list, I don't see how they are excluding each other.
+> > 
+> > Any enlightenment available?  I most definitely need a clue here...
 > 
-> The whole point of the patch is to not use the direct mapping, but
-> use a different interleaved mapping on NUMA machines to spread
-> the memory out over multiple nodes.
-
-Right, I know it's not there pre-existant - I was thinking of frigging it 
-by hand though, rather than using the hugepage pool infrastructure.
-
->> > Using other page sizes would be probably tricky because the 
->> > linux VM can currently barely deal with two page sizes.
->> > I suspect handling more would need some VM infrastructure effort
->> > at least in the changed port. 
->> 
->> For the general case I'd agree. But this is a setup-time only tweak
->> of the static kernel mapping, isn't it?
+> No, you are about right :-)
 > 
-> It's probably not impossible, just lots of ugly special cases.
-> e.g. how about supporting it for /proc/kcore etc? 
+> The RCU stuff can go again, because I moved everything to happen under
+> the same task. The section under rcu_read_lock() is the reader, it just
+> later on moved the hot entry to the front as well which does indeed mean
+> it's buggy if there were concurrent updaters. So that's why it's in a
+> state of being a little messy right now.
+> 
+> A note on the list itself - a task has a cfq_io_context per queue it's
+> doing io against and it needs to be looked up when we this process
+> queues io. The task sets this up itself on first io and tears this down
+> on exit. So only the task itself ever updates or searches this list.
 
-Hmmm. Yes, not considered those. 
+Whew!!!  I feel much better!
 
-M.
-
+							Thanx, Paul

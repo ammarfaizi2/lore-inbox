@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317434AbSHGUgQ>; Wed, 7 Aug 2002 16:36:16 -0400
+	id <S316659AbSHGUnN>; Wed, 7 Aug 2002 16:43:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317435AbSHGUgQ>; Wed, 7 Aug 2002 16:36:16 -0400
-Received: from [200.213.197.161] ([200.213.197.161]:38536 "HELO
-	hm61.locaweb.com.br") by vger.kernel.org with SMTP
-	id <S317434AbSHGUgO>; Wed, 7 Aug 2002 16:36:14 -0400
-Message-ID: <20020807203936.14257.qmail@hm36.locaweb.com.br>
-From: "Renato" <webmaster@cienciapura.com.br>
-Date: Wed,  7 Aug 2002 17:39:36
-To: "Reed, Timothy A" <timothy.a.reed@lmco.com>,
-       "Linux Kernel ML \(E-mail\)" <linux-kernel@vger.kernel.org>
-Subject: Re: Hyperthreading Options in 2.4.19
-References: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE3@emss04m10.ems.lmco.com>
-In-Reply-To: <9EFD49E2FB59D411AABA0008C7E675C009D8DEE3@emss04m10.ems.lmco.com>
-X-Mailer: LocaWeb Mail
-X-IPAddress: 200.182.81.199
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S317464AbSHGUnM>; Wed, 7 Aug 2002 16:43:12 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:44796 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316659AbSHGUmf>; Wed, 7 Aug 2002 16:42:35 -0400
+Subject: Re: [patch] tls-2.5.30-A1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Alexandre Julliard <julliard@winehq.com>,
+       Luca Barbieri <ldb@ldb.ods.org>
+In-Reply-To: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208071115290.4961-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 07 Aug 2002 23:01:34 +0100
+Message-Id: <1028757694.26935.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I read a while back that the kernel boot parameter "idle=poll" helps to improve the wake up latency of processes in high 
-performance systems.
+On Wed, 2002-08-07 at 19:33, Linus Torvalds wrote:
+>  - keep the TLS entries contiguous, and make sure that segment 0040 (ie
+>    GDT entry #8) is available to a TLS entry, since if I remember
+>    correctly, that one is also magical for old Windows binaries for all
+>    the wrong reasons (ie it was some system data area in DOS and in 
+>    Windows 3.1)
 
-On Wed, 07 Aug 2002 14:22:05 -0400, "Reed, Timothy A" <timothy.a.reed@lmco.com> escreveu :
+Lots of BIOSes (a million monkeys bashing on typewriters will write
+something that passes some BIOS vendor QA in about 2 seconds) illegally
+assume that 0040: points at the BIOS data segment 0040 when making APM32
+calls. Sufficient that Windows makea it so and its never going to get
+corrected.
 
-> De: "Reed, Timothy A" <timothy.a.reed@lmco.com>
-> Data: Wed, 07 Aug 2002 14:22:05 -0400
-> Para: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>
-> Assunto: Hyperthreading Options in 2.4.19
-> 
-> Hello All,
-> 	I am going rounds with a sub-contractor of ours about what options
-> should and should not be compiled into the kernel in order for
-> Hyperthreading to work.  Can anyone make any suggestions and comments to the
-> options (below)  that I am planning on enforcing:
-> 	MSR
-> 	MTRR
-> 	CPUID
-> 
-> 	Lilo.conf : acpismp=force?? 
-> 
-> 	Are the following worth any thing of value to Hyperthreading:
-> 	Microcode
-> 	ACPI
-> 
-> TIA
-> 
-> Timothy Reed
-> Software Engineer/Systems Administrator
-> Lockheed Martin - NE & SS Syracuse
-> Email: timothy.a.reed@lmco.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
-> 
+> Then, for double extra bonus points somebody should look into whether
+> those damn PnP BIOS segments could be simply made to be TLS segments
+> during module init. I don't know if that PnP stuff is required later or
+> not.
+
+PnPBIOS has to rewrite segments as it goes for data passing. It doesnt
+really matter where you stuff them though.
+
+

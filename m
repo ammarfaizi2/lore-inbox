@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281210AbRK0S36>; Tue, 27 Nov 2001 13:29:58 -0500
+	id <S282453AbRK0Sai>; Tue, 27 Nov 2001 13:30:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281322AbRK0S3t>; Tue, 27 Nov 2001 13:29:49 -0500
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:38148
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S281210AbRK0S3k>; Tue, 27 Nov 2001 13:29:40 -0500
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200111271805.fARI5aw23060@www.hockin.org>
-Subject: Re: procfs bloat, syscall bloat [in reference to cpu affinity]
-To: phil-linux-kernel@ipal.net (Phil Howard)
-Date: Tue, 27 Nov 2001 10:05:36 -0800 (PST)
-Cc: l-k@mindspring.com (Joe Korty),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <20011127080441.A12419@vega.ipal.net> from "Phil Howard" at Nov 27, 2001 08:04:41 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S281322AbRK0SaT>; Tue, 27 Nov 2001 13:30:19 -0500
+Received: from [209.249.147.248] ([209.249.147.248]:15122 "EHLO
+	proxy1.addr.com") by vger.kernel.org with ESMTP id <S281221AbRK0SaQ>;
+	Tue, 27 Nov 2001 13:30:16 -0500
+Date: Tue, 27 Nov 2001 13:26:15 -0500
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: jsimmons@transvirtual.com, mj@ucw.cz, linux-kernel@vger.kernel.org,
+        acpi@phobos.fachschaften.tu-muenchen.de
+Subject: Re: Restoring videomode on return from S3 sleep
+Message-Id: <20011127132615.0a25c838.dang@fprintf.net>
+In-Reply-To: <20011127191604.A3152@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011126210621.A2039@elf.ucw.cz>
+	<Pine.LNX.4.10.10111271003070.21131-100000@www.transvirtual.com>
+	<20011127191604.A3152@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IWSTM that the way you would justify this being a system call would also
-> suggest working with non-linux kernel developers (both open source as well
-> as commercial) to determine a mutually agreed syntax/semantic for this
-> call to further ensure the basis of the universality that ensure it will
-> be one of those "forever" facilities, and maybe even make it into a future
-> standard.
+On Tue, 27 Nov 2001 19:16:04 +0100
+Pavel Machek <pavel@suse.cz> wrote:
+
+> Hi!
 > 
-> You opened the camel's mouth; do you want to check the teeth?
+> > > I'll need to restore video mode on returning from acpi sleep...
+> > > 
+> > > Unfortunately, video selection code is not part of kernel, it is
+> > > 16-bit code. acpi_wakeup.S, otoh, *is* part of kernel :-(. 
+> > 
+> > Is this on the console and if it is I assum you are uing vgacon. It could 
+> > be the S# card has a broken implemenation. This wouldn't be the first.
+> > Their has been a patch sometime for vesafb to work properly with S3 cards.
+> > 
+> > S3 framebuffer anyone? I remember their has been scathered work on this
+> > but I never seen anything come to light for this.
+> 
+> Oh. Sorry. By S3 I mean ACPI S3 state. ACPI S3 == suspend to RAM.
+> 
+> Basically what I need is to restore video mode after returning from
+> ACPI S3 sleep state, so that vesafb works properly.
+> 								Pavel
 
+I need the same for APM. (I would prefer ACPI, but it currently hangs by box) 
+I have to use vesafb or I get artifacts (Trident CyberBlade/XP), but then a
+resume from APM never restores the video.  Presumably, a reset (similar to
+when the fb is turned on?) would fix the problem.  I haven't looked into it
+yet due to lack of time, but if someone else is going to work on it, I'll
+gladly help test.
 
-once again - pset IS a candidate for this interface.  (damn I need to
-finish the 2.4 port).  http://www.hockin.org/~thockin/pset
+Daniel
+--- 
+Recursion n.:
+        See Recursion.
+                        -- Random Shack Data Processing Dictionary
+

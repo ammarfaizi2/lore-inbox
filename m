@@ -1,133 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290255AbSAOT2t>; Tue, 15 Jan 2002 14:28:49 -0500
+	id <S289598AbSAOTf3>; Tue, 15 Jan 2002 14:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290257AbSAOT2m>; Tue, 15 Jan 2002 14:28:42 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:781 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S290255AbSAOT2e>; Tue, 15 Jan 2002 14:28:34 -0500
-Date: Tue, 15 Jan 2002 20:28:32 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
- the elegant solution)
-In-Reply-To: <Pine.LNX.3.95.1020115133220.818B-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0201151954010.11441-100000@Megathlon.ESI>
+	id <S290265AbSAOTfU>; Tue, 15 Jan 2002 14:35:20 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:50345 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S289598AbSAOTfH>;
+	Tue, 15 Jan 2002 14:35:07 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2AA0@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Luigi Genoni'" <kernel@Expansa.sns.it>, Amit Gupta <amit.gupta@amd.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: arpd not working in 2.4.17 or 2.5.1
+Date: Tue, 15 Jan 2002 11:34:51 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002, Richard B. Johnson wrote:
+I have a 2.4 compatible arpd running, but with our
+company being bought by a big US software company
+I'm having trouble convincing management to allow
+the GPL release.  It's becoming very important so
+I'm hopeful that I'll be successful shortly, but
+until then I have to be quiet :)
 
-> On Tue, 15 Jan 2002, Marco Colombo wrote:
-> 
-> > On 15 Jan 2002, Thomas Duffy wrote:
-> > 
-> > > On Tue, 2002-01-15 at 04:29, Andrew Pimlott wrote:
-> > > 
-> > > > - Building from source is good karma.
-> 
-> [SNIPPED...]
-> 
-> > 
-> > Every distro supplies a package with the source used to build their own
-> > kernel. Just recomplile it.
-> 
-> Really???  Have you ever tried this? RedHat provides a directory
-> of random patches that won't patch regardless of the order in
-> which you attempt patches (based upon date-stamps on patches or
-> date-stamps on files). It's like somebody just copied in some
-> junk, thinking nobody would ever bother.
+--
+Dana Lacoste      - Linux Developer
+Peregrine Systems - Ottawa, Canada
 
-Uh?
+(Note that Peregrine acquired Loran, and jlayes@loran.com
+is an email address of a former employee, so i'm kind of
+the relevant person to talk to for arpd stuff, because that
+other address won't work :)
 
-# cd /usr/src/linux-2.4
-# make xconfig
-(note that the autoconfigurator would provide a good starting point
-here for a stripped down kernel, reducing compile time a lot!)
-# make bzImage
-# make modules
-# make install
-# make modules_install
-
-# ls -al /boot/vmlinuz-2.4.9-13custom
-/boot/vmlinuz-2.4.9-13custom
-
-I've done that (with minimal variations) hundreds of times. It worked like
-that since 4.1, IIRC. What Red Hat are you talking about? And it's no
-different from what you do with a standard tree.
-
-(you need the kernel-source RPMS, of course)
-
-
-You encounter troubles when you apply some random patch to the RH tree.
-It happens with almost every non vanilla tree out there...
-
-> Some distributions don't even provide source. They provide
-> copies of /usr/src/linux/include/asm and /usr/src/linux/include/linux
-> but nothing else. You have to "find" source on the internet.
-
-Name one, please. I can't believe it.
-
-> Some distributions don't even provide that, instead they provide
-> copies of /usr/src/linux/include/linux and /usr/src/linux/include/asm
-> under /usr/include.
-
-Name one, please. Really.
-
-> The "good-ol-days" where you could get 72 floppies from Yggdrasil,
-> install Linux, and spend the next 48 hours watching it compile
-> are long gone.
-
-Uh. SLS was the one. Less than 50 floppies. And it never took
-48 to compile a kernel. Before 1.0 the kernel was so small than my
-386/40, equipped with 4MB of RAM, managed to complile it in reasonable
-time (<30mins) (not with X running). 0.96 (or was it 0.98) ate my disk
-so many times during compile (HD Timeout...) that I must confess that
-I've been a 386BSDer and a NetBSDer at times...  I can't remeber when
-the problem has been fixed, BTW. Maybe when I switched to Slackware.
-
-Kernel compile time has been nearly constant in time (since I was 
-upgrading my HW meanwhile), in my experience.
-
-> I have never found a distribution that uses modules, in which is
-> was even remotely possible to duplicate the kernel supplied.
-
-s|make xconfig|cp configs/kernel-2.4.9-athlon.config .config|
-
-in the above. Works like a charm (ok, the kernel is named -custom, but
-I like it this way).
-
-Anyway, rpm --rebuild kernel-xxxx.src.rpm  does work, even if it's
-obviously slow (I've never tried in on 7.x, though.  I'm reminiscent of
-6.x days), since it produces all the binary packages...
-
-
-Go get a better internet connection: the one you're using is corrupting
-the packages you're downloading. Or it's corrupting the messages you're
-sending.
-
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-> 
->     I was going to compile a list of innovations that could be
->     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
->     was handled in the BIOS, I found that there aren't any.
+> -----Original Message-----
+> From: Luigi Genoni [mailto:kernel@Expansa.sns.it]
+> Sent: January 15, 2002 10:03
+> To: Amit Gupta
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: arpd not working in 2.4.17 or 2.5.1
 > 
 > 
+> Latest  kernel I saw working with arpd (user space daemon) I 
+> am manteining
+> is 2.2.16, then from 2.4.4 (for 2.4 series), some changes were done to
+> kernel so that the kernel does not talk correctly with the device
+> /dev/arpd anymore.
+> It is not the first time I write about this on lkml, but it 
+> seems none is
+> interested in manteining the kernel space component for arpd support.
+> I did some investigation, but the code for arpd support 
+> itself inside of
+> the kernel seems to be ok, something else is wrong with neighour.c.
 > 
-
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
-
+> So at less I can say the user space daemon works well on 2.2.16 I have
+> around ;).
+> 
+> Luigi
+> 
+> On Mon, 14 Jan 2002, Amit Gupta wrote:
+> 
+> >
+> > Hi All,
+> >
+> > I am running 2.5.1 kernel on a 2 AMD processor system and 
+> have enable
+> > routing messages, netlink and arpd support inside kernel as 
+> described in
+> > arpd docs.
+> >
+> > Then after making 36 character devices, when I run arpd, 
+> it's starts up
+> > but always keeps silent (strace) and the kernel also does 
+> not keep it's
+> > 256 arp address limit.
+> >
+> > Pls help fix it, I need linux to be able to talk to more than 1024
+> > clients.
+> >
+> > Thanks in Advance.
+> >
+> > Amit
+> > amit.gupta@amd.com
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

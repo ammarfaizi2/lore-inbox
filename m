@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132691AbRCMVy1>; Tue, 13 Mar 2001 16:54:27 -0500
+	id <S131205AbRCMV51>; Tue, 13 Mar 2001 16:57:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132681AbRCMVyT>; Tue, 13 Mar 2001 16:54:19 -0500
-Received: from srv01s4.cas.org ([134.243.50.9]:2465 "EHLO srv01.cas.org")
-	by vger.kernel.org with ESMTP id <S132653AbRCMVyA>;
-	Tue, 13 Mar 2001 16:54:00 -0500
-From: Mike Harrold <mharrold@cas.org>
-Message-Id: <200103132153.QAA22914@mah21awu.cas.org>
-Subject: Re: Dumping memory of a running process?
-To: root@mauve.demon.co.uk (Ian Stirling)
-Date: Tue, 13 Mar 2001 16:53:11 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200103132044.UAA24829@mauve.demon.co.uk> from "Ian Stirling" at Mar 13, 2001 08:44:18 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S131191AbRCMVcA>; Tue, 13 Mar 2001 16:32:00 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:7373 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131194AbRCMVbF>;
+	Tue, 13 Mar 2001 16:31:05 -0500
+From: Terje Malmedal <terje.malmedal@usit.uio.no>
+To: linux-kernel@vger.kernel.org
+Subject: Alert on LAN for Linux? 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <E14cvTq-0000oH-00@morgoth>
+Date: Tue, 13 Mar 2001 21:33:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Is there a way to dump the memory of any process without stopping, or 
-> modifying it?
-> 
-> Obviously normally stopping it would be the right thing to do, but
-> is it possible, and if so, is there a handy tool?
 
-fork() and raise(SIGABRT) in the child does the trick. Of course this
-only works if you have access to the source code.
+Alert on LAN seems to have some useful functionality, if I understand
+things correctly they have enhanced Wake-on-LAN to allow you to do
+things like reset the machine, update the BIOS and such by sending
+magic packets which are interpreted by the network card. Or maybe I am
+reading too much into this:
 
-/Mike
+http://www.pc.ibm.com/us/desktop/alertonlan/
+
+Anyway, my eepro100 cards say they are Alert on LAN capable, it would
+be very useful to be able to use this reboot a Linux box remotely:
+
+02:09.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 08)
+
+	Subsystem: Intel Corporation EtherExpress PRO/100+ Management Adapter with Alert On LAN*
+	Flags: bus master, medium devsel, latency 66, IRQ 11
+	Memory at 40200000 (32-bit, non-prefetchable) [size=4K]
+	I/O ports at 1400 [size=64]
+	Memory at 40100000 (32-bit, non-prefetchable) [size=1M]
+	Expansion ROM at <unassigned> [disabled] [size=1M]
+	Capabilities: [dc] Power Management version 2
+
+Does anybody know anything about Alert on LAN and whether it does what
+I think it does?
+
+-- 
+ - Terje
+malmedal@usit.uio.no

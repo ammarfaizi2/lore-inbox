@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269831AbTGKIs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 04:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269833AbTGKIs7
+	id S269833AbTGKJAs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 05:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269834AbTGKJAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 04:48:59 -0400
-Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:25008 "EHLO
-	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S269831AbTGKIs6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 04:48:58 -0400
-Date: Fri, 11 Jul 2003 11:03:34 +0200
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add xbox subarchitecture
-Message-ID: <20030711090334.GB3989@h55p111.delphi.afb.lu.se>
-References: <20030710172802.GB27744@h55p111.delphi.afb.lu.se> <20030710190918.A12653@infradead.org> <20030711082937.GA2838@h55p111.delphi.afb.lu.se> <20030711094511.C21196@infradead.org>
+	Fri, 11 Jul 2003 05:00:48 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:40374
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S269833AbTGKJAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 05:00:47 -0400
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Henrique Oliveira <henrique2.gobbi@cyclades.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Kevin Curtis <kevin.curtis@farsite.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <003101c34712$a9b8f480$602fa8c0@henrique>
+References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk>
+	 <Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva>
+	 <003101c34712$a9b8f480$602fa8c0@henrique>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057914760.8028.27.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030711094511.C21196@infradead.org>
-User-Agent: Mutt/1.5.4i
-From: Anders Gustafsson <andersg@0x63.nu>
-X-Scanner: exiscan *19atoU-0001B8-00*GWAN5Ah0qMo*0x63.nu
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Jul 2003 10:12:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 09:45:11AM +0100, Christoph Hellwig wrote:
->
-> > (btw, everyone at LinuxTag should come to the xbox-linux booth and say hi :)
-> 
-> Been there, done that.  (but you've been sitting in the corner busily hackin')
+On Iau, 2003-07-10 at 19:39, Henrique Oliveira wrote:
+> Hi,
+> The patch for the generic HDLC layer was included on the kernel 2.4.21. Thus
+> this layer is already on the main tree (unless, of course, someone has
+> removed it, I havent checked 2.4.22 yet). This layer provides data link
+> protocol (ppp, hdlc, raw-hdlc, x25, frame-relay, cisco-hdlc) for the kernel.
+> It's mainly used by synchronous cards drivers (Cyclades, Moxa, SDL, Farsite,
+> etc, etc, etc).
 
-Yes, that was probably me. But I wasn't that busily hackin', more like
-waiting for bitkeeper to finish its consistency check.
+2.4.21 has much older code than the current stuff (which has been in -ac
+for a while). As I understand it the new hdlc layer needs newer tools ?
 
--- 
-Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

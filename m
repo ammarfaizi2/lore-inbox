@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262650AbVAEUau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVAEUb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262650AbVAEUau (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 15:30:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAEUat
+	id S262649AbVAEUb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 15:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262653AbVAEUbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 15:30:49 -0500
-Received: from rivendell.nexusuk.org ([84.92.27.250]:21635 "EHLO
-	rivendell.nexusuk.org") by vger.kernel.org with ESMTP
-	id S262650AbVAEU2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 15:28:50 -0500
-Date: Wed, 5 Jan 2005 20:22:10 +0000 (GMT)
-From: Steve Hill <steve@nexusuk.org>
-To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
-cc: prism54-devel@prism54.org, prism54-users@prism54.org,
-       Netdev <netdev@oss.sgi.com>, Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Prism54-users] Open hardware wireless cards
-In-Reply-To: <20050105200526.GL5159@ruslug.rutgers.edu>
-Message-ID: <Pine.LNX.4.61.0501052017380.5818@rivendell.nexusuk.org>
-References: <20050105200526.GL5159@ruslug.rutgers.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 5 Jan 2005 15:31:09 -0500
+Received: from host.atlantavirtual.com ([209.239.35.47]:467 "EHLO
+	host.atlantavirtual.com") by vger.kernel.org with ESMTP
+	id S262649AbVAEU2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 15:28:42 -0500
+Subject: Re: data rescue
+From: kernel <kernel@crazytrain.com>
+Reply-To: kernel@crazytrain.com
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, sujeet.kumar@patni.com
+In-Reply-To: <200501051518.29918.robin.rosenberg.lists@dewire.com>
+References: <00e801c4f32e$bde1e600$7861a8c0@pcp40702>
+	 <200501051518.29918.robin.rosenberg.lists@dewire.com>
+Content-Type: text/plain
+Message-Id: <1104956707.3907.61.camel@crazytrain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 05 Jan 2005 15:25:07 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, 2005-01-05 at 09:18, Robin Rosenberg wrote:
+> > I tried running linux-rescue from bootable disk and it shows no valid
+> > partition table.
+> > How do i rescue my data . 
 
-On Wed, 5 Jan 2005, Luis R. Rodriguez wrote:
+In addition to 'gpart' you can try 'rescuept' which is part of
+util-linux collection.   Each of these may rescue your corrupt partition
+table.  
 
-> What I think we probably will have to do is just work torwards seeing if
-> we can come up with our own open wireless hardware. I know there was
-> a recent thread on lkml about an open video card -- anyone know where
-> that ended up?
+Do you have any idea of the partitioning schema?  Number of partitions,
+size, etc.?
 
-This may be a silly point, but there *was* good 802.11g hardware available 
-which worked well with the fully open drivers.  I presume the 
-manufacturers are moving to the "softmac" design instead because (for 
-them) it is cheaper.  However, the point is that the working designs are 
-already there and it may be that buying the existing design which is being 
-phased out is cheaper for the FOSS community than developing a whole new 
-open device.
+If both fail to reconstruct the partition table you can work with a
+forensic utility such as SMART for Linux (www.asrdata.com) or The Sleuth
+Kit (www.sleuthkit.org) to recover your files.  Depending upon the FS
+TYPE(s) you may even get deleted files back.  
 
-Maybe it would be possible to convince one of the manufacturers that it's 
-worth their while producing the older design hardware - if there is a 
-single manufacturer who is making more or less the only hardware that is 
-guaranteed to work under Linux there is probably quite a market for them.
+No matter though, once you get everything worked out back up your
+partition table using 'sfdisk' and/or dd and dump that to a safe place
+(external media) so that if this happens in future you can reconstruct
+easily!
 
-  - Steve       Jabber: steve@nexusuk.org     Web: http://www.nexusuk.org/
+-fd
 
-      Servatis a periculum, servatis a maleficum - Whisper, Evanescence
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Public key available at http://www.nexusuk.org/pubkey.txt
-
-iD8DBQFB3Ex15zUOsIV3bqERAuInAKCGVS1kzaR4En2nQnKhDPv6TptZ+QCdEzFN
-y8HbDEpnxvJql8AVpDePcnA=
-=NfEa
------END PGP SIGNATURE-----

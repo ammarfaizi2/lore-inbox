@@ -1,111 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264270AbUFGD1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264277AbUFGFW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264270AbUFGD1v (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 23:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264271AbUFGD1v
+	id S264277AbUFGFW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 01:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264288AbUFGFW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 23:27:51 -0400
-Received: from relay01.kbs.net.au ([203.220.32.149]:16285 "EHLO
-	relay01.kbs.net.au") by vger.kernel.org with ESMTP id S264270AbUFGD1r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 23:27:47 -0400
-Date: Mon, 7 Jun 2004 13:27:44 +1000
-From: "Pods" <pods@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Reply-to: "Pods" <pods@dodo.com.au>
-Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address + more?)
-X-Priority: 3
-X-Mailer: Dodo Internet Webmail Server 
-X-Original-IP: 203.220.15.86
-Content-Transfer-Encoding: 7BIT
-X-MSMail-Priority: Medium
-Importance: Medium
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Jun 2004 01:22:57 -0400
+Received: from wl-193.226.227-253-szolnok.dunaweb.hu ([193.226.227.253]:12420
+	"EHLO szolnok.dunaweb.hu") by vger.kernel.org with ESMTP
+	id S264277AbUFGFWz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 01:22:55 -0400
+Message-ID: <40C3FBAD.7070108@freemail.hu>
+Date: Mon, 07 Jun 2004 07:22:53 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031114
+X-Accept-Language: hu, en-US
 MIME-Version: 1.0
-Message-Id: <E1BXAnX-0005BG-00@mail.kbs.net.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DEC 2104x driver confusion with 2.6.5+
+References: <40C37C99.1050103@freemail.hu>
+In-Reply-To: <40C37C99.1050103@freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok i fixed it. Was a RAM installation problem. I've had trouble with RAM in
-this board before. When i initialy set it up, the RAM modules being in 2&3 3
-was the only i could get it to boot.
+Zoltan Boszormenyi írta:
+> The second problem is that "de2104x.ko" recognizes the cards
+> but autosense does not work, either, and one of the card
+> shares its interrupt (IRQ 11) with the onboard USB host.
+> The host is flooded with interrupts on IRQ 11 after I load
+> de2104x and after some minutes, the kernel disables this IRQ, 
+> occasionally I got a lockup, too.
 
-However i had a few more tries and i got a single DIMM bootting the machine
-and then i tried two. It didnt boot, so i wirggled it and it work? very
-strange. I think the DDR slots may not be up to scratch, but its working...
-o rat least, seems to be.
+I forgot to send this, too.
 
-Thanx for your help, even though it wouldnt have been neccessary if i had
-taken more care in installing the RAM. *color me red faced*
+Jun  6 17:49:48 localhost kernel: irq 11: nobody cared! (screaming 
+interrupt?)
+Jun  6 17:49:48 localhost kernel: Call Trace:
+Jun  6 17:49:48 localhost kernel:  [<c0106ee5>] __report_bad_irq+0x2b/0x67
+Jun  6 17:49:48 localhost kernel:  [<c0106f7d>] note_interrupt+0x43/0x66
+Jun  6 17:49:48 localhost kernel:  [<c0107143>] do_IRQ+0x109/0x169
+Jun  6 17:49:48 localhost kernel:  [<c0287338>] common_interrupt+0x18/0x20
+Jun  6 17:49:48 localhost kernel:  [<c011c254>] __do_softirq+0x2c/0x73
+Jun  6 17:49:48 localhost kernel:  [<c0107708>] do_softirq+0x46/0x4d
+Jun  6 17:49:48 localhost kernel:  =======================
+Jun  6 17:49:48 localhost kernel:  [<c0107197>] do_IRQ+0x15d/0x169
+Jun  6 17:49:48 localhost kernel:  [<c0287338>] common_interrupt+0x18/0x20
+Jun  6 17:49:48 localhost kernel:  [<d091599f>] de_set_rx_mode+0xb/0xd 
+[de2104x]
+Jun  6 17:49:48 localhost kernel:  [<d0916339>] de_init_hw+0x68/0x6e 
+[de2104x]
+Jun  6 17:49:48 localhost kernel:  [<d09165e2>] de_open+0x60/0xdd [de2104x]
+Jun  6 17:49:48 localhost kernel:  [<c023b589>] dev_open+0x5f/0xc6
+Jun  6 17:49:48 localhost kernel:  [<c023c582>] dev_change_flags+0x45/0xe7
+Jun  6 17:49:48 localhost kernel:  [<c026e437>] devinet_ioctl+0x296/0x50c
+Jun  6 17:49:48 localhost kernel:  [<c026ff3f>] inet_ioctl+0x47/0x73
+Jun  6 17:49:48 localhost kernel:  [<c023557d>] sock_ioctl+0x25e/0x274
+Jun  6 17:49:48 localhost kernel:  [<c0150576>] sys_ioctl+0x207/0x23d
+Jun  6 17:49:48 localhost kernel:  [<c0287147>] syscall_call+0x7/0xb
+Jun  6 17:49:48 localhost kernel:
+Jun  6 17:49:48 localhost kernel: handlers:
+Jun  6 17:49:48 localhost kernel: [<c021995d>] (usb_hcd_irq+0x0/0x4b)
+Jun  6 17:49:48 localhost kernel: Disabling IRQ #11
 
-Thanx again.
+Best regards,
+Zoltán Böszörményi
 
-
---------- Original Message --------
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Pods <pods@dodo.com.au>, linux-kernel@vger.kernel.org
-<linux-kernel@vger.kernel.org>
-Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address +
-more?)
-Date: 06/06/04 05:28
-
->
-> On Saturday 05 June 2004 18:27, Pods wrote:
-> &gt; &gt;&gt; Run memtest86
-> &gt; Tried once before, didnt boot... died :( memtest page says this
-happens on
-> &gt; some hardware and they're not sure why.
->
-> Ho hum. Looks like good starting point to debug.
-> Remove RAM until you have &lt;= 2 GB, then run memtest86
-> (or modified versions of it with debug prints)
-> until you know where it dies.
->
-> &gt; &gt;&gt; Underclock your system
-> &gt; its not over clocked :/
->
-> I mean, underclock below normal conditions.
->
-> &gt; &gt;&gt; lower IDE DMA mode and see whether it stops oopsing.
-> &gt;
-> &gt; tried setting dma = off in hdparm, didnt work, still got crashes
-compiling
-> &gt; firebird.. infact, it didnt even get passed the ./configure stage :(
->
-> Use hdparm to set, say, udma0.
->
-> &gt; Each time (just about, didnt do it once out of 6ish times) i set the
-dma to
-> &gt; off (either at boot or runtime) i got a &quot;spurious 8259A
-interript: IRQ 7&quot;..
-> &gt; apparantly, iirc that debug message has been taken out of 2.6.6
->
-> I have 'em too. Not a real issue on lots of systems.
->
-> &gt; Please guys, CC me your responces, otherwise i have to look at some
-> &gt; archives, and reply via webmail... it took 2 firefox crashes (one of
-which
-> &gt; brought down X) to just right this message... now im going to take a
-chance
-> &gt; and hit the submit
-> &gt; button
-> --
-> vda
->
->
->
->
->
->
->
->
->
->
->
-> 
-
-________________________________________________
-
-Message sent using
-Dodo Internet Webmail Server
 

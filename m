@@ -1,76 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbTJFUdy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 16:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbTJFUdy
+	id S261740AbTJFUep (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 16:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbTJFUeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 16:33:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42642 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261687AbTJFUdw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 16:33:52 -0400
-Date: Mon, 6 Oct 2003 13:29:20 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@localhost.localdomain
+	Mon, 6 Oct 2003 16:34:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42390 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261740AbTJFUem
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 16:34:42 -0400
+Date: Mon, 6 Oct 2003 21:34:38 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
 To: Dipankar Sarma <dipankar@in.ibm.com>
-cc: Maneesh Soni <maneesh@in.ibm.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+Cc: Patrick Mochel <mochel@osdl.org>, Maneesh Soni <maneesh@in.ibm.com>,
        Greg KH <gregkh@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC 0/6] Backing Store for sysfs
-In-Reply-To: <20031006202656.GB9908@in.ibm.com>
-Message-ID: <Pine.LNX.4.44.0310061321440.985-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20031006203437.GU7665@parcelfarce.linux.theplanet.co.uk>
+References: <20031006085915.GE4220@in.ibm.com> <Pine.LNX.4.44.0310061123110.985-100000@localhost.localdomain> <20031006192713.GE1788@in.ibm.com> <20031006193050.GT7665@parcelfarce.linux.theplanet.co.uk> <20031006200110.GA9908@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031006200110.GA9908@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > That's what I told you, only reversed - try again. The patch posted in 
-> > unacceptable, though I'm willing to look at alternatives. I don't have or 
+On Tue, Oct 07, 2003 at 01:31:10AM +0530, Dipankar Sarma wrote:
+> > What's more important, for leaves of the sysfs tree your overhead is also
+> > a loss - we don't need to pin dentry down for them even with current sysfs
+> > design.   And that can be done with minimal code changes and no data changes
+> > at all.  Your patch will have to be more attractive than that.  What's the
+> > expected ratio of directories to non-directories in sysfs?
 > 
-> Viro's suggestion of pinning the non-leaf dentries only seems like
-> a very good first alternative to try out.
+> ISTR, a large number of files in sysfs are attributes which are leaves.
+> So, keeping a kobject tree partially connected using dentries as backing 
+> store as opposed to having everything connected might just be enough.
+> It will be looked into.
 
-Uh, that's about the same thing I suggested, though probably not as 
-concisely: 
+Note that main reason why sysfs uses ramfs model is that it gets good
+interaction with VFS locking for free - it just uses ->i_sem of associated
+inodes for tree protection and that gives us all we need.  Very nice,
+but it means that we need these associated inodes.  And since operations
+are done deep in tree, we don't want to walk all the way from root, bringing
+them in-core.
 
-"As I said before, I don't know the right solution, but the directions to 
-look in are related to attribute groups. Attributes definitely consume the 
-most amount of memory (as opposed to the kobject hierachy), so delaying 
-their creation would help, hopefully without making the interface too 
-awkward. 
+However, having them for all nodes is an overkill - if we keep them only
+for non-leaves, we get all the benefits of ramfs approach with less overhead.
+Indeed, even if argument of sysfs operation is a leaf node (and I'm not sure
+that we actually have such beasts), we can always take the parent node and
+be done with that.
 
-You can also use the assumption that an attribute group exists for all the 
-kobjects in a kset, and that a kobject knows what kset it belongs to. And
-that eventually, all attributes should be added as part of an attribute 
-group.."
-
-Attributes are the leaf entries, and they don't need to always exist. But, 
-you have easy access to them via the attribute groups of the ksets the 
-kobjects belong to. 
-
-> > see a problem with the current situation, so your arguments are going to 
-> > have to be a bit stronger. 
-> 
-> By not pinning dentries, you save several hundreds of KBs of lowmem
-> in a common case low-end system with six disks, much reduced number of dentries
-> in the hash table and huge savings in large systems. I would hope that
-> is a good argument. Granted you don't like Maneesh's patch as it is now,
-> but those things will change as more feedbacks come in.
-
-A low-end system has six disks? I don't think so. Maybe a low-end server,
-but of the dozen or so computers that I own, not one has six disks. Call 
-me a techno-wimp, but I think your perspective is still a bit skewed. 
-
-I understand your argument, but I still fail to see evidence that it's
-really a problem. Perhaps you could characterize it a bit more and
-convince us that sysfs overhead is really taking up a significant
-percentage of the total overhead while running a set of common
-applications with lots of open files (which should also be putting 
-pressure on the same caches..) 
-
-Thanks,
-
-
-	Pat
-
+All we need is
+	a) ->lookup() that would look for an attribute (all directories are
+in cache, so if there's no attribute with such name and ->lookup() had been
+called, we'd need to return negative anyway).
+	b) sysfs code slightly modified in several places - mostly,
+sysfs_get_dentry() callers.

@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261799AbSI2UzE>; Sun, 29 Sep 2002 16:55:04 -0400
+	id <S261785AbSI2UxK>; Sun, 29 Sep 2002 16:53:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261804AbSI2UzE>; Sun, 29 Sep 2002 16:55:04 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:48814 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S261799AbSI2UzD>; Sun, 29 Sep 2002 16:55:03 -0400
-Date: Sun, 29 Sep 2002 23:00:21 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: John Levon <levon@movementarian.org>
-cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] break out task_struct from sched.h
-In-Reply-To: <20020929201331.GA90617@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.33.0209292242470.7949-100000@gans.physik3.uni-rostock.de>
+	id <S261786AbSI2UxK>; Sun, 29 Sep 2002 16:53:10 -0400
+Received: from host187.south.iit.edu ([216.47.130.187]:4224 "EHLO
+	host187.south.iit.edu") by vger.kernel.org with ESMTP
+	id <S261785AbSI2UxJ>; Sun, 29 Sep 2002 16:53:09 -0400
+Date: Sun, 29 Sep 2002 15:57:30 -0500 (CDT)
+From: Stephen Marz <smarz@host187.south.iit.edu>
+To: David Brownell <david-b@pacbell.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: kernel BUG in usb-ohci.c:902!
+In-Reply-To: <3D976726.4070909@pacbell.net>
+Message-ID: <Pine.LNX.4.44.0209291549390.1911-100000@host187.south.iit.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Sep 2002, John Levon wrote:
+Actually there is a file of that name 'uhci-hcd' in the 2.5.39 source, 
+which I was talking about.  I was also talking about the uhci-hcd driver 
+in the 2.5.39 source which doesn't necessarily have to have a BUG in that 
+code.  Here is my call trace:
 
-> On Sun, Sep 29, 2002 at 09:50:48PM +0200, Tim Schmielau wrote:
-> 
-> > This patch separates struct task_struct from <linux/sched.h> to 
-> > a new header <linux/task_struct.h>, so that dereferencing 'current'
-> > doesn't require to #include <linux/sched.h> and all of the 138 files it 
-> > drags in.
-> 
-> It seems a bit odd to me that you /only/ split out task_struct but none
-> of the simple helpers (for_each_process(), task_lock,
-> set_task_state etc.). I'd prefer a task.h personally, many of these can
-> be placed without further burdening the include nest.
+uhci-irq [uchi-hcd]
+usb_hcd_irq_Rfba60562 [usbcore]
+handle_IRQ_event
+do_IRQ
+common_interrupt
+page_remove_rmap
+zap_pke_range
+zap_pmd_range
+unmap_page_range
+exit_mmap
+mmput
+exec_mmap
+flush_old_exec
+load_elf_binary
+load_elf_binary
+search_binary_handler
+do_execve
+sys_execve
+syscall_call
 
-You're right.
-I had the vague hope that by separating type definitions only
-some future cleanup might help us to cut down on the number of
-headers included by task_struct.h (currently 60).
-Introducing a full-blown task.h looks like killing sched.h completely
-after suficcient cleanup, which might be a route worth going.
+Code: 83 7b 18 8d 73 04 74 38 c7 04 24 80 f8 88 d0 89 5c 24 04
+  <0> Kernel panic:  Aiee, killing interrupt handler!
+In interrupt handler - not syncing...
 
-> 
-> It'd certainly be nice to see sched.h properly cleaned up at some point
-> (request_irq() ??? d_path() ???)
+I am apparently hitting a different bug, but it inevitably comes from
+the uhci-hcd driver (according to the panic).
 
-Definitely. request_irq() and free_irq() look like candidates for
-<linux/interrupt.h> or a new <linux/irq.h> (it was suggested to move the 
-old <linux/irq.h> to <asm-generic/hw_irq.h>).
+Regards,
 
-Killing ~600 #include <linux/sched.h> lines however seemed enough for a 
-first round, so I left this for later iterations.
+Stephen Marz
 
-Tim
+> > I have noticed this problem in 2.5.39 except it occurs with the module
+> > uhci-hcd.
+
+> No you haven't.  It doesn't have a file of that name, so you
+> didn't see such a BUG().  And I don't know about you, but my
+> copy of 2.5.39 has no BUG() anywhere in the ohci-hcd driver,
+> so it'd be hard seeing _any_ BUG() coming from there.
+
+> You might be hitting a different BUG(), but in that case you
+> would need to get your bug reports straight.
+
+> - Dave
+
+
+
+
 

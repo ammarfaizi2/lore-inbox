@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265534AbRGCRXM>; Tue, 3 Jul 2001 13:23:12 -0400
+	id <S265542AbRGCRWw>; Tue, 3 Jul 2001 13:22:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265478AbRGCRWw>; Tue, 3 Jul 2001 13:22:52 -0400
-Received: from t2.redhat.com ([199.183.24.243]:46842 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265537AbRGCRWl>; Tue, 3 Jul 2001 13:22:41 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010703131031.A25977@thyrsus.com> 
-In-Reply-To: <20010703131031.A25977@thyrsus.com>  <200107031642.f63GgEG25604@snark.thyrsus.com> <29475.994179630@redhat.com> 
-To: esr@thyrsus.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cross-reference analysis reveals problems in 2.4.6pre9 
+	id <S265478AbRGCRWm>; Tue, 3 Jul 2001 13:22:42 -0400
+Received: from cpe-24-221-106-102.az.sprintbbd.net ([24.221.106.102]:39947
+	"HELO farnsworth.org") by vger.kernel.org with SMTP
+	id <S265534AbRGCRWj>; Tue, 3 Jul 2001 13:22:39 -0400
+From: "Dale Farnsworth" <dale@farnsworth.org>
+Date: Tue, 3 Jul 2001 10:22:36 -0700
+To: Andre Hedrick <andre@aslab.com>, linux-kernel@vger.kernel.org
+Subject: Patch for IDE hang after resetting quirk drive
+Message-ID: <20010703102236.A8708@farnsworth.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 03 Jul 2001 18:22:19 +0100
-Message-ID: <31556.994180939@redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a Promise PDC20265 ide controller with one of the "quirk" drives,
+a Quantum Fireballp LM30.  That drive has a bad sector and accessing
+it would result in a DMA timeout.  Unfortunately, after the IDE driver
+resets the controller, the drive never responded.
 
-esr@thyrsus.com said:
->  I put the symbols we discussed previously on my ignore list.  What's
-> your beef this time?
+The following patch appears to correct the problem.  It duplicates
+the workaround for "quirky" drives found in ide-features.c
 
-It looked like you were again reporting config symbols which the user can't
-be asked about - because they're only there as dependencies or as ifdefs in
-the code, rather than as selectable options.
+-Dale
 
-Upon further investigation, it seems I was mistaken. I apologise for my tone.
+Dale Farnsworth		dale@farnsworth.org
 
-In fact, it seems that a lot of MIPS code has been merged into -pre9, and 
-those options _are_ now selectable, rather than just being there as 
-dependencies for some of my code. 
-
-CONFIG_MTD_OCELOT is mine and I thought I'd already submitted help text for
-it - evidently I'd missed it but because its dependencies were unselectable
-your scripts weren't noticing it:
-
-Momenco Ocelot boot flash device
-CONFIG_MTD_OCELOT
-  This enables access routines for the boot flash device and for the 
-  NVRAM on the Momenco Ocelot board. If you have one of these boards
-  and would like access to either of these, say 'Y'.
-
-
---
-dwmw2
-
-
+--- oldlinux-2.4.5/drivers/ide/ide.c	Tue Jul  3 09:35:57 2001
++++ linux-2.4.5/drivers/ide/ide.c	Tue Jul  3 09:23:58 2001
+@@ -758,7 +758,10 @@
+ 	 */
+ 	OUT_BYTE(drive->ctl|6,IDE_CONTROL_REG);	/* set SRST and nIEN */
+ 	udelay(10);			/* more than enough time */
+-	OUT_BYTE(drive->ctl|2,IDE_CONTROL_REG);	/* clear SRST, leave nIEN */
++	if (drive->quirk_list == 2)
++		OUT_BYTE(drive->ctl, IDE_CONTROL_REG); /* clear SRST and nIEN */
++	else
++		OUT_BYTE(drive->ctl|2,IDE_CONTROL_REG);	/* clear SRST only */
+ 	udelay(10);			/* more than enough time */
+ 	hwgroup->poll_timeout = jiffies + WAIT_WORSTCASE;
+ 	ide_set_handler (drive, &reset_pollfunc, HZ/20, NULL);

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbTDUSQc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTDUSQb
+	id S261857AbTDUSSg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbTDUSSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:16:31 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:31077 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S261839AbTDUSQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:16:30 -0400
-Date: Mon, 21 Apr 2003 11:28:58 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: nr_threads locking
-Message-Id: <20030421112858.35e2d7b5.akpm@digeo.com>
-In-Reply-To: <3EA3F153.3000106@colorfullife.com>
-References: <3EA3F153.3000106@colorfullife.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Apr 2003 14:18:36 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59661 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S261857AbTDUSSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 14:18:34 -0400
+Message-ID: <3EA438B3.1010602@zytor.com>
+Date: Mon, 21 Apr 2003 11:30:11 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+CC: "'Greg KH'" <greg@kroah.com>, "'karim@opersys.com'" <karim@opersys.com>,
+       "'Martin Hicks'" <mort@wildopensource.com>,
+       "'Daniel Stekloff'" <dsteklof@us.ibm.com>,
+       "'Patrick Mochel'" <mochel@osdl.org>,
+       "'Randy.Dunlap'" <rddunlap@osdl.org>, "'pavel@ucw.cz'" <pavel@ucw.cz>,
+       "'jes@wildopensource.com'" <jes@wildopensource.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'wildos@sgi.com'" <wildos@sgi.com>,
+       "'Tom Zanussi'" <zanussi@us.ibm.com>
+Subject: Re: [patch] printk subsystems
+References: <A46BBDB345A7D5118EC90002A5072C780C263699@orsmsx116.jf.intel.com>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780C263699@orsmsx116.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Apr 2003 18:28:28.0893 (UTC) FILETIME=[CDFF70D0:01C30833]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> wrote:
->
-> Hi Andrew,
+Perez-Gonzalez, Inaky wrote:
 > 
-> According to the comments, nr_threads is protected by lock_kernel, but 
-> do_fork() runs without the bkl for ages.
-> Would it be possible to use your percpu_counters for nr_threads? It 
-> seems to be used only to guard against fork bombs and for i_nlink of /proc.
+> Hey! Come on! You don't think I am that lame, do you? Man what
+> a fame I do have!
+> 
+> Before the device vaporizes, it recalls the message, so there is 
+> no message to read - the same way you take away the sysfs data from
+> the sysfs tree ...
 > 
 
-It would be possible, yes.
+If you think that will happen with printk(), then, quite frankly, you're
+seriously deluded.
 
-But thread creation is a "rare" event compared to pagefaults and syscalls. 
-An atomic_t will be OK there.
+	-hpa
+
+

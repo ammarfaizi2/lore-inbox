@@ -1,203 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSGPL1E>; Tue, 16 Jul 2002 07:27:04 -0400
+	id <S315611AbSGPLit>; Tue, 16 Jul 2002 07:38:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315611AbSGPL1E>; Tue, 16 Jul 2002 07:27:04 -0400
-Received: from mailhub.fokus.gmd.de ([193.174.154.14]:18147 "EHLO
-	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
-	id <S315419AbSGPL1C>; Tue, 16 Jul 2002 07:27:02 -0400
-Date: Tue, 16 Jul 2002 13:28:19 +0200 (CEST)
-From: Joerg Schilling <schilling@fokus.gmd.de>
-Message-Id: <200207161128.g6GBSJPE021316@burner.fokus.gmd.de>
-To: James.Bottomley@steeleye.com, schilling@fokus.gmd.de
+	id <S315779AbSGPLis>; Tue, 16 Jul 2002 07:38:48 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:23689 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S315611AbSGPLis>;
+	Tue, 16 Jul 2002 07:38:48 -0400
+Date: Tue, 16 Jul 2002 13:41:39 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
+Subject: Re: HZ, preferably as small as possible
+Message-ID: <20020716134139.A7352@ucw.cz>
+References: <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com> <agtl95$ihe$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <agtl95$ihe$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jul 15, 2002 at 05:06:45AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jul 15, 2002 at 05:06:45AM +0000, Linus Torvalds wrote:
+> In article <59885C5E3098D511AD690002A5072D3C02AB7F88@orsmsx111.jf.intel.com>,
+> Grover, Andrew <andrew.grover@intel.com> wrote:
+> >
+> >But on the other hand, increasing HZ has perf/latency benefits, yes? Have
+> >these been quantified?
+> 
+> I've never had good reason to believe the latency/perf benefits myself,
+> but I was approached at OLS about problems with something as simple as
+> DVD playing, where a 100Hz timer means that the DVD player ends up
+> having to busy-loop on gettimeofday() because it cannot sanely sleep due
+> to the lack in sufficient sleeping granularity.
+> 
+> You apparently end up visibly missing frames - a frame is just 3 timer
+> ticks at 100 Hz, and considering that the kernel has to round up by one
+> due to POSIX requirements _and_ considering that you lose roughly one
+> for actually processing the frame itself, that doesn't sound _that_
+> outlandish. 
 
->From James.Bottomley@steeleye.com Mon Jul 15 18:09:52 2002
+Actually, this example is pretty much false I believe.
 
->Actually, the diagram is very similar to what we possess internally today.
+Since there is always the screen refresh rate going at say 85 Hz, you'll
+be missing frames anyway.
 
->This represents where I think the SCSI stack is going:
+The really correct solution would be to use the vertical blank
+interrupt, which all recent cards provide, to wake the X process to tell
+it that it should flip it's xvideo double-buffer (*), and to tell the
+DVD player to supply another frame to it, which it would then preferably
+DMA over AGP straight into the video card memory.
 
->                   User Level
->--------------------------------------------------------------
+Now, if you wanted a real smooth video, you'd set your screen refresh
+rate to 100 Hz in Europe and 120 Hz in US. (Without that it never can be
+100% smooth anyway). And it also has the nice side effect of eliminating
+the screen flicker caused by fluorescent lamp interference.
 
-> +----------------+   +---------------------+
-> | Block Interface|   | Character Interface |
-> +----------------+   +---------------------+
->         |                        |
->         |   +--------------------+
+(*) If our interrupt-to-wake latency is too large for X to do the buffer
+flip in the vblank, then we'll probably need some more kernel support
+for that.
 
-Why should the character interface be connected to the block layer?
-This would contradict UNIX rules.
-
->         |   |
-> +---------------------+
-> | Block Layer         |     +----------------------+
-> | provides queueing   |     | Device Prep Functions|
-> | and elevator if     |     | st, sd, sg, etc.     |
-> | necessary.          |-----| Does transport       |
-> | Also provides all   |     | translation          |
-> | support functions   |     +----------------------+
-> | that may be shared  |                |
-> | across transports.  |     +----------------------+
-> |                     |     | Stackable error      |
-> |                     |-----| handling (not well   |
-> |                     |     | thought out yet)     |
-> |                     |     +----------------------+
-
-Why should the error handlers interface with the block layer?
-This is not true for UNIX and it would not help. However, it would
-be nice to have a way to make the blocklayer find out that e.g. 
-only the last sector  of a multi sector read ahead instruction 
-did fail.
-
-> |                     |
-> |                     |         +--------------------+
-> |                     |         | Transport helper   |
-> |                     |         | Contains all fns   |
-> |                     |         | not shareable by   |
-> |                     |         | other transports   |
-> +---------------------+         +--------------------+
->                   |                  |
->                   |                  |
->                 +-------------------------+
->                 | Card driver (deals with |
->                 | attached transport      |
->                 | translation             |
->                 +-------------------------+
-
-
->As you can see, I plan to leverage the generic block layer to build the 
->transport stack.  The upper layer drivers become mere request_prep_fns whose 
->job is to translate the request to a transport specific command.
-
->The struct request will go all the way down to the card driver, but the card 
->driver may choose to deal only with the transport translation if it wants.
-
->The driving vision for this is to move into the generic block layer as much of 
->the individual transport stack as makes sense (i.e. if other transports can 
->make use of the functions), so, for example, Tag command queueing is already 
->in there and shared between IDE and SCSI.
-
-AFAIK, tagged command queuing is a SCSI specific property, why should this
-be part of a generif block layer?
-The block layer shuld simply send more than one request before waiting for
-the requests to finish. Then a tagged command queuing aware sd.c could choose 
-to fill up the tagged queue that is handled by the SCSI glue layer.
-
->The ultimate end point will be when the correct balance between what belongs 
->in the generic block layer and what belongs in the transport helpers is 
->achieved.  I speculate that, for CDROMS, this will lead to two small request 
->prep modules sharing quite a large helper library (The helper library would do 
->SCSI command translation, and probably the IDE prep module would fix up the 
->transport command for the specific device).  However, I don't rule out that it 
->would lead to a single prep module for both IDE and SCSI.
-
-With my proposal, anything that speaks SCSI is used via SCSI commands and a 
-generic SCSI driver like scg.c could access the SCSI transport aware drives
-of any type. An important (communication baesed) feature of my SCSI glue layer 
-would be to make it possible to insert SCSI commands from scg.c without making 
-sd.c believe that something strange and unexpected happened to one of it's drives.
-
->The device naming issues are totally separate from the above.  I intend that 
-
-Agreed.
-
->driverfs will cope with them.  Internally, the block layer just thinks of the 
->stack as a series of entry points for physical devices.  Driverfs gives the 
->card driver freedom to provide a hierarchical ascii device name as it sees 
->fit.  Hopefully this will finesse the so called persistent binding issues that 
->plague solaris.
-
-It would help, if somebody would correct the current SCSI addressng scheme used 
-in Linux. Linux currently uses something called BUS/channel/target/lun.
-This does not reflect reality.
-
-What Linux calls a SCSI bus is definitely not a SCSI bus but a SCSI HBA card.
-What Linux calls a channel really is one of possibly more SCSI busses going
-off one of the SCSI HBA cards. It makes sense to just count SCSI busses.
-
->Ultimately, this means that host and channel is subsumed into the card 
->identification scheme, target ID may no longer be a number and even LUN may 
->end up being a LUN hierarchy representation.  As we do this, we'll move to 
->exposing persistent names, so the user shouldn't necessarily care about this.
-
-
-Why do you believe that you need to have something that is not a bumber?
-
-As a result of your drawing, I introduced the block layer (which is the 
-traditional UNIX block cache). I also had the idea that it may be a good
-idea to make the simple block based I/O driver part or slave of the SCSI
-CDB based driver (although it would use a different portal to the glue layer).
-This way, it would be possible to have e.g. a single name space for all
-hard disks.
-
-
-Let me add my modified artwork:
-
-			User programs
-
-----------------------------------------------------------------
-----------------------------------------------------------------
-|								|
-|		Kernel driver interface				|
-|								|
-----------------------------------------------------------------
-		|				|
-------------------------			|
-|			|			|
-| Block I/O layer	|			| Raw I/O IF
-|			|			|
-------------------------			|
-		|				|
-Block I/O IF	|				|
-		|				|
-----------------------------------------------------------------
-|				  ------------------------------
-|				 |				|
-|	One or more SCSI	 |	Block based I/O       	|
-|	target drivers		 |	handling routines	|
-|	    e.g. sd.c		 |	not used if SCSI based	|
-|	st.c, scg.c		 |	I/O is possible to a	|
-|				 |	specific drive		|
-				  ------------------------------
-----------------------------------------------------------------
-		|				|
-SCSI CDB IF	|		 Block based IF	|------------------ Locked when
-		|				|		    SCSI glue
-----------------------------------------------------------------    Interface is
-|				|				|   used for a
-|				|				|   specific
-|	SCSI glue layer		|   Block access glue layer	|   drive.
-|				|				|
-|	Will check if target	|				|
-|	supports SCSI commands	|				|
-|	and lock Block access	|				|
-|	layer in this case.	|				|
-|				|				|
-----------------------------------------------------------------
-|								|
-|			 Low level glue				|
-|								|
-----------------------------------------------------------------
-	| SCSI CDB/IF			| SCSI CDB/IF | Block IF
---------------------------------  ------------------------------
-|				| |				|
-|				| |				|
-|	SCSI HBA driver		| |	ATA HBA driver		|
-|				| |	deals with simple ATA	|
-|	Only supports		| |	interface and with	|
-|	SCSI CDB interface	| |	ATA packet interface	|
-|				| |				|
-|				| |				|
---------------------------------  ------------------------------
-Jörg
-
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
- URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix
+-- 
+Vojtech Pavlik
+SuSE Labs

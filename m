@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263172AbTDBV67>; Wed, 2 Apr 2003 16:58:59 -0500
+	id <S263173AbTDBV7k>; Wed, 2 Apr 2003 16:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263173AbTDBV67>; Wed, 2 Apr 2003 16:58:59 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:33028
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S263172AbTDBV66>; Wed, 2 Apr 2003 16:58:58 -0500
-Subject: Re: fairsched + O(1) process scheduler
-From: Robert Love <rml@tech9.net>
-To: Antonio Vargas <wind@cocodriloo.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030402220734.GC13168@wind.cocodriloo.com>
-References: <20030401125159.GA8005@wind.cocodriloo.com>
-	 <20030401164126.GA993@holomorphy.com>
-	 <20030401221927.GA8904@wind.cocodriloo.com>
-	 <20030402124643.GA13168@wind.cocodriloo.com>
-	 <20030402163512.GC993@holomorphy.com>
-	 <20030402213629.GB13168@wind.cocodriloo.com>
-	 <1049319300.2872.21.camel@localhost>
-	 <20030402220734.GC13168@wind.cocodriloo.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049321427.2872.25.camel@localhost>
+	id <S263174AbTDBV7k>; Wed, 2 Apr 2003 16:59:40 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:56737 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S263173AbTDBV7g>; Wed, 2 Apr 2003 16:59:36 -0500
+Date: Wed, 2 Apr 2003 23:10:46 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Fendrakyn <fendrakyn@europaguild.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] E7x05 chipset bug in 2.5 kernels' AGPGART driver.
+Message-ID: <20030402221046.GA30881@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Fendrakyn <fendrakyn@europaguild.com>, linux-kernel@vger.kernel.org
+References: <200304022050.03026.fendrakyn@europaguild.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 02 Apr 2003 17:10:27 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304022050.03026.fendrakyn@europaguild.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-02 at 17:07, Antonio Vargas wrote:
+On Wed, Apr 02, 2003 at 08:50:03PM +0200, Fendrakyn wrote:
 
-> Hmmm, we had some way for executing code just after an interrupt,
-> but outside interrupt scope... was it a bottom half? Can you
-> point me to some place where it's done?
+ > There is a mistake in the Makefile of drivers/char/agp, the line concerning 
+ > i7x05-agp support does not match the one in the Kconfig, thus e7x05 support 
+ > is never compiled, be it as a module or in the kernel.
 
-Unfortunately uidhash_lock cannot be used from a bottom half either.
+I'm really amazed. This has been broken for months, and no-one noticed.
+The day I fixed it in the agpgart bk tree, I got a half dozen reports,
+and now I'm getting one daily. Truly bizarre.
 
-You can push it into a work queue.  See schedule_work() and the default
-events queue.
+ > The last problem is more important and I have yet to find a solution. It seems 
+ > like the driver stores device 0 in his agp_bridge->dev (0x255d for E7205, 
+ > 0x2550 for E7505) but it uses registers from device 1 (0x2552) thus the 
+ > chipset cannot be configured properly. The fetch_size function fails to 
+ > determine aperture size.
 
-> Ok, I did know m68k can do it, but wasn't sure about all other arches :)
+Yep, the other issues (compile problems) are fixed up and will be going
+to Linus real soon now, this problem though is something that is being
+looked at by Matt (i7x05 gart driver author) right now.
+Hopefully that'll also get fixed up with the changes being readied for 2.5.67
 
-Yep.  Everyone architecture I know of - and certainly all that Linux
-support - can do atomic read/writes to a word.  Thinking about it, it
-would be odd if not (two writes to a single word interleaving?).  There
-are places this assumption is used.
+The reason i7x05 does things differently is that the generic-3.0 code
+looks at the devices hanging of the device 0 (in that case, agp gfx cards).
+I realised last week that the generic code is broken, as every other
+agp chipset has the agp cards as secondaries of the agp bridge, not the
+host bridge. Rather than fudge things like this, it looks like a lot
+of the generic-3.0 stuff will be ripped out. It doesn't really work
+properly, and is of questionable use.
 
-Anything more complicated, of course, needs atomic operations or locks.
+ > Sorry if this is redundant and is already being looked at.
 
-	Robert Love
+No problem 8-)
+
+		Dave
 

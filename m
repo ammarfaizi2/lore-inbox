@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbTENOZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 10:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbTENOZZ
+	id S262336AbTENOZR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTENOZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 10:25:25 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:4284 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S262321AbTENOZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 10:25:22 -0400
-Date: Wed, 14 May 2003 10:35:54 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: Stephen Torri <storri@sbcglobal.net>
-Cc: <bug-glibc@gnu.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Compile error including asm/uaccess.h
-In-Reply-To: <1052871028.15836.24.camel@base>
-Message-ID: <Pine.LNX.4.33.0305141030000.10993-100000@marauder.googgun.com>
+	Wed, 14 May 2003 10:25:17 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:44706 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S262288AbTENOZP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 10:25:15 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16066.21702.890215.630000@gargle.gargle.HOWL>
+Date: Wed, 14 May 2003 16:37:58 +0200
+From: mikpe@csd.uu.se
+To: alexander.riesen@synopsys.COM
+Cc: linux-laptop@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69+bk: oops in apmd after waking up from suspend mode
+In-Reply-To: <20030514141121.GA17036@Synopsys.COM>
+References: <20030514094813.GA14904@Synopsys.COM>
+	<16066.16102.618836.204556@gargle.gargle.HOWL>
+	<20030514134600.GA16533@Synopsys.COM>
+	<16066.19659.609760.316141@gargle.gargle.HOWL>
+	<20030514141121.GA17036@Synopsys.COM>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> #include <asm/uaccess.h>
->
-> int main (){
-> 	return 0;
-> }
+Alex Riesen writes:
+ > I'm not sure if my glibc uses sysenter. But I'd like to have the system
+ > prepared if I eventually get one which does.
 
+RH9 on a P6/K7 or higher will use sysenter. Old P5s don't have it.
 
-Hi stephen:
+ > not really. Somewhere fix_processor_context+0x5f/0x100, that's where EIP
+ > points.
 
-<asm/uaccess.h> or for that matter any other kernel related header do
-not contain references to other headers they may need, and this is done on
-purpose for various reasons least of which is creating faster dependencies
-information.
+I need to know your .config and gcc version if I'm to investigate this.
+Otherwise I can't build a kernel similar to yours, and without that,
+the EIP address you quoted is meaningless to me.
 
-In any event, if your purpose is to use any information usefully from
-these, then you should look into an other file in the kernel code that
-includes this file and see the headers that are include before it.
-
-Also have a look at the defines that go with compiling this file.
-
-If you are simply verifying the existence of this file in an autoconf
-configure type script (which may be the case looking at your example
-code).  Then you should write your own test of somesort rather than
-resorting to AC_CONFIG_HEADER.
-
-Cheers,
-
-Ahmed.
-
-For more info have a look at www.kernelnewbies.org
-
+/Mikael

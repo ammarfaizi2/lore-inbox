@@ -1,82 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268675AbUHTWnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268791AbUHTWxD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268675AbUHTWnh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 18:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268676AbUHTWnh
+	id S268791AbUHTWxD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 18:53:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268790AbUHTWxD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 18:43:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23524 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268675AbUHTWne (ORCPT
+	Fri, 20 Aug 2004 18:53:03 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31976 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268676AbUHTWw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 18:43:34 -0400
-Date: Fri, 20 Aug 2004 18:43:28 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, <reiserfs-dev@namesys.com>
-Subject: Re: 2.6.8.1-mm2
-In-Reply-To: <20040819014204.2d412e9b.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0408201753250.4192-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Aug 2004 18:52:56 -0400
+Date: Fri, 20 Aug 2004 15:52:50 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: joshk@triplehelix.org
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] fix bug in sparc64 user copy patch
+Message-Id: <20040820155250.69c09781.davem@redhat.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Aug 2004, Andrew Morton wrote:
 
-> - Added the reiser4 filesystem.
+There were a few slight bugs in the UltraSPARC-I/II/IIi/IIe
+parts of that patch I sent you, here is the fix.
 
-Time for a quick scan through the code, comments in order in which
-I ran into stuff, not in order of importance.
-
-> reiser4-include-reiser4.patch
-
-Might be an idea to trim some of the excess text from the help
-entry and make things a bit more professional.
-
-> reiser4-perthread-pages.patch
-
-If a task exits unexpectedly, it will leak the reserved pages.
-This memory leak wants fixing...
-
-Also, why the !in_interrupt() test in perthread_pages_alloc() ?
-Surely this function shouldn't be called from interrupts, since
-it is a general purpose pool of pages.
-
-> reiser4-radix-tree-tag.patch
-
-Just a nitpick here, could we rename PAGECACHE_TAG_FS_SPECIFIC
-to PAGECACHE_TAG_FS_PRIVATE, since we're using the name "private"
-in half a number of other places for the exact same purpose ?
-
-> reiser4-radix_tree_lookup_slot.patch
-
-Having reiserfs dig into the radix tree looks like a layering
-violation to me.  If there is a real need to replace pagecache
-pages with other pages in the radix tree, maybe we should have
-a function to do that in the pagecache code, leaving reiserfs
-to call things at the right abstraction level ?
-
-I see a potential for race conditions when reiserfs changes a
-page which write has just looked up, and what about mmap?
-Even if the code is safe now, this is bound to result in a
-maintenance nightmare down the road.
-
-> reiser4-truncate_inode_pages_range.patch
-
-This has the same race issue as any of the "hole punch"
-patches that have been floating around in the past.  The
-truncate path has some (subtle!) race prevention that
-depends on the nopage functions not searching past i_size,
-but this hole punch code doesn't.
-
-I am not convinced this is SMP safe.
-
-cheers,
-
-Rik
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+===== arch/sparc64/lib/U1copy_from_user.S 1.1 vs edited =====
+--- 1.1/arch/sparc64/lib/U1copy_from_user.S	2004-08-19 20:10:28 -07:00
++++ edited/arch/sparc64/lib/U1copy_from_user.S	2004-08-20 10:22:41 -07:00
+@@ -20,4 +20,14 @@
+ #define LOAD_BLK(addr,dest)	ldda [addr] ASI_BLK_AIUS, dest
+ #define EX_RETVAL(x)		0
+ 
++	/* Writing to %asi is _expensive_ so we hardcode it.
++	 * Reading %asi to check for KERNEL_DS is comparatively
++	 * cheap.
++	 */
++#define PREAMBLE					\
++	rd		%asi, %g1;			\
++	cmp		%g1, ASI_AIUS;			\
++	bne,pn		%icc, memcpy_user_stub;		\
++	 nop;						\
++
+ #include "U1memcpy.S"
+===== arch/sparc64/lib/U1memcpy.S 1.1 vs edited =====
+--- 1.1/arch/sparc64/lib/U1memcpy.S	2004-08-19 20:10:30 -07:00
++++ edited/arch/sparc64/lib/U1memcpy.S	2004-08-20 11:37:27 -07:00
+@@ -193,6 +193,7 @@
+ 	and		%g2, 7, %g2
+ 	andncc		%g3, 0x7, %g3
+ 	fmovd		%f0, %f2
++	sub		%g3, 0x8, %g3
+ 	sub		%o2, %o4, %o2
+ 
+ 	add		%g1, %o4, %g1
+@@ -444,7 +445,7 @@
+ 2:	membar		#StoreLoad | #StoreStore
+ 	VISExit
+ 	retl
+-	 mov		%g5, %o0
++	 mov		EX_RETVAL(%g5), %o0
+ 
+ 	.align		64
+ 70:	/* 16 < len <= (5 * 64) */
+@@ -539,7 +540,7 @@
+ 	 add		%o1, 4, %o1
+ 
+ 85:	retl
+-	 mov		%g5, %o0
++	 mov		EX_RETVAL(%g5), %o0
+ 
+ 	.align		32
+ 90:	EX_LD(LOAD(ldub, %o1, %g1))
+@@ -548,4 +549,4 @@
+ 	bgu,pt		%XCC, 90b
+ 	 add		%o1, 1, %o1
+ 	retl
+-	 mov		%g5, %o0
++	 mov		EX_RETVAL(%g5), %o0

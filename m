@@ -1,110 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbTBULOk>; Fri, 21 Feb 2003 06:14:40 -0500
+	id <S267372AbTBULJH>; Fri, 21 Feb 2003 06:09:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267375AbTBULOk>; Fri, 21 Feb 2003 06:14:40 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:19105 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id <S267292AbTBULOh>; Fri, 21 Feb 2003 06:14:37 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c with flush_tlb_all()
-Date: Fri, 21 Feb 2003 12:24:32 +0100
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200302202002.h1KK2YZ00018@rumms.uni-mannheim.de> <200302202131.08663.schlicht@uni-mannheim.de> <20030220205017.GA29206@codemonkey.org.uk>
-In-Reply-To: <20030220205017.GA29206@codemonkey.org.uk>
+	id <S267375AbTBULJH>; Fri, 21 Feb 2003 06:09:07 -0500
+Received: from dial-ctb04109.webone.com.au ([210.9.244.109]:22276 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S267372AbTBULJG>;
+	Fri, 21 Feb 2003 06:09:06 -0500
+Message-ID: <3E560AE3.8030309@cyberone.com.au>
+Date: Fri, 21 Feb 2003 22:17:55 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_3xgV+3o9GhBXFEb";
-  charset="iso-8859-1"
+To: Andrea Arcangeli <andrea@suse.de>
+CC: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       David Lang <david.lang@digitalinsight.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IO scheduler benchmarking
+References: <20030220212304.4712fee9.akpm@digeo.com> <Pine.LNX.4.44.0302202247110.12601-100000@dlang.diginsite.com> <20030221001624.278ef232.akpm@digeo.com> <20030221103140.GN31480@x30.school.suse.de> <20030221105146.GA10411@holomorphy.com> <20030221110807.GQ31480@x30.school.suse.de>
+In-Reply-To: <20030221110807.GQ31480@x30.school.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200302211224.39021.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli wrote:
 
---Boundary-03=_3xgV+3o9GhBXFEb
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_wxgV+qv8bdQ5VJG"
-Content-Transfer-Encoding: 7bit
-Content-Description: signed data
-Content-Disposition: inline
-
---Boundary-01=_wxgV+qv8bdQ5VJG
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: body text
-Content-Disposition: inline
-
-On Thu, Feb 20, 2003 21:50, Dave Jones wrote:
-> Its hinting at a possible optimisation, not saying
-> that it is unneeded.
-
-OK, sorry, than I just misunderstood the comment...
-
-So here is a minimal change patch that should solve the preempt issue in=20
-flush_map().
-
-Instead of just doing a preempt_disable() before and a preempt_enable() aft=
-er=20
-the flush_kernel_map() calls I just changed the order so that the preempt=20
-point is not between them...
-
-  Thomas
---Boundary-01=_wxgV+qv8bdQ5VJG
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="flush_map_preempt.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline; filename="flush_map_preempt.patch"
-
-=2D-- linux-2.5.62/arch/i386/mm/pageattr.c.orig	Fri Feb 21 11:47:19 2003
-+++ linux-2.5.62/arch/i386/mm/pageattr.c	Fri Feb 21 12:12:15 2003
-@@ -131,10 +131,10 @@
-=20
- static inline void flush_map(void)
- {=09
-+	flush_kernel_map(NULL);
- #ifdef CONFIG_SMP=20
- 	smp_call_function(flush_kernel_map, NULL, 1, 1);
- #endif=09
-=2D	flush_kernel_map(NULL);
- }
-=20
- struct deferred_page {=20
-=2D-- linux-2.5.62/arch/x86_64/mm/pageattr.c.orig	Fri Feb 21 12:14:25 2003
-+++ linux-2.5.62/arch/x86_64/mm/pageattr.c	Fri Feb 21 12:14:30 2003
-@@ -123,10 +123,10 @@
-=20
- static inline void flush_map(unsigned long address)
- {=09
-+	flush_kernel_map((void *)address);
- #ifdef CONFIG_SMP=20
- 	smp_call_function(flush_kernel_map, (void *)address, 1, 1);
- #endif=09
-=2D	flush_kernel_map((void *)address);
- }
-=20
- struct deferred_page {=20
-
---Boundary-01=_wxgV+qv8bdQ5VJG--
-
---Boundary-03=_3xgV+3o9GhBXFEb
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+Vgx2YAiN+WRIZzQRAqPXAJ9MNXRWuhfonb809ePI30IR0vQKcQCeKyYs
-q9XbHajVAvN27X45I67WFWA=
-=W4ZY
------END PGP SIGNATURE-----
-
---Boundary-03=_3xgV+3o9GhBXFEb--
+>it's like a dma ring buffer size of a soundcard, if you want low latency
+>it has to be small, it's as simple as that. It's a tradeoff between
+>
+Although the dma buffer is strictly FIFO, so the situation isn't
+quite so simple for disk IO.
 

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264496AbTLVVzO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 16:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTLVVzN
+	id S264535AbTLVWAV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 17:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTLVWAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 16:55:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45707 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264496AbTLVVzJ (ORCPT
+	Mon, 22 Dec 2003 17:00:20 -0500
+Received: from users.ccur.com ([208.248.32.211]:30835 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S264535AbTLVWAR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 16:55:09 -0500
-Date: Mon, 22 Dec 2003 13:55:00 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tom Felker <tcfelker@mtco.com>
-cc: Stan Bubrouski <stan@ccs.neu.edu>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: SCO's infringing files list
-In-Reply-To: <200312221519.04677.tcfelker@mtco.com>
-Message-ID: <Pine.LNX.4.58.0312221337010.6868@home.osdl.org>
-References: <1072125736.1286.170.camel@duergar> <200312221519.04677.tcfelker@mtco.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Dec 2003 17:00:17 -0500
+Date: Mon, 22 Dec 2003 16:59:34 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: Rob Love <rml@ximian.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: atomic copy_from_user?
+Message-ID: <20031222215933.GA3189@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+References: <1072054100.1742.156.camel@cube> <20031222150026.GD27687@holomorphy.com> <20031222182637.GA2659@rudolph.ccur.com> <1072126506.3318.31.camel@fur> <20031222212237.GA2865@rudolph.ccur.com> <1072129210.3318.34.camel@fur>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072129210.3318.34.camel@fur>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 22 Dec 2003, Tom Felker wrote:
+On Mon, Dec 22, 2003 at 04:40:11PM -0500, Rob Love wrote:
+> On Mon, 2003-12-22 at 16:22, Joe Korty wrote:
 > 
-> The original errno.h, from linux-0.01, says it was taken from minix, and goes 
-> up to 40.
+> > I am guessing that nowdays even when preemption is disabled one can
+> > find preempt_count still being used somewhere.  Otherwise it would be
+> > better to replace all uses of inc_preempt_count() with
+> > preempt_disable() and dec_preempt_count() with preempt_enable().
+> 
+> Right.  So why did you make this patch? :)
+> 
+> inc_preempt_count() and dec_preempt_count() are for use when you
+> _absolutely_ must manage the preemption counter, regardless of whether
+> or not kernel preemption is enabled.
+> 
+> They are used for things like atomic kmaps.
 
-Good eyes - I only analysed the ctype.h thing, and didn't look up errno.h
-in the original sources. errno.h has a _big_ comment saying where the
-numbers came from (and some swearwords about POSIX ;)
+Hi Robert,
+ I do not see why a non-preempt kernel would care at all about
+the value of preempt_count.  (kmap_atomic is obviously setting it,
+where is the place in a non-preempt kernel where the set value
+is being acted upon?).
 
-Looking at signal.h, those numbers also seem to largely match minix. Which
-makes sense - I actually had access to them.  
+Joe
 
-In both cases it's only the numbers that got copied, though. And not all
-of them either - for some reason I tried to make the signal numbers match
-(probably lazyness - not so much that I cared about the numbers
-themselves, but about the list of signal names), but for example the
-SA_xxxx macros - in the very same file - bear no relation to the minix
-ones.
-
-		Linus

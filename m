@@ -1,95 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUFNTgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263831AbUFNTji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263827AbUFNTgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 15:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUFNTg3
+	id S263831AbUFNTji (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 15:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263847AbUFNTjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 15:36:29 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:32697 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263824AbUFNTgJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 15:36:09 -0400
-Date: Mon, 14 Jun 2004 21:32:42 +0200 (CEST)
-From: Marc Herbert <marc.herbert@free.fr>
-X-X-Sender: mherbert@fcat
-To: Tim Hockin <thockin@hockin.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ethtool semantics
-In-Reply-To: <20040614170138.GA32594@hockin.org>
-Message-ID: <Pine.LNX.4.58.0406142044060.1607@fcat>
-References: <20040607212804.GA17012@k3.hellgate.ch> <20040607145723.41da5783.davem@redhat.com>
- <20040608210809.GA10542@k3.hellgate.ch> <40C77C70.5070409@tmr.com>
- <20040609213850.GA17243@k3.hellgate.ch> <20040609151246.1c28c4d9.davem@redhat.com>
- <Pine.LNX.4.58.0406141458270.16762@fcat> <20040614170138.GA32594@hockin.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 14 Jun 2004 15:39:37 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:1739 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263831AbUFNTiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 15:38:46 -0400
+Date: Mon, 14 Jun 2004 14:34:38 -0500
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: Can we please keep correct date when doing bk checkins?
+Message-ID: <20040614193438.GA1436@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040614184523.93825.qmail@web81301.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040614184523.93825.qmail@web81301.mail.yahoo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jun 2004, Tim Hockin wrote:
+On Mon, Jun 14, 2004 at 06:52:18PM +0000, Dmitry Torokhov wrote:
+> Hi,
+> 
+> I noticed that while the sysfs_rename_dir-cleanup changeset was checked
+> in on May 14, 2004 dathes on the touched files read 2004/10/06 which is
+> obviously incorrect.
+> 
+> It would be great if bk users keep their clocks somewhat reasonable
+> synced.
+> 
+> Dmitry
 
-> > This is precisely the reason why I am concerned about having "rich"
-> > ethtool semantics. A unified, standard interface is great,... as long
-> > it does not leave behind some features, like setting the advertised
-> > values in autoneg. As a user of these features, I hope driver
-> > developers will NOT remove those module_param features that cannot
-> > migrated to ethtool.
->
-> So propose a sane semantic that handles all three cases:
-> * autoneg on
-> * autoneg off
-> * autoneg on but limited
+Hi Dimtry,
 
-Looking at the examples I mentioned earlier in the thread, one can
-draw the following two simple solutions:
+It was actually my blunder.. I noticed the change in date after 2-3 days, but 
+by that time I have already sent 3-4 mails. Though I didn't checked in to 
+bk directly, but probably the wrong date propogated through Greg's merges.
+I am sorry for that.. I know I have created confusions for lot many others.
 
-	  1. "Max speed advertised" solution
-
-		autoneg |         on            off
-	  speed         |
-	  --------------|-----------------------------
-			|
-	  <empty>       | advertise all      force  10
-	  10            | adv. 10            force  10
-	  100           | adv. 10|100        frc.  100
-	  1000          | adv. 10|100|1000   frc. 1000
+Maneesh
 
 
-	  2. "Fixed speed advertised" solution
-
-		autoneg |         on            off
-	  speed         |
-	  --------------|-----------------------------
-			|
-	  <empty>       | advertise all      force  10
-	  10            | adv.   10          force  10
-	  100           | adv.  100          frc.  100
-	  1000          | adv. 1000          frc. 1000
-
-
-You can easily figure out similar and shorter tables for half/full
-duplex (considering that duplex > half).
-
-A 3rd solution which kind of avoids the dilemma between 1. and 2. is
-to give the user full control on advertised bits, as does (did?) the
-e1000 driver and its "AutoNeg" module_param. This third solution is
-often less user friendly and probably not very useful. And it would
-require a new argument to ethtool, whereas the first two solutions do
-not.
-
-If given the choice, I would vote for solution 1., but it probably
-does not make much difference with solution number 2 in practice.
-
-Auto negociation of flow control is unfortunately more complex, as you
-can see in this discussion with Rich Seifert in
-comp.dcom.lans.ethernet for those interested
- http://groups.google.com/groups?threadm=87hdvnd0x3.fsf%40free.fr
-But I believe flow control issues do not have any influence on the
-above, so... first things first: no need to dive into this at this
-point.
-
-Obviously this message ignores legacy code, hardware bugs and others
-"small matters of implementation". I suspect Roger Luethi has both a
-knowledge of the related code and an opinion on this issue.
-
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Austin
+email: maneesh@in.ibm.com
+Phone: 1-512-838-1896 Fax: 
+T/L : 61896

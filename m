@@ -1,80 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262758AbUBZKba (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 05:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbUBZKba
+	id S262762AbUBZKl7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 05:41:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbUBZKl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 05:31:30 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:63499 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262758AbUBZKbX
+	Thu, 26 Feb 2004 05:41:59 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:34782 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S262763AbUBZKlx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 05:31:23 -0500
-Date: Thu, 26 Feb 2004 21:31:03 +1100
-To: Roland Stigge <stigge@antcom.de>, 234754@bugs.debian.org
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bug#234754: kernel-source-2.6.3: Badness on Software Suspend
-Message-ID: <20040226103103.GE18970@gondor.apana.org.au>
-References: <20040225164521.1CA5E10010D5F@atari.stigge.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="PEIAKu/WMn1b1Hv9"
+	Thu, 26 Feb 2004 05:41:53 -0500
+Message-Id: <rt-1568908-5568162.8.87986483550399@freetelecom.fr>
+From: adsl <adsl@rt.freetelecom.fr>
+RT-Ticket: freetelecom.fr #1568908
+X-Mailer: MIME-tools 5.411 (Entity 5.404)
+Reply-To: adsl@rt.freetelecom.fr
+RT-Originator: linux-kernel@vger.kernel.org
+X-RT-Loop-Prevention: freetelecom.fr
 Content-Disposition: inline
-In-Reply-To: <20040225164521.1CA5E10010D5F@atari.stigge.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Subject: [freetelecom.fr #1568908]  =?ISO-8859-1?Q?=20R=E9ponse?= Automatique: fake
+In-Reply-To: <rt-1568908@freetelecom.fr>
+Managed-BY: Request Tracker 2.0.9 (http://www.fsck.com/projects/rt/)
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Date: Thu, 26 Feb 2004 11:41:51 +0100 (MET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-tags 234754 pending
-quit
+Bonjour,
 
-On Wed, Feb 25, 2004 at 05:45:20PM +0100, Roland Stigge wrote:
-> Package: kernel-source-2.6.3
-> Version: 2.6.3-2
-> Severity: normal
-> 
-> on Software Suspend (echo 4 >/proc/acpi/sleep), I get Badness messages
-> written to my screen (and syslog). I attached the syslog excerpt and the
-> boot messages.
+Ce message est envoyé automatiquement suite au mail que vous avez
+adressé au services Hotline de l'offre Haut Débit de FreeTelecom
+    "fake".
 
-> Feb 25 17:29:26 bird kernel: Fixing swap signatures... ok
-> Feb 25 17:29:26 bird kernel: Badness in redraw_screen at drivers/char/vt.c:607
-> Feb 25 17:29:26 bird kernel: Call Trace:
-> Feb 25 17:29:26 bird kernel:  [redraw_screen+496/501] redraw_screen+0x1f0/0x1f5
-> Feb 25 17:29:26 bird kernel:  [do_magic_resume_2+209/246] do_magic_resume_2+0xd1/0xf6
+Malheureusement, le succès de notre offre ADSL a quelque peu submergé
+le support et nous ne pouvons pas répondre aux messages aussi
+rapidement que nous le souhaiterions.
 
-This patch should shut it up.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Aussi, nous vous invitons à vérifier que le probleme que vous
+rencontrez ne serait pas déjà couvert par le site web de support :
+http://adsl.free.fr/
 
---PEIAKu/WMn1b1Hv9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+En particulier, vous y trouverez des infos concernant :
+- des questions générales sur le forfait, les boites emails, le
+modem fourni et la connexion
 
-Index: kernel-2.5/kernel/power/swsusp.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/kernel/power/swsusp.c,v
-retrieving revision 1.1.1.6
-diff -u -r1.1.1.6 swsusp.c
---- kernel-2.5/kernel/power/swsusp.c	19 Feb 2004 08:56:02 -0000	1.1.1.6
-+++ kernel-2.5/kernel/power/swsusp.c	26 Feb 2004 10:26:21 -0000
-@@ -619,7 +619,9 @@
- 	PRINTK( "ok\n" );
- 
- #ifdef SUSPEND_CONSOLE
-+	acquire_console_sem();
- 	update_screen(fg_console);	/* Hmm, is this the problem? */
-+	release_console_sem();
- #endif
- }
- 
+    http://adsl.free.fr/faq/gen.html
 
---PEIAKu/WMn1b1Hv9--
+- des questions liées à l'inscriptions et les conditions
+d'inscriptions
+
+    http://adsl.free.fr/faq/inscription.html
+
+- les problemes techniques que vous pouvez rencontrer lors du
+branchement de votre modem
+
+    http://adsl.free.fr/faq/tech.html
+
+- les messages d'erreurs renvoyés par Windows lors de tentatives
+de connexions
+
+    http://adsl.free.fr/faq/erreur.html
+
+Si vous y trouvez votre bonheur ou au moins des informations liées
+à votre probleme, merci de le préciser en répondant à ce message
+(cela simplifira le travail des personnes qui vous répondront).
+
+
+Nous avons attribué le numéro d'identification [freetelecom.fr #1568908]
+à votre demande.
+
+Merci d'ajouter la mention (en incluant les crochets):
+     [freetelecom.fr #1568908]
+
+dans le sujet des prochaines correspondances que vous pourriez nous
+adresser sur ce sujet.
+
+Merci.
+
+Le Service Hotline Haut débit de FreeTelecom
+    <hautdebit@freetelecom.fr>

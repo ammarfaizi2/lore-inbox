@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTENQ2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTENQ2Z
+	id S262195AbTENQfo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbTENQfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:28:25 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:31164 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S262569AbTENQ2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:28:22 -0400
-Date: Wed, 14 May 2003 12:38:54 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Yoav Weiss <ml-lkml@unpatched.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
-In-Reply-To: <20030514162323.GB16093@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.33.0305141236430.12212-100000@marauder.googgun.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+	Wed, 14 May 2003 12:35:44 -0400
+Received: from CPE-24-163-212-250.mn.rr.com ([24.163.212.250]:3712 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S262195AbTENQfn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:35:43 -0400
+Subject: Re: Digital Rights Management - An idea
+From: Shawn <core@enodev.com>
+To: Dean McEwan <dean_mcewan@linuxmail.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030514154028.12556.qmail@linuxmail.org>
+References: <20030514154028.12556.qmail@linuxmail.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1052930782.1883.0.camel@www.enodev.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.3 (Preview Release)
+Date: 14 May 2003 11:46:23 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+LINUX == their business
 
-
-On Wed, 14 May 2003, [iso-8859-1] Jörn Engel wrote:
-
-> On Wed, 14 May 2003 12:13:03 -0400, Ahmed Masud wrote:
-> >
-> > The idea is to have encryption keys for the pages to be unique on a
-> > per-uid per-process basis. So one user on the system cannot access (even
-> > if they are root) parts of another's private data.  To achieve this,
-> > different parts of swap device need to be encrypted with different keys.
->
-> How do user *know* that root cannot simply bypass this security?
->
-> Root, god, what's the difference? ;-)
->
-> Jörn
-
-Well :-) that's sorta true. In the new world the old gods will fall to
-give rise to new ones.  worshippers of root will fade in the echos of the
-past ... Rootshunting is possible if the kernel so chooses. Trusted Linux,
-which is my perosnal and favourite focus for linux would be an environment
-without root.
-
-
-Ahmed.
-
+On Wed, 2003-05-14 at 10:40, Dean McEwan wrote:
+> > How exactly would you do this specifically for "downloaded" files except
+> > by snooping into every ftp/http, much less having to decrypt the
+> > protocols like https or scp?
+> 
+> Files would be recompiled for DRM...
+> 
+> > Anyway, assuming you meant "downloaded file == any file", that's simple,
+> > and already being discussed, most likely by companies like TiVo, etc.
+> > 
+> 
+> FOR LINUX?

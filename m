@@ -1,75 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTKTUY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 15:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTKTUY0
+	id S261938AbTKTUpl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 15:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTKTUpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 15:24:26 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:39842 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S261882AbTKTUYY (ORCPT
+	Thu, 20 Nov 2003 15:45:41 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:7082 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S261938AbTKTUpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 15:24:24 -0500
-Date: Thu, 20 Nov 2003 22:24:22 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: Diego Calleja =?iso-8859-1?Q?Garc=EDa?= <aradorlinux@yahoo.es>
-Cc: Nick Piggin <piggin@cyberone.com.au>, wli@holomorphy.com,
-       jgarzik@pobox.com, jt@hpl.hp.com, linux-kernel@vger.kernel.org,
-       pof@users.sourceforge.net
-Subject: Re: Announce: ndiswrapper
-Message-ID: <20031120202422.GA3397@edu.joroinen.fi>
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC402E.6070109@cyberone.com.au> <20031120043848.GG19856@holomorphy.com> <3FBC4A42.8010806@cyberone.com.au> <20031120134121.02e11aff.aradorlinux@yahoo.es>
+	Thu, 20 Nov 2003 15:45:38 -0500
+Subject: Re: Nick's scheduler v19a
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FB62608.4010708@cyberone.com.au>
+References: <3FB62608.4010708@cyberone.com.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qDrAE9NZKn7H8PqnME3a"
+Message-Id: <1069361130.13479.12.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031120134121.02e11aff.aradorlinux@yahoo.es>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 20 Nov 2003 22:45:30 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 01:41:21PM +0100, Diego Calleja García wrote:
-> El Thu, 20 Nov 2003 15:59:46 +1100 Nick Piggin <piggin@cyberone.com.au> escribió:
-> 
-> > I must say that I've been using the same nvidia drivers on my desktop
-> > system for maybe a year, and never had a crash including going through
-> > countless versions of 2.5/6. True you need to recompile the intermediate
-> 
-> You're lucky.
-> Nvidia drivers are broken, and it's not just linux. Their windows drivers
-> are know to be buggy, too. And this is happening in windows (which has a
-> "windows driver model" abi which doesn't change even between W9x and nt)
-> 
-> Also, they don't support non-x86 architectures in linux (they have drivers
-> for mac os X though)
-> If there're a lot of binary drivers for linux, we'll have the same hell
-> microsoft has (w2k and XP are rock solid, until you start using crappy
-> drivers, then everybody complains about blue screens). A stable and defined
-> abi (like their driver model) doesn't work for them, it won't work for us. 
-> 
-> I don't mind running propietary code...but not in the kernel.
-> 
-> (BTW, are there modern graphics cards with 100% opensource drivers?)
-> 
 
-None of the new chips (r300, any nvidia, matrox, etc) has opensource 3D
-drivers. 
+--=-qDrAE9NZKn7H8PqnME3a
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-If you want good 3D support (OpenGL) you need to use binary drivers :(
+Hi nick! here's some feedback.
+This one day last week, I thougt I could test your scheduler patch.
+I noticed something really good with it. My X had really fast startup.
+everything worked really fast. Even games worked much better than any in
+kernel before (I've tested all from 2.5.74).
 
-DRI (opensource) opengl-drivers have support for only ati r200 and older
-cards.. so nothing new. And DRI drivers don't support the advanced features
-of these cards.. so no shaders etc :(
+So I hope you'll port this patch for test10> if this one wont patch
+clearly.
 
-OpenGL support in DRI drivers feels also more buggy than Nvidia/ATI binary
-drivers :(
+Thanks.
+On Sat, 2003-11-15 at 15:11, Nick Piggin wrote:
+> http://www.kerneltrap.org/~npiggin/v19a/
+>=20
+> So the previous didn't exactly improve interactivity.
+>=20
+> This one seems to be better. Major thing is microsecond timeslice
+> accounting. Other small fixes related to the microsecond stuff.
+> No idea what this has done to context switch and wake up performance,
+> but it should be able to be improved a bit.
+>=20
+> I've made patches for Linus and Andrew's trees.
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme.org>
 
-So the situation is not good..
+--=-qDrAE9NZKn7H8PqnME3a
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/vSfq3+NhIWS1JHARAhbVAJ9+2caJTvDFCfcgHKrNZYpIdTMS2QCfayfk
+feawN8bTMkHqc9e1ACeJlNE=
+=rcmr
+-----END PGP SIGNATURE-----
+
+--=-qDrAE9NZKn7H8PqnME3a--
+

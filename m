@@ -1,62 +1,497 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTEZRHY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 13:07:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEZRHY
+	id S261819AbTEZRM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 13:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTEZRM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 13:07:24 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:3477 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261798AbTEZRHX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 13:07:23 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 26 May 2003 10:20:18 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Thomas Winischhofer <thomas@winischhofer.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sis650 irq router fix for 2.4.x 
-In-Reply-To: <3ED21CE3.9060400@winischhofer.net>
-Message-ID: <Pine.LNX.4.55.0305261006420.2419@bigblue.dev.mcafeelabs.com>
-References: <3ED21CE3.9060400@winischhofer.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 May 2003 13:12:26 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:2543 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S261819AbTEZRLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 13:11:48 -0400
+Date: Mon, 26 May 2003 19:24:01 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (2/10): inline assemblies.
+Message-ID: <20030526172401.GC3748@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 May 2003, Thomas Winischhofer wrote:
+Optimize s390 inline assemblies.
 
->
-> How many samples of the SiS650 did you have for testing?
+diffstat:
+ arch/s390/kernel/smp.c      |    7 --
+ include/asm-s390/system.h   |  147 ++++++++++++++++++++------------------------
+ include/asm-s390/tlbflush.h |   11 ++-
+ include/asm-s390/uaccess.h  |  106 ++++++++++++++++---------------
+ 4 files changed, 131 insertions(+), 140 deletions(-)
 
-Only the following ...
-
-
-> -) a M650 (host bridge ID 1039:0650, rev 11),
->     with ISA bridge (1039:0008) revision 0x04, and
-
-Can you send me a "lscpi -vxxx" of this machine ?
-
-
-
-> and I had (and have) no problems with irqs or USB (or anything) on any
-> of these machines.
->
-> Are you sure that checking the revision number of the device is enough?
->
-> Are you aware of the fact that SiS only produces the chips but never the
-> mainboards, and that SiS chips are in a 1000 ways "customizible" which
-> not in a single case I came accross so far was detectable by the device
-> revision number?
-
-Well, it can't get easier than that. My machine (CPQ Presario 3045US)
-issues router requests for 0x60...0x63 for the 3 OHCI and 1 EHCI, and
-without the patch USB does not come up not even if you start crying like a
-baby. The patch also add the "stdroute" thingy that will enable future
-cases like mine, to boot the kernel without requiring any other patches
-(at least for pass thru router requests like the one I'm seeing here).
-
-
-
-- Davide
-
+diff -urN linux-2.5/arch/s390/kernel/smp.c linux-2.5-s390/arch/s390/kernel/smp.c
+--- linux-2.5/arch/s390/kernel/smp.c	Mon May 26 19:20:43 2003
++++ linux-2.5-s390/arch/s390/kernel/smp.c	Mon May 26 19:20:43 2003
+@@ -513,10 +513,9 @@
+ 	cpu_lowcore->kernel_stack = (unsigned long)
+ 		idle->thread_info + (THREAD_SIZE);
+ 	__ctl_store(cpu_lowcore->cregs_save_area[0], 0, 15);
+-	__asm__ __volatile__("la    1,%0\n\t"
+-			     "stam  0,15,0(1)"
+-			     : "=m" (cpu_lowcore->access_regs_save_area[0])
+-			     : : "1", "memory");
++	__asm__ __volatile__("stam  0,15,0(%0)"
++			     : : "a" (&cpu_lowcore->access_regs_save_area)
++			     : "memory");
+         eieio();
+         signal_processor(cpu,sigp_restart);
+ 
+diff -urN linux-2.5/include/asm-s390/system.h linux-2.5-s390/include/asm-s390/system.h
+--- linux-2.5/include/asm-s390/system.h	Mon May  5 01:53:57 2003
++++ linux-2.5-s390/include/asm-s390/system.h	Mon May 26 19:20:43 2003
+@@ -25,12 +25,9 @@
+ 
+ #ifdef __s390x__
+ #define __FLAG_SHIFT 56
+-extern void __misaligned_u16(void);
+-extern void __misaligned_u32(void);
+-extern void __misaligned_u64(void);
+-#else /* __s390x__ */
++#else /* ! __s390x__ */
+ #define __FLAG_SHIFT 24
+-#endif /* __s390x__ */
++#endif /* ! __s390x__ */
+ 
+ static inline void save_fp_regs(s390_fp_regs *fpregs)
+ {
+@@ -301,56 +298,52 @@
+ 
+ #define __ctl_load(array, low, high) ({ \
+ 	__asm__ __volatile__ ( \
+-		"   la    1,%0\n" \
+-		"   bras  2,0f\n" \
+-                "   lctlg 0,0,0(1)\n" \
+-		"0: ex    %1,0(2)" \
+-		: : "m" (array), "a" (((low)<<4)+(high)) : "1", "2" ); \
++		"   bras  1,0f\n" \
++                "   lctlg 0,0,0(%0)\n" \
++		"0: ex    %1,0(1)" \
++		: : "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
+ 	})
+ 
+ #define __ctl_store(array, low, high) ({ \
+ 	__asm__ __volatile__ ( \
+-		"   la    1,%0\n" \
+-		"   bras  2,0f\n" \
+-		"   stctg 0,0,0(1)\n" \
+-		"0: ex    %1,0(2)" \
+-		: "=m" (array) : "a" (((low)<<4)+(high)): "1", "2" ); \
++		"   bras  1,0f\n" \
++		"   stctg 0,0,0(%1)\n" \
++		"0: ex    %2,0(1)" \
++		: "=m" (array) : "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
+ 	})
+ 
+ #define __ctl_set_bit(cr, bit) ({ \
+         __u8 __dummy[24]; \
+         __asm__ __volatile__ ( \
+-                "    la    1,%0\n"       /* align to 8 byte */ \
+-                "    aghi  1,7\n" \
+-                "    nill  1,0xfff8\n" \
+-                "    bras  2,0f\n"       /* skip indirect insns */ \
+-                "    stctg 0,0,0(1)\n" \
+-                "    lctlg 0,0,0(1)\n" \
+-                "0:  ex    %1,0(2)\n"    /* execute stctl */ \
+-                "    lg    0,0(1)\n" \
+-                "    ogr   0,%2\n"       /* set the bit */ \
+-                "    stg   0,0(1)\n" \
+-                "1:  ex    %1,6(2)"      /* execute lctl */ \
+-                : "=m" (__dummy) : "a" (cr*17), "a" (1L<<(bit)) \
+-                : "cc", "0", "1", "2"); \
++                "    bras  1,0f\n"       /* skip indirect insns */ \
++                "    stctg 0,0,0(%1)\n" \
++                "    lctlg 0,0,0(%1)\n" \
++                "0:  ex    %2,0(1)\n"    /* execute stctl */ \
++                "    lg    0,0(%1)\n" \
++                "    ogr   0,%3\n"       /* set the bit */ \
++                "    stg   0,0(%1)\n" \
++                "1:  ex    %2,6(1)"      /* execute lctl */ \
++                : "=m" (__dummy) \
++		: "a" ((((unsigned long) &__dummy) + 7) & ~7UL), \
++		  "a" (cr*17), "a" (1L<<(bit)) \
++                : "cc", "0", "1" ); \
+         })
+ 
+ #define __ctl_clear_bit(cr, bit) ({ \
+-        __u8 __dummy[24]; \
++        __u8 __dummy[16]; \
+         __asm__ __volatile__ ( \
+-                "    la    1,%0\n"       /* align to 8 byte */ \
+-                "    aghi  1,7\n" \
+-                "    nill  1,0xfff8\n" \
+-                "    bras  2,0f\n"       /* skip indirect insns */ \
+-                "    stctg 0,0,0(1)\n" \
+-                "    lctlg 0,0,0(1)\n" \
+-                "0:  ex    %1,0(2)\n"    /* execute stctl */ \
+-                "    lg    0,0(1)\n" \
+-                "    ngr   0,%2\n"       /* set the bit */ \
+-                "    stg   0,0(1)\n" \
+-                "1:  ex    %1,6(2)"      /* execute lctl */ \
+-                : "=m" (__dummy) : "a" (cr*17), "a" (~(1L<<(bit))) \
+-                : "cc", "0", "1", "2"); \
++                "    bras  1,0f\n"       /* skip indirect insns */ \
++                "    stctg 0,0,0(%1)\n" \
++                "    lctlg 0,0,0(%1)\n" \
++                "0:  ex    %2,0(1)\n"    /* execute stctl */ \
++                "    lg    0,0(%1)\n" \
++                "    ngr   0,%3\n"       /* set the bit */ \
++                "    stg   0,0(%1)\n" \
++                "1:  ex    %2,6(1)"      /* execute lctl */ \
++                : "=m" (__dummy) \
++		: "a" ((((unsigned long) &__dummy) + 7) & ~7UL), \
++		  "a" (cr*17), "a" (~(1L<<(bit))) \
++                : "cc", "0", "1" ); \
+         })
+ 
+ #else /* __s390x__ */
+@@ -360,58 +353,52 @@
+ 
+ #define __ctl_load(array, low, high) ({ \
+ 	__asm__ __volatile__ ( \
+-		"   la    1,%0\n" \
+-		"   bras  2,0f\n" \
+-                "   lctl 0,0,0(1)\n" \
+-		"0: ex    %1,0(2)" \
+-		: : "m" (array), "a" (((low)<<4)+(high)) : "1", "2" ); \
++		"   bras  1,0f\n" \
++                "   lctl 0,0,0(%0)\n" \
++		"0: ex    %1,0(1)" \
++		: : "a" (&array), "a" (((low)<<4)+(high)) : "1" ); \
+ 	})
+ 
+ #define __ctl_store(array, low, high) ({ \
+ 	__asm__ __volatile__ ( \
+-		"   la    1,%0\n" \
+-		"   bras  2,0f\n" \
+-		"   stctl 0,0,0(1)\n" \
+-		"0: ex    %1,0(2)" \
+-		: "=m" (array) : "a" (((low)<<4)+(high)): "1", "2" ); \
++		"   bras  1,0f\n" \
++		"   stctl 0,0,0(%1)\n" \
++		"0: ex    %2,0(1)" \
++		: "=m" (array) : "a" (&array), "a" (((low)<<4)+(high)): "1" ); \
+ 	})
+ 
+ #define __ctl_set_bit(cr, bit) ({ \
+         __u8 __dummy[16]; \
+         __asm__ __volatile__ ( \
+-                "    la    1,%0\n"       /* align to 8 byte */ \
+-                "    ahi   1,7\n" \
+-                "    srl   1,3\n" \
+-                "    sll   1,3\n" \
+-                "    bras  2,0f\n"       /* skip indirect insns */ \
+-                "    stctl 0,0,0(1)\n" \
+-                "    lctl  0,0,0(1)\n" \
+-                "0:  ex    %1,0(2)\n"    /* execute stctl */ \
+-                "    l     0,0(1)\n" \
+-                "    or    0,%2\n"       /* set the bit */ \
+-                "    st    0,0(1)\n" \
+-                "1:  ex    %1,4(2)"      /* execute lctl */ \
+-                : "=m" (__dummy) : "a" (cr*17), "a" (1<<(bit)) \
+-                : "cc", "0", "1", "2"); \
++                "    bras  1,0f\n"       /* skip indirect insns */ \
++                "    stctl 0,0,0(%1)\n" \
++                "    lctl  0,0,0(%1)\n" \
++                "0:  ex    %2,0(1)\n"    /* execute stctl */ \
++                "    l     0,0(%1)\n" \
++                "    or    0,%3\n"       /* set the bit */ \
++                "    st    0,0(%1)\n" \
++                "1:  ex    %2,4(1)"      /* execute lctl */ \
++                : "=m" (__dummy) \
++		: "a" ((((unsigned long) &__dummy) + 7) & ~7UL), \
++		  "a" (cr*17), "a" (1<<(bit)) \
++                : "cc", "0", "1" ); \
+         })
+ 
+ #define __ctl_clear_bit(cr, bit) ({ \
+         __u8 __dummy[16]; \
+         __asm__ __volatile__ ( \
+-                "    la    1,%0\n"       /* align to 8 byte */ \
+-                "    ahi   1,7\n" \
+-                "    srl   1,3\n" \
+-                "    sll   1,3\n" \
+-                "    bras  2,0f\n"       /* skip indirect insns */ \
+-                "    stctl 0,0,0(1)\n" \
+-                "    lctl  0,0,0(1)\n" \
+-                "0:  ex    %1,0(2)\n"    /* execute stctl */ \
+-                "    l     0,0(1)\n" \
+-                "    nr    0,%2\n"       /* set the bit */ \
+-                "    st    0,0(1)\n" \
+-                "1:  ex    %1,4(2)"      /* execute lctl */ \
+-                : "=m" (__dummy) : "a" (cr*17), "a" (~(1<<(bit))) \
+-                : "cc", "0", "1", "2"); \
++                "    bras  1,0f\n"       /* skip indirect insns */ \
++                "    stctl 0,0,0(%1)\n" \
++                "    lctl  0,0,0(%1)\n" \
++                "0:  ex    %2,0(1)\n"    /* execute stctl */ \
++                "    l     0,0(%1)\n" \
++                "    nr    0,%3\n"       /* set the bit */ \
++                "    st    0,0(%1)\n" \
++                "1:  ex    %2,4(1)"      /* execute lctl */ \
++                : "=m" (__dummy) \
++		: "a" ((((unsigned long) &__dummy) + 7) & ~7UL), \
++		  "a" (cr*17), "a" (~(1<<(bit))) \
++                : "cc", "0", "1" ); \
+         })
+ #endif /* __s390x__ */
+ 
+diff -urN linux-2.5/include/asm-s390/tlbflush.h linux-2.5-s390/include/asm-s390/tlbflush.h
+--- linux-2.5/include/asm-s390/tlbflush.h	Mon May  5 01:53:56 2003
++++ linux-2.5-s390/include/asm-s390/tlbflush.h	Mon May 26 19:20:43 2003
+@@ -76,13 +76,16 @@
+ 	}
+ #endif /* __s390x__ */
+ 	{
+-		long dummy = 0;
++		register unsigned long addr asm("4");
++		long dummy;
++
++		dummy = 0;
++		addr = ((unsigned long) &dummy) + 1;
+ 		__asm__ __volatile__ (
+-			"    la   4,1(%0)\n"
+ 			"    slr  2,2\n"
+ 			"    slr  3,3\n"
+-			"    csp  2,4"
+-			: : "a" (&dummy) : "cc", "2", "3", "4" );
++			"    csp  2,%0"
++			: : "a" (addr) : "cc", "2", "3" );
+ 	}
+ }
+ 
+diff -urN linux-2.5/include/asm-s390/uaccess.h linux-2.5-s390/include/asm-s390/uaccess.h
+--- linux-2.5/include/asm-s390/uaccess.h	Mon May  5 01:53:07 2003
++++ linux-2.5-s390/include/asm-s390/uaccess.h	Mon May 26 19:20:43 2003
+@@ -113,82 +113,83 @@
+ 
+ #define __put_user_asm_8(x, ptr, err) \
+ ({								\
++	register __typeof__(x) const * __from asm("2");		\
++	register __typeof__(*(ptr)) * __to asm("4");		\
++	__from = &(x);						\
++	__to = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  2,%2\n"				\
+-		"   la	  4,%1\n"				\
+ 		"   sacf  512\n"				\
+-		"0: mvc	  0(8,4),0(2)\n"			\
++		"0: mvc	  0(8,%1),0(%2)\n"			\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err)					\
+-		: "m" (*(__u64*)(ptr)), "m" (x), "K" (-EFAULT)	\
+-		: "cc", "2", "4" );				\
++		: "a" (__to),"a" (__from),"K" (-EFAULT),"0" (0)	\
++		: "cc" );					\
+ })
+ 
+ #else /* __s390x__ */
+ 
+ #define __put_user_asm_8(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) * __ptr asm("4");		\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%1\n"				\
+ 		"   sacf  512\n"				\
+-		"0: stg	  %2,0(4)\n"				\
++		"0: stg	  %2,0(%1)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err)					\
+-		: "m" (*(__u64*)(ptr)), "d" (x), "K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "d" (x), "K" (-EFAULT), "0" (0)	\
++		: "cc" );					\
+ })
+ 
+ #endif /* __s390x__ */
+ 
+ #define __put_user_asm_4(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) * __ptr asm("4");		\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%1\n"				\
+ 		"   sacf  512\n"				\
+-		"0: st	  %2,0(4)\n"				\
++		"0: st	  %2,0(%1)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err)					\
+-		: "m" (*(__u32*)(ptr)), "d" (x), "K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "d" (x), "K" (-EFAULT), "0" (0)	\
++		: "cc" );					\
+ })
+ 
+ #define __put_user_asm_2(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) * __ptr asm("4");		\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%1\n"				\
+ 		"   sacf  512\n"				\
+-		"0: sth	  %2,0(4)\n"				\
++		"0: sth	  %2,0(%1)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err)					\
+-		: "m" (*(__u16*)(ptr)), "d" (x), "K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "d" (x), "K" (-EFAULT), "0" (0)	\
++		: "cc" );					\
+ })
+ 
+ #define __put_user_asm_1(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) * __ptr asm("4");		\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%1\n"				\
+ 		"   sacf  512\n"				\
+-		"0: stc	  %2,0(4)\n"				\
++		"0: stc	  %2,0(%1)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err)					\
+-		: "m" (*(__u8*)(ptr)), "d" (x),	"K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "d" (x),	"K" (-EFAULT), "0" (0)	\
++		: "cc" );					\
+ })
+ 
+ #define __put_user(x, ptr) \
+@@ -223,35 +224,36 @@
+ 
+ #define __get_user_asm_8(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) const * __from asm("2");	\
++	register __typeof__(x) * __to asm("4");			\
++	__from = (ptr);						\
++	__to = &(x);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  2,%1\n"				\
+-		"   la	  4,%2\n"				\
+ 		"   sacf  512\n"				\
+-		"0: mvc	  0(8,2),0(4)\n"			\
++		"0: mvc	  0(8,%1),0(%2)\n"			\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err), "=m" (x)				\
+-		: "m" (*(const __u64*)(ptr)),"K" (-EFAULT)	\
+-		: "cc", "2", "4" );				\
++		: "a" (__to),"a" (__from),"K" (-EFAULT),"0" (0)	\
++		: "cc" );					\
+ })
+ 
+ #else /* __s390x__ */
+ 
+ #define __get_user_asm_8(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) const * __ptr asm("4");	\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%2\n"				\
+ 		"   sacf  512\n"				\
+-		"0: lg	  %1,0(4)\n"				\
++		"0: lg	  %1,0(%2)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err), "=d" (x)				\
+-		: "m" (*(const __u64*)(ptr)),"K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "K" (-EFAULT), "0" (0)		\
++		: "cc" );					\
+ })
+ 
+ #endif /* __s390x__ */
+@@ -259,48 +261,48 @@
+ 
+ #define __get_user_asm_4(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) const * __ptr asm("4");	\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%2\n"				\
+ 		"   sacf  512\n"				\
+-		"0: l	  %1,0(4)\n"				\
++		"0: l	  %1,0(%2)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err), "=d" (x)				\
+-		: "m" (*(const __u32*)(ptr)),"K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "K" (-EFAULT), "0" (0)		\
++		: "cc" );					\
+ })
+ 
+ #define __get_user_asm_2(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) const * __ptr asm("4");	\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%2\n"				\
+ 		"   sacf  512\n"				\
+-		"0: lh	  %1,0(4)\n"				\
++		"0: lh	  %1,0(%2)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err), "=d" (x)				\
+-		: "m" (*(const __u16*)(ptr)),"K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "K" (-EFAULT), "0" (0)		\
++		: "cc" );					\
+ })
+ 
+ #define __get_user_asm_1(x, ptr, err) \
+ ({								\
++	register __typeof__(*(ptr)) const * __ptr asm("4");	\
++	__ptr = (ptr);						\
+ 	__asm__ __volatile__ (					\
+-		"   sr	  %0,%0\n"				\
+-		"   la	  4,%2\n"				\
+ 		"   sr	  %1,%1\n"				\
+ 		"   sacf  512\n"				\
+-		"0: ic	  %1,0(4)\n"				\
++		"0: ic	  %1,0(%2)\n"				\
+ 		"   sacf  0\n"					\
+ 		"1:\n"						\
+ 		__uaccess_fixup					\
+ 		: "=&d" (err), "=d" (x)				\
+-		: "m" (*(const __u8*)(ptr)),"K" (-EFAULT)	\
+-		: "cc", "4" );					\
++		: "a" (__ptr), "K" (-EFAULT), "0" (0)		\
++		: "cc" );					\
+ })
+ 
+ #define __get_user(x, ptr)					\

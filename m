@@ -1,130 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbTLWFeG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 00:34:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbTLWFeG
+	id S264957AbTLWFsO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 00:48:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTLWFsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 00:34:06 -0500
-Received: from gizmo12bw.bigpond.com ([144.140.70.22]:38791 "HELO
-	gizmo12bw.bigpond.com") by vger.kernel.org with SMTP
-	id S264949AbTLWFd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 00:33:58 -0500
-Message-ID: <3FE7D3AC.6B88A1D1@eyal.emu.id.au>
-Date: Tue, 23 Dec 2003 16:33:32 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.24-pre2 - build problems
-References: <Pine.LNX.4.58L.0312221753140.1384@logos.cnet>
-Content-Type: multipart/mixed;
- boundary="------------F0D56FAEEA9E699B548F6CC2"
+	Tue, 23 Dec 2003 00:48:14 -0500
+Received: from csbd.org ([66.220.23.20]:46755 "EHLO csbd.org")
+	by vger.kernel.org with ESMTP id S264957AbTLWFsJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 00:48:09 -0500
+To: ambx1@neo.rr.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
+       zwane@arm.linux.org.uk
+Subject: Re: 2.6.0 fails to complete boot - Sony VAIO laptop (frame buffer problem?)
+Date: Mon Dec 22 21:41:15 2003
+Content-Type: text/plain; charset="utf8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20031223054115.32A791E030CA3@csbd.org>
+From: atp@csbd.org (Alexander Poquet)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------F0D56FAEEA9E699B548F6CC2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hey, sorry it took me so long to reply.  I live in Asia and I didn't get
+your message until this morning, and I didn't want to reply without
+a little extra information.
 
-Marcelo Tosatti wrote:
+On Sun, 21 Dec 2003 23:29:56 +0000, Adam Belay wrote:
+> In this system, isapnp is probably not necessary.
+
+Yes, I think so too.  But don't worry, Adam, your code is not the problem;
+my methods of identifying it were flawed.
+
+> Agreed.  In what kernel version did you first see this problem?
+
+Unfortunately, on this laptop I am upgrading directly from 2.4.18, so I
+can't answer this question usefully, but FWIW, it worked fine in 2.4.18 :)
+
+> Hmm, it doesn't seem possible for it to be occuring on that exact line.
+> Perhaps there is a delay between the bad code and the time the lcd actually
+> blanks. ISAPnP uses legacy probing techniques.  It is possible that it is
+> writting to one of your laptop's configuration interfaces during the probe.
 > 
-> Hi,
-> 
-> Here goes 2.4.24-pre2.
+> Could you provide more information as to how you isolated the problem to 
+> this line?
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-pro
-totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer
- -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--DMODULE -DM
-ODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=cciss  -c -o
-cciss.o cciss.
-c
-cciss.c: In function `cciss_pci_init':
-cciss.c:2681: parse error before `prefetch'
-cciss.c:2682: invalid lvalue in assignment
-cciss.c:2683: invalid operands to binary |
-cciss.c:2683: invalid lvalue in assignment
-cciss.c:2684: warning: assignment makes integer from pointer without a
-cast
-make[2]: *** [cciss.o] Error 1
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/block'
+Certainly.  I simply began doing a binary search in do_initcalls, successively
+inserting a while (1) {} loop at the midpoint of each iteration, and thus
+converging on the call that I thought was producing it.  Unfortunately, my
+approach was somewhat naive -- I'm not a kernel hacker, just a hobbyist -- and
+I didn't allow for the possibility of multiple threading.  I simply noticed
+that if I put a while (1) {} loop at the beginning of isapnp initiation,
+I never lost the console; but that the end of the same function, I did.  I
+thereby narrowed it down to the release_region call.  This turned out to be
+the wrong conclusion, however.
 
-See attached patch.
+> Could you please ensure that ISAPnP is indeed the culprit by passing the 
+> "noisapnp" kernel parameter.
 
+I did this, as you requested, and as Jim McCloskey reported in his earlier
+message in this thread, disabling isapnp has no effect on the problem.  So
+I set out (using the same, flawed logic) to attempt to figure out where the
+console was blanking out.  It happens a few initcalls later, in
+fbcon_startup() (located in drivers/video/console/fbcon.c), which makes a
+lot more sense than isapnp being culprit, given the jump into a video mode.
 
+I noticed that between the 'isapnp disabled' message and invocation of
+fbcon_startup() there are no printk calls, so it occured to me that
+perhaps the isapnp release_region call was in a thread, and invocation of
+that particular function clued the scheduler to (temporarily) return
+control to the parent thread.  To test this, I booted without the noisapnp
+parameter (but with a while (1) {} hang in fbcon_startup) and found that
+isapnp exits happily, and the reason I never saw the printk saying that
+no isapnp devices were found was simply due to the main initcall thread
+reaching fbcon_startup before the printk hits the console, so to speak.
 
-gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre/include -Wall
--Wstrict-pro
-totypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
--fomit-frame-pointer
- -pipe -mpreferred-stack-boundary=2 -march=i686 -malign-functions=4
--DMODULE -DM
-ODVERSIONS -include
-/data2/usr/local/src/linux-2.4-pre/include/linux/modversions
-.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=qlogicfas -DPCMCIA
--D__NO_V
-ERSION__ -c -o qlogicfas.o ../qlogicfas.c
-../qlogicfas.c: In function `qlogicfas_detect':
-../qlogicfas.c:650: warning: passing arg 1 of
-`scsi_unregister_Rae128733' from i
-ncompatible pointer type
-ld -m elf_i386 -r -o qlogic_cs.o qlogic_stub.o qlogicfas.o
-qlogicfas.o: In function `init_module':
-qlogicfas.o(.text+0xe40): multiple definition of `init_module'
-qlogic_stub.o(.text+0x770): first defined here
-ld: Warning: size of symbol `init_module' changed from 77 to 58 in
-qlogicfas.o
-qlogicfas.o: In function `cleanup_module':
-qlogicfas.o(.text+0xe80): multiple definition of `cleanup_module'
-qlogic_stub.o(.text+0x7c0): first defined here
-ld: Warning: size of symbol `cleanup_module' changed from 40 to 16 in
-qlogicfas.
-o
-make[3]: *** [qlogic_cs.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/scsi/pcmc
-ia'
-make[2]: *** [_modsubdir_pcmcia] Error 2
-make[2]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/scsi'
+I'm being verbose here, in case you're wondering, because writing it out
+helps me understand it better.  Not to mention that it exposes any bugs in
+my thinking to an army of people who will no doubt be quick to correct me
+if I'm wrong :)
 
-Same old problem, did not see a solution yet.
-Deselecting CONFIG_SCSI_PCMCIA...
+So anyway, Adam, your code appears to work fine on my system and I see no
+reason to think that it has anything to do with my problem, other than the
+misfortune of being executed so close to the actual bug.  Thanks a lot
+for your pointers, though.  I would like to understand the exact mechanism
+of context switching for kernel threads though, where can I find some
+documentation on that?  release_region() didn't seem to do anything I could
+interpret as a flag to "switch executing threads now" or whatever.  It called
+kfree(), but I didn't look at that function's source yet.  Anyway...
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
---------------F0D56FAEEA9E699B548F6CC2
-Content-Type: text/plain; charset=us-ascii;
- name="2.4.24-pre2-cciss.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4.24-pre2-cciss.patch"
+> The PnPBIOS is reserving ACPI configuration space.  PCI is surprised when it
+> finds it already reserved.  Usually this isn't a problem.  It is interesting,
+> however, that the the PCI bridge and the PnP BIOS are reporting slightly
+> different ranges.
 
---- linux-2.4-pre/drivers/block/cciss.c.orig	Tue Dec 23 16:12:40 2003
-+++ linux-2.4-pre/drivers/block/cciss.c	Tue Dec 23 16:12:53 2003
-@@ -2677,11 +2677,13 @@
- 	}
- 
- #ifdef CONFIG_X86
-+{
- 	/* Need to enable prefetch in the SCSI core for 6400 in x86 */
- 	__u32 prefetch;
- 	prefetch = readl(&(c->cfgtable->SCSI_Prefetch));
- 	prefetch |= 0x100;
- 	writel(prefetch, &(c->cfgtable->SCSI_Prefetch));
-+}
- #endif
- 
- #ifdef CCISS_DEBUG
+Interesting as in Alice (curious acceptance of unanticipated events) or
+interesting as in Oppenheimer (that's a big explosion)?
 
---------------F0D56FAEEA9E699B548F6CC2--
-
+Anyway, thanks again.
+Alexander

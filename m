@@ -1,106 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263356AbVCJXFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263402AbVCJXMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbVCJXFv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 18:05:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263364AbVCJXCz
+	id S263402AbVCJXMA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 18:12:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263306AbVCJXHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 18:02:55 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29704 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262362AbVCJW7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:59:51 -0500
-Date: Thu, 10 Mar 2005 22:59:40 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-serial@vger.kernel.org
-Subject: Re: Someting's busted with serial in 2.6.11 latest
-Message-ID: <20050310225939.G1044@flint.arm.linux.org.uk>
-Mail-Followup-To: Steven Cole <elenstev@mesatop.com>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org
-References: <20050309155049.4e7cb1f4@dxpl.pdx.osdl.net> <20050310195326.A1044@flint.arm.linux.org.uk> <4230CCCB.6030909@mesatop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4230CCCB.6030909@mesatop.com>; from elenstev@mesatop.com on Thu, Mar 10, 2005 at 03:40:11PM -0700
+	Thu, 10 Mar 2005 18:07:33 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:22747 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S263363AbVCJXCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 18:02:36 -0500
+Date: Thu, 10 Mar 2005 18:02:34 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime
+In-reply-to: <20050308224441.2e29f895.akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, video4linux-list@redhat.com,
+       linux1394-devel@lists.sourceforge.net, sensors@stimpy.netroedge.com
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503101802.34407.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200503082326.28737.gene.heskett@verizon.net>
+ <20050308224441.2e29f895.akpm@osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 03:40:11PM -0700, Steven Cole wrote:
-> I'll test current bk tonight, but I don't see any recent fix to
-> drivers/serial/8250.c when browsing linux.bkbits.net/linux-2.6.
+On Wednesday 09 March 2005 01:44, Andrew Morton wrote:
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>> Greetings Andrew;
+>
+>g'day.
+>
+>> 2.6.11-mm2 seems to work, mostly.
+>>
+>> First, the ieee1394 stuff seems to have fixed up that driver, and
+>> kino can access my movie cameras video over the firewire very
+>> nicely without applying the bk-ieee1394-patch.  The camera has
+>> builtin stereo mics in it, but nary a peep can be heard from it
+>> thru the firewire.  Am I supposed to be able to hear that?
+>
+>Was it working with 2.6.11+bk-ieee1394.patch?  Or with anything
+> else?
 
-Ok, so Stephen's bug is already fixed.  After testing the latest bk, if
-you find your bug isn't resolved, please try to isolate the change by
-applying this patch.  If this doesn't resolve it, then your change of
-behaviour hasn't been caused by changes to 8250.c, but must be down to
-some other part of the kernel.
+Yes, as long as that patch was applied.
 
-===== linux-2.6-rmk/drivers/serial/8250.c 1.97 vs 1.95 =====
---- 1.97/drivers/serial/8250.c	2005-03-08 10:04:55 +00:00
-+++ 1.95/drivers/serial/8250.c	2005-02-28 16:05:18 +00:00
-@@ -642,7 +642,6 @@
- static void autoconfig_16550a(struct uart_8250_port *up)
- {
- 	unsigned char status1, status2;
--	unsigned int iersave;
- 
- 	up->port.type = PORT_16550A;
- 	up->capabilities |= UART_CAP_FIFO;
-@@ -729,7 +728,6 @@
- 	serial_outp(up, UART_FCR, UART_FCR_ENABLE_FIFO | UART_FCR7_64BYTE);
- 	status2 = serial_in(up, UART_IIR) >> 5;
- 	serial_outp(up, UART_FCR, UART_FCR_ENABLE_FIFO);
--	serial_outp(up, UART_LCR, 0);
- 
- 	DEBUG_AUTOCONF("iir1=%d iir2=%d ", status1, status2);
- 
-@@ -738,40 +736,6 @@
- 		up->capabilities |= UART_CAP_AFE | UART_CAP_SLEEP;
- 		return;
- 	}
--
--	/*
--	 * Try writing and reading the UART_IER_UUE bit (b6).
--	 * If it works, this is probably one of the Xscale platform's
--	 * internal UARTs.
--	 * We're going to explicitly set the UUE bit to 0 before
--	 * trying to write and read a 1 just to make sure it's not
--	 * already a 1 and maybe locked there before we even start start.
--	 */
--	iersave = serial_in(up, UART_IER);
--	serial_outp(up, UART_IER, iersave & ~UART_IER_UUE);
--	if (!(serial_in(up, UART_IER) & UART_IER_UUE)) {
--		/*
--		 * OK it's in a known zero state, try writing and reading
--		 * without disturbing the current state of the other bits.
--		 */
--		serial_outp(up, UART_IER, iersave | UART_IER_UUE);
--		if (serial_in(up, UART_IER) & UART_IER_UUE) {
--			/*
--			 * It's an Xscale.
--			 * We'll leave the UART_IER_UUE bit set to 1 (enabled).
--			 */
--			DEBUG_AUTOCONF("Xscale ");
--			up->port.type = PORT_XSCALE;
--			return;
--		}
--	} else {
--		/*
--		 * If we got here we couldn't force the IER_UUE bit to 0.
--		 * Log it and continue.
--		 */
--		DEBUG_AUTOCONF("Couldn't force IER_UUE to 0 ");
--	}
--	serial_outp(up, UART_IER, iersave);
- }
- 
- /*
+>Cc'ed linux1394-devel@lists.sourceforge.net
+>
+>> Second, I have a pdHDTV-3000 card, and up till now I've been
+>> overwriting the bttv stuffs with the drivers in pcHDTV-1.6.tar.gz
+>> by doing a make clean;make;make install.  But now thats broken,
+>> and the error message doesn't seem to make sense to this old K&R C
+>> guy.
+>>
+>> The error exit:
+>> make[1]: Entering directory `/usr/src/linux-2.6.11-mm2'
+>>   CC
+>> [M] 
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.o
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
+>>2: error: unknown field `id' specified in initializer
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
+>>2: warning: missing braces around initializer
+>> /usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.c:36
+>>2: warning: (near initialization for
+>> `bttv_i2c_client_template.released')
+>> make[2]: ***
+>> [/usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver/bttv-i2c.o]
+>> Error 1
+>> make[1]: ***
+>> [_module_/usr/pcHDTV3000/linux/pcHDTV-1.6/kernel-2.6.x/driver]
+>> Error 2
+>> make[1]: Leaving directory `/usr/src/linux-2.6.11-mm2'
+>> make: *** [modules] Error 2
+>>
+>> The braces are indeed there.
+>
+>What's pcHDTV-1.6.tar.gz?  If it was merged up then these things
+> wouldn't happen.
+>
+>CC'ed video4linux-list@redhat.com
+>
+>> Third, somewhere between 2.6.11-rc5-RT-V0.39-02 and 2.6.11, I've
+>> lost my sensors except for one on the motherboard called THRM by
+>> gkrellm-2.28.  Nothing seems to be able to bring the w83627hf back
+>> to life.
+>
+>CC'ed sensors@Stimpy.netroedge.com
 
+That I got, somewhere in trying to build a working kernel without the 
+config_broken, i2c-isa got lost.  Restored that and all is well in 
+that dept.
+
+I've got 3 patches that remove the '&& EXPERIMENTAL' from the Kconfigs 
+for the nforce2 stuffs, and even posted one here, but got .000zip 
+response, so I don't know if they are welcome or not...
+>
+>--
+>video4linux-list mailing list
+>Unsubscribe
+> mailto:video4linux-list-request@redhat.com?subject=unsubscribe
+> https://www.redhat.com/mailman/listinfo/video4linux-list
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbUDNOiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 10:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263864AbUDNOiQ
+	id S261380AbUDNOkH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 10:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbUDNOkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 10:38:16 -0400
-Received: from mailout2.samsung.com ([203.254.224.25]:33245 "EHLO
-	mailout2.samsung.com") by vger.kernel.org with ESMTP
-	id S263415AbUDNOiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 10:38:12 -0400
-Date: Wed, 14 Apr 2004 20:03:05 +0530
-From: mohanlal jangir <mohanlal@samsung.com>
-Subject: Re: Implementation of events in Linux Kernel
-To: rakesh <raklfs@yahoo.com>, kernelnewbies@nl.linux.org
-Cc: linux-kernel@vger.kernel.org
-Message-id: <020e01c4222d$67440440$7f476c6b@sisodomain.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <20040414142410.17997.qmail@web20729.mail.yahoo.com>
+	Wed, 14 Apr 2004 10:40:07 -0400
+Received: from [80.72.36.106] ([80.72.36.106]:56223 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S261380AbUDNOjt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 10:39:49 -0400
+Date: Wed, 14 Apr 2004 16:39:42 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Guillaume =?iso-8859-1?q?Lac=F4te?= <Guillaume@Lacote.name>
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, Linux@glacote.com
+Subject: Re: Using compression before encryption in device-mapper
+In-Reply-To: <200404141602.43695.Guillaume@Lacote.name>
+Message-ID: <Pine.LNX.4.58.0404141612250.16891@alpha.polcom.net>
+References: <200404131744.40098.Guillaume@Lacote.name>
+ <200404141202.07021.Guillaume@Lacote.name> <407D3231.2080605@grupopie.com>
+ <200404141602.43695.Guillaume@Lacote.name>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I think that not only compression should be moved to fs layer but 
+possibly encryption also.
 
------ Original Message -----
-From: "rakesh" <raklfs@yahoo.com>
-To: <kernelnewbies@nl.linux.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, April 14, 2004 7:54 PM
-Subject: Implementation of events in Linux Kernel
+How?
+In Reiser4 there are plugins.
+In other fses (as far as I remember e2compr and maybe other posts on 
+this list) there is only one bigger problem with compression and only if 
+we want to support mmap (I do not remember more details about the problem) 
+and the problem is somewhere between current mm and vfs implementation. I 
+think that (probably) Linus said once that this problem can be solved by 
+changing these implementations. The same probably goes for encryption.
+In order to protect guessing the key from decrypting possibly-well-known 
+values in superblock and other metadata (cuch as fs size and signature) we 
+could probably place random numbers before them and xor each 4 bytes with 
+last 4 bytes before encryption (or use any other hash function).
+
+Why?
+Because in dm approach you are encrypting entire blocks at once and in fs 
+approach you are encrypting only needed parts. This can even bring more 
+security because if fs is merging small files into one block and if it is 
+patched to move begining of not full block data into random position in 
+that block attacker must crack all fs and its metadata structures to know 
+where your data actually is and what key is used to encrypt them (we can 
+have several different keys for different parts of fs to make things 
+harder). So we can have situation that in one block there is 2 or 3 or 
+maybe more files (or parts) encrypted using different keys and hashes and 
+that these files reside at different offsets in that block. I think that 
+this is easier to implement and protects better.
+
+What do you think?
 
 
->
-> Hi All,
->
-> Please excuse me if this is not the right place to post this question.
->
->       I have an application which runs on MIPS with Embedded Linux. Iwant
-to write a char driver . I have a Rx Task and an Interrupthandler for the
-char driver which will let me know if anything comesat the chip level.
-
-If you receive interrupt from device, you can establish an interrupt handler
-for that. See function "request_irq". If you want a sleep/wakeup mechanism,
-there are many ways of doing this in Linux kernel. One of them is using
-interruptible_sleep_on/wake_up_interruptible.
-
-Regards
-Mohanlal
-
-  Assuming its pSOS or other real time operating systems one ofhandling an
-interrupt is sending an event to the Rx Task then Rx Taskwill read from the
-whatever buffer it may be.       If I want to implement the same thing in
-Linux at the kernellevel treating my driver as a module. How ( what system
-call ) can Ipass an event to the task such that it receives the event and
-readsfrom the buffer ?      One more question in general what are all the
-various exceptionsor Traps I have to look while writing a Linux Device
-Driver.Thanks in Advance for all your help.ThanksRakesh
->
->
->
->
-> ---------------------------------
-> Do you Yahoo!?
-> Yahoo! Tax Center - File online by April 15th
+Grzegorz Kulewski
 

@@ -1,140 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTFXWeP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 18:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbTFXWeP
+	id S262297AbTFXWiu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 18:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTFXWiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 18:34:15 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:58023 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262543AbTFXWeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 18:34:08 -0400
-Date: Tue, 24 Jun 2003 15:45:05 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: marcelo@conectiva.com.br, macro@ds2.pg.gda.pl
-Subject: PATCH] unexpected IO-APIC update
-Message-Id: <20030624154505.5681941a.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 24 Jun 2003 18:38:50 -0400
+Received: from [203.149.0.18] ([203.149.0.18]:28385 "EHLO
+	krungthong.samart.co.th") by vger.kernel.org with ESMTP
+	id S262297AbTFXWis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 18:38:48 -0400
+Message-ID: <3EF8D6A2.20600@thai.com>
+Date: Wed, 25 Jun 2003 05:54:26 +0700
+From: Samphan Raruenrom <samphan@thai.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030320
+X-Accept-Language: th,en-us, en
+MIME-Version: 1.0
+To: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org, hpa@zytor.com, Tc1000-linux@handhelds.org
+Subject: Re: Crusoe's performance on linux?
+References: <3EF1E6CD.4040800@thai.com> <20030619200308.A2135@ucw.cz> <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com> <20030623102623.A18000@ucw.cz> <3EF74DBF.6000703@thai.com> <Pine.LNX.4.53.0306231821480.17484@twinlark.arctic.org> <Pine.LNX.4.53.0306232128430.9041@twinlark.arctic.org>
+In-Reply-To: <Pine.LNX.4.53.0306232128430.9041@twinlark.arctic.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ >>The time used to compile 2.4.21 kernel off the same .config
+>>Desktop - Pentium III 1 G Hz 756 MB		->	10.x min.
+>>Tablet PC - Crusoe TM5800 1 GHz 733 MB	->	17.x min.
 
-Hi,
+  > how much real memory are in these boxes?  the above don't look like any
+  > real memory sizes i'm aware of
 
-Recently there has been a rash of Unexpected IO APIC reports on
-the linux-smp mailing list.  Most of the most recent ones are due
-to some newer Intel chipsets (865, 875).
+I copy the number from the 'total' column after free -m. They're
+about 256x3 with Crusoe gave about 24M to CMS (I guess).
 
-I have an patch that addresses these chipsets.  It has been
-tested by a few people with good results and has been blessed
-by Maciej Rozycki.
+I tried the tests again with swapoff, on tmpfs, on disks, the result
+are approximately the same. The 'kernel' used for compilation and
+the setting are exactly the same (2.4.21-ac1). The 'kernel' used to run the
+test and the setting are about the same (2.4.21-ac1 vs ac2).
+The desktop is Red Hat 8, gcc 3.2. The TPC is Red Hat 9, gcc 3.2.
 
-Other than conditionally decoding IO APIC registers 2 and 3,
-we could alternately ignore them since Linux doesn't use the values
-for anything other than printing them.
+So the result are real, no disk speed related. What do you think?
+I can't look at the running CMS or the translation cache so I don't know 
+what
+it is doing but I guess that after several run of gcc+as+ld,
+the CMS still decide to interpret most part of their x86 code.
 
-This patch ignores IO APIC register 2 if it's the same value as IO APIC
-register 1.  It also reads IO APIC register 3 if the IO APIC
-version is >= 0x20, but some chipsets don't support this
-register, so it is also ignored if it's value if the same as IO APIC
-register 1 or 2.
+Am I wrong?
+Or that TM5800 is already running as fast as possible? (from tcache)
 
-The IO APIC Version register doesn't indicate the differences in
-these IO APICs.
-
-
-Patch for 2.4.22-pre1 is below.  Please apply.
-
---
-~Randy
-~ http://developer.osdl.org/rddunlap/ ~ http://www.xenotime.net/linux/ ~
-
-
-patch_name:	ioapic_update_2422.patch
-patch_version:	2003-06-24.15:25:38
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	support newer Intel chipset IO APICs;
-product:	Linux
-product_versions: linux-2422-pre1
-maintainer:	Maciej W. Rozycki <macro@ds2.pg.gda.pl>
-diffstat:	=
- arch/i386/kernel/io_apic.c |   23 ++++++++++++++++++++++-
- include/asm-i386/io_apic.h |    5 +++++
- 2 files changed, 27 insertions(+), 1 deletion(-)
-
-
-diff -Naur ./include/asm-i386/io_apic.h~ioap ./include/asm-i386/io_apic.h
---- ./include/asm-i386/io_apic.h~ioap	2003-06-13 09:11:32.000000000 -0700
-+++ ./include/asm-i386/io_apic.h	2003-06-13 14:45:37.000000000 -0700
-@@ -44,6 +44,11 @@
- 		__reserved_1	:  4;
- } __attribute__ ((packed));
- 
-+struct IO_APIC_reg_03 {
-+	__u32	boot_DT		:  1,
-+		__reserved_1	: 31;
-+} __attribute__ ((packed));
-+
- /*
-  * # of IO-APICs and # of IRQ routing registers
-  */
-diff -Naur ./arch/i386/kernel/io_apic.c~ioap ./arch/i386/kernel/io_apic.c
---- ./arch/i386/kernel/io_apic.c~ioap	2003-06-13 07:51:29.000000000 -0700
-+++ ./arch/i386/kernel/io_apic.c	2003-06-13 15:34:33.000000000 -0700
-@@ -752,6 +752,7 @@
- 	struct IO_APIC_reg_00 reg_00;
- 	struct IO_APIC_reg_01 reg_01;
- 	struct IO_APIC_reg_02 reg_02;
-+	struct IO_APIC_reg_03 reg_03;
- 	unsigned long flags;
- 
-  	printk(KERN_DEBUG "number of MP IRQ sources: %d.\n", mp_irq_entries);
-@@ -772,6 +773,8 @@
- 	*(int *)&reg_01 = io_apic_read(apic, 1);
- 	if (reg_01.version >= 0x10)
- 		*(int *)&reg_02 = io_apic_read(apic, 2);
-+	if (reg_01.version >= 0x20)
-+		*(int *)&reg_03 = io_apic_read(apic, 3);
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- 
- 	printk("\n");
-@@ -809,13 +812,31 @@
- 	if (reg_01.__reserved_1 || reg_01.__reserved_2)
- 		UNEXPECTED_IO_APIC();
- 
--	if (reg_01.version >= 0x10) {
-+	/*
-+	 * Some Intel chipsets with IO APIC VERSION of 0x1? don't have reg_02,
-+	 * but the value of reg_02 is read as the previous read register
-+	 * value, so ignore it if reg_02 == reg_01.
-+	 */
-+	if (reg_01.version >= 0x10 && *(int *)&reg_02 != *(int *)&reg_01) {
- 		printk(KERN_DEBUG ".... register #02: %08X\n", *(int *)&reg_02);
- 		printk(KERN_DEBUG ".......     : arbitration: %02X\n", reg_02.arbitration);
- 		if (reg_02.__reserved_1 || reg_02.__reserved_2)
- 			UNEXPECTED_IO_APIC();
- 	}
- 
-+	/*
-+	 * Some Intel chipsets with IO APIC VERSION of 0x2? don't have reg_02
-+	 * or reg_03, but the value of reg_0[23] is read as the previous read
-+	 * register value, so ignore it if reg_03 == reg_0[12].
-+	 */
-+	if (reg_01.version >= 0x20 && *(int *)&reg_03 != *(int *)&reg_02 &&
-+	    *(int *)&reg_03 != *(int *)&reg_01) {
-+		printk(KERN_DEBUG ".... register #03: %08X\n", *(int *)&reg_03);
-+		printk(KERN_DEBUG ".......     : Boot DT    : %X\n", reg_03.boot_DT);
-+		if (reg_03.__reserved_1)
-+			UNEXPECTED_IO_APIC();
-+	}
-+
- 	printk(KERN_DEBUG ".... IRQ redirection table:\n");
- 
- 	printk(KERN_DEBUG " NR Log Phy Mask Trig IRR Pol"

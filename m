@@ -1,80 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbUCHGux (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 01:50:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCHGuw
+	id S262400AbUCHG4j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 01:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUCHG4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 01:50:52 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:20931 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262409AbUCHGuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 01:50:50 -0500
-Date: Mon, 8 Mar 2004 01:50:46 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Ben Collins <bcollins@debian.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS when copying data from local to an external drive (ieee1394)
-In-Reply-To: <200403070139.30268.dtor_core@ameritech.net>
-Message-ID: <Pine.LNX.4.58.0403070229490.29087@montezuma.fsmlabs.com>
-References: <200403070139.30268.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Mar 2004 01:56:39 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:52887 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S262400AbUCHG4g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 01:56:36 -0500
+Date: Mon, 8 Mar 2004 17:56:32 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] small iSeries cleanup
+Message-Id: <20040308175632.4585baca.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__8_Mar_2004_17_56_32_+1100_0ZXBEggg=d9RWC6y"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Mar 2004, Dmitry Torokhov wrote:
+--Signature=_Mon__8_Mar_2004_17_56_32_+1100_0ZXBEggg=d9RWC6y
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> I started getting oopses when cpying data from local IDE to an external
-> Firewire drive. Not always, but quite often. The kernel is a bk pull a
-> day before 2.6.4-rc2 was released, I do not see any ieee1394 updates
-> since.
->
-> Unfortunately the oops was not saves in the logs, so here is what I managed
-> to write down:
+Hi Linus, Andrew,
 
-> Oops: 00002 [#1]
-> PREEMPT
-> CPU: 0
-> EIP: 0060 [<c0243d087>] Tainted: P
-> EFLAGS: 00010047
-> EIP is at hpsb_packet_sent+0x86/0x90
-> eax: 00100100 ebx: dfd74000 ecx: dd6edfb0 edx: 00200200
+This got missed in my cleanup if iSeries_vio_dev.
 
-A spot of linked list corruption.
+Please apply.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-> esi: 00000001 edi: dd6cdf60 ebp: c03e3ee0 esp: c03c3edc
-> ds: 007b es: 007b ss: 0068
-> Process swapper (pid: 0; threadinfo=c03c2000, task=c034a800)
-> ....
-> Call trace:
-> [<co25306e>] dma_trm_tasklet+0xae/0x1b0
+diff -ruN 2.6.4-rc2-bk3/drivers/block/viodasd.c 2.6.4-rc2-bk3.mf1/drivers/block/viodasd.c
+--- 2.6.4-rc2-bk3/drivers/block/viodasd.c	2004-03-04 18:24:49.000000000 +1100
++++ 2.6.4-rc2-bk3.mf1/drivers/block/viodasd.c	2004-03-08 17:47:43.000000000 +1100
+@@ -38,7 +38,6 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/string.h>
+-#include <linux/device.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/completion.h>
+ 
+@@ -77,8 +76,6 @@
+ 
+ #define DEVICE_NO(cell)	((struct viodasd_device *)(cell) - &viodasd_devices[0])
+ 
+-extern struct device *iSeries_vio_dev;
+-
+ struct open_data {
+ 	u64	disk_size;
+ 	u16	max_disk;
 
-Does this patch help any?
+--Signature=_Mon__8_Mar_2004_17_56_32_+1100_0ZXBEggg=d9RWC6y
+Content-Type: application/pgp-signature
 
-Index: linux-2.6.4-rc1-mm2/drivers/ieee1394/ieee1394_core.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.4-rc1-mm2/drivers/ieee1394/ieee1394_core.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 ieee1394_core.c
---- linux-2.6.4-rc1-mm2/drivers/ieee1394/ieee1394_core.c	4 Mar 2004 04:12:44 -0000	1.1.1.1
-+++ linux-2.6.4-rc1-mm2/drivers/ieee1394/ieee1394_core.c	8 Mar 2004 06:47:04 -0000
-@@ -403,6 +403,8 @@ void hpsb_selfid_complete(struct hpsb_ho
- void hpsb_packet_sent(struct hpsb_host *host, struct hpsb_packet *packet,
-                       int ackcode)
- {
-+	unsigned long flags;
-+
- 	packet->ack_code = ackcode;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
- 	if (packet->no_waiter) {
-@@ -413,7 +415,9 @@ void hpsb_packet_sent(struct hpsb_host *
+iD8DBQFATBkgFG47PeJeR58RAn/JAKDF1vqO8e6Es+idRWrE0FrMhthgewCfVmUU
+zOUtA3MU2+1cETifb975QRk=
+=gVwg
+-----END PGP SIGNATURE-----
 
- 	if (ackcode != ACK_PENDING || !packet->expect_response) {
- 		atomic_dec(&packet->refcnt);
-+		spin_lock_irqsave(&host->pending_pkt_lock, flags);
- 		list_del(&packet->list);
-+		spin_unlock_irqrestore(&host->pending_pkt_lock, flags);
- 		packet->state = hpsb_complete;
- 		queue_packet_complete(packet);
- 		return;
+--Signature=_Mon__8_Mar_2004_17_56_32_+1100_0ZXBEggg=d9RWC6y--

@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbTFBOkg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 10:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTFBOkg
+	id S262367AbTFBOls (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 10:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTFBOls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 10:40:36 -0400
-Received: from windsormachine.com ([206.48.122.28]:60686 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S262366AbTFBOkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 10:40:35 -0400
-Date: Mon, 2 Jun 2003 10:54:00 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <linux-smp@vger.kernel.org>
-Subject: Re: Hyper-threading
-In-Reply-To: <Pine.LNX.4.53.0306011419010.11852@chaos>
-Message-ID: <Pine.LNX.4.33.0306021052450.31561-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Jun 2003 10:41:48 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:30182
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262367AbTFBOlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 10:41:46 -0400
+Subject: Re: [BK PATCHES] add ata scsi driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10306020238050.23914-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10306020238050.23914-100000@master.linux-ide.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054562206.7494.11.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jun 2003 14:56:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2003-06-02 at 10:46, Andre Hedrick wrote:
+> Linus, my professional opinion is to follow Jeff's direction for 2.5/2.6.
+> This will allow Linux to push open source to the hardware vendors.
+> There are several bastardized scsi-ide drivers in ./scsi.
+> 
+> pci2000.c,h :: pci2220i.c,h :: psi240i.c,h + psi_*.h :: eata*
 
-
-On Sun, 1 Jun 2003, Richard B. Johnson wrote:
-
-> CPU0: Intel(R) Pentium(R) 4 CPU 2.66GHz stepping 07
-
-I wouldn't worry about hyperthreading too much anyways, seeing as how this
-cpu doesn't support it anyways.
-
-Mike
-
+megaraid, i2o, 3ware, aacraid all also drive IDE devices too now
+Promise new driver is using the scsi layer as well (because they do
+command queuing as well as drive tagged queue stuff). I've been 
+hacking on the SI stuff a bit and its also apparent our IDE PATA
+layer won't support that well in a hurry either since it also
+has command buffering.
 

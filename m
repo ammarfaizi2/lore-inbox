@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266488AbRHWOOg>; Thu, 23 Aug 2001 10:14:36 -0400
+	id <S266864AbRHWOSH>; Thu, 23 Aug 2001 10:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266808AbRHWOO1>; Thu, 23 Aug 2001 10:14:27 -0400
-Received: from duba06h06-0.dplanet.ch ([212.35.36.67]:50954 "EHLO
-	duba06h06-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S266488AbRHWOOM>; Thu, 23 Aug 2001 10:14:12 -0400
-Date: Thu, 23 Aug 2001 16:10:55 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH (URL), RFC] Stackable dmi_blacklist rules
-Message-ID: <20010823161055.A1029@tm.hellgate.ch>
-In-Reply-To: <20010823152200.A853@tm.hellgate.ch> <E15Zua2-0003sM-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S266921AbRHWOR5>; Thu, 23 Aug 2001 10:17:57 -0400
+Received: from cmr1.ash.ops.us.uu.net ([198.5.241.39]:18415 "EHLO
+	cmr1.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S266864AbRHWORm>; Thu, 23 Aug 2001 10:17:42 -0400
+Message-ID: <3B8510DE.3AF272BA@uu.net>
+Date: Thu, 23 Aug 2001 10:19:10 -0400
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ledzep37@home.com, shawnm@splorkin.com, linux-kernel@vger.kernel.org
+Subject: Re: Shutdown and power off on a multi-processor machine
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <E15Zua2-0003sM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 23, 2001 at 02:31:30PM +0100
-X-Operating-System: Linux 2.4.5-ac13 on i586
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Currently, we walk the list and throw out bad apples based on full
-> > or partial strings we match against what we get from the BIOS.
-> > Once a rule matches, the value is immutable.
+Compile a kernel with apm support and add the following to your
+lilo.conf:
+
+append="apm=power-off"
+
+Alex
+
+
+---------------------------------
+
+I too am having trouble powering off and rebooting an SMP machine. It 
+is a Tyan Tiger 230. I have tried to report this a few times with 
+little to no response. The last kernel that worked for me in this 
+respect was 2.4.6-ac2. I have tried linus' and alan's kernels both with 
+no success. I have tried configuring all kernel with APM soft-power 
+off, real-mode power off (I enable power-off even though the rest of APM 
+is broken on SMP), ACPI (multiple setups), and nothing at all. None of 
+these kernel/configuration combos allow me to shutdown or reboot my 
+machine. I would like to be able to and I know the board still works 
+because Windows 2000/XP (even though I hate using them) both manage to 
+shutdown/reboot the machine properly. I have everything I can think of 
+copiled in statically instead of as modules and also have PNPBIOS enable 
+in the kernel and the BIOS. Any help would be appreciated. 
+
+Jordan 
+
+Shawn McGovern wrote: 
 > 
-> Hardly. You can set it back, you can also access the fields to make 
-> complex decisions after a match call. 
-
-You'd have to write extra feature_off callback functions, though
-(or change the existing ones, as I did), since currently no callback
-function allows to reset a value once it was called. They are all
-coded like this:
-
-static __init int apm_is_horked(struct dmi_blacklist *d)
-{
-	if (apm_info.disabled == 0)
-	
-		apm_info.disabled = 1;
-		printk(KERN_INFO "%s machine detected. Disabling APM.\n", d->ident);
-	
-	return 0;
-}
-
-What I was looking for was a solution which allows resetting values
-simply by changing the dmi_blacklist.
-
-One can of course argue that we can always add apm_is_not_horked_after_all()
-should the need ever arise.
-
-Roger Luethi
+> I have a need for a headless machine to power off at the end of shutdown, 
+> but cannot get it to work for smp kernels. I tried 2.2.14, and 2.4.9, 
+> built with smp and apm. If there is a way to make this work, I would 
+> really appreciate any advice. If it cannot be done I would sure like to 
+> know that too, so I can stop banging my head on this particular wall. 
+> Please send responses to me directly as I am not on this list. TIA. 
+> 
+> Cheers, 
+> Shawn 
+>

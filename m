@@ -1,61 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286364AbRLTUgX>; Thu, 20 Dec 2001 15:36:23 -0500
+	id <S286373AbRLTUuE>; Thu, 20 Dec 2001 15:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286367AbRLTUgN>; Thu, 20 Dec 2001 15:36:13 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:45706
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286364AbRLTUgI>; Thu, 20 Dec 2001 15:36:08 -0500
-Date: Thu, 20 Dec 2001 15:23:40 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011220152340.A20824@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Reid Hekman <reid.hekman@ndsu.nodak.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011220143247.A19377@thyrsus.com> <1008880024.3926.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1008880024.3926.2.camel@localhost.localdomain>; from reid.hekman@ndsu.nodak.edu on Thu, Dec 20, 2001 at 02:27:02PM -0600
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S286372AbRLTUtq>; Thu, 20 Dec 2001 15:49:46 -0500
+Received: from verlaine.noos.net ([212.198.2.73]:16426 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S286368AbRLTUtY>;
+	Thu, 20 Dec 2001 15:49:24 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Roskin <proski@gnu.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Making TI bridges work with kernel PCMCIA
+Date: Thu, 20 Dec 2001 21:49:11 +0100
+Message-Id: <20011220204911.25097@smtp.noos.fr>
+In-Reply-To: <Pine.LNX.4.33.0112191617370.2705-100000@marabou.research.att.com>
+In-Reply-To: <Pine.LNX.4.33.0112191617370.2705-100000@marabou.research.att.com>
+X-Mailer: CTM PowerMail 3.0.9 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reid Hekman <reid.hekman@ndsu.nodak.edu>:
-> Perhaps if we could be so bold as to back Donald Knuth's KKB,MMB,GGB
-> proposal (of which I learned here:
-> http://www.linuxdoc.org/HOWTO/Large-Disk-HOWTO-3.html ).
+>Hello!
+>
+>The driver for Cardbus/PCMCIA bridges (yenta_socket) doesn't initialize 
+>the irqmux register of TI bridges.  In fact, the driver doesn't even 
+>access that register.
+>
+>My experience shows that relying in the initial values of that register is
+>not a good idea.  It is set to use ISA interrupts, but they don't work
+>with either of two motherboards I tested the bridge with.
+>
+>Bridge:
+>CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
+>
+>Fisrt system:
+>Athlon 1GHz, motherboard AOpen KT-133.
+>
+>Second system:
+>Compaq AP500, 2 x Pentium II, motherboard with Intel 440BX chipset.
+>
+>This patch makes the same thing as "irq_mode=0" does in the standalone
+>PCMCIA driver (i82365).  It means that PCMCIA cards inserted to the socket
+>have their interrupt redirected to the same PCI interrupt that is used for
+>the Card Status Change (csc) notification.  I believe that's the safest
+>behavior, as it avoids probing ISA interupts.
+>
+>Since the patch changes ti_open(), it affects all TI bridges.  This should 
+>be the right thing to do according to the pcmcia-cs sources.  I'm a bit 
+>surprized that the driver doesn't access those registers at all except 
+>some old TI113x models.
+>
+>The code with TI122X_SCR_INTRTIE has been copied from pcmcia-cs without
+>changes.  It should only affect two-socket bridges.
+>
+>The patch is against 2.4.17-rc2.
 
-Hm.  Attractive, but it doesn't have an ISO standard behind it.
+I have to use a similar workaround on pmac laptops. However, I do that
+in the platform specific quirks.
 
-> Whatever we do with the abbreviations, I would strongly recommend we
-> spell out documention to help educate ( and ease the transition if we
-> switch terms) wherever possible. For example:
-> 
-> 4 binary kilobyte pages
-> 1024 decimal kilobyte disk
-> 8.4 decimal gigabyte disks
-> 4 binary gigabytes of memory
-> 10 decimal gigabits of bandwith
-> 
-> or if that offends the sensibilities:
-> 
-> 4 kilobytes (binary)
-> 1024 kilobytes (decimal)
-> 8.4 gigabytes (decimal)
-> 
-> I know that they are long on keystrokes, but in lieu of an accepted and
-> aesthetically pleasing standard, they are clear and unambiguous.
+Ben.
 
-Good idea.  I will make appropriate changes.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+>=========================
+>--- linux.orig/drivers/pcmcia/ti113x.h
+>+++ linux/drivers/pcmcia/ti113x.h
+>@@ -150,11 +150,27 @@
+>  */
+> static int ti_open(pci_socket_t *socket)
+> {
+>+	u32 irqmux;
+>+	u8 devctl, sysctl;
+> 	u8 new, reg = exca_readb(socket, I365_INTCTL);
+> 
+> 	new = reg & ~I365_INTR_ENA;
+> 	if (new != reg)
+> 		exca_writeb(socket, I365_INTCTL, new);
+>+
+>+	/* Disable ISA interrupt routing ... */
+>+	devctl = config_readb(socket, TI113X_DEVICE_CONTROL);
+>+	devctl &= ~TI113X_DCR_IMODE_MASK;
+>+	config_writeb(socket, TI113X_DEVICE_CONTROL, devctl);
+>+	/* ... and enable PCI routing instead */
+>+	sysctl = config_readb(socket, TI113X_SYSTEM_CONTROL);
+>+	irqmux = config_readl(socket, TI122X_IRQMUX);
+>+	irqmux = (irqmux & ~0x0f) | 0x02; /* route INTA */
+>+	if (!(sysctl & TI122X_SCR_INTRTIE)) {
+>+		irqmux = (irqmux & ~0xf0) | 0x20; /* route INTB */
+>+	}
+>+	config_writel(socket, TI122X_IRQMUX, irqmux);
+>+
+> 	return 0;
+> }
 
-Government should be weak, amateurish and ridiculous. At present, it
-fulfills only a third of the role.	-- Edward Abbey
+

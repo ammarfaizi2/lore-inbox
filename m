@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbTJIVF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 17:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbTJIVF2
+	id S262557AbTJIU6T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 16:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbTJIU6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 17:05:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7091 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262580AbTJIVFZ (ORCPT
+	Thu, 9 Oct 2003 16:58:18 -0400
+Received: from madness.at ([213.153.61.104]:55560 "EHLO cronos.madness.at")
+	by vger.kernel.org with ESMTP id S262557AbTJIU6R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 17:05:25 -0400
-Date: Thu, 9 Oct 2003 14:05:23 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Martin Aspeli <optilude@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Horrible ordeals with ACPI, APIC and HIGHMEM (2.6.0-test* and -ac kernels)
-Message-ID: <20031009140523.A18065@build.pdx.osdl.net>
-References: <oprwsg9wfc9y0cdf@mail.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <oprwsg9wfc9y0cdf@mail.gmx.net>; from optilude@gmx.net on Thu, Oct 09, 2003 at 07:50:10PM +0100
+	Thu, 9 Oct 2003 16:58:17 -0400
+Message-ID: <3F85CC0E.50003@madness.at>
+Date: Thu, 09 Oct 2003 22:58:54 +0200
+From: Stefan Kaltenbrunner <mm-mailinglist@madness.at>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6a) Gecko/20030927
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Serverworks CSB5 IDE-DMA Problem (2.4 and 2.6)
+References: <Pine.LNX.4.44.0310091634330.3040-100000@logos.cnet> <200310092146.17695.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200310092146.17695.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Martin Aspeli (optilude@gmx.net) wrote:
-> I've been trying the 2.6.0-test kernels, mostly for the speedstep support 
-> (which appears to work). However, when I put ACPI in the kernel, all goes 
-> wrong. Without ACPI, half my hardware is left IRQ-less. These are the 
-> symptoms:
+Bartlomiej Zolnierkiewicz wrote:
 
-Which 2.6.0-test kernels?  Have you tried 2.6.0-test7?  A fix for this
-type of problem went into -test7.
+> APIC problem should be fixed, but yes it's better to disable ACPI.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Not sure if I understand this one right - the dmesg was from the 
+2.6.0-test6 kernel which did have ACPI HT-enum-only compiled in but no 
+"local APIC support".
+The 2.4.22 one that has the same problem does neither have ACPI nor APIC 
+support compiled in - so no this doesn't seem to be the problem.
+
+> These "timeout due to drive busy" needs to be resolved.
+
+Yes - I really hope this will be fixed soon. I was forced to add a 
+fiberchannel HBA into this maschine today to integrate it into our SAN 
+to get the database up to speed again.
+However I'm willing to move the database to the local disks again if you 
+want me to test a patch or something along that line.
+
+
+
+Stefan
+

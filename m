@@ -1,545 +1,759 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266924AbSL3Lpa>; Mon, 30 Dec 2002 06:45:30 -0500
+	id <S266918AbSL3LpP>; Mon, 30 Dec 2002 06:45:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266928AbSL3Lpa>; Mon, 30 Dec 2002 06:45:30 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:56082 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266924AbSL3LpP>;
-	Mon, 30 Dec 2002 06:45:15 -0500
-Date: Mon, 30 Dec 2002 12:53:36 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Cc: Richard Henderson <rth@twiddle.net>
-Subject: [CFT] arch/alpha: Makefiles update
-Message-ID: <20021230115336.GA1089@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Richard Henderson <rth@twiddle.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266928AbSL3LpP>; Mon, 30 Dec 2002 06:45:15 -0500
+Received: from blue-edge.bg ([195.24.36.114]:32646 "HELO blue-edge.bg")
+	by vger.kernel.org with SMTP id <S266918AbSL3LpF>;
+	Mon, 30 Dec 2002 06:45:05 -0500
+Message-ID: <002d01c2affa$0e76d9b0$0b00050a@deian>
+From: "Deian Chepishev" <deian@blue-edge.bg>
+To: <andrewm@uow.edu.au>
+Cc: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: 3Com PCI 3c905C Tornado  problems (no network sometimes)
+Date: Mon, 30 Dec 2002 13:53:23 +0200
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_002A_01C2B00A.D183EA00"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have given the Alpha Makefile a rehaul, but lacks the
-binaries to actually test if it is OK.
-Primary purpose is to make the architecture makefiles more look alike.
+This is a multi-part message in MIME format.
 
-Anyone with alpha tools that want to give this a try?
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 
-When testing try out the following:
+Hi all,
 
-make
-make msb
-make srmboot
-make boot
-make bootimage
+for about a year and a half i have problems with network cards 3Com PCI
+3c905C Tornado
+here is the description of the problem:
 
-and try also
-make KBUILD_VERBOSE=0 bootimage
+I have the following hardware:
 
-Execute "find arch/alpha -name '*.o' | xargs rm"
-to force the architecture specific files to be recompiled between each run.
+MB EliteGroup P6ISAII  with chipset Intel815
+LAN CARD 3Com PCI 3c905C Tornado
+CPU Intel PIII 733 and 933
+Sound Embeded
+Video Intel815 Embeded
 
-I appreciate any feedback on the patch, as well as go/no-go reports.
-With this amount of changes I expect a few bugs, although I have been
-carefull reviewing my changes.
+Log entries while loading driver 3c90x are:
 
-The target "rawboot" has been removed. Anyone using this?
-Same question goes for msb (my-special-boot) and srmboot.
+Dec 19 16:03:35 oboroten kernel: 3c59x: Donald Becker and others.
+www.scyld.com/network/vortex.html
+Dec 19 16:03:35 oboroten kernel: 01:03.0:     at 0xc000. Vers LK1.1.18-ac
 
-	Sam
+The tower is ATX.  when i shut down the computer from the button and after
+start it the led which shows that nic is connected to 100Mb mode (I have
+leds for 10Mb, 100Mb,ACT) start blinking each second the same do and the led
+on the switch (the switch is 3COM office connect DualSpeedSwitch 16).
+and when linux boots i have no network at all. I have attached logs for
+notworking and working situation.
+In order to fix the problem i must unplug the power cord(there is no other
+way to copletely stop powering the computer) wait a few seconds plug it
+again and start the computer from the button and check to see if the led is
+blinking if yes reapeat this action as much times as is necessary for the
+led to stop blinking. The interesting part is that if the NIC is blinking
+and i load windows the things are working just fine i think that windows
+driver has some initialisation (the led stops blinking) which the linux
+driver does not have but these are just suppositions.
+Notice that i have some lines in the messages log "working situation" which
+looks like this:
 
-Following files were changed:
+Dec 30 12:52:01 oboroten kernel: eth0: vortex_error(), status=0xe081
 
- Makefile          |  147 ++++++++++++++++++++----------------------------------
- boot/Makefile     |  137 +++++++++++++++++++++++---------------------------
- kernel/Makefile   |    9 +--
- lib/Makefile      |   69 ++++++++++++-------------
- math-emu/Makefile |    3 -
- 5 files changed, 158 insertions(+), 207 deletions(-)
+this appears when i execute the following command:
+
+ping -f some.host
+
+i have running 4 machines with the same HW configuration and the problem is
+reproducable on all of them. I have noticed this problem since kernel 2.4.2
+and it is here by now.
+on the machine that i use for testing these things i have kernel:
+Linux xxxx.xxxxx.xxxxx 2.4.18-19.8.0 #1 Thu Dec 12 05:39:29 EST 2002 i686
+i686 i386 GNU/Linux
+
+but I have and machines with 2.4.19 which has the same problem.
+I have this problem often when we have power failure and my boss is not very
+happy the servers to be down when i am not in the office after power
+failure.
+I have executed and the diagnostic programs mii-diag and vortex-diag their
+logs are attached to the mail too.
 
 
-===== arch/alpha/Makefile 1.18 vs edited =====
---- 1.18/arch/alpha/Makefile	Tue Nov  5 17:08:09 2002
-+++ edited/arch/alpha/Makefile	Sun Dec 29 23:55:13 2002
-@@ -10,13 +10,17 @@
- 
- NM := $(NM) -B
- 
--LDFLAGS_vmlinux = -static -N #-relax
--CFLAGS := $(CFLAGS) -pipe -mno-fp-regs -ffixed-8
--LDFLAGS_BLOB := --format binary --oformat elf64-alpha
-+LDFLAGS_vmlinux	:= -static -N #-relax
-+LDFLAGS_BLOB	:= --format binary --oformat elf64-alpha
-+cflags-y	:= -pipe -mno-fp-regs -ffixed-8
- 
- # Determine if we can use the BWX instructions with GAS.
- old_gas := $(shell if $(AS) --version 2>&1 | grep 'version 2.7' > /dev/null; then echo y; else echo n; fi)
- 
-+ifeq ($(old_gas),y)
-+$(error The assembler '$(AS)' does not support the BWX instruction)
-+endif
-+
- # Determine if GCC understands the -mcpu= option.
- have_mcpu := $(shell if $(CC) -mcpu=ev5 -S -o /dev/null -xc /dev/null > /dev/null 2>&1; then echo y; else echo n; fi)
- 
-@@ -27,68 +31,36 @@
- have_mcpu_ev67 := $(shell if $(CC) -mcpu=ev67 -S -o /dev/null -xc /dev/null > /dev/null 2>&1; then echo y; else echo n; fi)
- 
- have_msmall_data := $(shell if $(CC) -msmall-data -S -o /dev/null -xc /dev/null > /dev/null 2>&1; then echo y; else echo n; fi)
--ifeq ($(have_msmall_data),y)
--  CFLAGS := $(CFLAGS) -msmall-data
--endif
- 
--# Turn on the proper cpu optimizations.
--ifeq ($(have_mcpu),y)
--  # If GENERIC, make sure to turn off any instruction set extensions that
--  # the host compiler might have on by default.  Given that EV4 and EV5
--  # have the same instruction set, prefer EV5 because an EV5 schedule is
--  # more likely to keep an EV4 processor busy than vice-versa.
--  mcpu_done := n
--  ifeq ($(CONFIG_ALPHA_GENERIC),y)
--    CFLAGS := $(CFLAGS) -mcpu=ev5
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_SX164)$(have_mcpu_pca56),nyy)
--    CFLAGS := $(CFLAGS) -mcpu=pca56
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_POLARIS)$(have_mcpu_pca56),nyy)
--    CFLAGS := $(CFLAGS) -mcpu=pca56
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_EV4),ny)
--    CFLAGS := $(CFLAGS) -mcpu=ev4
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_EV56),ny)
--    CFLAGS := $(CFLAGS) -mcpu=ev56
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_EV5),ny)
--    CFLAGS := $(CFLAGS) -mcpu=ev5
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_EV67)$(have_mcpu_ev67),nyy)
--    CFLAGS := $(CFLAGS) -mcpu=ev67
--    mcpu_done := y
--  endif
--  ifeq ($(mcpu_done)$(CONFIG_ALPHA_EV6),ny)
--    ifeq ($(have_mcpu_ev6),y)
--      CFLAGS := $(CFLAGS) -mcpu=ev6
--    else
--      ifeq ($(have_mcpu_pca56),y)
--        CFLAGS := $(CFLAGS) -mcpu=pca56
--      else
--        CFLAGS := $(CFLAGS) -mcpu=ev56
--      endif
--    endif
--    mcpu_done := y
--  endif
--endif
-+cflags-$(have_msmall_data) += -msmall-data
-+
-+# If ALPHA_GENERIC, make sure to turn off any instruction set extensions
-+# that the host compiler might have on by default. Given that EV4 and EV5
-+# have the same instruction set, prefer EV5 because an EV5 schedule is
-+# more likely to keep an EV4 processor busy than vice-versa.
-+ 
-+# Default value
-+mach-yy := ev56
-+mach-$(have_mcpu_pca56)$(have_mcpu_pca56)	:= pca56
-+
-+#Machine depedent values, influenced by gcc capabilitites
-+mach-$(CONFIG_ALPHA_SX164)$(have_mcpu_pca56)	:= pca56
-+mach-$(CONFIG_ALPHA_POLARIS)$(have_mcpu_pca56)	:= pca56
-+mach-$(CONFIG_ALPHA_EV67)$(have_mcpu_ev67)	:= ev67
-+
-+mach-y				:= $(mach-yy)
-+mach-$(CONFIG_ALPHA_GENERIC)	:= ev5
-+mach-$(CONFIG_ALPHA_EV4)	:= ev4
-+mach-$(CONFIG_ALPHA_EV56)	:= ev56
-+mach-$(CONFIG_ALPHA_EV5)	:= ev5
-+mach-$(CONFIG_ALPHA_EV6)	:= ev6
-+
-+cflags-$(have_mcpu) += -mcpu=$(mach-y)
- 
- # For TSUNAMI, we must have the assembler not emulate our instructions.
- # The same is true for IRONGATE, POLARIS, PYXIS.
- # BWX is most important, but we don't really want any emulation ever.
--
--ifeq ($(old_gas),y)
--  # How do we do #error in make?
--  CFLAGS := --error-please-upgrade-your-assembler
--endif
--CFLAGS := $(CFLAGS) -Wa,-mev6
-+CFLAGS += $(cflags-y) -Wa,-mev6
- 
- HEAD := arch/alpha/kernel/head.o
- 
-@@ -96,37 +68,21 @@
- core-$(CONFIG_MATHEMU)  += arch/alpha/math-emu/
- libs-y			+= arch/alpha/lib/
- 
--export libs-y
-+boot := arch/alpha/boot
- 
--MAKEBOOT = $(MAKE) -C arch/alpha/boot
-+#Default target when executing make with no arguments
-+all boot: $(boot)/vmlinux.gz
- 
--rawboot:	vmlinux
--	@$(MAKEBOOT) rawboot
-+$(boot)/vmlinux.gz: vmlinux
-+	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
- 
--boot:	vmlinux
--	@$(MAKEBOOT)
-+# My special boot (msb) writes directly to a specific disk partition,
-+# I doubt most people will want to do that without changes..
-+msb srmboot: vmlinux
-+	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $@
- 
--#
--# My boot writes directly to a specific disk partition, I doubt most
--# people will want to do that without changes..
--#
--msb my-special-boot:	vmlinux
--	@$(MAKEBOOT) msb
--
--bootimage:	vmlinux
--	@$(MAKEBOOT) bootimage
--
--srmboot:	vmlinux
--	@$(MAKEBOOT) srmboot
--
--archclean:
--	@$(MAKEBOOT) clean
--
--archmrproper:
--	rm -f include/asm-alpha/asm_offsets.h
--
--bootpfile:	vmlinux
--	@$(MAKEBOOT) bootpfile
-+bootimage bootpfile: vmlinux
-+	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(boot) $(boot)/$@
- 
- 
- prepare: include/asm-$(ARCH)/asm_offsets.h
-@@ -134,12 +90,21 @@
- arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
- 				   include/config/MARKER
- 
--include/asm-$(ARCH)/asm_offsets.h.tmp: arch/$(ARCH)/kernel/asm-offsets.s
--	@$(generate-asm-offsets.h) < $< > $@
--
--include/asm-$(ARCH)/asm_offsets.h: include/asm-$(ARCH)/asm_offsets.h.tmp
-+include/asm-$(ARCH)/asm_offsets.h: include/asm-$(ARCH)/asm_offsets.h
- 	@echo -n '  Generating $@'
-+	@$(generate-asm-offsets.h) < $< > $@.tmp
- 	@$(update-if-changed)
- 
-+archclean:
-+	$(Q)$(MAKE) -f scripts/Makefile.clean obj=$(boot)
-+
- CLEAN_FILES += include/asm-$(ARCH)/offset.h.tmp \
- 	       include/asm-$(ARCH)/offset.h
-+
-+define archhelp
-+  echo '* boot		- Compressed kernel image (arch/alpha/boot/vmlinux.gz)'
-+  echo '  bootimage	- Bootable image (arch/alpha/boot/bootimage)'
-+  echo '  bootpfile	- INITRD image (arch/alpha(boot/bootpfile)'
-+  echo '  srmboot	- Write bootimage to $$(BOOTDEV)'
-+  echo '  msb		- My special boot???'
-+endef
-===== arch/alpha/boot/Makefile 1.10 vs edited =====
---- 1.10/arch/alpha/boot/Makefile	Tue Oct  8 16:14:54 2002
-+++ edited/arch/alpha/boot/Makefile	Mon Dec 30 00:05:01 2002
-@@ -8,58 +8,50 @@
- # Copyright (C) 1994 by Linus Torvalds
- #
- 
--LINKFLAGS = -static -T bootloader.lds -uvsprintf #-N -relax
- 
--CFLAGS := $(CFLAGS) -I$(TOPDIR)/include
--
--.S.s:
--	$(CPP) $(AFLAGS) -traditional -o $*.o $<
--.S.o:
--	$(CC) $(AFLAGS) -traditional -c -o $*.o $<
--
--OBJECTS = head.o main.o
--BPOBJECTS = head.o bootp.o
--TARGETS = vmlinux.gz tools/objstrip # also needed by aboot & milo
--VMLINUX = $(TOPDIR)/vmlinux
--OBJSTRIP = tools/objstrip
--LIBS := $(addprefix $(TOPDIR)/,$(libs-y))
--
--all:	$(TARGETS)
--	@echo Ready to install kernel in $(shell pwd)/vmlinux.gz
--
--# normally no need to build these:
--rawboot: vmlinux.nh tools/lxboot tools/bootlx
--
--msb:	tools/lxboot tools/bootlx vmlinux.nh
--	( cat tools/lxboot tools/bootlx vmlinux.nh ) > /dev/rz0a
--	disklabel -rw rz0 'linux' tools/lxboot tools/bootlx
--
--bootimage:	tools/mkbb tools/lxboot tools/bootlx vmlinux.nh
--	( cat tools/lxboot tools/bootlx vmlinux.nh ) > bootimage
--	tools/mkbb bootimage tools/lxboot
--
--bootpfile:	tools/bootph vmlinux.nh
--	cat tools/bootph vmlinux.nh > bootpfile
-+host-progs	:= tools/mkbb tools/objstrip
-+EXTRA_TARGETS	:= vmlinux.gz vmlinux \
-+		   vmlinux.nh tools/lxboot tools/bootlx tools/bootph \
-+		   bootloader bootpheader 
-+OBJSTRIP	:= $(obj)/tools/objstrip
-+
-+# normally no need to build these: (FIXME: Kill?)
-+rawboot: $(obj)/vmlinux.nh $(obj)/tools/lxboot $(obj)/tools/bootlx
-+
-+# bootimage prepared with boot sector
-+$(obj)/bootimage: $(addprefix $(obj)/tools/,mkbb lxboot bootlx) $(obj)/vmlinux.nh
-+	( cat $(obj)/tools/lxboot $(obj)/tools/bootlx $(obj)/vmlinux.nh ) > $@ 
-+	$(obj)/tools/mkbb $@ $(obj)/tools/lxboot
-+	@echo '  Bootimage $@ is ready'
-+
-+# bootp file including INITRD
-+$(obj)/bootpfile: $(obj)/tools/bootph $(obj)/vmlinux.nh
-+	cat $(obj)/tools/bootph $(obj)/vmlinux.nh > $@
- ifdef INITRD
--	cat $(INITRD) >> bootpfile
-+	cat $(INITRD) >> $@
- endif
- 
--srmboot:	bootdevice bootimage
--	dd if=bootimage of=$(BOOTDEV) bs=512 seek=1 skip=1
--	tools/mkbb $(BOOTDEV) tools/lxboot
-+# My special boot (FIXME: Kill?)
-+msb:	$(obj)/tools/lxboot $(obj)/tools/bootlx $(obj)/vmlinux.nh
-+	( cat $^ ) > /dev/rz0a
-+	disklabel -rw rz0 'linux' $(obj)/tools/lxboot $(obj)/tools/bootlx
- 
--bootdevice:
-+# Bootimage copied to $(BOOTDEV)
-+srmboot: $(obj)/bootimage
- 	@test "$(BOOTDEV)" != ""  || (echo You must specify BOOTDEV ; exit -1)
-+	dd if=$(obj)/bootimage of=$(BOOTDEV) bs=512 seek=1 skip=1
-+	$(obj)/tools/mkbb $(BOOTDEV) $(obj)/tools/lxboot
- 
--vmlinux.gz: vmlinux
--	gzip -fv9 vmlinux
--
--main.o: ksize.h
-+# Compressed kernel image
-+$(obj)/vmlinux.gz: $(obj)/vmlinux FORCE
-+	$(call if_changed,gzip)
-+	@echo '  Kernel $@ is ready'
- 
--bootp.o: ksize.h
-+$(obj)/main.o: $(obj)/ksize.h
-+$(obj)/bootp.o: $(obj)/ksize.h
- 
--ksize.h: vmlinux.nh FORCE
--	echo "#define KERNEL_SIZE `ls -l vmlinux.nh | awk '{print $$5}'`" > $@T
-+$(obj)/ksize.h: $(obj)/vmlinux.nh FORCE
-+	echo "#define KERNEL_SIZE `ls -l $(obj)/vmlinux.nh | awk '{print $$5}'`" > $@T
- ifdef INITRD
- 	[ -f $(INITRD) ] || exit 1
- 	echo "#define INITRD_IMAGE_SIZE `ls -l $(INITRD) | awk '{print $$5}'`" >> $@T
-@@ -67,36 +59,37 @@
- 	cmp -s $@T $@ || mv -f $@T $@
- 	rm -f $@T
- 
--vmlinux.nh: $(VMLINUX) $(OBJSTRIP)
--	$(OBJSTRIP) -v $(VMLINUX) vmlinux.nh
--
--vmlinux: $(TOPDIR)/vmlinux
--	$(STRIP) -o vmlinux $(VMLINUX)
--
--tools/lxboot: $(OBJSTRIP) bootloader
--	$(OBJSTRIP) -p bootloader tools/lxboot
--
--tools/bootlx: bootloader $(OBJSTRIP)
--	$(OBJSTRIP) -vb bootloader tools/bootlx
--
--tools/bootph: bootpheader $(OBJSTRIP)
--	$(OBJSTRIP) -vb bootpheader tools/bootph
--
--$(OBJSTRIP): $(OBJSTRIP).c
--	$(HOSTCC) $(HOSTCFLAGS) $< -o $@
--
--tools/mkbb: tools/mkbb.c
--	$(HOSTCC) tools/mkbb.c -o tools/mkbb
-+quiet_cmd_strip = STRIP  $@
-+      cmd_strip = $(STRIP) -o $@ $<
-+$(obj)/vmlinux: vmlinux FORCE
-+	$(call if_changed,strip)
-+
-+quiet_cmd_objstrip = OBJSTRIP $@
-+      cmd_objstrip = $(OBJSTRIP) $(OSFLAGS_$(@F)) $< $@
-+
-+OSFLAGS_vmlinux.nh	:= -v
-+OSFLAGS_lxboot		:= -p
-+OSFLAGS_bootlx		:= -vb
-+OSFLAGS_bootph		:= -vb
-+
-+$(obj)/vmlinux.nh: vmlinux $(OBJSTRIP) FORCE
-+	$(call if_changed,objstrip)
-+	
-+$(obj)/tools/lxboot: $(obj)/bootloader $(OBJSTRIP) FORCE
-+	$(call if_changed,objstrip)
-+
-+$(obj)/tools/bootlx: $(obj)/bootloader $(OBJSTRIP) FORCE
-+	$(call if_changed,objstrip)
-+
-+$(obj)/tools/bootph: $(obj)/bootpheader $(OBJSTRIP) FORCE
-+	$(call if_changed,objstrip)
- 
--bootloader: $(OBJECTS)
--	$(LD) $(LINKFLAGS) $(OBJECTS) $(LIBS) -o bootloader
-+LDFLAGS_bootloader  := -static -uvsprintf -T  #-N -relax
-+LDFLAGS_bootpheader := -static -uvsprintf -T  #-N -relax
- 
--bootpheader: $(BPOBJECTS)
--	$(LD) $(LINKFLAGS) $(BPOBJECTS) $(LIBS) -o bootpheader
-+$(obj)/bootloader: $(obj)/bootloader.lds $(obj)/head.o $(obj)/main.o FORCE
-+	$(call if_changed,ld)
- 
--clean:
--	rm -f $(TARGETS) bootloader bootimage bootpfile bootpheader
--	rm -f tools/mkbb tools/bootlx tools/lxboot tools/bootph
--	rm -f vmlinux.nh ksize.h
-+$(obj)/bootpheader: $(obj)/bootloader.lds $(obj)/head.o $(obj)/bootp.o FORCE
-+	$(call if_changed,ld)
- 
--FORCE:
-===== arch/alpha/kernel/Makefile 1.15 vs edited =====
---- 1.15/arch/alpha/kernel/Makefile	Sat Dec 14 13:38:56 2002
-+++ edited/arch/alpha/kernel/Makefile	Sat Dec 28 22:06:36 2002
-@@ -19,12 +19,9 @@
- obj-y	 += irq_i8259.o irq_srm.o \
- 	    es1888.o smc37c669.o smc37c93x.o ns87312.o
- 
--ifdef CONFIG_VGA_HOSE
--obj-y	 += console.o
--endif
--
--obj-$(CONFIG_SMP)    += smp.o
--obj-$(CONFIG_PCI)    += pci.o pci_iommu.o
-+obj-$(CONFIG_VGA_HOSE)	+= console.o
-+obj-$(CONFIG_SMP)	+= smp.o
-+obj-$(CONFIG_PCI)	+= pci.o pci_iommu.o
- obj-$(CONFIG_SRM_ENV)	+= srm_env.o
- 
- ifdef CONFIG_ALPHA_GENERIC
-===== arch/alpha/lib/Makefile 1.11 vs edited =====
---- 1.11/arch/alpha/lib/Makefile	Sat Dec 14 13:38:56 2002
-+++ edited/arch/alpha/lib/Makefile	Sat Dec 28 22:31:41 2002
-@@ -7,58 +7,55 @@
- 
- # Many of these routines have implementations tuned for ev6.
- # Choose them iff we're targeting ev6 specifically.
--ev6 :=
--ifeq ($(CONFIG_ALPHA_EV6),y)
--  ev6 := ev6-
--endif
-+ev6-$(CONFIG_ALPHA_EV6) := ev6-
- 
- # Several make use of the cttz instruction introduced in ev67.
--ev67 :=
--ifeq ($(CONFIG_ALPHA_EV67),y)
--  ev67 := ev67-
--endif
-+ev67-$(CONFIG_ALPHA_EV67) := ev67-
- 
- obj-y =	__divqu.o __remqu.o __divlu.o __remlu.o \
- 	udelay.o \
--	$(ev6)memset.o \
--	$(ev6)memcpy.o \
-+	$(ev6-y)memset.o \
-+	$(ev6-y)memcpy.o \
- 	memmove.o \
- 	io.o \
- 	checksum.o \
- 	csum_partial_copy.o \
--	$(ev67)strlen.o \
--	$(ev67)strcat.o \
-+	$(ev67-y)strlen.o \
-+	$(ev67-y)strcat.o \
- 	strcpy.o \
--	$(ev67)strncat.o \
-+	$(ev67-y)strncat.o \
- 	strncpy.o \
--	$(ev6)stxcpy.o \
--	$(ev6)stxncpy.o \
--	$(ev67)strchr.o \
--	$(ev67)strrchr.o \
--	$(ev6)memchr.o \
--	$(ev6)copy_user.o \
--	$(ev6)clear_user.o \
--	$(ev6)strncpy_from_user.o \
--	$(ev67)strlen_user.o \
--	$(ev6)csum_ipv6_magic.o \
--	$(ev6)clear_page.o \
--	$(ev6)copy_page.o \
-+	$(ev6-y)stxcpy.o \
-+	$(ev6-y)stxncpy.o \
-+	$(ev67-y)strchr.o \
-+	$(ev67-y)strrchr.o \
-+	$(ev6-y)memchr.o \
-+	$(ev6-y)copy_user.o \
-+	$(ev6-y)clear_user.o \
-+	$(ev6-y)strncpy_from_user.o \
-+	$(ev67-y)strlen_user.o \
-+	$(ev6-y)csum_ipv6_magic.o \
-+	$(ev6-y)clear_page.o \
-+	$(ev6-y)copy_page.o \
- 	strcasecmp.o \
- 	fpreg.o \
- 	callback_srm.o srm_puts.o srm_printk.o
- 
- obj-$(CONFIG_SMP) += dec_and_lock.o
- 
--$(obj)/__divqu.o: $(obj)/$(ev6)divide.S
--	$(CC) $(AFLAGS) -DDIV -c -o $(obj)/__divqu.o $(obj)/$(ev6)divide.S
-+AFLAGS___divqu.o = -DDIV
-+AFLAGS___remqu.o =       -DREM
-+AFLAGS___divlu.o =               -DDIV   -DINTSIZE
-+AFLAGS___remlu.o =       -DREM           -DINTSIZE
-+
-+$(obj)/__divqu.o: $(obj)/$(ev6-y)divide.S
-+	$(cmd_as_o_S)
- 
--$(obj)/__remqu.o: $(obj)/$(ev6)divide.S
--	$(CC) $(AFLAGS) -DREM -c -o $(obj)/__remqu.o $(obj)/$(ev6)divide.S
-+$(obj)/__remqu.o: $(obj)/$(ev6-y)divide.S
-+	$(cmd_as_o_S)
- 
--$(obj)/__divlu.o: $(obj)/$(ev6)divide.S
--	$(CC) $(AFLAGS) -DDIV -DINTSIZE \
--		-c -o $(obj)/__divlu.o $(obj)/$(ev6)divide.S
--
--$(obj)/__remlu.o: $(obj)/$(ev6)divide.S
--	$(CC) $(AFLAGS) -DREM -DINTSIZE \
--		-c -o $(obj)/__remlu.o $(obj)/$(ev6)divide.S
-+(obj)/__divlu.o: $(obj)/$(ev6-y)divide.S
-+	$(cmd_as_o_S)
-+
-+$(obj)/__remlu.o: $(obj)/$(ev6-y)divide.S
-+	$(cmd_as_o_S)
-===== arch/alpha/math-emu/Makefile 1.6 vs edited =====
---- 1.6/arch/alpha/math-emu/Makefile	Sat Dec 14 13:38:56 2002
-+++ edited/arch/alpha/math-emu/Makefile	Sat Dec 28 22:33:53 2002
-@@ -1,7 +1,6 @@
- #
- # Makefile for the FPU instruction emulation.
- #
--
--CFLAGS += -I. -I$(TOPDIR)/include/math-emu -w
-+CFLAGS += -Iinclude/math-emu -w
- 
- obj-$(CONFIG_MATHEMU) += math.o qrnnd.o
+Best Regards,
+
+Deian Chepishev
+
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: application/octet-stream;
+	name="messages-not-working.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="messages-not-working.zip"
+
+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
+aW5nUEsFBgAAAAABAAEAQgAAAOoYAAAAAA==
+
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: application/octet-stream;
+	name="messages--working.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="messages--working.zip"
+
+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
+wibshMIewAY2YacTtidxcE3YCYXtSRxgE3Y+YXt7F9eEnVDYTq2aEifsBxT2uCfXY4br446/x4Vc
+j+AgPmK4HrNcj0co9YVcj2BhjxiuxzzXY4brESjs8azBLqcCu1RkI/tRyP68sZ832JWxr4vrhuur
+MHY7Fdgd2IRN2AFcd1wTNmHnE/YANrAJO52w11NxPXCNa8KOAHsjbGATdjph77jGNWHnE/YBbGAT
+djZhF7vOcE3Y+YRdCrCtYRN2OmHbdIZrwk4obJvOgE3Y+YR9rk1nO65xTdgRYA9J3NQZYacT9iqI
+EzZh5xP2uTadbcAmbMIO4NqmM8Im7ITCPkydAZuwswm7LoI4rgk7nbBrIWwjbMJOJ+xqhI1rws4n
+bJvOgE3Y+YTd7U3BNWE/oLDXgGqv9632+vFqrzHVXuervc5Ue7202uvy55+yL+2ri7/G3Qq9BxR6
+D54422MKvc8Xep8p9B5T6P3BCv2nH/Mvr1+9eXmj29+9/ur9m7ff3JTk5u/7vjAvvn757bevv3n9
+6mcv/vn3799+8/q3b9+/uSndBT/61es//Pyf/uvl+6++fvX2t7/+8CPf/mMd63LxL/XLX754f/OV
+3334Xje/ztcv3/35j9v2+mryj/vNm2/evPv6c39XWebZ+NjPuIyNj1/H9umfdyc2LvzTbmPj9h/x
+GTY+9o/vwcanv8ad2Cg1oNA1uNA1ptB1vtB1ptA1ptA1ptABL12VHlzomJeuyvxLV2XmpavSYwod
+88pVCcivZY2NNSUmv5b5/Fpm8muJya8lJr+WgPxagvNricmvZT6/lpn8WmLya4nJrzUgjNXgMFZj
+wlidD2N1JozVmDBWY8JYDQhjNTiM1ZgwVufDWJ0JYzUmjNWYMFbb/SaPP/bv7jJ5PO70e1w2efzp
+3+l+k8ef/nl3mjy+8E/79OTxp3+PwFJfyHSLnTy+1yfu9/3EtzLdZphuFy8KLT+eOx4vv3iYYgcM
+smrwO+E1ZpBV5wdZdWaQVWMGWfXeg6z/B1BLAQIUABQAAgAIAK1oni3FawLhD0oAANgyEQARAAAA
+AAAAAAEAIACAgQAAAABtZXNzYWdlcy0td29ya2luZ1BLBQYAAAAAAQABAD8AAAA+SgAAAAA=
+
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: application/octet-stream;
+	name="vortex-diag-working"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="vortex-diag-working"
+
+vortex-diag.c:v2.13a 12/15/2002 Donald Becker (becker@scyld.com)=0A=
+ http://www.scyld.com/diag/index.html=0A=
+Index #1: Found a 3c905C Tornado 100baseTx adapter at 0xc000.=0A=
+ Station address 00:01:02:f6:e4:7d.=0A=
+  Receive mode is 0x07: Normal unicast and all multicast.=0A=
+The Vortex chip may be active, so FIFO registers will not be read.=0A=
+To see all register values use the '-f' flag.=0A=
+Initial window 4, registers values by window:=0A=
+  Window 0: 0000 0000 d93f 0000 e3e3 00bf ffff 0000.=0A=
+  Window 1: FIFO FIFO 0700 0000 0000 007f 0000 2000.=0A=
+  Window 2: 0100 f602 7de4 0000 0000 0000 0052 4000.=0A=
+  Window 3: 0000 0180 05ea 0020 000a 0800 0800 6000.=0A=
+  Window 4: 0000 0000 0000 0cfa 0001 8880 0000 8000.=0A=
+  Window 5: 1ffc 0000 0000 0600 0807 06ce 06c6 a000.=0A=
+  Window 6: 0000 0000 0000 0300 0000 00b4 0000 c000.=0A=
+  Window 7: 0000 0000 0000 0000 0000 0000 0000 e000.=0A=
+Vortex chip registers at 0xc000=0A=
+  0xC010: **FIFO** 00000000 0000000a *STATUS*=0A=
+  0xC020: 00000020 00000000 00080000 00000004=0A=
+  0xC030: 00000000 919f6e61 0f005060 00080004=0A=
+  0xC040: 00a81984 00000000 000000b7 00000000=0A=
+  0xC050: 00000000 00000000 00000000 00000000=0A=
+  0xC060: 00000000 00000000 00000000 00000000=0A=
+  0xC070: 00009000 00000000 00400020 00000000=0A=
+  DMA control register is 00000020.=0A=
+   Tx list starts at 00000000.=0A=
+   Tx FIFO thresholds: min. burst 256 bytes, priority with 128 bytes to =
+empty.=0A=
+   Rx FIFO thresholds: min. burst 256 bytes, priority with 128 bytes to =
+full.=0A=
+   Poll period Tx 00 ns.,  Rx 0 ns.=0A=
+   Maximum burst recorded Tx 32,  Rx 64.=0A=
+ Indication enable is 06c6, interrupt enable is 06ce.=0A=
+ No interrupt sources are pending.=0A=
+ Transceiver/media interfaces available:  100baseTx 10baseT.=0A=
+Transceiver type in use:  Autonegotiate.=0A=
+ MAC settings: full-duplex.=0A=
+ Station address set to 00:01:02:f6:e4:7d.=0A=
+ Configuration options 0052.=0A=
+Setting the EEPROM BIOS ROM field to 0800, new checksum 6f.=0A=
+ Would write new 19 entry 0xff80 (old value 0x0180).=0A=
+ Would write new 32 entry 0x006f (old value 0x0097).=0A=
+EEPROM format 64x16, configuration table at offset 0:=0A=
+    00: 0001 02f6 e47d 9200 017a 0048 5245 6d50=0A=
+  0x08: 2940 0800 0001 02f6 e47d 0010 0000 00aa=0A=
+  0x10: 72a2 0000 0000 0180 0000 0000 0429 10b7=0A=
+  0x18: 1000 000a 0002 6300 ffb7 b7b7 0000 0000=0A=
+  0x20: 0097 1234 5600 0000 0000 0000 0000 0000=0A=
+  0x28: 0000 0000 0000 0000 0000 0000 0000 0000=0A=
+  0x30: ffff ffff ffff ffff ffff ffff ffff ffff=0A=
+      ...=0A=
+=0A=
+ The word-wide EEPROM checksum is 0x7078.=0A=
+Saved EEPROM settings of a 3Com Vortex/Boomerang:=0A=
+ 3Com Node Address 00:01:02:F6:E4:7D (used as a unique ID only).=0A=
+ OEM Station address 00:01:02:F6:E4:7D (used as the ethernet address).=0A=
+  Device ID 9200,  Manufacturer ID 6d50.=0A=
+  Manufacture date (MM/DD/YYYY) 11/26/2000, division H, product ER.=0A=
+  A BIOS ROM of size 0Kx8 is expected.=0A=
+ Transceiver selection: Autonegotiate.=0A=
+   Options: negotiated duplex, link beat required.=0A=
+ PCI Subsystem IDs: Vendor 10b7 Device 1000.=0A=
+ 100baseTx 10baseT.=0A=
+  Vortex format checksum is incorrect (01 vs. 10b7).=0A=
+  Cyclone format checksum is incorrect (0x91 vs. 0x97).=0A=
+  Hurricane format checksum is incorrect (0xb8 vs. 0x97).=0A=
+
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: application/octet-stream;
+	name="mii-diag-working"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="mii-diag-working"
+
+mii-diag.c:v2.07 11/15/2002 Donald Becker (becker@scyld.com)=0A=
+ http://www.scyld.com/diag/index.html=0A=
+  Using the new SIOCGMIIPHY value on PHY 24 (BMCR 0x3000).=0A=
+ The autonegotiated capability is 01e0.=0A=
+The autonegotiated media type is 100baseTx-FD.=0A=
+ Basic mode control register 0x3000: Auto-negotiation enabled.=0A=
+ You have link beat, and everything is working OK.=0A=
+   This transceiver is capable of  100baseTx-FD 100baseTx 10baseT-FD =
+10baseT.=0A=
+   Able to perform Auto-negotiation, negotiation complete.=0A=
+ Your link partner advertised 45e1: Flow-control 100baseTx-FD 100baseTx =
+10baseT-FD 10baseT, w/ 802.3X flow control.=0A=
+   End of basic transceiver information.=0A=
+=0A=
+ MII PHY #24 transceiver registers:=0A=
+   3000 782d 0040 6176 05e1 45e1 0003 0000=0A=
+   0000 0000 0000 0000 0000 0000 0000 0000=0A=
+   1000 0300 0000 0000 0000 0158 0200 0000=0A=
+   003f 8d3e 0f00 ff40 002f 0000 80a0 000b=0A=
+
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: application/octet-stream;
+	name="vortex-diag-notworking"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="vortex-diag-notworking"
+
+vortex-diag.c:v2.13a 12/15/2002 Donald Becker (becker@scyld.com)=0A=
+ http://www.scyld.com/diag/index.html=0A=
+Index #1: Found a 3c905C Tornado 100baseTx adapter at 0xc000.=0A=
+ Station address 00:01:02:f6:e4:7d.=0A=
+  Receive mode is 0x07: Normal unicast and all multicast.=0A=
+The Vortex chip may be active, so FIFO registers will not be read.=0A=
+To see all register values use the '-f' flag.=0A=
+Initial window 4, registers values by window:=0A=
+  Window 0: 0000 0000 d93f 0000 e3e3 00bf ffff 0000.=0A=
+  Window 1: FIFO FIFO 0700 0000 0000 007f 0000 2000.=0A=
+  Window 2: 0100 f602 7de4 0000 0000 0000 0052 4000.=0A=
+  Window 3: 0000 0180 05ea 0020 000a 0800 0800 6000.=0A=
+  Window 4: 0000 0000 0000 0cfa 0001 8080 0000 8000.=0A=
+  Window 5: 1ffc 0000 0000 0600 0807 06ce 06c6 a000.=0A=
+  Window 6: 0000 0000 0000 0000 0000 0000 0000 c000.=0A=
+  Window 7: 0000 0000 0000 0000 0000 0000 0000 e000.=0A=
+Vortex chip registers at 0xc000=0A=
+  0xC010: **FIFO** 00000000 0000003e *STATUS*=0A=
+  0xC020: 00000020 00000000 00080000 00000004=0A=
+  0xC030: 00000000 6ede9122 0d47a000 00080004=0A=
+  0xC040: 00ddd1c6 00000000 000000b7 00000000=0A=
+  0xC050: 00000000 00000000 00000000 00000000=0A=
+  0xC060: 00000000 00000000 00000000 00000000=0A=
+  0xC070: 00009000 00000000 00000020 00000000=0A=
+  DMA control register is 00000020.=0A=
+   Tx list starts at 00000000.=0A=
+   Tx FIFO thresholds: min. burst 256 bytes, priority with 128 bytes to =
+empty.=0A=
+   Rx FIFO thresholds: min. burst 256 bytes, priority with 128 bytes to =
+full.=0A=
+   Poll period Tx 00 ns.,  Rx 0 ns.=0A=
+   Maximum burst recorded Tx 32,  Rx 0.=0A=
+ Indication enable is 06c6, interrupt enable is 06ce.=0A=
+ No interrupt sources are pending.=0A=
+ Transceiver/media interfaces available:  100baseTx 10baseT.=0A=
+Transceiver type in use:  Autonegotiate.=0A=
+ MAC settings: full-duplex.=0A=
+ Station address set to 00:01:02:f6:e4:7d.=0A=
+ Configuration options 0052.=0A=
+Setting the EEPROM BIOS ROM field to 0800, new checksum 6f.=0A=
+ Would write new 19 entry 0xff80 (old value 0x0180).=0A=
+ Would write new 32 entry 0x006f (old value 0x0097).=0A=
+EEPROM format 64x16, configuration table at offset 0:=0A=
+    00: 0001 02f6 e47d 9200 017a 0048 5245 6d50=0A=
+  0x08: 2940 0800 0001 02f6 e47d 0010 0000 00aa=0A=
+  0x10: 72a2 0000 0000 0180 0000 0000 0429 10b7=0A=
+  0x18: 1000 000a 0002 6300 ffb7 b7b7 0000 0000=0A=
+  0x20: 0097 1234 5600 0000 0000 0000 0000 0000=0A=
+  0x28: 0000 0000 0000 0000 0000 0000 0000 0000=0A=
+  0x30: ffff ffff ffff ffff ffff ffff ffff ffff=0A=
+      ...=0A=
+=0A=
+ The word-wide EEPROM checksum is 0x7078.=0A=
+Saved EEPROM settings of a 3Com Vortex/Boomerang:=0A=
+ 3Com Node Address 00:01:02:F6:E4:7D (used as a unique ID only).=0A=
+ OEM Station address 00:01:02:F6:E4:7D (used as the ethernet address).=0A=
+  Device ID 9200,  Manufacturer ID 6d50.=0A=
+  Manufacture date (MM/DD/YYYY) 11/26/2000, division H, product ER.=0A=
+  A BIOS ROM of size 0Kx8 is expected.=0A=
+ Transceiver selection: Autonegotiate.=0A=
+   Options: negotiated duplex, link beat required.=0A=
+ PCI Subsystem IDs: Vendor 10b7 Device 1000.=0A=
+ 100baseTx 10baseT.=0A=
+  Vortex format checksum is incorrect (01 vs. 10b7).=0A=
+  Cyclone format checksum is incorrect (0x91 vs. 0x97).=0A=
+  Hurricane format checksum is incorrect (0xb8 vs. 0x97).=0A=
+
+------=_NextPart_000_002A_01C2B00A.D183EA00
+Content-Type: application/octet-stream;
+	name="mii-diag-notworking"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="mii-diag-notworking"
+
+mii-diag.c:v2.07 11/15/2002 Donald Becker (becker@scyld.com)=0A=
+ http://www.scyld.com/diag/index.html=0A=
+  Using the new SIOCGMIIPHY value on PHY 24 (BMCR 0x3000).=0A=
+ Basic mode control register 0x3000: Auto-negotiation enabled.=0A=
+ Basic mode status register 0x7809 ... 7809.=0A=
+   Link status: not established.=0A=
+   This transceiver is capable of  100baseTx-FD 100baseTx 10baseT-FD =
+10baseT.=0A=
+   Able to perform Auto-negotiation, negotiation not complete.=0A=
+   End of basic transceiver information.=0A=
+=0A=
+ MII PHY #24 transceiver registers:=0A=
+   3000 7809 0040 6176 05e1 0000 0000 0000=0A=
+   0000 0000 0000 0000 0000 0000 0000 0000=0A=
+   1000 0021 0000 0009 0000 0000 0600 0000=0A=
+   003c 7d02 0f00 ff40 002c 0000 8020 000b=0A=
+
+------=_NextPart_000_002A_01C2B00A.D183EA00--
+

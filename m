@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293133AbSCAFGA>; Fri, 1 Mar 2002 00:06:00 -0500
+	id <S310290AbSCAFaw>; Fri, 1 Mar 2002 00:30:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310228AbSCAFC0>; Fri, 1 Mar 2002 00:02:26 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25383 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S310339AbSCAFBo>; Fri, 1 Mar 2002 00:01:44 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, <mingo@elte.hu>,
-        Matthew Kirkwood <matthew@hairy.beasts.org>,
-        Benjamin LaHaise <bcrl@redhat.com>, David Axmark <david@mysql.com>,
-        William Lee Irwin III <wli@holomorphy.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-In-Reply-To: <Pine.LNX.4.33.0202241719330.1420-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 28 Feb 2002 21:56:45 -0700
-In-Reply-To: <Pine.LNX.4.33.0202241719330.1420-100000@home.transmeta.com>
-Message-ID: <m1r8n43mya.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S293735AbSCAF1I>; Fri, 1 Mar 2002 00:27:08 -0500
+Received: from marvin.cdf.toronto.edu ([128.100.31.3]:24466 "HELO
+	marvin.cdf.toronto.edu") by vger.kernel.org with SMTP
+	id <S310369AbSCAFW6>; Fri, 1 Mar 2002 00:22:58 -0500
+Date: Fri, 1 Mar 2002 00:22:43 -0500 (EST)
+From: Andrew Park <apark@cdf.toronto.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: booting from disk on key?
+Message-ID: <Pine.LNX.4.30.0203010003320.21594-100000@penguin.cdf>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+Has anybody successfully booted from disk on key?
 
-> On Mon, 25 Feb 2002, Rusty Russell wrote:
-> >
-> > Bugger.  How about:
-> >
-> > 	sys_sem_area(void *pagestart, size_t len)
-> > 	sys_unsem_area(void *pagestart, size_t len)
-> >
-> > Is that sufficient?  Is sys_unsem_area required at all?
-> 
-> The above is sufficient, but I would personally actually prefer an
-> interface more like
+I am trying to see if there is a way to load the whole system, instead
+of using it merely as a root disk.
 
-Hmm.  My preference is for something like
-mprotect(start, len, PROT_SEM | PROT_READ | PROT_WRITE);
+My mother board supports booting from USB disks and my IBM disk on key
+has USB interface, so I thought perhaps there is a way...
 
-And then 
-#ifdef PROT_SEM && PROT_SEM
-mprotect ....
-#else
-/* This architecture needs not special support skip the mprotect...
-#endif
+Thanks
 
-> 	fd = sem_initialize();
-> 	mmap(fd, ...)
-> 	..
-> 	munmap(..)
-> 
-> which gives you a handle for the semaphore.
+Andrew Park
 
-Ouch.  
-
-The common case for a decent lock is the uncontended case.  In which
-case you only need kernel support on demand.  What you suggest would
-create kernel data structures for all of the uncontended locks.  That
-sounds heavy.  Especially as the memory on most architectures is already
-safe to use for locks.
-
-So if nothing else can we separate the two cases of having user space
-memory safe for user space spin locks.   And how to setup a wait queue
-of user space waiters on when we need to wait?
-
-Eric
+________________________________________________________________________
+CDFlab Systems Administrator                       www.cdf.utoronto.ca |
+GnuPG Signature              www.cdf.utoronto.ca/~apark/public_key.txt |
+------------------------------------------------------------------------
 

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbUCZWYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 17:24:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbUCZWYj
+	id S261361AbUCZW1q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 17:27:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUCZW1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 17:24:39 -0500
-Received: from CS2075.cs.fsu.edu ([128.186.122.75]:31690 "EHLO mail.cs.fsu.edu")
-	by vger.kernel.org with ESMTP id S261378AbUCZWYg (ORCPT
+	Fri, 26 Mar 2004 17:27:46 -0500
+Received: from mail.kroah.org ([65.200.24.183]:37569 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261361AbUCZW1o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 17:24:36 -0500
-Message-ID: <1080339875.8f2cd36818efd@system.cs.fsu.edu>
-Date: Fri, 26 Mar 2004 17:24:35 -0500
-From: khandelw@cs.fsu.edu
-To: linux-kernel@vger.kernel.org
-Subject: logging in kernel
-MIME-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+	Fri, 26 Mar 2004 17:27:44 -0500
+Date: Fri, 26 Mar 2004 14:26:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Romain Lievin <romain@lievin.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       sebastien.bourdeauducq@laposte.net
+Subject: Re: [PATCH] tipar char driver (divide by zero)
+Message-ID: <20040326222621.GA29854@kroah.com>
+References: <20040321212812.GA3658@lievin.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Originating-IP: 128.186.120.12
+In-Reply-To: <20040321212812.GA3658@lievin.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    I am a graudate student at Florida State University. My friends and my self
-are planning to implement a kernel logger for linux kernel (real-time systems).
-We are new to linux kernel programming and we have not done kernel programming.
-    We believe right now most of the system are using printk. We want to write a
-tool which can be used for debugging as well as logging of data in the future.
-Following are the things that we have in mind so far.
+On Sun, Mar 21, 2004 at 10:28:12PM +0100, Romain Lievin wrote:
+> Hi Greg,
+> 
+> A patch about the tipar.c char driver has been sent on lkml by Sebastien Bourdeau. It fixes a divide-by-zero error when we try to read/write data after setting the timeout to 0.
+> 
+> I got it to make a patch to apply against kernel 2.4 and 2.6.
+> Please apply.
 
-1. Implement the logging daemon or the server as a periodic task in the
-real-time system.
-2. Have an api which looks similar to printk
-3. Have an option to specify the write the network card or console or a
-dedicated device.
-4. Use it for checkpointing in distributed system.
+Thanks, I've applied the 2.6 version and will send it on.
 
-
-I am not sure whether such a tool is required but I believe it will give me a
-taste of kernel programming.
-
-Any suggestions would be highly appreciated.
-
-Thanking you all in anticipation.
--- Amit Khandelwal
-
-
-
-
+greg k-h

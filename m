@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276612AbRJGTav>; Sun, 7 Oct 2001 15:30:51 -0400
+	id <S276631AbRJGTcC>; Sun, 7 Oct 2001 15:32:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276616AbRJGTam>; Sun, 7 Oct 2001 15:30:42 -0400
-Received: from cmb1-3.dial-up.arnes.si ([194.249.32.3]:1664 "EHLO
-	cmb1-3.dial-up.arnes.si") by vger.kernel.org with ESMTP
-	id <S276612AbRJGTa3>; Sun, 7 Oct 2001 15:30:29 -0400
-From: Igor Mozetic <igor.mozetic@uni-mb.si>
-MIME-Version: 1.0
+	id <S276622AbRJGTbm>; Sun, 7 Oct 2001 15:31:42 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:9742 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S276616AbRJGTbg>; Sun, 7 Oct 2001 15:31:36 -0400
+Date: Sun, 7 Oct 2001 15:34:33 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: Simon Kirby <sim@netnation.com>
+Cc: Greg KH <greg@kroah.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.11-pre5
+Message-ID: <20011007153433.G14479@sventech.com>
+In-Reply-To: <Pine.LNX.4.33.0110071148380.7382-100000@penguin.transmeta.com> <20011007121851.A1137@netnation.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15296.44398.38255.552378@cmb1-3.dial-up.arnes.si>
-Date: Sun, 7 Oct 2001 21:30:54 +0200
-To: george anzinger <george@mvista.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-ac4 (SMP, highmem) complete freeze
-In-Reply-To: <3BC09DB5.279ED948@mvista.com>
-In-Reply-To: <15293.65326.541017.774801@cmb1-3.dial-up.arnes.si>
-	<Pine.LNX.4.21.0110051436560.2744-100000@freak.distro.conectiva>
-	<15294.1922.204820.340222@cmb1-3.dial-up.arnes.si>
-	<15294.2287.812821.556092@cmb1-3.dial-up.arnes.si>
-	<3BC09DB5.279ED948@mvista.com>
-X-Mailer: VM 6.95 under Emacs 20.7.2
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011007121851.A1137@netnation.com>; from sim@netnation.com on Sun, Oct 07, 2001 at 12:18:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger writes:
- >
- > > Well, at the time of this lockup I was in almost on-line contact
- > > with Ingo and we couldn't get anything at all! Screen was dead blank,
- > > no keystroke worked, NumLock didn't work, even Power Off didn't work.
- > > Also, nothing over netconsole. If you have any other suggestion,
- > > please ...
- > 
- > Did you turn on the NMI watchdog?  See
- > .../linux/Documentation/nmi_watchdog.txt in your kernel tree.
+On Sun, Oct 07, 2001, Simon Kirby <sim@netnation.com> wrote:
+> On Sun, Oct 07, 2001 at 11:49:46AM -0700, Linus Torvalds wrote:
+> 
+> > pre5:
+> >  - Greg KH: USB update
+> 
+> This appears to break my Logitech optical mouse with uhci.  usb-uhci
+> works fine.
+> 
+> hub.c: USB new device connect on bus1/2, assigned device number 2
+> usb_control/bulk_msg: timeout
+> usb.c: USB device not accepting new address=2 (error=-110)
 
-Yes.
+Could you give me the output of /proc/interrupts?
 
--Igor
+Do you see any other messages in dmesg?
+
+What UHCI controller is this? (lspci -v)
+
+JE
+

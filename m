@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265003AbSJPJ6v>; Wed, 16 Oct 2002 05:58:51 -0400
+	id <S262373AbSJPKCb>; Wed, 16 Oct 2002 06:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265004AbSJPJ6v>; Wed, 16 Oct 2002 05:58:51 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:24841 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S265003AbSJPJ6u>; Wed, 16 Oct 2002 05:58:50 -0400
-Date: Wed, 16 Oct 2002 03:04:39 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
-Message-ID: <20021016100439.GF7844@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20021015165947.50642.qmail@web13801.mail.yahoo.com> <aoi6bb$309$1@cesium.transmeta.com> <20021016072345.GE7844@pegasys.ws> <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	id <S265007AbSJPKCb>; Wed, 16 Oct 2002 06:02:31 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7343 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262373AbSJPKCa>;
+	Wed, 16 Oct 2002 06:02:30 -0400
+Date: Wed, 16 Oct 2002 02:59:35 -0700 (PDT)
+Message-Id: <20021016.025935.132073102.davem@redhat.com>
+To: matti.aarnio@zmailer.org
+Cc: zilvinas@gemtek.lt, linux-kernel@vger.kernel.org
+Subject: Re: sendfile(2) behaviour has changed ?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021016091046.GD9644@mea-ext.zmailer.org>
+References: <20021016084908.GA770@gemtek.lt>
+	<20021016091046.GD9644@mea-ext.zmailer.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <buo4rbmvlq8.fsf@mcspd15.ucom.lsi.nec.co.jp>
-User-Agent: Mutt/1.3.27i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 16, 2002 at 05:20:15PM +0900, Miles Bader wrote:
-> jw schultz <jw@pegasys.ws> writes:
-> > i distinctly remember the working with the newest R400x in 1993 which
-> > was still 32bit.  I know MIPS went to 64bit sometime not too long
-> > after that (mid 90's?) but by then Alpha and Sparc had beaten them to
-> > the punch.
-> 
-> You're wrong -- the R4000 was absolutely 64-bit, and was released in
-> 1991.  The 64-bit sparc was circa '93, and alpha I dunno, but I think
-> '91-'92.
-> 
-> [note that I'm talking about chips, not software; I believe it was quite
-> a while before the OS stuff caught up with the 64-bit mips processors]
+   From: Matti Aarnio <matti.aarnio@zmailer.org>
+   Date: Wed, 16 Oct 2002 12:10:46 +0300
 
-OK. I guess i'm wrong.  It may be that the hardware was
-locked into 32bit mode.  The development period was a couple
-of years so we were running on essentially 89-90 tech with a
-faster clock.
+   On Wed, Oct 16, 2002 at 10:49:08AM +0200, Zilvinas Valinskas wrote:
+   > Is this expected behaviour ? that sendfile(2) on 2.5.4x linux kernel requires
+   > socket as an output fd paramter ? 
+   
+     It has only been intended for output to a TCP stream socket.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+To be honest, I'm not so sure about this.
 
-		Remember Cernan and Schmitt
+For example, I definitely see us supporting this in the
+opposite direction when commodity 10gbit hits the market.
+
+Initially I thought "sys_receivefile()" but it makes no
+sense when we have a system call that is perfectly capable
+of describing the tcp_socket --> page_cache operation.
+
+And I don't think the vfs copy operation using sendfile
+is such a bad thing either.  It definitely opens the door
+for some interesting optimizations.  For example, if the
+source page is not mapped by a process it could be possible
+to just unhash it, mark it dirty, then hash it into the
+destination file.  Exactly 2 I/O operations and the cpu
+doesn't touch the data at all.

@@ -1,104 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280795AbRKLORI>; Mon, 12 Nov 2001 09:17:08 -0500
+	id <S280800AbRKLOVS>; Mon, 12 Nov 2001 09:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280797AbRKLOQ6>; Mon, 12 Nov 2001 09:16:58 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:7685 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S280795AbRKLOQo>; Mon, 12 Nov 2001 09:16:44 -0500
-Date: Mon, 12 Nov 2001 15:16:40 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: Stuart Young <sgy@amc.com.au>
-cc: <linux-kernel@vger.kernel.org>, Gavin Baker <gavbaker@ntlworld.com>
-Subject: Re: SiS630 and 5591/5592 AGP
-In-Reply-To: <5.1.0.14.0.20011112101656.00a20630@mail.amc.localnet>
-Message-ID: <Pine.LNX.4.33.0111121450460.15875-100000@Megathlon.ESI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280801AbRKLOVI>; Mon, 12 Nov 2001 09:21:08 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:20560 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S280800AbRKLOVA>; Mon, 12 Nov 2001 09:21:00 -0500
+Date: Mon, 12 Nov 2001 15:20:44 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mathijs@knoware.nl, jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com, kuznet@ms2.inr.ac.ru,
+        Thorsten Kukuk <kukuk@suse.de>
+Subject: Re: [PATCH] fix loop with disabled tasklets
+Message-ID: <20011112152044.V1381@athlon.random>
+In-Reply-To: <20011110152845.8328F231A4@brand.mmohlmann.demon.nl> <20011110173751.C1381@athlon.random> <20011112021142.O1381@athlon.random> <20011112.000305.45744181.davem@redhat.com> <20011112150452.S1381@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011112150452.S1381@athlon.random>; from andrea@suse.de on Mon, Nov 12, 2001 at 03:04:52PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Nov 2001, Stuart Young wrote:
-
-> At 06:59 PM 11/11/01 +0000, Gavin Baker wrote:
-> >My new laptop has this combination and the sis framebuffer driver
-> >mangles the display. The sis X driver produces a nice lavalamp style
-> >pattern that fades to white, the kernel stays alive but the machine
-> >needs a reboot to fix the display in both cases.
-> >
-> >Im guessing the lack of 5591/5592 AGP support is the problem, and I
-> >was just wondering if anyone is working on this or should i go bug SiS?
+On Mon, Nov 12, 2001 at 03:04:52PM +0100, Andrea Arcangeli wrote:
+> On Mon, Nov 12, 2001 at 12:03:05AM -0800, David S. Miller wrote:
+> >    From: Andrea Arcangeli <andrea@suse.de>
+> >    Date: Mon, 12 Nov 2001 02:11:42 +0100
+> > 
+> >    I'm just guessing: the scheduler isn't yet functional when
+> >    spawn_ksoftirqd is called.
+> > 
+> > The scheduler is fully functional, this isn't what is going wrong.
 > 
-> You've got the same problem I have. There is something weird with the way 
-> some laptops (and LCD based desktops) handle this display, and the only way 
-> I've gotten around it is to use the VesaFB driver (which is heaps slower 
-> than the accelerated driver), and then either use the FB driver for X 
-> (which is buggy IMHO, crashes if it gets too much to do buffered up), or 
-> disable the mode changes and use the SiS accelerated X driver.
-> 
+> check ret_from_fork path, sparc32 scheduler is broken and this is why it
+> deadlocks at boot, it has nothing to do with the softirq code, softirq
+> code is innocent and it only get bitten by the sparc32 bug.
 
-00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 11)
-00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
-00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet (rev 80)
-00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07)
-00:01.4 Multimedia audio controller: Silicon Integrated Systems [SiS] SiS PCI Audio Accelerator (rev 01)
-00:01.6 Modem: Silicon Integrated Systems [SiS]: Unknown device 7013 (rev a0)
-00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
-00:08.0 CardBus bridge: Texas Instruments PCI1225 (rev 01)
-00:08.1 CardBus bridge: Texas Instruments PCI1225 (rev 01)
-01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] SiS630 GUI Accelerator+3D (rev 11)
+real fix looks like this (no idea what PSR_PIL means so not sure if this
+really works on UP but certainly the sched_yield breakage is fixed now
+and it won't deadlock in the softirq code any longer):
 
-The X server is Free86-4.0.3 (RH 7.1), Driver "fbdev", vga=0x317 as boot
-param (VESA fb driver):
+--- 2.4.15pre2aa1/arch/sparc/kernel/entry.S.~1~	Sat Feb 10 02:34:05 2001
++++ 2.4.15pre2aa1/arch/sparc/kernel/entry.S	Mon Nov 12 15:17:32 2001
+@@ -1466,8 +1466,7 @@
+ 	b	C_LABEL(ret_sys_call)
+ 	 ld	[%sp + REGWIN_SZ + PT_I0], %o0
+ 
+-#ifdef CONFIG_SMP
+-	.globl	C_LABEL(ret_from_smpfork)
++	.globl	C_LABEL(ret_from_fork)
+ C_LABEL(ret_from_smpfork):
+ 	wr	%l0, PSR_ET, %psr
+ 	WRITE_PAUSE
+@@ -1475,7 +1474,6 @@
+ 	 mov	%g3, %o0
+ 	b	C_LABEL(ret_sys_call)
+ 	 ld	[%sp + REGWIN_SZ + PT_I0], %o0
+-#endif
+ 
+ 	/* Linux native and SunOS system calls enter here... */
+ 	.align	4
+--- 2.4.15pre2aa1/arch/sparc/kernel/process.c.~1~	Thu Oct 11 10:41:52 2001
++++ 2.4.15pre2aa1/arch/sparc/kernel/process.c	Mon Nov 12 15:18:21 2001
+@@ -455,11 +455,7 @@
+  *       allocate the task_struct and kernel stack in
+  *       do_fork().
+  */
+-#ifdef CONFIG_SMP
+-extern void ret_from_smpfork(void);
+-#else
+-extern void ret_from_syscall(void);
+-#endif
++extern void ret_from_smp(void);
+ 
+ int copy_thread(int nr, unsigned long clone_flags, unsigned long sp,
+ 		unsigned long unused,
+@@ -493,13 +489,8 @@
+ 	copy_regwin(new_stack, (((struct reg_window *) regs) - 1));
+ 
+ 	p->thread.ksp = (unsigned long) new_stack;
+-#ifdef CONFIG_SMP
+ 	p->thread.kpc = (((unsigned long) ret_from_smpfork) - 0x8);
+ 	p->thread.kpsr = current->thread.fork_kpsr | PSR_PIL;
+-#else
+-	p->thread.kpc = (((unsigned long) ret_from_syscall) - 0x8);
+-	p->thread.kpsr = current->thread.fork_kpsr;
+-#endif
+ 	p->thread.kwim = current->thread.fork_kwim;
+ 
+ 	/* This is used for sun4c only */
 
-vesafb: framebuffer at 0xf0000000, mapped to 0xcc000000, size 8192k
-vesafb: mode is 1024x768x16, linelength=2048, pages=4
-vesafb: protected mode interface info at ca5b:0004
-vesafb: scrolling: redraw
-vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-
-I'm not able to run X at 24/32 bits depth with fbdev, and it works only at
-8 bit without fbdev (native sis driver). I haven't tried the DRM module.
-
-BTW, does anybody know which value I have to pass to vga= for
-1024x768x24?
-
-I've been using the fbdev for a while, no crashes so far.
-Textmode (Alt-Fx) is restored correctly, too.
-
-> Alan has new drivers in his ac tree. but I've tried them, and no luck. Give 
-> them a shot and see how you go. You might be lucky.
-
-I've been switch from vanilla 2.4.9 to 2.4.10-ac10, to 2.4.9-12 (RH update)
-without any problem. It hangs (at PCMCIA initialization I believe) after
-a warm reboot from Win2000, but it happens only by mistake, as I know I
-should be cold rebooting it when switching OS.
-
-> Out of interest, what model/manufacturer is the notebook? The machines I'm 
-> having problems with are Clevo LP200S's, which is an upright LCD machine, 
-> with the h/drive and power supply down in the stand/foot.
-
-Mitac 7521.
-
-> Once we get everything working with Linux, they'll suit the application we 
-> have for them rather nicely. *sigh*
-
-It does for me. 1024x768x16 looks fine at 14.1", and I have no real need
-for 24 bits.
-
-> Q: Slightly related, have you gotten the sound to work? Driver loads, I get 
-> "Unknown Codec" and an empty codec value. Reloading the driver makes no 
-> difference (even numerous times). Wondering if your system is the same...
-
-Yes, all fine here with standard RH config.
-
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
-
-
+Andrea

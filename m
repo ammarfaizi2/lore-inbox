@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbTLOQCu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 11:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTLOQCu
+	id S263811AbTLOQIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 11:08:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263823AbTLOQIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 11:02:50 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:32695 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263778AbTLOQCs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 11:02:48 -0500
-Date: Mon, 15 Dec 2003 08:02:46 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215160246.GA3947@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tupshin Harper <tupshin@tupshin.com>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20031214172156.GA16554@work.bitmover.com> <3FDCEF70.5040808@tupshin.com> <20031214234348.GA15850@work.bitmover.com> <3FDCFE17.5010309@tupshin.com> <20031215034627.GB16554@work.bitmover.com> <3FDD4FB2.8020607@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FDD4FB2.8020607@tupshin.com>
-User-Agent: Mutt/1.4i
+	Mon, 15 Dec 2003 11:08:18 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:36584 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S263811AbTLOQIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 11:08:17 -0500
+Message-ID: <3FDDDC68.80209@backtobasicsmgmt.com>
+Date: Mon, 15 Dec 2003 09:08:08 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+CC: Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Mares <mj@ucw.cz>
+Subject: Re: PCI Express support for 2.4 kernel
+References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca> <3FDDD8C6.3080804@intel.com>
+In-Reply-To: <3FDDD8C6.3080804@intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 14, 2003 at 10:07:46PM -0800, Tupshin Harper wrote:
-> > Great, glad you understand that you are crossing the legal line.
+Vladimir Kondratiev wrote:
+
+> To illustrate zero cost, I did the following test:
+> [tmp]$ cat t.c; gcc -S t.c; cat t.s
+> static int a1=0;
+> static int a2;
+> /* EOF */
 > 
-> ??? what line am I crossing? Or do you mean that I would be if I were
-> to do something, and if so, what is that something? I informed you the
-> day that  decided I was interested in exploring the internals of other
-> SCM products, and deleted the bk binaries from my machine at the same
-> time.
+>    .file    "t.c"
+>    .local    a1
+>    .comm    a1,4,4
+>    .local    a2
+>    .comm    a2,4,4
+>    .section    .note.GNU-stack,"",@progbits
+>    .ident    "GCC: (GNU) 3.3.1 20030811 (Red Hat Linux 3.3.1-1)"
+> 
+> As you can see, assembly code is identical, compiler did this trivial 
+> optimization for me.
 
-Tupshin, the BK license makes it clear that BK doesn't want to be reverse
-engineered, we've been over this and over this.  Furthermore, reverse
-engineering for interoperability has a prerequisite that there is no other
-way to get at the data and we give you tons of ways to get at the data.
+You've missed the point, though. Initializing a static variable to zero 
+causes space to be consumed in the resulting object file (not 
+instruction code to be generated). This is wasted space, because if you 
+don't initialize to zero the variable will be allocated out of space 
+that is _automatically_ zeroed for you. This reduces the size of the 
+kernel image by not filling it with unnecessary zeroes.
 
-You keep wanting more and more information about how BitKeeper manages
-to do what it does and that certainly falls under reverse engineering.
-Getting at the raw information is just another way to figure out how
-BitKeeper manages that data, it's exactly the same as running a compiler
-and looking at the assembly language it produces.  You are annoyed that
-we aren't giving you the data in the format you want with a roadmap that
-says here is how we did it.
-
-I wish you'd just drop it, this isn't the place to have this discussion,
-every time we do anything to help the people who are actually doing kernel
-development you or someone like you feels obligated to whine about BK one
-more time because of your personal agenda which has nothing to do with 
-kernel development.  
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,100 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293680AbSHBM1d>; Fri, 2 Aug 2002 08:27:33 -0400
+	id <S312601AbSHBMaU>; Fri, 2 Aug 2002 08:30:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSHBM1d>; Fri, 2 Aug 2002 08:27:33 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:53387 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S293680AbSHBM1c>;
-	Fri, 2 Aug 2002 08:27:32 -0400
-Date: Fri, 2 Aug 2002 14:30:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Stephen Lord <lord@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A new ide warning message
-Message-ID: <20020802123055.GQ3010@suse.de>
-References: <1028288066.1123.5.camel@laptop.americas.sgi.com> <20020802114713.GD1055@suse.de> <3D4A7178.7050307@evision.ag> <1028289940.1123.19.camel@laptop.americas.sgi.com> <3D4A771A.9020308@evision.ag>
+	id <S312938AbSHBMaU>; Fri, 2 Aug 2002 08:30:20 -0400
+Received: from ns.suse.de ([213.95.15.193]:15621 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S312601AbSHBMaT>;
+	Fri, 2 Aug 2002 08:30:19 -0400
+Date: Fri, 2 Aug 2002 14:33:49 +0200
+From: Dave Jones <davej@suse.de>
+To: Felipe W Damasio <felipewd@terra.com.br>
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>, trivial@rustcorp.com.au
+Subject: Re: [PATCH] __devexit_p macro
+Message-ID: <20020802143348.G25761@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Felipe W Damasio <felipewd@terra.com.br>,
+	Linux-kernel <linux-kernel@vger.kernel.org>, trivial@rustcorp.com.au
+References: <20020802092456.23a3c49a.felipewd@terra.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D4A771A.9020308@evision.ag>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020802092456.23a3c49a.felipewd@terra.com.br>; from felipewd@terra.com.br on Fri, Aug 02, 2002 at 09:24:56AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02 2002, Marcin Dalecki wrote:
-> U?ytkownik Stephen Lord napisa?:
-> >On Fri, 2002-08-02 at 06:48, Marcin Dalecki wrote:
-> >
-> >>Uz.ytkownik Jens Axboe napisa?:
-> >>
-> >>>On Fri, Aug 02 2002, Stephen Lord wrote:
-> >>>
-> >>>
-> >>>>In 2.5.30 I started getting these warning messages out ide during
-> >>>>the mount of an XFS filesystem:
-> >>>>
-> >>>>ide-dma: received 1 phys segments, build 2
-> >>>>
-> >>>>Can anyone translate that into English please.
-> >>>
-> >>>
-> >>>Well I added that message when switching to the 2.5 style request
-> >>>mapping functions, and I think the message is perfectly clear :-). Never
-> >>>the less, it means that a segment that came into the ide layer with an
-> >>>advertised size of 1 segment was returned from blk_rq_map_sg() as having
-> >>>_two_. This can be a problem with dynamically allocated sg table (not
-> >>>that ide uses those, but still).
-> >>>
-> >>>It's a bug and usually a critical one when this happens. I'd be inclined
-> >>>to think that Adam's changes in this path are to blame for this error.
-> >>
-> >>Carefull carefull. it can be that the generic BIO code doesn't honour
-> >>the limits Adam was setting properly. And it can be of course
-> >>as well the XFS doesn't cooperate properly with those limits as well,
-> >>since ther kernel appears to be patched to support them.
-> >>
-> >
-> >
-> >Well, this is happening when reading the log up from disk during
-> >mount, we will be asking for somewhere around 32K of data at a
-> >time, but it might not be well aligned. I will instrument it and
-> >report back - will be a few hours, the box is at work and I just
-> >tripped it up in some other code, I cannot reset it from here.
-> >
-> >
-> >>It would be helpfull as well to know on which brand of host controller 
-> >>chip this was found. In esp. trm290 maybe?
-> >
-> >
-> >Since it is down I cannot give you the ide boot messages right now,
-> >but it is a Tyan Tiger BX motherboard using the built in IDE chipset,
-> >so pretty generic stuff.
-> OK. Could you then deliberately change the following in ide/main.c
-> 
-> +	/* Most controllers cannot do transfers across 64kB boundaries.
-> +	   trm290 can do transfers within a 4GB boundary, so it changes
-> +	   this mask accordingly. */
-> +	ch->seg_boundary_mask = 0xffff;
-> +
-> +	/* Some chipsets (cs5530, any others?) think a 64kB transfer
-> +	   is 0 byte transfer, so set the limit one sector smaller.
-> +	   In the future, we may default to 64kB transfers and let
-> +	   invidual chipsets with this problem change ch->max_segment_size. 
-> */
-> +	ch->max_segment_size = (1<<16) - 512;
-> 
-> 
-> I would in esp. like to see the result of setting  ch->max_segment_size 
-> = (1 << 15).
+On Fri, Aug 02, 2002 at 09:24:56AM +0000, Felipe W Damasio wrote:
+ > --- ./include/linux/init.h.orig	Fri Aug  2 09:15:44 2002
+ > +++ ./include/linux/init.h	Fri Aug  2 09:06:39 2002
+ > @@ -177,12 +177,16 @@
+ >  #define __devinitdata
+ >  #define __devexit
+ >  #define __devexitdata
+ > -#define __devexit_p(x)  &(x)
+ >  #else
+ >  #define __devinit __init
+ >  #define __devinitdata __initdata
+ >  #define __devexit __exit
+ >  #define __devexitdata __exitdata
+ > +#endif
+ > +
+ > +#ifdef MODULE || CONFIG_HOTPLUG
+ > +#define __devexit_p(x)  &(x)
+ > +#else
+ >  #define __devexit_p(x)  0
+ >  #endif
 
-This might not be such a good idea, since the limit-bio-size etc stuff
-isn't in yet, depending on _exactly_ how big the bio's xfs are building
-are. If they are max 8 pages (I seem to recall so), then yeah the above
-test would be nice to see. If they are bigger than 8 pages, then the
-above would be a meaningless test.
+Instead of making this a maze of #if/else's, you can acheive
+the same effect with the following patch that has been in my
+tree for a few months.. (hand pasted, may not apply cleanly)
 
-I'll hack up a rq_dump() function to slap in pcidma.c as well.
+
+
+@@ -167,12 +167,18 @@ typedef void (*__cleanup_module_func_t)(
+ #define device_initcall(fn)        module_init(fn)
+ #define late_initcall(fn)      module_init(fn)
+
+-#endif
++#endif /* !MODULE */
+
+ /* Data marked not to be saved by software_suspend() */
+ #define __nosavedata __attribute__ ((__section__ (".data.nosave")))
+
+-#ifdef CONFIG_HOTPLUG
++/* Functions marked as __devexit may be discarded at kernel link time, depending
++   on config options.  Newer versions of binutils detect references from
++   retained sections to discarded sections and flag an error.  Pointers to
++   __devexit functions must use __devexit_p(function_name), the wrapper will
++   insert either the function_name or NULL, depending on the config options.
++ */
++#if defined(MODULE) || defined(CONFIG_HOTPLUG)
+ #define __devinit
+ #define __devinitdata
+ #define __devexit
 
 -- 
-Jens Axboe
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

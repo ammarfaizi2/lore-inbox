@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269014AbUHZOxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268993AbUHZPCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269014AbUHZOxb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:53:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUHZOud
+	id S268993AbUHZPCc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 11:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269006AbUHZPCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:50:33 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:59799 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S268961AbUHZOt2 (ORCPT
+	Thu, 26 Aug 2004 11:02:31 -0400
+Received: from imag.imag.fr ([129.88.30.1]:18932 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S268993AbUHZPCY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:49:28 -0400
-Date: Thu, 26 Aug 2004 16:46:06 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Hans Reiser <reiser@namesys.com>, Rik van Riel <riel@redhat.com>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826144606.GM3125@marowsky-bree.de>
-References: <Pine.LNX.4.44.0408252052420.13240-100000@chimarrao.boston.redhat.com> <412DA1FD.4010507@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <412DA1FD.4010507@namesys.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Thu, 26 Aug 2004 11:02:24 -0400
+Message-ID: <412DFB77.3020609@imag.fr>
+Date: Thu, 26 Aug 2004 17:02:15 +0200
+From: Raphael Jacquot <raphael.jacquot@imag.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Meadors <clubneon@hereintown.net>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408101303.i7AD36bD014078@burner.fokus.fraunhofer.de>	 <1092150023.4383.8441.camel@hades.cambridge.redhat.com> <1092150335.1212.8.camel@clubneon.priv.hereintown.net>
+In-Reply-To: <1092150335.1212.8.camel@clubneon.priv.hereintown.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-08-26T01:40:29,
-   Hans Reiser <reiser@namesys.com> said:
+Chris Meadors wrote:
+> On Tue, 2004-08-10 at 16:00 +0100, David Woodhouse wrote:
+> 
+> 
+>>Perhaps, though, it's time that the Linux distributions and also FreeBSD
+>>and others who feel the need to patch cdrecord forked it and called it
+>>something different.
+> 
+> 
+> What happened to the dvdtools/dvdrecord project?
+> http://www.nongnu.org/dvdrtools/
+> 
+> It seems to have disappeared about the time GNU had problems with their
+> savannah server.
+> 
 
-> >Obviously this is something that needs to be sorted out at
-> >the VFS layer.
-> >
-> It needs to be sorted out, whether it is sorted out at the VFS layer is 
-> unimportant.
-
-So what exactly is wrong with sorting it out at the VFS layer, and why
-do you _insist_ on sorting it in the reiserfs4 core? I'm missing
-something, please fill me in on the details.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-High Availability & Clustering	   \\\  /// 
-SUSE Labs, Research and Development \honk/ 
-SUSE LINUX AG - A Novell company     \\// 
-
+seems the site is functionnal

@@ -1,43 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVBPGQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVBPGdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVBPGQc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 01:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVBPGQc
+	id S261959AbVBPGdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 01:33:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVBPGdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 01:16:32 -0500
-Received: from fsmlabs.com ([168.103.115.128]:7601 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261342AbVBPGQa (ORCPT
+	Wed, 16 Feb 2005 01:33:25 -0500
+Received: from mxc.rambler.ru ([81.19.66.31]:58118 "EHLO mxc.rambler.ru")
+	by vger.kernel.org with ESMTP id S261959AbVBPGdM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 01:16:30 -0500
-Date: Tue, 15 Feb 2005 23:17:20 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, mingo@elte.hu,
-       nathanl@austin.ibm.com
-Subject: Re: [PATCH] Run softirqs on proper processor on offline
-In-Reply-To: <20050215215146.4c063baf.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0502152308380.26742@montezuma.fsmlabs.com>
-References: <20050211232821.GA14499@otto> <Pine.LNX.4.61.0502121019080.26742@montezuma.fsmlabs.com>
- <20050214215948.GA22304@otto> <20050215070217.GB13568@elte.hu>
- <20050216020628.GA25596@otto> <Pine.LNX.4.61.0502152227090.26742@montezuma.fsmlabs.com>
- <20050215215146.4c063baf.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Feb 2005 01:33:12 -0500
+Date: Wed, 16 Feb 2005 09:35:34 -0500
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Non-DMA mode for floppy on PowerPC
+Message-Id: <20050216093534.6dc5ef00.sonic_amiga@rambler.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Wed__16_Feb_2005_09_35_34_-0500_.4yD/SiMxaMHF+3s"
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Feb 2005, Andrew Morton wrote:
+This is a multi-part message in MIME format.
 
-> Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
-> >
-> > Ensure that we only offline the processor when it's safe and never run 
-> >  softirqs in another processor's ksoftirqd context. This also gets rid of 
-> >  the warnings in ksoftirqd on cpu offline.
-> 
-> I don't get it.  ksoftirqd is pinned to its cpu, so why does any of this
-> matter?
+--Multipart=_Wed__16_Feb_2005_09_35_34_-0500_.4yD/SiMxaMHF+3s
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-We take down ksoftirqds at CPU_DEAD time, so there is a brief period 
-whereupon there is a ksoftirqd thread for an offline processor, it is at 
-this point that ->cpus_allowed won't have it pinned anymore. An online 
-processor would then take down that ksoftirqd and exit it.
+ Was posted with wrong content-type and i got no reply, so i decided to repost
+
+ This patch allows to use floppy drive in non-DMA mode on PegasosPPC machines. To use it:
+ 1. Do not build floppy driver as a module, link it statically. Transferring parameters to it from insmod is still problematic, at least it doesn't work properly on my system. May be i'll clean it up in future.
+ 2. Specify floppy=nodma in kernel's arguments. Also you'll need to specify your drive type here using floppy=<Drive number>,<Drive type>,cmos. For example, floppy=0,4,cmos specifies type 4 (1.44 mb 3.5") for drive 0 on my system.
+ This patch does not affect operation of the driver in DMA mode so it's safe to use on any platform.
+ The patch is written for kernel version 2.6.8.
+
+-- 
+Best regards,
+Pavel Fedin,									mailto:sonic_amiga@rambler.ru
+
+
+--Multipart=_Wed__16_Feb_2005_09_35_34_-0500_.4yD/SiMxaMHF+3s
+Content-Type: text/plain;
+ name="ppc_floppy-vdma.diff"
+Content-Disposition: attachment;
+ filename="ppc_floppy-vdma.diff"
+Content-Transfer-Encoding: base64
+
+LS0tIGluY2x1ZGUvYXNtLXBwYy9mbG9wcHkuaC5vcmlnCTIwMDQtMDgtMTQgMDk6MzY6NDUuMDAw
+MDAwMDAwICswNDAwDQorKysgaW5jbHVkZS9hc20tcHBjL2Zsb3BweS5oCTIwMDUtMDItMTIgMDI6
+MjY6NTQuMDAwMDAwMDAwICswMzAwDQpAQCAtMTEsMzAgKzExLDE4OCBAQA0KICNpZm5kZWYgX19B
+U01fUFBDX0ZMT1BQWV9IDQogI2RlZmluZSBfX0FTTV9QUENfRkxPUFBZX0gNCiANCisjaW5jbHVk
+ZSA8bGludXgvdm1hbGxvYy5oPg0KKw0KKyNkZWZpbmUgQ1NXIGZkX3JvdXRpbmVbY2FuX3VzZV92
+aXJ0dWFsX2RtYSAmIDFdDQorDQogI2RlZmluZSBmZF9pbmIocG9ydCkJCQlpbmJfcChwb3J0KQ0K
+ICNkZWZpbmUgZmRfb3V0Yih2YWx1ZSxwb3J0KQkJb3V0Yl9wKHZhbHVlLHBvcnQpDQogDQotI2Rl
+ZmluZSBmZF9lbmFibGVfZG1hKCkgICAgICAgICBlbmFibGVfZG1hKEZMT1BQWV9ETUEpDQotI2Rl
+ZmluZSBmZF9kaXNhYmxlX2RtYSgpICAgICAgICBkaXNhYmxlX2RtYShGTE9QUFlfRE1BKQ0KLSNk
+ZWZpbmUgZmRfcmVxdWVzdF9kbWEoKSAgICAgICAgcmVxdWVzdF9kbWEoRkxPUFBZX0RNQSwiZmxv
+cHB5IikNCi0jZGVmaW5lIGZkX2ZyZWVfZG1hKCkgICAgICAgICAgIGZyZWVfZG1hKEZMT1BQWV9E
+TUEpDQotI2RlZmluZSBmZF9jbGVhcl9kbWFfZmYoKSAgICAgICBjbGVhcl9kbWFfZmYoRkxPUFBZ
+X0RNQSkNCi0jZGVmaW5lIGZkX3NldF9kbWFfbW9kZShtb2RlKSAgIHNldF9kbWFfbW9kZShGTE9Q
+UFlfRE1BLG1vZGUpDQotI2RlZmluZSBmZF9zZXRfZG1hX2FkZHIoYWRkcikgICBzZXRfZG1hX2Fk
+ZHIoRkxPUFBZX0RNQSwodW5zaWduZWQgaW50KXZpcnRfdG9fYnVzKGFkZHIpKQ0KLSNkZWZpbmUg
+ZmRfc2V0X2RtYV9jb3VudChjb3VudCkgc2V0X2RtYV9jb3VudChGTE9QUFlfRE1BLGNvdW50KQ0K
+KyNkZWZpbmUgZmRfZGlzYWJsZV9kbWEoKQlDU1cuX2Rpc2FibGVfZG1hKEZMT1BQWV9ETUEpDQor
+I2RlZmluZSBmZF9yZXF1ZXN0X2RtYSgpICAgICAgICBDU1cuX3JlcXVlc3RfZG1hKEZMT1BQWV9E
+TUEsImZsb3BweSIpDQorI2RlZmluZSBmZF9mcmVlX2RtYSgpICAgICAgICAgICBDU1cuX2ZyZWVf
+ZG1hKEZMT1BQWV9ETUEpDQorI2RlZmluZSBmZF9nZXRfZG1hX3Jlc2lkdWUoKSAgICBDU1cuX2dl
+dF9kbWFfcmVzaWR1ZShGTE9QUFlfRE1BKQ0KKyNkZWZpbmUgZmRfZG1hX21lbV9hbGxvYyhzaXpl
+KQlDU1cuX2RtYV9tZW1fYWxsb2Moc2l6ZSkNCisjZGVmaW5lIGZkX2RtYV9zZXR1cChhZGRyLCBz
+aXplLCBtb2RlLCBpbykgQ1NXLl9kbWFfc2V0dXAoYWRkciwgc2l6ZSwgbW9kZSwgaW8pDQogI2Rl
+ZmluZSBmZF9lbmFibGVfaXJxKCkgICAgICAgICBlbmFibGVfaXJxKEZMT1BQWV9JUlEpDQogI2Rl
+ZmluZSBmZF9kaXNhYmxlX2lycSgpICAgICAgICBkaXNhYmxlX2lycShGTE9QUFlfSVJRKQ0KLSNk
+ZWZpbmUgZmRfY2FjaGVmbHVzaChhZGRyLHNpemUpIC8qIG5vdGhpbmcgKi8NCi0jZGVmaW5lIGZk
+X3JlcXVlc3RfaXJxKCkgICAgICAgIHJlcXVlc3RfaXJxKEZMT1BQWV9JUlEsIGZsb3BweV9pbnRl
+cnJ1cHQsIFwNCi0JCQkJCSAgICBTQV9JTlRFUlJVUFR8U0FfU0FNUExFX1JBTkRPTSwgXA0KLQkJ
+CQkgICAgICAgICAgICAiZmxvcHB5IiwgTlVMTCkNCiAjZGVmaW5lIGZkX2ZyZWVfaXJxKCkgICAg
+ICAgICAgIGZyZWVfaXJxKEZMT1BQWV9JUlEsIE5VTEwpOw0KIA0KLV9faW5saW5lX18gdm9pZCB2
+aXJ0dWFsX2RtYV9pbml0KHZvaWQpDQorc3RhdGljIGludCB2aXJ0dWFsX2RtYV9jb3VudDsNCitz
+dGF0aWMgaW50IHZpcnR1YWxfZG1hX3Jlc2lkdWU7DQorc3RhdGljIGNoYXIgKnZpcnR1YWxfZG1h
+X2FkZHI7DQorc3RhdGljIGludCB2aXJ0dWFsX2RtYV9tb2RlOw0KK3N0YXRpYyBpbnQgZG9pbmdf
+cGRtYTsNCisNCitzdGF0aWMgaXJxcmV0dXJuX3QgZmxvcHB5X2hhcmRpbnQoaW50IGlycSwgdm9p
+ZCAqZGV2X2lkLCBzdHJ1Y3QgcHRfcmVncyAqIHJlZ3MpDQorew0KKwlyZWdpc3RlciB1bnNpZ25l
+ZCBjaGFyIHN0Ow0KKw0KKyN1bmRlZiBUUkFDRV9GTFBZX0lOVA0KKw0KKyNpZmRlZiBUUkFDRV9G
+TFBZX0lOVA0KKwlzdGF0aWMgaW50IGNhbGxzPTA7DQorCXN0YXRpYyBpbnQgYnl0ZXM9MDsNCisJ
+c3RhdGljIGludCBkbWFfd2FpdD0wOw0KKyNlbmRpZg0KKwlpZiAoIWRvaW5nX3BkbWEpDQorCQly
+ZXR1cm4gZmxvcHB5X2ludGVycnVwdChpcnEsIGRldl9pZCwgcmVncyk7DQorDQorI2lmZGVmIFRS
+QUNFX0ZMUFlfSU5UDQorCWlmKCFjYWxscykNCisJCWJ5dGVzID0gdmlydHVhbF9kbWFfY291bnQ7
+DQorI2VuZGlmDQorCXsNCisJCXJlZ2lzdGVyIGludCBsY291bnQ7DQorCQlyZWdpc3RlciBjaGFy
+ICpscHRyOw0KKw0KKwkJc3QgPSAxOw0KKwkJZm9yKGxjb3VudD12aXJ0dWFsX2RtYV9jb3VudCwg
+bHB0cj12aXJ0dWFsX2RtYV9hZGRyOyANCisJCSAgICBsY291bnQ7IGxjb3VudC0tLCBscHRyKysp
+IHsNCisJCQlzdD1pbmIodmlydHVhbF9kbWFfcG9ydCs0KSAmIDB4YTAgOw0KKwkJCWlmKHN0ICE9
+IDB4YTApIA0KKwkJCQlicmVhazsNCisJCQlpZih2aXJ0dWFsX2RtYV9tb2RlKQ0KKwkJCQlvdXRi
+X3AoKmxwdHIsIHZpcnR1YWxfZG1hX3BvcnQrNSk7DQorCQkJZWxzZQ0KKwkJCQkqbHB0ciA9IGlu
+Yl9wKHZpcnR1YWxfZG1hX3BvcnQrNSk7DQorCQl9DQorCQl2aXJ0dWFsX2RtYV9jb3VudCA9IGxj
+b3VudDsNCisJCXZpcnR1YWxfZG1hX2FkZHIgPSBscHRyOw0KKwkJc3QgPSBpbmIodmlydHVhbF9k
+bWFfcG9ydCs0KTsNCisJfQ0KKw0KKyNpZmRlZiBUUkFDRV9GTFBZX0lOVA0KKwljYWxscysrOw0K
+KyNlbmRpZg0KKwlpZihzdCA9PSAweDIwKQ0KKwkJcmV0dXJuIElSUV9IQU5ETEVEOw0KKwlpZigh
+KHN0ICYgMHgyMCkpIHsNCisJCXZpcnR1YWxfZG1hX3Jlc2lkdWUgKz0gdmlydHVhbF9kbWFfY291
+bnQ7DQorCQl2aXJ0dWFsX2RtYV9jb3VudD0wOw0KKyNpZmRlZiBUUkFDRV9GTFBZX0lOVA0KKwkJ
+cHJpbnRrKCJjb3VudD0leCwgcmVzaWR1ZT0leCBjYWxscz0lZCBieXRlcz0lZCBkbWFfd2FpdD0l
+ZFxuIiwgDQorCQkgICAgICAgdmlydHVhbF9kbWFfY291bnQsIHZpcnR1YWxfZG1hX3Jlc2lkdWUs
+IGNhbGxzLCBieXRlcywNCisJCSAgICAgICBkbWFfd2FpdCk7DQorCQljYWxscyA9IDA7DQorCQlk
+bWFfd2FpdD0wOw0KKyNlbmRpZg0KKwkJZG9pbmdfcGRtYSA9IDA7DQorCQlmbG9wcHlfaW50ZXJy
+dXB0KGlycSwgZGV2X2lkLCByZWdzKTsNCisJCXJldHVybiBJUlFfSEFORExFRDsNCisJfQ0KKyNp
+ZmRlZiBUUkFDRV9GTFBZX0lOVA0KKwlpZighdmlydHVhbF9kbWFfY291bnQpDQorCQlkbWFfd2Fp
+dCsrOw0KKyNlbmRpZg0KKwlyZXR1cm4gSVJRX0hBTkRMRUQ7DQorfQ0KKw0KK3N0YXRpYyB2b2lk
+IHZkbWFfZGlzYWJsZV9kbWEodW5zaWduZWQgaW50IGR1bW15KQ0KIHsNCi0JLyogTm90aGluZyB0
+byBkbyBvbiBQb3dlclBDICovDQorCWRvaW5nX3BkbWEgPSAwOw0KKwl2aXJ0dWFsX2RtYV9yZXNp
+ZHVlICs9IHZpcnR1YWxfZG1hX2NvdW50Ow0KKwl2aXJ0dWFsX2RtYV9jb3VudD0wOw0KIH0NCiAN
+CitzdGF0aWMgaW50IHZkbWFfcmVxdWVzdF9kbWEodW5zaWduZWQgaW50IGRtYW5yLCBjb25zdCBj
+aGFyICogZGV2aWNlX2lkKQ0KK3sNCisJcmV0dXJuIDA7DQorfQ0KKw0KK3N0YXRpYyB2b2lkIHZk
+bWFfbm9wKHVuc2lnbmVkIGludCBkdW1teSkNCit7DQorfQ0KKw0KKw0KK3N0YXRpYyBpbnQgdmRt
+YV9nZXRfZG1hX3Jlc2lkdWUodW5zaWduZWQgaW50IGR1bW15KQ0KK3sNCisJcmV0dXJuIHZpcnR1
+YWxfZG1hX2NvdW50ICsgdmlydHVhbF9kbWFfcmVzaWR1ZTsNCit9DQorDQorDQorc3RhdGljIGlu
+dCBmZF9yZXF1ZXN0X2lycSh2b2lkKQ0KK3sNCisJaWYoY2FuX3VzZV92aXJ0dWFsX2RtYSkNCisJ
+CXJldHVybiByZXF1ZXN0X2lycShGTE9QUFlfSVJRLCBmbG9wcHlfaGFyZGludCxTQV9JTlRFUlJV
+UFQsDQorCQkJCQkJICAgImZsb3BweSIsIE5VTEwpOw0KKwllbHNlDQorCQlyZXR1cm4gcmVxdWVz
+dF9pcnEoRkxPUFBZX0lSUSwgZmxvcHB5X2ludGVycnVwdCwNCisJCQkJCQkgICBTQV9JTlRFUlJV
+UFR8U0FfU0FNUExFX1JBTkRPTSwNCisJCQkJCQkgICAiZmxvcHB5IiwgTlVMTCk7CQ0KKw0KK30N
+CisNCitzdGF0aWMgaW5saW5lIHVuc2lnbmVkIGxvbmcgZG1hX21lbV9hbGxvYyh1bnNpZ25lZCBs
+b25nIHNpemUpDQorew0KKwlyZXR1cm4gX19nZXRfZG1hX3BhZ2VzKEdGUF9LRVJORUwsZ2V0X29y
+ZGVyKHNpemUpKTsNCit9DQorDQorDQorc3RhdGljIGlubGluZSB1bnNpZ25lZCBsb25nIHZkbWFf
+bWVtX2FsbG9jKHVuc2lnbmVkIGxvbmcgc2l6ZSkNCit7DQorCXJldHVybiBfX2dldF9mcmVlX3Bh
+Z2VzKEdGUF9LRVJORUwsZ2V0X29yZGVyKHNpemUpKTsNCit9DQorDQorc3RhdGljIGludCB2ZG1h
+X2RtYV9zZXR1cChjaGFyICphZGRyLCB1bnNpZ25lZCBsb25nIHNpemUsIGludCBtb2RlLCBpbnQg
+aW8pDQorew0KKwlkb2luZ19wZG1hID0gMTsNCisJdmlydHVhbF9kbWFfcG9ydCA9IGlvOw0KKwl2
+aXJ0dWFsX2RtYV9tb2RlID0gKG1vZGUgID09IERNQV9NT0RFX1dSSVRFKTsNCisJdmlydHVhbF9k
+bWFfYWRkciA9IGFkZHI7DQorCXZpcnR1YWxfZG1hX2NvdW50ID0gc2l6ZTsNCisJdmlydHVhbF9k
+bWFfcmVzaWR1ZSA9IDA7DQorCXJldHVybiAwOw0KK30NCisNCitzdGF0aWMgaW50IGhhcmRfZG1h
+X3NldHVwKGNoYXIgKmFkZHIsIHVuc2lnbmVkIGxvbmcgc2l6ZSwgaW50IG1vZGUsIGludCBpbykN
+Cit7DQorCS8qIGFjdHVhbCwgcGh5c2ljYWwgRE1BICovDQorCWRvaW5nX3BkbWEgPSAwOw0KKwlj
+bGVhcl9kbWFfZmYoRkxPUFBZX0RNQSk7DQorCXNldF9kbWFfbW9kZShGTE9QUFlfRE1BLG1vZGUp
+Ow0KKwlzZXRfZG1hX2FkZHIoRkxPUFBZX0RNQSwodW5zaWduZWQgaW50KXZpcnRfdG9fYnVzKGFk
+ZHIpKTsNCisJc2V0X2RtYV9jb3VudChGTE9QUFlfRE1BLHNpemUpOw0KKwllbmFibGVfZG1hKEZM
+T1BQWV9ETUEpOw0KKwlyZXR1cm4gMDsNCit9DQorDQorc3RydWN0IGZkX3JvdXRpbmVfbCB7DQor
+CXZvaWQgKCpfZGlzYWJsZV9kbWEpKHVuc2lnbmVkIGludCBkbWFucik7DQorCWludCAoKl9yZXF1
+ZXN0X2RtYSkodW5zaWduZWQgaW50IGRtYW5yLCBjb25zdCBjaGFyICogZGV2aWNlX2lkKTsNCisJ
+dm9pZCAoKl9mcmVlX2RtYSkodW5zaWduZWQgaW50IGRtYW5yKTsNCisJaW50ICgqX2dldF9kbWFf
+cmVzaWR1ZSkodW5zaWduZWQgaW50IGR1bW15KTsNCisJdW5zaWduZWQgbG9uZyAoKl9kbWFfbWVt
+X2FsbG9jKSAodW5zaWduZWQgbG9uZyBzaXplKTsNCisJaW50ICgqX2RtYV9zZXR1cCkoY2hhciAq
+YWRkciwgdW5zaWduZWQgbG9uZyBzaXplLCBpbnQgbW9kZSwgaW50IGlvKTsNCit9IGZkX3JvdXRp
+bmVbXSA9IHsNCisJew0KKwkJZGlzYWJsZV9kbWEsDQorCQlyZXF1ZXN0X2RtYSwNCisJCWZyZWVf
+ZG1hLA0KKwkJZ2V0X2RtYV9yZXNpZHVlLA0KKwkJZG1hX21lbV9hbGxvYywNCisJCWhhcmRfZG1h
+X3NldHVwDQorCX0sDQorCXsNCisJCXZkbWFfZGlzYWJsZV9kbWEsDQorCQl2ZG1hX3JlcXVlc3Rf
+ZG1hLA0KKwkJdmRtYV9ub3AsDQorCQl2ZG1hX2dldF9kbWFfcmVzaWR1ZSwNCisJCXZkbWFfbWVt
+X2FsbG9jLA0KKwkJdmRtYV9kbWFfc2V0dXANCisJfQ0KK307DQorDQogc3RhdGljIGludCBGREMx
+ID0gMHgzZjA7DQogc3RhdGljIGludCBGREMyID0gLTE7DQogDQo=
+
+--Multipart=_Wed__16_Feb_2005_09_35_34_-0500_.4yD/SiMxaMHF+3s--

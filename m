@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272988AbTHKTLt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 15:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272975AbTHKTKd
+	id S272824AbTHKTVC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 15:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274820AbTHKTTl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 15:10:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21912 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272824AbTHKTJs (ORCPT
+	Mon, 11 Aug 2003 15:19:41 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:33244 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S273403AbTHKTSV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 15:09:48 -0400
-Date: Mon, 11 Aug 2003 11:55:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: willy@w.ods.org, chip@pobox.com, albert@users.sourceforge.net,
-       linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] 2.4.22pre10: {,un}likely_p() macros for pointers
-Message-Id: <20030811115547.38b78b8e.akpm@osdl.org>
-In-Reply-To: <1060607398.948.213.camel@cube>
-References: <1060488233.780.65.camel@cube>
-	<20030810072945.GA14038@alpha.home.local>
-	<20030811012337.GI24349@perlsupport.com>
-	<20030811020957.GE10446@mail.jlokier.co.uk>
-	<20030811023912.GJ24349@perlsupport.com>
-	<20030811053059.GB28640@alpha.home.local>
-	<20030811054209.GN10446@mail.jlokier.co.uk>
-	<1060607398.948.213.camel@cube>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 11 Aug 2003 15:18:21 -0400
+Date: Mon, 11 Aug 2003 21:17:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Johannes Stezenbach <js@convergence.de>, Gerd Knorr <kraxel@bytesex.org>,
+       Flameeyes <dgp85@users.sourceforge.net>, Pavel Machek <pavel@suse.cz>,
+       Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+Message-ID: <20030811191709.GN2627@elf.ucw.cz>
+References: <1060616931.8472.22.camel@defiant.flameeyes> <20030811163913.GA16568@bytesex.org> <20030811175642.GC2053@convergence.de> <20030811185947.GA8549@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030811185947.GA8549@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan <albert@users.sourceforge.net> wrote:
->
-> -#define likely(x)	__builtin_expect((x),1)
-> -#define unlikely(x)	__builtin_expect((x),0)
-> +#define likely(x)	__builtin_expect(!!(x),1)
-> +#define unlikely(x)	__builtin_expect(!!(x),0)
+Hi!
 
-Odd.  I thought we fixed that ages ago.
+> > > > We can drop /dev/lirc*, and use input events with received codes, but I
+> > > > think that lircd is still needed to translate them into userland
+> > > > commands...
+> > > 
+> > > That translation isn't done by lircd, but by the lirc_client library.
+> > > This is no reason for keeping lircd as event dispatcher, the input layer
+> > > would do equally well (with liblirc_client picking up events from
+> > > /dev/input/event<x> instead of lircd).
+> > 
+> > IMHO there's one problem:
+> > 
+> > If a remote control has e.g. a "1" key this doesn't mean that a user
+> > wants a "1" to be written into your editor while editing source code.
+> > The "1" key on a remote control simply has a differnt _meaning_ than
+> > the "1" key on your keyboard -- depending of course on what the user
+> > thinks this key should mean.
+> 
+> That's what BTN_1 is for. ;)
 
-Being a simple soul, I prefer __builtin_expect((x) != 0, 1).
+Ahha, I thought BTN_1 would be first mouse button ;-). Will fix that.
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264187AbTKJXFH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 18:05:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTKJXFH
+	id S264151AbTKJXG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 18:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264157AbTKJXGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 18:05:07 -0500
-Received: from dp.samba.org ([66.70.73.150]:24752 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264187AbTKJXFE (ORCPT
+	Mon, 10 Nov 2003 18:06:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47054 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264151AbTKJXGy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 18:05:04 -0500
-Date: Tue, 11 Nov 2003 10:00:42 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Jack Steiner <steiner@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hot cache line due to note_interrupt()
-Message-ID: <20031110230042.GF930@krispykreme>
-References: <20031110215844.GC21632@sgi.com>
+	Mon, 10 Nov 2003 18:06:54 -0500
+Subject: Re: 2.6.0-test9-mm2 - AIO tests still gets slab corruption
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org, "linux-aio@kvack.org" <linux-aio@kvack.org>
+In-Reply-To: <20031104225544.0773904f.akpm@osdl.org>
+References: <20031104225544.0773904f.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068505605.2042.11.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031110215844.GC21632@sgi.com>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 Nov 2003 15:06:45 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+Andrew,
 
-> I also verified on a system simulator that the counter in
-> note_interrupt() is the only line that is bounced between cpus at a HZ
-> rate on an idle system.
-> 
-> The IPI & reschedule interrupts have a similar problem but at a lower
-> rate.
+test9-mm2 is still getting slab corruption with AIO:
 
-We havent seen this on ppc64 because our timer interrupt doesnt go via
-the standard interrupt path (its a separate exception). IPIs do however
-so Id expect these to be a problem for us.
+Maximal retry count.  Bytes done 0
+Slab corruption: start=dc70f91c, expend=dc70f9eb, problemat=dc70f91c
+Last user: [<c0192fa3>](__aio_put_req+0xbf/0x200)
+Data: 00 01 10 00 00 02 20 00 *********6C ******************************A5
+Next: 71 F0 2C .A3 2F 19 C0 71 F0 2C .********************
+slab error in check_poison_obj(): cache `kiocb': object was modified after freeing
 
-Anton
+With suparna's retry-based-aio-dio patch, there are no kernel messages
+and the tests do not see any uninitialized data.
+
+Any reason not to add suparna's patch to -mm to fix these problems?
+
+Thanks,
+
+Daniel
+

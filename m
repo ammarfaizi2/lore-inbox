@@ -1,68 +1,110 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316571AbSEPD65>; Wed, 15 May 2002 23:58:57 -0400
+	id <S316574AbSEPEwZ>; Thu, 16 May 2002 00:52:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316572AbSEPD64>; Wed, 15 May 2002 23:58:56 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:17132 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S316571AbSEPD6z>; Wed, 15 May 2002 23:58:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@linuxfreemail.com>
-Reply-To: ivangurdiev@linuxfreemail.com
-Organization: ( )
-To: Roger Luethi <rl@hellgate.ch>
-Subject: Re: [PATCH] VIA Rhine stalls: TxAbort handling
-Date: Wed, 15 May 2002 15:52:35 -0600
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20020514035318.GA20088@k3.hellgate.ch> <02051317475500.00917@cobra.linux> <20020516004927.GA13388@k3.hellgate.ch>
-Cc: Urban Widmark <urban@teststation.com>, LKML <linux-kernel@vger.kernel.org>
+	id <S316575AbSEPEwY>; Thu, 16 May 2002 00:52:24 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:6361 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S316574AbSEPEwX>; Thu, 16 May 2002 00:52:23 -0400
+From: "Ashok Raj" <ashokr2@attbi.com>
+To: "Russell Leighton" <russ@elegant-software.com>, <Tony.P.Lee@nokia.com>
+Cc: <wookie@osdl.org>, <alan@lxorguk.ukuu.org.uk>, <lmb@suse.de>,
+        <woody@co.intel.com>, <linux-kernel@vger.kernel.org>,
+        <zaitcev@redhat.com>
+Subject: RE: InfiniBand BOF @ LSM - topics of interest
+Date: Wed, 15 May 2002 21:51:59 -0700
+Message-ID: <PPENJLMFIMGBGDDHEPBBGEMADAAA.ashokr2@attbi.com>
 MIME-Version: 1.0
-Message-Id: <02051515523500.01017@cobra.linux>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3CE2D4DB.3020702@elegant-software.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll take that down as "The patch didn't break anything" <g>. Thanks.
+->
+->Can we really have these sort of low level IB interactions and have :
+->    - security issues addressed, mostly an issue if the devices are over
+->a network w/other devices
 
-:) Some nice day this card will work.
-I know it. It's too bad I don't have time to mess with it right now.
+IB fabric does not replace the network. It is designed for the data-center.
 
-> What I have seen: switching from eeprom default (AMD/MBA backoff on my
-> card) to something else (as VIA does) slows things down, but the TxAborts
-> are gone. Did you try different backoff algorithms?
+IB offers even more RAS from a server standpoint. For e.g todays drivers
+could DMA to areas of memory owned by another driver/process. IB protects
+your RDMA by implementing protection domains which each driver could be on a
+separate protection domain, and any access to RDMA to areas not owned would
+only cause error to the specific driver/application that is malfunctioning.
 
-The slowdown I was talking about was actually with the new abort/underrun 
-handling - I had tried it by myself before your patch. That's the what that 
-quote was about. I think I handled both Abort and Underrun like that.
-I'll try that new patch that you're making to retest.
+->    - qos control
 
-> Also, you may want to try if the backoff bit in TxConfig makes a difference
-> for you (may be different with your chip, after all). It's not a one-liner
-> like ConfigD, though, since TxConfig gets overwritten in several places.
-> On a side note, I'm not particularly happy about the way we stomp all over
-> TxConfig when we set the threshold. IMO we should leave the lower 5 bits
-> alone.
+IB specifies Service Level (a.k.a SL) and multiple data Virtual Lanes (VL)
+that can be managed via the Subnet Manager to implement QoS. There is a
+dedicated workgroup in IBTA working on some of these issues.
 
-No, I haven't messed with those bits, to answer Urban and your question.
-I've only tried your patch which forces the backoff algortihm to AMD.
-Tests sound like a good idea. I'll try something out when I have time - been 
-busy lately.
+Applications that would require absolute feel of the metal can use the
+access layer API's that will provide direct user mode ability to send data
+from hardware, and also process completions without entering kernel mode
+entirely in user mode, if the hardware permits that.
+->
+-
 
-> The only data sheet I've seen for the VT86C100A agrees with the code, not
-> the comment, so apparantly I don't have access to those more recent docs.
-> This code is only used if you enable MMIO, though, which may not be a good
-> idea if you already have problems with the driver.
-
-On Urban's question,  I test without MMIO so this is not a related issue. I 
-was merely curious since I don't feel comfortable trusting something which
-A) does not match any of the other Rhine-based cards (2's and 3's)
-B) says RESERVED in the docs which I have.
-
-Funny, I was going to send you a link to the newer docs, but I ran into the 
-older ones which I had never seen before. Yes, they do agree with the current 
-code. Hmm. Perhaps we should ask VIA why it was changed...
-
-
-
-
+->
+->Thanks!
+->
+->Russ
+->
+->
+->Tony.P.Lee@nokia.com wrote:
+->
+->>
+->>For VNC type application, instead server translates
+->>every X Windows, Mac, Windows GUI calls/Bitmap update
+->>to TCP stream, you convert the GUI API calls to
+->>IB RC messages and bitmap updates to RDMA write directly
+->>to client app's frame buffer.
+->>
+->>For SAMBA like fs, the file read api can be translated to
+->>IB RC messages on client + RDMA write to remote
+->>client app's buffer directly from server.
+->>
+->>They won't be "standard" VNC/SAMBA any more.
+->>
+->>On the other hand, we can put VNC over TCP over IP over IB,
+->>- "for people with hammer, every problem looks like a nail." :-)
+->>
+->>In theory, we can have IB DVD drive RDMA video directly
+->>over IB switch to IB enable VGA frame buffer and completely
+->>by pass the system.  CPU only needed setup the proper
+->>connections.   The idea is to truely virtualized the system
+->>resources and "resource server" RDMA the data to anyone on IB
+->>switch with minimal CPU interaction in the process.
+->>
+->>You can also config a normal SCSI card DMA data to virtualized
+->>IB address on PCI address space and have the data shows up 15 meters
+->>or 2 km away on server's "virtual scsi driver" destination DMA address.
+->>It made iSCSI looked like dial up modem in term of performance
+->>and latency.
+->>
+->>
+->>----------------------------------------------------------------
+->>Tony
+->>-
+->>To unsubscribe from this list: send the line "unsubscribe
+->linux-kernel" in
+->>the body of a message to majordomo@vger.kernel.org
+->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+->>Please read the FAQ at  http://www.tux.org/lkml/
+->>
+->
+->
+->-
+->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+->the body of a message to majordomo@vger.kernel.org
+->More majordomo info at  http://vger.kernel.org/majordomo-info.html
+->Please read the FAQ at  http://www.tux.org/lkml/
 

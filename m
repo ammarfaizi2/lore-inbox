@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265095AbTLMPyL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 10:54:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbTLMPyL
+	id S265153AbTLMQMS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 11:12:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265169AbTLMQMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 10:54:11 -0500
-Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:36365 "EHLO
-	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id S265095AbTLMPyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 10:54:08 -0500
-From: Chris Vine <chris@cvine.freeserve.co.uk>
-To: Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Date: Sat, 13 Dec 2003 14:08:05 +0000
-User-Agent: KMail/1.5.4
-Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com> <20031208135225.GT19856@holomorphy.com> <200312090123.31895.kernel@kolivas.org>
-In-Reply-To: <200312090123.31895.kernel@kolivas.org>
+	Sat, 13 Dec 2003 11:12:18 -0500
+Received: from real-outmail.cc.huji.ac.il ([132.64.1.17]:2190 "EHLO
+	mail1.cc.huji.ac.il") by vger.kernel.org with ESMTP id S265153AbTLMQMR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 11:12:17 -0500
+Message-ID: <3FDB2B95.3020703@mscc.huji.ac.il>
+Date: Sat, 13 Dec 2003 17:09:09 +0200
+From: Voicu Liviu <pacman@mscc.huji.ac.il>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, he
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23-aa1 AND LVM usage
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312131408.05558.chris@cvine.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 December 2003 2:23 pm, Con Kolivas wrote:
-> [snip original discussion thrashing swap on 2.6test with 32mb ram]
->
-> Chris
->
-> By an unusual coincidence I was looking into the patches that were supposed
-> to speed up application startup and noticed this one was merged. A brief
-> discussion with wli suggests this could cause thrashing problems on low
-> memory boxes so can you try this patch? Applies to test11.
+Hi,
+I'm a LVM user and currently running kernel 2.4.23 (vanilla).
+At once I decided my self that I want to try 2.6-test11 so I removed 
+lvm-use tools, instead of it I installed lvm2 and also installed 
+2.6-test11 kernel.
 
-Con,
+I liked the 2.6 kernel but somehow 2.4.23 worked better with my new 
+system (nforce2 chip and sound)...so I wanted to go back to 2.4.23(aa1 
+sources) so at this stage I removed lvm2 and installed lvm-user.
+Since this step I can not mount my lvm anymore, it says soemthing like:
 
-I have applied the patch, and performance is nearly indistinguishable from 
-that with the kernel without it.
+devs_register(lv_usr): could not append to parent, err: -17
+(4 lines line this for every lvm partition)
 
-Chris.
+and also:
+error copying : /lib/dev-state/VG/lv_usr to /dev/VG/lv_usr
+
+Any 1 does not know what could be the source of this issue?
+
+Best regards.
+Liviu
 

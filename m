@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281031AbRKCUYF>; Sat, 3 Nov 2001 15:24:05 -0500
+	id <S280994AbRKCUYF>; Sat, 3 Nov 2001 15:24:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281032AbRKCUX4>; Sat, 3 Nov 2001 15:23:56 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:27776 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S281031AbRKCUXq>;
-	Sat, 3 Nov 2001 15:23:46 -0500
-Date: Sat, 3 Nov 2001 12:23:44 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-Subject: Something broken in sys_swapon
-Message-ID: <20011103122344.A12059@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S281031AbRKCUX4>; Sat, 3 Nov 2001 15:23:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56325 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280994AbRKCUXp>; Sat, 3 Nov 2001 15:23:45 -0500
+Date: Sat, 3 Nov 2001 12:20:53 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Richard Henderson <rth@twiddle.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Juergen Doelle <jdoelle@de.ibm.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Pls apply this spinlock patch to the kernel
+In-Reply-To: <20011103115556.A5984@twiddle.net>
+Message-ID: <Pine.LNX.4.33.0111031215490.2026-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking through sys_swapon() for the culprit of my corruption after a
-nonexistent swap device is added (/dev/hdb2 when /dev/hda is my only hard
-drive and hdc and hdd are cdroms), I notice a things that look a bit odd.
 
-First, set_blocksize(dev, PAGE_SIZE) is done twice in the S_ISBLK block
-(it should only be needed once?), but furthermore:
+On Sat, 3 Nov 2001, Richard Henderson wrote:
+>
+> The "cache_line_pad" is useless.  The __attribute__((aligned(N)))
+> is completely sufficient.
 
-                kdev_t dev = swap_inode->i_rdev;
-                struct block_device_operations *bdops;
+I think you missed the important part: there must be no false sharing with
+ANYTHING ELSE.
 
-                p->swap_device = dev;
-                set_blocksize(dev, PAGE_SIZE);
+If you have a 4-byte entry that is aligned to 128 bytes, you have 124
+bytes of stuff that the linker _will_ fill up with other things.
 
-I don't know much at all about the inode structure, but doesn't this set
-the block size of the originating filesystem containing the inode rather
-than the block device that inode happens to be pointing to?  That would
-definitely explain the corruption I see if my file system block size is
-changed (/ is a 2KB block-sized EXT2 filesystem).
+And if you don't want false sharing, that MUST NOT HAPPEN.
 
-Simon-
+Try it. You'll see.
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+> Separate sections are also not needed.  While you can't guarantee
+> adjacency, the object file *does* record the required alignment
+> and that must be honored by the linker.
+
+It's not just alignment: it wants an exclusive cacheline. Thus the
+padding.
+
+And I'm claiming, based on past experiences with the linker, that the
+padding won't guarantee anything, because the linker can re-order things
+to "pack" them tighter. So the padding either has to be inside a structure
+or a union (which implies a new type, and thus that the users care about
+whether the spinlock is padded or not), or it needs a separate section, so
+that it doesn't _matter_ if the linker re-orders anything, because
+everything in that section is aligned, and as such you cannot get false
+sharing even with reordering.
+
+		Linus
+

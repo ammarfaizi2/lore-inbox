@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129250AbQKHTYW>; Wed, 8 Nov 2000 14:24:22 -0500
+	id <S129220AbQKHTav>; Wed, 8 Nov 2000 14:30:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129224AbQKHTYM>; Wed, 8 Nov 2000 14:24:12 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:64774
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129250AbQKHTX5>; Wed, 8 Nov 2000 14:23:57 -0500
-Date: Wed, 8 Nov 2000 11:23:52 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Taisuke Yamada <tai@imasy.or.jp>
+	id <S129224AbQKHTac>; Wed, 8 Nov 2000 14:30:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:21376 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129220AbQKHTaY>; Wed, 8 Nov 2000 14:30:24 -0500
+Date: Wed, 8 Nov 2000 14:29:57 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Marcus Meissner <Marcus.Meissner@caldera.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Patch: Using clipped IDE disk larger than 32GB with old BIOS
-In-Reply-To: <200011081416.eA8EGg001886@research.imasy.or.jp>
-Message-ID: <Pine.LNX.4.10.10011081115030.5484-100000@master.linux-ide.org>
+Subject: Re: tcp/ip connections and downed/removed netdevs
+In-Reply-To: <20001108201840.A23731@ns.caldera.de>
+Message-ID: <Pine.LNX.3.95.1001108142702.9671A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, Taisuke Yamada wrote:
+On Wed, 8 Nov 2000, Marcus Meissner wrote:
 
-> # I might consider adding support for even newer 48-bit LBA
-> # extension (which I read in ATA spec). This will push the
-> # limit up to 128PB (wow!).
+> Hi,
+> 
+> I have a rather strange problem in regard to routing and tcp/ip connections.
+> 
+> My setup:
+> 	- default route to eth0, metric 2
+> 	- ppp dialin to static ip (ppp0), is another default route, metric 0
+> 
+> I open a telnet connection over the ppp0 interface.
+> 
+> I then down and remove the ppp0 interface (ifconfig -a ppp0 shows 'no such
+> device'), the default route over ppp0 is gone.
 
-Hi Taisuke,
+No. Look in /etc/ppp/ip_up /etc/ppp/ip_down. Read the docs. These control
+what gets set/reset when the ppp connection is set up or torn down.
 
-So you like that TASKFILE. ;-)
+You can configure to do anything you want, including completely
+reconfiguring your network when a ppp connection is established.
 
-The 48-LBA stuff is on hold because it requires more than simple changes
-to ide-disk.c.  The rules for the setting of the HOB and the double pump
-of the safety check that allows on to read back the contents before the
-command register is executed, is still in development.  We have not voted
-on the final design of the 48-LBA and no drive or BIOS guys have any
-product ready for testing.
+This is not a kernel affair.
+
 
 Cheers,
+Dick Johnson
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 
 -

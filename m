@@ -1,82 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbTJTHx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 03:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbTJTHx0
+	id S262337AbTJTIIq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 04:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTJTIIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 03:53:26 -0400
-Received: from mail.gmx.net ([213.165.64.20]:9949 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262424AbTJTHxY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 03:53:24 -0400
-Date: Mon, 20 Oct 2003 09:53:23 +0200 (MEST)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: "Tomi Orava" <Tomi.Orava@ncircle.nullnet.fi>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 20 Oct 2003 04:08:45 -0400
+Received: from dyn-ctb-210-9-246-89.webone.com.au ([210.9.246.89]:42759 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S262337AbTJTIIm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 04:08:42 -0400
+Message-ID: <3F9397ED.8040004@cyberone.com.au>
+Date: Mon, 20 Oct 2003 18:08:13 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-References: <37972.192.168.9.10.1066602246.squirrel@ncircle.nullnet.fi>
-Subject: Re: HighPoint 374
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <975.1066636403@www51.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Peter Osterlund <petero2@telia.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test8, DEBUG_SLAB, oops in as_latter_request()
+References: <m2ismlovep.fsf@p4.localdomain> <20031019142042.2f41eb68.akpm@osdl.org> <3F932B81.2040202@cyberone.com.au> <20031020070924.GU1128@suse.de>
+In-Reply-To: <20031020070924.GU1128@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> >> Yep, but it cannot be strictly via-chipset issue
-> >> as I have verified that the same problem exists
-> >> with Epox 4PCA3+ motherboard, which is P4 & Intel 875P
-> >> based.
-> >
-> > may be epox got broken HPT's ?
-> > anyone with mainboard from other vendor seeing this problems ?
-> 
-> This whole thread was opened by a person with HPT rocketraid 404
-> PCI-card ...
-> 
-> >
-> > my HPT BIOS is v1.24
-> > mainboard BIOS last updated in september i think
-> 
-> I think I have exactly the same HPT-bios version.
-> The mb's bios is anyway dated 2003-03-07 so I think
-> we have the same version. Unfortunately, I'm unable
-> to check the bios version of the 875P-base mb for now
-> (but I think it was the same 1.24 as well).
-> 
-> Are you capable of trying if the hdparm -m0 trick
-> works for you ?
-
-you mean the fs corruption on soft raid or the interupts problem ?
-i dumped the raid setup as i couldn't find a way to debug it
-and my drives are pretty full again, but i'll try to free some space
-
-for the interupts 
-with test7-bk8  , acpi=off pci=noacpi &
-hdparm  -m0 -d1 -X69  /dev/hd[a,e,g]
-hdparm  -m16 -d1 -X69  /dev/hd[a,e,g]
-i don't see timeouts
-if i omit -m i do see them sometimes
-
-(i see them both with -m and without -m if i try to use TCQ )
-
-for testing copied several 6-10Gb directories &
-dd if=/dev/zero of=/mnt/tmp/1/10Gb.zeros bs=512k count=21000
-or
-dd if=/dev/zero of=/mnt/tmp/1/10Gb.zeros bs=1024k count=10000
-
-svetljo
 
 
--- 
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+Jens Axboe wrote:
 
-Jetzt kostenlos anmelden unter http://www.gmx.net
+>On Mon, Oct 20 2003, Nick Piggin wrote:
+>
+>>
+>>Andrew Morton wrote:
+>>
+>>
+>>>Peter Osterlund <petero2@telia.com> wrote:
+>>>
+>>>
+>>>>I was running 2.6.0-test8 compiled with CONFIG_DEBUG_SLAB=y. When
+>>>>testing the CDRW packet writing driver, I got an oops in
+>>>>as_latter_request. (Full oops at the end of this message.) It is
+>>>>repeatable and happens because arq->rb_node.rb_right is uninitialized.
+>>>>
+>>>>
+>>>deadline seems to have the same problem.
+>>>
+>>>We may as well squish this with the big hammer?
+>>>
+>>>
+>>Thanks for the report, Peter.
+>>
+>>The request is a special request, so either blk_attempt_remerge should
+>>never be called on it, or blk_attempt_remerge (or as_latter_request) should
+>>check for this. Its up to Jens.
+>>
+>>I would say to stick something like
+>>if (!rq_mergeable(rq))
+>>   return;
+>>
+>>into blk_attempt_remerge.
+>>
+>>I'd say we shouldn't expect drivers to try to get this right.
+>>
+>
+>attempt_merge() already includes such a check. To me it looks really
+>buggy that elv_latter_request() cannot be called on non-fs requests, I'd
+>rather get that fixed like Peter suggests. elv_latter_request() should
+>work on all requests in the io sched queue, period.
+>
 
-+++ GMX - die erste Adresse für Mail, Message, More! +++
+I don't have a problem with that. Peter's patch it is.
+
 

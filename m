@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267176AbTB0WY6>; Thu, 27 Feb 2003 17:24:58 -0500
+	id <S267091AbTB0WXo>; Thu, 27 Feb 2003 17:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267274AbTB0WXw>; Thu, 27 Feb 2003 17:23:52 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:28570 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267268AbTB0WXl>; Thu, 27 Feb 2003 17:23:41 -0500
-Message-ID: <20030227223335.23607.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	id <S267176AbTB0WXo>; Thu, 27 Feb 2003 17:23:44 -0500
+Received: from packet.digeo.com ([12.110.80.53]:46213 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267091AbTB0WSA>;
+	Thu, 27 Feb 2003 17:18:00 -0500
+Date: Thu, 27 Feb 2003 14:24:50 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+Cc: kernel@kolivas.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Rising io_load results Re: 2.5.63-mm1
+Message-Id: <20030227142450.1c6a6b72.akpm@digeo.com>
+In-Reply-To: <118810000.1046383273@baldur.austin.ibm.com>
+References: <20030227025900.1205425a.akpm@digeo.com>
+	<200302280822.09409.kernel@kolivas.org>
+	<20030227134403.776bf2e3.akpm@digeo.com>
+	<118810000.1046383273@baldur.austin.ibm.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 27 Feb 2003 23:33:35 +0100
-Subject: Mouse generating two mouse click events instead of one
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-2.us4.outblaze.com
+X-OriginalArrivalTime: 27 Feb 2003 22:28:13.0745 (UTC) FILETIME=[8424EA10:01C2DEAF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
- 
-First of all, excuse me if this question is out of place, but I don't know for sure if this is a kernel problem. I'm 
-running 2.5.63-mm1 under Red Hat Phoebe Beta3 linux distribution. I have a Intellimouse USB Explorer mouse 
-attached and, when working on KDE3.1 I have noticed that if I single click the mouse very quickly, nearly all the 
-times two click events are generated instead of one. 
- 
-I started to notice this with KDE3.1 menus: single clicking with the left button over the KDE button very fast (the 
-time elapsed since I press the button and then release it is practically zero) made the menu appear and then 
-disappear.  If I single click the left button, but this time, I do it slower, it works as expected. I don't know of this is 
-a timing, threading or mouse event problem. Not only does this happens with buttons, but with other graphical 
-elements like checkboxes (single clicking very fast, makes the checkbox get checked and immediately, 
-unchecked). Has anyone experienced this before? 
- 
-Also, I feel sorry I can't be more explicit, but I have never had this problem while running a 2.4 kernel. At least, I 
-have not noticed this in the past. 
- 
-Best regards, 
- 
-   Felipe Alfaro Solana 
- 
-PS: I want to help on finding the culprit to this, so please, don't hesitate to contact me for further information or 
-assistance. 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+Dave McCracken <dmccr@us.ibm.com> wrote:
+>
+> 
+> --On Thursday, February 27, 2003 13:44:03 -0800 Andrew Morton
+> <akpm@digeo.com> wrote:
+> 
+> >> ...
+> >> Mapped:       4294923652 kB
+> > 
+> > Well that's gotta hurt.  This metric is used in making writeback
+> > decisions.  Probably the objrmap patch.
+> 
+> Oops.  You're right.  Here's a patch to fix it.
+> 
 
-Powered by Outblaze
+Thanks.
+
+I'm just looking at page_mapped().  It is now implicitly assuming that the
+architecture's representation of a zero-count atomic_t is all-bits-zero.
+
+This is not true on sparc32 if some other CPU is in the middle of an
+atomic_foo() against that counter.  Maybe the assumption is false on other
+architectures too.
+
+So page_mapped() really should be performing an atomic_read() if that is
+appropriate to the particular page.  I guess this involves testing
+page->mapping.  Which is stable only when the page is locked or
+mapping->page_lock is held.
+
+It appears that all page_mapped() callers are inside lock_page() at present,
+so a quick audit and addition of a comment would be appropriate there please.
+
+

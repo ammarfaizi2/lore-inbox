@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316578AbSH0RJJ>; Tue, 27 Aug 2002 13:09:09 -0400
+	id <S316615AbSH0RMM>; Tue, 27 Aug 2002 13:12:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316582AbSH0RJJ>; Tue, 27 Aug 2002 13:09:09 -0400
-Received: from bs1.dnx.de ([213.252.143.130]:4531 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S316578AbSH0RJI>;
-	Tue, 27 Aug 2002 13:09:08 -0400
-Date: Tue, 27 Aug 2002 19:13:23 +0200
+	id <S316659AbSH0RMM>; Tue, 27 Aug 2002 13:12:12 -0400
+Received: from bs1.dnx.de ([213.252.143.130]:6579 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S316615AbSH0RML>;
+	Tue, 27 Aug 2002 13:12:11 -0400
+Date: Tue, 27 Aug 2002 19:16:22 +0200
 From: Robert Schwebel <robert@schwebel.de>
-To: "Daniel I. Applebaum" <kernel@danapple.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1[89] boot problem
-Message-ID: <20020827171323.GP6981@pengutronix.de>
-References: <20020823060716.020F1107D9@wotke.danapple.com> <20020827130810.1A04F111F0@wotke.danapple.com>
+To: Stephen Samuel <samuel@bcgreen.com>
+Cc: "Wessler, Siegfried" <Siegfried.Wessler@de.hbm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: interrupt latency
+Message-ID: <20020827171622.GQ6981@pengutronix.de>
+References: <D3524C0FFDC6A54F9D7B6BBEECD341D5D56FDB@HBMNTX0.da.hbm.com> <3D6B88AE.8010206@bcgreen.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20020827130810.1A04F111F0@wotke.danapple.com>
+In-Reply-To: <3D6B88AE.8010206@bcgreen.com>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 27, 2002 at 08:08:05AM -0500, Daniel I. Applebaum wrote:
-> I've been tracking down my booting problem, and while reviewing old
-> email, found that in trying to track down (and never succeeding) a VM
-> problem last fall, I determined that any kernel after 2.4.15-pre2
-> would not boot on my machine.  So, something changed between
-> 2.4.15-pre2 and 2.4.15-pre3 that means linux will not boot.  The
-> symptom is that the boot sequence displays "Loading linux-2.4.19..."
-> but never display "Uncompressing".  I've enclosed the 2.4.15-pre3
-> Changelog.  Any ideas which of the changes would have affected
-> booting?
+On Tue, Aug 27, 2002 at 07:11:58AM -0700, Stephen Samuel wrote:
+> http://www.linux.org/dist/index.html contains an index to a number of
+> Linux distributions.  Check out the embeded kernels. They include some
+> Realtime mods. As an example, RTLinux claims to do hard realtime by
+> running the Linux kernel as it's lowest priority task. This is supposed
+> to allow serious realtime work without having to mess too much with
+> the kernel.
 
-I missed the original post - on which plattform do you want to run your
-kernel? I had similar problems with versions around that time and it
-turned out that it came from a change in the A19 initialisation code in
-combination with some BIOSes. A fix for the AMD Elan family went into
-2.4.18, but it may affect others as well. 
+Take also into account that RT-Linux is patented technology (for details
+see http://www.aero.polimi.it/~rtai/documentation/articles/moglen.html).
+
+There is also RTAI as an alternative, which has a very supportive user
+community. 
 
 Robert
 -- 

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129401AbRAEOk2>; Fri, 5 Jan 2001 09:40:28 -0500
+	id <S129834AbRAEOwC>; Fri, 5 Jan 2001 09:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRAEOkT>; Fri, 5 Jan 2001 09:40:19 -0500
-Received: from h57s242a129n47.user.nortelnetworks.com ([47.129.242.57]:25315
-	"EHLO zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S129401AbRAEOkN>; Fri, 5 Jan 2001 09:40:13 -0500
-Message-ID: <3A55DC2E.9C342224@nortelnetworks.com>
-Date: Fri, 05 Jan 2001 09:37:34 -0500
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
-X-Accept-Language: en
+	id <S130149AbRAEOvv>; Fri, 5 Jan 2001 09:51:51 -0500
+Received: from sm10.texas.rr.com ([24.93.35.222]:43276 "EHLO sm10.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S129834AbRAEOvj>;
+	Fri, 5 Jan 2001 09:51:39 -0500
+Date: Fri, 5 Jan 2001 08:49:28 -0600 (CST)
+From: Brad Hartin <bhartin@satx.rr.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18: do_try_to_free_pages
+In-Reply-To: <Pine.LNX.4.21.0101051232150.1295-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0101050844170.11583-100000@osprey.hartinhome.net>
 MIME-Version: 1.0
-To: Manfred Bartz <md-linux-kernel@logi.cc>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Anyone else interested in a high-precision monotonic counter?
-In-Reply-To: <Pine.BSF.4.21.0012180711330.89819-100000@beppo.feral.com> <3A3E336C.B29BBA89@nortelnetworks.com> <14912.11470.540247.408234@diego.linuxcare.com.au> <3A550AC8.D22D0CE4@nortelnetworks.com> <20010105032900.22980.qmail@logi.cc>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@americasm01.nt.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Bartz wrote:
+On Fri, 5 Jan 2001, Rik van Riel wrote:
 
-> Why a new system call?
-Well, you'd be accessing a different kernel variable--"ytime" instead of
-"xtime". This new variable wouldn't be adjusted when the  system
-time/date was, it would start at zero and always increase. 
- 
-> regarding a:  it could have microsecond resolution but not
->               microseconds accuracy.
+> [If you don't mind, please help test 2.4.0 a bit more. I'm
+> pretty confident it's better than 2.2.18 when under load,
+> but maybe the device drivers you use still need some tweaking]
 
-On PPC and x86 systems, gettimeofday() is both accurate and precise to
-microseconds, since it is based off of jiffies and then offset to get
-microseconds.
+I'll be trying to move to 2.4.0 again soon.  First 2.4.0-test* I tried was
+one that ate filesystems (reinstall, not pretty).  Second 2.4.0-test* I
+tried, I tried to get UDMA working (ALi 1533) ate my filesystems
+again.  Third 2.4.0-test*, I finally decided to give up on UDMA on my
+hardware when I trashed my filesystems once again.  Tried changing the
+80-conductor cable a couple times, and tried different hdparm options, but
+no luck.  Sucks having two 7200RPM/2MB buffer/UDMA33 drives and only
+getting 7.7Mbyte/sec off of them.  At least my system at work
+(Athlon/Irongate) gets 24MB/sec without tweaking on one of those Maxtor
+60MB/5400RPM drives.
 
+Oh well, I'm just rambling now...I'll probably fire up 2.4.0 this weekend
+on my main machine, so unless this error is capable of corruption, I'll
+likely wait until then and just skip the 2.2.19 series.
 
-> regarding b:  have you looked at the return-value of times(2)
->               Or roll your own using setitimer(2)
+Thanks,
+-----------------------------------------
+Brad Hartin - bhartin@strafco.com
+Communications Administrator
+Straus-Frank Enterprises Limited
+Carquest retail/wholesale distributor for
+areas in TX, OK, LA, AR, NM, and KS
 
-Both of these are precise only to jiffies, which defaults at 10
-milliseconds on x86 and PPC.  If you want microsecond timing, the only
-current standard way to do it is to use gettimeofday(), which is
-sensitive to changes in system date and time.
-
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135889AbRAJPiI>; Wed, 10 Jan 2001 10:38:08 -0500
+	id <S129896AbRAJPsu>; Wed, 10 Jan 2001 10:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135996AbRAJPh6>; Wed, 10 Jan 2001 10:37:58 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:1022 "EHLO dagobert.svc.sysgo.de")
-	by vger.kernel.org with ESMTP id <S135889AbRAJPhx>;
-	Wed, 10 Jan 2001 10:37:53 -0500
-Date: Wed, 10 Jan 2001 16:37:48 +0100 (MET)
-From: Robert Kaiser <rob@sysgo.de>
-To: Anuradha Ratnaweera <anuradha@gnu.org>
-cc: linux-kernel@vger.kernel.org
+	id <S130110AbRAJPsl>; Wed, 10 Jan 2001 10:48:41 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27411 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129896AbRAJPsV>; Wed, 10 Jan 2001 10:48:21 -0500
 Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <Pine.LNX.4.04.10101101000130.27018-100000@hantana.pdn.ac.lk>
-Message-ID: <Pine.LNX.4.21.0101101632571.19662-100000@dagobert.svc.sysgo.de>
+To: rob@sysgo.de (Robert Kaiser)
+Date: Wed, 10 Jan 2001 15:49:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), richardj_moore@uk.ibm.com,
+        tleete@mountain.net (Tom Leete), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0101101559230.19382-100000@dagobert.svc.sysgo.de> from "Robert Kaiser" at Jan 10, 2001 04:04:34 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14GNVJ-0000Sz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 10 Jan 2001, Anuradha Ratnaweera wrote:
-
+> > So called 'sigma sigma' 386 and higher. Ie we dont support the 386 with the
+> > 32bit mul bugs.
 > 
-> I was just wondering if the kernel size has got to do anything to do with
-> this.  Did you try a very very small kernel with the minimal features
-> anyway?
-> 
+> Is this a new thing in 2.4.0 ? Could it possibly cause a crash as
+> early as pagetable_init() ?
 
-I tried this: kernel is now 277KB compressed, 725KB uncomressed.
-Still no effect :-(
-
-----------------------------------------------------------------
-Robert Kaiser                          email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14
-D-55270 Klein-Winternheim / Germany    fax:   (49) 6136 9948-10
+We've never supported pre sigmasigma cpus although someone posted a patch to
+Linux 1.2 once. You won't find many of the cpus before that. At the time 386
+was priced like a Xeon is now and most were recalled/pulled when the mul bug
+came out. 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

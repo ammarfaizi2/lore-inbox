@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264027AbTFVIjY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 04:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTFVIjX
+	id S264083AbTFVIpm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 04:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTFVIpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 04:39:23 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:40162 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264027AbTFVIjX (ORCPT
+	Sun, 22 Jun 2003 04:45:42 -0400
+Received: from smtp03.web.de ([217.72.192.158]:27427 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S264083AbTFVIpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 04:39:23 -0400
-Date: Sun, 22 Jun 2003 10:50:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Lou Langholtz <ldl@aros.net>
-Cc: Andrew Morton <akpm@digeo.com>, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] nbd driver 2.5+: fix for incorrect struct bio usage
-Message-ID: <20030622085006.GH608@suse.de>
-References: <3EF4D2C8.6060608@aros.net> <20030621151818.081139fc.akpm@digeo.com> <3EF4E5A9.5010802@aros.net>
+	Sun, 22 Jun 2003 04:45:41 -0400
+Date: Sun, 22 Jun 2003 11:19:11 +0200
+From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
+To: Steven French <sfrench@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [CIFS] Fix compile warning for fs/cifs/cifsfs.c
+Message-Id: <20030622111911.33c1d041.l.s.r@web.de>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EF4E5A9.5010802@aros.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 21 2003, Lou Langholtz wrote:
-> Here's a possible patch #2... I believe the address pointed to by 
-> bio_data(bio) is not always contiguous over the length of bio->bi_size 
-> and was responsible for locking my machine up sometimes. My biggest 
-> reason for apprehension on believeing that I'm 100% correct on this is 
-> that there's still what appears to be a source of memory corruption in 
-> the patchlet modified nbd driver even after this patch. I know the 
-> driver is still not correctly notifying processes of the bytesize on 
-> open but the size reported appears to be big enough. Anyway, thanks for 
-> all of the feedback so far!!!!
+Hi,
 
-You are correct, the current code breaks down for multi-page bio's. It
-looks like you are missing a kmap still though, bvec->bv_page could be a
-highmem page.
+this patch fixes a compile warning about incompatible types in
+fs/cifs/cifsfs.c in cifs_statfs(). This function is called with
+a pointer to a struct kstatfs, so let's propagate this type into
+the helper function.
 
--- 
-Jens Axboe
+René
+
+
+
+diff -u ./fs/cifs/cifsproto.h~ ./fs/cifs/cifsproto.h
+--- ./fs/cifs/cifsproto.h~	2003-06-22 10:04:00.000000000 +0200
++++ ./fs/cifs/cifsproto.h	2003-06-22 10:52:06.000000000 +0200
+@@ -137,7 +137,7 @@
+ 			const char *old_path, const struct nls_table *nls_codepage, 
+ 			unsigned int *pnum_referrals, unsigned char ** preferrals);
+ extern int CIFSSMBQFSInfo(const int xid, struct cifsTconInfo *tcon,
+-			struct statfs *FSData,
++			struct kstatfs *FSData,
+ 			const struct nls_table *nls_codepage);
+ extern int CIFSSMBQFSAttributeInfo(const int xid,
+ 			struct cifsTconInfo *tcon,
+diff -u ./fs/cifs/cifssmb.c~ ./fs/cifs/cifssmb.c
+--- ./fs/cifs/cifssmb.c~	2003-06-14 21:18:01.000000000 +0200
++++ ./fs/cifs/cifssmb.c	2003-06-22 10:51:30.000000000 +0200
+@@ -1782,7 +1782,7 @@
+ 
+ int
+ CIFSSMBQFSInfo(const int xid, struct cifsTconInfo *tcon,
+-	       struct statfs *FSData, const struct nls_table *nls_codepage)
++	       struct kstatfs *FSData, const struct nls_table *nls_codepage)
+ {
+ /* level 0x103 SMB_QUERY_FILE_SYSTEM_INFO */
+ 	TRANSACTION2_QFSI_REQ *pSMB = NULL;
+
 

@@ -1,67 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267505AbSIRQnR>; Wed, 18 Sep 2002 12:43:17 -0400
+	id <S267361AbSIRQdt>; Wed, 18 Sep 2002 12:33:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267514AbSIRQnR>; Wed, 18 Sep 2002 12:43:17 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267505AbSIRQnO>; Wed, 18 Sep 2002 12:43:14 -0400
-Date: Wed, 18 Sep 2002 09:48:24 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andries Brouwer <aebr@win.tue.nl>, Ingo Molnar <mingo@elte.hu>,
+	id <S267441AbSIRQdt>; Wed, 18 Sep 2002 12:33:49 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:50662 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267361AbSIRQdp>;
+	Wed, 18 Sep 2002 12:33:45 -0400
+Date: Wed, 18 Sep 2002 18:46:03 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
        William Lee Irwin III <wli@holomorphy.com>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
  elimination, 2.5.35-BK
-In-Reply-To: <Pine.LNX.4.44L.0209181330580.1519-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.44.0209180938590.1913-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0209180915350.1913-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209181843240.23619-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 18 Sep 2002, Rik van Riel wrote:
+On Wed, 18 Sep 2002, Linus Torvalds wrote:
 
-> On Wed, 18 Sep 2002, Linus Torvalds wrote:
-> 
-> > I would suggest something like this:
-> >  - make pid_max start out at 32k or whatever, to make "ps" look nice if
-> >    nothing else.
-> >  - every time we have _any_ trouble at all with looking up a new pid, we
-> >    double pid_max.
-> 
-> > +		if (nr_threads > pid_max >> 4)
-> > +			pid_max <<= 1;
-> 
-> ... but watch out for over/underflow.  ;)
+> Yeah. It increases memory pressure for the _complex_ and _slow_
+> algorithms. Agreed.
 
-Actually, you can't overflow without having nr_threads be something like 
-27 bits, which means that you'd need to have 100 million threads active at 
-the same time.
+what complex and slow algorithms? Take a look at the alloc_pid() and 
+free_pid() fastpaths:
 
-Which, btw, is impossible anyway due to running out of memory to hold all
-the thread data structures on a 32-bit architecture _long_ before you get
-close to having a high enough nr_threads.
+void free_pid(unsigned long pid)
+{
+        pidmap_t *map = pidmap_array + pid / BITS_PER_PAGE;
+        int offset = pid & BITS_PER_PAGE_MASK;
 
-On a 64-bit architecture you can do it with enough memory, but even that
-is a few years away (you'd need on the order of a couple of terabytes to
-do it).
+        atomic_inc(&map->nr_free);
+        test_and_clear_bit(offset, map->page));
+}
 
-> It would also be nice if we had some known limit on pid_max (say 8
-> million, fits in 7 digits).
+it's all bitshifts.
 
-Do the math. The above _will_ fit in 7 digits as long as you never have 
-more then about half a million threads active at the same time.
+int alloc_pid(void)
+{
+        pid = last_pid + 1;
+        if (pid >= pid_max)
+                pid = RESERVED_PIDS;
 
-Which, practically speaking, means that we're done. Quite frankly, the
-people who maintain machines that run millions of threads concurrently 
-care a hell of a lot more about the maching running _stable_ than about 
-"ps" being pretty.
+        offset = pid & BITS_PER_PAGE_MASK;
+        map = pidmap_array + pid / BITS_PER_PAGE;
 
-The people who care about ps being pretty will probably never see more 
-than 5 digits.
+        if (likely(map->page && !test_and_set_bit(offset, map->page))) {
+		atomic_dec(&map->nr_free);
+                last_pid = pid;
+                return pid;
+	[...]
+}
 
-		Linus
+> See my two-liner suggestion (which is admittedly not even compiled, so
+> the one disadvantage it might have is that it might need to be debugged.
+> But it's only two lines and doesn't actually change any fundamental part
+> of any existing algorithms, so debugging shouldn't be a big problem.
+
+it solves the PID-space-squeeze problem, but it does not solve the
+fundamental problem: possibly thousands of consecutive PIDs allocated.
+
+	Ingo
 

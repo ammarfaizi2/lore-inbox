@@ -1,73 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbULJXvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbULJXxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbULJXvk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 18:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbULJXvk
+	id S261881AbULJXxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 18:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbULJXxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 18:51:40 -0500
-Received: from chello083144090118.chello.pl ([83.144.90.118]:40708 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261874AbULJXvh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 18:51:37 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+	Fri, 10 Dec 2004 18:53:13 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:31509 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261880AbULJXxB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 18:53:01 -0500
+Date: Fri, 10 Dec 2004 23:52:30 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10rc3+cset == oops (fs).
-Date: Sat, 11 Dec 2004 00:51:34 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200412102330.02459.pluto@pld-linux.org> <20041210152555.5c579892.akpm@osdl.org>
-In-Reply-To: <20041210152555.5c579892.akpm@osdl.org>
+cc: clameter@sgi.com, <torvalds@osdl.org>, <benh@kernel.crashing.org>,
+       <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
+    tests
+In-Reply-To: <20041210141258.491f3d48.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0412102346470.521-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412110051.35050.pluto@pld-linux.org>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 11 of December 2004 00:25, Andrew Morton wrote:
-> Pawe__ Sikora <pluto@pld-linux.org> wrote:
-> > I've just tried to boot the 2.6.10rc3+cset20041210_0507.
+On Fri, 10 Dec 2004, Andrew Morton wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
 > >
-> > [handcopy of the ooops]
-> >
-> > dereferencing null pointer
-> > eip at: radix_tree_tag_clear
+> > > > (I do wonder why do_anonymous_page calls mark_page_accessed as well as
+> > > > lru_cache_add_active.  The other instances of lru_cache_add_active for
+> > > > an anonymous page don't mark_page_accessed i.e. SetPageReferenced too,
+> > > > why here?  But that's nothing new with your patch, and although you've
+> > > > reordered the calls, the final page state is the same as before.)
+> 
+> The point is a good one - I guess that code is a holdover from earlier
+> implementations.
+> 
+> This is equivalent, no?
 
- 407:lib/radix-tree.c **** 
- 408:lib/radix-tree.c ****   if (*pathp->slot == NULL)     <=== ooopses here
- 409:lib/radix-tree.c ****    goto out;
- 410:lib/radix-tree.c **** 
+Yes, it is equivalent to use SetPageReferenced(page) there instead.
+But why is do_anonymous_page adding anything to lru_cache_add_active,
+when its other callers leave it at that?  What's special about the
+do_anonymous_page case?
 
- 1341                .loc 1 408 0
- 1342 0605 8B45A4     movl -92(%ebp), %eax # <variable>.slot, D.9023
- 1343 0608 8B00       movl (%eax), %eax #* D.9023,
- 1344 060a 85C0       testl %eax, %eax #
- 1345 060c 744F       je .L132 #,
+Hugh
 
-> > trace:
-> > (...)
-> > test_clear_page_dirty
-> > truncate_complete_page
-> > truncate_inode_pages_range
-> > truncate_inode_pages
-> > generic_delete_inode
-> > sys_unlink
-> > initrd_load
-> > prepare_namespace
-> > (...)
->
-> I can't think of any recent changes whish could cause something like this.
-> Is this reproducible?  If so, could you please work out which kernel
-> version and bk snapshot introduced the bug?  Thanks.
-
-2.6.10rc1+cset20041025_0606 works fine (I'm using it now).
-2.6.10rc3+cset20041210_0507 oopses.
-
-I'll do more test later...
-
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)

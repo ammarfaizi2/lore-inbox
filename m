@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264358AbUFTIPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263769AbUFTIin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbUFTIPY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 04:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265308AbUFTIPY
+	id S263769AbUFTIin (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 04:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265509AbUFTIin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 04:15:24 -0400
-Received: from gate.perex.cz ([82.113.61.162]:40585 "EHLO mail.perex.cz")
-	by vger.kernel.org with ESMTP id S264358AbUFTIPX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 04:15:23 -0400
-Date: Sun, 20 Jun 2004 10:13:01 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Ryan Anderson <ryan@michonline.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Stop the Linux kernel madness
-In-Reply-To: <20040620052836.GC28363@michonline.com>
-Message-ID: <Pine.LNX.4.58.0406201010360.3528@pnote.perex-int.cz>
-References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk>
- <40D23EBD.50600@opensound.com> <20040618102523.GA7103@merlin.emma.line.org>
- <20040620052836.GC28363@michonline.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 20 Jun 2004 04:38:43 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:65155 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S263769AbUFTIim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 04:38:42 -0400
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+From: David Woodhouse <dwmw2@infradead.org>
+To: Albert Cahalan <albert@users.sf.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       jbglaw@lug-owl.de, arjanv@redhat.com,
+       Linus Torvalds <torvalds@osdl.org>, matthew-lkml@newtoncomputing.co.uk
+In-Reply-To: <1087704177.8185.951.camel@cube>
+References: <1087704177.8185.951.camel@cube>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1087720713.4520.13.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sun, 20 Jun 2004 09:38:33 +0100
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, Ryan Anderson wrote:
+On Sun, 2004-06-20 at 00:02 -0400, Albert Cahalan wrote:
+> The 0x9b character must be blocked, 
 
-> > What do I need commercial OSS for after all when Alsa works well for me?
-> 
-> Well, for what it's worth, there are a few devices out there for which
-> there is no open source driver:
-> 0000:02:02.0 Multimedia audio controller: Creative Labs [SB Live! Value]
-> EMU10k1X
-> (Dell Dimension 2100, *I think* - it's at work right, and I'm not)
-> 
-> I believe 4Front provides the only driver for that specific device (it's
-> a crippled EMU10k1, probably what could be called a "WinSoundchip")
+Why do you say 'must be blocked' instead of 'should not be printed'?
 
-We have an alpha driver in our CVS tree for this chip as well.
+The former implies some kind of post-processing to work around buggy
+kernel code printing crap. Surely it's better just to refrain from
+printing the crap in the first place?
 
-						Jaroslav
+Btw, your replies lack a correct References: and In-Reply-To: header, in
+violation of a 'SHOULD' in RFC2822 §3.6.4. Please fix this if you wish
+to participate in public fora.
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+-- 
+dwmw2
+
+

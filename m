@@ -1,91 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVARWzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVARXEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVARWzv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 17:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVARWzv
+	id S261462AbVARXEu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 18:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVARXEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 17:55:51 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:26320 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261461AbVARWzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 17:55:40 -0500
-Subject: [ANNOUNCEMENT] Collision regression test suite released
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-security-module@wirex.com" <linux-security-module@wirex.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ak9sIbunSFLYOcDu62h7"
-Date: Tue, 18 Jan 2005 23:55:08 +0100
-Message-Id: <1106088908.3832.56.camel@localhost.localdomain>
+	Tue, 18 Jan 2005 18:04:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13743 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261462AbVARXEt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 18:04:49 -0500
+Date: Tue, 18 Jan 2005 15:04:45 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: =?iso-8859-1?Q?Lorenzo_Hern=E1ndez_Garc=EDa-Hierro?= 
+	<lorenzo@gnu.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
+Subject: Re: [ANNOUNCEMENT] Collision regression test suite released
+Message-ID: <20050118150445.D24171@build.pdx.osdl.net>
+References: <1106088908.3832.56.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1106088908.3832.56.camel@localhost.localdomain>; from lorenzo@gnu.org on Tue, Jan 18, 2005 at 11:55:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Lorenzo Hernández García-Hierro (lorenzo@gnu.org) wrote:
+> Past days I wrote about a regression test suite which i used to explain
+> why a grsecurity-like security improvement could be good for mainline
+> inclusion, and also, that at least the 50% of the faults it shows on
+> Vanilla sources could be solved without major blocking issues (aka big
+> deals, whatever else).
 
---=-ak9sIbunSFLYOcDu62h7
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Thanks, I'll take a look.  Do you categorize the faults in any way?
 
-Hi,
-
-Past days I wrote about a regression test suite which i used to explain
-why a grsecurity-like security improvement could be good for mainline
-inclusion, and also, that at least the 50% of the faults it shows on
-Vanilla sources could be solved without major blocking issues (aka big
-deals, whatever else).
-
-I've released the code, so, everybody could mess it up and send me
-patches with fixes, enhancements, extra features or better source
-comments ;)
-
-The source code is available at
-http://cvs.tuxedo-es.org/cgi-bin/viewcvs.cgi/collision-rts/.
-
-An example results log dumped by it when running on a default Vanilla
-kernel (no security patches, etc) can be found at:
-http://cvs.tuxedo-es.org/cgi-bin/viewcvs.cgi/collision-rts/results/vanilla-=
-2.6-default.log?rev=3D1.1.1.1&view=3Dlog
-
-
-In the forthcoming days i will try to add more tests to it, mainly
-related with capabilities and such, for SELinux and LSM testing.
-Also, maybe an ExecShield specific test (see [1] and [2]) and possibly a
-few other tests related with BSD Jails.
-
-I would like to have feedback about it, but it's main goal is to show
-that there are still some security "faults" that affect users of Vanilla
-sources that can be solved without a lot of pain and could represent a
-start for those who want better security worked on many time before me
-and have been ignored or just left working alone and independently.
-
-The suite has some tests related with "toolchain" hardening, but most
-stuff is kernel-related.
-
-Hopefully it will be useful, so, enjoy.
-
-References:
-[1]: http://212.130.50.194/papers/attack/ExploitingFedora.txt
-[2]: http://phrack.org/phrack/56/p56-0x05
-[3]: http://phrack.org/phrack/58/p58-0x04
-
-Cheers,
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
-[2048g/9AE91A22] Hardened Debian head developer & project manager
-
---=-ak9sIbunSFLYOcDu62h7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB7ZPMDcEopW8rLewRApj/AKDIc55cuHWhJP2SFO6LDMxdJOk9KgCg16BC
-v5OQrznq2zapGBKy+ZC8Mfc=
-=iXSL
------END PGP SIGNATURE-----
-
---=-ak9sIbunSFLYOcDu62h7--
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

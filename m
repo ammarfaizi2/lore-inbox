@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281735AbRLGPDd>; Fri, 7 Dec 2001 10:03:33 -0500
+	id <S281811AbRLGPGz>; Fri, 7 Dec 2001 10:06:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281780AbRLGPDY>; Fri, 7 Dec 2001 10:03:24 -0500
-Received: from web13908.mail.yahoo.com ([216.136.175.71]:34569 "HELO
-	web13908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281735AbRLGPDU>; Fri, 7 Dec 2001 10:03:20 -0500
-Message-ID: <20011207150319.89014.qmail@web13908.mail.yahoo.com>
-Date: Fri, 7 Dec 2001 07:03:19 -0800 (PST)
-From: Jorge Carminati <jcarminati@yahoo.com>
-Subject: Re: Kernel freezing....
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E16CLPT-0005sN-00@the-village.bc.nu>
+	id <S281780AbRLGPFz>; Fri, 7 Dec 2001 10:05:55 -0500
+Received: from ns1.jasper.com ([64.19.21.34]:26833 "EHLO ersfirep1")
+	by vger.kernel.org with ESMTP id <S281795AbRLGPFn>;
+	Fri, 7 Dec 2001 10:05:43 -0500
+From: "Radivoje Todorovic" <radivojet@jaspur.com>
+To: "Abhishek Rai" <abbashake007@yahoo.com>,
+        "Kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Qusestion: printk
+Date: Fri, 7 Dec 2001 09:02:35 -0600
+Message-ID: <BOEOJGNGENIJJMAOLHHCAEENCLAA.radivojet@jaspur.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <20011207064010.5879.qmail@web11403.mail.yahoo.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The same happened to me and what I did is to restart syslog. Try it
 
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > In all the cases the compiled kernel had set exactly the same
-> options,
-> > **just changed the cpu optimization type**. Kernel version 2.4.16.
-> > 
-> > Conclusion: IMHO it´s a kernel bug. The same .config optimized for
-> AMD
-> > freezes, and Red Hat's default kernel does the same. Luckily for my
-> > investment it´s not a memory bug.
-> 
-> The AMD K7 stuff will trigger hardware bugs on some VIA boards. We
-> know
-> that bit. Why the RH one crashes may be that or may be a different
-> bug
-> fixed between 2.4.9->16. 
-> 
-> Either way this is good news. The machine seems fine and the newer
-> kernel
-> seems to be behaving well.
-> 
-> Alan
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Abhishek Rai
+Sent: Friday, December 07, 2001 12:40 AM
+To: Kernel
+Subject: Qusestion: printk
 
-Alan, 
 
-Just one question: in a perfect world, as for the moment in this
-notebook MK7 CPU optimization is not a choice, which should be the
-highest recommended CPU optimization setting that I should try/run ? .
+printk works erratically on my machine:
 
-M586MMX 
-M686  
-MPENTIUMIII 
-MK6 (my supposition)
+the same module with the same kernel priority flag for
+printk (eg. KERN_INFO, KERN_EMERG etc) when insmoded
+one time will have printk working just fine. but say
+the next time  the comp boots, or even i rmmod it and
+reinsert, printk won't print anything. 
+however in one lifetime of the module, the behaviour
+is consistent- either all the printk's work all don't
+work.
 
-Thanks in advance,
-Jorge Carminati.
+-abhishek
 
-P.S: For any answer please CC to jcarminati@yahoo.com
+
+=====
+Don't say Goodbye say Goodluck
+============================================================
+Abhishek Rai
+3rd year,B.Tech, Computer Science and Engineering
+IIT KGP,India
+abbashake007@yahoo.com
+============================================================
 
 
 __________________________________________________
 Do You Yahoo!?
 Send your FREE holiday greetings online!
 http://greetings.yahoo.com
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289369AbSAJKAs>; Thu, 10 Jan 2002 05:00:48 -0500
+	id <S289366AbSAJKAI>; Thu, 10 Jan 2002 05:00:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289368AbSAJKA3>; Thu, 10 Jan 2002 05:00:29 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:19961 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S289369AbSAJKAQ>;
-	Thu, 10 Jan 2002 05:00:16 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 10 Jan 2002 10:00:14 GMT
-Message-Id: <UTC200201101000.KAA311551.aeb@cwi.nl>
-To: ben@xmission.com, chris@void.printf.net
-Subject: Re: Bigggg Maxtor drives (fwd)
+	id <S289368AbSAJJ76>; Thu, 10 Jan 2002 04:59:58 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:21266 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S289366AbSAJJ7x>; Thu, 10 Jan 2002 04:59:53 -0500
+Date: Thu, 10 Jan 2002 03:59:44 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020110035944.E25474@asooo.flowerfire.com>
+In-Reply-To: <20020108173254.B9318@asooo.flowerfire.com> <E16O6KE-00087x-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16O6KE-00087x-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Jan 09, 2002 at 12:10:38AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 04:03:09AM +0000, Chris Ball wrote:
-> On Wed, Jan 09, 2002 at 08:14:32PM -0700, Benjamin S Carrell wrote:
-> > I would think that you lose that space to formatting
->
-> Is this perhaps Maxtor providing their own 'non-standard'[1] definition
-> of gigabyte, rather than a technical issue?
->
-> [1]: (viz. 'wrong')
+On Wed, Jan 09, 2002 at 12:10:38AM +0000, Alan Cox wrote:
+| That is generally not true. Pe-emption is used in user space to prevent
+| applications doing very stupid things. Pre-emption in a trusted environment
+| can often be most efficient if done by the programs themselves.
+| Userspace is not a trusted environment
 
-No, *all* disk manufacturers *always* use decimal, correctly following
-the standard. And it has been like this for many years.
+That's true, but at some point in the future I think the work involved
+in making sure all new additional kernel code and all new intra-kernel
+interactions are "tuned" becomes larger than going preemptive all the
+way down.
 
-No, this is an entirely different phenomenenon.
-In the Large Disk Howto you can read in
-        http://www.win.tue.nl/~aeb/linux/Large-Disk-4.html#ss4.2
-about IDE limits:
+Apple had its arguments for cooperative, along the same lines as what
+you've mentioned I believe.  And while I agree that the kernel is a much
+_more_ trusted environment, I think the possibilities easily remain for
+abuse given that there are A) more and more people contributing kernel
+code every day, and B) countless unspeakably evil modules out there.
 
-ATA Specification (for IDE disks) - the 137 GB limit
+And the preempt tunability that has been mentioned sounds like it would
+go a long way.
 
-    At most 65536 cylinders (numbered 0-65535), 16 heads (numbered 0-15),
-    255 sectors/track (numbered 1-255), for a maximum total capacity of
-    267386880 sectors (of 512 bytes each), that is, 136902082560 bytes
-    (137 GB). This is not yet a problem (in 1999), but will be a few
-    years from now.
+| Andrew's patches give you 1mS worst case latency for normal situations, that
+| is below human perception, and below scheduling granularity. In other words
+| without the efficiency loss and the debugging problems you can place the
+| far enough latency below other effects that it isnt worth attacking any more.
 
-And indeed, in 2001 the 137 GB limit was crossed.
-In order to make addressing of larger disks possible, a new addressing
-mode was introduced (in the ATA6 draft, rev 0b), that uses 48-bit
-addressing (instead of 28-bit). Thus, the new limit is roughly 
-a million times larger.
-
-Thus, we need new code that implements the new addressing.
-Since one only hears positive reports on Andre's patch, probably
-we should take all of it, but the code for 48-bit addressing
-is a small fragment that could also easily be separated out.
-
-Andries
+It sounds like the LL patches are easier and less prone to locking
+issues with a lot of the benefit.  But I can't help but feel that it's
+not using the right tool for the job.  I think the end result of
+stabilizing a preemptive kernel (in 2.5?) is worth the price, IMHO.
+-- 
+Ken.
+brownfld@irridia.com

@@ -1,84 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbTKTKZy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 05:25:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbTKTKZy
+	id S261406AbTKTKVU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 05:21:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTKTKVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 05:25:54 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:10942 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261659AbTKTKZu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 05:25:50 -0500
-Date: Thu, 20 Nov 2003 15:55:25 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [PATCH] sysfs_remove_dir Vs dcache_readdir race fix
-Message-ID: <20031120102525.GD1367@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20031120054707.GA1724@in.ibm.com> <20031120054957.GD24159@parcelfarce.linux.theplanet.co.uk> <20031120055655.GB1724@in.ibm.com>
-Mime-Version: 1.0
+	Thu, 20 Nov 2003 05:21:20 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:57776 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261406AbTKTKVT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 05:21:19 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031120055655.GB1724@in.ibm.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16316.38292.729957.491201@alkaid.it.uu.se>
+Date: Thu, 20 Nov 2003 11:21:08 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: high res timestamps and SMP
+In-Reply-To: <1069297341.23568.130.camel@cog.beaverton.ibm.com>
+References: <3FBBF148.20203@nortelnetworks.com>
+	<1069297341.23568.130.camel@cog.beaverton.ibm.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 11:26:55AM +0530, Maneesh Soni wrote:
-> On Thu, Nov 20, 2003 at 05:49:57AM +0000, viro@parcelfarce.linux.theplanet.co.uk wrote:
-> > On Thu, Nov 20, 2003 at 11:17:07AM +0530, Maneesh Soni wrote:
-> > > Hi,
-> > > 
-> > > sysfs_remove_dir modifies d_subdirs list which results in inconsistency
-> > > when there is concurrent dcache_readdir is going on. I think there
-> > > is no need for sysfs_remove_dir to modify d_subdirs list and removal
-> > > of dentries from d_child list is taken care in the final dput().
-> > 
-> > WTF?
-> > 
-> > All instances of ->readdir() are protected by ->i_sem on parent.  So
-> > are all operations in sysfs_remove_dir().
-> > 
-> > Have you actually observed any race there?
-> 
-> Yes.. if you run the mentioned two loops on an SMP box, you will find that
-> dcache_readdir is looping with dcache_lock held up in less than a minute. 
-> The problem comes when sysfs_remove_dir has done list_del_init on the cursor 
-> dentry which is being used in dcache_readdir. Please enable pr_debug() also 
-> in sysfs_remove_dir to see the this happening.
-> 
-> Maneesh
+john stultz writes:
+ > On Wed, 2003-11-19 at 14:40, Chris Friesen wrote:
+ > > We have a requirement to have high-res timestamps available on SMP systems.
+...
+ > o PPC has a nice in-cpu time-base register (ppc folks, feel free to
+ > smack or correct me on this) which is driven off the bus-clock and is
+ > synced in hardware. 
 
-Clarrifying more:
+Last time I checked, all 32-bit PowerPC chips ran that clock at 1/4
+of the bus clock speed.
 
-Actually race is not directly between dcache_readdir and sysfs_remove_dir but
-it is like this
+That may be adequate for time-of-day and I/O delays and such, but
+it's worthless for timestamps or performance measurements.
 
-cpu 0						cpu 1
-dcache_dir_open()
---> adds the cursor dentry
-
-					sysfs_remove_dir()
-					--> list_del_init cursor dentry
-
-dcache_readdir()
---> loops forever on inititalized cursor dentry.
-
-
-Though all these operations happen under parent's i_sem, but it is dropped 
-between ->open() and ->readdir() as both are different calls. 
-
-I think people will also agree that there is no need for sysfs_remove_dir() 
-to modify d_subdirs list.
-
-Maneesh
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+It's possible to count core clocks via a performance counter, but
+I don't know if they are synced between CPUs.

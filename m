@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312379AbSD1Rmd>; Sun, 28 Apr 2002 13:42:33 -0400
+	id <S311898AbSD1RmP>; Sun, 28 Apr 2002 13:42:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313578AbSD1Rmc>; Sun, 28 Apr 2002 13:42:32 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:54981 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S312379AbSD1Rma>; Sun, 28 Apr 2002 13:42:30 -0400
-Date: Sun, 28 Apr 2002 13:42:30 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: How far has initramfs got ?
-Message-ID: <20020428174230.GE18102@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <171nLP-1WyTImC@fwd09.sul.t-online.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S312379AbSD1RmO>; Sun, 28 Apr 2002 13:42:14 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33192 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S311898AbSD1RmM>; Sun, 28 Apr 2002 13:42:12 -0400
+Date: Sun, 28 Apr 2002 11:42:07 -0600
+Message-Id: <200204281742.g3SHg7S25357@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+In-Reply-To: <E171CC4-0000Bs-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 28, 2002 at 04:00:16PM +0200, Christian Koenig wrote:
-> How far have the initramfs stuff got ? Is there any code yet ?
-> I have implementet some very very simple cpio image extraction in 
-> init/do_mounts.c and want to know if this could be usefull to somebody. 
+Daniel Phillips writes:
+> On Saturday 27 April 2002 20:59, Richard Gooch wrote:
+> > I've added two subsections to the FAQ about this, which I hope will
+> > avoid some future flamewars:
+> > http://www.tux.org/lkml/#s1-20
+> > http://www.tux.org/lkml/#s1-21
 > 
-> Should it be possible to use initramfs without the ramdisk driver compiled in?
+> 
+> > it's better that those who feel stronly about it
+>                                   ^^^^^^^--------- typo
 
-I would like to add that perhaps using tmpfs instead of ramfs would be
-a nice touch. As the initial ramfs would get overmounted instead of
-unmounted, this allows the contents of the initial fs to get swapped
-out instead of either taking up memory indefinitely.
+Bugger! Thanks.
 
-Also isn't tmpfs already compiled into the kernel by default to support
-shared memory and such?
+				Regards,
 
-Jan
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

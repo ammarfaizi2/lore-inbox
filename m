@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261290AbSKGPhy>; Thu, 7 Nov 2002 10:37:54 -0500
+	id <S261296AbSKGPlE>; Thu, 7 Nov 2002 10:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261291AbSKGPhx>; Thu, 7 Nov 2002 10:37:53 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45069 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261290AbSKGPhx>; Thu, 7 Nov 2002 10:37:53 -0500
-Date: Thu, 7 Nov 2002 07:44:51 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: What's left over.
-In-Reply-To: <m14ratepbf.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.44.0211070731200.5567-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261299AbSKGPlE>; Thu, 7 Nov 2002 10:41:04 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:16331 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261296AbSKGPlD>;
+	Thu, 7 Nov 2002 10:41:03 -0500
+Date: Thu, 7 Nov 2002 15:46:09 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.45 / boottime oops (pnp bios I think)
+Message-ID: <20021107154609.GB25903@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, CaT <cat@zip.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021107145112.GA24278@suse.de> <1036415133.1106.10.camel@irongate.swansea.linux.org.uk> <20021104025458.GA3088@zip.com.au> <9668.1036679581@passion.cambridge.redhat.com> <11262.1036680930@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11262.1036680930@passion.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Nov 07, 2002 at 02:55:30PM +0000, David Woodhouse wrote:
 
-On 7 Nov 2002, Eric W. Biederman wrote:
-> 
-> There are currently 2 cases that it would be nice to have work.
-> 1) Load a new kernel and immediately execute it.
-> 2) Load a new kernel and execute it on panic.
+ > There are also more and more boxes out there which won't run X without the
+ > nvidia driver loaded.
 
-I really don't think (1) is _ever_ a valid thing to do.
+Crap. The OSS driver works fine, just not as accelerated.
+ 
+ > I'm not necessarily suggesting we should automatically ignore all reports 
+ > with the 'BIOS' taint flag set as we do the 'Proprietary' flag; just that 
+ > it should be reported.
 
-The fact is, loading a new kernel wants filesystems and a fully working 
-system. While executing it wants the filesystems quiescent.
+I don't see what it would buy us.
 
-> panic does not call sys_reboot it rolls that functionality by hand.
+		Dave
 
-Forget about panic for now. It's a design issue - it should be possible to 
-work, but somebody else can do it if the infrastructure is done right.
-
-> In a unified design I can buffer the image in the anonymous pages of a
-> user space process just as well as I can in locked down kernel memory.
-
-And in a unified design, I won't apply the patches. It's that simple.
-
-		Linus
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265158AbUELSPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUELSQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265158AbUELSPb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 14:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbUELSPa
+	id S265098AbUELSQg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 14:16:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265150AbUELSQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 14:15:30 -0400
-Received: from smtp4.poczta.onet.pl ([213.180.130.28]:12423 "EHLO
-	smtp4.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S265150AbUELSPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 14:15:17 -0400
-From: Marcin Garski <garski@poczta.onet.pl>
-Reply-To: garski@poczta.onet.pl
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: SiI3112 Serial ATA - no response on boot
-Date: Wed, 12 May 2004 20:14:01 +0200
-User-Agent: KMail/1.6.2
-References: <200405112052.44979.garski@poczta.onet.pl> <200405121851.42401.garski@poczta.onet.pl> <200405121926.43050.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200405121926.43050.bzolnier@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 12 May 2004 14:16:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27587 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265151AbUELSQZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 14:16:25 -0400
+Date: Wed, 12 May 2004 11:15:29 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org
+Subject: Re: Why pass pt_regs throughout the input system?
+Message-Id: <20040512111529.59d366f5.davem@redhat.com>
+In-Reply-To: <20040512084056.GB301@ucw.cz>
+References: <200405112304.50413.dtor_core@ameritech.net>
+	<20040512084056.GB301@ucw.cz>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405122014.01443.garski@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Please CC me on replies, I am not subscribed to the list, thanks]
+On Wed, 12 May 2004 10:40:56 +0200
+Vojtech Pavlik <vojtech@suse.cz> wrote:
 
-Bartlomiej Zolnierkiewicz wrote:
-> > Marco Adurno wrote:
-> > > I've got the same problem some time ago.
-> > > You have just to appen the string
-> > > hdg=none
-> > > in your boot loader config file
-> >
-> > Thanks, that's working.
-> > But isn't that a workaround for problem with probe (on NON SATA HDD
-> > probe don't generate such errors) that should be fixed somehow?
->
-> Yes, feel free to fix it. ;-)
+> Ask David S. Miller for details - I think the problem was with
+> simultaneous invocation of multiple pt_regs printouts.
 
-Maybe in future. Now i'am learning how to hack kernel (i would like to 
-write or fix some device driver, like you :) ) but currently i'm a 
-total newbie :(
--- 
-Best Regards
-Marcin Garski
+That's correct, if i'm using multiple keyboards (say one i8042 based
+and one USB based) in order to get fancy debugging dumps, any scheme
+that saves away info at interrupt time simply will be inaccurate and
+not work.

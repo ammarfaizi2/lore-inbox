@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136700AbREGWxw>; Mon, 7 May 2001 18:53:52 -0400
+	id <S136699AbREGXBy>; Mon, 7 May 2001 19:01:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136699AbREGWxl>; Mon, 7 May 2001 18:53:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38058 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136700AbREGWxY>;
-	Mon, 7 May 2001 18:53:24 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S136701AbREGXBo>; Mon, 7 May 2001 19:01:44 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:41220 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S136699AbREGXB3>; Mon, 7 May 2001 19:01:29 -0400
+Date: Mon, 7 May 2001 18:22:56 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <9d6npn$dhp$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105071820460.7506-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15095.10082.285131.289903@pizda.ninka.net>
-Date: Mon, 7 May 2001 15:53:22 -0700 (PDT)
-To: Sean Jones <sjones@ossm.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SPARC include problem
-In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>
-In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Sean Jones writes:
- > In compiling 2.4.4-ac5 for my SPARCStation 20, I had an error in the
- > compile resulting from the inability to find a hw_irq.h in the
- > include/asm directory. Do you know where I may be able to find such a
- > file?
 
-How did you find this problem if the build couldn't find the
-"bzImage" rule? :-)
+On 7 May 2001, Linus Torvalds wrote:
 
-Later,
-David S. Miller
-davem@redhat.com
+> But it is important to re-calculate the deadness after getting the
+> lock. Before, it was just an informed guess. After the lock, it is
+> knowledge. And you can use informed guesses for heuristics, but you
+> must _not_ use them for any serious decisions.
+
+And thats what swap_writepage() is doing:
+
+static int swap_writepage(struct page *page)
+{
+        /* One for the page cache, one for this user, one for page->buffers */
+        if (page_count(page) > 2 + !!page->buffers)
+                goto in_use;
+        if (swap_count(page) > 1)
+                goto in_use;
+
+...
+}
+
+
+

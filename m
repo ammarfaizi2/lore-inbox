@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130870AbRAIOdR>; Tue, 9 Jan 2001 09:33:17 -0500
+	id <S129324AbRAIOis>; Tue, 9 Jan 2001 09:38:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131088AbRAIOdH>; Tue, 9 Jan 2001 09:33:07 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59147 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130870AbRAIOcs>; Tue, 9 Jan 2001 09:32:48 -0500
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-To: sct@redhat.com (Stephen C. Tweedie)
-Date: Tue, 9 Jan 2001 14:33:13 +0000 (GMT)
-Cc: mingo@elte.hu (Ingo Molnar), hch@caldera.de (Christoph Hellwig),
-        davem@redhat.com (David S. Miller), riel@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-        sct@redhat.com (Stephen Tweedie)
-In-Reply-To: <20010109142542.G4284@redhat.com> from "Stephen C. Tweedie" at Jan 09, 2001 02:25:42 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Fzpr-0006ij-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129562AbRAIOij>; Tue, 9 Jan 2001 09:38:39 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:36160 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129324AbRAIOi1>; Tue, 9 Jan 2001 09:38:27 -0500
+Date: Tue, 9 Jan 2001 08:38:23 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200101091438.IAA52632@tomcat.admin.navo.hpc.mil>
+To: viro@math.psu.edu, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: `rmdir .` doesn't work in 2.4
+cc: andrea@suse.de, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Bad bad bad.  We already have SCSI devices optimised for bandwidth
-> which don't approach decent performance until you are passing them 1MB
-> IOs, and even in networking the 1.5K packet limit kills us in some
 
-Even low end cheap raid cards like the AMI megaraid dearly want 128K writes.
-Its quite a difference on them
+> On Tue, 9 Jan 2001, Jesse Pollard wrote:
+> 
+> > Not exactly valid, since a file could be created in that "pinned" directory
+> > after the rmdir...
+> 
+> No, it couldn't (if you can show a testcase when it would - please do, you've
+> found a bug). Moreover, busy directories can be removed in 2.4 quite fine -
+> it's about pathname, not about the thing being your (or somebody else) pwd.
 
+Apologies to all, foot-in-mouth disease....
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

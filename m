@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316789AbSHXVZa>; Sat, 24 Aug 2002 17:25:30 -0400
+	id <S316788AbSHXVda>; Sat, 24 Aug 2002 17:33:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316788AbSHXVZa>; Sat, 24 Aug 2002 17:25:30 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:51210 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S316789AbSHXVZa>; Sat, 24 Aug 2002 17:25:30 -0400
-Date: Sat, 24 Aug 2002 22:29:35 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
+	id <S316792AbSHXVda>; Sat, 24 Aug 2002 17:33:30 -0400
+Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:64421 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316788AbSHXVda>; Sat, 24 Aug 2002 17:33:30 -0400
+Date: Sat, 24 Aug 2002 15:32:37 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC] make localconfig
-Message-ID: <20020824212935.GA6093@compsoc.man.ac.uk>
-References: <20020824222735.B21265@vdpas.hobby.nl> <Pine.LNX.4.44.0208241522061.3234-100000@hawkeye.luckynet.adm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208241522061.3234-100000@hawkeye.luckynet.adm>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
-X-Scanner: exiscan *17iiTQ-0001oj-00*ap27LxX5yR6* (Manchester Computing, University of Manchester)
+In-Reply-To: <Pine.LNX.4.44.0208240759120.3234-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44.0208241529550.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 24, 2002 at 03:25:58PM -0600, Thunder from the hill wrote:
+Hi,
 
-> If you think it's a _deadly_bad_idea_to_do_ please tell me. It is, after 
-> all, just an RFC, means I request you to comment on this. I could even ask 
-> for kernel protection for the mice.
+On Sat, 24 Aug 2002, Thunder from the hill wrote:
+> 	This is supposed to be a first step into a new direction where 
+> 	we no longer copy vendor kernels from the vendor CD to the system 
+> 	in the first position, but rather configure a new kernel for each 
+> 	system, hoping that somewhen the boxes will be fast enough to 
+> 	handle it in no time.
 
-It's an old idea that has been implemented at least once... I suggest
-you read the archives
+Let me be clear on this. I'm not for an "Aunt T*ll*e compiling a kernel", 
+but I'm rather thinking about following the comments on non-binary 
+distribution of programs. (Remember the talks when somebody suggested that 
+programs might be distributed more flexible if they're configured and 
+compiled on install?)
 
-john
-
+			Thunder
 -- 
-"When your name is Winner, that's it. You don't need a nickname."
-	- Loser Lane
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

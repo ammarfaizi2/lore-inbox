@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVBOOnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVBOOv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVBOOnP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 09:43:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVBOOnP
+	id S261739AbVBOOv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 09:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVBOOv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 09:43:15 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:53155 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261736AbVBOOnI (ORCPT
+	Tue, 15 Feb 2005 09:51:56 -0500
+Received: from rproxy.gmail.com ([64.233.170.193]:53805 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261739AbVBOOvw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 09:43:08 -0500
+	Tue, 15 Feb 2005 09:51:52 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=dvQC+BUUutg5Yheu02GEZBckd/s6t8s8LOE/St2jtiy9CbZWe4wHUZig0zSHMRVTPJ83xtwlPIPkwT1fDBm/NJNLp3ppwACHo6oXhq7smYkFMf++ZRmi7e3/vEf1libhFgKoqiXW/w4PfDx4maEOI81pnxG7+e9S5k2LcZjs4rQ=
-Message-ID: <d120d500050215064357fa60c@mail.gmail.com>
-Date: Tue, 15 Feb 2005 09:43:07 -0500
+        b=Bc74fqNE//qCfyn93Xlt5keuvU87pINy+EXr8kZpyEZj6hFhlmOm5bGY44veB+8Dlupxj8C1kGY7Zr67AX2N0QBv3gD6yA6jryO+Qczs3AfvFs5N7QtG7xNgneUeEYpyGpipZqgvFX5uBKYXC6CE++txP8VRCLD0y6bV7y90vdE=
+Message-ID: <d120d500050215065115706773@mail.gmail.com>
+Date: Tue, 15 Feb 2005 09:51:52 -0500
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Reply-To: dtor_core@ameritech.net
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-Cc: Kenan Esau <kenan.esau@conan.de>, harald.hoyer@redhat.de,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-In-Reply-To: <20050215134308.GE7250@ucw.cz>
+Subject: Re: [RCF/RFT] Fix race timer race in gameport-based joystick drivers
+Cc: InputML <linux-input@atrey.karlin.mff.cuni.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050215140501.GF7250@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050211201013.GA6937@ucw.cz> <1108457880.2843.5.camel@localhost>
-	 <20050215134308.GE7250@ucw.cz>
+References: <200502150042.32564.dtor_core@ameritech.net>
+	 <20050215140501.GF7250@ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Feb 2005 14:43:08 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Tue, Feb 15, 2005 at 09:57:59AM +0100, Kenan Esau wrote:
-> > +static struct dmi_system_id lifebook_dmi_table[] = {
-> > +     {
-> > +             .ident = "Fujitsu Siemens Lifebook B-Sereis",
-> > +             .matches = {
-> > +                     DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK B Series"),
-> > +             },
-> > +     },
-> > +     { }
-> > +};
+On Tue, 15 Feb 2005 15:05:01 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
+> On Tue, Feb 15, 2005 at 12:42:31AM -0500, Dmitry Torokhov wrote:
+> > Hi,
+> >
+> > There seems to be a race WRT to timer handling in all gameport-based
+> > joystick drivers. open() and close() methods are used to start and
+> > stop polling timers on demand but counter and the timer itself is not
+> > protected in any way so if several clients will try to open/close
+> > corresponding input device node they could up with timer not running
+> > at all or running while nobody has the node open. Plus it is possible
+> > that disconnect will run and free driver structure while timer is running
+> > on other CPU.
+> >
+> > I have moved timer and counter down into gameport structure (I think it
+> > is ok because on the one hand joysticks are the only users of gameport
+> > and on the other hand polling timer can be useful to other clients if
+> > ever writen), and added helper functions to manipulate it:
+> >
+> >       - gameport_start_polling(gameport)
+> >       - gameport_stop_polling(gameport)
+> >       - gameport_set_poll_handler(gameoirt, handler)
+> >       - gameport_set_poll_interval(gameport, msecs)
+> >
+> > gameport_{start|stop}_poll handler are using spinlock to guarantee that
+> > timer updated properly. Also, gameport_close deletes (synchronously) timer
+> > to make sure there is no surprises since gameport_stop_poling does del_timer
+> > and thus may leave timer scheduled. Timer routine also checks the counter
+> > and does not restart it if there are no users.
+> >
+> > Please let me know what you think.
 > 
-> This might be a bit too much generic. Are you sure there are no B Series
-> lifebooks without a touchscreen?
+> I'm not really sure if I really want to move the polling into the
+> gameport layer. It's useful, but without it, gameport is considered
+> strictly a passive device which can't generate callbacks (other than
+> open/close/connect/disconnect).
 > 
+> The new polling interface isn't much simpler than what Linux timers
+> offer, only it provides additional locking.
 
-And another concern: does this notebook (or others using this
-touchscreen) have an active MUX? We don't want to force LBTOUCH
-protocol on an external mouse.
+Yes, that was the goal. I looked over the drivers and it was either
+writing the exactly same code 10 times or moving it down.
+ 
+> Probably protecting open/close calls in gameport.c with a spinlock would
+> allow to work without explicit locking in the drivers.
 
-> > +static psmouse_ret_t lifebook_process_byte(struct psmouse *psmouse, struct pt_regs *regs)
-> > +{
-> > +     unsigned char *packet = psmouse->packet;
-> > +     struct input_dev *dev = &psmouse->dev;
-> > +
-> > +        unsigned long x = 0;
-> > +        unsigned long y = 0;
-> > +        static uint8_t pkt_lst_touch = 0;
-> > +     static uint8_t pkt_cur_touch = 0;
-> > +     uint8_t pkt_lb = packet[0] & LBTOUCH_LB;
-> > +     uint8_t pkt_rb = packet[0] & LBTOUCH_RB;
-
-We usually don't use userspace types here. unsigned char or u8 for kernel. 
-
-> > +
-> > +                psmouse->protocol_handler = lifebook_process_byte;
-> > +                psmouse->disconnect = lifebook_disconnect;
-> > +                psmouse->reconnect  = lifebook_initialize;
-> > +                psmouse->initialize = lifebook_initialize;
-> > +                psmouse->pktsize = 3;
-> > +     }
-> > +
-> > +     return 0;
-> > +}
-> 
-> The change to the psmouse interface I'm leaving to Dmitry to comment on.
-
-I don't think that we need a separate initialize handler simply
-because it is called just once, at initialization time. Here we know
-exactly what device (protocol) we are dealing with, no need for
-indirection.
+Hmm, you got me a bit confused here - open and close in gameport are
+already (indirectly) serialized with gameport_sem. It is input device
+open and close in joystick drivers that needs treatment - these are
+initiated from userspace and weren't hitting gameport code at all. And
+they need to be protected otherwise the counter and timer will get out
+of whack.
 
 -- 
 Dmitry

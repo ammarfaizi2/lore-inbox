@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265882AbTGDIi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 04:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265884AbTGDIi1
+	id S265879AbTGDIhv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 04:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265881AbTGDIhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 04:38:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:38092 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265882AbTGDIiX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 04:38:23 -0400
-Date: Fri, 4 Jul 2003 01:52:08 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, helgehaf@aitel.hist.no,
-       zboszor@freemail.hu, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.74-mm1
-Message-ID: <20030704085208.GX26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>, helgehaf@aitel.hist.no,
-	zboszor@freemail.hu, linux-kernel@vger.kernel.org
-References: <3F0407D1.8060506@freemail.hu> <3F042AEE.2000202@freemail.hu> <20030703122243.51a6d581.akpm@osdl.org> <20030703200858.GA31084@hh.idb.hist.no> <20030703141508.796e4b82.akpm@osdl.org> <20030704055315.GW26348@holomorphy.com> <Pine.LNX.4.53.0307040307090.24383@montezuma.mastecende.com> <20030704012734.77f99e74.akpm@osdl.org>
+	Fri, 4 Jul 2003 04:37:51 -0400
+Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:5600
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S265879AbTGDIht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 04:37:49 -0400
+Date: Fri, 4 Jul 2003 01:52:16 -0700
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unable to handle NULL point when doing lsof
+Message-ID: <20030704085216.GA26432@triplehelix.org>
+References: <3F0539E5.6030905@portrix.net> <20030704.173441.71640872.yoshfuji@linux-ipv6.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
 Content-Disposition: inline
-In-Reply-To: <20030704012734.77f99e74.akpm@osdl.org>
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030704.173441.71640872.yoshfuji@linux-ipv6.org>
 User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 04, 2003 at 01:27:34AM -0700, Andrew Morton wrote:
-> fixes it up, and looks nicer anyway.  Removing the volatiles (what were
-> they doing there?) did not fix it.  The `nr' thing fixed it.  
 
-Those were to prevent warnings in case someone passed in a volatile
-bitmap. Which no one is doing at the moment that I know of offhand.
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Jul 04, 2003 at 05:34:41PM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ w=
+rote:
+> Please try http://bugme.osdl.org/attachment.cgi?id=3D476&action=3Dview
+> Thanks.
 
--- wli
+This does not work, it produces the same segfault - 2.5.74-mm1 with
+fbdev patches.
+
+-Josh
+
+--=20
+"Notice that, written there, rather legibly, in the Baroque style common=20
+to New York subway wall writers, was, uhm... was the old familiar=20
+suggestion. And rather beautifully illustrated, as well..."
+
+       -- Art Garfunkel on the inspiration for "A Poem On The Underground W=
+all"
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/BUBAT2bz5yevw+4RAuYGAJwP2Z5dkMWENWsmKnTN8Dvj5r6UHwCfXRof
+1d0hNrzattFc9hSsmgKuqjk=
+=6GIK
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

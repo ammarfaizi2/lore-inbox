@@ -1,62 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262812AbTIEPgy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 11:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbTIEPgx
+	id S262683AbTIEPdu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 11:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262738AbTIEPdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 11:36:53 -0400
-Received: from smtp03.web.de ([217.72.192.158]:19472 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S262812AbTIEPgf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 11:36:35 -0400
-From: "Mehmet Ceyran" <mceyran@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: nasm over gas?
-Date: Fri, 5 Sep 2003 17:39:20 +0200
-Message-ID: <003901c373c3$e02f5080$0100a8c0@server1>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Fri, 5 Sep 2003 11:33:50 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:7000 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262683AbTIEPdq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 11:33:46 -0400
+Subject: [PATCH] 2.6.0-test4 synclink.c
+From: Paul Fulghum <paulkf@microgate.com>
+To: "torvalds@osdl.org" <torvalds@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062776000.2675.1.camel@diemos>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Sep 2003 10:33:20 -0500
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <200309051357.h85DvkLX000207@81-2-122-30.bradfords.org.uk>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Error-checkers like Lint, that use a specific langage such 
->> as 'C', can provide the programmer with a false sense of
->> security. You  end up with 'perfect' code with all the
->> unwanted return-values cast to "void", but the logic remains
->> wrong and will fail once the high-bit in an integer is set.
->> So, in some sense, writing procedures in assembly is
->> "safer". You know what the code will do before you run it.
->> If you don't, stay away from assembly.
-> This is part of what makes someone a 'real' programmer, in my opinion.
-> In my experience, 'Unreal' programmers tend to excessively 
-> re-use code from other applications they've written, and just 
-> hack it about until it works, at times leaving in code for 
-> features that are never used in the new context :-).
+* add RCC underrun handling
+* fix stats output typo
+* replace previously removed NULL context check
+  (causes oops when opening non existent device)
 
-Code re-usage is not a bad thing in computer science because it can save
-you much work. But it has to be done correctly. Best thing is to use
-so-called "design patterns": Solutions to common problems that have been
-proven to work in many different environments. So if you solved some
-problem in your past programs (of course specifying it well before) and
-you prove that it doesn't work only for that particular program, then
-there's no need to reinvent the wheel. For example that's why you use
-standard libraries for basic operations like output to console.
+Please apply
 
-You're right in the part that one should not have to hack the re-used
-code until it works because that leads to dirty coding.
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
 
-I'd also like to mention that algorithms implemented in high-level
-languages can be mathematically proven too, for example with the hoare
-calculus, which provides basic axioms for handling of sequences, loops
-and conditional statements.
+--- linux-2.6.0-test4/drivers/char/synclink.c	2003-09-05 10:25:15.000000000 -0500
++++ linux-2.6.0-test4-mg/drivers/char/synclink.c	2003-09-05 10:26:56.000000000 -0500
+@@ -1,7 +1,7 @@
+ /*
+  * linux/drivers/char/synclink.c
+  *
+- * $Id: synclink.c,v 4.12 2003/06/18 15:29:32 paulkf Exp $
++ * $Id: synclink.c,v 4.16 2003/09/05 15:26:02 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink ISA and PCI
+  * high speed multiprotocol serial adapters.
+@@ -261,6 +261,7 @@
+ 
+ 	int rx_enabled;
+ 	int rx_overflow;
++	int rx_rcc_underrun;
+ 
+ 	int tx_enabled;
+ 	int tx_active;
+@@ -910,7 +911,7 @@
+ MODULE_PARM(txholdbufs,"1-" __MODULE_STRING(MAX_TOTAL_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink serial driver";
+-static char *driver_version = "$Revision: 4.12 $";
++static char *driver_version = "$Revision: 4.16 $";
+ 
+ static int synclink_init_one (struct pci_dev *dev,
+ 				     const struct pci_device_id *ent);
+@@ -983,6 +984,9 @@
+ 		printk(badmagic, name, routine);
+ 		return 1;
+ 	}
++#else
++	if (!info)
++		return 1;
+ #endif
+ 	return 0;
+ }
+@@ -1125,7 +1129,16 @@
+ 		printk( "%s(%d):mgsl_bh_receive(%s)\n",
+ 			__FILE__,__LINE__,info->device_name);
+ 	
+-	while( (get_rx_frame)(info) );
++	do
++	{
++		if (info->rx_rcc_underrun) {
++			unsigned long flags;
++			spin_lock_irqsave(&info->irq_spinlock,flags);
++			usc_start_receiver(info);
++			spin_unlock_irqrestore(&info->irq_spinlock,flags);
++			return;
++		}
++	} while(get_rx_frame(info));
+ }
+ 
+ void mgsl_bh_transmit(struct mgsl_struct *info)
+@@ -1567,6 +1580,21 @@
+ 		printk("%s(%d):mgsl_isr_misc status=%04X\n",
+ 			__FILE__,__LINE__,status);
+ 			
++	if ((status & MISCSTATUS_RCC_UNDERRUN) &&
++	    (info->params.mode == MGSL_MODE_HDLC)) {
++
++		/* turn off receiver and rx DMA */
++		usc_EnableReceiver(info,DISABLE_UNCONDITIONAL);
++		usc_DmaCmd(info, DmaCmd_ResetRxChannel);
++		usc_UnlatchRxstatusBits(info, RXSTATUS_ALL);
++		usc_ClearIrqPendingBits(info, RECEIVE_DATA + RECEIVE_STATUS);
++		usc_DisableInterrupts(info, RECEIVE_DATA + RECEIVE_STATUS);
++
++		/* schedule BH handler to restart receiver */
++		info->pending_bh |= BH_RECEIVE;
++		info->rx_rcc_underrun = 1;
++	}
++
+ 	usc_ClearIrqPendingBits( info, MISC );
+ 	usc_UnlatchMiscstatusBits( info, status );
+ 
+@@ -3625,7 +3653,7 @@
+ 		if (info->icount.rxover)
+ 			ret += sprintf(buf+ret, " rxover:%d", info->icount.rxover);
+ 		if (info->icount.rxcrc)
+-			ret += sprintf(buf+ret, " rxlong:%d", info->icount.rxcrc);
++			ret += sprintf(buf+ret, " rxcrc:%d", info->icount.rxcrc);
+ 	} else {
+ 		ret += sprintf(buf+ret, " ASYNC tx:%d rx:%d",
+ 			      info->icount.tx, info->icount.rx);
+@@ -5190,7 +5218,11 @@
+ 	usc_EnableMasterIrqBit( info );
+ 
+ 	usc_ClearIrqPendingBits( info, RECEIVE_STATUS + RECEIVE_DATA +
+-				TRANSMIT_STATUS + TRANSMIT_DATA );
++				TRANSMIT_STATUS + TRANSMIT_DATA + MISC);
++
++	/* arm RCC underflow interrupt */
++	usc_OutReg(info, SICR, (u16)(usc_InReg(info,SICR) | BIT3));
++	usc_EnableInterrupts(info, MISC);
+ 
+ 	info->mbre_bit = 0;
+ 	outw( 0, info->io_base ); 			/* clear Master Bus Enable (DCAR) */
+@@ -5628,6 +5660,7 @@
+ 
+ 	info->rx_enabled = 0;
+ 	info->rx_overflow = 0;
++	info->rx_rcc_underrun = 0;
+ 	
+ }	/* end of stop_receiver() */
+ 
 
-	Mehmet
+
 

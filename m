@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262510AbUBXWo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 17:44:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUBXWmM
+	id S262518AbUBXWsi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 17:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbUBXWsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 17:42:12 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:9621 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262510AbUBXWl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 17:41:58 -0500
-Date: Tue, 24 Feb 2004 17:41:45 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: cw@f00f.org, <piggin@cyberone.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
-In-Reply-To: <20040224143618.368dfdca.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0402241741330.21522-100000@chimarrao.boston.redhat.com>
+	Tue, 24 Feb 2004 17:48:38 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:59850 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262518AbUBXWpo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 17:45:44 -0500
+Date: Tue, 24 Feb 2004 17:45:49 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Christophe Saout <christophe@saout.de>
+cc: Matt Mackall <mpm@selenic.com>, Jean-Luc Cooke <jlcooke@certainkey.com>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       =?iso-2022-jp?Q?YOSHIFUJI_Hideaki_=2F_=1B$B5HF#1QL=40=1B=28B?= 
+	<yoshfuji@linux-ipv6.org>
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+In-Reply-To: <1077661909.26811.1.camel@leto.cs.pocnet.net>
+Message-ID: <Xine.LNX.4.44.0402241737230.26464-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Andrew Morton wrote:
+On Tue, 24 Feb 2004, Christophe Saout wrote:
 
-> > I guess highmem allocations really should put some pressure on
-> > lowmem, even when there is enough lowmem free, because otherwise
-> > you end up effectively not using half of the memory on 1.5-2 GB
-> > systems for paging ...
+> Am Di, den 24.02.2004 schrieb James Morris um 23:26:
 > 
-> Yup.  With the current -mm patches the reclaim rate from lowmem and highmem
-> is nicely proportional to each zone's size for pagecache-heavy workloads. 
-> For lowmem-intensive workloads the reclaim rate from lowmem is higher, as
-> one would expect.  It seems to be working OK now.
+> > > BTW: I think there's a bug in the ipv6 code, it uses spin_lock to
+> > > protect itself, this will cause a sleep-inside-spinlock warning. (found
+> > > while grepping through the source for other cryptoapi users)
+> > 
+> > Where is the bug?
+> 
+> net/ipv6/addrconf.c: __ipv6_regen_rndid
+> 
+> >        spin_lock(&md5_tfm_lock);
+> >        if (unlikely(md5_tfm == NULL)) {
+> >                spin_unlock(&md5_tfm_lock);
+> >                return -1;
+> >        }
+> >        crypto_digest_init(md5_tfm);
+> >        crypto_digest_update(md5_tfm, sg, 2);
+> >        crypto_digest_final(md5_tfm, idev->work_digest);
+> >        spin_unlock(&md5_tfm_lock);
 
-OK, that should do the trick.
+This looks like too much work to be done under a spinlock, and generally,
+that's why the API does not support these kinds of functions from being
+called under one.
 
+
+- James
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+James Morris
+<jmorris@redhat.com>
+
+
 

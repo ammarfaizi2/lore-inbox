@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293132AbSCZCo7>; Mon, 25 Mar 2002 21:44:59 -0500
+	id <S312924AbSCZDNB>; Mon, 25 Mar 2002 22:13:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293161AbSCZCou>; Mon, 25 Mar 2002 21:44:50 -0500
-Received: from h24-83-222-158.vc.shawcable.net ([24.83.222.158]:45698 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S293132AbSCZCor>;
-	Mon, 25 Mar 2002 21:44:47 -0500
-Message-ID: <3C9FE091.5000702@bcgreen.com>
-Date: Mon, 25 Mar 2002 18:44:33 -0800
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020227
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SSSCA Hits the Senate
-In-Reply-To: <200203251522.JAA62284@tomcat.admin.navo.hpc.mil>	<001b01c1d417$7ec599a0$0100007f@localdomain.wni.com.wirelessnetworksinc.com> <87zo0wnup5.fsf@CERT.Uni-Stuttgart.DE> <3C9FBE96.1010502@ngforever.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312925AbSCZDMv>; Mon, 25 Mar 2002 22:12:51 -0500
+Received: from c0s20.ami.com.au ([203.55.31.85]:45829 "EHLO
+	dugite.os2.ami.com.au") by vger.kernel.org with ESMTP
+	id <S312924AbSCZDMh>; Mon, 25 Mar 2002 22:12:37 -0500
+Message-Id: <200203252316.g2PNGD011116@numbat.Os2.Ami.Com.Au>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: summer@os2.ami.com.au (John Summerfield), andre@linux-ide.org,
+        linux-kernel@vger.kernel.org, mlord@pobox.com (Mark Lord),
+        summer@numbat.Os2.Ami.Com.Au
+Subject: Re: IDE and hot-swap disk caddies 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Mon, 25 Mar 2002 15:56:07 GMT." <E16pWpL-0000pg-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 26 Mar 2002 07:16:13 +0800
+From: John Summerfield <summer@os2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-But how are you going to compile your FIRST kernel?? At some point
-you'll need a compiler, and they'll insist that the limitations go into
-that first compiler that someone gets.
 
-Thunder from the hill wrote:
-> Florian Weimer wrote:
+> > The device is hot-swap capable and has a switch (others have a key) 
+> > that locks the drive in and powers it up; in the other position the 
+> > drive is powered down and can be removed.
 > 
->> "Herman Oosthuysen" <Herman@WirelessNetworksInc.com> writes:
->>
->>
->>> The obvious solution is to continue the way Richard Stallman envisaged:
->>> ***Distribute all code in source form only - no binary distributions.***
->>>
->>> This way, the source files are protected under freedom of speech 
->>> rules and
->>> the originator of the work is safe.
->>
->>
->>
->> Unfortunately, this works only in the U.S.  Other countries which will
->> follow the US leadership in consumer suppression regulate free speech
->> to make it conforming to law.
->>
->> I agree, though, that source-only distribution avoids many problems
->> and is preferable.
->>
-> But not all the people out there are skilled enough to install a source
-> distribution. Also, binary installations may go faster, and the youth of
-> today tends to not having time...
-> So there are still problems with it. If one day computers are all so 
-> fast like the one who compiled a kernel in 7.56 seconds, and we have a 
-> nice API for compiling, it might be great idea, but it might happen that 
-> someone else will claim to have had the idea. This certainly won't be me.
+> Linux doesn't support IDE hot swap at the drive level. Its basically
+> waiting people to want it enough to either fund it or go write the code
 > 
-> Thunder
+
+What needs to be done? How extensive is the surgery needed?
+
 
 
 -- 
-Stephen Samuel +1(604)876-0426                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
+Cheers
+John Summerfield
+
+Microsoft's most solid OS: http://www.geocities.com/rcwoolley/
+
+Note: mail delivered to me is deemed to be intended for me, for my 
+disposition.
+
+==============================
+If you don't like being told you're wrong,
+	be right!
+
+
 

@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264041AbRFWPTJ>; Sat, 23 Jun 2001 11:19:09 -0400
+	id <S264122AbRFWPbC>; Sat, 23 Jun 2001 11:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264067AbRFWPTA>; Sat, 23 Jun 2001 11:19:00 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:31763 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264041AbRFWPSq>;
-	Sat, 23 Jun 2001 11:18:46 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
+	id <S264135AbRFWPaw>; Sat, 23 Jun 2001 11:30:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55058 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264122AbRFWPai>;
+	Sat, 23 Jun 2001 11:30:38 -0400
+Date: Sat, 23 Jun 2001 16:30:26 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: Der Herr Hofrat <der.herr@hofr.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sizeof problem in kernel modules 
-In-Reply-To: Your message of "Sat, 23 Jun 2001 16:54:20 +0200."
-             <200106231454.f5NEsKu14812@kanga.hofr.at> 
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules
+Message-ID: <20010623163026.A27303@flint.arm.linux.org.uk>
+In-Reply-To: <200106231454.f5NEsKu14812@kanga.hofr.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Jun 2001 01:18:39 +1000
-Message-ID: <16231.993309519@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200106231454.f5NEsKu14812@kanga.hofr.at>; from der.herr@hofr.at on Sat, Jun 23, 2001 at 04:54:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001 16:54:20 +0200 (CEST), 
-Der Herr Hofrat <der.herr@hofr.at> wrote:
->struct { short x; long y; short z; }bad_struct;
->struct { long y; short x; short z; }good_struct;
->I would expect both structs to be 8byte in size , or atleast the same size !
->but good_struct turns out to be 8bytes and bad_struct 12 .
+On Sat, Jun 23, 2001 at 04:54:20PM +0200, Der Herr Hofrat wrote:
+> struct { short x; long y; short z; }bad_struct;
+> struct { long y; short x; short z; }good_struct;
+> 
+> I would expect both structs to be 8byte in size , or atleast the same size !
+> but good_struct turns out to be 8bytes and bad_struct 12 .
+> 
+> what am I doing wrong here ?
 
-Read any C book about field alignment and padding in structures.
-Nothing to do with the kernel or modules.
+You're expecting the compiler to lay them out without any spacing between
+them.  There is no such requirement in C.
+
+The compiler knows that its more efficient for long words to be accessed
+on a long word boundary, so it wastes two bytes after each short in your
+bad_struct case.  However, it won't waste them in this case, because there
+isn't a long:
+
+struct { short x; short y; short z; }
+
+If you really really really want that layout, then use
+__attribute__((packed)) (read the gcc info files to find out what this
+does), but don't unless you absolutely must.
+
+Here is another struct layout example:
+
+struct foo {
+	short x;
+	char y;		/* implicit 1 byte padding after this element */
+	short z;
+};
+
+Again, the 1 byte padding can be removed by use of the __attribute__
+above.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,60 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265417AbRFVOCV>; Fri, 22 Jun 2001 10:02:21 -0400
+	id <S265421AbRFVOBB>; Fri, 22 Jun 2001 10:01:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbRFVOBc>; Fri, 22 Jun 2001 10:01:32 -0400
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:58817 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S265417AbRFVOBR>; Fri, 22 Jun 2001 10:01:17 -0400
-Message-ID: <3B334F39.E25548E0@pp.inet.fi>
-Date: Fri, 22 Jun 2001 16:59:21 +0300
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19aa2 i686)
-X-Accept-Language: en
+	id <S265417AbRFVOAv>; Fri, 22 Jun 2001 10:00:51 -0400
+Received: from thebsh.namesys.com ([212.16.0.238]:46866 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S265419AbRFVOAt>; Fri, 22 Jun 2001 10:00:49 -0400
+From: Nikita Danilov <NikitaDanilov@Yahoo.COM>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl, torvalds@transmeta.com
-CC: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: loop device broken in 2.4.6-pre5
-In-Reply-To: <UTC200106212258.AAA370096.aeb@vlet.cwi.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15155.20320.401924.865523@beta.namesys.com>
+Date: Fri, 22 Jun 2001 18:00:00 +0400
+To: Vasil Kolev <lnxkrnl@mail.ludost.net>
+Cc: <reiserfs-list@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-list] Incompatibility between the reisrefs patches
+ for 2.2.x and 2.4.x
+In-Reply-To: <Pine.LNX.4.33.0106221622060.24629-100000@doom.bastun.net>
+In-Reply-To: <15155.17923.423044.21965@beta.namesys.com>
+	<Pine.LNX.4.33.0106221622060.24629-100000@doom.bastun.net>
+X-Mailer: VM 6.89 under 21.1 (patch 8) "Bryce Canyon" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->     From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-> 
->     File backed loop device on 4k block size ext2 filesystem:
-> 
->     # dd if=/dev/zero of=file1 bs=1024 count=10
->     10+0 records in
->     10+0 records out
->     # losetup /dev/loop0 file1
->     # dd if=/dev/zero of=/dev/loop0 bs=1024 count=10 conv=notrunc
->     dd: /dev/loop0: No space left on device
->     9+0 records in
->     8+0 records out
->     # tune2fs -l /dev/hda1 2>&1| grep "Block size"
->     Block size:               4096
->     # uname -a
->     Linux debian 2.4.6-pre5 #1 Thu Jun 21 14:27:25 EEST 2001 i686 unknown
-> 
->     Stock 2.4.5 and 2.4.5-ac15 don't have this problem.
-> 
-> I am not sure there is an error here.
-> 
-> The default block size of a loop device is that of the underlying device.
-> There was a kernel bug that was recently fixed, where the block size
-> of a file backed loop device could be essentially random.
-> So, earlier you happened to get blocksize 1024, and you had room for
-> 10 blocks of size 1024.
-> Now you have blocksize 4096, and you have room for 2 blocks of size 4096.
-> There are no fractional blocks at the end of a block device.
+Vasil Kolev writes:
+ > Can I use the new format with 2.2? I don't have enough space to do that...
+ > I would live with the limitations ... I just want it to work :)
 
-Why can't we keep the default at 1024 regardless of what the block size of
-underlying device is. There are some situations where all of loop device
-must be accessed before it is mounted (at which point the block size is set
-to desired value).
+I am afraid you cannot. Not now at least. Sorry.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+ > 
+ > On Fri, 22 Jun 2001, Nikita Danilov wrote:
+ > 
+ > > Vasil Kolev writes:
+ > >  > Maybe this is a know issue, but nonetheless.....
+ > >  > I have dual coppermine/930 machine with 1.2G ram, kernel 2.4.5. I used
+ > >  > reiserfs for my  /home and /var partitions. When tried downgrading to
+ > >  > 2.2.19, I got errors  in syslog like 'can't find superblock' ... ( I don't
+ > >  > have them, /var wasn't mounted, and i had to return the machine in
+ > >  > production state... ). Does someone has any idea about this, how could I
+ > >  > downgrade to 2.2.19 ?
+ > >
+ > > 2.4 kernels can work with both 3.5 reiserfs disk format (old) and 3.6
+ > > (new). 2.2 kernels---only with 3.5. Probably, you have created your
+ > > file-systems in the new format.
+ > >
+ > > You can boot 2.4 kernel, create new file-system large enough with
+ > > /sbin/mkreiserfs -v1 (old format), copy existing files there by tar or
+ > > cpio and then update /etc/fstab to mount file-system just created. Now,
+ > > you can work both with 2.2 and 2.4 kernels.
+ > >
+ > > Keep in mind, that 3.5 format has some limitations concerning file size
+ > > etc. Check faq at namesys.com for details. On the other hand, 3.5 often
+ > > considered more stable.
+ > >
+
+Nikita.
+
+ > >

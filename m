@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbUJYC0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUJYC3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbUJYC0w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 22:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUJYC0w
+	id S261662AbUJYC3O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 22:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbUJYC3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 22:26:52 -0400
-Received: from nevyn.them.org ([66.93.172.17]:7040 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261661AbUJYC0v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 22:26:51 -0400
-Date: Sun, 24 Oct 2004 22:26:48 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Roland McGrath <roland@redhat.com>
-Subject: Re: Unwind information fix for the vsyscall DSO
-Message-ID: <20041025022647.GA2015@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Roland McGrath <roland@redhat.com>
-References: <20041024230138.GA22543@nevyn.them.org> <Pine.LNX.4.58.0410241626400.3016@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Oct 2004 22:29:14 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:26572 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S261662AbUJYC3J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 22:29:09 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Date: Sun, 24 Oct 2004 22:29:08 -0400
+User-Agent: KMail/1.7
+Cc: Stephen Wille Padnos <spadnos@sover.net>, Tonnerre <tonnerre@thundrix.ch>,
+       David Lang <david.lang@digitalinsight.com>,
+       Timothy Miller <miller@techsource.com>
+References: <4176E08B.2050706@techsource.com> <20041024090335.GC11655@thundrix.ch> <417C5803.3030304@sover.net>
+In-Reply-To: <417C5803.3030304@sover.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410241626400.3016@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200410242229.08189.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [151.205.58.180] at Sun, 24 Oct 2004 21:29:09 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 04:27:13PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 24 Oct 2004, Daniel Jacobowitz wrote:
-> >
-> > When working on GDB support I found a typo.  I assume the comment is
-> > correct.  If you step to this particular instruction and backtrace, GDB gets
-> > lost.
-> > 
-> > I haven't tested the fixed version yet, but I'm pretty confident in this
-> > patch :-)  Please apply.
-> 
-> The patch looks obvious, but I'd still like to see a "yeah, I tested it 
-> now, and yes, gdb DTRT after the fix.."
-
-It looks good, but it triggered a related bug in GDB and 2.6.10-rc1
-locked up while I was debugging that.  I'll get back to you once I can
-test it.
-
+On Sunday 24 October 2004 21:33, Stephen Wille Padnos wrote:
+>Tonnerre wrote:
+>>Salut,
+>>
+>>On Thu, Oct 21, 2004 at 10:25:35AM -0700, David Lang wrote:
+>>>where's a  billionare looking to Do  Good Things (TM)  when you
+>>> need one ;-)
+>>
+>>Wasn't  Steve Jobs  willing to  be a  such? Shall  we CC  him  on
+>> that discussion?
+>>
+>>       Tonnerre
+>
+>I think you mean Steve Wzniak.  Except the billionaire part :)
+                       ^Wozniak
+>- Steve
 -- 
-Daniel Jacobowitz
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

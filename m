@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVCOF23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVCOF37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVCOF23 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 00:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVCOF23
+	id S262262AbVCOF37 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 00:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVCOF36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 00:28:29 -0500
-Received: from fire.osdl.org ([65.172.181.4]:3263 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261559AbVCOF20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 00:28:26 -0500
-Date: Mon, 14 Mar 2005 21:28:12 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Prarit Bhargava <prarit@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC]: DEBUG for PCI IO & MEM allocation
-Message-Id: <20050314212812.3657cfd4.akpm@osdl.org>
-In-Reply-To: <4235C88B.9090708@sgi.com>
-References: <4235C88B.9090708@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 15 Mar 2005 00:29:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29357 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262262AbVCOF3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 00:29:41 -0500
+Date: Tue, 15 Mar 2005 05:29:36 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, roland@redhat.com,
+       sivanich@sgi.com
+Subject: Re: Exports to enable clock driver modules
+Message-ID: <20050315052936.GA26247@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Christoph Lameter <clameter@sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, roland@redhat.com, sivanich@sgi.com
+References: <Pine.LNX.4.58.0503142034190.16107@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503142034190.16107@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prarit Bhargava <prarit@sgi.com> wrote:
->
->  I propose the following patch to add a compile time DEBUG option to 
->  kernel/resource.c that would help in analyzing problems in this area.  
->  It's a few simple lines of output in  __request_resource, 
->  __release_resource, __request_region, and __release_region .
-> 
+On Mon, Mar 14, 2005 at 08:37:43PM -0800, Christoph Lameter wrote:
+> The following exports are necessary to allow loadable modules to define
+> new clocks. Without these the mmtimer driver cannot be build
+> correctly as a module (there is another mmtimer specific fix necessary to
+> get  it to build properly but that will be a separate patch):
 
-A sane enough requirement.
+I'd say just disallow modular mmtimer instead.
 
->   
->  +	DEBUGP("%s: resource request at 0x%lx-0x%lx\n", __FUNCTION__, new->start, new->end);
-
-Shouldn't this also be printing the ->name of the new resource?
-
-A lot of the statements which you're adding will look screwy in an 80-col
-xterm.  Please wrap 'em.

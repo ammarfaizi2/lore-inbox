@@ -1,61 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262726AbVAVPDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVAVPuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262726AbVAVPDd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 10:03:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVAVPDd
+	id S262401AbVAVPuz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 10:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVAVPuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 10:03:33 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:9424 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262726AbVAVPDa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 10:03:30 -0500
-Message-ID: <41F26B42.4080300@tiscali.de>
-Date: Sat, 22 Jan 2005 16:03:30 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesper Juhl <juhl-lkml@dif.dk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: nvidia driver and Kernel 2.6.11-rc2: compilation error
-References: <41F25279.4040307@tiscali.de> <Pine.LNX.4.61.0501221444001.3073@dragon.hygekrogen.localhost>
-In-Reply-To: <Pine.LNX.4.61.0501221444001.3073@dragon.hygekrogen.localhost>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Jan 2005 10:50:55 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:5339 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262401AbVAVPup (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 10:50:45 -0500
+Date: Sat, 22 Jan 2005 16:50:44 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: linux-kernel@vger.kernel.org
+Cc: Jan Kara <jack@suse.cz>, Andrew Morton <akpm@osdl.org>
+Subject: 2.6.11-rc2/ext3 quota allocation bug on error path ...
+Message-ID: <20050122155044.GA4573@mail.13thfloor.at>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Jan Kara <jack@suse.cz>, Andrew Morton <akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
 
->On Sat, 22 Jan 2005, Matthias-Christian Ott wrote:
->
->  
->
->>Hi!
->>If I try to compile the nvidia driver (version: 6629) module I get this:
->>
->>    
->>
->[...]
->  
->
->>Howto fix this?
->>
->>    
->>
->Complain to NVidia.
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Hi!
-It's solved: 
-http://www.nvnews.net/vbulletin/showthread.php?s=9f3ae8d01f1339d56abdfb6b3b227a16&t=44469
+looking at ext3_xattr_block_set() [fs/ext3/xattr.c] ...
+I see that 
 
-Matthias-Christian Ott
+                                error = -EDQUOT;
+                                if (DQUOT_ALLOC_BLOCK(inode, 1))
+                                        goto cleanup;
+
+allocates a quota block, but right after that several
+error echecks happen ...
+
+                                if (error)
+                                        goto cleanup;
+
+and I don't see any DQUOT_FREE_BLOCK() in the errorpath
+
+cleanup:
+        if (ce)
+                mb_cache_entry_release(ce);
+        brelse(new_bh); 
+        if (!(bs->bh && s->base == bs->bh->b_data))
+                kfree(s->base);
+
+        return error;
+
+I'd suggest the attached fix (agains 2.6.11-rc2), comments?
+
+best,
+Herbert
+
+
+--- ./fs/ext3/xattr.c.orig	2005-01-22 15:07:50 +0100
++++ ./fs/ext3/xattr.c		2005-01-22 16:45:09 +0100
+@@ -773,7 +773,7 @@ inserted:
+ 				error = ext3_journal_get_write_access(handle,
+ 								      new_bh);
+ 				if (error)
+-					goto cleanup;
++					goto cleanup_dquot;
+ 				lock_buffer(new_bh);
+ 				BHDR(new_bh)->h_refcount = cpu_to_le32(1 +
+ 					le32_to_cpu(BHDR(new_bh)->h_refcount));
+@@ -783,7 +783,7 @@ inserted:
+ 				error = ext3_journal_dirty_metadata(handle,
+ 								    new_bh);
+ 				if (error)
+-					goto cleanup;
++					goto cleanup_dquot;
+ 			}
+ 			mb_cache_entry_release(ce);
+ 			ce = NULL;
+@@ -844,6 +844,10 @@ cleanup:
+ 
+ 	return error;
+ 
++cleanup_dquot:
++	DQUOT_FREE_BLOCK(inode, 1);
++	goto cleanup;
++
+ bad_block:
+ 	ext3_error(inode->i_sb, __FUNCTION__,
+ 		   "inode %ld: bad block %d", inode->i_ino,
+

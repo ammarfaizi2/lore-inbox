@@ -1,29 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131485AbRCUO6B>; Wed, 21 Mar 2001 09:58:01 -0500
+	id <S131461AbRCUOyV>; Wed, 21 Mar 2001 09:54:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131489AbRCUO5v>; Wed, 21 Mar 2001 09:57:51 -0500
-Received: from paperboy.noris.net ([62.128.1.27]:27525 "EHLO mail2.noris.net")
-	by vger.kernel.org with ESMTP id <S131485AbRCUO5n>;
-	Wed, 21 Mar 2001 09:57:43 -0500
-To: mikeg@wen-online.de (Mike Galbraith), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0103210733470.929-100000@mikeg.weiden.de>
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-From: smurf@noris.de (Matthias Urlichs)
-Date: Wed, 21 Mar 2001 15:56:54 +0100
-Message-ID: <1eqmmju.3cit2gby1becM%smurf@noris.de>
-Organization: noris network AG
-User-Agent: MacSOUP/2.4.6
+	id <S131481AbRCUOyM>; Wed, 21 Mar 2001 09:54:12 -0500
+Received: from mercury.nildram.co.uk ([195.112.4.37]:10256 "EHLO
+	mercury.nildram.co.uk") by vger.kernel.org with ESMTP
+	id <S131461AbRCUOyC>; Wed, 21 Mar 2001 09:54:02 -0500
+Message-Id: <200103211453.f2LErFt08457@mercury.nildram.co.uk>
+From: "Per Jessen" <per@computer.org>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>,
+        "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+Date: Wed, 21 Mar 2001 14:56:32 
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: [OT] Re: mysterious card
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I frequently build Mozilla from scratch on my (aging) dual Celeron
-> > machine.  [...]
-> >     real    60m4.574s
-> >     user    101m18.260s  <-- impossible no?
-> >     sys     3m23.520s
-> 
-> Why do numbers like this show up?  I noticed some of this after having
-> enabled SMP on my UP box.
-> 
-Now why would that be impossible on a two-CPU system?
+On Wed, 21 Mar 2001 15:24:59 +0100, Heusden, Folkert van wrote:
+
+>Ok, the question is: does anyone know a place on the web where I can find
+>specifications of ISA-slots? I need to know what is supposed to be connected
+>to the pins (1, 2, 6, etc.)
+
+Are you talking about the the layout of the ISA-bus ? If so, it is
+well-documented in many places. I have never looked it up on the web,
+but try this: http://www.techfest.com/hardware/bus/isa.htm
+
+(never used it myself, so I can't vouch for the technical quality/content)
+
+
+regards,
+Per Jessen
+
+regards,
+Per Jessen
+
+

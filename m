@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRAaABN>; Tue, 30 Jan 2001 19:01:13 -0500
+	id <S130443AbRAaAIn>; Tue, 30 Jan 2001 19:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130304AbRAaABD>; Tue, 30 Jan 2001 19:01:03 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:24060 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S129184AbRAaAAu>;
-	Tue, 30 Jan 2001 19:00:50 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Reuben Farrelly <reuben@reub.net>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        netfilter@us5.samba.org
-Subject: Re: Unresolved symbols 
-In-Reply-To: Your message of "Fri, 26 Jan 2001 01:14:09 +1100."
-             <5.0.2.1.2.20010126010507.00af5128@mail.reub.net> 
-Date: Wed, 31 Jan 2001 11:00:07 +1100
-Message-Id: <E14Nkgz-0006Oy-00@halfway>
+	id <S130304AbRAaAId>; Tue, 30 Jan 2001 19:08:33 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:17419 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S130092AbRAaAIS>;
+	Tue, 30 Jan 2001 19:08:18 -0500
+Message-ID: <3A7756F0.8B589FC7@innominate.de>
+Date: Wed, 31 Jan 2001 01:06:08 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Timur Tabi <ttabi@interactivesi.com>, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>  	<Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com> <Mdiqd.A.qe.yEvd6@dinero.interactivesi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <5.0.2.1.2.20010126010507.00af5128@mail.reub.net> you write:
-> Hi again Rusty
+Timur Tabi wrote:
+> 
+> ** Reply to message from David Woodhouse
+> 
+> > Note that this is _precisely_ the reason I'm advocating the removal of
+> > sleep_on(). When I was young and stupid (ok, "younger and stupider") I used
+> > sleep_on() in my code. I pondered briefly the fact that I really couldn't
+> > convince myself that it was safe, but because it was used in so many other
+> > places, I decided I had to be missing something, and used it anyway.
+> >
+> > I was wrong. I was copying broken code. And now I want to remove all those
+> > bad examples - for the benefit of those who are looking at them now and are
+> > tempted to copy them.
+> 
+> What is wrong with sleep_on()?
 
-God I'm an idiot.  I swear I've fixed this before.  <<search>>.  Yep,
-I did.  And before that, the same bug in the conntrack code.
+If you have a task that looks like:
 
-This fixed the `core nat compiled in, rest as modules' case, of
-course, by actually exporting the symbols.
+    loop:
+        <do something important>
+        sleep_on(q)
 
-Rusty.
+And you do wakeup(q) hoping to get something important done, then if the
+task isn't sleeping at the time of the wakeup it will ignore the wakeup
+and go to sleep, which imay not be what you wanted.
+
 --
-Premature optmztion is rt of all evl. --DK
-
-diff -urN -I \$.*\$ -X /tmp/kerndiff.GyILWe --minimal linux-2.4.0-official/net/ipv4/netfilter/ip_nat_standalone.c working-2.4.0/net/ipv4/netfilter/ip_nat_standalone.c
---- linux-2.4.0-official/net/ipv4/netfilter/ip_nat_standalone.c	Tue Oct 31 09:27:49 2000
-+++ working-2.4.0/net/ipv4/netfilter/ip_nat_standalone.c	Wed Jan 31 10:50:50 2001
-@@ -330,11 +330,9 @@
- module_init(init);
- module_exit(fini);
- 
--#ifdef MODULE
- EXPORT_SYMBOL(ip_nat_setup_info);
- EXPORT_SYMBOL(ip_nat_helper_register);
- EXPORT_SYMBOL(ip_nat_helper_unregister);
- EXPORT_SYMBOL(ip_nat_expect_register);
- EXPORT_SYMBOL(ip_nat_expect_unregister);
- EXPORT_SYMBOL(ip_nat_cheat_check);
--#endif
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

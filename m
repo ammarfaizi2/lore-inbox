@@ -1,398 +1,203 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbTJNX2g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 19:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261592AbTJNX2g
+	id S261802AbTJNXj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 19:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbTJNXj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 19:28:36 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28413 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261427AbTJNX2Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 19:28:25 -0400
-Message-ID: <3F8C8692.5010108@mvista.com>
-Date: Tue, 14 Oct 2003 16:28:18 -0700
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Marshall <tmarshall@real.com>
-CC: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: missed itimer signals in 2.6
-References: <20031013163411.37423e4e.akpm@osdl.org>
-In-Reply-To: <20031013163411.37423e4e.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------030300080406090300060301"
+	Tue, 14 Oct 2003 19:39:57 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60831 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261802AbTJNXjw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 19:39:52 -0400
+Date: Tue, 14 Oct 2003 16:40:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+Message-Id: <20031014164004.5f698467.akpm@osdl.org>
+In-Reply-To: <20031014124457.GB610@krispykreme>
+References: <20031014105514.GH765@holomorphy.com>
+	<20031014045614.22ea9c4b.akpm@osdl.org>
+	<20031014121753.GA610@krispykreme>
+	<20031014053154.469255e5.akpm@osdl.org>
+	<20031014124457.GB610@krispykreme>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-This is a multi-part message in MIME format.
---------------030300080406090300060301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Here is a modified test.  (If you look at the code, please pay 
-attention to the variable g_resolution.)  By setting the itimer twice, 
-the second time with an address for what it was, we get the actual 
-value used by the kernel for the interval time.  We now print this 
-value and use it to modify the expected number of ticks (which we 
-print after the old value with the label real).  Here is what I see:
-
-[george@zap bug]$ ./itimertest
-resolution: asked for 10000us, got 10998us
-i=10, ticks=455 (expected 500 ,real 454), elapsed=5.004475, 
-drift=-0.000365
-resolution: asked for 20000us, got 20996us
-i=20, ticks=239 (expected 250 ,real 238), elapsed=5.019538, 
-drift=-0.001491
-resolution: asked for 30000us, got 30995us
-i=30, ticks=162 (expected 166 ,real 161), elapsed=5.021564, 
-drift=-0.000369
-resolution: asked for 40000us, got 40993us
-i=40, ticks=122 (expected 125 ,real 121), elapsed=5.002560, 
-drift=-0.001409
-resolution: asked for 50000us, got 50992us
-i=50, ticks=99 (expected 100 ,real 98), elapsed=5.048553, drift=-0.000341
-[george@zap bug]$ uname -a
-Linux zap.mvista.com 2.6.0-test5 #22 SMP Thu Sep 18 14:27:08 PDT 2003 
-i686 unknown
-
-Since the actual interval used by the system is a bit larger than what 
-was asked for, there will be fewer ticks.
-
-Maybe you could save this code if it is part of a test suite....
-
-george
-
-ps. Comments on my machine/directory name are...:)
-
-Andrew Morton wrote:
-> You saw this?
+Anton Blanchard <anton@samba.org> wrote:
+>
 > 
-> Begin forwarded message:
+> > How big?
 > 
-> Date: Mon, 13 Oct 2003 14:46:49 -0700
-> From: Tom Marshall <tmarshall@real.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: missed itimer signals in 2.6
+> Taking a complete guess, 16MB on a 16GB machine wouldnt be missed.
 > 
+> > I guess it should be scaled by ZONE_DMA+ZONE_NORMAL, skipping ZONE_HIGHMEM.
 > 
-> It seems that with the 2.6 kernel, ITIMER_REAL becomes inaccurate when the
-> interval is set under about 50ms.  Using a 10ms interval, I get 455 signals
-> in five seconds (about 9% loss).  The test machine has virtually no load and
-> this is reproducible across machines of varying speeds.  The test
-> application is attached.
-> 
-> Typical output under 2.4.22:
-> 
->   i=10, ticks=501 (expected 500), elapsed=5.008537, drift=+0.001468
->   i=20, ticks=251 (expected 250), elapsed=5.019925, drift=+0.000076
->   i=30, ticks=167 (expected 166), elapsed=5.009974, drift=+0.000027
->   i=40, ticks=126 (expected 125), elapsed=5.039981, drift=+0.000020
->   i=50, ticks=101 (expected 100), elapsed=5.049980, drift=+0.000021
-> 
-> Typical output under 2.6.0-test7:
-> 
->   i=10, ticks=455 (expected 500), elapsed=5.003323, drift=-0.453316
->   i=20, ticks=239 (expected 250), elapsed=5.018035, drift=-0.238033
->   i=30, ticks=162 (expected 166), elapsed=5.021115, drift=-0.161113
->   i=40, ticks=122 (expected 125), elapsed=5.001113, drift=-0.121111
->   i=50, ticks=99 (expected 100), elapsed=5.048102, drift=-0.098101
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> It seems that with the 2.6 kernel, ITIMER_REAL becomes inaccurate when the
-> interval is set under about 50ms.  Using a 10ms interval, I get 455 signals
-> in five seconds (about 9% loss).  The test machine has virtually no load and
-> this is reproducible across machines of varying speeds.  The test
-> application is attached.
-> 
-> Typical output under 2.4.22:
-> 
->   i=10, ticks=501 (expected 500), elapsed=5.008537, drift=+0.001468
->   i=20, ticks=251 (expected 250), elapsed=5.019925, drift=+0.000076
->   i=30, ticks=167 (expected 166), elapsed=5.009974, drift=+0.000027
->   i=40, ticks=126 (expected 125), elapsed=5.039981, drift=+0.000020
->   i=50, ticks=101 (expected 100), elapsed=5.049980, drift=+0.000021
-> 
-> Typical output under 2.6.0-test7:
-> 
->   i=10, ticks=455 (expected 500), elapsed=5.003323, drift=-0.453316
->   i=20, ticks=239 (expected 250), elapsed=5.018035, drift=-0.238033
->   i=30, ticks=162 (expected 166), elapsed=5.021115, drift=-0.161113
->   i=40, ticks=122 (expected 125), elapsed=5.001113, drift=-0.121111
->   i=50, ticks=99 (expected 100), elapsed=5.048102, drift=-0.098101
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> /*
->  * test itimer
->  */
-> 
-> #include <stdlib.h>
-> #include <stdio.h>
-> 
-> #include <unistd.h>
-> #include <signal.h>
-> #include <sys/time.h>
-> #include <time.h>
-> 
-> #define TEST_INTERVAL_SEC 5
-> 
-> static inline void
-> tv_sub(struct timeval* ptv1, struct timeval* ptv2)
-> {
->     ptv1->tv_sec  -= ptv2->tv_sec;
->     ptv1->tv_usec -= ptv2->tv_usec;
->     while (ptv1->tv_usec < 0)
->     {
->         ptv1->tv_sec--;
->         ptv1->tv_usec += 1000*1000;
->     }
-> }
-> 
-> static uint             g_ticks;
-> static uint             g_interval;
-> static struct timeval   g_now;
-> 
-> void
-> itimer_handler(int sig)
-> {
->     g_ticks++;
->     g_now.tv_usec += g_interval*1000;
->     while (g_now.tv_usec > 1000*1000)
->     {
->         g_now.tv_usec -= 1000*1000;
->         g_now.tv_sec++;
->     }
-> }
-> 
-> void
-> start_itimer(uint ms)
-> {
->     struct timeval tv;
->     struct itimerval val;
-> 
->     tv.tv_sec = ms/1000;
->     tv.tv_usec = (ms%1000)*1000;
-> 
->     val.it_interval = tv;
->     val.it_value = tv;
-> 
->     signal(SIGALRM, itimer_handler);
->     g_ticks = 0;
->     g_interval = ms;
->     gettimeofday(&g_now, NULL);
->     setitimer(ITIMER_REAL, &val, NULL);
-> }
-> 
-> void
-> stop_itimer(void)
-> {
->     struct timeval tv;
->     struct itimerval val;
-> 
->     tv.tv_sec = tv.tv_usec = 0;
->     val.it_interval = tv;
->     val.it_value = tv;
-> 
->     setitimer(ITIMER_REAL, &val, NULL);
->     signal(SIGALRM, SIG_DFL);
-> }
-> 
-> int
-> main(void)
-> {
->     int i;
->     struct timeval tv_start;
->     struct timeval tv_now;
-> 
->     char drift_sign;
->     struct timeval tv_drift;
->     struct timeval tv_elapsed;
-> 
->     for (i = 10; i <= 50; i += 10)
->     {
->         gettimeofday(&tv_start, NULL);
->         start_itimer(i);
->         do
->         {
->             usleep(1000*1000);
->             gettimeofday(&tv_now, NULL);
->             tv_elapsed = tv_now;
->             tv_sub(&tv_elapsed, &tv_start);
->         } while (tv_elapsed.tv_sec < TEST_INTERVAL_SEC);
->         stop_itimer();
-> 
->         if (g_now.tv_sec > tv_now.tv_sec ||
->             (g_now.tv_sec == tv_now.tv_sec &&
->              g_now.tv_usec > tv_now.tv_usec))
->         {
->             drift_sign = '+';
->             tv_drift = g_now;
->             tv_sub(&tv_drift, &tv_now);
->         }
->         else
->         {
->             drift_sign='-';
->             tv_drift = tv_now;
->             tv_sub(&tv_drift, &g_now);
->         }
->         printf("i=%d, ticks=%u (expected %u), elapsed=%ld.%06ld, drift=%c%ld.%06ld\n",
->                 i, g_ticks, (TEST_INTERVAL_SEC*1000/i),
->                 tv_elapsed.tv_sec, tv_elapsed.tv_usec,
->                 drift_sign, tv_drift.tv_sec, tv_drift.tv_usec);
->     }
->     return 0;
-> }
+> Works for me.
 > 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
---------------030300080406090300060301
-Content-Type: text/plain;
- name="itimertest.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="itimertest.c"
-
-/*
- * test itimer
- */
-
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <unistd.h>
-#include <signal.h>
-#include <sys/time.h>
-#include <time.h>
-
-#define TEST_INTERVAL_SEC 5
-
-static inline void
-tv_sub(struct timeval* ptv1, struct timeval* ptv2)
-{
-    ptv1->tv_sec  -= ptv2->tv_sec;
-    ptv1->tv_usec -= ptv2->tv_usec;
-    while (ptv1->tv_usec < 0)
-    {
-        ptv1->tv_sec--;
-        ptv1->tv_usec += 1000*1000;
-    }
-}
-
-static uint             g_ticks;
-static uint             g_interval;
-static struct timeval   g_now;
-static struct itimerval g_resolution;
-
-void
-itimer_handler(int sig)
-{
-    g_ticks++;
-    // g_now.tv_usec += g_interval*1000;
-    g_now.tv_usec += g_resolution.it_interval.tv_usec;
-    while (g_now.tv_usec > 1000*1000)
-    {
-        g_now.tv_usec -= 1000*1000;
-        g_now.tv_sec++;
-    }
-}
-
-void
-start_itimer(uint ms)
-{
-    struct timeval tv;
-    struct itimerval val;
-
-    tv.tv_sec = ms/1000;
-    tv.tv_usec = (ms%1000)*1000;
-
-    val.it_interval = tv;
-    val.it_value = tv;
-
-    signal(SIGALRM, itimer_handler);
-    g_ticks = 0;
-    g_interval = ms;
-    gettimeofday(&g_now, NULL);
-    setitimer(ITIMER_REAL, &val, NULL);
-    setitimer(ITIMER_REAL, &val, &g_resolution);
-}
-
-void
-stop_itimer(void)
-{
-    struct timeval tv;
-    struct itimerval val;
-
-    tv.tv_sec = tv.tv_usec = 0;
-    val.it_interval = tv;
-    val.it_value = tv;
-
-    setitimer(ITIMER_REAL, &val, NULL);
-    signal(SIGALRM, SIG_DFL);
-}
-
-int
-main(void)
-{
-    int i;
-    struct timeval tv_start;
-    struct timeval tv_now;
-
-    char drift_sign;
-    struct timeval tv_drift;
-    struct timeval tv_elapsed;
-
-    for (i = 10; i <= 50; i += 10)
-    {
-        gettimeofday(&tv_start, NULL);
-        start_itimer(i);
-	printf("resolution: asked for %dus, got %dus\n", i * 1000, 
-	       (int)g_resolution.it_interval.tv_usec);
-        do
-        {
-            usleep(1000*1000);
-            gettimeofday(&tv_now, NULL);
-            tv_elapsed = tv_now;
-            tv_sub(&tv_elapsed, &tv_start);
-        } while (tv_elapsed.tv_sec < TEST_INTERVAL_SEC);
-        stop_itimer();
-
-        if (g_now.tv_sec > tv_now.tv_sec ||
-            (g_now.tv_sec == tv_now.tv_sec &&
-             g_now.tv_usec > tv_now.tv_usec))
-        {
-            drift_sign = '+';
-            tv_drift = g_now;
-            tv_sub(&tv_drift, &tv_now);
-        }
-        else
-        {
-            drift_sign='-';
-            tv_drift = tv_now;
-            tv_sub(&tv_drift, &g_now);
-        }
-        printf("i=%d, ticks=%u (expected %u ,real %u), elapsed=%ld.%06ld, drift=%c%ld.%06ld\n",
-	       i, g_ticks, (TEST_INTERVAL_SEC*1000/i),
-	       (TEST_INTERVAL_SEC*1000*1000 / 
-		(int)g_resolution.it_interval.tv_usec),
-                tv_elapsed.tv_sec, tv_elapsed.tv_usec,
-                drift_sign, tv_drift.tv_sec, tv_drift.tv_usec);
-    }
-    return 0;
-}
+OK, I'm testing the below.
 
 
---------------030300080406090300060301--
+ 25-akpm/include/linux/mm.h     |    2 ++
+ 25-akpm/include/linux/mmzone.h |    2 +-
+ 25-akpm/init/main.c            |    2 +-
+ 25-akpm/mm/oom_kill.c          |   14 --------------
+ 25-akpm/mm/page_alloc.c        |   40 +++++++++++++++++++++++++++++++++++++++-
+ 25-akpm/mm/swap.c              |   20 ++++++++++++++++++++
+ 6 files changed, 63 insertions(+), 17 deletions(-)
+
+diff -puN mm/page_alloc.c~scale-min_free_kbytes mm/page_alloc.c
+--- 25/mm/page_alloc.c~scale-min_free_kbytes	Tue Oct 14 16:25:08 2003
++++ 25-akpm/mm/page_alloc.c	Tue Oct 14 16:32:24 2003
+@@ -1589,7 +1589,7 @@ void __init page_alloc_init(void)
+  *	that the pages_{min,low,high} values for each zone are set correctly 
+  *	with respect to min_free_kbytes.
+  */
+-void setup_per_zone_pages_min(void)
++static void setup_per_zone_pages_min(void)
+ {
+ 	unsigned long pages_min = min_free_kbytes >> (PAGE_SHIFT - 10);
+ 	unsigned long lowmem_pages = 0;
+@@ -1633,6 +1633,44 @@ void setup_per_zone_pages_min(void)
+ }
+ 
+ /*
++ * Initialise min_free_kbytes.
++ *
++ * For small machines we want it small (128k min).  For large machines
++ * we want it large (16MB max).  But it is not linear, because network
++ * bandwidth does not increase linearly with machine size.  We use
++ *
++ *	min_free_kbytes = lowmem_kbytes / sqrt(lowmem_kbytes)
++ *
++ * which yields
++ *
++ *     8MB:		128k
++ *    16MB:		170k
++ *    32MB:		256k
++ *    64MB:		341k
++ *   128MB:		512k
++ *   256MB:		682k
++ *   512MB:		1024k
++ *  1024MB:		1365k
++ *  2048MB:		2048k
++ *  4096MB:		2739k
++ *  8192MB:		4096k
++ * 16348MB:		5461k
++ */
++void __init init_per_zone_pages_min(void)
++{
++	unsigned long lowmem_kbytes;
++
++	lowmem_kbytes = nr_free_buffer_pages() * (PAGE_SIZE >> 10);
++
++	min_free_kbytes = lowmem_kbytes / int_sqrt(lowmem_kbytes);
++	if (min_free_kbytes < 128)
++		min_free_kbytes = 128;
++	if (min_free_kbytes > 16384)
++		min_free_kbytes = 16384;
++	setup_per_zone_pages_min();
++}
++
++/*
+  * min_free_kbytes_sysctl_handler - just a wrapper around proc_dointvec() so 
+  *	that we can call setup_per_zone_pages_min() whenever min_free_kbytes 
+  *	changes.
+diff -puN init/main.c~scale-min_free_kbytes init/main.c
+--- 25/init/main.c~scale-min_free_kbytes	Tue Oct 14 16:25:08 2003
++++ 25-akpm/init/main.c	Tue Oct 14 16:38:58 2003
+@@ -396,7 +396,7 @@ asmlinkage void __init start_kernel(void
+ 	lock_kernel();
+ 	printk(linux_banner);
+ 	setup_arch(&command_line);
+-	setup_per_zone_pages_min();
++	init_per_zone_pages_min();
+ 	setup_per_cpu_areas();
+ 
+ 	/*
+diff -puN include/linux/mmzone.h~scale-min_free_kbytes include/linux/mmzone.h
+--- 25/include/linux/mmzone.h~scale-min_free_kbytes	Tue Oct 14 16:25:08 2003
++++ 25-akpm/include/linux/mmzone.h	Tue Oct 14 16:25:08 2003
+@@ -284,7 +284,7 @@ struct ctl_table;
+ struct file;
+ int min_free_kbytes_sysctl_handler(struct ctl_table *, int, struct file *, 
+ 					  void *, size_t *);
+-extern void setup_per_zone_pages_min(void);
++extern void init_per_zone_pages_min(void);
+ 
+ 
+ #ifdef CONFIG_NUMA
+diff -puN mm/oom_kill.c~scale-min_free_kbytes mm/oom_kill.c
+--- 25/mm/oom_kill.c~scale-min_free_kbytes	Tue Oct 14 16:25:08 2003
++++ 25-akpm/mm/oom_kill.c	Tue Oct 14 16:25:08 2003
+@@ -24,20 +24,6 @@
+ /* #define DEBUG */
+ 
+ /**
+- * int_sqrt - oom_kill.c internal function, rough approximation to sqrt
+- * @x: integer of which to calculate the sqrt
+- * 
+- * A very rough approximation to the sqrt() function.
+- */
+-static unsigned int int_sqrt(unsigned int x)
+-{
+-	unsigned int out = x;
+-	while (x & ~(unsigned int)1) x >>=2, out >>=1;
+-	if (x) out -= out >> 2;
+-	return (out ? out : 1);
+-}	
+-
+-/**
+  * oom_badness - calculate a numeric value for how bad this task has been
+  * @p: task struct of which task we should calculate
+  *
+diff -puN mm/swap.c~scale-min_free_kbytes mm/swap.c
+--- 25/mm/swap.c~scale-min_free_kbytes	Tue Oct 14 16:25:08 2003
++++ 25-akpm/mm/swap.c	Tue Oct 14 16:32:36 2003
+@@ -380,6 +380,26 @@ void vm_acct_memory(long pages)
+ EXPORT_SYMBOL(vm_acct_memory);
+ #endif
+ 
++/**
++ * int_sqrt - rough approximation to sqrt
++ * @x: integer of which to calculate the sqrt
++ *
++ * A very rough approximation to the sqrt() function.
++ */
++unsigned long int_sqrt(unsigned long x)
++{
++	unsigned long out = x;
++
++	while (x & ~(unsigned long)1) {
++		x >>= 2;
++		out >>= 1;
++	}
++
++	if (x)
++		out -= out >> 2;
++
++	return (out ? out : 1);
++}
+ 
+ /*
+  * Perform any setup for the swap system
+diff -puN include/linux/mm.h~scale-min_free_kbytes include/linux/mm.h
+--- 25/include/linux/mm.h~scale-min_free_kbytes	Tue Oct 14 16:25:08 2003
++++ 25-akpm/include/linux/mm.h	Tue Oct 14 16:25:57 2003
+@@ -615,6 +615,8 @@ extern struct page * follow_page(struct 
+ extern int remap_page_range(struct vm_area_struct *vma, unsigned long from,
+ 		unsigned long to, unsigned long size, pgprot_t prot);
+ 
++unsigned long int_sqrt(unsigned long x);
++
+ #ifndef CONFIG_DEBUG_PAGEALLOC
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
+
+_
 

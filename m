@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUF3Ww3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUF3W7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbUF3Ww3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 18:52:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUF3Ww3
+	id S261682AbUF3W7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 18:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbUF3W7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 18:52:29 -0400
-Received: from mail.shareable.org ([81.29.64.88]:30637 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262730AbUF3WwZ
+	Wed, 30 Jun 2004 18:59:14 -0400
+Received: from postman1.arcor-online.net ([151.189.20.156]:8599 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261682AbUF3W7M
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 18:52:25 -0400
-Date: Wed, 30 Jun 2004 23:52:20 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
-       sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: A question about PROT_NONE on Sparc and Sparc64
-Message-ID: <20040630225220.GA32560@mail.shareable.org>
-References: <20040630030503.GA25149@mail.shareable.org> <20040630082804.GS21264@devserv.devel.redhat.com> <20040630135419.25b843b8.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040630135419.25b843b8.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 30 Jun 2004 18:59:12 -0400
+Message-ID: <40E345BC.2070008@flashmail.com>
+Date: Thu, 01 Jul 2004 00:59:08 +0200
+From: Frieder Buerzele <stamm@flashmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: de-de, de-at, de, en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7-np2
+References: <40E00EA4.8060205@yahoo.com.au>
+In-Reply-To: <40E00EA4.8060205@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Wed, 30 Jun 2004 04:28:05 -0400
-> Jakub Jelinek <jakub@redhat.com> wrote:
-> 
-> > I believe R!X and X!R pages ought to be possible on sparc64 too,
-> > just use a different bit as "read" in the fast ITLB miss handler
-> > from the one fast DTLB miss uses.
-> 
-> That's correct.  But I have no plans to implement this
-> any time soon :-)
+must I still renice X to get your patch run without responsive-lose 
+during I/O e.g with cdparanoia?
+thx
 
-The PaX security patch already implements R!X pages on Sparc64, so you
-could just cut out that part of the patch.  Just pick out the changes
-to arch/sparc64/* and include/asm-sparc64/*:
+I had to edit fs/hfsplus/inode.c to get it compile properly
 
-	http://pax.grsecurity.net/pax-linux-2.6.7-200406252135.patch
+--- fs/hfsplus/inode.c.orig     2004-07-01 00:51:52.347198744 +0200
++++ fs/hfsplus/inode.c  2004-07-01 00:42:00.685145048 +0200
+@@ -72,7 +72,7 @@
+                                res = 0;
+                        else for (i = 0; i < tree->pages_per_bnode; i++) {
+                                if (PageActiveMapped(node->page[i]) ||
+-                                       
+PageActiveUnmapped(node->page[i]))) {
++                                       PageActiveUnmapped(node->page[i])) {
+                                        res = 0;
+                                        break;
 
-It appears to use exactly the technique Jakub describes, and has been tested.
 
--- Jamie
+Nick Piggin wrote:
+
+> http://www.kerneltrap.org/~npiggin/2.6.7-np2.gz
+>
+> This is against 2.6.7-mm3. I can do one against -bk if anyone would
+> like.
+>
+> It should fix scheduler problems and compile problems in 2.6.7-np1.
+>
+> It contains my CPU scheduler and memory management stuff. If anyone
+> is having swapping or interactivity problems, please try it out.
+

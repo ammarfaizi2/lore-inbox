@@ -1,75 +1,186 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293563AbSBRCpk>; Sun, 17 Feb 2002 21:45:40 -0500
+	id <S293467AbSBRBbk>; Sun, 17 Feb 2002 20:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293564AbSBRCpU>; Sun, 17 Feb 2002 21:45:20 -0500
-Received: from [204.71.191.182] ([204.71.191.182]:11281 "HELO
-	lbrout06.listbuilder.com") by vger.kernel.org with SMTP
-	id <S293563AbSBRCpP> convert rfc822-to-8bit; Sun, 17 Feb 2002 21:45:15 -0500
-Date: 18 Feb 2002 02:56:29 -0000
-Message-ID: <1014000989.12333.qmail@ech>
-To: List Member <linux-kernel@vger.kernel.org>
-Reply-To: thunderbear_research-feedback-1@lb.bcentral.com
-From: "epaymentsnews" <epaymentsnews@lb.bcentral.com>
-Subject: Issue 25 - The week of February 11-17, 2002 - Text
+	id <S293468AbSBRBba>; Sun, 17 Feb 2002 20:31:30 -0500
+Received: from dsl-213-023-043-245.arcor-ip.net ([213.23.43.245]:648 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S293467AbSBRBbV>;
+	Sun, 17 Feb 2002 20:31:21 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hugh Dickins <hugh@veritas.com>
+Subject: Re: [RFC] Page table sharing
+Date: Mon, 18 Feb 2002 02:35:32 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, dmccr@us.ibm.com,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+        Robert Love <rml@tech9.net>, Rik van Riel <riel@conectiva.com.br>,
+        mingo@redhat.co, Andrew Morton <akpm@zip.com.au>,
+        manfred@colorfullife.com, wli@holomorphy.com
+In-Reply-To: <Pine.LNX.4.21.0202172133520.10152-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.21.0202172133520.10152-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16cciK-0000HW-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-EPAYMENTSNEWS THE WEEK OF February 11-17, 2002 
+On February 17, 2002 11:16 pm, Hugh Dickins wrote:
+> On Sun, 17 Feb 2002, Daniel Phillips wrote:
+> > 
+> > Note that we have to hold the page_table_share_lock until we're finished
+> > copying in the ptes, otherwise the source could go away.  This can turn
+> > into a lock on the page table itself eventually, so whatever contention
+> > there might be will be eliminated.
+> > 
+> > Fixing up copy_page_range to bring the pmd populate inside the 
+> > mm->page_table_lock is trivial, I won't go into it here.  With that plus
+> > changes as above, I think it's tight.  Though I would not bet my life on
+> > it ;-)
+> 
+> Sorry, I didn't really try to follow your preceding discussion of
+> zap_page_range.  (I suspect you need to step back and think again if it
+> gets that messy; but that may be unfair, I haven't thought it through).
 
------------------------------------------------------------
-Optimising Mobile 
-Payment Systems for Next Generation M-Commerce Conference
-Aligning technology 
-capabilities and service provider strategies for success 
-in the evolving mobile payment sector
-15th - 17th April 2002, London
+Oh believe me, it could get a lot messier than what I described.  This
+problem is hard because it's hard.
 
-http://www.metelecoms.com/mobilepayments5.htm
+> You need your "page_table_share_lock" (better, per-page-table spinlock)
+> much more than you seem to realize.  If mm1 and mm2 share a page table,
+> mm1->page_table_lock and mm2->page_table_lock give no protection against
+> each other.
 
------------------------------------------------------------
+Unless we decrement and find that the count was originally 1, that means
+we are the exclusive owner and are protected by the mm->page_table_lock
+we hold.  Only if that is not the case do we need the extra spinlock.
 
-------------------------------
-The week in review
-------------------------------
+Please ping me right away if this analysis is wrong.
 
-Transaction Systems Architects has signed a definitive agreement to sell Regency Systems, Inc. to S1 Corporation. Regency specializes in telephone and Internet banking applications for community banks and is headquartered in Dallas, Texas. TSA said that it did not see much synergy with the company’s core business involving deals with large sized financial institutions, retailers and processors. The transaction is expected to close during TSA’s second fiscal quarter. The company will update its revenue and earnings guidance once the transaction closes.
------------------------------------------------------------
+> Consider copy_page_range from mm1 or __pte_alloc in mm1
+> while try_to_swap_out is acting on shared page table in mm2.  In fact,
+> I think even the read faults are vulnerable to races (mm1 and mm2
+> bringing page in at the same time so double-counting it), since your
+> __pte_alloc doesn't regard a read fault as reason to break the share.
 
-SureFire Commerce Inc. announced that it has signed an agreement with YellowPages.Com. The two companies will launch a payment solution called Total TransActions to YellowPages.Com’s members. SureFire Commerce’s Total TransActions solution allows virtually all small businesses and SOHOs (Small Office/Home Office) to accept VISA, MasterCard, and FirePay Personal Account brands via a virtual point-of-sale machine. Users of the Total TransActions solution can accept over-the-counter credit card payments by entering a customer’s credit card information into the Total TransAction’s interface on the 
-Internet. YellowPages.Com members will be able to accept credit card payment directly, by phone, and by fax, as well as send and settle invoices by e-mail. Businesses will pay a percentage of each transaction as well as a small annual fee for the Total TransActions capability. SureFire Commerce and YellowPages.Com will share revenue on all fees generated. As part of this agreement, SureFire 
-Commerce will offer its partners and merchants the various listing services of YellowPages.Com as an added value.
+This is exactly what I've been considering, intensively, for days.
+(Sleeping has been optional ;-)  Please re-evaluate this in light of the
+exclusive owner observation above.
 
------------------------------------------------------------
-Vodafone UK announced that it has selected iPIN to provide a payment platform for its new Vodafone m-pay bill service. iPIN’s e-payment platform will enable Vodafone UK subscribers to make online purchases over the Internet or WAP. Using the new service, Vodafone UK subscribers will be able to charge low value digital content to their mobile phone accounts from companies offering Vodafone m-pay bill as a payment mechanism. The iPIN solution is used for end-to-end electronic payments, managing the transaction from the consumer payment to the clearing and settlement and customer care. The application will incorporate several iPIN e-payment business rules and security features, including delegation of authentication and single sign-on guidelines as well as content-based authorization rules. Vodafone’s m-pay bill will be available in March.
------------------------------------------------------------
-PayPal became one of the first consumer-oriented Internet companies to go public after the decline of the dot-com era. PayPal’s stock opened on Friday at $13 and went as high as $22.44 before closing at $20.09. The company is the first Internet start-up to go public since last March. PayPal has 59.8 million shares outstanding with its market value at more than $1 billion. The company had planned to launch its IPO last week, but had to postpone it after New York-based online payment provider CertCo, filed a patent nfringement lawsuit. According to PayPal, CertCo’s lawsuit filing was intended to disrupt its IPO. The company raised $70.9 million dollars by Friday’s end.
+> I'm also surprised that your copy_page_range appears to be setting
+> write protect on each pte, including expensive pte_page, VALID_PAGE
+> stuff on each.
 
------------------------------------------------------------
-MasterCard International announced that it would vigorously oppose the proposal by the Reserve Bank of Australia (RBA) to regulate the credit card industry, saying that the proposed regulations would cost cardholders hundreds of millions of dollars in higher fees and charges, make it more difficult for many consumers to get credit and lessen competition among credit card issuers to the disadvantage of small retailers and community banks. According to MasterCard, the only apparent winners would be large retailers, who not only stand to gain a windfall of $500 million annually, but also the right to surcharge cardholders for using credit cards. MasterCard’s Asia-Pacific president Andre Sekulic, said while the elements of the RBA’s goals were commendable, their proposals, if implemented, would backfire to the disadvantage of the very groups they aim to help. In particular, Sekulic said that the concept of transferring more of the cost of using credit cards from merchants to cardholders was contrary to the public interest.
+What do you mean?  Look at my copy_page_range inner loop:
 
--------------------------
-In other news
--------------------------
+	do {
+		pte_t pte = *src_ptb;
+		if (!pte_none(pte) && pte_present(pte)) {
+			struct page *page = pte_page(pte);
+			if (VALID_PAGE(page) && !PageReserved(page) && cow)
+				ptep_set_wrprotect(src_ptb);
+		}
+		if ((address += PAGE_SIZE) >= end)
+			goto out_unlock;
+		src_ptb++;
+	} while ((unsigned) src_ptb & PTE_TABLE_MASK);
 
-S1 Corporation announced that Jax Navy Credit Union, will implement five applications of the S1 Enterprise, including S1 Personal Banking, S1 Business Banking, S1 Customer Center, S1 ZEUS Teller, Platform and Call Center Automation solutions; Carreker Corporation and SOFTPRO North America announce an alliance that will increase their clients' ability to detect check fraud; National 
-Processing Company (NPC) announced the successful implementation of ClearCommerce Corporation's ClearCommerce Engine to power its VirtualPAY e-commerce platform. In a separate release NPC announced the signing of a multi-year credit card processing agreement with H&R Block; Bottomline Technologies announced that Belfast City Council will implement the company's i-Point and i-Pay Cheques solutions to enhance its accounts payable and 
-anti-fraud functionality; CyberSource Corporation has enhanced its transaction processing infrastructure with asymmetric encryption standards; eFunds Corporation announced that H&R Block is implementing eFunds' Electronic Check service in more than 5,000 company-owned offices nationwide; InteliData's Interpose Web Banking system has been successfully launched at California-based 
-Bank of the West; Digital River announced its original agreement to acquire certain assets of Beyond.com's eStores and Government Systems Group has been amended to include Beyond.com's eStores business only; Diebold, Incorporated announced it has closed a deal to purchase the ATM service business of Geac Canada Limited; Payment Services Interactive Gateway (PSiGate) has added online 
-banking to its merchant processing solutions; Payment Partners announced that AMREP, Inc. will begin accepting payments from their overseas customers using Payment Partners' En'point international payment services; First National Bank of Omaha will serve as a reseller for TROY Systems’ eCheck Secure product line; Ingenico Corp., has signed a contract with Imperial Oil Limited (IOL) to provide a POS solution for select IOL locations.
+The && cow line takes care of it.  One thing I'm not doing is taking the
+obvious optimization for inherited shared memory, you'll see it's commented
+out.  For no particular reason, it's a carryover from the early debugging.
 
--------------------------
-DID YOU KNOW?
--------------------------
+> You avoid actually copying pte and incrementing counts,
+> but I'd expect you to want to avoid the whole scan: invalidating entry
+> for the page table itself, to force fault if needed.
 
-A recent report released by Celent Communications has revealed that checks continue to be the payment instrument of choice in the U.S. The research company says that of the nine billion B2B payments made in 2001, 82% were made by check. The analyst firm also says that electronic payments will overtake the check in terms of total value by 2008 as both bank and non bank initiatives begin to 
-automate the financial supply chain. 
+Yes, I'm concentrating on correctness right now, but the results are far
+from shabby anyway.  I'm forking 2-5 times as fast from large-memory
+parents:
 
+time ./test 100 10000
+100 forks from parent with 10000 pages of mapped memory...
+Old total fork time: 0.488664 seconds in 100 iterations (4886 usec/fork)
+New total fork time: 0.218832 seconds in 100 iterations (2188 usec/fork)
+0.03user 0.82system 0:01.30elapsed 65%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (889major+20471minor)pagefaults 0swaps
 
-_______________________________________________________________________
-Powered by List Builder
-To unsubscribe follow the link:
-http://lb.bcentral.com/ex/manage/subscriberprefs?customerid=19870&subid=2238AC6DFF9A2E80&msgnum=1
+time ./test 10 100000
+10 forks from parent with 100000 pages of mapped memory...
+Old total fork time: 1.045828 seconds in 10 iterations (104582 usec/fork)
+New total fork time: 0.225679 seconds in 10 iterations (22567 usec/fork)
+0.05user 64.89system 1:06.56elapsed 97%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (1189major+200386minor)pagefaults 0swaps
+
+I guess the real fork speed up is 5X and the rest is overhead.  By the way,
+notice how long it takes to set up the memory table for the large memory
+parent, it looks like there's a basic vm problem (2.4.17).
+
+Using unmapped page tables or Linus's suggestion - setting the page table
+RO - is a short step from here.  This will bring these timings from impressive
+to downright silly.  However, unless somebody wants to do this hack right now
+I'll put it aside for a couple of weeks while the current code stabilizes.
+Oh, and I guess I'd better apologize to Linus for calling his suggestion a
+'decoration'.
+
+Here's my test script:
+
+echo $1 forks from parent with $2 pages of mapped memory...
+echo -n "Old "; sudo -u old ./forktime -n $1 -m $2
+echo -n "New "; sudo -u new ./forktime -n $1 -m $2
+
+And the c program 'forktime':
+
+/*
+ *  Time fork() system call.
+ *
+ * Original by Dave McCracken
+ * Reformat by Daniel Phillips
+ */
+
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/mman.h>
+
+int main(int argc, char *argv[])
+{
+	int n=1, m=1, i, pagesize = getpagesize();
+	struct timeval stime, etime, rtime;
+	extern char *optarg;
+	char *mem;
+
+args:	switch (getopt(argc, argv, "n:m:")) {
+	case 'n':
+		n = atoi(optarg);
+		goto args;
+	case 'm':
+		m = atoi(optarg);
+		goto args;
+	case -1:
+		break;
+	default:
+		fprintf(stderr, "Usage: %s [-n iterations] [-m mappedpages]\n", argv[0]);
+		exit(1);
+	}
+
+	mem = mmap(NULL, m * pagesize, PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANON, 0, 0);
+
+	for (i = 0; i < m; i++)
+		mem[i * pagesize] = 0;
+
+	gettimeofday (&stime, NULL);
+
+	for (i = 0; i < n; i++)
+		switch (fork()) {
+			case 0: exit(0);
+			case -1: exit(2);
+		}
+
+	wait();
+	gettimeofday(&etime, NULL);
+	timersub(&etime, &stime, &rtime);
+	printf("total fork time: %d.%06d seconds in %d iterations ", rtime.tv_sec, rtime.tv_usec, i);
+	printf("(%d usec/fork)\n", ((rtime.tv_sec * 1000000) + rtime.tv_usec) / i);
+	exit(0);
+}
+
+-- 
+Daniel

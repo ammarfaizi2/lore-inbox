@@ -1,65 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317603AbSGaBe5>; Tue, 30 Jul 2002 21:34:57 -0400
+	id <S317622AbSGaBrg>; Tue, 30 Jul 2002 21:47:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317622AbSGaBe4>; Tue, 30 Jul 2002 21:34:56 -0400
-Received: from florin.dsl.visi.com ([209.98.146.184]:36453 "EHLO
-	bird.iucha.org") by vger.kernel.org with ESMTP id <S317603AbSGaBe4>;
-	Tue, 30 Jul 2002 21:34:56 -0400
-Date: Tue, 30 Jul 2002 20:36:11 -0500
-To: Alan Cox <alan@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19rc3-ac5
-Message-ID: <20020731013611.GA478@iucha.net>
-Mail-Followup-To: Alan Cox <alan@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <200207301356.g6UDuq900731@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
-Content-Disposition: inline
-In-Reply-To: <200207301356.g6UDuq900731@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
+	id <S317632AbSGaBrg>; Tue, 30 Jul 2002 21:47:36 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:196 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S317622AbSGaBrf>; Tue, 30 Jul 2002 21:47:35 -0400
+Message-ID: <3D47412D.1060407@quark.didntduck.org>
+Date: Tue, 30 Jul 2002 21:45:17 -0400
+From: Brian Gerst <bgerst@quark.didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, da-x@gmx.net
+Subject: [PATCH] fix x86 page table init
+Content-Type: multipart/mixed;
+ boundary="------------080209050808070907090901"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------080209050808070907090901
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The recent changes to the x86 page table init reintroduced a bug with 
+the 4k pagetables.  The page table must be filled with entries before it 
+is inserted into the pmd or else you risk a tlb miss on a kernel code 
+page causing an oops.  This patch takes a different approach than before 
+- it allows for reuse of the boot pagetable pages instead of allocating 
+new ones.
 
-On Tue, Jul 30, 2002 at 09:56:52AM -0400, Alan Cox wrote:
-> Linux 2.4.19rc3-ac5
-> o	Warn when mounting ext3 as ext2			(Andrew Morton)
+--
+				Brian Gerst
 
-It warns all right but then it doesn't mount it at all. I have my root
-on ext3. It spits a lot of errors about not being able to find modules
-and dies by the time it gets to syslog.
+--------------080209050808070907090901
+Content-Type: text/plain;
+ name="pte_init-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pte_init-1"
 
-All kernels up to rc3-ac2 work just fine. (I might have skipped one or
-two).
+diff -urN linux-bk/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-bk/arch/i386/mm/init.c	Tue Jul 30 20:59:27 2002
++++ linux/arch/i386/mm/init.c	Tue Jul 30 21:02:41 2002
+@@ -70,10 +70,14 @@
+  */
+ static pte_t * __init one_page_table_init(pmd_t *pmd)
+ {
+-	pte_t *page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-	set_pmd(pmd, __pmd(__pa(page_table) | _KERNPG_TABLE));
+-	if (page_table != pte_offset_kernel(pmd, 0))
+-		BUG();	
++	pte_t *page_table;
++	page_table = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++	if (pmd_none(*pmd)) {
++		set_pmd(pmd, __pmd(__pa(page_table) | _KERNPG_TABLE));
++		if (page_table != pte_offset_kernel(pmd, 0))
++			BUG();	
++	} else
++		page_table = pte_offset_kernel(pmd, 0);
+ 
+ 	return page_table;
+ }
+@@ -107,9 +111,7 @@
+ 
+ 		pmd = pmd_offset(pgd, vaddr);
+ 		for (; (pmd_ofs < PTRS_PER_PMD) && (vaddr != end); pmd++, pmd_ofs++) {
+-			if (pmd_none(*pmd)) 
+-				one_page_table_init(pmd);
+-
++			one_page_table_init(pmd);
+ 			vaddr += PMD_SIZE;
+ 		}
+ 		pmd_ofs = 0;
 
-florin
+--------------080209050808070907090901--
 
---=20
-
-"If it's not broken, let's fix it till it is."
-
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9Rz8KNLPgdTuQ3+QRAn2BAKCdfQFkOHrsJtT5F9QGzObUVed0cQCfSJCG
-M/KbfBzR7SjDMCy52kf3nOc=
-=n3Br
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--

@@ -1,132 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262674AbVAVHJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbVAVHYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262674AbVAVHJz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 02:09:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbVAVHJz
+	id S262675AbVAVHYk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 02:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbVAVHYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 02:09:55 -0500
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:8338 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262674AbVAVHJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 02:09:50 -0500
-Message-ID: <41F1FC1D.10308@kolivas.org>
-Date: Sat, 22 Jan 2005 18:09:17 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Sat, 22 Jan 2005 02:24:40 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55545 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262675AbVAVHYh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 02:24:37 -0500
+Message-ID: <41F1FFAA.4090707@mvista.com>
+Date: Fri, 21 Jan 2005 23:24:26 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: "Jack O'Quin" <joq@io.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, paul@linuxaudiosystems.com,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt 
- scheduling
-References: <41EEE1B1.9080909@kolivas.org> <41EF00ED.4070908@kolivas.org>	<873bwwga0w.fsf@sulphur.joq.us> <41EF123D.703@kolivas.org>	<87ekgges2o.fsf@sulphur.joq.us> <41EF2E7E.8070604@kolivas.org>	<87oefkd7ew.fsf@sulphur.joq.us>	<10752.195.245.190.93.1106211979.squirrel@195.245.190.93>	<65352.195.245.190.94.1106240981.squirrel@195.245.190.94>	<41F19907.2020809@kolivas.org> <87k6q6c7fz.fsf@sulphur.joq.us> <41F1F735.1000603@kolivas.org> <41F1F7AF.7000105@kolivas.org>
-In-Reply-To: <41F1F7AF.7000105@kolivas.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigADDBAA6F1EC65464DE8B4427"
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+References: <20050119000556.GB14749@atomide.com> <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com> <20050121174831.GE14554@atomide.com> <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com> <41F16551.6090706@mvista.com> <Pine.LNX.4.61.0501211429270.18199@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0501211429270.18199@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigADDBAA6F1EC65464DE8B4427
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Con Kolivas wrote:
-> Con Kolivas wrote:
+Zwane Mwaikambo wrote:
+> Hello George,
 > 
->> Jack O'Quin wrote:
->>
->>> Con Kolivas <kernel@kolivas.org> writes:
->>>
->>>
->>>> Here's fresh results on more stressed hardware (on ext3) with
->>>> 2.6.11-rc1-mm2 (which by the way has SCHED_ISO v2 included). The load
->>>> hovering at 50% spikes at times close to 70 which tests the behaviour
->>>> under iso throttling.
->>>
->>>
->>>
->>>
->>> What version of JACK are you running (`jackd --version')?
->>>
->>> You're still getting zero Delay Max.  That is an important measure.
->>
->> Ok updated jackd
+> On Fri, 21 Jan 2005, George Anzinger wrote:
+> 
+> 
+>>The VST patch on sourceforge
+>>(http://sourceforge.net/projects/high-res-timers/) uses the local apic timer
+>>to do the wake up.  This is the same timer that is used for the High Res work.
+> 
+> 
+> I've been meaning to look into it, although it's quite a bit of work going 
+> through all the extra code from the highres timer patch.
 
-So let's try again, sorry about the noise:
+Well, really all it uses is the HR timer.  The rest of HRT is not really used 
+for VST.  (Unless, of course, you are refering to the work over of the tsc timer 
+tick code.)
 
-==> jack_test4-2.6.11-rc1-mm2-fifo.log <==
-Number of runs  . . . . . . . :(    1)
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :     3
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . : 20161   usecs
-Cycle Maximum . . . . . . . . :  1072   usecs
-Average DSP Load. . . . . . . :    47.2 %
-Average CPU System Load . . . :     5.1 %
-Average CPU User Load . . . . :    18.0 %
-Average CPU Nice Load . . . . :     0.1 %
-Average CPU I/O Wait Load . . :     0.3 %
-Average CPU IRQ Load  . . . . :     0.0 %
-Average CPU Soft-IRQ Load . . :     0.0 %
-Average Interrupt Rate  . . . :  1701.6 /sec
-Average Context-Switch Rate . : 19343.7 /sec
-*********************************************
-Delta Maximum . . . . . . . . : 0.00000
-*********************************************
+-g
+> 
+> Thanks,
+> 	Zwane
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-==> jack_test4-2.6.11-rc1-mm2-iso.log <==
-Number of runs  . . . . . . . :(    1)
-*********************************************
-Timeout Count . . . . . . . . :(    0)
-XRUN Count  . . . . . . . . . :     6
-Delay Count (>spare time) . . :     0
-Delay Count (>1000 usecs) . . :     0
-Delay Maximum . . . . . . . . :  4604   usecs
-Cycle Maximum . . . . . . . . :  1190   usecs
-Average DSP Load. . . . . . . :    54.5 %
-Average CPU System Load . . . :    11.6 %
-Average CPU User Load . . . . :    18.4 %
-Average CPU Nice Load . . . . :     0.1 %
-Average CPU I/O Wait Load . . :     0.0 %
-Average CPU IRQ Load  . . . . :     0.0 %
-Average CPU Soft-IRQ Load . . :     0.0 %
-Average Interrupt Rate  . . . :  1697.9 /sec
-Average Context-Switch Rate . : 19046.2 /sec
-*********************************************
-Delta Maximum . . . . . . . . : 0.00000
-*********************************************
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-Pretty pictures:
-http://ck.kolivas.org/patches/SCHED_ISO/iso2-benchmarks/
-
-Note these are on a full desktop environment, although it is pretty much 
-idle apart from checking email. No changes between fifo and iso runs.
-
-Cheers,
-Con
-
---------------enigADDBAA6F1EC65464DE8B4427
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB8fwdZUg7+tp6mRURAgv6AKCMWHvHeRDid++7v9UszVtvcrX7qgCggI4x
-dVm7rh98sendB0PK8S5r2Xo=
-=7t+i
------END PGP SIGNATURE-----
-
---------------enigADDBAA6F1EC65464DE8B4427--

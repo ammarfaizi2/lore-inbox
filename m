@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262621AbTCYMeC>; Tue, 25 Mar 2003 07:34:02 -0500
+	id <S262600AbTCYMcl>; Tue, 25 Mar 2003 07:32:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262622AbTCYMeC>; Tue, 25 Mar 2003 07:34:02 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27826
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262621AbTCYMeB>; Tue, 25 Mar 2003 07:34:01 -0500
-Subject: Re: Boot/reboot cycle on startup
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Carl Gherardi <Carl.Gherardi@nautronix.com.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <CDF67C45E6F8384B996AC26A3B8057824F86A1@exch-fremantle.nautronix>
-References: <CDF67C45E6F8384B996AC26A3B8057824F86A1@exch-fremantle.nautronix>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048600695.28493.1.camel@irongate.swansea.linux.org.uk>
+	id <S262621AbTCYMck>; Tue, 25 Mar 2003 07:32:40 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:28853 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S262600AbTCYMch>; Tue, 25 Mar 2003 07:32:37 -0500
+Date: Tue, 25 Mar 2003 12:43:33 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-kernel@vger.kernel.org
+Subject: Re: cacheline size detection code in 2.5.66
+Message-ID: <20030325124333.GB28451@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andi Kleen <ak@muc.de>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	linux-kernel@vger.kernel.org
+References: <20030325071532.GA19217@averell> <20030325143310.A3487@jurassic.park.msu.ru> <20030325121527.GA29965@averell>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 Mar 2003 13:58:16 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030325121527.GA29965@averell>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-03-25 at 05:30, Carl Gherardi wrote:
-> Hi all,
-> 
-> I've just been attempting to build bk-current for a via mini itx board
-> with a VIA ezra 800Mhz CPU.
+On Tue, Mar 25, 2003 at 01:15:27PM +0100, Andi Kleen wrote:
 
-Try building a kernel for a lower CPU type than Athlon. C3 lacks a lot
-of stuff the Athlon specific kernel uses
+ > > BTW, the "AMD Processor Recognition Application Note" calls bit 19
+ > > "Multiprocessing Capable". ;-)
+ > Hmm, yes it's broken. 19 is CFLUSH in the 8000_0001 extended CPUID word,
+ > but not in index 0000_0001.
+
+On K8 maybe, but on K7, its correct as it stands. bit 19 of 80000001
+is the MP capability bit. As K7 never had clflush, its not defined
+there.
+
+ > Broken in i386 too.
+
+I don't see anything broken there. The K7 / K8 feature flags are not
+bit for bit compatible though iirc (can't find my K8 cpuid manuals right now).
+
+		Dave
 

@@ -1,445 +1,146 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263780AbRFIEhw>; Sat, 9 Jun 2001 00:37:52 -0400
+	id <S263806AbRFIEic>; Sat, 9 Jun 2001 00:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263786AbRFIEhm>; Sat, 9 Jun 2001 00:37:42 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:51398 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S263780AbRFIEhW>;
-	Sat, 9 Jun 2001 00:37:22 -0400
-Message-ID: <3B21A7FA.484F0175@mandrakesoft.com>
-Date: Sat, 09 Jun 2001 00:37:14 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1 i686)
-X-Accept-Language: en
+	id <S263797AbRFIEiW>; Sat, 9 Jun 2001 00:38:22 -0400
+Received: from www.wen-online.de ([212.223.88.39]:59140 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S263786AbRFIEiN>;
+	Sat, 9 Jun 2001 00:38:13 -0400
+Date: Sat, 9 Jun 2001 06:36:57 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Tobias Ringstrom <tori@unhappy.mine.nu>
+cc: Jonathan Morton <chromi@cyberspace.org>, Shane Nay <shane@minirl.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
+        Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.33.0106082030200.2425-100000@boris.prodako.se>
+Message-ID: <Pine.LNX.4.33.0106090553180.480-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PATCH: 8139too fixes for testing
-Content-Type: multipart/mixed;
- boundary="------------09662B121B65A134A6188822"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------09662B121B65A134A6188822
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Fri, 8 Jun 2001, Tobias Ringstrom wrote:
 
-Testing requested, especially if you had problems with 8139too in recent
-2.4.x kernels.
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
---------------09662B121B65A134A6188822
-Content-Type: text/plain; charset=us-ascii;
- name="8139-pre1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="8139-pre1.patch"
+> On Fri, 8 Jun 2001, Mike Galbraith wrote:
+> > On Fri, 8 Jun 2001, Tobias Ringstrom wrote:
+> > > On Fri, 8 Jun 2001, Mike Galbraith wrote:
+> > > > I gave this a shot at my favorite vm beater test (make -j30 bzImage)
+> > > > while testing some other stuff today.
+> > >
+> > > Could you please explain what is good about this test?  I understand that
+> > > it will stress the VM, but will it do so in a realistic and relevant way?
+> >
+> > Can you explain what is bad about this test? ;)  It spins the same VM wheels
+>
+> I think a load of ~30 is quit uncommon, and therefor it is unclear to me
+> that it would be a test that would be repesentative of most normal loads.
 
-Index: linux_2_4/drivers/net/8139too.c
-diff -u linux_2_4/drivers/net/8139too.c:1.1.1.39 linux_2_4/drivers/net/8139too.c:1.1.1.39.2.3
---- linux_2_4/drivers/net/8139too.c:1.1.1.39	Fri Jun  8 15:40:33 2001
-+++ linux_2_4/drivers/net/8139too.c	Fri Jun  8 21:22:43 2001
-@@ -136,6 +136,10 @@
- 
- */
- 
-+#define DRV_NAME	"8139too"
-+#define DRV_VERSION	"0.9.18-pre1"
-+
-+
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
-@@ -146,13 +150,13 @@
- #include <linux/etherdevice.h>
- #include <linux/rtnetlink.h>
- #include <linux/delay.h>
-+#include <linux/ethtool.h>
- #include <asm/io.h>
-+#include <asm/uaccess.h>
- 
- 
--#define RTL8139_VERSION "0.9.17"
--#define MODNAME "8139too"
--#define RTL8139_DRIVER_NAME   MODNAME " Fast Ethernet driver " RTL8139_VERSION
--#define PFX MODNAME ": "
-+#define RTL8139_DRIVER_NAME   DRV_NAME " Fast Ethernet driver " DRV_VERSION
-+#define PFX DRV_NAME ": "
- 
- 
- /* enable PIO instead of MMIO, if CONFIG_8139TOO_PIO is selected */
-@@ -363,7 +367,10 @@
- 	TxOK = 0x04,
- 	RxErr = 0x02,
- 	RxOK = 0x01,
-+
-+	RxAckBits = RxFIFOOver | RxOverflow | RxOK,
- };
-+
- enum TxStatusBits {
- 	TxHostOwns = 0x2000,
- 	TxUnderrun = 0x4000,
-@@ -542,6 +549,11 @@
- 
- };
- 
-+struct rtl_extra_stats {
-+	unsigned long early_rx;
-+	unsigned long tx_buf_mapped;
-+	unsigned long tx_timeouts;
-+};
- 
- struct rtl8139_private {
- 	void *mmio_addr;
-@@ -560,7 +572,6 @@
- 	dma_addr_t rx_ring_dma;
- 	dma_addr_t tx_bufs_dma;
- 	signed char phys[4];		/* MII device addresses. */
--	u16 advertising;		/* NWay media advertisement */
- 	char twistie, twist_row, twist_col;	/* Twister tune state. */
- 	unsigned int full_duplex:1;	/* Full-duplex operation requested. */
- 	unsigned int duplex_lock:1;
-@@ -574,6 +585,7 @@
- 	wait_queue_head_t thr_wait;
- 	struct semaphore thr_exited;
- 	u32 rx_config;
-+	struct rtl_extra_stats xstats;
- };
- 
- MODULE_AUTHOR ("Jeff Garzik <jgarzik@mandrakesoft.com>");
-@@ -582,6 +594,10 @@
- MODULE_PARM (max_interrupt_work, "i");
- MODULE_PARM (media, "1-" __MODULE_STRING(MAX_UNITS) "i");
- MODULE_PARM (full_duplex, "1-" __MODULE_STRING(MAX_UNITS) "i");
-+MODULE_PARM_DESC (multicast_filter_limit, "8139too maximum number of filtered multicast addresses");
-+MODULE_PARM_DESC (max_interrupt_work, "8139too maximum events handled per interrupt");
-+MODULE_PARM_DESC (media, "8139too: Bits 4+9: force full duplex, bit 5: 100Mbps");
-+MODULE_PARM_DESC (full_duplex, "8139too: Force full duplex for board(s) (1)");
- 
- static int read_eeprom (void *ioaddr, int location, int addr_len);
- static int rtl8139_open (struct net_device *dev);
-@@ -596,7 +612,7 @@
- static void rtl8139_interrupt (int irq, void *dev_instance,
- 			       struct pt_regs *regs);
- static int rtl8139_close (struct net_device *dev);
--static int mii_ioctl (struct net_device *dev, struct ifreq *rq, int cmd);
-+static int netdev_ioctl (struct net_device *dev, struct ifreq *rq, int cmd);
- static struct net_device_stats *rtl8139_get_stats (struct net_device *dev);
- static inline u32 ether_crc (int length, unsigned char *data);
- static void rtl8139_set_rx_mode (struct net_device *dev);
-@@ -938,7 +954,7 @@
- 	dev->stop = rtl8139_close;
- 	dev->get_stats = rtl8139_get_stats;
- 	dev->set_multicast_list = rtl8139_set_rx_mode;
--	dev->do_ioctl = mii_ioctl;
-+	dev->do_ioctl = netdev_ioctl;
- 	dev->tx_timeout = rtl8139_tx_timeout;
- 	dev->watchdog_timeo = TX_TIMEOUT;
- 
-@@ -984,11 +1000,11 @@
- 		for (phy = 0; phy < 32 && phy_idx < sizeof(tp->phys); phy++) {
- 			int mii_status = mdio_read(dev, phy, 1);
- 			if (mii_status != 0xffff  &&  mii_status != 0x0000) {
-+				u16 advertising = mdio_read(dev, phy, 4);
- 				tp->phys[phy_idx++] = phy;
--				tp->advertising = mdio_read(dev, phy, 4);
- 				printk(KERN_INFO "%s: MII transceiver %d status 0x%4.4x "
- 					   "advertising %4.4x.\n",
--					   dev->name, phy, mii_status, tp->advertising);
-+					   dev->name, phy, mii_status, advertising);
- 			}
- 		}
- 		if (phy_idx == 0) {
-@@ -1331,16 +1347,16 @@
- 	rtl8139_chip_reset (ioaddr);
- 
- 	/* unlock Config[01234] and BMCR register writes */
--	RTL_W8 (Cfg9346, Cfg9346_Unlock);
-+	RTL_W8_F (Cfg9346, Cfg9346_Unlock);
- 	/* Restore our idea of the MAC address. */
- 	RTL_W32_F (MAC0 + 0, cpu_to_le32 (*(u32 *) (dev->dev_addr + 0)));
--	RTL_W32 (MAC0 + 4, cpu_to_le32 (*(u32 *) (dev->dev_addr + 4)));
-+	RTL_W32_F (MAC0 + 4, cpu_to_le32 (*(u32 *) (dev->dev_addr + 4)));
- 
- 	/* Must enable Tx/Rx before setting transfer thresholds! */
- 	RTL_W8 (ChipCmd, CmdRxEnb | CmdTxEnb);
- 
- 	tp->rx_config = rtl8139_rx_config | AcceptBroadcast | AcceptMyPhys;
--	RTL_W32 (RxConfig, rtl8139_rx_config);
-+	RTL_W32 (RxConfig, tp->rx_config);
- 
- 	/* Check this value: the documentation for IFG contradicts ifself. */
- 	RTL_W32 (TxConfig, (TX_DMA_BURST << TxDMAShift));
-@@ -1357,24 +1373,15 @@
- 		else if ((mii_reg5 & 0x0100) == 0x0100
- 				 || (mii_reg5 & 0x00C0) == 0x0040)
- 			tp->full_duplex = 1;
--		if (mii_reg5) {
--			printk(KERN_INFO"%s: Setting %s%s-duplex based on"
--			   " auto-negotiated partner ability %4.4x.\n", dev->name,
--			   mii_reg5 == 0 ? "" :
--			   (mii_reg5 & 0x0180) ? "100mbps " : "10mbps ",
--			   tp->full_duplex ? "full" : "half", mii_reg5);
--		} else {
--			printk(KERN_INFO"%s: media is unconnected, link down, or incompatible connection\n",
--			       dev->name);
--		}
-+
-+		printk (KERN_INFO"%s: Setting %s%s-duplex based on"
-+				" auto-negotiated partner ability %4.4x.\n",
-+		        dev->name, mii_reg5 == 0 ? "" :
-+				(mii_reg5 & 0x0180) ? "100mbps " : "10mbps ",
-+			tp->full_duplex ? "full" : "half", mii_reg5);
- 	}
- 
- 	if (tp->chipset >= CH_8139B) {
--		tmp = RTL_R8 (Config4) & ~(1<<2);
--		/* chip will clear Rx FIFO overflow automatically */
--		tmp |= (1<<7);
--		RTL_W8 (Config4, tmp);
--
- 		/* disable magic packet scanning, which is enabled
- 		 * when PM is enabled in Config1 */
- 		RTL_W8 (Config3, RTL_R8 (Config3) & ~(1<<5));
-@@ -1654,6 +1661,8 @@
- 		 RTL_R16 (IntrStatus),
- 		 RTL_R8 (MediaStatus));
- 
-+	tp->xstats.tx_timeouts++;
-+
- 	/* disable Tx ASAP, if not already */
- 	tmp8 = RTL_R8 (ChipCmd);
- 	if (tmp8 & CmdTxEnb)
-@@ -1704,6 +1713,7 @@
- 		RTL_W32 (TxAddr0 + (entry * 4),
- 			 tp->tx_bufs_dma + (tp->tx_buf[entry] - tp->tx_bufs));
- 	} else {
-+		tp->xstats.tx_buf_mapped++;
- 		tp->tx_info[entry].mapping =
- 		    pci_map_single (tp->pci_dev, skb->data, skb->len,
- 				    PCI_DMA_TODEVICE);
-@@ -1760,7 +1770,7 @@
- 			tp->stats.tx_errors++;
- 			if (txstatus & TxAborted) {
- 				tp->stats.tx_aborted_errors++;
--				RTL_W32 (TxConfig, TxClearAbt | (TX_DMA_BURST << TxDMAShift));
-+				RTL_W32_F (TxConfig, TxClearAbt);
- 			}
- 			if (txstatus & TxCarrierLost)
- 				tp->stats.tx_carrier_errors++;
-@@ -1865,11 +1875,10 @@
- 
- 
- static void rtl8139_rx_interrupt (struct net_device *dev,
--				  struct rtl8139_private *tp, void *ioaddr,
--				  u16 status)
-+				  struct rtl8139_private *tp, void *ioaddr)
- {
- 	unsigned char *rx_ring;
--	u16 cur_rx, ackstat;
-+	u16 cur_rx;
- 
- 	assert (dev != NULL);
- 	assert (tp != NULL);
-@@ -1883,11 +1892,6 @@
- 		 RTL_R16 (RxBufAddr),
- 		 RTL_R16 (RxBufPtr), RTL_R8 (ChipCmd));
- 
--	if (status & RxFIFOOver)
--		status = RxOverflow | RxOK;
--	else
--		status = RxOK;
--
- 	while ((RTL_R8 (ChipCmd) & RxBufEmpty) == 0) {
- 		int ring_offset = cur_rx % RX_BUF_LEN;
- 		u32 rx_status;
-@@ -1895,8 +1899,6 @@
- 		unsigned int pkt_size;
- 		struct sk_buff *skb;
- 
--		mb();
--
- 		/* read size+status of next frame from DMA ring buffer */
- 		rx_status = le32_to_cpu (*(u32 *) (rx_ring + ring_offset));
- 		rx_size = rx_status >> 16;
-@@ -1916,8 +1918,10 @@
- 		}
- #endif
- 
--		if (rx_size == 0xfff0) /* Early Rx in progress */
-+		if (rx_size == 0xfff0) { /* Early Rx in progress */
-+			tp->xstats.early_rx++;
- 			break;
-+		}
- 
- 		/* If Rx err or invalid rx_size/rx_status received
- 		 * (which happens if we get lost in the ring),
-@@ -1963,9 +1967,8 @@
- 		cur_rx = (cur_rx + rx_size + 4 + 3) & ~3;
- 		RTL_W16 (RxBufPtr, cur_rx - 16);
- 
--		ackstat = RTL_R16 (IntrStatus) & status;
--		if (ackstat)
--			RTL_W16 (IntrStatus, ackstat);
-+		if (RTL_R16 (IntrStatus) & RxAckBits)
-+			RTL_W16_F (IntrStatus, RxAckBits);
- 	}
- 
- 	DPRINTK ("%s: Done rtl8139_rx(), current %4.4x BufAddr %4.4x,"
-@@ -1975,11 +1978,9 @@
- 
- 	tp->cur_rx = cur_rx;
- 
--	if (RTL_R8 (ChipCmd) & RxBufEmpty) {
--		ackstat = RTL_R16 (IntrStatus) & status;
--		if (ackstat)
--			RTL_W16_F (IntrStatus, ackstat);
--	}
-+	if ((RTL_R8 (ChipCmd) & RxBufEmpty) &&
-+	    (RTL_R16 (IntrStatus) & RxAckBits))
-+		RTL_W16_F (IntrStatus, RxAckBits);
- }
- 
- 
-@@ -2059,26 +2060,10 @@
- 		if (status & RxUnderrun)
- 			link_changed = RTL_R16 (CSCR) & CSCR_LinkChangeBit;
- 
--		/* E. Gill */
--		/* In case of an RxFIFOOver we must also clear the RxOverflow
--		   bit to avoid dropping frames for ever. Believe me, I got a
--		   lot of troubles copying huge data (approximately 2 RxFIFOOver
--		   errors per 1GB data transfer).
--		   The following is written in the 'p-guide.pdf' file (RTL8139(A/B)
--		   Programming guide V0.1, from 1999/1/15) on page 9 from REALTEC.
--		   -----------------------------------------------------------
--		   2. RxFIFOOvw handling:
--		     When RxFIFOOvw occurs, all incoming packets are discarded.
--		     Clear ISR(RxFIFOOvw) doesn't dismiss RxFIFOOvw event. To
--		     dismiss RxFIFOOvw event, the ISR(RxBufOvw) must be written
--		     with a '1'.
--		   -----------------------------------------------------------
--		   Unfortunately I was not able to find any reason for the
--		   RxFIFOOver error (I got the feeling this depends on the
--		   CPU speed, lower CPU speed --> more errors).
--		   After clearing the RxOverflow bit the transfer of the
--		   packet was repeated and all data are error free transferred */
--		ackstat = status & ~(RxFIFOOver | RxOverflow | RxOK);
-+		/* The chip takes special action when we clear RxAckBits,
-+		 * so we clear them later in rtl8139_rx_interrupt
-+		 */
-+		ackstat = status & ~RxAckBits;
- 		RTL_W16 (IntrStatus, ackstat);
- 
- 		DPRINTK ("%s: interrupt  status=%#4.4x ackstat=%#4.4x new intstat=%#4.4x.\n",
-@@ -2089,9 +2074,8 @@
- 		      RxFIFOOver | TxErr | TxOK | RxErr | RxOK)) == 0)
- 			break;
- 
--		if (netif_running (dev) &&
--		    status & (RxOK | RxUnderrun | RxOverflow | RxFIFOOver))	/* Rx interrupt */
--			rtl8139_rx_interrupt (dev, tp, ioaddr, status);
-+		if (netif_running (dev) && (status & RxAckBits))
-+			rtl8139_rx_interrupt (dev, tp, ioaddr);
- 
- 		/* Check uncommon events with one test. */
- 		if (status & (PCIErr | PCSTimeout | RxUnderrun | RxOverflow |
-@@ -2099,8 +2083,7 @@
- 			rtl8139_weird_interrupt (dev, tp, ioaddr,
- 						 status, link_changed);
- 
--		if (netif_running (dev) &&
--		    status & (TxOK | TxErr)) {
-+		if (netif_running (dev) && (status & (TxOK | TxErr))) {
- 			spin_lock (&tp->lock);
- 			rtl8139_tx_interrupt (dev, tp, ioaddr);
- 			spin_unlock (&tp->lock);
-@@ -2110,10 +2093,8 @@
- 	} while (boguscnt > 0);
- 
- 	if (boguscnt <= 0) {
--		printk (KERN_WARNING
--			"%s: Too much work at interrupt, "
--			"IntrStatus=0x%4.4x.\n", dev->name,
--			status);
-+		printk (KERN_WARNING "%s: Too much work at interrupt, "
-+			"IntrStatus=0x%4.4x.\n", dev->name, status);
- 
- 		/* Clear all interrupt sources. */
- 		RTL_W16 (IntrStatus, 0xffff);
-@@ -2183,8 +2164,32 @@
- 	return 0;
- }
- 
-+
-+static int netdev_ethtool_ioctl(struct net_device *dev, void *useraddr)
-+{
-+	struct rtl8139_private *np = dev->priv;
-+	u32 ethcmd;
-+		
-+	if (copy_from_user(&ethcmd, useraddr, sizeof(ethcmd)))
-+		return -EFAULT;
-+
-+        switch (ethcmd) {
-+        case ETHTOOL_GDRVINFO: {
-+		struct ethtool_drvinfo info = {ETHTOOL_GDRVINFO};
-+		strcpy(info.driver, DRV_NAME);
-+		strcpy(info.version, DRV_VERSION);
-+		strcpy(info.bus_info, np->pci_dev->slot_name);
-+		if (copy_to_user(useraddr, &info, sizeof(info)))
-+			return -EFAULT;
-+		return 0;
-+	}
-+
-+        }
-+	
-+	return -EOPNOTSUPP;
-+}
- 
--static int mii_ioctl (struct net_device *dev, struct ifreq *rq, int cmd)
-+static int netdev_ioctl (struct net_device *dev, struct ifreq *rq, int cmd)
- {
- 	struct rtl8139_private *tp = dev->priv;
- 	u16 *data = (u16 *) & rq->ifr_data;
-@@ -2193,6 +2198,8 @@
- 	DPRINTK ("ENTER\n");
- 
- 	switch (cmd) {
-+	case SIOCETHTOOL:
-+		return netdev_ethtool_ioctl(dev, (void *) rq->ifr_data);
- 	case SIOCDEVPRIVATE:	/* Get the address of the PHY in use. */
- 		data[0] = tp->phys[0] & 0x3f;
- 		/* Fall Through */
-@@ -2216,7 +2223,7 @@
- 				if (tp->medialock)
- 					tp->full_duplex = (value & 0x0100) ? 1 : 0;
- 				break;
--			case 4: tp->advertising = value; break;
-+			case 4: /* tp->advertising = value; */ break;
- 			}
- 		}
- 		mdio_write(dev, data[0], data[1] & 0x1f, data[2]);
-@@ -2323,7 +2330,7 @@
- 		tp->rx_config = tmp;
- 	}
- 	RTL_W32_F (MAR0 + 0, mc_filter[0]);
--	RTL_W32 (MAR0 + 4, mc_filter[1]);
-+	RTL_W32_F (MAR0 + 4, mc_filter[1]);
- 
- 	spin_unlock_irqrestore (&tp->lock, flags);
- 
-@@ -2369,7 +2376,7 @@
- 
- 
- static struct pci_driver rtl8139_pci_driver = {
--	name:		MODNAME,
-+	name:		DRV_NAME,
- 	id_table:	rtl8139_pci_tbl,
- 	probe:		rtl8139_init_one,
- 	remove:		rtl8139_remove_one,
+It's not supposed to be repesentative.  It's supposed to take the box
+rapidly (but not instantly) from idle through lo->medium->high and
+maintain solid throughput.
 
---------------09662B121B65A134A6188822--
+> > as any other load does.  What's the difference if I have a bunch of httpd
+> > allocating or a bunch of cc1/as/ld?  This load has a modest cachable data
+> > set and is compute bound.. and above all gives very repeatable results.
+>
+> Not a big difference.  The difference I was thinking abount is the
+> difference between spawning lots of processes allocating, using and
+> freeing lots of memory, compared to a case where you have a few processes
+> touching a lot of already allocated pages in some pattern.  I was
+> wondering whether optimizing for your case would be good or bad for the
+> other case.  I know, I know, I should do more testing myself.  And I
+> should probably not ask you, since you really really like your test,
+> and you will probably just say yes... ;-)
+
+It's not a matter of optimizing for my case.. that would be horrible.
+It's a matter of is the vm capable of rapid and correct responses.
+
+> At home, I'm running a couple of computers.  One of them is a slow
+> computer running Linux, serving mail, NFS, SMB, etc.  I'm usually logged
+> in on a couple of virtual consoles.  On this machine, I do not mind if all
+> shells, daemons and other idle processes are beeing swapped out in favor
+> of disk cache for the NFS and SMB serving.  In fact, that is a very good
+> thing, and I want it that way.
+>
+> Another maching is my desktop machine.  When using this maching, I really
+> hate when my emacsen, browsers, xterms, etc are swapped out just to give
+> me some stupid disk cache for my xmms or compilations.  I do not care if a
+> kernel compile is a little slower as long as my applications are snappy.
+>
+> How could Linux predict this?  It is a matter of taste, IMHO.
+
+I have no idea.  It would be _wonderful_ if it could detect interactive
+tasks and give them preferencial treatment.
+
+> > I use it to watch reaction to surge.  I watch for the vm to build to a
+> > solid maximum throughput without thrashing.  That's the portion of VM
+> > that I'm interested in, so that's what I test.  Besides :) I simply don't
+> > have the hardware to try to simulate hairy chested server loads.  There
+> > are lots of folks with hairy chested boxes.. they should test that stuff.
+>
+> Agreed.  More testing is needed.  Now if we would have those knobs and
+> wheels to turn, we could perhaps also tune our systems to behave as we
+> like them, and submit that as well.  Right now you need to be a kernel
+> hacker, and see through all the magic with shm, mmap, a bunch of caches,
+> page lists, etc.  I'd give a lot for a nice picture (or state diagram)
+> showing the lifetime of a page, but I have not found such a picture
+> anywhere.  Besides, the VM seems to change every new release anyway.
+>
+> > I've been repeating ~this test since 2.0 times, and have noticed a 1:1
+> > relationship.  When I notice that my box is ~happy doing this load test,
+> > I also notice very few VM gripes hitting the list.
+>
+> Ok, but as you say, we need more tests.
+>
+> > > Isn't the interesting case when you have a number of processes using lots
+> > > of memory, but only a part of all that memory is beeing actively used, and
+> > > that memory fits in RAM.  In that case, the VM should make sure that the
+> > > not used memory is swapped out.  In RAM you should have the used memory,
+> > > but also disk cache if there is any RAM left.  Does the current VM handle
+> > > this case fine yet?  IMHO, this is the case most people care about.  It is
+> > > definately the case I care about, at least. :-)
+> >
+> > The interesting case is _every_ case.  Try seeing my particular test as
+> > a simulation of a small classroom box with 30 students compiling their
+> > assignments and it'll suddenly become quite realistic.  You'll notice
+> > by the numbers I post that I was very careful to not overload the box in
+> > a rediculous manner when selecting the total size of the job.. it's just
+> > a heavily loaded box.  This test does not overload my IO resources, so
+> > it tests the VM's ability to choose and move the right stuff at the right
+> > time to get the job done with a minimum of additional overhead.
+>
+> I did not understand those numbers when I saw them the first time.  Now, I
+> must say that your test does not look as silly as it did before.
+
+[snip.. save a tree]
+
+> Why isn't user+system+idle == real?  SMP?
+
+Good question, no smp (sniff) here.
+
+> > Tunables aren't really practical in VM (imho).  If there were a dozen
+> > knobs, you'd have to turn a dozen knobs a dozen times a day.  VM has
+> > to be self regulating.
+>
+> Yes, that is of course the goal, but I'm suggesting that we would reach
+> the goal of a self-optimizing VM faster, if there were tunables to play
+> with.  The human brain is a very good optimizer.
+
+You bet!  The CPU is a stupid robot.  I've tried to think up good generic
+tunables, and failed.  This is something that more folks should give some
+thought.  Maybe someone will think of knobs that _are_ practical.
+
+> > In case you can't tell (the length of this reply) I like my fovorite
+> > little generic throughput test a LOT :-)
+>
+> Point taken.  :-)
+
+	Cheers,
+
+	-Mike
 

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267329AbUBSVMf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 16:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbUBSVMf
+	id S267570AbUBSVRE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 16:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267321AbUBSVRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 16:12:35 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:1293 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267329AbUBSVMI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 16:12:08 -0500
-From: Vlasenko Denis <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Carl Thompson <cet@carlthompson.net>
-Subject: Re: hard lock using combination of devices
-Date: Thu, 19 Feb 2004 23:04:28 +0200
-User-Agent: KMail/1.5.4
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <20040216214111.jxqg4owg44wwwc84@carlthompson.net> <200402190013.55033.vda@port.imtp.ilyichevsk.odessa.ua> <20040218152042.st14wg8ggg4444gg@carlthompson.net>
-In-Reply-To: <20040218152042.st14wg8ggg4444gg@carlthompson.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Thu, 19 Feb 2004 16:17:03 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44759 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267386AbUBSVP5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 16:15:57 -0500
+Date: Thu, 19 Feb 2004 13:08:08 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Carlos Silva" <r3pek@r3pek.homelinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Hot kernel change
+Message-Id: <20040219130808.0eab897e.rddunlap@osdl.org>
+In-Reply-To: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org>
+References: <12608.62.229.71.110.1077197623.squirrel@webmail.r3pek.homelinux.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402192304.28144.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> >> ERR:     275764
-> >
-> > You seem to have lots of ERRs too, ~1 each 2 secs.
-> > That's bad, maybe flakey interrupt controller?
-> > BIOS writers paying dirty with SMM?
->
-> Hmmm... Didn't notice that.  Is there anything that can be done about it?
+On Thu, 19 Feb 2004 13:33:43 -0000 (WET) "Carlos Silva" <r3pek@r3pek.homelinux.org> wrote:
 
-Play with BIOS settings, watch 'cat /proc/interrupts'
+| hi,
+| 
+| i would like to know if isn't it possible to implement a hot kernel
+| change, i mean, without reboot. i would do it myself if i had the knoledge
+| to do it but i'm starting with kernel-level programing now. i think it
+| would be possible if we make something like M$'s OS do when it hibernates,
+| copy all the memory, registers, etc to the disc and then put all back
+| again.
+| 
+| am i dreaming or this is possible? :)
 
-> > I had such problems with 11g card and 'latest' BIOS for
-> > my old mainboard. Older BIOS was ok.
->
-> There are no BIOS downloads available for my notebook, unfortunately.
->
-> What 11g card and driver are you using?
+The kexec patch is basically "linux reboots linux".
+It bypasses the firmware/BIOS to do the reboot.
 
-Prism GT based one. http://prism54.org
+Patches for 2.6.0 and 2.6.1 are here (I haven't updated for
+2.6.2 or 2.6.3 yet):
+  http://developer.osdl.org/rddunlap/kexec/
+
+Patches for some 2.5.x kernels are here:
+  http://www.xmission.com/~ebiederm/files/kexec/
+
+kexec does reduce reboot time quite a bit on some machines, but
+there is still a noticeable pause.
+
 --
-vda
-
+~Randy

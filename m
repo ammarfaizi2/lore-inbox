@@ -1,32 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268594AbRGYRUh>; Wed, 25 Jul 2001 13:20:37 -0400
+	id <S268595AbRGYRXR>; Wed, 25 Jul 2001 13:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268595AbRGYRU1>; Wed, 25 Jul 2001 13:20:27 -0400
-Received: from vena.lwn.net ([206.168.112.25]:33802 "HELO eklektix.com")
-	by vger.kernel.org with SMTP id <S268594AbRGYRUV>;
-	Wed, 25 Jul 2001 13:20:21 -0400
-Message-ID: <20010725172027.17425.qmail@eklektix.com>
+	id <S268599AbRGYRW6>; Wed, 25 Jul 2001 13:22:58 -0400
+Received: from cadmium.frontier.net ([199.45.141.22]:61188 "EHLO
+	cadmium.frontier.net") by vger.kernel.org with ESMTP
+	id <S268595AbRGYRWq>; Wed, 25 Jul 2001 13:22:46 -0400
+Message-ID: <3B5EFFE3.5020206@bechtolt.com>
+Date: Wed, 25 Jul 2001 11:20:35 -0600
+From: Quinn Harris <quinn@bechtolt.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010721
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Linux Device Drivers book available online
-From: Jonathan Corbet <corbet-lk@lwn.net>
-Date: Wed, 25 Jul 2001 11:20:27 -0600
+Subject: VFS root dentry and super block question
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Finally, _Linux_Device_Drivers, second edition, by Alessandro Rubini and
-myself, is available online.  Find it at:
+If a dentry IS_ROOT (dentry->d_parent == dentry) does that imply 
+dentry->d_sb->s_root == dentry and visa versa?
+Just want to make sure I am not missing something.
 
-  http://www.oreilly.com/catalog/linuxdrive2/chapter/book/index.html
+Thanks
+Quinn Harris
 
-It's there in HTML, PDF, and XML (DocBook) forms.  The license is the GNU
-FDL, which allows redistribution and all that cool stuff.
-
-Enjoy,
-
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

@@ -1,28 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVCZKgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVCZKhj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbVCZKgn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 05:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVCZKgn
+	id S261984AbVCZKhj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 05:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVCZKhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 05:36:43 -0500
-Received: from [211.36.37.42] ([211.36.37.42]:7641 "HELO mail.qsv12.com")
-	by vger.kernel.org with SMTP id S261943AbVCZKgm (ORCPT
+	Sat, 26 Mar 2005 05:37:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:40464 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261984AbVCZKhf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 05:36:42 -0500
-Date: 26 Mar 2005 15:45:56 +0900
-Message-ID: <20050326064556.21765.qmail@mail.qsv12.com>
-From: info@qsv12.com
+	Sat, 26 Mar 2005 05:37:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=AsGkiqckLIICR40Lab3v8ppWnv0VnBCwInYB9s2C8+2TbNXCUyWtreu473QmtNDeoCpS6/P7dzYB/4k1cwEITNbMq4X/1rkbgyXI6euUHKhzWhHiRJFKF6ecUxjUZh/YM/hHJg3Bgge2Oa9Vv65vgt0Js0RCS3WDgxyVPIDvKz8=
+Message-ID: <470aa293050326023710e7b892@mail.gmail.com>
+Date: Sat, 26 Mar 2005 10:37:33 +0000
+From: Tux <nclarke@gmail.com>
+Reply-To: Tux <nclarke@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20=1B$BBp5^JX!JBh0l9?= =?ISO-8859-1?Q?f!K=1B(B?=
+Subject: Re: forkbombing Linux distributions
+In-Reply-To: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-当サイトのご利用は全て無料（男女共￥0円）
-やっぱり出逢うならご近所で気軽に話し合えるメール・エ○チフレンドがいいですよ
-ね。当サイトは全国地域別の市町村単位で近くの友達探しができます。
-http://loves.qsv20.com/
-男性、女性共にプライバシー保護重視で、不必要な時の新着メールの一時停止や、特
-定の
-送信者からの受け取り拒否、掲示板書込みをすぐに最新発言に更新する
-※只今の時間より、ご近所異性の写真＆動画(裏)情報を大量公開しております。
-
+I'm confused, are hard limits to RLIMIT_NPROC imposed on services
+spawned by init before a user logs in?

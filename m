@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUE3AaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUE3AdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUE3AaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 20:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUE3AaW
+	id S261416AbUE3AdG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 20:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUE3AdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 20:30:22 -0400
-Received: from hera.kernel.org ([63.209.29.2]:36225 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261396AbUE3AaT (ORCPT
+	Sat, 29 May 2004 20:33:06 -0400
+Received: from opersys.com ([64.40.108.71]:4868 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261416AbUE3AdD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 20:30:19 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: ftp.kernel.org
-Date: Sun, 30 May 2004 00:29:07 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <c9b9sj$ccc$1@terminus.zytor.com>
-References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net> <20040528150119.GE18449@thunk.org> <20040528163234.GV2603@schnapps.adilger.int> <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1085876947 12685 127.0.0.1 (30 May 2004 00:29:07 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Sun, 30 May 2004 00:29:07 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Sat, 29 May 2004 20:33:03 -0400
+Message-ID: <40B92D12.5040107@opersys.com>
+Date: Sat, 29 May 2004 20:38:42 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Dan Kegel <dank@kegel.com>
+CC: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: Re: Recommended compiler version
+References: <40B8A161.5040306@kegel.com> <40B922D5.5090609@opersys.com>
+In-Reply-To: <40B922D5.5090609@opersys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu>
-By author:    Daniel Egger <degger@fhm.edu>
-In newsgroup: linux.dev.kernel
-> 
-> Actually I think this is *the* idea. Why not simply set up a
-> bittorrent tracker and have a distributed kernel.org
-> fileserving system? Instead of having links to http and ftp
-> sites there could be a torrent link as well. Several
-> OpenSource projects started distributing files with BT
-> already and it seems to work like a charm.
-> 
 
-Because doing it with BitTorrent is a nightmare.  I posted a long list
-of the problems with BT for doing this to the BT mailing list and
-pretty much got told that there is no way to do what I'd want to do
-within BT.
+Karim Yaghmour wrote:
+...
+> kernels as well, to see if they too would work. I noticed that
+> some that actually failed as above (causing a fault very early
+> at boot time), now didn't fail with 3.3.2, but printed nothing
+> to the terminal and the system would eventually reboot -- as if
+> console=ttyS0,9600 had no effect and the kernel panicked as
+> expected because of the missing rootfs.
 
-Some of the people from the BT list have approached me about creating
-a new protocol - working name "Software Distribution Protocol"
-(SDP)... but it's a big job.
+This just above is actually due pilot error. I had been trying so
+many different kernels that I had forgotten to check whether
+console on serial was enabled ... No wonder nothing was displayed.
 
-	-hpa
+To recap, I've also got the 2.4.25-ben1 and 2.6.6 working with
+gcc 3.3.2. 2.4.25-ben1 still has the same problem as described
+earlier with gcc 3.4.0, but 2.6.6 works fine with gcc 3.4.0.
+
+I'm probably going to stick to 3.3.2, though, as I have no
+intention of chasing gcc 3.4.0's breaking of some user-space
+stuff.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+

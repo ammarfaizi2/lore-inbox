@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263125AbTKQEeU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 23:34:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263181AbTKQEeU
+	id S263181AbTKQErx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 23:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263303AbTKQErx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 23:34:20 -0500
-Received: from mail003.syd.optusnet.com.au ([211.29.132.144]:18568 "EHLO
-	mail003.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263125AbTKQEeT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 23:34:19 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Sun, 16 Nov 2003 23:47:53 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:33276 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S263181AbTKQErv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 23:47:51 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None that appears to be detectable by casual observers
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: Terrible interactivity with 2.6.0-t9-mm3
+Date: Sun, 16 Nov 2003 23:47:48 -0500
+User-Agent: KMail/1.5.1
+Cc: Andrew Morton <akpm@osdl.org>, Gawain Lynch <gawain@freda.homelinux.org>,
+       prakashpublic@gmx.de, linux-kernel@vger.kernel.org, cat@zip.com.au
+References: <20031116192643.GB15439@zip.com.au> <200311162254.23043.gene.heskett@verizon.net> <3FB84C5A.3000705@cyberone.com.au>
+In-Reply-To: <3FB84C5A.3000705@cyberone.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16312.20420.533453.102220@wombat.chubb.wattle.id.au>
-Date: Mon, 17 Nov 2003 15:34:12 +1100
-To: public@mikl.as
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Userspace DMA
-In-Reply-To: <200311161842.00253.public@mikl.as>
-References: <200311161842.00253.public@mikl.as>
-X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Disposition: inline
+Message-Id: <200311162347.48739.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.12.17] at Sun, 16 Nov 2003 22:47:49 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Miklas <public@mikl.as> writes:
+On Sunday 16 November 2003 23:19, Nick Piggin wrote:
+>
+>I think you might have confused Andrew a bit more ;)
+>
+>To start with, you are talking about IO schedulers, while the thread
+>is about CPU interactivity.
 
-Andrew> Hi, Is there an accepted way of doing userspace DMA with
-Andrew> Linux?
+I wasn't aware that such performance issues were divorced.  In my 
+admitted limited view, a laggy mouse is a laggy mouse, and its due to 
+irq latency in achieving the context switch to service the mouses 
+data.  To me, its sorta like 2=2. :)
 
-I'm currently working on a framework for user-space device drivers,
-that allow suitably privileged user-space programs to set up and tear
-down dma regions -- essentially exposing pci_alloc_consistent and
-pci_{un}map_sg to userspace -- and also to handle interrupts in user
-space.  The framework is implemented as a pair of filesystems, one for
-interrupts (actually, I hijack /proc/interrupts/*)  and one for
-mappings --- mainly to allow easy cleanup when the userspace program
-dies.
+>The problem here looks like something that is caused by something in
+> mm3, not in mm2, not linus.patch, and not
+> context-switch-accounting-fix.patch.
+>
+>
+>Off topic: it would be good if you could try the as disk scheduler
+> in mm3. I recall you had some problems with it earlier, but they
+> should be fixed in mm3. Thanks.
 
-It's not yet in a fit state to release, but contact me offline if
-you'd like a copy.
+Ok Nick.  I'll reboot tomorrow without the elevator argument.  Right 
+now, amanda is fixin to be fired off in about 25 minutes and I want 
+to see how badly its estimate phase hogs the machine using the cfq 
+scheduler.  With the -mm2 as, it was almost psychedelic to watch the 
+mouse move.
 
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-The technical we do immediately,  the political takes *forever*
+Also off topic re mouse performance, and I expect this is an X issue, 
+but when its been blanked because I'm typing, it takes about a full 
+seconds worth of hand waving before it becomes visible again.  This 
+is an X issue and I should go away, right?
 
+>
+>>We need a test suite for this :)
+>
+>Subjective reports from our base of beta testers has proven to be
+> the best thing.
+
+So beit.  I guess I must be one of those. (-:
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.27% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
 

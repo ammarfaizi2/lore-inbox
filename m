@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312491AbSDJGt3>; Wed, 10 Apr 2002 02:49:29 -0400
+	id <S312494AbSDJGuf>; Wed, 10 Apr 2002 02:50:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312494AbSDJGt2>; Wed, 10 Apr 2002 02:49:28 -0400
-Received: from ucsu.Colorado.EDU ([128.138.129.83]:4586 "EHLO
-	ucsu.colorado.edu") by vger.kernel.org with ESMTP
-	id <S312491AbSDJGt1>; Wed, 10 Apr 2002 02:49:27 -0400
+	id <S312497AbSDJGue>; Wed, 10 Apr 2002 02:50:34 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28178 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S312494AbSDJGud>; Wed, 10 Apr 2002 02:50:33 -0400
+Message-Id: <200204100646.g3A6k9X04998@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
-From: "Ivan G." <ivangurdiev@yahoo.com>
-Reply-To: ivangurdiev@yahoo.com
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.5.8-pre3 breaks init, compile problem
-Date: Wed, 10 Apr 2002 00:43:45 -0600
-X-Mailer: KMail [version 1.2]
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jurgen Philippaerts <jurgen@pophost.eunet.be>,
+        linux-kernel@vger.kernel.org
+Subject: Re: arch/sparc64/kernel/traps.c
+Date: Wed, 10 Apr 2002 09:49:22 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <20020409.142329.55241651.davem@redhat.com> <20020409214734.GL9996@sparkie.is.traumatized.org>
 MIME-Version: 1.0
-Message-Id: <02041000434505.00758@cobra.linux>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-init/main.o: In function `start_kernel':
-init/main.o(.text.init+0x622): undefined reference to `setup_per_cpu_areas'
-make: *** [vmlinux] Error 1
+On 9 April 2002 19:47, Jurgen Philippaerts wrote:
+> On Tue, Apr 09, 2002 at 11:40:08PM +0200, David S. Miller wrote:
+> >    From: Jurgen Philippaerts <jurgen@pophost.eunet.be>
+> >    Date: Tue, 9 Apr 2002 23:20:00 +0200
+> >
+> >    TSTATE: 0000009911009601 TPC: 00000000005a39c0 TNPC: 00000000005a39c4
+> >    Y: 00000000    Not tainted
+> >
+> > Please send this through ksymoops so that we get the kernel
+> > symbols that match up to all these magic numbers in your OOPS.
+>
+> i would, if i could :)
+> so, i downloaded ksymoops-2.4.5 (i assume this is the version i need)
+>
+> but it won't compile. sorry, my c knowledge is very basic.
+> but i assume there's something wrong with my /usr/lib/libbfd.a ?
 
-Reason?
+Hi, I had similar problem, took me months to figure it out.
+I suggest:
+* getting latest binutils, compiling and installing them
+* thorougly checking that *old* binutils aren't interfering
+  (in my case ksymoops got linked with old libbfd.a despite
+  newer one was also installed! 8-[ )
+* compiling ksymoops
 
-Patch alters main.c to:
-
-#ifndef CONFIG_SMP
-...do some stuff (not including setup_per_cpu_areas)
-#else
-
-	#ifdef __GENERIC_PER_CPU
-		define    setup_per_cpu_areas that does something
-	#else
-		define 	 setup_per_cpu_areas that doesn't do anything
-	#endif
-#endif
-
-setup_per_cpu_areas(); in start_kernel is called and comes out undefined for 
-my single processor - Athlon XP 1600+ 
-
+--
+vda

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbTJADWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 23:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJADWq
+	id S261891AbTJADej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 23:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTJADej
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 23:22:46 -0400
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:17876 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id S261885AbTJADWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 23:22:45 -0400
-Date: Tue, 30 Sep 2003 23:22:38 -0400
-From: "Murray J. Root" <murrayr@brain.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test6 scheduling(?) oddness
-Message-ID: <20031001032238.GB1416@Master>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Tue, 30 Sep 2003 23:34:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35028 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261891AbTJADei
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 23:34:38 -0400
+Date: Wed, 1 Oct 2003 04:34:37 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] linuxabi
+Message-ID: <20031001033437.GP7665@parcelfarce.linux.theplanet.co.uk>
+References: <UTC200310010001.h9101NU17078.aeb@smtp.cwi.nl> <E1A4WNJ-000182-00@calista.inka.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <E1A4WNJ-000182-00@calista.inka.de>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P4 2G
-1G PC2700 RAM
-ASUS P4S533 
+On Wed, Oct 01, 2003 at 04:05:57AM +0200, Bernd Eckenfels wrote:
+ 
+> > +#define MS_NODIRATIME  2048    /* Do not update directory access times */
+> > +#define MS_BIND                4096
+> > +#define MS_POSIXACL    (1<<16) /* VFS does not apply the umask */
+> 
+> can we clean that up? with shifting, without shifting, with comments and without comments? I suggest to use the linuxdoc comments mandatory for the abi files.
 
-Large tasks (like raytrace rendering) take double the amount of time they used
-to take, although the system is nicer to the user while they run. In 
-2.6.0-test5 had a little trouble with it and Piggin pointed me to a patch that
-fixed it and is now in -test6, however the patch didn't slow the rendering as
-much as it does in test6. (Con Koliva's patch, I believe it was).
-For example - rendering an image that took 15 minutes in 2.5.65 takes 20 
-minutes in 2.6.0-test5 (with patch) and 30 minutes in 2.6.0-test6 (raw from
-kernel.org). Same config options (everything I use builtin - no modules).
 
-A new issue (which also doesn't happen in -test5 with the patch):
-When running cpu intense tasks, new (large) tasks will not start till the first
-one finishes.
-For example, using POV-Ray 3.5 to render an image that takes 30 minutes when it
-is the only program running, start oowriter.
-The render finishes in the same 30 minutes, then oowriter starts.
-oowriter takes about 3 seconds to load if no rendering is going on.
-I can use apps that are already open but can't start new ones while rendering.
-In 2.6.0-test5 (with patch) opening oowriter while rendering takes about 1 
-minute.
-In 2.5.65 opening oowriter while rendering takes about 2 minutes (and X gets
-very hard to use till oowriter is completely done opening).
+... and make it enum, while we are at it.  It's cleaner, it survives cpp
+and it can be handled by gdb et.al. in sane way.
 
--- 
-Murray J. Root
-
+Unless we really want to support pre-v7 compilers, there is no benefit
+in using #define for such constants.

@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261524AbSJYSYD>; Fri, 25 Oct 2002 14:24:03 -0400
+	id <S261529AbSJYS1R>; Fri, 25 Oct 2002 14:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261528AbSJYSYD>; Fri, 25 Oct 2002 14:24:03 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:44698 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261524AbSJYSYD>;
-	Fri, 25 Oct 2002 14:24:03 -0400
-Subject: Re: [Lse-tech] Re: [PATCH]updated ipc lock patch
-From: Paul Larson <plars@linuxtestproject.org>
-To: cmm@us.ibm.com
-Cc: Andrew Morton <akpm@digeo.com>, Hugh Dickins <hugh@veritas.com>,
-       manfred@colorfullife.com, lkml <linux-kernel@vger.kernel.org>,
-       dipankar@in.ibm.com, lse-tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <3DB97C90.2DF810E6@us.ibm.com>
-References: <Pine.LNX.4.44.0210211946470.17128-100000@localhost.localdomain>
-	<3DB86B05.447E7410@us.ibm.com> <3DB87458.F5C7DABA@digeo.com> 
-	<3DB880E8.747C7EEC@us.ibm.com> <1035555715.3447.150.camel@plars> 
-	<3DB97C90.2DF810E6@us.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 25 Oct 2002 13:20:42 -0500
-Message-Id: <1035570043.5646.191.camel@plars>
-Mime-Version: 1.0
+	id <S261530AbSJYS1R>; Fri, 25 Oct 2002 14:27:17 -0400
+Received: from dsl-213-023-039-129.arcor-ip.net ([213.23.39.129]:39337 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261529AbSJYS1R>;
+	Fri, 25 Oct 2002 14:27:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: 2.5.44-mm5
+Date: Fri, 25 Oct 2002 20:34:21 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <3DB8D94B.20D3D5BD@digeo.com>
+In-Reply-To: <3DB8D94B.20D3D5BD@digeo.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1859Hr-0008PO-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 12:17, mingming cao wrote:
->
-> shmctl01    3  FAIL  :  # of attaches is incorrect - 0
-I guess you are running it with -i2?  I just tried shmctl01 -i2 on a
-2.5.44 kernel and did not get this error.
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1 shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    3  PASS  :  new mode and change time are correct
-shmctl01    4  PASS  :  shared memory appears to be removed
-shmctl01    1  PASS  :  pid, size, # of attaches and mode are correct -
-pass #1
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    2  PASS  :  pid, size, # of attaches and mode are correct -
-pass #2
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    0  INFO  :  shmdt() failed - 22
-shmctl01    3  PASS  :  new mode and change time are correct
-shmctl01    4  PASS  :  shared memory appears to be removed
+On Friday 25 October 2002 07:40, Andrew Morton wrote:
+> url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.44/2.5.44-mm5/
+> 
+> We seem to have found the dud patch.  Things should be a little
+> more stable...
+> 
+> The CONFIG_PREEMPT+SMP problem I was having went away when gcc-2.95.3
+> was used in place of 2.91.66.  Which is a bit of a problem because
+> _someone_ has to keep an eye on 2.91.66 compatibility as long as it
+> continues to be required for sparc builds.
 
-If I can find some time, I'll try to grab your patch and see if I can
-reproduce the error on my machine.
+Didn't davem say something about being ready to move to a more recent
+compiler, or does my memory not serve correctly?
 
--Paul Larson
-
+-- 
+Daniel

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbTIGS0d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 14:26:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTIGS0d
+	id S261274AbTIGSi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 14:38:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbTIGSi3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 14:26:33 -0400
-Received: from amalthea.dnx.de ([193.108.181.146]:53655 "EHLO amalthea.dnx.de")
-	by vger.kernel.org with ESMTP id S261243AbTIGS0b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 14:26:31 -0400
-Date: Sun, 7 Sep 2003 20:26:29 +0200
-From: Robert Schwebel <robert@schwebel.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robert Schwebel <robert@schwebel.de>, Adrian Bunk <bunk@fs.tum.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030907182628.GC482@pengutronix.de>
-References: <20030907112813.GQ14436@fs.tum.de> <20030907124251.GC5460@pengutronix.de> <20030907130034.GT14436@fs.tum.de> <1062955895.16972.13.camel@dhcp23.swansea.linux.org.uk> <20030907174834.GA482@pengutronix.de> <1062957851.16964.42.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1062957851.16964.42.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Spam-Score: -5.0 (----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19w4Er-0003wK-00*L1YqsD8zqtI*
+	Sun, 7 Sep 2003 14:38:29 -0400
+Received: from h011.c007.snv.cp.net ([209.228.33.239]:56237 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id S261274AbTIGSi2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 14:38:28 -0400
+X-Sent: 7 Sep 2003 18:38:26 GMT
+Message-ID: <001301c3756f$18f847d0$323be90c@bananacabana>
+From: "Chris Peterson" <chris@potamus.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PROBLEM] "ls -R" freezes when using gnome-terminal on linux-2.6.0-test4
+Date: Sun, 7 Sep 2003 11:37:31 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 07:04:12PM +0100, Alan Cox wrote:
-> ELAN is "like a PC", Geode is a PC, to software. You can run a generic
-> 386/486/586/586+MMX kernel on a Geode CPU. The Geode support just picks
-> the right compile options and our setup code turns on some handy CPU
-> features we can use
+I have discovered a regression between linux-2.4.20-8 (Redhat 9) and
+linux-2.6.0-test4. I have not tried any other versions of linux-2.6.0-testX
+or 2.5.x.
 
-Hmm, I'm not so sure. I've not much experience with Geode yet, but from
-my first RTAI tests it surely has several problems which might require
-an #ifdef CONFIG_MGEODE or something similar. As long as this is
-possible everything's ok with me ;)
+How to reproduce the problem:
+1. Running GNOME on linux-2.6.0-test4, open two gnome-terminals.
+2. In the first gnome-terminal, run "ls -R /" or "ls -R /dev" (you won't
+have to wait as long :-).
+3. In the second gnome-terminal, simply run "ls" (or just opening a
+gnome-terminal window will sometimes cause the same problem).
 
-Robert
--- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
-    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4
+Actual Results:
+The ls in the first gnome-terminal will usually freeze. Neither CTRL+C nor
+CTRL+Z will kill the ls process. The gnome-terminal itself is NOT frozen.
+Its window menus are still responsive.
+
+Expected Results:
+ls should not freeze. The same steps on linux-2.4.20-8 (Redhat 9) do not
+freeze ls. Running "ls -R /dev" on linux-2.6.0-test4 before starting X or
+GNOME does not freeze ls either. So the problem seems to have something to
+do with multiple interactive GNOME processes..?
+
+
+chris
+

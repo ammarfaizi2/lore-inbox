@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVCISl7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVCISqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVCISl7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 13:41:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbVCIShM
+	id S262167AbVCISqH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 13:46:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbVCISm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 13:37:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4544 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262163AbVCISe0 (ORCPT
+	Wed, 9 Mar 2005 13:42:29 -0500
+Received: from fire.osdl.org ([65.172.181.4]:63655 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262210AbVCISlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 13:34:26 -0500
-Date: Wed, 9 Mar 2005 10:29:28 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andi Kleen <ak@muc.de>, Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] -stable, how it's going to work.
-Message-ID: <20050309182928.GA26902@kroah.com>
-References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <1110391244.28860.208.camel@localhost.localdomain>
+	Wed, 9 Mar 2005 13:41:40 -0500
+Date: Wed, 9 Mar 2005 10:40:55 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Daniel Staaf <dst@bostream.nu>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Andrei Mikhailovsky <andrei@arhont.com>,
+       Ian Campbell <icampbell@arcom.com>,
+       Ronald Bultje <rbultje@ronald.bitfreak.net>,
+       Gerd Knorr <kraxel@bytesex.org>, stable@kernel.org
+Subject: Re: [PATCH 2.6] Fix i2c messsage flags in video drivers
+Message-ID: <20050309184055.GX28536@shell0.pdx.osdl.net>
+References: <1110024688.5494.2.camel@whale.core.arhont.com> <422A5473.7030306@osdl.org> <1110115990.5611.2.camel@whale.core.arhont.com> <422CCBF4.1060902@osdl.org> <20050308201504.6aee36d5.khali@linux-fr.org> <20050308202530.2fbfae9a.khali@linux-fr.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1110391244.28860.208.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050308202530.2fbfae9a.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 06:00:45PM +0000, Alan Cox wrote:
-> On Mer, 2005-03-09 at 09:56, Andi Kleen wrote:
-> > - It must be accepted to mainline. 
+* Jean Delvare (khali@linux-fr.org) wrote:
+> Hi all,
 > 
-> Strongly disagree. What if the mainline fix is a rewrite of the core API
-> involved. Some times you need to put in the short term fix. What must
-> never happen is people accepting that fix as long term.
+> While working on the saa7110 driver I found a problem with the way
+> various video drivers (found on Zoran-based boards) prepare i2c messages
+> to be used by i2c_transfer. The drivers improperly copy the i2c client
+> flags as the message flags, while both sets are mostly unrelated. The
+> net effect in this case is to trigger an I2C block read instead of the
+> expected I2C block write. The fix is simply not to pass any flag,
+> because none are needed.
 > 
-> How about
-> 
->  - It must be accepted to mainline, or the accepted mainline patch be
-> deemed too complex or risky to backport and thus a simple obvious
-> alternative fix applied to stable ONLY.
+> I think this patch qualifies hands down as a "critical bug fix" to be
+> included in whatever bug-fix-only trees exist these days. As far as I
+> can see, all Zoran-based boards are broken in 2.6.11 without this patch.
 
-Yes, that's acceptable, I agree that Andi's statment is not ok (see the
-.1 release for 2 patches that were accepted in a "simple" way because
-the real fix was too complex.)
+Are people reporting this as a problem?
 
-I'll go update the document with this.
-
-thanks,
-
-greg k-h
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

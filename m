@@ -1,66 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261490AbRE0TJq>; Sun, 27 May 2001 15:09:46 -0400
+	id <S261515AbRE0TKg>; Sun, 27 May 2001 15:10:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261515AbRE0TJg>; Sun, 27 May 2001 15:09:36 -0400
-Received: from relay02.cablecom.net ([62.2.33.102]:12809 "EHLO
-	relay02.cablecom.net") by vger.kernel.org with ESMTP
-	id <S261490AbRE0TJT>; Sun, 27 May 2001 15:09:19 -0400
-Message-ID: <3B1150DB.ADF2178A@bluewin.ch>
-Date: Sun, 27 May 2001 21:09:16 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S261535AbRE0TK0>; Sun, 27 May 2001 15:10:26 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40074 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261515AbRE0TKP>;
+	Sun, 27 May 2001 15:10:15 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Console display in portrait mode with unusual dpi resolution
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15121.20713.676075.980272@pizda.ninka.net>
+Date: Sun, 27 May 2001 12:09:29 -0700 (PDT)
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: [patch] severe softirq handling performance bug, fix, 2.4.5
+In-Reply-To: <20010527195619.K676@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0105261920030.3336-200000@localhost.localdomain>
+	<20010527190700.H676@athlon.random>
+	<15121.13986.987230.445825@pizda.ninka.net>
+	<20010527195619.K676@athlon.random>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Overview: At business I just got a brand new EIZO 18" LCD display L675
-to test its usability for working in portrait mode to show a full A4
-page. These test were done on Windows NT4 but I'd really like to know
-how well Linux would have done. I'm going to describe all the obstacles
-I encountered on Windows so anybody may knows the corresponding answers
-for Linux. Maybe there are other problems on Linux?
 
-1. Obstacle
-While the EIZO L675 is mechanically turnable, it doesn't handle the
-landscape/portrait mode switch itself. [OFFTOPIC] Are the any other
-displays capable of this? [OFFTOPIC OFF] The turning software had to be
-ordered/paid separate (Pivot software). Of course the display should
-handle it itself, but until this happens a software solution is okay. Is
-there any software solution for Linux?
-I've heard there are graphics cards which handles the landscape/portrait
-mode themselves (i.e. ATI radeon). This is almost as good as if the
-display handles it, as long as if there are the corresponding drivers
-available. How about Linux drivers?
-PS. My good old monochrome portrait monitor from Apple (around 1990) is
-an fine example.
+Andrea Arcangeli writes:
+ > 	if (softirq_active(cpu) & softirq_mask(cpu)) {
+ > 	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ > 
+ > I mean everything is fine until the same softirq is marked active again
+ > under do_softirq, in such case neither the do_softirq in do_IRQ will
+ > run it (because we are in the critical section and we hold the per-cpu
+ > locks), nor we will run it again ourself from the underlying do_softirq
+ > to avoid live locking into do_softirq.
 
-2. Obstacle
-The portrait mode software starts working just about before the logon
-screen is shown. All the BIOS and system messages are shown in landscape
-mode. This looks funny but is acceptable as long as no user interaction
-is necessary. So i.e. it needs a rather high concentration to switch to
-another hardware profile (Windows NT4). From the nature of a software
-solution I guess this can't be changed neither of Windows NT4 nor Linux.
+"live lock".  What do you hope to avoid by pushing softirq processing
+into a scheduled task?  I think doing that is a stupid idea.
 
-3. Obstacle
-The EIZO L675 has a pixel pitch of 0.28x0.28 which is equivalent to
-about 90dpi. Since Windows (any version) uses a default value on 96dpi,
-everything is enlarged by about 5%. So even with an 18" display an A4
-page can't be normally viewed in Word. Current status from Microsoft
-"problem is recognized, we are working on it". While there is no
-solution for Windows (probably until SP1 for XP) what's the status of
-Linux? 
-PS. My good old monochrome portrait monitor is again an example. While
-it has 80dpi and Apple defaults to 72dpi on these old monitors (10%
-decrease) and Macintosh typically there is no useless scrap around, I
-can view an A4 page. Of course it also shows that even Apple has no
-solution to the dpi problem.
+You are saying that if we are getting a lot of soft irqs we should
+defer it so that we can leave the trap handler, to avoid "live lock".
 
-O. Wyss
+I think this is a bogus scheme for several reasons.  First of all,
+deferring the processing will only increase the likelyhood that the
+locality of the data will be lost, making the system work harder.
+
+Secondly, if we are getting softirqs at such a rate, we have other
+problems.  We are likely getting surged with hardware interrupts, and
+until we have Jamals stuff in to move ethernet hardware interrupt
+handling into softirqs your deferrals will be fruitless when they do
+actually trigger.  We will be livelocked in hardware interrupt
+processing instead of being livelocked in softirq processing, what an
+incredible improvement. :-)
+
+Therefore I recommend that the softirqs are implemented on x86 how at
+least I intended the damn things to be implemented, on every return
+from trap, no matter what kind, call do_softirq if softirqs are
+pending.
+
+Again, I am totally against ksoftirqd, I think it's a completely dumb
+idea.  Softirqs were meant to be as light weight as possible, don't
+crap on them like this with this heavyweight live lock "solution".
+It isn't even solving live locks, it's rather trading one kind for
+another with zero improvement.
+
+Later,
+David S. Miller
+davem@redhat.com

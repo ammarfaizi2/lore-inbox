@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVCUU1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVCUUc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbVCUU1V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 15:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVCUU0r
+	id S261432AbVCUUc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 15:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVCUUc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 15:26:47 -0500
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:56163 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261860AbVCUUZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 15:25:56 -0500
+	Mon, 21 Mar 2005 15:32:56 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.17]:42821 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261432AbVCUUcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 15:32:36 -0500
 Date: Mon, 21 Mar 2005 21:25:50 +0100
-Message-Id: <200503212025.j2LKPoJX011312@anakin.of.borg>
+Message-Id: <200503212025.j2LKPoG9011332@anakin.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 542] M68k/stdma: Replace sleep_on() with wait_event()
+Subject: [PATCH 546] Sun-3/3x: Enable Sun partition tables support by default
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k/stdma: Use wait_event() instead of the deprecated sleep_on() function.
-Since wait_event() expects the condition passed in to be the stopping
-condition, negate the current one.
+Sun-3/3x: Enable Sun partition tables support by default
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
---- linux-2.6.12-rc1/arch/m68k/atari/stdma.c	2005-01-15 16:55:41.000000000 -0800
-+++ linux-m68k-2.6.12-rc1/arch/m68k/atari/stdma.c	2005-01-19 17:25:33.000000000 -0800
-@@ -34,6 +34,7 @@
- #include <linux/sched.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
-+#include <linux/wait.h>
+--- linux-2.6.12-rc1/fs/partitions/Kconfig	2005-02-03 14:30:28.000000000 +0100
++++ linux-m68k-2.6.12-rc1/fs/partitions/Kconfig	2005-03-20 11:51:42.000000000 +0100
+@@ -203,7 +203,7 @@ config ULTRIX_PARTITION
  
- #include <asm/atari_stdma.h>
- #include <asm/atariints.h>
-@@ -81,11 +82,10 @@ void stdma_lock(irqreturn_t (*handler)(i
+ config SUN_PARTITION
+ 	bool "Sun partition tables support" if PARTITION_ADVANCED
+-	default y if (SPARC32 || SPARC64)
++	default y if (SPARC32 || SPARC64 || SUN3 || SUN3X)
+ 	---help---
+ 	  Like most systems, SunOS uses its own hard disk partition table
+ 	  format, incompatible with all others. Saying Y here allows you to
+--- linux-2.6.12-rc1/arch/m68k/configs/sun3_defconfig	2005-03-18 23:44:15.000000000 +0100
++++ linux-m68k-2.6.12-rc1/arch/m68k/configs/sun3_defconfig	2005-03-20 12:51:34.540342000 +0100
+@@ -752,6 +752,7 @@ CONFIG_CODA_FS=m
+ #
+ # CONFIG_PARTITION_ADVANCED is not set
+ CONFIG_MSDOS_PARTITION=y
++CONFIG_SUN_PARTITION=y
  
- 	local_irq_save(flags);		/* protect lock */
+ #
+ # Native Language Support
+--- linux-2.6.12-rc1/arch/m68k/configs/sun3x_defconfig	2005-03-18 23:44:18.000000000 +0100
++++ linux-m68k-2.6.12-rc1/arch/m68k/configs/sun3x_defconfig	2005-03-20 12:51:36.049092000 +0100
+@@ -762,6 +762,7 @@ CONFIG_CODA_FS=m
+ #
+ # CONFIG_PARTITION_ADVANCED is not set
+ CONFIG_MSDOS_PARTITION=y
++CONFIG_SUN_PARTITION=y
  
--	while(stdma_locked)
--		/* Since the DMA is used for file system purposes, we
--		 have to sleep uninterruptible (there may be locked
--		 buffers) */
--		sleep_on(&stdma_wait);
-+	/* Since the DMA is used for file system purposes, we
-+	 have to sleep uninterruptible (there may be locked
-+	 buffers) */
-+	wait_event(stdma_wait, !stdma_locked);
- 
- 	stdma_locked   = 1;
- 	stdma_isr      = handler;
+ #
+ # Native Language Support
 
 Gr{oetje,eeting}s,
 

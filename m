@@ -1,115 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268022AbTBRVcr>; Tue, 18 Feb 2003 16:32:47 -0500
+	id <S268029AbTBRVed>; Tue, 18 Feb 2003 16:34:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268024AbTBRVcr>; Tue, 18 Feb 2003 16:32:47 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10505 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268022AbTBRVcp>; Tue, 18 Feb 2003 16:32:45 -0500
-Date: Tue, 18 Feb 2003 22:42:20 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, davej@suse.de, linux@brodo.de
-Subject: Select voltage manually in cpufreq
-Message-ID: <20030218214220.GA1058@elf.ucw.cz>
+	id <S268030AbTBRVed>; Tue, 18 Feb 2003 16:34:33 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:17295 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S268029AbTBRVe3>;
+	Tue, 18 Feb 2003 16:34:29 -0500
+Date: Tue, 18 Feb 2003 13:44:31 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: Linux v2.5.62 --- spontaneous reboots
+Message-ID: <20030218214431.GA15007@f00f.org>
+References: <20030218000304.GA7352@f00f.org> <Pine.LNX.4.44.0302171741250.1754-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0302171741250.1754-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Feb 17, 2003 at 05:42:38PM -0800, Linus Torvalds wrote:
 
-I've added possibility to manualy force specified frequency and
-voltage... That's fairly usefull for testing, and I believe this (or
-something equivalent) is needed because every 2nd bios seems to be
-b0rken.
+> It would be interesting to hear exactly when the trouble
+> started. And if plain 2.5.59 does it (which is unclear from your
+> description), but 59-mjb4 doesn't, then that's an interesting data
+> point.
 
-Take a look and apply if you want to...
-								Pavel
+After much testing, which is still in progress it would seem that
+*maybe* mjb4 does have the problem too, although it's much harder to
+hit.  Please note that this is a single data point where for other
+kernels I have two or more occurrences of spontaneous reboots.
 
---- clean/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2003-02-15 18:51:11.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k7.c	2003-02-18 17:36:29.000000000 +0100
-@@ -210,7 +210,7 @@
- }
- 
- 
--static void change_speed (unsigned int index)
-+static void change_speed (unsigned int index, unsigned int voltage)
- {
- 	u8 fid, vid;
- 	struct cpufreq_freqs freqs;
-@@ -226,6 +226,14 @@
- 	fid = powernow_table[index].index & 0xFF;
- 	vid = (powernow_table[index].index & 0xFF00) >> 8;
- 
-+	if (voltage) {
-+		int i;
-+		for (i=0; i<32; i++)
-+			if (mobile_vid_table[i] == voltage)
-+				vid = i;
-+		printk("Voltage overriden to %d mV, index 0x%x\n", voltage, vid);
-+	}
-+
- 	freqs.cpu = 0;
- 
- 	rdmsrl (MSR_K7_FID_VID_STATUS, fidvidstatus.val);
-@@ -338,7 +346,7 @@
- 	if (cpufreq_frequency_table_target(policy, powernow_table, target_freq, relation, &newstate))
- 		return -EINVAL;
- 
--	change_speed(newstate);
-+	change_speed(newstate, policy->voltage);
- 
- 	return 0;
- }
---- clean/drivers/cpufreq/proc_intf.c	2003-02-18 12:24:32.000000000 +0100
-+++ linux/drivers/cpufreq/proc_intf.c	2003-02-18 14:23:48.000000000 +0100
-@@ -28,6 +28,7 @@
- 	unsigned int            min = 0;
- 	unsigned int            max = 0;
- 	unsigned int            cpu = 0;
-+	unsigned int		voltage = 0;
- 	char			str_governor[16];
- 	struct cpufreq_policy   current_policy;
- 	unsigned int            result = -EFAULT;
-@@ -37,9 +38,24 @@
- 
- 	policy->min = 0;
- 	policy->max = 0;
-+	policy->voltage = 0;
- 	policy->policy = 0;
- 	policy->cpu = CPUFREQ_ALL_CPUS;
- 
-+	if (sscanf(input_string, "%d:%d:%d:%15s", &cpu, &min, &voltage, str_governor) == 4)
-+	{
-+		if (!strcmp(str_governor, "mVforce")) {
-+			printk("Have request to go to %d mV\n", voltage);
-+			policy->min = min;
-+			policy->max = min;
-+			policy->voltage = voltage;
-+			policy->cpu = cpu;
-+			result = 0;
-+			policy->policy = CPUFREQ_POLICY_PERFORMANCE;
-+			return 0;
-+		}
-+	}
-+
- 	if (sscanf(input_string, "%d:%d:%d:%15s", &cpu, &min, &max, str_governor) == 4) 
- 	{
- 		policy->min = min;
---- clean/include/linux/cpufreq.h	2003-02-18 12:24:38.000000000 +0100
-+++ linux/include/linux/cpufreq.h	2003-02-18 12:25:10.000000000 +0100
-@@ -63,6 +63,7 @@
- 	unsigned int            min;    /* in kHz */
- 	unsigned int            max;    /* in kHz */
-         unsigned int            policy; /* see above */
-+	unsigned int		voltage;/* in mV, 0 == trust bios */
- 	struct cpufreq_governor *governor; /* see below */
- 	struct cpufreq_cpuinfo  cpuinfo;     /* see above */
- 	struct intf_data        intf;   /* interface data */
+I've been checking older kernels...  it would seem the problem first
+occurs in 2.5.53 (that is 2.5.53 through 2.5.62-bk all reboot for me).
+2.5.51 doesn't appear to and thus far neither does 2.5.52.
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I say thus far, because the problem usually appears after about 15
+minutes of compiling, but it sometimes takes a little longer.  I'm
+running 2.5.52 now and after 45 minutes it's still going.
+
+
+As to what difference it might be between '52 and '53 I have no idea.
+I had a quick look and the changes there are considerable.
+
+I've tried different compiles, with and without preempt, and and
+without IO-APIC and trimming down the kernel...
+
+
+
+  --cw

@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261462AbRERTWp>; Fri, 18 May 2001 15:22:45 -0400
+	id <S261458AbRERTVZ>; Fri, 18 May 2001 15:21:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261473AbRERTWf>; Fri, 18 May 2001 15:22:35 -0400
-Received: from WARSL401PIP7.highway.telekom.at ([195.3.96.115]:49246 "HELO
-	email04.aon.at") by vger.kernel.org with SMTP id <S261462AbRERTW1>;
-	Fri, 18 May 2001 15:22:27 -0400
-Date: Fri, 18 May 2001 21:02:26 +0200
-From: Eduard Hasenleithner <eduardh@aon.at>
+	id <S261459AbRERTVP>; Fri, 18 May 2001 15:21:15 -0400
+Received: from web11304.mail.yahoo.com ([216.136.131.207]:56841 "HELO
+	web11304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261458AbRERTVL>; Fri, 18 May 2001 15:21:11 -0400
+Message-ID: <20010518192110.22434.qmail@web11304.mail.yahoo.com>
+Date: Fri, 18 May 2001 12:21:10 -0700 (PDT)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: Re: DMA support for toshiba IDE controllers
 To: linux-kernel@vger.kernel.org
-Subject: DVD blockdevice buffers
-Message-ID: <20010518210226.A7147@moserv.hasi>
-Mail-Followup-To: Eduard Hasenleithner <eduardh@aon.at>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem with the buffering mechanism of my blockdevice,
-namely a ide_scsi DVD-ROM drive. After inserting a DVD and reading
-data linearly from the DVD, an excessive amount of buffer memory gets
-allocated.
+Just to clarify, this is a custom Toshiba chipset.  It
+includes IDE, PCI controller, etc.  I believe the IDE
+controller may be on the ISA bus as it does not show
+up with lspci, etc. I'm not sure of the exact chip,
+perhaps someone with a better knowledge of toshiab
+products does.
 
-This can easily be reproduced with
-	cat /dev/sr0 > /dev/null
+Thanks,
 
-Remember, nearly the same task is carried out when playing a DVD.
+Alex
 
-As a result the system performance goes down. I'm still able to use
-my applications, but es every single piece of unused memory is swapped
-out, and swapping in costs a certain amount of time.
 
-So, what wents wrong? I tried to find some information on this with
-google and geocrawler, but i didn't have a success :(
+> Does anyone know if there is any DMA support for the
+> toshiba IDE controller's in many of their portable
+> models such as the older porteges and librettos? 
+The
+> controllers support DMA, but not in linux.  I'm not
+> sure what toshiba's policy is on documentation. 
+They
+> used to be pretty stingy, but I heard they have
+> recently opened up of lot of their doc's, like the
+> oboe IR controller for instance. 
+> 
+> Thanks,
+> 
+> Alex
+> 
 
-Kernel: linux-2.4.4
-
-hoping for some tips ...
-
--- 
-Eduard Hasenleithner
-student of
-Salzburg University of Applied Sciences and Technologies
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

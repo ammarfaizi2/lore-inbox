@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262869AbSJGFXI>; Mon, 7 Oct 2002 01:23:08 -0400
+	id <S262882AbSJGF1s>; Mon, 7 Oct 2002 01:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262870AbSJGFXH>; Mon, 7 Oct 2002 01:23:07 -0400
-Received: from adsl-216-62-201-42.dsl.austtx.swbell.net ([216.62.201.42]:46464
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S262869AbSJGFXH>; Mon, 7 Oct 2002 01:23:07 -0400
-Subject: EVMS breaking menuconfig in 2.5.40?
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1033968519.3948.7.camel@localhost>
+	id <S262883AbSJGF1s>; Mon, 7 Oct 2002 01:27:48 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22933 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262882AbSJGF1s>;
+	Mon, 7 Oct 2002 01:27:48 -0400
+Date: Sun, 06 Oct 2002 22:26:33 -0700 (PDT)
+Message-Id: <20021006.222633.92515528.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: hadi@cyberus.ca, andre@pyxtechnologies.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: Update on e1000 troubles (over-heating!)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DA103A2.1060901@candelatech.com>
+References: <Pine.GSO.4.30.0210061835350.1861-100000@shell.cyberus.ca>
+	<3DA103A2.1060901@candelatech.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 07 Oct 2002 00:28:39 -0500
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got EVMS from cvs, found the 2.5.40 patch, applied it, then attempted
-to do make menuconfig. 
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Sun, 06 Oct 2002 20:46:42 -0700
+   
+   Dave says I'm wierd and no one else sees these bizarre problems, btw :)
+   
+The only case where I'm really concerned about the health
+of your PCI controller is the most recent case you've
+reported to me where pci_find_capability(pdev, PCI_CAP_ID_PM)
+fails.  That is just completely bizarre.
 
-All that happens is this:
-
-[austin@UberGeek linux-2.5.40]$ make menuconfig
-make[1]: Entering directory `/data/build/linux-2.5.40/scripts'
-make -C lxdialog all
-make[2]: Entering directory `/data/build/linux-2.5.40/scripts/lxdialog'
-make[2]: Leaving directory `/data/build/linux-2.5.40/scripts/lxdialog'
-make[1]: Leaving directory `/data/build/linux-2.5.40/scripts'
-/bin/sh ./scripts/Menuconfig arch/i386/config.in
-Using defaults found in .config
-Preparing scripts: functions, parsing
-
-and then my console becomes unuseable, I can't even ssh in from another
-box, then X dies eventually. 
-
-If I hit and hold ctrl-c for a few seconds after this begins, I can
-usually break out, but if I miss it, then well, X blows up pretty good.
-
-make config, works, and xconfig doesn't work for me at all for some
-reason. I'll get there yet. :) Wish I had more time to play and diagnose
-this. 
-
---The GrandMaster
-
+I hope your boards aren't being permanently harmed by your box which
+is overheating.:(

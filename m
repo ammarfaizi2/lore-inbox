@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261541AbSKYQtM>; Mon, 25 Nov 2002 11:49:12 -0500
+	id <S261593AbSKYQ4G>; Mon, 25 Nov 2002 11:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSKYQtM>; Mon, 25 Nov 2002 11:49:12 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:2835 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261541AbSKYQtL>; Mon, 25 Nov 2002 11:49:11 -0500
-Date: Mon, 25 Nov 2002 16:56:24 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	id <S261624AbSKYQ4G>; Mon, 25 Nov 2002 11:56:06 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:21230 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261593AbSKYQ4E>; Mon, 25 Nov 2002 11:56:04 -0500
+Subject: Re: [BUG] 2.4.20-rc2-ac3 oops (causer is DRM 4.3.x code)
+From: Arjan van de Ven <arjanv@redhat.com>
 To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [QUESTION] 2.4.20/2.4.21 ext2|ext3 updates / Orlov Block Allocator
-Message-ID: <20021125165623.A21978@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Theodore Ts'o <tytso@mit.edu>
-References: <200211251739.34629.m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@nl.linux.org>
+In-Reply-To: <200211251711.59882.m.c.p@wolk-project.de>
+References: <200211251711.59882.m.c.p@wolk-project.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 25 Nov 2002 18:02:27 +0100
+Message-Id: <1038243747.1372.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200211251739.34629.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Mon, Nov 25, 2002 at 05:40:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 25, 2002 at 05:40:19PM +0100, Marc-Christian Petersen wrote:
-> Hi Marcello,
+On Mon, 2002-11-25 at 17:12, Marc-Christian Petersen wrote:
+> Hi Alan, Hi Arjan,
 > 
-> any chance we can _please_ see this in 2.4.21-pre1?
-> 
-> http://thunk.org/tytso/linux/extfs-2.4-update/broken-out-2.4.20rc1/
-> 
-> I am using those patches from Theodore and all is working pretty fine.
-> The Orlov Block Allocator speed things up alot. I love it.
 
-You're kidding, right?
+@ -622,16 +615,20 @@
+        if ( dev->dev_private ) {
+                drm_r128_private_t *dev_priv = dev->dev_private;
 
++#if __REALLY_HAVE_SG
+                if ( !dev_priv->is_pci ) {
++#endif
+                        DRM_IOREMAPFREE( dev_priv->cce_ring );
+                        DRM_IOREMAPFREE( dev_priv->ring_rptr );
+                        DRM_IOREMAPFREE( dev_priv->buffers );
++#if __REALLY_HAVE_SG
+                } else {
+                        if (!DRM(ati_pcigart_cleanup)( dev,
+                                                dev_priv->phys_pci_gart,
+                                                dev_priv->bus_pci_gart
+))
+                                DRM_ERROR( "failed to cleanup PCI
+GART!\n" );
+                }
++#endif
+ 
+
+is the only worthy change to drivers/char/drm/r128_cce.c that I can
+think of that can cause this, could you try to just remove the #if's ?

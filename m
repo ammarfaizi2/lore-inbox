@@ -1,160 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUDVSzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264632AbUDVSzt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264629AbUDVSzb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 14:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264635AbUDVSzb
+	id S264632AbUDVSzt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 14:55:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUDVSzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 22 Apr 2004 14:55:49 -0400
+Received: from p50859C62.dip.t-dialin.net ([80.133.156.98]:39110 "EHLO
+	router.zodiac.dnsalias.org") by vger.kernel.org with ESMTP
+	id S264632AbUDVSzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 22 Apr 2004 14:55:31 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:9601 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264629AbUDVSz0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 14:55:26 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Charles Shannon Hendrix <shannon@widomaker.com>
-Subject: Re: [somewhat OT] binary modules agaaaain
-Date: Thu, 22 Apr 2004 20:55:04 +0200
-User-Agent: KMail/1.5.3
-References: <Pine.LNX.4.33.0404191651300.1869-100000@pcgl.dsa-ac.de> <200404201611.07832.bzolnier@elka.pw.edu.pl> <20040422161957.GF16810@widomaker.com>
-In-Reply-To: <20040422161957.GF16810@widomaker.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc2-mm1
+Date: Thu, 22 Apr 2004 20:55:26 +0200
+User-Agent: KMail/1.6.2
+References: <20040421014544.37942eb4.akpm@osdl.org>
+In-Reply-To: <20040421014544.37942eb4.akpm@osdl.org>
+X-Ignorant-User: yes
 MIME-Version: 1.0
-Content-Type: text/plain;
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_gUBiAaiukxjr1gj";
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404222055.04834.bzolnier@elka.pw.edu.pl>
+Message-Id: <200404222055.28928@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-What did I say about moving this discussion from lkml? :-)
-[ Well, it's my fault I shouldn't have replied. ]
+--Boundary-02=_gUBiAaiukxjr1gj
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is my last mail on this subject with lkml cc:ed, sorry for noise.
+Am Mittwoch, 21. April 2004 10:45 schrieben Sie:
+> - Several framebuffer driver fixes.  Please test.
 
-On Thursday 22 of April 2004 18:19, Charles Shannon Hendrix wrote:
-> Tue, 20 Apr 2004 @ 16:11 +0200, Bartlomiej Zolnierkiewicz said:
-> > > A binary module is "considered good" if
-> >
-> > This is a false assumption IMO no binary only modules can be "good".
->
-> True, but non-working hardware is even worse.
+My screen is still a bit garbeld after booting.
+Still like http://zodiac.dnsalias.org/images/garbage.jpg
 
-For who?  This is a tricky question. 8)
+radeonfb, Radeon M9 Mobility on IBM T40p 2373-G1G, ACPI
+lspci:
+0000:00:00.0 Host bridge: Intel Corp. 82855PM Processor to I/O Controller (=
+rev=20
+03)
+        Subsystem: IBM: Unknown device 0529
+        Flags: bus master, fast devsel, latency 0
+        Memory at d0000000 (32-bit, prefetchable)
+        Capabilities: [e4] #09 [f104]
+        Capabilities: [a0] AGP version 2.0
 
-> > I think that binary modules are evil because:
-> >
-> > - they slow down development (indirectly - think about it)
->
-> I don't think this is true at all.
+0000:00:01.0 PCI bridge: Intel Corp. 82855PM Processor to AGP Controller (r=
+ev=20
+03) (prog-if 00 [Normal decode])
+        Flags: bus master, 66MHz, fast devsel, latency 96
+        Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D=
+64
+        I/O behind bridge: 00003000-00003fff
+        Memory behind bridge: c0100000-c01fffff
+        Prefetchable memory behind bridge: e0000000-e7ffffff
+        Expansion ROM at 00003000 [disabled] [size=3D4K]
 
-Have you followed x86 4kb stacks discussion?
+0000:00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 01=
+)=20
+(prog-if 00 [UHCI])
+        Subsystem: IBM: Unknown device 052d
+        Flags: bus master, medium devsel, latency 0, IRQ 9
+        I/O ports at 1800 [size=3D32]
 
-> > - some vendors claim Linux support
-> >   while they only provide binary only modules
->
-> If they provide a binary for Linux, then they can claim Linux support.
->
-> We may not like it, but it is a legitimate claim.
+0000:00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 01=
+)=20
+(prog-if 00 [UHCI])
+        Subsystem: IBM: Unknown device 052d
+        Flags: bus master, medium devsel, latency 0, IRQ 10
+        I/O ports at 1820 [size=3D32]
 
-No, they instead should claim support for specific distribution
-and specific distribution versions (and some vendors do this).
+0000:00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 01=
+)=20
+(prog-if 00 [UHCI])
+        Subsystem: IBM: Unknown device 052d
+        Flags: bus master, medium devsel, latency 0, IRQ 11
+        I/O ports at 1840 [size=3D32]
 
-> > - less informed users tend to put blame on kernel or distribution
-> >   not the binary only module (!)
->
-> True, but this is just noise in the signal in terms of what the less
-> informed users think.
->
-> > I'm not a fanatic :-), I can see good sides of binary only modules:
-> >
-> > - additional hardware and features is supported
-> >
-> > - wider usage of Linux
->
-> - some driver code is tied up in legal issues that are not currently
->   solvable
+0000:00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controlle=
+r=20
+(rev 01) (prog-if 20 [EHCI])
+        Subsystem: IBM: Unknown device 052e
+        Flags: bus master, medium devsel, latency 0, IRQ 10
+        Memory at c0000000 (32-bit, non-prefetchable)
+        Capabilities: [50] Power Management version 2
+        Capabilities: [58] #0a [2080]
 
-They can often be solved with some effort (i.e. Intel WLAN driver).
+0000:00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 81) (prog=
+=2Dif=20
+00 [Normal decode])
+        Flags: bus master, fast devsel, latency 0
+        Bus: primary=3D00, secondary=3D02, subordinate=3D08, sec-latency=3D=
+168
+        I/O behind bridge: 00004000-00008fff
+        Memory behind bridge: c0200000-cfffffff
+        Prefetchable memory behind bridge: e8000000-efffffff
 
-> - For some hardware, only the company has enough knowledge to write
->   a decent driver.  I can't blame a company for wanting to control
->   the drivers for their hardware for quality reasons.
+0000:00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev=
+=20
+01)
+        Flags: bus master, medium devsel, latency 0
 
-Use Windows then. ;-)  Most bugs (any OS) are *driver* bugs.
+0000:00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage=20
+Controller (rev 01) (prog-if 8a [Master SecP PriP])
+        Subsystem: IBM: Unknown device 052d
+        Flags: bus master, medium devsel, latency 0, IRQ 11
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at <unassigned>
+        I/O ports at 1860 [size=3D16]
+        Memory at 20000000 (32-bit, non-prefetchable) [size=3D1K]
 
-The whole thing is about you having control over hardware
-(thus drivers) not hardware/software vendor.
+0000:00:1f.3 SMBus: Intel Corp. 82801DB/DBM (ICH4) SMBus Controller (rev 01)
+        Subsystem: IBM: Unknown device 052d
+        Flags: medium devsel, IRQ 10
+        I/O ports at 1880 [size=3D32]
 
-Yes, this scares some people. :)
+0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97=
+=20
+Audio Controller (rev 01)
+        Subsystem: IBM: Unknown device 0537
+        Flags: bus master, medium devsel, latency 0, IRQ 10
+        I/O ports at 1c00
+        I/O ports at 18c0 [size=3D64]
+        Memory at c0000c00 (32-bit, non-prefetchable) [size=3D512]
+        Memory at c0000800 (32-bit, non-prefetchable) [size=3D256]
+        Capabilities: [50] Power Management version 2
 
-> - As a user, I need to get work done, not play politics with my
->   hardware.  I prefer open solutions, but each day I have work to
->   do and can't afford to play politics with my hardware.
+0000:00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev =
+01)=20
+(prog-if 00 [Generic])
+        Subsystem: IBM: Unknown device 0525
+        Flags: bus master, medium devsel, latency 0, IRQ 10
+        I/O ports at 2400
+        I/O ports at 2000 [size=3D128]
+        Capabilities: [50] Power Management version 2
 
-And you are free to do this, just don't bring your problems on lkml
-wasting my time.  Reproduce problem without binary modules,
-if you can't then bring your problems to the authors of these modules
-or pay somebody to debug+solve your problems.
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 Lf=
+=20
+[Radeon Mobility 9000 M9] (rev 02) (prog-if 00 [VGA])
+        Subsystem: IBM: Unknown device 054d
+        Flags: bus master, stepping, fast Back2Back, 66MHz, medium devsel,=
+=20
+latency 66, IRQ 9
+        Memory at e0000000 (32-bit, prefetchable)
+        I/O ports at 3000 [size=3D256]
+        Memory at c0100000 (32-bit, non-prefetchable) [size=3D64K]
+        Capabilities: [58] AGP version 2.0
+        Capabilities: [50] Power Management version 2
 
-"Linux is free but my time is not." (hi Andre)
+0000:02:00.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus=20
+Controller (rev 01)
+        Subsystem: IBM ThinkPad T30/T40
+        Flags: bus master, medium devsel, latency 168, IRQ 9
+        Memory at b0000000 (32-bit, non-prefetchable)
+        Bus: primary=3D02, secondary=3D03, subordinate=3D06, sec-latency=3D=
+176
+        Memory window 0: 20400000-207ff000 (prefetchable)
+        Memory window 1: 20800000-20bff000
+        I/O window 0: 00004000-000040ff
+        I/O window 1: 00004400-000044ff
+        16-bit legacy interface ports at 0001
 
-> - I personally don't believe that building barriers to binary drives is
->   helpful.  In fact, I think it ultimately means *less* open source
->   from manufacturers.  I think of a good binary interface as a good
->   ambassador.
+0000:02:00.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus=20
+Controller (rev 01)
+        Subsystem: IBM ThinkPad T30/T40
+        Flags: bus master, medium devsel, latency 168, IRQ 10
+        Memory at b1000000 (32-bit, non-prefetchable)
+        Bus: primary=3D02, secondary=3D07, subordinate=3D0a, sec-latency=3D=
+176
+        Memory window 0: 20c00000-20fff000 (prefetchable)
+        Memory window 1: 21000000-213ff000
+        I/O window 0: 00004800-000048ff
+        I/O window 1: 00004c00-00004cff
+        16-bit legacy interface ports at 0001
 
-I'm not advocating artificial barriers.  I'm saying that IMO most kernel
-developers have _zero_ interest in supporting such interfaces.
+0000:02:01.0 Ethernet controller: Intel Corp. 82540EP Gigabit Ethernet=20
+Controller (Mobile) (rev 03)
+        Subsystem: IBM PRO/1000 MT Mobile Connection
+        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 9
+        Memory at c0220000 (32-bit, non-prefetchable)
+        Memory at c0200000 (32-bit, non-prefetchable) [size=3D64K]
+        I/O ports at 8000 [size=3D64]
+        Capabilities: [dc] Power Management version 2
+        Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=3D0/0=
+=20
+Enable-
 
-My point is that use/write/whatever binary only drivers if you like
-but don't waste my and other people time if you have problems.
+0000:02:02.0 Ethernet controller: Atheros Communications, Inc. AR5211 802.1=
+1ab=20
+NIC (rev 01)
+        Subsystem: Unknown device 17ab:8310
+        Flags: bus master, medium devsel, latency 168, IRQ 11
+        Memory at c0210000 (32-bit, non-prefetchable)
+        Capabilities: [44] Power Management version 2
 
-> > but I still think that cons > pros...
->
-> Of course.  We live in a highly imperfect world, and the computer
-> industry is among the most imperfect parts of it.
->
-> At the same time, we need to make sure that in our posturing and
-> political moves, we don't end up making things worse.
 
-This list is for development not for politics.
+root@t40:~# dmesg | grep radeonfb
+radeonfb: Invalid ROM signature 0 should be 0xaa55
+radeonfb: Retreived PLL infos from BIOS
+radeonfb: Reference=3D27.00 MHz (RefDiv=3D12) Memory=3D252.00 Mhz, System=
+=3D200.00 MHz
+radeonfb: Monitor 1 type LCD found
+radeonfb: Monitor 2 type no found
+radeonfb: panel ID string: SXGA+ Single (85MHz)
+radeonfb: detected LVDS panel size from BIOS: 1400x1050
+radeonfb: Power Management enabled for Mobility chipsets
+radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
 
-I personally hate kernel politics and try to concentrate on kernel hacking.
+regards
+Alex
 
-> > > With this restrictions those "good" binary modules could be debugged,
-> > > run in a sandbox... The question remains if anybody will want to debug
-> > > them:-)
-> >
-> > In my opinion using binary only modules is equal to modifying your kernel
-> > but being unable to show your modifications so you are on your own and
-> > you shouldn't bring it on lkml.
->
-> Sounds illogical to me.
->
-> That's like saying that selling a turbocharger for a car is the same as
-> illegally copying the design of a car and selling it as your own.
 
-Sorry, I can't see how this two things are related.
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-I'm rather saying that if you buy a turbocharger (binary only module)
-and modify your car you shouldn't expect car (kernel) producer to accept
-your warranty claims.  [ and remember that you got kernel for free! ]
+--Boundary-02=_gUBiAaiukxjr1gj
+Content-Type: application/pgp-signature
+Content-Description: signature
 
-I think you agree with this :-).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-By using binary only module you modify your kernel code (on runtime)
-and I can no longer see what really is going on and how do you expect
-me to solve your problems?
+iD8DBQBAiBUg/aHb+2190pERAtb7AJ9kpmoQ2uU9Jnj927Gb9r3/fmSU0QCdHdon
+ZDR8t3ss/7j63/AVkvh2NX4=
+=MBdL
+-----END PGP SIGNATURE-----
 
-> > Useful thing will be to create mailing list about Linux kernel
-> > + binary only modules and to move discussion from lkml there...
->
-> True.  Also useful would be to get manufacturers involved in any
-> such list so you can hear from them.
-
-True, this can be interesting and constructive.
-
-Regards,
-Bartlomiej
-
+--Boundary-02=_gUBiAaiukxjr1gj--

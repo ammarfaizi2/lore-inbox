@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267451AbUIJPC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267473AbUIJPGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267451AbUIJPC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 11:02:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267450AbUIJPC5
+	id S267473AbUIJPGk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 11:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIJPGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 11:02:57 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:15025 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267452AbUIJPCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 11:02:44 -0400
-Subject: Re: seems to be impossible to disable CONFIG_SERIAL [2.6.7]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Luke Kenneth Casson Leighton <lkcl@lkcl.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0409101457180.981@scrub.home>
-References: <20040910110819.GE14060@lkcl.net>
-	 <20040910120950.D22599@flint.arm.linux.org.uk>
-	 <20040910122059.GG14060@lkcl.net>
-	 <20040910133545.E22599@flint.arm.linux.org.uk>
-	 <Pine.LNX.4.61.0409101457180.981@scrub.home>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094824806.17442.0.camel@localhost.localdomain>
+	Fri, 10 Sep 2004 11:06:40 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:15026 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S267475AbUIJPG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 11:06:27 -0400
+Date: Fri, 10 Sep 2004 08:06:18 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, arjanv@redhat.com,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+Message-ID: <20040910150618.GA4857@taniwha.stupidest.org>
+References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <1094807650.17041.3.camel@localhost.localdomain> <593560000.1094826651@[10.10.2.4]>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 15:00:08 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <593560000.1094826651@[10.10.2.4]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-10 at 13:59, Roman Zippel wrote:
-> > http://linux.bkbits.net:8080/linux-2.5/cset@3f6e2888FMm2_snV3LfsXw6tII6QvA?nav=index.html|src/|src/drivers|src/drivers/char|related/drivers/char/Kconfig
-> 
-> Should mwave use register_serial at all?
+On Fri, Sep 10, 2004 at 07:30:52AM -0700, Martin J. Bligh wrote:
 
-Mwave loads the DSP firmware and that creates a virtual 16x50 UART .
+> What problems does it cause? 2.95.4 still seems to work fine for me.
 
+Older (and even current) gcc's spill badly in some circumstances and
+also fail to reuse / better-use spill/stack space.  It's been
+suggested to me that gcc from CVS as of a week ago is much better (i
+tried buidling it and didn't get far, I'll have to try again)

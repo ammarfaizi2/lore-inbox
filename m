@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262890AbTHaWPm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbTHaWPm
+	id S262857AbTHaWYT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbTHaWYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:15:42 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:29360 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S262890AbTHaWPh (ORCPT
+	Sun, 31 Aug 2003 18:24:19 -0400
+Received: from codepoet.org ([166.70.99.138]:46469 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S262857AbTHaWYO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:15:37 -0400
-Date: Mon, 1 Sep 2003 00:15:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Power Management Update
-Message-ID: <20030831221523.GA164@elf.ucw.cz>
-References: <Pine.LNX.4.33.0308301359570.944-100000@localhost.localdomain>
+	Sun, 31 Aug 2003 18:24:14 -0400
+Date: Sun, 31 Aug 2003 16:24:14 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org, jun.nakajima@intel.com
+Subject: Re: [PATCHSET][2.6-test4][0/6]Support for HPET based timer - Take 2
+Message-ID: <20030831222414.GA29923@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	linux-kernel@vger.kernel.org, jun.nakajima@intel.com
+References: <20030829210335.GA3150@codepoet.org> <Pine.LNX.4.44.0308311404430.1581-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0308301359570.944-100000@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <Pine.LNX.4.44.0308311404430.1581-100000@home.osdl.org>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun Aug 31, 2003 at 02:05:25PM -0700, Linus Torvalds wrote:
+> 
+> On Fri, 29 Aug 2003, Erik Andersen wrote:
+> > 
+> > gcc then generates code calling __udivdi3 and __umoddi3.  Since
+> > the kernel does not provide these, people keep reinventing them.
+> > Perhaps it is time to kill off do_div and all its little friends
+> > and simply copy __udivdi3 and __umoddi3 from libgcc.....
+> 
+> No. do_div() does _nothing_ like __udivdi3/__umoddi3.
+> 
+> Read the documentation.
 
-> My main concerns right now are:
+Been there done that, got the scars to prove it.  do_div() is a
+macro that acts sortof like the ISO C99 lldiv(3) function.
+Except it does unexpected things like modify its arguments... 
 
-On xe3, you broken both S3 and S4 (relative to -test3). [S3 blanks
-screen but does not enter sleep, S4 
+Most places in the kernel using do_div() not because it is the
+right thing to do, but because they tried to do something
+seemingly simple such as:
 
-On 4030cdt, I could not test S3 due to unrelated ACPI error. I tried
-to enter S4 -- its still in progress; you moved io into atomic session
-with your "cleanups", so I get about 10000 "scheduling in atomic"
-messages. It actually does suspend and resume, but drivers are in very
-bad state after that, and machine is about 20x slower than it should
-be (you have broken UHCI, this might be side effect; or it might be
-one of 1001 other things).
+    u64 foo, bar, baz;
+    ...
+    baz = foo / bar;
 
-You imported ton of untested crap into -test4. If you want power
-managment to get into working state, REVERT THAT CRAP!
+and then got an error that __udivdi3 was undefined.  So the
+authors then go hunting for a way to do a 64 bit division and
+find do_div()...
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+See mm/vmscan.c, mm/shmem.c, fs/proc/proc_misc.c,
+drivers/ide/ide-disk.c, etc, etc, etc, for plenty of examples of
+_exactly_ this sort of thing.  Every one of them is using
+do_div() to perform 64 bit division.  Not becase that is the
+right thing to do, but because __udivdi3 is missing.
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131941AbQLHXZu>; Fri, 8 Dec 2000 18:25:50 -0500
+	id <S132075AbQLHXk6>; Fri, 8 Dec 2000 18:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132075AbQLHXZl>; Fri, 8 Dec 2000 18:25:41 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:46856 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131941AbQLHXZ2>;
-	Fri, 8 Dec 2000 18:25:28 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: jna@microflex.ca
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops 2.2.17 
-In-Reply-To: Your message of "Fri, 08 Dec 2000 14:14:31 CDT."
-             <001d01c0614b$1886c1e0$a11410ac@microflex.ca> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 09 Dec 2000 09:54:55 +1100
-Message-ID: <5167.976316095@ocs3.ocs-net>
+	id <S132551AbQLHXki>; Fri, 8 Dec 2000 18:40:38 -0500
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:3332 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S132075AbQLHXk1>;
+	Fri, 8 Dec 2000 18:40:27 -0500
+Message-Id: <200012081621.eB8GLNE14764@sleipnir.valparaiso.cl>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Andi Kleen <ak@suse.de>, Rainer Mager <rmager@vgkk.com>,
+        linux-kernel@vger.kernel.org, Mark Vojkovich <mvojkovich@valinux.com>
+Subject: Re: Signal 11 
+In-Reply-To: Message from David Woodhouse <dwmw2@infradead.org> 
+   of "Fri, 08 Dec 2000 09:46:07 -0000." <25692.976268767@redhat.com> 
+Date: Fri, 08 Dec 2000 13:21:23 -0300
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000 14:14:31 -0500, 
-"Jean-Francois Nadeau" <jna@microflex.ca> wrote:
->Dec  7 17:01:54 trinity kernel: EIP:
->0010:[update_vm_cache_conditional+138/328]
+David Woodhouse <dwmw2@infradead.org> said:
 
-You are letting klogd convert the oops, it is broken.  Change klogd to
-run with "klogd -x", reproduce the oops and get a clean decode with
-ksymoops.
+[...]
 
->Warning: trailing garbage ignored on Code: line
->  Text: 'Code: 39 59 08 75 e1 8b 5c 24 20 39 59 0c 75 d8 ff 41 14 b8 02 00
->'
->  Garbage: '  '
+> I quote from the X devel list, which perhaps I shouldn't do but this is
+> hardly NDA'd stuff:
 
-Looks like an old ksymoops, current is 2.3.5, from
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.3
+> On Mon 20 Nov 2000, mvojkovich@valinux.com said:
+> >   I have seen random crashes on dual P3 BX boards (Tyan) and dual Xeon
+> > GX boards (Intel).  XFree86 core dumps indicate that it happens in
+> > random places, in old as dirt software rendering code that has nothing
+> > wrong with it.  I've only seen this under 2.3.x/2.4 SMP kernels.  I
+> > would say that this is definitely a kernel problem. 
+
+> XFree86 3.9 and XFree86 4 were rock solid for a _long_ time on 2.[34]
+> kernels - even on my BP6¹. The random crashes started to happen when I
+> upgraded my distribution² - and are only seen by people using 2.4. So I
+> suspect that it's the combination of glibc and kernel which is triggering
+> it.
+
+I get regular segfaults and random lockups trying to build CVS GCCs and
+kernels since I updated RH 7 to glibc-2.2-5. P3, sr440bx mobo (UP),
+2.2.18preX kernels; previously rock solid. Might be that the mains voltage
+here tends to be out of whack, but I doubt it.
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

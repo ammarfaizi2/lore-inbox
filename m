@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271974AbRIJV6T>; Mon, 10 Sep 2001 17:58:19 -0400
+	id <S271892AbRIJWJv>; Mon, 10 Sep 2001 18:09:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271966AbRIJV6J>; Mon, 10 Sep 2001 17:58:09 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:38159 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S271974AbRIJV55>; Mon, 10 Sep 2001 17:57:57 -0400
-Date: Mon, 10 Sep 2001 23:57:25 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Raghava Raju <vraghava_raju@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: Re: Kernel stack....
-Message-ID: <20010910235725.C797@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010910214741.19309.qmail@web20008.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010910214741.19309.qmail@web20008.mail.yahoo.com>; from vraghava_raju@yahoo.com on Mon, Sep 10, 2001 at 02:47:41PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S271966AbRIJWJk>; Mon, 10 Sep 2001 18:09:40 -0400
+Received: from s340-modem2375.dial.xs4all.nl ([194.109.169.71]:58033 "EHLO
+	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id <S271892AbRIJWJa>;
+	Mon, 10 Sep 2001 18:09:30 -0400
+Date: Mon, 10 Sep 2001 23:29:44 +0200 (CEST)
+From: Arjan Filius <iafilius@xs4all.nl>
+X-X-Sender: <arjan@sjoerd.sjoerdnet>
+Reply-To: Arjan Filius <iafilius@xs4all.nl>
+To: Robert Love <rml@tech9.net>
+cc: Daniel Phillips <phillips@bonn-fries.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Feedback on preemptible kernel patch
+In-Reply-To: <1000098594.18895.1.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0109102323450.24212-100000@sjoerd.sjoerdnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 10, 2001 at 02:47:41PM -0700, Raghava Raju wrote:
->       1) I want to know what exactly is the structure
-> of kernel stack. Is it some thing like bss,data,text?
-> 
->       2) I want to access kernel stack(in kernel
-> mode). So I am using  kernel stack pointer provided in
-> thread_struct. So how to access different areas(.i.e 
-> data,text)  in kernel stack.
-
-I think you got a wrong understanding of the stack. The stack has no
-separate bss, data, and text sections, it's just a stack of function
-arguments, local variables, and return addresses.
-
-Accessing the stack works automatically: call a function, and the
-function paramaters and the return address are pushed on the stack.
-Unless you have a *very* good reason, there is no need to manipulate
-the stack directly in kernel mode.
+Hello,
 
 
-Erik
+On 10 Sep 2001, Robert Love wrote:
 
-PS: Please don't cross post between the kernelniewbes and linux-kernel
-  lists, use only one of them next time (kernelnewbies is good for this
-  kind of questions).
+> On Sun, 2001-09-09 at 23:24, Daniel Phillips wrote:
+> > This may not be your fault.  It's a GFP_NOFS recursive allocation - this
+> > comes either from grow_buffers or ReiserFS, probably the former.  In
+> > either case, it means we ran completely out of free pages, even though
+> > the caller is willing to wait.  Hmm.  It smells like a loophole in vm
+> > scanning.
+>
+> I am not a VM hacker -- can you tell me where to start? what do you
+> suspect it is?
+>
+> If the user stops seeing the error with preemption disabled, is your
+> theory nulled, or does that just mean the problem is agitated by
+> preemption?
+>
+> I don't think Arjan was using ReiserFS, so its from grow_buffers...
+
+Yes I am using reiserfs (for "ages"). better said, reiser on LVM.
+
+Small discription of my system and used setup:
+scsi-disk,scsi-cdrom,ide-disk,ide-scsi,ext2,reiser, iptables, ipv6,
+acenic-Gbit-ethernet, ramdisk, highmem (1.5GB-ram), Athlon 1.1GHz, Asus
+a7v MB (via).
+
+
+ Greatings,
+
+
+>
+> I appreciate your help.
+>
+>
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Arjan Filius
+mailto:iafilius@xs4all.nl
+

@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265976AbSKDHIW>; Mon, 4 Nov 2002 02:08:22 -0500
+	id <S265974AbSKDHH7>; Mon, 4 Nov 2002 02:07:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265980AbSKDHIG>; Mon, 4 Nov 2002 02:08:06 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:14502 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S265976AbSKDHH5> convert rfc822-to-8bit; Mon, 4 Nov 2002 02:07:57 -0500
+	id <S265977AbSKDHH6>; Mon, 4 Nov 2002 02:07:58 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.103]:700 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S265974AbSKDHHK> convert rfc822-to-8bit; Mon, 4 Nov 2002 02:07:10 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@trommello.org>
 Reply-To: landley@trommello.org
-To: Tom Rini <trini@kernel.crashing.org>, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: CONFIG_TINY
-Date: Mon, 4 Nov 2002 02:13:48 +0000
+To: dcinege@psychosis.com, andersen@codepoet.org
+Subject: Re: Abbott and Costello meet Crunch Time -- Penultimate 2.5 merge candidate list.
+Date: Mon, 4 Nov 2002 02:13:20 +0000
 User-Agent: KMail/1.4.3
-Cc: Adrian Bunk <bunk@fs.tum.de>, Rasmus Andersen <rasmus@jaquet.dk>,
-       linux-kernel@vger.kernel.org
-References: <20021031011002.GB28191@opus.bloom.county> <Pine.LNX.3.96.1021031205920.22444F-100000@gatekeeper.tmr.com> <20021101141559.GD815@opus.bloom.county>
-In-Reply-To: <20021101141559.GD815@opus.bloom.county>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <200210272017.56147.landley@trommello.org> <20021030085149.GA7919@codepoet.org> <200210300455.21691.dcinege@psychosis.com>
+In-Reply-To: <200210300455.21691.dcinege@psychosis.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200211012059.32304.landley@trommello.org>
+Message-Id: <200211011917.16978.landley@trommello.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 14:15, Tom Rini wrote:
+On Wednesday 30 October 2002 09:55, Dave Cinege wrote:
 
-> > Sure, and unrolling loops can cause cache misses and be slower than that
-> > jmp back in a loop. The point is this is a string, the people who think
-> > they're able to hand diddle the options can change it. And more to the
-> > point anyone who can't find a string in a makefile shouldn't be second
-> > guessing the compiler anyway.
->
-> Yes, so why can't those who still need a few more kB after trying some
-> of the other options go and find '-O2' and replace it with '-Os' ?
+> But not from userland. Tar is used en masse, cpio isn't.
 
-Because the point of CONFIG_TINY is to make the kernel smaller and this is 
-something that makes the kernel smaller?  (In fact telling the compiler 
-"optimize for size" is one of the most OBVIOUS things to do?)
+Red hat uses cpio all over the place.  RPM is cpio based, and the drivers in a 
+Red Hat boot disk or driver disk are in a cpio file as well (and their cdrom 
+boot process uses the same code, so that's also cpio).  This almost certainly 
+means Mandrake uses the same stuff, and between the two of them we are over 
+50% of both the Linux installed base, new sales, and new installs.  (Take 
+your pick of what you want to measure.)
 
-I've used -Os.  I've compiled dozens and dozens of packages with -Os.  It has 
-always saved at least a few bytes, I have yet to see it make something 
-larger.  And in the benchmarks I've done, the smaller code actually runs 
-slightly faster.  More of it fits in cache, you know.
+Yeah, cpio is a pain and change to use, but so is tar.  You're just used to 
+it.  To get the behavior you want creating a tarball, your option list is 
+probably something like "tar cvjfpC tarball.tbz dirname .".  Hands up 
+everybody who thinks cvjfpC is intuitive?  Yes you could instead do "cd 
+dirname; tar cvp * | bzip2 > tarball.tbz" if that strikes you as more 
+newbie-friendly.  (This is assuming you know that that "v" goes to stderr 
+rather than standard out when it detects that stdout has been redirected, but 
+then you had to know to use "." rather than "*" for obvious reasons. :)
+
+And of course this is assuming you're using gnu tar (which still doesn't 
+officially support bzip by the way, j support was a patch last I checked).  
+The older versions wanted a dash before the options list.  (Try the version 
+of tar in busybox sometime...)
+
+> It's the only reason to use tar over cpio...I feel it's a
+> good one.
+
+By that logic, people should stick with windows. :)
+
+The objection is "people shouldn't have to learn a new tool when upgrading to 
+a new kernel".  A tool that has been around since the 1970's, I'm might 
+add...
 
 Rob
 

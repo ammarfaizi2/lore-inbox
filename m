@@ -1,52 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVCBO4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVCBO7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVCBO4H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 09:56:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVCBO4H
+	id S262327AbVCBO7v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 09:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVCBO7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 09:56:07 -0500
-Received: from mailhub1.nextra.sk ([195.168.1.111]:779 "EHLO
-	mailhub1.nextra.sk") by vger.kernel.org with ESMTP id S262327AbVCBOz6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 09:55:58 -0500
-Message-ID: <4225D4B4.6020002@rainbow-software.org>
-Date: Wed, 02 Mar 2005 15:59:00 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 2 Mar 2005 09:59:51 -0500
+Received: from web53306.mail.yahoo.com ([206.190.39.235]:41375 "HELO
+	web53306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262327AbVCBO7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 09:59:14 -0500
+Message-ID: <20050302145907.17666.qmail@web53306.mail.yahoo.com>
+Date: Wed, 2 Mar 2005 14:59:07 +0000 (GMT)
+From: sounak chakraborty <sounakrin@yahoo.co.in>
+Subject: compilation problem of modules
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
-References: <20050228192001.GA14221@apps.cwi.nl> <1109721162.15795.47.camel@localhost.localdomain> <20050302075037.GH20190@apps.cwi.nl>
-In-Reply-To: <20050302075037.GH20190@apps.cwi.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
-> On Tue, Mar 01, 2005 at 11:52:44PM +0000, Alan Cox wrote:
-> 
->>On Llu, 2005-02-28 at 19:20, Andries Brouwer wrote:
->>
->>>One such case is the mtrr code, where struct mtrr_ops has an
->>>init field pointing at __init functions. Unless I overlook
->>>something, this case may be easy to settle, since the .init
->>>field is never used.
->>
->>The failure to invoke the ->init operator appears to be the bug.
->>The centaur code definitely wants the mcr init function to be called.
-> 
-> 
-> Yes, I expected that to be the answer. Therefore #if 0 instead of deleting.
-> But if calling ->init() is needed, and it has not been done the past
-> three years, the question arises whether there are any users.
 
-I'm running 2.6.10 on Cyrix MII PR333 and it works. Maybe the code is 
-broken but I haven't noticed :-)
+the code of the module that i written is as follows:
+#define MODULE
+#include <linux/module.h>
+#include <linux/proc_fs.h>
+#define MODULE_NAME "manti"
+struct manti
+{
+      char mm[20];
+ };
+static struct proc_dir_entry *example_dir;
+struct manti m1;
+int init_module(void)
+{
+  example_dir=proc_mkdir(MODULE_NAME,NULL);
+ if(example_dir==NULL)
+  {
+     printk("<1> error in creation of proc file\n");
+    }
+  else
+   printk("<1>success in creation of proc dir\n");
+  }
+void cleanup_module(void)
+{
+   remove_proc_entry(MODULE_NAME,NULL);
+  printk("<1>proc entry removed\n");
+ }
+
+here iam just making one directory in the proc file
+named manti
+i am trying to  compile it like
+gcc -c proc.c 
+where the kernel version is 2.4.20-8
+
+but i am getting following errors 
+
+In file included from proc.c:5:
+/usr/include/linux/proc_fs.h:47: parse error before
+"off_t"
+/usr/include/linux/proc_fs.h:51: parse error before
+"off_t"
+/usr/include/linux/proc_fs.h:57: parse error before
+"mode_t"
+/usr/include/linux/proc_fs.h:59: parse error before
+"uid"
+/usr/include/linux/proc_fs.h:60: parse error before
+"gid"
+/usr/include/linux/proc_fs.h:70: parse error before
+"count"
+/usr/include/linux/proc_fs.h:72: parse error before
+"rdev"
+/usr/include/linux/proc_fs.h:176: parse error before
+"mode_t"
+/usr/include/linux/proc_fs.h: In function
+`proc_net_create':
+/usr/include/linux/proc_fs.h:177: `NULL' undeclared
+(first use in this function)
+/usr/include/linux/proc_fs.h:177: (Each undeclared
+identifier is reported only once
+/usr/include/linux/proc_fs.h:177: for each function it
+appears in.)
+/usr/include/linux/proc_fs.h: At top level:
+/usr/include/linux/proc_fs.h:181: parse error before
+"mode_t"
+/usr/include/linux/proc_fs.h: In function
+`create_proc_entry':
+/usr/include/linux/proc_fs.h:181: `NULL' undeclared
+(first use in this function)
+/usr/include/linux/proc_fs.h: In function
+`proc_symlink':
+/usr/include/linux/proc_fs.h:185: `NULL' undeclared
+(first use in this function)
+/usr/include/linux/proc_fs.h: At top level:
+/usr/include/linux/proc_fs.h:186: parse error before
+"mode_t"
+/usr/include/linux/proc_fs.h: In function
+`proc_mknod':
+/usr/include/linux/proc_fs.h:187: `NULL' undeclared
+(first use in this function)
+/usr/include/linux/proc_fs.h: In function
+`proc_mkdir':
+/usr/include/linux/proc_fs.h:189: `NULL' undeclared
+(first use in this function)
+/usr/include/linux/proc_fs.h: At top level:
+/usr/include/linux/proc_fs.h:192: parse error before
+"mode_t"
+/usr/include/linux/proc_fs.h:193: parse error before
+"off_t"
+/usr/include/linux/proc_fs.h:193:
+`create_proc_read_entry' declared as function
+returning a function
+/usr/include/linux/proc_fs.h:196: parse error before
+"mode_t"
+/usr/include/linux/proc_fs.h: In function
+`create_proc_info_entry':
+/usr/include/linux/proc_fs.h:197: `NULL' undeclared
+(first use in this function)
+/usr/include/linux/proc_fs.h: At top level:
+/usr/include/linux/proc_fs.h:203: `NULL' used prior to
+declaration
+proc.c: In function `init_module':
+proc.c:16: `NULL' has an incomplete type
+proc.c:17: invalid operands to binary ==
+proc.c: In function `cleanup_module':
+proc.c:26: `NULL' has an incomplete type
 
 
--- 
-Ondrej Zary
+
+how to solve it 
+plz help me
+is my compilation method is wrong or something else 
+
+thanks 
+sounak
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136161AbRECHhi>; Thu, 3 May 2001 03:37:38 -0400
+	id <S136175AbRECHlS>; Thu, 3 May 2001 03:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136168AbRECHh3>; Thu, 3 May 2001 03:37:29 -0400
-Received: from geos.coastside.net ([207.213.212.4]:42125 "EHLO
-	geos.coastside.net") by vger.kernel.org with ESMTP
-	id <S136161AbRECHhC>; Thu, 3 May 2001 03:37:02 -0400
-Mime-Version: 1.0
-Message-Id: <p05100305b716b4571bc0@[207.213.214.37]>
-In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
-In-Reply-To: <Pine.LNX.4.05.10105030852330.9438-100000@callisto.of.borg>
-Date: Thu, 3 May 2001 00:33:02 -0700
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: unsigned long ioremap()?
+	id <S136174AbRECHlI>; Thu, 3 May 2001 03:41:08 -0400
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:46499 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S136168AbRECHk6>; Thu, 3 May 2001 03:40:58 -0400
+Date: Thu, 3 May 2001 09:40:52 +0200
+From: Andreas Mohr <a.mohr@mailto.de>
+To: Richard Polton <Richard.Polton@morganstanley.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Subject: Re: cannot find directory on cdrom
+Message-ID: <20010503094052.A22925@rhlx01.fht-esslingen.de>
+Reply-To: andi@rhlx01.fht-esslingen.de
+In-Reply-To: <3AF108BE.E8957686@morganstanley.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AF108BE.E8957686@morganstanley.com>; from Richard.Polton@morganstanley.com on Thu, May 03, 2001 at 08:29:02AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 8:55 AM +0200 2001-05-03, Geert Uytterhoeven wrote:
->Since you're not allowed to use direct memory dereferencing on ioremapped
->areas, wouldn't it be more logical to let ioremap() return an unsigned long
->instead of a void *?
->
->Of course we then have to change readb() and friends to take a long as well,
->but at least we'd get compiler warnings when someone tries to do a direct
->dereference.
+On Thu, May 03, 2001 at 08:29:02AM +0100, Richard Polton wrote:
+> Hi,
+> 
+> I have a cdrom burnt by a friend with W2000 (I know, friends don't let
+> friends use W ;-) which has (at least) one directory on it which I
+> cannot
+> see when mounting the disk under linux. I am using kernel 2.4.4 and
+> the mount command is the usual
+> 
+> mount /dev/cdrom /mnt/cdrom -t iso9660
+> 
+> I have Joliet compiled into the kernel too. I can send by private email
+> the
+> first 120 blocks or so of the disk if anyone is interested. I looked at
+> this
+> with hexlify and can see the mysterious directory (s?) which is called
+> 'sturf'.
+> 
+> Thanks,
+> 
+> Richard
+Hmm, is this the old "non-standard sector alignment" problem ?
+Some CDs have their directory sector entries exceed the sector, and AFAIK
+the problem is that they exceed it not entry by entry,
+but in the middle of a directory entry, which violates the ISO9660 spec.
+The Linux CD-ROM driver used to have a workaround for this,
+but then after 2.0.x it seems to have been removed.
 
-Better yet, seems to me, its own type. Say: typedef unsigned long io_ref_t;
+Why ???
 
-It's already done for dma_addr_t, and this seems like an analogous case.
+After all Windows perfectly accepts these broken (ISO9660 wise) CD-ROMs.
 
-The bigger job would be to fix all the direct dereferences (a 
-worthwhile thing, I guess; a quick scan shows at least a few), as 
-well as to fix uncast assignments of ioremap(). Or ideally to get rid 
-of the casts (most that I see are casts to unsigned long) and type 
-the receiving buffer appropriately.
+I don't know whether 2.4.x still has the same "feature" that 2.2.x had.
 
-It'd be a big job. And Linus further suggests that ioremap's first 
-argument is an architecture-specific object, not necessarily either a 
-physical CPU address or a PCI address (though it's typically both in 
-many (most?) i386 implementations). Now *there'd* be a cleanup.
--- 
-/Jonathan Lundell.
+A Spanish language training CD of mine has this problem, and I can't read
+several files on it.
+
+Hmm, or maybe your problem is simply that you forgot to enable the
+"hidden" mount option for your CD-ROM ??
+(some files are burnt with "hidden" attribute !)
+
+Andreas Mohr

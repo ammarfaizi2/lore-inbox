@@ -1,114 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbUDZWta@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbUDZWxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbUDZWta (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 18:49:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUDZWta
+	id S261951AbUDZWxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 18:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUDZWxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 18:49:30 -0400
-Received: from gprs214-26.eurotel.cz ([160.218.214.26]:1664 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261822AbUDZWt1 (ORCPT
+	Mon, 26 Apr 2004 18:53:09 -0400
+Received: from [61.172.126.219] ([61.172.126.219]:9476 "EHLO j6t1p0")
+	by vger.kernel.org with ESMTP id S261951AbUDZWxC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 18:49:27 -0400
-Date: Tue, 27 Apr 2004 00:49:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, vojtech@ucw.cz,
-       VANDROVE@vc.cvut.cz
-Subject: Re: Not so theoretical race in atkbd_command
-Message-ID: <20040426224911.GA276@elf.ucw.cz>
-References: <20040426213555.GA1368@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040426213555.GA1368@elf.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 26 Apr 2004 18:53:02 -0400
+From: hcgroup_7@eyou.com
+Subject: RE:locks  introduce
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/alternative;
+ boundary="=_NextPart_2rfkindysadvnqw3nerasdf";
+	charset="GB2312"
+MIME-Version: 1.0
+Reply-To: hcgroup_7@eyou.com
+Date: Tue, 27 Apr 2004 06:56:19 +0800
+X-Priority: 1
+X-Library: Indy 9.0.3-B
+Message-Id: <S261951AbUDZWxC/20040426225302Z+272@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format
 
-> There's quite real race in atkbd_command:
-> 
-> static int atkbd_command(struct atkbd *atkbd, unsigned char *param,
-> int command)
-> {
->         int timeout = 500000; /* 500 msec */
->         int send = (command >> 12) & 0xf;
->         int receive = (command >> 8) & 0xf;
->         int i;
-> 
->         atkbd->cmdcnt = receive;
-> [user presses key here]
-> 
-> atkbd_interrupt eats user keypress, thinking its reply. Boom. To
-> exploit:
-> 
-> while true; do setleds +num; setleds -num; done
-> 
-> then try typing.
+--=_NextPart_2rfkindysadvnqw3nerasdf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Petr suggested following follow-up patch. I'm not quite sure it is
-effective. I still get lost keys with
+=20
 
- while true; do setleds +num; setleds -num; done
+This mail is very important,please forward it to  the general manager of=
+ your=20
+company directly,thank you!
 
-								Pavel
+Dear Sir/Madam,
+Wenzhou HCI Locks Industry Co,.Ltd  bought one main state-owned fingerpr=
+int products=20
+factory a month ago .Now we have set up a whole locks production lines ,=
+from=20
+camlocks  to auto locks . Our target is turn HCI group into the largest =
+locks=20
+producer in China .Please make time to browse our web ,to see :
+http://fingers.vip.cn/
 
---- tmp/linux/drivers/input/keyboard/atkbd.c	2004-04-27 00:41:19.000000000 +0200
-+++ linux/drivers/input/keyboard/atkbd.c	2004-04-27 00:36:10.000000000 +0200
-@@ -244,7 +244,7 @@
- 				goto out;
- 		}
- 
--	if (atkbd->cmdcnt) {
-+	if (atkbd->cmdcnt && atomic_read(&atkbd->ack) == 1) {
- 		atkbd->cmdbuf[--atkbd->cmdcnt] = code;
- 		goto out;
- 	}
-@@ -366,10 +366,12 @@
-  * replacement anyway, and they only make a mess in the protocol.
-  */
- 
--static int atkbd_sendbyte(struct atkbd *atkbd, unsigned char byte)
-+static int atkbd_sendbyte(struct atkbd *atkbd, unsigned char byte, int cmdcnt)
- {
- 	int timeout = 20000; /* 200 msec */
--	atomic_set(&atkbd->ack, 0); mb();
-+	atomic_set(&atkbd->ack, 0);
-+	mb(); /* First clear ACK, then write how many reply bytes we want... though maybe it would want real spinlock */
-+	atkbd->cmdcnt = cmdcnt;
- 
- #ifdef ATKBD_DEBUG
- 	printk(KERN_DEBUG "atkbd.c: Sent: %02x\n", byte);
-@@ -397,8 +399,6 @@
- 	int receive = (command >> 8) & 0xf;
- 	int i;
- 
--	atkbd->cmdcnt = receive;
--
- 	if (command == ATKBD_CMD_RESET_BAT)
- 		timeout = 2000000; /* 2 sec */
- 
-@@ -407,11 +407,11 @@
- 			atkbd->cmdbuf[(receive - 1) - i] = param[i];
- 
- 	if (command & 0xff)
--		if (atkbd_sendbyte(atkbd, command & 0xff))
-+		if (atkbd_sendbyte(atkbd, command & 0xff, send ? 0 : receive))
- 			return (atkbd->cmdcnt = 0) - 1;
- 
- 	for (i = 0; i < send; i++)
--		if (atkbd_sendbyte(atkbd, param[i]))
-+		if (atkbd_sendbyte(atkbd, param[i], (i != send - 1) ? 0 : receive))
- 			return (atkbd->cmdcnt = 0) - 1;
- 
- 	while (atkbd->cmdcnt && timeout--) {
+If you need sample ,please tell me in time .Thank you. If you have time =
+,welcome to=20
+China.
 
--- 
-934a471f20d6580d5aad759bf0d97ddc
+Kind regards,
+Mark Chung
+Wenzhou HCI Locks Industry Co,.Ltd
+Production Base :Wenzhou, Zhejiang ,China
+Tel: +86 21 57157408 57157409  Fax :+86 21 57157408=20
+E-mail: hci_2@eyou.com   hcc_3@eyou.com=20
+http://fingers.vip.cn/
 
 
 
 
+--=_NextPart_2rfkindysadvnqw3nerasdf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+..............
 
 
+
+##################################################################
+#=B1=BE=D3=CA=BC=FE=D3=C9=A1=BE=C9=CC=D6=DB@=B9=E3=B8=E6=D6=B1=D3=CA=CF=B5=
+=CD=B3=A1=BF=B2=E2=CA=D4=B0=E6=B7=A2=CB=CD=A3=AC=BE=DF=CC=E5=C4=DA=C8=DD=
+=D3=C9=B7=A2=CB=CD=D5=DF=B8=BA=D4=F0########
+#=BB=B6=D3=AD=C3=E2=B7=D1=CF=C2=D4=D8=C9=CC=D6=DB@=CD=F8=C2=E7=D3=AA=CF=FA=
+=CF=B5=C1=D0=C8=ED=BC=FE(http://www.bytesky.com)##########
+##################################################################
+
+..............
+
+--=_NextPart_2rfkindysadvnqw3nerasdf--

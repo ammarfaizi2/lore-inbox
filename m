@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282320AbRLDHam>; Tue, 4 Dec 2001 02:30:42 -0500
+	id <S282687AbRLDIve>; Tue, 4 Dec 2001 03:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282357AbRLDHac>; Tue, 4 Dec 2001 02:30:32 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:33218 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282320AbRLDHaZ>; Tue, 4 Dec 2001 02:30:25 -0500
-Date: Tue, 4 Dec 2001 00:29:51 -0700
-Message-Id: <200112040729.fB47TpA02534@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: [PATCH] devfs v99.21 available
+	id <S282685AbRLDIvO>; Tue, 4 Dec 2001 03:51:14 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:4104 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S282679AbRLDIvN>;
+	Tue, 4 Dec 2001 03:51:13 -0500
+Message-ID: <3C0C8E7F.2080007@free.fr>
+Date: Tue, 04 Dec 2001 09:51:11 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011203
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Cheryl Homiak <chomiak@chartermi.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Via82cxx chipset problem
+In-Reply-To: <Pine.LNX.4.40.0112030943110.223-100000@maranatha.chartermi.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. Version 99.21 of my devfs patch is now available from:
-http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
-The devfs FAQ is also available here.
 
-Patch directly available from:
-ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.2/devfs-patch-current.gz
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.2/devfs-patch-current.gz
+Cheryl Homiak wrote:
 
-WARNING: you will need devfsd-v1.3.19 or later.
+> I tried this question on another list and was told not to try to change my
+> mhz speed because I would corrupt my hard drive possibly. But does this
+> mean I am actually running at only 33mhz.?
 
-NOTE: the devfs-patch-v99.x patches are maintenance patches for the
-old 2.2.x production kernels. Occasionally, features from a modern
-kernel are back-ported, but this happens rarely.
 
-This is against 2.2.20. Highlights of this release:
+Your PCI bus is most probably running at 33 Mhz. As it is intended to 
+run at this speed. There's nothing wrong with that. The :
+"ide: Assuming 33MHz system bus speed for PIO modes; override with 
+idebus=xx"
+message is a warning that the PCI bus speed cannot be reliably detected.
 
-- Ported devfs-patch-v99.20 to kernel 2.2.20
+For IDE PIO transfer modes the PCI bus speed is a reference which is 
+used by timers which regulate IO transfers. As some computers run the 
+PCI bus at other frequencies, mainly 25 and 30 MHz instead of 33 MHz 
+(for example: old ones with Pentium 75 (25MHz), 90, 120, 150 (30MHz)), 
+the idebus parameter is there to allow the timings to be fine-tuned for 
+these machines. Nothing to worry about.
 
-- Updated README from master HTML file
+-- 
+Lionel Bouton
 
-- Added DEVFSD_NOTIFY_DELETE event
+-
+"I wanted to be free. I opensourced my whole DNA code" Gyver, 1999.
 
-- Removed unused DEVFS_FL_SHOW_UNREG flag
 
-- Send DEVFSD_NOTIFY_REGISTERED events in <devfs_mk_dir>
 
-- Do not send CREATE, CHANGE, ASYNC_OPEN or DELETE events from devfsd
-  or children
-
-- Switched to process group check for devfsd privileges
-
-- Fixed drivers/scsi/osst.c to account for <devfs_register> change
-
-- Remove /dev/ide when IDE module unloaded
-
-- Made drivers/block/cpqarray.c devfs-friendly
-
-- Made drivers/block/cciss.c devfs-friendly
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

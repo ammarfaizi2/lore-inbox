@@ -1,126 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbVBXPPc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVBXPTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbVBXPPc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 10:15:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVBXPMD
+	id S262406AbVBXPTN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 10:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVBXPQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 10:12:03 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:60883 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262397AbVBXPJI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 10:09:08 -0500
+	Thu, 24 Feb 2005 10:16:43 -0500
+Received: from dsl81-214-6222.adsl.ttnet.net.tr ([81.214.24.78]:11170 "EHLO
+	yssyk.iliskisel.idealteknoloji.com") by vger.kernel.org with ESMTP
+	id S262393AbVBXPLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 10:11:50 -0500
+Message-ID: <421DEB74.4060306@labristeknoloji.com>
+Date: Thu, 24 Feb 2005 16:57:56 +0200
+From: "M.Baris Demiray" <baris@labristeknoloji.com>
+Organization: Labris Teknoloji
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041126)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16925.60927.49095.758660@alkaid.it.uu.se>
-Date: Thu, 24 Feb 2005 16:08:47 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linuxppc-dev list <linuxppc-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ppc32 weirdness with gcc-4.0 in 2.6.11-rc4
-In-Reply-To: <1109210688.15027.2.camel@gaston>
-References: <16924.59237.581247.498382@alkaid.it.uu.se>
-	<1109210688.15027.2.camel@gaston>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc5
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org>	 <20050224062908.GJ3163@waste.org>  <421DCD44.1020504@tiscali.de> <1109255111.1452.6.camel@localhost.localdomain>
+In-Reply-To: <1109255111.1452.6.camel@localhost.localdomain>
+Content-Type: multipart/mixed;
+ boundary="------------070202040103080107000508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt writes:
- > > -Memory: 255872k available (1788k kernel code, 976k data, 144k init, 0k highmem)
- > > +Memory: 255872k available (1776k kernel code, 0k data, 144k init, 0k highmem)
- > 
- > That is weird... (0k data)
- > 
- > > AGP special page: 0xcffff000
- > >  Calibrating delay loop... 830.66 BogoMIPS (lpj=4153344)
- > >  Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
- > > @@ -132,13 +132,7 @@
- > >  VFS: Mounted root (ext3 filesystem) readonly.
- > >  Freeing unused kernel memory: 144k init 4k chrp 8k prep
- > >  usb 3-2: new full speed USB device using ohci_hcd and address 2
- > > -hub 3-2:1.0: USB hub found
- > > -hub 3-2:1.0: 3 ports detected
- > > -usb 3-2.1: new low speed USB device using ohci_hcd and address 3
- > > -input: USB HID v1.10 Mouse [Logitech Apple Optical USB Mouse] on usb-0001:10:1b.0-2.1
- > > -usb 3-2.3: new full speed USB device using ohci_hcd and address 4
- > > -input: USB HID v1.10 Keyboard [Mitsumi Electric Apple Extended USB Keyboard] on usb-0001:10:1b.0-2.3
- > > -input: USB HID v1.10 Device [Mitsumi Electric Apple Extended USB Keyboard] on usb-0001:10:1b.0-2.3
- > > +usb 3-2: can't connect bus-powered hub to this port
- > >  EXT3 FS on hda5, internal journal
- > >  Adding 1048568k swap on /dev/hda3.  Priority:-1 extents:1
- > >  SCSI subsystem initialized
- > > 
- > > Note: "Memory: ... 0k data ..." !? Surely that can't be correct.
- > 
- > Not sure what's up, but it's probably something beeing miscompiled. Can
- > you check if the udelay/medlay loops are correct ?
+This is a multi-part message in MIME format.
+--------------070202040103080107000508
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Both __delay and a few test functions using udelay/mdelay look Ok.
 
-_However_, the 0k data message is due to a gcc-4.0 bug, and below
-you'll find a test program which illustrates it.
+Steven Rostedt wrote:
 
-/Mikael
+> [...]
+> 
+> Anyone know if the linux-2.6.11-rc5.tar.bz2 has all the changes in it?
+> The tarball rc5 is smaller than rc4. Was there a lot taken out?
 
-/* gcc4bug.c
- * Written by Mikael Pettersson <mikpe@csd.uu.se>, 2005-02-24.
- *
- * This program is abstracted from arch/ppc/mm/init.c in
- * the 2.6.11-rc4 Linux kernel sources.
- *
- * With gcc-3.4.3, gcc-3.3.5, or gcc-3.2.3, mem_init()
- * correctly returns 245.
- *
- * With gcc-4.0.0 20050220, mem_init() erroneously returns 0.
- * The error occurs with -O1, and -O2.
- * Compiling at -O0, or -O3 or higher, hides the error.
- *
- * All gcc versions were configured for powerpc-unknown-linux-gnu.
- */
-#include <stdio.h>
+Take a look at the diffview of 2.6.11-rc4-rc5 incremental patch.
 
-#define PAGE_SIZE 4096
-unsigned long PAGE_OFFSET;
-unsigned long high_memory;
-unsigned long etext;
-unsigned long init_begin;
-unsigned long init_end;
-unsigned long klimit;
+<snip>
+5599 files changed, 166396 insertions(+), 293627 deletions(-)
+</snip>
 
-int mem_init(void)
-{
-	unsigned long addr;
-	int codepages = 0;
-	int datapages = 0;
-	int initpages = 0;
+> 
+> -- Steve
+> 
+> 
 
-	for (addr = PAGE_OFFSET; addr < high_memory; addr += PAGE_SIZE) {
-		if (addr < etext)
-			codepages++;
-		else if (addr >= init_begin && addr < init_end)
-			initpages++;
-		else if (addr < klimit)
-			datapages++;
-	}
-	printf("datapages == %d, initpages == %d, codepages == %d\n", datapages, initpages, codepages);
-	return datapages;
-}
+-- 
+M.Baris Demiray -- Labris Teknoloji
 
-int main(void)
-{
-    int datapages;
+--------------070202040103080107000508
+Content-Type: text/x-vcard; charset=utf-8;
+ name="baris.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="baris.vcf"
 
-    PAGE_OFFSET	= 0xc0000000;
-    etext	= 0xc01bb958;
-    init_begin	= 0xc0264000;
-    init_end	= 0xc0288000;
-    klimit	= 0xc02d4378;
-    high_memory	= 0xd0000000;
-    datapages = mem_init();
-    if (datapages != 245) {
-	fprintf(stderr, "gcc bug! mem_init() returned %d\n", datapages);
-	return 1;
-    } else
-	return 0;
-}
+YmVnaW46dmNhcmQNCmZuOk0uQmFyaXMgRGVtaXJheQ0KbjpEZW1pcmF5O00uQmFyaXMNCm9y
+ZzpMYWJyaXMgVGVrbm9sb2ppDQphZHI6T0RUVTs7VGVrbm9rZW50IFNpbGlrb24gQmxvayBO
+bzoyNDtBbmthcmE7OzA2NTMxO1R1cmtpeWUNCmVtYWlsO2ludGVybmV0OmJhcmlzQGxhYnJp
+c3Rla25vbG9qaS5jb20NCnRpdGxlOllhemlsaW0gR2VsaXN0aXJpY2kNCnRlbDt3b3JrOis5
+MDMxMjIxMDE0OTANCnRlbDtmYXg6KzkwMzEyMjEwMTQ5Mg0KeC1tb3ppbGxhLWh0bWw6RkFM
+U0UNCnVybDpodHRwOi8vd3d3LmxhYnJpc3Rla25vbG9qaS5jb20NCnZlcnNpb246Mi4xDQpl
+bmQ6dmNhcmQNCg0K
+--------------070202040103080107000508--

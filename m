@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132493AbRDKAOH>; Tue, 10 Apr 2001 20:14:07 -0400
+	id <S132500AbRDKAWM>; Tue, 10 Apr 2001 20:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132497AbRDKAN7>; Tue, 10 Apr 2001 20:13:59 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:13037 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S132493AbRDKANr>;
-	Tue, 10 Apr 2001 20:13:47 -0400
-Date: Wed, 11 Apr 2001 02:13:18 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        David Howells <dhowells@cambridge.redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix
-Message-ID: <20010411021318.A21221@khan.acc.umu.se>
-In-Reply-To: <20010410220551.A24251@gruyere.muc.suse.de> <E14n6Be-0005Ir-00@the-village.bc.nu> <20010411020058.B28670@gruyere.muc.suse.de>
+	id <S132496AbRDKAWA>; Tue, 10 Apr 2001 20:22:00 -0400
+Received: from ns.suse.de ([213.95.15.193]:19724 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132500AbRDKAVt>;
+	Tue, 10 Apr 2001 20:21:49 -0400
+Date: Wed, 11 Apr 2001 02:21:42 +0200
+From: Andi Kleen <ak@suse.de>
+To: Dave <daveo@osdn.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bizarre TCP behavior
+Message-ID: <20010411022142.A28926@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0104101809190.1468-100000@meatloop.andover.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010411020058.B28670@gruyere.muc.suse.de>; from ak@suse.de on Wed, Apr 11, 2001 at 02:00:58AM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0104101809190.1468-100000@meatloop.andover.net>; from daveo@osdn.com on Tue, Apr 10, 2001 at 06:24:46PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 11, 2001 at 02:00:58AM +0200, Andi Kleen wrote:
-> On Tue, Apr 10, 2001 at 11:00:31PM +0100, Alan Cox wrote:
-> > > I guess 386 could live with an exception handler that emulates it.
-> > 
-> > 386 could use a simpler setup and is non SMP
+On Tue, Apr 10, 2001 at 06:24:46PM -0400, Dave wrote:
 > 
-> The idea was to have a `generic' kernel that works on all architectures.
-> If you drop 386 support much is better already.
->  
-> > > (BTW an generic exception handler for CMPXCHG would also be very useful
-> > > for glibc -- currently it has special checking code for 386 in its mutexes) 
-> > > The 386 are so slow that nobody would probably notice a bit more slowness
-> > > by a few exceptions.
-> > 
-> > Be serious. You can compile glibc without 386 support. Most vendors already
-> > distribute 386/586 or 386/686 glibc sets.
-> 
-> Yes, and with CMPXCHG handler in the kernel it wouldn't be needed 
-> (the other 686 optimizations like memcpy also work on 386) 
+> I am having a very strange problem in linux 2.4 kernels.  I have not set
+> any iptables rules at all, and there is no firewall blocking any of my
+> outgoing traffic.  At what seems like random selection, I can not connect
+> to IP's yet I can get ping replies from them.  Most IP's reply just fine,
+> but certain ones fail to send even an ACK.  This problem disappears when I
+> boot into 2.2.  Here is a brief example of what I am talking about:
 
-But the code would be much slower, and it's on 386's and similarly
-slow beasts you need every cycle you can get, NOT on a Pentium IV.
+Try echo 0 > /proc/sys/net/ipv4/tcp_ecn
+If it helps complain to the sites that their firewall is broken.
 
 
-/David
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+-Andi

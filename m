@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290083AbSAQRTG>; Thu, 17 Jan 2002 12:19:06 -0500
+	id <S290080AbSAQRfH>; Thu, 17 Jan 2002 12:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290079AbSAQRSz>; Thu, 17 Jan 2002 12:18:55 -0500
-Received: from f198.law15.hotmail.com ([64.4.23.198]:49158 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290078AbSAQRSv>;
-	Thu, 17 Jan 2002 12:18:51 -0500
-X-Originating-IP: [128.112.49.17]
-From: "Yinlei Yu" <yinlei_yu@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Is there anyway to use 4M pages on x86 linux in user level?
-Date: Thu, 17 Jan 2002 12:18:45 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F198nwpGR881Np7vXee0002516d@hotmail.com>
-X-OriginalArrivalTime: 17 Jan 2002 17:18:45.0692 (UTC) FILETIME=[05025FC0:01C19F7B]
+	id <S290081AbSAQRe5>; Thu, 17 Jan 2002 12:34:57 -0500
+Received: from rhenium.btinternet.com ([194.73.73.93]:1532 "EHLO rhenium")
+	by vger.kernel.org with ESMTP id <S290080AbSAQRer>;
+	Thu, 17 Jan 2002 12:34:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Nick Sanders <sandersn@btinternet.com>
+To: Joonas Koivunen <rzei@mbnet.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Power off NOT working, kernel 2.4.16
+Date: Thu, 17 Jan 2002 17:30:45 +0000
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <3C45F45C.5000005@mbnet.fi>
+In-Reply-To: <3C45F45C.5000005@mbnet.fi>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16RGR3-0004Bk-00@rhenium>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I am working on a project that keep accessing lots of memory randomly(say 
-500MB-1.5GB) and we do have such amount of memory installed so there's 
-almost no page faults while running the entire program. Since x86 
-architecutre has a 4M page feature, is it possible to make use of these big 
-pages instead of 4K pages in my program (a user-level application) so I can 
-expect much fewer TLB misses due to the reduced number of TLB entries? 
-Thanks very much!
+> APM poweroff has actually been working with this computer, back when we
+> used 2.0.36 type kernels, and that one was possibly redhat patched or
+> something else, and windowses knew also how to poweroff, with mainboards
+> drivers. APM poweroff seized to operate when I switched to 2.2 serie
+> kernels.
+>
 
+I had the same problem the way I fixed it was added
 
+apm power_off=1
 
+to /etc/modules
 
+this is using Debian (2.4.17 kernel)
 
-
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
-
+Nick

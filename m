@@ -1,54 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266564AbTBCWFW>; Mon, 3 Feb 2003 17:05:22 -0500
+	id <S265754AbTBCWNW>; Mon, 3 Feb 2003 17:13:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266795AbTBCWFW>; Mon, 3 Feb 2003 17:05:22 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18697 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266564AbTBCWFV>; Mon, 3 Feb 2003 17:05:21 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: CPU throttling??
-Date: 3 Feb 2003 14:14:23 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b1mpjv$mfq$1@cesium.transmeta.com>
-References: <F760B14C9561B941B89469F59BA3A84725A14A@orsmsx401.jf.intel.com> <20030203211806.GA21312@codemonkey.org.uk>
+	id <S266852AbTBCWNW>; Mon, 3 Feb 2003 17:13:22 -0500
+Received: from maila.telia.com ([194.22.194.231]:19429 "EHLO maila.telia.com")
+	by vger.kernel.org with ESMTP id <S265754AbTBCWNU>;
+	Mon, 3 Feb 2003 17:13:20 -0500
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Message-ID: <006a01c2cbd2$bff0b870$020120b0@jockeXP>
+From: "Joakim Tjernlund" <Joakim.Tjernlund@lumentis.se>
+To: "Ion Badulescu" <ionut@badula.org>
+Cc: "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+References: <200302032118.h13LIfqN006832@buggy.badula.org>
+Subject: Re: NETIF_F_SG question
+Date: Mon, 3 Feb 2003 23:22:34 +0100
+Organization: Lumentis AB
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20030203211806.GA21312@codemonkey.org.uk>
-By author:    Dave Jones <davej@codemonkey.org.uk>
-In newsgroup: linux.dev.kernel
+> On Sun, 2 Feb 2003 02:39:41 +0100, Joakim Tjernlund <Joakim.Tjernlund@lumentis.se> wrote:
+> > 
+> > I think HW checksumming and SG are independent. Either one of them should
+> > not require the other one in any context.
 > 
-> Most (all?[1]) other modern x86 mobile processors behave the way I mentioned.
-> AMD Powernow (K6 and K7), VIA longhaul/powersaver all have optimal voltages
-> they can be run at when clocked to different speeds. By way of example, a table from
-> my mobile athlon..
+> They should be independent in general, but they aren't when the particular
+> case of TCP/IPv4 is concerned.
 > 
->     FID: 0x12 (4.0x [532MHz])   VID: 0x13 (1.200V)
->     FID: 0x4 (5.0x [665MHz])    VID: 0x13 (1.200V)
->     FID: 0x6 (6.0x [798MHz])    VID: 0x13 (1.200V)
->     FID: 0xa (8.0x [1064MHz])   VID: 0xd (1.350V)
->     FID: 0xf (10.5x [1396MHz])  VID: 0x9 (1.550V)
+> > Zero copy sendfile() does not require HW checksum to do zero copy, right?
 > 
-> Sure I *could* run that at 523MHz and still pump 1.550V into it,
-> but why would I want to do that ?
+> Wrong...
 > 
-> 		Dave
+> > If HW checksum is present, then you get some extra performance as a bonus.
 > 
-> [1] Unsure about the crusoe.
-> 
+> You get zerocopy, yes. :-) No HW cksum, no zerocopy.
 
-Crusoe changes frequency and voltages on the fly, transparently to the
-operating system.
+OK, but it should be easy to remove HW cksum as a condition to do zerocopy?
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+> 
+> Don't let this stop you, however. It's always possible that other networking
+> stacks will eventually make use of SG while not requiring HW TCP/UDP cksums.
+> None of them do right now, but...
+
+zerocopy without requiring HW cksums only OR could for instance the forwarding
+procdure also benefit from SG without  requiring HW cksums?
+
+> 
+> > (hmm, one could make SG mandatory and the devices that don't support it can 
+> > implement it in their driver. Just an idea)
+> 
+> Not really, that way lies driver madness. The less complexity in the driver,
+> the better.
+
+Just a wild idea, forget it. You are right
+   
+         Joakim
+> 
+> Ion
+> [starfire driver maintainer]

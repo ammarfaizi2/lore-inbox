@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUABALg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 19:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbUABALg
+	id S261784AbUABAJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 19:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUABAJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 19:11:36 -0500
-Received: from smtp.vnoc.murphx.net ([217.148.32.26]:65270 "HELO
-	smtp.vnoc.murphx.net") by vger.kernel.org with SMTP id S261931AbUABALd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 19:11:33 -0500
-Message-ID: <3FF4B75F.6070607@gadsdon.giointernet.co.uk>
-Date: Fri, 02 Jan 2004 00:12:15 +0000
-From: Robert Gadsdon <robert@gadsdon.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031215
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1-mm1 - ieee1394 broken again?
-References: <3FF2EFF3.6010001@gadsdon.giointernet.co.uk> <20031231115442.24df8501.akpm@osdl.org>
-In-Reply-To: <20031231115442.24df8501.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Thu, 1 Jan 2004 19:09:28 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:58788 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S261784AbUABAJ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 19:09:27 -0500
+Date: Fri, 2 Jan 2004 01:08:36 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Jackson <pj@sgi.com>, trond.myklebust@fys.uio.no,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] disable gcc warnings of sign/unsigned comparison
+Message-ID: <20040102000836.GC32477@louise.pinerecords.com>
+References: <20040101043333.186a3268.pj@sgi.com> <1072977297.1399.14.camel@nidelv.trondhjem.org> <20040101151516.236cb610.pj@sgi.com> <20040101153303.75d37307.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040101153303.75d37307.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks.  This fixed the problem.
+On Jan-01 2004, Thu, 15:33 -0800
+Andrew Morton <akpm@osdl.org> wrote:
 
-Andrew Morton wrote:
+> Paul Jackson <pj@sgi.com> wrote:
+> >
+> >  Right now, compiling a 2.6.0-mm1 (what I had handy) with the 3.3 gcc on
+> >  my Pentium system for arch i386 generates 1386 signed and unsigned
+> >  warnings
+> 
+> ugh, that is unacceptable.
+> 
+> Unless anyone has a better idea, yes, we should apply your patch.
 
-> 
-> 
-> aargh, sorry.  You need to revert
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1-rc1/2.6.1-rc1-mm1/broken-out/sysfs-add-vc-class.patch
-> 
-> This is the totally weird tty oops which Greg and I have been starting
-> at bemusedly for a few days.
-> 
-> 
-> 
+Hmm, this doesn't happen for me with gcc 3.3.2.  Paul, could you please
+send me your .config?  (Off-list, preferably.)
 
 -- 
-..................................
-Robert Gadsdon
-..................................
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284728AbRLEVHS>; Wed, 5 Dec 2001 16:07:18 -0500
+	id <S284726AbRLEVEI>; Wed, 5 Dec 2001 16:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284709AbRLEVGW>; Wed, 5 Dec 2001 16:06:22 -0500
-Received: from bitmover.com ([192.132.92.2]:31874 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S284741AbRLEVFt>;
-	Wed, 5 Dec 2001 16:05:49 -0500
-Date: Wed, 5 Dec 2001 13:05:47 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
-        Lars Brinkhoff <lars.spam@nocrew.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description [was Linux/Pro]
-Message-ID: <20011205130547.X11801@work.bitmover.com>
-Mail-Followup-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
-	Lars Brinkhoff <lars.spam@nocrew.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011205111115.T11801@work.bitmover.com> <2534997012.1007557344@mbligh.des.sequent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <2534997012.1007557344@mbligh.des.sequent.com>; from Martin.Bligh@us.ibm.com on Wed, Dec 05, 2001 at 01:02:24PM -0800
+	id <S284710AbRLEVD0>; Wed, 5 Dec 2001 16:03:26 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:17676 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S284727AbRLEVDE>;
+	Wed, 5 Dec 2001 16:03:04 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200112052102.WAA29674@nbd.it.uc3m.es>
+Subject: Re: Current NBD 'stuff'
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <Pine.LNX.4.10.10112051058140.17617-100000@clements.sc.steeleye.com>
+ "from Paul Clements at Dec 5, 2001 11:14:43 am"
+To: Paul.Clements@steeleye.com
+Date: Wed, 5 Dec 2001 22:02:56 +0100 (CET)
+Cc: Edward Muller <emuller@learningpatterns.com>, linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > What I am proposing is to cluster *OS* images on a *single* SMP as a way of
-> > avoiding most of the locks necessary to scale up a single OS image on the 
-> > same number of CPUs.
+"A month of sundays ago Paul Clements wrote:"
+> On 4 Dec 2001, Edward Muller wrote:
 > 
-> Which, to me, makes the whole thing much less interesting, since there aren't
-> SMP systems about that are really large that I know of anyway. Scaling to 
-> the size of current SMP systems is a much less difficult problem than scaling
-> to the size of NUMA systems.
+> A word of caution on this. I played around with ENBD (as well as some
+> others) about 6 months ago. I also did some performance testing with
+> the different drivers and user-level utilities. What I found was that
+> ENBD achieved only about 1/3 ~ 1/4 the throughput of NBD (even with
+> multiple replication paths and various block sizes). YMMV.
 
-We don't agree on any of these points.  Scaling to a 16 way SMP pretty much 
-ruins the source base, even when it is done by very careful people.
+It strikes me that possibly you were using the 2.2 kernel. My logic is
+that (1) nowadays kernels coalesce all requests into large lumps - limited
+only by the drivers wishes - before the driver gets them, (2) I don't
+think I ever managed to get req merging working in kernel 2.2, but now
+the kernel does it for free.  When nbd sets the limit as 256KB, it gets
+256KB sized requests to treat.  Did you see the req size distribution in
+my previous reply?  It was flat-out at the size limit every time.
 
-> The main advantage of starting with a single OS image, as I see it, is
-> that you have a system that works fine, but performs badly, from the
-> outset. 
+So whatever time is spent in the kernel or in userspace per req (possibly
+the context switch is still significant, but make the lumps bigger then
+..) is dwarfed by the time spent in kernel networking, making the lumps
+go out and come back from the net.  On 100BT we are talking about 1/4s in
+networking, per request. If we waste 10m/s over pavel in actual coding
+and context switches (ridiculous!) we lose only 4% in speed, not 75%!
 
-Hey, I can make one of those :-)
+So I think you could compile in visual basic and get no variance in
+speed at the client end, at least. That leaves the server net-to-disk
+time to contend with.
 
-Seriously, I went through this at SGI, that's exactly what they did, and it
-was a huge mistake and it never worked.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+I don't know about that end. But Enbd does not do anything different in
+principle from what kernel nbd does. It might well be slower because
+the code is heavily layered. I suspect that at that end transfers are
+done at the local disk blocksize, which may be small enough to make
+code differences noticable. But in general I find that Enbd goes
+either at the speed of the net or at the speed of the remote disk,
+whichever is slower.
+
+It also uses a trick when writing that usually results in exceeding the 
+cable bandwidth by a factor of two during raid resyncs over nbd.
+
+
+> I also looked at DRBD, which performed pretty well (comparable to NBD).
+> 
+> > But that's mostly because Pavel doesn't have much time at the moment for
+> > it AFAIK.
+
+Peter

@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263911AbTDNUXf (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263928AbTDNUXe (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:23:34 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:51369 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263911AbTDNUXc (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Apr 2003 16:23:32 -0400
-Date: Mon, 14 Apr 2003 13:33:54 -0500 (CDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Martin Hicks <mort@wildopensource.com>, <hpa@zytor.com>, <pavel@ucw.cz>,
-       <jes@wildopensource.com>, <linux-kernel@vger.kernel.org>,
-       <wildos@sgi.com>
-Subject: Re: [patch] printk subsystems
-In-Reply-To: <20030408161010.25de9e09.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.44.0304141325010.14087-100000@cherise>
+	id S263945AbTDNU2E (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbTDNU2D (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:28:03 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:21185 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263945AbTDNU2A (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:28:00 -0400
+Message-ID: <3E9B1C8E.5030707@nortelnetworks.com>
+Date: Mon, 14 Apr 2003 16:39:42 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped files question
+References: <002101c30239$fc0ae630$fe64a8c0@webserver> <8180000.1050330998@[10.10.2.4]> <20030414150759.GA14552@wind.cocodriloo.com> <11640000.1050332688@[10.10.2.4]> <b7etcd$s0n$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+H. Peter Anvin wrote:
+ > Followup to:  <11640000.1050332688@[10.10.2.4]> By author:    "Martin J.
+ > Bligh" <mbligh@aracnet.com> In newsgroup: linux.dev.kernel
+ >
+ >>> Martin, something which was not mentioned last week (I've just checked).
+ >>>
+ >>> It's OK if we never write to disk unless explicitely told, but will we
+ >>> writeback when we munmap?
 
-> I don't like the #define DEBUG approach.  It's useless for users; it's a
-> developer debug tool.  It won't allow some support staff to ask users to
-> enable module debugging (or subsystem debugging) and see what gets printed.
+ > munmap() and fsync() or msync() will flush it to disk; there is no reason
+ > munmap() should unless perhaps the file was opened O_SYNC.
 
-Agreed. Having a runtime-tweakable field would be very handy, and 
-something that's been requested many times over. 
+Wait a minute.  Shouldn't a file opened O_SYNC flush the writes as they happen,
+removing the requirement for any explicit syncing?  If it doesn't there are some 
+very broken apps around.
 
-> Martin, you are ahead of my schedule, but I was planning to use sysfs
-> to add a 'debug' flag/file that could be dynamically altered on a per-module
-> basis.
-
-Something I've pondered in the past is a per-subsystem (as in struct 
-subsystem) debug field and log buffer. When the subsystem is registered, a 
-sysfs 'debug' file is created, from which the user can set the noisiness 
-level. 
-
->From there, each subsystem can specify the size of a log buffer, which 
-would be allocated also when the subsystem is registered. Messages from 
-the subsystem, and kobjects belonging to it, would be copied into the 
-local log buffer. 
-
-Wrapper functions can be created, similar to the dev_* functions, which 
-take a kobject as the first parameter. From this, the subsystem and log 
-buffer, can be derived (or rather, passed to a lower-level helper). 
-
-This all falls under the 'gee-whiz-this-might-be-neat' category, and may
-inherently suck; I haven't tried it. Doing the core code is < 1 day's
-work, though there would be nothing that actually used it..
+Chris
 
 
-	-pat
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

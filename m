@@ -1,71 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265314AbUFHVD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265317AbUFHVI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265314AbUFHVD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 17:03:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbUFHVD0
+	id S265317AbUFHVI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 17:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265322AbUFHVIv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 17:03:26 -0400
-Received: from outmx004.isp.belgacom.be ([195.238.2.101]:39915 "EHLO
-	outmx004.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S265314AbUFHVCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 17:02:49 -0400
-Subject: [PATCH 2.6.7-rc3] nr_free_files ?
-From: FabF <fabian.frederick@skynet.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-HXJtszMg7w4gJDB3Hvvs"
-Message-Id: <1086728685.3865.3.camel@localhost.localdomain>
+	Tue, 8 Jun 2004 17:08:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45718 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265317AbUFHVIe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 17:08:34 -0400
+Date: Tue, 8 Jun 2004 14:11:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: arjanv@redhat.com, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] stop page_state stack waste
+Message-Id: <20040608141106.3c7c3c10.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0406082144070.9094-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0406082144070.9094-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 08 Jun 2004 23:04:45 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> Replace get_page_state (which memset most of full page_state to 0) by
+> get_main_page_state, which just sets the small structure needed.  This
+> helps 4k stacks not to overflow: cuts 224 bytes off try_to_free_pages
+> and wakeup_bdflush (and sync_inodes_sb) stack usages: wakeup_bdflush
+> doesn't do much, but is called by try_to_free_pages and mempool_alloc.
 
---=-HXJtszMg7w4gJDB3Hvvs
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Yeah, I was looking at that.  I simply did:
 
-Andrew,
 
-	Here's a patch removing nr_free_files.This one is unused in the whole
-tree + file-nr was tri-int exposed in /proc.This patch gives file-nr
-simple integer as file-max.Could you apply if this doesn't break
-historical features ?
 
-Regards,
-FabF
+The ____cacheline_aligned in there is a leftover from before the existence of
+the percpu infrastructure.  It bloats struct page_state and structures which
+contain it enormously, and we use these things on the stack deep in page
+reclaim.
 
---=-HXJtszMg7w4gJDB3Hvvs
-Content-Disposition: attachment; filename=filenr1.diff
-Content-Type: text/x-patch; name=filenr1.diff; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-diff -Naur orig/include/linux/fs.h edited/include/linux/fs.h
---- orig/include/linux/fs.h	2004-06-08 00:04:43.000000000 +0200
-+++ edited/include/linux/fs.h	2004-06-08 22:50:36.000000000 +0200
-@@ -49,7 +49,6 @@
- /* And dynamically-tunable limits and defaults: */
- struct files_stat_struct {
- 	int nr_files;		/* read only */
--	int nr_free_files;	/* read only */
- 	int max_files;		/* tunable */
- };
- extern struct files_stat_struct files_stat;
-diff -Naur orig/kernel/sysctl.c edited/kernel/sysctl.c
---- orig/kernel/sysctl.c	2004-06-08 00:04:44.000000000 +0200
-+++ edited/kernel/sysctl.c	2004-06-08 22:53:09.000000000 +0200
-@@ -822,8 +822,8 @@
- 	{
- 		.ctl_name	= FS_NRFILE,
- 		.procname	= "file-nr",
--		.data		= &files_stat,
--		.maxlen		= 3*sizeof(int),
-+		.data		= &files_stat.nr_files,
-+		.maxlen		= sizeof(int),
- 		.mode		= 0444,
- 		.proc_handler	= &proc_dointvec,
- 	},
+ 25-akpm/include/linux/page-flags.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
---=-HXJtszMg7w4gJDB3Hvvs--
+diff -puN include/linux/page-flags.h~unalign-page_state include/linux/page-flags.h
+--- 25/include/linux/page-flags.h~unalign-page_state	2004-06-08 03:08:02.766976760 -0700
++++ 25-akpm/include/linux/page-flags.h	2004-06-08 03:08:02.769976304 -0700
+@@ -133,7 +133,7 @@ struct page_state {
+ 	unsigned long allocstall;	/* direct reclaim calls */
+ 
+ 	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
+-} ____cacheline_aligned;
++};
+ 
+ DECLARE_PER_CPU(struct page_state, page_states);
+ 
+_
 

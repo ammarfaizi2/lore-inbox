@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266796AbTAIQeQ>; Thu, 9 Jan 2003 11:34:16 -0500
+	id <S266837AbTAIQjz>; Thu, 9 Jan 2003 11:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266806AbTAIQeQ>; Thu, 9 Jan 2003 11:34:16 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:33542 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266796AbTAIQeP>;
-	Thu, 9 Jan 2003 11:34:15 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301091639.h09GdMap002194@darkstar.example.net>
-Subject: Re: OT: Which Gigabit ethernet card?
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Thu, 9 Jan 2003 16:39:22 +0000 (GMT)
-Cc: lkml@filip.eu.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1030109111305.28217B-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Jan 09, 2003 11:15:19 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S266840AbTAIQjz>; Thu, 9 Jan 2003 11:39:55 -0500
+Received: from [63.162.183.250] ([63.162.183.250]:34625 "EHLO
+	emgw2ksrv001.emgdom001.emageon.com") by vger.kernel.org with ESMTP
+	id <S266837AbTAIQjy>; Thu, 9 Jan 2003 11:39:54 -0500
+Message-ID: <3E1DA7DB.4060604@emageon.com>
+Date: Thu, 09 Jan 2003 10:48:27 -0600
+From: Brian Tinsley <btinsley@emageon.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: =?ISO-8859-1?Q?Dieter_N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+CC: Russell Coker <russell@coker.com.au>, ReiserFS <reiserfs-list@namesys.com>,
+       Rik van Riel <riel@nl.linux.org>, Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: kswapd CPU usage and heavy disk IO
+References: <200301091431.54451.russell@coker.com.au> <3E1D9D10.40700@emageon.com> <200301091742.51101.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 09 Jan 2003 16:48:30.0750 (UTC) FILETIME=[F0B0F3E0:01C2B7FE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > I would hope a decent cable tester would test for effects at useful
-> > > frequency. The frequency of a battery is too low to reveal some problems.
-> > 
-> > "Frequency of a baterry"? What the hell is that? Baterry provides direct
-> > current, not alternating one... Tester provides it's own testing signals.
-> 
-> Clearly I need to add a smiley for the humour-impared.
-> 
-> The original post you clipped implied that all you needed was a pair of
-> RJ45 sockets and a battery, which would do continuity testing only.
+Dieter Nützel wrote:
 
-Which is exactly what was *required* - we were talking about
-identifying crossover and non-crossover cables, which is why I
-suggested the battery and LED in a spare wallplate solution, which
-works perfectly.
+>I think you should have cc'ed Andrea Arcangeli <andrea@suse.de>, LKM and try 
+>2.4.20-aa1.
+>
+I've got the -aa1 patch, but I have not been able to build the Linux 
+Virtual Server code with it yet. I absolutely depend on this and have a 
+request for assistance posted to that mailing list.
 
-:-)
+>Are you sure it is a ReiserFS and not a kernel thing?
+>
+I don't believe it's a reiserfs issue. That's just where this thread 
+started. IMHO, it's a kernel issue.
 
-John.
+>  
+>
+-- 
+
+-[========================]-
+-[      Brian Tinsley     ]-
+-[ Chief Systems Engineer ]-
+-[        Emageon         ]-
+-[========================]-
+
+
+
+

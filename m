@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262246AbTEUSSh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 14:18:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTEUSSh
+	id S262235AbTEUSDG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 14:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbTEUSDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 14:18:37 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:52373 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262246AbTEUSSg (ORCPT
+	Wed, 21 May 2003 14:03:06 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:14246 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262235AbTEUSDF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 14:18:36 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Wed, 21 May 2003 14:03:05 -0400
+Date: Wed, 21 May 2003 11:18:00 -0700
+From: Greg KH <greg@kroah.com>
+To: Duncan Sands <baldrick@wanadoo.fr>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/14] USB speedtouch update
+Message-ID: <20030521181800.GA1929@kroah.com>
+References: <200305210049.24619.baldrick@wanadoo.fr> <20030521020732.GA7939@kroah.com> <200305211024.38553.baldrick@wanadoo.fr>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16075.50697.683216.347529@napali.hpl.hp.com>
-Date: Wed, 21 May 2003 11:31:37 -0700
-To: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: [Linux-ia64] web page on O(1) scheduler
-In-Reply-To: <16075.8557.309002.866895@napali.hpl.hp.com>
-References: <16075.8557.309002.866895@napali.hpl.hp.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <200305211024.38553.baldrick@wanadoo.fr>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It has been pointed out that on the main web page
-(http://www.hpl.hp.com/research/linux/kernel/o1.php) it is very
-difficult to see that the section entitled "Some problems with the
-O(1) scheduler" contains links to the full problem descriptions (the
-links aren't underlined and the color looks almost black).
+On Wed, May 21, 2003 at 10:24:38AM +0200, Duncan Sands wrote:
+> > I've applied all of these to my tree, but I didn't apply the following
+> > to Linus's tree because they just didn't apply.  I tried to fix up a few
+> > by hand, and got some of them to work, but eventually gave up on the
+> > rest.  So here's a list of the ones that didn't go into Linus's tree:
+> > 	USB speedtouch: use optimally sized reconstruction buffers
+> > 	USB speedtouch: send path micro optimizations
+> > 	USB speedtouch: kfree_skb -> dev_kfree_skb
+> > 	USB speedtouch: receive code rewrite
+> >
+> > Also this one didn't go into Linus's tree, as it's already there:
+> > 	USB speedtouch: remove MOD_XXX_USE_COUNT
+> >
+> > So, any patches against Linus's latest bk tree to bring the above into
+> > sync would be appreciated.
+> 
+> I think the problem is that you forgot to apply this one to Linus's tree:
+> 
+> [PATCH 02/14] USB speedtouch: trivial whitespace and name changes
 
-So, in case you missed that, please do click on those links to get the
-full description.
+Bleah, you're right.  I'll fix this up and push the remaining fixes to
+Linus.
 
-I'll see what we can do to improve the layout of the page.
+Thanks for figuring this out, and sorry for messing it up.
 
-Thanks,
-
-	--david
-
+greg k-h

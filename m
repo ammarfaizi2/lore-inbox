@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUKTTcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263168AbUKTTdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbUKTTcf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 14:32:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbUKTTcf
+	id S263168AbUKTTdx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 14:33:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbUKTTdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 14:32:35 -0500
-Received: from umail.ru ([195.34.32.101]:2760 "EHLO umail.ru")
-	by vger.kernel.org with ESMTP id S263163AbUKTTcd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 14:32:33 -0500
-From: "Nikita V. Youshchenko" <yoush@cs.msu.su>
-To: linux-kernel@vger.kernel.org
-Subject: Strange in_atomic() definition in include/linux/hardirq.h
-Date: Sat, 20 Nov 2004 22:32:11 +0300
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Sat, 20 Nov 2004 14:33:53 -0500
+Received: from holomorphy.com ([207.189.100.168]:39304 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263165AbUKTTdk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Nov 2004 14:33:40 -0500
+Date: Sat, 20 Nov 2004 11:33:25 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       clameter@sgi.com, benh@kernel.crashing.org, hugh@veritas.com,
+       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V11 [0/7]: overview
+Message-ID: <20041120193325.GZ2714@holomorphy.com>
+References: <20041120053802.GL2714@holomorphy.com> <419EDB21.3070707@yahoo.com.au> <20041120062341.GM2714@holomorphy.com> <419EE911.20205@yahoo.com.au> <20041119225701.0279f846.akpm@osdl.org> <419EEE7F.3070509@yahoo.com.au> <1834180000.1100969975@[10.10.2.4]> <Pine.LNX.4.58.0411200911540.20993@ppc970.osdl.org> <20041120190818.GX2714@holomorphy.com> <Pine.LNX.4.58.0411201112200.20993@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200411202232.33431@sercond.localdomain>
+In-Reply-To: <Pine.LNX.4.58.0411201112200.20993@ppc970.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, 20 Nov 2004, William Lee Irwin III wrote:
+>> "The perfect is the enemy of the good."
 
-Hello.
+On Sat, Nov 20, 2004 at 11:16:12AM -0800, Linus Torvalds wrote:
+> Yes. But in this case, my suggestion _is_ the good. You seem to be pushing 
+> for a really horrid thing which allocates a per-cpu array for each 
+> mm_struct. 
+> What is it that you have against the per-thread rss? We already have 
+> several places that do the thread-looping, so it's not like "you can't do 
+> that" is a valid argument.
 
-In linux 2.6.9, in include/linux/hardirq.h, if CONFIG_PREEMPT is set, 
-isw_atomic() is defines as
+Okay, first thread groups can share mm's, so it's worse than iterating
+over a thread group. Second, the long loops under tasklist_lock didn't
+stop causing rwlock starvation because what patches there were to do
+something about them didn't get merged.
 
-#define in_atomic() 
- ((preempt_count() & ~PREEMPT_ACTIVE) != kernel_locked())
+I'm not particularly "stuck on" the per-cpu business, it was merely the
+most obvious method of splitting the RSS counter without catastrophes
+elsewhere. Robin Holt's 2.4 performance studies actually show that
+splitting the counter is not even essential.
 
-preempt_count (after PREEMPT_ACTIVE is cleared out) looks to be an integer 
-counter, increased in preempt_disable() and increased in preempt_enable().
 
-kernel_locked() is defined in include/linux/smp_lock.h as
-#define kernel_locked()  (current->lock_depth >= 0)
-
-So in in_atomic() definition, integer counter is compared with boolean 
-value. Looks like a bug.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBn5vOv3x5OskTLdsRAkr1AJ9lqX/U58rahDFAP7v9dIf30ZzPSACfcU4u
-4JzBcBAuqdrghmgeRnWfBds=
-=E9Hd
------END PGP SIGNATURE-----
+-- wli

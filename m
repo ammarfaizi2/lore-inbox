@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287040AbSAGVFC>; Mon, 7 Jan 2002 16:05:02 -0500
+	id <S287045AbSAGVHC>; Mon, 7 Jan 2002 16:07:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287045AbSAGVEn>; Mon, 7 Jan 2002 16:04:43 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:21435 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S287040AbSAGVEj>; Mon, 7 Jan 2002 16:04:39 -0500
-Message-ID: <3C3A0EB0.24F9F1C9@nortelnetworks.com>
-Date: Mon, 07 Jan 2002 16:10:08 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
+	id <S287051AbSAGVGw>; Mon, 7 Jan 2002 16:06:52 -0500
+Received: from net128-053.mclink.it ([195.110.128.53]:2513 "EHLO
+	mail.mclink.it") by vger.kernel.org with ESMTP id <S287045AbSAGVGl>;
+	Mon, 7 Jan 2002 16:06:41 -0500
+Message-ID: <3C3A0E04.9020909@arpacoop.it>
+Date: Mon, 07 Jan 2002 22:07:16 +0100
+From: Carl Scarfoglio <scarfoglio@arpacoop.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020105
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Georgi Chorbadzhiyski <gf@top.bg>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: LKML signal to noise ratio-- improvement
-In-Reply-To: <HBEHIIBBKKNOBLMPKCBBKEKPEEAA.znmeb@aracnet.com> <1010428317.1441.38.camel@keller> <3C3A072E.2060304@top.bg>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.2-pre9 - HD performance degradation
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Georgi Chorbadzhiyski wrote:
-> 
-> Georg Nikodym wrote:
-> 
-> > On Tue, 2001-12-25 at 22:13, M. Edward Borasky wrote:
-> >
-> >
-> >>necessary. Still, the biggest improvement I'd like to see on LKML is a
-> >>usable search engine / archive.
-> >>
-> >
-> > Uh... groups.google.com fills this need quite nicely.
-> >
-> > Specifically, try: http://groups.google.com/groups?group=linux.kernel
-> 
-> Umm that would be: http://groups.google.com/groups?group=fa.linux.kernel
-> :)
+I ran hdparm -t on my disks and discovered an abysmal drop in hard disk 
+performance since 2.5.2-pre1. Yesterday I ran fsck on all disks and it 
+took more than three times as much to complete under 2.5.2-pre9 than 
+usual. I am running SuSE 6.3, MB is Asus A7v, controller ATA 33 + 
+Promise PDC 20265.
+These are the results for a disk, (ATA 100 IBM 307030),for the other 
+disks they are pretty the same.
+Resuslts for "hdpam -t /dev/hdg"
+Kernel 2.5.2-pre1 - 35 MB/sec
+Kernel 2.5.2-pre4 - 15 MB/sec
+Kernel 2.5.2-pre9 - 10 MB/sec
+For the rest, it seems pretty stable, but I still get kernel panic on 
+cold boots from the AHA 2904 (AIC7850).
+Cheers,
+		Carlo Scarfoglio
 
-Did you try the link?  It works.  There are multiple newsgroups on the list, 
-you can also use:
-
-http://groups.google.com/groups?group=mlist.linux.kernel
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

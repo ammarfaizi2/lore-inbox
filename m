@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbSKRO0x>; Mon, 18 Nov 2002 09:26:53 -0500
+	id <S262712AbSKROcO>; Mon, 18 Nov 2002 09:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261613AbSKRO0x>; Mon, 18 Nov 2002 09:26:53 -0500
-Received: from maile.telia.com ([194.22.190.16]:21739 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S261456AbSKRO0w>;
-	Mon, 18 Nov 2002 09:26:52 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Mon, 18 Nov 2002 15:33:38 +0100
-From: Christian Axelsson <smiler@lanil.mine.nu>
-To: dillowd@y12.doe.gov
+	id <S262730AbSKROcO>; Mon, 18 Nov 2002 09:32:14 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46035 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262712AbSKROcM>; Mon, 18 Nov 2002 09:32:12 -0500
+Date: Mon, 18 Nov 2002 15:39:09 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Rusty Russell <rusty@rustcorp.com.au>, greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Status of 3Com 3CR990 driver
-Message-Id: <20021118153338.3e93f0b8.smiler@lanil.mine.nu>
-Organization: LANIL
-X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
+Subject: [2.5 patch] fix compile error in usb-serial.c
+Message-ID: <20021118143909.GG11952@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="7qShTUIbs2H4=.m+"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---7qShTUIbs2H4=.m+
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+drivers/usb/serial/usb-serial.c in 2.5.48 fails to compile with the
+following error:
 
-I couple of weeks ago I read a post from David Dillow about drivers for the
-3CR990 NICs
-(http://www.3com.com/products/en_US/detail.jsp?tab=features&pathtype=purchase&s
-ku=3CR990-TX-95).
-Now I wonder how work is progressing as I've got a hand of one of these cards
-for free :)
+<--  snip  -->
 
-The current drivers from 3com (download at
-http://support.3com.com/infodeli/tools/nic/linux/3c990-24-1.0.0a.tar.gz) compile
-but doesn't load, it only spits out:
-Nov 18 14:51:58 sm-wks1 3Com  3c990.c  v1.0.0b  10/2000
-Nov 18 14:52:03 sm-wks1 3c990: There appear to be inadequate resources at this
-time and on this machine for this driver.  Killing further initialization.
+...
+  gcc -Wp,-MD,drivers/usb/serial/.usb-serial.o.d -D__KERNEL__ -Iinclude
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
+-Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=usb_serial
+-DKBUILD_MODNAME=usbserial   -c -o drivers/usb/serial/usb-serial.o
+drivers/usb/serial/usb-serial.c
+drivers/usb/serial/usb-serial.c: In function `serial_read_proc':
+drivers/usb/serial/usb-serial.c:842: dereferencing pointer to incompletetype
+make[3]: *** [drivers/usb/serial/usb-serial.o] Error 1
 
-If there will be a 2.4 backport of the driver David is writing, I'll be happy to
-beta-test it for him :)
+<--  snip  -->
 
---
-Christan Axelsson
-smiler@lanil.mine.nu
 
---7qShTUIbs2H4=.m+
-Content-Type: application/pgp-signature
+Is the following patch correct?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQE92PpOyqbmAWw8VdkRAqL4AKDBkRxfGV9O0jG2IhBUy8lUV62IlACgoFk0
-2h2lsqxQBRlF7KNW30dgBQg=
-=1X+B
------END PGP SIGNATURE-----
+--- linux-2.5.48/drivers/usb/serial/usb-serial.c.old	2002-11-18 15:16:57.000000000 +0100
++++ linux-2.5.48/drivers/usb/serial/usb-serial.c	2002-11-18 15:24:39.000000000 +0100
+@@ -839,7 +839,7 @@
+ 
+ 		length += sprintf (page+length, "%d:", i);
+ 		if (serial->type->owner)
+-			length += sprintf (page+length, " module:%s", serial->type->owner->name);
++			length += sprintf (page+length, " module:%s", module_name(serial->type->owner));
+ 		length += sprintf (page+length, " name:\"%s\"", serial->type->name);
+ 		length += sprintf (page+length, " vendor:%04x product:%04x", serial->vendor, serial->product);
+ 		length += sprintf (page+length, " num_ports:%d", serial->num_ports);
 
---7qShTUIbs2H4=.m+--
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+

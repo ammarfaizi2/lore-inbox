@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291161AbSBSLEE>; Tue, 19 Feb 2002 06:04:04 -0500
+	id <S291171AbSBSLDo>; Tue, 19 Feb 2002 06:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291162AbSBSLDy>; Tue, 19 Feb 2002 06:03:54 -0500
-Received: from insgate.stack.nl ([131.155.140.2]:18447 "HELO skynet.stack.nl")
-	by vger.kernel.org with SMTP id <S291161AbSBSLDm>;
-	Tue, 19 Feb 2002 06:03:42 -0500
-Date: Tue, 19 Feb 2002 12:03:39 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: VFS issues (was: Re: 2.5.5-pre1: mounting NTFS partitions -t
- VFAT)
-In-Reply-To: <200202191025.g1JAPMm11153@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <20020219115519.C97916-100000@snail.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291162AbSBSLDf>; Tue, 19 Feb 2002 06:03:35 -0500
+Received: from mta07-svc.ntlworld.com ([62.253.162.47]:921 "EHLO
+	mta07-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S291161AbSBSLDY>; Tue, 19 Feb 2002 06:03:24 -0500
+Subject: Re: Q: use of new modules in old kernel
+From: NyQuist <NyQuist@ntlworld.com>
+To: Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020219090253.CD89D67ED@penelope.materna.de>
+In-Reply-To: <20020219090253.CD89D67ED@penelope.materna.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 19 Feb 2002 10:53:57 +0000
+Message-Id: <1014116037.2019.7.camel@stinky.pussy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Feb 2002, Denis Vlasenko wrote:
+On Tue, 2002-02-19 at 09:02, Tobias Wollgam wrote:
+> Hi,
+> 
+> how is it possible to use modules of newer kernels in an old kernel 
+> system?
+> 
+> To use new drivers, we want not recompile the kernel.
+> 
+> I tried to load the module 8139too from 2.4.17 into a 2.4.9 kernel with 
+> modprobe, but there are many unresolved symbols. 
+> 
+> The flag "Set version information on all module symbols" is set.
+> 
+> TIA for all information, hyperlinks are welcome too,
+> 
+> 	Tobias
+> 
 
-> > The type of a partition is written in the partition table, or something
-> > similar. Maybe we should check that ?
->
-> Partition type isn't available to fs driver. Think about mounting
-> floppy/loopback/etc.
+<short version>
+What worked for me (see later), is moving the newer module and
+appropriate includes across to the older kernel and performing a make
+modules && make modules_install. 
 
-True. I never use floppys anymore :)
-
-> Seems you guys are discussing non-problem here. What really needs to be done
-> is to add more sanity checks to FAT superblock detection/validation code:
-> * signatures like 55AA at end of 1st sector
-> * sane values for various superblock data (if you see "FAT copies: 146"
->   it is more than enough to tell it's not a FAT, right?)
->
-> If anyone feels so inclined, please go to fs/fat/inode.c:fat_read_super()
-> and hack on it. Send your patches to Alexander Viro <viro@math.psu.edu>
-> and tighten your seatbelt ;-)
-
-Will hack tonight and see if my seatbelt is strong enough :) It has never
-been used before, so maybe...
-
-Jos
+<long version>
+This worked for me when using a patched nm256_audio and ac97 module to
+get my sound working. I couldn't get the patch to apply properly to the
+whole kernel, so I nicked those files I knew were needed and moved them
+over to a clean kernel. hope this helps, and yeh, I've got no idea if
+this will work for you. I would first try copying the 8139too.c from
+drivers/net to the 2.4.9 kernel, and if you've already setup your config
+you should just be able to make modules and then insmod (with luck).
+> -- 
+> Tobias Wollgam * Softwaredevelopment * Business Unit Information 
+> MATERNA GmbH Information & Communications
+> Vosskuhle 37 * 44141 Dortmund  
+> http://www.materna.de
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+NyQuist | Matthew Hall -- NyQuist at ntlworld dot com 
+Sig: Microsoft sells you Windows. Linux gives you the whole house.
 

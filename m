@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVCIXFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVCIXOB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbVCIXFV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:05:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbVCIWys
+	id S262425AbVCIXOB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:14:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVCIXNV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 17:54:48 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:50056 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262503AbVCIV6D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:58:03 -0500
-From: Kristian =?utf-8?q?S=C3=B8rensen?= <ks@cs.aau.dk>
-Organization: Aalborg University
-To: Bob Bennett <robert.bennett@ca.com>
-Subject: Re: Reading large /proc entry from kernel module
-Date: Wed, 9 Mar 2005 22:59:13 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200503081445.56237.ks@cs.aau.dk> <loom.20050309T161017-339@post.gmane.org>
-In-Reply-To: <loom.20050309T161017-339@post.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Wed, 9 Mar 2005 18:13:21 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11023 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262526AbVCIWtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:49:42 -0500
+Date: Wed, 9 Mar 2005 22:49:35 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andi Kleen <ak@muc.de>
+Cc: Chris Wright <chrisw@osdl.org>, Greg KH <greg@kroah.com>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] -stable, how it's going to work.
+Message-ID: <20050309224935.K25398@flint.arm.linux.org.uk>
+Mail-Followup-To: Andi Kleen <ak@muc.de>, Chris Wright <chrisw@osdl.org>,
+	Greg KH <greg@kroah.com>, torvalds@osdl.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <20050309182822.GU5389@shell0.pdx.osdl.net> <20050309194401.GD17918@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200503092259.14063.ks@cs.aau.dk>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050309194401.GD17918@muc.de>; from ak@muc.de on Wed, Mar 09, 2005 at 08:44:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 March 2005 16:17, Bob Bennett wrote:
-> Kristian Sørensen <ks <at> cs.aau.dk> writes:
-> > Hi all!
-> >
-> > I have some trouble reading a 2346 byte /proc entry from our Umbrella
-> > kernel module.
-> >
-> > 	if (count != UMB_POLICY_SIZE) {
-> > 		printk("Umbrella: Error - /proc/umbrella is of invalid size\n");
-> > 		return -EFAULT;
-> >
-> > 	if (copy_from_user(lbuf, buffer, count)) {
-> > 		kfree(lbuf);
-> > 		kfree(policy);
-> > 		return -EFAULT;
-> > 	}
-> >
-> > 	strcpy(policy, lbuf);
-> > 	umb_parse_proc(policy);
-> >
-> > }
-> >
-> >
-> > Now that everything works, I want to write a string of excactly 2346
-> > characters to the /proc/umbrella file. However when I make the
-> > copy_from_user, I only get the first 1003 characters (
-> > - Do you have a pointer to where I do this thing wrong?
-> >
-> > What is the limit regarding the size of writing a /proc entry? (we
-> > consider importing binary public keys to the kernel this way in the
-> > future).
-> >
-> > Best regards,
-> > Kristian.
->
-> What makes you think you only have 1003 bytes?  If UMB_POLICY_SIZE is
-> defined as 2346, then user space must have written that amount.  Probably
-> the problem is that you used strcpy() to copy the data from lbuf to policy,
-> and there is a null character after 1003 bytes.  It is an unnecessary extra
-> step to allocate two buffers (lbuf & policy) and copy data from one to the
-> other.  Why not just pass lbuff to umb_parse_proc()??
-You are right - that does not make sense having both the buffers :-)))
+On Wed, Mar 09, 2005 at 08:44:01PM +0100, Andi Kleen wrote:
+> But it risks code drift like we had in 2.4 with older kernels 
+> having more fixes than the newer kernel. And that way lies madness.
 
-The input that I write to the /proc/umbrella file is stored in a file in 
-usermode Linux... Can the '\0' be hidden somewhere in the text file - even 
-though everything looks normal in the vi editor?
+I believe it's going to work like this:
 
-Thanks for your answer!
+* simple fixes are submitted to Linus and -stable, and are appropriately
+  merged.
+* complex "correct" fixes too large for -stable are submitted to Linus,
+  with a simplified version for -stable.
 
-Cheers, Kristian.
+When the next Linus kernel is released, anything in the previous -stable
+series is effectively discarded, and the next -stable series is produced
+from the new release point.
+
+Obviously, the -stable sucker can continue with his existing -stable
+series if he so wishes, but I would expect that any fixes in, eg,
+2.6.11.x would not be propagated by the -stable sucker to 2.6.12.x.
+
+This may be a good thing - it encourages people to get the fixes into
+the Linus tree, thereby keeping the code drift to a minimum.  Any
+drift would only exist for one of these -stable branches, which may
+only survive for maybe one Linus kernel release cycle.
 
 -- 
-Kristian Sørensen
-E-mail: ipqw@users.sf.net
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

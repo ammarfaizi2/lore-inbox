@@ -1,91 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312737AbSCZVUM>; Tue, 26 Mar 2002 16:20:12 -0500
+	id <S312498AbSCZVaf>; Tue, 26 Mar 2002 16:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312738AbSCZVUA>; Tue, 26 Mar 2002 16:20:00 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:32517 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S312737AbSCZVTf>; Tue, 26 Mar 2002 16:19:35 -0500
-Date: Tue, 26 Mar 2002 22:19:32 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: <puw@cola.teststation.com>
-To: Ivan Gurdiev <ivangurdiev@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Via-Rhine stalls - transmit errors
-In-Reply-To: <20020326015223.69972.qmail@web10104.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33.0203262143110.10843-100000@cola.teststation.com>
+	id <S312739AbSCZVaZ>; Tue, 26 Mar 2002 16:30:25 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:27918 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S312498AbSCZVaV>;
+	Tue, 26 Mar 2002 16:30:21 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Malcolm Mallardi <magamo@ranka.2y.net>
+Date: Tue, 26 Mar 2002 22:27:36 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: 2.4.19-pre4-ac1 vmware and emu10k1 problems
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <9871A86516@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Mar 2002, Ivan Gurdiev wrote:
+On 26 Mar 02 at 16:06, Malcolm Mallardi wrote:
+> The vmware modules will not compile properly under 2.4.19-pre4-ac1, or
+> under 2.4.19-pre2-ac2, but compile fine on their mainline kernel
+> counterparts.  Here is the errors that I get from vmware-config.pl:
 
-> tried that one...it seemed to fix transmit when
-> initiated from my desktop computer, but it freezes
-> everything when I initiate the transmit in the same
-> direction from the laptop. 
+> /lib/modules/2.4.19-pre4-ac1/build/include/linux/malloc.h:4: #error
 
-Ok, that's bad but still not so bad. It could be a locking problem in the
-via driver but that is fixable you just need to find out where it hangs 
-and then guess why :)
+As always... If you are using VMware3.0, get
+ftp://platan.vc.cvut.cz/pub/vmware/vmware-ws-1455-update12.tar.gz.
 
-(sysrq to get stacktraces and run through ksymoops, or kernel debugger or
- some deadlock detection thing, if no one gives you more specific
- directions search for ikd)
-
-
-> This one won't compile. Lots of errors.
-> Entire include files are missing.
-
-You need to follow the instructions on those pages, there are some
-additional header files for backwards compatibility. I don't know if it
-compiles under 2.4 but I think the idea is that it should.
-
-
-> I do, the erorrs are correct. However for some of
-> those errors you can't even get the "something wicked"
-> message the way that the code is written.
-> Other errors are handled elsewhere. The whole
-> thing is complicated and may cause redundancies 
-> and problems. Error handling needs improvement.
-
-I believe the "something wicked" is for an error/uncommon event that isn't
-handled and so the known events are filtered out. If you get a IntrTxAbort
-by itself then a message isn't printed, but if you get a IntrTxAbort and
-IntrTxDone you get some output (000a).
-
-If you look at the via code or the parts I copied from it, then yes errors
-are handled both in the error and the tx parts of the interrupt handler.
-The reason for that is that some handling is done for error bits set in
-the descriptor word and the others are based on the interrupt bits.
-
-Perhaps those aren't the redundancies you mean.
-
-
-> > There were ideas on changed meaning
-> > of an interrupt bit (0x0200) and the "fix" for that 
-> > is probably causing
-> >this.
-> 
-> Isn't this your patch?
-
-Yes? I don't understand that question to that statement.
-
-People around me (in a virtual sense) had ideas that the newer datasheets
-described a different function for that bit. When fixing that it seems
-like the older chips weren't too happy. But the goal of that patch was to
-try and fix the "Dragon+" errors so it wasn't tested on older chips.
-
-
-> Where's IntrRxEarly? IntrRxNoBuf? IntrRxWakeUp?
-> IntrTxAborted? .... I added those to my version.
-
-I don't know. Possibly those flags are never set without also setting
-another flag, like IntrRxErr, and the driver doesn't want to do anything
-special on a "IntrRxNoBuf" error anyway. I see no harm in adding them.
-
-Maybe ask Donald Becker why he didn't when he wrote that code?
-
-/Urban
+If you are using VMware2.0, you can try
+ftp://platan.vc.cvut.cz/pub/vmware/vmware-ws-1142-update1.tar.gz,
+but please note that I'll not create any further VMware 2.0 patches,
+so if you plan using VMware 2.0 on 2.5.x kernels, you can either
+create patch yourself, or upgrade to VMware3, and also that this
+patch is completely untested, as it does not compile under 2.5.7
+at all ;-)
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
 

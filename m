@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUHFNuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUHFNwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbUHFNuk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 09:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUHFNuk
+	id S267678AbUHFNwR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 09:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267524AbUHFNwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 09:50:40 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:23455 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S265944AbUHFNui
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 09:50:38 -0400
-Message-ID: <41138C67.7040306@rtr.ca>
-Date: Fri, 06 Aug 2004 09:49:27 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Jakma <paul@clubi.ie>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata: dma, io error messages
-References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org> <1091795565.16307.14.camel@localhost.localdomain>
-In-Reply-To: <1091795565.16307.14.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 6 Aug 2004 09:52:17 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:33476 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S265946AbUHFNwK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 09:52:10 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Altix I/O code reorganization 
+In-reply-to: Your message of "Fri, 06 Aug 2004 14:18:36 +0100."
+             <20040806141836.A9854@infradead.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 06 Aug 2004 23:51:54 +1000
+Message-ID: <8831.1091800314@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Also, the drive is extremely slow now, about 1MB/s drive transfer 
->>rate as reported by hdparm -T. 
-> 
-> Sounds like it dropped to PIO - that may be a bug triggered by the drive
-> failing.
+On Fri, 6 Aug 2004 14:18:36 +0100, 
+Christoph Hellwig <hch@infradead.org> wrote:
+>008-kdb-support-funtions:
+>  kdb isn't in mainline, please add the two files to the kdb patch instead
 
-That should read "hdparm -t", not "-T", right?
+No.  We have had this discussion before - kdb is an extensible
+debugger.  Subsystems can add their own kdb commands to decode their
+own data.  Those extensions to kdb belong in the subsystem code, not in
+the main kdb patch.
 
-And the slowness is most likely due to the error recovery
-(retries) in the drive and/or driver, which cause the
-overall throughput to plummet for the measurement interval.
-
-Cheers
--- 
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")

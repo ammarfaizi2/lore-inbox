@@ -1,162 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPUA1>; Thu, 16 Nov 2000 15:00:27 -0500
+	id <S129076AbQKPUB1>; Thu, 16 Nov 2000 15:01:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129076AbQKPUAR>; Thu, 16 Nov 2000 15:00:17 -0500
-Received: from slc725.modem.xmission.com ([166.70.7.217]:20489 "EHLO
+	id <S131406AbQKPUBR>; Thu, 16 Nov 2000 15:01:17 -0500
+Received: from slc725.modem.xmission.com ([166.70.7.217]:22537 "EHLO
 	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129069AbQKPUAG>; Thu, 16 Nov 2000 15:00:06 -0500
-To: Werner Almesberger <Werner.Almesberger@epfl.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Q: Linux rebooting directly into linux.
-In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001111171158.B17692@progenylinux.com> <m1bsvmcb4z.fsf@frodo.biederman.org> <20001114154953.E8753@almesberger.net>
+	id <S129076AbQKPUBM>; Thu, 16 Nov 2000 15:01:12 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+        Tigran Aivazian <tigran@veritas.com>,
+        "H. Peter Anvin" <hpa@transmeta.com>, Max Inux <maxinux@bigfoot.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: bzImage ~ 900K with i386 test11-pre2
+In-Reply-To: <Pine.LNX.4.21.0011111644110.1036-100000@saturn.homenet> <m1ofzmcne5.fsf@frodo.biederman.org> <20001112122910.A2366@athlon.random> <m1k8a9badf.fsf@frodo.biederman.org> <20001112163705.A4933@athlon.random> <m1bsvlauic.fsf@frodo.biederman.org> <20001112203353.A13289@gruyere.muc.suse.de>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 16 Nov 2000 10:33:07 -0700
-In-Reply-To: Werner Almesberger's message of "Tue, 14 Nov 2000 15:49:53 +0100"
-Message-ID: <m1vgtn7rfw.fsf@frodo.biederman.org>
+Date: 16 Nov 2000 10:43:05 -0700
+In-Reply-To: Andi Kleen's message of "Sun, 12 Nov 2000 20:33:53 +0100"
+Message-ID: <m1snor7qza.fsf@frodo.biederman.org>
 User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <Werner.Almesberger@epfl.ch> writes:
+Andi Kleen <ak@suse.de> writes:
 
-> Eric W. Biederman wrote:
-> > There are a couple of differences.  
-> > But the big one is I'm trying to do it right.
+> [This is quite a bizarre discussion, but I'll answer anyways. I am not exactly
+> sure what your point is]
+
+Let me step aside a second and explain where I'm coming from.  As a spin
+off of the work of the linuxBIOS project I have implemented a system
+call that implements exec functionality at the kernel level.  Essentially
+allowing you to warm boot linux from linux.  To get this to work no
+bios calls are involved, so I'm not using setup.S.  This also has the 
+interesting side effect of allowing a boot loader to be written that
+will work on all linux platforms.  (I have currently just begun my
+port to alpha).
+
+In the process of the above I have learned quite a bit about how
+the current boot loader works.  And want eventually to convert linux
+to not need wrapper code to use my bootloader.
+
+Booting vmlinux is fun :)
+ 
+> On Sun, Nov 12, 2000 at 11:57:15AM -0700, Eric W. Biederman wrote:
+> > 
+> > > > I can tell you don't have real hardware.  The non obviousness
+> > 
+> > I need to retract this a bit.  You are still building a compressed image,
+> > and the code in the boot/compressed/head.S remains unchanged and loads
+> > segment registers, so it works by luck.  If you didn't build a
+> > compressed image you would be in trouble.
 > 
-> So why do you need a file-based interface then ? ;-)
-
-When possible it is nice to set as much policy as possible,
-without removing functionality.
-
-> Since this is a highly privileged operation anyway, you may as
-> well trust user space to use the right data format ...
-
-Hmm. I hadn't thought of it from that angle.
-I don't think I have much code tied up in format checks
-so I'm not too worried.  If something goes wrong it is simple
-a question of where it will crash.  Doing some checking simply
-allows for better debugging of problems :)
-
-One thing I'm going to have to consider though is if the memory
-regions that the new kernel is going into are actually memory.  The
-pro argument is that checking for reserved areas of memory catches
-changes to an architecture that were unexpected.  The recent issues
-with the extended BIOS area growing are a good example of this.
-
-
-> I get the impression that you incur quite a lot of overhead just
-> to make it fit with the exec interface. I agree that it's
-> conceptually nice, and it looks cleanly done, but I don't quite
-> see the practical value. (Except, perhaps, that this allowed you
-> to pick the rather cute name "kexec" ;-)
-
-Well there is that.  Somehow implementing scatter/gather from 
-a user space process seemed like a potential mess, and extra work.
-
-In part I am starting with a network boot loader, so building
-a file format that works was needed anyway.  As far as overhead my
-impression is that there is none in speed, and only one or two extra
-ones functions in space. 
-
-> > Additionally mine is the only one that has a real chance of booting
-> > a non-linux kernel.
+> boot/compressed/head.S does run in 32bit legacy mode, where you of course
+> need segment registers. After you got into long mode segments are only
+> needed to jump between 32/64bit code segments and and for a the data segment
+> of the 32bit emulation (+ the iretd bug currently which I hope will be fixed
+> in final hardware) 
 > 
-> Hmm, I think all approaches could boot a non-Linux kernel, but ...
-bootimg is close.
+> Also note that boot/compressed/* currently does not even link, because the 
+> x86-64 toolchain cannot generate relocated 32bit code ATM (the linker chokes
+> on the 32bit relocations) The tests we did so far used a precompiled 
+> relocated binary compressed/{head,misc}.o from a IA32 build.
+...
 
-I was thinking a couple of directions here.
-- Mine is the only interface that can boot a non-Linux kernel
-  natively.  Bootimg doesn't count because it doesn't do anything
-  natively :)
-
-In particular every other boot loader passes the nasty empty zero page
-to the new kernel.  Definitely requiring a chain loader.
-
-With an OS neutral format, cataloging the non-probable hardware
-details, and providing those details in an extensible format, I gain a lot 
-in easy extensibility.
-
-I need to find time soon and write up all of the file format details
-in an RFC like the GRUB multiboot spec.  Possibly even submit it
-to the IETF as an RFC for compatible booting and multiple platforms.
-
-And this raises an important point.  Lazy programmers tend to go
-with whatever is easiest.  Having a good file format, making this
-the easy case, should reduce the number of formats supported
-and increase boot interoperability.  Most of what was said
-on this score with GRUB I agree with.  I would even be following
-the GRUB multiboot spec except it doesn't allow passing of the
-unprobeable hardware details and it doesn't allow easy expansion of
-what it does pass.  This is the big reason I'm not in favor
-of the bootimg approach, that doesn't define anything.
-
-
-> As far as loading is concerned, bootimg probably has an advantage
-> there, because you can put things together in memory (e.g. some
-> OS-specific chain loader), without going to secondary storage.
-
-Well with ramfs is hardly secondary storage, though it has
-a touch more overhead.  And you only need to do this for the
-non common case.  Getting images to adapt to a specific bootloader
-isn't to hard.  Every other boot loader in the world does it.
-
-> (Proof of concept: bootimg is able to load all currently supported
-> kernel image formats on ia32.)
-
-I do conceded that bootimg has this ability as well in theory.
-
-I actually have booted multiboot compliant images in an earlier
-version of my patch and the cost to support both formats in a kernel
-loader is negligible.  My mkelfImage builds linux kernels that
-support being booted both ways.
-
-> As far as execution is concerned, you're probably slightly better
-> off with an approach that goes back to real mode. (Or use a chain
-> loader - this can be transparent to the kernel.) But then, I'm not
-> sure if you can re-animate the BIOS in any consistent way, so your
-> choice of operating systems may be quite limited, or you have to
-> provide your own BIOS substitute.
-
-Agreed if the goal is to boot code is designed to start with a single
-sector loaded at 0x7c00.  If I really care I might worry about that.
-Since linux preserved the first page of memory which includes the
-interrupt table reanimating the BIOS might not be so bad. 
-
-My primary non-linux target are the BSD's, and various experimental
-OS's.  And in those cases why go to the pain of dropping out of
-protected mode if you are going to just load back into it again.
-
-All of what I do is colored by the fact that my most important
-environment I have no BIOS.  So for me I can't reanimate the BIOS
-because it isn't there.  Once this bullet is bitten though this
-buys a lot.  I can now write a multiplatform boot loader, with
-sophisticated features.
-
-> Concerning complexity, you don't need to use assembler for the
-> copying (arch/i386/kernel/relocate_kernel.S), see bootimg,
-> kernel/bootimg_pic.c
-
-I don't doubt that you can build code that works.  I have
-yet to be convinced that the code is safe.  
-... Thinking ...
-Compiling the code in it's own file and putting it in it's own section
-of the kernel for size would probably do it though.  Being sure
-the code is PIC is a little tricky though.
-
+> > > Sure, go ahead if you weren't missing that basic part of the long mode
+> specs.
 > 
-> Also, why did you implement your own memory management in
-> fs/kexec.c:kimage_get_chunk ?
+> > > Thanks.
+> > 
+> > Nope.  Though I suspect we should do the switch to 64bit mode in
+> > setup.S and not have these issues pollute head.S at all.
+> 
+> I see no advantage in doing it there instead of in head.S
 
-That really isn't memory management because no actual memory is
-allocated.  All that does is find an area of memory < 4GB that is not
-reserved and is no other page is going to be placed there.  
+After reading through the long mode specs I now agree.  If you could
+be in long mode with the mmu disabled that would be a different story
+but you can't and it isn't. 
 
-In retrospect I probably should be looking through the map of memory
-I'm going to provide to the new image and not mem_map.  As with most
-code there is certainly room for improvement. 
+I was thinking of symmetry with the x86 and how much easier everything
+is if you only use one processor mode for the initial boot strap.  No
+need for super assemblers etc. Oh well.
+
+On x86 there are some real advantages to moving the segment loads into
+setup.S from the various head.S's and they still apply (although to a
+lesser extent) to x86-64. This causes less code confusion.
+
+For my kexec stuff I now need to think really hard how I want
+to handle x86-64.  What I was thinking would work well in general
+is to start the processor it's native/optimal mode with the mmu
+disabled.  With x86-64 I can't do this unfortunately :(
 
 Eric
 -

@@ -1,49 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263543AbTLJN5y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 08:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbTLJN5x
+	id S263545AbTLJNzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 08:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbTLJNzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 08:57:53 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:28683
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263595AbTLJN5w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 08:57:52 -0500
-Date: Wed, 10 Dec 2003 05:52:12 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Arjan van de Ven <arjanv@redhat.com>
-cc: Valdis.Kletnieks@vt.edu, Kendall Bennett <KendallB@scitechsoft.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <1070652154.14996.10.camel@laptop.fenrus.com>
-Message-ID: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 10 Dec 2003 08:55:24 -0500
+Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:54287 "EHLO
+	mail.icequake.net") by vger.kernel.org with ESMTP id S263545AbTLJNzS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 08:55:18 -0500
+Date: Wed, 10 Dec 2003 07:55:16 -0600
+From: Ryan Underwood <nemesis-lists@icequake.net>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] IO-APIC on MS-6163 (2.4.23). ACPI?
+Message-ID: <20031210135516.GA2687@dbz.icequake.net>
+References: <3ACA40606221794F80A5670F0AF15F8401720C15@PDSMSX403.ccr.corp.intel.com> <20031210125543.GA1444@dbz.icequake.net> <16343.8777.389445.2007@alkaid.it.uu.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Content-Disposition: inline
+In-Reply-To: <16343.8777.389445.2007@alkaid.it.uu.se>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-So why not do the removal of the inlines to real .c files and quit playing
-games with bogus attempts to bleed taint into the inprotectable api?
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Clearly it is a game of bait and switch.
 
-Cheers,
+On Wed, Dec 10, 2003 at 02:40:25PM +0100, Mikael Pettersson wrote:
+> Ryan Underwood writes:
+>  >=20
+>  > Attached dmesg and interrupts with acpi=3Doff.  Also attached kernel
+>  > config.
+>  >=20
+>  > As you see, it acknowledges a local APIC but mentions nothing about
+>  > IO-APIC.  So I guess this isn't ACPI issue after all.  But, I wonder w=
+hy
+>  > the IO-APIC isn't being used on this board anymore.  There was a
+>  > blacklist entry for it, but it was removed after it was discovered to =
+be
+>  > in error.
+>=20
+> Your dmesg log doesn't mention any MP-table. With neither ACPI MADT
+> nor an MP-table the kernel has no way of knowing about any I/O-APIC.
+>=20
+> You do have UP_IOAPIC enabled, so the kernel should look for it.
+> Please check your BIOS settings, and try with no ACPI at all in the kernel
+> (just to verify that acpi=3Doff doesn't prevent MP-table parsing).
 
-Andre Hedrick
-LAD Storage Consulting Group
+I went back and found the messages corresponding to our previous
+discussions:
 
-On Fri, 5 Dec 2003, Arjan van de Ven wrote:
+http://www.cs.helsinki.fi/linux/linux-kernel/2003-23/1675.html
 
-> On Fri, 2003-12-05 at 20:09, Valdis.Kletnieks@vt.edu wrote:
-> \
-> > Interestingly enough, at least on my Fedora box, 'rpm -qi' reports glibc as LGPL,
-> > but glibc-kernheaders as GPL, which seems right to me - linking against glibc gives
-> > the LGPL semantics as we'd want, but forces userspace that's poking in the kernel
-> > to be GPL as a derived work....
-> 
-> but those headers do not have inlines etc etc 
-> just the bare minimum of structures and defines (neither of which result
-> in code in the binary )
-> 
+Looks like again I've confused the local APIC with the IO-APIC regarding
+that blacklist entry.  However, I thought 440BX had a IO-APIC built-in
+to the southbridge.  Again, that was proved to be wrong by examining the
+integrator's guide:
+ftp://download.intel.com/design/chipsets/designex/29063401.pdf
 
+page 99 of the PDF says:
+"An I/O APIC is required for a DP system and optional for a UP system."
+
+So it looks like I've never had an I/O-APIC on this board at all, only a
+local APIC, and this thread is thus a waste of time. :)
+
+In any case, thanks for leading me to the right answer!
+
+--=20
+Ryan Underwood, <nemesis@icequake.net>
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/1yXEIonHnh+67jkRAhxeAJ9npBG8RKnD+YJir1Vovoq3kvgXhgCbBQ0b
+v9ySVu+Sd24TtYq93/dYqzw=
+=Orod
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--

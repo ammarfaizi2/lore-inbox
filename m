@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbUC2BIb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 20:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUC2BIb
+	id S262547AbUC2BaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 20:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUC2BaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 20:08:31 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:52611 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262545AbUC2BIa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 20:08:30 -0500
-Date: Sun, 28 Mar 2004 17:08:29 -0800
-From: Larry McVoy <lm@bitmover.com>
-Message-Id: <200403290108.i2T18T8d024595@work.bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: who is merlin.fit.vutbr.cz?
+	Sun, 28 Mar 2004 20:30:16 -0500
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:52376 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262547AbUC2BaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 20:30:12 -0500
+Message-ID: <40677C21.7070807@yahoo.com.au>
+Date: Mon, 29 Mar 2004 11:30:09 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <20040328044029.GB1984@bounceswoosh.org> <40667734.8090203@yahoo.com.au> <20040328203357.GB6405@bounceswoosh.org> <20040328205917.GF6405@bounceswoosh.org>
+In-Reply-To: <20040328205917.GF6405@bounceswoosh.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks, I need your help.
+Eric D. Mudama wrote:
 
-I can't tell if this is a DOS attack or someone with a REALLY slow net
-connection.  Whoever this is has been cloning the linux 2.6 (aka 2.5)
-tree on bkbits so slowly that the tree is locked for days and can't
-be updated.  About once a day I go kill the clone because stracing it
-shows it doing nothing.
+>
+> Er, forgot about the queue depth of only 2...
+>
+> Even in that case, you'll more than likely still get better throughput
+> with a single 32-MB command...  If you send a pair of queued commands
+> down, and the 2nd one is chosen, there's no reason that the first one
+> won't get starved until the very end of the request, which would have
+> bad latency on that command.
+>
 
-Linus and Andrew M are annoyed enough that the tree isn't getting updates
-that they complained to me.  Makes me feel bad when they do that so that's
-why I'm looking for help.
+Well strictly, you send them one after the other. So unless you
+have something similar to our anticipatory scheduler or plugging
+mechanism, the drive should attack the first one first, shouldn't
+it?
 
-In case people want the details, we have a long standing arrangement
-wherein Linus updates linus.bkbits.net and we update from that and then
-update the linux.bkbits.net tree, i.e., the official tree.  That's because
-Linus got frustrated with waiting for locked trees so he got one that
-can't be locked, pulls/clones from it are disallowed unless you are me
-or him.  So we go through a little hop skip and a jump where he pushes
-to his tree, we pull from that, and then we push to linux.bkbits.net.
-That way he never waits on a push.   It's good to be Linus :-)
 
-Anyway, we've suffered more than enough bad press so before I
-assume that this host is a rogue and filter them, does anyone know who
-merlin.fit.vutbr.cz is?  If they really have that slow of a connection
-we'll burn a CD and Fedex it to them, nobody should suffer that much.
-But if this is just a DOS, we'll nuke 'em.
-
-Thanks,
-
---lm

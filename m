@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263079AbUEFV3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbUEFVgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263079AbUEFV3F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 17:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbUEFV3F
+	id S262079AbUEFVgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 17:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUEFVgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 17:29:05 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21169 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263079AbUEFV3C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 17:29:02 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Bob Gill <gillb4@telusplanet.net>
-Subject: Re: hdc: lost interrupt ide-cd: cmd 0x3 timed out with 2.6.6-rc3-bk8
-Date: Thu, 6 May 2004 23:28:07 +0200
-User-Agent: KMail/1.5.3
-References: <1083875341.4603.20.camel@localhost.localdomain>
-In-Reply-To: <1083875341.4603.20.camel@localhost.localdomain>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Thu, 6 May 2004 17:36:45 -0400
+Received: from emess.mscd.edu ([147.153.170.17]:3020 "EHLO emess.mscd.edu")
+	by vger.kernel.org with ESMTP id S262079AbUEFVgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 17:36:44 -0400
+From: Steve Beaty <beaty@emess.mscd.edu>
+Message-Id: <200405062136.i46La83a017507@emess.mscd.edu>
+Subject: Re: sigaction, fork, malloc, and futex
+To: chris@scary.beasts.org
+Date: Thu, 6 May 2004 15:36:08 -0600 (MDT)
+Cc: beaty@emess.mscd.edu (Steve Beaty), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0405042315001.24297@sphinx.mythic-beasts.com> from "chris@scary.beasts.org" at May 04, 2004 11:30:57 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405062328.07646.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Your signal handler function is illegally calling non-reentrant functions.
+> The *printf() family of functions are going to need to call malloc() to
+> allocate buffers. malloc() cannot be re-entered.
 
-zero IDE changes in bk6 -> bk8 but a lot of ACPI / IRQ related
+	it deadlocks even with no calls in the client...  weird.
 
-On Thursday 06 of May 2004 22:29, Bob Gill wrote:
-> Hi.  I recently built 2.6.6-rc3-bk8.  The boot process stalls with
-> ide-cd: cmd 0x5a timed out
-> hdc: lost interrupt.
-> hdc: lost interrupt.
-> hdc: lost interrupt.
-> hdc: lost interrupt.
-> ide-cd: cmd 0x3 timed out
-> ...
-> There are no problems booting 2.6.6-rc3-bk6.
+	thanks,
 
+-- 
+Dr. Steve Beaty (B80)                                 Associate Professor
+Metro State College of Denver                        beaty@emess.mscd.edu
+VOX: (303) 556-5321                                 Science Building 134C
+FAX: (303) 556-5381                         http://clem.mscd.edu/~beatys/

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274520AbRJORzQ>; Mon, 15 Oct 2001 13:55:16 -0400
+	id <S275573AbRJOR54>; Mon, 15 Oct 2001 13:57:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274875AbRJORzH>; Mon, 15 Oct 2001 13:55:07 -0400
-Received: from trident.vpharm.com ([63.98.23.2]:22596 "EHLO stamped.vpharm.com")
-	by vger.kernel.org with ESMTP id <S274520AbRJORy4>;
-	Mon, 15 Oct 2001 13:54:56 -0400
-Message-ID: <XFMail.20011015135310.fant@vpharm.com>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S275110AbRJOR5r>; Mon, 15 Oct 2001 13:57:47 -0400
+Received: from web10704.mail.yahoo.com ([216.136.130.212]:21266 "HELO
+	web10704.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S274875AbRJOR5g>; Mon, 15 Oct 2001 13:57:36 -0400
+Message-ID: <20011015175808.85935.qmail@web10704.mail.yahoo.com>
+Date: Mon, 15 Oct 2001 10:58:08 -0700 (PDT)
+From: Mal hacker <malhacker@yahoo.com>
+Subject: Re: network device driver
+To: "Mehta, Phoram Kirtikumar \(UMKC-Student\)" <pkm722@umkc.edu>
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Date: Mon, 15 Oct 2001 13:53:10 -0400 (EDT)
-Reply-To: fant@vpharm.com
-Organization: Vertex Pharmaceuticals
-From: Andrew Fant <fant@vpharm.com>
-To: linux-kernel@vger.kernel.org
-Subject: System Hang with Gigabit Ethernet
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pardon my interruption.  I am having kernel hangs when I attempt to access a
-gigabit ethernet addapter from a linux server.
+Hello Kirti, 
+rather than doing it in kernel space why don't u do in userspace.
+There's a lot of tools and libraries available! Take for example
+tcpdump, ethereal, dniff and others as tools, libpcap (*nix packet
+capturing library) or wincap (windows packet capturing library) and
+many more. The kernel also provides a lot of other features via the
+socket call to do these stuff. Could u please detail out what exactly
+do u want to do and your major reason of getting inside the kernel ?
 
-The system is a Compaq ML370 dual processor running RedHat 6.2EE (and oracle), and
-the kernel version is 2.2.14 ( Upgrading is not a particularly pleasant option, as I
-don't know if I could recreate the changes that RedHat made to the kernel for the
-Enterprise Edition).  Because the system must now be multihomed between two mutually
-disconnected networks, I need to add a gigabit ethernet adapter to the system.
+hope this helps..
+mal
+-------------------------------------------------------------------
 
-I have attempted to install a Netgear GA620 ( with the acenic drivers included in
-the distribution) and a Netgear GA621 (using the drivers which they provide on CD
-with the card).   In both cases, the results are the same. The system comes back up
-fine, and runs, until I attempt to run ifconfig on the gigabit card.  At this point,
-I get back the information about the card, a shell prompt, and 5-10 seconds later,
-the machines freezes hard. So hard that I have to pull the power cord to shut down.
+On Sun, 14 Oct 2001, Mehta, Phoram Kirtikumar (UMKC-Student) wrote: >
+1. how does ifconfig and netstat get teh net statistics, where can i
+get
+> the source to that funtion or source file. They are from /proc/net/.
+> 2. is there any funtion in the network device driver source by
+accessing
+> which i can get the packets received or the type of packets. if not
+can
+> anybody gimme some tips on how can i write it. You can use a packet
+filter. > i am trying to write or modify the eth device driver(3c509.c)
+in such
+a
+> way that i can statistics of the traffic and then i also want to
+> identify teh traffic. in short i want to incorporate a function in my
+> driver which when acceseed would act as a sniffer/protocol analyzer .
+> any help or advise will be appreciated. Do it in userspace with
+packet filters. Look at tcpdump for example
+code. Rasmus
 
-Has anyone else seen this problem, or does anyone have any insights about a likely
-fix?  I'm more than willing to get a different card, but it would be nice to have a
-clue as to why both Netgear cards fail so miserably, especially since the GA620 came
-out of one of the VA Linux boxen we have which have been using that card and driver
-for 6 months without a hitch.
+=====
 
-My apologies in advance for this interruption.  Please CC me on replies, as I do not
-have the time to keep up with this list on a regular basis.
+Image by FlamingText.com
 
-Thanks in advance,
-        Andrew Fant
-
--- 
-Andrew Fant           |                                 | email: fant@vrtx.com
-HPC Geek              |                                 | phone: (617)444-6000
-Vertex Pharmaceuticals| Disclaimer: Who would be crazy  |
-Cambridge, MA  02139  | enough to claim these opinions? |  ICBM: 42.35N 71.09W
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

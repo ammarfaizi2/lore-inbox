@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264829AbTFLOWK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 10:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264830AbTFLOWK
+	id S264830AbTFLObY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 10:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264831AbTFLObY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 10:22:10 -0400
-Received: from msgdirector2.onetel.net.uk ([212.67.96.149]:31054 "EHLO
-	msgdirector2.onetel.net.uk") by vger.kernel.org with ESMTP
-	id S264829AbTFLOWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 10:22:08 -0400
-Date: Thu, 12 Jun 2003 15:35:51 +0100
-From: Ian Packer <lkml@fireclaw.org>
-X-Mailer: The Bat! (v1.62r) Personal
-Reply-To: Ian Packer <lkml@fireclaw.org>
-X-Priority: 3 (Normal)
-Message-ID: <1281338613.20030612153551@onetel.net.uk>
-To: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
-Subject: Re: Anybody gotta list archive tarball?
-In-Reply-To: <20030612141446.16634.qmail@eklektix.com>
-References: <20030612141446.16634.qmail@eklektix.com>
-MIME-Version: 1.0
+	Thu, 12 Jun 2003 10:31:24 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:38823 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264830AbTFLObX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 10:31:23 -0400
+Date: Thu, 12 Jun 2003 15:44:50 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: John Goerzen <jgoerzen@complete.org>, linux-kernel@vger.kernel.org
+Subject: Re: cpufreq on Pentium M
+Message-ID: <20030612144450.GD8146@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Mark Watts <m.watts@eris.qinetiq.com>,
+	John Goerzen <jgoerzen@complete.org>, linux-kernel@vger.kernel.org
+References: <87n0go3pcp.fsf@complete.org> <20030612061803.GA21509@suse.de> <200306121510.01876.m.watts@eris.qinetiq.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200306121510.01876.m.watts@eris.qinetiq.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jonathan,
+On Thu, Jun 12, 2003 at 03:10:01PM +0100, Mark Watts wrote:
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/
+ > Thought this may help:
+ > - From a Dell D600 w/ 1.6Ghz Pentium M cpu...
 
-But you'll have to use google to search it.
+Yep, the latest bunch of cache descriptors are missing from 2.4
+(They're in 2.5 already). I did send these to Marcelo, but they
+seem to have got lost when we entered -rc stage.
+I'll resend them for 2.4.22pre
 
-Regards,
-Ian Packer
-lkml@fireclaw.org
+ > 
+ > unknown TLB/cache descriptor:
+ >         0xb0
+ > unknown TLB/cache descriptor:
+ >         0xb3
 
-Thursday, June 12, 2003, 3:14:46 PM, you wrote:
+uninteresting (tlb sizes)
 
-JC> Hi,
+ > Instruction TLB: 4MB pages, fully associative, 2 entries
+ > unknown TLB/cache descriptor:
+ >         0x87
 
-JC> Does anybody happen to have (and is willing to share) a tarball containing
-JC> archives of this list going back well into the 90's?  I am, shall we say,
-JC> researching the activities of certain companies (when I should really be
-JC> working on driver books) and something greppable would be most helpful.
+1MB l2 unified cache.
 
-JC> Thanks,
+ > unknown TLB/cache descriptor:
+ >         0x30
 
-JC> jon
+32KB L1 I cache
 
+ > Data TLB: 4MB pages, 4-way associative, 8 entries
+ > unknown TLB/cache descriptor:
+ >         0x2c
 
-JC> -
-JC> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-JC> the body of a message to majordomo@vger.kernel.org
-JC> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-JC> Please read the FAQ at  http://www.tux.org/lkml/
+32KB L1 D cache
+
+Current CVS version of x86info already supports all these too btw,
+(just in case someone was tempted to hack a patch for that against 1.11).
+I'll do another release sometime this weekend.
+
+		Dave
 

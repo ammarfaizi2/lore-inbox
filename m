@@ -1,62 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbUCENca (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 08:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbUCENca
+	id S262595AbUCEOHa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 09:07:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbUCEOHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 08:32:30 -0500
-Received: from smtp0.libero.it ([193.70.192.33]:17040 "EHLO smtp0.libero.it")
-	by vger.kernel.org with ESMTP id S262592AbUCENcI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 08:32:08 -0500
-Date: Fri,  5 Mar 2004 14:30:58 +0100
-Message-Id: <HU3UVM$B2D37FE3A0AFC8371821BF44B9443B45@libero.it>
-Subject: Business Associate Needed
+	Fri, 5 Mar 2004 09:07:30 -0500
+Received: from mikonos.cyclades.com.br ([200.230.227.67]:56338 "EHLO
+	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
+	id S262595AbUCEOH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 09:07:28 -0500
+Date: Fri, 5 Mar 2004 11:06:02 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: Daniel Fenert <daniel@fenert.net>
+cc: linux-kernel@vger.kernel.org, <sct@redhat.com>,
+       Michelle Konzack <linux4michelle@freenet.de>
+Subject: Re: Is there some bug in ext3 in 2.4.25?
+In-Reply-To: <20040304065038.GV31185@fenert.net>
+Message-ID: <Pine.LNX.4.44.0403051048160.2678-100000@dmt.cyclades>
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "obiozor_consults" <obiozor_consults@libero.it>
-To: "obiozor_consults" <obiozor_consults@libero.it>
-X-XaM3-API-Version: 4.1 (B27)
-X-type: 0
-X-SenderIP: 80.88.142.28
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
-I am Dr. Alex Obiozor a consultant for a very eminent
-personnel in the Africa regions. These personnel asked me
-to source for a credible foreigner with whom they can
-jointly invest with. We have US$50M Dollars with a Security
-Company in Europe, the funds was transferred there for
-security reasons. Due to their public nature, they prefer
-to be anonymous hence I have been given the mandate to
-source for someone like you.
-This is the proposal in summary:
 
-[1] My client{s} top Political/Government officials in
-Africa. They want the funds to be invested through a
-well-established businessman abroad who can front for them
-without disclosing their identity.
+Hi,
 
-[2] All that is required is your willingness to invest this
-money for them under strict profitable monitoring.
+This sounds like memory corruption (which could be caused by a misbehaving
+driver or by flaky hardware) because transaction->t_ilist is not used at
+all by the kernel code. Did this box run stable with other kernels?
 
-[3] You are required to arrange yourself to be in Europe
-for you to receive the funds for investment.
+I found a similar report from Michelle (CCed), which can be found at:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107529754608448&w=2
 
-If you wish to partake, kindly indicate your readiness by
-returning a mail through this email addresses
-(obiozor_consults@excite.com)
- so  that we can proceed.
-Thank you so much in anticipation while I wait for your
-Response.
+Searching a bit more, I found another message from Michelle with 
+topic "[SOLVED] Kernel-Bug (at checkpoint.c 587)"
+http://lists.debian.org/debian-user-german/2004/debian-user-german-200401/msg04404.html
 
-Best Regards
-Dr Alex Obiozor
+Unfortunately the said message is in German, which I can't understand. 
+Michelle, can you clarify it for me?
+
+Stephen, Andrew, any idea how can transaction->t_ilist become not NULL?
 
 
- 
+On Thu, 4 Mar 2004, Daniel Fenert wrote:
+
+> Message from syslogd@lazy at Thu Mar  4 08:31:58 2004 ...
+> lazy kernel: Assertion failure in __journal_drop_transaction() at
+> checkpoint.c:587: "transaction->t_ilist == NULL"
+> 
+> Networking still works, I've tried to login, but no luck here.
+> I've got one ssh console opened, and tried to reboot, but nothing happend, it
+> looks like it lost connection with hda :(
+> Where should I look for reason?
+> Machine as faaar away, and it's second or third time it hangs mysteriously,
+> the only difference is that this time I've got some console output.
+> 
+
+>From daniel@fenert.net Fri Mar  5 10:48:26 2004
+Date: Thu, 4 Mar 2004 08:03:29 +0100
+From: Daniel Fenert <daniel@fenert.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Is there some bug in ext3 in 2.4.25?
+
+>Message from syslogd@lazy at Thu Mar  4 08:31:58 2004 ...
+>lazy kernel: Assertion failure in __journal_drop_transaction() at
+>checkpoint.c:587: "transaction->t_ilist == NULL"
+
+One more thing - it has happened when /var got full.
 
 

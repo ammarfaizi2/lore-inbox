@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269192AbUJKT5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269206AbUJKTxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269192AbUJKT5T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269214AbUJKT5T
+	id S269206AbUJKTxK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 15:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269207AbUJKTxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:57:19 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:18914 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S269192AbUJKT5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:57:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
-Date: Mon, 11 Oct 2004 21:58:48 +0200
-User-Agent: KMail/1.6.2
-Cc: Stefan Seyfried <seife@suse.de>, Pavel Machek <pavel@suse.cz>,
-       ncunningham@linuxmail.org, pascal.schmidt@email.de
-References: <2HO0C-4xh-29@gated-at.bofh.it> <20041011145911.GB2672@elf.ucw.cz> <416AC081.7050504@suse.de>
-In-Reply-To: <416AC081.7050504@suse.de>
-MIME-Version: 1.0
+	Mon, 11 Oct 2004 15:53:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24528 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269206AbUJKTxG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 15:53:06 -0400
+Date: Mon, 11 Oct 2004 20:53:03 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: LVM snapshot creation hang
+Message-ID: <20041011195303.GA6408@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Meelis Roos <mroos@linux.ee>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.44.0410051312370.16512-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410112158.49203.rjw@sisk.pl>
+In-Reply-To: <Pine.GSO.4.44.0410051312370.16512-100000@math.ut.ee>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 of October 2004 19:18, Stefan Seyfried wrote:
-> Hi,
-> 
-> Pavel Machek wrote:
-> 
-> > Ok... And I guess it is nearly impossible to trigger this on demand,
-> > right?
+On Tue, Oct 05, 2004 at 01:26:52PM +0300, Meelis Roos wrote:
+> snapshot creation hangs the process (lvcreate):
+> lvcreate --snapshot --name snap --size 100M /dev/vg/vol
+ 
+If this is what I think it is, the fix needed is to LVM2 userspace 
+code, and it's a quite a lot of work and still isn't scheduled yet 
+I'm afraid:-(
 
-I think it is possible.  Seemingly, on my box it's only a question of the 
-number of apps started.  I think I can work out a method to trigger it 90% of 
-the time or so.  Please let me know if it's worthy of doing.
-
-Greets,
-RJW
-
+Alasdair
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+agk@redhat.com

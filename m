@@ -1,31 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281862AbRK1Ccs>; Tue, 27 Nov 2001 21:32:48 -0500
+	id <S281846AbRK1Ce5>; Tue, 27 Nov 2001 21:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283006AbRK1Cci>; Tue, 27 Nov 2001 21:32:38 -0500
-Received: from mail022.mail.bellsouth.net ([205.152.58.62]:40015 "EHLO
-	imf22bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281862AbRK1CcW>; Tue, 27 Nov 2001 21:32:22 -0500
-Message-ID: <3C044CB1.62F5650F@mandrakesoft.com>
-Date: Tue, 27 Nov 2001 21:32:17 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-Subject: Re: Block I/O Enchancements, 2.5.1-pre2
-In-Reply-To: <15364.3457.368582.994067@gargle.gargle.HOWL> <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com> <20011127183418.A812@vger.timpanogas.org> <3C0441B4.B8194BEE@mandrakesoft.com> <20011127185509.A1060@vger.timpanogas.org>
+	id <S283009AbRK1Cer>; Tue, 27 Nov 2001 21:34:47 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:24049
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281846AbRK1Ceg>; Tue, 27 Nov 2001 21:34:36 -0500
+Date: Tue, 27 Nov 2001 18:34:29 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Unresponiveness of 2.4.16
+Message-ID: <20011127183429.B862@mikef-linux.matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011128013129Z281843-17408+21534@vger.kernel.org> <3C044855.3CF2DCA3@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C044855.3CF2DCA3@zip.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oh yeah, I meant to ask: do we get 64-bit inode numbers and 64-bit block
-numbers on x86 sometime in 2.5?
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+On Tue, Nov 27, 2001 at 06:13:41PM -0800, Andrew Morton wrote:
+> Dieter N?tzel wrote:
+> > Don't forget to tune max-readahead.
+> 
+> Yes.  Readahead is fairly critical and there may be additional fixes
+> needed in this area.
+> 
+> Someone recently added the /proc/sys/vm/max_readahead (?) tunable.
+> Beware of this.  It only works for device drivers which do not
+> populate their own readhead table.  For IDE, it *looks* like
+> it works, but it doesn't.   For IDE, the only way to alter VM
+> readahead is via
+> 
+> 	echo file_readahead:N > /proc/ide/ide0/hda/settings
+> 
+> where N is in kilobytes in 2.4.16 kernels.  
 
+Any idea which drivers it will/won't work on?  ie, "almost all ide" or
+"almost none of the ide driers"?
+
+>In earlier kernels
+> it's kilopages (!).
+
+Isn't this part of the max-readahead patch?
+
+Does /proc/sys/vm/max_readahead affect scsi in any way?
+
+What layer does /proc/sys/vm/max_readahead affect?  Block? FS?
+
+MF

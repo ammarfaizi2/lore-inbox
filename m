@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289190AbSAQQFk>; Thu, 17 Jan 2002 11:05:40 -0500
+	id <S289191AbSAQQHA>; Thu, 17 Jan 2002 11:07:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289191AbSAQQFa>; Thu, 17 Jan 2002 11:05:30 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3083 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289190AbSAQQFQ>; Thu, 17 Jan 2002 11:05:16 -0500
-Subject: Re: clarification about redhat and vm
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Thu, 17 Jan 2002 16:17:21 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br (Rik van Riel)
-In-Reply-To: <20020117161055.K4847@athlon.random> from "Andrea Arcangeli" at Jan 17, 2002 04:10:55 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S289194AbSAQQGw>; Thu, 17 Jan 2002 11:06:52 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:5180 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S289191AbSAQQGf>; Thu, 17 Jan 2002 11:06:35 -0500
+Date: Thu, 17 Jan 2002 16:08:15 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: pte-highmem-5
+In-Reply-To: <20020117164515.N4847@athlon.random>
+Message-ID: <Pine.LNX.4.21.0201171556330.2023-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16RFE9-00042W-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "If redhat doesn't use the -aa VM " was a short form of "if redhat
-> cannot see the goodness of all the bugfixing work that happened between
-> the 2.4.9 VM and any current branch 2.4, and so if they keep shipping
-> 2.4.9 VM as the best one for DBMS and critical VM apps like the SAP
-> benchmark".
+On Thu, 17 Jan 2002, Andrea Arcangeli wrote:
+> On Thu, Jan 17, 2002 at 12:14:13PM +0000, Hugh Dickins wrote:
+> > 
+> > But people should realize that moving page tables and other such
+> > structures into not-always-mapped highmem will make them harder to
+> > access with kernel debuggers - I think those will want some changes.
+> 
+> the debugging prospective is probably the one I care less (you can
+> always drop a __GFP_HIGHMEM into the right alloc_pages to get the memory
+> direct mapped) that's most of the time a one liner in just one place.
 
-The RH VM is totally unrelated to the crap in 2.4.9 vanilla. The SAP comment
-begs a question. 2.4.10 seems to have problems remembering to actually 
-do fsync()'s. How much of your SAP benchmark is from fsync's that dont
-happen ? Do you get the same values with 2.4.18-aa ?
+I was thinking there of peering at a crashed kernel with some debugger,
+trying to see the page tables (or whatever).  In most cases, if they're
+relevant to the problem, they will already be kmapped (or perhaps the
+problem would just be that they're not).  The maintainers of debuggers
+will probably need to add something to help find the right mapping.
 
-Alan
+But you're right, Linux is not primarily designed as a platform for
+kernel debuggers, and that should not stop progress: sooner or later
+we have to extend use of highmem, you've found good reason to extend
+it to page tables (and Christoph's shmem index is a very similar case).
+
+Hugh
+

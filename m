@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261649AbTCZOnC>; Wed, 26 Mar 2003 09:43:02 -0500
+	id <S261718AbTCZPMi>; Wed, 26 Mar 2003 10:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261708AbTCZOnC>; Wed, 26 Mar 2003 09:43:02 -0500
-Received: from home.wiggy.net ([213.84.101.140]:9620 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S261649AbTCZOnB>;
-	Wed, 26 Mar 2003 09:43:01 -0500
-Date: Wed, 26 Mar 2003 15:54:12 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
-Cc: bert hubert <ahu@ds9a.nl>, James Simmons <jsimmons@infradead.org>
-Subject: Re: [FIX] Re: 2.5.66 new fbcon oops while loading X
-Message-ID: <20030326145412.GI2078@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org, bert hubert <ahu@ds9a.nl>,
-	James Simmons <jsimmons@infradead.org>
-References: <20030325123126.GA10808@outpost.ds9a.nl> <Pine.LNX.4.44.0303251722321.3789-100000@phoenix.infradead.org> <20030326105840.GA10201@outpost.ds9a.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261717AbTCZPMb>; Wed, 26 Mar 2003 10:12:31 -0500
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:11504 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261720AbTCZPI4> convert rfc822-to-8bit; Wed, 26 Mar 2003 10:08:56 -0500
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 update.
+Date: Wed, 26 Mar 2003 16:16:22 +0100
+User-Agent: KMail/1.5
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20030326105840.GA10201@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200303261604.36119.schwidefsky@de.ibm.com>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously bert hubert wrote:
-> On Debian, ls /dev/fb[67] results in:
-> crw--w--w-    1 root     tty       29, 192 Nov 30  2000 /dev/fb6
-> crw--w--w-    1 root     tty       29, 224 Nov 30  2000 /dev/fb7
+Hi Linus,
+the s390 patch set has grown again. This time there are 9 patches against
+the bitkeeper tree of today 2003/03/26. 
 
-Documentation/devices.txt (at least in 2.5.64) states that those
-devices should be fully supported:
+Short descriptions:
+1) s390/s390x architecture changes and bug fixes., including the pte_file
+   definitions for the nonlinear mapping support. 
+2) Add support for system call numbers > 255.
+3) Remove s390 make rule for the kernel listing. Add code to generate the
+   kerntypes file for post mortem dump analysis with lcrash.
+4) Common i/o layer changes.
+5) Bug fixes for the ctc, lcs and iucv network drivers.
+6) Make uni-processor kernels compile & work again.
+7) Bug fixes for the dasd driver. 
+8) Improvements on dasd locking and reference counting.
+9) Coding style adaptions for the dasd driver. This patch is big but it
+   doesn't do much. I removed outdated comments and most of the structure
+   typedefs. No real code change in this one.
 
-                For backwards compatibility {2.6} the following
-                progression is also handled by current kernels:
-                  0 = /dev/fb0
-                 32 = /dev/fb1
-                    ...
-                224 = /dev/fb7
+blue skies,
+  Martin.
 
-So perhaps the patch should look something like:
-
-if (fbidx >= FB_MAX) {
-	/* Support older device minor numbering */
-	if (fbidx%32!=0)
-		return -ENODEV;
-	else
-		fbidx/=32;
-
-	/* Check if it is still too large */
-	if (fbidx >= FB_MAX)
-		return -ENODEV;
-}
-
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker

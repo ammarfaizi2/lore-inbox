@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbSKNS3I>; Thu, 14 Nov 2002 13:29:08 -0500
+	id <S261368AbSKNS0W>; Thu, 14 Nov 2002 13:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbSKNS3I>; Thu, 14 Nov 2002 13:29:08 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11794 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261506AbSKNS3G>; Thu, 14 Nov 2002 13:29:06 -0500
-Date: Thu, 14 Nov 2002 10:36:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Matthew Wilcox <willy@debian.org>, <linux-kernel@vger.kernel.org>,
-       <mochel@osdl.org>
-Subject: Re: [PATCH] eliminate pci_dev name
-In-Reply-To: <3DD3EB3D.8050606@pobox.com>
-Message-ID: <Pine.LNX.4.44.0211141031500.3323-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261550AbSKNS0W>; Thu, 14 Nov 2002 13:26:22 -0500
+Received: from pc175.host14.starman.ee ([62.65.206.175]:260 "EHLO amd-laptop")
+	by vger.kernel.org with ESMTP id <S261368AbSKNS0V>;
+	Thu, 14 Nov 2002 13:26:21 -0500
+Date: Thu, 14 Nov 2002 20:31:32 +0200
+From: Priit Laes <amd@tt.ee>
+To: linux-kernel@vger.kernel.org
+Subject: [HELP]Driver for Winbond ethernet card
+Message-ID: <20021114183132.GA26473@amd-laptop.mshome.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-gentoo-r9 (i686)
+X-GPG-Fingerprint: 7297 A6E5 287F 40FD 0945  17FF 9D35 D5C0 8545 2118
+X-GPG-Key: http://pgp.mit.edu:11371/pks/lookup?op=get&search=0x85452118
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 14 Nov 2002, Jeff Garzik wrote:
-> 
-> You should increase DEVICE_NAME_SIZE in include/linux/device.h from 80 
-> to 90, though.  I assume you don't want to take the other option, which 
-> is to audit every use and all the id strings to make sure they're short 
-> enough.  In fact, IIRC, device name increased in size due to some really 
-> long PCI names, so I think '90' will wind up the preferred value in any 
-> case.
+--azLHFNyN32YCQGCU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Actually, I think we should do the reverse (for testing), and make the
-name be something small like 8 bytes, and make sure that everybody who
-writes the name uses strncpy()  and snprintf() instead of just blindly
-writing whatever is in the database.
+Here's my problem...
+I've been trying build a router box from an old 486 and it has one quite
+exotic ethernet card. It doesn't have a name anywhere on a card, but i
+guess the most important chip on card is Winbond W24129AS-35. I haven't
+found any drivers yet for Linux. Some forums say, that this card is
+NE2000 compatible, but insmod ne fails (i attached right io and irq).
+Thanks in advance :)
+--=20
+Priit Laes <amd@tt.ee>                                     _o)         =20
+http://amd-core.tk                                         /\\  _o)  _o)
+GSM : +37256959083                                        _\_V _(\) _(\)
 
-Otherwise we'll always end up having fragile magic constants.
+--azLHFNyN32YCQGCU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Anybody willing to do that cleanup?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-		Linus
+iD8DBQE90+wEnTXVwIVFIRgRAtTgAJ0ftG5nP4nZPAKiceexqvSWrgjUMwCdFPeF
+Vt4mT7n8gstM79qgo3M5FsY=
+=C77Q
+-----END PGP SIGNATURE-----
 
+--azLHFNyN32YCQGCU--

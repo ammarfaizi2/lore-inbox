@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUC2Ml6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 07:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUC2MkX
+	id S262931AbUC2MnD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbUC2MmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 07:40:23 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:51364 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262909AbUC2Mig
+	Mon, 29 Mar 2004 07:42:07 -0500
+Received: from mail.shareable.org ([81.29.64.88]:21139 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262909AbUC2Mkc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:38:36 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Tom Rini <trini@kernel.crashing.org>
-Subject: Re: kgdb doesn't respond to Ctrl+C
-Date: Mon, 29 Mar 2004 17:35:16 +0530
-User-Agent: KMail/1.5
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>
-References: <200403231202.31160.amitkale@emsyssoft.com> <20040323152526.GA2330@smtp.west.cox.net>
-In-Reply-To: <20040323152526.GA2330@smtp.west.cox.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Mar 2004 07:40:32 -0500
+Date: Mon, 29 Mar 2004 13:40:15 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Davide Libenzi <davidel@xmailserver.org>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+Message-ID: <20040329124015.GB4984@mail.shareable.org>
+References: <20040321181430.GB29440@wohnheim.fh-wedel.de> <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com> <20040325174942.GC11236@mail.shareable.org> <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com> <20040325194303.GE11236@mail.shareable.org> <m1ptb0zjki.fsf@ebiederm.dsl.xmission.com> <20040327102828.GA21884@mail.shareable.org> <m1vfkq80oy.fsf@ebiederm.dsl.xmission.com> <20040327214238.GA23893@mail.shareable.org> <20040329092835.GD1453@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403291735.16412.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+In-Reply-To: <20040329092835.GD1453@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Works for me too now. Looks like a false alarm
+Pavel Machek wrote:
+> Actually, there's 4th strategy, too. You could implement sharing at block level.
+> Block free bitmap would become bigger, but you could do some tricks to keep it
+> at ~8 bits per block...
 
--Amit
+For sharing source trees and such, and even for COW overlays of
+/usr/lib and /usr/bin, that would have no benefit: you never write to
+just part of a source or object file.
 
-On Tuesday 23 Mar 2004 8:55 pm, Tom Rini wrote:
-> On Tue, Mar 23, 2004 at 12:02:30PM +0530, Amit S. Kale wrote:
-> > I guess something's gone wrong with serial port interrupts.
-> >
-> > Tom, any ideas?
->
-> Current CVS works for me.  Relevant .config section:
-> #
-> # Kernel hacking
-> #
-> CONFIG_DEBUG_KERNEL=y
-> CONFIG_EARLY_PRINTK=y
-> # CONFIG_DEBUG_STACKOVERFLOW is not set
-> # CONFIG_DEBUG_STACK_USAGE is not set
-> # CONFIG_DEBUG_SLAB is not set
-> # CONFIG_DEBUG_IOVIRT is not set
-> CONFIG_MAGIC_SYSRQ=y
-> # CONFIG_DEBUG_SPINLOCK is not set
-> # CONFIG_DEBUG_PAGEALLOC is not set
-> # CONFIG_DEBUG_HIGHMEM is not set
-> CONFIG_DEBUG_INFO=y
-> # CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-> CONFIG_KGDB=y
-> CONFIG_KGDB_8250=y
-> # CONFIG_PPC_SIMPLE_SERIAL is not set
-> CONFIG_KGDB_SIMPLE_SERIAL=y
-> CONFIG_KGDB_9600BAUD=y
-> # CONFIG_KGDB_19200BAUD is not set
-> # CONFIG_KGDB_38400BAUD is not set
-> # CONFIG_KGDB_57600BAUD is not set
-> # CONFIG_KGDB_115200BAUD is not set
-> CONFIG_KGDB_TTYS0=y
-> # CONFIG_KGDB_TTYS1 is not set
-> # CONFIG_KGDB_TTYS2 is not set
-> # CONFIG_KGDB_TTYS3 is not set
-> CONFIG_FRAME_POINTER=y
-> CONFIG_X86_FIND_SMP_CONFIG=y
-> CONFIG_X86_MPPARSE=y
+For databases (including things like the RPM database), and snapshots
+of filesystems, it would be more useful.
 
+-- Jamie

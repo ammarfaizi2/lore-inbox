@@ -1,52 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbULVNdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbULVNkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbULVNdY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 08:33:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbULVNdX
+	id S261774AbULVNkT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 08:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbULVNkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 08:33:23 -0500
-Received: from mx01.cybersurf.com ([209.197.145.104]:40152 "EHLO
-	mx01.cybersurf.com") by vger.kernel.org with ESMTP id S261963AbULVNdV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 08:33:21 -0500
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Patrick McHardy <kaber@trash.net>, Matt Mackall <mpm@selenic.com>,
-       Mark Broadbent <markb@wetlettuce.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-In-Reply-To: <20041222123940.GA4241@electric-eye.fr.zoreil.com>
-References: <20041221002218.GA1487@electric-eye.fr.zoreil.com>
-	 <20041221005521.GD5974@waste.org>
-	 <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com>
-	 <20041221123727.GA13606@electric-eye.fr.zoreil.com>
-	 <49295.192.102.214.6.1103635762.squirrel@webmail.wetlettuce.com>
-	 <20041221204853.GA20869@electric-eye.fr.zoreil.com>
-	 <20041221212737.GK5974@waste.org>
-	 <20041221225831.GA20910@electric-eye.fr.zoreil.com>
-	 <41C93FAB.9090708@trash.net> <41C9525F.4070805@trash.net>
-	 <20041222123940.GA4241@electric-eye.fr.zoreil.com>
-Content-Type: text/plain
-Organization: jamalopolous
-Message-Id: <1103722395.1090.77.camel@jzny.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 22 Dec 2004 08:33:15 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 22 Dec 2004 08:40:19 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:48330 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261774AbULVNkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 08:40:12 -0500
+Message-ID: <41C97915.8020604@trash.net>
+Date: Wed, 22 Dec 2004 14:39:33 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: davem@davemloft.net
+CC: 7atbggg02@sneakemail.com, linux-kernel@vger.kernel.org,
+       solt2@dns.toxicfilms.tv, yoshfuji@linux-ipv6.org
+Subject: Re: what/where is ss tool ?
+References: <012f01c4e81f$f4bddbd0$0e25fe0a@pysiak>	<20041222122758.GB6627@m.safari.iki.fi>	<41C96F24.2050409@trash.net> <20041222.222654.126619836.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20041222.222654.126619836.yoshfuji@linux-ipv6.org>
+Content-Type: multipart/mixed;
+ boundary="------------000600040909010407000804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-12-22 at 07:39, Francois Romieu wrote:
+This is a multi-part message in MIME format.
+--------------000600040909010407000804
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> If I am not mistaken, a failure on spin_trylock + the test on
-> xmit_lock_owner imply that it is safe to directly handle the
-> queue. It means that qdisc_run() has been interrupted on the
-> current cpu and the other paths seem fine as well. Counter-example
-> is welcome (no joke).
+YOSHIFUJI wrote:
+> would you enclose URL by <>, like <http://...>?
+> 
+> --yoshfuji
+> 
 
-Think more than 2 processors ;-> 
+Updated patch attached, thanks everyone.
 
-cheers,
-jamal
 
+--------------000600040909010407000804
+Content-Type: text/plain;
+ name="x"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="x"
+
+===== net/ipv4/Kconfig 1.23 vs edited =====
+--- 1.23/net/ipv4/Kconfig	2004-11-03 21:20:02 +01:00
++++ edited/net/ipv4/Kconfig	2004-12-22 14:37:55 +01:00
+@@ -355,7 +355,10 @@
+ 	default y
+ 	---help---
+ 	  Support for TCP socket monitoring interface used by native Linux
+-	  tools such as ss.
++	  tools such as ss. ss is included in iproute2, currently downloadable
++	  at <http://developer.osdl.org/dev/iproute2>. If you want IPv6 support
++	  and have selected IPv6 as a module, you need to build this as a
++	  module too.
+ 	  
+ 	  If unsure, say Y.
+ 
+
+--------------000600040909010407000804--

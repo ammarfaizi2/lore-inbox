@@ -1,94 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288512AbSADJA6>; Fri, 4 Jan 2002 04:00:58 -0500
+	id <S288554AbSADJII>; Fri, 4 Jan 2002 04:08:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288554AbSADJAt>; Fri, 4 Jan 2002 04:00:49 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:46587 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S288442AbSADJAf>;
-	Fri, 4 Jan 2002 04:00:35 -0500
-Date: Fri, 4 Jan 2002 01:59:10 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
-Message-ID: <20020104015910.L12868@lynx.no>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Ion Badulescu <ion@cs.columbia.edu>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-In-Reply-To: <200201031605.g03G57e22947@guppy.limebrokerage.com> <20020103150705.F25846@conectiva.com.br> <20020103123623.X12868@lynx.no> <E16MOQT-0001Az-00@starship.berlin>
+	id <S288557AbSADJH7>; Fri, 4 Jan 2002 04:07:59 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:48837 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S288554AbSADJHp>; Fri, 4 Jan 2002 04:07:45 -0500
+Date: Fri, 4 Jan 2002 01:07:43 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: PATCH: linux-2.5.2-pre7/drivers/block/nbd.c
+Message-ID: <20020104010743.A14809@baldur.yggdrasil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="82I3+IH0IqGh5yIs"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E16MOQT-0001Az-00@starship.berlin>; from phillips@bonn-fries.net on Fri, Jan 04, 2002 at 08:05:56AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, for people that care, I did a quick survey of the changes I made.  My
-idea is to conform to what is the current "standard" coding style, and not
-necessarily what was thrown into Lindent, so that running Lindent on sources
-will change as little as is necessary to make it "standard".
 
-I also checked the l-k archives a bit to confirm the changes match the
-formatting of the examples given by the King Penguin.
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Sadly, lksr is not responding, so I can't look at the history of changes
-to Lindent.  Is there another kernel CVS with CVSWeb that was as complete
-as lksr?
+	kdev_t compilation fixes for linux-2.5.2-pre7/drivers/block/nbd.c.
+I only know that it compiles at this point.
 
-On Jan 04, 2002  08:05 +0100, Daniel Phillips wrote:
-> On January 3, 2002 08:36 pm, Andreas Dilger wrote:
-> > I removed the following two options:
-> > -bs: Put a space between sizeof and its argument.
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-grep -r "sizeof (" linux | wc -l,
-grep -r "sizeof(" linux | wc -l:
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nbd.diffs"
 
-sizeof (foo): 1611, sizeof(foo): 19364 => -bs should be removed
+--- linux-2.5.2-pre7/drivers/block/nbd.c	Thu Jan  3 19:52:01 2002
++++ linux/drivers/block/nbd.c	Fri Jan  4 01:05:49 2002
+@@ -78,7 +78,7 @@
+ 
+ 	if (!inode)
+ 		return -EINVAL;
+-	dev = MINOR(inode->i_rdev);
++	dev = minor(inode->i_rdev);
+ 	if (dev >= MAX_NBD)
+ 		return -ENODEV;
+ 
+@@ -253,7 +253,7 @@
+ 		if (req != blkdev_entry_prev_request(&lo->queue_head)) {
+ 			printk(KERN_ALERT "NBD: I have problem...\n");
+ 		}
+-		if (lo != &nbd_dev[MINOR(req->rq_dev)]) {
++		if (lo != &nbd_dev[minor(req->rq_dev)]) {
+ 			printk(KERN_ALERT "NBD: request corrupted!\n");
+ 			continue;
+ 		}
+@@ -291,7 +291,7 @@
+ 			printk( KERN_ALERT "NBD: panic, panic, panic\n" );
+ 			break;
+ 		}
+-		if (lo != &nbd_dev[MINOR(req->rq_dev)]) {
++		if (lo != &nbd_dev[minor(req->rq_dev)]) {
+ 			printk(KERN_ALERT "NBD: request corrupted when clearing!\n");
+ 			continue;
+ 		}
+@@ -328,7 +328,7 @@
+ 		if (!req)
+ 			FAIL("que not empty but no request?");
+ #endif
+-		dev = MINOR(req->rq_dev);
++		dev = minor(req->rq_dev);
+ #ifdef PARANOIA
+ 		if (dev >= MAX_NBD)
+ 			FAIL("Minor too big.");		/* Probably can not happen */
+@@ -381,7 +381,7 @@
+ 		return -EPERM;
+ 	if (!inode)
+ 		return -EINVAL;
+-	dev = MINOR(inode->i_rdev);
++	dev = minor(inode->i_rdev);
+ 	if (dev >= MAX_NBD)
+ 		return -ENODEV;
+ 
+@@ -473,7 +473,7 @@
+ 
+ 	if (!inode)
+ 		return -ENODEV;
+-	dev = MINOR(inode->i_rdev);
++	dev = minor(inode->i_rdev);
+ 	if (dev >= MAX_NBD)
+ 		return -ENODEV;
+ 	lo = &nbd_dev[dev];
+@@ -528,7 +528,7 @@
+ 		nbd_blksize_bits[i] = 10;
+ 		nbd_bytesizes[i] = 0x7ffffc00; /* 2GB */
+ 		nbd_sizes[i] = nbd_bytesizes[i] >> BLOCK_SIZE_BITS;
+-		register_disk(NULL, MKDEV(MAJOR_NR,i), 1, &nbd_fops,
++		register_disk(NULL, mk_kdev(MAJOR_NR,i), 1, &nbd_fops,
+ 				nbd_bytesizes[i]>>9);
+ 	}
+ 	devfs_handle = devfs_mk_dir (NULL, "nbd", NULL);
 
-> > -psl: Put the type of a procedure on the line before its name.
-
-grep -r -B2 "^{" linux | grep "^[^ ]*(" | wc -l,
-grep -r -B2 "^{" linux | grep "^.* .*(" | wc -l:
-
-int
-foo(int x): 11408, int foo(int x): 57275 => -psl should be removed
-
-> > I added the following options:
-> > -nbbo: don't prefer to break lines before boolean operators
-
-grep -r "[&|][&|][ ^I]*$" | wc -l,
-grep -r "^[ ^I]*[&|][&|]" | wc -l:
-
-	&& foo): 3338,
-	(foo &&: 12003 => -nbbo should be added
-
-> > -ci8: indent continuation lines 8 characters
-
-Hard to measure.
-
-> > -ncs: Do not put a space after cast operators.
-
-grep -r "\*) [a-z_(]" . | wc -l,
-grep -r "\*)[a-z_(]" . | wc -l:
-
-(void *) foo: 11274, (void *)foo: 17062 => -ncs should be added
-
-> Not putting a space after a cast is gross ;)
-
-Well, it seems you are in the (slight) minority on this one.  It's not as
-big a margin as the other ones, but still measurable.  I wasn't able to
-find any examples from the King Penguin himself on this one.  Maybe that
-means casts are evil and we should strive to rid the world of them? ;-)
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+--82I3+IH0IqGh5yIs--

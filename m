@@ -1,89 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267628AbTBQWpx>; Mon, 17 Feb 2003 17:45:53 -0500
+	id <S267355AbTBQW7b>; Mon, 17 Feb 2003 17:59:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267629AbTBQWpx>; Mon, 17 Feb 2003 17:45:53 -0500
-Received: from mallard.mail.pas.earthlink.net ([207.217.120.48]:58505 "EHLO
-	mallard.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267628AbTBQWpv>; Mon, 17 Feb 2003 17:45:51 -0500
-Date: Mon, 17 Feb 2003 18:01:38 -0500
-To: linux-kernel@vger.kernel.org
-Subject: oom running aim7 on 2.5.61-mm1
-Message-ID: <20030217230138.GA11613@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S267632AbTBQW7b>; Mon, 17 Feb 2003 17:59:31 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:54546 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267355AbTBQW73>; Mon, 17 Feb 2003 17:59:29 -0500
+Date: Tue, 18 Feb 2003 00:09:04 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Werner Almesberger <wa@almesberger.net>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <kuznet@ms2.inr.ac.ru>,
+       <davem@redhat.com>, <kronos@kronoz.cjb.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: [RFC] Is an alternative module interface needed/possible?
+In-Reply-To: <20030217140423.N2092@almesberger.net>
+Message-ID: <Pine.LNX.4.44.0302172019220.1336-100000@serv>
+References: <20030214120628.208112C464@lists.samba.org>
+ <Pine.LNX.4.44.0302141410540.1336-100000@serv> <20030214105338.E2092@almesberger.net>
+ <Pine.LNX.4.44.0302141500540.1336-100000@serv> <20030214153039.G2092@almesberger.net>
+ <Pine.LNX.4.44.0302142106140.1336-100000@serv> <20030214211226.I2092@almesberger.net>
+ <Pine.LNX.4.44.0302150148010.1336-100000@serv> <20030214232818.J2092@almesberger.net>
+ <Pine.LNX.4.44.0302151816550.1336-100000@serv> <20030217140423.N2092@almesberger.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During AIM7 shared workload with 384 processes on 
-machine with 384 MB ram:
+Hi,
 
-Out of Memory: Killed process 16168 (multitask).
-Out of Memory: Killed process 16168 (multitask).
+(Subject changed to hopefully get a bit more attention.)
 
-This test creates memory pressure, but shouldn't OOM:
+On Mon, 17 Feb 2003, Werner Almesberger wrote:
 
-Used the default (anticipatory) scheduler.
+> > If we exclude the possibly-wait-forever-option, do you see the problem 
+> > for dynamic objects which also contain references to static data/
+> > functions?
+> 
+> You mean that two locking mechanisms are used, where one of them
+> shouldn't be doing all that much ? Well, yes.
+> 
+> Now, is this a problem, or just a symptom ? I'd say it's a symptom:
+> we already have a perfectly good locking/synchronization method,
+> and that's through the register/unregister interface, so the
+> module-specific part is unnecessary.
 
-Here is vmstat 60 before oom on 2.5.61-mm1:
+If it was perfectly good, we hadn't a problem. :)
 
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-135 250  2  77440   2192     64    896 1105  220  1432   286 1475  1252 93  7  0
-124 260  9  82820   3144     56    864  804  456  1340   632 1345   602 91  9  0
- 8 376 23 115200   2972     72   1152 1134  876  1634  1113 1332   665 88 12  0
- 3 381  1  99204   3388     60    800 1950  302  1985   315 1422   794 95  5  0
- 2 382  2  83180  13364     68    772 1126  269  1212   272 1179   939 96  4  0
-108 276  1  75264   4044    112   1956  502  143   774   262 1275   534 92  8  0
-162 222  6 110896   2172     88   1160 1108 1560  2051  2019 2167  1074 83 17  0
-34 351  1 149808   2460     56    668 2229 1031  2563  1253 1917  1801 88 12  0
- 3 381  0 137080   3672     56    728 2129  370  2187   381 1284   809 89 11  0
-13 371  2 121816   2360     56    748 2102  329  2123   330 1316   840 94  6  0
-17 367  1 110032   3648     56    736 1967  309  2014   311 1284   715 95  5  0
-26 358  4 105600   2412     64    780 1683  379  1773   405 1331   773 95  5  0
-53 331  5  99344   3240     64    760 1673  312  1732   316 1231  1617 95  5  0
-232 152  9  88828   2512     72   1436 1635  517  2253   674 1765   701 90 10  0
-58 326  8  79924  17432     92    968 1009  103  1026   103 1175   263 98  2  0
+> That much about the theory. Of course, in real life, we have to
+> face a few more problems:
+> 
+>  - if callbacks can happen after apparently successful "unregister",
+>    we die
+>  - if accesses to other static data owned by a module can happen
+>    after apparently successful "unregister", we may die
+>  - if a module doesn't "unregister" at all, we die too
+> 
+> But all these problems equally affect code that does other things
+> that can break a callback/access, e.g. if we destroy *de->data
+> immediately after remove_proc_entry returns.
+> 
+> So this is not a module-specific problem.
 
+You're skipping ahead. You haven't solved the problem yet, but you're 
+already jumping to conclusions. :-)
+Remember, that we want to savely remove a proc entry and as added bonus, 
+we only want a single reference count. Let's look first at the possible 
+solutions:
+module count: by design this only works for entries, which are removed 
+during module exit, but not for dynamic entries.
+failure: if the object is still busy, we just return -EBUSY. This is 
+simple, but this doesn't work for modules, since during module exit you 
+can't fail anymore.
+callbacks: the callback function itself had to be protected somehow, so 
+just to unregister a proc entry, you have to register a callback. To 
+unregister that callback, it would be silly to use another callback and 
+failure doesn't work with modules, so that only leaves the module count.
 
-For comparison, this is 2.5.59-mjb1 from about the same point in the test.  
-This one is typical.  Some swap i/o,  but nothing crazy.
+The last solution sounds complicated, but exactly this is done for 
+filesystems and we didn't really get rid of the second reference count, we 
+just moved it somewhere else, where it hurts least.
+Without interface changes this is also the only generic option to export 
+dynamic data - the drivers have to get a filesystem like interface (or 
+just become filesystem themselves).
 
-   procs                      memory      swap          io     system      cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-385  0  0  71844  71280    208   2188    5    0     6    13  101     8 95  5  0
-384  0  0  71844  56816    208   2196    8    0     8     2  101     8 95  5  0
-384  0  0  71844  36928    208   2556   10    0    10     8  102     8 95  5  0
-384  0  0  71844  31936    208   2208    7    0     7     2  101     9 97  3  0
-384  0  0  71844  13440    208   3036    1    0     1     2  101     8 97  3  0
-373 11  0  71840   5172    184   1620    3    2     3    18  101     9 98  2  0
-384  0  0  97824   4264     84    904   13  471    55   491  119    20 93  7  0
-380  4  0 103628   4488     88   1676   86  179   113   181  112    14 98  2  0
-384  0  0 102224   9236    100   1700  487  581   576   603  153    69 96  4  0
-384  0  0  99088   4952    104   1584   93   83    98    90  109    17 98  2  0
-384  0  0 100068   3116     76   1596   58   97    62   139  110    19 97  3  0
-381  3  0 133628   3904     80    804  449  901   506   907  158    80 94  6  0
-381  3  1 115160   2196     64    804  271   70   301    72  121    40 98  2  0
-384  0  0 112348   8384     72   1728  151   77   181    78  116    24 99  1  0
-384  0  0 106976  20136    100   1972  151    0   155     1  109    19 98  2  0
-384  0  0 104696  25152    112   2112   68    0    68     2  104    11 98  2  0
-384  0  0 103100  30040    116   2004   33    0    33     5  102     9 98  2  0
-384  0  0 101020  42008    136   2652   65    0    65     2  103    11 98  2  0
-384  0  0  97952  46584    144   2020   70    0    70    13  103    10 97  3  0
-384  0  0  95136  56196    156   3244   71    0    71    23  103    11 96  4  0
-384  0  0  92624  67536    156   2176   54    0    55     3  103    10 96  4  0
+The very basic reason which prevents another solution is that static data 
+(which includes functions) is controlled by the generic module code and 
+dynamic data is controlled by the driver itself. It's obvious that we 
+can't give the module code control over dynamic data, on the other hand 
+would it be possible to give the driver control over the static data? This 
+way it suddenly it becomes a module-specific problem - how can we give 
+drivers more control over its data?
 
-
-Hardware is uniprocessor K6/2 with 384 MB ram.
-2.5.61 locked up during tiobench, which runs before the AIM7 test.  The
-2.5.61 lockup wasn't an OOM.
-
-I'll try 2.5.61-mm1 with elevator=cfq.
-
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
+bye, Roman
 

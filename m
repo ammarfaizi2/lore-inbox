@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269715AbUJAGpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269719AbUJAHNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269715AbUJAGpt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 02:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269719AbUJAGpt
+	id S269719AbUJAHNq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 03:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269722AbUJAHNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 02:45:49 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9119 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S269715AbUJAGpr (ORCPT
+	Fri, 1 Oct 2004 03:13:45 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:19073 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S269719AbUJAHNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 02:45:47 -0400
-Date: Thu, 30 Sep 2004 23:44:36 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Robert Love <rml@novell.com>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] inotify: make user visible types portable
-Message-Id: <20040930234436.097e6dfe.pj@sgi.com>
-In-Reply-To: <1096608925.4803.2.camel@localhost>
-References: <1096410792.4365.3.camel@vertex>
-	<1096583108.4203.86.camel@betsy.boston.ximian.com>
-	<20040930155704.16d71cec.pj@sgi.com>
-	<1096608925.4803.2.camel@localhost>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 1 Oct 2004 03:13:44 -0400
+Date: Fri, 1 Oct 2004 09:13:23 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange 2.6.9-rc3 keyboard repeat behavior
+Message-ID: <20041001071323.GA5779@ucw.cz>
+References: <415C8D7F.3020505@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <415C8D7F.3020505@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert wrote:
-> The rule is to use the __foo variants for externally viewable types.
-> Indeed, the examples you gave are wrapped in __KERNEL__.
+On Thu, Sep 30, 2004 at 06:49:35PM -0400, Jeff Garzik wrote:
+> 
+> After booting into 2.6.9-rc3 release kernel, I am seeing strange and 
+> annoying keyboard repeat behavior.
+> 
+> If I hold down a single key, while in X, the character will repeat at 
+> the expected (2.6.9-rc2 and prior) rate... for 1 second.
+> 
+> After 1 second, the keyboard repeat rate slows to half or more.
+> 
+> Can we please fix this?  Config attached.
 
-I've no doubt you're right here.  But I'm a little confused.
+How does it behave on the console? The problem is that X generates its
+own software autorepeat and ignores what the kernel feeds it. So I
+suppose this might be more a gettimeofday or scheduling problem than one
+with the input layer.
 
-Are you saying to use __u32 so user code can compile with these kernel
-headers and see your new inotify symbols w/o polluting their name space
-with the non-underscored typedef symbols?
-
-I though such use of kernel headers in compiling user code was
-deprecated.  I'd have figured this meant while we might not go out of
-way to break someone already doing it, we wouldn't make any effort, or
-tolerate any ugly as sin __foo names, in order to add to the list of
-symbols so accessible.
-
-If you have a few minutes more patience, perhaps you could explain
-where my understanding departed from reality.
-
-Thanks.
 
 -- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Vojtech Pavlik
+SuSE Labs, SuSE CR

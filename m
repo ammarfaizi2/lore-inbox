@@ -1,1108 +1,1646 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbTBCBJ1>; Sun, 2 Feb 2003 20:09:27 -0500
+	id <S265543AbTBCB1b>; Sun, 2 Feb 2003 20:27:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbTBCBJ1>; Sun, 2 Feb 2003 20:09:27 -0500
-Received: from mail229.mail.bellsouth.net ([205.152.58.199]:28254 "EHLO
-	imf25bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S265201AbTBCBJL>; Sun, 2 Feb 2003 20:09:11 -0500
-From: Daniel Espinoza <despinoz@isye.gatech.edu>
-Reply-To: despinoz@isye.gatech.edu
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Kernel Oops
-Date: Sun, 2 Feb 2003 20:18:29 -0500
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_TYKPOQ8FPKVKAFUYIZFD"
-Message-Id: <200302022018.40902.despinoz@isye.gatech.edu>
+	id <S265608AbTBCB1a>; Sun, 2 Feb 2003 20:27:30 -0500
+Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:12937 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S265543AbTBCB0n>;
+	Sun, 2 Feb 2003 20:26:43 -0500
+Date: Sun, 2 Feb 2003 20:36:46 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: linux-kernel@vger.kernel.org
+Cc: greg@kroah.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jaroslav Kysela <perex@perex.cz>
+Subject: [PATCH][RFC] Unified Resource Parsing (2/4)
+Message-ID: <20030202203646.GA22096@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	linux-kernel@vger.kernel.org, greg@kroah.com,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jaroslav Kysela <perex@perex.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---------------Boundary-00=_TYKPOQ8FPKVKAFUYIZFD
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Hi, I am having problems with my kernel, it hangs up whenever I put some =
-load=20
-on it (example compile GCC), I'm using kernel 2.4.19 (attached is the con=
-fig=20
-file of the kernel) and the Oops that the kernel dump is this:
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-Unable to handle kernel NULL pointer dereference at virtual address 00000=
-000=20
-printing eip:
-c0106da3
-*pde =3D 00000000
-Oops : 0002
-CPU  : 0
-EIP  : 0010 : [<c0106da3>] Not tainted
-EFLAGS : 00010246
-eax: 00000000 ebx: 000001f0 ecx: 00005305 edx: 00005305
-esi: 00000010 edi: c0358000 ebp: 00000001 esp: c0359fb8
-ds: 0018 es: 0018 ss: 0018
-Process swapper (pid: 0, stackpackpage =3D c0359000)
-Stack: c0113705 c0113600 c0358000 c0106d80 0008e000 c0106e12 00000000 000=
-a0200
-       c0105000 c0105027 c035a769 c02c0200 00017ff0 00017ff0 00017ff0 000=
-17ff0
-       c037c1e0 c0100191
-Call Trace: [<c0113705>][<c0113600>][<c0106d80>][<c0106e12>][<c0105000>]
-  [<c0105027>]
-Code: c3 fb c3 8d 76 00 8d bc 27 00 00 00 00 fb ba 00 e0 ff 21
-<0> Kernel panic: Attempted to kill the idle task!
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
-
-I have have this very same Oops at least 10 times in the last four days, =
-if I=20
-should submit more information please let me know, the odd think is that =
-as=20
-long as i don't push my system, it works fine (I am writing this e-mail f=
-rom=20
-the same linux machine)
-
-I hope someone can help me out there
-
-Daniel
-
-- --=20
-- ----------------------------------------------------------------
-Daniel Espinoza Gonzalez
-School of Industrial & Systems Eng.
-Georgia Institute of Technology
-e-mail : daespino@bellsouth.net
-- -----------------------------------------------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+PcNsgvFkTX9PWJwRArj3AJ9S9QaXYCYb5aEvNN7dqzs0UOQtqACeLEBV
-bwUUswSPdmdJp0z5m99ZQ9s=3D
-=3DZXgf
------END PGP SIGNATURE-----
-
---------------Boundary-00=_TYKPOQ8FPKVKAFUYIZFD
-Content-Type: application/pgp-keys;
-  name="my pgp key"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename=public_key.asc
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-mQGiBDyIFVARBADtDBvWnafHJV+O6WaO4oyRFTb8TUOSbwSKQT8f2/5spKmCLlVC
-8LQloLiQxwgoTZjbawZhejmxl3SsD7pXJNMqTLukYyvewthJMqkPKoFoIBxGEMuv
-fJJOX8LsuEM+nnOhCFxCAAwtwI1JWUZfKZMbPJOLxKBFjOCuFyY9juWUvwCgw4B2
-wgh4d5gEvjOmC6y1FtklfqcEAIyT7+q5gyR7yiSvSV9jldCUhF/FGNYwep7RJWzE
-3lTdgrUJJxaLFvAPo0zaR1IDmti+fSpNbn/spc7vI5nmYJk3blJSlir2E+d3Gaq0
-CQX5H0I2unxaep617ZsuMMxIFXmDXdvC6PYj9JfyVYGIKyGsiWRvVwDFAgHhNizr
-7MdzA/9zsMQJ6vDEfgn+uQTnoFEZ/GkQPbiPbohB0UVmGleoXnqlMEXMFcAATAGD
-OZ6cpg/LOxJa/QJ9WXcym3RiljgZLOWNfneLNwzjoXXQQJzFq4n/3cSfM2fcYuS+
-P/wp3nU60EyYG6Q5tRBXpPtIBEHcp2Ch9LNwAVZNhiZzC3RCw7QxRGFuaWVsIEVz
-cGlub3phIEdvbnphbGV6IDxkYWVzcGlub0BiZWxsc291dGgubmV0PohXBBMRAgAX
-BQI8iBVQBQsHCgMEAxUDAgMWAgECF4AACgkQgvFkTX9PWJwGEgCeOBIkql20zOMI
-sg9z858V0w7TAyYAn0HJfofffd84EghDOVJgWaYfKZu0tCpEYW5pZWwgRXNwaW5v
-emEgPGRlc3Bpbm96QGlzeWUuZ2F0ZWNoLmVkdT6IVwQTEQIAFwUCPMBIqgULBwoD
-BAMVAwIDFgIBAheAAAoJEILxZE1/T1ic4OcAn36qQYD3Pb+T4FrftjJKRF27puWL
-AJ9sR4iVbp/buoXHSWygzlK+ojZ8xrQoRGFuaWVsIEVzcGlub3phIDxkYWVzcGlu
-b0BkaW0udWNoaWxlLmNsPohXBBMRAgAXBQI8wEjWBQsHCgMEAxUDAgMWAgECF4AA
-CgkQgvFkTX9PWJxryQCfZCAMrGkU7QedxOZFcR/YGdKVUpUAoMEhjkJlVGnIjFt2
-CMtP3HfAABREuQINBDyIFXgQCACzjqxBNqJqCbAplI2MUBCVPvSVAhrtQnC5PdbC
-kcfMz75lb4i8Jmh09Ez+syyWJbwG+EmdYbzqM7OQruo1u8ZQQLJBNhzahjIr8i6h
-6bpPB0iIj+iloFrUdpvPpsLipVXkg0gW5l/wnWQZos+wJK6uJoQLm8GTWhKwIGMj
-oSxFfkChHTPvNF3J42+tc6LMTe4aAlwAp8UwMrSt5me9se2z4ysTNS9A7u5o4cQQ
-tHLc5vE0YBg9fpqGfwvJNJ19rQXWPdON9NHLnhUBOxFy+vIfSUciqjW4pzo+CeWx
-aDz51NdrSjTp4kNutmuX52gHO3DYZNAJ9+ZYu98wr3eD+pSvAAQLB/0Z2ZGk1zTO
-tRaoNNWXnvO+vD07bkFTbHFTTFQBwfYV65w3Ff4aAY03dqyhUZ0pF3LzwchwUl87
-9Z10YHit4Yp4ArlMIyrd2AfyqQajR4QaOn1CFEBq/51lG4/OhkMzOvuVbRzCun7q
-+8qtaPAvZrC0+HotaFVA+ubf5kq0TYYeG+mDkfCIViS1N7GjvtPX5th0wYllxb3W
-4bLZT5XTJTH4m2phiH1Uw24qEk13n2kEWmPd2l96zbqyNwoPC3e25jcasXZM5Zlz
-wAQ6x0q3ZXy4zizvXVZvIvXyfiOk1vrCmMyyDP2f7Hs6Rc4cvNdqyKTRa4vUCUFD
-y1V6Lwh+YshBiEYEGBECAAYFAjyIFXgACgkQgvFkTX9PWJw/owCgn9yOJ/S9Bl02
-OuwnbSphaJlDOLAAnRImyhBU6Skfti8k+20CFbgeOLJ9
-=jnCr
------END PGP PUBLIC KEY BLOCK-----
-
---------------Boundary-00=_TYKPOQ8FPKVKAFUYIZFD
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="2.4.19.config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.4.19.config"
-
-#
-# Automatically generated make config: don't edit
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-CONFIG_MK7=y
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_MCE=y
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-# CONFIG_NOHIGHMEM is not set
-CONFIG_HIGHMEM4G=y
-# CONFIG_HIGHMEM64G is not set
-CONFIG_HIGHMEM=y
-CONFIG_MATH_EMULATION=y
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=y
-
-#
-# PCMCIA/CardBus support
-#
-# CONFIG_PCMCIA is not set
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-# CONFIG_BINFMT_AOUT is not set
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-# CONFIG_ACPI is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-# CONFIG_APM_DISPLAY_BLANK is not set
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_AMIGA is not set
-# CONFIG_PARPORT_MFC3 is not set
-# CONFIG_PARPORT_ATARI is not set
-# CONFIG_PARPORT_GSC is not set
-# CONFIG_PARPORT_SUNBPP is not set
-CONFIG_PARPORT_OTHER=y
-CONFIG_PARPORT_1284=y
-
-#
-# Plug and Play configuration
-#
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_NBD is not set
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-CONFIG_MD_LINEAR=y
-CONFIG_MD_RAID0=y
-CONFIG_MD_RAID1=y
-CONFIG_MD_RAID5=y
-CONFIG_MD_MULTIPATH=y
-CONFIG_BLK_DEV_LVM=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=m
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-CONFIG_IP_ADVANCED_ROUTER=y
-# CONFIG_IP_MULTIPLE_TABLES is not set
-# CONFIG_IP_ROUTE_MULTIPATH is not set
-# CONFIG_IP_ROUTE_TOS is not set
-CONFIG_IP_ROUTE_VERBOSE=y
-# CONFIG_IP_ROUTE_LARGE_TABLES is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_ARPD is not set
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_IRC=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-# CONFIG_IP_NF_MATCH_AH_ESP is not set
-CONFIG_IP_NF_MATCH_LENGTH=y
-CONFIG_IP_NF_MATCH_TTL=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-# CONFIG_IP_NF_NAT_LOCAL is not set
-CONFIG_IP_NF_NAT_SNMP_BASIC=y
-CONFIG_IP_NF_NAT_IRC=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-# CONFIG_IP_NF_TARGET_ULOG is not set
-CONFIG_IP_NF_TARGET_TCPMSS=y
-# CONFIG_IP_NF_ARPTABLES is not set
-# CONFIG_IPV6 is not set
-# CONFIG_KHTTPD is not set
-CONFIG_ATM=y
-CONFIG_ATM_CLIP=y
-CONFIG_ATM_CLIP_NO_ICMP=y
-# CONFIG_ATM_LANE is not set
-# CONFIG_ATM_BR2684 is not set
-# CONFIG_VLAN_8021Q is not set
-
-#
-#  
-#
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-
-#
-# Appletalk devices
-#
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-CONFIG_NET_HW_FLOWCONTROL=y
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_IDECD is not set
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=y
-# CONFIG_IDE_TASK_IOCTL is not set
-
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-CONFIG_BLK_DEV_VIA82CXXX=y
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
-
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-# CONFIG_SCSI_DEBUG_QUEUES is not set
-CONFIG_SCSI_MULTI_LUN=y
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_AM53C974 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_DMA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_NCR53C7xx is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_NCR53C8XX is not set
-# CONFIG_SCSI_SYM53C8XX is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PCI2000 is not set
-# CONFIG_SCSI_PCI2220I is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SEAGATE is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_BOOT is not set
-# CONFIG_FUSION_ISENSE is not set
-# CONFIG_FUSION_CTL is not set
-# CONFIG_FUSION_LAN is not set
-
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=y
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_AC3200 is not set
-# CONFIG_APRICOT is not set
-# CONFIG_CS89x0 is not set
-# CONFIG_TULIP is not set
-# CONFIG_TC35815 is not set
-# CONFIG_DE4X5 is not set
-# CONFIG_DGRS is not set
-# CONFIG_DM9102 is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_8139CP is not set
-CONFIG_8139TOO=y
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-# CONFIG_8139TOO_8129 is not set
-# CONFIG_8139_NEW_RX_RESET is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-# CONFIG_VIA_RHINE is not set
-# CONFIG_WINBOND_840 is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-CONFIG_PPP=y
-CONFIG_PPP_MULTILINK=y
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-# CONFIG_PPPOE is not set
-CONFIG_PPPOATM=y
-# CONFIG_SLIP is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-
-#
-# ATM drivers
-#
-CONFIG_ATM_TCP=y
-# CONFIG_ATM_LANAI is not set
-# CONFIG_ATM_ENI is not set
-# CONFIG_ATM_FIRESTREAM is not set
-# CONFIG_ATM_ZATM is not set
-# CONFIG_ATM_NICSTAR is not set
-# CONFIG_ATM_IDT77252 is not set
-# CONFIG_ATM_AMBASSADOR is not set
-# CONFIG_ATM_HORIZON is not set
-# CONFIG_ATM_IA is not set
-# CONFIG_ATM_FORE200E_MAYBE is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Input core support
-#
-CONFIG_INPUT=y
-CONFIG_INPUT_KEYBDEV=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1248
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1024
-CONFIG_INPUT_JOYDEV=y
-CONFIG_INPUT_EVDEV=y
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=1024
-CONFIG_PRINTER=y
-# CONFIG_LP_CONSOLE is not set
-# CONFIG_PPDEV is not set
-
-#
-# I2C support
-#
-# CONFIG_I2C is not set
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-# CONFIG_82C710_MOUSE is not set
-# CONFIG_PC110_PAD is not set
-# CONFIG_MK712_MOUSE is not set
-
-#
-# Joysticks
-#
-# CONFIG_INPUT_GAMEPORT is not set
-# CONFIG_INPUT_SERIO is not set
-
-#
-# Joysticks
-#
-# CONFIG_INPUT_IFORCE_USB is not set
-# CONFIG_INPUT_DB9 is not set
-# CONFIG_INPUT_GAMECON is not set
-# CONFIG_INPUT_TURBOGRAFX is not set
-# CONFIG_QIC02_TAPE is not set
-
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_AMD_RNG is not set
-# CONFIG_INTEL_RNG is not set
-# CONFIG_NVRAM is not set
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP_INTEL is not set
-# CONFIG_AGP_I810 is not set
-CONFIG_AGP_VIA=y
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_SWORKS is not set
-# CONFIG_DRM is not set
-# CONFIG_MWAVE is not set
-
-#
-# Multimedia devices
-#
-CONFIG_VIDEO_DEV=y
-
-#
-# Video For Linux
-#
-CONFIG_VIDEO_PROC_FS=y
-
-#
-# Video Adapters
-#
-# CONFIG_VIDEO_PMS is not set
-# CONFIG_VIDEO_BWQCAM is not set
-# CONFIG_VIDEO_CQCAM is not set
-# CONFIG_VIDEO_W9966 is not set
-# CONFIG_VIDEO_CPIA is not set
-# CONFIG_VIDEO_STRADIS is not set
-
-#
-# Radio Adapters
-#
-# CONFIG_RADIO_CADET is not set
-# CONFIG_RADIO_RTRACK is not set
-# CONFIG_RADIO_RTRACK2 is not set
-# CONFIG_RADIO_AZTECH is not set
-# CONFIG_RADIO_GEMTEK is not set
-# CONFIG_RADIO_GEMTEK_PCI is not set
-# CONFIG_RADIO_MAXIRADIO is not set
-# CONFIG_RADIO_MAESTRO is not set
-# CONFIG_RADIO_SF16FMI is not set
-# CONFIG_RADIO_TERRATEC is not set
-# CONFIG_RADIO_TRUST is not set
-# CONFIG_RADIO_TYPHOON is not set
-# CONFIG_RADIO_ZOLTRIX is not set
-
-#
-# File systems
-#
-CONFIG_QUOTA=y
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-# CONFIG_REISERFS_CHECK is not set
-CONFIG_REISERFS_PROC_INFO=y
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-# CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=y
-# CONFIG_EFS_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_NTFS_FS is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-CONFIG_UDF_FS=y
-CONFIG_UDF_RW=y
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-# CONFIG_NFS_FS is not set
-# CONFIG_NFSD is not set
-# CONFIG_SUNRPC is not set
-# CONFIG_LOCKD is not set
-# CONFIG_SMB_FS is not set
-# CONFIG_NCP_FS is not set
-CONFIG_ZISOFS_FS=y
-CONFIG_ZLIB_FS_INFLATE=y
-
-#
-# Partition Types
-#
-CONFIG_PARTITION_ADVANCED=y
-# CONFIG_ACORN_PARTITION is not set
-# CONFIG_OSF_PARTITION is not set
-# CONFIG_AMIGA_PARTITION is not set
-# CONFIG_ATARI_PARTITION is not set
-# CONFIG_MAC_PARTITION is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_BSD_DISKLABEL is not set
-# CONFIG_MINIX_SUBPARTITION is not set
-# CONFIG_SOLARIS_X86_PARTITION is not set
-# CONFIG_UNIXWARE_DISKLABEL is not set
-CONFIG_LDM_PARTITION=y
-# CONFIG_LDM_DEBUG is not set
-# CONFIG_SGI_PARTITION is not set
-# CONFIG_ULTRIX_PARTITION is not set
-# CONFIG_SUN_PARTITION is not set
-# CONFIG_SMB_NLS is not set
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-# CONFIG_NLS_CODEPAGE_437 is not set
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-# CONFIG_FB is not set
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-# CONFIG_SOUND_BT878 is not set
-CONFIG_SOUND_CMPCI=y
-# CONFIG_SOUND_CMPCI_FM is not set
-CONFIG_SOUND_CMPCI_MIDI=y
-CONFIG_SOUND_CMPCI_MPUIO=330
-CONFIG_SOUND_CMPCI_JOYSTICK=y
-CONFIG_SOUND_CMPCI_CM8738=y
-# CONFIG_SOUND_CMPCI_SPDIFINVERSE is not set
-# CONFIG_SOUND_CMPCI_SPDIFLOOP is not set
-CONFIG_SOUND_CMPCI_SPEAKERS=6
-# CONFIG_SOUND_CMPCI_LINE_REAR is not set
-# CONFIG_SOUND_CMPCI_LINE_BASS is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_LONG_TIMEOUT is not set
-
-#
-# USB Host Controller Drivers
-#
-# CONFIG_USB_EHCI_HCD is not set
-CONFIG_USB_UHCI=y
-# CONFIG_USB_UHCI_ALT is not set
-# CONFIG_USB_OHCI is not set
-
-#
-# USB Device Class drivers
-#
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_STORAGE is not set
-CONFIG_USB_ACM=y
-CONFIG_USB_PRINTER=y
-
-#
-# USB Human Interface Devices (HID)
-#
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-# CONFIG_USB_WACOM is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_DC2XX is not set
-# CONFIG_USB_MDC800 is not set
-CONFIG_USB_SCANNER=y
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HPUSBSCSI is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_PWC is not set
-# CONFIG_USB_SE401 is not set
-# CONFIG_USB_STV680 is not set
-# CONFIG_USB_VICAM is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_DABUSB is not set
-
-#
-# USB Network adaptors
-#
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_CDCETHER is not set
-# CONFIG_USB_USBNET is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_BRLVGER is not set
-
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set
-
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_KERNEL is not set
-
---------------Boundary-00=_TYKPOQ8FPKVKAFUYIZFD--
-
+This patch creates a series of global resource parsing functions that can be 
+used by any pnp protocol including eventually ACPI.  These new functions are 
+based on those found in the pnpbios driver but they have been improved.  
+This patch also adds MEM32 support to the pnp layer.
+
+
+diff -urN a/drivers/pnp/Makefile b/drivers/pnp/Makefile
+--- a/drivers/pnp/Makefile	Tue Jan 14 05:58:03 2003
++++ b/drivers/pnp/Makefile	Sat Feb  1 22:05:51 2003
+@@ -4,9 +4,9 @@
+ 
+ pnp-card-$(CONFIG_PNP_CARD) = card.o
+ 
+-obj-y		:= core.o driver.o resource.o interface.o quirks.o names.o system.o $(pnp-card-y)
++obj-y		:= core.o driver.o resource.o support.o interface.o quirks.o names.o system.o $(pnp-card-y)
+ 
+ obj-$(CONFIG_PNPBIOS)		+= pnpbios/
+ obj-$(CONFIG_ISAPNP)		+= isapnp/
+ 
+-export-objs	:= core.o driver.o resource.o $(pnp-card-y)
++export-objs	:= core.o driver.o resource.o support.o $(pnp-card-y)
+diff -urN a/drivers/pnp/interface.c b/drivers/pnp/interface.c
+--- a/drivers/pnp/interface.c	Sun Feb  2 11:40:10 2003
++++ b/drivers/pnp/interface.c	Sat Feb  1 22:50:10 2003
+@@ -158,27 +158,15 @@
+ 	case IORESOURCE_MEM_8AND16BIT:
+ 		s = "8-bit&16-bit";
+ 		break;
++	case IORESOURCE_MEM_32BIT:
++		s = "32-bit";
++		break;
+ 	default:
+ 		s = "16-bit";
+ 	}
+ 	pnp_printf(buffer, ", %s\n", s);
+ }
+ 
+-static void pnp_print_mem32(pnp_info_buffer_t *buffer, char *space, struct pnp_mem32 *mem32)
+-{
+-	int first = 1, i;
+-
+-	pnp_printf(buffer, "%s32-bit memory ", space);
+-	for (i = 0; i < 17; i++) {
+-		if (first) {
+-			first = 0;
+-		} else {
+-			pnp_printf(buffer, ":");
+-		}
+-		pnp_printf(buffer, "%02x", mem32->data[i]);
+-	}
+-}
+-
+ static void pnp_print_resources(pnp_info_buffer_t *buffer, char *space, struct pnp_resources *res, int dep)
+ {
+ 	char *s;
+@@ -186,7 +174,6 @@
+ 	struct pnp_irq *irq;
+ 	struct pnp_dma *dma;
+ 	struct pnp_mem *mem;
+-	struct pnp_mem32 *mem32;
+ 
+ 	switch (res->priority) {
+ 	case PNP_RES_PRIORITY_PREFERRED:
+@@ -211,8 +198,6 @@
+ 		pnp_print_dma(buffer, space, dma);
+ 	for (mem = res->mem; mem; mem = mem->next)
+ 		pnp_print_mem(buffer, space, mem);
+-	for (mem32 = res->mem32; mem32; mem32 = mem32->next)
+-		pnp_print_mem32(buffer, space, mem32);
+ }
+ 
+ static ssize_t pnp_show_possible_resources(struct device *dmdev, char *buf)
+diff -urN a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
+--- a/drivers/pnp/isapnp/core.c	Sun Feb  2 11:40:10 2003
++++ b/drivers/pnp/isapnp/core.c	Sat Feb  1 22:05:51 2003
+@@ -579,14 +579,18 @@
+ 						 int depnum, int size)
+ {
+ 	unsigned char tmp[17];
+-	struct pnp_mem32 *mem32;
++	struct pnp_mem *mem;
+ 
+ 	isapnp_peek(tmp, size);
+-	mem32 = isapnp_alloc(sizeof(struct pnp_mem32));
+-	if (!mem32)
++	mem = isapnp_alloc(sizeof(struct pnp_mem));
++	if (!mem)
+ 		return;
+-	memcpy(mem32->data, tmp, 17);
+-	pnp_add_mem32_resource(dev,depnum,mem32);
++	mem->min = (tmp[4] << 24) | (tmp[3] << 16) | (tmp[2] << 8) | tmp[1];
++	mem->max = (tmp[8] << 24) | (tmp[7] << 16) | (tmp[6] << 8) | tmp[5];
++	mem->align = (tmp[12] << 24) | (tmp[11] << 16) | (tmp[10] << 8) | tmp[9];
++	mem->size = (tmp[16] << 24) | (tmp[15] << 16) | (tmp[14] << 8) | tmp[13];
++	mem->flags = tmp[0];
++	pnp_add_mem_resource(dev,depnum,mem);
+ }
+ 
+ /*
+@@ -596,15 +600,18 @@
+ static void __init isapnp_add_fixed_mem32_resource(struct pnp_dev *dev,
+ 						       int depnum, int size)
+ {
+-	unsigned char tmp[17];
+-	struct pnp_mem32 *mem32;
++	unsigned char tmp[9];
++	struct pnp_mem *mem;
+ 
+ 	isapnp_peek(tmp, size);
+-	mem32 = isapnp_alloc(sizeof(struct pnp_mem32));
+-	if (!mem32)
++	mem = isapnp_alloc(sizeof(struct pnp_mem));
++	if (!mem)
+ 		return;
+-	memcpy(mem32->data, tmp, 17);
+-	pnp_add_mem32_resource(dev,depnum,mem32);
++	mem->min = mem->max = (tmp[4] << 24) | (tmp[3] << 16) | (tmp[2] << 8) | tmp[1];
++	mem->size = (tmp[8] << 24) | (tmp[7] << 16) | (tmp[6] << 8) | tmp[5];
++	mem->align = 0;
++	mem->flags = tmp[0];
++	pnp_add_mem_resource(dev,depnum,mem);
+ }
+ 
+ /*
+@@ -736,7 +743,7 @@
+ 			size = 0;
+ 			break;
+ 		case _LTAG_FIXEDMEM32RANGE:
+-			if (size != 17)
++			if (size != 9)
+ 				goto __skip;
+ 			isapnp_add_fixed_mem32_resource(dev, depnum, size);
+ 			size = 0;
+diff -urN a/drivers/pnp/pnpbios/core.c b/drivers/pnp/pnpbios/core.c
+--- a/drivers/pnp/pnpbios/core.c	Sun Feb  2 11:40:10 2003
++++ b/drivers/pnp/pnpbios/core.c	Sat Feb  1 22:05:51 2003
+@@ -664,381 +664,6 @@
+ 
+ #endif   /* CONFIG_HOTPLUG */
+ 
+-
+-/* pnp current resource reading functions */
+-
+-
+-static void add_irqresource(struct pnp_dev *dev, int irq)
+-{
+-	int i = 0;
+-	while (pnp_irq_valid(dev, i) && i < PNP_MAX_IRQ) i++;
+-	if (i < PNP_MAX_IRQ) {
+-		dev->resources.irq_resource[i].start =
+-		dev->resources.irq_resource[i].end = (unsigned long) irq;
+-		dev->resources.irq_resource[i].flags = IORESOURCE_IRQ;  // Also clears _UNSET flag
+-	}
+-}
+-
+-static void add_dmaresource(struct pnp_dev *dev, int dma)
+-{
+-	int i = 0;
+-	while (pnp_dma_valid(dev, i) && i < DEVICE_COUNT_DMA) i++;
+-	if (i < PNP_MAX_DMA) {
+-		dev->resources.dma_resource[i].start =
+-		dev->resources.dma_resource[i].end = (unsigned long) dma;
+-		dev->resources.dma_resource[i].flags = IORESOURCE_DMA;  // Also clears _UNSET flag
+-	}
+-}
+-
+-static void add_ioresource(struct pnp_dev *dev, int io, int len)
+-{
+-	int i = 0;
+-	while (pnp_port_valid(dev, i) && i < PNP_MAX_PORT) i++;
+-	if (i < PNP_MAX_PORT) {
+-		dev->resources.port_resource[i].start = (unsigned long) io;
+-		dev->resources.port_resource[i].end = (unsigned long)(io + len - 1);
+-		dev->resources.port_resource[i].flags = IORESOURCE_IO;  // Also clears _UNSET flag
+-	}
+-}
+-
+-static void add_memresource(struct pnp_dev *dev, int mem, int len)
+-{
+-	int i = 0;
+-	while (pnp_mem_valid(dev, i) && i < PNP_MAX_MEM) i++;
+-	if (i < PNP_MAX_MEM) {
+-		dev->resources.mem_resource[i].start = (unsigned long) mem;
+-		dev->resources.mem_resource[i].end = (unsigned long)(mem + len - 1);
+-		dev->resources.mem_resource[i].flags = IORESOURCE_MEM;  // Also clears _UNSET flag
+-	}
+-}
+-
+-static unsigned char *node_current_resource_data_to_dev(struct pnp_bios_node *node, struct pnp_dev *dev)
+-{
+-	unsigned char *p = node->data, *lastp=NULL;
+-	int i;
+-
+-	/*
+-	 * First, set resource info to default values
+-	 */
+-	for (i=0;i<PNP_MAX_PORT;i++) {
+-		dev->resources.port_resource[i].start = 0;
+-		dev->resources.port_resource[i].end = 0;
+-		dev->resources.port_resource[i].flags = IORESOURCE_UNSET;
+-	}
+-	for (i=0;i<PNP_MAX_MEM;i++) {
+-		dev->resources.mem_resource[i].start = 0;
+-		dev->resources.mem_resource[i].end = 0;
+-		dev->resources.mem_resource[i].flags = IORESOURCE_UNSET;
+-	}
+-	for (i=0;i<PNP_MAX_IRQ;i++) {
+-		dev->resources.irq_resource[i].start = (unsigned long)-1;
+-		dev->resources.irq_resource[i].end = (unsigned long)-1;
+-		dev->resources.irq_resource[i].flags = IORESOURCE_UNSET;
+-	}
+-	for (i=0;i<PNP_MAX_DMA;i++) {
+-		dev->resources.dma_resource[i].start = (unsigned long)-1;
+-		dev->resources.dma_resource[i].end = (unsigned long)-1;
+-		dev->resources.dma_resource[i].flags = IORESOURCE_UNSET;
+-	}
+-
+-	/*
+-	 * Fill in dev resource info
+-	 */
+-        while ( (char *)p < ((char *)node->data + node->size )) {
+-        	if(p==lastp) break;
+-
+-                if( p[0] & 0x80 ) {// large item
+-			switch (p[0] & 0x7f) {
+-			case 0x01: // memory
+-			{
+-				int io = *(short *) &p[4];
+-				int len = *(short *) &p[10];
+-				add_memresource(dev, io, len);
+-				break;
+-			}
+-			case 0x02: // device name
+-			{
+-				int len = *(short *) &p[1];
+-				memcpy(dev->dev.name, p + 3, len >= 80 ? 79 : len);
+-				break;
+-			}
+-			case 0x05: // 32-bit memory
+-			{
+-				int io = *(int *) &p[4];
+-				int len = *(int *) &p[16];
+-				add_memresource(dev, io, len);
+-				break;
+-			}
+-			case 0x06: // fixed location 32-bit memory
+-			{
+-				int io = *(int *) &p[4];
+-				int len = *(int *) &p[8];
+-				add_memresource(dev, io, len);
+-				break;
+-			}
+-			} /* switch */
+-                        lastp = p+3;
+-                        p = p + p[1] + p[2]*256 + 3;
+-                        continue;
+-                }
+-                if ((p[0]>>3) == 0x0f){ // end tag
+-			p = p + 2;
+-			goto end;
+-                        break;
+-			}
+-                switch (p[0]>>3) {
+-                case 0x04: // irq
+-                {
+-                        int i, mask, irq = -1;
+-                        mask= p[1] + p[2]*256;
+-                        for (i=0;i<16;i++, mask=mask>>1)
+-                                if(mask & 0x01) irq=i;
+-			add_irqresource(dev, irq);
+-                        break;
+-                }
+-                case 0x05: // dma
+-                {
+-                        int i, mask, dma = -1;
+-                        mask = p[1];
+-                        for (i=0;i<8;i++, mask = mask>>1)
+-                                if(mask & 0x01) dma=i;
+-			add_dmaresource(dev, dma);
+-                        break;
+-                }
+-                case 0x08: // io
+-                {
+-			int io= p[2] + p[3] *256;
+-			int len = p[7];
+-			add_ioresource(dev, io, len);
+-                        break;
+-                }
+-		case 0x09: // fixed location io
+-		{
+-			int io = p[1] + p[2] * 256;
+-			int len = p[3];
+-			add_ioresource(dev, io, len);
+-			break;
+-		}
+-                } /* switch */
+-                lastp=p+1;
+-                p = p + (p[0] & 0x07) + 1;
+-
+-        } /* while */
+-	end:
+-	if (pnp_port_start(dev, 0) == 0 &&
+-	    pnp_mem_start(dev, 0) == 0 &&
+-	    pnp_irq(dev, 0) == -1 &&
+-	    pnp_dma(dev, 0) == -1)
+-		dev->active = 0;
+-	else
+-		dev->active = 1;
+-        return (unsigned char *)p;
+-}
+-
+-
+-/* pnp possible resource reading functions */
+-
+-static void read_lgtag_mem(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_mem * mem;
+-	mem = pnpbios_kmalloc(sizeof(struct pnp_mem),GFP_KERNEL);
+-	if (!mem)
+-		return;
+-	memset(mem,0,sizeof(struct pnp_mem));
+-	mem->min = ((p[3] << 8) | p[2]) << 8;
+-	mem->max = ((p[5] << 8) | p[4]) << 8;
+-	mem->align = (p[7] << 8) | p[6];
+-	mem->size = ((p[9] << 8) | p[8]) << 8;
+-	mem->flags = p[1];
+-	pnp_add_mem_resource(dev,depnum,mem);
+-	return;
+-}
+-
+-static void read_lgtag_mem32(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_mem32 * mem;
+-	mem = pnpbios_kmalloc(sizeof(struct pnp_mem32),GFP_KERNEL);
+-	if (!mem)
+-		return;
+-	memset(mem,0,sizeof(struct pnp_mem32));
+-	memcpy(mem->data, p, 17);
+-	pnp_add_mem32_resource(dev,depnum,mem);
+-	return;
+-}
+-
+-static void read_lgtag_fmem32(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_mem32 * mem;
+-	mem = pnpbios_kmalloc(sizeof(struct pnp_mem32),GFP_KERNEL);
+-	if (!mem)
+-		return;
+-	memset(mem,0,sizeof(struct pnp_mem32));
+-	memcpy(mem->data, p, 17);
+-	pnp_add_mem32_resource(dev,depnum,mem);
+-	return;
+-}
+-
+-static void read_smtag_irq(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_irq * irq;
+-	irq = pnpbios_kmalloc(sizeof(struct pnp_irq),GFP_KERNEL);
+-	if (!irq)
+-		return;
+-	memset(irq,0,sizeof(struct pnp_irq));
+-	irq->map = (p[2] << 8) | p[1];
+-	if (size > 2)
+-		irq->flags = p[3];
+-	pnp_add_irq_resource(dev,depnum,irq);
+-	return;
+-}
+-
+-static void read_smtag_dma(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_dma * dma;
+-	dma = pnpbios_kmalloc(sizeof(struct pnp_dma),GFP_KERNEL);
+-	if (!dma)
+-		return;
+-	memset(dma,0,sizeof(struct pnp_dma));
+-	dma->map = p[1];
+-	dma->flags = p[2];
+-	pnp_add_dma_resource(dev,depnum,dma);
+-	return;
+-}
+-
+-static void read_smtag_port(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_port * port;
+-	port = pnpbios_kmalloc(sizeof(struct pnp_port),GFP_KERNEL);
+-	if (!port)
+-		return;
+-	memset(port,0,sizeof(struct pnp_port));
+-	port->min = (p[3] << 8) | p[2];
+-	port->max = (p[5] << 8) | p[4];
+-	port->align = p[6];
+-	port->size = p[7];
+-	port->flags = p[1] ? PNP_PORT_FLAG_16BITADDR : 0;
+-	pnp_add_port_resource(dev,depnum,port);
+-	return;
+-}
+-
+-static void read_smtag_fport(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
+-{
+-	struct pnp_port * port;
+-	port = pnpbios_kmalloc(sizeof(struct pnp_port),GFP_KERNEL);
+-	if (!port)
+-		return;
+-	memset(port,0,sizeof(struct pnp_port));
+-	port->min = port->max = (p[2] << 8) | p[1];
+-	port->size = p[3];
+-	port->align = 0;
+-	port->flags = PNP_PORT_FLAG_FIXED;
+-	pnp_add_port_resource(dev,depnum,port);
+-	return;
+-}
+-
+-static unsigned char *node_possible_resource_data_to_dev(unsigned char *p, struct pnp_bios_node *node, struct pnp_dev *dev)
+-{
+-	int len, depnum, dependent;
+-
+-	if ((char *)p == NULL)
+-		return NULL;
+-	if (pnp_build_resource(dev, 0) == NULL)
+-		return NULL;
+-	depnum = 0; /*this is the first so it should be 0 */
+-	dependent = 0;
+-        while ( (char *)p < ((char *)node->data + node->size )) {
+-
+-                if( p[0] & 0x80 ) {// large item
+-			len = (p[2] << 8) | p[1];
+-			switch (p[0] & 0x7f) {
+-			case 0x01: // memory
+-			{
+-				if (len != 9)
+-					goto __skip;
+-				read_lgtag_mem(p,len,depnum,dev);
+-				break;
+-			}
+-			case 0x05: // 32-bit memory
+-			{
+-				if (len != 17)
+-					goto __skip;
+-				read_lgtag_mem32(p,len,depnum,dev);
+-				break;
+-			}
+-			case 0x06: // fixed location 32-bit memory
+-			{
+-				if (len != 17)
+-					goto __skip;
+-				read_lgtag_fmem32(p,len,depnum,dev);
+-				break;
+-			}
+-			} /* switch */
+-                        p += len + 3;
+-                        continue;
+-                }
+-		len = p[0] & 0x07;
+-                switch ((p[0]>>3) & 0x0f) {
+-		case 0x0f:
+-		{
+-			p = p + 2;
+-        		return (unsigned char *)p;
+-			break;
+-		}
+-                case 0x04: // irq
+-                {
+-			if (len < 2 || len > 3)
+-				goto __skip;
+-			read_smtag_irq(p,len,depnum,dev);
+-			break;
+-                }
+-                case 0x05: // dma
+-                {
+-			if (len != 2)
+-				goto __skip;
+-			read_smtag_dma(p,len,depnum,dev);
+-                        break;
+-                }
+-                case 0x06: // start dep
+-                {
+-			if (len > 1)
+-				goto __skip;
+-			dependent = 0x100 | PNP_RES_PRIORITY_ACCEPTABLE;
+-			if (len > 0)
+-				dependent = 0x100 | p[1];
+-			pnp_build_resource(dev,dependent);
+-			depnum = pnp_get_max_depnum(dev);
+-                        break;
+-                }
+-                case 0x07: // end dep
+-                {
+-			if (len != 0)
+-				goto __skip;
+-			depnum = 0;
+-                        break;
+-                }
+-                case 0x08: // io
+-                {
+-			if (len != 7)
+-				goto __skip;
+-			read_smtag_port(p,len,depnum,dev);
+-                        break;
+-                }
+-		case 0x09: // fixed location io
+-		{
+-			if (len != 3)
+-				goto __skip;
+-			read_smtag_fport(p,len,depnum,dev);
+-			break;
+-		}
+-                } /* switch */
+-		__skip:
+-                p += len + 1;
+-
+-        } /* while */
+-
+-        return NULL;
+-}
+-
+ /* pnp EISA ids */
+ 
+ #define HEX(id,a) hex[((id)>>a) & 15]
+@@ -1107,163 +732,6 @@
+         } /* while */
+ }
+ 
+-/* pnp resource writing functions */
+-
+-static void write_lgtag_mem(unsigned char *p, int size, struct pnp_mem *mem)
+-{
+-	if (!mem)
+-		return;
+-	p[2] = (mem->min >> 8) & 0xff;
+-	p[3] = ((mem->min >> 8) >> 8) & 0xff;
+-	p[4] = (mem->max >> 8) & 0xff;
+-	p[5] = ((mem->max >> 8) >> 8) & 0xff;
+-	p[6] = mem->align & 0xff;
+-	p[7] = (mem->align >> 8) & 0xff;
+-	p[8] = (mem->size >> 8) & 0xff;
+-	p[9] = ((mem->size >> 8) >> 8) & 0xff;
+-	p[1] = mem->flags & 0xff;
+-	return;
+-}
+-
+-static void write_smtag_irq(unsigned char *p, int size, struct pnp_irq *irq)
+-{
+-	if (!irq)
+-		return;
+-	p[1] = irq->map & 0xff;
+-	p[2] = (irq->map >> 8) & 0xff;
+-	if (size > 2)
+-		p[3] = irq->flags & 0xff;
+-	return;
+-}
+-
+-static void write_smtag_dma(unsigned char *p, int size, struct pnp_dma *dma)
+-{
+-	if (!dma)
+-		return;
+-	p[1] = dma->map & 0xff;
+-	p[2] = dma->flags & 0xff;
+-	return;
+-}
+-
+-static void write_smtag_port(unsigned char *p, int size, struct pnp_port *port)
+-{
+-	if (!port)
+-		return;
+-	p[2] = port->min & 0xff;
+-	p[3] = (port->min >> 8) & 0xff;
+-	p[4] = port->max & 0xff;
+-	p[5] = (port->max >> 8) & 0xff;
+-	p[6] = port->align & 0xff;
+-	p[7] = port->size & 0xff;
+-	p[1] = port->flags & 0xff;
+-	return;
+-}
+-
+-static void write_smtag_fport(unsigned char *p, int size, struct pnp_port *port)
+-{
+-	if (!port)
+-		return;
+-	p[1] = port->min & 0xff;
+-	p[2] = (port->min >> 8) & 0xff;
+-	p[3] = port->size & 0xff;
+-	return;
+-}
+-
+-static int node_set_resources(struct pnp_bios_node *node, struct pnp_rule_table *config)
+-{
+-	int error = 0;
+-	unsigned char *p = (char *)node->data, *lastp = NULL;
+-	int len, port = 0, irq = 0, dma = 0, mem = 0;
+-
+-	if (!node)
+-		return -EINVAL;
+-	if ((char *)p == NULL)
+-		return -EINVAL;
+-        while ( (char *)p < ((char *)node->data + node->size )) {
+-
+-                if( p[0] & 0x80 ) {// large item
+-			len = (p[2] << 8) | p[1];
+-			switch (p[0] & 0x7f) {
+-			case 0x01: // memory
+-			{
+-				if (len != 9)
+-					goto __skip;
+-				write_lgtag_mem(p,len,config->mem[mem]);
+-				mem++;
+-				break;
+-			}
+-			case 0x05: // 32-bit memory
+-			{
+-				if (len != 17)
+-					goto __skip;
+-				/* FIXME */
+-				break;
+-			}
+-			case 0x06: // fixed location 32-bit memory
+-			{
+-				if (len != 17)
+-					goto __skip;
+-				/* FIXME */
+-				break;
+-			}
+-			} /* switch */
+-                        lastp = p+3;
+-                        p = p + p[1] + p[2]*256 + 3;
+-                        continue;
+-                }
+-		len = p[0] & 0x07;
+-                switch ((p[0]>>3) & 0x0f) {
+-		case 0x0f:
+-		{
+-        		goto done;
+-			break;
+-		}
+-                case 0x04: // irq
+-                {
+-			if (len < 2 || len > 3)
+-				goto __skip;
+-			write_smtag_irq(p,len,config->irq[irq]);
+-			irq++;
+-			break;
+-                }
+-                case 0x05: // dma
+-                {
+-			if (len != 2)
+-				goto __skip;
+-			write_smtag_dma(p,len,config->dma[dma]);
+-			dma++;
+-                        break;
+-                }
+-                case 0x08: // io
+-                {
+-			if (len != 7)
+-				goto __skip;
+-			write_smtag_port(p,len,config->port[port]);
+-			port++;
+-                        break;
+-                }
+-		case 0x09: // fixed location io
+-		{
+-			if (len != 3)
+-				goto __skip;
+-			write_smtag_fport(p,len,config->port[port]);
+-			port++;
+-			break;
+-		}
+-                } /* switch */
+-		__skip:
+-                p += len + 1;
+-
+-        } /* while */
+-
+-	/* we never got an end tag so this data is corrupt or invalid */
+-	return -EINVAL;
+-
+-	done:
+-	error = pnp_bios_set_dev_node(node->handle, (char)0, node);
+-        return error;
+-}
+-
+ static int pnpbios_get_resources(struct pnp_dev *dev)
+ {
+ 	struct pnp_dev_node_info node_info;
+@@ -1280,7 +748,8 @@
+ 		return -1;
+ 	if (pnp_bios_get_dev_node(&nodenum, (char )0, node))
+ 		return -ENODEV;
+-	node_current_resource_data_to_dev(node,dev);
++	pnp_parse_current_resources((char *)node->data,(char *)node->data + node->size,dev);
++	dev->active = pnp_is_active(dev);
+ 	kfree(node);
+ 	return 0;
+ }
+@@ -1301,9 +770,10 @@
+ 		return -1;
+ 	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
+ 		return -ENODEV;
+-	if(node_set_resources(node, &dev->config->rule)<0){
++	if(!pnp_write_resources((char *)node->data,(char *)node->data + node->size,dev)){
+ 		return -1;
+ 	}
++	pnp_bios_set_dev_node(node->handle, (char)0, node);
+ 	kfree(node);
+ 	return 0;
+ }
+@@ -1326,7 +796,6 @@
+ 	.align	= 0,
+ 	.size	= 0,
+ 	.flags	= 0,
+-	.pad	= 0,
+ 	};
+ 	struct pnp_dma	dma = {
+ 	.map	= 0,
+@@ -1366,7 +835,7 @@
+ 		return -1;
+ 	if (pnp_bios_get_dev_node(&nodenum, (char )1, node))
+ 		goto failed;
+-	if(node_set_resources(node, config)<0)
++	if(pnp_write_resources((char *)node->data,(char *)node->data + node->size,dev)<0)
+ 		goto failed;
+ 	kfree(config);
+ 	kfree(node);
+@@ -1448,9 +917,10 @@
+ 		pnpid32_to_pnpid(node->eisa_id,id);
+ 		memcpy(dev_id->id,id,7);
+ 		pnp_add_id(dev_id, dev);
+-		pos = node_current_resource_data_to_dev(node,dev);
+-		pos = node_possible_resource_data_to_dev(pos,node,dev);
++		pos = pnp_parse_current_resources((char *)node->data,(char *)node->data + node->size,dev);
++		pos = pnp_parse_possible_resources((char *)pos,(char *)node->data + node->size,dev);
+ 		node_id_data_to_dev(pos,node,dev);
++		dev->active = pnp_is_active(dev);
+ 		dev->flags = node->flags;
+ 		if (!(dev->flags & PNPBIOS_NO_CONFIG))
+ 			dev->capabilities |= PNP_CONFIGURABLE;
+diff -urN a/drivers/pnp/resource.c b/drivers/pnp/resource.c
+--- a/drivers/pnp/resource.c	Sun Feb  2 11:40:10 2003
++++ b/drivers/pnp/resource.c	Sat Feb  1 23:09:48 2003
+@@ -212,29 +212,6 @@
+ 	return 0;
+ }
+ 
+-/*
+- *  Add 32-bit memory resource to resources list.
+- */
+-
+-int pnp_add_mem32_resource(struct pnp_dev *dev, int depnum, struct pnp_mem32 *data)
+-{
+-	struct pnp_resources *res;
+-	struct pnp_mem32 *ptr;
+-	res = pnp_find_resources(dev,depnum);
+-	if (!res)
+-		return -EINVAL;
+-	if (!data)
+-		return -EINVAL;
+-	ptr = res->mem32;
+-	while (ptr && ptr->next)
+-		ptr = ptr->next;
+-	if (ptr)
+-		ptr->next = data;
+-	else
+-		res->mem32 = data;
+-	return 0;
+-}
+-
+ static void pnp_free_port(struct pnp_port *port)
+ {
+ 	struct pnp_port *next;
+@@ -279,17 +256,6 @@
+ 	}
+ }
+ 
+-static void pnp_free_mem32(struct pnp_mem32 *mem32)
+-{
+-	struct pnp_mem32 *next;
+-
+-	while (mem32) {
+-		next = mem32->next;
+-		kfree(mem32);
+-		mem32 = next;
+-	}
+-}
+-
+ void pnp_free_resources(struct pnp_resources *resources)
+ {
+ 	struct pnp_resources *next;
+@@ -300,7 +266,6 @@
+ 		pnp_free_irq(resources->irq);
+ 		pnp_free_dma(resources->dma);
+ 		pnp_free_mem(resources->mem);
+-		pnp_free_mem32(resources->mem32);
+ 		kfree(resources);
+ 		resources = next;
+ 	}
+@@ -341,7 +306,7 @@
+ 	/* check for cold conflicts */
+ 	pnp_for_each_dev(tdev) {
+ 		/* Is the device configurable? */
+-		if (tdev == dev || mode ? !dev->active : dev->active)
++		if (tdev == dev || (mode ? !dev->active : dev->active))
+ 			continue;
+ 		for (tmp = 0; tmp < PNP_MAX_PORT; tmp++) {
+ 			if (tdev->res.port_resource[tmp].flags & IORESOURCE_IO) {
+@@ -412,7 +377,7 @@
+ 	/* check for cold conflicts */
+ 	pnp_for_each_dev(tdev) {
+ 		/* Is the device configurable? */
+-		if (tdev == dev || mode ? !dev->active : dev->active)
++		if (tdev == dev || (mode ? !dev->active : dev->active))
+ 			continue;
+ 		for (tmp = 0; tmp < PNP_MAX_MEM; tmp++) {
+ 			if (tdev->res.mem_resource[tmp].flags & IORESOURCE_MEM) {
+@@ -481,7 +446,7 @@
+ 	/* check for cold conflicts */
+ 	pnp_for_each_dev(tdev) {
+ 		/* Is the device configurable? */
+-		if (tdev == dev || mode ? !dev->active : dev->active)
++		if (tdev == dev || (mode ? !dev->active : dev->active))
+ 			continue;
+ 		for (tmp = 0; tmp < PNP_MAX_IRQ; tmp++) {
+ 			if (tdev->res.irq_resource[tmp].flags & IORESOURCE_IRQ) {
+@@ -563,7 +528,7 @@
+ 	/* check for cold conflicts */
+ 	pnp_for_each_dev(tdev) {
+ 		/* Is the device configurable? */
+-		if (tdev == dev || mode ? !dev->active : dev->active)
++		if (tdev == dev || (mode ? !dev->active : dev->active))
+ 			continue;
+ 		for (tmp = 0; tmp < PNP_MAX_DMA; tmp++) {
+ 			if (tdev->res.dma_resource[tmp].flags & IORESOURCE_DMA) {
+@@ -1060,6 +1025,9 @@
+ static int pnp_generate_config(struct pnp_dev * dev)
+ {
+ 	int move;
++	/* if the device cannot be configured skip it */
++	if (!pnp_can_configure(dev))
++		return 1;
+ 	if (!dev->rule) {
+ 		dev->rule = pnp_alloc(sizeof(struct pnp_rule_table));
+ 		if (!dev->rule)
+@@ -1074,7 +1042,7 @@
+ 
+ 	pnp_init_resource_table(&dev->res);
+ 	dev->rule->depnum = 0;
+-	printk (KERN_ERR "pnp: Unable to resolve resource conflicts for the device '%s', this device will not be usable.\n", dev->dev.bus_id);
++	pnp_err("res: Unable to resolve resource conflicts for the device '%s', this device will not be usable.", dev->dev.bus_id);
+ 	return 0;
+ }
+ 
+@@ -1128,10 +1096,11 @@
+ 	int error;
+ 	if(!dev)
+ 		return -EINVAL;
+-	if(dev->active)
++	if(dev->active) {
+ 		error = pnp_process_active(dev);
+-	else
++	} else {
+ 		error = pnp_generate_config(dev);
++	}
+ 	return error;
+ }
+ 
+@@ -1154,13 +1123,13 @@
+ 	if (!pnp_can_configure(dev))
+ 		return -EBUSY;
+ 	if (dev->status != PNP_READY && dev->status != PNP_ATTACHED){
+-		printk(KERN_INFO "pnp: Activation failed because the PnP device '%s' is busy\n", dev->dev.bus_id);
++		pnp_err("res: Activation failed because the PnP device '%s' is busy", dev->dev.bus_id);
+ 		return -EINVAL;
+ 	}
+ 	if (!pnp_can_write(dev))
+ 		return -EINVAL;
+ 
+-	pnp_dbg("the device '%s' has been activated", dev->dev.bus_id);
++	pnp_dbg("res: the device '%s' has been activated", dev->dev.bus_id);
+ 	dev->protocol->set(dev);
+ 	if (pnp_can_read(dev))
+ 		dev->protocol->get(dev);
+diff -urN a/drivers/pnp/support.c b/drivers/pnp/support.c
+--- a/drivers/pnp/support.c	Thu Jan  1 00:00:00 1970
++++ b/drivers/pnp/support.c	Sat Feb  1 22:35:47 2003
+@@ -0,0 +1,660 @@
++/*
++ * support.c - provides standard pnp functions for the use of pnp protocol drivers, 
++ *
++ * Copyright 2003 Adam Belay <ambx1@neo.rr.com>
++ *
++ * Resource parsing functions are based on those in the linux pnpbios driver.
++ * Copyright Christian Schmidt, Tom Lees, David Hinds, Alan Cox, Thomas Hood,
++ * Brian Gerst and Adam Belay.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++
++#ifdef CONFIG_PNP_DEBUG
++	#define DEBUG
++#else
++	#undef DEBUG
++#endif
++
++#include <linux/pnp.h>
++#include "base.h"
++
++#define SMALL_TAG_PNPVERNO		0x01
++#define SMALL_TAG_LOGDEVID		0x02
++#define SMALL_TAG_COMPATDEVID		0x03
++#define SMALL_TAG_IRQ			0x04
++#define SMALL_TAG_DMA			0x05
++#define SMALL_TAG_STARTDEP		0x06
++#define SMALL_TAG_ENDDEP		0x07
++#define SMALL_TAG_PORT			0x08
++#define SMALL_TAG_FIXEDPORT		0x09
++#define SMALL_TAG_VENDOR		0x0e
++#define SMALL_TAG_END			0x0f
++#define LARGE_TAG			0x80
++#define LARGE_TAG_MEM			0x01
++#define LARGE_TAG_ANSISTR		0x02
++#define LARGE_TAG_UNICODESTR		0x03
++#define LARGE_TAG_VENDOR		0x04
++#define LARGE_TAG_MEM32		0x05
++#define LARGE_TAG_FIXEDMEM32		0x06
++
++
++/**
++ * pnp_is_active - Determines if a device is active based on its current resources
++ * @dev: pointer to the desired PnP device
++ *
++ */
++
++int pnp_is_active(struct pnp_dev * dev)
++{
++	if (!pnp_port_start(dev, 0) &&
++	    !pnp_mem_start(dev, 0) &&
++	    pnp_irq(dev, 0) == -1 &&
++	    pnp_dma(dev, 0) == -1)
++	    	return 0;
++	else
++		return 1;
++}
++
++
++/*
++ * Current resource reading functions *
++ */
++
++static void current_irqresource(struct pnp_dev *dev, int irq)
++{
++	int i = 0;
++	while (pnp_irq_valid(dev, i) && i < PNP_MAX_IRQ) i++;
++	if (i < PNP_MAX_IRQ) {
++		dev->res.irq_resource[i].start =
++		dev->res.irq_resource[i].end = (unsigned long) irq;
++		dev->res.irq_resource[i].flags = IORESOURCE_IRQ;  // Also clears _UNSET flag
++	}
++}
++
++static void current_dmaresource(struct pnp_dev *dev, int dma)
++{
++	int i = 0;
++	while (pnp_dma_valid(dev, i) && i < PNP_MAX_DMA) i++;
++	if (i < PNP_MAX_DMA) {
++		dev->res.dma_resource[i].start =
++		dev->res.dma_resource[i].end = (unsigned long) dma;
++		dev->res.dma_resource[i].flags = IORESOURCE_DMA;  // Also clears _UNSET flag
++	}
++}
++
++static void current_ioresource(struct pnp_dev *dev, int io, int len)
++{
++	int i = 0;
++	while (pnp_port_valid(dev, i) && i < PNP_MAX_PORT) i++;
++	if (i < PNP_MAX_PORT) {
++		dev->res.port_resource[i].start = (unsigned long) io;
++		dev->res.port_resource[i].end = (unsigned long)(io + len - 1);
++		dev->res.port_resource[i].flags = IORESOURCE_IO;  // Also clears _UNSET flag
++	}
++}
++
++static void current_memresource(struct pnp_dev *dev, int mem, int len)
++{
++	int i = 0;
++	while (pnp_mem_valid(dev, i) && i < PNP_MAX_MEM) i++;
++	if (i < PNP_MAX_MEM) {
++		dev->res.mem_resource[i].start = (unsigned long) mem;
++		dev->res.mem_resource[i].end = (unsigned long)(mem + len - 1);
++		dev->res.mem_resource[i].flags = IORESOURCE_MEM;  // Also clears _UNSET flag
++	}
++}
++
++/**
++ * pnp_parse_current_res - Extracts current resource information from a raw PnP resource structure
++ * @p: pointer to the raw structure
++ * @end: pointer to the end of the structure
++ * @dev: pointer to the desired PnP device
++ *
++ */
++
++unsigned char * pnp_parse_current_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev)
++{
++	int len;
++
++	if (!p)
++		return NULL;
++
++	/* Blank the resource table values */
++	pnp_init_resource_table(&dev->res);
++
++	while ((char *)p < (char *)end) {
++
++		if(p[0] & LARGE_TAG) { /* large tag */
++			len = (p[2] << 8) | p[1];
++			switch (p[0] & 0x7f) {
++			case LARGE_TAG_MEM:
++			{
++				int io = *(short *) &p[4];
++				int size = *(short *) &p[10];
++				if (len != 9)
++					goto lrg_err;
++				current_memresource(dev, io, size);
++				break;
++			}
++			case LARGE_TAG_ANSISTR: /* human readable name */
++			{
++				int size = *(short *) &p[1];
++				memcpy(dev->dev.name, p + 3, len >= 80 ? 79 : size);
++				break;
++			}
++			case LARGE_TAG_MEM32:
++			{
++				int io = *(int *) &p[4];
++				int size = *(int *) &p[16];
++				if (len != 17)
++					goto lrg_err;
++				current_memresource(dev, io, size);
++				break;
++			}
++			case LARGE_TAG_FIXEDMEM32:
++			{
++				int io = *(int *) &p[4];
++				int size = *(int *) &p[8];
++				if (len != 9)
++					goto lrg_err;
++				current_memresource(dev, io, size);
++				break;
++			}
++			default: /* an unkown tag */
++			{
++				lrg_err:
++				pnp_warn("parser: Unknown large tag '0x%x'.", p[0] & 0x7f);
++				break;
++			}
++			} /* switch */
++                        p += len + 3;
++			continue;
++		} /* end large tag */
++
++		/* small tag */
++		len = p[0] & 0x07;
++		switch ((p[0]>>3) & 0x0f) {
++		case SMALL_TAG_IRQ:
++		{
++			int i, mask, irq = -1;
++			if (len < 2 || len > 3)
++				goto sm_err;
++			mask= p[1] + p[2]*256;
++			for (i=0;i<16;i++, mask=mask>>1)
++				if(mask & 0x01) irq=i;
++			current_irqresource(dev, irq);
++			break;
++		}
++		case SMALL_TAG_DMA:
++		{
++			int i, mask, dma = -1;
++			if (len != 2)
++				goto sm_err;
++			mask = p[1];
++			for (i=0;i<8;i++, mask = mask>>1)
++				if(mask & 0x01) dma=i;
++			current_dmaresource(dev, dma);
++			break;
++		}
++		case SMALL_TAG_PORT:
++		{
++			int io= p[2] + p[3] *256;
++			int size = p[7];
++			if (len != 7)
++				goto sm_err;
++			current_ioresource(dev, io, size);
++			break;
++		}
++		case SMALL_TAG_FIXEDPORT:
++		{
++			int io = p[1] + p[2] * 256;
++			int size = p[3];
++			if (len != 3)
++				goto sm_err;
++			current_ioresource(dev, io, size);
++			break;
++		}
++		case SMALL_TAG_END:
++		{
++			p = p + 2;
++        		return (unsigned char *)p;
++			break;
++		}
++		default: /* an unkown tag */
++		{
++			sm_err:
++			pnp_warn("parser: Unknown small tag '0x%x'.", p[0]>>3);
++			break;
++		}
++		}
++                p += len + 1;
++	}
++	pnp_err("parser: Resource structure does not contain an end tag.");
++
++	return NULL;
++}
++
++
++/*
++ * Possible resource reading functions *
++ */
++
++static void possible_mem(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_mem * mem;
++	mem = pnp_alloc(sizeof(struct pnp_mem));
++	if (!mem)
++		return;
++	mem->min = ((p[3] << 8) | p[2]) << 8;
++	mem->max = ((p[5] << 8) | p[4]) << 8;
++	mem->align = (p[7] << 8) | p[6];
++	mem->size = ((p[9] << 8) | p[8]) << 8;
++	mem->flags = p[1];
++	pnp_add_mem_resource(dev,depnum,mem);
++	return;
++}
++
++static void possible_mem32(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_mem * mem;
++	mem = pnp_alloc(sizeof(struct pnp_mem));
++	if (!mem)
++		return;
++	mem->min = (p[5] << 24) | (p[4] << 16) | (p[3] << 8) | p[2];
++	mem->max = (p[9] << 24) | (p[8] << 16) | (p[7] << 8) | p[6];
++	mem->align = (p[13] << 24) | (p[12] << 16) | (p[11] << 8) | p[10];
++	mem->size = (p[17] << 24) | (p[16] << 16) | (p[15] << 8) | p[14];
++	mem->flags = p[1];
++	pnp_add_mem_resource(dev,depnum,mem);
++	return;
++}
++
++static void possible_fixed_mem32(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_mem * mem;
++	mem = pnp_alloc(sizeof(struct pnp_mem));
++	if (!mem)
++		return;
++	mem->min = mem->max = (p[5] << 24) | (p[4] << 16) | (p[3] << 8) | p[2];
++	mem->size = (p[9] << 24) | (p[8] << 16) | (p[7] << 8) | p[6];
++	mem->align = 0;
++	mem->flags = p[1];
++	pnp_add_mem_resource(dev,depnum,mem);
++	return;
++}
++
++static void possible_irq(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_irq * irq;
++	irq = pnp_alloc(sizeof(struct pnp_irq));
++	if (!irq)
++		return;
++	irq->map = (p[2] << 8) | p[1];
++	if (size > 2)
++		irq->flags = p[3];
++	pnp_add_irq_resource(dev,depnum,irq);
++	return;
++}
++
++static void possible_dma(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_dma * dma;
++	dma = pnp_alloc(sizeof(struct pnp_dma));
++	if (!dma)
++		return;
++	dma->map = p[1];
++	dma->flags = p[2];
++	pnp_add_dma_resource(dev,depnum,dma);
++	return;
++}
++
++static void possible_port(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_port * port;
++	port = pnp_alloc(sizeof(struct pnp_port));
++	if (!port)
++		return;
++	port->min = (p[3] << 8) | p[2];
++	port->max = (p[5] << 8) | p[4];
++	port->align = p[6];
++	port->size = p[7];
++	port->flags = p[1] ? PNP_PORT_FLAG_16BITADDR : 0;
++	pnp_add_port_resource(dev,depnum,port);
++	return;
++}
++
++static void possible_fixed_port(unsigned char *p, int size, int depnum, struct pnp_dev *dev)
++{
++	struct pnp_port * port;
++	port = pnp_alloc(sizeof(struct pnp_port));
++	if (!port)
++		return;
++	port->min = port->max = (p[2] << 8) | p[1];
++	port->size = p[3];
++	port->align = 0;
++	port->flags = PNP_PORT_FLAG_FIXED;
++	pnp_add_port_resource(dev,depnum,port);
++	return;
++}
++
++/**
++ * pnp_parse_possible_resources - Extracts possible resource information from a raw PnP resource structure
++ * @p: pointer to the raw structure
++ * @end: pointer to the end of the structure
++ * @dev: pointer to the desired PnP device
++ *
++ */
++
++unsigned char * pnp_parse_possible_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev)
++{
++	int len, depnum = 0, dependent = 0;
++
++	if (!p)
++		return NULL;
++
++	if (pnp_build_resource(dev, 0) == NULL)
++		return NULL;
++
++	while ((char *)p < (char *)end) {
++
++		if(p[0] & LARGE_TAG) { /* large tag */
++			len = (p[2] << 8) | p[1];
++			switch (p[0] & 0x7f) {
++			case LARGE_TAG_MEM:
++			{
++				if (len != 9)
++					goto lrg_err;
++				possible_mem(p,len,depnum,dev);
++				break;
++			}
++			case LARGE_TAG_MEM32:
++			{
++				if (len != 17)
++					goto lrg_err;
++				possible_mem32(p,len,depnum,dev);
++				break;
++			}
++			case LARGE_TAG_FIXEDMEM32:
++			{
++				if (len != 9)
++					goto lrg_err;
++				possible_fixed_mem32(p,len,depnum,dev);
++				break;
++			}
++			default: /* an unkown tag */
++			{
++				lrg_err:
++				pnp_warn("parser: Unknown large tag '0x%x'.", p[0] & 0x7f);
++				break;
++			}
++			} /* switch */
++                        p += len + 3;
++			continue;
++		} /* end large tag */
++
++		/* small tag */
++		len = p[0] & 0x07;
++		switch ((p[0]>>3) & 0x0f) {
++		case SMALL_TAG_IRQ:
++		{
++			if (len < 2 || len > 3)
++				goto sm_err;
++			possible_irq(p,len,depnum,dev);
++			break;
++		}
++		case SMALL_TAG_DMA:
++		{
++			if (len != 2)
++				goto sm_err;
++			possible_dma(p,len,depnum,dev);
++			break;
++		}
++                case SMALL_TAG_STARTDEP:
++                {
++			if (len > 1)
++				goto sm_err;
++			dependent = 0x100 | PNP_RES_PRIORITY_ACCEPTABLE;
++			if (len > 0)
++				dependent = 0x100 | p[1];
++			pnp_build_resource(dev,dependent);
++			depnum = pnp_get_max_depnum(dev);
++                        break;
++                }
++                case SMALL_TAG_ENDDEP:
++                {
++			if (len != 0)
++				goto sm_err;
++			depnum = 0;
++                        break;
++                }
++		case SMALL_TAG_PORT:
++		{
++			if (len != 7)
++				goto sm_err;
++			possible_port(p,len,depnum,dev);
++			break;
++		}
++		case SMALL_TAG_FIXEDPORT:
++		{
++			if (len != 3)
++				goto sm_err;
++			possible_fixed_port(p,len,depnum,dev);
++			break;
++		}
++		case SMALL_TAG_END:
++		{
++			p = p + 2;
++			return (unsigned char *)p;
++			break;
++		}
++		default: /* an unkown tag */
++		{
++			sm_err:
++			pnp_warn("parser: Unknown small tag '0x%x'.", p[0]>>3);
++			break;
++		}
++		}
++                p += len + 1;
++	}
++	pnp_err("parser: Resource structure does not contain an end tag.");
++
++	return NULL;
++}
++
++
++/*
++ * Resource Writing functions
++ */
++
++static void write_mem(unsigned char *p, struct resource * res)
++{
++	unsigned long base = res->start;
++	unsigned long len = res->end - res->start + 1;
++	p[2] = (base >> 8) & 0xff;
++	p[3] = ((base >> 8) >> 8) & 0xff;
++	p[4] = (base >> 8) & 0xff;
++	p[5] = ((base >> 8) >> 8) & 0xff;
++	p[8] = (len >> 8) & 0xff;
++	p[9] = ((len >> 8) >> 8) & 0xff;
++	return;
++}
++
++static void write_mem32(unsigned char *p, struct resource * res)
++{
++	unsigned long base = res->start;
++	unsigned long len = res->end - res->start + 1;
++	p[2] = base & 0xff;
++	p[3] = (base >> 8) & 0xff;
++	p[4] = (base >> 16) & 0xff;
++	p[5] = (base >> 24) & 0xff;
++	p[6] = base & 0xff;
++	p[7] = (base >> 8) & 0xff;
++	p[8] = (base >> 16) & 0xff;
++	p[9] = (base >> 24) & 0xff;
++	p[14] = len & 0xff;
++	p[15] = (len >> 8) & 0xff;
++	p[16] = (len >> 16) & 0xff;
++	p[17] = (len >> 24) & 0xff;
++	return;
++}
++
++static void write_fixed_mem32(unsigned char *p, struct resource * res)
++{	unsigned long base = res->start;
++	unsigned long len = res->end - res->start + 1;
++	p[2] = base & 0xff;
++	p[3] = (base >> 8) & 0xff;
++	p[4] = (base >> 16) & 0xff;
++	p[5] = (base >> 24) & 0xff;
++	p[6] = len & 0xff;
++	p[7] = (len >> 8) & 0xff;
++	p[8] = (len >> 16) & 0xff;
++	p[9] = (len >> 24) & 0xff;
++	return;
++}
++
++static void write_irq(unsigned char *p, struct resource * res)
++{
++	unsigned long map = 0;
++	map = 1 << res->start;
++	p[1] = map & 0xff;
++	p[2] = (map >> 8) & 0xff;
++	return;
++}
++
++static void write_dma(unsigned char *p, struct resource * res)
++{
++	unsigned long map = 0;
++	map = 1 << res->start;
++	p[1] = map & 0xff;
++	return;
++}
++
++static void write_port(unsigned char *p, struct resource * res)
++{
++	unsigned long base = res->start;
++	unsigned long len = res->end - res->start + 1;
++	p[2] = base & 0xff;
++	p[3] = (base >> 8) & 0xff;
++	p[4] = base & 0xff;
++	p[5] = (base >> 8) & 0xff;
++	p[7] = len & 0xff;
++	return;
++}
++
++static void write_fixed_port(unsigned char *p, struct resource * res)
++{
++	unsigned long base = res->start;
++	unsigned long len = res->end - res->start + 1;
++	p[1] = base & 0xff;
++	p[2] = (base >> 8) & 0xff;
++	p[3] = len & 0xff;
++	return;
++}
++
++unsigned char * pnp_write_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev)
++{
++	int len, port = 0, irq = 0, dma = 0, mem = 0;
++	struct pnp_resource_table * res = &dev->res;
++
++	if (!p)
++		return NULL;
++
++	while ((char *)p < (char *)end) {
++
++		if(p[0] & LARGE_TAG) { /* large tag */
++			len = (p[2] << 8) | p[1];
++			switch (p[0] & 0x7f) {
++			case LARGE_TAG_MEM:
++			{
++				if (len != 9)
++					goto lrg_err;
++				write_mem(p, &res->mem_resource[mem]);
++				mem++;
++				break;
++			}
++			case LARGE_TAG_MEM32:
++			{
++				if (len != 17)
++					goto lrg_err;
++				write_mem32(p, &res->mem_resource[mem]);
++				break;
++			}
++			case LARGE_TAG_FIXEDMEM32:
++			{
++				if (len != 9)
++					goto lrg_err;
++				write_fixed_mem32(p, &res->mem_resource[mem]);
++				break;
++			}
++			default: /* an unkown tag */
++			{
++				lrg_err:
++				pnp_warn("parser: Unknown large tag '0x%x'.", p[0] & 0x7f);
++				break;
++			}
++			} /* switch */
++                        p += len + 3;
++			continue;
++		} /* end large tag */
++
++		/* small tag */
++		len = p[0] & 0x07;
++		switch ((p[0]>>3) & 0x0f) {
++		case SMALL_TAG_IRQ:
++		{
++			if (len < 2 || len > 3)
++				goto sm_err;
++			write_irq(p, &res->irq_resource[irq]);
++			irq++;
++			break;
++		}
++		case SMALL_TAG_DMA:
++		{
++			if (len != 2)
++				goto sm_err;
++			write_dma(p, &res->dma_resource[irq]);
++			dma++;
++			break;
++		}
++		case SMALL_TAG_PORT:
++		{
++			if (len != 7)
++				goto sm_err;
++			write_port(p, &res->port_resource[port]);
++			port++;
++			break;
++		}
++		case SMALL_TAG_FIXEDPORT:
++		{
++			if (len != 3)
++				goto sm_err;
++			write_fixed_port(p, &res->port_resource[port]);
++			port++;
++			break;
++		}
++		case SMALL_TAG_END:
++		{
++			p = p + 2;
++			return (unsigned char *)p;
++			break;
++		}
++		default: /* an unkown tag */
++		{
++			sm_err:
++			pnp_warn("parser: Unknown small tag '0x%x'.", p[0]>>3);
++			break;
++		}
++		}
++                p += len + 1;
++	}
++	pnp_err("parser: Resource structure does not contain an end tag.");
++
++	return NULL;
++}
++
++EXPORT_SYMBOL(pnp_is_active);
++EXPORT_SYMBOL(pnp_parse_current_resources);
++EXPORT_SYMBOL(pnp_parse_possible_resources);
++EXPORT_SYMBOL(pnp_write_resources);
+diff -urN a/include/linux/ioport.h b/include/linux/ioport.h
+--- a/include/linux/ioport.h	Tue Jan 14 05:58:23 2003
++++ b/include/linux/ioport.h	Sat Feb  1 22:05:51 2003
+@@ -77,6 +77,7 @@
+ #define IORESOURCE_MEM_8BIT		(0<<3)
+ #define IORESOURCE_MEM_16BIT		(1<<3)
+ #define IORESOURCE_MEM_8AND16BIT	(2<<3)
++#define IORESOURCE_MEM_32BIT		(3<<3)
+ #define IORESOURCE_MEM_SHADOWABLE	(1<<5)	/* dup: IORESOURCE_SHADOWABLE */
+ #define IORESOURCE_MEM_EXPANSIONROM	(1<<6)
+ 
+diff -urN a/include/linux/pnp.h b/include/linux/pnp.h
+--- a/include/linux/pnp.h	Sun Feb  2 11:40:10 2003
++++ b/include/linux/pnp.h	Sat Feb  1 22:48:44 2003
+@@ -149,11 +149,6 @@
+ 	struct pnp_mem *next;		/* next memory resource */
+ };
+ 
+-struct pnp_mem32 {
+-	unsigned char data[17];
+-	struct pnp_mem32 *next;		/* next 32-bit memory resource */
+-};
+-
+ #define PNP_RES_PRIORITY_PREFERRED	0
+ #define PNP_RES_PRIORITY_ACCEPTABLE	1
+ #define PNP_RES_PRIORITY_FUNCTIONAL	2
+@@ -166,7 +161,6 @@
+ 	struct pnp_irq *irq;		/* first IRQ */
+ 	struct pnp_dma *dma;		/* first DMA */
+ 	struct pnp_mem *mem;		/* first memory resource */
+-	struct pnp_mem32 *mem32;	/* first 32-bit memory */
+ 	struct pnp_dev *dev;		/* parent */
+ 	struct pnp_resources *dep;	/* dependent resources */
+ };
+@@ -380,7 +374,6 @@
+ int pnp_add_dma_resource(struct pnp_dev *dev, int depnum, struct pnp_dma *data);
+ int pnp_add_port_resource(struct pnp_dev *dev, int depnum, struct pnp_port *data);
+ int pnp_add_mem_resource(struct pnp_dev *dev, int depnum, struct pnp_mem *data);
+-int pnp_add_mem32_resource(struct pnp_dev *dev, int depnum, struct pnp_mem32 *data);
+ void pnp_init_resource_table(struct pnp_resource_table *table);
+ int pnp_activate_dev(struct pnp_dev *dev);
+ int pnp_disable_dev(struct pnp_dev *dev);
+@@ -392,6 +385,12 @@
+ int pnp_register_driver(struct pnp_driver *drv);
+ void pnp_unregister_driver(struct pnp_driver *drv);
+ 
++/* support */
++int pnp_is_active(struct pnp_dev * dev);
++unsigned char * pnp_parse_current_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev);
++unsigned char * pnp_parse_possible_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev);
++unsigned char * pnp_write_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev);
++
+ #else
+ 
+ /* just in case anyone decides to call these without PnP Support Enabled */
+@@ -413,8 +412,7 @@
+ static inline int pnp_add_dma_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data) { return -ENODEV; }
+ static inline int pnp_add_port_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data) { return -ENODEV; }
+ static inline int pnp_add_mem_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data) { return -ENODEV; }
+-static inline int pnp_add_mem32_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data) { return -ENODEV; }
+-static void pnp_init_resource_table(struct pnp_resource_table *table) { ; }
++static inline void pnp_init_resource_table(struct pnp_resource_table *table) { ; }
+ static inline int pnp_activate_dev(struct pnp_dev *dev) { return -ENODEV; }
+ static inline int pnp_disable_dev(struct pnp_dev *dev) { return -ENODEV; }
+ static inline void pnp_resource_change(struct resource *resource, unsigned long start, unsigned long size) { ; }
+@@ -424,6 +422,12 @@
+ static inline int pnp_add_id(struct pnp_id *id, struct pnp_dev *dev) { return -ENODEV; }
+ static inline int pnp_register_driver(struct pnp_driver *drv) { return -ENODEV; }
+ static inline void pnp_unregister_driver(struct pnp_driver *drv) { ; }
++
++/* support */
++static inline int pnp_is_active(struct pnp_dev * dev) { return -ENODEV; )
++static inline unsigned char * pnp_parse_current_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev) { return NULL; }
++static inline unsigned char * pnp_parse_possible_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev) { return NULL; }
++static inline unsigned char * pnp_write_resources(unsigned char * p, unsigned char * end, struct pnp_dev *dev) { return NULL; )
+ 
+ #endif /* CONFIG_PNP */
+ 

@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266065AbUFDXiF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266067AbUFDXjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266065AbUFDXiF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 19:38:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbUFDXiF
+	id S266067AbUFDXjY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 19:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbUFDXjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 19:38:05 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:29057 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S266065AbUFDXh4 convert rfc822-to-8bit
+	Fri, 4 Jun 2004 19:39:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52121 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266067AbUFDXjS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 19:37:56 -0400
-Subject: Re: [BUG] NFS no longer updates file modification times  
-	appropriately
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040604162410.569c7ecc@dell_ss3.pdx.osdl.net>
-References: <1086297112.3659.3.camel@lade.trondhjem.org>
-	 <20040604132355.GA31710@tsunami.ccur.com>
-	 <1086390495.4161.43.camel@lade.trondhjem.org>
-	 <20040604162410.569c7ecc@dell_ss3.pdx.osdl.net>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1086392275.4161.52.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 04 Jun 2004 19:37:55 -0400
+	Fri, 4 Jun 2004 19:39:18 -0400
+Message-ID: <40C107D2.9030301@pobox.com>
+Date: Fri, 04 Jun 2004 19:37:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: viro@parcelfarce.linux.theplanet.co.uk, perex@suse.cz, torvalds@osdl.org
+Subject: Re: [RFC] ASLA design, depth of code review and lack thereof
+References: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040604230819.GR12308@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På fr , 04/06/2004 klokka 19:24, skreiv Stephen Hemminger:
 
-> What about fsync()?
+While we're bitching about ALSA, can we please kill the 
+subsystem-specific malloc and "magic cast" wrappers?
 
-There were no changes to fsync() between 2.6.5 and 2.6.6. In any case,
-Joe's test program did not use fsync() (that was very much the problem).
-Any use of either close() or fsync() on the client will cause the
-mtime/ctime to be updated on the server, and that change should
-immediately propagate back to the client.
+This debug machinery is better done elsewhere...
 
-Cheers,
-  Trond
+

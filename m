@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130227AbRBZObJ>; Mon, 26 Feb 2001 09:31:09 -0500
+	id <S130170AbRBZOrk>; Mon, 26 Feb 2001 09:47:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130219AbRBZO27>; Mon, 26 Feb 2001 09:28:59 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130226AbRBZO2k>;
-	Mon, 26 Feb 2001 09:28:40 -0500
-Date: Mon, 26 Feb 2001 14:05:04 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200102261305.OAA04955.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, Holger.Smolinski@de.ibm.com, dwguest@win.tue.nl,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] partitions/ibm.c
+	id <S130222AbRBZOrT>; Mon, 26 Feb 2001 09:47:19 -0500
+Received: from sportingbet.gw.dircon.net ([195.157.147.30]:6664 "HELO
+	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
+	id <S130256AbRBZOpp>; Mon, 26 Feb 2001 09:45:45 -0500
+Date: Mon, 26 Feb 2001 14:42:09 +0000
+From: Sean Hunter <sean@dev.sportingbet.com>
+To: Sven Rudolph <rudsve@drewag.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2 -> 2.4: /proc/net/tcp 10x slower ?
+Message-ID: <20010226144209.A3379@dev.sportingbet.com>
+Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
+	Sven Rudolph <rudsve@drewag.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <xfkelwlo7ny.fsf@uxrs2.drewag.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <xfkelwlo7ny.fsf@uxrs2.drewag.de>; from rudsve@drewag.de on Mon, Feb 26, 2001 at 03:12:01PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From Holger.Smolinski@de.ibm.com Mon Feb 26 12:10:59 2001
+The identd wot I wrote is still fast as anything on 2.4 :)
 
-    Andries, others,
-    Thanks for hacking through the code of fs/partitions/ibm.c.
-    Your patch does not work at all because you are relying on the
-    data in the part component of the hd structure, which does not
-    hold the geometry data of the disk but the data of the partitions
-    on that disk.
+As you can see from this teeny sample of my ident log, I take just a little
+over 1/100th of a second to respond (on average). :)
 
-Hmm. To me "geometry" means things with sectors, heads and cylinders -
-something you do not need at all. You only need to know whether you
-have to read sector 1 or 2 from this disk.
+2001-02-25 16:18:35.714731500 Q [194.75.152.225] - [32907, 25]
+2001-02-25 16:18:35.726085500 A [194.75.152.225] - [9a0c62e79c0df893bb96dd74/3a99305b/b0164] for [32907, 25] UID [506]
+2001-02-26 09:41:02.535514500 Q [195.92.249.252] - [33363, 21]
+2001-02-26 09:41:02.548884500 A [195.92.249.252] - [8c0babd7b8ab6830b7092839/3a9a24ae/8454c] for [33363, 21] UID [500]
 
-    Besides that, exactly these data are to be set up
-    by the code in fs/partitions/ibm.c.
+By the way, the intention of my ident server was not to be fast, but just to be
+a little simpler and less over-engineered than pidentd, and not to give out any
+site-specific information (uid's etc).  The speed was a bonus.
 
-No.
-ibm_partition() is called from check_partition(), which does
-	first_sector = hd->part[MINOR(dev)].start_sect;
-and then calls ibm_partition() with first_sector as third parameter.
-Clearly, this assumes that hd->part[MINOR(dev)].start_sect
-has a value already.
-
-The "start" field of the struct returned by HDIO_GETGEO does not
-tell us where the partition table lives.
-It tells us where the partition starts. Maybe there is no table.
-For an entire disk the answer will be zero.
-
-Thus, I think the present setup of ibm_partition() is broken.
-(If I have a disk with ibm partition, then it seems right now
-it cannot be moved to some ide or scsi machine because the
-information you want is returned only by the
-	device->discipline->fill_geometry()
-call in dasd.c, and not by the HDIO_GETGEO of any other driver.)
-
-Andries
+Sean
 
 
-[And, of course, similarly, these fill_geometry() routines are broken.]
-
+On Mon, Feb 26, 2001 at 03:12:01PM +0100, Sven Rudolph wrote:
+> Usually identd's on Linux parse /proc/net/tcp.
+> 
+> When migrating from Linux 2.2.17 to 2.4.2 identd became much slower.
+> 
+> I traced it back to the point where /proc/net/tcp is read.
+> 
+> On the same slightly loaded system:
+> 
+> 2.2.17 $ time cat /proc/net/tcp >/dev/null
+> real    0m0.004s
+> user    0m0.000s
+> sys     0m0.010s
+> 
+> (Or sometimes 0.000s due to granularity)
+> 
+> 2.2.17 $ time cat /proc/net/tcp >/dev/null
+> real    0m0.083s
+> user    0m0.000s
+> sys     0m0.080s
+> 
+> 
+> Is this expected? Or is there a more efficient interface that identd
+> should use?
+> 
+> 	Sven
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

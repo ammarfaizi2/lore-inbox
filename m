@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbUBTXF5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 18:05:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbUBTXF5
+	id S261432AbUBTXIT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 18:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbUBTXIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 18:05:57 -0500
-Received: from gprs151-132.eurotel.cz ([160.218.151.132]:28290 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261409AbUBTXFs (ORCPT
+	Fri, 20 Feb 2004 18:08:19 -0500
+Received: from gate.crashing.org ([63.228.1.57]:48299 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261432AbUBTXIN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 18:05:48 -0500
-Date: Sat, 21 Feb 2004 00:05:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: redeeman@redeeman.linux.dk, redeeman@metanurb.dk
-Cc: linux-kernel@vger.kernel.org,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Re: powernow-k8 havent been tested on preemptive - have now
-Message-ID: <20040220230529.GB32153@elf.ucw.cz>
-References: <33009.192.168.1.7.1077217546.squirrel@redeeman.linux.dk>
+	Fri, 20 Feb 2004 18:08:13 -0500
+Subject: Re: Double fb_console_init call during do_initcalls
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Jonathan Brown <jbrown@emergence.uk.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0402201907130.6798-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0402201907130.6798-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Message-Id: <1077318157.9626.23.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <33009.192.168.1.7.1077217546.squirrel@redeeman.linux.dk>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 21 Feb 2004 10:02:38 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> hi, i have been seeing the message that powernow-k8 havent been tested on
-> a preemptive system, for a couple of kernel versions i have been running,
-> and i just want to tell you that it is working absolutely perfect, great
-> job!
-> 
-> if there is any questions/comments i would be glad if you would cc them to
-> redeeman@<no-spam>metanurb.dk , thanks!
+> I seen the report and begain to create a patch. The module_init fix is 
+> easy. Just place module_init and module_exit under #ifdef MODULE. I 
+> realize alot of fbdev drivers do this wrong. I will make patches by the 
+> end of the day. As for the fbmem.c call on fb_console_init. Well that is 
+> tricker to deal with. I will have to figure out a way.
 
-Okay, in such case we should probably do this:
-									Pavel
+You can also use the fb_registered_client static I added and rename
+it to fbcon_initialized ;) Dunno if we actually _need_ the second call
+to take_over_console at this point, so i left it called twice, but
+I needed the static to protect against registering the notifier twice
 
---- tmp/linux/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2004-02-21 00:04:41.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2004-02-21 00:04:20.000000000 +0100
-@@ -34,10 +34,6 @@
- #define VERSION "version 1.00.08a"
- #include "powernow-k8.h"
- 
--#ifdef CONFIG_PREEMPT
--#warning this driver has not been tested on a preempt system
--#endif
--
- static u32 vstable;	/* voltage stabalization time, from PSB, units 20 us */
- static u32 plllock;	/* pll lock time, from PSB, units 1 us */
- static u32 numps;	/* number of p-states, from PSB */
+(That was what was causing the notifier list to get corrupted and
+mode changes to lockup in early implementations)
+
+Ben.
 
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

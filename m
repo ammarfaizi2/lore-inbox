@@ -1,33 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268229AbTBYRln>; Tue, 25 Feb 2003 12:41:43 -0500
+	id <S268314AbTBYSAR>; Tue, 25 Feb 2003 13:00:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268230AbTBYRln>; Tue, 25 Feb 2003 12:41:43 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:46084 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S268229AbTBYRlh>; Tue, 25 Feb 2003 12:41:37 -0500
-Date: Tue, 25 Feb 2003 17:51:51 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
-Subject: Re: [PATCH] IPv6: Privacy Extensions for Stateless Address Autoconfiguration in IPv6
-Message-ID: <20030225175151.A6512@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
-	davem@redhat.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-	kuznet@ms2.inr.ac.ru, pekkas@netcore.fi, usagi@linux-ipv6.org
-References: <20030223.225251.119557134.davem@redhat.com> <20030226.003625.90530451.yoshfuji@linux-ipv6.org> <20030225160634.A4525@infradead.org> <20030226.024750.63517417.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
+	id <S268315AbTBYSAR>; Tue, 25 Feb 2003 13:00:17 -0500
+Received: from web13702.mail.yahoo.com ([216.136.175.135]:28941 "HELO
+	web13702.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268314AbTBYSAP>; Tue, 25 Feb 2003 13:00:15 -0500
+Message-ID: <20030225181029.60365.qmail@web13702.mail.yahoo.com>
+Date: Tue, 25 Feb 2003 10:10:29 -0800 (PST)
+From: jalaja devi <jala_74@yahoo.com>
+Subject: NTFS MetaData and Actual Data!
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030226.024750.63517417.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Wed, Feb 26, 2003 at 02:47:50AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 26, 2003 at 02:47:50AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
-> Thanks for comments. How about this? (only lib part)
+Hi all,
+Please forgive me if i am posting to a wrong group as
+I am new here. 
 
-This one looks fine.
+Trying to capture the DataStream where the Actual Data
+is different from the NTFS Meta Data.
 
+In detail, 
+I  iSCSI running on top of a Storage Stack.
+2. Winthrax is the host application.
+3. Intel is the Initiator.
+
+I see lot of Pattern match READ and WRITE Errors in
+terms of Blocks. So trying to figure out the pattern
+winthrax generates. 
+
+2/24/2003, 16:56 Created compare thread ID: 1316
+2/25/2003, 8:40 Compare error:
+G:\winthrax\QA1069\SRC.8 vs.
+H:\winthrax\QA1069\1636-2.dir\22791
+.8
+Line comparisons begin:
+  Between Hex Offsets: a0000 and a003f
+SRC:
+000a0000->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+TRG:
+000e0000->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+  Between Hex Offsets: a0040 and a007f
+SRC:
+000a0040->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+TRG:
+000e0040->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+  Between Hex Offsets: a0080 and a00bf
+SRC:
+000a0080->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+TRG:
+000e0080->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+  Between Hex Offsets: a00c0 and a00ff
+SRC:
+000a00c0->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+TRG:
+000e00c0->ABCDEFGHIJKLMNOPQRSTUVWXYZ.abcdefghijklmnopqrstuvwxyz
+  Between Hex Offsets: a0100 and a013f
+
+
+Is there a way to differntiate between the MetaDAta
+and the ActualData?
+
+Thanks/Sorry
+
+
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Tax Center - forms, calculators, tips, more
+http://taxes.yahoo.com/

@@ -1,51 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbULGPlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbULGPlB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbULGPlH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 10:41:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbULGPlH
+	id S261843AbULGPlB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 10:41:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbULGPlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 10:41:07 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:43438 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261844AbULGPlA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 10:41:00 -0500
-Date: Tue, 7 Dec 2004 16:37:20 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Eran Mann <emann@mrv.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.32-2
-Message-ID: <20041207153720.GA20712@elte.hu>
-References: <OFD07DEEA4.7C243C76-ON86256F5F.007976EC@raytheon.com> <20041204175636.GA3115@elte.hu> <41B5C038.1090501@mrv.com>
+	Tue, 7 Dec 2004 10:41:01 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:26797 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261843AbULGPk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 10:40:56 -0500
+Subject: Bug in kmem_cache_create with duplicate names
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Tue, 07 Dec 2004 10:40:56 -0500
+Message-Id: <1102434056.25841.260.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <41B5C038.1090501@mrv.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is it really necessary to BUG on creating a cache with a duplicate name?
+Wouldn't it just be better to fail the create. The reason I mentioned
+this is that I was writing some modules and after doing a cut and paste,
+I forgot to change a name of a cache that was created by one module and
+I used it in another existing module.  So you can say that it was indeed
+a bug, but did it really need to crash my machine?  I aways check the
+return codes in my modules, and I would have figured it out why it
+failed, but I didn't expect a simple module to crash the machine the way
+it did.  Well anyway it did definitely show me where my bug was.
 
-* Eran Mann <emann@mrv.com> wrote:
+Thanks,
 
-> On my machine, disabling CONFIG_LATENCY_TRACE causes the kernel to
-> stop reporting preempt latencies. After
->
-> # echo 1 > /proc/sys/kernel/preempt_max_latency
-> 
-> /proc/sys/kernel/preempt_max_latency always shows 1 no matter what
-> load is on the machine. I´ve seen this behavior since the first time I
-> tried to disable CONFIG_LATENCY_TRACE, around V0.7.31.something.
+-- Steve
 
-indeed - there was a thinko in trace_stop_sched_switched() that likely
-caused this problem. Does the -32-8 patch (freshly uploaded) work better
-for you?
-
-	Ingo

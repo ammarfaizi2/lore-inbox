@@ -1,116 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132396AbRDDU0b>; Wed, 4 Apr 2001 16:26:31 -0400
+	id <S132462AbRDDVC0>; Wed, 4 Apr 2001 17:02:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132433AbRDDU0V>; Wed, 4 Apr 2001 16:26:21 -0400
-Received: from inet.connecttech.com ([206.130.75.2]:22748 "EHLO
-	inet.connecttech.com") by vger.kernel.org with ESMTP
-	id <S132396AbRDDU0L>; Wed, 4 Apr 2001 16:26:11 -0400
-Message-ID: <04c101c0bd45$f8182960$294b82ce@connecttech.com>
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: =?ISO-8859-1?Q? <Sarda=F1ons@connecttech.com>,
-        ?= "Eliel" <Eliel.Sardanons@philips.edu.ar>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA028416D@MAINSERVER>
-Subject: Re: kernel/sched.c questions
-Date: Wed, 4 Apr 2001 16:29:37 -0400
-Organization: Connect Tech Inc.
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S132473AbRDDVCR>; Wed, 4 Apr 2001 17:02:17 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15489 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S132462AbRDDVCM>; Wed, 4 Apr 2001 17:02:12 -0400
+Date: Wed, 4 Apr 2001 17:00:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: John Fremlin <chief@bandits.org>
+cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: how to let all others run
+In-Reply-To: <m2lmpgifww.fsf@boreas.yi.org.>
+Message-ID: <Pine.LNX.3.95.1010404165539.4737A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had similar questions recently when I was doing some
-hacking; these are my guesses:
+On 4 Apr 2001, John Fremlin wrote:
 
-From: <Sardañons>; "Eliel" <Eliel.Sardanons@philips.edu.ar>
-> Hello, I would like to know why you put this two functions:
-> void scheduling_functions_start_here(void) { }
-> ...
-> void scheduling_functions_end_here(void) { }
+> 
+> Hi Oliver!
+> 
+>  Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de> writes:
+> 
+> > is there a way to let all other runable tasks run until they block
+> > or return to user space, before the task wishing to do so is run
+> > again ?
+> 
+> Are you trying to do this in kernel or something? From userspace you
+> can use nice(2) then sched_yield(2), though I don't know if the linux
+> implementations will guarrantee anything.
+> 
 
-Just as markers for easy location in System.map.
-The compiler should optimise those away.
+I recommend using usleep(0) instead of sched_yield(). Last time I
+checked, sched_yield() seemed to spin and eat CPU cycles, usleep(0)
+always gives up the CPU.
 
-> why you put 'case TASK_RUNNING'
->
-> switch (prev->state) {
->                 case TASK_INTERRUPTIBLE:
->                         if (signal_pending(prev)) {
->                                 prev->state = TASK_RUNNING;
->                                 break;
->                         }
->                 default:
->                         del_from_runqueue(prev);
->                 case TASK_RUNNING:
-> }
+Try:
+	for(;;) usleep();
 
-Prevent compiler warnings about unhandled conditions?
-Not sure about that one.
+and 
+	for(;;) sched_yield();
 
-> in the function schedule() you always use this syntax:
->
-> -----
-> if (a_condition)
->     goto bebe;
-> bebe_back
->
->
-> bebe:
->     do_bebe();
->     goto bebe_back;
-> ------
-> why not just doing:
->
->    if (a_condition)
->          do_bebe();
+.. you'll see a quiet behavior under `top` for usleep(0), and over 80%
+with sched_yield().
 
-Probably because the compiler puts out
 
-setup function parameter one
-setup function parameter two
-setup function parameter three
-check condition
-call function
-setup function parameter one
-setup function parameter two
-setup function parameter three
-check condition
-call function
+Cheers,
+Dick Johnson
 
-for your case and the above convolutions
-puts out
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-check condition
-jump to call if needed
-check condition
-jump to call if needed
-
-instead.
-
-Or even if the compiler puts out
-
-check condition
-If condition
-  setup function parameter one
-  setup function parameter two
-  setup function parameter three
-  call function
-check condition
-if condition
-  setup function parameter one
-  setup function parameter two
-  setup function parameter three
-  call function
-
-I'm betting the smaller code above is better
-for cache hits, right?
-
-But these are my guesses. Anyone want to
-clarify?
-
-..Stu
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
 
 

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291637AbSBAJ1y>; Fri, 1 Feb 2002 04:27:54 -0500
+	id <S291642AbSBAJo6>; Fri, 1 Feb 2002 04:44:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291636AbSBAJ1f>; Fri, 1 Feb 2002 04:27:35 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:46228 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S291634AbSBAJ1a>; Fri, 1 Feb 2002 04:27:30 -0500
-Message-Id: <200202010927.g119RPWL007955@tigger.cs.uni-dortmund.de>
-To: Pavel Machek <pavel@suse.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] driverfs support for USB - take 2 
-In-Reply-To: Message from Pavel Machek <pavel@suse.cz> 
-   of "Thu, 31 Jan 2002 12:49:43 GMT." <20020131124942.A37@toy.ucw.cz> 
-Date: Fri, 01 Feb 2002 10:27:25 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S291648AbSBAJoj>; Fri, 1 Feb 2002 04:44:39 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:2822 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S291642AbSBAJob>;
+	Fri, 1 Feb 2002 04:44:31 -0500
+Message-ID: <3C5A6378.6000204@evision-ventures.com>
+Date: Fri, 01 Feb 2002 10:44:24 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020129
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Felix Triebel <ernte23@gmx.de>
+CC: linux-isdn@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: ISDN security ???
+In-Reply-To: <Pine.LNX.4.42.0202011012590.804-100000@mob.wid>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> said:
+Felix Triebel wrote:
 
-[...]
+>Hello,
+>
+>when compiling the kernel 2.4.18-pre7, I get the following messages:
+>
+>md5sum: MD5 check failed for 'isac.c'
+>md5sum: MD5 check failed for 'isdnl1.c'
+>
+Don't worry, its something stiupid about certification and stuff. 
+Everything should be fine...
 
-> > -	iobus_register(&b->iobus);
-> > +	b->dev = kmalloc(sizeof(*(b->dev)),GFP_KERNEL);
-> Uff...				~~~~~~~~~ would not "struct device" (or
-> what should it be) look better?
 
-Yep, but there is _no_ chance to screw up ("or what should it be" ;-) this
-way.
--- 
-Horst von Brand			     http://counter.li.org # 22616

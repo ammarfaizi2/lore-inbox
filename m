@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267129AbUBMRIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 12:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267131AbUBMRIp
+	id S267098AbUBMRMc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 12:12:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267128AbUBMRMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 12:08:45 -0500
-Received: from pell.portland.or.us ([192.156.98.250]:23301 "EHLO
-	pell.portland.or.us") by vger.kernel.org with ESMTP id S267129AbUBMRIo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 12:08:44 -0500
-Date: Fri, 13 Feb 2004 09:08:16 -0800
-From: david parsons <orc@pell.portland.or.us>
-To: Nagy Tibor <nagyt@otpbank.hu>, xela@slit.de, mochel@osdl.org,
-       bmoyle@mvista.com, orc@pell.chi.il.us, linux-kernel@vger.kernel.org
-Subject: Re: HIGHMEM
-Message-ID: <20040213090816.A19540@pell.pell.portland.or.us>
-References: <402CC114.8080100@dell633.otpefo.com> <6uvfmbktrj.fsf@zork.zork.net>
+	Fri, 13 Feb 2004 12:12:32 -0500
+Received: from hera.kernel.org ([63.209.29.2]:55973 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S267098AbUBMRMa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 12:12:30 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Initrd Question
+Date: Fri, 13 Feb 2004 17:12:05 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c0j0h5$ms8$1@terminus.zytor.com>
+References: <1oMkR-1Zk-21@gated-at.bofh.it> <E1ArfAQ-00007f-7Z@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <6uvfmbktrj.fsf@zork.zork.net>; from Sean Neakums on Fri, Feb 13, 2004 at 01:12:48PM +0000
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8bit
+X-Trace: terminus.zytor.com 1076692325 23433 63.209.29.3 (13 Feb 2004 17:12:05 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 13 Feb 2004 17:12:05 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 13, 2004 at 01:12:48PM +0000, Sean Neakums wrote:
-> Nagy Tibor <nagyt@otpbank.hu> writes:
+Followup to:  <E1ArfAQ-00007f-7Z@localhost>
+By author:    der.eremit@email.de
+In newsgroup: linux.dev.kernel
 > 
-> > Hi,
-> >
-> > I am sorry, I have found your e-mail address in
-> > ./arch/i386/kernel/setup.c. I have the problem below since a year, and
-> > there is no solution yet. I guess, the problem is about e820. The
-> > problem exists in 2.4.x and also in 2.6.1.
-> >
-> > We have two Dell Poweredge servers, an older one (PowerEdge 6300) and a
-> > newer one (PowerEdge 6400). Both servers have 4GB RAM, but the Linux
-> > kernel uses about 500MB less memory in the newer machine.
+> Now you're saying the kernel ignores real-root-dev, while a moment
+> before you state that it is important to set real-root-dev because
+> otherwise the kernel does something. Which is it?
 > 
-> I may be talking through my hat, but I think that in this case you
-> need to select the option for support of 64G highmem.  If I recall,
-> "4G highmem" refers not to the total amount to the memory, but to the
-> highest physical address that can be accessed.
 
+You have to set root=/dev/ram0 in the boot loader, so that the kernel
+will spawn /sbin/init with pid 1.  Otherwise it spawns /linuxrc with a
+non-1 pid, for dumb historical reasons.
 
-   Its been several years since I did anything with the 820 code,
-   but it all uses long longs so it should be fine with up to 4gb
-   and a casual look at the now much hacked code doesn't seem to
-   show anything that would leap out and start laughing at you.
+Thus, setting it in the script is too late to do any good.
 
-
-                 ____
-   david parsons \bi/ ``Sanitize the BIOS e820 map''?  
-                  \/
+	-hpa
+-- 
+PGP public key available - finger hpa@zytor.com
+Key fingerprint: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+"The earth is but one country, and mankind its citizens."  --  Bahá'u'lláh
+Just Say No to Morden * The Shadows were defeated -- Babylon 5 is renewed!!

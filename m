@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275323AbTHGNef (ORCPT <rfc822;willy@w.ods.org>);
+	id S275325AbTHGNef (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 7 Aug 2003 09:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275328AbTHGNec
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275314AbTHGNed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:34:32 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:64969 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S275314AbTHGNc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:32:59 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Thu, 7 Aug 2003 15:32:57 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-Id: <20030807153257.1f2f80b0.skraw@ithnet.com>
-In-Reply-To: <3F325198.2010301@namesys.com>
-References: <Pine.LNX.4.44.0308070942540.6582-100000@logos.cnet>
-	<3F325198.2010301@namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Aug 2003 09:34:33 -0400
+Received: from Mix-Lyon-107-1-254.w193-249.abo.wanadoo.fr ([193.249.22.254]:40576
+	"EHLO gaston") by vger.kernel.org with ESMTP id S275323AbTHGNdO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 09:33:14 -0400
+Subject: Re: [Linux-fbdev-devel] [PATCH] Framebuffer: 2nd try: client
+	notification mecanism & PM
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: James Simmons <jsimmons@infradead.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <20030807100309.GB166@elf.ucw.cz>
+References: <Pine.LNX.4.44.0308070000540.17315-100000@phoenix.infradead.org>
+	 <1060249101.1077.67.camel@gaston>  <20030807100309.GB166@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1060263168.593.77.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 07 Aug 2003 15:32:49 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Aug 2003 17:18:16 +0400
-Hans Reiser <reiser@namesys.com> wrote:
+On Thu, 2003-08-07 at 12:03, Pavel Machek wrote:
 
-> >On Thu, 7 Aug 2003, Stephan von Krawczynski wrote:
-> >>for this one. Hint: spelling in reiserfsck should be checked ;-)
-> >
-> where?
+> I believe solution to this is simple: always switch to kernel-owned
+> console during suspend. (swsusp does it, there's patch for S3 to do
+> the same). That way, Xfree (or qtopia or whoever) should clean up
+> after themselves and leave the console to the kernel. (See
+> kernel/power/console.c)
 
-Hello Hans,
+I admit I quite like this solution. It would also help displaying
+something sane (blank, pattern, whatever) on screen during driver
+teardown instead of the junk left by X...
 
-I am no native english, but 
-"Comparing bitmaps.. vpf-10640: The on-disk and the correct bitmaps differs"
-feels uncomfortable in my ears ;-)
-I'd say "two things differ", without trailing "s". I am not even sure if
-"bitmaps" shouldn't be singular "bitmap" instead.
+I'll look into including that switch into my pmac code as well
+and see if it works properly in all cases (I think so). Also,
+recent DRI CVS finally has working suspend/resume (works on
+console switch too).
 
-But, as stated, I am no native, I can't be sure.
-
-Regards,
-Stephan
+Ben.

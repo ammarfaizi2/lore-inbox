@@ -1,89 +1,380 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266069AbUHWUGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264388AbUHWUB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266069AbUHWUGl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 16:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUHWUEj
+	id S264388AbUHWUB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267544AbUHWT6T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 16:04:39 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:16291 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S266566AbUHWSpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:45:44 -0400
-Subject: Re: 2.6.8.1-mm IRQ routing problems
-From: Alexander Nyberg <alexn@telia.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200408231016.36318.bjorn.helgaas@hp.com>
-References: <1093088008.777.13.camel@boxen>
-	 <20040822180911.22bbbc96.akpm@osdl.org> <1093264936.834.1.camel@boxen>
-	 <200408231016.36318.bjorn.helgaas@hp.com>
-Content-Type: text/plain
-Message-Id: <1093286742.868.3.camel@boxen>
+	Mon, 23 Aug 2004 15:58:19 -0400
+Received: from mail.kroah.org ([69.55.234.183]:41667 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266678AbUHWSgL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 14:36:11 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <10932860902842@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:50 -0700
+Message-Id: <10932860901217@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 23 Aug 2004 20:45:42 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-23 at 18:16, Bjorn Helgaas wrote:
-> On Monday 23 August 2004 6:42 am, Alexander Nyberg wrote:
-> > On Mon, 2004-08-23 at 03:09, Andrew Morton wrote:
-> > > Alexander Nyberg <alexn@telia.com> wrote:
-> > > >
-> > > > Using 2.6.8.1-mm3 I ran into some problems on x86_64. This
-> > > > only happens when fsck runs at bootup because in my case
-> > > > of the max-mount-count being reached (I use ext3). Booting 
-> > > > with pci=routeirq makes problem go away.
-> > > > 
-> > > > Do I win the weird problem prize?
-> > > 
-> > > I think this was fixed in -mm4.  Please retest.
-> > 
-> > Still happens in -mm4.
-> 
-> Can you double-check this, and perhaps post the dmesg for the 2.6.8.1-mm4
-> attempt?  It still looks very much like the problem Randy fixed here:
-> 
->     http://marc.theaimsgroup.com/?l=linux-kernel&m=109313574928853&w=2
-> 
-> I just checked, and Randy's patch is indeed in 2.6.8.1-mm4.  If the oops
-> still occurs there, it must be a different problem, and the dmesg might
-> help diagnose it.
-> 
+ChangeSet 1.1807.59.6, 2004/08/05 16:35:57-07:00, greg@kroah.com
 
-Hi,
+I2C: rename i2c-sensor.c file to prepare for Rudolf's VRM patch.
 
-This fixes things for me.
-
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
-
---- linux-2.6.7/arch/x86_64/kernel/io_apic.c_orig	2004-08-23 18:32:10.000000000 +0200
-+++ linux-2.6.7/arch/x86_64/kernel/io_apic.c	2004-08-23 20:42:33.236703256 +0200
-@@ -80,7 +80,7 @@ int vector_irq[NR_VECTORS] = { [0 ... NR
-  * shared ISA-space IRQs, so we have to support them. We are super
-  * fast in the common case, and fast for shared ISA-space IRQs.
-  */
--static void __init add_pin_to_irq(unsigned int irq, int apic, int pin)
-+static void add_pin_to_irq(unsigned int irq, int apic, int pin)
- {
- 	static int first_free_entry = NR_IRQS;
- 	struct irq_pin_list *entry = irq_2_pin + irq;
-@@ -656,11 +656,7 @@ static inline int IO_APIC_irq_trigger(in
- /* irq_vectors is indexed by the sum of all RTEs in all I/O APICs. */
- u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
- 
--#ifdef CONFIG_PCI_MSI
- int assign_irq_vector(int irq)
--#else
--int __init assign_irq_vector(int irq)
--#endif
- {
- 	static int current_vector = FIRST_DEVICE_VECTOR, offset = 0;
- 
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
+ drivers/i2c/i2c-sensor.c        |  167 ----------------------------------------
+ drivers/i2c/i2c-sensor-detect.c |  167 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 167 insertions(+), 167 deletions(-)
 
 
+diff -Nru a/drivers/i2c/i2c-sensor-detect.c b/drivers/i2c/i2c-sensor-detect.c
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/drivers/i2c/i2c-sensor-detect.c	2004-08-23 11:05:04 -07:00
+@@ -0,0 +1,167 @@
++/*
++    i2c-sensor.c - Part of lm_sensors, Linux kernel modules for hardware
++                monitoring
++    Copyright (c) 1998 - 2001 Frodo Looijaard <frodol@dds.nl> and
++    Mark D. Studebaker <mdsxyz123@yahoo.com>
++
++    This program is free software; you can redistribute it and/or modify
++    it under the terms of the GNU General Public License as published by
++    the Free Software Foundation; either version 2 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU General Public License for more details.
++
++    You should have received a copy of the GNU General Public License
++    along with this program; if not, write to the Free Software
++    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++*/
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/ctype.h>
++#include <linux/sysctl.h>
++#include <linux/init.h>
++#include <linux/ioport.h>
++#include <linux/i2c.h>
++#include <linux/i2c-sensor.h>
++#include <asm/uaccess.h>
++
++
++/* Very inefficient for ISA detects, and won't work for 10-bit addresses! */
++int i2c_detect(struct i2c_adapter *adapter,
++	       struct i2c_address_data *address_data,
++	       int (*found_proc) (struct i2c_adapter *, int, int))
++{
++	int addr, i, found, j, err;
++	struct i2c_force_data *this_force;
++	int is_isa = i2c_is_isa_adapter(adapter);
++	int adapter_id =
++	    is_isa ? ANY_I2C_ISA_BUS : i2c_adapter_id(adapter);
++
++	/* Forget it if we can't probe using SMBUS_QUICK */
++	if ((!is_isa) &&
++	    !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_QUICK))
++		return -1;
++
++	for (addr = 0x00; addr <= (is_isa ? 0xffff : 0x7f); addr++) {
++		if (!is_isa && i2c_check_addr(adapter, addr))
++			continue;
++
++		/* If it is in one of the force entries, we don't do any
++		   detection at all */
++		found = 0;
++		for (i = 0; !found && (this_force = address_data->forces + i, this_force->force); i++) {
++			for (j = 0; !found && (this_force->force[j] != I2C_CLIENT_END); j += 2) {
++				if ( ((adapter_id == this_force->force[j]) ||
++				      ((this_force->force[j] == ANY_I2C_BUS) && !is_isa)) &&
++				      (addr == this_force->force[j + 1]) ) {
++					dev_dbg(&adapter->dev, "found force parameter for adapter %d, addr %04x\n", adapter_id, addr);
++					if ((err = found_proc(adapter, addr, this_force->kind)))
++						return err;
++					found = 1;
++				}
++			}
++		}
++		if (found)
++			continue;
++
++		/* If this address is in one of the ignores, we can forget about it
++		   right now */
++		for (i = 0; !found && (address_data->ignore[i] != I2C_CLIENT_END); i += 2) {
++			if ( ((adapter_id == address_data->ignore[i]) ||
++			      ((address_data->ignore[i] == ANY_I2C_BUS) &&
++			       !is_isa)) &&
++			      (addr == address_data->ignore[i + 1])) {
++				dev_dbg(&adapter->dev, "found ignore parameter for adapter %d, addr %04x\n", adapter_id, addr);
++				found = 1;
++			}
++		}
++		for (i = 0; !found && (address_data->ignore_range[i] != I2C_CLIENT_END); i += 3) {
++			if ( ((adapter_id == address_data->ignore_range[i]) ||
++			      ((address_data-> ignore_range[i] == ANY_I2C_BUS) & 
++			       !is_isa)) &&
++			     (addr >= address_data->ignore_range[i + 1]) &&
++			     (addr <= address_data->ignore_range[i + 2])) {
++				dev_dbg(&adapter->dev,  "found ignore_range parameter for adapter %d, addr %04x\n", adapter_id, addr);
++				found = 1;
++			}
++		}
++		if (found)
++			continue;
++
++		/* Now, we will do a detection, but only if it is in the normal or 
++		   probe entries */
++		if (is_isa) {
++			for (i = 0; !found && (address_data->normal_isa[i] != I2C_CLIENT_ISA_END); i += 1) {
++				if (addr == address_data->normal_isa[i]) {
++					dev_dbg(&adapter->dev, "found normal isa entry for adapter %d, addr %04x\n", adapter_id, addr);
++					found = 1;
++				}
++			}
++			for (i = 0; !found && (address_data->normal_isa_range[i] != I2C_CLIENT_ISA_END); i += 3) {
++				if ((addr >= address_data->normal_isa_range[i]) &&
++				    (addr <= address_data->normal_isa_range[i + 1]) &&
++				    ((addr - address_data->normal_isa_range[i]) % address_data->normal_isa_range[i + 2] == 0)) {
++					dev_dbg(&adapter->dev, "found normal isa_range entry for adapter %d, addr %04x", adapter_id, addr);
++					found = 1;
++				}
++			}
++		} else {
++			for (i = 0; !found && (address_data->normal_i2c[i] != I2C_CLIENT_END); i += 1) {
++				if (addr == address_data->normal_i2c[i]) {
++					found = 1;
++					dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, addr %02x", adapter_id, addr);
++				}
++			}
++			for (i = 0; !found && (address_data->normal_i2c_range[i] != I2C_CLIENT_END); i += 2) {
++				if ((addr >= address_data->normal_i2c_range[i]) &&
++				    (addr <= address_data->normal_i2c_range[i + 1])) {
++					dev_dbg(&adapter->dev, "found normal i2c_range entry for adapter %d, addr %04x\n", adapter_id, addr);
++					found = 1;
++				}
++			}
++		}
++
++		for (i = 0;
++		     !found && (address_data->probe[i] != I2C_CLIENT_END);
++		     i += 2) {
++			if (((adapter_id == address_data->probe[i]) ||
++			     ((address_data->
++			       probe[i] == ANY_I2C_BUS) && !is_isa))
++			    && (addr == address_data->probe[i + 1])) {
++				dev_dbg(&adapter->dev, "found probe parameter for adapter %d, addr %04x\n", adapter_id, addr);
++				found = 1;
++			}
++		}
++		for (i = 0; !found && (address_data->probe_range[i] != I2C_CLIENT_END); i += 3) {
++			if ( ((adapter_id == address_data->probe_range[i]) ||
++			      ((address_data->probe_range[i] == ANY_I2C_BUS) && !is_isa)) &&
++			     (addr >= address_data->probe_range[i + 1]) &&
++			     (addr <= address_data->probe_range[i + 2])) {
++				found = 1;
++				dev_dbg(&adapter->dev, "found probe_range parameter for adapter %d, addr %04x\n", adapter_id, addr);
++			}
++		}
++		if (!found)
++			continue;
++
++		/* OK, so we really should examine this address. First check
++		   whether there is some client here at all! */
++		if (is_isa ||
++		    (i2c_smbus_xfer (adapter, addr, 0, 0, 0, I2C_SMBUS_QUICK, NULL) >= 0))
++			if ((err = found_proc(adapter, addr, -1)))
++				return err;
++	}
++	return 0;
++}
++
++EXPORT_SYMBOL(i2c_detect);
++
++MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>");
++MODULE_DESCRIPTION("i2c-sensor driver");
++MODULE_LICENSE("GPL");
+diff -Nru a/drivers/i2c/i2c-sensor.c b/drivers/i2c/i2c-sensor.c
+--- a/drivers/i2c/i2c-sensor.c	2004-08-23 11:05:04 -07:00
++++ /dev/null	Wed Dec 31 16:00:00 196900
+@@ -1,167 +0,0 @@
+-/*
+-    i2c-sensor.c - Part of lm_sensors, Linux kernel modules for hardware
+-                monitoring
+-    Copyright (c) 1998 - 2001 Frodo Looijaard <frodol@dds.nl> and
+-    Mark D. Studebaker <mdsxyz123@yahoo.com>
+-
+-    This program is free software; you can redistribute it and/or modify
+-    it under the terms of the GNU General Public License as published by
+-    the Free Software Foundation; either version 2 of the License, or
+-    (at your option) any later version.
+-
+-    This program is distributed in the hope that it will be useful,
+-    but WITHOUT ANY WARRANTY; without even the implied warranty of
+-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-    GNU General Public License for more details.
+-
+-    You should have received a copy of the GNU General Public License
+-    along with this program; if not, write to the Free Software
+-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+-*/
+-
+-#include <linux/config.h>
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/slab.h>
+-#include <linux/ctype.h>
+-#include <linux/sysctl.h>
+-#include <linux/init.h>
+-#include <linux/ioport.h>
+-#include <linux/i2c.h>
+-#include <linux/i2c-sensor.h>
+-#include <asm/uaccess.h>
+-
+-
+-/* Very inefficient for ISA detects, and won't work for 10-bit addresses! */
+-int i2c_detect(struct i2c_adapter *adapter,
+-	       struct i2c_address_data *address_data,
+-	       int (*found_proc) (struct i2c_adapter *, int, int))
+-{
+-	int addr, i, found, j, err;
+-	struct i2c_force_data *this_force;
+-	int is_isa = i2c_is_isa_adapter(adapter);
+-	int adapter_id =
+-	    is_isa ? ANY_I2C_ISA_BUS : i2c_adapter_id(adapter);
+-
+-	/* Forget it if we can't probe using SMBUS_QUICK */
+-	if ((!is_isa) &&
+-	    !i2c_check_functionality(adapter, I2C_FUNC_SMBUS_QUICK))
+-		return -1;
+-
+-	for (addr = 0x00; addr <= (is_isa ? 0xffff : 0x7f); addr++) {
+-		if (!is_isa && i2c_check_addr(adapter, addr))
+-			continue;
+-
+-		/* If it is in one of the force entries, we don't do any
+-		   detection at all */
+-		found = 0;
+-		for (i = 0; !found && (this_force = address_data->forces + i, this_force->force); i++) {
+-			for (j = 0; !found && (this_force->force[j] != I2C_CLIENT_END); j += 2) {
+-				if ( ((adapter_id == this_force->force[j]) ||
+-				      ((this_force->force[j] == ANY_I2C_BUS) && !is_isa)) &&
+-				      (addr == this_force->force[j + 1]) ) {
+-					dev_dbg(&adapter->dev, "found force parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-					if ((err = found_proc(adapter, addr, this_force->kind)))
+-						return err;
+-					found = 1;
+-				}
+-			}
+-		}
+-		if (found)
+-			continue;
+-
+-		/* If this address is in one of the ignores, we can forget about it
+-		   right now */
+-		for (i = 0; !found && (address_data->ignore[i] != I2C_CLIENT_END); i += 2) {
+-			if ( ((adapter_id == address_data->ignore[i]) ||
+-			      ((address_data->ignore[i] == ANY_I2C_BUS) &&
+-			       !is_isa)) &&
+-			      (addr == address_data->ignore[i + 1])) {
+-				dev_dbg(&adapter->dev, "found ignore parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-				found = 1;
+-			}
+-		}
+-		for (i = 0; !found && (address_data->ignore_range[i] != I2C_CLIENT_END); i += 3) {
+-			if ( ((adapter_id == address_data->ignore_range[i]) ||
+-			      ((address_data-> ignore_range[i] == ANY_I2C_BUS) & 
+-			       !is_isa)) &&
+-			     (addr >= address_data->ignore_range[i + 1]) &&
+-			     (addr <= address_data->ignore_range[i + 2])) {
+-				dev_dbg(&adapter->dev,  "found ignore_range parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-				found = 1;
+-			}
+-		}
+-		if (found)
+-			continue;
+-
+-		/* Now, we will do a detection, but only if it is in the normal or 
+-		   probe entries */
+-		if (is_isa) {
+-			for (i = 0; !found && (address_data->normal_isa[i] != I2C_CLIENT_ISA_END); i += 1) {
+-				if (addr == address_data->normal_isa[i]) {
+-					dev_dbg(&adapter->dev, "found normal isa entry for adapter %d, addr %04x\n", adapter_id, addr);
+-					found = 1;
+-				}
+-			}
+-			for (i = 0; !found && (address_data->normal_isa_range[i] != I2C_CLIENT_ISA_END); i += 3) {
+-				if ((addr >= address_data->normal_isa_range[i]) &&
+-				    (addr <= address_data->normal_isa_range[i + 1]) &&
+-				    ((addr - address_data->normal_isa_range[i]) % address_data->normal_isa_range[i + 2] == 0)) {
+-					dev_dbg(&adapter->dev, "found normal isa_range entry for adapter %d, addr %04x", adapter_id, addr);
+-					found = 1;
+-				}
+-			}
+-		} else {
+-			for (i = 0; !found && (address_data->normal_i2c[i] != I2C_CLIENT_END); i += 1) {
+-				if (addr == address_data->normal_i2c[i]) {
+-					found = 1;
+-					dev_dbg(&adapter->dev, "found normal i2c entry for adapter %d, addr %02x", adapter_id, addr);
+-				}
+-			}
+-			for (i = 0; !found && (address_data->normal_i2c_range[i] != I2C_CLIENT_END); i += 2) {
+-				if ((addr >= address_data->normal_i2c_range[i]) &&
+-				    (addr <= address_data->normal_i2c_range[i + 1])) {
+-					dev_dbg(&adapter->dev, "found normal i2c_range entry for adapter %d, addr %04x\n", adapter_id, addr);
+-					found = 1;
+-				}
+-			}
+-		}
+-
+-		for (i = 0;
+-		     !found && (address_data->probe[i] != I2C_CLIENT_END);
+-		     i += 2) {
+-			if (((adapter_id == address_data->probe[i]) ||
+-			     ((address_data->
+-			       probe[i] == ANY_I2C_BUS) && !is_isa))
+-			    && (addr == address_data->probe[i + 1])) {
+-				dev_dbg(&adapter->dev, "found probe parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-				found = 1;
+-			}
+-		}
+-		for (i = 0; !found && (address_data->probe_range[i] != I2C_CLIENT_END); i += 3) {
+-			if ( ((adapter_id == address_data->probe_range[i]) ||
+-			      ((address_data->probe_range[i] == ANY_I2C_BUS) && !is_isa)) &&
+-			     (addr >= address_data->probe_range[i + 1]) &&
+-			     (addr <= address_data->probe_range[i + 2])) {
+-				found = 1;
+-				dev_dbg(&adapter->dev, "found probe_range parameter for adapter %d, addr %04x\n", adapter_id, addr);
+-			}
+-		}
+-		if (!found)
+-			continue;
+-
+-		/* OK, so we really should examine this address. First check
+-		   whether there is some client here at all! */
+-		if (is_isa ||
+-		    (i2c_smbus_xfer (adapter, addr, 0, 0, 0, I2C_SMBUS_QUICK, NULL) >= 0))
+-			if ((err = found_proc(adapter, addr, -1)))
+-				return err;
+-	}
+-	return 0;
+-}
+-
+-EXPORT_SYMBOL(i2c_detect);
+-
+-MODULE_AUTHOR("Frodo Looijaard <frodol@dds.nl>");
+-MODULE_DESCRIPTION("i2c-sensor driver");
+-MODULE_LICENSE("GPL");
 

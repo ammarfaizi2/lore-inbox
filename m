@@ -1,109 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVCQWuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVCQWz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVCQWuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 17:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVCQWuE
+	id S261332AbVCQWz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 17:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVCQWz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 17:50:04 -0500
-Received: from fire.osdl.org ([65.172.181.4]:14769 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261331AbVCQWtn (ORCPT
+	Thu, 17 Mar 2005 17:55:26 -0500
+Received: from waste.org ([216.27.176.166]:414 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261332AbVCQWzP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 17:49:43 -0500
-Date: Thu, 17 Mar 2005 14:49:29 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: tzachar@cs.bgu.ac.il
-Cc: linux-kernel@vger.kernel.org, juhl-lkml@dif.dk
-Subject: Re: binfmt_elf padzero problems
-Message-Id: <20050317144929.3b468531.akpm@osdl.org>
-In-Reply-To: <1111086609.12193.27.camel@nexus.cs.bgu.ac.il>
-References: <1111086609.12193.27.camel@nexus.cs.bgu.ac.il>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 17 Mar 2005 17:55:15 -0500
+Date: Thu, 17 Mar 2005 14:55:07 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, sameer.abhinkar@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: KGDB question
+Message-ID: <20050317225507.GZ32638@waste.org>
+References: <D30E01168D637641AA9D3667F3BB741603F9125F@orsmsx403.amr.corp.intel.com> <20050317135417.6cee8336.akpm@osdl.org> <200503171409.07290.jbarnes@engr.sgi.com> <20050317142958.462822d2.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050317142958.462822d2.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nir Tzachar <tzachar@cs.bgu.ac.il> wrote:
->
-> hello.
+On Thu, Mar 17, 2005 at 02:29:58PM -0800, Andrew Morton wrote:
+> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> >
+> > > kgdb patches are maintained in -mm kernels.
+> > >
+> > > Patches are in
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11
+> > >-mm1/broken-out/*kgdb*
+> > >
+> > > And the patch application order is described in
+> > >
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11
+> > >-mm1/patch-series -
+> > 
+> > What's the latest status on these?  Last I heard, some cleanup was going to 
+> > happen to make kgdb suitable for the mainline, did that ever happen?
 > 
-> i am seeing a problem(?) with the patch described at:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109865760703851&w=2
-> i'm using vanilla 2.6.11 (not .1/.2/.3/.4 ...)
+> It part-happened, then the effort seemed to die.
 > 
-> the short version:
-> padzero does not alway do the right thing (more correctly, it's caller,
-> load_elf_binary).
->  
-> the longer version:
+> >  Also, 
+> > it would be nice if I could connect to a remote kernel running the kgdb stubs 
+> > w/o having to run gdb on the same ethernet segment.  Would that be difficult 
+> > to fix?
 > 
-> padzero calls clear_user. clear_user first checks if the address passed
-> is writable. if it is not, an error is returned. 
-> the problem manifest itself when the area being cleared is not
-> writable... this should not normally happen in the context of
-> load_elf_binary, however it _can_ happen with the following assembly
-> code (intel syntax):
+> <tries to remember how ethernet works>
 > 
-> section .text
-> global _start
-> _start:
->         mov eax,0x1
->         mov ebx,0x0
->         int 0x80
->         hlt
+> Maybe we'd have to teach kgdboe to arp for the remote debug host.  I think
+> Matt was talking about that a while back.
 > 
-> assembled with nasm -f elf, produces a binary with a bss segment of zero
-> size, aligned to 1, and one program header.
-> now, the when calling padzero, elf_bss holds an address which belongs
-> to .text (since no (fake)program header for .bss wad created), i.e; not
-> writable....
-> when padzero is called, it tries to clean the rest of the .text section,
-> which clearly results with an error.....
+> <tries to remember how ethernet switches work>
 > 
-> thus, my (very) small binary always segfaults under 2.6.11+ ....
-> 
-> on the other hand, i can be dead wrong.. if so, id like to know why...
-> 
+> If switches send the destination MAC address through unchanged then maybe
+> the problem is that the switch simply doesn't know the MAC address of the
+> remote debug host yet?  If the switch has its own MAC address (it doesn't,
+> does it), or if it's actually a router then perhaps you should specify the
+> router's MAC address and not the remote debug host's.
 
-Tricky.
+I haven't tried this, but I believe you need to set up kgdboe's
+destination MAC address as the MAC of the next IP hop. Switches should
+be invisible to kgdboe.
 
-I guess if the bss has zero length then we can skip the zeroing of the end
-of the page at the end of bss, as long as we're dead sure that we didn't
-accidentally instantiate a single page on behalf of that zero-length bss.
-
-Something like this, perhaps?
-
-
---- 25/fs/binfmt_elf.c~a	Thu Mar 17 14:47:35 2005
-+++ 25-akpm/fs/binfmt_elf.c	Thu Mar 17 14:48:44 2005
-@@ -907,15 +907,17 @@ static int load_elf_binary(struct linux_
- 	 * mapping in the interpreter, to make sure it doesn't wind
- 	 * up getting placed where the bss needs to go.
- 	 */
--	retval = set_brk(elf_bss, elf_brk);
--	if (retval) {
--		send_sig(SIGKILL, current, 0);
--		goto out_free_dentry;
--	}
--	if (padzero(elf_bss)) {
--		send_sig(SIGSEGV, current, 0);
--		retval = -EFAULT; /* Nobody gets to see this, but.. */
--		goto out_free_dentry;
-+	if (likely(elf_bss != elf_brk)) {	/* Is there any bss at all? */
-+		retval = set_brk(elf_bss, elf_brk);
-+		if (retval) {
-+			send_sig(SIGKILL, current, 0);
-+			goto out_free_dentry;
-+		}
-+		if (padzero(elf_bss)) {
-+			send_sig(SIGSEGV, current, 0);
-+			retval = -EFAULT; /* Nobody gets to see this, but.. */
-+			goto out_free_dentry;
-+		}
- 	}
- 
- 	if (elf_interpreter) {
-_
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

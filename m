@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131776AbQKVABs>; Tue, 21 Nov 2000 19:01:48 -0500
+	id <S131790AbQKVAEi>; Tue, 21 Nov 2000 19:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131790AbQKVABi>; Tue, 21 Nov 2000 19:01:38 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20563 "EHLO
+	id <S131829AbQKVAE2>; Tue, 21 Nov 2000 19:04:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8276 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131776AbQKVAB1>; Tue, 21 Nov 2000 19:01:27 -0500
-Subject: Re: Linux 2.4.0test11-ac1
-To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
-Date: Tue, 21 Nov 2000 23:31:20 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        johannes@erdfelt.com (Johannes Erdfelt),
-        mingo@chiara.elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.3.96.1001121195742.28403E-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Nov 21, 2000 08:08:43 PM
+	id <S131790AbQKVAEL>; Tue, 21 Nov 2000 19:04:11 -0500
+Subject: Re: e2fs performance as function of block size
+To: cma@mclink.it (CMA)
+Date: Tue, 21 Nov 2000 23:34:36 +0000 (GMT)
+Cc: tytso@mit.edu, card@masi.ibp.fr, linux-kernel@vger.kernel.org
+In-Reply-To: <000001c053f4$7e7fbc40$65000a0a@cma.it> from "CMA" at Nov 21, 2000 08:46:21 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13yMsl-0005Lb-00@the-village.bc.nu>
+Message-Id: <E13yMvv-0005Ly-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > MP table regardless of the capabilities of the CPU installed. Its apparently
-> > legal to do so. There is an apic capability flag that should be tested before
->  It's not legal -- the MPS is very explicit the MP-table must reflect a
-> real configuration. 
+> Sirs,
+> performing extensive tests on linux platform performance, optimized as
+> database server, I got IMHO confusing results:
+> in particular e2fs initialized to use 1024 block/fragment size showed
+> significant I/O gains over 4096 block/fragment size, while I expected t=
+> he
+> opposite. I would appreciate some hints to understand this.
 
-Intel tell me otherwise. The real world also disagrees which makes the
-discussion a little pointless. We have to handle the real situation where
-this occurs
-
-> > making any assumptions about APIC availability on a processor.
-> 
->  OK, but how does it handle the 82489DX?  There are valid configurations
-> using this kind of APIC, including Pentium P54C ones...
-
-These processors don't report the APIC on the cpuid ? If so then I guess
-the fix is something like this
-
-	if( cpuid says there is no local apic && vendor != intel)
-
-Intel stuff appears to always be happy poking in APIC space. I don't know
-if this is related to the chip internals on the non APIC capable chips.
-
-Alan
+It may be that your database is writing out 1K sized blocks on random
+boundaries. If so then the behaviour you describe would be quite reasonable.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

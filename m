@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267935AbUHKJvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268015AbUHKJwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267935AbUHKJvm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 05:51:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268015AbUHKJvm
+	id S268015AbUHKJwT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 05:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268016AbUHKJwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 05:51:42 -0400
-Received: from users.linvision.com ([62.58.92.114]:58553 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S267935AbUHKJvk (ORCPT
+	Wed, 11 Aug 2004 05:52:19 -0400
+Received: from [218.201.129.131] ([218.201.129.131]:29198 "HELO altbox.org")
+	by vger.kernel.org with SMTP id S268015AbUHKJwP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 05:51:40 -0400
-Date: Wed, 11 Aug 2004 11:51:39 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Paul Jackson <pj@sgi.com>, Eric Masson <cool_kid@future-ericsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fork and Exec a process within the kernel
-Message-ID: <20040811095139.GA10047@harddisk-recovery.com>
-References: <4117E68A.4090701@future-ericsoft.com> <20040809161003.554a5de1.pj@sgi.com> <4118E822.3000303@future-ericsoft.com> <20040810092116.7dfe118c.pj@sgi.com> <Pine.LNX.4.53.0408101456260.13579@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0408101456260.13579@chaos>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Wed, 11 Aug 2004 05:52:15 -0400
+From: sannisaed2@altbox.org
+To: linux-kernel@vger.kernel.org
+Subject: MY RESPONSE.
+X-Priority: 3
+Message-Id: <S268015AbUHKJwP/20040811095215Z+418@vger.kernel.org>
+Date: Wed, 11 Aug 2004 05:52:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 03:03:08PM -0400, Richard B. Johnson wrote:
-> /dev/console is a symlink to /dev/tty0.
+Hello Friend.
+As you read this, I don't want you to feel sorry for me because i believe everyone will die someday. My name is Sanni Saed, a merchant in Dubai U.A.E.
 
-Please don't mislead newbies, Richard. /dev/console is NOT a link to
-/dev/tty0, it's a completely different device:
+I have been diagnosed with Esophageal cancer . It has defiled all forms of medical treatment, and right now I have only about a few months to live, according to medical experts.I have not particularly lived my life so well, as I never really cared for anyone(not even myself)but my business. 
 
-erik@abra2:~ >ls -l /dev/console 
-crw-------    1 root     tty        5,   1 Apr  7 09:13 /dev/console
-erik@abra2:~ >ls -l /dev/tty0
-crw-------    1 root     tty        4,   0 Feb 10  2000 /dev/tty0
+Though I am very rich, I was never generous, I was always hostile to people and only focused on my business asthat was the only thing I cared for. But now I regret all this as I now know
+that there is more to life than just wanting to have or make all the moneyin the world.
 
-On x86 desktop systems console output usually comes on the virtual
-terminals, but you can also use serial console. My embedded StrongARM
-board only has serial console.
+I believe when God gives me a second chance to come to this world I would live my life a different way from how I have lived it. Now that God has called me, I have willed and given most of my property and assets to my immediate and extended family members as well as a few close friends. 
 
->     struct termios term;
-> 
->     tcgetattr(0, &term);	// Get old terminal characteristics
->     (void)close(0);		// Close old terminal(s)
->     (void)close(1);
->     (void)close(2);
->     fd = open("/dev/console", O_RDWR);
+I want God to be merciful to me and accept my soul so, I have decided to give alms to charity ganizations, as I want this to be one of the last good
+deeds I do on earth.
 
-And what happens when you have console on a device that's not a serial
-port like a line printer?
+Now that my health has deteriorated so badly, I cannot do this myself anymore. I once asked members of my family to close one of my accounts and distribute the money which I have there to
+charity organization in Bulgaria and Pakistan, they refused and kept the money to themselves. Hence, I do not trust them anymore, as they seem not to
+be contended with what I have left for them.
+
+The last of my money which no one knows of is the huge cash deposit of Eight million united states
+dollars that I have with a finance/Security Company abroad. I will want you to help me collect this deposit and dispatched it to charity organizations. I have set aside 10 % for you and for your time.All correspondence should be directed to my private email sannisaed@netscape.net
+
+God be with you.
+
+Regards,
+Sanni Saed. 
 
 
-Erik
 
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

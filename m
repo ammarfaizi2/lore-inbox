@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUALQKg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 11:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUALQKd
+	id S265586AbUALQ1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 11:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266159AbUALQ1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 11:10:33 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:21983 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265539AbUALQK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 11:10:29 -0500
-Date: Mon, 12 Jan 2004 08:10:25 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1 and irq balancing
-Message-ID: <893140000.1073923824@[10.10.2.4]>
-In-Reply-To: <btt7pt$3m8$1@gatekeeper.tmr.com>
-References: <7F740D512C7C1046AB53446D37200173618820@scsmsx402.sc.intel.com> <btt7pt$3m8$1@gatekeeper.tmr.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 12 Jan 2004 11:27:23 -0500
+Received: from ida.rowland.org ([192.131.102.52]:23812 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265586AbUALQ1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 11:27:20 -0500
+Date: Mon, 12 Jan 2004 11:27:20 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Oliver Neukum <oliver@neukum.org>
+cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       David Brownell <david-b@pacbell.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       USB Developers <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: USB hangs
+In-Reply-To: <200401120937.19131.oliver@neukum.org>
+Message-ID: <Pine.LNX.4.44L0.0401121119540.1327-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How much is significant? The term doesn't really help much. I will say that with one NIC taking 120MB/sec of data to a TB database and copying to two other machine (~220MB)  my interrupts got up in in the 5k-12k range with essentially CPU0 doing the work, some few percent going to CPU2.
+On Mon, 12 Jan 2004, Oliver Neukum wrote:
 
+> In 2.4 they all run in interrupt or thread context IIRC.
+> Problematic is the SCSI error handling thread. It can call usb_reset_device()
+> which calls down and does allocations.
+> Does that thread also do the PF_MEMALLOC trick?
 
-1010 per second, IIRC. Try this patch:
+In 2.4 it doesn't, which is rather surpising considering how many storage 
+devices run over SCSI transports.
 
-diff -aurpN -X /home/fletch/.diff.exclude 290-gfp_node_strict/arch/i386/kernel/io_apic.c 310-irqbal_fast/arch/i386/kernel/io_apic.c
---- 290-gfp_node_strict/arch/i386/kernel/io_apic.c	Fri Jan  9 22:25:48 2004
-+++ 310-irqbal_fast/arch/i386/kernel/io_apic.c	Fri Jan  9 22:27:55 2004
-@@ -401,7 +401,7 @@ static void do_irq_balance(void)
- 	unsigned long max_cpu_irq = 0, min_cpu_irq = (~0);
- 	unsigned long move_this_load = 0;
- 	int max_loaded = 0, min_loaded = 0;
--	unsigned long useful_load_threshold = balanced_irq_interval + 10;
-+	unsigned long useful_load_threshold = balanced_irq_interval / 10;
- 	int selected_irq;
- 	int tmp_loaded, first_attempt = 1;
- 	unsigned long tmp_cpu_irq;
+In 2.6 it sets PF_IOTHREAD.  I don't know if that subsumes the function of 
+PF_MEMALLOC or not.  The state of kerneldoc for much of the Linux core 
+functionality is shocking.
 
-M.
+Alan Stern
 

@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291806AbSBTMPk>; Wed, 20 Feb 2002 07:15:40 -0500
+	id <S291826AbSBTNGx>; Wed, 20 Feb 2002 08:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291812AbSBTMPa>; Wed, 20 Feb 2002 07:15:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37636 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291806AbSBTMPQ>;
-	Wed, 20 Feb 2002 07:15:16 -0500
-Message-ID: <3C739351.20C03FDA@mandrakesoft.com>
-Date: Wed, 20 Feb 2002 07:15:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S291835AbSBTNGn>; Wed, 20 Feb 2002 08:06:43 -0500
+Received: from mail3.ccs.bbk.ac.uk ([193.61.22.5]:12431 "EHLO
+	mail3.ccs.bbk.ac.uk") by vger.kernel.org with ESMTP
+	id <S291825AbSBTNGj>; Wed, 20 Feb 2002 08:06:39 -0500
+Message-ID: <001201c1ba0e$d1506560$8b8b8b8b@ccs.bbk.ac.uk>
+From: "Dr. Keith G. Bowden" <k.bowden@physics.bbk.ac.uk>
+To: arjanv <arjanv@redhat.com>, Giacomo Catenazzi <cate@debian.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.fhm0v6v.d02k8d@ifi.uio.no> <3C735D97.70809@debian.org> <3C735FB0.BF6F5FCD@redhat.com>
+Subject: Re: NVidia driver with 2.5
+Date: Wed, 20 Feb 2002 10:30:56 -0000
+Organization: 
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Francois Romieu <romieu@cogenit.fr>, linux-kernel@vger.kernel.org,
-        khc@pm.waw.pl, davem@redhat.com
-Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
-In-Reply-To: <Pine.LNX.4.33.0202191732320.1443-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 17 Feb 2002, Jeff Garzik wrote:
-> > Francois Romieu wrote:
-> > > [0/3]:
-> > > - SIOCDEVICE -> SIOCWANDEV conversion
-> > > - hdlc_proto -> raw_hdlc_proto
-> >
-> > patch looks ok to me.
-> 
-> Jeff, are yu willing to merge these things?
+Hi,
 
-Sure.
+I have unsubscribed to the list because I am only interested in the stuff
+about nvidia.
 
-FWIW it looks like Krzysztof Halasa has some good points, so a "[BK
-PATCH]" may be delayed a day or two before coming to you, I'm betting...
+Is there another list for this?
 
-	Jeff
+(Reply direct to me.)
+
+Keith
 
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+-----------------------------------------------------
+Click here for Free Video!!
+http://www.gohip.com/free_video/
+
+----- Original Message -----
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Giacomo Catenazzi <cate@debian.org>; <linux-kernel@vger.kernel.org>
+Sent: Wednesday, February 20, 2002 8:34 AM
+Subject: Re: NVidia driver with 2.5
+
+
+>
+> > Put explicity that your code is GPL, so that we can use it
+> > (private use we can link with all code), but nvidia cannot
+> > use your work unless they release the source.
+>
+> Since the nvidia driver is not gpl in the first place, the patch
+> is most likely in violation of nvidia's license already. Maybe they
+> let it go but... if they were mean and evil they could sue the guy
+> who posted the patch in the first place.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

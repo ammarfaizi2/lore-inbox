@@ -1,76 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbULUVwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbULUWHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbULUVwU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 16:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbULUVwU
+	id S261874AbULUWHN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 17:07:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbULUWHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 16:52:20 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9125 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261849AbULUVuD (ORCPT
+	Tue, 21 Dec 2004 17:07:12 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3501 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261874AbULUWFS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 16:50:03 -0500
+	Tue, 21 Dec 2004 17:05:18 -0500
 From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Matthew Wilcox <matthew@wil.cx>
+To: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH] add legacy resources to sysfs
-Date: Tue, 21 Dec 2004 13:49:47 -0800
+Date: Tue, 21 Dec 2004 14:05:09 -0800
 User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org,
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, willy@debian.org,
        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
        Bjorn Helgaas <bjorn.helgaas@hp.com>
-References: <200412211247.44883.jbarnes@engr.sgi.com> <20041221212839.GF31261@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041221212839.GF31261@parcelfarce.linux.theplanet.co.uk>
+References: <200412211247.44883.jbarnes@engr.sgi.com> <20041221214623.GB10362@kroah.com>
+In-Reply-To: <20041221214623.GB10362@kroah.com>
 MIME-Version: 1.0
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_8pJyB/nl3jMMM0u"
-Message-Id: <200412211349.48340.jbarnes@engr.sgi.com>
+  boundary="Boundary-00=_V4JyB2ETRCF/kSh"
+Message-Id: <200412211405.09536.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_8pJyB/nl3jMMM0u
+--Boundary-00=_V4JyB2ETRCF/kSh
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-On Tuesday, December 21, 2004 1:28 pm, Matthew Wilcox wrote:
-> This is a slightly klunky interface.  How about:
+On Tuesday, December 21, 2004 1:46 pm, Greg KH wrote:
+> You are passing the wrong things around :)
 >
-> int sn_pci_get_legacy_mem(struct pci_bus *bus)
-> {
->  if (!SN_PCIBUS_BUSSOFT(bus))
->   return ERR_PTR(-ENODEV);
->  return SN_PCIBUS_BUSSOFT(bus)->bs_legacy_mem | __IA64_UNCACHED_OFFSET;
-> }
+> A struct pci_bus is a struct class_device, not a struct device.  I think
+> you need to rethink your goal of putting the files into the pci device
+> directory, or just put the files into the proper /sys/class/pci_bus/*
+> directory as your code assumes is happening.
 
-Sure, that makes sense (changed the return type to char *).  How does this 
-version look?
-
-> >   b->class_dev.class = &pcibus_class;
-> >   sprintf(b->class_dev.class_id, "%04x:%02x", pci_domain_nr(b), bus);
-> >   error = class_device_register(&b->class_dev);
-> > +
-> >   if (error)
-> >    goto class_dev_reg_err;
->
-> Actually, I rather dislike having the newline there.  It implies a logical
-> separation between registering and testing for the error, whereas the
-> logical separation is much more like this:
-
-Yeah, I didn't mean to add that newline, it was leftover from when I had the 
-#ifdef within that function.  I've left that routine alone now, except for 
-the addition of the callback to create the legacy files.
+Something like this then?  I added bin file support to class.c and use that 
+instead from probe.c.  I also fixed the container_of stuff in pci-sysfs.c.
 
 Thanks,
 Jesse
 
---Boundary-00=_8pJyB/nl3jMMM0u
+--Boundary-00=_V4JyB2ETRCF/kSh
 Content-Type: text/plain;
   charset="iso-8859-1";
-  name="sysfs-legacy-resource-3.patch"
+  name="sysfs-legacy-resource-4.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="sysfs-legacy-resource-3.patch"
+	filename="sysfs-legacy-resource-4.patch"
 
 ===== arch/ia64/pci/pci.c 1.59 vs edited =====
 --- 1.59/arch/ia64/pci/pci.c	2004-11-05 11:55:25 -08:00
@@ -293,10 +275,36 @@ Content-Disposition: attachment;
 + out:
 +	return ret;
 +}
+===== drivers/base/class.c 1.56 vs edited =====
+--- 1.56/drivers/base/class.c	2004-11-12 03:45:39 -08:00
++++ edited/drivers/base/class.c	2004-12-21 13:59:00 -08:00
+@@ -179,6 +179,22 @@
+ 		sysfs_remove_file(&class_dev->kobj, &attr->attr);
+ }
+ 
++int class_device_create_bin_file(struct class_device *class_dev,
++				 struct bin_attribute *attr)
++{
++	int error = -EINVAL;
++	if (class_dev)
++		error = sysfs_create_bin_file(&class_dev->kobj, attr);
++	return error;
++}
++
++void class_device_remove_bin_file(struct class_device *class_dev,
++				  struct bin_attribute *attr)
++{
++	if (class_dev)
++		sysfs_remove_bin_file(&class_dev->kobj, attr);
++}
++
+ static int class_device_dev_link(struct class_device * class_dev)
+ {
+ 	if (class_dev->dev)
 ===== drivers/pci/pci-sysfs.c 1.14 vs edited =====
 --- 1.14/drivers/pci/pci-sysfs.c	2004-12-21 11:28:57 -08:00
-+++ edited/drivers/pci/pci-sysfs.c	2004-12-21 12:41:31 -08:00
-@@ -179,6 +179,73 @@
++++ edited/drivers/pci/pci-sysfs.c	2004-12-21 14:03:35 -08:00
+@@ -179,6 +179,76 @@
  	return count;
  }
  
@@ -315,7 +323,8 @@ Content-Disposition: attachment;
 +pci_read_legacy_io(struct kobject *kobj, char *buf, loff_t off, size_t count)
 +{
 +        struct pci_bus *bus = to_pci_bus(container_of(kobj,
-+                                                      struct device, kobj));
++                                                      struct class_device,
++						      kobj));
 +
 +        /* Only support 1, 2 or 4 byte accesses */
 +        if (count != 1 && count != 2 && count != 4)
@@ -338,7 +347,8 @@ Content-Disposition: attachment;
 +pci_write_legacy_io(struct kobject *kobj, char *buf, loff_t off, size_t count)
 +{
 +        struct pci_bus *bus = to_pci_bus(container_of(kobj,
-+                                                      struct device, kobj));
++						      struct class_device,
++						      kobj));
 +        /* Only support 1, 2 or 4 byte accesses */
 +        if (count != 1 && count != 2 && count != 4)
 +                return -EINVAL;
@@ -361,7 +371,8 @@ Content-Disposition: attachment;
 +                    struct vm_area_struct *vma)
 +{
 +        struct pci_bus *bus = to_pci_bus(container_of(kobj,
-+                                                      struct device, kobj));
++                                                      struct class_device,
++						      kobj));
 +
 +        return pci_mmap_legacy_page_range(bus, vma);
 +}
@@ -372,7 +383,7 @@ Content-Disposition: attachment;
   * pci_mmap_resource - map a PCI resource into user memory space
 ===== drivers/pci/probe.c 1.72 vs edited =====
 --- 1.72/drivers/pci/probe.c	2004-11-11 12:53:33 -08:00
-+++ edited/drivers/pci/probe.c	2004-12-21 13:36:27 -08:00
++++ edited/drivers/pci/probe.c	2004-12-21 13:58:10 -08:00
 @@ -764,6 +764,42 @@
  	return max;
  }
@@ -397,7 +408,7 @@ Content-Disposition: attachment;
 +		b->legacy_io->attr.owner = THIS_MODULE;
 +		b->legacy_io->read = pci_read_legacy_io;
 +		b->legacy_io->write = pci_write_legacy_io;
-+		sysfs_create_bin_file(&b->bridge->kobj, b->legacy_io);
++		class_device_create_bin_file(&b->class_dev, b->legacy_io);
 +
 +		/* Allocated above after the legacy_io struct */
 +		b->legacy_mem = b->legacy_io + 1;
@@ -406,7 +417,7 @@ Content-Disposition: attachment;
 +		b->legacy_mem->attr.mode = S_IRUSR | S_IWUSR;
 +		b->legacy_mem->attr.owner = THIS_MODULE;
 +		b->legacy_mem->mmap = pci_mmap_legacy_mem;
-+		sysfs_create_bin_file(&b->bridge->kobj, b->legacy_mem);
++		class_device_create_bin_file(&b->class_dev, b->legacy_mem);
 +	}
 +}
 +#else /* !HAVE_PCI_LEGACY */
@@ -624,4 +635,4 @@ Content-Disposition: attachment;
  
  #define pci_bus_b(n)	list_entry(n, struct pci_bus, node)
 
---Boundary-00=_8pJyB/nl3jMMM0u--
+--Boundary-00=_V4JyB2ETRCF/kSh--

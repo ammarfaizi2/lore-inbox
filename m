@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbSBMNrj>; Wed, 13 Feb 2002 08:47:39 -0500
+	id <S284144AbSBMNsT>; Wed, 13 Feb 2002 08:48:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282845AbSBMNr3>; Wed, 13 Feb 2002 08:47:29 -0500
-Received: from dsl-65-185-241-169.telocity.com ([65.185.241.169]:10112 "EHLO
-	mail.temp123.org") by vger.kernel.org with ESMTP id <S282843AbSBMNrU>;
-	Wed, 13 Feb 2002 08:47:20 -0500
-Date: Wed, 13 Feb 2002 08:47:25 -0500
-From: Faux Pas III <fauxpas@temp123.org>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+	id <S282845AbSBMNsJ>; Wed, 13 Feb 2002 08:48:09 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:63726 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S282843AbSBMNrz>; Wed, 13 Feb 2002 08:47:55 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020205054709.GA3245@hst000004380um.kincannon.olemiss.edu> 
+In-Reply-To: <20020205054709.GA3245@hst000004380um.kincannon.olemiss.edu> 
+To: Benjamin Pharr <ben@benpharr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 Oops, maybe LVM ?
-Message-ID: <20020213134725.GA755@temp123.org>
-In-Reply-To: <20020213063548.GA463@temp123.org> <20020213090748.GA2421@fib011235813.fsnet.co.uk>
+Subject: Re: choice Help Sections 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020213090748.GA2421@fib011235813.fsnet.co.uk>
-User-Agent: Mutt/1.3.25i
+Date: Wed, 13 Feb 2002 13:47:48 +0000
+Message-ID: <16763.1013608068@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 09:07:48AM +0000, Joe Thornber wrote:
 
-> Do you have any other reason to suspect LVM ?  eg, have you tried
-> it successfully on a non-LVM device ?
+ben@benpharr.com said:
+> Has anyone else noticed the availability of only one help section in
+> "choice" blocks when using make menuconfig (and others maybe?)? 
 
-It seems to only crash reliably when I pull a file off the filesystem
-that's on the lv, but I haven't been at all scientific in determining
-that.  =)  I'll try to kill it without LVM being in the picture.
+> The best example of this is selection of "Processor family". No matter
+> which option is highlighted when Help is selected, it always gives the
+> help for CONFIG_M386.
 
-> have you tried it without the acls patch ?
+AFAIK the help text for choice entries has _always_ been implemented the 
+way you observed - a single entry with the name of the first choice, which 
+helps you decide what to choose - not individual entries for each possible 
+choice.
 
-Yes.  Still crashes under the same conditions with the 'eth0: Abnormal
-interrupt' bit, but the oops might be very different.  I'll try to get 
-an oops with a vanilla kernel...
+It looks like the current Configure.help is broken. I suggest you submit 
+patches to correct it.
 
--- 
-Josh Litherland (fauxpas@temp123.org)
+
+--
+dwmw2
+
+

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272188AbRH3Mec>; Thu, 30 Aug 2001 08:34:32 -0400
+	id <S272191AbRH3MfM>; Thu, 30 Aug 2001 08:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272191AbRH3MeN>; Thu, 30 Aug 2001 08:34:13 -0400
-Received: from access-35.98.rev.fr.colt.net ([213.41.98.35]:34570 "HELO
-	phoenix.linuxatbusiness.com") by vger.kernel.org with SMTP
-	id <S272188AbRH3MeD> convert rfc822-to-8bit; Thu, 30 Aug 2001 08:34:03 -0400
-Subject: Re: smp freeze on 2.4.9
-From: Philippe Amelant <philippe.amelant@free.fr>
+	id <S272192AbRH3MfD>; Thu, 30 Aug 2001 08:35:03 -0400
+Received: from gnu.in-berlin.de ([192.109.42.4]:40208 "EHLO gnu.in-berlin.de")
+	by vger.kernel.org with ESMTP id <S272191AbRH3Mer>;
+	Thu, 30 Aug 2001 08:34:47 -0400
+X-Envelope-From: news@bytesex.org
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010830221733.A3834@higherplane.net>
-In-Reply-To: <999166237.1257.31.camel@avior> 
-	<20010830221733.A3834@higherplane.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 30 Aug 2001 14:34:15 +0200
-Message-Id: <999174855.2667.4.camel@avior>
-Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Path: kraxel
+From: Gerd Knorr <kraxel@bytesex.org>
+Newsgroups: lists.linux.kernel
+Subject: Re: [UPDATE] 2.4.10-pre2 PCI64, API changes README
+Date: 30 Aug 2001 12:34:11 GMT
+Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
+Message-ID: <slrn9oscm3.4o6.kraxel@bytesex.org>
+In-Reply-To: <20010829.181852.98555095.davem@redhat.com>
+NNTP-Posting-Host: localhost
+X-Trace: bytesex.org 999174851 4935 127.0.0.1 (30 Aug 2001 12:34:11 GMT)
+User-Agent: slrn/0.9.7.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On jeu, 2001-08-30 at 14:17, john slee wrote:
-> On Thu, Aug 30, 2001 at 12:10:37PM +0200, Philippe Amelant wrote:
-> > I have an ABIT BP6 mobo with 2 celeron 400 running redhat 7.1 with 2.4.3
-> 
-> before you blame smp, try the usual bp6 stuff:
-> *	bigger/better power supply
+David S. Miller wrote:
+>  
+>  Ok, new patch up on kernel.org against 2.4.10-pre2:
+>  
+>  ftp.kernel.org:/pub/linux/kernel/davem/PCI64/pci64-2.4.10p2-1.patch.gz
+>  
+>  The major change in this release is that the API has been redone.
 
-350 W should be enough (just 1 HD and 1 DVD + mobo ) ?
+A maybe related issue:
 
-> *	better cooling
+My current bttv does zerocopy capture if you ask it for a video frame
+using read():  locks memory with kiobufs, builds a scatterlist for the
+locked pages, asks for bus addresses using pci_map_sg, then kick DMA.
 
-I have 2 big fan :)
-cpu temp is typically 35 °C
+These days I tried what happens if I start a PCI->PCI transfer this way:
+Open the framebuffer device, mmap the framebuffer memory, then ask bttv
+to blit one video frame to the framebuffer by passing the pointer of the
+fb mapping to bttv's read() function.
 
-> *	boot with 'noapic' on commandline
-> 
+Didn't work, looks like map_user_buf can deal with main memory only, but
+not with I/O memory.  It gave me NULL pointers in the iobuf page list.
 
-interresting, i notice that i have some error apic in kernel message
-with 2.4.3
-i will search that on lkml archive
+Is there any way (portable) way to deal with this situation?  I'd expect
+I can get the physical address for the I/O memory by walking the page
+tables, but then I'd have to translate that to a bus address somehow.
+How PCI->PCI transfers are handled on architectures with a iommu?  Do I
+need a iommu entry for them?
 
-thank for response
+  Gerd
 
-> search a linux-kernel archive (http://marc.theaimsgroup.com)
-> for more info.  these boards seem to be a bit of a lucky dip.  some
-> never have any problems, others have heaps.  i have a vague memory of
-> someone mentioning flaky caps on some revisions...  also are you using
-> the onboard ata66 controller?  there's been a fair few reports of
-> trouble with those, not sure if it was fixed/hacked-around or not.
-> 
-> best of luck,
-> 
-> j.
-> 
-
-
+-- 
+Damn lot people confuse usability and eye-candy.

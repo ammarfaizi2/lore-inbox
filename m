@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSAFQPp>; Sun, 6 Jan 2002 11:15:45 -0500
+	id <S288983AbSAFQRP>; Sun, 6 Jan 2002 11:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288982AbSAFQPf>; Sun, 6 Jan 2002 11:15:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18180 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288980AbSAFQPV>; Sun, 6 Jan 2002 11:15:21 -0500
-Subject: Re: [PATCH]: 2.5.1pre9 change several if (x) BUG to BUG_ON(x)
-To: velco@fadata.bg (Momchil Velikov)
-Date: Sun, 6 Jan 2002 16:26:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mumismo@wanadoo.es (Jordi),
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <878zbba629.fsf@fadata.bg> from "Momchil Velikov" at Jan 06, 2002 04:48:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288984AbSAFQRG>; Sun, 6 Jan 2002 11:17:06 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:8087 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S288983AbSAFQQx>;
+	Sun, 6 Jan 2002 11:16:53 -0500
+Date: Sun, 6 Jan 2002 19:14:12 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Anton Blanchard <anton@samba.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: O(1) scheduler, 2.5.2-pre9-B1 results
+In-Reply-To: <20020106124927.GA30292@krispykreme>
+Message-ID: <Pine.LNX.4.33.0201061643560.4651-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16NG7X-0005gu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan> 	BUG_ON(function(x,y))
-> 
-> #ifdef DEBUG
-> #define BUG_ON(x) if (x) BUG()
-> #else
-> #define BUG_ON(x) (void)(x)
-> #endif
 
-(void)(x) may cause x not be evaluated if the compiler can optimise it out
-on the grounds that the result is discarded. Fortunately gcc can't remove
-anything that has side effects so providing there are no other bugs in the
-code (eg referencing mmio addresses) it should be fine - you are correct
+On Sun, 6 Jan 2002, Anton Blanchard wrote:
+
+> communication latencies: Pipe, AF, TCP slightly up (BAD)
+
+this is mainly because i have not made the O(1) scheduler fully aware of
+synchronous wakeups yet. I'm working on this part now that the bugs are
+fixed. If you remove synchronous wakeups from the stock kernel then you'll
+see processes distributed to different CPUs but bad lmbench latencies.
+
+> So far things look good. Next up I'll look at how it scales on the 12
+> way.
+
+thanks!
+
+	Ingo
+
+

@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266642AbRGEHWr>; Thu, 5 Jul 2001 03:22:47 -0400
+	id <S266641AbRGEHfb>; Thu, 5 Jul 2001 03:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266641AbRGEHWh>; Thu, 5 Jul 2001 03:22:37 -0400
-Received: from c1602130-a.wntck1.sfba.home.com ([24.9.170.162]:12294 "EHLO
-	barn.psychohorse.com") by vger.kernel.org with ESMTP
-	id <S266640AbRGEHWZ>; Thu, 5 Jul 2001 03:22:25 -0400
-Message-ID: <3B44159E.1020808@psychohorse.com>
-Date: Thu, 05 Jul 2001 00:22:06 -0700
-From: StarTux <matthew@psychohorse.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010702
-X-Accept-Language: en-us
+	id <S266643AbRGEHfU>; Thu, 5 Jul 2001 03:35:20 -0400
+Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:1385 "EHLO
+	porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
+	id <S266641AbRGEHfR>; Thu, 5 Jul 2001 03:35:17 -0400
+Date: Thu, 5 Jul 2001 10:35:15 +0300 (EET DST)
+From: Samuli Kaski <samkaski@cs.Helsinki.FI>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Mail list archives down
+In-Reply-To: <m3u20suxxg.fsf@hakva-2.student.nlh.no>
+Message-ID: <Pine.LNX.4.30.0107051033070.11430-100000@melkinkari.cs.Helsinki.FI>
 MIME-Version: 1.0
-To: Ronald Bultje <rbultje@ronald.bitfreak.net>
-CC: Chris Siebenmann <cks@utcc.utoronto.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: >128 MB RAM stability problems (again)
-In-Reply-To: <01Jul4.172916edt.62972@gpu.utcc.utoronto.ca> <994322676.768.0.camel@tux>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
+If you don't require any fancy web features the one at our department
+seems pretty uptodate & functional.
 
->>
+http://www.cs.helsinki.fi/linux/linux-kernel/
+
+	Samuli
+
+On 5 Jul 2001, Håvard Kvålen wrote:
+
+> David Balazic <david.balazic@uni-mb.si> writes:
 >
->I ran memtest tonight on all machines....
->It gave 0 errors on all of them.....
+> > I noticed 4 out of 5 LKML web archives listed in the FAQ are down as
+> > of today.
 >
->So.... this leads to the conclusion that the memory is okay, and that
->something else must be the problem.... Could it still be a failing power
->supply or something? It seems both computers have a 230 W power supply.
->Might be a problem, I guess, I can buy a 400 W thingy if that makes
->sense.
+> I guess the FAQ needs updating.  Here is one that seems to work:
+> <URL: http://www.lib.uaa.alaska.edu/linux-kernel/ >
 >
-Happening with me and a 300watt supply...
-
-><snip>
+> --
+> Håvard Kvålen
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
-I am beta testing the Dockingstation for Creatures, and I got some 
-extras for it. But on my SuSE box the thing freezes within minutes, if 
-use all the agents. Its a very proccessor and memory intensive app. And 
-I have 256MB ram.
-
-
-Just watched it crash when I started mozilla....
-
-Only just found out people are having issue with RAM and 2.4.5....? I am 
-running 2.4.4....
-
-I do not think the program has a bug...But no-one else is even saying 
-anything which is very annoying.
-
-Matt
-
 

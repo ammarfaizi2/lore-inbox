@@ -1,53 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265143AbTLRNvy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 08:51:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265141AbTLRNvy
+	id S265139AbTLRNnx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 08:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbTLRNnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 08:51:54 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:1154
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S265144AbTLRNvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 08:51:53 -0500
-Date: Thu, 18 Dec 2003 08:51:06 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Miroslaw KLABA <totoro@totoro.be>
-cc: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Double Interrupt with HT
-In-Reply-To: <20031218131437.239e69e5.totoro@totoro.be>
-Message-ID: <Pine.LNX.4.58.0312180849480.1710@montezuma.fsmlabs.com>
-References: <20031215155843.210107b6.totoro@totoro.be>
- <1071603069.991.194.camel@cog.beaverton.ibm.com> <1071615336.3fdf8d6840208@ssl0.ovh.net>
- <1071618630.1013.11.camel@cog.beaverton.ibm.com> <1071630228.3fdfc794eb353@ssl0.ovh.net>
- <1071717730.1117.26.camel@cog.beaverton.ibm.com> <20031218131437.239e69e5.totoro@totoro.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Dec 2003 08:43:53 -0500
+Received: from h1ab.lcom.net ([216.51.237.171]:45702 "EHLO digitasaru.net")
+	by vger.kernel.org with ESMTP id S265139AbTLRNnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 08:43:52 -0500
+Date: Thu, 18 Dec 2003 07:43:45 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0
+Message-ID: <20031218134343.GG5057@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: Marcel Holtmann <marcel@holtmann.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org> <1071739025.3873.4.camel@pegasus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1071739025.3873.4.camel@pegasus>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Dec 2003, Miroslaw KLABA wrote:
+>From Marcel Holtmann on Thursday, 18 December, 2003:
+>Hi Andrew,
+>> - Please report any problems to the appropriate mailing list.  If you do
+>>   not know which list to use, send the report to linux-kernel@vger.kernel.org
+>>   and it should reach the right person.  Some active subsystem mailing lists
+>>   are:
+>> 	linux1394-devel@lists.sourceforge.net
+>> 	linux-xfs@oss.sgi.com
+>> 	linux-acpi@intel.com
+>> 	linux-scsi@vger.kernel.org
+>> 	ext2-devel@lists.sourceforge.net
+>> 	linux-usb-users@lists.sourceforge.net
+>for Bluetooth related problems, people should use
+>	bluez-devel@lists.sourceforge.net
+>However the Bluetooth subsystem of 2.4 is much more up-to-date and I
+>hope we can catch up for 2.6.1 ;)
 
-> > Does booting w/ "noapic" help?
-> No, I still have the time that is going twice the speed.
-> I included /proc/interrupts, dmesg and lspci. It's with the 2.4.23 kernel without the irq_balance patch.
-> Hope this help.
->
-> # cat /proc/interrupts
->            CPU0       CPU1
->   0:      71181      71121    IO-APIC-edge  timer
->   1:          2          2    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->   4:         16         16    IO-APIC-edge  serial
->   8:          1          1    IO-APIC-edge  rtc
->  14:       3294       3295    IO-APIC-edge  ide0
->  23:       2334       2339   IO-APIC-level  eth0
-> NMI:          0          0
-> LOC:      71109      71108
-> ERR:          0
-> MIS:          0
->
-> Kernel command line: auto BOOT_IMAGE=linux-bi ro root=301 BOOT_FILE=/boot/bzImage-2.4.23-bipiv noacpi
+Hey, could a List of Lists be put on kernel.org?  I'm not looking forward
+  to having to fish through the thread again to find the appropriate list
+  when I get up the courage to try 2.6.0 on my workstation again.  :)
 
-John meant 'noapic' not 'noacpi', you'll note that the interrupt
-controller types after boot will be XT-PIC instead of say IO-APIC-edge
-etc..
+-Joseph
+
+-- 
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

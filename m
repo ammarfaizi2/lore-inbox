@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135173AbRARU2P>; Thu, 18 Jan 2001 15:28:15 -0500
+	id <S132148AbRARUeZ>; Thu, 18 Jan 2001 15:34:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135341AbRARU1z>; Thu, 18 Jan 2001 15:27:55 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:35930 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135173AbRARU1p>; Thu, 18 Jan 2001 15:27:45 -0500
-Date: Thu, 18 Jan 2001 21:24:41 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
+	id <S132301AbRARUeP>; Thu, 18 Jan 2001 15:34:15 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:32275 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132148AbRARUeF>;
+	Thu, 18 Jan 2001 15:34:05 -0500
+Date: Thu, 18 Jan 2001 21:33:37 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Rick Jones <raj@cup.hp.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>,
         Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
         "David S. Miller" <davem@redhat.com>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010118212441.E28276@athlon.random>
-In-Reply-To: <20010118203802.D28276@athlon.random> <Pine.LNX.4.30.0101182041240.1009-100000@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101182041240.1009-100000@elte.hu>; from mingo@elte.hu on Thu, Jan 18, 2001 at 08:43:47PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.10.10101181146190.18387-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0101182121290.1838-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 08:43:47PM +0100, Ingo Molnar wrote:
-> 
-> On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
-> 
-> > I'm all for TCP_CORK but it has the disavantage of two syscalls for
-> > doing the flush of the outgoing queue to the network. And one of those
-> > two syscalls is spurious. [...]
-> 
-> i believe a network-conscious application should use MSG_MORE - that has
-> no system-call overhead.
 
-Agreed. However since TCP_CORK logic is more generic than MSG_MORE and so it
-still makes sense for some usage I think it worth to optimize the TCP_CORK
-logic too and this new functionality _may_ be useful not just for TCP_CORK.
+On Thu, 18 Jan 2001, Linus Torvalds wrote:
 
-> > +	case SIOCPUSH:
-> > +		lock_sock(sk);
-> > +		__tcp_push_pending_frames(sk, tp, tcp_current_mss(sk), 1);
-> > +		release_sock(sk);
-> > +		break;
-> 
-> i believe it should rather be a new setsockopt TCP_CORK value (or a new
-> setsockopt constant), not an ioctl. Eg. a value of 2 to TCP_CORK could
-> mean 'force packet boundary now if possible, and dont touch TCP_CORK
-> state'.
+> I think Andrea was thinking more of the case of the anonymous IO
+> generator, and having the "controller" program thgat keeps the socket
+> always in CORK mode, but uses SIOCPUSH when it doesn't know what teh
+> future access patterns will be.
 
-Doing PUSH from setsockopt(TCP_CORK) looked obviously wrong because it isn't
-setting any socket state, and also because the SIOCPUSH has nothing specific
-with TCP_CORK, as said it can be useful also to flush the last fragment of data
-pending in the send queue without having to wait all the unacknowledged data to
-be acknowledged from the receiver when TCP_NODELAY isn't set.
+yep.
 
-Changing the semantics of setsockopt(TCP_CORK, 2) would also break backwards
-compatibility with all 2.[24].x kernels out there.
+> Again, the actual data _senders_ may not be aware of the network
+> issues. They are the worker bees, and they may not know or care that
+> they are pushing out data to the network.
 
-Andrea
+yep.
+
+> Ingo, you should realize that people actually _want_ to use things
+> like stdio. [...]
+
+yep, i already acknowledged that not all applications want to care about
+issues like that and rather want to have a 'default behavior' - ie. a
+persistent cork.
+
+i also said that user-space (ie. libc) could maintain a persistent flag
+itself (a user-space variable) much cheaper than the kernel, and could
+pass the current 'more' value to the kernel, whenever sendmsg is done. I
+understand that normal file IO has no 'flag' for MSG_MORE - a pity that no
+extra flags can be passed in to write(). But this doesnt make it right. It
+makes it a practical problem, it shows the (perhaps-) weakness of the file
+API which is right now not prepared to pass 'streaming related info' along
+with a send, but doesnt make it right.
+
+now if your point is that passing a flag (or flags) along every (generic)
+file-write would be a mistake, that would be a point. But you didnt say
+that so far.
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267681AbRGZImu>; Thu, 26 Jul 2001 04:42:50 -0400
+	id <S267684AbRGZI6W>; Thu, 26 Jul 2001 04:58:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267684AbRGZIml>; Thu, 26 Jul 2001 04:42:41 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47408 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S267681AbRGZIma>; Thu, 26 Jul 2001 04:42:30 -0400
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 26 Jul 2001 02:36:18 -0600
-In-Reply-To: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva>
-Message-ID: <m1ae1sf5od.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S267685AbRGZI6N>; Thu, 26 Jul 2001 04:58:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:29957 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S267684AbRGZI6D>;
+	Thu, 26 Jul 2001 04:58:03 -0400
+To: Thorsten Kukuk <kukuk@suse.de>
+Cc: "David S. Miller" <davem@redhat.com>, Leif Sawyer <lsawyer@gci.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Sparc-64 kernel build fails on version.h during 'make oldconfig'
+In-Reply-To: <BF9651D8732ED311A61D00105A9CA315053E1265@berkeley.gci.com>
+	<15199.18841.458617.411246@pizda.ninka.net>
+	<20010726064237.A26837@suse.de>
+X-Yow: Yow!  Now I get to think about all the BAD THINGS I did to a BOWLING BALL
+ when I was in JUNIOR HIGH SCHOOL!
+From: Andreas Schwab <schwab@suse.de>
+Date: 26 Jul 2001 10:58:01 +0200
+In-Reply-To: <20010726064237.A26837@suse.de> (Thorsten Kukuk's message of "Thu, 26 Jul 2001 06:42:37 +0200")
+Message-ID: <je1yn4kqxy.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.105
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Rik van Riel <riel@conectiva.com.br> writes:
+Thorsten Kukuk <kukuk@suse.de> writes:
 
-> On Wed, 25 Jul 2001, Daniel Phillips wrote:
-> > On Wednesday 25 July 2001 08:33, Marcelo Tosatti wrote:
-> > > Now I'm not sure why directly adding swapcache pages to the inactive
-> > > dirty lits with 0 zero age improves things.
-> >
-> > Because it moves the page rapidly down the inactive queue towards the
-> > ->writepage instead of leaving it floating around on the active ring
-> > waiting to be noticed.  We already know we want to evict that page,
-> 
-> We don't.
+|> No, I send you and on the sparclinux list already a patch for 
+|> this 2 weeks ago. The problem is, that make dep will build at first
+|> sparc specific programs (archdep) which needs linux/version.h, but 
+|> make dep does create linux/version.h only after building this tools. The
+|> following patch solved the problem for me:
+|> 
+|> --- linux/Makefile
+|> +++ linux/Makefile      2001/05/21 12:57:07
+|> @@ -440,7 +440,7 @@
+|>  sums:
+|>         find . -type f -print | sort | xargs sum > .SUMS
+|>  
+|> -dep-files: scripts/mkdep archdep include/linux/version.h
+|> +dep-files: include/linux/version.h scripts/mkdep archdep
 
-Agreed.  The kinds of ``aging'' don't match up so we can't tell if
-it meets our usual criteria for aging.
- 
-> The page gets unmapped and added to the swap cache the first
-> time it wasn't referenced by the process.
-> 
-> This is before any page aging is done.
+This will still fail with parallel builds.  Better make the dependency of
+archdep on version.h explicit.
 
-Actually there has been aging done.  Unless you completely disable
-testing for pte_young.  It is a different kind of aging but it is
-aging.
+Andreas.
 
-Eric
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

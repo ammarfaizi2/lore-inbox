@@ -1,72 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318243AbSGQIVz>; Wed, 17 Jul 2002 04:21:55 -0400
+	id <S317877AbSGQIVx>; Wed, 17 Jul 2002 04:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318242AbSGQIVy>; Wed, 17 Jul 2002 04:21:54 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21779 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318243AbSGQIVv>; Wed, 17 Jul 2002 04:21:51 -0400
-Date: Wed, 17 Jul 2002 09:24:46 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/13] minimal rmap
-Message-ID: <20020717092446.A4329@flint.arm.linux.org.uk>
-References: <3D3500AA.131CE2EB@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D3500AA.131CE2EB@zip.com.au>; from akpm@zip.com.au on Tue, Jul 16, 2002 at 10:29:14PM -0700
+	id <S318244AbSGQIVv>; Wed, 17 Jul 2002 04:21:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:15352 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S318242AbSGQIVu>; Wed, 17 Jul 2002 04:21:50 -0400
+Date: Wed, 17 Jul 2002 10:24:44 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: "Justin M. Forbes" <kernelmail@attbi.com>
+cc: marcelo@conectiva.com.br, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-rc2 compile fail
+In-Reply-To: <Pine.LNX.4.44.0207161957140.11639-100000@leaper.linuxtx.org>
+Message-ID: <Pine.NEB.4.44.0207171023470.16056-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 16, 2002 at 10:29:14PM -0700, Andrew Morton wrote:
+On Tue, 16 Jul 2002, Justin M. Forbes wrote:
 
-I'm puzzling over this difference:
+> I get this failure when trying to compile 2.4.19-rc2
+>
+>
+> gcc -E -D__KERNEL__ -I/usr/src/linux-2.4.19-rc2/include -traditional
+> -DCHIP=710 fake7.c | grep -v '^#' | perl -s script_asm.pl -ncr7x0_family
+> script_asm.pl : Illegal combination of registers in line 72 : 	MOVE
+> CTEST7 & 0xef TO CTEST7
+> 	Either source and destination registers must be the same,
+> 	or either source or destination register must be SFBR.
+> make[2]: *** [sim710_d.h] Error 255
+> make[2]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers/scsi'
+> make[1]: *** [_modsubdir_scsi] Error 2
+> make[1]: Leaving directory `/usr/src/linux-2.4.19-rc2/drivers'
+> make: *** [_mod_drivers] Error
 
-> --- /dev/null	Thu Aug 30 13:30:55 2001
-> +++ 2.5.26-akpm/include/asm-arm/proc-armv/rmap.h	Tue Jul 16 21:59:40 2002
->...
-> +static inline void pgtable_add_rmap(pte_t * ptep, struct mm_struct * mm, unsigned long address)
-> +{
-> +	struct page * page = virt_to_page(ptep);
-> +
-> +	page->mm = mm;
-> +	page->index = address & ~((PTRS_PER_PTE * PAGE_SIZE) - 1);
-> +}
 
-and
+Which version of gcc do you use?
+Could you send your .config?
 
-> --- /dev/null	Thu Aug 30 13:30:55 2001
-> +++ 2.5.26-akpm/include/asm-generic/rmap.h	Tue Jul 16 21:59:40 2002
-> +static inline void pgtable_add_rmap(struct page * page, struct mm_struct * mm, unsigned long address)
-> +{
-> +#ifdef BROKEN_PPC_PTE_ALLOC_ONE
-> +	/* OK, so PPC calls pte_alloc() before mem_map[] is setup ... ;( */
-> +	extern int mem_init_done;
-> +
-> +	if (!mem_init_done)
-> +		return;
-> +#endif
-> +	page->mapping = (void *)mm;
-> +	page->index = address & ~((PTRS_PER_PTE * PAGE_SIZE) - 1);
-> +}
 
-Note that the ARM one seems to be using page->mm but everything else
-uses page->mapping.
+> Justin M. Forbes
 
-Also, this comment:
-
-> + * ARM is different since hardware page tables are smaller than
-> + * the page size and Linux uses a "duplicate" one with extra info.
-> + * For rmap this means that the first 2 kB of a page are the hardware
-> + * page tables and the last 2 kB are the software page tables.
-
-is no longer true for 2.5 (although it is still true for 2.4.)
+TIA
+Adrian
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 

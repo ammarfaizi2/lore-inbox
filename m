@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262980AbTCWI5x>; Sun, 23 Mar 2003 03:57:53 -0500
+	id <S262983AbTCWJBU>; Sun, 23 Mar 2003 04:01:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262982AbTCWI5x>; Sun, 23 Mar 2003 03:57:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:57027 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262980AbTCWI5w>;
-	Sun, 23 Mar 2003 03:57:52 -0500
-Date: Sun, 23 Mar 2003 01:06:49 -0800 (PST)
-Message-Id: <20030323.010649.14803275.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] cleanup nicstar, suni and idt77105 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200303201520.h2KFK1Gi027610@locutus.cmf.nrl.navy.mil>
-References: <20030320.002904.73362328.davem@redhat.com>
-	<200303201520.h2KFK1Gi027610@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262984AbTCWJBU>; Sun, 23 Mar 2003 04:01:20 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:52615 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S262983AbTCWJBT>; Sun, 23 Mar 2003 04:01:19 -0500
+Date: Sun, 23 Mar 2003 10:01:52 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: KML <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk,
+       sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] Sensors chip w83781d for linux-2.5.6[45] (follow up on PCI quirk for SMBus bridge on Asus P4 boards)
+Message-ID: <20030323090152.GA1113@brodo.de>
+References: <20030319211837.GA23651@brodo.de> <1048146514.12350.43.camel@workshop.saharact.lan> <20030320084148.GA2414@brodo.de> <20030322131503.254c2aa7.azarah@gentoo.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030322131503.254c2aa7.azarah@gentoo.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Thu, 20 Mar 2003 10:20:01 -0500
+On Sat, Mar 22, 2003 at 01:15:03PM +0200, Martin Schlemmer wrote:
+> Hi
+> 
+> After I had this P4T533-C's SMBus enabled again on 2.5 kernel with
+> Dominik's patch, I thought it will be a good time to try and get
+> lm_sensors to work again.
+> 
+> I did not have much luck with a CVS snapshot of lm_sensors2 though,
+> so I hacked 2.5.64bk12 to include the w83781d module.  Yes, it is
+> rather hackish, but it seems to work just fine.
 
-   In message <20030320.002904.73362328.davem@redhat.com>,"David S. Miller" writes
-   :
-   >Can you send the correct patch for all three drivers not just
-   >the idt77105 parts?
-   
-   ok.
-   
-Applied, thank you.
+works fine over here, AFAICT. thanks!
+
+	Dominik

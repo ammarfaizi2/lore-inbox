@@ -1,78 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284935AbRLFCPT>; Wed, 5 Dec 2001 21:15:19 -0500
+	id <S284938AbRLFCST>; Wed, 5 Dec 2001 21:18:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284931AbRLFCPK>; Wed, 5 Dec 2001 21:15:10 -0500
-Received: from web20308.mail.yahoo.com ([216.136.226.89]:24586 "HELO
-	web20308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S284935AbRLFCOx>; Wed, 5 Dec 2001 21:14:53 -0500
-Message-ID: <20011206021449.70021.qmail@web20308.mail.yahoo.com>
-Date: Wed, 5 Dec 2001 18:14:49 -0800 (PST)
-From: Q A <qarce_mail_lists@yahoo.com>
-Subject: Re: ARP shows client is given wrong MAC Address for system with 2 NICs
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org, qarce@yahoo.com
-In-Reply-To: <Pine.LNX.3.95.1011205135505.8200A-100000@chaos.analogic.com>
+	id <S284940AbRLFCSB>; Wed, 5 Dec 2001 21:18:01 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:20487 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S284939AbRLFCRr>;
+	Wed, 5 Dec 2001 21:17:47 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15374.54521.402903.123657@argo.ozlabs.ibm.com>
+Date: Thu, 6 Dec 2001 13:16:25 +1100 (EST)
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix pcmcia errors
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo,
 
+The PCMCIA patch that I sent you and which you included in 2.4.17-pre2
+turns out to have a case where it can get a NULL pointer dereference.
+The patch below fixes that.  I posted this patch on the list earlier
+and the person who was having the problem (Alan Ford) reported that it
+fixes the problem for him, so please include this patch in your next
+release.
 
-Thanks, but I am not moving the IP from one to the
-other.  I am just saying it doesn't matter _(A) does
-not have to be eth0.  Try setting up a system with 2
-NICs and follow my notes.  I have checked another
-system with a normal 2.4.3 kernel.
+Thanks,
+Paul.
 
-Thanks for yours and everyone elses help.
-
-Q
-
-
---- "Richard B. Johnson" <root@chaos.analogic.com>
-wrote:
-> 
-> [SNIPPED...]
-> There is an ARP cache, always has been, always will
-> be. This is so
-> an ARP (Address Resolution Protocol) probe doesn't
-> have to occur for
-> every data transmission. It is presumed that an IP
-> address, including
-> your own, won't jump around from device-to-device.
-> 
-> You are moving your IP address to another device
-> (MAC address). What
-> do you expect?
-> 
-> You can delete the old entries from your ARP cache,
-> but it has to
-> be done for every system that would be affected or
-> you can just wait
-> for the ARP cache entry to expire.
-> 
->     /sbin/arp -d ipaddress
-> 
-> 
-> Cheers,
-> Dick Johnson
-> 
-> Penguin : Linux version 2.4.1 on an i686 machine
-> (799.53 BogoMips).
-> 
->     I was going to compile a list of innovations
-> that could be
->     attributed to Microsoft. Once I realized that
-> Ctrl-Alt-Del
->     was handled in the BIOS, I found that there
-> aren't any.
-> 
-> 
-
-
-__________________________________________________
-Do You Yahoo!?
-Send your FREE holiday greetings online!
-http://greetings.yahoo.com
+diff -urN linux-2.4.17-pre2/drivers/pcmcia/rsrc_mgr.c pmac/drivers/pcmcia/rsrc_mgr.c
+--- linux-2.4.17-pre2/drivers/pcmcia/rsrc_mgr.c	Sat Dec  1 15:49:24 2001
++++ pmac/drivers/pcmcia/rsrc_mgr.c	Mon Dec  3 14:28:16 2001
+@@ -107,17 +107,19 @@
+ static struct resource *resource_parent(unsigned long b, unsigned long n,
+ 					int flags, struct pci_dev *dev)
+ {
+-	struct resource res;
++	struct resource res, *pr;
+ 
+-	if (dev == NULL) {
+-		if (flags & IORESOURCE_MEM)
+-			return &iomem_resource;
+-		return &ioport_resource;
++	if (dev != NULL) {
++		res.start = b;
++		res.end = b + n - 1;
++		res.flags = flags;
++		pr = pci_find_parent_resource(dev, &res);
++		if (pr)
++			return pr;
+ 	}
+-	res.start = b;
+-	res.end = b + n - 1;
+-	res.flags = flags;
+-	return pci_find_parent_resource(dev, &res);
++	if (flags & IORESOURCE_MEM)
++		return &iomem_resource;
++	return &ioport_resource;
+ }
+ 
+ static inline int check_io_resource(unsigned long b, unsigned long n,

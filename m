@@ -1,80 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268379AbUHLC4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268377AbUHLDOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268379AbUHLC4h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 22:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268375AbUHLCz6
+	id S268377AbUHLDOd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 23:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268388AbUHLDOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 22:55:58 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:59121 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S268374AbUHLCzr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 22:55:47 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
-References: <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
-	<20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	<20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
-	<1092174959.5061.6.camel@mindpipe> <20040811073149.GA4312@elte.hu>
-	<20040811074256.GA5298@elte.hu> <1092210765.1650.3.camel@mindpipe>
-	<20040811082712.GB6528@elte.hu>
-	<wn51xid99qf.fsf@linhd-2.ca.nortel.com>
-	<1092269085.1090.10.camel@mindpipe>
-From: Linh Dang <linhd@nortelnetworks.com>
-Organization: Null
-Date: Wed, 11 Aug 2004 22:55:44 -0400
-In-Reply-To: <1092269085.1090.10.camel@mindpipe> (Lee Revell's message of
- "Wed, 11 Aug 2004 20:04:46 -0400")
-Message-ID: <wn5llgl6p5b.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 11 Aug 2004 23:14:32 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:2244 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S268377AbUHLDON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 23:14:13 -0400
+Message-Id: <200408120414.i7C4EtJd010481@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org, kai@germaschewski.name, sam@ravnborg.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] 2.6.8-rc4-mm1 - Fix UML build
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Aug 2004 00:14:55 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
+The patch below makes UML build in the face of the ldchk addition to 2.6.8.
+The basic problem for UML is that it has always had a two-stage link to produce
+the final executable -
+	vmlinux contains all the kernel bits, but no libc or gcc libs
+	linux is vmlinux plus another .o, massaged by gcc, and linked against 
+		libc
 
-> On Wed, 2004-08-11 at 07:48, Linh Dang wrote:
->> Hi,
->>
->> I'm not running the voluntary-preempt-* patches. but I do see some
->> long latencies with:
->>
->> vanilla 2.6.7+preempt-timing+defer-softirq
->>
->> which were NOT reported here. Is it useful the report them?
->>
->
-> Probably not.  Many latency issues as well as bugs in the preempt
-> timing patch have been fixed since then.  You should try the latest
-> version.
+This means that, for UML, vmlinux will have unresolved symbols, and will fail
+the ldchk test.
 
-which "latest"? Linus's 2.6.8-rcX or Andrew's -mm's or Ingo's patches.
+I fixed this in a reasonably nasty way by
+	adding a $(post-y) to the end of the list of objects
+	defining it to be 
+		some link flags, an object, and a library from the old linux 
+			link command
+		a set of libraries pulled from the output of 'gcc -v'
+	adding a -L flag to LDFLAGS_vmlinux which points at the location of
+		the -lgcc, etc libraries - this is determined by using 'gcc -v'
+		to figure out where its spec file is located and assuming that
+		its libraries will be located in the same place
+	adding arch/um/main.o to $(extra-y) in arch/um/kernel/Makefile because
+		I couldn't figure out how to get it to build from 
+		arch/um/Makefile
 
-I've looked at Ingo patches but didn't see fixes for the followings:
+This is all inside UML, except for the $(post-y) in the top-level Makefile.
 
-1. In sys_mount(): do_mount() is called with the BKL held. on jffs2
-   system, jffs2 might for a big media-scan and lock preemption for
-   several msecs. even if jffs2_scan_eraseblock() calls cond_resched()
-   for every flash sector, scanning one sector is still very long.
+With this, vmlinux contains all the bits needed for UML, and passes the ldchk
+test.  However, it won't run, and a gcc run is needed in order to produce a
+real executable.  gcc needs to polish the bits or something.
 
-2. netif_receive_skb(): the rcu_read_lock() is too broad. IMHO, it's
-   only needed around the 2 list_for_each_entry_rcu()s. There's no
-   reason why rcu_read_lock() is needed when calling ip_recv on the
-   skb.
+This getting entirely too familiar with gcc, and I'd appreciate clues about
+how to back out of this.  Ideally, I'd like to use the gcc driver as the 
+vmlinux linker, but that would require at least rewriting the command, so
+I'm not sure how practical that is.
 
-3. with Ingo's patches, if all softirqs are done by the daemon then
-   there's should be NO need to call local_bh_disable()/enable()
-   around the processing loop in ___do_softirq().
+Anyway, you have been warned.  Here it is.  Andrew, please apply.
 
-4. in cfi_cmdset_0002.c, using spin_lock_bh() to guard struct flchip
-   seems to be an overkill. why a semaphore is NOT sufficient?
+				Jeff
 
+Index: 2.6.8-rc4-mm1/Makefile
+===================================================================
+--- 2.6.8-rc4-mm1.orig/Makefile	2004-08-11 22:44:43.000000000 -0400
++++ 2.6.8-rc4-mm1/Makefile	2004-08-11 22:44:49.000000000 -0400
+@@ -519,6 +519,7 @@
+ 	$(drivers-y) \
+ 	$(net-y) \
+ 	--end-group \
++	$(post-y) \
+ 	$(filter .tmp_kallsyms%,$^) \
+ 	-o $@
+ endef
+Index: 2.6.8-rc4-mm1/arch/um/Makefile
+===================================================================
+--- 2.6.8-rc4-mm1.orig/arch/um/Makefile	2004-08-11 22:44:43.000000000 -0400
++++ 2.6.8-rc4-mm1/arch/um/Makefile	2004-08-11 22:44:49.000000000 -0400
+@@ -21,6 +21,10 @@
+ 			   $(ARCH_DIR)/drivers/          \
+ 			   $(ARCH_DIR)/sys-$(SUBARCH)/
+ 
++post-y			= --wrap malloc --wrap free --wrap calloc \
++			  $(ARCH_DIR)/main.o -lutil \
++			  --start-group -lgcc -lgcc_eh -lc --end-group
++
+ # Have to precede the include because the included Makefiles reference them.
+ SYMLINK_HEADERS = archparam.h system.h sigcontext.h processor.h ptrace.h \
+ 	arch-signal.h module.h
+@@ -84,7 +88,10 @@
+ 
+ prepare: $(ARCH_SYMLINKS) $(SYS_HEADERS) $(GEN_HEADERS)
+ 
+-LDFLAGS_vmlinux = -r
++# This stupidity extracts the directory in which gcc lives so that it can
++# be fed to ld when it's linking .tmp_vmlinux during the ldchk stage.
++LD_DIR = $(shell dirname `gcc -v 2>&1 | head -1 | awk '{print $$NF}'`)
++LDFLAGS_vmlinux = -L/usr/lib -L$(LD_DIR) -r
+ 
+ vmlinux: $(ARCH_DIR)/main.o 
+ 
+@@ -126,8 +133,7 @@
+ #	$(call if_changed_dep,as_s_S)
+ 
+ linux: vmlinux $(LD_SCRIPT-y)
+-	$(CC) -Wl,-T,$(LD_SCRIPT-y) $(LINK-y) $(LINK_WRAPS) \
+-		-o linux $(ARCH_DIR)/main.o vmlinux -L/usr/lib -lutil
++	$(CC) -Wl,-T,$(LD_SCRIPT-y) $(LINK-y) -o linux vmlinux
+ 
+ USER_CFLAGS := $(patsubst -I%,,$(CFLAGS))
+ USER_CFLAGS := $(patsubst -Derrno=kernel_errno,,$(USER_CFLAGS))
+Index: 2.6.8-rc4-mm1/arch/um/kernel/Makefile
+===================================================================
+--- 2.6.8-rc4-mm1.orig/arch/um/kernel/Makefile	2004-08-11 22:44:43.000000000 -0400
++++ 2.6.8-rc4-mm1/arch/um/kernel/Makefile	2004-08-11 22:44:49.000000000 -0400
+@@ -3,7 +3,7 @@
+ # Licensed under the GPL
+ #
+ 
+-extra-y := vmlinux.lds.s
++extra-y := vmlinux.lds.s ../main.o
+ 
+ obj-y = checksum.o config.o exec_kern.o exitcode.o frame_kern.o frame.o \
+ 	helper.o init_task.o irq.o irq_user.o ksyms.o mem.o mem_user.o \
+@@ -24,7 +24,7 @@
+ user-objs-$(CONFIG_TTY_LOG) += tty_log.o
+ 
+ USER_OBJS := $(filter %_user.o,$(obj-y))  $(user-objs-y) config.o helper.o \
+-	process.o tempfile.o time.o tty_log.o umid.o user_util.o
++	process.o tempfile.o time.o tty_log.o umid.o user_util.o ../main.o
+ USER_OBJS := $(foreach file,$(USER_OBJS),$(obj)/$(file))
+ 
+ CFLAGS_frame.o := $(patsubst -fomit-frame-pointer,,$(USER_CFLAGS))
+Index: 2.6.8-rc4-mm1/arch/um/kernel/vmlinux.lds.S
+===================================================================
+--- 2.6.8-rc4-mm1.orig/arch/um/kernel/vmlinux.lds.S	2004-08-11 22:44:43.000000000 -0400
++++ 2.6.8-rc4-mm1/arch/um/kernel/vmlinux.lds.S	2004-08-11 22:44:49.000000000 -0400
+@@ -42,11 +42,10 @@
+ 
+   #include "asm/common.lds.S"
+ 
+-  init.data : { *(init.data) }
++  .init.data : { *(init.data) }
++  .data.init_task : { *(.data.init_task) } 
+   .data    :
+   {
+-    . = ALIGN(KERNEL_STACK_SIZE);		/* init_task */
+-    *(.data.init_task)
+     *(.data)
+     *(.gnu.linkonce.d*)
+     CONSTRUCTORS
+Index: 2.6.8-rc4-mm1/arch/um/sys-i386/Makefile
+===================================================================
+--- 2.6.8-rc4-mm1.orig/arch/um/sys-i386/Makefile	2004-08-11 22:44:43.000000000 -0400
++++ 2.6.8-rc4-mm1/arch/um/sys-i386/Makefile	2004-08-11 22:44:49.000000000 -0400
+@@ -1,5 +1,5 @@
+-obj-y = bugs.o checksum.o fault.o ksyms.o ldt.o ptrace.o ptrace_user.o \
+-	semaphore.o sigcontext.o syscalls.o sysrq.o time.o
++obj-y = bitops.o bugs.o checksum.o fault.o ksyms.o ldt.o ptrace.o \
++	ptrace_user.o semaphore.o sigcontext.o syscalls.o sysrq.o time.o
+ 
+ obj-$(CONFIG_HIGHMEM) += highmem.o
+ obj-$(CONFIG_MODULES) += module.o
+@@ -7,11 +7,12 @@
+ USER_OBJS := bugs.o ptrace_user.o sigcontext.o fault.o
+ USER_OBJS := $(foreach file,$(USER_OBJS),$(obj)/$(file))
+ 
+-SYMLINKS = semaphore.c highmem.c module.c
++SYMLINKS = bitops.c semaphore.c highmem.c module.c
+ SYMLINKS := $(foreach f,$(SYMLINKS),$(src)/$f)
+ 
+ clean-files := $(SYMLINKS)
+ 
++bitops.c-dir = lib
+ semaphore.c-dir = kernel
+ highmem.c-dir = mm
+ module.c-dir = kernel
+Index: 2.6.8-rc4-mm1/arch/um/uml.lds.S
+===================================================================
+--- 2.6.8-rc4-mm1.orig/arch/um/uml.lds.S	2004-08-11 22:44:43.000000000 -0400
++++ 2.6.8-rc4-mm1/arch/um/uml.lds.S	2004-08-11 22:44:49.000000000 -0400
+@@ -11,15 +11,9 @@
+ 
+   __binary_start = .;
+ #ifdef MODE_TT
+-  .thread_private : {
+-    __start_thread_private = .;
+-    errno = .;
+-    . += 4;
+-    arch/um/kernel/tt/unmap_fin.o (.data)
+-    __end_thread_private = .;
+-  }
++  .thread_private : { *(.thread_private) }
+   . = ALIGN(4096);
+-  .remap : { arch/um/kernel/tt/unmap_fin.o (.text) }
++  .remap : { *(.remap) }
+ #endif
+ 
+   . = ALIGN(4096);		/* Init code and data */
 
-I'm a total newbie so it's possible that I'm totally wrong about the
-aboves.
-
-
-Regards
-
--- 
-Linh Dang

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262499AbUCHPgE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 10:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUCHPgD
+	id S262513AbUCHPiC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 10:38:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUCHPiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 10:36:03 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:42190 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262499AbUCHPgB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 10:36:01 -0500
-Message-ID: <404C92CD.6090208@nortelnetworks.com>
-Date: Mon, 08 Mar 2004 10:35:41 -0500
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Mon, 8 Mar 2004 10:38:02 -0500
+Received: from ccs.covici.com ([209.249.181.196]:28891 "EHLO ccs.covici.com")
+	by vger.kernel.org with ESMTP id S262513AbUCHPh6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 10:37:58 -0500
 MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andy Isaacson <adi@hexapodia.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Some highmem pages still in use after shrink_all_memory()?
-References: <20040307144921.GA189@elf.ucw.cz> <20040307164052.0c8a212b.akpm@osdl.org> <20040308063639.GA20793@hexapodia.org> <1078738772.4678.5.camel@laptop.fenrus.com> <404C8CBB.1030008@nortelnetworks.com> <20040308151625.GC3999@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16460.37707.806668.409270@ccs.covici.com>
+Date: Mon, 8 Mar 2004 10:37:47 -0500
+From: John covici <covici@ccs.covici.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: covici@ccs.covici.com, linux-kernel@vger.kernel.org
+Subject: Re: shuttle an50r Motherboard and Linux
+In-Reply-To: <200403081633.38437.bzolnier@elka.pw.edu.pl>
+References: <m3wu5w8aex.fsf@ccs.covici.com>
+	<200403080151.28816.bzolnier@elka.pw.edu.pl>
+	<16460.36222.191866.759421@ccs.covici.com>
+	<200403081633.38437.bzolnier@elka.pw.edu.pl>
+X-Mailer: VM 7.17 under Emacs 21.3.50.2
+Reply-To: covici@ccs.covici.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+Sorry, here it is.
 
-> that is what it guarantees. it guarantees that you don't hard-fault.
-> The rest of the manpage talks about potential usages but immediatly
-> describes the crypto one as non-solid
+00:08.0 IDE interface: nVidia Corporation nForce3 IDE (rev a5) (prog-if 8a [Master SecP PriP])
+	Subsystem: Holco Enterprise Co, Ltd/Shuttle Computer: Unknown device a550
+	Flags: bus master, 66Mhz, fast devsel, latency 0
+	I/O ports at f000 [size=16]
+	Capabilities: [44] Power Management version 2
 
-Guess I've got older manpages...mine don't have the caveats.
-
-Chris
-
+on Monday 03/08/2004 Bartlomiej Zolnierkiewicz(B.Zolnierkiewicz@elka.pw.edu.pl) wrote
+ > On Monday 08 of March 2004 16:13, John covici wrote:
+ > > OK, here are the relevant parts of the lspci -v -- I have been using
+ > 
+ > IDE interface is missed.
+ > 
+ > > 2.4.22, but if it will make a difference I will try newer ones.
+ > 
+ > 2.4.x needs update of amd74xx.c driver.  2.6.x should be okay.
+ > 
+ > Bartlomiej
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+         John Covici
+         covici@ccs.covici.com

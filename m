@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264206AbUFJJ7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265813AbUFJKEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264206AbUFJJ7w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 05:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265813AbUFJJ7w
+	id S265813AbUFJKEd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 06:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265991AbUFJKEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 05:59:52 -0400
-Received: from prosun.first.gmd.de ([194.95.168.2]:20169 "EHLO
-	prosun.first.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S264206AbUFJJ7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 05:59:49 -0400
-Subject: Re: oops on checking for changes of usb input devices
-From: Soeren Sonnenburg <kernel@nn7.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@lists.linuxppc.org
-In-Reply-To: <200406100200.50146.dtor_core@ameritech.net>
-References: <1086847579.24322.34.camel@localhost>
-	 <200406100200.50146.dtor_core@ameritech.net>
-Content-Type: text/plain
-Message-Id: <1086861583.5204.6.camel@localhost>
+	Thu, 10 Jun 2004 06:04:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46291 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265813AbUFJKEb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 06:04:31 -0400
+Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Geoff Levand <geoffrey.levand@am.sony.com>
+Cc: high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, George Anzinger <george@mvista.com>
+In-Reply-To: <40C7BE29.9010600@am.sony.com>
+References: <40C7BE29.9010600@am.sony.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WJGHoXXKiQXCivYfEvFL"
+Organization: Red Hat UK
+Message-Id: <1086861862.2733.6.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Date: Thu, 10 Jun 2004 11:59:43 +0200
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 10 Jun 2004 12:04:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-10 at 09:00, Dmitry Torokhov wrote:
-> On Thursday 10 June 2004 01:06 am, Soeren Sonnenburg wrote:
-> > 
-> > Hi!
-> > 
-> > When I attach a ps2 mouse and keyboard through a ps2->usb adapter and
-> > then do a rescan for changes in input devices I keep getting this oops.
-> > This is kernel 2.6.7-rc2 on powerbook G4. A way to trigger this is to
-> > reload/restart pbbuttonsd.
-> > 
-> > Any ideas ?
-> 
-> I think it has been fixed in -rc3.
+
+--=-WJGHoXXKiQXCivYfEvFL
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, 2004-06-10 at 03:49, Geoff Levand wrote:
+> Available at=20
+> http://tree.celinuxforum.org/pubwiki/moin.cgi/CELinux_5fPatchArchive
+>=20
+> For those interested, the set of three patches provide POSIX high-res=20
+> timer support for linux-2.6.6.  The core and i386 patches are updates of=20
+> George Anzinger's hrtimers-2.6.5-1.0.patch available on SourceForge=20
+> <http://sourceforge.net/projects/high-res-timers/>.  The ppc32 port is=20
+> not available on SourceForge yet.
+
+My first impression is that it has WAAAAAAAAAAAY too many ifdefs. I
+would strongly suggest to not make this a config option and just
+mandatory, it's a core feature that has no point in being optional. If
+you accept that, the code also becomes a *LOT* cleaner.
 
 
-I can confirm this. I (de-)attached the ps2 keyboard + usb mouse a
-couple of times and triggered a pbbuttonsd rescan... no oops no nothing
-:)
+--=-WJGHoXXKiQXCivYfEvFL
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Great job!
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Soeren (happy)
+iD8DBQBAyDImxULwo51rQBIRAlo9AJ49BFmX3jNCFbZfycjZriU8B/jPhgCbB7+e
+8VDTZ8Q7S7GYslHRRNzWu1c=
+=8pkf
+-----END PGP SIGNATURE-----
+
+--=-WJGHoXXKiQXCivYfEvFL--
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271324AbUJVNLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271313AbUJVNLQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271324AbUJVNLI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 09:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271310AbUJVNKT
+	id S271313AbUJVNLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 09:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271321AbUJVNIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 09:10:19 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:2737 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271313AbUJVNAb
+	Fri, 22 Oct 2004 09:08:39 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:2481 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271310AbUJVNAa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 09:00:31 -0400
+	Fri, 22 Oct 2004 09:00:30 -0400
 X-Envelope-From: kraxel@bytesex.org
-Date: Fri, 22 Oct 2004 14:51:01 +0200
+Date: Fri, 22 Oct 2004 14:50:29 +0200
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Andrew Morton <akpm@osdl.org>, Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: tuner update
-Message-ID: <20041022125101.GA5364@bytesex>
+Subject: [patch] v4l: bttv IR input update
+Message-ID: <20041022125029.GA5352@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,528 +24,353 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
   Hi,
 
-This is an update for the v4l tuner modules (tuner.o + tda9887.o).
-Changes:
+This is a update for the IR input modules for the bttv driver.
+It adds IR support to more TV cards and has some some minor
+cleanups.
 
-  * fix two tuner config entries.
-  * switch insmod options to new 2.6-ish style.
-  * add suspend/resume functions.
-
-The patch also removes all trailing whitespaces.  I've a script
-to remove them from my sources now, that should kill those no-op
-whitespace changes in my patches after merging this initial cleanup.
+It also removes all trailing whitespaces.  I've a script to remove
+them from my sources now, that should kill those no-op whitespace
+changes in my patches after merging this initial cleanup.
 
   Gerd
 
 Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
 ---
- drivers/media/video/tda9887.c |   31 +++++-
- drivers/media/video/tuner.c   |  169 ++++++++++++++++++++--------------
- include/media/tuner.h         |    2 
- 3 files changed, 131 insertions(+), 71 deletions(-)
+ drivers/media/video/ir-kbd-gpio.c |  107 ++++++++++++++++++++++++++++--
+ drivers/media/video/ir-kbd-i2c.c  |   47 ++++++-------
+ 2 files changed, 125 insertions(+), 29 deletions(-)
 
-Index: linux-2004-10-20/include/media/tuner.h
-===================================================================
---- linux-2004-10-20.orig/include/media/tuner.h	2004-10-21 11:44:59.000000000 +0200
-+++ linux-2004-10-20/include/media/tuner.h	2004-10-21 14:59:24.000000000 +0200
-@@ -1,5 +1,5 @@
- 
--/* 
-+/*
-     tuner.h - definition for different tuners
- 
-     Copyright (C) 1997 Markus Schroeder (schroedm@uni-duesseldorf.de)
-Index: linux-2004-10-20/drivers/media/video/tuner.c
-===================================================================
---- linux-2004-10-20.orig/drivers/media/video/tuner.c	2004-10-21 11:45:23.000000000 +0200
-+++ linux-2004-10-20/drivers/media/video/tuner.c	2004-10-21 15:38:19.311450244 +0200
-@@ -1,4 +1,9 @@
-+/*
-+ * $Id: tuner.c,v 1.27 2004/10/20 09:43:34 kraxel Exp $
-+ */
-+
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
- #include <linux/string.h>
-@@ -15,30 +20,34 @@
- #include <media/tuner.h>
- #include <media/audiochip.h>
- 
--/* Addresses to scan */
-+#define UNSET (-1U)
-+
-+/* standard i2c insmod options */
- static unsigned short normal_i2c[] = {I2C_CLIENT_END};
- static unsigned short normal_i2c_range[] = {0x60,0x6f,I2C_CLIENT_END};
- I2C_CLIENT_INSMOD;
- 
--#define UNSET (-1U)
+diff -up linux-2.6.9-rc2/drivers/media/video/ir-kbd-gpio.c linux/drivers/media/video/ir-kbd-gpio.c
+--- linux-2.6.9-rc2/drivers/media/video/ir-kbd-gpio.c	2004-09-14 10:37:16.000000000 +0200
++++ linux/drivers/media/video/ir-kbd-gpio.c	2004-09-17 14:56:37.457852450 +0200
+@@ -1,5 +1,6 @@
 -
--/* insmod options */
--static unsigned int debug =  0;
-+/* insmod options used at init time => read/only */
- static unsigned int type  =  UNSET;
- static unsigned int addr  =  0;
-+module_param(type, int, 444);
-+module_param(addr, int, 444);
-+
-+/* insmod options used at runtime => read/write */
-+static unsigned int debug         = 0;
-+static unsigned int tv_antenna    = 1;
-+static unsigned int radio_antenna = 0;
-+static unsigned int optimize_vco  = 1;
-+module_param(debug,             int, 644);
-+module_param(tv_antenna,        int, 644);
-+module_param(radio_antenna,     int, 644);
-+module_param(optimize_vco,      int, 644);
-+
- static unsigned int tv_range[2]    = { 44, 958 };
- static unsigned int radio_range[2] = { 65, 108 };
--static unsigned int tv_antenna = 1;
--static unsigned int radio_antenna = 0;
--MODULE_PARM(debug,"i");
--MODULE_PARM(type,"i");
--MODULE_PARM(addr,"i");
--MODULE_PARM(tv_range,"2i");
--MODULE_PARM(radio_range,"2i");
--MODULE_PARM(tv_antenna,"i");
--MODULE_PARM(radio_antenna,"i");
+ /*
++ * $Id: ir-kbd-gpio.c,v 1.10 2004/09/15 16:15:24 kraxel Exp $
++ *
+  * Copyright (c) 2003 Gerd Knorr
+  * Copyright (c) 2003 Pavel Machek
+  *
+@@ -45,7 +46,7 @@ static IR_KEYTAB_TYPE ir_codes_avermedia
+ 	[ 60 ] = KEY_KP9,
  
--#define optimize_vco 1
-+module_param_array(tv_range,    int, NULL, 644);
-+module_param_array(radio_range, int, NULL, 644);
+ 	[ 48 ] = KEY_EJECTCD,     // Unmarked on my controller
+-	[  0 ] = KEY_POWER, 
++	[  0 ] = KEY_POWER,
+ 	[ 18 ] = BTN_LEFT,        // DISPLAY/L
+ 	[ 50 ] = BTN_RIGHT,       // LOOP/R
+ 	[ 10 ] = KEY_MUTE,
+@@ -74,6 +75,45 @@ static IR_KEYTAB_TYPE ir_codes_avermedia
+ 	[  1 ] = KEY_BLUE,        // unmarked
+ };
  
- MODULE_DESCRIPTION("device driver for various TV and TV+FM radio tuners");
- MODULE_AUTHOR("Ralph Metzler, Gerd Knorr, Gunther Mayer");
-@@ -52,10 +61,10 @@ struct tuner {
- 	unsigned int freq;            /* keep track of the current settings */
- 	v4l2_std_id  std;
- 	int          using_v4l2;
++/* Matt Jesson <dvb@jesson.eclipse.co.uk */
++static IR_KEYTAB_TYPE ir_codes_avermedia_dvbt[IR_KEYTAB_SIZE] = {
++	[ 0x28 ] = KEY_KP0,         //'0' / 'enter'
++	[ 0x22 ] = KEY_KP1,         //'1'
++	[ 0x12 ] = KEY_KP2,         //'2' / 'up arrow'
++	[ 0x32 ] = KEY_KP3,         //'3'
++	[ 0x24 ] = KEY_KP4,         //'4' / 'left arrow'
++	[ 0x14 ] = KEY_KP5,         //'5'
++	[ 0x34 ] = KEY_KP6,         //'6' / 'right arrow'
++	[ 0x26 ] = KEY_KP7,         //'7'
++	[ 0x16 ] = KEY_KP8,         //'8' / 'down arrow'
++	[ 0x36 ] = KEY_KP9,         //'9'
++
++	[ 0x20 ] = KEY_LIST,        // 'source'
++	[ 0x10 ] = KEY_TEXT,        // 'teletext'
++	[ 0x00 ] = KEY_POWER,       // 'power'
++	[ 0x04 ] = KEY_AUDIO,       // 'audio'
++	[ 0x06 ] = KEY_ZOOM,        // 'full screen'
++	[ 0x18 ] = KEY_VIDEO,       // 'display'
++	[ 0x38 ] = KEY_SEARCH,      // 'loop'
++	[ 0x08 ] = KEY_INFO,        // 'preview'
++	[ 0x2a ] = KEY_REWIND,      // 'backward <<'
++	[ 0x1a ] = KEY_FASTFORWARD, // 'forward >>'
++	[ 0x3a ] = KEY_RECORD,      // 'capture'
++	[ 0x0a ] = KEY_MUTE,        // 'mute'
++	[ 0x2c ] = KEY_RECORD,      // 'record'
++	[ 0x1c ] = KEY_PAUSE,       // 'pause'
++	[ 0x3c ] = KEY_STOP,        // 'stop'
++	[ 0x0c ] = KEY_PLAY,        // 'play'
++	[ 0x2e ] = KEY_RED,         // 'red'
++	[ 0x01 ] = KEY_BLUE,        // 'blue' / 'cancel'
++	[ 0x0e ] = KEY_YELLOW,      // 'yellow' / 'ok'
++	[ 0x21 ] = KEY_GREEN,       // 'green'
++	[ 0x11 ] = KEY_CHANNELDOWN, // 'channel -'
++	[ 0x31 ] = KEY_CHANNELUP,   // 'channel +'
++	[ 0x1e ] = KEY_VOLUMEDOWN,  // 'volume -'
++	[ 0x3e ] = KEY_VOLUMEUP,    // 'volume +'
++};
++
+ static IR_KEYTAB_TYPE winfast_codes[IR_KEYTAB_SIZE] = {
+ 	[  5 ] = KEY_KP1,
+ 	[  6 ] = KEY_KP2,
+@@ -130,7 +170,7 @@ static IR_KEYTAB_TYPE ir_codes_pixelview
+ 	[  6 ] = KEY_KP7,
+ 	[ 10 ] = KEY_KP8,
+ 	[ 18 ] = KEY_KP9,
 -	
 +
- 	unsigned int radio;
- 	unsigned int input;
+ 	[  3 ] = KEY_TUNER,       // TV/FM
+ 	[  7 ] = KEY_SEARCH,      // scan
+ 	[ 28 ] = KEY_ZOOM,        // full screen
+@@ -140,7 +180,7 @@ static IR_KEYTAB_TYPE ir_codes_pixelview
+ 	[ 20 ] = KEY_CHANNELDOWN,
+ 	[ 22 ] = KEY_CHANNELUP,
+ 	[ 24 ] = KEY_MUTE,
 -	
 +
- 	// only for MT2032
- 	unsigned int xogc;
- 	unsigned int radio_if2;
-@@ -71,11 +80,11 @@ static struct i2c_client client_template
+ 	[  0 ] = KEY_LIST,        // source
+ 	[ 19 ] = KEY_INFO,        // loop
+ 	[ 16 ] = KEY_LAST,        // +100
+@@ -151,6 +191,47 @@ static IR_KEYTAB_TYPE ir_codes_pixelview
+ 	[ 15 ] = KEY_STOP,         // freeze
+ };
  
- /* tv standard selection for Temic 4046 FM5
-    this value takes the low bits of control byte 2
--   from datasheet Rev.01, Feb.00 
-+   from datasheet Rev.01, Feb.00
-      standard     BG      I       L       L2      D
-      picture IF   38.9    38.9    38.9    33.95   38.9
-      sound 1      33.4    32.9    32.4    40.45   32.4
--     sound 2      33.16   
-+     sound 2      33.16
-      NICAM        33.05   32.348  33.05           33.05
-  */
- #define TEMIC_SET_PAL_I         0x05
-@@ -97,7 +106,7 @@ static struct i2c_client client_template
- #define PHILIPS_SET_PAL_I	0x01 /* Bit 2 always zero !*/
- #define PHILIPS_SET_PAL_BGDK	0x09
- #define PHILIPS_SET_PAL_L2	0x0a
--#define PHILIPS_SET_PAL_L	0x0b	
-+#define PHILIPS_SET_PAL_L	0x0b
- 
- /* system switching for Philips FI1216MF MK2
-    from datasheet "1996 Jul 09",
-@@ -115,20 +124,20 @@ static struct i2c_client client_template
- 
++/* Attila Kondoros <attila.kondoros@chello.hu> */
++static IR_KEYTAB_TYPE ir_codes_apac_viewcomp[IR_KEYTAB_SIZE] = {
++
++	[  1 ] = KEY_KP1,
++	[  2 ] = KEY_KP2,
++	[  3 ] = KEY_KP3,
++	[  4 ] = KEY_KP4,
++	[  5 ] = KEY_KP5,
++	[  6 ] = KEY_KP6,
++	[  7 ] = KEY_KP7,
++	[  8 ] = KEY_KP8,
++	[  9 ] = KEY_KP9,
++	[  0 ] = KEY_KP0,
++	[ 23 ] = KEY_LAST,        // +100
++	[ 10 ] = KEY_LIST,        // recall
++
++
++	[ 28 ] = KEY_TUNER,       // TV/FM
++	[ 21 ] = KEY_SEARCH,      // scan
++	[ 18 ] = KEY_POWER,       // power
++	[ 31 ] = KEY_VOLUMEDOWN,  // vol up
++	[ 27 ] = KEY_VOLUMEUP,    // vol down
++	[ 30 ] = KEY_CHANNELDOWN, // chn up
++	[ 26 ] = KEY_CHANNELUP,   // chn down
++
++	[ 17 ] = KEY_VIDEO,       // video
++	[ 15 ] = KEY_ZOOM,        // full screen
++	[ 19 ] = KEY_MUTE,        // mute/unmute
++	[ 16 ] = KEY_TEXT,        // min
++
++	[ 13 ] = KEY_STOP,        // freeze
++	[ 14 ] = KEY_RECORD,      // record
++	[ 29 ] = KEY_PLAYPAUSE,   // stop
++	[ 25 ] = KEY_PLAY,        // play
++
++	[ 22 ] = KEY_GOTO,        // osd
++	[ 20 ] = KEY_REFRESH,     // default
++	[ 12 ] = KEY_KPPLUS,      // fine tune >>>>
++	[ 24 ] = KEY_KPMINUS      // fine tune <<<<
++};
++
  /* ---------------------------------------------------------------------- */
  
--struct tunertype 
-+struct tunertype
+ struct IR {
+@@ -202,7 +283,7 @@ static void ir_handle_key(struct IR *ir)
+ 			return;
+ 		ir->last_gpio = gpio;
+ 	}
+-	
++
+ 	/* extract data */
+ 	data = ir_extract_bits(gpio, ir->mask_keycode);
+ 	dprintk(DEVNAME ": irq gpio=0x%x code=%d | %s%s%s\n",
+@@ -284,6 +365,14 @@ static int ir_probe(struct device *dev)
+ 		ir->polling      = 50; // ms
+ 		break;
+ 
++	case BTTV_AVDVBT_761:
++	/* case BTTV_AVDVBT_771: */
++		ir_codes         = ir_codes_avermedia_dvbt;
++		ir->mask_keycode = 0x0f00c0;
++		ir->mask_keydown = 0x000020;
++		ir->polling      = 50; // ms
++		break;
++
+ 	case BTTV_PXELVWPLTVPAK:
+ 		ir_codes         = ir_codes_pixelview;
+ 		ir->mask_keycode = 0x003e00;
+@@ -308,6 +397,12 @@ static int ir_probe(struct device *dev)
+ 		ir->mask_keycode = 0x0008e000;
+ 		ir->mask_keydown = 0x00200000;
+ 		break;
++	case BTTV_APAC_VIEWCOMP:
++		ir_codes         = ir_codes_apac_viewcomp;
++		ir->mask_keycode = 0x001f00;
++		ir->mask_keyup   = 0x008000;
++		ir->polling      = 50; // ms
++		break;
+ 	}
+ 	if (NULL == ir_codes) {
+ 		kfree(ir);
+@@ -317,7 +412,7 @@ static int ir_probe(struct device *dev)
+ 	/* init hardware-specific stuff */
+ 	bttv_gpio_inout(sub->core, ir->mask_keycode | ir->mask_keydown, 0);
+ 	ir->sub = sub;
+-	
++
+ 	/* init input device */
+ 	snprintf(ir->name, sizeof(ir->name), "bttv IR (card=%d)",
+ 		 sub->core->type);
+diff -up linux-2.6.9-rc2/drivers/media/video/ir-kbd-i2c.c linux/drivers/media/video/ir-kbd-i2c.c
+--- linux-2.6.9-rc2/drivers/media/video/ir-kbd-i2c.c	2004-09-14 10:34:32.000000000 +0200
++++ linux/drivers/media/video/ir-kbd-i2c.c	2004-09-17 14:56:37.460851888 +0200
+@@ -1,4 +1,6 @@
+ /*
++ * $Id: ir-kbd-i2c.c,v 1.8 2004/09/15 16:15:24 kraxel Exp $
++ *
+  * keyboard input driver for i2c IR remote controls
+  *
+  * Copyright (c) 2000-2003 Gerd Knorr <kraxel@bytesex.org>
+@@ -156,7 +158,7 @@ module_param(debug, int, 0644);    /* de
+ static inline int reverse(int data, int bits)
  {
+ 	int i,c;
+-	
++
+ 	for (c=0,i=0; i<bits; i++) {
+ 		c |= (((data & (1<<i)) ? 1:0)) << (bits-1-i);
+ 	}
+@@ -193,7 +195,7 @@ static int get_key_haup(struct IR *ir, u
+ static int get_key_pixelview(struct IR *ir, u32 *ir_key, u32 *ir_raw)
+ {
+         unsigned char b;
+-	
++
+ 	/* poll IR chip */
+ 	if (1 != i2c_master_recv(&ir->c,&b,1)) {
+ 		dprintk(1,"read error\n");
+@@ -207,7 +209,7 @@ static int get_key_pixelview(struct IR *
+ static int get_key_pv951(struct IR *ir, u32 *ir_key, u32 *ir_raw)
+ {
+         unsigned char b;
+-	
++
+ 	/* poll IR chip */
+ 	if (1 != i2c_master_recv(&ir->c,&b,1)) {
+ 		dprintk(1,"read error\n");
+@@ -218,7 +220,7 @@ static int get_key_pv951(struct IR *ir, 
+ 	if (b==0xaa)
+ 		return 0;
+ 	dprintk(2,"key %02x\n", b);
+-	
++
+ 	*ir_key = b;
+ 	*ir_raw = b;
+ 	return 1;
+@@ -227,26 +229,26 @@ static int get_key_pv951(struct IR *ir, 
+ static int get_key_knc1(struct IR *ir, u32 *ir_key, u32 *ir_raw)
+ {
+ 	unsigned char b;
+-	
++
+ 	/* poll IR chip */
+ 	if (1 != i2c_master_recv(&ir->c,&b,1)) {
+ 		dprintk(1,"read error\n");
+ 		return -EIO;
+ 	}
+-	
++
+ 	/* it seems that 0xFE indicates that a button is still hold
+ 	   down, while 0xFF indicates that no button is hold
+ 	   down. 0xFE sequences are sometimes interrupted by 0xFF */
+-	
++
+ 	dprintk(2,"key %02x\n", b);
+-	
++
+ 	if (b == 0xFF)
+ 		return 0;
+-	
++
+ 	if (b == 0xFE)
+ 		/* keep old data */
+ 		return 1;
+-	
++
+ 	*ir_key = b;
+ 	*ir_raw = b;
+ 	return 1;
+@@ -323,7 +325,7 @@ static struct i2c_driver driver = {
+         .detach_client  = ir_detach,
+ };
+ 
+-static struct i2c_client client_template = 
++static struct i2c_client client_template =
+ {
+         I2C_DEVNAME("unset"),
+         .driver = &driver
+@@ -336,7 +338,7 @@ static int ir_attach(struct i2c_adapter 
  	char *name;
- 	unsigned char Vendor;
- 	unsigned char Type;
--  
-+
- 	unsigned short thresh1;  /*  band switch VHF_LO <=> VHF_HI  */
- 	unsigned short thresh2;  /*  band switch VHF_HI <=> UHF     */
- 	unsigned char VHF_L;
- 	unsigned char VHF_H;
- 	unsigned char UHF;
--	unsigned char config; 
--	unsigned short IFPCoff; /* 622.4=16*38.90 MHz PAL, 
--				   732  =16*45.75 NTSCi, 
-+	unsigned char config;
-+	unsigned short IFPCoff; /* 622.4=16*38.90 MHz PAL,
-+				   732  =16*45.75 NTSCi,
- 				   940  =16*58.75 NTSC-Japan
- 				   704  =16*44    ATSC */
- };
-@@ -171,7 +180,7 @@ static struct tunertype tuners[] = {
-         { "Alps TSBC5", Alps, PAL, /* untested - data sheet guess. Only IF differs. */
- 	  16*133.25,16*351.25,0x01,0x02,0x08,0x8e,608},
- 	{ "Temic PAL_BG (4006FH5)", TEMIC, PAL,
--	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623}, 
-+	  16*170.00,16*450.00,0xa0,0x90,0x30,0x8e,623},
-   	{ "Alps TSCH6",Alps,NTSC,
-   	  16*137.25,16*385.25,0x14,0x12,0x11,0x8e,732},
- 
-@@ -245,14 +254,14 @@ static struct tunertype tuners[] = {
- 	{ "Panasonic VP27s/ENGE4324D", Panasonic, NTSC,
- 	  16*160.00,16*454.00,0x01,0x02,0x08,0xce,940},
-         { "LG NTSC (TAPE series)", LGINNOTEK, NTSC,
--          16*160.00,16*442.00,0x01,0x02,0x04,0xc8,732 },
-+          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732 },
- 
-         { "Tenna TNF 8831 BGFF)", Philips, PAL,
-           16*161.25,16*463.25,0xa0,0x90,0x30,0x8e,623},
- 	{ "Microtune 4042 FI5 ATSC/NTSC dual in", Microtune, NTSC,
- 	  16*162.00,16*457.00,0xa2,0x94,0x31,0x8e,732},
-         { "TCL 2002N", TCL, NTSC,
--          16*172.00,16*448.00,0x01,0x02,0x08,0x88,732},
-+          16*172.00,16*448.00,0x01,0x02,0x08,0x8e,732},
- 
- };
- #define TUNERS ARRAY_SIZE(tuners)
-@@ -421,7 +430,7 @@ static int mt2032_compute_freq(unsigned 
-  	if(rfin >400*1000*1000)
-                 buf[6]=0xe4;
-         else
--                buf[6]=0xf4; // set PKEN per rev 1.2 
-+                buf[6]=0xf4; // set PKEN per rev 1.2
- 	buf[7]=8+xogc;
- 	buf[8]=0xc3; //reserved
- 	buf[9]=0x4e; //reserved
-@@ -442,10 +451,10 @@ static int mt2032_check_lo_lock(struct i
- 		i2c_master_recv(c,buf,1);
- 		dprintk("mt2032 Reg.E=0x%02x\n",buf[0]);
- 		lock=buf[0] &0x06;
+ 	int ir_type;
+         struct IR *ir;
 -		
 +
- 		if (lock==6)
- 			break;
--		
-+
- 		dprintk("mt2032: pll wait 1ms for lock (0x%2x)\n",buf[0]);
- 		udelay(1000);
- 	}
-@@ -467,7 +476,7 @@ static int mt2032_optimize_vco(struct i2
- 	if(tad1 ==1) return lock;
- 
- 	if(tad1==2) {
--		if(sel==0) 
-+		if(sel==0)
- 			return lock;
- 		else sel--;
- 	}
-@@ -520,13 +529,13 @@ static void mt2032_set_if_freq(struct i2
- 	// wait for PLLs to lock (per manual), retry LINT if not.
- 	for(lint_try=0; lint_try<2; lint_try++) {
- 		lock=mt2032_check_lo_lock(c);
--		
-+
- 		if(optimize_vco)
- 			lock=mt2032_optimize_vco(c,sel,lock);
- 		if(lock==6) break;
--		
--		printk("mt2032: re-init PLLs by LINT\n"); 
--		buf[0]=7; 
-+
-+		printk("mt2032: re-init PLLs by LINT\n");
-+		buf[0]=7;
- 		buf[1]=0x80 +8+t->xogc; // set LINT to re-init PLLs
- 		i2c_master_send(c,buf,2);
- 		mdelay(10);
-@@ -651,46 +660,46 @@ static void mt2050_set_if_freq(struct i2
- 	unsigned int f_lo1,f_lo2,lo1,lo2,f_lo1_modulo,f_lo2_modulo,num1,num2,div1a,div1b,div2a,div2b;
- 	int ret;
- 	unsigned char buf[6];
--	
-+
- 	dprintk("mt2050_set_if_freq freq=%d\n",freq);
--	
-+
- 	f_lo1=freq+if1;
- 	f_lo1=(f_lo1/1000000)*1000000;
--	
-+
- 	f_lo2=f_lo1-freq-if2;
- 	f_lo2=(f_lo2/50000)*50000;
--	
-+
- 	lo1=f_lo1/4000000;
- 	lo2=f_lo2/4000000;
--	
-+
- 	f_lo1_modulo= f_lo1-(lo1*4000000);
- 	f_lo2_modulo= f_lo2-(lo2*4000000);
--	
-+
- 	num1=4*f_lo1_modulo/4000000;
- 	num2=4096*(f_lo2_modulo/1000)/4000;
--	
-+
- 	// todo spurchecks
--	
-+
- 	div1a=(lo1/12)-1;
- 	div1b=lo1-(div1a+1)*12;
--	
-+
- 	div2a=(lo2/8)-1;
- 	div2b=lo2-(div2a+1)*8;
--	
-+
- 	dprintk("lo1 lo2 = %d %d\n", lo1, lo2);
-         dprintk("num1 num2 div1a div1b div2a div2b= %x %x %x %x %x %x\n",num1,num2,div1a,div1b,div2a,div2b);
--	
--	
-+
-+
- 	buf[0]=1;
- 	buf[1]= 4*div1b + num1;
- 	if(freq<275*1000*1000) buf[1] = buf[1]|0x80;
--	
-+
- 	buf[2]=div1a;
- 	buf[3]=32*div2b + num2/256;
- 	buf[4]=num2-(num2/256)*256;
- 	buf[5]=div2a;
- 	if(num2!=0) buf[5]=buf[5]|0x40;
--	
-+
- 	if(debug) {
- 		int i;
- 		printk("bufs is: ");
-@@ -698,7 +707,7 @@ static void mt2050_set_if_freq(struct i2
- 			printk("%x ",buf[i]);
- 		printk("\n");
- 	}
--	
-+
- 	ret=i2c_master_send(c,buf,6);
-         if (ret!=6)
-                 printk("mt2050_set_if_freq failed with %d\n",ret);
-@@ -708,7 +717,7 @@ static void mt2050_set_tv_freq(struct i2
- {
- 	struct tuner *t = i2c_get_clientdata(c);
- 	unsigned int if2;
--	
-+
- 	if (t->std & V4L2_STD_525_60) {
- 		// NTSC
-                 if2 = 45750*1000;
-@@ -724,7 +733,7 @@ static void mt2050_set_radio_freq(struct
- {
- 	struct tuner *t = i2c_get_clientdata(c);
- 	int if2 = t->radio_if2;
--	
-+
- 	mt2050_set_if_freq(c, freq*62500, if2);
- 	mt2050_set_antenna(c, radio_antenna);
- }
-@@ -734,19 +743,19 @@ static int mt2050_init(struct i2c_client
- 	struct tuner *t = i2c_get_clientdata(c);
- 	unsigned char buf[2];
- 	int ret;
--	
-+
- 	buf[0]=6;
- 	buf[1]=0x10;
- 	ret=i2c_master_send(c,buf,2); //  power
--	
-+
- 	buf[0]=0x0f;
- 	buf[1]=0x0f;
- 	ret=i2c_master_send(c,buf,2); // m1lo
--	
-+
- 	buf[0]=0x0d;
- 	ret=i2c_master_send(c,buf,1);
- 	i2c_master_recv(c,buf,1);
--	
-+
- 	dprintk("mt2050: sro is %x\n",buf[0]);
- 	t->tv_freq    = mt2050_set_tv_freq;
- 	t->radio_freq = mt2050_set_radio_freq;
-@@ -759,7 +768,7 @@ static int microtune_init(struct i2c_cli
- 	char *name;
-         unsigned char buf[21];
- 	int company_code;
--	
-+
- 	memset(buf,0,sizeof(buf));
- 	t->tv_freq    = NULL;
- 	t->radio_freq = NULL;
-@@ -828,13 +837,17 @@ static void default_set_tv_freq(struct i
-         unsigned char buffer[4];
- 	int rc;
- 
--	tun=&tuners[t->type];
--	if (freq < tun->thresh1) 
-+	tun = &tuners[t->type];
-+	if (freq < tun->thresh1) {
- 		config = tun->VHF_L;
--	else if (freq < tun->thresh2) 
-+		dprintk("tv: VHF lowrange\n");
-+	} else if (freq < tun->thresh2) {
- 		config = tun->VHF_H;
--	else
-+		dprintk("tv: VHF high range\n");
-+	} else {
- 		config = tun->UHF;
-+		dprintk("tv: UHF range\n");
-+	}
- 
- 
- 	/* tv norm specific stuff for multi-norm tuners */
-@@ -887,7 +900,7 @@ static void default_set_tv_freq(struct i
- 		/* 0x02 -> NTSC antenna input 1 */
- 		/* 0x03 -> NTSC antenna input 2 */
- 		config &= ~0x03;
--		if (t->std & V4L2_STD_ATSC)
-+		if (!(t->std & V4L2_STD_ATSC))
- 			config |= 2;
- 		/* FIXME: input */
- 		break;
-@@ -897,7 +910,7 @@ static void default_set_tv_freq(struct i
- 		tun->config |= 0x40;
- 		break;
- 	}
--	
-+
- 	/*
- 	 * Philips FI1216MK2 remark from specification :
- 	 * for channel selection involving band switching, and to ensure
-@@ -1131,7 +1144,7 @@ static int tuner_attach(struct i2c_adapt
- 	if (this_adap > 0)
- 		return -1;
- 	this_adap++;
--	
-+
-         client_template.adapter = adap;
-         client_template.addr = addr;
- 
-@@ -1233,7 +1246,7 @@ tuner_command(struct i2c_client *client,
- 			break;
- 		}
-                 break;
--		
-+
- 	/* --- v4l ioctls --- */
- 	/* take care: bttv does userspace copying, we'll get a
- 	   kernel pointer here... */
-@@ -1328,7 +1341,25 @@ tuner_command(struct i2c_client *client,
- 		/* nothing */
- 		break;
- 	}
--	
-+
-+	return 0;
-+}
-+
-+static int tuner_suspend(struct device * dev, u32 state, u32 level)
-+{
-+	dprintk("tuner: suspend\n");
-+	/* FIXME: power down ??? */
-+	return 0;
-+}
-+
-+static int tuner_resume(struct device * dev, u32 level)
-+{
-+	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
-+	struct tuner *t = i2c_get_clientdata(c);
-+
-+	dprintk("tuner: resume\n");
-+	if (t->freq)
-+		set_freq(c,t->freq);
- 	return 0;
- }
- 
-@@ -1342,6 +1373,10 @@ static struct i2c_driver driver = {
-         .attach_adapter = tuner_probe,
-         .detach_client  = tuner_detach,
-         .command        = tuner_command,
-+	.driver = {
-+		.suspend = tuner_suspend,
-+		.resume  = tuner_resume,
-+	},
- };
- static struct i2c_client client_template =
- {
-Index: linux-2004-10-20/drivers/media/video/tda9887.c
-===================================================================
---- linux-2004-10-20.orig/drivers/media/video/tda9887.c	2004-10-21 11:46:23.000000000 +0200
-+++ linux-2004-10-20/drivers/media/video/tda9887.c	2004-10-21 14:59:24.000000000 +0200
-@@ -535,6 +535,11 @@ static int tda9887_configure(struct tda9
- 	tda9887_set_config(t,buf);
- 	tda9887_set_insmod(t,buf);
- 
-+	if (t->std & V4L2_STD_SECAM_L) {
-+		/* secam fixup (FIXME: move this to tvnorms array?) */
-+		buf[1] &= ~cOutputPort2Inactive;
-+	}
-+
- 	dprintk(PREFIX "writing: b=0x%02x c=0x%02x e=0x%02x\n",
- 		buf[1],buf[2],buf[3]);
- 	if (debug > 1)
-@@ -565,11 +570,11 @@ static int tda9887_attach(struct i2c_ada
+         if (NULL == (ir = kmalloc(sizeof(struct IR),GFP_KERNEL)))
                  return -ENOMEM;
- 	memset(t,0,sizeof(*t));
- 	t->client      = client_template;
--	t->std         = 0;;
-+	t->std         = 0;
- 	t->pinnacle_id = UNSET;
-         i2c_set_clientdata(&t->client, t);
-         i2c_attach_client(&t->client);
--        
+ 	memset(ir,0,sizeof(*ir));
+@@ -400,14 +402,14 @@ static int ir_attach(struct i2c_adapter 
+ 	input_register_device(&ir->input);
+ 	printk(DEVNAME ": %s detected at %s [%s]\n",
+ 	       ir->input.name,ir->input.phys,adap->name);
+-	       
++
+ 	/* start polling via eventd */
+ 	INIT_WORK(&ir->work, ir_work, ir);
+ 	init_timer(&ir->timer);
+ 	ir->timer.function = ir_timer;
+ 	ir->timer.data     = (unsigned long)ir;
+ 	schedule_work(&ir->work);
+-	
 +
  	return 0;
  }
  
-@@ -618,7 +623,7 @@ tda9887_command(struct i2c_client *clien
- 		t->radio = 1;
- 		tda9887_configure(t);
- 		break;
--		
-+
- 	case AUDC_CONFIG_PINNACLE:
- 	{
- 		int *i = arg;
-@@ -712,6 +717,22 @@ tda9887_command(struct i2c_client *clien
- 	return 0;
- }
+@@ -430,16 +432,16 @@ static int ir_detach(struct i2c_client *
  
-+static int tda9887_suspend(struct device * dev, u32 state, u32 level)
-+{
-+	dprintk("tda9887: suspend\n");
-+	return 0;
-+}
-+
-+static int tda9887_resume(struct device * dev, u32 level)
-+{
-+	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
-+	struct tda9887 *t = i2c_get_clientdata(c);
-+
-+	dprintk("tda9887: resume\n");
-+	tda9887_configure(t);
-+	return 0;
-+}
-+
- /* ----------------------------------------------------------------------- */
- 
- static struct i2c_driver driver = {
-@@ -722,6 +743,10 @@ static struct i2c_driver driver = {
-         .attach_adapter = tda9887_probe,
-         .detach_client  = tda9887_detach,
-         .command        = tda9887_command,
-+	.driver = {
-+		.suspend = tda9887_suspend,
-+		.resume  = tda9887_resume,
-+	},
- };
- static struct i2c_client client_template =
+ static int ir_probe(struct i2c_adapter *adap)
  {
+-	
++
+ 	/* The external IR receiver is at i2c address 0x34 (0x35 for
+ 	   reads).  Future Hauppauge cards will have an internal
+ 	   receiver at 0x30 (0x31 for reads).  In theory, both can be
+ 	   fitted, and Hauppauge suggest an external overrides an
+-	   internal. 
+-	   
+-	   That's why we probe 0x1a (~0x34) first. CB 
++	   internal.
++
++	   That's why we probe 0x1a (~0x34) first. CB
+ 	*/
+-	
++
+ 	static const int probe_bttv[] = { 0x1a, 0x18, 0x4b, 0x64, 0x30, -1};
+ 	static const int probe_saa7134[] = { 0x7a, -1};
+ 	const int *probe = NULL;
+@@ -478,13 +480,12 @@ MODULE_AUTHOR("Gerd Knorr, Michal Kochan
+ MODULE_DESCRIPTION("input driver for i2c IR remote controls");
+ MODULE_LICENSE("GPL");
+ 
+-static int ir_init(void)
++static int __init ir_init(void)
+ {
+-	i2c_add_driver(&driver);
+-	return 0;
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void ir_fini(void)
++static void __exit ir_fini(void)
+ {
+ 	i2c_del_driver(&driver);
+ }
 
 -- 
 return -ENOSIG;

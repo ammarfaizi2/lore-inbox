@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264669AbRFTXFl>; Wed, 20 Jun 2001 19:05:41 -0400
+	id <S261562AbRFTXHv>; Wed, 20 Jun 2001 19:07:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263686AbRFTXFb>; Wed, 20 Jun 2001 19:05:31 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:48112 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S264669AbRFTXF3>; Wed, 20 Jun 2001 19:05:29 -0400
-Mime-Version: 1.0
-Message-Id: <a05101000b756d97a4ad5@[192.168.239.105]>
-In-Reply-To: <20010620153345.I3089@work.bitmover.com>
-In-Reply-To: <993069751.10191.0.camel@agate>
- <E15Cq9u-0000CX-00@the-village.bc.nu>
- <20010620153345.I3089@work.bitmover.com>
-Date: Thu, 21 Jun 2001 00:02:06 +0100
-To: Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Jonathan Morton <chromi@cyberspace.org>
+	id <S263449AbRFTXHb>; Wed, 20 Jun 2001 19:07:31 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:56046 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S261562AbRFTXHX>;
+	Wed, 20 Jun 2001 19:07:23 -0400
+Message-ID: <3B312CC5.89EA2C30@fc.hp.com>
+Date: Wed, 20 Jun 2001 17:07:49 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Miles Lane <miles@megapathdsl.net>,
+        linux-kernel@vger.kernel.org
 Subject: Re: The latest Microsoft FUD.  This time from BillG, himself.
-Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+In-Reply-To: <993069751.10191.0.camel@agate> <E15Cq9u-0000CX-00@the-village.bc.nu> <20010620153345.I3089@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->You can scream all you want that "it isn't free software" but the fact
->of the matter is that you all scream that and then go do your slides for
->your Linux talks in PowerPoint.
+Larry McVoy wrote:
+> 
+> You can scream all you want that "it isn't free software" but the fact
+> of the matter is that you all scream that and then go do your slides for
+> your Linux talks in PowerPoint.
 
-Or AppleWorks (Mac), in my case.  Or, if I wanted to be flashy, I'd 
-make the slides up in CorelXARA (which originated on the Acorn and 
-would probably run under WINE today) and move them to 
-GraphicConvertor (Mac) for display.  I daresay it's possible to do 
-all that under Linux, but I haven't found such readily-available 
-solutions staring me in the face yet.
-
-Incidentally, you don't need a flashy presentation to make an impact. 
-I won a prize this month largely based on a presentation I did - the 
-content was king, the slides were white-on-black text, and I 
-stammered my way through the actual presentation (I'm not good at 
-public speaking).  The close runner-up had done a big flashy 
-PowerPoint presentation, was better at public speaking, but hadn't 
-researched his material quite so thoroughly.
-
-I use Linux for programming and servers.  I still use my Macs for 
-regular day-to-day workstation duty.  That's the status quo, and it 
-will only change slowly and with much effort.
--- 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-website:  http://www.chromatix.uklinux.net/vnc/
-geekcode: GCS$/E dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$
-           V? PS PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-tagline:  The key to knowledge is not to rely on people to teach you it.
+At the Linux SuperClusters 2000 Conference, MadDog and I were the the
+only ones with slides done on Linux. Pretty sad!
+ 
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

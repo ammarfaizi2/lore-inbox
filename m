@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267575AbTALWhE>; Sun, 12 Jan 2003 17:37:04 -0500
+	id <S267564AbTALWZ7>; Sun, 12 Jan 2003 17:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267581AbTALWhE>; Sun, 12 Jan 2003 17:37:04 -0500
-Received: from web21309.mail.yahoo.com ([216.136.173.254]:10002 "HELO
-	web21309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267575AbTALWhD>; Sun, 12 Jan 2003 17:37:03 -0500
-Message-ID: <20030112224551.8921.qmail@web21309.mail.yahoo.com>
-Date: Sun, 12 Jan 2003 14:45:51 -0800 (PST)
-From: David Truog <lkml@fienx.net>
-Subject: Re: Moderated forum for linux-kernel
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267569AbTALWZ7>; Sun, 12 Jan 2003 17:25:59 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:61590
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267564AbTALWZ5>; Sun, 12 Jan 2003 17:25:57 -0500
+Subject: Re: any chance of 2.6.0-test*?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: robw@optonline.net
+Cc: Emiliano Gabrielli <emiliano.gabrielli@roma2.infn.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1042409562.1209.142.camel@RobsPC.RobertWilkens.com>
+References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com>
+	 <1042400094.1208.26.camel@RobsPC.RobertWilkens.com>
+	 <20030112211530.GP27709@mea-ext.zmailer.org>
+	 <1042406849.3162.121.camel@RobsPC.RobertWilkens.com>
+	 <Pine.LNX.4.50L.0301121939170.26759-100000@imladris.surriel.com>
+	 <1042407845.3162.131.camel@RobsPC.RobertWilkens.com>
+	 <32929.62.98.226.220.1042408728.squirrel@webmail.roma2.infn.it>
+	 <1042409562.1209.142.camel@RobsPC.RobertWilkens.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042413711.16288.45.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 12 Jan 2003 23:21:52 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Walrond wrote:
->Forgive if this has been discussed before, but
->has anyone considered hosting the linux-kernel 
->on a web-based forum as used extensively elsewhere?
->
->I can think of advantages;
->
->Better Thread organisation and seperate topic 
->areas for drivers, patches, ide, ... Being able 
->to cheery pick threads of interest, and completely
->ignore othersNot having to dump your inbox after
->a week away just to catch up Moderated forums 
->(Off-topic threads policed and deleted) Read only
->forums (write for registered/invited members) 
->
->I'm sure somebody will enlighten me regarding the
->disadvantages. :)
+On Sun, 2003-01-12 at 22:12, Rob Wilkens wrote:
+> On Sun, 2003-01-12 at 16:58, Emiliano Gabrielli wrote:
+> > you do, if you inline the code and every drive writer use this tecnique the kernel will
+> > be much bigger don't you think ?!?
+> 
+> Kernel size (footprint in memory) would grow a tad bit (not much), but
+> it's overall speed would also go up.  
 
-large posts (patches) and exporting data would be the
-two biggest i personnaly see.  also, some of us (I)
-use various methods to sort/search posts.
+Wrong. Thats the trouble with programming an abstract level. People just don't
+understand the real world. Cache is everything, small cache footprint is king.
 
->Andrew
-
-David
+Alan
 

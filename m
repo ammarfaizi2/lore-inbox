@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266271AbTAOML5>; Wed, 15 Jan 2003 07:11:57 -0500
+	id <S266274AbTAOMMX>; Wed, 15 Jan 2003 07:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266274AbTAOML5>; Wed, 15 Jan 2003 07:11:57 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:62613 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266271AbTAOML4>;
-	Wed, 15 Jan 2003 07:11:56 -0500
-Date: Wed, 15 Jan 2003 12:18:15 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: "James H. Cloos Jr." <cloos@jhcloos.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, davej@suse.de
-Subject: Re: new CPUID bit
-Message-ID: <20030115121815.GB32694@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Mikael Pettersson <mikpe@csd.uu.se>,
-	"James H. Cloos Jr." <cloos@jhcloos.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, davej@suse.de
-References: <3E23E04B.2050802@redhat.com> <m38yxn377m.fsf@lugabout.jhcloos.org> <15909.7444.490945.972037@harpo.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15909.7444.490945.972037@harpo.it.uu.se>
-User-Agent: Mutt/1.4i
+	id <S266278AbTAOMMX>; Wed, 15 Jan 2003 07:12:23 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:22151 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S266274AbTAOMMW>; Wed, 15 Jan 2003 07:12:22 -0500
+Date: Wed, 15 Jan 2003 13:21:19 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: timing an application [results]
+In-Reply-To: <Pine.LNX.3.95.1030114151412.13840A-101000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.51.0301151316470.7297@dns.toxicfilms.tv>
+References: <Pine.LNX.3.95.1030114151412.13840A-101000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 09:34:28AM +0100, Mikael Pettersson wrote:
+Thanks for all your input on this.
 
- > A better reference for this stuff is (IMHO) AP-485, the "Intel Processor
- > Identification and the CPUID Instruction" application note. It's regularly
- > updated, and in this particular case, its description of CPUID with EAX=1
- > differs from the IA32 Volume 2 manual (245471xx) in two ways:
- > 
- > - EBX bit 31 is called "SBF", Signal Break on FERR.
- > - ECX is defined to contain additional feature flags. Currently only one
- >   is defined: ECX bit 10 is the "Context ID" feature for putting the L1
- >   D-cache in adaptive or shared mode, which matters for hyper-threaded CPUs.
- > 
- > Supporting the new ECX feature flags in the kernel will require some surgery,
- > since the current code assumes x86_capability[0] is Intel, [1] is AMD,
- > [2] is Transmeta, and [3] is for conflicting or synthesized feature flags.
- > We either shift AMD etc down one index and put ECX in [1], or add a new index
- > [4] for ECX, or kludge the few ECX-defined features in [3].
+I am using rdtsc, works great.
+But a funny thing happens.
+Here are the results for a block of code that counts the number players
+who are fighting: (in a mud)
 
-Or we change it so we end up with something like..
+A) Pentium II 350, 2.4.20-grsec
+about 700us with 250k CPU cycles
 
-x86_capability[0].standard and x86_capability[0].extended
+B) Pentium IV 1,5 ghz 2.4.20-lowlatency-preemt-aa
+about 800us with 130k CPU cycles.
 
-		Dave
+Maybe it is because the patches, but it seems that P4 does the same
+longer but with less CPU cycles. Could that be correct?
+Maybe something there is inacurate?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Regards,
+Maciej Soltysiak
+

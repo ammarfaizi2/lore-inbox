@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266997AbTGKWrE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 18:47:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266998AbTGKWrE
+	id S266957AbTGKWvR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 18:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267004AbTGKWvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 18:47:04 -0400
-Received: from smtp1.clear.net.nz ([203.97.33.27]:61360 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266997AbTGKWrC
+	Fri, 11 Jul 2003 18:51:17 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20745 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S266957AbTGKWvQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 18:47:02 -0400
-Date: Sat, 12 Jul 2003 10:45:47 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Thoughts wanted on merging Software Suspend enhancements
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1057963547.3207.22.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
+	Fri, 11 Jul 2003 18:51:16 -0400
+Date: Sat, 12 Jul 2003 00:57:16 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: [PATCH] Fix error path in AD1889 driver
+Message-ID: <20030712005716.C25528@electric-eye.fr.zoreil.com>
+References: <200307111821.h6BILFpr017428@hraefn.swansea.linux.org.uk> <20030712004501.B25528@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030712004501.B25528@electric-eye.fr.zoreil.com>; from romieu@fr.zoreil.com on Sat, Jul 12, 2003 at 12:45:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus.
+Memory leak fix: the allocated areas weren't referenced any more once the
+original error path returned.
 
-As you may know, there has been a lot of work done on the 2.4 version of
-software suspend. This includes:
 
-- async i/o
-- back out on errors rather than panicing (where possible)
-- enhancements to refrigerator so it successfully freezes processes even
-under high load
-- save a full image rather than freeing just about all the memory first
-- highmem support
-- image compression support
-- swapfile support in progress
-- nice display
-- user can abort at any time during suspend (oh, I forgot, I wanted
-to...) by just pressing Escape
-- extensive debugging info that doesn't need to be compiled in and can
-be adjusted during the suspend cycle (very handy for diagnosing issues)
+ sound/oss/ad1889.c |   14 +++++++++++---
+ 1 files changed, 11 insertions(+), 3 deletions(-)
 
-I'm wanting to get your thoughts on how we should go about merging it. I
-don't think these qualify as bug fixes, but current users (and I'm not
-excluding myself!) would certainly like to see the patch merged sooner
-rather than later. Would it be a good idea to seek to get Marcello and
-Andrew to take it into 2.4 and 2.6, and then aim for 2.[7|9]?
+diff -puN sound/oss/ad1889.c~janitor-error-path-ad1889 sound/oss/ad1889.c
+--- linux-2.5.75-20030711_0808/sound/oss/ad1889.c~janitor-error-path-ad1889	Sat Jul 12 00:40:29 2003
++++ linux-2.5.75-20030711_0808-fr/sound/oss/ad1889.c	Sat Jul 12 00:40:29 2003
+@@ -236,16 +236,24 @@ static ad1889_dev_t *ad1889_alloc_dev(st
+ 
+ 	for (i = 0; i < AD_MAX_STATES; i++) {
+ 		dmabuf = &dev->state[i].dmabuf;
+-		if ((dmabuf->rawbuf = kmalloc(DMA_SIZE, GFP_KERNEL|GFP_DMA)) == NULL)
+-			return NULL;
++		dmabuf->rawbuf = kmalloc(DMA_SIZE, GFP_KERNEL|GFP_DMA);
++		if (!dmabuf->rawbuf)
++			goto err_free_dmabuf;
+ 		dmabuf->rawbuf_size = DMA_SIZE;
+ 		dmabuf->dma_handle = 0;
+ 		dmabuf->rd_ptr = dmabuf->wr_ptr = dmabuf->dma_len = 0UL;
+ 		dmabuf->ready = 0;
+ 		dmabuf->rate = 44100;
+ 	}
+-
++out:
+ 	return dev;
++
++err_free_dmabuf:
++	while (--i >= 0)
++		kfree(dev->state[i].dmabuf.rawbuf);
++	kfree(dev);
++	dev = NULL;
++	goto out;
+ }
+ 
+ static void ad1889_free_dev(ad1889_dev_t *dev)
 
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
-
+_

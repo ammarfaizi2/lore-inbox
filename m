@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbULUVV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbULUV2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbULUVV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 16:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbULUVV7
+	id S261796AbULUV2L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 16:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbULUV2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 16:21:59 -0500
-Received: from main.gmane.org ([80.91.229.2]:19390 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261366AbULUVV6 (ORCPT
+	Tue, 21 Dec 2004 16:28:11 -0500
+Received: from waste.org ([216.27.176.166]:10414 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261796AbULUV2H (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 16:21:58 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Shankar Unni <shankarunni@netscape.net>
-Subject: Re: at_fork & at_exit
-Date: Tue, 21 Dec 2004 12:59:05 -0800
-Message-ID: <cqa2qq$rma$1@sea.gmane.org>
-References: <41C835C7.2010203@gmail.com>
+	Tue, 21 Dec 2004 16:28:07 -0500
+Date: Tue, 21 Dec 2004 13:27:37 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Mark Broadbent <markb@wetlettuce.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
+Message-ID: <20041221212737.GK5974@waste.org>
+References: <20041217215752.GP2767@waste.org> <20041217233524.GA11202@electric-eye.fr.zoreil.com> <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com> <20041220211419.GC5974@waste.org> <20041221002218.GA1487@electric-eye.fr.zoreil.com> <20041221005521.GD5974@waste.org> <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com> <20041221123727.GA13606@electric-eye.fr.zoreil.com> <49295.192.102.214.6.1103635762.squirrel@webmail.wetlettuce.com> <20041221204853.GA20869@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-120-146-125.dsl.snfc21.pacbell.net
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041201 Thunderbird/1.0RC1 Mnenhy/0.7
-X-Accept-Language: en-us, en
-In-Reply-To: <41C835C7.2010203@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041221204853.GA20869@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arun C Murthy wrote:
+On Tue, Dec 21, 2004 at 09:48:53PM +0100, Francois Romieu wrote:
+> Mark Broadbent <markb@wetlettuce.com> :
+> [...]
+> > Using the patch supplied I get no hang, just the message 'netconsole
+> > raced' output to the console and the packet capture proceeds as normal.
+> > Thanks
+> 
+> The patch is more a bandaid for debugging than a real fix. The netconsole
+> will drop some messages until its locking is fixed
 
-> Im looking for linux equivalent of the FreeBSD calls:
-> 1. at_fork
-> 2. at_exit
+Unfortunately there's no good way to fix its locking in this
+circumstance (or the harder case of driver-private locks). I think
+I'll just have to come up with some scheme for queueing messages that
+arrive when the queue lock is held.
 
-There is an ANSI C equivalent of at_exit: it's called atexit(). Use that 
-  instead of OS-specific hacks like at_exit.
+> If you can issue one more test, I'd like to know if some messages appear
+> on the VGA console around the time at which tcpdump is started (the test
+> assumes that netconsole is not used/insmoded at all). Please check that
+> the console log_level is set high enough as it will be really disappointing
+> if nothing appears :o)
 
-No direct analog to at_fork() that I know of, but there's a "sort of" 
-equivalent thing you can use: pthread_atfork(). No reason why you can't 
-use it, even if your program is not multi-threaded..
+I think it's the promiscuous mode message itself that's the problem
+but I've not had time to reproduce it.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRAVK1E>; Mon, 22 Jan 2001 05:27:04 -0500
+	id <S130154AbRAVK3o>; Mon, 22 Jan 2001 05:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130154AbRAVK0y>; Mon, 22 Jan 2001 05:26:54 -0500
-Received: from [213.221.172.239] ([213.221.172.239]:4625 "EHLO
-	smtp-relay1.barrysworld.com") by vger.kernel.org with ESMTP
-	id <S129413AbRAVK0j>; Mon, 22 Jan 2001 05:26:39 -0500
-Date: Mon, 22 Jan 2001 10:26:00 +0000
-From: Scaramanga <scaramanga@barrysworld.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Firewall netlink question...
-Message-ID: <20010122102600.A4458@lemsip.lan>
-Reply-To: scaramanga@barrysworld.com
-In-Reply-To: <20010122073343.A3839@lemsip.lan> <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0101221045380.25503-100000@titan.lahn.de>; from pmhahn@titan.lahn.de on Mon, Jan 22, 2001 at 09:46:03 +0000
-X-Mailer: Balsa 1.0.1
+	id <S131825AbRAVK3e>; Mon, 22 Jan 2001 05:29:34 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:47278 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130154AbRAVK3R>; Mon, 22 Jan 2001 05:29:17 -0500
+Message-ID: <3A6C0D3A.39F5793E@uow.edu.au>
+Date: Mon, 22 Jan 2001 21:36:42 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jeffml@pobox.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1pre8 Oops
+In-Reply-To: <01012111414100.15973@earth>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-> QUEUE means to pass the packet to userspace (if supported by the kernel).
-
-Looking at the code it seemed to do the same thing as the old netlink, but
-with more complexity, to what end though, i couldnt tell, was only a brief
-skim.
-
-> $ sed -n -e '1874,1876p' /usr/src/linux-2.4.0/Documentation/Configure.help
-> CONFIG_IP_NF_QUEUE
->   Netfilter has the ability to queue packets to user space: the
->   netlink device can be used to access them using this driver.
+Jeff Lightfoot wrote:
 > 
-> $ lynx /usr/share/doc/iptables/html/packet-filtering-HOWTO-7.html
+> Nothing special with this box.  SMP no modules, Squid proxy and
+> running VNC/Pan at the time.  Using kernel version of reiserfs on
+> filesystems other than root.
 > 
+> Be glad to offer any other info if needed.
 
-Yeah, after some quick googling and freshmeating, i came accross a daemon
-that picked up these QUEUEd packets and multiplexed them to various child
-processes, which seemed very innefcient, the documentation said something
-about QUEUE not being multicast in nature, like the old firewall netlink.
+Would I be correct in assuming that you're using a serial
+console, and that the oops was caused by the NMI watchdog?
 
-What was wrong with the firewall netlink? My re-implementation works great
-here. I can't see why anything else would be needed, QUEUE seems twice as
-complex. Unless with QUEUE the userspce applications can make decisions on
-what to do with the packet? In which case, it would be far too inefficient
-for an application like mine, where all i need is to be able to read the
-IP datagrams..
+It seems that this is _bound_ to happen - we're busy
+waiting on the UART with interrupts disabled....
 
-Am I missing something totally obvious?
+Some fixes which come to mind are:
 
-Regards
+1: the serial console code tells the NMI oopser that it knows what
+   it's doing.
 
---
-// Gianni Tedesco <scaramanga@barrysworld.com>
-Fingerprint: FECC 237F B895 0379 62C4  B5A9 D83B E2B0 02F3 7A68
-Key ID: 02F37A68
+2: the serial console code aborts the write if it doesn't make any
+   progress for 1/10th of a second.
 
-egg.microsoft.com: Remote operating system guess: Solaris 2.6 - 2.7
+3: Boot the kernel with the `nmi_watchdog=0' LILO option if you're
+   using an unreliable serial console.
 
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

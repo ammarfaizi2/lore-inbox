@@ -1,56 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSFXPap>; Mon, 24 Jun 2002 11:30:45 -0400
+	id <S312962AbSFXPbS>; Mon, 24 Jun 2002 11:31:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312962AbSFXPao>; Mon, 24 Jun 2002 11:30:44 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14098 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S312601AbSFXPan>; Mon, 24 Jun 2002 11:30:43 -0400
-Date: Mon, 24 Jun 2002 12:02:22 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Dave Jones <davej@suse.de>, Daniel Phillips <phillips@bonn-fries.net>,
-       Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Linus Torvalds <torvalds@transmeta.com>,
-       <rwhron@earthlink.net>
-Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
-In-Reply-To: <Pine.LNX.4.44.0206192151390.20865-100000@e2>
-Message-ID: <Pine.LNX.4.44L.0206241200310.3937-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312973AbSFXPbR>; Mon, 24 Jun 2002 11:31:17 -0400
+Received: from trained-monkey.org ([209.217.122.11]:58897 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S312962AbSFXPbP>; Mon, 24 Jun 2002 11:31:15 -0400
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: acenic >4gig sendfile problem
+References: <3D05204B.4010103@us.ibm.com>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 24 Jun 2002 11:31:15 -0400
+In-Reply-To: Dave Hansen's message of "Mon, 10 Jun 2002 14:55:23 -0700"
+Message-ID: <m3r8iwvgl8.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jun 2002, Ingo Molnar wrote:
-> On Wed, 19 Jun 2002, Rik van Riel wrote:
->
-> > I am encouraged by Craig's test results, which show that
-> > rmap did a LOT less swapin IO and rmap with page aging even
-> > less. The fact that it did too much swapout IO means one
-> > part of the system needs tuning but doesn't say much about
-> > the thing as a whole.
->
-> btw., isnt there a fair chance that by 'fixing' the aging+rmap code to
-> swap out less, you'll ultimately swap in more? [because the extra swappout
-> likely ended up freeing up RAM as well, which in turn decreases the amount
-> of trashing.]
+>>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
 
-Possibly, but I expect the 'extra' swapouts to be caused
-by page_launder writing out too many pages at once and not
-just the ones it wants to free.
+Dave> When doing sendfile with my acenic card on my 8xPIII-700 and PAE
+Dave> running 2.4.18, I'm getting all zeros in the files being
+Dave> transmitted.  Running the Redhat 2.4.18-4 kernel fixes the
+Dave> problem.  I saw this entry in the rpm's changelog: * Sat Aug 25
+Dave> 2001 Ingo Molnar <mingo@redhat.com> - fix the acenic driver bug
+Dave> that caused random kernel memory being sent out on the wire, on
+Dave> x86 systems with more than 4 GB RAM.
 
-Cleaning pages and freeing them are separate operations,
-what is missing is a mechanism to clean enoughh pages but
-not all inactive pages at once ;)
+Actually I think you're hitting a bug in pci_map_page() rather than in
+the acenic.driver.
 
-regards,
+Try the patch from Ben LaHaise included below.
 
-Rik
+Jes
+
+
+------- Start of forwarded message -------
+Resent-Message-Id: <200206102358.g5ANwbx23959@toomuch.toronto.redhat.com>
+Date: Mon, 10 Jun 2002 19:56:44 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+   Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: highmem pci dma mapping does not work, missing cast in asm-i386/pci.h
+Message-ID: <20020610195644.C13225@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Resent-From: bcrl@redhat.com
+Resent-Date: Mon, 10 Jun 2002 19:58:37 -0400
+Resent-To: jes@wildopensource.com
+
+Hello all,
+
+There's a missing cast in pci_map_page that causes 64 bit capable 
+drivers to access the wrong memory for highmem pages.  Please 
+include the patch below to fix it.
+
+		-ben
 -- 
-Bravely reimplemented by the knights who say "NIH".
+"You will be reincarnated as a toad; and you will be much happier."
 
-http://www.surriel.com/		http://distro.conectiva.com/
+:r ~/patches/v2.4/v2.4.19-pre10-pci_highmem.diff
+diff -urN v2.4.19-pre10/include/asm-i386/pci.h pci-v2.4.19-pre10/include/asm-i386/pci.h
+--- v2.4.19-pre10/include/asm-i386/pci.h	Thu Jun  6 20:10:08 2002
++++ pci-v2.4.19-pre10/include/asm-i386/pci.h	Mon Jun 10 19:54:16 2002
+@@ -103,7 +103,7 @@
+ 	if (direction == PCI_DMA_NONE)
+ 		out_of_line_bug();
+ 
+-	return (page - mem_map) * PAGE_SIZE + offset;
++	return (dma_addr_t)(page - mem_map) * PAGE_SIZE + offset;
+ }
+ 
+ static inline void pci_unmap_page(struct pci_dev *hwdev, dma_addr_t dma_address,
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
+------- End of forwarded message -------

@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbUBTPm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 10:42:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUBTPlZ
+	id S261302AbUBTPvU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 10:51:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUBTPvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 10:41:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:43654 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261295AbUBTPgU (ORCPT
+	Fri, 20 Feb 2004 10:51:19 -0500
+Received: from ns.suse.de ([195.135.220.2]:62684 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261295AbUBTPvN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 10:36:20 -0500
-Date: Fri, 20 Feb 2004 07:41:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Tridge <tridge@samba.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(),
- O_CLEAN
-In-Reply-To: <20040220120417.GA4010@elte.hu>
-Message-ID: <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org>
-References: <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org>
- <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
- <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
- <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org>
- <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
- <20040220120417.GA4010@elte.hu>
+	Fri, 20 Feb 2004 10:51:13 -0500
+To: Valdis.Kletnieks@vt.edu
+Cc: Matthew Wilcox <willy@debian.org>, davidm@hpl.hp.com, torvalds@osdl.org,
+       Michel D?nzer <michel@daenzer.net>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: radeon warning on 64-bit platforms
+References: <1077054385.2714.72.camel@thor.asgaard.local>
+	<16434.36137.623311.751484@napali.hpl.hp.com>
+	<1077055209.2712.80.camel@thor.asgaard.local>
+	<16434.37025.840577.826949@napali.hpl.hp.com>
+	<1077058106.2713.88.camel@thor.asgaard.local>
+	<16434.41884.249541.156083@napali.hpl.hp.com>
+	<20040217234848.GB22534@krispykreme>
+	<16434.46860.429861.157242@napali.hpl.hp.com>
+	<20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
+	<16434.50928.682219.187846@napali.hpl.hp.com>
+	<20040218022831.GI11824@parcelfarce.linux.theplanet.co.uk>
+	<200402192230.i1JMUifj004565@turing-police.cc.vt.edu>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: ..  does your DRESSING ROOM have enough ASPARAGUS?
+Date: Fri, 20 Feb 2004 16:51:00 +0100
+In-Reply-To: <200402192230.i1JMUifj004565@turing-police.cc.vt.edu> (Valdis
+ Kletnieks's message of "Thu, 19 Feb 2004 17:30:44 -0500")
+Message-ID: <jehdxl697f.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Valdis.Kletnieks@vt.edu writes:
 
+> [/usr/src/linux-2.6.3-mm1/arch/i386]2 find . -name '*.c' | xargs cat |sed 's/\t/        /g'| awk 'length() > 80 { print $0}' | wc -l
+>    1291
+>
+> (replace \t with whatever your shell needs to enter a literal tab .  Yes, this
+> botches on the relatively rare line that has an embedded tab. Deal with it. ;).
 
-On Fri, 20 Feb 2004, Ingo Molnar wrote:
-> 
-> One 'user-space cache is valid/clean' bit should be enough - where all
-> non-Samba accesses clear the 'valid bit', and Samba sets the bit
-> manually.
+Use expand.
 
-Yes, that, together with O_CLEAN would work.
+$ find . -name '*.c' | xargs cat | expand | awk 'length() > 80 { print $0}' | wc -l
+1125
 
-The problem is that you'd still need other system calls: it's not like 
-open(O_CREAT) is the only way to create a file. So you'd have to add 
-versions of "link()" etc, which means that O_CLEAN is really pretty 
-pointless, and you might as well just do it in a new system call.
+Andreas.
 
-Your version is also not multi-threaded: you can never allow more than one 
-thread doing the "sys_mark_dir_clean()". That was the reason for having 
-two bits: so that anybody can do a lookup in parallell, and only the 
-"filldir" part needs to be serialized.
-
-So I do believe you'd want two bits anyway.
-
-		Linus
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

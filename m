@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279858AbRJaCUx>; Tue, 30 Oct 2001 21:20:53 -0500
+	id <S279934AbRJaCaG>; Tue, 30 Oct 2001 21:30:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279862AbRJaCUn>; Tue, 30 Oct 2001 21:20:43 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:20753 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S279858AbRJaCUa>; Tue, 30 Oct 2001 21:20:30 -0500
-Date: Wed, 31 Oct 2001 02:21:05 +0000
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
-Subject: rmmod whilst reading/writing sysctl
-Message-ID: <20011031022104.C22156@compsoc.man.ac.uk>
+	id <S279956AbRJaC34>; Tue, 30 Oct 2001 21:29:56 -0500
+Received: from trifle.nips.ac.jp ([133.48.76.39]:30863 "HELO trifle.nips.ac.jp")
+	by vger.kernel.org with SMTP id <S279934AbRJaC3r>;
+	Tue, 30 Oct 2001 21:29:47 -0500
+To: gotom@debian.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Intel 845 support for agpgart
+In-Reply-To: <w53zo68bs69.wl@megaela.fe.dis.titech.ac.jp>
+In-Reply-To: <20011031074918B.shy@trifle.nips.ac.jp>
+	<w53zo68bs69.wl@megaela.fe.dis.titech.ac.jp>
+X-Mailer: Mew version 1.94.2 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20011031113003B.shy@trifle.nips.ac.jp>
+Date: Wed, 31 Oct 2001 11:30:03 +0900
+From: Shyouzou Sugitani <shy@trifle.nips.ac.jp>
+X-Dispatcher: imput version 20000414(IM141)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+At Wed, 31 Oct 2001 08:54:06 +0900
+GOTO Masanori <gotom@debian.org> wrote:
+> Aha, this patch already sent by me some hours before 
+> and its function is totally same :-)
 
-Where is the prevention of module unload whilst a sysctl from a module is being read/written ?
+OK, I read your patch which appeared in Linux-Kernel Archive and found
+that its function is not totally same.
 
-sysctl syscall is protected by BKL, but I can't see similar code for the cat >/proc/sys/...
-case
+The MCHCFG register of i845 is only 8bits.
 
-If there is none, how do I support sysctl from a module safely ?
-
-thanks
-john
-
--- 
-"I'm dismayed whenever libertarianism and programming are associated; in my
- mind, it is as nebulous as associating people who write books as communists or
- those who read newspapers as capitalists."
-	- graydon
+--
+Regards,
+Shyouzou Sugitani <shy@debian.or.jp>

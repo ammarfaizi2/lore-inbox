@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUHBUTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263062AbUHBUZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUHBUTb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 16:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUHBUTb
+	id S263062AbUHBUZA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 16:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUHBUZA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 16:19:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26084 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263024AbUHBURY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 16:17:24 -0400
-Date: Mon, 2 Aug 2004 13:08:49 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Ravikiran G Thirumalai <kiran@in.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Add kref_read and kref_put_last primitives
-Message-ID: <20040802200849.GG28374@kroah.com>
-References: <20040726144856.GH1231@obelix.in.ibm.com> <20040726173151.A11637@infradead.org>
+	Mon, 2 Aug 2004 16:25:00 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:34281 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263062AbUHBUY6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 16:24:58 -0400
+Subject: Re: CPU hotplug broken in 2.6.8-rc2 ?
+From: Nathan Lynch <nathanl@austin.ibm.com>
+To: dipankar@in.ibm.com
+Cc: V Srivatsa <vatsa@in.ibm.com>, Joel Schopp <jschopp@austin.ibm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, zwane@linuxpower.ca
+In-Reply-To: <1091475519.29556.4.camel@pants.austin.ibm.com>
+References: <20040802094907.GA3945@in.ibm.com>
+	 <20040802095741.GA4599@in.ibm.com>
+	 <1091475519.29556.4.camel@pants.austin.ibm.com>
+Content-Type: text/plain
+Message-Id: <1091478386.29556.36.camel@pants.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040726173151.A11637@infradead.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 02 Aug 2004 15:26:26 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 26, 2004 at 05:31:51PM +0100, Christoph Hellwig wrote:
-> On Mon, Jul 26, 2004 at 08:18:56PM +0530, Ravikiran G Thirumalai wrote:
-> > Greg,
-> > Here is a patch to add kref_read and kref_put_last.
-> > These primitives were needed to change files_struct.f_count
-> > refcounter to use kref api.
-> > 
-> > kref_put_last is needed sometimes when a refcount might
-> > have an unconventional release which needs more than
-> > the refcounted object to process object release-- like in the
-> > files_struct.f_count conversion patch at __aio_put_req().
-> > The following patch depends on kref shrinkage patches.
-> > (which you have already included).
-> 
-> Why don't you simply use an atomic_t if that's what you seem to
-> want?
+On Mon, 2004-08-02 at 14:38, Nathan Lynch wrote:
+> Could you try on 2.6.8-rc2-mm2 along with this patch?  Vatsa had a patch
+> go in that should prevent the crash you are seeing -- the patch below is
+> needed to prevent the same crash in the offline case.  This check used
+> to be in load_balance and some other scheduler functions, iirc; does
+> anyone know why they were removed?
 
-Exactly.  In cases like this, where the user, for some reason, wants to
-know the state of the reference count, they should not use a struct
-kref.  I'm not going to add these functions to the kref api, sorry.
+Er, I meant to put the check in rebalance_tick, not load_balance.
 
-thanks,
+However, after a few minutes with this, I hit the BUG_ON in the CPU_DEAD
+case in migration_call; not sure whether this is a separate issue.
 
-greg k-h
+Nathan
+
+---
+
+diff -puN kernel/sched.c~check-for-cpu-offline-in-rebalance_tick kernel/sched.c
+--- 2.6.8-rc2-mm2/kernel/sched.c~check-for-cpu-offline-in-rebalance_tick	2004-08-02 15:18:24.000000000 -0500
++++ 2.6.8-rc2-mm2-nathanl/kernel/sched.c	2004-08-02 15:18:47.000000000 -0500
+@@ -1616,6 +1616,9 @@ static void rebalance_tick(int this_cpu,
+ 	unsigned long j = jiffies + CPU_OFFSET(this_cpu);
+ 	struct sched_domain *sd;
+ 
++	if (cpu_is_offline(this_cpu))
++		return;
++
+ 	/* Update our load */
+ 	old_load = this_rq->cpu_load;
+ 	this_load = this_rq->nr_running * SCHED_LOAD_SCALE;
+
+_
+
+

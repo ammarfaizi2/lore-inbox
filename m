@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbTHaJ7T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 05:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbTHaJ7T
+	id S262309AbTHaKI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 06:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262533AbTHaKI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 05:59:19 -0400
-Received: from smtp1.fre.skanova.net ([195.67.227.94]:36056 "EHLO
-	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261945AbTHaJ7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 05:59:18 -0400
-Subject: Re: 2.6.0-test4: uhci-hcd.c: "host controller process error", slab
-	call trace
-From: Fredrik Noring <noring@nocrew.org>
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Johannes Erdfelt <johannes@erdfelt.com>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <200308310136.02093.baldrick@wanadoo.fr>
-References: <1062281812.3378.50.camel@h9n1fls20o980.bredband.comhem.se>
-	 <200308310136.02093.baldrick@wanadoo.fr>
-Content-Type: text/plain; charset=ISO-8859-1
-Organization: NoCrew
-Message-Id: <1062323761.3036.31.camel@h9n1fls20o980.bredband.comhem.se>
+	Sun, 31 Aug 2003 06:08:29 -0400
+Received: from c-780372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.120]:48043
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S262309AbTHaKI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 06:08:27 -0400
+Subject: [SHED] Questions.
+From: Ian Kumlien <pomac@vapor.com>
+To: linux-kernel@vger.kernel.org
+Cc: Ian Kumlien <pomac@vapor.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4lfxr6nPt3fggG0GijIk"
+Message-Id: <1062324435.9959.56.camel@big.pomac.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.4 
-Date: Sun, 31 Aug 2003 11:56:01 +0200
-Content-Transfer-Encoding: 8bit
+Date: Sun, 31 Aug 2003 12:07:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sön 2003-08-31 klockan 01.36 skrev Duncan Sands:
-> Does the attached patch help?
 
-Yes, I did some quick tests and the "host controller" error appears to
-be gone. Thanks! There are a few other problems, probably unrelated to
-this patch:
+--=-4lfxr6nPt3fggG0GijIk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-1. Broadcom Bluetooth USB device initialization is unreliable. When it
-   fails, the following is logged. Rebooting the system and trying again
-   helps.
+Hi,=20
 
- /etc/hotplug/usb.agent: Setup bluefw for USB product a5c/2033/a0
- /etc/hotplug/usb.agent: Module setup bluefw for USB product a5c/2033/a0
- bluefw[3079]: Loading firmware to usb device 0a5c:2033
- kernel: usb 1-2: bulk timeout on ep1in
- bluefw[3079]: Intr read #1 failed. Connection timed out (110)
- usbfs: USBDEVFS_BULK failed dev 3 ep 0x81 len 10 ret -110
+I'll risk sounding like a moron again =3D)
 
-2. The system sometimes locks up in a complete freeze when an external
-   Bluetooth device tries to connect. I'm not sure what happens and the
-   only message I've seen is this and it might be unrelated:
+I still wonder about the counter intuitive quantum value for
+processes... (or timeslice if you will)
 
- dund[3932]: MSDUN failed. Protocol error(71)
+Why not use small quantum values for high pri processes and long for low
+pri since the high pri processes will preempt the low pri processes
+anyways. And for a server working under load with only a few processes
+(assuming they are all low pri) would lessen the context switches.
 
-3. The following messages are still logged:
+And a system with "interactive load" as well would, as i said, preempt
+the lower pris. But this could also cause a problem... Imho there should
+be a "min quantum value" so that processes can't preempt a process that
+was just scheduled (i dunno if this is implemented already though).=20
 
- kernel: l2cap_recv_acldata: Frame is too short (len 1)
- kernel: l2cap_recv_acldata: Unexpected continuation frame (len 124)
- kernel: l2cap_recv_acldata: Unexpected continuation frame (len 102)
+Imho this would also make it easy to get the right pri for highpri
+processes since the quantum value is smaller and if you use it all up
+you get demoted.
 
-	Fredrik
+Anyways, I've been wondering about the inverted values in the scheduler
+and for a mixed load/server load i don't see the benefit... =3DP
 
+PS. Do not forget to CC me since i'm not on this list...
+DS.
+
+--=20
+Ian Kumlien <pomac@vapor.com>
+
+--=-4lfxr6nPt3fggG0GijIk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/UcjS7F3Euyc51N8RAie9AJ0T2f/KVoF+mZZTsJRBiAC3HfAL5ACeJzgT
+7jtB/8s+w27ywGnXlvrfkDs=
+=aUyv
+-----END PGP SIGNATURE-----
+
+--=-4lfxr6nPt3fggG0GijIk--
 

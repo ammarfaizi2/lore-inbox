@@ -1,111 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262512AbTHYXUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 19:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262515AbTHYXUZ
+	id S262401AbTHYXLW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 19:11:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbTHYXLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 19:20:25 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:19094 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S262512AbTHYXUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 19:20:17 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Tue, 26 Aug 2003 09:20:05 +1000
+	Mon, 25 Aug 2003 19:11:22 -0400
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:37176 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S262401AbTHYXLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 19:11:15 -0400
+Date: Tue, 26 Aug 2003 01:11:13 +0200 (CEST)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+Cc: linux-atm-general@lists.sourceforge.net,
+       Bartlomiej Solarz-Niesluchowski <solarz@wsisiz.edu.pl>
+Subject: linux-2.4.22 Oops on ATM PCA-200EPC
+Message-ID: <Pine.LNX.4.53.0308260104580.17995@oceanic.wsisiz.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16202.39333.830809.797201@gargle.gargle.HOWL>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 md raid5 disk faulty marking bug was: md: bug in file raid5.c, line 1909 in 2.4.22-pre7
-In-Reply-To: message from Mike Fedyk on Friday August 22
-References: <20030819203712.GB4083@matchmail.com>
-	<16197.43158.905670.891510@gargle.gargle.HOWL>
-	<20030822172142.GF1040@matchmail.com>
-X-Mailer: VM 7.17 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday August 22, mfedyk@matchmail.com wrote:
-> > As far as I can see, the 2.4 code would never set just MD_DISK_REMOVED
-> > (though it really should cope with it).  It is possible that the 2.6
-> > code does.  Has this array had 2.6 running on it?  Does it have any
-> > interesting history?
-> 
-> Yes, it was running 2.6-test2-mm2 or so (don't remember exactly, I can check
-> though if needed) previously, but I didn't notice any bug messages from
-> there, and seeing that it was 2.4 I was surprised to see bug
-> messages from md.
+Hello
 
-The 2.4 code is very fragile.  It can easily bug if the superblock
-looks wrong in some obscure way.
+I have always used vanilla kernel with very old patch for ATM
+(name: linux-2.3.99-pre6-fore200e-0.2f.patch) It worked well -
+trouble-free. 
+I have just tried vanilla 2.4.22, here is oops. ATM doesn't work :(
 
-> 
-> Do you have any patches for 2.6 md?  Right now this system is still in
-> testing, and I'd like to help get this code path tested, and fixed.
+ksymoops 2.4.5 on i686 2.4.22.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22/ (default)
+     -m /lib/modules/2.4.22/System.map (specified)
 
-The following should fix it.
-With this applied to 2.6, you can simply 
-  start the array under 2.6
-  stop the array
-  reboot into 2.4
-and it should be fine again.
+Aug 26 00:47:54 voices kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010
+Aug 26 00:47:54 voices kernel: c0263127
+Aug 26 00:47:54 voices kernel: *pde = 00000000
+Aug 26 00:47:54 voices kernel: Oops: 0002
+Aug 26 00:47:54 voices kernel: CPU:    0
+Aug 26 00:47:54 voices kernel: EIP:    0010:[<c0263127>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+Aug 26 00:47:54 voices kernel: EFLAGS: 00010286
+Aug 26 00:47:54 voices kernel: eax: 00000000   ebx: ffffffff   ecx: c02c7c14   edx: ffffff9e
+Aug 26 00:47:54 voices kernel: esi: f78812b4   edi: 000061e1   ebp: f6f27800   esp: f78e5f04
+Aug 26 00:47:54 voices kernel: ds: 0018   es: 0018   ss: 0018
+Aug 26 00:47:54 voices kernel: Process atmarpd (pid: 8093, stackpage=f78e5000)
+Aug 26 00:47:54 voices kernel: Stack: f6f27800 f7b2a880 f706b680 400f7020 00000000 00000003 f6fb7a80 f7b2a89c 
+Aug 26 00:47:54 voices kernel:        00000000 005d3339 f78812b4 00030002 f7a3e780 f7b7c005 00000003 0028f3c6 
+Aug 26 00:47:54 voices kernel:        f78e5f24 00000007 000036a9 00000000 00000000 00000002 f78e4000 000061e1 
+Aug 26 00:47:54 voices kernel: Call Trace:    [<c0260f83>] [<c01fac40>] [<c014f835>] [<c010770f>]
+Aug 26 00:47:54 voices kernel: Code: f0 ff 48 10 a1 74 0f 36 c0 8b 40 18 83 48 14 08 85 d2 0f 85 
 
-NeilBrown
 
-==================================================
-Fix md superblock incompatabilities with 2.4 kernels.
+>>EIP; c0263127 <atm_ioctl+927/c90>   <=====
 
-2.4 kernels are very fussy about some values in the superblock, and
-2.6 got them wrong.  This fixes it.
+>>ebx; ffffffff <END_OF_CODE+7647f28/????>
+>>ecx; c02c7c14 <atm_clip_ops_mutex+0/14>
+>>edx; ffffff9e <END_OF_CODE+7647ec7/????>
+>>esi; f78812b4 <_end+3752031c/3858a0c8>
+>>edi; 000061e1 Before first symbol
+>>ebp; f6f27800 <_end+36bc6868/3858a0c8>
+>>esp; f78e5f04 <_end+37584f6c/3858a0c8>
+
+Trace; c0260f83 <__lock_svc_proto_ioctl+43/80>
+Trace; c01fac40 <sock_ioctl+40/80>
+Trace; c014f835 <sys_ioctl+f5/2b0>
+Trace; c010770f <system_call+33/38>
+
+Code;  c0263127 <atm_ioctl+927/c90>
+00000000 <_EIP>:
+Code;  c0263127 <atm_ioctl+927/c90>   <=====
+   0:   f0 ff 48 10               lock decl 0x10(%eax)   <=====
+Code;  c026312b <atm_ioctl+92b/c90>
+   4:   a1 74 0f 36 c0            mov    0xc0360f74,%eax
+Code;  c0263130 <atm_ioctl+930/c90>
+   9:   8b 40 18                  mov    0x18(%eax),%eax
+Code;  c0263133 <atm_ioctl+933/c90>
+   c:   83 48 14 08               orl    $0x8,0x14(%eax)
+Code;  c0263137 <atm_ioctl+937/c90>
+  10:   85 d2                     test   %edx,%edx
+Code;  c0263139 <atm_ioctl+939/c90>
+  12:   0f 85 00 00 00 00         jne    18 <_EIP+0x18>
 
 
- ----------- Diffstat output ------------
- ./drivers/md/md.c |   13 ++++++-------
- 1 files changed, 6 insertions(+), 7 deletions(-)
-
-diff ./drivers/md/md.c~current~ ./drivers/md/md.c
---- ./drivers/md/md.c~current~	2003-08-24 08:07:18.000000000 +1000
-+++ ./drivers/md/md.c	2003-08-26 09:11:39.000000000 +1000
-@@ -638,14 +638,13 @@ static void super_90_sync(mddev_t *mddev
- 	/* make rdev->sb match mddev data..
- 	 *
- 	 * 1/ zero out disks
--	 * 2/ Add info for each disk, keeping track of highest desc_nr
--	 * 3/ any empty disks < highest become removed
-+	 * 2/ Add info for each disk, keeping track of highest desc_nr (next_spare);
-+	 * 3/ any empty disks < next_spare become removed
- 	 *
- 	 * disks[0] gets initialised to REMOVED because
- 	 * we cannot be sure from other fields if it has
- 	 * been initialised or not.
- 	 */
--	int highest = 0;
- 	int i;
- 	int active=0, working=0,failed=0,spare=0,nr_disks=0;
- 
-@@ -716,17 +715,17 @@ static void super_90_sync(mddev_t *mddev
- 			spare++;
- 			working++;
- 		}
--		if (rdev2->desc_nr > highest)
--			highest = rdev2->desc_nr;
- 	}
- 	
--	/* now set the "removed" bit on any non-trailing holes */
--	for (i=0; i<highest; i++) {
-+	/* now set the "removed" and "faulty" bits on any missing devices */
-+	for (i=0 ; i < mddev->raid_disks ; i++) {
- 		mdp_disk_t *d = &sb->disks[i];
- 		if (d->state == 0 && d->number == 0) {
- 			d->number = i;
- 			d->raid_disk = i;
- 			d->state = (1<<MD_DISK_REMOVED);
-+			d->state |= (1<<MD_DISK_FAULTY);
-+			failed++;
- 		}
- 	}
- 	sb->nr_disks = nr_disks;
+-- 
+*[ £ukasz Tr±biñski ]*
+SysAdmin @wsisiz.edu.pl

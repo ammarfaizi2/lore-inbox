@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbTENN5j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbTENN4Q
+	id S262298AbTENOAQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 10:00:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTENOAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:56:16 -0400
-Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:61115 "EHLO
-	marauder.googgun.com") by vger.kernel.org with ESMTP
-	id S262249AbTENNzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:55:54 -0400
-Date: Wed, 14 May 2003 10:06:27 -0400 (EDT)
-From: Ahmed Masud <masud@googgun.com>
-To: Yoav Weiss <ml-lkml@unpatched.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
-In-Reply-To: <Pine.LNX.4.44.0305141445290.12748-100000@marcellos.corky.net>
-Message-ID: <Pine.LNX.4.33.0305141002500.10993-100000@marauder.googgun.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 May 2003 10:00:12 -0400
+Received: from mail.hometree.net ([212.34.181.120]:31918 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S262298AbTENN6X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:58:23 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: What exactly does "supports Linux" mean?
+Date: Wed, 14 May 2003 14:11:10 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b9tipu$e3m$4@tangens.hometree.net>
+References: <200305131114_MC3-1-38B0-3C13@compuserve.com> <yw1x3cjifutq.fsf@zaphod.guide> <20030514021210.GD30766@pegasys.ws>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1052921470 14454 212.34.181.4 (14 May 2003 14:11:10 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 14 May 2003 14:11:10 +0000 (UTC)
+X-Copyright: (C) 1996-2003 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jw schultz <jw@pegasys.ws> writes:
 
+>This is really a trademark related labelling issue.  The
+>trademark allows Linus or his assignee to specify in what
+>way Linux(tm) may be used in labelling and advertising.
+>Linux is just like other products with third-party parts and
+>supplies.  If Linus's assignee (Linux international?) where
+>to specify explicit guidelines then people would know what
+>to expect.  Something like:
 
-On Wed, 14 May 2003, Yoav Weiss wrote:
+>Linux certified:
+>	Mainline kernel has driver and it has been certified
+>	as functioning with this hardware by OSDL or some
+>	other officially sanctioned lab.
 
->
-> Thats a good question.  I see three options:
-> 1. Dump the core plaintext.  (sucks but convenient for users).
-> 2. In the core, zero the pages that would be encrypted when swapped out.
->    On some policies where only things like keys are encrypted, the core
->    will be usable.  On others it won't.  (Not sure its really an option).
-> 3. If the core contains pages that should be encrypted, dump it encrypted
->    with some system-wide (or per-uid) key generated on the first core
->    dump.  The key will be available to the user via some /proc interface.
->    Its up to the user to be smart and take the core to another host and
->    decrypt_core(1) it there (or just decrypt_core(1) it to an encrypted
->    filesystem).  In any case, the decrypted core or the system-wide key
->    are never written to disk.
-> 4. Refuse to dump core of a process that has pages that should be
->    encrypted.
->
-> Do you see more options ?
-> Anyway, it should probably be policy controlled.
+>Linux supported:
+>	Mainline kernel has driver.
 
-These are all very good options, ofcourse things get hairy don't they :)
-Perhaps in the beginning either 1, 2 and 4 as per a system wide dump
-policy. May be even a setrlimit extension and use that as a jump point to
-make a per user policy?
+>Linux compatible:
+>	Source code driver available as a patch.
 
-Cheers,
+>Runs on Linux:
+>	Binary only driver available that can be used with
+>	mainline kernel.
 
-Ahmed.
+>Supports Linux:
+>	Portion of the purchase price will be donated to
+>	Linux International.
 
+As there is no real body to enforce misuse of these labels, they're
+moot.
+
+And you forgot:
+
+Linus certified:
+	Used by Linus Torvalds to develop new versions of Linux. :-)
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+Java, perl, Solaris, Linux, xSP Consulting, Web Services 
+freelance consultant -- Jakarta Turbine Development  -- hero for hire

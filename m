@@ -1,222 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286670AbSABDfV>; Tue, 1 Jan 2002 22:35:21 -0500
+	id <S286665AbSABD3V>; Tue, 1 Jan 2002 22:29:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286673AbSABDfM>; Tue, 1 Jan 2002 22:35:12 -0500
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:20751 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S286670AbSABDfE>;
-	Tue, 1 Jan 2002 22:35:04 -0500
-Date: Tue, 1 Jan 2002 22:23:17 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: <fdavis@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-cc: <fdavis@si.rr.com>
-Subject: [PATCH] 2.5.2-pre6: MKDEV replacements fs dir
-Message-ID: <Pine.LNX.4.33.0201012219050.1251-800000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-101348740-1009941797=:1251"
+	id <S286670AbSABD3L>; Tue, 1 Jan 2002 22:29:11 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:55193
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S286665AbSABD2x>; Tue, 1 Jan 2002 22:28:53 -0500
+Date: Tue, 1 Jan 2002 22:35:11 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 with es1370 pci
+Message-ID: <20020101223511.A32329@animx.eu.org>
+In-Reply-To: <20011231065544.A28966@animx.eu.org> <3C3065CE.1070608@wanadoo.fr> <20011231122440.B29342@animx.eu.org> <3C316C47.4080406@wanadoo.fr> <20020101104611.A30843@animx.eu.org> <3C3205AF.1080409@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <3C3205AF.1080409@wanadoo.fr>; from Pierre Rousselet on Tue, Jan 01, 2002 at 07:53:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+> > Nope, they don't work well IMO and since this card has 2 DSPs
+> 
+> 
+> I assume one dsp is for es1370 and one is for the sb-16
 
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Nope.  /dev/dsp and /dev/dsp1 are both on the es1370.  /dev/dsp2 is the
+sb-16
 
-Hello all,
-  I've attached the neccessary MKDEV replacements for the fs dir. 
+> > I know,  I only pasted the what was for the sound card, it is working
+> > properly.  mpg123 -a /dev/dsp2 works w/o any problem what so ever.
+> 
+> 
+> Yes, you can use one sound card or the other. You may hear a difference.
+> 
+> > here's mpg123 -4:
+> 
+> <snip>
+> > open("/sound/mp3/Aerosmith/Ain\'t_That_A_Bitch.mp3", O_RDONLY) = 3
+> <snip>
 
-Regards,
-Frank
+It read about 128 bytes form this file.  I originally thought it didn't
+read anything
 
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=nfsroot_mkdev
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223170.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=nfsroot_mkdev
+> > open("/dev/dsp", O_WRONLY)              = 4
+> > ioctl(4, SNDCTL_DSP_GETBLKSIZE, 0x806ae1c) = 0
+> > ioctl(4, SNDCTL_DSP_RESET, 0)           = 0
+> > ioctl(4, SOUND_PCM_READ_BITS, 0xbffff8a0) = 0
+> > ioctl(4, SNDCTL_DSP_STEREO, 0xbffff89c) = 0
+> > ioctl(4, SOUND_PCM_READ_RATE, 0xbffff898) = 0
+> > write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 16384) = 16384
+> > write(4, "\374\377\3\0\373\377\4\0\367\377\1\0\373\377\7\0\377\377"..., 16384) = 16384
+> > write(4, "\344\377\333\377\5\0\316\377\362\377\234\377\f\0\212\377"..., 16384) = 16384
+> > write(4, "P\0\202\0\367\377\263\0\353\377\274\0\274\377\353\0\235"..., 16384) = 16384
+> > write(4, "\23\377S\0I\377U\0\200\377\215\0Z\377\222\377\330\377\16"..., 16384) = 16384
+> > write(4, "@\377\376\375\344\376\355\377\263\3769\0%\377Y\376\255"..., 16384) = 16384
+> > write(4, "\0\0\274\1:\377\365\1\17\0\301\1\0\0\332\0\360\377%\377"..., 16384) = 16384
+> > write(4, "\r\375_\372{\377\356\373W\374\230\370\'\1\220\0\26\371"..., 16384) = 16384
+> > write(4, "k\5j\5\337\1E\370<\10\346\5{\377;\3776\4\374\4F\376\24"..., 16384
+> >  <unfinished ...>
+> 
+> 
+> The same as the previous one: write to dsp but never read even the 
+> smallest sample of the sound file possibly by lack of interrupt.
+> 
+> 
+> >            CPU0       CPU1       
+> >   0:   68416693   68502478    IO-APIC-edge  timer
+> >   1:     400959     396781    IO-APIC-edge  keyboard
+> >   2:          0          0          XT-PIC  cascade
+> >   3:  184224466  184748725    IO-APIC-edge  serial
+> >   4:     803073     799856    IO-APIC-edge  serial
+> >   5:     666537     667971   IO-APIC-level  aic7xxx
+> >   7:        126        106    IO-APIC-edge  soundblaster
+> >  10:   10271518   10263624   IO-APIC-level  eth0
+> >  11:     236351     237359   IO-APIC-level  aic7xxx
+> >  15:    4438445    4431067   IO-APIC-level  es1370
+> > NMI:          0          0 
+> > LOC:  136921268  136921264 
+> > ERR:          0
+> > MIS:          2
+> > 
+> > After attempting to play an mp3
+> > 
+> >            CPU0       CPU1       
+> >   0:   68420347   68505506    IO-APIC-edge  timer
+> >   1:     401392     397000    IO-APIC-edge  keyboard
+> >   2:          0          0          XT-PIC  cascade
+> >   3:  184242407  184763513    IO-APIC-edge  serial
+> >   4:     803633     800393    IO-APIC-edge  serial
+> >   5:     666566     668012   IO-APIC-level  aic7xxx
+> >   7:        126        106    IO-APIC-edge  soundblaster
+> >  10:   10271726   10263824   IO-APIC-level  eth0
+> >  11:     236351     237359   IO-APIC-level  aic7xxx
+> >  15:    4438445    4431067   IO-APIC-level  es1370
+> > NMI:          0          0 
+> > LOC:  136927950  136927946 
+> > ERR:          0
+> > MIS:          2
+> 
+> My es1370 is happy with IRQ 9 which is shared with usb-uhci. IRQ 15 is 
+> for ide1 here.
 
-LS0tIGZzL25mcy9uZnNyb290LmMub2xkCUZyaSBKdWwgMjAgMDA6NDc6MTYg
-MjAwMQ0KKysrIGZzL25mcy9uZnNyb290LmMJVHVlIEphbiAgMSAyMjowODow
-NiAyMDAyDQpAQCAtMzM0LDcgKzMzNCw3IEBADQogICovDQogaW50IF9faW5p
-dCBuZnNfcm9vdF9zZXR1cChjaGFyICpsaW5lKQ0KIHsNCi0JUk9PVF9ERVYg
-PSBNS0RFVihVTk5BTUVEX01BSk9SLCAyNTUpOw0KKwlST09UX0RFViA9IG1r
-X2tkZXYoVU5OQU1FRF9NQUpPUiwgMjU1KTsNCiAJaWYgKGxpbmVbMF0gPT0g
-Jy8nIHx8IGxpbmVbMF0gPT0gJywnIHx8IChsaW5lWzBdID49ICcwJyAmJiBs
-aW5lWzBdIDw9ICc5JykpIHsNCiAJCXN0cm5jcHkobmZzX3Jvb3RfbmFtZSwg
-bGluZSwgc2l6ZW9mKG5mc19yb290X25hbWUpKTsNCiAJCW5mc19yb290X25h
-bWVbc2l6ZW9mKG5mc19yb290X25hbWUpLTFdID0gJ1wwJzsNCg==
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=inode_romfs
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223171.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=inode_romfs
+I have all ide disabled in bios.  I had a nic on 14 and one on 15 w/o
+problems.  but this was with 2.2.13 and I had no problems with that kernel.
 
-LS0tIGZzL3JvbWZzL2lub2RlLmMub2xkCVR1ZSBKYW4gIDEgMTg6MTY6NTAg
-MjAwMg0KKysrIGZzL3JvbWZzL2lub2RlLmMJVHVlIEphbiAgMSAyMjoxMDow
-OSAyMDAyDQpAQCAtNTE4LDcgKzUxOCw3IEBADQogCQlkZWZhdWx0Og0KIAkJ
-CS8qIGRlcGVuZGluZyBvbiBNQlogZm9yIHNvY2svZmlmb3MgKi8NCiAJCQlu
-ZXh0ZmggPSBudG9obChyaS5zcGVjKTsNCi0JCQluZXh0ZmggPSBrZGV2X3Rf
-dG9fbnIoTUtERVYobmV4dGZoPj4xNixuZXh0ZmgmMHhmZmZmKSk7DQorCQkJ
-bmV4dGZoID0ga2Rldl90X3RvX25yKG1rX2tkZXYobmV4dGZoPj4xNixuZXh0
-ZmgmMHhmZmZmKSk7DQogCQkJaW5pdF9zcGVjaWFsX2lub2RlKGksIGlubywg
-bmV4dGZoKTsNCiAJfQ0KIH0NCg==
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=msdos_part
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223172.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=msdos_part
+alan cox suggested using noapic when booting.  I'll try that, but I'm going
+to be disabling the usb since this system's usb hardware is junk.
 
-LS0tIGZzL3BhcnRpdGlvbnMvbXNkb3MuYy5vbGQJU2F0IE5vdiAxMCAyMzoz
-NDowMSAyMDAxDQorKysgZnMvcGFydGl0aW9ucy9tc2Rvcy5jCVR1ZSBKYW4g
-IDEgMjI6MTE6MTggMjAwMg0KQEAgLTE2Niw3ICsxNjYsNyBAQA0KIAkJCWFk
-ZF9nZF9wYXJ0aXRpb24oaGQsICpjdXJyZW50X21pbm9yLCBuZXh0LCBzaXpl
-KTsNCiAjaWYgQ09ORklHX0JMS19ERVZfTUQNCiAJCQlpZiAoU1lTX0lORChw
-KSA9PSBMSU5VWF9SQUlEX1BBUlRJVElPTikgew0KLQkJCSAgICBtZF9hdXRv
-ZGV0ZWN0X2RldihNS0RFVihoZC0+bWFqb3IsKmN1cnJlbnRfbWlub3IpKTsN
-CisJCQkgICAgbWRfYXV0b2RldGVjdF9kZXYobWtfa2RldihoZC0+bWFqb3Is
-KmN1cnJlbnRfbWlub3IpKTsNCiAJCQl9DQogI2VuZGlmDQogDQpAQCAtNTgw
-LDcgKzU4MCw3IEBADQogCQkJCU5SX1NFQ1RTKHApKnNlY3Rvcl9zaXplKTsN
-CiAjaWYgQ09ORklHX0JMS19ERVZfTUQNCiAJCWlmIChTWVNfSU5EKHApID09
-IExJTlVYX1JBSURfUEFSVElUSU9OKSB7DQotCQkJbWRfYXV0b2RldGVjdF9k
-ZXYoTUtERVYoaGQtPm1ham9yLG1pbm9yKSk7DQorCQkJbWRfYXV0b2RldGVj
-dF9kZXYobWtfa2RldihoZC0+bWFqb3IsbWlub3IpKTsNCiAJCX0NCiAjZW5k
-aWYNCiAJCWlmIChpc19leHRlbmRlZF9wYXJ0aXRpb24ocCkpIHsNCg==
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=util_devfs
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223173.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=util_devfs
-
-LS0tIGZzL2RldmZzL3V0aWwuYy5vbGQJVHVlIEphbiAgMSAxODoxNjozNyAy
-MDAyDQorKysgZnMvZGV2ZnMvdXRpbC5jCVR1ZSBKYW4gIDEgMjI6MTM6MTAg
-MjAwMg0KQEAgLTI2Nyw3ICsyNjcsNyBAQA0KIAlpZiAobWlub3IgPj0gMjU2
-KSBjb250aW51ZTsNCiAJX19zZXRfYml0IChtaW5vciwgZW50cnktPmJpdHMp
-Ow0KIAl1cCAoc2VtYXBob3JlKTsNCi0JcmV0dXJuIE1LREVWIChlbnRyeS0+
-bWFqb3IsIG1pbm9yKTsNCisJcmV0dXJuIG1rX2tkZXYgKGVudHJ5LT5tYWpv
-ciwgbWlub3IpOw0KICAgICB9DQogICAgIC8qICBOZWVkIHRvIGFsbG9jYXRl
-IGEgbmV3IG1ham9yICAqLw0KICAgICBpZiAoICggZW50cnkgPSBrbWFsbG9j
-IChzaXplb2YgKmVudHJ5LCBHRlBfS0VSTkVMKSApID09IE5VTEwgKQ0KQEAg
-LTI4OSw3ICsyODksNyBAQA0KICAgICBlbHNlIGxpc3QtPmxhc3QtPm5leHQg
-PSBlbnRyeTsNCiAgICAgbGlzdC0+bGFzdCA9IGVudHJ5Ow0KICAgICB1cCAo
-c2VtYXBob3JlKTsNCi0gICAgcmV0dXJuIE1LREVWIChlbnRyeS0+bWFqb3Is
-IDApOw0KKyAgICByZXR1cm4gbWtfa2RldiAoZW50cnktPm1ham9yLCAwKTsN
-CiB9ICAgLyogIEVuZCBGdW5jdGlvbiBkZXZmc19hbGxvY19kZXZudW0gICov
-DQogRVhQT1JUX1NZTUJPTChkZXZmc19hbGxvY19kZXZudW0pOw0KIA0K
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=base_devfs
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223174.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=base_devfs
-
-LS0tIGZzL2RldmZzL2Jhc2UuYy5vbGQJVHVlIEphbiAgMSAxODoxNjozNyAy
-MDAyDQorKysgZnMvZGV2ZnMvYmFzZS5jCVR1ZSBKYW4gIDEgMjI6MTI6NDIg
-MjAwMg0KQEAgLTg5NCw3ICs4OTQsNyBAQA0KICAgICB7DQogCWRldmZzX2Rl
-YWxsb2NfZGV2bnVtICggU19JU0NIUiAoZGUtPm1vZGUpID8gREVWRlNfU1BF
-Q0lBTF9DSFIgOg0KIAkJCSAgICAgICBERVZGU19TUEVDSUFMX0JMSywNCi0J
-CQkgICAgICAgTUtERVYgKGRlLT51LmZjYi51LmRldmljZS5tYWpvciwNCisJ
-CQkgICAgICAgbWtfa2RldiAoZGUtPnUuZmNiLnUuZGV2aWNlLm1ham9yLA0K
-IAkJCQkgICAgICBkZS0+dS5mY2IudS5kZXZpY2UubWlub3IpICk7DQogICAg
-IH0NCiAgICAgV1JJVEVfRU5UUllfTUFHSUMgKGRlLCAwKTsNCkBAIC0yNDEz
-LDcgKzI0MTMsNyBAQA0KIHsNCiAgICAgaW50IHRtcDsNCiAgICAgaW50IHJl
-dHZhbCA9IDA7DQotICAgIGtkZXZfdCBkZXYgPSBNS0RFViAoZGUtPnUuZmNi
-LnUuZGV2aWNlLm1ham9yLCBkZS0+dS5mY2IudS5kZXZpY2UubWlub3IpOw0K
-KyAgICBrZGV2X3QgZGV2ID0gbWtfa2RldiAoZGUtPnUuZmNiLnUuZGV2aWNl
-Lm1ham9yLCBkZS0+dS5mY2IudS5kZXZpY2UubWlub3IpOw0KICAgICBzdHJ1
-Y3QgYmxvY2tfZGV2aWNlX29wZXJhdGlvbnMgKmJkb3BzOw0KICAgICBleHRl
-cm4gaW50IHdhcm5fbm9fcGFydDsNCiANCkBAIC0yNTk5LDE0ICsyNTk5LDE0
-IEBADQogICAgIGlub2RlLT5pX3JkZXYgPSBOT0RFVjsNCiAgICAgaWYgKCBT
-X0lTQ0hSIChkZS0+bW9kZSkgKQ0KICAgICB7DQotCWlub2RlLT5pX3JkZXYg
-PSBNS0RFViAoZGUtPnUuZmNiLnUuZGV2aWNlLm1ham9yLA0KKwlpbm9kZS0+
-aV9yZGV2ID0gbWtfa2RldiAoZGUtPnUuZmNiLnUuZGV2aWNlLm1ham9yLA0K
-IAkJCSAgICAgICBkZS0+dS5mY2IudS5kZXZpY2UubWlub3IpOw0KIAlpbm9k
-ZS0+aV9jZGV2ID0gY2RnZXQgKCBrZGV2X3RfdG9fbnIgKGlub2RlLT5pX3Jk
-ZXYpICk7DQogCWlzX2ZjYiA9IFRSVUU7DQogICAgIH0NCiAgICAgZWxzZSBp
-ZiAoIFNfSVNCTEsgKGRlLT5tb2RlKSApDQogICAgIHsNCi0JaW5vZGUtPmlf
-cmRldiA9IE1LREVWIChkZS0+dS5mY2IudS5kZXZpY2UubWFqb3IsDQorCWlu
-b2RlLT5pX3JkZXYgPSBta19rZGV2IChkZS0+dS5mY2IudS5kZXZpY2UubWFq
-b3IsDQogCQkJICAgICAgIGRlLT51LmZjYi51LmRldmljZS5taW5vcik7DQog
-CWlmIChiZF9hY3F1aXJlIChpbm9kZSkgPT0gMCkNCiAJew0K
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=kml_reint_im
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223175.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=kml_reint_im
-
-LS0tIGZzL2ludGVybWV6em8va21sX3JlaW50LmMub2xkCUZyaSBOb3YgMjMg
-MDM6NDc6MzMgMjAwMQ0KKysrIGZzL2ludGVybWV6em8va21sX3JlaW50LmMJ
-VHVlIEphbiAgMSAyMjoxNjo0OCAyMDAyDQpAQCAtMjgxLDcgKzI4MSw3IEBA
-DQogICAgICAgICBvbGRfZnMgPSBnZXRfZnMoKTsNCiAgICAgICAgIHNldF9m
-cyAoZ2V0X2RzKCkpOw0KICAgICAgICAgZXJyb3IgPSBsZW50b19ta25vZCAo
-bWtub2QtPnBhdGgsIG1rbm9kLT5tb2RlLCANCi0gICAgICAgICAgICAgICAg
-TUtERVYobWtub2QtPm1ham9yLCBta25vZC0+bWlub3IpLCAmaW5mbyk7DQor
-ICAgICAgICAgICAgICAgIG1rX2tkZXYobWtub2QtPm1ham9yLCBta25vZC0+
-bWlub3IpLCAmaW5mbyk7DQogICAgICAgICBzZXRfZnMgKG9sZF9mcyk7DQog
-ICAgICAgICBrbWxyZWludF9wb3N0X3NlY3VyZSAocmVjKTsNCiAgICAgICAg
-IEVYSVQ7DQo=
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=psdev_im
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223176.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=psdev_im
-
-LS0tIGZzL2ludGVybWV6em8vcHNkZXYuYy5vbGQJVHVlIEphbiAgMSAxODox
-NjozOSAyMDAyDQorKysgZnMvaW50ZXJtZXp6by9wc2Rldi5jCVR1ZSBKYW4g
-IDEgMjI6MTc6NTkgMjAwMg0KQEAgLTc4LDEyICs3OCwxMiBAQA0KIHsNCiAg
-ICAgICAgIGludCBtaW5vcjsNCiANCi0gICAgICAgIGlmICggTUFKT1IoZmls
-ZS0+Zl9kZW50cnktPmRfaW5vZGUtPmlfcmRldikgIT0gUFJFU1RPX1BTREVW
-X01BSk9SICkgew0KKyAgICAgICAgaWYgKCBtYWpvcihmaWxlLT5mX2RlbnRy
-eS0+ZF9pbm9kZS0+aV9yZGV2KSAhPSBQUkVTVE9fUFNERVZfTUFKT1IgKSB7
-DQogICAgICAgICAgICAgICAgIEVYSVQ7DQogICAgICAgICAgICAgICAgIHJl
-dHVybiBOVUxMOw0KICAgICAgICAgfQ0KIA0KLSAgICAgICAgbWlub3IgPSBN
-SU5PUihmaWxlLT5mX2RlbnRyeS0+ZF9pbm9kZS0+aV9yZGV2KTsNCisgICAg
-ICAgIG1pbm9yID0gbWlub3IoZmlsZS0+Zl9kZW50cnktPmRfaW5vZGUtPmlf
-cmRldik7DQogICAgICAgICBpZiAoIG1pbm9yIDwgMCB8fCBtaW5vciA+PSBN
-QVhfUFJFU1RPREVWICkgew0KICAgICAgICAgICAgICAgICBFWElUOw0KICAg
-ICAgICAgICAgICAgICByZXR1cm4gTlVMTDsNCkBAIC0yOTAsNyArMjkwLDcg
-QEANCiAgICAgICAgICAgICAgICAgfQ0KIA0KICAgICAgICAgICAgICAgICBs
-ZW4gPSByZWFkbW91bnQuaW9fbGVuOw0KLSAgICAgICAgICAgICAgICBtaW5v
-ciA9IE1JTk9SKGRldik7DQorICAgICAgICAgICAgICAgIG1pbm9yID0gbWlu
-b3IoZGV2KTsNCiAgICAgICAgICAgICAgICAgUFJFU1RPX0FMTE9DKHRtcCwg
-Y2hhciAqLCBsZW4pOw0KICAgICAgICAgICAgICAgICBpZiAoIXRtcCkgew0K
-ICAgICAgICAgICAgICAgICAgICAgICAgIEVYSVQ7DQpAQCAtNjI3LDcgKzYy
-Nyw3IEBADQogICAgICAgICAgICAgICAgICAgICAgICAgRVhJVDsNCiAgICAg
-ICAgICAgICAgICAgICAgICAgICByZXR1cm4gZXJyb3I7DQogICAgICAgICAg
-ICAgICAgIH0NCi0gICAgICAgICAgICAgICAgbWlub3IgPSBNSU5PUihkZXYp
-Ow0KKyAgICAgICAgICAgICAgICBtaW5vciA9IG1pbm9yKGRldik7DQogICAg
-ICAgICAgICAgICAgIGlmIChjbWQgPT0gUFJFU1RPX1NFVE9QVCkNCiAgICAg
-ICAgICAgICAgICAgICAgICAgICBlcnJvciA9IGRvc2V0b3B0KG1pbm9yLCAm
-a29wdCk7DQogDQpAQCAtNzg4LDcgKzc4OCw3IEBADQogICAgICAgICAgICAg
-ICAgIH0NCiANCiAgICAgICAgICAgICAgICAgZXJyb3IgPSBsZW50b19ta25v
-ZChpbnB1dC5uYW1lLCBpbnB1dC5tb2RlLA0KLSAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIE1LREVWKGlucHV0Lm1ham9yLGlucHV0Lm1p
-bm9yKSwmaW5wdXQuaW5mbyk7DQorICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgbWtfa2RldihpbnB1dC5tYWpvcixpbnB1dC5taW5vciks
-JmlucHV0LmluZm8pOw0KICAgICAgICAgICAgICAgICBFWElUOw0KICAgICAg
-ICAgICAgICAgICByZXR1cm4gZXJyb3I7DQogICAgICAgICB9DQo=
---8323328-101348740-1009941797=:1251
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=readinode_jffs2
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0201012223177.1251@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename=readinode_jffs2
-
-LS0tIGZzL2pmZnMyL3JlYWRpbm9kZS5jLm9sZAlTdW4gU2VwIDMwIDIwOjM5
-OjU0IDIwMDENCisrKyBmcy9qZmZzMi9yZWFkaW5vZGUuYwlUdWUgSmFuICAx
-IDIyOjE1OjIwIDIwMDINCkBAIC00MzcsNyArNDM3LDcgQEANCiAJY2FzZSBT
-X0lGU09DSzoNCiAJY2FzZSBTX0lGSUZPOg0KIAkJaW5vZGUtPmlfb3AgPSAm
-amZmczJfZmlsZV9pbm9kZV9vcGVyYXRpb25zOw0KLQkJaW5pdF9zcGVjaWFs
-X2lub2RlKGlub2RlLCBpbm9kZS0+aV9tb2RlLCBrZGV2X3RfdG9fbnIoTUtE
-RVYocmRldj4+OCwgcmRldiYweGZmKSkpOw0KKwkJaW5pdF9zcGVjaWFsX2lu
-b2RlKGlub2RlLCBpbm9kZS0+aV9tb2RlLCBrZGV2X3RfdG9fbnIobWtfa2Rl
-dihyZGV2Pj44LCByZGV2JjB4ZmYpKSk7DQogCQlicmVhazsNCiANCiAJZGVm
-YXVsdDoNCg==
---8323328-101348740-1009941797=:1251--
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129157AbQKARum>; Wed, 1 Nov 2000 12:50:42 -0500
+	id <S129592AbQKASHv>; Wed, 1 Nov 2000 13:07:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130417AbQKARub>; Wed, 1 Nov 2000 12:50:31 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:43254 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S129157AbQKARuQ>;
-	Wed, 1 Nov 2000 12:50:16 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200011011750.eA1Ho8s06277@webber.adilger.net>
-Subject: Re: fork in module?
-In-Reply-To: <27525795B28BD311B28D00500481B7601623A0@ftrs1.intranet.FTR.NL>
- "from Heusden, Folkert van at Nov 1, 2000 02:51:38 pm"
-To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-Date: Wed, 1 Nov 2000 10:50:08 -0700 (MST)
-CC: "'Linux Kernel Development'" <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
+	id <S129902AbQKASHl>; Wed, 1 Nov 2000 13:07:41 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:48199 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129592AbQKASHi>; Wed, 1 Nov 2000 13:07:38 -0500
+Date: Wed, 1 Nov 2000 19:07:32 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Message-ID: <20001101190732.A19767@athlon.random>
+In-Reply-To: <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org> <20001101023010.G13422@athlon.random> <20001031183809.C9733@.timpanogas.org> <20001101164106.F9774@athlon.random> <3A005217.88D2CA0D@timpanogas.org> <3A005476.17F0F253@timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A005476.17F0F253@timpanogas.org>; from jmerkey@timpanogas.org on Wed, Nov 01, 2000 at 10:35:50AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You write:
-> what would be the way of starting a sub-process in a module which then would
-> run in the background? I guess plain fork() won't work?
+On Wed, Nov 01, 2000 at 10:35:50AM -0700, Jeff V. Merkey wrote:
+> Wrong math.  That's 330 million dollars for each compat more each year to 
+> fund more Linux development and make us all rich...
 
-We did this in one of our filesystem modules to have our own async cache
-flush daemon.  One thing you need to watch out for is that the new thread
-is stopped before the module is unloaded.  You can't simply increase the
-module reference count, and decrease it when the thread exits, because
-you are never allowed to remove a module with a non-zero refcount.
+Speaking only for myself: on the technical side I don't think you can't be much
+faster than moving the performance critical services into the kernel and by
+skipping the copies (infact I also think that for fileserving skipping the
+copies and making sendfile to work and to work in zero copy will be enough).
+So I don't think losing robusteness this way can be explained in any technical
+way and no, it's not by showing me money that you'll convince me that's a good
+idea.
 
-What you need to do is have your module cleanup function stop the thread,
-and then wait to be sure it has exited before unloading.  This is a
-bit more tricky because you could send the thread a KILL signal and it is
-still doing work or is rescheduled before it has completed exiting.
-
-Check out obdfs/flushd.c (pupdated, obdfs_flushd_init, obdfs_flushd_cleanup)
-and obdfs/super.c (init_module, init_obdfs, cleanup_module) at:
-
-ftp://ftp.stelias.com/pub/obd/obd-0.004.tgz
-
-This module also does slab-cache initialization and cleanup (properly!),
-so that is also worth looking at.
-
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

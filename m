@@ -1,230 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268902AbTCARDE>; Sat, 1 Mar 2003 12:03:04 -0500
+	id <S268867AbTCAREN>; Sat, 1 Mar 2003 12:04:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268916AbTCARDE>; Sat, 1 Mar 2003 12:03:04 -0500
-Received: from pdbn-d9bb8683.pool.mediaWays.net ([217.187.134.131]:16911 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id <S268902AbTCARC7>;
-	Sat, 1 Mar 2003 12:02:59 -0500
-Date: Sat, 1 Mar 2003 18:13:14 +0100 (CET)
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Dan Kegel <dank@kegel.com>
-cc: Joe Perches <joe@perches.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kernel source spellchecker
-In-Reply-To: <Pine.LNX.4.44.0303011503590.29947-101000@korben.citd.de>
-Message-ID: <Pine.LNX.4.44.0303011809300.30887-201000@korben.citd.de>
+	id <S268882AbTCAREN>; Sat, 1 Mar 2003 12:04:13 -0500
+Received: from static-b2-191.highspeed.eol.ca ([64.56.236.191]:58630 "EHLO
+	TMA-1.brad-x.com") by vger.kernel.org with ESMTP id <S268867AbTCAREK>;
+	Sat, 1 Mar 2003 12:04:10 -0500
+Message-ID: <3E60EA74.4070802@brad-x.com>
+Date: Sat, 01 Mar 2003 12:14:28 -0500
+From: Brad Laue <brad@brad-x.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030223
+X-Accept-Language: en-us, en, zh-cn, zh-hk, zh-sg,
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811740-1333449031-1046538794=:30887"
+To: linux-kernel@vger.kernel.org
+Subject: airo.o + kfree_skb crash - 2.4.20
+References: <20030210125342.4462c25b.gigerstyle@gmx.ch>
+In-Reply-To: <20030210125342.4462c25b.gigerstyle@gmx.ch>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Using the kernel PCMCIA and airo.o module. This occurred after 90 
+minutes of use, where the card was streaming under a megabit of traffic 
+at all times. Lost control of everything but video and the USB bus.
 
----1463811740-1333449031-1046538794=:30887
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cisco AiroNet 350 card. Several protocols in use at the time including 
+HTTP/SSH/NFS.
 
-Hi
+Linux Odyssey.brad-x.com 2.4.20 #10 Fri Feb 28 10:57:59 EST 2003 i686
+
+KSymoops:
+
+Feb 28 11:01:15 Odyssey kernel: cs: IO port probe 0x0a00-0x0aff: clean.
+Feb 28 11:01:15 Odyssey kernel: ac97_codec: AC97 Audio codec, id:
+\203\204v9(SigmaTel STAC9721/23)
+Feb 28 14:59:22 Odyssey kernel: cs: memory probe 0xa0000000-0xa0ffffff:
+clean.
+Feb 28 16:16:08 Odyssey kernel: Warning: kfree_skb passed an skb still
+on a list (from c01201ba).
+Feb 28 16:16:08 Odyssey kernel: kernel BUG at skbuff.c:315!
+Feb 28 16:16:08 Odyssey kernel: invalid operand: 0000
+Feb 28 16:16:08 Odyssey kernel: CPU:    0
+Feb 28 16:16:08 Odyssey kernel: EIP:    0010:[start_request+164/528]
+Tainted: P
+Feb 28 16:16:08 Odyssey kernel: EIP:    0010:[<c01dca24>]    Tainted: P
+Using defaults from ksymoops -t elf32-i386 -a i386
+Feb 28 16:16:08 Odyssey kernel: EFLAGS: 00010286
+Feb 28 16:16:08 Odyssey kernel: eax: 00000045   ebx: c8c504a0   ecx:
+cec36000
+edx: cec37f7c
+Feb 28 16:16:08 Odyssey kernel: esi: c12f1f84   edi: 00000000   ebp:
+c12f0000
+esp: c12f1f6c
+Feb 28 16:16:08 Odyssey kernel: ds: 0018   es: 0018   ss: 0018
+Feb 28 16:16:08 Odyssey kernel: Process keventd (pid: 2, stackpage=c12f1000)
+Feb 28 16:16:08 Odyssey kernel: Stack: c0244620 c01201ba 00000000
+c12f1f84 c01201ba c8c504a0 ca2dc2e4 ca2dc2e4
+Feb 28 16:16:08 Odyssey kernel:        00000000 00000000 c0128df3
+c0256d70 c12f1fb0 00000000 c12f0560 c12f0570
+Feb 28 16:16:08 Odyssey kernel:        c12f0000 00000001 00000000
+c0253fa0 00010000 00000000 00000700 c0128cc0
+Feb 28 16:16:08 Odyssey kernel: Call Trace:
+[sys_old_getrlimit+42/224] [sys_old_getrlimit+42/224]
+[vmalloc_area_pages+243/368] [vmfree_area_pages+320/384] [rest_init+0/40]
+Feb 28 16:16:08 Odyssey kernel: Call Trace:    [<c01201ba>] [<c01201ba>]
+[<c0128df3>] [<c0128cc0>] [<c0105000>]
+Feb 28 16:16:08 Odyssey kernel:   [<c01057ce>] [<c0128cc0>]
+Feb 28 16:16:08 Odyssey kernel: Code: 0f 0b 3b 01 b1 38 24 c0 8b 5c 24
+14 e9 0e
+ff ff ff 8d 74 26
 
 
-On Sat, 1 Mar 2003, Matthias Schniedermeyer wrote:
+  >>EIP; c01dca24 <__kfree_skb+f4/110>   <=====
 
-> I've no spelling knowledge, so the list of spellcorrections must be made
-> by someone else. But i can volunteer the perl-snippet to correct the
-> files. :-)
+  >>ebx; c8c504a0 <___strtok+897dc6c/1062382c>
+  >>ecx; cec36000 <___strtok+e9637cc/1062382c>
+  >>edx; cec37f7c <___strtok+e965748/1062382c>
+  >>esi; c12f1f84 <___strtok+101f750/1062382c>
+  >>ebp; c12f0000 <___strtok+101d7cc/1062382c>
+  >>esp; c12f1f6c <___strtok+101f738/1062382c>
 
-Take 1.01
+Trace; c01201ba <__run_task_queue+5a/140>
+Trace; c01201ba <__run_task_queue+5a/140>
+Trace; c0128df3 <schedule_task+1a3/230>
+Trace; c0128cc0 <schedule_task+70/230>
+Trace; c0105000 <empty_zero_page+1000/1380>
+Trace; c01057ce <kernel_thread+2e/240>
+Trace; c0128cc0 <schedule_task+70/230>
 
-A minor revision of the perl-programm. Now it ignores empty lines,
-removes comments and leading/trailing whitespaces.
-In debug-mode it now prints what words where missspelled (3x"s"?)
-The spell-file (default "spell_fix.txt") is now searched also in the
-directory from where spell_fix.pl was started.
-
-And the list contributed by shaheed
-(minus "everytime=everytime" and "Auxillary=Auxillary")
-
-With this list a run over 2.5.63 found 2866 spelling-errors. (counting the
-+ lines in the diff.) The diff is 18690 lines long (846689 bytes)
-
-
-
-
-
-Bis denn
+Code;  c01dca24 <__kfree_skb+f4/110>
+00000000 <_EIP>:
+Code;  c01dca24 <__kfree_skb+f4/110>   <=====
+    0:   0f 0b                     ud2a      <=====
+Code;  c01dca26 <__kfree_skb+f6/110>
+    2:   3b 01                     cmp    (%ecx),%eax
+Code;  c01dca28 <__kfree_skb+f8/110>
+    4:   b1 38                     mov    $0x38,%cl
+Code;  c01dca2a <__kfree_skb+fa/110>
+    6:   24 c0                     and    $0xc0,%al
+Code;  c01dca2c <__kfree_skb+fc/110>
+    8:   8b 5c 24 14               mov    0x14(%esp,1),%ebx
+Code;  c01dca30 <__kfree_skb+100/110>
+    c:   e9 0e ff ff ff            jmp    ffffff1f <_EIP+0xffffff1f>
+Code;  c01dca35 <__kfree_skb+105/110>
+   11:   8d 74 26 00               lea    0x0(%esi,1),%esi
 
 -- 
-Real Programmers consider "what you see is what you get" to be just as
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated,
-cryptic, powerful, unforgiving, dangerous.
+// -- http://www.BRAD-X.com/ -- //
 
 
----1463811740-1333449031-1046538794=:30887
-Content-Type: APPLICATION/x-perl; name="spell-fix.pl"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0303011813140.30887@korben.citd.de>
-Content-Description: 
-Content-Disposition: attachment; filename="spell-fix.pl"
 
-IyEvdXNyL2Jpbi9wZXJsIC13Cgp1c2Ugc3RyaWN0Owp1c2UgR2V0b3B0OjpM
-b25nOwp1c2UgdmFycyBxdyAoCgkgICAgICRkZWJ1ZwoJICAgICAlc3BlbGwg
-JHNwZWxsX3JlCgkgICAgICRzcGVsbF9maWxlCgkgICAgIEBpbnB1dF9maWxl
-cyAkaW5wdXRfZmlsZQoJICAgICBAaW5wdXRfZGlycyAgJGlucHV0X2RpcgoJ
-ICAgICAkZGlyICRwYXRoCgkgICAgKTsKdXNlIHN1YnMgcXcgKAoJICAgICBp
-bml0X2NvbW1hbmRsaW5lIHVzYWdlCgkgICAgKTsKc3ViIGNoZWNrX2ZpbGUo
-JCk7Cgppbml0X2NvbW1hbmRsaW5lOwoKIyBTZWUgaWYgdGhlIHNwZWxsLWZp
-bGUgaXMgZm91bmQgaW4gdGhlIGN1cnJlbnQtZGlyCiMgb3RoZXJ3aXNlIGxv
-b2sgaW4gdGhlIGRpciBmcm9tIHdoZXJlIHdlIHdlcmUgc3RhcnRlZAppZiAo
-ISAtZiAkc3BlbGxfZmlsZSkgewogIG15ICRkaXIgPSAkMDsKICAkZGlyID1+
-IHMvXC9bXlwvXSskL1wvLzsKCiAgaWYgKC1mICIkZGlyLyRzcGVsbF9maWxl
-IikgewogICAgJHNwZWxsX2ZpbGUgPSAiJGRpci8kc3BlbGxfZmlsZSI7CiAg
-fQp9CgojIC0tIFJlYWQgZmlsZSB3aXRoIHRoZSBzcGVsbGluZ3MgLS0KIyBG
-aWxlLUZvcm1hdAojIGNvcnJlY3Qtd29yZD1mYWxzZSxmYWxzZSxmYWxzZS4u
-LgpvcGVuIChGSSwgJHNwZWxsX2ZpbGUpIG9yIGRpZSAoIkNhbid0IG9wZW4g
-XCIkc3BlbGxfZmlsZVwiIik7CndoaWxlICg8Rkk+KSB7CiAgcy9cIy4qJC8v
-OwogIGNob21wOwogIGlmICgkXykgewogICAgcHJpbnQgIklucHV0LUxpbmU6
-ICRfXG4iIGlmICgkZGVidWcpOwogICAgbXkgKCRjb3JyZWN0LCAkZmFsc2Vf
-cykgPSBzcGxpdCAoL1xzKj1ccyovLCAkXywgMik7CiAgICAkY29ycmVjdCA9
-fiBzL15ccysvLzsKICAgICRjb3JyZWN0ID1+IHMvXHMrJC8vOwogICAgZm9y
-ZWFjaCBteSAkZmFsc2UgKHNwbGl0ICgvXHMqLFxzKi8sICRmYWxzZV9zKSkg
-ewogICAgICAkZmFsc2UgPX4gcy9eXHMrLy87CiAgICAgICRmYWxzZSA9fiBz
-L1xzKyQvLzsKICAgICAgaWYgKCRmYWxzZSBuZSAkY29ycmVjdCkgewoJcHJp
-bnQgIkZpeDogXCIkZmFsc2VcIiAtPiBcImNvcnJlY3RcIlxuIiBpZiAoJGRl
-YnVnKTsKCSRzcGVsbHskZmFsc2V9ID0gJGNvcnJlY3Q7CiAgICAgIH0KICAg
-ICAgZWxzZSB7Cgl3YXJuICgiRXJyb3IgaW4gU3BlbGwtZmlsZTogXCIkc3Bl
-bGxfZmlsZVwiIExpbmU6ICQuIFwiJGNvcnJlY3RcIiBpcyB0aGUgc2FtZSBm
-b3IgZmFsc2UgJiBjb3JyZWN0Iik7CiAgICAgIH0KICAgIH0KICB9Cn0KY2xv
-c2UgKEZJKTsKIyAtLSBFbmQgLS0KCiMgLS0gQ3JlYXRlIHRoZSByZWd1bGFy
-IGV4cHJlc3Npb24gLS0KbXkgQHRlbXBfc3BlbGw7CmZvcmVhY2ggbXkgJGtl
-eSAoc29ydCB7JGIgY21wICRhfSBrZXlzICVzcGVsbCkgewogICMgRm9yIGtl
-eXMgZW5kaWcgd2l0aCBhICJcdyJvcmQtY2hhcmFjdGFyIHdlIGFkZCBhICJc
-YiJvdW5kYXJ5LgogICMgT3RoZXJ3aXNlIHdlIGdldCBpbnRvIHRyb3VibGUg
-d2l0aCB3b3JkcyB0aGF0IGJlZ2luIHRoZSBzYW1lIGJ1dCBhcmUgbG9uZ2Vy
-CiAgbXkgJHBvc3RmaXggPSAka2V5ID1+IC9cdyQvID8gJ1xiJyA6ICcnOwoK
-ICBwdXNoIEB0ZW1wX3NwZWxsLCAiXFEka2V5XEUkcG9zdGZpeCIKfQokc3Bl
-bGxfcmUgPSBqb2luICgiXHwiLCBAdGVtcF9zcGVsbCk7CnByaW50ICJTcGVs
-bF9yZTogJHNwZWxsX3JlXG4iIGlmICgkZGVidWcpOwojIC0tIEVuZCAtLQoK
-IyBDaGVjayBmaWxlcywgaWYgc3BlY2lmaWVkCmlmICgkI2lucHV0X2ZpbGVz
-ID49IDApIHsKICBmb3JlYWNoICRpbnB1dF9maWxlIChAaW5wdXRfZmlsZXMp
-IHsKICAgIHByaW50ICJDaGVja2luZyBmaWxlOiBcIiRpbnB1dF9maWxlXCJc
-biIgaWYgKCRkZWJ1Zyk7CiAgICBjaGVja19maWxlICgkaW5wdXRfZmlsZSk7
-CiAgfQp9CgojIENoZWNrIGRpcnMsIGlmIHNwZWNpZmllZAppZiAoJCNpbnB1
-dF9kaXJzID49IDApIHsKICBmb3JlYWNoICRpbnB1dF9kaXIgKEBpbnB1dF9k
-aXJzKSB7CiAgICBwcmludCAiQ2hlY2tpbmcgZGlyOiBcIiRpbnB1dF9kaXJc
-IlxuIiBpZiAoJGRlYnVnKTsKICAgICZ0cmF2ZXJzZSgkaW5wdXRfZGlyKTsK
-ICB9Cn0KCiMgV2hlbiB0aGVyZSB3YXMgbm8gZmlsZSBhbmQvb3IgZGlyIGFy
-Z3VtZW50KHMpIHRoZW4gcHJvY2VzcyBldmVyeXRoaW5nIGZyb20gY3VycmVu
-dCBkaXIKaWYgKCQjaW5wdXRfZmlsZXMgPT0gLTEgJiYgJCNpbnB1dF9kaXJz
-IC0xKSB7CiAgcHJpbnQgIk5vIGRpci9maWxlcyBzcGVjaWZlZCBjaGVja2lu
-ZyBhbGwgZmlsZXMgaW4gdGhlIGRpciBhbmQgc3ViZGlyc1xuIiBpZiAoJGRl
-YnVnKTsKICAmdHJhdmVyc2UoIi4iKTsKfQoKc3ViIGluaXRfY29tbWFuZGxp
-bmUgewogIG15ICRoZWxwb3B0ICA9IDA7CiAgJGRlYnVnICAgICAgID0gMDsK
-ICAkc3BlbGxfZmlsZSAgPSAic3BlbGwtZml4LnR4dCI7CiAgQGlucHV0X2Zp
-bGVzID0gKCk7CiAgQGlucHV0X2RpcnMgID0gKCk7CgogIG15ICRyZXN1bHQg
-PSBHZXRPcHRpb25zKAoJCQkgICdoZWxwIScgICAgICAgICA9PiBcJGhlbHBv
-cHQsCgkJCSAgJ3NwZWxsLWZpbGU9cycgID0+IFwkc3BlbGxfZmlsZSwKCQkJ
-ICAnZmlsZT1zJyAgICAgICAgPT4gXEBpbnB1dF9maWxlcywKCQkJICAnZGly
-PXMnICAgICAgICAgPT4gXEBpbnB1dF9kaXJzLAoJCQkgICdkZWJ1ZyEnICAg
-ICAgICA9PiBcJGRlYnVnLAoJCQkgKTsKCiAgdXNhZ2UoKSBpZiAkaGVscG9w
-dDsKfQoKc3ViIHVzYWdlIHsKICBwcmludCA8PCJFT0YiOwpVc2FnZTogJDAg
-PG9wdGlvbnM+LCB3aGVyZSB2YWxpZCBvcHRpb25zIGFyZQogICAgLS1oZWxw
-ICAgICAgICAgICAgIyB0aGlzIG1lc3NhZ2UgOi0pCiAgICAtLXNwZWxsLWZp
-bGUgICAgICAjIEZpbGUgd2l0aCB0aGUgY29ycmVjdGlvbi1saXN0CiAgICAt
-LWZpbGUgPGZpbGU+ICAgICAjIEZpbGUocykgdG8gYmUgY2hlY2tlZAogICAg
-LS1kaXIgPGRpcj4gICAgICAgIyBEaXJlY3RvcnkocykgdG8gYmUgY2hlY2tl
-ZCAocmVjdXJzaXZlISkKICAgIC0tZGVidWcgICAgICAgICAgICMgRGVidWdn
-aW5nLU1lc3NhZ2VzCkVPRgogIGV4aXQoMCk7Cn0KCnN1YiB0cmF2ZXJzZSB7
-CiAgbG9jYWwoJGRpcikgPSBzaGlmdDsKICBsb2NhbCgkcGF0aCk7CgogIHVu
-bGVzcyAob3BlbmRpcihESVIsICRkaXIpKSB7CiAgICB3YXJuICJDYW4ndCBv
-cGVuICRkaXJcbiI7CiAgICBjbG9zZWRpcihESVIpOwogICAgcmV0dXJuOwog
-IH0KICBmb3JlYWNoIChyZWFkZGlyKERJUikpIHsKICAgIG5leHQgaWYgJF8g
-ZXEgJy4nIHx8ICRfIGVxICcuLic7CiAgICAkcGF0aCA9ICIkZGlyLyRfIjsK
-ICAgIGlmICgtZCAkcGF0aCkgeyAgICAgICAgICMgYSBkaXJlY3RvcnkKICAg
-ICAgJnRyYXZlcnNlKCRwYXRoKTsKICAgIH0KICAgIGVsc2lmICgtZiBfKSB7
-ICAgICAgICAjIGEgcGxhaW4gZmlsZQogICAgICBjaGVja19maWxlICgkcGF0
-aCk7CiAgICB9CiAgfQogIGNsb3NlZGlyKERJUik7Cn0KCnN1YiBjaGVja19m
-aWxlKCQpIHsKICBteSAkZmlsZSA9IHNoaWZ0OwogIG15ICRjb250ZW50OwoK
-ICBvcGVuIChGSSwgJGZpbGUpIG9yIHJldHVybjsKICAkY29udGVudCA9IGpv
-aW4gKCIiLCA8Rkk+KTsKICBjbG9zZSAoRkkpOwoKICBpZiAoJGRlYnVnKSB7
-CiAgICB3aGlsZSAoJGNvbnRlbnQgPX4gL1xiKCRzcGVsbF9yZSkvZykgewog
-ICAgICBwcmludCAiRmFsc2UtU3BlbGxpbmc6IFwiJDFcIiAtPiBcIiRzcGVs
-bHskMX1cIlxuIjsKICAgIH0KICB9CgogICMgQ29ycmVjdCBzcGVsbGluZy4g
-WWVzIHRoaXMgaXMgb25seSBhIHNpbmdsZSBzdWJzdGl0dXRpb24uIDotKQog
-IGlmICgkY29udGVudCA9fiBzL1xiKCRzcGVsbF9yZSkvJHNwZWxseyQxfS9l
-ZykgewogICAgcHJpbnQgIkZhbHNlIHNwZWxsaW5ncyBmb3VuZC4gRmlsZTog
-XCIkZmlsZVwiXG4iIGlmICgkZGVidWcpOwogICAgIyBBbmQgd3JpdGUgYmFj
-ayB0aGUgZmlsZS4KICAgIG9wZW4gKEZPLCAiPiRmaWxlLnRtcCIpIG9yIGRp
-ZSAoIkNhbid0IG9wZW4gZmlsZSBcIiRmaWxlLnRtcFwiIGZvciB3cml0aW5n
-Iik7CiAgICBwcmludCBGTyAkY29udGVudDsKICAgIGNsb3NlIChGTyk7Cgog
-ICAgcmVuYW1lICgiJGZpbGUiLCAiJGZpbGUudG1wMiIpIG9yIGRpZSAoIkNh
-bid0IHJlbmFtZSBcIiRmaWxlXCIgLT4gXCIkZmlsZS50bXAyXCIiKTsKICAg
-IHJlbmFtZSAoIiRmaWxlLnRtcCIsICIkZmlsZSIpIG9yIGRpZSAoIkNhbid0
-IHJlbmFtZSBcIiRmaWxlLnRtcFwiIC0+IFwiJGZpbGVcIiIpOwogICAgdW5s
-aW5rICgiJGZpbGUudG1wMiIpIG9yIGRpZSAoIkNhbid0IHVubGluayBcIiRm
-aWxlLnRtcDJcIiIpOwogIH0KICBlbHNlIHsKICAgIHByaW50ICJObyBmYWxz
-ZSBzcGVsbGluZ3MgZm91bmQuIEZpbGU6IFwiJGZpbGVcIlxuIiBpZiAoJGRl
-YnVnKTsKICB9Cn0K
----1463811740-1333449031-1046538794=:30887
-Content-Type: TEXT/plain; name="spell-fix.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0303011813141.30887@korben.citd.de>
-Content-Description: 
-Content-Disposition: attachment; filename="spell-fix.txt"
-
-YWNjb21tb2RhdGU9YWNjb21vZGF0ZQ0KYWRhcHRlcj1hZGFwdG9yDQphZGRy
-ZXNzPWFkZGRyZXNzDQphZGRpdGlvbmFsPWFkZGl0aW9ubmFsDQphbGlnbm1l
-bnQ9YWxpZ25lbWVudA0KYWx3YXlzPWFsbHdheXMNCmFwcHJvcHJpYXRlPWFw
-cm9wcmlhdGUNCmFyb3VuZD1hcnJvdW5kDQphc3NvY2lhdGVkPWFzc29zY2lh
-dGVkLGFzc29zaWF0ZWQNCmFzeW5jaHJvbm91cz1hc3luY3Jvbm91cw0KYXZh
-aWxhYmxlPWF2YWlsaWJsZSxhdmFsaWFibGUNCmJhc2ljYWxseT1iYXNpY2x5
-DQpiZWluZz1iZWVpbmcNCmJyb2tlbj1ib3JrZW4NCmJvdW5kYXJ5PWJvdW5k
-cnkNCmJyYWluLWRhbWFnZWQ9ZGFpbi1icmFtYWdlZCxkYWluIGJyYW1hZ2Vk
-DQpjYWxsaW5nPWNhbGxpbg0KY2FwYWJpbGl0aWVzPWNhcGFiaWxpdGVzDQpj
-aG9zZW49Y2hvb3Nlbg0KY29tbWFuZD1jb21hbW5kDQpjb21pbmc9Y29tbWlu
-Zw0KY29tbWl0dGVkPWNvbW1pdGVkDQpjb21wYXJpc29uPWNvbXBhcmlzaW9u
-DQpDb21wYXRpYmlsaXR5PUNvbXBhdGFiaWxpdHkNCmNvbXBhdGliaWxpdHk9
-Y29tcGF0aWJpbHR5LGNvbXBhdGlibGl0eQ0KY29tcGxldGVseT1jb21wbGV0
-bHkNCmNvbmN1cnJlbnQ9Y29uY3VyZW50DQpDb250aW51b3VzPUNvbnRpbm91
-cw0KY29udGludW91cz1jb250aW5vdXMNCmNvbnRyb2xsZXI9Y29udHJvbGVy
-LGNvbnRyb2xsZW4NCmNvcnJlc3BvbmRpbmc9Y29yZXNwb25kaW5nDQpkZWNy
-ZW1lbnRvcj1kZWNyZW1lbnRlcg0KZGVzY3JpcHRvcj1kZWNyaXB0b3IsZGVz
-Y2lwdG9yDQpkZWZlcnJlZD1kZWZlcmVkDQpkZWZpbml0aW9ucz1kZWZpbnRp
-b25zDQpkZXBlbmRlbnQ9ZGVwZW5kZW5kDQpkaXZpZGU9ZGV2aWRlDQpkaWZm
-ZXJlbnRpYXRlPWRpZmZlcmVuY2lhdGUNCmVudHJpZXM9ZW50cnlzDQpleHBs
-aWNpdGx5PWV4cGxpY2l0ZWx5DQpmb3J3YXJkPWZvd2FyZA0KZnVuY3Rpb249
-ZnVjdGlvbixmdW50aW9uDQpndWFyYW50ZWVkPWd1YXJlbnRlZWQNCmhhbmRs
-aW5nPWhhbmRlbGluZw0KaGFyZHdhcmU9aGFyd2FyZQ0KcGh5c2ljYWw9aHlz
-aWNhbA0KaW1tZWRpYXRlbHk9aW1tZWRpYXRseSwNCmltcGxlbWVudGF0aW9u
-PWltcGxlbWFudGF0aW9uLGltcGxtZW50YXRpb24NCkluY29taW5nPUluY29t
-bWluZw0KaW5jb21pbmc9aW5jb21taW5nDQppbmRleD1pbmRpY2UNCmluZm9y
-bWF0aW9uPWluZm9tYXRpb24NCkluZmluaXR5PUluaWZpdHkNCmluaXRpYWw9
-aW5pdGFsDQppbml0aWFsaXphdGlvbj1pbml0YWxpemF0aW9uLGluaXRpbGl6
-YXRpb24saW50aWFsaXphdGlvbg0KSW5pdGlhbGl6ZT1Jbml0YWxpemUsSW50
-aWFsaXplDQppbml0aWFsaXplPWluaXRhbGl6ZSxpbnRpYWxpemUNCmludGVy
-ZmFjZT1pbnRlZmFjZQ0KSW50ZXJydXB0PUludGVydXB0DQppbnRlcnJ1cHQ9
-aW50ZXJycnVwdA0KaW50ZXJydXB0cz1pbnRlcnJ1cHMNCmludGVydmFsPWlu
-dGVydmFsbA0KaW52b2NhdGlvbj1pbnZva2F0aW9uDQpMZW5ndGg9TGVuZ2h0
-DQptYW5hZ2VtZW50PW1hbmFnbWVudA0KbmVjZXNzYXJ5PW5lY2Nlc3NhcnkN
-Cm5lZ290aWF0ZWQ9bmVnb2NpYXRlZA0KTm8tb25lPU5vb25lDQpvY2N1cnJl
-ZD1vY2N1cmVkDQpvY2N1cnJhbmNlPW9jY3VyZW5jZQ0Kb2NjdXJyaW5nPW9j
-Y3VyaW5nDQpvdXRwdXQ9b3VwdXQNCm91dHB1dHRpbmc9b3V0cHV0aW5nDQpv
-dmVycmlkZGVuPW92ZXJyaWRlbg0KcGFyYW1ldGVyPXBhcmFtdGVyDQpwYXJh
-bWV0ZXJzPXBhcmFtdGVycw0KcGVyZm9ybWFuY2U9cGVyZm9ybWFjZQ0KcHJv
-bWlzY3VvdXM9cHJvbWlzY291cw0KcmVjZWl2aW5nPXJlY2V2aW5nDQpSZWNl
-aXZlPVJlY2lldmUNCnJlY2VpdmU9cmVjaWV2ZQ0KcmVjZWl2ZWQ9cmVjaWV2
-ZWQNCnJlZ2lzdGVyZWQ9cmVnaXN0cmVkDQpSZWdpc3Rlcj1SZWdzaXRlcg0K
-cmVsZXZhbnQ9cmVsZXZlbnQNCnJlc291cmNlcz1yZXNzb3VyY2VzDQpzY2F0
-dGVyPXNjYXRoZXINCnNwZWNpZmljPXNwZWNpZmMNCnNwZWNpZmllZD1zcGVj
-aWZlZCxzcGVmaWNpZWQNCnN1Y2Nlc3NmdWw9c3VjY2VzZnVsLHN1Y2Nlc3Nm
-dWxsDQpzdXBlcmZsdW91cz1zdXBlcmZsb3VzDQp0aHJlc2hvbGQ9dGhyZXNo
-aG9sZA0KdGhyb3VnaD10aHJvdWdodA0KdGltaW5nPXRpbW1pbmcNCnRyYW5z
-Y2VpdmVyPXRyYW5jZWl2ZXINCnRyYW5zZmVycmluZz10cmFuc2ZlcmluZw0K
-dHJhbnNtaXR0aW5nPXRyYW5zbWl0aW5nDQp0cmFuc2ZlcnJlZD10cmFzZmVy
-ZWQNCnRydWx5PXRydWVseQ0KdWdsaW5lc3M9dWdseW5lc3MNCnVzYWJsZT11
-c2VhYmxlDQp1c2VmdWw9dXNlZnVsbA0KdmVydGljZXM9dmVydGljaWVzDQp3
-YXJyYW50eT13YXJhbnR5DQp3YXN0ZWZ1bD13YXRzZWZ1bA0Kd3JpdGluZz13
-cml0dGluZw0K
----1463811740-1333449031-1046538794=:30887--

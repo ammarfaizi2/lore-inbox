@@ -1,97 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbUBWUTz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 15:19:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUBWUTz
+	id S262027AbUBWUVY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 15:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUBWUVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 15:19:55 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:62924 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S262015AbUBWUTC (ORCPT
+	Mon, 23 Feb 2004 15:21:24 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:27346 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S262027AbUBWUUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 15:19:02 -0500
-From: "Nick Warne" <nick@ukfsn.org>
+	Mon, 23 Feb 2004 15:20:55 -0500
+Date: Mon, 23 Feb 2004 21:20:52 +0100
+From: Joachim Berdal Haga <jbh@riget.hn.org>
 To: linux-kernel@vger.kernel.org
-Date: Mon, 23 Feb 2004 20:18:25 -0000
-MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems [NOT resolved]
-Message-ID: <403A6011.5674.103225D9@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Subject: 2.6.3-mm3: usb printer problem (works in stock 2.6.3)
+Message-Id: <20040223212052.62fe3010.jbh@riget.hn.org>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > > Linux233 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-> > > > > Linux233 kernel: eth1: link up, 10Mbps, half-duplex, lpa 0x0000
-> > > > > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > > > > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > > > > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > > > > Linux233 kernel: nfs: server 486Linux OK
-> > > > > Linux233 kernel: nfs: server 486Linux OK
-> > > > > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > > > > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > > > > Linux233 kernel: nfs: server 486Linux OK
-> > 
-> > Well, I am at a loss now or any idea what to do next.  I have tried 
-> > everything this morning to build this an eliminate the problem.  
-> > Whatever I do, kernel builds nice, boots nice and no problems... 
-> > except for these NIC timeouts - it makes 2.6.3 totally unusable for 
-> > me.
-> > 
-> > I state again, these _very_same_ cards work perfectly under any other 
-> > kernel I have ever used over the last 3 years (like I am back on 
-> > 2.6.2 right now).
-> 
-> "This is usually irq routing related...  Try booting with 'noapic' or 
-> similar. Jeff"
-> 
-> OK, this was the solution.  I am right bloody idiot.  Good call Jeff.
-> 
-> I believed I had APIC turned off (I didn't).  So I then compiled 
-> kernel with debugging set in 8139too.c, and thought I would be real 
-> cool and catch the problem and submit a kernel patch (Yea, right!).  
-> I also looked at what I done.
-> 
-> I was booting with append=noapic... then read a bit... it needed to 
-> be a string, append="noapic".
-> 
-> It all works great now on 2.6.3.
-> 
-> Sorry to bother you guys when nothing is wrong, and I apologise for 
-> me being a dipstick twice over :/
 
-I spoke too bloody soon.  The problem still exists, but on a lesser 
-scale:
+Printing on usb doesn't work for me in 2.6.3-mm3 (or -mm1). The printer
+is recognized and a session is opened, but never finished (and nothing is printed). After a few minutes the printer prints out a page saying
+"PCL6 ERROR - Incomplete session by time out".
 
-Feb 23 19:25:39 Linux233 kernel: nfs: server 486Linux not responding, 
-still trying
-Feb 23 19:25:41 Linux233 kernel: NETDEV WATCHDOG: eth0: transmit 
-timed out
-Feb 23 19:25:41 Linux233 kernel: nfs: server 486Linux OK
-Feb 23 19:28:27 Linux233 kernel: nfs: server 486Linux not responding, 
-still trying
-Feb 23 19:28:31 Linux233 kernel: NETDEV WATCHDOG: eth1: transmit 
-timed out
-Feb 23 19:28:31 Linux233 kernel: eth1: link up, 10Mbps, half-duplex, 
-lpa 0x0000
-Feb 23 19:28:35 Linux233 kernel: nfs: server 486Linux not responding, 
-still trying
-Feb 23 19:28:35 Linux233 kernel: NETDEV WATCHDOG: eth0: transmit 
-timed out
-Feb 23 19:28:35 Linux233 kernel: nfs: server 486Linux OK
+This works on plain 2.6.3.
 
-I lose 10 seconds on network when this happens, and eth0 going AWOL 
-then seems to make eth1 go awol straight after.
+USB debugging messages appended below.
 
-The cards all work FINE on 2.6.2/1/0 (2.4.1.->.24)...  what has 
-changed so much to cause this, so at least I can supply some info.
+Regards,
+Joachim B Haga (please CC)
 
-:/
 
-Nick
 
--- 
-"I am not Spock", said Leonard Nimoy.
-"And it is highly illogical of humans to assume so."
-
+Feb 23 20:48:46 handy kernel: uhci_hcd 0000:00:05.2: wakeup_hc
+Feb 23 20:48:46 handy kernel: uhci_hcd 0000:00:05.2: port 1 portsc 0082
+Feb 23 20:48:46 handy kernel: hub 1-0:1.0: port 1, status 100, change 1, 12 Mb/s
+Feb 23 20:48:46 handy kernel: uhci_hcd 0000:00:05.2: port 1 portsc 0093
+Feb 23 20:48:46 handy kernel: hub 1-0:1.0: port 1, status 101, change 1, 12 Mb/s
+Feb 23 20:48:46 handy kernel: hub 1-0:1.0: debounce: port 1: delay 100ms stable 4 status 0x101
+Feb 23 20:48:46 handy kernel: usb 1-1: new full speed USB device using address 2
+Feb 23 20:48:46 handy kernel: uhci_hcd 0000:00:05.2: uhci_result_control: failed with status 440000
+Feb 23 20:48:46 handy kernel: [cb37e240] link (0b37e1e2) element (0b387040)
+Feb 23 20:48:46 handy kernel:   0: [cb387040] link (0b387080) e0 Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=0a8dfda0)
+Feb 23 20:48:46 handy kernel:   1: [cb387080] link (00000001) e3 IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
+Feb 23 20:48:46 handy kernel: 
+Feb 23 20:48:46 handy kernel: uhci_hcd 0000:00:05.2: uhci_result_control: failed with status 440000
+Feb 23 20:48:46 handy kernel: [cb37e240] link (0b37e1e2) element (0b387040)
+Feb 23 20:48:46 handy kernel:   0: [cb387040] link (0b387080) e0 Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=0a8dfda0)
+Feb 23 20:48:46 handy kernel:   1: [cb387080] link (00000001) e3 IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
+Feb 23 20:48:46 handy kernel: 
+Feb 23 20:48:47 handy kernel: usb 1-1: device not accepting address 2, error -110
+Feb 23 20:48:47 handy kernel: usb 1-1: new full speed USB device using address 3
+Feb 23 20:48:47 handy kernel: uhci_hcd 0000:00:05.2: uhci_result_control: failed with status 440000
+Feb 23 20:48:47 handy kernel: [cb37e240] link (0b37e1e2) element (0b387040)
+Feb 23 20:48:47 handy kernel:   0: [cb387040] link (0b387080) e0 Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=0a8dfda0)
+Feb 23 20:48:47 handy kernel:   1: [cb387080] link (00000001) e3 IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
+Feb 23 20:48:47 handy kernel: 
+Feb 23 20:48:47 handy kernel: uhci_hcd 0000:00:05.2: uhci_result_control: failed with status 440000
+Feb 23 20:48:47 handy kernel: [cb37e240] link (0b37e1e2) element (0b387040)
+Feb 23 20:48:47 handy kernel:   0: [cb387040] link (0b387080) e0 Stalled CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=0a8dfda0)
+Feb 23 20:48:47 handy kernel:   1: [cb387080] link (00000001) e3 IOC Active Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
+Feb 23 20:48:47 handy kernel: 
+Feb 23 20:48:47 handy kernel: usb 1-1: device not accepting address 3, error -110
+Feb 23 20:48:47 handy kernel: uhci_hcd 0000:00:05.2: port 1 portsc 009b
+Feb 23 20:48:47 handy kernel: hub 1-0:1.0: port 1, status 101, change 3, 12 Mb/s
+Feb 23 20:48:47 handy kernel: uhci_hcd 0000:00:05.2: port 1 portsc 0099
+Feb 23 20:48:48 handy kernel: hub 1-0:1.0: debounce: port 1: delay 100ms stable 4 status 0x101
+Feb 23 20:48:48 handy kernel: usb 1-1: new full speed USB device using address 4
+Feb 23 20:48:48 handy kernel: usb 1-1: new device strings: Mfr=1, Product=2, SerialNumber=3
+Feb 23 20:48:48 handy kernel: drivers/usb/core/message.c: USB device number 4 default language ID 0x409
+Feb 23 20:48:48 handy kernel: usb 1-1: Product: Samsung ML-1710 Series
+Feb 23 20:48:48 handy kernel: usb 1-1: Manufacturer: Samsung Electronics Co., Ltd.
+Feb 23 20:48:48 handy kernel: usb 1-1: SerialNumber: 2221BAAW900597A0
+Feb 23 20:48:48 handy kernel: drivers/usb/core/usb.c: usb_hotplug
+Feb 23 20:48:48 handy kernel: usb 1-1: registering 1-1:1.0 (config #1, interface 0)
+Feb 23 20:48:48 handy kernel: drivers/usb/core/usb.c: usb_hotplug
+Feb 23 20:48:48 handy kernel: usblp 1-1:1.0: usb_probe_interface
+Feb 23 20:48:48 handy kernel: usblp 1-1:1.0: usb_probe_interface - got id
+Feb 23 20:48:48 handy kernel: drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 4 if 0 alt 0 proto 2 vid 0x04E8 pid 0x323A
+Feb 23 20:48:48 handy kernel: drivers/usb/core/file.c: looking for a minor, starting at 0
+Feb 23 20:48:48 handy kernel: drivers/usb/core/usb.c: registered new driver usblp
+Feb 23 20:48:48 handy kernel: drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver

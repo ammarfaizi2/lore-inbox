@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129948AbRBYJIT>; Sun, 25 Feb 2001 04:08:19 -0500
+	id <S129964AbRBYJZq>; Sun, 25 Feb 2001 04:25:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129949AbRBYJIK>; Sun, 25 Feb 2001 04:08:10 -0500
-Received: from [200.222.195.191] ([200.222.195.191]:39300 "EHLO
-	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
-	id <S129948AbRBYJIA>; Sun, 25 Feb 2001 04:08:00 -0500
-Date: Sun, 25 Feb 2001 06:03:26 -0300
-From: Frédéric L. W. Meunier <0@pervalidus.net>
-To: jerry <jdinardo@ix.netcom.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ide / usb problem
-Message-ID: <20010225060326.K127@pervalidus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.14i
-X-Mailer: Mutt/1.3.14i - Linux 2.4.2
-X-URL: http://www.pervalidus.net/
+	id <S129972AbRBYJZg>; Sun, 25 Feb 2001 04:25:36 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:33299 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S129964AbRBYJZW>; Sun, 25 Feb 2001 04:25:22 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: David Fries <dfries@umr.edu>
+Date: Sun, 25 Feb 2001 20:25:10 +1100 (EST)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15000.53110.664338.230709@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Stale NFS handles on 2.4.2
+In-Reply-To: message from David Fries on Saturday February 24
+In-Reply-To: <20010214002750.B11906@unthought.net>
+	<20010224141855.B12988@d-131-151-189-65.dynamic.umr.edu>
+	<15000.39826.947692.141119@notabene.cse.unsw.edu.au>
+	<20010224235342.D483@d-131-151-189-65.dynamic.umr.edu>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Saturday February 24, dfries@umr.edu wrote:
+[problem summary: After restarting knfsd server on 2.4.2, client
+                  reports Stale NFS file handle]
 
->> I was not sure if the VIA82CXXX option should be set with the
->> via kt133 chipset , but setting it results in hundreds of
->> hda: dma_intr:status=0x51 { DriveReady SeekComplete Error }
->> hda: dma_intr:error=0x84 { DriveStatusError BadCRC }
->> mesages along with the uhci: errors mentioned above. Again ,
->> the directory was copied correctly.
-	 
-> That indicates cable problems. The CRC will avoid bad transfers
-> as it will do retries
+> On Sun, Feb 25, 2001 at 04:43:46PM +1100, Neil Brown wrote:
+> > So check that /etc/exports contains the right info.
+> > Check that /var/lib/nfs/rmtab lists the filesystems and clients that
+> > you expect to have access, and then run "exportfs -av"
+> 
+> checked, verified, re-exported, still Stale NFS file handle on client.
+> I also used tcpdump on server and when I do ls on my home directory
+> (this is where I see the Stale NFS message), it does not generate any
+> network traffic.  It can't be the server if the client isn't asking
+> for it.
 
-Oh my god. Are you sure it's a cable problem? I'm using the
-cable shipped by ASUS with my K7V and have the same problem:
+Verrry odd.  I can see why you were suspecting a cache.
+I'm probably going to have to palm this off to Trond, the NFS client
+maintainer (are you listening Trond?) but could please confirm that
+from the client you can:
 
-devfs: v0.102 (20000622) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x2
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-ide0: reset: success
+ 1/ ping server
+ 2/ rpcinfo -p server
+ 3/ showmount -e server
+ 4/ mount server:/exported/filesys /some/other/mount/point
 
-Again, if it's really a cable problem, then ASUS is selling
-cables that don't work with UDMA66 (but they sell it as
-UDMA66).
+If all of these work, them I am mistified.  If one of these fails,
+then that might point the way to further investigation.
 
-I urge ASUS to explain this problem. If you do a search for
-BadCRC at any lkml archive, you should notice most complaints
-are from... VIA (and most seem to have an ASUS motherboard).
+NeilBrown
 
--- 
-0@pervalidus.{net, {dyndns.}org} Tel: 55-21-717-2399 (Niterói-RJ BR)
+> 
+> > > Both server and client are running 2.4.2.
+> > > 
+> > > I'ved tried `mount /home -o remount`, and reading lots of other
+> > > directories to flush out that entry if it was in cache without any
+> > > results.
+> > > 
+> > > I was hopping to avoid unmounting, as I would have to shut about
+> > > everything down to do that.
+> 
+> -- 
+> 		+---------------------------------+
+> 		|      David Fries                |
+> 		|      dfries@umr.edu             |
+> 		+---------------------------------+

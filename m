@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319116AbSHTA3Z>; Mon, 19 Aug 2002 20:29:25 -0400
+	id <S319120AbSHTA3p>; Mon, 19 Aug 2002 20:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319120AbSHTA3Z>; Mon, 19 Aug 2002 20:29:25 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20495 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S319116AbSHTA3Y>; Mon, 19 Aug 2002 20:29:24 -0400
-Date: Mon, 19 Aug 2002 21:32:11 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "David S. Miller" <davem@redhat.com>
-cc: thunder@lightweight.ods.org, <zdzichu@irc.pl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 and full ipv6 - will it happen?
-In-Reply-To: <20020819.162340.133733118.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44L.0208192130490.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319124AbSHTA3o>; Mon, 19 Aug 2002 20:29:44 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:2962 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S319120AbSHTA3n>;
+	Mon, 19 Aug 2002 20:29:43 -0400
+Date: Tue, 20 Aug 2002 02:33:46 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, Richard Gooch <rgooch@ras.ucalgary.ca>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: MAX_PID changes in 2.5.31
+Message-ID: <20020820003346.GA4592@win.tue.nl>
+References: <Pine.LNX.4.44.0208200033400.5253-100000@localhost.localdomain> <1029799751.21212.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1029799751.21212.0.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Aug 2002, David S. Miller wrote:
+On Tue, Aug 20, 2002 at 12:29:11AM +0100, Alan Cox wrote:
 
-> There are zero backbone ipv6 routers, everyone is still tunneling
-> or has a custom network layout for their usage.
+> libc5 is very much 16bit pid throughout.
 
-Actually, there are a few sites busy shutting down most of
-their tunnels since they've got good enough native ipv6
-peering now.
+Can you clarify?
 
-It's true that 90% of the internet doesn't have native ipv6
-yet, but don't underestimate the rest of the net.
+Andries
 
-It would be nice if Linux was better at ipv6 ;)
 
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+#define _IO_pid_t _G_pid_t
+typedef int _G_pid_t;
+typedef int __pid_t;

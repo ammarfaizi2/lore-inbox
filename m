@@ -1,55 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbUBVFuc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 00:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbUBVFuc
+	id S261165AbUBVFw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 00:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbUBVFw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 00:50:32 -0500
-Received: from adsl-63-194-240-129.dsl.lsan03.pacbell.net ([63.194.240.129]:56837
-	"EHLO mikef-fw.mikef-fw.matchmail.com") by vger.kernel.org with ESMTP
-	id S261161AbUBVFua (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 00:50:30 -0500
-Message-ID: <40384325.1010802@matchmail.com>
-Date: Sat, 21 Feb 2004 21:50:29 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
+	Sun, 22 Feb 2004 00:52:59 -0500
+Received: from mail-07.iinet.net.au ([203.59.3.39]:45778 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261165AbUBVFwy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 00:52:54 -0500
+Message-ID: <403843B2.5050103@cyberone.com.au>
+Date: Sun, 22 Feb 2004 16:52:50 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
+To: Chris Wedgwood <cw@f00f.org>
+CC: Mike Fedyk <mfedyk@matchmail.com>, Linus Torvalds <torvalds@osdl.org>,
        linux-kernel@vger.kernel.org
 Subject: Re: Large slab cache in 2.6.1
-References: <4037FCDA.4060501@matchmail.com> <20040222023638.GA13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org> <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org> <20040222033111.GA14197@dingdong.cryptoapps.com> <4038299E.9030907@cyberone.com.au> <40382BAA.1000802@cyberone.com.au> <4038307B.2090405@cyberone.com.au> <40383300.5010203@matchmail.com> <4038402A.4030708@cyberone.com.au>
-In-Reply-To: <4038402A.4030708@cyberone.com.au>
+References: <20040222023638.GA13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211901520.3301@ppc970.osdl.org> <20040222031113.GB13840@dingdong.cryptoapps.com> <Pine.LNX.4.58.0402211919360.3301@ppc970.osdl.org> <20040222033111.GA14197@dingdong.cryptoapps.com> <4038299E.9030907@cyberone.com.au> <40382BAA.1000802@cyberone.com.au> <4038307B.2090405@cyberone.com.au> <40383300.5010203@matchmail.com> <4038402A.4030708@cyberone.com.au> <20040222054417.GA14775@dingdong.cryptoapps.com>
+In-Reply-To: <20040222054417.GA14775@dingdong.cryptoapps.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
 
-> 
-> 
-> Mike Fedyk wrote:
->> What is the kernel parameter to disable highmem?  I saw nohighio, but 
->> that's not it...
+
+Chris Wedgwood wrote:
+
+>On Sun, Feb 22, 2004 at 04:37:46PM +1100, Nick Piggin wrote:
+>
+>
+>>Can you upgrade to 2.6.3-mm2? It would be ideal if you could test
+>>this patch against that kernel due to the other VM changes.
 >>
+>
+>Sure.
+>
+>
+>>Chris, could you test this too please? Thanks.
+>>
+>
+>I tested this change to a stock 2.6.3 kernel and saw a marginally
+>better situation... 650MB in slab instead of 850MB:
+>
+
+In your case, this is probably ideal if the system is
+not doing much. You now have a reasonable amount of low
+memory available.
+
+
+>
+>===== page_alloc.c 1.186 vs edited =====
+>--- 1.186/mm/page_alloc.c	Wed Feb 18 19:43:04 2004
+>+++ edited/page_alloc.c	Sat Feb 21 21:05:32 2004
+>@@ -764,13 +764,18 @@
 > 
-> Not sure. That defeats the purpose of trying to get your setup
-> working nicely though ;)
+> EXPORT_SYMBOL(nr_free_pages);
 > 
-> Can you upgrade to 2.6.3-mm2? It would be ideal if you could
-> test this patch against that kernel due to the other VM changes.
-
-I can test on another machine, but it doesn't have as much memory, and 
-I'd have to use highmem emulation.
-
-I'd prefer to not have to restart this machine and put a test kernel on it.
-
+>+/*
+>+ * return the number of non-highmem pages (we should probably rename
+>+ * this function? --cw)
+>+ */
+> unsigned int nr_used_zone_pages(void)
+> {
+> 	unsigned int pages = 0;
+> 	struct zone *zone;
 > 
-> Chris, could you test this too please? Thanks.
+> 	for_each_zone(zone)
+>-		pages += zone->nr_active + zone->nr_inactive;
+>+		if (!is_highmem(zone))
+>+		    pages += zone->nr_active + zone->nr_inactive;
+> 
+> 	return pages;
+> }
+>
+>
+>I'll test -mm2 with your patch shortly.
+>
+>
 
-Yes, Chris do you have any highmem machines where you can test this patch?
+My patch will be functionally the same as yours so you'll be
+mainly testing the other VM changes (which isn't a bad thing).
+Thanks.
 
-Mike
+>
+>>@@ -145,7 +145,7 @@ static int shrink_slab(unsigned long sca
+>> 	if (down_trylock(&shrinker_sem))
+>> 		return 0;
+>> 
+>>-	pages = nr_used_zone_pages();
+>>+	pages = nr_lowmem_lru_pages();
+>>
+>
+>Cool. I think renaming this i a good idea.
+>
+>
+
+Yep.
+
+>>-unsigned int nr_used_zone_pages(void)
+>>+unsigned int nr_lowmem_lru_pages(void)
+>> {
+>>+	pg_data_t *pgdat;
+>> 	unsigned int pages = 0;
+>>-	struct zone *zone;
+>> 
+>>-	for_each_zone(zone)
+>>-		pages += zone->nr_active + zone->nr_inactive;
+>>+	for_each_pgdat(pgdat) {
+>>+		int i;
+>>+		for (i = 0; i < ZONE_HIGHMEM; i++) {
+>>+			struct zone *zone = pgdat->node_zones + i;
+>>+			pages += zone->nr_active + zone->nr_inactive;
+>>+		}
+>>+	}
+>>
+>
+>Why not just check is_highmem(zone) here?
+>
+>
+
+Why indeed? Easier to read vs a tiny bit faster. It isn't
+really a fast path, so your version is probably better.
+
+>>-extern unsigned int nr_used_zone_pages(void);
+>>+extern unsigned int nr_lowmem_lru_pages(void);
+>>
+>
+>Since shrink_slab() is the only consumer of this why not move the
+>function to vmscan.c just above shrink_slab()?
+>
+>
+
+Might as well I suppose. I'll incorporate your suggestions if
+it tests well and I end up sending it off to Andrew.
 

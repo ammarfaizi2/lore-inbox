@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310489AbSCGTqf>; Thu, 7 Mar 2002 14:46:35 -0500
+	id <S310490AbSCGTrf>; Thu, 7 Mar 2002 14:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310490AbSCGTqP>; Thu, 7 Mar 2002 14:46:15 -0500
-Received: from mailhost.tue.nl ([131.155.2.5]:60777 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S310489AbSCGTqO>;
-	Thu, 7 Mar 2002 14:46:14 -0500
-Date: Thu, 7 Mar 2002 20:46:02 +0100
-From: Guest section DW <dwguest@win.tue.nl>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, rajancr@us.ibm.com,
-        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: Fwd: [Lse-tech] get_pid() performance fix
-Message-ID: <20020307194602.GA13092@win.tue.nl>
-In-Reply-To: <20020305145004.BFA503FE06@smtp.linux.ibm.com> <20020307143404.A8FFF3FE06@smtp.linux.ibm.com> <20020307145449.GA13062@win.tue.nl> <20020307190635.9DE533FE08@smtp.linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020307190635.9DE533FE08@smtp.linux.ibm.com>
-User-Agent: Mutt/1.3.25i
+	id <S310491AbSCGTra>; Thu, 7 Mar 2002 14:47:30 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51437 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S310490AbSCGTrK>;
+	Thu, 7 Mar 2002 14:47:10 -0500
+Date: Thu, 7 Mar 2002 14:47:09 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Stephan Maciej <stephan@maciej.muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: filldir64 oopses on smbfs
+In-Reply-To: <Pine.LNX.4.33.0203061734540.808@maciej.muc.de>
+Message-ID: <Pine.GSO.4.21.0203071445370.26116-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 02:07:38PM -0500, Hubertus Franke wrote:
-> On Thursday 07 March 2002 09:54 am, Guest section DW wrote:
-> > On Thu, Mar 07, 2002 at 09:35:09AM -0500, Hubertus Franke wrote:
-> > ...
-> >
-> > Long ago I submitted a patch that changed the max pid from 15 bits to
-> > 24 or 30 bits or so. (And of course removed the inefficiency noticed
-> > by some people in the current thread.)
 
-> I don't think that will solve the N^2 problem
 
-Do you understand "inefficiency"? And "remove"?
+On Wed, 6 Mar 2002, Stephan Maciej wrote:
+
+> EIP:    0010:[<d11d5c13>]    Not tainted
+> EFLAGS: 00210282
+> eax: 58ea5128   ebx: 2a037f58   ecx: fa6373fd   edx: 782edd08
+> esi: d0000000   edi: ca1f5e30   ebp: ca1f5ec8   esp: ca1f5de0
+> ds: 0018   es: 0018   ss: 0018
+> Process kdeinit (pid: 1603, stackpage=ca1f5000)
+> Stack: c0146a10 ca1f5e98 d11e4502 00000001 00000000 00000000 00000000 ce7f5180 
+>        c35fe6c0 00000000 00028955 c4fe2f40 00000000 00000000 c9f16000 0000002f 
+>        00000000 00000000 00000001 00000031 d11d43c5 c906cf40 ca1f5fb0 c0146a10 
+> Call Trace: [filldir64+176/368] [<d11d43c5>] [filldir64+176/368] 
+> [filldir64+176/368] [<d11d445c>] 
+>    [filldir64+176/368] [<d11d5343>] [filldir64+176/368] 
+> [dcache_readdir+94/288] [filldir64+176/368] [sys_getdents64+255/259] 
+>    [filldir64+176/368] [send_sigio_to_task+160/208] [system_call+51/56] 
+
+Are you sure that you have right System.map?  filldir64() definitely is
+not recursive...
+

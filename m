@@ -1,88 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262636AbTELU1s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 16:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbTELU1s
+	id S262645AbTELU2J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 16:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbTELU2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 16:27:48 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:13473 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S262636AbTELU1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 16:27:47 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 12 May 2003 16:28:09 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:33541 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262645AbTELU2D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 16:28:03 -0400
+From: "STK" <stk@nerim.net>
+To: "'Jos Hulzink'" <josh@stack.nl>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Cc: "'Zwane Mwaikambo'" <zwane@linuxpower.ca>
+Subject: RE: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+Date: Mon, 12 May 2003 22:40:35 +0200
+Message-ID: <000c01c318c6$c0804990$0200a8c0@QUASARLAND>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16064.1726.440360.935187@napali.hpl.hp.com>
-Date: Mon, 12 May 2003 13:40:30 -0700
-To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
-Cc: davidm@hpl.hp.com, Dave Jones <davej@codemonkey.org.uk>,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: [Dri-devel] Re: Improved DRM support for cant_use_aperture
-	platforms
-In-Reply-To: <1052768911.10752.268.camel@thor>
-References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
-	<1052653415.12338.159.camel@thor>
-	<16062.37308.611438.5934@napali.hpl.hp.com>
-	<20030511195543.GA15528@suse.de>
-	<1052690133.10752.176.camel@thor>
-	<16063.60859.712283.537570@napali.hpl.hp.com>
-	<1052768911.10752.268.camel@thor>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <200305122135.53751.josh@stack.nl>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2727.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, could you try with this patch applied on top of my previous patch?
-Checking against KERNEL_VERSION(2,5,68) ensures that we have the new
-(4-wargument) vmap() call and the "#ifndef PAGE_AGP" part ensures that
-things will compile fine until the kernel's asm/agp.h gets updated.
+Hi,
 
-	--david
+If no Multiple APIC Description Table (MADT) is described, in this case
+the _PIC method can be used to tell the bios to return the right table
+(PIC or APIC routing table).
 
-===== drivers/char/drm/drm_memory.h 1.16 vs edited =====
---- 1.16/drivers/char/drm/drm_memory.h	Sat May 10 01:32:08 2003
-+++ edited/drivers/char/drm/drm_memory.h	Mon May 12 13:37:57 2003
-@@ -42,7 +42,12 @@
-  */
- #define DEBUG_MEMORY 0
- 
--#if __REALLY_HAVE_AGP
-+/* Need at least kernel v2.5.68 to get the 4-argument version of vmap().  */
-+#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
-+
-+#ifndef PAGE_AGP
-+# define PAGE_AGP	PAGE_KERNEL_NOCACHE
-+#endif
- 
- /*
-  * Find the drm_map that covers the range [offset, offset+size).
-@@ -127,7 +132,7 @@
- {
- 	int remap_aperture = 0;
- 
--#if __REALLY_HAVE_AGP
-+#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
- 	if (dev->agp->cant_use_aperture) {
- 		drm_map_t *map = drm_lookup_map(offset, size, dev);
- 
-@@ -146,7 +151,7 @@
- {
- 	int remap_aperture = 0;
- 
--#if __REALLY_HAVE_AGP
-+#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
- 	if (dev->agp->cant_use_aperture) {
- 		drm_map_t *map = drm_lookup_map(offset, size, dev);
- 
-@@ -163,7 +168,7 @@
- static inline void drm_ioremapfree(void *pt, unsigned long size, drm_device_t *dev)
- {
- 	int unmap_aperture = 0;
--#if __REALLY_HAVE_AGP
-+#if __REALLY_HAVE_AGP && (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,68))
- 	/*
- 	 * This is a bit ugly.  It would be much cleaner if the DRM API would use separate
- 	 * routines for handling mappings in the AGP space.  Hopefully this can be done in
+In this case, if the MPS table describes matches the ACPI APIC table
+(this is the case, because the ACPI APIC table is built from the MPS
+table), you do not need to remap all IRQs.
+
+I am really new in Kernel so I can't help you too much, but I can help
+you on ACPI (I worked 5 years in Bios).
+
+Hope it helps,
+
+Yann
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jos Hulzink
+Sent: lundi 12 mai 2003 21:36
+To: linux-kernel
+Cc: Zwane Mwaikambo
+Subject: [RFC] How to fix MPS 1.4 + ACPI behaviour ?
+
+
+Hi,
+
+(kernel: 2.5.69)
+
+The conclusion of bug 699 is that some / all i386 SMP systems that use
+MPS 1.4 
+(and higher ? or all MPS versions ?), should boot with the "pci=noacpi" 
+parameter to prevent IRQ problems.
+
+What exactly happens: The MPS 1.4 interpreter causes PCI IRQs to be
+remapped 
+to IRQ 16 and higher, which is the desired behaviour. The ACPI
+interpreter 
+comes in and finds no MADT table, for the Multiprocessor info is stored
+as 
+MPS table. No MADT table, so ACPI sets up the APIC in PIC mode (which I 
+wonder wether correct, but ok). As a result, the kernels pci_dev table
+tells 
+us that the IRQs have not been remapped (i.e. all values less than 16),
+while 
+the IRQs are actually mapped above 16. 
+
+All drivers of PCI cards claim the wrong IRQ line, and the end of story
+is 
+timeouts while waiting for an IRQ that never comes.
+
+Remark: I think it is strange, that the kernel actually says: "ACPI:
+Using PIC 
+for interrupt routing", but it doesn't set up the PIC correctly
+(otherwise 
+the APIC rerouting table would be reset or something).
+
+Now, my big question his: how to fix this. It is possible to have some
+code in 
+the kernel that does the same as "pci=noacpi", but what and where do I
+have 
+to do the check, with what condition ?
+
+1) In the ACPI code, when MADT is not present ? Problem here is that the
+MPS 
+parser comes after the ACPI parser, so it isn't known yet that the MPS
+table 
+is present.
+
+2) In the MPS parser ? As soon as an I/O APIC is detected by MPS, tell
+ACPI 
+not to touch the APIC ? You get acpi related code in non-acpi procedures
+
+then...
+
+3) Somewhere else ? How early in the kernel boot process should this
+option be 
+set ?
+
+And an additional question: is "pci=noapic" the correct way to fix this
+? It 
+runs fine here, but maybe we should only touch the IRQ related part ? If
+so, 
+how to do that ?
+
+Please shoot... I found the problem, but this doesn't mean I understand
+the 
+kernel :)
+
+Jos
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in the body of a message to majordomo@vger.kernel.org More majordomo
+info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 

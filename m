@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264848AbTIJOlh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbTIJOlh
+	id S264792AbTIJOje (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbTIJOjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:41:37 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:58642 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S264848AbTIJOki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:40:38 -0400
-Message-ID: <3F5F3D0A.8000700@techsource.com>
-Date: Wed, 10 Sep 2003 11:02:34 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: "Martin J. Bligh" <mbligh@aracnet.com>, "Brown, Len" <len.brown@intel.com>,
-       Giuliano Pochini <pochini@shiny.it>, linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay> <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]> <20030904023446.GG5227@work.bitmover.com> <9110000.1062643682@[10.10.2.4]> <20030904030227.GJ5227@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 10 Sep 2003 10:39:00 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61202 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264699AbTIJOis
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 10:38:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.6.0-test4-mm6
+Date: 10 Sep 2003 14:29:53 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bjnch1$l5h$1@gatekeeper.tmr.com>
+References: <20030905015927.472aa760.akpm@osdl.org>
+X-Trace: gatekeeper.tmr.com 1063204193 21681 192.168.12.62 (10 Sep 2003 14:29:53 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20030905015927.472aa760.akpm@osdl.org>,
+Andrew Morton  <akpm@osdl.org> wrote:
+| 
+| 
+| ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm6/
+| 
+| 
+| This is only faintly tested.  It's mainly a syncup with people..
 
+Faintly indeed, it would even boot X on my little test machines :<
+Oopsed when I tried to run tcpdump, etc.
 
-Larry McVoy wrote:
+Since test5-mm1 came out and doesn't have any of those problems, I will
+assume that it escaped rather than was released.
 
-> 
-> You don't make that much money, if any, on the high end, the R&D costs
-> dominate.  But you make money because people buy the middle of the road
-> because you have the high end.  If you don't, they feel uneasy that they
-> can't grow with you.  The high end enables the sales of the real money
-> makers.  It's pure marketing, the high end could be imaginary and as
-> long as you convinced the customers you had it you'd be more profitable.
-> 
-
-
-I think some time in the 90's, Chevy considered discontinuing the 
-Corvette.  Then they realized that that would kill their business. 
-People who would never buy a Corvette buy other GM cars just because the 
-Corvette exists.  Lots of reasons:  It's an icon that people recognize, 
-it makes them feel that other Chevys will share some of the Corvette 
-quality, etc.
-
-
+I'll comment on some responsiveness testing on test5-mm1 and earlier
+test4 stuff after I build test5-nick15 to include in the testing.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,84 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbSJCPMh>; Thu, 3 Oct 2002 11:12:37 -0400
+	id <S261561AbSJCPQj>; Thu, 3 Oct 2002 11:16:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261441AbSJCPMh>; Thu, 3 Oct 2002 11:12:37 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:6833 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261427AbSJCPMd>;
-	Thu, 3 Oct 2002 11:12:33 -0400
-Message-ID: <3D9C5FAE.60008@colorfullife.com>
-Date: Thu, 03 Oct 2002 17:18:06 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S261443AbSJCPQd>; Thu, 3 Oct 2002 11:16:33 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:18137 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261447AbSJCPPv>; Thu, 3 Oct 2002 11:15:51 -0400
+Message-ID: <3D9C6101.4010205@snapgear.com>
+Date: Fri, 04 Oct 2002 01:23:45 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.40-ac1
-References: <3D9C5827.70703@colorfullife.com> <20021003.075034.12648168.davem@redhat.com>
-Content-Type: multipart/mixed;
- boundary="------------030408070204040006010808"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH]: linux-2.5.40uc1 (MMU-less support)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030408070204040006010808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi All,
 
-David S. Miller wrote:
->    
-> How about a 64-bit system where set_bit works on 64-bit longs
-> and not 32-bit ones?  That is why the current code there is broken.
- >
+An updated uClinux patch is available at:
 
-There should bit nonatomic bit ops for every byte width.
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1.patch.gz
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=99167415926343&w=2
+Changelog:
 
-I even sent you the patch proposal, but never got a reply.
+1. minor v850 fixes
+2. clean up of kernel/ksyms.c (now no diffs)
+3. clean up of fs/proc/* (still some diffs)
 
-Patch again attached, but untested.
---
-	Manfred
 
---------------030408070204040006010808
-Content-Type: text/plain;
- name="patch-bitops"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-bitops"
+Smaller patches:
 
---- 2.4/include/linux/bitops.h	Sat Apr 28 00:48:19 2001
-+++ build-2.4/include/linux/bitops.h	Tue Jun  5 19:40:43 2001
-@@ -68,5 +68,27 @@
- 
- #include <asm/bitops.h>
- 
-+#ifdef __KERNEL__
-+#include <linux/types.h>
-+#define BUILD_SET_BIT(n) \
-+static inline void __set_bit_##n(int offset, u##n *data) \
-+{ \
-+	data[offset/n] |= (1 << (offset%n)); \
-+}
-+
-+#ifndef _HAVE_ARCH_SET_BIT_8
-+BUILD_SET_BIT(8)
-+#endif
-+#ifndef _HAVE_ARCH_SET_BIT_16
-+BUILD_SET_BIT(16)
-+#endif
-+#ifndef _HAVE_ARCH_SET_BIT_32
-+BUILD_SET_BIT(32)
-+#endif
-+#ifndef _HAVE_ARCH_SET_BIT_64
-+BUILD_SET_BIT(64)
-+#endif
-+#undef BUILD_SET_BIT
-+#endif
- 
- #endif
+. FEC ColdFire 5272 ethernet driver
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-fec.patch.gz
 
---------------030408070204040006010808--
+. m68k/ColdFire/v850 serial drivers
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-serial.patch.gz
+
+. 68328 frame buffer
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-fb.patch.gz
+
+. binfmt_flat loader
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-binflat.patch.gz
+
+. m68knommu architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-m68knommu.patch.gz
+
+. v850 architecture
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-v850.patch.gz
+
+. mmnommu (MMU-less) only patch
+http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.40uc1-mmnommu.patch.gz
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
 

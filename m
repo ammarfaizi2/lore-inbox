@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbUKOBlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbUKOBtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbUKOBlR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 20:41:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUKOBlR
+	id S261394AbUKOBtR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 20:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKOBtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 20:41:17 -0500
-Received: from fsmlabs.com ([168.103.115.128]:41348 "EHLO musoma.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261391AbUKOBlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 20:41:14 -0500
-Date: Sun, 14 Nov 2004 18:40:53 -0700 (MST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andi Kleen <ak@suse.de>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Alan Cox <alan@redhat.com>
-Subject: Re: [PATCH] lockless MCE i386 port
-In-Reply-To: <20041114085426.GE16795@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0411141839180.3754@musoma.fsmlabs.com>
-References: <Pine.LNX.4.61.0411090126190.3047@musoma.fsmlabs.com>
- <Pine.LNX.4.61.0411130627050.3062@musoma.fsmlabs.com> <20041114085426.GE16795@wotan.suse.de>
+	Sun, 14 Nov 2004 20:49:17 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:45582 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261394AbUKOBtN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 20:49:13 -0500
+Date: Mon, 15 Nov 2004 01:49:07 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Stas Sergeev <stsp@aknet.ru>, Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc1-mm5
+In-Reply-To: <Pine.LNX.4.61.0411141759250.3754@musoma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58L.0411150143580.22313@blysk.ds.pg.gda.pl>
+References: <41967669.3070707@aknet.ru> <Pine.LNX.4.61.0411131504360.4183@musoma.fsmlabs.com>
+ <41968F16.1080706@aknet.ru> <Pine.LNX.4.61.0411141759250.3754@musoma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Nov 2004, Andi Kleen wrote:
+On Sun, 14 Nov 2004, Zwane Mwaikambo wrote:
 
-> Just noticed this: 
-> 
-> First I think it would be better if you used the same format
-> (with u64) as x86-64 because this is a user visible interface,
-> and we get problems with 32bit emulation if it's too different.
-> 
-> Also it would allow to share the mcelog.c codebase.
+> @@ -453,12 +453,12 @@ asmlinkage void __init start_kernel(void
+>  	preempt_disable();
+>  	build_all_zonelists();
+>  	page_alloc_init();
+> -	trap_init();
+>  	printk("Kernel command line: %s\n", saved_command_line);
+>  	parse_early_param();
+>  	parse_args("Booting kernel", command_line, __start___param,
+>  		   __stop___param - __start___param,
+>  		   &unknown_bootoption);
+> +	trap_init();
+>  	sort_main_extable();
+>  	rcu_init();
+>  	init_IRQ();
 
-Ok, i went for minimal impact and didn't create any userspace visible 
-changes. I'll go ahead and add the userspace mcelog support.
+ Are you sure you want to make exception handling not to be set up as soon
+as possible?  Please note this also includes stuff in cpu_init().
 
-> A pointer? That doesn't make sense. This record must 
-> be self contained because it is passed by read() 
-
-As above.
-
-Thanks,
-	Zwane
-
+  Maciej

@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261446AbSJQO3N>; Thu, 17 Oct 2002 10:29:13 -0400
+	id <S261474AbSJQOgS>; Thu, 17 Oct 2002 10:36:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261449AbSJQO3N>; Thu, 17 Oct 2002 10:29:13 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:31237 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261446AbSJQO3N>; Thu, 17 Oct 2002 10:29:13 -0400
-Date: Thu, 17 Oct 2002 15:35:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: torvalds@transmeta.com, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] make LSM register functions GPLonly exports
-Message-ID: <20021017153505.A27998@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	torvalds@transmeta.com, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S261476AbSJQOgS>; Thu, 17 Oct 2002 10:36:18 -0400
+Received: from dsl-65-188-232-225.telocity.com ([65.188.232.225]:63700 "EHLO
+	area51.underboost.net") by vger.kernel.org with ESMTP
+	id <S261474AbSJQOgR>; Thu, 17 Oct 2002 10:36:17 -0400
+Date: Wed, 16 Oct 2002 10:39:25 -0400 (AST)
+From: dijital1 <dijital1@underboost.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] 2.5.42+ reboot kills Dell Latitude keyboard
+In-Reply-To: <m1n0pd17ad.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.44.0210161036200.14665-100000@area51.underboost.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These exports have the power to change the implementations of all
-syscalls and I've seen people exploiting this "feature".
+Is there a controller difference between the Inspiron 4100 and your
+latitude?
 
-Make the exports GPLonly (which some LSM folks agreed to
-when it was merged initially to avoid that).
+Ron Henry
 
---- 1.2/security/security.c	Wed Aug 28 22:52:56 2002
-+++ edited/security/security.c	Thu Oct 17 16:30:40 2002
-@@ -241,9 +241,9 @@
- 	return security_ops->sys_security (id, call, args);
- }
- 
--EXPORT_SYMBOL (register_security);
--EXPORT_SYMBOL (unregister_security);
--EXPORT_SYMBOL (mod_reg_security);
--EXPORT_SYMBOL (mod_unreg_security);
--EXPORT_SYMBOL (capable);
--EXPORT_SYMBOL (security_ops);
-+EXPORT_SYMBOL_GPL(register_security);
-+EXPORT_SYMBOL_GPL(unregister_security);
-+EXPORT_SYMBOL_GPL(mod_reg_security);
-+EXPORT_SYMBOL_GPL(mod_unreg_security);
-+EXPORT_SYMBOL(capable);
-+EXPORT_SYMBOL(security_ops);
+"the illiterate of the future are not those who can neither read
+or write; but those who cannot learn, unlearn, and relearn..."
+
+On 17 Oct 2002, Eric W. Biederman wrote:
+
+> Mikael Pettersson <mikpe@csd.uu.se> writes:
+>
+> > Eric W. Biederman writes:
+> >  > Mikael Pettersson <mikpe@csd.uu.se> writes:
+> >  >
+> >  > > Dell Latitude CPi laptop. Boot 2.5.42 or .43, then reboot.
+> >  > > Shortly after the screen is blanked and the BIOS starts, it
+> >  > > prints a "keyboard error" message and requests an F1 or F2
+> >  > > response (continue or go into SETUP). Never happened with any
+> >  > > other kernel on that machine.
+> >  > >
+> >  > > Apparently the 2.5.42+ "let's shut everything down at reboot"
+> >  > > change
+> >  >
+> >  > There was no such change just a discussion of what the kernel
+> >  > has been doing since 2.5.8 or so.
+> >  >
+> >  > > put the keyboard controller in a state which is inconsistent
+> >  > > with the BIOS' expections at a warm boot.
+> >  >
+> >  > There is a bug in device_suspend.  device_shutdown, and device_suspend
+> >  > where merged and the POWER_DOWN case now removes the drivers which
+> >  > is a bug.  You may be getting hit with that.
+> >  >
+> >  > Eric Blade has posed a patch fixing that.
+> >
+> > I tried Eric Blade's patch
+> > <http://marc.theaimsgroup.com/?l=linux-kernel&m=103477012517984&w=2>
+> > but it didn't make any difference. Same keyboard error as before.
+> >
+> > So either the patch doesn't change what actions are taken on reboot,
+>
+> Correctly only what actions are taken before reboot, are changed.
+>
+> > or the keyboard (std SERIO_I8042 + ATKBD PC stuff) driver was also
+> > broken in the 2.5.41->2.5.42 step.
+>
+> There is something in the ChangeLog about fixing the keyboard reboot
+> case.  I don't see where the code changes in the patch but the
+> keyboard code was touched quite a bit.
+>
+> So I suspect the keyboard driver also does the wrong thing for
+> you in this case.
+>
+> Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

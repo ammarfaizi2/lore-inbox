@@ -1,96 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbUK1EHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbUK1GFr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbUK1EHt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Nov 2004 23:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbUK1EHk
+	id S261401AbUK1GFr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 01:05:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUK1GFr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Nov 2004 23:07:40 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:25749 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261399AbUK1EH1 (ORCPT
+	Sun, 28 Nov 2004 01:05:47 -0500
+Received: from tim.plush.org ([168.150.236.223]:17833 "EHLO tim.plush.org")
+	by vger.kernel.org with ESMTP id S261401AbUK1GFj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Nov 2004 23:07:27 -0500
-Date: Sun, 28 Nov 2004 04:23:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: perex@suse.cz, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Subject: Re: [Alsa-devel] [2.6 patch] ALSA core: misc cleanups
-Message-ID: <20041128032312.GG4713@stusta.de>
-References: <20041126002448.GM3537@stusta.de> <s5hwtw8nbe8.wl@alsa2.suse.de>
+	Sun, 28 Nov 2004 01:05:39 -0500
+Date: Sat, 27 Nov 2004 22:05:38 -0800
+From: Gabriel Rosa <grosa@plush.org>
+To: linux-kernel@vger.kernel.org
+Subject: sil 3112 sata == slow + high cpu
+Message-ID: <20041128060537.GA5261@foo.plush.org>
+Mail-Followup-To: Gabriel Rosa <grosa@plush.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5hwtw8nbe8.wl@alsa2.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 26, 2004 at 11:38:07AM +0100, Takashi Iwai wrote:
-> At Fri, 26 Nov 2004 01:24:48 +0100,
-> Adrian Bunk wrote:
-> > 
-> > The patch below does the following cleanups under sound/core/ :
-> > - make needlessly global code static
-> > - remove the following stale prototypes from pcm.h
-> >   (the functions are not or no longer present):
-> >   - snd_pcm_capture_ready_jiffies
-> >   - snd_pcm_playback_ready_jiffies
-> > - remove the following unused global funxtions:
-> >   - oss/pcm_plugin.c: snd_pcm_plug_capture_channels_mask
-> >   - pcm_lib.c: snd_pcm_playback_ready
-> >   - pcm_lib.c: snd_pcm_capture_ready
-> >   - pcm_lib.c: snd_pcm_capture_empty
-> >   - pcm_misc.c: snd_pcm_format_cpu_endian
-> >   - pcm_misc.c: snd_pcm_format_size
-> >   - seq/seq_instr.c: snd_seq_cluster_new
-> >   - seq/seq_instr.c: snd_seq_cluster_free
-> >   - seq/seq_midi_event.c: snd_midi_event_init
-> >   - seq/seq_midi_event.c: snd_midi_event_resize_buffer
-> >   - seq/seq_virmidi.c: snd_virmidi_receive
-> > - remove the following unused EXPORT_SYMBOL's:
-> >   - snd_create_proc_entry
-> >   - snd_interval_ratden
-> >   - snd_midi_channel_init
-> >   - snd_midi_channel_init_set
-> >   - snd_midi_event_init
-> >   - snd_midi_event_resize_buffer
-> >   - snd_pcm_capture_empty
-> >   - snd_pcm_capture_poll
-> >   - snd_pcm_capture_ready
-> >   - snd_pcm_format_size
-> >   - snd_pcm_lib_preallocate_free
-> >   - snd_pcm_open
-> >   - snd_pcm_playback_poll
-> >   - snd_pcm_playback_ready
-> >   - snd_pcm_release
-> >   - snd_pcm_subformat_name
-> >   - snd_pcm_suspend
-> >   - snd_rawmidi_drain_input
-> >   - snd_rawmidi_drop_output
-> >   - snd_rawmidi_info
-> >   - snd_remove_proc_entry
-> >   - snd_timer_continue
-> >   - snd_timer_system_resolution
-> >   - snd_virmidi_receive
-> 
-> I disagree to remove all of these functions from the middle layer.
-> Some of them could be reduced, but others were once used, and might be
-> used in future, too.
 
-The intention is not to blindly remove code you might need in the near 
-future.
+Greetings,
 
-Can you comment on which of them are actually candidates for being 
-removed? I'll then send you an updated patch.
+I'm having some problems with a Sil 3112 2 port SATA card (pci). It
+seems to work fine (ie, drives are accessible), mostly, with kernel 2.6.8.
 
-> Takashi
+More precisely, the card is (according to lspci): 
 
-cu
-Adrian
+0000:02:04.0 RAID bus controller: Silicon Image, Inc. (formerly CMD
+Technology Inc) SiI 3112 [SATALink/SATARaid] Serial ATA Controller
+(rev 01)
 
--- 
+My setup is an athlon mp box, with dual maxtor 250g sata drives. The
+controller works great on individual drives, but horribly when both
+drives are accessed simultaniously. Both drives show up through the
+scsi subsystem (sda and sdb) and claim Direct-Access.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I have both drives in a software RAID1, and have seen the following
+behaviour:
 
+1) rebuilding the array causes extremely high system load if the rebuild
+rate is higher than 500kB/s
+
+2) doing a: time dd if=/dev/zero of=temp.raw bs=1024M count=1
+
+yields:
+
+real    68m50.066s
+user    0m0.000s
+sys     0m0.001s
+
+
+During these 68m, the load oscillated from 15.00 to just under 30.00,
+making the machine mostly unuseable. I noticed that temp.raw would remain
+the same size for long periods of time, then suddenly increase by 80mb
+or so, sometimes less. If less, then the time it took between bursts
+was also shorter.
+
+on the read side, similar but not as pronounced behaviour:
+
+# time dd if=temp.raw of=/dev/null count=1 bs=1024M
+
+real    9m6.806s
+user    0m0.002s
+sys     0m12.679s
+
+During these 9m, the load oscillated between 3.5 and 4.1
+
+Out of the blue, I'd guess this is some strange interrupt issue, but I'm
+not familiar enough with the libata or sata_sil drivers to really know.
+
+thanks for any input,
+-Gabe

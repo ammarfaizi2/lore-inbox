@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129406AbRAJBXx>; Tue, 9 Jan 2001 20:23:53 -0500
+	id <S129406AbRAJBc0>; Tue, 9 Jan 2001 20:32:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAJBXn>; Tue, 9 Jan 2001 20:23:43 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61452 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129406AbRAJBXX>;
-	Tue, 9 Jan 2001 20:23:23 -0500
-Message-ID: <3A5BB985.8A249BE1@mandrakesoft.com>
-Date: Tue, 09 Jan 2001 20:23:17 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Updated zerocopy patch up on kernel.org
-In-Reply-To: <200101100055.QAA07674@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129431AbRAJBcR>; Tue, 9 Jan 2001 20:32:17 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:1162 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129406AbRAJBcM>;
+	Tue, 9 Jan 2001 20:32:12 -0500
+Date: Tue, 9 Jan 2001 17:14:51 -0800
+Message-Id: <200101100114.RAA07780@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: dave@zarzycki.org
+CC: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0101091708410.1796-100000@batman.zarzycki.org>
+	(message from Dave Zarzycki on Tue, 9 Jan 2001 17:14:33 -0800 (PST))
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.30.0101091708410.1796-100000@batman.zarzycki.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Nothing interesting or new, just merges up with the latest 2.4.1-pre1
-> patch from Linus.
-> 
-> ftp.kernel.org:/pub/linux/kernel/people/davem/zerocopy-2.4.1p1-1.diff.gz
-> 
-> I haven't had any reports from anyone, which must mean that it is
-> working perfectly fine and adds no new bugs, testers are thus in
-> nirvana and thus have nothing to report.  :-)
+   Date: 	Tue, 9 Jan 2001 17:14:33 -0800 (PST)
+   From: Dave Zarzycki <dave@zarzycki.org>
 
-Is there any value to supporting fragments in a driver which doesn't do
-hardware checksumming?  IIRC Alexey had a patch to do such for Tulip,
-but I don't see it in the above patchset.
+   On Tue, 9 Jan 2001, Ingo Molnar wrote:
 
-	Jeff
+   > then you'll love the zerocopy patch :-) Just use sendfile() or specify
+   > MSG_NOCOPY to sendmsg(), and you'll see effective memory-to-card
+   > DMA-and-checksumming on cards that support it.
 
+   I'm confused.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+   In user space, how do you know when its safe to reuse the buffer that was
+   handed to sendmsg() with the MSG_NOCOPY flag? Or does sendmsg() with that
+   flag block until the buffer isn't needed by the kernel any more? If it
+   does block, doesn't that defeat the use of non-blocking I/O?
+
+Ignore Ingo's comments about the MSG_NOCOPY flag, I've not included
+those parts in the zerocopy patches as they are very controversial
+and require some VM layer support.
+
+Basically, it pins the userspace pages, so if you write to them before
+the data is fully sent and the networking buffer freed, they get
+copied with a COW fault.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

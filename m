@@ -1,96 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277303AbRJEERM>; Fri, 5 Oct 2001 00:17:12 -0400
+	id <S277306AbRJEERy>; Fri, 5 Oct 2001 00:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277306AbRJEERC>; Fri, 5 Oct 2001 00:17:02 -0400
-Received: from jxmls03.se.mediaone.net ([24.129.0.111]:51443 "EHLO
-	jxmls03.se.mediaone.net") by vger.kernel.org with ESMTP
-	id <S277303AbRJEEQy>; Fri, 5 Oct 2001 00:16:54 -0400
-Message-ID: <3BBD3535.272FE822@mediaone.net>
-Date: Fri, 05 Oct 2001 00:21:09 -0400
-From: walt <wanthony@mediaone.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S277307AbRJEERn>; Fri, 5 Oct 2001 00:17:43 -0400
+Received: from femail26.sdc1.sfba.home.com ([24.254.60.16]:2992 "EHLO
+	femail26.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S277306AbRJEERf>; Fri, 5 Oct 2001 00:17:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Keys <adam.keys@engr.smu.edu>
+Reply-To: adam.keys@HOTARD.engr.smu.edu
+To: linux-kernel@vger.kernel.org
+Subject: Development Setups
+Date: Thu, 4 Oct 2001 23:20:06 -0500
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: lamarts@flash.net, linux-kernel@vger.kernel.org
-Subject: Re:Failure to get login prompt - after compiled 2.4.10
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011005041759.OPDP14306.femail26.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Lamar Seifuddin" <lamarts@flash.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, October 04, 2001 6:55 PM
-Subject: Failure to get login prompt - after compiled 2.4.10
+As a budding kernel hacker looking to cut my teeth, I've become curious about 
+what types of setups people hack the kernel with.  I am very interested in 
+descriptions of the computers you hack the kernel with and their use patterns.
 
+I was thinking of starting with a modern machine for developing/compiling on, 
+and then older machine(s) for testing.  This way I would not risk losing data 
+if I oops or somesuch.  Alternately, is there a common practice of using lilo 
+to create development and testing kernel command lines?  Is this a useful 
+thing to do or is it too much of brain drain to switch between hacking and 
+testing mindsets?
 
-> All,
->
-> I compiled the 2.4.10 linux kernel on my Compaq Armada E700 P-III
-> where RedHat 7.1 - 2.4.2-2 was located.
->
-> I followed the directions using the "newbie" url
->
-> http://kernelnewbies.org/faq/index.php3#compile.xml
->
-> after several shots at it (more or less refining the type of
-configuration),
-> I was successful at creating a bzImage file.....loaded it......etc.
->
-> After rebooting the pc, I can't seem to get back to the login page.
-> It's a black screen.  I'm sure I have to check the graphics
-configuration.
->
-> Question:   How do I get back to some sort of prompt, so I can
-recompile
-> the kernel again?
->
-> thank you,
->
-> Lamar
->
+Instead of having separate machines,  there is the possibility of using the 
+Usermode port.  As I understand it this lags behind the -ac and linus kernels 
+so it would be hard to test things like the new VM's.  Usermode would not be 
+suitable for driver development either.  Again, thoughts on this mode of 
+development?
 
+Which brings me to the final question.  Is there any reason to choose 
+architecture A over architecture B for any reason besides arch-specific 
+development in the kernel or for device drivers?
 
-Did you overwrite /boot/vmlinuz-2.4.x or did you copy bzImage to /boot
-and add it to lilo as
-"another" OS? If so, you should be able to boot off the orgional kernel.
+AKK
 
-If not, the only thing I know to do is reinstall RH 7.1 and choose the
-upgrade option.
-Below is a sample of my /etc/lilo.conf which boots the orgional RH 6.2
-kernal as default,
-boots 2.2.19 as new, boots 2.4.2 as 2.4.2, and boots windows as dos.
-
-boot=/dev/hda
-map=/boot/map
-install=/boot/boot.b
-prompt
-timeout=50
-linear
-default=linux
-
-image=/boot/vmlinuz-2.2.14-5.0
-        label=linux
-        initrd=/boot/initrd-2.2.14-5.0.img
-        read-only
-        root=/dev/hda2
-
-image=/boot/bzImage
-        label=new
-        initrd=/boot/initrd-2.2.19.0.img
-        read-only
-        root=/dev/hda2
-
-image=/boot/bzImage-2.4
-        label=2.4
-        read-only
-        root=/dev/hda2
-
-other=/dev/hda1
-        label=dos
-
-
-walt
-
+-- 
+Adam K. Keys
+<adam.keys@HOTARD.engr.smu.edu> (Remove the HOTARD to email me)

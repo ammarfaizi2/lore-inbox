@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266199AbTBKUJy>; Tue, 11 Feb 2003 15:09:54 -0500
+	id <S265998AbTBKULb>; Tue, 11 Feb 2003 15:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266200AbTBKUJx>; Tue, 11 Feb 2003 15:09:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:23277 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266199AbTBKUJw>;
-	Tue, 11 Feb 2003 15:09:52 -0500
-Date: Tue, 11 Feb 2003 21:19:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jason Lunz <lunz@falooley.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
-Message-ID: <20030211201930.GB930@suse.de>
-References: <20030209133013.41763.qmail@web41404.mail.yahoo.com> <20030209144622.GB31401@dualathlon.random> <20030210162301.GB443@elf.ucw.cz> <20030211114936.GE22275@dualathlon.random> <20030211124330.GK930@suse.de> <slrnb4i27n.3s0.lunz@stoli.localnet> <20030211144143.GR930@suse.de> <slrnb4ic5v.4gi.lunz@stoli.localnet>
+	id <S266020AbTBKULb>; Tue, 11 Feb 2003 15:11:31 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:14856 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S265998AbTBKULa>; Tue, 11 Feb 2003 15:11:30 -0500
+Date: Tue, 11 Feb 2003 20:21:12 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: ISHIKAWA Mutsumi <ishikawa@linux.or.jp>, jejb@steeleye.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.60 aic79xx] aic79xx build and lun detect problem fix
+Message-ID: <20030211202112.A20082@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>,
+	ISHIKAWA Mutsumi <ishikawa@linux.or.jp>, jejb@steeleye.com,
+	linux-kernel@vger.kernel.org
+References: <20030211182558.DED278DC14@master.hanzubon.jp> <3729142704.1044994000@aslan.btc.adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrnb4ic5v.4gi.lunz@stoli.localnet>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3729142704.1044994000@aslan.btc.adaptec.com>; from gibbs@scsiguy.com on Tue, Feb 11, 2003 at 01:06:41PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 11 2003, Jason Lunz wrote:
-> axboe@suse.de said:
-> >> By all means, do the same thing with disk i/o. It's been a smashing
-> >> success with packet queueing.
+On Tue, Feb 11, 2003 at 01:06:41PM -0700, Justin T. Gibbs wrote:
+> >  This patch will fix two problems.
 > > 
-> > Well, that's the point.
+> >   fix build problem related scsi_cmnd changes
 > 
-> Yes, what you've done with cbq is great. What I was referring to,
-> though, is the user configurability of network frame queueing. It's
-> possible to do really complex things for very specialized needs, yet
-> also easy to put in a simple tweak if there's just one type of traffic
-> you need to prioritize.  It'd be nice to have that kind of
-> configurability for unusual i/o loads, and the arbitrary queue stacking
-> is a whole different beast than having a couple of tunables to tweak.
+> The aic7xxx driver has one place that missed the conversion too.
+> Since the cmd->lun field is no longer filled in, why hasn't the
+> field been removed from the cmd structure?  That would make it
+> easy to catch these kinds of bugs.
 
-That is indeed the goal. We'll see how much is doable within the 2.6
-time frame, though.
-
--- 
-Jens Axboe
+I don't think that was intentional.  I'll submit a patch to remove it ASAP.
 

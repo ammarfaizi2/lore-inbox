@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVCTNcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVCTNfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262172AbVCTNcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 08:32:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVCTNcI
+	id S261209AbVCTNfX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 08:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVCTNfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 08:32:08 -0500
-Received: from cmailm1.svr.pol.co.uk ([195.92.193.18]:9479 "EHLO
-	cmailm1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id S262172AbVCTNbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 08:31:49 -0500
-Message-Id: <200503201331.j2KDVhm12383@blake.inputplus.co.uk>
+	Sun, 20 Mar 2005 08:35:23 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:33194 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261209AbVCTNfB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 08:35:01 -0500
+Date: Sun, 20 Mar 2005 14:34:57 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 To: Jesper Juhl <juhl-lkml@dif.dk>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] don't do pointless NULL checks and casts before kfree() in security/ 
-In-Reply-To: <Pine.LNX.4.62.0503201407220.2501@dragon.hyggekrogen.localhost> 
-Date: Sun, 20 Mar 2005 13:31:43 +0000
-From: Ralph Corderoy <ralph@inputplus.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Short sleep precision
+In-Reply-To: <Pine.LNX.4.62.0503201335420.2501@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.61.0503201427010.31416@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503201316320.18044@yvahk01.tjqt.qr>
+ <Pine.LNX.4.62.0503201335420.2501@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Running your program here I see even worse values than that on 2.6.11-mm4 
+>and it's also interresting to see that for a lot of continuous runs the 
+>values reported drop steadily and eventually settle around ~1100, but if I 
+>insert a  sleep 1  between runs, then I see a steady ~1000 reported.
+>This is all with HZ = 1000
 
-Hi Jesper,
+That may be related to the new mix of USER_HZ. I can't really tell, 
+just observed that there is such.
 
-> > Not necessarily.  It helps tell the reader that the pointer may be
-> > NULL at that point.  This has come up before.
-> > 
-> >     http://groups-beta.google.com/group/linux.kernel/browse_thread/thread/bd3d6e5a29e43c73/7b43819f874295e8?q=ralph@inputplus.co.uk+persuade+lkml#7b43819f874295e8
-> > 
-> 
-> I agree that
-> 
-> 	if (foo->bar) {
-> 		kfree(foo->bar);
-> 		foo->bar = NULL;
-> 	}
-> 
-> makes it easy to see that foo->bar might be NULL, but I think the 
-> advantages of simply
-> 
-> 	kfree(foo->bar);
-> 	foo->bar = NULL;
-> 
-> outweigh that.
-> 
-> Having to remember that kfree(NULL) is valid shouldn't be hard, people 
-> should be used to that from userspace code calling free(),
+>Linux nanosleep() used to have a busywait loop for sleeps less than two
+>milliseconds.  2.4.x still does.
 
-Agreed.
+Yes, I know. Linus threw it out during 2.5 because it was deemed to buggy.
+That did not affect me, because that busywaiting is only possible in 
+!SCHED_OTHER, which I cannot use, because tiny delays are needed in a 
+user-runnable userspace app, and I don't want it suid and stuff.
 
-> and if there are places where it's important to remember that the
-> pointer might be NULL, then a simple comment would do, wouldn't it?
-> 
-> 	kfree(foo->bar);	/* kfree(NULL) is valid */
+(I've developed an "overhead correction" for accurate(*) realtime replay of 
+logfiles. (*) with respect to the total runtime. Works well.)
 
-I'd rather be without the same comment littering the code.
+>You can spin on the gettimeofday() result in userspace.
 
-> the short version also have the real bennefits of generating shorter
-> and faster code as well as being shorter "on-screen".
-
-Faster code?  I'd have thought avoiding the function call outweighed the
-overhead of checking before calling.
-
-Cheers,
+How can I use it? / What does it help me? I just have the gettimeofday() in 
+the example script to measure the total time of nanosleep(). Sometimes, 
+nanosleep completes in the same tick, sometimes (95%), another task is 
+scheduled before returning. I am calling nanosleep repetedly to find out the 
+_average_ time for a 0us-nanosleep(), usually 100/1000 us.
 
 
-Ralph.
 
+Jan Engelhardt
+-- 

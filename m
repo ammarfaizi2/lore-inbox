@@ -1,32 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUFYMZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUFYMZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264798AbUFYMZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 08:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbUFYMZr
+	id S265545AbUFYMZy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 08:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbUFYMZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 08:25:47 -0400
-Received: from zork.zork.net ([64.81.246.102]:52897 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S264798AbUFYMZq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 08:25:46 -0400
-To: linux-kernel@vger.kernel.org
+	Fri, 25 Jun 2004 08:25:54 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:17076 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265545AbUFYMZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 08:25:52 -0400
+Date: Fri, 25 Jun 2004 14:03:47 +0100 (BST)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: tigran@localhost.localdomain
+To: David van Hoose <david.vanhoose@comcast.net>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       Helge Hafting <helge.hafting@hist.no>,
+       John Richard Moser <nigelenki@comcast.net>,
+       lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Collapse ext2 and 3 please
-References: <40DB605D.6000409@comcast.net>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 25 Jun 2004 13:25:46 +0100
-In-Reply-To: <40DB605D.6000409@comcast.net> (John Richard Moser's message of
-	"Thu, 24 Jun 2004 19:14:37 -0400")
-Message-ID: <6uhdsz3jud.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+In-Reply-To: <40DC180A.40204@comcast.net>
+Message-ID: <Pine.LNX.4.44.0406251402240.15676-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I seem to remember somebody, I think maybe Andrew Morton, suggesting
-that a no-journal mode be added to ext3 so that ext2 could be removed.
-I can't find the message in question right now, though.
+On Fri, 25 Jun 2004, David van Hoose wrote:
+> [root@bahamut root]# /sbin/tune2fs -l /dev/sda2 | grep -i journal
+> Filesystem features:      has_journal filetype needs_recovery sparse_super
+> Journal inode:            8
+> Journal backup:           inode blocks
+> 
+
+Ok, fine, and what does your /etc/lilo.conf or /etc/grub.conf look like?  
+Are you passing "root=/dev/sda2" or "root=LABEL=/" to the kernel?
+
+Kind regards
+Tigran
+

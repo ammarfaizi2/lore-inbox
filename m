@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbUKNLQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbUKNL0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbUKNLQs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 06:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbUKNLQr
+	id S261286AbUKNL0R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 06:26:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbUKNL0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 06:16:47 -0500
-Received: from pop.gmx.net ([213.165.64.20]:4832 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261285AbUKNLQC (ORCPT
+	Sun, 14 Nov 2004 06:26:17 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:1554 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S261286AbUKNL0O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 06:16:02 -0500
-X-Authenticated: #427522
-Message-ID: <41973E70.6030400@gmx.de>
-Date: Sun, 14 Nov 2004 12:16:00 +0100
-From: Mathis Ahrens <Mathis.Ahrens@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.3) Gecko/20041028
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Jan De Luyck <lkml@kcore.org>
-CC: Luc Saillard <luc@saillard.org>,
-       Gergely Nagy <algernon@bonehunter.rulez.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: pwc driver status?
-References: <200411132134.52872.lkml@kcore.org> <1100380178.16772.23.camel@melkor> <20041113211816.GC22949@sd291.sivit.org> <200411141111.38951.lkml@kcore.org>
-In-Reply-To: <200411141111.38951.lkml@kcore.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 14 Nov 2004 06:26:14 -0500
+Date: Sun, 14 Nov 2004 12:26:10 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Patrick McHardy <kaber@trash.net>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>, torvalds@osdl.org, akpm@osdl.org,
+       coreteam@netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [netfilter-core] [PATCH] no __initdata in netfilter?
+Message-ID: <20041114112610.GB8680@pclin040.win.tue.nl>
+References: <20041114013724.GA21219@apps.cwi.nl> <41970FAD.6010501@trash.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41970FAD.6010501@trash.net>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: CollegeOfNewCaledonia: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan De Luyck wrote:
-
->On Saturday 13 November 2004 22:18, Luc Saillard wrote:
->  
+On Sun, Nov 14, 2004 at 08:56:29AM +0100, Patrick McHardy wrote:
+> Andries Brouwer wrote:
+> 
+> >Stuff marked initdata that is referenced in non-init context.
 >
->>On Sat, Nov 13, 2004 at 10:09:38PM +0100, Gergely Nagy wrote:
->>    
->>
->>>>Unfortunately, upgrading is not an option right now for other
->>>>reasons...
->>>>        
->>>>
->>>That's a pity... because there is no 2.4 version of Luc's driver as far
->>>as I know :(
->>>      
->>>
->>I don't use a 2.4 kernel, so i can produce patch for older kernel, but i'll
->>not test them. If someone want a 2.4 kernel tell me, and i'll try to mande
->>a patch using difftools. I prefer to add features like v4l2, than
->>supporting and testing old kernel (or writing documentation).
->>    
->>
->
->Understandable. I'll look into getting the other box upgraded, tho the owner 
->of it is kinda reluctant to do so.
->  
->
-I don't think you have to.
-The latest release from nemosoft is not in the kernel anymore, but still
-online:
+> Where ? The initial tables are replaced by ipt_register_table.
 
-    http://www.smcc.demon.nl/webcam/
+ip_nat_rule.c:nat_initial_table was referenced in
 
-It is supposed to still work with 2.4
+static struct ipt_table nat_table = {
+        .table          = &nat_initial_table.repl,
+	...
 
->  
->
->>>>Is this driver also supporting the Logitech Quickcam for Notebooks? I
->>>>found some references that the 'official' one used to do that, but I
->>>>can't find much docs...
->>>>        
->>>>
->>>As far as I know, yes. The source code seems to indicate the same.
->>>      
->>>
->>If the old driver supports, mine too (minor some very old webcam).
->>    
->>
->
->Ok, good to know. Would be nice tho to have some actual 'confirmation' of this 
->fact before I run off to spend money ;p
->
- From the philips.txt included in the above reference:
+iptable_filter.c:initial_table was referenced in
 
-    As of this moment, the following cameras are supported:
-    [...]
-     * Logitech QuickCam Notebook Pro
-    [...]
+static struct ipt_table packet_filter = {
+        .table          = &initial_table.repl,
+	...
 
-(Note the 'Pro', this might be important!)
+This is not to say that there is a bug here, that the .init
+data would actually be referenced by non-init stuff, but
+it is better to convince oneself by static inspection of
+the binary than by reasoning about the flow of the program.
 
-And as Luc said, once you upgrade to 2.6 you will have the same
-support with his driver.
+Where the memory savings are important, the code should
+be rewritten a bit.
 
-Cheers,
-Mathis
+Andries
+

@@ -1,70 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316086AbSETPdQ>; Mon, 20 May 2002 11:33:16 -0400
+	id <S316083AbSETPij>; Mon, 20 May 2002 11:38:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316083AbSETPdP>; Mon, 20 May 2002 11:33:15 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:20650 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S316082AbSETPdO>; Mon, 20 May 2002 11:33:14 -0400
-Date: Mon, 20 May 2002 17:33:10 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: will fitzgerald <william.fitzgerald6@beer.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sk_buff extraction problem
-In-Reply-To: <881711E8388E16A4DA8E2FCAA1BD2387@william.fitzgerald6.beer.com>
-Message-ID: <Pine.GSO.4.05.10205201727150.7665-100000@mausmaki.cosy.sbg.ac.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316089AbSETPii>; Mon, 20 May 2002 11:38:38 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35595 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316083AbSETPih>; Mon, 20 May 2002 11:38:37 -0400
+Date: Mon, 20 May 2002 17:38:39 +0200
+From: Jan Kara <jack@suse.cz>
+To: Christoph Hellwig <hch@infradead.org>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org,
+        Nathan Scott <nathans@wobbly.melbourne.sgi.com>
+Subject: Re: Quota patches
+Message-ID: <20020520153839.GT9209@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020520135530.GB9209@atrey.karlin.mff.cuni.cz> <20020520150757.A16965@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Will,
-
---snip/snip
-
-> for no particular reason i choose dev.c and a function called 
-> netif_rx to do this.
+> On Mon, May 20, 2002 at 03:55:31PM +0200, Jan Kara wrote:
+> > quota-2.5.15-3-register - this patch implements registering/unregistering of quota
+> >   formats
 > 
-> at the beginning of netif_rx() i added the lines:
-> int this_cpu = smp_processor_id();
-> ........
->         char *p;
->         int i;
->         
->                  //  p=   (char *) (skb->mac.ethernet);
->                     p=   (char *) (skb->h.uh);
+> Please don't use the big kernel lock for a newly added list.
+  We should get rid of big kernel lock in whole quota subsystem (which I want to do
+as soon as Linus accepts the patches). So I agree with you I wanted to do some
+extra lock it later.
+
+> Also using <linux/lists.h> would clean up the list handling.
+  I intentionally didn't use <linux/lists.h> as the use of the list
+is so trivial and structure so small that it's IMHO overkill.
+
+> > quota-2.5.15-4-getstats - this patch removes Q_GETSTATS call and creates /proc/fs/quota
+> >   entry instead
 > 
-> then just before return softnet_data[this_cpu].cng_level;
-> i added this:
+> Yuck, even more /proc abuse.  Please convert it to the seq_file interface
+> at least. Using individual sysctls per value would be much better.
+  I'll have a look at it...
+
+> > quota-2.5.15-7-quotactl - implementation of generic quotactl interface (probably the
+> >   biggest patch). Interface is moved from dquot.c to quota.c file. Pointers
+> >   to quota operations in superblock are now not filled on quota_on() but
+> >   on mount so filesystem can override them (for example ext3 would like to
+> >   check on quota_on() that quotafile lies on proper device and turn on
+> >   data-journaling on it - at least when we'll have journaled quota :)).
 > 
-> for( i=0; i<8;i++){
->             printk(KERN_DEBUG"netif_rx() ->ethernet: %02x ",*(p+i));
->             }
+> The vfs_get*/vfs_set* names sound too generic, could you please rename them
+> to vfs_get_quota*/vfs_set_quota*?
+  Good point... I'll change it.
+
+> Also I think any quota supporting filesystem should set the quota operations
+> explicitly to make the intention clearer.
+  Hmm.. I don't know if it's cleaner but I start to like idea that this way quota_on()
+and other operations will fail on filesystem not supporting quotas (currently everything
+is silent, just quota is not counted...).
+
+> > quota-2.5.15-12-compat - implements backward compatible quotactl() interface. It's
+> >   configurable whether it should be used at all and whether is should behave
+> >   as interface in Linus's (the oldest interface) or Alan's (old interface for
+> >   new quota format) kernel.
 > 
-> it complies but as soon as i pass a packet through it the router 
-> freezes up.
-> 
-> am i even on the rigth track?
+> I don't think we want to keep old userspace interface in 2.5, it just
+> bloats the kernel and requiring quota tools for a development kernel that
+> are already required by all vendor kernels sounds sane to me.
+  Actually I included the patch mainly because I have it created for 2.4 where it's
+reasonable to have it (I also have a backport for 2.4 because it will
+take a lot of time before 2.6 will exist and be stable enough) and so I wanted to have
+the patch also tested in 2.5... But I agree that it's bloating the kernel and
+so if it won't be included I won't mind too much.
 
-you're on the right track if you want to freeze up your machine. :)
+> Else your patches look very good to me, I look forward to finally see
+> properly working quota support in a mainline kernel.
 
-ok, here we go:
-
-netif_rx is called from the driver, and at this point of skbs
-livetime you can just be sure about the datalink layer beeing
-decapsulated (called by the driver (e.g. eth_type_trans)).
-
-so this means: you have a valid skb->mac.ras well as the skb->data
-beeing a pointer to your network layer. - and that's about it ...
-if you want to know about IP headers, you should hook into the network
-subsystem at the IP layer (and there's already a nice NF_HOOK
-- called NF_IP_LOCAL_IN)
-
-anyhow - try to use the infrastructure which is already there.
-
-	my $0.02
-
-		tm
 -- 
-in some way i do, and in some way i don't.
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVC1Fn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVC1Fqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVC1Fn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 00:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVC1Fn7
+	id S261169AbVC1Fqv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 00:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVC1Fqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 00:43:59 -0500
-Received: from web52208.mail.yahoo.com ([206.190.39.90]:44668 "HELO
-	web52208.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261152AbVC1Fn5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 00:43:57 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=e9IaIyRwHRkkbzOjGyzKPzQd4Gp+WbpL3mYFcV5hnpg3hKV5+q8/USSiQEOemi2dOhrEpwn+NW5CBs3tY0wLEhPMqCAOPAaGeHdv665ShiN1p8KR619r0Xp8oUWlRfYTo773D3Jw5hz16n5mruU10miVgyECr+ydWE0qypfMgFw=  ;
-Message-ID: <20050328054356.9888.qmail@web52208.mail.yahoo.com>
-Date: Sun, 27 Mar 2005 21:43:56 -0800 (PST)
-From: linux lover <linux_lover2004@yahoo.com>
-Subject: source file unable to export function to kernel
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 28 Mar 2005 00:46:51 -0500
+Received: from fire.osdl.org ([65.172.181.4]:20451 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261169AbVC1Fqn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 00:46:43 -0500
+Date: Sun, 27 Mar 2005 21:42:26 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: ]PATCH] cpuset: make function decl. ANSI
+Message-Id: <20050327214226.72dc5a34.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-            I have included this as myfile.c in
-/usr/src/linux-2.4.24/kernel. I included its entry in
-Makefile in export-objs.
 
-//sourcefile
-#define EXPORT_SYMTAB
-#include <linux/kernel.h>
-#include <linux/string.h>
-#include <linux/myhf1.h> //contains prototypes for
-fun1 and fun2
-#include <linux/slab.h>
+kernel/cpuset.c:1428:41: warning: non-ANSI function declaration
 
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
-char* fun1(char* str1)
-{
+diffstat:=
+ kernel/cpuset.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-
-}
-
-void fun2(char *str1,char *str2)
-{
-
-}
-
-EXPORT_SYMBOL(fun1);
-EXPORT_SYMBOL(fun2);
-
-But after recompiling kernel when i boot i am unable
-to see its entry in /proc/ksyms. Why??
-my myhf1.h file is
-extern char* fun1(char *);
-extern void fun2(char*,char*); 
-regards,
-linux_lover.
+diff -Naurp ./kernel/cpuset.c~cpuset_void ./kernel/cpuset.c
+--- ./kernel/cpuset.c~cpuset_void	2005-03-26 21:48:12.000000000 -0800
++++ ./kernel/cpuset.c	2005-03-27 20:59:21.000000000 -0800
+@@ -1425,7 +1425,7 @@ void cpuset_init_current_mems_allowed(vo
+  * Do not call this routine if in_interrupt().
+  */
+ 
+-void cpuset_update_current_mems_allowed()
++void cpuset_update_current_mems_allowed(void)
+ {
+ 	struct cpuset *cs = current->cpuset;
+ 
 
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Small Business - Try our new resources site!
-http://smallbusiness.yahoo.com/resources/ 
+---

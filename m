@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263446AbREXJxB>; Thu, 24 May 2001 05:53:01 -0400
+	id <S261167AbREXKTx>; Thu, 24 May 2001 06:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263443AbREXJww>; Thu, 24 May 2001 05:52:52 -0400
-Received: from elektra.higherplane.net ([203.37.52.137]:15844 "EHLO
-	elektra.higherplane.net") by vger.kernel.org with ESMTP
-	id <S263446AbREXJwm>; Thu, 24 May 2001 05:52:42 -0400
-Date: Thu, 24 May 2001 20:05:36 +1000
-From: john slee <indigoid@higherplane.net>
-To: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
-Cc: Michael Peddemors <michael@linuxmagic.com>, linux-kernel@vger.kernel.org
-Subject: Re: Just FYI...
-Message-ID: <20010524200536.D5779@higherplane.net>
-In-Reply-To: <990544782.24176.20.camel@mistress> <Pine.A32.3.95.1010522175644.48878J-100000@werner.exp-math.uni-essen.de>
+	id <S261173AbREXKTn>; Thu, 24 May 2001 06:19:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:25359 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261167AbREXKTa>;
+	Thu, 24 May 2001 06:19:30 -0400
+Date: Thu, 24 May 2001 12:19:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Dying disk and filesystem choice.
+Message-ID: <20010524121936.I12470@suse.de>
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au> <200105240658.f4O6wEWq031945@webber.adilger.int> <20010524103145.A9521@gruyere.muc.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.A32.3.95.1010522175644.48878J-100000@werner.exp-math.uni-essen.de>; from eowmob@exp-math.uni-essen.de on Tue, May 22, 2001 at 06:02:12PM +0200
+In-Reply-To: <20010524103145.A9521@gruyere.muc.suse.de>; from ak@suse.de on Thu, May 24, 2001 at 10:31:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 22, 2001 at 06:02:12PM +0200, Dr. Michael Weller wrote:
-> It's an interesting experiment actually: Is the linux community powerful
-> enough to force vendors/people to fix their products and deploy updates to
-> comply to standards or can they just ignore it.
+On Thu, May 24 2001, Andi Kleen wrote:
+> On Thu, May 24, 2001 at 12:58:14AM -0600, Andreas Dilger wrote:
+> > Well reiserfs is probably a very bad choice at this point.  It
+> > does not have any bad blocks support (yet), so as soon as you have
+> > a bad block you are stuck.
+> 
+> reiserfs doesn't, but the HD usually has transparently in its firmware.
+> So it hits a bad block; you see an IO error and the next time you hit
+> the block the firmware has mapped in a fresh one from its internal
+> reserves.
 
-largely the vendors have fixed it.  admins are often reluctant to touch
-a known working configuration/patchlevel however.  don't blindly blame
-the vendor.
+In fact you will typically only see an I/O error if the drive _can't_
+remap the sector anymore, because it has run out. No point in reporting
+a condition that was recovered.
 
-j.
+I'd still say, that if you get bad block errors reported from your disk
+it's long overdue for replacement.
 
 -- 
-"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson
+Jens Axboe
+

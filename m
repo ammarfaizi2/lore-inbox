@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317112AbSFBB7I>; Sat, 1 Jun 2002 21:59:08 -0400
+	id <S317115AbSFBC2k>; Sat, 1 Jun 2002 22:28:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317113AbSFBB7H>; Sat, 1 Jun 2002 21:59:07 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:40140 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S317112AbSFBB7G>; Sat, 1 Jun 2002 21:59:06 -0400
-Date: Sun, 2 Jun 2002 03:58:56 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Anthony Spinillo <tspinillo@linuxmail.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: INTEL 845G Chipset IDE Quandry
-Message-ID: <Pine.SOL.4.30.0206020318090.29792-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317116AbSFBC2j>; Sat, 1 Jun 2002 22:28:39 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:6156 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S317115AbSFBC2j>;
+	Sat, 1 Jun 2002 22:28:39 -0400
+Date: Sat, 1 Jun 2002 22:28:37 -0400
+From: Rob Radez <rob@osinvestor.com>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org, Matt Domsch <Matt_Domsch@dell.com>
+Subject: Re: [PATCH] Watchdog Stuff (1/4)
+Message-ID: <20020601222837.A30977@osinvestor.com>
+In-Reply-To: <20020601064309.GA10222@insight.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I just put up a copy of my tree with Joel's stuff merged in at
+http://junker.org/~rradez/wd/
 
-> Alan,
->
-> This is one of the versions of INTEL which has extra bandwidth if you
-> want
-> wanted to the async IO.  Meaning the device could be set faster than the
-> host when reading from the host.  However when writing to the host the
-> device "must" be set to match.  The buffer is not capable of safely
-> handling the extra push.
->
-> So in 2.4 we will properly time the host, unlike 2.5 which has elected
-> to overdrive the hardware.
+ Documentation/pcwd-watchdog.txt       |  132 ---
+ Documentation/watchdog-api.txt        |  390 -----------
+ Documentation/watchdog.txt            |  113 ---
+ Documentation/watchdog/api.txt        |  148 ++++
+ Documentation/watchdog/howtowrite.txt |   78 ++
+ Documentation/watchdog/status.txt     |  151 ++++
+ drivers/char/acquirewdt.c             |  209 +++---
+ drivers/char/advantechwdt.c           |   40 -
+ drivers/char/alim7101_wdt.c           |  161 ++--
+ drivers/char/eurotechwdt.c            |  118 +--
+ drivers/char/i810-tco.c               |  119 ++-
+ drivers/char/i810-tco.h               |   10 
+ drivers/char/ib700wdt.c               |  173 +++--
+ drivers/char/indydog.c                |   71 +-
+ drivers/char/machzwd.c                |  243 +++----
+ drivers/char/mixcomwd.c               |  176 ++---
+ drivers/char/pcwd.c                   | 1164 +++++++++++++++++++++-------------
+ drivers/char/sbc60xxwdt.c             |  254 ++++---
+ drivers/char/sc1200wdt.c              |   31 
+ drivers/char/sc520_wdt.c              |  191 +++--
+ drivers/char/shwdt.c                  |   17 
+ drivers/char/softdog.c                |  111 ++-
+ drivers/char/w83877f_wdt.c            |  186 ++---
+ drivers/char/wafer5823wdt.c           |  151 +++-
+ drivers/char/wd501p.h                 |    4 
+ drivers/char/wdt.c                    |  165 ++--
+ drivers/char/wdt285.c                 |   85 +-
+ drivers/char/wdt977.c                 |  203 +++--
+ drivers/char/wdt_pci.c                |  165 ++--
+ drivers/sbus/char/cpwatchdog.c        |  132 +--
+ drivers/sbus/char/riowatchdog.c       |    6 
+ include/linux/watchdog.h              |    3 
+ 32 files changed, 2868 insertions(+), 2332 deletions(-)
 
-Only in piix driver (Intel & Efar) and user have to explicitly compile
-support for it, it have nothing to do with kernel version and everything
-with driver version.
+Changes since last time include changing some contact information, killing
+all trailing white space (which is what inflated the patch size), and
+integrating Joel's changes in.
 
-> The effect is the following.  "LINUS are you listening?"
-				 ^^^^^^^^^^^^^^^^^^^^^^^^
-Andre, you forgot to cc Linus ;)
-
-> Ultra DMA 100 uses 4 data clocks to transfer "X" amount of data.
-> Ultra DMA 133 uses 3 data clocks to transfer "X" amount of data.
->
-> So if a bad host trys to push the limits, it ends up missing a data
-> strobe and the DATA goes away quietly without warning.  NICE!
->
-> Maybe now people will understand why 2.5 is falling apart and it is not
-> Martin's fault.  He is just getting bad information and bad patches.
-
-Poor Marcin, he is so misinformed by bad people trying to spoil ATA stuff.
-
-Bad patches? Who is the bad guy making the bad patches?
-Let me guess, it is Vojtech removing others people copyrighted "sick
-timing tables". Or maybe it is Jens doing at least TCQ?
-Or maybe it is me... etc.
-
-> He actual has nearly the same model I was working on to use fucntion
-
-It is really funny... but some people read code and know facts...
-
-> pointers in the style of "MiniPort (tm)".  I will explain why this is
-> desired later.
-
-in Q4 I guess
-
-> Cheers,
-
-Greets...
-
-> Andre Hedrick
-> LAD Storage Consulting Group
->
-> PS AntonA, my promise to you to inform Linus of one of the major design
-> flaws of 2.5 is now met.
-
-What a nice FUD.
-What is this major design flaw? Experimental (on demand) code in piix
-driver? Or you no longer being ATA maintainer?
-
-Ok, I really wanted to be quiet, but this time it is too much...
-sorry for bad words/irony but that is how things look like...
-
-Some people (me included) are putting much effort in cleaning/improving
-all this mess, and you keep spreading FUD and discrediting them.
-
---
-Bartlomiej
-
-
+Regards,
+Rob Radez

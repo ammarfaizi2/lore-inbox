@@ -1,43 +1,27 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154682-9022>; Sun, 22 Nov 1998 20:40:58 -0500
-Received: from noc.nyx.net ([206.124.29.3]:2190 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <155231-9022>; Sun, 22 Nov 1998 19:19:05 -0500
-Date: Sun, 22 Nov 1998 18:34:08 -0700 (MST)
-From: Colin Plumb <colin@nyx.net>
-Message-Id: <199811230134.SAA24922@nyx10.nyx.net>
-X-Nyx-Envelope-Data: Date=Sun Nov 22 18:34:08 1998, Sender=colin, Recipient=linux-kernel@vger.rutgers.edu, Valsender=colin@localhost
+Received: by vger.rutgers.edu id <154882-32487>; Mon, 23 Nov 1998 13:13:38 -0500
+Received: from bardini.it ([194.184.188.10]:3948 "EHLO ns.altrimedia.it" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154952-9022>; Mon, 23 Nov 1998 11:14:09 -0500
+Message-ID: <36599C9E.D100032F@altrimedia.it>
+Date: Mon, 23 Nov 1998 17:34:22 +0000
+From: root <losi@altrimedia.it>
+Reply-To: losi@altrimedia.it
+X-Mailer: Mozilla 4.5 [en] (X11; U; Linux 2.0.36 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.rutgers.edu
-Subject: Re: Timeout overflow in select()
+Subject: differences in between 2.0 and 2.1 SMP?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Marc Slemko <marcs@znep.com> uncovered:
-
-> it is correct to place an upper limit on the timeout.
-> From the single unix spec
-> (http://www.opengroup.org/publications/catalog/t912.htm):
-> Implementations may place limitations on the maximum timeout interval
-> supported. On all implementations, the maximum timeout interval
-> supported will be at least 31 days. If the timeout argument specifies
-> a timeout interval greater than the implementation-dependent maximum
-> value, the maximum value will be used as the actual timeout value.
-> Implementations may also place limitations on the granularity of
-> timeout intervals. If the requested timeout interval requires a
-> finer granularity than the implementation supports, the actual
-> timeout interval will be rounded up to the next supported value.
-
-Note that this can impose an upper limit on HZ.
-In particular, 2^32 jiffies is 31 days at 1603.5 Hz.
-If you need an extra bit, 2^31 jiffies is 31 days at 801.8 Hz.
-
-Thus, a 31-bit jiffies limit is not compatible with HZ=1024.
-
-(I distinctly recall looking at the POSIX spec and seeing in the
-definition of clock() that it must not wrap before 24 hours, which, if
-clock_t is a 32-bit type, implies a maximum CLOCKS_PER_SEC of 49710.
-Thus, the common CLOCKS_PER_SEC=1000000 violates this badly, as it
-wraps in 1:11:34.967296.  Unfortunately, I don't have a copy of POSIX.1
-handy to check my memory.)
--- 
-	-Colin
+What are the architectural differences between SMP code in 2.0 and 2.1?
+I'm a very beginner kernel hacker and I'm still in the code grepping
+stage...
+it seems to me that only one of the CPUs can execute the kernel code...
+is that correct?
+	Sorry for the dumb question 
+	Thanks
+		Paolo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

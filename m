@@ -1,54 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263177AbRE1WJz>; Mon, 28 May 2001 18:09:55 -0400
+	id <S263179AbRE1WL4>; Mon, 28 May 2001 18:11:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263179AbRE1WJp>; Mon, 28 May 2001 18:09:45 -0400
-Received: from mailb.telia.com ([194.22.194.6]:57869 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S263177AbRE1WJe>;
-	Mon, 28 May 2001 18:09:34 -0400
-Date: Tue, 29 May 2001 00:10:03 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <anedah-9@sm.luth.se>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac2
-Message-ID: <20010529001003.A320@sm.luth.se>
-Mail-Followup-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0105281636160.1261-100000@freak.distro.conectiva> <20010528234225.A4362@sm.luth.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20010528234225.A4362@sm.luth.se>
-User-Agent: Mutt/1.3.18i
-X-Unexpected-Header: The Spanish Inquisition
+	id <S263182AbRE1WLq>; Mon, 28 May 2001 18:11:46 -0400
+Received: from Sarah.SomeSites.com ([208.44.57.7]:53514 "HELO
+	MoveAlong.SomeSites.com") by vger.kernel.org with SMTP
+	id <S263179AbRE1WLi>; Mon, 28 May 2001 18:11:38 -0400
+Message-ID: <002101c0e7c3$18cdbfb0$0100a8c0@SomeSites.com>
+From: "James Turinsky" <lkml@SomeSites.com>
+To: "Mark Hahn" <hahn@coffee.psychology.mcmaster.ca>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Jens Axboe" <axboe@suse.de>, <andre@linux-ide.org>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <E154UJT-0003XV-00@the-village.bc.nu>
+Subject: Re: [patch]: ide dma timeout retry in pio
+Date: Mon, 28 May 2001 18:11:05 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-André Dahlqvist <anedah-9@sm.luth.se> wrote:
 
-> I agree. Kernels after 2.4.4 uses a *lot* more swap for me, which I guess
-> might be part of the reason for the slowdown.
+----- Original Message -----
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Mark Hahn" <hahn@coffee.psychology.mcmaster.ca>
+Cc: "Jens Axboe" <axboe@suse.de>; <andre@linux-ide.org>;
+<alan@lxorguk.ukuu.org.uk>; <linux-kernel@vger.kernel.org>
+Sent: Monday, May 28, 2001 5:12 PM
+Subject: Re: [patch]: ide dma timeout retry in pio
 
-Following up on myself, here are some numbers:
 
-Freshly booted 2.4.4 with X and Mozilla running, 'free' outputs this:
+> > really?  do we know the nature of the DMA engine problem well
+enough?
+>
+> I can categorise some of them:
+>
+> 1. Hardware that just doesnt support it.
+> 2. Timeouts that are false positives caused by disks having problems
+> and being very slow to recover
+> 3. Bad cabling
+> 4. Stalls caused by heavy PCI traffic
+>
+> > is there a reason to believe that it'll work better "later"?
+>
+> #1 will go fail, fail, fail -> PIO now (or should do Im about to try
+it)
+> #2 and #4 will be transient
+> #3 could go either way
 
-             total       used       free     shared    buffers     cached
-Mem:         62716      61280       1436          0       1820      28704
--/+ buffers/cache:      30756      31960
-Swap:       160608          0     160608
 
-Freshly booted 2.4.5-ac2 with X and Mozilla running, 'free' outputs this:
+Where does the "'DMA Timeout -> disable DMA' then lose all
+responsiveness when I issue 'hdparm -d1' while it tries and fails to
+re-enable DMA" fit in?  The disk will happily run for several days in
+UDMA33 and then at some point it craps out with a DMA timeout which
+results 1) DMA being turned off and 2) all attempts to re-enable DMA
+failing?
 
-             total       used       free     shared    buffers     cached
-Mem:         62784      61784       1000        380       1824      35748
--/+ buffers/cache:      24212      38572
-Swap:       160608       7128     153480
+And what's up with this:
 
-After running 2.4.5-ac2 (and other kernels after vanilla 2.4.4) for a while
-the swap usage grows a lot, to around 60 MB. Older kernels didn't swap out
-this aggressively in my experience.
+[root@MoveAlong james]# hdparm /dev/hda
 
-This is on a 233 Mhz box with 64 megs of RAM.
--- 
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  1 (on)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 19590/16/63, sectors = 19746720, start = 0
+[root@MoveAlong james]# hdparm -tT /dev/hda
 
-André Dahlqvist <anedah-9@sm.luth.se>
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  6.98 seconds = 18.34 MB/sec
+ Timing buffered disk reads:  64 MB in  5.77 seconds = 11.09 MB/sec
+Hmm.. suspicious results: probably not enough free memory for a proper
+test.
+[root@MoveAlong james]# free
+             total       used       free     shared    buffers
+cached
+Mem:        126800     123460       3340          0      67284
+41572
+-/+ buffers/cache:      14604     112196
+Swap:       394624      32816     361808
+
+I used to get ~33MB/sec on buffer-cache and ~10MB/sec on buffered disk
+reads in 2.2...
+
+--JT
+

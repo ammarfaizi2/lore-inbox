@@ -1,133 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263177AbTDVORW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 10:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTDVORW
+	id S263163AbTDVOUg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 10:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263165AbTDVOUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 10:17:22 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:41953 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263177AbTDVORT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 10:17:19 -0400
-Date: Tue, 22 Apr 2003 07:29:02 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@digeo.com>
-cc: Andrea Arcangeli <andrea@suse.de>, mingo@elte.hu, hugh@veritas.com,
-       dmccr@us.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Tue, 22 Apr 2003 10:20:36 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:28040 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263163AbTDVOUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 10:20:34 -0400
+Date: Tue, 22 Apr 2003 10:31:49 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+       <mbligh@aracnet.com>, <mingo@elte.hu>, <hugh@veritas.com>,
+       <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
 Subject: Re: objrmap and vmtruncate
-Message-ID: <170570000.1051021741@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0304220618190.24063-100000@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0304220618190.24063-100000@devserv.devel.redhat.c
- om>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+In-Reply-To: <20030422115421.GC8931@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0304221017200.10400-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > I see what you mean, you're right. That's because all the 10,000 vma
->> > belongs to the same inode.
->> 
->> I see two problems with objrmap - this search, and the complexity of the
->> interworking with nonlinear mappings.
->> 
->> There is talk going around about implementing some more sophisticated
->> search structure thatn a linear list.
->> 
->> And treating the nonlinear mappings as being mlocked is a great
->> simplification - I'd be interested in Ingo's views on that.
-> 
-> i believe the right direction is the one that is currently happening: to
-> make nonlinear mappings more generic. sys_remap_file_pages() started off
-> as a special hack mostly usable for locked down pages. Now it's directly
-> encoded in the pte and thus swappable, and uses up a fraction of the vma
-> cost for finegrained mappings.
-> 
-> (i believe the next step should be to encode permission bits into the pte
-> as well, and thus enable eg. mprotect() to work without splitting up
-> vmas.   On 32-bit ptes this is not relistic due to the file size limit
-> imposed, but once 64-bit ptes become commonplace it's a step worth taking
-> i believe.)
 
-I don't think you commented on Andrew's actual question, as far as I can
-see ... can we mlock the nonlinear mappings? I think for the original
-designed usage (Oracle) that's fine, as far as I know.
+On Tue, 22 Apr 2003, William Lee Irwin III wrote:
 
-The other massive problem we seem to have is that fact we don't know at
-create time whether the mapping is non-linear or not. Knowing that would
-allow us to do what we're acutally trying to do now, which is to keep
-pte-chains for these mappings, and use objrmap for linear ones. The pain is
-not dealing with them, it's converting from one to the other.
+> Are the reserved bits in PAE kernel-usable at all or do they raise
+> exceptions when set? This may be cpu revision -dependent, but if things
+> are usable in some majority of models it could be ihteresting.
 
-Either that, or we keep a list of the nonlinear regions for each VMA so we
-can do the objrmap for the non-linear regions as well. Yes, it's a little
-bit of overhead for sys_remap_file_pages, but you lose the overhead per
-page on the pte-chain manipulation front.
+if the present bit is clear then the remaining 63 bits are documented by
+Intel as being software-available, so this all works just fine.
 
-So if we can do any of those 3 things, I think we're fine. I find it hard
-to believe that none of them is acceptable. Particularly as we can probably
-combine the first with one of the others fairly easily.
+> Getting the things out of lowmem sounds very interesting, although I
+> vaguely continue to wonder about the total RAM overhead. ISTR an old 2.4
+> benchmark run on PAE x86 where 90+% of physical RAM was consumed by
+> pagetables _after_ pte_highmem (where before the kernel dropped dead).
 
-> the O(N^2) property of objrmap where N is the 'inode sharing factor' is a
-> serious design problem i believe. 100 mappings in 100 contexts on the same
-> inode is not uncommon at all - still it totally DoS-es the VM's scanning
-> code, if it uses objrmap. Sure, rmap is O(N) - after all we do have 100
-> users of that mapping.
-> 
-> If the O(N^2) can be optimized away then i'm all for it. If not, then i
-> dont really understand how the same people who call sys_remap_file_pages()
-> a 'hack' [i believe they are not understanding the current state of the
-> API] can argue for objrmap in the same paragraph.
+just create a sparse enough memory layout (one page mapped every 2MB) and
+pagetable overhead will dominate. Is it a problem in practice? I doubt it,
+and you get what you asked for, and you can always offset it with RAM.
 
-Well, we can easily fix the O(N^2) property by using a data structure other
-than a simple non-sorted linked list. However ... that has significant
-overhead itself. I think we're optimising for the wrong case here - isn't
-the 100x100 mappings case exactly what we have sys_remap_file_pages for?
-Which keeps pte_chains (for the hybrid case of partial objrmap), so it's
-just as fast as before (assuming we can resolve the issue above).
+> But anyway, companion pages are doable. The real metric is what the code
+> looks like and how it performs and what workloads it supports.
 
-We can make the O(?) stuff look as fancy as we like. However, in reality,
-that makes the constants suck, and I'm not at all sure it's a good plan.
+> I would not say 0.4% of RAM. I would say 0.4% of aggregate virtualspace.
+> So someone needs to factor virtual:physical ratio for the important
+> workloads into that analysis.
 
-> i believe the main problem wrt. rmap is the pte_chain lowmem overhead on
-> 32-bit systems. (it also causes some fork() runtime overhead, but i doubt
-> anyone these days should argue that fork() latency is a commanding
-> parameter to optimize the VM for. We have vfork() and good threading, and
-> any fork()-sensitive app uses preforking anyway.)
+yes.
 
-For workloads like server consolidation, its not as easy as that. You have
-myriad numbers of little applications, and rewriting all of them because
-fork just became a lot slower is not really practical.
+> Well, the already-existing pagetable overhead is not insignificant. It's
+> somewhere around 3MB on lightly-loaded 768MB x86-32 UP, which is very
+> close to beginning to swap.
 
-I think you're seriously underestimating the performance impact vs space
-problems as well ... IIRC my simple kernel compile test became about 25%
-less system time via partial objrmap.
+3MB might sound alot. Companion pagetables will make that 9MB on non-PAE.
+(current pte chains should make that roughly 6MB on average) 9MB is 1.1%
+of all RAM. 4K granular mem_map[] is 1.5% cost, and even there it's not
+mainly the RAM overhead that hurts us, but the lowmem overhead.
 
-> to solve this problem i believe the pte chains should be made
-> double-linked lists, and should be organized in a completely different
+(btw., the size of companion pagetables is likely reduced via pgcl as well
+- they need to track the VM units of pages, not the MMU units of pages.)
 
-It seems ironic that the solution to space consumption is do double the
-amount of space taken ;-) I see what you're trying to do (shove things up
-into highmem), but it seems like a much better plan to me to just kill the
-bloat altogether. 
+	Ingo
 
-> This simpler pte chain construct also makes it easy to high-map the pte
-> chains: whenever we high-map the pte page, we can high-map the pte chain
-> page(s) as well. No more lowmem overhead for pte chains.
-
-Well, it's traded lowmem space overhead for > 2x highmem overhead
-(sparseness). But what's killer is even more time overhead than before. Now
-you have to kmap the hell out of everything to do manipulations. The
-overhead for pte-highmem is horrible as it is (something like 10% systime
-for kernel compile IIRC). And this is worse - you have to manipulate the
-prev and next elements in the list. I know how to fix pte_highmem kmap
-overhead already (via UKVA), but not rmap pages. Not only is it kmap, but
-you have double the number of cachelines touched.
-
-I think the holes in objrmap are quite small - and are already addressed by
-your sys_remap_file_pages mechanism.
-
-M.

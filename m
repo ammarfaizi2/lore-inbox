@@ -1,75 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUG3Dik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUG3DpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267582AbUG3Dik (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 23:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267567AbUG3Dik
+	id S267563AbUG3DpN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 23:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267555AbUG3DpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 23:38:40 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:55528 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S267582AbUG3Dia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 23:38:30 -0400
-Subject: Re: [PATCH][2.4/2.6] Quiesce after changing ACPI idle thread
-From: Len Brown <len.brown@intel.com>
-To: Zwane Mwaikambo <zwane@fsmlabs.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Shaohua Li <shaohua.li@intel.com>, Yi Zhu <yi.zhu@intel.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-In-Reply-To: <Pine.LNX.4.58.0407221123480.19190@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0407221055391.19190@montezuma.fsmlabs.com>
-	 <Pine.LNX.4.58.0407221123480.19190@montezuma.fsmlabs.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1091158687.9636.21.camel@dhcppc4>
+	Thu, 29 Jul 2004 23:45:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23944 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267563AbUG3Do2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 23:44:28 -0400
+Date: Thu, 29 Jul 2004 20:36:03 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: gene.heskett@verizon.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crash(s)?
+Message-Id: <20040729203603.1023ed38.rddunlap@osdl.org>
+In-Reply-To: <200407292147.21463.gene.heskett@verizon.net>
+References: <200407242156.40726.gene.heskett@verizon.net>
+	<200407291822.47209.gene.heskett@verizon.net>
+	<20040729151415.094c8d01.rddunlap@osdl.org>
+	<200407292147.21463.gene.heskett@verizon.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 29 Jul 2004 23:38:07 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied to 2.6.
+On Thu, 29 Jul 2004 21:47:21 -0400 Gene Heskett wrote:
 
-thanks Zwane.
--Len
+| On Thursday 29 July 2004 18:14, Randy.Dunlap wrote:
+| [...]
+| I've gone clear back to a 2.6.7 kernel because thats the newest one 
+| that has a diff when cmp'ing fs/dcache.c files to whats in 2.6.8-rc2.
+| 
+| I've had one Oops, virtually the same one, but it didn't kill the 
+| machine like it would have if I was running 2.6.8-rc2.
 
-On Thu, 2004-07-22 at 11:30, Zwane Mwaikambo wrote:
-> (Please apply this patch instead of the previously posted one).
-> 
-> This patch addresses the following bugzilla bug;
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=1716
-> 
-> When unloading the processor module we modify the currently used idle
-> thread (pm_idle), this causes an oops due to the idle thread text
-> being
-> unloaded. This should apply to both 2.6 and 2.4.
-> 
-> Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
-> 
-> Index: linux-2.6.8-rc1-mm1/drivers/acpi/processor.c
-> ===================================================================
-> RCS file: /home/cvsroot/linux-2.6.8-rc1-mm1/drivers/acpi/processor.c,v
-> retrieving revision 1.1.1.1
-> diff -u -p -B -r1.1.1.1 processor.c
-> --- linux-2.6.8-rc1-mm1/drivers/acpi/processor.c        14 Jul 2004
-> 04:56:25 -0000      1.1.1.1
-> +++ linux-2.6.8-rc1-mm1/drivers/acpi/processor.c        20 Jul 2004
-> 15:31:46 -0000
-> @@ -2372,8 +2372,10 @@ acpi_processor_remove (
->         pr = (struct acpi_processor *) acpi_driver_data(device);
-> 
->         /* Unregister the idle handler when processor #0 is removed.
-> */
-> -       if (pr->id == 0)
-> +       if (pr->id == 0) {
->                 pm_idle = pm_idle_save;
-> +               synchronize_kernel();
-> +       }
-> 
->         status = acpi_remove_notify_handler(pr->handle,
-> ACPI_DEVICE_NOTIFY,
->                 acpi_processor_notify);
-> 
+Yeah, oopsen often don't kill the entire machine.
 
+| >make fs/dcache.s
+| 
+| Aha!  Voila!! It doesn't work in the "fs" subdir, but back out to the 
+| top of the src tree and it works just fine.  Duh...
+
+Right, it needs the top-level makfile and kbuild machinery to do that.
+
+| Now, I must confess that what I'm looking at in those two files is 
+| the .s is the source assembly that would normally be fed to gas, and 
+| the objdump'ed version is the dissed object translated back to gas 
+| source.  If no mistakes, they should be pretty close to the same I'd 
+| think.  Am I on the right track?  Or full of it?
+
+Yes, right.
+
+| Here's the theory thats gradually formed in whats left of my mind:
+| --------------
+| 5 things changed in the kernel soft when I changed the mobo.
+| 1. The ide driver, from via686a to the nforce2 version.
+| 2. The video driver, because the old card failed and took the mobo 
+| with it.
+| 3. Ethernet driver is now forcedeth instead of rtl-8139too
+| 4. A different alsa driver, from via8233 to intel-8x0
+| 5. The 4Gb switch is turned on in the kernel now as theres a gig of 
+| ram on this board.
+| --------------
+
+You can easily use a non-high-memory enabled kernel.  It will still
+use 896 MB of RAM (IIRC).  Enabling highmem gets you another 128 MB.
+
+IDE and video are somewhat important, no?
+But the ethernet and ALSA drivers should be optional, at least for some
+testing... Ha, you said that below!
+
+| I can't do anything about the first 2, but I can do without the last 
+| 200 megs of ram long enough to test that, and I can switch back to 
+| the rtl-8139too card for ethernet, and I can turn off alsasound.
+| 
+| In the meantime I turned a bunch of stuff the logs were complaining 
+| about off, like sgi_fam (what the heck is that?), some ups daemons 
+
+FAM is File Alteration Monitor, from SGI:
+  http://oss.sgi.com/projects/fam/
+
+| for brands I don't have, that sort of thing, and have a tail running 
+| on the log.  So far, its clean since the restart of xinetd.  Another 
+| 16 hours will tell most of the tale for this particular instant 
+| configuration.
+| 
+| One final question if I may:  What do I turn off (or on) in the video 
+| dept of the kernel so that my screen doesn't go black after vmlinuz 
+| is unpacked, and not come back on till "init" is run, at which point 
+| the screen comes back on in what looks to be exactly the same mode?
+
+Hm, do you have a serial console enabled (in the kernel config and in your
+kernel command line)?  If not, please send your .config file (your probably
+did, but I'm lost in the maze of emails).
+
+| Anything that goes on in that time period must be read 
+| from /var/log/dmesg later if I want to see it.
+
+--
+~Randy

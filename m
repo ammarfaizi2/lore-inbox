@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133091AbRDRLzK>; Wed, 18 Apr 2001 07:55:10 -0400
+	id <S133092AbRDRL6B>; Wed, 18 Apr 2001 07:58:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133092AbRDRLzA>; Wed, 18 Apr 2001 07:55:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24325 "EHLO
+	id <S133093AbRDRL5v>; Wed, 18 Apr 2001 07:57:51 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26629 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133091AbRDRLyz>; Wed, 18 Apr 2001 07:54:55 -0400
-Subject: Re: Linux 2.4.3-ac9
-To: gandalf@winds.org (Byron Stanoszek)
-Date: Wed, 18 Apr 2001 12:56:25 +0100 (BST)
-Cc: jason@topic.com.au (Jason Thomas), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0104172224320.8771-100000@winds.org> from "Byron Stanoszek" at Apr 17, 2001 10:26:26 PM
+	id <S133092AbRDRL5j>; Wed, 18 Apr 2001 07:57:39 -0400
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better audio.
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Wed, 18 Apr 2001 12:58:31 +0100 (BST)
+Cc: tytso@mit.edu (Theodore Tso), davem@redhat.com (David S. Miller),
+        miles@megapathdsl.net (Miles Lane), linux-kernel@vger.kernel.org
+In-Reply-To: <200104180246.f3I2kL1192784@saturn.cs.uml.edu> from "Albert D. Cahalan" at Apr 17, 2001 10:46:20 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14pqZQ-0004YD-00@the-village.bc.nu>
+Message-Id: <E14pqbS-0004YM-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> intervals after I use my CD burner, but that just might be coincidental. But
-> I'd like to point out that I've never seen this on my VIA686a itself. The P3
-> machine is UP too, not SMP. I saw this ever since I switched the machine to
-> 2.4.2-ac8 and beyond (previously 2.2.18).
+> Being an outsider, I'm still trying to find out WTF happened
+> on friday evening when NUMA was discussed. I can't find any
+> video, audio, or even technical notes. This sucks; I'm writing
+> support for NUMA hardware (it's not cache coherent) right now
+> and I don't have any idea where things will be going.
 
-At the moment the test is too sensitive - its harmless when it triggers in
-error. Im still playing with it.
+Something like
+
+View 1:	(The SGI view)
+	NUMA should be implemented as a single kernel on a numa system. Andrea
+has done some work on this (see his kernel.org patches), as have SGI.
+
+View 2: (The McVoy view)
+	NUMA is best viewed as another misguided attempt to do DSM and we
+should run a kernel on each DSM node and do page cache borrows between nodes.
+
+Alan
+

@@ -1,95 +1,175 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130521AbRCDVgh>; Sun, 4 Mar 2001 16:36:37 -0500
+	id <S130522AbRCDVuW>; Sun, 4 Mar 2001 16:50:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130522AbRCDVgR>; Sun, 4 Mar 2001 16:36:17 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:38834 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S130521AbRCDVgL>;
-	Sun, 4 Mar 2001 16:36:11 -0500
-Date: Sun, 4 Mar 2001 23:32:44 +0200
-From: Mircea Damian <dmircea@kappa.ro>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: sjhill@cotw.com, linux-kernel@vger.kernel.org
-Subject: Re: LILO error with 2.4.3-pre1...
-Message-ID: <20010304233244.B32142@linux.kappa.ro>
-In-Reply-To: <3AA19820.6A33E871@cotw.com> <22634.983669972@ocs3.ocs-net>
+	id <S130529AbRCDVuL>; Sun, 4 Mar 2001 16:50:11 -0500
+Received: from mailproxy.de.uu.net ([192.76.144.34]:47796 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S130522AbRCDVt7>; Sun, 4 Mar 2001 16:49:59 -0500
+Date: Sun, 4 Mar 2001 22:49:51 +0100
+From: Ulrich Kunitz <gefm21@uumail.de>
+To: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
+Subject: [PATCH] tiny MM performance and typo patches for 2.4.2
+Message-ID: <20010304224951.B1979@uumail.de>
+Mail-Followup-To: Ulrich Kunitz <gefm21@uumail.de>,
+	linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="gatW/ieO32f1wygP"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <22634.983669972@ocs3.ocs-net>; from kaos@ocs.com.au on Sun, Mar 04, 2001 at 12:39:32PM +1100
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 04, 2001 at 12:39:32PM +1100, Keith Owens wrote:
-> On Sat, 03 Mar 2001 19:19:28 -0600, 
-> "Steven J. Hill" <sjhill@cotw.com> wrote:
-> >I have no idea why the 1023 limit is coming up considering 2.4.2 and
-> >LILO were working just fine together and I have a newer BIOS that has
-> >not problems detecting the driver properly. Go ahead, call me idiot :).
-> 
-> OK, you're an idiot :).  It only worked before because all the files
-> that lilo used just happened to be below cylinder 1024.  Your partition
-> goes past cyl 1024 and your new kernel is using space above 1024.  Find
-> a version of lilo that can cope with cyl >= 1024 (is there one?) or
-> move the kernel below cyl 1024.  You might need to repartition your
-> disk to get / all below 1024.
 
-Call me idiot too but please explain what is wrong here:
+--gatW/ieO32f1wygP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-# cat /etc/lilo.conf
-boot = /dev/hda
-timeout = 150
-vga = 4
-ramdisk = 0
-lba32
-append = "hdc=scsi"
-prompt
+Hi folks,
 
+this is a list of patches I collected while looking at the memory
+management sources. Two patches might improve the performance of your
+box. The others are more or less cosmetic. 
 
-image = /boot/vmlinuz-2.4.2
-  root = /dev/hda2
-  read-only
-  label = Linux
+This mail is sent with a kernel using these patches.
+Here is a list sorted with decreasing importance:
 
-other = /dev/hda3
-  label = win
-  table = /dev/hda
+patch-uk2 	makes use of the pgd, pmd and pte quicklists for x86 too;
+		risky: there might be a reason that 2.4.x doesn't use the
+		quicklists.
 
-# fdisk -l /dev/hda
+patch-uk6	In 2.4.x _page_hashfn divides struct address_space pointer
+		with a parameter derived from the size of struct
+		inode. Deriving this parameter from the size of struct
+		address_space makes more sense -- at least for me.
 
-Disk /dev/hda: 255 heads, 63 sectors, 1650 cylinders
-Units = cylinders of 16065 * 512 bytes
+patch-uk5	cleans the bd_flush_param union.
 
-   Device Boot    Start       End    Blocks   Id  System
-/dev/hda1             1        17    136521   82  Linux swap
-/dev/hda2            18      1165   9221310   83  Linux
-/dev/hda3   *      1166      1650   3895762+   c  Win95 FAT32 (LBA)
-root@taz:~# lilo -v
-LILO version 21.7, Copyright (C) 1992-1998 Werner Almesberger
-Linux Real Mode Interface library Copyright (C) 1998 Josh Vanderhoof
-Development beyond version 21 Copyright (C) 1999-2001 John Coffman
-Released 24-Feb-2001 and compiled at 18:31:02 on Mar  3 2001.
+patch-uk1	fixes a comment typo in asm-i386/highmem.h.
 
-Reading boot sector from /dev/hda
-Merging with /boot/boot.b
-Boot image: /boot/vmlinuz-2.4.2
-Added Linux *
-Boot other: /dev/hda3, on /dev/hda, loader /boot/chain.b
-Device 0x0300: Invalid partition table, 3rd entry
-  3D address:     63/254/141 (2281229)
-  Linear address: 1/0/1165 (18715725)
+patch-uk3	fixes a comment typo in asm-i386/pgtable-3level.h.
 
+Ciao,
 
-Mar  2 20:26:29 taz kernel: hda: IBM-DJNA-371350, ATA DISK drive 
-Mar  2 20:26:29 taz kernel: hda: 26520480 sectors (13578 MB) w/1966KiB Cache, CHS=1650/255/63 
-
-
-Is anybody able to explain the error?
-That partition contains a valid VFAT partition with win98se installed on it (and it works fine,
-ofc if I remove lilo from MBR).
+Uli Kunitz
 
 -- 
-Mircea Damian
-E-mails: dmircea@kappa.ro, dmircea@roedu.net
-WebPage: http://taz.mania.k.ro/~dmircea/
+Ulrich Kunitz (gefm21@uumail.de)
+
+--gatW/ieO32f1wygP
+Content-Type: text/plain; charset=us-ascii
+Content-Description: patch-uk2
+Content-Disposition: inline; filename=patch-uk2
+
+--- linux-2.4.2/include/asm-i386/pgalloc.h	Thu Feb 22 01:09:57 2001
++++ linux/include/asm-i386/pgalloc.h	Sun Mar  4 20:14:50 2001
+@@ -92,9 +92,9 @@
+ 	free_page((unsigned long)pte);
+ }
+ 
+-#define pte_free_kernel(pte)    free_pte_slow(pte)
+-#define pte_free(pte)	   free_pte_slow(pte)
+-#define pgd_free(pgd)	   free_pgd_slow(pgd)
++#define pte_free_kernel(pte)    free_pte_fast(pte)
++#define pte_free(pte)	   free_pte_fast(pte)
++#define pgd_free(pgd)	   free_pgd_fast(pgd)
+ #define pgd_alloc()	     get_pgd_fast()
+ 
+ extern inline pte_t * pte_alloc_kernel(pmd_t * pmd, unsigned long address)
+@@ -145,7 +145,7 @@
+  * inside the pgd, so has no extra memory associated with it.
+  * (In the PAE case we free the page.)
+  */
+-#define pmd_free(pmd)	   free_pmd_slow(pmd)
++#define pmd_free(pmd)	   free_pmd_fast(pmd)
+ 
+ #define pmd_free_kernel		pmd_free
+ #define pmd_alloc_kernel	pmd_alloc
+
+--gatW/ieO32f1wygP
+Content-Type: text/plain; charset=us-ascii
+Content-Description: patch-uk6
+Content-Disposition: inline; filename=patch-uk6
+
+--- linux-2.4.2/include/linux/pagemap.h	Thu Feb 22 01:10:01 2001
++++ linux/include/linux/pagemap.h	Sun Mar  4 20:14:50 2001
+@@ -58,7 +58,8 @@
+  */
+ extern inline unsigned long _page_hashfn(struct address_space * mapping, unsigned long index)
+ {
+-#define i (((unsigned long) mapping)/(sizeof(struct inode) & ~ (sizeof(struct inode) - 1)))
++#define i (((unsigned long) mapping) / \
++	(sizeof(struct address_space) & ~ (sizeof(struct address_space) - 1)))
+ #define s(x) ((x)+((x)>>PAGE_HASH_BITS))
+ 	return s(i+index) & (PAGE_HASH_SIZE-1);
+ #undef i
+
+--gatW/ieO32f1wygP
+Content-Type: text/plain; charset=us-ascii
+Content-Description: patch-uk5
+Content-Disposition: inline; filename=patch-uk5
+
+--- linux-2.4.2/fs/buffer.c	Fri Feb  9 20:29:44 2001
++++ linux/fs/buffer.c	Sun Mar  4 19:27:31 2001
+@@ -112,19 +112,18 @@
+  */
+ union bdflush_param {
+ 	struct {
+-		int nfract;  /* Percentage of buffer cache dirty to 
+-				activate bdflush */
+-		int ndirty;  /* Maximum number of dirty blocks to write out per
++		int nfract;   /* Percentage of buffer cache dirty to 
++				 activate bdflush */
++		int ndirty;   /* Maximum number of dirty blocks to write out per
+ 				wake-cycle */
+-		int nrefill; /* Number of clean buffers to try to obtain
+-				each time we call refill */
+ 		int dummy1;   /* unused */
++		int dummy2;   /* unused */
+ 		int interval; /* jiffies delay between kupdate flushes */
+ 		int age_buffer;  /* Time for normal buffer to age before we flush it */
+ 		int nfract_sync; /* Percentage of buffer cache dirty to 
+ 				    activate bdflush synchronously */
+-		int dummy2;    /* unused */
+-		int dummy3;    /* unused */
++		int dummy3;   /* unused */
++		int dummy4;   /* unused */
+ 	} b_un;
+ 	unsigned int data[N_PARAM];
+ } bdf_prm = {{30, 64, 64, 256, 5*HZ, 30*HZ, 60, 0, 0}};
+
+--gatW/ieO32f1wygP
+Content-Type: text/plain; charset=us-ascii
+Content-Description: patch-uk1
+Content-Disposition: inline; filename=patch-uk1
+
+--- linux-2.4.2/include/asm-i386/highmem.h	Thu Feb 22 01:09:58 2001
++++ linux/include/asm-i386/highmem.h	Sun Mar  4 20:14:50 2001
+@@ -9,7 +9,7 @@
+  *
+  *
+  * Redesigned the x86 32-bit VM architecture to deal with 
+- * up to 16 Terrabyte physical memory. With current x86 CPUs
++ * up to 16 Terabyte physical memory. With current x86 CPUs
+  * we now support up to 64 Gigabytes physical RAM.
+  *
+  * Copyright (C) 1999 Ingo Molnar <mingo@redhat.com>
+
+--gatW/ieO32f1wygP
+Content-Type: text/plain; charset=us-ascii
+Content-Description: patch-uk3
+Content-Disposition: inline; filename=patch-uk3
+
+--- linux-2.4.2/include/asm-i386/pgtable-3level.h	Wed Oct 18 23:25:46 2000
++++ linux/include/asm-i386/pgtable-3level.h	Sun Mar  4 19:25:00 2001
+@@ -48,7 +48,7 @@
+ /* Rules for using set_pte: the pte being assigned *must* be
+  * either not present or in a state where the hardware will
+  * not attempt to update the pte.  In places where this is
+- * not possible, use pte_get_and_clear to obtain the old pte
++ * not possible, use ptep_get_and_clear to obtain the old pte
+  * value and then use set_pte to update it.  -ben
+  */
+ static inline void set_pte(pte_t *ptep, pte_t pte)
+
+--gatW/ieO32f1wygP--

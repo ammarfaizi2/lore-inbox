@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbTCDU7a>; Tue, 4 Mar 2003 15:59:30 -0500
+	id <S266091AbTCDVG3>; Tue, 4 Mar 2003 16:06:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266907AbTCDU7a>; Tue, 4 Mar 2003 15:59:30 -0500
-Received: from palrel10.hp.com ([156.153.255.245]:55203 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id <S266888AbTCDU73>;
-	Tue, 4 Mar 2003 15:59:29 -0500
-Date: Tue, 4 Mar 2003 13:09:57 -0800
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: IrDA/PCMCIA CF conflict
-Message-ID: <20030304210957.GA17857@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S266865AbTCDVG3>; Tue, 4 Mar 2003 16:06:29 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:16584 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S266091AbTCDVG2>; Tue, 4 Mar 2003 16:06:28 -0500
+Subject: Available watchdog test cases
+From: Rusty Lynch <rusty@linux.co.intel.com>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Mar 2003 13:04:54 -0800
+Message-Id: <1046811896.1429.10.camel@vmhack>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Lotspeich wrote :
-> 
-> I have an IBM Thinkpad A21m with Linux 2.4.19.  Both the PCMCIA
-> IDE/Compact Flash adapter and IrDA (syncing to Palm) works perfectly --
-> separately.  If I boot with the CF/adapter in place, the IrDA does not
-> work.  If I simply remove the PCMCIA card and re-insert it, IrDA works
-> again.  If I boot without the PCMCIA CF adapter in place, then insert it
-> after using the IrDA, no trouble.
+The test cases that I have been using for testing my watchdog work are
+available at
+http://www.stinkycat.com/patches/watchdog_stuff/watchdog_test.tar.gz
 
-	/etc/pcmcia/config.opts -> exclude irq
+The test are for both the legacy (well, current) /dev/watchdog interface
+and my proposed sysfs based interface.
 
-	Jean
+    --rustyl
+
+
+

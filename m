@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293458AbSCSBlv>; Mon, 18 Mar 2002 20:41:51 -0500
+	id <S293461AbSCSBnv>; Mon, 18 Mar 2002 20:43:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293461AbSCSBlb>; Mon, 18 Mar 2002 20:41:31 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:53950 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293458AbSCSBl2>;
-	Mon, 18 Mar 2002 20:41:28 -0500
-Date: Mon, 18 Mar 2002 17:38:03 -0800 (PST)
-Message-Id: <20020318.173803.78092815.davem@redhat.com>
-To: aferber@techfak.uni-bielefeld.de
-Cc: torvalds@transmeta.com, Dieter.Nuetzel@hamburg.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: 7.52 second kernel compile
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020319023755.A28383@devcon.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S293465AbSCSBnl>; Mon, 18 Mar 2002 20:43:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18438 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293461AbSCSBnX>; Mon, 18 Mar 2002 20:43:23 -0500
+Subject: Re: Linux 2.4.19-pre3-ac1
+To: MrChuoi@yahoo.com
+Date: Tue, 19 Mar 2002 01:55:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020319012940.430CC4E534@mail.vnsecurity.net> from "MrChuoi" at Mar 19, 2002 08:39:41 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16n8qw-0006dn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-   Date: Tue, 19 Mar 2002 02:37:55 +0100
-   
-   Erm, you forgot COW semantics. The accesses to buffer are actually all
-   going to the same physical address. As CPU caches work on physical
-   addresses AFAIK (everything else would be just stupid ;-), there are
-   no cache misses (disregarding a few produced by IRQs/scheduling etc.).
+> On Monday 18 March 2002 06:44 pm, Alan Cox wrote:
+> > > - 2.4.19-pre-ac: kswapd try to swap out and access disk continuously.
+> > > Whole system is slow down and un-interactivable.
+> >
+> > echo "2" >/proc/sys/vm/overcommit_memory
+> Couldn't load JBuilder (Out of memomy).
 
-ROFL, ignore that part of my postings then :-)
+Good. Thats working - it stopped you even potentially getting out of memory
+which is what that overcommit mode is supposed to do. Basically it'll stop
+you before you risk OOM cases
+
+> build and run my project from inside JBuilder. But OOM killer still doesn't
+> work (2nd). Anyway, thank you. I will play with your Magic numbers later,
+> Wizard ;). There are still alot of things to play with.
+
+Rik is the wizard for the rmap oom. He posted a test patch to fix some OOM
+logic. I'm just doing the code so you can decide OOM is not permitted to
+occur 8)

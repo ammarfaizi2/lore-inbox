@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265506AbSLIN2t>; Mon, 9 Dec 2002 08:28:49 -0500
+	id <S265484AbSLINYd>; Mon, 9 Dec 2002 08:24:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbSLIN2t>; Mon, 9 Dec 2002 08:28:49 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:54020 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265506AbSLIN2s>;
-	Mon, 9 Dec 2002 08:28:48 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212091346.gB9DkcgN000690@darkstar.example.net>
-Subject: Re: BUG in 2.5.50
-To: acme@conectiva.com.br (Arnaldo Carvalho de Melo)
-Date: Mon, 9 Dec 2002 13:46:38 +0000 (GMT)
-Cc: roy@karlsbakk.net, zwane@holomorphy.com, linux-kernel@vger.kernel.org,
-       alan@redhat.com
-In-Reply-To: <20021209132712.GK17067@conectiva.com.br> from "Arnaldo Carvalho de Melo" at Dec 09, 2002 11:27:12 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265475AbSLINYd>; Mon, 9 Dec 2002 08:24:33 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:13584 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S265484AbSLINYc>;
+	Mon, 9 Dec 2002 08:24:32 -0500
+Date: Mon, 9 Dec 2002 14:31:58 +0100
+Message-Id: <200212091331.gB9DVwn12198@oboe.it.uc3m.es>
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+To: Hugo Mills <hugo-lkml@carfax.org.uk>
+Subject: Re: Need help recovering RAID array after admin error
+X-Newsgroups: linux.kernel
+In-Reply-To: <20021209120431.GB9768@mina.ecs.soton.ac.uk>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Its a development kernel... Alan keeps stating that one should not
-> enable TCQ, so even with this being available in make menuconfig,
-> please try without it.
+In article <20021209120431.GB9768@mina.ecs.soton.ac.uk> you wrote:
+>    Software RAID-5 does indeed protect against a disk failure.
 
-Is IDE TCQ liable to corrupt data on read-only volumes or just
-read-write?  The problem with nobody using it, is that it never gets
-tested - if there are no known issues with read-only use it would be
-nice to know.
+Don't worry about it.  Remake the whole array with mkraid --force
+--dangerous-no-resync.  Then mark the really failed disk or its
+replacement  as faulty with raidsetfaulty.  Then take it out with
+raidhotremove, then put it back wit raidhotadd. It'll be resynced
+from the oter two.
 
-John.
+>    Software RAID-5 doesn't protect against removing the wrong disk
+> from the array after a disk failure. :(
+
+Peter

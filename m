@@ -1,70 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311749AbSEXV3G>; Fri, 24 May 2002 17:29:06 -0400
+	id <S311871AbSEXVaO>; Fri, 24 May 2002 17:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311752AbSEXV3F>; Fri, 24 May 2002 17:29:05 -0400
-Received: from relay02.valueweb.net ([216.219.253.236]:41481 "EHLO
-	relay02.valueweb.net") by vger.kernel.org with ESMTP
-	id <S311749AbSEXV3E>; Fri, 24 May 2002 17:29:04 -0400
-Message-ID: <3CEEAE3D.EB64A3AA@opersys.com>
-Date: Fri, 24 May 2002 17:18:53 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S311885AbSEXVaN>; Fri, 24 May 2002 17:30:13 -0400
+Received: from web14808.mail.yahoo.com ([216.136.224.224]:45060 "HELO
+	web14808.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S311871AbSEXVaL>; Fri, 24 May 2002 17:30:11 -0400
+Message-ID: <20020524213011.50807.qmail@web14808.mail.yahoo.com>
+Date: Fri, 24 May 2002 14:30:11 -0700 (PDT)
+From: Yogesh Swami <spy9599@yahoo.com>
+Subject: Few comments on TCP implementation
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@e-mind.com>
-CC: Dan Kegel <dank@kegel.com>, Andrew Morton <akpm@zip.com.au>,
-        Hugh Dickins <hugh@veritas.com>, Christoph Rohland <cr@sap.com>,
-        Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-In-Reply-To: <Pine.LNX.4.21.0204292127480.1709-100000@localhost.localdomain> <3CEDF94C.592636A6@kegel.com> <3CEDFCED.D10CD618@zip.com.au> <3CEE806D.D52FBEA5@kegel.com> <20020524202658.GI15703@dualathlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Just wanting to put the record straight here about the rtlinux patent.
+I have some questions and comments about the TCP
+implementation: 
 
-Andrea Arcangeli wrote:
-> risk a fragmentation. Until it was only rtlinux to be patented that is
-> never been a showstopper because real time apps are a niche market and
-> they're not mainstream
+a) The calculation of ssthresh is wrong, it should be
+max( 1/2*packets_in_flight, 2) (see RFC 2581) and not
+as shown below in net/tcp.h. Unfortunately the way
+packets in flight is calculated is based on
+heuristics, so the only sensible thing to do would be
+to set to max( 1/2*packets_out, 2*MSS). This small
+change can have a big impact in some cases.
 
-I've been involved in fighting this patent for the last 2 years. During
-this time, I have met and talked with many people about this issue. Today,
-I can assure you that the rtlinux patent is definitely a show-stopper for
-Linux.
+-------- include/net/tcp.h:1098
 
-As it stands now, Linux will never be a viable embedded OS until someone
-gets rid of the rtlinux patent. As a matter of fact, many people in the
-industry decide to go with WinCE precisely because of the rtlinux patent.
+/* Recalculate snd_ssthresh, we want to set it to:
+ *
+ * 	one half the current congestion window, but no
+ *	less than two segments
+ */
+static inline __u32 tcp_recalc_ssthresh(struct tcp_opt
+*tp)
+{
+	return max(tp->snd_cwnd >> 1U, 2U);
+}
+-------
 
-Many in the real-time Linux community are very worried by the fact that
-the kernel developers do indeed see real-time as a niche market because
-the members of the real-time Linux community see the damage being done to
-Linux's penetration in the embedded field because of the patent.
+b) After a retransmission timeout, all the SACK
+information SHOULD be forgotten (see RFC 2018).
+Implementation in the kernel does not follow this but
+relies on SACK reneging. This should be changed to
+what the RFC has to say--again a small change to be
+made.
 
-As the latest VDC report indicates
-(http://www.linuxdevices.com/articles/AT6328992055.html), the no. 1
-factor inhibiting Linux's adoption as an embedded OS is indeed real-time.
+c) There are numerous heuristics at work with no  RFC
+counterparts (rate halving etc etc). To have the best
+performance its probably best to stick with RFCs, or
+if there is a compelling need to have these heuristics
+then they should be brought to the IETF first.
+Implementing something based on someone's random
+publications is not a good idea for an operating as
+pervasive as Linux.
 
-It is no wonder that the established embedded vendors (WindRiver, QNX,
-etc.) feel no threat from Linux. They know that every time Linux will
-be evaluated, it will be put aside because of the patent.
+c) A few new RFCs have come recently (e.g., 3042
+called limited retransmit) that boost the performance
+of short lived connections ( e.g., HTTP
+request-response) and probably it will be a good idea
+to incorporate then in the kernel (barely takes a
+couple of lines to implement). If no one else is
+already working on it, maybe I can assist.
 
-Given that the embedded field is poised to overtake the desktop and the
-server in terms of number of devices deployed, it would seem to me
-that this is much more than just a niche market.
+Please let me know what you think.
 
-Until the rtlinux patent is dismissed, Linux will remain on the fringes
-of the real-time and embedded application field. Unfortunately.
+Thanks
+BR
+Yogesh
 
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com

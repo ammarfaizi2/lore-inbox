@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265449AbRGLPCa>; Thu, 12 Jul 2001 11:02:30 -0400
+	id <S265443AbRGLO4K>; Thu, 12 Jul 2001 10:56:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265463AbRGLPCU>; Thu, 12 Jul 2001 11:02:20 -0400
-Received: from c4.h061013036.is.net.tw ([61.13.36.4]:27404 "EHLO
-	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
-	id <S265449AbRGLPCP>; Thu, 12 Jul 2001 11:02:15 -0400
-Message-ID: <611C3E2A972ED41196EF0050DA92E0760265D832@EXCHANGE2>
-From: Yiping Chen <YipingChen@via.com.tw>
-Subject: Whether Linux support HCLNFSD/PCNFSD daemon.
-Date: Thu, 12 Jul 2001 23:02:45 +0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="big5"
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+	id <S265449AbRGLOzu>; Thu, 12 Jul 2001 10:55:50 -0400
+Received: from u-215-21.karlsruhe.ipdial.viaginterkom.de ([62.180.21.215]:38895
+	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S265443AbRGLOzo>; Thu, 12 Jul 2001 10:55:44 -0400
+Date: Thu, 12 Jul 2001 16:55:03 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: Andreas Dilger <adilger@turbolinux.com>, "C. Slater" <cslater@wcnet.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Switching Kernels without Rebooting?
+Message-ID: <20010712165503.A22592@bacchus.dhis.org>
+In-Reply-To: <200107121223.HAA53012@tomcat.admin.navo.hpc.mil>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200107121223.HAA53012@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Thu, Jul 12, 2001 at 07:23:06AM -0500
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir:
-I have installed "NFS Maestro" package (Hummingbird company) in Win98,  when
-I use "NFS
-Network Access" Software to connect with linux NFS server, it appear the
-following error message, can anybody give me any suggestions? Thanks!
+On Thu, Jul 12, 2001 at 07:23:06AM -0500, Jesse Pollard wrote:
 
-"Network Timeout or HCLNFSD/PCNFSD not running on Host"
+> That isn't even the same problem.
 
-And I can't find any HCLNFSD/PCNFSD daemon in Linux.
-So I need help.
+Sure - the original problem is hard to solve so I suggest to cheat a bit :)
 
-Ariel Chen.
+> First, processes do not survive the upgrade.
 
+You care about services to continue or only want an entry for an uptime
+contest?
 
+  Ralf

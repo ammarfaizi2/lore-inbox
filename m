@@ -1,82 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbTL1Mn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 07:43:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTL1Mn2
+	id S261193AbTL1MpH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 07:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTL1MpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 07:43:28 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:17163 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S261188AbTL1MnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 07:43:25 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       maneesh@in.ibm.com, mgorse@mgorse.dhs.org, linux-kernel@vger.kernel.org
-Subject: Re: oopses in kobjects in 2.6.0-test11 (was Re: kobject patch)
-Date: Sun, 28 Dec 2003 15:38:42 +0300
-User-Agent: KMail/1.5.3
-Cc: Patrick Mochel <mochel@digitalimplant.org>
-References: <20031009014837.4ff71634.akpm@osdl.org> <20031208222526.GA31134@kroah.com> <20031208224810.GB31134@kroah.com>
-In-Reply-To: <20031208224810.GB31134@kroah.com>
+	Sun, 28 Dec 2003 07:45:07 -0500
+Received: from smtp7.hy.skanova.net ([195.67.199.140]:62402 "EHLO
+	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261193AbTL1MpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 07:45:00 -0500
+To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0 and mice
+References: <173901c3cceb$02d68560$43ee4ca5@DIAMONDLX60>
+From: Peter Osterlund <petero2@telia.com>
+Date: 28 Dec 2003 12:49:41 +0100
+In-Reply-To: <173901c3cceb$02d68560$43ee4ca5@DIAMONDLX60>
+Message-ID: <m2pte9cgbu.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312281538.42309.arvidjaar@mail.ru>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 09 December 2003 01:48, Greg KH wrote:
-> Ok, I'm ccing lkml and everyone else who has been in on this thread at
-> different times.  This is based on a patch from Andrey that was/is in
-> the -mm tree for a while.
->
+"Norman Diamond" <ndiamond@wta.att.ne.jp> writes:
 
-what about second part in sysfs/dir.c? How relevant is it?
+> On a machine with an Alps touchpad, I have built 2.6.0 several times.
+...
+> 2.  Also in Input device support, there is a section on Mice, PS/2 mouse,
+> and Synaptics TouchPad.  These I compiled in and they don't seem to be
+> causing any problems.  It seems that the Alps TouchPad is being recognized
+> as an Intelli/Wheel mouse instead of being recognized as a Synaptics
+> TouchPad, which is unfortunate but not really causing any problems.  I've
+> read that Synaptics is most common in foreign countries but Alps is most
+> common in Japan.
 
--andrey
+The synaptics kernel driver doesn't try to recognize alps touchpads.
+However, in the XFree86 driver
 
->
-> > > - after this oops has been fixed I got next one now in sysfs.  The
-> > >   problem is sysfs_remove_dir would unlink all children including
-> > >   directories for subordinate kobjects.  Resulting in dget/dput
-> > > mismatch. I usually got oops due to the fact that d_delete in
-> > > remove_dir would free inode and then simple_rmdir would try to access
-> > > it.
-> > >
-> > >   The patch avoids calling extra d_delete/unlink on already-deleted
-> > >   dentry.  I hate this patch but anything better apparently requires
-> > >   complete redesign of sysfs implementation.  Unlinking busy directory
-> > > is otherwise impossible and I am afraid it will show itself somewhere
-> > > else.
-> > >
-> > >
-> > >
-> > >  25-akpm/fs/sysfs/dir.c |   12 ++++++++++--
-> > >  25-akpm/lib/kobject.c  |    4 ++--
-> > >  2 files changed, 12 insertions(+), 4 deletions(-)
-> > >
-> > > diff -puN fs/sysfs/dir.c~kobject-oops-fixes fs/sysfs/dir.c
-> > > --- 25/fs/sysfs/dir.c~kobject-oops-fixes	Thu Oct  9 01:46:51 2003
-> > > +++ 25-akpm/fs/sysfs/dir.c	Thu Oct  9 01:46:51 2003
-> > > @@ -82,8 +82,16 @@ static void remove_dir(struct dentry * d
-> > >  {
-> > >  	struct dentry * parent = dget(d->d_parent);
-> > >  	down(&parent->d_inode->i_sem);
-> > > -	d_delete(d);
-> > > -	simple_rmdir(parent->d_inode,d);
-> > > +	/*
-> > > +	 * It is possible that parent has already been removed, in which
-> > > +	 * case directory is already unhashed and dput.
-> > > +	 * Note that this won't update parent->d_inode->i_nlink; OTOH
-> > > +	 * parent should already be dead
-> > > +	 */
-> > > +	if (!d_unhashed(d)) {
-> > > +		d_delete(d);
-> > > +		simple_rmdir(parent->d_inode,d);
-> > > +	}
-> > >
-> > >  	pr_debug(" o %s removing done (%d)\n",d->d_name.name,
-> > >  		 atomic_read(&d->d_count));
+        http://w1.894.telia.com/~u89404340/touchpad/index.html
 
+there is a kernel patch (alps.patch) that makes the kernel recognize
+alps touchpads and generate data compatible with the XFree86 synaptics
+driver.
+
+It doesn't work perfectly though, at least not for some hardware. The
+problem seems to be how to interpret the gesture bit in the alps mouse
+packets. Unfortunately I can't debug this problem myself, because I
+don't have the hardware and there doesn't seem to be any public
+documentation available for alps touchpads.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,45 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTKCFQK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 00:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261903AbTKCFQK
+	id S261903AbTKCFfb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 00:35:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbTKCFfb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 00:16:10 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:52231 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S261893AbTKCFQI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 00:16:08 -0500
-Date: Mon, 3 Nov 2003 06:16:03 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: CN <cnliou9@fastmail.fm>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel: i8253 counting too high! resetting..
-Message-ID: <20031103051603.GE530@alpha.home.local>
-References: <20031029075010.596C57A6C6@smtp.us2.messagingengine.com> <20031030171235.GA59683@teraz.cwru.edu> <20031031050439.E03B17E2B8@smtp.us2.messagingengine.com> <200310310040.19519.gene.heskett@verizon.net> <20031031063636.GA61826@teraz.cwru.edu> <20031103044155.8D0067DF67@server2.messagingengine.com>
-Mime-Version: 1.0
+	Mon, 3 Nov 2003 00:35:31 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45829
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S261903AbTKCFfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 00:35:23 -0500
+Date: Sun, 2 Nov 2003 21:34:30 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Ville Herva <vherva@niksula.hut.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide write cache issue? [Re: Something corrupts raid5 disks
+ slightly during reboot]
+In-Reply-To: <20031102082827.GO4868@niksula.cs.hut.fi>
+Message-ID: <Pine.LNX.4.10.10311022124480.23682-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031103044155.8D0067DF67@server2.messagingengine.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2 Nov 2003, Ville Herva wrote:
 
-On Sun, Nov 02, 2003 at 08:41:55PM -0800, CN wrote:
-> As reported in my first message, the box running kernel 2.4.22 and
-> Fjuitsu HD generated i8253 message while the other box running 2.4.20 and
-> Maxtor did not. During the past 3 days I wiped out everything from the HD
-> and reinstalled Debian woody on to the "normal" box (with Maxtor) and
-> rebuilt the kernel to 2.4.22. This used-to-be normal box started to
-> generate the i8253 message since then.
+> On Sat, Nov 01, 2003 at 10:05:31PM -0800, you [Andre Hedrick] wrote:
+> > 
+> > I added the flush code to flush a drive in several places but it got
+> > pulled and munged.
+> > 
+> > The original model was to flush each time a device was closed, when any
+> > partition mount point was released, and called by notifier.
+> > 
+> > In a minimal partition count of 1, you had at least two flush before
+> > shutdown or reboot.
+> > 
+> > So it was not the code because I fixed it, but then again I am retiring
+> > from formal maintainership.
+> 
+> Thanks, Andre :(.
+> 
+> As an^Wthe IDE expert, can you clarify a few points:
+> 
+>   - How long can the unwritten data linger in the drive cache if the drive
+>     is otherwise idle? (Without an explicit flush and with write caching
+>     enabled.)
 
-There's a simple reason for what you see : this message was introduced in
-2.4.21 to detect buggy hardware. Before 2.4.21, you only had the luck to
-see time go backwards without any apparent reason. There was a very long
-thread about gettimeofday() jumping backwards a few months ago in which
-you may find detailed informations about this problem.
+Basically forever, until a read is issued to a range of lba's which starts
+smaller than the uncommitted contents's lba, and includes the content in
+question.  Or if a flush cache or disable write-back cache is issued.
 
-Regards,
-Willy
+>     I had unmounted the fs an raidstopped the md minutes before the boot.
+
+The problem imho, is a break down of fundamental cascading callers.
+
+Unmount MD -> flush MD
+
+	MD is a fakie device :-/
+
+MD fakie calls for flush of R_DEV's
+
+Likewise unloading or stopping MD operations should repeat regardless of
+mount or not.
+
+>   - Can this corruption happen on warmboot or only on poweroff?
+
+Given POST (assume x86 for only a brief moment) will issue execute
+diagnositics to hunt for signatures on the ribbon, that basically wacks
+the content.  Cool cycle obviously wacks the buffer.
+
+>   - What kind of corruption can one see the if boot takes place "too fast"
+>     and drive hasn't got enough time to flush its cache?
+
+erm, I am lost with the above.
+Flush Cache is a hold and wait on completion, period.
+However, a cache error at this point is a wasted effort to attempt
+recovery.
+
+Not sure I helped or not ...
+
+Cheers,
+
+Andre
 

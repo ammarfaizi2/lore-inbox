@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316856AbSHATqG>; Thu, 1 Aug 2002 15:46:06 -0400
+	id <S316951AbSHATyX>; Thu, 1 Aug 2002 15:54:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316878AbSHATqG>; Thu, 1 Aug 2002 15:46:06 -0400
-Received: from p50887441.dip.t-dialin.net ([80.136.116.65]:18617 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316856AbSHATqG>; Thu, 1 Aug 2002 15:46:06 -0400
-Date: Thu, 1 Aug 2002 13:49:07 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Mukesh Rajan <mrajan@ics.uci.edu>, <linux-kernel@vger.kernel.org>,
-       <mlord@pobox.com>
-Subject: Re: IDE, putting HD to sleep causes "lost interrupt"
-In-Reply-To: <Pine.LNX.4.10.10207310958520.25961-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.44.0208011348020.5119-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S316953AbSHATyX>; Thu, 1 Aug 2002 15:54:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:9344 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316951AbSHATyW>; Thu, 1 Aug 2002 15:54:22 -0400
+Date: Thu, 1 Aug 2002 15:58:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Gary Lawrence Murphy <garym@canada.com>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       garym@teledyn.com
+Subject: Re: Kernel compiled from source won't read /parts/ of a CD?
+In-Reply-To: <m2bs8mtlit.fsf@maya.dyndns.org>
+Message-ID: <Pine.LNX.3.95.1020801154900.873A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 1 Aug 2002, Gary Lawrence Murphy wrote:
 
-On Wed, 31 Jul 2002, Andre Hedrick wrote:
-> Because you need to call
 > 
-> hdparm -w /dev/hda		<--- Reset Device
-> hdparm -C /dev/hda		<--- query status, repeat until good.
-> hdparm -X** /dev/hda		<--- transfer rate mode set
-> hdparm -m** /dev/hda		<--- set multiple
-> hdparm -d* /dev/hda		<--- set DMA
-> 
-> You effectively kill (disable command mode) the drive has to be kick
-> started.
+> This is one of the strangest situations I have ever seen: my
+> re-compiled Linux 2.4.18 kernel now /refuses/ to read /only/ the
+> "/Mandrake" directory branch of all three of the Mandrake distribution
+> CDs.  It /has/ to be some kernel option, but I can't figure which one;
+> any advice or debugging hints at all are greatly appreciated.
 
-Well, mind how horribly that sucks if your hdparm is on the disk you've 
-sent to sleep. Thus, never send your disk containing /sbin to sleep...
+I had some problem like this. I don't know what caused it
+because it was 'fixed' by a re-boot. I think it was that
+the kernel 'thought' the block-size was wrong for the CD.
 
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+Anyway, the next time it happend, I copied the entire
+contents of a CD to a file (ising 'cp'). I then mounted
+the file through the loop device. I figured it might be
+quicker than re-booting (it wasn't). It worked anyway.
+
+The next time it happens, I will try to mount the CD
+through the loop device. Anyway, you can try that now.
+
+Maybe it will help you read it.
+
+mount -t iso9660 -o loop /dev/cdrom /mnt
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

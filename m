@@ -1,50 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268646AbUI2PSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268602AbUI2PU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268646AbUI2PSu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 11:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUI2PRq
+	id S268602AbUI2PU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 11:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUI2PUC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 11:17:46 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:36769 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S268633AbUI2PJ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 11:09:26 -0400
-Subject: Re: Reiser4
-From: Vladimir Saveliev <vs@namesys.com>
-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <4d8e3fd30409280820460341cf@mail.gmail.com>
-References: <4d8e3fd3040928054313c64050@mail.gmail.com>
-	 <1096380380.1927.26.camel@tribesman.namesys.com>
-	 <4d8e3fd30409280820460341cf@mail.gmail.com>
-Content-Type: text/plain
-Message-Id: <1096470624.2092.135.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 29 Sep 2004 19:10:25 +0400
+	Wed, 29 Sep 2004 11:20:02 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:34294 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S268633AbUI2PSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 11:18:49 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: IDE Hotswap
+Date: Wed, 29 Sep 2004 14:08:55 +0200
+User-Agent: KMail/1.6.2
+Cc: Suresh Grandhi <Sureshg@ami.com>,
+       "'linux-ide@vger.kernel.org'" <linux-ide@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <8CCBDD5583C50E4196F012E79439B45C069657DB@atl-ms1.megatrends.com> <200409290354.38440.bzolnier@elka.pw.edu.pl> <1096422632.14637.30.camel@localhost.localdomain>
+In-Reply-To: <1096422632.14637.30.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200409291408.55211.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Wednesday 29 September 2004 03:50, Alan Cox wrote:
+> On Mer, 2004-09-29 at 02:54, Bartlomiej Zolnierkiewicz wrote:
+> > Your patch is a nice start but it don't solve main issues, not to even
+> > mention minor stuff like leaving /proc/ide/<chipset> around.
+> > Merging it now is asking for problems.
+> 
+> Oh I agree. There is a patch but it isn't the final answer. There is a
+> small resource bug (harmless but a bug) in the 2.6.8.1-ac patch. I
+> hadn't noticed proc/ide/<chipset> leaking but I'll take a look when I
+> get time to sort that out. 
 
-On Tue, 2004-09-28 at 19:20, Paolo Ciarrocchi wrote:
-> On Tue, 28 Sep 2004 18:06:22 +0400, Vladimir Saveliev <vs@namesys.com> wrote:
-> > Hello
+/proc/ide/<chipset> is the smallest problem
+
+Don't waste your time on it, I've almost killed this bloat in my tree.
+
+> > > like suspend mean the nasties in 2.4 for sequencing have gone away. No
+> > > refcounting needed since the block and fs layer are doing it all for
 > > 
-> > On Tue, 2004-09-28 at 16:43, Paolo Ciarrocchi wrote:
-> > > What's the status of this FS ?
-> > > It's definitely out ?
-> > 
-> > it is included into mm serie of kernel since 2.6.8.1-mm2.
+> > It helps but you still get bunch of races.  Refcounting is _really_ needed.
 > 
-> Yup, I thought it was dropped.
-> Do you know if Andrew/Linus are planning to merge it in mainline anytime soon ?
+> Even in 2.4 ide drive hotplug was easy. The drive hotplug comes out
+> trivially because your controllers are fairly constant. As we all know
+> driver level hotplug is a bit trickier although the block layer has
+> really made this vastly easier in 2.6
 > 
+> For drive level hotplug you don't actually need refcounting at all
+> providing you've got a couple of locking issues dealt with.
 
-When reiser4 will become more mature. It is curretly too raw.
+These issues can't be solved without refcounting.
 
-> Thanks you.
+Feel free to probe me wrong, you can start with fixing
+->open vs unregister race (drive->usage involved). :)
+
+> Firstly the drive never goes away as a high level object (in fact you
+> don't want it to as then you can't ioctl it to make it come back!). That
+> means the upper layers don't know anything about it.
+
+ioctls on not present devices are layering VIOLATION
+
+> At the IDE layer the 2.4 code simply enforced the rule that you must be
+> the only opener of the device in order to hot unplug it. That means we
+
+"enforced" - there are a couple of races, sorry but ROTFL
+
+> know its quiescent and not mounted. The only 2.4 race I know about is
+
+- double unlock obvious mistake
+- ->open() vs unregister
+- /proc races (the same you fixed in your 2.6 patch)
+- ioctl races
+
+I'm sure there is more.
+
+> suspend in parallel to hot unplug, and 2.6 has the mechanism to fix that
+> properly because suspend is a command state machine.
 > 
-> Ciao,
+> Providing hot unplug is about making drive->present stuff vary and
+> flipping to ide_default drivers the world is happy. The moment you want
+> to make /dev/hda 'disappear' to the block layer its fun, and on 2.4 its
+> as good as impossible.
 
+gendisk layer and block layer enforces you to make /dev/hda disappear.
+Does sysfs ring any bells?  Ask viro about static objects vs sysfs.
+And yes not only gendisk and block enforces this, Patrick added basic,
+premature sysfs support to IDE driver in the middle of 2.5 series.
+
+We can get back to discussion when you get familiar with issues involved.
+
+Bartlomiej

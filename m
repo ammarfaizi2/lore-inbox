@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUHDJ0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUHDJif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbUHDJ0u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 05:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUHDJ0u
+	id S262062AbUHDJif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 05:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbUHDJif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 05:26:50 -0400
-Received: from ipvpn078217.netvigator.com ([203.198.167.217]:39439 "HELO
-	vet.gla.ac.uk") by vger.kernel.org with SMTP id S262138AbUHDJZW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 05:25:22 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "abel" <speedo21front242@hotmail.com>
-Date: Wed, 04 Aug 2004 09:25:11 GMT
-Message-Id: <1091611511-31366@excite.com>
-Subject: Anonymous Drug Delivery, no prescription!!
-Content-Type: text/plain;
+	Wed, 4 Aug 2004 05:38:35 -0400
+Received: from mail4.bluewin.ch ([195.186.4.74]:30161 "EHLO mail4.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262062AbUHDJiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 05:38:23 -0400
+Date: Wed, 4 Aug 2004 11:37:09 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: [via-rhine] Really call rhine_power_init()
+Message-ID: <20040804093709.GA1536@k3.hellgate.ch>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Jeff Garzik <jgarzik@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a fix for the heisenbug with via-rhine refusing to work
+sometimes. Patch "[9/9] Restructure reset code" contained a change made
+necessary by patch [8/9]. Mainline merged [8/9] for 2.6.8 and is still
+missing the fix, while -mm got it with [9/9].
 
-What do you pay now?
+Jesper Juhl provided crucial test data when no one else was able to
+reproduce the symptoms.
 
-If you pay more than these prices, maybe you should click this link....
-http://www.dfjndfv.com/_85924943b9db73ac62baa654773c6a8e/7
+Roger
 
-VALIUM - $2 a pill! (Anti-Depressant)
-SOMA - $3 a pill! (Pain Relief)
-XANAX - $1.70 a pill! (Anti-Depressant)
-LIPITOR - $3.50 a pill! (Cholesterol Control)
-ZYBAN - $3 a pill! (Stop Smoking)
-ZOLOFT - $2 a pill! (Anti-Depressant)
-PAXIL - $3 a pill! (Anti-Depressant)
-PROZAC - $2 a pill! (Anti-Depressant)
-GLUCOPHAGE - 70 cents a pill! (Diabetes)
-MERIDIA - $2.50 a pill! (Weight Loss)
-VIOXX - $1 a pill! (Pain Relief)
-CELEBREX - $2 a pill! (Pain Relief)
-XENICAL - $2.50 a pill! (Weight Loss)  
+Signed-off-by: Roger Luethi <rl@hellgate.ch>
 
-http://www.dfjndfv.com/_85924943b9db73ac62baa654773c6a8e/7
-
-
-
-
-
-
-
-
-
-
-
-light abcdefactive camping ruby scuba1 dodgers zhongguo 
-public guessmeow cynthia valentin
-fiona racoon tarzan 
+--- tmp/drivers/net/via-rhine.c.00_broken	2004-07-29 13:58:17.000000000 +0200
++++ tmp/drivers/net/via-rhine.c	2004-07-30 15:12:36.656007543 +0200
+@@ -748,6 +748,8 @@ static int __devinit rhine_init_one(stru
+ 	}
+ #endif /* USE_MMIO */
+ 	dev->base_addr = ioaddr;
++	rp = netdev_priv(dev);
++	rp->quirks = quirks;
+ 
+ 	rhine_power_init(dev);
+ 
+@@ -792,10 +794,8 @@ static int __devinit rhine_init_one(stru
+ 
+ 	dev->irq = pdev->irq;
+ 
+-	rp = netdev_priv(dev);
+ 	spin_lock_init(&rp->lock);
+ 	rp->pdev = pdev;
+-	rp->quirks = quirks;
+ 	rp->mii_if.dev = dev;
+ 	rp->mii_if.mdio_read = mdio_read;
+ 	rp->mii_if.mdio_write = mdio_write;

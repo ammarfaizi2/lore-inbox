@@ -1,146 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261408AbSIPMkF>; Mon, 16 Sep 2002 08:40:05 -0400
+	id <S261208AbSIPMpj>; Mon, 16 Sep 2002 08:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261415AbSIPMkF>; Mon, 16 Sep 2002 08:40:05 -0400
-Received: from mail.parknet.co.jp ([210.134.213.6]:19726 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S261408AbSIPMkE>; Mon, 16 Sep 2002 08:40:04 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       Daniel Jacobowitz <drow@false.org>
-Subject: Re: [PATCH] Fix for ptrace breakage
-References: <Pine.LNX.4.44.0209161349270.29027-100000@localhost.localdomain>
-	<87vg565eo2.fsf@devron.myhome.or.jp>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 16 Sep 2002 21:44:34 +0900
-In-Reply-To: <87vg565eo2.fsf@devron.myhome.or.jp>
-Message-ID: <87wupmrtn1.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S261211AbSIPMpj>; Mon, 16 Sep 2002 08:45:39 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:51338 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261208AbSIPMpi>; Mon, 16 Sep 2002 08:45:38 -0400
+Date: Mon, 16 Sep 2002 08:52:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: jdow <jdow@earthlink.net>
+cc: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: Heuristic readahead for filesystems
+In-Reply-To: <002a01c25aa3$f865b7a0$1125a8c0@wednesday>
+Message-ID: <Pine.LNX.3.95.1020916082446.22214A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> writes:
+On Thu, 12 Sep 2002, jdow wrote:
 
-> Grr, sorry. This patch is bad version.
+> From: "Richard B. Johnson" <root@chaos.analogic.com>
 > 
->  	list_for_each(_p, &father->ptrace_children) {
+> > Then you are tuning a file-system for a single program
+> > like `ls`. Most real-world I/O to file-systems are not done
+> > by `ls` or even `make`. The extra read-ahead overhead is
+> > just that, 'overhead'. Since the cost of disk I/O is expensive,
+> > you certainly do not want to read any more than is absolutely
+> > necessary. There had been a lot so studies about this in the
+> > 70's when disks were very, very, slow. The disk-to-RAM speed
+> > ratio hasn't changed much even though both are much faster.
+> > Therefore, the conclusions of these studies, made by persons
+> > from DEC and IBM, should not have changed. From what I recall,
+> > all studies showed that read-ahead always reduced performance,
+> > but keeping what was already read in RAM always increased
+> > performance.
 > 
-> of course, this should
-> 
->  	list_for_each_safe(_p, _n, &father->ptrace_children) {
+> Dick, those studies are simply not meaningful. The speedup for
+> general applications that I generated in the mid 80s with a pair
+> of SCSI controllers for the Amiga was rather dramatic. At that
+> time every PC controller I ran down was reading 512 bytes per
+> transaction. They could not read contiguous sectors unless they
+> were VERY fast. For these readahead would generate no benefit.
+> (Even some remarkably expensive SCSI controllers for PCs fell
+> into that trap and defective mindset.) The controllers I re-
+> engineered were capable of reading large blocks of data multiple
+> sectors in size in a single transaction. I experimented with
+> several programs and discovered that a 16k readahead was about
+> my optimum compromise between the read time overhead vs the
+> transaction time overhead. I even found that for the average case
+> ONE buffer was sufficient, which boggled me. (As a developer I
+> was used to reading multiple files at a time to create object
+> files and linked targets.)
 
-This is a patch which fixed the above. Please apply.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Well they could read contiguous sectors if the sector interleave
+was correctly determined and the correct interleave was set
+while low-level formatting. Now-days, interleave is either ignored
+or unavailable because there is a sector buffer that can contain
+an entire track of data. Some SCSI drives have sector buffers
+that can contain a whole cylinder of data.
 
---- linux-2.5.35/kernel/exit.c~	2002-09-16 17:41:59.000000000 +0900
-+++ linux-2.5.35/kernel/exit.c	2002-09-16 20:55:43.000000000 +0900
-@@ -221,7 +221,6 @@ void reparent_to_init(void)
- 	/* Set the exit signal to SIGCHLD so we signal init on exit */
- 	current->exit_signal = SIGCHLD;
- 
--	current->ptrace = 0;
- 	if ((current->policy == SCHED_NORMAL) && (task_nice(current) < 0))
- 		set_user_nice(current, 0);
- 	/* cpus_allowed? */
-@@ -443,7 +442,7 @@ void exit_mm(struct task_struct *tsk)
- static inline void forget_original_parent(struct task_struct * father)
- {
- 	struct task_struct *p, *reaper = father;
--	struct list_head *_p;
-+	struct list_head *_p, *_n;
- 
- 	reaper = father->group_leader;
- 	if (reaper == father)
-@@ -462,52 +461,37 @@ static inline void forget_original_paren
- 		if (father == p->real_parent)
- 			reparent_thread(p, reaper, child_reaper);
- 	}
--	list_for_each(_p, &father->ptrace_children) {
-+	list_for_each_safe(_p, _n, &father->ptrace_children) {
- 		p = list_entry(_p,struct task_struct,ptrace_list);
-+		list_del_init(&p->ptrace_list);
- 		reparent_thread(p, reaper, child_reaper);
-+		if (p->parent != p->real_parent)
-+			list_add(&p->ptrace_list, &p->real_parent->ptrace_children);
- 	}
- }
- 
--static inline void zap_thread(task_t *p, task_t *father, int traced)
-+static inline void zap_thread(task_t *p, task_t *father)
- {
--	/* If someone else is tracing this thread, preserve the ptrace links.  */
--	if (unlikely(traced)) {
--		task_t *trace_task = p->parent;
--		int ptrace_flag = p->ptrace;
--		BUG_ON (ptrace_flag == 0);
--
--		__ptrace_unlink(p);
--		p->ptrace = ptrace_flag;
--		__ptrace_link(p, trace_task);
--	} else {
--		/*
--		 * Otherwise, if we were tracing this thread, untrace it.
--		 * If we were only tracing the thread (i.e. not its real
--		 * parent), stop here.
--		 */
--		ptrace_unlink (p);
--		if (p->parent != father) {
--			BUG_ON(p->parent != p->real_parent);
--			return;
--		}
--		list_del_init(&p->sibling);
--		p->parent = p->real_parent;
--		list_add_tail(&p->sibling, &p->parent->children);
--	}
-+	ptrace_unlink(p);
- 
-+	remove_parent(p);
-+	p->parent = p->real_parent;
-+	add_parent(p, p->parent);
- 	if (p->state == TASK_ZOMBIE && p->exit_signal != -1)
- 		do_notify_parent(p, p->exit_signal);
-+
- 	/*
- 	 * process group orphan check
- 	 * Case ii: Our child is in a different pgrp
- 	 * than we are, and it was the only connection
- 	 * outside, so the child pgrp is now orphaned.
- 	 */
--	if ((p->pgrp != current->pgrp) &&
--	    (p->session == current->session)) {
-+	if ((p->pgrp != father->pgrp) &&
-+	    (p->session == father->session)) {
- 		int pgrp = p->pgrp;
- 
--		if (__will_become_orphaned_pgrp(pgrp, 0) && __has_stopped_jobs(pgrp)) {
-+		if (__will_become_orphaned_pgrp(pgrp, 0) &&
-+		    __has_stopped_jobs(pgrp)) {
- 			__kill_pg_info(SIGHUP, (void *)1, pgrp);
- 			__kill_pg_info(SIGCONT, (void *)1, pgrp);
- 		}
-@@ -520,7 +504,7 @@ static inline void zap_thread(task_t *p,
-  */
- static void exit_notify(void)
- {
--	struct task_struct *t;
-+	struct task_struct *t, *p;
- 
- 	write_lock_irq(&tasklist_lock);
- 
-@@ -580,10 +564,8 @@ static void exit_notify(void)
- 	if (current->exit_signal != -1)
- 		do_notify_parent(current, current->exit_signal);
- 
--	while (!list_empty(&current->children))
--		zap_thread(list_entry(current->children.next,struct task_struct,sibling), current, 0);
--	while (!list_empty(&current->ptrace_children))
--		zap_thread(list_entry(current->ptrace_children.next,struct task_struct,ptrace_list), current, 1);
-+	while ((p = eldest_child(current)) != NULL)
-+		zap_thread(p, current);
- 	BUG_ON(!list_empty(&current->children));
- 
- 	current->state = TASK_ZOMBIE;
+> 
+> Back in the 70s did anyone ever read more than a single block
+> at a time, other than me that is? (I had readahead in CP/M back
+> in the late 70s. But the evidence for that has evaporated I am
+> afraid. I repeatedly boggled other CP/M users with my 8" floppy
+> speeds as a result. I also added blocking and deblocking so I
+> could use large sectors for even more speed.)
+> 
+
+When we were doing direct-to-disk data writing here at
+Analogic around 20 years ago, I experimented with changing
+the sector interleave to speed up disc I/O. The DEC disks
+in use at that time on our systems had ST-506 interfaces.
+I had made a similar utility, called Spin-Ok (a put-down
+of Spin-Right who stole my public-domain software and 
+made a commercial version), for the IBM/PC.
+
+I had to get the privatives from Digital so I could write
+a disk formatting driver. Our Chairman Bernie Gordon and
+DEC's chairman Ken Olson were not exactly buddies, but we
+were allowed to obtain information that might not be given
+to everybody.
+
+Some DEC engineers were interested in the results of my experiments.
+It turned out that DEC's 1:1 interleave was no where near
+correct for the maximum data transfer rate. I don't remember the
+numbers, but I think the best speed was with a 5:1 or, perhaps,
+3:1. Anyway experiments lead to using DEC file-system disks
+as well as raw disks.
+
+The file-system of the day was RMS. It had a fixed-length allocation
+map which was owned by a "file" called BITMAP.SYS. This map was
+contiguous and each bit in that map represented an allocation unit
+on the physical structure. I proposed to DEC engineering that any
+access to this file area, result in the entire map being read
+into memory. I am quite aware of the "not-invented-here" syndrome
+commonplace at Digital. However, one Engineer went to great lengths
+presenting data and the results of his group's tests on just that
+idea plus the idea of reading ahead, in general. It was shown, at
+least to my satisfaction 20 years ago, that any read-ahead was
+quite counter productive.
+
+And the numbers were obvious! They didn't require any thought!
+
+Somebody else on this thread asked for a URL! There wasn't any
+such thing when this work was going on. We had BBS Systems and
+1200 baud modems, eventually up to 9600. However, I did search
+for some info. An interesing result is RAPID (Read Ahead for Parallel
+Independent Disks)
+ http://www.unet.univie.ac.at/~a9405327/glossary/node93.html
+
+This was experimental and seems to have been abandoned in the
+late 1990s although it provided a lot of meat for several Masters
+and PhD thesis.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

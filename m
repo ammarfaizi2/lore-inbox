@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265522AbTF3I2i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 04:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbTF3I2i
+	id S265760AbTF3Iak (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 04:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265718AbTF3Iak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 04:28:38 -0400
-Received: from tag.witbe.net ([81.88.96.48]:57864 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S265303AbTF3I2g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 04:28:36 -0400
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Russell King'" <rmk@arm.linux.org.uk>,
-       "'David S. Miller'" <davem@redhat.com>
-Cc: <cfriesen@nortelnetworks.com>, <paulus@samba.org>,
-       <linux-kernel@vger.kernel.org>, <linux-ppp@vger.kernel.org>,
-       <linux-net@vger.kernel.org>
-Subject: Re: [BUG]: problem when shutting down ppp connection since 2.5.70
-Date: Mon, 30 Jun 2003 10:42:49 +0200
-Message-ID: <008301c33ee3$968fca50$4100a8c0@witbe>
+	Mon, 30 Jun 2003 04:30:40 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:49796 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S265760AbTF3Iag
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 04:30:36 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: <ahorn@deorth.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Dell vs. GPL
+Date: Mon, 30 Jun 2003 01:44:54 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKKEHPEAAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <20030630092337.B32593@flint.arm.linux.org.uk>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
 Importance: Normal
+In-Reply-To: <Pine.LNX.4.10.10306300129070.5840-100000@master.linux-ide.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-> The thread I replied to is about pppoe devices, so it isn't 
-> limited to PCMCIA, although that seems to be the most popular 
-> subset which causes the problem.
-> 
+> Do not confuse contract and right to use license, they are legally
+> different.  There is no contract law in GPL.
 
-I _do_ confirm this is definitely not related to a PCMCIA stuff
-as far as I'm concerned. I'm using a desktop machine, no PCMCIA
-stuff in the kernel I built, even as module.
+	The terms 'contract' and 'license' are interchangeable. The GPL is a
+contract that gives you a right to use certain copryighted works in a way
+you wouldn't otherwise have in exchange for certain compensation. The terms
+of the license act like a contract and can even grant rights not recognized
+under copyright law itself. See, for example, Bowers v. Baystate and ProCD
+Inc v. Zeidenberg.
 
-Regards,
-Paul
+	Note that things may be very different outside the U.S.
+
+	DS
 

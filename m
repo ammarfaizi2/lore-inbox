@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271350AbRHQUKA>; Fri, 17 Aug 2001 16:10:00 -0400
+	id <S271189AbRHQU0S>; Fri, 17 Aug 2001 16:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271333AbRHQUJu>; Fri, 17 Aug 2001 16:09:50 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:59894 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S271559AbRHQUJg>; Fri, 17 Aug 2001 16:09:36 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 17 Aug 2001 14:09:43 -0600
-To: "Mark H. Wood" <mwood@IUPUI.Edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2 not NULLing deleted files?
-Message-ID: <20010817140831.H17372@turbolinux.com>
-Mail-Followup-To: "Mark H. Wood" <mwood@IUPUI.Edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010817020241.C32617@turbolinux.com> <Pine.LNX.4.33.0108171243410.392-100000@mhw.ULib.IUPUI.Edu>
+	id <S271584AbRHQU0J>; Fri, 17 Aug 2001 16:26:09 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:2564 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S271333AbRHQUZ5>;
+	Fri, 17 Aug 2001 16:25:57 -0400
+Date: Thu, 16 Aug 2001 23:28:15 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Manuel McLure <manuel@mclure.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
+Message-ID: <20010816232814.A38@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0108121509310.974-100000@penguin.transmeta.com> <E15W3ZC-0006IC-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108171243410.392-100000@mhw.ULib.IUPUI.Edu>
-User-Agent: Mutt/1.3.20i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E15W3ZC-0006IC-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Aug 12, 2001 at 11:18:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Aug 17, 2001  12:55 -0500, Mark H. Wood wrote:
-> Regarding the need to do more than just zero unwanted data, I note that
-> there is a U.S. DOD MIL-SPEC (no, I do not know the number) which defines
-> a sequence of patterns to be used for erasing magnetic media.
+Hi!
 
-In the Usenix paper quoted earlier in this thread (I believe) it was
-stated that the MIL-SPEC document was actually bogus.  REAL secure
-deletion requirements were much more strict (something like 15 passes of
-various random and non-random patterns vs. 7 passes of alternating all 0
-and all 1 data), but the US government made it think that the MIL-SPEC
-requirements were enough, so that naive users would follow it, still
-leaving enough trace data on the disk for the government to retrieve it.
+> > The problem with backing it out is that apparently nobody has tried to
+> > really maintain it for a year, and if it gets backed out nobody will even
+> > bother to try to fix it. So I'll let it be for a while, at least.
+> 
+> I thought this was a stable kernel tree not 2.5 ?
 
-Still, even a single pass of zero writes is enough to prevent 99.9%
-of attackers from getting the data back.
-
-Cheers, Andreas
+Oops while *using* the driver seem to be much less severe than random
+lockups when *NOT* using driver. According to ESR, 2.4.7 is doing the 
+latter.
+								Pavel
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272420AbTGaJeT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 05:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272443AbTGaJeT
+	id S272443AbTGaJsM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 05:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272946AbTGaJsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 05:34:19 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:32384 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S272420AbTGaJeS (ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 05:34:18 -0400
-Date: Thu, 31 Jul 2003 10:41:16 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200307310941.h6V9fGIL000804@81-2-122-30.bradfords.org.uk>
-To: bunk@fs.tum.de, szepe@pinerecords.com
-Subject: Re: [2.6 patch] let broken drivers depend on BROKEN{,ON_SMP}
-Cc: john@grabjohn.com, Linux-Kernel@vger.kernel.org, Riley@Williams.Name
+	Thu, 31 Jul 2003 05:48:12 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:57299 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S272443AbTGaJsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 05:48:10 -0400
+Date: Thu, 31 Jul 2003 11:47:49 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       Dominik Brugger <ml.dominik83@gmx.net>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: OHCI problems with suspend/resume
+Message-ID: <20030731094749.GB464@elf.ucw.cz>
+References: <Pine.LNX.4.44L0.0307251057300.724-100000@ida.rowland.org> <1059153629.528.2.camel@gaston> <3F21B3BF.1030104@pacbell.net> <20030726210123.GD266@elf.ucw.cz> <3F288CAB.6020401@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F288CAB.6020401@pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > If a _user_ of a stable kernel notices "it doesn't even compile" this 
-> > > > gives a very bad impression of the quality of the Linux kernel.
-> > > 
-> > > The keyword in this sentence is "stable."
-> > > Could you maybe come up with this again at around 2.6.40? :)
-> > 
-> > The first stable kernel of the 2.6 kernel series will be 2.6.0.
->
-> There are going to be a zillion drivers that don't compile by the
-> time 2.6.0 is released, which is precisely when lkml will see a whole
-> new wave of people willing to fix things so I really don't think
-> hiding the problems behind CONFIG_BROKEN or whatever is reasonable.
+Hi!
 
-They would simply stay behind CONFIG_BROKEN for longer, because fewer
-people would test them.
+> Well, partially; but it's not used consistently.  Could you
+> (or someone) explain what the plan is?  I see:
+> 
+>  - Three separate x86 PM "initiators":  APM, ACPI, swsusp.
+>    (Plus ones for ARM and MIPS.)
+> 
+>  - Two driver registration infrastructures, the driver model
+>    stuff and the older pm_*() stuff.
+> 
+> The pm_*() is how a handful of sound drivers and other random
+> stuff register themselves -- and how PCI does it.
+> 
+> I'd sure have expected PCI to only use the driver model stuff,
+> and I'll hope all those users will all be phased out by the
+> time that 2.6 gets near the end of its test cycle.
+> 
+> 
+> The "initiators" all talk to _both_ infrastructures, but they
+> don't talk to the driver model stuff in the same way.  For
+> example, on suspend:
+> 
+>  - ACPI issues a NOTIFY, which can veto the suspend;
+>    then SAVE_STATE, ditto; finally POWER_DOWN.
+> 
+>  - APM uses the pm_*() calls for a vetoable check,
+>    never issues SAVE_STATE, then goes POWER_DOWN.
+> 
+>  - While swsusp is more like ACPI except that it doesn't
+>    support vetoing from either NOTIFY or SAVE_STATE.
 
-Also, remember that some things might only give compile errors under
-certain circumstances.  The _vast_ majority of kernels include TCP/IP
-support, for example, so something that breaks when it's not
-configured could easily go unnoticed for ages - does that mean it
-should be put behind CONFIG_BROKEN when it's discovered?
-
-John.
+Where does acpi call pm_*()? It seems like it does not and it seems
+like a bug to me.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,11 +1,11 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287139AbSAPSs4>; Wed, 16 Jan 2002 13:48:56 -0500
+	id <S287141AbSAPSuG>; Wed, 16 Jan 2002 13:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286311AbSAPSsr>; Wed, 16 Jan 2002 13:48:47 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:31801 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S287134AbSAPSsh>;
-	Wed, 16 Jan 2002 13:48:37 -0500
+	id <S286311AbSAPStu>; Wed, 16 Jan 2002 13:49:50 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:12336 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S287134AbSAPStT>;
+	Wed, 16 Jan 2002 13:49:19 -0500
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@bonn-fries.net>
 To: Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>
@@ -17,7 +17,7 @@ In-Reply-To: <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
 In-Reply-To: <Pine.LNX.3.96.1020113193700.17441G-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16Q370-0000lp-00@starship.berlin>
+Message-Id: <E16Q37U-0000lq-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 

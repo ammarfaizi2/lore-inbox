@@ -1,84 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266076AbUBJTbq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 14:31:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266145AbUBJTbq
+	id S266040AbUBJTTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 14:19:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266074AbUBJTTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 14:31:46 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:21658 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S266076AbUBJT22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 14:28:28 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
-Date: Wed, 11 Feb 2004 03:38:10 +0800
-User-Agent: KMail/1.5.4
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-References: <200402050941.34155.mhf@linuxmail.org> <200402100625.41288.mhf@linuxmail.org> <20040210185137.GD4478@dualathlon.random>
-In-Reply-To: <20040210185137.GD4478@dualathlon.random>
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 10 Feb 2004 14:19:31 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:42891 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S266040AbUBJTSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 14:18:43 -0500
+Subject: Re: ATARAID userspace configuration tool
+From: Christophe Saout <christophe@saout.de>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+In-Reply-To: <40292246.2030902@backtobasicsmgmt.com>
+References: <Pine.LNX.4.40.0402101405190.25784-100000@jehova.dsm.dk>
+	 <1076425115.23946.18.camel@leto.cs.pocnet.net>
+	 <40292246.2030902@backtobasicsmgmt.com>
+Content-Type: text/plain
+Message-Id: <1076440714.27328.8.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 10 Feb 2004 20:18:34 +0100
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402110338.10258.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 11 February 2004 02:51, Andrea Arcangeli wrote:
-> On Tue, Feb 10, 2004 at 11:24:01PM +0800, Michael Frank wrote:
+Am Di, den 10.02.2004 schrieb Kevin P. Fleming um 19:26:
+
+> > I have a really bad idea :)
 > > 
-> > diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.4.24-Vanilla/arch/i386/mm/init.c linux-2.4.24-mhf179/arch/i386/mm/init.c
-> > --- linux-2.4.24-Vanilla/arch/i386/mm/init.c	2004-01-21 15:53:01.000000000 +0800
-> > +++ linux-2.4.24-mhf179/arch/i386/mm/init.c	2004-02-10 06:15:31.000000000 +0800
-> > @@ -451,15 +451,18 @@
-> >  {
-> >  	if (!page_is_ram(pfn)) {
-> >  		SetPageReserved(page);
-> > +		SetPageNosave(page);
-> >  		return;
-> >  	}
-> >  	
-> >  	if (bad_ppro && page_kills_ppro(pfn)) {
-> >  		SetPageReserved(page);
-> > +		SetPageNosave(page);
-> >  		return;
-> >  	}
-> >  	
-> >  	ClearPageReserved(page);
-> > +	ClearPageNosave(page);
+> > Try to combine it with udev. udev calls the ide script, the ide script
+> > then calls the ataraid detector. If the device is non-ataraid, go on as
+> > usual. If it is, build the device-mapper device and symlink (if it
+> > doesn't already exist) and tell udev to not create anything.
 > 
-> why this clearpagenosave? looks superflous, you're not doing it in the
-> normal zone anyways.
+> This is not a bad idea, it's the future.
 
-I'll sleep on it and get back to you with my arguments.
+I was just joking. I said that because it's not complete.
 
-> 
-> > +#if defined(__nosave_begin)
-> 
-> this won't work right, __nosave_begin isn't a preprocessor thing so it
-> will be ignored when you uncomment it. You probably can use #if 0
-> instead and a comment near __nosave_begin to turn it to 1 when enabling
-> the suspend code.
+> The hotplug mechanism is 
+> exactly what should be used here. When a block-device hotplug ADD event 
+> occurs, you look at that device to see if it's something you care about. 
+> If not, just exit and leave it alone.
 
-Oh sh*t, this is what one gets for fixing things up for a demo after
-a long night... Will bite my lower rear portion after the nap.
+udev maintains a database of already created devices. And sysfs is some
+sort of database of really existing devices. The "telling udev to not
+create the device and instead create it ourself" is bad. We should be
+able to tell udev that it should register and create another device
+instead. Perhaps udev should know about compound devices.
 
-> 
-> > What is your opinion of this approach?
-> 
-> except for the above two nitpicks, the patch is correct and needed for
-> safe suspend IMHO. 2.6 seems to miss this thing too, why not add it to
-> 2.6 first?
+I'm not sure but if udev knows about compound devices things get a bit
+more complicated. A raid 1 setup would continue to work if one of the
+devices is unplugged, a raid 0 setup fails to work if one device is
+missing. Probably the device should be deleted only when both hard disks
+are removed. Also it should be created if only one hard disk gets
+plugged in. But on bootup if some script tells udev that one hard disk
+is there and some seconds later that the second is also there the tool
+shouldn't assume the raid has failed after seeing the first event.
 
-Swsusp won't be in 2.4 anyway, if Nigel accepts the patch, it will become part 
-of his next releases for 2.4 and 2.6.
+Should we Cc an udev developer for an opinion?
 
-Anyway, I'll fix the patch up for 2.6, test it and post the patch in a few days.
+> Now in the ATARAID case, where you need to see multiple devices before 
+> you can do anything with them, this means you'd need to keep some 
+> "state" somewhere about the devices you've seen so far, and the partial 
+> ATARAID devices they represent. When you get the hotplug event for the 
+> last piece of a particular ATARAID device, you use DM/MD to set up the 
+> device and make it available.
 
-Regards
-Michael
+As I said I think it is more complicated.
+
+> The wonderful part of this is, when you do that last step, _another_ 
+> block-device hotplug ADD event occurs for the new device you just 
+> created, and if the hotplug scripts are set up to run dmpartx or its 
+> equivalent for new block-devices, you are done.
+
+Right. dmpartx should run on dm-[0-9]* and md[0-9]* events (but not
+recursively of course ;)).
+
+>  The partition tables 
+> _inside_ the ATARAID device will be read, more DM calls will be made to 
+> make those sub-devices available to userspace and everyone is thrilled 
+> about the elegance of the solution :-)
+
+Yes, sounds cool.
+
 

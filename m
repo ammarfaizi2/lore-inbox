@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262383AbSJEPpP>; Sat, 5 Oct 2002 11:45:15 -0400
+	id <S262384AbSJEPpY>; Sat, 5 Oct 2002 11:45:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262384AbSJEPpM>; Sat, 5 Oct 2002 11:45:12 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:56573 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262383AbSJEPpL>; Sat, 5 Oct 2002 11:45:11 -0400
-Subject: Re: IDE subsystem issues with 2.4.1[89] [REVISITED]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Costa <brblueser@uol.com.br>
-Cc: Linux kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021005114725.3af9c194.brblueser@uol.com.br>
-References: <20021005114725.3af9c194.brblueser@uol.com.br>
-Content-Type: text/plain
+	id <S262385AbSJEPpY>; Sat, 5 Oct 2002 11:45:24 -0400
+Received: from pat.uio.no ([129.240.130.16]:47761 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S262384AbSJEPpX>;
+	Sat, 5 Oct 2002 11:45:23 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 16:59:39 +0100
-Message-Id: <1033833579.4103.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15775.2654.502424.712655@charged.uio.no>
+Date: Sat, 5 Oct 2002 17:50:54 +0200
+To: Richard Zidlicky <rz@linux-m68k.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: 2.4.19 NFS file perms
+In-Reply-To: <20021005122115.A1338@linux-m68k.org>
+References: <20021005122115.A1338@linux-m68k.org>
+X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 14:47, Andre Costa wrote:
-> I know this is a known issue, and you guys are working on it; I also
-> know many changes to IDE subsystem have been backported from 2.5.x
-> series, and 2.4.20pre* already reflect some (all?) of them. I don't want
-> to rush things, I was just curious to know the current status regarding
-> these IDE issues.
+>>>>> " " == Richard Zidlicky <rz@linux-m68k.org> writes:
 
-2.5 has most but not all of the IDE updates in 2.4-ac. 2.4 vanilla has
-basically old IDE code but with some small PCI layer fixes backported
-that deal with all the i845G bios mess
+     > Hi, on an NFS mounted fs, executing as root I see this:
 
+     > read(4, 0xefffe4cb, 1) = -1 EIO (Input/output error)
 
+     > glibc crashes in fgets because it doesn't expect the problem
+     > after the file has been successfully opened and mapped.. who is
+     > at fault here?
+
+The 'soft' mount option perhaps?
+
+Cheers,
+  Trond

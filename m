@@ -1,38 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbTDFAid (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 19:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262741AbTDFAic (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 19:38:32 -0500
-Received: from lloyd-169.caltech.edu ([131.215.89.169]:65410 "HELO
-	homer.d-oh.org") by vger.kernel.org with SMTP id S262740AbTDFAic (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 19:38:32 -0500
-From: "Alex Adriaanse" <alex_a@caltech.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: VFS-Lock patch
-Date: Sat, 5 Apr 2003 16:50:03 -0800
-Message-ID: <JIEIIHMANOCFHDAAHBHOAECGDAAA.alex_a@caltech.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id S262742AbTDFApC (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 19:45:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262749AbTDFApB (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 19:45:01 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:36956 "EHLO
+	VL-MS-MR001.sc1.videotron.ca") by vger.kernel.org with ESMTP
+	id S262742AbTDFApA (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 19:45:00 -0500
+Date: Sat, 05 Apr 2003 19:56:31 -0500
+From: Stephane Ouellette <ouellettes@videotron.ca>
+Subject: [PATCH]  Unresolved symbol compile error on non-PCI PC systems
+To: linux-kernel@vger.kernel.org
+Message-id: <3E8F7B3F.1040000@videotron.ca>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_4BAxi19ZP6jb83+nzvYHog)"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
 
-I'm just curious, is there any reason why the VFS-lock patch provided by the
-LVM people has not been included into the 2.4.x tree yet?
+--Boundary_(ID_4BAxi19ZP6jb83+nzvYHog)
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
 
-If I were to apply this patch to a stock 2.4.20 kernel, is it safe to use
-LVM snapshots with ReiserFS on production machines, or are there any
-stability issues with it (either with the LVM version that comes with
-2.4.20, or upgrading to LVM 1.0.7)?
+Folks,
 
-Thanks,
+    in the file arch/i386/kernel/dmi_scan.c, there are two unresolved 
+symbols when this file is compiled for a system without PCI support.
 
-Alex
+    The following patch fixes this.  Patch applies against 2.4.21-pre5-ac3.
 
+    As I do not know for sure if there are other issues related with 
+this patch, I would like that someone double-checks it.  There is also a 
+possibility that this fix applies to the 2.5 kernel tree.
+
+Regards,
+
+Stephane Ouellette
+
+
+
+--Boundary_(ID_4BAxi19ZP6jb83+nzvYHog)
+Content-type: text/plain; name=dmi_scan.c.patch; CHARSET=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-disposition: inline; filename=dmi_scan.c.patch
+
+--- linux-2.4.21-pre5-ac3/arch/i386/kernel/dmi_scan.c	Fri Apr  4 16:52:19 2003
++++ linux-2.4.21-pre5-ac3-fixed/arch/i386/kernel/dmi_scan.c	Sat Apr  5 12:12:48 2003
+@@ -415,8 +415,10 @@
+  */
+  
+ extern int skip_ioapic_setup;
++#ifdef CONFIG_PCI
+ extern int broken_440gx_bios;
+ extern unsigned int pci_probe;
++#endif
+ static __init int broken_pirq(struct dmi_blacklist *d)
+ {
+ 	printk(KERN_INFO " *** Possibly defective BIOS detected (irqtable)\n");
+@@ -427,8 +429,10 @@
+ #ifdef CONFIG_X86_IO_APIC
+ 	skip_ioapic_setup = 0;
+ #endif
++#ifdef CONFIG_PCI
+ 	broken_440gx_bios = 1;
+ 	pci_probe |= PCI_BIOS_IRQ_SCAN;
++#endif
+ 	
+ 	return 0;
+ }
+
+--Boundary_(ID_4BAxi19ZP6jb83+nzvYHog)--

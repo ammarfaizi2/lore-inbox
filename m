@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266949AbSK2DlG>; Thu, 28 Nov 2002 22:41:06 -0500
+	id <S266952AbSK2DyA>; Thu, 28 Nov 2002 22:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbSK2DlG>; Thu, 28 Nov 2002 22:41:06 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:36103 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266949AbSK2DlG>;
-	Thu, 28 Nov 2002 22:41:06 -0500
-Date: Thu, 28 Nov 2002 19:40:11 -0800
-From: Greg KH <greg@kroah.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: David Brownell <david-b@pacbell.net>,
-       "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module alias and table support
-Message-ID: <20021129034011.GA12711@kroah.com>
-References: <3DE53EF6.4080303@pacbell.net> <20021128041136.35CA02C081@lists.samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021128041136.35CA02C081@lists.samba.org>
-User-Agent: Mutt/1.4i
+	id <S266958AbSK2DyA>; Thu, 28 Nov 2002 22:54:00 -0500
+Received: from dp.samba.org ([66.70.73.150]:48265 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266952AbSK2Dx5>;
+	Thu, 28 Nov 2002 22:53:57 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: David Brownell <david-b@pacbell.net>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Module alias and table support 
+In-reply-to: Your message of "Thu, 28 Nov 2002 14:01:50 -0800."
+             <3DE6924E.9060609@pacbell.net> 
+Date: Fri, 29 Nov 2002 14:26:44 +1100
+Message-Id: <20021129040120.5F0B72C239@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 02:14:29PM +1100, Rusty Russell wrote:
+In message <3DE6924E.9060609@pacbell.net> you write:
+> This is a multi-part message in MIME format.
 > 
-> Hopefully this is back together: the device-table-to-aliases stuff is
-> a separate step which can be argued on its own, and I think will
-> probably have to wait for 2.7 unless Greg is going to champion it.
+> --Boundary_(ID_oTV6oYegTuXHnGSwqC+1Lw)
+> Content-type: text/plain; charset=us-ascii; format=flowed
+> Content-transfer-encoding: 7BIT
 > 
-> The real win is simplicity and independence from the kernel
-> datastructures (which probably won't change during 2.6 anyway).
+> 
+> > Hmm, with 2.5.50 and module-init-tools 0.8a two "modules.*map" files
+> > are created -- but they're empty.  That's with the latest 2.5 modutils
+> > 
+> >   http://www.kernel.org/pub/linux/kernel/people/rusty/modules/
+> > 
+> > So that's not quite working yet. ...
+> 
+> OK -- good news!
+> 
+> I now have USB hotplugging behaving again, with three patches on
+> top of 2.5.50 and modutils 0.8a :
+> 
+> - The <linux/module.h> patch included with your 0.8a announce:
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=103845080926386&w=2
+> 
+> - A tweak to that patch to still include <linux/elf.h> (to compile)
 
-Which, imho, is worth championing!  :)
+Good!  I think I'll release a 2.5.50 modules megapatch while I'm
+waiting for Linus to merge.
 
-I'm going to be in Austin next week, and I'll have some free time in the
-evenings, so I'll try to take a look at your previous patch and see if I
-can change it a bit to resolve the minor problems I had with it.
+> - The attached patch to your "modprobe", implementing "-n" and (so
+>    I can see it works at least partially) using "-v".
 
-thanks,
+And the compulsory spelling fix (Adam put that in, I'm sure it was to
+check that people were paying attention).
 
-greg k-h
+Thanks, merged for 0.9 with the globals changed to locals and the
+"wrong arg" fprintf removed (getopt prints a message) rather than
+fixed.
+
+Thanks very much for the testing and the patch!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

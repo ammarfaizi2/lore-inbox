@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVCJItX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVCJIwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbVCJItX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 03:49:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVCJItX
+	id S262444AbVCJIwu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 03:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVCJIwu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 03:49:23 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:12383 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262435AbVCJItU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 03:49:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=mKBXDM9FUDfXmkeDpMkCv/cXnoYx3Ll6PXIYklNdL2IYtaDULbq6iJDxXIAgaAxSND85wQYliPYHwnqVRR53hPoI4OypCxG+sZP0NiNl4WbGzLT6Q/3ciM3uGqX8xFzRbYJ51jV0UDF8wgsZV7DgQq1+DEoAJP020CQ9QIvFUEM=
-Message-ID: <c4b38ec40503100049190d5498@mail.gmail.com>
-Date: Thu, 10 Mar 2005 16:49:20 +0800
-From: Jason Luo <abcd.bpmf@gmail.com>
-Reply-To: Jason Luo <abcd.bpmf@gmail.com>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: Can I get 200M contiguous physical memory?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050310081634.GA29516@taniwha.stupidest.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <c4b38ec4050310001061c62b9d@mail.gmail.com>
-	 <20050310081634.GA29516@taniwha.stupidest.org>
+	Thu, 10 Mar 2005 03:52:50 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:61863 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262444AbVCJIvY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 03:51:24 -0500
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Reduce cacheline bouncing in cpu_idle_wait
+References: <Pine.LNX.4.61.0503091839200.2903@montezuma.fsmlabs.com>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 10 Mar 2005 09:51:22 +0100
+In-Reply-To: <Pine.LNX.4.61.0503091839200.2903@montezuma.fsmlabs.com> (Zwane
+ Mwaikambo's message of "Wed, 9 Mar 2005 19:41:35 -0700 (MST)")
+Message-ID: <m1mztbvq7p.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks!
-A data acquisition card. In DMA mode, the card need 200M contiguous
-memory for DMA.
-it's driver in windows can do it. so custom ask us to support it.
-are there a way although it'is unpopular?
+Zwane Mwaikambo <zwane@arm.linux.org.uk> writes:
 
-On Thu, 10 Mar 2005 00:16:34 -0800, Chris Wedgwood <cw@f00f.org> wrote:
-> On Thu, Mar 10, 2005 at 04:10:18PM +0800, Jason Luo wrote:
-> 
-> > Now, I am writing a driver, which need 200M contiguous physical
-> > memory? can do? how to do it?
-> 
-> Not easily no.  Do you really need this?  What kind of hardware is
-> this?
->
+> Andi noted that during normal runtime cpu_idle_map is bounced around a 
+> lot, and occassionally at a higher frequency than the timer interrupt 
+> wakeup which we normally exit pm_idle from. So switch to a percpu 
+> variable. Andi i didn't move things to the slow path because it would 
+> involve adding scheduler code to wakeup the idle thread on the cpus we're 
+> waiting for.
+
+Thanks. 
+>  
+> -
+>  void cpu_idle_wait(void)
+>  {
+> -        int cpu;
+> -        cpumask_t map;
+> +	unsigned int cpu, this_cpu = get_cpu();
+> +	cpumask_t map;
+> +
+> +	set_cpus_allowed(current, cpumask_of_cpu(this_cpu));
+> +	put_cpu();
+
+You need a cpus_clear(map); here I think (probably same for the other
+archs) 
+
+> +
+> +	for_each_online_cpu(cpu) {
+> +		per_cpu(cpu_idle_state, cpu) = 1;
+> +		cpu_set(cpu, map);
+> +	}
+
+
+
+-Andi

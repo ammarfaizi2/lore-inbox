@@ -1,33 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266320AbTBGS41>; Fri, 7 Feb 2003 13:56:27 -0500
+	id <S266323AbTBGTAt>; Fri, 7 Feb 2003 14:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266323AbTBGS40>; Fri, 7 Feb 2003 13:56:26 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:52380 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266320AbTBGS4Z>; Fri, 7 Feb 2003 13:56:25 -0500
-Date: Fri, 7 Feb 2003 14:08:47 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
+	id <S266347AbTBGTAt>; Fri, 7 Feb 2003 14:00:49 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:896 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S266323AbTBGTAs>; Fri, 7 Feb 2003 14:00:48 -0500
+Date: Fri, 7 Feb 2003 20:10:17 +0100
 To: SA <bullet.train@ntlworld.com>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: interrupt latency k2.4 / i386?
+Message-ID: <20030207191017.GB20284@pusa.informat.uv.es>
+References: <200302071847.36646.bullet.train@ntlworld.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <200302071847.36646.bullet.train@ntlworld.com>
-Message-ID: <Pine.LNX.3.95.1030207140224.30719A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Feb 2003, SA wrote:
 
+On Fri, Feb 07, 2003 at 06:47:36PM +0000, SA wrote:
 > 
 > Dear list,
 > 
 > What latency should I expect for hardware interrupts under k2.4 / i386 ? 
+>
+>
 > 
 > ie how long should it take between the hardware signalling the interrupt and 
 > the interrupt handler being called?
+
+I don't know the hardware part but it depends on how long interrupts are
+being disabled (and that depend on the code you use in the kernel) and 
+that can be measured with akpm's timepeg+intlat patches
+
+http://www.zip.com.au/~akpm/linux/#timepegs
+
+I hope this helps
+
+	Ulisses
+
 > 
 > 
 > I am wrting a driver which pace IO with interrupts, generating one interrupt 
@@ -50,22 +66,16 @@ On Fri, 7 Feb 2003, SA wrote:
 > 
 > Thanks SA
 > -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Well there are very great problems with a lot of drivers if you
-want good latency, but are sharing interrupts. Many drivers poll
-in the ISR! This means that they loop through their ISR code
-in some "interrupt mitigation scheme" that some near-do-well taught
-in web-page school. This means, that if you share an interrupt,
-you are probably screwed. You need to put your board in some slot
-where it will either be first on the IRQ chain, or not shared at
-all. Typical latencies are around 1.2 microseconds on a 400 MHz
-machine, better on faster, sometimes better with two CPUs and an
-IOAPIC.
+-- 
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263063AbTIHQR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 12:17:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbTIHQR7
+	id S262690AbTIHQJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 12:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTIHQJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 12:17:59 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:35471 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263063AbTIHQR6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 12:17:58 -0400
-Date: Mon, 8 Sep 2003 17:17:29 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+	Mon, 8 Sep 2003 12:09:59 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:12163 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262690AbTIHQJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 12:09:56 -0400
+Subject: Re: Hardware supported by the kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: DervishD <raul@pleyades.net>
+Cc: Dave Jones <davej@redhat.com>, Ch & Ph Drapela <pcdrap@bluewin.ch>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: nasm over gas?
-Message-ID: <20030908161729.GB26829@mail.jlokier.co.uk>
-References: <rZQN.83u.21@gated-at.bofh.it> <saVL.7lR.1@gated-at.bofh.it> <soFo.16a.1@gated-at.bofh.it> <ssJa.6M6.25@gated-at.bofh.it> <tcVB.rs.3@gated-at.bofh.it> <3F5C7009.4030004@softhome.net>
+In-Reply-To: <20030908145617.GF11936@DervishD>
+References: <3F59DF81.8000407@bluewin.ch> <20030906134029.GE69@DervishD>
+	 <20030907223258.GE28927@redhat.com> <20030908092952.GA51@DervishD>
+	 <20030908095357.GD10358@redhat.com>
+	 <1063026380.21084.24.camel@dhcp23.swansea.linux.org.uk>
+	 <20030908145617.GF11936@DervishD>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F5C7009.4030004@softhome.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Mon, 08 Sep 2003 16:10:59 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ihar 'Philips' Filipau wrote:
->   It will depend on arch CPU only in case if you have unlimited i$ size.
->   Servers with 8MB of cache - yes it is faster.
->   Celeron with 128k of cache - +4bytes == higher probability of i$ miss 
-> == lower performance.
+On Llu, 2003-09-08 at 15:56, DervishD wrote:
+>  * Alan Cox <alan@lxorguk.ukuu.org.uk> dixit:
+> > > who did I miss ?
+> > Trident - documentation is public, nobody has tackled a driver
+> 
+>     Trident cards are still sold? Here in Spain is difficult to get
+> one (except a second-hand maybe).
 
-Higher probability != optimal performance.
+Trident appears in the EPIA (but not EPIA-M) onboard video for one. So
+its still around as an embedded item.
 
-It depends on your execution context.  If it's part of a tight loop
-which is executed often, then saving a cycle in the loop gains more
-performance than saving icache, even on a 128k Celeron.
+> > Intel - older stuff is slow, newer onboard video is actually pretty good
+> > and Intel support this stuff seriously. Its not a radeon but it players
+> > cube perfectly well 8) Presumably intel will eventually fuse the CPU and
+> > graphics into one chip.
+> 
+>     I tested the 810 a time ago. It was not slow (2D at least, didn't
+> check 3D), but it was buggy (even in Windows, so Linux drivers
+> weren't blame of this).
 
-The execution context can depend on the input to the program, in which
-case the faster of the two code sequences can depend on the program's
-input too.  Then, for optimal performance, you need to profile the
-"expected" inputs.
+With XFree 4.3 810 seems pretty solid 2D/3D nowdays, and the later stuff
+830/845/... is also a fair bit faster.
 
-> P.S. Add having good macroprocessor for assembler is a must: CPP is 
-> terribly stupid by design. I beleive gas has no preprocessor comparable 
-> to masm's one? I bet they are using C's cpp.
-
-You obviously have not read the GAS documentation.
-
-It has quite a good macro facility built in.
-
--- Jamie

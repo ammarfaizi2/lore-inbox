@@ -1,93 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284812AbRLXMhs>; Mon, 24 Dec 2001 07:37:48 -0500
+	id <S284866AbRLXNk3>; Mon, 24 Dec 2001 08:40:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284813AbRLXMhi>; Mon, 24 Dec 2001 07:37:38 -0500
-Received: from t2.redhat.com ([199.183.24.243]:19186 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S284812AbRLXMhX>; Mon, 24 Dec 2001 07:37:23 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <4.3.2.7.2.20011223080930.00c5aed0@10.1.1.42> 
-In-Reply-To: <4.3.2.7.2.20011223080930.00c5aed0@10.1.1.42>  <4.3.2.7.2.20011222075342.00c11e00@10.1.1.42> <4.3.2.7.2.20011222075342.00c11e00@10.1.1.42> <Pine.GSO.4.30.0112221113120.2091-100000@balu> <E16H9C4-0005ST-00@sites.inka.de> <Pine.GSO.4.30.0112221113120.2091-100000@balu> 
-To: Stephen Satchell <list@fluent2.pyramid.net>
-Cc: Phil Howard <phil-linux-kernel@ipal.net>, linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help. 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 24 Dec 2001 12:37:17 +0000
-Message-ID: <26276.1009197437@redhat.com>
+	id <S284868AbRLXNkT>; Mon, 24 Dec 2001 08:40:19 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:46091 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S284866AbRLXNkG>;
+	Mon, 24 Dec 2001 08:40:06 -0500
+Message-ID: <3C273028.6070305@free.fr>
+Date: Mon, 24 Dec 2001 14:39:52 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011220
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: esr@thyrsus.com
+Cc: Steven Cole <scole@lanl.gov>, linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov> <20011220135213.B18128@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric S. Raymond wrote:
 
-list@fluent2.pyramid.net said:
-> >If you are more interested in the choices of the marketplace than in
-> >technical correctness, one has to wonder what you're doing on this mailing
-> >list.
+> 
+> 
+> This change came as a patch from David Woodhouse.  I think the new
+> abbreviations are awful ugly, myself, but they do have the virtue of
+> not being ambiguous.  So I swallowed hard and took the patch.
+> 
 
-> Nice ad hominem attack, David.  Attack the messenger.  Good boy.
+This could even have the nice side effect of teaching something to Linux 
+newbies (mainly the fact that the difference between 2^10 and 10^3 
+matters in some areas). I see 2 cases :
 
-That's not what I understood 'ad hominem' to mean. My understanding was that
-ad hominem involved an attack on the person making the argument, followed by
-an obviously false assertion that such attack renders the person's arguments
-invalid, even though the details of the attack made are completely unrelated
-to the matter being discussed.
+- already encountered the kiB/MiB/GiB notation and understood the 
+meaning: no problem if we take out of the equation the aesthetic of the 
+abreviations.
 
-Thus observing that you sent your mail using a Windows MUA, then declaring
-that your argument is invalid because you're a Windows user and therefore 
-obviously mentally deficient, would be an ad hominem attack.
+- this is a new thing for the reader, 3 cases:
+  . Computer literate person : she uses her intuition and understand its 
+meaning : no problem apart the time used to put her intuition at work,
+  . Computer illiterate person which don't care enough : she doesn't 
+understand the difference with kB/MB/GB and takes the notation as a 
+different syntax but with the same semantic : the only problem would be 
+a temporary confusion (from a fraction of a second to several minutes) 
+until this assumption is made. It certainly would be made by computer 
+illiterate people who are lost in the first place: we trade a 
+misunderstanding for another.
+  . Computer illiterate person which really tries to understand : she 
+doesn't understand and take the time to document herself : no problem 
+she might discover something she didn't even thought about.
 
-My response, though it could possibly be called an 'attack' if you were
-feeling particularly thin-skinned, was definitely based upon the discussion
-at hand - I expressed surprise at the criterion of marketplace acceptability
-which you used to justify your position.
+This is a simplified view but I believe the actual readers' behaviour 
+would be somehow a combination of several of the above cases.
 
->  I also mentioned that we have a very, very large base of "legacy
-> users" who  do not understand what MiB would be (outside of the
-> context of the movie  _Men in Black_) and who would become very, very
-> confused.  In short, making  the change would CONFUSE THE
-> NON-TECHNICAL USERS more than they already are. 
+So what's the tradeoff :
+* aesthetic and shor time spent in temporary confusion or reflexion
+* for clarity and education of some people in the end.
 
-But this term _is_ used outside that context. And the context it's used in,
-in just about all cases, makes it blindingly obvious to all but the densest
-reader what the intended meaning is. Maybe _those_ people will remain
-slightly confused about where we mean 10^3 and where we mean 2^10, but at
-least people with a clue no longer have to be confused about such things.
+Hiding complexity in the docs would only keep some users ignorant.
+This is my personal opinion but don't we prefer educated users instead 
+of ignorant ones ?
 
-As an example - what possible meaning could you contrive for 'KiB' in the
-following:
+I find the choice obvious...
+We could argue on the choice of these particular abreviations against 
+others but as I don't see any other around...
 
-  This lets you select the page size of the kernel.  For best IA-64
-  performance, a page size of 8KiB or 16KiB is recommended.  For best
-  IA-32 compatibility, a page size of 4KiB should be selected (the vast
-  majority of IA-32 binaries work perfectly fine with a larger page
-  size).  For Itanium systems, do NOT chose a page size larger than
-  16KiB.
-
-Surely it's difficult to imagine anyone reading that and coming to any 
-other conclusion than the correct one?
-
-
-I accept that is often appropriate to 'dumb down' documentation and
-explanations somewhat to cater for the lowest common denominator members of 
-the audience. 
-
-It is much more rarely appropriate to dumb it down so far that it becomes
-factually inaccurate. The tuition of physics at high school, in Further
-Education and then Higher Education is perhaps an example of when such
-oversimplifications are necessary and appropriate. Some people will never
-need to know that Newton's Laws break down, and even if that weren't the
-case, they wouldn't have a whelk's chance in a supernova of understanding
-Relativity anyway. So why trouble them with it?
-
-But in the situation at hand, there is no justification for catering to the
-ignorant in our documentation to the extent that it becomes inaccurate. The
-difficulty in understanding the correct text is just not sufficient to
-justify the inaccuracies.
-
---
-dwmw2
-
+LB
 

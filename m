@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265332AbTFMKhU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 06:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265335AbTFMKhU
+	id S265341AbTFMKoc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 06:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbTFMKob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 06:37:20 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:40855 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S265332AbTFMKhT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 06:37:19 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Bug in 2.5.70-mm9: df: `/': Value too large for defined data type
-Date: Fri, 13 Jun 2003 12:50:44 +0200
-User-Agent: KMail/1.5.9
-References: <20030613013337.1a6789d9.akpm@digeo.com>
-In-Reply-To: <20030613013337.1a6789d9.akpm@digeo.com>
-MIME-Version: 1.0
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_Lya6+wzJtqH8mmO";
-  charset="iso-8859-1"
+	Fri, 13 Jun 2003 06:44:31 -0400
+Received: from mail.idoox.com ([194.213.203.154]:5641 "EHLO mail.idoox.com")
+	by vger.kernel.org with ESMTP id S265341AbTFMKoZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 06:44:25 -0400
+Subject: Re: Cisco Aironet mini-PCI wireless card (MPI-350) [Was: Re: Intel
+	PRO/Wireless 2100 vs. Broadcom BCM9430x]
+From: Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055439997.10219.54.camel@ixodes.goop.org>
+References: <Pine.LNX.4.44.0306120813380.411-100000@twin.uoregon.edu>
+	 <1055438410.930.15.camel@narsil>
+	 <1055439997.10219.54.camel@ixodes.goop.org>
+Content-Type: text/plain
+Message-Id: <1055501888.1452.13.camel@narsil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 13 Jun 2003 12:58:08 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200306131250.51502.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Many thanks,
 
---Boundary-02=_Lya6+wzJtqH8mmO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+the patch worked well in the meaning of possible module insertion. But I
+wasn't able to configure the card with ACU well.
 
-Hi!
+With older firmware it's possible to insert module and to configure it
+with ACU, but I'm not able to configure the card well. The whole
+password menu produces segmentation fault :-))
 
-When I enter 'df' in my bash with -mm9 I get following:
-  Filesystem           1k-blocks      Used Available Use% Mounted on
-  df: `/': Value too large for defined data type
-  /dev/hda3                 7776      5718      1657  78% /boot
+Is there any other way how to configure this card? Unfortunately it
+doesn't support wireless extensions.
 
-instead of:
-  Filesystem           1k-blocks      Used Available Use% Mounted on
-  /dev/hda5              7421764   7296016    125748  99% /
-  /dev/hda3                 7776      5718      1657  78% /boot
+Jan Mynarik
 
--mm8 worked without this problem.
+On Thu, 2003-06-12 at 19:46, Jeremy Fitzhardinge wrote:
+> On Thu, 2003-06-12 at 10:20, Jan Mynarik wrote:
+> > Cisco's linux support is great until you have IBM's ThinkPad R40. With
+> > this notebook, their newest Linux driver (version 2.0, older ones do not
+> > support my card) module (mpi350.o) can't be inserted to kernel (oops and
+> > module remains 'initializing' forever). Module is compiled successfully
+> > against both 2.4.20 and 2.4.21-rc7 kernels.
+> > 
+> > I'm just fighting their bureaucracy (in support) and trying to reach
+> > someone who actually wrote the driver (module says Roland Wilcher). I
+> > want to help him with testing and provide him with all possible
+> > information.
+> 
+> Downgrade your firmware.  On the Cisco site, there's a Linux driver
+> paired with a particular firmware version.  Use it: there's a bug in the
+> kernel driver in which it reads stuff out of the card's RIDs into a
+> local structure, but using the card's RID size.  The newer firmware has
+> increased the structure sizes for some RIDs, which overruns the stack
+> and crashes.
+> 
+> I have attached a patch for the driver to fix the crash, but I'm not
+> confident the card works well without the correct firmware.
+> 
+> 	J
+-- 
+Jan Mynarik <mynarikj@phoenix.inf.upol.cz>
 
-Here is what 'mount' says:
-  /dev/hda5 on / type reiserfs (rw)
-  proc on /proc type proc (rw)
-  devpts on /dev/pts type devpts (rw,mode=0620,gid=5)
-  /sys on /sys type sysfs (rw)
-  /dev/hda3 on /boot type ext3 (rw)
-
-I use fileutils 4.1
-
-Best regards
-   Thomas Schlichter
-
---Boundary-02=_Lya6+wzJtqH8mmO
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+6ayLYAiN+WRIZzQRAn7KAJ455DN3cZP4d0+y2hBGhoyo3E+2UwCfQN7Q
-j5k7n/YdKJlOT97hp5Iuuds=
-=uWEC
------END PGP SIGNATURE-----
-
---Boundary-02=_Lya6+wzJtqH8mmO--

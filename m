@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265787AbUFWQGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265112AbUFWQJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265787AbUFWQGE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 12:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265790AbUFWQEW
+	id S265112AbUFWQJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 12:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265930AbUFWQI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 12:04:22 -0400
-Received: from www.nute.net ([66.221.212.1]:32908 "EHLO mail.nute.net")
-	by vger.kernel.org with ESMTP id S265930AbUFWQEF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 12:04:05 -0400
-Date: Wed, 23 Jun 2004 16:04:03 +0000
-From: Mikael Bouillot <xaajimri@corbac.com>
-To: linux-kernel@vger.kernel.org
-Cc: Martin Zwickel <martin.zwickel@technotrend.de>
-Subject: Re: Forcedeth driver bug
-Message-ID: <20040623160403.GA11348@mail.nute.net>
-References: <20040623142936.GA10440@mail.nute.net> <20040623164627.3234bc29@phoebee>
-Mime-Version: 1.0
+	Wed, 23 Jun 2004 12:08:26 -0400
+Received: from web81308.mail.yahoo.com ([206.190.37.83]:50798 "HELO
+	web81308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265790AbUFWQHo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 12:07:44 -0400
+Message-ID: <20040623160742.13669.qmail@web81308.mail.yahoo.com>
+Date: Wed, 23 Jun 2004 09:07:42 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: RE: [RFC/RFT] PS/2 mouse resync for KVM users
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040623164627.3234bc29@phoebee>
-User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Do you really know that the driver don't get the stuck packet. Or is it possible
-> that the kernels network stack does the fault?
-
-  No, I'm not sure it's the driver's fault. I have this problem since I
-switched from nvnet to forcedeth and from 2.4.24 to 2.6.7. But I suspect
-this is the drivers fault because:
-
-* I have tried to reproduce it on another 2.6.7 machine (with a
-  different driver) and failed.
-* Such an important bug in the network stack would hardly go unnoticed.
-* The forcedeth driver is still new and somewhat untested :-)
-
-
-> I'm asking because I have a similar problem with udp and kernel 2.6.7-rc2-mm2.
-> My sendto gets stuck sometimes and only continues if the kernel handles another
-> network packet.
+linux@horzon.com wrote:
+> > - flag "suspect" packets - 1st bytes with overflow bits set and bytes
+> that
+> >   indicate that Left + Middle or Right + Middle  buttons are pressed at
+> the
+> >   same time which is unusial combination. Suspect packets, together with
+> >   timeouts, are treated as "soft" errors.
 > 
-> But maybe my problem is a totally different one.
+> I'm a little unhappy with this.   They are *currently* unusual, but
+> I hate to preclude anyone from using them.
 
-  In my case, it's the incoming packets that get stuck. Outgoing packets
-work just fine. But then again, I'm not sure without running further
-tests. I sent my message to the list mainly to know if this was a well
-know bug.
+I also had some concerns, it's not the final patch version by any
+means... Your suggestions are very interesting and I will try to
+implement some of them (acceleration and "suspicion scoring" is a
+bit of overkill I think), but I like the "unusial combination" idea
+because you can trigger reconnect _at will_. Although with my sysfs
+patches one could do it by echoing reconnect to driver attribute of
+corresponding serio port ability just hold couple of buttons and
+wiggle mouse and have it restore connection seems to be nice.
 
--- 
-Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+What if we trigger packets with all 3 buttons pressed as suspect?
+
+--
+Dmitry

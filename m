@@ -1,47 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbULKPzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbULKQF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbULKPzv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 10:55:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbULKPzu
+	id S261943AbULKQF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 11:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbULKQF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 10:55:50 -0500
-Received: from gprs215-225.eurotel.cz ([160.218.215.225]:1923 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261956AbULKPzo (ORCPT
+	Sat, 11 Dec 2004 11:05:58 -0500
+Received: from v6.netlin.pl ([62.121.136.6]:35346 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S261943AbULKQFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 10:55:44 -0500
-Date: Sat, 11 Dec 2004 16:55:33 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: fix types
-Message-ID: <20041211155533.GA1952@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 11 Dec 2004 11:05:55 -0500
+Message-ID: <41BB1AA3.6080606@kde.org.uk>
+Date: Sat, 11 Dec 2004 17:04:51 +0100
+From: Grzegorz Piotr Jaskiewicz <gj@kde.org.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: query sysctls questions
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi folks
 
-This fixes types so that sparse has less stuff to complain
-about. Please apply,
-							Pavel
+What would be the best way to get list of avaliable sysctl calls for 
+kernel 2.4 and 2.6. The best would be to get it from binaries, but 
+headers are avaliable too. It needs to be automated way, script or program.
 
---- clean/kernel/power/disk.c	29 Oct 2004 20:20:47 -0000	1.10
-+++ linux/kernel/power/disk.c	11 Dec 2004 15:51:13 -0000
-@@ -43,7 +43,7 @@
-  *	there ain't no turning back.
-  */
- 
--static void power_down(u32 mode)
-+static void power_down(suspend_disk_method_t mode)
- {
- 	unsigned long flags;
- 	int error = 0;
- 
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Thanks

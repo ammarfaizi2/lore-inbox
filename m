@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130401AbRAKDJa>; Wed, 10 Jan 2001 22:09:30 -0500
+	id <S130387AbRAKDNL>; Wed, 10 Jan 2001 22:13:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRAKDJV>; Wed, 10 Jan 2001 22:09:21 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:43938 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S130642AbRAKDJF>; Wed, 10 Jan 2001 22:09:05 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 10 Jan 2001 19:08:53 -0800
-Message-Id: <200101110308.TAA09252@adam.yggdrasil.com>
-To: parsley@linuxjedi.org, torvalds@transmeta.com
-Subject: Re: [PATCH] one-liner fix for bforget() honoring BH_Protected; was: Re: Patch (repost): cramfs memory corruption fix
-Cc: linux-kernel@vger.kernel.org
+	id <S130766AbRAKDNB>; Wed, 10 Jan 2001 22:13:01 -0500
+Received: from client1154.sedona.net ([208.48.157.101]:41477 "EHLO
+	toltec.metran.cx") by vger.kernel.org with ESMTP id <S130387AbRAKDMq>;
+	Wed, 10 Jan 2001 22:12:46 -0500
+From: Jay Ts <jay@toltec.metran.cx>
+Message-Id: <200101110312.UAA06343@toltec.metran.cx>
+Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Wed, 10 Jan 2001 20:12:18 -0700 (MST)
+Cc: linux-kernel@vger.kernel.org (lkml),
+        linux-audio-dev@ginette.musique.umontreal.ca (lad)
+In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM
+Reply-To: jayts@bigfoot.com
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: "David L. Parsley" <parsley@linuxjedi.org>
+> A patch against kernel 2.4.0 final which provides low-latency
+> scheduling is at
+> 
+> 	http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
+> 
+> Some notes:
+> 
+> - Worst-case scheduling latency with *very* intense workloads is now
+>   0.8 milliseconds on a 500MHz uniprocessor.
 
->Linus Torvalds wrote:
+Wow!  That's super.  Now about the only thing left is to get it included
+in the standard kernel.  Do you think Linus Torvalds is more likely
+to accept these patches than Ingo's?  I sure hope this one works out.
 
->> On Sat, 6 Jan 2001, Adam J. Richter wrote:
->> >
->> >       This sounds like a bug that I posted a fix for a long time ago.
->> > cramfs calls bforget on the superblock area, destroying that block of
->> > the ramdisk, even when the ramdisk does not contain a cramfs file system.
->> > Normally, bforget is called on block that really can be trashed,
->> > such as blocks release by truncate or unlink.
->> 
->> I'd really prefer just not letting bforget() touch BH_Protected buffers.
->> bforget() is also used by other things than unlink/truncate: it's used by
->> various partition codes etc, and it's used by the raid logic.
+>   This is one to
+>   three orders of magnitude better than BeOS, MacOS and the Windowses.
 
->Yup, I backed out Adam's one-liner in favor of the attached one-liner. 
->Tested on 2.4.0, but should patch cleanly to just about anything. ;-)
+** salivates **
 
-	Applying Linus's patch is fine, but I think my patch should also
-be applied (in addition), although for a less important reason.  The
-bforget in cramfs is going to force unnecessary device IO if cramfs
-is in the list of file systems that you are trying to detect when
-mounting a file system from a physical device.
+> - Low latency will probably only be achieved when using the ext2 and
+>   NFS filesystems.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Well it's extremely nice to see NFS included at least.  I was really
+worried about that one.  What about Samba?  (Keeping in mind that
+serious "professional" musicians will likely have their Linux systems
+networked to a Windows box, at least until they have all the necessary
+tools on Linux.
+
+> - If you care about latency, be *very* cautious about upgrading to
+>   XFree86 4.x.  I'll cover this issue in a separate email, copied
+>   to the XFree team.
+
+Did that email pass by me unnoticed?  What's the prob with XF86 4.0?
+
+- Jay Ts
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

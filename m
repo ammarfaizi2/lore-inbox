@@ -1,44 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262485AbTCRSEc>; Tue, 18 Mar 2003 13:04:32 -0500
+	id <S262517AbTCRSSc>; Tue, 18 Mar 2003 13:18:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262494AbTCRSEc>; Tue, 18 Mar 2003 13:04:32 -0500
-Received: from bestroot.de ([217.160.170.131]:37855 "EHLO
-	p15112267.pureserver.de") by vger.kernel.org with ESMTP
-	id <S262485AbTCRSEb>; Tue, 18 Mar 2003 13:04:31 -0500
-Message-ID: <3E77635D.5080306@elitedvb.net>
-Date: Tue, 18 Mar 2003 19:20:13 +0100
-From: Felix Domke <tmbinc@elitedvb.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.2) Gecko/20021216
-X-Accept-Language: en-us, en
+	id <S262526AbTCRSSc>; Tue, 18 Mar 2003 13:18:32 -0500
+Received: from [64.246.18.23] ([64.246.18.23]:36832 "EHLO ensim.2hosting.net")
+	by vger.kernel.org with ESMTP id <S262517AbTCRSSa>;
+	Tue, 18 Mar 2003 13:18:30 -0500
+From: "Steve Lee" <steve@tuxsoft.com>
+To: <root@chaos.analogic.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: Linux-2.4.20 modem control
+Date: Tue, 18 Mar 2003 12:34:11 -0600
+Message-ID: <001601c2ed7c$f984e900$0201a8c0@pluto>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE 48 bit addressing causes data corruption
-References: <3E772DA1.5080504@elitedvb.net> <1048004672.27223.65.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <Pine.LNX.4.53.0303171924300.24680@chaos>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> LBA48 support and UDMA100/133 support are unrelated to one another.
-> There are controllers with one or the other, eg the older ALi can do
-> UDMA133 but not LBA48
+Richard,
+	You might give mgetty a try.  I've been doing the same thing as
+you with almost every version of Linux 2.4.x and some of 2.2.x.  I don't
+know the differences between agetty and mgetty, but I would like mgetty
+could handle your needs.
 
-OK, looks bad for me.
+Steve
 
-Just for my interest:
 
-Why does a certain IDE controller not support LBA48?
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Richard B.
+Johnson
+Sent: Monday, March 17, 2003 6:34 PM
+To: Ed Vance
+Cc: Linux kernel
+Subject: RE: Linux-2.4.20 modem control
 
-I always thought an IDE controller isn't more than some ISA-styled bus 
-with 3 address lines, 2 chip  selects and special stuff for 
-DMA-transfers, together with very special timing generators for PIO-modes.
+On Mon, 17 Mar 2003, Ed Vance wrote:
+[SNIPPED...]
 
-Whats the problem with these controllers? LBA48, i thought, isn't more 
-than writing the LBA-registers twice (because of the FIFO), and using 
-different commands for reading/writing (the _EXT functions).
+> >
+> Hi Richard,
+>
+> What you are doing looks just fine.
+>
+> As long as HUPCL is set when the close happens, DTR will drop. There
+are
+> delays that are enforced in both open and close when a second process
+is
+> blocked opening a closing port. Of course, that would not be your
+case,
+> because the open does not occur until the closing process terminates.
+In a
+> quick look, I didn't see an enforced close-to-open delay for your
+case.
+> Maybe I missed something. I am looking at 2.4.18 Red Hat -3. I didn't
+notice
+> a patch to serial.c in the 2.4.19 or 2.4.20 changelog that would
+affect
+> this. There are some weird calculations that appear to scale the
+close_delay
+> field value based on HZ.
+>
+> Which was the last "working" kernel rev that you used?
+>
+> Did you switch to a faster CPU?
+>
+> Are you using any "low latency" patches?
+>
+> Did the HZ value change between the last rev that worked and 2.4.20?
+>
+> What HZ value are you running with?
+>
+> Cheers,
+> Ed
 
-felix
+I'm now using 2.4.20. The previous version was 2.2.18 (yikes)!
+I just transferred my old hard disks (SCSI) to a new system and
+everything worked fine, so I decided to upgrade to a later more
+stable kernel. I use this system to be my own internet provider
+and I am, in fact, logged in running a ppp link from home over
+the modem at this time. I had to modify `agetty` to make it
+work with the new kernel and a faster CPU (1.2 GHz, 330 MHz
+front-side bus, Tyan Thunder-II).
+
+The agetty code is attached. It hangs up before it sleeps for
+a new connection because when the previous process terminates,
+init instantly starts a new instance, the modem never hangs up
+even though, possibly the DTR was lowered for that instant.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about
+it.
+
 

@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263733AbREYMkf>; Fri, 25 May 2001 08:40:35 -0400
+	id <S263735AbREYMvG>; Fri, 25 May 2001 08:51:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263734AbREYMkO>; Fri, 25 May 2001 08:40:14 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:48034 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S263733AbREYMkE>;
-	Fri, 25 May 2001 08:40:04 -0400
-Message-ID: <3B0E5352.D5D810F3@Sun.COM>
-Date: Fri, 25 May 2001 14:42:58 +0200
-From: Julien Laganier <Julien.Laganier@Sun.COM>
-Reply-To: Julien.Laganier@Sun.COM
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S263736AbREYMu4>; Fri, 25 May 2001 08:50:56 -0400
+Received: from ns1.antas.de ([62.225.191.178]:30480 "EHLO FW10001.antas.de")
+	by vger.kernel.org with ESMTP id <S263735AbREYMuk>;
+	Fri, 25 May 2001 08:50:40 -0400
+Message-ID: <90B7827C9407D4118C360000D11C1ACB219FE2@S10002>
+From: "Chobeiry, Parto" <Parto.Chobeiry@ANTAS.DE>
 To: linux-kernel@vger.kernel.org
-Subject: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: PDC20265 causes panic on 2.4.4
+Date: Fri, 25 May 2001 14:50:37 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+Hi,
 
-I want to register a new Hook in the netfilter (from kernel 2.4.4)
-canvas for IP. The struct
-used for register is :
+just purchased a mainboard from MSI (694D Pro-IR 2.0, MS-6321 2.0) with an
+on-board RAID-controller from Promise. Booting with a 2.4.4 kernel causes a
+panic right after detection of the PDC20265.
 
-struct nf_hook_ops
-{
-        struct list_head list;
+I checked the source code in ide-pci.c and saw that there is a special
+handling for this chip although MSI states that PDC20265 and PDC20267 are
+the same. The only difference is the point of production.
 
-        /* User fills in from here down. */
-        nf_hookfn *hook;
-        int pf;
-        int hooknum;
-        /* Hooks are ordered in ascending priority. */
-        int priority;
-};
+Exchanging the detection codes between the defines of 20265 and 20267 helped
+thus causing Linux to handle my 20265 as a 20267.
 
-And the hook function is a nf_hookfn, which is a typedef :
+Could somebody tell my why there is this special handling of the 20265 in
+the kernel source code?
 
-typedef unsigned int nf_hookfn(unsigned int hooknum,
-                               struct sk_buff **skb,
-                               const struct net_device *in,
-                               const struct net_device *out,
-                               int (*okfn)(struct sk_buff *));
+BTW, error message was something like "could not dereference NULL pointer".
 
-What is the parameter int (*okfn)(struct sk_buff *) which is passed to
-the hook ?
-
-Thanx for the answers !!!
+Thanks -- Parto

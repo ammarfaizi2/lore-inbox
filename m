@@ -1,86 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270097AbTHLLcX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 07:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270222AbTHLLcW
+	id S270222AbTHLLdC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 07:33:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270227AbTHLLdC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 07:32:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57348 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S270097AbTHLLcU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 07:32:20 -0400
-Date: Tue, 12 Aug 2003 12:32:14 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rob Landley <rob@landley.net>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, kernelbugzilla@kuntnet.org
-Subject: Re: [Bug 1068] New: Errors when loading airo module
-Message-ID: <20030812123214.B10895@flint.arm.linux.org.uk>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	kernelbugzilla@kuntnet.org
-References: <51060000.1060524422@[10.10.2.4]> <20030810163350.D32508@flint.arm.linux.org.uk> <200308120447.00105.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Aug 2003 07:33:02 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:19370
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S270222AbTHLLc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 07:32:56 -0400
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH] O13int for interactivity
+Date: Tue, 12 Aug 2003 07:35:04 -0400
+User-Agent: KMail/1.5
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200308050207.18096.kernel@kolivas.org> <200308120629.31476.rob@landley.net> <3F38CAC6.7010808@cyberone.com.au>
+In-Reply-To: <3F38CAC6.7010808@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200308120447.00105.rob@landley.net>; from rob@landley.net on Tue, Aug 12, 2003 at 04:46:56AM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+Message-Id: <200308120735.04035.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 04:46:56AM -0400, Rob Landley wrote:
-> On Sunday 10 August 2003 11:33, Russell King wrote:
-> > On Sun, Aug 10, 2003 at 07:07:02AM -0700, Martin J. Bligh wrote:
-> > > http://bugme.osdl.org/show_bug.cgi?id=1068
-> > >
-> > >            Summary: Errors when loading airo module
-> > >     Kernel Version: 2.6.0-test3
-> > >             Status: NEW
-> > >           Severity: normal
-> > >              Owner: rmk@arm.linux.org.uk
-> > >          Submitter: kernelbugzilla@kuntnet.org
+On Tuesday 12 August 2003 07:08, Nick Piggin wrote:
+
+> >>I don't quite understand what you are getting at, but if you don't want
+> >> to sleep you should be able to use a non blocking syscall.
 > >
-> > This needs to go to the airo maintainers, not me - the oops is caused
-> > by buggy airo.c.
+> >So you can then block on poll instead, you mean?
+>
+> Well if thats what you intend, yes. Or set poll to be non-blocking.
+
+So you're still blocking for an unknown amount of time waiting for your 
+outstanding requests to get serviced, now you're just hiding it to 
+intentionally give the scheduler less information to work with.
+
+> >These are hogs, often both of CPU time and I/O bandwidth.  Being blocked
+> > on I/O does not stop them from being hogs, it just means they're juggling
+> > their hoggishness.
+>
+> This is the CPU scheduler though. A program could be a disk/network
+> hog and use a few % cpu. Its obviously not a cpu hog, and should get
+> the cpu again soon after it is woken. Sooner than non running cpu hogs,
+> anyway.
+
+A program that waits for a known amount of time (I.E. on a timer) cares about 
+when it gets woken up.  A program that blocks on an event that's going to 
+take an unknown amount of time can't be too upset if its wakeup is after an  
+unknown amount of time.
+
+Beyond that there's blocking for input from the user (latency matters) and 
+blocking for input from something else (latency doesn't matter), but we can't 
+tell that directly and have to fake our way around it with heuristics.
+
+> >That's what Con's detecting.  It's a heuristic.  But it's a good
+> > heuristic.  A process that plays nice and yields the CPU regularly gets a
+> > priority boost. (That's always BEEN a heuristic.)
 > >
-> > The IRQ problem is the result of bad configuration - you must enable
-> > CONFIG_ISA if you're going to use non-Cardbus PCMCIA cards.
-> 
-> Do you mean something like:
+> >The current scheduler code has moved a bit beyond this, but this is the
+> > bit I was talking about when I disagreed with you earlier.
+>
+> Yeah, I know Con is trying to detect this. Its just that detecting
+> it using TASK_INTERRUPTIBLE/TASK_UNINTERRUPTIBLE may not be the best
+> way.
 
-No.  Its legal to enable PCMCIA without ISA.
+Okay, if this isn't the "best way", then what is?  You have yet to suggest an 
+alternative, and this heuristic is obviously better than nothing.
 
-The patch below is wrong in any case - the SA11xx stuff should not depend
-on ISA.
+> Suddenly your kernel compile on an NFS mount becomes interactive
+> for example.
 
-> --- linux-2.6.0-test3/drivers/pcmcia/Kconfig	2003-08-09 00:39:25.000000000 -0400
-> +++ temp/drivers/pcmcia/Kconfig	2003-08-12 04:44:03.000000000 -0400
-> @@ -86,7 +86,7 @@
->  
->  config PCMCIA_SA1100
->  	tristate "SA1100 support"
-> -	depends on ARM && ARCH_SA1100 && PCMCIA
-> +	depends on ARM && ARCH_SA1100 && PCMCIA && ISA
->  	help
->  	  Say Y here to include support for SA11x0-based PCMCIA or CF
->  	  sockets, found on HP iPAQs, Yopy, and other StrongARM(R)/
-> @@ -96,7 +96,7 @@
->  
->  config PCMCIA_SA1111
->  	tristate "SA1111 support"
-> -	depends on ARM && ARCH_SA1100 && SA1111 && PCMCIA
-> +	depends on ARM && ARCH_SA1100 && SA1111 && PCMCIA && ISA
->  	help
->  	  Say Y  here to include support for SA1111-based PCMCIA or CF
->  	  sockets, found on the Jornada 720, Graphicsmaster and other
-> 
-> Rob
-> 
-> 
+Translation: Suppose the heuristics fail.  If it can't fail, it's not a 
+heuristic, is it?  Failure of heuristics must be survivable.  The kernel 
+compile IS a rampant CPU hog, and if it's mis-identified as interactive for 
+some reason it'll get demoted again after using up too many time slices.  In 
+the mean time, your PVR (think home-browed Tivo clone) skips recording your 
+buffy rerun.  This is something to be minimized, but the scheduler isn't 
+psychic.  If it happens to once out of every million hours of use, you're 
+going to see more hard drive failures due and dying power supplies than 
+problems caused by this.  (This is not sufficient for running a nuclear power 
+plant or automated factory, but those guys need hard realtime anyway, which 
+this isn't pretending to be.)
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+> Then again, the way things are, Con might not have any
+> other option.
 
+You're welcome to suggest a better alternative, but criticizing the current 
+approach without suggesting any alternative at all may not be that helpful.
+
+> Mostly I agree with what you've said above.
+
+Cool.
+
+Rob

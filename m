@@ -1,176 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTJVXi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 19:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTJVXi1
+	id S261226AbTJVXcI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 19:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTJVXcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 19:38:27 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:47498 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261326AbTJVXiQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 19:38:16 -0400
-Date: Wed, 22 Oct 2003 21:24:17 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.23-pre8
-Message-ID: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 22 Oct 2003 19:32:08 -0400
+Received: from gprs144-47.eurotel.cz ([160.218.144.47]:12676 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261226AbTJVXcC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 19:32:02 -0400
+Date: Thu, 23 Oct 2003 01:31:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [pm] fix device suspend/resume handling
+Message-ID: <20031022233127.GA6410@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hi, 
+swsusp was completely wrong at device handling. Wrong calls with
+interrupts disabled, where they should be enabled etc. And it forgot
+to suspend devices before copying memory snapshot back [please check
+your pmdisk code, you are likely to do the same mistake].
 
-Here goes -pre8... It contains a quite big amount of ACPI fixes,
-networking changes, network driver changes, few IDE fixes, SPARC merge, SH
-merge, tmpfs fixes, NFS fixes, important VM typo fix, amongst others.
+								Pavel
 
-People seeing boot IDE related crashes on Alpha with previous kernels
-please try this.
+[Oops, this one:
 
-Have fun
+-               if(drivers_suspend()==0)
++               if ((res = device_suspend(4))==0)
 
+probably will reject. Sorry about that, should be easy to fix up].
 
-Summary of changes from v2.4.23-pre7 to v2.4.23-pre8
-============================================
-
-<daniel:deadlock.et.tudelft.nl>:
-  o atyfb ibook fix
-
-<gorgo:thunderchild.debian.net>:
-  o [NET]: Fix get_random_bytes() call in sunhme.c:get_hme_mac_nonsparc()
-
-<ja:ssi.bg>:
-  o [IPV4]: ip_fragment must copy the nfcache field
-
-<len.brown:intel.com>:
-  o [ACPI] Summary of changes for ACPICA version 20031002
-  o [ACPI] fix acpi_asus module build (Stephen Hemminger)
-  o [ACPI] delete descriptions for stale ACPI build options
-  o [ACPI] speed up reads from /proc/acpi/ (Shaohua David Li) http://bugme.osdl.org/show_bug.cgi?id=726
-  o [ACPI] fix object reference count bug for battery status (Shaohua David Li) http://bugme.osdl.org/show_bug.cgi?id=1038
-  o [ACPI] acpi_ec_gpe_query(ec) fix for T40 crash (Shaohua David Li) http://bugme.osdl.org/show_bug.cgi?id=1171
-  o [ACPI] correct parameter to acpi_ev_gpe_dispatch() (Shaohua David Li)
-  o [ACPI] correct parameter to acpi_ev_gpe_dispatch() take II (Bob Moore)
-  o [ACPI] fix !CONFIG_PCI build use X86 ACPI specific version of eisa_set_level_irq() http://bugzilla.kernel.org/show_bug.cgi?id=1390
-  o [ACPI] fix use_acpi_pci !CONFIG_PCI build error per 2.6 http://bugzilla.kernel.org/show_bug.cgi?id=1392
-  o [ACPI] Broken fan detection prevents booting (Shaohua David Li) http://bugme.osdl.org/show_bug.cgi?id=1185
-
-<lethal:unusual.internal.linux-sh.org>:
-  o sh: signal trampoline workaround for SH-4 core bug
-  o sh: irq_intc2 updates
-  o sh: Add BPS_230400 definition to sh-sci
-  o sh64: Add pcibios_scan_all_fns() definition
-
-<marcelo:logos.cnet>:
-  o Al Viro: Clear all flags in exec_usermodehelper
-  o x86: Clear IRQ_INPROGRESS in setup_irq()
-  o MIPS/MIPS64: Clear IRQ_INPROGRESS in setup_irq()
-  o Remove parcelfarce email from CREDITS
-  o Shantanu Goel: Fix merge mistake in refill_inactive()
-  o Changed EXTRAVERSION to -pre8
-  o ide-disk.c: Limit disk size to 137GB if LBA48 is not available
-  o Jan Niehusmann: Make LBA48 work in pdc202xx_old.c
-
-<mroos:linux.ee>:
-  o [SPARC]: Use NR_CPUS for linux_cpus[]
-
-<pp:ee.oulu.fi>:
-  o b44 enable interrupts after tx timeout (2.4.23-pre6)
-
-<sheilds:msrl.com>:
-  o [SPARC64]: Fix typo in bbc_envctrl.c
-
-<wensong:linux-vs.org>:
-  o [IPVS] Fix to set the statistics of dest zero when bound to a new service
-  o [IPVS]: Fix ip_vs_ftp to use cp->vaddr because iph->daddr is already mangled
-
-<xose:wanadoo.es>:
-  o change sym53c8xx.o to sym53c8xx_2.o in Configure.help
-
-Alexander Viro:
-  o Alpha: clear IRQ_INPROGRESS in setup_irq()
-  o fix for do_tty_hangup() access of kfreed memory
-
-Bartlomiej Zolnierkiewicz:
-  o fix ServerWorks PIO auto-tuning
-
-Chas Williams:
-  o [ATM]: rewrite recvmsg to use skb_copy_datagram_iovec
-  o [ATM]: remove listenq and backlog_quota from struct atm_vcc
-  o [ATM]: cleanup connect
-  o [ATM]: eliminate SOCKOPS_WRAPPED
-  o [ATM]: move vcc's to global sk-based linked list
-  o [ATM]: setsockopt/getsockopt cleanup
-
-David S. Miller:
-  o [SPARC64]: Always use sethi+jmpl to reach VISenter{,half}
-  o [SPARC64]: Implement force_successful_syscall_return()
-  o [NET]: linux/in.h needs linux/socket.h
-  o [VLAN]: kfree(skb) --> kfree_skb(skb)
-  o [SPARC64]: Update defconfig
-  o [SPARC]: Audit inline asm
-
-Eric Brower:
-  o [SPARC64]: Fix kernel_thread() return value check in envctrl.c
-
-Hugh Dickins:
-  o tmpfs 1/5 LTP ENAMETOOLONG
-  o tmpfs 2/5 LTP S_ISGID dir
-  o tmpfs 3/5 swapoff/truncate race
-  o tmpfs 4/5 getpage/truncate race
-  o tmpfs 5/5 writepage/truncate race
-
-Jeff Garzik:
-  o [netdrvr xircom_cb] backport 2.6 changes
-  o [netdrvr 8139too] add pci id
-  o [netdrvr 8139too] another new PCI ID
-  o [netdrvr tulip] add pci id
-
-Manfred Spraul:
-  o [netdrvr natsemi] fix ring clean
-
-Martin Josefsson:
-  o [NETFILTER]: Remove unused destroy callback in ip6t_ipv6header.c, from Maciej Soltysiak
-
-Matt Domsch:
-  o Fix megaraid2 compilation problems
-
-Michael Shields:
-  o [SPARC64]: Fix watchdog on CP1500/Netra-t1
-
-Mikael Pettersson:
-  o APICBASE fix backport from 2.6
-
-Mirko Lindner:
-  o sk98lin-2.4: Driver update to version 6.18
-
-Neil Brown:
-  o Remove un-necessary locking in lockd
-
-Olaf Hering:
-  o [IRDA]: Fix build with gcc-3.4
-  o Fix NinjaSCSI compilation
-
-Patrick McHardy:
-  o [NETFILTER]: Add size check to ip_nat_mangle_udp_packet
-
-Scott Feldman:
-  o ethtool_ops eeprom stuff
-  o hang on ZEROCOPY/TSO when hitting no-Tx-resources
-
-Trond Myklebust:
-  o Fix a deadlock in the NFS asynchronous write code
-  o A request cannot be used as part of the RTO estimation if it gets
-    resent since you don't know whether the server is replying to the 
-    first or the second transmission. However we're currently setting the 
-    cutoff point to be the timeout of the first transmission.
-  o UDP round trip timer fix. Modify Karn's algorithm so that we inherit timeouts from previous requests.
-  o Increase the minimum RTO timer value to 1/10 second. This is more in line with what is done for TCP.
-  o Fix a stack overflow problem that was noticed by Jeff Garzik by removing some unused readdirplus cruft.
-  o Make the client act correctly if the RPC server's asserts that it does not support a given program, version or procedure call.
-
-
-
+--- tmp/linux/kernel/power/swsusp.c	2003-10-23 01:09:52.000000000 +0200
++++ linux/kernel/power/swsusp.c	2003-10-23 00:59:17.000000000 +0200
+@@ -491,33 +491,6 @@
+ 	printk("|\n");
+ }
+ 
+-/* Make disk drivers accept operations, again */
+-static void drivers_unsuspend(void)
+-{
+-	device_resume();
+-}
+-
+-/* Called from process context */
+-static int drivers_suspend(void)
+-{
+-	return device_suspend(4);
+-}
+-
+-#define RESUME_PHASE1 1 /* Called from interrupts disabled */
+-#define RESUME_PHASE2 2 /* Called with interrupts enabled */
+-#define RESUME_ALL_PHASES (RESUME_PHASE1 | RESUME_PHASE2)
+-static void drivers_resume(int flags)
+-{
+-	if (flags & RESUME_PHASE1) {
+-		device_resume();
+-	}
+-  	if (flags & RESUME_PHASE2) {
+-#ifdef SUSPEND_CONSOLE
+-		update_screen(fg_console);	/* Hmm, is this the problem? */
+-#endif
+-	}
+-}
+-
+ static int suspend_prepare_image(void)
+ {
+ 	struct sysinfo i;
+@@ -572,7 +545,7 @@
+ 
+ static void suspend_save_image(void)
+ {
+-	drivers_unsuspend();
++	device_resume();
+ 
+ 	lock_swapdevices();
+ 	write_suspend_image();
+@@ -618,6 +591,7 @@
+ 	mb();
+ 	spin_lock_irq(&suspend_pagedir_lock);	/* Done to disable interrupts */ 
+ 
++	device_power_down(4);
+ 	PRINTK( "Waiting for DMAs to settle down...\n");
+ 	mdelay(1000);	/* We do not want some readahead with DMA to corrupt our memory, right?
+ 			   Do it with disabled interrupts for best effect. That way, if some
+@@ -633,8 +607,10 @@
+ 
+ 	PRINTK( "Freeing prev allocated pagedir\n" );
+ 	free_suspend_pagedir((unsigned long) pagedir_save);
++	device_power_up();
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+-	drivers_resume(RESUME_ALL_PHASES);
++	device_resume();
++	update_screen(fg_console);	/* Hmm, is this the problem? */
+ 
+ 	PRINTK( "Fixing swap signatures... " );
+ 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
+@@ -675,7 +651,9 @@
+ {
+ 	int is_problem;
+ 	read_swapfiles();
++	device_power_down(4);
+ 	is_problem = suspend_prepare_image();
++	device_power_up();
+ 	spin_unlock_irq(&suspend_pagedir_lock);
+ 	if (!is_problem) {
+ 		kernel_fpu_end();	/* save_processor_state() does kernel_fpu_begin, and we need to revert it in order to pass in_atomic() checks */
+@@ -719,7 +708,7 @@
+ 		blk_run_queues();
+ 
+ 		/* Save state of all device drivers, and stop them. */		   
+-		if(drivers_suspend()==0)
++		if ((res = device_suspend(4))==0)
+ 			/* If stopping device drivers worked, we proceed basically into
+ 			 * suspend_save_image.
+ 			 *
+@@ -1094,6 +1071,7 @@
+ 	printk( "resuming from %s\n", resume_file);
+ 	if (read_suspend_image(resume_file, 0))
+ 		goto read_failure;
++	device_suspend(4);
+ 	do_magic(1);
+ 	panic("This never returns");
+ 
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

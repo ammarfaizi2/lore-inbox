@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268271AbUH3TSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUH3TSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268271AbUH3TSK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUH3TSK
+	id S268258AbUH3TSA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUH3TR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:18:10 -0400
-Received: from trantor.org.uk ([213.146.130.142]:8934 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S268271AbUH3TR6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:17:58 -0400
-Subject: Re: fireflier firewall userspace program doing userspace packet
-	filtering
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040830181519.GE8382@lkcl.net>
-References: <20040830104202.GG3712@lkcl.net>
-	 <20040830181519.GE8382@lkcl.net>
-Content-Type: text/plain
-Date: Mon, 30 Aug 2004 20:16:06 +0100
-Message-Id: <1093893366.7064.176.camel@sherbert>
+	Mon, 30 Aug 2004 15:17:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:20895 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S268258AbUH3TR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:17:57 -0400
+Date: Mon, 30 Aug 2004 14:10:32 -0500
+From: John Hesterberg <jh@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, jlan@engr.sgi.com,
+       linux-kernel@vger.kernel.org, erikj@dbear.engr.sgi.com,
+       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
+Message-ID: <20040830191032.GA5255@sgi.com>
+References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org> <20040826183834.GA11393@sgi.com> <412EADBC.60607@bigpond.net.au> <20040826205349.0582d38e.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826205349.0582d38e.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-30 at 19:15 +0100, Luke Kenneth Casson Leighton wrote:
-> so, my question, therefore, is:
+On Thu, Aug 26, 2004 at 08:53:49PM -0700, Andrew Morton wrote:
+> Thanks, guys.  So we now know that there are three potential
+> implementations which do much the same thing, yes?
+
+I believe CSA does than the others.
+
+> I didn't get a sense of a preferred direction, but at least nobody is
+> flaming anybody else yet ;)
 > 
-> 	what should i record in a modified version of ipt_owner in
-> 	order to "vet" packets on a per-executable basis?
+> It strikes me that CSA is the most actively developed and is the furthest
+> along.  But that enhancing BSD accounting might be the least intrusive and
+> most back-compatible approach.
 > 
-> 	should i consider recording the inode of the program's binary?
+> Is that a fair summary?  If not, what should I have said?
 
-Bear in mind that that would make sense for an ACCEPT rule, but for a
-DROP rule, copying the binary would bypass the check.
+Does anyone know if CSA is a super-set of BSD accounting and ELSA?
+What would be missing?
 
-> 	should i consider recording the _name_ of the program?
+I'm unconvinced that enhancing BSD accounting to encompass the
+capabilities of CSA is appropriate.
 
-And bear in mind any user can set the name (I assume you mean the argv
-[0] here) of their process to whatever they like, and then use the
-firewall rules for another program.
+I think we can make the data collection additions common.  That should
+encompass the bulk of the invasive changes that are required by at least
+CSA proper (ie there are still the PAGG changes for job support that we
+can discuss separately).  Not sure about BSD accounting and ELSA.
 
-Maybe cryptographically checksumming all the executable file-backed maps
-would be closer to what you want. This ensures that the code you "trust"
-to do the right-thing(tm) on the network is the only code that can
-generate/receive whatever traffic. That approach has it's own issues
-though too.
+With that cooperation, we can then either proceed with further
+cooperation, or if the goals and users of the different accounting
+approaches dictate different kernel modules and user support,
+I'd propose that might be OK.
 
-> for example, i notice in ipt_owner.c that match_pid() calls
-> find_task_by_pid().   okkkaaay... so... and then in fs/proc/base.c's
-> proc_exe_link(), i see that get_task_mm() is called to get
-> something called an mm_struct.   and theeeennn... dget is called
-> on _that_, and _then_ in struct dentry, there's something called
-> a d_inode, and _that_ is what i presume contains the inode number
-> of the running process (i_ino).
-
-Firewalling on PID has rather obvious security ramifications, unless the
-PID is 0 or 1.
-
-> am i along the right lines, or should i be (according to
-> proc_exe_link()) hunting down the struct vfsmount argument
-> with mntget() instead?  somehow i don't think so, but i haven't
-> any point of reference to know in advance.
-
-Using paths to exec'ed binaries has problems too, as we have per-process
-namespaces etc..
-
-I've seen no evidence that any existing firewall software has got this
-functionality right thus far.
-
-HTH.
-
--- 
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
-
+John

@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264744AbRFYHdw>; Mon, 25 Jun 2001 03:33:52 -0400
+	id <S265402AbRFYHHO>; Mon, 25 Jun 2001 03:07:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265884AbRFYHdm>; Mon, 25 Jun 2001 03:33:42 -0400
-Received: from web14810.mail.yahoo.com ([216.136.224.231]:64520 "HELO
-	web14810.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S265726AbRFYHdb>; Mon, 25 Jun 2001 03:33:31 -0400
-Message-ID: <20010625073329.63504.qmail@web14810.mail.yahoo.com>
-Date: Mon, 25 Jun 2001 00:33:29 -0700 (PDT)
-From: siva kumar <mobi_linux@yahoo.com>
-Subject: Re: Reg Kernel Debugger kdb
-To: "SATHISH.J" <sathish.j@tatainfotech.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10106251238230.28707-100000@blrmail>
+	id <S265405AbRFYHHE>; Mon, 25 Jun 2001 03:07:04 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29707 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265402AbRFYHG4>; Mon, 25 Jun 2001 03:06:56 -0400
+Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+To: srwalter@yahoo.com (Steven Walter)
+Date: Mon, 25 Jun 2001 08:06:30 +0100 (BST)
+Cc: andyw@edafio.com (Andy Ward), linux-kernel@vger.kernel.org
+In-Reply-To: <20010625013241.A23425@hapablap.dyn.dhs.org> from "Steven Walter" at Jun 25, 2001 01:32:41 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15EQS6-0001Ft-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-You can download kernel debugger(kgdb) form the
-following location:
+> Great, glad to here it.  Who (if anyone) is still attempting to unravel
+> the puzzle of the Via southbridge bug?  You, Andy, should try and get in
+> touch with them and help debug this thing, if you're up to it.
 
-http://kgdb.sourceforge.net/toc.html
+The IWILL problem seems unrelated. Its the board that more than others people
+report fails totally when streaming memory copies using movntq instructions.
 
-Bye,
-siva.s
+The Athlon optimised kernel places pretty much the absolute maximum load 
+possible on the memory bus. Several people have reported that machines that
+are otherwise stable on the bios fast options require  the proper conservative
+settings to be stable with the Athlon optimisations
 
---- "SATHISH.J" <sathish.j@tatainfotech.com> wrote:
-> Hi,
-> I would like to use a kernel debugger to set some
-> breakpoints in some
-> of the kernel functions. In SVR4 and unixware we use
-> kdb. What is its
-> equivalent in linux? Please tell me where the kernel
-> debugger can be
-> downloaded for linux.
-> 
-> Thanks in advance,
-> 
-> With regards,
-> sathish.j
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Alan
 
-__________________________________________________
-Do You Yahoo!?
-Get personalized email addresses from Yahoo! Mail - only $35 
-a year!  http://personal.mail.yahoo.com/

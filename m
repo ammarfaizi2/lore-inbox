@@ -1,25 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268444AbTBNNxn>; Fri, 14 Feb 2003 08:53:43 -0500
+	id <S268412AbTBNNnd>; Fri, 14 Feb 2003 08:43:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268447AbTBNNxn>; Fri, 14 Feb 2003 08:53:43 -0500
-Received: from nile.gnat.com ([205.232.38.5]:38558 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S268444AbTBNNxm>;
-	Fri, 14 Feb 2003 08:53:42 -0500
-To: firefly@diku.dk, tjm@codegen.com
-Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       peter@jazz-1.trumpet.com.au
-Message-Id: <20030214140336.501F2F2D7B@nile.gnat.com>
-Date: Fri, 14 Feb 2003 09:03:36 -0500 (EST)
-From: dewar@gnat.com (Robert Dewar)
+	id <S268414AbTBNNnd>; Fri, 14 Feb 2003 08:43:33 -0500
+Received: from DaVinci.coe.neu.edu ([129.10.32.95]:19851 "EHLO
+	DaVinci.coe.neu.edu") by vger.kernel.org with ESMTP
+	id <S268412AbTBNNnV>; Fri, 14 Feb 2003 08:43:21 -0500
+Date: Fri, 14 Feb 2003 08:53:08 -0500 (EST)
+From: Mauricio Martinez <mauricio@coe.neu.edu>
+To: Corey Minyard <minyard@acm.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.20 drivers/cdrom/cdu31a.c
+In-Reply-To: <3E494681.6090200@acm.org>
+Message-ID: <Pine.GSO.4.33.0302140847230.27605-200000@Amps.coe.neu.edu>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1045230788=:27605"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The only way to get from long-mode back to legacy-mode is to reset the
-> > processor.  It can be done in software but you will likely lose interrupts.
-> 
-> Smartdrv.sys and triple-faults come back, all is forgiven!  ;)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-I have an idea, perhaps we can make the keyboard controller recognize a special
-command that will reset the processor :-) :-)
+---559023410-851401618-1045230788=:27605
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+
+Attached is the output you requested, when reading an 80 k file.
+
+Basically, the original patch tries to read 4 sectors less for each retry,
+but I'm not sure when is it necessary to try to read again - this may be
+the reason of the behavior I described before.
+
+Hope this helps.
+
+-Mauricio
+
+---559023410-851401618-1045230788=:27605
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="out.log"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.33.0302140853080.27605@Amps.coe.neu.edu>
+Content-Description: 
+Content-Disposition: attachment; filename="out.log"
+
+Y29wbGV5On4+IG1vdW50IC9kZXYvc29ueWNkIC9jZHJvbSAtdCBpc285NjYw
+DQpjZHUzMWE6IFRyeWluZyBzZXNzaW9uIDENCmNkdTMxYTogVHJ5aW5nIHNl
+c3Npb24gMg0KbW91bnQ6IGJsb2NrIGRldmljZSAvZGV2L3NvbnljZCBpcyB3
+cml0ZS1wcm90ZWN0ZWQsIG1vdW50aW5nIHJlYWQtb25seQ0KY29wbGV5On4+
+IGxzIC1sIC9jZHJvbS8NCnRvdGFsIDI0OTYyNw0KZHIteHIteHIteCAgIDEg
+cm9vdCAgICAgcm9vdCAgICAgICAgIDIwNDggTWFyIDI5ICAxOTk0IDBtc3Zp
+ZGVvLw0KZHIteHIteHIteCAgIDEgcm9vdCAgICAgcm9vdCAgICAgICAgIDIw
+NDggTWFyIDI5ICAxOTk0IDEwMWF2aS8NCmRyLXhyLXhyLXggICAxIHJvb3Qg
+ICAgIHJvb3QgICAgICAgICAyMDQ4IE1hciAyOSAgMTk5NCAzMDFhdmkvDQpk
+ci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAgICAgMjA0OCBNYXIg
+MjkgIDE5OTQgMzAyYXZpLw0KZHIteHIteHIteCAgIDEgcm9vdCAgICAgcm9v
+dCAgICAgICAgIDIwNDggTWFyIDI5ICAxOTk0IDQwMWF2aS8NCmRyLXhyLXhy
+LXggICAxIHJvb3QgICAgIHJvb3QgICAgICAgICAyMDQ4IE1hciAyOSAgMTk5
+NCA1MDFhdmkvDQotci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAg
+ICA4OTI0OCBTZXAgMjAgIDE5OTMgY29tbWRsZy5kbGwqDQotci14ci14ci14
+ICAgMSByb290ICAgICByb290ICAgICAgICAxMTc3NiBTZXAgMjAgIDE5OTMg
+ZWVzYy5kbGwqDQpkci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAg
+ICAgODE5MiBNYXIgMjkgIDE5OTQgZ2J1dDE2Lw0KZHIteHIteHIteCAgIDEg
+cm9vdCAgICAgcm9vdCAgICAgICAgIDgxOTIgTWFyIDI5ICAxOTk0IGdidXQy
+NTYvDQotci14ci14ci14ICAgMSByb290ICAgICByb290ICAgICAyNTAxMzQ1
+MjggRGVjICAzICAxOTkzIGdyb2Z0LndpbioNCi1yLXhyLXhyLXggICAxIHJv
+b3QgICAgIHJvb3QgICAgICAgMTExNjM1IE1hciAyOCAgMTk5NCBuZ21lLmhs
+cCoNCi1yLXhyLXhyLXggICAxIHJvb3QgICAgIHJvb3QgICAgICAgICAgNDAx
+IE1hciAyOCAgMTk5NCBuZ21lLmluaSoNCi1yLXhyLXhyLXggICAxIHJvb3Qg
+ICAgIHJvb3QgICAgICAgNzA2MDQ4IEZlYiAxOSAgMTk5MyBuZ21lY2wuZXhl
+Kg0KLXIteHIteHIteCAgIDEgcm9vdCAgICAgcm9vdCAgICAgIDQzMzI0ODYg
+U2VwIDIxICAxOTkzIG9wZW5hbmltLmF2aSoNCi1yLXhyLXhyLXggICAxIHJv
+b3QgICAgIHJvb3QgICAgICAgMjAyNTcyIEFwciAyNyAgMTk5MyBzZXR1cC5l
+eGUqDQpjb3BsZXk6fj4gY3AgL2Nkcm9tL2NvbW1kbGcuZGxsIC4NCkZlYiAx
+MyAyMzowNDoyNiBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxl
+ZnQ6IDI4DQpGZWIgMTMgMjM6MDQ6MjYgY29wbGV5IGtlcm5lbDogTnVtYmVy
+IG9mIGJsb2NrcyBsZWZ0OiAyNA0KRmViIDEzIDIzOjA0OjI2IGNvcGxleSBr
+ZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMjANCkZlYiAxMyAyMzow
+NDoyNiBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDE2
+DQpGZWIgMTMgMjM6MDQ6MjYgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJs
+b2NrcyBsZWZ0OiAxMg0KRmViIDEzIDIzOjA0OjI2IGNvcGxleSBrZXJuZWw6
+IE51bWJlciBvZiBibG9ja3MgbGVmdDogOA0KRmViIDEzIDIzOjA0OjI2IGNv
+cGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNA0KRmViIDEz
+IDIzOjA0OjI2IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVm
+dDogNTINCkZlYiAxMyAyMzowNDoyNiBjb3BsZXkga2VybmVsOiBOdW1iZXIg
+b2YgYmxvY2tzIGxlZnQ6IDQ4DQpGZWIgMTMgMjM6MDQ6MjYgY29wbGV5IGtl
+cm5lbDogTnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA0NA0KRmViIDEzIDIzOjA0
+OjI3IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNDAN
+CkZlYiAxMyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxv
+Y2tzIGxlZnQ6IDM2DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDog
+TnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiAzMg0KRmViIDEzIDIzOjA0OjI3IGNv
+cGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMjgNCkZlYiAx
+MyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxl
+ZnQ6IDI0DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVy
+IG9mIGJsb2NrcyBsZWZ0OiAyMA0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBr
+ZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMTYNCkZlYiAxMyAyMzow
+NDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDEy
+DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJs
+b2NrcyBsZWZ0OiA4DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDog
+TnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA0DQpGZWIgMTMgMjM6MDQ6MjcgY29w
+bGV5IGtlcm5lbDogTnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA3Ng0KRmViIDEz
+IDIzOjA0OjI3IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVm
+dDogNzINCkZlYiAxMyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIg
+b2YgYmxvY2tzIGxlZnQ6IDY4DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtl
+cm5lbDogTnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA2NA0KRmViIDEzIDIzOjA0
+OjI3IGNvcGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNjAN
+CkZlYiAxMyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxv
+Y2tzIGxlZnQ6IDU2DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDog
+TnVtYmVyIG9mIGJsb2NrcyBsZWZ0OiA1Mg0KRmViIDEzIDIzOjA0OjI3IGNv
+cGxleSBrZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogNDgNCkZlYiAx
+MyAyMzowNDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxl
+ZnQ6IDQ0DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVy
+IG9mIGJsb2NrcyBsZWZ0OiA0MA0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBr
+ZXJuZWw6IE51bWJlciBvZiBibG9ja3MgbGVmdDogMzYNCkZlYiAxMyAyMzow
+NDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDMy
+DQpGZWIgMTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJs
+b2NrcyBsZWZ0OiAyOA0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBrZXJuZWw6
+IE51bWJlciBvZiBibG9ja3MgbGVmdDogMjQNCkZlYiAxMyAyMzowNDoyNyBj
+b3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDIwDQpGZWIg
+MTMgMjM6MDQ6MjcgY29wbGV5IGtlcm5lbDogTnVtYmVyIG9mIGJsb2NrcyBs
+ZWZ0OiAxNg0KRmViIDEzIDIzOjA0OjI3IGNvcGxleSBrZXJuZWw6IE51bWJl
+ciBvZiBibG9ja3MgbGVmdDogMTINCkZlYiAxMyAyMzowNDoyNyBjb3BsZXkg
+a2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDgNCkZlYiAxMyAyMzow
+NDoyNyBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxvY2tzIGxlZnQ6IDQN
+CkZlYiAxMyAyMzowNDoyOCBjb3BsZXkga2VybmVsOiBOdW1iZXIgb2YgYmxv
+Y2tzIGxlZnQ6IDQNCmNvcGxleTp+Pg0KDQo=
+---559023410-851401618-1045230788=:27605--

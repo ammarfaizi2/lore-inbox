@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVCMUqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVCMUzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVCMUqw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 15:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVCMUqw
+	id S261455AbVCMUzw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 15:55:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVCMUzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 15:46:52 -0500
-Received: from pat.uio.no ([129.240.130.16]:27831 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261453AbVCMUqu (ORCPT
+	Sun, 13 Mar 2005 15:55:52 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:40457 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261455AbVCMUzo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 15:46:50 -0500
-Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Junfeng Yang <yjf@stanford.edu>, nfs@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, mc@cs.Stanford.EDU
-In-Reply-To: <1110746550.23876.8.camel@lade.trondhjem.org>
-References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
-	 <1110690267.24123.7.camel@lade.trondhjem.org>
-	 <20050313200412.GA21521@nevyn.them.org>
-	 <1110746550.23876.8.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Sun, 13 Mar 2005 15:46:34 -0500
-Message-Id: <1110746794.23876.11.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Sun, 13 Mar 2005 15:55:44 -0500
+Message-ID: <4234A8DD.9080305@aknet.ru>
+Date: Sun, 13 Mar 2005 23:55:57 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alan Cox <alan@redhat.com>, Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz>
+In-Reply-To: <20050313201020.GB8231@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-su den 13.03.2005 Klokka 15:42 (-0500) skreiv Trond Myklebust:
+Hi.
 
-> No, that's a very different issue: you are violating the NFS cache
-> consistency rules if you are changing a file that is being held open by
-> other machines.
-> The correct way to do the above is to use GNU install with the '-b'
-> option: that will rename the version of glibc that is in use, and then
-> install the new glibc in a different inode.
+Pavel Machek wrote:
+>> +	andl $(VM_MASK | (4 << 8) | 3), %eax
+>> +	cmpl $((4 << 8) | 3), %eax
+>> +	je ldt_ss			# returning to user-space with LDT SS
+> All common linux apps use same %ss, no? Perhaps it would be more
+> efficient to just check if %ss == 0x7b, and proceed directly to
+> restore_nocheck if not?
+Such an optimization will cost three more
+instructions, one of which is a "taken"
+jump. It seems like the "taken" jump on
+a fast path is not good, while now it is
+only 5 instructions with a not-taken jump.
+I am not sure here, but I think the current
+solution is better (depends on how bad the
+"taken" jump is, and how bad it is to have
+the three extra insns for that optimization
+purpose).
 
-BTW: there is a more complete description of the NFS cache consistency
-model in the NFS FAQ:
-
-  http://nfs.sourceforge.net/index.cel.php#faq_a8
-
-Cheers,
-  Trond
-
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+> Or perhaps we could only enable this code
+> after application loads custom ldt?
+The good thing here is that the code
+actually does what you say, i.e. it jumps
+to ldt_ss only when the app has loaded
+the custom ldt and loaded that selector
+to %ss. The way it is implemented, is
+probably different from what you mean,
+I assume you mean the new per-thread flag?
+But I don't see how it can be more optimal,
+i.e. you propose to check whether or not
+the app altered the ldt (which can just be
+the old glibc I think), while the current
+solution is to also check whether it was
+loaded to %ss (so the glibc case is avoided,
+IIRC glibc used to load %gs with LDT selector).
+I.e. since right now we jump to ldt_ss only
+when the %ss is loaded with an LDT selector,
+I think the extra checks are not needed.
 

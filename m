@@ -1,203 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318059AbSHQSDn>; Sat, 17 Aug 2002 14:03:43 -0400
+	id <S318058AbSHQSCo>; Sat, 17 Aug 2002 14:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318062AbSHQSDn>; Sat, 17 Aug 2002 14:03:43 -0400
-Received: from imo-d05.mx.aol.com ([205.188.157.37]:57495 "EHLO
-	imo-d05.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S318059AbSHQSDl>; Sat, 17 Aug 2002 14:03:41 -0400
-Message-ID: <3D5E595A.7090106@netscape.net>
-Date: Sat, 17 Aug 2002 14:10:34 +0000
-From: Adam Belay <ambx1@netscape.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	id <S318059AbSHQSCo>; Sat, 17 Aug 2002 14:02:44 -0400
+Received: from [143.166.83.88] ([143.166.83.88]:53261 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S318058AbSHQSCn>; Sat, 17 Aug 2002 14:02:43 -0400
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6821CB73@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: bunk@fs.tum.de, marcelo@conectiva.com.br
+cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: [BK PATCH 2.4.x] move asm-ia64/efi.h to linux/efi.h (was RE:
+ Lin ux 2.4.20-pre3)
+Date: Sat, 17 Aug 2002 13:06:34 -0500
 MIME-Version: 1.0
-To: greg@kroah.com
-CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
-References: <3D5D7E50.4030307@netscape.net> <20020817030604.GB7029@kroah.com>
-Content-Type: multipart/mixed;
- boundary="------------060903070703000207000504"
-X-Mailer: Unknown (No Version)
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 11404F2773618-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The compile error in efi.c is still present in -pre3:
+> efi.c: In function `add_gpt_partitions':
+> efi.c:728: `NULL_GUID' undeclared (first use in this function)
 
---------------060903070703000207000504
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> Matt suggested to move include/asm-ia64/efi.h to 
+> include/linux/efi.h. Is
+> it possible to do this before 2.4.20-final?
+
+I sure hope so.  Here's the patch set for 2.4.x which fixes the NULL_GUID
+bug, moves efi.h from include/asm-ia64 to include/linux, and fixes
+efi_guid_unparse.
 
 
+1)
+http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt.cset
+has been in the IA64 port for a while.  This fixes the endianness issues
+with the efi_guid_t type and adds the NULL_GUID definition needed to compile
+the GPT code.
 
-greg@kroah.com wrote:
+2)
+http://domsch.com/linux/patches/ia64/linux-2.4-efihmove.cset
+moves include/asm-ia64/efi.h to include/linux/efi.h similar to the 2.5
+patches.  This is needed to allow the GPT code to compile on non-IA64
+platforms too, necessary for the use of really big disks.
 
- >
- >Um, your email client mangled the patch, dropping tabs and wrapped
- >lines.
- >
-Thanks for pointing this out.  I'll send it as an attachment this time.
-  My current client has been causing me a lot of trouble, is there one
-you would suggest I use?
+3)
+http://domsch.com/linux/patches/gpt/linux-2.4-gpt-efiguidt-unparse.cset
+has been the IA64 port for a while.  This fixes efi_guid_unparse for
+endianness.
 
- >
- >Isn't this info already in the "name" file of a driver?
- >
 
-I'm probably just confused but I'm not sure what you mean.  This patch 
-does the following, as shown previously:
+These need to be applied in the above order, as #1 touches efi.h,  #2
+touches and moves efi.h, and #3 touches it then too.  #1 and #3 are already
+in the ia64 port tree, but Marcelo and Alan don't have any of these three.
+I've compiled this on x86 against BK-current building in GPT with no
+troubles.
 
-example:
-#cd /driverfs/root/pci0/00:00.0
-#cat driver
-agpgart
-
- >
- >Not that I agree with this patch at all, but you might want to go read
- >Documentation/CodingStyle to fix up your brace placement properly.
- >
-
-Ok I'll read it.
-
- >
 
 Thanks,
-Adam
+Matt
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 
-
---------------060903070703000207000504
-Content-Type: text/plain;
- name="driver.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="driver.patch"
-
-diff -ur --new-file a/drivers/base/interface.c b/drivers/base/interface.c
---- a/drivers/base/interface.c  Wed Aug 14 17:09:28 2002
-+++ b/drivers/base/interface.c  Fri Aug 16 22:03:18 2002
-@@ -88,8 +88,20 @@
- static DEVICE_ATTR(power,"power",S_IWUSR | S_IRUGO,
-           device_read_power,device_write_power);
- 
-+
-+static ssize_t device_read_driver(struct device * dev, char * buf, size_t count, loff_t off)
-+{
-+   if (dev->driver)
-+       return off ? 0 : sprintf(buf,"%s\n",dev->driver->name);
-+   else
-+       return 0;
-+}
-+
-+static DEVICE_ATTR(driver,"driver",S_IRUGO,device_read_driver,NULL);
-+
- struct device_attribute * device_default_files[] = {
-    &dev_attr_name,
-    &dev_attr_power,
-+   &dev_attr_driver,
-    NULL,
- };
-
---------------060903070703000207000504
-Content-Type: text/plain;
- name="driver2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="driver2.patch"
-
-diff -ur --new-file a/drivers/base/base.h b/drivers/base/base.h
---- a/drivers/base/base.h   Fri Aug 16 12:20:18 2002
-+++ b/drivers/base/base.h   Fri Aug 16 22:17:26 2002
-@@ -26,3 +26,5 @@
- 
- extern int driver_attach(struct device_driver * drv);
- extern void driver_detach(struct device_driver * drv);
-+extern int do_driver_detach(struct device * dev, struct device_driver * drv);
-+extern int do_driver_attach(struct device * dev, void * data);
-diff -ur --new-file a/drivers/base/core.c b/drivers/base/core.c
---- a/drivers/base/core.c   Wed Aug 14 17:09:28 2002
-+++ b/drivers/base/core.c   Fri Aug 16 22:16:30 2002
-@@ -98,7 +98,7 @@
- 
- static void device_detach(struct device * dev)
- {
--   struct device_driver * drv; 
-+   struct device_driver * drv;
- 
-    if (dev->driver) {
-        lock_device(dev);
-@@ -117,7 +117,7 @@
-    }
- }
- 
--static int do_driver_attach(struct device * dev, void * data)
-+int do_driver_attach(struct device * dev, void * data)
- {
-    struct device_driver * drv = (struct device_driver *)data;
-    int error = 0;
-@@ -134,7 +134,7 @@
-    return bus_for_each_dev(drv->bus,drv,do_driver_attach);
- }
- 
--static int do_driver_detach(struct device * dev, struct device_driver * drv)
-+int do_driver_detach(struct device * dev, struct device_driver * drv)
- {
-    lock_device(dev);
-    if (dev->driver == drv) {
-diff -ur --new-file a/drivers/base/interface.c b/drivers/base/interface.c
---- a/drivers/base/interface.c  Fri Aug 16 22:06:41 2002
-+++ b/drivers/base/interface.c  Fri Aug 16 22:15:29 2002
-@@ -8,6 +8,7 @@
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/stat.h>
-+#include "base.h"
- 
- static ssize_t device_read_name(struct device * dev, char * buf, size_t count, loff_t off)
- {
-@@ -97,7 +98,44 @@
-        return 0;
- }
- 
--static DEVICE_ATTR(driver,"driver",S_IRUGO,device_read_driver,NULL);
-+struct device_driver * find_driver_by_name(struct bus_type * bus, char * name)
-+{
-+   struct list_head * pos;
-+   struct device_driver * drv;
-+   list_for_each (pos, &bus->drivers)
-+   {
-+       drv = list_entry(pos, struct device_driver, bus_list);
-+       if (!strncmp(drv->name,name,strlen(name) - 1))
-+           return drv;
-+
-+   }
-+   return NULL;
-+
-+}
-+
-+static ssize_t device_write_driver(struct device * dev, char * buf, size_t count, loff_t off)
-+{
-+   struct device_driver * drv = NULL;
-+   int error = 0;
-+   if (off)
-+       return 0;
-+   if (!dev->bus)
-+       return count;
-+   if (!dev->driver)
-+   {
-+       drv = find_driver_by_name(dev->bus, buf);
-+       if (drv)
-+           error = do_driver_attach(dev,drv);
-+
-+   } else if (!strnicmp(buf,"remove",6))
-+   {
-+       error = do_driver_detach(dev, dev->driver);
-+   }
-+   return error < 0 ? error : count;
-+}
-+
-+static DEVICE_ATTR(driver,"driver",S_IWUSR | S_IRUGO,
-+          device_read_driver,device_write_driver);
- 
- struct device_attribute * device_default_files[] = {
-    &dev_attr_name,
-
---------------060903070703000207000504--

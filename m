@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316469AbSEUAoQ>; Mon, 20 May 2002 20:44:16 -0400
+	id <S316473AbSEUAqw>; Mon, 20 May 2002 20:46:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316473AbSEUAoQ>; Mon, 20 May 2002 20:44:16 -0400
-Received: from nacho.alt.net ([207.14.113.18]:16908 "HELO nacho.alt.net")
-	by vger.kernel.org with SMTP id <S316469AbSEUAoO>;
-	Mon, 20 May 2002 20:44:14 -0400
-Date: Mon, 20 May 2002 17:44:10 -0700 (PDT)
-From: Chris Caputo <ccaputo@alt.net>
-To: netdev@oss.sgi.com
-cc: linux-kernel@vger.kernel.org, <linux-net@vger.kernel.org>
-Subject: [PATCH] net/core/sock.c - 2.4.18
-Message-ID: <Pine.LNX.4.44.0205201738180.19839-100000@nacho.alt.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316475AbSEUAqv>; Mon, 20 May 2002 20:46:51 -0400
+Received: from server0043.freedom2surf.net ([194.106.33.53]:11463 "EHLO
+	server0043.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S316474AbSEUAqu>; Mon, 20 May 2002 20:46:50 -0400
+Date: Tue, 21 May 2002 01:55:17 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: RFC - named loop devices...
+Message-Id: <20020521015517.609d5516.spyro@armlinux.org>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch corrects a typo in net/core/sock.c.  The assignment to
-sysctl_wmem_default was done twice in a row, rather than to
-sysctl_wmem_default and sysctl_rmem_default.
+I havent thought about this too much, but...
 
-This patch applies to 2.4.18.
+When /etc/mtab is a symlink to /proc/mounts the umount command will fail
+to unmount loopback mounted filesystems properly.
 
-Chris
+I was wondering if a solution to this would be to introduce 'named'
+loopback devices.
 
---- net/core/sock.c.orig        Fri Dec 21 09:42:05 2001
-+++ net/core/sock.c     Mon May 20 17:35:43 2002
-@@ -626,7 +626,7 @@
-                sysctl_wmem_max = 32767;
-                sysctl_rmem_max = 32767;
-                sysctl_wmem_default = 32767;
--               sysctl_wmem_default = 32767;
-+               sysctl_rmem_default = 32767;
-        } else if (num_physpages >= 131072) {
-                sysctl_wmem_max = 131071;
-                sysctl_rmem_max = 131071;
+with named loop devices, umount will then know that mount was the
+creator of a loopback device that it mounted, and can safely destroy it.
 
+at present, mounting and unmounting disc images causes one to run out of
+loopback devices rather rapidly.
+
+If I were to knock up a patch to implement named loop devices, would it
+stand a chance of being accepted?
+
+also, how should this work? should the name be that of the creating
+process or should it just be a field that the creator can fill in as it
+pleases?

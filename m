@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315458AbSGMXov>; Sat, 13 Jul 2002 19:44:51 -0400
+	id <S315463AbSGMXqs>; Sat, 13 Jul 2002 19:46:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSGMXou>; Sat, 13 Jul 2002 19:44:50 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17358 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S315458AbSGMXou>; Sat, 13 Jul 2002 19:44:50 -0400
-Date: Sun, 14 Jul 2002 01:47:16 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Adam J. Richter" <adam@freya.yggdrasil.com>
-cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207132327.QAA08173@freya.yggdrasil.com>
-Message-ID: <Pine.SOL.4.30.0207140138090.19631-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315468AbSGMXqr>; Sat, 13 Jul 2002 19:46:47 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:48566 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S315463AbSGMXqq>;
+	Sat, 13 Jul 2002 19:46:46 -0400
+Date: Sun, 14 Jul 2002 01:49:20 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Austin Gonyou <austin@digitalroadkill.net>
+Cc: c0330 <c0330@yingwa.edu.hk>, linux-kernel@vger.kernel.org
+Subject: Re: Future of Kernel tree 2.0 ............
+Message-ID: <20020713234920.GP29001@khan.acc.umu.se>
+References: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk> <1026577702.24686.3.camel@UberGeek>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026577702.24686.3.camel@UberGeek>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jul 13, 2002 at 11:28:22AM -0500, Austin Gonyou wrote:
+> I'd imagine that it would, JMHO, but it makes little sense, at least for
+> prime-time level maintenance of a kernel who's architecture, while valid
+> for use in many areas, is still far limited, even in light of 2.4. 
 
-On Sat, 13 Jul 2002, Adam J. Richter wrote:
+The maintenance of the 2.0-tree will continue. I see no point in
+ceasing to maintain it just because the release of 2.6. They simply do
+not target the same audience.
 
-> On Sat, 13 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
-> >On Sat, 13 Jul 2002, Adam J. Richter wrote:
-> [...]
-> >> 	Are there some non-ATAPI IDE CDROM's that
-> >> linux-2.5.25/drivers/ide/ide-cdrom.c supports?   I was under
-> >> the impression that ide-cdrom.c operated only through ATAPI.
->
-> >Wrong impression. ;)
-> >Hint: look for STANDARD_ATAPI macro usage.
->
-> 	It looks like that macro should be renamed to something like
-> STANDARD_MMC.  Everything that that macro controls still appears to
-> go through ATA Packet Interface encapsulation.  Those quirks look like
+> The advancements which 2.6 will bring, over 2.4, will be extraordinarily
+> different, in terms of overall architecture it seems. Even if it's only
+> a 20% architecture difference from 2.4, think of how much further from
+> 2.0 that is. 
 
-Please verify against sff8020.
+Yes, and that is why 2.0 is still maintained; for some users, the step
+between 2.0 and a later release is too large when it comes to how many
+userland programs that need to be upgraded/retested/rewritten.
 
-> they would likely be duplicated in a SCSI version of the same drives
-> anyhow.  It should be easy to have sr_mod accomodate those drives.
+Really, there is little reason to worry; my contribution to the
+development of 2.5 (and a forthcoming 2.6/2.7/2.8/...) would probably
+not be much larger were I to drop maintenance of the 2.0-tree. Possibly,
+Marcello and Linus would receive a few more odd fixes for typos and
+the Config-files, and maybe some MCA-related fixes, but as things stand
+right now, the fact that I only have a dialup-connection stands between
+me and serious development (<subliminal message>anyone care to sponsor a
+faster connection or hire me?</subliminal message>)
 
-I can't find them, there are some in sr_vendor.c but they are diffirent
-issues.
 
->
-> Adam J. Richter     __     ______________   575 Oroville Road
-> adam@yggdrasil.com     \ /                  Milpitas, California 95035
-> +1 408 309-6081         | g g d r a s i l   United States of America
->                          "Free Software For The Rest Of Us."
-
+Regards: David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbREPQ0Y>; Wed, 16 May 2001 12:26:24 -0400
+	id <S261999AbREPQ2o>; Wed, 16 May 2001 12:28:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261999AbREPQ0O>; Wed, 16 May 2001 12:26:14 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:12293 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S261996AbREPQZ7>;
-	Wed, 16 May 2001 12:25:59 -0400
-Subject: Re: LANANA: To Pending Device Number Registrants
-From: Miles Lane <miles@megapathdsl.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3B028063.67442F62@idb.hist.no>
-In-Reply-To: <E504453C04C1D311988D00508B2C5C2DF2F9E1@mail11.gruppocredit.it>
-	<3B0261EC.23BE5EF0@idb.hist.no> <031ypp1oi2.fsf@colargol.tihlde.org> 
-	<3B028063.67442F62@idb.hist.no>
-Content-Type: text/plain
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 16 May 2001 09:30:46 -0700
-Message-Id: <990030651.932.3.camel@agate>
-Mime-Version: 1.0
+	id <S262000AbREPQ2e>; Wed, 16 May 2001 12:28:34 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:29202 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261999AbREPQ2T>; Wed, 16 May 2001 12:28:19 -0400
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Message-ID: <3B02AA8C.DB122754@transmeta.com>
+Date: Wed, 16 May 2001 09:27:56 -0700
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Getting FS access events
+In-Reply-To: <200105152231.f4FMVSC246046@saturn.cs.uml.edu>
+	 <5.1.0.14.2.20010516020702.00acce40@pop.cus.cam.ac.uk> <5.1.0.14.2.20010516092326.00b217c0@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 May 2001 15:28:03 +0200, Helge Hafting wrote:
-> Oystein Viggen wrote:
-> > 
-> > Quoth Helge Hafting:
-> > 
-> > > This could be extended to non-raid use - i.e. use the "raid autodetect"
-> > > partition type for non-raid as well.  The autodetect routine could
-> > > then create /dev/partitions/home, /dev/partitions/usr or
-> > > /dev/partitions/name_of_my_choice
-> > > for autodetect partitions not participating in a RAID.
-> > 
-> > What happens if I insert a hard drive from another computer which also
-> > has partitions named "home", "usr", and soforth?
+Anton Altaparmakov wrote:
 > 
-> This is the problem with all sorts of ID-based naming.  In this case
-> the kernel could simply change the conflicting names a bit,
-> and leave the cleanup to the administrator.  (Who probably
-> is around as he just inserted those disks....)
+> True, but I was under the impression that Linus' master plan was that the
+> two would be in entirely separate name spaces using separate cached copies
+> of the device blocks.
 > 
-> The current scheme have problems if you move a disk
-> from one controller to another, or in some cases
-> if you merely add a new one.  So the question becomes - 
-> what is most likely to go wrong?  And you can be
-> smart and name your partitions /usr21042001, /home03042001
-> and so on in order to minimize the risk of conflicts.
 
-Well, a usermode solution might be to add support for having the
-filesystem utilities generate and detect partition IDs.  Then the disks
-could be moved from one controller to another, but mount could scan
-partition IDs and associate mount points on matching IDs rather than on
-/dev/hdX or /dev/sdX.
+Nothing was said about the superblock at all.
 
-Or is this a ridiculous idea?
+	-hpa
 
-    Miles
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

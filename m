@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbUCAIZL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 03:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCAIZL
+	id S262273AbUCAI0H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 03:26:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbUCAI0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 03:25:11 -0500
-Received: from shark.pro-futura.com ([161.58.178.219]:38304 "EHLO
-	shark.pro-futura.com") by vger.kernel.org with ESMTP
-	id S262272AbUCAIZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 03:25:08 -0500
-From: "Tvrtko A. =?iso-8859-2?q?Ur=B9ulin?=" <tvrtko@croadria.com>
-Organization: Croadria Internet usluge
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Known problems with megaraid under 2.4.25 highmem?
-Date: Mon, 1 Mar 2004 09:27:49 +0100
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org, Atul Mukker <atulm@lsil.com>
-References: <200402271107.42050.tvrtko@croadria.com> <Pine.LNX.4.58L.0402271548290.18958@logos.cnet>
-In-Reply-To: <Pine.LNX.4.58L.0402271548290.18958@logos.cnet>
+	Mon, 1 Mar 2004 03:26:07 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:961 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S262273AbUCAI0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 03:26:02 -0500
+Message-ID: <4042F38B.8020307@matchmail.com>
+Date: Mon, 01 Mar 2004 00:25:47 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Nick Piggin <piggin@cyberone.com.au>
+Subject: MM VM patches was: 2.6.3-mm4
+References: <20040225185536.57b56716.akpm@osdl.org>
+In-Reply-To: <20040225185536.57b56716.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200403010927.50003.tvrtko@croadria.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 February 2004 19:52, Marcelo Tosatti wrote:
+Andrew Morton wrote:
+> shrink_slab-for-all-zones.patch
+>   vm: scan slab in response to highmem scanning
+> 
+> zone-balancing-fix.patch
+>   vmscan: zone balancing fix
 
-> Not known to me...
->
-> Can you get any traces from the lockup? NMI watchdog or sysrq+p and +t?
+On 2.6.3 + [1] + nfsd-lofft.patch running on a 1GB ram file server.   I 
+have noticed two related issues.
 
-Unfortunately no, it is a production system now to which I don't have physical 
-access.
+First, under 2.6.3 it averages about 90MB[2] anon memory, and 30MB with 
+the -mm4 vm (the rest is in swap cache).  This could balance out on the 
+normal non-idle week-day load though...
 
-> Did any previous 2.4.x work reliably?
+Second the -mm4 vm, there is a lot more swapping[3] going on during the 
+daily updatedb, and backup runs that are performed on this machine.
+I'd have to call this second issue a regression, but I want to run it a 
+couple more days to see if it gets any better (unless you agree of course).
 
-It is a new system, which came with preinstalled RH7.2 and kernel 2.4.23 which 
-has highmem support and is stable. I immediately installed 2.4.25 also w/ 
-highmem & highmem i/o. After I got one I/O lockup under light load, I 
-immediately recompiled wo/ highmem support. After that no problems 
-whatsoever.
- 
+Mike
+
+[1]
+instrument-highmem-page-reclaim.patch
+blk_congestion_wait-return-remaining.patch
+vmscan-remove-priority.patch
+kswapd-throttling-fixes.patch
+vm-dont-rotate-active-list.patch
+vm-lru-info.patch
+vm-shrink-zone.patch
+vm-tune-throttle.patch
+shrink_slab-for-all-zones.patch
+zone-balancing-fix.patch
+zone-balancing-batching.patch
+
+[2]
+http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-memory.html
+
+[3]
+http://www.matchmail.com/stats/lrrd/matchmail.com/fileserver.matchmail.com-swap.html

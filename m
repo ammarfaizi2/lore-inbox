@@ -1,113 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261612AbSJUUaV>; Mon, 21 Oct 2002 16:30:21 -0400
+	id <S261627AbSJUU1f>; Mon, 21 Oct 2002 16:27:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261626AbSJUUaV>; Mon, 21 Oct 2002 16:30:21 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:676 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S261612AbSJUUaS>; Mon, 21 Oct 2002 16:30:18 -0400
-Message-Id: <5.1.0.14.2.20021021133129.0595cc40@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 21 Oct 2002 13:32:34 -0700
-To: Adrian Bunk <bunk@fs.tum.de>
-From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
-Subject: Re: [2.5 patch] fix the compilation of
-  drivers/bluetooth/bt3c_cs.c
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.NEB.4.44.0210191134170.28761-100000@mimas.fachschafte
- n.tu-muenchen.de>
+	id <S261630AbSJUU1f>; Mon, 21 Oct 2002 16:27:35 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:36037 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261627AbSJUU1e>; Mon, 21 Oct 2002 16:27:34 -0400
+Subject: Re: Stress testing cifs filesystem
+From: Paul Larson <plars@austin.ibm.com>
+To: Steven French <sfrench@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <OF9459582D.95D99040-ON87256C59.005AD875@boulder.ibm.com>
+References: <OF9459582D.95D99040-ON87256C59.005AD875@boulder.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 21 Oct 2002 15:25:27 -0500
+Message-Id: <1035231927.998.386.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yep. I got this from Marcel Holtmann already.
-Thanks anyway.
+On Mon, 2002-10-21 at 11:38, Steven French wrote:
+> After struggling with setting up LSB to test
+> remote mounts for a while, I checked
+> with the LSB team on Andi's suggestion below of
+> using the POSIX file API section of LSB on a
+> network mount.   They indicated that it won't
+> work without modifications to the LSB source,
+> (I had been trying to do it via just changing
+> the config files) something I will eventually
+> have to look into.
+Have you tried LTP? We have several fs stress type tests in LTP and with
+the (somewhat) new changes to the scripts, it's easier to specify where
+the tests create their temporary directories:
+'runalltests -d /mnt/cifstest'
 
-Max
-
-
-At 11:37 AM 10/19/2002 +0200, Adrian Bunk wrote:
->Hi Maksim,
->
->your bluetooth patches in 2.5.44 caused the following compile error in
->drivers/bluetooth/bt3c_cs.c that is fixed by the patch below:
->
-><--  snip  -->
->
->...
->  gcc -Wp,-MD,drivers/bluetooth/.bt3c_cs.o.d -D__KERNEL__ -Iinclude -Wall
->-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
->-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
->-Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=bt3c_cs   -c -o
->drivers/bluetooth/bt3c_cs.o drivers/bluetooth/bt3c_cs.c
->drivers/bluetooth/bt3c_cs.c: In function `bt3c_receive':
->drivers/bluetooth/bt3c_cs.c:321: `hci_event_hdr' undeclared (first use in
->this function)
->drivers/bluetooth/bt3c_cs.c:321: (Each undeclared identifier is reported
->only once
->drivers/bluetooth/bt3c_cs.c:321: for each function it appears in.)
->drivers/bluetooth/bt3c_cs.c:321: `eh' undeclared (first use in this
->function)
->drivers/bluetooth/bt3c_cs.c:321: warning: statement with no effect
->drivers/bluetooth/bt3c_cs.c:322: `hci_acl_hdr' undeclared (first use in
->this function)
->drivers/bluetooth/bt3c_cs.c:322: `ah' undeclared (first use in this
->function)
->drivers/bluetooth/bt3c_cs.c:322: warning: statement with no effect
->drivers/bluetooth/bt3c_cs.c:323: `hci_sco_hdr' undeclared (first use in
->this function)
->drivers/bluetooth/bt3c_cs.c:323: `sh' undeclared (first use in this
->function)
->drivers/bluetooth/bt3c_cs.c:323: warning: statement with no effect
->drivers/bluetooth/bt3c_cs.c:328: parse error before `)'
->drivers/bluetooth/bt3c_cs.c:334: parse error before `)'
->drivers/bluetooth/bt3c_cs.c:341: parse error before `)'
->drivers/bluetooth/bt3c_cs.c:320: warning: `dlen' might be used
->uninitialized in
->this function
->make[2]: *** [drivers/bluetooth/bt3c_cs.o] Error 1
->
-><--  snip  -->
->
->
->cu
->Adrian
->
->--- linux-2.5.44-full/drivers/bluetooth/bt3c_cs.c.old   2002-10-19 11:23:35.000000000 +0200
->+++ linux-2.5.44-full/drivers/bluetooth/bt3c_cs.c       2002-10-19 11:24:44.000000000 +0200
->@@ -318,27 +318,27 @@
->                        if (info->rx_count == 0) {
->
->                                int dlen;
->-                               hci_event_hdr *eh;
->-                               hci_acl_hdr *ah;
->-                               hci_sco_hdr *sh;
->+                               struct hci_event_hdr *eh;
->+                               struct hci_acl_hdr *ah;
->+                               struct hci_sco_hdr *sh;
->
->                                switch (info->rx_state) {
->
->                                case RECV_WAIT_EVENT_HEADER:
->-                                       eh = (hci_event_hdr *)(info->rx_skb->data);
->+                                       eh = (struct hci_event_hdr *)(info->rx_skb->data);
->                                        info->rx_state = RECV_WAIT_DATA;
->                                        info->rx_count = eh->plen;
->                                        break;
->
->                                case RECV_WAIT_ACL_HEADER:
->-                                       ah = (hci_acl_hdr *)(info->rx_skb->data);
->+                                       ah = (struct hci_acl_hdr *)(info->rx_skb->data);
->                                        dlen = __le16_to_cpu(ah->dlen);
->                                        info->rx_state = RECV_WAIT_DATA;
->                                        info->rx_count = dlen;
->                                        break;
->
->                                case RECV_WAIT_SCO_HEADER:
->-                                       sh = (hci_sco_hdr *)(info->rx_skb->data);
->+                                       sh = (struct hci_sco_hdr *)(info->rx_skb->data);
->                                        info->rx_state = RECV_WAIT_DATA;
->                                        info->rx_count = sh->dlen;
->                                        break;
+Thanks,
+Paul Larson
 

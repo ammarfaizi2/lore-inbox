@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274746AbRIUDYT>; Thu, 20 Sep 2001 23:24:19 -0400
+	id <S274669AbRIUDrq>; Thu, 20 Sep 2001 23:47:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274750AbRIUDYJ>; Thu, 20 Sep 2001 23:24:09 -0400
-Received: from zok.sgi.com ([204.94.215.101]:21383 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S274746AbRIUDYA>;
-	Thu, 20 Sep 2001 23:24:00 -0400
-Message-Id: <200109210325.f8L3PKi20270@jen.americas.sgi.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: Steve Lord <lord@sgi.com>, hch@ns.caldera.de,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Gonyou, Austin" <austin@coremetrics.com>,
-        narancs@narancs.tii.matav.hu, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: XFS to main kernel source 
-In-Reply-To: Message from Andreas Dilger <adilger@turbolabs.com> 
-   of "Thu, 20 Sep 2001 21:12:21 MDT." <20010920211221.G14526@turbolinux.com> 
-Date: Thu, 20 Sep 2001 22:25:20 -0500
-From: Steve Lord <lord@sgi.com>
+	id <S274750AbRIUDrh>; Thu, 20 Sep 2001 23:47:37 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:39927 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S274748AbRIUDrZ>;
+	Thu, 20 Sep 2001 23:47:25 -0400
+Date: Fri, 21 Sep 2001 05:47:49 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010921054749.Z729@athlon.random>
+In-Reply-To: <20010921003136.H729@athlon.random> <Pine.GSO.4.21.0109201835320.5631-100000@weyl.math.psu.edu> <20010921010340.L729@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010921010340.L729@athlon.random>; from andrea@suse.de on Fri, Sep 21, 2001 at 01:03:40AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sep 20, 2001  16:31 -0500, Steve Lord wrote:
-> > XFS quotas are transactional, when space is added to a file the quota is
-> > adjusted in the same transaction. It is fairly hard to do this without your
-> > own quota code.
-> 
-> Actually not.  The quotas in ext3 are transactional as well.  It's just
-> that the "ext3" journal layer allows nested transactions, so it is possible
-> to start a write transaction, call into the journal code which calls back
-> into the ext3 write code to start a nested transaction on the journal file
-> (i.e. it is in the same transaction as the initial write), and then the
-> initial write completes.
+On Fri, Sep 21, 2001 at 01:03:40AM +0200, Andrea Arcangeli wrote:
+> What do you prefer for the next 2.4.10 mainline? I'd like to have this
 
-OK, good point, but doing a major rewrite of XFS to use a different
-transaction mechanism is not really on the cards, plus we have on disk
-compatibility with the Irix version to consider.
+Famous last words, after a few hours of debugging mixed with vm patches
+and emails, I finally got around finding the real bug. The fact is that
+the secure-ramdisk logic was totally broken, not just for initrd, oh 
+well, so please don't apply such patch (code in mainline has the
+security issue if you allow an luser to read from /dev/ram0, but it
+isn't buggy). and the issue is quite unfixable with just a PageSecure
+set inside rd.c.  The fact is that I cannot just clear-around the
+written "bh", around there could be the source for the next block to
+write and I cannot zero it out. It is getting harder to fix this one
+just inside the ->make_request callback... Hints?
 
-Steve
-
-
-
+Andrea

@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266119AbUBQGSU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbUBQGSU
+	id S266049AbUBQGL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUBQGL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:18:20 -0500
-Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:32336 "HELO
-	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266119AbUBQGSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:18:12 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: PS/2 Mouse does no longer work with kernel 2.6 on a laptop
-Date: Tue, 17 Feb 2004 01:18:05 -0500
-User-Agent: KMail/1.6
-Cc: Emmeran Seehuber <rototor@rototor.de>, linux-kernel@vger.kernel.org
-References: <200402112344.23378.rototor@rototor.de> <200402161334.43583.rototor@rototor.de> <20040216143617.GA959@ucw.cz>
-In-Reply-To: <20040216143617.GA959@ucw.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 17 Feb 2004 01:11:57 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:48296 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266051AbUBQGKK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:10:10 -0500
+Subject: Re: 2.6.2: ACPI -VS- PPPoE / aDSL
+From: Len Brown <len.brown@intel.com>
+To: leonard <leonard@internetdown.org>
+Cc: linux-kernel@vger.kernel.org, root@dune2.info
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0023E8B87@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE0023E8B87@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1076998200.2510.19.camel@dhcppc4>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 17 Feb 2004 01:10:00 -0500
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402170118.05753.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 February 2004 09:36 am, Vojtech Pavlik wrote:
-> On Mon, Feb 16, 2004 at 01:34:43PM +0000, Emmeran Seehuber wrote:
+On Mon, 2004-02-09 at 20:35, leonard wrote:
+> Hello everyone,
 > 
-> > On Sunday 15 February 2004 15:28, Dmitry Torokhov wrote:
-> > [...]
-> > >
-> > > I see that the kernel correctly identifies both devices so I suspect there
-> > > could be a problem with your setup. Could you also post your XF86Config
-> > > and tell me the the options you are passing to GPM, please?
-> > What I forgot to mention: cat /dev/input/mouse1 gives me some garbage as soon 
-> > as I move on the trackpad. But cat /dev/input/mouse0 gives me nothing, so I 
-> > don't think that this is a userspace configuration problem. The kernel seems 
-> > to get no input from the PS/2 mouse at all.
+> With Linux kernel last 'stable' version 2.6.2,
+> i had to compile withOUT ACPI to get my PPPoE/aDSL working :/
 > 
-> Dmitry, this looks like either MUX or PassThrough problem.
+> ACPI works great by itself, but does not let my pppoe driver
+> (the roaring penguin) do its job properly.
+> Note I did not try with the new kernel-space pppoe driver.
 > 
+> It was the same way between ACPI and DHCP in kernel 2.6.0-TEST9
+> 
+> Just letting you know, I'm sure far from being alone with this
+> issue, but didn't find any messages talking about it in the archives.
+> 
+> Take care ACPI developpers ;)
+> Guillaume
+> 
+> P.S. Please CC any unlikely answer to `root AT_ dune2 D0T_ info`
+> that way I'm sure not to skip it :)
 
-It can't be Pass-through problem as the touchpad is not identified as Synaptics,
-so it must be MUX...
+Leonard,
+please try booting with pci=noacpi -- if that causes the box to work,
+then you have an ACPI interrupt configuration problem.  If it doesn't,
+try booting with "acpi=off" to confirm that it functions properly with
+ACPI completely out of the picture.
 
-Emmeran, what happens if you "cat /dev/input/mice" and try working the
-touchpad and the trackball? Do you see anything when you use the touchpad?
-If not, please #define DEBUG in i8042.c again and after reboot try using
-touchpad first, then type something (so we'll see the point when you
-stopped using the touchpad), move trackball and type something again and
-post your dmesg one more time. This way we would see if there is anything
-comes out from the touchpad in MUX mode, etc, etc.
+also, the acpi developers are actually at
+acpi-devel@lists.sourceforge.net.
 
-And could you please post your /proc/bus/input/devices? 
+thanks,
+-Len
 
-Thank you,
 
-Dmitry

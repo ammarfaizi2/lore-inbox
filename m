@@ -1,223 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261874AbVAHIdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVAHIio@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbVAHIdm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 03:33:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVAHIcX
+	id S261909AbVAHIio (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 03:38:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVAHIg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 03:32:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:13446 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261924AbVAHFsq convert rfc822-to-8bit
+	Sat, 8 Jan 2005 03:36:57 -0500
+Received: from mail.kroah.org ([69.55.234.183]:3206 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261906AbVAHFsh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:46 -0500
-Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632662436@kroah.com>
+	Sat, 8 Jan 2005 00:48:37 -0500
+Subject: Re: [PATCH] I2C patches for 2.6.10
+In-Reply-To: <11051627753411@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:46 -0800
-Message-Id: <11051632662286@kroah.com>
+Date: Fri, 7 Jan 2005 21:39:35 -0800
+Message-Id: <11051627751088@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.446.23, 2004/12/15 16:35:49-08:00, david-b@pacbell.net
+ChangeSet 1.1938.445.4, 2004/12/15 11:37:45-08:00, khali@linux-fr.org
 
-[PATCH] USB: maintain usb_host_endpoint.urb_list (11/15)
+[PATCH] I2C: i2c-algo-bit should support I2C_FUNC_I2C
 
-This patch changes the HCD glue code to use the URB queue now kept in
-usb_host_endpoint, and matching HCD API changes.
+> Very few drivers seem to support the I2C_FUNC_I2C functionality, is
+> there a reason for that?
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Yes, most bus drivers are for SMBus, not I2C, masters. SMBus is a subset
+of I2C. These SMBus master are fully I2C-capable, although in most cases
+it doesn't matter. Most chip drivers are for SMBus clients as well.
+Almost all hardware monitoring chips are SMBus devices. So it's not
+surprising not to see I2C_FUNC_I2C widely used.
+
+> I have an I2C bus on my platform constructed from a couple of GPIO lines
+> using the i2c-algo-bit driver. The device on the bus is a DS1307 I2C RTC
+> and the driver for that currently checks for
+> 	I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_WRITE_BYTE
+> however the datasheet suggests it is a simple i2c device with none of
+> this smbus stuff, Russell King queried this here
+> http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=2021/1
+
+First, note that all SMBus commands are valid I2C transfers. In fact,
+the SMBus specification doesn't do much except put names on specific I2C
+transfers, and sometimes give meanings to the data being transfered. As
+a result, "I2C" clients, although not specifically SMBus-compatible, may
+enjoy SMBus commands such as SMBUS_READ_BYTE, SMBUS_READ_BYTE_DATA and
+SMBUS_WRITE_BYTE_DATA. One typical example of that are EEPROMs and the
+eeprom driver. It relies on i2c_smbus_write_byte and i2c_smbus_read_byte
+(BTW I just noticed that it doesn't properly check for these
+functionalities... have to fix that) because it's so much easier to call
+these standard functions than rewrite I2C code manually. Also, this let
+us access the EEPROMs on SMBus (non-I2C) busses.
+
+Now, note that Russell is not quite correct in is assertion: "Do we
+really require SMBUS functionality, or is i2c functionality sufficient?"
+It's actually the other way around. SMBus puts restrictions on what a
+valid I2C transfer is. "Do we need the full I2C functionality or is the
+SMBus subset sufficient?" would make more sense.
+
+As for the exact functionality you need to check, let's just see how you
+access the bus. As far as I can see (providing that the code below
+Russell's comments is still valid), you rely on:
+ * i2c_smbus_write_byte_data
+ * i2c_smbus_read_byte_data
+ * i2c_transfer
+
+So yo *need* to check for the availability of I2C_FUNC_SMBUS_BYTE_DATA
+on the adapter (which is part of I2C_FUNC_SMBUS_EMUL so any bus driver
+using that, including any relying on i2c-algo-bit, will work with your
+client driver) for the first two. And you also need to check for
+I2C_FUNC_I2C for the third one.
+
+Of course, any adapter with I2C_FUNC_I2C will be able to do SMBus byte
+data transfers, but since you do not use i2c_transfer to do them, you
+need to check the functionality separately (I think).
+
+Also, I think that what you do with i2c_transfer is similar to
+I2C_FUNC_SMBUS_READ_I2C_BLOCK, which is supported by some SMBus
+(non-I2C) masters. If you convert your code to use
+i2c_smbus_read_i2c_block_data, then you don't rely on the full I2C
+capatbilities of the bus, which means that your chip driver will be
+useable on more plateforms. That said, note that this feature is
+unimplemented on most SMBus master drivers as of now, and broken on a
+number of others (but I guess we would start paying more attention to
+them if there were more users for this function).
+
+> If I change it to a check for I2C_FUNC_I2C and change the algo-bit
+> driver to declare I2C_FUNC_I2C then the driver continues to work fine.
+
+You are right that i2c-algo-bit should declare itself I2C_FUNC_I2C
+capable. I even think that every bus being I2C_FUNC_SMBUS_EMUL capable
+is very likely to be I2C_FUNC_I2C capable. This means that other
+algorithms (ite, pcf, maybe pca) could most probably be declared
+I2C_FUNC_I2C capable as well. Can anyone confirm?
+
+> Given the above, is the following patch appropriate, or is there
+> something about the relationship between i2c and smbus that I don't
+> understand.
+
+I admit that the relationship between I2C and SMBus is somewhat tricky,
+it took me some time to get it and even then I am sometimes not sure to
+understand exactly what implies what ;) So we cannot blame you for not
+getting it at first. I hope I helped make things a little clearer. If
+not I welcome questions.
+
+Whether or not you change your code to use SMBus only in your driver to
+make it more widely useable, your patch to i2c-algo-bit is valid, I am
+signing it too and will apply it to the 2.4 version of the driver as
+well.
+
+Signed-off-by: Ian Campbell <icampbell@arcom.com>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/core/config.c  |    1 
- drivers/usb/core/hcd.c     |   58 +++++++++++++++++++++------------------------
- drivers/usb/core/message.c |    2 -
- drivers/usb/core/usb.c     |    1 
- 4 files changed, 31 insertions(+), 31 deletions(-)
+ drivers/i2c/algos/i2c-algo-bit.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/usb/core/config.c b/drivers/usb/core/config.c
---- a/drivers/usb/core/config.c	2005-01-07 15:48:36 -08:00
-+++ b/drivers/usb/core/config.c	2005-01-07 15:48:36 -08:00
-@@ -88,6 +88,7 @@
+diff -Nru a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+--- a/drivers/i2c/algos/i2c-algo-bit.c	2005-01-07 14:55:58 -08:00
++++ b/drivers/i2c/algos/i2c-algo-bit.c	2005-01-07 14:55:58 -08:00
+@@ -511,8 +511,8 @@
  
- 	memcpy(&endpoint->desc, d, n);
- 	le16_to_cpus(&endpoint->desc.wMaxPacketSize);
-+	INIT_LIST_HEAD(&endpoint->urb_list);
- 
- 	/* Skip over any Class Specific or Vendor Specific descriptors;
- 	 * find the next endpoint or interface descriptor */
-diff -Nru a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
---- a/drivers/usb/core/hcd.c	2005-01-07 15:48:36 -08:00
-+++ b/drivers/usb/core/hcd.c	2005-01-07 15:48:36 -08:00
-@@ -1045,10 +1045,12 @@
+ static u32 bit_func(struct i2c_adapter *adap)
  {
- 	int			status;
- 	struct usb_hcd		*hcd = urb->dev->bus->hcpriv;
--	struct hcd_dev		*dev = urb->dev->hcpriv;
-+	struct usb_host_endpoint *ep;
- 	unsigned long		flags;
- 
--	if (!hcd || !dev)
-+	ep = (usb_pipein(urb->pipe) ? urb->dev->ep_in : urb->dev->ep_out)
-+			[usb_pipeendpoint(urb->pipe)];
-+	if (!hcd || !ep)
- 		return -ENODEV;
- 
- 	/*
-@@ -1075,7 +1077,7 @@
- 	case USB_STATE_RUNNING:
- 	case USB_STATE_RESUMING:
- 		usb_get_dev (urb->dev);
--		list_add_tail (&urb->urb_list, &dev->urb_list);
-+		list_add_tail (&urb->urb_list, &ep->urb_list);
- 		status = 0;
- 		break;
- 	default:
-@@ -1129,7 +1131,7 @@
- 					    : DMA_TO_DEVICE);
- 	}
- 
--	status = hcd->driver->urb_enqueue (hcd, urb, mem_flags);
-+	status = hcd->driver->urb_enqueue (hcd, ep, urb, mem_flags);
- done:
- 	if (unlikely (status)) {
- 		urb_unlink (urb);
-@@ -1188,7 +1190,7 @@
-  */
- static int hcd_unlink_urb (struct urb *urb, int status)
- {
--	struct hcd_dev			*dev;
-+	struct usb_host_endpoint	*ep;
- 	struct usb_hcd			*hcd = NULL;
- 	struct device			*sys = NULL;
- 	unsigned long			flags;
-@@ -1197,6 +1199,12 @@
- 
- 	if (!urb)
- 		return -EINVAL;
-+	if (!urb->dev || !urb->dev->bus)
-+		return -ENODEV;
-+	ep = (usb_pipein(urb->pipe) ? urb->dev->ep_in : urb->dev->ep_out)
-+			[usb_pipeendpoint(urb->pipe)];
-+	if (!ep)
-+		return -ENODEV;
- 
- 	/*
- 	 * we contend for urb->status with the hcd core,
-@@ -1212,15 +1220,9 @@
- 	spin_lock_irqsave (&urb->lock, flags);
- 	spin_lock (&hcd_data_lock);
- 
--	if (!urb->dev || !urb->dev->bus) {
--		retval = -ENODEV;
--		goto done;
--	}
--
--	dev = urb->dev->hcpriv;
- 	sys = &urb->dev->dev;
- 	hcd = urb->dev->bus->hcpriv;
--	if (!dev || !hcd) {
-+	if (hcd == NULL) {
- 		retval = -ENODEV;
- 		goto done;
- 	}
-@@ -1232,7 +1234,7 @@
- 	WARN_ON (!HCD_IS_RUNNING (hcd->state) && hcd->state != USB_STATE_HALT);
- 
- 	/* insist the urb is still queued */
--	list_for_each(tmp, &dev->urb_list) {
-+	list_for_each(tmp, &ep->urb_list) {
- 		if (tmp == &urb->urb_list)
- 			break;
- 	}
-@@ -1284,40 +1286,36 @@
-  * the hcd to make sure all endpoint state is gone from hardware. use for
-  * set_configuration, set_interface, driver removal, physical disconnect.
-  *
-- * example:  a qh stored in hcd_dev.ep[], holding state related to endpoint
-+ * example:  a qh stored in ep->hcpriv, holding state related to endpoint
-  * type, maxpacket size, toggle, halt status, and scheduling.
-  */
--static void hcd_endpoint_disable (struct usb_device *udev, int endpoint)
-+static void
-+hcd_endpoint_disable (struct usb_device *udev, struct usb_host_endpoint *ep)
- {
--	struct hcd_dev	*dev;
--	struct usb_hcd	*hcd;
--	struct urb	*urb;
--	unsigned	epnum = endpoint & USB_ENDPOINT_NUMBER_MASK;
-+	struct usb_hcd		*hcd;
-+	struct urb		*urb;
- 
--	dev = udev->hcpriv;
- 	hcd = udev->bus->hcpriv;
- 
- 	WARN_ON (!HCD_IS_RUNNING (hcd->state) && hcd->state != USB_STATE_HALT);
- 
- 	local_irq_disable ();
- 
-+	/* FIXME move most of this into message.c as part of its
-+	 * endpoint disable logic
-+	 */
-+
- 	/* ep is already gone from udev->ep_{in,out}[]; no more submits */
- rescan:
- 	spin_lock (&hcd_data_lock);
--	list_for_each_entry (urb, &dev->urb_list, urb_list) {
--		int	tmp = urb->pipe;
--
--		/* ignore urbs for other endpoints */
--		if (usb_pipeendpoint (tmp) != epnum)
--			continue;
--		/* NOTE assumption that only ep0 is a control endpoint */
--		if (epnum != 0 && ((tmp ^ endpoint) & USB_DIR_IN))
--			continue;
-+	list_for_each_entry (urb, &ep->urb_list, urb_list) {
-+		int	tmp;
- 
- 		/* another cpu may be in hcd, spinning on hcd_data_lock
- 		 * to giveback() this urb.  the races here should be
- 		 * small, but a full fix needs a new "can't submit"
- 		 * urb state.
-+		 * FIXME urb->reject should allow that...
- 		 */
- 		if (urb->status != -EINPROGRESS)
- 			continue;
-@@ -1359,7 +1357,7 @@
- 	 */
- 	might_sleep ();
- 	if (hcd->driver->endpoint_disable)
--		hcd->driver->endpoint_disable (hcd, dev, endpoint);
-+		hcd->driver->endpoint_disable (hcd, ep);
+-	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR | 
+-	       I2C_FUNC_PROTOCOL_MANGLING;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | 
++	       I2C_FUNC_10BIT_ADDR | I2C_FUNC_PROTOCOL_MANGLING;
  }
  
- /*-------------------------------------------------------------------------*/
-diff -Nru a/drivers/usb/core/message.c b/drivers/usb/core/message.c
---- a/drivers/usb/core/message.c	2005-01-07 15:48:36 -08:00
-+++ b/drivers/usb/core/message.c	2005-01-07 15:48:36 -08:00
-@@ -932,7 +932,7 @@
- 		dev->ep_in[epnum] = NULL;
- 	}
- 	if (ep && dev->bus && dev->bus->op && dev->bus->op->disable)
--		dev->bus->op->disable(dev, ep->desc.bEndpointAddress);
-+		dev->bus->op->disable(dev, ep);
- }
  
- /**
-diff -Nru a/drivers/usb/core/usb.c b/drivers/usb/core/usb.c
---- a/drivers/usb/core/usb.c	2005-01-07 15:48:36 -08:00
-+++ b/drivers/usb/core/usb.c	2005-01-07 15:48:36 -08:00
-@@ -688,6 +688,7 @@
- 	dev->dev.release = usb_release_dev;
- 	dev->state = USB_STATE_ATTACHED;
- 
-+	INIT_LIST_HEAD(&dev->ep0.urb_list);
- 	dev->ep0.desc.bLength = USB_DT_ENDPOINT_SIZE;
- 	dev->ep0.desc.bDescriptorType = USB_DT_ENDPOINT;
- 	/* ep0 maxpacket comes later, from device descriptor */
 

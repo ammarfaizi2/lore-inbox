@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265872AbSKFRz7>; Wed, 6 Nov 2002 12:55:59 -0500
+	id <S264990AbSKFRw2>; Wed, 6 Nov 2002 12:52:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265873AbSKFRz7>; Wed, 6 Nov 2002 12:55:59 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:1796 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S265872AbSKFRz6>; Wed, 6 Nov 2002 12:55:58 -0500
-Date: Wed, 6 Nov 2002 21:02:29 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2.5-bk] export ptrace_notify
-Message-ID: <20021106210229.A686@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264995AbSKFRw2>; Wed, 6 Nov 2002 12:52:28 -0500
+Received: from [64.76.155.18] ([64.76.155.18]:29831 "EHLO alumno.inacap.cl")
+	by vger.kernel.org with ESMTP id <S264990AbSKFRw1>;
+	Wed, 6 Nov 2002 12:52:27 -0500
+Date: Wed, 6 Nov 2002 14:59:02 -0300 (CLST)
+From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: I'm still getting oops when loading eth modules (e100,
+ eepro100 and tulip)
+Message-ID: <Pine.LNX.4.44.0211061456570.12033-100000@alumno.inacap.cl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-binfmt_elf and binfmt_aout need this.
+Hi all,
+I'm still getting this oops, I've setup a page with all information, it's 
+located at <http://alumno.inacap.cl/~rmaureira/kernel/oops/>
 
-Ivan.
+Any information on what is happening is greatly appreciated.
 
---- 2.5-bk/linux/kernel/ksyms.c	Wed Nov  6 01:44:33 2002
-+++ linux/kernel/ksyms.c	Wed Nov  6 02:53:26 2002
-@@ -53,6 +53,7 @@
- #include <linux/percpu.h>
- #include <linux/smp_lock.h>
- #include <linux/dnotify.h>
-+#include <linux/ptrace.h>
- #include <asm/checksum.h>
- 
- #if defined(CONFIG_PROC_FS)
-@@ -600,3 +601,4 @@ EXPORT_SYMBOL(__per_cpu_offset);
- 
- /* debug */
- EXPORT_SYMBOL(dump_stack);
-+EXPORT_SYMBOL(ptrace_notify);
+I can give more information upon request.
+
+Thanks in advance
+
+Best regards
+-- 
+Robinson Maureira Castillo
+Asesor DAI
+INACAP
+

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314370AbSDRPCg>; Thu, 18 Apr 2002 11:02:36 -0400
+	id <S314369AbSDRPCb>; Thu, 18 Apr 2002 11:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314371AbSDRPCf>; Thu, 18 Apr 2002 11:02:35 -0400
-Received: from www.microgate.com ([216.30.46.105]:56074 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S314370AbSDRPCe>; Thu, 18 Apr 2002 11:02:34 -0400
-Subject: [PATCH] 2.5.8 New Driver synclinkmp.c
-From: Paul Fulghum <paulkf@microgate.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 18 Apr 2002 10:00:26 -0500
-Message-Id: <1019142026.779.3.camel@diemos.microgate.com>
-Mime-Version: 1.0
+	id <S314370AbSDRPCa>; Thu, 18 Apr 2002 11:02:30 -0400
+Received: from web9208.mail.yahoo.com ([216.136.129.41]:42254 "HELO
+	web9208.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314369AbSDRPCa>; Thu, 18 Apr 2002 11:02:30 -0400
+Message-ID: <20020418150229.65663.qmail@web9208.mail.yahoo.com>
+Date: Thu, 18 Apr 2002 08:02:29 -0700 (PDT)
+From: Alex Davis <alex14641@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Cc: karlran1234@yahoo.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch that adds a new driver for the SyncLink Multiport
-multiprotocol serial adapter is located at
+>Hello,
+>I've a big problem with my SCSI/PCI setup:
 
-ftp://ftp.microgate.com/linux/patch-synclinkmp.gz
+>When doing a:
+>>/sbin/modprobe aic7xxx
 
-This patch is against 2.5.8
+>Apr 14 09:13:04 test  kernel: SCSI subsystem driver Revision: 1.00
+.
+>Has anyone seen this before?
 
-Please apply.
+>The problem ONLY appears when I run my PC with a Davicom 100MBPS NIC.
+>The Davicom runs fine without the 29160!
 
-The patch is located on our FTP site instead of inline
-as specified by SubmittingPatches documentation for
-large patches.
+>scanpci  -v
 
- 
+Please run 'lspci -v' instead of 'scanpci -v'. 
+
+>I already tried shuffeling the boards & IRQs - no luck :-((
+
+Please try shuffling the cards again, and run 'lspci -v' on each reshuffle.
+It appears from the 'scanpci' output that some card is using the same IRQ
+as the SCSI card. I don't think all drivers handle IRQ sharing gracefully.
 
 
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Tax Center - online filing with TurboTax
+http://taxes.yahoo.com/

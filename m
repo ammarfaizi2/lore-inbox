@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270423AbRHIRh2>; Thu, 9 Aug 2001 13:37:28 -0400
+	id <S270349AbRHIRk1>; Thu, 9 Aug 2001 13:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270481AbRHIRhS>; Thu, 9 Aug 2001 13:37:18 -0400
-Received: from [65.0.121.190] ([65.0.121.190]:30212 "HELO kroah.com")
-	by vger.kernel.org with SMTP id <S270423AbRHIRhH>;
-	Thu, 9 Aug 2001 13:37:07 -0400
-Date: Thu, 9 Aug 2001 10:36:03 -0700
-From: Greg KH <greg@kroah.com>
-To: satish kumar <satish_shak@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem in finding default audio driver for USB
-Message-ID: <20010809103603.A20133@kroah.com>
-In-Reply-To: <20010809070618.90243.qmail@web20305.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010809070618.90243.qmail@web20305.mail.yahoo.com>; from satish_shak@yahoo.com on Thu, Aug 09, 2001 at 12:06:18AM -0700
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S270456AbRHIRkH>; Thu, 9 Aug 2001 13:40:07 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:27493 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S270349AbRHIRkA>; Thu, 9 Aug 2001 13:40:00 -0400
+Message-ID: <3B72CAF5.8010101@blue-labs.org>
+Date: Thu, 09 Aug 2001 13:40:05 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext2 problems in 2.4
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 12:06:18AM -0700, satish kumar wrote:
-> Hi
-> 
->  what is the default USB audio driver avaialble
->  in SUSE Linux 7.1 (Kernel 2.2.18). 
->  how can i make use that for my Audio device (writing
-> an USB Audio Device Driver).
+Ok, the problem appears to have been fixed.  I venture the bug is likely 
+in the e2fs tools for the simple reason that on the last time I took the 
+machine down for maintenance, I ran e2fsck five times and got different 
+results for the first three runs.  Now before everyone flys off the 
+handle with their favorite flamethrower, the server was in single user 
+mode with nothing else running but the kernel threads.  There weren't 
+any processes left and lsof was also clean.  I have also been forcing 
+fsck on boot every time.
 
-The driver is called audio.o.
+The machine has been up for four days now without any errors and no 
+unaccounted for disk space.
 
-You might take a look at the Linux USB Guide at
-http://www.linux-usb.org/ for more information on how to use USB drivers
-on Linux.
+David
 
-greg k-h
+

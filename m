@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276691AbRJBVDM>; Tue, 2 Oct 2001 17:03:12 -0400
+	id <S276686AbRJBVEW>; Tue, 2 Oct 2001 17:04:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276689AbRJBVDC>; Tue, 2 Oct 2001 17:03:02 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:1550 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S276686AbRJBVCz>;
-	Tue, 2 Oct 2001 17:02:55 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Date: Tue, 2 Oct 2001 23:02:28 MET-1
+	id <S276687AbRJBVEO>; Tue, 2 Oct 2001 17:04:14 -0400
+Received: from mx7.port.ru ([194.67.57.17]:54459 "EHLO mx7.port.ru")
+	by vger.kernel.org with ESMTP id <S276686AbRJBVEF>;
+	Tue, 2 Oct 2001 17:04:05 -0400
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200110030127.f931R0025097@-f>
+Subject: Request for new VM docs
+To: andrea@emind.com
+Date: Wed, 3 Oct 2001 05:26:59 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: System reset on Kernel 2.4.10
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <527872464EC@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  2 Oct 01 at 23:52, VDA wrote:
-> V> Straced vmlinux does not reboot.
-> V> Kernel: 2.4.10+ext3+preempt
-> 
-> Well... sometimes it reboots too.
-> Once it rebooted ~10 mins after strace (system was at zero load).
-> Also it rebooted after two strace's in succession.
+           Hello Andrea, i`m bothering you just to let you know
+     that proper amounts of good documentation never hurts, :)
+        I mean that old VM was pretty good documented so there was a good
+     number of folks who understood it and were able to help to
+     develop it. Now i start to fear that with the current situation
+     some months later folks will start to argue between them of how
+     this VM works... bad perspective...
+           Please Andrea, i think i`m not alone in this praise, 
+     give the community the password to the magic land :-)
 
-Look at fs/binfmt_elf.c, at line 642 (in -ac2). There is
+regards, Samium Gromoff
 
-error = elf_map(....)
-
-but nobody bothers with checking error value, it even tries it
-to use as an offset if stars are in wrong constellation.
-If you could add these lines below the call:
-
-if ((unsigned long)error >= (unsigned long)(-256)) {
-  set_fs(old_fs);
-  printk(KERN_DEBUG "Something went wrong with elf_map()\n");
-  kfree(elf_phdata);
-  send_sig(SIGSEGV, current, 0);
-  return 0;
-}
-
-and then report results...
-                                    Petr Vandrovec
-                                    (not willing to test it myself)
-                                    

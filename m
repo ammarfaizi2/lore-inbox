@@ -1,67 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280937AbRKGT2t>; Wed, 7 Nov 2001 14:28:49 -0500
+	id <S280930AbRKGT0R>; Wed, 7 Nov 2001 14:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280939AbRKGT2m>; Wed, 7 Nov 2001 14:28:42 -0500
-Received: from f57.law9.hotmail.com ([64.4.9.57]:28677 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S280933AbRKGT2Z>;
-	Wed, 7 Nov 2001 14:28:25 -0500
-X-Originating-IP: [128.2.152.69]
-From: "William Knop" <w_knop@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Date: Wed, 07 Nov 2001 14:28:18 -0500
+	id <S280917AbRKGT0C>; Wed, 7 Nov 2001 14:26:02 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:9232 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S280930AbRKGTZt>;
+	Wed, 7 Nov 2001 14:25:49 -0500
+Date: Wed, 7 Nov 2001 20:25:46 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jonas Diemer <diemer@gmx.de>,
+        Linux Kermel ML <linux-kernel@vger.kernel.org>
+Subject: Re: VIA 686 timer bugfix incomplete
+Message-ID: <20011107202546.A1939@suse.cz>
+In-Reply-To: <20011107125012.6b1fbdc3.diemer@gmx.de> <E161RcS-0003x8-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F57jukJ1zkc6g9wHRQa0000b09f@hotmail.com>
-X-OriginalArrivalTime: 07 Nov 2001 19:28:19.0342 (UTC) FILETIME=[5B22FAE0:01C167C2]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E161RcS-0003x8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Nov 07, 2001 at 12:15:47PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Nov 07, 2001 at 12:15:47PM +0000, Alan Cox wrote:
+> > but it seems that the patch was incomplete: The bug is still triggered on my
+> > computer using 2.4.14, but the bugfix seems to work whith -ac kernels.
+> 
+> The first piece is in.
+> 
+> > you can see what's missing to actually work around the via timer bug. I hope
+> > this will go into 2.4.15.
+> 
+> I don't plan to submit it until the locking fixes for the timer access are
+> done and we know the real cause
 
->Yes, but I meant a program which reads a single binary value and >outputs 
->it as ascii, as a generic layer between the binary /proc and >the ascii 
->world of shell scripts.
->
->I don't like a binary /proc.
+I'm trying to figure it out (locking, bug workarounds), but its tough:
 
-The binary issue could very easily be solved, as you said, by a small 
-generic program to do the conversion. Upside it only shell scripts need 
-this, while more advanced (lower level) programs will get better preformance 
-out of binary format. Downside? I am not sure I see the problem. If a 
-program needs to get a lot of /proc info frequently, a binary interface will 
-be faster. Idealistically, do we want the kernel interfaces binary or ascii? 
-Do we want them to preform best with (be native to) shell scripts or 
-programs?
+We have two hw bugs:
 
-In any event, is the format of process info (actually should be in /proc) or 
-the-other-stuff the issue? If it is the latter, the compatibility issue has 
-a fairly easy solution...
+1) The VIA 686a bug (happening at least on vt82c686a, possibly also 686b),
+where the timer chip sometimes corrupts its programming, not conting
+from 11920 down to 0, but from a higher value, presumably 65536. There
+is no good workaround known - all we can do is detect it when it happens
+and restore the programming. Some ticks are lost irreversibly, though.
 
->But I agree: /proc is populated with files that don't really belong >there. 
->Maybe everything should be moved to /kernel? (except for the
->process info, offcourse).
+2) The Intel Neptune (happening at least on Mercury and Neptune P6
+chipsets, but very likely also on newer chipsets, including SiS). The
+bug is in the 0x00 (latch) command to the timer chip, which instead of
+reading the 16-bit counter into a temporary buffer just selects it to be
+read. The subsequent two 8-bit reads read the counter non-atomically,
+which can cause a value larger by 256 to be read instead of the correct
+one. 
 
-I like this idea a lot, and so far I haven't heard any objections, save 
-compatability...
+The bug #2 can trigger the test for #1, because the timer is read just
+after the timer interrupt happens and thus the value is usually around
+11920, which, plus 256 is larger than 11920.
 
->It will be very, very hard for distributors to create a distribution >which 
->runs one the native 2.6 /proc interface as soon as 2.6 comes >out. I think 
->we must assume rewriting things like procps, init >scripts, etc. will only 
->start as soon as 2.6 comes out. We should >provide some transitional period 
->for userspace to adapt, but make >clear to everybody that compatibility 
->isn't going to last forever.
+Also, bug #2 isn't correctly worked around in the kernel. There is some
+logic to work it around when it'd give too inconsistent results, but
+still isn't giving correct results on affected chips.
 
-Simple solution is to move /kernel stuff of /proc to /kernel (new format, 
-bin, ascii, whatever) and put transition code (old code still serving the 
-old format /kernel stuff) serving in /proc. Make the backwards compatibility 
-/proc a compile option. That way, userland developers will have time to 
-migrate to /kernel (or whatever it should be called). Not too much effort, 
-makes userland developers not sweat to death...
+Furthermore, the i8253 is accessed from more than one place:
 
-Will Knop
-w_knop@hotmail.com
+timer.c: do_slow_gettimeofday() ... has both workarounds
+	 timer_interrupt()      ... only has VIA workaround
+apic.c:                         ... only has Neptune workaround
+ftape-calibr.c:			... has a crazy workaround for some
+				    other hardware bug, bad
+				    implementation
+gameport.c, analog.c:		... no workarounds present, not
+				    too critical
+hd.c, ide.c			... no workarounds, bad implementation,
+				    #ifdef-ed out.
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+Only timer.c and apic.c do proper locking.
 
+The locking itself isn't a problem to solve. And it's also not enough to
+fix the problems that are seen on SiS and other newer chipsets - most of
+the users don't use gameport/analog/ftape, and thus have the locking
+correct.
+
+The problem is how to work around the bugs 1) and 2) reliably and
+without too much performance impact. I haven't found a feasible way to
+do that yet.
+
+Best would be to forget about the i8253 reading altogether and use some
+other means of doing gettimeofday and timex et cetera, if there is any
+present (RTC, TSC, whatever) ...
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,462 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271239AbRHTObs>; Mon, 20 Aug 2001 10:31:48 -0400
+	id <S271242AbRHTOeS>; Mon, 20 Aug 2001 10:34:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271214AbRHTObf>; Mon, 20 Aug 2001 10:31:35 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:64488 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S271239AbRHTOaM>; Mon, 20 Aug 2001 10:30:12 -0400
-Date: Mon, 20 Aug 2001 07:29:25 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org, deepak@plexity.net
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: PATCH: linux-2.4.9/drivers/i2o to new module_{init,exit} interface
-Message-ID: <20010820072925.A296@baldur.yggdrasil.com>
+	id <S271246AbRHTOeJ>; Mon, 20 Aug 2001 10:34:09 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:61192 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271242AbRHTOdy>; Mon, 20 Aug 2001 10:33:54 -0400
+Date: Mon, 20 Aug 2001 17:35:57 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <632639585.20010820173557@port.imtp.ilyichevsk.odessa.ua>
+To: linux-kernel@vger.kernel.org
+Subject: depmod -a: unresolved symbols
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jRHKVT23PllUwdXP"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Looks like it gonna be a silly question.
+I am getting some messages about unresolved symbols from depmod -a
+each time I boot. Thought that is harmless until today.
 
+Now I'm trying to set up an NFS and "modprobe nfsd" fails:
+nfsd.o: unresolved symbol nfsd_linkage
 
-	The following patch moves the linux-2.4.9/drivers/i2o to
-the new module_{init,exit} interface, removing i2o_init from
-drivers/block/genhd.c (a step toward removing that file) and
-simplifying the code considerably.
+In kernel sources I see:
+nfsd_linkage defined and EXPORT_SYMBOLed in fs/filesystems.c
+(linked in vmlinux and bzimage, I see it in System.map),
+referenced from fs/nfsd/nfsctl.c (later linked into nfsd.o)
+So, why modprobe can't see it?
 
-	I'm not exactly sure where to send i2o patches, so I'm
-posting them to linux-kernel.  I would appreciate a pointer if there
-is a more specialized address for i2o patches.
+kernel: 2.4.5
+I did
+make dep && \
+make clean && \
+make bzImage && \
+make modules && \
+make modules_install
 
+Please CC me. I'm not on the list.
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+Best regards,
+ VDA                          mailto:VDA@port.imtp.ilyichevsk.odessa.ua
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="i2o.diffs"
 
---- linux-2.4.9/drivers/block/genhd.c	Thu Jul 19 17:48:15 2001
-+++ linux/drivers/block/genhd.c	Mon Aug 20 07:21:36 2001
-@@ -28,16 +28,12 @@
- extern void console_map_init(void);
- extern int soc_probe(void);
- extern int atmdev_init(void);
--extern int i2o_init(void);
- extern int cpqarray_init(void);
- 
- int __init device_init(void)
- {
- 	blk_dev_init();
- 	sti();
--#ifdef CONFIG_I2O
--	i2o_init();
--#endif
- #ifdef CONFIG_BLK_DEV_DAC960
- 	DAC960_Initialize();
- #endif
-diff -u -r linux-2.4.9/drivers/i2o/Config.in linux/drivers/i2o/Config.in
---- linux-2.4.9/drivers/i2o/Config.in	Wed Apr 12 09:38:53 2000
-+++ linux/drivers/i2o/Config.in	Mon Aug 20 05:17:06 2001
-@@ -7,7 +7,7 @@
-    dep_tristate '  I2O PCI support' CONFIG_I2O_PCI $CONFIG_I2O
- fi
- dep_tristate '  I2O Block OSM' CONFIG_I2O_BLOCK $CONFIG_I2O
--if [ "$CONFIG_NET" = "y" ]; then
-+if [ "$CONFIG_NET" != "n" ]; then
-    dep_tristate '  I2O LAN OSM' CONFIG_I2O_LAN $CONFIG_I2O
- fi
- dep_tristate '  I2O SCSI OSM' CONFIG_I2O_SCSI $CONFIG_I2O $CONFIG_SCSI
-diff -u -r linux-2.4.9/drivers/i2o/i2o_block.c linux/drivers/i2o/i2o_block.c
---- linux-2.4.9/drivers/i2o/i2o_block.c	Thu Aug 16 09:50:06 2001
-+++ linux/drivers/i2o/i2o_block.c	Sun Aug 19 06:21:15 2001
-@@ -44,6 +44,7 @@
- 
- #include <linux/module.h>
- 
-+#include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/fs.h>
- #include <linux/stat.h>
-@@ -1875,10 +1876,6 @@
-  *  (Just smiley confuses emacs :-)
-  */
- 
--#ifdef MODULE
--#define i2o_block_init init_module
--#endif
--
- int i2o_block_init(void)
- {
- 	int i;
-@@ -1895,9 +1892,7 @@
- 		       MAJOR_NR);
- 		return -EIO;
- 	}
--#ifdef MODULE
- 	printk(KERN_INFO "i2o_block: registered device at major %d\n", MAJOR_NR);
--#endif
- 
- 	/*
- 	 *	Now fill in the boiler plate
-@@ -1985,13 +1980,11 @@
- 	return 0;
- }
- 
--#ifdef MODULE
--
- EXPORT_NO_SYMBOLS;
- MODULE_AUTHOR("Red Hat Software");
- MODULE_DESCRIPTION("I2O Block Device OSM");
- 
--void cleanup_module(void)
-+static __exit void i2o_block_exit(void)
- {
- 	struct gendisk *gdp;
- 	int i;
-@@ -2066,4 +2059,6 @@
- 			}
- 	}
- }
--#endif
-+
-+module_init(i2o_block_init);
-+module_exit(i2o_block_exit);
-diff -u -r linux-2.4.9/drivers/i2o/i2o_config.c linux/drivers/i2o/i2o_config.c
---- linux-2.4.9/drivers/i2o/i2o_config.c	Thu Aug 16 09:50:15 2001
-+++ linux/drivers/i2o/i2o_config.c	Sun Aug 19 06:21:15 2001
-@@ -908,11 +908,7 @@
- 	&config_fops
- };	
- 
--#ifdef MODULE
--int init_module(void)
--#else
- int __init i2o_config_init(void)
--#endif
- {
- 	printk(KERN_INFO "I2O configuration manager v 0.04.\n");
- 	printk(KERN_INFO "  (C) Copyright 1999 Red Hat Software\n");
-@@ -945,10 +941,9 @@
- 	i2o_cfg_context = cfg_handler.context;
- 	return 0;
- }
-+module_init(i2o_config_init);
- 
--#ifdef MODULE
--
--void cleanup_module(void)
-+static __exit void i2o_config_exit(void)
- {
- 	misc_deregister(&i2o_miscdev);
- 	
-@@ -957,9 +952,9 @@
- 	if(i2o_cfg_context != -1)
- 		i2o_remove_handler(&cfg_handler);
- }
-- 
-+
-+module_exit(i2o_config_exit);
-+
- EXPORT_NO_SYMBOLS;
- MODULE_AUTHOR("Red Hat Software");
- MODULE_DESCRIPTION("I2O Configuration");
--
--#endif
-diff -u -r linux-2.4.9/drivers/i2o/i2o_core.c linux/drivers/i2o/i2o_core.c
---- linux-2.4.9/drivers/i2o/i2o_core.c	Thu Aug 16 09:50:24 2001
-+++ linux/drivers/i2o/i2o_core.c	Sun Aug 19 06:21:15 2001
-@@ -120,7 +120,6 @@
-  */
- static spinlock_t i2o_dev_lock = SPIN_LOCK_UNLOCKED;
- 
--#ifdef MODULE
- /* 
-  * Function table to send to bus specific layers
-  * See <include/linux/i2o.h> for explanation of this
-@@ -140,8 +139,6 @@
- extern void i2o_pci_core_detach(void);
- #endif /* CONFIG_I2O_PCI_MODULE */
- 
--#endif /* MODULE */
--
- /*
-  * Structures and definitions for synchronous message posting.
-  * See i2o_post_wait() for description.
-@@ -3423,13 +3420,11 @@
- 
- EXPORT_SYMBOL(i2o_get_class_name);
- 
--#ifdef MODULE
--
- MODULE_AUTHOR("Red Hat Software");
- MODULE_DESCRIPTION("I2O Core");
- 
- 
--int init_module(void)
-+static int __init i2o_init(void)
- {
- 	printk(KERN_INFO "I2O Core - (C) Copyright 1999 Red Hat Software\n");
- 	if (i2o_install_handler(&i2o_core_handler) < 0)
-@@ -3471,7 +3466,7 @@
- 	return 0;
- }
- 
--void cleanup_module(void)
-+static void __exit i2o_exit(void)
- {
- 	int stat;
- 
-@@ -3502,63 +3497,5 @@
- 	unregister_reboot_notifier(&i2o_reboot_notifier);
- }
- 
--#else
--
--extern int i2o_block_init(void);
--extern int i2o_config_init(void);
--extern int i2o_lan_init(void);
--extern int i2o_pci_init(void);
--extern int i2o_proc_init(void);
--extern int i2o_scsi_init(void);
--
--int __init i2o_init(void)
--{
--	printk(KERN_INFO "Loading I2O Core - (c) Copyright 1999 Red Hat Software\n");
--	
--	if (i2o_install_handler(&i2o_core_handler) < 0)
--	{
--		printk(KERN_ERR 
--			"i2o_core: Unable to install core handler.\nI2O stack not loaded!");
--		return 0;
--	}
--
--	core_context = i2o_core_handler.context;
--
--	/*
--	 * Initialize event handling thread
--	 * We may not find any controllers, but still want this as 
--	 * down the road we may have hot pluggable controllers that
--	 * need to be dealt with.
--	 */	
--	init_MUTEX_LOCKED(&evt_sem);
--	if((evt_pid = kernel_thread(i2o_core_evt, &evt_reply, CLONE_SIGHAND)) < 0)
--	{
--		printk(KERN_ERR "I2O: Could not create event handler kernel thread\n");
--		i2o_remove_handler(&i2o_core_handler);
--		return 0;
--	}
--
--
--#ifdef CONFIG_I2O_PCI
--	i2o_pci_init();
--#endif
--
--	if(i2o_num_controllers)
--		i2o_sys_init();
--
--	register_reboot_notifier(&i2o_reboot_notifier);
--
--	i2o_config_init();
--#ifdef CONFIG_I2O_BLOCK
--	i2o_block_init();
--#endif
--#ifdef CONFIG_I2O_LAN
--	i2o_lan_init();
--#endif
--#ifdef CONFIG_I2O_PROC
--	i2o_proc_init();
--#endif
--	return 0;
--}
--
--#endif
-+module_init(i2o_init);
-+module_exit(i2o_exit);
-diff -u -r linux-2.4.9/drivers/i2o/i2o_lan.c linux/drivers/i2o/i2o_lan.c
---- linux-2.4.9/drivers/i2o/i2o_lan.c	Sun Aug 12 11:16:18 2001
-+++ linux/drivers/i2o/i2o_lan.c	Sun Aug 19 06:21:16 2001
-@@ -1430,11 +1430,7 @@
- 	return dev;
- }
- 
--#ifdef MODULE
--#define i2o_lan_init	init_module
--#endif
--
--int __init i2o_lan_init(void)
-+static int __init i2o_lan_init(void)
- {
- 	struct net_device *dev;
- 	int i;
-@@ -1515,9 +1511,7 @@
- 	return 0;
- }
- 
--#ifdef MODULE
--
--void cleanup_module(void)
-+static void __exit i2o_lan_exit(void)
- {
- 	int i;
- 
-@@ -1561,6 +1555,9 @@
- }
- 
- EXPORT_NO_SYMBOLS;
-+module_init(i2o_lan_init);
-+module_exit(i2o_lan_exit);
-+
- 
- MODULE_AUTHOR("University of Helsinki, Department of Computer Science");
- MODULE_DESCRIPTION("I2O Lan OSM");
-@@ -1574,4 +1571,3 @@
- MODULE_PARM(tx_batch_mode, "0-2" "i");
- MODULE_PARM_DESC(tx_batch_mode, "0=Send immediatelly, 1=Send in batches, 2=Switch automatically");
- 
--#endif
-diff -u -r linux-2.4.9/drivers/i2o/i2o_pci.c linux/drivers/i2o/i2o_pci.c
---- linux-2.4.9/drivers/i2o/i2o_pci.c	Sun Aug 12 11:16:18 2001
-+++ linux/drivers/i2o/i2o_pci.c	Sun Aug 19 06:21:16 2001
-@@ -31,17 +31,15 @@
- #include <asm/mtrr.h>
- #endif // CONFIG_MTRR
- 
--#ifdef MODULE
- /*
-  * Core function table
-  * See <include/linux/i2o.h> for an explanation
-  */
--static struct i2o_core_func_table *core;
-+static struct i2o_core_func_table *core; /* = NULL */
- 
- /* Core attach function */
- extern int i2o_pci_core_attach(struct i2o_core_func_table *);
- extern void i2o_pci_core_detach(void);
--#endif /* MODULE */
- 
- /*
-  *	Free bus specific resources
-@@ -100,11 +98,7 @@
- static void i2o_pci_interrupt(int irq, void *dev_id, struct pt_regs *r)
- {
- 	struct i2o_controller *c = dev_id;
--#ifdef MODULE
- 	core->run_queue(c);
--#else
--	i2o_run_queue(c);
--#endif /* MODULE */
- }	
- 
- /*
-@@ -226,11 +220,7 @@
- 
- 	I2O_IRQ_WRITE32(c,0xFFFFFFFF);
- 
--#ifdef MODULE
- 	i = core->install(c);
--#else
--	i = i2o_install_controller(c);
--#endif /* MODULE */
- 	
- 	if(i<0)
- 	{
-@@ -250,11 +240,7 @@
- 			printk(KERN_ERR "%s: unable to allocate interrupt %d.\n",
- 				c->name, dev->irq);
- 			c->bus.pci.irq = -1;
--#ifdef MODULE
- 			core->delete(c);
--#else
--			i2o_delete_controller(c);
--#endif /* MODULE */	
- 			iounmap(mem);
- 			return -EBUSY;
- 		}
-@@ -310,28 +296,17 @@
- 	if(c->type == I2O_TYPE_PCI)
- 	{
- 		I2O_IRQ_WRITE32(c,0);
--#ifdef MODULE
- 		if(core->activate(c))
--#else
--		if(i2o_activate_controller(c))
--#endif /* MODULE */
- 		{
- 			printk("%s: Failed to initialize.\n", c->name);
--#ifdef MODULE
- 			core->unlock(c);
- 			core->delete(c);
--#else
--			i2o_unlock_controller(c);
--			i2o_delete_controller(c);
--#endif
- 			continue;
- 		}
- 	}
- }
- #endif // I2O_HOTPLUG_SUPPORT
- 
--#ifdef MODULE
--
- int i2o_pci_core_attach(struct i2o_core_func_table *table)
- {
- 	MOD_INC_USE_COUNT;
-@@ -348,30 +323,17 @@
- 	MOD_DEC_USE_COUNT;
- }
- 
--int init_module(void)
--{
--	printk(KERN_INFO "Linux I2O PCI support (c) 1999 Red Hat Software.\n");
--	
--	core = NULL;
--
-- 	return 0;
-- 
--}
--
--void cleanup_module(void)
--{
--}
--
- EXPORT_SYMBOL(i2o_pci_core_attach);
- EXPORT_SYMBOL(i2o_pci_core_detach);
- 
- MODULE_AUTHOR("Red Hat Software");
- MODULE_DESCRIPTION("I2O PCI Interface");
- 
--#else
--void __init i2o_pci_init(void)
-+static int __init i2o_pci_init(void)
- {
- 	printk(KERN_INFO "Linux I2O PCI support (c) 1999 Red Hat Software.\n");
--	i2o_pci_scan();
-+	return i2o_pci_scan();
- }
--#endif
-+
-+module_init(i2o_pci_init);
-+
-diff -u -r linux-2.4.9/drivers/i2o/i2o_proc.c linux/drivers/i2o/i2o_proc.c
---- linux-2.4.9/drivers/i2o/i2o_proc.c	Sun Aug 12 11:16:18 2001
-+++ linux/drivers/i2o/i2o_proc.c	Sun Aug 19 06:21:16 2001
-@@ -3372,8 +3372,6 @@
- 	i2o_remove_handler(&i2o_proc_handler);
- }
- 
--#ifdef MODULE
- module_init(i2o_proc_init);
--#endif
- module_exit(i2o_proc_exit);
- 
-
---jRHKVT23PllUwdXP--

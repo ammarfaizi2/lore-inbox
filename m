@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263189AbSJFCaC>; Sat, 5 Oct 2002 22:30:02 -0400
+	id <S263225AbSJFCbi>; Sat, 5 Oct 2002 22:31:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263192AbSJFCaC>; Sat, 5 Oct 2002 22:30:02 -0400
-Received: from paloma15.e0k.nbg-hannover.de ([62.181.130.15]:6100 "HELO
-	paloma15.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S263189AbSJFCaC> convert rfc822-to-8bit; Sat, 5 Oct 2002 22:30:02 -0400
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.40 (-ac4): IDE as modules anyone?
-Date: Sun, 6 Oct 2002 04:35:28 +0200
-User-Agent: KMail/1.4.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200210060435.28245.Dieter.Nuetzel@hamburg.de>
+	id <S263192AbSJFCbi>; Sat, 5 Oct 2002 22:31:38 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:3854
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263225AbSJFCbi>; Sat, 5 Oct 2002 22:31:38 -0400
+Subject: Re: Unable to kill processes in D-state
+From: Robert Love <rml@tech9.net>
+To: jw schultz <jw@pegasys.ws>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021006021802.GA31878@pegasys.ws>
+References: <20021005090705.GA18475@stud.ntnu.no>
+	<1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond>
+	<20021005235614.GC25827@stud.ntnu.no>  <20021006021802.GA31878@pegasys.ws>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Oct 2002 22:37:48 -0400
+Message-Id: <1033871869.1247.4397.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-make[2]: Entering directory `/usr/src/linux-2.5.40-ac4/drivers/ide'
-  gcc -Wp,-MD,./.ide.o.d -D__KERNEL__ -I/usr/src/linux-2.5.40-ac4/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -mcpu=k6 
--march=i686 -malign-functions=4 -fschedule-insns2 -fexpensive-optimizations  
--I/usr/src/linux-2.5.40-ac4/arch/i386/mach-generic -nostdinc -iwithprefix 
-include -DMODULE -include 
-/usr/src/linux-2.5.40-ac4/include/linux/modversions.h   -DKBUILD_BASENAME=ide 
--DEXPORT_SYMTAB  -c -o ide.o ide.c
-ide.c:3575: redefinition of `init_module'
-ide.c:3553: `init_module' previously defined here
-ide.c: In function `cleanup_module':
-ide.c:3598: warning: implicit declaration of function `bus_unregister'
-{standard input}: Assembler messages:
-{standard input}:9163: Error: symbol `init_module' is already defined
+On Sat, 2002-10-05 at 22:18, jw schultz wrote:
 
-Have a nice Sunday.
+> They shouldn't be affecting the load average because they
+> aren't on the runqueue.
 
--Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
+TASK_UNINTERRUPTIBLE processes are counted in count_active_tasks() -
+because it is assumed they will only sleep a very short while - which is
+what is used in the load balance.
 
-University of Hamburg
-Department of Computer Science
-@home: Dieter.Nuetzel at hamburg.de (replace at with @)
+	Robert Love
 

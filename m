@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266848AbSKHR71>; Fri, 8 Nov 2002 12:59:27 -0500
+	id <S261333AbSKHSKt>; Fri, 8 Nov 2002 13:10:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266849AbSKHR71>; Fri, 8 Nov 2002 12:59:27 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:31898 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S266848AbSKHR7Z>; Fri, 8 Nov 2002 12:59:25 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C0101F4EE@usslc-exch-4.slc.unisys.com>
-From: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-To: "'Matthew Wilcox '" <willy@debian.org>,
-       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-Cc: "''Linus Torvalds ' '" <torvalds@transmeta.com>,
-       "''Jeremy Fitzhardinge ' '" <jeremy@goop.org>,
-       "''William Lee Irwin III ' '" <wli@holomorphy.com>,
-       "''linux-ia64@linuxia64.org ' '" <linux-ia64@linuxia64.org>,
-       "''Linux Kernel List ' '" <linux-kernel@vger.kernel.org>,
-       "''rusty@rustcorp.com.au ' '" <rusty@rustcorp.com.au>,
-       "''dhowells@redhat.com ' '" <dhowells@redhat.com>,
-       "''mingo@elte.hu ' '" <mingo@elte.hu>
-Subject: RE: [Linux-ia64] reader-writer livelock problem
-Date: Fri, 8 Nov 2002 12:05:30 -0600 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261335AbSKHSKt>; Fri, 8 Nov 2002 13:10:49 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:53660 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261333AbSKHSKs>; Fri, 8 Nov 2002 13:10:48 -0500
+Subject: Re: [PATCH-2.5.46] IDE BIOS timings
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Torben Mathiasen <torben.mathiasen@hp.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021108165641.GA18126@suse.de>
+References: <20021107164009.GL1737@tmathiasen>
+	<1036775438.16898.31.camel@irongate.swansea.linux.org.uk> 
+	<20021108165641.GA18126@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 08 Nov 2002 18:40:50 +0000
+Message-Id: <1036780850.16651.105.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Absolutely you should minimize the locking contention.
-However, that isn't always possible, such as when you
-have 64 processors contending on the same resource.
-With the current kernel, the trivial example with reader/
-writer locks was having them all call gettimeofday().
-But try having 64 processors fstat() the same file,
-which I have also seen happen (application looping,
-waiting for another process to finish setting up the
-file so they can all mmap it).
+On Fri, 2002-11-08 at 16:56, Jens Axboe wrote:
+> > Linus please drop this patch for now. Its not been tested on enough
+> > controllers, its making things unneccessarily ugly and its also just
+> > going to make updates hard.
+> 
+> Alan, the patch is pretty much straight forward. Cleaning up the magic
+> numbers and ->autotune consistencies is a good thing, imo.
 
-What MCS locks do is they reduce the number of times
-the cacheline has to be flung around the system in
-order to get work done: they "scale" much better with
-the number of processors: O(N) instead of O(N^2).
+You can clean up the naming but it still hasn't been tested, not all
+bioses neccessarily give us timings we can trust either.  I'm not
+opposed to the concept but after the previous IDE mess in 2.5 merging
+something that isnt tested on lots of controllers and might have weird
+effects does both me a bit
 
-Kevin
 
------Original Message-----
-From: Matthew Wilcox
-To: Van Maren, Kevin
-Cc: 'Linus Torvalds '; 'Jeremy Fitzhardinge '; 'William Lee Irwin III ';
-'linux-ia64@linuxia64.org '; 'Linux Kernel List '; 'rusty@rustcorp.com.au ';
-'dhowells@redhat.com '; 'mingo@elte.hu '
-Sent: 11/8/02 12:52 PM
-Subject: Re: [Linux-ia64] reader-writer livelock problem
-
-On Fri, Nov 08, 2002 at 11:41:57AM -0600, Van Maren, Kevin wrote:
-> processor to acquire/release the lock once.  So with 32 processors
-> contending for the lock, at 1us per cache-cache transfer (picked
-
-if you have 32 processors contending for the same spinlock, you have
-bigger problems.
-
--- 
-Revolutions do not require corporate support.

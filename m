@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbTCZGA2>; Wed, 26 Mar 2003 01:00:28 -0500
+	id <S261293AbTCZF7N>; Wed, 26 Mar 2003 00:59:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261403AbTCZGA2>; Wed, 26 Mar 2003 01:00:28 -0500
-Received: from anor.ics.muni.cz ([147.251.4.35]:37032 "EHLO anor.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S261363AbTCZGAZ>;
-	Wed, 26 Mar 2003 01:00:25 -0500
-Date: Wed, 26 Mar 2003 07:11:35 +0100 (MET)
-From: News Admin <news@nimloth.ics.muni.cz>
-Message-Id: <200303260611.h2Q6BZR10625@nimloth.ics.muni.cz>
-To: linux-kernel@vger.kernel.org
-X-Muni-Virus-Test: Clean
+	id <S261353AbTCZF7N>; Wed, 26 Mar 2003 00:59:13 -0500
+Received: from mta05ps.bigpond.com ([144.135.25.137]:7380 "EHLO
+	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261293AbTCZF7M>; Wed, 26 Mar 2003 00:59:12 -0500
+From: Brad Hards <bhards@bigpond.net.au>
+To: Eric Wong <eric@yhbt.net>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: [PATCH] Logitech USB mice/trackball extensions
+Date: Wed, 26 Mar 2003 16:54:08 +1100
+User-Agent: KMail/1.4.5
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20030326022938.GA5187@bl4st.yhbt.net> <20030326034841.GA20858@kroah.com> <20030326040946.GB13242@BL4ST>
+In-Reply-To: <20030326040946.GB13242@BL4ST>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200303261654.08896.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From news Wed Mar 26 07:11:35 2003
-Received: (from news@localhost)
-	by nimloth.ics.muni.cz (8.11.6+Sun/8.10.0.Beta12) id h2Q6BYT10611
-	for newsmaster; Wed, 26 Mar 2003 07:11:34 +0100 (MET)
-Newsgroups: cz.muni.redir.linux-kernel
-Path: rubisko.ascs.muni.cz!xkaminsk
-From: Zdenek SUTR Kaminski <xkaminsk@rubisko.ascs.muni.cz>
-Subject: OFFTOPIC - athlon MP 2400+ (or 2600+) and /proc/cpuinfo
-Message-ID: <Pine.LNX.4.44.0303260707300.17821-100000@rubisko.ascs.muni.cz>
-Sender: UNKNOWN@rubisko.ascs.muni.cz
-Date: Wed, 26 Mar 2003 06:11:32 GMT
-X-Nntp-Posting-Host: rubisko.ascs.muni.cz
-Reply-To: xkaminsk@fi.muni.cz
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Mime-Version: 1.0
-Organization: unknown
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi,
+On Wed, 26 Mar 2003 15:09, Eric Wong wrote:
+> Greg KH <greg@kroah.com> wrote:
+> > On Tue, Mar 25, 2003 at 07:03:30PM -0800, Eric Wong wrote:
+> > > Oops, ignore this part, it's part of a separate patch :)
+> >
+> > Can you send me an updated patch?
+Doing it in kernel space with module options is gross. This is clearly a case 
+for userspace.
 
- please, can some one, who has CPU in $Subject, send me a content of 
-/proc/cpuinfo?
+See: http://www.linmagau.org/modules.php?name=Sections&op=viewarticle&artid=40
 
- Thanks.
+Brad
 
-Have a nice day.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
-Bc. Zdenek Kaminski <sutr@liberouter.org>
-
-homepage: http://www.fi.muni.cz/~xkaminsk/
-IPv6 router homepage: http://www.liberouter.org/
-Key: 0xD7315488
-Key fingerprint: 3CB0 8108 CB76 446E 2895 AF33 9B3A 851B D731 5488
+iD8DBQE+gUCAW6pHgIdAuOMRAq3GAKCOMCH9x+n9pIiezYfy1wkubYW7/gCeIY6O
+b9/lNmg7lOOEsG6EQhbW3KY=
+=1q8A
+-----END PGP SIGNATURE-----
 

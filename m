@@ -1,28 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266319AbSKUDqn>; Wed, 20 Nov 2002 22:46:43 -0500
+	id <S266310AbSKUDpj>; Wed, 20 Nov 2002 22:45:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266335AbSKUDqn>; Wed, 20 Nov 2002 22:46:43 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:43504 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S266319AbSKUDqm>;
-	Wed, 20 Nov 2002 22:46:42 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC974@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Rusty Lynch'" <rusty@linux.co.intel.com>, linux-kernel@vger.kernel.org
-Subject: RE: [Coding style question] XXX_register or register_XXX
-Date: Wed, 20 Nov 2002 19:53:47 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266319AbSKUDpj>; Wed, 20 Nov 2002 22:45:39 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:49269 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266310AbSKUDpj>; Wed, 20 Nov 2002 22:45:39 -0500
+Date: Wed, 20 Nov 2002 22:52:06 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: mikep@linuxtr.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Merging of Barrow's Token Ring changes
+Message-ID: <20021120225206.A31319@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> int foo_register(&something);
-> int foo_unregister(&something);
+It seems to me that D.J. Barrow's changes were never merged,
+if I read sources correctly. What is the situation and is
+there a hope?
 
-I prefer this, althought the other one is [maybe more] common.
-
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+-- Pete

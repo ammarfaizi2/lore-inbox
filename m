@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319081AbSIJJCR>; Tue, 10 Sep 2002 05:02:17 -0400
+	id <S319085AbSIJJHf>; Tue, 10 Sep 2002 05:07:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319082AbSIJJCQ>; Tue, 10 Sep 2002 05:02:16 -0400
-Received: from mail.zmailer.org ([62.240.94.4]:6606 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S319081AbSIJJCQ>;
-	Tue, 10 Sep 2002 05:02:16 -0400
-Date: Tue, 10 Sep 2002 12:07:00 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Kai Henningsen <kaih@khms.westfalen.de>
+	id <S319086AbSIJJHe>; Tue, 10 Sep 2002 05:07:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64523 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319085AbSIJJHe>; Tue, 10 Sep 2002 05:07:34 -0400
+Date: Tue, 10 Sep 2002 10:12:15 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Henning P. Schmiedehausen" <hps@intermeta.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK] PATCH ReiserFS 1 of 3 RESEND
-Message-ID: <20020910090700.GP5834@mea-ext.zmailer.org>
-References: <20020909113147.BBA73A7CDF@reload.namesys.com> <Pine.LNX.4.44.0209090831240.1641-100000@home.transmeta.com> <8WbPErQ1w-B@khms.westfalen.de>
+Subject: Re: Disabled kernel.org accounts
+Message-ID: <20020910101215.A11778@flint.arm.linux.org.uk>
+References: <18629.1031548515@kao2.melbourne.sgi.com> <alhvk4$obf$1@forge.intermeta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8WbPErQ1w-B@khms.westfalen.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <alhvk4$obf$1@forge.intermeta.de>; from hps@intermeta.de on Mon, Sep 09, 2002 at 11:11:00AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 10, 2002 at 08:59:00AM +0200, Kai Henningsen wrote:
-> torvalds@transmeta.com (Linus Torvalds)  wrote on 09.09.02 in <Pine.LNX.4.44.0209090831240.1641-100000@home.transmeta.com>:
-> > where "reload.namesys.com" is not in the MX domain:
-> >
-> > 	dig -t MX reload.namesys.com
-> ... i.e., does not have a MX record.
-> > (Yes, I realize that both addresses likely work perfectly fine, and that
-> 
-> Since the RFCs *demand* that an address mentioned in mail has an MX  
-> record, and the fallback to A records was not, until recently, described,  
-> there probably are some mailers that cannot deliver mail to that address.  
-> Which, in my book, counts as "not perfectly fine", even though I admit  
-> those mailers are probably in a minority as, sadly, this particular  
-> disease is pretty widespread.
+On Mon, Sep 09, 2002 at 11:11:00AM +0000, Henning P. Schmiedehausen wrote:
+> Well, the reason for this are missing NS records:
 
-  You haven't read your RFCs.  They demand no such thing!
+Works fine for me.
 
-  Recently the compilations of RFC 2821 and 2822 were done because there
-  are about a dozen RFCs full of obscure details, and even errors.
+> So they're a really, really crappy ISP. Maybe they're cheap so
+> everyone uses them...
 
+Actually, its a result of new bind9 behaviour.  Previous versions of
+bind used the glue records from the upper level DNS servers.  bind9
+no longer trusts this glue information and will go looking for the
+records in the right zone.
 
-  RFC 1123 (Requirements for Internet Hosts -- Application and Support)
-  does say that the SMTP CLIENT (e.g. sending SMTP system) must support
-  and use MXes.    RFC 974 says HOW:
+I've been bitten by this when trying to mail someone (their domain
+had the NS records but not the corresponding A records for their name
+servers.)  BTinternet have also been bitten by this when they upgraded
+to bind9.  Welcome to bind9. 8)
 
+And the annoying thing is that people running the domains with the
+problems will normally point you at some web based DNS checker that
+only tests for half the things it should do, and they completely
+believe its output as being 100% correct.  The typical response you
+get is "It passes www.xyz.com's DNS tests, its your problem."
 
-  RFC 974 around page 4:  (Mail Routing and the Domain System)
+Its in the same problem space as getting everyone to accept ICMP
+fragmentation needed messages, or getting ECN to work.
 
-Interpreting the List of MX RRs
-  ....
-   It is possible that the list of MXs in the response to the query will
-   be empty.  This is a special case.  If the list is empty, mailers
-   should treat it as if it contained one RR, an MX RR with a preference
-   value of 0, and a host name of REMOTE.  (I.e., REMOTE is its only
-   MX).  In addition, the mailer should do no further processing on the
-   list, but should attempt to deliver the message to REMOTE.  The idea
-   here is that if a domain fails to advertise any information about a
-   particular name we will give it the benefit of the doubt and attempt
-   delivery.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-...
-> MfG Kai
-
-/Matti Aarnio

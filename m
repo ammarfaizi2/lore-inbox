@@ -1,66 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267767AbSLTKTK>; Fri, 20 Dec 2002 05:19:10 -0500
+	id <S266296AbSLTKQ3>; Fri, 20 Dec 2002 05:16:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267771AbSLTKTJ>; Fri, 20 Dec 2002 05:19:09 -0500
-Received: from packet.digeo.com ([12.110.80.53]:16528 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267767AbSLTKTG>;
-	Fri, 20 Dec 2002 05:19:06 -0500
-Message-ID: <3E02F073.BF57207C@digeo.com>
-Date: Fri, 20 Dec 2002 02:26:59 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH]Timer list init is done AFTER use
-References: <3E02D81F.13A5A59D@mvista.com>
+	id <S266298AbSLTKQ3>; Fri, 20 Dec 2002 05:16:29 -0500
+Received: from carisma.slowglass.com ([195.224.96.167]:64785 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266296AbSLTKQ3>; Fri, 20 Dec 2002 05:16:29 -0500
+Date: Fri, 20 Dec 2002 10:24:31 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Roland McGrath <roland@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>
+Subject: Re: PTRACE_GET_THREAD_AREA
+Message-ID: <20021220102431.A26923@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@redhat.com>
+References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Dec 2002 10:27:03.0537 (UTC) FILETIME=[56966610:01C2A812]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212200832.gBK8Wfg29816@magilla.sf.frob.com>; from roland@redhat.com on Fri, Dec 20, 2002 at 12:32:41AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> 
-> On SMP systems the timer list init is done by way of a
-> cpu_notifier call.  This has two problems:
-> 
-> 1.) Timers are started WAY before the cpu_notifier call
-> chain is executed.  In particular the console blanking timer
-> is deleted and inserted every time printk() is called.  That
-> this does not fail is only because the kernel has yet to
-> protect location zero.
+On Fri, Dec 20, 2002 at 12:32:41AM -0800, Roland McGrath wrote:
+> This patch vs 2.5.51 (should apply fine to 2.5.52) adds two new ptrace
+> requests for i386, PTRACE_GET_THREAD_AREA and PTRACE_SET_THREAD_AREA.
+> These let another process using ptrace do the equivalent of performing
+> get_thread_area and set_thread_area system calls for another thread.
 
-But init_timers() directly calls timer_cpu_notify(), which directly
-calls init_timers_cpu().
+I don't think ptrace is the right interface for this.  Just changed
+the get_thread_area/set_thread_area to take a new first pid_t argument.
 
-So your patch appears to be a no-op for the boot CPU.
- 
-> 2.) This notifier is called when a cpu comes up.  I suspect
-> that initializing the timer list when a hot swap of a cpu is
-> done is NOT the right thing to do.  In any case, if this is
-> a desired action, the list still needs to be initialized
-> prior to its use.
+Of course you might have to check privilegues if the first argument is
+non-null (i.e. not yourself).
 
-It should be OK as-is?  The CPU_UP_PREPARE callout is performed
-before the secondary starts doing things.  Its timers are initialised.
- 
-> The attached patch initializes all the timer lists at
-> init_timers time and does not put code in the notify list.
-
-But the patch assumes that the per-cpu data exists for all CPUs - even
-the !cpu_possible() ones.
-
-This is true at present.  But the intent here is that the per-cpu
-storage be allocated as the CPUs come up, and in their node-local
-memory.  That saves memory and presumably having the cpu-local timers
-in the cpu-local memory is a good thing.
-
-I have working code which did all that, but it sort-of got lost
-because there was a lot going on at the time.
-
-
-Have you actually observed any problem?

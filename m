@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262254AbRETWUP>; Sun, 20 May 2001 18:20:15 -0400
+	id <S262256AbRETWi7>; Sun, 20 May 2001 18:38:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262255AbRETWUG>; Sun, 20 May 2001 18:20:06 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:46721 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S262254AbRETWTv>; Sun, 20 May 2001 18:19:51 -0400
-Date: Mon, 21 May 2001 00:19:49 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: const __init
-Message-ID: <20010521001949.R754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.05.10105202210370.1667-100000@callisto.of.borg> <3B083878.1785C27D@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3B083878.1785C27D@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sun, May 20, 2001 at 05:34:48PM -0400
+	id <S262257AbRETWis>; Sun, 20 May 2001 18:38:48 -0400
+Received: from admin.csn.ul.ie ([136.201.105.1]:59655 "HELO admin.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S262256AbRETWie>;
+	Sun, 20 May 2001 18:38:34 -0400
+Date: Sun, 20 May 2001 23:38:26 +0100 (IST)
+From: Dave Airlie <airlied@csn.ul.ie>
+X-X-Sender: <airlied@skynet>
+To: <linux-vax@mithra.physics.montana.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [LV] start_thread question...
+In-Reply-To: <20010520230747.B19847@excalibur.research.wombat.ie>
+Message-ID: <Pine.LNX.4.32.0105202336330.18342-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 20, 2001 at 05:34:48PM -0400, Jeff Garzik wrote:
-> This might be a very valid point...
-> 
-> (let me know if the following test is flawed)
- 
-It is imho.
 
-> > [jgarzik@rum tmp]$ cat > sectest.c
-> > #include <linux/module.h>
-> > #include <linux/init.h>
-> > static const char version[] __initdata = "foo";
-    static char version2[] __initdata = "bar";
-> > [jgarzik@rum tmp]$ gcc -D__KERNEL__ -I/spare/cvs/linux_2_4/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o sectest.o sectest.c
-> > [jgarzik@rum tmp]$ 
-> 
-> No section type conflict appears.
+Okay I think I've gotten it solved most of the way, we weren't calling
+execve via the system call interface, so once I made it go via the system
+call and I fill out pc, sp and psl registers in start_thread, it seems to
+go further..
 
-Now it SHOULD conflict on these binutils, but doesn't on mine (2.9.5) ;-)
+Thanks for all the help...
 
-It is decided to put it into .data.init as expected.
+Dave.
 
-AFAIK "const" is only a promise to the compiler, that we write
-this data ONCE and read only after this initial write. So the
-decision on the section is implementation defined.
+On Sun, 20 May 2001, Kenn Humborg wrote:
 
-What I don't understand is, why GCC overrides our explicit
-override (done by setting the "section attribute" explicitly).
+> On Sun, May 20, 2001 at 05:24:48PM +0100, Dave Airlie wrote:
+> >
+> > I'm implementing start_thread for the VAX port and am wondering does
+> > start_thread have to return to load_elf_binary? I'm working on the init
+> > thread and what is happening is it is returning the whole way back to the
+> > execve caller .. which I know shouldn't happen.....
+> >
+> > so I suppose what I'm looking for is the point where the user space code
+> > gets control... is it when the registers are set in the start_thread? if
+> > so how does start_thread return....
+> >
+> > On the VAX we have to call a return from interrupt to get to user space
+> > and I'm trying to figure out where this should happen...
+>
+> I haven't got time to look at this in detail, but you could
+> probably do it by frobbing the saved registers that will be
+> restored by the ret_from_syscall in entry.S.  Do you have
+> a pt_regs *regs function argument at the right point?  If
+> so, it should point to these saved registers.
+>
+> Later,
+> Kenn
+>
+>
 
-I would consider this a BUG in GCC. I don't understand, why we
-support this BUG...
-
-Maybe some GCC people can enlighten me, why GCC ignores such
-overrides, that are for the cases where we DO KNOW BETTER than
-GCC, what section is correct.
-
-
-Regards
-
-Ingo Oeser
 -- 
-To the systems programmer,
-users and applications serve only to provide a test load.
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied@skynet.ie
+pam_smb / Linux DecStation / Linux VAX / ILUG person
+
+

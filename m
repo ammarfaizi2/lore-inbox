@@ -1,85 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbSLOM6t>; Sun, 15 Dec 2002 07:58:49 -0500
+	id <S266489AbSLOM7j>; Sun, 15 Dec 2002 07:59:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266489AbSLOM6t>; Sun, 15 Dec 2002 07:58:49 -0500
-Received: from mail.hometree.net ([212.34.181.120]:42961 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S266514AbSLOM6s>; Sun, 15 Dec 2002 07:58:48 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Networking/Becker et al [was Re: pci-skeleton duplex check]
-Date: Sun, 15 Dec 2002 13:06:41 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <athup1$pen$1@forge.intermeta.de>
-References: <20021213092229.D9973@work.bitmover.com> <1039898841.855.1684.camel@phantasy> <athjft$4b7$1@forge.intermeta.de> <20021215123159.GJ27658@fs.tum.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1039957601 5958 212.34.181.4 (15 Dec 2002 13:06:41 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 15 Dec 2002 13:06:41 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S266520AbSLOM7j>; Sun, 15 Dec 2002 07:59:39 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:48193 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S266489AbSLOM7g>; Sun, 15 Dec 2002 07:59:36 -0500
+Message-ID: <3DFC7DF5.1756033E@cinet.co.jp>
+Date: Sun, 15 Dec 2002 22:04:53 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.50-ac1-pc98smp i686)
+X-Accept-Language: ja
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCHSET] PC-9800 addtional for 2.5.50-ac1 (18/21)
+References: <3DFC50E9.656B96D0@cinet.co.jp>
+Content-Type: multipart/mixed;
+ boundary="------------D383B5F82DD65A5A17EAD077"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> writes:
+This is a multi-part message in MIME format.
+--------------D383B5F82DD65A5A17EAD077
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Transfer-Encoding: 7bit
 
->> Yes. And he does a great job. But the second he started to put
->> something in that he maintains in his subsystem, another obnoxious
->> developer with too much spare time popped up and started whining about
->> "don't put this crap in, Marcello". Of course, without offering any
->> alternative.
+NEC PC-9800 subarchitecture support patch for 2.5.50-ac1 (18/21)
+This is support for C-Bus (legacy bus like ISA) PNP.
 
->I remember the mail you were referring to but I don't have any knowledge 
->regarding whether this specific patch is good or bad.
+ drivers/pnp/isapnp/core.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
->It's often better to reject bad code and to have nothing in the kernel 
->instead of having bad code in the kernel. There are several examples 
->where bad code entered into the kernel and it would have been better if 
->it was rejected.
+Regards,
+Osamu Tomita
+--------------D383B5F82DD65A5A17EAD077
+Content-Type: text/plain; charset=iso-2022-jp;
+ name="pnp.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="pnp.patch"
 
->You might discuss whether the code in question is "crap" or good code 
->but please discuss it on a technical level without personal offences.
+diff -urN linux/drivers/pnp/isapnp/core.c linux98/drivers/pnp/isapnp/core.c
+--- linux/drivers/pnp/isapnp/core.c	Tue Nov  5 07:30:31 2002
++++ linux98/drivers/pnp/isapnp/core.c	Sun Nov 10 23:25:36 2002
+@@ -76,8 +76,13 @@
+ MODULE_PARM_DESC(isapnp_verbose, "ISA Plug & Play verbose mode");
+ MODULE_LICENSE("GPL");
+ 
++#ifndef CONFIG_PC9800
+ #define _PIDXR		0x279
+ #define _PNPWRP		0xa79
++#else
++#define _PIDXR		0x259
++#define _PNPWRP		0xa59
++#endif
+ 
+ /* short tags */
+ #define _STAG_PNPVERNO		0x01
 
-Hi,
+--------------D383B5F82DD65A5A17EAD077--
 
-the problem is, that Donald diverted in his drivers from the "official
-stance" by introducing a pci-layer which he uses in all his
-drivers. To him, at that time, it was technically superior to the
-(then existing) PCI code and after he created this layer, he no longer
-cared about the ongoing Linux PCI development because he wanted to
-keep his drivers stable and laid the emphasis not on "keeping up with
-every PCI change in a minor kernel revision" but to keep his drivers
-stable.
-
-You can't simply take Donalds' drivers and drop them into the
-kernel. You need at least the pci-scan.c file and even then you might
-either not get it to work or have to make code changes. BTDTGTT.
-
-But you do have to start somewhere. If Jeff drops the drivers into the
-source in a way that they compile and work even if they don't adhere
-to every linux kernel programming standard (which seem to be chiseled
-in jelly anway...)  and after that start converting with Donalds' help
-to the actual PCI core code, that's IMHO the right way to go.
-
-But if one gets shot down for even trying to start this, you might
-(after a while) drive developers away from the kernel source (just as
-it did happen with Donald).
-
-I considered the ChangeSet which included pci-scan.c as a start and a
-peace offer to Donald. Too bad, that not all core developers seem to
-be as understanding and ready to make an admission as Jeff.
-
- 	Regards
- 		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,110 +1,172 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVAAEAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVAAD7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVAAEAW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 23:00:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVAAEAV
+	id S262184AbVAAD7x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 22:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbVAAD7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 23:00:21 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:61207 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262185AbVAAEAF (ORCPT
+	Fri, 31 Dec 2004 22:59:53 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:59333 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S262184AbVAAD7p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 23:00:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IwSp6+DMUSDpu2YOvtBwsNWDxQ8awu7+Adxf0CdE5nK8b5BIArAAUq7Nhn0/PzUObeTj2AaZFfGwB1M00xeHVEAObHpvAbY8jn5xGfw3MolZjUAFxNNiU88mU6FaH4LHQM2E4P3QChETr3SL7hfy+5xhWiJhrUFGmJ+QhspbVqs=
-Message-ID: <105c793f041231200047dd1e25@mail.gmail.com>
-Date: Fri, 31 Dec 2004 23:00:03 -0500
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Fwd: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <105c793f0412301626468198be@mail.gmail.com>
+	Fri, 31 Dec 2004 22:59:45 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: linux-kernel@vger.kernel.org, sam@ravnborg.org, pmarques@grupopie.com
+Subject: Re: sh: inconsistent kallsyms data 
+In-reply-to: Your message of "Fri, 31 Dec 2004 19:25:50 +0200."
+             <20041231172549.GA18211@linux-sh.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <105c793f04122907116b571ebf@mail.gmail.com>
-	 <cr16ho$eh1$1@tangens.hometree.net>
-	 <105c793f041230080734d71c4a@mail.gmail.com>
-	 <200412301203.44484.dtor_core@ameritech.net>
-	 <105c793f0412301626468198be@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 01 Jan 2005 14:59:19 +1100
+Message-ID: <7184.1104551959@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Using the other options (imps and exps) didn't change the behavior
-> much. I had some strange issues with the cursor being occasionally
-> moved to the upper-right corner of the screen very quickly when I
-> dragged in the lower and the right sides of the touchpad. This
-> behavior, however, was not (yet) reproducible. If I can figure out how
-> to reproduce it reliably, I'll note it later.
+On Fri, 31 Dec 2004 19:25:50 +0200, 
+Paul Mundt <lethal@linux-sh.org> wrote:
+>Building 2.6.10 for sh results in inconsistent kallsyms data. Turning on
+>CONFIG_KALLSYMS_ALL fixes it, as does CONFIG_KALLSYMS_EXTRA_PASS.
+>
+>The symbols that seem to be problematic between the second and third
+>pass are all kallsyms special symbols. With only CONFIG_KALLSYMS set we
+>see:
+>
+>--- System.map  2004-12-31 10:53:10.278567522 -0600
+>+++ .tmp_System.map     2004-12-31 10:53:10.347558024 -0600
+>@@ -6868,9 +6868,9 @@
+> 8817c4d0 D kallsyms_addresses
+> 88182660 D kallsyms_num_syms
+> 88182670 D kallsyms_names
+>-88190630 D kallsyms_markers
+>-881906a0 D kallsyms_token_table
+>-88190b50 D kallsyms_token_index
+>+881906a0 D kallsyms_markers
+>+88190710 D kallsyms_token_table
+>+88190bc0 D kallsyms_token_index
+> 88191000 D irq_desc
+> 88191000 A __per_cpu_end
+> 88191000 A __per_cpu_start
+>
+>So for some reason we have a 0x70 variance between these, and only
+>these. Running with --all-symbols this seems to work fine.
 
-For what it's worth, I still haven't found exactly what is causing
-this problem, but it has shown up more than once. It seems that it
-might have something to do with repeatedly loading and unloading the
-psmouse driver using different protocol options (proto=bare|imps|exps)
-and loading and unloading gpm (I said gdm previously, which was a
-mistake) using different -t (type) options (ps2|imps2|auto) and/or
-different mouse devices (/dev/mouse or /dev/input/mice). I've done
-lots of things to try to reproduce this behavior, but nothing yet
-seems to make it happen every time.
+It is a nasty corner case in scripts/kallsyms.c processing.  There is a
+difference in the list of names between pass 1 and pass 2.  This is not
+supposed to happen, the name and compression tables must be the same
+after pass 1 and 2.  The symbol addresses will be different, but the
+amount of data must be the same.
 
-I haven't used the laptop 'normally' very much yet, so I don't know if
-this problem shows up in normal use or just under strange
-circumstances like setup and testing.
+--- out1        2005-01-01 14:30:30.192497864 +1100
++++ out2        2005-01-01 14:30:46.556974017 +1100
+@@ -5854,390 +5854,389 @@
+ r __param_yres         PTR     0x8816d300
+ r __param_xres         PTR     0x8816d314
+ A _etext       PTR     0x8816d328
+-D init_task    PTR     0x8816d328
+ R __stop___param       PTR     0x8816d328
 
-When it does show up, the mouse cursor moves quickly up to the
-upper-right corner of the display - be it the X display or on the
-console with gpm - when the lower or right sides of the touchpad are
-used. Using the other areas of the touchpad produces normal curser
-movement.
+In pass 1, init_task has the same value as _etext so it is included in
+the name table.  Adding the kallsyms data to vmlinux at the end of pass
+1 adds more data which shifts where init_task is linked so it is no
+longer the same as _etext, so we lose a symbol on pass 2 which breaks
+the kallsyms rules.
 
-I'll continue to test things to see what might be causing problems.
-One thing I can contribute which showed up after this problem is an
-Oops during a boot. It could be totally unrelated and it's only
-happened once (a reboot produced no such Oops), but here it is:
+This corner case only occurs with CONFIG_KALLSYMS_ALL=n.  That is the
+only time that we drop symbols outside the ranges _stext ... _etext and
+_sinittext ... _einittext.  For CONFIG_KALLSYMS_ALL=n, we want the
+_etext and _einittext labels, but not any other symbols that have the
+same numeric value as _etext or _einittext.
 
-Software Suspend 2.1.5.10: Suspending enabled.
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
- printing eip:
-c01266e6
-*pde = 00000000
-Oops: 0001 [#1]
-PREEMPT
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c01226e6>]    Not tainted VLI
-EFLAGS: 00010083    (2.6.10)
-EIP is at worker_thread+0x1e6/0x310
-eax: 00000000   ebx: cbd0f04c   ecx: cbfe77b0   edx: 00000000
-esi: cbd0f048   edi: cbfc9000   ebp: 00000283   esp: cbfc9f44
-ds: 007b   es: 007b   ss: 0068
-Process events/0 (pid: 3, threadinfo=cbf9000 task=cbfc3020)
-Stack: 00000000 cbfc9f74 00000000 cbfe77b8 cbfc9000 cbfc9000 00000000 00000000
-       cbfc9000 cbfe77a8 ffffffff ffffffff 00000001 00000000 c0112d10 00010000
-       00000000 00000000 00000000 cbfc9000 00000000 cbfc3020 c0112d10 00100100
-Call Trace:
- [<c0112d10>] default_wake_function+0x0/0x20
- [<c0112d10>] default_wake_function+0x0/0x20
- [<c0126500>] worker_thread+0x0/0x310
- [<c012ab0a>] kthread+0xba/0xc0
- [<c01012e5>] kernel_thread_helper+0x5/0x10
-Code: 50 18 89 54 24 0c eb 0d 90 90 90 90 90 90 90 90 90 90 90 90 90
-8d 73 fc 8b 46 0c 89 44 24 1c 8b 56 10 89 54 24 18 8b 53 04
- 8b 03 <89> 50 04 89 02 89 5b 04 89 1b 55 9d ff 4f 14 8b 47 08 83 e0 08
- <6>note: events/0[3] exited with preempt_count 1
-Software Suspend 2.1.5.10: This is normal swap space.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory 160k freed
-_
+Paul, please test this patch.  Build with CONFIG_KALLSYMS_ALL=n and
+CONFIG_KALLSYMS_EXTRA_PASS=n.
+
+Index: 2.6.10/scripts/kallsyms.c
+===================================================================
+--- 2.6.10.orig/scripts/kallsyms.c	2005-01-01 14:24:21.240400295 +1100
++++ 2.6.10/scripts/kallsyms.c	2005-01-01 14:54:57.695169107 +1100
+@@ -184,6 +184,16 @@ symbol_valid(struct sym_entry *s)
+ 		if ((s->addr < _stext || s->addr > _etext)
+ 		    && (s->addr < _sinittext || s->addr > _einittext))
+ 			return 0;
++		/* Corner case.  Discard any symbols with the same value as
++		 * _etext or _einittext, they can move between pass 1 and 2
++		 * when the kallsyms data is added.  If these symbols move then
++		 * they may get dropped in pass 2, which breaks the kallsyms
++		 * rules.
++		 */
++		if ((s->addr == _etext || s->addr == _einittext) &&
++		    strcmp(s->sym + 1, "_etext") &&
++		    strcmp(s->sym + 1, "_einittext"))
++			return 0;
+ 	}
+ 
+ 	/* Exclude symbols which vary between passes. */
 
 
-If anything looks odd or unlike normal Oops output, I was unable to
-capture it digitally and so had to type it out longhand, which could
-contribute to typos :-/ . Also, since it seems to have occured between
-the swsusp code loading, I may need to submit it to those guys
-instead.
+BTW, this script will take a .tmp_kallsyms<n>.S file and convert the
+tables to something that a human can read.
 
-HTH. Thanks.
+#!/usr/bin/perl -w
+#
+# kallsyms_uncompress.pl (C) Keith Owens 2005 <kaos@ocs.com.au>
+#
+# Released under GPL V2.
+#
+# Uncompress the names in a .tmp_kallsymsn.S file.  Humans need text strings
+# to work out why kallsyms is giving inconsistent results.  Use on 2.6.10
+# onwards.
+# kallsyms_uncompress.pl .tmp_kallsymsn.S > outfile
 
--Andy
+use strict;
+die($0 . " takes exactly one argument\n") if($#ARGV != 0);
+
+my @token;
+my @name;
+my @ptr;
+
+my $line;
+my $state = 0;	# 1 token, 2 name, 3 ptr
+
+while (defined ($line = <>)) {
+	chomp($line);
+	if ($line eq "kallsyms_token_table:") {
+		$state = 1;
+		next;
+	}
+	if ($line eq "kallsyms_names:") {
+		$state = 2;
+		next;
+	}
+	if ($line eq "kallsyms_addresses:") {
+		$state = 3;
+		next;
+	}
+	next if ($state == 0);
+	if ($line eq "") {
+		$state = 0;
+		next;
+	}
+	if ($state == 1) {
+		$line =~ s/[^"]*"//;
+		$line =~ s/"//;
+		push(@token, $line);
+	} elsif ($state == 2) {
+		$line =~ s/\s//g;
+		my @b = (split(/,/, $line));
+		shift(@b);
+		push(@name, \@b);
+	} else {
+		push(@ptr, $line);
+	}
+}
+
+my ($b, $i, $text);
+for ($i = 0; $i <= $#name; ++$i) {
+	$text = "";
+	foreach $b (@{$name[$i]}) {
+		$text .= $token[hex($b)];
+	}
+	printf("%s %s %s\n", substr($text, 0, 1), substr($text, 1), $ptr[$i]);
+}
+

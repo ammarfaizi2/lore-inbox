@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265370AbUBPESl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 23:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265367AbUBPESl
+	id S265367AbUBPE13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 23:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUBPE13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 23:18:41 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:59315 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265370AbUBPER6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 23:17:58 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Chip Salzenberg <chip@pobox.com>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Linux 2.6.3-rc3 - IDE DMA errors on Thinkpad A30
-Date: Mon, 16 Feb 2004 05:24:04 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <E1AsO6X-0003hW-1u@tytlal> <40303D59.4030605@pobox.com> <20040216040811.GF3789@perlsupport.com>
-In-Reply-To: <20040216040811.GF3789@perlsupport.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 15 Feb 2004 23:27:29 -0500
+Received: from [203.94.74.174] ([203.94.74.174]:6007 "EHLO
+	ENETSLMAILI.enetsl.Virtusa.com") by vger.kernel.org with ESMTP
+	id S265367AbUBPE11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 23:27:27 -0500
+Subject: Re: Implementing SQL on files
+From: Anuradha Ratnaweera <anuradha@linux.lk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <402F061F.5040301@namesys.com>
+References: <1076773002.20087.42.camel@aratnaweera.enetsl.virtusa.com>
+	 <402F061F.5040301@namesys.com>
+Content-Type: text/plain
+Organization: Lanka Linux User Group
+Message-Id: <1076905629.10307.27.camel@aratnaweera.enetsl.virtusa.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 16 Feb 2004 10:27:09 +0600
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402160524.04046.bzolnier@elka.pw.edu.pl>
+X-OriginalArrivalTime: 16 Feb 2004 04:26:38.0450 (UTC) FILETIME=[11C43D20:01C3F445]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 of February 2004 05:08, Chip Salzenberg wrote:
-> According to Jeff Garzik:
-> > Other equally smart people argue that modern IDE disks reserve space for
-> > remapping bad sectors.  If you run out of sectors that the drive is
-> > willing to silently remap for you, you should toss the disk and buy a
-> > new one.
+On Sun, 2004-02-15 at 11:39, Hans Reiser wrote:
 >
-> OK, I get the theory.  But AFAICT this drive hasn't remapped *any*
-> sectors.  Yet.  (Which would not be impossible; it's a relatively
-> new drive, a few months old at most.)  Quoting smartctl:
->
-> ID# ATTRIBUTE_NAME          FLAG     VALUE WORST THRESH TYPE      UPDATED 
-> WHEN_FAILED RAW_VALUE 5 Reallocated_Sector_Ct   0x0033   100   100   050   
-> Pre-fail  Always       -       0 196 Reallocated_Event_Count 0x0032   100  
-> 100   000    Old_age   Always       -       0 197 Current_Pending_Sector 
-> 0x0032   100   100   000    Old_age   Always       -       3 198
-> Offline_Uncorrectable   0x0030   100   100   000    Old_age   Offline     
-> -       0
->
-> This seems to suggest that there are three *candidate* sectors with
-> reallocation pending, none of which have actually been remapped (yet).
+> I hate SQL but I will cooperate with persons seeking to use our storage 
+> layer to support it.
 
-Because you hit them during READ access, you may try to WRITE them.
-[ Hmm.  It reminds me quite recent thread about remapping of bad sectors. ]
+Thanks Hans.  I am not an SQL fan either.  But more than SQL this
+is about database like storage simantics in the filesystem. I had
+this idea in my mind for some time, but the real motivation came
+after seeing the Reiserfs 4 page, notably this section:
 
-> If so, drive replacement would perhaps be premature.
->
-> I suppose it's time to read up on the details of the SMART spec.
+http://www.namesys.com/v4/v4.html#design_flaws_details
+
+and hopefully the plugin design will make life much easier.
+
+By looking at the feedback I got off the list, I think there is a
+couple of points I need to clarify.
+
+o The plan is _not_ to implement a fully flegded database inside
+  the kernel.  Only the storage (well, "only" may not be the most
+  appropriate word here, because this involves a _lot_ of work)
+  and the relation operation primitives - or database operation
+  primitives to be more general - are implemented in the kernel
+  space.
+
+o Userspace tools are necessary to parse a query, optimize if
+  necessary, and pass the result (which is a tree) to the kernel.
+  And the nodes of the parsed tree will map to the primitives
+  implemented in the kernel.
+
+  And most likely, I would be using an exiting database to do the
+  heavy userspace work (suggested by Peter Zaitsev of MySQL).
+
+Thanks for all the suggessions and comments (mostly offline).
+
+	Anuradha
+
+-- 
+
+http://www.linux.lk/~anuradha/
+
 

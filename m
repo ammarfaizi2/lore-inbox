@@ -1,74 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266574AbRGYUKr>; Wed, 25 Jul 2001 16:10:47 -0400
+	id <S268078AbRGYU2O>; Wed, 25 Jul 2001 16:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267501AbRGYUKh>; Wed, 25 Jul 2001 16:10:37 -0400
-Received: from [64.76.58.171] ([64.76.58.171]:32936 "HELO sigma.cioh.org.co")
-	by vger.kernel.org with SMTP id <S266574AbRGYUKd>;
-	Wed, 25 Jul 2001 16:10:33 -0400
-Date: Wed, 25 Jul 2001 15:10:09 -0500 (COT)
-From: "TO. Wilderman Ceren" <wceren@cioh.org.co>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: problems with dmfe.o in 2.4.7 (fwd) 
-In-Reply-To: <200107251818.f6PIIwHd014527@pincoya.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.33L2.0107251504040.9437-100000@sigma.cioh.org.co>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268047AbRGYU2A>; Wed, 25 Jul 2001 16:28:00 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:14436 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268063AbRGYU1n>; Wed, 25 Jul 2001 16:27:43 -0400
+Date: Wed, 25 Jul 2001 22:28:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Herbert Valerio Riedel <hvr@hvrlab.org>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: RFC: block/loop.c & crypto
+Message-ID: <20010725222813.B32148@athlon.random>
+In-Reply-To: <20010723170038.G822@athlon.random> <Pine.LNX.4.33.0107241125000.1351-100000@janus.txd.hvrlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107241125000.1351-100000@janus.txd.hvrlab.org>; from hvr@hvrlab.org on Tue, Jul 24, 2001 at 11:56:02AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Ok., I'm trying the eth1 (Davicom 9102) with tulip module shared with eth0
-(Digital).
-
-Errors now printed in the console:
-
-eth1: transmit timed out
-eth1: 21140 transmit timed out, status fc740000,
-eth1: transmit timed out, switching to 100baseTx
-eth1: transmit timed out
-eth1: 21140 transmit timed out, status fc740000
-eth1: transmit timed out, switching to MII media.
-eth1: Out-of-sync dirty pointer, 4611 vs. 4628.
-eth1: Setting full-duplex based on MII#1
-eth1: transmit timed out
-eth1: transmit timed out
-
-On Wed, 25 Jul 2001, Horst von Brand wrote:
-
-> "Richard B. Johnson" <root@chaos.analogic.com> said:
-> > On Wed, 25 Jul 2001, TO. Wilderman Ceren wrote:
-> > > I have a problem., i compile this morning the kernel 2.4.7, when i
-> > > reboot and load the new compiled bzImage, the module is not loaded by
-> > > insmod., errors found:
-> > >
-> > > /lib/modules/2.4.7/kernel/drivers/net/dmfe.o: init_module: No such
-> > > device
-> > > Hint: insmod errors can be caused by incorrect module parameters,
-> > > including invalid IO or IRQ parameters
-> > > /lib/modules/2.4.7/kernel/drivers/net/dmfe.o: insmod
-> > > /lib/modules/2.4.7/kernel/drivers/net/dmfe.o failed
-> > > /lib/modules/2.4.7/kernel/drivers/net/dmfe.o: insmod dmfe failed
-> > >
-> > [SNIPPED...]
-> > In /etc/modules.conf, look at eth0 alias and/or eth1 alias. It
-> > should be the name of the driver you intend to use. You don't
-> > have to reboot for tests, just put the right stuff in and
-> > do your `ifconfig` stuff by hand.
+On Tue, Jul 24, 2001 at 11:56:02AM +0200, Herbert Valerio Riedel wrote:
+> 
+> ...moving it back to the kernel list...
+> 
+> On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
+> > You don't read 1k. You only read 512bytes and you encrypt them using
+> > the IV of such 512byte block.
 > >
-> > Also, sometime, with your new kernel running, do `depmod -a` this
-> > will update the dependencies.
->
-> Here on RH 7.1 we are using the tulip module for dmfe. Works fine AFAIKT.
->
+> > Then the next 512byte block will use again the same IV again. What's the
+> > problem?
+> ok, so I didn't understand you well in the first place :-)
+> 
+> you actually want only to change the IV calculation to be based on a
+> hardcoded 1024 IV-blocksize, but don't change anything else in the loop.c
+> module, right? (if not, ignore the following text... :-)
 
--- 
+yes
 
--*-*-*-*-*-*-*-*-*-*-
-Wilderman Ceren
-Tecnologo en Sistemas
-Este Mensaje fue enviado desde Pine
-ICQ: 4493959 - 37207794
-MSN Messenger: wildercol
+> 
+> if so, I really don't like it;
+> 
+> 1.) I really don't like to encode 2 512-blocks with the same IV, (I
+> actually thought I could just switch to 1024-blocks and thus have it
+> sensible again, but since you only change the IV calculation without
+> changing the data-transfer granularity it won't work)
 
+the only data transfer that you can be using right now is the one with
+softblocksize 1k (or you would not been able to mount the fs), so I
+don't change the IV granularity for those in use cryptoloops and that's
+why 1k is automatically backwards compatible and it will(/should ;) work.
+
+> 2.) It will break filesystems using set_blocksize(lo_dev, 512)... why?
+
+If a filesystem uses set_blocksize(512) you couldn't create it, this is
+why I'm saying 1k softblocksize should take care of the existing
+cryptoloops.
+
+> say, we had a transfer request from the buffer cache requesting starting
+> at byte 0 (initial IV=0) of the block device for length of 2048 bytes,
+
+the length will always be 512bytes because you said the softblocksize is
+512.
+
+> this would lead to
+> 
+>   transfer_filter (buf, bufsize=2048, IV=0);
+
+bufsize will be 512.
+
+> 
+>    since the transfer_filter contains the logic to split the buffer into
+>    chunks with the blocksize (e.g. 512 byte blocks) required*) for
+
+but anyways  even if bufsize could be 2048 I think the logic for the IV
+progression should be in the highlevel if something, not in the low
+layer because:
+
+>    encryption the loop may look like:
+> 
+>     int IV2 = IV << 1;
+>     while (bufsize > 0) {
+>       encdecfunc (buf, 512, IV2 >> 1);
+>       IV2++;
+>       buf += 512;
+>     }
+
+the real cost is encdecfunc not the while(bufsize >0) loop, so you can
+also take a cleaner transfer API and have the knowledge of the
+granularity of the IV only in one place without duplicating the
+knowledge and the code of the logic in all the crypto plugins.
+
+Andrea

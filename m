@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVCIINh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVCIIge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbVCIINh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 03:13:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVCIIMf
+	id S261643AbVCIIge (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 03:36:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVCIIge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 03:12:35 -0500
-Received: from ADijon-151-1-45-197.w83-194.abo.wanadoo.fr ([83.194.255.197]:22280
-	"HELO ADijon-151-1-45-197.w83-194.abo.wanadoo.fr") by vger.kernel.org
-	with SMTP id S262113AbVCIIMZ (ORCPT
+	Wed, 9 Mar 2005 03:36:34 -0500
+Received: from granny.lievin.net ([81.56.184.74]:1996 "EHLO granny.lievin.net")
+	by vger.kernel.org with ESMTP id S261643AbVCIIgb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 03:12:25 -0500
-Date: Wed, 09 Mar 2005 00:11:55 -0800
-Message-Id: <Q17NZL03.Z47NGKNA5-MWUB9530UYDW7.NSLR403KUPAJ9-ARU74RLJW3.RCJZ705WML86@heavyweight.org>
-From: "Qgl.Ford@charter.net" <Pgg.Schmidt@yahoo.com>
-To: kernel@vger.kernel.org
-X-Originating-Email: [Pgg.Schmidt@yahoo.com]
-X-Originating-IP: [83.194.255.197]
-Subject: Pre-approved Application #802109GF Wed, 09 Mar 2005 00:11:55 -0800
-MIME-Version: 1.0
-Content-Type: text; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Message-flag: Authentic Sender, Les: HWcnwJiIk
+	Wed, 9 Mar 2005 03:36:31 -0500
+Date: Wed, 9 Mar 2005 09:36:12 +0100
+From: Romain Lievin <lkml@lievin.net>
+To: linux-kernel@vger.kernel.org
+Cc: zippel@linux-m68k.org
+Subject: [PATCH] Fix warning in gkc (make gconfig) {Scanned}
+Message-ID: <20050309083612.GA15812@lievin.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.6+20040907i
+X-FamilleLievin-MailScanner-Information: Please contact postmaster@lievin.net for more information
+X-FamilleLievin-MailScanner: Found to be clean
+X-MailScanner-From: lkml@lievin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-We sent you an email a while ago, because you now qualify
-for a much lower rate based on the biggest rate drop in years.
+this patch against 2.6.11-rc3 fixes some warnings about GtkToolButton in gkc
+(the GTK Kernel Configurator).
 
-You can now get $325,000 for as little as $615 a month!
-Bad credit? Doesn't matter, low rates are fixed no matter what!
+Please apply.
 
-Follow this link to process your application and a 24 hour approval:
+Thanks, Romain.
 
-http://www.qklenders.com/x/loan.php?id=m55
+Signed-off-by: Romain Liévin <lkml@lievin.net>
+================[cut here]====================
+diff -Naur linux-2.6.11-rc3/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
+--- linux-2.6.11-rc3/scripts/kconfig/gconf.c	2005-02-11 20:41:34.000000000 +0100
++++ linux/scripts/kconfig/gconf.c	2005-02-11 20:43:23.000000000 +0100
+@@ -222,15 +222,15 @@
+ 	switch (view_mode) {
+ 	case SINGLE_VIEW:
+ 		widget = glade_xml_get_widget(xml, "button4");
+-		gtk_button_clicked(GTK_BUTTON(widget));
++		g_signal_emit_by_name(widget, "clicked");
+ 		break;
+ 	case SPLIT_VIEW:
+ 		widget = glade_xml_get_widget(xml, "button5");
+-		gtk_button_clicked(GTK_BUTTON(widget));
++		g_signal_emit_by_name(widget, "clicked");
+ 		break;
+ 	case FULL_VIEW:
+ 		widget = glade_xml_get_widget(xml, "button6");
+-		gtk_button_clicked(GTK_BUTTON(widget));
++		g_signal_emit_by_name(widget, "clicked");
+ 		break;
+ 	}
+ 
+================[cut here]====================
+-- 
+Romain Liévin :		<roms@lievin.net>
+Web site :		http://www.lievin.net
+"Linux, y'a moins bien mais c'est plus cher !"
 
 
-Best Regards,
-Les Webster
 
-http://www.qklenders.com/x/st.html
+
+
+

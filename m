@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVA1DDL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVA1DEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261422AbVA1DDL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 22:03:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVA1DCk
+	id S261415AbVA1DEk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 22:04:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVA1DEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 22:02:40 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:35036 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261419AbVA1DCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 22:02:35 -0500
+	Thu, 27 Jan 2005 22:04:40 -0500
+Received: from ernie.virtualdave.com ([198.216.116.246]:21257 "EHLO
+	ernie.virtualdave.com") by vger.kernel.org with ESMTP
+	id S261415AbVA1DEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 22:04:24 -0500
+Date: Thu, 27 Jan 2005 21:04:22 -0600 (CST)
+From: David Sims <dpsims@virtualdave.com>
 To: linux-kernel@vger.kernel.org
-Subject: Correct way to release get_user_pages()?
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <roland@topspin.com>
-Date: Thu, 27 Jan 2005 19:02:28 -0800
-Message-ID: <52pszqw917.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+Subject: Re: I need a hardware wizard... I have been beating my head on the
+ wall..
+In-Reply-To: <41F99AF0.4090902@pobox.com>
+Message-ID: <Pine.LNX.4.21.0501272102280.27754-100000@ernie.virtualdave.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 28 Jan 2005 03:02:31.0869 (UTC) FILETIME=[CF1C56D0:01C504E5]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reading through the tree, I see that some callers of get_user_pages()
-release the pages that they got via put_page(), and some callers use
-page_cache_release().  Of course <linux/pagemap.h> has
 
-	#define page_cache_release(page)      put_page(page)
 
-so this is really not much of a difference, but I'd like to know which
-is considered better style.  Any opinions?
+On Thu, 27 Jan 2005, Jeff Garzik wrote:
 
-Thanks,
-  Roland
+> David Sims wrote:
+> > Hi,
+> > 
+> >   I have posted a couple of times in the past to no avail... I have an
+> > Intel 31244 SATA controller that is supposed to work with the sata_vsc
+> > driver module... It does in fact, almost....
+> > 
+> >   You can insert the module in a running kernel and after barking as
+> > follows (once for each disk attached) it runs just fine.
+> 
+> Basically nobody has ever had hardware to test sata_vsc with that 
+> hardware.  We should probably remove the PCI ID until an engineer can 
+> fix it...
+> 
+> 	Jeff
+> 
+> 
+
+Hi again,
+
+  I am willing to make this hardware available to any engineer that wants
+to help me solve this problem.... and I will do whatever I can to make it
+an easy job... Please help me...
+
+Dave
 

@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316902AbSFDWeq>; Tue, 4 Jun 2002 18:34:46 -0400
+	id <S316903AbSFDWhH>; Tue, 4 Jun 2002 18:37:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316903AbSFDWep>; Tue, 4 Jun 2002 18:34:45 -0400
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:33803 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S316902AbSFDWeo>; Tue, 4 Jun 2002 18:34:44 -0400
-Message-Id: <5.1.0.14.2.20020605003529.00cb74f8@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 05 Jun 2002 00:36:06 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: system_lists@nullzone.org
-Subject: Re: PROBLEMS to compile ataraid.c in kernel-2.5.20
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1023233945.11583.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S316919AbSFDWhH>; Tue, 4 Jun 2002 18:37:07 -0400
+Received: from sweetums.bluetronic.net ([66.57.88.6]:63725 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S316903AbSFDWhF>; Tue, 4 Jun 2002 18:37:05 -0400
+Date: Tue, 4 Jun 2002 18:36:43 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Jorge Nerin <comandante@zaralinux.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Cannot write a 90' cd
+In-Reply-To: <3CED7A65.7010004@zaralinux.com>
+Message-ID: <Pine.GSO.4.33.0206041828420.10816-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK
+On Fri, 24 May 2002, Jorge Nerin wrote:
+>It could be that, but I suspect something strange, the cd reports itself to be
+>about 80', then cdrecord is unable to write past this 80', after cdrecord
+>fixates the cd and ejects it I can see that there is still a virgin zone of
+>about 5 milimeters at the edge of the disk.
 
-thank u Alan.
-Compiling 2.4.18 then.
+Are you sure the head can move that far out on the disk?  What you are doing
+is far beyond any CD-ROM specs.
 
-At 00:39 05/06/2002 +0100, Alan Cox wrote:
->On Tue, 2002-06-04 at 23:10, system_lists@nullzone.org wrote:
-> > i got this error messages trying to get mi ataraid hardware on.
-> > can any help me please? i have the system stoped waiting for this.
->
->Ataraid needs major work for 2.5 yet. Its built around a lot of 2.4
->assumptions that the new I/O layer has rendered incorrect
+>The most strange thing is the scsi error, "no error":
 
+That is referring to the "sendcmd" (i.e. the OS did not have a problem
+executing the request, the drive idicated a fault.)
 
+>CDB:  2A 00 00 05 7D 89 00 00 1F 00
+>status: 0x2 (CHECK CONDITION)
+>Sense Bytes: 70 00 05 00 00 00 00 0A 00 00 00 00 63 00 00 00
+>Sense Key: 0x5 Illegal Request, Segment 0
+>Sense Code: 0x63 Qual 0x00 (end of user area encountered on this track) Fru 0x0
+
+The sense data cannot be any more to the point.
+
+Check with the drive manufacturer to see if it can write off the edge of the
+disk. (It's rumored some plextor drives are able to continue writing off the
+end of the disk into the air :-)  Somehow I doubt the last bit, but all of
+mine have continued writing as long as they have a surface on which to
+focus the laser.)
+
+--Ricky
 
 

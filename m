@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265003AbVBFBu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264406AbVBFBzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265003AbVBFBu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 20:50:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272583AbVBFBu0
+	id S264406AbVBFBzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 20:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272664AbVBFBzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 20:50:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:29431 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S265003AbVBFBuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 20:50:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=FOHFBpeo5IPmteR/KV00GY6dEwuwaMknuemLAO9VKw/RCXIF7NbY27mcRrMpwmOBGOvzM9xtfraQkxLVgCmMHvJtbY0ksICsiS/lKl6aabloYd+Ghc9aKMSJiNJ8aeIT3+mmMymuuJiC0EZZFpoW1KcPOwS8POnaM/U8rYzg8Z8=
-Message-ID: <58cb370e05020517447748e049@mail.gmail.com>
-Date: Sun, 6 Feb 2005 02:44:34 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 06/14] ide_pci: Merges hpt366.h into hpt366.c
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050204071318.59F79132654@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 5 Feb 2005 20:55:15 -0500
+Received: from mailfe05.swip.net ([212.247.154.129]:18836 "EHLO
+	mailfe05.swip.net") by vger.kernel.org with ESMTP id S264406AbVBFBzC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 20:55:02 -0500
+X-T2-Posting-ID: FDAqvamOV2hj5Gaz4nRjppgpDE1aOIgIUYcPSQRIhVw=
+From: jjluza <jjluza@yahoo.fr>
+Reply-To: jjluza@yahoo.fr
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc3-mm1 - broken bttv ?
+Date: Sun, 6 Feb 2005 02:55:01 +0100
+User-Agent: KMail/1.7.2
+References: <200502051922.25001.jjluza@yahoo.fr> <42056065.2000504@eyal.emu.id.au>
+In-Reply-To: <42056065.2000504@eyal.emu.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <42032014.1020606@home-tj.org>
-	 <20050204071318.59F79132654@htj.dyndns.org>
+Content-Disposition: inline
+Message-Id: <200502060255.01758.jjluza@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri,  4 Feb 2005 16:13:18 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
-> 
-> 06_ide_pci_hpt366_merge.patch
-> 
->         Merges ide/pci/hpt366.h into hpt366.c.
-> 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+Eyal Lebedinsky wrote
+>
+> I am having bttv problems with vanilla -rc3. Does it work for you?
 
-applied
+I don't know, as I said I didn't test kernel between 2.6.10 and 
+2.6.11-rc3-mm1.
+Sorry.
+If I have time enough later, I can test 2.6.11-rc3.
+Since I don't really know if it's the good place to talk about that, I decided 
+to report this bug on bugzilla too. Maybe you can post your problem here :
+http://bugzilla.kernel.org/show_bug.cgi?id=4171
+
+Thanks.

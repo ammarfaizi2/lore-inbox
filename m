@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSLTQA6>; Fri, 20 Dec 2002 11:00:58 -0500
+	id <S262446AbSLTP7D>; Fri, 20 Dec 2002 10:59:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262620AbSLTQA6>; Fri, 20 Dec 2002 11:00:58 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:35726 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262506AbSLTQA5>; Fri, 20 Dec 2002 11:00:57 -0500
-Date: Fri, 20 Dec 2002 08:08:53 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: John Bradford <john@grabjohn.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dedicated kernel bug database
-Message-ID: <120550000.1040400532@titus>
-In-Reply-To: <200212200948.gBK9mrXh000326@darkstar.example.net>
-References: <200212200948.gBK9mrXh000326@darkstar.example.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262469AbSLTP7D>; Fri, 20 Dec 2002 10:59:03 -0500
+Received: from crack.them.org ([65.125.64.184]:1512 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S262446AbSLTP7D>;
+	Fri, 20 Dec 2002 10:59:03 -0500
+Date: Fri, 20 Dec 2002 11:08:17 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: PTRACE_GET_THREAD_AREA
+Message-ID: <20021220160817.GA26717@nevyn.them.org>
+Mail-Followup-To: Jakub Jelinek <jakub@redhat.com>,
+	Roland McGrath <roland@redhat.com>, linux-kernel@vger.kernel.org,
+	Ingo Molnar <mingo@redhat.com>
+References: <200212200832.gBK8Wfg29816@magilla.sf.frob.com> <20021220154829.GB17007@nevyn.them.org> <20021220105513.J27455@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20021220105513.J27455@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not sure what you mean.  I do intend to start coding a new bug
-> database system today, and I'll announce it on the list when it's
-> ready.  If nobody likes it, I wasted my time.
+On Fri, Dec 20, 2002 at 10:55:16AM -0500, Jakub Jelinek wrote:
+> On Fri, Dec 20, 2002 at 10:48:29AM -0500, Daniel Jacobowitz wrote:
+> > Eventually most or all targets will have thread-specific data
+> > implemented; I don't want to have to redo this for each one.
+> 
+> Well, but on most arches you don't need any kernel support for TLS.
+> On sparc32/sparc64/IA-64/s390/s390x and others you simply have one
+> general register reserved for it by the ABI, on Alpha you use a PAL
+> call.
+> set_thread_area/get_thread_area is IA-32/x86-64 specific.
 
-That's basically what I meant ... try coding it and see. My wierd
-Anglicisms in forms of speech ...
+Oh, right, I guess we won't need anything if it's just in a register :)
+Architecture-specific it is, then.  For Alpha (and probably MIPS) we
+can add a ptrace equivalent of the trap to fetch the pointer.  Patch
+looks fine to me.
 
->> Have you actually looked at the maintainers file?
->
-> Yes.
->
->> It's a twisted mess of outdated information,
->
-> Then it should be updated, that is nothing to do with Bugzilla.
-
-Right. But I wasn't interested in doing that. And code maintainers
-won't necessarily want to be bug database maintainers (though I did
-get a suprising number of people to sign up).
-
->> The category list in Bugzilla was an attempt to bring some sanity to
->> the structure,
->
-> By adding an extra layer of abstraction.  I don't agree that that
-> helps.
-
-Well, I guess we differ on that then.
-
->> though I won't claim it's perfect. We really need a 3-level tree,
->> but that's a fair amount of work to code.
->
-> I disagree, (that we need a 3-level tree).
-
-We don't *need* one, it'd be nice though.
-
-M.
-
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

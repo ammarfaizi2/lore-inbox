@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316997AbSHKSQu>; Sun, 11 Aug 2002 14:16:50 -0400
+	id <S317544AbSHKSVV>; Sun, 11 Aug 2002 14:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317544AbSHKSQu>; Sun, 11 Aug 2002 14:16:50 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:60946 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316997AbSHKSQt>;
-	Sun, 11 Aug 2002 14:16:49 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200208111820.g7BIKPd172856@saturn.cs.uml.edu>
-Subject: Re: klibc development release
-To: oxymoron@waste.org (Oliver Xymoron)
-Date: Sun, 11 Aug 2002 14:20:25 -0400 (EDT)
-Cc: landley@trommello.org (Rob Landley), hpa@zytor.com (H. Peter Anvin),
-       linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.44.0208111032001.25011-100000@waste.org> from "Oliver Xymoron" at Aug 11, 2002 10:56:06 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S317638AbSHKSVV>; Sun, 11 Aug 2002 14:21:21 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:10484 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317544AbSHKSVV>; Sun, 11 Aug 2002 14:21:21 -0400
+Subject: Re: Linux 2.4.20-pre1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andersen@codepoet.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020811085717.GA17738@codepoet.org>
+References: <Pine.LNX.4.44.0208051938380.6811-100000@freak.distro.conectiva> 
+	<20020811085717.GA17738@codepoet.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 11 Aug 2002 20:46:19 +0100
+Message-Id: <1029095179.16236.16.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron writes:
-> On Sun, 11 Aug 2002, Rob Landley wrote:
+On Sun, 2002-08-11 at 09:57, Erik Andersen wrote:
+> On Mon Aug 05, 2002 at 07:40:56PM -0300, Marcelo Tosatti wrote:
+> > 
+> > So here goes -pre1, with a big -ac and x86-64 merges, plus other smaller
+> > stuff.
+> [------------snip------------]
+> > <alan@irongate.swansea.linux.org.uk> (02/08/05 1.629)
+> > 	[PATCH] PATCH: Add EFI partition support
+> 
+> Needs this to compile....
+> 
+> --- linux/include/asm-ia64/efi.h.orig	Sun Aug 11 01:41:10 2002
+> +++ linux/include/asm-ia64/efi.h	Sun Aug 11 01:43:38 2002
+> @@ -166,6 +166,9 @@
+>   *  EFI Configuration Table and GUID definitions
+>   */
+>  
+> +#define NULL_GUID    \
+> +    ((efi_guid_t) { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x0, 0x00, 0x00, 0x00, 0x00, 0x00 }})
+> +
 
->> How about partition detection?  When initramfs goes in that's one of the
->> things they're threatening to move to userspace.  Also lots of the hardware
->> detection and setup (ACPI, hotplug style PCI probing...)
-...
-> It ought not be any more tightly bound than regular libc. Isn't that the
-> point? If it still depends on non-generic services in the kernel, then we
-> haven't succeeded in pulling it all the way into userspace.
-
-Klibc is a neat hack, but makes little sense. In the end we wind up
-with _more_ code to maintain, not less. The boot process becomes
-more complicated too. A microkernel by any other name still smells. :-)
-Not all of us have 2 GHz boxes BTW.
-
-Moving partition code out of the kernel is just begging for bugs
-and limited functionality. The EVMS people have the right idea.
-Does anyone else remember the user-space isapnp disaster? I do.
-Users everywhere were screaming "my sound card won't work".
+Not a good plan. EFI can be used on non ia64 so NULL_GUID belongs
+somewhere else
 

@@ -1,116 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290236AbSA3R2G>; Wed, 30 Jan 2002 12:28:06 -0500
+	id <S290216AbSA3R2H>; Wed, 30 Jan 2002 12:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290235AbSA3R0q>; Wed, 30 Jan 2002 12:26:46 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:8958 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289990AbSA3RZT>;
-	Wed, 30 Jan 2002 12:25:19 -0500
-Date: Wed, 30 Jan 2002 10:24:59 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        lm@bitmover.com
-Subject: Re: real BK usage (was: A modest proposal -- We need a patch penguin)
-Message-ID: <20020130102458.B763@lynx.adilger.int>
-Mail-Followup-To: Jeff Garzik <garzik@havoc.gtf.org>,
+	id <S290063AbSA3R0y>; Wed, 30 Jan 2002 12:26:54 -0500
+Received: from bitmover.com ([192.132.92.2]:28326 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290069AbSA3RZa>;
+	Wed, 30 Jan 2002 12:25:30 -0500
+Date: Wed, 30 Jan 2002 09:25:29 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020130092529.O23269@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Ingo Molnar <mingo@elte.hu>, Larry McVoy <lm@bitmover.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Tom Rini <trini@kernel.crashing.org>,
 	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, lm@bitmover.com
-In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com> <1012354692.1777.4.camel@stomata.megapathdsl.net> <20020130080504.JUTO18525.femail19.sdc1.sfba.home.com@there> <20020130034746.K32317@havoc.gtf.org> <a38ekv$1is$1@penguin.transmeta.com> <20020130050708.D11267@havoc.gtf.org>
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Alexander Viro <viro@math.psu.edu>,
+	Rob Landley <landley@trommello.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020130084331.K23269@work.bitmover.com> <Pine.LNX.4.33.0201301943050.11581-100000@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020130050708.D11267@havoc.gtf.org>; from garzik@havoc.gtf.org on Wed, Jan 30, 2002 at 05:07:08AM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <Pine.LNX.4.33.0201301943050.11581-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Jan 30, 2002 at 07:48:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 09:33:19AM +0000, Linus Torvalds wrote:
-> I still dislike some things (those SHOUTING SCCS files) in bk, and let's
-> be honest: I've used CVS, but I've never really used BK. Larry has given
-> me the demos, and I actually decided to re-do the examples, but it takes
-> time and effort to get used to new tools, and I'm a bit worried that
-> I'll find other things to hate than just those loud filenames.
+On Wed, Jan 30, 2002 at 07:48:35PM +0100, Ingo Molnar wrote:
+> eg. i sent 8 different scheduler update patches 5 days ago:
+> 
+>  [patch] [sched] fork-fix 2.5.3-pre5
+>  [patch] [sched] yield-fixes 2.5.3-pre5
+>  [patch] [sched] SCHED_RR fix, 2.5.3-pre5
+>  [patch] [sched] set_cpus_allowed() fix, 2.5.3-pre5
+>  [patch] [sched] entry.S offset fix, 2.5.3-pre5.
+>  [patch] [sched] cpu_logical_map fixes, balancing, 2.5.3-pre5
+>  [patch] [sched] compiler warning fix, 2.5.3-pre3
+>  [patch] [sched] unlock_task_rq() cleanup, 2.5.3-pre3
+> 
+> these patches, while many of them are touching the same file (sched.c) are
+> functionally orthogonal, and can be applied in any order. Linus has
+> applied all of them, but he might have omitted any questionable one and
+> still apply the rest.
+> 
+> how would such changes be expressed via BK, and would it be possible for
+> Linus to reject/accept an arbitrary set of these patches?
 
-Well, the one benefit of using SCCS directories (which are only 1/3
-louder than CVS directories) is that tools like patch, make, ctags, emacs
-(I believe), etc. already understand what they are and how to extract
-the latest version of a file from there.  If these tools were changed
-to also recognize .SCCS dirs, then BK could eventually follow suit, but
-it would be impractical until they are widely available.*
+There is a way to do this in BK that would work just fine.  It pushes some
+work back onto the developer, but if you are willing to do it, we have no
+problem doing what you want with BK in its current form and I suspect that
+the work is very similar to what you are already doing.
 
-On Jan 30, 2002  05:07 -0500, Jeff Garzik wrote:
-> One issue I'm interested in, and Larry and I have chatted about this a
-> couple times, is making sure that the "standard" patch flow isn't
-> affected... and what I mean by that is out-of-order and/or modified
-> patches.
+In your list above, all of the patches are against 2.5.3-pre5.  If you did
+the work for each patch against the 2.5.3-pre5 baseline, checking it in,
+saving the BK patch, removing that changeset from the tree, and then going
+onto the next change, what you'd have is exactly the same set of patches
+as you have no.  Literally.  You could type the appropriate command to BK
+and you should be able to generate a bit for bit identical patch.
 
-I would have to agree.  Ted uses BK for e2fsprogs, and there have been
-several times when I try to send him a CSET, but he is unable to apply
-it because it is missing dependencies, even though I know those prior
-CSETs are actually independent changes that just happen to touch the
-same files.
+In BK's mind, what you have done is to make a very "bushy" set of changes,
+they are all "side by side".  If you think of a graph of changes, you started
+with
 
-It is double-plus bad when those changes are not just ones I've forgotten,
-but ones that I know Ted does not want to have in his tree, or are not
-in a state where I want to send them to him yet.  This makes me keep
-several local repositories - pristine, changes for Ted, changes for me,
-etc.  Not fatal, but not as easy as keeping a single tree and pulling
-out diffs as needed.
+			[older changes]
+			      v
+			  [2.5.3-pre4]
+			      v
+			  [2.5.3-pre5]
 
-Also, (BK feature request time) there are times when I've done a 'bk citool'
-and committed a bunch of changes into a CSET, and later on done some more
-testing which revealed a bug or found that I'd forgotten to change the
-man page to track the changes I made.  I'd much rather be able to merge
-some more changes into the same CSET instead of creating a second CSET and
-now have two CSETs to ship around for what is logically a single change.**
+and then you added one change below that, multiple times.  If you were to
+combine all of those changes in a BK tree, it would look like
 
-I think it would quickly become a nightmare if you had to submit (and
-have accepted!) all of your changes to Linus IN ORDER.  As it stands now,
-there are lots of discrete changes I have in my ext2 tree, and whenever
-I get around to it or when people hit the same bug as me I generate a
-patch, edit out the irrelevant parts, and send it out.***
+			[older changes]
+			      v
+			  [2.5.3-pre4]
+			      v
+			  [2.5.3-pre5]
+  [sched1] [sched2] [sched3] [sched4] [sched5] [sched6] [sched7]
 
-Granted, it is hard to keep distributed BK repositories consistent if you
-apply patches out of order, but at the same time, this is how development
-works in real life.  Two solutions I can see to this:
+and BK would be happy to allow you to send any subset of the sched changes
+to Linus and it would work *exactly* how you want it to work.  If we could
+get people to work like this, there are no problems.  Just to make it really
+clear you would do this
 
-1) Allow out-of-order CSET application (maybe with some sort of warning
-   that Linus can turn off, because _every_ CSET he would get would be
-   missing dependencies from somebody's tree).
-2) Allow "proxy" CSETs to be included which say "the changes from adilger
-   adilger@lynx.adilger.int|ChangeSet|20011226061040|56205 changed lines
-   X-Y, Z of file fs/ext2/super.c" but doesn't actually contain those
-   changes, so that the CSET dependency graph is still kept intact.  The
-   proxies would clearly be marked as such in the repository.  You would
-   (at proxy CSET creation time) validate that these proxies in fact DO NOT
-   change any of the same lines that the later CSET changes (saves you from
-   sending a patch that won't merge).  Later on, you can really send those
-   CSETs to replace the proxies, or if there are conflicting changes in
-   the upstream tree it is up to you to resolve them.
+	for p in patch_list
+	do	bk vi sched.c	# that will lock it if isn't
+		hack, debug, test
+		bk citool	# check it in and make a changeset
+		bk makepatch -r+ > ~/bk-patches/patch.$p
+		bk undo -fr+	# get back to the same baseline
+	done
 
-> Obviously this wouldn't apply if you fed BK patches into GNU patch, and
-> then issued the commit from there...  but that way is a bit lossy, since
-> you would need to recreate rename information among other things.
+Here's what people actually do.  They make the first change, then make
+the second change in the same tree that already has the first change,
+and so on.  BitKeeper faithfully records the linear sequence of changes
+and enforces that the changes propogate as that linear sequence.  You can
+skip some at the end but you can't skip any in the middle.
 
-It would also lose the BK CSET identification, which would tell the
-original submitter (and his local repository) that the patch was applied,
-and when Linus sent out new patches/CSETs, the original submitter would
-have to manually resolve these conflicts each time.  Maybe if BK had a
-feature like patch, which says 'It appears that the changes in this CSET
-have already been applied in <foo>, let's use <foo> instead'.
+In your particular case, we really need out of order changesets to allow
+the second type of work flow and cherry picking.  However, a fairly common
+case is that the changes are all in unrelated files and *even then* 
+BitKeeper enforces the linearity.  That's the problem I think we need to
+fix first, it's not a complete solution, but it is the 80-90% solution.
+Until we give you a 100% solution, you have to realize that you are making
+side by side changes and actually do it that way.
 
-Cheers, Andreas
-
-(*)  Larry, time to submit patches now so we can use BK for 2.7 ;-)
-(**) Maybe I just don't know enough about how to use BK.  There are also
-     a lot of distributed database issues involved of which I'm unaware.
-(***)Maybe this is just another manifestation of fixes getting lost
-     because they need a lot of attention to get into the kernel.
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+If any of this is not clear to anyone, please speak up and I'll try and 
+draw some pictures and add some explanation.  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,23 +1,24 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314549AbSEBPNI>; Thu, 2 May 2002 11:13:08 -0400
+	id <S314550AbSEBPP3>; Thu, 2 May 2002 11:15:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314550AbSEBPNH>; Thu, 2 May 2002 11:13:07 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:15721 "EHLO
+	id <S314551AbSEBPP2>; Thu, 2 May 2002 11:15:28 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16489 "EHLO
 	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314549AbSEBPM6>; Thu, 2 May 2002 11:12:58 -0400
+	id <S314550AbSEBPPQ>; Thu, 2 May 2002 11:15:16 -0400
 To: Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.12] x86 Boot enhancements, footprint reduction 7/11
+Subject: [PATCH 2.5.12] x86 Boot enhancements, build beancounting 8/11
 In-Reply-To: <m11ycuzk4q.fsf@frodo.biederman.org>
 	<m1wuumy5eo.fsf@frodo.biederman.org>
 	<m1sn5ay5ac.fsf_-_@frodo.biederman.org>
 	<m1offyy55x.fsf_-_@frodo.biederman.org>
 	<m1it66y4xz.fsf_-_@frodo.biederman.org>
 	<m1elguy4pj.fsf_-_@frodo.biederman.org>
+	<m1adriy4im.fsf_-_@frodo.biederman.org>
 From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 02 May 2002 09:05:05 -0600
-Message-ID: <m1adriy4im.fsf_-_@frodo.biederman.org>
+Date: 02 May 2002 09:07:22 -0600
+Message-ID: <m16626y4et.fsf_-_@frodo.biederman.org>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,712 +27,966 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Please apply,
 
-This reduces the boot footprint of the Linux kernel by making the kernel decompressor
-an inplace algorithm, making bzImages more efficient with memory than zImages.
-
-It fixes the bug of asking bootloaders to make a tradeoff between reliability and
-memory efficiency.
+This patch reorganizes the build of the x86 boot image so
+that we preserve enough information to accurately track how
+much memory will be used.
 
 Eric
 
-
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/Makefile linux-2.5.12.boot.footprint/arch/i386/boot/compressed/Makefile
---- linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/Makefile	Sun Mar 10 20:07:02 2002
-+++ linux-2.5.12.boot.footprint/arch/i386/boot/compressed/Makefile	Wed May  1 09:40:06 2002
-@@ -9,8 +9,6 @@
+diff -uNr linux-2.5.12.boot.footprint/Makefile linux-2.5.12.boot.build/Makefile
+--- linux-2.5.12.boot.footprint/Makefile	Tue Apr 30 22:55:20 2002
++++ linux-2.5.12.boot.build/Makefile	Wed May  1 09:40:42 2002
+@@ -93,15 +93,6 @@
+ AFLAGS := -D__ASSEMBLY__ $(CPPFLAGS)
  
- OBJECTS = $(HEAD) misc.o
- 
--ZLDFLAGS = -e startup_32
--
  #
- # ZIMAGE_OFFSET is the load offset of the compression loader
- # BZIMAGE_OFFSET is the load offset of the high loaded compression loader
-@@ -18,8 +16,8 @@
- ZIMAGE_OFFSET = 0x1000
- BZIMAGE_OFFSET = 0x100000
+-# ROOT_DEV specifies the default root-device when making the image.
+-# This can be either FLOPPY, CURRENT, /dev/xxxx or empty, in which case
+-# the default of FLOPPY is used by 'build'.
+-# This is i386 specific.
+-#
+-
+-export ROOT_DEV = CURRENT
+-
+-#
+ # If you want to preset the SVGA mode, uncomment the next line and
+ # set SVGA_MODE to whatever number you want.
+ # Set it to -DSVGA_MODE=NORMAL_VGA if you just want the EGA/VGA mode.
+diff -uNr linux-2.5.12.boot.footprint/arch/i386/boot/Makefile linux-2.5.12.boot.build/arch/i386/boot/Makefile
+--- linux-2.5.12.boot.footprint/arch/i386/boot/Makefile	Sun Aug  5 14:13:19 2001
++++ linux-2.5.12.boot.build/arch/i386/boot/Makefile	Wed May  1 09:40:42 2002
+@@ -12,13 +12,11 @@
+ 		$(TOPDIR)/include/linux/autoconf.h \
+ 		$(TOPDIR)/include/asm/boot.h
  
--ZLINKFLAGS = -Ttext $(ZIMAGE_OFFSET) $(ZLDFLAGS)
--BZLINKFLAGS = -Ttext $(BZIMAGE_OFFSET) $(ZLDFLAGS)
-+ZLINKFLAGS = -Ttext $(ZIMAGE_OFFSET) -T vmlinuz.lds
-+BZLINKFLAGS = -Ttext $(BZIMAGE_OFFSET) -T vmlinuz.lds 
- 
- all: vmlinux
- 
-@@ -42,7 +40,7 @@
- 	rm -f $$tmppiggy $$tmppiggy.gz $$tmppiggy.lnk; \
- 	$(OBJCOPY) $(SYSTEM) $$tmppiggy; \
- 	gzip -f -9 < $$tmppiggy > $$tmppiggy.gz; \
--	echo "SECTIONS { .data : { input_len = .; LONG(input_data_end - input_data) input_data = .; *(.data) input_data_end = .; }}" > $$tmppiggy.lnk; \
-+	echo "SECTIONS { .input : { *(.data) }}" > $$tmppiggy.lnk; \
- 	$(LD) -r -o piggy.o -b binary $$tmppiggy.gz -b elf32-i386 -T $$tmppiggy.lnk; \
- 	rm -f $$tmppiggy $$tmppiggy.gz $$tmppiggy.lnk
- 
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/head.S linux-2.5.12.boot.footprint/arch/i386/boot/compressed/head.S
---- linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/head.S	Wed May  1 09:39:47 2002
-+++ linux-2.5.12.boot.footprint/arch/i386/boot/compressed/head.S	Wed May  1 09:40:06 2002
-@@ -30,6 +30,20 @@
- 	.globl startup_32
- 	
- startup_32:
-+	jmp 1f
-+	.balign		4
-+	.globl input_addr, input_len, output_overhang
-+	.globl kernel_base, kernel_memsz, kernel_filesz
-+	.globl unzip_memsz, unzip_filesz
-+input_addr:		.long input_data
-+input_len:		.long input_data_len
-+output_overhang:	.long input_data_len # Will be set to 8 later...
-+kernel_base:		.long HIGH_BASE
-+kernel_memsz:		.long 0
-+kernel_filesz:		.long 0
-+unzip_memsz:		.long _end
-+unzip_filesz:		.long _edata
-+1:	
- 	cld
- 	cli
- 
-@@ -44,6 +58,18 @@
- 	movl %edi, edi
- 	movl %esp, esp
- 	movl %ebp, ebp
+-zImage: $(CONFIGURE) bootsect setup compressed/vmlinux tools/build
+-	$(OBJCOPY) compressed/vmlinux compressed/vmlinux.out
+-	tools/build bootsect setup compressed/vmlinux.out $(ROOT_DEV) > zImage
+-
+-bzImage: $(CONFIGURE) bbootsect bsetup compressed/bvmlinux tools/build
+-	$(OBJCOPY) compressed/bvmlinux compressed/bvmlinux.out
+-	tools/build -b bbootsect bsetup compressed/bvmlinux.out $(ROOT_DEV) > bzImage
++zImage: $(CONFIGURE) tools/build $(TOPDIR)/vmlinux realmode compressed/vmlinux 
++	tools/build $(TOPDIR)/vmlinux realmode compressed/vmlinux zImage
 +
-+	/* 
-+	 * Move the input data off the bss segment
-+	 */
-+	std
-+	movl $input_data_end -1, %esi
-+	movl %esi, %edi
-+	addl $input_data_shift, %edi
-+	movl $input_data_len, %ecx
-+	rep movsb
-+	cld
-+	addl $input_data_shift, input_addr
++bzImage: $(CONFIGURE) tools/build $(TOPDIR)/vmlinux brealmode compressed/bvmlinux 
++	tools/build -b $(TOPDIR)/vmlinux brealmode compressed/bvmlinux bzImage
  
- 	/*
- 	 * Setup the stack
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/misc.c linux-2.5.12.boot.footprint/arch/i386/boot/compressed/misc.c
---- linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/misc.c	Wed May  1 09:39:47 2002
-+++ linux-2.5.12.boot.footprint/arch/i386/boot/compressed/misc.c	Wed May  1 09:40:06 2002
-@@ -9,8 +9,8 @@
-  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
-  */
+ compressed/vmlinux: $(TOPDIR)/vmlinux
+ 	@$(MAKE) -C compressed vmlinux
+@@ -39,49 +37,43 @@
+ install: $(CONFIGURE) $(BOOTIMAGE)
+ 	sh -x ./install.sh $(KERNELRELEASE) $(BOOTIMAGE) $(TOPDIR)/System.map "$(INSTALL_PATH)"
  
-+#include <linux/string.h> /* for: memset, memmove */
- #include <linux/linkage.h>
--#include <linux/vmalloc.h>
- #include <linux/tty.h>
- #include <asm/io.h>
- #include <linux/apm_bios.h>
-@@ -25,16 +25,11 @@
- #define OF(args)  args
- #define STATIC static
+-tools/build: tools/build.c
++tools/build: tools/build.c $(TOPDIR)/include/linux/version.h $(TOPDIR)/include/linux/compile.h $(TOPDIR)/include/asm-i386/boot.h
+ 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $< -I$(TOPDIR)/include
  
--#undef memset
--#undef memcpy
+-bootsect: bootsect.o
+-	$(LD) -Ttext 0x0 -s --oformat binary -o $@ $<
 -
- /*
-  * Why do we do this? Don't ask me..
-  *
-  * Incomprehensible are the ways of bootloaders.
-  */
--static void* memset(void *, int, size_t);
--static void* memcpy(void *, __const void *, size_t);
- #define memzero(s, n)     memset ((s), 0, (n))
+ bootsect.o: bootsect.s
+ 	$(AS) -o $@ $<
  
- typedef unsigned char  uch;
-@@ -51,15 +46,6 @@
- static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt = 0;  /* bytes in output buffer */
+ bootsect.s: bootsect.S Makefile $(BOOT_INCL)
+ 	$(CPP) $(CPPFLAGS) -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
  
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
+-bbootsect: bbootsect.o
+-	$(LD) -Ttext 0x0 -s --oformat binary $< -o $@
 -
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 		
- /* Diagnostic functions */
-@@ -92,8 +78,16 @@
- /* Amount of memory in kilobytes, if it isn't set assume enough */
- static unsigned long mem_k = 0xFFFFFFFF;
+ bbootsect.o: bbootsect.s
+ 	$(AS) -o $@ $<
  
--extern char input_data[];
--extern int input_len;
-+/* Variables in our header */
-+extern unsigned long input_addr;
-+extern unsigned long input_len;
-+extern unsigned long output_overhang;
-+extern unsigned long kernel_memsz;
-+extern unsigned long kernel_filesz;
+ bbootsect.s: bootsect.S Makefile $(BOOT_INCL)
+ 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
+ 
+-setup: setup.o
+-	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
+-
+ setup.o: setup.s
+ 	$(AS) -o $@ $<
+ 
+ setup.s: setup.S video.S Makefile $(BOOT_INCL) $(TOPDIR)/include/linux/version.h $(TOPDIR)/include/linux/compile.h
+ 	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
+ 
+-bsetup: bsetup.o
+-	$(LD) -Ttext 0x0 -s --oformat binary -e begtext -o $@ $<
+-
+ bsetup.o: bsetup.s
+ 	$(AS) -o $@ $<
+ 
+ bsetup.s: setup.S video.S Makefile $(BOOT_INCL) $(TOPDIR)/include/linux/version.h $(TOPDIR)/include/linux/compile.h
+ 	$(CPP) $(CPPFLAGS) -D__BIG_KERNEL__ -D__ASSEMBLY__ -traditional $(SVGA_MODE) $(RAMDISK) $< -o $@
+ 
++realmode: bootsect.o setup.o
++	$(LD) -T realmode.lds -o $@ $^
 +
-+/* External symbols */
-+extern unsigned char move_routine_end[], move_routine_start[];
-+extern unsigned char _end[];
- 
- static long bytes_out = 0;
- static uch *output_data;
-@@ -108,18 +102,15 @@
-  
- static void puts(const char *);
-   
--extern int end;
--static long free_mem_ptr = (long)&end;
--static long free_mem_end_ptr;
--
--/* Decompressor constants */
- #define HEAP_SIZE         0x003000
-+static unsigned char heap[HEAP_SIZE];
- static unsigned long move_routine;
--extern unsigned char move_routine_end[], move_routine_start[];
-+static long free_mem_ptr = (unsigned long)&heap[0];
-+static long free_mem_end_ptr = (unsigned long)&heap[HEAP_SIZE];
- 
- static unsigned int low_buffer_end, low_buffer_size;
- static int high_loaded =0;
--static uch *high_buffer_start /* = (uch *)(((ulg)&end) + HEAP_SIZE)*/;
-+static uch *high_buffer_start;
- 
- static char *vidmem = (char *)0xb8000;
- static int vidport;
-@@ -167,7 +158,7 @@
- {
- 	int i;
- 
--	memcpy ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
-+	memmove ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
- 	for ( i = ( lines - 1 ) * cols * 2; i < lines * cols * 2; i += 2 )
- 		vidmem[i] = ' ';
- }
-@@ -228,39 +219,14 @@
- 	cols = real_mode->screen.info.orig_video_cols;
- }
- 
--static void* memset(void* s, int c, size_t n)
--{
--	int i;
--	char *ss = (char*)s;
--
--	for (i=0;i<n;i++) ss[i] = c;
--	return s;
--}
--
--static void* memcpy(void* __dest, __const void* __src,
--			    size_t __n)
--{
--	int i;
--	char *d = (char *)__dest, *s = (char *)__src;
--
--	for (i=0;i<__n;i++) d[i] = s[i];
--	return __dest;
--}
--
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-  */
- static int fill_inbuf(void)
- {
--	if (insize != 0) {
--		error("ran out of input data\n");
--	}
--
--	inbuf = input_data;
--	insize = input_len;
--	inptr = 1;
--	return inbuf[0];
-+	error("ran out of input data\n");
-+	return 0;
- }
- 
- /* ===========================================================================
-@@ -324,14 +290,20 @@
- 	long * a;
- 	} stack_start = { & user_stack [STACK_SIZE] };
- 
-+static char command_line[COMMAND_LINE_SIZE];
++brealmode: bbootsect.o bsetup.o
++	$(LD) -T realmode.lds -o $@ $^
 +
- extern struct initial_regs32 initial_regs;
- extern __u32 kernel_start;
+ dep:
  
--static void setup_normal_output_buffer(void)
-+static void setup_normal_buffers(void)
- {
--	if (mem_k < 2048)  error("Less than 2MB of memory.\n");
--	output_data = (char *)0x100000; /* Points to 1M */
--	free_mem_end_ptr = (long)real_mode;
-+	/* Input buffers */
-+	inbuf  = (uch *)input_addr;
-+	insize = input_len; 
-+	inptr  = 0;
-+
-+	/* Output buffers */
-+	output_data = (char *)HIGH_BASE; /* Points to 1M */
- }
- 
- struct moveparams {
-@@ -339,25 +311,43 @@
- 	uch *high_buffer_start; int hcount;
- };
- 
--static void setup_output_buffer_if_we_run_high(struct moveparams *mv)
-+static void setup_buffers_if_we_run_high(struct moveparams *mv)
- {
--	high_buffer_start = (uch *)(((ulg)&end) + HEAP_SIZE);
-+	unsigned long high_compressed_start;
-+	/* Ouput buffers */
-+	high_buffer_start = _end;
- 	move_routine = LOW_BASE;
--	if (mem_k < (4*1024))  error("Less than 4MB of memory.\n");
- 	mv->low_buffer_start = output_data = 
- 		(char *)move_routine + (move_routine_end - move_routine_start);
- 	low_buffer_end = ((unsigned int)real_mode > LOW_MAX
- 	  ? LOW_MAX : (unsigned int)real_mode) & ~0xfff;
- 	low_buffer_size = low_buffer_end - (unsigned long)mv->low_buffer_start;
- 	high_loaded = 1;
--	free_mem_end_ptr = (long)high_buffer_start;
--	if ( (0x100000 + low_buffer_size) > ((ulg)high_buffer_start)) {
--		high_buffer_start = (uch *)(0x100000 + low_buffer_size);
-+	if ( (HIGH_BASE + low_buffer_size) > ((ulg)high_buffer_start)) {
-+		high_buffer_start = (uch *)(HIGH_BASE + low_buffer_size);
- 		mv->hcount = 0; /* say: we need not to move high_buffer */
- 	}
- 	else mv->hcount = -1;
- 	mv->high_buffer_start = high_buffer_start;
- 	if ((ulg)output_data >= low_buffer_end) output_data=high_buffer_start;
-+
-+	/* Input buffers */
-+	inptr  = 0;
-+	insize = input_len;
-+	high_compressed_start = (ulg)high_buffer_start;
-+	high_compressed_start -=low_buffer_size;
-+	high_compressed_start += kernel_filesz + output_overhang;
-+	high_compressed_start -= insize;
-+	if (high_compressed_start > input_addr) {
-+		inbuf = (uch *)high_compressed_start;
-+	} else {
-+		inbuf = (uch *)input_addr;
-+	}
-+	/* Move the compressed data to a location where the
-+	 * decompressed data can overwrite it but will not
-+	 * before it is used.
-+	 */
-+	memmove(inbuf, (void *)input_addr, insize);
- }
- 
- static void close_output_buffer_if_we_run_high(struct moveparams *mv)
-@@ -372,6 +362,69 @@
- 	}
- }
- 
-+static void relocate_realmode(void)
-+{
-+	unsigned long high_addr;
-+	unsigned long new_real_mode, new_cmdline;
-+	int cmdline_len;
-+	char *cmdline;
-+
-+	/* Compute the highest address we can actually use */
-+	if (initial_regs.ebp == ENTRY16) {
-+		high_addr = real_mode->base_mem_k << 10;
-+		/* To be safe enforce the 640K barrier */
-+		if (high_addr > LOW_MAX) {
-+			high_addr = LOW_MAX;
-+		}
-+	}
-+	else {
-+		high_addr = real_mode->real_base + real_mode->real_memsz;
-+	}
-+	/* To allow a maximal sized decompression buffer
-+	 * we need to move the command line, and the real mode
-+	 * buffer out of the way.
-+	 */
-+	/* Find the command line and get it out of the way */
-+	cmdline = 0;
-+	if (real_mode->cmd_line_ptr) {
-+		cmdline = (char *)(real_mode->cmd_line_ptr);
-+	}
-+	else if (real_mode->screen.overlap.cl_magic == CL_MAGIC_VALUE) {
-+		cmdline = (char *)real_mode + real_mode->screen.overlap.cl_offset;
-+	}
-+	cmdline_len = 0;
-+	if (cmdline) {
-+		while(cmdline_len < COMMAND_LINE_SIZE) {
-+			cmdline_len++;
-+			if (cmdline[cmdline_len -1] == '\0')
-+				break;
-+		}
-+		memmove(command_line, cmdline, cmdline_len);
-+		command_line[cmdline_len -1] = '\0';
-+	}
-+	/* relocate the real mode code and the command line */
-+	new_real_mode = (high_addr - real_mode->real_filesz - DEF_HEAP_SIZE);
-+	new_real_mode -= cmdline_len;
-+	new_real_mode &= ~15;
-+	new_cmdline = new_real_mode + real_mode->real_filesz + DEF_HEAP_SIZE;
-+	memmove((void *)new_real_mode, real_mode, real_mode->real_filesz);
-+	memmove((void *)new_cmdline, cmdline, cmdline_len);
-+
-+	/* Note the new real_mode address */
-+	real_mode = (struct boot_params *)new_real_mode;
-+	*((__u32 *)&initial_regs.esi) = new_real_mode;
-+	/* Note the change in heap size */
-+	real_mode->heap_end_ptr = (new_real_mode + 
-+		real_mode->real_filesz + DEF_HEAP_SIZE - 0x200) & 0xffff;
-+	/* Note the new command line address */
-+	if (real_mode->cmd_line_ptr) {
-+		real_mode->cmd_line_ptr = new_cmdline;
-+	}
-+	if (real_mode->screen.overlap.cl_magic == CL_MAGIC_VALUE) {
-+		real_mode->screen.overlap.cl_offset = 
-+			new_cmdline - (unsigned long)real_mode;
-+	}
-+}
- 
- asmlinkage unsigned long decompress_kernel(struct moveparams *mv)
- {
-@@ -393,9 +446,14 @@
+ clean:
+ 	rm -f tools/build
+-	rm -f setup bootsect zImage compressed/vmlinux.out
+-	rm -f bsetup bbootsect bzImage compressed/bvmlinux.out
++	rm -f realmode zImage
++	rm -f brealmode bzImage
+ 	@$(MAKE) -C compressed clean
+diff -uNr linux-2.5.12.boot.footprint/arch/i386/boot/bootsect.S linux-2.5.12.boot.build/arch/i386/boot/bootsect.S
+--- linux-2.5.12.boot.footprint/arch/i386/boot/bootsect.S	Sun Mar 10 20:07:02 2002
++++ linux-2.5.12.boot.build/arch/i386/boot/bootsect.S	Wed May  1 09:40:42 2002
+@@ -54,7 +54,7 @@
  #endif
- 		mem_k += 1024;
- 	}
--
--	if (free_mem_ptr < HIGH_BASE) setup_normal_output_buffer();
--	else setup_output_buffer_if_we_run_high(mv);
-+	if (real_mode) {
-+		relocate_realmode();
-+	}
-+	if ((mem_k << 10) < HIGH_BASE + kernel_memsz) {
-+		error("Too little memory\n");
-+	}
-+	if (free_mem_ptr < HIGH_BASE) setup_normal_buffers();
-+	else setup_buffers_if_we_run_high(mv);
  
- 	makecrc();
- 	puts("Uncompressing Linux... ");
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/vmlinuz.lds linux-2.5.12.boot.footprint/arch/i386/boot/compressed/vmlinuz.lds
---- linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/compressed/vmlinuz.lds	Wed Dec 31 17:00:00 1969
-+++ linux-2.5.12.boot.footprint/arch/i386/boot/compressed/vmlinuz.lds	Wed May  1 09:40:06 2002
-@@ -0,0 +1,29 @@
-+/* ld script to make compressed i386 Linux kernel
-+ */
+ .code16
+-.text
++.section ".bootsect", "ax", @progbits
+ 
+ .global _start
+ _start:
+diff -uNr linux-2.5.12.boot.footprint/arch/i386/boot/realmode.lds linux-2.5.12.boot.build/arch/i386/boot/realmode.lds
+--- linux-2.5.12.boot.footprint/arch/i386/boot/realmode.lds	Wed Dec 31 17:00:00 1969
++++ linux-2.5.12.boot.build/arch/i386/boot/realmode.lds	Wed May  1 09:40:42 2002
+@@ -0,0 +1,18 @@
 +OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
++ENTRY(_start)
 +OUTPUT_ARCH(i386)
-+ENTRY(startup_32)
 +SECTIONS
 +{
-+	. = 0x1000;
-+	_text = .;			/* Text and read-only data */
-+	.text : { *(.text) } = 0x9090
-+	_etext = .;			/* End of text section */
-+	.rodata : { *(.rodata) *(.rodata.*) }
-+	.data : { 
-+		*(.data) 
-+		
++	.bootsect 0 : AT(0x10000) {
++		*(.bootsect)
 +	}
-+	_edata = .;			/* End of data section */
-+	.bss _edata : { *(.bss) }
-+	_end = .;
-+	.input _edata : { 
-+		input_data = . ;
-+		*(.input)
-+		input_data_end = . ;
++	.setup 0 : AT(LOADADDR(.bootsect) + SIZEOF(.bootsect)) {
++		*(.setup)
 +	}
-+	input_data_len = input_data_end - input_data;
-+	input_data_shift = _end - _edata;
-+
-+	/DISCARD/ : { *(*) }
-+}		
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/setup.S linux-2.5.12.boot.footprint/arch/i386/boot/setup.S
---- linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/setup.S	Wed May  1 09:39:47 2002
-+++ linux-2.5.12.boot.footprint/arch/i386/boot/setup.S	Wed May  1 09:40:06 2002
-@@ -109,6 +109,8 @@
- # flags, unused bits must be zero (RFU) bit within loadflags
- loadflags:
- LOADED_HIGH	= 1			# If set, the kernel is loaded high
-+STAY_PUT        = 0x40                  # If set, the loader doesn't expect
-+                                        # us to relocate anything
- CAN_USE_HEAP	= 0x80			# If set, the loader also has set
- 					# heap_end_ptr to tell how much
- 					# space behind setup.S can be used for
-@@ -165,7 +167,11 @@
- 					# The highest safe address for
- 					# the contents of an initrd
++	.setup.heap SIZEOF(.setup) : AT(LOADADDR(.setup) + SIZEOF(.setup)) {
++		*(.setup.heap)
++	}
++	/DISCARD/ : {
++		*(*)
++	}
++}
+diff -uNr linux-2.5.12.boot.footprint/arch/i386/boot/setup.S linux-2.5.12.boot.build/arch/i386/boot/setup.S
+--- linux-2.5.12.boot.footprint/arch/i386/boot/setup.S	Wed May  1 09:40:06 2002
++++ linux-2.5.12.boot.build/arch/i386/boot/setup.S	Wed May  1 09:40:42 2002
+@@ -83,7 +83,7 @@
+ .code16
+ .globl _setup, _esetup
  
--# variables private to setup.S (not for bootloaders)
-+# variables private to the kernel (not for bootloaders)
-+pad2:		.long	0
-+real_base:	.long	REAL_BASE	# Location of real mode kernel
-+real_memsz:				# Memory usage of real mode kernel
-+		.long	(_esetup_heap - _setup) + DELTA_BOOTSECT
+-.text
++.section ".setup", "ax", @progbits
+ _setup:	
+ 
+ start:
+@@ -174,6 +174,9 @@
+ 		.long	(_esetup_heap - _setup) + DELTA_BOOTSECT
  real_filesz:				# Datasize of the real mode kernel
  		.long (_esetup - _setup) + DELTA_BOOTSECT
++kern_base:	.long	KERNEL_START	# Kernel load address
++kern_memsz:	.long	0x00000000	# Kernel memory usage
++kern_filesz:	.long	0x00000000	# Kernel datasize
  trampoline:	call	start_of_setup
-@@ -300,6 +306,15 @@
- #endif /* __BIG_KERNEL__ */
- 
- loader_ok:
-+# Get base memory size
-+# The size in kilobytes is returned in %ax
-+# There shouldn't be any subfunctions but just
-+# in case we clear eax and ecx
-+	xorl	%eax, %eax
-+	xorl	%ecx, %ecx
-+	int	$0x12
-+	movw	%ax, (0x1e4)
-+	
- # Get memory size (extended mem, kB)
- 
- 	xorl	%eax, %eax
-@@ -607,12 +622,13 @@
- # then we load the segment descriptors
- 	movw	%cs, %ax			# aka SETUPSEG
- 	movw	%ax, %ds
--		
+ 		# Don't let the E820 map overlap code
+ 		. = (E820MAP - DELTA_BOOTSECT) + (E820MAX * E820ENTRY_SIZE)
+diff -uNr linux-2.5.12.boot.footprint/arch/i386/boot/tools/build.c linux-2.5.12.boot.build/arch/i386/boot/tools/build.c
+--- linux-2.5.12.boot.footprint/arch/i386/boot/tools/build.c	Wed May  1 09:40:06 2002
++++ linux-2.5.12.boot.build/arch/i386/boot/tools/build.c	Wed May  1 09:40:42 2002
+@@ -1,19 +1,24 @@
 +
- # Check whether we need to be downward compatible with version <=201
-+# We don't relocate if STAY_PUT is specified or we have a 202 cmd_line
-+	testb  	$STAY_PUT, loadflags
-+	jnz	end_move_self
- 	cmpl	$0, cmd_line_ptr
- 	jne	end_move_self		# loader uses version >=202 features
--	cmpb	$0x20, type_of_loader
--	je	end_move_self		# bootsect loader, we know of it
+ /*
+  *  $Id: build.c,v 1.5 1997/05/19 12:29:58 mj Exp $
+  *
+  *  Copyright (C) 1991, 1992  Linus Torvalds
+  *  Copyright (C) 1997 Martin Mares
++ *  Copyright (C) 2002 Eric Biederman
++ *
+  */
  
- # Boot loader doesnt support boot protocol version 2.02.
- # If we have our code not at 0x90000, we need to move it there now.
-@@ -860,6 +876,7 @@
- 	jnz	bootsect_second
+ /*
+  * This file builds a disk-image from three different files:
+  *
+- * - bootsect: exactly 512 bytes of 8086 machine code, loads the rest
+- * - setup: 8086 machine code, sets up system parm
++ * - vmlinux: kernel before compression
++ * - realmode: composed of:
++ *    - bootsect: exactly 512 bytes of 8086 machine code, loads the rest
++ *    - setup: 8086 machine code, sets up system parm
+  * - system: 80386 code for actual system
+  *
+  * It does some checking that all files are of the correct type, and
+- * just writes the result to stdout, removing headers and padding to
++ * just writes the result, removing headers and padding to
+  * the right amount. It also writes some system data to stderr.
+  */
  
- 	movb	$0x20, %cs:type_of_loader
-+	orb	$STAY_PUT, %cs:loadflags
- 	movw	%es, %ax
- 	shrw	$4, %ax
- 	movb	%ah, %cs:bootsect_src_base+2
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/tools/build.c linux-2.5.12.boot.footprint/arch/i386/boot/tools/build.c
---- linux-2.5.12.boot.clean_32bit_entries/arch/i386/boot/tools/build.c	Mon Jul  2 14:56:40 2001
-+++ linux-2.5.12.boot.footprint/arch/i386/boot/tools/build.c	Wed May  1 09:40:06 2002
-@@ -28,6 +28,9 @@
+@@ -22,26 +27,29 @@
+  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+  * Cross compiling fixes by Gertjan van Wingerde, July 1996
+  * Rewritten by Martin Mares, April 1997
++ * Rewriten by Eric Biederman to remove the need for objcopy and
++ *   to stop losing information. 29 Mary 2002
+  */
+ 
+ #include <stdio.h>
  #include <string.h>
  #include <stdlib.h>
  #include <stdarg.h>
-+#include <stdint.h>
-+#include <byteswap.h>
-+#include <endian.h>
++#include <stddef.h>
+ #include <stdint.h>
+ #include <byteswap.h>
+ #include <endian.h>
  #include <sys/types.h>
  #include <sys/stat.h>
- #include <sys/sysmacros.h>
-@@ -45,7 +48,140 @@
- /* Minimal number of setup sectors (see also bootsect.S) */
- #define SETUP_SECTS 4
+-#include <sys/sysmacros.h>
+ #include <unistd.h>
+ #include <fcntl.h>
++#include <errno.h>
++#include <elf.h>
++/* To stay in sync with the kernel we must include these headers */
++#include <linux/version.h>
++#include <linux/compile.h>
+ #include <asm/boot.h>
  
-+#if __BYTE_ORDER == __LITTLE_ENDIAN
-+#define cpu_to_le16(x) x
-+#define cpu_to_le32(x) x
-+#define cpu_to_le64(x) x
-+#define le16_to_cpu(x) x
-+#define le32_to_cpu(x) x
-+#define le64_to_cpu(x) x
-+#else
-+#define cpu_to_le16(x) bswap_16(x)
-+#define cpu_to_le32(x) bswap_32(x)
-+#define cpu_to_le64(x) bswap_64(x)
-+#define le16_to_cpu(x) bswap_16(x)
-+#define le32_to_cpu(x) bswap_32(x)
-+#define le64_to_cpu(x) bswap_64(x)
-+#endif
+-typedef unsigned char byte;
+-typedef unsigned short word;
+-typedef unsigned long u32;
+-
+ #define DEFAULT_MAJOR_ROOT 0
+ #define DEFAULT_MINOR_ROOT 0
+ 
+@@ -64,6 +72,84 @@
+ #define le64_to_cpu(x) bswap_64(x)
+ #endif
+ 
 +
-+#define OF(args) args
-+#define STATIC static
-+				/* and a power of two */
++/* Input segments */
++#define IKERN  0
++#define IREAL  1
++#define IZKERN 2
++#define ISEGS  3
 +
-+#  define Assert(cond,msg)
-+#  define Trace(x)
-+#  define Tracev(x)
-+#  define Tracevv(x)
-+#  define Tracec(c,x)
-+#  define Tracecv(c,x)
-+#define memzero(s, n) memset ((s), 0, (n))
++/* Segments of the output file */
++#define OREAL 0
++#define OKERN 1
++#define OBSS1 2
++#define OBSS2 3
++#define OSEGS 4
 +
-+
-+typedef unsigned char  uch;
-+typedef unsigned short ush;
-+typedef unsigned long  ulg;
-+
-+#define WSIZE 0x8000         /* Window size must be at least 32k, */
-+
-+static uch *inbuf;           /* input buffer */
-+static uch window[WSIZE];    /* Sliding window buffer */
-+
-+static unsigned insize = 0;  /* valid bytes in inbuf */
-+static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
-+static unsigned outcnt = 0;  /* bytes in output buffer */
-+
-+static long bytes_out = 0;
-+
-+#define get_byte()  (inptr<insize?inbuf[inptr++]:(die("missing input data\n"),0))
-+#define error(m) die(m)
-+static void flush_window(void);
-+#define gzip_mark(x) 
-+#define gzip_release(x)
-+
-+static void die(const char * str, ...);
-+
-+#include "../../../../lib/inflate.c"
-+
-+struct zkernel_header {
-+	uint8_t  jump[4];
-+	uint32_t input_addr;
-+	uint32_t input_len;
-+	uint32_t output_overhang;
-+	uint32_t kernel_base;
-+	uint32_t kernel_memsz;
-+	uint32_t kernel_filesz;
-+	uint32_t unzip_memsz;
-+	uint32_t unzip_filesz;
++struct file_seg
++{
++	size_t mem_addr;
++	size_t mem_size;
++	size_t data_size;
++	off_t  file_offset;
++	size_t entry;
++	unsigned char *data;
 +};
 +
-+static struct overhang_info {
-+	size_t overhang;
-+	size_t output_bytes;
-+} oh;
-+static void flush_window(void)
-+{
-+	size_t input_bytes_left;
-+	size_t output_bytes_left;
-+	size_t overhang;
-+	unsigned long lcrc = crc;
-+	unsigned i;
++struct boot_params {
++	uint8_t  reserved1[0x1f1];		/* 0x000 */
++	uint8_t  setup_sects;			/* 0x1f1 */
++	uint16_t mount_root_rdonly;		/* 0x1f2 */
++	uint16_t syssize;			/* 0x1f4 */
++	uint16_t swapdev;			/* 0x1f6 */
++	uint16_t ramdisk_flags;			/* 0x1f8 */
++#define RAMDISK_IMAGE_START_MASK  	0x07FF
++#define RAMDISK_PROMPT_FLAG		0x8000
++#define RAMDISK_LOAD_FLAG		0x4000	
++	uint16_t vid_mode;			/* 0x1fa */
++	uint16_t root_dev;			/* 0x1fc */
++	uint8_t  reserved9[1];			/* 0x1fe */
++	uint8_t  aux_device_info;		/* 0x1ff */
++	/* 2.00+ */
++	uint8_t  jump[2];			/* 0x200 */
++	uint8_t  header_magic[4];		/* 0x202 */
++	uint16_t version;			/* 0x206 */
++	uint8_t  reserved11[8];			/* 0x208 */
++	uint8_t  type_of_loader;		/* 0x210 */
++#define LOADER_LILO            0x00
++#define LOADER_LOADLIN         0x10
++#define LOADER_BOOTSECT_LOADER 0x20
++#define LOADER_SYSLINUX        0x30
++#define LOADER_ETHERBOOT       0x40
++#define LOADER_UNKNOWN         0xFF
++	uint8_t  loadflags;			/* 0x211 */
++#define LOADFLAG_LOADED_HIGH  1
++#define LOADFLAG_STAY_PUT     0x40
++#define LOADFLAG_CAN_USE_HEAP 0x80
++	uint8_t  reserved12[2];			/* 0x212 */
++	uint32_t code32_start;			/* 0x214 */
++	uint32_t initrd_start;			/* 0x218 */
++	uint32_t initrd_size;			/* 0x21c */
++	uint8_t  reserved13[4];			/* 0x220 */
++	/* 2.01+ */
++	uint16_t heap_end_ptr;			/* 0x224 */
++	uint8_t  reserved14[2];			/* 0x226 */
++	/* 2.02+ */
++	uint32_t cmd_line_ptr;			/* 0x228 */
++	/* 2.03+ */
++	uint32_t ramdisk_max;			/* 0x22c */
++	/* 2.04+ */
++	uint16_t entry32_off;			/* 0x230 */
++	uint16_t internal_cmdline_off;		/* 0x232 */
++	uint32_t real_base;			/* 0x240 */
++	uint32_t real_memsz;			/* 0x244 */
++	uint32_t real_filesz;			/* 0x248 */
++	uint32_t kern_base;			/* 0x24C */
++	uint32_t kern_memsz;			/* 0x250 */
++	uint32_t kern_filesz;			/* 0x254 */
++						/* 0x258 */
++};
 +
-+	/* Flush the window */
-+	for(i = 0; i < outcnt; i++) {
-+		unsigned char ch;
-+		ch = window[i];
-+		lcrc = crc_32_tab[((int)lcrc ^ ch) & 0xff] ^ (lcrc >> 8);
-+	}
-+	crc = lcrc;
-+	bytes_out += outcnt;
-+	outcnt = 0;
-+	
-+	input_bytes_left = insize - inptr;
-+	output_bytes_left = oh.output_bytes - bytes_out;
-+
-+	overhang = 0;
-+	if (input_bytes_left > output_bytes_left) {
-+		overhang = input_bytes_left - output_bytes_left;
-+	}
-+	if (overhang > oh.overhang) {
-+		oh.overhang = overhang;
-+	}
-+}
-+static size_t compute_unzip_overhang(unsigned char *data, size_t data_size)
-+{
-+	struct zkernel_header *zhdr;
-+	size_t result_size;
-+	size_t offset;
-+	
-+
-+	/* Set up the input buffer */
-+	zhdr = (struct zkernel_header *)data;
-+	offset = le32_to_cpu(zhdr->input_addr) - HIGH_BASE;
-+	inbuf = data + offset;
-+	insize = le32_to_cpu(zhdr->input_len);
-+	if (insize != data_size - offset)
-+		die("Compressed kernel sizes(%d,%d) do not match!\n",
-+			insize, data_size - offset);
-+	result_size = le32_to_cpu(*(uint32_t *)(inbuf + insize - 4));
-+	inptr = 0;
-+
-+	/* Setup the overhang computation */
-+	oh.overhang = 0;
-+	oh.output_bytes = result_size;
-+	
-+	makecrc();
-+	gunzip();
-+	
-+	zhdr->output_overhang = cpu_to_le32(oh.overhang);
-+	zhdr->kernel_memsz = cpu_to_le32(result_size);
-+	zhdr->kernel_filesz = cpu_to_le32(result_size);
-+	return oh.overhang;
-+}
-+
-+
-+
- byte buf[1024];
-+byte *bigbuf;
- int fd;
- int is_big_kernel;
+ #define OF(args) args
+ #define STATIC static
+ 				/* and a power of two */
+@@ -103,6 +189,7 @@
+ #include "../../../../lib/inflate.c"
  
-@@ -157,21 +293,36 @@
- 	if (sys_size > 0xefff)
- 		fprintf(stderr,"warning: kernel is too big for standalone boot "
- 		    "from floppy\n");
-+	bigbuf = malloc(sz);
-+	if (!bigbuf)
-+		die("Out of memory\n");
- 	while (sz > 0) {
--		int l, n;
-+		int off, n;
- 
--		l = (sz > sizeof(buf)) ? sizeof(buf) : sz;
--		if ((n=read(fd, buf, l)) != l) {
-+		off = sb.st_size - sz;
-+		if ((n=read(fd, bigbuf +off, sz)) <= 0) {
- 			if (n < 0)
- 				die("Error reading %s: %m", argv[3]);
- 			else
- 				die("%s: Unexpected EOF", argv[3]);
- 		}
--		if (write(1, buf, l) != l)
--			die("Write failed");
--		sz -= l;
-+		sz -= n;
+ struct zkernel_header {
++	/* 2.04+ */
+ 	uint8_t  jump[4];
+ 	uint32_t input_addr;
+ 	uint32_t input_len;
+@@ -147,22 +234,28 @@
+ 		oh.overhang = overhang;
  	}
- 	close(fd);
-+	compute_unzip_overhang(bigbuf, sb.st_size);
-+	sz = sb.st_size;
-+	while(sz > 0) {
-+		int off, n;
-+		
-+		off = sb.st_size - sz;
-+		if ((n=write(1, bigbuf+off, sz)) <= 0) {
-+			if (n < 0)
-+				die("Error writing %s: %m", "<stdout>");
-+			else
-+				die("%s: Unexpected EOF", "<stdout>");
-+		}
-+		sz -= n;
-+	}
+ }
+-static size_t compute_unzip_overhang(unsigned char *data, size_t data_size)
++static size_t compute_unzip_overhang(struct file_seg *iseg)
+ {
+ 	struct zkernel_header *zhdr;
++	unsigned char *data;
++	size_t data_size;
+ 	size_t result_size;
+ 	size_t offset;
+ 	
+-
+ 	/* Set up the input buffer */
++	data = iseg[IZKERN].data;
++	data_size = iseg[IZKERN].data_size;
+ 	zhdr = (struct zkernel_header *)data;
+-	offset = le32_to_cpu(zhdr->input_addr) - HIGH_BASE;
++	offset = le32_to_cpu(zhdr->input_addr) - iseg[IZKERN].mem_addr;
+ 	inbuf = data + offset;
+ 	insize = le32_to_cpu(zhdr->input_len);
+ 	if (insize != data_size - offset)
+ 		die("Compressed kernel sizes(%d,%d) do not match!\n",
+ 			insize, data_size - offset);
+ 	result_size = le32_to_cpu(*(uint32_t *)(inbuf + insize - 4));
++	if (result_size != iseg[IKERN].data_size)
++		die("Uncompressed kernel sizes(%d,%d) do not match!\n",
++			result_size, iseg[IKERN].data_size);
+ 	inptr = 0;
  
- 	if (lseek(1, 497, SEEK_SET) != 497)		    /* Write sizes to the bootsector */
- 		die("Output: seek failed");
-diff -uNr linux-2.5.12.boot.clean_32bit_entries/include/asm-i386/boot_param.h linux-2.5.12.boot.footprint/include/asm-i386/boot_param.h
---- linux-2.5.12.boot.clean_32bit_entries/include/asm-i386/boot_param.h	Wed May  1 09:39:48 2002
-+++ linux-2.5.12.boot.footprint/include/asm-i386/boot_param.h	Wed May  1 09:40:06 2002
-@@ -37,7 +37,8 @@
- 	struct drive_info_struct drive_info;	/* 0x80 */
- 	struct sys_desc_table sys_desc_table;	/* 0xa0 */
- 	__u32 alt_mem_k;			/* 0x1e0 */
--	__u8  reserved5[4];			/* 0x1e4 */
-+	__u16 base_mem_k;			/* 0x1e4 */
-+	__u8  reserved5[2];			/* 0x1e6 */
- 	__u8  e820_map_nr;			/* 0x1e8 */
- 	__u8  reserved6[8];			/* 0x1e9 */
- 	__u8  setup_sects;			/* 0x1f1 */
-@@ -83,8 +84,11 @@
- 	/* 2.03+ */
- 	__u32 ramdisk_max;			/* 0x22c */
- 	/* Below this point for internal kernel use only */
--	__u32 real_filesz;			/* 0x230 */
--	__u8  reserved15[0x2d0 - 0x234];	/* 0x234 */
-+	__u32 pad2;				/* 0x230 */
-+	__u32 real_base;			/* 0x234 */
-+	__u32 real_memsz;			/* 0x238 */
-+	__u32 real_filesz;			/* 0x23c */
-+	__u8  reserved15[0x2d0 - 0x240];	/* 0x240 */
+ 	/* Setup the overhang computation */
+@@ -172,20 +265,10 @@
+ 	makecrc();
+ 	gunzip();
+ 	
+-	zhdr->output_overhang = cpu_to_le32(oh.overhang);
+-	zhdr->kernel_memsz = cpu_to_le32(result_size);
+-	zhdr->kernel_filesz = cpu_to_le32(result_size);
+ 	return oh.overhang;
+ }
+ 
+-
+-
+-byte buf[1024];
+-byte *bigbuf;
+-int fd;
+-int is_big_kernel;
+-
+-void die(const char * str, ...)
++static void die(const char * str, ...)
+ {
+ 	va_list args;
+ 	va_start(args, str);
+@@ -194,147 +277,430 @@
+ 	exit(1);
+ }
+ 
+-void file_open(const char *name)
++static int checked_open(const char *pathname, int flags, mode_t mode)
+ {
+-	if ((fd = open(name, O_RDONLY, 0)) < 0)
+-		die("Unable to open `%s': %m", name);
++	int result;
++	result = open(pathname, flags, mode);
++	if (result < 0) {
++		die("Cannot open %s : %s", 
++			pathname,
++			strerror(errno));
++	}
++	return result;
+ }
+ 
+-void usage(void)
++static void checked_read(int fd, void *buf, size_t count, const char *pathname)
+ {
+-	die("Usage: build [-b] bootsect setup system [rootdev] [> image]");
++	ssize_t result;
++	result = read(fd, buf, count);
++	if (result != count) {
++		die("Cannot read %d bytes from %s: %s",
++			count, 
++			pathname,
++			strerror(errno));
++	}
+ }
+ 
+-int main(int argc, char ** argv)
++static void checked_write(int fd, void *buf, size_t count, const char *pathname)
+ {
+-	unsigned int i, c, sz, setup_sectors;
+-	u32 sys_size;
+-	byte major_root, minor_root;
+-	struct stat sb;
+-
+-	if (argc > 2 && !strcmp(argv[1], "-b"))
+-	  {
+-	    is_big_kernel = 1;
+-	    argc--, argv++;
+-	  }
+-	if ((argc < 4) || (argc > 5))
+-		usage();
+-	if (argc > 4) {
+-		if (!strcmp(argv[4], "CURRENT")) {
+-			if (stat("/", &sb)) {
+-				perror("/");
+-				die("Couldn't stat /");
++	ssize_t result;
++	result = write(fd, buf, count);
++	if (result != count) {
++		die("Cannot write %d bytes from %s: %s",
++			count, 
++			pathname,
++			strerror(errno));
++	}
++}
++
++static off_t checked_lseek(int fd, off_t offset, int whence, const char *pathname)
++{
++	off_t result;
++	result = lseek(fd, offset, whence);
++	if (result == (off_t)-1) {
++		die("lseek failed on %s: %s",
++			pathname, strerror(errno));
++	}
++	return result;
++}
++
++static void *checked_malloc(size_t size)
++{
++	void *result;
++	result = malloc(size);
++	if (result == 0) {
++		die("malloc of %d bytes failed: %s",
++			size, strerror(errno));
++	}
++	return result;
++}
++
++static void check_ehdr(Elf32_Ehdr *ehdr, char *name)
++{
++	/* Do some basic to ensure it is an ELF image */
++	if (memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0) {
++		die("%s is not an ELF binary", name);
++	}
++	if (ehdr->e_ident[EI_CLASS] != ELFCLASS32) {
++		die("%s is not a 32bit ELF object", name);
++	}
++	if (ehdr->e_ident[EI_DATA] != ELFDATA2LSB) {
++		die("%s does not have little endian data", name);
++	}
++	if ((ehdr->e_ident[EI_VERSION] != EV_CURRENT) ||
++		ehdr->e_version != EV_CURRENT) {
++		die("%s has invalid ELF version", name);
++	}
++	if (ehdr->e_type != ET_EXEC) {
++		die("%s is not an ELF executable", name);
++	}
++	if (ehdr->e_machine != EM_386) {
++		die("%s is not for x86", name);
++	}
++	if ((ehdr->e_phoff == 0) || (ehdr->e_phnum == 0)) {
++		die("%s has no program header", name);
++	}
++	if (ehdr->e_phentsize != sizeof(Elf32_Phdr)) {
++		die("%s has invalid program header size", name);
++	}
++}
++
++static Elf32_Phdr *read_sorted_phdr(char *name, int fd, 
++	Elf32_Ehdr *ehdr, struct file_seg *seg)
++{
++	int i, j;
++	Elf32_Phdr *phdr, *plow, *phigh;
++	size_t phdr_size;
++	seg->mem_addr = 0;
++	seg->mem_size = 0;
++	seg->data_size = 0;
++	seg->file_offset = 0;
++	seg->entry = ehdr->e_entry;
++	seg->data = 0;
++
++	phdr_size = ehdr->e_phnum * sizeof(*phdr);
++	phdr = checked_malloc(phdr_size);
++	checked_lseek(fd, ehdr->e_phoff, SEEK_SET, name);
++	checked_read(fd, phdr, phdr_size, name);
++
++	plow = 0;
++	phigh = 0;
++	/* Do an insertion sort on the program headers */
++	for(i = 0; i < ehdr->e_phnum; i++) {
++		Elf32_Phdr *least;
++		least = phdr +i;
++		for(j = i+1; j < ehdr->e_phnum; j++) {
++			if (phdr[j].p_type != PT_LOAD) {
++				continue;
+ 			}
+-			major_root = major(sb.st_dev);
+-			minor_root = minor(sb.st_dev);
+-		} else if (strcmp(argv[4], "FLOPPY")) {
+-			if (stat(argv[4], &sb)) {
+-				perror(argv[4]);
+-				die("Couldn't stat root device.");
++			if ((least->p_type != PT_LOAD) || 
++				(phdr[j].p_paddr < least->p_paddr)) {
++				least = phdr + j;
+ 			}
+-			major_root = major(sb.st_rdev);
+-			minor_root = minor(sb.st_rdev);
+-		} else {
+-			major_root = 0;
+-			minor_root = 0;
+ 		}
+-	} else {
+-		major_root = DEFAULT_MAJOR_ROOT;
+-		minor_root = DEFAULT_MINOR_ROOT;
++		if (least != phdr +i) {
++			Elf32_Phdr tmp;
++			tmp = phdr[i];
++			phdr[i] = *least;
++			*least = tmp;
++		}
++	}
++	plow = phdr;
++	phigh = 0;
++	for(i = 0; i < ehdr->e_phnum; i++) {
++		if (phdr[i].p_type != PT_LOAD)
++			break;
++		phigh = phdr +i;
++	}
++	if (phigh) {
++		size_t start, middle, end;
++		start = plow->p_paddr;
++		middle = phigh->p_paddr + phigh->p_filesz;
++		end = phigh->p_paddr + phigh->p_memsz;
++		seg->mem_addr = start;
++		seg->mem_size = end - start;
++		seg->data_size = middle - start;
+ 	}
+-	fprintf(stderr, "Root device is (%d, %d)\n", major_root, minor_root);
++	return phdr;
++	
++}
+ 
+-	file_open(argv[1]);
+-	i = read(fd, buf, sizeof(buf));
+-	fprintf(stderr,"Boot sector %d bytes.\n",i);
+-	if (i != 512)
+-		die("Boot block must be exactly 512 bytes");
+-	if (buf[510] != 0x55 || buf[511] != 0xaa)
+-		die("Boot block hasn't got boot flag (0xAA55)");
+-	buf[508] = minor_root;
+-	buf[509] = major_root;
+-	if (write(1, buf, 512) != 512)
+-		die("Write call failed");
+-	close (fd);
+-
+-	file_open(argv[2]);				    /* Copy the setup code */
+-	for (i=0 ; (c=read(fd, buf, sizeof(buf)))>0 ; i+=c )
+-		if (write(1, buf, c) != c)
+-			die("Write call failed");
+-	if (c != 0)
+-		die("read-error on `setup'");
+-	close (fd);
+-
+-	setup_sectors = (i + 511) / 512;	/* Pad unused space with zeros */
+-	/* for compatibility with ancient versions of LILO. */
+-	if (setup_sectors < SETUP_SECTS)
+-		setup_sectors = SETUP_SECTS;
+-	fprintf(stderr, "Setup is %d bytes.\n", i);
+-	memset(buf, 0, sizeof(buf));
+-	while (i < setup_sectors * 512) {
+-		c = setup_sectors * 512 - i;
+-		if (c > sizeof(buf))
+-			c = sizeof(buf);
+-		if (write(1, buf, c) != c)
+-			die("Write call failed");
+-		i += c;
+-	}
+-
+-	file_open(argv[3]);
+-	if (fstat (fd, &sb))
+-		die("Unable to stat `%s': %m", argv[3]);
+-	sz = sb.st_size;
+-	fprintf (stderr, "System is %d kB\n", sz/1024);
+-	sys_size = (sz + 15) / 16;
+-	/* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
+-	if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
+-		die("System is too big. Try using %smodules.",
+-			is_big_kernel ? "" : "bzImage or ");
+-	if (sys_size > 0xefff)
+-		fprintf(stderr,"warning: kernel is too big for standalone boot "
+-		    "from floppy\n");
+-	bigbuf = malloc(sz);
+-	if (!bigbuf)
+-		die("Out of memory\n");
+-	while (sz > 0) {
+-		int off, n;
+-
+-		off = sb.st_size - sz;
+-		if ((n=read(fd, bigbuf +off, sz)) <= 0) {
+-			if (n < 0)
+-				die("Error reading %s: %m", argv[3]);
+-			else
+-				die("%s: Unexpected EOF", argv[3]);
+-		}
+-		sz -= n;
++static void get_elf_sizes(char *name, size_t pstart, struct file_seg *sizes)
++{
++	int fd;
++	Elf32_Ehdr ehdr;
++	Elf32_Phdr *phdr;
++	fd = checked_open(name, O_RDONLY, 0);
++	checked_read(fd, &ehdr, sizeof(ehdr), name);
++	check_ehdr(&ehdr, name);
++
++	phdr = read_sorted_phdr(name, fd, &ehdr, sizes);
++	if (sizes->mem_addr != pstart) {
++		die("Low PHDR in %s not at 0x%08x", name, pstart);
+ 	}
++
++	free(phdr);
+ 	close(fd);
+-	compute_unzip_overhang(bigbuf, sb.st_size);
+-	sz = sb.st_size;
+-	while(sz > 0) {
+-		int off, n;
+-		
+-		off = sb.st_size - sz;
+-		if ((n=write(1, bigbuf+off, sz)) <= 0) {
+-			if (n < 0)
+-				die("Error writing %s: %m", "<stdout>");
+-			else
+-				die("%s: Unexpected EOF", "<stdout>");
++	return;
++}
++
++static void read_elf(char *name, size_t pstart, struct file_seg *seg)
++{
++	int src_fd;
++	Elf32_Ehdr ehdr;
++	Elf32_Phdr *phdr;
++	size_t last_paddr;
++	size_t loc;
++	int i;
++
++	src_fd = checked_open(name, O_RDONLY, 0);
++	checked_read(src_fd, &ehdr, sizeof(ehdr), name);
++	check_ehdr(&ehdr, name);
++
++	phdr = read_sorted_phdr(name, src_fd, &ehdr, seg);
++	if (seg->mem_addr != pstart) {
++		die("Low PHDR in %s not at 0x%08x", name, pstart);
++	}
++	
++	last_paddr = phdr[0].p_paddr;
++	seg->data = checked_malloc(seg->data_size);
++	loc = 0;
++	for(i = 0; i < ehdr.e_phnum; i++) {
++		size_t size;
++		if (phdr[i].p_type != PT_LOAD) {
++			break;
++		}
++		if (last_paddr != phdr[i].p_paddr) {
++			size = phdr[i].p_paddr - last_paddr;
++			memset(seg->data + loc, 0, size);
++			loc += size;
+ 		}
+-		sz -= n;
++		last_paddr = phdr[i].p_paddr + phdr[i].p_filesz;
++
++		size = phdr[i].p_filesz;
++		checked_lseek(src_fd, phdr[i].p_offset, SEEK_SET, name);
++		checked_read(src_fd, seg->data + loc, size, name);
++		loc += size;
+ 	}
++	free(phdr);
++	close(src_fd);
++	return;
++}
+ 
+-	if (lseek(1, 497, SEEK_SET) != 497)		    /* Write sizes to the bootsector */
+-		die("Output: seek failed");
+-	buf[0] = setup_sectors;
+-	if (write(1, buf, 1) != 1)
+-		die("Write of setup sector count failed");
+-	if (lseek(1, 500, SEEK_SET) != 500)
+-		die("Output: seek failed");
+-	buf[0] = (sys_size & 0xff);
+-	buf[1] = ((sys_size >> 8) & 0xff);
+-	if (write(1, buf, 2) != 2)
+-		die("Write of image length failed");
++struct image_info {
++	int is_big_kernel;
++	size_t entry32;
++	size_t setup_sectors;
++	size_t sys_size;
++	size_t root_dev;
++	size_t unzip_overhang;
++	struct boot_params *param;
++	struct zkernel_header *zhdr;
++};
+ 
+-	return 0;					    /* Everything is OK */
++static void update_image(
++	struct file_seg *iseg, struct file_seg *oseg, struct image_info *info)
++{
++	struct boot_params *param = info->param;
++	struct zkernel_header *zhdr = info->zhdr;
++	info->setup_sectors &= 0xff;
++	info->sys_size &= 0xffff;
++	info->root_dev &= 0xffff;
++	param->setup_sects    = info->setup_sectors;
++	param->syssize        = cpu_to_le16(info->sys_size);
++	param->root_dev       = cpu_to_le16(info->root_dev);
++	param->real_base      = cpu_to_le32(oseg[OREAL].mem_addr);
++	param->real_memsz     = cpu_to_le32(oseg[OREAL].mem_size);
++	param->real_filesz    = cpu_to_le32(oseg[OREAL].data_size);
++	param->kern_base      = cpu_to_le32(oseg[OKERN].mem_addr);
++	param->kern_memsz     = cpu_to_le32(oseg[OKERN].mem_size);
++	param->kern_filesz    = cpu_to_le32(oseg[OKERN].data_size);
++	zhdr->output_overhang = cpu_to_le32(info->unzip_overhang);
++	zhdr->kernel_memsz    = cpu_to_le32(iseg[IKERN].mem_size);
++	zhdr->kernel_filesz   = cpu_to_le32(iseg[IKERN].data_size);
++}
++
++static void usage(void)
++{
++	die("Usage: build [-b] vmlinux realmode compressed/vmlinux image");
++}
++
++int main(int argc, char ** argv)
++{
++	char *kernel;
++	char *realmode;
++	char *zkernel;
++	char *image;
++	int image_fd;
++	size_t major_root, minor_root;
++	size_t zkernel_base;
++	struct image_info info;
++	struct file_seg iseg[ISEGS];
++	struct file_seg oseg[OSEGS];
++	struct stat st;
++	int i;
++
++	memset(iseg, 0, sizeof(iseg));
++	memset(oseg, 0, sizeof(oseg));
++	memset(&info, 0, sizeof(info));
++	info.is_big_kernel = 0;
++	if (argc > 2 && (strcmp(argv[1], "-b") == 0)) {
++		info.is_big_kernel = 1;
++		argc--;
++		argv++;
++	}
++	if (argc != 5) {
++		usage();
++	}
++	kernel = argv[1];
++	realmode = argv[2];
++	zkernel = argv[3];
++	image = argv[4];
++
++	/* Compute the current root device */
++	major_root = DEFAULT_MAJOR_ROOT;
++	minor_root = DEFAULT_MINOR_ROOT;
++	if (stat("/", &st) == 0) {
++		major_root = major(st.st_dev);
++		minor_root = minor(st.st_dev);
++	}
++	major_root &= 0xff;
++	minor_root &= 0xff;
++	info.root_dev = (major_root << 8) | minor_root;
++	printf("Root device is (%d, %d)\n", major_root, minor_root);
++
++	/* Read in the file information */
++	zkernel_base = info.is_big_kernel? HIGH_BASE : LOW_BASE;
++	get_elf_sizes(kernel, HIGH_BASE,    &iseg[IKERN]);
++	read_elf(realmode,    REAL_BASE,     &iseg[IREAL]);
++	read_elf(zkernel,     zkernel_base, &iseg[IZKERN]);
++	
++	oseg[OREAL] = iseg[IREAL];
++	oseg[OKERN] = iseg[IZKERN];
++
++	info.param = (struct boot_params *)oseg[OREAL].data;
++	info.zhdr = (struct zkernel_header *)oseg[OKERN].data;
++	info.unzip_overhang = compute_unzip_overhang(iseg);
++
++	/* Compute the memory usage when the compressed data
++	 * and the BSS stop overlapping.
++	 */
++	oseg[OKERN].mem_size = oseg[OKERN].data_size + 
++		(le32_to_cpu(info.zhdr->unzip_memsz) - 
++			le32_to_cpu(info.zhdr->unzip_filesz));
++	if (!info.is_big_kernel) {
++		/* zImage */
++		size_t kern_end;
++		/* zImages are wacky, they load at 64K but then
++		 * setup.S relocates them down to 4K.
++		 */
++		/* Check the decompression address and ensure we
++		 * have enough space, to decompress.
++		 */
++		oseg[OREAL].mem_addr = DEF_INITSEG << 4;
++		kern_end = oseg[OKERN].mem_addr + oseg[OKERN].mem_size;
++		kern_end = (kern_end + 15) & ~15; 
++		if (kern_end > oseg[OREAL].mem_addr) {
++			die("System is to big.  Try using bzImage or modules");
++		}
++
++		/* Describe the initial hole */
++		oseg[OBSS1].mem_addr = oseg[OKERN].mem_addr;
++		oseg[OBSS1].data_size = 0;
++		oseg[OBSS1].mem_size = 	(DEF_SYSSEG << 4) - oseg[OBSS1].mem_addr;
++
++		/* Check the load time address and verify we
++		 * have enough space to load.
++		 */
++		oseg[OKERN].mem_addr = DEF_SYSSEG << 4;
++		kern_end = oseg[OKERN].mem_addr + oseg[OKERN].data_size;
++		kern_end = (kern_end + 15) & ~15;
++		if (kern_end > oseg[OREAL].mem_addr) {
++			die("System is to big.  Try using bzImage or modules");
++		}
++		
++		/* Describe where the kernel actually runs */
++		oseg[OBSS2].mem_addr = HIGH_BASE;
++		oseg[OBSS2].mem_size = iseg[IKERN].mem_size;
++		oseg[OBSS2].data_size = 0;
++	} else {
++		/* bzImage */
++		size_t unzip_bufsz;
++		
++		/* Compute the bzImage decompressor memory size */
++		unzip_bufsz = iseg[IKERN].data_size + info.unzip_overhang;
++		if (unzip_bufsz > oseg[OKERN].mem_size) {
++			oseg[OKERN].mem_size = unzip_bufsz;
++		}
++
++		/* Compute how much real memory we need */
++		oseg[OREAL].mem_size += 
++			((le32_to_cpu(info.zhdr->unzip_memsz) - 
++				oseg[OKERN].mem_addr) + 0xfff) & ~0xfff;
++		oseg[OREAL].mem_size += COMMAND_LINE_SIZE;
++		if (oseg[OREAL].mem_size > REAL_MAX - REAL_BASE) {
++			die("Kernel requires %d bytes low memory %d available!\n",
++				oseg[OREAL].mem_size,
++				REAL_MAX - REAL_BASE);
++		}
++		/* See if the loaded kernel uses more memory */
++		if (iseg[IKERN].mem_size > oseg[OKERN].mem_size) {
++			oseg[OKERN].mem_size = iseg[IKERN].mem_size;
++		}
++	}
++
++	/* Compute the file offsets */
++	info.setup_sectors = (oseg[OREAL].data_size - 512 + 511)/512;
++	if (info.setup_sectors < SETUP_SECTS)
++		info.setup_sectors = SETUP_SECTS;
++
++	oseg[OKERN].file_offset = oseg[OREAL].file_offset + (info.setup_sectors +1)*512;
++
++	/* Check and print the values to write back. */
++	info.entry32 = oseg[OREAL].mem_addr + 
++		le32_to_cpu(info.param->entry32_off);
++	printf("Boot sector is 512 bytes\n");
++	printf("Setup is %d bytes\n", oseg[OREAL].data_size - 512);
++
++	info.sys_size = (oseg[OKERN].data_size + 15)/16;
++	if ((iseg[IKERN].mem_addr + iseg[IKERN].mem_size) 
++		>= INITIAL_PAGE_TABLE_SIZE) {
++		die("System is to big.  Try using modules.");
++	}
++	if (info.sys_size > 0xefff) {
++		fprintf(stderr, "warning: kernel is too big for standalone boot " 
++			"from floppy\n");
++	}
++	printf("System is %d KB\n", (info.sys_size*16)/1024);
++	printf("entry32: 0x%x\n", info.entry32);
++	printf("[real] base: %08x filesz %5d B  memsz= %5d KB\n", 
++		oseg[OREAL].mem_addr,
++		oseg[OREAL].data_size,
++		oseg[OREAL].mem_size/1024);
++	printf("[kern] base: %08x filesz %5d KB memsz= %5d KB\n", 
++		oseg[OKERN].mem_addr, 
++		oseg[OKERN].data_size/1024,
++		oseg[OKERN].mem_size/1024); 
++	printf("[bss1] base: %08x filesz %5d KB memsz= %5d KB\n",
++		oseg[OBSS1].mem_addr,
++		oseg[OBSS1].data_size/1024,
++		oseg[OBSS1].mem_size/1024);
++	printf("[bss2] base: %08x filesz %5d KB memsz= %5d KB\n",
++		oseg[OBSS2].mem_addr,
++		oseg[OBSS2].data_size/1024,
++		oseg[OBSS2].mem_size/1024);
++
++	/* Write the values back */
++	update_image(iseg, oseg, &info);
++
++	/* Write destination file */
++	image_fd = checked_open(image, O_RDWR | O_CREAT | O_TRUNC, 0666);
++	for(i = 0; i < OSEGS; i++) {
++		if (oseg[i].data_size == 0)
++			continue;
++		checked_lseek(image_fd, oseg[i].file_offset, SEEK_SET, image);
++		checked_write(image_fd, oseg[i].data, oseg[i].data_size, image);
++	}
++	close(image_fd);
++	return 0;
+ }
+diff -uNr linux-2.5.12.boot.footprint/arch/x86_64/boot/Makefile linux-2.5.12.boot.build/arch/x86_64/boot/Makefile
+--- linux-2.5.12.boot.footprint/arch/x86_64/boot/Makefile	Sun Mar 10 20:08:39 2002
++++ linux-2.5.12.boot.build/arch/x86_64/boot/Makefile	Wed May  1 09:40:42 2002
+@@ -14,11 +14,11 @@
+ 
+ zImage: $(CONFIGURE) bootsect setup compressed/vmlinux tools/build
+ 	$(OBJCOPY) compressed/vmlinux compressed/vmlinux.out
+-	tools/build bootsect setup compressed/vmlinux.out $(ROOT_DEV) > zImage
++	tools/build bootsect setup compressed/vmlinux.out CURRENT > zImage
+ 
+ bzImage: $(CONFIGURE) bbootsect bsetup compressed/bvmlinux tools/build
+ 	$(OBJCOPY) compressed/bvmlinux compressed/bvmlinux.out
+-	tools/build -b bbootsect bsetup compressed/bvmlinux.out $(ROOT_DEV) > bzImage
++	tools/build -b bbootsect bsetup compressed/bvmlinux.out CURRENT > bzImage
+ 
+ bzImage-padded: bzImage
+ 	dd if=/dev/zero bs=1k count=70 >> bzImage
+diff -uNr linux-2.5.12.boot.footprint/include/asm-i386/boot_param.h linux-2.5.12.boot.build/include/asm-i386/boot_param.h
+--- linux-2.5.12.boot.footprint/include/asm-i386/boot_param.h	Wed May  1 09:40:06 2002
++++ linux-2.5.12.boot.build/include/asm-i386/boot_param.h	Wed May  1 09:40:42 2002
+@@ -88,7 +88,10 @@
+ 	__u32 real_base;			/* 0x234 */
+ 	__u32 real_memsz;			/* 0x238 */
+ 	__u32 real_filesz;			/* 0x23c */
+-	__u8  reserved15[0x2d0 - 0x240];	/* 0x240 */
++ 	__u32 kern_base;			/* 0x240 */
++ 	__u32 kern_memsz;			/* 0x244 */
++ 	__u32 kern_filesz;			/* 0x248 */
++ 	__u8  reserved15[0x2d0 - 0x24c];	/* 0x24c */
  	struct e820entry e820_map[E820MAX];	/* 0x2d0 */
  						/* 0x550 */
  } __attribute__((packed));

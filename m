@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266904AbRGMAg5>; Thu, 12 Jul 2001 20:36:57 -0400
+	id <S266906AbRGMAk1>; Thu, 12 Jul 2001 20:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266906AbRGMAgr>; Thu, 12 Jul 2001 20:36:47 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:45333
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S266904AbRGMAgl>; Thu, 12 Jul 2001 20:36:41 -0400
-Date: Thu, 12 Jul 2001 17:36:41 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
-        Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: CPU affinity & IPI latency
-Message-ID: <20010712173641.C11719@work.bitmover.com>
-Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
-	Mike Kravetz <mkravetz@sequent.com>, lse-tech@lists.sourceforge.net,
-	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010712164017.C1150@w-mikek2.des.beaverton.ibm.com> <XFMail.20010712172255.davidel@xmailserver.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <XFMail.20010712172255.davidel@xmailserver.org>; from davidel@xmailserver.org on Thu, Jul 12, 2001 at 05:22:55PM -0700
+	id <S266907AbRGMAkR>; Thu, 12 Jul 2001 20:40:17 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:62736 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266906AbRGMAkM>; Thu, 12 Jul 2001 20:40:12 -0400
+Date: Thu, 12 Jul 2001 17:38:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Murray <mmurray@deepthought.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: yenta_socket hangs sager laptop in kernel 2.4.6
+In-Reply-To: <Pine.LNX.4.21.0107121802310.17665-100000@cobalt.deepthought.org>
+Message-ID: <Pine.LNX.4.33.0107121706280.4604-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Be careful tuning for LMbench (says the author :-)
 
-Especially this benchmark.  It's certainly possible to get dramatically better
-SMP numbers by pinning all the lat_ctx processes to a single CPU, because 
-the benchmark is single threaded.  In other words, if we have 5 processes,
-call them A, B, C, D, and E, then the benchmark is passing a token from
-A to B to C to D to E and around again.  
+Well, I think I've found the reason for your hang.
 
-If the amount of data/instructions needed by all 5 processes fits in the 
-cache and you pin all the processes to the same CPU you'll get much 
-better performance than simply letting them float.
+Your video card is also on irq11.
 
-But making the system do that naively is a bad idea.
+And I bet you don't have a driver that knows about it.
 
-This is a really hard area to get right but you can take a page from all
-the failed process migration efforts.  In general, moving stuff is a bad
-idea, it's much better to leave it where it is.  Everything scales better
-if there is a process queue per CPU and the default is that you leave the
-processes on the queue on which they last run.  However, if the load average
-for a queue starts going up and there is another queue with a substantially
-lower load average, then and ONLY then, should you move the process.
+So let's run a thought experiment:
+ - enabling yenta enables the irq routing for "link 0x01", which is the
+   first IRQ input into the southbridge.
+ - some time later a vertical refresh happens
+ - the video card, that is also routed to link 0x01, raises the vertical
+   refresh irq.
+ - Linux has a irq handler for irq11, but no yenta state changes, so the
+   irq handler returns immediately without doing anything.
+ - the video card (being a PCI card) still raises the irq. Forever. Repeat.
 
-I think if you experiment with that you'll see that lat_ctx does well and
-so do a lot of other things.
+Ho humm.. I'd love to test this out some way, but the video card does seem
+to be physically routed to the same southbridge interupt pin, so while I
+can move that interrupt around, the video card will always move with it.
+So it wouldn't help, for example, to try to make pci-irq.c try to select
+another irq line.
 
-An optimization on that requires hardware support.  If you knew the number
-of cache misses associated with each time slice, you could factor that in
-and start moving processes that have a "too high" cache miss rate, with the
-idea being that we want to keep all processes on the same CPU if we can
-but if that is causing an excessive cache miss rate, it's time to move.
+So you can try two things:
+ - if you have a BIOS setting for VGA interrupts, turn it OFF.
+ - if you don't (or you just think you're too manly to resort to BIOS
+   settings), you could try to add something like this as a hack to
+   yenta.c (somewhere in the init routines)
 
-Another optimization is to always schedule an exec-ed process (as opposed
-to a forked process) on a different CPU than its parent.  In general, when
-you exec you have a clear boundary and it's good to spread those out.
+	struct pci_dev * video;
 
-All of this is based on my somewhat dated performance efforts that lead to
-LMbench.  I don't know of any fundamental changed that invalidate these 
-opinions but I could be wrong.
+	video = pci_find_class(PCI_CLASS_DISPLAY_VGA, NULL);
+	if (video) {
+		char * base = ioremap(pci_resource_start(dev, 2), 4096);
 
-This is an area in which I've done a pile of work and I'd be interested
-in keeping a finger in any efforts to fix up the scheduler.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+		/* Turn off interrupts for ATI Rage graphics card */
+		writel(0, base + 0x40);
+	}
+
+Note, that "writel()" may or may not work. It's a guess from some rather
+limited documentation, namely the header #defines of the XFree86 driver.
+
+The above is a complete hack, and assumes that the only VGA-compatible
+controller in the system is an ATI card. But if you can't find a VGA irq
+enable thing in the BIOS setup, it might be worth trying.
+
+		Linus
+

@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280957AbRKKFh1>; Sun, 11 Nov 2001 00:37:27 -0500
+	id <S280969AbRKKF4G>; Sun, 11 Nov 2001 00:56:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280958AbRKKFhS>; Sun, 11 Nov 2001 00:37:18 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:31761 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S280957AbRKKFhG>; Sun, 11 Nov 2001 00:37:06 -0500
-Message-ID: <001401c16a72$bcfcbaa0$f5976dcf@nwfs>
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-To: <lobo@polbox.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011111043442.A3454@chello062179017166.chello.pl>
-Subject: Re: Nazi kernels
-Date: Sat, 10 Nov 2001 22:35:56 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S280970AbRKKFz4>; Sun, 11 Nov 2001 00:55:56 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:29197 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S280969AbRKKFzj>;
+	Sun, 11 Nov 2001 00:55:39 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.11 is available 
+Date: Sun, 11 Nov 2001 16:55:29 +1100
+Message-ID: <26919.1005458129@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since Windows 2000 is being open sourced (according to the latest settlement
-announcement) why don't you try theirs?   Then your servers can get broken
-into regularly by hackers, infected with W2K viruses, and you even get to
-reboot them at least 3-4 times per week.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-:-)
+Content-Type: text/plain; charset=us-ascii
 
-Jeff
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
------ Original Message -----
-From: <lobo@polbox.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Saturday, November 10, 2001 8:34 PM
-Subject: Nazi kernels
+modutils-2.4.11.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.11-1.src.rpm       As above, in SRPM format
+modutils-2.4.11-1.i386.rpm      Compiled with gcc 2.96 20000731,
+				glibc 2.2.2.
+patch-modutils-2.4.11.gz        Patch from modutils 2.4.10 to 2.4.11.
 
+Related kernel patches.
 
-> Hi!
->
-> Thank You guys for Your work. I'm say goodbye to linux community,
-> because nazi kernel's don't allow me to load modules needed for my
-> graphic card. What will be next, maybe you disable to run non GPL
-> executables under linux ?
->
-> Regards Przemek
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+patch-2.4.2-persistent.gz       Adds persistent data and generic string
+				support to kernel 2.4.2 onwards.  Optional.
+
+Changelog extract
+
+	* Add taint printing to lsmod.
+	* PPC64 support.  Alan Modra, Anton Blanchard.  Tweaked by Keith Owens.
+	* HPPA64 configure fix.  Reported by Helge Deller, different fix by
+	  Keith Owens.
+	* PNPBIOS support.  Andrey Panin.
+	* Add __sparc_dot_ to depmod.  Alex Buell.
+	* Add generic __dot_ support to depmod.  Keith Owens.
+
+Sparc and ia64 rpms to follow later.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE77hLQi4UHNye0ZOoRAjK3AKCmLVgxU1NIU+diZ1eOhy0XYj3LaACdG+zl
+s+An31n7UFc6wSKpmUPf710=
+=4M20
+-----END PGP SIGNATURE-----
 

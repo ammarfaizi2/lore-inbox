@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbUCOP2D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 10:28:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUCOP2D
+	id S262602AbUCOP2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 10:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbUCOP2s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 10:28:03 -0500
-Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:12161 "EHLO
-	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S262600AbUCOP2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 10:28:01 -0500
-From: jlnance@unity.ncsu.edu
-Date: Mon, 15 Mar 2004 10:28:01 -0500
+	Mon, 15 Mar 2004 10:28:48 -0500
+Received: from lindsey.linux-systeme.com ([62.241.33.80]:7945 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262602AbUCOP2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 10:28:44 -0500
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
 To: linux-kernel@vger.kernel.org
-Subject: Re: Hugetlbpages in very large memory machines.......
-Message-ID: <20040315152801.GA6604@ncsu.edu>
-References: <40528383.10305@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH] Bind Mount Extensions 0.04 (linux-2.6.4)
+Date: Mon, 15 Mar 2004 14:25:15 +0100
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>, Herbert Poetzl <herbert@13thfloor.at>,
+       torvalds@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
+References: <20040315035506.GB30948@MAIL.13thfloor.at> <20040314201457.23fdb96e.akpm@osdl.org>
+In-Reply-To: <20040314201457.23fdb96e.akpm@osdl.org>
+X-Operating-System: Linux 2.4.20-wolk4.10s i686 GNU/Linux
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40528383.10305@sgi.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200403151425.15483@WOLK>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 09:44:03PM -0600, Ray Bryant wrote:
-> We've run into a scaling problem using hugetlbpages in very large memory 
-> machines, e. g. machines with 1TB or more of main memory.
+On Monday 15 March 2004 05:14, Andrew Morton wrote:
 
-You know, when I started using Linux it wouldn't support more than 16M
-of ram.  No one complained because no one using Linux had a machine with
-more than 16M of ram.  It looks like things have progressed a bit since
-then :-)
+Hi Herbert, Andrew,
 
-Jim
+> Herbert Poetzl <herbert@13thfloor.at> wrote:
+> >  ; this patch adds some functionality to the --bind
+> >  ; type of vfs mounts.
+
+> This won't apply any more.  We very recently changed a large number of
+> filesystems to not call update_atime() from within their readdir functions.
+> That operation was hoisted up to vfs_readdir().
+
+right. Anyway, I like to see this merged into -mm for wider testing after 
+Herbert has fixed up some things like update_atime removal etc.
+
+I personally use it for a long time now and I really like it.
+
+ciao, Marc
+

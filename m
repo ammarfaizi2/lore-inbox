@@ -1,170 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318148AbSHDLFV>; Sun, 4 Aug 2002 07:05:21 -0400
+	id <S318153AbSHDLVO>; Sun, 4 Aug 2002 07:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318152AbSHDLFU>; Sun, 4 Aug 2002 07:05:20 -0400
-Received: from ns.suse.de ([213.95.15.193]:61961 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S318148AbSHDLFS>;
-	Sun, 4 Aug 2002 07:05:18 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@redhat.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] Caches that shrink automatically
-Date: Sun, 4 Aug 2002 13:08:51 +0200
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_RAGBBEO7HW8ODLW861OH"
-Message-Id: <200208041308.51638.agruen@suse.de>
+	id <S318154AbSHDLVN>; Sun, 4 Aug 2002 07:21:13 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:824 "EHLO devil.stev.org")
+	by vger.kernel.org with ESMTP id <S318153AbSHDLVN>;
+	Sun, 4 Aug 2002 07:21:13 -0400
+Message-ID: <003401c23ba9$35900d20$0501a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Alpha opps on 2.4.19
+Date: Sun, 4 Aug 2002 12:22:24 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+During bootup the following happens.
 
---------------Boundary-00=_RAGBBEO7HW8ODLW861OH
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Error (regular_file): read_system_map stat /boot/System.map-2.4.3-12 failed
+Unable to handle kernel paging request at virtual address 02bffc0000651608
+init(1): Oops 0
+pc = [<fffffc00003446a0>]  ra = [<fffffc000034490c>]  ps = 0000    Not
+tainted
+Using defaults from ksymoops -t elf64-alpha
+v0 = fffffc000055e6d0  t0 = 0007ffffffffff85  t1 = fffffc00001f2000
+t2 = 02bffc00006515d8  t3 = fffffc0000654020  t4 = 00000000000003ff
+t5 = 0000000000040305  t6 = 000000011ffff718  t7 = fffffc000bfcc000
+s0 = 00000200001b49c0  s1 = fffffc000051a0c0  s2 = fffffc00005c6a28
+s3 = fffffc000051a0c0  s4 = fffffc0000516880  s5 = fffffc000055e6d0
+s6 = 0000000000000001
+a0 = fffffc000051a0c0  a1 = fffffc0000516880  a2 = fffffc000055e6d0
+a3 = 0000000000000001  a4 = 00000200001b49c0  a5 = 000000000000001a
+t8 = 0000000000000008  t9 = 0000020000019020  t10= fffffc00003135c8
+t11= fffffc000bfcfcd8  pv = 0000000000000000  at = 000002000002c788
+gp = fffffc000060a180  sp = fffffc000bfcfab8
+Trace:fffffc000034490c fffffc0000344ca8 fffffc000032bd08 fffffc00003469e8
+fffff
+Code: a4820640  40230521  4821b681  40210563  40610563  40640643 <a4230030>
+482
+Error (Oops_code_values): invalid value 0x482 in Code line, must be 2, 4, 8
+or 16 digits, value ignored
 
-Hello,
+>>PC;  fffffc00003446a0 <do_anonymous_page+70/280>   <=====
+Trace; fffffc000034490c <do_no_page+5c/320>
+Trace; fffffc0000344ca8 <handle_mm_fault+d8/1d0>
+Trace; fffffc000032bd08 <do_page_fault+238/4f0>
+Trace; fffffc00003469e8 <sys_munmap+78/e0>
+Trace; 00000000000fffff Before first symbol
+Code;  fffffc0000344688 <do_anonymous_page+58/280>
+0000000000000000 <_PC>:
+Code;  fffffc0000344688 <do_anonymous_page+58/280>
+   0:   40 06 82 a4       ldq  t3,1600(t1)
+Code;  fffffc000034468c <do_anonymous_page+5c/280>
+   4:   21 05 23 40       subq t0,t2,t0
+Code;  fffffc0000344690 <do_anonymous_page+60/280>
+   8:   81 b6 21 48       srl  t0,0xd,t0
+Code;  fffffc0000344694 <do_anonymous_page+64/280>
+   c:   63 05 21 40       s4subq       t0,t0,t2
+Code;  fffffc0000344698 <do_anonymous_page+68/280>
+  10:   63 05 61 40       s4subq       t2,t0,t2
+Code;  fffffc000034469c <do_anonymous_page+6c/280>
+  14:   43 06 64 40       s8addq       t2,t3,t2
+Code;  fffffc00003446a0 <do_anonymous_page+70/280>
+  18:   30 00 23 a4       ldq  t0,48(t2)
 
-Currently there is no way for modules to define dynamically sized caches =
-that=20
-shrink upon memory pressure. We need this for implementing Extended Attri=
-bute=20
-caches on ext2, ext3, and ReiserFS. Other caches could also make use of t=
-he=20
-same mechanism (e.g., nfsd's permission cache, dcache, icache, dqache).
+Kernel panic: Attempted to kill init!
 
-I propose this patch, which adds the register_cache() and unregister_cach=
-e()=20
-functions. They allow to register a callback which is invoked on memory=20
-pressure. This callback shall then try to free some memory; the parameter=
-s=20
-and semantics are similar to the other shrink functions in mm/vmscan.c.
+2 errors issued.  Results may not be reliable.
 
 
-Regards,
-Andreas.
+--------------------------
+Mobile: +44 07779080838
+http://www.stev.org
+ 12:00pm  up 13:47,  3 users,  load average: 0.00, 0.02, 0.00
 
-------------------------------------------------------------------
- Andreas Gruenbacher                                SuSE Linux AG
- mailto:agruen@suse.de                     Deutschherrnstr. 15-19
- http://www.suse.de/                   D-90429 Nuernberg, Germany
---------------Boundary-00=_RAGBBEO7HW8ODLW861OH
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="linux-2.5.30-cache_definition-0.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="linux-2.5.30-cache_definition-0.diff"
 
-Modular caches that shrink automatically
-
-This patch adds the register_cache() and unregister_cache() functions which
-register a callback that is invoked on memory pressure to free some memory. The
-parameters and semantics to the callback are similar to the other shrink
-functions.
-
-diff -Nur linux-2.5.30/include/linux/cache_def.h linux-2.5.30.patch/include/linux/cache_def.h
---- linux-2.5.30/include/linux/cache_def.h	Thu Jan  1 01:00:00 1970
-+++ linux-2.5.30.patch/include/linux/cache_def.h	Sat Aug  3 13:58:07 2002
-@@ -0,0 +1,15 @@
-+/*
-+ * linux/cache_def.h
-+ * Modular caches that shrink automatically
-+ *
-+ * Copyright (C) 2002 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
-+ */
-+
-+struct cache_definition {
-+	const char *name;
-+	void (*shrink)(int, unsigned int);
-+	struct list_head link;
-+};
-+
-+extern void register_cache(struct cache_definition *);
-+extern void unregister_cache(struct cache_definition *);
-diff -Nur linux-2.5.30/kernel/ksyms.c linux-2.5.30.patch/kernel/ksyms.c
---- linux-2.5.30/kernel/ksyms.c	Thu Aug  1 23:16:02 2002
-+++ linux-2.5.30.patch/kernel/ksyms.c	Fri Aug  2 15:57:42 2002
-@@ -31,6 +31,7 @@
- #include <linux/genhd.h>
- #include <linux/blkpg.h>
- #include <linux/swap.h>
-+#include <linux/cache_def.h>
- #include <linux/ctype.h>
- #include <linux/file.h>
- #include <linux/iobuf.h>
-@@ -106,6 +107,8 @@
- EXPORT_SYMBOL(kmem_cache_alloc);
- EXPORT_SYMBOL(kmem_cache_free);
- EXPORT_SYMBOL(kmem_cache_size);
-+EXPORT_SYMBOL(register_cache);
-+EXPORT_SYMBOL(unregister_cache);
- EXPORT_SYMBOL(kmalloc);
- EXPORT_SYMBOL(kfree);
- EXPORT_SYMBOL(vfree);
-Binary files linux-2.5.30/mm/.vmscan.c.swp and linux-2.5.30.patch/mm/.vmscan.c.swp differ
-diff -Nur linux-2.5.30/mm/vmscan.c linux-2.5.30.patch/mm/vmscan.c
---- linux-2.5.30/mm/vmscan.c	Thu Aug  1 23:16:08 2002
-+++ linux-2.5.30.patch/mm/vmscan.c	Sat Aug  3 13:56:55 2002
-@@ -15,6 +15,7 @@
- #include <linux/slab.h>
- #include <linux/kernel_stat.h>
- #include <linux/swap.h>
-+#include <linux/cache_def.h>
- #include <linux/smp_lock.h>
- #include <linux/pagemap.h>
- #include <linux/init.h>
-@@ -61,6 +62,39 @@
- 	return 0;
- }
- 
-+static DECLARE_MUTEX(other_caches_lock);
-+static LIST_HEAD(other_caches);
-+
-+void register_cache(struct cache_definition *cache)
-+{
-+	down(&other_caches_lock);
-+	list_add(&cache->link, &other_caches);
-+	up(&other_caches_lock);
-+}
-+
-+void unregister_cache(struct cache_definition *cache)
-+{
-+	down(&other_caches_lock);
-+	list_del(&cache->link);
-+	up(&other_caches_lock);
-+}
-+
-+static void shrink_other_caches(unsigned int priority, int gfp_mask)
-+{
-+	struct list_head *p = other_caches.prev;
-+
-+	down(&other_caches_lock);
-+	while (p != &other_caches) {
-+		struct cache_definition *cache =
-+			list_entry(p, struct cache_definition, link);
-+
-+		cache->shrink(priority, gfp_mask);
-+		p = p->prev;
-+	}
-+	up(&other_caches_lock);
-+}
-+
-+
- static int
- shrink_cache(int nr_pages, zone_t *classzone,
- 		unsigned int gfp_mask, int priority, int max_scan)
-@@ -395,6 +429,7 @@
- #ifdef CONFIG_QUOTA
- 	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
- #endif
-+	shrink_other_caches(priority, gfp_mask);
- 
- 	return nr_pages;
- }
-
---------------Boundary-00=_RAGBBEO7HW8ODLW861OH--
 

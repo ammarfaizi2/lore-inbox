@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUFLEE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264635AbUFLEgA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264627AbUFLEE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 00:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264628AbUFLEE0
+	id S264635AbUFLEgA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 00:36:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUFLEgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 00:04:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:15291 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264627AbUFLEE0 (ORCPT
+	Sat, 12 Jun 2004 00:36:00 -0400
+Received: from waste.org ([209.173.204.2]:20710 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264635AbUFLEf6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 00:04:26 -0400
-Date: Fri, 11 Jun 2004 21:00:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: herbert@gondor.apana.org.au, pavel@suse.cz, mochel@digitalimplant.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fix memory leak in swsusp
-Message-Id: <20040611210059.2522e02d.akpm@osdl.org>
-In-Reply-To: <40CA75CA.2030209@linuxmail.org>
-References: <20040609130451.GA23107@elf.ucw.cz>
-	<E1BYN8O-0008Vg-00@gondolin.me.apana.org.au>
-	<20040610105629.GA367@gondor.apana.org.au>
-	<20040610212448.GD6634@elf.ucw.cz>
-	<20040610233707.GA4741@gondor.apana.org.au>
-	<20040611094844.GC13834@elf.ucw.cz>
-	<20040611101655.GA8208@gondor.apana.org.au>
-	<20040611102327.GF13834@elf.ucw.cz>
-	<20040611110314.GA8592@gondor.apana.org.au>
-	<40CA75CA.2030209@linuxmail.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 12 Jun 2004 00:35:58 -0400
+Date: Fri, 11 Jun 2004 23:35:47 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: stian@nixia.no, linux-kernel@vger.kernel.org
+Subject: Re: timer + fpu stuff locks my console race
+Message-ID: <20040612043546.GF5414@waste.org>
+References: <1701.83.109.60.63.1086814977.squirrel@nepa.nlc.no> <Pine.LNX.4.44.0406112252160.13607-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0406112252160.13607-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@linuxmail.org> wrote:
->
->  We were avoiding the use of memcpy because it messes up the preempt count with 3DNow, and 
->  potentially as other unseen side effects. The preempt could possibly simply be reset at resume time, 
->  but the point remains.
+On Fri, Jun 11, 2004 at 10:53:48PM -0400, Rik van Riel wrote:
+> On Wed, 9 Jun 2004 stian@nixia.no wrote:
+> 
+> > I'm doing some code tests when I came across problems with my program
+> > locking my console (even X if I'm using a xterm).
+> 
+> Reproduced here, on my test system running a 2.6 kernel.
+> I did get a kernel backtrace over serial console, though ;)
 
-eh?  memcpy just copies memory.  Maybe your meant copy_*_user()?
+I stuck some strategic printks in the kernel. The example code's bogus
+asm is generating an FPU fault in frstor in its signal handler, that's
+bumping us into math_error -> force_sig_info ->
+specific_send_sig_info. Then we hit:
+
+        if (LEGACY_QUEUE(&t->pending, sig))
+
+which decides we don't need to send the signal after all and we bail
+all the way back out and recurse.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,65 +1,172 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262095AbSI3N61>; Mon, 30 Sep 2002 09:58:27 -0400
+	id <S262064AbSI3Nnj>; Mon, 30 Sep 2002 09:43:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262082AbSI3NzV>; Mon, 30 Sep 2002 09:55:21 -0400
-Received: from [203.117.131.12] ([203.117.131.12]:17108 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id <S262095AbSI3Nob>; Mon, 30 Sep 2002 09:44:31 -0400
-Message-ID: <3D98567E.5010502@metaparadigm.com>
-Date: Mon, 30 Sep 2002 21:49:50 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+	id <S262068AbSI3Nnj>; Mon, 30 Sep 2002 09:43:39 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:34766 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S262064AbSI3Nnf> convert rfc822-to-8bit; Mon, 30 Sep 2002 09:43:35 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] 2.5.39 s390 (4/26): syscalls.
+Date: Mon, 30 Sep 2002 14:51:56 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: Matthias Andree <matthias.andree@gmx.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: v2.6 vs v3.0
-References: <200209290114.15994.jdickens@ameritech.net> <20020929214652.GF12928@merlin.emma.line.org> <3D97F7AE.5070304@metaparadigm.com> <02093008055700.15956@boiler>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209301451.56224.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 09/30/02 21:05, Kevin Corry wrote:
-> On Monday 30 September 2002 02:05, Michael Clark wrote:
-> 
->>On 09/30/02 05:46, Matthias Andree wrote:
->>
->>>Is not EVMS ready for the show? Is Linux >=2.6 going to have LVM2 and
->>>EVMS? Or just LVM2? I'm not aware of the current status, but I do recall
->>>having seen EVMS stable announcements (but not sure about 2.5 status).
->>
->> From reading the EVMS list, it was working with 2.5.36 a couple weeks
->>ago but needs some small bio and gendisk changes to work in 2.5.39.
->>
->>http://sourceforge.net/mailarchive/forum.php?thread_id=1105826&forum_id=2003
->>
->>CVS version may be up-to-date quite soon from reading the thread.
->>It seems to be further along in 2.5 support than LVM2 - also including
->>the fact that EVMS supports LVM1 metadata (which the 2.5 version of LVM2
->>may not do so quite so soon from mentions on the lvm list).
->>
->>I haven't tried EVMS but certainly from looking at the feature set,
->>it looks more comprehensive and modular than LVM (with its support
->>for multiple metadata personalities).
->>
->>I too have LVM on quite a few of my machines, including my desktop,
->>and if I wanted to test 2.5 right now - i'd probably have to do it
->>using EVMS.
-> 
-> 
-> EVMS is now up-to-date and running on 2.5.39. You can get the latest kernel 
-> code from CVS (http://sourceforge.net/cvs/?group_id=25076) or Bitkeepr 
-> (http://evms.bkbits.net/). There will be a new, full release (1.2) coming out 
-> this week.
+New system calls: security, async. i/o and sys_exit_group. Add 31 bit emulation
+function for sys_futex.
 
-Yes, i just booted up with EVMS CVS on 2.5.39. Detected all my LVM LV's fine.
-After cautious tests with them mounted ro, i then preceded to mount them rw
-and continued boot up. Working fine so far. Great work.
-
-All i needed to do was change my vgscan to evms_vgscan and adjust my mount
-points to the new style ( /dev/evms/lvm/<vg></<lv> ).
-
-~mc
+diff -urN linux-2.5.39/arch/s390/kernel/entry.S linux-2.5.39-s390/arch/s390/kernel/entry.S
+--- linux-2.5.39/arch/s390/kernel/entry.S	Fri Sep 27 23:49:13 2002
++++ linux-2.5.39-s390/arch/s390/kernel/entry.S	Mon Sep 30 13:25:21 2002
+@@ -581,7 +581,15 @@
+ 	.long  sys_futex
+ 	.long  sys_sched_setaffinity
+ 	.long  sys_sched_getaffinity	 /* 240 */
+-	.rept  255-240
++	.long  sys_security
++	.long  sys_ni_syscall		 /* reserved for TUX */
++	.long  sys_io_setup
++	.long  sys_io_destroy
++	.long  sys_io_getevents		 /* 245 */
++	.long  sys_io_submit
++	.long  sys_io_cancel
++	.long  sys_exit_group
++	.rept  255-248
+ 	.long  sys_ni_syscall
+ 	.endr
+ 
+diff -urN linux-2.5.39/arch/s390x/kernel/entry.S linux-2.5.39-s390/arch/s390x/kernel/entry.S
+--- linux-2.5.39/arch/s390x/kernel/entry.S	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/entry.S	Mon Sep 30 13:25:21 2002
+@@ -606,13 +606,21 @@
+ 	.long  SYSCALL(sys_flistxattr,sys32_flistxattr_wrapper)
+ 	.long  SYSCALL(sys_removexattr,sys32_removexattr_wrapper)
+ 	.long  SYSCALL(sys_lremovexattr,sys32_lremovexattr_wrapper)
+-	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper)
++	.long  SYSCALL(sys_fremovexattr,sys32_fremovexattr_wrapper) /* 235 */
+ 	.long  SYSCALL(sys_gettid,sys_gettid)
+ 	.long  SYSCALL(sys_tkill,sys_tkill)
+ 	.long  SYSCALL(sys_futex,sys32_futex_wrapper)
+ 	.long  SYSCALL(sys_sched_setaffinity,sys32_sched_setaffinity_wrapper)
+-	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper)
+-        .rept  255-240
++	.long  SYSCALL(sys_sched_getaffinity,sys32_sched_getaffinity_wrapper) /* 240 */
++	.long  SYSCALL(sys_security,sys_ni_syscall)
++	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall) /* reserved for TUX */
++	.long  SYSCALL(sys_io_setup,sys_ni_syscall)
++	.long  SYSCALL(sys_io_destroy,sys_ni_syscall)
++	.long  SYSCALL(sys_io_getevents,sys_ni_syscall)       /* 245 */
++	.long  SYSCALL(sys_io_submit,sys_ni_syscall)
++	.long  SYSCALL(sys_io_cancel,sys_ni_syscall)
++	.long  SYSCALL(sys_exit_group,sys32_exit_group_wrapper)
++        .rept  255-248
+ 	.long  SYSCALL(sys_ni_syscall,sys_ni_syscall)
+ 	.endr
+ 
+diff -urN linux-2.5.39/arch/s390x/kernel/linux32.c linux-2.5.39-s390/arch/s390x/kernel/linux32.c
+--- linux-2.5.39/arch/s390x/kernel/linux32.c	Mon Sep 30 13:25:21 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/linux32.c	Mon Sep 30 13:25:21 2002
+@@ -4531,3 +4531,34 @@
+ 
+ 	return ret;
+ }
++
++asmlinkage int 
++sys_futex(void *uaddr, int op, int val, struct timespec *utime);
++
++asmlinkage int
++sys32_futex(void *uaddr, int op, int val, 
++		 struct timespec32 *timeout32)
++{
++	long ret;
++	struct timespec tmp, *timeout;
++
++	ret = -ENOMEM;
++	timeout = kmalloc(sizeof(*timeout), GFP_USER);
++	if (!timeout)
++		goto out;
++
++	ret = -EINVAL;
++	if (get_user (tmp.tv_sec,  &timeout32->tv_sec)  ||
++	    get_user (tmp.tv_nsec, &timeout32->tv_nsec) ||
++	    put_user (tmp.tv_sec,  &timeout->tv_sec)    ||
++	    put_user (tmp.tv_nsec, &timeout->tv_nsec))
++		goto out_free;
++
++	ret = sys_futex(uaddr, op, val, timeout);
++
++out_free:
++	kfree(timeout);
++out:
++	return ret;
++}
++
+diff -urN linux-2.5.39/arch/s390x/kernel/wrapper32.S linux-2.5.39-s390/arch/s390x/kernel/wrapper32.S
+--- linux-2.5.39/arch/s390x/kernel/wrapper32.S	Fri Sep 27 23:49:52 2002
++++ linux-2.5.39-s390/arch/s390x/kernel/wrapper32.S	Mon Sep 30 13:25:21 2002
+@@ -1114,7 +1114,7 @@
+ 	lgfr	%r3,%r3			# int
+ 	lgfr	%r4,%r4			# int
+ 	llgtr	%r5,%r5			# struct timespec *
+-	jg	sys_futex		# branch to system call
++	jg	sys32_futex		# branch to system call
+ 
+ 	.globl	sys32_setxattr_wrapper
+ sys32_setxattr_wrapper:
+@@ -1220,3 +1220,7 @@
+ 	llgtr	%r4,%r4			# unsigned long *
+ 	jg	sys32_sched_getaffinity
+ 
++	.globl  sys32_exit_group_wrapper
++sys32_exit_group_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_exit_group		# branch to system call
+diff -urN linux-2.5.39/include/asm-s390/unistd.h linux-2.5.39-s390/include/asm-s390/unistd.h
+--- linux-2.5.39/include/asm-s390/unistd.h	Fri Sep 27 23:50:59 2002
++++ linux-2.5.39-s390/include/asm-s390/unistd.h	Mon Sep 30 13:25:21 2002
+@@ -231,6 +231,16 @@
+ #define __NR_futex		238
+ #define __NR_sched_setaffinity	239
+ #define __NR_sched_getaffinity	240
++#define __NR_security		241	/* syscall for security modules */
++/*
++ * Number 242 is reserved for tux
++ */
++#define __NR_io_setup		243
++#define __NR_io_destroy		244
++#define __NR_io_getevents	245
++#define __NR_io_submit		246
++#define __NR_io_cancel		247
++#define __NR_exit_group		248
+ 
+ 
+ /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
+diff -urN linux-2.5.39/include/asm-s390x/unistd.h linux-2.5.39-s390/include/asm-s390x/unistd.h
+--- linux-2.5.39/include/asm-s390x/unistd.h	Fri Sep 27 23:50:24 2002
++++ linux-2.5.39-s390/include/asm-s390x/unistd.h	Mon Sep 30 13:25:21 2002
+@@ -198,6 +198,16 @@
+ #define __NR_futex		238
+ #define __NR_sched_setaffinity	239
+ #define __NR_sched_getaffinity	240
++#define __NR_security		241	/* syscall for security modules */
++/*
++ * Number 242 is reserved for tux
++ */
++#define __NR_io_setup		243
++#define __NR_io_destroy		244
++#define __NR_io_getevents	245
++#define __NR_io_submit		246
++#define __NR_io_cancel		247
++#define __NR_exit_group		248
+ 
+ 
+ /* user-visible error numbers are in the range -1 - -122: see <asm-s390/errno.h> */
 

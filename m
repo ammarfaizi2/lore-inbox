@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267953AbUGaOMe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUGaORF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267953AbUGaOMe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 10:12:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267956AbUGaOMe
+	id S267509AbUGaORF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 10:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbUGaORE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 10:12:34 -0400
-Received: from acp2.internetdsl.tpnet.pl ([83.16.67.2]:7064 "EHLO obarlan.pl")
-	by vger.kernel.org with ESMTP id S267953AbUGaOMa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 10:12:30 -0400
-Date: Sat, 31 Jul 2004 16:22:23 +0200 (CEST)
-From: tolekb@obarlan.pl
-To: linux-kernel@vger.kernel.org
-Subject: problem: device drivers
-Message-ID: <Pine.LNX.4.58.0407311543120.5605@obarlan.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 31 Jul 2004 10:17:04 -0400
+Received: from ms-2.rz.RWTH-Aachen.DE ([134.130.3.131]:38337 "EHLO
+	ms-dienst.rz.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id S267955AbUGaOQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 10:16:35 -0400
+Date: Sat, 31 Jul 2004 16:14:53 +0200
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+Subject: Re: EHCI / pci power state / suspend annoying interactions
+In-reply-to: <20040731121944.GA47191@dspnet.fr.eu.org>
+To: Olivier Galibert <galibert@pobox.com>,
+       "Hack inc." <linux-kernel@vger.kernel.org>
+Message-id: <200407311614.55653@zodiac.zodiac.dnsalias.org>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.2
+X-Ignorant-User: yes
+References: <20040731121944.GA47191@dspnet.fr.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI
+Am Samstag, 31. Juli 2004 14:19 schrieb Olivier Galibert:
+> The EHCI on the latitude x300 does not have D2 capability:
 
-Few days ago I noticed problem with cd-rom control:
-I put cd-rom damaged disc into cd-rom drive and I want to run it.
-cd-rom (tried to start cd but he couldn't do this) and aplication 
-stoped 
-doing anything (not responding).
-OK. I thought: umount the cd (I saw: device is busy)
-OK. I thought: kill process (proces wasn't killed - I tried many time)
-OK. I thought: I give up, I do shutdown (shutdown was hung on unmounting 
-file system).
+> That fails suspend-to-ram because dev->suspend which is
+> usb_hcd_pci_suspend calls pci_set_power_state to request level D2,
+> which fails with -EIO.  The error is propagated back and the suspend
+> aborts.  What should actually happen in that case?
 
-How can I fight with this (if it's possible).
+This is a known problem. The guys are working on a fix.
 
-I know: under windows I can take out cd - brutal force, but under 
-linux I can't.
+regards
+Alex
 
-Some my frends have the same problem with floppy drive.
+-- 
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-PS. Sorry for my poor english.
-
-TolekB.
-tolekb@obarlan.pl

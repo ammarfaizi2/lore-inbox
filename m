@@ -1,98 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbTJYWHU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 18:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263110AbTJYWHU
+	id S262721AbTJYWdf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 18:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTJYWdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 18:07:20 -0400
-Received: from griffin-can-au.getin2net.com ([203.43.225.34]:29188 "EHLO
-	griffin-can-au.getin2net.com") by vger.kernel.org with ESMTP
-	id S263062AbTJYWHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 18:07:18 -0400
-Subject: Re: [Dri-devel] Re: [Linux-fbdev-devel] DRM and pci_driver
-	conversion
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Reply-To: benh@kernel.crashing.org
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Egbert Eich <eich@xfree86.org>, Jon Smirl <jonsmirl@yahoo.com>,
-       Eric Anholt <eta@lclark.edu>, Kronos <kronos@kronoz.cjb.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0310251116140.4083-100000@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1067119628.3570.23.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 26 Oct 2003 00:07:08 +0200
+	Sat, 25 Oct 2003 18:33:35 -0400
+Received: from kde.informatik.uni-kl.de ([131.246.103.200]:52360 "EHLO
+	dot.kde.org") by vger.kernel.org with ESMTP id S262721AbTJYWde
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 18:33:34 -0400
+Date: Sun, 26 Oct 2003 00:31:51 +0200 (CEST)
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+X-X-Sender: bero@dot.kde.org
+To: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: 2.4.23-pre8 ACPI breaks x86_64
+Message-ID: <Pine.LNX.4.56.0310260018100.28163@dot.kde.org>
+X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
+X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="658386544-830883715-1067121111=:28163"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Face it, a good graphics driver needs more than just "set up the ROM". It
-> needs DMA access, and the ability to use interrupts. It needs a real
-> driver.
-> 
-> It basically needs something like what the DRI modules tend to do.
-> 
-> I'd be really happy to have real graphics drivers in the kernel, but quite
-> frankly, so far the abstractions I've seen have sucked dead donkeys
-> through a straw. "fbcon" does way too much (it's not a driver, it's more a
-> text delivery system and a mode switcher). And DRI is too complex and
-> fluid to be a good low-level driver.
+--658386544-830883715-1067121111=:28163
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Well... While I tend to agree, note that in 2.6 fbcon and the fbdev
-itself _do_ have been separated. The fbdevs are moving toward that
-low level driver thing.
+SSIA - drivers/acpi/bus.c started using acpi_pic_set_level_irq 
+unconditionally, and the function doesn't exist on x86_64.
 
-> Quite frankly, I'd much rather see a low-level graphics driver that does
-> _two_ things, and those things only:
-> 
->  - basic hardware enumeration and setup (and no, "basic setup" does not
->    mean "mode switching": it literally means things like doing the 
->    pci_enable_device() stuff.
-> 
->  - serialization and arbitrary command queuing from a _trusted_ party (ie
->    it could take command lists from the X server, but not from untrusted
->    clients). This part basically boils down to "DMA and interrupts". This 
->    is the part that allows others to wait for command completion, "enough 
->    space in the ring buffers" etc. But it does _not_ know or care what the 
->    commands are.
+The attached patch _might_ fix it (I don't have the x86_64 manuals and 
+can't reboot my x86_64 test box to test myself ATM -- too many people 
+working on it ;) )
 
-IMHO, that low level driver should be ... the fbdev. The main reason for
-that is the necessary locking & synchronisation between the command flow
-and mode switching, palette control and cursor control (which aren't
-things doable via the normal command path on moth cases).
+LLaP
+bero
 
-> Then, fbcon and DRI and X could all three use these basics - and they'd be
-> _so_ basic that the hardware layer could be really stable (unlike the DRI
-> code that tends to have to upgrade for each new type of command that DRI
-> adds - since it has to take care of untrusted clients. So DRI would
-> basically use the low-level driver as a separate module, the way it
-> already uses AGP).
+-- 
+Ark Linux - Linux for the masses
+http://www.arklinux.org/
 
-I agree that fbcon itself should (and is now in 2.6) be a separate
-module. The interface is still scary, the locking is almost absent,
-which is a real problem even with current mode switching beeing racy
-with printk & blanking, but at least we have something that works and
-can evolve in the right direction.
+Redistribution and processing of this message is subject to
+http://www.arklinux.org/terms.php
+--658386544-830883715-1067121111=:28163
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="pre8-acpi-x86_64.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.56.0310260031510.28163@dot.kde.org>
+Content-Description: Suspected fix
+Content-Disposition: attachment; filename="pre8-acpi-x86_64.patch"
 
-Look how the fbdev interface was simplified in the 2.4 -> 2.6
-transition, it's really a lot saner now, and I hope it will continue
-to improve.
+LS0tIGxpbnV4LTIuNC4yMi9hcmNoL3g4Nl82NC9rZXJuZWwvYWNwaS5jLmFy
+awkyMDAzLTEwLTI2IDA3OjI1OjEwLjAwMDAwMDAwMCArMDEwMA0KKysrIGxp
+bnV4LTIuNC4yMi9hcmNoL3g4Nl82NC9rZXJuZWwvYWNwaS5jCTIwMDMtMTAt
+MjYgMDc6MzA6MDcuMDAwMDAwMDAwICswMTAwDQpAQCAtNTY1LDQgKzU2NSwx
+NyBAQA0KIA0KICNlbmRpZiAvKkNPTkZJR19BQ1BJX1NMRUVQKi8NCiANCisj
+aWZkZWYgQ09ORklHX0FDUElfQlVTDQordm9pZCBhY3BpX3BpY19zZXRfbGV2
+ZWxfaXJxKHVuc2lnbmVkIGludCBpcnEpDQorew0KKwl1bnNpZ25lZCBjaGFy
+IG1hc2sgPSAxIDw8IChpcnEgJiA3KTsNCisJdW5zaWduZWQgaW50IHBvcnQg
+PSAweDRkMCArIChpcnEgPj4gMyk7DQorCXVuc2lnbmVkIGNoYXIgdmFsID0g
+aW5iKHBvcnQpOw0KIA0KKwlpZiAoISh2YWwgJiBtYXNrKSkgew0KKwkJcHJp
+bnRrKEtFUk5fV0FSTklORyBQUkVGSVggIklSUSAlZCB3YXMgRWRnZSBUcmln
+Z2VyZWQsICINCisJCQkic2V0dGluZyB0byBMZXZlbCBUcmlnZ2VyZWRcbiIs
+IGlycSk7DQorCQlvdXRiKHZhbCB8IG1hc2ssIHBvcnQpOw0KKwl9DQorfQ0K
+KyNlbmRpZiAvKiBDT05GSUdfQUNQSV9CVVMgKi8NCg==
 
-> But I'm _not_ interested in some interfaces to let user mode just bypass 
-> the kernel. Because they will not solve any of the other problems that 
-> clearly _do_ need solving, and if the X server continues to believe that 
-> it can just access the hardware directly, it will never play well together 
-> with projects like fbcon/dri.
-
-Fully agreed. My point is that this low-level driver and the fbdev should
-be one thing.
-
-Ben.
-
+--658386544-830883715-1067121111=:28163--

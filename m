@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292384AbSBYW6z>; Mon, 25 Feb 2002 17:58:55 -0500
+	id <S292382AbSBYW7f>; Mon, 25 Feb 2002 17:59:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292382AbSBYW6q>; Mon, 25 Feb 2002 17:58:46 -0500
-Received: from quechua.inka.de ([212.227.14.2]:27756 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S292378AbSBYW6g>;
-	Mon, 25 Feb 2002 17:58:36 -0500
-From: Bernd Eckenfels <ecki-news2002-02@lina.inka.de>
+	id <S292386AbSBYW70>; Mon, 25 Feb 2002 17:59:26 -0500
+Received: from AGrenoble-101-1-7-138.abo.wanadoo.fr ([80.13.189.138]:43664
+	"EHLO lyon.ram.loc") by vger.kernel.org with ESMTP
+	id <S292382AbSBYW7W>; Mon, 25 Feb 2002 17:59:22 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.18
-In-Reply-To: <20020225215452.GB27211@matchmail.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E16fU4l-0002D4-00@sites.inka.de>
-Date: Mon, 25 Feb 2002 23:58:31 +0100
+From: Raphael_Manfredi@pobox.com (Raphael Manfredi)
+Subject: Re: setsockopt(SOL_SOCKET, SO_SNDBUF) broken on 2.4.18?
+Date: 25 Feb 2002 22:19:42 GMT
+Organization: Home, Grenoble, France
+Message-ID: <a5ed9u$3tp$1@lyon.ram.loc>
+In-Reply-To: <2871.1014671286@nice.ram.loc> <Pine.LNX.3.95.1020225163035.29043C-100000@chaos.analogic.com>
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+In-Reply-To: <Pine.LNX.3.95.1020225163035.29043C-100000@chaos.analogic.com>
+X-Mailer: newsgate 1.0 at lyon.ram.loc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20020225215452.GB27211@matchmail.com> you wrote:
-> The only binaries that are affected are ones compiles without shared
-> libraries on some non-x86 arches, and anyone doing that should know what
-> they are doing and which kernels to use.
+Quoting root@chaos.analogic.com from ml.linux.kernel:
+:This came up a few months ago. Don't halve the size. The value was
+:explained to NOT be a bug even though it doesn't make sense to us
+:mortals. Just set the buffer size without reading anything. It will
+:be fine. The explaination was somewhat smokey, but It seems as though
+:two buffers are set aside or something like that. Just don't read
+:the size. Set it and forget it.
 
-Sorry, I dont see a reason to treat any architecture different. And static
-apps are quite common on install and rescue systems.
+The problem is that I don't want to shrink the buffer size, hence I need
+to read the current size.  Do I need to halve the returned value from
+getsockopt() then?
 
-> Does anyone know how long this bug has been in the kernel?
-
-What is so bad about releasing a final kernel which matches the RC? I mean we
-could have the chance to do it with 2.4.19
-
-Greetings
-Bernd
+Raphael

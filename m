@@ -1,17 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262356AbSJEOxK>; Sat, 5 Oct 2002 10:53:10 -0400
+	id <S262355AbSJEOvS>; Sat, 5 Oct 2002 10:51:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262360AbSJEOxK>; Sat, 5 Oct 2002 10:53:10 -0400
-Received: from 62-190-217-225.pdu.pipex.net ([62.190.217.225]:53508 "EHLO
+	id <S262356AbSJEOvS>; Sat, 5 Oct 2002 10:51:18 -0400
+Received: from 62-190-217-225.pdu.pipex.net ([62.190.217.225]:52996 "EHLO
 	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S262356AbSJEOxH>; Sat, 5 Oct 2002 10:53:07 -0400
-Date: Sat, 5 Oct 2002 16:06:45 +0100
+	id <S262355AbSJEOvR>; Sat, 5 Oct 2002 10:51:17 -0400
+Date: Sat, 5 Oct 2002 16:05:31 +0100
 From: jbradford@dial.pipex.com
-Message-Id: <200210051506.g95F6jfL000423@darkstar.example.net>
+Message-Id: <200210051505.g95F5Vvd000419@darkstar.example.net>
 To: linux-kernel@vger.kernel.org
 Subject: 2.5.x and 8250 UART problems
-Cc: rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,7 +23,5 @@ A 486 SX-25 with 8 MB RAM, running 2.4.19 manages about 950 BPS reliably with th
 I know these are ancient machines, with rediculously low amounts of memory, but surely 9600 bps should be reliable, even if performance drops to 600-700 BPS, or even lower.
 
 I originally thought that the new kernel was using up memory that was previously available to be used as a buffer, and that extra hard disk access was causing the lost characters, but this doesn't seem to be the case.
-
-Any idea what's causing this?  I can send more info and do more tests as required.
 
 John.

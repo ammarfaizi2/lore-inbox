@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVCCBcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVCCBkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVCCBcp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 20:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVCCBcZ
+	id S261355AbVCCBkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 20:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVCCBga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:32:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42436 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261295AbVCCBaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:30:25 -0500
-Date: Wed, 2 Mar 2005 17:55:44 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>,
-       Vasily Averin <vvs@sw.ru>, Matt Domsch <Matt_Domsch@dell.com>,
-       linux-kernel@vger.kernel.org, "Mukker, Atul" <Atulm@lsil.com>
-Subject: Re: v2.4 megaraid2 update Re: [PATCH] Prevent NMI oopser
-Message-ID: <20050302205544.GB4100@logos.cnet>
-References: <0E3FA95632D6D047BA649F95DAB60E570230CBEC@exa-atlanta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230CBEC@exa-atlanta>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 2 Mar 2005 20:36:30 -0500
+Received: from mercury.sdinet.de ([193.103.161.30]:53634 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S261296AbVCCBe5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:34:57 -0500
+Date: Thu, 3 Mar 2005 02:34:56 +0100 (CET)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: Massimo Cetra <mcetra@navynet.it>
+Cc: "'Linus Torvalds'" <torvalds@osdl.org>,
+       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel release numbering
+In-Reply-To: <20050303010615.3C7F184008@server1.navynet.it>
+Message-ID: <Pine.LNX.4.62.0503030222520.11715@mercury.sdinet.de>
+References: <20050303010615.3C7F184008@server1.navynet.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 11:26:06AM -0500, Bagalkote, Sreenivas wrote:
-> Hello Marcelo,
+On Thu, 3 Mar 2005, Massimo Cetra wrote:
 
-Hi Sreenivas,
+> Linus Torvalds wrote:
+>
+>> Namely that we could adopt the even/odd numbering scheme that
+>> we used to do on a minor number basis, and instead of
+>> dropping it entirely like we did, we could have just moved it
+>> to the release number, as an indication of what was the
+>> intent of the release.
+>
+>> Comments?
+>
+> This is surely a good idea because end users (not developers) like me would
+> have greater possibility not to occur in a regression with an even release.
 
-Damn, now I apologize for taking so long to answer... 
+What I would like to see as an enduser is (dreaming):
+ 	kernel 2.6.x - last released
 
-> As per our offline conversation, I have verified the update that went into
-> 2.4.30-pre2.
-> I confirm that all changes are correct. I have only one doubt: The driver
-> was using
-> sleep_on_timeout  for lack of msleep. Should it start using msleep now?
+ 	often released (every 1-2 weeks) kernel 2.6.x.z
+ 	containing just the answers to the often repeating
+ 	lkml questions which are answered with "use $this simple patch"
 
-I dont see the need for msleep() given that sleep_on_timeout() schedules.
+ 	kernel 2.6.y-pre/rc/bk - development, working towards 2.6.y
 
-The problematic EH code which used udelay() was removed AFAICS.
+in practice your proposed 2.6.even changes, but these continued until the 
+next kernel is released, not stopped after 1-2 weeks with the worst fixes.
+(a bit like the -as series, but with the "official blessing")
 
-> Vasily & Andrey, thank you for your efforts.
+c'ya
+sven
 
-I appreciate your offline message that you're compromised to 
-keep an eye on v2.4 megaraid2 from now on :) 
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

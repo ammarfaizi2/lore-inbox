@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262859AbUKSBME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbUKSBOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262859AbUKSBME (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 20:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUKSBKw
+	id S262883AbUKSBOa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 20:14:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbUKSBNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 20:10:52 -0500
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:4224
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S262959AbUKSBFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 20:05:45 -0500
-From: John Mock <kd6pag@qsl.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
-Message-Id: <E1CUxDU-0000XP-00@penngrove.fdns.net>
-Date: Thu, 18 Nov 2004 17:05:36 -0800
+	Thu, 18 Nov 2004 20:13:02 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:49926 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S263004AbUKSBLj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 20:11:39 -0500
+Subject: [patch 2/4] hostfs - uml: add some other pagecache methods
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       blaisorblade_spam@yahoo.it, viro@parcelfarce.linux.theplanet.co.uk
+From: blaisorblade_spam@yahoo.it
+Date: Fri, 19 Nov 2004 02:13:31 +0100
+Message-Id: <20041119011332.64C417B9AA@zion.localdomain>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.18; VDF: 6.28.0.80; host: ssc.unict.it)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you very much for the quick response on the PowerPC issues!!
 
-> You lack CONFIG_FRAMEBUFFER_CONSOLE maybe ? You should use the
-> pmac_defconfig ... Now, if controlfb still doesn't work, then I'll have
-> to dig out my old 8500, it's possible that the recent changes to the
-> fbdev layer broke some of those old drivers.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+Cc: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
 
-> As for serial, check out CONFIG_SERIAL_PMACZILOG and
-> CONFIG_SERIAL_PMACZILOG_CONSOLE.
+This is a follow-up to my previous "hostfs - uml: set .sendfile to
+generic_file_sendfile" patch. I was asking whether other methods should have
+been added, and comparing with ext3 I found some more ones.
 
-Rats!  I was hoping you'd suggest a CONFIG_... i'd missed for either issue. 
-As far as the video problem is concerned, i copied the '.config' from 2.6.8
-to 2.6.9-rc1, and the resultant Linux works on 2.6.8 but 2.6.9-rc1 fails.
+However, I have not specific clues about them: I know they use the pagecache,
+which relies on *page methods, which are defined by hostfs. So I think it
+could work.
 
-I do have both of the PMACZILOG switches set (see previously attached
-'.config' if there's anything else worth checking for), and if i run
-'gtkterm' on both machines, the keyboard of one appears in the terminal
-window of the other.  While the serial console on the laptop (Intel) will
-appear in the Mac screen, the reverse does not work.   The Linux command 
-line is:
+I have a doubt, whether hostfs needs the commented out method below:
 
-       root=/dev/md0 md=0,/dev/sda7,/dev/sdb7,/dev/sdc7 md=1,/dev/sda8,/dev/sdb8,/dev/sdc8,console=ttyS0,9600 console=tty0
+static struct address_space_operations hostfs_aops = {
+	.writepage 	= hostfs_writepage,
+	.readpage	= hostfs_readpage,
+/* 	.set_page_dirty = __set_page_dirty_nobuffers, */
+	.prepare_write	= hostfs_prepare_write,
+	.commit_write	= hostfs_commit_write
+};
 
-Note this doesn't seem to work under 2.4.27, with
+Hostfs does not have a underlying device (and I have some rough idea that
+buffers cache block devices data), so I wonder if that is needed or not.
 
-    CONFIG_MAC_SERIAL=y
-    CONFIG_SERIAL_CONSOLE=y
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
-Is the Mac side fussy about CTS/RTS?  I didn't make all of the adapters
-myself, so i can't be absolutely certain that all three modem control
-lines are propagated properly.
+ linux-2.6.10-rc-paolo/fs/hostfs/hostfs_kern.c |    5 +++++
+ 1 files changed, 5 insertions(+)
 
-If there's anything i can try which will save you the trouble of digging
-out your Old World Mac, please do let me know!
-
-> Yes, that is due to the 2.6 changes in fbdev/fbcon, the loss of the per
-> VT mode data structure, the driver is now sort-of supposed to re-invent
-> a mode based on bogus stuff sent by fbcon on console switch. I don't
-> like it much, but I suppose I'll have to fix controlfb (and platinumfb
-> etc...).
-
-If you might be so kind as to tell me which function and/or file that the
-video mode is being resynthesized in, then i can probably come with some
-kind of work-around.  Then you can feel like you can fix this issue when
-it's convenient to do so.  I looked for this once before but bogged down
-before i got anywhere.
-				     -- JM
+diff -puN fs/hostfs/hostfs_kern.c~uml-hostfs-add-some-other-pagecache-methods fs/hostfs/hostfs_kern.c
+--- linux-2.6.10-rc/fs/hostfs/hostfs_kern.c~uml-hostfs-add-some-other-pagecache-methods	2004-11-18 17:43:38.239312696 +0100
++++ linux-2.6.10-rc-paolo/fs/hostfs/hostfs_kern.c	2004-11-18 17:43:38.242312240 +0100
+@@ -394,6 +394,10 @@ static struct file_operations hostfs_fil
+ 	.llseek		= generic_file_llseek,
+ 	.read		= generic_file_read,
+ 	.sendfile	= generic_file_sendfile,
++	.aio_read	= generic_file_aio_read,
++	.aio_write	= generic_file_aio_write,
++	.readv		= generic_file_readv,
++	.writev		= generic_file_writev,
+ 	.write		= generic_file_write,
+ 	.mmap		= generic_file_mmap,
+ 	.open		= hostfs_file_open,
+@@ -402,6 +406,7 @@ static struct file_operations hostfs_fil
+ };
+ 
+ static struct file_operations hostfs_dir_fops = {
++	.llseek		= generic_file_llseek,
+ 	.readdir	= hostfs_readdir,
+ 	.read		= generic_read_dir,
+ };
+_

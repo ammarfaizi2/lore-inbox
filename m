@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264229AbTLEQgU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 11:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbTLEQgU
+	id S264254AbTLEQic (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 11:38:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTLEQic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 11:36:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45495 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264229AbTLEQew (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 11:34:52 -0500
-Date: Fri, 5 Dec 2003 08:27:27 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Lucio Maciel <lucio.maciel@agrofel.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where'd the .config go?
-Message-Id: <20031205082727.556c3634.rddunlap@osdl.org>
-In-Reply-To: <1070566824.30087.2.camel@walker.agrofel.com.br>
-References: <20031204151852.GB16568@rdlg.net>
-	<20031204083331.7660077a.rddunlap@osdl.org>
-	<1070566824.30087.2.camel@walker.agrofel.com.br>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 11:38:32 -0500
+Received: from mail.willden.org ([63.226.98.113]:23430 "EHLO zedd.willden.org")
+	by vger.kernel.org with ESMTP id S264254AbTLEQiS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 11:38:18 -0500
+From: Shawn Willden <shawn-lkml@willden.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Date: Fri, 5 Dec 2003 09:38:08 -0700
+User-Agent: KMail/1.5.93
+Cc: Ryan Anderson <ryan@michonline.com>
+References: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org> <MDEHLPKNGKAHNMBLJOLKAEJHIHAA.davids@webmaster.com> <20031205140304.GF17870@michonline.com>
+In-Reply-To: <20031205140304.GF17870@michonline.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200312050938.10607.shawn-lkml@willden.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Dec 2003 17:40:25 -0200 Lucio Maciel <lucio.maciel@agrofel.com.br> wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| Hi
-| 
-| On Thu, 2003-12-04 at 14:33, Randy.Dunlap wrote:
-| > On Thu, 4 Dec 2003 10:18:52 -0500 "Robert L. Harris" <Robert.L.Harris@rdlg.net> wrote:
-| > 
-| > | 
-| > | 
-| > | Just compiled 2.4.23-bk3 and noticed that the option to save the .config
-| > | somewhere in the kernel is missing.  Mistake somewhere or has this been
-| > | removed?
-| > 
-| > It's never been merged in 2.4.x.  Marcelo didn't want it.
-| > It's in 2.6.x.
-| 
-| There is a reason for this is not in 2.4?
-| Not essential, but it is a good help.
+On Friday 05 December 2003 07:03 am, Ryan Anderson wrote:
+> Compile it.
+> Run the resulting executable (ignoring the case law that says copying
+> into ram is a copy under copyright law)
 
-It's Marcelo's decision and he's trying to reduce 2.4.x patches.
+That case law can be safely ignored in the US, since it was superseded by 
+real law, passed in 1980.  Per section 117 of Title 17 of the US Code:
 
-| > There's a 2.4.22-pre patch in this dir that you can try:
-| >   http://www.xenotime.net/linux/ikconfig/
-| > 
-| Again i'll have to patch every kernel, like XFS?
+- ----------------
+(a) Making of Additional Copy or Adaptation by Owner of Copy. — 
+Notwithstanding the provisions of section 106, it is not an infringement 
+for the owner of a copy of a computer program to make or authorize the 
+making of another copy or adaptation of that computer program provided:
 
-Right.
+	(1) that such a new copy or adaptation is created as an essential step
+	in the utilization of the computer program in conjunction with a machine
+	and that it is used in no other manner, or
+- ----------------
 
---
-~Randy
-MOTD:  Always include version info.
+So copies to disk and RAM that are "an essential step in the utilization of 
+the computer program" are non-infringing.
+
+	Shawn.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/0LRwp1Ep1JptinARAjrbAJ0RAa2axjrFABHgG1loqmxa6KTn0ACcCz1s
+Q+DC9COjk+uv+FqdZ8kTg+g=
+=N1sB
+-----END PGP SIGNATURE-----

@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265898AbUGTOSo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265903AbUGTOT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265898AbUGTOSo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 10:18:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUGTOSo
+	id S265903AbUGTOT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 10:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUGTOTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 10:18:44 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8892 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265898AbUGTOSl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 10:18:41 -0400
-Date: Tue, 20 Jul 2004 10:19:05 -0200
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       linux-audio-dev@music.columbia.edu, arjanv@redhat.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040720121905.GG1651@suse.de>
-References: <1089673014.10777.42.camel@mindpipe> <20040712163141.31ef1ad6.akpm@osdl.org> <1089677823.10777.64.camel@mindpipe> <20040712174639.38c7cf48.akpm@osdl.org> <1089687168.10777.126.camel@mindpipe> <20040712205917.47d1d58b.akpm@osdl.org> <1089705440.20381.14.camel@mindpipe> <20040719104837.GA9459@elte.hu> <1090301906.22521.16.camel@mindpipe> <20040720061227.GC27118@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040720061227.GC27118@elte.hu>
+	Tue, 20 Jul 2004 10:19:55 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:49353 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S265903AbUGTOTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 10:19:03 -0400
+Date: Tue, 20 Jul 2004 10:22:16 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Jason Gauthier <jgauthier@lastar.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.7 SMP trouble?
+In-Reply-To: <Pine.LNX.4.53.0407191557590.3740@chaos>
+Message-ID: <Pine.LNX.4.58.0407201021100.21932@montezuma.fsmlabs.com>
+References: <2873B794CB1BE04F80E2968B438680E503ACF5C1@server6.ctg.com>
+ <Pine.LNX.4.53.0407191557590.3740@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20 2004, Ingo Molnar wrote:
-> > How much I/O do you allow to be in flight at once?  It seems like by
-> > decreasing the maximum size of I/O that you handle in one interrupt
-> > you could improve this quite a bit.  Disk throughput is good enough,
-> > anyone in the real world who would feel a 10% hit would just throw
-> > hardware at the problem.
-> 
-> i'm not sure whether this particular value (max # of sg-entries per IO
-> op) is runtime tunable. Jens? Might make sense to enable elvtune-alike
-> tunability of this value.
+On Mon, 19 Jul 2004, Richard B. Johnson wrote:
 
-elvtune is long dead :-)
+> Another data-point. I haven't been able to run any new (2.6+) kernel
+> reliably in a SMP machine. They stop. Just like you noted. That's
+> why all my SMP machines still run 2.4.26. It's rock solid and has
+> the latest-and-greatest updates (there's a -pre-27 coming out).
+> Anyway, for production machines, you probably need to run 2.4.26.
 
-it's not tweakable right now, but if you wish to experiment you just
-need to add a line to ide-disk.c:idedisk_setup() - pseudo patch:
+It would actually help if you found the exact version which stopped
+working, then we can get it looked at and fixed.
 
-+	blk_queue_max_sectors(drive->queue, 32);
-+
-	printk("%s: max request size: %dKiB\n", drive->name, drive->queue->max_sectors / 2);
-
-	/* Extract geometry if we did not already have one for the drive */
-
-above will limit max request to 16kb, experiment as you see fit.
-
--- 
-Jens Axboe
+Ta,
+	Zwane
 

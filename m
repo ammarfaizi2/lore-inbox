@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132575AbQL1Xis>; Thu, 28 Dec 2000 18:38:48 -0500
+	id <S132689AbQL1XmS>; Thu, 28 Dec 2000 18:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132689AbQL1Xii>; Thu, 28 Dec 2000 18:38:38 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30468 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132575AbQL1XiX>; Thu, 28 Dec 2000 18:38:23 -0500
-Subject: Re: 2.2.19 hard hang from userspace while accessing /dev/mdXX devices
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Thu, 28 Dec 2000 23:09:34 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, jmerkey@timpanogas.org
-In-Reply-To: <20001228165948.A22926@vger.timpanogas.org> from "Jeff V. Merkey" at Dec 28, 2000 04:59:48 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14BmAx-0004RD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132694AbQL1XmI>; Thu, 28 Dec 2000 18:42:08 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63360 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132689AbQL1Xl4>;
+	Thu, 28 Dec 2000 18:41:56 -0500
+Date: Thu, 28 Dec 2000 14:54:52 -0800
+Message-Id: <200012282254.OAA01772@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ak@suse.de
+CC: ak@suse.de, torvalds@transmeta.com, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001228235836.A25388@gruyere.muc.suse.de> (message from Andi
+	Kleen on Thu, 28 Dec 2000 23:58:36 +0100)
+Subject: Re: test13-pre5
+In-Reply-To: <Pine.LNX.4.21.0012281637200.12364-100000@freak.distro.conectiva> <Pine.LNX.4.10.10012281243010.788-100000@penguin.transmeta.com> <20001228231722.A24875@gruyere.muc.suse.de> <200012282233.OAA01433@pizda.ninka.net> <20001228235836.A25388@gruyere.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you open a non-existant md device (i.e. /dev/md11) from userspace 
-> with an open() call, then send an ioctl() command, it results in the
-> following message then hard hangs the entire system if you attempt
-> to open any /dev/mdXX device with a minor number greater than 10.  
-> Used to work on 2.2.17.
+   Date: Thu, 28 Dec 2000 23:58:36 +0100
+   From: Andi Kleen <ak@suse.de>
 
-What does 2.2.18 show and which raid patches are you using if any on them
+   Why exactly a power of two ? To get rid of ->index ? 
 
+To make things like "page - mem_map" et al. use shifts instead of
+expensive multiplies...
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

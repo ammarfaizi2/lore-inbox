@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278968AbRKAOQm>; Thu, 1 Nov 2001 09:16:42 -0500
+	id <S278961AbRKAOOc>; Thu, 1 Nov 2001 09:14:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278975AbRKAOQe>; Thu, 1 Nov 2001 09:16:34 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:20743 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S278968AbRKAOOx>;
-	Thu, 1 Nov 2001 09:14:53 -0500
-Date: Thu, 1 Nov 2001 15:14:48 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Sebastian Benoit <ben-lists@andastra.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The good, the bad & the ugly (or VM, block devices, and SCSI :-)
-Message-Id: <20011101151448.3e87b2a2.skraw@ithnet.com>
-In-Reply-To: <20011101114008.A11634@smtp.andastra.de>
-In-Reply-To: <20011031164539.29c04ee0.skraw@ithnet.com>
-	<20011101114008.A11634@smtp.andastra.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S278970AbRKAOOW>; Thu, 1 Nov 2001 09:14:22 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:16855 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S278961AbRKAOON>; Thu, 1 Nov 2001 09:14:13 -0500
+Date: Thu, 1 Nov 2001 14:14:12 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: driver initialisation order problem
+Message-ID: <20011101141412.R20398@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="NffpD3bBbNaSNdk0"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Nov 2001 11:40:08 +0100 Sebastian Benoit <ben-lists@andastra.de>
-wrote:
 
-> Stephan von Krawczynski(skraw@ithnet.com)@2001.10.31 16:45:39 +0000:
-> > A29160:                                     symbios:
-> 
-> Did you put them in the same PCI slot?
+--NffpD3bBbNaSNdk0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-yes.
+drivers/char depends on drivers/parport (lp requires parport)
+drivers/parport depends on drivers/char (parport_serial requires serial)
 
-> Whats the output of /proc/interrupts in both cases?
-> What motherboard?
+How should this dependency be expressed?  The link order of
+drivers/char and drivers/parport isn't enough.
 
-see other mail in list.
+Tim.
+*/
 
-Regards,
-Stephan
+--NffpD3bBbNaSNdk0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE74VizyaXy9qA00+cRAsnLAJwMBlZnlyg61VVoG3ECwlj6ZLI65ACgoXun
+mLwXqg78I4zsY8GPe/Thm+I=
+=6d2c
+-----END PGP SIGNATURE-----
+
+--NffpD3bBbNaSNdk0--

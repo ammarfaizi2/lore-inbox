@@ -1,75 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262013AbTJKEdp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 00:33:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJKEdp
+	id S262120AbTJKEpT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 00:45:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263224AbTJKEpT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 00:33:45 -0400
-Received: from fep02-svc.mail.telepac.pt ([194.65.5.201]:16043 "EHLO
-	fep02-svc.mail.telepac.pt") by vger.kernel.org with ESMTP
-	id S262013AbTJKEdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 00:33:43 -0400
-Message-ID: <3F8787CA.3030607@vgertech.com>
-Date: Sat, 11 Oct 2003 05:32:10 +0100
-From: Nuno Silva <nuno.silva@vgertech.com>
-Organization: VGER, LDA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030908 Debian/1.4-4
-X-Accept-Language: en-us, pt
+	Sat, 11 Oct 2003 00:45:19 -0400
+Received: from web13005.mail.yahoo.com ([216.136.174.15]:31505 "HELO
+	web13005.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262120AbTJKEpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 00:45:15 -0400
+Message-ID: <20031011044514.19799.qmail@web13005.mail.yahoo.com>
+Date: Fri, 10 Oct 2003 21:45:14 -0700 (PDT)
+From: asdfd esadd <retu834@yahoo.com>
+Subject: 2.7 thoughts: common well-architected object model
+To: linux-kernel@vger.kernel.org
+Cc: retu834@yahoo.com
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: Michael Buesch <mbuesch@freenet.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6-test7] [bttv] lots of warning/error messages
-References: <200310091729.30465.mbuesch@freenet.de> <20031010090955.GE32386@bytesex.org>
-In-Reply-To: <20031010090955.GE32386@bytesex.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+With due respect, what 2.7 really needs is a
+consistent well architected _single component model.
+Why it should be spawned from kernel development -
+because coming up with a consistent one from higher
+layers has shown to be difficult/futile/impossible. 
 
-Gerd Knorr wrote:
->>get lots of warning/error messages from the bttv driver.
->>Here are todays messages:
->>
->>Oct  9 15:51:13 lfs kernel: bttv0: skipped frame. no signal? high irq latency?
->>Oct  9 15:57:57 lfs kernel: bttv0: OCERR @ 1fd95000,bits: HSYNC OFLOW OCERR*
-> 
-> 
-> Hmm.  Is the signal good?
-> 
+Many of the feature ideas listed are great but it's
+rather back to architecture at this stage.
 
-[..snip..]
+A consistent component model is needed on which people
+can extend and Linux will lap the other OSs, otherwise
+it will be rather difficult to
+compete on the application side in the end (argument
+will be: Linux is is difficult to program and has
+flagrant duplication). There are many good component
+models out there but the parallel re-implementation of
+everything somewhat lacks cast.
 
-I *had* the same problem. It's was not the signal so I persued the other 
-hint: "high irq latency?"
+So here is the feature request:
 
-I opened the box and saw the NIC in slot 2 and winTV in slot3 and 
-switched them. Never saw this message again :)
-
-In 2.6.0-test7 zapping (a tv viewer) doesn't work in "capture" mode.
------------------
-Console started, stardate Sat Oct 11 05:26:35 2003
-Please tell the maintainer about any bugs you find.
-
-Error: capture.c (870) [capture_start]:
-Couldn't start capture: no capture format available
-
-Error: callbacks.c (156) [switch_mode]:
-[tveng25.c] tveng25_set_capture_format (line 932)
-VIDIOC_S_FMT failed: Device or resource busy
------------------
-
-xawtv doesn't work, in grabdisplay mode, either.
-
-(overlay is fine on both)
-
-They work with 2.6.0-test4, at least.
-
-Any hints on this one? Can I provide more information?
-
-Thanks,
-Nuno Silva
+* a unified well architected core component model
+which is extensible
 
 
+- RETU 
+
+
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

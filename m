@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbUKDVsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbUKDVv1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbUKDVsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 16:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbUKDVsZ
+	id S262445AbUKDVv1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 16:51:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbUKDVv1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 16:48:25 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:17544 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262445AbUKDVsJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:48:09 -0500
-Date: Thu, 4 Nov 2004 15:47:51 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers
-In-Reply-To: <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
-References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
- <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
- <20041103233029.GA16982@taniwha.stupidest.org>
- <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Nov 2004 16:51:27 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:10762 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S262445AbUKDVvP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 16:51:15 -0500
+Date: Thu, 4 Nov 2004 21:51:13 +0000
+From: John Levon <levon@movementarian.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Jack Steiner <steiner@sgi.com>,
+       linux-kernel@vger.kernel.org, edwardsg@sgi.com, dipankar@in.ibm.com
+Subject: Re: contention on profile_lock
+Message-ID: <20041104215113.GA54024@compsoc.man.ac.uk>
+References: <200411021152.16038.jbarnes@engr.sgi.com> <200411041156.23559.jbarnes@engr.sgi.com> <20041104201257.GA14786@holomorphy.com> <200411041249.21718.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411041249.21718.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CPpVi-000J1Y-9B*GWTZmMLe5y6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Linus Torvalds wrote:
+On Thu, Nov 04, 2004 at 12:49:21PM -0800, Jesse Barnes wrote:
 
-> > I didn't deny the speed difference of older and newer compilers.
-> >
-> > But why is this an issue when compiling a kernel?  How often do you compile
-> > your kernel?
->
-> First off, for some people that is literally where _most_ of the CPU
-> cycles go.
+> John pointed out that this breaks modules.  Would registering and 
+> unregistering a function pointer thus be module safe?  Dipankar, hopefully 
+> you have something better?
+> 
+> static int timer_start(void)
+> {
+>  /* Setup the callback pointer */
+>  oprofile_timer_notify = oprofile_timer;
+>  return 0;
+> }
 
-So find a fast machine.  As I have already said, you don't need to compile a
-kernel for a slow machine/arch *on* a slow machine/arch.
+Surely something like (profile.c):
 
-> Second, it's not just that the compilers are slower. Historically, new gcc
-> versions are:
->  - slower
+funcptr_t timer_hook;
 
-Again, that's a straw man.
+static int register_timer_hook(funcptr_t hook)
+{
+	if (timer_hook)
+		return -EBUSY;
+	timer_hook = hook;
+}
 
->  - generate worse code
->  - buggier
+static void unregister_timer_hook(funcptr_t hook)
+{
+	WARN_ON(hook != timer_hook);
+	timer_hook = NULL;
+	/* make sure all CPUs see the NULL hook */
+	synchronize_kernel();
+}
 
-I don't doubt these are issues.  That's not what I am discussing.
+john

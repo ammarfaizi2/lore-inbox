@@ -1,54 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316954AbSFWBfH>; Sat, 22 Jun 2002 21:35:07 -0400
+	id <S316955AbSFWBmF>; Sat, 22 Jun 2002 21:42:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316955AbSFWBfG>; Sat, 22 Jun 2002 21:35:06 -0400
-Received: from bitmover.com ([192.132.92.2]:28139 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S316954AbSFWBfG>;
-	Sat, 22 Jun 2002 21:35:06 -0400
-Date: Sat, 22 Jun 2002 18:35:07 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: sean darcy <seandarcy@hotmail.com>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: piggy broken in 2.5.24 build
-Message-ID: <20020622183507.B26425@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	sean darcy <seandarcy@hotmail.com>,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux kernel <linux-kernel@vger.kernel.org>
-References: <linux.kernel.Pine.LNX.4.44.0206221501430.7338-100000@chaos.physics.uiowa.edu> <3D152513.8010801@hotmail.com>
-Mime-Version: 1.0
+	id <S316957AbSFWBmE>; Sat, 22 Jun 2002 21:42:04 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56593 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S316955AbSFWBmD>; Sat, 22 Jun 2002 21:42:03 -0400
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+To: ltd@cisco.com (Lincoln Dale)
+Date: Sun, 23 Jun 2002 03:03:47 +0100 (BST)
+Cc: vonbrand@inf.utfsm.cl (Horst von Brand),
+       davem@redhat.com (David S. Miller),
+       greearb@candelatech.com (Ben Greear), linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <5.1.0.14.2.20020612221925.0283fb18@mira-sjcm-3.cisco.com> from "Lincoln Dale" at Jun 12, 2002 10:28:15 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D152513.8010801@hotmail.com>; from seandarcy@hotmail.com on Sat, Jun 22, 2002 at 09:32:03PM -0400
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17LwjD-0003hT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 22, 2002 at 09:32:03PM -0400, sean darcy wrote:
-> Kai Germaschewski wrote:
-> > On Sat, 22 Jun 2002, sean darcy wrote:
-> > 
-> > 
-> >>At the end of make bzImage I get:
-> >>
-> ...................
-> > So the question is why does the objcopy ... line not generate the tmp_xx
-> > file. I don't see it spitting out any error either, but could you check
-> > the obvious, like remaining free space on that filesystem and /tmp?
-> > 
-> ........................
-> > --Kai
-> > 
-> 20 gigs free. Aren't these big new disks great?
+> i know of many many folk who use transaction logs from HTTP caches for 
+> volume-based billing.
+> right now, those bills are anywhere between 10% to 25% incorrect.
 > 
-> Glad it's not a build problem. Just wish I could figure out what kind of 
-> problem it is.
+> you call that "extremely limited"?
 
-I just checked in some changes that changed all the find commands to 
-disregard the BK directories.  Is there any chance that that could 
-screw it up?  
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+It wouldnt help you anyway. Prove which frames were not due to the
+overloading and congestion/errors on your network which therefore the customer should 
+not have a duty to pay. Account for bitstuffing on HDLC links...

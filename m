@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVA0DI1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVA0DUp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbVA0DI1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 22:08:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVAZXLl
+	id S262431AbVA0DUp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 22:20:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVA0DRT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:11:41 -0500
-Received: from smtp.mundo-r.com ([212.51.32.236]:59325 "EHLO smtp.mundo-r.com")
-	by vger.kernel.org with ESMTP id S262436AbVAZRPM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 12:15:12 -0500
-Date: Wed, 26 Jan 2005 18:16:03 +0100
-From: Xose Manuel Fernandez Lorenzo <jm.fernandez@audasa.es>
-Subject: Lousing interrupt with Geode
+	Wed, 26 Jan 2005 22:17:19 -0500
+Received: from marshall-cpe-34-bgd.sbb.co.yu ([82.117.197.34]:45696 "EHLO
+	82.117.197.34") by vger.kernel.org with ESMTP id S262462AbVA0DPP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 22:15:15 -0500
+Date: Thu, 27 Jan 2005 04:16:14 +0100 (CET)
+From: Sasa Stevanovic <mg94c18@alas.matf.bg.ac.yu>
 To: linux-kernel@vger.kernel.org
-Message-id: <1106759763.489.13.camel@localhost.localdomain>
-MIME-version: 1.0
-X-Mailer: Evolution 2.0.3
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-X-Antirelay: Good relay from local net2 192.168.0.0/24
+Subject: Possible bug in keyboard.c (2.6.10)
+Message-ID: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a IAC-H553 Board with a NS Geode Low-Power CPU:
+Hi,
 
-Working around Cyrix MediaGX virtual DMA bugs.
-Enable Memory-Write-back mode on Cyrix/NSC processor.
-Enable Memory access reorder on Cyrix/NSC processor.
-Enable Incrementor on Cyrix/NSC processor.
-CPU:     After all inits, caps: 00808131 00818131 00000000 00000001
-CPU: Cyrix Geode(TM) Integrated Processor by National Semi stepping 02
-Checking 'hlt' instruction... OK.
+I had some problems with my laptop's onetouch keys and it eventually led me to 
+keyboard.c file from 2.6.10 kernel (Vojtech Pavlik and others).  There may be 
+a bug in the file, please read below.
 
-with a chipset CS5530A Geode.
+Well, actually, when all omnibook/messages/setkeycodes/hotkeys/xev/showkey etc 
+stuff is stripped off, what remains is that x86_keycodes array has only first 
+240 members initialized, while remaining 16 are set to 0 due to [256]:
 
-I have also a Digital Input Output card, and I have develop a board to
-generate an interrupt when and input change.
+static unsigned short x86_keycodes[256] = { <only 240 here> };
 
-This has been working under MS-DOS properly, but in Linux i lose some
-interrupt (I do not get my isr routine called and in /proc/interrupts
-the counter do not increment). 
+(For my scenario, workaround was possible.)
 
-If I use the same Digital Input Output card whit another CPU and linux
-everithing work property.
+I am not sure if this is a bug or not; it worked in 2.4.18 without workaround. 
+Might be that someone wanted to prevent reading invalid memory.  There are 
+many versions of the file/array definition found on the web, none of which has 
+a comment about this.
 
-Have someone find the same problem with Geode?
+Please also use my email address <mg94c18@alas.matf.bg.ac.yu> if you respond 
+to this.  I am a member but not sure for how long (depends on number of 
+messages/day).
 
-I use the kernel 2.6.5 from debian with Preemtive.
-
-I am nos suscribe to the kernel list, so please response also to my
-email.
-
-Thanks in advance
-
-
+Thanks,
+Sasa

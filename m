@@ -1,534 +1,510 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264091AbUDVOsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264103AbUDVO64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbUDVOsj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 10:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264095AbUDVOsj
+	id S264103AbUDVO64 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 10:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264112AbUDVO64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 10:48:39 -0400
-Received: from mail.rd.arkonnetworks.com ([207.34.136.7]:4775 "EHLO
-	mail.rd.arkonnetworks.com") by vger.kernel.org with ESMTP
-	id S264091AbUDVOsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 10:48:04 -0400
-Message-ID: <32789.206.116.24.97.1082645283.squirrel@mail.rd.arkonnetworks.com>
-Date: Thu, 22 Apr 2004 07:48:03 -0700 (PDT)
-Subject: Kernel 2.4.26 Hangs During Boot
-From: "Norman Zhang" <norman.zhang@rd.arkonnetworks.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20040422074803_31358"
-X-Priority: 3
-Importance: Normal
-References: 
-In-Reply-To: 
+	Thu, 22 Apr 2004 10:58:56 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:19331 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP id S264103AbUDVO6Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 10:58:16 -0400
+Date: Thu, 22 Apr 2004 16:56:25 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: dipankar@in.ibm.com
+Cc: hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s390 (9/9): no timer interrupts in idle.
+Message-ID: <20040422145625.GA2116@mschwid3.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20040422074803_31358
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Hi Dipankar,
+here is my newest version of the timer patch. I picked up your
+suggestion to add idle_cpu_mask to sched.c. Anything else ?
 
-Hi,
+blue skies,
+  Martin.
 
-I compiled kernel-2.4.26 with
+---
+[PATCH] s390: no timer interrupts in idle.
 
-# make xconfig
-# make dep
-# make bzImage
-# make modules
-# make modules_install
-# make install
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-But when I booted the new kernel, I get a complete freeze with no errors
-or warnings. However IDE disk does spins for awhile. When I rebooted my
-old kernel, it complains disk corruption. I'm not sure if it is IDE bug.
-Would someone please give me a few pointers here? I've attached lspci,
-dmesg, and config below.
+This patch add a system control that allows to switch off the jiffies
+timer interrupts while a cpu sleeps in idle. This is useful for a system
+running with virtual cpus under z/VM.
 
-Thanks and Regards,
-Norman
+diffstat:
+ arch/s390/Kconfig          |   19 +++++
+ arch/s390/defconfig        |    1 
+ arch/s390/kernel/process.c |   10 ++
+ arch/s390/kernel/time.c    |  156 ++++++++++++++++++++++++++++++++++++++-------
+ arch/s390/kernel/traps.c   |    4 -
+ include/linux/sched.h      |    2 
+ include/linux/sysctl.h     |    1 
+ include/linux/timer.h      |    2 
+ kernel/rcupdate.c          |    6 +
+ kernel/sched.c             |    9 ++
+ kernel/sysctl.c            |   12 +++
+ kernel/timer.c             |   69 +++++++++++++++++++
+ 12 files changed, 262 insertions(+), 29 deletions(-)
 
-
-------=_20040422074803_31358
-Content-Type: text/plain; name="mydmesg.txt"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="mydmesg.txt"
-
-Linux version 2.4.25-2mdk (nplanel@no.mandrakesoft.com) (gcc version 3.3.2 (Mandrake Linux 10.0 3.3.2-6mdk)) #1 Tue Mar 2 07:39:08 CET 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 0000000022000000 (usable)
- BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
-544MB LOWMEM available.
-ACPI: have wakeup address 0xc0001000
-On node 0 totalpages: 139264
-zone(0): 4096 pages.
-zone(1): 135168 pages.
-zone(2): 0 pages.
-ACPI: Unable to locate RSDP
-Building zonelist for node : 0
-Kernel command line: BOOT_IMAGE=2425-2 ro root=305 noapic devfs=mount acpi=ht resume=/dev/hda6 splash=silent
-bootsplash: silent mode.
-Local APIC disabled by BIOS -- reenabling.
-Found and enabled local APIC!
-Initializing CPU#0
-Detected 300.687 MHz processor.
-Console: colour dummy device 80x25
-Calibrating delay loop... 599.65 BogoMIPS
-Memory: 547064k/557056k available (1603k kernel code, 9604k reserved, 1240k data, 144k init, 0k highmem, 0k BadRAM)
-Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Inode cache hash table entries: 65536 (order: 7, 524288 bytes)
-Mount cache hash table entries: 512 (order: 0, 4096 bytes)
-Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
-Page-cache hash table entries: 262144 (order: 8, 1048576 bytes)
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 512K
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU:     After generic, caps: 0183fbff 00000000 00000000 00000000
-CPU:             Common caps: 0183fbff 00000000 00000000 00000000
-CPU: Intel Pentium II (Deschutes) stepping 02
-Enabling fast FPU save and restore... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 300.6893 MHz.
-..... host bus clock speed is 66.8198 MHz.
-cpu: 0, clocks: 668198, slice: 334099
-CPU0<T0:668192,T1:334080,D:13,S:334099,C:668198>
-mtrr: v1.41 (20040107) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-ACPI: Subsystem revision 20040116
-ACPI: Interpreter disabled.
-PCI: PCI BIOS revision 2.10 entry at 0xfb350, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-PCI: ACPI tables contain no PCI IRQ routing entries
-PCI: Probing PCI hardware (bus 00)
-PCI: Using IRQ router PIIX/ICH [8086/7110] at 00:07.0
-Limiting direct PCI/PCI transfers.
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-apm: BIOS version 1.2 Flags 0x07 (Driver version 1.16)
-Software Suspend Gzip Compression Driver v1.0
-Software Suspend LZF Compression Driver v1.0
-Software Suspend Swap Writer v1.0
-Starting kswapd
-kinoded started
-VFS: Disk quotas vdquot_6.5.1
-devfs: v1.12c (20020818) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-vesafb: framebuffer at 0xe4000000, mapped to 0xe2800000, size 1875k
-vesafb: mode is 800x600x16, linelength=1600, pages=7
-vesafb: protected mode interface info at c000:4785
-vesafb: scrolling: redraw
-vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
-Looking for splash picture.... silenjpeg size 14856 bytes, found (800x600, 14808 bytes, v3).
-Got silent jpeg.
-Got silent jpeg.
-Console: switching to colour frame buffer device 92x32
-fb0: VESA VGA frame buffer device
-pty: 1024 Unix98 ptys configured
-Serial driver version 5.1-alpha (2004-01-01) with HUB-6 MANY_PORTS MULTIPORT SHARE_IRQ SERIAL_PCI ISAPNP enabled
-RAMDISK driver initialized: 16 RAM disks of 32000K size 1024 blocksize
-Uniform Multi-Platform E-IDE driver Revision: 7.00beta4-2.4
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller at PCI slot 00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
-hda: C/H/S=1024/16/255 from BIOS ignored
-hda: WDC WD400JB-00ENA0, ATA DISK drive
-blk: queue c0444ac0, I/O limit 4095Mb (mask 0xffffffff)
-hdc: CD-956B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: attached ide-disk driver.
-hda: host protected area => 1
-hda: 78165360 sectors (40021 MB) w/8192KiB Cache, CHS=77545/16/63, UDMA(33)
-Partition check:
- /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 p8 p9 p10 >
-ide: late registration of driver.
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
-md: Autodetecting RAID arrays.
-md: autorun ...
-md: ... autorun DONE.
-Initializing Cryptographic API
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 4096 buckets, 32Kbytes
-TCP: Hash tables configured (established 262144 bind 65536)
-Linux IP multicast router 0.06 plus PIM-SM
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-SoftwareSuspend2: Swapwriter: Image location doesn't begin with 'swap:'<1>Swsusp 2.0-rc4: Missing or invalid storage location (resume2= parameter). Please correct and rerun lilo (or equivalent) before suspending.
-Swsusp 2.0-rc4: kswsuspd starting
-RAMDISK: Compressed image found at block 0
-Freeing initrd memory: 121k freed
-VFS: Mounted root (ext2 filesystem).
-Mounted devfs on /dev
-Journalled Block Device driver loaded
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-Mounted devfs on /dev
-Freeing unused kernel memory: 144k freed
-Real Time Clock Driver v1.10f
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-usb-uhci.c: $Revision: 1.275 $ time 07:52:37 Mar  2 2004
-usb-uhci.c: High bandwidth mode enabled
-PCI: Found IRQ 11 for device 00:07.2
-PCI: Sharing IRQ 11 with 00:09.0
-usb-uhci.c: USB UHCI at I/O 0x6400, IRQ 11
-usb-uhci.c: Detected 2 ports
-usb.c: new USB bus registered, assigned bus number 1
-hub.c: USB hub found
-hub.c: 2 ports detected
-usb-uhci.c: v1.275:USB Universal Host Controller Interface driver
-usbdevfs: remount parameter error
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,5), internal journal
-Adding Swap: 1023584k swap-space (priority -1)
-SCSI subsystem driver Revision: 1.00
-imm: Version 2.05 (for Linux 2.4.0)
-imm: parport reports no devices.
-SCSI subsystem driver Revision: 1.00
-ppa: Version 2.07 (for Linux 2.4.x)
-ppa: parport reports no devices.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,1), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,9), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,10), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,7), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-kjournald starting.  Commit interval 5 seconds
-EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,8), internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-sundance.c:v1.01+LK1.09a 10-Jul-2003  Written by Donald Becker
-  http://www.scyld.com/network/sundance.html
-PCI: Found IRQ 11 for device 00:09.0
-PCI: Sharing IRQ 11 with 00:07.2
-eth0: D-Link DFE-530TXS FAST Ethernet Adapter at 0x6800, 00:05:5d:ff:59:93, IRQ 11.
-eth0: MII PHY found at address 1, status 0x782d advertising 01e1.
-PCI: Found IRQ 10 for device 00:0a.0
-eth1: D-Link DFE-530TXS FAST Ethernet Adapter at 0x6c00, 00:05:5d:ff:1e:4f, IRQ 10.
-eth1: MII PHY found at address 1, status 0x7809 advertising 01e1.
-ip_conntrack version 2.1 (4352 buckets, 34816 max) - 320 bytes per conntrack
-ip_tables: (C) 2000-2002 Netfilter core team
-ip_tables: (C) 2000-2002 Netfilter core team
-ip_conntrack version 2.1 (4352 buckets, 34816 max) - 320 bytes per conntrack
-inserting floppy driver for 2.4.25-2mdk
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-hdc: attached ide-cdrom driver.
-hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-eth0: Link changed: 100Mbps, full duplex
-Looking for splash picture.... found (800x600, 11943 bytes, v3).
-Splash status on console 0 changed to on
-Looking for splash picture.... found (800x600, 11943 bytes, v3).
-Splash status on console 1 changed to on
-Looking for splash picture.... found (800x600, 11943 bytes, v3).
-Splash status on console 2 changed to on
-Looking for splash picture.... found (800x600, 11943 bytes, v3).
-Splash status on console 3 changed to on
-Looking for splash picture.... found (800x600, 11943 bytes, v3).
-Splash status on console 4 changed to on
-Looking for splash picture.... found (800x600, 11943 bytes, v3).
-Splash status on console 5 changed to on
-application bug: crond(2690) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(4205) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(4214) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(4223) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(4232) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(4241) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(4250) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(9883) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-application bug: crond(9892) has SIGCHLD set to SIG_IGN but calls wait().
-(see the NOTES section of 'man 2 wait'). Workaround activated.
-------=_20040422074803_31358
-Content-Type: text/plain; name="mylspci.txt"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="mylspci.txt"
-
-00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:09.0 Ethernet controller: D-Link System Inc DL10050 Sundance Ethernet (rev 12)
-00:0a.0 Ethernet controller: D-Link System Inc DL10050 Sundance Ethernet (rev 12)
-00:0b.0 Multimedia audio controller: Ensoniq ES1370 [AudioPCI]
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
-------=_20040422074803_31358
-Content-Type: application/octet-stream; name="mykerconf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="mykerconf"
-
-IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIG1ha2UgY29uZmlnOiBkb24ndCBlZGl0CiMKQ09O
-RklHX1g4Nj15CiMgQ09ORklHX1NCVVMgaXMgbm90IHNldApDT05GSUdfVUlEMTY9eQoKIwojIENv
-ZGUgbWF0dXJpdHkgbGV2ZWwgb3B0aW9ucwojCiMgQ09ORklHX0VYUEVSSU1FTlRBTCBpcyBub3Qg
-c2V0CgojCiMgTG9hZGFibGUgbW9kdWxlIHN1cHBvcnQKIwpDT05GSUdfTU9EVUxFUz15CkNPTkZJ
-R19NT0RWRVJTSU9OUz15CkNPTkZJR19LTU9EPXkKCiMKIyBQcm9jZXNzb3IgdHlwZSBhbmQgZmVh
-dHVyZXMKIwojIENPTkZJR19NMzg2IGlzIG5vdCBzZXQKIyBDT05GSUdfTTQ4NiBpcyBub3Qgc2V0
-CiMgQ09ORklHX001ODYgaXMgbm90IHNldAojIENPTkZJR19NNTg2VFNDIGlzIG5vdCBzZXQKIyBD
-T05GSUdfTTU4Nk1NWCBpcyBub3Qgc2V0CkNPTkZJR19NNjg2PXkKIyBDT05GSUdfTVBFTlRJVU1J
-SUkgaXMgbm90IHNldAojIENPTkZJR19NUEVOVElVTTQgaXMgbm90IHNldAojIENPTkZJR19NSzYg
-aXMgbm90IHNldAojIENPTkZJR19NSzcgaXMgbm90IHNldAojIENPTkZJR19NSzggaXMgbm90IHNl
-dAojIENPTkZJR19NRUxBTiBpcyBub3Qgc2V0CiMgQ09ORklHX01DUlVTT0UgaXMgbm90IHNldAoj
-IENPTkZJR19NV0lOQ0hJUEM2IGlzIG5vdCBzZXQKIyBDT05GSUdfTVdJTkNISVAyIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfTVdJTkNISVAzRCBpcyBub3Qgc2V0CiMgQ09ORklHX01DWVJJWElJSSBpcyBu
-b3Qgc2V0CiMgQ09ORklHX01WSUFDM18yIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9XUF9XT1JLU19P
-Sz15CkNPTkZJR19YODZfSU5WTFBHPXkKQ09ORklHX1g4Nl9DTVBYQ0hHPXkKQ09ORklHX1g4Nl9Y
-QUREPXkKQ09ORklHX1g4Nl9CU1dBUD15CkNPTkZJR19YODZfUE9QQURfT0s9eQojIENPTkZJR19S
-V1NFTV9HRU5FUklDX1NQSU5MT0NLIGlzIG5vdCBzZXQKQ09ORklHX1JXU0VNX1hDSEdBRERfQUxH
-T1JJVEhNPXkKQ09ORklHX1g4Nl9MMV9DQUNIRV9TSElGVD01CkNPTkZJR19YODZfSEFTX1RTQz15
-CkNPTkZJR19YODZfR09PRF9BUElDPXkKQ09ORklHX1g4Nl9QR0U9eQpDT05GSUdfWDg2X1VTRV9Q
-UFJPX0NIRUNLU1VNPXkKQ09ORklHX1g4Nl9QUFJPX0ZFTkNFPXkKQ09ORklHX1g4Nl9GMDBGX1dP
-UktTX09LPXkKQ09ORklHX1g4Nl9NQ0U9eQojIENPTkZJR19UT1NISUJBIGlzIG5vdCBzZXQKIyBD
-T05GSUdfSThLIGlzIG5vdCBzZXQKIyBDT05GSUdfTUlDUk9DT0RFIGlzIG5vdCBzZXQKIyBDT05G
-SUdfWDg2X01TUiBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9DUFVJRCBpcyBub3Qgc2V0CkNPTkZJ
-R19OT0hJR0hNRU09eQojIENPTkZJR19ISUdITUVNNEcgaXMgbm90IHNldAojIENPTkZJR19ISUdI
-TUVNNjRHIGlzIG5vdCBzZXQKIyBDT05GSUdfSElHSE1FTSBpcyBub3Qgc2V0CiMgQ09ORklHX01B
-VEhfRU1VTEFUSU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfTVRSUiBpcyBub3Qgc2V0CiMgQ09ORklH
-X1NNUCBpcyBub3Qgc2V0CiMgQ09ORklHX1g4Nl9VUF9BUElDIGlzIG5vdCBzZXQKIyBDT05GSUdf
-WDg2X1RTQ19ESVNBQkxFIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9UU0M9eQoKIwojIEdlbmVyYWwg
-c2V0dXAKIwpDT05GSUdfTkVUPXkKQ09ORklHX1BDST15CiMgQ09ORklHX1BDSV9HT0JJT1MgaXMg
-bm90IHNldAojIENPTkZJR19QQ0lfR09ESVJFQ1QgaXMgbm90IHNldApDT05GSUdfUENJX0dPQU5Z
-PXkKQ09ORklHX1BDSV9CSU9TPXkKQ09ORklHX1BDSV9ESVJFQ1Q9eQpDT05GSUdfSVNBPXkKQ09O
-RklHX1BDSV9OQU1FUz15CiMgQ09ORklHX0VJU0EgaXMgbm90IHNldAojIENPTkZJR19NQ0EgaXMg
-bm90IHNldAojIENPTkZJR19IT1RQTFVHIGlzIG5vdCBzZXQKIyBDT05GSUdfUENNQ0lBIGlzIG5v
-dCBzZXQKIyBDT05GSUdfSE9UUExVR19QQ0kgaXMgbm90IHNldApDT05GSUdfU1lTVklQQz15CiMg
-Q09ORklHX0JTRF9QUk9DRVNTX0FDQ1QgaXMgbm90IHNldApDT05GSUdfU1lTQ1RMPXkKQ09ORklH
-X0tDT1JFX0VMRj15CiMgQ09ORklHX0tDT1JFX0FPVVQgaXMgbm90IHNldApDT05GSUdfQklORk1U
-X0FPVVQ9eQpDT05GSUdfQklORk1UX0VMRj15CkNPTkZJR19CSU5GTVRfTUlTQz15CiMgQ09ORklH
-X09PTV9LSUxMRVIgaXMgbm90IHNldApDT05GSUdfUE09eQojIENPTkZJR19BUE0gaXMgbm90IHNl
-dAoKIwojIEFDUEkgU3VwcG9ydAojCiMgQ09ORklHX0FDUEkgaXMgbm90IHNldAoKIwojIE1lbW9y
-eSBUZWNobm9sb2d5IERldmljZXMgKE1URCkKIwojIENPTkZJR19NVEQgaXMgbm90IHNldAoKIwoj
-IFBhcmFsbGVsIHBvcnQgc3VwcG9ydAojCiMgQ09ORklHX1BBUlBPUlQgaXMgbm90IHNldAoKIwoj
-IFBsdWcgYW5kIFBsYXkgY29uZmlndXJhdGlvbgojCkNPTkZJR19QTlA9eQpDT05GSUdfSVNBUE5Q
-PXkKCiMKIyBCbG9jayBkZXZpY2VzCiMKQ09ORklHX0JMS19ERVZfRkQ9eQojIENPTkZJR19CTEtf
-REVWX1hEIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0NQUV9EQSBpcyBub3Qgc2V0CiMgQ09ORklH
-X0JMS19DUFFfQ0lTU19EQSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfREFDOTYwIGlzIG5v
-dCBzZXQKIyBDT05GSUdfQkxLX0RFVl9MT09QIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9O
-QkQgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX1JBTSBpcyBub3Qgc2V0CiMgQ09ORklHX0JM
-S19TVEFUUyBpcyBub3Qgc2V0CgojCiMgTXVsdGktZGV2aWNlIHN1cHBvcnQgKFJBSUQgYW5kIExW
-TSkKIwojIENPTkZJR19NRCBpcyBub3Qgc2V0CgojCiMgTmV0d29ya2luZyBvcHRpb25zCiMKQ09O
-RklHX1BBQ0tFVD15CiMgQ09ORklHX1BBQ0tFVF9NTUFQIGlzIG5vdCBzZXQKIyBDT05GSUdfTkVU
-TElOS19ERVYgaXMgbm90IHNldApDT05GSUdfTkVURklMVEVSPXkKIyBDT05GSUdfTkVURklMVEVS
-X0RFQlVHIGlzIG5vdCBzZXQKIyBDT05GSUdfRklMVEVSIGlzIG5vdCBzZXQKQ09ORklHX1VOSVg9
-eQpDT05GSUdfSU5FVD15CkNPTkZJR19JUF9NVUxUSUNBU1Q9eQojIENPTkZJR19JUF9BRFZBTkNF
-RF9ST1VURVIgaXMgbm90IHNldAojIENPTkZJR19JUF9QTlAgaXMgbm90IHNldAojIENPTkZJR19O
-RVRfSVBJUCBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9JUEdSRSBpcyBub3Qgc2V0CiMgQ09ORklH
-X0lQX01ST1VURSBpcyBub3Qgc2V0CiMgQ09ORklHX0lORVRfRUNOIGlzIG5vdCBzZXQKIyBDT05G
-SUdfU1lOX0NPT0tJRVMgaXMgbm90IHNldAoKIwojICAgSVA6IE5ldGZpbHRlciBDb25maWd1cmF0
-aW9uCiMKQ09ORklHX0lQX05GX0NPTk5UUkFDSz1tCkNPTkZJR19JUF9ORl9GVFA9bQojIENPTkZJ
-R19JUF9ORl9BTUFOREEgaXMgbm90IHNldAojIENPTkZJR19JUF9ORl9URlRQIGlzIG5vdCBzZXQK
-Q09ORklHX0lQX05GX0gzMjM9bQojIENPTkZJR19JUF9ORl9JUkMgaXMgbm90IHNldApDT05GSUdf
-SVBfTkZfSVBUQUJMRVM9bQpDT05GSUdfSVBfTkZfTUFUQ0hfTElNSVQ9bQpDT05GSUdfSVBfTkZf
-TUFUQ0hfTUFDPW0KQ09ORklHX0lQX05GX01BVENIX1BLVFRZUEU9bQpDT05GSUdfSVBfTkZfTUFU
-Q0hfTUFSSz1tCkNPTkZJR19JUF9ORl9NQVRDSF9NVUxUSVBPUlQ9bQpDT05GSUdfSVBfTkZfTUFU
-Q0hfVE9TPW0KQ09ORklHX0lQX05GX01BVENIX1JFQ0VOVD1tCkNPTkZJR19JUF9ORl9NQVRDSF9F
-Q049bQpDT05GSUdfSVBfTkZfTUFUQ0hfRFNDUD1tCkNPTkZJR19JUF9ORl9NQVRDSF9BSF9FU1A9
-bQpDT05GSUdfSVBfTkZfTUFUQ0hfTEVOR1RIPW0KQ09ORklHX0lQX05GX01BVENIX1RUTD1tCkNP
-TkZJR19JUF9ORl9NQVRDSF9UQ1BNU1M9bQpDT05GSUdfSVBfTkZfTUFUQ0hfSEVMUEVSPW0KQ09O
-RklHX0lQX05GX01BVENIX1NUQVRFPW0KQ09ORklHX0lQX05GX01BVENIX0NPTk5UUkFDSz1tCkNP
-TkZJR19JUF9ORl9GSUxURVI9bQpDT05GSUdfSVBfTkZfVEFSR0VUX1JFSkVDVD1tCkNPTkZJR19J
-UF9ORl9OQVQ9bQpDT05GSUdfSVBfTkZfTkFUX05FRURFRD15CkNPTkZJR19JUF9ORl9UQVJHRVRf
-TUFTUVVFUkFERT1tCkNPTkZJR19JUF9ORl9UQVJHRVRfUkVESVJFQ1Q9bQpDT05GSUdfSVBfTkZf
-TkFUX0gzMjM9bQojIENPTkZJR19JUF9ORl9OQVRfTE9DQUwgaXMgbm90IHNldApDT05GSUdfSVBf
-TkZfTkFUX0ZUUD1tCkNPTkZJR19JUF9ORl9NQU5HTEU9bQpDT05GSUdfSVBfTkZfVEFSR0VUX1RP
-Uz1tCkNPTkZJR19JUF9ORl9UQVJHRVRfRUNOPW0KQ09ORklHX0lQX05GX1RBUkdFVF9EU0NQPW0K
-IyBDT05GSUdfSVBfTkZfVEFSR0VUX01BUksgaXMgbm90IHNldApDT05GSUdfSVBfTkZfVEFSR0VU
-X0xPRz1tCkNPTkZJR19JUF9ORl9UQVJHRVRfVUxPRz1tCkNPTkZJR19JUF9ORl9UQVJHRVRfVENQ
-TVNTPW0KQ09ORklHX0lQX05GX0FSUFRBQkxFUz1tCkNPTkZJR19JUF9ORl9BUlBGSUxURVI9bQoj
-IENPTkZJR19JUF9ORl9BUlBfTUFOR0xFIGlzIG5vdCBzZXQKIyBDT05GSUdfSVBfTkZfQ09NUEFU
-X0lQQ0hBSU5TIGlzIG5vdCBzZXQKIyBDT05GSUdfSVBfTkZfQ09NUEFUX0lQRldBRE0gaXMgbm90
-IHNldAoKIwojICAgSVA6IFZpcnR1YWwgU2VydmVyIENvbmZpZ3VyYXRpb24KIwojIENPTkZJR19J
-UF9WUyBpcyBub3Qgc2V0CiMgQ09ORklHX1ZMQU5fODAyMVEgaXMgbm90IHNldAoKIwojICAKIwoj
-IENPTkZJR19JUFggaXMgbm90IHNldAojIENPTkZJR19BVEFMSyBpcyBub3Qgc2V0CgojCiMgQXBw
-bGV0YWxrIGRldmljZXMKIwojIENPTkZJR19ERUNORVQgaXMgbm90IHNldAojIENPTkZJR19CUklE
-R0UgaXMgbm90IHNldAoKIwojIFFvUyBhbmQvb3IgZmFpciBxdWV1ZWluZwojCiMgQ09ORklHX05F
-VF9TQ0hFRCBpcyBub3Qgc2V0CgojCiMgTmV0d29yayB0ZXN0aW5nCiMKIyBDT05GSUdfTkVUX1BL
-VEdFTiBpcyBub3Qgc2V0CgojCiMgVGVsZXBob255IFN1cHBvcnQKIwojIENPTkZJR19QSE9ORSBp
-cyBub3Qgc2V0CgojCiMgQVRBL0lERS9NRk0vUkxMIHN1cHBvcnQKIwpDT05GSUdfSURFPXkKCiMK
-IyBJREUsIEFUQSBhbmQgQVRBUEkgQmxvY2sgZGV2aWNlcwojCkNPTkZJR19CTEtfREVWX0lERT15
-CgojCiMgUGxlYXNlIHNlZSBEb2N1bWVudGF0aW9uL2lkZS50eHQgZm9yIGhlbHAvaW5mbyBvbiBJ
-REUgZHJpdmVzCiMKIyBDT05GSUdfQkxLX0RFVl9IRF9JREUgaXMgbm90IHNldAojIENPTkZJR19C
-TEtfREVWX0hEIGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZfSURFRElTSz15CkNPTkZJR19JREVE
-SVNLX01VTFRJX01PREU9eQpDT05GSUdfSURFRElTS19TVFJPS0U9eQpDT05GSUdfQkxLX0RFVl9J
-REVDRD15CiMgQ09ORklHX0JMS19ERVZfSURFVEFQRSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19E
-RVZfSURFRkxPUFBZIGlzIG5vdCBzZXQKIyBDT05GSUdfSURFX1RBU0tfSU9DVEwgaXMgbm90IHNl
-dAoKIwojIElERSBjaGlwc2V0IHN1cHBvcnQvYnVnZml4ZXMKIwojIENPTkZJR19CTEtfREVWX0NN
-RDY0MCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSVNBUE5QIGlzIG5vdCBzZXQKQ09ORklH
-X0JMS19ERVZfSURFUENJPXkKQ09ORklHX0JMS19ERVZfR0VORVJJQz15CkNPTkZJR19JREVQQ0lf
-U0hBUkVfSVJRPXkKQ09ORklHX0JMS19ERVZfSURFRE1BX1BDST15CiMgQ09ORklHX0JMS19ERVZf
-T0ZGQk9BUkQgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0lERURNQV9GT1JDRUQgaXMgbm90
-IHNldApDT05GSUdfSURFRE1BX1BDSV9BVVRPPXkKIyBDT05GSUdfSURFRE1BX09OTFlESVNLIGlz
-IG5vdCBzZXQKQ09ORklHX0JMS19ERVZfSURFRE1BPXkKIyBDT05GSUdfQkxLX0RFVl9BRE1BMTAw
-IGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9BRUM2MlhYIGlzIG5vdCBzZXQKIyBDT05GSUdf
-QkxLX0RFVl9BTEkxNVgzIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9BTUQ3NFhYIGlzIG5v
-dCBzZXQKIyBDT05GSUdfQkxLX0RFVl9BVElJWFAgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVW
-X0NNRDY0WCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfVFJJRkxFWCBpcyBub3Qgc2V0CiMg
-Q09ORklHX0JMS19ERVZfQ1k4MkM2OTMgaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0NTNTUz
-MCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfSFBUMzRYIGlzIG5vdCBzZXQKIyBDT05GSUdf
-QkxLX0RFVl9IUFQzNjYgaXMgbm90IHNldApDT05GSUdfQkxLX0RFVl9QSUlYPXkKIyBDT05GSUdf
-QkxLX0RFVl9OUzg3NDE1IGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9QREMyMDJYWF9PTEQg
-aXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX1BEQzIwMlhYX05FVyBpcyBub3Qgc2V0CiMgQ09O
-RklHX0JMS19ERVZfUloxMDAwIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9TQzEyMDAgaXMg
-bm90IHNldAojIENPTkZJR19CTEtfREVWX1NWV0tTIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RF
-Vl9TSUlNQUdFIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9TSVM1NTEzIGlzIG5vdCBzZXQK
-IyBDT05GSUdfQkxLX0RFVl9TTEM5MEU2NiBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfVFJN
-MjkwIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9WSUE4MkNYWFggaXMgbm90IHNldAojIENP
-TkZJR19JREVfQ0hJUFNFVFMgaXMgbm90IHNldApDT05GSUdfSURFRE1BX0FVVE89eQojIENPTkZJ
-R19JREVETUFfSVZCIGlzIG5vdCBzZXQKIyBDT05GSUdfRE1BX05PTlBDSSBpcyBub3Qgc2V0Cgoj
-CiMgU0NTSSBzdXBwb3J0CiMKIyBDT05GSUdfU0NTSSBpcyBub3Qgc2V0CgojCiMgRnVzaW9uIE1Q
-VCBkZXZpY2Ugc3VwcG9ydAojCiMgQ09ORklHX0ZVU0lPTl9CT09UIGlzIG5vdCBzZXQKIyBDT05G
-SUdfRlVTSU9OX0lTRU5TRSBpcyBub3Qgc2V0CiMgQ09ORklHX0ZVU0lPTl9DVEwgaXMgbm90IHNl
-dAojIENPTkZJR19GVVNJT05fTEFOIGlzIG5vdCBzZXQKCiMKIyBJMk8gZGV2aWNlIHN1cHBvcnQK
-IwojIENPTkZJR19JMk8gaXMgbm90IHNldAoKIwojIE5ldHdvcmsgZGV2aWNlIHN1cHBvcnQKIwpD
-T05GSUdfTkVUREVWSUNFUz15CgojCiMgQVJDbmV0IGRldmljZXMKIwojIENPTkZJR19BUkNORVQg
-aXMgbm90IHNldApDT05GSUdfRFVNTVk9bQojIENPTkZJR19CT05ESU5HIGlzIG5vdCBzZXQKIyBD
-T05GSUdfRVFVQUxJWkVSIGlzIG5vdCBzZXQKIyBDT05GSUdfVFVOIGlzIG5vdCBzZXQKIyBDT05G
-SUdfTkVUX1NCMTAwMCBpcyBub3Qgc2V0CgojCiMgRXRoZXJuZXQgKDEwIG9yIDEwME1iaXQpCiMK
-Q09ORklHX05FVF9FVEhFUk5FVD15CiMgQ09ORklHX0hBUFBZTUVBTCBpcyBub3Qgc2V0CiMgQ09O
-RklHX1NVTkdFTSBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9WRU5ET1JfM0NPTSBpcyBub3Qgc2V0
-CiMgQ09ORklHX0xBTkNFIGlzIG5vdCBzZXQKIyBDT05GSUdfTkVUX1ZFTkRPUl9TTUMgaXMgbm90
-IHNldAojIENPTkZJR19ORVRfVkVORE9SX1JBQ0FMIGlzIG5vdCBzZXQKIyBDT05GSUdfREVQQ0Eg
-aXMgbm90IHNldAojIENPTkZJR19IUDEwMCBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9JU0EgaXMg
-bm90IHNldApDT05GSUdfTkVUX1BDST15CiMgQ09ORklHX1BDTkVUMzIgaXMgbm90IHNldAojIENP
-TkZJR19BTUQ4MTExX0VUSCBpcyBub3Qgc2V0CiMgQ09ORklHX0FEQVBURUNfU1RBUkZJUkUgaXMg
-bm90IHNldAojIENPTkZJR19BUFJJQ09UIGlzIG5vdCBzZXQKIyBDT05GSUdfQ1M4OXgwIGlzIG5v
-dCBzZXQKIyBDT05GSUdfVFVMSVAgaXMgbm90IHNldAojIENPTkZJR19ERTRYNSBpcyBub3Qgc2V0
-CiMgQ09ORklHX0RHUlMgaXMgbm90IHNldAojIENPTkZJR19ETTkxMDIgaXMgbm90IHNldAojIENP
-TkZJR19FRVBSTzEwMCBpcyBub3Qgc2V0CiMgQ09ORklHX0UxMDAgaXMgbm90IHNldAojIENPTkZJ
-R19GRUFMTlggaXMgbm90IHNldAojIENPTkZJR19OQVRTRU1JIGlzIG5vdCBzZXQKIyBDT05GSUdf
-TkUyS19QQ0kgaXMgbm90IHNldAojIENPTkZJR184MTM5VE9PIGlzIG5vdCBzZXQKIyBDT05GSUdf
-U0lTOTAwIGlzIG5vdCBzZXQKIyBDT05GSUdfRVBJQzEwMCBpcyBub3Qgc2V0CkNPTkZJR19TVU5E
-QU5DRT1tCiMgQ09ORklHX1NVTkRBTkNFX01NSU8gaXMgbm90IHNldAojIENPTkZJR19UTEFOIGlz
-IG5vdCBzZXQKIyBDT05GSUdfVklBX1JISU5FIGlzIG5vdCBzZXQKIyBDT05GSUdfV0lOQk9ORF84
-NDAgaXMgbm90IHNldAojIENPTkZJR19ORVRfUE9DS0VUIGlzIG5vdCBzZXQKCiMKIyBFdGhlcm5l
-dCAoMTAwMCBNYml0KQojCiMgQ09ORklHX0FDRU5JQyBpcyBub3Qgc2V0CiMgQ09ORklHX0RMMksg
-aXMgbm90IHNldAojIENPTkZJR19FMTAwMCBpcyBub3Qgc2V0CiMgQ09ORklHX05TODM4MjAgaXMg
-bm90IHNldAojIENPTkZJR19IQU1BQ0hJIGlzIG5vdCBzZXQKIyBDT05GSUdfUjgxNjkgaXMgbm90
-IHNldAojIENPTkZJR19TSzk4TElOIGlzIG5vdCBzZXQKIyBDT05GSUdfVElHT04zIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfRkRESSBpcyBub3Qgc2V0CiMgQ09ORklHX1BQUCBpcyBub3Qgc2V0CiMgQ09O
-RklHX1NMSVAgaXMgbm90IHNldAoKIwojIFdpcmVsZXNzIExBTiAobm9uLWhhbXJhZGlvKQojCiMg
-Q09ORklHX05FVF9SQURJTyBpcyBub3Qgc2V0CgojCiMgVG9rZW4gUmluZyBkZXZpY2VzCiMKIyBD
-T05GSUdfVFIgaXMgbm90IHNldAojIENPTkZJR19ORVRfRkMgaXMgbm90IHNldAoKIwojIFdhbiBp
-bnRlcmZhY2VzCiMKIyBDT05GSUdfV0FOIGlzIG5vdCBzZXQKCiMKIyBBbWF0ZXVyIFJhZGlvIHN1
-cHBvcnQKIwojIENPTkZJR19IQU1SQURJTyBpcyBub3Qgc2V0CgojCiMgSXJEQSAoaW5mcmFyZWQp
-IHN1cHBvcnQKIwojIENPTkZJR19JUkRBIGlzIG5vdCBzZXQKCiMKIyBJU0ROIHN1YnN5c3RlbQoj
-CiMgQ09ORklHX0lTRE4gaXMgbm90IHNldAoKIwojIE9sZCBDRC1ST00gZHJpdmVycyAobm90IFND
-U0ksIG5vdCBJREUpCiMKIyBDT05GSUdfQ0RfTk9fSURFU0NTSSBpcyBub3Qgc2V0CgojCiMgSW5w
-dXQgY29yZSBzdXBwb3J0CiMKIyBDT05GSUdfSU5QVVQgaXMgbm90IHNldApDT05GSUdfSU5QVVRf
-TU9VU0VERVZfU0NSRUVOX1g9MTAyNApDT05GSUdfSU5QVVRfTU9VU0VERVZfU0NSRUVOX1k9NzY4
-CgojCiMgQ2hhcmFjdGVyIGRldmljZXMKIwpDT05GSUdfVlQ9eQpDT05GSUdfVlRfQ09OU09MRT15
-CkNPTkZJR19TRVJJQUw9eQojIENPTkZJR19TRVJJQUxfQ09OU09MRSBpcyBub3Qgc2V0CiMgQ09O
-RklHX1NFUklBTF9FWFRFTkRFRCBpcyBub3Qgc2V0CiMgQ09ORklHX1NFUklBTF9OT05TVEFOREFS
-RCBpcyBub3Qgc2V0CkNPTkZJR19VTklYOThfUFRZUz15CkNPTkZJR19VTklYOThfUFRZX0NPVU5U
-PTI1NgoKIwojIEkyQyBzdXBwb3J0CiMKIyBDT05GSUdfSTJDIGlzIG5vdCBzZXQKCiMKIyBNaWNl
-CiMKIyBDT05GSUdfQlVTTU9VU0UgaXMgbm90IHNldApDT05GSUdfTU9VU0U9eQpDT05GSUdfUFNN
-T1VTRT15CiMgQ09ORklHXzgyQzcxMF9NT1VTRSBpcyBub3Qgc2V0CiMgQ09ORklHX1BDMTEwX1BB
-RCBpcyBub3Qgc2V0CiMgQ09ORklHX01LNzEyX01PVVNFIGlzIG5vdCBzZXQKCiMKIyBKb3lzdGlj
-a3MKIwojIENPTkZJR19JTlBVVF9HQU1FUE9SVCBpcyBub3Qgc2V0CgojCiMgSW5wdXQgY29yZSBz
-dXBwb3J0IGlzIG5lZWRlZCBmb3IgZ2FtZXBvcnRzCiMKCiMKIyBJbnB1dCBjb3JlIHN1cHBvcnQg
-aXMgbmVlZGVkIGZvciBqb3lzdGlja3MKIwojIENPTkZJR19RSUMwMl9UQVBFIGlzIG5vdCBzZXQK
-IyBDT05GSUdfSVBNSV9IQU5ETEVSIGlzIG5vdCBzZXQKCiMKIyBXYXRjaGRvZyBDYXJkcwojCiMg
-Q09ORklHX1dBVENIRE9HIGlzIG5vdCBzZXQKIyBDT05GSUdfU0N4MjAwIGlzIG5vdCBzZXQKIyBD
-T05GSUdfQU1EX1JORyBpcyBub3Qgc2V0CiMgQ09ORklHX0lOVEVMX1JORyBpcyBub3Qgc2V0CiMg
-Q09ORklHX0hXX1JBTkRPTSBpcyBub3Qgc2V0CiMgQ09ORklHX0FNRF9QTTc2OCBpcyBub3Qgc2V0
-CiMgQ09ORklHX05WUkFNIGlzIG5vdCBzZXQKIyBDT05GSUdfUlRDIGlzIG5vdCBzZXQKIyBDT05G
-SUdfRFRMSyBpcyBub3Qgc2V0CiMgQ09ORklHX1IzOTY0IGlzIG5vdCBzZXQKIyBDT05GSUdfQVBQ
-TElDT00gaXMgbm90IHNldAoKIwojIEZ0YXBlLCB0aGUgZmxvcHB5IHRhcGUgZGV2aWNlIGRyaXZl
-cgojCiMgQ09ORklHX0ZUQVBFIGlzIG5vdCBzZXQKQ09ORklHX0FHUD15CkNPTkZJR19BR1BfSU5U
-RUw9eQojIENPTkZJR19BR1BfSTgxMCBpcyBub3Qgc2V0CiMgQ09ORklHX0FHUF9WSUEgaXMgbm90
-IHNldAojIENPTkZJR19BR1BfQU1EIGlzIG5vdCBzZXQKIyBDT05GSUdfQUdQX0FNRF9LOCBpcyBu
-b3Qgc2V0CiMgQ09ORklHX0FHUF9TSVMgaXMgbm90IHNldAojIENPTkZJR19BR1BfQUxJIGlzIG5v
-dCBzZXQKIyBDT05GSUdfQUdQX1NXT1JLUyBpcyBub3Qgc2V0CiMgQ09ORklHX0FHUF9OVklESUEg
-aXMgbm90IHNldAojIENPTkZJR19BR1BfQVRJIGlzIG5vdCBzZXQKCiMKIyBEaXJlY3QgUmVuZGVy
-aW5nIE1hbmFnZXIgKFhGcmVlODYgRFJJIHN1cHBvcnQpCiMKQ09ORklHX0RSTT15CiMgQ09ORklH
-X0RSTV9PTEQgaXMgbm90IHNldAoKIwojIERSTSA0LjEgZHJpdmVycwojCkNPTkZJR19EUk1fTkVX
-PXkKQ09ORklHX0RSTV9UREZYPXkKIyBDT05GSUdfRFJNX0dBTU1BIGlzIG5vdCBzZXQKIyBDT05G
-SUdfRFJNX1IxMjggaXMgbm90IHNldApDT05GSUdfRFJNX1JBREVPTj15CkNPTkZJR19EUk1fSTgx
-MD15CkNPTkZJR19EUk1fSTgxMF9YRlJFRV80MT15CiMgQ09ORklHX0RSTV9JODMwIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfRFJNX01HQSBpcyBub3Qgc2V0CiMgQ09ORklHX0RSTV9TSVMgaXMgbm90IHNl
-dAojIENPTkZJR19NV0FWRSBpcyBub3Qgc2V0CgojCiMgTXVsdGltZWRpYSBkZXZpY2VzCiMKIyBD
-T05GSUdfVklERU9fREVWIGlzIG5vdCBzZXQKCiMKIyBGaWxlIHN5c3RlbXMKIwojIENPTkZJR19R
-VU9UQSBpcyBub3Qgc2V0CiMgQ09ORklHX0FVVE9GU19GUyBpcyBub3Qgc2V0CkNPTkZJR19BVVRP
-RlM0X0ZTPXkKIyBDT05GSUdfUkVJU0VSRlNfRlMgaXMgbm90IHNldApDT05GSUdfRVhUM19GUz15
-CkNPTkZJR19KQkQ9eQojIENPTkZJR19KQkRfREVCVUcgaXMgbm90IHNldApDT05GSUdfRkFUX0ZT
-PW0KQ09ORklHX01TRE9TX0ZTPW0KQ09ORklHX1VNU0RPU19GUz1tCkNPTkZJR19WRkFUX0ZTPW0K
-IyBDT05GSUdfQ1JBTUZTIGlzIG5vdCBzZXQKQ09ORklHX1RNUEZTPXkKQ09ORklHX1JBTUZTPXkK
-Q09ORklHX0lTTzk2NjBfRlM9eQpDT05GSUdfSk9MSUVUPXkKIyBDT05GSUdfWklTT0ZTIGlzIG5v
-dCBzZXQKIyBDT05GSUdfSkZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTUlOSVhfRlMgaXMgbm90
-IHNldAojIENPTkZJR19WWEZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfTlRGU19GUyBpcyBub3Qg
-c2V0CiMgQ09ORklHX0hQRlNfRlMgaXMgbm90IHNldApDT05GSUdfUFJPQ19GUz15CkNPTkZJR19E
-RVZQVFNfRlM9eQojIENPTkZJR19RTlg0RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19ST01GU19G
-UyBpcyBub3Qgc2V0CkNPTkZJR19FWFQyX0ZTPXkKIyBDT05GSUdfU1lTVl9GUyBpcyBub3Qgc2V0
-CiMgQ09ORklHX1VERl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VGU19GUyBpcyBub3Qgc2V0CkNP
-TkZJR19YRlNfRlM9eQpDT05GSUdfWEZTX1FVT1RBPXkKCiMKIyBOZXR3b3JrIEZpbGUgU3lzdGVt
-cwojCiMgQ09ORklHX0NPREFfRlMgaXMgbm90IHNldAojIENPTkZJR19ORlNfRlMgaXMgbm90IHNl
-dAojIENPTkZJR19ORlNEIGlzIG5vdCBzZXQKIyBDT05GSUdfU1VOUlBDIGlzIG5vdCBzZXQKIyBD
-T05GSUdfTE9DS0QgaXMgbm90IHNldAojIENPTkZJR19TTUJfRlMgaXMgbm90IHNldAojIENPTkZJ
-R19OQ1BfRlMgaXMgbm90IHNldAojIENPTkZJR19aSVNPRlNfRlMgaXMgbm90IHNldAoKIwojIFBh
-cnRpdGlvbiBUeXBlcwojCiMgQ09ORklHX1BBUlRJVElPTl9BRFZBTkNFRCBpcyBub3Qgc2V0CkNP
-TkZJR19NU0RPU19QQVJUSVRJT049eQojIENPTkZJR19TTUJfTkxTIGlzIG5vdCBzZXQKQ09ORklH
-X05MUz15CgojCiMgTmF0aXZlIExhbmd1YWdlIFN1cHBvcnQKIwpDT05GSUdfTkxTX0RFRkFVTFQ9
-Imlzbzg4NTktMSIKIyBDT05GSUdfTkxTX0NPREVQQUdFXzQzNyBpcyBub3Qgc2V0CiMgQ09ORklH
-X05MU19DT0RFUEFHRV83MzcgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfNzc1IGlz
-IG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1MCBpcyBub3Qgc2V0CiMgQ09ORklHX05M
-U19DT0RFUEFHRV84NTIgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODU1IGlzIG5v
-dCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1NyBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19D
-T0RFUEFHRV84NjAgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYxIGlzIG5vdCBz
-ZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RF
-UEFHRV84NjMgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODY0IGlzIG5vdCBzZXQK
-IyBDT05GSUdfTkxTX0NPREVQQUdFXzg2NSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFH
-RV84NjYgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODY5IGlzIG5vdCBzZXQKIyBD
-T05GSUdfTkxTX0NPREVQQUdFXzkzNiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV85
-NTAgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfOTMyIGlzIG5vdCBzZXQKIyBDT05G
-SUdfTkxTX0NPREVQQUdFXzk0OSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19DT0RFUEFHRV84NzQg
-aXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV84IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxT
-X0NPREVQQUdFXzEyNTAgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfMTI1MSBpcyBu
-b3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzEgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNP
-ODg1OV8yIGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfMyBpcyBub3Qgc2V0CiMgQ09O
-RklHX05MU19JU084ODU5XzQgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV81IGlzIG5v
-dCBzZXQKIyBDT05GSUdfTkxTX0lTTzg4NTlfNiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19JU084
-ODU5XzcgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV85IGlzIG5vdCBzZXQKIyBDT05G
-SUdfTkxTX0lTTzg4NTlfMTMgaXMgbm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV8xNCBpcyBu
-b3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzE1IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0tP
-SThfUiBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19LT0k4X1UgaXMgbm90IHNldAojIENPTkZJR19O
-TFNfVVRGOCBpcyBub3Qgc2V0CgojCiMgQ29uc29sZSBkcml2ZXJzCiMKQ09ORklHX1ZHQV9DT05T
-T0xFPXkKIyBDT05GSUdfVklERU9fU0VMRUNUIGlzIG5vdCBzZXQKCiMKIyBTb3VuZAojCiMgQ09O
-RklHX1NPVU5EIGlzIG5vdCBzZXQKCiMKIyBVU0Igc3VwcG9ydAojCiMgQ09ORklHX1VTQiBpcyBu
-b3Qgc2V0CgojCiMgU3VwcG9ydCBmb3IgVVNCIGdhZGdldHMKIwojIENPTkZJR19VU0JfR0FER0VU
-IGlzIG5vdCBzZXQKCiMKIyBCbHVldG9vdGggc3VwcG9ydAojCiMgQ09ORklHX0JMVUVaIGlzIG5v
-dCBzZXQKCiMKIyBLZXJuZWwgaGFja2luZwojCiMgQ09ORklHX0RFQlVHX0tFUk5FTCBpcyBub3Qg
-c2V0CkNPTkZJR19MT0dfQlVGX1NISUZUPTAKCiMKIyBDcnlwdG9ncmFwaGljIG9wdGlvbnMKIwoj
-IENPTkZJR19DUllQVE8gaXMgbm90IHNldAoKIwojIExpYnJhcnkgcm91dGluZXMKIwpDT05GSUdf
-Q1JDMzI9eQpDT05GSUdfWkxJQl9JTkZMQVRFPW0KQ09ORklHX1pMSUJfREVGTEFURT1tCg==
-------=_20040422074803_31358--
-
+diff -urN linux-2.6/arch/s390/Kconfig linux-2.6-s390/arch/s390/Kconfig
+--- linux-2.6/arch/s390/Kconfig	Thu Apr 22 15:54:53 2004
++++ linux-2.6-s390/arch/s390/Kconfig	Thu Apr 22 15:54:54 2004
+@@ -333,6 +333,25 @@
+ 	  This can also be compiled as a module, which will be called
+ 	  appldata_net_sum.o.
+ 
++config NO_IDLE_HZ
++	bool "No HZ timer ticks in idle"
++	help
++	  Switches the regular HZ timer off when the system is going idle.
++	  This helps z/VM to detect that the Linux system is idle. VM can
++	  then "swap-out" this guest which reduces memory usage. It also
++	  reduces the overhead of idle systems. 
++
++	  The HZ timer can be switched on/off via /proc/sys/kernel/hz_timer.
++	  hz_timer=0 means HZ timer is disabled. hz_timer=1 means HZ 
++	  timer is active.
++
++config NO_IDLE_HZ_INIT
++	bool "HZ timer in idle off by default"
++	depends on NO_IDLE_HZ
++	help
++	  The HZ timer is switched off in idle by default. That means the
++	  HZ timer is already disabled at boot time.
++
+ endmenu
+ 
+ config PCMCIA
+diff -urN linux-2.6/arch/s390/defconfig linux-2.6-s390/arch/s390/defconfig
+--- linux-2.6/arch/s390/defconfig	Thu Apr 22 15:54:54 2004
++++ linux-2.6-s390/arch/s390/defconfig	Thu Apr 22 15:54:54 2004
+@@ -83,6 +83,7 @@
+ # CONFIG_SHARED_KERNEL is not set
+ # CONFIG_CMM is not set
+ # CONFIG_VIRT_TIMER is not set
++# CONFIG_NO_IDLE_HZ is not set
+ # CONFIG_PCMCIA is not set
+ 
+ #
+diff -urN linux-2.6/arch/s390/kernel/process.c linux-2.6-s390/arch/s390/kernel/process.c
+--- linux-2.6/arch/s390/kernel/process.c	Thu Apr 22 15:54:27 2004
++++ linux-2.6-s390/arch/s390/kernel/process.c	Thu Apr 22 15:54:54 2004
+@@ -40,7 +40,7 @@
+ #include <asm/io.h>
+ #include <asm/processor.h>
+ #include <asm/irq.h>
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_VIRT_TIMER) || defined (CONFIG_NO_IDLE_HZ)
+ #include <asm/timer.h>
+ #endif
+ 
+@@ -75,17 +75,21 @@
+ 	psw_t wait_psw;
+ 	unsigned long reg;
+ 
++	local_irq_disable();
+         if (need_resched()) {
++		local_irq_enable();
+                 schedule();
+                 return;
+         }
+ 
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_VIRT_TIMER) || defined (CONFIG_NO_IDLE_HZ)
+ 	/*
+ 	 * hook to stop timers that should not tick while CPU is idle
+ 	 */
+-	if (stop_timers())
++	if (stop_timers()) {
++		local_irq_enable();
+ 		return;
++	}
+ #endif
+ 
+ 	/* 
+diff -urN linux-2.6/arch/s390/kernel/time.c linux-2.6-s390/arch/s390/kernel/time.c
+--- linux-2.6/arch/s390/kernel/time.c	Thu Apr 22 15:54:53 2004
++++ linux-2.6-s390/arch/s390/kernel/time.c	Thu Apr 22 15:54:54 2004
+@@ -331,29 +331,6 @@
+ 	return 0;
+ }
+ 
+-void do_monitor_call(struct pt_regs *regs, long interruption_code)
+-{
+-	/* disable monitor call class 0 */
+-	__ctl_clear_bit(8, 15);
+-
+-	start_cpu_timer();
+-}
+-
+-/*
+- * called from cpu_idle to stop any timers
+- * returns 1 if CPU should not be stopped
+- */
+-int stop_timers(void)
+-{
+-	if (stop_cpu_timer())
+-		return 1;
+-
+-	/* enable monitor call class 0 */
+-	__ctl_set_bit(8, 15);
+-
+-	return 0;
+-}
+-
+ void set_vtimer(__u64 expires)
+ {
+ 	asm volatile ("SPT %0" : : "m" (expires));
+@@ -474,6 +451,139 @@
+ }
+ #endif
+ 
++#ifdef CONFIG_NO_IDLE_HZ
++
++#ifdef CONFIG_NO_IDLE_HZ_INIT
++int sysctl_hz_timer = 0;
++#else
++int sysctl_hz_timer = 1;
++#endif
++
++/*
++ * Start the HZ tick on the current CPU.
++ * Only cpu_idle may call this function.
++ */
++void start_hz_timer(struct pt_regs *regs)
++{
++	__u64 tmp;
++	__u32 ticks;
++
++	if (!cpu_isset(smp_processor_id(), idle_cpu_mask))
++		return;
++
++	/* Calculate how many ticks have passed */
++	asm volatile ("STCK 0(%0)" : : "a" (&tmp) : "memory", "cc");
++	tmp = tmp + CLK_TICKS_PER_JIFFY - S390_lowcore.jiffy_timer;
++	ticks = __calculate_ticks(tmp);
++	S390_lowcore.jiffy_timer += CLK_TICKS_PER_JIFFY * (__u64) ticks;
++
++	/* Set the clock comparator to the next tick. */
++	tmp = S390_lowcore.jiffy_timer + CPU_DEVIATION;
++	asm volatile ("SCKC %0" : : "m" (tmp));
++
++	/* Charge the ticks. */
++	if (ticks > 0) {
++#ifdef CONFIG_SMP
++		/*
++		 * Do not rely on the boot cpu to do the calls to do_timer.
++		 * Spread it over all cpus instead.
++		 */
++		write_seqlock(&xtime_lock);
++		if (S390_lowcore.jiffy_timer > xtime_cc) {
++			__u32 xticks;
++			
++			tmp = S390_lowcore.jiffy_timer - xtime_cc;
++			if (tmp >= 2*CLK_TICKS_PER_JIFFY) {
++				xticks = __calculate_ticks(tmp);
++				xtime_cc += (__u64) xticks*CLK_TICKS_PER_JIFFY;
++			} else {
++				xticks = 1;
++				xtime_cc += CLK_TICKS_PER_JIFFY;
++			}
++			while (xticks--)
++				do_timer(regs);
++		}
++		write_sequnlock(&xtime_lock);
++		while (ticks--)
++			update_process_times(user_mode(regs));
++#else
++		while (ticks--)
++			do_timer(regs);
++#endif
++	}
++	cpu_clear(smp_processor_id(), idle_cpu_mask);
++}
++
++/*
++ * Stop the HZ tick on the current CPU.
++ * Only cpu_idle may call this function.
++ */
++int stop_hz_timer(void)
++{
++	__u64 timer;
++
++	if (sysctl_hz_timer != 0)
++		return 1;
++
++	/*
++	 * Leave the clock comparator set up for the next timer
++	 * tick if either rcu or a softirq is pending.
++	 */
++	if (rcu_pending(smp_processor_id()) || local_softirq_pending())
++		return 1;
++
++	/*
++	 * This cpu is going really idle. Set up the clock comparator
++	 * for the next event.
++	 */
++	cpu_set(smp_processor_id(), idle_cpu_mask);
++	timer = (__u64) (next_timer_interrupt() - jiffies) + jiffies_64;
++	timer = jiffies_timer_cc + timer * CLK_TICKS_PER_JIFFY;
++	asm volatile ("SCKC %0" : : "m" (timer));
++
++	return 0;
++}
++#endif
++
++#if defined(CONFIG_VIRT_TIMER) || defined(CONFIG_NO_IDLE_HZ)
++
++void do_monitor_call(struct pt_regs *regs, long interruption_code)
++{
++	/* disable monitor call class 0 */
++	__ctl_clear_bit(8, 15);
++
++#ifdef CONFIG_VIRT_TIMER
++	start_cpu_timer();
++#endif
++#ifdef CONFIG_NO_IDLE_HZ
++	start_hz_timer(regs);
++#endif
++}
++
++/* 
++ * called from cpu_idle to stop any timers 
++ * returns 1 if CPU should not be stopped
++ */
++int stop_timers(void)
++{
++#ifdef CONFIG_VIRT_TIMER
++	if (stop_cpu_timer())
++		return 1;
++#endif
++
++#ifdef CONFIG_NO_IDLE_HZ
++	if (stop_hz_timer())
++		return 1;
++#endif
++
++	/* enable monitor call class 0 */
++	__ctl_set_bit(8, 15);
++
++	return 0;
++}
++
++#endif
++
+ /*
+  * Start the clock comparator and the virtual CPU timer
+  * on the current CPU.
+diff -urN linux-2.6/arch/s390/kernel/traps.c linux-2.6-s390/arch/s390/kernel/traps.c
+--- linux-2.6/arch/s390/kernel/traps.c	Sun Apr  4 05:36:55 2004
++++ linux-2.6-s390/arch/s390/kernel/traps.c	Thu Apr 22 15:54:54 2004
+@@ -64,7 +64,7 @@
+ extern void pfault_interrupt(struct pt_regs *regs, __u16 error_code);
+ static ext_int_info_t ext_int_pfault;
+ #endif
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_NO_IDLE_HZ) || defined(CONFIG_VIRT_TIMER)
+ extern pgm_check_handler_t do_monitor_call;
+ #endif
+ 
+@@ -631,7 +631,7 @@
+ #endif /* CONFIG_ARCH_S390X */
+         pgm_check_table[0x15] = &operand_exception;
+         pgm_check_table[0x1C] = &privileged_op;
+-#ifdef CONFIG_VIRT_TIMER
++#if defined(CONFIG_VIRT_TIMER) || defined(CONFIG_NO_IDLE_HZ)
+ 	pgm_check_table[0x40] = &do_monitor_call;
+ #endif
+ 	if (MACHINE_IS_VM) {
+diff -urN linux-2.6/include/linux/sched.h linux-2.6-s390/include/linux/sched.h
+--- linux-2.6/include/linux/sched.h	Thu Apr 22 15:54:34 2004
++++ linux-2.6-s390/include/linux/sched.h	Thu Apr 22 15:54:54 2004
+@@ -149,6 +149,8 @@
+ extern void sched_init(void);
+ extern void init_idle(task_t *idle, int cpu);
+ 
++extern cpumask_t idle_cpu_mask;
++
+ extern void show_state(void);
+ extern void show_regs(struct pt_regs *);
+ extern void show_trace_task(task_t *tsk);
+diff -urN linux-2.6/include/linux/sysctl.h linux-2.6-s390/include/linux/sysctl.h
+--- linux-2.6/include/linux/sysctl.h	Thu Apr 22 15:54:34 2004
++++ linux-2.6-s390/include/linux/sysctl.h	Thu Apr 22 15:54:54 2004
+@@ -132,6 +132,7 @@
+ 	KERN_PTY=62,		/* dir: pty driver */
+ 	KERN_NGROUPS_MAX=63,	/* int: NGROUPS_MAX */
+ 	KERN_SPARC_SCONS_PWROFF=64, /* int: serial console power-off halt */
++	KERN_HZ_TIMER=65,	/* int: hz timer on or off */
+ };
+ 
+ 
+diff -urN linux-2.6/include/linux/timer.h linux-2.6-s390/include/linux/timer.h
+--- linux-2.6/include/linux/timer.h	Sun Apr  4 05:37:37 2004
++++ linux-2.6-s390/include/linux/timer.h	Thu Apr 22 15:54:54 2004
+@@ -65,6 +65,8 @@
+ extern int __mod_timer(struct timer_list *timer, unsigned long expires);
+ extern int mod_timer(struct timer_list *timer, unsigned long expires);
+ 
++extern unsigned long next_timer_interrupt(void);
++
+ /***
+  * add_timer - start a timer
+  * @timer: the timer to be added
+diff -urN linux-2.6/kernel/rcupdate.c linux-2.6-s390/kernel/rcupdate.c
+--- linux-2.6/kernel/rcupdate.c	Thu Apr 22 15:54:34 2004
++++ linux-2.6-s390/kernel/rcupdate.c	Thu Apr 22 15:54:54 2004
+@@ -103,6 +103,8 @@
+  */
+ static void rcu_start_batch(long newbatch)
+ {
++	cpumask_t active;
++
+ 	if (rcu_batch_before(rcu_ctrlblk.maxbatch, newbatch)) {
+ 		rcu_ctrlblk.maxbatch = newbatch;
+ 	}
+@@ -111,7 +113,9 @@
+ 		return;
+ 	}
+ 	/* Can't change, since spin lock held. */
+-	rcu_ctrlblk.rcu_cpu_mask = cpu_online_map;
++	active = idle_cpu_mask;
++	cpus_complement(active);
++	cpus_and(rcu_ctrlblk.rcu_cpu_mask, cpu_online_map, active);
+ }
+ 
+ /*
+diff -urN linux-2.6/kernel/sched.c linux-2.6-s390/kernel/sched.c
+--- linux-2.6/kernel/sched.c	Thu Apr 22 15:54:34 2004
++++ linux-2.6-s390/kernel/sched.c	Thu Apr 22 15:54:54 2004
+@@ -2684,6 +2684,15 @@
+ #endif
+ }
+ 
++/*
++ * In a system that switches off the HZ timer idle_cpu_mask
++ * indicates which cpus entered this state. This is used
++ * in the rcu update to wait only for active cpus. For system
++ * which do not switch off the HZ timer idle_cpu_mask should
++ * always be CPU_MASK_NONE.
++ */
++cpumask_t idle_cpu_mask = CPU_MASK_NONE;
++
+ #ifdef CONFIG_SMP
+ /*
+  * This is how migration works:
+diff -urN linux-2.6/kernel/sysctl.c linux-2.6-s390/kernel/sysctl.c
+--- linux-2.6/kernel/sysctl.c	Thu Apr 22 15:54:34 2004
++++ linux-2.6-s390/kernel/sysctl.c	Thu Apr 22 15:54:54 2004
+@@ -108,6 +108,8 @@
+ extern int sysctl_userprocess_debug;
+ #endif
+ 
++extern int sysctl_hz_timer;
++
+ #if defined(CONFIG_PPC32) && defined(CONFIG_6xx)
+ extern unsigned long powersave_nap;
+ int proc_dol2crvec(ctl_table *table, int write, struct file *filp,
+@@ -573,6 +575,16 @@
+ 		.mode		= 0644,
+ 		.proc_handler	= &proc_dointvec,
+ 	},
++#endif 
++#ifdef CONFIG_NO_IDLE_HZ
++	{
++		.ctl_name       = KERN_HZ_TIMER,
++		.procname       = "hz_timer",
++		.data           = &sysctl_hz_timer,
++		.maxlen         = sizeof(int),
++		.mode           = 0644,
++		.proc_handler   = &proc_dointvec,
++	},
+ #endif
+ 	{
+ 		.ctl_name	= KERN_S390_USER_DEBUG_LOGGING,
+diff -urN linux-2.6/kernel/timer.c linux-2.6-s390/kernel/timer.c
+--- linux-2.6/kernel/timer.c	Thu Apr 22 15:54:34 2004
++++ linux-2.6-s390/kernel/timer.c	Thu Apr 22 15:54:54 2004
+@@ -428,6 +428,75 @@
+ 	spin_unlock_irq(&base->lock);
+ }
+ 
++#ifdef CONFIG_NO_IDLE_HZ
++/*
++ * Find out when the next timer event is due to happen. This
++ * is used on S/390 to stop all activity when a cpus is idle.
++ * This functions needs to be called disabled.
++ */
++unsigned long next_timer_interrupt(void)
++{
++	tvec_base_t *base;
++	struct list_head *list;
++	struct timer_list *nte;
++	unsigned long expires;
++	tvec_t *varray[4];
++	int i, j;
++
++	base = &__get_cpu_var(tvec_bases);
++	spin_lock(&base->lock);
++	expires = base->timer_jiffies + (LONG_MAX >> 1);
++	list = 0;
++
++	/* Look for timer events in tv1. */
++	j = base->timer_jiffies & TVR_MASK;
++	do {
++		list_for_each_entry(nte, base->tv1.vec + j, entry) {
++			expires = nte->expires;
++			if (j < (base->timer_jiffies & TVR_MASK))
++				list = base->tv2.vec + (INDEX(0));
++			goto found;
++		}
++		j = (j + 1) & TVR_MASK;
++	} while (j != (base->timer_jiffies & TVR_MASK));
++
++	/* Check tv2-tv5. */
++	varray[0] = &base->tv2;
++	varray[1] = &base->tv3;
++	varray[2] = &base->tv4;
++	varray[3] = &base->tv5;
++	for (i = 0; i < 4; i++) {
++		j = INDEX(i);
++		do {
++			if (list_empty(varray[i]->vec + j)) {
++				j = (j + 1) & TVN_MASK;
++				continue;
++			}
++			list_for_each_entry(nte, varray[i]->vec + j, entry)
++				if (time_before(nte->expires, expires))
++					expires = nte->expires;
++			if (j < (INDEX(i)) && i < 3)
++				list = varray[i + 1]->vec + (INDEX(i + 1));
++			goto found;
++		} while (j != (INDEX(i)));
++	}
++found:
++	if (list) {
++		/*
++		 * The search wrapped. We need to look at the next list
++		 * from next tv element that would cascade into tv element
++		 * where we found the timer element.
++		 */
++		list_for_each_entry(nte, list, entry) {
++			if (time_before(nte->expires, expires))
++				expires = nte->expires;
++		}
++	}
++	spin_unlock(&base->lock);
++	return expires;
++}
++#endif
++
+ /******************************************************************/
+ 
+ /*

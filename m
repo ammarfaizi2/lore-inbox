@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbTEIMlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 08:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbTEIMlQ
+	id S263023AbTEIMuv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 08:50:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbTEIMuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 08:41:16 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24203
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262513AbTEIMlP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 08:41:15 -0400
-Subject: Re: [PATCH] i386 uaccess to fixmap pages
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roland McGrath <roland@redhat.com>
-Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200305091043.h49Ah7Z24822@magilla.sf.frob.com>
-References: <200305091043.h49Ah7Z24822@magilla.sf.frob.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1052481316.14538.0.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 09 May 2003 12:55:17 +0100
+	Fri, 9 May 2003 08:50:51 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33553 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263023AbTEIMut
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 08:50:49 -0400
+Date: Fri, 9 May 2003 08:57:48 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
+In-Reply-To: <1052304024.9817.3.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.3.96.1030509085607.26434U-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-05-09 at 11:43, Roland McGrath wrote:
-> Here's an updated version of the patch.  Since the support for 386s without
-> WP support seems to be gone, I shaved an instruction here and there by not
-> passing the read/write flag to the helper function.  
+On 7 May 2003, David S. Miller wrote:
 
-Manfred Spraul redid the 386 support very nicely so the older CPU's
-should be fine
+> On Wed, 2003-05-07 at 03:10, Helge Hafting wrote:
+> > 2.5.69-mm1 is fine, 2.5.69-mm2 panics after a while even under very
+> > light load.
+> 
+> Do you have AF_UNIX built modular?
+> 
+
+This may be the same thing reported in
+<20030505144808.GA18518@butterfly.hjsoft.com> earlier, it seems to happen
+in 2.5.69 base. Interesting that he has it working in mm1, perhaps the
+module just didn't get loaded.
+
+Of course it could be another problem.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,49 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270187AbTGZQ3L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 12:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270189AbTGZQ3K
+	id S270412AbTGZQiK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 12:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270425AbTGZQiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 12:29:10 -0400
-Received: from galaxy.lunarpages.com ([64.235.234.165]:29372 "EHLO
-	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
-	id S270187AbTGZQ3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 12:29:03 -0400
-Message-ID: <3F22B39C.3070200@genebrew.com>
-Date: Sat, 26 Jul 2003 13:00:12 -0400
-From: Rahul Karnik <rahul@genebrew.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-CC: Eugene Teo <eugene.teo@eugeneteo.net>, LKML <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <200307261142.43277.m.c.p@wolk-project.de> <3F2251D3.3090107@sambara.org> <20030726101015.GA3922@eugeneteo.net> <3F2264DF.7060306@wmich.edu>
-In-Reply-To: <3F2264DF.7060306@wmich.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - genebrew.com
+	Sat, 26 Jul 2003 12:38:10 -0400
+Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:50953 "EHLO
+	zork.ruvolo.net") by vger.kernel.org with ESMTP id S270412AbTGZQiG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 12:38:06 -0400
+Date: Sat, 26 Jul 2003 09:52:59 -0700
+From: Chris Ruvolo <chris+lkml@ruvolo.net>
+To: Ben Collins <bcollins@debian.org>
+Cc: gaxt <gaxt@rogers.com>, Torrey Hoffman <thoffman@arnor.net>,
+       Sam Bromley <sbromley@cogeco.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030726165259.GV23196@ruvolo.net>
+Mail-Followup-To: Ben Collins <bcollins@debian.org>, gaxt <gaxt@rogers.com>,
+	Torrey Hoffman <thoffman@arnor.net>,
+	Sam Bromley <sbromley@cogeco.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux firewire devel <linux1394-devel@lists.sourceforge.net>
+References: <20030725160706.GK23196@ruvolo.net> <20030725161803.GJ1512@phunnypharm.org> <1059155483.2525.16.camel@torrey.et.myrio.com> <20030725181303.GO23196@ruvolo.net> <20030725181252.GA607@phunnypharm.org> <3F217A39.2020803@rogers.com> <20030725182642.GD607@phunnypharm.org> <20030725184506.GE607@phunnypharm.org> <20030725193515.GQ23196@ruvolo.net> <20030725201128.GA535@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uUozbLrG2OP+gMtx"
+Content-Disposition: inline
+In-Reply-To: <20030725201128.GA535@phunnypharm.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Sweetman wrote:
-> 
-> I'd really wish people would use examples other than a single player to 
-> generalize the performance of the kernel. 
 
-I must wholeheartedly agree. I have not tried any of the interactivity 
-work yet, but it is clear that your particular experience will depend on 
-the specific test application used. For instance, using net-rhythmbox to 
-play mp3s causes skips every time a web page is loaded, but it does not 
-happen with xmms. Perhaps we should write down the various interactivity 
-tests people have come up with, so that Con/Ingo/whoever else can test 
-their work to some extent.
+--uUozbLrG2OP+gMtx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Rahul
+On Fri, Jul 25, 2003 at 04:11:29PM -0400, Ben Collins wrote:
+> Kick ass. I've commited this change to the 1394 repo. Linus will get the
+> fix soon. I'll also send it to Marcelo for 2.4.22.
+>=20
+> Please, if you are testing, use the code at www.linux1394.org's viewcvs
+> (trunk tarball will replace drivers/ieee1394 in 2.6, branches/linux-2.4
+> will do the same for 2.4).
 
+Its all working!  Compiled the 1014 rev, and everything looks good.  dvgrab,
+kino, gscanbus, even GnomeMeeting 0.98 with /dev/video1394.
+
+Thanks for all your help, and the time spent tracking down this problem!
+
+-Chris
+
+ohci1394: $Rev$ Ben Collins <bcollins@debian.org>
+PCI: Found IRQ 10 for device 0000:00:0b.0
+ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=3D[10]  MMIO=3D[db001000-db0017ff]  Ma=
+x Packet=3D[2048]
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[0011060000006a85]
+ieee1394: Node added: ID:BUS[0-00:1023]  GUID[0010950010090143]
+ieee1394: Node changed: 0-00:1023 -> 0-01:1023
+ieee1394: Node changed: 0-01:1023 -> 0-00:1023
+ieee1394: Node removed: ID:BUS[0-00:1023]  GUID[0010950010090143]
+
+
+--uUozbLrG2OP+gMtx
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/IrHrKO6EG1hc77ERAsjqAJ9mX8wEs9RT80FKQ+wGLTQYnuxqlwCcDK0A
+SKxoKRFHqrDMHkuCSY4S31A=
+=BQHA
+-----END PGP SIGNATURE-----
+
+--uUozbLrG2OP+gMtx--

@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbTEHGjI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 02:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTEHGjI
+	id S261190AbTEHGyN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 02:54:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTEHGyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 02:39:08 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:15630 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261185AbTEHGjH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 02:39:07 -0400
-Date: Thu, 8 May 2003 08:54:40 +0200
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, akpm@digeo.com
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030508065440.GA1890@hh.idb.hist.no>
-References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030508013854.GW8931@holomorphy.com>
-User-Agent: Mutt/1.5.3i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Thu, 8 May 2003 02:54:12 -0400
+Received: from dp.samba.org ([66.70.73.150]:35263 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261190AbTEHGyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 02:54:11 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: rml@tech9.net, mingo@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] How to write a portable "run_on" program? 
+In-reply-to: Your message of "Wed, 07 May 2003 22:31:43 MST."
+             <Pine.LNX.4.44.0305072221120.16772-100000@home.transmeta.com> 
+Date: Thu, 08 May 2003 17:00:24 +1000
+Message-Id: <20030508070647.E83062C052@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 06:38:54PM -0700, William Lee Irwin III wrote:
-[...] 
-> Can you try one kernel with the netfilter cset backed out, and another
-> with the re-slabification patch backed out? (But not with both backed
-> out simultaneously).
+In message <Pine.LNX.4.44.0305072221120.16772-100000@home.transmeta.com> you write:
+> In other words, the proper way to do set_cpu() is
+> 
+> 	int set_cpu(int cpu)
+> 	{
+> 		fd_set cpuset;
+> 
+> 		FD_ZERO(&cpuset);
+> 		FD_SET(cpu, cpuset);
+> 		return sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
+> 	}
+> 
+> which is a HELL OF A LOT more readable than the crap you're spouting 
+> (either your "before" _or_ your "after" crap).
 
-I'm compiling without reslabify now.
-I got 
-patching file arch/i386/mm/pageattr.c
-Hunk #1 succeeded at 67 (offset 9 lines).
-when backing it out - is this the effect of
-some other patch touching the same file or could
-my source be wrong somehow?
+Sorry, I remember your solution now.  You're absolutely right (still).
 
-Which patch is the netfilter cset?  None of
-the patches in mm2 looked obvious to me.  Or
-is it part of the linus patch? Note that mm1
-works for me, so anything found there too
-isn't as likely to be the problem.
+I preferred the "include/exclude" flag, which covers the "what to do
+when cpus come online/go offline" as well as the size issue, but
+that's personal preference.
 
-Helge Hafting
+However, I shall dutifully attack the glibc people for this, then
+(/usr/include/sched.h):
+
+#ifdef __USE_GNU
+/* Set the CPU affinity for a task */
+extern int sched_setaffinity (__pid_t __pid, unsigned long int __len,
+			      unsigned long int *__mask) __THROW;
+
+/* Get the CPU affinity for a task */
+extern int sched_getaffinity (__pid_t __pid, unsigned long int __len,
+			      unsigned long int *__mask) __THROW;
+#endif
+
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

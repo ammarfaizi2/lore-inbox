@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUHSHQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUHSHRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUHSHQg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 03:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbUHSHQg
+	id S262328AbUHSHRA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 03:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUHSHRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 03:16:36 -0400
-Received: from ender.smtp.cz ([81.95.97.119]:58506 "EHLO out.smtp.cz")
-	by vger.kernel.org with ESMTP id S262085AbUHSHQc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 03:16:32 -0400
-Subject: Re: network regression using 2.6.8.x behind Cisco 1712
-From: =?iso-8859-2?Q?Ond=F8ej_Sur=FD?= <ondrej@sury.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092849905.26056.17.camel@localhost.localdomain>
-References: <1092817247.5178.6.camel@ondrej.sury.org>
-	 <1092849905.26056.17.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-McZ160WfxTuibZB4nco8"
-Date: Thu, 19 Aug 2004 09:16:29 +0200
-Message-Id: <1092899789.5191.1.camel@ondrej.sury.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
+	Thu, 19 Aug 2004 03:17:00 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:41931 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262328AbUHSHQy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 03:16:54 -0400
+Message-ID: <412453E3.30003@free.fr>
+Date: Thu, 19 Aug 2004 09:16:51 +0200
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Karol Kozimor <sziwan@hell.org.pl>
+Cc: len.brown@intel.com, zhenyu.z.wang@intel.com,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>, linux@brodo.de,
+       linux-kernel@vger.kernel.org, shaohua.li@intel.com
+Subject: Re: 2.6.8.1-mm1 and Asus L3C : problematic change found, can be reverted.
+ Real fix still missing
+References: <41189098.4000400@free.fr> <4118A500.1080306@free.fr> <20040810090743.3fa75a74.akpm@osdl.org> <4123AC79.5000709@free.fr> <20040819000045.GA9079@hell.org.pl>
+In-Reply-To: <20040819000045.GA9079@hell.org.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karol Kozimor wrote:
+> Okay, so I think I've finally got what's happening here.
+> Enabling the SMBus device (00:1f.3) seems to mess up the resource
+> reservation code, specifically the 0xe800 port region. Here's the diff
+> between 2.6.8.1-mm1 acpi=off and the same kernel with no arguments:
 
---=-McZ160WfxTuibZB4nco8
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Hi Karol,
 
-On Wed, 2004-08-18 at 18:25 +0100, Alan Cox wrote:
-> On Mer, 2004-08-18 at 09:20, Ond=C5=99ej Sur=C3=BD wrote:
-> > It could be some bug in IOS, but it is triggered by some change between
-> > 2.6.7 and 2.6.8.  Any hints what should I try or where to look?
-> > I could try some -pre and -rc kernel to locate where this was
-> > introduced, but at least try to hint me which version should be
-> > considered, I am not so willing to compile all -preX and -rcX, but coul=
-d
-> > do that if neccessary to hunt this regression.
->=20
-> echo "0" >/proc/sys/net/ipv4/tcp_window_scaling see if that helps.
+This is the same problem on every asus motherboard including very old 
+ones like my A7V : the ACPI pre-allocates the ioport region for the SMB 
+bus because the DTSD contain indication to do so and special care should 
+be used in order to reuse the IO port range already owned by ACPI 
+(motherboard).
 
-Yep, that helped.  Thanks a lot.
+See :
+<http://lkml.org/lkml/2004/8/3/160>
 
-> If so then suspect something like the cisco or upstream router.
+And especially the end of /proc/oprots current one (before ACPI fix, I 
+was forced to avoid/not fail ioport reservation for SMB in i2c-viapro.c)
 
-I will report this to my local Cisco support partner.
+e800-e80f : 0000:00:04.4	<===============
+    e800-e80f : motherboard
 
-O.
---=20
-Ond=C5=99ej Sur=C3=BD <ondrej@sury.org>
+But with the shaohua li proposed fix for 
+<http://bugme.osdl.org/show_bug.cgi?id=3049>, i2c-viapro.c becomes owner 
+of part of this ioport range:
 
---=-McZ160WfxTuibZB4nco8
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+e800-e80f : 0000:00:04.4
+   e800-e80f : motherboard
+     e800-e807 : viapro-smbus    <========
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+So in other words, it is possible either to force reallocation of an 
+ioport range already owned by ACPI now (at least in some configuration) 
+or to avoid this io port allocation has it is already mapped like my 
+proposed kludge to make A7V work...
 
-iD8DBQBBJFPM9OZqfMIN8nMRAv8XAKCHhCA6ymy0DE1EuA6kRZ8YloiMlACfRbIY
-WNB/MOZCzOrYJkhgSn/+crk=
-=50UK
------END PGP SIGNATURE-----
+However :
+	1) I have no clue however of the correct way to do this,
+	2) I do not know if the fix for 
+<http://bugme.osdl.org/show_bug.cgi?id=3049> is also valid for this ASUS 
+motherboard/laptop,
+	3) I still would like to know what you want to do with the SMB bus...
 
---=-McZ160WfxTuibZB4nco8--
+-- eric
+
+
+
 

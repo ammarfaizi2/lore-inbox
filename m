@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVCCE1G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVCCERl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVCCE1G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVCCER7
+	id S261396AbVCCERl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:17:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVCCEPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:17:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18398 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261364AbVCCEQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:16:40 -0500
-Message-ID: <42268F93.6060504@pobox.com>
-Date: Wed, 02 Mar 2005 23:16:19 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+	Wed, 2 Mar 2005 23:15:25 -0500
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:23019 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261342AbVCCEKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:10:31 -0500
+Date: Wed, 2 Mar 2005 20:10:20 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>	<42264F6C.8030508@pobox.com>	<20050302162312.06e22e70.akpm@osdl.org>	<42265A6F.8030609@pobox.com>	<20050302165830.0a74b85c.davem@davemloft.net>	<422674A4.9080209@pobox.com>	<Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>	<42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
-In-Reply-To: <20050302200214.3e4f0015.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050303041020.GA28642@taniwha.stupidest.org>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Wed, 02 Mar 2005 22:40:57 -0500
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
-> 
->>People don't test 2.6-rc releases because they know they are not 
->>"release candidate, with only bug fixes" releases, which is how the rest 
->>of the world interprets the phrase.
-> 
-> 
-> That's not %100 true.  No matter what -rc* really is, people perceive
-> it to be something based upon it's name and whether or not it is an
-> official release.  As far as I can see it's %95 perception vs. reality.
-> And IT IS part of the reason the -rc's are not as good as they could be.
+On Wed, Mar 02, 2005 at 02:21:38PM -0800, Linus Torvalds wrote:
 
-The reasons -rcs are not as good as they could be is that they include 
-more than just bug fixes.  Users are discouraged from testing because 
-they must scan LKML, or guess, which -rc that Linus/Andrew started 
-getting serious about "bugfixes only."
+>  - 2.6.<even>: even at all levels, aim for having had minimally intrusive
+>    patches leading up to it (timeframe: a week or two)
+>
+> with the odd numbers going like:
+>
+>  - 2.6.<odd>: still a stable kernel, but accept bigger changes leading up
+>    to it (timeframe: a month or two).
+>  - 2.<odd>.x: aim for big changes that may destabilize the kernel for
+>    several releases (timeframe: a year or two)
 
-With the -pre/-rc scheme, it's clear to users.
+[...]
 
-With the even/odd scheme, you just devalue releases.  Previously, all 
-releases were worthy of testing and use.  Now, half of them aren't.
+Why not change the "2.6 prefix" to 2.8, 3.0 (or whatever) if/when you
+do go to a new naming scheme --- simply to make a clean break between
+the new and the old.  Plus it will give the suckdork crowd[1] bigger
+numbers to drivel on about.
 
-	Jeff
+That said it would be a large numerical leap without and real feature
+changes so perhaps that will further add to confusion?
+
+Sigh.
 
 
+
+[1] Well, and the CGL and similar people.  "New CGL with improved
+    version numbers and fewer calories!"

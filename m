@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263442AbUDVFTb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbUDVFeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263442AbUDVFTb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 01:19:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263544AbUDVFTb
+	id S263338AbUDVFeX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 01:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUDVFeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 01:19:31 -0400
-Received: from diplo.antw.online.be ([62.112.0.10]:62170 "EHLO
-	diplo.antw.online.be") by vger.kernel.org with ESMTP
-	id S263442AbUDVFTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 01:19:30 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: System hang with ATI's lousy driver
-Date: Thu, 22 Apr 2004 07:18:39 +0200
-User-Agent: KMail/1.6.2
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Timothy Miller <miller@techsource.com>
-References: <Pine.LNX.4.44.0404201216280.10469-100000@twin.uoregon.edu>
-In-Reply-To: <Pine.LNX.4.44.0404201216280.10469-100000@twin.uoregon.edu>
+	Thu, 22 Apr 2004 01:34:22 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:55984 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263338AbUDVFeV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 01:34:21 -0400
+Message-ID: <40875944.4060405@colorfullife.com>
+Date: Thu, 22 Apr 2004 07:33:56 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.4.1) Gecko/20031114
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jakub Jelinek <jakub@redhat.com>
+Subject: Re: [PATCH] per-user signal pending and message queue limits
+References: <20040419212810.GB10956@logos.cnet> <20040419224940.GY31589@devserv.devel.redhat.com> <20040420141319.GB13259@logos.cnet> <20040420130439.23fae566.akpm@osdl.org> <20040420231351.GB13826@logos.cnet> <20040420163443.7347da48.akpm@osdl.org> <20040421203456.GC16891@logos.cnet>
+In-Reply-To: <20040421203456.GC16891@logos.cnet>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404220718.40070.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 April 2004 21:28, Joel Jaeggli wrote:
+Marcelo Tosatti wrote:
 
-> kernel drm + xfree86 driver will actually provide accelerated opengl
-> support in Xwindows albiet without quite as many hardware features as the
-> proprietary driver on all the rv2xx chipsets including the 9000 but not
-> on the later models.
+>I'm thinking about how to do the mqueue "kernel allocated memory" accounting, 
+>and I have a problem. A user can create an mqueue of given size via sys_mq_open()
+>using "msg_attr" structure (will be created in do_create). I can account for how much 
+>memory has been allocated, but I can't at "deaccount" at kfree() time (this memory 
+>is stored in inode->(mqueue_inode_info *)info->messages), because I dont know how big
+>it is (its user selectable via "msg_attr" structure). 
+>  
 >
-> kernel drm & radeonfb have been reported to not play very well with each
-> other in other venues. vesafb is known to work in this situation though.
+Why not? mqueue_delete_inode can look at info->attr.mq_maxmsg and 
+info->attr.mq_curmsg.
 
-I have that particular setup running quite satisfactory now for a few months, 
-using a Radeon 9000 Mobile chip. No problems at all.
+--
+    Manfred
 
-Jan
-
--- 
-Test-tube babies shouldn't throw stones.

@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269617AbTGOTZa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269633AbTGOTZa
+	id S269321AbTGOT11 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:27:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269473AbTGOT11
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:25:30 -0400
-Received: from mtaw4.prodigy.net ([64.164.98.52]:34742 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S269617AbTGOTZY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:25:24 -0400
-Message-ID: <3F14590E.90202@pacbell.net>
-Date: Tue, 15 Jul 2003 12:42:06 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-       Ruben Puettmann <ruben@puettmann.net>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: Problems with usb-ohci on 2.4.22-preX
-References: <20030712141431.GA3240@puettmann.net> <200307151547.22615.roger.larsson@skelleftea.mail.telia.com> <3F14491B.6020809@pacbell.net> <20030715192241.GA4862@kroah.com>
-In-Reply-To: <20030715192241.GA4862@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Jul 2003 15:27:27 -0400
+Received: from ip67-95-245-82.z245-95-67.customer.algx.net ([67.95.245.82]:40199
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S269321AbTGOT1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 15:27:23 -0400
+Date: Tue, 15 Jul 2003 12:42:15 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030715194215.GE904@matchmail.com>
+Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030711155613.GC2210@gtf.org> <20030711203850.GB20970@win.tue.nl> <20030715000331.GB904@matchmail.com> <20030715170804.GA1089@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030715170804.GA1089@win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Jul 15, 2003 at 11:34:03AM -0700, David Brownell wrote:
+On Tue, Jul 15, 2003 at 07:08:04PM +0200, Andries Brouwer wrote:
+> On Mon, Jul 14, 2003 at 05:03:31PM -0700, Mike Fedyk wrote:
 > 
->>I've hardly ever seen ACPI do anything except break USB.
+> > So, will the DOS partition make it up to 2TB?  If so, then we won't have
+> > a problem until we have larger than 2TB drives
 > 
+> Yes, DOS partition table works up to 2^32 sectors, and with
+> 2^9-byte sectors that is 2 TiB.
 > 
-> Heh, my laptop _requires_ ACPI to get USB to work properly :)
+> People are encountering that limit already. We need something
+> better, either use some existing scheme, or invent something.
 
-The fact that I've seen one laptop work with ACPI is the
-entire reason I said "hardly ever" ... ;)   I've seen some
-hardware work with "pci=noacpi", which still counts as
-broken in my book.
-
-Desktop hardware has uniformly broken if I enable ACPI in
-the build.  The usual rule of thumb seems to be that when
-ACPI assigns the USB IRQs to values over 16, they won't
-work for me ... example, 2.5.75 on an SN41G2 assigned
-all four USB controllers (including a net2280!) that way.
-
-That was a curious symptom though:  /proc/interrupts
-showed endless streams of IRQs going to the devices,
-rather than the somewhat-more-typical "no IRQs".  I had
-not seen that before.  (It was almost a 2.6-test1 kernel.)
-
-In theory, this is just a bug that will get fixed, but
-in practice, the behavior has never yet changed.
-
-- dave
-
-
+Please point me to an URL for a 2TB hard drive.  Or are you pointing out
+that hardware raid setups look like a single drive (block device)? 

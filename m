@@ -1,75 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVATR61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVATSJD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVATR61 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 12:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVATRyy
+	id S261490AbVATSJD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 13:09:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVATSFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 12:54:54 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:59076 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261244AbVATRxi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 12:53:38 -0500
-Date: Thu, 20 Jan 2005 18:53:13 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       dsw@gelato.unsw.edu.au, benh@kernel.crashing.org,
-       linux-ia64@vger.kernel.org, hch@infradead.org, wli@holomorphy.com,
-       jbarnes@sgi.com
-Subject: Re: [patch 1/3] spinlock fix #1, *_can_lock() primitives
-Message-ID: <20050120175313.GA22782@elte.hu>
-References: <16878.54402.344079.528038@cargo.ozlabs.ibm.com> <20050120023445.GA3475@taniwha.stupidest.org> <20050119190104.71f0a76f.akpm@osdl.org> <20050120031854.GA8538@taniwha.stupidest.org> <16879.29449.734172.893834@wombat.chubb.wattle.id.au> <Pine.LNX.4.58.0501200747230.8178@ppc970.osdl.org> <20050120160839.GA13067@elte.hu> <Pine.LNX.4.58.0501200823010.8178@ppc970.osdl.org> <20050120164038.GA15874@elte.hu> <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0501200947440.8178@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 20 Jan 2005 13:05:34 -0500
+Received: from ithilien.qualcomm.com ([129.46.51.59]:35050 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id S261380AbVATSEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 13:04:54 -0500
+Message-ID: <41EFF2BD.7040107@qualcomm.com>
+Date: Thu, 20 Jan 2005 10:04:45 -0800
+From: Max Krasnyansky <maxk@qualcomm.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: CD/DVD drive access hangs when media is not inserted
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Folks,
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+I've got ASUS DVD-E616P2 drive and it seems that media detection is broken with it.
+Processes that try to access the drive when cd or dvd is not inserted simply
+hang until the machine is rebooted.
 
-> On Thu, 20 Jan 2005, Ingo Molnar wrote:
-> > 
-> > You are right about UP, and the patch below adds the UP variants. It's
-> > analogous to the existing wrapping concept that UP 'spinlocks' are
-> > always unlocked on UP. (spin_can_lock() is already properly defined on
-> > UP too.)
-> 
-> Looking closer, it _looks_ like the spinlock debug case never had a
-> "spin_is_locked()" define at all. Or am I blind? Maybe UP doesn't
-> want/need it after all?
+So for example if I do 'cat /dev/cdrom'. First few attempts fail with 'No medium found'
+error and dmesg shows 'cdrom: open failed'. But then it hangs in ide_do_drive_cmd
 
-i remember frequently breaking the UP build wrt. spin_is_locked() when
-redoing all the spinlock primitives for PREEMPT_RT.
+4435 D+   cat /dev/cdrom   ide_do_drive_cmd
 
-looking closer, here's the debug variant it appears:
+ From then on drive is dead. Inserting cd does not help. Reboot is the only way to bring
+it back to life.
+Everything else works just fine. Actually almost everything. Another annoying problem is
+if I pause DVD playback for too long (let's say 10-15 minutes) and then hit play again dvd
+access hangs just like in 'no medium' case.
 
- /* without debugging, spin_is_locked on UP always says
-  * FALSE. --> printk if already locked. */
- #define spin_is_locked(x) \
-	({ \
-	 	CHECK_LOCK(x); \
-		if ((x)->lock&&(x)->babble) { \
-			(x)->babble--; \
-			printk("%s:%d: spin_is_locked(%s:%p) already locked by %s/%d\n", \
-					__FILE__,__LINE__, (x)->module, \
-					(x), (x)->owner, (x)->oline); \
-		} \
-		0; \
-	})
+Any ideas ?
 
-(the comment is misleading a bit, this _is_ the debug branch. The
-nondebug branch has a spin_is_locked() definition too.)
+I tried a bunch of kernels 2.6.8.1  2.6.9  2.6.10
 
-	Ingo
+Here is how the drive is recognized at boot.
+
+ICH5: IDE controller at PCI slot 0000:00:1f.1
+ACPI: PCI interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 177
+ICH5: chipset revision 2
+ICH5: not 100% native mode: will probe irqs later
+     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
+     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: SAMSUNG SP1614N, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: ASUS DVD-E616P2, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+
+And this is what lspci has to say about my system
+
+00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub Interface (rev 02)
+00:01.0 PCI bridge: Intel Corp. 82865G/PE/P PCI to AGP Controller (rev 02)
+00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02)
+00:1d.2 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
+00:1d.3 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #4 (rev 02)
+00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801 PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller
+(rev 02)
+01:00.0 VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200] (rev a1)
+02:04.0 Multimedia video controller: Brooktree Corporation Bt878 Video Capture (rev 11)
+02:04.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture (rev 11)
+02:07.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5788 Gigabit Ethernet (rev 03)
+02:0d.0 FireWire (IEEE 1394): Agere Systems (former Lucent Microelectronics) FW323 (rev 61)
+
+Max

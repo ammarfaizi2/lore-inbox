@@ -1,102 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbUKLESZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbUKLE6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbUKLESZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 23:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbUKLESZ
+	id S262436AbUKLE6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 23:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbUKLE6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 23:18:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:28338 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262439AbUKLESR (ORCPT
+	Thu, 11 Nov 2004 23:58:25 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:8620 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S262436AbUKLE6U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 23:18:17 -0500
-Message-ID: <41943931.4090008@osdl.org>
-Date: Thu, 11 Nov 2004 20:16:49 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: yiding_wang@agilent.com, arjan@infradead.org, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au, akpm <akpm@osdl.org>
-Subject: [PATCH] handle quoted module parameters
-References: <08A354A3A9CCA24F9EE9BE13600CFBC50F3AED@wcosmb07.cos.agilent.com> <41943754.6090806@osdl.org>
-In-Reply-To: <41943754.6090806@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------050300090102040900040504"
+	Thu, 11 Nov 2004 23:58:20 -0500
+Subject: Re: [2.6 patch] kill acpi_ksyms.c
+From: Len Brown <len.brown@intel.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041109014021.GB15077@stusta.de>
+References: <20041105215021.GF1295@stusta.de>
+	 <1099707007.13834.1969.camel@d845pe> <20041106114844.GK1295@stusta.de>
+	 <418CEE3A.40503@conectiva.com.br> <20041106212917.GP1295@stusta.de>
+	 <418D403E.30608@conectiva.com.br> <1099933263.13831.9547.camel@d845pe>
+	 <20041109014021.GB15077@stusta.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1100235412.5519.922.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 11 Nov 2004 23:56:55 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050300090102040900040504
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Applied.
 
-Here's a patch with better description.
+thanks,
+-Len
+
+On Mon, 2004-11-08 at 20:40, Adrian Bunk wrote:
+...
+> Below is as a preparation a patch that removes acpi_ksyms.c .
+> 
+> It shouldn't make any practical difference.
+> 
+> The function acpi_db_user_commands that wasn't available in the whole
+> kernel sources was EXPORT_SYMBOL'ed. The patch removes this bogus
+> export.
+> 
+> 
+> diffstat output:
+>  drivers/acpi/Makefile             |    2
+>  drivers/acpi/acpi_ksyms.c         |  165
+> ------------------------------
+>  drivers/acpi/bus.c                |   10 +
+>  drivers/acpi/ec.c                 |    2
+>  drivers/acpi/events/evxface.c     |   10 +
+>  drivers/acpi/events/evxfevnt.c    |    8 +
+>  drivers/acpi/events/evxfregn.c    |    4
+>  drivers/acpi/hardware/hwregs.c    |    4
+>  drivers/acpi/hardware/hwsleep.c   |    4
+>  drivers/acpi/hardware/hwtimer.c   |    5
+>  drivers/acpi/namespace/nsxfeval.c |    4
+>  drivers/acpi/namespace/nsxfname.c |    4
+>  drivers/acpi/namespace/nsxfobj.c  |    5
+>  drivers/acpi/osl.c                |   18 +++
+>  drivers/acpi/pci_irq.c            |    2
+>  drivers/acpi/pci_root.c           |    2
+>  drivers/acpi/resources/rsxface.c  |    7 +
+>  drivers/acpi/scan.c               |    6 -
+>  drivers/acpi/tables/tbconvrt.c    |    2
+>  drivers/acpi/tables/tbxface.c     |    3
+>  drivers/acpi/tables/tbxfroot.c    |    2
+>  drivers/acpi/utilities/utdebug.c  |    7 +
+>  drivers/acpi/utilities/utglobal.c |    4
+>  drivers/acpi/utilities/utxface.c  |    2
+>  drivers/acpi/utils.c              |    4
+>  include/acpi/acdebug.h            |    5
+>  26 files changed, 112 insertions(+), 179 deletions(-)
 
 
-Fix module parameter quote handling.
-Module parameter strings (with spaces) are quoted like so:
-"modprm=this test"
-and not like this:
-modprm="this test"
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
-  kernel/params.c |   15 ++++++++++++---
-  1 files changed, 12 insertions(+), 3 deletions(-)
-
-
--- 
-~Randy
-
---------------050300090102040900040504
-Content-Type: text/x-patch;
- name="modprm_quoted.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="modprm_quoted.patch"
-
-
-diff -Naurp ./kernel/params.c~modprm_quoted ./kernel/params.c
---- ./kernel/params.c~modprm_quoted	2004-11-11 15:13:26.000000000 -0800
-+++ ./kernel/params.c	2004-11-11 19:42:36.714124784 -0800
-@@ -77,10 +77,16 @@ static int parse_one(char *param,
- static char *next_arg(char *args, char **param, char **val)
- {
- 	unsigned int i, equals = 0;
--	int in_quote = 0;
-+	int in_quote = 0, quoted = 0;
-+	char *next;
- 
- 	/* Chew any extra spaces */
- 	while (*args == ' ') args++;
-+	if (*args == '"') {
-+		args++;
-+		in_quote = 1;
-+		quoted = 1;
-+	}
- 
- 	for (i = 0; args[i]; i++) {
- 		if (args[i] == ' ' && !in_quote)
-@@ -106,13 +112,16 @@ static char *next_arg(char *args, char *
- 			if (args[i-1] == '"')
- 				args[i-1] = '\0';
- 		}
-+		if (quoted && args[i-1] == '"')
-+			args[i-1] = '\0';
- 	}
- 
- 	if (args[i]) {
- 		args[i] = '\0';
--		return args + i + 1;
-+		next = args + i + 1;
- 	} else
--		return args + i;
-+		next = args + i;
-+	return next;
- }
- 
- /* Args looks like "foo=bar,bar2 baz=fuz wiz". */
-
---------------050300090102040900040504--

@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265326AbSJRTdg>; Fri, 18 Oct 2002 15:33:36 -0400
+	id <S265313AbSJRTcq>; Fri, 18 Oct 2002 15:32:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265322AbSJRTdg>; Fri, 18 Oct 2002 15:33:36 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:64006 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265321AbSJRTd3>; Fri, 18 Oct 2002 15:33:29 -0400
-Date: Fri, 18 Oct 2002 15:39:14 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Doug Ledford <dledford@redhat.com>
-cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.5.43 IO-APIC bug and spinlock deadlock
-In-Reply-To: <20021017033302.GP8159@redhat.com>
-Message-ID: <Pine.LNX.3.96.1021018153513.23760B-100000@gatekeeper.tmr.com>
+	id <S265314AbSJRTcq>; Fri, 18 Oct 2002 15:32:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265313AbSJRTco>; Fri, 18 Oct 2002 15:32:44 -0400
+Date: Fri, 18 Oct 2002 15:38:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Robert Love <rml@tech9.net>
+cc: Neil Conway <nconway.list@ukaea.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4: variable HZ
+In-Reply-To: <1034966657.722.838.camel@phantasy>
+Message-ID: <Pine.LNX.3.95.1021018152117.150B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Oct 2002, Doug Ledford wrote:
+On 18 Oct 2002, Robert Love wrote:
 
-> IO-APIC bug: regular kernel, UP, no IO-APIC or APIC on UP enabled, compile
-> fails (does *everyone* run SMP or at least UP + APIC now?)
+> On Fri, 2002-10-18 at 07:51, Neil Conway wrote:
 > 
-> spinlock deadlock: run an smp kernel on a up machine.  On mine here all I 
-> have to do is try to boot to multiuser mode, it won't make it through the 
-> startup scripts before it locks up by trying to reenter common_interrupt 
-> on the only CPU.  Seems like an SMP kernel on UP hardware doesn't disable 
-> interrupts properly maybe?  I get task lists via alt-sysreq when the 
-> machine should be hardlocked I think.  Anyway, this is what has been 
-> tricking me into thinking I had an IDE problem.  IDE is innocent, it's the 
-> core interrupt handling code.
+> > I was looking at your jiffies_to_clock_t() macro, and I notice that it
+> > will screw up badly if the user chooses a HZ value that isn't a multiple
+> > of the normal value (e.g. 1000 is OK, 512 isn't).
+> 
+> OK, sure, but why specify a power-of-two HZ?  There is absolutely no
+> reason to, at least on x86.
+> 
+> Want 512?  500 will do just as well and has the benefit of (a) being a
+> multiple of the previous HZ and (b) evenly dividing into our concept of
+> time.
+> 
+> 	Robert Love
+> 
 
-Doug, I noted a similar bug back about 2.5.38, which went away if I boot
-the SMP kernel on uni with "nosmp" in the boot parameters. If you are
-curious I'd love to know if that's related, and I'm sure someone looking
-at the problem would like to know as well.
+At least on ix86, HZ needs to be something that CLOCK_TICK_RATE/LATCH
+comes out fairly close. Remember, LATCH is the divisor for the PIT
+and that PIT gets CLOCK_TICK_RATE for its input. If this number isn't
+fairly 'exact' there will be much jumping of time in the sawtooth
+corrector.
 
-The 2.4 kernels seem fine in that regard, I did a test the hard way, when
-I got a batch of Xeons with the lifespan of a mayfly. After one died and
-the system was rebooted every one came up cleanly with only one CPU.
-However, most of the SMP hardware was still there, and I boot "noapic"
-because it seems to help uptime.
+If you are not using ELAN, CLOCK_TICK_RATE is 1193180. If your HZ is
+100, you have 1193180/100 = 1193.18, not too exact. if you use
+500, you get 1193180/500 = 2386.36 which has twice as much round-off.
+If you use 1193180/512 = 2330.43, even a higher fractional part.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

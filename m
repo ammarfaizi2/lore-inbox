@@ -1,615 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267468AbUGWPro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267801AbUGWPuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267468AbUGWPro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 11:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267481AbUGWPqu
+	id S267801AbUGWPuG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 11:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267481AbUGWPuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 11:46:50 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:44677 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S267804AbUGWPki
+	Fri, 23 Jul 2004 11:50:06 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:57733 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S267801AbUGWPkw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 11:40:38 -0400
-Date: Fri, 23 Jul 2004 08:48:59 -0700
+	Fri, 23 Jul 2004 11:40:52 -0400
+Date: Fri, 23 Jul 2004 08:49:11 -0700
 From: inaky.perez-gonzalez@intel.com
 To: linux-kernel@vger.kernel.org
 Cc: inaky.perez-gonzalez@intel.com, robustmutexes@lists.osdl.org
-Subject: [RFC/PATCH] FUSYN 3/11: kernel fuqueues
-Message-ID: <0407230848.ZdKcBcybgaBd6ddd6cVdacuaIaRd6dha17066@intel.com>
+Subject: [RFC/PATCH] FUSYN 5/11: user space/kernel space tracker
+Message-ID: <0407230849.Ld0ccdydMbAcddja.c2b5d5djcjbQanb17066@intel.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <0407230848.sbNbGcKasaWc~dJbcd.aMbgbvagckbtd17066@intel.com>
+In-Reply-To: <0407230849.Ycdbec6bWb9dtb.bHbUaebDcmdEcSdtb17066@intel.com>
 X-Mailer: patchbomb 0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are the basic queues, similar to the futexes, but
-usable only from kernel space--some resemblance to
-waitqueues, but that has to be improved.
-
-It includes all the stuff for building on top of them (for
-fulocks and the user space support) as well as the basic
-debug macros--these will go away IANF.
+This module provides means to do a refcounted tracking of an
+object in kernel space based on a user space virtual
+address. Cleanup is automatic when the object count drops to
+zero (well, it is delayed).
 
 
- include/linux/fuqueue.h     |  410 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/fusyn-debug.h |  152 ++++++++++++++++
- kernel/fuqueue.c            |  349 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 911 insertions(+)
+ include/linux/vlocator.h |  206 ++++++++++++++++++
+ kernel/vlocator.c        |  518 +++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 724 insertions(+)
 
 --- /dev/null	Thu Jul 22 14:30:56 2004
-+++ include/linux/fuqueue.h Mon Jul 19 16:30:13 2004
-@@ -0,0 +1,410 @@
-+
++++ include/linux/vlocator.h Mon Jul 12 18:00:42 2004
+@@ -0,0 +1,206 @@
 +/*
-+ * Fast User real-time/pi/pp/robust/deadlock SYNchronization
++ * Generic mapping of kernel objects to user space addresses
 + * (C) 2002-2003 Intel Corp
 + * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
 + *
 + * Licensed under the FSF's GNU Public License v2 or later.
 + *
-+ * Based on normal futexes (futex.c), (C) Rusty Russell.
++ * Heavily based on futexes (futex.c), (C) Rusty Russell and Jamie
++ * Lokier's futex key work (actually, in many places it is a shameless
++ * copy)...good invention this GPL thingie :) Blame me for the
++ * mistakes, though.
++ *
 + * Please refer to Documentation/fusyn.txt for more info.
 + *
-+ * Quick usage guide:
-+ *
-+ * struct fuqueue f = fuqueue_INIT (&f);
-+ *
-+ * fuqueue_wait (&f, 4343)	Wait for max 4343 jiffies
-+ * fuqueue_wake (&f, 5, -EPERM) Wake the first five guys waiting on f
-+ *				with -EPERM.
-+ *
-+ * These are simple priority-sorted wait queues that can be used from
-+ * the kernel. They provide the foundation for more complex items
-+ * (fulocks, fuconds, ufulocks, ufuconds) and use from user-space
-+ * (ufuqueues, just like futexes).
-+ *
-+ * The type 'struct plist' provides the sorting for the wait list. The
-+ * type 'struct fuqueue_waiter' represents a waiting task on a
-+ * fuqueue. The 'struct fuqueue_ops' is what allows extensibility for
-+ * other synchronization primitives.
-+ *
-+ * I have just realized that this is too similar to the wait_queues...
++ * Stuff to map user space addresses to kernel space objects in a
++ * controlled way. 
 + */
 +
-+#ifndef __linux_fuqueue_h__
-+#define __linux_fuqueue_h__
-+
-+enum { FUQUEUE_WAITER_GOT_LOCK = 0x401449 };
-+
-+/** Fuqueue control actions */
-+enum fuqueue_ctl {
-+	FUQUEUE_CTL_RELEASE = 0,	/* Release an ufuqueue */
-+	FUQUEUE_CTL_WAITERS,   		/* Do we have waiters? */
-+};
++#ifndef __linux_vlocator_h__
++#define __linux_vlocator_h__
 +
 +#ifdef __KERNEL__
-+#include <linux/config.h>
++
++#include <linux/list.h>
++#include <asm/atomic.h>
++#include <linux/mm.h>
++#include <linux/pagemap.h>
 +#include <linux/fusyn-debug.h>
 +
-+#ifndef CONFIG_FUSYN
-+struct task_struct;
-+static inline
-+void fuqueue_waiter_cancel (struct task_struct *dummy1, int dummy2) {}
-+
-+static inline
-+void fuqueue_waiter_chprio (struct task_struct *task, int old_prio) {}
-+
-+#else /* #ifndef CONFIG_FUSYN */
-+
-+#include <linux/errno.h>
-+#include <linux/spinlock.h>
-+#include <linux/plist.h>
-+#include <linux/sched.h>
-+#include <asm/hardirq.h>
-+#include <linux/vlocator.h>
-+
-+struct task_struct;
-+struct fuqueue;
-+
 +/**
-+ * Type for fuqueue task wake function (or callback)
++ * Key to track user space addresses by hashing it.
 + *
-+ * @fuqueue: fuqueue we are waiting from
-+ * @w: fuqueue wait structure where called from
-+ * @state_mask: as passed to fuqueue_wake()
-+ * @sync: perform a sync wake up or not.
-+ * @returns: return 0 on success, !0 on error or any other condition
-+ *           you feel like. This will tell __fuqueue_wake() to stop
-+ *           waking up any other tasks if they were going to be woken
-+ *           up. 
-+ *           
-+ * This function (if the pointer is non-NULL) is called from atomic
-+ * context inside __fuqueue_wake().
++ * vlocators are matched on equal values of this key. The key type
++ * depends on whether it's a shared or private mapping.
++ *
++ * offset is aligned to a multiple of sizeof(u32) (== 4) by definition.
++ * We set bit 0 to indicate if it's an inode-based key.
 + */
-+typedef int (*fuqueue_wake_f) (struct fuqueue *fuqueue, struct fuqueue_waiter *w,
-+			       unsigned state_mask, int sync);
-+
-+/** Descriptor of a waiting task */
-+struct fuqueue_waiter {
-+	struct plist wlist_node;	/* node for the wait list */
-+	struct task_struct *task;	/* task that is waiting */
-+	int result;			/* what happened */
-+	unsigned flags;			/* how is it supposed to happen */
-+	fuqueue_wake_f wake_func;	/* call this upon wake up */
++union vl_key {
++	struct {
++		unsigned long pgoff;
++		struct inode *inode;
++		int offset;
++	} shared;
++	struct {
++		unsigned long uaddr;
++		struct mm_struct *mm;
++		int offset;
++	} private;
++	struct {
++		unsigned long word;
++		void *ptr;
++		int offset;
++	} both;
 +};
 +
 +
-+/* Bit-flags for influencing the wake up */
-+enum {
-+	FUQUEUE_WT_FL_QUEUE = 1,	/* Waiting for a queue */
-+	FUQUEUE_WT_FL_EXCLUSIVE = 2,	/* Task is exclusive waiter */
-+};
++/* Create a key for a given user space address */
++extern int vl_key_create (struct page **ppage, union vl_key *key,
++			  struct task_struct *task, unsigned long uaddr);
 +
 +
-+/*
-+ * Special parameters for fuqueue_wake*()
-+ */
-+
-+/** fuqueue_wake*()'s @howmany: wake everybody */
-+static const size_t FUQUEUE_WAKE_ALL = ULONG_MAX;
-+
-+
-+/**
-+ * Initializer for the fuqueue_waiter (we only initialize the fields
-+ * that can cause trouble because they might not be overwritten by the
-+ * queuing functions.
-+ */
-+#define fuqueue_waiter_INIT(_task)		\
-+{						\
-+	.task = (_task),			\
-+	.flags = 0,				\
-+	.wake_func = NULL,			\
-+} 
++/** Get references for @key */
++static inline
++void vl_key_get (union vl_key *key) 
++{
++	if (key->both.offset & 1)
++		atomic_inc (&key->shared.inode->i_count);
++	else
++		atomic_inc (&key->private.mm->mm_count);
++}
 +
 +
 +/**
-+ * Operations on a fuqueue.
++ * Drop the references on @key.
++ */
++static inline
++void vl_key_put (union vl_key *key)
++{
++	if (key->both.offset & 1)
++		iput (key->shared.inode);
++	else
++		mmdrop (key->private.mm);
++}
++
++
++/* Get a page [maybe from swap] and pin it */
++extern int vl_page_get (struct page **ppage, struct task_struct *task,
++			struct mm_struct *mm, unsigned long uaddr);
++
++
++/** Put a page [unpin it] */
++static inline
++void vl_page_put (struct page *page) {
++	return put_page (page);
++}
++
++extern int __vl_key_page_get_shared (struct page **ppage, union vl_key *key);
++
++
++/**
++ * Get a page from a vl_key.
 + *
-+ * All ops have to be atomic, no sleeping allowed.
-+ * 
-+ * NOTE: is it worth to have get/put? maybe they should be enforced
-+ *	 for every fuqueue, this way we don't have to query the ops
-+ *	 structure for the get/put method and if it is there, call
-+ *	 it. We'd have to move the get/put ops over to the vlocator,
-+ *	 but that's not much of a problem.
++ * @key: vl_key to bring the page from; needs to be referenced with
++ *       vl_key_get().
++ * @returns 0 if ok, < 0 errno code on error. If -ENOMEM, you can call
++ *          shrink_all_pages() and try again... I guess. 
 + *
-+ *	 The decision factor is that an atomic operation needs to
-+ *	 lock the whole bus and is not as scalable as testing a ptr
-+ *	 for NULLness.
-+ *
-+ *	 For simplicity, probably the idea of forcing the refcount in
-+ *	 the fuqueue makes sense.
-+ */
-+struct fuqueue_ops {
-+	void (* get) (struct fuqueue *);
-+	void (* put) (struct fuqueue *);
-+	unsigned (* waiter_cancel) (struct fuqueue *,
-+				    struct fuqueue_waiter *);
-+	struct task_struct * (* waiter_chprio) (
-+		struct task_struct *, struct fuqueue *,
-+		struct fuqueue_waiter *);
-+};
-+
-+/** A fuqueue, a prioritized wait queue usable from kernel space. */
-+struct fuqueue {
-+	spinlock_t lock;	
-+	struct plist wlist;
-+	struct fuqueue_ops *ops;
-+};
-+
-+/** A ufuqueue, tied to a user-space vm address. */
-+struct ufuqueue {
-+	struct fuqueue fuqueue;
-+	struct vlocator vlocator;
-+};
-+
-+
-+/** Initialize a @fuqueue structure with given @ops */
-+static inline
-+void __fuqueue_init (struct fuqueue *fuqueue, struct fuqueue_ops *ops)
-+{
-+	spin_lock_init (&fuqueue->lock);
-+	plist_init (&fuqueue->wlist, BOTTOM_PRIO);
-+	fuqueue->ops = ops;
-+}
-+
-+/** Statically initialize a @fuqueue with given @ops. */
-+#define __fuqueue_INIT(fuqueue, fuqueue_ops) {			\
-+	.lock = SPIN_LOCK_UNLOCKED,				\
-+	.wlist = plist_INIT (&(fuqueue)->wlist, BOTTOM_PRIO),	\
-+	.ops = (fuqueue_ops)					\
-+}
-+
-+
-+/** fuqueue operations for in-kernel usage */
-+extern struct fuqueue_ops fuqueue_ops;
-+
-+
-+/** Initialize a @fuqueue for usage within the kernel */
-+static inline
-+void fuqueue_init (struct fuqueue *fuqueue)
-+{
-+	__fuqueue_init (fuqueue, &fuqueue_ops);
-+}
-+
-+/** Statically initialize a @fuqueue for usage within the kernel */
-+#define fuqueue_INIT(fuqueue) __fuqueue_INIT(fuqueue, &fuqueue_ops)
-+
-+
-+/** Wait for a @fuqueue to be woken for as much as @timeout, @returns
-+ * wake up code */
-+extern int fuqueue_wait (struct fuqueue *fuqueue, const struct timeout *);
-+/**
-+ * Wait for a @fuqueue to be woken for as much as @timeout, @return
-+ * wake up code.
-+ *
-+ * Use provided @flags for waiting, as well as the specified wake up
-+ * function callback (will be called before the task is woken up in
-+ * atomic context).  */
-+extern int fuqueue_wait_fcb (struct fuqueue *fuqueue, const struct timeout *,
-+			     unsigned flags, fuqueue_wake_f callback);
-+
-+/**
-+ * Wake waiters from a fuqueue.
-+ *
-+ * @fuqueue: where to wake from.
-+ * @howmany: number of waiters to wake up. If 0 (FUQUEUE_WAKE_ALL),
-+ *           wake all of them.
-+ * @code: return code they should see when woken.
-+ * @state_mask: mask of task states that should be woken.
-+ * @sync: do a sync wake up or not.
-+ */
-+extern void fuqueue_wake_state (struct fuqueue *fuqueue, size_t howmany,
-+				int code, unsigned int state_mask, int sync);
-+
-+/**
-+ * Same as @fuqueue_wake_state(), defaulting to stopped, interruptible and
-+ * uninterruptible tasks, no sync wake-up.
++ * This function will pin in physical memory the page that is referred
++ * to by @key, referencing it and blocking modifications to the
++ * mappings it is at.
++ *          
++ * You have to call vl_key_page_put() on the page once done. No
++ * sleeping in between is very recommended.
 + */
 +static inline
-+void fuqueue_wake (struct fuqueue *fuqueue, size_t howmany, int code)
++int vl_key_page_get (struct page **ppage, union vl_key *key)
 +{
-+	fuqueue_wake_state (fuqueue, howmany, code,
-+			    TASK_STOPPED | TASK_INTERRUPTIBLE
-+			    | TASK_UNINTERRUPTIBLE, 0);
-+} 
-+
-+/* Cancel the wait on a fuqueue */
-+extern void __fuqueue_waiter_cancel (struct task_struct *, int);
-+extern unsigned __fuqueue_waiter_queue (struct fuqueue *,
-+					struct fuqueue_waiter *);
-+extern void __fuqueue_waiter_unqueue (struct fuqueue_waiter *);
-+extern unsigned __fuqueue_op_waiter_cancel (struct fuqueue *,
-+					    struct fuqueue_waiter *);
-+extern void __fuqueue_waiter_chprio (struct task_struct *);
-+
-+
-+/** Quick check if the task is fuqueue waiting and if so cancel. */
-+static inline
-+void fuqueue_waiter_cancel (struct task_struct *t, int code)
-+{
-+	if (unlikely (t->fuqueue_wait != NULL))
-+		__fuqueue_waiter_cancel (t, code);
-+}
-+
-+
-+/*
-+ * The following are functions to be able to access fuqueue
-+ * functionality when building on top of it, like the [u]fulocks,
-+ * and ufuqueues.
-+ */
-+
-+
-+/**
-+ * Wakes up a single waiter and cleans up it's task wait information.
-+ *
-+ * @returns 0 if the plist's priority didn't change, !0 otherwise.
-+ * 
-+ * WARNING: call with preeempt and local IRQs disabled!!
-+ */
-+static inline
-+unsigned fuqueue_waiter_unqueue (struct fuqueue *fuqueue,
-+				 struct fuqueue_waiter *w)
-+{
-+	ftrace ("(%p [%d])\n", w, w->task->pid);
-+
-+	__fuqueue_waiter_unqueue (w);
-+	return plist_update_prio (&fuqueue->wlist);
-+}
-+
-+
-+extern int __fuqueue_waiter_block (struct fuqueue *fuqueue,
-+				   struct fuqueue_waiter *w,
-+				   const struct timeout *timeout);
-+
-+/** @Returns true if the @fuqueue has no waiters. */
-+static inline
-+unsigned __fuqueue_empty (const struct fuqueue *fuqueue)
-+{
-+	return plist_empty (&fuqueue->wlist);
-+}
-+
-+
-+/** Return the first waiter on a @fuqueue */
-+static inline
-+struct fuqueue_waiter * __fuqueue_first (struct fuqueue *fuqueue)
-+{
-+	return container_of (plist_first (&fuqueue->wlist),
-+			     struct fuqueue_waiter, wlist_node);
-+}
-+
-+
-+/**
-+ * Default wake function callback
-+ *
-+ * @fuqueue: the task is being woken from
-+ * @w: fuqueue waiter structure
-+ * @state_mask: mask of task states that can be woken up and FUQUEUE_WAKE_*.
-+ * @returns: 0, success, always.
-+ * 
-+ * This is provided in case you want to daisy chain.
-+ */
-+static inline
-+int fuqueue_default_wake_function (struct fuqueue *fuqueue,
-+				   struct fuqueue_waiter *w,
-+				   unsigned state_mask, int sync)
-+{
-+	try_to_wake_up (w->task, state_mask, sync);
-+	return 0;
-+}
-+
-+
-+/**
-+ * Wake @howmany @fuqueue waiters with @code (this function is here
-+ * so other fusyn components can inline it--nobody should use it,
-+ * fuqueue_wake is for that).
-+ */
-+static inline
-+void __fuqueue_wake_state (struct fuqueue *fuqueue, size_t howmany,
-+			   int code, unsigned state_mask, int sync)
-+{
-+	struct fuqueue_waiter *w = NULL;
-+
-+	ftrace ("(%p, %zu, %d)\n", fuqueue, howmany, code);
++	int result;
 +	
-+	while (howmany-- && !__fuqueue_empty (fuqueue)) {
-+		w = __fuqueue_first (fuqueue);
-+		__fuqueue_waiter_unqueue (w);
-+		w->result = code;
-+		wmb();
-+		if (w->wake_func == NULL)
-+			fuqueue_default_wake_function (fuqueue, w,
-+						       state_mask, sync);
-+		else if (w->wake_func (fuqueue, w, state_mask, sync))
-+			break;
-+		if (w->flags & FUQUEUE_WT_FL_EXCLUSIVE)
-+			break;
-+	}
-+	if (likely (w != NULL))
-+		plist_update_prio (&fuqueue->wlist);
-+}
-+
-+/**
-+ * Same as @__fuqueue_wake_state(), defaulting to stopped, interruptible and
-+ * uninterruptible tasks, no sync wake-up.
-+ */
-+static inline
-+void __fuqueue_wake (struct fuqueue *fuqueue, size_t howmany, int code)
-+{
-+	__fuqueue_wake_state (fuqueue, howmany, code,
-+			      TASK_STOPPED | TASK_INTERRUPTIBLE
-+			      | TASK_UNINTERRUPTIBLE, 0);
-+}
-+
-+
-+
-+/** A waiting @task changed its priority, propagate it. */
-+static inline
-+void fuqueue_waiter_chprio (struct task_struct *task, int old_prio)
-+{
-+	unsigned long flags;
++	ftrace ("(%p, %p)\n", ppage, key);	
++	might_sleep();
 +	
-+	ftrace ("(%p [%d], %d)\n", task, task->pid, old_prio);
-+
-+	if (old_prio == task->prio)
-+		return;
-+	if (task->fuqueue_wait == NULL)
-+		return;
-+	local_irq_save (flags);
-+	preempt_disable();
-+	__fuqueue_waiter_chprio (task);
-+	local_irq_restore (flags);
-+	preempt_enable();
-+}
-+
-+
-+/**
-+ * Set the priority of a fuqueue waiter, repositioning it in the wait
-+ * list.
-+ *
-+ * This does not set the prio of the process itself! 
-+ *
-+ * @task: waiting task to reprioritize 
-+ * @fuqueue: fuqueue the task is waiting for [locked]
-+ * @w: waiter @task is waiting with in @fuqueue.
-+ * @returns: NULL (as there is no propagation).
-+ *	     
-+ * Assumptions: prio != task->prio
-+ *		fuqueue->lock held
-+ */
-+static inline
-+struct task_struct * __fuqueue_op_waiter_chprio (
-+	struct task_struct *task, struct fuqueue *fuqueue,
-+	struct fuqueue_waiter *w)
-+{
-+	plist_chprio (&fuqueue->wlist, &w->wlist_node, task->prio);
-+	return NULL;
-+}
-+
-+#endif /* #ifndef CONFIG_FUSYN */
-+#endif /* #ifdef __KERNEL__ */
-+#endif /* #ifndef __linux_fuqueue_h__ */
---- /dev/null	Thu Jul 22 14:30:56 2004
-+++ include/linux/fusyn-debug.h Thu Jul 15 17:19:39 2004
-@@ -0,0 +1,152 @@
-+
-+/*
-+ * THIS FILE WILL GO AWAY!!!
-+ *
-+ * Fast User real-time/pi/pp/robust/deadlock SYNchronization
-+ * (C) 2002-2003 Intel Corp
-+ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
-+ *
-+ * Licensed under the FSF's GNU Public License v2 or later.
-+ *
-+ * Debug utilities
-+ */
-+
-+#ifndef __linux_fusyn_debug_h__
-+#define __linux_fusyn_debug_h__
-+
-+#include <linux/spinlock.h>
-+
-+#ifdef __KERNEL__
-+
-+  /*
-+   * move forward for seeing the real meat
-+   * 
-+   * Levels
-+   * 
-+   *	0 Nothing activated, all compiled out
-+   * > 0 Activates assertions, memory allocation tracking
-+   * > 1 Activates debug messages
-+   * > 2 Activates [most] function traces
-+   * > 3 Activates random debug stuff
-+   */
-+
-+#undef DEBUG
-+#define DEBUG 0
-+
-+
-+
-+/* Dump straight to ttyS0 on ia32 machines */
-+#if 1 && defined (__i386__)
-+#include <linux/serial_reg.h>
-+#include <linux/stringify.h>
-+static inline void __debug_serial_outb (unsigned val, int port) {
-+	__asm__ __volatile__ ("outb %b0,%w1" : : "a" (val), "Nd" (port));
-+}
-+static inline unsigned __debug_serial_inb (int port) {
-+	unsigned value;
-+	__asm__ __volatile__ ("inb %w1,%b0" : "=a" (value) : "Nd" (port));
-+	return value;
-+}
-+static inline
-+void __debug_serial_printstr (const char *str) {
-+	const int port = 0x03f8;  
-+	while (*str) {
-+		while (!(__debug_serial_inb (port + UART_LSR) & UART_LSR_THRE));
-+		__debug_serial_outb (*str++, port+UART_TX);
++	if (key->both.offset & 1) 
++		result = __vl_key_page_get_shared (ppage, key);
++	else {		/* Private mapping */
++		struct mm_struct *mm = key->private.mm;
++		down_read (&mm->mmap_sem);
++		result = vl_page_get (ppage, current, mm, key->private.uaddr);
++		if (unlikely (result < 0))
++			up_read (&mm->mmap_sem);
 +	}
-+	__debug_serial_outb ('\r', port + UART_TX);
++	return result;
 +}
-+#endif /* #ifdef __i386__ */
 +
-+extern spinlock_t __debug_lock;
 +
++/** Release @page as mapped in from @key by vl_key_page_get(). */
 +static inline
-+void __debug_printstr (const char *str) 
++void vl_key_page_put (struct page *page, union vl_key *key)
 +{
-+	if (DEBUG == 0)
-+		return;
-+#ifdef __i386__
-+	__debug_serial_printstr (str);
-+#else
-+	printk (str);
-+#endif
++	ftrace ("(%p, %p)\n", page, key);
++	if (key->both.offset & 1) {
++		/* Shared mapping */
++		page_cache_release (page);
++		up (&key->shared.inode->i_mapping->i_shared_sem);
++	}
++	else {
++		/* Private mapping */
++		vl_page_put (page);
++		up_read (&key->private.mm->mmap_sem);
++	}
 +}
 +
++
++/** Object that can be associated to a user space address */
++struct vlocator {
++	atomic_t refcount;
++	struct list_head hash_list;
++	union vl_key key;
++	const struct vlocator_ops *ops;
++};
++
++
++/** Initialize a vlocator struct */
 +static inline
-+u64 __tsc_read (void)
++void vlocator_init (struct vlocator *vlocator)
 +{
-+	u64 tsc;
-+#if defined(__i386__)
-+	__asm__ __volatile__("rdtsc" : "=A" (tsc));
-+#elif defined (__ia64__)
-+	__asm__ __volatile__("mov %0=ar.itc" : "=r" (tsc) : : "memory");
-+#else
-+#warning "Architecture not supported in __tsc_read()!"
-+	tsc = 0;
-+#endif
-+	return tsc;
++	atomic_set (&vlocator->refcount, 0);
++	INIT_LIST_HEAD (&vlocator->hash_list);
 +}
 +
-+#define __debug(a...)								    \
-+do {										    \
-+	if (DEBUG > 0) {							    \
-+		/* Dirty: Try to avoid >1 CPUs printing ... will suck */	    \
-+		char __X_buf[256];						    \
-+		unsigned __X_len;						    \
-+		unsigned long __X_flags;					    \
-+		__X_len = snprintf (__X_buf, 255, "%Lu: %s:%d: %s[%d:%d] ",	    \
-+				    __tsc_read(), __FILE__, __LINE__, __FUNCTION__, \
-+				    current->pid, current->thread_info->cpu);	    \
-+		snprintf (__X_buf + __X_len, 255 - __X_len, a);			    \
-+		spin_lock_irqsave (&__debug_lock, __X_flags);			    \
-+		__debug_printstr (__X_buf);					    \
-+		spin_unlock_irqrestore (&__debug_lock, __X_flags);		    \
-+	}									    \
-+} while (0)
 +
-+/* The real debug statements */
-+
-+#define ldebug(l,a...)	 do { if (DEBUG >= l) __debug (a); } while (0)
-+#define debug(a...)	 ldebug(1,a)
-+#define fdebug(f, a...)	 do { if ((DEBUG >= 2) && f) __debug (a); } while (0)
-+#define __ftrace(l,a...) do { if ((l)) __debug (a); } while (0)
-+#define ftrace(a...)	 __ftrace((DEBUG >= 2),a)
-+#define assert(c, a...)	 do { if ((DEBUG >= 0) && !(c)) BUG(); } while (0)
++/** vlocator operations on the items that are to be located. */
++struct vlocator_ops
++{
++	struct vlocator * (* alloc) (void);
++	int (* create) (struct vlocator *,
++			const union vl_key *, unsigned long priv);
++	void (* release) (struct vlocator *);
++	void (* free) (struct vlocator *);
++};
 +
 +
-+/*
-+ * Helpers for debugging memory allocation [needs to be here so it can
-+ * be shared by ufuqueue.c and ufulock.c].
-+ */
-+
-+#if DEBUG >= 1
-+static atomic_t allocated_count = ATOMIC_INIT(0);
++/** Reference an vlocator @vlocator. */
 +static inline
-+
-+int allocated_get (void) {
-+	return atomic_read (&allocated_count);
++void vl_get (struct vlocator *vl) {
++	atomic_inc (&vl->refcount);
 +}
 +
++
++/** Unreference an @vlocator; return true if it drops to zero. */
 +static inline
-+int allocated_inc (void) {
-+	atomic_inc (&allocated_count);
-+	return allocated_get();
++unsigned vl_put (struct vlocator *vlocator) {
++	return atomic_dec_and_test (&vlocator->refcount);
 +}
 +
-+static inline
-+int allocated_dec (void) {
-+	atomic_dec (&allocated_count);
-+	return allocated_get();
-+}
 +
-+#else
-+
-+static inline int allocated_get (void) { return 0; }
-+static inline int allocated_inc (void) { return 0; }
-+static inline int allocated_dec (void) { return 0; }
-+
-+#endif /* DEBUG >= 1 */
-+
++/* Find a vlocator by key */
++extern int vl_find (struct vlocator **pvl, const union vl_key *key,
++		    const struct vlocator_ops *ops);
++extern int vl_find_or_create (struct vlocator **pvl, const union vl_key *key,
++			      const struct vlocator_ops *ops, unsigned long priv);
++extern void vl_dispose (struct vlocator *vl);
 +
 +#endif /* #ifdef __KERNEL__ */
-+#endif /* #ifndef __linux_fusyn_debug_h__ */
++#endif /* #ifndef __linux_vlocator_h__ */
 --- /dev/null	Thu Jul 22 14:30:56 2004
-+++ kernel/fuqueue.c Mon Jul 19 16:29:29 2004
-@@ -0,0 +1,349 @@
++++ kernel/vlocator.c Tue Jul 13 17:34:38 2004
+@@ -0,0 +1,518 @@
 +
 +/*
-+ * Fast User real-time/pi/pp/robust/deadlock SYNchronization
++ * fast User real-time/pi/pp/robust/deadlock SYNchronization
 + * (C) 2002-2003 Intel Corp
 + * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
 + *
@@ -617,342 +254,511 @@ debug macros--these will go away IANF.
 + *
 + * Based on normal futexes (futex.c), (C) Rusty Russell.
 + * Please refer to Documentation/fusyn.txt for more info.
-+ *
-+ * see the doc in linux/fuqueue.h for some info.
 + */
 +
-+#define DEBUG 8
++#include <linux/init.h>
++#include <linux/vlocator.h>
++#include <linux/pagemap.h>
++#include <linux/jhash.h>
++#include <linux/fusyn-debug.h>
 +
-+#include <linux/fuqueue.h>
-+#include <linux/sched.h>
-+#include <linux/plist.h>
-+#include <linux/errno.h>
-+
-+#if DEBUG > 0
-+spinlock_t __debug_lock = SPIN_LOCK_UNLOCKED;
-+#endif
++#define VL_GC_PERIOD 20 /* do garbage collection every 20 seconds */
++#define VL_HASH_BITS 8
++#define VL_HASH_QUEUES (1 << VL_HASH_BITS)
++static struct vl_queue __vl_hash[VL_HASH_QUEUES];
++static struct list_head __vl_disposal = LIST_HEAD_INIT (__vl_disposal); 
++static spinlock_t __vl_disposal_lock = SPIN_LOCK_UNLOCKED;
 +
 +
-+/**
-+ * Setup @current to wait for a fuqueue.
-+ *
-+ * This only setups, it does not block.
-+ * 
-+ * @fuqueue: fuqueue to wait on.
-+ * @w: waiter structure to fill up and queue.
-+ * @return: 0 if the fuqueue's priority didn't change, !0 otherwise.
-+ *
-+ * Fills up @current's fuqueue_wait* info and queues up @w after
-+ * filling it.
-+ *
-+ * WARNING: Call with preempt and local IRQs disabled
-+ */
-+unsigned __fuqueue_waiter_queue (struct fuqueue *fuqueue,
-+				 struct fuqueue_waiter *w)
++/** @returns a 32 bit hash for @key. */
++static inline
++u32 vl_key_hash (const union vl_key *key)
 +{
-+	ftrace ("(%p, %p)\n", fuqueue, w);
-+	
-+	_raw_spin_lock (&current->fuqueue_wait_lock);
-+	current->fuqueue_wait = fuqueue;
-+	current->fuqueue_waiter = w;
-+	_raw_spin_unlock (&current->fuqueue_wait_lock);
-+	w->result = INT_MAX;
-+	plist_init (&w->wlist_node, current->prio);
-+	return plist_add (&fuqueue->wlist, &w->wlist_node);
++	u32 hash = jhash2 (
++		(u32*) &key->both.word,
++		(sizeof (key->both.word) + sizeof (key->both.ptr)) / 4,
++		key->both.offset);
++	return hash;
++}
++
++
++/** @returns true if @key1 and @key2 are equal. */
++static inline
++int vl_key_equal (const union vl_key *key1, const union vl_key *key2)
++{
++	return !memcmp (key1, key2, sizeof (*key1));
 +}
 +
 +
 +/**
-+ * Wait for a @fuqueue until woken up, @returns wake up code
++ * Low level grunt for getting a page from a shared key.
 + *
-+ * @fuqueue: where to wait on. Needs to be spinlocked.
-+ * @w: waiter structure to wait with.
-+ * @timeout: how long to wait. If ~0, wait for ever.
-+ * 
-+ * Needs to be called with the fuqueue lock held, local IRQs disabled
-+ * and preempt disabled. Will release the lock, enable IRQs and
-+ * preemtion. 
++ * @ppage: where to put the pointer to the page.
++ * @key: key to get a page from (has to be referenced with
++ * vl_key_get().
++ * @returns 0 if ok, < 0 errno code on error.
++ *
++ * Do not call directly (use vl_key_page_get()).
 + */
-+int __fuqueue_waiter_block (struct fuqueue *fuqueue, struct fuqueue_waiter *w,
-+			    const struct timeout *timeout)
++int __vl_key_page_get_shared (struct page **ppage, union vl_key *key)
 +{
 +	int result;
-+	ftrace ("(%p, %p, %p)\n", fuqueue, w, timeout);
++	struct page *page;
++	struct address_space *mapping = key->shared.inode->i_mapping;
++
++	ftrace ("(%p, %p)\n", ppage, key);	
++
++#warning: FIXME: block/lock the mapping...I am not that sure of this
++	down (&mapping->i_shared_sem);
++	page = read_cache_page (mapping, key->shared.pgoff, 
++				(filler_t *) mapping->a_ops->readpage, NULL);
++	result = PTR_ERR (page);
++	if (IS_ERR (page))
++		goto out_up;
 +	
-+	set_current_state (TASK_INTERRUPTIBLE);
-+	_raw_spin_unlock (&fuqueue->lock);
-+	local_irq_enable();
-+	preempt_enable_no_resched();
++	wait_on_page_locked (page);
++	if (!PageUptodate (page)) {
++		page_cache_release (page);
++		page = ERR_PTR (-EIO);
++	}
++	*ppage = page;
++	return 0;
++
++out_up:
++	up (&mapping->i_shared_sem);
++	return result;
++}
++
++
++/** A hash bucket. */
++struct vl_queue
++{
++	spinlock_t lock;
++	struct list_head queue;
++	unsigned additions;
++};
++
++
++/** Get the hash index for futex_key @k. */
++static inline
++struct vl_queue * vl_hash (const union vl_key *key) {
++	return &__vl_hash[vl_key_hash (key) & (VL_HASH_QUEUES - 1)];
++};
++
 +	
-+	/* Wait until we are woken up */
-+	schedule_timeout_ext (timeout);
-+	set_current_state (TASK_RUNNING);
-+	/*
-+	 * Now, whoever woke us up had to call first
-+	 * fuqueue->ops->waiter_cancel() through fuqueue_waiter_cancel(),
-+	 * and thus, unqueued us and set up a return code in
-+	 * w->result. However, if w->result is still pristine as left
-+	 * by __fuqueue_wait_queue(), that means our waker either
-+	 * didn't know we were waiting or we have signal(s) pending,
-+	 * so we do it ourselves.
-+	 */
-+	result = w->result;
-+#warning FIXME: Need to recalc relative timeout if interrupted
-+	if (unlikely (result == INT_MAX)) {
-+		result = -ETIMEDOUT;
-+		if (signal_pending (current))
-+			result = -EINTR;
-+		if (unlikely (current->fuqueue_wait != NULL))
-+			__fuqueue_waiter_cancel (current, result);
++/** Search in a queue. */
++static inline
++struct vlocator * __vl_find (struct vl_queue *vlq,
++			     const union vl_key *key)
++{
++	struct vlocator *vl = NULL;
++	struct list_head *itr;
++
++	list_for_each (itr, &vlq->queue) {
++		vl = container_of (itr, struct vlocator, hash_list);
++		if (vl_key_equal (key, &vl->key))
++			goto out;
++	}
++	vl = NULL;
++out:
++	return vl;
++}
++
++
++/** Search in a queue [backwards - locates faster recent additions]. */
++static inline
++struct vlocator * __vl_find_r (struct vl_queue *vlq,
++			       const union vl_key *key)
++{
++	struct vlocator *vl = NULL;
++	struct list_head *itr;
++
++	list_for_each_prev (itr, &vlq->queue) {
++		vl = container_of (itr, struct vlocator, hash_list);
++		if (vl_key_equal (key, &vl->key))
++			goto out;
++	}
++	vl = NULL;
++out:
++	return vl;
++}
++
++
++/** Append @vlocator to queue @vlq. */ 
++static inline
++void __vl_add (struct vl_queue *vlq, struct vlocator *vl)
++{
++	vlq->additions++;
++	list_add (&vl->hash_list, &vlq->queue);
++}
++
++
++/** Remove @vlocator from queue @vlq if its use count is zero (and
++ * return true). */ 
++static inline
++unsigned __vl_rem (struct vlocator *v)
++{
++	unsigned result = 0, refcount;
++	refcount = atomic_read (&v->refcount);
++	if (refcount == 0) {
++		list_del (&v->hash_list);
++		result = 1;
 +	}
 +	return result;
 +}
 +
 +
 +/**
-+ * Unqueue a single waiter and cleans up it's task wait information.
++ * Pin a page in memory given the user space address.
 + *
-+ * Return -1 if the if the plist's priority didn't change, the new
-+ * priority otherwise.
++ * @ppage: pointer to where to store the pinned page
++ * @task: task whose address space we have to use.
++ * @uaddr: user space address to pin
++ * @returns: 0 if ok and the page in **ppage, < 0 errno code on
++ *           error.
 + * 
-+ * WARNING: call with preeempt and local IRQs disabled!!
++ * Needs mm->mmap_sem down for read.
++ *
++ * Taken from the original futex code.
 + */
-+void __fuqueue_waiter_unqueue (struct fuqueue_waiter *w)
++int vl_page_get (struct page **ppage, struct task_struct *task,
++		 struct mm_struct *mm, unsigned long uaddr)
 +{
-+	struct task_struct *task = w->task;
++	int result = 0;
++	struct page *page;
 +	
-+	ftrace ("(%p [%d])\n", w, w->task->pid);
-+	
-+	__plist_del (&w->wlist_node);
-+	_raw_spin_lock (&task->fuqueue_wait_lock);
-+	task->fuqueue_wait = NULL;
-+	task->fuqueue_waiter = NULL;
-+	_raw_spin_unlock (&task->fuqueue_wait_lock);
-+}
-+
-+
-+/**
-+ * Wait for a @fuqueue to be woken for as much as @timeout, @returns
-+ * wake up code. See __fuqueue_waiter_block() for docs on @timeout.
-+ *
-+ * If wakeup code is FUQUEUE_WAITER_GOT_LOCK or -EOWNERDEAD, then it
-+ * means the waiter was requeued to a fulock and that upon wake up, it
-+ * was assigned ownership.
-+ * 
-+ * WARNING: can only be called from process context
-+ */
-+int fuqueue_wait (struct fuqueue *fuqueue, const struct timeout *timeout)
-+{
-+	struct fuqueue_waiter w = fuqueue_waiter_INIT (current);
-+	
-+	ftrace ("(%p, %p)\n", fuqueue, timeout);
-+	
-+	spin_lock_irq (&fuqueue->lock);
-+	w.flags = FUQUEUE_WT_FL_QUEUE;
-+	__fuqueue_waiter_queue (fuqueue, &w);
-+	return __fuqueue_waiter_block (fuqueue, &w, timeout); /* unlocks */
-+}
-+
-+
-+int fuqueue_wait_fcb (struct fuqueue *fuqueue, const struct timeout *timeout,
-+		      unsigned flags, fuqueue_wake_f wake_func)
-+{
-+	struct fuqueue_waiter w = fuqueue_waiter_INIT (current);
-+	
-+	ftrace ("(%p, %p)\n", fuqueue, timeout);
-+	
-+	spin_lock_irq (&fuqueue->lock);
-+	w.flags = FUQUEUE_WT_FL_QUEUE | flags;
-+	w.wake_func = wake_func;
-+	__fuqueue_waiter_queue (fuqueue, &w);
-+	return __fuqueue_waiter_block (fuqueue, &w, timeout); /* unlocks */
-+}
-+
-+
-+/*
-+ * Wake @howmany waiters waiting on a @fuqueue, with return code (for
-+ * them) @code.
-+ *
-+ *  
-+ */
-+#warning FIXME: how to emulate nr_exclusive from waitqueues?
-+void fuqueue_wake_state (struct fuqueue *fuqueue, size_t howmany,
-+			 int code, unsigned int state_mask, int sync)
-+{
-+	unsigned long flags;
-+
-+	ftrace ("(%p, %zu, %d, 0x%x, %d)\n", fuqueue, howmany, code,
-+		state_mask, sync);
-+	
-+	spin_lock_irqsave (&fuqueue->lock, flags);
-+	__fuqueue_wake_state (fuqueue, howmany, code, state_mask, sync);
-+	spin_unlock_irqrestore (&fuqueue->lock, flags);
-+}
-+
-+
-+/**
-+ * Change the priority of a waiter.
-+ *
-+ * @task: task whose priority has to be changed.
-+ *
-+ * This is the entry point that the scheduler functions call when a
-+ * task that is waiting for a fuqueue changes its priority. It will
-+ * call the fuqueue-specific chprio function after safely determining
-+ * what is the fuqueue it is waiting for and then, if the
-+ * specific chprio function determines that the prio change has to be
-+ * propagated, it will keep doing it.
-+ *
-+ * The task that the chprio function returns has to be returned with a
-+ * get_task_struct() reference.
-+ *
-+ * Note the weird locking: we are one of the little places that needs
-+ * to take the locks in inverse order (most are fuqueue first,
-+ * task_wait later--FT), we need to do TF, so we do T, test F, if it
-+ * fails, unlock T, try again.
-+ */
-+void __fuqueue_waiter_chprio (struct task_struct *task)
-+{
-+	struct fuqueue_ops *ops;
-+	struct fuqueue *fuqueue;
-+	struct fuqueue_waiter *w;
-+
-+	ftrace ("(%p [%d])\n", task, task->pid);
-+	
-+	get_task_struct (task);
-+next:
-+	/* Who is the task waiting for? safely acquire and lock it */
-+	if (task->fuqueue_wait == NULL)
-+		goto out_task_put;
-+	_raw_spin_lock (&task->fuqueue_wait_lock);
-+	fuqueue = task->fuqueue_wait;
-+	if (fuqueue == NULL)				/* Ok, not waiting */
-+		goto out_task_unlock;
-+	if (!_raw_spin_trylock (&fuqueue->lock)) {	/* Spin dance... */
-+		_raw_spin_unlock (&task->fuqueue_wait_lock);
-+		goto next;
++	spin_lock (&mm->page_table_lock);
++	page = follow_page (mm, uaddr, 0);
++	if (likely (page != NULL)) {
++		if (!PageReserved (page))
++			get_page (page);
++		*ppage = page;
++		spin_unlock (&mm->page_table_lock);
++		goto out;
 +	}
-+	ops = fuqueue->ops;
-+	if (ops->get)
-+		ops->get (fuqueue);
-+	
-+	w = task->fuqueue_waiter;
-+	_raw_spin_unlock (&task->fuqueue_wait_lock);
-+	put_task_struct (task);
-+	/* propagate the prio change in a fuqueue-specific fashion */
-+	task = ops->waiter_chprio (task, fuqueue, w);
-+	if (task == NULL)	     /* no other task to propagate to? */
-+		goto out_fuqueue_unlock;
-+	/* We were given a task to propagate to, proceed? */
-+	get_task_struct (task);
-+	_raw_spin_unlock (&fuqueue->lock);
-+	if (ops->put)
-+		ops->put (fuqueue);
-+	goto next;
++	spin_unlock (&mm->page_table_lock);
 +
-+out_fuqueue_unlock:
-+	_raw_spin_unlock (&fuqueue->lock);
-+	if (ops->put)
-+		ops->put (fuqueue);
-+	goto out;
-+	
-+out_task_unlock:
-+	_raw_spin_unlock (&task->fuqueue_wait_lock);
-+out_task_put:
-+	put_task_struct (task);
++	/* Do it the general way. */
++	result = get_user_pages (task, mm, uaddr, 1, 0, 0, ppage, NULL);
 +out:
-+	return;
-+}
-+
-+/** Cancel @task's wait on @fuqueue and update the wait list priority */
-+unsigned __fuqueue_op_waiter_cancel (struct fuqueue *fuqueue,
-+				     struct fuqueue_waiter *w)
-+{
-+	ftrace ("(%p, %p [%d])\n", fuqueue, w, w->task->pid);
-+	
-+	return plist_del (&fuqueue->wlist, &w->wlist_node);
++	return result;
 +}
 +
 +
 +/**
-+ * Cancel the wait of a task on a fuqueue and wake it up.
++ * Generate a key for a user space address.
 + *
-+ * @task: task whose wait is to be canceled
-+ * 
-+ * Called by:
-+ * - signal_wake_up()
-+ * - process_timeout()
-+ * - __wake_up_common()
-+ * - FIXME
-+ * 
-+ * when the task they are about to wake is waiting on a
-+ * fuqueue. Safely acquires which fuqueue the task is waiting for,
-+ * references it, cleans up the task->fuqueue_wait* information, and
-+ * then calls the fuqueue specific waiter_cancel() function.
++ * @ppage: pointer to page struct where the space is. The page has
++ *         been pinned in memory with vl_page_get() and needs a
++ *         vl_page_put() when done.
++ * @key: Pointer to where to store the key. Upon return, the key is
++ *       filled up and has been referenced with vl_key_get().
++ * @task: task that owns the user space address.
++ * @uaddr: user space address
++ * @returns: 0 if ok, < 0 errno code on error.
 + *
-+ * FIXME: the entry points we get called from don't seem to be all of
-+ * them; the perfect thing here would be to hook into
-+ * try_to_wake_up()--but is kind of tricky..,
-+ *
-+ * Note that for this function to actually do anything, the task must
-+ * be a task waiting on a fuqueue (so that means TASK_INTERRUPTIBLE
-+ * and off the runqueues).
++ * Needs to be called with mm->mmap_sem down for read.
 + */
-+void __fuqueue_waiter_cancel (struct task_struct *task, int result)
++int vl_key_create (struct page **ppage, union vl_key *key,
++		   struct task_struct *task, unsigned long uaddr)
 +{
-+	struct fuqueue_ops *ops;
-+	struct fuqueue *fuqueue;
-+	struct fuqueue_waiter *w;
-+	unsigned long flags;
-+
-+	ftrace ("(%p [%d], %d)\n", task, task->pid, result);
++	int result, update_shared = 0;
++	struct page *page;
++	struct mm_struct *mm = current->mm;
++	struct vm_area_struct *vma;
 +	
-+	local_irq_save (flags);
-+	preempt_disable();
-+	get_task_struct (task);
-+retry:
-+	/* Who is the task waiting for? safely acquire and lock it */
-+	_raw_spin_lock (&task->fuqueue_wait_lock);
-+	fuqueue = task->fuqueue_wait;
-+	if (fuqueue == NULL)				/* Ok, not waiting */
-+		goto out_task_unlock;
-+	if (!_raw_spin_trylock (&fuqueue->lock)) {	/* Spin dance... */
-+		_raw_spin_unlock (&task->fuqueue_wait_lock);
-+		goto retry;
++	ftrace ("(%p, %p, %p [%d], %lx)\n",
++		ppage, key, task, task->pid, uaddr);
++
++	/* The futex address must be "naturally" aligned. */
++	key->both.offset = uaddr % PAGE_SIZE;
++	if (unlikely ((key->both.offset % sizeof (u32)) != 0))
++		return -EINVAL;
++	uaddr -= key->both.offset;
++	
++	/*
++	 * The futex is hashed differently depending on whether
++	 * it's in a shared or private mapping.	 So check vma first.
++	 */
++	vma = find_extend_vma (mm, uaddr);
++	result = -EFAULT;
++	if (unlikely (!vma))
++		goto out;
++	/* Permissions. */
++	result = (vma->vm_flags & VM_IO) ? -EPERM : -EACCES;
++	if (unlikely ((vma->vm_flags & (VM_IO|VM_READ)) != VM_READ))
++		goto out;
++	/*
++	 * Private mappings are handled in a simple way.
++	 *
++	 * NOTE: When userspace waits on a MAP_SHARED mapping, even if
++	 * it's a read-only handle, it's expected that futexes attach to
++	 * the object not the particular process.  Therefore we use
++	 * VM_MAYSHARE here, not VM_SHARED which is restricted to shared
++	 * mappings of _writable_ handles.
++	 */
++	result = 0;
++	if (likely (!(vma->vm_flags & VM_MAYSHARE))) {
++		key->private.mm = mm;
++		key->private.uaddr = uaddr;
++		goto out_page_get;
 +	}
-+	ops = fuqueue->ops;
-+	if (ops->get)
-+		ops->get (fuqueue);
-+
-+	w = task->fuqueue_waiter;
-+	
-+	/* Do the specific cancel op */
-+	ops->waiter_cancel (fuqueue, w);
-+	w->result = result;
-+	wmb();
-+	task->fuqueue_wait = NULL;
-+	task->fuqueue_waiter = NULL;
-+	_raw_spin_unlock (&task->fuqueue_wait_lock);
-+	put_task_struct (task);
-+	_raw_spin_unlock (&fuqueue->lock);
-+	local_irq_restore (flags);
-+	preempt_enable();
-+	if (ops->put)
-+		ops->put (fuqueue);
-+	return;
-+		
-+out_task_unlock:
-+	_raw_spin_unlock (&task->fuqueue_wait_lock);
-+	put_task_struct (task);
-+	local_irq_restore (flags);
-+	preempt_enable();
-+	return;
++	/* Linear file mappings are also simple. */
++	key->shared.inode = vma->vm_file->f_dentry->d_inode;
++	key->both.offset++; /* Bit 0 of offset indicates inode-based key. */
++	if (likely (!(vma->vm_flags & VM_NONLINEAR))) {
++		key->shared.pgoff =
++			(((uaddr - vma->vm_start) >> PAGE_SHIFT)
++			 + vma->vm_pgoff);
++		goto out_page_get;
++	}
++	update_shared = 1;
++out_page_get:
++	result = vl_page_get (&page, current, mm, uaddr);
++	if (unlikely (result < 0))
++		goto out;
++	if (update_shared)
++		key->shared.pgoff =
++			page->index << (PAGE_CACHE_SHIFT - PAGE_SHIFT);
++	vl_key_get (key);
++	*ppage = page;
++out:
++	return result;
 +}
 +
 +
-+/** Fuqueue operations for usage within the kernel */
-+struct fuqueue_ops fuqueue_ops = {
-+	.get = NULL,
-+	.put = NULL,
-+	.waiter_cancel = __fuqueue_op_waiter_cancel,
-+	.waiter_chprio = __fuqueue_op_waiter_chprio
-+};
++/**
++ * Find a vlocator in the hash table.
++ * 
++ * @pvl: Pointer to where to store a pointer to the found vlocator.
++ *       
++ * @key: key to locate the item; it has to have been referenced with
++ *       vl_key_get() [vl_key_create() does it].
++ * 
++ * @ops: vl operations structure for verification.
++ * 
++ * @returns 0 if ok and *pvl has the pointer to the vlocator
++ *            corresponding to @key. It has been referenced with
++ *            vl_get() before returning.
++ *            -ENOENT: not found
++ *            -ENOMEM: cannot allocate a new item.
++ *            -EFAULT: if an item was found, but its ops are different
++ *            to the ones provided).
++ *            < 0 errno code on error from ops->create().
++ */
++int vl_find (struct vlocator **pvl, const union vl_key *key,
++	     const struct vlocator_ops *ops)
++{
++	int result = -ENOENT;
++	struct vl_queue *vlq;
++	struct vlocator *vl;
++	
++	ftrace ("(%p, %p, %p)\n", pvl, key, ops);
++
++	/* Is it in the hash already? [do we know about it?] */
++	vlq = vl_hash (key);
++	spin_lock (&vlq->lock);
++	vl = __vl_find (vlq, key);
++	if (unlikely (vl == NULL))
++		goto out_unlock;
++	/* Check the type is correct */
++	result = -EFAULT;
++	if (unlikely (vl->ops != ops))
++		goto out_unlock;
++	result = 0;
++	vl_get (vl);
++	*pvl = vl;
++out_unlock:
++	spin_unlock (&vlq->lock);
++	return result;
++}
++
++
++/**
++ * Find or create a vlocator in the hash table.
++ * 
++ * @pvl: Pointer to where to store a pointer to the found vlocator
++ *       item or the newly allocated and hashed one.
++ *       
++ * @key: key to locate the item; it has to have been referenced with
++ *       vl_key_get() [vl_key_create() does it].
++ * 
++ * @ops: vl operations structure for creation/allocation/freeing.
++ *
++ * @priv: private data passed to ops->create().
++ * 
++ * @returns 0 if ok and *pvl has the pointer to the vlocator
++ *            corresponding to @key. If not found, one is allocated
++ *            and inserted into the hash. In both cases, it has been 
++ *            referenced with vl_get() before returning it.
++ *            -ENOMEM: cannot allocate a new item.
++ *            -EFAULT: if an item was found, but its ops are different
++ *            to the ones provided).
++ *            < 0 errno code on error from ops->create().
++ */
++int vl_find_or_create (struct vlocator **pvl, const union vl_key *key,
++		       const struct vlocator_ops *ops, unsigned long priv)
++{
++	int result;
++	struct vl_queue *vlq;
++	struct vlocator *vl, *vl_alt;
++	unsigned additions0;
++	
++	ftrace ("(%p, %p, %p, %lx)\n", pvl, key, ops, priv);
++	might_sleep();
++	
++	/* Is it in the hash already? [do we know about it?] */
++	vlq = vl_hash (key);
++	spin_lock (&vlq->lock);
++	vl = __vl_find (vlq, key);
++	if (likely (vl != NULL))
++		goto out_check;
++	additions0 = vlq->additions;
++	spin_unlock (&vlq->lock);
++
++	/* Naaah, let's alloc it */
++	result = -ENOMEM;
++	vl = ops->alloc();
++	if (unlikely (vl == NULL))
++		goto out;
++	
++	/* Ok, allocated - did somebody add it while we were allocating?
++	 * [we try to speed up by checking if anybody has added since
++	 * we dropped the lock--we live up with the chance of 4G
++	 * allocations wrapping up the counter in the middle *grin*]. */
++	spin_lock (&vlq->lock);
++	if (additions0 == vlq->additions
++	    || (vl_alt = __vl_find_r (vlq, key)) == NULL) {
++		result = ops->create (vl, key, priv);
++		if (unlikely (result != 0)) {
++			ops->free (vl);
++			goto out_unlock;
++		}
++		vl->ops = ops;
++		__vl_add (vlq, vl);
++		goto out_ref;
++	}
++	/* Allocation collision, get the new one, discard ours */  
++	ops->free (vl);
++	vl = vl_alt;
++out_check:
++	result = -EFAULT;
++	if (unlikely (vl->ops != ops))	/* Check the type is correct */
++		goto out_unlock;
++	result = 0;
++out_ref:
++	vl_get (vl);
++	*pvl = vl;
++out_unlock:
++	spin_unlock (&vlq->lock);
++out:
++	return result;
++}
++
++
++/**
++ * Dispose a vlocator
++ *
++ * When a vlocator is no longer needed, remove it from the hash table
++ * (add it to a delete list so the garbage collector can properly get
++ * rid of it).
++ */
++void vl_dispose (struct vlocator *vl)
++{
++	struct vl_queue *vlq;
++
++	/* In the hash, move it out */
++	vlq = vl_hash (&vl->key);
++	spin_lock (&vlq->lock);
++	list_del (&vl->hash_list);
++	spin_lock (&__vl_disposal_lock);
++	list_add_tail (&vl->hash_list, &__vl_disposal);
++	spin_unlock (&__vl_disposal_lock);
++	spin_unlock (&vlq->lock);
++}
++
++
++/** Work structure for the garbage collector */
++static void vl_garbage_collector (void *);
++DECLARE_WORK(vl_workqueue, vl_garbage_collector, NULL);
++
++
++/**
++ * Do garbage collection (called from the work-queue) and re-arm 
++ *
++ * The most important action is to cleanup the ownership of [u]fulocks
++ * that were assigned to init because the owner died and robustness
++ * was not enabled. This means that only ufulocks get to optionally
++ * suport robustness; kernel based fulocks have to do robustness
++ * always. 
++ */
++
++static 
++void __vl_garbage_collect (struct list_head *purge_list,
++			   struct list_head *list)
++{
++	struct list_head *itr, *nxt;
++	struct vlocator *vl;
++	list_for_each_safe (itr, nxt, list) {
++		vl = container_of (itr, struct vlocator, hash_list);
++		if (__vl_rem (vl))
++			list_add_tail (&vl->hash_list, purge_list);
++	}
++}
++
++static
++void vl_garbage_collector (void *dummy)
++{
++	unsigned cnt;
++	struct vl_queue *vlq;
++	struct list_head purge_list = LIST_HEAD_INIT (purge_list);
++	struct list_head *itr, *nxt;
++	struct vlocator *vl;
++	
++	/* Collect from the vlocator hash: anything with a zero refcount */
++	for (cnt = 0; cnt < VL_HASH_QUEUES; cnt++) {
++		vlq = &__vl_hash[cnt];
++		if (list_empty (&vlq->queue)) /* Some cheating always helps... */
++			continue;
++		spin_lock (&vlq->lock);
++		__vl_garbage_collect (&purge_list, &vlq->queue);
++		spin_unlock (&vlq->lock);
++	}
++	/* Collect the list of stuff marked for disposal */
++	spin_lock (&__vl_disposal_lock);
++	__vl_garbage_collect (&purge_list, &__vl_disposal);
++	spin_unlock (&__vl_disposal_lock);
++	/* Cleanup the collected stuff and re-arm */
++	list_for_each_safe (itr, nxt, &purge_list) {
++		vl = container_of (itr, struct vlocator, hash_list);
++		if (vl->ops->release)
++			vl->ops->release (vl);
++		vl->ops->free (vl);
++	}
++	schedule_delayed_work (&vl_workqueue, VL_GC_PERIOD * HZ);
++}
++
++
++/** Initilize vlocator queue @vlq. */
++static inline
++void vl_queue_init (struct vl_queue *vlq)
++{
++	vlq->lock = SPIN_LOCK_UNLOCKED;
++	INIT_LIST_HEAD (&vlq->queue);
++	vlq->additions = 0;
++}
++
++/** Initialize the vlocator subsystem. */
++static
++int __init vl_subsys_init (void)
++{
++	unsigned i;
++	for (i = 0; i < sizeof (__vl_hash) / sizeof (__vl_hash[0]); i++)
++		vl_queue_init (&__vl_hash[i]);
++	/* Set up the garbage collector to run every 10 seconds */
++	schedule_delayed_work (&vl_workqueue, VL_GC_PERIOD * HZ);
++	return 0;
++}
++__initcall (vl_subsys_init);
++
++

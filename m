@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268839AbUJPUNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268831AbUJPUPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268839AbUJPUNY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUJPUNY
+	id S268831AbUJPUPK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268846AbUJPUPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:13:24 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:42174 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S268839AbUJPULJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:11:09 -0400
-Subject: [PATCH] fix pcmcia probing to work on parisc
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: willy@debian.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 16 Oct 2004 15:10:44 -0500
-Message-Id: <1097957451.2283.336.camel@mulgrave>
+	Sat, 16 Oct 2004 16:15:05 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10697 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268831AbUJPUNv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:13:51 -0400
+Date: Sat, 16 Oct 2004 22:14:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Adam Heath <doogie@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
+Message-ID: <20041016201417.GA12371@elte.hu>
+References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <Pine.LNX.4.58.0410161426020.1223@gradall.private.brainfood.com> <20041016193626.GB10626@elte.hu> <Pine.LNX.4.58.0410161457410.1223@gradall.private.brainfood.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410161457410.1223@gradall.private.brainfood.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
 
-This is the last piece of our parisc PCMCIA puzzle after I converted the
-original code to use the new resource manager stuff.  Basically, we
-can't be probed either on memory or on I/O.  Since it looks like the
-other two arm architectures which don't set CONFIG_PCMCIA_PROBE still do
-memory probing, I introduced a new option to control this
-(CONFIG_PCMCIA_PROBE_MEM).
+* Adam Heath <doogie@debian.org> wrote:
 
-James
+> > after bootup it makes sense to reset the maximum:
+> >
+> > 	echo 10 > /proc/sys/kernel/preempt_max_latency
+> >
+> > because during bootup there are a number of latencies that are one-time
+> > only.
+> 
+> So, I did that, and immediately started getting more stack dumps.  Are
+> these things that are interesting, or only informational?
 
-===== drivers/pcmcia/Kconfig 1.11 vs edited =====
---- 1.11/drivers/pcmcia/Kconfig	2004-06-19 12:10:24 -05:00
-+++ edited/drivers/pcmcia/Kconfig	2004-10-16 09:49:49 -05:00
-@@ -136,7 +136,11 @@
- 
- config PCMCIA_PROBE
- 	bool
--	default y if ISA && !ARCH_SA1100 && !ARCH_CLPS711X
-+	default y if ISA && !ARCH_SA1100 && !ARCH_CLPS711X && !PARISC
-+
-+config PCMCIA_PROBE_MEM
-+	bool
-+	default y if !PARISC
- 
- endmenu
- 
-===== drivers/pcmcia/rsrc_mgr.c 1.41 vs edited =====
---- 1.41/drivers/pcmcia/rsrc_mgr.c	2004-10-10 12:39:48 -05:00
-+++ edited/drivers/pcmcia/rsrc_mgr.c	2004-10-16 09:50:28 -05:00
-@@ -59,7 +59,11 @@
- 
- #define INT_MODULE_PARM(n, v) static int n = v; module_param(n, int, 0444)
- 
-+#ifdef CONFIG_PCMCIA_PROBE_MEM
- INT_MODULE_PARM(probe_mem,	1);		/* memory probe? */
-+#else
-+INT_MODULE_PARM(probe_mem,	0);		/* memory probe? */
-+#endif
- #ifdef CONFIG_PCMCIA_PROBE
- INT_MODULE_PARM(probe_io,	1);		/* IO port probe? */
- INT_MODULE_PARM(mem_limit,	0x10000);
+they are informational, if you are evaluating latencies. Feel free to
+post larger latencies. Right now the threshold for "large" depends - on
+a fast box i'd say latencies above 200 usecs are worth reporting - but
+any trace can be interesting. Latencies above 1000 usecs are definitely
+worth seeing.
 
+stability has the highest priority at the moment, and the other type of
+non-latency stackdumps (scheduling while atomic, smp_processor_id()
+warnings or outright kernel oopses) should always be reported if
+possible.
+
+	Ingo

@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbTIEO5K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 10:57:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbTIEO5K
+	id S263600AbTIEPsd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 11:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263684AbTIEPsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 10:57:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:21845 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262690AbTIEO5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 10:57:06 -0400
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Ed Sweetman <ed.sweetman@wmich.edu>,
-       Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [RFC] extents support for EXT3
-References: <m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
-	<m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu>
-	<m3ad9snxo6.fsf@bzzz.home.net> <3F4FAFA2.4080202@wmich.edu>
-	<20030829213940.GC3846@matchmail.com> <3F4FD2BE.1020505@wmich.edu>
-	<20030829231726.GE3846@matchmail.com>
-	<m18yp9r2uq.fsf@ebiederm.dsl.xmission.com>
-	<20030905100607.GA220@elf.ucw.cz>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Sep 2003 08:55:17 -0600
-In-Reply-To: <20030905100607.GA220@elf.ucw.cz>
-Message-ID: <m165k7p9nu.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Sep 2003 11:48:33 -0400
+Received: from mailwasher.lanl.gov ([192.16.0.25]:34671 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S263600AbTIEPs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 11:48:27 -0400
+Subject: Re: 2.6.0-test4-mm6
+From: Steven Cole <elenstev@mesatop.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Jan Ischebeck <mail@jan-ischebeck.de>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20030905145124.GF454@parcelfarce.linux.theplanet.co.uk>
+References: <1062766000.2081.11.camel@JHome.uni-bonn.de>
+	 <20030905145124.GF454@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062776586.1662.5.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 05 Sep 2003 09:43:06 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
-
-> Hi!
-> 
-> > > > you get no real slowdown as far as rough benchmarks are concerned, 
-> > > > perhaps with a microbenchmark you would see one and also, doesn't it 
-> > > > take up more space to save the extent info and such? Either way, all of 
-> > > > it's real benefits occur on large files.
-> > > 
-> > > IIRC, if your blocks are contiguous, you can save as soon as soon as the
-> > > file size goes above one block (witout extents, the first 12 blocks are
-> > > pointed to by what?  I forget... :-/ )
+On Fri, 2003-09-05 at 08:51, viro@parcelfarce.linux.theplanet.co.uk
+wrote:
+> On Fri, Sep 05, 2003 at 02:46:40PM +0200, Jan Ischebeck wrote:
+> > Seems like I got the reason for X not starting:
 > > 
-> > They are pointed to directly from the inode.
+> > pseudo terminals can't be acquired and only two consoles are running.
 > > 
-> > In light of other concerns how reasonable is a switch to e2fsck that
-> > will remove extents so people can downgrade filesystems?
+> > -> X11 can't get console Vt7
+> > -> pppd doesn't work either
+> > 
+> > This definitely worked with -mm5.
 > 
-> It is going to be non-trivial: downgrading filesystem will likely need
-> free space. And now: what happens when there's no free space?
+> Grr...  Dumb typo.  Patch below should fix that...
+[patch snipped]
 
-Having a full filesystem is generally a rare event.  And the actual size
-difference between an extent tree based solution and a block tree solution
-is usually quite small.  
+X started OK for me, but I also couldn't start Konsole or xterm with
+2.6.0-test4-mm6. (AOL!).  
 
-And if it fails, well filesystems checkers are not required to succeed.
-Safety wise it should be possible to allocate and probably even write
-the entire block tree before the extent tree is removed so no data
-should be lost.
+This is to confirm that Al's patch fixed that. Thanks.
 
-Maybe downgrading is just silly but it is a nice option to have while
-everything is still in development.  For the most part people seem to
-be completely capable of making a back up and totally recreating a
-filesystem as people have shown.  But if you are going to require that
-what is the point of staying with the ext2 file format.
+Steven
 
-
-Eric

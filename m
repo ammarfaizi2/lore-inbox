@@ -1,125 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313706AbSDHRQN>; Mon, 8 Apr 2002 13:16:13 -0400
+	id <S313707AbSDHRSA>; Mon, 8 Apr 2002 13:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313709AbSDHRQN>; Mon, 8 Apr 2002 13:16:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:7742 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313706AbSDHRQL>; Mon, 8 Apr 2002 13:16:11 -0400
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Faster reboots (and a better way of taking crashdumps?)
-In-Reply-To: <1759496962.1018114339@[10.10.2.3]>
-	<m18z80nrxc.fsf@frodo.biederman.org> <3CB1A9A8.1155722E@in.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Apr 2002 11:09:26 -0600
-Message-ID: <m1ofgum81l.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S313708AbSDHRR7>; Mon, 8 Apr 2002 13:17:59 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:63247 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313707AbSDHRR6>; Mon, 8 Apr 2002 13:17:58 -0400
+Message-ID: <3CB1C1A3.2040206@evision-ventures.com>
+Date: Mon, 08 Apr 2002 18:13:23 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Oliver Neukum <oliver@neukum.org>, nahshon@actcom.co.il,
+        Pavel Machek <pavel@suse.cz>, Benjamin LaHaise <bcrl@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@zip.com.au>,
+        joeja@mindspring.com, linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu>	<200204080048.g380mt514749@lmail.actcom.co.il>	<200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca>	<16uSEQ-1XziYCC@fmrl04.sul.t-online.com> <200204081706.g38H62N14879@vindaloo.ras.ucalgary.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya <suparna@in.ibm.com> writes:
-
-> I have been trying look through this in terms of how it compares with 
-> alternate projects (bootimg, monte etc). As I mentioned in an earlier 
-> mail, crash dump (mcore) relies on bootimg, and I'm trying to decide if
-> there
-> could be advantages in using your kexec stuff. 
-
-My target it to submit the kexec stuff to Linus.  I seem to be the
-only one really actively working on it at this time.  I believe my
-code is the most mature at the moment.  The bottom line is the system
-call needs to get into the kernel.
-
-With respect to bootimg there is a strong similarity it how things are
-done.  The big difference is that bootimg interface does everything
-per page in asking the kernel where to put things and my kexec call is
-does everything with extents.  Which means the kexec data structures
-are usually much smaller, plus I rely on odd things like PAGE_SIZE.
-
-As for monte I can boot other things than the linux kernel.  I'm much
-better at doing the work than publisizing it so my variant isn't quite
-as well known.  That plus I can late to the game.
-
-
-> My main concern of
-> course is with regard to these BIOS dependent/related issues
-> since at the time of a crash dump we may not be in quite a "friendly 
-> state". Guess some the linux power mgmt infrastructure or driverfs
-> should help with sane resets etc (I'm not saying its straightforward
-> :)).
-> in the long run. As such how far does your implementation address
-> some of this BIOS/h/w state handling better ?
-
-My code works in SMP.   I call the reboot notifier.
-I probably should run through the pci bus and disable bus masters, but
-I don't right now.
- 
-> BTW, some of your other boot enhancements like being able to find out
-> which memory areas were used or overwritten during bootup sound useful
-> to me, in being able to estimate the footprint of early boot and
-> avoiding
-> using those portions of memory for saving any state (because boot could
-> stomp over them). Its good to be able to do this in a generic way,
-> rather
-> than have the dump code be aware of the ranges for every architecture. 
-
-That is why I am a fan of ELF kernel images.  There is a lot of
-reasonable resistance to change in that department but it is fairly
-sane.
-
-> > ftp://download.lnxi.com/pub/src/linux-kernel-patches/linux-2.5.7.kexec.diff
-> > ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec-2.5.7.kexec.log
-> > ftp://download.lnxi.com/pub/src/mkelfImage/elfboottools-2.0.tar.gz
-> >       type make and see objdir/build/sbin/kexec (work with bzImages)
+Richard Gooch wrote:
+> Oliver Neukum writes:
 > 
-> I don't seem to be able to access these urls.
-> The patches I downloaded were from
-> ftp://download.lnxi.com/pub/src/kexec/* (with the same names). Are these
-> the right ones ? (your last note mentioned those, but you are saying
-> that these are the wrong set ... so now I'm a little confused)
-
-
-O.k. My directory structure is just to deep I can't type it straight
-I meant:
-ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/linux-2.5.7.kexec.diff
-ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/kexec-2.5.7.kexec.log
-
-And you probably meant:
-ftp://downalod.lnxi.com/pub/src/linux-kernel-patches/kexec.
-
-My other code for cleaning up the boot process is in:
-ftp://download.lnxi.com/pub/src/linux-kernel-patches/boot/linux-2.5.7.boot.diff
-
-> Is there one single grand rollup patch with all of the function which I
-> should look through or try out ?
-
-The kexec.diff  (instead of the 3 sub patches) is as close as I have
-gotten.
-
-> > The basic kernel interface that is added is:
-> > 
-> > struct segment {
-> >         void *buffer;
-> >         void *dest_addr;
-> >         size_t len;
-> > };
-> > int kexec(void *start, int nr_segments, struct segment *segments);
-> > 
+>>>>and spin-up on any operation that writes to the disk (and block that
+>>>>operation).
+>>>
+>>>Absolutely not! I don't want my writes to spin up the drive.
+>>
+>>Even if you sync ?
 > 
-> Yes, its a good idea to split up the load stage and actual boot/exec
-> stage. Crash dump needs to have it that way too (the second image 
-> preloaded in advance since we don't want to do any i/o at that
-> point).
+> 
+> I'm undecided. I think it's good to have a way to let the user force a
+> flush, but I don't like the same mechanism being used by applications
+> which think they know better. So flushing on sync(2) or f*sync(2) is
+> perhaps undesirable. Maybe the way to deal with this is to have:
+> 
+> - tunable flush time (i.e. how long to wait after a write(2) before
+>   flushing, if the drive is currently unspun)
+> 
+> - tunable dirty pages limit (i.e. how many dirty pages allowed before
+>   flushing)
+> 
+> - tunable "ignore *sync(2)" option. Default value is 0 (don't
+>   ignore). When set to 1, ignore all calls to *sync(2).
+> 
+> So then on my 256 MiB laptop, I'd probably set the flush time to 3
+> hours, the dirty page limit to 64 MiB, and ignore *sync(2). I'd write
+> a suid-root programme which did:
+> 	enable_sync ();
+> 	sync ();
+> 	disable_sync ();
 
-Interesting.  After a lot of discussion this was essentially the
-interface we all agreed upon.  Preloading wasn't what I was thinking
-but it works in that sense as well.  At least as long as you mlock
-buffers.
+Quite frankly the spin-up-down-up-down-up behaviour of linux on
+notbooks even if I let them entierly alone is to say the leasy annoying...
+And noflushd didn't help me a jota on this issue. Second I don't
+think that going though this cycle even on desktop systems does
+really help the reliability of the wearings of the driver. For
+some reaons I wasn't able to find all the 1000 parameters one has
+to set before the whole thing does shut properly. Curing this by
+settign some "low water mark" for the number of allowed dirty pages
+is curing the symptoms - if there are no system activities there
+simply should be no chance for some crepping dirty pages if this is
+still the case there are just chances that there are simple bugs out
+there. kflushd should by no chance flush the caches just in case
+without checking whatever there was some activity in an ideal world.
 
-The most important piece left with this is to get it accepted into
-the kernel so people can count on a stable system call interface.
-
-Eric

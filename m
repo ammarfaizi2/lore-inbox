@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290000AbSAWToY>; Wed, 23 Jan 2002 14:44:24 -0500
+	id <S289999AbSAWToO>; Wed, 23 Jan 2002 14:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290010AbSAWToP>; Wed, 23 Jan 2002 14:44:15 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:1299 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S290000AbSAWTn5>; Wed, 23 Jan 2002 14:43:57 -0500
-Message-ID: <3C4F10F9.87A3B2E@zip.com.au>
-Date: Wed, 23 Jan 2002 11:37:29 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre4 i686)
-X-Accept-Language: en
+	id <S290010AbSAWToE>; Wed, 23 Jan 2002 14:44:04 -0500
+Received: from mail-2.tiscalinet.it ([195.130.225.148]:28725 "EHLO
+	mail.tiscalinet.it") by vger.kernel.org with ESMTP
+	id <S289999AbSAWTnv> convert rfc822-to-8bit; Wed, 23 Jan 2002 14:43:51 -0500
+Message-ID: <3C335E090001F525@mail.tiscalinet.it>
+Date: Wed, 23 Jan 2002 20:43:43 +0100
+From: lastboot@tiscali.it
+Subject: =?iso-8859-1?Q?PCMCIA=20Character=20Device=20=28pcmcia=5Fchar=2Eo=29=20compilation=20pro?=
+ =?iso-8859-1?Q?blem?=
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: J Sloan <jjs@lexus.com>
-CC: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: Low latency for recent kernels
-In-Reply-To: <20020123091643.A182@earthlink.net> <3C4F0DFA.50601@lexus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan wrote:
-> 
-> Ditto here -
-> 
+In the compilation of kernel 2.4.17, while creating the bzip'd image of
+the kernel, gcc complains the lack of pcmcia_char.o and so the entire "Make"
+operation stops with this error. Actually, I made a mistake by choosing
+this driver to compile but if anybody need it... :-)))
 
-Yes, sorry about that.  That patch had a completely untested,
-experimental and buggy chunk in it which kinda escaped from the
-factory.
+PS: The kernel was not patched from previous versions, it was entirely downloaded
+from a mirror of ftp.kernel.org
 
-I've uploaded a saner version.
+Yours Faithfully
 
--
+
+
+__________________________________________________________________
+Abbonati a Tiscali!
+Con Tiscali By Phone puoi anche ascoltare ed inviare email al telefono.
+Chiama Tiscali By Phone all' 892 800        http://byphone.tiscali.it
+
+
+
+

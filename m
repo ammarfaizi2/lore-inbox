@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbTEFQZe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263936AbTEFQZb
+	id S263863AbTEFQma (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTEFQma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:25:31 -0400
-Received: from mail.convergence.de ([212.84.236.4]:10441 "EHLO
-	mail.convergence.de") by vger.kernel.org with ESMTP id S263943AbTEFQOA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:14:00 -0400
-Message-ID: <3EB7E206.9050200@convergence.de>
-Date: Tue, 06 May 2003 18:25:42 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030408
-X-Accept-Language: de-at, de, en-us, en
+	Tue, 6 May 2003 12:42:30 -0400
+Received: from pat.uio.no ([129.240.130.16]:19700 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263863AbTEFQm2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 12:42:28 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: [PATCH[[2.5][11-11] sorry, no patch in here...
-X-Enigmail-Version: 0.73.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16055.59608.512121.756564@charged.uio.no>
+Date: Tue, 6 May 2003 18:54:48 +0200
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Zeev Fisher <Zeev.Fisher@il.marvell.com>
+Subject: Re: [NFS] processes stuck in D state
+In-Reply-To: <200305061830.25417.fsdeveloper@yahoo.de>
+References: <200305061652.13280.fsdeveloper@yahoo.de>
+	<200305061742.14032.fsdeveloper@yahoo.de>
+	<16055.56630.615496.19679@charged.uio.no>
+	<200305061830.25417.fsdeveloper@yahoo.de>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>>>>> " " == Michael Buesch <fsdeveloper@yahoo.de> writes:
 
-no patch in here, sorry for the inconvenience, I did not count correctly.
+    >> kill -9 all the processes.  kill -9 rpciod.
 
-... and thanks for your patience. 8-)
+     > kill -9 doesn't work for me to kill the app.
 
-Thanks
-Michael Hunold.
+I didn't say kill the app. I said signal it with -9, then signal
+rpciod.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+Cheers,
+  Trond

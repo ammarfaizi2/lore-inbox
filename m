@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313930AbSDPWhy>; Tue, 16 Apr 2002 18:37:54 -0400
+	id <S313932AbSDPWm2>; Tue, 16 Apr 2002 18:42:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313932AbSDPWhx>; Tue, 16 Apr 2002 18:37:53 -0400
-Received: from eriador.apana.org.au ([203.14.152.116]:29193 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S313930AbSDPWhw>; Tue, 16 Apr 2002 18:37:52 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <20020416222156.GB20464@turbolinux.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.5.12-20020311 ("Toxicity") (UNIX) (Linux/2.4.18-686-smp (i686))
-Message-Id: <E16xba3-0005tw-00@gondolin.me.apana.org.au>
-Date: Wed, 17 Apr 2002 08:37:43 +1000
+	id <S313933AbSDPWm1>; Tue, 16 Apr 2002 18:42:27 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26122 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313932AbSDPWm1>; Tue, 16 Apr 2002 18:42:27 -0400
+Subject: Re: Faster reboots (and a better way of taking crashdumps?)
+To: pavel@suse.cz (Pavel Machek)
+Date: Tue, 16 Apr 2002 23:59:46 +0100 (BST)
+Cc: ebiederm@xmission.com (Eric W. Biederman), andyp@osdl.org (Andy Pfiffer),
+        suparna@in.ibm.com, Martin.Bligh@us.ibm.com (Martin J. Bligh),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <20020416100246.A37@toy.ucw.cz> from "Pavel Machek" at Apr 16, 2002 10:02:47 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16xbvO-00011o-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger <adilger@clusterfs.com> wrote:
-> On Apr 16, 2002  23:34 +0200, bert hubert wrote:
->> 
->> Your uptime wraps to zero after 49 days. I think 'top' gets confused.
+> > I totally agree.  Walking the driver tree is exactly what I want.
+> > Disabling bus masters is just a quick hack to rule out a DMA killing
+> > your linux booting linux.
+> 
+> Is there easy way to disable all busmasters? It might help suspend-to-disk
+> and suspend-to-ram to work well until  proper support is done...
 
-> Trivially fixed with the existing 64-bit jiffies patches.  As it is,
-> your uptime wraps to zero after 472 days or something like that if you
-> don't have the 64-bit jiffies patch, which is totally in the realm of
-> possibility for Linux servers.
-
-Why are we still measuring uptime using the tick variable? Ticks != time.
-Surely we should be recording the boot time somewhere (probably on a
-file system), and then comparing that with the current time?
--- 
-Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Well there is an impolite way - just flip all the master bits off. How
+the device reacts is a more complex question. Really you want to ask each
+device to shut up

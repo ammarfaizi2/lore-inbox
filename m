@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281059AbRLGNjx>; Fri, 7 Dec 2001 08:39:53 -0500
+	id <S280012AbRLGNku>; Fri, 7 Dec 2001 08:40:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280002AbRLGNjk>; Fri, 7 Dec 2001 08:39:40 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22538 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281059AbRLGNjU>; Fri, 7 Dec 2001 08:39:20 -0500
-Subject: Re: 2GB process crashing on 2.4.14
-To: Paul.Sargent@3dlabs.com (Paul Sargent)
-Date: Fri, 7 Dec 2001 13:48:00 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20011207132317.E31161@3dlabs.com> from "Paul Sargent" at Dec 07, 2001 01:23:17 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S280002AbRLGNkk>; Fri, 7 Dec 2001 08:40:40 -0500
+Received: from hermes.toad.net ([162.33.130.251]:10925 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S280012AbRLGNk2>;
+	Fri, 7 Dec 2001 08:40:28 -0500
+Subject: Re: [PATCH] 2.4.17-pre4 pnpbios driver available for testing
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16CLM9-0005rf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 07 Dec 2001 08:41:22 -0500
+Message-Id: <1007732484.7329.8.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Most probably the process is running out of address space to allocate from.
-> > There is 3Gb of available space. 
-> 
-> That would be from 0x00000000 to 0xC0000000, Right?
+Dumitru Ciobarcianu wrote:
+> Also applies cleanly to 2.4.17-pre5
+> The machine is an Toshiba Satellite 1700-400
+> Works ok for me.
 
-Correct (0xBFFFFFFF)
+Thanks for the feedback.  I am especially interested
+to know whether or not there is any problem on Vaios
+and Dells.
 
-> > binary, some your libraries.  Getting above 3Gb/process on x86 is very hairy
-> > with a bad performance hit
-> 
-> So if I was hitting this limit then I should see no / very few gaps, in the
-> /proc/<pid>/maps. Is that true?
+Note that the patch should also work with 2.4.16.
 
-Providing the memory allocator it is using is sufficiently smart
+Testers: Please report your .config as well.
+
+--
+Thomas Hood
+
+

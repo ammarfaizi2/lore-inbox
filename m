@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269619AbTHOQOI (ORCPT <rfc822;willy@w.ods.org>);
+	id S269664AbTHOQOI (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 15 Aug 2003 12:14:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTHOQNx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269646AbTHOQNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:13:53 -0400
+	Fri, 15 Aug 2003 12:13:55 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S269646AbTHOQJ7 (ORCPT
+	by vger.kernel.org with ESMTP id S269664AbTHOQKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:59 -0400
-Date: Fri, 15 Aug 2003 15:52:48 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030815135248.GA7315@win.tue.nl>
-References: <16188.27810.50931.158166@gargle.gargle.HOWL> <20030815094604.B2784@pclin040.win.tue.nl> <20030815105802.GA14836@ucw.cz> <16188.54799.675256.608570@gargle.gargle.HOWL>
+	Fri, 15 Aug 2003 12:10:00 -0400
+Subject: [BUG] slab debug vs. L1 alignement
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1060956004.581.13.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16188.54799.675256.608570@gargle.gargle.HOWL>
-User-Agent: Mutt/1.3.25i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 15 Aug 2003 16:00:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 10:46:07PM +1000, Neil Brown wrote:
+Currently, when enabling slab debugging, we lose the property of
+having the objects aligned on a cache line size.
 
-> It seems to work (though some of the keys actually generate 'down'
-> events for both the down and up transitions, so it seems that the key
-> is pressed twice.
+This is, imho, an error, especially if GFP_DMA is passed. Such an
+object _must_ be cache alined (and it's size rounded to a multiple
+of the cache line size).
 
-Maybe it really is as you say. But your description sounds fishy.
-It would be nice to know what really happens.
-(And it would be nice to know which scancodes are involved.)
+There is a simple performance reason on cache coherent archs, but
+there's also the fact that it will just _not_ work properly on
+non cache-coherent archs. Actually, I also have to deal with some
+old machines who have a SCSI controller who has a problem accessing
+buffers that aren't aligned on a cache line size boundary.
 
+This is typically causing me trouble in various parts of SCSI which
+abuses kmalloc(512, GFP_KERNEL | GFP_DMA) for buffers passed to some
+SCSI commands, typically "utility" commands used to read a disk
+capacity, read read/write protect flags, some sense buffers, etc...
 
+While I know SCSI shall use the consistent alloc things, it has not
+been fully fixed yet and kmalloc with GFP_DMA is still valid despite
+not beeing efficient, so we should make sure in this case, the returned
+buffer is really suitable for DMA, that is cache aligned.
+
+Ben.
 

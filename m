@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbTEKAZW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 20:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTEKAZW
+	id S264534AbTEKAbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 20:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264536AbTEKAbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 20:25:22 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:38865 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S264538AbTEKAZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 20:25:21 -0400
-Message-ID: <3EBD9B1E.6050304@blue-labs.org>
-Date: Sat, 10 May 2003 20:36:46 -0400
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030509
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David van Hoose <davidvh@cox.net>
-CC: Norbert Wolff <norbert_wolff@t-online.de>, Andy Pfiffer <andyp@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] devfs [was Re: ALSA busted in 2.5.69]
-References: <fa.j6n4o02.sl813a@ifi.uio.no>	<fa.juutvqv.1inovpj@ifi.uio.no>	<3EBBF00D.8040108@hotmail.com>	<1052507530.15922.37.camel@andyp.pdx.osdl.net> <20030510080440.3446cc96.norbert_wolff@t-online.de> <3EBD8941.7070403@blue-labs.org> <3EBD9560.8060504@cox.net>
-In-Reply-To: <3EBD9560.8060504@cox.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 May 2003 20:31:46 -0400
+Received: from ha90s135.d.shentel.net ([204.111.90.135]:49280 "EHLO
+	charon.int.bittwiddlers.com") by vger.kernel.org with ESMTP
+	id S264534AbTEKAbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 20:31:45 -0400
+Date: Sat, 10 May 2003 20:44:06 -0400
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Strange terminal problem with 2.5.6[8-9]
+Message-ID: <20030511004349.GA1366@bittwiddlers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Delivery-Agent: TMDA/0.75 (Ponder)
+X-Primary-Address: mharrell@bittwiddlers.com
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1053045847.386328@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've used devfs for years.  A few people here and there gripe about it, 
-my only gripe about it are drivers that don't [haven't yet] been updated 
-to use it.  In 2.5 those are rare.  As to 2.4 vs 2.5, there aren't too 
-many user visible changes and I think most of the new things for devfs 
-(user visible) in 2.5 are also in 2.4.
 
-My vote: devfs is _great_
+The last working kernel I had under my X windows system was 2.5.67-bk7.  After
+that point every 2.5.6[8-9] and bk patch has had one major problem on my
+laptop - when I bring up a gnome-terminal or xterm the console prompt never
+shows up.  The terminals just hang with a blinking cursor but I never get
+a prompt.  If I reboot with the same setup into my 2.5.67 or any previous
+kernel then everything works fine.
 
-David
+This is a Debian Sid system running gnome2.  Any ideas?
 
-David van Hoose wrote:
-
-> David Ford wrote:
->
->> Shrug :)
->>
->> I use devfs, all is magic.  All is [nearly always] correct.
->
->
-> Are there any compatibility issues in 2.4 while using devfs under 2.5? 
-> I'm looking into it, but I'd like to hear that there are no problems 
-> before I jump into using it.
-> I would love to hear comments from anyone using devfs. Good or bad.
->
-> Thanks,
-> David
-
-
+-- 
+  Matthew Harrell                          Never underestimate the power of
+  Bit Twiddlers, Inc.                       very stupid people in large groups.
+  mharrell@bittwiddlers.com     

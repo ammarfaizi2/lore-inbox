@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267594AbUIAXkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUIAXkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267594AbUIAXkM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 19:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUIAXjd
+	id S266263AbUIAXkK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 19:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267779AbUIAXji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 19:39:33 -0400
-Received: from baikonur.stro.at ([213.239.196.228]:41678 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S268182AbUIAXQ7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 19:16:59 -0400
-Subject: [patch 14/14]  mtd/cfi_cmdset_0001: replace 	schedule_timeout() with msleep()
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at
-From: janitor@sternwelten.at
-Date: Thu, 02 Sep 2004 01:16:55 +0200
-Message-ID: <E1C2eLY-0002uJ-Bk@sputnik>
+	Wed, 1 Sep 2004 19:39:38 -0400
+Received: from fw.osdl.org ([65.172.181.6]:53739 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268170AbUIAXYg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 19:24:36 -0400
+Date: Wed, 1 Sep 2004 16:27:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: jakub@redhat.com, ak@suse.de, ecd@skynet.be, pavel@suse.cz,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/compat.c: rwsem instead of BKL around
+ ioctl32_hash_table
+Message-Id: <20040901162756.36c10fac.akpm@osdl.org>
+In-Reply-To: <524qmi2e1s.fsf@topspin.com>
+References: <20040901072245.GF13749@mellanox.co.il>
+	<524qmi2e1s.fsf@topspin.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roland Dreier <roland@topspin.com> wrote:
+>
+> Currently the BKL is used to synchronize access to ioctl32_hash_table
+> in fs/compat.c.  It seems that an rwsem would be more appropriate,
+> since this would allow multiple lookups to occur in parallel (and also
+> serve the general good of minimizing use of the BKL).
 
+It introduces additional bus-atomic operations into the fastpath, so we'll
+be slower in the one-process-doing-lots-of ioctls case, and faster in the
+lots-of-cpus-doing-ioctls case.
 
+The change certainly makes sense from a clean-things-up and
+prepare-for-bkl-removal point of view, however.
 
-
-
-
-I would appreciate any comments from the janitor@sternweltens list.
-
-Thanks,
-Nish
-
-
-
-Description: Uses msleep() instead of schedule_timeout() so the task
-is guaranteed to delay the desired time.
-
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
-
-
-
----
-
- linux-2.6.9-rc1-bk7-max/drivers/mtd/chips/cfi_cmdset_0001.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-diff -puN drivers/mtd/chips/cfi_cmdset_0001.c~msleep-drivers_mtd_chips_cfi_cmdset_0001 drivers/mtd/chips/cfi_cmdset_0001.c
---- linux-2.6.9-rc1-bk7/drivers/mtd/chips/cfi_cmdset_0001.c~msleep-drivers_mtd_chips_cfi_cmdset_0001	2004-09-01 19:35:25.000000000 +0200
-+++ linux-2.6.9-rc1-bk7-max/drivers/mtd/chips/cfi_cmdset_0001.c	2004-09-01 19:35:25.000000000 +0200
-@@ -1437,8 +1437,7 @@ static int do_erase_oneblock(struct map_
- 
- 	spin_unlock(chip->mutex);
- 	INVALIDATE_CACHED_RANGE(map, adr, len);
--	set_current_state(TASK_UNINTERRUPTIBLE);
--	schedule_timeout((chip->erase_time*HZ)/(2*1000));
-+	msleep(chip->erase_time / 2);
- 	spin_lock(chip->mutex);
- 
- 	/* FIXME. Use a timer to check this, and return immediately. */
-
-_
+Some single-threaded and multi-threaded SMP microbenchmarking would be
+nice, if you have time.

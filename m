@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267884AbTAHTlx>; Wed, 8 Jan 2003 14:41:53 -0500
+	id <S267863AbTAHTny>; Wed, 8 Jan 2003 14:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267885AbTAHTlx>; Wed, 8 Jan 2003 14:41:53 -0500
-Received: from ool-4351594a.dyn.optonline.net ([67.81.89.74]:31493 "EHLO
-	buggy.badula.org") by vger.kernel.org with ESMTP id <S267884AbTAHTlv>;
-	Wed, 8 Jan 2003 14:41:51 -0500
-Date: Wed, 8 Jan 2003 14:50:29 -0500
-Message-Id: <200301081950.h08JoTr15738@buggy.badula.org>
-From: Ion Badulescu <ionut@badula.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, nick@snowman.net
-Subject: Re: 3CR990 question (Nearly unrelated to iSCSI)
-In-Reply-To: <20030108020033.GA6579@gtf.org>
-User-Agent: tin/1.5.12-20020427 ("Sugar") (UNIX) (Linux/2.4.20 (i586))
+	id <S267865AbTAHTnx>; Wed, 8 Jan 2003 14:43:53 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:31208 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267863AbTAHTnw>;
+	Wed, 8 Jan 2003 14:43:52 -0500
+Date: Wed, 8 Jan 2003 19:50:00 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Robert Love <rml@tech9.net>, Adrian Bunk <bunk@fs.tum.de>,
+       "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: observations on 2.5 config screens
+Message-ID: <20030108195000.GA670@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Bill Davidsen <davidsen@tmr.com>, Robert Love <rml@tech9.net>,
+	Adrian Bunk <bunk@fs.tum.de>,
+	"Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1042041195.694.2734.camel@phantasy> <Pine.LNX.3.96.1030108132758.22872B-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1030108132758.22872B-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jan 2003 21:00:33 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> On Tue, Jan 07, 2003 at 07:56:37PM -0500, nick@snowman.net wrote:
->> On Wed, 8 Jan 2003, Andrew McGregor wrote:
->> > > AH permits multiple digests, they also happen to correspond to the
->> > > hardware accelerated ones on things like the 3c990...
->> Speaking of which, did this driver which was mentioned ever occur?
-> 
-> Two did, actually :)
+On Wed, Jan 08, 2003 at 01:36:06PM -0500, Bill Davidsen wrote:
 
-Actually, the 3Com driver I cleaned up does not have support for the 
-hardware crypto chip. Maybe the other driver you were referring to 
-supports it?
+ > I guess, depending on your definition of fundemental. I would put any
+ > option which affects the kernel as a whole in that category, myself.
+ > Compiling with frame pointers comes to mind, since every object file is
+ > changed and there are performance implications as well.
 
-> I hope we will see it appear in a kernel RSN
+No-one other than kernel hackers should be playing with that option,
+hence it's in the kernel hacking menu.
 
-Indeed. :) That damn legalese in 3Com's license...
+ > Processor option would select the processor and any architecture dependent
+ > options, I would think. Something like "kernel characteristics" could have
+ > options like smp.
 
-In the meantime, I can separately distribute it to people who need it:
-<http://www.badula.org/3c990/>.
+SMP isn't a processor option ?
 
-The latest version (LK1.0.1) properly supports big-endian architectures,
-tested on a sparc64. 
-
-Ion
+		Dave
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

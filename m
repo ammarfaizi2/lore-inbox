@@ -1,72 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273117AbRIJAzv>; Sun, 9 Sep 2001 20:55:51 -0400
+	id <S273124AbRIJBDG>; Sun, 9 Sep 2001 21:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273120AbRIJAzm>; Sun, 9 Sep 2001 20:55:42 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:41996 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S273117AbRIJAze>; Sun, 9 Sep 2001 20:55:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>,
-        Brian Gerst <bgerst@didntduck.org>
-Subject: Re: Reg lilo.conf changed and system doesn't boot
-Date: Mon, 10 Sep 2001 03:02:53 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: kernelnewbies <kernelnewbies@nl.linux.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10109091043110.4648-100000@blrmail>
-In-Reply-To: <Pine.LNX.4.10.10109091043110.4648-100000@blrmail>
+	id <S273120AbRIJBCz>; Sun, 9 Sep 2001 21:02:55 -0400
+Received: from mail205.mail.bellsouth.net ([205.152.58.145]:30260 "EHLO
+	imf05bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S273124AbRIJBCo>; Sun, 9 Sep 2001 21:02:44 -0400
+Message-ID: <3B9C1183.742A42D1@celito.net>
+Date: Sun, 09 Sep 2001 21:04:03 -0400
+From: Alicia Whisnant <lily_whiz@celito.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010910005547Z16149-26184+196@humbolt.nl.linux.org>
+To: rvandam@liwave.com, linux-kernel@vger.kernel.org
+CC: "'Frank Schneider'" <SPATZ1@t-online.de>
+Subject: Re: FW: OT: Integrating Directory Services for Linux
+In-Reply-To: <001501c1398f$5bb85c40$1f0201c0@w2k001>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 9, 2001 07:14 am, SATHISH.J wrote:
-> Hi,
-> Thanks fot the suggestion.
-> I tried that but it panics. Will I be able to change anything inside the
-> boot floppy after it has been made with 2.2.6 kernel so that I can boot
-> 2.2.14. 
+Ron Van Dam wrote:
+>  Using ADS or NDS is not a good solution, because in my opinion, it would be
+> dependent on a another OS. I would rather have the DS maintained on a
+> OpenSource OS. 
 
-Usually the easiest thing to do is boot from any install CD and hit
-Ctrl-Alt-F1, which will give you a command prompt.  Then you can mount your
-hard disk, edit /etc/lilo.conf and run lilo, something like this:
+That's just not true anymore, at least not for NDS.  Novell's latest
+version (called "eDirectory" these days) runs very gracefully on Linux
+(and solaris, too, FWIW).  It's possible to run an entire NDS
+infrastructure with running netware these days.  This has been out for
+quite awhile.
+Go to this page and scroll down to "eDirectory", and you can download
+and play with it yourself:
+http://download.novell.com/sdMain.jsp
+Note that the package also includes PAM login modules for linux.  Also
+note full LDAP compatibility.
 
-  mkdir /a                 # a convenient mount point on the CD's ramdisk
-  mount /dev/hda? /a       # Change "?" to the number of your root partition
-  ls /a                    # you should see bin, usr, etc.
-  mcedit /a/etc/lilo.conf  # fix your configuration
-  lilo -r /a               # rerun lilo, chrooting to your disk first
-                           # take out the CD and reboot
+As a side note, novell has an intriguing metadirectory technology called
+DirXML, which can glue any directory to any other directory with XML
+templates.  You can use it to synchronize an Oracle table with an NDS
+userlist, for example.
 
-Caveat: I've never tried this myself.  Take a look at the lilo docs to see
-some examples of how your lilo.conf should look.
+> NIS+ is basically obsolete.
 
-If you need further help you should consider joining an irc channel, for
-example, irc.openprojects.net #linpeople
+Hrm, please qualify that.  Why do you think it's obsolete?  It's
+considerably more advanced (and certainly more secure) than most of the
+other options out there, including LDAP-over-SSL.  Just a bitch to
+admin.
 
-Linux kernel mailing list isn't the right place to ask this kind of
-question.
+> OpenLDAP could be turned into a
+> workable solution, but there is no "consistent" bridge between OpenLDAP and
+> Linux. For instance if you want to manager user accounts with it you need
+> PAM, and unfortunately PAM isn't compatible with a lot of userland
+> applications and services.
 
---
-Daniel
+PAM is the standardized and agreed-upon method for divorcing
+authentication from the system.  It's been like that for quite some time
+now.  What if this discussion was about some Linux GUI apps not being
+compatible with X?  The boat's been sailing for quite some time, either
+hop on or build your own, I say, or swim (sink?).
 
-> On Fri, 7 Sep 2001, Brian Gerst wrote:
+<snip>
+> I don't think DS will work unless there some standard for DS established by
+> the core linux development groups. Another words, what I would like have is
+> the framework for a standard for implemeting DS for Linux.
+
+What's wrong with the name service switch stuff?  and more importantly,
+PAM?
+The "PAM isn't supported by enough apps" argument is kind of weak. 
+Reason being that the developer chose not to support it.  I for one
+don't think the kernel should be modified just because Joe Blow
+hardcoded open (/etc/passwd), or whatever.
+
+<snip>
+> I started this discussion to see if anyone out there considers DS important
+> for Linux growth.  I am not sugguesting that this should be in the kernel.
+> Just some sort of directory system that can manage configurations of a large
+> number of linux boxes.
+
+I personally believe that nothing will be so pivotal in a desktop war as
+a good, unified directory.  Is the desktop a growth area for Linux?  You
+betcha.  There are other areas (i.e. embedded) that Linux could benefit
+from directories, too (think of a cellphone that anyone could use by
+"logging into" it).
+
+> However, I don't see how you can manage permissions to kernel function calls
+> with out some kernel support. 
+
+Pluggable Authentication Modules
+
+> Depending on what level of functionally is
+> included, there may be a need access database information during boot-up,
+> before userland processes can be started. 
+
+Who, besides root, would ever need to perform activities before userland
+processes can start?
+
+> If you managing kernel functions
+> calls for userland access, how can you tell if the process has permissions
+> unless some functionally is built-in the kernel? Think of a directory
+> service operating more like a file system than a database.
+
+Handled all by PAM and name service switch.
+
+<snip>
+
+> How would you manage 1000 or 10,000 desktop boxes each with their own /etc
+> directory?  Imagine your supporting several hundred or even several thousand
+> unix boxes, and you need to apply a standard change to all of them. Lets
+> also assume your not getting paid by the hour, or you need to get the change
+> done in just a hour or two. Would you trust a running a script on a
+> /etc/*.conf file to apply a change on your boxes? I suppose if you really
+> like to torture yourself, you could modify each of those files by hand,
+> ouch!
+
+Agreed, by hand it would be painful.  But why are scripts so scary? 
+Just don't screw up :) .
+I have played on a team which maintained 1000+ solaris and sunos
+workstations, each with their own /etc, for a userlist > 7000 users. 
+Everything (passwd, shadow, group, printcap, etc) lived in NIS. 
+Individual changes to system files were made with rdist or cronjobs.  I
+believe Linux+LDAP (or even NDS, because of the awesome performance)
+would be much better suited to this task.
+
+As long as you do enough testing, it's probably the ultimate way to
+maintain lots of machines.  Again, note that this was done with an
+obsolete (in my opinion, this time :) directory services (NIS).
+
+> Thanks for the response.
+> Ron
+
+Thanks,
+Josh
+
 > 
-> > "SATHISH.J" wrote:
-> > > 
-> > > Hi,
-> > > I know that this is not the place to ask this question.Please forgive me.
-> > > I changed the lilo.conf on my machine(redhat 2.2.14-12 kernel) and it
-> > > doesn't boot up. I don't have
-> > > a boot floppy to boot. I have another disk which has an older version of
-> > > linux(2.2.6). I can mount the disk if I boot from the other
-> > > disk(2.2.6). Can I
-> > > in some way alter the lilo.conf of my disk(2.2.14) and boot linux from
-> > > that. Please tell me any ideas to do that.
-> > 
-> > Boot your 2.2.6 disk, and make a boot floppy from that.  Put in the
-> > original disk and boot from the floppy.  Check your lilo.conf and rerun
-> > lilo.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

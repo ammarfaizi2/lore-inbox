@@ -1,55 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262855AbVCMHog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263444AbVCMIRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262855AbVCMHog (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 02:44:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbVCMHod
+	id S263444AbVCMIRN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 03:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263445AbVCMIRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 02:44:33 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:39652 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262855AbVCMHnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 02:43:32 -0500
-Date: Sun, 13 Mar 2005 01:43:09 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Linux 2.6 : physical memory address and pid
-In-reply-to: <3HsTW-7Mx-11@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4233EF0D.6060507@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3HpMi-5nQ-3@gated-at.bofh.it> <3Hq5K-5CP-13@gated-at.bofh.it>
- <3HsTW-7Mx-11@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Sun, 13 Mar 2005 03:17:13 -0500
+Received: from ns.suse.de ([195.135.220.2]:39317 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263444AbVCMIRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 03:17:11 -0500
+Date: Sun, 13 Mar 2005 09:17:09 +0100
+From: Olaf Hering <olh@suse.de>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] be more verbose in gen-devlist
+Message-ID: <20050313081709.GA26100@suse.de>
+References: <20050311192858.GA11077@suse.de> <20050312203642.GC11865@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20050312203642.GC11865@kroah.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allison wrote:
-> Thanks for the answer! 
-> 
-> Another related question :
-> 
-> I need to gather all application pages by reading the page tables. 
-> The hard part is, I need to do this from a PCI device using DMA.  As I
-> understand it,  when a DMA is being performed, the pages are pinned in
-> memory . Since the PCI device has grabbed the bus, the processor is
-> not able to access memory to perform page replacement right ?
-> So, this is a form of mutual exclusion.
+ On Sat, Mar 12, Greg KH wrote:
 
-I don't think it works this way - if the system is modifying the pages 
-which you're trying to do DMA reads on, you'll just read whatever data 
-happens to be in memory at the time. The CPU is not "locked out" just 
-because that memory is being read by a DMA transfer.
+> Why #if this?  Why not just always do this?
 
-> 
-> However, if I have to fetch the page struct, the process address space
-> of the process owning the page (I am ignoring shared pages to make
-> things simpler) and the page itself, will a scatter gather DMA make
-> sure that  the processor cannot modify any of these data structures
-> till the DMA is complete ? I am using Linux 2.6 and the i386
-> architecture.
-
-As above, I don't think anything ensures this. Doing DMA reads on pages 
-that could potentially be being modified during the transfer isn't 
-something that is typically done..
+Because it always triggers with current sf.net snapshot.

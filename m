@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143554AbRA1Qo7>; Sun, 28 Jan 2001 11:44:59 -0500
+	id <S143571AbRA1Qpt>; Sun, 28 Jan 2001 11:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143524AbRA1Qot>; Sun, 28 Jan 2001 11:44:49 -0500
-Received: from green.csi.cam.ac.uk ([131.111.8.57]:49069 "EHLO
-	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S143554AbRA1Qob>; Sun, 28 Jan 2001 11:44:31 -0500
-Date: Sun, 28 Jan 2001 16:44:18 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: Miquel van Smoorenburg <miquels@traveler.cistron-office.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ECN: Clearing the air (fwd)
-In-Reply-To: <951am4$gbf$1@ncc1701.cistron.net>
-Message-ID: <Pine.SOL.4.21.0101281642180.16734-100000@green.csi.cam.ac.uk>
+	id <S143532AbRA1Qpj>; Sun, 28 Jan 2001 11:45:39 -0500
+Received: from colorfullife.com ([216.156.138.34]:57098 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S143524AbRA1Qpb>;
+	Sun, 28 Jan 2001 11:45:31 -0500
+Message-ID: <3A744CA7.AF41F05D@colorfullife.com>
+Date: Sun, 28 Jan 2001 17:45:27 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+CC: dwmw2@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: <3A74456D.7AE44855@colorfullife.com> <20010128123630.K19833@conectiva.com.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Jan 2001, Miquel van Smoorenburg wrote:
-
-> In article <Pine.SOL.4.21.0101281324210.26837-100000@yellow.csi.cam.ac.uk>,
-> James Sutherland  <jas88@cam.ac.uk> wrote:
-> >On Sun, 28 Jan 2001, jamal wrote:
-> >> The internet is a form of organized chaos, sometimes you gotta make
-> >> these type of decisions to get things done. Imagine the joy _most_
-> >> people would get flogging all firewall admins who block all ICMP.
-> >
-> >Blocking out ICMP doesn't bother me particularly. I know they should be
-> >selective, but it doesn't break anything essential.
+Arnaldo Carvalho de Melo wrote:
 > 
-> It breaks Path MTU Discovery. If you have a link somewhere in your
-> network (not at an endpoint, or TCP MSS will take care of it) that
-> has an MTU < 1500, you cannot reach hotmail and a lot of other sites
-> either currently. It _does_ break essential things. Daily. I would
-> get a lot of joy from flogging all firewall admins who block all ICMP.
+> Em Sun, Jan 28, 2001 at 05:14:37PM +0100, Manfred Spraul escreveu:
+> > >
+> > > Anything which uses sleep_on() has a 90% chance of being broken. Fix
+> > > them all, because we want to remove sleep_on() and friends in 2.5.
+> > >
+> >
+> > Then you can add 'calling schedule() with disabled local interrupts()'
+> > to your list.
+> 
+> any example of code doing this now? That way we can at least point it to
+> interested people and say "look at driver foobar in kernel x.y.z and see
+> how its wrong"
+>
 
-Except you can detect and deal with these "PMTU black holes". Just as you
-should detect and deal with ECN black holes. Maybe an ideal Internet
-wouldn't have them, but this one does. If you can find an ideal Internet,
-go code for it: until then, stick with the real one. It's all we've got.
+It isn't wrong to call schedule() with disabled interrupts - it's a
+feature ;-)
+Those 10% sleep_on() users that aren't broken use it:
 
+ for(;;) {
+	cli();
+	if(condition)
+		break;
+	sleep_on(&my_wait_queue);
+	sti();
+ }
 
-James.
+E.g. TIOCMIWAIT in drivers/char/serial.c - a nearly correct sleep_on()
+user.
 
+But I doubt that 10% of the sleep_on() users are non-broken...
+
+If you remove sleep_on(), then you can disallow calling schedule() with
+disabled local interrupts.
+
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

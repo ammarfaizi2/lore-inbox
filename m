@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSGCKAM>; Wed, 3 Jul 2002 06:00:12 -0400
+	id <S316541AbSGCKG7>; Wed, 3 Jul 2002 06:06:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSGCKAL>; Wed, 3 Jul 2002 06:00:11 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:29320 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S316088AbSGCKAK> convert rfc822-to-8bit;
-	Wed, 3 Jul 2002 06:00:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: lilo/raid?
-Date: Wed, 3 Jul 2002 12:02:46 +0200
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207011758180.3104-100000@netfinity.realnet.co.sz> <200207021333.36435.roy@karlsbakk.net> <3D22C735.7A5F299A@aitel.hist.no>
-In-Reply-To: <3D22C735.7A5F299A@aitel.hist.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207031202.46441.roy@karlsbakk.net>
+	id <S316681AbSGCKG6>; Wed, 3 Jul 2002 06:06:58 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:1944 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S316541AbSGCKG6>;
+	Wed, 3 Jul 2002 06:06:58 -0400
+Date: Wed, 3 Jul 2002 12:08:38 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: [linux-lvm] LVM2 modifies the buffer_head struct?
+Message-ID: <20020703100838.GH14097@suse.de>
+References: <F19741gcljD2E2044cY00004523@hotmail.com> <20020702141702.GA9769@fib011235813.fsnet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020702141702.GA9769@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > What is the reason of using swap for cache buffers?????
->
-> To be precise - swap is never used _for_ cache buffers - you'll
-> never see file contents in the swap partition, perhaps with
-> the exception of tmpfs stuff.
->
-> But aggressive caching may indeed push other stuff into swap,
-> typically little-used program memory.
+On Tue, Jul 02 2002, Joe Thornber wrote:
+> Tom,
+> 
+> On Tue, Jul 02, 2002 at 09:40:56AM -0400, Tom Walcott wrote:
+> > Hello,
+> > 
+> > Browsing the patch submitted for 2.4 inclusion, I noticed that LVM2 
+> > modifies the buffer_head struct. Why does LVM2 require the addition of it's 
+> > own private field in the buffer_head? It seems that it should be able to 
+> > use the existing b_private field.
+> 
+> This is a horrible hack to get around the fact that ext3 uses the
+> b_private field for its own purposes after the buffer_head has been
+> handed to the block layer (it doesn't just use b_private when in the
+> b_end_io function).  Is this acceptable behaviour ?  Other filesystems
+> do not have similar problems as far as I know.
+> 
+> device-mapper uses the b_private field to 'hook' the buffer_heads so
+> it can keep track of in flight ios (essential for implementing
+> suspend/resume correctly).  See dm.c:dec_pending()
 
-ok.
-tell me, then
+Your driver is required to properly stack b_private uses, however if
+ext3 (well jbd really) over writes b_private after bh i/o submission I
+would say that it is broken. That breaks more than just device mapper,
+that will break any stacked driver (such as loop, for instance).
 
-When having an http-server-of-choice (tried several), I start downloading 
-10-50 files at 4Mbps. After some time, the server OOMs. The only processes 
-running are syslog, nfs daemons (idle) and the web server. This happens 
-without swap or with swap (1gig swap - fills up, and the server dies).
-
-My last thread about it was "[BUG] 2.4 VM sucks. Again". After a rather 
-experimental patch my akpm, the problem was solved.
-
-<snip>
-
-roy
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-
-Computers are like air conditioners.
-They stop working when you open Windows.
+Jens Axboe
 

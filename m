@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263460AbREYABC>; Thu, 24 May 2001 20:01:02 -0400
+	id <S263461AbREYAJV>; Thu, 24 May 2001 20:09:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263461AbREYAAv>; Thu, 24 May 2001 20:00:51 -0400
-Received: from femail8.sdc1.sfba.home.com ([24.0.95.88]:20658 "EHLO
-	femail8.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S263460AbREYAAf>; Thu, 24 May 2001 20:00:35 -0400
-Message-ID: <3B0DA0BA.5895592F@home.com>
-Date: Thu, 24 May 2001 20:00:58 -0400
-From: Willem Riede <wriede@home.com>
-X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.15 i686)
-X-Accept-Language: en
+	id <S263464AbREYAJC>; Thu, 24 May 2001 20:09:02 -0400
+Received: from kwanon.research.canon.com.au ([203.12.172.254]:52498 "HELO
+	kwanon.research.canon.com.au") by vger.kernel.org with SMTP
+	id <S263461AbREYAIv>; Thu, 24 May 2001 20:08:51 -0400
+Subject: Big-ish SCSI disks
+To: linux-kernel@vger.kernel.org
+Date: Fri, 25 May 2001 10:05:02 +1000 (EST)
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Junfeng Yang <yjf@Stanford.EDU>
-CC: Dawson Engler <engler@csl.stanford.edu>, linux-kernel@vger.kernel.org,
-        mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] null bugs in 2.4.4 and 2.4.4-ac8
-In-Reply-To: <Pine.GSO.4.31.0105241532450.11846-100000@elaine24.Stanford.EDU>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20010525000502.B998037530@zapff.research.canon.com.au>
+From: gjohnson@research.canon.com.au (Greg Johnson)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Junfeng Yang wrote:
-> 
-> On Thu, 24 May 2001, Willem Riede wrote:
-> 
-> > Dawson Engler wrote:
-> > >
-> > > Hi All,
-> > >
-> > > Enclosed are 103 potential errors where code gets a pointer from a
-> > > possibly-failing routine (kmalloc, etc) and dereferences it without
-> > >
-> > > [BUG] osst_do_scsi will never return NULL if argument SRpnt isn't NULL. But they copy SRpnt back by *aSRpnt, implies it could be NULL
-> >
-> > No. It implies SRpnt could have changed. The functions flagged
-> > (osst_read_back_buffer_and_rewrite and osst_reposition_and_retry)
-> > cannot be reached with SRpnt == NULL. So these are false alarms.
-> 
-> these are false positives if osst_read_back_buffer_and rewrite can't be
-> reached with SRpnt == NULL. It seems that osst_do_scsi will not change
-> SRpnt unless it is NULL though.
+Hi kernel poeple,
 
-That is currently true, and the re-assignment of SRpnt is superfluous but
-harmless. It is not a design constraint though that SRpnt cannot change
-(except it can't change to NULL), so I prefer to leave the code as is.
+Can anyone out there say for certain that 76GB SCSI disks should
+just work with kernel versions 2.2 and/or 2.4? We need to get some
+big disk space and have heard reports of problems with disks
+bigger than 30GB under linux.
 
->                                 In other words, SRpnt is changed by
-> osst_do_scsi <=> the initial argument SRpnt == NULL. Probabaly the pointer
-> aSRpnt is useless.
-> 
-The pointer aSRpnt is not useless, it's used to communicate the current
-value of SRpnt throughout the driver.
+Thanks.
 
-Regards, Willem Riede.
+Greg.
+
+-- 
++------------------------------------------------------+
+| Do you want to know more? www.geocities.com/worfsom/ |
+|              ..ooOO Greg Johnson OOoo..              |
+| HW/SW Engineer        gjohnson@research.canon.com.au |
+| Canon Information Systems Research Australia (CISRA) |
+| 1 Thomas Holt Dr., North Ryde, NSW, 2113,  Australia |
+|      "I FLEXed my BISON and it went YACC!" - me.     |
++------------------------------------------------------+
+

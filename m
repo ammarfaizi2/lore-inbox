@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274681AbRJTWLv>; Sat, 20 Oct 2001 18:11:51 -0400
+	id <S274746AbRJTWRb>; Sat, 20 Oct 2001 18:17:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274684AbRJTWLm>; Sat, 20 Oct 2001 18:11:42 -0400
-Received: from protactinium.btinternet.com ([194.73.73.176]:52664 "EHLO
-	protactinium") by vger.kernel.org with ESMTP id <S274681AbRJTWL1>;
-	Sat, 20 Oct 2001 18:11:27 -0400
-Date: Sat, 20 Oct 2001 23:11:31 +0000
-To: linux-kernel@vger.kernel.org
-Subject: Compilation of 2.4.0 fails when processing /i386/boot
-Message-ID: <20011020231131.A4560@ubersecksie.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-From: Stuart Luscombe <stuart@ubersecksie.co.uk>
+	id <S274749AbRJTWRW>; Sat, 20 Oct 2001 18:17:22 -0400
+Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:56975 "EHLO
+	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
+	id <S274746AbRJTWRK>; Sat, 20 Oct 2001 18:17:10 -0400
+Date: Sat, 20 Oct 2001 18:17:43 -0400 (EDT)
+From: "Daniel T. Chen" <crimsun@email.unc.edu>
+To: Stuart Luscombe <stuart@ubersecksie.co.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Compilation of 2.4.0 fails when processing /i386/boot
+In-Reply-To: <20011020231131.A4560@ubersecksie.co.uk>
+Message-ID: <Pine.A41.4.21L1.0110201816050.33706-100000@login3.isis.unc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am compiling kernel 2.4.0, and I am getting the following error
-during the 'make install' part of the build:
+Are you sure your binutils is up to date? This is eerily reminiscent of
+the --oformat change documented in 2.10.91.0.2-2 ...
 
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o  drivers/parport/driver.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-nm vmlinux | grep -v '\(compiled\)\|\(\.o$\)\|\( [aUw] \)\|\(\.\.ng$\)\|\(LASH[RL]DI\)' | sort > System.map
-make[1]: Entering directory `/usr/src/linux/arch/i386/boot'
-ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
-make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
-ld: cannot open binary: No such file or directory
-make[1]: *** [bbootsect] Error 1
-make: *** [install] Error 2
+---
+Dan Chen                 crimsun@email.unc.edu
+GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
 
-I have checked all assembler packages, and they all seem to be installed.
-I am running Debian sid and all packages are up-to-date.
+On Sat, 20 Oct 2001, Stuart Luscombe wrote:
 
-Can anyone help me with this error?
+> I am compiling kernel 2.4.0, and I am getting the following error
+> during the 'make install' part of the build:
+[...]
+> ld -m elf_i386 -Ttext 0x0 -s -oformat binary bbootsect.o -o bbootsect
+> make[1]: Leaving directory `/usr/src/linux/arch/i386/boot'
+> ld: cannot open binary: No such file or directory
+> make[1]: *** [bbootsect] Error 1
+> make: *** [install] Error 2
+> 
+> I have checked all assembler packages, and they all seem to be installed.
+> I am running Debian sid and all packages are up-to-date.
 
-Thanks in advance
---
-Stuart

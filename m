@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290731AbSBFScn>; Wed, 6 Feb 2002 13:32:43 -0500
+	id <S290739AbSBFSlX>; Wed, 6 Feb 2002 13:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290733AbSBFScX>; Wed, 6 Feb 2002 13:32:23 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:58127 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S290731AbSBFScN>; Wed, 6 Feb 2002 13:32:13 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A768A@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Russell King'" <linux@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: what serial driver restructure is planned?
-Date: Wed, 6 Feb 2002 10:32:11 -0800 
+	id <S290741AbSBFSlN>; Wed, 6 Feb 2002 13:41:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2576 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290739AbSBFSlE>; Wed, 6 Feb 2002 13:41:04 -0500
+Date: Wed, 6 Feb 2002 10:40:06 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave McCracken <dmccr@us.ibm.com>
+cc: Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.3] Third version of signal changes for thread groups
+In-Reply-To: <17060000.1013019666@baldur>
+Message-ID: <Pine.LNX.4.33.0202061038450.16810-100000@athlon.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> o Beta       Serial driver restructure              (Russell King)
 
-Regarding the above line from the 2.5 STATUS report, what is the nature of
-the planned restructuring?  I have a CompactPCI hot swap serial mux card
-that I need to support with hot swap functionality on Linux.  Has anybody
-already worked on issues like locking port names to physical slots, etc.?
-Any basic advice?
+On Wed, 6 Feb 2002, Dave McCracken wrote:
+>
+> Yes, and I was under the mistaken belief that it worked reasonably.  I
+> think I've found a workaround now, with the help of other Mulberry
+> users here. Here's my latest attempt.
 
-Thanks in
-Ed Vance
- 
-Ed Vance              edv@macrolink.com
-Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+Yup, that fixed it. Thanks.
+
+		Linus
+

@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTDHT3H (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261620AbTDHT3H (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:29:07 -0400
-Received: from ns.suse.de ([213.95.15.193]:17164 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261605AbTDHT3G (for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Apr 2003 15:29:06 -0400
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-Cc: linux-kernel@vger.kernel.org,
-       =?iso-8859-2?q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>
-Subject: Re: [2.5.67] gen_rtc compile error
-X-Yow: I want a VEGETARIAN BURRITO to go..  with EXTRA MSG!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Tue, 08 Apr 2003 21:40:43 +0200
-In-Reply-To: <200304082130.07080.freesoftwaredeveloper@web.de> (Michael
- Buesch's message of "Tue, 8 Apr 2003 21:30:07 +0200")
-Message-ID: <jek7e4ixqc.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090017 (Oort Gnus v0.17) Emacs/21.3.50 (gnu/linux)
-References: <Pine.LNX.4.51L.0304082033140.20726@piorun.ds.pg.gda.pl>
-	<200304082120.39576.freesoftwaredeveloper@web.de>
-	<200304082130.07080.freesoftwaredeveloper@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id S261620AbTDHTgL (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 15:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTDHTgK (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 15:36:10 -0400
+Received: from almesberger.net ([63.105.73.239]:31241 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261620AbTDHTgJ (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 15:36:09 -0400
+Date: Tue, 8 Apr 2003 16:47:18 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: Andi Kleen <ak@suse.de>, Robert Williamson <robbiew@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, aniruddha.marathe@wipro.com,
+       ltp-list@lists.sourceforge.net
+Subject: Re: [LTP] Re: Same syscall is defined to different numbers on 3 different archs(was Re: Makefile  issue)
+Message-ID: <20030408164718.F18709@almesberger.net>
+References: <OF51DE965A.FDCB6DBE-ON85256D01.005201B1-86256D01.005610CF@pok.ibm.com.suse. <p73vfxqxpz4.fsf@oldwotan.suse.de> <20030407232302.D19288@almesberger.net> <1049808651.30732.113.camel@plars>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1049808651.30732.113.camel@plars>; from plars@linuxtestproject.org on Tue, Apr 08, 2003 at 08:30:50AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Buesch <freesoftwaredeveloper@web.de> writes:
+Paul Larson wrote:
+> I don't think so.  Apps should be accessing things through libraries
+> anyway.  The only reason we don't in some cases like this is that it's
+> new and not in libs on any distro yet.
 
-|> Correcting my patch: ;)
+Well yes, if the syscall is correctly implemented in the library,
+there's no problem.
 
-Still not right.
+> Besides, I don't think having a
+> /proc/syscalls would be any better than having to do ifdefs or use
+> kernel headers.
 
-|> --- drivers/char/genrtc.c.orig	2003-04-08 21:15:52.000000000 +0200
-|> +++ drivers/char/genrtc.c	2003-04-08 21:28:43.000000000 +0200
-|> @@ -486,16 +486,21 @@
-|>  		     "update_IRQ\t: %s\n"
-|>  		     "periodic_IRQ\t: %s\n"
-|>  		     "periodic_freq\t: %ld\n"
-|> -		     "batt_status\t: %s\n",
-|> -		     (flags & RTC_DST_EN) ? "yes" : "no",
-|> +#ifdef RTC_BATT_BAD
-|> +		     "batt_status\t: %s\n"
-|> +#endif
-|> +		     ,(flags & RTC_DST_EN) ? "yes" : "no",
-|>  		     (flags & RTC_DM_BINARY) ? "no" : "yes",
-|>  		     (flags & RTC_24H) ? "yes" : "no",
-|>  		     (flags & RTC_SQWE) ? "yes" : "no",
-|>  		     (flags & RTC_AIE) ? "yes" : "no",
-|>  		     irq_active ? "yes" : "no",
-|>  		     (flags & RTC_PIE) ? "yes" : "no",
-|> -		     0L /* freq */,
-|> -		     (flags & RTC_BATT_BAD) ? "bad" : "okay");
-|> +		     0L /* freq */
-|> +#ifdef RTC_BATT_BAD
-|> +		     ,(flags & RTC_BATT_BAD) ? "bad" : "okay")
-|> +#endif
-|> +		     ;
+#ifdef may be hard pressed to identify a specific kernel with a
+specific patch. Kernel headers are obviously a solution (although
+this violates the "user space must never include kernel headers"
+pseudo-rule), but add the problem of needing to identify the
+"current" source tree, which is a configuration step almost always
+requiring manual intervention.
 
-Lacks a close paren if !RTC_BATT_BAD.
+My suggestion for /proc/syscalls isn't entirely serious, but it 
+would be nice if we could eventually solve this problem ...
 
-Andreas.
+- Werner
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

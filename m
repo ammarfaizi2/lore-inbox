@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310224AbSCFWas>; Wed, 6 Mar 2002 17:30:48 -0500
+	id <S310233AbSCFWiI>; Wed, 6 Mar 2002 17:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310227AbSCFWaj>; Wed, 6 Mar 2002 17:30:39 -0500
-Received: from mail.starbak.net ([63.144.91.12]:32531 "EHLO mail.starbak.net")
-	by vger.kernel.org with ESMTP id <S310224AbSCFWaV>;
-	Wed, 6 Mar 2002 17:30:21 -0500
-Message-ID: <005e01c1c55d$d73b4260$5a5b903f@h90>
-From: "Joseph Malicki" <jmalicki@starbak.net>
-To: "David Woodhouse" <dwmw2@infradead.org>, "Jeff Dike" <jdike@karaya.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        "Benjamin LaHaise" <bcrl@redhat.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <200203062025.PAA03727@ccure.karaya.com>  <6920.1015450061@redhat.com>
-Subject: Re: [RFC] Arch option to touch newly allocated pages 
-Date: Wed, 6 Mar 2002 17:25:37 -0500
+	id <S310228AbSCFWh7>; Wed, 6 Mar 2002 17:37:59 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44039 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292752AbSCFWho>; Wed, 6 Mar 2002 17:37:44 -0500
+Subject: Re: Support for sectorsizes > 4KB ?
+To: R.Oehler@GDAmbH.com (Ralf Oehler)
+Date: Wed, 6 Mar 2002 22:53:01 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-scsi@vger.kernel.org (Scsi)
+In-Reply-To: <XFMail.20020306084829.R.Oehler@GDAmbH.com> from "Ralf Oehler" at Mar 06, 2002 08:48:29 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ikHN-0008T9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> jdike@karaya.com said:
-> >  Yeah, MADV_DONTNEED looks right.  UML and Linux/s390 (assuming VM has
-> > the equivalent of MADV_DONTNEED) would need a hook in free_pages to
-> > make that happen.
->
->        MADV_DONTNEED
->               Do  not expect access in the near future.  (For the
->               time being, the application is  finished  with  the
->               given range, so the kernel can free resources asso­
->               ciated with it.)
->
-> It's not clear from that that the host kernel is actually permitted to
-> discard the data.
+> In the not-so-far future there will occure MO media on the market with
+> 40 to 120 Gigabytes of capacity and sectorsizes of 8 KB and maybe more.
+> It's called "UDO" technology.
+> 
+> Is there any way to support block devices with sectors larger than 4KB =
+> ?
 
-Solaris has MADV_FREE to say that the data can be discarded...
+The scsi layer itself doesn't mind, but the page caches do. Once your
+block size exceeds the page size you hit a wall of memory fragmentation
+issues. Given that M/O media is relatively slow I'd be inclined to say
+write an sd like driver (smo or similar) which does reblocking and also
+knows a bit more about other M/O drive properties.
 
--joe
-
+Alan

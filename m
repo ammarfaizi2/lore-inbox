@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265890AbSKBHDR>; Sat, 2 Nov 2002 02:03:17 -0500
+	id <S265888AbSKBHUD>; Sat, 2 Nov 2002 02:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265892AbSKBHDR>; Sat, 2 Nov 2002 02:03:17 -0500
-Received: from citi.umich.edu ([141.211.92.141]:4504 "HELO citi.umich.edu")
-	by vger.kernel.org with SMTP id <S265890AbSKBHDQ>;
-	Sat, 2 Nov 2002 02:03:16 -0500
-Date: Sat, 2 Nov 2002 02:09:45 -0500
-From: Niels Provos <provos@citi.umich.edu>
-To: linux-kernel@vger.kernel.org
-Subject: cryptographic acceleration [Re: What's left over.]
-Message-ID: <20021102070944.GR15875@citi.citi.umich.edu>
+	id <S265889AbSKBHUD>; Sat, 2 Nov 2002 02:20:03 -0500
+Received: from mail.michigannet.com ([208.49.116.30]:27659 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S265888AbSKBHUC>; Sat, 2 Nov 2002 02:20:02 -0500
+Date: Sat, 2 Nov 2002 02:26:27 -0500
+From: Paul <set@pobox.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.45-mcp2
+Message-ID: <20021102072627.GB20069@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Marc-Christian Petersen <m.c.p@wolk-project.de>,
+	linux-kernel@vger.kernel.org
+References: <200211020255.05597.m.c.p@wolk-project.de> <20021102050353.GJ7170@squish.home.loc>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20021102050353.GJ7170@squish.home.loc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While discussing various topics related to Linux and the BSDs, this
-thread was mentioned.
+Paul <set@pobox.com>, on Sat Nov 02, 2002 [12:03:53 AM] said:
+[...]
+> make[2]: *** [drivers/md/dm-ioctl.o] Error 1
+> make[1]: *** [drivers/md] Error 2
+> make: *** [drivers] Error 2
+> 
+> 	This looks similar to the error I got with 2.5.45
+> virgin. (was hoping device mapper fixes would make it go away)
+> 
+	Argh. I downloaded the patch, made the link dir with
+the right name, and forgot to apply the patch!@#$ :(
 
->The question I have is whether such external hardware is even worth it
->any more for any standard crypto work.  With a regular PCI bus
->fundamentally limiting throughput to something like a maximum of 66MB/s
->(copy-in and copy-out, and that's so theoretical that it's not even
-The following paper
+	After actually patching (and a make mrproper to make
+sure), I get this error, though:
 
-Performance Analysis of TLS Web Servers.
-  C. Coarfa, P. Druschel, and D. Wallach.
-  In Proceedings of NDSS '02, 2002.
-  http://www.isoc.org/isoc/conferences/ndss/01/2001/papers/dean02.pdf
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o
+init/built-in.o --start-group  arch/i386/kernel/built-in.o
+arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o
+kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
+security/built-in.o  crypto/built-in.o  lib/lib.a
+arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
+arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+fs/built-in.o: In function `init_reiser4':
+fs/built-in.o(.init.text+0x11d3): undefined reference to `local
+symbols in discarded section .exit.text'
+make: *** [vmlinux] Error 1
 
-analyzes the performance benefits from off-loading various crypto
-operations to cryptographic hardware accelerators in comparison to
-software crypto.  This is in the context of web servers and TLS.
 
-The paper concludes that hardware accelerators are useful for speeding
-up public key cryptography, whereas symmetric encryption (RC4) does not
-benefit from hardware acceleration very much.
-
-For public-key cryptography, the used bus bandwidth is not significant
-because data transfers are usually small.
-
-On the other hand, there are some Ethernet cards that support inline
-encryption so that not additional bus bandwidth is required to do both
-public and symmetric key cryptography.
-
-Things are slightly different for expensive symmetric encryption
-algorithms like 3DES.  See
-
-A Study of the Relative Costs of Network Security Protocols
-  Stefan Miltchev, Sotiris Ioannidis, and Angelos D. Keromytis
-  http://www.cs.columbia.edu/~angelos/Papers/ipsecspeed.pdf
-
->Chris is write that crypto api is misdesigned if we want to use hardware
->cryptocards 
-Angelos Keromytis has designed an API for cryptographic services in
-the kernel.  The implementation provides a good abstraction.
-
-Anyway, now you have some numbers.
-
-Niels.
+Paul
+set@pobox.com

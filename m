@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280806AbRKBThs>; Fri, 2 Nov 2001 14:37:48 -0500
+	id <S280808AbRKBTj2>; Fri, 2 Nov 2001 14:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280807AbRKBThi>; Fri, 2 Nov 2001 14:37:38 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:50153 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S280806AbRKBTh1>; Fri, 2 Nov 2001 14:37:27 -0500
-Date: Fri, 2 Nov 2001 14:37:27 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Ian Stirling <root@mauve.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Diagnosing dead mice.
-Message-ID: <20011102143726.B4309@redhat.com>
-In-Reply-To: <200111021921.TAA00792@mauve.demon.co.uk>
-Mime-Version: 1.0
+	id <S280809AbRKBTjS>; Fri, 2 Nov 2001 14:39:18 -0500
+Received: from freeside.toyota.com ([63.87.74.7]:35087 "EHLO toyota.com")
+	by vger.kernel.org with ESMTP id <S280808AbRKBTjG>;
+	Fri, 2 Nov 2001 14:39:06 -0500
+Message-ID: <3BE2F649.11E7D95F@lexus.com>
+Date: Fri, 02 Nov 2001 11:38:49 -0800
+From: J Sloan <jjs@lexus.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre7-1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Michael H. Warfield" <mhw@wittsend.com>
+CC: Sebastian =?iso-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14-pre7 Unresolved symbols
+In-Reply-To: <200111020954.fA29sf413054@riker.skynet.be> <20011102102140Z280638-17408+9329@vger.kernel.org> <20011102135153.B24959@alcove.wittsend.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200111021921.TAA00792@mauve.demon.co.uk>; from root@mauve.demon.co.uk on Fri, Nov 02, 2001 at 07:21:18PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 02, 2001 at 07:21:18PM +0000, Ian Stirling wrote:
-> I've recently bought a new PS/2 scrolmouse, for the princely sum of $2.
-> 
-> It doesn't work when plugged into my laptop, and occasionally 
-> generates "unknown scancode" and random keys when used.
+trivial patch, "works for me" (tm) -
 
-Sounds like the mouse may be working.  Double check that your laptop's 
-BIOS is a recent version as most of the laptops I poked at when looking 
-into the keyboard driver intercept all keystrokes and mouse movements 
-in an attempt to provide additional features.
+diff -urN linux/kernel/ksyms.c linux-patched/kernel/ksyms.c
+--- linux/kernel/ksyms.c Fri Nov  2 11:02:45 2001
++++ linux-patched/kernel/ksyms.c Fri Nov  2 10:09:48 2001
+@@ -83,6 +83,7 @@
+ EXPORT_SYMBOL(do_mmap_pgoff);
+ EXPORT_SYMBOL(do_munmap);
+ EXPORT_SYMBOL(do_brk);
++EXPORT_SYMBOL(unlock_page);
+ EXPORT_SYMBOL(exit_mm);
+ EXPORT_SYMBOL(exit_files);
+ EXPORT_SYMBOL(exit_fs);
 
-		-ben
+

@@ -1,49 +1,108 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <160397-26601>; Wed, 21 Oct 1998 15:59:29 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:11046 "HELO mail.ocs.com.au" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <160721-26601>; Wed, 21 Oct 1998 15:10:04 -0400
-Message-ID: <19981022014931.3289.qmail@mail.ocs.com.au>
-From: Keith Owens <kaos@ocs.com.au>
-To: Andries.Brouwer@cwi.nl
-cc: linux-kernel@vger.rutgers.edu
-Subject: Re: New ksymoops that handles modules (was Re: How to translate an oops) 
-In-reply-to: Your message of "Wed, 21 Oct 1998 19:39:41 +0200." <UTC199810211739.TAA34047.aeb@texel.cwi.nl> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 22 Oct 1998 11:49:26 +1000
+Received: by vger.rutgers.edu id <154236-23312>; Sun, 25 Oct 1998 15:29:38 -0500
+Received: from dm.cobaltmicro.com ([209.133.34.35]:3104 "EHLO dm.cobaltmicro.com" ident: "davem") by vger.rutgers.edu with ESMTP id <155448-23312>; Sun, 25 Oct 1998 15:12:13 -0500
+Date: Sun, 25 Oct 1998 19:07:39 -0800
+Message-Id: <199810260307.TAA13367@dm.cobaltmicro.com>
+From: "David S. Miller" <davem@dm.cobaltmicro.com>
+To: torvalds@transmeta.com
+CC: ak@muc.de, khim@sch57.msk.ru, linux-kernel@vger.rutgers.edu, crux@Pool.Informatik.RWTH-Aachen.DE
+In-reply-to: <Pine.LNX.3.96.981025144701.3859K-100000@penguin.transmeta.com> (message from Linus Torvalds on Sun, 25 Oct 1998 14:55:09 -0800 (PST))
+Subject: Re: 2.2.0 and egcs 1.1 was Re: Sorry, wrong gcc-version
+References: <Pine.LNX.3.96.981025144701.3859K-100000@penguin.transmeta.com>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Wed, 21 Oct 1998 19:39:41 +0200 (MET DST), 
-Andries.Brouwer@cwi.nl wrote:
->EIP:    0030:0011127c 
->EFLAGS: 00000246
->eax: 0000000d 
->ebx: 00ef2018 
->ecx: 0000000d 
->edx: 001fd434 
->esi: 011da830 
->edi: 011da830 
->ebp: 00efbfa8 <%esp+28>
->esp: 00efbf80 <%esp+0>
->ds: 0018   es: 0038   fs: 002b   gs: 002b   ss: 0018
->Process runslip (pid: 48, process nr: 18, stackpage=00efb000)
->esp+00: 00002000 
->esp+04: 00efbfbc <%esp+3c>
->...
->Trace: 001e002b 
->Trace: 02800000 
->Trace: 03000000 
->Trace: 02800000 
->Trace: 0010b3bd 
->Trace: 0010b380 
->Trace: 0010ac70 
->Trace: 0011127c 
->Trace: 0010a254 
->Trace: 0010aae5 
->Code: 0010b069:
->----------------------------------------------------------
+   Date: 	Sun, 25 Oct 1998 14:55:09 -0800 (PST)
+   From: Linus Torvalds <torvalds@transmeta.com>
 
-Send me the Oops file please, I make sure it is handled.
+   For example, everybody in the egcs camp just decided that clobbers
+   and inputs must not overlap. Nobody told me why, and why they can't
+   just be automatically converted to early-clobbers inside gcc.
 
+You're telling the compiler two different things which conflict.
+
+The gcc documentation indicates how the design of the asm construct
+was really geared for single assembler instructions, and the
+constraint/clobber specification works in a much more sensible way if
+you only use it in this manner.  Of course, we all have used it in a
+much more broad sense to use multiple assembler instructions and a lot
+of people screw up the "input operand only" case.
+
+The reload pass of the compiler groups operands for a single piece of
+RTL (the internal representation of "instructions" in gcc) into
+several groups when it sees register pressure and must create relods.
+These are:
+
+1) Input reloads
+
+   Such operands must have the specified value on input to the
+   instruction.  They will still have this specified value upon
+   completion of the instructions execution.
+
+2) Output reloads
+
+   Such operands will be killed by this instruction and set is to some
+   value which will be set upon completion of the instruction.
+
+3) Address reloads
+
+   These deal with address formation for memory operands found in the
+   RTL for a particular instruction and sometimes require secondary
+   reloads to be created (to deal with cases such as when the address
+   must be in a single register because the usage does not allow an
+   offsettable [reg + offset] type addressing mode, ie. the 'o'
+   constraint)
+
+When the compiler scans an instruction for an instruction it says:
+
+1) What must be in registers upon entry to this instruction.
+
+   These are the input reloads, once assigned a register life analysis
+   marks these registers as containin the specified value upon input
+   and also upon exit from the instruction.
+
+2) Which registers get killed as the "last thing" this instruction
+   does.  That is, with a simple example:
+
+   add		DEST, SRC
+
+   DEST would be an output reload, and so far gcc can legitimately
+   load the SRC value into DEST and just use DEST twice in the
+   instruction unless...
+
+3) Which input and output reloads conflict.
+
+   When you say that an input and output don't need to be in the same
+   register value, it will use the same register for input and output
+   reloads as it sees profitable.  Unless you specify early clobber
+   with '&' in the constraints the compiler can legitimately use the
+   same register for arbitrary input and output reloads.
+
+4) Which registers die in some unspecified way during this
+   instruction.  This is an explicit clobber.
+
+So in the case being mentioned you are telling the compiler that a
+particular (in fact a specific) register is an "input only" operand
+and it dies in some unspecified way during this instruction.  So I
+just scanned the gcc documentation and I see:
+
+	Some instructions clobber specific hard registers.  To describe
+	this, write a third colon after the input operands, followed by the
+	names of the clobbered hard registers (given as strings).
+
+If I'm not trying to be pedantic about all this, I would interpret
+this to mean "if you cannot describe what happens to a hard register
+using constraints, then use clobbers".
+
+It seems to imply that "constraint mentioned" registers and clobbers
+are mutually exclusive.
+
+So in my view either such input constraints are spurious and
+inaccurate, or one is using clobbers to describe what output
+constraints are there for.
+
+Later,
+David S. Miller
+davem@dm.cobaltmicro.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

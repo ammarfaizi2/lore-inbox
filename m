@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265667AbTA2LbU>; Wed, 29 Jan 2003 06:31:20 -0500
+	id <S265798AbTA2L4e>; Wed, 29 Jan 2003 06:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265798AbTA2LbU>; Wed, 29 Jan 2003 06:31:20 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:2833 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S265667AbTA2LbT>;
-	Wed, 29 Jan 2003 06:31:19 -0500
-Date: Wed, 29 Jan 2003 12:40:32 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: linux-ns83820@kvack.org
-Subject: Problems with 83820 driver / 2.4.20 and above
-Message-Id: <20030129124032.55983208.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S265806AbTA2L4e>; Wed, 29 Jan 2003 06:56:34 -0500
+Received: from mail2.webart.de ([195.30.14.11]:10246 "EHLO mail2.webart.de")
+	by vger.kernel.org with ESMTP id <S265798AbTA2L4e>;
+	Wed, 29 Jan 2003 06:56:34 -0500
+Message-ID: <398E93A81CC5D311901600A0C9F29289469398@cubuss2>
+From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
+To: "'Horst von Brand'" <brand@jupiter.cs.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: AW: Bootscreen 
+Date: Wed, 29 Jan 2003 12:56:37 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+> Right.
+> 
+> Q: It hangs when booting! Just get to see the cute penguin
+>    (whatshisnameagain?)
+> 
+> A: What version of Linux? What exactly did the bird do before hanging?
+BTW,
+>    his (her?) name is Tux
+> 
+> Q: Oh, yo mean like $BIG_DISTRO 10.7.3? Yep, Tux winked.
+> 
+> A. No, the kernel version... [longish explanation deleted]. And exactly
+how
+>    many times did he wink? Which wings? Did he waddle about? How many
+>    steps? Did he blink? Did you install wink-blink-boot version 27.3, or
+>    are you still with the older one?
 
-I would like to give a short description of a box that has some weird flaws within several days and I cannot really nail down the reason. Box looks like:
+C'moon! It'd make IT so much more interesting and fun!
+Think of all the increased communication skills mankind
+would develop through this!
 
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:10.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-00:11.0 Ethernet controller: National Semiconductor Corporation DP83820 10/100/1000 Ethernet Controller
-00:12.0 PCI bridge: Digital Equipment Corporation DECchip 21150 (rev 06)
-00:14.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
-01:00.0 VGA compatible controller: S3 Inc. 86c368 [Trio 3D/2X] (rev 02)
-02:05.0 Ethernet controller: National Semiconductor Corporation DP83820 10/100/1000 Ethernet Controller
-02:07.0 Ethernet controller: National Semiconductor Corporation DP83820 10/100/1000 Ethernet Controller
-02:09.0 Ethernet controller: National Semiconductor Corporation DP83820 10/100/1000 Ethernet Controller
+Seriously, *laughs*, I don't think debugging user problems
+would escalate into such a scenario. Let me again point out
+my proposal:
 
-on 2.4.21-pre4 (but is all the same with 2.4.20 and above, haven't tested older kernels yet)
+There is *one* line of boot messages shown. Whenever the
+System hangs, you will see the last message. Carefully
+designed messages will greatly help, of course.
 
-I experience kernel oopses _or_ segfaults every few days like:
-
-Jan 28 01:27:03 core-2 kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000001
-Jan 28 01:27:03 core-2 kernel:  printing eip:
-Jan 28 01:27:03 core-2 kernel: c012e114
-Jan 28 01:27:03 core-2 kernel: *pde = 00000000
-Jan 28 01:27:03 core-2 kernel: Oops: 0002
-Jan 28 01:27:03 core-2 kernel: CPU:    0
-Jan 28 01:27:03 core-2 kernel: EIP:    0010:[shrink_cache+180/784]    Not tainted
-Jan 28 01:27:03 core-2 kernel: EIP:    0010:[<c012e114>]    Not tainted
-Jan 28 01:27:03 core-2 kernel: EFLAGS: 00010246
-Jan 28 01:27:03 core-2 kernel: eax: c0257db8   ebx: 00000000   ecx: c19102a4   edx: 00000001
-Jan 28 01:27:03 core-2 kernel: esi: c1910288   edi: 00006b24   ebp: c0257f30   esp: c19d7f40
-Jan 28 01:27:03 core-2 kernel: ds: 0018   es: 0018   ss: 0018
-Jan 28 01:27:03 core-2 kernel: Process kswapd (pid: 4, stackpage=c19d7000)
-Jan 28 01:27:03 core-2 kernel: Stack: c1835200 000001d0 c19d6000 00000200 000001d0 0000001f 00000020 000001d0 
-Jan 28 01:27:03 core-2 kernel:        00000020 00000006 c012e4c3 00000006 e2e4a000 c0257f30 00000006 000001d0
-Jan 28 01:27:03 core-2 kernel:        c0257f30 00000000 c012e536 00000020 c0257f30 00000001 c19d6000 c012e64c
-Jan 28 01:27:03 core-2 kernel: Call Trace:    [shrink_caches+99/160] [try_to_free_pages_zone+54/80] [kswapd_balance_pgdat+92/176] [ksw
-Jan 28 01:27:03 core-2 kernel: Call Trace:    [<c012e4c3>] [<c012e536>] [<c012e64c>] [<c012e6c8>] [<c012e7fd>]
-Jan 28 01:27:03 core-2 kernel:   [rest_init+0/64] [kernel_thread+46/64] [kswapd+0/192]
-Jan 28 01:27:03 core-2 kernel:   [<c0105000>] [<c010578e>] [<c012e760>]
-Jan 28 01:27:03 core-2 kernel: 
-Jan 28 01:27:03 core-2 kernel: Code: 89 02 c7 01 00 00 00 00 89 50 04 a1 b8 7d 25 c0 89 48 04 89
-
-The only thing I can say for sure, that something is wrong with the NS drivers because there are 4 such cards in and they say this:
-
-eth0: link now 1000 mbps, full duplex and up.
-eth1: link now down.
-eth2: link now 10 mbps, full duplex and up.
-eth3: link now 1000 mbps, full duplex and up.
-eth1: link now 10 mbps, half duplex and up.
-
-But there are in fact 3 (eth0, eth2, eth3) connected to 1000 TX switches and one (eth1) to 100TX switches (all full duplex). The switches tell me, that eth0 and eth3 are as expected, whereas eth2 is indeed only connected with 10 mbps, whereas eth1 is correctly connected with 100 mbps/fdx. All in all I would say that the link detection in this driver is broken somehow.
-I can test patches if there are any.
-Any hints appreciated.
--- 
-Regards,
-Stephan
+- Raphael

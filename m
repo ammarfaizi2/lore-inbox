@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUJWEQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUJWERq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUJWEQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 00:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUJWEPJ
+	id S267469AbUJWERq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 00:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUJWERd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 00:15:09 -0400
-Received: from imap.gmx.net ([213.165.64.20]:59806 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264246AbUJVRd2 (ORCPT
+	Sat, 23 Oct 2004 00:17:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41646 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267469AbUJWEOr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 13:33:28 -0400
-X-Authenticated: #14776911
-From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
-Reply-To: stefandoesinger@gmx.at
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
-Date: Fri, 22 Oct 2004 19:31:37 +0200
-User-Agent: KMail/1.7
-Cc: "Matthew Garrett" <mgarrett@chiark.greenend.org.uk>,
-       linux-kernel@vger.kernel.org
-References: <88056F38E9E48644A0F562A38C64FB6003287C77@scsmsx403.amr.corp.intel.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6003287C77@scsmsx403.amr.corp.intel.com>
+	Sat, 23 Oct 2004 00:14:47 -0400
+Date: Fri, 22 Oct 2004 21:14:39 -0700
+Message-Id: <200410230414.i9N4Edia027359@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200410221931.37557.stefandoesinger@gmx.at>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: Linus Torvalds <torvalds@osdl.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: BUG_ONs in signal.c?
+In-Reply-To: Andrew Morton's message of  Friday, 22 October 2004 20:47:51 -0700 <20041022204751.3f7a3b1f.akpm@osdl.org>
+X-Windows: all the problems and twice the bugs.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Once group_exit is set, it should never be cleared and group_exit_code
+should never be changed.  It's set at the beginning of do_coredump.  If
+do_coredump returned nonzero, there should be no way group_exit_code could
+have changed from the value do_coredump set.  If you hit one of those
+BUG_ON checks, there is a problem I don't understand.  I would like to know
+how to reproduce it.
 
-> Actually I sent the kernel patch to call some userlevel vgapost utility
-> on this same thread around a week back. I am sending it here again.
->
-> I don't think sending a big userlevel code tar file is appropriate on
-> lkml.
-> I will send that in a separate mail to Matthew and Stefan. If anyone
-> else
-> wants to play with it, just let me know.
->
-> It works for me on various systems with Radeon card. It didn't help on
-> systems with Intel Graphics card.
-Works for me too. You can add "Acer Travelmate 800" to the it_works_on 
-list ;-)
 
-> Stefan: Yes. Usermodehelper won't work during the driver resume. But, it
->
-> works later after the kernel threads are woken up. With attached patch
-> and
-> with user level vgapost I can get video back, both on X and VGA console.
-> It doesn't help with framebuffer, as the framebuffer reinitialization
-> happens during the driver resume, which is earlier than this vgapost
-> call.
-I expected this, but I hoped that it works somehow with radeonfb.
-
-Stefan
+Thanks,
+Roland

@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267161AbSKTBQY>; Tue, 19 Nov 2002 20:16:24 -0500
+	id <S267167AbSKTBVq>; Tue, 19 Nov 2002 20:21:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267167AbSKTBQY>; Tue, 19 Nov 2002 20:16:24 -0500
-Received: from mailhost.cotse.com ([216.112.42.58]:51208 "EHLO
-	mailhost.cotse.com") by vger.kernel.org with ESMTP
-	id <S267161AbSKTBQY>; Tue, 19 Nov 2002 20:16:24 -0500
-Message-ID: <YWxhbg==.fbe902c8c023f46b8c6a468b793820bf@1037755344.cotse.net>
-Date: Tue, 19 Nov 2002 20:22:24 -0500 (EST)
-X-Abuse-To: abuse@cotse.com
-Subject: MAX_ARG_PAGES
-From: "Alan Willis" <alan@cotse.net>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Reply-To: alan@cotse.com
-X-Mailer: www.cotse.net
+	id <S267276AbSKTBVq>; Tue, 19 Nov 2002 20:21:46 -0500
+Received: from mtl.slowbone.net ([213.237.73.175]:24449 "EHLO
+	leeloo.slowbone.net") by vger.kernel.org with ESMTP
+	id <S267167AbSKTBVp>; Tue, 19 Nov 2002 20:21:45 -0500
+Message-ID: <3DDAE54F.4010808@slowbone.net>
+Date: Wed, 20 Nov 2002 02:28:47 +0100
+From: =?ISO-8859-1?Q?Thorbj=F8rn_Lind?= <mtl@slowbone.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 2.5.48-bk, md raid0 fix
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fixes the 'BUG at drivers/block/ll_rw_blk.c:19xx' when using raid0 md devices since 2.5.45...
 
-   Recently I had a user who needed to remove 17k files all at once and
-received the message 'rm: Argument list too long'.  In his case an rm
--rf on the directory itself solved his problem, but after a quick web
-search, it seems that the value of MAX_ARG_PAGES in
-include/linux/binfmts.h (32) is responsible for this limitation.  Could
-this value possibly be increased safely?  I'm curious, is there some
-other limitation that has been breached in the 2.5 series that would
-make it safer to increase MAX_ARG_PAGES?
+/tul
 
--alan
+--- a/drivers/md/raid0.c	2002-11-18 05:29:46.000000000 +0100
++++ b/drivers/md/raid0.c	2002-11-20 01:12:08.000000000 +0100
+@@ -173,15 +173,14 @@
+  static int raid0_mergeable_bvec(request_queue_t *q, struct bio *bio, struct bio_vec *biovec)
+  {
+  	mddev_t *mddev = q->queuedata;
+-	sector_t block;
+-	unsigned int chunk_size;
+-	unsigned int bio_sz;
+-
+-	chunk_size = mddev->chunk_size >> 10;
+-	block = bio->bi_sector >> 1;
+-	bio_sz = (bio->bi_size + biovec->bv_len) >> 10;
+-
+-	return (chunk_size - ((block & (chunk_size - 1)) + bio_sz)) << 10;
++	unsigned int max_size;
++
++	max_size = mddev->chunk_size - ((bio->bi_sector % (mddev->chunk_size >> 9)) << 9);
++
++	if(biovec->bv_len <= (max_size - bio->bi_size))
++	    return biovec->bv_len;
++
++	return max_size - bio->bi_size;
+  }
 
+  static int raid0_run (mddev_t *mddev)
 

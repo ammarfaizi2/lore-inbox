@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287439AbSA3AZE>; Tue, 29 Jan 2002 19:25:04 -0500
+	id <S287516AbSA3A0f>; Tue, 29 Jan 2002 19:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287595AbSA3AYs>; Tue, 29 Jan 2002 19:24:48 -0500
-Received: from terminus.zytor.com ([64.158.222.227]:16015 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP
-	id <S287532AbSA3AXb>; Tue, 29 Jan 2002 19:23:31 -0500
-Message-Id: <200201300023.g0U0NQZ26438@terminus.zytor.com>
-Subject: master.kernel.org down
-To: linux-kernel@vger.kernel.org
-Date: Tue, 29 Jan 2002 12:54:25 -0800 (PST)
-From: hpa@zytor.com (H. Peter Anvin)
+	id <S287518AbSA3A0L>; Tue, 29 Jan 2002 19:26:11 -0500
+Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:54157 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id <S287493AbSA3AXN>;
+	Tue, 29 Jan 2002 19:23:13 -0500
+Date: Tue, 29 Jan 2002 19:23:03 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+Message-ID: <20020129192303.A14739@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200201292332.g0TNWwU21215@snark.thyrsus.com> <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201291538530.1747-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
+On Tue, Jan 29, 2002 at 03:50:43PM -0800, Linus Torvalds wrote:
+> > Ah.  So being listed in the maintainers list doesn't mean someone is actually
+> > a maintainer it makes sense to forward patches to?
+> 
+> Sure it does.
+> 
+> It just doesn't mean that they should send stuff to _me_.
+> 
+> Did you not understand my point about scalability?  I can work with a
+> limited number of people, and those people can work with _their_ limited
+> number of people etc etc.
+> 
+> The MAINTAINERS file is _not_ a list of people I work with on a daily
+> basis. In fact, I don't necessarily even recognize the names of all those
+> people.
 
-master.kernel.org is currently offline; it seems that some of the
-preparation work for doing an OS upgrade later this week backfired and
-triggered a problem (not necessarily a bug -- this was more in the
-class of pilot error) with the RAID controller.  We are trying to
-bring it back online, but it might take a while; if we can't we will
-restore it from backups.
+I understand that the sort of careful hierarchy that drives this
+process is, by nature, an informal thing.  But it would still be nice
+if _suggestions_ on how it worked were written down somewhere.  When
+you've got patches that don't have a clear relevant maintainer, it
+would be nice to have something more specific than "post to
+linux-kernel and pray someone picks it up" to run with!
 
-In the meantime ftp.kernel.org et al will operate normally, but will
-not receive new updates.
-
-	-hpa
-
-[Apologies if this is a duplicate.  This hasn't been the only disaster
-today.]
+-- 
+Daniel Jacobowitz                           Carnegie Mellon University
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVAJUQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVAJUPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbVAJUQH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVAJUPs
+	id S262476AbVAJUPY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVAJUME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 15:15:48 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:26860 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262455AbVAJUNN
+	Mon, 10 Jan 2005 15:12:04 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:20705 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262469AbVAJUID
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 15:13:13 -0500
-Date: Mon, 10 Jan 2005 12:13:07 -0800
+	Mon, 10 Jan 2005 15:08:03 -0500
+Date: Mon, 10 Jan 2005 12:08:00 -0800
 From: Nishanth Aravamudan <nacc@us.ibm.com>
 To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [KJ] [announce] 2.6.10-bk13-kj
-Message-ID: <20050110201307.GB9186@us.ibm.com>
+Subject: [UPDATE PATCH] drivers/dmapool: use TASK_UNINTERRUPTIBLE instead of TASK_INTERRUPTIBLE
+Message-ID: <20050110200800.GA9186@us.ibm.com>
 References: <20050110164703.GD14307@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -33,27 +33,24 @@ On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
 
 <snip>
 
-> msleep_interruptible-drivers_block_cciss.patch
+> msleep_interruptible-drivers_base_dmapool.patch
 
-Please consider replacing with the following patch:
-
-Description: Use msleep() instead of schedule_timeout() to guarantee the task
-delays as expected. TASK_INTERRUPTIBLE is used currently, however signals /
-early returns from schedule_timeout() are not checked for. Thus msleep() is more
-appropriate.
+Please replace with the following patch. msleep_interruptible() is not
+appropriate for this delay, as the waitqueue events will be missed.
+TASK_UNINTERRUPTIBLE should be used instead of TASK_INTERRUPTIBLE, though, as
+signals are not checked for.
 
 Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
---- 2.6.10-v/drivers/block/cciss.c	2004-12-24 13:35:39.000000000 -0800
-+++ 2.6.10/drivers/block/cciss.c	2005-01-10 12:10:50.000000000 -0800
-@@ -2430,8 +2430,7 @@ static int cciss_pci_init(ctlr_info_t *c
- 		scratchpad = readl(c->vaddr + SA5_SCRATCHPAD_OFFSET);
- 		if (scratchpad == CCISS_FIRMWARE_READY)
- 			break;
--		set_current_state(TASK_INTERRUPTIBLE);
--		schedule_timeout(HZ / 10); /* wait 100ms */
-+		msleep(100);			/* wait 100ms */
- 	}
- 	if (scratchpad != CCISS_FIRMWARE_READY) {
- 		printk(KERN_WARNING "cciss: Board not ready.  Timed out.\n");
+--- 2.6.10-v/drivers/base/dmapool.c	2004-12-24 13:35:28.000000000 -0800
++++ 2.6.10/drivers/base/dmapool.c	2005-01-10 12:05:08.000000000 -0800
+@@ -293,7 +293,7 @@ restart:
+ 		if (mem_flags & __GFP_WAIT) {
+ 			DECLARE_WAITQUEUE (wait, current);
+ 
+-			current->state = TASK_INTERRUPTIBLE;
++			set_current_state(TASK_UNINTERRUPTIBLE);
+ 			add_wait_queue (&pool->waitq, &wait);
+ 			spin_unlock_irqrestore (&pool->lock, flags);
+ 

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289533AbSA2LwJ>; Tue, 29 Jan 2002 06:52:09 -0500
+	id <S289619AbSA2L55>; Tue, 29 Jan 2002 06:57:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289578AbSA2LvD>; Tue, 29 Jan 2002 06:51:03 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:38664 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S289516AbSA2Ltm>; Tue, 29 Jan 2002 06:49:42 -0500
-Message-ID: <3C568C52.2060707@evision-ventures.com>
-Date: Tue, 29 Jan 2002 12:49:38 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, pl
+	id <S289532AbSA2L4l>; Tue, 29 Jan 2002 06:56:41 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:41988 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S289516AbSA2LzE>; Tue, 29 Jan 2002 06:55:04 -0500
+Message-ID: <3C568D6D.ACDEA36C@aitel.hist.no>
+Date: Tue, 29 Jan 2002 12:54:21 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-dj6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com> <200201290137.g0T1bwB24120@karis.localdomain> <a354iv$ai9$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Momchil Velikov <velco@fadata.bg>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.44.0201281918050.18405-100000@waste.org>
+		<87lmehft5b.fsf@fadata.bg> <E16VU2h-00009Y-00@starship.berlin> <87g04pfr8y.fsf@fadata.bg>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Momchil Velikov wrote:
+> 
+> >>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
+[...]
+> Daniel> It's only touching the ptes on tables that are actually used, so if a parent
+> Daniel> with a massive amount of mapped memory forks a child that only instantiates
+> Daniel> a small portion of it (common situation) then the saving is pretty big.
+> 
+> Umm, all the ptes af the parent ought to be made COW, no ?
 
->Some thinking, for one thing.
->
->One "patch penguin" scales no better than I do. In fact, I will claim
->that most of them scale a whole lot worse. 
->
-Bla bla bla... Just tell how frequenty do I have to tell the world, that 
-the read_ahead array is a write
-only variable inside the kernel and therefore not used at 
-all?????!!!!!!!!!!
+Sure. But quite a few of them may be COW already, if the parent 
+itself is a result of some earlier fork.
 
-
+Helge Hafting

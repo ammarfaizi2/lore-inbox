@@ -1,102 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317397AbSFMBps>; Wed, 12 Jun 2002 21:45:48 -0400
+	id <S317398AbSFMBui>; Wed, 12 Jun 2002 21:50:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317398AbSFMBpr>; Wed, 12 Jun 2002 21:45:47 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:18493 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S317397AbSFMBpl>; Wed, 12 Jun 2002 21:45:41 -0400
-Date: Thu, 13 Jun 2002 02:45:40 +0100
-From: Anton Altaparmakov <aia21@mole.bio.cam.ac.uk>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.21 Nonlinear CPU support
-In-Reply-To: <3D07F797.6030007@zytor.com>
-Message-ID: <Pine.SGI.4.33.0206130241230.4638397-100000@mole.bio.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317399AbSFMBuh>; Wed, 12 Jun 2002 21:50:37 -0400
+Received: from 12-226-168-48.client.attbi.com ([12.226.168.48]:24201 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id <S317398AbSFMBug>; Wed, 12 Jun 2002 21:50:36 -0400
+Date: Wed, 12 Jun 2002 21:50:14 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Cc: fgouget@free.fr
+Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
+Message-Id: <20020612215014.6c2aeaf6.kwall@kurtwerks.com>
+In-Reply-To: <Pine.LNX.4.43.0206121735350.17355-100000@amboise.dolphin>
+Organization: KurtWerks *Isn't* Organized
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Jun 2002, H. Peter Anvin wrote:
-> Anton Altaparmakov wrote:
-> >
-> > The code would be run outside the critical region... But correct about
-> > the race. I thought that was obvious and wasn't suggesting the above to be
-> > the actual code... That was supposed to be obvious from lack of error
-> > handling etc... Never mind. My mistake, I should have been more precise
-> > the first time round, here is the actual code I had in mind:
-> >
-> > [snip]
-> > 	if (unlikely(!ntfs_compression_buffers)) {
-> > 		int err;
-> >
-> > 		/*
-> > 		 * This code path only ever triggers once so we take it
-> > 		 * out of line.
-> > 		 */
-> > 		if ((err = try_to_allocate_compression_buffers())) {
-> > 			// TODO: do appropriate cleanups
-> > 			return err;
-> > 		}
-> > 	}
-> > 	disable_preempt();
-> > 	cb = ntfs_compression_buffers[smp_processor_id()];
-> > [snip]
-> >
-> > and try_to_allocate_compression_buffers would be:
-> >
-> > int try_to_allocate_compression_buffers(void)
-> > {
-> > 	int err = 0;
-> >
-> > 	down(&ntfs_lock);
-> > 	if (likely(!ntfs_compression_buffers))
-> > 		err = allocate_compression_buffers();
-> > 	up(&ntfs_lock);
-> > 	return err;
-> > }
-> >
-> > and allocate_compression_buffers() is the same as it is now. Actually I
-> > was going to fuse try_to_allocate and allocate into one function but as I
-> > am showing above it is clearer to see what I had in mind...
-> >
-> > Happy now? This basically just defers the allocation to a bit later. As it
-> > is at the moment the allocation happens at mount time of a partition which
-> > supports compression. Note that the code in super.c would still need to
-> > exist due to reference counting so we know when we can free the buffers
-> > again. The only thing changed in super.c will be to remove the actual call
-> > to allocate_compression_buffers, all else stays in place. Otherwise we
-> > have no way to tell when we can throw away the buffers.
+Also sprach Francois Gouget:
 >
-> I presume allocate_compression_buffers() allocates *all* buffers, and
-> doesn't return error if there is nothing to allocate?  If so, the above
-> code should be OK.
->
-> If allocate_compression_buffers() either doesn't check if it has already
-> allocated, or returns an error if buffers were already allocated, then
-> the above code is OK *EXCEPT IN THE CASE OF HOTSWAP CPUs*.
->
-> My originally proposed code allocated one buffer at a time, and should
-> be correct even in the presence of hotswap CPUs.
+> On Tue, 11 Jun 2002, Albert D. Cahalan wrote:
+> 
+> > Francois Gouget writes:
+> >
+> > > This looks like a bad idea. The reason is that the VFAT driver is
+> > > the wrong abstraction layer to support the '.lnk' files:
+> > >
+> > >  * on Windows if you open("foo.lnk") you get the .lnk file, not
+> > >  the file
+> > > it 'links' to. On Linux you would get the file it points to
+> > > instead which is a different behavior.
+> >
+> > That's a common Windows app bug which exists exactly because
+> > the Microsoft implementation is at the wrong abstraction layer.
+> 
+> No it is not a 'Windows app bug' bug. It is you who are mistaken
+> because you persist in believing that .lnk files are or are meant to
+> be symbolic links. They are not.
+> 
+> Unix has the exact equivalent to .lnk files. These are the '.dsektop'
+> files used by KDE and Gnome (they even used to be called '.kdelnk'
+> files in KDE 1).
 
-allocate_compression_buffers() currently allocates all buffers up
-smp_num_cpus which is fine without hotswap cpus. Once hotswap cpus path
-goes in, then the allocation will be (pseudo code):
+These files *are not* Unix files in the sense that they have universally
+understood or generally accepted semantics. They are artifacts of KDE and 
+GNOME and the window managers I use do not know how to interpret them, 
+except as plain vanilla text files.
 
-	for (i = 0; i < NR_CPUS; i++) {
-		if (cpu_possible(i)) {
-			ntfs_compression_buffer[i] = vmalloc();
-			// TODO handle errors
-		}
-	}
+Kurt
+-- 
+Canada Bill Jone's Motto:
+	It's morally wrong to allow suckers to keep their money.
 
-That means in words that we allocate buffers only once and for all
-existing cpu SOCKETS, i.e. including all potentially hotpluggable cpus
-which are currently offline. - If someone invents hotpluggable cpu sockets
-at some point then they should be burnt at the stake! (-;
-
-Best regards,
-
-	Anton
-
+Supplement:
+	A .44 magnum beats four aces.

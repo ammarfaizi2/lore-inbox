@@ -1,41 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264005AbUKZVSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbUKZVZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264005AbUKZVSe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:18:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUKZUTP
+	id S262738AbUKZVZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:25:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUKZVYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:19:15 -0500
-Received: from mail-relay-2.tiscali.it ([213.205.33.42]:60106 "EHLO
-	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
-	id S263968AbUKZT5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:57:35 -0500
-Date: Fri, 26 Nov 2004 02:04:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, bgagnon@coradiant.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrea Arcangeli <andrea@novell.com>, davem@redhat.com
-Subject: Re: Memory leak in 2.4.27 kernel, using mmap raw packet sockets
-Message-ID: <20041126010423.GI5904@dualathlon.random>
-References: <OFDDC77A23.4D34536B-ON85256F2D.00514F15-85256F2D.00517F52@coradiant.com> <20041015182352.GA4937@logos.cnet> <1097980764.13226.21.camel@localhost.localdomain> <20041125150206.GF16633@logos.cnet> <20041125203248.GD5904@dualathlon.random> <20041125171242.GL16633@logos.cnet> <20041125231313.GG5904@dualathlon.random> <20041125194509.GN16633@logos.cnet>
+	Fri, 26 Nov 2004 16:24:47 -0500
+Received: from fallback.mail.elte.hu ([157.181.151.13]:9961 "EHLO
+	fallback.mail.elte.hu") by vger.kernel.org with ESMTP
+	id S264029AbUKZUOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:14:08 -0500
+Date: Thu, 25 Nov 2004 15:44:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch, 2.6.10-rc2] floppy boot-time detection fix
+Message-ID: <20041125144440.GA8022@elte.hu>
+References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu> <20041124112745.GA3294@elte.hu> <21889.195.245.190.93.1101377024.squirrel@195.245.190.93> <20041125120133.GA22431@elte.hu> <20041125143337.GA32051@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041125194509.GN16633@logos.cnet>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20041125143337.GA32051@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 25, 2004 at 05:45:09PM -0200, Marcelo Tosatti wrote:
-> Oh the VM_IO enforcement has been there for ages.
 
-VM_IO is there for ages, but it wasn't used by all drivers, this is why
-we got the problem... ;)
+> +	current->state = TASK_UNINTERRUPTIBLE;
+> +	schedule_timeout(HZ/100 + 1);
 
-> Sure, I'll comment the BUG() off during 2.4.29-rc.
-> 
-> How does that sound?
+should use msleep() of course:
 
-Sounds good ;)
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/drivers/block/floppy.c.orig
++++ linux/drivers/block/floppy.c
+@@ -4504,6 +4504,12 @@ int __init floppy_init(void)
+ 		floppy_track_buffer = NULL;
+ 		max_buffer_sectors = 0;
+ 	}
++	/*
++	 * Small 10 msec delay to let through any interrupt that
++	 * initialization might have triggered, to not
++	 * confuse detection:
++	 */
++	msleep(10);
+ 
+ 	for (i = 0; i < N_FDC; i++) {
+ 		fdc = i;

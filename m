@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263026AbRE1K3E>; Mon, 28 May 2001 06:29:04 -0400
+	id <S261357AbRE1Kou>; Mon, 28 May 2001 06:44:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263027AbRE1K2y>; Mon, 28 May 2001 06:28:54 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:47698 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S263026AbRE1K2o>; Mon, 28 May 2001 06:28:44 -0400
-Date: Mon, 28 May 2001 13:28:31 +0300
-From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: Re: initrd oops with 2.4.5ac2: Tthe other oops remains (one fixed)
-Message-ID: <20010528132831.Q11981@niksula.cs.hut.fi>
-In-Reply-To: <20010526225825.A31713@lightning.swansea.linux.org.uk> <20010527192650.H11981@niksula.cs.hut.fi> <20010528001220.M11981@niksula.cs.hut.fi> <20010528102551.N11981@niksula.cs.hut.fi> <20010528180254.380908d8.masaruk@gol.com> <20010528130507.P11981@niksula.cs.hut.fi>
+	id <S263027AbRE1Kok>; Mon, 28 May 2001 06:44:40 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:10740 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261357AbRE1Koa>; Mon, 28 May 2001 06:44:30 -0400
+Date: Mon, 28 May 2001 10:37:50 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Steve Dodd <steved@loth.demon.co.uk>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, ext3-users@redhat.com,
+        Florian Lohoff <flo@rfc822.org>, linux-kernel@vger.kernel.org
+Subject: Re: ext3 message if FS is not ext3
+Message-ID: <20010528103750.C12466@redhat.com>
+In-Reply-To: <20010523140013.A883@paradigm.rfc822.org> <20010523130616.B8080@redhat.com> <20010526105439.A7302@lilith.loth.demon.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010528130507.P11981@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Mon, May 28, 2001 at 01:05:07PM +0300
+In-Reply-To: <20010526105439.A7302@lilith.loth.demon.co.uk>; from steved@loth.demon.co.uk on Sat, May 26, 2001 at 10:54:39AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 28, 2001 at 01:05:07PM +0300, you [Ville Herva] claimed:
-> On Mon, May 28, 2001 at 06:02:54PM +0900, you [Masaru Kawashima] claimed:
-> > On Mon, 28 May 2001 10:25:51 +0300
-> > Ville Herva <vherva@mail.niksula.cs.hut.fi> wrote:
-> > > The oops call trace seems to be the same as in 
-> > > 
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=99079948404775&w=2
-> > > 
-> > > Any ideas?
-> > 
-> > Did you try the patch posted by Go Taniguchi <go@turbolinux.co.jp>?
-> > Following is the copy of his message and the patch itself.
-> > 
-> > --- linux/fs/block_dev.c.orig	Mon May 28 12:40:12 2001
-> > +++ linux/fs/block_dev.c	Mon May 28 12:40:12 2001
-> > @@ -602,6 +602,7 @@
-> >  	if (!bdev->bd_op->ioctl)
-> >  		return -EINVAL;
-> >  	inode_fake.i_rdev=rdev;
-> > +	inode_fake.i_bdev=bdev;
-> >  	init_waitqueue_head(&inode_fake.i_wait);
-> >  	set_fs(KERNEL_DS);
-> >  	res = bdev->bd_op->ioctl(&inode_fake, NULL, cmd, arg);
+Hi,
+
+On Sat, May 26, 2001 at 10:54:39AM +0100, Steve Dodd wrote:
+> On Wed, May 23, 2001 at 01:06:16PM +0100, Stephen C. Tweedie wrote:
+> > On Wed, May 23, 2001 at 02:00:13PM +0200, Florian Lohoff wrote:
 > 
-> Yes, I actually spotted the patch on l-k just a while ago and tried it.
+> > > i think this message should be removed ;)
+> [..]
+> > > VFS: Can't find an ext3 filesystem on dev fd(2,0).
 > 
-> It does fix the initrd case; I haven't tried the grub case, but I suspect it
-> still remains. Will try that as well asap.
+> > mount(8) tried to get the kernel to mount /dev/fd0 as an ext3
+> > filesystem.  The kernel is entitled to emit an error in that case.
+> > ext2 will complain too.
+> 
+> Shouldn't it be doing the mount 'silently' when mount(8) is guessing the
+> filesystem type? I'm seeing this too (2.2.19 + ext3 0.0.6b):
 
-The other OOPS (http://v.iki.fi/~vherva/tmp/bootlog.grub and
-http://v.iki.fi/~vherva/tmp/ksymoops-grub) still remains: 
+That's possible.  There is actually a "silent" parameter passed to the
+filesystem mount routines in the kernel.  Unfortunately, it's actually
+encoded as a "mount-root" parameter, and it gets used when attempting
+the initial root mount when we don't know the filesystem type in
+advance.  Ext2/ext3 interpret the mount-root parameter as an
+instruction to fail silently, but I'm not sure whether there are other
+filesystems which actually use it as a hint to treat the root
+differently.  If so, we can't overload that parameter to mean
+go-silent.  That's no big deal, we can create a new MS_* flag for
+it in that case.
 
->>EIP; c014259a <find_inode+1a/50>   <=====
-Trace; c0142995 <iget4+45/d0>
-Trace; c012a492 <__alloc_pages+62/230>
-Trace; c0145c60 <proc_get_inode+40/100>
-Trace; c0145d4c <proc_read_super+2c/b0>
-Trace; c01343e2 <read_super+62/b0>
-Trace; c01348ff <kern_mount+4f/b0>
-Trace; c0105000 <do_linuxrc+0/e0>
-Trace; c0100197 <L6+0/2>
-Code;  c014259a <find_inode+1a/50>
-00000000 <_EIP>:
-Code;  c014259a <find_inode+1a/50>   <=====
-   0:   39 7e 20                  cmp    %edi,0x20(%esi)   <=====
-Code;  c014259d <find_inode+1d/50>
-   3:   75 f1                     jne    fffffff6 <_EIP+0xfffffff6> c0142590
-<find_inode+10/50>
-Code;  c014259f <find_inode+1f/50>
-   5:   8b 44 24 14               mov    0x14(%esp,1),%eax
-Code;  c01425a3 <find_inode+23/50>
-   9:   39 86 90 00 00 00         cmp    %eax,0x90(%esi)
-Code;  c01425a9 <find_inode+29/50>
-   f:   75 e5                     jne    fffffff6 <_EIP+0xfffffff6> c0142590
-<find_inode+10/50>
-Code;  c01425ab <find_inode+2b/50>
-  11:   8b 54 24 00               mov    0x0(%esp,1),%edx
+> As the kernel (2.2 or 2.4) doesn't seem to provide a way for userspace to
+> request a silent mount, I don't know whose (if anyone's) bug this is.
 
+It's not a bug.  It is a missing feature, perhaps.
 
-2.4.2-2 (redhat) is fine; 2.4.4 vanilla oopses after probing PCI hardware
-(so it goes little further than 2.4.5ac2), and 2.4.5ac2 oopses after making
-page-cache hash table.
-
- 
--- v --
-
-v@iki.fi
+Cheers,
+ Stephen

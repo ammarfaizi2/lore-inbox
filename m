@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265654AbUABUXz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 15:23:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUABUXy
+	id S265655AbUABUf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 15:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265656AbUABUf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 15:23:54 -0500
-Received: from mail.kroah.org ([65.200.24.183]:39301 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265654AbUABUXi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 15:23:38 -0500
-Date: Fri, 2 Jan 2004 12:23:16 -0800
-From: Greg KH <greg@kroah.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: udev - please help me to understand
-Message-ID: <20040102202316.GD4992@kroah.com>
-References: <microsoft-free.87r7yiinaj.fsf@eicq.dnsalias.org>
+	Fri, 2 Jan 2004 15:35:58 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:14610 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265655AbUABUf5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 15:35:57 -0500
+Date: Fri, 2 Jan 2004 20:35:55 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Claas Langbehn <claas@rootdir.de>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS forced shutdown with kernel 2.6.0
+Message-ID: <20040102203555.A1420@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Valdis.Kletnieks@vt.edu, Claas Langbehn <claas@rootdir.de>,
+	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+References: <20040102095051.GA19872@rootdir.de> <20040102182921.A27237@infradead.org> <200401022027.i02KRe7X013502@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <microsoft-free.87r7yiinaj.fsf@eicq.dnsalias.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200401022027.i02KRe7X013502@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Fri, Jan 02, 2004 at 03:27:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02, 2004 at 09:48:36PM +1000, Steve Youngs wrote:
-> Hi Greg!
+On Fri, Jan 02, 2004 at 03:27:40PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Fri, 02 Jan 2004 18:29:21 GMT, Christoph Hellwig said:
 > 
-> I've been looking at this "udev" thingy and I can't for the life of me
-> see why I'd need it.  There doesn't appear to be _any_ advantages of
-> using udev in my present situation.
-
-Ok, great.  Then don't use it, I'm not forcing you to for 2.6 :)
-
-> No, I don't use devfs.
+> > I've seen the same bug a few times lately, but only if I had previous
+> > memory corruption due to code I was hacking on.  Can you reproduce it
+> > without the nvidia module loaded as that is likely source of such
+> > corruption?
 > 
-> I have zero hot-pluggable devices (that might change somewhere in the
-> distant future, but for now I don't have any).  And never in my wildest
-> dreams could I ever imagine running out of device numbers.
+> While you're at it, see what *else* you can turn off - RAID, devfs, NFS, etc.
 > 
-> Reading through the documentation that I've found about udev, your
-> main points seem to be about:
-> 
->         - udev vs devfs
->         - running out of device major/minor numbers
->         - not having to worry about major/minor numbers
-> 
-> For me, the first point is moot because I don't use devfs.  The second
-> point is just plain ridiculous, there is just _no_ way that it could
-> happen (remember that I'm talking about my own situation).  
+> It's equally likely that you're tripping over some other kernel module's
+> use-after-free or chase-the-wrong-pointer bug.  I've seen a lot more bugfixes
+> for *those* on this list than cases where "I turned off nvidia and it started
+> working".
 
-If you never have any hotpluggable devices, nor any need to move disks
-around in your system, then you don't need udev.
+The difference is that I can look at those while I can't look at nvidias
+driver. Pretty simple.
 
-Hope this helps,
-
-greg k-h

@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262566AbUKLQQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbUKLQb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbUKLQQw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 11:16:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbUKLQQv
+	id S262563AbUKLQb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 11:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbUKLQb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 11:16:51 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:43044 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262566AbUKLQQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 11:16:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=WDobHZkVniSkpOhmqVizyvXnQSMjD76X2XFG5bplVXAHMNvDSfUCvAeFxgBF5kR79MnqDLUbr63FFxb/SgOYBzj3/lI5+blXrSYXjCU//vbTD83P9aOhPMd4xOKU2LA1W6wv3f4IekpvLSVobRIQz7AeCQPIMYscpVgP6LdFJIE=
-Message-ID: <1a56ea390411120816c808c3c@mail.gmail.com>
-Date: Fri, 12 Nov 2004 16:16:40 +0000
-From: DaMouse <damouse@gmail.com>
-Reply-To: DaMouse <damouse@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6.10-rc1-mm5: REISER4_LARGE_KEY is still selectable
-Cc: Vladimir Saveliev <vs@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041112132343.GF2310@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 12 Nov 2004 11:31:56 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:18648 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262564AbUKLQal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 11:30:41 -0500
+Subject: Re: errors during umount make SysRq fail
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041111190428.GA997@elf.ucw.cz>
+References: <419101BE.1070400@gmx.net>  <20041111190428.GA997@elf.ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <20041111012333.1b529478.akpm@osdl.org>
-	 <20041111165045.GA2265@stusta.de>
-	 <1100243278.1490.42.camel@tribesman.namesys.com>
-	 <20041112132343.GF2310@stusta.de>
+Message-Id: <1100273236.25799.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 12 Nov 2004 15:27:17 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Nov 2004 14:23:43 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> On Fri, Nov 12, 2004 at 10:07:59AM +0300, Vladimir Saveliev wrote:
+On Iau, 2004-11-11 at 19:04, Pavel Machek wrote:
+> Hi!
 > 
-> > Hello
+> > having removed an USB disk while umount for it was still running (yes,
+> > that was stupid) I noticed that umount for this device hangs forever in
+> > D state. That would be ok (consequences for user error), however
 > 
-> Hi Vladimir,
-> 
-> > On Thu, 2004-11-11 at 19:50, Adrian Bunk wrote:
-> > > REISER4_LARGE_KEY is still selectable in reiser4-include-reiser4.patch
-> > > (and we agreed that it shouldn't be).
-> >
-> > Sorry, concerning this problem - what did we agree about?
-> 
-> depending on the setting of REISER4_LARGE_KEY, there are two binary
-> incompatible variants of reiser4 (which can't be both supported by one
-> kernel).
-> 
-> Therefore, REISER4_LARGE_KEY shouldn't be asked but always enabled.
-> 
-> 
-Is there a good reason to actually keep it in the kernel altogether?
-methinks ripping it out entirely would be nicer than setting a config
-default.
+> Actually, I do not think that is okay. USB disk removed while you are
+> unmounted it is quite simple case of disk error. umount should handle
+> it.
 
--DaMouse
+Nice theory but 2.6.9 has refcount errors in the eh thread and some
+other problems that mean this doesn't happen. It ought to be ok in 10rc1
+providing all the patches are merged now
 
-> 
-> cu
-> Adrian
-> 
--- 
-I know I broke SOMETHING but its their fault for not fixing it before me

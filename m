@@ -1,82 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264873AbTFLQIr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 12:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTFLQIr
+	id S264876AbTFLQMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 12:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbTFLQMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 12:08:47 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:32195 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S264873AbTFLQIp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 12:08:45 -0400
-Message-ID: <3EE8AB18.2060109@free.fr>
-Date: Thu, 12 Jun 2003 18:32:24 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Thu, 12 Jun 2003 12:12:53 -0400
+Received: from pat.uio.no ([129.240.130.16]:34693 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S264876AbTFLQMv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 12:12:51 -0400
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-References: <3EE66C86.8090708@free.fr>	<20030611211506.GD16164@fs.tum.de> <20030612160552.770bd15e.skraw@ithnet.com>
-In-Reply-To: <20030612160552.770bd15e.skraw@ithnet.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16104.43445.918001.683257@charged.uio.no>
+Date: Thu, 12 Jun 2003 09:26:29 -0700
+To: dipankar@in.ibm.com
+Cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+       Maneesh Soni <maneesh@in.ibm.com>
+Subject: Re: 2.5.70-bk16: nfs crash
+In-Reply-To: <20030612155345.GB1438@in.ibm.com>
+References: <20030612125630.GA19842@butterfly.hjsoft.com>
+	<20030612135254.GA2482@in.ibm.com>
+	<16104.40370.828325.379995@charged.uio.no>
+	<20030612155345.GB1438@in.ibm.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
-> On Wed, 11 Jun 2003 23:15:06 +0200
-> Adrian Bunk <bunk@fs.tum.de> wrote:
-> 
-> 
->>[...]
->>The important thing is that this is inside a stable kernel series and an 
->>update that makes things better for 100 people but makes things worse 
->>for one person is IMHO bad since it's a regression for one person.
-> 
-> 
-> You cannot fulfill that in reality. Looking at the broad variety of software
-> out there you simply cannot know all the implications a simple bug fix may
-> have. There may well be boxes that rely on a broken code you just fixed. Only
-> god knows. So you sometimes simply have to do "the right thing"(tm) knowing
-> there will always be people who shoot you for it.
+>>>>> " " == Dipankar Sarma <dipankar@in.ibm.com> writes:
 
+     > Does my patch meet the requirements that you had for __d_drop()
+     > ?
 
-Just to go a little bit more in that direction, I already have seen an 
-obvious one-line patch that caused a deadlock in another OS because due 
-to code location change and probably an additionnal cache miss on 
-specific part of the code, an existing synchronisation bug that was 
-never triggered started to effectively happen...
+I still need a real fix for d_move(). In addition, I'm getting worried
+about the changes in functionality that you've introduced here. It
+seems to me that your lockless scheme opens for a *lot* of races:
 
-Besides, if you please 1000 users and cause problem to 2 of them because 
-they have broken hardware, I think you are going into the right direction.
+Look at all those functions that take dcache_lock, and then test
+dentry->d_count. Unless I'm missing something here, your d_lookup()
+clearly has them all screwed, no?
 
- >The important sections are more likely (ordered by priority):
- > - bug fixes (e.g. aic7xxx)
- > - support for additional hardware (e.g. ACPI update)
- > - new features (e.g. XFS)
-
-
-Bug fixes are meant to make the 2.4 kernel more useable right? So I do 
-not reallly see the utimate difference with other things in your 
-category. What I was asking is a rationnal way of chosing the 
-priorities. You gave me yours without real explanation.
-
-The purpose of the original mail was to ask for discussion/clarification 
-on 2.4 development priorities (e.g something like the 2.6 todo list) and 
-a proposal to set up the priorities using generic targetted hardware 
-(server, laptop, desktop) as hint for requirement selection.
-
--- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
-
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
+Cheers,
+  Trond

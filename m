@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbUCRJ1n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 04:27:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbUCRJ1n
+	id S262465AbUCRJhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 04:37:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUCRJhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 04:27:43 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:40137 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S262455AbUCRJ1m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 04:27:42 -0500
-Subject: Re: XFree86 seems to be being wrongly accused of doing the wrong
-	thing
-From: Emmanuel Fleury <fleury@cs.auc.dk>
-To: Peter Williams <peterw@aurema.com>
-Cc: christian.guggenberger@physik.uni-regensburg.de,
-       Linux Kernel Mailing-list <linux-kernel@vger.kernel.org>
-In-Reply-To: <40594ADE.2020804@aurema.com>
-References: <1079593351.1830.12.camel@bonnie79>
-	 <40594ADE.2020804@aurema.com>
-Content-Type: text/plain
-Organization: Aalborg University -- Computer Science Dept.
-Message-Id: <1079601925.26668.2.camel@rade7.s.cs.auc.dk>
+	Thu, 18 Mar 2004 04:37:20 -0500
+Received: from gruby.cs.net.pl ([62.233.142.99]:48388 "EHLO gruby.cs.net.pl")
+	by vger.kernel.org with ESMTP id S262465AbUCRJhT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 04:37:19 -0500
+Date: Thu, 18 Mar 2004 10:37:15 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [PATCH 2.6][RESEND] fbcon margins colour fix
+Message-ID: <20040318093715.GB17838@gruby.cs.net.pl>
+References: <20040317233135.GB3510@satan.blackhosts> <Pine.GSO.4.58.0403181020320.10688@waterleaf.sonytel.be>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 18 Mar 2004 10:25:25 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0403181020320.10688@waterleaf.sonytel.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-18 at 08:08, Peter Williams wrote:
-> Christian Guggenberger wrote:
-> >>With 2.6.4 I'm getting the following messages very early in the boot 
-> >>long before XFree86 is started:
-> >>
-> >>Mar 18 16:05:31 mudlark kernel: atkbd.c: Unknown key released 
-> >>(translated set 2, code 0x7a on isa0060/serio0).
-> >>Mar 18 16:05:31 mudlark kernel: atkbd.c: This is an XFree86 bug. It 
-> >>shouldn't access hardware directly.
-> >>
-> >>They are repeated 6 times and are NOT the result of any keys being 
-> >>pressed or released.
-> > 
-> > 
-> > this has been fixed in XFree86 HEAD (4.4.99.1)
-> > see changelog entry nr. 6 - the changes can easily be backported to 4.3.0, and work as expected on my box.
-> > (no noise anymore)
+On Thu, Mar 18, 2004 at 10:21:31AM +0100, Geert Uytterhoeven wrote:
+> On Thu, 18 Mar 2004, Jakub Bogusz wrote:
+> > I sent it a few times to linux-kernel and at least one to
+> > linux-fbdev-devel, but haven't seen any comments - and this annoying
+> > changing margins colour seems to be still there in 2.6.4 (at least on
+> > tdfxfb).
 > 
-> I repeat.  These messages are appearing when XFree86 is NOT running so 
-> there is no way that it can be the cause of them.
+> What happens on `reverse video' (i.e. black on white, like Sun) graphics cards?
+> In that case the overscan color is white.
 
-I have the exact same behaviour on my machine.
+Uhm. What is palette entry for this white?
+Or, more generally, how to find (palette colour number of) overscan
+colour for current console?
+Video erase character colour is not proper one as it may be different
+even from background colour at the moment of vt switch.
 
-(my 2 cents)
 
-Regards
+
 -- 
-Emmanuel Fleury
-
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
-
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/

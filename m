@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129584AbRAJHl4>; Wed, 10 Jan 2001 02:41:56 -0500
+	id <S130846AbRAJHoG>; Wed, 10 Jan 2001 02:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130846AbRAJHlr>; Wed, 10 Jan 2001 02:41:47 -0500
-Received: from [213.97.45.174] ([213.97.45.174]:7155 "EHLO pau.intranet.ct")
-	by vger.kernel.org with ESMTP id <S129584AbRAJHl2>;
-	Wed, 10 Jan 2001 02:41:28 -0500
-Date: Wed, 10 Jan 2001 08:41:20 +0100 (CET)
-From: Pau <linux4u@wanadoo.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: xircom_tulip + NFS hanging interface
-In-Reply-To: <20010109171107.A1470@lightside.2y.net>
-Message-ID: <Pine.LNX.4.30.0101100835060.1297-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131941AbRAJHn4>; Wed, 10 Jan 2001 02:43:56 -0500
+Received: from ns.caldera.de ([212.34.180.1]:51986 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130846AbRAJHno>;
+	Wed, 10 Jan 2001 02:43:44 -0500
+Date: Wed, 10 Jan 2001 08:42:35 +0100
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010110084235.A365@caldera.de>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Christoph Hellwig <hch@ns.caldera.de>, migo@elte.hu,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010109221254.A10085@caldera.de> <Pine.LNX.4.10.10101091318181.2331-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.10.10101091318181.2331-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 09, 2001 at 01:26:44PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 09, 2001 at 01:26:44PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 9 Jan 2001, Christoph Hellwig wrote:
+> > > 
+> > > Look at sendfile(). You do NOT have a "bunch" of pages.
+> > > 
+> > > Sendfile() is very much a page-at-a-time thing, and expects the actual IO
+> > > layers to do it's own scatter-gather. 
+> > > 
+> > > So sendfile() doesn't want any array at all: it only wants a single
+> > > page-offset-length tuple interface.
+> > 
+> > The current implementations does.
+> > But others are possible.  I could post one in a few days to show that it is
+> > possible.
+> 
+> Why do you bother arguing, when I've shown you that even if sendfile()
+> _did_ do multiple pages, it STILL wouldn't make kibuf's the right
+> interface. You just snipped out that part of my email, which states that
+> the networking layer would still need to do better scatter-gather than
+> kiobuf's can give it for multiple send-file invocations.
 
-I've been getting problems all along the pre-2.4 series and 2.4 itself
-when I use NFS to play mp3 files with xmms.
+Simple.  Because I stated before that I DON'T even want the networking
+to use kiobufs in lower layers.  My whole argument is to pass a kiovec
+into the fileop instead of a page, because it makes sense for other
+drivers to use multiple pages, and doesn't hurt networking besides
+the cost of one kiobuf (116k) and the processor cycles for creating
+and destroying it once per sys_sendfile.
 
-The message in the logs is:
-tulip.c: outl_CSR6 too many attempts,csr5=0x60208100
+	Christoph
 
-After a few times the network stops working and it only recovers with the
-following sequence of commands:
-
-ifdown eth0 && ifup eth0 && ifconfig eth0 -promisc
-
-Without ifconfig eth0 -promisc it still doesn't get any packet.
-I have to stop and start the interface too ad -prmisc doesn't work alone.
-So this is the only sequence that works.
-
-The modules loaded are:
-Module                  Size  Used by
-nfs                    75136   1  (autoclean)
-lockd                  49680   1  (autoclean) [nfs]
-sunrpc                 59392   1  (autoclean) [nfs lockd]
-ide-cd                 26608   0  (autoclean)
-cdrom                  27104   0  (autoclean) [ide-cd]
-rtc                     5520   0  (unused)
-ipchains               32544   0  (unused)
-apm                     9088   2
-parport_pc             18880   1  (autoclean)
-lp                      5200   0  (autoclean)
-parport                27680   1  (autoclean) [parport_pc lp]
-autofs                 10784   1  (autoclean)
-xircom_tulip_cb        30832   1  (autoclean)
-serial_cb               1360   0  (autoclean) (unused)
-serial                 43344   0  (autoclean) [serial_cb]
-isa-pnp                29040   0  (autoclean) [serial]
-agpgart                16960   0  (unused)
-maestro                26880   1
-soundcore               3952   2  [maestro]
-uhci                   18672   0  (unused)
-usbcore                52304   2  [uhci]
-
-
-Thanks for your help
-Pau
-
+-- 
+Whip me.  Beat me.  Make me maintain AIX.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

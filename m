@@ -1,71 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129522AbQJaMP4>; Tue, 31 Oct 2000 07:15:56 -0500
+	id <S129531AbQJaMt0>; Tue, 31 Oct 2000 07:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129694AbQJaMPp>; Tue, 31 Oct 2000 07:15:45 -0500
-Received: from smtp2.Mountain.Net ([198.77.1.5]:50629 "EHLO
-	nabiki.mountain.net") by vger.kernel.org with ESMTP
-	id <S129522AbQJaMPf>; Tue, 31 Oct 2000 07:15:35 -0500
-Message-ID: <39FEB5CB.C9AE37E6@mountain.net>
-Date: Tue, 31 Oct 2000 07:06:35 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18pre13 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Fencepost error in ipv4/tulip?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129694AbQJaMtQ>; Tue, 31 Oct 2000 07:49:16 -0500
+Received: from odin.sinectis.com.ar ([216.244.192.22]:4363 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S129531AbQJaMtK>; Tue, 31 Oct 2000 07:49:10 -0500
+Date: Tue, 31 Oct 2000 09:47:55 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: linux-kernel@vger.kernel.org
+Subject: oopsen in 2.4.0-pre9
+Message-ID: <20001031094755.A1029@grulic.org.ar>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Sometimes it almost works. I sent test10-pre6 to another
-local machine (stock rh6.2). The problem box was running
-vanilla test10-pre5, i486, gcc-2.95.2. The ether setup is
-pnic2/tulip. mru is 1500.
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Here's what came out the other end:
+Several oops come up when using a lot of memory (using
+imagemagick on PIA00001.tif from photojournal.jpl.nasa.gov/tiff,
+on a 64MB machine, for example)
 
-$ md5sum test10-pre6.bz2
-d8453f77b50b48e7dafd683199cd132e  test10-pre6.bz2
-$ ls -l test10-pre6.bz2
--rw-r--r--    1 tleete   tleete     333190 Oct 28 04:44
-test10-pre6.bz2
-$ cp test10-pre6.bz2 test10-pre6.bz2.bad
-$ cp /mnt/floppy/test10-pre6.bz2 test10-pre6.bz2.good
-$ md5sum test10-pre6.bz2.good
-f71f05ce094e5c7cfabcb88a54e03e91  test10-pre6.bz2.good
-$ cmp -l test10-pre6.bz2.bad test10-pre6.bz2.good
->bad-good.cmp
+The weird thing is the oops happen *after* I've finished with
+imagemagick (or the gimp, or ...). In this particular situation
+netscape suddenly died, together with wmtime, and then the whole
+of X hung. I entered via the network, to find that xfs had died
+(explaining X's hanging), and as soon as I restarted X the whole
+box was gone. It still responded to pings, but even the active
+ssh session was dead and I couldn't get a new one.
 
-The md5sum of *.good agrees on both machines.
+Please email me if you need anything else (other than the
+attached ksymoops output, that is).
 
-[Summary of bad-good.cmp]
+-- 
+John Lenton (john@grulic.org.ar) -- Random fortune:
+1 + 1 = 3, for large values of 1.
 
-bad[28814-29694] = {\367,..good[n+2]..,\232,\167}
-good[28814-29694] = {\345,\125,\052,...}
+--BXVAT5kNtrzKuDFl
+Content-Type: application/octet-stream
+Content-Disposition: attachment; filename="oopsen.txt.gz"
+Content-Transfer-Encoding: base64
 
-bad[108003-110590] = {\070,\363,..good[n+2]..,\153,\344}
-good[108003-110590] = {\234,\003,\012,\152,...}
+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
 
-bad[307121-314366] = {\170,\363,..good[n+2]..,\201,\355}
-good[307121-314366] = {\101,\027,\351,\174,...}
-
-bad[330977-331744] = {\270,\363,..good[n+2]..,\321,\125}
-good[330977-331744] = {\235,\223,\045,\132,...}
-
-
-I'd expect the error always to be present if it were from
-miscompiling structs or bad userspace ftp. If it were
-simple, the first block of errors would have the same
-structure as the others.
-
-I am puzzled.
-
-Tom
+--BXVAT5kNtrzKuDFl--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290103AbSAWVPS>; Wed, 23 Jan 2002 16:15:18 -0500
+	id <S290104AbSAWVQi>; Wed, 23 Jan 2002 16:16:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290104AbSAWVPI>; Wed, 23 Jan 2002 16:15:08 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:48908 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S290103AbSAWVPC>;
-	Wed, 23 Jan 2002 16:15:02 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Date: Wed, 23 Jan 2002 22:14:49 +0100
+	id <S290105AbSAWVQ3>; Wed, 23 Jan 2002 16:16:29 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:28797 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S290104AbSAWVQO>; Wed, 23 Jan 2002 16:16:14 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: LISA GmbH
+To: Daniel Nofftz <nofftz@castor.uni-trier.de>
+Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
+Date: Wed, 23 Jan 2002 22:16:11 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.40.0201232148210.2478-100000@infcip10.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.40.0201232148210.2478-100000@infcip10.uni-trier.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: hot IDE change
-CC: linux-kernel@vger.kernel.org, ertzog@bk.ru
-X-mailer: Pegasus Mail v3.40
-Message-ID: <FBFD7B7521F@vcnet.vc.cvut.cz>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020123211611.8E0151458@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jan 02 at 15:56, Richard B. Johnson wrote:
-> > This question is more about hardware, but is also related to Linux.
-> > If I have a harddisk, plugged into the motherboard (IDE cable and power),
-> > can I turn it off, plugging out first power cable, then IDE cable.
-> > Can it harm harddisk or motherboard?
-> > If I can do it, then will Linux detect it back, if I make this 
-> > operation back: i.e. plug IDE cable, then power cable.
-> 
-> Linux doesn't care as long as it has been dismounted.
+On Wednesday, 23. January 2002 21:49, Daniel Nofftz wrote:
+> On Wed, 23 Jan 2002, Hans-Peter Jansen wrote:
+> > Hi Daniel & folks,
+> >
+> > just tried your patch on my (diskless) asus a7v133 (kt133) with 1.2 GHz
+> > Athlon. I normally had 14% base load spend in apmd-idled and a CPU temp.
+> > of 45°C. After getting it to work, I see a base load of around 1% (mostly
+> > spend in artsd), but CPU is only 1°-2° less now :-( I hoped, it it
+> > would be more). Nevertheless, it is a very important patch nowadays where
+> > temperature is the last technical barrier, and energy saving an economic
+> > necessity.
+>
+> hmmm ... 1°-2° lesser than apm or lesser than "without any powersafing
+> function" ?
 
-Do not forget to run 'sync' after you dismount it.
+Oups, should have quoted my config:
+2.4.18-pre4+
+linux-2.4.18-NFS_ALL.dif
+pnpbios.patch_latest
+apm-idle-2.diff
+btaudio-2.4.17.diff.gz
+bttv-0.7.88-2.4.17.diff.gz
+imon-0.0.2-2.4.12-hp
+00_nanosleep-5.dif
+ide.2.4.16.12102001.patch.bz2
 
-> So, you decide to pull the IDE cable first. Well, if you made
-> sure that all active bits were disconnected at the same time,
-> (grin), maybe you can get away with it.
+You see, I'm fiddleing with power saving quite some time.
 
-My non-hotpluggable bay first disconnect power, and it works fine,
-every friday evening for more than two years... But I have this
-device alone on its cable, so there is no traffic when I disconnect it.
-And I probably lost warranty by doing that.
- 
-> Now, do you want to plug in another drive? If the five-volts
-> isn't present before the +12V, you may back-feed the 5-volt
-> logic through its protection diodes. If this generates enough
+BTW: Would some enlighted kernel brain explain, why 
+    [ ]     RTC stores time in GMT
+is only available, when APM is enabled. Does this mean, I cannot
+define my RTC mode when using ACPI?
 
-Unless something changed behind my back, do not do it. As kernel
-have no idea that you removed drive, it will not invalidate its
-caches. Maybe you could workaround this (at least you have to ask
-it to rescan partition table), but I decided to not plug IDE HDD into
-machine when kernel runs. So I reboot my system on each Monday morning, 
-and I plug hdd in when BIOS checks memory. It resets your uptime to zero,
-but as I upgrade kernel much more often, it is not a big problem.
+> do you have entered the amd_disconnect=yes flag at boot-time (LILO ?)
 
-Only problem I had were ATAPI devices. There is stupid paragraph about
-creating `virtual' slave when none is present, in the ATAPI standard,
-and so even if you plug HDD into the box as a slave to ATAPI device,
-you'll not see it until you powercycle your ATAPI device... At least
-my Chineese CDROM behaves that way, so I put it on its own cable.
-                                    Best regards,
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
+Yup, it's called mknbi-linux here :)
 
+I'm going to check ACPI mode without your patch now.
 
+> > Many thanks and greetings from Berlin to Trier ;)
+> >   Hans-Peter
+>
+> thanks ... greetings back to you ... :)
+>
+> daniel
+>
+>
+> # Daniel Nofftz
+> # Sysadmin CIP-Pool Informatik
+> # University of Trier(Germany), Room V 103
+> # Mail: daniel@nofftz.de
+
+Cheers,
+  Hans-Peter

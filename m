@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbUGVTRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266917AbUGVTTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbUGVTRc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 15:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266913AbUGVTRc
+	id S266917AbUGVTTe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 15:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266913AbUGVTTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 15:17:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60310 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261159AbUGVTRU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 15:17:20 -0400
-Date: Thu, 22 Jul 2004 15:12:55 -0400
-From: Greg KH <greg@kroah.com>
-To: "Giacomo A. Catenazzi" <cate@pixelized.ch>
-Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@fs.tum.de>,
-       corbet@lwn.net, bgerst@didntduck.org, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Message-ID: <20040722191255.GA28813@kroah.com>
-References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org> <20040722070453.GA21907@kroah.com> <40FFA5BD.5000304@pixelized.ch>
+	Thu, 22 Jul 2004 15:19:34 -0400
+Received: from wblv-254-37.telkomadsl.co.za ([165.165.254.37]:9135 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266917AbUGVTTS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 15:19:18 -0400
+Subject: Re: [PATCH] delete devfs
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Greg KH <greg@kroah.com>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040721212745.GC18110@kroah.com>
+References: <20040721141524.GA12564@kroah.com>
+	 <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com>
+	 <1090444782.8033.4.camel@homer.blizzard.org>
+	 <20040721212745.GC18110@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y53Rxo76nXMfCBOi51Jh"
+Message-Id: <1090524122.10205.16.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40FFA5BD.5000304@pixelized.ch>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 22 Jul 2004 21:22:02 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 01:32:13PM +0200, Giacomo A. Catenazzi wrote:
-> 
-> The worse is the lack of stable name of devices, in udev too.
-> I.e. microcode loader (Intel CPU) needs a device, which was so
-> named (last time I controlled):
 
-When was the last time you _used_ the microcode device?
+--=-y53Rxo76nXMfCBOi51Jh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, there are still a small number of drivers that are not in sysfs,
-so udev doesn't know about them, but right now I'm guessing we cover
-about 95%.  I'm waiting for someone else to fix up the rest, if they
-really have one of those odd devices :)
+On Wed, 2004-07-21 at 23:27, Greg KH wrote:
 
-thanks,
+> As for "right now"?  Why not?  I'm just embracing the new development
+> model of the kernel :)
+>=20
 
-greg k-h
+There anything more about this in print?
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-y53Rxo76nXMfCBOi51Jh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBABPaqburzKaJYLYRAg7JAJ4tJRuS4H1OHw8jaWT1/++mHYINxwCgmcj0
+OHJTIIkA3GA9Q4ApXuPnHzU=
+=R9+S
+-----END PGP SIGNATURE-----
+
+--=-y53Rxo76nXMfCBOi51Jh--
+

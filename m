@@ -1,43 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276600AbRJCRhN>; Wed, 3 Oct 2001 13:37:13 -0400
+	id <S276607AbRJCRjX>; Wed, 3 Oct 2001 13:39:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276601AbRJCRhD>; Wed, 3 Oct 2001 13:37:03 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:55802 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S276600AbRJCRg5>; Wed, 3 Oct 2001 13:36:57 -0400
-Date: Wed, 3 Oct 2001 18:36:51 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Dave Jones <davej@suse.de>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+	id <S276601AbRJCRjN>; Wed, 3 Oct 2001 13:39:13 -0400
+Received: from pscgate.progress.com ([192.77.186.1]:9195 "EHLO
+	pscgate.progress.com") by vger.kernel.org with ESMTP
+	id <S276607AbRJCRjD>; Wed, 3 Oct 2001 13:39:03 -0400
 Subject: Re: [POT] Which journalised filesystem ?
-Message-ID: <20011003183651.D5209@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0110030938130.4835-100000@imladris.rielhome.conectiva> <Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de>
+From: "Sujal Shah" <sshah@progress.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011003190315.G21866@emma1.emma.line.org>
+In-Reply-To: <Pine.LNX.4.33L.0110030938130.4835-100000@imladris.rielhome.conectiva>
+	<Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de> 
+	<20011003190315.G21866@emma1.emma.line.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-rOTWRdgPaNdWsGf40jD5"
+X-Mailer: Evolution/0.14.99+cvs.2001.09.30.08.08 (Preview Release)
+Date: 03 Oct 2001 13:40:36 -0400
+Message-Id: <1002130861.8159.64.camel@pcsshah>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.30.0110031448460.16788-100000@Appserv.suse.de>; from davej@suse.de on Wed, Oct 03, 2001 at 02:54:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Oct 03, 2001 at 02:54:17PM +0200, Dave Jones wrote:
+--=-rOTWRdgPaNdWsGf40jD5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > Personally I like ext3 a lot.  I've been using it for almost a
-> > year now and it has never given me trouble.
-> 
-> I've similar experiences with ext3, except for one bad instance
-> recently when I put it on my laptop. Lots of asserts were triggered,
-> and on reboot it couldn't find the journal, the superblock,
-> or the backup superblocks. I spent a few hours trying to get data
-> back, and eventually gave up and reformatted as ext2.
+On Wed, 2001-10-03 at 13:03, Matthias Andree wrote:
+> On Wed, 03 Oct 2001, Dave Jones wrote:
+>=20
+> > Alan mentioned this was something to do with the IBM hard disk
+> > having strange write-cache properties that confuse ext3.
+>=20
+> hdparm -W0 /dev/hda is your friend.
 
-Which laptop?  I've seen several reports of disk corruption with
-recent kernels on certain laptops.
+Dumb question: when would you want it to be -W1?
 
-Cheers,
- Stephen
+I mean, I can imagine maybe media recording or something where you might
+*really* want the performance increase...  but generally speaking, I
+want my data to be there in case things blow up.
+
+does anyone know what the performance increase is?
+
+Sujal
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--=20
+---- Sujal Shah ---- PSC Labs (Progress Software) ----=20
+
+Now Playing: Ministry Of Sound - York - The Awakening
+
+--=-rOTWRdgPaNdWsGf40jD5
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA7u02UrdegDpOByoARAushAJ40Ri0qX0NcOzJ6wRl2OGP/68ckmACfVLaa
+kT6BnsiPt0ztE8bE/3xCvUg=
+=/bAs
+-----END PGP SIGNATURE-----
+
+--=-rOTWRdgPaNdWsGf40jD5--
+

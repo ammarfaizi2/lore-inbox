@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269418AbUJFRDo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269395AbUJFRDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269418AbUJFRDo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:03:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269390AbUJFRDg
+	id S269395AbUJFRDU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269392AbUJFQq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:03:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42630 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269421AbUJFQ7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 12:59:06 -0400
-Message-ID: <4164240E.1070706@redhat.com>
-Date: Wed, 06 Oct 2004 12:57:50 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>, root@chaos.analogic.com,
-       joris@eljakim.nl, linux-kernel@vger.kernel.org
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl>	<20041006080104.76f862e6.davem@davemloft.net>	<Pine.LNX.4.61.0410061110260.6661@chaos.analogic.com>	<20041006082145.7b765385.davem@davemloft.net>	<41640FE2.3080704@nortelnetworks.com> <20041006084128.38e9970d.davem@davemloft.net>
-In-Reply-To: <20041006084128.38e9970d.davem@davemloft.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 6 Oct 2004 12:46:56 -0400
+Received: from nimbus19.internetters.co.uk ([209.61.216.65]:20904 "HELO
+	nimbus19.internetters.co.uk") by vger.kernel.org with SMTP
+	id S269342AbUJFQhB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 12:37:01 -0400
+Subject: [PATCH] RFC. User space backtrace on segv
+From: Alex Bennee <kernel-hacker@bennee.com>
+To: "LinuxSH (sf)" <linuxsh-dev@lists.sourceforge.net>,
+       "Linux-SH (m17n)" <linux-sh@m17n.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Hackers Inc
+Message-Id: <1097080652.5420.34.camel@cambridge>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 06 Oct 2004 17:37:33 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> On Wed, 06 Oct 2004 09:31:46 -0600
-> Chris Friesen <cfriesen@nortelnetworks.com> wrote:
-> 
-> 
->>David S. Miller wrote:
->>
->>
->>>So if select returns true, and another one of your threads
->>>reads all the data from the file descriptor, what would you
->>>like the behavior to be for the current thread when it calls
->>>read?
->>
->>What about the single-threaded case?
-> 
-> 
-> Incorrect UDP checksums could cause the read data to
-> be discarded.  We do the copy into userspace and checksum
-> computation in parallel.  This is totally legal and we've
-> been doing it since 2.4.x first got released.
-> 
-> Use non-blocking sockets with select()/poll() and be happy.
+Hi,
 
+I hacked up this little patch to dump the stack and attempt to generate
+a back-trace for errant user-space tasks.
 
-I think you could also pass the MSG_ERRQUEUE flag to the recvfrom call 
-and receive the errored frame, eliminating the case where errored frames 
-might cause you to block on a read after a good return from a select call.
-Neil
+What:
+
+Generates a back-trace of the user application on (in this case) a segv
+caused by an unaligned access. This particular patch is against 2.4.22
+on the SH which is what I'm working with but there no reason it couldn't
+be more generalised.
+
+How:
+
+Its not the most intelligent approach as it basically walks up the stack
+reading values and seeing if the address corresponds to one of the
+processes executable VMA's. If it matches it assumes its the return
+address treats that section as a "frame"
+
+Why:
+
+I work with embedded systems and for a myriad of reasons doing a full
+core dump of the crashing task is a pain. Often just knowing the
+immediate call stack and local variables is enough to look at what went
+wrong with objdump -S.
+
+Questions:
+
+Have I replicated anything that is already hidden in the code base?
+Would this be useful (as a CONFIG_ option) for embedded systems?
+
 -- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+Alex, Kernel Hacker: http://www.bennee.com/~alex/
+
+"Mach was the greatest intellectual fraud in the last ten years."
+"What about X?"
+"I said `intellectual'."
+	;login, 9/1990
+

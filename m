@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264504AbTH2KVK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:21:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTH2KVK
+	id S264513AbTH2KP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTH2KP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:21:10 -0400
-Received: from aneto.able.es ([212.97.163.22]:53982 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S264504AbTH2KVE (ORCPT
+	Fri, 29 Aug 2003 06:15:28 -0400
+Received: from aneto.able.es ([212.97.163.22]:46046 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S264513AbTH2KPZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:21:04 -0400
-Date: Fri, 29 Aug 2003 12:21:02 +0200
+	Fri, 29 Aug 2003 06:15:25 -0400
+Date: Fri, 29 Aug 2003 12:15:23 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: Jamie Lokier <jamie@shareable.org>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030829102102.GE5417@werewolf.able.es>
+Message-ID: <20030829101523.GC5417@werewolf.able.es>
 References: <20030829053510.GA12663@mail.jlokier.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -34,10 +34,10 @@ On 08.29, Jamie Lokier wrote:
 > at the hardware level.
 > 
 
-Dual P4 Xeon
+Uh ? So good are my PII ?
 
-annwn:~> gcc -march=pentium4 -O2 -fomit-frame-pointer -o vm-test vm-test.c
-annwn:~> vm-test
+werewolf:~> gcc -march=pentium2 -O2 -fomit-frame-pointer -o vm-test vm-test.c
+werewolf:~> vm-test
 Test separation: 4096 bytes: pass
 Test separation: 8192 bytes: pass
 Test separation: 16384 bytes: pass
@@ -52,8 +52,9 @@ Test separation: 4194304 bytes: pass
 Test separation: 8388608 bytes: pass
 Test separation: 16777216 bytes: pass
 VM page alias coherency test: all sizes passed
-annwn:~> gcc -DHAVE_SYSV_SHM -march=pentium2 -O2 -fomit-frame-pointer -o vm-test vm-test.c
-annwn:~> vm-test
+
+werewolf:~> gcc -DHAVE_SYSV_SHM -march=pentium2 -O2 -fomit-frame-pointer -o vm-test vm-test.c
+werewolf:~> vm-test
 Test separation: 4096 bytes: pass
 Test separation: 8192 bytes: pass
 Test separation: 16384 bytes: pass
@@ -68,14 +69,15 @@ Test separation: 4194304 bytes: pass
 Test separation: 8388608 bytes: pass
 Test separation: 16777216 bytes: pass
 VM page alias coherency test: all sizes passed
-annwn:~> cat /proc/cpuinfo
+
+werewolf:~> cat /proc/cpuinfo
 processor       : 0
 vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) XEON(TM) CPU 1.80GHz
-stepping        : 4
-cpu MHz         : 1784.328
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 400.915
 cache size      : 512 KB
 fdiv_bug        : no
 hlt_bug         : no
@@ -85,16 +87,16 @@ fpu             : yes
 fpu_exception   : yes
 cpuid level     : 2
 wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3552.05
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips        : 799.53
 
 processor       : 1
 vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) XEON(TM) CPU 1.80GHz
-stepping        : 4
-cpu MHz         : 1784.328
+cpu family      : 6
+model           : 5
+model name      : Pentium II (Deschutes)
+stepping        : 2
+cpu MHz         : 400.915
 cache size      : 512 KB
 fdiv_bug        : no
 hlt_bug         : no
@@ -104,8 +106,9 @@ fpu             : yes
 fpu_exception   : yes
 cpuid level     : 2
 wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3565.15
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
+bogomips        : 801.17
+
 
 -- 
 J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:

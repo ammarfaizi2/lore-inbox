@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbULNUkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261657AbULNUqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbULNUkE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 15:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbULNUkD
+	id S261657AbULNUqF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 15:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbULNUqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 15:40:03 -0500
-Received: from main.gmane.org ([80.91.229.2]:57537 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261653AbULNUj4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 15:39:56 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9 (with changes)
-Date: Tue, 14 Dec 2004 15:39:53 -0500
-Message-ID: <874qiolili.fsf@coraid.com>
-References: <87k6rmuqu4.fsf@coraid.com> <20041213212301.GI16958@lug-owl.de>
+	Tue, 14 Dec 2004 15:46:05 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:44710 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261657AbULNUp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 15:45:59 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       george@mvista.com
+In-Reply-To: <1103054908.14699.20.camel@krustophenia.net>
+References: <20041116134027.GA13360@elte.hu>
+	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>
+	 <20041118164612.GA17040@elte.hu> <20041122005411.GA19363@elte.hu>
+	 <20041123175823.GA8803@elte.hu> <20041124101626.GA31788@elte.hu>
+	 <20041203205807.GA25578@elte.hu> <20041207132927.GA4846@elte.hu>
+	 <20041207141123.GA12025@elte.hu>  <20041214132834.GA32390@elte.hu>
+	 <1103052853.3582.46.camel@localhost.localdomain>
+	 <1103054908.14699.20.camel@krustophenia.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Tue, 14 Dec 2004 15:45:44 -0500
+Message-Id: <1103057144.3582.51.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-34-230-221.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:i6NZyvCH37GIQZgyGazCNGbYdik=
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan-Benedict Glaw <jbglaw@lug-owl.de> writes:
+On Tue, 2004-12-14 at 15:08 -0500, Lee Revell wrote:
+> On Tue, 2004-12-14 at 14:34 -0500, Steven Rostedt wrote:
+> > [RFC]
+> > 
+> > Ingo,
+> > 
+> > Any thought about adding a one shot timer for the system? 
+> > 
+> 
+> Isn't this what George Anzinger is working on?
+> 
+> http://sourceforge.net/projects/high-res-timers/
+> 
+> Lee
+> 
 
-> On Mon, 2004-12-13 11:04:51 -0500, Ed L Cashin <ecashin@coraid.com>
-> wrote in message <87k6rmuqu4.fsf@coraid.com>:
-> [...]
->
-> Impressive list of changes. I'm thinking about implementing a userland
-> server for AoE. Is there a formal protocol specification available?
+A quick look at this looks like this is what I was looking for. I'd need
+to review the code in a more detailed aspect but first glance, Yes, this
+is what I want.
 
-Yes.  It's here:
+Now, since High Res-timers and RT seem to go together, what are the
+plans for merging these?  If this is indeed what I need, then I'll be
+doing it to myself, but if these can merge in the public domain, then I
+would say, all the better.
 
-  http://www.coraid.com/documents/AoEr8.txt
-  http://www.coraid.com/documents/AoEr8.pdf
-
-> Though, I'd use the block driver's sources to reverse engineer it, but
-> for interoperability purposes, it would probably be better to start off
-> a specification than an implementation.
->
-> . o O (...and I'd love to get my hands on a real hardware device)
-
-There are some eval kits that can be ordered on our web site.
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
+-- Steve
 

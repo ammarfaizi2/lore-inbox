@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264509AbTFKVNx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 17:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbTFKVNg
+	id S264500AbTFKVNy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 17:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264507AbTFKVN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 17:13:36 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:39945 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S264491AbTFKVMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 17:12:07 -0400
-Message-ID: <3EE79FD1.8060503@kolumbus.fi>
-Date: Thu, 12 Jun 2003 00:32:01 +0300
-From: =?ISO-8859-15?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-CC: ak@suse.de, vojtech@suse.cz, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] New x86_64 time code for 2.5.70
-References: <1055357432.17154.77.camel@serpentine.internal.keyresearch.com>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 12.06.2003 00:27:05,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 12.06.2003 00:26:34,
-	Serialize complete at 12.06.2003 00:26:34
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Wed, 11 Jun 2003 17:13:27 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:11020 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264500AbTFKVMg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 17:12:36 -0400
+Date: Wed, 11 Jun 2003 22:26:19 +0100
+From: John Levon <levon@movementarian.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: oprofile broken by sysfs updates
+Message-ID: <20030611212619.GA67428@compsoc.man.ac.uk>
+References: <20030611211220.GA634@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030611211220.GA634@elf.ucw.cz>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19QD6q-00094J-1O*MAUnrCOyAG6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/*
-+ * Read the period, compute tick and quotient.
-+ */
-+
-+	id = hpet_readl(HPET_ID);
-+
-+	if (!(id & HPET_ID_VENDOR) || !(id & HPET_ID_NUMBER) ||
-+	    !(id & HPET_ID_LEGSUP))
-+		return -1;
-+
-+	hpet_period = hpet_readl(HPET_PERIOD);
-+	if (hpet_period < 100000 || hpet_period > 100000000)
-+		return -1;
-+
+On Wed, Jun 11, 2003 at 11:12:20PM +0200, Pavel Machek wrote:
 
+> arch/i386/oprofile/nmi_int.c must be suspended before
+> arch/i386/kernel/apic.c is.
+> 
+> How is that guaranteed with new code?
 
-Line below seems to be wrong, given hpet period is in fsecs.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105517556119093&w=2
 
-
-+	hpet_tick = (tick_nsec + hpet_period / 2) / hpet_period;
-
-
-
-
-
---Mika
-
-
-
-
-
+regards
+john

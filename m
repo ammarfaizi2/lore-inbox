@@ -1,86 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVAQO14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbVAQOaF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262804AbVAQO14 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 09:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVAQO14
+	id S262805AbVAQOaF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 09:30:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVAQOaF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 09:27:56 -0500
-Received: from alog0089.analogic.com ([208.224.220.104]:25472 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262804AbVAQO1u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 09:27:50 -0500
-Date: Mon, 17 Jan 2005 09:27:10 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Peter Kruse <pk@q-leap.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Random packets loss under x86_64 - routing?
-In-Reply-To: <41EBC449.3090503@q-leap.com>
-Message-ID: <Pine.LNX.4.61.0501170913240.22065@chaos.analogic.com>
-References: <41E7E6D7.10303@q-leap.com> <Pine.LNX.4.61.0501141129260.5840@chaos.analogic.com>
- <41EBC449.3090503@q-leap.com>
+	Mon, 17 Jan 2005 09:30:05 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:41694 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262805AbVAQO3p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 09:29:45 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16875.52184.169399.632936@xf14.local>
+Date: Mon, 17 Jan 2005 15:29:44 +0100
+From: Egbert Eich <eich@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Egbert Eich <eich@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vgacon fixes to help font restauration in X11
+In-Reply-To: alan@lxorguk.ukuu.org.uk wrote on Monday, 17 January 2005 at 12:23:21 +0000 
+References: <16867.58009.828782.164427@xf14.fra.suse.de>
+	<1105745463.9839.55.camel@localhost.localdomain>
+	<16875.32871.47983.655764@xf14.local>
+	<1105961582.12709.51.camel@localhost.localdomain>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jan 2005, Peter Kruse wrote:
+Alan Cox writes:
+ > On Llu, 2005-01-17 at 09:07, Egbert Eich wrote:
+ > > Can you point me to these reports?
+ > > I tested with a couple chipsets here and didn't find any problems.
+ > 
+ > I'll take a dig. The ones I've got are for 2.4 so relate to old code.
+ > 
+ > > We could check for the kernel version. This could be done during build
+ > > time - assuming we don't ship generic binaries or during run time if we
+ > > want to provide binaries that work everywhere.
+ > > In reality the former would be sufficient for a lot of cases - especially
+ > > for vendor supplied binaries.
+ > 
+ > The former would be a disaster for Fedora for example - we ship
+ > 'current' kernels and having kernel upgrades require a new X11 won't
+ > endear users . A runtime check on version might work I was wondering if
 
-> Hello,
->
-> thanks for your reply
->
-> linux-os wrote:
-> >
->> When they 'disappear', use `arp -d hostname` to delete the
->> entry from the ARP tables. Then see if you can ping it.
->> It is possible that the destination machine got re-routed
->> and the new router's HW address wasn't updated in the
->> ARP tables. If this is the case, I don't know hot to 'fix'
->> it, but it's a new data-point. When you have dynamic routing,
->> there needs to be some way to update the ARP tables even though
->> they eventually expire.
->
-> There is no router between sender and destination host,
-> they are on the same subnet and connected on the same switch.
->
+No, it would rather be the other way around. A new version of X would
+require a certain version of the kernel - unless you plan to drop the 
+feature again.
+This however will not be necessary until 6.9/7 (however it will be named)
+comes out.
+I can implement both ways. Since the new font code lives in the OS dependent
+part this should not be a problem at all.
+The only disadvantage may be that I may not be able to turn off the old
+font code in the generic vgaHW stuff.
 
-I suggest that you may __think__ that there is no router.... But
-for instance, I can't talk to my own printer here because
-of some configuration changes made by the "Net Naz^M^M^M
-Wizards" here. Same network, same wire. It gets "redirected".
-Basically, everything on this wire is proxy-arped by the
-default-route machine. There are duplicate packets on the
-wire and redirections everywhere.
+ > it would be better to have an actual interface that said "do/do not
+ > restore the extra bits in kernel".
+ > 
+ > That also avoids any suprises and regressions ?
 
-You can look at your ARP table with:
+I used to have a patch like that. But kernel people I've talked to told
+me that it would be preferrable not to change the API if not necessary.
 
-`cat /proc/net/arp`
+In my opinion it is not. The changes only affect cases where a new font
+gets written or restored.
 
->> The fact that `ping -r` works seems to show that the ARP table
->> has stale entries in it.
->>
+ > > Anyway, would my patch be acceptable for the kernel?
+ > 
+ > I'm not video maintainer but other than the detection question it looks
+ > sensible to me.
+ > 
 
-The `ping -r` working shows that there were is either a bad
-ARP table entry or too small a netmask so the device isn't
-really on your network.
+OK, sounds promising. The changed Xserver pieces are in HEAD of the 
+X.Org tree. I'll see that I make the necessary adjustments to have
+a soft detection if you can give me a version number of the kernel
+which will have the new features.
 
->
-> Even directly after reboot when the arp table is empty?
->
-> 	Peter
->
+Egbert.
 
-Just check it out. You'd be surprised what you may find.
-Look at the ARP-table entry. Try to ping something that
-doesn't respond. Look at the table again. That will tell
-you what's happening. It's likely that there is an ARP
-table entry from some 'router' that has been set to
-proxy-ARP whatever it sees on the wire.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

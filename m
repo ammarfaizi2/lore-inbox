@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271262AbTHMAVO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 20:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271264AbTHMAVO
+	id S271272AbTHMAR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 20:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271276AbTHMAR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 20:21:14 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:50414 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S271262AbTHMAVL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 20:21:11 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andries Brouwer <aebr@win.tue.nl>
-Subject: Re: IDE bug - was: Re: uncorrectable ext2 errors
-Date: Wed, 13 Aug 2003 02:21:26 +0200
-User-Agent: KMail/1.5
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Niehusmann <jan@gondor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030806150335.GA5430@gondor.com> <1060702567.21160.30.camel@dhcp22.swansea.linux.org.uk> <20030813005057.A1863@pclin040.win.tue.nl>
-In-Reply-To: <20030813005057.A1863@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Tue, 12 Aug 2003 20:17:28 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18644 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271272AbTHMAR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 20:17:26 -0400
+Date: Tue, 12 Aug 2003 17:14:07 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: greg@kroah.com, willy@debian.org, davem@redhat.com,
+       linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: Re: C99 Initialisers
+Message-Id: <20030812171407.09f31455.rddunlap@osdl.org>
+In-Reply-To: <3F397FFB.9090601@pobox.com>
+References: <20030812020226.GA4688@zip.com.au>
+	<1060654733.684.267.camel@localhost>
+	<20030812023936.GE3169@parcelfarce.linux.theplanet.co.uk>
+	<20030812053826.GA1488@kroah.com>
+	<20030812112729.GF3169@parcelfarce.linux.theplanet.co.uk>
+	<20030812180158.GA1416@kroah.com>
+	<3F397FFB.9090601@pobox.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308130221.26305.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 of August 2003 00:50, Andries Brouwer wrote:
-> On Tue, Aug 12, 2003 at 04:36:08PM +0100, Alan Cox wrote:
-> > On Sul, 2003-08-10 at 23:33, Andries Brouwer wrote:
-> > >         if (drive->addressing == 1)             /* 48-bit LBA */
-> > >                 return lba_48_rw_disk(drive, rq, (unsigned long long)
-> > > block); if (drive->select.b.lba)                /* 28-bit LBA */ return
-> > > lba_28_rw_disk(drive, rq, (unsigned long) block); return
-> > > chs_rw_disk(drive, rq, (unsigned long) block);
-> > >
-> > > with checking the size of block.
-> > > And init_idedisk_capacity() does not check addressing.
-> >
-> > It should also issue LBA28 if the size of th range and the end block
-> > fall under the LBA28 limit because thst saves you valuable I/O time.
-> >
-> > Jens had patches for that but I don't know where they went in 2.6
->
-> That is something different. The patches I gave (I gave patches didnt I?)
-> limit the total capacity for large disks if the controller doesnt speak
-> lba48.
+On Tue, 12 Aug 2003 20:02:03 -0400 Jeff Garzik <jgarzik@pobox.com> wrote:
 
-No, you didn't.  You gave some whining and patch sketch. :-)
+| Greg KH wrote:
+| > In the end, it's up to the maintainer of the driver what they want to
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+| > do.  So, Jeff and David, here's a patch against the latest 2.6.0-test3
+| > tg3.c that converts the pci_device_id table to C99 initializers.  If you
+| > want to, please apply it.
 
-> That is necessary to avoid very unpleasant surprises.
->
-> But saving some time during I/O, yes, maybe I suggested Jens what to do
-> and he did it. Hmm. I don't see the code anymore.
-> Google(Jens Andries rq_lba48) gives the patch.
-> Ah, I see. His patch went in - I see Changeset 1.1046.31.30 if that
-> means anything, - and Bartlomiej asked for it to be reverted again.
-> So, Jens's patches are lost for the moment. Must remember to resurrect
-> them.
+I strongly agree with Greg's comment above.
+| 
+| it expands a few lines to a bazillion :(   I would rather leave it as 
+| is...  you'll find several PCI ethernet drivers with pci_device_id 
+| entries that fit entirely on one line, and I think that compactness has 
+| value at least to me.
 
-...when taskfile IO is the only IO path not earlier.
+However, I would change for readability.  Maybe not my readability,
+but for all others who read and try to help maintain all of Linux
+source code.
 
-Jan, did removing offending lines from pdc202xx_old.c help?
-
---bartlomiej
-
+--
+~Randy				For Linux-2.6, see:
+http://www.kernel.org/pub/linux/kernel/people/davej/misc/post-halloween-2.5.txt

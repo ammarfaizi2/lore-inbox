@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263467AbUFNQ3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263375AbUFNQpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbUFNQ3y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 12:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUFNQ3x
+	id S263375AbUFNQpn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 12:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbUFNQpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 12:29:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:41152 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263415AbUFNQ3T (ORCPT
+	Mon, 14 Jun 2004 12:45:43 -0400
+Received: from mail.gmx.net ([213.165.64.20]:13242 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263375AbUFNQpm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 12:29:19 -0400
-Date: Mon, 14 Jun 2004 09:29:17 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/3] __user annotation for dummy_shm_shmat
-Message-ID: <20040614092917.C21045@build.pdx.osdl.net>
-References: <20040614092343.A21045@build.pdx.osdl.net> <20040614092756.B21045@build.pdx.osdl.net>
-Mime-Version: 1.0
+	Mon, 14 Jun 2004 12:45:42 -0400
+X-Authenticated: #279318
+Message-ID: <40CDD63C.BFF115C4@gmx.de>
+Date: Mon, 14 Jun 2004 18:45:48 +0200
+From: Genesis1976@gmx.de
+X-Mailer: Mozilla 4.78 [de]C-CCK-MCD DT  (Windows NT 5.0; U)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel make menuconfig
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040614092756.B21045@build.pdx.osdl.net>; from chrisw@osdl.org on Mon, Jun 14, 2004 at 09:27:56AM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add proper __user annotation to dummy_shm_shmat.
+Hi,
 
-  CHECK   security/dummy.c
-security/dummy.c:995:2: warning: incorrect type in assignment (incompatible argument 2 (different address spaces))
-security/dummy.c:995:2:    expected int ( *[addressable] [toplevel] shm_shmat )( ... )
-security/dummy.c:995:2:    got int ( static [addressable] [toplevel] *<noident> )( ... )
-  CC      security/dummy.o
+I some make menuconfig Problems within kernel 2.6.6.
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+When I unpack a freshly downloaded kernel e.g. the Options Mouse
+Interface and Provide Legacy /dev/psaux device are missing. When I copy
+the debian kernel-config-file into /usr/src/linux/.config the options
+are suddenly there.
 
-===== security/dummy.c 1.39 vs edited =====
---- 1.39/security/dummy.c	2004-05-10 04:25:52 -07:00
-+++ edited/security/dummy.c	2004-06-14 09:09:51 -07:00
-@@ -688,7 +688,7 @@
- 	return 0;
- }
- 
--static int dummy_shm_shmat (struct shmid_kernel *shp, char *shmaddr,
-+static int dummy_shm_shmat (struct shmid_kernel *shp, char __user *shmaddr,
- 			    int shmflg)
- {
- 	return 0;
+That puzzles me a bit because I can't get my PS2-mouse working on that
+particular machine (AT-mainboard; Gigabyte GA-6BA).
+
+Cheers,
+Martin
+

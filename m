@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315191AbSFUCjL>; Thu, 20 Jun 2002 22:39:11 -0400
+	id <S315792AbSFUCpx>; Thu, 20 Jun 2002 22:45:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSFUCjK>; Thu, 20 Jun 2002 22:39:10 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:7371 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S315191AbSFUCjJ>; Thu, 20 Jun 2002 22:39:09 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: William Thompson <wt@electro-mechanical.com>
-Date: Fri, 21 Jun 2002 12:39:50 +1000 (EST)
+	id <S315971AbSFUCpw>; Thu, 20 Jun 2002 22:45:52 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:54752 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S315792AbSFUCpw>; Thu, 20 Jun 2002 22:45:52 -0400
+Date: Thu, 20 Jun 2002 21:45:53 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Frank Davis <fdavis@si.rr.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.24 : net/802/cl2llc.c patch rejected
+In-Reply-To: <3D126B38.5010202@si.rr.com>
+Message-ID: <Pine.LNX.4.44.0206202144570.30897-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15634.37366.554826.185532@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with raid0 with 2.4.19-pre10-ac2
-In-Reply-To: message from William Thompson on Thursday June 20
-References: <20020620085208.A7666@coredump.electro-mechanical.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday June 20, wt@electro-mechanical.com wrote:
-> 
-> Who writes the superblock anyway?  mkraid or the kernel driver?
+On Thu, 20 Jun 2002, Frank Davis wrote:
 
-The kernel driver.
+>      I just patched to 2.5.24 from 2.5.23 and the patch for 
+> net/802/cl2llc.c was rejected (file already existed).
 
-NeilBrown
+The file is supposed to be removed by that patch. Did you call patch 
+with -p1 from within your src tree?
+
+--Kai
+
+

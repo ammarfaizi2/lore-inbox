@@ -1,64 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUDHWdY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 18:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbUDHWdY
+	id S262730AbUDHWh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 18:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbUDHWh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 18:33:24 -0400
-Received: from web40504.mail.yahoo.com ([66.218.78.121]:38255 "HELO
-	web40504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262874AbUDHWdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 18:33:22 -0400
-Message-ID: <20040408223321.57722.qmail@web40504.mail.yahoo.com>
-Date: Thu, 8 Apr 2004 15:33:21 -0700 (PDT)
-From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
-Subject: Re: kernel stack challenge
-To: Martin Waitz <tali@admingilde.org>
-Cc: Timothy Miller <miller@techsource.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040408131116.GO27401@admingilde.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Apr 2004 18:37:27 -0400
+Received: from rrcs-central-24-123-144-118.biz.rr.com ([24.123.144.118]:18722
+	"EHLO zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id S262730AbUDHWhZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 18:37:25 -0400
+Subject: Re: Does OSS sound work in 2.6 or not?
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4075BDE0.6050302@tmr.com>
+References: <4075BDE0.6050302@tmr.com>
+Content-Type: text/plain
+Message-Id: <1081463836.3223.123.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Thu, 08 Apr 2004 18:37:17 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, :-)
+On Thu, 2004-04-08 at 17:02, Bill Davidsen wrote:
+> I have several user machines I would like to convert to 2.6 because they 
+> run threaded applications and would be happier if I did. However, being 
+> able to play forwarded wav files is also needed. I have been assurred by 
+> several people in Email that it does, *without* converting the whole 
+> machine from OSS to ALSA, but by running the ALSA+OSS emulation.
 
---- Martin Waitz <tali@admingilde.org> wrote:
-> hi :)
-> 
-> On Tue, Apr 06, 2004 at 04:17:34PM -0700, Sergiy
-> Lozovsky wrote:
-> > What? Give an example. I want something high
-> level, so
-> > Forth will not do. Sure, encapsulation is needed,
-> to
-> > protect kernel from pointer errors and so on.
-> 
-> who says that the language that's used by your
-> policy administrator
-> is the same as the language interpreted by the
-> kernel?
-> 
-> let your administrator write his policy in java/lisp
-> or whatever,
-> but compile this policy into an easy to interpret
-> and safe
-> bytecode.
+Can you clarify the question?  What do you mean by "*without* converting
+the whole machine from OSS to ALSA"?  Do you mean you willing to convert
+to the ALSA drivers but want to continue to use OSS applications?  Or do
+you mean you don't want to convert to ALSA at all?  You obviously can't
+use ALSA+OSS emulation if your not willing to convert to the ALSA
+drivers since basically OSS emulation is just a few ALSA modules you
+load *in addition* to the ALSA hardware drivers that allow ALSA to
+provide an OSS emulation layer to OSS only applications.
 
-That will not give any benefits. LISP has internal
-representation of program and data for sure
-('bytecode'), but it is lists. How to unload it to
-something one can move around? One of the ways -
-unload it in a text form. But it exactly what initial
-source code is. Parser of LISP is very small (because
-syntax is simple), so producing some non standard
-bytecode make no sense - source code of LISP is very
-close to it's 'bytecode'.
+Of course, OSS drivers are still available in 2.6, even though they are
+deprecated.  You can just continue to use these just like you always
+have in 2.4, no ALSA at all.
 
-Serge.
+Later,
+Tom
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Small Business $15K Web Design Giveaway 
-http://promotions.yahoo.com/design_giveaway/
+ 
+ 
+

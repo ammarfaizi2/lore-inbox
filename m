@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267894AbTAHW1D>; Wed, 8 Jan 2003 17:27:03 -0500
+	id <S267944AbTAHWbd>; Wed, 8 Jan 2003 17:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267925AbTAHW1D>; Wed, 8 Jan 2003 17:27:03 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:5814 "HELO palrel13.hp.com")
-	by vger.kernel.org with SMTP id <S267894AbTAHW1C>;
-	Wed, 8 Jan 2003 17:27:02 -0500
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.5] PCI: allow alternative methods for probing the BARs 
-In-Reply-To: Message from Ivan Kokshaysky <ink@jurassic.park.msu.ru> 
-   of "Wed, 08 Jan 2003 17:47:11 +0300." <20030108174711.A15896@jurassic.park.msu.ru> 
-References: <Pine.LNX.4.44.0301052009050.3087-100000@home.transmeta.com> <1041848998.666.4.camel@zion.wanadoo.fr> <20030106194513.GC26790@cup.hp.com> <20030107200537.B559@localhost.park.msu.ru> <20030107201700.GB32722@cup.hp.com>  <20030108174711.A15896@jurassic.park.msu.ru> 
-Date: Wed, 08 Jan 2003 14:34:13 -0800
-From: Grant Grundler <grundler@cup.hp.com>
-Message-Id: <20030108223414.3D97212C2F@debian.cup.hp.com>
+	id <S267945AbTAHWbd>; Wed, 8 Jan 2003 17:31:33 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:38930 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267944AbTAHWb0>; Wed, 8 Jan 2003 17:31:26 -0500
+Date: Wed, 8 Jan 2003 22:40:06 +0000
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /proc/sys/kernel/pointer_size
+Message-ID: <20030108224006.GA47765@compsoc.man.ac.uk>
+References: <20030108205220.GB35912@compsoc.man.ac.uk> <Pine.LNX.4.44.0301081300200.1497-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301081300200.1497-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18WOrm-0001dy-00*xgXqIe.0UUs*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kokshaysky wrote:
-> On Tue, Jan 07, 2003 at 12:17:00PM -0800, Grant Grundler wrote:
-> > BTW, please don't equate PCI controller instance number with PCI Domain.
-> 
-> I agree, it's quite confusing. However, I don't think that the PCI spec
-> defines "PCI controller" or "PCI domain" terms, it's pretty much
-> implementation specific.
+On Wed, Jan 08, 2003 at 01:03:14PM -0800, Linus Torvalds wrote:
 
-Oh. The definition I was using is based on which PCI devices can do
-peer-to-peer transactions. ie a "PCI Domain" is defined by the
-PCI MMIO address space routing.
+> You should certainly see it in "uname -a" output, for example.
 
-> Assuming that each PCI controller can handle up to 256 bridged buses,
-> the unique PCI controller index and PCI bus number is all that userspace
-> needs to know in order to properly identify devices in the system.
+Hrmph. Actually we can take it from the ELF headers of the vmlinux file
+that gets passed in I suppose. Along with a uname hack for when there's
+no vmlinux available...
 
-yes - that makes sense for configuration space accesses.
-I can see why you'd call this a "PCI Domain" as well.
+> The same is true of kernel modules - 32-bit kernel modules do not work at 
+> all when the kernel is 64-bit.
 
-The platforms I was commenting on can only generate config cycles below
-a PCI "Host Bus Adapter" (aka controller).
+Modules aren't in userspace.
 
-thanks,
-grant
+> Compile oprofile for the proper architecture if you do it yourself, and
+> complain to the vendor if the vendor is stupid enough to supply a 32-bit 
+> oprofile with a 64-bit kernel.
+
+I don't see what's stupid about a 32-bit binary on a system where all of
+user-space is 32-bit. But it doesn't matter.
+
+regards
+john
+
+-- 
+"CUT IT OUT FACEHEAD"
+	- jeffk

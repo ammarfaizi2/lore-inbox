@@ -1,23 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263166AbSJHNrp>; Tue, 8 Oct 2002 09:47:45 -0400
+	id <S263329AbSJHN5R>; Tue, 8 Oct 2002 09:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263187AbSJHNrl>; Tue, 8 Oct 2002 09:47:41 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:55444 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263166AbSJHNpt>;
-	Tue, 8 Oct 2002 09:45:49 -0400
-Date: Tue, 8 Oct 2002 15:51:25 +0200
+	id <S263283AbSJHN4e>; Tue, 8 Oct 2002 09:56:34 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:64660 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263232AbSJHNzZ>;
+	Tue, 8 Oct 2002 09:55:25 -0400
+Date: Tue, 8 Oct 2002 16:01:00 +0200
 From: Vojtech Pavlik <vojtech@suse.cz>
 To: Vojtech Pavlik <vojtech@suse.cz>
 Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [patch] Fix aux detection on some notebooks [14/23]
-Message-ID: <20021008155125.M18546@ucw.cz>
-References: <20021008154132.C18546@ucw.cz> <20021008154246.D18546@ucw.cz> <20021008154415.E18546@ucw.cz> <20021008154549.F18546@ucw.cz> <20021008154631.G18546@ucw.cz> <20021008154733.H18546@ucw.cz> <20021008154824.I18546@ucw.cz> <20021008154904.J18546@ucw.cz> <20021008155003.K18546@ucw.cz> <20021008155045.L18546@ucw.cz>
+Subject: [patch] Input - Make NR_KEYS be KEY_MAX+1 [20/23]
+Message-ID: <20021008160100.S18546@ucw.cz>
+References: <20021008154824.I18546@ucw.cz> <20021008154904.J18546@ucw.cz> <20021008155003.K18546@ucw.cz> <20021008155045.L18546@ucw.cz> <20021008155125.M18546@ucw.cz> <20021008155236.N18546@ucw.cz> <20021008155651.O18546@ucw.cz> <20021008155825.P18546@ucw.cz> <20021008155915.Q18546@ucw.cz> <20021008160001.R18546@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20021008155045.L18546@ucw.cz>; from vojtech@suse.cz on Tue, Oct 08, 2002 at 03:50:45PM +0200
+In-Reply-To: <20021008160001.R18546@ucw.cz>; from vojtech@suse.cz on Tue, Oct 08, 2002 at 04:00:01PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -28,56 +28,60 @@ You can import this changeset into BK by piping this whole message to:
 
 ===================================================================
 
-ChangeSet@1.573.1.47, 2002-10-01 20:41:21+02:00, vojtech@suse.cz
-  Accept 0xfa as an "OK" result code for AUX TEST cmd in i8042.c.
-  This makes mouse work on certain notebooks.
+ChangeSet@1.573.1.54, 2002-10-07 15:38:11+02:00, vojtech@suse.cz
+  Make NR_KEYS be (KEY_MAX+1) so that keybindings
+  can be set for keys over 128.
 
 
- i8042.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+ keyboard.h |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
 ===================================================================
 
-diff -Nru a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c	Tue Oct  8 15:26:07 2002
-+++ b/drivers/input/serio/i8042.c	Tue Oct  8 15:26:07 2002
-@@ -664,11 +664,13 @@
- /*
-  * External connection test - filters out AT-soldered PS/2 i8042's
-  * 0x00 - no error, 0x01-0x03 - clock/data stuck, 0xff - general error
-+ * 0xfa - no error on some notebooks which ignore the spec
-  * We ignore general error, since some chips report it even under normal
-  * operation.
-  */
+diff -Nru a/include/linux/keyboard.h b/include/linux/keyboard.h
+--- a/include/linux/keyboard.h	Tue Oct  8 15:25:24 2002
++++ b/include/linux/keyboard.h	Tue Oct  8 15:25:24 2002
+@@ -2,6 +2,7 @@
+ #define __LINUX_KEYBOARD_H
  
--	if (i8042_command(&param, I8042_CMD_AUX_TEST) || (param && param != 0xff))
-+	if (i8042_command(&param, I8042_CMD_AUX_TEST)
-+	    || (param && param != 0xfa && param != 0xff))
- 		return -1;
+ #include <linux/wait.h>
++#include <linux/input.h>
  
- /*
+ #define KG_SHIFT	0
+ #define KG_CTRL		2
+@@ -15,9 +16,9 @@
+ 
+ #define NR_SHIFT	9
+ 
+-#define NR_KEYS		128
++#define NR_KEYS		(KEY_MAX+1)
+ #define MAX_NR_KEYMAPS	256
+-/* This means 64Kb if all keymaps are allocated. Only the superuser
++/* This means 128Kb if all keymaps are allocated. Only the superuser
+ 	may increase the number of keymaps beyond MAX_NR_OF_USER_KEYMAPS. */
+ #define MAX_NR_OF_USER_KEYMAPS 256 	/* should be at least 7 */
+ 
 
 ===================================================================
 
 This BitKeeper patch contains the following changesets:
-1.573.1.47
+1.573.1.54
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch18096
-M'XL(`._<HCT``\V4;VO;,!#&7T>?XM9":=?%ULF*E1@RVK5E*]UHZ1_8NZ+*
-M2NTEMH*D--OPAY_LA!8RUK*QP61C6^?3\>B>']J&&Z=MUGLP7[Q6!=F&#\;Y
-MK.<63D?J>YA?&A/F<6$J':^SXKMI7-;SA2?A_X7TJH`';5W6PRAYC/AO<YWU
-M+D_>WWP\O"1D/(:C0M;W^DI[&(^)-_9!SG)W('TQ,W7DK:Q=I;V,E*F:Q]2&
-M4<K"-4"1T$':8$JY:!3FB)*CSBGCPY23M;"#M>R-]4@I8JB1C!HZ$B-!C@&C
-M@4@BC+@`RF*D,45@-..8,=RG+*,4-FK"/D*?DG?P=Y4?$06'2NFY!_IU(D$Z
-MD#5LG9]M@=5N,?.@3*YA8BP<WGR&ZY.K:U!5#F4-Y9!R%JDH5+@N2@>5G.KP
-M-$$O+(V=@JE!:>MER*V-UW?&3%U$SF`DAI1<//E!^K\Y"*&2DK>/+?++<E;>
-M%SY:J&7;_MR6+1`K2.(`6&GBM=I56P1-D`U23)LDN,,:0=N.2%2:<IS0?+/Y
-M+U;L+!YR1-$P/DIX!]PSBUH$_YGZGW!\L>*(<4SYD`=,AIRS#E#DFVBB^!6:
-M"?3Q?T&S)6SEP3GT[;*[`S(7S]GQ!P2>IFD*2.#U2EP_(`[:VB`F8._":?7$
-M/"R+,IQ(Y7UMK`9?:'!SK<AQ*C!4.&U?C/3*">QV<FY#LRI9Y[L[<VEE]09.
-MN^C1I^/;L,_;=I][I`=A-`WL=CFPLP.KCU?CE9Z-P&1O[^FP5(564[>HQDF*
--(IB>DQ]F52$6AP4`````
+begin 664 bkpatch17922
+M'XL(`,3<HCT``]54VV[30!!]SG[%2'D!HMA[\?HF4K4T%52A-$JI!$_5QM[4
+M)HXW\JX#0?YXUFZ45I%"1>$%VQIY/!?/.7.T?;C5LHI[&_7-R"1#??B@M(E[
+MNM;227Y:?Z:4]=U,K:2[RW+G2S<OU[5!-CX5)LE@(RL=]XC#]E_,=BWCWNSB
+M_>W'LQE"HQ&<9Z*\ES?2P&B$C*HVHDCUJ3!9H4K'5*+4*VF$DZA5LT]M*,;4
+MWIP$#'._(3[V@B8A*2'"(S+%U`M]#^T&.]V-?5!/,`X(I1$/&NKY$4=C(`X/
+MF&.M!YBZ!+LX`,)C%L:$##"-,8:#GC`@,,3H'?S;R<]1`E=B*>'3[&YR\?4&
+MYA)>V9>[J[,O`_(:M`*3"0-+N9WG99J7]]I6)*)L$[7E<J&J-JA!V1T`H:&#
+M)D"93SB:/E*.AG]X(80%1B?/H,W+I*A3Z19Y6?]PVQF5J%(G>PH^\K!U(TX;
+MEDC"HY3Y\X!)/@\/*?Y]NVZ+C(4X:#AC4=!IZEC%\Q+[N]'1NA7Y"SM3QB-*
+M&V[_X7=:9(<BQ,$Q$3(8TO]$A`];NH9A];U[K*BF1Q?V`H%>>D!0?]<0WCYT
+M[,XE)SM!8Q+:\&5G^ZE<Y.4>7J_W!!P:4]PF=M9]`Y^S7,-*6CI;'),YY`L0
+M1='"6XFU!E')UE>),#)UX+HLMI8<2T.]EI7=4O5X*":93):Z7HUX*EC(Y`+]
+)`HI:2/9O!0``
 `
 end

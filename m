@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbSKTWKv>; Wed, 20 Nov 2002 17:10:51 -0500
+	id <S261900AbSKTWDW>; Wed, 20 Nov 2002 17:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262813AbSKTWKv>; Wed, 20 Nov 2002 17:10:51 -0500
-Received: from whfirewall.nwtel.ca ([199.85.228.1]:31106 "EHLO
-	whfirewall.nwtel.ca") by vger.kernel.org with ESMTP
-	id <S262808AbSKTWKr>; Wed, 20 Nov 2002 17:10:47 -0500
-Message-Id: <5.1.1.6.0.20021120135311.0248d600@gnat.nwtel.ca>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Wed, 20 Nov 2002 14:17:47 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Richard Whittaker <rwhittak@gnat.nwtel.ca>
-Subject: Re: Semaphore and Shared memory questions...
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <sddb931a.041@nwtel.ca>
-References: <5.1.1.6.0.20021120133929.02485ae8@gnat.nwtel.ca>
- <5.1.1.6.0.20021120131444.02482858@gnat.nwtel.ca>
- <5.1.1.6.0.20021120131444.02482858@gnat.nwtel.ca>
- <5.1.1.6.0.20021120133929.02485ae8@gnat.nwtel.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S261855AbSKTWCT>; Wed, 20 Nov 2002 17:02:19 -0500
+Received: from mhw.ulib.iupui.edu ([134.68.164.23]:10432 "EHLO
+	mhw.ulib.iupui.edu") by vger.kernel.org with ESMTP
+	id <S261733AbSKTV6j>; Wed, 20 Nov 2002 16:58:39 -0500
+Date: Wed, 20 Nov 2002 17:05:45 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: One more time:  /usr/include/linux, /usr/include/asm
+Message-ID: <Pine.LNX.4.33.0211201643180.359-100000@mhw.ULib.IUPUI.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:16 PM 11/20/2002 -0800, Alan Cox wrote:
->On Wed, 2002-11-20 at 21:42, Richard Whittaker wrote:
-> > At 10:04 PM 11/20/2002 +0000, Alan Cox wrote:
->
->Right first guess. Its mostly historical that it isnt 4 values.
+I just built a new glibc.  (Yes, I do that.)  Recalling that the
+above-mentioned paths are (according to Linus and many others) not
+supposed to be links to /usr/src/linux or any other kernel-kit-du-jour, I
+resolved to be a good boy and get rid of those links.  For some reason I
+expected that 'make install' for glibc would create directories there and
+put into them whatever it wanted.  I recall that that was discussed....
 
-What's the order of the values?...
+No dice.  glibc 2.3.1 still installs headers into /usr/include/{VARIOUS}
+which refer to /usr/include/linux and /usr/include/asm but does not supply
+that to which they refer.  *sigh*  After rummaging through several long
+threads in the archives, I still don't have an answer to the following:
 
-I can take a wild stab that the first value is semmsl, or is it semmni, 
-then the subsequent values?...
+1. What is supposed to be in /usr/include/linux and /usr/include/asm?
+2. Where does the information come from?
+3. Who is responsible for putting it there?
 
-Are there plans to split them out into distinct values, or is that a 
-massive rewrite?...
+(Just to get my system back to a state in which I can compile userspace
+stuff, I made the following assumptions:
 
-Thanks!
-Richard.
+1. Everything from linux/include/linux resp. linux/include/asm-$ARCH .
+2. The kernel kit which supplied the headers used to build glibc.
+3. The person building glibc.
 
----
-Richard Whittaker,
-System Manager,
-NorthwesTel Inc.
-Whitehorse, Yukon, Canada.
+IOW I just copied wholesale those two directories from the kernel kit
+which I had nominated with configure --with-headers, to /usr/include.)
+
+I note that the glibc 2.3.1 instructions *still* instruct the reader to
+symlink these paths into "the 2.2 kernel sources".  (See "Specific advice
+for GNU/Linux systems" in INSTALL.)  I'll happily submit a glibc bug
+report, or documentation patches, or some such, just so long as someone
+can give me answers which work both for the kernel and for the library.
+
+-- 
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+MS Windows *is* user-friendly, but only for certain values of "user".
 

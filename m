@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314355AbSDRN7l>; Thu, 18 Apr 2002 09:59:41 -0400
+	id <S314358AbSDROA2>; Thu, 18 Apr 2002 10:00:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314356AbSDRN7k>; Thu, 18 Apr 2002 09:59:40 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51983 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314355AbSDRN7j>; Thu, 18 Apr 2002 09:59:39 -0400
-Subject: Re: [PATCH] IDE TCQ #4
-To: axboe@suse.de (Jens Axboe)
-Date: Thu, 18 Apr 2002 15:17:34 +0100 (BST)
-Cc: dalecki@evision-ventures.com (Martin Dalecki),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020418131248.GI2492@suse.de> from "Jens Axboe" at Apr 18, 2002 03:12:48 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S314356AbSDROA1>; Thu, 18 Apr 2002 10:00:27 -0400
+Received: from holomorphy.com ([66.224.33.161]:33949 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314358AbSDROAZ>;
+	Thu, 18 Apr 2002 10:00:25 -0400
+Date: Thu, 18 Apr 2002 06:59:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 2.5.8 sort kernel tables
+Message-ID: <20020418135931.GU21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+In-Reply-To: <1589.1019123186@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16yCj8-0004kW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It sure is... sr doesn't do it and lots of others don't as well, so I
-> suppose we could rip it out. We already require reblocking with loop in
-> those cases anyway.
+On Thu, Apr 18, 2002 at 07:46:26PM +1000, Keith Owens wrote:
+> The use of __init and __exit sections breaks the assumption that tables
+> such as __ex_table are sorted, it has already broken the dbe table in
+> mips on 2.5.  This patch against 2.5.8 adds a generic sort routine and
+> sorts the i386 exception table.
+> This sorting needs to be extended to several other tables, to all
+> architectures, to modutils (insmod loads some of these tables for
+> modules) and back ported to 2.4.  Before I spend the rest of the time,
+> any objections?
 
-For the file system ones. It would be nice to be able to handle non power
-of two block sizes as well through the block interface (even if it means we
-hand back a 4K buffer that the caller is required to know is partly full).
-That would remove a lot of special case magic for audio/video
+It doesn't have to be an O(n lg(n)) method but could you use something
+besides bubblesort? Insertion sort, selection sort, etc. are just as
+easy and they don't have the horrific stigma of being "the worst sorting
+algorithm ever" etc.
 
+
+Thanks,
+Bill

@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbTIVW6U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 18:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbTIVW6U
+	id S261758AbTIVW4M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 18:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTIVW4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 18:58:20 -0400
-Received: from fungus.teststation.com ([212.32.186.211]:11538 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S261768AbTIVW5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 18:57:06 -0400
-Date: Tue, 23 Sep 2003 00:57:04 +0200 (CEST)
-From: Urban Widmark <Urban.Widmark@enlight.net>
-X-X-Sender: puw@cola.enlightnet.local
-To: linux-kernel@vger.kernel.org
-Subject: semaphore IPC problem?
-Message-ID: <Pine.LNX.4.44.0309222232560.26232-100000@cola.enlightnet.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Sep 2003 18:56:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10978 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261758AbTIVWzk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 18:55:40 -0400
+Date: Mon, 22 Sep 2003 15:54:56 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: David Yu Chen <dychen@stanford.edu>
+Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu,
+       James.Bottomley@steeleye.com
+Subject: Re: [CHECKER] 32 Memory Leaks on Error Paths
+Message-ID: <20030922155456.E18606@osdlab.pdx.osdl.net>
+References: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200309160435.h8G4ZkQM009953@elaine4.Stanford.EDU>; from dychen@stanford.edu on Mon, Sep 15, 2003 at 09:35:46PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* David Yu Chen (dychen@stanford.edu) wrote:
+> [FILE:  2.6.0-test5/drivers/scsi/NCR_Q720.c]
+> START -->
+>  153:	p = kmalloc(sizeof(*p), GFP_KERNEL);
+>  154:	if (!p)
+>  155:		return -ENOMEM;
+<snip>
+>  180:	if(i != NCR_Q720_MCA_ID) {
+>  181:		printk(KERN_ERR "NCR_Q720, adapter failed to I/O map registers correctly at 0x%x(0x%x)\n", io_base, i);
+> END -->
+>  182:		return -ENODEV;
 
-Hello all
+Yes, looks like a valid bug.  Patch below.  James, look ok?
+thanks,
+-chris
 
-I'm having a problem with IBM DB2 on linux. I found a page where IBM
-points fingers to the linux semaphore implementation, but without giving
-any details.
-
-
-"Information about the StaleConnectionException on Linux systems
-
- The StaleConnectionException SQl1224 is related to the extension shared 
- memory attachment. Linux systems have a semaphore problem causing the DB2 
- SQL1224 error."
-
-http://publib7b.boulder.ibm.com/wasinfo1/en/info/aes/ae/rdat_stalelinux.html
-
-
-Does that make sense to anyone?
-Known semaphore problems/races?
-
-
-The page has a workaround which is to set it up as a remote database and
-connect over 127.0.0.1 instead of shm ipc. Doing that seems to work, but
-the setup is annoying. That it works could just be speed related, not sure
-if loopback is slower.
-
-The testcase is a number of threads (java) doing repeated select
-operations, with commit+close between each and using a connection pool.
-
-I have tested this on 2.4.22 (UP) and 2.6.0-test5. 2.6 can handle a lot
-more threads than 2.4 (~70 vs 3-5) before failing, but they both fail in 
-the same way.
-
-
-I know I don't have much info ...
-
-Hints on where to look? (other than IBM support)
-
-/Urban
-
+===== drivers/scsi/NCR_Q720.c 1.4 vs edited =====
+--- 1.4/drivers/scsi/NCR_Q720.c	Sun Aug 17 13:10:45 2003
++++ edited/drivers/scsi/NCR_Q720.c	Mon Sep 22 15:05:02 2003
+@@ -179,7 +179,7 @@
+ 	i = inb(io_base) | (inb(io_base+1)<<8);
+ 	if(i != NCR_Q720_MCA_ID) {
+ 		printk(KERN_ERR "NCR_Q720, adapter failed to I/O map registers correctly at 0x%x(0x%x)\n", io_base, i);
+-		return -ENODEV;
++		goto out_free;
+ 	}
+ 
+ 	/* Phase II, find the ram base and memory map the board register */

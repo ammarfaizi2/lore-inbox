@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267883AbSIRRis>; Wed, 18 Sep 2002 13:38:48 -0400
+	id <S267993AbSIRRmc>; Wed, 18 Sep 2002 13:42:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267928AbSIRRir>; Wed, 18 Sep 2002 13:38:47 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:35848 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S267883AbSIRRin>; Wed, 18 Sep 2002 13:38:43 -0400
-Date: Wed, 18 Sep 2002 14:43:06 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       Andries Brouwer <aebr@win.tue.nl>,
+	id <S267995AbSIRRmc>; Wed, 18 Sep 2002 13:42:32 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:494 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S267993AbSIRRmb>;
+	Wed, 18 Sep 2002 13:42:31 -0400
+Date: Wed, 18 Sep 2002 19:54:53 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
        William Lee Irwin III <wli@holomorphy.com>,
        <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
  elimination, 2.5.35-BK
-In-Reply-To: <20020918113551.A654@host110.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44L.0209181441430.1519-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+In-Reply-To: <Pine.LNX.4.44.0209181026550.1230-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0209181939150.24891-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Sep 2002, Cort Dougan wrote:
 
-> It's also not a bad idea to sometimes say "Linux cannot do that".
-> Trying to make the system do _everything_ will result in it doing many
-> things very poorly.
+On Wed, 18 Sep 2002, Linus Torvalds wrote:
 
-That's been tried before, but for some reason people just won't
-listen and Linux ended up running on non-x86 machines and even SMP.
+> ... the worst-case-behaviour is basically impossible to trigger with any 
+> real load. 
+> 
+> The worst case does not happen for "100k threads" like you've made it 
+> sound like.
+> 
+> The worst case happens for "100k threads consecutive in the pid space".
 
-I don't see any reason to rule out a fix for this problem in
-principle, maybe somebody will come up with code that Linus does
-like ?
+i always said consecutive PID range, in perhaps every previous mail.
 
-cheers,
+consecutive PID allocation is actually something applications do pretty
+often.
 
-Rik
--- 
-Spamtrap of the month: september@surriel.com
+or Apache threads with the 'max requests handled per thread' config value
+set to infinite, and a couple of thousand threads started up during init.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+or a phone line server that handles 100 thousand phone lines starts up
+100K threads, one per line. No need to restart any of those threads, and
+in fact it will never happen. They do use helper threads to do less timing
+critical stuff. Now the whole phone system locks up for 1.5 minutes every
+2 weeks or 2 months when the PID range overflows, how great. Now make that
+400 thousand phonelines, the lockup will will last 24 minutes.
+
+well, by this argument, Windows XP only crashes every couple of weeks, it
+happens rarely, who cares. Windows probably reboots faster than Linux will
+allocate the next PID, so it has better RT latencies. Phone server
+applications are inherently restartable anyway, even across hw crashes.
+
+and of course any quasy-RT behavior of the Linux kernel (which we *do*
+have in specific well-controlled scenarios) can be thrown out the window
+if processes or threads are allocated/destroyed.
+
+and even assuming that concecutive PIDs are a non-problem. Is fast PID
+allocation really that bad? Is a more compressed PID range necesserily
+bad? Is the avoidance of for_each_process and for_each_thread loops that
+bad? Even the current untuned patch, which admittedly duplicates some
+functionality (such as the pidhash), performs on par with the unpatched
+kernel, in thread creation benchmarks. (which is pretty much the only
+place that can show any increase in PID allocation/management overhead.)
+
+	Ingo
+
 

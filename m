@@ -1,62 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbUKNGvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUKNHfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbUKNGvT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Nov 2004 01:51:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbUKNGvT
+	id S261254AbUKNHfO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Nov 2004 02:35:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUKNHfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Nov 2004 01:51:19 -0500
-Received: from i31207.upc-i.chello.nl ([62.195.31.207]:43392 "EHLO
-	laptop.fenrus.org") by vger.kernel.org with ESMTP id S261253AbUKNGvM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Nov 2004 01:51:12 -0500
-Subject: Re: Compiling RHEL WS Kernels
-From: Arjan van de Ven <arjanv@redhat.com>
-To: "Paul G. Allen" <pgallen@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <bd8e30a4041113222350934a3e@mail.gmail.com>
-References: <bd8e30a4041113222350934a3e@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-uP2XiyrCfBErrN+SpUBf"
-Organization: Red Hat, Inc.
-Message-Id: <1100415065.2638.0.camel@laptop.fenrus.org>
+	Sun, 14 Nov 2004 02:35:14 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:47821
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261254AbUKNHfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Nov 2004 02:35:10 -0500
+Date: Sat, 13 Nov 2004 23:18:02 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: robert.olsson@its.uu.se, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] net/core/pktgen.c shouldn't include pci.h
+Message-Id: <20041113231802.0704083e.davem@davemloft.net>
+In-Reply-To: <20041113145351.GZ2249@stusta.de>
+References: <20041113145351.GZ2249@stusta.de>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Sun, 14 Nov 2004 07:51:06 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 13 Nov 2004 15:53:51 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
---=-uP2XiyrCfBErrN+SpUBf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> If rebuilding after touching pci.h in 2.6, net/core/pktgen.c is the only 
+> file under net/ that gets rebuilt.
+> 
+> I searched and didn't find any reason why net/core/pktgen.c needs to 
+> include pci.h .
+> 
+> I'm therefore suggesting the patch below (applies against both 2.4
+> and 2.6).
 
-On Sat, 2004-11-13 at 22:23 -0800, Paul G. Allen wrote:
-> I recently installed RHEL WS Update 3 (kernel 2.4.21-20) on my laptop.
-> Out of the box it does not recognize any USB devices, my Synaptics
-> touchpad, my PCMCIA Wireless (NetGear WAG511G) or the proper
-> resolution on my LCD. (NOTE: RH 9 worked perfectly OOTB on this same
-> machine. So far I'm not at all impressed with RHEL WS - any more than
-> I was with RH 7.0.)
->=20
-
-you might want to install the kernel-unsupported rpm
-
-> I tried to build a new 2.4.21 kernel based upon a configuration from a
-> non-RH kernel (2.4.24) that worked on this machine. Not a single
-> module will compile correctly. I had to remove all modules and compile
-
-did you start with  mrproper ?
---=20
-
---=-uP2XiyrCfBErrN+SpUBf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBlwBZpv2rCoFn+CIRAuZ0AKCR3lg5DxQLc1OzuEn37+8UfLNAAQCfS+gB
-GsqAElnNM7c8frJnyNEB5WU=
-=Nqwi
------END PGP SIGNATURE-----
-
---=-uP2XiyrCfBErrN+SpUBf--
+Yeah, that's pretty weird.  Patch applied, thanks Adrian :)

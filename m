@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbQLMI6o>; Wed, 13 Dec 2000 03:58:44 -0500
+	id <S130245AbQLMJNl>; Wed, 13 Dec 2000 04:13:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129652AbQLMI6e>; Wed, 13 Dec 2000 03:58:34 -0500
-Received: from cassis.axialys.net ([195.115.102.11]:37895 "EHLO
-	cassis.axialys.net") by vger.kernel.org with ESMTP
-	id <S129415AbQLMI6Z>; Wed, 13 Dec 2000 03:58:25 -0500
-Date: Wed, 13 Dec 2000 09:32:48 +0100
-From: Simon Huggins <huggie@earth.li>
-To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: D-LINK DFE-530-TX
-Message-ID: <20001213093247.A24856@paranoidfreak.freeserve.co.uk>
-Mail-Followup-To: Simon Huggins <huggie@earth.li>,
-	Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0012061942570.620-100000@asdf.capslock.lan> <20001208012321.A1732@colonel-panic.com> <3A30F68F.50076AA7@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A30F68F.50076AA7@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Dec 08, 2000 at 09:56:15AM -0500
-Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
+	id <S130155AbQLMJNU>; Wed, 13 Dec 2000 04:13:20 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:20416 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129747AbQLMJNC>;
+	Wed, 13 Dec 2000 04:13:02 -0500
+Date: Wed, 13 Dec 2000 03:42:34 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andreas Dilger <adilger@turbolinux.com>
+cc: Ext2 development mailing list <ext2-devel@lists.sourceforge.net>,
+        Linux FS development list <linux-fsdevel@vger.kernel.org>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.2.18 ext2 large file bug?
+In-Reply-To: <200012130814.eBD8ELc10852@webber.adilger.net>
+Message-ID: <Pine.GSO.4.21.0012130324410.3177-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linux,
 
-On Fri, Dec 08, 2000 at 09:56:15AM -0500, Jeff Garzik wrote:
-> Peter Horton wrote:
-> > If the PCI device ID is 3065 then it's via-rhine, but not supported
-> > by the driver in the kernel. Get updated via-rhine from Donald
-> > Becker's site http://www.scyld.com/network.
-> 2.4.x-test has some fixes for via-rhine which don't appear to have made
-> it into the Becker driver yet...
 
-Is either of these likely to make it into the stock 2.2 via-rhine?
+On Wed, 13 Dec 2000, Andreas Dilger wrote:
 
-Simon.
+> Hello,
+> while looking at the COMPAT flag patches I made, I noticed the following
+> in the ext2/ext3 code.  I believe that this bug is fixed in 2.4, but it
+> also needs to be fixed in 2.2.  Basically, we are checking for an ext2
+> large file, which would be a file > 2GB on systems that don't support
+> such.  However, we are checking for a file > 8GB which is clearly wrong.
+> The ext3 version of the patch is also attached.
+ 
+> Cheers, Andreas
+> ==========================================================================
+> --- linux-2.2.18pre27-TL/fs/ext2/file.c.orig	Mon Dec 11 22:43:17 2000
+> +++ linux-2.2.18pre27-TL/fs/ext2/file.c	Wed Dec 13 00:13:00 2000
+> @@ -208,7 +208,7 @@
+>  			if (!count)
+>  				return -EFBIG;
+>  		}
+> -		if (((pos + count) >> 31) &&
+> +		if (((pos + count) >> 33) &&
+
+	(x>>33) is the same as (x / (1LL<<33)). I.e. _with_ your change it
+becomes "file >= 8Gb", instead of the current (correct) "file >= 2Gb".
+
+							Cheers,
+								Al
+PS: Guys, 'fess up, who had written the following line?
+                for (i = 0, ino = SYSV_ROOT_INO+1, block = sb->sv_firstinodezone, j = SYSV_ROOT_INO ; i < sb->sv_fic_size && block < sb->sv_firstdatazone ; block++, j = 0) {
+And yes, that's one line. fs/sysv/ialloc.c...
 
 -- 
-Just another wannabie | "I get mail; therefore I am."  |  Just another fool
-----------------------+           - Dilbert            +-------------------
-This message was brought to you the letter L and the number 31.
-htag.pl 0.0.17 -- http://www.earth.li/projectpurple/progs/htag.html
+Exercise 1-3. Read this code aloud:
+? if ((falloc(SMRHSHSCRTCH, S_IFEXT|0644, MAXRODDHSH)) < 0)
+?     ...
+								K&P
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbUANGrb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 01:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263895AbUANGrb
+	id S263895AbUANGyy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 01:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264285AbUANGyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 01:47:31 -0500
-Received: from [138.44.138.254] ([138.44.138.254]:27776 "EHLO jaded.anu.edu.au")
-	by vger.kernel.org with ESMTP id S263600AbUANGra (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 01:47:30 -0500
-Date: Wed, 14 Jan 2004 17:11:34 +1030
-From: Patrick Cole <z@amused.net>
-To: linux-kernel@vger.kernel.org
-Subject: Touchpad / keyboard behaving strangely on 2.6
-Message-ID: <20040114064134.GA2257@jaded>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 14 Jan 2004 01:54:54 -0500
+Received: from brain.sedal.usyd.edu.au ([129.78.24.68]:62609 "EHLO
+	brain.sedal.usyd.edu.au") by vger.kernel.org with ESMTP
+	id S263895AbUANGyx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 01:54:53 -0500
+Message-ID: <400581C0.3070606@sedal.usyd.edu.au>
+Date: Thu, 15 Jan 2004 04:52:00 +1100
+From: sena <auntvini@sedal.usyd.edu.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robin Holt <holt@sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Now  Load Averages and per user Load averages  are seperate.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since moving to 2.6 (same in .0 and .1), the synaptics touchpad on 
-my Dell I8100 will occasionally stop moving for a few seconds, sometimes
-for as much as 5 seconds, then just come back and start working again, 
-while the rest of the system is fully responsive (can switch X
-workspaces, launch stuff with my keybindings, etc).
+Hi Robin,
 
-Additionally, the keyboard repeat rate seems to be malfunctioning.
-Almost everytime I use one of my key bindings in sawfish (Ctrl-Alt-T) to 
-open a terminal window (wterm), I get a 1 or so second delay before 
-the terminal actually opens, and I always get two or three open instead
-of just one, even with the repeat delay set very high and using a
-very swift press.  The symptom only goes away when I turn the repeat
-off completely (xset r off) or I go back to my 2.4 kernel.
+Thanks for your previous guidance.
 
-Anybody have any thoughts?
+ I have seperated load average (traditional) and load average per user code.
 
-Patrick
+and  created a seperate file in /proc/loadavgus to collect the set I want.
 
--- 
-Patrick Cole <z@amused.net>
+ The new code has been integrated to the kernel and running well.
+
+Previous problem  was a bug in the code.
+
+loadavgus:
+94.97 83.97 100 3.00 500 0.97 501 1.97 502 0.97 503 3.97 504
+
+
+Thanks
+Sena Seneviratne
+Computer Engineering Lab
+Sydney University
+

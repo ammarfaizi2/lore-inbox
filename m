@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276734AbRJBWMj>; Tue, 2 Oct 2001 18:12:39 -0400
+	id <S276736AbRJBWLt>; Tue, 2 Oct 2001 18:11:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276737AbRJBWMa>; Tue, 2 Oct 2001 18:12:30 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:22106 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S276734AbRJBWMQ>; Tue, 2 Oct 2001 18:12:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10 doesn't boot
-Date: Wed, 3 Oct 2001 00:12:43 +0200
-X-Mailer: KMail [version 1.3]
-Organization: TreeWater Society Berlin
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011002221243.9B240F4B@shrek.lisa.de>
+	id <S276734AbRJBWLk>; Tue, 2 Oct 2001 18:11:40 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:7553 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S276733AbRJBWLb>;
+	Tue, 2 Oct 2001 18:11:31 -0400
+Date: Tue, 2 Oct 2001 18:11:58 -0400
+Message-Id: <200110022211.f92MBwE06003@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Stelian Pop <stelian.pop@fr.alcove.com>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
+In-Reply-To: <20010928160250.K21524@come.alcove-fr>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac9 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan M. Brandl wrote:
->On Tue, Oct 02, 2001 at 01:11:13PM +0200, Stefan M. Brandl wrote:
->> Hi,
->> I'm unable to boot Kernel 2.4.10 (I also tried 2.4.10-ac3).
->> I get:
->> 
->> LILO Loading linux ...........
->> Uncompressing Linux... Ok, booting the kernel.
->> 
+On Fri, 28 Sep 2001 16:02:52 +0200, Stelian Pop <stelian.pop@fr.alcove.com> wrote:
 
->Reply to my on mail.
->I was trying to boot an Athlon optimized kernel on a Pentium Box.
->Now it's optimized for Pentium and it boots.
+> What about making a conditional on 'is_sony_vaio_laptop' here ?
+> (but you need to extends the conditionnal export of this variable 
+> from dmi_scan.c / i386_ksyms.c).
 
-This one caught me, too (building kernels for diskless ws).
-Isn't it feasable to build in a check for the compiled architecture 
-into the loader, and kernel panic instead of just dying...
+Well, the funny thing is, the same kernel doesn't boot on a Dell Inspiron 
+laptop either, if PNP is enabled -- and the oops is the same. So it's not 
+just Sony...
 
->Stefan
+2.4.9-ac10 has no such issues on the same laptop, btw.
 
-Hans-Peter
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264304AbTJOUaa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 16:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTJOUaa
+	id S264305AbTJOUai (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 16:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264306AbTJOUah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 16:30:30 -0400
-Received: from main.gmane.org ([80.91.224.249]:30088 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264304AbTJOUa1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 16:30:27 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: orinoco wireless pcmcia driver in test5
-Date: Wed, 15 Oct 2003 22:30:23 +0200
-Message-ID: <yw1xllrmfdls.fsf@users.sourceforge.net>
-References: <20031015213013.5244bb4c.atte@ballbreaker.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:nWp1ceuhHt1z/PQ1pHBa6AgthWI=
+	Wed, 15 Oct 2003 16:30:37 -0400
+Received: from fledge.watson.org ([204.156.12.50]:18954 "EHLO
+	fledge.watson.org") by vger.kernel.org with ESMTP id S264305AbTJOUad
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 16:30:33 -0400
+Date: Wed, 15 Oct 2003 16:27:35 -0400 (EDT)
+From: "Andrew R. Reiter" <arr@watson.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on incoming packets and scheduler
+In-Reply-To: <3F8DAA6B.7060609@nortelnetworks.com>
+Message-ID: <20031015162634.D56545@fledge.watson.org>
+References: <3F8CA55C.1080203@nortelnetworks.com>
+ <Pine.LNX.4.56.0310151035480.2144@bigblue.dev.mdolabs.com>
+ <3F8D8F3A.5040506@nortelnetworks.com> <Pine.LNX.4.56.0310151133030.2144@bigblue.dev.mdolabs.com>
+ <3F8DAA6B.7060609@nortelnetworks.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atte André Jensen <atte@ballbreaker.dk> writes:
+On Wed, 15 Oct 2003, Chris Friesen wrote:
 
-> What is the result (and purpose) of no mention of the orinoco wireless
-> drivers in the .config for test5?
->
-> [atte@aarhus atte]$ grep -i orinoco /usr/src/linux-2.6.0-test5/.config
-> [atte@aarhus atte]$ 
->
-> Will the driver be linked in anyhow? If not is there a fix?
+:Davide Libenzi wrote:
+:> On Wed, 15 Oct 2003, Chris Friesen wrote:
+:
+:>>It appears that 2.4.20 fixes this issue, but there is another one
+:>>remaining that the latency appears to be dependent on the number of
+:>>incoming packets.  See thread "incoming packet latency in 2.4.[18-20]"
+:>>for details.  This behaviour doesn't show up in 2.6, and I'm about to
+:>>test 2.4.22.
+:
+:> Are you sure it's not a livelock issue during the burst?
+:
+:I dunno, you tell me.
+:
+:The test app simply sits in select() until a packet comes in, then it
+:spins on recvmsg() until there are no more messages.  It uses
+:SO_TIMESTAMP to find out when the packet got to the kernel, and does a
+:gettimeofday() right after the recvmsg(), then calculates the delta for
+:each packet and the overall average.
+:
+:With 2.4.[18-20], the overall average goes up when the number of packets
+:goes up.  For 2.6.0-test6, it stays constant.
 
-In -test7, it's called CONFIG_HERMES.  I've got these lines in my
-.config:
+I would be interested in seeing the test be run with epoll too :)  I
+ealize .18 doesn't support this, but how about it for .20?  If not,
+perhaps you could shoot over the code and I could test?
 
-CONFIG_HERMES=m
-CONFIG_PCMCIA_HERMES=m
-CONFIG_NET_WIRELESS=y
+Cheers,
+Andrew
 
-I'm sending this mail over a wireless card using the orinoco module,
-so it works.
-
--- 
-Måns Rullgård
-mru@users.sf.net
-
+--
+Andrew R. Reiter
+arr@watson.org
+arr@FreeBSD.org

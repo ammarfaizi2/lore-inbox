@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132088AbQL2TmM>; Fri, 29 Dec 2000 14:42:12 -0500
+	id <S132141AbQL2TpM>; Fri, 29 Dec 2000 14:45:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132110AbQL2TmC>; Fri, 29 Dec 2000 14:42:02 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8544 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132088AbQL2Tl6>; Fri, 29 Dec 2000 14:41:58 -0500
-Date: Fri, 29 Dec 2000 20:11:12 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Petru Paler <ppetru@ppetru.net>,
-        Jakob Østergaard <jakob@unthought.net>,
+	id <S132136AbQL2TpC>; Fri, 29 Dec 2000 14:45:02 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:5636 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132110AbQL2Toy>;
+	Fri, 29 Dec 2000 14:44:54 -0500
+Date: Fri, 29 Dec 2000 20:14:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Petru Paler <ppetru@ppetru.net>,
         Jure Pecar <pegasus@telemach.net>, linux-kernel@vger.kernel.org,
         thttpd@bomb.acme.com
 Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
-Message-ID: <20001229201112.C16261@athlon.random>
-In-Reply-To: <20001229202120.C573@ppetru.net> <E14C4hI-0005cK-00@the-village.bc.nu>
+Message-ID: <20001229201425.A3741@gruyere.muc.suse.de>
+In-Reply-To: <20001229165340.C12791@athlon.random> <E14C4bd-0005bM-00@the-village.bc.nu> <20001229200657.B16261@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E14C4hI-0005cK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 29, 2000 at 06:56:09PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001229200657.B16261@athlon.random>; from andrea@suse.de on Fri, Dec 29, 2000 at 08:06:57PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 29, 2000 at 06:56:09PM +0000, Alan Cox wrote:
-> Depends on memory bandwidth, [..]
+On Fri, Dec 29, 2000 at 08:06:57PM +0100, Andrea Arcangeli wrote:
+> On Fri, Dec 29, 2000 at 06:50:18PM +0000, Alan Cox wrote:
+> > Your cgi will keep the other CPU occupied, or run two of them. thttpd has
+> > superb scaling properties compared to say apache.
+> 
+> I think with 8 CPUs and 8 NICs (usual benchmark setup) you want more than 1 cpu
 
-BTW, it could as well use TCP_CORK + sendfile that will become truly zero copy
-eventually.
+That's a good benchmark setup when the benchmark requires a single machine.
 
-Andrea
+In the real world it often makes a lot of sense though to use a cluster
+of cheap single CPU machines behind a load balancer (gives you better fault 
+tolerance and is likely cheaper) 
+
+For these thttpd is a nice web server.
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

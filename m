@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287221AbRL2W3h>; Sat, 29 Dec 2001 17:29:37 -0500
+	id <S286794AbRL2WvR>; Sat, 29 Dec 2001 17:51:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286794AbRL2W21>; Sat, 29 Dec 2001 17:28:27 -0500
-Received: from waste.org ([209.173.204.2]:39125 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S287215AbRL2W2J>;
-	Sat, 29 Dec 2001 17:28:09 -0500
-Date: Sat, 29 Dec 2001 16:28:06 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC, CFT] include file cleanup
-In-Reply-To: <3C2E4158.93ACFFA3@colorfullife.com>
-Message-ID: <Pine.LNX.4.43.0112291625340.18183-100000@waste.org>
+	id <S287200AbRL2WvG>; Sat, 29 Dec 2001 17:51:06 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32260 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286794AbRL2Wu7>; Sat, 29 Dec 2001 17:50:59 -0500
+Subject: Re: The direction linux is taking
+To: oxymoron@waste.org (Oliver Xymoron)
+Date: Sat, 29 Dec 2001 23:01:27 +0000 (GMT)
+Cc: lm@bitmover.com (Larry McVoy), linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <Pine.LNX.4.43.0112291611040.18183-100000@waste.org> from "Oliver Xymoron" at Dec 29, 2001 04:24:56 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16KSTn-00060i-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Manfred Spraul wrote:
+> It never shows up in the maintainer's inbox, leaving them more time to
+> address the remainder. And fewer of the increasingly bitter complaints of
+> dropped patches.
 
-> It wasn't that difficult: only these includes are needed to pull in all
-> substructures ;-)
->
-> <<<<<<<
-> #include <linux/config.h>
-> #include <linux/types.h>
-> #include <linux/spinlock.h>
-> #include <linux/list.h>
-> #include <linux/wait.h>
-> #include <linux/timer.h>
-> #include <linux/times.h>
-> #include <linux/capability.h>
-> #include <linux/resource.h>
-> #include <linux/signal.h>
-> #include <asm/param.h>
-> #include <asm/signal.h>
-> #include <asm/processor.h>
-> #include <asm/resource.h>
-> <<<<<<<<<
+Most mangled diffs I get are caused by pine. Fixing pine would do more
+wonders than any magical patchbot. I also get patches and changes from
+people who quite genuinely either can't mail me unmangled diffs (eg the
+lotus corporate mail policy afflicted) or are from people who may really
+know their stuff and even be the vendor but are not familiar with the 
+patch/diff tools. A robot isn't going to teach them.
 
-Indeed. Recently I wanted to stash current->pid inside a spinlock for
-debugging purposes and discovered it was a nightmare because of all the
-forward references that'd be needed.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Alan

@@ -1,79 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130391AbRATRe5>; Sat, 20 Jan 2001 12:34:57 -0500
+	id <S130762AbRATRli>; Sat, 20 Jan 2001 12:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130636AbRATRer>; Sat, 20 Jan 2001 12:34:47 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:61451 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S130391AbRATRem>; Sat, 20 Jan 2001 12:34:42 -0500
-Date: Sat, 20 Jan 2001 12:34:42 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
-Message-ID: <20010120123441.H9156@sventech.com>
-In-Reply-To: <20010120003812.G9156@sventech.com> <200101200828.f0K8SKF00961@flint.arm.linux.org.uk>
+	id <S130877AbRATRlL>; Sat, 20 Jan 2001 12:41:11 -0500
+Received: from dusdi4-145-253-116-193.arcor-ip.net ([145.253.116.193]:1540
+	"EHLO al.romantica.wg") by vger.kernel.org with ESMTP
+	id <S130636AbRATRlD>; Sat, 20 Jan 2001 12:41:03 -0500
+Date: Sat, 20 Jan 2001 14:33:29 +0100
+From: Jens Taprogge <taprogge@idg.rwth-aachen.de>
+To: gmo@broadcom.com
+Cc: "'Carles Pina i Estany'" <is08139@salleURL.edu>,
+        linux-kernel@vger.kernel.org,
+        "'linux-tp600@icemark.ch'" <linux-tp600@icemark.ch>
+Subject: Re: PCMCIA Cards on 2.4.0
+Message-ID: <20010120143329.A901@al.romantica.wg>
+Mail-Followup-To: Jens Taprogge <taprogge@idg.rwth-aachen.de>,
+	gmo@broadcom.com, 'Carles Pina i Estany' <is08139@salleURL.edu>,
+	linux-kernel@vger.kernel.org,
+	"'linux-tp600@icemark.ch'" <linux-tp600@icemark.ch>
+In-Reply-To: <E1EBEF4633DBD3118AD1009027E2FFA00109BEDD@mail.sv.broadcom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <200101200828.f0K8SKF00961@flint.arm.linux.org.uk>; from Russell King on Sat, Jan 20, 2001 at 08:28:20AM +0000
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E1EBEF4633DBD3118AD1009027E2FFA00109BEDD@mail.sv.broadcom.com>; from gmo@broadcom.com on Fri, Jan 19, 2001 at 01:59:28PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001, Russell King <rmk@arm.linux.org.uk> wrote:
-> Johannes Erdfelt writes:
-> > On Fri, Jan 19, 2001, Miles Lane <miles@megapathdsl.net> wrote:
-> > > Johannes Erdfelt wrote:
-> > > 
-> > > > TODO
-> > > > ----
-> > > > - The PCI DMA architecture is horribly inefficient on x86 and ia64. The
-> > > >   result is a page is allocated for each TD. This is evil. Perhaps a slab
-> > > >   cache internally? Or modify the generic slab cache to handle PCI DMA
-> > > >   pages instead?
-> > > 
-> > > This might be the kind of thing to run past Linus when the 2.5 tree 
-> > > opens up.  Are these inefficiencies necessary evils due to workarounds 
-> > > for whacky bugs in BIOSen or PCI chipsets or are they due to poor 
-> > > design/implementation?
-> > 
-> > Looks like poor design/implementation. Or perhaps it was designed for
-> > another reason than I want to use it for.
+I used to have the same problem. Do you have ACPI enabled? Disabling it
+fixed it for me (btw: it does seem to matter what kind of card you use.
+I have only heard of networking cards causing trouble so far).
+
+Jens
+
+On Fri, Jan 19, 2001 at 01:59:28PM -0800, gmo@broadcom.com wrote:
+> I have a similar problem with a Thinkpad 600e:
 > 
-> Why?  What are you trying to do?  Allocate one area per small structure?
-> Why not allocate one big area and allocate from that (like the tulip
-> drivers do for their TX and RX rings)?
+> The machine has RedHat6.2, and the original kernel
+> (2.2.14-5) as well as every 2.4.0-test* kernel I've
+> tried (test5, test9, test10 and test12) have had
+> no trouble with the PCMCIA (actually Cardbus)
+> card I use (a 3Com 3C575, but I don't think it
+> has anything to do with the card itself).
 > 
-> I don't really know what you're trying to do/what the problem is because
-> there isn't enough context left in the original mail above, and I have
-> no idea whether the original mail appeared here or where I can read it.
-
-I was hoping the context from the original TODO up there was sufficient
-and it looked like it was enough.
-
-TD's are around 32 bytes big (actually, they may be 48 or even 64 now, I
-haven't checked recently). That's a waste of space for an entire page.
-
-However, having every driver implement it's own slab cache seems a
-complete waste of time when we already have the code to do so in
-mm/slab.c. It would be nice if we could extend the generic slab code to
-understand the PCI DMA API for us.
-
-> > I should also check architectures other than x86 and ia64.
+> Well, 2.4.0 does not seem to be able to talk to
+> the card. The first sign of trouble is the lines:
 > 
-> This is an absolute must.
+> cs: socket c13d4800 timed out during reset.
+> 	Try increasing setup_delay.
+> 
+> at the point where other kernels say instead:
+> 
+> cs: cb_alloc(bus 5): vendor 0x10b7, device 0x5057
+> 
+> and so the former does not seem to be able to access
+> the card while the others are happy.
+> 
+> All of this is with 2.4 kernels that include all the
+> necessary pieces (no modules), which makes it harder
+> to go change the setup_delay. I can make the PCMCIA
+> stuff into modules, but the point is that neither
+> setup_delay nor any other of the default values for
+> the module parameters changed between test12 and
+> release, so I'm not sure that it will really make
+> a difference.
+> 
+> One other thing I did try: If I eject and re-insert
+> the card after the system is up, it then starts working.
+> So I actually have a workaround, but I'd like to know
+> what is really happening and how to fix it.
+> 
+> Any suggestions?
+> 
+> TIA,
+> 
+> Gmo.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
-Not really. The 2 interesting architectures are x86 and ia64 since
-that's where you commonly see UHCI controllers. While you can add UHCI
-controllers to most any other architecture which has PCI, you usually
-see OHCI on those systems.
-
-I was curious to see if any other architectures implemented it
-differently and I was just expecting too much out of the API. You pretty
-much confirmed my suspicions when you suggested doing what the tulip
-driver does.
-
-JE
+-- 
+Jens Taprogge
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

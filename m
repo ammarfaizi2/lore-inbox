@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266910AbUI0S1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266912AbUI0S37@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266910AbUI0S1U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 14:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266912AbUI0S1U
+	id S266912AbUI0S37 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 14:29:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUI0S37
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 14:27:20 -0400
-Received: from smtp1.adl2.internode.on.net ([203.16.214.181]:14858 "EHLO
-	smtp1.adl2.internode.on.net") by vger.kernel.org with ESMTP
-	id S266910AbUI0S1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 14:27:14 -0400
-Subject: Re: [PATCH] __VMALLOC_RESERVE export
-From: Antony Suter <suterant@users.sourceforge.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: List LKML <linux-kernel@vger.kernel.org>, torvalds@osdl.org
-In-Reply-To: <20040927181229.A25704@infradead.org>
-References: <1096304623.9430.8.camel@hikaru.lan>
-	 <20040927181229.A25704@infradead.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-W2Mh46ObWVOAjaytFUq5"
-Message-Id: <1096309603.9430.17.camel@hikaru.lan>
+	Mon, 27 Sep 2004 14:29:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60070 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267176AbUI0S21
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 14:28:27 -0400
+Date: Mon, 27 Sep 2004 13:42:19 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: jonathan@jonmasters.org, Lars Marowsky-Bree <lmb@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Thomas Habets <thomas@habets.pp.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
+Message-ID: <20040927164219.GA31645@logos.cnet>
+References: <200409230123.30858.thomas@habets.pp.se> <20040923234520.GA7303@pclin040.win.tue.nl> <1096031971.9791.26.camel@localhost.localdomain> <200409242158.40054.thomas@habets.pp.se> <1096060549.10797.10.camel@localhost.localdomain> <20040927104120.GA30364@logos.cnet> <20040927125441.GG3934@marowsky-bree.de> <35fb2e590409270612524c5fb9@mail.gmail.com> <20040927133554.GD30956@logos.cnet> <20040927171253.GA9728@MAIL.13thfloor.at>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 28 Sep 2004 04:26:43 +1000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040927171253.GA9728@MAIL.13thfloor.at>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 27, 2004 at 07:12:53PM +0200, Herbert Poetzl wrote:
+> On Mon, Sep 27, 2004 at 10:35:54AM -0300, Marcelo Tosatti wrote:
+> > On Mon, Sep 27, 2004 at 02:12:26PM +0100, Jon Masters wrote:
+> > > Hi all,
+> > > 
+> > > Just out of interest then...suppose we've got a loopback swap device
+> > > and that we can extend this by creating a new file or extending
+> > > somehow the existing one.
+> > > 
+> > > What would be wrong with having the page reclaim algorithms use one of
+> > > the low memory watermarks as a trigger to call in to userspace to
+> > > extend the swap available if possible? This is probably what Microsoft
+> > > et al do with their "Windows is extending your virtual memory, yada
+> > > yada blah blah". Comments? Already done?
+> > 
+> > You dont to change kernel code for that - make a script to monitor 
+> > swap usage, as soon as it gets below a given watermark, you swapon 
+> > whatever swapfile you want.
+> 
+> hmm, sounds good, but what if next 'burst' of
+> swapped out data is larger than the watermark?
 
---=-W2Mh46ObWVOAjaytFUq5
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Give the watermark a large enough value.
 
-On Tue, 2004-09-28 at 03:12, Christoph Hellwig wrote:
-> On Tue, Sep 28, 2004 at 03:03:43AM +1000, Antony Suter wrote:
-> > __VMALLOC_RESERVE itself is not exported but is used by something that
-> > is. This patch is against 2.6.9-rc2-bk11
-> >=20
-> > This is required by the nvidia binary driver 1.0.6111
->=20
-> And the driver does absolutely nasty things it shouldn't do.  This is an
-> implementation detail that absolutely should not be exported.
-
-However __VMALLOC_RESERVE, specific to arch-i386 is now used by the
-macro MAXMEM. MAXMEM is _not_ specific to arch-i386. The nvidia driver
-has a kernel module that uses the macro MAXMEM. Is it wrong for a kernel
-module to use MAXMEM?
-
---=20
-- Antony Suter  (suterant users sourceforge net)  "Bonta"
-- "Facts do not cease to exist because they are ignored." - Aldous Huxley
-
---=-W2Mh46ObWVOAjaytFUq5
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBWFtjZu6XKGV+xxoRAuHoAKCB5fcymeLLXSktOdD93fgWnxuUrgCgnRup
-p4I2dmzdg982KRwmi3hYzQQ=
-=dmkz
------END PGP SIGNATURE-----
-
---=-W2Mh46ObWVOAjaytFUq5--
+> I'm no friend of the 'extend swap idea' so don't
+> get me wrong, but userspace can just reduce the
+> cases where you get out-of-swap, without support
+> from the kernel side (via some userspace helper).
 

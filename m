@@ -1,100 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130877AbRATRv1>; Sat, 20 Jan 2001 12:51:27 -0500
+	id <S129982AbRATSAu>; Sat, 20 Jan 2001 13:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131169AbRATRvO>; Sat, 20 Jan 2001 12:51:14 -0500
-Received: from vela.salleURL.edu ([130.206.42.85]:6917 "EHLO vela.salleURL.edu")
-	by vger.kernel.org with ESMTP id <S130877AbRATRvE>;
-	Sat, 20 Jan 2001 12:51:04 -0500
-Date: Sat, 20 Jan 2001 19:05:49 +0000 (GMT)
-From: Carles Pina i Estany <is08139@salleURL.edu>
-To: <gmo@broadcom.com>
-cc: <linux-kernel@vger.kernel.org>,
-        "'linux-tp600@icemark.ch'" <linux-tp600@icemark.ch>
-Subject: RE: PCMCIA Cards on 2.4.0
-In-Reply-To: <E1EBEF4633DBD3118AD1009027E2FFA00109BEDD@mail.sv.broadcom.com>
-Message-ID: <Pine.LNX.4.30.0101201900100.10134-100000@vela.salleURL.edu>
+	id <S130217AbRATSAk>; Sat, 20 Jan 2001 13:00:40 -0500
+Received: from colorfullife.com ([216.156.138.34]:42253 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129982AbRATSA0>;
+	Sat, 20 Jan 2001 13:00:26 -0500
+Message-ID: <3A69D235.F1EE4CA6@colorfullife.com>
+Date: Sat, 20 Jan 2001 19:00:21 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: johannes@erdfelt.com, linux-kernel@vger.kernel.org
+Subject: Re: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi,
-
-My problem was an other problem.
-
-With Kernel 2.4.0test11 and 2.4.0test12, I compile with PCMCIA options
-built in the Kernel (not as modules).
-
-Works fine, I start Linux and the PCMCIA that was inserted was recognized
-without problems (I think that I could not change PCMCIA because then
-don't work, I am not sure)
-
-With Kernel 2.4.0 final, with the same options, I start Linux and don't
-work.
-
-Then, with the help of Christian Gennerat, I see (on /var/log/daemon) that
-my cardmgr searchs for the module of my card (serial_cs.o, etc.; I haven't
-the laptop here). After it, I compile with the PCMCIA suport in kernel
-but with the drivers of my cards as module.
-
-Now works fine, I can change the cards without restart :-)
-
-The question is, why with kernel 2.4.0test12 and test11 this options works
-fine; and with final release not?
-
-Thank you very much, I hope that my experience help anybody.
-
-> I have a similar problem with a Thinkpad 600e:
+> 
+> TD's are around 32 bytes big (actually, they may be 48 or even 64 now, I 
+> haven't checked recently). That's a waste of space for an entire page. 
+> 
+> However, having every driver implement it's own slab cache seems a 
+> complete waste of time when we already have the code to do so in 
+> mm/slab.c. It would be nice if we could extend the generic slab code to 
+> understand the PCI DMA API for us. 
 >
-> The machine has RedHat6.2, and the original kernel
-> (2.2.14-5) as well as every 2.4.0-test* kernel I've
-> tried (test5, test9, test10 and test12) have had
-> no trouble with the PCMCIA (actually Cardbus)
-> card I use (a 3Com 3C575, but I don't think it
-> has anything to do with the card itself).
->
-> Well, 2.4.0 does not seem to be able to talk to
-> the card. The first sign of trouble is the lines:
->
-> cs: socket c13d4800 timed out during reset.
-> 	Try increasing setup_delay.
->
-> at the point where other kernels say instead:
->
-> cs: cb_alloc(bus 5): vendor 0x10b7, device 0x5057
->
-> and so the former does not seem to be able to access
-> the card while the others are happy.
->
-> All of this is with 2.4 kernels that include all the
-> necessary pieces (no modules), which makes it harder
-> to go change the setup_delay. I can make the PCMCIA
-> stuff into modules, but the point is that neither
-> setup_delay nor any other of the default values for
-> the module parameters changed between test12 and
-> release, so I'm not sure that it will really make
-> a difference.
->
-> One other thing I did try: If I eject and re-insert
-> the card after the system is up, it then starts working.
-> So I actually have a workaround, but I'd like to know
-> what is really happening and how to fix it.
->
-> Any suggestions?
->
-> TIA,
->
-> Gmo.
->
+I missed the beginning of the thread:
 
-----
-Carles Pina i Estany
-   E-Mail: cpina@linuxfan.com || #ICQ: 14446118 || Nick: Pinux
-   URL: http://www.salleurl.edu/~is08139
-   TELEFONICA S.A  "Siempre te dejaremos colgado"
+What are the exact requirements for TD's?
+I have 3 tiny updates for mm/slab.c that I'll send to Linus as soon as
+2.4 has stabilized a bit more, perhaps I can integrate the code for USB.
 
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

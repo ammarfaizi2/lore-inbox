@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUBIN6x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 08:58:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUBIN6x
+	id S265218AbUBIOAT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 09:00:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUBIOAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 08:58:53 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:16770 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265207AbUBIN6w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 08:58:52 -0500
-Date: Mon, 9 Feb 2004 09:00:24 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Nick Craig-Wood <ncw1@axis.demon.co.uk>
-cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: Does anyone still care about BSD ptys?
-In-Reply-To: <20040209134005.GA15739@axis.demon.co.uk>
-Message-ID: <Pine.LNX.4.53.0402090853020.8894@chaos>
-References: <c07c67$vrs$1@terminus.zytor.com> <20040209092915.GA11305@axis.demon.co.uk>
- <20040209124739.GC1738@mail.shareable.org> <20040209134005.GA15739@axis.demon.co.uk>
+	Mon, 9 Feb 2004 09:00:19 -0500
+Received: from smtp.dkm.cz ([62.24.64.34]:43025 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S265218AbUBIOAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Feb 2004 09:00:13 -0500
+Message-ID: <4027A07D.3080208@zvala.cz>
+Date: Mon, 09 Feb 2004 15:00:13 +0000
+From: Tomas Zvala <tomas@zvala.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ed Tomlinson <edt@aei.ca>
+Subject: Re: 2.6.2-mm1 xfs OOPS (when mounting root fs)
+References: <40279532.2000502@zvala.cz> <200402090853.00930.edt@aei.ca>
+In-Reply-To: <200402090853.00930.edt@aei.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Feb 09, 2004 at 07:17:27AM +0000, H. Peter Anvin wrote:
-> > Does anyone still care about old-style BSD ptys, i.e. /dev/pty*?
+Ehm:(
+I'm sorry, it just seemed to me like oops so i did not look for the 
+"oops" word and treated it as oops. So I was searching for oopses in the 
+lkml.
+I'll triple check it says oops next time I'm gonna report any oopses (as 
+much as I hope i won't see any:) ).
 
-Only people who want to log-in from the network..... Of course
-you could force a re-write of all the stuff like telnet, adding
-another layer of bugs that'll take another N years to find and
-remove.
+Tomas Zvala
 
-I think you really need to leave the "legacy" stuff alone. Somebody
-installs a new kernel and then can't log in from the Network. Not
-good at all.
+Ed Tomlinson wrote:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+>On February 09, 2004 09:12 am, Tomas Zvala wrote:
+>  
+>
+>>Hello,
+>>Well i hope i correctly identified lkml as the proper mailing list to 
+>>report this.
+>>I've got these oopses(oopses.txt attachment) when my XFS root filesystem 
+>>gets mounted. Im also attaching my /proc/config.gz and xfs_info output.
+>>If you need any more info let me know please.
+>>    
+>>
+>
+>And where in this does it say oops?   This is a debug trace.  It indicates a
+>problem can could cause pain later - it is NOT an oops.
+>
+>lkml is the place to report it.  however, it is a good idea to search the archives 
+>to see if its already known - in this case it definitly is.
+>
+>Ed
+>
+>  
+>
 

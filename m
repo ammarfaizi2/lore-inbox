@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUHMV0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267566AbUHMV3U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUHMV0u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 17:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUHMV0u
+	id S267566AbUHMV3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 17:29:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267600AbUHMV3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 17:26:50 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:15049 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S267588AbUHMV0I (ORCPT
+	Fri, 13 Aug 2004 17:29:20 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:48330 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S267566AbUHMV3S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 17:26:08 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Ralf Gerbig <rge-news@hsp-law.de>
-Subject: Re: rc4-mm1 pci-routing
-Date: Fri, 13 Aug 2004 15:25:58 -0600
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Ralf Gerbig <rge-news@quengel.org>
-References: <200408111642.59938.bjorn.helgaas@hp.com> <m0brheycgo.fsf@test3.hsp-law.de>
-In-Reply-To: <m0brheycgo.fsf@test3.hsp-law.de>
-MIME-Version: 1.0
+	Fri, 13 Aug 2004 17:29:18 -0400
+Date: Fri, 13 Aug 2004 23:29:19 +0200
+From: Sascha Wilde <wilde@sha-bang.de>
+To: "David N. Welton" <davidw@eidetix.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6 kernel won't reboot on AMD system - 8042 problem?
+Message-ID: <20040813212919.GA876@kenny.sha-bang.local>
+References: <20040811141408.17933.qmail@web81304.mail.yahoo.com> <20040811175613.GA829@kenny.sha-bang.local> <411BA214.2060306@eidetix.com> <411BA797.2030705@eidetix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408131525.58650.bjorn.helgaas@hp.com>
+In-Reply-To: <411BA797.2030705@eidetix.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 August 2004 3:06 pm, Ralf Gerbig wrote:
-> The on the first boot of rc4-mm1 the last line on the screen was about
-> starting ALSA, so I assumed that was what broke and sent the diff of 
-> the 'boot.msg' (SuSE 9.1) with and without pci=routeirq.
+On Thu, Aug 12, 2004 at 07:23:35PM +0200, David N. Welton wrote:
+> David N. Welton wrote:
+> 
+> >Sascha, if you want to test it out, try this in i8042_controller_init,
+> >at about line 724 (near this: i8042_initial_ctr = i8042_ctr;)
+> >
+> >    {
+> >        unsigned char pram;
+> >        pram = (~i8042_ctr) & 0xff ;
+> >        i8042_command(&pram, I8042_CMD_CTL_WCTR);
+> >    }
+> 
+> In fact, it's enough to fix the problem on my machine!  I can even plug 
+> the keyboard back in and it works.
+> 
+> --- /home/davidw/linux-2.6.7/drivers/input/serio/i8042.c 
+> 2004-06-16 07:18
+> :57.000000000 +0200
+> +++ drivers/input/serio/i8042.c 2004-08-12 19:05:17.000000000 +0200
+> @@ -710,6 +710,9 @@
+>                 return -1;
+>         }
+> 
+> +
+> +       i8042_ctr = (~i8042_ctr) & 0xff;
+> +
+>         i8042_initial_ctr = i8042_ctr;
+> 
+> Try that and see how it works for you
 
-So this was some unrelated problem, and the hang occurs both with
-and without "pci=routeirq"?
+This works for me too.  Thanks!
 
-> Then I compiled the intel8x0 driver into the kernel send the resulting
-> boot.msg with pci=routeirq. Thereafter I hooked up a serial console and 
-> found an oops from the 'wondershaper' and other unrelated breakage. 
+I hadn't had the time to read the rest of the thread in full detail,
+but it seem, that we are geting closer to a solution.
 
-And you think the wondershaper oops was also unrelated to "pci=routeirq"?
-Having to reorder wondershaper to avoid an oops doesn't sound like an
-optimal solution.
+cheers
+sascha
+-- 
+Sascha Wilde
+"Gimme about 10 seconds to think for a minute..."
 
-So, if you don't have any problems you can blame on my patch, great!
-And don't feel sorry; my change exposed several driver bugs, so I'm
-glad for every testing report!

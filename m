@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272241AbRHWMi6>; Thu, 23 Aug 2001 08:38:58 -0400
+	id <S272251AbRHWMoS>; Thu, 23 Aug 2001 08:44:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272248AbRHWMis>; Thu, 23 Aug 2001 08:38:48 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:53893 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S272247AbRHWMie>; Thu, 23 Aug 2001 08:38:34 -0400
-Date: Thu, 23 Aug 2001 08:38:48 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: python now required for kernel compile -- <grin>
-Message-ID: <Pine.LNX.3.95.1010823083600.5631A-100000@chaos.analogic.com>
+	id <S272250AbRHWMoI>; Thu, 23 Aug 2001 08:44:08 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:61959 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S272249AbRHWMn5>;
+	Thu, 23 Aug 2001 08:43:57 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15236.63384.489975.150804@cargo.ozlabs.ibm.com>
+Date: Thu, 23 Aug 2001 22:31:20 +1000 (EST)
+To: Gabriel Paubert <paubert@iram.es>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC
+  add_timer_randomness()
+In-Reply-To: <Pine.LNX.4.21.0108231137080.2015-100000@ltgp.iram.es>
+In-Reply-To: <15236.23943.260421.31691@cargo.ozlabs.ibm.com>
+	<Pine.LNX.4.21.0108231137080.2015-100000@ltgp.iram.es>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gabriel Paubert writes:
 
-python???
-Remember the `fortune` where somebody accidentally typed `ed`?
+> Reading the PVR is probably faster in this case, since you avoid a
+> potential cache miss.
 
-# python
-Python 1.3 (Mar 11 1996)  [GCC 2.7.2]
-Copyright 1991-1995 Stichting Mathematisch Centrum, Amsterdam
->>> ^C 
-KeyboardInterrupt
->>> ^C 
-KeyboardInterrupt
->>> ^C 
-KeyboardInterrupt
->>> help
->Traceback (innermost last):
-  File "<stdin>", line 1, in ?
-NameError: help
->>> quit
->Traceback (innermost last):
-  File "<stdin>", line 1, in ?
-NameError: quit
->>> exit
->Traceback (innermost last):
-  File "<stdin>", line 1, in ?
-NameError: exit
->>> ^Z
-[1]+  Stopped		python
-$ killall python
-$ ps | grep python
-5549  2 T  0:00  python
-5568  2 S  0:00  grep python
-$ kill -9 5549
+Yep.
 
-Welcome to Linux 2.4.1
+> As I said in an earlier message the __USE_RTC macro
+> should be made dependent on whether the kernel supports 601 or not.
 
-putah login:
+We don't have USE_RTC in 2.2.  The proposed patch was for 2.2.19.
 
+> No, this is not what they are trying to capture. Furthermore the 7 LSB of
+> the decrementer on a 601 are not random (but they don't seem to be 0
+> always despite the documentation) so you would have to shift the result
 
+Don't you mean that the 7 LSB of RTCL aren't random and are supposed
+to be 0?  The decrementer should decrement by 1 at a rate of 7.8125MHz
+and all the bits should be implemented.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Paul.

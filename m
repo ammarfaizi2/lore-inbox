@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVANDlb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVANDlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVANDlb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 22:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVANDjX
+	id S261891AbVANDlz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 22:41:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVANDlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 22:39:23 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:35008 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S261885AbVANDem
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 22:34:42 -0500
-Message-Id: <200501140334.j0E3YPMv027069@localhost.localdomain>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       lkml@s2y4n2c.de, rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com,
-       chrisw@osdl.org, mpm@selenic.com, hch@infradead.org, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM 
-In-reply-to: Your message of "Fri, 14 Jan 2005 14:31:21 +1100."
-             <1105673482.5402.58.camel@npiggin-nld.site> 
-Date: Thu, 13 Jan 2005 22:34:25 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [141.152.253.251] at Thu, 13 Jan 2005 21:34:41 -0600
+	Thu, 13 Jan 2005 22:41:51 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:9403 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261888AbVANDji (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 22:39:38 -0500
+Message-ID: <41E73EE4.50200@linux-m68k.org>
+Date: Fri, 14 Jan 2005 04:39:16 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, torvalds@osdl.org,
+       ak@muc.de, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain> <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org> <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org> <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com> <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de> <Pine.LNX.4.58.0501110937450.32744@schroedinger.engr.sgi.com> <41E4BCBE.2010001@yahoo.com.au> <20050112014235.7095dcf4.akpm@osdl.org> <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com> <20050112104326.69b99298.akpm@osdl.org> <Pine.LNX.4.58.0501121055490.11169@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0501121055490.11169@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I wouldn't have thought it is so much a matter of having real-time-ish
->scheduling available that tries to play nicely in a multi user machine.
->That must still imply that either the user is able to unduly tie up
->resources (and thus it has to be a privileged operation), or that it
->sometimes can't meet its "guarantees" (in which case, is it useful?).
+Hi,
 
-most audio hackers and users are perfectly comfortable with the OSX
-compromise - tasks with no special privilege get deterministic access
-to the CPU as long as they do not consume excessive cycles.
+Christoph Lameter wrote:
 
-this begs the question about what happens when the entire class of
-SCHED_ISO (to use Con's working name for such a scheduling class)
-tasks is eating too much CPU, rather than any one of them, but i'll
-leave that to Con :)
+> Introduction of the cmpxchg is one atomic operations that replaces the two
+> spinlock ops typically necessary in an unpatched kernel. Obtaining the
+> spinlock requires an spinlock (which is an atomic operation) and then the
+> release involves a barrier. So there is a net win for all SMP cases as far
+> as I can see.
 
---p
+But there might be a loss in the UP case. Spinlocks are optimized away, 
+but your cmpxchg emulation enables/disables interrupts with every access.
+
+bye, Roman

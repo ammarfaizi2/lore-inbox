@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVCLFWm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVCLF6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbVCLFWm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 00:22:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVCLFWQ
+	id S261576AbVCLF6m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 00:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVCLF6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 00:22:16 -0500
-Received: from dial-99.r3.mtmscy.infoave.net ([216.228.54.99]:53769 "EHLO
-	dial-99.r3.mtmscy.infoave.net") by vger.kernel.org with ESMTP
-	id S261576AbVCLFVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 00:21:43 -0500
-Date: Fri, 11 Mar 2005 15:21:52 +0000
-From: Tod Crabtree <zinowejys@alemail.com>
-X-Mailer: The Bat! (v3.01 RC3) UNREG / GKBZ78JZXEW
-Reply-To: Tod Crabtree <zinowejys@alemail.com>
-X-Priority: 3 (Normal)
-Message-ID: <70558974226.6814095257761@dial-99.r3.mtmscy.infoave.net>
-To: linux-ia64@vger.kernel.org
-Subject: A custom Logo that expresses your company! (593811620)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 8bit
+	Sat, 12 Mar 2005 00:58:41 -0500
+Received: from gate.crashing.org ([63.228.1.57]:43750 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261576AbVCLF5j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 00:57:39 -0500
+Subject: Re: [RFC][PATCH] new timeofday arch specific hooks  (v. A3)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
+       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com
+In-Reply-To: <1110590710.30498.329.camel@cog.beaverton.ibm.com>
+References: <1110590655.30498.327.camel@cog.beaverton.ibm.com>
+	 <1110590710.30498.329.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Sat, 12 Mar 2005 16:52:13 +1100
+Message-Id: <1110606733.19810.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Our art team creates a custom logo for you, based on your needs.  
+On Fri, 2005-03-11 at 17:25 -0800, john stultz wrote:
+> All,
+> 	This patch implements the minimal architecture specific hooks to enable
+> the new time of day subsystem code for i386, x86-64, ia64, ppc32 and
+> ppc64. It applies on top of my linux-2.6.11_timeofday-core_A3 patch and
+> with this patch applied, you can test the new time of day subsystem. 
+> 
+> Basically it configs in the NEWTOD code and cuts alot of code out of the
+> build via #ifdefs. I know, I know, #ifdefs' are ugly and bad, and the
+> final patch will just remove the old code. For now this allows us to be
+> flexible and easily switch between the two implementations with a single
+> define.
+> 
+> New in this version:
+> o ppc32 arch code (by Darrick Wong. Many thanks to him for this code!)
+> o ia64 arch code (by Max Asbock. Many thanks to him for this code!)
+> o minor cleanups moving code between the arch and timesource patches
+> 
+> Items still on the TODO list:
+> o s390 arch port (hey Martin: nudge, nudge :)
+> o arch specific vsyscall/fsyscall interface
+> o other arch ports (volunteers wanted!)
 
+I'm not what the impact will be with the vDSO implementation of
+gettimeofday which relies on the bits in systemcfg (tb_to_xs etc...).
 
+Currently, the userland code uses the exact same bits as the kernel
+code, and thus, we have a garantee of getting the same results from
+both. Also, our "special" ppc_adjtimex will also update our offset and
+scale factor (with appropriate barriers) in a way that applies to both
+the kernel/syscall gettimeofday and the vDSO implementation. I'm not
+sure this is still true with your patch.
 
-Years of experience have taught us how to create a logo that makes a statement that is unique to you. 
+I suppose I'll have to dig into the details sometime next week..
 
- In a professional manner we learn about your image and how you would like the world to perceive you and your company.
-With this in formation we then create a logo that is not only unique but reflects the purpose of you and your company. 
- 
-For value and a logo that reflects your image, take a few minutes and visit Try Logos!
-http://www.try-logos-design.com/
+Ben
 
-
-
- 
-S incerely       
-Logo Design Team 
-
-
-
-
-
-
-
------
-{UNSUBSCRIBE_PREFIX}
-http://www.try-logos-design.com/uns.php

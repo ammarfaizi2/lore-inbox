@@ -1,74 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbTIOJ7F (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 05:59:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbTIOJ7F
+	id S262461AbTIOKXL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 06:23:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTIOKXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 05:59:05 -0400
-Received: from dyn-ctb-210-9-244-189.webone.com.au ([210.9.244.189]:13317 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261718AbTIOJ7C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 05:59:02 -0400
-Message-ID: <3F658D4F.1020409@cyberone.com.au>
-Date: Mon, 15 Sep 2003 19:58:39 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: alan@lxorguk.ukuu.org.uk, davidsen@tmr.com, linux-kernel@vger.kernel.org,
-       zwane@linuxpower.ca
-Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-References: <200309150939.h8F9d13D000943@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200309150939.h8F9d13D000943@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Sep 2003 06:23:11 -0400
+Received: from coruscant.franken.de ([193.174.159.226]:45707 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id S262461AbTIOKXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 06:23:07 -0400
+Date: Mon, 15 Sep 2003 12:18:26 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: firewalling PPPOE stream without terminating it
+Message-ID: <20030915101826.GH777@obroa-skai.de.gnumonks.org>
+References: <3F61D8E4.6020309@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbfcI4OLZ4XW0yH2"
+Content-Disposition: inline
+In-Reply-To: <3F61D8E4.6020309@nortelnetworks.com>
+X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.6.0-test4
+X-Date: Today is Pungenday, the 39th day of Bureaucracy in the YOLD 3169
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--VbfcI4OLZ4XW0yH2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-John Bradford wrote:
+Hi Chris!
 
->>>>>That's a non-issue.  300 bytes matters a lot on some systems.  The
->>>>>fact that there are drivers that are bloated is nothing to do with
->>>>>it.
->>>>>
->>>>>
->>>>Its kind of irrelevant when by saying "Athlon" you've added 128 byte
->>>>alignment to all the cache friendly structure padding.
->>>>
->>>>
->>>My intention is that we won't have done 128 byte alignments just by
->>>'supporting' Athlons, only if we want to run fast on Athlons.  A
->>>distribution kernel that is intended to boot on all CPUs needs
->>>workarounds for Athlon bugs, but it doesn't need 128 byte alignment.
->>>
->>>Obviously using such a kernel for anything other than getting a system
->>>up and running to compile a better kernel is a Bad Thing, but the
->>>distributions could supply separate Athlon, PIV, and 386 _optimised_
->>>kernels.
->>>
->>>
->>Why bother with that complexity? Just use 128 byte lines. This allows
->>a decent generic kernel. The people who have space requirements would
->>only compile what they need anyway.
->>
->
->So, basically, if you compile a kernel for a 386, but think that maybe
->one day you might need to run it on an Athlon for debugging purposes,
->you use 128 byte padding, because it's not too bad on the 386?  Seems
->pretty wasteful to me when the obvious, simple, elegant solution is to
->allow independent selection of workaround inclusion and optimisation.
->Especially since half of the work has already been done.
->
+On Fri, Sep 12, 2003 at 10:32:04AM -0400, Chris Friesen wrote:
 
-I missed the "simple, elegant" part. Conceptually elegant maybe.
+> I've got a PPPOE DSL line coming into my house, and I and my roommates=20
+> each terminate our own connection and get our own dynamic IP address.
 
-If you mean to use the optimise option only to set cache line size, then
-that might be a bit saner.
+So how is this question related to either=20
+1) network development (netdev@oss.sgi.com)
+2) linux-kernel development (linux-kernel@vger.kernel.org)
 
-As far as the case study goes though: if you were worried about being
-wasteful, why wouldn't you compile just for the 386 and debug from that?
+I would like to ask you this question at an apropriate mailinglist
+(netfilter@lists.netfilter.org, or the lartc mailinglist [since the
+assumption that you would need to do NAT in case you terminate the two
+dsl lines is invalid an can be solved using policy routing + connmark]).
 
+> Chris Friesen                    | MailStop: 043/33/F10
 
+--=20
+- Harald Welte <laforge@gnumonks.org>               http://www.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+Programming is like sex: One mistake and you have to support it your lifeti=
+me
+
+--VbfcI4OLZ4XW0yH2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/ZZHxXaXGVTD0i/8RAtypAJ90Bhd5kA4bxDUHle4YxlJzkwORvwCfbboN
+7oYLitTanO8CoR0tKPUjiDM=
+=/4fn
+-----END PGP SIGNATURE-----
+
+--VbfcI4OLZ4XW0yH2--

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289298AbSANXhE>; Mon, 14 Jan 2002 18:37:04 -0500
+	id <S289299AbSANXio>; Mon, 14 Jan 2002 18:38:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289297AbSANXgr>; Mon, 14 Jan 2002 18:36:47 -0500
-Received: from jalon.able.es ([212.97.163.2]:59811 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S289296AbSANXg1>;
-	Mon, 14 Jan 2002 18:36:27 -0500
-Date: Tue, 15 Jan 2002 00:42:05 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Memory problem with bttv driver
-Message-ID: <20020115004205.A12407@werewolf.able.es>
-In-Reply-To: <20020114210039.180c0438.skraw@ithnet.com> <E16QETz-0002yD-00@the-village.bc.nu>
+	id <S289297AbSANXif>; Mon, 14 Jan 2002 18:38:35 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:63828 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S289296AbSANXiW>; Mon, 14 Jan 2002 18:38:22 -0500
+Date: Mon, 14 Jan 2002 18:38:20 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Penelope builds a kernel
+Message-ID: <20020114183820.G30639@redhat.com>
+In-Reply-To: <20020114165909.A20808@thyrsus.com> <20020114173542.C30639@redhat.com> <20020114173854.C23081@thyrsus.com> <20020114180007.D30639@redhat.com> <20020114180522.A24120@thyrsus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <E16QETz-0002yD-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on lun, ene 14, 2002 at 22:17:31 +0100
-X-Mailer: Balsa 1.3.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020114180522.A24120@thyrsus.com>; from esr@thyrsus.com on Mon, Jan 14, 2002 at 06:05:22PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 14, 2002 at 06:05:22PM -0500, Eric S. Raymond wrote:
+> Because fetchmail is doing the same thing any other MTA would do in that
+> situation -- throwing up its hands, because it doesn't have and can't get
+> the information to compensate for the misconfiguration.
 
-On 20020114 Alan Cox wrote:
->> Ok. So what do we do about it? I mean there are possibly some more people out
->> there with such a problem, or - to my prediction - there will be more in the
->> future. I see to possibilities:
->> 1) simply increase it overall. I have not the slightest idea what the drawbacks
->> are. 2) make it configurable (looks like general setup to me).
->
->Making it bigger reduces that amount of ram directly mapped by the kernel 
->which hits performance (nastily for 2.4 not so bad for 2.5)
+Nice cop out.  Fetchmail is a hybrid MTA+MUA.  Since it straddles the 
+line, it should follow the rules of least surprise, namely:
 
-(Sorry for joning so late to the thread...)
-It is wokring fine for me, under 2.4.18-pre3 + NVidia. The difference is
-that I am using version 0.7.87 (see http://giga.cps.unizar.es/~magallon/linux/2.4.18-pre3/)
-I have just checked the bttv page (http://bytesex.org/bttv/) and there is
-a newer version (0.7.88). What comes in .17 is 0.7.83. I have not
-noticed anything relevant in changelog, but you can try...
+	1. don't delete a messages without knowing they can be / are 
+	   delivered successfully
+	2. make sure error messages that come from temporary config 
+	   issues are sent to the person who can fix them.
 
-lsmod:
-werewolf:~# lsmod
-Module                  Size  Used by    Tainted: P  
-tuner                   8548   1  (autoclean)
-tvaudio                 9312   0  (autoclean) (unused)
-msp3400                14768   1  (autoclean)
-bttv                   63424   0  (autoclean)
-i2c-algo-bit            7244   1  (autoclean) [bttv]
-videodev                4960   3  (autoclean) [bttv]
-emu10k1                57728   1 
-sound                  55052   0  [emu10k1]
-ac97_codec              9472   0  [emu10k1]
-soundcore               3524   7  [emu10k1 sound]
-serial                 45792   7 
-isa-pnp                28968   0  [serial]
-w83781d                17792   0  (unused)
-i2c-proc                6112   0  [w83781d]
-i2c-isa                 1188   0  (unused)
-i2c-piix4               3908   0  (unused)
-i2c-core               13408   0  [tuner tvaudio msp3400 bttv i2c-algo-bit w83781d i2c-proc i2c-isa i2c-piix4]
-NVdriver              821600  14 
-agpgart                17024   3 
-ne2k-pci                4960   1 
-8390                    6608   0  [ne2k-pci]
+FYI, it's easy to fix, just use the correct ordering of download, transmit, 
+delete that sendmail and other MTAs use.  Sendmail doesn't delete a message 
+out of its spool just because it was sent to the next MTA in the chain, 
+instead it *waits* for the next MTA to acknowledge the successful receipt 
+of the message.  Funnily, it even fsync()s the spool before acknowledging 
+incoming messages.
 
---
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.18-pre3-beo #5 SMP Sun Jan 13 02:14:04 CET 2002 i686
+> If you have some magic patch to fix this, I'll take it.  If you have
+> nothing constructive to contribute, please take your venom elsewhere.
+
+Eric, you're asking kernel developers to trust that you are dealing with 
+the design issues correctly.  Part of that means understanding where the 
+priorities of the issues that concern you fit in with the rest of the 
+project.  That means understanding what current practice is, and what it 
+will be to all the players involved (core kernel developers, bleeding edge 
+users, end users who want a stable system, distro users, distro developers).  
+So far, I see proof that you are not good at understanding design issues 
+that don't interest you.  This flame war is proof that you're very out of 
+sync with the rest of the developers.  I'm asking you to show some goodwill 
+by going back and fixing the design issues in your own project in order 
+to better understand some of the currents at work.  Until then, I won't 
+use fetchmail, and I pity the poor users that do.
+
+		-ben

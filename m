@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbTKIBHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 20:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTKIBHV
+	id S261950AbTKICg3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 21:36:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTKICg3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 20:07:21 -0500
-Received: from mail.kroah.org ([65.200.24.183]:10173 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261982AbTKIBHU (ORCPT
+	Sat, 8 Nov 2003 21:36:29 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:61970 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S261950AbTKICg2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 20:07:20 -0500
-Date: Sat, 8 Nov 2003 14:25:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Accessing device information in REMOVE agent
-Message-ID: <20031108222529.GB7671@kroah.com>
-References: <200311081602.25978.arvidjaar@mail.ru>
+	Sat, 8 Nov 2003 21:36:28 -0500
+Date: Sun, 9 Nov 2003 03:36:25 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: linux-kernel@vger.kernel.org, konsti@ludenkalle.de
+Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
+Message-ID: <20031109023625.GA15392@win.tue.nl>
+References: <20031109011205.GA21914%konsti@ludenkalle.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200311081602.25978.arvidjaar@mail.ru>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031109011205.GA21914%konsti@ludenkalle.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 08, 2003 at 04:02:25PM +0300, Andrey Borzenkov wrote:
-> I'd like to be notified when block device goes away (e.g. USB stick unplugged) 
-> basically to look if device is in use and possibly initiate clean up. Block 
-> hotplug currently is passing only DEVPATH; but it alone is not reliable way 
-> to identify it; device may be used under alias names via symbolic links.
+On Sun, Nov 09, 2003 at 02:12:05AM +0100, Konstantin Kletschke wrote:
 
-What do you mean?  DEVPATH is unique for that point in time.  There are
-no alias's in sysfs.
+> I have a PC here with an intel i875p chipset which seems not to recognize
+> logical partititions. 2.4.18 (kernel bf24 image) boots fine, but i do
+> not get a 2.6.0-test5 or 2.6.0-test9 to boot.
+> 
+> When booting Kernels report
+> 
+> hda: hda1 hda2 <hda5 hda6>
+> 
+> and boot, this one reports only:
+> 
+> hda: hda hda2
 
-> Is it safe to access /sys/$DEVPATH in REMOVE agent? Apparently hotplug is 
-> called asynchronously i.e. it is possible that /sys entry is already removed?
+I suppose that second hda is a typo for hda1?
 
-The /sys entry is probably already removed, but if not, it will
-disappear any second.  So no, it's not safe to try to access it, as it
-will not work.
+What partition table? (fdisk -l /dev/hda or sfdisk -l -x -uS /dev/hda)
 
-> Would it make sense to add device number? It seems to be natural native "block 
-> device ID" :)
-
-What "device number"?  The major/minor?  Why?  It's about as unique as
-DEVPATH is for any point in time.
-
-thanks,
-
-greg k-h

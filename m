@@ -1,95 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317457AbSHHL1o>; Thu, 8 Aug 2002 07:27:44 -0400
+	id <S317454AbSHHLZD>; Thu, 8 Aug 2002 07:25:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317462AbSHHL1o>; Thu, 8 Aug 2002 07:27:44 -0400
-Received: from coruscant.franken.de ([193.174.159.226]:61152 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S317457AbSHHL1m>; Thu, 8 Aug 2002 07:27:42 -0400
-Date: Thu, 8 Aug 2002 13:31:12 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: David Miller <davem@redhat.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix HIPQUAD macro in kernel.h
-Message-ID: <20020808133112.E11828@sunbeam.de.gnumonks.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HQbpMUFNRY4iYVZ3"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.19-pre10-newnat-pptp
-X-Date: Today is Boomtime, the 71st day of Confusion in the YOLD 3168
+	id <S317458AbSHHLZD>; Thu, 8 Aug 2002 07:25:03 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:39948 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317454AbSHHLZC>; Thu, 8 Aug 2002 07:25:02 -0400
+Message-ID: <3D525489.3050209@evision.ag>
+Date: Thu, 08 Aug 2002 13:22:49 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: martin@dalecki.de, Ingo Molnar <mingo@elte.hu>,
+       "Adam J. Richter" <adam@yggdrasil.com>, Andries.Brouwer@cwi.nl,
+       johninsd@san.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: [bug, 2.5.29, IDE] partition table corruption?
+References: <Pine.LNX.4.44.0208081129420.3210-100000@localhost.localdomain>	 <3D523B25.5080105@evision.ag> <1028809830.28883.13.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+U¿ytkownik Alan Cox napisa³:
+> On Thu, 2002-08-08 at 10:34, Marcin Dalecki wrote:
+> 
+>>>  [mingo@a mingo]$ ls -l /sbin/lilo
+>>>  -rwxr-xr-x    1 root     root        59324 Aug 23  2000 /sbin/lilo
+>>
+>>Yes sure. It is simply a very old bug in lilo, which the kernel worked
+>>around and did fight against in a diallectic way.
+> 
+> 
+> Its not a bug in lilo. Its a bug in the new kernel. Breaking backward
+> compatibility arbitarily is bad. The kernel needs to know geometry
+> anyway for the folks who have force ide translation
 
---HQbpMUFNRY4iYVZ3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+1. Requiring the kernel to read the partition table information is a
+BUG.
 
-Hi Dave!
+2. Falling back on the values which are used by the application 
+afterwards is a BUG. (BIOS IRQ after all)
 
-Below is a fix for the HIPQUAD macro in kernel.h.  The macro is currently
-not endian-aware - it just assumes running on a little-endian machine.
+3. Not detecting LBA disk access is required by checking Cylinder value
+to emulate BIOS behaviour is a BUG.
 
-If you don't like the #ifdefs in kernel.h, the macros could be moved into=
-=20
-include/linux/byteorder/.
+4. Asking the kernel to kindly avoid 100% partition table scanning and
+*guessing* some *heuristic* values which fail frequently enough is a 
+BUG. (Take a look at the jumps and hops in the function in question if
+you don't think it is guessing. I recommend the switch in esp.)
 
-Please apply, thanks
+5. Relying on the kernel for the translation "trick" himself (if
+anything) is a BUG.
 
---- linux-2.4.19-rc5-plain/include/linux/kernel.h	Wed Aug  7 22:55:03 2002
-+++ linux-2.4.19-rc5-endian/include/linux/kernel.h	Thu Aug  8 11:34:13 2002
-@@ -12,6 +12,7 @@
- #include <linux/stddef.h>
- #include <linux/types.h>
- #include <linux/compiler.h>
-+#include <asm/byteorder.h>
-=20
- /* Optimization barrier */
- /* The "volatile" is due to gcc bugs */
-@@ -128,11 +129,17 @@
- 	((unsigned char *)&addr)[2], \
- 	((unsigned char *)&addr)[3]
-=20
-+#if defined(__LITTLE_ENDIAN)
- #define HIPQUAD(addr) \
- 	((unsigned char *)&addr)[3], \
- 	((unsigned char *)&addr)[2], \
- 	((unsigned char *)&addr)[1], \
- 	((unsigned char *)&addr)[0]
-+#elif defined(__BIG_ENDIAN)
-+#define HIPQUAD	NIPQUAD
-+#else
-+#error "Please fix asm/byteorder.h"
-+#endif /* __LITTLE_ENDIAN */
-=20
- /*
-  * min()/max() macros that also do
+6. It's after all no more inconvenient then renaming well for example
+the USB host controller module.
 
---=20
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+=
-=20
-V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)
+7. It is *not* breaking backward compatibility. After the lilo 
+configuration fix the old  kernel boots fine as well.
 
---HQbpMUFNRY4iYVZ3
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Not reading confusing lilo docs which should better say what to do is a
+BUG.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+BTW.> Silly RH beta fdisk did tell me bogous things about the
+geometry of disks I did install under plain RH 7.3...
 
-iD8DBQE9UlZ/XaXGVTD0i/8RArgWAJ9v+OI9pUwvTFy5Cojwkr1Ks3+qsQCffIuQ
-6Xs89gLqtxxuRoMB4rJeSF0=
-=PdjG
------END PGP SIGNATURE-----
+BTW.> And finally what about dd if=/dev/hda of=/dev/hdb?
 
---HQbpMUFNRY4iYVZ3--

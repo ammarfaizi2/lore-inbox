@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266298AbTAJTti>; Fri, 10 Jan 2003 14:49:38 -0500
+	id <S266078AbTAJT5j>; Fri, 10 Jan 2003 14:57:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266308AbTAJTti>; Fri, 10 Jan 2003 14:49:38 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39624 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266298AbTAJTth> convert rfc822-to-8bit; Fri, 10 Jan 2003 14:49:37 -0500
-X-Priority: 1 (High)
-Importance: High
-Subject: NGPT 2.2.0 RELEASED: TOPS LINUXTHREADS AND NPTL IN SCALABILITY AND
- PERFORMANCE
-To: ibmltc-list@redhat.com, ibm-linux-announce@linux.ibm.com,
-       ibm-linux-dev@linux.ibm.com, ibm-linux-tech@linux.ibm.com,
-       ltc@linux.ibm.com, pthreads-announce@www-124.southbury.usf.ibm.com,
-       pthreads-core@www-124.southbury.usf.ibm.com,
-       pthreads-devel@www-124.southbury.usf.ibm.com,
-       pthreads-users@www-124.southbury.usf.ibm.com
-Cc: phil-list@redhat.com, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFD6D876A7.7D7E3A46-ON85256CAA.0068C7D5@us.ibm.com>
-From: Bill Abt <babt@us.ibm.com>
-Date: Fri, 10 Jan 2003 14:58:06 -0500
-X-MIMETrack: Serialize by Router on D03NM144/03/M/IBM(Release 6.0 [IBM]|December 16, 2002) at
- 01/10/2003 12:58:19
+	id <S266115AbTAJT5j>; Fri, 10 Jan 2003 14:57:39 -0500
+Received: from [207.61.129.108] ([207.61.129.108]:29888 "EHLO
+	mail.datawire.net") by vger.kernel.org with ESMTP
+	id <S266078AbTAJT5i>; Fri, 10 Jan 2003 14:57:38 -0500
+From: Shawn Starr <shawn.starr@datawire.net>
+Organization: Datawire Communication Networks Inc.
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG][2.5.55][SCSI] - DV failed to configure device
+Date: Fri, 10 Jan 2003 15:06:22 -0500
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200301101506.22191.shawn.starr@datawire.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NGPT - Next Generation POSIX Threading
+This machine is a Pentium 233MMX 
+AP/AX 53 Motherboard from AOpen
 
-NGPT Release 2.2.0, released today, 10 January 2003,  is the next release
-of the "Next Generation"
-of Linux pthreads support.  This release is fully suitable as a replacement
-for LinuxThreads by either
-a single user or group or an entire distribution.
+Adaptec SCSI card (if I remember the box said 2902)
 
-In this release, the primary focus was performance.  Significant
-performance and scalability enhance-
-ments have been made to this release making it the fastest and most
-scalable POSIX compliant
-threads package available on the Linux platform.
-                                                                             
-                                                                             
-                                                                             
- In this release, performance and scalability were the key focus of NGPT     
- developers.  Performance and scalability were improved to the point where   
- NGPT bests both LinuxThreads and the new NPTL threading package in          
- benchmarks.  No changes were made to the kernel patches and thanks to the   
- NPTL effort, all changes required to run NGPT on the latest 2.5.x kernels   
- are already included.                                                       
-                                                                             
-                                                                             
- Performance and scalability were measured using a benchmark program         
- developed by Sun Microsystems to "prove" that a 1:1 threading model is      
- better than the M:N threading model.  As can be seen in the benchmark       
- results NGPT is the performance and scalability leader on both a 2-way and  
- 4-way machine running this benchmark.  The benchmark results can be found   
- on the NGPT website.  The benchmark itself can be downloaded from the Sun   
- Microsystems site.                                                          
-                                                                             
-                                                                             
+This is the new Adaptec AIC7XXX driver not old one.
 
-The NGPT website can be found at
-http://www-126.ibm.com/developerworks/opensource/pthreads.
+Here is from dmesg:
 
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.26
+        <Adaptec 2902/04/10/15/20/30C SCSI adapter>
+        aic7850: Single Channel A, SCSI Id=7, 3/253 SCBs
+
+scsi0:A:4:0: DV failed to configure device.  Please file a bug report against 
+this driver.
+  Vendor: HP        Model: T4000s            Rev: 1.10
+  Type:   Sequential-Access                  ANSI SCSI revision: 02
+st: Version 20021214, fixed bufsize 32768, wrt 30720, s/g segs 256
+Attached scsi tape st0 at scsi0, channel 0, id 4, lun 0
+st0: try direct i/o: yes, max page reachable by HBA 1048575
+
+-- 
+Shawn Starr
+UNIX Systems Administrator, Operations
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
+shawn.starr@datawire.net
+"The power to Transact" - http://www.datawire.net
 

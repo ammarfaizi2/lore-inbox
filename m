@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUGWKEq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUGWKMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267582AbUGWKEq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 06:04:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUGWKEN
+	id S267598AbUGWKMn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 06:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267600AbUGWKMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 06:04:13 -0400
-Received: from spanner.eng.cam.ac.uk ([129.169.8.9]:25548 "EHLO
-	spanner.eng.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S267582AbUGWKBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 06:01:06 -0400
-Date: Fri, 23 Jul 2004 11:01:07 +0100 (BST)
-From: "P. Benie" <pjb1008@eng.cam.ac.uk>
-To: Rob Landley <rob@landley.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Interesting race condition...
-In-Reply-To: <200407222204.46799.rob@landley.net>
-Message-ID: <Pine.HPX.4.58L.0407231058420.12978@punch.eng.cam.ac.uk>
-References: <200407222204.46799.rob@landley.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Jul 2004 06:12:42 -0400
+Received: from gate.firmix.at ([80.109.18.208]:53407 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S267598AbUGWKJK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 06:09:10 -0400
+Subject: Re: linux compressed
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Jan Knutar <jk-lkml@sci.fi>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4d8e3fd3040722002638530b10@mail.gmail.com>
+References: <4d8e3fd30407210502e8ee0da@mail.gmail.com>
+	 <200407220117.38892.jk-lkml@sci.fi>
+	 <4d8e3fd3040722002638530b10@mail.gmail.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Fri, 23 Jul 2004 12:09:04 +0200
+Message-Id: <1090577344.28644.19.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 1.5.9.1 (1.5.9.1-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Jul 2004, Rob Landley wrote:
+On Don, 2004-07-22 at 09:26 +0200, Paolo Ciarrocchi wrote:
+> On Thu, 22 Jul 2004 01:17:38 +0300, Jan Knutar <jk-lkml@sci.fi> wrote:
+> > On Wednesday 21 July 2004 15:02, you wrote:
+> > > Hi all,
+> > > I don't know if someone is still playing with a linuxcompressed kernel,
+> > > anyway here you can find a GUI  which can be used to verify the memory usage.
+> > 
+> > Do you know if there are there any 'linuxcompressed' patches available for anything
+> > more recent than 2.4.18 anywhere?
+> > 
+> > I assume you're talking about this: http://linuxcompressed.sourceforge.net/
+> 
+> Hello Jan,
+> yes I'm talking about that project.
+> 
+> AFAIK 2.4.18 is the latest kernel available.
 
-> I just saw a funky thing.  Here's the cut and past from the xterm...
->
-> [root@(none) root]# ps ax | grep hack
->  9964 pts/1    R      0:00 grep hack HOSTNAME= SHELL=/bin/bash TERM=xterm HISTSIZE=1000 USER=root LS_COLORS=no=00:fi=00:di=00;34:ln=00;36:pi=40;33:so=00;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:ex=00;32:*.cmd=00;32:*.exe=00;32:*.com=00;32:*.btm=00;32:*.bat=00;32:*.sh=00;32:*.csh=00;32:*.tar=00;31:*.tgz=
-> [root@(none) root]# ps ax | grep hack
->  9966 pts/1    S      0:00 grep hack
->
-> Seems like some kind of race condition, dunno if it's in Fedore Core 1's ps
-> or the 2.6.7 kernel or what...
+Please verify this on http://www.kernel.org/
 
-The race is in the shell's pipeline - the processes don't start at exactly
-the same time, and sometimes ps has completed before the shell has
-started grep. This is the expected behaviour.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Peter

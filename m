@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbUDAFDI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 00:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUDAFDI
+	id S262286AbUDAFFu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 00:05:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbUDAFFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 00:03:08 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:10938 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262236AbUDAFDF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 00:03:05 -0500
-Date: Thu, 1 Apr 2004 10:34:13 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, hari@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, rddunlap@osdl.org,
-       linux-kernel@vger.kernel.org, jamesclv@us.ibm.com
-Subject: Re: BUG_ON(!cpus_equal(cpumask, tmp));
-Message-ID: <20040401050413.GA4056@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20040330173620.6fa69482.akpm@osdl.org> <276260000.1080697873@flay> <109577502.1080783067@[192.168.0.89]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <109577502.1080783067@[192.168.0.89]>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Apr 2004 00:05:50 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:49367 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262286AbUDAFFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 00:05:45 -0500
+Date: Thu, 1 Apr 2004 06:05:47 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, <vrajesh@umich.edu>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
+    fix
+In-Reply-To: <20040401020126.GW2143@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0404010549540.28566-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 01:31:15AM +0000, Andy Whitcroft wrote:
-> 	spin_lock(&tlbstate_lock);
-> +
-> +	/* Subtle, mask the request mask with the currently online cpu's.
-> +	 * Sample this under the lock; cpus in the the middle of going
-> +	 * offline will wait until there is noone in this critical section
-> +	 * before disabling IPI handling. */
-> +	cpus_and(tmp, cpumask, cpu_online_map);
-> +	if(cpus_empty(tmp))
-> +		return;
+On Thu, 1 Apr 2004, Andrea Arcangeli wrote:
+> On Wed, Mar 31, 2004 at 05:51:13PM -0800, Andrew Morton wrote:
+> > rw_swap_page_sync() is a general-purpose library function and we shouldn't
+> > be making assumptions about the type of page which the caller happens to be
+> > feeding us.
+> 
+> that is a specialized backdoor to do I/O on _private_ pages, it's not a
+> general-purpose library function for doing anonymous pages
 
-Hmm ..Doesn't it need to drop tlbstate_lock before returning?
+I'm not against anal checks (except personally :), but I'm very much
+with Andrea on this: rw_swap_page_sync is horrid, but does manage to
+do a particular job.  The header page is great fun: sys_swapon and
+mkswap read and write it by a totally different route, I shudder
+(especially when it's a swapfile with blocksize less than pagesize).
+It would be nice to make it more general and correct, but that's
+not something you should get stuck on right now.
 
-> +	/* Subtle, IPI users assume that they will be able to get IPI's
-> +	 * though to the cpus listed in cpu_online_map.  To ensure this
-> +	 * we add the requirement that they check cpu_online_map within
-> +	 * the IPI critical sections.  Here we remove ourselves from the
-> +	 * map, then ensure that all other cpus have left the relevant
-> +	 * critical sections since the change.  We do this by aquiring
-> +	 * the relevant section locks, if we have them none else is in
-> +	 * them.  Once this is done we can go offline. */
-> +	spin_lock(&tlbstate_lock);
-> +	spin_unlock(&tlbstate_lock);
-> +	spin_lock(&tlbstate_lock);
-> +	spin_unlock(&tlbstate_lock);
+Hugh
 
-The second lock should be call_lock?
-
-
--- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

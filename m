@@ -1,115 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269874AbUJMWIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269876AbUJMWP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269874AbUJMWIc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 18:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269875AbUJMWIc
+	id S269876AbUJMWP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 18:15:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269877AbUJMWP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 18:08:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:56156 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269874AbUJMWI2 (ORCPT
+	Wed, 13 Oct 2004 18:15:59 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:53239 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269876AbUJMWP5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 18:08:28 -0400
-Message-ID: <5d6b657504101315086d6ef159@mail.gmail.com>
-Date: Thu, 14 Oct 2004 00:08:24 +0200
-From: Buddy Lucas <buddy.lucas@gmail.com>
-Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
-To: Stef van der Made <svdmade@planet.nl>
-Subject: Re: Gnome-2.8 stoped working on kernel-2.6.9-rc4-mm1
-Cc: Radoslaw Szkodzinski <astralstorm@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <416D9B32.5030408@planet.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Oct 2004 18:15:57 -0400
+Date: Wed, 13 Oct 2004 15:15:59 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>
+cc: greg@kroah.com, hannal@us.ibm.com, chas@cmf.nrl.navy.mil
+Subject: [PATCH 2.6] ambassador.c replace pci_find_device with pci_get_device
+Message-ID: <194130000.1097705759@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0410131204580.31327@danga.com>
-	 <416D8999.7080102@pobox.com>
-	 <Pine.LNX.4.58.0410131302190.31327@danga.com>
-	 <416D8C33.9080401@osdl.org> <416D923B.3030404@planet.nl>
-	 <f44c5fdf041013134726043453@mail.gmail.com>
-	 <416D9B32.5030408@planet.nl>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Oct 2004 23:16:34 +0200, Stef van der Made <svdmade@planet.nl> wrote:
-> 
-> Unpatching optimize-profile-path-slightly.patchsolved the issue. Thanks
-> for the tip. You also gave the tip that I should compile without
-> -fomit-frame-pointer. I've done this for years without any problem. What
-> problems could this cause ?
 
-Compiling with -fomit-frame-pointer removes information from the
-binary that could be used for debugging. So the bugbuddy information
-you provided was not optimal, because it lacked the crucial stuff. ;-)
-The flag does not cause any problems, it is routinely used for
-compiling stuff  that doesn't need debugging.
+As pci_find_device is going away soon I have converted this file to use
+pci_get_device instead. I have compile tested it. If anyone has this ATM card
+and could test it that would be great.
 
+Hanna Linder
+IBM Linux Technology Center
 
-Groeten,
-Buddy 
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-> Thanks again for your help,
-> 
-> Stef
-> 
-> 
-> 
-> 
-> Radoslaw Szkodzinski wrote:
-> 
-> >On Wed, 13 Oct 2004 22:38:19 +0200, Stef van der Made <svdmade@planet.nl> wrote:
-> >
-> >
-> >>I'm trying to get kernel-2.6.9-rc4-mm1 to work with gnome-2.8. While
-> >>2.6.9-rc4 works fine with gnome-2.8 the mm1 version has an issue. Any
-> >>process that I'm trying to start that uses gnome libraries crashes
-> >>immediatly after startup. Mozilla, nautilus and gnome terminal to name a
-> >>few. The reason for using mm1 is that I'm using reiser4 for one of my
-> >>partitions.
-> >>
-> >>The output that I get in bugbuddy is as following:
-> >>
-> >>Backtrace was generated from '/usr/test/garnome2/lib/nautilus'
-> >>
-> >><snip>
-> >>
-> >>
-> >This was useless, w/o any information.
-> >Next time please compile with debugging (-g) and without
-> >-fomit-frame-pointer. (in case of gcc <3.5)
-> >
-> >
-> >
-> >>And on the terminal that I started X windows:
-> >>
-> >>"/usr/test/garnome2/lib/nautilus": not in executable format: Is a directory
-> >>/home/stef/405: No such file or directory.
-> >>/usr/local/mozilla/run-mozilla.sh: line 423:   460 Segmentation
-> >>fault      "$prog" ${1+"$@"}
-> >><snip>
-> >>/usr/local/mozilla/run-mozilla.sh: line 423:   483 Segmentation
-> >>fault      "$prog" ${1+"$@"}
-> >>
-> >>
-> >>
-> >
-> >Looks like you need to back out this patch, the root of all evil:
-> >http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/optimize-profile-path-slightly.patch
-> >like this:
-> >cd linux-2.6.9-rc4-mm1
-> >patch -p1 -R < /download-dir/optimize-profile-path-slightly.patch
-> >-
-> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> >the body of a message to majordomo@vger.kernel.org
-> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> >
-> >
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+---
+
+diff -Nrup linux-2.6.9-rc4-mm1cln/drivers/atm/ambassador.c linux-2.6.9-rc4-mm1patch/drivers/atm/ambassador.c
+--- linux-2.6.9-rc4-mm1cln/drivers/atm/ambassador.c	2004-10-12 14:15:10.000000000 -0700
++++ linux-2.6.9-rc4-mm1patch/drivers/atm/ambassador.c	2004-10-13 13:50:30.070951672 -0700
+@@ -2378,7 +2378,7 @@ static int __init amb_probe (void) {
+   
+   devs = 0;
+   pci_dev = NULL;
+-  while ((pci_dev = pci_find_device
++  while ((pci_dev = pci_get_device
+           (PCI_VENDOR_ID_MADGE, PCI_DEVICE_ID_MADGE_AMBASSADOR, pci_dev)
+           )) {
+ 	if (do_pci_device(pci_dev) == 0)
+@@ -2387,7 +2387,7 @@ static int __init amb_probe (void) {
+ 
+   
+   pci_dev = NULL;
+-  while ((pci_dev = pci_find_device
++  while ((pci_dev = pci_get_device
+           (PCI_VENDOR_ID_MADGE, PCI_DEVICE_ID_MADGE_AMBASSADOR_BAD, pci_dev)
+           ))
+     PRINTK (KERN_ERR, "skipped broken (PLX rev 2) card");
+

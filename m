@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262269AbTFXShj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 14:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbTFXShj
+	id S263309AbTFXSlr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 14:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTFXSlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 14:37:39 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12814 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262269AbTFXShi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 14:37:38 -0400
-Date: Tue, 24 Jun 2003 11:51:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>
-Subject: Re: Provide example copy_in_user implementation
-In-Reply-To: <20030624100610.GC159@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0306241149470.29644-100000@home.transmeta.com>
+	Tue, 24 Jun 2003 14:41:47 -0400
+Received: from pat.uio.no ([129.240.130.16]:34748 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263309AbTFXSlq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 14:41:46 -0400
+To: Sven Geggus <sven@gegg.us>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21: NFS client Freeze
+References: <20030624101227.GA21744@benzin.geggus.net>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 24 Jun 2003 20:55:33 +0200
+In-Reply-To: <20030624101227.GA21744@benzin.geggus.net>
+Message-ID: <shsptl3tie2.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Sven Geggus <sven@gegg.us> writes:
 
-On Tue, 24 Jun 2003, Pavel Machek wrote:
-> 
-> This patch adds example copy_in_user implementation (copy_in_user is
-> needed for new ioctl32 implementation, all 64bit archs will need
-> it)... Please apply,
+     > Hi there, After mounting an NFS-Volume exported from a Windows
+     > Machine (Hummingbird-NFS Maestro Server) a simple ls of the
+     > mount point causes an almost complete freeze of the system
+     > (ping does still work, but nothing else).
 
-Hell no.
+     > This did work fine in 2.4.20 but does not work on 2.4.21
+     > anymore!
 
-This is an example of how to do things WRONG. In short, it's not an 
-example we want to have in the kernel, or anywhere _near_ the kernel.
+     > Here is the debug output I produced using:
 
-Do it right, or don't do it at all. Code this bad should not be allowed to 
-exist, please remove it from your harddisk immediately. I will go and wash 
-my eyes from just having looked at it.
+Nothing wrong there. Mind filling in the details?
 
-		Linus
-
+Cheers,
+  Trond

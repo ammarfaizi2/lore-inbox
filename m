@@ -1,80 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317409AbSGOKDw>; Mon, 15 Jul 2002 06:03:52 -0400
+	id <S317415AbSGOKMA>; Mon, 15 Jul 2002 06:12:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317410AbSGOKDv>; Mon, 15 Jul 2002 06:03:51 -0400
-Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:51630 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S317409AbSGOKDu>;
-	Mon, 15 Jul 2002 06:03:50 -0400
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org,
-       Ed Sweetman <safemode@speakeasy.net>, arndb@de.ibm.com
-Subject: Re: kbd not functioning in 2.5.25-dj2
-References: <1026545050.1203.116.camel@psuedomode>
-	<20020713073717.GA9203@wizard.com>
-	<1026547292.1224.132.camel@psuedomode>
-	<1026549957.1224.136.camel@psuedomode> <20020713110619.A28835@ucw.cz>
-	<m3y9cde9gx.fsf@lapper.ihatent.com>
-	<200207150856.g6F8ujs99442@d06relay02.portsmouth.uk.ibm.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 15 Jul 2002 12:06:31 +0200
-In-Reply-To: <200207150856.g6F8ujs99442@d06relay02.portsmouth.uk.ibm.com>
-Message-ID: <m3r8i5i9ug.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S317416AbSGOKMA>; Mon, 15 Jul 2002 06:12:00 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56895 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S317415AbSGOKL5>; Mon, 15 Jul 2002 06:11:57 -0400
+To: Kirk Reiser <kirk@braille.uwo.ca>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Advice saught on math functions
+References: <E17T2P5-0003DF-00@the-village.bc.nu>
+	<x7hej5djbj.fsf@speech.braille.uwo.ca>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Jul 2002 04:03:27 -0600
+In-Reply-To: <x7hej5djbj.fsf@speech.braille.uwo.ca>
+Message-ID: <m1adotpats.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arnd Bergmann <arnd@bergmann-dalldorf.de> writes:
+Kirk Reiser <kirk@braille.uwo.ca> writes:
 
-> Alexander Hoogerhuis wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 > 
-> > I mentioned this before, but I had major pains with the new input
-> > drivers for keyboards not working with the Comapq Armada M700's, and
-> > gave that up. Now I got a new Compaq N800c, which forced me onto 2.5.x
-> > because of some of the hardware (Intel ICH3 et al).
-> As I reported earlier (but appearantly unnoticed), on my Thinkpad A30p
-> (which uses the ICH3), keyboard and mouse don't work with the new input
-> layer when CONFIG_X86_UP_IOAPIC is on, but I have no problems (except
-> my USB mouse) when I switch that off.
+> > This is how Nicholas stuff works, you can still get the kernel messages
+> > by scrolling back. I'm told this meets S508.
 > 
-> > I only have two problems left is that I have a laptop with both a
-> > stick and a glidepad, and the psmouse driver only enables the pad, and
-> > not the stick. The other is that the rpm command segfaults for no
-> > apparent reason under 2.5.x (tried .23, 24., and .25 and -dj varieties
-> > of them). Same also happens with vim, second time it edits a file.
+> I don't give two shits about S508.  For one thing that is a
+> U.S. statute.  It has no relevance here.
 > 
-> For me, the usb mouse stopped working with 2.5.25 in all configurations I
-> tried, the stick works without UP_IOAPIC. Unless the new input driver
-> is supposed to be a complete drop-in replacement for the old one, I still
-> assume that is a configuration error on my side.
+> > Actually some of this is true for sighted people. You only get console
+> > messages after PCI is initialised, until then they are queued away or
+> > only on serial console.
 > 
+> Even though, pci gets initialized pretty early in the boot sequence
+> doesn't it?  Considerably before init?
 
-I have it configured in, but it claims it dont have one at boot time
-(and I honestly dont know if the the hardware is physically in the
-box):
-
-No local APIC present or hardware disabled
-
-> >> On Sat, Jul 13, 2002 at 04:45:56AM -0400, Ed Sweetman wrote:
-> >> > CONFIG_X86_UP_IOAPIC=y
+Some.  Depending on how all of this works, in 2.5.x it should be possible
+to get initramfs mounted and running very early on.  But there are definitely
+classes of problems that are not solved.
+ 
+> > If you are using a conventional BIOS then the first kernel messages being
+> > readable as they occur versus just after seems to have only a little value.
+> > If you have a fully accessible LinuxBIOS thats something quite different.
+> > In that case can you use a Linuxbios hook for the console speech until
+> > user space takes over ?
 > 
-> Yup, Ed has this one on as well. Alexander, what about your systems?
+> I don't really know.  I haven't had time to really get into the BIOS
+> accessibility yet.  I know for serial synths we can turn serial on in
+> lilo and at least hear what is going on.  Without modifying lilo for
+> each synth other than serial we have no way of knowing whether we have
+> the full lilo prompt or what.
 > 
+> If we could modify a linux BIOS and then flash it onto any flashable
+> BIOS that would be really useful.
 
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
+There are some pieces that the LinuxBIOS people could do.
 
->         Arnd <><
-> 
+The overall architecture is divided into two pieces
+1) LinuxBIOS which simply initializes the hardware.
+2) Bootloader (which may be based on Linux, but is usually a hacked
+   version of etherboot) which loads the kernel from some hardware
+device. 
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Rom chips range from 256Kilobytes to 1Megabyte, with 256KB being the
+median.  So there isn't room for a lot of unnecessary fluff.  
+
+The bootloader is reusable while the core LinuxBIOS is not, it is just
+a matter of selecting the correct firmware.
+
+The current architecture does allows for all BIOS parameters to be set
+from Linux so there is an accessibility gain there.
+
+Given the space constraints on the BIOS side, either a very small
+standalone speach synthsizer needs to be constructed, or more likely
+a set of tones (that can work like post codes) can be introduced
+to give a feel where in the boot process the BIOS is.
+
+After that a nice bootloader based on the Linux kernel with a real
+user space can be loaded from the hard drive where there is plenty of
+room.  Everything that possibly could would need to be built as
+modules to decrease the time to user space, and to allow as many
+messages to be processed by the speech synthesizer.
+
+People doing serious kernel development would need more extensive
+facilities, but this should suffice for basic trouble shooting.  If
+there is a standard brail output device,  there may be solutions I am
+not familiar with.
+
+Eric

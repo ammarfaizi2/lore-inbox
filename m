@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSIPTRI>; Mon, 16 Sep 2002 15:17:08 -0400
+	id <S262782AbSIPTSY>; Mon, 16 Sep 2002 15:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262782AbSIPTRI>; Mon, 16 Sep 2002 15:17:08 -0400
-Received: from vti01.vertis.nl ([145.66.4.26]:19208 "EHLO vti01.vertis.nl")
-	by vger.kernel.org with ESMTP id <S262780AbSIPTRH>;
-	Mon, 16 Sep 2002 15:17:07 -0400
-Date: Mon, 16 Sep 2002 21:20:42 +0200
-From: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
-Message-Id: <200209161920.g8GJKgL04828@fokkensr.vertis.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] [2.5.35] USER_HZ & NTP problem (II)
+	id <S262792AbSIPTSY>; Mon, 16 Sep 2002 15:18:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:58341 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262782AbSIPTSX>;
+	Mon, 16 Sep 2002 15:18:23 -0400
+Date: Mon, 16 Sep 2002 12:14:23 -0700 (PDT)
+Message-Id: <20020916.121423.109699832.davem@redhat.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: alex14641@yahoo.com, TheUnforgiven@attbi.com, linux-kernel@vger.kernel.org
+Subject: Re: To Anyone with a Radeon 7500 board and the ali developer
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1032180131.1191.7.camel@irongate.swansea.linux.org.uk>
+References: <20020916042625.55842.qmail@web40509.mail.yahoo.com>
+	<20020915.220131.104193664.davem@redhat.com>
+	<1032180131.1191.7.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+   Date: 16 Sep 2002 13:42:11 +0100
+   
+   What is sad is the is an AGP standardised way to read this and XFree86
+   still, all these years on, doesn't do it by default.
+   
+Totally agreed.
 
-As said in previous postings I experimented with HZ=2048 (I actually
-tried HZ=4096, don't tell anybody), and the following problem emerged:
+I have even suggested on the xfree86 developer list at least 2 times
+that they do this to choose the default, but they claim it isn't the
+right thing to do.
 
-Suppose
-	HZ = 2048
-and	SHIFT_SCALE = 22
-and	SHIFT_UPDATE = (SHIFT_KG + MAXTC) = 12
-then
-	SHIFT_HZ = 11
-and	(SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE) = -1
-
-This negative number seems te be a problem for shift operations. The
-following patch takes care of the problem (I hope).
-
-Rolf
-
---- linux-2.5.35.orig/kernel/timer.c	Mon Sep 16 20:43:47 2002
-+++ linux-2.5.35/kernel/timer.c	Mon Sep 16 21:01:41 2002
-@@ -339,6 +339,11 @@
- 	run_task_queue(&tq_immediate);
- }
- 
-+static inline long negleftshift (long val, int nshift)
-+{
-+    return (nshift > 0 ? val << nshift : val >> -nshift);
-+}
-+
- /*
-  * this routine handles the overflow of the microsecond field
-  *
-@@ -418,7 +423,7 @@
- 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
- 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
- 	time_offset += ltemp;
--	time_adj = -ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
-+        time_adj = negleftshift (-ltemp, SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
-     } else {
- 	ltemp = time_offset;
- 	if (!(time_status & STA_FLL))
-@@ -426,7 +431,7 @@
- 	if (ltemp > (MAXPHASE / MINSEC) << SHIFT_UPDATE)
- 	    ltemp = (MAXPHASE / MINSEC) << SHIFT_UPDATE;
- 	time_offset -= ltemp;
--	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
-+        time_adj = negleftshift (ltemp, SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
-     }
- 
-     /*
+So people's boxes will keep hanging and xfree86 DRM will continue to
+be a support nightmare.

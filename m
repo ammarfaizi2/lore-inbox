@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbUKJX1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbUKJXam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbUKJX1E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 18:27:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUKJX1E
+	id S261625AbUKJXam (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 18:30:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbUKJXal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 18:27:04 -0500
-Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:29776 "HELO
-	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261256AbUKJX07 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 18:26:59 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-Date: Wed, 10 Nov 2004 18:26:39 -0500
-User-Agent: KMail/1.6.2
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       =?iso-8859-1?q?=3D=3Futf-8=3Fq=3FRapha=EBl_Rigo_LKML=3F=3D?= 
-	<lkml@twilight-hall.net>,
-       Michael Poole <mdpoole@troilus.org>, davids@webmaster.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <87actqfigw.fsf@sanosuke.troilus.org> <419283EF.8050708@tmr.com> <87686367-336D-11D9-857E-000393ACC76E@mac.com>
-In-Reply-To: <87686367-336D-11D9-857E-000393ACC76E@mac.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411101826.43718.dtor_core@ameritech.net>
+	Wed, 10 Nov 2004 18:30:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:39812 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261625AbUKJXai (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 18:30:38 -0500
+Date: Wed, 10 Nov 2004 15:22:15 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Nigel Kukard <nkukard@lbsd.net>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: ub vs. usb-storage
+Message-ID: <20041110152215.4e00206b@lembas.zaitcev.lan>
+In-Reply-To: <mailman.1100001301.9189.linux-kernel2news@redhat.com>
+References: <mailman.1100001301.9189.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 November 2004 06:09 pm, Kyle Moffett wrote:
-> On Nov 10, 2004, at 16:11, Bill Davidsen wrote:
-> > That web page seems pretty clear... some parts of the prerelease are
-> > non-GPL, you can distribute the GPL code as usual. Unless there is
-> > some claim that the non-GPL parts are derived from GPL original
-> > source or contain GPL code, why shouldn't they restrict the 
-> > distribution
-> > of their own code?
-> 
-> The make it difficult if not effectively impossible to separate the two,
-> claiming that therefore they are not under the restrictions of the GPL.
-> However, the GPL _clearly_ states that if it is distributed as a single
-> work, then all parts _must_ be distributable under the terms of the
-> GPL.  I believe that a single binary firmware image is a single "work"
-> according to the definition provided in the GPL, and therefore by
-> distributing their code as a part of it, they have implicitly applied 
-> the
-> GPL to said work (assuming it was not GPLed already for other
-> reasons).
-> 
+On Tue, 09 Nov 2004 11:50:20 +0000, Nigel Kukard <nkukard@lbsd.net> wrote:
 
-No, no, no. Firmware image here is the same as a CD that you receive from
-a distribution and is mere an aggregation.
+> Using kernel 2.6.9 bk7 and the UB driver for mass-storage I seem to see 
+> spikes on the load-avg of over 700. There is also times of extreme 
+> responsiveness deficiency.
 
--- 
-Dmitry
+This sounds curious. I'd like to hear more about it. Is there anything
+interesting in dmesg?
+
+-- Pete

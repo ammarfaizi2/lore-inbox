@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311234AbSCLPX4>; Tue, 12 Mar 2002 10:23:56 -0500
+	id <S311237AbSCLPZs>; Tue, 12 Mar 2002 10:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311235AbSCLPXr>; Tue, 12 Mar 2002 10:23:47 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:53400 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S311234AbSCLPXg>; Tue, 12 Mar 2002 10:23:36 -0500
-Date: Tue, 12 Mar 2002 16:23:16 +0100
-From: Andi Kleen <ak@muc.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org, ak@muc.de
-Subject: Re: __get_user usage in mm/slab.c
-Message-ID: <20020312162316.A3505@averell>
-In-Reply-To: <Pine.LNX.4.21.0203121237070.19747-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0203121237070.19747-100000@serv>
-User-Agent: Mutt/1.3.22.1i
+	id <S311236AbSCLPZi>; Tue, 12 Mar 2002 10:25:38 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:14345 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S311235AbSCLPZb>; Tue, 12 Mar 2002 10:25:31 -0500
+Date: Tue, 12 Mar 2002 15:20:24 +0000 (GMT)
+From: Matthew Kirkwood <matthew@hairy.beasts.org>
+X-X-Sender: <matthew@sphinx.mythic-beasts.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: aic7xxx: Slow negotiation? 
+In-Reply-To: <200203111435.g2BEZYI09079@aslan.scsiguy.com>
+Message-ID: <Pine.LNX.4.33.0203121519250.18363-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 12, 2002 at 12:58:53PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> The way __get_user is currently used in mm/slab.c is not portable. It
-> breaks on arch which have seperate user/kernel memory space. It still
-> works during boot or from kernel threads, but /proc/slabinfo shows only 
-> broken entries or if a module creates a slab cache, I got lots of
-> warnings.
-> We have to at least insert a "set_fs(get_fs())", but IMO a separate
-> interface would be better. Any opinions?
+On Mon, 11 Mar 2002, Justin T. Gibbs wrote:
 
-I agree that a separate interface would be better, one that guarantees to
-handle exceptions on the m68k and other archs with separate address spaces too.
-I use that facility quite regularly in architecture specific code, sorry
-for letting it slip into portable code. 
-I guess set_fs(KERNEL_DS); __*_user() will not catch exceptions on m68k
-currently, right? 
+> >The new aic7xxx driver (in 2.4.17, 2.5.1-pre1 and 2.5.6, at
+> >least) negotiates only 11.626MB/s transfers from my disks.
+> >The old one can extract 40MB/s transfers (though the disks
+> >themselves can only do a little over 20MB/s each).
+>
+> Go into SCSI-Select and change all of the sync rate values to
+> something other than you want.  Save the changes.  Reboot.  Go back
+> into SCSI-Select and change the sync values to what you want. The
+> driver will then recognize them.
 
--Andi
+Worked a treat, thanks very much.
+
+> Some MB manufacturers using the aic7895 screwed up the initialation of
+> the serial eeprom while they were assembling their boards.  The old
+> driver tries to work around this, but the work-around means converting
+> one of the lower sync rates into meaning "full speed". I decided that
+> just wasn't safe to put in the new driver.
+
+Is a warning printk() possible?
+
+Cheers,
+Matthew.
 

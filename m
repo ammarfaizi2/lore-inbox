@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262394AbSKTTkv>; Wed, 20 Nov 2002 14:40:51 -0500
+	id <S262289AbSKTTeY>; Wed, 20 Nov 2002 14:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbSKTTkv>; Wed, 20 Nov 2002 14:40:51 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:62422 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S262394AbSKTTku>;
-	Wed, 20 Nov 2002 14:40:50 -0500
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Wed, 20 Nov 2002 12:44:05 -0700
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Xavier Bestel <xavier.bestel@free.fr>,
+	id <S262371AbSKTTeY>; Wed, 20 Nov 2002 14:34:24 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57605
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262289AbSKTTeW>; Wed, 20 Nov 2002 14:34:22 -0500
+Date: Wed, 20 Nov 2002 11:40:47 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Cort Dougan <cort@fsmlabs.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Xavier Bestel <xavier.bestel@free.fr>,
        Mark Mielke <mark@mark.mielke.cc>, Rik van Riel <riel@conectiva.com.br>,
        David McIlwraith <quack@bigpond.net.au>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: spinlocks, the GPL, and binary-only modules
-Message-ID: <20021120124405.C17249@duath.fsmlabs.com>
-References: <20021120123145.B17249@duath.fsmlabs.com> <Pine.LNX.4.10.10211201137110.3892-100000@master.linux-ide.org>
-Mime-Version: 1.0
+In-Reply-To: <20021120123145.B17249@duath.fsmlabs.com>
+Message-ID: <Pine.LNX.4.10.10211201137110.3892-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.10.10211201137110.3892-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Nov 20, 2002 at 11:40:47AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-} Well since there is a fork for everything else,  how about a
-} business-linux-2.{4,5} fork?
-} 
-} As a place to make it even harder for the extremist to whine and cry over
-} the usages of binary only modules.
-} 
-} Comments?
+On Wed, 20 Nov 2002, Cort Dougan wrote:
 
-Maybe it's best to not add yet another fork.  I just managed to
-dis-entangle myself from maintaining some trees and wouldn't wish that on
-anyone else.  A single config option that adds -fno-inline wouldn't be
-fork-worthy.
+> } This can be made clean if all the inlined C in the headers are pushed
+> } back to an actual .c file and the make it function to call as an extern.
+> } So the solution is to make a patch and publish that patch which cleans the
+> } out the C code in question and move the associacted GPL license to the new
+> } .c files.  This is proper and legal as structs are just the glue or api.
+> } 
+> } So if I publish this patch where it can be freely available for usage by
+> } all, I comply with GPL.  This also removes any of the "extremists" points
+> } of the smallest amount of GPL code invoked by the compiler can not touch
+> } pure code.
+> } 
+> } Any arguments why this will not work?
+> 
+> Maybe something else would be better.  Adding -fno-inline to the build
+> might be more useful.  It makes things a bit cleaner.
+> 
+> It's a nasty mess to have to do this for every subsystem when someone gets
+> a wild-hair and starts inline-ing things without thinking.
 
-As for extremists complaining... I think you'd just give them a target and
-a forum rather than quiet them.
+Well since there is a fork for everything else,  how about a
+business-linux-2.{4,5} fork?
+
+As a place to make it even harder for the extremist to whine and cry over
+the usages of binary only modules.
+
+Comments?
+
+Andre Hedrick
+LAD Storage Consulting Group
+

@@ -1,36 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130075AbQLNE6r>; Wed, 13 Dec 2000 23:58:47 -0500
+	id <S130031AbQLNFDi>; Thu, 14 Dec 2000 00:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131417AbQLNE6h>; Wed, 13 Dec 2000 23:58:37 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:41419 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130075AbQLNE6a>;
-	Wed, 13 Dec 2000 23:58:30 -0500
-Date: Wed, 13 Dec 2000 23:28:02 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Chip Salzenberg <chip@valinux.com>
-cc: linux-kernel@vger.kernel.org, korbit-cvs@lists.sourceforge.net
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-In-Reply-To: <20001213202348.J864@valinux.com>
-Message-ID: <Pine.GSO.4.21.0012132325530.6300-100000@weyl.math.psu.edu>
+	id <S129977AbQLNFD1>; Thu, 14 Dec 2000 00:03:27 -0500
+Received: from www.wen-online.de ([212.223.88.39]:61198 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129921AbQLNFDJ>;
+	Thu, 14 Dec 2000 00:03:09 -0500
+Date: Thu, 14 Dec 2000 05:32:39 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: swapoff/on leak test12-pre7
+In-Reply-To: <Pine.Linu.4.10.10012091822230.602-100000@mikeg.weiden.de>
+Message-ID: <Pine.Linu.4.10.10012140525140.1022-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 9 Dec 2000, Mike Galbraith wrote:
 
-
-On Wed, 13 Dec 2000, Chip Salzenberg wrote:
-
-> According to Alexander Viro:
-> > 9P is quite simple and unlike CORBA it had been designed for taking
-> > kernel stuff to userland.  Besides, authors definitely understand
-> > UNIX...
+> Hi,
 > 
-> As nice as 9P is, it'll need some tweaks to work with Linux.
-> For example, it limits filenames to 30 characters; that's not OK.
+> Stumbled over a small leak.. and some funny looking numbers.
 
-For RPC-style uses? Why?
+Numbers aren't funny looking.. bad eyeballs.
+
+> while true; do swapoff -a; swapon -a; done
+
+<snip vmstat of leak>
+
+Leak is because the page allocated in swapon has buffers.  Since
+it's not on any list, they never get scrubbed off and the page is
+leaked.  (I killed it here with try_to_free_buffers().. works)
+
+	-Mike
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

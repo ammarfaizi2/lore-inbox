@@ -1,65 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266493AbUG0To3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUG0Tqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266493AbUG0To3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUG0To3
+	id S266513AbUG0Tqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUG0Tqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:44:29 -0400
-Received: from mail.tmr.com ([216.238.38.203]:65035 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S266493AbUG0To1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:44:27 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] Delete cryptoloop
-Date: Tue, 27 Jul 2004 15:47:22 -0400
-Organization: TMR Associates, Inc
-Message-ID: <ce6b0e$hu5$2@gatekeeper.tmr.com>
-References: <2kECW-3a0-7@gated-at.bofh.it><2kECW-3a0-7@gated-at.bofh.it> <E1BnzGM-0005zX-00@gimli.local>
+	Tue, 27 Jul 2004 15:46:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39326 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266513AbUG0Tqg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 15:46:36 -0400
+Date: Tue, 27 Jul 2004 15:58:59 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Robin Holt <holt@sgi.com>
+Cc: Keith Owens <kaos@ocs.com.au>, Marcin Owsiany <marcin@owsiany.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: "swap_free: Unused swap offset entry 00000100" but no crash?
+Message-ID: <20040727185859.GB19107@logos.cnet>
+References: <20040727002154.GA21628@melina.ds14.agh.edu.pl> <3808.1090931402@ocs3.ocs.com.au> <20040727125304.GA1411@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1090957134 18373 192.168.12.100 (27 Jul 2004 19:38:54 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040608
-X-Accept-Language: en-us, en
-In-Reply-To: <E1BnzGM-0005zX-00@gimli.local>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040727125304.GA1411@lnx-holt.americas.sgi.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Walter Hofmann wrote:
-> You wrote on linux.kernel:
+On Tue, Jul 27, 2004 at 07:53:04AM -0500, Robin Holt wrote:
+> On Tue, Jul 27, 2004 at 10:30:02PM +1000, Keith Owens wrote:
+> > On Tue, 27 Jul 2004 02:21:54 +0200, 
+> > Marcin Owsiany <marcin@owsiany.pl> wrote:
+> > >    kernel: swap_free: Unused swap offset entry 00000100
+> > >Also, I would be grateful if someone could explain what is that number in the
+> > >message supposed to be? An address?
+> > 
+> > It is a swap partition number, but I doubt that you have 256 swap
+> > partitions in your system.  Single bit set in a word that is meant to
+> > be 0, most likely to be caused by a hardware single bit error.  Run
+> > memtest, burn86 or other memory verification checks.
+> > 
 > 
->>dpf-lkml@fountainbay.com wrote:
->>
->>>Hopefully someone else will follow up, but I hope I'm somewhat convincing:
->>
->>Not really ;)
->>
->>Your points can be simplified to "I don't use cryptoloop, but someone else
->>might" and "we shouldn't do this in a stable kernel".
->>
->>Well, I want to hear from "someone else".  If removing cryptoloop will
->>irritate five people, well, sorry.  If it's 5,000 people, well maybe not.
-> 
-> 
-> I use cryptoloop and I would be really annoyed if it disappeared in
-> the stable kernel series. Besides, I read in another mail in this thread 
-> that dm-crypt will not work with file-based storage (I'm using 
-> cryptoloop on a file), and that it is new and potentially buggy.
-> 
-> I'm really surprised that people here argue that dm-crypt doesn't get 
-> enough testing so cryptoloop has to go to force people to test dm-crypt 
-> with their valuable data. This is all upside-down. First dm-crypt has to 
-> be stable, safe and feature-complete, then people can convert their data 
-> to dm-crypt and only then can cryptoloop be deleted.
+> I remember a race condition I thought was possible, but couldn't exactly
+> pin down the exact sequence.  Give me a chance to dig through some of
+> my notes and see what I come across.
 
-Not to mention working with mount... That would be good if we didn't 
-have to train people, change scripts, etc.
+Would love to hear more details about this.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+> I think I could understand this if there two messages with each invocation,
+> but not with one.
+> 
+> Marcin, you have a process with a Page Table Entry which indicates it is
+> pointing to a page which has been swapped out to block 0 of swap device
+> 256.  This is probably caused by a problem in the kernel.  You can certainly
+> run memtest et al.  If you don't find anything, I would assume the problem
+> is in the kernel.
+
+Marcin, please run the memtest86 and report back.
+
+> Most of the code in the area you would be affected by has changed
+> drastically in the 2.6 kernel.
+

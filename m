@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUGBSg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUGBSgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264894AbUGBSg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 14:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264886AbUGBSg3
+	id S264897AbUGBSgr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 14:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264895AbUGBSgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 14:36:29 -0400
-Received: from web40001.mail.yahoo.com ([66.218.78.19]:29009 "HELO
-	web40001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264894AbUGBSgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 14:36:24 -0400
-Message-ID: <20040702183623.74495.qmail@web40001.mail.yahoo.com>
-Date: Fri, 2 Jul 2004 11:36:23 -0700 (PDT)
-From: Song Wang <wsonguci@yahoo.com>
-Subject: kbuild support to build one module with multiple separate components?
-To: linux-kernel@vger.kernel.org
+	Fri, 2 Jul 2004 14:36:47 -0400
+Received: from pengo.systems.pipex.net ([62.241.160.193]:51082 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S264886AbUGBSgm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 14:36:42 -0400
+Date: Fri, 2 Jul 2004 19:35:14 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       <cova@ferrara.linux.it>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question about SATA and IDE DVD/CD drives.
+In-Reply-To: <Pine.LNX.4.44.0407021805580.2190-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.44.0407021929070.3033-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Folks
+Hi Jeff,
 
-I'm puzzled by the kbuild system in 2.6 kernel.
-I want to write a kernel module, which consists of
-several components. The module is produced by
-linking these components. These components are located
-in separate subdirectories (for example A, B,C). 
-Each component is generated also by linking 
-multiple files. (For example, a_1.c, a_2.c for
-building A.o, b_1.c, b_2.c for building B.o, then A.o
-and B.o
-should be linked to produce mymodule.o) 
+After I gave up fiddling with "ideX=???" options, an alternative
+possibility just occurred to me, looking at this dmesg output from libata:
 
-I know if I put all the files in a single directory
-The makefile of the module looks like
+ata_piix version 1.02
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFFA0 irq 14
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:207f
+ata1: dev 0 ATA, max UDMA/133, 234441648 sectors: lba48
+ata1: dev 0 configured for UDMA/133
+scsi0 : ata_piix
+  Vendor: ATA       Model: ST3120026AS       Rev: 3.05
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+ata2: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFFA8 irq 15
+ata2: dev 0 cfg 49:0b00 82:0210 83:1000 84:0000 85:0000 86:0000 87:0000 88:0407
+ata2: dev 0 ATAPI, max UDMA/33
+ata2: dev 0 configured for UDMA/33
+scsi1 : ata_piix
+SCSI device sda: 234441648 512-byte hdwr sectors (120034 MB)
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
 
-obj-$(CONFIG_MYMODULE) += mymodule.o
-mymodule-objs := a_1.o a_2.o b_1.o b_2.o c_1.o c_2.o
+wouldn't it be nice if I could specify somehow to skip the "ata2" instance
+and leave the 0x170/0x376 resource to be allocated by IDE, which would be
+compiled as a module? Or, once probed and allocated (but not in use) I
+could tell the driver to "release" a particular instance and free all
+resources? I think this is not possible with the current infrastructure
+and, seeing you want to get rid of this conflict altogether, it is
+unlikely you would be interested in adding such support, right?
 
-It should work. But it is really messy, especially
-there are a lot of files or each component requires
-different EXTRA_CFLAGS. However, if I write
-separate Makefiles for each component in their own
-subdirectory, the Makefile of component A looks like
+Kind regards
+Tigran
 
-obj-y := A.o (or obj-$(CONFIG_MYMODULE) +=  A.o)
-A-objs := a_1.o a_2.o
-
-This is wrong, because kbuild will treat A as
-independent module. All I want is to treat
-A as component of the only module mymodule.o. It
-should be linked to mymodule.o
-
-Any idea on how to write a kbuild Makefile to
-support such kind of single module produced
-by linking multiple components and each component
-is located in separate directory? Thanks.
-
--Song
-
-
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail - 50x more storage than other providers!
-http://promotions.yahoo.com/new_mail

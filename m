@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289228AbSANNLi>; Mon, 14 Jan 2002 08:11:38 -0500
+	id <S289233AbSANN3m>; Mon, 14 Jan 2002 08:29:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289231AbSANNL2>; Mon, 14 Jan 2002 08:11:28 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:63389 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S289228AbSANNLM>; Mon, 14 Jan 2002 08:11:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-Reply-To: Oliver.Neukum@lrz.uni-muenchen.de
-To: Momchil Velikov <velco@fadata.bg>, yodaiken@fsmlabs.com
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 13:45:40 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <20020113223438.A19324@hq.fsmlabs.com> <87bsfx9led.fsf@fadata.bg>
-In-Reply-To: <87bsfx9led.fsf@fadata.bg>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <16Q6V6-207eimC@fwd06.sul.t-online.com>
+	id <S289231AbSANN3W>; Mon, 14 Jan 2002 08:29:22 -0500
+Received: from mail006.syd.optusnet.com.au ([203.2.75.230]:953 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S289233AbSANN3R>; Mon, 14 Jan 2002 08:29:17 -0500
+Subject: Re: slowdown with new scheduler.
+From: Antony Suter <antonysuter@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020114124541.A32412@suse.de>
+In-Reply-To: <20020114124541.A32412@suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 15 Jan 2002 00:27:31 +1100
+Message-Id: <1011014852.5220.19.camel@gestalt.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 January 2002 13:17, Momchil Velikov wrote:
-> >>>>> "yodaiken" == yodaiken  <yodaiken@fsmlabs.com> writes:
->
-> yodaiken> 	It's not even clear how preempt is supposed to interact with
-> SCHED_FIFO.
->
-> How so ? The POSIX specification is not clear enough or it is not to be
-> followed ?
+On Mon, 2002-01-14 at 23:45, Dave Jones wrote:
+> Hi Ingo,
+>  After adding H7 to 2.4.18pre3, I noticed that kernel compiles
+> on one of my test boxes got much slower.
+> Uniprocessor system (Cyrix 3) building a 2.4.18pre3 tree,
+> with the same .config, and a distclean before starting the compile.
+> 
+> 2.4.18pre3        13.38s                       
+> 2.4.18pre+H7      17.53s
+> 
+> I see similar slowdown when running H7 on 2.5 on this box.
 
-You can have an rt task block on a lock held by a normal task that was 
-preempted by a rt task of lower priority. The same problem as with the 
-sched_idle patches.
+Another anecdote: my dnetc client (niced at 19) scores went from 4.2
+Mkeys/s to 4.0 Mkeys/s. (Athlon 1.2GHz tbird).
 
-	Regards
-		Oliver
+-- 
+- Antony Suter  (antonysuter@optusnet.com.au)  "Examiner" 
+openpgp:7916EE67
+- "Savahnah River. K Reactor. 1968. It was a very good year."
+

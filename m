@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbTL1K6i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 05:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTL1K6i
+	id S265069AbTL1LBI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 06:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265078AbTL1LBH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 05:58:38 -0500
-Received: from cc15467-a.groni1.gr.home.nl ([217.120.147.78]:33601 "HELO
-	boetes.org") by vger.kernel.org with SMTP id S265062AbTL1K6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 05:58:36 -0500
-Date: Sun, 28 Dec 2003 11:58:36 +0100
-From: Han Boetes <han@mijncomputer.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0 kernel panic
-Message-ID: <20031228105858.GA16148@boetes.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031228020759.GA2158@Master.Wizards>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031228020759.GA2158@Master.Wizards>
-X-GPG-Key: http://www.xs4all.nl/~hanb/keys/Han_pubkey.gpg
-X-GPG-Fingerprint: EB66 D194 AB3F 4C57 49EF 6795 44AE E0D8 3F38 7301
-User-Agent: Mutt/1.5.5.1i
+	Sun, 28 Dec 2003 06:01:07 -0500
+Received: from GOL139579-1.gw.connect.com.au ([203.63.118.157]:30430 "EHLO
+	goldweb.com.au") by vger.kernel.org with ESMTP id S265069AbTL1LBD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 06:01:03 -0500
+Date: Sun, 28 Dec 2003 21:48:57 +1100 (EST)
+From: Michael Still <mikal@stillhq.com>
+To: Thomas Molina <tmolina@cablespeed.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Hans Ulrich Niedermann <linux-kernel@n-dimensional.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Fixing 2.6.0's broken documentation references
+In-Reply-To: <Pine.LNX.4.58.0312272222500.14915@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0312282145070.18079-100000@diskbox.stillhq.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Murray J. Root wrote:
-> P4 2GHz
-> ASUS P4S533 mainboard
-> 1G PC2700 RAM
-> GF2 GTS video using nv driver
-> 2.6.0 compiled with gcc 3.3.2
-> 
-> At boot kernel gets:
->    INIT: cannot execute "/etc/rc.d/rc.sysinit"
-> then panic.
-> 
-> Same configuration for 2.6.0-test11 and earlier works fine.
+On Sat, 27 Dec 2003, Thomas Molina wrote:
 
-Update your gcc-rpm and recompile
+> I agree that having a documentation maintainer would be a good idea.  Hans 
+> could volunteer or I could if no one else wants it.  Whoever does it 
+> though, needs some assurance that patches won't be dropped on the floor.
 
+I would think that any such maintainer would also have to deal with 
+kernel-doc, and making sure all of those scripts work / don't produce 
+errors. I got a bunch of patches into the late 2.5 cycle to deal with 
+that, but someone needs to keep that stuff working.
 
+I'm happy to keep playing with those scripts, if other people are happy 
+with that.
 
-# Han
+My point is that documentation is more complex than just keeping the 
+comments in the source pointing at the right places -- there is a bunch of 
+infrastructure there as well.
+
+On the dropped patch front, I had a lot of success getting patches into 
+the kernel via the Trivial Patch Monkey. Given the menial nature of this 
+sort of work, wouldn't this best be done by the janitors and sending 
+patches to trivial?
+
+Cheers,
+Mikal
+
+-- 
+
+Michael Still (mikal@stillhq.com) | "All my life I've had one dream,
+http://www.stillhq.com            |  to achieve my many goals"
+UTC + 11                          |    -- Homer Simpson
+

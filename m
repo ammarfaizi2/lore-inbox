@@ -1,29 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132586AbRDQMjF>; Tue, 17 Apr 2001 08:39:05 -0400
+	id <S132578AbRDQMnP>; Tue, 17 Apr 2001 08:43:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132585AbRDQMi6>; Tue, 17 Apr 2001 08:38:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27150 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132580AbRDQMin>; Tue, 17 Apr 2001 08:38:43 -0400
-Subject: Re: change_mtu boundary checking error
-To: shmulik.hen@intel.com (Hen, Shmulik)
-Date: Tue, 17 Apr 2001 13:40:34 +0100 (BST)
-Cc: linux-net@vger.kernel.org ('LNML'), linux-kernel@vger.kernel.org ('LKML')
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B271DB@hasmsx52.iil.intel.com> from "Hen, Shmulik" at Apr 17, 2001 05:29:05 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14pUmc-0002GY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132587AbRDQMnG>; Tue, 17 Apr 2001 08:43:06 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:59500 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S132578AbRDQMnA>; Tue, 17 Apr 2001 08:43:00 -0400
+Date: Tue, 17 Apr 2001 13:42:57 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: Re: Is printing broke on sparc ?
+Message-ID: <20010417134257.J29490@redhat.com>
+In-Reply-To: <Pine.LNX.4.32.0104161752010.18324-100000@filesrv1.baby-dragons.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="up2r7mkFEYHJ3y+X"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.32.0104161752010.18324-100000@filesrv1.baby-dragons.com>; from babydr@baby-dragons.com on Mon, Apr 16, 2001 at 05:54:41PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, the high boundary seemed reasonable (ETH_FRAME_LEN - ETH_HLEN =
-> ETH_DATA_LEN) which gives 1500, but why is the low boundary set to 68 ?
-> According to my calculations, it should have been ETH_ZLEN - ETH_HLEN which
-> gives 46.
 
-The IPv4 minimum MTU is 68 bytes. Below that not all frames can be delivered
+--up2r7mkFEYHJ3y+X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Mon, Apr 16, 2001 at 05:54:41PM -0700, Mr. James W. Laferriere wrote:
+
+> # /etc/printcap
+> #
+> # Please don't edit this file directly unless you know what you are doing!
+> # Be warned that the control-panel printtool requires a very strict forma=
+t!
+> # Look at the printcap(5) man page for more info.
+> #
+> # This file can be edited with the printtool in the control-panel.
+>=20
+> ##PRINTTOOL3## LOCAL POSTSCRIPT 300x300 letter {} PostScript Default {}
+> lp:\
+> 	:sd=3D/var/spool/lpd/lp:\
+> 	:mx#0:\
+> 	:sh:\
+> 	:lp=3D/dev/lp0:\
+> 	:if=3D/var/spool/lpd/lp/filter:
+[...]
+> /c#eodiecnyotai rhernili s to rpaemn
+>                                     s eehpo o-.ROLPR0 roif{\=3Dsl:x
+>                                                                  	/p:ao/lr
+
+This looks like characters are getting missed out, rather than
+anything getting garbled.  The above characters all appear in
+/etc/printcap in the order shown.  Obviously there isn't enough
+redundancy in /etc/printcap for the print-out to be useful despite
+that. :-)
+
+Please try adjusting the 'udelay (1)' lines in
+drivers/parport/ieee1284_ops.c:parport_ieee1284_write_compat to be
+larger delays (for example, try replacing the 1s with 2s, or 5s, and
+see if that makes things better).
+
+Let me know what you need to change to get it working.
+
+Thanks,
+Tim.
+*/
+
+--up2r7mkFEYHJ3y+X
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE63DpRONXnILZ4yVIRArPSAKCg8k4cFKsNQ/7TyOC8r6gI+So0RQCglu1F
+juullPUtHxeJWlNiFCSX5vU=
+=hePd
+-----END PGP SIGNATURE-----
+
+--up2r7mkFEYHJ3y+X--

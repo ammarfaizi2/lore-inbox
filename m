@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266609AbTABV1V>; Thu, 2 Jan 2003 16:27:21 -0500
+	id <S266537AbTABVYh>; Thu, 2 Jan 2003 16:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266622AbTABV1U>; Thu, 2 Jan 2003 16:27:20 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:43015 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266609AbTABV1D>; Thu, 2 Jan 2003 16:27:03 -0500
-Date: Thu, 2 Jan 2003 16:33:14 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andrew Walrond <andrew@walrond.org>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL and Nvidia
-In-Reply-To: <3E14202D.4050909@walrond.org>
-Message-ID: <Pine.LNX.3.96.1030102162253.20297A-100000@gatekeeper.tmr.com>
+	id <S266546AbTABVYf>; Thu, 2 Jan 2003 16:24:35 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:19420 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S266537AbTABVYa>; Thu, 2 Jan 2003 16:24:30 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Date: Fri, 3 Jan 2003 08:32:48 +1100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15892.45056.772569.433906@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID0 problems with 2.4.21-BK current
+In-Reply-To: message from Marc-Christian Petersen on Thursday January 2
+References: <200212292012.11556.m.c.p@wolk-project.de>
+	<15891.33615.121943.544956@notabene.cse.unsw.edu.au>
+	<200301021651.59376.m.c.p@wolk-project.de>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jan 2003, Andrew Walrond wrote:
-
-> I think we were suckered into the GPL by lawyers ;)
+On Thursday January 2, m.c.p@wolk-project.de wrote:
+> On Thursday 02 January 2003 01:09, Neil Brown wrote:
 > 
-> Seriously though, I believe the GPL is the biggest impediment to 
-> gnu/linux and open source software that anyone could possibly come up 
-> with. Frankly I'm suprised NVidia and others bother supporting linux, 
-> but am very glad they do.
+> Hi Neil,
 > 
-> IMO The only license we need is
-> 
-> "Here is, for what it's worth, some software. You can use it in any way 
-> you like; modify it, fix it and if you can make some money from it - 
-> great! Go feed your family. Fixes, changes and improvements are always 
-> welcome, but not mandatory. Enjoy!"
+> > Is your raid0 ontop of a raid1 ???
+> > If so, this patch is needed.
+> nope, surely not ;) ... Plain raid0.
 
-We don't need a 2nd BSD license, one is more than enough. Let Linux and
-BSD offer alternatives. Of course given the relative success of Linux and
-BSD I think we can safely say that the decision has been made as to which
-will be more appealing to users, although I'm not totally sure why.
+Hmmm...  Can you tell me anything else about your set up that might be
+different to mine?
+What drives are you using? Which driver do they use?  i386? anything
+else?
 
-I actually prefer a license which says may be freely used in open source
-freely redistributable software, and otherwise requires a commercial
-license with royalty. In other words, "this is my gift to humanity to be
-freely used and enjoyed. If you insist on limiting or concealing it I want
-to make money on it, too." 
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+NeilBrown

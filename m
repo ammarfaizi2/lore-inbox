@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267632AbUHMWvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267648AbUHMWyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267632AbUHMWvs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 18:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267648AbUHMWvs
+	id S267648AbUHMWyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 18:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHMWyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 18:51:48 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:22488 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267632AbUHMWvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 18:51:43 -0400
-Subject: Re: [solved] binfmt_misc trouble with kernel 2.6.7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Anand Buddhdev <anand@celtelplus.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <411D41DD.1080005@celtelplus.com>
-References: <411CF503.40202@celtelplus.com>
-	 <411D41DD.1080005@celtelplus.com>
-Content-Type: text/plain
-Message-Id: <1092437540.803.22.camel@mindpipe>
+	Fri, 13 Aug 2004 18:54:09 -0400
+Received: from commedia.cnds.jhu.edu ([128.220.221.1]:49099 "EHLO
+	commedia.cnds.jhu.edu") by vger.kernel.org with ESMTP
+	id S267648AbUHMWxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 18:53:47 -0400
+Date: Fri, 13 Aug 2004 18:53:15 -0400
+From: Jonathan Stanton <jonathan@cnds.jhu.edu>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: sdake@mvista.com,
+       Discussion of clustering software components including
+	 GFS <linux-cluster@redhat.com>,
+       Chris Wright <chrisw@osdl.org>, dcl_discussion@osdl.org,
+       cgl_discussion@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-cluster] Re: [cgl_discussion] Re: [dcl_discussion] Clustersummit materials
+Message-ID: <20040813225315.GD16662@cnds.jhu.edu>
+References: <3689AF909D816446BA505D21F1461AE4C75110@cacexc04.americas.cpqcorp.net> <1092249962.4717.21.camel@persist.az.mvista.com> <20040812095736.GE4096@marowsky-bree.de> <1092332536.7315.1.camel@persist.az.mvista.com> <20040812203738.GK9722@marowsky-bree.de> <1092351549.7315.5.camel@persist.az.mvista.com> <20040813155441.GA16662@cnds.jhu.edu> <20040813203029.GW4161@marowsky-bree.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 13 Aug 2004 18:52:21 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040813203029.GW4161@marowsky-bree.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-13 at 18:34, Anand Buddhdev wrote:
-> Anand Buddhdev wrote:
-> Geoffrey Leach from the Fedora list provided a hint to the solution. 
-> There's no bug. I just have to add:
+On Fri, Aug 13, 2004 at 10:30:29PM +0200, Lars Marowsky-Bree wrote:
+> On 2004-08-13T11:54:41,
+>    Jonathan Stanton <jonathan@cnds.jhu.edu> said:
 > 
-> none  /proc/sys/fs/binfmt_misc  binfmt_misc  defaults  0 0
+> > If you havn't looked at it already, you might want to try out the Spread
+> > group communication system. 
+> > 
+> > http://www.spread.org/
 > 
-> to my /etc/fstab, and then the /proc/sys/fs/binfmt_misc directory 
-> becomes writable, with a register and a status file in it. Sorry to have 
-> bothered you all.
+> The intel lawyers have identified the Spread license to be
+> GPL-incompatible.
+> 
+> Otherwise, I agree, Spread is very nice. If those issues could be
+> resolved, that may be an interesting option too.
+> 
+> (I think the advertising clause and something else clash with the
+> (L)GPL; I can put you in contact with the Intel folks if you wish to
+> resolve this.)
 
-That is certainly a Fedora bug if they update a kernel package that
-requires userland configs to be updated and then don't update those
-configs.  This seems to be a common pattern with Fedora, the kernel
-packages change way faster than the userland tools and they are fast and
-loose about not updating userland.  To be perfectly honest I switched to
-Debian partially for this reason.
+I would appreciate that. We did choose our licensing for what I think are 
+good reasons, but we have also worked in the past with outside projects 
+with possible license conflicts and have been able to resolve them. So I 
+would like to understand exactly what the issues are. 
 
-Do they really claim this is not a bug?
+Cheers,
 
-Lee
+Jonathan
 
+-- 
+-------------------------------------------------------
+Jonathan R. Stanton         jonathan@cs.jhu.edu
+Dept. of Computer Science   
+Johns Hopkins University    
+-------------------------------------------------------

@@ -1,33 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268045AbUJMJtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269658AbUJMJz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268045AbUJMJtV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 05:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUJMJtV
+	id S269658AbUJMJz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 05:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269659AbUJMJz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 05:49:21 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:39064 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S268045AbUJMJtR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 05:49:17 -0400
+	Wed, 13 Oct 2004 05:55:27 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:47339 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S269658AbUJMJzI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 05:55:08 -0400
 X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="gb2312"
 Content-Transfer-Encoding: 8BIT
-Subject: [PATCH x86_64]: Correct copy_user_generic return value when exception happens
-Date: Wed, 13 Oct 2004 17:49:11 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E8490E1DA@pdsmsx404>
+Subject: RE: [PATCH x86_64]: Correct copy_user_generic return value when exception happens
+Date: Wed, 13 Oct 2004 17:55:05 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E8490E1E2@pdsmsx404>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: [PATCH x86_64]: Correct copy_user_generic return value when exception happens
-Thread-Index: AcSt5QWpVL6ooJXiR0KPkdX8I02GAADIm1Xg
+Thread-Index: AcSt5QWpVL6ooJXiR0KPkdX8I02GAADIm1XgAACs3ZA=
 From: "Jin, Gordon" <gordon.jin@intel.com>
 To: <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Oct 2004 09:49:13.0870 (UTC) FILETIME=[E5A2F2E0:01C4B109]
+Cc: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
+       "Zou, Nanhai" <nanhai.zou@intel.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Fu, Michael" <michael.fu@intel.com>,
+       "Jin, Gordon" <gordon.jin@intel.com>
+X-OriginalArrivalTime: 13 Oct 2004 09:55:06.0279 (UTC) FILETIME=[B7B04B70:01C4B10A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+LTP case write03 and pwrite03 exposed this bug.
+
+Below is a simplified version for write03.c:
+Firstly, it writes 100 bytes to fd, so that f_pos is not 8-byte aligned.
+Secondly, it mmaps a buffer with PROT_NONE flag.
+Finally, it writes the buffer to fd and expects fail. But the write will succeed, if not armed with the patch.
+
+#include <unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int main(int argc, char **argv)
+{
+	int fd;
+	int ret;
+	char wbuf[100];
+	char * bad_addr = 0;
+
+	fd = creat("test",0644);
+	if (fd < 0) {
+		printf("creating a new file failed\n");
+	}
+
+	(void)memset(wbuf, '0', 100);
+
+	if (write(fd, wbuf, 100) == -1) {
+		perror("first write");
+		return (-1);
+	}
+
+	bad_addr = mmap(0, 1, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, 0, 0);
+	if (bad_addr <= 0) {
+	    printf("mmap failed\n");
+	}
+
+	ret = write(fd, bad_addr, 100);
+	if (ret != -1) {
+		printf( "FAIL: write(2) failed to fail\n");
+		return(-1);
+	} else {
+		printf( "PASS\n");
+		return(0);
+	}
+}
+
+
+Thanks,
+Gordon 
+
+-----Original Message-----
+From: Jin, Gordon 
+Sent: Wednesday, October 13, 2004 5:49 PM
+To: discuss@x86-64.org; linux-kernel@vger.kernel.org
+Subject: [PATCH x86_64]: Correct copy_user_generic return value when exception happens
 
  
 Fix a bug that arch/x86_64/lib/copy_user:copy_user_generic will return a wrong

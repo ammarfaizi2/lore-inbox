@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263150AbVCJVZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263153AbVCJVad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbVCJVZL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 16:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbVCJVZK
+	id S263153AbVCJVad (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 16:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbVCJV2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 16:25:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:19656 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263150AbVCJVVP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:21:15 -0500
-Date: Thu, 10 Mar 2005 13:21:14 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk+serial@arm.linux.org.uk>
-Subject: Re: Problem with PPPD on dialup with 2.6.11-bk1 and later; 2.6.11
- is OK
-Message-ID: <20050310132114.5eda19d7@dxpl.pdx.osdl.net>
-In-Reply-To: <200503091914.24612.elenstev@mesatop.com>
-References: <200503091914.24612.elenstev@mesatop.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.1 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Thu, 10 Mar 2005 16:28:19 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1549 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263153AbVCJVVf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 16:21:35 -0500
+Date: Thu, 10 Mar 2005 21:21:24 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: XScale 8250 patches cause malfunction on AMD-8111
+Message-ID: <20050310212124.B1044@flint.arm.linux.org.uk>
+Mail-Followup-To: Chris Wedgwood <cw@f00f.org>,
+	Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20050307174506.GA9659@vana.vc.cvut.cz> <20050307195654.GA9394@vana.vc.cvut.cz> <20050307213148.B29948@flint.arm.linux.org.uk> <20050310210506.GA13988@taniwha.stupidest.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050310210506.GA13988@taniwha.stupidest.org>; from cw@f00f.org on Thu, Mar 10, 2005 at 01:05:06PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Stephen Hemminger also wrote: (Someting's busted with serial in 2.6.11 latest)
-> >Some checkin since 2.6.11 has caused the serial driver to
-> >drop characters.  Console output is chopped and messages are garbled.
-> >Even the shell prompt gets truncated.
-
-> Searching lkml archive, I found:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111031501416334&w=2
+On Thu, Mar 10, 2005 at 01:05:06PM -0800, Chris Wedgwood wrote:
+> On Mon, Mar 07, 2005 at 09:31:48PM +0000, Russell King wrote:
 > 
-> I also found that reverting that patch made the problem go away for 2.6.11-bk1.
+> > Good catch, thanks.  I'd preferably like to see Chris Wedgwood test
+> > this before applying it - I'm sure it'll fix his problem as well,
+> > but I'd like to be sure.
+> 
+> Yes, this appears to work correctly for me.  I see it's merged so this
+> is just an ACK that it works, nobody actually has to do anything :-)
 
+Thanks for that Chris.
 
-Yes, this patch is the problem. A fix showed up today.
-Current kernels work fine, thanks.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

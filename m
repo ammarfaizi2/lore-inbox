@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264733AbUD2VIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264700AbUD2VUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264733AbUD2VIA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264644AbUD2UrB
+	id S264700AbUD2VUy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbUD2VRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 16:47:01 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:30090 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264981AbUD2UmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 16:42:01 -0400
-Date: Thu, 29 Apr 2004 13:36:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: nickpiggin@yahoo.com.au, jgarzik@pobox.com, akpm@osdl.org,
-       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-Id: <20040429133613.791f9f9b.pj@sgi.com>
-In-Reply-To: <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-References: <40904A84.2030307@yahoo.com.au>
-	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 29 Apr 2004 17:17:37 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:36757 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264966AbUD2VRT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:17:19 -0400
+Subject: Re: Possible permissions bug on NFSv3 kernel client
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Pascal Schmidt <der.eremit@email.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1BJISs-0000MM-W0@localhost>
+References: <1QhAA-5zc-13@gated-at.bofh.it> <1QnPD-2pg-1@gated-at.bofh.it>
+	 <E1BJISs-0000MM-W0@localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1083273435.3686.85.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 29 Apr 2004 17:17:15 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How on earth is the kernel supposed to know that for this one particular
-> job you don't care if it takes 3 hours instead of 10 minutes,
+On Thu, 2004-04-29 at 16:49, Pascal Schmidt wrote:
+> On Thu, 29 Apr 2004 19:50:06 +0200, you wrote in linux.kernel:
+> 
+> >> ...so that the the MODIFY and EXTEND bits aren't set when writing to a
+> >> block or character device.
+> >
+> > Hmm... Why shouldn't the MODIFY bit at least be set if the user
+> > requested write access to the device?
+> 
+> It's somewhat of a mixed-up situation for device nodes exported via
+> NFSv3. Permission bits are on the server, but the actual write does
+> not happen via NFS (as v3 WRITE only works on regular files).
 
-I'd pay ten bucks (yeah, I'm a cheapskate) for an option that I could
-twiddle that would mark my nightly updatedb and backup jobs as ones to
-use reduced memory footprint (both for file caching and backing user
-virtual address space), even if it took much longer.
+It's not "mixed up" at all: the permissions checking has to be done by
+the server, period.
+All the file security information (the mode bits, owner uid, group gid,
+ACLs etc) that determine whether or not the open() should succeed are
+defined on the *server* not on the client. If the former is doing some
+form of mapping of those values (in particular if it is doing some form
+of root/uid/gid squashing) then the only way for the client to get it
+right is to make an ACCESS call.
 
-So, rather than protest in mock outrage that it's impossible for the
-kernel to know this, instead answer the question as stated in all
-seriousness ... well ... how _could_ the kernel know, and what _could_
-the kernel do if it knew.  What mechanism(s) would be needed so that
-the kernel could restrict a jobs memory usage?
+The fact that the subsequent writes go to a device on the client is
+entirely irrelevant.
 
-Heh - indeed perhaps the answer is closer than I realize.  For SGI's big
-NUMA boxes, managing memory placement is sufficiently critical that we
-are inventing or encouraging ways (such as Andi Kleen's numa stuff) to
-control memory placement per node per job.  Perhaps this needs to be
-extended to portions of a node (this job can only use 1 Gb of the memory
-on that 2 Gb node) and to other memory uses (file cache, not just user
-space memory).
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Cheers,
+  Trond

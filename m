@@ -1,72 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262564AbUBKDpV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 22:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUBKDpV
+	id S263082AbUBKDwz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 22:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUBKDwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 22:45:21 -0500
-Received: from c-24-15-25-98.client.comcast.net ([24.15.25.98]:25984 "EHLO
-	chris.pebenito.dhs.org") by vger.kernel.org with ESMTP
-	id S262564AbUBKDpR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 22:45:17 -0500
-Subject: Re: 2.6.3-rc1-mm1 (SELinux + ext3 + nfsd oops)
-From: Chris PeBenito <pebenito@gentoo.org>
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org, Stephen Smalley <sds@epoch.ncsc.mil>
-In-Reply-To: <Xine.LNX.4.44.0402102128210.9747-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0402102128210.9747-100000@thoron.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Dvp8nMBgu1M5cWVFmjD7"
-Message-Id: <1076471114.4925.0.camel@chris.pebenito.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 10 Feb 2004 21:45:15 -0600
+	Tue, 10 Feb 2004 22:52:55 -0500
+Received: from smtp2.dei.uc.pt ([193.137.203.229]:31889 "EHLO smtp2.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S263082AbUBKDwx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 22:52:53 -0500
+Date: Wed, 11 Feb 2004 03:52:43 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Critical problem in 2.6.2 and up
+In-Reply-To: <Pine.LNX.4.58.0402110325050.28596@student.dei.uc.pt>
+Message-ID: <Pine.LNX.4.58.0402110350240.28596@student.dei.uc.pt>
+References: <Pine.LNX.4.58.0402110250580.28596@student.dei.uc.pt>
+ <20040210191911.4d6e1308.akpm@osdl.org> <Pine.LNX.4.58.0402110325050.28596@student.dei.uc.pt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-Dvp8nMBgu1M5cWVFmjD7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Wed, 11 Feb 2004, Marcos D. Marado Torres wrote:
 
-Still oopses.  I also tried with 2.6.3-rc2, and it also oopses.
+> On Tue, 10 Feb 2004, Andrew Morton wrote:
+>
+> > "Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote:
+> > >
+> > > # lilo
+> > >
+> > >  Warning: '/proc/partitions' does not match '/dev' directory structure.
+> > >      Name change: '/dev/nbd0' -> '/tmp/dev.0'
+> > >  Warning: '/dev' directory structure is incomplete; device (43, 0) is missing.
+> > >  Warning: '/dev' directory structure is incomplete; device (43, 1) is missing.
+> > >  Warning: '/dev' directory structure is incomplete; device (43, 2) is missing.
+> > >  Warning: '/dev' directory structure is incomplete; device (43, 3) is missing.
+> >
+> > Please send us your /proc/partitions with, and without that patch.
+>
+> Follows as attachment.
+>
+> > If you disable nbd in config, does it help?
+>
+> I'm going to try it next.
 
-On Tue, 2004-02-10 at 20:29, James Morris wrote:
-> On Tue, 10 Feb 2004, Chris PeBenito wrote:
->=20
-> > I got an oops on boot when nfsd is starting up on a SELinux+ext3
-> > machine.  It exports /home, which is mounted thusly:
-> >=20
->=20
-> What happens if you try this this patch:
->=20
-> http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107637246127197&w=3D2 =
-?
->=20
->=20
->=20
-> - James
---=20
-Chris PeBenito
-<pebenito@gentoo.org>
-Developer,
-Hardened Gentoo Linux
-Embedded Gentoo Linux
-=20
-Public Key: http://pgp.mit.edu:11371/pks/lookup?op=3Dget&search=3D0xE6AF924=
-3
-Key fingerprint =3D B0E6 877A 883F A57A 8E6A  CB00 BC8E E42D E6AF 9243
+With nbd disabled the patch causes no problems.
 
---=-Dvp8nMBgu1M5cWVFmjD7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+
+
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
 
-iD8DBQBAKaVKvI7kLeavkkMRAk+RAJ94V0FvfsP6h1ftrL2c6iIegNXIMwCdEIea
-2ZGYQDOlXyGuKDvElAve9h4=
-=9wRk
+iD8DBQFAKacOmNlq8m+oD34RAnEpAJ0cY/wWddjHors+eTLq/wXaTOHIkgCghKtX
+jFnj+FqWRjVUkj0F9l+DYQY=
+=PTyn
 -----END PGP SIGNATURE-----
 
---=-Dvp8nMBgu1M5cWVFmjD7--

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbTBBL6d>; Sun, 2 Feb 2003 06:58:33 -0500
+	id <S265222AbTBBMe3>; Sun, 2 Feb 2003 07:34:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbTBBL6d>; Sun, 2 Feb 2003 06:58:33 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:35970 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S265205AbTBBL6c>; Sun, 2 Feb 2003 06:58:32 -0500
-Date: Sun, 2 Feb 2003 13:07:52 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: futimes()?
-Message-ID: <20030202120752.GK5239@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <b1htmi$9r6$1@cesium.transmeta.com>
+	id <S265230AbTBBMe2>; Sun, 2 Feb 2003 07:34:28 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23439
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265222AbTBBMe2>; Sun, 2 Feb 2003 07:34:28 -0500
+Subject: Re: Linux 2.4.21-pre4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030202110617.GJ6915@fs.tum.de>
+References: <Pine.LNX.4.53L.0301290143350.27119@freak.distro.conectiva>
+	 <20030202110617.GJ6915@fs.tum.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044193128.16853.18.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b1htmi$9r6$1@cesium.transmeta.com>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 02 Feb 2003 13:38:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin, Sun, Feb 02, 2003 02:53:22 +0100:
-> In the general vein of avoiding security holes by using file
-> descriptors when doing repeated operations on the same filesystem
-> object, I have noticed that there doesn't seem to be a way to set
-> mtime using a file descriptor.  Do we need a futimes() syscall?
+On Sun, 2003-02-02 at 11:06, Adrian Bunk wrote:
+> On Wed, Jan 29, 2003 at 01:44:49AM -0200, Marcelo Tosatti wrote:
+> 
+> >...
+> > Summary of changes from v2.4.21-pre3 to v2.4.21-pre4
+> > ============================================
+> >...
+> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> >...
+> >   o fix packet padding on the 3c523
+> >...
+> 
+> This causes the following compile error:
 
-There is a small problem with close(). It can update mtime as well.
+Fix already sent to Marcelo
 

@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265643AbSJXUZC>; Thu, 24 Oct 2002 16:25:02 -0400
+	id <S265646AbSJXUVW>; Thu, 24 Oct 2002 16:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265639AbSJXUZC>; Thu, 24 Oct 2002 16:25:02 -0400
-Received: from mx1.it.wmich.edu ([141.218.1.89]:47086 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S265643AbSJXUZB>;
-	Thu, 24 Oct 2002 16:25:01 -0400
-Message-ID: <3DB858A3.10104@wmich.edu>
-Date: Thu, 24 Oct 2002 16:31:31 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org
+	id <S265652AbSJXUVW>; Thu, 24 Oct 2002 16:21:22 -0400
+Received: from duncodin.demon.co.uk ([158.152.19.86]:27781 "EHLO
+	duncodin.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S265646AbSJXUVU>; Thu, 24 Oct 2002 16:21:20 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: mike@duncodin.org (Mike Civil)
+Newsgroups: local.linux-kernel
 Subject: Re: [CFT] faster athlon/duron memory copy implementation
-References: <3DB82ABF.8030706@colorfullife.com>	<200210242048.36859.earny@net4u.de>  <3DB85385.6030302@wmich.edu> <1035490431.1501.101.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Thu, 24 Oct 2002 20:27:31 +0000 (UTC)
+Organization: A minimalistic InterNetNews site
+Message-ID: <ap9l3j$a8p$2@duncodin.demon.co.uk>
+References: <3DB82ABF.8030706@colorfullife.com>
+NNTP-Posting-Host: localhost.demon.co.uk
+X-Trace: duncodin.demon.co.uk 1035491251 10521 127.0.0.1 (24 Oct 2002 20:27:31 GMT)
+X-Complaints-To: postmaster@duncodin.demon.co.uk
+NNTP-Posting-Date: Thu, 24 Oct 2002 20:27:31 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mike@duncodin.demon.co.uk (Mike Civil)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> On Thu, 2002-10-24 at 16:09, Ed Sweetman wrote:
-> 
-> 
->>I seem to be seeing compiler optimizations come into play with the 
->>numbers and not any mention of them that i've seen has been talked 
->>about. That could be causing any discrepencies with predicted values. So 
->>not only would we have to look at algorithms, but also the compilers and 
->>what optimizations we plan on using them with.  Some do better on 
->>certain compilers+flags than others. It's a mixmatch that seems to only 
->>get complicated the more realistic you make it.
-> 
-> 
-> The majority of the program is inline assembly so I do not think
-> compiler is playing a huge role here.
-> 
-> Regardless, the numbers are all pretty uniform in saying the new no
-> prefetch method is superior so its a mute point.
-> 
-> 	Robert Love
+ABIT KT7A 896M PC133 
 
-With gcc 3.x i get
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) processor
+stepping        : 4
+cpu MHz         : 1333.416
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2660.76
 
-495MB/s  with -O3 -march=athlon-tbird -mcpu=athlon-tbird -falign-loops=4 
--falign-functions=4
 
-488MB/s with -O3 -march=athlon-tbird -mcpu=athlon-tbird -falign-loops=4
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-467MB/s with -O0 -march=i686 -mcpu=i686
+copy_page() tests 
+copy_page function 'warm up run'	 took 23577 cycles per page
+copy_page function '2.4 non MMX'	 took 30797 cycles per page
+copy_page function '2.4 MMX fallback'	 took 30748 cycles per page
+copy_page function '2.4 MMX version'	 took 23793 cycles per page
+copy_page function 'faster_copy'	 took 13461 cycles per page
+copy_page function 'even_faster'	 took 12599 cycles per page
+copy_page function 'no_prefetch'	 took 11218 cycles per page
 
-which is almost a 30MB/s difference or 6% simply from compiler options 
-of the same compiler.  It may not mean much in 1 second. But few things 
-where we care about performance are only run for one second.
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-I'd expect something below 3% and realistically closer to 1%. Any ideas 
-as to why it is making a difference?  Does the execution path to the 
-function in C really take up performance to drop 30MB/s of memory 
-bandwidth because from the looks of it this program is very small and 
-things should be really quick to the asm functions.
+copy_page() tests 
+copy_page function 'warm up run'	 took 23122 cycles per page
+copy_page function '2.4 non MMX'	 took 30279 cycles per page
+copy_page function '2.4 MMX fallback'	 took 30452 cycles per page
+copy_page function '2.4 MMX version'	 took 23152 cycles per page
+copy_page function 'faster_copy'	 took 13367 cycles per page
+copy_page function 'even_faster'	 took 12482 cycles per page
+copy_page function 'no_prefetch'	 took 11146 cycles per page
 
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
+
+copy_page() tests 
+copy_page function 'warm up run'	 took 22860 cycles per page
+copy_page function '2.4 non MMX'	 took 30052 cycles per page
+copy_page function '2.4 MMX fallback'	 took 30070 cycles per page
+copy_page function '2.4 MMX version'	 took 22815 cycles per page
+copy_page function 'faster_copy'	 took 13245 cycles per page
+copy_page function 'even_faster'	 took 12393 cycles per page
+copy_page function 'no_prefetch'	 took 11200 cycles per page
+
+Mike

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263801AbTKFRve (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 12:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTKFRv2
+	id S263766AbTKFRqT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 12:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263785AbTKFRqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 12:51:28 -0500
-Received: from ns.suse.de ([195.135.220.2]:47548 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263801AbTKFRvV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 12:51:21 -0500
-Date: Thu, 6 Nov 2003 18:50:32 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Mike Anderson <andmike@us.ibm.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Message-ID: <20031106175032.GO437@suse.de>
-References: <B179AE41C1147041AA1121F44614F0B0598CE5@AVEXCH02.qlogic.org> <20031106171409.GN437@suse.de> <1068140592.5234.8.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1068140592.5234.8.camel@laptop.fenrus.com>
+	Thu, 6 Nov 2003 12:46:16 -0500
+Received: from [198.70.193.2] ([198.70.193.2]:2492 "EHLO AVEXCH01.qlogic.org")
+	by vger.kernel.org with ESMTP id S263745AbTKFRpq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 12:45:46 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Date: Thu, 6 Nov 2003 09:45:50 -0800
+Message-ID: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
+Thread-Index: AcOkU/rBlDsfTazRSqOpx6FDHFZotQANRZFw
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
+       "Linux-SCSI" <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 06 Nov 2003 17:45:51.0334 (UTC) FILETIME=[D1C72860:01C3A48D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 06 2003, Arjan van de Ven wrote:
-> On Thu, 2003-11-06 at 18:14, Jens Axboe wrote:
+Christoph,
+
+> More comments:
 > 
-> > They were there at the same time as Linux supported > 1GB IO at all. So
-> > that is incorrect, it's been there all along.
+>  - qla_vendor.c is still unused and should be killed
+>
+
+Yes, more baggage from old failover code, we should be able to kill it.
+
+>  - your ioctl API gets worse and worse.  You don't expect this huge
+>  dungpile of ioctls all marked _BAD to be merged, do you?  
+>
+
+No.  We've had this IOWR problem since the inception of 5.x series
+driver.  Software (SMS 3.0) has been built on top of the this IOCTL
+interface.  We painfully discovered this problem when we began to look
+at other non-x86 platforms (ppc64).
+
+>  Also having different ioctl values for different plattforms is not
+>  an option for Linux.
 > 
-> .... ia64
 
-Yeah you are right, on 64-bit platforms that could have happened. I
-actually thought that CONTIGUOUS_BUFFERS took care of 4GB, but on
-checking it does not.
+The better (right) fix would be to push this interface change onto the
+caller of the IOCTLs where they can manage the differences there, and
+the driver could once and for all shed itself of this nagging problem.
+That is the consensus here.  The _BAD conversion was only done so the
+driver would compile.
 
-So clustering should have been disabled then (which in the in-kernel
-drive it is not). Now both 2.4 and 2.6 make that guarentee. The only
-argument for disabling clustering would be for 2.4 for CPU cycle
-reasons.
-
--- 
-Jens Axboe
-
+Regards,
+Andrew Vasquez

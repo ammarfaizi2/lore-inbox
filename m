@@ -1,74 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVCIAOG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVCIAJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbVCIAOG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 19:14:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVCIAKW
+	id S262256AbVCIAJl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 19:09:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVCIAFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 19:10:22 -0500
-Received: from gate.crashing.org ([63.228.1.57]:10932 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262239AbVCIAHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 19:07:11 -0500
-Subject: Re: [PATCH] VGA arbitration: draft of kernel side
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: xorg@freedesktop.org, Egbert Eich <eich@freedesktop.org>,
-       Jon Smirl <jonsmirl@yahoo.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <9e47339105030815477d0c7688@mail.gmail.com>
-References: <1110265919.13607.261.camel@gaston>
-	 <1110319304.13594.272.camel@gaston>
-	 <9e47339105030815477d0c7688@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 09 Mar 2005 11:02:45 +1100
-Message-Id: <1110326565.32556.7.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 8 Mar 2005 19:05:49 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:25840 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S262439AbVCHXvb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 18:51:31 -0500
+Date: Tue, 08 Mar 2005 23:51:30 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.11-mm2
+To: Robert Love <rlove@rlove.org>
+Cc: linux-kernel@vger.kernel.org
+References: <20050308033846.0c4f8245.akpm@osdl.org>
+	<1110325018l.6106l.0l@werewolf.able.es>
+	<1110325442.30255.8.camel@localhost>
+In-Reply-To: <1110325442.30255.8.camel@localhost> (from rlove@rlove.org on
+	Wed Mar  9 00:44:02 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1110325890l.6106l.1l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 18:47 -0500, Jon Smirl wrote:
-> This very similar to the reset support patch I have been working on.
+
+On 03.09, Robert Love wrote:
+> On Tue, 2005-03-08 at 23:36 +0000, J.A. Magallon wrote:
 > 
-> In the reset patch there is a 'vga' attribute on each VGA device. Set
-> it to 0/1 to make the device active. This lets you move the console
-> around betweem VGA devices.
+> > Can cpu affinity really be changed for a running process ?
 > 
-> You can also set it to 3, which disables all VGA devices but remembers
-> the active one. Setting it to 4 disables all VGA devices then restores
-> the active one. To use, set it to 3, post, set it to 4.
+> Yes.
 > 
-> GregKH wants this code out of the pci directory but it needs hooks
-> into pci_destroy_dev() to delete the arbiter. You also need a hook on
-> add for when a hotplug device appears.
+> > Does it need something like io or yielding to take effect ?
 > 
-> I'll try merging my sysfs support into your code.
+> No.
+> 
+...
+> 
+> Although, you have the syntax wrong.  It should be
+> 
+> 	taskset -c 0 -p 8277
+> 
 
-Please wait.
+That was what I first tried, but:
 
-I don't want that semantic for sysfs. First, I don't want to "move
-around" the VGA device. This is very arch specific and will not work in
-a variety if circumstances. Also, "outb's" to legacy VGA ports will only
-work with some PCI domains on archs like PPC, even vgacon can't deal
-with that, so let's avoid putting such "knowledge" in the arbiter
-itself. I prefer for now defining a "default" vga device which is the
-one used by vgacon. If you want to move vgacon around, do some arch
-specific stuff or add way to change the default device, but that isn't
-directly related to the arbitration process.
+werewolf:~> ps -ef | grep box
+magallon  8638  8629 99 00:47 pts/0    00:01:54 box-d --out box.srf @opt
+magallon  8733  8643  0 00:48 pts/2    00:00:00 grep box
+werewolf:~> taskset -c 0 -p 8638
+execvp: No such file or directory
+failed to execute -p
 
-Also, I want the sysfs entry (or /dev if I can't get the proper
-semantics in sysfs) to have open & release() callbacks like a char
-device. The reason is that I want the vga "locks" owned by a process to
-be automatically released if the process dies. Without that, kill -9 on
-X will end up requiring a reboot in most circumstances :)
+> 
+> > The program uses posix threads, 2 in this case. The two threads change from
+> > cpu sometimes (not too often), but do not go into the same processor
+> > immediately as when I start the program directly with runon/taskset.
+> 
+> You have to bind all of the threads individually.
+> 
 
-Finally, I want to keep the distinction between memory and IO enables.
-That's quite important imho, since a lot of cards can operate with IO
-disabled (all ATIs for example), which is good as I'm not completely
-sure I can disable legacy IO port decoding on them (well, I don't know
-how to do it).
+Ahh, damn, that explains it. I use a main thread that does nothing but
+wait for the worker threads. So it sure gets moved to CPU0, but as it
+does not waste CPU time, I do not see it...
 
-Ben.
- 
+Thanks. Will see what can I do with my threads. cpusets, perhaps...
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.11-jam3 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
+
 

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265238AbUAYTuf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 14:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbUAYTu1
+	id S265181AbUAYTnb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 14:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUAYTnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 14:50:27 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:62338
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S265238AbUAYTuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 14:50:18 -0500
-Date: Sun, 25 Jan 2004 10:28:32 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Huw Rogers <count0@localnet.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-laptop@mobilix.org
-Subject: Re: 2.6.2-rc1 / ACPI sleep / irqbalance / kirqd / pentium 4 HT
- problems on Uniwill N258SA0
-In-Reply-To: <20040124233749.5637.COUNT0@localnet.com>
-Message-ID: <Pine.LNX.4.58.0401251018530.1741@montezuma.fsmlabs.com>
-References: <20040124233749.5637.COUNT0@localnet.com>
+	Sun, 25 Jan 2004 14:43:31 -0500
+Received: from web12304.mail.yahoo.com ([216.136.173.102]:48985 "HELO
+	web12304.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265181AbUAYTna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 14:43:30 -0500
+Message-ID: <20040125194329.59773.qmail@web12304.mail.yahoo.com>
+Date: Sun, 25 Jan 2004 11:43:29 -0800 (PST)
+From: Mike Keehan <mike_keehan@yahoo.com>
+Subject: 2.6.2-rc1-bk3 patch fails
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jan 2004, Huw Rogers wrote:
+Applying the above patch to 2.6.1 gets failure in:-
 
-> irqbalance just locks up the machine totally, hard power-off needed, no
-> traces in the logs. Probably some issue (race?) with it writing to
-> /proc/irq/X/smp_affinity. And how is irqbalance supposed to play with
-> kirqd anyway? Grepping this list and others doesn't give any kind of an
-> answer. But disabling it gives all interrupts to cpu0 (looking at
-> /proc/interrupts). kirqd apparently only balances between CPU packages,
-> not between HT siblings (info gleaned from this list).
+. Makefile
+. arch/i386/kernel/cpu/mcheck/non-fatal.c
+. drivers/cdrom/cdrom.c
+. drivers/input/joydev.c
+. drivers/input/keyboard/atkbd.c
+. drivers/md/Kconfig
+. drivers/md/raid6.h  (doesn't exist)
 
-Does this happen with the 'noirqbalance' kernel parameter?
+I control C'd out of the rest.  The BK snapshots on 
+kernel.org aren't meant to be applied cumulatively, 
+are they?
+
+Mike
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free web site building tool. Try it!
+http://webhosting.yahoo.com/ps/sb/

@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbUKPRxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbUKPR7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbUKPRxY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 12:53:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbUKPRvo
+	id S262076AbUKPR7e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 12:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUKPR7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 12:51:44 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:12301 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262070AbUKPRv1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 12:51:27 -0500
-Subject: Re: [PATCH] jffs2: printk arg. type warning
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <419906C6.9020709@osdl.org>
-References: <419906C6.9020709@osdl.org>
-Content-Type: text/plain
-Message-Id: <1100627479.8191.6985.camel@hades.cambridge.redhat.com>
+	Tue, 16 Nov 2004 12:59:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:33693 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262076AbUKPR7a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 12:59:30 -0500
+Date: Tue, 16 Nov 2004 09:58:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041116175857.GA9213@kroah.com>
+References: <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com> <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 16 Nov 2004 17:51:20 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-15 at 11:43 -0800, Randy.Dunlap wrote:
-> + printk(KERN_WARNING "jffs2_g_c_deletion_dirent(): Short read (%zd not %ud) reading header from obsolete node at %08x\n",fix printk argument type warning:
+On Tue, Nov 16, 2004 at 06:50:52PM +0100, Miklos Szeredi wrote:
+> 
+> > It's an old message, and yes, it's there to scare people away.  Glad to
+> > see it's working :)
+> 
+> So if I only need a single device number should I register a "misc"
+> device?  misc_register() seems to create the relevant sysfs entry.
 
-'%ud'?
+Yes, that is a good way to get a device, without having to reserve a
+number.
 
--- 
-dwmw2
+thanks,
 
+greg k-h

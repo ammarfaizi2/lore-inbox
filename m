@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSHOIrZ>; Thu, 15 Aug 2002 04:47:25 -0400
+	id <S316608AbSHOIpX>; Thu, 15 Aug 2002 04:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSHOIrZ>; Thu, 15 Aug 2002 04:47:25 -0400
-Received: from www.wen-online.de ([212.223.88.39]:7944 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S316649AbSHOIrZ>;
-	Thu, 15 Aug 2002 04:47:25 -0400
-Message-ID: <3D5B6AD6.1030503@gmx.de>
-Date: Thu, 15 Aug 2002 10:48:22 +0200
-From: Mike Galbraith <EFAULT@gmx.de>
-User-Agent: Mozilla/5.0 (Windows; U; Win95; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us
+	id <S316621AbSHOIpX>; Thu, 15 Aug 2002 04:45:23 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62725 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S316608AbSHOIpW>; Thu, 15 Aug 2002 04:45:22 -0400
+Message-Id: <200208150844.g7F8iQp19827@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Christian Reis <kiko@async.com.br>, eepro100@scyld.com,
+       nfs@lists.sourceforge.net
+Subject: Re: General network slowness on SIS 530 with eepro100
+Date: Thu, 15 Aug 2002 11:41:20 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <20020813212923.L2219@blackjesus.async.com.br>
+In-Reply-To: <20020813212923.L2219@blackjesus.async.com.br>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [OT] scsi disk sector size question
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There's gotta be a better place to ask this, but...
+On 13 August 2002 22:29, Christian Reis wrote:
+> On tri, which is the referred SIS530 box, as you can see, for most runs
+> the CPU usage is just so much higher than minas, which has practically
+> the same setup: K6-500, old PCI (no AGP) board, eepro100 card. I'm
+> wondering if anybody has seen something like this before?
 
-Greetings,
-
-Is it possible to change scsi drive sector size?  Scsiinfo says no, which is
-inconvenient if you're making images of ancient drives (ST4766N) and find
-that some have 512 byte and others 1024 byte sectors.
-
-Why on earth would a manufacturer [drives are really CDC] do this?
-
-    -Mike
-
+Start swapping hardware between these two boxes
+--
+vda

@@ -1,69 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUFTUti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265945AbUFTVAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbUFTUti (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 16:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUFTUti
+	id S265945AbUFTVAG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 17:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUFTVAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 16:49:38 -0400
-Received: from handhelds.org ([192.58.209.91]:52627 "EHLO handhelds.org")
-	by vger.kernel.org with ESMTP id S265944AbUFTUtf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 16:49:35 -0400
-From: Joshua Wise <joshua@joshuawise.com>
-Organization: JoshuaWise.com DevStudios
-To: Ian Molton <spyro@f2s.com>
-Subject: Re: DMA API issues... summary
-Date: Sun, 20 Jun 2004 16:49:33 -0400
-User-Agent: KMail/1.6
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net,
-       James.Bottomley@SteelEye.com, greg@kroah.com, tony@atomide.com,
-       jamey.hicks@hp.com
-References: <1087582845.1752.107.camel@mulgrave> <1087603453.2135.224.camel@mulgrave> <20040619161153.3be26806.spyro@f2s.com>
-In-Reply-To: <20040619161153.3be26806.spyro@f2s.com>
+	Sun, 20 Jun 2004 17:00:06 -0400
+Received: from crl-mail.crl.dec.com ([192.58.206.9]:62127 "EHLO
+	crl-mailb.crl.dec.com") by vger.kernel.org with ESMTP
+	id S265945AbUFTVAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 17:00:01 -0400
+Message-ID: <40D5FAC7.7060601@hp.com>
+Date: Sun, 20 Jun 2004 16:59:51 -0400
+From: Jamey Hicks <jamey.hicks@hp.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040229)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406201649.34953.joshua@joshuawise.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Ian Molton <spyro@f2s.com>, david-b@pacbell.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       tony@atomide.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+References: <1087582845.1752.107.camel@mulgrave>	<20040618193544.48b88771.spyro@f2s.com>	<1087584769.2134.119.camel@mulgrave>	<20040618195721.0cf43ec2.spyro@f2s.com> <40D34078.5060909@pacbell.net>	<20040618204438.35278560.spyro@f2s.com>	<1087588627.2134.155.camel@mulgrave>	<20040619002522.0c0d8e51.spyro@f2s.com>	<1087601363.2078.208.camel@mulgrave>	<20040619005106.15b8c393.spyro@f2s.com>	<1087603453.2135.224.camel@mulgrave> 	<20040619011416.64d16c4e.spyro@f2s.com> <1087616990.2078.240.camel@mulgrave>
+In-Reply-To: <1087616990.2078.240.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-HPLC-MailScanner-Information: Please contact the ISP for more information
+X-HPLC-MailScanner: Found to be clean
+X-HPLC-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-3.508, required 5, BAYES_00 -4.90,
+	NO_STRINGS 1.39)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+James Bottomley wrote:
 
-Jumping into the discussion from the middle of nowhere ......
-
-> Single chip devices may be able to either access system memory directly, or
-> may only be able to access their internal SRAM pool. in the case of the
-> latter the system can either directly access the SRAM or not, depending on
-> the device/bus setup. Its possible the devices may have more than one
-> non-continuous SRAM mapping.
+>On Fri, 2004-06-18 at 19:14, Ian Molton wrote:
+>  
 >
-> The same goes for SOC devices, however they could come in two 'classes'. In
-> one type, we would essentially have multiple independant devices in a
-> single chip. In another case (which appears to be fairly common) we can
-> have multiple devices sharing a common SRAM pool. its also possible to have
-> some devices sharing the pool and some having their own in the same chip.
+>>On 18 Jun 2004 19:04:11 -0500
+>>James Bottomley <James.Bottomley@SteelEye.com> wrote:
+>>
+>>    
+>>
+>>>Because the piece of memory you wish to access is bus remote. 
+>>>      
+>>>
+>>No, its *not*
+>>
+>>my CPU can write there directly.
+>>
+>>no strings attached.
+>>
+>>the DMA API just only understands how to map from RAM, not anything
+>>else.
+>>    
+>>
+>
+>I think you'll actually find that it is.  OHCI is a device (representing
+>a USB hub), it's attached to the system by some interface that
+>constitutes a bus (the bus interface transforming the CPU access cycles
+>to device access cycles, translating interrupts etc.).
+>
+>  
+>
+Bus remote is a red herring in this case.  The only difference between 
+this case and the ones supported by the coherent_dma_mask is that the 
+constraint on placement of the allocated memory cannot be encoded as a 
+bitmask.
 
-First off ... Why just say the internal SRAM pool? I think it woudl be better 
-to say that the devices can only access their own address space, and can only 
-DMA from a subset of that (which may be the full original set, QED)
+Jamey
 
-Second... Remember that the SOC can also be the CPU! At least on XScale, there 
-are some portions that we can DMA from main memory (I think USB is one).
-
-Of course this might not be at all relevant to the discussion, and of course I 
-could be using my rectally-based knowledge, but I _THINK_ that this is 
-correct.
-
-joshua
-- -- 
-Joshua Wise | www.joshuawise.com
-GPG Key     | 0xEA80E0B3
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA1fhdPn9tWOqA4LMRAuwVAKCq2kcu0V1nnBtZZgwSkTAM2a/izACbBAKu
-0ef8cBr9EfxqeYILtdzrgvw=
-=B2Yf
------END PGP SIGNATURE-----

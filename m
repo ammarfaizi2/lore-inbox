@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVDDJuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVDDJwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVDDJuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 05:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVDDJuQ
+	id S261195AbVDDJwh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 05:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDDJwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 05:50:16 -0400
-Received: from mail3.mailsystem.us ([67.97.234.232]:41693 "EHLO
-	mail3.mailsystem.us") by vger.kernel.org with ESMTP id S261194AbVDDJuH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 05:50:07 -0400
-Message-ID: <60895.212.165.184.101.1112596360.username@mail.idial.net>
-Date: Mon, 4 Apr 2005 01:32:40 -0500 (CDT)
-Subject: PARTTIME WORKER
-From: "Dayo Adam" <dadams@idial.net>
-To: dayyoooo@yahoo.com
-Reply-To: dayo@financesource.com
-User-Agent: webmail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Mon, 4 Apr 2005 05:52:37 -0400
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:31637 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261195AbVDDJw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 05:52:26 -0400
+Subject: Re: [ACPI] Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Li Shaohua <shaohua.li@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>, zwane@linuxpower.ca,
+       len.brown@intel.com, pavel@suse.cz
+In-Reply-To: <20050403193750.40cdabb2.akpm@osdl.org>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
+	 <20050403193750.40cdabb2.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1112608444.3757.17.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Mon, 04 Apr 2005 19:54:04 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My name is Dayo Adams and I am an artist.I live in Netherland,with my two
-kids, four cats, one dog and the love of my life. It is definitely a full
-house. I have been doing artwork since I was a small child. That gives me
-about 23 years of experience. I majored in art in high school and took a
-few college art courses. Most of my work is done in either pencil or
-airbrush mixed with color pencils. I have recently added designing and
-creating artwork on the computer.I have been selling my art for the last 3
-years and have had my work featured on trading cards, prints and in
-magazines.I have sold in galleries and to private collectors from all
-around the world.I am always facing serious difficulties when it comes to
-selling my art works to Americans,they are always offering to pay with a
-US POSTAL MONEY ORDER,which is difficult for me to cash here in
-Netherland.
+Hi.
 
-I am looking for a representative in the states who will be working for me
-as a partime worker and i will be willing to pay %10 for every
-transaction,which wouldnt affect ur present state of work,someone who
-would help me recieve payments from my customers in the states.i mean
-someone that is responsible and reliable,cause the cost of coming to the
-state and getting payments is very expensive,i am working on setting up a
-branch in the state,so for now i need a representative in the united state
-who will be handling the payment aspect.
+On Mon, 2005-04-04 at 12:37, Andrew Morton wrote:
+> Li Shaohua <shaohua.li@intel.com> wrote:
+> >
+> > The patches are against 2.6.11-rc1 with Zwane's CPU hotplug patch in -mm
+> >  tree.
+> 
+> Should I merge that thing into mainline?  It seems that a few people are
+> needing it.
 
-These payments are in money order and they would come to you in your name,
-so all you need do is cash the money order deduct your percentage and wire
-the rest back.
+Perhaps we should address the MTRR issue first.
 
-But the problem i have is trust,But i have my way of getting anyone that
-gets away with our money,i mean the FBI branch in Washington gets involve.
+I've had code in Suspend2 for quite a while (6 months+) that removes the
+sysdev support for MTRRs and saves and restores them with CPU context,
+thereby avoiding the smp_call-while-interrupts-disabled issue. Perhaps
+it would be helpful here?
 
-It wouldnt cost u any amount,u are to receive payments which will be sent
-to u by fedex or usps from my business patners, which would come in form
-of a money order then u are to cash it and send the cash to me via western
-union money transfer all western union charges will be deducted from the
-money.
+Nigel
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
 
-If you are interested,please get back to me as soon as possible.
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
 
-
-Regards
-Dayo Adams
-
-N.B:Endeavour to send your reply through my alternative
-e-mail address:dayo@financesource.com

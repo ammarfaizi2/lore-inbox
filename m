@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292941AbSBQMOG>; Sun, 17 Feb 2002 07:14:06 -0500
+	id <S310405AbSBRKfP>; Mon, 18 Feb 2002 05:35:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292942AbSBQMN4>; Sun, 17 Feb 2002 07:13:56 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60936 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S292941AbSBQMNm>; Sun, 17 Feb 2002 07:13:42 -0500
-Date: Sun, 17 Feb 2002 07:11:49 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ?
-In-Reply-To: <E16bAIS-0002Qs-00@starship.berlin>
-Message-ID: <Pine.LNX.3.96.1020217070424.30060B-100000@gatekeeper.tmr.com>
+	id <S310404AbSBRKfG>; Mon, 18 Feb 2002 05:35:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26191 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S310397AbSBRKe6>; Mon, 18 Feb 2002 05:34:58 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] Merge e1000 gigabit driver (yay)
+In-Reply-To: <3C6E2F92.FD196E71@mandrakesoft.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 18 Feb 2002 03:30:25 -0700
+In-Reply-To: <3C6E2F92.FD196E71@mandrakesoft.com>
+Message-ID: <m1wuxb3wvy.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Feb 2002, Daniel Phillips wrote:
+Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-> On February 13, 2002 10:51 pm, Bill Davidsen wrote:
-> > On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-> > 
-> > > The advantage, of course is that if you are executing the kernel,
-> > > it can give you all the information necessary to recreate a
-> > > new one from the sources because its .config is embeded into
-> > > itself. Once you have the ".config" file, you just do `make oldconfig`
-> > > and you are home free.
-> > 
-> > But it does no such thing! You not only need the config file, you need the
-> > source.
+> Linus,
 > 
-> The source is readily available, the specific config used for your kernel may
-> not be.
+> I'm pleased to submit to you a BK merge of Intel's e1000 driver.  The
+> license is now "GPL or (BSD + patent grant)", which should satisfy those
+> concerns.
 
-So is the prototype config file, what's your point? You need BOTH the
-actual config file and the actual kernel source including patches to
-really know what happened and to replicate it. As in kernel.org source,
-Redhat source, etc. There is no "the source."
+Nice progress.
  
-> > This feature just isn't all that useful,
+> I would also like to publicly thank Intel for this work.  The two
+> contributors listed have been very responsive to feedback, and they have
+> put a good deal of work into beating the driver into shape for a kernel
+> merge.
 > 
-> Given your little logic slip above I'm not sure I should trust your conclusion.
-> OK, I'm out of here, I'm not interested in discussing why any more, only how.
+> Now I just hope I can convince them to open up their hardware specs :)
 
-That's the point, you probably only do the very simple stuff, booting from
-a multi-GB disk. People who have more complex boot systems want the boot
-image small, that's why it was gzipped and later bzipped, so it would fot
-more places.
+This is almost as important.  Currently this greatly reduces the value
+of their hardware as it places stumbling blocks in road of distributed
+debugging.  And the fewer eyes the deeper the bugs.  For that reason
+the company I work for has been looking for alternatives to Intel's
+network cards. 
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Eric

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130882AbRATSJF>; Sat, 20 Jan 2001 13:09:05 -0500
+	id <S130157AbRATSOp>; Sat, 20 Jan 2001 13:14:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbRATSIz>; Sat, 20 Jan 2001 13:08:55 -0500
-Received: from quattro.sventech.com ([205.252.248.110]:1548 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S130217AbRATSIv>; Sat, 20 Jan 2001 13:08:51 -0500
-Date: Sat, 20 Jan 2001 13:08:49 -0500
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Inefficient PCI DMA usage (was: [experimental patch] UHCI updates)
-Message-ID: <20010120130848.I9156@sventech.com>
-In-Reply-To: <3A69D235.F1EE4CA6@colorfullife.com>
-Mime-Version: 1.0
+	id <S130217AbRATSOf>; Sat, 20 Jan 2001 13:14:35 -0500
+Received: from smtp5.libero.it ([193.70.192.55]:4821 "EHLO smtp5.libero.it")
+	by vger.kernel.org with ESMTP id <S130200AbRATSO0>;
+	Sat, 20 Jan 2001 13:14:26 -0500
+Message-ID: <3A69D570.BCA00B6E@alsa-project.org>
+Date: Sat, 20 Jan 2001 19:14:08 +0100
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre6 i586)
+X-Accept-Language: it, en
+MIME-Version: 1.0
+To: kuznet@ms2.inr.ac.ru
+CC: Andrea Arcangeli <andrea@suse.de>, mingo@elte.hu, torvalds@transmeta.com,
+        raj@cup.hp.com, linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <200101201728.UAA04351@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <3A69D235.F1EE4CA6@colorfullife.com>; from Manfred Spraul on Sat, Jan 20, 2001 at 07:00:21PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 20, 2001, Manfred Spraul <manfred@colorfullife.com> wrote:
-> > 
-> > TD's are around 32 bytes big (actually, they may be 48 or even 64 now, I 
-> > haven't checked recently). That's a waste of space for an entire page. 
-> > 
-> > However, having every driver implement it's own slab cache seems a 
-> > complete waste of time when we already have the code to do so in 
-> > mm/slab.c. It would be nice if we could extend the generic slab code to 
-> > understand the PCI DMA API for us. 
-> >
-> I missed the beginning of the thread:
+kuznet@ms2.inr.ac.ru wrote:
 > 
-> What are the exact requirements for TD's?
-> I have 3 tiny updates for mm/slab.c that I'll send to Linus as soon as
-> 2.4 has stabilized a bit more, perhaps I can integrate the code for USB.
+> 
+> > The manpage disagrees with you:
+> 
+> Do you jest?
+> 
+> This manpages is wrong, or, to be more exact, is incomplete,
+> which is common flaw of them.
+> 
+> get/set mean nothing but read-only/changing, i.e.
+> another important property missing in ioctl interface.
 
-They need to be visible via DMA. They need to be 16 byte aligned. We
-also have QH's which have similar requirements, but we don't use as many
-of them.
+setsockopt i.e. set socket options
 
-JE
+I think that Andrea's point is that SIOCPUSH don't set anything (i.e.
+don't change a state), but ask for an action to be done now.
 
+For this reason the name setsockopt is counter intuitive (apart from man
+page) and it seems to violate the principle of least surprise.
+
+I think this point of view is easily agreeable.
+
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
+
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
+
+ALSA project is            http://www.alsa-project.org
+sponsored by SuSE Linux    http://www.suse.com
+
+It sounds good!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

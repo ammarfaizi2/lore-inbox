@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264170AbTIIRHN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 13:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264231AbTIIRHN
+	id S264234AbTIIRCy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 13:02:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTIIRCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 13:07:13 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:55820 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264170AbTIIRHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 13:07:09 -0400
-Path: Home.Lunix!not-for-mail
-Subject: Re: Sensors and linux 2.6.0-test4-bk8 question
-Date: Tue, 9 Sep 2003 17:06:04 +0000 (UTC)
-Organization: lunix confusion services
-References: <1062934034.7923.2.camel@rousalka.dyndns.org>
-    <bjfho6$k3j$1@post.home.lunix> <20030907173515.GA15338@_orming>
-    <bjg3oc$hu1$1@post.home.lunix>
-NNTP-Posting-Host: ns.home.lunix
-MIME-Version: 1.0
+	Tue, 9 Sep 2003 13:02:54 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:18328 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S264234AbTIIRCh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 13:02:37 -0400
+Date: Tue, 9 Sep 2003 10:02:35 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: Dmytro Bablinyuk <dmytro.bablinyuk@tait.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with remap_page_range
+Message-ID: <20030909100235.A20267@home.com>
+References: <3F5E7ACD.8040106@tait.co.nz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 1063127164 18260 10.0.0.20 (9 Sep 2003 17:06:04
-    GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Tue, 9 Sep 2003 17:06:04 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:265326
-X-Mailer: Perl5 Mail::Internet v1.51
-Message-Id: <bjl19s$hqk$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
-To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3F5E7ACD.8040106@tait.co.nz>; from dmytro.bablinyuk@tait.co.nz on Tue, Sep 09, 2003 at 09:13:49PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <bjg3oc$hu1$1@post.home.lunix>,
-	linux-kernel@ton.iguana.be (Ton Hospel) writes:
+On Tue, Sep 09, 2003 at 09:13:49PM -0400, Dmytro Bablinyuk wrote:
+> 
+> We have a DSP shared memory which we should access (from PowerPC).
+> The problem is when I do ioremap I can see the memory correctly from the 
+> driver (see below) but when I do remap_page_range to the user space 
+> application then data appears to be wrong, I can recognize some values 
+> there, but they are in the wrong places and other values around from 
+> everywhere else (see below).
 
-> See http://www.xs4all.nl/~thospel/ASIS/bin/psensors
+<snip>
 
-An updated, documented and bugfixed version (0.02) of the program to 
-report sysfs based sensors values was just put on that site.
+>   if (remap_page_range(vma->vm_start,
+>                        DSP_ADDR,
+>                        size,
+>                        vma->vm_page_prot
+>                        ))
+
+Your remap call isn't adding _PAGE_NO_CACHE and _PAGE_GUARDED flags
+like ioremap_nocache()/ioremap() do on PPC.  You'll get bad results
+because of the ordering and cache issues resulting from not using
+these PTE flags.  In 2.6, these can be added using pgprot_noncached()
+that is defined per-arch.
+
+BTW, ioremap_nocache() and ioremap() are identical on PPC.
+
+-Matt

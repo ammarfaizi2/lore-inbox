@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271484AbRHPFuY>; Thu, 16 Aug 2001 01:50:24 -0400
+	id <S271481AbRHPFof>; Thu, 16 Aug 2001 01:44:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271485AbRHPFuO>; Thu, 16 Aug 2001 01:50:14 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:55561 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S271484AbRHPFuD>; Thu, 16 Aug 2001 01:50:03 -0400
-Date: Thu, 16 Aug 2001 07:52:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [patch] zero-bounce highmem I/O
-Message-ID: <20010816075227.G4352@suse.de>
-In-Reply-To: <20010815140740.A4352@suse.de> <20010815.053524.48804759.davem@redhat.com> <20010815151052.C4352@suse.de> <20010815.070204.39155321.davem@redhat.com>
+	id <S271484AbRHPFoO>; Thu, 16 Aug 2001 01:44:14 -0400
+Received: from ppp05.ts3.Gloucester.visi.net ([206.246.230.133]:17400 "EHLO
+	blimpo.internal.net") by vger.kernel.org with ESMTP
+	id <S271481AbRHPFoE>; Thu, 16 Aug 2001 01:44:04 -0400
+Date: Thu, 16 Aug 2001 01:11:57 -0400
+From: Ben Collins <bcollins@debian.org>
+To: jes@trained-monkey.org
+Cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 64 bit locking in ieee1394/nodemgr.c
+Message-ID: <20010816011157.B30381@visi.net>
+In-Reply-To: <200108160439.f7G4d3b19502@savage.trained-monkey.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010815.070204.39155321.davem@redhat.com>
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <200108160439.f7G4d3b19502@savage.trained-monkey.org>; from jes@trained-monkey.org on Thu, Aug 16, 2001 at 12:39:03AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15 2001, David S. Miller wrote:
->    From: Jens Axboe <axboe@suse.de>
->    Date: Wed, 15 Aug 2001 15:10:52 +0200
+On Thu, Aug 16, 2001 at 12:39:03AM -0400, jes@trained-monkey.org wrote:
+> Hi
 > 
->    On Wed, Aug 15 2001, David S. Miller wrote:
->    >    The only truly problematic area is the alt_address thing.
->    >    It is would be a nice thing to rip this eyesore out of the scsi
->    >    layer anyways.
->    
->    The SCSI issue was exactly what was on my mind, and is indeed the reason
->    why I didn't go all the way and did a complete conversion there. The
->    SCSI layer is _not_ very clean in this regard, didn't exactly enjoy this
->    part of the work...
->    
-> I just took a quick look at this, and I think I can make this
-> alt_address thing into a scsi-layer-specific mechanism and
-> thus be able to safely remove it from struct scatterlist.
-> 
-> Would you like me to whip up such a set of changes?  I'll be
-> more than happy to work on it.
+> The drivers/ieee1394/nodemgr.c driver tries to save cpu_flags in a 32
+> bit type which is kinda bad.
 
-Yes please, that'd be great.
+Thanks. I'll apply all of the 1394 patches.
 
 -- 
-Jens Axboe
-
+ .----------=======-=-======-=========-----------=====------------=-=-----.
+/  Ben Collins  --  ...on that fantastic voyage...  --  Debian GNU/Linux   \
+`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
+ `---=========------=======-------------=-=-----=-===-======-------=--=---'

@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270477AbUJUNwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269216AbUJUN6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270477AbUJUNwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 09:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269216AbUJUNwd
+	id S269216AbUJUN6i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 09:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUJUNsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 09:52:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:18883 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S270420AbUJUNwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 09:52:15 -0400
-Date: Thu, 21 Oct 2004 15:53:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021135330.GA32206@elte.hu>
-References: <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <30690.195.245.190.93.1098349976.squirrel@195.245.190.93> <21840.195.245.190.94.1098363807.squirrel@195.245.190.94> <20041021134156.GA30791@elte.hu>
+	Thu, 21 Oct 2004 09:48:43 -0400
+Received: from i31207.upc-i.chello.nl ([62.195.31.207]:63117 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269216AbUJUNrg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 09:47:36 -0400
+Subject: Re: [patch 2.6.9 0/11] Add MODULE_VERSION to several network
+	drivers
+From: Arjan van de Ven <arjan@fenrus.demon.nl>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       davem@davemloft.net, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
+       ctindel@users.sourceforge.net, fubar@us.ibm.com,
+       greearb@candelatech.com
+In-Reply-To: <20041021082205.A29340@tuxdriver.com>
+References: <20041020141146.C8775@tuxdriver.com>
+	 <1098350269.2810.17.camel@laptop.fenrus.com>
+	 <20041021082205.A29340@tuxdriver.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098366370.2810.31.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041021134156.GA30791@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 21 Oct 2004 15:46:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> i tried to pole jackd a little bit (just using things like
-> jack_freewheel and jack_impulse_grabber - i dont even know what they 
-> do), and got jackd into some sort of userspace loop:
+On Thu, 2004-10-21 at 14:22, John W. Linville wrote:
+>  
+> > have you checked if the version of these drivers is actually useful? (eg
+> > updated when the driver changes) If it's not I'd say adding a
+> > MODULE_VERSION to it makes no sense whatsoever.
 > 
->   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
->  2558 root      16   0 27900 1852 2152 S 97.8  0.8   2:36.38 jackd
+> Why do I feel like I'm being baited...? :-)
+> 
+> I would have to suspect that if a version string exists, that it has at
+> least some meaning to the primary developers/maintainters.  It certainly
+> is beyond my control to force the maintainers to give meaning to their
+> version strings.
 
-ah ... i should have guessed that "jack_freewheel y" puts jackd into ...
-freewheeling mode. So this is by design.
+Since the skeleton driver includes a define for that, I suspect your
+assumption is a bit overly optimistic. 
 
-i still suspect that it's some sort of userspace loop causing the jackd
-problems - just that under SCHED_OTHER you dont normally notice it,
-while with jack -R it's fatal.
+> Is this a political statement against the MODULE_VERSION macro and/or
+> its purpose?  I'm not overly interested in debating that one...
 
-	Ingo
+Not really. I have absolutely no problem with a MODULE_VERSION macro
+*IF* the version it advertises means something. However if the version
+it advertises has no meaning whatsoever (eg the version number never
+gets updated) then imo it's better to NOT advertise anything so that
+other tools (like dkms) don't make assumptions and decisions based on
+nothing-meaning data.
+

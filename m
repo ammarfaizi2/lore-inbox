@@ -1,268 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265160AbUETPvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265164AbUETPys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265160AbUETPvu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 11:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265148AbUETPvu
+	id S265164AbUETPys (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 11:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265172AbUETPys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 11:51:50 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:39625 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265160AbUETPvk (ORCPT
+	Thu, 20 May 2004 11:54:48 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:48302 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S265164AbUETPyl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 11:51:40 -0400
-Date: Thu, 20 May 2004 17:53:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: overlaping printk
-Message-ID: <20040520155323.GA4750@elte.hu>
-References: <1XBEP-Mc-49@gated-at.bofh.it> <1XBXw-13D-3@gated-at.bofh.it> <1XWpp-zy-9@gated-at.bofh.it> <m3lljnnoa0.fsf@averell.firstfloor.org> <20040520151939.GA3562@elte.hu>
+	Thu, 20 May 2004 11:54:41 -0400
+Date: Thu, 20 May 2004 11:54:39 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Eger <eger@theboonies.us>, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 1/4] James' fbcon init and con2fb cleanup
+Message-ID: <20040520155439.GA17330@havoc.gtf.org>
+References: <Pine.LNX.4.58.0405191118170.4760@rosencrantz.theboonies.us> <20040519030319.1f0e6eec.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040520151939.GA3562@elte.hu>
+In-Reply-To: <20040519030319.1f0e6eec.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+James' patch to fix up the fbcon initialization sequence:
+ fixes con2fb initialization
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> another solution would be to break the lock only once during the
-> kernel's lifetime. The system is messed up anyway if it needs multiple
-> lock breaks to get an oops out to the console. We dont care about
-> followup oopses - the first oops is that matters.
-
-i.e. something like the attached patch, against BK-curr. (i've also
-attached a cleanup patch that gets rid of the many instances of
-bust_spinlocks() - we now have a generic one in lib/bust_spinlocks.c)
-
-i consider any secondary lockup after the first oops has been printed a
-feature - sometimes the first oops gets washed away by the many followup
-oopses.
-
-i've tested the patch with parallel SMP oopses - they seem to be
-serialized now. (but it's hard to time the oopses right.)
-
-	Ingo
-
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="bust-spinlocks-fix-2.6.6-A0"
-
---- linux/kernel/printk.c.orig	
-+++ linux/kernel/printk.c	
-@@ -55,6 +55,9 @@ EXPORT_SYMBOL(console_printk);
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/05/15 21:42:23+02:00 eger@rosencrantz.theboonies.us 
+#   fbcon initialization cleanup; No more calling fb_console_init twice. 
+#   - James Simmons
+# 
+# drivers/video/fbmem.c
+#   2004/05/15 21:36:32+02:00 eger@rosencrantz.theboonies.us +2 -2
+#   fb con init cleanup
+# 
+# drivers/video/console/fbcon.h
+#   2004/05/15 21:36:32+02:00 eger@rosencrantz.theboonies.us +1 -1
+#   fix con2fb API
+# 
+# drivers/video/console/fbcon.c
+#   2004/05/15 21:36:31+02:00 eger@rosencrantz.theboonies.us +21 -28
+#   fbcon init cleanup:
+#    factor out retrieving the vc_data from the fbcon_event_notify path
+#    remove fbcon_event_notifier_registered cruft
+#    cleanup/fix con2fb code
+# 
+diff -Nru a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
+--- a/drivers/video/console/fbcon.c	Sat May 15 22:54:19 2004
++++ b/drivers/video/console/fbcon.c	Sat May 15 22:54:19 2004
+@@ -296,15 +296,17 @@
+  *	Maps a virtual console @unit to a frame buffer device
+  *	@newidx.
+  */
+-int set_con2fb_map(int unit, int newidx)
++int set_con2fb_map(int start, int end, int newidx)
+ {
+-	struct vc_data *vc = vc_cons[unit].d;
++	struct vc_data *vc = vc_cons[start].d;
++	int i;
  
- int oops_in_progress;
- 
-+/* zap spinlocks only once: */
-+unsigned long zap_spinlocks = 1;
-+
- /*
-  * console_sem protects the console_drivers list, and also
-  * provides serialisation for access to the entire console
-@@ -493,7 +496,7 @@ asmlinkage int printk(const char *fmt, .
- 	static char printk_buf[1024];
- 	static int log_level_unknown = 1;
- 
--	if (oops_in_progress) {
-+	if (oops_in_progress && test_and_clear_bit(0, &zap_spinlocks)) {
- 		/* If a crash is occurring, make sure we can't deadlock */
- 		spin_lock_init(&logbuf_lock);
- 		/* And make sure that we print immediately */
-
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="bust-spinlocks-cleanup-2.6.6-A0"
-
---- linux/arch/i386/mm/fault.c.orig	
-+++ linux/arch/i386/mm/fault.c	
-@@ -31,32 +31,6 @@
- extern void die(const char *,struct pt_regs *,long);
- 
- /*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out 
-- */
--void bust_spinlocks(int yes)
--{
--	int loglevel_save = console_loglevel;
--
--	if (yes) {
--		oops_in_progress = 1;
--		return;
--	}
--#ifdef CONFIG_VT
--	unblank_screen();
--#endif
--	oops_in_progress = 0;
--	/*
--	 * OK, the message is on the console.  Now we call printk()
--	 * without oops_in_progress set so that printk will give klogd
--	 * a poke.  Hold onto your hats...
--	 */
--	console_loglevel = 15;		/* NMI oopser may have shut the console up */
--	printk(" ");
--	console_loglevel = loglevel_save;
--}
--
--/*
-  * Return EIP plus the CS segment base.  The segment limit is also
-  * adjusted, clamped to the kernel/user address space (whichever is
-  * appropriate), and returned in *eip_limit.
---- linux/arch/ia64/kernel/traps.c.orig	
-+++ linux/arch/ia64/kernel/traps.c	
-@@ -58,34 +58,6 @@ trap_init (void)
- 		fpswa_interface = __va(ia64_boot_param->fpswa);
+ 	if (!vc)
+ 		return -ENODEV;
+-	con2fb_map[unit] = newidx;
++	for (i = start; i < end; i++)
++		con2fb_map[i] = newidx;
+ 	fbcon_is_default = (vc->vc_sw == &fb_con) ? 1 : 0;
+-	return take_over_console(&fb_con, unit, unit, fbcon_is_default);
++	return take_over_console(&fb_con, start, end, fbcon_is_default);
  }
  
--/*
-- * Unlock any spinlocks which will prevent us from getting the message out (timerlist_lock
-- * is acquired through the console unblank code)
-- */
--void
--bust_spinlocks (int yes)
--{
--	int loglevel_save = console_loglevel;
--
--	if (yes) {
--		oops_in_progress = 1;
--		return;
--	}
--
--#ifdef CONFIG_VT
--	unblank_screen();
--#endif
--	oops_in_progress = 0;
--	/*
--	 * OK, the message is on the console.  Now we call printk() without
--	 * oops_in_progress set so that printk will give klogd a poke.  Hold onto
--	 * your hats...
--	 */
--	console_loglevel = 15;		/* NMI oopser may have shut the console up */
--	printk(" ");
--	console_loglevel = loglevel_save;
--}
--
- void
- die (const char *str, struct pt_regs *regs, long err)
- {
---- linux/arch/x86_64/mm/fault.c.orig	
-+++ linux/arch/x86_64/mm/fault.c	
-@@ -34,27 +34,6 @@
- #include <asm/kdebug.h>
- #include <asm-generic/sections.h>
- 
--void bust_spinlocks(int yes)
--{
--	int loglevel_save = console_loglevel;
--	if (yes) {
--		oops_in_progress = 1;
--	} else {
--#ifdef CONFIG_VT
--		unblank_screen();
--#endif
--		oops_in_progress = 0;
--		/*
--		 * OK, the message is on the console.  Now we call printk()
--		 * without oops_in_progress set so that printk will give klogd
--		 * a poke.  Hold onto your hats...
--		 */
--		console_loglevel = 15;		/* NMI oopser may have shut the console up */
--		printk(" ");
--		console_loglevel = loglevel_save;
--	}
--}
--
- /* Sometimes the CPU reports invalid exceptions on prefetch.
-    Check that here and ignore.
-    Opcode checker based on code by Richard Brunner */
---- linux/arch/s390/mm/fault.c.orig	
-+++ linux/arch/s390/mm/fault.c	
-@@ -49,32 +49,6 @@ extern int sysctl_userprocess_debug;
- 
- extern void die(const char *,struct pt_regs *,long);
- 
--extern spinlock_t timerlist_lock;
--
--/*
-- * Unlock any spinlocks which will prevent us from getting the
-- * message out (timerlist_lock is acquired through the
-- * console unblank code)
-- */
--void bust_spinlocks(int yes)
--{
--	if (yes) {
--		oops_in_progress = 1;
--	} else {
--		int loglevel_save = console_loglevel;
--		oops_in_progress = 0;
--		console_unblank();
--		/*
--		 * OK, the message is on the console.  Now we call printk()
--		 * without oops_in_progress set so that printk will give klogd
--		 * a poke.  Hold onto your hats...
--		 */
--		console_loglevel = 15;
--		printk(" ");
--		console_loglevel = loglevel_save;
--	}
--}
--
  /*
-  * Check which address space is addressed by the access
-  * register in S390_lowcore.exc_access_id.
---- linux/lib/bust_spinlocks.c.orig	
-+++ linux/lib/bust_spinlocks.c	
-@@ -17,23 +17,24 @@
- 
- void bust_spinlocks(int yes)
- {
-+	int loglevel_save = console_loglevel;
-+
- 	if (yes) {
- 		oops_in_progress = 1;
--	} else {
--		int loglevel_save = console_loglevel;
-+		return;
-+	}
- #ifdef CONFIG_VT
--		unblank_screen();
-+	unblank_screen();
- #endif
--		oops_in_progress = 0;
--		/*
--		 * OK, the message is on the console.  Now we call printk()
--		 * without oops_in_progress set so that printk() will give klogd
--		 * and the blanked console a poke.  Hold onto your hats...
--		 */
--		console_loglevel = 15;		/* NMI oopser may have shut the console up */
--		printk(" ");
--		console_loglevel = loglevel_save;
--	}
-+	oops_in_progress = 0;
-+	/*
-+	 * OK, the message is on the console.  Now we call printk()
-+	 * without oops_in_progress set so that printk() will give klogd
-+	 * and the blanked console a poke.  Hold onto your hats...
-+	 */
-+	console_loglevel = 15;	/* NMI oopser may have shut the console up */
-+	printk(" ");
-+	console_loglevel = loglevel_save;
+@@ -2203,34 +2205,32 @@
+ 	return 0;
  }
  
+-static void fbcon_suspended(struct fb_info *info)
++static void fbcon_suspended(struct fb_info *info, struct vc_data *vc)
+ {
+ 	/* Clear cursor, restore saved data */
+-	info->cursor.enable = 0;
+-	info->fbops->fb_cursor(info, &info->cursor);
++	fbcon_cursor(vc, CM_ERASE);
+ }
  
-
---Dxnq1zWXvFF0Q93v--
+-static void fbcon_resumed(struct fb_info *info)
++static void fbcon_resumed(struct fb_info *info, struct vc_data *vc)
+ {
+-	struct vc_data *vc;
+-
+-	if (info->currcon < 0)
+-		return;
+-	vc = vc_cons[info->currcon].d;
+-
+ 	update_screen(vc->vc_num);
+ }
+ static int fbcon_event_notify(struct notifier_block *self, 
+ 			      unsigned long action, void *data)
+ {
+ 	struct fb_info *info = (struct fb_info *) data;
++	struct vc_data *vc;
++
++	if (info->currcon < 0)
++		return 0;
++	vc = vc_cons[info->currcon].d;
+ 
+ 	switch(action) {
+ 	case FB_EVENT_SUSPEND:
+-		fbcon_suspended(info);
++		fbcon_suspended(info, vc);
+ 		break;
+ 	case FB_EVENT_RESUME:
+-		fbcon_resumed(info);
++		fbcon_resumed(info, vc);
+ 		break;
+ 	}
+ 	return 0;
+@@ -2265,12 +2265,14 @@
+ 	.notifier_call	= fbcon_event_notify,
+ };
+ 
+-static int fbcon_event_notifier_registered;
+-
+ int __init fb_console_init(void)
+ {
+ 	int err;
+ 
++	acquire_console_sem();
++	fb_register_client(&fbcon_event_notifer);
++	release_console_sem();
++
+ 	if (!num_registered_fb)
+ 		return -ENODEV;
+ 
+@@ -2281,12 +2283,6 @@
+ 	if (err)
+ 		return err;
+ 
+-	acquire_console_sem();
+-	if (!fbcon_event_notifier_registered) {
+-		fb_register_client(&fbcon_event_notifer);
+-		fbcon_event_notifier_registered = 1;
+-	} 
+-	release_console_sem();
+ 	return 0;
+ }
+ 
+@@ -2289,10 +2285,7 @@
+ void __exit fb_console_exit(void)
+ {
+ 	acquire_console_sem();
+-	if (fbcon_event_notifier_registered) {
+-		fb_unregister_client(&fbcon_event_notifer);
+-		fbcon_event_notifier_registered = 0;
+-	}
++	fb_unregister_client(&fbcon_event_notifer);
+ 	release_console_sem();
+ 	give_up_console(&fb_con);
+ }	
+diff -Nru a/drivers/video/console/fbcon.h b/drivers/video/console/fbcon.h
+--- a/drivers/video/console/fbcon.h	Sat May 15 22:54:19 2004
++++ b/drivers/video/console/fbcon.h	Sat May 15 22:54:19 2004
+@@ -38,7 +38,7 @@
+ 
+ /* drivers/video/console/fbcon.c */
+ extern char con2fb_map[MAX_NR_CONSOLES];
+-extern int set_con2fb_map(int unit, int newidx);
++extern int set_con2fb_map(int start, int end, int newidx);
+ 
+     /*
+      *  Attribute Decoding
+diff -Nru a/drivers/video/fbmem.c b/drivers/video/fbmem.c
+--- a/drivers/video/fbmem.c	Sat May 15 22:54:19 2004
++++ b/drivers/video/fbmem.c	Sat May 15 22:54:19 2004
+@@ -1096,9 +1096,9 @@
+ 		if (!registered_fb[con2fb.framebuffer])
+ 		    return -EINVAL;
+ 		if (con2fb.console != 0)
+-			set_con2fb_map(con2fb.console-1, con2fb.framebuffer);
++			set_con2fb_map(con2fb.console-1, con2fb.console-1, con2fb.framebuffer);
+ 		else
+-			fb_console_init();		
++			set_con2fb_map(0, MAX_NR_CONSOLES, con2fb.framebuffer);
+ 		return 0;
+ #endif	/* CONFIG_FRAMEBUFFER_CONSOLE */
+ 	case FBIOBLANK:

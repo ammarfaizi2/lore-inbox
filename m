@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129861AbRCAUDO>; Thu, 1 Mar 2001 15:03:14 -0500
+	id <S129854AbRCAUGe>; Thu, 1 Mar 2001 15:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129854AbRCAUDG>; Thu, 1 Mar 2001 15:03:06 -0500
-Received: from 216-064-003-018.inaddr.vitts.com ([216.64.3.18]:33806 "EHLO
-	mail.netx4.com") by vger.kernel.org with ESMTP id <S129853AbRCAUC5>;
-	Thu, 1 Mar 2001 15:02:57 -0500
-Message-ID: <3A9EAA2F.7C89C88@mvista.com>
-Date: Thu, 01 Mar 2001 14:59:43 -0500
-From: Dan Malek <dan@mvista.com>
-Organization: MontaVista Software, Inc.
-X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.2.15-2.9.d ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: The IO problem on multiple PCI busses
-In-Reply-To: <19350124090521.18330@mailhost.mipsys.com>
-		<15006.40524.929644.25622@pizda.ninka.net>
-		<3A9EA3FA.1A86893B@mvista.com> <15006.42475.79484.578530@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129858AbRCAUGQ>; Thu, 1 Mar 2001 15:06:16 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:63755 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129854AbRCAUF5>; Thu, 1 Mar 2001 15:05:57 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [CFT][PATCH] Re: fat problem in 2.4.2
+Date: 1 Mar 2001 12:05:50 -0800
+Organization: Transmeta Corporation
+Message-ID: <97ma2u$840$1@penguin.transmeta.com>
+In-Reply-To: <E14YXft-0008GK-00@the-village.bc.nu> <Pine.GSO.4.21.0103011345110.11577-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+In article <Pine.GSO.4.21.0103011345110.11577-100000@weyl.math.psu.edu>,
+Alexander Viro  <viro@math.psu.edu> wrote:
+>
+>Alan, fix is really quite simple. Especially if you have vmtruncate()
+>returning int (ac1 used to do it, I didn't check later ones). Actually
+>just a generic_cont_expand() done on expanding path in vmtruncate()
+>will be enough - it should be OK for all cases, including normal
+>filesystems. <grabbing -ac7>
+>
+>OK, any brave soul to test that? All I can promise that it builds.
 
-> There is only one sticking point, and that is how to convey to the
-> mmap() call whether you want I/O or Memory space.
+This looks like it would create a dummy block even for non-broken
+filesystems (ie truncating a file to be larger on ext2 would create a
+block, no?). While that would work, it would also waste disk-space.
 
-Isn't I/O space obsolete by now :-)?  It actually caused me to think
-of something else....I have cards with multiple memory and I/O
-spaces (rare, but I have them).  What if we did:
-
-	/proc/bus/pci/${BUS}/${DEVICE}/mem
-	/proc/bus/pci/${BUS}/${DEVICE}/io
-	/proc/bus/pci/${BUS}/${DEVICE}/BARn
-
-The 'mem' or 'io' would map the first instance of these spaces
-on the device, and would probably be suitable for nearly all devices.
-If you really knew what you were doing (or wanted to make a big mess),
-you could use the 'BARn' to specify the area.
-
-You could even do something like map in as much virtually contiguous
-space as indicated in the mmap().  For example, if the card has 2M I/O
-and 8 M memory (in this order), the first 2M of the mmap()'ed space
-would the the I/O and the next 8M would be the memory.  I know, some
-cards lie about the actual amount of space they have or need, but it
-was just another idea that popped in.......
-
-Thanks.
-
-	-- Dan
+		Linus

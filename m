@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264584AbUFCOnC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264330AbUFCOnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264584AbUFCOnC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:43:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUFCOis
+	id S264330AbUFCOnB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265539AbUFCOi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:38:48 -0400
-Received: from mail009.syd.optusnet.com.au ([211.29.132.64]:62593 "EHLO
-	mail009.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264850AbUFCO2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:28:06 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: why swap at all?
-Date: Fri, 4 Jun 2004 00:27:57 +1000
-User-Agent: KMail/1.6.1
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-References: <1086154721.2275.2.camel@localhost.localdomain> <200406021759.i52Hx00N022255@turing-police.cc.vt.edu> <40BF3329.9040700@tmr.com>
-In-Reply-To: <40BF3329.9040700@tmr.com>
+	Thu, 3 Jun 2004 10:38:28 -0400
+Received: from [65.39.167.249] ([65.39.167.249]:31200 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S265405AbUFCOgq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 10:36:46 -0400
+Date: Thu, 3 Jun 2004 10:36:45 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+In-Reply-To: <20040602205025.GA21555@elte.hu>
+Message-ID: <Pine.LNX.4.58.0406031031480.14817@innerfire.net>
+References: <20040602205025.GA21555@elte.hu>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406040027.57481.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jun 2004 00:18, Bill Davidsen wrote:
-> Valdis.Kletnieks@vt.edu wrote:
-> > On Wed, 02 Jun 2004 07:38:41 +0200, FabF said:
-> >>>Yes but: your wm is so  often used/activated it will not get swaped 
-> >>> out. But if your mouse passes over mozilla and tries to focus it, then
-> >>> you will feel the pain of a swapped-out x program.
-> >>
-> >>Exactly !
-> >>Does autoregulated VM swap. patch could help here ?
-> >
-> > Con's auto-adjusting swappiness patch did in fact help that quite a bit,
-> > especially for the case of heavy file I/O causing process images to be
-> > swapped out.  I need to do some comparisons of that to Nick's MM work...
->
-> I haven't had a chance to try Con's stuff, the Nick patch is working
-> VERY well for me, small memory and slow system, lots of memory pressure.
-> Hopefully you can report a comparison.
+>  kernel tried to access NX-protected page - exploit attempt? (uid: 500)
+>  Unable to handle kernel paging request at virtual address f78d0f40
+>   printing eip:
+>  ...
 
-Well note there are two revisions available now. The original linear design is 
-here:
-http://ck.kolivas.org/patches/2.6/2.6.7-rc2/patch-2.6.7-rc2-am11
+Just a small nitpick...
 
-and there is an exponential curve bias in this one which will probably 
-deprecate the last one:
-http://ck.kolivas.org/patches/2.6/2.6.7-rc2/patch-2.6.7-rc2-as
+Can you please drop the "- exploit attempt" from the error?  Buffer
+overflows aren't always exploits.
 
-I am keen to get more feedback; apart from what I get off list there has been 
-very little in the way of reports.
+I already have a problem with jumpy users to blame everything on "hackers"
+I'd much rather have someone qualified come to that conclusion rather than
+the kernel making a bad guess at it.
 
-Con
+	Gerhard
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.

@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282392AbRKXHpJ>; Sat, 24 Nov 2001 02:45:09 -0500
+	id <S282396AbRKXHul>; Sat, 24 Nov 2001 02:50:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282396AbRKXHpC>; Sat, 24 Nov 2001 02:45:02 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:40244 "EHLO
+	id <S282397AbRKXHua>; Sat, 24 Nov 2001 02:50:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:40758 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S282392AbRKXHoq>; Sat, 24 Nov 2001 02:44:46 -0500
-Date: Sat, 24 Nov 2001 08:44:55 +0100
+	id <S282396AbRKXHuQ>; Sat, 24 Nov 2001 02:50:16 -0500
+Date: Sat, 24 Nov 2001 08:50:28 +0100
 From: Andrea Arcangeli <andrea@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.15-pre9 breakage (inode.c)
-Message-ID: <20011124084455.B1419@athlon.random>
-In-Reply-To: <20011124081217.A1419@athlon.random> <Pine.GSO.4.21.0111240213450.4000-100000@weyl.math.psu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.15aa1
+Message-ID: <20011124085028.C1419@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.GSO.4.21.0111240213450.4000-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, Nov 24, 2001 at 02:30:15AM -0500
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 24, 2001 at 02:30:15AM -0500, Alexander Viro wrote:
-> 
-> 
-> On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
-> 
-> > if the method or the s_op isn't defined it will do nothing, if it is
-> > defined it'd better do something not wrong because the fs just did an
-> > iget within read_super. I don't see obvious troubles and the above looks
-> > better than making iput more complex (and nitpicking slower 8).
-> 
-> 2.4.15-pre8:
-> 
-> 	if (!list_empty(&inode->i_hash)) {
-> 		FOO
-> 		return;
-> 	} else {
-> 		BAR
-> 	}
-> 
-> 2.4.15+patch:
-> 	
-> 	if (!list_empty(&inode->i_hash)) {
-> 		FOO
-> 		if (!sb || sb->s_flags & MS_ACTIVE)
-> 			return;
-> 		write_inode_now(inode, 1);
-> 		spin_lock(&inode_lock);
-> 		inodes_stat.nr_unused--;
-> 		list_del_init(&inode->i_hash);
-> 	}
-> 	BAR
-> 
-> Notice that it fixes _all_ problems with stale inodes, with only one rule
-> for fs code - "don't call iput() when ->clear_inode() doesn't work".  Your
-> variant requires funnier things - "if at some point ->clear_inode()
-> may stop working make sure to call invalidate_inodes()" in addition to
-> the rule above.
+Note: the "00_read_super-stale-inode-1" fix is under discussion with Al,
+but overall it should be just ok for public consumation (even if that
+are may change if we find any better alternative, at the moment I think
+it is better (cleaner, simpler and faster) alternative than the iput
+changes in function of the MS_ACTIVE info).
 
-the rule I add is "if ->clear_inode is really needed, just don't clear
-s_op before returning null from read_super" and that requirement looks
-fine.
+URL:
 
-> 
-> Frankly, I'd prefer fix that provides less possibilities for fsckup
-> in fs code and requires less analysis.
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.15aa1.bz2
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.15aa1/
 
-I think right fix is invalidate_inodes() in read_super fail path so I
-think it worth the short analysis, and that fail path was just buggy, so
-it shouldn't get worse at least :).
+Only in 2.4.15aa1: 00_iput-unmount-corruption-fix-1
+
+	Fix iput umount corruption.
+
+Only in 2.4.15aa1: 00_read_super-stale-inode-1
+
+	If read_super fails avoid lefting stale inodes queued into
+	the superblock.
+
+Only in 2.4.15pre9aa1: 10_vm-16
+Only in 2.4.15aa1: 10_vm-17
+
+	Dropped a leftover touch_buffer in bread (there's just one in getblk in
+	-aa, and we need it in getblk [not only for reiserfs]).
 
 Andrea

@@ -1,30 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281995AbRKUXZc>; Wed, 21 Nov 2001 18:25:32 -0500
+	id <S281996AbRKUX2l>; Wed, 21 Nov 2001 18:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281996AbRKUXZL>; Wed, 21 Nov 2001 18:25:11 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:17448 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S281995AbRKUXZB>; Wed, 21 Nov 2001 18:25:01 -0500
-Date: Wed, 21 Nov 2001 17:24:44 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: Joseph Fannin <jhf@rivenstone.net>
-cc: Anders Linden <anli@perceptive.se>, linux-kernel@vger.kernel.org
-Subject: Re: Network card timeouts
-In-Reply-To: <20011121154836.A9016@gibraltar.rivenstone.net>
-Message-ID: <Pine.LNX.3.96.1011121172341.24649A-100000@mandrakesoft.mandrakesoft.com>
+	id <S281997AbRKUX2b>; Wed, 21 Nov 2001 18:28:31 -0500
+Received: from erasmus.jurri.net ([62.236.96.196]:53133 "EHLO
+	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
+	id <S281996AbRKUX2S>; Wed, 21 Nov 2001 18:28:18 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: 3Com Carbus adapter need to be re-inserted before detection
+In-Reply-To: <87itc5axu6.fsf@puck.erasmus.jurri.net>
+	<3BFC2DC4.20809@wanadoo.fr>
+From: Samuli Suonpaa <suonpaa@iki.fi>
+Date: 22 Nov 2001 01:23:17 +0200
+In-Reply-To: <3BFC2DC4.20809@wanadoo.fr>
+Message-ID: <87lmgzemje.fsf@puck.erasmus.jurri.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think what people sometimes do not understand is that transmit
-timeouts are a generic handler for a NIC- or driver-specific problem
+<stilgar2k@wanadoo.fr> wrote:
+> maybe you should try vortex@scyld.com   it's the official
+> dev list for the 3COM driver for linux.
 
-It is a mistake to assume that timeouts are a "common thread" of any
-sort.
+Um... For some reason I had understood Donald Becker wasn't so much
+involved in the current state of these drivers. And indeed looking at
+3c59x.c it would seem it has been Andrew Morton who has contributed
+most this driver resently. Or have I missed something?
 
-	Jeff
-
-
-
+Suonp‰‰...

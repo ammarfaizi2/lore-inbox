@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277626AbRJLLTT>; Fri, 12 Oct 2001 07:19:19 -0400
+	id <S278187AbRJLWpP>; Fri, 12 Oct 2001 18:45:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277618AbRJLLS6>; Fri, 12 Oct 2001 07:18:58 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:24590 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277616AbRJLLSt>; Fri, 12 Oct 2001 07:18:49 -0400
-X-Apparently-From: <rachelchew@yahoo.com>
-Message-ID: <006901c153c8$c5f7cac0$b304030a@networkwarwick.co.uk>
-From: "Rachel Chew" <rachelchew@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How to install the linux source tree?
-Date: Sat, 13 Oct 2001 11:23:50 +0200
-Organization: home
+	id <S278188AbRJLWpF>; Fri, 12 Oct 2001 18:45:05 -0400
+Received: from web12707.mail.yahoo.com ([216.136.173.244]:45576 "HELO
+	web12707.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S278187AbRJLWo4>; Fri, 12 Oct 2001 18:44:56 -0400
+Message-ID: <20011012224527.14338.qmail@web12707.mail.yahoo.com>
+Date: Sat, 13 Oct 2001 00:45:27 +0200 (CEST)
+From: =?iso-8859-1?q?Ortiz=20Samuel?= <sambaufr@yahoo.fr>
+Subject: nr_local_pages and local_pages
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Andrea !                                           
+                                                      
+                                                      
+                                                      
+                                                      
+                                                      
+                                                      
+                                                      
+I spent some time reading the balance_classzone code,
+but there are still                                   
+                                                      
+                                                      
+ some stuff I can't get. The main ones are the meaning
+and use of the                                        
+                                                      
+                                                      
+ following fields in the task structure :             
+                                                      
+                                                      
+                                                      
 
-I'm a linux newbie. And I've got red-hat 7.1 installed on my laptop. I
-intend to use the latest pcmcia-cs drivers which requires a linux source
-tree?! I have downloaded the equivalent copy of kernel 2.4.2-2.src.rpm. Can
-I not recompile the kernel, since I have no experience in it and I'm using
-lilo as I've partitioned my harddisk for win98 and a logical partition for
-redhat. So, I do not wish to screw things up.
+- nr_local_pages                                      
+                                                      
+                                                      
+                                                      
+- local_pages
 
-Can anyone please teach me how to get the linux source tree so that the
-pcmcia-cs.rpm can use the linux source tree to start the build. I'm sure I
-do not need to recompile my kernel as I've got pcmcia enabled in my current
-kernel (the one that came with redhat). Any help appreciated. Please reply
-soon. Desperate to get my ethenet card working. Thanks in advance.
+What are they for ? What do they mean ?
 
-rachel
+Thanks in advance for your answers.
 
+Regards,
+Samuel.               
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
-
+___________________________________________________________
+Un nouveau Nokia Game commence. 
+Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
+pour participer à cette aventure tous médias.

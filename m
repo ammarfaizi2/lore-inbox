@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263553AbTDGQWF (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbTDGQWF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:22:05 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:32208 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S263553AbTDGQWC (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 12:22:02 -0400
-Date: Mon, 7 Apr 2003 18:33:35 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext3 features/options
-In-Reply-To: <20030407102457.V1422@schatzie.adilger.int>
-Message-ID: <Pine.LNX.4.51.0304071832410.18350@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0304071323240.15910@dns.toxicfilms.tv>
- <20030407102457.V1422@schatzie.adilger.int>
+	id S263554AbTDGQVR (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 12:21:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263553AbTDGQVR (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 12:21:17 -0400
+Received: from smtp03.web.de ([217.72.192.158]:56341 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S263554AbTDGQVQ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 12:21:16 -0400
+From: Michael Buesch <freesoftwaredeveloper@web.de>
+To: Sergei Organov <osv@javad.ru>
+Subject: Re: modifying line state manually on ttyS
+Date: Mon, 7 Apr 2003 18:32:30 +0200
+User-Agent: KMail/1.5
+References: <200304071702.08114.freesoftwaredeveloper@web.de> <87d6jyiany.fsf@osv.javad.ru>
+In-Reply-To: <87d6jyiany.fsf@osv.javad.ru>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200304071832.20627.freesoftwaredeveloper@web.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Possibly you have files larger than 2GB and the "largefile" feature is
-> set?  If you get the CVS version of ext2resize it will fix this.
-I have had dir_index on.
+On Monday 07 April 2003 17:34, Sergei Organov wrote:
+> Do ioctl(fd, TIOCSBRK, 0) / ioctl(fd, TIOCSBRK, 0) help?
 
-After removing the bit, resizing and restoring the bit, everything seems
-fine.
+What does it do? I haven't found a description for TIOCSBRK, TIOCSBRK.
 
-Regards,
-Maciej
+Regards
+Michael Buesch.
+
+-- 
+My homepage: http://www.8ung.at/tuxsoft
+fighting for peace is like fu**ing for virginity
+

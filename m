@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283603AbRLIQpF>; Sun, 9 Dec 2001 11:45:05 -0500
+	id <S283621AbRLIQ6g>; Sun, 9 Dec 2001 11:58:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283610AbRLIQo4>; Sun, 9 Dec 2001 11:44:56 -0500
-Received: from ns.caldera.de ([212.34.180.1]:34453 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S283603AbRLIQoj>;
-	Sun, 9 Dec 2001 11:44:39 -0500
-Date: Sun, 9 Dec 2001 17:42:50 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        linux-ia64@linuxia64.org, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-ia64] Re: Linux 2.4.17-pre6 drm-4.0
-Message-ID: <20011209174250.A7406@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-	linux-ia64@linuxia64.org, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011208133156.A22531@caldera.de> <E16CjUs-0001ky-00@the-village.bc.nu>
+	id <S283626AbRLIQ60>; Sun, 9 Dec 2001 11:58:26 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:26884 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283621AbRLIQ6Y>;
+	Sun, 9 Dec 2001 11:58:24 -0500
+Date: Sun, 9 Dec 2001 17:58:16 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Richard Hoechenberger <GeekuX@web.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.1-pre8 doesn't compile w/ LVM support
+Message-ID: <20011209165816.GG28729@suse.de>
+In-Reply-To: <20011209175221.A19993@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16CjUs-0001ky-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Dec 08, 2001 at 03:34:38PM +0000
+In-Reply-To: <20011209175221.A19993@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08, 2001 at 03:34:38PM +0000, Alan Cox wrote:
-> > So what DRM can build out of tree easily - e.g. the Caldera LTP
-> > (3.1 early access) had a DRM package built completly out of tree.
-> 
-> XFree86 4.0, 4.1, ... ship with the DRM kernel modules buildable from
-> the XFree86 tree too
+On Sun, Dec 09 2001, Richard Hoechenberger wrote:
+> Any idea what's causing the problem?
 
-Been there, done that.
-
-Having seen the XFree build process this doesn't look like an option to
-me anymore.  Also a separate tarball easyfies building a new set of modules
-for a new kernel a lot.
-
-	Christoph
+Yes, it's the new block interface which LVM hasn't been converted to
+yet. It'll most likely be a while before LVM works in 2.5, so far noone
+has stepped up and taken an interest in fixing it.
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+Jens Axboe
+

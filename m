@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313638AbSFRAhm>; Mon, 17 Jun 2002 20:37:42 -0400
+	id <S317194AbSFRAkd>; Mon, 17 Jun 2002 20:40:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317194AbSFRAhl>; Mon, 17 Jun 2002 20:37:41 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5637 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313638AbSFRAhl>;
-	Mon, 17 Jun 2002 20:37:41 -0400
-Message-ID: <3D0E807C.5D50C17E@zip.com.au>
-Date: Mon, 17 Jun 2002 17:36:12 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3x slower file reading oddity
-References: <3D0E7041.860710CA@zip.com.au> <Pine.LNX.4.44.0206171649270.18507-100000@twinlark.arctic.org>
+	id <S317201AbSFRAkc>; Mon, 17 Jun 2002 20:40:32 -0400
+Received: from tuminfo2.informatik.tu-muenchen.de ([131.159.0.81]:42932 "EHLO
+	tuminfo2.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S317194AbSFRAkb>; Mon, 17 Jun 2002 20:40:31 -0400
+Date: Tue, 18 Jun 2002 02:40:32 +0200
+From: Andreas Bombe <bombe@informatik.tu-muenchen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with hardwired yenta resource allocation
+Message-ID: <20020618024032.A4230@sunhalle103.informatik.tu-muenchen.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-> 
-> ...
-> > You'll get best throughput with a single read thread.
-> 
-> what if you have a disk array with lots of spindles?  it seems at some
-> point that you need to give the array or some lower level driver a lot of
-> i/os to choose from so that it can get better parallelism out of the
-> hardware.
+[Resend, sorry if it gets through twice.]
 
-mm.  For that particular test, you'd get nice speedups from striping
-the blockgroups across disks, so each `cat' is probably talking to
-a different disk.  I don't think I've seen anything like that proposed
-though.
+The playground: Siemens laptops with two PCMCIA slots and an interesting
+configuration of PCI buses (the CardBus bridge is itself behind a PCI
+bridge) which amounts to three buses including the graphics controller's
+AGP bus, five including the CardBuses.
 
-But regardless of the disk topology, the sanest way to get good IO
-scheduling is to throw a lot of requests at the block layer.  That's
-simple for writes.  But for reads, it's harder.
+The situation: No CardBus cards work with the yenta driver.  I don't
+have the laptops at hand, and the guy who works with those is likely now
+in Japan for the RoboCup (yeah, I had this bug report lying around for a
+while, so what).  There should be enough information here to work with.
 
-You could fork one `cat' per file ;)  (Not so silly, really.  But if
-you took this approach, you'd need "many" more threads than blockgroups).
+The problem: In yenta.c:yenta_allocate_res(), since the yenta is itself
+behind a PCI bridge, it has to allocate window resources from the range
+the PCI bridge has allocated for its own windows:
 
-Or teach `cat' to perform asynchronous (aio) reads.  You'd need async
-opens, too.   But generally we get a good cache hit rate against the
-data which is needed to open a small file.
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 41) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=02, subordinate=04, sec-latency=64
+        I/O behind bridge: 00003000-00003fff
+        Memory behind bridge: d0200000-d02fffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
 
-hmm.  What else?  Physical readahead - read metadata into the block
-device's pagecache and flip pages from there into directories and
-files on-demand.  Fat chance of that happening.
+There is also an Realtek Ethernet controller on the same bus as the
+yenta.  Now the hardwired values for yenta window resources are:
 
-Or change ext2/3 to not place directories in different block groups
-at all.  That's super-effective, but does cause somewhat worse long-term
-fragmentation.
+Mem: min=PCIBIOS_MIN_MEM; max=~0U; align=4MB; size=4MB;
+I/O: min=0x4000; max=0xffff; align=1kB; size=256;
 
-You can probably lessen the seek-rate by accessing the files in the correct
-order.  Read all the files from a directory before descending into any of
-its subdirectories.  Can find(1) do that?  You should be able to pretty
-much achieve disk bandwidth this way - it depends on how bad the inter-
-and intra-file fragmentation has become.
+The minimum for the I/O region is just over the end of the bridge region.
+No I/O window resources can be allocated.
 
--
+For memory it wants 4MB at 4MB alignment.  There only is 1MB behind the
+bridge which is 2MB aligned, from which the Realtek grabbed 256 bytes
+already.  Obvious problem here, no mem window resources can be
+allocated.
+
+
+I adjusted the requirements down to make an FireWire OHCI CardBus card
+work (which uses 2kB mem, 128B I/O and 256B mem) using these values:
+
+Mem: align = size = 128kB
+I/O: min = 0x3000
+
+That configuration works now.  I'm not sure what the right fix to this
+is (more liberal constants or dynamic adaption to current situation,
+maybe even allocating windows only as needed), I don't know what the
+granularity for window resources are anyway.  This particular chip is:
+
+02:0a.0 CardBus bridge: O2 Micro, Inc. OZ6933 Cardbus Controller (rev 02)
+        Subsystem: Citicorp TTI: Unknown device 10e6
+	
+-- 
+Andreas Bombe <bombe@informatik.tu-muenchen.de>    DSA key 0x04880A44

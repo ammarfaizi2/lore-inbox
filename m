@@ -1,98 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbTAETGQ>; Sun, 5 Jan 2003 14:06:16 -0500
+	id <S264984AbTAETSn>; Sun, 5 Jan 2003 14:18:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265012AbTAETGQ>; Sun, 5 Jan 2003 14:06:16 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:60128 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265002AbTAETGO>;
-	Sun, 5 Jan 2003 14:06:14 -0500
-Date: Sun, 5 Jan 2003 11:11:33 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Paul Rolland <rol@as2917.net>
-cc: "'Andrew S. Johnson'" <andy@asjohnson.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.54 + ACPI] Slow [Was: Re: [2.5.53] So sloowwwww......]
-In-Reply-To: <012b01c2b4c5$648749a0$2101a8c0@witbe>
-Message-ID: <Pine.LNX.4.33L2.0301051108480.13312-100000@dragon.pdx.osdl.net>
+	id <S264986AbTAETSn>; Sun, 5 Jan 2003 14:18:43 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:20486 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S264984AbTAETSm>;
+	Sun, 5 Jan 2003 14:18:42 -0500
+Message-ID: <3E1886E8.9030304@walrond.org>
+Date: Sun, 05 Jan 2003 19:26:32 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: venom@sns.it
+CC: linux-kernel@vger.kernel.org
+Subject: Re: P4 Xeon operational temperature range
+References: <Pine.LNX.4.43.0301051955360.31792-100000@cibs9.sns.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jan 2003, Paul Rolland wrote:
+Its a bunch of 10u custom cases each containing 10 dual xeon m/b's 
+mounted vertically. Air is ducted between the blades and over the heat 
+sinks, but I think a thin (hence 1u) heatsink fan combo might help.
 
-| Hello,
-| >
-| > Did you try using acpi=no-idle in your kernel append line (if using
-| > lilo) and see what difference that makes?  It works in 2.4.
-| >
-| Followed your advice, and due to lack of documentation regarding
-| the acpi= kernel parameters, I tried :
-|  - acpi=no-idle
+venom@sns.it wrote:
+> which 1u case are you using?
+> 
+> as important as the CPU coolers are the fan used for fresh air circulation.
+> 
+> On Sun, 5 Jan 2003, Andrew Walrond wrote:
+> 
+> 
+>>Date: Sun, 05 Jan 2003 18:51:31 +0000
+>>From: Andrew Walrond <andrew@walrond.org>
+>>To: venom@sns.it
+>>Cc: linux-kernel@vger.kernel.org
+>>Subject: Re: P4 Xeon operational temperature range
+>>
+>>Hmmm. This is a dual xeon 2.6 blade in a very tight cluster and seems to
+>>hovering around 55C. I had a couple strange crashes and wonder if this
+>>might be the cause I'm unwilling to blame 2.5 ;)
+>>
+>>Can anybody recommend a good 1u cooler assembly for socket 603 ?
+>>
+>>venom@sns.it wrote:
+>>
+>>>depends on the PIV version,
+>>>
+>>>latest 0.13 micron has a maximum temperature of 69 degrees, but if you are going
+>>>under full load over the 50/55 start to be worried.
+>>>
+>>>Luigi
+>>>
+>>>p.s.
+>>>For AThlon AMD talks about 95 degrees, but
+>>>you should ttry not to go over the 60...
+>>>
+>>>
+>>>On Sun, 5 Jan 2003, Andrew Walrond wrote:
+>>>
+>>>
+>>>
+>>>>Date: Sun, 05 Jan 2003 13:48:11 +0000
+>>>>From: Andrew Walrond <andrew@walrond.org>
+>>>>To: linux-kernel@vger.kernel.org
+>>>>Subject: P4 Xeon operational temperature range
+>>>>
+>>>>Does anybody know off the top of their head the max tempature at which I
+>>>>can expect a P4 Xeon to operate ?
+>>>>
+>>>>TIA Andrew
+>>>>
+>>>>-
+>>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>>>the body of a message to majordomo@vger.kernel.org
+>>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>Please read the FAQ at  http://www.tux.org/lkml/
+>>>>
+>>>
+>>>
+>>
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-This one (above) is the correct syntax.
-Looking at the code, it only takes effect if you are using
-only 1 CPU.
-
-|  - acpi=noidle
-|  - acpi=no_idle
-| without success on a 2.5.54 kernel.
-|
-| 2.5.54 and ACPI (not only ACPI enumaration) is definitely slow.
-| Messages at boot :
-| Machine check exception polling timer started.
-| CPU: Intel(R) Pentium(R) 4 CPU 2.40GHz stepping 04
-| Enabling fast FPU save and restore... done.
-| Enabling unmasked SIMD FPU exception support... done.
-| Checking 'hlt' instruction... OK.
-| POSIX conformance testing by UNIFIX
-| enabled ExtINT on CPU#0
-| ESR value before enabling vector: 00000000
-| ESR value after enabling vector: 00000000
-| ENABLING IO-APIC IRQs
-| ..TIMER: vector=0x31 pin1=2 pin2=0
-| testing the IO APIC.......................
-|
-|  WARNING: unexpected IO-APIC, please mail
-|           to linux-smp@vger.kernel.org
-| .................................... done.
-| Using local APIC timer interrupts.
-| calibrating APIC timer ...
-| ..... CPU clock speed is 2423.0564 MHz.
-| ..... host bus clock speed is 134.0642 MHz.
-| Linux NET4.0 for Linux 2.4
-| Based upon Swansea University Computer Society NET3.039
-| Initializing RT netlink socket
-| mtrr: v2.0 (20020519)
-| PCI: PCI BIOS revision 2.10 entry at 0xf11a0, last bus=1
-| PCI: Using configuration type 1
-| BIO: pool of 256 setup, 14Kb (56 bytes/bio)
-| biovec pool[0]:   1 bvecs: 256 entries (12 bytes)
-| biovec pool[1]:   4 bvecs: 256 entries (48 bytes)
-| biovec pool[2]:  16 bvecs: 256 entries (192 bytes)
-| biovec pool[3]:  64 bvecs: 256 entries (768 bytes)
-| biovec pool[4]: 128 bvecs: 256 entries (1536 bytes)
-| biovec pool[5]: 256 bvecs: 256 entries (3072 bytes)
-| ACPI: Subsystem revision 20021217
-|     ACPI-0262: *** Info: GPE Block0 defined as GPE0 to GPE15
-|     ACPI-0262: *** Info: GPE Block1 defined as GPE16 to GPE31
-| ACPI: Interpreter enabled
-| ACPI: Using IOAPIC for interrupt routing
-| ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-| ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-| ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 *7 10 11 12 14 15)
-| ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-| ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 10 11 12 14 15, enabled
-| at IRQ 9)
-| ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 10 11 12 14 15, enabled
-| at IRQ 9)
-| ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 10 11 12 14 15, enabled
-| at IRQ 9)
-| ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 10 11 12 14 15, enabled
-| at IRQ 9)
-| ACPI: PCI Root Bridge [PCI0] (00:00)
-| PCI: Probing PCI hardware (bus 00)
-
--- 
-~Randy
 

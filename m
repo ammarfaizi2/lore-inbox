@@ -1,63 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262944AbUKXXtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262895AbUKXXtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262944AbUKXXtV (ORCPT <rfc822;willy@w.ods.org>);
+	id S262895AbUKXXtV (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 24 Nov 2004 18:49:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUKXXru
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbUKXXrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 18:47:50 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:14993 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262928AbUKXXor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 18:44:47 -0500
-Date: Wed, 24 Nov 2004 15:37:59 -0800
-From: Greg KH <greg@kroah.com>
-To: Lu?s Pinto <lmpinto@student.dei.uc.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in visor, since 2.6.10-rc1
-Message-ID: <20041124233756.GC4649@kroah.com>
-References: <Pine.LNX.4.61.0411151921140.5912@amarok.dei.uc.pt> <20041117231520.GB20701@kroah.com> <Pine.LNX.4.61.0411182254310.6221@amarok.dei.uc.pt>
+	Wed, 24 Nov 2004 18:47:37 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:56044 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S262943AbUKXXpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:45:03 -0500
+Subject: Re: Suspend 2 merge: 10/51: Exports for suspend built as modules.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041124131218.GA12868@infradead.org>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101294252.5805.228.camel@desktop.cunninghams>
+	 <20041124131218.GA12868@infradead.org>
+Content-Type: text/plain
+Message-Id: <1101333120.3895.71.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411182254310.6221@amarok.dei.uc.pt>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 25 Nov 2004 08:52:00 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 19, 2004 at 02:53:42PM +0000, Lu?s Pinto wrote:
+Hi.
+
+On Thu, 2004-11-25 at 00:12, Christoph Hellwig wrote:
+> >  /*
+> >   * Platforms implementing 32 bit compatibility ioctl handlers in
+> > - * modules need this exported
+> > + * modules need this exported. So does Suspend2 (when made as
+> > + * modules), so the export_symbol is now unconditional.
+> >   */
+> > -#ifdef CONFIG_COMPAT
+> >  EXPORT_SYMBOL(sys_ioctl);
+> > -#endif
 > 
-> 	This sort of solves part of it. It doesn't oops anymore,
-> 	however, for a 'pilot-xfer -l' (list all databases on palm) or
-> 	a 'pilot-xfer -i xyz.pdb' (install a database on palm) it
-> 	freezes at the middle, and the palm eventually times out. Here
-> 	goes the corresponding dmesg: the first time it didn't do
-> 	nothing (pilot-xfer didn't even start), the second and third
-> 	it freezed.
+> This is definitly the wrong interface for whatever you want to do.
 
-Please try this patch.  It should solve the problem for you.  Sorry for
-all of the problems with these recent changes.
+Do you know what I want to do?
 
-thanks,
+Frankly, I actually agree. I'd rather use vt_console_print and gotoxy
+directly to do the display of information that doesn't need to clutter
+the logs, but when I first submitted code for doing that, people
+suggested using /dev/console instead. That makes using these syscalls
+necessary.
 
-greg k-h
+> > +EXPORT_SYMBOL(proc_match);
+> 
+> Also nothing anything outside of procfs internals should do.
 
+This was because, following the "use files" methodology above, I have to
+be able to find the file I want to use (/proc/splash) even when /proc
+isn't mounted yet. I'll happily just call splash_write_proc.
 
-[PATCH] USB visor: Don't count outstanding URBs twice
+> >  unsigned long avenrun[3];
+> > +EXPORT_SYMBOL(avenrun);
+> 
+> Nothing you should poke into.
 
-Incrementing the outstanding_urbs counter twice for the same URB can't
-be good. No wonder Simon didn't get far syncing his Palm.
+Mmm. Commented on this elsewhere. Perhaps rather than saving and
+restoring the values, I should inhibit them being updated? If the BIOS
+was doing the suspending/resuming, we wouldn't object to them not being
+updated. Does that sound like a better solution? (Remember the aim was
+avoid making sendmail etc refuse to work for a while because the load
+average is too high).
 
-Signed-off-by: Roger Luethi <rl@hellgate.ch>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+> > +/* Exported for Software Suspend 2 */
+> > +EXPORT_SYMBOL(nr_free_highpages);
+> > +EXPORT_SYMBOL(pgdat_list);
+> 
+> Dito.
 
-diff -Nru a/drivers/usb/serial/visor.c b/drivers/usb/serial/visor.c
---- a/drivers/usb/serial/visor.c	2004-11-24 15:36:25 -08:00
-+++ b/drivers/usb/serial/visor.c	2004-11-24 15:36:25 -08:00
-@@ -497,7 +497,6 @@
- 		dev_dbg(&port->dev, "write limit hit\n");
- 		return 0;
- 	}
--	++priv->outstanding_urbs;
- 	spin_unlock_irqrestore(&priv->lock, flags);
- 
- 	buffer = kmalloc (count, GFP_ATOMIC);
+Used for preparing the image.
+
+> > +EXPORT_SYMBOL(swap_free);
+> > +EXPORT_SYMBOL(swap_info);
+> > +EXPORT_SYMBOL(sys_swapoff);
+> > +EXPORT_SYMBOL(sys_swapon);
+> > +EXPORT_SYMBOL(si_swapinfo);
+> > +EXPORT_SYMBOL(map_swap_page);
+> > +EXPORT_SYMBOL(get_swap_page);
+> > +EXPORT_SYMBOL(get_swap_info_struct);
+> 
+> Dito.  Lowlevel swapdevice access isn't something modules should poke
+> into.
+
+It is if they're writing to swap.
+
+> Nigel, why do I have this strange feeling that exactly the same patch
+> was rejected already but you resubmitted it again?
+
+Not exactly the same but yes, substantially. I listened then to the
+comments and applied changes. I'm listening now. Unfortunately, though,
+you just reject things outright without even discussing why they're
+there or whether there's a better way I might not have thought of. I
+freely admit that I'm not the world's greatest Linux guru; that's part
+of why I'm submitting these patches now for review. Could you please try
+to be more helpful? I'll promise to be receptive!
+
+> If you want anything merged drop the modular swsusp bits, I doubt it'll
+> ever be merged.
+
+Aside from other advantages (quicker development etc), the modular bits
+allow you to free about 150k (debugging compiled in) when you're not
+suspending. I thought that was well worth the little bit of extra code.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
+

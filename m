@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTDUPQL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 11:16:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTDUPQL
+	id S261329AbTDUPTW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 11:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbTDUPTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 11:16:11 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:43424 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261321AbTDUPQK
+	Mon, 21 Apr 2003 11:19:22 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:41892 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261329AbTDUPTT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 11:16:10 -0400
-Date: Mon, 21 Apr 2003 08:28:12 -0700
+	Mon, 21 Apr 2003 11:19:19 -0400
+Date: Mon, 21 Apr 2003 08:31:04 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 609] New: Compilation error for adbhid.c [ppc] 
-Message-ID: <26130000.1050938892@[10.10.2.4]>
+cc: gregkh@us.ibm.com
+Subject: [Bug 606] Hang occurs at reboot
+Message-ID: <26850000.1050939064@[10.10.2.4]>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,39 +24,34 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+------- Additional Comments From m4341@abc.se  2003-04-21 02:30 -------
+All three suggestions are tried, but I have located the problem to the ohci-hcd
+module, since I also get a hang when I trie to unload that module. This is
+currently only verified on the Vectra using the Kernel 2.5.68.
 
----------- Forwarded Message ----------
-Date: Monday, April 21, 2003 00:55:08 -0700
-From: bugme-daemon@osdl.org
-To: bugme-new@lists.osdl.org
-Cc: 
-Subject: [Bugme-new] [Bug 609] New: Compilation error for adbhid.c [ppc]
+Dmesg info (partial):
+drivers/usb/core/usb.c: registered new driver usbfs
+drivers/usb/core/usb.c: registered new driver hub
+ohci-hcd: 2003 Feb 24 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ohci-hcd: block sizes: ed 64 td 64
+ohci-hcd 00:0c.0: Lucent Microelectron USS-312 USB Controll
+ohci-hcd 00:0c.0: irq 11, pci mem cd007000
+Please use the 'usbfs' filetype instead, the 'usbdevfs' name is deprecated.
+ohci-hcd 00:0c.0: new USB bus registered, assigned bus number 1
+hub 1-0:0: USB hub found
+hub 1-0:0: 2 ports detected
+Please use the 'usbfs' filetype instead, the 'usbdevfs' name is deprecated.
+drivers/usb/core/usb.c: registered new driver hiddev
+drivers/usb/core/usb.c: registered new driver hid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
 
-http://bugme.osdl.org/show_bug.cgi?id=609
-
-           Summary: Compilation error for adbhid.c [ppc]
-    Kernel Version: 2.5.68
-            Status: NEW
-          Severity: normal
-             Owner: vojtech@suse.cz
-         Submitter: dilinger@voxel.net
-
-
-Distribution: Debian unstable
-Hardware Environment: NewWorld pmac; 7410, altivec supported
-Software Environment: gcc version 3.2.3 20030407 (Debian prerelease)
-Problem Description: drivers/macintosh/adbhid.c fails to compile
-Steps to reproduce: [obvious fix; omitting]
-
-------- You are receiving this mail because: -------
-You are on the CC list for the bug, or are watching someone who is.
-_______________________________________________
-Bugme-new mailing list
-Bugme-new@lists.osdl.org
-http://lists.osdl.org/mailman/listinfo/bugme-new
-
-
-
----------- End Forwarded Message ----------
+lsmod info (minimalistic):
+Module                  Size  Used by
+binfmt_misc             9508  0 
+parport_pc             15428  0 
+parport                28992  1 parport_pc
+hid                    41060  0 
+ohci_hcd               13088  0 
+usbcore                81364  4 hid,ohci_hcd
 
 

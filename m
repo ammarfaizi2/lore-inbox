@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312476AbSCYSDG>; Mon, 25 Mar 2002 13:03:06 -0500
+	id <S312479AbSCYSDV>; Mon, 25 Mar 2002 13:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312482AbSCYSC5>; Mon, 25 Mar 2002 13:02:57 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:6406 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S312476AbSCYSCn>;
-	Mon, 25 Mar 2002 13:02:43 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Daniel Gryniewicz <dang@fprintf.net>
-Date: Mon, 25 Mar 2002 18:59:38 +0100
+	id <S312482AbSCYSDH>; Mon, 25 Mar 2002 13:03:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:57353 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312479AbSCYSCy>; Mon, 25 Mar 2002 13:02:54 -0500
+Subject: Re: SSSCA Hits the Senate
+To: nahshon@actcom.co.il
+Date: Mon, 25 Mar 2002 18:17:51 +0000 (GMT)
+Cc: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard), pgallen@randomlogic.com,
+        kplug-list@kernel-panic.org (KPLUG List),
+        kplug-newbie@kernel-panic.org (KPLUG Newbie),
+        kplug-lpsg@kernel-panic.org (KPLUG LPSG),
+        linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <200203251734.g2PHYLq24629@lmail.actcom.co.il> from "Itai Nahshon" at Mar 25, 2002 07:34:08 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Screen corruption in 2.4.18
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <7CFA0F5109@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16pZ2V-00016E-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Mar 02 at 12:07, Daniel Gryniewicz wrote:
-> > On Mon, Mar 25, 2002 at 12:43:18PM +1100, Andre Pang wrote:
-> > > Can somebody with a KT133/KT133A do a "lspci -n" and grep for
-> > > '8305'?  If it doesn't appear, I'll send off my patch.
-> > 
-> > Sorry to disappoint you:
-> > 
-> > $ sudo lspci -n | grep 8305
-> > 00:01.0 Class 0604: 1106:8305
+> On Monday 25 March 2002 17:22, Jesse Pollard wrote:
+> > Has there been anything that says the copy protection code can't be source?
+> > If it were included in the source, along with all the other code, would
+> > that be recognized as "protected"?
 > 
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] 
-> (rev 02) (KT7-RAID, KT133)
-> 00:01.0 Class 0604: 1106:8305
+> Worst thing happens if somebody gets a patent for the copy protection schemes...
 
-You can try revisions. All KMxxx I saw had revision 8x, while (this) KT133
-has 0x.
-                                    Best regards,
-                                        Petr Vandrovec
-                                        vandrove@vc.cvut.cz
-                                        
+Microsoft already do

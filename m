@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261744AbSIZAiX>; Wed, 25 Sep 2002 20:38:23 -0400
+	id <S261807AbSIZAmq>; Wed, 25 Sep 2002 20:42:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261745AbSIZAiX>; Wed, 25 Sep 2002 20:38:23 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:21377 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261744AbSIZAiW>;
-	Wed, 25 Sep 2002 20:38:22 -0400
-Date: Wed, 25 Sep 2002 17:37:28 -0700 (PDT)
-Message-Id: <20020925.173728.08323077.davem@redhat.com>
-To: nf@hipac.org
-Cc: linux-kernel@vger.kernel.org
+	id <S261852AbSIZAmp>; Wed, 25 Sep 2002 20:42:45 -0400
+Received: from ns.suse.de ([213.95.15.193]:24074 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261807AbSIZAld>;
+	Wed, 25 Sep 2002 20:41:33 -0400
+Date: Thu, 26 Sep 2002 02:46:45 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, niv@us.ibm.com, linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] NF-HIPAC: High Performance Packet Classification
- for Netfilter
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200209260238.06400.nf@hipac.org>
-References: <200209260041.56374.nf@hipac.org>
-	<20020925.155246.41632313.davem@redhat.com>
-	<200209260238.06400.nf@hipac.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20020926024645.A15246@wotan.suse.de>
+References: <3D924F9D.C2DCF56A@us.ibm.com.suse.lists.linux.kernel> <20020925.170336.77023245.davem@redhat.com.suse.lists.linux.kernel> <p73n0q5sib2.fsf@oldwotan.suse.de> <20020925.172931.115908839.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020925.172931.115908839.davem@redhat.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: nf@hipac.org
-   Date: Thu, 26 Sep 2002 02:38:06 +0200
-   
-   > You missed the real trick, extending the routing tables to
-   > do packet filter rule lookup.  That's where the real
-   > performance gains can be found, ...
-   
-   Yes, that's certainly true. But we have to take step by step.
+On Wed, Sep 25, 2002 at 05:29:31PM -0700, David S. Miller wrote:
+>    The current FIBs have a bit heavier locking at least. Fine grain locking
+>    btrees is also not easy/nice.
+>    
+> Also not necessary, only the top level cache really needs to be
+> top performance.
 
-All the work you will spend to validate all the converted modules
-will be equal if not greater to doing the algorithm correctly.
+Sure, but if they were unified (that is what I understood what the original
+poster wanted to do) then they would be suddenly much more performance
+critical and need fine grained locking.
 
-So why not do it correctly from the start? :-)
+-Andi
 
-Seriously, just sit tight with your work, and once the stackable
-route stuff is done, you can look into applying your algorithms
-to the new flow cache.
+P.S.: One big performance problem currently is ip_conntrack. It has a bad
+hash function and tends to have a too big working set (beyond cache size)
+Some tuning in this regard would help a lot of workloads.
+

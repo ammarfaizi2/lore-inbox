@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272511AbRIFTKf>; Thu, 6 Sep 2001 15:10:35 -0400
+	id <S272508AbRIFTPz>; Thu, 6 Sep 2001 15:15:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272509AbRIFTKZ>; Thu, 6 Sep 2001 15:10:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:41670 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S272508AbRIFTKS>;
-	Thu, 6 Sep 2001 15:10:18 -0400
-Date: Thu, 6 Sep 2001 15:10:34 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Giacomo Catenazzi <cate@dplanet.ch>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: reproducible in vfs_follow_link 2.4.9,2.4.10-pre4
-In-Reply-To: <3B97744E.7020007@dplanet.ch>
-Message-ID: <Pine.GSO.4.21.0109061454480.7097-100000@weyl.math.psu.edu>
+	id <S272509AbRIFTPp>; Thu, 6 Sep 2001 15:15:45 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:26120 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S272508AbRIFTPh>; Thu, 6 Sep 2001 15:15:37 -0400
+Date: Thu, 6 Sep 2001 12:15:56 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Wietse Venema <wietse@porcupine.org>
+cc: Andrey Savochkin <saw@saw.sw.com.sg>,
+        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip
+ alias bug 2.4.9 and 2.2.19]
+In-Reply-To: <20010906173948.502BFBC06C@spike.porcupine.org>
+Message-ID: <Pine.LNX.4.33.0109061208310.24712-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 6 Sep 2001, Wietse Venema wrote:
 
+> Andrey Savochkin:
+> > > That is not practical. Surely there is an API to find out if an IP
+> > > address connects to the machine itself. If every UNIX system on
+> > > this planet can do it, then surely Linux can do it.
+> >
+> > Let me correct you: you need to recognize not addresses that result in
+> > connecting to the _machine_ itself, but connecting to the same _MTA_.
+>
+> The SMTP RFC requires that user@[ip.address] is correctly recognized
+> as a final destination.  This requires that Linux provides the MTA
+> with information about IP addresses that correspond with INADDR_ANY.
+>
+> I am susprised that it is not possible to ask such information up
+> front (same with netmasks), and that an application has to actually
+> query a complex oracle, again and again, for every IP address.
 
-On Thu, 6 Sep 2001, Giacomo Catenazzi wrote:
+how does your MTA figure out that it's behind a NAT?  it doesn't matter
+what unix it's running on, there's no standard way for it to know that an
+address translation has occured before getting to its front-door.
 
-> Hello.
-> 
-> Since yesterdey, every time I run a 2.4.9 or 2.4.10pre-4 without the 
-> "devfs=nomount" I
-> have two oops + /usr, /home /boot not mounted (all (also /): ext2).
+i've dealt with almost the exact same problem you're dealing with now when
+i was correcting apache's virtual hosting mechanism.  the only solution
+which i found to work *always* was to force the administrator to
+explicitly list the addresses.
 
-	Don't use devfs. One of the known bugs - devfs passes a string to
-vfs_follow_link() and doesn't care to preserve it until vfs_follow_link()
-is done.
-
-E.g. rmmod during the symlink traversal will end up with
-
-vfs_follow_link(nd, s)
-[working]
-[blocked on IO/allocation/whatever]
-rmmod
-...
-kfree(s)
-...
-[the first process wakes up and oopses on attempt to dereference s]
-
-	There are other scenarios that end up freeing a string passed to
-vfs_follow_link() (or, for that matter, being busily copied to userland by
-readlink(2)).  Basically, if devfs decides that symlink is gone - pray.
-If it's being accessed right now you are going to end up with oops.
-
-	No idea why you've started triggering it only now - not enough
-details to say.
-
-	And yes, Richard had been informed about that months ago. Sigh...
+-dean
 

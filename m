@@ -1,55 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292539AbSCDRRq>; Mon, 4 Mar 2002 12:17:46 -0500
+	id <S292542AbSCDRYg>; Mon, 4 Mar 2002 12:24:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292550AbSCDRRf>; Mon, 4 Mar 2002 12:17:35 -0500
-Received: from 216-42-72-143.ppp.netsville.net ([216.42.72.143]:15781 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S292539AbSCDRRI>; Mon, 4 Mar 2002 12:17:08 -0500
-Date: Mon, 04 Mar 2002 12:16:35 -0500
-From: Chris Mason <mason@suse.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>,
-        James Bottomley <James.Bottomley@steeleye.com>
-cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Message-ID: <1201480000.1015262195@tiny>
-In-Reply-To: <20020304170434.B1444@redhat.com>
-In-Reply-To: <phillips@bonn-fries.net> <200203041503.g24F3WU01722@localhost.localdomain> <20020304170434.B1444@redhat.com>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
+	id <S292549AbSCDRY1>; Mon, 4 Mar 2002 12:24:27 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:21154 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S292542AbSCDRYM>; Mon, 4 Mar 2002 12:24:12 -0500
+Date: Mon, 4 Mar 2002 10:38:47 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Harald van Pee <pee@iskp.uni-bonn.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 3Ware Hard Bus Hang 2.4.18 > 220 MB/S
+Message-ID: <20020304103847.A31515@vger.timpanogas.org>
+In-Reply-To: <200203041706.g24H6Kv25543@klee.iskp.uni-bonn.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200203041706.g24H6Kv25543@klee.iskp.uni-bonn.de>; from pee@iskp.uni-bonn.de on Mon, Mar 04, 2002 at 06:06:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Monday, March 04, 2002 05:04:34 PM +0000 "Stephen C. Tweedie" <sct@redhat.com> wrote:
+Problem seems specific to the SuperMicro motherboard + 3Ware.
 
-> Basically, as far as journal writes are concerned, you just want
-> things sequential for performance, so serialisation isn't a problem
-> (and it typically happens anyway).  After the journal write, the
-> eventual proper writeback of the dirty data to disk has no internal
-> ordering requirement at all --- it just needs to start strictly after
-> the commit, and end before the journal records get reused.  Beyond
-> that, the write order for the writeback data is irrelevant.
+Jeff
+
+On Mon, Mar 04, 2002 at 06:06:20PM +0100, Harald van Pee wrote:
+> Hi,
 > 
-
-writeback data order is important, mostly because of where the data blocks
-are in relation to the log.  If you've got bdflush unloading data blocks
-to the disk, and another process doing a commit, the drive's queue
-might look like this:
-
-data1, data2, data3, commit1, data4, data5 etc.
-
-If commit1 is an ordered tag, the drive is required to flush 
-data1, data2 and data3, then write the commit, then seek back
-for data4 and data5.
-
-If commit1 is not an ordered tag, the drive can write all the
-data blocks, then seek back to get the commit.
-
--chris
-
+> because I am planning to buy a very similar system, I would like to know:
+> - is this problem solved in the meantime?
+> - does it also occure with older kernels (2.4.16, 2.2.16) or older firmware 
+> (and smaler disks)?
+> - is it only a problem of high transfer rates and does not occure on lower ~ 
+> 150 MB/sec or 30 MB/sec?
+> 
+> Thanks for your help
+> Harald
+> 
+> On Wed, Feb 27, 2002 at 10:25:45AM -0700, Jeff V. Merkey wrote:
+> >
+> More info.  I put in some trace code to determine how many io buffer
+> heads were being fed to each adapter.  When the number of bh's reaches
+> numbers above 4244+- buffer heads outstanding at one time, then I see the
+> cards lockup.
+> Jeff
+> >
+> >
+> > Running 4 3Ware 7810 Adapters with the updated 48 bit LBA firmware
+> > for the 78110, and attached to 8 Maxtor 160 GB hard disks on each card
+> > (32 drives total) striping Raid 0m across 5.6 terabytes of disk, I am
+> > seeing about 216-224 MB/S total throughput on writes to local
+> > arrays on 2.4.18. 
+> >
+> > The system is also running an Intel Gigabit Ethernet Card at
+> > 116-122 MB/S with full network traffic and writing this traffic to
+> > the 3Ware arrays.  All this hardware is running on a Serverworks
+> > HE chipset with a SuperMicro motherboard and dual 933 Mhz PIII
+> > processors.
+> >
+> > After running for about 3 hours, the system will hard hang and die. 
+> > Using debugging tools, I have isolated to the hang to the 3Ware
+> > adapters.  If I remove all but a single 3Ware adapter, the system will
+> > run reliably for days at these data rates.  The moment I add more
+> > than one 3Ware 7810 adapter, the system will lock up.  Recent testing
+> > reveals that the hang is in the 3Ware card itself (all the LEDs go
+> > on at once and stay on).  Attempts by the system to reset the adapter
+> > fail until the system is power cycled. 
+> >
+> > 3Ware dfriver version is .16 from the 2.4.18 tree.  Firmware is the 48 bit
+> > LBA version. 
+> >
+> > Please advise. 
+> >
+> > Jeff
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

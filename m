@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265517AbTBBTsV>; Sun, 2 Feb 2003 14:48:21 -0500
+	id <S265567AbTBBUvE>; Sun, 2 Feb 2003 15:51:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbTBBTsV>; Sun, 2 Feb 2003 14:48:21 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50706 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265517AbTBBTsU>; Sun, 2 Feb 2003 14:48:20 -0500
-Date: Sun, 2 Feb 2003 19:57:44 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       James Simmons <jsimmons@infradead.org>
-Subject: Re: fbcon scrolling madness + fbset corruption
-Message-ID: <20030202195744.C32007@flint.arm.linux.org.uk>
-Mail-Followup-To: Antonino Daplas <adaplas@pol.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
-	James Simmons <jsimmons@infradead.org>
-References: <20030119200340.A13758@flint.arm.linux.org.uk> <1043026112.988.4.camel@localhost.localdomain>
+	id <S265568AbTBBUvE>; Sun, 2 Feb 2003 15:51:04 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:25043 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S265567AbTBBUvD>;
+	Sun, 2 Feb 2003 15:51:03 -0500
+References: <courier.3E3D59B9.00006CAD@softhome.net>
+            <20030202185836.B32007@flint.arm.linux.org.uk>
+In-Reply-To: <20030202185836.B32007@flint.arm.linux.org.uk> 
+From: b_adlakha@softhome.net
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: what all has changed in ppp?
+Date: Sun, 02 Feb 2003 14:00:33 -0700
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1043026112.988.4.camel@localhost.localdomain>; from adaplas@pol.net on Mon, Jan 20, 2003 at 09:29:38AM +0800
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [210.214.82.196]
+Message-ID: <courier.3E3D86F1.00001BF0@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 09:29:38AM +0800, Antonino Daplas wrote:
-> fb_pan_display() does not test for YWRAP.  Can you try this?
+Russell King writes: 
 
-This doesn't appear to solve the ywrap problem - I still get
-places where the screen doesn't scroll.  I decided to write a
-small program to dump out the contents of fb_var_screeninfo, and
-where stuff goes horribly wrong:
+> On Sun, Feb 02, 2003 at 10:47:37AM -0700, b_adlakha@softhome.net wrote:
+>> sorry, I haven't been keeping up with the changes in 2.5, but I can't get 
+>> pppd to work with 2.5.59, it dies with error code 1 while it works alright 
+>> with 2.4.20... 
+> 
+> You need to look in the system log files (typically /var/log/messages) to
+> see why pppd isn't happy.
 
-bash-2.04# ./tst
-Visible: 1280x1024
-Virtual: 1280x1632
-BPP    : 8
-Offset : +0+2352
-bash-2.04# ./tst
-Visible: 1280x1024
-Virtual: 1280x1632
-BPP    : 8
-Offset : +0+2392
+Oh yes, sorry I forgot, module tty_ldisk3 cannot be found, so ppp dies with 
+exit status 1...
+I didn't think ppp needs anything other than ppp_generic, the serial driver 
+for ppp and the compression modules...
+What is tty_ldisk3? could you help me on this? 
 
-Up to the point where it goes wrong:
-
-bash-2.04# ./tst
-Visible: 1280x1024
-Virtual: 1280x1632
-BPP    : 8
-Offset : +0+528
-bash-2.04# ./tst
-Visible: 1280x1024
-Virtual: 1280x1632
-BPP    : 8
-Offset : +0+568
-bash-2.04# ./tst
-Visible: 1280x1024	<--- this is the last line on the screen
-Virtual: 1280x1632
-BPP    : 8
-Offset : +0+608
-bash-2.04#
-
-So it looks like something isn't limiting the yoffset in the generic
-console layer; an xoffset of 2392 when the maximum virtual Y is 1632
-is just nonsense.
-
-I also noticed an additional problem with fbcon: if I change the
-resolution using fbset, the change occurs, except I end up with
-corrupted mess on the screen (the reminents of the original display.)
-The shell prompt is nowhere to be seen.
-
-Hitting ^L clears the screen and then the shell prompt is visiable.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Also, I haven't been able to solve the cpu problem...
+and also, modprobe warns of unknown symbols in /etc/modules.devfs...although 
+the 2.4 kernel works fine... 
 

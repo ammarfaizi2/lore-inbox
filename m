@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUJIOI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUJIOQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUJIOI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 10:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUJIOI2
+	id S266547AbUJIOQp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 10:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJIOQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 10:08:28 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:19137 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S266879AbUJIOI0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 10:08:26 -0400
-Message-ID: <4167F0D7.3020502@free.fr>
-Date: Sat, 09 Oct 2004 16:08:23 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Albert Cahalan <albert@users.sf.net>
+	Sat, 9 Oct 2004 10:16:45 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:36959 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266547AbUJIOQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 10:16:44 -0400
+Date: Sat, 9 Oct 2004 07:16:42 -0700
+To: Adrian Bunk <bunk@stusta.de>
 Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Inconsistancies in /proc (status vs statm) leading to wrong	documentation
- (proc.txt)
-References: <1097329771.2674.4036.camel@cube>
-In-Reply-To: <1097329771.2674.4036.camel@cube>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
+Message-ID: <20041009141642.GX3316@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org,
+	Adrian Bunk <bunk@stusta.de>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20041005063324.GA7445@darjeeling.triplehelix.org> <20041009101552.GA3727@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041009101552.GA3727@stusta.de>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+User-Agent: Mutt/1.5.6+20040722i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
+On Sat, Oct 09, 2004 at 12:15:52PM +0200, Adrian Bunk wrote:
+> It doesn't depend on which version I'm compiling, it depends on which 
+> kernel I'm actually running.
 
-> The documentation is incorrect. It was written to match a buggy
-> implementation in early 2.6.x kernels.
+Yeah, that's really what I meant the first time.
 
-Well the Documentation is said to matches 2.6.8-rc3 and is only 5 weeks 
-old according to bitkeeper changesets... So at least the doc should be 
-fixed.
+> (2.6.9-rc1 is OK, 2.6.8-rc3-mm3 is not OK.)
 
-> VmSize is the address space occupied, excluding memory-mapped IO.
-> The statm value is the address space occupied.
+Good to hear. I might switch back.
 
-Why removing memory-mapped IO in one case (status) and not the other 
-(statm)? Memory mapped IO, may of course reserve some physical memory 
-pages for establishing the mmu->phys adress translation table (if any) 
-but not really the amount of space mapped.
-
->>May I suggest :
->> - To use consistent memory size units between status and statm,
-
-> No way. This would instantly break the "top" program.
-
-OK. Too bad because statm is hardly readable but I guess it is not for 
-human then...
-
-Thanks for responding,
-
--- eric
-
+-- 
+Joshua Kwan

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267467AbTBUO6f>; Fri, 21 Feb 2003 09:58:35 -0500
+	id <S267473AbTBUO7v>; Fri, 21 Feb 2003 09:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267471AbTBUO6f>; Fri, 21 Feb 2003 09:58:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11528 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267467AbTBUO6e>; Fri, 21 Feb 2003 09:58:34 -0500
-Date: Fri, 21 Feb 2003 07:05:47 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302210758290.1701-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0302210702320.7573-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267474AbTBUO7v>; Fri, 21 Feb 2003 09:59:51 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:40361 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S267473AbTBUO7s>;
+	Fri, 21 Feb 2003 09:59:48 -0500
+Date: Fri, 21 Feb 2003 17:09:53 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: The linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: Genericish floppy-driver problem ? (2.4/2.5)
+Message-ID: <20030221150953.GK1073@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In my Dell Laptop, I have a 3.5" diskette driver plugin, which
+works fine, when I do normal things, but earlier this week I had
+a "mystery diskette" to decode, and pull data out.
 
-On Fri, 21 Feb 2003, Ingo Molnar wrote:
-> > 
-> > This is a single non-serializing bit test, and if it means that the task
-> > counters are _right_, that's definitely the right thing to do.
-> 
-> ok. Plus the wait_task_inactive() stuff was always a bit volatile. Now we
-> could in fact remove it from release_task(), right?
+The diskette in question was written in a "DD" driver, but used
+media was of "HD" type.  The end result was that its format was
+"wrong" for the media, and reading it failed.
+A quick transformation of a "HD" diskette into a "DD" type is
+explained at site:
 
-Yes, except for the same concerns I had about your patch moving it.
+   http://fdutils.linux.lu/disk-id.html
 
-That part could be cleanly solvged by just moving a lot of the tear-down
-of the "struct task_struct" entirely into "__put_task_struct()" (which now
-can never be called with "current == tsk"), ie if we do the "free_user()"
-_there_, then I think we can remove the wait_task_inactive() entirely from 
-the wait path.
+where there are also many tests to discover things about the diskette data 
+format.   To read the "DD format in HD media" diskette successfully, 
+"rate=2" parameter was necessary in tests done in that page to determine
+various parameters of the diskette.
+(That is, a "taped-up-DD" media is formatted into 720 kB capacity, and
+ then the tape is removed getting a "DD in disguise" media format)
 
-		Linus
 
+While using that utility with 2.4.20-redhat-rawhide-xyz kernel,
+and following the instructions to determine what the data really
+is in there, execution of command:
+
+  fdrawcmd read 0  1 0 1 2  0 0x1b 0xff length=10240 need_seek track=1 >/dev/null
+
+did cause the floppy driver to yield some kernel error dump, and
+any floppy command after that did return EXIO error.  Only reboot
+restored the driver back to sanity.
+
+A sticky error state is, of course, considerable as a bug in this case.
+Is this really worth the effort to fix ?  I am not sure.
+
+The Floppy driver (drivers/block/floppy.c) does not appear to have
+listed MAINTAINER, but many people have touched on it over the years.
+
+/Matti Aarnio

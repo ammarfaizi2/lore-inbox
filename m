@@ -1,32 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263048AbTCLFp0>; Wed, 12 Mar 2003 00:45:26 -0500
+	id <S263053AbTCLGDk>; Wed, 12 Mar 2003 01:03:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263050AbTCLFp0>; Wed, 12 Mar 2003 00:45:26 -0500
-Received: from ns.suse.de ([213.95.15.193]:32516 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S263048AbTCLFpZ>;
-	Wed, 12 Mar 2003 00:45:25 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>, shemminger@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernelorg
-Subject: Re: [PATCH] (8/8) Kill brlock
-References: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com.suse.lists.linux.kernel> <1047436263.20968.5.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Mar 2003 06:56:09 +0100
-In-Reply-To: Alan Cox's message of "12 Mar 2003 02:27:44 +0100"
-Message-ID: <p73smtt3z7q.fsf@amdsimf.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S263058AbTCLGDk>; Wed, 12 Mar 2003 01:03:40 -0500
+Received: from almesberger.net ([63.105.73.239]:10000 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S263053AbTCLGDh>; Wed, 12 Mar 2003 01:03:37 -0500
+Date: Wed, 12 Mar 2003 03:14:08 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030312031407.W2791@almesberger.net>
+References: <200303020011.QAA13450@adam.yggdrasil.com> <20030311184043.GA24925@renegade> <22230000.1047408397@flay> <20030311192639.E72163C5BE@mx01.nexgo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030311192639.E72163C5BE@mx01.nexgo.de>; from phillips@arcor.de on Tue, Mar 11, 2003 at 08:30:26PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Daniel Phillips wrote:
+> Coincidently, I was having a little think about that exact thing earlier 
+> today.  Suppose we call the process of turning an exact delta into a 
+> delta-with-context, "softening".
 
-> If Linus is scared ;) then throw them at me for -ac by all means. Anyone
-> running -ac IDE test sets is brave enough to run rcu network code 8)
+Why not just make all deltas "soft" and just ignore the context in
+cases when you're absolutely sure you can ? (Provided that such
+cases exist and aren't trivial.)
 
-It's unlikely to cause problems, unless you start/stop tcpdump all day.
+> A soft changeset can be carried forward in the database automatically as long 
+> as there are no conflicts
 
-Protocol addition/deletion is really rare.
+You probably also want to be able to apply them to different
+views, e.g. if I fix X, I may send it off to integration, and
+also apply it independently to my projects Y and Z. When X gets
+merged into whatever I consider my "mainstream" (again, that's a
+local decision, e.g. it may be Linus' tree, plus net/* and anything
+related to changes in net/* from David Miller), I may want to get
+notified, e.g. if there's a conflict, but also such that I can drop
+that part from my fix (which may contain elements that I didn't
+push yet).
 
--Andi
+Not all of this needs to be known to the SCM if the right tagging
+tools are available to users. In fact, limiting the number of work
+flows inherently supported by the SCM would probably be a
+feature :-)
+
+> and generate a new soft changeset against some other version.  A name for the 
+> versioned soft changeset can be generated automatically, e.g.:
+> 
+>    changset.name-from.version-to.version.
+
+Hmm, I'd distinguish three elements in a change set's name:
+
+ - its history (i.e. all changesets applied to the file(s)
+   when the change set was created)
+ - a globally unique ID
+ - a human-readable title that doesn't need to be perfectly
+   unique
+
+I think, for simplicity, changesets should just carry their history
+with them. This can later be compressed, e.g. by omitting items
+before major convergence points (releases), by using automatically
+generated reference points, or simply by fetching additional
+information from a repository if needed (hairy).
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

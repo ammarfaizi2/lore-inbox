@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261861AbREXNAv>; Thu, 24 May 2001 09:00:51 -0400
+	id <S261894AbREXNSZ>; Thu, 24 May 2001 09:18:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261867AbREXNAl>; Thu, 24 May 2001 09:00:41 -0400
-Received: from picard.csihq.com ([204.17.222.1]:61577 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S261861AbREXNA2>;
-	Thu, 24 May 2001 09:00:28 -0400
-Message-ID: <030d01c0e451$a3680100$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: 2..4.5-pre5 bad fsck
-Date: Thu, 24 May 2001 09:01:25 -0400
+	id <S261912AbREXNSO>; Thu, 24 May 2001 09:18:14 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:43020 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S261894AbREXNSH>;
+	Thu, 24 May 2001 09:18:07 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: "peter k." <spam-goes-to-dev-null@gmx.net>
+Date: Thu, 24 May 2001 15:16:44 MET-1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: patch to put IDE drives in sleep-mode after an halt
+CC: linux-kernel@vger.kernel.org, adrianb@ntsp.nec.co.jp
+X-mailer: Pegasus Mail v3.40
+Message-ID: <3D34A656448@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.2 works fine.
-2.4.5-pre5 won't get past fsck of /dev/md0 -- locks up towards the end.  I'm
-running the same kernel on two other machine (different motherboards though)
-I'm using gcc-3.0 and glibc-2.2.3
+On 24 May 01 at 14:59, peter k. wrote:
 
-/dev/md0 is a dual-IDE RAID1 (2nd drive is currently disabled)
-md0 : active raid1 hda1[0]
-      39082560 blocks [2/1] [U_]
+> > auto-parking), and since all drives are voice coil drives, then they
+> > should auto-park. But i've had problems with some hard drives that were
+> > spinned down (when Win____ was shutdown)..  if i reset the PC (instead
+> > of turning it off), the hard drives wouldn't come back on so i'd have to
+> > do a full shutdown of the machine.
+> 
+> well, my new 40gb ones are auto-parking i think but all the other ones from
+> last year aren't
+> and older hardware (although 1 year isnt even old for a hd) should be
+> supported by the kernel, right?
+> plus, its really not difficult to implement spinning down the hds before
+> halt anyway and then the kernel
+> leaves the system as clean as it was before booting ;) !!
 
-Under 2.4.2 boot fsck ends
-/dev/md0 was not cleanly unmounted, check forced.
-/dev/md0: x/x files (x% non-contiguous), x/x blocks
+I'm using (at the end of /etc/init.d/halt):
 
-But under 2.4.5-pre5 it doesn't get past the first "check forced" message.
-It just locks up completely after it runs for a couple of minutes.
+cat /sbin/halt > /dev/null
+cat /bin/sleep > /dev/null
+hdparm -Y /dev/hdd
+hdparm -Y /dev/hdc
+hdparm -Y /dev/hdb
+hdparm -Y /dev/hda
+/bin/sleep 2
+/sbin/halt -d -f -i -p
 
-Motherboard is SuperMicro 370dl3
-Disk WDC WD400BB-00AUA1
-PCI Info:
-00:00.0 Host bridge: Relience Computer CNB20HE (rev 05)
-00:00.1 Host bridge: Relience Computer CNB20HE (rev 05)
-00:0f.1 IDE interface: Relience Computer: Unknown device 0211
+It works fine for me for years... I had to put sleep 2 here, as otherwise
+CDROM drive does not park its head correctly (as hdparm /dev/hdc causes
+ide-cd/cdrom to load - and this causes CDROM to spin up :-( )
+So I do not see any reason for doing HDD park by kernel...
+                                                 Best regards,
+                                                      Petr Vandrovec
+                                                      vandrove@vc.cvut.cz
 
-
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
-
+P.S.: AFAIK all IDE disks autopark. At least my 41MB KALOK from 1990
+did. Or at least tried...

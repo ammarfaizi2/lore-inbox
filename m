@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265341AbSJaSng>; Thu, 31 Oct 2002 13:43:36 -0500
+	id <S265329AbSJaSii>; Thu, 31 Oct 2002 13:38:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265342AbSJaSnf>; Thu, 31 Oct 2002 13:43:35 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8204 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265341AbSJaSnd>; Thu, 31 Oct 2002 13:43:33 -0500
-Date: Thu, 31 Oct 2002 10:49:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Jeff Garzik <jgarzik@pobox.com>, Dax Kelson <dax@gurulabs.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+	id <S265323AbSJaSid>; Thu, 31 Oct 2002 13:38:33 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:37510 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265322AbSJaSiR>; Thu, 31 Oct 2002 13:38:17 -0500
 Subject: Re: What's left over.
-In-Reply-To: <20021031181252.GB24027@tapu.f00f.org>
-Message-ID: <Pine.LNX.4.44.0210311040080.1526-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: shuey@purdue.edu
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+In-Reply-To: <20021031171334.GA22597@snerble.cc.purdue.edu>
+References: <Pine.LNX.4.44.0210302224180.20210-100000@nakedeye.aparity.com>
+	<Pine.LNX.4.44.0210310737170.2035-100000@home.transmeta.com> 
+	<20021031171334.GA22597@snerble.cc.purdue.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 31 Oct 2002 19:04:31 +0000
+Message-Id: <1036091071.8575.101.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-10-31 at 17:13, Michael Shuey wrote:
+> I'm a user, and I request that LKCD get merged into the kernel. :-)
+> Do you feel like donating a 700-port console server?  Right, so it's LKCD
+> for me then.
 
-On Thu, 31 Oct 2002, Chris Wedgwood wrote:
-> 
-> It's synchronous and assume everything is synchronous.  Lots of
-> hardware (most) doesn't work that way.
+Wouldn't you rather they neatly tftp'd dumps to a nominated central
+server which noticed the arrival, did the initial processing with a perl
+script and mailed you a summary ?
 
-Think of it another way: many users will likely _require_ atomic
-encryption / decryption (done in softirq contexts etc), and thus a 
-synchronous interface. Also, it simplifies the code and makes it more 
-efficient.
-
-Any hardware that needs to go off and think about how to encrypt something
-sounds like it's so slow as to be unusable. I suspect that anything that
-is over the PCI bus is already so slow (even if it adds no extra cycles of
-its own) that you're better off using the CPU for the encryption rather
-than some external hardware.
-
-In short, from what I can tell, there is no huge actual reason to ever
-allow a asynchronous interface. Such interfaces are likely fine for things
-like network cards that can do encryption on their own on outgoing or
-incoming packets, but that is not a general-purpose encryption engine, and
-would not merit being part of an encryption library anyway.
-
-[ Such a card is just a way to _avoid_ using the encryption library - the
-  same way we can avoid using the checksumming stuff for network cards 
-  that can do their own checksums ]
-
-We'll see. I'd rather have a simpler interface that works for all relevant
-cases today, and then if external crypto chips end up being common and
-sufficiently efficient, we can always re-consider. Are the DMA-over-PCI
-roundtrip (and resulting cache invalidations) overheads really worth the
-extra hardware?
-
-		Linus
 

@@ -1,91 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268686AbUIXWiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269024AbUIXWkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268686AbUIXWiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 18:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIXWiQ
+	id S269024AbUIXWkj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 18:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIXWkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 18:38:16 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:30661 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S268686AbUIXWiK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 18:38:10 -0400
-Date: Fri, 24 Sep 2004 22:38:08 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.9-rc2-mm3, irq 11: nobody cared!, Disabling IRQ #11
-To: linux-kernel@vger.kernel.org
-References: <20040924014643.484470b1.akpm@osdl.org>
-In-Reply-To: <20040924014643.484470b1.akpm@osdl.org> (from akpm@osdl.org on
-	Fri Sep 24 10:46:43 2004)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1096065488l.13335l.1l@werewolf.able.es>
+	Fri, 24 Sep 2004 18:40:39 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:33213 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269024AbUIXWkI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 18:40:08 -0400
+Message-ID: <4154A2F7.1050909@austin.ibm.com>
+Date: Fri, 24 Sep 2004 17:43:03 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH/RFC] Simplified Readahead
+References: <4152F46D.1060200@austin.ibm.com>	<20040923194216.1f2b7b05.akpm@osdl.org>	<41543FE2.5040807@austin.ibm.com> <20040924150523.4853465b.akpm@osdl.org>
+In-Reply-To: <20040924150523.4853465b.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-On 2004.09.24, Andrew Morton wrote:
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm3/
-> 
+>Steven Pratt <slpratt@austin.ibm.com> wrote:
+>  
+>
+>>>The advantage of the current page-at-a-time code is that the readahead code
+>>>behaves exactly the same, whether the application is doing 256 4k reads or
+>>>one 1M read.  Plus it fits the old pagefault requirement.
+>>> 
+>>>      
+>>>
+>>Yes, but it accomplishes this by possible making the 1M slower.  And I 
+>>must admit that I don't know what the "old pagefault requirement" is.  
+>>Is that something we still need to worry about?
+>>    
+>>
+>
+>The "old pagefault requirement": the code in there used to perform
+>readaround at pagefault time as well as readahead at read() time.  Hence it
+>had to work well for single-page requests.  That requirement isn't there
+>any more but some of the code to support it is still there, perhaps.
+>
+>  
+>
+>>>>1. pages already in cache
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>Yes, we need to handle this.  All pages in cache with lots of CPUs
+>>>hammering the same file is a common case.
+>>>
+>>>Maybe not so significant on small x86, but on large power4 with a higher
+>>>lock-versus-memcpy cost ratio, that extra locking will hurt.
+>>> 
+>>>      
+>>>
+>>Ok, we have some data from larger machines.  I will collect it all and 
+>>summarize separately.
+>>    
+>>
+>
+>SDET would be interesting, as well as explicit testing of lots of processes
+>reading the same fully-cached file.
+>  
+>
+Don't have SDET but we have been working on the multiple processes 
+reading same file case on a large(16way POWER4 with 128GB) machine.   We 
+had to apply some fdrcu patches to get past problems in fget_light which 
+were causing 80%spin on the file_lock.   We then end up with anout 45% 
+spin lock on mapping->tree_lock.   This is on vanilla rc2.  I know you 
+changed that to a rw lock in your tree and we nee to try that as well..  
+Data is not consistant enough to make any conclusions, but I don't see a 
+dramatic change by turning off readahead.  I need to do more testing on 
+this to get better results.
 
-I got this oops also, some time after normal boot:
+In any case I agree that we should deal with this case.
 
-Sep 24 12:58:38 nada kernel: irq 11: nobody cared!
-Sep 24 12:58:38 nada kernel:  [__report_bad_irq+36/144] __report_bad_irq+0x24/0x90
-Sep 24 12:58:38 nada kernel:  [<c0108514>] __report_bad_irq+0x24/0x90
-Sep 24 12:58:38 nada kernel:  [note_interrupt+146/352] note_interrupt+0x92/0x160
-Sep 24 12:58:38 nada kernel:  [<c0108782>] note_interrupt+0x92/0x160
-Sep 24 12:58:38 nada kernel:  [finish_task_switch+61/144] finish_task_switch+0x3d/0x90
-Sep 24 12:58:38 nada kernel:  [<c011983d>] finish_task_switch+0x3d/0x90
-Sep 24 12:58:38 nada kernel:  [do_IRQ+354/416] do_IRQ+0x162/0x1a0
-Sep 24 12:58:38 nada kernel:  [<c0108bc2>] do_IRQ+0x162/0x1a0
-Sep 24 12:58:38 nada kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Sep 24 12:58:38 nada kernel:  [<c01065dc>] common_interrupt+0x18/0x20
-Sep 24 12:58:38 nada kernel:  [default_idle+0/64] default_idle+0x0/0x40
-Sep 24 12:58:38 nada kernel:  [<c0103b40>] default_idle+0x0/0x40
-Sep 24 12:58:38 nada kernel:  [default_idle+44/64] default_idle+0x2c/0x40
-Sep 24 12:58:38 nada kernel:  [<c0103b6c>] default_idle+0x2c/0x40
-Sep 24 12:58:38 nada kernel:  [cpu_idle+52/80] cpu_idle+0x34/0x50
-Sep 24 12:58:38 nada kernel:  [<c0103bf4>] cpu_idle+0x34/0x50
-Sep 24 12:58:38 nada kernel: handlers:
-Sep 24 12:58:38 nada kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
-Sep 24 12:58:38 nada kernel: [<c0335680>] (usb_hcd_irq+0x0/0x70)
-Sep 24 12:58:38 nada kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
-Sep 24 12:58:38 nada kernel: [<c0335680>] (usb_hcd_irq+0x0/0x70)
-Sep 24 12:58:38 nada kernel: [usb_hcd_irq+0/112] (usb_hcd_irq+0x0/0x70)
-Sep 24 12:58:38 nada kernel: [<c0335680>] (usb_hcd_irq+0x0/0x70)
-Sep 24 12:58:38 nada kernel: Disabling IRQ #11
+>>>>cache we should just immediately turn off readahead.  What is this 
+>>>>trigger point?  4 I/Os in a row? 400?
+>>>>   
+>>>>        
+>>>>
+>>>Hard call.
+>>> 
+>>>      
+>>>
+>>I know, but we have to come up with something if we really want to avoid 
+>>the double lookup.
+>>    
+>>
+>
+>As long as readahead gets fully disabled at some stage, we should be OK.
+>  
+>
+I am attaching a reworked patch which now shuts off readahead if 10M 
+(arbitrary value for now) of I/O comes from page cache in a row.  Any 
+actual I/O will restart readahead.
 
-System:
+>We should probably compare i_size with mapping->nrpages at open() time,
+>too.  No point in enabling readahead if it's all cached.  But doing that
+>would make performance testing harder, so do it later.
+>  
+>
+Ok. Sounds good.
 
-nada:~# lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266] (rev 01)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP]
-00:07.0 RAID bus controller: Promise Technology, Inc. PDC20319 (FastTrak S150 TX4) (rev 02)
-00:08.0 RAID bus controller: Promise Technology, Inc. PDC20319 (FastTrak S150 TX4) (rev 02)
-00:0b.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-00:0c.0 RAID bus controller: Promise Technology, Inc. PDC20267 (FastTrak100/Ultra100) (rev 02)
-00:0d.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-00:11.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
-00:11.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
-00:11.4 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 1b)
-00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 62)
-01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
+>  
+>
+>>>I do think we should skip the I/O for POSIX_FADV_WILLNEED against a
+>>>congested queue.  I can't immediately think of a good reason for skipping
+>>>the I/O for normal readahead.
+>>> 
+>>>
+>>>      
+>>>
+>>Can you expand on the POSIX_FADV_WILLNEED.
+>>    
+>>
+>
+>It's an application-specified readahead hint.  It should ideally be
+>asynchronous so the application can get some I/O underway while it's
+>crunching on something else.  If the queue is contested then the
+>application will accidentally block when launching the readahead, which
+>kinda defeats the purpose.
+>  
+>
+Well if the app really does this asynchronously, does it matter that we 
+block?
 
-If any more info is needed, just ask for it.
+>Yes, the application will block when it does the subsequent read() anyway,
+>but applications expect to block in read().  Seems saner this way.
+>
+Just to be sure I have this correct, the readahead code will be invoked 
+once on the POSIX_FADV_WILLNEED request, but this looks mostly like a 
+regular read, and then again for the same pages on a real read?
 
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc2-mm3 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
+Steve
 
 

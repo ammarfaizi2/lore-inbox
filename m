@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVCWAyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVCWAxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbVCWAyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 19:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVCWAyP
+	id S262676AbVCWAxn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 19:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbVCWAxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 19:54:15 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:18322 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262674AbVCWAxp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 19:53:45 -0500
-Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050323013729.0f5cd319.diegocg@gmail.com>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz>
-	 <20050314083717.GA19337@elf.ucw.cz>
-	 <200503140855.18446.jbarnes@engr.sgi.com>
-	 <20050314191230.3eb09c37.diegocg@gmail.com>
-	 <1110827273.14842.3.camel@mindpipe>
-	 <20050323013729.0f5cd319.diegocg@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 22 Mar 2005 19:53:37 -0500
-Message-Id: <1111539217.4691.57.camel@mindpipe>
+	Tue, 22 Mar 2005 19:53:42 -0500
+Received: from ozlabs.org ([203.10.76.45]:10384 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262675AbVCWAx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 19:53:28 -0500
+Date: Wed, 23 Mar 2005 11:53:05 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: [PATCH 2.6.11] AIO panic on PPC64 caused by is_hugepage_only_range()
+Message-ID: <20050323005305.GB29765@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Daniel McNeil <daniel@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	"linuxppc64-dev@ozlabs.org" <linuxppc64-dev@ozlabs.org>,
+	"linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	"linux-aio@kvack.org" <linux-aio@kvack.org>
+References: <1111108348.31932.43.camel@ibm-c.pdx.osdl.net> <20050321184113.0f5e2f6b.akpm@osdl.org> <1111519474.15956.40.camel@ibm-c.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111519474.15956.40.camel@ibm-c.pdx.osdl.net>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 01:37 +0100, Diego Calleja wrote:
-> El Mon, 14 Mar 2005 14:07:53 -0500,
-> Lee Revell <rlrevell@joe-job.com> escribió:
+On Tue, Mar 22, 2005 at 11:24:34AM -0800, Daniel McNeil wrote:
+> On Mon, 2005-03-21 at 18:41, Andrew Morton wrote:
+> > Did we fix this yet?
+> > 
 > 
-> > I'm really not trolling, but I suspect if we made the boot process less
-> > verbose, people would start to wonder more about why Linux takes so much
-> > longer than XP to boot.
+> Here's a patch against 2.6.11 that fixes the problem.
+> It changes is_hugepage_only_range() to take mm as an argument
+> and then changes the places that call it to pass 'mm'.
+> It includes a change for ia64 which has not been compiled.
+> It applies against the latest bk with some offset.
 > 
-> By the way, Microsoft seems to be claiming that boot time will be reduced to the half
-> with Longhorn. While we already know how ms marketing team works, 50% looks
-> like a lot. Is there a good place to discuss what could be done in the linuxland to
-> improve things? It doesn't looks like a couple of optimizations will be enought...
-> 
+> Signed-off-by: Daniel McNeil <daniel@osdl.org>
 
-Yup, many people on this list seem unaware but read the XP white papers,
-then try booting it side by side with Linux.  They put some serious,
-serious engineering into that problem and came out with a big win.
-Screw Longhorn, we need improve by 50% to catch up to what they can do
-NOW.
+Looks good to me.
 
-The solution is fairly well known.  Rather than treating the zillions of
-disk seeks during the boot process as random unconnected events, you
-analyze the I/O done during the boot process, then lay out those disk
-blocks optimally based on this information so on the next boot you just
-do one big streaming read.  The patent side has been discussed and there
-seems to be plenty of prior art.
+Acked-by: David Gibson <dwg@au1.ibm.com>
 
-Someone needs to just do it.  All the required information is right
-there.
-
-Lee
-
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/people/dgibson

@@ -1,78 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264333AbTLKBjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 20:39:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264303AbTLKBjM
+	id S264283AbTLKBaP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 20:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbTLKBaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 20:39:12 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:32653 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S264347AbTLKBh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 20:37:59 -0500
-Date: Wed, 10 Dec 2003 20:24:58 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Larry McVoy <lm@work.bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-       Kendall Bennett <KendallB@scitechsoft.com>
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031211012458.GA27531@pimlott.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Larry McVoy <lm@work.bitmover.com>,
-	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
-	Kendall Bennett <KendallB@scitechsoft.com>
-References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org> <20031210175614.GH6896@work.bitmover.com>
+	Wed, 10 Dec 2003 20:30:15 -0500
+Received: from mail.kroah.org ([65.200.24.183]:53455 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264283AbTLKBaH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 20:30:07 -0500
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1071106147425@kroah.com>
+Subject: Re: [PATCH] USB Fixes for 2.6.0-test11
+In-Reply-To: <1071106147533@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 10 Dec 2003 17:29:07 -0800
+Content-Transfer-Encoding: 7BIT
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031210175614.GH6896@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
-From: Andrew Pimlott <andrew@pimlott.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 09:56:14AM -0800, Larry McVoy wrote:
-> On Wed, Dec 10, 2003 at 09:10:18AM -0800, Linus Torvalds wrote:
-> > In short, your honour, this extra chapter without any meaning on its own
-> > is a derived work of the book.
-> 
-> I see.  And your argument, had it prevailed 5 years ago, would have
-> invalidated the following, would it not?  The following from one of the
-> Microsoft lawsuits.
-> 
-> >From http://ecfp.cadc.uscourts.gov/MS-Docs/1636/0.pdf
-> 
->     Substituting an alternative module for one supplied by Microsoft
->     may not violate copyright law, and certainly not because of any
->     "integrity of the work" argument. The United States recognizes "moral
->     rights" of attribution and integrity only for works of visual art
->     in limited editions of 200 or fewer copies. (See 17 U.S.C. 106A
->     and the definition of "work of visual art" in 17 U.S.C. 101.) A
->     bookstore can replace the last chapter of a mystery novel without
->     infringing its copyright, as long as they are not reprinting the
->     other chapters but are simply removing the last chapter and replacing
->     it with an alternative one, but must not pass the book off as the
->     original. Having a copyright in a work does not give that copyright
->     owner unlimited freedom in the terms he can impose.
+ChangeSet 1.1524, 2003/12/09 17:40:44-08:00, herbert@gondor.apana.org.au
 
-You probably should have mentioned that this statement was made not
-by a judge or a lawyer, but by a CS professor in an amicus curiae
-brief.  And the implication that this argument had much to do with
-the outcome of the Microsoft case--which was about antitrust and
-bundling, not copyrights--is disingenuous.
+[PATCH] USB: Fix connect/disconnect race
 
-> Start to see why I think what you are doing is dangerous and will backfire?
+This patch was integrated by you in 2.4 six months ago.  Unfortunately
+it never got into 2.5.  Without it you can end up with crashes such
+as http://bugs.debian.org/218670
 
-You are extrapolating way too far.  There are so many differences
-between the Linux-module issue and the vague doomsday scenario you
-are trying to conjure.  Linus explained one (coherence and stability
-of the API/ABI), and I think it could be easily be cast as a test
-that a court could apply.
 
-Maybe you can describe a specific case in which Linus's argument
-backfires?  I'm not saying you have no point at all, just that I
-don't think this one thing is holding back the flood-waters.
+ drivers/usb/core/hub.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Andrew
+
+diff -Nru a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+--- a/drivers/usb/core/hub.c	Wed Dec 10 16:47:01 2003
++++ b/drivers/usb/core/hub.c	Wed Dec 10 16:47:01 2003
+@@ -929,7 +929,6 @@
+ 			break;
+ 		}
+ 
+-		hub->children[port] = dev;
+ 		dev->state = USB_STATE_POWERED;
+ 
+ 		/* Reset the device, and detect its speed */
+@@ -982,8 +981,10 @@
+ 		dev->dev.parent = dev->parent->dev.parent->parent;
+ 
+ 		/* Run it through the hoops (find a driver, etc) */
+-		if (!usb_new_device(dev, &hub->dev))
++		if (!usb_new_device(dev, &hub->dev)) {
++			hub->children[port] = dev;
+ 			goto done;
++		}
+ 
+ 		/* Free the configuration if there was an error */
+ 		usb_put_dev(dev);
+@@ -992,7 +993,6 @@
+ 		delay = HUB_LONG_RESET_TIME;
+ 	}
+ 
+-	hub->children[port] = NULL;
+ 	hub_port_disable(hub, port);
+ done:
+ 	up(&usb_address0_sem);
+

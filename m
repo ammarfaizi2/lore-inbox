@@ -1,81 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268803AbUIXPQw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268832AbUIXPQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268803AbUIXPQw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 11:16:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUIXPNq
+	id S268832AbUIXPQv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 11:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268819AbUIXPNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 11:13:46 -0400
-Received: from spirit.analogic.com ([208.224.221.4]:32519 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S268803AbUIXPHA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 11:07:00 -0400
-From: "Johnson, Richard" <rjohnson@analogic.com>
-Reply-To: "Johnson, Richard" <rjohnson@analogic.com>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 24 Sep 2004 11:10:23 -0400 (EDT)
-Subject: Migration to linux-2.6.8 from linux-2.4.26
-Message-ID: <Pine.LNX.4.53.0409241038250.24372@quark.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 24 Sep 2004 11:13:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:54913 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268851AbUIXPH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 11:07:27 -0400
+Date: Fri, 24 Sep 2004 07:55:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Jan Dittmer <jdittmer@ppp0.net>, linux-kernel@vger.kernel.org,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: Is there a user space pci rescan method?
+Message-ID: <20040924145542.GA17147@kroah.com>
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241412.45204@bilbo.math.uni-mannheim.de> <41541009.9080206@ppp0.net> <200409241432.06748@bilbo.math.uni-mannheim.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409241432.06748@bilbo.math.uni-mannheim.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 24, 2004 at 02:32:06PM +0200, Rolf Eike Beer wrote:
+> Am Freitag, 24. September 2004 14:16 schrieben Sie:
+> > Rolf Eike Beer wrote:
+> > > Normally you will just remove and bring back one or two cards in the
+> > > system (e.g. your NIC or sound card, depending on xmms or irc being on
+> > > top of your priority list *g*). So from my point of view it's a good idea
+> > > to keep the slot dirs on remove so you can just go back in your command
+> > > history and replace 0 with 1 to get the device back. I don't see why bus
+> > > structure or whatever may ever change so rescanning the whole bus is IMHO
+> > > a bit overkill.
+> >
+> > My point was, I load dummyphp with showunused=0 and only get dirs for the
+> > slots with devices in them. Now I decide to put a network card (or whatever
+> > I have to spare) in an empty slot, hope that the system doesn't reboot
+> > immediately, and voila I don't have any /sys/bus/pci/slots dir to enable
+> > the slot and have to reboot nevertheless. Or does the pci system a rescan
+> > if I reinsert the module?
+> 
+> In this case you have to "rmmod dummyphp; modprobe dummyphp showunused=1" to 
+> get all slots and try to enable the device. We have tested it once with a 
+> special PCI debugging board where we can electrically disable the PCI bus so 
+> we don't kill our hardware. The problem was that on reenabling a interrupt 
+> storm killed the machine, I don't remember the exact problem. IIRC it looked 
+> like the kernel found the device but the PCI bridge got confused by the new 
+> device (or something like this). I don't know if there is a way to survive 
+> this situation as the bridges in "normal" hardware are not hotplug aware. 
+> Greg?
 
-(1) I compiled the new module-init-tools-3.1-pre5.tar.gz. It
-claimed to be backward-compatible. After installing it, it
-complained about something then seg-faulted. Nevertheless
-`insmod` seemed to work so I proceeded.
+Hm, don't know, but that's the whole reason people want this, so it
+should work :)
 
-(2) `make oldconfig` didn't work after copying over the
-linux-2.4.26 .config file. This meant that I had to answer
-hundreds of questions.
+The main reason I don't like showing _all_ possible pci devices like
+dummyphp does is that it doesn't handle adding a new device (like you
+just said), and the fact that you forgot to handle pci domains.  If you
+add support for PCI domains, then the list of files in that directory
+will pretty much be unusable.
 
-(3) `make bzImage` required that I install a new 'C' compiler.
-This took several hours.
+Please just add the "rescan" support to fakephp, and everyone will be
+happy...
 
-(4) Eventually "bzImage" got made. I tried `make modules`.
-This took over 2 hours, went through everything several times.
-This is a 2.8 GHz system. It usually takes about 6 minutes
-to compile the kernel and all the modules. There is something
-very wrong with the new compile method when it takes 120
-times longer to compile than previously.
+thanks,
 
-(5) `make modules_install` and `make install` seemed to work.
-
-(6)  The system would boot, but not find a file-system to mount.
-
-(7)  Tried to reboot using previous kernel. It failed to
-load the required drivers for my SCSI disks so I have no
-root file-system there.
-
-(8)  I am currently unable to use my main system. I will have
-mount my main SCSI drive on this system, and replace the
-module-init-tools with the previous modutils. This should
-allow me to get "back" to my previous mounted root.
-
-So much for "backwards compatibility".
-
-The system that I use for development is not some "standard
-distribution". Everything that runs on that system was built
-on that system. That way, any embedded software developed
-on that system is not likely to contain Trojan horses.
-
-The latest module-init tools apparently assumes something
-about the system, that it's some version of Red-Hat, perhaps?
-
-Or some kernel functionality, necessary for a static version
-of insmod to work, was removed!
-
-In any event, it will not allow modules to be loaded from initrd.
-The Red-Hat 'nash' that contains its own loader is not used.
-Instead, the original ash.static plus a static version of
-insmod is used.
-
-As one of the `anonymous` developers who wrote the first module
-code before taken over by Bas Laarhoven and Bjorn, I'm somewhat
-pissed.
-
-Richard B. Johnson
-Project Engineer
-Analogic Corporation
-Penguin : Linux version 2.2.15 on an i586 machine (330.14 BogoMips).
+greg k-h

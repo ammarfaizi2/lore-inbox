@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUA0TT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 14:19:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265755AbUA0TQl
+	id S265646AbUA0TdS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 14:33:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265657AbUA0Tc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 14:16:41 -0500
-Received: from sigint.cs.purdue.edu ([128.10.2.82]:53132 "EHLO
-	sigint.cs.purdue.edu") by vger.kernel.org with ESMTP
-	id S265751AbUA0TPA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 14:15:00 -0500
-Date: Tue, 27 Jan 2004 14:14:58 -0500
-From: linux@sigint.cs.purdue.edu
-To: "Joseph D. Wagner" <theman@josephdwagner.info>
-Cc: Andi Kleen <ak@suse.de>, Rui Saraiva <rmps@joel.ist.utl.pt>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: Trailing blanks in source files
-Message-ID: <20040127191458.GA9595@sigint.cs.purdue.edu>
-References: <Pine.LNX.4.58.0401271544120.27260@joel.ist.utl.pt.suse.lists.linux.kernel> <p73bropfdgl.fsf@nielsen.suse.de> <200401271251.34926.theman@josephdwagner.info>
+	Tue, 27 Jan 2004 14:32:56 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9223 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265648AbUA0Tcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 14:32:39 -0500
+Date: Tue, 27 Jan 2004 19:32:28 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core
+Message-ID: <20040127193227.A30224@flint.arm.linux.org.uk>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Alan Stern <stern@rowland.harvard.edu>, Greg KH <greg@kroah.com>,
+	Kernel development list <linux-kernel@vger.kernel.org>,
+	Patrick Mochel <mochel@digitalimplant.org>
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org> <Pine.LNX.4.58.0401251054340.18932@home.osdl.org> <Pine.LNX.4.58.0401261435160.7855@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401271251.34926.theman@josephdwagner.info>
-X-Disclaimer: Any similarity to an opinion of Purdue is purely coincidental
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0401261435160.7855@serv>; from zippel@linux-m68k.org on Mon, Jan 26, 2004 at 05:22:41PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 12:51:34PM -0600, Joseph D. Wagner wrote:
-> > It seems that many files [1] in the Linux source have lines with
-> > trailing blank (space and tab) characters and some even have formfeed
-> > characters. Obviously these blank characters aren't necessary.
+On Mon, Jan 26, 2004 at 05:22:41PM +0100, Roman Zippel wrote:
+> For example pci drivers currently do something like:
 > 
-> Actually, they are necessary.
+> int init()
+> {
+> 	if (pci_register_driver(drv) < 0)
+> 		pci_unregister_driver(drv);
+> }
 > 
-> http://www.gnu.org/prep/standards_23.html
-> http://www.gnu.org/prep/standards_24.html
+> void exit()
+> {
+> 	pci_unregister_driver(drv);
+> }
 
->From Documentation/CodingStyle:
+I'd like to take this opportunity to mention that the above is buggy
+as written.  If pci_register_driver() fails, the device_driver structure
+is not registered, and therefore pci_unregister_driver() may cause
+Bad Things(tm) to happen.
 
-| First off, I'd suggest printing out a copy of the GNU coding standards,
-| and NOT read it.  Burn them, it's a great symbolic gesture. 
+(and yes, pci_module_init() is buggy as it currently stands, and I
+believe GregKH has a patch in his queue from the stability freeze
+from yours truely to fix it.)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,58 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTDPQNn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTDPQNn
+	id S264476AbTDPQPt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTDPQPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:13:43 -0400
-Received: from mcomail01.maxtor.com ([134.6.76.15]:19210 "EHLO
-	mcomail01.maxtor.com") by vger.kernel.org with ESMTP
-	id S264472AbTDPQNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:13:42 -0400
-Message-ID: <785F348679A4D5119A0C009027DE33C102E0D12A@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@maxtor.com>
-To: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'hps@intermeta.de'" <hps@intermeta.de>, linux-kernel@vger.kernel.org
-Subject: RE: [2.4.21-pre7-ac1] IDE Warning when booting
-Date: Wed, 16 Apr 2003 10:25:18 -0600
+	Wed, 16 Apr 2003 12:15:49 -0400
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1540
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S264476AbTDPQPq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:15:46 -0400
+Message-ID: <003b01c30435$27ac0ab0$030aa8c0@unknown>
+From: "Shawn Starr" <spstarr@sh0n.net>
+To: "Manfred Spraul" <manfred@colorfullife.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <3E8BCB3A.8080806@colorfullife.com>
+Subject: Re: 2.5.66-bk5 spinlock warnings/errors - Specifically ide-io:109 spinlock notice
+Date: Wed, 16 Apr 2003 12:28:00 -0400
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Was thinking...
+I'm going to apply this and see what happens, unless it was already added to
+.67-bk latest?
 
-Do you know what attempted multi count was as an argument to SET MULTIPLE
-MODE?
+Shawn.
 
-The specification says powers of 2 from 2 to 128 are all valid, however,
-most drives I have looked at only support <= 16.  This has some sort of
-historical oem reason for being the max and I haven't worked here long
-enough to know the 'why'.
+----- Original Message -----
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Shawn Starr" <spstarr@sh0n.net>
+Cc: "Narayan Desai" <desai@mcs.anl.gov>; <linux-kernel@vger.kernel.org>
+Sent: Thursday, April 03, 2003 1:48 AM
+Subject: Re: 2.5.66-bk5 spinlock warnings/errors - Specifically ide-io:109
+spinlock notice
 
-However, the ID block also reports the maximum multiple count in word 47
-bits 7..0, so if that was non zero, the drive shouldn't abort it.
 
-The engineer sitting next to me (former quantum employee) is reasonably
-certain that the drive shouldn't be aborting that command.
+> Shawn wrote:
+>
+> >>List:     linux-kernel
+> >>Subject:  2.5.66-bk5 spinlock warnings/errors
+> >From:     Narayan Desai <desai () mcs ! anl ! gov>
+> >>Date:     2003-04-02 4:01:02
+> >
+> >>hda: dma_timer_expiry: dma status == 0x24
+> >>drivers/ide/ide-io.c:109: spin_lock(drivers/ide/ide.c:c037abe8) already
+> >>locked by drivers/ide/ide-io.c/948 drivers/ide/ide-io.c:990:
+> >>spin_unlock(drivers/ide/ide.c:c037abe8) not locked
+> >>hda: lost interrupt
+> >>hda: dma_intr: bad DMA status (dma_stat=30)
+> >>hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> >
+> >I had this problem last night while making a huge debian package (tar.bz2
+> >stage). It occured once.
+> >
+> >
+> The attached patch should fix the problem:
+> the dma_timer_expiry handler calls HWGROUP(drive)->handler in the wrong
+> context. Instead of calling ->handler directly, the ->expiry handler
+> must inform the caller that ->handler must be called, and then the
+> caller must do some setup before calling ->handler.
+>
+> --
+>     Manfred
+>
 
-It'd be interesting to look at the ID block and the task file for that
-command that the drive aborted.
 
---eric
+----------------------------------------------------------------------------
+----
 
-> > -----Original Message-----
-> > From: Henning P. Schmiedehausen [mailto:hps@intermeta.de]
-> > Sent: Wednesday, April 16, 2003 5:17 AM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: Re: [2.4.21-pre7-ac1] IDE Warning when booting
-> > 
-> > Alan did post an explanation for these (which I haven't read before
-> > posting this) that these are harmless. And yes, the 
-> task_no_data_intr
-> > vs. set_multmode makes all the difference. :-) Getting these quieted
-> > down would be nice, though.
-> > 
-> > 	Regards
-> > 		Henning
+
+> // $Header$
+> // Kernel Version:
+> //  VERSION = 2
+> //  PATCHLEVEL = 5
+> //  SUBLEVEL = 66
+> //  EXTRAVERSION =
+> --- 2.5/include/linux/ide.h 2003-03-25 17:49:52.000000000 +0100
+> +++ build-2.5/include/linux/ide.h 2003-03-30 10:04:08.000000000 +0200
+> @@ -1043,6 +1043,8 @@
+>  typedef ide_startstop_t (ide_handler_t)(ide_drive_t *);
+>  typedef ide_startstop_t (ide_post_handler_t)(ide_drive_t *);
+>  typedef int (ide_expiry_t)(ide_drive_t *);
+> +#define EXPIRY_ABORT (0)
+> +#define EXPIRY_CALLHANDLER (-1)
+>
+>  typedef struct hwgroup_s {
+>   /* irq handler, if active */
+> --- 2.5/drivers/ide/ide-io.c 2003-03-25 17:49:40.000000000 +0100
+> +++ build-2.5/drivers/ide/ide-io.c 2003-03-30 10:05:28.000000000 +0200
+> @@ -973,7 +973,7 @@
+>   }
+>   if ((expiry = hwgroup->expiry) != NULL) {
+>   /* continue */
+> - if ((wait = expiry(drive)) != 0) {
+> + if ((wait = expiry(drive)) > 0) {
+>   /* reset timer */
+>   hwgroup->timer.expires  = jiffies + wait;
+>   add_timer(&hwgroup->timer);
+> @@ -998,7 +998,7 @@
+>   /* local CPU only,
+>   * as if we were handling an interrupt */
+>   local_irq_disable();
+> - if (hwgroup->poll_timeout != 0) {
+> + if (hwgroup->poll_timeout != 0 || wait == EXPIRY_CALLHANDLER) {
+>   startstop = handler(drive);
+>   } else if (drive_is_ready(drive)) {
+>   if (drive->waiting_for_dma)
+> --- 2.5/drivers/ide/ide-dma.c 2003-03-25 17:49:40.000000000 +0100
+> +++ build-2.5/drivers/ide/ide-dma.c 2003-03-30 10:05:54.000000000 +0200
+> @@ -483,9 +483,9 @@
+>   return WAIT_CMD;
+>
+>   if (dma_stat & 4) /* Got an Interrupt */
+> - HWGROUP(drive)->handler(drive);
+> + return EXPIRY_CALLHANDLER;
+>
+> - return 0;
+> + return EXPIRY_ABORT;
+>  }
+>
+>  /**
+>
+

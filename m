@@ -1,63 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVAJWIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVAJWGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbVAJWIa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 17:08:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVAJWGh
+	id S262704AbVAJWGX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 17:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVAJV7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 17:06:37 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:12562 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262724AbVAJWEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 17:04:34 -0500
-Date: Mon, 10 Jan 2005 23:04:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stephen_pollei@comcast.net, rmk+lkml@arm.linux.org.uk
-Subject: Re: [2.6 patch] remove SPF-using wbsd lists from MAINTAINERS
-Message-ID: <20050110220426.GF2903@stusta.de>
-References: <20050110184307.GB2903@stusta.de> <1105382033.12054.90.camel@localhost.localdomain> <41E2F1BD.1020407@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E2F1BD.1020407@drzeus.cx>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 10 Jan 2005 16:59:09 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:26002 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262703AbVAJVqL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 16:46:11 -0500
+Date: Mon, 10 Jan 2005 22:45:41 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Greg Ungerer <gerg@snapgear.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       uClinux list <uclinux-dev@uclinux.org>
+Subject: Re: [PATCH] m68knommu: cache init code for ColdFire CPU's
+In-Reply-To: <200501101711.j0AHB8H5005532@hera.kernel.org>
+Message-ID: <Pine.GSO.4.61.0501102244070.1908@waterleaf.sonytel.be>
+References: <200501101711.j0AHB8H5005532@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 10:21:01PM +0100, Pierre Ossman wrote:
+On Mon, 10 Jan 2005, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2275, 2005/01/10 07:57:44-08:00, gerg@snapgear.com
 > 
-> I think I've fixed the problem now. It wasn't that there were published 
-> records for stusta.de, the problem was that the mail server couldn't 
-> resolve your domain. For some reason everything from the DNS I'm using 
-> to your DNS gets dropped. The mail server takes the paranoid route and 
-> assumes the worst when it cannot contact dns servers (that's why you got 
-> a 4xx, not a 5xx). I've now changed DNS which will hopefully solve the 
-> issue.
+> 	[PATCH] m68knommu: cache init code for ColdFire CPU's
+> 	
+> 	Cache initialization code for the ColdFire CPU's. They are not
+> 	all identical. This code is used as part of the common head
+> 	start code for all ColdFire platforms.
+> 	
+> 	Signed-off-by: Greg Ungerer <gerg@snapgear.com>
+> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+> 
+> 
+>  mcfcache.h |  125 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 125 insertions(+)
+> 
+> 
+> diff -Nru a/include/asm-m68knommu/mcfcache.h b/include/asm-m68knommu/mcfcache.h
+> --- /dev/null	Wed Dec 31 16:00:00 196900
+> +++ b/include/asm-m68knommu/mcfcache.h	2005-01-10 09:11:23 -08:00
 
-Which DNS server du you call "your DNS"?
+> + *	Everything from a small linstruction only cache, to configurable
+                                ^^^^^^^^^^^^
+				instruction
 
-> As for dropping the mailing list out of MAINTAINERS then I'd prefer you 
-> didn't (of course). But I will not remove the filters on the servers 
-> since they remove a lot of spam. If that means it cannot be in 
-> MAINTAINERS, then so be it.
+> + *	Simple verion 2 core cache. These have instruction cache only,
+               ^^^^^^
+	       version
 
-I thought this was a wanted rejecting of my emails, and it's not so easy 
-to contact you if you drop my emails...
+> + *	Version 4 cores have a true hardvard style separate instruction
+                                    ^^^^^^^^
+				    harvard
 
-Simply consider my patch being void.
+Gr{oetje,eeting}s,
 
-> Rgds
-> Pierre
+						Geert
 
-cu
-Adrian
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

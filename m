@@ -1,81 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRJBVlO>; Tue, 2 Oct 2001 17:41:14 -0400
+	id <S276716AbRJBVsR>; Tue, 2 Oct 2001 17:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276710AbRJBVlE>; Tue, 2 Oct 2001 17:41:04 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:16654 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S276708AbRJBVkv>;
-	Tue, 2 Oct 2001 17:40:51 -0400
-Date: Tue, 2 Oct 2001 23:41:15 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: System reset on Kernel 2.4.10
-Message-ID: <20011002234115.A1891@vana.vc.cvut.cz>
-In-Reply-To: <527872464EC@vcnet.vc.cvut.cz>
+	id <S276717AbRJBVr6>; Tue, 2 Oct 2001 17:47:58 -0400
+Received: from yoda.planetinternet.be ([195.95.30.146]:27151 "EHLO
+	yoda.planetinternet.be") by vger.kernel.org with ESMTP
+	id <S276716AbRJBVrs>; Tue, 2 Oct 2001 17:47:48 -0400
+Date: Tue, 2 Oct 2001 23:47:56 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: Dax Kelson <dax@gurulabs.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ECN now on "Standards Track" RFC 3168
+Message-ID: <20011002234756.A968@ping.be>
+In-Reply-To: <qwwpu8bigoi.fsf@decibel.fi.muni.cz> <Pine.LNX.4.33.0110021321390.27163-100000@mail.gurulabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <527872464EC@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.3.22i
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <Pine.LNX.4.33.0110021321390.27163-100000@mail.gurulabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 02, 2001 at 11:02:28PM +0000, Petr Vandrovec wrote:
-> On  2 Oct 01 at 23:52, VDA wrote:
-> > V> Straced vmlinux does not reboot.
-> > V> Kernel: 2.4.10+ext3+preempt
-> > 
-> > Well... sometimes it reboots too.
-> > Once it rebooted ~10 mins after strace (system was at zero load).
-> > Also it rebooted after two strace's in succession.
+On Tue, Oct 02, 2001 at 01:25:11PM -0600, Dax Kelson wrote:
 > 
-> Look at fs/binfmt_elf.c, at line 642 (in -ac2). There is
+> http://www.faqs.org/rfcs/rfc3168.html
 > 
-> error = elf_map(....)
-> 
-> but nobody bothers with checking error value, it even tries it
-> to use as an offset if stars are in wrong constellation.
-> If you could add these lines below the call:
-> 
-> if ((unsigned long)error >= (unsigned long)(-256)) {
->   set_fs(old_fs);
->   printk(KERN_DEBUG "Something went wrong with elf_map()\n");
->   kfree(elf_phdata);
->   send_sig(SIGSEGV, current, 0);
->   return 0;
-> }
-> 
-> and then report results...
+> Firewall/Loadbalancing vendors and websites can no longer play the "we
+> don't support experimental protocols" card.
 
-Well, I was not able to trigger reboot with unpatched kernel. With
-patched one behavior looks same to me, except that elf_map went wrong
-is printed by kernel.
-
-I was not able to find where problem could be with unpatched
-kernel, but arguments passed to do_brk(), set into mm->start_brk, 
-{start,end}_code and so on looks very suspicious... But as on my 
-system it does not crash neither with nor without patch below, I 
-leave answer on someone else.
-
-Btw, my system is 2.4.10-ac2, SMP PIII, compiled with Debian 2.95.4.
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+Is there some site I can point people to with an overview of
+vendors and updates?
 
 
---- linux/fs/binfmt_elf.c.xx	Mon Oct  1 18:34:46 2001
-+++ linux/fs/binfmt_elf.c	Tue Oct  2 23:04:18 2001
-@@ -640,7 +640,13 @@
- 		}
- 
- 		error = elf_map(bprm->file, load_bias + vaddr, elf_ppnt, elf_prot, elf_flags);
--
-+		if ((unsigned long)error >= (unsigned long)(-256)) {
-+			set_fs(old_fs);
-+			printk(KERN_DEBUG "elf_map went wrong\n");
-+			kfree(elf_phdata);
-+			send_sig(SIGSEGV, current, 0);
-+			return 0;
-+		}
- 		if (!load_addr_set) {
- 			load_addr_set = 1;
- 			load_addr = (elf_ppnt->p_vaddr - elf_ppnt->p_offset);
+Kurt
+

@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312757AbSCYWiC>; Mon, 25 Mar 2002 17:38:02 -0500
+	id <S312769AbSCYWjC>; Mon, 25 Mar 2002 17:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312769AbSCYWhx>; Mon, 25 Mar 2002 17:37:53 -0500
-Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:57579 "HELO
-	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
-	id <S312757AbSCYWhi>; Mon, 25 Mar 2002 17:37:38 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: SSSCA Hits the Senate
-In-Reply-To: <E16pZ2V-00016E-00@the-village.bc.nu>
-	<000701c1d434$92828620$0100007f@localdomain.wni.com.wirelessnetworksinc.com>
-From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
-Date: Mon, 25 Mar 2002 23:35:00 +0100
-Message-ID: <87vgbknunf.fsf@CERT.Uni-Stuttgart.DE>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
+	id <S312798AbSCYWiw>; Mon, 25 Mar 2002 17:38:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25869 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312797AbSCYWid>; Mon, 25 Mar 2002 17:38:33 -0500
+Subject: Re: Problems with booting from SX6000
+To: kjetiln@kvarteret.org (=?iso-8859-1?Q?Kjetil_Nyg=E5rd?=)
+Date: Mon, 25 Mar 2002 22:54:33 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20020325211541.A30644@kvarteret.org> from "=?iso-8859-1?Q?Kjetil_Nyg=E5rd?=" at Mar 25, 2002 09:15:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16pdMH-0001nv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Herman Oosthuysen" <Herman@WirelessNetworksInc.com> writes:
+> I had the correct option for mounting (in grub):
+> 	kernel <some kernel> ro root=/dev/i2o/hda6
 
-> The bill says that the protection scheme must be open source, so no
-> M$ tax.
-
-Source code for MP3 encoders has been available from the beginning,
-too, IIRC even from ISO.
-
--- 
-Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
-University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+That won't work. Grub/boot parser don't know /dev/i2o/hda6. Try 
+root=hexvalue

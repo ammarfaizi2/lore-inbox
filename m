@@ -1,208 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261357AbSJLUWx>; Sat, 12 Oct 2002 16:22:53 -0400
+	id <S261347AbSJLUUy>; Sat, 12 Oct 2002 16:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261358AbSJLUWx>; Sat, 12 Oct 2002 16:22:53 -0400
-Received: from mxall.mxgrp.airmail.net ([209.196.77.108]:48658 "EHLO
-	mx11.airmail.net") by vger.kernel.org with ESMTP id <S261357AbSJLUWt>;
-	Sat, 12 Oct 2002 16:22:49 -0400
-Date: Sat, 12 Oct 2002 15:28:28 -0500
-From: Art Haas <ahaas@neosoft.com>
+	id <S261348AbSJLUUy>; Sat, 12 Oct 2002 16:20:54 -0400
+Received: from web11908.mail.yahoo.com ([216.136.172.192]:35346 "HELO
+	web11908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S261347AbSJLUUx>; Sat, 12 Oct 2002 16:20:53 -0400
+Message-ID: <20021012202642.53345.qmail@web11908.mail.yahoo.com>
+Date: Sat, 12 Oct 2002 13:26:42 -0700 (PDT)
+From: Zapp Foster <zzaappp@yahoo.com>
+Subject: Performance improvement inquiry
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 designated initializers for arch/alpha
-Message-ID: <20021012202828.GE2682@debian>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="aM3YZ0Iwxop3KEKx"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a situation where speed of processing of
+network data through a LINUX cluster is extremely 
+crucial, and I need to shave 10 to 20 msec.
 
---aM3YZ0Iwxop3KEKx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+At the moment, I am running a stock REDHAT 7.1
+distro with the more obviously unused modules
+removed (like firewall services since the cluster 
+resides behind a firewalled router, etc).
 
-Hi.
+First question:  Will compiling a kernel with
+the network module resident (as opposed to a loadable
+module) make network performance any better?  From
+the reading, it appears that resident modules are only
+faster in initialization, not runtime.  I'm new to
+this, so please correct me if I'm wrong.
 
-There's no maintainer listed for the Alpha chips, so I'm sending
-this patch to the list in hopes it finds its way to the right
-hands.
+Second:  Threads.  Each server runs one to several
+custom services I've written, each of which performs a
+part of data processing on the incoming data.  Each
+service consists of eight to thirty threads.  The
+question:  Is there a way to tweak the kernel to
+improve thread performance?  I hear the 2.5 kernel 
+has thread performance improvements, but I don't want 
+to mess with it until I know more about it, or it 
+goes into release as v2.6.
 
-I'm attaching a patchset of 25 small patches for switching arch/alpha to
-use C99 named initializers. The uncompressed patch is about 60K.
+Third:  Shared libraries and task switching.  My fear
+is that overhead for kernel/OS and my custom services
+may be grinding away at the disk drive unnecessarily. 
+Using sar(1), I see that no swap space is being used,
+so I'm not hitting virtual memory.  But I wonder
+how likely it is that shared libs (used either by my
+services or the kernel/OS) are being re-read from
+disk?  I am hoping that the libs get cached and thus
+load from cache back into memory.
 
-Art Haas
+Fyi:  Each server contains a dual CPU and either 500MB
+of RAM or a full Gig.  All machines are networked with
+100baseT NICs.  Pings between each server is down
+around 10 to 30 usec, so I don't think our local
+backbone is a significant issue.
 
-Patched files:
-kernel/patches/sys_alcor.c
-kernel/patches/sys_sx164.c
-kernel/patches/irq_pyxis.c
-kernel/patches/irq.c
-kernel/patches/sys_miata.c
-kernel/patches/sys_jensen.c
-kernel/patches/irq_i8259.c
-kernel/patches/irq_srm.c
-kernel/patches/sys_titan.c
-kernel/patches/sys_takara.c
-kernel/patches/sys_dp264.c
-kernel/patches/sys_ruffian.c
-kernel/patches/irq_alpha.c
-kernel/patches/sys_eb64p.c
-kernel/patches/sys_mikasa.c
-kernel/patches/sys_wildfire.c
-kernel/patches/sys_eiger.c
-kernel/patches/sys_cabriolet.c
-kernel/patches/setup.c
-kernel/patches/sys_nautilus.c
-kernel/patches/sys_sio.c
-kernel/patches/sys_rx164.c
-kernel/patches/sys_sable.c
-kernel/patches/sys_noritake.c
-kernel/patches/sys_rawhide.c
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+The desired result is to shave off the full 20 msec. 
+If anyone knows about kernel futzing that will gain me
+some performance, I'd love to hear it!
 
---aM3YZ0Iwxop3KEKx
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="alpha.diff.gz"
-Content-Transfer-Encoding: base64
+Many thanks!
 
-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
-JOoAAA==
+-zap
 
---aM3YZ0Iwxop3KEKx--
+__________________________________________________
+Do you Yahoo!?
+Faith Hill - Exclusive Performances, Videos & More
+http://faith.yahoo.com

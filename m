@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135660AbRDXPA7>; Tue, 24 Apr 2001 11:00:59 -0400
+	id <S135673AbRDXPGJ>; Tue, 24 Apr 2001 11:06:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135669AbRDXPAu>; Tue, 24 Apr 2001 11:00:50 -0400
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:45581 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S135672AbRDXPAm>; Tue, 24 Apr 2001 11:00:42 -0400
-Date: Wed, 25 Apr 2001 00:59:33 +1000
-From: CaT <cat@zip.com.au>
-To: Pjotr Kourzanoff <pjotr@suselinux.hu>
-Cc: =?iso-8859-1?Q?G=E1bor_L=E9n=E1rt?= <lgb@lgb.hu>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [OFFTOPIC] Re: [PATCH] Single user linux
-Message-ID: <20010425005933.G1245@zip.com.au>
-In-Reply-To: <20010424163009.A7197@vega.digitel2002.hu> <Pine.LNX.4.31.0104241643400.17653-100000@zeus.suselinux.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0104241643400.17653-100000@zeus.suselinux.hu>; from pjotr@suselinux.hu on Tue, Apr 24, 2001 at 04:49:57PM +0200
-Organisation: Furball Inc.
+	id <S135672AbRDXPF7>; Tue, 24 Apr 2001 11:05:59 -0400
+Received: from web1103.mail.yahoo.com ([128.11.23.123]:32516 "HELO
+	web1103.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135673AbRDXPFs>; Tue, 24 Apr 2001 11:05:48 -0400
+Message-ID: <20010424150546.6917.qmail@web1103.mail.yahoo.com>
+Date: Tue, 24 Apr 2001 17:05:46 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
+Subject: Re: capabilities carried over execve()
+To: eric@sparrow.nad.adelphia.net
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 24, 2001 at 04:49:57PM +0200, Pjotr Kourzanoff wrote:
-> > use port 2525 as SMTP port in your MTA. I've succeed to setup such a
-> > configuration.
-> 
->   This requires you to ensure that your MTA is started first on that
->   port...Might be difficult to achieve reliably in an automatic way
->   without root privileges :-(
-> 
->   mailuser@foo% /etc/rc.d/init.d/sendmail stop
->   badguy@foo% ./suck 2525
->   mailuser@foo% /etc/rc.d/init.d/sendmail start
+I personnaly use this simple patch which allows me
+to keep caps over execve(). It allows me to give a
+few more rights to some trusted users, such as 
+kill, insmod... without risking unlink, chown or 
+so. I couldn't find any other way to achieve this.
 
-Not necessarily. While I have no yet used the feature, iptables
-permits firewalling on userid. I presume this includes wether or
-not a program can listen on a port, right? (and all the other
-fun things).
+If needed, I can send you the complete prog which
+sets the requested capabilities upon login, 
+eventually asking for a password and limited in 
+time of day.
 
-If so then all you'd have to do is deny external access to port 2525
-and only permit mailuser to listen etc on it and you're set.
+Regards,
+Willy
 
--- 
-CaT (cat@zip.com.au)		*** Jenna has joined the channel.
-				<cat> speaking of mental giants..
-				<Jenna> me, a giant, bullshit
-				<Jenna> And i'm not mental
-					- An IRC session, 20/12/2000
+--- linux-2.2.18-wt11/fs/exec.c Fri Feb 16 23:11:52
+2001
++++ linux-2.2.18-wt11+caps/fs/exec.c    Thu Feb 22
+20:45:33 2001
+@@ -702,7 +702,10 @@
+        cap_clear(bprm->cap_inheritable);
+        cap_clear(bprm->cap_permitted);
+        cap_clear(bprm->cap_effective);
+-
++/*** FIXME: just a test : keep permitted and
+effective ******/
++bprm->cap_permitted =
+cap_intersect(current->cap_inheritable,current->cap_permitted);
++bprm->cap_effective =
+cap_intersect(current->cap_inheritable,current->cap_effective);
++/*** /FIXME ****/
+        /*  To support inheritance of root-permissions
+and suid-root
+          *  executables under compatibility mode, we
+raise all three
+          *  capability sets for the file.
 
+
+
+___________________________________________________________
+Do You Yahoo!? -- Pour faire vos courses sur le Net, 
+Yahoo! Shopping : http://fr.shopping.yahoo.com

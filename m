@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVAZQ65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVAZQ6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbVAZQ65 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 11:58:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVAZQxH
+	id S262427AbVAZQ6z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 11:58:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVAZQ5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 11:53:07 -0500
-Received: from the.earth.li ([193.201.200.66]:55181 "EHLO the.earth.li")
-	by vger.kernel.org with ESMTP id S262351AbVAZQrh (ORCPT
+	Wed, 26 Jan 2005 11:57:22 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:23437 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262351AbVAZQzI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 11:47:37 -0500
-Date: Wed, 26 Jan 2005 16:47:33 +0000
-From: Jonathan McDowell <noodles@earth.li>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: e3-hacking@earth.li
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
-Message-ID: <20050126164733.GT1405@earth.li>
-References: <alan@lxorguk.ukuu.org.uk> <1096640407.21940.33.camel@localhost.localdomain> <200410011559.i91FxfH13266@blake.inputplus.co.uk> <35fb2e5904100109246f43ee7b@mail.gmail.com> <1096646380.21962.64.camel@localhost.localdomain> <20050107214852.GI5449@earth.li> <20050115134310.GS1725@earth.li>
+	Wed, 26 Jan 2005 11:55:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=XUXrJzwhOBop+0KQR9f6a0qAJPL8T8SQhxckvaaJgaSMIVIpEwZ+JjMR10mHQnZ3K5FD/TVJ7y6vx3go42GHNn27Q7Gs4Yz9x47Aa/n+qQE16CLPvR4K1+Lv5FN3YFoGhJ7It0eYpzFrNJhSJyRG2cQsaY/NRuw9EMSnjGUBNBA=
+Message-ID: <d4b385205012608272e300b1b@mail.gmail.com>
+Date: Wed, 26 Jan 2005 17:27:46 +0100
+From: Mikkel Krautz <krautz@gmail.com>
+Reply-To: Mikkel Krautz <krautz@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] TIGLUSB Cleanups
+Cc: greg@kroah.com, roms@lpg.ticalc.org, jb@technologeek.org
+In-Reply-To: <41F7BF8D.70205@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050115134310.GS1725@earth.li>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41F7BF8D.70205@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 15, 2005 at 01:43:10PM +0000, Jonathan McDowell wrote:
-> On Fri, Jan 07, 2005 at 09:48:52PM +0000, Jonathan McDowell wrote:
-> > On Fri, Oct 01, 2004 at 04:59:44PM +0100, Alan Cox wrote:
-> > > If anyone has a copy of the emailer source btw (or gets one for review
-> > > so has a download option ;)) then it would be nice to stick it up for
-> > > ftp for all.
-> > No one seems to have done this, and the offer Amstrad makes requires the
-> > sending off of £25 to them to cover admin and distribution costs rather
-> > than allowing a download of it. I did this a few days ago so will
-> > hopefully hear from them in the next week or so.
-> I've now received this.
+On Wed, 26 Jan 2005 17:04:29 +0100, Mikkel Krautz <krautz@gmail.com> wrote:
+> Hello!
+> 
+> The tiglusb-driver was removed in 2.6.11-rc1.
+> 
+> Since then, references to it in other files have been kept, namely the
+> following files:
+> 
+>     Documentation/usb/silverlink.txt,
+>     Documentation/kernel-parameters.txt
+>     MAINTAINERS
+> 
+> This series of patches removes the silverlink.txt-documentation, and
+> tiglusb-references in MAINTAINERS and kernel-parameters.txt.
+> 
+> The patches are diffed against 2.6.11-rc2-bk4.
+> 
+> Thanks,
+> Mikkel Krautz
+> 
 
-Which turns out not to actually be what they're using; what I have
-source for is "2.4.18_mvl30-E3" whereas my E3 has
-"2.4.18_mvl30-ams-delta". Also there's no sign of a dfdblk/MFS-DFD
-driver in the provided source, but the dmesg output of the E3 clearly
-shows such a driver initialising before any filesystem is mounted,
-ruling out the possiblity of it being a module.
+Hurrah!
 
-I contacted Amstrad about this over a week ago, but to date haven't had
-a response.
+All the patches were word-wrapped by Thunderbird, even though I disabled it.
 
-J.
+I'm sorry, but this is all I can do for now. Sigh.
 
--- 
-9 out of 10 men who tried Camels prefer women.
+Thanks,
+Mikkel Krautz

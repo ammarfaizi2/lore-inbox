@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310917AbSCROIL>; Mon, 18 Mar 2002 09:08:11 -0500
+	id <S310929AbSCROKv>; Mon, 18 Mar 2002 09:10:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310920AbSCROHA>; Mon, 18 Mar 2002 09:07:00 -0500
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:58859 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S310917AbSCROG4> convert rfc822-to-8bit; Mon, 18 Mar 2002 09:06:56 -0500
-Importance: Normal
-Sensitivity: 
-Subject: Re: 2.4.19-pre3 s390 ret_from_fork patch
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF0B4E478D.55DD4333-ONC1256B80.00443165@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 18 Mar 2002 15:04:09 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 18/03/2002 15:06:47
+	id <S310920AbSCROKm>; Mon, 18 Mar 2002 09:10:42 -0500
+Received: from 216-42-72-146.ppp.netsville.net ([216.42.72.146]:52158 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S310963AbSCROKa>; Mon, 18 Mar 2002 09:10:30 -0500
+Date: Mon, 18 Mar 2002 09:09:19 -0500
+From: Chris Mason <mason@suse.com>
+To: r.ems@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 freezes on heavy IO
+Message-ID: <2183930000.1016460559@tiny>
+In-Reply-To: <3C95F129.7D9744B5@gmx.net>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->The 2.4.19-pre3 works just dandy as it is without this patch,
->but it is needed for O(1) scheduler. I think Martin was going
->to forward this into 2.5.x tree, where O(1) is standard.
->
->The problem is that schedule_tail() is supposed to unlock
->runqueue, but if interrupts are enabled before that happens,
->a timer tick may squeeze in and deadlock. I observed such
->situation myself.
->
->So, I would like this to be in 2.4.19 for the sake of O(1) users.
->Any objections?
 
-No, not really. My fix for 2.5.6 simply removes the stosm because
-the sysc_return will disable the interrupts soon after anyway.
+On Monday, March 18, 2002 02:52:41 PM +0100 Richard Ems <r.ems.mtg@gmx.net> wrote:
 
-blue skies,
-   Martin
+> Hi all!
+> 
+> I'm seeing my system freeze on heavy IO. Only the reset button brings it
+> back to life again (ALT-SysRq-b also worked once). I'm running SuSE's
+> 2.4.18-30 on a Pentium III (Coppermine) with 256 MB RAM (yes, I should
+> try vanilla 2.4.18, I will ...)
+> No SCSI, all IDE. LVM and ext3.
 
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
+Which rpm?  k_i386, k_deflt, k_psmp, k_smp?  This is probably the
+(aa specific) ext3 deadlock recently fixed by andrea and andrew.
+
+-chris
 
 

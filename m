@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132709AbRDJQoh>; Tue, 10 Apr 2001 12:44:37 -0400
+	id <S132434AbRDJQpR>; Tue, 10 Apr 2001 12:45:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132465AbRDJQo1>; Tue, 10 Apr 2001 12:44:27 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:38672 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S132434AbRDJQoY>;
-	Tue, 10 Apr 2001 12:44:24 -0400
-Date: Tue, 10 Apr 2001 12:44:49 -0400
+	id <S132465AbRDJQo5>; Tue, 10 Apr 2001 12:44:57 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:39440 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132434AbRDJQos>;
+	Tue, 10 Apr 2001 12:44:48 -0400
+Date: Tue, 10 Apr 2001 12:45:44 -0400
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-        axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Garbage-collection patches for Configure.help
-Message-ID: <20010410124449.A32432@thyrsus.com>
+To: "Dunlap, Randy" <randy.dunlap@intel.com>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] CML2 1.0.0 release announcement
+Message-ID: <20010410124544.B32432@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>, torvalds@transmeta.com,
-	axel@uni-paderborn.de, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <200104101453.f3AErkq30339@snark.thyrsus.com> <E14n10q-0004Yq-00@the-village.bc.nu>
+	"Dunlap, Randy" <randy.dunlap@intel.com>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE1BE@orsmsx31.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14n10q-0004Yq-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 05:29:01PM +0100
+In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBE1BE@orsmsx31.jf.intel.com>; from randy.dunlap@intel.com on Tue, Apr 10, 2001 at 09:20:45AM -0700
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> Im currently working on getting the arch stuff ready to merge with Linus and
-> this patch will just make it a nightmare.
+Dunlap, Randy <randy.dunlap@intel.com>:
+> Then the README should be listed (linked) on one of the 2 web pages
+> above.  I can't find it without downloading "CML2 prototype
+> and documentation," right?  I think that it should be
+> more visible that Python version x.yy(?) is needed, without
+> having to download the tarball.  Or did I miss the README
+> somewhere?
 
-I withdraw it, then.  Would you please do the renames in your patch?  
-Those ought to go in, at least.
-
-CONFIG_ARCH_EBSA285				CONFIG_ARCH_EBSA285_HOST
-CONFIG_ISDN_DRV_EICON_STANDALONE		CONFIG_ISDN_DRV_EICON_DIVAS
-CONFIG_MAC_KEYBOARD				CONFIG_ADB_KEYBOARD
-
-The duplicate-removal stuff in my second patch ought to still be good, also.
+I've added it to the project's web page.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-The right to buy weapons is the right to be free.
-        -- A.E. Van Vogt, "The Weapon Shops Of Isher", ASF December 1942
+A wise and frugal government, which shall restrain men from injuring
+one another, which shall leave them otherwise free to regulate their
+own pursuits of industry and improvement, and shall not take from the
+mouth of labor the bread it has earned. This is the sum of good
+government, and all that is necessary to close the circle of our
+felicities.
+	-- Thomas Jefferson, in his 1801 inaugural address

@@ -1,42 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVBYP1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVBYP2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbVBYP1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbVBYP1p
+	id S262720AbVBYP2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:28:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVBYP2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:27:45 -0500
-Received: from lantana.tenet.res.in ([202.144.28.166]:49824 "EHLO
-	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
-	id S262718AbVBYP1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:27:33 -0500
-Date: Fri, 25 Feb 2005 20:57:32 +0530 (IST)
-From: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>
-To: linux-kernel@vger.kernel.org
-Subject: Invalid module format in Fedora core2
-Message-ID: <Pine.LNX.4.60.0502252056130.17145@lantana.cs.iitm.ernet.in>
+	Fri, 25 Feb 2005 10:28:31 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21440 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262720AbVBYP2W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 10:28:22 -0500
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Mail-scanner Found to be clean
-X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16927.17446.834879.371263@segfault.boston.redhat.com>
+Date: Fri, 25 Feb 2005 10:28:38 -0500
+To: "shabanip" <shabanip@avapajoohesh.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to capture kernel panics
+In-Reply-To: <53739.69.93.110.242.1109344057.squirrel@69.93.110.242>
+References: <52765.69.93.110.242.1109288148.squirrel@69.93.110.242>
+	<200502251517.56254.linux-kernel@borntraeger.net>
+	<16927.14697.76256.482062@segfault.boston.redhat.com>
+	<53739.69.93.110.242.1109344057.squirrel@69.93.110.242>
+X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+==> Regarding Re: how to capture kernel panics; "shabanip" <shabanip@avapajoohesh.com> adds:
 
-  Hai all,
-   I tried to insert a sample module into Fedora core 2 , But it is giving 
-an error message that " no module in the object"
-The same module was inserted successfully into Redhat linux 9.
+shabanip> as i see netconsole is a kernel module.  so i just need to load
+shabanip> netconsole module with server:port parameters.  am i right?
 
-Is there any changes from RH 9 to Fedora Core 2 with respect to the module 
-writing and insertion.
+MODULE_PARM_DESC(netconsole, " netconsole=[src-port]@[src-ip]/[dev],[tgt-port]@<tgt-ip>/[tgt-macaddr]\n");
 
-Any small help  also welcome.
+So, for example:
 
-Thanks in advance.
-Regards,
-Manohar.
+modprobe netconsole netconsole=6666@192.168.1.1/eth0,6666@192.168.1.100/00:40:95:9A:12:34
+
+-Jeff
 
 
+shabanip> Payam Shabanian shabanip -at- avapajoohesh.com
 
+>> ==> Regarding Re: how to capture kernel panics; Christian Borntraeger
+>> <linux-kernel@borntraeger.net> adds:
+>> 
+linux-kernel> shabanip wrote:
+>>>> is there any way to capture and log kernel panics on disk or ...?
+>>
+linux-kernel> In former times, the Linux kernel tried to sync in the panic
+linux-kernel> function. (If the panic did not happen in interrupt context)
+linux-kernel> Unfortunately this had severe side effects in cases where
+>> the
+linux-kernel> panic was triggered by file system block device code or any
+linux-kernel> other part which is necessary for syncing. In most cases the
+linux-kernel> call trace never made it onto disk anyway. So currently the
+linux-kernel> kernel does not support saving a panic.
+>>
+linux-kernel> Apart from using a serial console, you might have a look at
+linux-kernel> several kexec/kdump/lkcd tools where people are working on
+linux-kernel> being able to dump the memory of a paniced kernel.
+>> Or netconsole, which will dump printk's do the server:port of your
+>> choosing.
+>> 
+>> -Jeff
+>> 
 
+shabanip> - To unsubscribe from this list: send the line "unsubscribe
+shabanip> linux-kernel" in the body of a message to
+shabanip> majordomo@vger.kernel.org More majordomo info at
+shabanip> http://vger.kernel.org/majordomo-info.html Please read the FAQ at
+shabanip> http://www.tux.org/lkml/

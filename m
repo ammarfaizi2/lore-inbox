@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUGOTMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266284AbUGOTRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUGOTMC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 15:12:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUGOTMC
+	id S266284AbUGOTRU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 15:17:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUGOTRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 15:12:02 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46822 "HELO
+	Thu, 15 Jul 2004 15:17:20 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30694 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266275AbUGOTLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 15:11:39 -0400
-Date: Thu, 15 Jul 2004 21:11:31 +0200
+	id S266284AbUGOTRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 15:17:17 -0400
+Date: Thu, 15 Jul 2004 21:17:10 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: James.Bottomley@SteelEye.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI qla2xxx: fix inline compile errors
-Message-ID: <20040715191131.GA25633@fs.tum.de>
+To: carnil@cs.tut.fi
+Cc: chas@cmf.nrl.navy.mil, linux-atm-general@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/atm/lec.c: remove inlines
+Message-ID: <20040715191710.GB25633@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,226 +23,68 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile the SCSI qla2xxx driver in 2.6.8-rc1-mm1 using gcc 3.4 
-results in the following compile errors:
+Trying to compile net/atm/lec.c in 2.6.8-rc1-mm1 using gcc 3.4 results 
+in the following compile error:
 
 <--  snip  -->
 
 ...
-  CC      drivers/scsi/qla2xxx/qla_os.o
-drivers/scsi/qla2xxx/qla_os.c: In function `qla2x00_queuecommand':
-drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed 
-in call to 'qla2x00_callback': function not considered for inlining
-drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
-drivers/scsi/qla2xxx/qla_os.c:315: sorry, unimplemented: inlining failed 
-in call to 'qla2x00_callback': function not considered for inlining
-drivers/scsi/qla2xxx/qla_os.c:269: sorry, unimplemented: called from here
-make[3]: *** [drivers/scsi/qla2xxx/qla_os.o] Error 1
-...
-  CC      drivers/scsi/qla2xxx/qla_rscn.o
-drivers/scsi/qla2xxx/qla_rscn.c: In function `qla2x00_cancel_io_descriptors':
-drivers/scsi/qla2xxx/qla_rscn.c:320: sorry, unimplemented: inlining 
-failed in call to 'qla2x00_remove_iodesc_timer': function not considered for inlining
-drivers/scsi/qla2xxx/qla_rscn.c:257: sorry, unimplemented: called from here
-make[3]: *** [drivers/scsi/qla2xxx/qla_rscn.o] Error 1
+  CC      net/atm/lec.o
+net/atm/lec.c: In function `lec_atm_send':
+net/atm/lec.c:75: sorry, unimplemented: inlining failed in call to 
+'lec_arp_find': function body not available
+net/atm/lec.c:459: sorry, unimplemented: called from here
+net/atm/lec.c:77: sorry, unimplemented: inlining failed in call to 
+'lec_arp_remove': function body not available
+net/atm/lec.c:460: sorry, unimplemented: called from here
+make[2]: *** [net/atm/lec.o] Error 1
 
 <--  snip  -->
 
 
-The patch below moves some inlined functions above the place where they
-are called the first time.
+The patch below removes the inlines from the functions in question.
 
-An alternative approach would be to remove the inlines.
+An alternative approach would be to move the inline functions above the 
+first place where they are used.
 
 
 diffstat output:
- drivers/scsi/qla2xxx/qla_os.c   |  122 ++++++++++++++++----------------
- drivers/scsi/qla2xxx/qla_rscn.c |   28 +++----
- 2 files changed, 75 insertions(+), 75 deletions(-)
+ net/atm/lec.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
---- linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/qla2xxx/qla_os.c.old	2004-07-09 01:09:28.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/qla2xxx/qla_os.c	2004-07-09 01:10:10.000000000 +0200
-@@ -235,67 +235,6 @@
- static __inline__ void
- qla2x00_delete_from_done_queue(scsi_qla_host_t *, srb_t *); 
- 
--/**************************************************************************
--* sp_put
--*
--* Description:
--*   Decrement reference count and call the callback if we're the last
--*   owner of the specified sp. Will get the host_lock before calling
--*   the callback.
--*
--* Input:
--*   ha - pointer to the scsi_qla_host_t where the callback is to occur.
--*   sp - pointer to srb_t structure to use.
--*
--* Returns:
--*
--**************************************************************************/
--static inline void
--sp_put(struct scsi_qla_host * ha, srb_t *sp)
--{
--        if (atomic_read(&sp->ref_count) == 0) {
--		qla_printk(KERN_INFO, ha,
--			"%s(): **** SP->ref_count not zero\n",
--			__func__);
--                DEBUG2(BUG();)
--
--                return;
--	}
--
--        if (!atomic_dec_and_test(&sp->ref_count)) {
--                return;
--        }
--
--        qla2x00_callback(ha, sp->cmd);
--}
--
--/**************************************************************************
--* sp_get
--*
--* Description:
--*   Increment reference count of the specified sp.
--*
--* Input:
--*   sp - pointer to srb_t structure to use.
--*
--* Returns:
--*
--**************************************************************************/
--static inline void
--sp_get(struct scsi_qla_host * ha, srb_t *sp)
--{
--        atomic_inc(&sp->ref_count);
--
--        if (atomic_read(&sp->ref_count) > 2) {
--		qla_printk(KERN_INFO, ha,
--			"%s(): **** SP->ref_count greater than two\n",
--			__func__);
--                DEBUG2(BUG();)
--
--		return;
--	}
--}
--
+--- linux-2.6.7-mm6-full-gcc3.4/net/atm/lec.c.old	2004-07-09 02:12:36.000000000 +0200
++++ linux-2.6.7-mm6-full-gcc3.4/net/atm/lec.c	2004-07-09 02:15:16.000000000 +0200
+@@ -71,9 +71,9 @@
+ static int lec_close(struct net_device *dev);
+ static struct net_device_stats *lec_get_stats(struct net_device *dev);
+ static void lec_init(struct net_device *dev);
+-static inline struct lec_arp_table* lec_arp_find(struct lec_priv *priv,
++static struct lec_arp_table* lec_arp_find(struct lec_priv *priv,
+                                                      unsigned char *mac_addr);
+-static inline int lec_arp_remove(struct lec_priv *priv,
++static int lec_arp_remove(struct lec_priv *priv,
+ 				     struct lec_arp_table *to_remove);
+ /* LANE2 functions */
+ static void lane2_associate_ind (struct net_device *dev, u8 *mac_address,
+@@ -1468,7 +1468,7 @@
  /*
- * qla2x00_callback
- *      Returns the completed SCSI command to LINUX.
-@@ -366,6 +305,67 @@
- 	(*(cmd)->scsi_done)(cmd);
- }
- 
-+/**************************************************************************
-+* sp_put
-+*
-+* Description:
-+*   Decrement reference count and call the callback if we're the last
-+*   owner of the specified sp. Will get the host_lock before calling
-+*   the callback.
-+*
-+* Input:
-+*   ha - pointer to the scsi_qla_host_t where the callback is to occur.
-+*   sp - pointer to srb_t structure to use.
-+*
-+* Returns:
-+*
-+**************************************************************************/
-+static inline void
-+sp_put(struct scsi_qla_host * ha, srb_t *sp)
-+{
-+        if (atomic_read(&sp->ref_count) == 0) {
-+		qla_printk(KERN_INFO, ha,
-+			"%s(): **** SP->ref_count not zero\n",
-+			__func__);
-+                DEBUG2(BUG();)
-+
-+                return;
-+	}
-+
-+        if (!atomic_dec_and_test(&sp->ref_count)) {
-+                return;
-+        }
-+
-+        qla2x00_callback(ha, sp->cmd);
-+}
-+
-+/**************************************************************************
-+* sp_get
-+*
-+* Description:
-+*   Increment reference count of the specified sp.
-+*
-+* Input:
-+*   sp - pointer to srb_t structure to use.
-+*
-+* Returns:
-+*
-+**************************************************************************/
-+static inline void
-+sp_get(struct scsi_qla_host * ha, srb_t *sp)
-+{
-+        atomic_inc(&sp->ref_count);
-+
-+        if (atomic_read(&sp->ref_count) > 2) {
-+		qla_printk(KERN_INFO, ha,
-+			"%s(): **** SP->ref_count greater than two\n",
-+			__func__);
-+                DEBUG2(BUG();)
-+
-+		return;
-+	}
-+}
-+
- static inline void 
- qla2x00_delete_from_done_queue(scsi_qla_host_t *dest_ha, srb_t *sp) 
- {
---- linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/qla2xxx/qla_rscn.c.old	2004-07-09 01:10:52.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/scsi/qla2xxx/qla_rscn.c	2004-07-09 01:11:23.000000000 +0200
-@@ -242,6 +242,20 @@
- }
- 
- /**
-+ * qla2x00_remove_iodesc_timer() - Remove an active timer from an IO descriptor.
-+ * @iodesc: io descriptor
-+ */
-+static inline void
-+qla2x00_remove_iodesc_timer(struct io_descriptor *iodesc)
-+{
-+	if (iodesc->timer.function != NULL) {
-+		del_timer_sync(&iodesc->timer);
-+		iodesc->timer.data = (unsigned long) NULL;
-+		iodesc->timer.function = NULL;
-+	}
-+}
-+
-+/**
-  * qla2x00_init_io_descriptors() - Initialize the pool of IO descriptors.
-  * @ha: HA context
+  * Remove entry from lec_arp_table
   */
-@@ -311,20 +325,6 @@
- 	add_timer(&iodesc->timer);
- }
- 
--/**
-- * qla2x00_remove_iodesc_timer() - Remove an active timer from an IO descriptor.
-- * @iodesc: io descriptor
-- */
--static inline void
--qla2x00_remove_iodesc_timer(struct io_descriptor *iodesc)
--{
--	if (iodesc->timer.function != NULL) {
--		del_timer_sync(&iodesc->timer);
--		iodesc->timer.data = (unsigned long) NULL;
--		iodesc->timer.function = NULL;
--	}
--}
--
- /** 
-  * IO descriptor support routines.
-  **/
+-static inline int 
++static int 
+ lec_arp_remove(struct lec_priv *priv,
+                struct lec_arp_table *to_remove)
+ {
+@@ -1755,7 +1755,7 @@
+ /* 
+  * Find entry by mac_address
+  */
+-static inline struct lec_arp_table*
++static struct lec_arp_table*
+ lec_arp_find(struct lec_priv *priv,
+              unsigned char *mac_addr)
+ {
 

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267397AbUBSWcL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 17:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUBSWcK
+	id S267402AbUBSWec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 17:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267405AbUBSWec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 17:32:10 -0500
-Received: from eik.ii.uib.no ([129.177.16.3]:9353 "EHLO eik.ii.uib.no")
-	by vger.kernel.org with ESMTP id S267397AbUBSWb6 (ORCPT
+	Thu, 19 Feb 2004 17:34:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49051 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267402AbUBSWe0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 17:31:58 -0500
-Subject: Deadlocks and Machine Check Exception on Athlon64
-From: "Ronny V. Vindenes" <s864@ii.uib.no>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1077229909.2828.22.camel@terminal124.gozu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Thu, 19 Feb 2004 23:31:50 +0100
+	Thu, 19 Feb 2004 17:34:26 -0500
+From: Daniel Phillips <phillips@arcor.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Date: Thu, 19 Feb 2004 17:31:33 -0500
+User-Agent: KMail/1.5.4
+Cc: Andrew Morton <akpm@osdl.org>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Stephen Tweedie <sct@redhat.com>
+References: <20040216190927.GA2969@us.ibm.com> <200402191531.56618.phillips@arcor.de> <1077228402.2070.893.camel@sisko.scot.redhat.com>
+In-Reply-To: <1077228402.2070.893.camel@sisko.scot.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402191731.33473.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My machine has been locking up [1] every now and then the last couple of
-weeks and yesterday it locked during boot and I managed to copy this
-message:
+Hi Stephen,
 
-CPU 0: Machine Check Exception : 0000000000000004
-Bank 4: b200000000070f0f
-kernel panic: CPU context corrupt
-In interrupt handler - not syncing
+On Thursday 19 February 2004 17:06, Stephen C. Tweedie wrote:
+> Hi,
+>
+> On Thu, 2004-02-19 at 20:56, Daniel Phillips wrote:
+> > OpenGFS and Sistina GFS use zap_page_range directly, essentially doing
+> > the same as invalidate_mmap_range but skipping any vmas belonging to
+> > MAP_PRIVATE mmaps.
+>
+> Well, MAP_PRIVATE maps can contain shared pages too --- any page in a
+> MAP_PRIVATE map that has been mapped but not yet written to is still
+> shared, and still needs shot down on truncate().
 
-I tried to decode it with davej's parsemce, but it didn't produce any
-usable output.
+Exactly, and we ought to take this opportunity to do that properly, which is 
+easy.  I'm just curious how GPFS deals with this issue, or if it simply 
+doesn't support MAP_PRIVATE.
 
-The machine is an MSI K8T Neo-FIS2R (flashed with 1.2 bios), with
-Athlon64 3200+ and 2x512MB PC3200 DDR RAM, running 32bit 2.6.3-rc3-mm1
-kernel. Any suggestions on what could be wrong?
+Regards,
 
-[1] The lock-ups mostly happen during browsing with epiphany, I compile
-a lot of big projects almost every day so it appears that cpu load or
-memory use has no influence on the lock-ups.
-
--- 
-Ronny V. Vindenes <s864@ii.uib.no>
+Daniel
 

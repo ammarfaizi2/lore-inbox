@@ -1,66 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291684AbSBHSBY>; Fri, 8 Feb 2002 13:01:24 -0500
+	id <S291679AbSBHSCZ>; Fri, 8 Feb 2002 13:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291689AbSBHSBP>; Fri, 8 Feb 2002 13:01:15 -0500
-Received: from as3-1-8.ras.s.bonet.se ([217.215.75.181]:51677 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id <S291684AbSBHSBE>;
-	Fri, 8 Feb 2002 13:01:04 -0500
-Message-ID: <3C641250.FB2D0977@canit.se>
-Date: Fri, 08 Feb 2002 19:00:48 +0100
-From: Kenneth Johansson <ken@canit.se>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
+	id <S291689AbSBHSCE>; Fri, 8 Feb 2002 13:02:04 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28689 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291690AbSBHSB5>; Fri, 8 Feb 2002 13:01:57 -0500
+Subject: Re: [patch] larger kernel stack (8k->16k) per task
+To: tigran@veritas.com (Tigran Aivazian)
+Date: Fri, 8 Feb 2002 18:15:15 +0000 (GMT)
+Cc: arjanv@redhat.com (Arjan van de Ven), linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br (Rik van Riel),
+        alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <Pine.LNX.4.33.0202081645170.1359-100000@einstein.homenet> from "Tigran Aivazian" at Feb 08, 2002 04:59:47 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-CC: linux-kernel@vger.kernel.org, andre@linuxdiskcert.org
-Subject: Re: Promise PDC20268 spurious interrupt
-In-Reply-To: <20020208004954.GA19421@Krystal>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16ZFYK-0004SV-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't see this problem but I have a PDC20262 ultra66 and have been running raid0
-on that for 1.5 years but one disk broke down and I got a new one. This was a
-newer model and thus faster.
+> to reproduce it with larger stack and then (with aid of /proc/stack) the
+> offender is found and fixed. I cc'd Alan; if he thinks this is a bad idea
+> I would be interested to know why.
 
-The problem I see is that DD from the new disk hangs the system in interesting
-ways from dd hangs in uninterruptible sleep to the whole system going down. This
-happens on both channels but only on the new disk.
-
-I get two errors in the log
-
-hdg: timeout waiting for DMA
-ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-
-
-Mathieu Desnoyers wrote:
-
-> I have a problem here since I plugged my second hard disk on my Promise
-> Ultra 100 TX2 PDC20268 controller. It occurs all the time when I use software
-> raid 0. I looked at the LKML archives, and this problem does not seems to be
-> solved. There is a simpler way to generate the problem than to use raid.
->
-> It occurs when I use dd for reading on my both hard disks in parallel.
-> The disks are both masters of their channel.
->
-> When I do this test, The message I get is
->
-> spurious 8259A interrupt: IRQ7.
-> spurious 8259A interrupt: IRQ15.
->
-> And I can look at /proc/interrupts and see the ERR counter increment at
-> a phenomenal speed.
->
-> I wonder if this problem is due to the linux driver support or if it is
-> a hardware bug.
->
-> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68
->
->   ------------------------------------------------------------------------
->
->    Part 1.2    Type: application/pgp-signature
->            Encoding: 7bit
-
+Personal feeling: it would be better to vmalloc the stack in this case
+and use the existing vmalloc red zones. For 2.5 that should work out ok
+unlike 2.4 where the scsi and usb will break

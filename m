@@ -1,97 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVAXWcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVAXW3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVAXWcB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 17:32:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVAXW3t
+	id S261699AbVAXW3K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 17:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVAXW2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 17:29:49 -0500
-Received: from holomorphy.com ([66.93.40.71]:45020 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261606AbVAXW15 (ORCPT
+	Mon, 24 Jan 2005 17:28:36 -0500
+Received: from [83.102.214.158] ([83.102.214.158]:16025 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S261668AbVAXWZo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:27:57 -0500
-Date: Mon, 24 Jan 2005 14:27:41 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mark_H_Johnson@raytheon.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: Query on remap_pfn_range compatibility
-Message-ID: <20050124222741.GG10843@holomorphy.com>
-References: <OF0A92B996.F674A9A0-ON86256F93.0066BC3F@raytheon.com>
-Mime-Version: 1.0
+	Mon, 24 Jan 2005 17:25:44 -0500
+X-Comment-To: "Stephen C. Tweedie"
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       <ext2-devel@lists.sourceforge.net>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [Ext2-devel] [PATCH] JBD: journal_release_buffer()
+References: <m3wtu9v3il.fsf@bzzz.home.net>
+	<1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk>
+From: Alex Tomas <alex@clusterfs.com>
+Organization: HOME
+Date: Tue, 25 Jan 2005 01:24:28 +0300
+In-Reply-To: <1106604342.2103.395.camel@sisko.sctweedie.blueyonder.co.uk> (Stephen
+ C. Tweedie's message of "Mon, 24 Jan 2005 22:05:42 +0000")
+Message-ID: <m3brbebh43.fsf@bzzz.home.net>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF0A92B996.F674A9A0-ON86256F93.0066BC3F@raytheon.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wli wrote...
->> Not sure. One on kernel version being <= 2.6.10 would probably serve
->> your purposes, though it's not particularly well thought of. I suspect
->> people would suggest splitting up the codebase instead of sharing it
->> between 2.4.x and 2.6.x, where I've no idea how well that sits with you.
+>>>>> Stephen C Tweedie (SCT) writes:
 
-On Mon, Jan 24, 2005 at 01:05:44PM -0600, Mark_H_Johnson@raytheon.com wrote:
-> I guess I could do that, but if a distribution picks up remap_pfn_range
-> in an earlier kernel, that doesn't work either. If it gets back ported
-> to 2.4 the conditional gets a little more complicated.
-> Splitting the code base is a pretty harsh solution.
+ >> +	/* return credit back to the handle if it was really spent */
+ >> +	if (credits)
+ >> +		handle->h_buffer_credits++; 
 
-I suspect it's the one most often recommended. In general, I'm not the
-arbiter of taste in drivers (and as you've worked with them enough, I'm
-sure you have unanswered questions of your own on that front), but I'm
-expecting the general consensus to be something adverse to your concerns.
+ >> +	jh->b_tcount--;
+ >> +	if (jh->b_tcount == 0) {
+ >> +		/* 
+ >> +		 * this was last reference to the block from the current
+ >> +		 * transaction and we'd like to return credit to the
+ >> +		 * whole transaction -bzzz
+ >> +		 */
+ >> +		if (!credits)
+ >> +			handle->h_buffer_credits++; 
 
+ SCT> I think there's a problem here.
 
-On Mon, Jan 24, 2005 at 01:05:44PM -0600, Mark_H_Johnson@raytheon.com wrote:
-> I am also trying to avoid an ugly hack like the following:
->   VMA_PARAM_IN_REMAP=`grep remap_page_range
-> $PATH_LINUX_INCLUDE/linux/mm.h|grep vma`
->   if [ -z "$VMA_PARAM_IN_REMAP" ]; then
->     export REMAP_PAGE_RANGE_PARAM="4"
->   else
->     export REMAP_PAGE_RANGE_PARAM="5"
->   endif
-> in a build script which detects if remap_page_range() has 4 or 5 parameters
-> and then pass an appropriate value into the code using gcc -D. [ugh]
+ SCT> What if:
+ SCT>   Process A gets write access, and is the first to do so (*credits=1)
+ SCT>   Processes B gets write access (*credits=0)
+ SCT>   B modifies the buffer and finishes
+ SCT>   A looks again, sees B's modifications, and releases the buffer because
+ SCT> it's no use any more.
 
-Some codebases have literally gone so far as to use autoconf to cope
-with constellations of issues like these that arise in portable driver
-codebases. I don't have an adequate answer to the simultaneous needs of
-mainline acceptance and portability across kernel versions. The second
-of those is one I'm very rarely faced with myself and my inexperience
-in such is accompanied by a lack of ideas.
+ SCT> Now, B's release didn't return credits.  The bh is part of the
+ SCT> transaction and was not released.
 
+hmmm. that's a good catch. so, with this patch A increments h_buffer_credits
+and this one will go to the t_outstanding_credits while the buffer is still
+part of the transaction. indeed, an imbalance.
 
-On Mon, Jan 24, 2005 at 01:05:44PM -0600, Mark_H_Johnson@raytheon.com wrote:
-> Would it be acceptable to add a symbol like
->   #define MM_VM_REMAP_PFN_RANGE
-> in include/linux/mm.h or is that too much of a hack as well?
+probably something like the following would be enough?
 
-I highly suspect that this notion would not be seriously entertained.
+ +	/* return credit back to the handle if it was really spent */
+ +	if (credits) {
+ +		handle->h_buffer_credits++; 
+ +              spin_lock(&handle->h_transaction->t_handle_lock);
+ +              handle->h_transaction->t_outstanding_credits++;
+ +              spin_lock(&handle->h_transaction->t_handle_lock);
+ +      }
 
-
-wli wrote...
->> I vaguely suspected something like this would happen, but there were
->> serious and legitimate concerns about new usage of the 32-bit unsafe
->> methods being reintroduced, so at some point the old hook had to go.
-
-On Mon, Jan 24, 2005 at 01:05:44PM -0600, Mark_H_Johnson@raytheon.com wrote:
-> I don't doubt the need to remove the old interface. But I see possible
-> problem areas on > 4 Gbyte machines, such as virt_to_phys defined in
-> linux/asm-i386/io.h, that are not getting fixed or do I misread the
-> way that code works.
-
-virt_to_phys() represents something of a trap for unwary programmers,
-but not a true semantic gap as remap_pfn_range() addressed. It's also
-not of any particular help, as the areas for which it fails are
-universally not in ZONE_NORMAL. Primitives for resolving vmallocspace
-and userspace addresses to pfn's may be in order if these are
-sufficiently used, but the convenience of them can be done without at
-the cost of some memory to account physical locations mapped without
-the benefit of a struct page to track them, which when present is well
-backed by primitives like follow_page(), vmalloc_to_page(), etc.
+thanks, Alex
 
 
--- wli

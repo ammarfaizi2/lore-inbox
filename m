@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262651AbULPJeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbULPJyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbULPJeI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 04:34:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbULPJeI
+	id S262649AbULPJyi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 04:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbULPJyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 04:34:08 -0500
-Received: from mail20.syd.optusnet.com.au ([211.29.132.201]:61665 "EHLO
-	mail20.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262651AbULPJeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 04:34:02 -0500
-Message-ID: <41C1567D.1020603@kolivas.org>
-Date: Thu, 16 Dec 2004 20:33:49 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Werner Almesberger <werner@almesberger.net>
-Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generalized prio_tree, revisited
-References: <20041216053118.M1229@almesberger.net> <41C14F1B.8000401@kolivas.org> <20041216061517.O1229@almesberger.net>
-In-Reply-To: <20041216061517.O1229@almesberger.net>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD55EF1268F423F7DE3F0D9C8"
+	Thu, 16 Dec 2004 04:54:38 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:49681 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262487AbULPJyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 04:54:31 -0500
+Subject: Re: How to add/drop SCSI drives from within the driver?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>, brking@us.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, bunk@fs.tum.de,
+       Andrew Morton <akpm@osdl.org>, "Ju, Seokmann" <sju@lsil.com>,
+       "Doelfel, Hardy" <hdoelfel@lsil.com>, "Mukker, Atul" <Atulm@lsil.com>
+In-Reply-To: <20041215213001.GA9284@lists.us.dell.com>
+References: <60807403EABEB443939A5A7AA8A7458B7F5071@otce2k01.adaptec.com>
+	 <1102536081.4218.0.camel@localhost.localdomain>
+	 <20041215072453.GB17274@lists.us.dell.com>
+	 <1103136559.5232.1.camel@mulgrave>
+	 <20041215213001.GA9284@lists.us.dell.com>
+Content-Type: text/plain
+Date: Thu, 16 Dec 2004 10:54:12 +0100
+Message-Id: <1103190852.4136.12.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD55EF1268F423F7DE3F0D9C8
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 2004-12-15 at 15:30 -0600, Matt Domsch wrote:
+> Do you plan to apply LSI's driver patch which adds the driver-private
+> ioctl to provide the mapping from logical drive address to HCTL value?
+> Both Dell and LSI have products which are lined up to use this new
+> ioctl because it's the most expedient thing to do, maintains internal
+> project schedules, etc, which delaying until this sysfs mechanism hits
+> will greatly impact those schedules. (I know, many folks on this list
+> don't care about business-side impacts of choices made on-list.)
 
-Werner Almesberger wrote:
-> Con Kolivas wrote:
-> 
->>While not being able to comment on the actual patch I think having a 1 
->>or 0 for different types is not clear.
-> 
-> 
-> Yeah, it's not pretty. I also hope this division to be very
-> transitional, that's why I didn't bother to do anything nicer.
-> 
-> 
->>Naming them different struct names would seem to me much more readable.
-> 
-> 
-> Struct names ? I'd rather not duplicate everything. Or did you mean
-> initialization function names, e.g. INIT_RAW_PRIO_TREE_ROOT ?
-> Or, for just the flag, maybe something like
-> #define PRIO_TREE_RAW		1
-> #define PRIO_TREE_NORMAL	0
+I'm strongly against adding this. The reason for that is that once an
+ioctl is added, it realistically will and can never go away.
+LSI is free to have their own fork and give that to dell; but they
+should and could have known that it wasn't going to fly. (same I guess
+for adaptec ioctls). The companies who then commit to some schedule
+realize they take a huge risk, but that is no reason to foul up the
+kernel more. 
 
-Initialisation function names.
-
-Cheers,
-Con
-
---------------enigD55EF1268F423F7DE3F0D9C8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBwVZ/ZUg7+tp6mRURAriJAJ4z9MqboxWHmPJtqvoBx61EuJ6+6QCfTwER
-c4QdB55Ekyh9DxCF3hwLqfI=
-=OVFQ
------END PGP SIGNATURE-----
-
---------------enigD55EF1268F423F7DE3F0D9C8--

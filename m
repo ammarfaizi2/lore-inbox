@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290849AbSARWOS>; Fri, 18 Jan 2002 17:14:18 -0500
+	id <S290852AbSARWVI>; Fri, 18 Jan 2002 17:21:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290852AbSARWOK>; Fri, 18 Jan 2002 17:14:10 -0500
-Received: from host155.209-113-146.oem.net ([209.113.146.155]:51190 "EHLO
-	tibook.netx4.com") by vger.kernel.org with ESMTP id <S290849AbSARWNx>;
-	Fri, 18 Jan 2002 17:13:53 -0500
-Message-ID: <3C489DF4.5010900@embeddededge.com>
-Date: Fri, 18 Jan 2002 17:13:08 -0500
-From: Dan Malek <dan@embeddededge.com>
-Organization: Embedded Edge, LLC.
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.11-pre6-ben0 ppc; en-US; 0.8) Gecko/20010419
-X-Accept-Language: en
+	id <S290853AbSARWUv>; Fri, 18 Jan 2002 17:20:51 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:22923 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S290852AbSARWUh>; Fri, 18 Jan 2002 17:20:37 -0500
+Date: Fri, 18 Jan 2002 17:20:02 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <87sn93zvdm.fsf@CERT.Uni-Stuttgart.DE>
+Message-ID: <Pine.LNX.4.44.0201181632000.18867-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pci_alloc_consistent from interrupt == BAD
-In-Reply-To: <20020118130209.J14725@altus.drgw.net> <3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com> <20020118212949.H2059@flint.arm.linux.org.uk> <3C4897BD.1080503@embeddededge.com> <20020118215515.K2059@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
 
+	Hello Florian ,
 
-> I refer you to your nearest function prototype for pte_alloc_one()
-> rather than alloc_pages().
+On Fri, 18 Jan 2002, Florian Weimer wrote:
+> "Mr. James W. Laferriere" <babydr@baby-dragons.com> writes:
+> > 	Hello Alan ,
+> > On Mon, 14 Jan 2002, Alan Cox wrote:
+> >> > 1. security, if you don't need any modules you can disable modules entirly
+> >> > and then it's impossible to add a module without patching the kernel first
+> >> > (the module load system calls aren't there)
+> >> Urban legend.
+> > 	I do not agree .  Got proof ?  Yes that is a valid question .
+> http://www.phrack.org/phrack/58/p58-0x07
+	Thank you for the pointer .  Fine you do not need to allow modules
+	in order for a hacker to insert their code .  It is still another
+	thing to allow modules & not put & use signatures on them .  AFAIK
+	Linux doesn't have a method to load encrypted & signed modules at
+	this time .  Please ,  someone prove me wrong .  I -personally-
+	like statically compiled kernels .  The method being pushed forth
+	at present doesn't allow that ,  Unless I am completely mistaken
+	about what Alan & the rest have been discussing .  Again PLEASE
+	someone prove me wrong about this also .
 
-Oooo...thanks.  I guess I'll be adding the flag into pte_alloc as well
-here in just a few minutes.  We'll see if that flies.  Everything prior
-to this seems capable of handling the error if it doesn't succeed.
+> Globally preloading a shared library in user space is almost as
+> effective, BTW, unless your critical binaries are linked statically
+> (which is unusual on most systems nowadays).
+	I can beleive that 8-} .  Statically or written to readonly media
+ 	or the drive hard set to readonly ;-) .  I have followed most of
+	Alan's suggestions security concerns over the years & a few that
+	I thought of along the way .  Which later I found had been being
+	done alot longer than I would have thought .  Tia ,  JimL
 
-Thanks.
-
-
-	-- Dan
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 
 
 

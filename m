@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265921AbUFDTKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbUFDTRL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265921AbUFDTKC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 15:10:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265825AbUFDTKC
+	id S265825AbUFDTRL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 15:17:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265938AbUFDTRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 15:10:02 -0400
-Received: from gprs214-121.eurotel.cz ([160.218.214.121]:2434 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S265921AbUFDTJ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 15:09:58 -0400
-Date: Fri, 4 Jun 2004 21:09:47 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Vojtech Pavlik <vojtech@suse.cz>,
-       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
-       Tuukka Toivonen <tuukkat@ee.oulu.fi>
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040604190947.GM700@elf.ucw.cz>
-References: <20040604135816.GD11950@elf.ucw.cz> <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl> <20040604183944.GK700@elf.ucw.cz> <xb78yf317r0.fsf@savona.informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Jun 2004 15:17:10 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:14210 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265825AbUFDTRI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 15:17:08 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Aric Cyr <acyr@alumni.uwaterloo.ca>
+Subject: Re: [PATCH] nForce2 C1halt fixup, again
+Date: Fri, 4 Jun 2004 21:20:37 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <20040604112618.A1789%acyr@alumni.uwaterloo.ca> <20040604222004.A491%acyr@alumni.uwaterloo.ca> <20040605012604.A11737%acyr@alumni.uwaterloo.ca>
+In-Reply-To: <20040605012604.A11737%acyr@alumni.uwaterloo.ca>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <xb78yf317r0.fsf@savona.informatik.uni-freiburg.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200406042120.37605.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 04 of June 2004 18:26, Aric Cyr wrote:
+> On Fri, Jun 04, 2004 at 10:20:04PM +0900, Aric Cyr wrote:
+> > Thanks Bartlomiej.  I reversed my patch and have applied yours and am
+> > testing it now.  If my system doesn't freeze at all today, I think
+> > that this should be a sufficient (and necessary!) patch.
+>
+> Well my system is still running strong after more than 3 hours, so I
+> think it is safe to say that your patch is working fine.  Thanks for
+> getting this fixed.  I hope it is in time for 2.6.7!
 
->     Pavel> I know bootloader will hae its own kbd driver.
-> 
->     Pavel> But when kernel boots, you'll not be able to enter commands
->     Pavel> into the bash.
-> 
-> Funny.  How did you type the command to start bash?
+Thanks, this patch is merged now.
 
-That was in comment you stripped.
-
-> If you can  arrange bash to be  run, then why is it  that difficult to
-> arrange "modprobe atkbd; modprobe i8042" to be executed?
-
-It would not be "modprobe atkbd" but "my-keyboard-daemon &". And AFAIK
-you can't add that to "init=" commandline.
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbTJCOb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 10:31:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbTJCOb2
+	id S263708AbTJCO0v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 10:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbTJCO0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 10:31:28 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:58867 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263714AbTJCOb0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 10:31:26 -0400
-Content-Type: text/plain;
-  charset="CP 1252"
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Herbert Poetzl <herbert@13thfloor.at>,
-       Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: Can't X be elemenated?
-Date: Fri, 3 Oct 2003 09:30:47 -0500
-X-Mailer: KMail [version 1.2]
-Cc: kartikey bhatt <kartik_me@hotmail.com>, linux-kernel@vger.kernel.org
-References: <Law11-F67ATnLE7P95L00001388@hotmail.com> <3F7BE886.8070401@aitel.hist.no> <20031002181821.GB2816@DUK2.13thfloor.at>
-In-Reply-To: <20031002181821.GB2816@DUK2.13thfloor.at>
+	Fri, 3 Oct 2003 10:26:51 -0400
+Received: from CPE-203-51-31-218.nsw.bigpond.net.au ([203.51.31.218]:49398
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S263708AbTJCO0t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 10:26:49 -0400
+Message-ID: <3F7D8723.E1898A5@eyal.emu.id.au>
+Date: Sat, 04 Oct 2003 00:26:43 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <03100309304700.22916@tabby>
-Content-Transfer-Encoding: 8bit
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23pre6aa1: scsi/pcmcia qlogic does not build
+References: <20031002152648.GB1240@velociraptor.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 October 2003 13:18, Herbert Poetzl wrote:
-> On Thu, Oct 02, 2003 at 10:57:42AM +0200, Helge Hafting wrote:
-> > kartikey bhatt wrote:
-> > >hey everyone who have joined this thread, my fundamental question have
-> > > got out of scope. I mean to say
-> > >
-> > >1. Kernel level support for graphics device drivers.
-> > >2. On top of that, one can develop complete lightweight GUI.
-> > >3. Maybe kernel can provide support for event handling.
-> > >
-> > >and I still stick to my opinion that graphics card is a computer
-> > > resource that needs to be managed by OS   rather than 3rd party
-> > > developers.
-> >
-> > The card is managed by the os - X has to ask the kernel nicely to get it.
-> > (Try starting another X server inside an xterm and see how
-> > that is refused.)
->
-> X :2 (not refused ...)
+gcc -D__KERNEL__ -I/data2/usr/local/src/linux-2.4-pre-aa/include -Wall
+-Wstrict-
+prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-poi
+nter -pipe -msoft-float -mpreferred-stack-boundary=2 -march=i686
+-malign-functio
+ns=4 -DMODULE -DMODVERSIONS -include
+/data2/usr/local/src/linux-2.4-pre-aa/inclu
+de/linux/modversions.h  -nostdinc -iwithprefix include
+-DKBUILD_BASENAME=qlogicf
+as -DPCMCIA -D__NO_VERSION__ -c -o qlogicfas.o ../qlogicfas.c
+../qlogicfas.c: In function `qlogicfas_detect':
+../qlogicfas.c:650: warning: passing arg 1 of
+`scsi_unregister_R2c5e5a25' from incompatible pointer type
+ld -m elf_i386 -r -o qlogic_cs.o qlogic_stub.o qlogicfas.o
+qlogicfas.o: In function `init_module':
+qlogicfas.o(.text+0xe40): multiple definition of `init_module'
+qlogic_stub.o(.text+0x770): first defined here
+ld: Warning: size of symbol `init_module' changed from 77 to 58 in
+qlogicfas.o
+qlogicfas.o: In function `cleanup_module':
+qlogicfas.o(.text+0xe80): multiple definition of `cleanup_module'
+qlogic_stub.o(.text+0x7c0): first defined here
+ld: Warning: size of symbol `cleanup_module' changed from 40 to 16 in
+qlogicfas.o
+make[3]: *** [qlogic_cs.o] Error 1
+make[3]: Leaving directory
+`/data2/usr/local/src/linux-2.4-pre-aa/drivers/scsi/pcmcia'
 
-Thats because X asked nicely, and was given another vertual terminal, and
-started server #2... By default it attempts to start 0; and that is refused.
+A broken build?
 
-Specifying a different server number will permit it to be run, if there are
-available VTs.
-
-You should be able to run at least 7, if they don't have login prompts on
-them.
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,56 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269395AbUJLAXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269424AbUJLAZg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269395AbUJLAXY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 20:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269377AbUJLAWf
+	id S269424AbUJLAZg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 20:25:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269415AbUJLAX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 20:22:35 -0400
-Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:25987
+	Mon, 11 Oct 2004 20:23:57 -0400
+Received: from host157-148.pool8289.interbusiness.it ([82.89.148.157]:26243
 	"EHLO zion.localdomain") by vger.kernel.org with ESMTP
-	id S269401AbUJLATI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 20:19:08 -0400
-Subject: [patch 06/10] uml: update makefile to new kbuild API names
+	id S269402AbUJLATJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 20:19:09 -0400
+Subject: [patch 09/10] uml: fix ubd deadlock on SMP
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade_spam@yahoo.it,
+       chrisw@osdl.org
 From: blaisorblade_spam@yahoo.it
-Date: Tue, 12 Oct 2004 02:17:56 +0200
-Message-Id: <20041012001756.D46958693@zion.localdomain>
+Date: Tue, 12 Oct 2004 02:18:03 +0200
+Message-Id: <20041012001803.E2A9B8699@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Drop the usage of check_gcc and host-progs, and use their new names. A
-must-have :-).
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>, Chris Wright <chrisw@osdl.org>
 
-Oh, and it will create lots of serious problems - it will give me your root
-account! Yes, you don't see the code in the patch, but it happens! :-)))
+Avoid deadlocking onto the request lock in the UBD driver, i.e. don't lock the
+queue spinlock when called from the request function.
 
+In detail:
+Rename ubd_finish() to __ubd_finish() and remove ubd_io_lock from it.
+Add wrapper, ubd_finish(), which grabs lock before calling __ubd_finish().
+Update do_ubd_request to use the lock free __ubd_finish() to avoid
+deadlock.  Also, apparently prepare_request is called with ubd_io_lock
+held, so remove locks there.
+
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
 ---
 
- linux-2.6.9-current-paolo/arch/um/Makefile                  |    2 +-
- linux-2.6.9-current-paolo/arch/um/kernel/skas/util/Makefile |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ linux-2.6.9-current-paolo/arch/um/drivers/ubd_kern.c |   19 ++++++++++++-------
+ 1 files changed, 12 insertions(+), 7 deletions(-)
 
-diff -puN arch/um/Makefile~uml-kbuild-renamings arch/um/Makefile
---- linux-2.6.9-current/arch/um/Makefile~uml-kbuild-renamings	2004-09-19 20:31:38.624115320 +0200
-+++ linux-2.6.9-current-paolo/arch/um/Makefile	2004-09-19 20:31:38.628114712 +0200
-@@ -46,7 +46,7 @@ CFLAGS += $(CFLAGS-y) -D__arch_um__ -DSU
- 	-D_LARGEFILE64_SOURCE $(ARCH_INCLUDE) -Derrno=kernel_errno \
- 	-Dsigprocmask=kernel_sigprocmask $(MODE_INCLUDE)
+diff -puN arch/um/drivers/ubd_kern.c~uml-ubd-deadlock-revised arch/um/drivers/ubd_kern.c
+--- linux-2.6.9-current/arch/um/drivers/ubd_kern.c~uml-ubd-deadlock-revised	2004-10-12 01:22:16.360058936 +0200
++++ linux-2.6.9-current-paolo/arch/um/drivers/ubd_kern.c	2004-10-12 01:52:22.521480664 +0200
+@@ -396,14 +396,13 @@ int thread_fd = -1;
+  */
+ int intr_count = 0;
  
--CFLAGS += $(call check_gcc,-fno-unit-at-a-time,)
-+CFLAGS += $(call cc-option,-fno-unit-at-a-time,)
+-static void ubd_finish(struct request *req, int error)
++/* call ubd_finish if you need to serialize */
++static void __ubd_finish(struct request *req, int error)
+ {
+ 	int nsect;
  
- LINK_WRAPS = -Wl,--wrap,malloc -Wl,--wrap,free -Wl,--wrap,calloc
+ 	if(error){
+- 		spin_lock(&ubd_io_lock);
+ 		end_request(req, 0);
+- 		spin_unlock(&ubd_io_lock);
+ 		return;
+ 	}
+ 	nsect = req->current_nr_sectors;
+@@ -412,11 +411,17 @@ static void ubd_finish(struct request *r
+ 	req->errors = 0;
+ 	req->nr_sectors -= nsect;
+ 	req->current_nr_sectors = 0;
+-	spin_lock(&ubd_io_lock);
+ 	end_request(req, 1);
++}
++
++static inline void ubd_finish(struct request *req, int error)
++{
++ 	spin_lock(&ubd_io_lock);
++	__ubd_finish(req, error);
+ 	spin_unlock(&ubd_io_lock);
+ }
  
-diff -puN arch/um/kernel/skas/util/Makefile~uml-kbuild-renamings arch/um/kernel/skas/util/Makefile
---- linux-2.6.9-current/arch/um/kernel/skas/util/Makefile~uml-kbuild-renamings	2004-09-19 20:31:38.625115168 +0200
-+++ linux-2.6.9-current-paolo/arch/um/kernel/skas/util/Makefile	2004-09-19 20:32:05.746992016 +0200
-@@ -1,2 +1,2 @@
--host-progs		:= mk_ptregs
--always			:= $(host-progs)
-+hostprogs-y		:= mk_ptregs
-+always			:= $(hostprogs-y)
++/* Called without ubd_io_lock held */
+ static void ubd_handler(void)
+ {
+ 	struct io_thread_req req;
+@@ -965,6 +970,7 @@ static int prepare_mmap_request(struct u
+ 	return(0);
+ }
+ 
++/* Called with ubd_io_lock held */
+ static int prepare_request(struct request *req, struct io_thread_req *io_req)
+ {
+ 	struct gendisk *disk = req->rq_disk;
+@@ -977,9 +983,7 @@ static int prepare_request(struct reques
+ 	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
+ 		printk("Write attempted on readonly ubd device %s\n", 
+ 		       disk->disk_name);
+- 		spin_lock(&ubd_io_lock);
+ 		end_request(req, 0);
+- 		spin_unlock(&ubd_io_lock);
+ 		return(1);
+ 	}
+ 
+@@ -1029,6 +1033,7 @@ static int prepare_request(struct reques
+ 	return(0);
+ }
+ 
++/* Called with ubd_io_lock held */
+ static void do_ubd_request(request_queue_t *q)
+ {
+ 	struct io_thread_req io_req;
+@@ -1040,7 +1045,7 @@ static void do_ubd_request(request_queue
+ 			err = prepare_request(req, &io_req);
+ 			if(!err){
+ 				do_io(&io_req);
+-				ubd_finish(req, io_req.error);
++				__ubd_finish(req, io_req.error);
+ 			}
+ 		}
+ 	}
 _

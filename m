@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEAJL>; Thu, 4 Jan 2001 19:09:11 -0500
+	id <S129348AbRAEALV>; Thu, 4 Jan 2001 19:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbRAEAJB>; Thu, 4 Jan 2001 19:09:01 -0500
-Received: from 13dyn200.delft.casema.net ([212.64.76.200]:30220 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129183AbRAEAIy>; Thu, 4 Jan 2001 19:08:54 -0500
-Message-Id: <200101050008.BAA14222@cave.bitwizard.nl>
-Subject: Network oddity.... 
-To: linux-kernel@vger.kernel.org
-Date: Fri, 5 Jan 2001 01:08:49 +0100 (MET)
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S129563AbRAEALL>; Thu, 4 Jan 2001 19:11:11 -0500
+Received: from nrg.org ([216.101.165.106]:53290 "EHLO nrg.org")
+	by vger.kernel.org with ESMTP id <S129348AbRAEALE>;
+	Thu, 4 Jan 2001 19:11:04 -0500
+Date: Thu, 4 Jan 2001 16:10:55 -0800 (PST)
+From: Nigel Gamble <nigel@nrg.org>
+Reply-To: nigel@nrg.org
+To: ludovic fernandez <ludovic.fernandez@sun.com>
+cc: Roger Larsson <roger.larsson@norran.net>,
+        Daniel Phillips <phillips@innominate.de>,
+        george anzinger <george@mvista.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.0-prerelease: preemptive kernel.
+In-Reply-To: <3A550433.52982189@sun.com>
+Message-ID: <Pine.LNX.4.05.10101041554520.4946-100000@cosmic.nrg.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Jan 2001, ludovic fernandez wrote:
+> This is not the point I was trying to make .....
+> So far we are talking about real time behaviour. This is a very interesting/exciting
+> thing and we all agree it's a huge task which goes much more behind
+> just having a preemptive kernel.
 
-Hi all, 
+You're right that it is more than just a preemptible kernel, but I don't
+agree that it's all that huge.  But this is the third time I have worked
+on enabling real-time behavior in unix-like OSes, so I may be biased ;-)
 
-I have a server, and it reports ("netstat -a")
+> I'm not convinced that a preemptive kernel is interesting for apps using
+> the time sharing scheduling, mainly because it is not deterministic and the
+> price of a mmu conntext switch is still way to heavy (that's my 2 cents belief
+> anyway).
 
-tcp        0      0 server:ssh    client:1022 SYN_RECV
+But as Roger pointed out, the number of extra context switches
+introduced by having a preemptible kernel is actually very low.  If an
+interrupt occurs while running in user mode, the context switch it may
+cause will happen even in a non-preemptible kernel.  I think that
+running a kernel compile for example, the number of context switches per
+second caused by kernel preemption is probably between 1% and 10% of the
+total context switches per second.  And it's certainly interesting to me
+that I can listen to MP3s without interruption now, while doing a kernel
+build!
 
-This sounds normal right?
+Nigel Gamble                                    nigel@nrg.org
+Mountain View, CA, USA.                         http://www.nrg.org/
 
-However there are 79 of these lines in the netstat output. Not normal!
-
-A TCP connection is identified by the 12 bytes source IP, dest IP,
-source port, dest port. Right? Then as far as I can see, these should
-all refer to the SAME socket. (yes, they all refer to server:ssh, and
-client: 1022!)
-
-Oh, this situation seems to continue: it sends a syn-ack and then the
-client replies with a reset. This goes on and on. I'm going to make
-the client disappear, and hope that this makes the number of these
-connections go away.
-
-Kernel is 2.2.13. That was "fresh" when the system was booted. Yes,
-that's over 14 months ago. 
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

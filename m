@@ -1,32 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269190AbUIYCpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269191AbUIYCrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269190AbUIYCpU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 22:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269187AbUIYCpU
+	id S269191AbUIYCrY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 22:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269192AbUIYCrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 22:45:20 -0400
-Received: from holomorphy.com ([207.189.100.168]:33764 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269190AbUIYCpR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 22:45:17 -0400
-Date: Fri, 24 Sep 2004 19:45:13 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [sched.h 0/8] sched.h header cleanups vs. 2.6.9-rc2-mm3
-Message-ID: <20040925024513.GL9106@holomorphy.com>
+	Fri, 24 Sep 2004 22:47:23 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:50335 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S269191AbUIYCrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 22:47:00 -0400
+Message-Id: <200409250246.i8P2kWwx027390@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Wright <chrisw@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: mlock(1) 
+In-Reply-To: Your message of "Sat, 25 Sep 2004 04:15:01 +0200."
+             <20040925021501.GF3309@dualathlon.random> 
+From: Valdis.Kletnieks@vt.edu
+References: <41547C16.4070301@pobox.com> <20040924132247.W1973@build.pdx.osdl.net> <1096060045.10800.4.camel@localhost.localdomain> <20040924225900.GY3309@dualathlon.random> <1096069581.3591.23.camel@desktop.cunninghams> <20040925010759.GA3309@dualathlon.random> <Pine.LNX.4.60.0409241819580.1341@dlang.diginsite.com> <20040925013013.GD3309@dualathlon.random> <200409250147.i8P1kxtm016914@turing-police.cc.vt.edu>
+            <20040925021501.GF3309@dualathlon.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: multipart/signed; boundary="==_Exmh_-142392744P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 24 Sep 2004 22:46:32 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I split off the most easily mergeable parts of some sched.h header
-cleanups I wrote that better than halved the size of sched.h. In
-particular, these are the parts that don't require large sweeps,
-uninlining, or introducing new headers. Compiletested on x86-64.
+--==_Exmh_-142392744P
+Content-Type: text/plain; charset=us-ascii
 
+On Sat, 25 Sep 2004 04:15:01 +0200, Andrea Arcangeli said:
+> On Fri, Sep 24, 2004 at 09:46:59PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > On Sat, 25 Sep 2004 03:30:13 +0200, Andrea Arcangeli said:
+> > > On Fri, Sep 24, 2004 at 06:21:27PM -0700, David Lang wrote:
+> > > > if you don't do a -c mkswap runs fast enough that it shouldn't be a 
+> > > > problem to do it every boot.
+> > > 
+> > > yep, speed isn't my worry, my worry is a misconfigured /etc/fstab wiping
+> > > out a filesystem...
+> > 
+> > If the mkswap doesn't nuke the filesystem, the first time we actually
+> > send a page to swap will do the job.  Plus, there's more chance of paging
+> 
+> how can a page be sent to swap if sys_swapon refuses to run? The whole
+> point of avoiding running mkswap is to forbid sys_swapon to run.
 
--- wli
+I think we're actually in what the IETF sometimes calls 'violent agreement' -
+what I meant was that if a misconfigured /etc/fstab marked a file system
+as 'swap', then even if it survived the 'mkswap', the subsequent swapping
+would finish the job...
+
+But as you noted in an earlier posting, having the metadata in cleartext
+so sys_swapon can tell what's going on and skipping the mkswap entirely is
+a better solution..
+
+> > Maybe have mkswap check the partition table and not do it if the partition
+> > isn't id=82 (Linux swap) unless -f is specified?  Not sure what to do if
+> > the space is a loop or LVM device though.....
+> 
+> or also if you mkswap on the whole device without partitions.
+
+"Linux is designed to give you enough rope to shoot yourself in the foot with" ;)
+
+I'll let somebody else worry about how paranoid mkswap should be before
+requiring a -f flag.
+
+> doing crypto-swap with cryptoapi inside the swap layer (without using
+> cryptoloop and dm-crypt) with a transparently randomly choosen password
+> and the metadata written in cleartext sounds just a lot cleaner and
+> safer.
+
+Yes, that does sound like a sane idea, and also addresses at least *most* of
+the issues with swsusp and swap not stepping on each other's toes (as the
+header is in cleartext so they both can read it). That still leaves the
+swsusp crew having to save their key securely - but that's easily done if
+you have cryptoapi handy.  Only ugly part is having to read a passphrase
+from the keyboard at suspend and resume (trying to implement "suspend on
+close lid" gets.. ummm.. interesting ;)
+
+--==_Exmh_-142392744P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFBVNwHcC3lWbTT17ARAnh8AKC0YjSxlswCnXPDGdO6OMpb5IzlBQCfQ/9a
+f+Iaqh5RjVoa7uI8b6aOE5A=
+=GVCS
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-142392744P--

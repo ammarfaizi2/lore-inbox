@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131809AbRDTSZU>; Fri, 20 Apr 2001 14:25:20 -0400
+	id <S131756AbRDTSXa>; Fri, 20 Apr 2001 14:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135887AbRDTSZL>; Fri, 20 Apr 2001 14:25:11 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:28940 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S131809AbRDTSZC>; Fri, 20 Apr 2001 14:25:02 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256A34.00651F1C.00@smtpnotes.altec.com>
-Date: Fri, 20 Apr 2001 13:24:34 -0500
-Subject: PCMCIA problem in 2.4.4-pre5
+	id <S131809AbRDTSXU>; Fri, 20 Apr 2001 14:23:20 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:16389 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S131756AbRDTSXI>;
+	Fri, 20 Apr 2001 14:23:08 -0400
+Message-ID: <20010420201713.A981@bug.ucw.cz>
+Date: Fri, 20 Apr 2001 20:17:13 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Tiny cleanup of entry.S
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+I believe that no ifdefs are worth several bytes of code expansion...
 
-Since upgrading to 2.4.4-pre5 my PCMCIA wireless network card no longer works.
-Here's a snippet of the dmesg output from 2.4.4-pre5:
+Index: arch/i386/kernel/head.S
+===================================================================
+RCS file: /home/cvs/Repository/linux/arch/i386/kernel/head.S,v
+retrieving revision 1.1.1.1
+diff -u -u -r1.1.1.1 head.S
+--- arch/i386/kernel/head.S	2000/09/04 16:54:43	1.1.1.1
++++ arch/i386/kernel/head.S	2001/02/13 13:44:48
+@@ -169,9 +169,7 @@
+ 	rep
+ 	movsl
+ 1:
+-#ifdef CONFIG_SMP
+ checkCPUtype:
+-#endif
+ 
+ 	movl $-1,X86_CPUID		#  -1 for no CPUID initially
+ 
+@@ -244,9 +242,7 @@
+ 	orl $2,%eax		# set MP
+ 2:	movl %eax,%cr0
+ 	call check_x87
+-#ifdef CONFIG_SMP
+ 	incb ready
+-#endif
+ 	lgdt gdt_descr
+ 	lidt idt_descr
+ 	ljmp $(__KERNEL_CS),$1f
+@@ -278,9 +274,7 @@
+ 	jmp L6			# main should never return here, but
+ 				# just in case, we know what happens.
+ 
+-#ifdef CONFIG_SMP
+ ready:	.byte 0
+-#endif
+ 
+ /*
+  * We depend on ET to be correct. This checks for 287/387.
 
-Linux PCMCIA Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-Intel PCIC probe: not found.
-ds: no socket drivers loaded!
-
-
-However, it works fine in both 2.4.4-pre4 and 2.4.3-ac10.  Here's the relevant
-portion of the dmesg output from 2.4.3-ac10:
-
-Linux PCMCIA Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-Intel PCIC probe:
-  Intel i82365sl B step ISA-to-PCMCIA at port 0x3e0 ofs 0x00, 2 sockets
-    host opts [0]: none
-    host opts [1]: none
-    ISA irqs (scanned) = 3,4,5,7,9,10 polling interval = 1000 ms
-
-
-after which comes a series of cs IO port and memory probes.  BTW, I'm using
-pcmcia-cs-3.1.25.
-
-Wayne
-
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

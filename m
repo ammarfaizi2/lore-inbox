@@ -1,94 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264663AbSJ3LUJ>; Wed, 30 Oct 2002 06:20:09 -0500
+	id <S264686AbSJ3MII>; Wed, 30 Oct 2002 07:08:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264664AbSJ3LUJ>; Wed, 30 Oct 2002 06:20:09 -0500
-Received: from smtp01.uc3m.es ([163.117.136.121]:55561 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S264663AbSJ3LUI>;
-	Wed, 30 Oct 2002 06:20:08 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200210301126.g9UBQN610194@oboe.it.uc3m.es>
-Subject: catch-22 in current partitioning layer
-To: linux kernel <linux-kernel@vger.kernel.org>
-Date: Wed, 30 Oct 2002 12:26:23 +0100 (MET)
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S264687AbSJ3MII>; Wed, 30 Oct 2002 07:08:08 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62204 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264686AbSJ3MIH>; Wed, 30 Oct 2002 07:08:07 -0500
+Date: Wed, 30 Oct 2002 13:14:26 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: jt@hpl.hp.com
+cc: James McKenzie <james@fishsoup.dhs.org>, <linux-kernel@vger.kernel.org>,
+       <trivial@rustcorp.com.au>
+Subject: Re: [2.5 patch] allow only one Toshiba Type-O IR Port driver in the
+ kernel
+In-Reply-To: <20021029172932.GE32449@bougret.hpl.hp.com>
+Message-ID: <Pine.NEB.4.44.0210301309590.19481-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.5.44
+On Tue, 29 Oct 2002, Jean Tourrilhes wrote:
 
-1) a module which needs to create a device needs to call add_disk
-   in it's init, or it seems the kernel won't allow opens of the
-   device node.
+>...
+> > But as stated above my patch doesn't affect the case when both drivers are
+> > modular which is usually the desired setup when you want to switch between
+> > the two drivers.
+>
+> 	I personally prefer to make the driver code cleaner rather
+> than making the config/Makefile rules more complex. I believe that in
+> the long run, it always pay to keep things simple.
+> 	But, I'm not religious about it.
 
-   * But it can't call add_disk normally without invoking
-   * check_partitions (escape, do so with capacity=0 or minors=1)
-   * which will stall as it needs to read the device or its
-   * backer on disk, and we're still in init ...
+The only thing I'm religious about is that a kernel with a valid .config
+shouldn't produce compile errors.
 
-   This hits NBD. Pavel's kernel NBD escaped (luckily?-) because his
-   device is not partitionable, and so he called add_disk with
-   minors=1 even though capacity was set to maximum. But he narrowly
-   missed hanging in init.
+> 	How do we proceed ? Do you want to send patches yourself
+> directly, or do you want to wait until I send my next IrDA update ?
 
-   It's not clear how we're supposed to /subsequently/ go out and find
-   some partitions over NBD, or how to avoid the races in doing so,
-   since we are already sort of open for business.  HEEEEELP. My own
-   ENBD is being hit by this because it is partitionable.
+I'll wait until you send the fix you prefer at the next IrDA update.
 
-   Can someone document the new genhd and partitions interfaces?
-   I'm confused as anything, and fed up hunting for disappeared things
-   that now seem to be available via strings of pointer references off
-   of new structs (how do I get to rescan_partitions, for example!).
+> 	Regards,
+> 	Jean
 
-2) Partitions, ah yes, partitions.
+cu
+Adrian
 
-   Well, seems the kernel is similarly not permitting opens of minors
-   until we've run the partition check in add_disk. That's good
-   encapsulation if you are planning on doing i/o to them, but I
-   was planning on doing ioctls! And I don't think it's fair to
-   stop me doing ioctls to the minors. Well, we can argue that, but it
-   will break my userspace tools, and I'd rather not introduce 
-   incompatibilities between kernel versions.
-   
-   In any case, I don't think it's fair to equate minors with
-   partitions. Partitions are ONE use of minors. I use minors as
-   indices, to indicate which channel to a device should be used.
-   The device has its partition structure, and any partition can
-   be served (I'm speaking of requests) via any channel, i.e.,
-   any minor.
+-- 
 
-   * My catch 22 is that I can't start using the channels/minors to
-   * talk to the remote device (ENBD) until I've opened the device
-   * and done the partition search via add_disk, which won't work 
-   * until the channels are open ...
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
 
-Help. I'm still fairly sane, but this is hurting.
-
-Ideally, what I would like, is to be able to open the minors for 
-ioctls before allowing them to be open for r/w as partitions. Then
-I don't need to do any changes. I open NOBLOCK for ioctls, if
-that's any help.
-
-Now, what's with this register_region business?  Can I maybe open 256
-devices on the same major, with 1 minor each, just to enable
-communications to the remote, then read the remote partition table, then
-unregister them all, then register them all again this time with 16
-minors per device, as I originally wanted?  No!  The partition check
-will fail, because there are too many partitions (>0) !
-
-Help.
-
-OK, I know what the userspace solution is, but I don't want to do it:
-Make all ioctls go the the whole disk minor. And keep them there. And
-even then, how am I supposed to rescan the device for partitions and
-avoid the races that must be in progress for access to those partitions
-at startup?
-
-
-
-
-Peter

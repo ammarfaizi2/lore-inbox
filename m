@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281473AbRKVS7O>; Thu, 22 Nov 2001 13:59:14 -0500
+	id <S281456AbRKVTFe>; Thu, 22 Nov 2001 14:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281456AbRKVS65>; Thu, 22 Nov 2001 13:58:57 -0500
-Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:59114 "EHLO
-	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281355AbRKVS6k>; Thu, 22 Nov 2001 13:58:40 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: James A Sutherland <jas88@cam.ac.uk>
-To: =?iso-8859-15?q?Fran=E7ois=20Cami?= <stilgar2k@wanadoo.fr>,
-        Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Swap vs No Swap.
-Date: Thu, 22 Nov 2001 18:58:31 +0000
-X-Mailer: KMail [version 1.3.1]
-Cc: war <war@starband.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0111221456020.1491-100000@duckman.distro.conectiva> <3BFD4A42.8090002@wanadoo.fr>
-In-Reply-To: <3BFD4A42.8090002@wanadoo.fr>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <E166z3N-00020W-00@mauve.csi.cam.ac.uk>
+	id <S281458AbRKVTFY>; Thu, 22 Nov 2001 14:05:24 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:32288 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S281456AbRKVTFQ>; Thu, 22 Nov 2001 14:05:16 -0500
+Date: Thu, 22 Nov 2001 21:05:03 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What are the recommended software RAID patch(es) for 2.2.20?
+Message-ID: <20011122210503.B4809@niksula.cs.hut.fi>
+In-Reply-To: <2173081930.1006455144@[195.224.237.69]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <2173081930.1006455144@[195.224.237.69]>; from linux-kernel@alex.org.uk on Thu, Nov 22, 2001 at 06:52:24PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 November 2001 6:56 pm, François Cami wrote:
-> Rik van Riel wrote:
-> > On Thu, 22 Nov 2001, James A Sutherland wrote:
-> >>Obviously, there are cases where removing swap breaks the system
-> >>entirely, but even in other cases, adding swap should *never* degrade
-> >>performance. (In theory, anyway; in practice, it still needs
-> >>tuning...)
-> >
-> > Not quite true.  The VM cannot look into the future, so if
-> > you have swap it could have just swapped out the application
-> > on the desktop you're about to switch to ;)
->
-> I tend to agree. Especially since in some cases (i.e. after
-> a long compilation (read : lots of code)), the VM has the most
-> excellent idea to swap out all the GUI (X+apps) and everyone
-> here knows how long it can be to restore the GUI in that case.
+On Thu, Nov 22, 2001 at 06:52:24PM -0000, you [Alex Bligh - linux-kernel] claimed:
+> What are the recommended software RAID patch(es) for 2.2.20.
+> 
+> I have applied, but not yet tested, raid-2.2.19-A1, which
+> fails on one hunk in init.c which I think is unimportant
+> (seemingly 2.2.20 has a full boot line to device translation
+> table without conditionality of compilation).
 
-Use-once should avoid *most* of that, though not all; all your .c files 
-should be read in once each by gcc, and never touched again. Of course the 
-headers need to be cached, and the .o files will be accessed multiple times 
-too.
+I just applied raid-2.2.19-A1 on 2.2.20 and have it running.
+I'm not 100% sure it works, though, since I get always the same md5sum from
 
-> Obviously the problem is very much lessened, in my case, when
-> i put the swap partition on the *other* drive than the root fs.
-> Both are ATA100 (40GB 60GXPs), and the system is more responsive
-> with swap on hdc while / in on hda, than both on hda.
+cat /dev/hde | md5sum
+or 
+cat /dev/hdg | md5sum
+(hdg and hde are not the same, but successive hde runs are the same as are
+hdg runs.)
 
-Hmm... if you've experimented with this, how does this setup compare to a 
-striped RAID of hda+hdc used for root and swap? (i.e. is the speedup down to 
-splitting accesses between two spindles?)
+but
+cat /dev/md0 | md5sum
+
+is different every time. md0 consists of hde and hdg striped together.
+(Again, I'm not expecting it to be same as hde or hdg, but consistent over
+successive runs.) Successive hde and hdg runs are consistent even when run
+in parallel.
+
+Any ideas what could cause this? A short read or something else trivial?
+
+I'll try to go back to 2.2.18pre19 soon, and see if it happens there. Also,
+I'll try to see where the difference is. The first GB of md0 md5sums ok.
+
+I'm having a lot of problem with this setup, and raid code is not my primary
+suspect. My gut feeling is that you should be safe with raid-2.2.19-A1 on
+top of 2.2.20 and my problem is elsewhere.
+ 
+> Do I need to apply anything else? (-A2, -A3, -B1, -B2 or
+> whatever)
+
+I reckon not. -B3, -A1 etc are version codes Ingo likes to use.
 
 
-James.
+-- v --
+
+v@iki.fi

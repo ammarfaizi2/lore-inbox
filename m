@@ -1,98 +1,268 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264569AbTF0Rot (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 13:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264590AbTF0Rot
+	id S264547AbTF0Rod (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 13:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbTF0Roc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 13:44:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:23016 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264569AbTF0Rop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 13:44:45 -0400
-Date: Fri, 27 Jun 2003 19:58:53 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [2.4 patch] some gcc 3.3 fixes from -ac
-Message-ID: <20030627175853.GJ24661@fs.tum.de>
-References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
-Mime-Version: 1.0
+	Fri, 27 Jun 2003 13:44:32 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:59842 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S264547AbTF0Ro1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 13:44:27 -0400
+Date: Fri, 27 Jun 2003 10:58:28 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.73-mjb2
+Message-ID: <36540000.1056736708@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-the patch below contains four trivial fixes for compile failures with 
-gcc 3.3 stolen from -ac.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-I've tested the compilation with 2.4.22-pre2.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.73/patch-2.5.73-mjb2.bz2
 
-diffstat output:
+additional patches that can be applied if desired:
 
- drivers/net/irda/ma600.c     |    6 +++---
- drivers/net/wan/sdla_chdlc.c |    3 +--
- drivers/sound/cs46xx.c       |    4 ++--
- net/decnet/dn_table.c        |    3 +--
- 4 files changed, 7 insertions(+), 9 deletions(-)
+(these three form the qlogic feral driver)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.72/2.5.72-mm1/broken-out/linux-isp.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.72/2.5.72-mm1/broken-out/isp-update-1.patch
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.72/2.5.72-mm1/broken-out/isp-remove-pci_detect.patch
+
+Since 2.5.73-mjb1 (~ = changed, + = added, - = dropped)
+
+Notes: 
+	Small release, but upside_down may have large impact.
+	On the other hand, it's very cool, and solves various awkward problems.
+	See if you can break it ;-)
+
+Now in Linus' tree:
+
+New:
++ upside_down					William Lee Irwin
+	Allocate memory from the top down, shove the stack where it belongs.
++ node_spanned_pages				Dave Hansen
+	Fix up NUMA beancounting
+
+Dropped:
+
+- numameminfo fix				Martin J. Bligh
+	(merged with node_spanned_pages).
 
 
-Please apply
-Adrian
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+scheduler callers profiling (Anton or Bill Hartner)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+pidmaps_nodepages (Dave Hansen)
 
+Present in this patch:
 
---- linux.vanilla/drivers/net/irda/ma600.c	2002-11-29 21:27:18.000000000 +0000
-+++ linux.21-ac3/drivers/net/irda/ma600.c	2003-05-29 01:40:07.000000000 +0100
-@@ -51,9 +51,9 @@
- 	#undef ASSERT(expr, func)
- 	#define ASSERT(expr, func) \
- 	if(!(expr)) { \
--	        printk( "Assertion failed! %s,%s,%s,line=%d\n",\
--        	#expr,__FILE__,__FUNCTION__,__LINE__); \
--	        ##func}
-+		printk( "Assertion failed! %s,%s,%s,line=%d\n",\
-+		#expr,__FILE__,__FUNCTION__,__LINE__); \
-+		func}
- #endif
- 
- /* convert hex value to ascii hex */
---- linux.vanilla/drivers/net/wan/sdla_chdlc.c	2002-11-29 21:27:18.000000000 +0000
-+++ linux.21-ac3/drivers/net/wan/sdla_chdlc.c	2003-05-28 15:35:56.000000000 +0100
-@@ -591,8 +591,7 @@
- 	
- 
- 		if (chdlc_set_intr_mode(card, APP_INT_ON_TIMER)){
--			printk (KERN_INFO "%s: 
--				Failed to set interrupt triggers!\n",
-+			printk (KERN_INFO "%s: Failed to set interrupt triggers!\n",
- 				card->devname);
- 			return -EIO;	
-         	}
---- linux.vanilla/drivers/sound/cs46xx.c	2003-06-14 00:11:37.000000000 +0100
-+++ linux.21-ac3/drivers/sound/cs46xx.c	2003-06-22 13:36:11.000000000 +0100
-@@ -947,8 +950,8 @@
- 
- struct InitStruct
- {
--    u32 long off;
--    u32 long val;
-+    u32 off;
-+    u32 val;
- } InitArray[] = { {0x00000040, 0x3fc0000f},
-                   {0x0000004c, 0x04800000},
- 
---- linux.vanilla/net/decnet/dn_table.c	2001-12-21 17:42:05.000000000 +0000
-+++ linux.21-ac3/net/decnet/dn_table.c	2003-05-28 15:37:27.000000000 +0100
-@@ -836,8 +836,7 @@
-                 return NULL;
- 
-         if (in_interrupt() && net_ratelimit()) {
--                printk(KERN_DEBUG "DECnet: BUG! Attempt to create routing table 
--from interrupt\n"); 
-+                printk(KERN_DEBUG "DECnet: BUG! Attempt to create routing table from interrupt\n"); 
-                 return NULL;
-         }
-         if ((t = kmalloc(sizeof(struct dn_fib_table), GFP_KERNEL)) == NULL)
+early_printk					Dave Hansen / Keith Mannthey
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
+
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
+
+schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+kgdb						Andrew Morton
+	The older version of kgdb, synched with 2.5.54-mm1
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+4k_stacks_vs_kgdb				Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+spinlock_inlining				Andrew Morton & Martin J. Bligh
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+lockmeter					John Hawkes / Hanna Linder
+	Locking stats.
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+ppc64 fixes					Anton Blanchard
+	Various PPC64 fixes / updates
+
+config_debug					Dave Hansen
+	Make '-g' for the kernel a config option
+
+akpm_bear_pit					Andrew Morton
+	Add a printk for some buffer error I was hitting
+
+32bit_dev_t					Andries Brouwer
+	Make dev_t 32 bit
+
+dynamic_hd_struct				Badari Pulavarty
+	Allocate hd_structs dynamically
+
+lotsa_sds					Badari Pulavarty
+	Create some insane number of sds
+
+iosched_hashes					Badari Pulavarty
+	Twiddle with the iosched hash tables for fun & profit
+
+per_node_idt					Zwane Mwaikambo
+	Per node IDT so we can do silly numbers of IO-APICs on NUMA-Q
+
+config_numasched				Dave Hansen
+	Turn NUMA scheduler into a config option
+
+lockmeter_tytso					Ted Tso
+	Fix lockmeter
+
+aiofix2						Mingming Cao
+	fixed a bug in ioctx_alloc()
+
+config_irqbal					Keith Mannthey
+	Make irqbalance a config option
+
+fs_aio_1_retry					Suparna Bhattacharya
+	Filesystem aio. Chapter 1
+
+fs_aio_2_read					Suparna Bhattacharya
+	Filesystem aio. Chapter 2
+
+fs_aio_3_write					Suparna Bhattacharya
+	Filesystem aio. Chapter 3
+
+fs_aio_4_down_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 4
+
+fs_aio_5_wrdown_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 5
+
+fs_aio_6_bread_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 6
+
+fs_aio_7_ext2getblk_wq				Suparna Bhattacharya
+	Filesystem aio. Chapter 7
+
+fs_aio_8_down_wq-ppc64				Suparna Bhattacharya
+	Filesystem aio. Chapter 8
+
+fs_aio_9_down_wq-x86_64				Suparna Bhattacharya
+	Filesystem aio. Chapter 9
+
+reslabify-pmd-pgd				William Lee Irwin
+	Stick things back in the slab. Or something.
+
+separate_pmd					Dave Hansen
+	Separate kernel pmd per task.
+
+banana_split					Dave Hansen
+	Make PAGE_OFFSET play twister and limbo.
+
+percpu_real_loadavg				Dave Hansen / Martin J. Bligh
+	Tell me what the real load average is, and tell me per cpu.
+
+nolock						Dave McCracken
+	Nah, we don't like locks.
+
+proc_pid_readdir				Manfred Spraul
+	Make proc_pid_readdir more efficent. Allegedly.
+
+mbind_part1					Matt Dobson
+	Bind some memory for NUMA.
+
+mbind_part2					Matt Dobson
+	Bind some more memory for NUMA.
+
+per_node_rss					Matt Dobson
+	Track which nodes tasks mem is on, so sched can be sensible.
+
+uninitialised timer				Mikael Pettersson
+	Fix bogus cleanup so that gcc 2.95.4 works.
+
+sysrq_t_fix					Andrew Morton
+	Fix sysrq+t breakage where it showed the same stack for everyone
+
+swsusp_state_check				Matt Dobson
+	Fix a check in s/w suspend code
+
+pci_hotplug					Ivan K.
+	Fix up pci hotplug w/o hotplug enabled.
+
+pfn_to_nid					Martin J. Bligh
+	Dance around the twisted rats nest of crap in i386 include.
+
+upside_down					William Lee Irwin
+	Allocate memory from the top down, shove the stack where it belongs.
+
+node_spanned_pages				Dave Hansen
+	Fix up NUMA beancounting
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
+

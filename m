@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263633AbUC3MUi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 07:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263635AbUC3MUh
+	id S263629AbUC3MVV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 07:21:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbUC3MVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 07:20:37 -0500
-Received: from main.gmane.org ([80.91.224.249]:44951 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263633AbUC3MUU (ORCPT
+	Tue, 30 Mar 2004 07:21:20 -0500
+Received: from gprs214-82.eurotel.cz ([160.218.214.82]:28033 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263629AbUC3MVP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 07:20:20 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Marc Bevand <bevand_m@epita.fr>
-Subject: Re: [PATCH] speed up SATA
-Date: Tue, 30 Mar 2004 13:54:30 +0200
-Message-ID: <40695FF6.3020401@epita.fr>
-References: <4066021A.20308@pobox.com>
+	Tue, 30 Mar 2004 07:21:15 -0500
+Date: Tue, 30 Mar 2004 14:21:00 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       LHCS list <lhcs-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] Hotplug CPU toy for i386
+Message-ID: <20040330122059.GA461@elf.ucw.cz>
+References: <405C1F42.9030901@cyberone.com.au> <1079937266.5759.42.camel@bach> <Pine.LNX.4.58.0403220153520.28727@montezuma.fsmlabs.com> <1080189202.25555.26.camel@bach>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Andrew Morton <akpm@osdl.org>
-X-Gmane-NNTP-Posting-Host: 213.41.133.51
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040326
-X-Accept-Language: en-us, en
-In-Reply-To: <4066021A.20308@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080189202.25555.26.camel@bach>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Hi!
+
+> > > @@ -1035,6 +1036,10 @@ inline void smp_local_timer_interrupt(st
+> > >  {
+> > >  	int cpu = smp_processor_id();
+> > >
+> > > +	/* FIXME: Actually remove timer interrupt in __cpu_disable() --RR */
+> > > +	if (cpu_is_offline(cpu))
+> > > +		return;
+> > > +
+> > 
+> > We could setup an offline cpu idt with nop type interrupt stubs, this
+> > could also take care of the irq_stabilizing problem later on...
 > 
-> [...]
-> With this simple patch, the max request size goes from 128K to 32MB... 
-> so you can imagine this will definitely help performance.  Throughput 
-> goes up.  Interrupts go down.  Fun for the whole family.
-> [...]
+> The problem I have with this approach is that it shouldn't be
+> neccessary.  Perhaps I'm overly optimistic.
+> 
+> I know *nothing* about i386: I'll play with stealing the PM code's
+> APIC suspend/resume, which I think is the Right Way to do this.
 
-I have experienced a noticeable improvement concerning the CPU usage
-and disk throughput with this patch.
-
-Benchmark specs:
-
-  o read from only 1 disk (sda), or from 2 disks (sda+sdb), with
-    1 or 2 instances of "dd if=/dev/sd? of=/dev/null bs=100M".
-  o hardware: two Seagate 160GB SATA, on a Silicon Image 3114, on a
-    32-bit/33MHz PCI bus, 1GB RAM.
-  o software: kernel 2.6.5-rc2-bk6-libata2.
-
-Benchmark datas:
-
-     without the speed-up-sata patch       with the speed-up-sata patch
-     reading sda     reading sda+sdb     reading sda     reading sda+sdb
-bi      57000             92000             57000             97000
-in       1900              2400              1600              1800
-cs       1800              3300              1400              1700
-sy        11%               20%                9%               16%
-us         0%                0%                0%                0%
-
-("bi, in, cs, sy, us" have been reported by vmstat(8))
-
-When reading only from sda, the speed-up-sata patch makes the number of
-interrupts/s drop from 1900 to 1600 (CPU usage: 11% to 9%). The throughput
-does not improve because 57000 blocks/s is the physical limit of the hardisk.
-
-When reading from both sda and sdb, the improvement is more visible: the
-number of interrupts/s goes from 2400 to 1800 (CPU usage: 20% to 16%). But
-in this case, the throughput improves from 92000 blocks/s to 97000 blocks/s.
-I think I am reaching the physical limit of the PCI bus (theoretically it
-would be 133 MB/s or 133000 blocks/s). When setting the PCI latency timer of
-the SiI3114 controller to 240 (was 64), I am able to reach 100000 blocks/s.
-
-As other people were complaining that the 32MB max request size might be too
-high, I did give a try to 1MB (by replacing "65534" by "2046" in the patch).
-There is no visible differences between 32MB and 1MB.
-
-PS: Jeff: "pci_dma_mapping_error()", in libata-core.c from your latest
-2.6-libata patch, is an unresolved symbol. I have had to comment it out
-to be able to compile the kernel.
-
+Is there chance for this code to go in? It would be usefull for making
+swsusp work on SMP... And probably needed for suspend-to-ram, too.
+								Pavel
 -- 
-Marc Bevand
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316730AbSERAuj>; Fri, 17 May 2002 20:50:39 -0400
+	id <S316729AbSERBCv>; Fri, 17 May 2002 21:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316731AbSERAui>; Fri, 17 May 2002 20:50:38 -0400
-Received: from dsl-213-023-043-065.arcor-ip.net ([213.23.43.65]:26759 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316730AbSERAui>;
-	Fri, 17 May 2002 20:50:38 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Htree directory index for Ext2, updated
-Date: Sat, 18 May 2002 02:49:44 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200205170422.g4H4M5q295551@saturn.cs.uml.edu> <E178a8G-00005D-00@starship> <20020517084327.A20573@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E178sPr-0000Be-00@starship>
+	id <S316733AbSERBCu>; Fri, 17 May 2002 21:02:50 -0400
+Received: from slip-202-135-75-205.ca.au.prserv.net ([202.135.75.205]:45449
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316729AbSERBCt>; Fri, 17 May 2002 21:02:49 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: Your message of "Fri, 17 May 2002 13:36:49 -0400."
+             <200205171736.g4HHant04061@devserv.devel.redhat.com> 
+Date: Sat, 18 May 2002 11:05:26 +1000
+Message-Id: <E178sfK-0006dG-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 May 2002 09:43, Russell King wrote:
-> On Fri, May 17, 2002 at 07:18:23AM +0200, Daniel Phillips wrote:
-> > I think you're saying that patch is broken by design.  And what's the
-> > standard argument for not fixing it?
+In message <200205171736.g4HHant04061@devserv.devel.redhat.com> you write:
+> >[...]
+> > We could do that, or, we could fix the actual problem, which is the
+> > HUGE FUCKING BEARTRAP WHICH CATCHES EVERY SINGLE NEW PROGRAMMER ON THE
+> > WAY THROUGH.
 > 
-> There are a set of guidelines for generating patches given in the patch
-> 2.5 manpage.  I would suggest people go and read them.  The section is
-> marked: "NOTES FOR PATCH SENDERS"
+> It is but one of many crooked interfaces. For example, Linux
+> has outb() arguments swapped relatively to all other environments.
 
-I will go as far as agreeing that this is a standard argument.
+Yes, and they should all be fixed.  But the one which is never found
+by the compiler or any simple testing is a clear winner in the "trap
+for programmers" category.
 
--- 
-Daniel
+> I think it may be the best to have Corbet to update the O'Reily
+> book with a chapter of common traps and add a @-comment near
+> the copy_from_user.
+> 
+> In the interest of full disclosure, I must admit that I used
+> copy_from_user wrong once, many years ago. The lesson which
+> I extracted was different though. I decided that I was arrogant
+> and foolish to program without reading interface specifications
+> or the code. It did not occur to me to shift the blame onto
+> copy_from_user creators.
+
+Please send me your mailing address.  I shall send you a copy of
+"Design of Everyday Things" (Donald A Norman).  You should not blame
+yourself for others' bad design.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

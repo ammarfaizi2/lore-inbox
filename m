@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282668AbRLBBuP>; Sat, 1 Dec 2001 20:50:15 -0500
+	id <S282670AbRLBCDg>; Sat, 1 Dec 2001 21:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282670AbRLBBt4>; Sat, 1 Dec 2001 20:49:56 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:7102 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S282668AbRLBBty>; Sat, 1 Dec 2001 20:49:54 -0500
-Date: Sat, 1 Dec 2001 18:49:54 -0700
-Message-Id: <200112020149.fB21nso04834@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-Cc: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>,
+	id <S282672AbRLBCD1>; Sat, 1 Dec 2001 21:03:27 -0500
+Received: from adsl-67-36-120-14.dsl.klmzmi.ameritech.net ([67.36.120.14]:27820
+	"HELO tabris.net") by vger.kernel.org with SMTP id <S282670AbRLBCDK>;
+	Sat, 1 Dec 2001 21:03:10 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Organization: Dome-S-Isle Data
+To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>,
         linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
-In-Reply-To: <20011202013724.9085AFB80D@tabris.net>
-In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de>
-	<200112011808.fB1I8lq31535@vindaloo.ras.ucalgary.ca>
-	<20011202013724.9085AFB80D@tabris.net>
+Subject: Re: SENDMAIL Ages to start !!!!!
+Date: Sat, 1 Dec 2001 21:02:56 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <EXCH01SMTP01fVwcdZ0000059be@smtp.netcabo.pt>
+In-Reply-To: <EXCH01SMTP01fVwcdZ0000059be@smtp.netcabo.pt>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011202020257.3C083FB80D@tabris.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Schrotenboer writes:
-> On Saturday 01 December 2001 13:08, Richard Gooch wrote:
-> > linux-kernel@borntraeger.net writes:
-> <snip>
-> > The new devfs core is less forgiving about these kinds of
-> > bugs/misuses.
-> >
-> > > devfs: devfs_register(nvidiactl): could not append to parent, err: -17
-> > > devfs: devfs_register(nvidia0): could not append to parent, err: -17
-> > >
-> > > with 2.4.16 and before the message was:
-> > >
-> > > devfs: devfs_register(): device already registered: "nvidia0"
-> >
-> > Who knows what nvidia does? Talk to them. Could be a bug in their
-> > driver where they create duplicate entries (the old devfs code would
-> > often let you get away with this). Or again, perhaps something in
-> > user-space is creating these entries.
-> >
-> As of 1541 anyway (haven't tried anything newer, assuming newer
-> exists), the make install of the nvidia driver also runs
-> makedevices.sh (a vendor sp script that makes the devnodes. This may
-> also have been put in the initscripts (mine isn't, but i tend to use
-> the tar.gz fmt, not using the RPMs) Perhaps there is no check for
-> devfs (likely will be fixed in the next release, as this is a new
-> situation)
+On Saturday 01 December 2001 20:29, Miguel Maria Godinho de Matos wrote:
+> I am having some prblems with sendmail since the second time i booted
+> linux.
+>
+> I have linux for about 2 months now and i just now understood that my send
+> mail deamon takes too long to start.
+>
+> this is the log message that appeard when i upgraded linux red hat 7.1 to
+> 7.2 for the first time:
+Beware of scripts that claim to fix the /etc/hosts file. (Mandrake 8.1 cups 
+script[confirmed], among other possibilites. one ugly sol'n is to make 
+/etc/hosts immutable [chattr +i /etc/hosts]. Risky, and needs to be root to 
+do it. But immutable stops even root from modifying the file. Of course, do 
+this after fixing it. Also, try fixing it so it is a real domain name. like 
+astinusgod.pt [or whatever u hope to have as your domain name someday])
 
-Well, it doesn't matter if the install script dumps things into /dev,
-since that will be lost on the next boot anyway. What matters is if
-the boot scripts (or something else) puts things in devfs.
+I used to have this problem too w/ Mandrake.
 
-> > > Why has this changed, and what is actually happen? My system runs
-> > > fine.
-> >
-> > You're lucky that the with way you use your system, it still works.
-> >
-> <snip> AFAIK, the nvidia scipt does not make the devnodes persistent
-> (if so, it's b0rken on my box)
+HTH
 
-You can easily check this: move the NVidia drivers elsewhere and
-reboot. If device nodes for nvidia appear in devfs, then something in
-user-space is creating those inodes.
+-- 
+tabris
 
-				Regards,
+   A man alone is easy prey
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+                                              Clint Eastwood - Pale Rider
+

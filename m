@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129412AbQKQRLm>; Fri, 17 Nov 2000 12:11:42 -0500
+	id <S130202AbQKQRNM>; Fri, 17 Nov 2000 12:13:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbQKQRLW>; Fri, 17 Nov 2000 12:11:22 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:38665 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S130126AbQKQRLP>;
-	Fri, 17 Nov 2000 12:11:15 -0500
-Message-ID: <3A155F6A.28783D4A@mandrakesoft.com>
-Date: Fri, 17 Nov 2000 11:40:10 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S130243AbQKQRNC>; Fri, 17 Nov 2000 12:13:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:4874 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130202AbQKQRMx>; Fri, 17 Nov 2000 12:12:53 -0500
+Date: Fri, 17 Nov 2000 08:42:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: schwidefsky@de.ibm.com
+cc: Andrea Arcangeli <andrea@suse.de>, mingo@chiara.elte.hu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Memory management bug
+In-Reply-To: <C125699A.005B0F7E.00@d12mta07.de.ibm.com>
+Message-ID: <Pine.LNX.4.10.10011170838040.2272-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Russell King <rmk@arm.linux.org.uk>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, David Hinds <dhinds@valinux.com>,
-        tytso@valinux.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-In-Reply-To: <Pine.LNX.4.10.10011170814440.2272-100000@penguin.transmeta.com> <5178.974478881@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> 
-> torvalds@transmeta.com said:
-> >  If somebody still has a problem with the in-kernel stuff, speak up.
-> 
-> I have an i82092AA evaluation board:
-> 
-> 00:06.0 PCMCIA bridge: Intel Corporation 82092AA_0 (rev 02)
->         Flags: slow devsel, IRQ 27
->         I/O ports at 8400 [size=4]
-> 
-> I have three problems:
-> 
-> 1. I have to specify the i365_base parameter when loading i82365,o
-> 
-> 2. Even when I specify cs_irq=27, it resorts to polling:
-> 
->         Intel PCIC probe:
->           Intel i82365sl DF ISA-to-PCMCIA at port 0x8400 ofs 0x00, 2 sockets
->             host opts [0]: none
->             host opts [1]: none
->             ISA irqs (default) = none! polling interval = 1000 ms
->           Intel i82365sl DF ISA-to-PCMCIA at port 0x8400 ofs 0x80, 2 sockets
->             host opts [2]: none
->             host opts [3]: none
->             ISA irqs (default) = none! polling interval = 1000 ms
-
-For these two, it sounds to me like you need to be doing a PCI probe,
-and getting the irq and I/O port info from pci_dev.  And calling
-pci_enable_device, which may or may not be a showstopper here...
-
-	Jeff
 
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
+On Fri, 17 Nov 2000 schwidefsky@de.ibm.com wrote:
+> 
+> >> Whats the reasoning behind these ifs ?
+> >
+> >To catch memory corruption or things running out of control in the kernel.
+> I was refering to the "if (!order) goto try_again" ifs in alloc_pages, not
+> the "if (something) BUG()" ifs.
+
+Basically, if you try to wait for orders > 0, you may have to wait for a
+LOONG time.
+
+It actually works reasonably well on machines with big memories, because a
+buddy allocator _will_ try to coalesce memory allocations as much as
+possible. But it has nasty cases where you can be really unlucky. Feel
+free to run simulations to see, but basically if you have reasonably
+random allocation and free patterns and you want to get an order-X
+contiguous allocation, you may have to free up a noticeable portion of
+your memory before it succeeds.
+
+Sure, you could do "directed freeing", where you actually try to look at
+which pages would be worth freeing to find a large free area, but the
+complexity is not insignificant, and quite frankly the proper approach has
+always been "don't do that then". Don't rely on big contiguous chunks of
+memory. Having an mm that can guarantee contiguous chunks of physical
+memory would be cool, but I suspect strongly that it would have some
+serious downsides.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

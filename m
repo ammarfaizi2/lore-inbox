@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVBUSe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVBUT0f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVBUSe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 13:34:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVBUSe3
+	id S262065AbVBUT0f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 14:26:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbVBUT0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 13:34:29 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:40649 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262072AbVBUSeT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 13:34:19 -0500
-Date: Mon, 21 Feb 2005 19:34:13 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: James Simmons <jsimmons@pentafluge.infradead.org>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, Pavel Machek <pavel@suse.cz>,
-       Vojtech Pavlik <vojtech@suse.cz>, Oliver Neukum <oliver@neukum.org>,
-       Richard Purdie <rpurdie@rpsys.net>,
-       James Simmons <jsimmons@pentafluge.infradead.org>,
-       Adrian Bunk <bunk@stusta.de>,
-       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6: drivers/input/power.c is never built
-Message-ID: <20050221183413.GG6722@wiggy.net>
-Mail-Followup-To: James Simmons <jsimmons@www.infradead.org>,
-	Nigel Cunningham <ncunningham@cyclades.com>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
-	Oliver Neukum <oliver@neukum.org>,
-	Richard Purdie <rpurdie@rpsys.net>,
-	James Simmons <jsimmons@pentafluge.infradead.org>,
-	Adrian Bunk <bunk@stusta.de>,
-	Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <047401c515bb$437b5130$0f01a8c0@max> <20050218213801.GA3544@ucw.cz> <20050218233148.GA1628@elf.ucw.cz> <200502182158.34910.dtor_core@ameritech.net> <1108794519.4098.24.camel@desktop.cunningham.myip.net.au> <Pine.LNX.4.56.0502211810360.13423@pentafluge.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Feb 2005 14:26:34 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:60100 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262065AbVBUSqD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 13:46:03 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: gene.heskett@verizon.net
+Subject: Re: OT: Why is usb data many times the cpu hog that firewire is?
+Date: Mon, 21 Feb 2005 19:46:02 +0100
+User-Agent: KMail/1.7.1
+References: <200502211216.35194.gene.heskett@verizon.net> <200502211858.34301.oliver@neukum.org> <200502211325.55013.gene.heskett@verizon.net>
+In-Reply-To: <200502211325.55013.gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.56.0502211810360.13423@pentafluge.infradead.org>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+Message-Id: <200502211946.02233.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously James Simmons wrote:
-> Checkout DBUS. Its very nice. 
+Am Montag, 21. Februar 2005 19:25 schrieb Gene Heskett:
+> Thats what I was afraid of, which makes using it for a motion detected 
+> burgular alarm source considerably less than practical since the 
+> machine must be able to do other things too.  Darn.  And its usb1.1 
+> even when plugged into a 2.0 capable port.
 
-D-BUS is already userspace. netlink however is a nice transport system
-and there are several existing tools that pass messages from netlink
-onto D-BUS.
+There are some cameras which can operate without compression at lowered
+resolution and framerate. Maybe that is good enough. In addition,
+decompression may be optimised.
 
-Wichert.
-
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+	Regards
+		Oliver

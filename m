@@ -1,94 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261211AbTCXX04>; Mon, 24 Mar 2003 18:26:56 -0500
+	id <S261284AbTCXX3J>; Mon, 24 Mar 2003 18:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261282AbTCXX0V>; Mon, 24 Mar 2003 18:26:21 -0500
-Received: from vger.timpanogas.org ([216.250.140.154]:33929 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S264496AbTCXXZg>; Mon, 24 Mar 2003 18:25:36 -0500
-Date: Mon, 24 Mar 2003 18:02:14 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Adam Radford <aradford@3WARE.com>
-Cc: "'Steven Pritchard'" <steve@silug.org>, linux-kernel@vger.kernel.org
-Subject: Re: 3ware driver errors
-Message-ID: <20030324180214.B14746@vger.timpanogas.org>
-References: <A1964EDB64C8094DA12D2271C04B812672CB38@tabby>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <A1964EDB64C8094DA12D2271C04B812672CB38@tabby>; from aradford@3WARE.com on Mon, Mar 24, 2003 at 01:44:23PM -0800
+	id <S261273AbTCXX3I>; Mon, 24 Mar 2003 18:29:08 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:31198 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S261284AbTCXX2o>; Mon, 24 Mar 2003 18:28:44 -0500
+Message-ID: <B9ECACBD6885D5119ADC00508B68C1EA0C13A924@orsmsx107.jf.intel.com>
+From: "Selbak, Rolla N" <rolla.n.selbak@intel.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "'posixtest-discuss@lists.sourceforge.net'" 
+	<posixtest-discuss@lists.sourceforge.net>,
+       "'phil-list@redhat.com'" <phil-list@redhat.com>
+Subject: [ANNOUNCE] Open POSIX Test Suite 0.9.0
+Date: Mon, 24 Mar 2003 15:39:45 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Adam,
+Release 0.9.0 of the Open POSIX Test Suite is now available at
+http://posixtest.sourceforge.net.  This third release contains POSIX
+conformance tests for the POSIX functions:
 
-They also need to upgrade the firmware on the WD drives.  There's a known problem with WD drives and 3Ware.  
+Threads (90% - not including tagged or rwlock-related functions)
+Signals (90% complete)
+Message queues (100% complete)
+Semaphores (100% complete)
+Timers (100% complete - tags TMR and CS)
 
-Jeff
+It also contains bug fixes from 0.2.0.
 
-On Mon, Mar 24, 2003 at 01:44:23PM -0800, Adam Radford wrote:
-> This is fixed in driver 1.02.00.032, the scsi layer is looping on sense key
-> 'aborted command' after you lost power to a jbod drive, and not checking the
-> ASC 
-> which is 0x04 (Logical Unit Not Ready).  If you want to fix it by hand in
-> your
-> driver before .032 comes out, in 3w-xxxx.h, change:
-> 
-> {0x37, 0x0b, 0x04, 0x00},
-> 
-> to:
-> 
-> {0x37, 0x02, 0x04, 0x00}
-> 
-> This will return sense key 'Not Ready', and you will will not infinitely
-> loop.
-> If I were you, I would jiggle the power cables on that box and replace flaky
-> ones.
-> 
-> -Adam
-> 
-> -----Original Message-----
-> From: Steven Pritchard [mailto:steve@silug.org]
-> Sent: Monday, March 24, 2003 1:28 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: 3ware driver errors
-> 
-> 
-> (Apparently 3w-xxxx in the Subject gets caught as spam.  Somebody
-> might want to adjust that regular expression.  :-)
-> 
-> I have a server that is locking up every day or two with a console
-> full of this error:
-> 
->     3w-xxxx: scsi0: Command failed: status = 0xcb, flags = 0x37, unit #0.
-> 
-> This is on a Dell PowerEdge 1400SC (dual PIII/1.13GHz, 1.1GB RAM),
-> with a 3ware Escalade 7000-2 and two WD1600JB drives, running Red Hat
-> 8.0 with kernel-smp 2.4.18-27.8.0.
-> 
-> I plan to report this to Red Hat's bugzilla, but I'm hoping for some
-> ideas or big red flags to jump out at somebody here...  I use this box
-> for a UML hosting server, so all this downtime is affecting *way* too
-> many people.
-> 
-> This box has been having other stability problems, so I'm guessing
-> this might not be directly related to the 3ware card/driver.  It did
-> survive a memtest86 pass.
-> 
-> Steve
-> -- 
-> steve@silug.org           | Southern Illinois Linux Users Group
-> (618)398-7360             | See web site for meeting details.
-> Steven Pritchard          | http://www.silug.org/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The release notes that appear on download describe how to compile and run
+these tests.
+
+The README page and the Open POSIX Test Suite website (above) give more
+information on the project goals and progress as well as information on how
+to contribute or contact us if you are interested.
+
+Many thanks to Jim Houston, Jerome Marchand and other members of the POSIX
+testing community
+for their bug fixes, patches, and suggestions on how to improve the 0.2.0
+suite.
+
+The Open POSIX Test Suite is an open source test suite with the goal of
+creating conformance test suites, as well as potentially functional and
+stress test suites, to the functions described in the IEEE Std 1003.1-2001
+System Interfaces specification.  Initial work is focusing on timers,
+threads, semaphores, signals, and message queues.
+
+Feel free to contact posixtest-discuss@lists.sourceforge.net if you would
+like further information.
+
+Rolla
+
+* my views are not necessarily my employer's *
+
+

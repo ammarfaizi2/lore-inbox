@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317399AbSIATjd>; Sun, 1 Sep 2002 15:39:33 -0400
+	id <S316860AbSIATyd>; Sun, 1 Sep 2002 15:54:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317400AbSIATjc>; Sun, 1 Sep 2002 15:39:32 -0400
-Received: from 24-168-145-62.nj.rr.com ([24.168.145.62]:63310 "HELO
-	larvalstage.com") by vger.kernel.org with SMTP id <S317399AbSIATjc>;
-	Sun, 1 Sep 2002 15:39:32 -0400
-Date: Sun, 1 Sep 2002 15:52:36 -0400 (EDT)
-From: John Kim <john@larvalstage.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.5.33] trivial compile fix for include/asm-arm/arch-pxa/pxa-regs.h
-Message-ID: <Pine.LNX.4.44.0209011549070.15519-100000@daria.larvalstage.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317392AbSIATyd>; Sun, 1 Sep 2002 15:54:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:48389 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316860AbSIATyd>; Sun, 1 Sep 2002 15:54:33 -0400
+Date: Sun, 1 Sep 2002 20:58:59 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Nicholas Miell <nmiell@attbi.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: OOPS: USB and/or devicefs
+Message-ID: <20020901205859.A29797@flint.arm.linux.org.uk>
+References: <1030270093.1531.8.camel@entropy> <20020828054647.GA26390@kroah.com> <1030908511.1374.17.camel@entropy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030908511.1374.17.camel@entropy>; from nmiell@attbi.com on Sun, Sep 01, 2002 at 12:28:30PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 01, 2002 at 12:28:30PM -0700, Nicholas Miell wrote:
+> On Tue, 2002-08-27 at 22:46, Greg KH wrote:
+> > Does this still happen on 2.5.32?  I was unable to reproduce it on
+> > either 2.5.31, 2.5.31-bk, or 2.5.32.
+> > 
+> 
+> I can reproduce the oops reliably -- but you have to enable slab
+> poisoning to do it.
 
-This is a simple compile fix patch for 2.5.33.
+You want to apply zwane's USB patch, and my 2.5.32-usb.diff patch.
+Both appeared on lkml today.  It should fix this precise problem.
 
-John Kim
-
-
-diff -Naur linux-2.5.33/include/asm-arm/arch-pxa/pxa-regs.h linux-2.5.33-new/include/asm-arm/arch-pxa/pxa-regs.h
---- linux-2.5.33/include/asm-arm/arch-pxa/pxa-regs.h	Sun Sep  1 15:00:00 2002
-+++ linux-2.5.33-new/include/asm-arm/arch-pxa/pxa-regs.h	Sun Sep  1 15:11:01 2002
-@@ -362,7 +362,7 @@
- #define LSR_OE		(1 << 1)	/* Overrun Error */
- #define LSR_DR		(1 << 0)	/* Data Ready */
-
--#define MCR_LOOP	(1 << 4)	*/
-+#define MCR_LOOP	(1 << 4)
- #define MCR_OUT2	(1 << 3)	/* force MSR_DCD in loopback mode */
- #define MCR_OUT1	(1 << 2)	/* force MSR_RI in loopback mode */
- #define MCR_RTS		(1 << 1)	/* Request to Send */
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

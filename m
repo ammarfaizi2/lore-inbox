@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261563AbTCGNRY>; Fri, 7 Mar 2003 08:17:24 -0500
+	id <S261550AbTCGNMX>; Fri, 7 Mar 2003 08:12:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261567AbTCGNRY>; Fri, 7 Mar 2003 08:17:24 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:32692 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S261563AbTCGNRX>; Fri, 7 Mar 2003 08:17:23 -0500
-Date: Fri, 7 Mar 2003 13:25:26 -0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: gilson redrick <gilsonr@cityisp.net>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Mandrake/AMD x L-2.5.xx
-Message-ID: <20030307142518.GA18138@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	gilson redrick <gilsonr@cityisp.net>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <200303070752.31261.gilsonr@cityisp.net>
+	id <S261563AbTCGNMX>; Fri, 7 Mar 2003 08:12:23 -0500
+Received: from mail.gmx.net ([213.165.65.60]:27891 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261550AbTCGNMX>;
+	Fri, 7 Mar 2003 08:12:23 -0500
+Message-Id: <5.2.0.9.2.20030307142155.00c90050@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Mar 2003 14:27:31 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] "interactivity changes", sched-2.5.64-B2
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.2.0.9.2.20030307134220.00c80740@pop.gmx.net>
+References: <5.2.0.9.2.20030307111755.00ce7848@pop.gmx.net>
+ <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdomain>
+ <5.2.0.9.2.20030307103430.00c87df8@pop.gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200303070752.31261.gilsonr@cityisp.net>
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 07, 2003 at 07:52:31AM -0500, gilson redrick wrote:
+At 01:54 PM 3/7/2003 +0100, Mike Galbraith wrote:
+>Spiffy :)  /Me thinks desktop users will like this patch a bunch.
 
- > All the software on my system is fairly new. In the case of gcc, I thought the 
- > v-3.2 might be an adverse factor, so I compiled and tried v-2.95.3; it made 
- > no difference. Likewise, I thought modutils-2.4.19 wasn't new enough, I 
- > installed the latest I could find, v-2.4.22-1, but it didn't help at all.
-
-I doubt Mandrake ships the module-init-tools that the new style module
-loader needs (only Debian currently does afaik). I suggest reading
-http://www.codemonkey.org.uk/post-halloween-2.5.txt
-
-		Dave
+(I can even play asteroids [fly little rocket ship around, shoot at and ram 
+space rocks] with make -j25 bzImage and some swapping [sucks when you hit 
+heavy swap of course, but quite playable as long as swap is light]) 
 

@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbSL2Qg6>; Sun, 29 Dec 2002 11:36:58 -0500
+	id <S265154AbSL2Qrz>; Sun, 29 Dec 2002 11:47:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265154AbSL2Qg6>; Sun, 29 Dec 2002 11:36:58 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:35845 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265081AbSL2Qg5>;
-	Sun, 29 Dec 2002 11:36:57 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212291644.gBTGi79G001294@darkstar.example.net>
-Subject: Re: holy grail
-To: anomalous_force@yahoo.com (Anomalous Force)
-Date: Sun, 29 Dec 2002 16:44:07 +0000 (GMT)
-Cc: riel@conectiva.com.br, wa@almesberger.net, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20021229155600.95805.qmail@web13204.mail.yahoo.com> from "Anomalous Force" at Dec 29, 2002 07:56:00 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S265236AbSL2Qrz>; Sun, 29 Dec 2002 11:47:55 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:27664 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S265154AbSL2Qry>; Sun, 29 Dec 2002 11:47:54 -0500
+Date: Sun, 29 Dec 2002 11:52:55 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Erik Andersen <andersen@codepoet.org>, Adrian Bunk <bunk@fs.tum.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix 2.4.x ieee1394
+Message-ID: <20021229165255.GE10180@hopper.phunnypharm.org>
+References: <200212172033.gBHKX6A32611@hera.kernel.org> <20021222112613.GA8743@codepoet.org> <20021229153821.GN27658@fs.tum.de> <20021229164409.GA5416@codepoet.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20021229164409.GA5416@codepoet.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This has been said before, but "for some reason" everybody
-> > who said it went quiet the moment they started working on
-> > a patch and have never been heard from again.
-> > 
-> > Either they're still working on the problem (after a four
-> > years) or they've moved on to an easier/realistic project.
+> Sorry about that.  I missed a spot.  Here is the full fix:
 > 
-> i have stated this would be extremely difficult. no single person
-> could attempt this without the support of the other developers as
-> the effort must include all aspects of the kernel to some extent.
-> the original discussion for this was to show that kexec() _could_
-> become something that is a holy grail amoung kernel developers:
-> hot-swap.
 
-Why take the easy road, ( :-) ),  and merely make the kernel
-hot-swappable?  You could use the code from the User Mode Linux
-project as a starting point for creating a Meta Kernel Mode linux
-project, and run several more kernel images concurrently as user mode
-processes of the top-level kernel, and then add necessary to connect
-any particular physical hardware to the MKML virtual machines.
+Thanks. I commited my portion.
 
-Then, you could migrate your applications from kernel to kernel
-without ever having to re-boot.
-
-Mainframe power on the desktop :-)
-
-John.
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

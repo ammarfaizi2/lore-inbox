@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVAGSEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVAGSIO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVAGSEB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 13:04:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVAGSEA
+	id S261521AbVAGSIO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 13:08:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVAGSFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 13:04:00 -0500
-Received: from mail.gadugi.org ([69.155.252.3]:11138 "EHLO mail.gadugi.org")
-	by vger.kernel.org with ESMTP id S261428AbVAGSCm (ORCPT
+	Fri, 7 Jan 2005 13:05:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6348 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261370AbVAGSEk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 13:02:42 -0500
-Date: Fri, 7 Jan 2005 12:00:35 -0600
-From: root <root@mail.gadugi.org>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Stephen Pollei <stephen_pollei@comcast.net>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: OT Re: Cherokee Nation Posts Open Source Legisation
-Message-ID: <20050107180035.GA17728@mail.gadugi.org>
-References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu> <1105043496.970.49.camel@fury> <20050106213221.GA12866@mail.gadugi.org> <41DE88A2.6050004@hist.no>
+	Fri, 7 Jan 2005 13:04:40 -0500
+Date: Fri, 7 Jan 2005 10:04:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel@vger.kernel.org, Prasanna Meda <pmeda@akamai.com>
+Subject: Re: mysterious /proc/<pid>/maps breakage with static binaries in
+ 2.6.10-mm2
+Message-Id: <20050107100422.4dfb8025.akpm@osdl.org>
+In-Reply-To: <1105088099.11504.12.camel@localhost>
+References: <1105088099.11504.12.camel@localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DE88A2.6050004@hist.no>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 07, 2005 at 02:03:30PM +0100, Helge Hafting wrote:
-> >If the license says the receipient of a piece of code must acknowledge 
-> >and protect the trade secrets it contains, then it's enforceable.  
-> >
-> Sure, but if there is a secret that must be protected, then it
-> isn't open source! 
-> 
-> By definition: open source is something I can give to absolutely anybody
-> with no reservations.  I.e. no need to protect anything. 
-> 
-> So your law means you can give someone code with the restriction that
-> they protect the trade secret within, but such code is not open source.
-> It may be less restrictive than many other commercial/proprietary licences,
-> (i.e. you can give it away for free, for example) but it is not _open_
-> with such restrictions. 
-> 
-> The linux source for example, can be given to anybody with no
-> reservations other than that the GPL is respected.  (The GPL does not
-> limit redistribution though.) 
-> 
-> Helge Hafting
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>
+> In 2.6.10-mm2, if I look at the maps of a process execve'd from a static
+>  executable, /proc/<pid>/maps looks wrong.
 
-It's as open as linux is today.  Think about it.  Linux really isn't
-"free" or "open" since it has the concept of personal ownership of 
-the code.  Linus himself responded to the GPL buyout offer and stated
-"his" code would remain GPL.  Linus was exercising his rights of 
-ownerhsip by making this statement. 
-
-"open" means it's open for contribution and attribution from others,
-but none of it is really "free" since someone owns it and can exercise
-the rights of that ownership, including deciding what license scheme
-it will be under, and in some cases, litigating to stop people from 
-using it in certain circumstances. 
-
-Under the current Linux umbrella with the GPL, "open" and "free" 
-are ephemisms for "contribution" and "attribution."  The one exception
-this ;icense places is it removes the ability of other to coop or 
-steal an individuals work.  This model we are proposing is no different
-from what Linux operates under today -- with one exception -- an author
-can protect their work from being ripped off by various projects 
-claiming to be open and it prevents the "mob" mentality from 
-circumventing someone elses rights to their creative works by 
-preventing the majority from ousting a minority contributor 
-and taking their work by brute force.  
-
-Something the GPL professes to provide to copyright holders, but really
-doens't.  This model also makes open source projects commerically 
-viable by allowing groups, individuals, and organizations the 
-ability to enforce their rights in state courts with trade secret 
-claims.
+The first versions of speedup-proc-pid-maps was dodgy.  Does this fix?
 
 
-
+--- 25/fs/proc/task_mmu.c~speedup-proc-pid-maps-fix	2005-01-07 10:03:04.313758952 -0800
++++ 25-akpm/fs/proc/task_mmu.c	2005-01-07 10:03:04.317758344 -0800
+@@ -133,6 +133,15 @@ static void *m_start(struct seq_file *m,
+ 	tail_map = get_gate_vma(task);
+ 	down_read(&mm->mmap_sem);
+ 
++	/*
++	 * First map is special, since we remember last_addr
++	 * rather than current_addr to hit with mmap_cache most of the time.
++	 */
++	if (!l) {
++		map = mm->mmap;
++		goto out;
++	}
++
+ 	/* Start with last addr hint */
+ 	map = find_vma(mm, last_addr);
+ 	if (map) {
+@@ -140,7 +149,7 @@ static void *m_start(struct seq_file *m,
+ 		goto out;
+ 	}
+ 
+-	/* Check the map index is within the range */
++	/* Check the map index is within the range, and do linear scan */
+ 	if ((unsigned long)l < mm->map_count) {
+ 		map = mm->mmap;
+ 		while (l-- && map)
+@@ -179,16 +188,16 @@ static void *m_next(struct seq_file *m, 
+ {
+ 	struct task_struct *task = m->private;
+ 	struct vm_area_struct *map = v;
++	struct vm_area_struct *tail_map = get_gate_vma(task);
++
+ 	(*pos)++;
+ 	if (map && map->vm_next) {
+-		m->version = map->vm_next->vm_start;
++		m->version = (map != tail_map)? map->vm_start: -1UL;
+ 		return map->vm_next;
+ 	}
+ 	m_stop(m, v);
+ 	m->version = -1UL;
+-	if (map != get_gate_vma(task))
+-		return get_gate_vma(task);
+-	return NULL;
++	return (map != tail_map)? tail_map: NULL;
+ }
+ 
+ struct seq_operations proc_pid_maps_op = {
+_
 

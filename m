@@ -1,33 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317381AbSFRKrT>; Tue, 18 Jun 2002 06:47:19 -0400
+	id <S317383AbSFRKuD>; Tue, 18 Jun 2002 06:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317383AbSFRKrS>; Tue, 18 Jun 2002 06:47:18 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:27558 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S317381AbSFRKrS>; Tue, 18 Jun 2002 06:47:18 -0400
-Message-ID: <3D0F0F67.3070806@antefacto.com>
-Date: Tue, 18 Jun 2002 11:45:59 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dean gaudet <dean-list-linux-kernel@arctic.org>
-CC: Andreas Dilger <adilger@clusterfs.com>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 3x slower file reading oddity
-References: <Pine.LNX.4.44.0206171858100.18507-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317384AbSFRKuC>; Tue, 18 Jun 2002 06:50:02 -0400
+Received: from ti131310a080-0035.bb.online.no ([80.212.16.35]:31496 "HELO
+	grimm1.grimstad") by vger.kernel.org with SMTP id <S317383AbSFRKuB>;
+	Tue, 18 Jun 2002 06:50:01 -0400
+Date: Tue, 18 Jun 2002 12:41:51 +0200
+From: "Nils O. =?ISO-8859-1?Q?Sel=E5sdal" ?= <noselasd@Utel.no>
+Message-Id: <200206181041.g5IAfpL20399@localhost.localdomain>
+To: linux-kernel@vger.kernel.org
+Subject: ReiserFS & NFS oops
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier's treescan may be of interest:
-http://www.tantalophile.demon.co.uk/treescan/
-I noticed you're using IDE. Would Jens' TCQ
-stuff acheive better parallelism for you?
-Does mount -o remount,noatime,nodiratime make
-any difference?
+Just wanted to know if this is a known problem and if it might be fixed in
+the near future:
+Using 2.4.19-pre8 just one filesystem with reiserfs, I exported a directory. Mounted
+it on another hosts and started writing a large (500mb) file to it, that resulted
+in the server filesystem going full and the server locked up hard.
 
-Padraig.
-
+-
+NOS@Utel.no

@@ -1,677 +1,649 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263318AbSJCNBf>; Thu, 3 Oct 2002 09:01:35 -0400
+	id <S263326AbSJCNE4>; Thu, 3 Oct 2002 09:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263319AbSJCNBf>; Thu, 3 Oct 2002 09:01:35 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:32679 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S263318AbSJCNBY>;
-	Thu, 3 Oct 2002 09:01:24 -0400
-Date: Thu, 3 Oct 2002 15:17:05 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] timer-2.5.40-F7
-Message-ID: <Pine.LNX.4.44.0210031454340.12197-100000@localhost.localdomain>
+	id <S263291AbSJCNE4>; Thu, 3 Oct 2002 09:04:56 -0400
+Received: from mg01.austin.ibm.com ([192.35.232.18]:33758 "EHLO
+	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S263326AbSJCNDm>; Thu, 3 Oct 2002 09:03:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: torvalds@transmeta.com
+Subject: [PATCH] EVMS core 2/4: evms.h
+Date: Thu, 3 Oct 2002 07:36:34 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <02100307363402.05904@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings,
 
-the attached patch (against BK-curr) adds a number of timer subsystem
-enhancements:
+Here is part 2 of the EVMS core. This is the common header file included by
+the core and all the plugins, and defines commonly used structures and macros.
 
-- simplified timer initialization, now it's the cheapest possible thing:
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/
 
-    static inline void init_timer(struct timer_list * timer)
-    {
-            timer->base = NULL;
-    }
 
-  since the timer functions already did a !timer->base check this did not
-  have any effect on their fastpath.
-
-- the rule from now on is that timer->base is set upon activation of the
-  timer, and cleared upon deactivation. This also made it possible to:
-
-- reorganize all the timer handling code to not assume anything about
-  timer->entry.next and timer->entry.prev - this also removed lots of
-  unnecessery cleaning of these fields. Removed lots of unnecessary list
-  operations from the fastpath.
-
-- simplified del_timer_sync(): it now uses del_timer() plus some simple 
-  synchronization code. Note that this also fixes a bug: if mod_timer (or 
-  add_timer) moves a currently executing timer to another CPU's timer
-  vector, then del_timer_sync() does not synchronize with the handler
-  properly.
-
-- bugfix: moved run_local_timers() from scheduler_tick() into 
-  update_process_times() .. scheduler_tick() might be called from the fork
-  code which will not quite have the intended effect ...
-
-- removed the APIC-timer-IRQ shifting done on SMP, Dipankar Sarma's 
-  testing shows no negative effects.
-
-- cleaned up include/linux/timer.h:
-
-     - removed the timer_t typedef, and fixes up kernel/workqueue.c to use 
-       the 'struct timer_list' name instead.
-
-     - removed unnecessery includes
-
-     - renamed the 'list' field to 'entry' (it's an entry not a list head)
-
-     - exchanged the 'function' and 'data' fields. This, besides being 
-       more logical, also unearthed the last few remaining places that 
-       initialized timers by assuming some given field ordering, the patch 
-       also fixes these places. (fs/xfs/pagebuf/page_buf.c, 
-       net/core/profile.c and net/ipv4/inetpeer.c)
-
-     - removed the defunct sync_timers(), timer_enter() and timer_exit()
-       prototypes.
-
-     - added docbook-style comments.
-
-- other kernel/timer.c changes:
-
-     - base->running_timer does not have to be volatile ...
-
-     - added consistent comments to all the important functions.
-
-     - made the sync-waiting in del_timer_sync preempt- and lowpower-
-       friendly.
-
-i've compiled, booted & tested the patched kernel on x86 UP and SMP. I
-have tried moderately high networking load as well, to make sure the timer
-changes are correct - they appear to be.
-
-	Ingo
-
---- linux/arch/i386/kernel/apic.c.orig	Fri Sep 20 17:20:37 2002
-+++ linux/arch/i386/kernel/apic.c	Thu Oct  3 12:35:46 2002
-@@ -813,24 +813,9 @@
- 
- static void setup_APIC_timer(unsigned int clocks)
- {
--	unsigned int slice, t0, t1;
- 	unsigned long flags;
--	int delta;
- 
--	local_save_flags(flags);
--	local_irq_enable();
--	/*
--	 * ok, Intel has some smart code in their APIC that knows
--	 * if a CPU was in 'hlt' lowpower mode, and this increases
--	 * its APIC arbitration priority. To avoid the external timer
--	 * IRQ APIC event being in synchron with the APIC clock we
--	 * introduce an interrupt skew to spread out timer events.
--	 *
--	 * The number of slices within a 'big' timeslice is NR_CPUS+1
--	 */
--
--	slice = clocks / (NR_CPUS+1);
--	printk("cpu: %d, clocks: %d, slice: %d\n", smp_processor_id(), clocks, slice);
-+	local_irq_save(flags);
- 
- 	/*
- 	 * Wait for IRQ0's slice:
-@@ -838,22 +823,6 @@
- 	wait_8254_wraparound();
- 
- 	__setup_APIC_LVTT(clocks);
--
--	t0 = apic_read(APIC_TMICT)*APIC_DIVISOR;
--	/* Wait till TMCCT gets reloaded from TMICT... */
--	do {
--		t1 = apic_read(APIC_TMCCT)*APIC_DIVISOR;
--		delta = (int)(t0 - t1 - slice*(smp_processor_id()+1));
--	} while (delta >= 0);
--	/* Now wait for our slice for real. */
--	do {
--		t1 = apic_read(APIC_TMCCT)*APIC_DIVISOR;
--		delta = (int)(t0 - t1 - slice*(smp_processor_id()+1));
--	} while (delta < 0);
--
--	__setup_APIC_LVTT(clocks);
--
--	printk("CPU%d<T0:%d,T1:%d,D:%d,S:%d,C:%d>\n", smp_processor_id(), t0, t1, delta, slice, clocks);
- 
- 	local_irq_restore(flags);
- }
---- linux/fs/xfs/pagebuf/page_buf.c.orig	Thu Oct  3 14:47:29 2002
-+++ linux/fs/xfs/pagebuf/page_buf.c	Thu Oct  3 14:47:40 2002
-@@ -1680,7 +1680,7 @@
- 	page_buf_t		*pb;
- 	struct list_head	*curr, *next, tmp;
- 	struct timer_list	pb_daemon_timer =
--		{ {NULL, NULL}, 0, 0, (timeout_fn)pagebuf_daemon_wakeup };
-+		{ .function = (timeout_fn)pagebuf_daemon_wakeup };
- 
- 	/*  Set up the thread  */
- 	daemonize();
---- linux/include/linux/timer.h.orig	Thu Oct  3 09:37:52 2002
-+++ linux/include/linux/timer.h	Thu Oct  3 14:10:05 2002
-@@ -2,70 +2,59 @@
- #define _LINUX_TIMER_H
- 
- #include <linux/config.h>
--#include <linux/smp.h>
--#include <linux/stddef.h>
- #include <linux/list.h>
--#include <linux/spinlock.h>
--#include <linux/cache.h>
- 
- struct tvec_t_base_s;
- 
--/*
-- * Timers may be dynamically created and destroyed, and should be initialized
-- * by a call to init_timer() upon creation.
-- *
-- * The "data" field enables use of a common timeout function for several
-- * timeouts. You can use this field to distinguish between the different
-- * invocations.
-- */
--typedef struct timer_list {
--	struct list_head list;
-+struct timer_list {
-+	struct list_head entry;
- 	unsigned long expires;
--	unsigned long data;
-+
- 	void (*function)(unsigned long);
-+	unsigned long data;
-+
- 	struct tvec_t_base_s *base;
--} timer_t;
-+};
- 
--extern void add_timer(timer_t * timer);
--extern int del_timer(timer_t * timer);
--  
--#ifdef CONFIG_SMP
--extern int del_timer_sync(timer_t * timer);
--extern void sync_timers(void);
--#define timer_enter(base, t) do { base->running_timer = t; mb(); } while (0)
--#define timer_exit(base) do { base->running_timer = NULL; } while (0)
--#define timer_is_running(base,t) (base->running_timer == t)
--#define timer_synchronize(base,t) while (timer_is_running(base,t)) barrier()
--#else
--#define del_timer_sync(t)	del_timer(t)
--#define sync_timers()		do { } while (0)
--#define timer_enter(base,t)          do { } while (0)
--#define timer_exit(base)            do { } while (0)
--#endif
--  
--/*
-- * mod_timer is a more efficient way to update the expire field of an
-- * active timer (if the timer is inactive it will be activated)
-- * mod_timer(a,b) is equivalent to del_timer(a); a->expires = b; add_timer(a).
-- * If the timer is known to be not pending (ie, in the handler), mod_timer
-- * is less efficient than a->expires = b; add_timer(a).
-+/***
-+ * init_timer - initialize a timer.
-+ * @timer: the timer to be initialized
+diff -Naur linux-2.5.40/include/linux/evms/evms.h linux-2.5.40-evms/include/linux/evms/evms.h
+--- linux-2.5.40/include/linux/evms/evms.h	Sun Jul 17 18:46:18 1994
++++ linux-2.5.40-evms/include/linux/evms/evms.h	Tue Oct  1 15:30:14 2002
+@@ -0,0 +1,613 @@
++/* -*- linux-c -*- */
++/*
++ *   Copyright (c) International Business Machines  Corp., 2000
 + *
-+ * init_timer() must be done to a timer prior calling *any* of the
-+ * other timer functions.
-  */
--int mod_timer(timer_t *timer, unsigned long expires);
--
--extern void it_real_fn(unsigned long);
--
--extern void init_timers(void);
--extern void run_local_timers(void);
--
--static inline void init_timer(timer_t * timer)
-+static inline void init_timer(struct timer_list * timer)
- {
--	timer->list.next = timer->list.prev = NULL;
- 	timer->base = NULL;
- }
- 
--static inline int timer_pending(const timer_t * timer)
-+/***
-+ * timer_pending - is a timer pending?
-+ * @timer: the timer in question
++ *   This program is free software;  you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation; either version 2 of the License, or 
++ *   (at your option) any later version.
++ * 
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY;  without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
++ *   the GNU General Public License for more details.
 + *
-+ * timer_pending will tell whether a given timer is currently pending,
-+ * or not. Callers must ensure serialization wrt. other operations done
-+ * to this timer, eg. interrupt contexts, or other CPUs on SMP.
-+ *
-+ * return value: 1 if the timer is pending, 0 if not.
++ *   You should have received a copy of the GNU General Public License
++ *   along with this program;  if not, write to the Free Software 
++ *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 + */
-+static inline int timer_pending(const struct timer_list * timer)
- {
--	return timer->list.next != NULL;
-+	return timer->base != NULL;
- }
++/*
++ * linux/include/linux/evms/evms.h
++ *
++ * EVMS kernel header file
++ *
++ */
 +
-+extern void add_timer(struct timer_list * timer);
-+extern int del_timer(struct timer_list * timer);
-+extern int mod_timer(struct timer_list *timer, unsigned long expires);
-+  
-+#if CONFIG_SMP
-+  extern int del_timer_sync(struct timer_list * timer);
++#ifndef __EVMS_INCLUDED__
++#define __EVMS_INCLUDED__
++
++#include <linux/blk.h>
++#include <linux/genhd.h>
++#include <linux/fs.h>
++#include <linux/iobuf.h>
++#include <linux/kdev_t.h>
++#include <linux/hdreg.h>
++#include <linux/slab.h>
++#include <linux/proc_fs.h>
++#include <linux/major.h>
++#include <linux/mempool.h>
++
++/**
++ * version info 
++ **/
++#define EVMS_MAJOR_VERSION              1
++#define EVMS_MINOR_VERSION              2
++#define EVMS_PATCHLEVEL_VERSION         0
++
++/**
++ * general defines section
++ **/
++#define FALSE                           0
++#define TRUE                            1
++
++#define MAX_EVMS_VOLUMES                256
++#define EVMS_VOLUME_NAME_SIZE           127
++#define IBM_OEM_ID                      8112
++#define EVMS_INITIAL_CRC                0xFFFFFFFF
++#define EVMS_MAGIC_CRC			0x31415926
++#define EVMS_VSECTOR_SIZE               512
++#define EVMS_VSECTOR_SIZE_SHIFT         9
++
++#define DEV_PATH			"/dev"
++#define EVMS_DIR_NAME			"evms"
++#define EVMS_DEV_NAME			"block_device"
++#define EVMS_DEV_NODE_PATH		DEV_PATH "/" EVMS_DIR_NAME "/"
++#define EVMS_DEVICE_NAME		DEV_PATH "/" EVMS_DIR_NAME "/" EVMS_DEV_NAME
++
++/**
++ * list_for_each_entry_safe -	iterate over list safe against removal of list entry
++ * @pos:        the type * to use as a loop counter.
++ * @n: 	       	another type * to use as temporary storage
++ * @head:       the head for your list.
++ * @member:     the name of the list_struct within the struct.
++ */
++#define list_for_each_entry_safe(pos, n, head, member)                      \
++        for (pos = list_entry((head)->next, typeof(*pos), member),          \
++		    n = list_entry(pos->member.next, typeof(*pos), member); \
++		&pos->member != (head); 				    \
++		pos = n,                                                    \
++		    n = list_entry(pos->member.next, typeof(*pos), member))
++/**
++ * list_member - tests whether a list member is currently on a list
++ * @member: 	member to evaulate
++ */
++static inline int
++list_member(struct list_head *member)
++{
++	return ((!member->next || !member->prev) ? FALSE : TRUE);
++}
++
++/**
++ * kernel logging levels defines 
++ **/
++#define EVMS_INFO_CRITICAL              0
++#define EVMS_INFO_SERIOUS               1
++#define EVMS_INFO_ERROR                 2
++#define EVMS_INFO_WARNING               3
++#define EVMS_INFO_DEFAULT               5
++#define EVMS_INFO_DETAILS               6
++#define EVMS_INFO_DEBUG                 7
++#define EVMS_INFO_EXTRA                 8
++#define EVMS_INFO_ENTRY_EXIT            9
++#define EVMS_INFO_EVERYTHING            10
++
++/**
++ * kernel logging level	variable
++ **/
++extern int evms_info_level;
++
++/**
++ * kernel logging macros
++ **/
++#define evmsLOG(info_level,prspec) { if (evms_info_level >= info_level) printk prspec; }
++#define evmsLOG2(info_level,statement) { if (evms_info_level >= info_level) statement; }
++
++/**
++ * LOG MACROS to make evms log messages 
++ * look much cleaner in the source.
++ **/
++#define EVMS_LOG_PREFIX "evms: "
++#define LOG_CRITICAL(msg, args...)	evmsLOG(EVMS_INFO_CRITICAL,   (KERN_CRIT    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_SERIOUS(msg, args...)	evmsLOG(EVMS_INFO_SERIOUS,    (KERN_ERR     EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_ERROR(msg, args...)		evmsLOG(EVMS_INFO_ERROR,      (KERN_ERR     EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_WARNING(msg, args...)	evmsLOG(EVMS_INFO_WARNING,    (KERN_WARNING EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_DEFAULT(msg, args...)	evmsLOG(EVMS_INFO_DEFAULT,    (KERN_INFO    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_DETAILS(msg, args...)	evmsLOG(EVMS_INFO_DETAILS,    (KERN_INFO    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_DEBUG(msg, args...)		evmsLOG(EVMS_INFO_DEBUG,      (KERN_INFO    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_EXTRA(msg, args...)		evmsLOG(EVMS_INFO_EXTRA,      (KERN_INFO    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_ENTRY_EXIT(msg, args...)	evmsLOG(EVMS_INFO_ENTRY_EXIT, (KERN_INFO    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++#define LOG_EVERYTHING(msg, args...)	evmsLOG(EVMS_INFO_EVERYTHING, (KERN_INFO    EVMS_LOG_PREFIX LOG_PREFIX msg, ## args))
++
++/**
++ * Macros to cleanly print 64-bit numbers on both 32-bit and 64-bit machines.
++ * Use these in place of %Ld, %Lu, and %Lx.
++ **/
++#if BITS_PER_LONG > 32
++#define PFD64 "%ld"
++#define PFU64 "%lu"
++#define PFX64 "%lx"
 +#else
-+# define del_timer_sync(t) del_timer(t)
++#define PFD64 "%Ld"
++#define PFU64 "%Lu"
++#define PFX64 "%Lx"
 +#endif
 +
-+extern void init_timers(void);
-+extern void run_local_timers(void);
-+extern void it_real_fn(unsigned long);
- 
- #endif
---- linux/include/linux/workqueue.h.orig	Thu Oct  3 09:52:04 2002
-+++ linux/include/linux/workqueue.h	Thu Oct  3 12:37:56 2002
-@@ -15,7 +15,7 @@
- 	void (*func)(void *);
- 	void *data;
- 	void *wq_data;
--	timer_t timer;
-+	struct timer_list timer;
- };
- 
- #define __WORK_INITIALIZER(n, f, d) {				\
---- linux/net/ipv4/inetpeer.c.orig	Thu Oct  3 14:40:58 2002
-+++ linux/net/ipv4/inetpeer.c	Thu Oct  3 14:44:01 2002
-@@ -98,7 +98,7 @@
- 
- static void peer_check_expire(unsigned long dummy);
- static struct timer_list peer_periodic_timer =
--	{ { NULL, NULL }, 0, 0, &peer_check_expire };
-+	{ .function = &peer_check_expire };
- 
- /* Exported for sysctl_net_ipv4.  */
- int inet_peer_gc_mintime = 10 * HZ,
---- linux/net/core/profile.c.orig	Thu Oct  3 14:48:00 2002
-+++ linux/net/core/profile.c	Thu Oct  3 14:48:14 2002
-@@ -35,7 +35,7 @@
- static void alpha_tick(unsigned long);
- 
- static struct timer_list alpha_timer =
--	{ NULL, NULL, 0, 0L, alpha_tick };
-+	{ .function = alpha_tick };
- 
- void alpha_tick(unsigned long dummy)
- {
-@@ -158,7 +158,7 @@
- int whitehole_init(struct net_device *dev);
- 
- static struct timer_list whitehole_timer =
--	{ NULL, NULL, 0, 0L, whitehole_inject };
-+	{ .function = whitehole_inject };
- 
- static struct net_device whitehole_dev = {
- 	"whitehole", 0x0, 0x0, 0x0, 0x0, 0, 0, 0, 0, 0, NULL, whitehole_init, };
---- linux/kernel/workqueue.c.orig	Thu Oct  3 09:52:23 2002
-+++ linux/kernel/workqueue.c	Thu Oct  3 12:37:56 2002
-@@ -100,7 +100,7 @@
- int queue_delayed_work(struct workqueue_struct *wq, struct work_struct *work, unsigned long delay)
- {
- 	int ret = 0, cpu = get_cpu();
--	timer_t *timer = &work->timer;
-+	struct timer_list *timer = &work->timer;
- 	struct cpu_workqueue_struct *cwq = wq->cpu_wq + cpu;
- 
- 	if (!test_and_set_bit(0, &work->pending)) {
---- linux/kernel/timer.c.orig	Thu Oct  3 09:37:25 2002
-+++ linux/kernel/timer.c	Thu Oct  3 14:52:43 2002
-@@ -47,10 +47,12 @@
- 	struct list_head vec[TVR_SIZE];
- } tvec_root_t;
- 
-+typedef struct timer_list timer_t;
++/**
++ * helpful PROCFS macro
++ **/
++#ifdef CONFIG_PROC_FS
++#define PROCPRINT(msg, args...) (sz += sprintf(page + sz, msg, ## args));\
++			if (sz < off)\
++				off -= sz, sz = 0;\
++			else if (sz >= off + count)\
++				goto out
++#endif
 +
- struct tvec_t_base_s {
- 	spinlock_t lock;
- 	unsigned long timer_jiffies;
--	volatile timer_t * volatile running_timer;
-+	timer_t *running_timer;
- 	tvec_root_t tv1;
- 	tvec_t tv2;
- 	tvec_t tv3;
-@@ -69,7 +71,7 @@
- {
- 	unsigned long expires = timer->expires;
- 	unsigned long idx = expires - base->timer_jiffies;
--	struct list_head * vec;
-+	struct list_head *vec;
- 
- 	if (idx < TVR_SIZE) {
- 		int i = expires & TVR_MASK;
-@@ -92,24 +94,36 @@
- 	} else if (idx <= 0xffffffffUL) {
- 		int i = (expires >> (TVR_BITS + 3 * TVN_BITS)) & TVN_MASK;
- 		vec = base->tv5.vec + i;
--	} else {
-+	} else
- 		/* Can only get here on architectures with 64-bit jiffies */
--		INIT_LIST_HEAD(&timer->list);
- 		return;
--	}
- 	/*
- 	 * Timers are FIFO:
- 	 */
--	list_add_tail(&timer->list, vec);
-+	list_add_tail(&timer->entry, vec);
- }
- 
-+/***
-+ * add_timer - start a timer
-+ * @timer: the timer to be added
++/**
++ * PluginID convenience macros
 + *
-+ * The kernel will do a ->function(->data) callback from the
-+ * timer interrupt at the ->expired point in the future. The
-+ * current time is 'jiffies'.
++ * An EVMS PluginID is a 32-bit number with the following bit positions:
++ * Top 16 bits: OEM identifier. See IBM_OEM_ID.
++ * Next 4 bits: Plugin type identifier. See evms_plugin_code.
++ * Lowest 12 bits: Individual plugin identifier within a given plugin type.
++ **/
++#define SetPluginID(oem, type, id) ((oem << 16) | (type << 12) | id)
++#define GetPluginOEM(pluginid) (pluginid >> 16)
++#define GetPluginType(pluginid) ((pluginid >> 12) & 0xf)
++#define GetPluginID(pluginid) (pluginid & 0xfff)
++
++/**
++ * enum evms_plugin_type - evms plugin types
++ **/
++enum evms_plugin_code {
++	EVMS_NO_PLUGIN = 0,
++	EVMS_DEVICE_MANAGER,
++	EVMS_SEGMENT_MANAGER,
++	EVMS_REGION_MANAGER,
++	EVMS_FEATURE,
++	EVMS_ASSOCIATIVE_FEATURE,
++	EVMS_FILESYSTEM_INTERFACE_MODULE,
++	EVMS_CLUSTER_MANAGER_INTERFACE_MODULE,
++	EVMS_DISTRIBUTED_LOCK_MANAGER_INTERFACE_MODULE
++};
++
++/**
++ * struct evms_version - 
++ * @major:	changes when incompatible difference are introduced
++ * @minor:	changes when additions are made
++ * @patchlevel:	reflects bug level fixes within a particular major/minor pair
 + *
-+ * The timer's ->expired, ->function (and if the handler uses it, ->data)
-+ * fields must be set prior calling this function.
++ * generic versioning info used by EVMS
++ **/
++struct evms_version {
++	u32 major;
++	u32 minor;
++	u32 patchlevel;
++};
++
++/**
++ * struct evms_plugin_header - kernel plugin header record
++ * @id: 			plugin id
++ * @version: 			plugin version
++ * @required_services_version: 	required common services version
++ * @fops: 			table of function operations
++ * @headers:			list member field
 + *
-+ * Timers with an ->expired field in the past will be executed in the next
-+ * timer tick. It's illegal to add an already pending timer.
++ * kernel plugin header record
++ **/
++struct evms_plugin_header {
++	u32 id;
++	struct evms_version version;
++	struct evms_version required_services_version;
++	struct evms_plugin_fops *fops;
++	struct list_head headers;
++};
++
++/**
++ * struct evms_feature_header - EVMS generic on-disk header for features
++ * @signature: 			unique magic number
++ * @crc: 			structure's crc
++ * @version: 			feature header version
++ * @engine_version: 		created by this evms engine version
++ * @flags: 			feature characteristics, bit definitions below.
++ * @feature_id: 		indicates which feature this header is describing
++ * @sequence_number: 		describes most recent copy of redundant metadata
++ * @alignment_padding: 		used when objects are moved between different sized devices
++ * @feature_data1_start_lsn: 	object relative start of 1st copy feature data
++ * @feature_data1_size: 	size of 1st copy of feature data
++ * @feature_data2_start_lsn: 	object relative start of 2nd copy feature data
++ * @feature_data2_size: 	size of 2nd copy of feature data
++ * @volume_serial_number: 	unique/persistent volume identifier
++ * @volume_system_id: 		unique/persistent minor number
++ * @object_depth: 		depth of object in volume tree
++ * @object_name: 		object's name
++ * @volume_name: 		volume name object is a part of
++ * @pad: 			padding to make structure be 512 byte aligned
++ *
++ * generic on-disk header used to describe any EVMS feature
++ * NOTE: 2nd copy of feature data is optional, if used set start_lsn to 0.
++ **/
++struct evms_feature_header {
++	u32 signature;
++	u32 crc;
++	struct evms_version version;
++	struct evms_version engine_version;
++	u32 flags;
++	u32 feature_id;
++	u64 sequence_number;
++	u64 alignment_padding;
++	u64 feature_data1_start_lsn;
++	u64 feature_data1_size;
++	u64 feature_data2_start_lsn;
++	u64 feature_data2_size;
++	u64 volume_serial_number;
++	u32 volume_system_id;
++	u32 object_depth;
++	u8 object_name[EVMS_VOLUME_NAME_SIZE + 1];
++	u8 volume_name[EVMS_VOLUME_NAME_SIZE + 1];
++	u8 pad[152];
++};
++
++/**
++ * field evms_feature_header.signature majic number
++ **/
++#define EVMS_FEATURE_HEADER_SIGNATURE           0x54414546	/* FEAT */
++/**
++ * field evms_feature_header.flags defines
++ **/
++#define EVMS_FEATURE_ACTIVE                     (1<<0)
++#define EVMS_FEATURE_VOLUME_COMPLETE            (1<<1)
++#define EVMS_VOLUME_DATA_OBJECT			(1<<16)
++#define EVMS_VOLUME_DATA_STOP			(1<<17)
++/**
++ * struct evms_feature_header version info
++ **/
++#define EVMS_FEATURE_HEADER_MAJOR	3
++#define EVMS_FEATURE_HEADER_MINOR	0
++#define EVMS_FEATURE_HEADER_PATCHLEVEL	0
++
++/**
++ * EVMS specific error codes 
++ **/
++#define EVMS_FEATURE_FATAL_ERROR                257
++#define EVMS_VOLUME_FATAL_ERROR                 258
++#define EVMS_FEATURE_INCOMPLETE_ERROR		259
++
++/**
++ * struct evms_volume_info - exported volume info
++ * @volume_sn: 		unique volume identifier
++ * @volume_minor: 	persistent device minor assigned to this volume
++ * @volume_name: 	persistent name assigned to this volume
++ *
++ * a collection of volume specific info
++ **/
++struct evms_volume_info {
++	u64 volume_sn;
++	u32 volume_minor;
++	u8 volume_name[EVMS_VOLUME_NAME_SIZE + 1];
++};
++
++/**
++ * struct evms_logical_node - generic kernel storage object
++ * @total_vsectors: 	  0 size of this object in 512 byte units
++ * @plugin: 		  8 plugin that created/owns/manages this storage object
++ * @private: 		 12 location for owner to store private info
++ * @flags: 		 16 storage object characteristics (set/used by plugins)
++ *	   		    bit definitions located in evms_common.h
++ * @iflags: 		 20 internal flags (used exclusively by the framework, not for plugins to use/set)
++ *	    		    bit definitions below.
++ * @hardsector_size: 	 24 assumed physical sector size of underlying device
++ * @block_size: 	 28 default block size for this object
++ * @system_id: 		 32 system indicator (set by the segment manager)
++ * @volume_info: 	 36 persistent volume info, used only by EVMS volumes
++ * @feature_header: 	 40 generic on-disk metadata describing any EVMS feature
++ * @next: 		 44 linked list field
++ * @discover:		 48 discover list field
++ * @device:		 56 device list field
++ * @fbottom:		 64 bottom-most feature object list field
++ * @removable:		 72 changed removable media list field
++ * @consumer:		 80 list field for use by the object's consumer
++ * @name: 		 88 storage object name
++ *			216
++ *
++ * generic kernel storage object
 + */
- void add_timer(timer_t *timer)
- {
- 	int cpu = get_cpu();
- 	tvec_base_t *base = tvec_bases + cpu;
-   	unsigned long flags;
-   
--  	BUG_ON(timer_pending(timer));
-+  	BUG_ON(timer_pending(timer) || !timer->function);
- 
- 	spin_lock_irqsave(&base->lock, flags);
- 	internal_add_timer(base, timer);
-@@ -118,25 +132,38 @@
- 	put_cpu();
- }
- 
--static inline int detach_timer (timer_t *timer)
--{
--	if (!timer_pending(timer))
--		return 0;
--	list_del(&timer->list);
--	return 1;
--}
--
--/*
-- * mod_timer() has subtle locking semantics because parallel
-- * calls to it must happen serialized.
-+/***
-+ * mod_timer - modify a timer's timeout
-+ * @timer: the timer to be modified
++struct evms_logical_node {
++	u64 total_vsectors;
++	struct evms_plugin_header *plugin;
++	void *private;
++	u32 flags;
++	u32 iflags;
++	int hardsector_size;
++	int block_size;
++	u32 system_id;
++	struct evms_volume_info *volume_info;
++	struct evms_feature_header *feature_header;
++	void *consumer_private;
++	struct list_head consumed;
++	struct list_head produced;
++	struct list_head discover;
++	struct list_head device;
++	struct list_head fbottom;
++	struct list_head removable;
++	u8 name[EVMS_VOLUME_NAME_SIZE + 1];
++};
++
++/**
++ * fields evms_logical_node.flags & evms_logical_volume.flags defines
++ **/
++#define EVMS_FLAGS_WIDTH                   	32
++#define EVMS_VOLUME_FLAG                        (1<<0)
++#define EVMS_VOLUME_PARTIAL_FLAG                (1<<1)
++#define EVMS_VOLUME_PARTIAL			(1<<1)
++#define EVMS_VOLUME_SET_READ_ONLY               (1<<2)
++#define EVMS_VOLUME_READ_ONLY               	(1<<2)
++/**
++ * these bits define volume status 
++ **/
++#define EVMS_MEDIA_CHANGED			(1<<20)
++#define EVMS_DEVICE_UNPLUGGED			(1<<21)
++/**
++ * these bits used for removable status 
++ **/
++#define EVMS_DEVICE_MEDIA_PRESENT		(1<<24)
++#define EVMS_DEVICE_PRESENT			(1<<25)
++#define EVMS_DEVICE_LOCKABLE			(1<<26)
++#define EVMS_DEVICE_REMOVABLE			(1<<27)
++
++/**
++ * fields evms_logical_node.iflags defines
++ **/
++#define EVMS_FEATURE_BOTTOM			(1<<0)
++#define EVMS_TOP_SEGMENT			(1<<1)
++
++/**
++ * macro to obtain a node's name from either EVMS or compatibility volumes
++ **/
++#define EVMS_GET_NODE_NAME(node) 				\
++	((node->flags & EVMS_VOLUME_FLAG) ?			\
++		node->volume_info->volume_name :		\
++		node->name)
++
++/**
++ * macro used to transform to/from userland device handles and device storage object nodes
++ **/
++#define EVMS_HANDLE_KEY         0x0123456789ABCDEF
++#define DEV_HANDLE_TO_NODE(handle) ((struct evms_logical_node *)(unsigned long)((handle) ^ EVMS_HANDLE_KEY))
++#define NODE_TO_DEV_HANDLE(node) (((u64)(unsigned long)(node)) ^ EVMS_HANDLE_KEY)
++
++/**
++ * struct evms_logical_volume - logical volume info
++ * @name: 			logical volume name
++ * @node: 			logical volume storage object
++ * @minor:			device minor assigned to volume
++ * @flags: 			characteristics of logical volume
++ * @quiesced: 			quiesce state info
++ * @vfs_quiesced: 		vfs quiesce state info
++ * @requests_in_progress: 	count of in-flight I/Os
++ * @wait_queue: 		used when volume is quiesced
++ * @gd:				gendisk entry for the volume
++ * @request_queue: 		unique request queue
++ * @request_lock: 		unique request queue lock
++ * @volumes:			list member field
 + *
-+ * mod_timer is a more efficient way to update the expire field of an
-+ * active timer (if the timer is inactive it will be activated)
-+ *
-+ * mod_timer(timer, expires) is equivalent to:
-+ *
-+ *     del_timer(timer); timer->expires = expires; add_timer(timer);
-+ *
-+ * Note that if there are multiple unserialized concurrent users of the
-+ * same timer, then mod_timer() is the only safe way to modify the timeout,
-+ * since add_timer() cannot modify an already running timer.
-+ *
-+ * The function returns whether it has modified a pending timer or not.
-+ * (ie. mod_timer() of an inactive timer returns 0, mod_timer() of an
-+ * active timer returns 1.)
-  */
- int mod_timer(timer_t *timer, unsigned long expires)
- {
- 	tvec_base_t *old_base, *new_base;
- 	unsigned long flags;
--	int ret;
-+	int ret = 0;
- 
--	if (timer_pending(timer) && timer->expires == expires)
-+	BUG_ON(!timer->function);
-+	/*
-+	 * This is a common optimization triggered by the
-+	 * networking code - if the timer is re-modified
-+	 * to be the same thing then just return:
-+	 */
-+	if (timer->expires == expires && timer_pending(timer))
- 		return 1;
- 
- 	local_irq_save(flags);
-@@ -156,8 +183,8 @@
- 			spin_lock(&new_base->lock);
- 		}
- 		/*
--		 * Subtle, we rely on timer->base being always
--		 * valid and being updated atomically.
-+		 * The timer base might have changed while we were
-+		 * trying to take the lock(s):
- 		 */
- 		if (timer->base != old_base) {
- 			spin_unlock(&new_base->lock);
-@@ -167,8 +194,15 @@
- 	} else
- 		spin_lock(&new_base->lock);
- 
-+	/*
-+	 * Delete the previous timeout (if there was any), and install
-+	 * the new one:
-+	 */
-+	if (old_base) {
-+		list_del(&timer->entry);
-+		ret = 1;
-+	}
- 	timer->expires = expires;
--	ret = detach_timer(timer);
- 	internal_add_timer(new_base, timer);
- 	timer->base = new_base;
- 
-@@ -179,66 +213,74 @@
- 	return ret;
- }
- 
--int del_timer(timer_t * timer)
-+/***
-+ * del_timer - deactive a timer.
-+ * @timer: the timer to be deactivated
-+ *
-+ * del_timer() deactivates a timer - this works on both active and inactive
-+ * timers.
-+ *
-+ * The function returns whether it has deactivated a pending timer or not.
-+ * (ie. del_timer() of an inactive timer returns 0, del_timer() of an
-+ * active timer returns 1.)
++ * contains all the fields needed to manage to a logical volume
++ **/
++struct evms_logical_volume {
++	u8 *name;
++	struct evms_logical_node *node;
++	int minor;
++	int flags;
++	int quiesced;
++	int vfs_quiesced;
++	atomic_t requests_in_progress;
++	wait_queue_head_t wait_queue;
++	struct gendisk *gd;
++	request_queue_t request_queue;
++	spinlock_t request_lock;
++	struct list_head volumes;
++};
++
++/**
++ * field evms_logical_volume.flags defines 
++ **/
++/**
++ * queued flags bits 
++ **/
++#define EVMS_REQUESTED_DELETE			(1<<5)
++#define EVMS_REQUESTED_QUIESCE			(1<<6)
++#define EVMS_REQUESTED_VFS_QUIESCE		(1<<7)
++/**
++ * this bit indicates corruption 
++ **/
++#define EVMS_VOLUME_CORRUPT			(1<<8)
++/**
++ * these bits define the source of the corruption 
++ **/
++#define EVMS_VOLUME_SOFT_DELETED               	(1<<9)
++#define EVMS_DEVICE_UNAVAILABLE			(1<<10)
++
++/*
++ * The following function table is used for all plugins.
 + */
-+int del_timer(timer_t *timer)
- {
- 	unsigned long flags;
--	tvec_base_t * base;
--	int ret;
-+	tvec_base_t *base;
- 
--	if (!timer->base)
--		return 0;
- repeat:
-  	base = timer->base;
-+	if (!base)
-+		return 0;
- 	spin_lock_irqsave(&base->lock, flags);
- 	if (base != timer->base) {
- 		spin_unlock_irqrestore(&base->lock, flags);
- 		goto repeat;
- 	}
--	ret = detach_timer(timer);
--	timer->list.next = timer->list.prev = NULL;
-+	list_del(&timer->entry);
-+	timer->base = NULL;
- 	spin_unlock_irqrestore(&base->lock, flags);
- 
--	return ret;
-+	return 1;
- }
- 
- #ifdef CONFIG_SMP
--/*
-- * SMP specific function to delete periodic timer.
-- * Caller must disable by some means restarting the timer
-- * for new. Upon exit the timer is not queued and handler is not running
-- * on any CPU. It returns number of times, which timer was deleted
-- * (for reference counting).
-+/***
-+ * del_timer_sync - deactivate a timer and wait for the handler to finish.
-+ * @timer: the timer to be deactivated
++/**
++ * struct evms_plugin_fops - evms plugin's table of function operations
++ * @discover: 		volume discovery entry point
++ * @end_discover: 	final discovery entry point
++ * @delete: 		delete volume entry point
++ * @submit_io:		asynchronous read/write entry point
++ * @init_io: 		synchronous io entry point
++ * @ioctl: 		generic ioctl entry point
++ * @direct_ioctl: 	non-generic ioctl entry point
 + *
-+ * This function only differs from del_timer() on SMP: besides deactivating
-+ * the timer it also makes sure the handler has finished executing on other
-+ * CPUs.
++ * evms plugin's table of function operations
++ **/
++struct evms_plugin_fops {
++	int (*discover) (struct list_head *);
++	int (*end_discover) (struct list_head *);
++	int (*delete) (struct evms_logical_node *);
++	void (*submit_io) (struct evms_logical_node *, struct bio *);
++	int (*init_io) (struct evms_logical_node *, int, u64,
++			u64, void *);
++	int (*ioctl) (struct evms_logical_node *, struct inode *,
++		      struct file *, u32, unsigned long);
++	int (*direct_ioctl) (struct inode *, struct file *,
++			     u32, unsigned long);
++};
++
++/**
++ * convenience macros to use plugin's fops entry points  
++ **/
++#define DISCOVER(node, list) ((plugin)->fops->discover(list))
++#define END_DISCOVER(node, list) ((plugin)->fops->end_discover(list))
++#define DELETE(node) ((node)->plugin->fops->delete(node))
++#define SUBMIT_IO(node, bio) ((node)->plugin->fops->submit_io(node, bio))
++#define INIT_IO(node, rw_flag, start_sec, num_secs, buf_addr) ((node)->plugin->fops->init_io(node, rw_flag, start_sec, num_secs, buf_addr))
++#define IOCTL(node, inode, file, cmd, arg)    ((node)->plugin->fops->ioctl(node, inode, file, cmd, arg))
++#define DIRECT_IOCTL(plugin, inode, file, cmd, arg)   ((plugin)->fops->direct_ioctl(inode, file, cmd, arg))
++
++/**
++ * struct evms_list_node - generic non-imbedded list node object
++ * @item:	ptr to object in list
++ * @next:	ptr to next item in list
 + *
-+ * Synchronization rules: callers must prevent restarting of the timer,
-+ * otherwise this function is meaningless. It must not be called from
-+ * interrupt contexts. Upon exit the timer is not queued and the handler
-+ * is not running on any CPU.
++ * light weight generic non-imbedded list object definition
++ **/
++struct evms_list_node {
++	void *item;
++	struct evms_list_node *next;
++};
++
++/**
++ * struct evms_pool_mgmt - anchor block for private pool management
++ * @cachep: 		kmem_cache_t variable
++ * @member_size: 	size of each element in the pool
++ * @head:
++ * @waiters: 		count of waiters
++ * @wait_queue: 	list of waiters
++ * @name: 		name of the pool (must be less than 20 chars)
 + *
-+ * The function returns whether it has deactivated a pending timer or not.
-  */
--
--int del_timer_sync(timer_t * timer)
-+int del_timer_sync(timer_t *timer)
- {
--	tvec_base_t * base;
--	int ret = 0;
-+	tvec_base_t *base = tvec_bases;
-+	int i, ret;
- 
--	if (!timer->base)
--		return 0;
--	for (;;) {
--		unsigned long flags;
--		int running;
-+	ret = del_timer(timer);
- 
--repeat:
--	 	base = timer->base;
--		spin_lock_irqsave(&base->lock, flags);
--		if (base != timer->base) {
--			spin_unlock_irqrestore(&base->lock, flags);
--			goto repeat;
--		}
--		ret += detach_timer(timer);
--		timer->list.next = timer->list.prev = 0;
--		running = timer_is_running(base, timer);
--		spin_unlock_irqrestore(&base->lock, flags);
--
--		if (!running)
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (!cpu_online(i))
-+			continue;
-+		if (base->running_timer == timer) {
-+			while (base->running_timer == timer) {
-+				cpu_relax();
-+				preempt_disable();
-+				preempt_enable();
-+			}
- 			break;
--
--		timer_synchronize(base, timer);
-+		}
-+		base++;
- 	}
--
- 	return ret;
- }
- #endif
-@@ -258,11 +300,10 @@
- 	while (curr != head) {
- 		timer_t *tmp;
- 
--		tmp = list_entry(curr, timer_t, list);
-+		tmp = list_entry(curr, timer_t, entry);
- 		if (tmp->base != base)
- 			BUG();
- 		next = curr->next;
--		list_del(curr); // not needed
- 		internal_add_timer(base, tmp);
- 		curr = next;
- 	}
-@@ -270,7 +311,14 @@
- 	tv->index = (tv->index + 1) & TVN_MASK;
- }
- 
--static void __run_timers(tvec_base_t *base)
-+/***
-+ * __run_timers - run all expired timers (if any) on this CPU.
-+ * @base: the timer vector to be processed.
-+ *
-+ * This function cascades all vectors and executes all expired timer
-+ * vectors.
++ * anchor block for private pool management
++ **/
++struct evms_pool_mgmt {
++	kmem_cache_t *cachep;
++	int member_size;
++	void *head;
++	atomic_t waiters;
++	wait_queue_head_t wait_queue;
++	u8 *name;
++};
++
++/*
++ * Notes:  
++ *	All of the following kernel thread functions belong to EVMS base.
++ *	These functions were copied from md_core.c
 + */
-+static inline void __run_timers(tvec_base_t *base)
- {
- 	unsigned long flags;
- 
-@@ -300,22 +348,26 @@
- 			unsigned long data;
- 			timer_t *timer;
- 
--			timer = list_entry(curr, timer_t, list);
-+			timer = list_entry(curr, timer_t, entry);
-  			fn = timer->function;
-  			data = timer->data;
- 
--			detach_timer(timer);
--			timer->list.next = timer->list.prev = NULL;
--			timer_enter(base, timer);
-+			list_del(&timer->entry);
-+			timer->base = NULL;
-+#if CONFIG_SMP
-+			base->running_timer = timer;
++#define EVMS_THREAD_WAKEUP 0
++/**
++ * struct evms_thread
++ * @run:	
++ * @data:	
++ * @wqueue:	thread wait queue
++ * @flags:	thread attributes
++ * @event:	event completion
++ * @tsk:	task info
++ * @name:	thread name
++ *
++ * data structure for creating/managing a kernel thread
++ **/
++struct evms_thread {
++	void (*run) (void *data);
++	void *data;
++	wait_queue_head_t wqueue;
++	unsigned long flags;
++	struct completion *event;
++	struct task_struct *tsk;
++	const u8 *name;
++};
++
++/**
++ * struct bio_split_cb - bio split control block structure definition
++ * @rc:
++ * @sector:
++ * @original_bio:
++ * @outstanding_bios:
++ * @pool:
++ *
++ * control block for managing bio splitting
++ **/
++struct bio_split_cb {
++	int rc;
++	u64 sector;
++	struct bio *original_bio;
++	atomic_t outstanding_bios;
++	mempool_t *bio_pool;
++	mempool_t *split_pool;
++};
++
++/**
++ * EVMS (common services) exported functions prototypes 
++ *
++ * since these function names are global, evms_cs_ has been prepended
++ * to each function name, to ensure they do not collide with any
++ * other global functions in the kernel.
++ **/
++#define EVMS_COMMON_SERVICES_MAJOR              0
++#define EVMS_COMMON_SERVICES_MINOR              6
++#define EVMS_COMMON_SERVICES_PATCHLEVEL         0
++
++void evms_cs_get_version(int *, int *);
++int evms_cs_check_version(struct evms_version *, struct evms_version *);
++int evms_cs_register_plugin(struct evms_plugin_header *);
++int evms_cs_unregister_plugin(struct evms_plugin_header *);
++#ifdef EVMS_MEM_DEBUG
++int evms_cs_verify_memory_integrity(int);
 +#endif
- 			spin_unlock_irq(&base->lock);
- 			fn(data);
- 			spin_lock_irq(&base->lock);
--			timer_exit(base);
- 			goto repeat;
- 		}
- 		++base->timer_jiffies; 
- 		base->tv1.index = (base->tv1.index + 1) & TVR_MASK;
- 	}
-+#if CONFIG_SMP
-+	base->running_timer = NULL;
++int evms_cs_allocate_logical_node(struct evms_logical_node **);
++void evms_cs_deallocate_volume_info(struct evms_logical_node *);
++void evms_cs_deallocate_logical_node(struct evms_logical_node *);
++int evms_cs_kernel_ioctl(struct evms_logical_node *, u32,
++			 unsigned long);
++inline unsigned long evms_cs_size_in_vsectors(long long);
++inline int evms_cs_log2(long long);
++u32 evms_cs_calculate_crc(u32, void *, u32);
++int evms_cs_register_for_end_io_notification(void *,
++					     struct bio *,
++					     void *callback_function);
++struct evms_list_node **evms_cs_lookup_item_in_list(struct evms_list_node **,
++						    void *);
++void evms_cs_signal_event(int);
++struct evms_thread *evms_cs_register_thread(void (*run) (void *),
++					    void *data, const u8 *name);
++void evms_cs_unregister_thread(struct evms_thread *thread);
++void evms_cs_wakeup_thread(struct evms_thread *thread);
++void evms_cs_interrupt_thread(struct evms_thread *thread);
++struct proc_dir_entry *evms_cs_get_evms_proc_dir(void);
++int evms_cs_volume_request_in_progress(kdev_t, int, int *);
++void evms_cs_invalidate_volume(struct evms_logical_node *topmost_node);
++int evms_cs_split_bio(struct bio *, u64, struct bio **, struct bio **,
++		      mempool_t *, mempool_t *);
++request_queue_t *evms_find_queue(kdev_t dev);
++
++/* EVMS exported global variables */
++extern struct evms_pool_mgmt *evms_bio_pool;
++extern u8 *evms_primary_string;
++extern u8 *evms_secondary_string;
++extern struct list_head evms_device_list;
++
++/* Have to include this at the end, since it depends
++ * on structures and definitions in this file.
++ */
++#include <linux/evms/evms_ioctl.h>
++
 +#endif
- 	spin_unlock_irqrestore(&base->lock, flags);
- }
- 
-@@ -607,6 +659,7 @@
- 	int cpu = smp_processor_id(), system = user_tick ^ 1;
- 
- 	update_one_process(p, user_tick, system, cpu);
-+	run_local_timers();
- 	scheduler_tick(user_tick, system);
- }
- 
---- linux/kernel/sched.c.orig	Thu Oct  3 10:17:31 2002
-+++ linux/kernel/sched.c	Thu Oct  3 13:32:02 2002
-@@ -854,6 +854,9 @@
- /*
-  * This function gets called by the timer code, with HZ frequency.
-  * We call it with interrupts disabled.
-+ *
-+ * It also gets called by the fork code, when changing the parent's
-+ * timeslices.
-  */
- void scheduler_tick(int user_ticks, int sys_ticks)
- {
-@@ -861,7 +864,6 @@
- 	runqueue_t *rq = this_rq();
- 	task_t *p = current;
- 
--	run_local_timers();
- 	if (p == rq->idle) {
- 		/* note: this timer irq context must be accounted for as well */
- 		if (irq_count() - HARDIRQ_OFFSET >= SOFTIRQ_OFFSET)
-@@ -2103,8 +2105,6 @@
-  */
- spinlock_t kernel_flag __cacheline_aligned_in_smp = SPIN_LOCK_UNLOCKED;
- #endif
--
--extern void init_timers(void);
- 
- void __init sched_init(void)
- {
-

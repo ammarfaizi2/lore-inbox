@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270646AbRH1Kif>; Tue, 28 Aug 2001 06:38:35 -0400
+	id <S270645AbRH1Kgp>; Tue, 28 Aug 2001 06:36:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270649AbRH1KiZ>; Tue, 28 Aug 2001 06:38:25 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:12805 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S270646AbRH1KiR>; Tue, 28 Aug 2001 06:38:17 -0400
-Date: Tue, 28 Aug 2001 12:41:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Christoph Rohland <cr@sap.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] zero-bounce block highmem I/O, #13
-Message-ID: <20010828124125.I642@suse.de>
-In-Reply-To: <20010827123700.B1092@suse.de> <m3itf85vlr.fsf@linux.local>
-Mime-Version: 1.0
+	id <S270646AbRH1Kgf>; Tue, 28 Aug 2001 06:36:35 -0400
+Received: from motgate.mot.com ([129.188.136.100]:5563 "EHLO motgate.mot.com")
+	by vger.kernel.org with ESMTP id <S270645AbRH1Kgc>;
+	Tue, 28 Aug 2001 06:36:32 -0400
+Message-Id: <3B8B743D.8B322253@crm.mot.com>
+Date: Tue, 28 Aug 2001 12:36:45 +0200
+From: Emmanuel Varagnat <Emmanuel_Varagnat-AEV010@email.mot.com>
+Reply-To: Emmanuel Varagnat-AEV010 
+	  <Emmanuel_Varagnat-AEV010@email.mot.com>
+Organization: Centre de Recherche de Motorola - Paris
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: Emmanuel Varagnat <Emmanuel_Varagnat-AEV010@email.mot.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Userlimits
+In-Reply-To: <3B86014C.D6C7C93A@crm.mot.com> <20010824044247.P1022@conectiva.com.br>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3itf85vlr.fsf@linux.local>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 28 2001, Christoph Rohland wrote:
-> Hi Jens,
+
+Arnaldo Carvalho de Melo wrote:
 > 
-> I tested both #11 and #13 on my 8GB machine with sym53c8xx. The
-> initialization of a SAP DB database takes 20 minutes with 2.4.9 and
-> with 2.4.9+b13 it took nearly 2.5 hours :-(
+> userbeans, google says:
+> http://uwsg.iu.edu/hypermail/linux/kernel/0006.0/0028.html
 
-Hmm that sounds _very_ strange indeed. What does the controller + disk
-detection info look like?
+Thank you
 
-Could you attach vmstat 1 info for pristine and b13 so I can compare the
-two and get a clue as to what is going on? Thanks.
-
--- 
-Jens Axboe
-
+-Manu

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbTE1VlT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 17:41:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTE1VlT
+	id S261188AbTE1VoB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 17:44:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbTE1VoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 17:41:19 -0400
-Received: from smtp2.pp.htv.fi ([213.243.153.6]:41176 "EHLO smtp2.pp.htv.fi")
-	by vger.kernel.org with ESMTP id S261179AbTE1VlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 17:41:18 -0400
-Date: Thu, 29 May 2003 00:55:05 +0300
-From: Richard Braakman <dark@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Patch for strncmp use in s390 in 2.5
-Message-ID: <20030528215505.GA3779@cs140102.pp.htv.fi>
-References: <20030528162019.A3492@devserv.devel.redhat.com>
+	Wed, 28 May 2003 17:44:01 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:60014 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261188AbTE1VoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 17:44:00 -0400
+Date: Wed, 28 May 2003 14:54:51 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [BUGS] 2.5.69 syncppp
+Message-Id: <20030528145451.5f13ebab.akpm@digeo.com>
+In-Reply-To: <1054157063.2279.2.camel@diemos>
+References: <OPENKONOOJPFMJFAJLHAKEPCCBAA.paulkf@microgate.com>
+	<1053970962.16694.17.camel@dhcp22.swansea.linux.org.uk>
+	<1054157063.2279.2.camel@diemos>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030528162019.A3492@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 May 2003 21:57:16.0693 (UTC) FILETIME=[1A6EC450:01C32564]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 28, 2003 at 04:20:19PM -0400, Pete Zaitcev wrote:
-> I didn't see this posted before. Sorry if I missed it.
-> It's a harmless buglet which causes false positives with correctness
-> checking tools, and so annoys me.
+Paul Fulghum <paulkf@microgate.com> wrote:
+>
+> Was it really the intention of the change to kernel/softirq.c:105
+> (source of the warning) that callers to dev_queue_xmit()
+> not be allowed to use spinlocks? If so, then what other
+> synchronization techniques are appropriate for use in
+> an interrupt and timer context?
 
-Are you sure it's harmless?  Your patch changes the meaning from an
-exact match to a prefix match.  I think it's intended to be an exact
-match, but I don't know why it doesn't just use strcmp().
+That warning is there because local_bh_enable will unconditionally enable
+interrupts, to run softirqs.
 
-Richard Braakman
+Hence, if someone is calling local_bh_enable() with interrupts disabled
+then local_bh_enable() is about to break their locking scheme in subtle
+ways.  So the warning is there to tell you about this.
+
+And we don't want to be running softirqs with interrupts disabled, for
+latency reasons.

@@ -1,306 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264139AbTEWTAU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 15:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264143AbTEWTAU
+	id S264138AbTEWS7k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 14:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEWS7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 15:00:20 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:24547 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264139AbTEWTAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 15:00:06 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3215F.56276430"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: /proc/kcore - how to fix it
-Date: Fri, 23 May 2003 12:13:04 -0700
-Message-ID: <DD755978BA8283409FB0087C39132BD101B00E04@fmsmsx404.fm.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Linux-ia64] RE: [PATCH] head.S fix for unusual load addrs
-Thread-Index: AcMeNhgg0EJmX+OZTwqeBSonPqUT4AAy43SAAJWGorA=
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-ia64@linuxia64.org>, <rmk@arm.linux.org.uk>, <ak@suse.de>,
-       "David Mosberger" <davidm@napali.hpl.hp.com>,
-       "Andrew Morton" <akpm@digeo.com>
-X-OriginalArrivalTime: 23 May 2003 19:13:05.0856 (UTC) FILETIME=[56CF9400:01C3215F]
+	Fri, 23 May 2003 14:59:40 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:25330 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264138AbTEWS7i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 14:59:38 -0400
+Date: Fri, 23 May 2003 14:12:42 -0500
+Mime-Version: 1.0 (Apple Message framework v552)
+Content-Type: multipart/mixed; boundary=Apple-Mail-18-248034566
+Subject: [PATCH] init/do_mounts_rd.c memory leak
+From: Hollis Blanchard <hollis@austin.ibm.com>
+To: linux-kernel@vger.kernel.org
+Message-Id: <86FA627A-8D52-11D7-BCE2-000A95A0560C@austin.ibm.com>
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C3215F.56276430
+--Apple-Mail-18-248034566
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	charset=US-ASCII;
+	format=flowed
 
-Not a lot of replies to this on the list, but I did notice
-that the lse-tech IRC discussion mentioned me by name, saying
-that I had a proposal for a fix ... and Andrew has stuck my
-name against this in the must-fix list for 2.6.  So, not wanting
-to be the person who is holding up 2.6 ... here's what I am
-proposing.
+Another potential memory leak the Stanford checker caught at 2.5.48: 
+while closing and opening floppy disks, buf could be allocated and 
+never freed.
 
-The patch attached provides enough hooks that each architecture
-should be able to make /proc/kcore useful.  The patch is INCOMPLETE
-in that *use* of those hooks is ONLY PROVIDED FOR IA64.
-
-Here's how it works.  The default code in fs/proc/kcore.c doesn't
-set up any "elf_phdr" sections ... it is left to each architecture
-to make appropriate calls to "kclist_add()" to specify a base
-address and size for each piece of kernel virtual address space
-that needs to be made accessible through /proc/kcore.  To get the
-old functionality, you'll need two calls that look something like:
-
- kclist_add(&kcore_mem, __va(0),
-             max_low_pfn * PAGE_SIZE);
- kclist_add(&kcore_vmem, (void *)VMALLOC_START,
-             VMALLOC_END-VMALLOC_START);
-
-The first makes all of memory visible (__i386__, __mc68000__ and
-__x86_64__ should use __va(PAGE_SIZE) to duplicate the original
-lack of access to page 0).  The second provides a single map for
-all "vmalloc" space (the code still searches the vmlist to see
-what actually exists before accessing it).
-
-Other blocks of kernel virtual space can be added as needed, and
-removed again (with kclist_del()).  E.g. discontiguous memory
-machines can add an entry for each block of memory.  Architectures
-that allocate memory for modules someplace outside of vmalloc-land
-can add/remove entries on module insert and remove.
-
-The second piece of abstraction is the kc_vaddr_to_offset() and
-kc_offset_to_vaddr() macros.  These provide mappings from kernel
-virtual addresses to offsets in the virtual file that /proc/kcore
-instantiates.  I hope they are sufficient to avoid negative offset
-problems that plagued the old /proc/kcore.  Default versions are
-provided for the old behaviour (mapping simply adds/subtracts
-PAGE_OFFSET).  For ia64 I just need to use a different offset
-as all kernel virtual allocations are in the high 37.5% of the
-64-bit virtual address space.
-x86_64 was the other architecture with this problem. I don't know
-enough (anything) about the kernel memory map on x86_64, so I hope
-these provide a big enough hook.  I'm hoping that you have some low
-stuff, and some high stuff with a big hole in the middle ... in
-which case the macros might look something like:
-
-#define kc_vaddr_to_offset(v) ((v) < 0x1000000000000000 ? (v) : \
-                              ((v) - 0xF000000000000000))
-
-But if you have interesting stuff scattered across *every* part of
-the unsigned address range, then you won't be able to squeeze it all
-into a signed file offset.
-
-There are a couple of bug fixes too:
-1) get_kcore_size() didn't account for the elf_prstatus, elf_prpsinfo
-   and task_struct that are placed in the PT_NOTE section that is
-   part of the header.  We were saved on most configurations by the
-   round-up to PAGE_SIZE ... but it's possible that some architectures
-   or machines corrupted memory beyond the space allocated for the
-   header.
-
-2) The size of the PT_NOTES section was incorrectly set to the size
-   of the last note, rather than the sum of the sizes of all the notes.
-
--Tony
+-- 
+Hollis Blanchard
+IBM Linux Technology Center
 
 
-------_=_NextPart_001_01C3215F.56276430
-Content-Type: application/octet-stream;
-	name="kcore.patch"
-Content-Transfer-Encoding: base64
-Content-Description: kcore.patch
+--Apple-Mail-18-248034566
 Content-Disposition: attachment;
-	filename="kcore.patch"
+	filename=mount-rd-free.diff
+Content-Transfer-Encoding: 7bit
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="mount-rd-free.diff"
 
-ZGlmZiAtcnUgbDI1NjktbW9zYmVyZ2VyL2FyY2gvaWE2NC9tbS9pbml0LmMgbDI1NjktYWVnbC9h
-cmNoL2lhNjQvbW0vaW5pdC5jCi0tLSBsMjU2OS1tb3NiZXJnZXIvYXJjaC9pYTY0L21tL2luaXQu
-YwlNb24gTWF5IDE5IDA5OjQwOjA0IDIwMDMKKysrIGwyNTY5LWFlZ2wvYXJjaC9pYTY0L21tL2lu
-aXQuYwlGcmkgTWF5IDIzIDA5OjIyOjU2IDIwMDMKQEAgLTMyLDcgKzMyLDcgQEAKIHN0cnVjdCBt
-bXVfZ2F0aGVyIG1tdV9nYXRoZXJzW05SX0NQVVNdOwogCiAvKiBSZWZlcmVuY2VzIHRvIHNlY3Rp
-b24gYm91bmRhcmllczogKi8KLWV4dGVybiBjaGFyIF9zdGV4dCwgX2V0ZXh0LCBfZWRhdGEsIF9f
-aW5pdF9iZWdpbiwgX19pbml0X2VuZDsKK2V4dGVybiBjaGFyIF9zdGV4dCwgX2V0ZXh0LCBfZWRh
-dGEsIF9faW5pdF9iZWdpbiwgX19pbml0X2VuZCwgX2VuZDsKIAogZXh0ZXJuIHZvaWQgaWE2NF90
-bGJfaW5pdCAodm9pZCk7CiAKQEAgLTU3Niw2ICs1NzYsNyBAQAogCWxvbmcgcmVzZXJ2ZWRfcGFn
-ZXMsIGNvZGVzaXplLCBkYXRhc2l6ZSwgaW5pdHNpemU7CiAJdW5zaWduZWQgbG9uZyBudW1fcGd0
-X3BhZ2VzOwogCXBnX2RhdGFfdCAqcGdkYXQ7CisJc3RhdGljIHN0cnVjdCBrY29yZV9saXN0IGtj
-b3JlX21lbSwga2NvcmVfdm1lbSwga2NvcmVfa2VybmVsOwogCiAjaWZkZWYgQ09ORklHX1BDSQog
-CS8qCkBAIC01OTQsNiArNTk1LDEwIEBACiAKIAloaWdoX21lbW9yeSA9IF9fdmEobWF4X2xvd19w
-Zm4gKiBQQUdFX1NJWkUpOwogCisJa2NsaXN0X2FkZCgma2NvcmVfbWVtLCBfX3ZhKDApLCBtYXhf
-bG93X3BmbiAqIFBBR0VfU0laRSk7CisJa2NsaXN0X2FkZCgma2NvcmVfdm1lbSwgKHZvaWQgKilW
-TUFMTE9DX1NUQVJULCBWTUFMTE9DX0VORC1WTUFMTE9DX1NUQVJUKTsKKwlrY2xpc3RfYWRkKCZr
-Y29yZV9rZXJuZWwsICZfc3RleHQsICZfZW5kIC0gJl9zdGV4dCk7CisKIAlmb3JfZWFjaF9wZ2Rh
-dChwZ2RhdCkKIAkJdG90YWxyYW1fcGFnZXMgKz0gZnJlZV9hbGxfYm9vdG1lbV9ub2RlKHBnZGF0
-KTsKIApkaWZmIC1ydSBsMjU2OS1tb3NiZXJnZXIvZnMvcHJvYy9rY29yZS5jIGwyNTY5LWFlZ2wv
-ZnMvcHJvYy9rY29yZS5jCi0tLSBsMjU2OS1tb3NiZXJnZXIvZnMvcHJvYy9rY29yZS5jCU1vbiBN
-YXkgMTkgMDk6NDA6NTcgMjAwMworKysgbDI1NjktYWVnbC9mcy9wcm9jL2tjb3JlLmMJRnJpIE1h
-eSAyMyAwOToyMTowMCAyMDAzCkBAIC05OSw3ICs5OSwxMiBAQAogfQogI2Vsc2UgLyogQ09ORklH
-X0tDT1JFX0FPVVQgKi8KIAotI2RlZmluZQlLQ09SRV9CQVNFCVBBR0VfT0ZGU0VUCisjaWZuZGVm
-IGtjX3ZhZGRyX3RvX29mZnNldAorI2RlZmluZQlrY192YWRkcl90b19vZmZzZXQodikgKCh2KSAt
-IFBBR0VfT0ZGU0VUKQorI2VuZGlmCisjaWZuZGVmCWtjX29mZnNldF90b192YWRkcgorI2RlZmlu
-ZQlrY19vZmZzZXRfdG9fdmFkZHIobykgKChvKSArIFBBR0VfT0ZGU0VUKQorI2VuZGlmCiAKICNk
-ZWZpbmUgcm91bmR1cCh4LCB5KSAgKCgoKHgpKygoeSktMSkpLyh5KSkqKHkpKQogCkBAIC0xMTIs
-MjkgKzExNyw2MCBAQAogCXZvaWQgKmRhdGE7CiB9OwogCitzdGF0aWMgc3RydWN0IGtjb3JlX2xp
-c3QgKmtjbGlzdDsKK3N0YXRpYyByd2xvY2tfdCBrY2xpc3RfbG9jayA9IFJXX0xPQ0tfVU5MT0NL
-RUQ7CisKK3ZvaWQKK2tjbGlzdF9hZGQoc3RydWN0IGtjb3JlX2xpc3QgKm5ldywgdm9pZCAqYWRk
-ciwgc2l6ZV90IHNpemUpCit7CisJbmV3LT5hZGRyID0gKHVuc2lnbmVkIGxvbmcpYWRkcjsKKwlu
-ZXctPnNpemUgPSBzaXplOworCisJd3JpdGVfbG9jaygma2NsaXN0X2xvY2spOworCW5ldy0+bmV4
-dCA9IGtjbGlzdDsKKwlrY2xpc3QgPSBuZXc7CisJd3JpdGVfdW5sb2NrKCZrY2xpc3RfbG9jayk7
-Cit9CisKK3N0cnVjdCBrY29yZV9saXN0ICoKK2tjbGlzdF9kZWwodm9pZCAqYWRkcikKK3sKKwlz
-dHJ1Y3Qga2NvcmVfbGlzdCAqbSwgKipwID0gJmtjbGlzdDsKKworCXdyaXRlX2xvY2soJmtjbGlz
-dF9sb2NrKTsKKwlmb3IgKG0gPSAqcDsgbTsgcCA9ICZtLT5uZXh0KSB7CisJCWlmIChtLT5hZGRy
-ID09ICh1bnNpZ25lZCBsb25nKWFkZHIpIHsKKwkJCSpwID0gbS0+bmV4dDsKKwkJCXdyaXRlX3Vu
-bG9jaygma2NsaXN0X2xvY2spOworCQkJcmV0dXJuIG07CisJCX0KKwl9CisJd3JpdGVfdW5sb2Nr
-KCZrY2xpc3RfbG9jayk7CisJcmV0dXJuIDA7Cit9CisKIGV4dGVybiBjaGFyIHNhdmVkX2NvbW1h
-bmRfbGluZVtdOwogCi1zdGF0aWMgc2l6ZV90IGdldF9rY29yZV9zaXplKGludCAqbnVtX3ZtYSwg
-c2l6ZV90ICplbGZfYnVmbGVuKQorc3RhdGljIHNpemVfdCBnZXRfa2NvcmVfc2l6ZShpbnQgKm5w
-aGRyLCBzaXplX3QgKmVsZl9idWZsZW4pCiB7CiAJc2l6ZV90IHRyeSwgc2l6ZTsKLQlzdHJ1Y3Qg
-dm1fc3RydWN0ICptOworCXN0cnVjdCBrY29yZV9saXN0ICptOwogCi0JKm51bV92bWEgPSAwOwot
-CXNpemUgPSAoKHNpemVfdCloaWdoX21lbW9yeSAtIEtDT1JFX0JBU0UgKyBQQUdFX1NJWkUpOwot
-CWlmICghdm1saXN0KSB7Ci0JCSplbGZfYnVmbGVuID0gUEFHRV9TSVpFOwotCQlyZXR1cm4gKHNp
-emUpOwotCX0KKwkqbnBoZHIgPSAxOyAvKiBQVF9OT1RFICovCisJc2l6ZSA9IDA7CiAKLQlmb3Ig
-KG09dm1saXN0OyBtOyBtPW0tPm5leHQpIHsKLQkJdHJ5ID0gKHNpemVfdCltLT5hZGRyICsgbS0+
-c2l6ZTsKLQkJaWYgKHRyeSA+IEtDT1JFX0JBU0UgKyBzaXplKQotCQkJc2l6ZSA9IHRyeSAtIEtD
-T1JFX0JBU0U7Ci0JCSpudW1fdm1hID0gKm51bV92bWEgKyAxOworCWZvciAobT1rY2xpc3Q7IG07
-IG09bS0+bmV4dCkgeworCQl0cnkgPSBrY192YWRkcl90b19vZmZzZXQoKHNpemVfdCltLT5hZGRy
-ICsgbS0+c2l6ZSk7CisJCWlmICh0cnkgPiBzaXplKQorCQkJc2l6ZSA9IHRyeTsKKwkJKm5waGRy
-ID0gKm5waGRyICsgMTsKIAl9CiAJKmVsZl9idWZsZW4gPQlzaXplb2Yoc3RydWN0IGVsZmhkcikg
-KyAKLQkJCSgqbnVtX3ZtYSArIDIpKnNpemVvZihzdHJ1Y3QgZWxmX3BoZHIpICsgCi0JCQkzICog
-c2l6ZW9mKHN0cnVjdCBtZW1lbGZub3RlKTsKKwkJCSgqbnBoZHIgKyAyKSpzaXplb2Yoc3RydWN0
-IGVsZl9waGRyKSArIAorCQkJMyAqIHNpemVvZihzdHJ1Y3QgbWVtZWxmbm90ZSkgKworCQkJc2l6
-ZW9mKHN0cnVjdCBlbGZfcHJzdGF0dXMpICsKKwkJCXNpemVvZihzdHJ1Y3QgZWxmX3BycHNpbmZv
-KSArCisJCQlzaXplb2Yoc3RydWN0IHRhc2tfc3RydWN0KTsKIAkqZWxmX2J1ZmxlbiA9IFBBR0Vf
-QUxJR04oKmVsZl9idWZsZW4pOwogCXJldHVybiBzaXplICsgKmVsZl9idWZsZW47CiB9CkBAIC0x
-ODQsOSArMjIwLDkgQEAKIAogLyoKICAqIHN0b3JlIGFuIEVMRiBjb3JlZHVtcCBoZWFkZXIgaW4g
-dGhlIHN1cHBsaWVkIGJ1ZmZlcgotICogbnVtX3ZtYSBpcyB0aGUgbnVtYmVyIG9mIGVsZW1lbnRz
-IGluIHZtbGlzdAorICogbnBoZHIgaXMgdGhlIG51bWJlciBvZiBlbGZfcGhkciB0byBpbnNlcnQK
-ICAqLwotc3RhdGljIHZvaWQgZWxmX2tjb3JlX3N0b3JlX2hkcihjaGFyICpidWZwLCBpbnQgbnVt
-X3ZtYSwgaW50IGRhdGFvZmYpCitzdGF0aWMgdm9pZCBlbGZfa2NvcmVfc3RvcmVfaGRyKGNoYXIg
-KmJ1ZnAsIGludCBucGhkciwgaW50IGRhdGFvZmYpCiB7CiAJc3RydWN0IGVsZl9wcnN0YXR1cyBw
-cnN0YXR1czsJLyogTlRfUFJTVEFUVVMgKi8KIAlzdHJ1Y3QgZWxmX3BycHNpbmZvIHBycHNpbmZv
-OwkvKiBOVF9QUlBTSU5GTyAqLwpAQCAtMTk0LDcgKzIzMCw3IEBACiAJc3RydWN0IGVsZmhkciAq
-ZWxmOwogCXN0cnVjdCBtZW1lbGZub3RlIG5vdGVzWzNdOwogCW9mZl90IG9mZnNldCA9IDA7Ci0J
-c3RydWN0IHZtX3N0cnVjdCAqbTsKKwlzdHJ1Y3Qga2NvcmVfbGlzdCAqbTsKIAogCS8qIHNldHVw
-IEVMRiBoZWFkZXIgKi8KIAllbGYgPSAoc3RydWN0IGVsZmhkciAqKSBidWZwOwpAQCAtMjE0LDcg
-KzI1MCw3IEBACiAJZWxmLT5lX2ZsYWdzCT0gMDsKIAllbGYtPmVfZWhzaXplCT0gc2l6ZW9mKHN0
-cnVjdCBlbGZoZHIpOwogCWVsZi0+ZV9waGVudHNpemU9IHNpemVvZihzdHJ1Y3QgZWxmX3BoZHIp
-OwotCWVsZi0+ZV9waG51bQk9IDIgKyBudW1fdm1hOworCWVsZi0+ZV9waG51bQk9IG5waGRyOwog
-CWVsZi0+ZV9zaGVudHNpemU9IDA7CiAJZWxmLT5lX3NobnVtCT0gMDsKIAllbGYtPmVfc2hzdHJu
-ZHgJPSAwOwpAQCAtMjMyLDMzICsyNjgsMTcgQEAKIAluaGRyLT5wX2ZsYWdzCT0gMDsKIAluaGRy
-LT5wX2FsaWduCT0gMDsKIAotCS8qIHNldHVwIEVMRiBQVF9MT0FEIHByb2dyYW0gaGVhZGVyIGZv
-ciB0aGUgCi0JICogdmlydHVhbCByYW5nZSAweGMwMDAwMDAwIC0+IGhpZ2hfbWVtb3J5ICovCi0J
-cGhkciA9IChzdHJ1Y3QgZWxmX3BoZHIgKikgYnVmcDsKLQlidWZwICs9IHNpemVvZihzdHJ1Y3Qg
-ZWxmX3BoZHIpOwotCW9mZnNldCArPSBzaXplb2Yoc3RydWN0IGVsZl9waGRyKTsKLQlwaGRyLT5w
-X3R5cGUJPSBQVF9MT0FEOwotCXBoZHItPnBfZmxhZ3MJPSBQRl9SfFBGX1d8UEZfWDsKLQlwaGRy
-LT5wX29mZnNldAk9IFBBR0VfT0ZGU0VUIC0gS0NPUkVfQkFTRSArIGRhdGFvZmY7Ci0JcGhkci0+
-cF92YWRkcgk9IFBBR0VfT0ZGU0VUOwotCXBoZHItPnBfcGFkZHIJPSBfX3BhKFBBR0VfT0ZGU0VU
-KTsKLQlwaGRyLT5wX2ZpbGVzegk9IHBoZHItPnBfbWVtc3ogPSAoKHVuc2lnbmVkIGxvbmcpaGln
-aF9tZW1vcnkgLSBQQUdFX09GRlNFVCk7Ci0JcGhkci0+cF9hbGlnbgk9IFBBR0VfU0laRTsKLQot
-CS8qIHNldHVwIEVMRiBQVF9MT0FEIHByb2dyYW0gaGVhZGVyIGZvciBldmVyeSB2bWFsbG9jJ2Qg
-YXJlYSAqLwotCWZvciAobT12bWxpc3Q7IG07IG09bS0+bmV4dCkgewotCQlpZiAobS0+ZmxhZ3Mg
-JiBWTV9JT1JFTUFQKSAvKiBkb24ndCBkdW1wIGlvcmVtYXAnZCBzdHVmZiEgKFRBKSAqLwotCQkJ
-Y29udGludWU7Ci0KKwkvKiBzZXR1cCBFTEYgUFRfTE9BRCBwcm9ncmFtIGhlYWRlciBmb3IgZXZl
-cnkgYXJlYSAqLworCWZvciAobT1rY2xpc3Q7IG07IG09bS0+bmV4dCkgewogCQlwaGRyID0gKHN0
-cnVjdCBlbGZfcGhkciAqKSBidWZwOwogCQlidWZwICs9IHNpemVvZihzdHJ1Y3QgZWxmX3BoZHIp
-OwogCQlvZmZzZXQgKz0gc2l6ZW9mKHN0cnVjdCBlbGZfcGhkcik7CiAKIAkJcGhkci0+cF90eXBl
-CT0gUFRfTE9BRDsKIAkJcGhkci0+cF9mbGFncwk9IFBGX1J8UEZfV3xQRl9YOwotCQlwaGRyLT5w
-X29mZnNldAk9IChzaXplX3QpbS0+YWRkciAtIEtDT1JFX0JBU0UgKyBkYXRhb2ZmOworCQlwaGRy
-LT5wX29mZnNldAk9IGtjX3ZhZGRyX3RvX29mZnNldChtLT5hZGRyKSArIGRhdGFvZmY7CiAJCXBo
-ZHItPnBfdmFkZHIJPSAoc2l6ZV90KW0tPmFkZHI7Ci0JCXBoZHItPnBfcGFkZHIJPSBfX3BhKG0t
-PmFkZHIpOworCQlwaGRyLT5wX3BhZGRyCT0gMDsKIAkJcGhkci0+cF9maWxlc3oJPSBwaGRyLT5w
-X21lbXN6CT0gbS0+c2l6ZTsKIAkJcGhkci0+cF9hbGlnbgk9IFBBR0VfU0laRTsKIAl9CkBAIC0y
-OTQsNyArMzE0LDcgQEAKIAlzdHJjcHkocHJwc2luZm8ucHJfZm5hbWUsICJ2bWxpbnV4Iik7CiAJ
-c3RybmNweShwcnBzaW5mby5wcl9wc2FyZ3MsIHNhdmVkX2NvbW1hbmRfbGluZSwgRUxGX1BSQVJH
-U1opOwogCi0Jbmhkci0+cF9maWxlc3oJPSBub3Rlc2l6ZSgmbm90ZXNbMV0pOworCW5oZHItPnBf
-ZmlsZXN6CSs9IG5vdGVzaXplKCZub3Rlc1sxXSk7CiAJYnVmcCA9IHN0b3Jlbm90ZSgmbm90ZXNb
-MV0sIGJ1ZnApOwogCiAJLyogc2V0IHVwIHRoZSB0YXNrIHN0cnVjdHVyZSAqLwpAQCAtMzAzLDcg
-KzMyMyw3IEBACiAJbm90ZXNbMl0uZGF0YXN6CT0gc2l6ZW9mKHN0cnVjdCB0YXNrX3N0cnVjdCk7
-CiAJbm90ZXNbMl0uZGF0YQk9IGN1cnJlbnQ7CiAKLQluaGRyLT5wX2ZpbGVzegk9IG5vdGVzaXpl
-KCZub3Rlc1syXSk7CisJbmhkci0+cF9maWxlc3oJKz0gbm90ZXNpemUoJm5vdGVzWzJdKTsKIAli
-dWZwID0gc3RvcmVub3RlKCZub3Rlc1syXSwgYnVmcCk7CiAKIH0gLyogZW5kIGVsZl9rY29yZV9z
-dG9yZV9oZHIoKSAqLwpAQCAtMzE3LDEzICszMzcsMTQgQEAKIAlzc2l6ZV90IGFjYyA9IDA7CiAJ
-c2l6ZV90IHNpemUsIHRzejsKIAlzaXplX3QgZWxmX2J1ZmxlbjsKLQlpbnQgbnVtX3ZtYTsKKwlp
-bnQgbnBoZHI7CiAJdW5zaWduZWQgbG9uZyBzdGFydDsKIAotCXJlYWRfbG9jaygmdm1saXN0X2xv
-Y2spOwotCXByb2Nfcm9vdF9rY29yZS0+c2l6ZSA9IHNpemUgPSBnZXRfa2NvcmVfc2l6ZSgmbnVt
-X3ZtYSwgJmVsZl9idWZsZW4pOworCXJlYWRfbG9jaygma2NsaXN0X2xvY2spOworCXRzeiA9ICBn
-ZXRfa2NvcmVfc2l6ZSgmbnBoZHIsICZlbGZfYnVmbGVuKTsKKwlwcm9jX3Jvb3Rfa2NvcmUtPnNp
-emUgPSBzaXplID0gdHN6ICsgZWxmX2J1ZmxlbjsKIAlpZiAoYnVmbGVuID09IDAgfHwgKmZwb3Mg
-Pj0gc2l6ZSkgewotCQlyZWFkX3VubG9jaygmdm1saXN0X2xvY2spOworCQlyZWFkX3VubG9jaygm
-a2NsaXN0X2xvY2spOwogCQlyZXR1cm4gMDsKIAl9CiAKQEAgLTM0MCwxMiArMzYxLDEyIEBACiAJ
-CQl0c3ogPSBidWZsZW47CiAJCWVsZl9idWYgPSBrbWFsbG9jKGVsZl9idWZsZW4sIEdGUF9BVE9N
-SUMpOwogCQlpZiAoIWVsZl9idWYpIHsKLQkJCXJlYWRfdW5sb2NrKCZ2bWxpc3RfbG9jayk7CisJ
-CQlyZWFkX3VubG9jaygma2NsaXN0X2xvY2spOwogCQkJcmV0dXJuIC1FTk9NRU07CiAJCX0KIAkJ
-bWVtc2V0KGVsZl9idWYsIDAsIGVsZl9idWZsZW4pOwotCQllbGZfa2NvcmVfc3RvcmVfaGRyKGVs
-Zl9idWYsIG51bV92bWEsIGVsZl9idWZsZW4pOwotCQlyZWFkX3VubG9jaygmdm1saXN0X2xvY2sp
-OworCQllbGZfa2NvcmVfc3RvcmVfaGRyKGVsZl9idWYsIG5waGRyLCBlbGZfYnVmbGVuKTsKKwkJ
-cmVhZF91bmxvY2soJmtjbGlzdF9sb2NrKTsKIAkJaWYgKGNvcHlfdG9fdXNlcihidWZmZXIsIGVs
-Zl9idWYgKyAqZnBvcywgdHN6KSkgewogCQkJa2ZyZWUoZWxmX2J1Zik7CiAJCQlyZXR1cm4gLUVG
-QVVMVDsKQEAgLTM2MCw0MSArMzgxLDMwIEBACiAJCWlmIChidWZsZW4gPT0gMCkKIAkJCXJldHVy
-biBhY2M7CiAJfSBlbHNlCi0JCXJlYWRfdW5sb2NrKCZ2bWxpc3RfbG9jayk7Ci0KLQkvKiB3aGVy
-ZSBwYWdlIDAgbm90IG1hcHBlZCwgd3JpdGUgemVyb3MgaW50byBidWZmZXIgKi8KLSNpZiBkZWZp
-bmVkIChfX2kzODZfXykgfHwgZGVmaW5lZCAoX19tYzY4MDAwX18pIHx8IGRlZmluZWQoX194ODZf
-NjRfXykKLQlpZiAoKmZwb3MgPCBQQUdFX1NJWkUgKyBlbGZfYnVmbGVuKSB7Ci0JCS8qIHdvcmsg
-b3V0IGhvdyBtdWNoIHRvIGNsZWFyICovCi0JCXRzeiA9IFBBR0VfU0laRSArIGVsZl9idWZsZW4g
-LSAqZnBvczsKLQkJaWYgKGJ1ZmxlbiA8IHRzeikKLQkJCXRzeiA9IGJ1ZmxlbjsKLQotCQkvKiB3
-cml0ZSB6ZXJvcyB0byBidWZmZXIgKi8KLQkJaWYgKGNsZWFyX3VzZXIoYnVmZmVyLCB0c3opKQot
-CQkJcmV0dXJuIC1FRkFVTFQ7Ci0JCWJ1ZmxlbiAtPSB0c3o7Ci0JCSpmcG9zICs9IHRzejsKLQkJ
-YnVmZmVyICs9IHRzejsKLQkJYWNjICs9IHRzejsKKwkJcmVhZF91bmxvY2soJmtjbGlzdF9sb2Nr
-KTsKIAotCQkvKiBsZWF2ZSBub3cgaWYgZmlsbGVkIGJ1ZmZlciBhbHJlYWR5ICovCi0JCWlmIChi
-dWZsZW4gPT0gMCkKLQkJCXJldHVybiB0c3o7Ci0JfQotI2VuZGlmCi0JCiAJLyoKLQkgKiBGaWxs
-IHRoZSByZW1haW5kZXIgb2YgdGhlIGJ1ZmZlciBmcm9tIGtlcm5lbCBWTSBzcGFjZS4KLQkgKiBX
-ZSBzYWlkIGluIHRoZSBFTEYgaGVhZGVyIHRoYXQgdGhlIGRhdGEgd2hpY2ggc3RhcnRzCi0JICog
-YXQgJ2VsZl9idWZsZW4nIGlzIHZpcnR1YWwgYWRkcmVzcyBLQ09SRV9CQVNFLiAtLXJtaworCSAq
-IENoZWNrIHRvIHNlZSBpZiBvdXIgZmlsZSBvZmZzZXQgbWF0Y2hlcyB3aXRoIGFueSBvZgorCSAq
-IHRoZSBhZGRyZXNzZXMgaW4gdGhlIGVsZl9waGRyIG9uIG91ciBsaXN0LgogCSAqLwotCXN0YXJ0
-ID0gS0NPUkVfQkFTRSArICgqZnBvcyAtIGVsZl9idWZsZW4pOworCXN0YXJ0ID0ga2Nfb2Zmc2V0
-X3RvX3ZhZGRyKCpmcG9zIC0gZWxmX2J1Zmxlbik7CiAJaWYgKCh0c3ogPSAoUEFHRV9TSVpFIC0g
-KHN0YXJ0ICYgflBBR0VfTUFTSykpKSA+IGJ1ZmxlbikKIAkJdHN6ID0gYnVmbGVuOwogCQkKIAl3
-aGlsZSAoYnVmbGVuKSB7Ci0JCWlmICgoc3RhcnQgPj0gVk1BTExPQ19TVEFSVCkgJiYgKHN0YXJ0
-IDwgVk1BTExPQ19FTkQpKSB7CisJCXN0cnVjdCBrY29yZV9saXN0ICptOworCisJCXJlYWRfbG9j
-aygma2NsaXN0X2xvY2spOworCQlmb3IgKG09a2NsaXN0OyBtOyBtPW0tPm5leHQpIHsKKwkJCWlm
-IChzdGFydCA+PSBtLT5hZGRyICYmIHN0YXJ0IDwgKG0tPmFkZHIrbS0+c2l6ZSkpCisJCQkJYnJl
-YWs7CisJCX0KKwkJcmVhZF91bmxvY2soJmtjbGlzdF9sb2NrKTsKKworCQlpZiAobSA9PSBOVUxM
-KSB7CisJCQlpZiAoY2xlYXJfdXNlcihidWZmZXIsIHRzeikpCisJCQkJcmV0dXJuIC1FRkFVTFQ7
-CisJCX0gZWxzZSBpZiAoKHN0YXJ0ID49IFZNQUxMT0NfU1RBUlQpICYmIChzdGFydCA8IFZNQUxM
-T0NfRU5EKSkgewogCQkJY2hhciAqIGVsZl9idWY7CiAJCQlzdHJ1Y3Qgdm1fc3RydWN0ICptOwog
-CQkJdW5zaWduZWQgbG9uZyBjdXJzdGFydCA9IHN0YXJ0OwpAQCAtNDM5LDggKzQ0OSw3IEBACiAJ
-CQkJcmV0dXJuIC1FRkFVTFQ7CiAJCQl9CiAJCQlrZnJlZShlbGZfYnVmKTsKLQkJfSBlbHNlIGlm
-ICgoc3RhcnQgPiBQQUdFX09GRlNFVCkgJiYgKHN0YXJ0IDwgCi0JCQkJCQkodW5zaWduZWQgbG9u
-ZyloaWdoX21lbW9yeSkpIHsKKwkJfSBlbHNlIHsKIAkJCWlmIChrZXJuX2FkZHJfdmFsaWQoc3Rh
-cnQpKSB7CiAJCQkJaWYgKGNvcHlfdG9fdXNlcihidWZmZXIsIChjaGFyICopc3RhcnQsIHRzeikp
-CiAJCQkJCXJldHVybiAtRUZBVUxUOwpAQCAtNDQ4LDkgKzQ1Nyw2IEBACiAJCQkJaWYgKGNsZWFy
-X3VzZXIoYnVmZmVyLCB0c3opKQogCQkJCQlyZXR1cm4gLUVGQVVMVDsKIAkJCX0KLQkJfSBlbHNl
-IHsKLQkJCWlmIChjbGVhcl91c2VyKGJ1ZmZlciwgdHN6KSkKLQkJCQlyZXR1cm4gLUVGQVVMVDsK
-IAkJfQogCQlidWZsZW4gLT0gdHN6OwogCQkqZnBvcyArPSB0c3o7CmRpZmYgLXJ1IGwyNTY5LW1v
-c2Jlcmdlci9pbmNsdWRlL2FzbS1pYTY0L3BndGFibGUuaCBsMjU2OS1hZWdsL2luY2x1ZGUvYXNt
-LWlhNjQvcGd0YWJsZS5oCi0tLSBsMjU2OS1tb3NiZXJnZXIvaW5jbHVkZS9hc20taWE2NC9wZ3Rh
-YmxlLmgJTW9uIE1heSAxOSAwOTo0MTowMSAyMDAzCisrKyBsMjU2OS1hZWdsL2luY2x1ZGUvYXNt
-LWlhNjQvcGd0YWJsZS5oCUZyaSBNYXkgMjMgMDk6MTM6MDggMjAwMwpAQCAtMjE3LDYgKzIxNywx
-MCBAQAogIyBkZWZpbmUgVk1BTExPQ19FTkQJCSgweGEwMDAwMDAwMDAwMDAwMDAgKyAoMVVMIDw8
-ICg0KlBBR0VfU0hJRlQgLSA5KSkpCiAjZW5kaWYKIAorLyogZnMvcHJvYy9rY29yZS5jICovCisj
-ZGVmaW5lCWtjX3ZhZGRyX3RvX29mZnNldCh2KSAoKHYpIC0gMHhBMDAwMDAwMDAwMDAwMDAwKQor
-I2RlZmluZQlrY19vZmZzZXRfdG9fdmFkZHIobykgKChvKSArIDB4QTAwMDAwMDAwMDAwMDAwMCkK
-KwogLyoKICAqIENvbnZlcnNpb24gZnVuY3Rpb25zOiBjb252ZXJ0IHBhZ2UgZnJhbWUgbnVtYmVy
-IChwZm4pIGFuZCBhIHByb3RlY3Rpb24gdmFsdWUgdG8gYSBwYWdlCiAgKiB0YWJsZSBlbnRyeSAo
-cHRlKS4KZGlmZiAtcnUgbDI1NjktbW9zYmVyZ2VyL2luY2x1ZGUvbGludXgvcHJvY19mcy5oIGwy
-NTY5LWFlZ2wvaW5jbHVkZS9saW51eC9wcm9jX2ZzLmgKLS0tIGwyNTY5LW1vc2Jlcmdlci9pbmNs
-dWRlL2xpbnV4L3Byb2NfZnMuaAlNb24gTWF5IDE5IDA5OjQxOjA3IDIwMDMKKysrIGwyNTY5LWFl
-Z2wvaW5jbHVkZS9saW51eC9wcm9jX2ZzLmgJRnJpIE1heSAyMyAwOToyMzo1MSAyMDAzCkBAIC03
-NCw2ICs3NCwxMiBAQAogCWtkZXZfdAlyZGV2OwogfTsKIAorc3RydWN0IGtjb3JlX2xpc3Qgewor
-CXN0cnVjdCBrY29yZV9saXN0ICpuZXh0OworCXVuc2lnbmVkIGxvbmcgYWRkcjsKKwlzaXplX3Qg
-c2l6ZTsKK307CisKICNpZmRlZiBDT05GSUdfUFJPQ19GUwogCiBleHRlcm4gc3RydWN0IHByb2Nf
-ZGlyX2VudHJ5IHByb2Nfcm9vdDsKQEAgLTE2OCw2ICsxNzQsMTIgQEAKIAlyZW1vdmVfcHJvY19l
-bnRyeShuYW1lLHByb2NfbmV0KTsKIH0KIAorLyoKKyAqIGZzL3Byb2Mva2NvcmUuYworICovCitl
-eHRlcm4gdm9pZCBrY2xpc3RfYWRkKHN0cnVjdCBrY29yZV9saXN0ICosIHZvaWQgKiwgc2l6ZV90
-KTsKK2V4dGVybiBzdHJ1Y3Qga2NvcmVfbGlzdCAqa2NsaXN0X2RlbCh2b2lkICopOworCiAjZWxz
-ZQogCiAjZGVmaW5lIHByb2Nfcm9vdF9kcml2ZXIgTlVMTApAQCAtMjAxLDYgKzIxMyw4IEBACiAK
-IGV4dGVybiBzdHJ1Y3QgcHJvY19kaXJfZW50cnkgcHJvY19yb290OwogCitzdGF0aWMgaW5saW5l
-IHZvaWQga2NsaXN0X2FkZChzdHJ1Y3Qga2NvcmVfbGlzdCAqbmV3LCB2b2lkICphZGRyLCBzaXpl
-X3Qgc2l6ZSkge307CitzdGF0aWMgaW5saW5lIHN0cnVjdCBrY29yZV9saXN0ICoga2NsaXN0X2Rl
-bCh2b2lkICphZGRyKSB7cmV0dXJuIE5VTEx9OwogI2VuZGlmIC8qIENPTkZJR19QUk9DX0ZTICov
-CiAKIHN0cnVjdCBwcm9jX2lub2RlIHsK
+--- init/do_mounts_rd.c.orig	2003-05-15 15:05:56.000000000 -0500
++++ init/do_mounts_rd.c	2003-05-15 15:06:30.000000000 -0500
+@@ -206,12 +206,14 @@
+ 			rotate = 0;
+ 			if (close(in_fd)) {
+ 				printk("Error closing the disk.\n");
++				kfree(buf);
+ 				goto noclose_input;
+ 			}
+ 			change_floppy("disk #%d", disk);
+ 			in_fd = open(from, O_RDONLY, 0);
+ 			if (in_fd < 0)  {
+ 				printk("Error opening disk.\n");
++				kfree(buf);
+ 				goto noclose_input;
+ 			}
+ 			printk("Loading disk #%d... ", disk);
 
-------_=_NextPart_001_01C3215F.56276430--
+--Apple-Mail-18-248034566--
+

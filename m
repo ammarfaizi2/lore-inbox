@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261642AbSJMTeW>; Sun, 13 Oct 2002 15:34:22 -0400
+	id <S261667AbSJMTha>; Sun, 13 Oct 2002 15:37:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261643AbSJMTeV>; Sun, 13 Oct 2002 15:34:21 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:54792
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S261642AbSJMTeU>; Sun, 13 Oct 2002 15:34:20 -0400
-Subject: Re: in_atomic() & spin_lock / spin_unlock in different functions
-From: Robert Love <rml@tech9.net>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021013203838.A122@elf.ucw.cz>
-References: <20021013203838.A122@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Oct 2002 15:40:09 -0400
-Message-Id: <1034538009.753.4507.camel@phantasy>
-Mime-Version: 1.0
+	id <S261668AbSJMTha>; Sun, 13 Oct 2002 15:37:30 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:36794 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261667AbSJMTha>; Sun, 13 Oct 2002 15:37:30 -0400
+Date: Sun, 13 Oct 2002 17:42:55 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+cc: "'David S. Miller'" <davem@redhat.com>, <robm@fastmail.fm>,
+       <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>,
+       <jhoward@fastmail.fm>
+Subject: RE: Strange load spikes on 2.4.19 kernel
+In-Reply-To: <000f01c27294$438d5fa0$7443f4d1@joe>
+Message-ID: <Pine.LNX.4.44L.0210131742330.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-13 at 14:38, Pavel Machek wrote:
+On Sun, 13 Oct 2002, Joseph D. Wagner wrote:
 
-> I'm doing spin_lock_irqsave() then in another function
-> spin_unlock_irqrestore. Is that okay? If no, can it cause "scheduling
-> in atomic"?
+> Prove it.  If you can code multi-threading SMP block and inode
+> allocation using a non-preemptive kernel (which Linux is) ON THE SAME
+> PARTITION, I will eat my hard drive.
 
-It is not OK if the function is run by a different process.  Then one
-process will have a preempt_count one larger than it should and one
-would have a preempt_count one smaller.
+Try the XFS patch.
 
-The task with the one smaller preempt_count will probably cause a crash
-when it preemptively reschedules erroneously.
+Do you prefer ketchup or mustard ?
 
-In other words, you have:
-
-	Process A		Process B
-	preempt_count++
-				preempt_count--
-
-When both of those routines need to be done by the same process.
-
-Also, you cannot use spin_lock_irqsave() in different functions at all
-on sparc as it contains stack information.
-
-	Robert Love
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

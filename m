@@ -1,65 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263381AbTETA5T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 20:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263385AbTETA5T
+	id S263333AbTETA7H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 20:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263358AbTETA6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 20:57:19 -0400
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:40690 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP id S263396AbTETA5P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 20:57:15 -0400
-Message-ID: <3EC986ED.80604@kegel.com>
-Date: Mon, 19 May 2003 18:37:49 -0700
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: de-de, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Davide Libenzi <davidel@xmailserver.org>,
-       John Myers <jgmyers@netscape.com>, linux-aio@kvack.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Comparing the aio and epoll event frameworks.
-References: <200305192333.QAA12018@pagarcia.nscp.aoltw.net> <Pine.LNX.4.55.0305191657540.6565@bigblue.dev.mcafeelabs.com> <3EC9807D.3080804@kegel.com> <Pine.LNX.4.55.0305191743230.6565@bigblue.dev.mcafeelabs.com> <20030520010258.GQ2444@holomorphy.com>
-In-Reply-To: <20030520010258.GQ2444@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 19 May 2003 20:58:51 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:6310 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263333AbTETA6V (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 20:58:21 -0400
+Message-Id: <200305200111.h4K1BJPc026622@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc 
+In-Reply-To: Your message of "Mon, 19 May 2003 18:40:18 MDT."
+             <m1y9121mdp.fsf@frodo.biederman.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030519165623.GA983@mars.ravnborg.org> <Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com> <babhik$sbd$1@cesium.transmeta.com> <m1d6ie37i8.fsf@frodo.biederman.org> <3EC95B58.7080807@zytor.com> <m18yt235cf.fsf@frodo.biederman.org> <3EC9660D.2000203@zytor.com> <m14r3q331h.fsf@frodo.biederman.org> <200305200024.h4K0OnPc025466@turing-police.cc.vt.edu>
+            <m1y9121mdp.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1177108798P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 19 May 2003 21:11:19 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> Davide Libenzi wrote:
-> 
->>>>Adding a single shot feature to epoll takes about 5 lines of code,
->>>>comments included :) You know how many reuqests I had ? Zero, nada.
-> 
-> 
-> On Mon, 19 May 2003, Dan Kegel wrote:
-> 
->>>I thought edge triggered epoll *was* single-shot.
-> 
-> 
-> On Mon, May 19, 2003 at 05:47:15PM -0700, Davide Libenzi wrote:
-> 
->>For single shot I mean that once you receive one event, you will not
->>receive more events for that fd if you do not rearm it. Suppose you
->>receive 1000 bytes of data and you get an event (EPOLLIN). If after 10
->>seconds you receive another 1000 bytes, you will receive another event.
->>This is not single shot.
-> 
-> 
-> I think this would be useful for network daemons that would like to
-> fairly schedule responses (i.e. not re-arm until a client on a given fd
-> deserves a turn again). IRC daemons would appear to be a perfect
-> candidate for such.  ...
+--==_Exmh_-1177108798P
+Content-Type: text/plain; charset=us-ascii
 
-No need.  The plain old edge triggered behavior can handle this
-nicely.
-- Dan
+On Mon, 19 May 2003 18:40:18 MDT, Eric W. Biederman said:
 
+> Or the build against a library that does that.  There are not that
+> many libraries.
 
--- 
-Dan Kegel
-http://www.kegel.com
-http://counter.li.org/cgi-bin/runscript/display-person.cgi?user=78045
+So I get around the lack of  foo-gram support in glibc by
+writing/compiling/installing a -lfoo-gram, which of course gets its
+header definitions from the same header file that kernheaders isn't
+supplying, or by dragging around the same local foo-gram.h that I'd
+otherwise be dragging around with my app.
 
+Somehow, this doesn't seem like progress to me.  And of course, it just
+sets me up for *odd* debugging problems when my foo-gram.h is at version
+0.17 and the kernel and glibc are up to 0.25, and features mysteriously
+misbehave depending on the exact -I include order on the system I'm
+doing the build on, and whether the particular version of gcc has the
+automagic auto-ambush handling of /usr/local/include, and the phase of
+the moon...
+
+Yes, I know I can build against a library.  Point is that saying I can
+do it doesn't change the fact it's a hack and an ongoing maintenance problem.
+
+> For a lot of system calls it is actively dangerous to assume dev_t ==
+> __kernel_dev_t.  As glibc does some cute things in there.
+
+I thought that sort of fun and games was *WHY* userspace can't use the
+kernel headers in the first place?
+
+--==_Exmh_-1177108798P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+yYC2cC3lWbTT17ARApMiAKD8DJ3R4DzFj8HydKjBGRSywh0g9ACfZAvr
+JbwciMFvlUAYjkyoPlllbZk=
+=dF0P
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1177108798P--

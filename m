@@ -1,84 +1,408 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262048AbTCLWYq>; Wed, 12 Mar 2003 17:24:46 -0500
+	id <S262070AbTCLWTQ>; Wed, 12 Mar 2003 17:19:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbTCLWYq>; Wed, 12 Mar 2003 17:24:46 -0500
-Received: from smtp07.iddeo.es ([62.81.186.17]:28124 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S262083AbTCLWYl>;
-	Wed, 12 Mar 2003 17:24:41 -0500
-Date: Wed, 12 Mar 2003 23:35:16 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: linux-kernel@vger.kernel.org
-Subject: Re: drastically low perform. - quad, 4G ram, 2.4.20
-Message-ID: <20030312223516.GA3069@werewolf.able.es>
-References: <Pine.LNX.4.44.0303120915410.3827-100000@mydns2.compustrat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.44.0303120915410.3827-100000@mydns2.compustrat.com>; from thelittleprince-lists@asteroid-b612.org on Wed, Mar 12, 2003 at 18:33:00 +0100
-X-Mailer: Balsa 2.0.9
+	id <S262074AbTCLWTQ>; Wed, 12 Mar 2003 17:19:16 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:59024 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S262070AbTCLWTE>; Wed, 12 Mar 2003 17:19:04 -0500
+Message-ID: <3E6FB4BF.7040605@bogonomicon.net>
+Date: Wed, 12 Mar 2003 16:29:19 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andre@linux-ide.org, Alan Cox <alan@redhat.com>
+Subject: time loss using ide-scsi under 2.4.21-pre5-ac2
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm seeing seconds of time loss per minute while ripping CDs via grip 
+and it's internal cdparanoia.  Grip uses the scsi generic device for 
+ripping CDs.  No loss is seen while not ripping.  There may be a very 
+slight loss while just playing the CD via grip but it is to low to tell 
+on a time scale of 15 minutes.
 
-On 03.12, Mailing Lists wrote:
-> 
-> ok, so here's my comparison tests per Martin's earlier post. (if anyone
-> has suggestions on comparison tests i SHOULD be doing or things i should 
-> be checking, let me know).
-> 
-> 
-> mem=3072M BOOT
-> 
-> * hdparm -t /dev/sda
-> 
-> /dev/sda:
->  Timing buffered disk reads:  64 MB in  3.78 seconds = 16.93 MB/sec
-> 
-> 
-> * hdparm -t /dev/sdb
-> 
-> /dev/sdb:
->  Timing buffered disk reads:  64 MB in  2.75 seconds = 23.27 MB/sec
-> 
-> 
+The CD-ROM drive is being handled by ide-scsi and is the sole device on 
+a channel on a PDC20269 controller.  The motherboard is an ASUS A7N8X 
+Deluxe using the nForce2 chipset.  /proc/interrupts and dmesg outputs 
+below.
 
-Don't know about the rest, but this SCSI performance looks pretty low:
+Kernel is 2.4.21pre5-ac2.
+Grip is version 3.0.3-1.
+OS is Debian sarge and is up to date as of last Sunday.
+I'll be trying 2.4.21pre5-ac3 in a couple of hours after the queue of 
+ripped wav files is encoded.
 
-annwn:~# hdparm -tT /dev/sda
+This is the output from putting ntpdate in a while loop to check and 
+reset the time every minute.  It was taken while ripping a short CD.
 
-/dev/sda:
- Timing buffer-cache reads:   128 MB in  0.24 seconds =533.33 MB/sec
- Timing buffered disk reads:  64 MB in  1.56 seconds = 41.03 MB/sec
+$while(true) ; do ntpdate 209.98.0.1; sleep 60; done
+12 Mar 15:38:04 ntpdate[1009]: [snip] offset -0.059354 sec
+12 Mar 15:39:04 ntpdate[1013]: [snip] offset -0.028293 sec
+12 Mar 15:40:19 ntpdate[1045]: [snip] offset 15.256230 sec
+12 Mar 15:41:48 ntpdate[1056]: [snip] offset 28.679519 sec
+12 Mar 15:43:14 ntpdate[1061]: [snip] offset 24.881950 sec
+12 Mar 15:44:43 ntpdate[1064]: [snip] offset 29.375965 sec
+12 Mar 15:46:03 ntpdate[1068]: [snip] offset 19.302092 sec
+12 Mar 15:47:04 ntpdate[1073]: [snip] offset 0.009752 sec
+12 Mar 15:48:04 ntpdate[1076]: [snip] offset -0.013763 sec
+12 Mar 15:49:04 ntpdate[1080]: [snip] offset 0.007685 sec
 
-Relevant parts of dmesg:
+$ cat /proc/interrupts
+            CPU0
+   0:     153816          XT-PIC  timer
+   1:       2176          XT-PIC  keyboard
+   2:          0          XT-PIC  cascade
+   5:        295          XT-PIC  usb-ohci, eth0
+  10:      98525          XT-PIC  ide4, ide5, nvidia
+  11:     185211          XT-PIC  ide2, ide3, NVIDIA nForce Audio
+  12:      29728          XT-PIC  PS/2 Mouse
+  14:       7048          XT-PIC  ide0
+  15:       5219          XT-PIC  ide1
+NMI:          0
+LOC:     153822
+ERR:       6980
+MIS:          0
 
+# dmesg -s 66666
+Linux version 2.4.21-pre5-ac2 (root@blip) (gcc version 3.2.1 20020924 
+(Debian prerelease)) #3 SMP Thu Mar 6 19:34:22 CST 2003BIOS-provided 
+physical RAM map:
+  BIOS-e820: 0000000000000000 - 000000000009e800 (usable)
+  BIOS-e820: 000000000009e800 - 00000000000a0000 (reserved)
+  BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+  BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
+  BIOS-e820: 000000001fff0000 - 000000001fff3000 (ACPI NVS)
+  BIOS-e820: 000000001fff3000 - 0000000020000000 (ACPI data)
+  BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+  BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+  BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+511MB LOWMEM available.
+On node 0 totalpages: 131056
+zone(0): 4096 pages.
+zone(1): 126960 pages.
+zone(2): 0 pages.
+Kernel command line: auto BOOT_IMAGE=Linux ro root=302 ide0=ata66 
+ide1=ata66 pci=biosirq hdg=scsi
+ide_setup: ide0=ata66
+ide_setup: ide1=ata66
+ide_setup: hdg=scsi
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 1737.276 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 3460.30 BogoMIPS
+Memory: 515464k/524224k available (1473k kernel code, 8368k reserved, 
+563k data, 120k init, 0k highmem)
+Dentry cache hash table entries: 65536 (order: 7, 524288 bytes)
+Inode cache hash table entries: 32768 (order: 6, 262144 bytes)
+Mount cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer cache hash table entries: 32768 (order: 5, 131072 bytes)
+Page-cache hash table entries: 131072 (order: 7, 524288 bytes)
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 256K (64 bytes/line)
+Intel machine check reporting enabled on CPU#0.
+CPU:     After generic, caps: 0383fbff c1c3fbff 00000000 00000000
+CPU:             Common caps: 0383fbff c1c3fbff 00000000 00000000
+CPU0: AMD Athlon(tm) XP 2100+ stepping 02
+per-CPU timeslice cutoff: 731.30 usecs.
+task migration cache decay timeout: 10 msecs.
+SMP motherboard not detected.
+enabled ExtINT on CPU#0
+ESR value before enabling vector: 00000000
+ESR value after enabling vector: 00000000
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 1737.2986 MHz.
+..... host bus clock speed is 267.2766 MHz.
+cpu: 0, clocks: 2672766, slice: 1336383
+CPU0<T0:2672752,T1:1336368,D:1,S:1336383,C:2672766>
+migration_task 0 on cpu=0
+PCI: PCI BIOS revision 2.10 entry at 0xfb560, last bus=3
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router default [10de/01e0] at 00:00.0
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+Journalled Block Device driver loaded
+parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
+parport0: irq 7 detected
+i2c-core.o: i2c core module
+i2c-dev.o: i2c /dev entries driver module
+i2c-core.o: driver i2c-dev dummy driver registered.
+i2c-proc.o version 2.6.1 (20010825)
+pty: 256 Unix98 ptys configured
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ 
+SERIAL_PCI ISAPNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+loop: loaded (max 8 devices)
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+See Documentation/networking/vortex.txt
+02:01.0: 3Com PCI 3c905C Tornado 2 at 0xd000. Vers LK1.1.18-ac
+  00:26:54:07:f5:82, IRQ 5
+   product code ffff rev 00.0 date 15-31-127
+   Internal config register is 1600000, transceivers 0x40.
+   8K byte-wide RAM 5:3 Rx:Tx split, autoselect/MII interface.
+   MII transceiver found at address 2, status 786d.
+   Enabling bus-master transmits and whole-frame receives.
+02:01.0: scatter/gather enabled. h/w checksums enabled
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 439M
+agpgart: unsupported bridge
+agpgart: no supported devices found.
+Uniform Multi-Platform E-IDE driver Revision: 7.00beta-2.4
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+NFORCE2: IDE controller at PCI slot 00:09.0
+NFORCE2: chipset revision 162
+NFORCE2: not 100% native mode: will probe irqs later
+AMD_IDE: Bios didn't set cable bits corectly. Enabling workaround.
+AMD_IDE: Bios didn't set cable bits corectly. Enabling workaround.
+AMD_IDE: PCI device 10de:0065 (nVidia Corporation) (rev a2) UDMA100 
+controller on pci00:09.0
+     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
+PDC20269: IDE controller at PCI slot 01:08.0
+PDC20269: chipset revision 2
+PDC20269: not 100% native mode: will probe irqs later
+     ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:pio, hdf:pio
+     ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:pio
+PDC20269: IDE controller at PCI slot 01:09.0
+PDC20269: chipset revision 2
+PDC20269: not 100% native mode: will probe irqs later
+     ide4: BM-DMA at 0xb400-0xb407, BIOS settings: hdi:pio, hdj:pio
+     ide5: BM-DMA at 0xb408-0xb40f, BIOS settings: hdk:pio, hdl:pio
+hda: C/H/S=22070/16/255 from BIOS ignored
+hda: Maxtor 54610H6, ATA DISK drive
+blk: queue c0386380, I/O limit 4095Mb (mask 0xffffffff)
+hdc: Maxtor 54610H6, ATA DISK drive
+blk: queue c03867f8, I/O limit 4095Mb (mask 0xffffffff)
+hde: Maxtor 98196H8, ATA DISK drive
+blk: queue c0386c70, I/O limit 4095Mb (mask 0xffffffff)
+hdg: TOSHIBA DVD-ROM SD-R1202, ATAPI CD/DVD-ROM drive
+hdi: Maxtor 4G160J8, ATA DISK drive
+blk: queue c0387560, I/O limit 4095Mb (mask 0xffffffff)
+hdk: Maxtor 4G160J8, ATA DISK drive
+blk: queue c03879d8, I/O limit 4095Mb (mask 0xffffffff)
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0x9000-0x9007,0x9402 on irq 11
+ide3 at 0x9800-0x9807,0x9c02 on irq 11
+ide4 at 0xa400-0xa407,0xa802 on irq 10
+ide5 at 0xac00-0xac07,0xb002 on irq 10
+hda: attached ide-disk driver.
+hda: host protected area => 1
+hda: 90045648 sectors (46103 MB) w/2048KiB Cache, CHS=89331/16/63, UDMA(100)
+hdc: attached ide-disk driver.
+hdc: host protected area => 1
+hdc: 90045648 sectors (46103 MB) w/2048KiB Cache, CHS=89331/16/63, UDMA(100)
+hde: attached ide-disk driver.
+hde: host protected area => 1
+hde: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=158816/16/63, 
+UDMA(100)
+hdi: attached ide-disk driver.
+hdi: host protected area => 1
+hdi: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, 
+UDMA(133)
+hdk: attached ide-disk driver.
+hdk: host protected area => 1
+hdk: 320173056 sectors (163929 MB) w/2048KiB Cache, CHS=19929/255/63, 
+UDMA(133)
+ide-cd: passing drive hdg to ide-scsi emulation.
+hdg: attached ide-scsi driver.
+Partition check:
+  hda: hda1 hda2 hda3 < hda5 hda6 hda7 >
+  hdc: hdc1 hdc2 hdc3 < hdc5 hdc6 hdc7 >
+  hde: hde1 hde2
+  hdi: hdi1 hdi2
+  hdk: hdk1 hdk2
 SCSI subsystem driver Revision: 1.00
-PCI: Setting latency timer of device 03:02.0 to 64
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.29
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+   Vendor: TOSHIBA   Model: DVD-ROM SD-R1202  Rev: 1026
+   Type:   CD-ROM                             ANSI SCSI revision: 02
+Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+Attached scsi CD-ROM sr1 at scsi0, channel 0, id 0, lun 1
+Attached scsi CD-ROM sr2 at scsi0, channel 0, id 0, lun 2
+Attached scsi CD-ROM sr3 at scsi0, channel 0, id 0, lun 3
+Attached scsi CD-ROM sr4 at scsi0, channel 0, id 0, lun 4
+Attached scsi CD-ROM sr5 at scsi0, channel 0, id 0, lun 5
+Attached scsi CD-ROM sr6 at scsi0, channel 0, id 0, lun 6
+sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+Uniform CD-ROM driver Revision: 3.12
+sr1: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+sr2: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+sr3: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+sr4: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+sr5: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+sr6: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
+md: raid1 personality registered as nr 3
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+md: autorun ...
+md: ... autorun DONE.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 4096 buckets, 32Kbytes
+TCP: Hash tables configured (established 32768 bind 32768)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 120k freed
+Adding Swap: 1999832k swap-space (priority 2)
+Adding Swap: 1999832k swap-space (priority 2)
+Adding Swap: 530104k swap-space (priority 1)
+Adding Swap: 530104k swap-space (priority 1)
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide0(3,2), internal journal
+0: nvidia: loading NVIDIA Linux x86 nvidia.o Kernel Module  1.0-4191 
+Mon Dec  9 11:49:01 PST 2002
+PCI: Setting latency timer of device 00:04.0 to 64
+Intel 810 + AC97 Audio, version 0.24, 19:38:09 Mar  6 2003
+PCI: Setting latency timer of device 00:06.0 to 64
+i810: NVIDIA nForce Audio found at IO 0xe400 and 0xe000, MEM 0x0000 and 
+0x0000, IRQ 11
+i810_audio: Audio Controller supports 6 channels.
+i810_audio: Defaulting to base 2 channel mode.
+i810_audio: Resetting connection 0
+ac97_codec: AC97 Audio codec, id: ALG32 (ALC650)
+i810_audio: AC'97 codec 0, new EID value = 0x05c7
+i810_audio: AC'97 codec 0, DAC map configured, total channels = 6
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+PCI: Setting latency timer of device 00:02.0 to 64
+usb-ohci.c: USB OHCI at membase 0xe0c0a000, IRQ 5
+usb-ohci.c: usb-00:02.0, PCI device 10de:0067 (nVidia Corporation)
+usb.c: new USB bus registered, assigned bus number 1
+usb.c: kmalloc IF dea00500, numif 1
+usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
+usb.c: USB device number 1 default language ID 0x0
+Product: USB OHCI Root Hub
+SerialNumber: e0c0a000
+hub.c: USB hub found
+hub.c: 3 ports detected
+hub.c: standalone hub
+hub.c: ganged power switching
+hub.c: global over-current protection
+hub.c: Port indicators are not supported
+hub.c: power on to power good time: 2ms
+hub.c: hub controller current requirement: 0mA
+hub.c: port removable status: RRR
+hub.c: local power source is good
+hub.c: no over-current condition exists
+hub.c: enabling power on all ports
+usb.c: hub driver claimed interface dea00500
+usb.c: kusbd: /sbin/hotplug add 1
+usb.c: kusbd policy returned 0xfffffffe
+PCI: No IRQ known for interrupt pin B of device 00:02.1.
+usb-ohci.c: found OHCI device with no IRQ assigned. check BIOS settings!
+Linux video capture interface: v1.00
+se401.c: SE401 usb camera driver version 0.23 registering
+usb.c: registered new driver se401
+  [events: 000000cf]
+md: bind<hdc7,1>
+  [events: 000000cf]
+md: bind<hda7,2>
+md: hda7's event counter: 000000cf
+md: hdc7's event counter: 000000cf
+md: RAID level 1 does not need chunksize! Continuing anyway.
+md1: max total readahead window set to 124k
+md1: 1 data-disks, max readahead per data-disk: 124k
+raid1: device hda7 operational as mirror 0
+raid1: device hdc7 operational as mirror 1
+raid1: raid set md1 active with 2 out of 2 mirrors
+md: updating md1 RAID superblock on device
+md: hda7 [events: 000000d0]<6>(write) hda7's sb offset: 28772736
+md: hdc7 [events: 000000d0]<6>(write) hdc7's sb offset: 28772736
+hub.c: port 1, portstatus 101, change 1, 12 Mb/s
+hub.c: port 1 connection change
+hub.c: port 1, portstatus 101, change 1, 12 Mb/s
+  [events: 000000a2]
+md: bind<hdc6,1>
+  [events: 000000a2]
+md: bind<hda6,2>
+md: hda6's event counter: 000000a2
+md: hdc6's event counter: 000000a2
+md: RAID level 1 does not need chunksize! Continuing anyway.
+md0: max total readahead window set to 124k
+md0: 1 data-disks, max readahead per data-disk: 124k
+raid1: device hda6 operational as mirror 0
+raid1: device hdc6 operational as mirror 1
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: updating md0 RAID superblock on device
+md: hda6 [events: 000000a3]<6>(write) hda6's sb offset: 9999744
+md: hdc6 [events: 000000a3]<6>(write) hdc6's sb offset: 9999744
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 101, change 0, 12 Mb/s
+hub.c: port 1, portstatus 103, change 10, 12 Mb/s
+hub.c: new USB device 00:02.0-1, assigned address 2
+usb.c: kmalloc IF dea003c0, numif 1
+usb.c: new device strings: Mfr=1, Product=2, SerialNumber=0
+usb.c: USB device number 2 default language ID 0x409
+Product: CABO II
+se401.c: SE401 camera found: Kensington VideoCAM 6701(5/7)
+se401.c: firmware version: 30
+se401.c: ExtraFeatures: 0 Sizes: 160x120 176x144 320x240 352x288 400x300 
+640x480
+se401.c: registered new video device: video0
+usb.c: se401 driver claimed interface dea003c0
+usb.c: kusbd: /sbin/hotplug add 2
+usb.c: kusbd policy returned 0xfffffffe
+hub.c: port 2, portstatus 100, change 0, 12 Mb/s
+hub.c: port 3, portstatus 100, change 0, 12 Mb/s
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide1(22,5), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on md(9,0), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on md(9,1), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide2(33,2), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide4(56,2), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS 2.4-0.9.19, 19 August 2002 on ide5(57,2), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
 
-blk: queue f7e77a18, I/O limit 4095Mb (mask 0xffffffff)
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-(scsi0:A:1): 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-(scsi0:A:2): 10.000MB/s transfers (10.000MHz, offset 16)
-  Vendor: FUJITSU   Model: MAJ3364MP         Rev: 0115
-  Type:   Direct-Access                      ANSI SCSI revision: 04
-blk: queue f7e77818, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: FUJITSU   Model: MAJ3364MP         Rev: 0115
-  Type:   Direct-Access                      ANSI SCSI revision: 04
-blk: queue f7e77618, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: TOSHIBA   Model: CD-ROM XM-6201TA  Rev: 1030
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-blk: queue f7e77418, I/O limit 4095Mb (mask 0xffffffff)
-  Vendor: IOMEGA    Model: ZIP 100           Rev: E.08
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre5-jam0 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-3mdk))

@@ -1,55 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVDEEvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbVDEEym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVDEEvU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 00:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVDEEvU
+	id S261560AbVDEEym (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 00:54:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVDEEym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 00:51:20 -0400
-Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:27239 "HELO
-	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261558AbVDEEvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 00:51:18 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Subject: Re: [PATCH 00/04] Load keyspan firmware with hotplug
-Date: Mon, 4 Apr 2005 23:51:21 -0500
-User-Agent: KMail/1.8
-Cc: Greg KH <greg@kroah.com>, Sven Luther <sven.luther@wanadoo.fr>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-References: <20050404100929.GA23921@pegasos> <20050404191745.GB12141@kroah.com> <20050405042329.GA10171@delft.aura.cs.cmu.edu>
-In-Reply-To: <20050405042329.GA10171@delft.aura.cs.cmu.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504042351.22099.dtor_core@ameritech.net>
+	Tue, 5 Apr 2005 00:54:42 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:16294 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261560AbVDEEyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 00:54:40 -0400
+Date: Tue, 05 Apr 2005 00:54:28 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Linux 2.6.12-rc2
+In-reply-to: <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>
+Message-id: <200504050054.28395.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org>
+ <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 April 2005 23:23, Jan Harkes wrote:
-> On Mon, Apr 04, 2005 at 12:17:46PM -0700, Greg KH wrote:
-> > On Mon, Apr 04, 2005 at 08:27:53PM +0200, Sven Luther wrote:
-> > > Mmm, probably that 2001 discussion about the keyspan firmware, right ?
-> > > 
-> > >   http://lists.debian.org/debian-legal/2001/04/msg00145.html
-> > > 
-> > > Can you summarize the conclusion of the thread, or what you did get from it,
-> > > please ? 
-> > 
-> > That people didn't like the inclusion of firmware, I posted how you can
-> > fix it by moving it outside of the kernel, and asked for patches.
-> > 
-> > None have come.
-> 
-> Didn't know you were waiting for it. How about something like the
-> following series of patches?
-> 
-> [01/04] - add simple Intel IHEX format parser to the firmware loader.
+On Monday 04 April 2005 17:32, Linus Torvalds wrote:
+>The diffstat output tells the story: this is a lot of very small
+> changes, ie tons of small cleanups and bug fixes. With a few new
+> drivers thrown in for good measure.
+>
+>This is also the point where I ask people to calm down, and not send
+> me anything but clear bug-fixes etc. We're definitely well into -rc
+> land. So keep it quiet out there,
+>
+>  Linus
 
-Firmware loader is format-agnostic, I think having IHEX parser in a separate
-file would be better...
+Well, I'm happy to report that it not only built, it booted, and that 
+the one program thats been a noshow for video, tvtime, in any kernel 
+newer than -rc1, failing in all the . releases after .2, or any -mm I 
+tried, is working quite nicely thank you in -rc2.  Its late, and I'll 
+check the rest of my checklist in the morning.
+
+-rc1 was one heck of an improvement in feel and usability, I hope -rc2 
+will continue that tradition.  Great stuff.
 
 -- 
-Dmitry
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

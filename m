@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbULaD3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbULaDba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbULaD3K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 22:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULaD3K
+	id S261818AbULaDba (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 22:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbULaDba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 22:29:10 -0500
-Received: from scrye.com ([216.17.180.1]:41355 "EHLO mail.scrye.com")
-	by vger.kernel.org with ESMTP id S261602AbULaD3F (ORCPT
+	Thu, 30 Dec 2004 22:31:30 -0500
+Received: from smtp.knology.net ([24.214.63.101]:14484 "HELO smtp.knology.net")
+	by vger.kernel.org with SMTP id S261818AbULaDbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 22:29:05 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Dec 2004 22:31:12 -0500
+Subject: Re: [RFC 2.6.10 5/22] xfrm: Attempt to offload bundled xfrm_states
+	for outbound xfrms
+From: David Dillow <dave@thedillows.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Netdev <netdev@oss.sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20041230233443.GB5247@electric-eye.fr.zoreil.com>
+References: <20041230035000.13@ori.thedillows.org>
+	 <20041230035000.14@ori.thedillows.org>
+	 <20041230233443.GB5247@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 30 Dec 2004 20:33:20 -0700
-From: Kevin Fenzi <kevin@tummy.com>
-To: linux-kernel@vger.kernel.org
-Subject: PATCH: scripts/package/mkspec
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Message-Id: <20041231033323.1CBB4CB130@voldemort.scrye.com>
+Date: Thu, 30 Dec 2004 22:31:07 -0500
+Message-Id: <1104463867.10590.2.camel@ori.thedillows.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-12-31 at 00:34 +0100, Francois Romieu wrote:
+> David Dillow <dave@thedillows.org> :
+> [...]
+> > diff -Nru a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+> > --- a/net/xfrm/xfrm_policy.c	2004-12-30 01:11:18 -05:00
+> > +++ b/net/xfrm/xfrm_policy.c	2004-12-30 01:11:18 -05:00
+> > @@ -705,6 +705,31 @@
+> >  	};
+> >  }
+> >  
+> > +static void xfrm_accel_bundle(struct dst_entry *dst)
+> > +{
+> > +	struct xfrm_bundle_list bundle, *xbl, *tmp;
+> > +	struct net_device *dev = dst->dev;
+> > +	INIT_LIST_HEAD(&bundle.node);
+> > +
+> > +	if (dev && netif_running(dev) && (dev->features & NETIF_F_IPSEC)) {
+> > +		while (dst) {
+> > +			xbl = kmalloc(sizeof(*xbl), GFP_ATOMIC);
+> > +			if (!xbl)
+> > +				goto out;
+> > +
+> > +			xbl->dst = dst;
+> > +			list_add_tail(&xbl->node, &bundle.node);
+> > +			dst = dst->child;
+> > +		}
+> > +
+> > +		dev->xfrm_bundle_add(dev, &bundle);
+> > +	}
+> > +
+> > +out:
+> > +	list_for_each_entry_safe(xbl, tmp, &bundle.node, node)
+> > +		kfree(xbl);
+> > +}
+> 
+> If the driver knows the max depth which is allowed, why not have it
+> allocate its own bundle-like struct during initialization one for once ?
+> Instead of pushing the bundle list, dst is walked by the code of
+> the device's own xyz_xfrm_bundle_add into the said circular list,
+> entries get overwriten if the dst chain is longer and when the end of
+> dst is reached, the bundle-like list is walked in reverse order.
+> It avoids a few failure points imho.
 
-This is a patch against 2.6.10's mkspec script. 
-This patch adds %post and a %preun sections to the rpm spec that
-mkspec generates for the kernel (for 'make rpm'). 
-
-So, after installing the kernel rpm it checks for /sbin/mkinitrd and
-makes an initrd file for the newly installed kernel rpm. It also
-checks for a /sbin/new-kernel-package command and runs it on the new
-kernel if it exists to add the new kernel/initrd to grub/lilo. 
-
-For preun, before the kernel rpm is removed, /sbin/new-kernel-package
-is called to remove the kernel from the lilo or grub config and to
-remove the initrd (if any). 
-
-I am using Fedora Core based machines, so I don't know how well these
-translate to {mandrake|suse|connectiva|others}. Anyone using those
-systems care to comment?
-
-This patch works fine for me on Fedora based systems, and shouldn't
-harm any machines without /sbin/mkinitrd and
-/sbin/new-kernel-package. 
-
-Comments?
-
-kevin
---
-diff -Nru linux-2.6.10.orig/scripts/package/mkspec linux-2.6.10/scripts/package/mkspec
---- linux-2.6.10.orig/scripts/package/mkspec    2004-12-24 14:33:49.000000000 -0700
-+++ linux-2.6.10/scripts/package/mkspec 2004-12-30 20:19:04.954634842 -0700
-@@ -73,6 +73,14 @@
- echo ""
- echo "%clean"
- echo '#echo -rf $RPM_BUILD_ROOT'
-+
-+echo "%post"
-+echo '[ -x /sbin/mkinitrd ] && /sbin/mkinitrd /boot/initrd-'"$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"'.img '"$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+echo '[ -x /sbin/new-kernel-pkg ] && /sbin/new-kernel-pkg --install --initrdfile=/boot/initrd-'"$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"'.img --make-default '"$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+echo ""
-+echo "%preun"
-+echo '[ -x /sbin/new-kernel-pkg ] && /sbin/new-kernel-pkg --remove '"$VERSION.$PATCHLEVEL.$SUBLEVEL$EXTRAVERSION"
-+
- echo ""
- echo "%files"
- echo '%defattr (-, root, root)'
+Good idea! I'll see if I can't code it up. I definitely want to get rid
+of that GFP_ATOMIC allocation.
+-- 
+David Dillow <dave@thedillows.org>

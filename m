@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266377AbTABTJu>; Thu, 2 Jan 2003 14:09:50 -0500
+	id <S266417AbTABTOU>; Thu, 2 Jan 2003 14:14:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266379AbTABTJu>; Thu, 2 Jan 2003 14:09:50 -0500
-Received: from packet.digeo.com ([12.110.80.53]:4304 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266377AbTABTJt>;
-	Thu, 2 Jan 2003 14:09:49 -0500
-Message-ID: <3E14906E.7F6D3226@digeo.com>
-Date: Thu, 02 Jan 2003 11:18:06 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: linux-kernel@vger.kernel.org
-Subject: Re: getblk spins endlessly in 2.4.19 SMP
-References: <200301021747.h02Hlio19517@oboe.it.uc3m.es>
+	id <S266425AbTABTOU>; Thu, 2 Jan 2003 14:14:20 -0500
+Received: from adedition.com ([216.209.85.42]:5905 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S266417AbTABTOT>;
+	Thu, 2 Jan 2003 14:14:19 -0500
+Date: Thu, 2 Jan 2003 14:31:09 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Richard Stallman <rms@gnu.org>
+Cc: efault@gmx.de, Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030102193109.GA27443@mark.mielke.cc>
+References: <5.1.1.6.2.20030101084621.00cdf9f8@pop.gmx.net> <E18UAEy-00046n-00@fencepost.gnu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jan 2003 19:18:06.0979 (UTC) FILETIME=[AE0C8D30:01C2B293]
+Content-Disposition: inline
+In-Reply-To: <E18UAEy-00046n-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
-> 
-> get_blk() loops forever internally for in a sort piece of driver code of
-> mine.
+On Thu, Jan 02, 2003 at 01:38:48PM -0500, Richard Stallman wrote:
+> If you want to avoid predictably steering readers into confusion, each
+> time you say (in one way or another) that Linux was developed by Linus
+> Torvalds, you need to explain that Linux is one component of the
+> GNU+Linux system which is what users typically run.
 
-probably it found some buffers with the wrong ->b_size, tried to
-get rid of them via try_to_free_buffers(), failed, and then fell
-into the "oh, we're out of memory" loop.
+Actually, since Linux is the kernel, and GNU/Linux (or GNU+Linux) is
+the collection of tools that make the full system, it would be
+*inaccurate* to say anything but "Linux" when talking about "Linux,
+the operating system." Since you are one who wishes to ensure that
+people understand the terms properly, and are used properly, I assume
+that you would respect this.
 
-You need to work out why grow_dev_page() is seeing buffers with
-the wrong size against the page.  Be looking for incorrect or
-missing calls to set_blocksize().
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

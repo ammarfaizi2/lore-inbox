@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271067AbTGPLat (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 07:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271066AbTGPLat
+	id S271064AbTGPLab (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 07:30:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271065AbTGPLab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 07:30:49 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:11259 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S271065AbTGPLaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 07:30:46 -0400
-Date: Wed, 16 Jul 2003 13:45:36 +0200 (MEST)
-Message-Id: <200307161145.h6GBjaSi025681@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG?] 2.5.71 removed request_module("scsi_hostadapter")
-Cc: linux-scsi@vger.kernel.org
+	Wed, 16 Jul 2003 07:30:31 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:27278 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S271064AbTGPLa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 07:30:26 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 16 Jul 2003 13:45:17 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: BUG REPORT 2.4.22-pre5/pre6: nfs-clients 2.4.21 stall under heavy
+ load on server 2.4.22-pre5/pre6
+Message-Id: <20030716134517.4e726b5a.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While trying to figure out why my SCSI modules don't autoload
-properly in 2.6.0-test1 and late 2.5 kernels, I found that
-patch-2.5.71 removed scsi.c's request_module("scsi_hostadapter").
-It seems that some driver model conversion changed scsi_register_device()
-to scsi_register_{driver,interface}(), but the latter don't do
-anything wrt autoloading the host adapter.
+Hello,
 
-Is this an oversight or is it intensional?
+subject says about all I can tell. If you take around 20 clients and let them
+do heavy nfs action on a 2.4.22-pre5/pre6 server some seem to draw bad cards
+and
+stall forever with:
 
-I can probably work around this through "install" command
-kludgery in /etc/modprobe.conf, but that's (a) is ugly, and
-(b) probably won't work for configs with built-in SCSI core
-but modular host adapter.
+Jul 13 02:02:35 test-2 kernel: nfs: server nfsserver.in.my.domain not
+responding, still trying
 
-/Mikael
+These messages show up with other kernels on server, too. But I cannot remember
+one where they do never recover. Even under 2.4.22-pre5/pre6 server they often
+recover, but not always. 
+
+If there is something to test or you need further information please let me
+know.
+
+Regards,
+Stephan

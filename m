@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbUKXOJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbUKXOrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbUKXOJy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 09:09:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbUKXOGy
+	id S262728AbUKXOrM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 09:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbUKXOpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 09:06:54 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:35277 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262719AbUKXNkS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:40:18 -0500
-Date: Wed, 24 Nov 2004 13:28:39 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge
-Message-ID: <20041124132839.GA13145@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nigel Cunningham <ncunningham@linuxmail.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-Mime-Version: 1.0
+	Wed, 24 Nov 2004 09:45:30 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:57614 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262728AbUKXOmn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 09:42:43 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: mpm@selenic.com, colin@colino.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] let fat handle MS_SYNCHRONOUS flag
+References: <20041118194959.3f1a3c8e.colin@colino.net>
+	<87653wxqij.fsf@devron.myhome.or.jp> <20041124032017.GG8040@waste.org>
+	<87pt237se1.fsf@devron.myhome.or.jp> <20041124053552.GD2460@waste.org>
+	<871xejvk3l.fsf@devron.myhome.or.jp>
+	<20041123224002.54a0e1e6.akpm@osdl.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 24 Nov 2004 22:26:26 +0900
+In-Reply-To: <20041123224002.54a0e1e6.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 23 Nov 2004 22:40:02 -0800")
+Message-ID: <87wtwbwf7h.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 24, 2004 at 11:56:35PM +1100, Nigel Cunningham wrote:
-> Hi everyone.
-> 
-> I know that I still have work to do on suspend2, but thought it was high
-> time I got around to properly submitting the code for review, so here
-> goes.
-> 
-> I have it split up into 51 patches, of which most are less than 20k,
-> although there are three 50k patches. Changes to the rest of the kernel
-> tree come first, then the core. The full tree can be found at
+Andrew Morton <akpm@osdl.org> writes:
 
-Your way of merging looks rather wrong.  Please submit changes against the
-current swsusp code that introduce one feature after another to bring it
-at the level you want.  You'll surely have to rewrok it a lot until all
-reviewers are happy.
+> OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>>
+>> AFAIK, EXT2 doesn't update all metadata synchronously in sync-mode.
+>
+> It does.
 
-And most importantly for each patch explain exactly what feature it
-implements and why, etc..  "swsusp2" tells exactly nothing about the
-changed you do.
+Umm... I was thinking that ext2 is using the delayed-write if it can
+keep the consistency of metadata on-disk.
 
+> I'm actually surprised to discover that [v]fat doesn't support `-o sync'. 
+> It's probably a quite practical way of handling these various hotpluggable
+> gadgets and would be a popular addition.
+
+OK. If peoples really want this, I don't have objections.  I'll check
+the patch.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

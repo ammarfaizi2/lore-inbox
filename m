@@ -1,50 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267766AbUI2FvR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266619AbUI2Fys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267766AbUI2FvR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 01:51:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266619AbUI2FvR
+	id S266619AbUI2Fys (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 01:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUI2Fys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 01:51:17 -0400
-Received: from sol.linkinnovations.com ([203.94.173.142]:2946 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S266155AbUI2FvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 01:51:13 -0400
-Date: Wed, 29 Sep 2004 15:50:37 +1000
-From: CaT <cat@zip.com.au>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: strange network slowness in 2.6 unless pingflooding
-Message-ID: <20040929055036.GA25016@zip.com.au>
-References: <20040927090342.GA1794@zip.com.au> <41587A26.6020606@conectiva.com.br> <20040927224957.GA1043@zip.com.au> <20040927161845.1442bb4a.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040927161845.1442bb4a.davem@davemloft.net>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040722i
+	Wed, 29 Sep 2004 01:54:48 -0400
+Received: from [220.225.128.84] ([220.225.128.84]:2537 "HELO
+	mail.gdatech.co.in") by vger.kernel.org with SMTP id S266619AbUI2Fyp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 01:54:45 -0400
+Message-ID: <001c01c4a5e9$114bf490$8200a8c0@RakeshJagota>
+From: "Rakesh Jagota" <j.rakesh@gdatech.co.in>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+       <kernelnewbies@nl.linux.org>
+References: <4159E85A.6080806@ammasso.com> <006001c4a5df$ad605c40$8200a8c0@RakeshJagota> <415A4151.7060301@pobox.com>
+Subject: Re: opening a file inside the kernel module
+Date: Wed, 29 Sep 2004 11:26:30 +0530
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 04:18:45PM -0700, David S. Miller wrote:
-> In particular, if there are hubs or switches involved on
-> your local network that might be getting the duplex wrong,
-> or some NAT or firewall machines in the path in question,
-> please specify their setup precisely.
-> 
-> Otherwise there is zero chance of this problem ever being
-> fixes.
+Hi,
+Thnx.
 
-Well I was going to do a few more tests and send a nice email doing just
-that but in going through my package list with dpkg I spotted cpudyn and
-cpufreqd installed. I've uninstalled them and now I cannot reproduce
-the problem.
+I want to implement socket from the module. I won't be having any user
+process running to handle the descriptors coming from socket. Could you pl
+tell me how to handle the socket descriptor from the kernel module.
 
-As such, and I hope I'm not speaking to you, it appears 'solved'. They
-must've been interfering with the network layer somehow (or something)
-and now that they are gone all's well.
+Thanks,
+rakesh
+----- Original Message -----
+From: "Jeff Garzik" <jgarzik@pobox.com>
+To: "Rakesh Jagota" <j.rakesh@gdatech.co.in>
+Cc: <linux-mm@kvack.org>; <linux-kernel@vger.kernel.org>;
+<kernelnewbies@nl.linux.org>
+Sent: Wednesday, September 29, 2004 10:30 AM
+Subject: Re: opening a file inside the kernel module
 
-My apologies if anyones time was wasted.
 
--- 
-    Red herrings strewn hither and yon.
+> Rakesh Jagota wrote:
+> > Hi all,
+> > I am working in linux, i would like to know abt whether can I open a
+file
+> > inside the kernel module without using any application. If so how how
+the
+> > files_struct will be maintained. Does a kernel module has this struct?
+>
+> Don't do this.  It's incompatible with namespaces.
+>
+> Instead, figure out some way to pass the file contents to the kernel
+module.
+>
+> Jeff
+>
+>
+>
+> --
+> Kernelnewbies: Help each other learn about the Linux kernel.
+> Archive:       http://mail.nl.linux.org/kernelnewbies/
+> FAQ:           http://kernelnewbies.org/faq/
+>
+>
+

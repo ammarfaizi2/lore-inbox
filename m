@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUCQUYX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 15:24:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbUCQUYX
+	id S262051AbUCQUY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 15:24:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262052AbUCQUY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 15:24:23 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56711 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262050AbUCQUYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 15:24:21 -0500
-Date: Wed, 17 Mar 2004 21:24:19 +0100
-From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: make menuconfig help bugreport
-Message-ID: <20040317202419.GC8297@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Wed, 17 Mar 2004 15:24:57 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:897 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S262051AbUCQUYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 15:24:54 -0500
+Date: Wed, 17 Mar 2004 20:27:02 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200403172027.i2HKR2V3000636@81-2-122-30.bradfords.org.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>,
+       VINOD GOPAL <vinod_gopal74@yahoo.com>
+Cc: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.53.0403171338500.19593@chaos>
+References: <20040317181537.43286.qmail@web60709.mail.yahoo.com>
+ <Pine.LNX.4.53.0403171338500.19593@chaos>
+Subject: Re: arithmetic functions for linux driver
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SCSI CDROM support
-"If you want to use a SCSI CD-ROM" - it is not clear (and is nowhere
-else defined in the help) if running an ATAPI CDROM under SCSI emulation
-is considered "using a SCSI CD-ROM" or not.
+Quote from "Richard B. Johnson" <root@chaos.analogic.com>:
+> On Wed, 17 Mar 2004, VINOD GOPAL wrote:
+> 
+> > The range of input is varying.
+> > Iam looking for floating point arithmetic functions
+> > like log10, pow , sin ,exp , cos etc.
+> >
+> 
+> Like the range of input from an ADC? You get the data in
+> the kernel and you muck with it in user-mode after you
+> have it.
 
-Cl<
+If the task in hand is anything much more complicated than getting the
+input from an 8-bit ADC, and transforming it using a single function
+such as sin, then yes, do it in userspace.
+
+John.

@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281506AbRKHKgr>; Thu, 8 Nov 2001 05:36:47 -0500
+	id <S281501AbRKHKwl>; Thu, 8 Nov 2001 05:52:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281509AbRKHKgh>; Thu, 8 Nov 2001 05:36:37 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25351 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S281506AbRKHKg0>;
-	Thu, 8 Nov 2001 05:36:26 -0500
-Date: Thu, 8 Nov 2001 11:36:15 +0100
-From: Jens Axboe <axboe@suse.de>
-To: J Sloan <jjs@pobox.com>
-Cc: J Sloan <jjs@lexus.com>, Robert Love <rml@tech9.net>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: preempt-patch cleared of blame
-Message-ID: <20011108113615.F27652@suse.de>
-In-Reply-To: <3BE8B460.A23E1A67@pobox.com> <1005109646.884.0.camel@phantasy> <3BE9A506.82D64AE4@lexus.com> <3BEA0078.F938623B@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
-In-Reply-To: <3BEA0078.F938623B@pobox.com>
+	id <S281509AbRKHKwb>; Thu, 8 Nov 2001 05:52:31 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:31759 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S281501AbRKHKwP>;
+	Thu, 8 Nov 2001 05:52:15 -0500
+Message-ID: <3BEA63DD.4080200@epfl.ch>
+Date: Thu, 08 Nov 2001 11:52:13 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Robert Love <rml@tech9.net>
+Subject: [PATCH][CFT] AGPGART fixes for several Intel chipsets
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The patch that provides agp support for Intel 820 chipsets is available 
+for kernel 2.4.14(final). Please test and report/comment.
+I also provide a bigger patch that also fixes the erroneous 16 bits 
+writes/reads to the APSIZE register, which is 8 bits for 820, 840, 845, 
+850 and 860 chipsets. Please test, and send me your comments/suggestions 
+to improve this. It is working for me (Intel 820), but I need feedback 
+from people having othjer chipsets.
 
-On Wed, Nov 07 2001, J Sloan wrote:
-> I think there may be a problem with the
-> compaq smart/2p raid drivers, since
-> the "do_ida_intr" code keeps showing
-> up in the oops, and I have not seen a
-> problem with 2.4.14 on any other system.
+You can find all the patches at http://ltswww.epfl.ch/~aspert/patches/
 
-Does this fix it?
-
+Nicolas.
 -- 
-Jens Axboe
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
 
-
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cpq-dequeue-1
-
---- drivers/block/cpqarray.c~	Thu Nov  8 11:33:11 2001
-+++ drivers/block/cpqarray.c	Thu Nov  8 11:35:31 2001
-@@ -942,6 +942,8 @@
- 	if ((c = cmd_alloc(h,1)) == NULL)
- 		goto startio;
- 
-+	blkdev_dequeue_request(creq);
-+
- 	spin_unlock_irq(&io_request_lock);
- 
- 	bh = creq->bh;
-@@ -987,13 +989,10 @@
- DBGPX(	printk("Submitting %d sectors in %d segments\n", sect, seg); );
- 	c->req.hdr.sg_cnt = seg;
- 	c->req.hdr.blk_cnt = creq->nr_sectors;
--
--	spin_lock_irq(&io_request_lock);
--
--	blkdev_dequeue_request(creq);
--
- 	c->req.hdr.cmd = (creq->cmd == READ) ? IDA_READ : IDA_WRITE;
- 	c->type = CMD_RWREQ;
-+
-+	spin_lock_irq(&io_request_lock);
- 
- 	/* Put the request on the tail of the request queue */
- 	addQ(&h->reqQ, c);
-
---HlL+5n6rz5pIUxbD--

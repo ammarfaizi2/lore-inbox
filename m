@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUJHXcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266204AbUJHXfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266216AbUJHXcs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266204AbUJHXcr
+	id S266204AbUJHXfe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUJHXfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:32:47 -0400
-Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:62374
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S266233AbUJHXcC convert rfc822-to-8bit (ORCPT
+	Fri, 8 Oct 2004 19:35:34 -0400
+Received: from mail.kroah.org ([69.55.234.183]:1216 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266204AbUJHXfM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:32:02 -0400
-Date: Sat, 9 Oct 2004 00:32:01 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with ide=nodma
-Message-ID: <Pine.LNX.4.58.0410090019150.26458@ppg_penguin.kenmoffat.uklinux.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Fri, 8 Oct 2004 19:35:12 -0400
+Date: Fri, 8 Oct 2004 16:34:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+Message-ID: <20041008233450.GA1490@kroah.com>
+References: <20041008202247.GA9653@kroah.com> <528yagn63x.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <528yagn63x.fsf@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Oct 08, 2004 at 04:27:14PM -0700, Roland Dreier wrote:
+> The increase in cost for the spec is rather unfortunate but I think
+> it's orthogonal to any IP issues.  Since the Linux kernel contains a
+> lot of code written to specs available only under NDA (and even
+> reverse-engineered code where specs are completely unavailable), I
+> don't think the expense should be an issue.
 
- I'm trying a sii 0680 disk controller at the moment, as a possible
-workaround for some via southbridge problems (this is on a ppc which
-isn't yet supported by the official kernels, but it has been stable here
-since 2.6.7 and looks nearly ready for a first review).  Unfortunately,
-DMA is a big no go at the moment so I have to pass ide=nodma in the
-bootargs.
+It isn't at all, just an odd side point.
 
- I've got the drives plugged into the sii card, and ide=reverse is doing
-its job.  But although dmesg shows that dma has been turned off,
-/proc/ide/hda/settings and hdparm show that dma is in use.  This is in
-2.6.9-rc3.
+> As for IP, as far as I know, there has been no change to any of the
+> bylaws or other members agreements.
 
- Doesn't ide=nodma work for off-board chipsets ?
+The "purchase a spec" agreement has changed, right?
 
-Ken
--- 
- das eine Mal als Tragödie, das andere Mal als Farce
+> If there is some specific
+> provision that concerns you, please bring it to our attention -- the
+> IBTA in general and the IBTA steering committee in general have been
+> very supportive of the OpenIB effort.  In fact, most of the IBTA
+> steering commitee companies (Agilent, HP, IBM, InfiniCon, Intel,
+> Mellanox, Sun, Topspin, and Voltaire) have been active participants in
+> OpenIB development.  I would hope we can resolve any issues relating
+> to open source and the Linux kernel.
 
+What about the issue of not being able to use the spec for "commercial"
+applications?  And doesn't the member agreement not cover anyone who
+implements the spec, and then gives that implementation to someone who
+is not a member?
+
+> However, I would suspect that we'll find the USB, Firewire, Bluetooth,
+> etc., etc. standards bodies all have very similar IP language in their
+> bylaws and licenses.
+
+No, the USB bylaws explicitly forbid any member company from putting in,
+or trying to claim any IP that is in the USB specs.  That is something
+that makes USB quite different from IB.
+
+I haven't had the misfortune to have to go read the PCI SIG bylaws and
+member agreement...
+
+thanks,
+
+greg k-h

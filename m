@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274237AbRISWfj>; Wed, 19 Sep 2001 18:35:39 -0400
+	id <S274235AbRISWgJ>; Wed, 19 Sep 2001 18:36:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274235AbRISWfa>; Wed, 19 Sep 2001 18:35:30 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:61446 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S274237AbRISWfL>; Wed, 19 Sep 2001 18:35:11 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Thu, 20 Sep 2001 08:35:04 +1000 (EST)
+	id <S272282AbRISWgA>; Wed, 19 Sep 2001 18:36:00 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44886 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S274235AbRISWfo>; Wed, 19 Sep 2001 18:35:44 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: phillips@bonn-fries.net (Daniel Phillips),
+        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <E15jpRy-0003yt-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Sep 2001 16:26:40 -0600
+In-Reply-To: <E15jpRy-0003yt-00@the-village.bc.nu>
+Message-ID: <m166aeg6lb.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15273.7576.395258.345452@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
-In-Reply-To: message from Mike Fedyk on Wednesday September 19
-In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com>
-	<15271.11056.810538.66237@notabene.cse.unsw.edu.au>
-	<20010919133811.B22773@mikef-linux.matchmail.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday September 19, mfedyk@matchmail.com wrote:
-> On Tue, Sep 18, 2001 at 09:08:32PM +1000, Neil Brown wrote:
-> > 
-> > You should be aware that ext3 (and other journalling filesystems) do
-> > not work reliably over RAID1 or RAID5 in 2.2.  Inparticular, you can
-> > get problems when the array is rebuilding/resyncing.
-> > 
-> > But if you only plan to use ext3 with raid0 or linear, you should be
-> > fine.
-> > 
-> 
-> Can you point me to an archive that describes how to trigger this bug?
-> 
-> Was it in linux-raid or ext3-users or ...?
-> 
-> Mike
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-I don't remember exactly where or when I read it - either linux-raid
-or linux-kernel.  It was asserted by Stephen Tweedie.
+> Much of this goes away if you get rid of both the swap and anonymous page
+> special cases. Back anonymous pages with the "whoops everything I write here
+> vanishes mysteriously" file system and swap with a swapfs
 
-The problem is that ext3 is very careful about when it writes buffer
-to disk : it won't release a buffer until the relevant journal entry
-is committed.
+Essentially.  Though that is just the strategy it doesn't cut to the heart of the
+problems that need to be addressed.  The trickiest part is to allocate persistent
+id's to the pages that don't require us to fragment the VMA's.  
 
-However when a RAID rebuild happens, every block on the array is read
-into the buffer cache (if it isn't already there) and then written
-back out again.  This defeats the control that ext3 tries to maintain
-on the buffer cache.
+> Reverse mappings make linear aging easier to do but are not critical (we
+> can walk all physical pages via the page map array). 
 
-I don't know exactly what large-scale effects this might have.  It
-could be simply that a crash at the wrong time could leave the
-filesystem corrupted.  But I heard of one person who claimed to get
-filesystem corruption after using reiserfs over RAID1 in 2.2, so maybe
-it's worse than that.
+Agreed.  
 
-If you really need to know, I suggest you ask on ext3-users. 
+What I find interesting about the 2.4.x VM is that most of the large
+problems people have seen were not stupid designs mistakes in the VM
+but small interaction glitches, between various pieces of code.
 
-NeilBrown
+Eric

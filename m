@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132697AbRDKUIb>; Wed, 11 Apr 2001 16:08:31 -0400
+	id <S132978AbRDKURB>; Wed, 11 Apr 2001 16:17:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132973AbRDKUIY>; Wed, 11 Apr 2001 16:08:24 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:33581 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132978AbRDKUIF>; Wed, 11 Apr 2001 16:08:05 -0400
-Date: Wed, 11 Apr 2001 22:12:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hubertus Franke <frankeh@us.ibm.com>
-Cc: mingo@elte.hu, Linux Kernel List <linux-kernel@vger.kernel.org>,
-        lse-tech@lists.sourceforge.net
-Subject: Re: Bug in sys_sched_yield
-Message-ID: <20010411221236.D30027@athlon.random>
-In-Reply-To: <OFC3243AAE.31877E4B-ON85256A2B.006AE9C3@pok.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFC3243AAE.31877E4B-ON85256A2B.006AE9C3@pok.ibm.com>; from frankeh@us.ibm.com on Wed, Apr 11, 2001 at 03:31:37PM -0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S132983AbRDKUQv>; Wed, 11 Apr 2001 16:16:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:65030 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132978AbRDKUQi>;
+	Wed, 11 Apr 2001 16:16:38 -0400
+Date: Wed, 11 Apr 2001 22:16:36 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Christoph Hellwig <hch@caldera.de>
+Cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>
+Subject: Re: CML2 1.0.0 release announcement
+In-Reply-To: <200104112004.WAA30164@ns.caldera.de>
+Message-ID: <Pine.LNX.4.30.0104112212310.29627-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 11, 2001 at 03:31:37PM -0400, Hubertus Franke wrote:
-> Below is the fix.
+On Wed, 11 Apr 2001, Christoph Hellwig wrote:
 
-correct. Could you also use cpu_curr(cpu) instead of the longer expression?
-(for the mainline it's only a beauty issue of course)
+> > CML2 takes around 15 seconds before I get that far.
+> > This is on an Athlon 800 w/512MB. I dread to think how this
+> > responds on a 486.
+>
+> If you look for something _even_ faster try mconfig.  For everyone who is
+> interested, I've put my latests half-way stable version is on ftp.  It's at
+>   ftp.openlinux.org:/pub/people/hch/mconfig/mconfig-0.19-pre1.tar.gz
+> Props for all the hard work go to Michael Elizabeth Chastain!
 
-Andrea
+This is the first I've heard of mconfig. (I don't track the kbuild list)
+Does it solve all the problems that Eric's solution proposes?
+It's certainly fast (CML1 menuconfig speed at least).
+
+regards,
+
+Dave.
+

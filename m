@@ -1,84 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269149AbUJESRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269135AbUJESVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269149AbUJESRw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 14:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269106AbUJESRw
+	id S269135AbUJESVk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269134AbUJESVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 14:17:52 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:34123 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S269152AbUJESR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 14:17:27 -0400
-Message-ID: <4162E61F.5000103@novell.com>
-Date: Tue, 05 Oct 2004 14:21:19 -0400
-From: Jeff Mahoney <jeffm@novell.com>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+	Tue, 5 Oct 2004 14:21:39 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:62442 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S269132AbUJESV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 14:21:26 -0400
+Message-ID: <4162E5F0.30104@sgi.com>
+Date: Tue, 05 Oct 2004 13:20:32 -0500
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Hans Reiser <reiser@namesys.com>
-Cc: Alex Zarochentsev <zam@namesys.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
-References: <20041005150819.GA30046@locomotive.unixthugs.org> <4162C156.3030108@namesys.com> <20041005172233.GE28617@backtop.namesys.com> <4162DCAA.50902@namesys.com>
-In-Reply-To: <4162DCAA.50902@namesys.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0221C647@scsmsx401.amr.corp.intel.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Luck, Tony wrote:
+> I'm ok with the delete/add of most of the SGI
+> specific files (maybe it still isn't perfect yet,
+> but it may be close enough to take it, and then
+> clean up with some small patches).
+> 
+> But you seem to be touching some files outside of pure SGI
+> stuff.  These two are a bit of a concern:
+> 
+>   include/asm-ia64/io.h
 
-Hans Reiser wrote:
-| Alex Zarochentsev wrote:
-|
-|> On Tue, Oct 05, 2004 at 08:44:22AM -0700, Hans Reiser wrote:
-|>
-|>
-|>> These have received design approval from zam (and thus me), but zam,
-|>> did they receive stress testing by Elena under your guidance?
-|>>
-|>
-|>
-|> No. We have a long queue of test tasks.  There are fsck.reiser4 testing,
-|> reiser4/dmapper crashes and the benchmarks in the queue.
-|>
-| Well, we cannot let our process be a barrier to good patches getting in,
-| so let me ask, Jeff, did you test each of these conditions you
-| improved?  How?  Did anyone else test them?
 
-The "testing" version of the code had a another conditional added to
-each of the !buffer_update tests that allowed me to trigger an I/O error
-handling at each error point. The I/O error path is obviously more
-difficult to test in real-world conditions as I/O errors could be caused
-by any number of failures.
+>   arch/ia64/pci/pci.c
+> 
 
-The testing was done using fsx-linux, the LTP fsstress program, and
-stress.sh, sometimes all at once.
+Most of this is Lindent changes. The only mod is we need pci_root_ops to be non-static.
 
-This code has also been active in the SUSE Linux Enterprise Server 9
-kernel for some time and has seen real-world testing to show that the
-normal path is still working as expected.
 
-The end result for the i/o error path is that the write operations still
-happen, but the commit block is never written. This means that the end
-result is essentially the same as a power outage at the point of
-failure. The filesystem is then read-only until the user decides to
-umount and correct the problem that caused the I/O error in the first place.
+> These others are outside of my area (well I *might* push
+> the drivers that are only used by SGI ... but hotplug
+> and qla1280 are definitely not mine).  So they need to be
+> split out into separate patches.
+> 
 
-- -Jeff
+As a general comment, the changes to these files are because of mods in the reorg code - so they are 
+needed for this base but not in the older code. So, in my mind, it is a package - or should be taken 
+as a whole. I can break them out, but I think they need to go together.
 
-- --
-Jeff Mahoney
-SuSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBYuYfLPWxlyuTD7IRAt1OAJ9RgkYWrCKikftGephpWWGlS+acSQCgjDwm
-cxcXvSVyldRsJZdagvatw0Y=
-=DuY9
------END PGP SIGNATURE-----
+>   drivers/char/mmtimer.c
+
+This is Jesse's code. We made an include file change. Is this OK Jesse ?
+
+
+>   drivers/char/snsc.c
+
+This is Greg Howard's code - he's reviewed and approved the mod. Should I add him as a signed-off ?
+
+>   drivers/ide/pci/sgiioc4.c
+
+More Lindent mods. We took out the endian code - not needed anymore.
+
+
+>   drivers/pci/hotplug/Kconfig
+
+Took out SGI PCI Hotplug. Since there isn't any code behind it - we will add it back in when we 
+submit the code for it.
+
+>   drivers/scsi/qla1280.c
+
+Again more Lindent mods. Took out the vchan definition hack.
+
+>   drivers/serial/sn_console.c
+> 
+
+This is my driver.

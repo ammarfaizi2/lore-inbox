@@ -1,155 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVCATGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVCATLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVCATGl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 14:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCATGl
+	id S261658AbVCATLr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 14:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVCATLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 14:06:41 -0500
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:9703 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261641AbVCATGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 14:06:33 -0500
-Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
-From: Christophe Saout <christophe@saout.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andreas Gruenbacher <agruen@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050227212536.GG3120@waste.org>
-References: <2.416337461@selenic.com> <200502271417.51654.agruen@suse.de>
-	 <20050227212536.GG3120@waste.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-mk64tZH3MCYAv1FxVOzE"
-Date: Tue, 01 Mar 2005 20:06:22 +0100
-Message-Id: <1109703983.16139.16.camel@leto.cs.pocnet.net>
+	Tue, 1 Mar 2005 14:11:47 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60073 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261658AbVCATLc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 14:11:32 -0500
+Date: Tue, 1 Mar 2005 20:11:27 +0100
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: *** Announcement: dmraid 1.0.0.rc6 ***
+Message-ID: <20050301191127.GA13494@redhat.com>
+Reply-To: mauelshagen@redhat.com
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-mk64tZH3MCYAv1FxVOzE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+               *** Announcement: dmraid 1.0.0.rc6 ***
 
-Am Sonntag, den 27.02.2005, 13:25 -0800 schrieb Matt Mackall:
+dmraid 1.0.0.rc6 is available at
+http://people.redhat.com:/heinzm/sw/dmraid/ in source tarball,
+source rpm and i386 rpms (shared, static and dietlibc).
 
-> Which kernel? There was an off-by-one for odd array sizes in the
-> original posted version that was quickly spotted:
->=20
-> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4=
-/2.6.11-rc4-mm1/broken-out/sort-fix.patch
->=20
-> I've since tested all sizes 1 - 1000 with 100 random arrays each, so
-> I'm fairly confident it's now fixed.
+This release introduces support for VIA Software RAID.
 
--	int i =3D (num/2 - 1) * size, n =3D num * size, c, r;
-+	int i =3D (num/2) * size, n =3D num * size, c, r;
+dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
+properties of software RAID sets (i.e. ATARAID) and contained DOS
+partitions using the device-mapper runtime of the 2.6 kernel.
 
-What's probably meant is: ((num - 1)/2) * size
+The following ATARAID types are supported on Linux 2.6:
 
-`i' must cover half of the array or a little bit more (not less, in case
-of odd numbers). `i' (before my patch) is the highest address to start
-with, so that's why it should be ((num + 1)/2 - 1) * size or simpler:
-((num - 1)/2) * size
+Highpoint HPT37X
+Highpoint HPT45X
+Intel Software RAID
+LSI Logic MegaRAID
+NVidia NForce
+Promise FastTrack
+Silicon Image Medley
+VIA Software RAID	*** NEW ***
 
-Anyway, I was wondering, is there a specific reason you are not using
-size_t for the offset variables? size is a size_t and the only purpose
-of the variables i, n, c and r is to be compared or added to the start
-pointer (also I think it's just ugly to cast size_t down to an int).
+Please provide insight to support those metadata formats completely.
 
-On system where int is 32 bit but pointers are 64 bit the compiler might
-need to extend to adjust the size of the operands for the address
-calculation. Right?
-
-Since size_t is unsigned I also had to modify the two loops since I
-can't check for any of the variables becoming negative. Tested with all
-kinds of array sizes.
-
-Signed-off-by: Christophe Saout <christophe@saout.de>
-
-diff -Nur linux-2.6.11-rc4-mm1.orig/include/linux/sort.h linux-2.6.11-rc4-m=
-m1/include/linux/sort.h
---- linux-2.6.11-rc4-mm1.orig/include/linux/sort.h	2005-03-01 19:45:11.0000=
-00000 +0100
-+++ linux-2.6.11-rc4-mm1/include/linux/sort.h	2005-03-01 19:47:13.456097896=
- +0100
-@@ -5,6 +5,6 @@
-=20
- void sort(void *base, size_t num, size_t size,
- 	  int (*cmp)(const void *, const void *),
--	  void (*swap)(void *, void *, int));
-+	  void (*swap)(void *, void *, size_t));
-=20
- #endif
-diff -Nur linux-2.6.11-rc4-mm1.orig/lib/sort.c linux-2.6.11-rc4-mm1/lib/sor=
-t.c
---- linux-2.6.11-rc4-mm1.orig/lib/sort.c	2005-03-01 19:46:05.000000000 +010=
-0
-+++ linux-2.6.11-rc4-mm1/lib/sort.c	2005-03-01 19:47:55.688677568 +0100
-@@ -7,14 +7,14 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
-=20
--void u32_swap(void *a, void *b, int size)
-+void u32_swap(void *a, void *b, size_t size)
- {
- 	u32 t =3D *(u32 *)a;
- 	*(u32 *)a =3D *(u32 *)b;
- 	*(u32 *)b =3D t;
- }
-=20
--void generic_swap(void *a, void *b, int size)
-+void generic_swap(void *a, void *b, size_t size)
- {
- 	char t;
-=20
-@@ -44,17 +44,19 @@
-=20
- void sort(void *base, size_t num, size_t size,
- 	  int (*cmp)(const void *, const void *),
--	  void (*swap)(void *, void *, int size))
-+	  void (*swap)(void *, void *, size_t size))
- {
- 	/* pre-scale counters for performance */
--	int i =3D (num/2) * size, n =3D num * size, c, r;
-+	size_t i =3D ((num + 1)/2) * size, n =3D num * size, c, r;
-=20
- 	if (!swap)
- 		swap =3D (size =3D=3D 4 ? u32_swap : generic_swap);
-=20
- 	/* heapify */
--	for ( ; i >=3D 0; i -=3D size) {
--		for (r =3D i; r * 2 < n; r  =3D c) {
-+	while(i > 0) {
-+		i -=3D size;
-+
-+		for (r =3D i; r * 2 < n; r =3D c) {
- 			c =3D r * 2;
- 			if (c < n - size && cmp(base + c, base + c + size) < 0)
- 				c +=3D size;
-@@ -65,7 +67,9 @@
- 	}
-=20
- 	/* sort */
--	for (i =3D n - size; i >=3D 0; i -=3D size) {
-+	for (i =3D n; i > 0;) {
-+		i -=3D size;
-+
- 		swap(base, base + i, size);
- 		for (r =3D 0; r * 2 < i; r =3D c) {
- 			c =3D r * 2;
+Thanks.
 
 
---=-mk64tZH3MCYAv1FxVOzE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+See files README and CHANGELOG, which come with the source tarball for
+prerequisites to run this software, further instructions on installing
+and using dmraid!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+CHANGELOG is contained below for your convenience as well.
 
-iD8DBQBCJL0uZCYBcts5dM0RAsngAJ9MnLJb7EEoqEuYMLK/OzgFtvdsEgCfeu8K
-rj9ePV6OeY6Z6GiD6EG9YUE=
-=gWRJ
------END PGP SIGNATURE-----
 
---=-mk64tZH3MCYAv1FxVOzE--
+Call for testers:
+-----------------
 
+I need testers with the above ATARAID types, to check that the mapping
+created by this tool is correct (see options "-t -ay") and access to the
+ATARAID data is proper.
+
+In case you have a different ATARAID solution from those listed above,
+please feel free to contact me about supporting it in dmraid.
+
+You can activate your ATARAID sets without danger of overwriting
+your metadata, because dmraid accesses it read-only unless you use
+option -E together with -r in order to erase ATARAID metadata
+(see 'man dmraid')!
+
+This is a release candidate version so you want to have backups of your valuable
+data *and* you want to test accessing your data read-only first in order to
+make sure that the mapping is correct before you go for read-write access.
+
+
+Contacts:
+---------
+
+The author is reachable at <Mauelshagen@RedHat.com>.
+
+For test results, mapping information, discussions, questions, patches,
+enhancement requests and the like, please subscribe and mail to
+<ataraid-list@redhat.com>.
+
+--
+
+Regards,
+Heinz    -- The LVM Guy --
+
+
+CHANGELOG:
+---------
+
+Changelog from dmraid 1.0.0-rc5f to 1.0.0.rc6		2005.02.28
+
+FIXES:
+------
+o sil status()
+o _sil_read() used LOG_NOTICE rather than LOG_INFO in order to
+  avoid messages about valid metadata areas being displayed
+  during "dmraid -vay".
+o isw, sil filed metadata offset on "-r -D" in sectors rather than in bytes.
+o isw needed dev_sort() to sort RAID devices in sets correctly.
+o pdc metadata format handler name creation. Lead to
+  wrong RAID set grouping logic in some configurations. 
+o dos.c: partition table code fixes by Paul Moore
+o _free_dev_pointers(): fixed potential OOB error
+o hpt37x_check: deal with raid_disks = 1 in mirror sets
+o pdc_check: status & 0x80 doesn't always show a failed device;
+  removed that check for now. Status definitions needed.
+o sil addition of RAID sets to global list of sets
+o sil spare device memory leak
+o group_set(): removal of RAID set in case of error
+o hpt37x: handle total_secs > device size
+o allow -p with -f
+o enhanced error message by checking target type against list of
+  registered target types
+
+
+FEATURES:
+---------
+o VIA metadata format handler
+o added RAID10 to lsi metadata format handler
+o "dmraid -rD": file device size into {devicename}_{formatname}.size
+o "dmraid -tay": pretty print multi-line tables ala "dmsetup table"
+o "dmraid -l": display supported RAID levels + manual update
+
+
+MISCELANIOUS:
+------------
+
+o more inline comments
+o libdmraid_init() now returns lib context
+o check_set() enhanced to do RAID set stack unrolling and
+  to check correct number of devices in sets; saves code in
+  metadata format handlers
+o introduced read_raid_dev() to further reduce metadata format handler code
+o optimized parse_table()
+o updated dmraid manual
+o devmapper.c: check target type registered before trying to load table record
+o misc.c: avoid find_percent().
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

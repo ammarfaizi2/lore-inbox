@@ -1,49 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277316AbRJ3R40>; Tue, 30 Oct 2001 12:56:26 -0500
+	id <S277322AbRJ3Rz0>; Tue, 30 Oct 2001 12:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277203AbRJ3R4Q>; Tue, 30 Oct 2001 12:56:16 -0500
-Received: from hq2.fsmlabs.com ([209.155.42.199]:64006 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S277119AbRJ3R4K>;
-	Tue, 30 Oct 2001 12:56:10 -0500
-Date: Tue, 30 Oct 2001 10:51:02 -0700
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Victor Yodaiken <yodaiken@fsmlabs.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Andrea Arcangeli <andrea@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: please revert bogus patch to vmscan.c
-Message-ID: <20011030105102.A10928@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110300903320.8603-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+	id <S277316AbRJ3RzR>; Tue, 30 Oct 2001 12:55:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61712 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S277152AbRJ3RzF>; Tue, 30 Oct 2001 12:55:05 -0500
+Date: Tue, 30 Oct 2001 09:53:28 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Hugh Dickins <hugh@veritas.com>,
+        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: need help interpreting 'free' output.
+In-Reply-To: <20011030183912.P1340@athlon.random>
+Message-ID: <Pine.LNX.4.33.0110300943070.8603-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 09:17:31AM -0800, Linus Torvalds wrote:
-> I still have the occasional nightmares about the IBM block diagrams
-> "explaining" the PowerPC MMU in their technical documentation.
-> 
-> There's probably a perfectly valid explanation for them, though (*).
-> 
-> 		Linus
-> 
-> (*) Probably along the lines of the designers being so high on LSD that
-> they thought it was a really cool idea. That would certainly explain it in
-> a very logical fashion.
 
-All the studies I saw were back from the days when
-cache-speed/expensive-memory-speed was close to 1. In this case, the
-effect of randomizing memory fetches is no big deal. The rest
-of standard PPC mmu architecture is pretty nice, but, if the Alpha
-architects could decide to use the PC cmos clock as their only 
-prgrammable timer, and the Itanium guys could decide to put in a single
-shift-mask path, why shouldn't the IBM designers get to destroy cache
-by wasting a bunch of CPU area logic?
+On Tue, 30 Oct 2001, Andrea Arcangeli wrote:
+>
+> On Tue, Oct 30, 2001 at 09:28:29AM -0800, Linus Torvalds wrote:
+> > Does anybody see why we have to remove it from the swap cache at all?
+>
+> the only reason is to avoid wasting the swap space, so at least Rik's
+> vm_swap_full logic should be added to it.
 
+I agree, but that's true both for reads and writes, and then we want to
+delete it. So the logic might be something like
 
+	remove = 0;
+	if ((vm_swap_full() && (remove = exclusive_swap_cache_delete())) ||
+	    only_swap_user()) {
+		pte = mk_pte(page, vma->vm_page_prot);
+		if (remove || write_access)
+			pte = pte_mkdirty(pte);
+		if (vma->vm_page_prot & VM_WRITE)
+			pte = pte_mkwrite(pte);
+		install_pte();
+		return;
+	}
+
+ie we _remove_ it if we're low on swap entries and it is exclusive (that
+doesn't really save memory, but it allows us to re-use the swap entries
+for "better" pages), and we just re-use it without removing it if we're
+the only users (it doesn't even have to be a write access - we can do it
+even for reads, as if we're the only user we might as well just give the
+page to the process anyway - and let fork() do the thing it does in any
+case.
+
+Then we'll just trust the dirty bit when shared, like we always have done
+before anyway (we need to set it on removal, and we want to set it early
+on a write access to avoid unnecessary faults on architectures which do
+the dirty bit in software - that's why we have the "remove ||
+write_access"  test there.
+
+> The only advantage of dirty swap cache persistence is that it will
+> maintain the same position on disk across a swapin/swapout cycle.
+
+Well, the _big_ advantage is not the persistence, but the fact that the
+page might be in-flight when the user wants to use it, and the swap cache
+is just busy. Right now we _wait_ for the write to complete, which is
+silly. We might as well just let the user start using the page (including
+writing more stuff to it), and later on write it again.
+
+So right now the "remove from swap cache" is actually a IO-serializing
+operation, and we're doing it for no really good reason.
+
+		Linus
 

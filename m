@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbULIDqh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbULIDvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbULIDqh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 22:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbULIDqe
+	id S261442AbULIDvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 22:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbULIDvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 22:46:34 -0500
-Received: from h66-38-154-67.gtcust.grouptelecom.net ([66.38.154.67]:50155
-	"EHLO pbl.ca") by vger.kernel.org with ESMTP id S261450AbULIDqL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 22:46:11 -0500
-Message-ID: <1102563893.41b7ca35988f3@webmail2>
-Date: Wed,  8 Dec 2004 21:44:53 -0600
-From: Aleksandar Milivojevic <amilivojevic@pbl.ca>
-To: felix-linuxkernel@fefe.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ipv6 getting more and more broken
-References: <20041209024649.GA26553@codeblau.de>
-In-Reply-To: <20041209024649.GA26553@codeblau.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
-X-Originating-IP: 24.79.220.4
+	Wed, 8 Dec 2004 22:51:16 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:55238 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261442AbULIDvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 22:51:13 -0500
+Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm,
+	and xfs
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Greaves <david@dgreaves.com>, phil@dier.us,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041208011546.2d509d1b.akpm@osdl.org>
+References: <20041122130622.27edf3e6.phil@dier.us>
+	 <20041122161725.21adb932.akpm@osdl.org>
+	 <20041124094549.4c51d6d5.phil@dier.us>
+	 <20041124151234.714f30d4.akpm@osdl.org> <41A9B693.30905@dgreaves.com>
+	 <20041128102751.2dac71f7.akpm@osdl.org> <41B6C34B.7030700@dgreaves.com>
+	 <20041208011546.2d509d1b.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1102540749.4209.8.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 09 Dec 2004 14:50:46 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting felix-linuxkernel@fefe.de
-Date: Thu, 9 Dec 2004 03:46:49 
-> In 2.6.9, the machines don't even get a link-local address when bringing
-> an interface up!  This is so utterly and completely broken, how can it
-> be that nobody has noticed this yet?  I have compiled in ipv6
-> statically, not as a module, but that should not matter, right?
+Hi Andrew.
 
-He, he.  I was complaining because of the opposite (2.6.x automatically loading
-ipv6 module and assigning link-local IPv6 addresses to all interfaces -- I don't
-use IPv6, so I don't want to see those assigned).  I've been putting "alias
-net-pf-10 off" in modprobe.conf, so I haven't noticed if default behaviour was
-changed to what we had in 2.4.x.  Which would be good thing, IMHO.  The reality
-is that most people use prepackaged kernels, all of them include ipv6 module,
-and probably most of the users don't realize that IPv6 firewall on Linux is
-separate thing from IPv4 firewall (possible scenario: you hack DMZ machine, than
-from it hack into firewall exploiting non-existant IPv6 firewall rules (site
-doesn't use IPv6, so admin "forgot" to put them in place), and than you have
-open path to internal network).
+On Wed, 2004-12-08 at 20:15, Andrew Morton wrote:
+> David Greaves <david@dgreaves.com> wrote:
+> >
+> > I did as you suggested and it's been fine until I got this last night.
+> > 
+> >  Dec  8 06:50:04 cu kernel: slab: Internal list corruption detected in 
+> >  cache 'vm_area_struct'(41), slabp cfedd000(13).
+> 
+> That's totally different from the previous oops (it was in dcache).
+> 
+> I'd be suspecting either a random memory scribble or flakey hardware.  It
+> could well be the latter if you're not using any unusual
+> drivers/filesystems/etc.
 
-Have you attempted to put something like this in modprobe.conf to reenable
-automatic loading of ipv6 module:
+I'm seeing similar things occasionally with 2.6.9+kgdb+suspend2+Win4Lin
+on ht/preempt/regparm/4gb highmem. I've come to the conclusion it's
+probably not directly suspend (I can do 100 cycles on the trot), but
+haven't been able to reliably reproduce it. The corruption is always in
+fs related data, but apart from that seems random. Seeing the mention of
+being unable to allocate a page at the bottom of David's email makes me
+wonder if the difficulties with memory freeing are triggering some code
+that's not properly handling failed page allocations.
 
-alias net-pf-10 ipv6
+Regards,
 
-This worked with 2.4.x kernels (as soon as any application attempts to use IPv6,
-or even starts listening on IPv6, ipv6 module gets loaded).
-
-> I should mention that "worked great in 2.6.7" may be too kind a
-> statement as well.  Running both the listener and the announcer on the
-> same machine yields this bizarre bahviour: the listener gets told the
-> packet arrived on the lo device, not eth0 (via the scope_id), so the
-> return tcp connection is going to a link-local ethernet address with
-> scope_id for loopback and fails, of course.  But it does not fail in a
-> straightforward manner but simply sits there and does not return (the
-> connect() call, I mean).  That has been this way for ages and I complain
-> about it every now and then but so far nobody was appalled enough by
-> this obvious breakage to fix it.
-
-Hm, some of the things from above would probobly need fixing, but some are
-normal.  If connection is made to address assigned to local interface (for
-example, to eth0), it will go through lo, not through eth0.  Which is kind of
-logical.  This is how the things worked with IPv4 for long time.  I don't see
-why IPv6 packets would be exception.
-
+Nigel
 -- 
-Aleksandar Milivojevic <amilivojevic@pbl.ca>    Pollard Banknote Limited
-Systems Administrator                           1499 Buffalo Place
-Tel: (204) 474-2323 ext 276                     Winnipeg, MB  R3T 1L7
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

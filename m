@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265848AbRGLPUL>; Thu, 12 Jul 2001 11:20:11 -0400
+	id <S265976AbRGLPXM>; Thu, 12 Jul 2001 11:23:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265830AbRGLPUB>; Thu, 12 Jul 2001 11:20:01 -0400
-Received: from groupw1.ethz.ch ([129.132.97.47]:15620 "EHLO groupw1.ethz.ch")
-	by vger.kernel.org with ESMTP id <S265975AbRGLPTq>;
-	Thu, 12 Jul 2001 11:19:46 -0400
-From: Giacomo Catenazzi <cate@debian.org>
-To: Emmanuel Varagnat <varagnat@crm.mot.com>
-Cc: linux-kernel@vger.kernel.org
-Message-ID: <3B4DBFC9.4040108@debian.org>
-Date: Thu, 12 Jul 2001 17:18:33 +0200
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
-X-Accept-Language: en-us, en
+	id <S265994AbRGLPXB>; Thu, 12 Jul 2001 11:23:01 -0400
+Received: from 64.5.206.104 ([64.5.206.104]:24072 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S265976AbRGLPWv>; Thu, 12 Jul 2001 11:22:51 -0400
+Date: Thu, 12 Jul 2001 11:22:37 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: Yiping Chen <YipingChen@via.com.tw>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Whether Linux support HCLNFSD/PCNFSD daemon.
+In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D832@EXCHANGE2>
+Message-ID: <Pine.LNX.4.33.0107121121110.28086-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-Newsgroups: fa.linux.kernel
-Subject: Re: Makefile problem and modules
-In-Reply-To: <fa.fo00suv.1ug283k@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Varagnat wrote:
+On Thu, 12 Jul 2001, Yiping Chen wrote:
 
-> I wrote a module for IPv6 but there is a case when it is
-> compiled.
-> (For the moment my code can only work as a module...)
-> When IPv6 is compiled as a module, my module is well compiled.
-> But if IPv6 is directly in the kernel, my module is not take
-> into account (I've got no object file).
-> 
-> Here is the only line I added to the Makefile (near the end):
-> 
-> obj-$(CONFIG_IPV6_MYSTUFF)  += mystuff.o
-> 
+> Dear Sir:
+> I have installed "NFS Maestro" package (Hummingbird company) in Win98,  when
+> I use "NFS
+> Network Access" Software to connect with linux NFS server, it appear the
+> following error message, can anybody give me any suggestions? Thanks!
+>
+> "Network Timeout or HCLNFSD/PCNFSD not running on Host"
+>
+> And I can't find any HCLNFSD/PCNFSD daemon in Linux.
+> So I need help.
+>
+> Ariel Chen.
 
-Changes in the Config.in file?
+Take a look at:
+
+  http://www.linuxdoc.org/HOWTO/NFS-HOWTO/index.html
+
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
 
-	giacomo
+

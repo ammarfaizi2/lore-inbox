@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131016AbQKLWJt>; Sun, 12 Nov 2000 17:09:49 -0500
+	id <S129055AbQKLWOK>; Sun, 12 Nov 2000 17:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131089AbQKLWJj>; Sun, 12 Nov 2000 17:09:39 -0500
-Received: from rzcomm4.rz.tu-bs.de ([134.169.9.55]:37648 "EHLO
-	rzcomm4.rz.tu-bs.de") by vger.kernel.org with ESMTP
-	id <S131016AbQKLWJb>; Sun, 12 Nov 2000 17:09:31 -0500
-Date: Sun, 12 Nov 2000 23:14:32 +0100
-From: Jochen Striepe <j.striepe@tu-bs.de>
-To: "juergen.heisel@planet-heisel.de" <juergen.heisel@planet-heisel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile Error linux-2.2.17 and RedHat7.0
-Message-ID: <20001112231432.E517@tolot.meuer.de>
-In-Reply-To: <E13v59O-0000op-00@mrvdom02.schlund.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="tqI+Z3u+9OQ7kwn0"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E13v59O-0000op-00@mrvdom02.schlund.de>; from juergen.heisel@planet-heisel.de on Sun, Nov 12, 2000 at 10:51:34PM +0100
-X-Editor: vim/5.7
+	id <S129030AbQKLWOA>; Sun, 12 Nov 2000 17:14:00 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:57615 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129029AbQKLWNx>;
+	Sun, 12 Nov 2000 17:13:53 -0500
+Message-ID: <3A0F161A.F5C60650@cern.ch>
+Date: Sun, 12 Nov 2000 23:13:46 +0100
+From: Andre Holzner <Andre.Holzner@cern.ch>
+Organization: ETH Zuerich
+X-Mailer: Mozilla 4.7C-CERN UNIX lxplus006 45 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Q: nfs over tcp status ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---tqI+Z3u+9OQ7kwn0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+(I hope this is not the wrong mailing list to ask this question..)
 
-        Hi,
-
-On 12 Nov 2000, juergen.heisel@planet-heisel.de <juergen.heisel@planet-heis=
-el.de> wrote:
->=20
-> I updated my system from RedHat 6.0 -> RedHat 7.0 and Murphy is still
-> working.
-[...]
->  I can't compile Kernel 2.2.17 since the update.=20
-[...]
-> Gnu C		       2.96
-
-You do not read the LKML archive, right?
-
-Use gcc 2.95.2 or egcs-1.1.2 and your problems will vanish.
-gcc-2.96 is not recommended for kernel building.
+Does somebody know what the status of the support of nfs
+via tcp (instead of udp) of Linux is ? Is there a version
+supporting this (client and server) ? Are there some
+plans to support this under Linux ?
 
 
-Cheers,
-
-Jochen.
-
---=20
-FAQ zur Newsgroup at.linux:
-<http://alfie.ist.org/LinuxFAQ/>
+best regards & many thanks,
 
 
---tqI+Z3u+9OQ7kwn0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Andre
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE6DxZHm3eMyUx1sM4RAom+AJ425qNAEfwOFSuTsQUExisNvqh2uACbBeJK
-O9C+Iz5oUYwAdhqOxtdiKTM=
-=Mv0U
------END PGP SIGNATURE-----
-
---tqI+Z3u+9OQ7kwn0--
+-- 
+------------------+----------------------------------
+Andre Holzner     | +41 22 76 76750 
+Bureau 32 2-C13   | Building 32     
+CERN              | Office 2-C13    
+CH-1211 Geneve 23 | http://wwweth.cern.ch/~holzner/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

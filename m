@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264638AbUGJPlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUGJPov@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbUGJPlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 11:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265048AbUGJPlr
+	id S265048AbUGJPov (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 11:44:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUGJPov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 11:41:47 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:51898 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264638AbUGJPlq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 11:41:46 -0400
-Date: Sat, 10 Jul 2004 16:41:45 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Tim Wright <timw@splhi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rmmod st "hangs" - bad interaction with sg
-Message-ID: <20040710154145.GA17691@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tim Wright <timw@splhi.com>, linux-kernel@vger.kernel.org
-References: <1089473460.1473.17.camel@tp-timw.internal.splhi.com>
-Mime-Version: 1.0
+	Sat, 10 Jul 2004 11:44:51 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:772 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S265048AbUGJPos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 11:44:48 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, sds@epoch.ncsc.mil, jmorris@redhat.com,
+       mika@osdl.org
+Subject: Re: [PATCH] Use NULL instead of integer 0 in security/selinux/
+X-Message-Flag: Warning: May contain useful information
+References: <E1BiPKz-0008Q7-00@gondolin.me.apana.org.au>
+	<Pine.LNX.4.58.0407072214590.1764@ppc970.osdl.org>
+	<m1fz80c406.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.58.0407092313410.1764@ppc970.osdl.org>
+	<Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Sat, 10 Jul 2004 08:39:36 -0700
+In-Reply-To: <Pine.LNX.4.58.0407092319180.1764@ppc970.osdl.org> (Linus
+ Torvalds's message of "Fri, 9 Jul 2004 23:23:52 -0700 (PDT)")
+Message-ID: <52r7rj7txj.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1089473460.1473.17.camel@tp-timw.internal.splhi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-OriginalArrivalTime: 10 Jul 2004 15:39:36.0947 (UTC) FILETIME=[1B1FAC30:01C46694]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 08:31:00AM -0700, Tim Wright wrote:
-> Hi,
-> I was working on the qlogicisp/isp1020 driver in 2.6, as I still have
-> one of these antiques and the driver is a bit out of date (a patch is
-> forthcoming). In the process of testing my changes, I came across the
-> following:
+    Linus> I really don't see the point of complaining about the
+    Linus> fixes. There's just _no_ way to say that "0" is more
+    Linus> readable than "NULL" in any of the cases.  I dare you -
+    Linus> show _one_ case where a 0/NULL patch was wrong or even
+    Linus> remotely debatable. I dare you.
 
-qlogicisp is slowly going away.  If you look at the qla1280 driver in current
-mainline you'll see it has most of the support for the 1020/1040 already,
-I just need to fix a final bug and add firmware/pci ids.  This has come up
-on linux-scsi a few times..
+I don't know if any of the 0/NULL kernel patches were of this form,
+but I've seen sparse complain about this in my code and found it
+somewhat annoying.  I think the following is at least remotely debatable...
 
-> This seems bad to me - either the original rmmod should fail with EBUSY,
-> or it should complete. However, for it to do so, it seems that st needs
-> to know that sg has its hooks into the device it controls, and it needs
-> to be able to make it let go. My workaround is impractical if sg is in
-> use on other devices too.
+Suppose I have
 
-I don't think we can fix much about this, it's how the driver model code
-works.  Best workarond is to not use sg.
+	struct foo {
+		int a;
+		int b;
+	};
 
+then sparse is perfectly happy with someone clearing out a struct foo
+like this:
+
+	struct foo bar = { 0 };
+
+but then if someone changes struct foo to be
+
+	struct foo {
+		void *x;
+		int a;
+		int b;
+	};
+
+sparse will complain about that initialization, and all of the fixes
+I can think of seem somewhat worse than the original to me:
+
+	struct foo bar = { NULL };   /* will I have to change this
+                                        again if struct foo changes? */
+
+or
+
+	struct foo bar = { .a = 0 }; /* why do I have to name a member? */
+
+or
+
+	struct foo bar;
+	memset(&bar, 0, sizeof bar); /* WRONG if a null pointer is not
+                                        the bit pattern 0 */
+
+ - Roland

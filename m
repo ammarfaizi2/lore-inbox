@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262144AbSJFTkz>; Sun, 6 Oct 2002 15:40:55 -0400
+	id <S262156AbSJFTjY>; Sun, 6 Oct 2002 15:39:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262158AbSJFTkz>; Sun, 6 Oct 2002 15:40:55 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:1542
+	id <S262159AbSJFTjY>; Sun, 6 Oct 2002 15:39:24 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:65285
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262146AbSJFTkL>; Sun, 6 Oct 2002 15:40:11 -0400
-Subject: [PATCH] 2.4: introduce get_cpu() and put_cpu()
+	with ESMTP id <S262156AbSJFTjW>; Sun, 6 Oct 2002 15:39:22 -0400
+Subject: [PATCH] 2.4: get_pid() typo fix
 From: Robert Love <rml@tech9.net>
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 15:45:47 -0400
-Message-Id: <1033933547.743.4472.camel@phantasy>
+Date: 06 Oct 2002 15:44:59 -0400
+Message-Id: <1033933500.11402.4466.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Master Marcelo,
+Magnificent Marcelo,
 
-In 2.5, it is unsafe to assume the current processor does not change out
-from under you - thus you must be atomic when calling
-smp_processor_id().  We introduced the get_cpu() and put_cpu() methods
-to provide a safe way to access the current processor.
-
-This patch back-ports those interfaces to 2.4.  Note they do nothing
-special: get_cpu() simply returns smp_processor_id() and put_cpu() is a
-no-op.  But this will allow easier back-porting from 2.5 and common
-code-base for drivers, etc.  It also does not hurt to be explicit that
-you do not want the processor to change.
-
-As an example, I converted one use of smp_processor_id() to the new
-interface.
+Fix a typo in the comment of getpid() - we return current->tgid these
+days, not current->pid.  Additionally, add some new comments explaining
+exactly why we return the tgid and how this works.
 
 Patch is against 2.4.20-pre9, please apply.
 
 	Robert Love
 
-diff -urN linux-2.4.20-pre9/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
---- linux-2.4.20-pre9/arch/i386/kernel/ioport.c	2002-10-06 14:58:01.000000000 -0400
-+++ linux/arch/i386/kernel/ioport.c	2002-10-06 15:21:04.000000000 -0400
-@@ -55,12 +55,15 @@
- asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
+diff -urN linux-2.4.20-pre9/kernel/timer.c linux/kernel/timer.c
+--- linux-2.4.20-pre9/kernel/timer.c	2002-10-06 14:57:20.000000000 -0400
++++ linux/kernel/timer.c	2002-10-06 15:03:31.000000000 -0400
+@@ -740,10 +740,18 @@
+  * The Alpha uses getxpid, getxuid, and getxgid instead.  Maybe this
+  * should be moved into arch/i386 instead?
+  */
+- 
++
++/**
++ * sys_getpid - return the thread group id of the current process
++ *
++ * Note, despite the name, this returns the tgid not the pid.  The tgid and
++ * the pid are identical unless CLONE_THREAD was specified on clone() in
++ * which case the tgid is the same in all threads of the same group.
++ *
++ * This is SMP safe as current->tgid does not change.
++ */
+ asmlinkage long sys_getpid(void)
  {
- 	struct thread_struct * t = &current->thread;
--	struct tss_struct * tss = init_tss + smp_processor_id();
-+	struct tss_struct * tss;
+-	/* This is SMP safe - current->pid doesn't change */
+ 	return current->tgid;
+ }
  
- 	if ((from + num <= from) || (from + num > IO_BITMAP_SIZE*32))
- 		return -EINVAL;
- 	if (turn_on && !capable(CAP_SYS_RAWIO))
- 		return -EPERM;
-+
-+	tss = init_tss + get_cpu();
-+
- 	/*
- 	 * If it's the first ioperm() call in this thread's lifetime, set the
- 	 * IO bitmap up. ioperm() is much less timing critical than clone(),
-diff -urN linux-2.4.20-pre9/include/linux/smp.h linux/include/linux/smp.h
---- linux-2.4.20-pre9/include/linux/smp.h	2002-10-06 14:57:20.000000000 -0400
-+++ linux/include/linux/smp.h	2002-10-06 15:11:00.000000000 -0400
-@@ -87,5 +87,9 @@
- #define smp_call_function(func,info,retry,wait)	({ 0; })
- #define cpu_online_map				1
- 
--#endif
--#endif
-+#endif /* !CONFIG_SMP */
-+
-+#define get_cpu()	smp_processor_id()
-+#define put_cpu()	do { } while(0)
-+
-+#endif /* __LINUX_SMP_H */
+
+
 

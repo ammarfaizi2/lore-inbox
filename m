@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267025AbTATVuj>; Mon, 20 Jan 2003 16:50:39 -0500
+	id <S266998AbTATVyf>; Mon, 20 Jan 2003 16:54:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267029AbTATVuj>; Mon, 20 Jan 2003 16:50:39 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:39577 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S267025AbTATVui>;
-	Mon, 20 Jan 2003 16:50:38 -0500
-Message-ID: <3E2C713E.2050301@colorfullife.com>
-Date: Mon, 20 Jan 2003 22:59:26 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] HT scheduler, sched-2.5.59-D7
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267083AbTATVye>; Mon, 20 Jan 2003 16:54:34 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:43410 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S266998AbTATVyd>;
+	Mon, 20 Jan 2003 16:54:33 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 20 Jan 2003 23:03:31 +0100 (MET)
+Message-Id: <UTC200301202203.h0KM3V602042.aeb@smtp.cwi.nl>
+To: mingo@redhat.com, torvalds@transmeta.com
+Subject: [PATCH] fix setpgid
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
+In patch-2.5.37 a return code of setpgid(pid,pgid) was broken.
+If pid is not the current process and is not a child of
+the current process it should return ESRCH, but the 2.5.37
+patch turned this into EINVAL. The below fixes this again.
 
->--- linux/fs/pipe.c.orig	2003-01-20 19:28:43.000000000 +0100
->+++ linux/fs/pipe.c	2003-01-20 22:58:35.000000000 +0100
->@@ -117,7 +117,7 @@
-> 	up(PIPE_SEM(*inode));
-> 	/* Signal writers asynchronously that there is more room.  */
-> 	if (do_wakeup) {
->-		wake_up_interruptible(PIPE_WAIT(*inode));
->+		wake_up_interruptible_sync(PIPE_WAIT(*inode));
-> 		kill_fasync(PIPE_FASYNC_WRITERS(*inode), SIGIO, POLL_OUT);
-> 	}
-> 	if (ret > 0)
->
-What's the purpose of this change?
-I thought that the _sync functions should be called if it's guaranteed 
-that schedule() will be called immediately, i.e. if the scheduler should 
-not rebalance.
-You've added _sync() to the codepaths that lead to the end of the syscall.
+Andries
 
---
-    Manfred
-
+--- /linux/2.5/linux-2.5.59/linux/kernel/sys.c	Tue Dec 10 18:42:42 2002
++++ /linux/2.5/linux-2.5.59a/linux/kernel/sys.c	Mon Jan 20 22:04:52 2003
+@@ -916,6 +916,7 @@
+ 	p = find_task_by_pid(pid);
+ 	if (!p)
+ 		goto out;
++
+ 	err = -EINVAL;
+ 	if (!thread_group_leader(p))
+ 		goto out;
+@@ -927,8 +928,12 @@
+ 		err = -EACCES;
+ 		if (p->did_exec)
+ 			goto out;
+-	} else if (p != current)
+-		goto out;
++	} else {
++		err = -ESRCH;
++		if (p != current)
++			goto out;
++	}
++
+ 	err = -EPERM;
+ 	if (p->leader)
+ 		goto out;

@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287421AbSAHRT5>; Tue, 8 Jan 2002 12:19:57 -0500
+	id <S288190AbSAHRVR>; Tue, 8 Jan 2002 12:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288190AbSAHRTs>; Tue, 8 Jan 2002 12:19:48 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:49671 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S287421AbSAHRTj> convert rfc822-to-8bit; Tue, 8 Jan 2002 12:19:39 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH 2.5.2-pre9 scsi cleanup
-Date: Tue, 8 Jan 2002 11:19:32 -0600
-Message-ID: <45B36A38D959B44CB032DA427A6E10640167CF1C@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH 2.5.2-pre9 scsi cleanup
-Thread-Index: AcGYZSwse8r6KGVZTnycDSS8xCQo/QAAd61g
-From: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>
-To: "Martin Dalecki" <dalecki@evision-ventures.com>
-Cc: <linux-kernel@vger.kernel.org>,
-        "White, Charles" <Charles.White@COMPAQ.com>
-X-OriginalArrivalTime: 08 Jan 2002 17:19:34.0078 (UTC) FILETIME=[A421BDE0:01C19868]
+	id <S288188AbSAHRU6>; Tue, 8 Jan 2002 12:20:58 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:57736
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S288190AbSAHRUs>; Tue, 8 Jan 2002 12:20:48 -0500
+Date: Tue, 8 Jan 2002 12:15:40 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Petro <petro@auctionwatch.com>, Stevie O <stevie@qrpff.net>,
+        Ricky Beam <jfbeam@bluetronic.net>,
+        Mark Hahn <hahn@physics.mcmaster.ca>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+Message-ID: <20020108121540.A27969@animx.eu.org>
+In-Reply-To: <20020107201938.GB1227@auctionwatch.com> <E16Nwdk-0006SG-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <E16Nwdk-0006SG-00@the-village.bc.nu>; from Alan Cox on Tue, Jan 08, 2002 at 01:50:08PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki [mailto:dalecki@evision-ventures.com] wrote,
-regarding removal of scsi_device_types[] from drivers/scsi/scsi.c
+> > > You're all DEAD WRONG.
+> > > IDE and SCSI both suck!
+> > > The way of the future is punch cards!
+> > 
+> >     Are there any drivers for a paper-tape reader? 
+> 
+> 2.2 S/390 code seems to have one
 
-> Cameron, Steve wrote:
-[...]
-> >Hmmm, I was using that.... (In, for example, 
-> >the cciss patch here: http://www.geocities.com/smcameron 
-> >It's not any big deal, though.)
-> >
-> Precisely this "not any big deal" is the point: It was the wrong 
-> approach to a trivial problem ;-).
+I thought paper-tape readers were serial ???
 
-So what's the right approach?  I can invent my own easily enough, 
-but each driver doing its own thing doesn't seem right.  I assumed 
-that it was in scsi.c foi common usage, so each driver that wanted 
-to say, use these device type strings in diagnostic messages or 
-some such wouldn't have to reinvent this wheel, and so all the 
-drivers would consistently use the same names.  Will it be 
-replaced with something else?
-
-Just want to know so I don't waste (even more :-) time 
-doing something dumb.
-
-Thanks,
-
--- steve
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

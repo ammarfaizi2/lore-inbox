@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129619AbQKOKYv>; Wed, 15 Nov 2000 05:24:51 -0500
+	id <S129097AbQKOKfm>; Wed, 15 Nov 2000 05:35:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129272AbQKOKYl>; Wed, 15 Nov 2000 05:24:41 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:3851 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129097AbQKOKYb>; Wed, 15 Nov 2000 05:24:31 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S129272AbQKOKfd>; Wed, 15 Nov 2000 05:35:33 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:57101 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129097AbQKOKfW>; Wed, 15 Nov 2000 05:35:22 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200011151005.LAA20027@green.mif.pg.gda.pl>
+Subject: PCI configuration changes
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Wed, 15 Nov 2000 11:05:07 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14866.23888.398397.534911@wire.cadcamlab.org>
-Date: Wed, 15 Nov 2000 03:54:24 -0600 (CST)
-To: Ian Grant <Ian.Grant@cl.cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: RAID modules and CONFIG_AUTODETECT_RAID 
-In-Reply-To: <20001115030752.K18203@wire.cadcamlab.org>
-	<E13vz1D-0001zr-00@wisbech.cl.cam.ac.uk>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+   Looking at the latest drivers/net/Config.in changes I noticed, that
+two (modified earlier) lines are buggy:
 
-[Ian Grant <Ian.Grant@cl.cam.ac.uk>]
-> Of course we need an initrd with the raid modules on it before we can
-> boot from a RAID root partition.
+      dep_tristate '    3c523 "EtherLink/MC" support' CONFIG_ELMC $CONFIG_MCA
+      dep_tristate '    3c527 "EtherLink/MC 32" support (EXPERIMENTAL)' CONFIG_ELMC_II $CONFIG_MCA $CONFIG_EXPERIMENTAL
 
-raidtools can't run from an initrd?
+Note, that as CONFIG_MCA is defined only for i386 the dependencies on 
+$CONFIG_MCA are no-op for other architectures (in Configure/Menuconfig).
+Either CONFIG_MCA should be defined for all architectures or there should be
+if ... fi around these lines.
 
-Peter
+BTW, is there any reason for not replacing 
+
+   bool '  Other ISA cards' CONFIG_NET_ISA
+
+by
+
+  dep_bool '  Other ISA cards' CONFIG_NET_ISA $CONFIG_ISA
+
+to eliminate more drivers from non-ISA arch configs ?
+
+Andrzej
+
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

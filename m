@@ -1,113 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264258AbTLERFT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 12:05:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTLERFT
+	id S264273AbTLERGA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 12:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264286AbTLERF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 12:05:19 -0500
-Received: from legolas.restena.lu ([158.64.1.34]:14769 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264258AbTLERFF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 12:05:05 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Craig Bradney <cbradney@zip.com.au>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Josh McKinney <forming@charter.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <1070633973.4100.23.camel@athlonxp.bradney.info>
-References: <20031205045404.GA307@tesore.local>
-	 <16336.13962.285442.228795@alkaid.it.uu.se>
-	 <20031205083349.GA15152@forming>
-	 <16336.30392.344028.347132@alkaid.it.uu.se>
-	 <1070633973.4100.23.camel@athlonxp.bradney.info>
-Content-Type: text/plain
-Message-Id: <1070643901.3962.10.camel@athlonxp.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Dec 2003 18:05:01 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Dec 2003 12:05:59 -0500
+Received: from vir1.relay.fluke.com ([129.196.184.25]:354 "EHLO
+	vir1.relay.fluke.com") by vger.kernel.org with ESMTP
+	id S264273AbTLERFv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 12:05:51 -0500
+Date: Fri, 5 Dec 2003 09:05:51 -0800 (PST)
+From: David Dyck <david.dyck@fluke.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <732BE51FE9901143AE04411A11CC465602F155F3@evtexc02.tc.fluke.com>
+Message-ID: <Pine.LNX.4.51.0312050824270.9496@dd.tc.fluke.com>
+References: <732BE51FE9901143AE04411A11CC465602F155F3@evtexc02.tc.fluke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 05 Dec 2003 17:05:50.0492 (UTC) FILETIME=[08BE7DC0:01C3BB52]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Having just had another hang.. I tried booting with nmi-watchdog=1 and
-then with 2.
+On Fri, 5 Dec 2003 at 07:06 -0800, Jesse Pollard <jesse@cats-chateau.net>
+wrote:
 
-I am currently running from the boot with 2 selected.
+> Quite simple. If you include the Linux kernel include files you get a derived
+> program that must be released under GPL if you distribute that program.
 
-In my current dmesg I have these which dont normally appear and didnt
-appear in the boot with 1 set.
+When I first read this out out of context, I wondered if you were saying
+that any executable that I write on my libc5 linux system (and those that
+were compiled on libc5 systems long ago - like my copy of Adobe acrobat,
+and RealNetworks real audio) must have been distributed under GPL?
 
-Any ideas?
+    [ Please recall that the kernel header files were included in users
+    programs (since /usr/include/asm and /usr/include/linux were symlinks
+    into the kernel sources) and common include files like dirent.h,
+    errno.h, and signal.h.  This still works with libc5 and todays
+    Linux 2.4.23. ]
 
-hda: IRQ probe failed (0xfffffcfa)
-hdb: IRQ probe failed (0xfffffcfa)
-hdb: IRQ probe failed (0xfffffcfa)
+You must not be saying that, since Linus said:
 
-Craig
+    "There's a clarification that user-space programs that use the standard
+    system call interfaces aren't considered derived works, but even that
+    isn't an "exception" - it's just a statement of a border of what is
+    clearly considered a "derived work". User programs are _clearly_
+    not derived works of the kernel, and as such whatever the kernel
+    license is just doesn't matter."
 
+And after re-reading more of the thread, you must be refering to modules
+that include kernel include files, right?
 
-
-On Fri, 2003-12-05 at 15:19, Craig Bradney wrote:
-> I'm getting those in dmesg too...
-> 
-> ..MP-BIOS bug: 8254 timer not connected to IO-APIC
-> ...trying to set up timer (IRQ0) through the 8259A ...  failed.
-> ...trying to set up timer as Virtual Wire IRQ... failed.
-> ...trying to set up timer as ExtINT IRQ... works.
-> 
-> 
-> Do you really think this could be the problem?
-> 
-> If so, any ideas why I am relatively lucky to not have the crashes
-> people are having? 5.5 days, then 5 hours, and now Im up to 17 hours...
-> with a decent amount of use combined with idle time.
-> 
-> Craig
-> 
-> 
-> On Fri, 2003-12-05 at 13:14, Mikael Pettersson wrote:
-> > Josh McKinney writes:
-> >  > On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
-> >  > > Jesse Allen writes:
-> >  > >  > Hi,
-> >  > >  > 
-> >  > >  > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
-> >  > >  > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
-> >  > >  > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
-> >  > >  > NMI watchdog doesn't seem to work.
-> >  > >  > 
-> >  > >  > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
-> >  > >  > /var/log/syslog:
-> >  > >  > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
-> >  > >  > IO-APIC
-> >  > >  > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
-> >  > >  > disabling NMI Watchdog!
-> >  > >  > 
-> >  > >  > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
-> >  > >  > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
-> >  > >  > but it still locks up.
-> >  > > 
-> >  > > The NMI watchdog can only handle software lockups, since it relies on
-> >  > > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
-> >  > > Hardware lockups result in, well, hardware lockups :-(
-> >  > 
-> >  > So does this confirm that the lockups with nforce2 chipsets and apic
-> >  > is actually a hardware problem after all? 
-> > 
-> > Confirm with very high probability. There may be quirks in nVidia's
-> > chipset that we (unlike their Windoze drivers) don't know about.
-> > 
-> > Ask nVidia for detailed chipset documentation. Then maybe we can fix this.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+ David
 

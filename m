@@ -1,31 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262497AbTCIL7e>; Sun, 9 Mar 2003 06:59:34 -0500
+	id <S262499AbTCIMDo>; Sun, 9 Mar 2003 07:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262499AbTCIL7e>; Sun, 9 Mar 2003 06:59:34 -0500
-Received: from quechua.inka.de ([193.197.184.2]:53395 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S262497AbTCIL7d>;
-	Sun, 9 Mar 2003 06:59:33 -0500
-To: linux-kernel@vger.kernel.org
-Subject: deadlock in 2.5.64 ppp?
-Date: Sun, 9 Mar 2003 12:13:52 +0100
-Message-Id: <20030309111352.B013320EB5@dungeon.inka.de>
-From: aj@dungeon.inka.de (Andreas Jellinghaus)
+	id <S262501AbTCIMDo>; Sun, 9 Mar 2003 07:03:44 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:2805 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S262499AbTCIMDn>;
+	Sun, 9 Mar 2003 07:03:43 -0500
+Date: Sun, 9 Mar 2003 13:14:14 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Romain Lievin <roms@tilp.info>
+Subject: Re: [PATCH] kconfig update
+Message-ID: <20030309121414.GM3917@pasky.ji.cz>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+	Romain Lievin <roms@tilp.info>
+References: <Pine.LNX.4.44.0303090432200.32518-100000@serv> <20030309085915.A14548@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030309085915.A14548@infradead.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.5.64 vm I need to reboot my machines after a few days.
-My laptop works fine, my server/gateway deadlocks when the
-shutdown kills several processes.
+Dear diary, on Sun, Mar 09, 2003 at 09:59:15AM CET, I got a letter,
+where Christoph Hellwig <hch@infradead.org> told me, that...
+> On Sun, Mar 09, 2003 at 04:57:54AM +0100, Roman Zippel wrote:
+> > Hi,
+> > 
+> > It took a bit longer than I wanted, but here is finally another kconfig 
+> > update. There are two important changes: I included Romain's gtk front 
+> > end and the support for the menuconfig keyword.
+> 
+> Any chance you could take a look at the patch that links lxdialog directly
+> to menuconfig instead of requiring the separate binary?  It has been
+> around for a long time and seems like a very worthwhile change, imho.
 
-The gateway has an older processor (p2 vs. p3), some additional
-netfilter stuff, ipv6 support (unused), and ppp with pppoe
-and a different network card (rtl8139). So I guess it might
-be the pppoe stuff causing the trouble.
+It is me responsible for the delays and not being integrated yet, unfortunately
+I didn't have time for proper debugging one problem in it yet :-( (broken
+window resizing handler; Roman proposed some solution which I didn't manage to
+try yet). I hope I will finally give it a final kick really soon.
 
-How can I find out more about it? ctrl-sysreq lists
-all processes and several are in __down stuff. Would it
-be usefull to write down that notes and mail it to l-k?
-Or is it possible to dump that to a file? 
+Kind regards,
 
-Andreas
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+When in doubt, use brute force.
+		-- Ken Thompson
+.
+Crap: http://pasky.ji.cz/

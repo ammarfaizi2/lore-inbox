@@ -1,86 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272217AbRHWEmu>; Thu, 23 Aug 2001 00:42:50 -0400
+	id <S272220AbRHWE5m>; Thu, 23 Aug 2001 00:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272219AbRHWEmk>; Thu, 23 Aug 2001 00:42:40 -0400
-Received: from UNASSIGNED.SKYNETWEB.COM ([64.23.55.10]:32019 "HELO
-	mx.webmailstation.com") by vger.kernel.org with SMTP
-	id <S272217AbRHWEm1> convert rfc822-to-8bit; Thu, 23 Aug 2001 00:42:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Perchine <dyp@perchine.com>
-Organization: AcademSoft
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: Problems with kernel-2.2.19-6.2.7 from RH update for 6.2
-Date: Thu, 23 Aug 2001 11:32:47 +0700
-X-Mailer: KMail [version 1.3.5]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200108220053.EAA01602@mops.inr.ac.ru>
-In-Reply-To: <200108220053.EAA01602@mops.inr.ac.ru>
+	id <S272221AbRHWE5d>; Thu, 23 Aug 2001 00:57:33 -0400
+Received: from www.wen-online.de ([212.223.88.39]:20241 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S272220AbRHWE51>;
+	Thu, 23 Aug 2001 00:57:27 -0400
+Date: Thu, 23 Aug 2001 06:57:10 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <phillips@bonn-fries.net>
+Subject: Re: Memory Problem in 2.4.9 ?
+In-Reply-To: <20010822211849.14a4481a.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.33.0108230609270.666-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010823014559.38E6D1FD74@mx.webmailstation.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> connect() is used to complete asynchronously started connect.
+On Wed, 22 Aug 2001, Stephan von Krawczynski wrote:
+
+> On Wed, 22 Aug 2001 19:22:35 +0200 (CEST)
+> Mike Galbraith <mikeg@wen-online.de> wrote:
 >
-> While connection is not complete connect() returns EALREADY.
-> When connection is established, it succeeds. If connection fails,
-> it returns an error (the same, which you get with getsockopt()).
-> So, right way is to repeat connect() after poll() returned POLLOUT,
-> it will either complete connection or return an error to you.
-
-:-))) You will never think it works like this. And you is the first one fro 
-whom I hear this.
-
-> Actually, this classic interface is very ugly. Seems, it is the only place,
-> where O_NONBLOCK is used not to do something nonblocking, but to start
-> an asynchronous operation. And all these terrible unique error codes:
-> EINPROGRESS, EALREADY suck. Thank to bsd people, who preferred ugly
-> hacks instead of developing some AIO interface. :-)
-> It is so ugly (it is the only place where kernel has to maintain history
-> of user syscalls in addition to tcp state), that it is even offending
-> that people do not use it; it means that it simply pollutes kernel. :-)
-
-> > the combination which works. Actually thttpd also uses this (if I am
-> > not mistaken).
+> > When page is added to to the pagecache, it begins life with age=0 and
+> > is placed on the inactive_dirty list with use_once.  With the original
+> > aging, it started with PAGE_AGE_START and was placed on the active
+> > list.  The intent of used once (correct me Daniel if I fsck up.. haven't
+> > been able to track vm changes very thoroughly lately [as you can see:])
+> > is to place a new page in the line of fire of page reclamation and only
+> > pull it into the active aging scheme if it is referenced again prior to
+> > consumption.  This is intended to preserve other cached pages in the event
+> > of streaming IO.  Your cache won't be demolished as quickly, the pages
+> > which are only used one time will self destruct instead.  Cool idea.
 >
-> Where? httpd does not connect().
 
-For read/write. Although it is incorrect to compare as thttpd is serving more 
-than one connect.
+(your mailer doesn't wrap lines.. formatting)
 
-> If they do this after accept(), it is really silly. Pure useless syscall.
->
-> > The problem here is that I need to tune timeout for: each connection,
-> > and for
-> > connect, and read/write separately. If you could give me an advise how
-> > to do this more effective, I would be really glad.
->
-> I see. If tuning is goal, it is right way. Amount of syscalls is the same
-> as with alarm, but logic is cleaner.
+> Well, maybe I am completely off the road, but the primary problem seems
+> to be that a whole lot of the pages _look_ like being of the same age,
+> and the algorithm cannot cope with that very well. There is obviously
+> no way out of this problem for the code, and thats basically why it
+>  fails to alloc pages with this warning message. So the primary goal
 
-Logic with alarms will not work in multithreaded case.
+Sure, having a poor distribution of age isn't good (makes vm 'rough'),
+but I don't think that's what is causing most of the allocation
+failures.  IMHO, the largest problem with these is not keeping our
+inactive_clean ammo belt full enough in general.  I bet that changing
+page_launder to have a cleaned_pages target instead of limiting the
+scan to 1/64 would cure a lot of that.  A 1/64 scan is nice as long
+as the list is very long.  As it shrinks though, you do less and less
+work.  It needs min and max limits.  IMHO, kswapd should never launder
+less than at _least_ freepages.min even if that's the entire list.
 
-> Though, with read/write SO_RCVTIMEO/SO_SNDTIMEO is preferred.
-> Unfortunately, linux-2.2 seems to be the only OS not implemented this.
-> [ I am not sure about Solaris though. ]
->
-> In linux-2.4 they work for connect/accept too: SO_SNDTIMEO for
-> connect, SO_RCVTIMEO for accept.
+>  should be to refine the algorithm and give it a way to _know_ a way
+>  out, and not to _guess_ ("maybe we got some free pages later") or
+>  _give up_ on the problem. How about the following (ridiculously
+>  simple) approach:
+> every alloc'ed page gets a "timestamp". If an alloc-request reaches
+>  the current "dead point" it simply throws out the oldest x pages of
+>  the lowest aging level reachable. This is sort of a garbage-collection
+>  idea. It sounds not very fast indeed, but it sounds working, does it?
+> Best of all, very few changes have to be made to make it work.
 
-I assume that using SO_RCVTIME/SO_SNDTIME would be better in terms of 
-performance. Maybe it worse of it to upgrade to 2.4.x, and rewrite network 
-layer to use sync IP... I will think about it. How many times better it would 
-be (approximately)? if we assume that I have lots of connects which transfers 
-small amount of data in each (1-2K).
+Many changes are required to make it work.  First of all, it requires
+enforced deallocation.
 
--- 
-Sincerely Yours,
-Denis Perchine
+> Shoot me for this :-)
 
-----------------------------------
-E-Mail: dyp@perchine.com
-HomePage: http://www.perchine.com/dyp/
-FidoNet: 2:5000/120.5
-----------------------------------
+<click click click.. dang, no bullets> :)
+
+	-Mike
+

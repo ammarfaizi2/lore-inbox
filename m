@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129443AbRDBO2H>; Mon, 2 Apr 2001 10:28:07 -0400
+	id <S129511AbRDBOw7>; Mon, 2 Apr 2001 10:52:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129460AbRDBO15>; Mon, 2 Apr 2001 10:27:57 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:13572 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129443AbRDBO1n>; Mon, 2 Apr 2001 10:27:43 -0400
-Date: Mon, 2 Apr 2001 11:25:47 -0300
-From: Gustavo Niemeyer <niemeyer@conectiva.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: pthreads & fork & execve
-Message-ID: <20010402112547.C15554@tux.distro.conectiva>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <01033016225700.00409@dennis> <Pine.LNX.4.21.0104021338320.8447-100000@bellatrix.tat.physik.uni-tuebingen.de> <20010402095425.A15554@tux.distro.conectiva> <20010402090025.X1169@devserv.devel.redhat.com>
+	id <S129598AbRDBOwt>; Mon, 2 Apr 2001 10:52:49 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:44561 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S129511AbRDBOwh>; Mon, 2 Apr 2001 10:52:37 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <86256A22.00518EF3.00@smtpnotes.altec.com>
+Date: Mon, 2 Apr 2001 09:50:34 -0500
+Subject: Re: New directions for kernel development
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <20010402090025.X1169@devserv.devel.redhat.com>; from jakub@redhat.com on Mon, Apr 02, 2001 at 09:00:25AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jakub!!
 
-[...]
-> By any chance, are you dlopening a DSO linked against -lpthread from
-> program not linked against -lpthread?
 
-Yes, I am!! Is this some limitation I'm not aware of?
+Linus Torvalds wrote:
 
-Indeed, this seems to be made in many cases... is this about pthread??
+>Virtually all users of Linux (and all other
+>forms of Un*x) are unkempt, longhaired, beast-bearded dirty GNU hippies, and
+>I am sick and tired of having to deal with them.
 
--- 
-Gustavo Niemeyer
+I just wish you'd bothered to make all this public sooner.  Here I am, having
+spent the last couple of months growing a beard to enhance my hackerhood, and
+now, just when it's starting to look good, you want me to shave it off!  That's
+the whole problem with Linux.  It's about time you stopped using these
+undocumented hygiene interfaces and published some solid standards!  (And don't
+give me that old excuse about having your pictures right in front of us -- "A
+real hacker wouldn't need documentation, he'd just read my face.")
 
-[ 2AAC 7928 0FBF 0299 5EB5  60E2 2253 B29A 6664 3A0C ]
+Wayne
+
+

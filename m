@@ -1,98 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbTFTHkW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 03:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbTFTHkW
+	id S262431AbTFTIEs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 04:04:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbTFTIEs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 03:40:22 -0400
-Received: from remt28.cluster1.charter.net ([209.225.8.38]:44433 "EHLO
-	remt28.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262429AbTFTHkU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 03:40:20 -0400
-Date: Fri, 20 Jun 2003 03:52:51 -0400
-To: Bernd Schubert <bernd-schubert@web.de>, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org, despair@adelphia.net
-Subject: Re: Problems with IDE on GA-7VAXP motherboard
-Message-ID: <20030620075249.GA7833@charter.net>
-References: <200306191429.40523.bernd-schubert@web.de> <20030619193118.GA32406@charter.net>
+	Fri, 20 Jun 2003 04:04:48 -0400
+Received: from mail.consultit.no ([213.239.74.125]:50617 "EHLO
+	kosat.consultit.no") by vger.kernel.org with ESMTP id S262431AbTFTIEr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 04:04:47 -0400
+Date: Fri, 20 Jun 2003 10:18:46 +0200
+From: Eivind Tagseth <eivindt@multinet.no>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with PCMCIA Compact Flash adapter in 2.5.72
+Message-ID: <20030620081846.GB2451@tagseth-trd.consultit.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030619193118.GA32406@charter.net>
-User-Agent: Mutt/1.3.28i
-From: misty-@charter.net
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe I have nailed the problem to the wall. Your talk about the
-bios misdetecting the cable got me to thinking - I hadn't actually been
-able to see what the bios said it was configuring the disks attached to
-since lilo's menu came up microseconds later.
+I've got a Kingston Compact Flash adapter that I use to mount the flash
+card of my digital camera.  I've had several problems with the kernel
+with this, both 2.4.20, 2.5.69 and 2.5.72.
 
-I still haven't bothered checking, however I believe the bios is on a
-very unhealthy volume of crack. :)
+Both 2.4.20 and 2.5.69 works though, but oopses if I remove the card.
+2.5.72 doesn't work at all:
 
-using hdparm -i /dev/hda shows the disk wasn't configured to do any pio
-mode or udma/dma mode at boot time. Strange, right?
+(using yenta.ko)
+Jun 18 21:09:19 [cardmgr] initializing socket 1
+Jun 18 21:09:19 [cardmgr] socket 1: ATA/IDE Fixed Disk
+Jun 18 21:09:19 [cardmgr] product info: "SanDisk", "SDP", "5/3 0.6"
+Jun 18 21:09:19 [cardmgr] manfid: 0x0045, 0x0401  function: 4 (fixed disk)
+Jun 18 21:09:19 [cardmgr] executing: 'modprobe ide-cs'
+Jun 18 21:09:19 [cardmgr] bind 'ide-cs' to socket 1 failed: Invalid argument
 
-Stranger when you do hdparm -I on the disk again and it shows the disk
-is set to use udma4 - and the disk only understands up to udma2! - now
-add in the fact I currently have a 40 wire cable connected to the disk
-and my brain starts frying :)
+I'm not sure what cardmgr tries to do with ide-cs, but it works with
+2.5.69 but seems to have stopped working in 2.5.70 or 2.5.71 (didn't try
+2.5.70) and is still not working in 2.5.72.  stracing cardmgr didn't help,
+as the interesting parts are hidden inside a vfork which strace won't follow.
 
-At a suggestion of a friend, I set the disk to use mdma2 - via the line:
+2.5.69 works (using yenta_socket.ko) and logs this:
+Jun 15 20:43:19 [kernel] cs: memory probe 0xa0000000-0xa0ffffff: clean.
+Jun 15 20:43:19 [cardmgr] socket 1: ATA/IDE Fixed Disk
+Jun 15 20:43:20 [cardmgr] executing: 'modprobe ide-cs'
+Jun 15 20:43:23 [kernel] hdc: Flash Card, CFA DISK drive
+Jun 15 20:43:23 [kernel] hdc: max request size: 128KiB
+Jun 15 20:43:23 [kernel] hdc: task_no_data_intr: status=0x51 { DriveReady SeekCo
+mplete Error }
+Jun 15 20:43:23 [kernel] hdc: 1006992 sectors (516 MB) w/0KiB Cache, CHS=999/16/
+63
+Jun 15 20:43:23 [kernel]  /dev/ide/host1/bus0/target0/lun0: p1
+Jun 15 20:43:23 [cardmgr] executing: './ide start hdc'
 
-hdparm -Xmdma2 -d1 /dev/hda
 
-It worked, for all of two seconds. Remember, this is a WD drive. WD
-drives, or at least mine, like to screw up in pretty amazing ways when
-you turn dma on initially. Mine throws a screenful of CRC errors,
-causing the kernel to reset the ide channel. Oddly, I noticed that dma
-was still on despite the fact the channel had been reset - so I checked
-with -I again, only to find out now the disk was told to use udma*3*! -
-this wasn't getting me anywhere. >D Anyway, the simple fix was to force
-it to keep settings across a reset by doing:
+Cardmgr is 3.2.4, pcmcia-cs is 3.2.4, gcc is 3.2.2.
 
-hdparm -Xmdma2 -k1 -d1 /dev/hda
 
-- I am no longer getting any hda: lost interrupt messages, nor am I
-  getting any errors at all about the disk losing data or getting
-  confused. It's running slower than I'm used to, as I used to run it in
-  ata66 mode, but MUCH faster than it was a day ago. :) All I need to do now is migrate the information from this disk to one of my maxtors and I'm all set. Finally, I can start setting this machine up. Note, I could get this disk to use ata66 again if I switched cables to the 80 wire variant - but I plan on replacing this disk asap anyway.
+I always seem to forget some vital information when reporting bugs, 
+please don't hesitate to ask for more info.  I'll be happy to try any
+patches to the kernel and/or cardmgr if needed.
 
-So, to summarize: The BIOS in the Gigabyte GA-7VAXP motherboard (and
-likely all variants using the same bios) is getting confused and
-misdetecting both the cable's abilities and the hard disks abilities,
-causing linux to have a very nasty fit when you try using it without
-manually changing the settings using hdparm.
 
-I have not tried, nor will I likely try, setting the PIO modes up with
-this motherboard as I don't need to. However, it is very likely that the
-same problem occurs with dma disabled as with dma enabled - you need to
-manually reconfigure the hard disk and disk controller using hdparm to
-the correct values, or it just basically gets all confused and whines.
 
-Also note, I tested this setup after configuring with hdparm in three
-ways: First, I did a test using hdparm -t -T /dev/hda - Passed. A little
-slow, but understandable considering. Second, I did a simple test doing
-find / - this almost always caused the thing to throw a hda: lost
-interrupt before at some point or another. Passed. Finally, I'm
-currently doing a kernel compile. As I said, a P1 133 was outpacing this
-machine before. This is a AMD XP 2600+ - it's absolutely ludicrous for a
-P1 to outpace this thing, unless some unsane overclocker ... no, I don't
-want to encourage anyone. :P Anyway, even with the slow settings, the
-kernel compile is going quite nicely, and is going much faster than the
-P1 could ever hope to do.
-
-Note that the bios in this motherboard does not support turning OFF dma
-support - the only options are 'auto' 'ata33' and 'ata66/100/133' - all
-of which don't appear to actually work. For instance, I have the bios
-set to ata33 right now as I write this, and despite this, it was still
-trying to set the disk up to use udma4!
-
-A buggy bios a happy linux user does not make. :)
-
-  Thank you for all your help, time and effort. It was greatly
-  appreciated.
-
-  Tim McGrath
+Eivind

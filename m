@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263399AbTDSPdc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 11:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263401AbTDSPdc
+	id S263402AbTDSPwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 11:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTDSPwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 11:33:32 -0400
-Received: from ns.suse.de ([213.95.15.193]:3347 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263399AbTDSPdb (ORCPT
+	Sat, 19 Apr 2003 11:52:25 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:39181 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S263402AbTDSPwY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 11:33:31 -0400
-To: Robert Love <rml@tech9.net>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: mknod64(1)
-X-Yow: Now I understand the meaning of ``THE MOD SQUAD''!
-From: Andreas Schwab <schwab@suse.de>
-Date: Sat, 19 Apr 2003 17:45:29 +0200
-In-Reply-To: <1050701464.745.52.camel@localhost> (Robert Love's message of
- "18 Apr 2003 17:31:04 -0400")
-Message-ID: <jed6ji5w4m.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3.50 (gnu/linux)
-References: <1050700383.745.48.camel@localhost>
-	<b7pqf5$kqv$1@cesium.transmeta.com> <1050701464.745.52.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Sat, 19 Apr 2003 11:52:24 -0400
+Date: Sat, 19 Apr 2003 18:04:21 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Are linux-fs's drive-fault-tolerant by concept?
+Message-Id: <20030419180421.0f59e75b.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love <rml@tech9.net> writes:
+Hello all,
 
-|> On Fri, 2003-04-18 at 17:24, H. Peter Anvin wrote:
-|> 
-|> > What would probably be useful for mknod(1), if it doesn't already, is
-|> > to allow the major/minor to be specified in any of the standard bases,
-|> > i.e. using strtoul(...,...,0).
-|> 
-|> mknod(1) does not, I think.  Actually, maybe it does... it uses some
-|> coreutils wrapper.
+after shooting down one of this bloody cute new very-big-and-poor IDE drives
+today I wonder whether it would be a good idea to give the linux-fs (namely my
+preferred reiser and ext2 :-) some fault-tolerance. I remember there have been
+some discussions along this issue some time ago and I guess remembering that it
+was decided against because it should be the drivers issue to give the fs a
+clean space to live, right? 
+Unfortunately todays' reality seems to have gotten a lot worse comparing to one
+year ago. I cannot remember a lot of failed drives back then, but today about
+20% seemed to be already shipped DOA. Most I came across have only small
+problems (few dead sectors), but they seemed to produce quite a lot of trouble 
+- at least on my 3ware in non-RAID setup the box partly dies away because
+reiser feels quite unhappy about the non-recoverable disk-errors.
+I know this question can get religious, but to name my only point: wouldn't it
+be a good defensive programming style _not_ to rely on proven-to-be-unreliable
+hardware manufacturers. Thing is: you cannot prevent buying bad hardware these
+days, because just about every manufacturer already sold bad apples ...
 
-The wrapper is essentially calling strtol in the end, so yes, coreutils'
-mknod does support the standard bases.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Regards,
+Stephan

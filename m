@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283002AbRK1CMp>; Tue, 27 Nov 2001 21:12:45 -0500
+	id <S281844AbRK1CNO>; Tue, 27 Nov 2001 21:13:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281832AbRK1CMe>; Tue, 27 Nov 2001 21:12:34 -0500
-Received: from waste.org ([209.173.204.2]:11191 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S281831AbRK1CMZ>;
-	Tue, 27 Nov 2001 21:12:25 -0500
-Date: Tue, 27 Nov 2001 20:12:21 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: J Sloan <jjs@pobox.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: heads-up: preempt kernel and tux NO-GO
-In-Reply-To: <3C043B11.2FA17A19@pobox.com>
-Message-ID: <Pine.LNX.4.40.0111272007070.9338-100000@waste.org>
+	id <S281831AbRK1CNF>; Tue, 27 Nov 2001 21:13:05 -0500
+Received: from mail120.mail.bellsouth.net ([205.152.58.80]:8801 "EHLO
+	imf20bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281844AbRK1CMo>; Tue, 27 Nov 2001 21:12:44 -0500
+Message-ID: <3C044816.D6DCD2D3@mandrakesoft.com>
+Date: Tue, 27 Nov 2001 21:12:38 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] earlier printk output
+In-Reply-To: <20011127180342.A3921@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, J Sloan wrote:
+William Lee Irwin III wrote:
+> This patch creates console devices specifically for use during early
+> boot, and registers them so that printk() output may be seen prior
+> to console_init().
 
-> I have been looking into the tux2 webserver -
-> Man, what a thing of beauty. A web benchmark
-> that sends the load on the web server to 150
-> when running apache results in a load average
-> of  maybe 2 when running tux, and much faster
-> results to boot - anyway, I digress....
+> Included are i386 config options, early VGA text output, and early i386
+> serial output.
 
-Loadavg isn't much of a measure here, it's a measure of the length of the
-runnable queue. If you've only got two processes because your server has a
-thread per processor, then yes, you'll see lower loadavg, but not lower
-load. A real measure would look at idle percentage and throughput.
+nice.  these patches work on some non-x86 platforms too...
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

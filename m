@@ -1,86 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbTFSXZg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 19:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbTFSXZg
+	id S261956AbTFSX2o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 19:28:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbTFSX2c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 19:25:36 -0400
-Received: from turkey.mail.pas.earthlink.net ([207.217.120.126]:36599 "EHLO
-	turkey.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S261919AbTFSXZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 19:25:20 -0400
-Message-ID: <00f801c336bc$002b38d0$1125a8c0@wizardess.wiz>
-From: "jdow" <jdow@earthlink.net>
-To: =?iso-8859-1?Q?Thorsten_K=F6rner?= <thorstenkoerner@123tkshop.org>,
-       <linux-kernel@vger.kernel.org>
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <200306191529.29287.thorstenkoerner@123tkshop.org>
-Subject: Re: Sco vs. IBM
-Date: Thu, 19 Jun 2003 16:39:17 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Thu, 19 Jun 2003 19:28:32 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:18847 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261956AbTFSXZr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 19:25:47 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <1056065970863@kroah.com>
+Subject: Re: [PATCH] PCI changes and fixes for 2.5.72
+In-Reply-To: <1056065969234@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 19 Jun 2003 16:39:30 -0700
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Thorsten Körner" <thorstenkoerner@123tkshop.org>
+ChangeSet 1.1327.5.2, 2003/06/16 16:44:06-07:00, willy@debian.org
 
-> Hi
-> Am Donnerstag, 19. Juni 2003 15:14 schrieb Jesse Pollard:
-> > On Thursday 19 June 2003 08:03, Martin List-Petersen wrote:
-> > > Citat Magnus Solvang <magnus@solvang.net>:
-> > > > Quoting jdow (jdow@earthlink.net):
-> > > > [...]
-> > > >
-> > > > | > I believe it's this Norwegian company they write about:
-> > > > | >
-> > > > | > http://www.trolltech.com/
-> > > > |
-> > > > | If so then say good by to KDE sometime soon....
-> > > >
-> > > > How did you arrive at that conclusion? Do you believe that
-> > > > SCO will destroy everything and everybody related to Linux
-> > > > when they can make money by suing them? :)
-> > > > And KDE is not limited to just Linux.
-> > >
-> > > Go back and read the forbes article. That was more or less exactly the
-> > > point of that article.
-> >
-> > It was the original reason Gnome was started. Trolltec had released
-thier
-> > toolkit for "free" but not GPL. They then changed the licence a bit, but
-I
-> > think they still have some (lot?) control over the toolkit. I believe
-the
-> > KDE group did start a re-work to implement an independant version, but I
-> > don't know how that went.
-> I think all newer versions of QT are licensed under GPL. And IMHO uses the
-> KDE-Project QT-Libs that are 'GPLed', so trolltech can't stop the project
-> from using this Libs.
+[PATCH] PCI: Unconfuse /proc
 
-Thorsten, that does not follow directly. You know and I know that when
-there is "one way to do something" the code you write and the code I
-write without ever meeting each other might have remarkable resemblance
-once our preferred formatting differences are ironed out. This has not
-stopped SCO from claiming copying by IBM into Linux. (That is a major
-laugh, by the way. It is a corporate firing offense.) They can claim
-that the KDE people copied code from the QT library rather than fully
-and properly recreated it from cold. And who in the KDE world has enough
-money to beat someone buying a verdict?
+If we are to cope with multiple domains with clashing PCI bus numbers,
+we must refrain from creating two directories of the same name in
+/proc/bus/pci.  This is one solution to the problem; busses with a
+non-zero domain number get it prepended.
 
-(The word from inside at the coder level of IBM is that you work on
-proprietary code or you work on Linux code. Proprietary code does not
-leak from one proprietary domain to another or into Linux. It does not
-leak the other way. Said leaks are firing offenses. The same happens
-at UniSys. My partner has source code for much of XP because he builds
-HALs for the ES-7000 etc. He WILL NOT go NEAR the Linux material I
-happen to have due to my interests. And I do not discuss any Linux
-tricks I note with him. His golden handcuff level income is something
-neither of us wish to toss away.)
+Alternative solutions include cowardly refusing to create non-domain-zero
+bus directories, refusing to create directories with clashing names, and
+sticking our heads in the sand and pretending the problem doesn't exist.
 
-{^_^} Joanne
+
+ drivers/pci/proc.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/pci/proc.c b/drivers/pci/proc.c
+--- a/drivers/pci/proc.c	Thu Jun 19 16:32:21 2003
++++ b/drivers/pci/proc.c	Thu Jun 19 16:32:21 2003
+@@ -383,7 +383,11 @@
+ 		return -EACCES;
+ 
+ 	if (!(de = bus->procdir)) {
+-		sprintf(name, "%02x", bus->number);
++		if (pci_domain_nr(bus) == 0) {
++			sprintf(name, "%02x", bus->number);
++		} else {
++			sprintf(name, "%04x:%02x", pci_domain_nr(bus), bus->number);
++		}
+ 		de = bus->procdir = proc_mkdir(name, proc_bus_pci_dir);
+ 		if (!de)
+ 			return -ENOMEM;
 

@@ -1,145 +1,190 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129391AbQK3OE0>; Thu, 30 Nov 2000 09:04:26 -0500
+        id <S129555AbQK3OGS>; Thu, 30 Nov 2000 09:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129555AbQK3OEQ>; Thu, 30 Nov 2000 09:04:16 -0500
-Received: from eax.student.umd.edu ([129.2.228.67]:41480 "EHLO
-        eax.student.umd.edu") by vger.kernel.org with ESMTP
-        id <S129391AbQK3OEI>; Thu, 30 Nov 2000 09:04:08 -0500
-Date: Thu, 30 Nov 2000 09:34:37 -0500 (EST)
-From: Adam <adam@eax.com>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: Marc Mutz <Marc@mutz.com>, linux-kernel@vger.kernel.org
-Subject: Re: 'holey files' not holey enough.
-In-Reply-To: <200011292334.eATNYNB09518@webber.adilger.net>
-Message-ID: <Pine.LNX.4.21.0011300929330.1152-200000@eax.student.umd.edu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="42025956-1601409947-975594877=:1152"
+        id <S129866AbQK3OGI>; Thu, 30 Nov 2000 09:06:08 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:32175 "EHLO
+        bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+        id <S129555AbQK3OFt>; Thu, 30 Nov 2000 09:05:49 -0500
+Date: Thu, 30 Nov 2000 19:02:56 +0530 (IST)
+From: V Ganesh <ganesh@veritas.com>
+Message-Id: <200011301332.TAA00277@vxindia.veritas.com>
+To: linux-kernel@vger.kernel.org
+Subject: beware of add_waitqueue/waitqueue_active
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+there's a very subtle race with using add_waitqueue() as a barrier,
+in the __find_lock_page() which used to exist in test9. it seems to be fixed
+in test11, but I thought I should mention this just in case it's ever used in
+a similar manner elsewhere.
 
---42025956-1601409947-975594877=:1152
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+the race manifests itself as a lost wakeup. the process is stuck in schedule()
+in __find_lock_page(), with TASK_UNINTERRUPTIBLE, but on examining the struct
+page * it was waiting for, page->flags is 72, indicating that it's unlocked.
+page->wait shows this process in the waitqueue.
 
-On Wed, 29 Nov 2000, Andreas Dilger wrote:
+looking at the code for __find_lock_page...
 
-> What people who have the problem should be doing is:
-> [desc snipped]
-> > ls -li holed.file        # find inode number
-> 10732 -rw-r--r--    1 root     root      6000000 Nov 29 16:17 holed.file
-> > du -sk holed.file        # see what "stat" thinks
-> 983k    holed.file
-> > debugfs /dev/XXX
-> debugfs> stats           # find out ext2 block size
-> ...
-> Block size = 1024, fragment size = 1024
-> ...
-> debugfs> stat <10732>  # (with < and >)
-> Inode: 10732   Type: regular    Mode:  0644   Flags: 0x0   Generation:
-> 4048594821
-> User:     0   Group:     0   Size: 6000000
-> File ACL: 0    Directory ACL: 0
-> Links: 1   Blockcount: 1966
->                        ^^^^ these are 512-byte blocks, so / 2 for ~kB
-> 		            they include indirect blocks and such
-> Fragment:  Address: 0    Number: 0    Size: 0
-> ctime: 0x3a258e82 -- Wed Nov 29 16:17:22 2000
-> atime: 0x3a258e82 -- Wed Nov 29 16:17:22 2000
-> mtime: 0x3a258e82 -- Wed Nov 29 16:17:22 2000
-> BLOCKS:
-> 47512 47513 47514 47515 47516 47517 47518 47519 47520 ... 48723 48724
-> TOTAL: 983
->        ^^^ these are ext2fs sized blocks, not necessarily kB
-> 
-> If what debugfs says doesn't match du, then it is du/libc/stat that is
-> broken.  If debugfs says the file actually has 6000000 bytes of data,
-> then it is the filesystem that is broken.
+                __set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+                add_wait_queue(&page->wait, &wait);
 
-I just did what suggested, and it seems that DU reports correct values,
-I have attached 'sript' log of the above example on my filesystem.
-Here are some highlights:
+                if (PageLocked(page)) {
+                        schedule();
+                }
+                __set_task_state(tsk, TASK_RUNNING);
+		remove_wait_queue(...)
 
-[adam@pepsi /tmp]$ ls -lis holed.file
-3085069 5872 -rw-rw-r--    1 adam     adam      6000000 Nov 30 09:11 holed.file
+and that of UnlockPage(),
+#define UnlockPage(page)        do { \
+          smp_mb__before_clear_bit(); \
+          clear_bit(PG_locked, &(page)->flags); \
+          smp_mb__after_clear_bit(); \
+          if (waitqueue_active(&page->wait)) \
+                  wake_up(&page->wait); \
+} while (0)
 
-Block size = 4096, fragment size = 4096
-Links: 1   Blockcount: 11744
-TOTAL: 1468
+now assuming that everyone in the system uses UnlockPage() and no one
+directly does a clear_bit(PG_locked) (which I'm absolutely certain of),
+a possible sequence of events which could lead to this is:
+1. __set_task_state(tsk, TASK_UNINT...)
+2. add_wait_queue is called. takes spinlock. this is serializing.
+3. add_wait_queue adds this process to the waitqueue. but all the writes
+   are in write-buffers and have not gone down to cache/memory yet.
+4. PageLocked() finds that the page is locked.
+5. UnlockPage is called from another CPU from interrupt context. it clears
+   bit, waitqueue_active() decides that there's no waiting process
+   (because the add_waitqueue() changes haven't gone to cache yet) and 
+   returns. note that waitqueue_active() doesn't take the waitqueue spinlock.
+   if it did, it would have been obliged to wait until the spin_unlock (and
+   therefore the preceding writes) hit cache, and would have found a nonempty
+   list.
+6. schedule() is called, never to return.
 
-so it seems DU reports correct values as :
-	1966/2 =983
-	11744/2=5872
-and
-	4096*1468=6012928
-	1024*983 =1006592
+another thing which could increase the race window is speculative execution
+of PageLocked() even before add_wait_queue returns, since the return
+address might have been predicted by the RSB.
+
+I've attached a simple module which reproduces the problem (at least on my
+4 * 550 MHz PIII(Katmai), model 7, stepping 3). compile with
+gcc -O2 -D__SMP__ -fno-strength-reduce -g -fno-omit-frame-pointer -fno-strict-aliasing -c -g race.c
+insmod race.o
+it will printk appropriately on termination.
+basically it consists of two threads moving in lockstep. one locks a page-like
+structure, the other unlocks. if the unlocker detects that the locker hasn't
+locked in 5 seconds it concludes that a wakeup is lost.
+
+one solution is not to presume add_wait_queue() acts as a barrier if we have a
+conditional schedule and the wakeup path makes use of waitqueue_active(). we can
+use 
+add_wait_queue(...);
+set_current_state(...); /* serializes */
+if (condition) schedule();
+
+__find_lock_page() no longer uses the racy mechanism in test11 and a cursory
+examination of the rest of the kernel doesn't show any prominent offenders.
+so this is just an interesting postmortem of an obsolete corpse...
+
+ganesh
+
+#define __KERNEL__
+#define MODULE
+#include <linux/autoconf.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/wait.h>
+#include <asm/delay.h>
 
 
+struct foo {
+	int state;
+	wait_queue_head_t wait;
+} foo;
 
--- 
-Adam
-http://www.eax.com      The Supreme Headquarters of the 32 bit registers
+#define ITER			(1 << 30)
+#define LockFoo(foop)		set_bit(0, &(foop)->state)
+#define FooLocked(foop)		test_bit(0, &(foop)->state)
+#define UnlockFoo(foop)	{				\
+	smp_mb__before_clear_bit();			\
+	clear_bit(0, &(foop)->state);			\
+	smp_mb__after_clear_bit();			\
+	if (waitqueue_active(&(foop)->wait)) {		\
+		wake_up(&(foop)->wait);			\
+	}						\
+}
 
+static int race_exit = 0;
 
---42025956-1601409947-975594877=:1152
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="holey.scr2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0011300934370.1152@eax.student.umd.edu>
-Content-Description: 
-Content-Disposition: attachment; filename="holey.scr2"
+int locker(void *tmp)
+{
+	struct task_struct *tsk = current;
+	unsigned int n = 0;
+	DECLARE_WAITQUEUE(wait, tsk);
 
-U2NyaXB0IHN0YXJ0ZWQgb24gVGh1IE5vdiAzMCAwOToxMTo0MCAyMDAwDQpb
-YWRhbUBwZXBzaSAvdG1wXSQgZGQgaWY9L2Rldi96ZXJvIG9mPWhvbGVkLmZp
-bGUgYnM9MTAwMCBzZWVrPTUwMDAgY291bnQ9MTAwMA0KMTAwMCswIHJlY29y
-ZHMgaW4NCjEwMDArMCByZWNvcmRzIG91dA0KW2FkYW1AcGVwc2kgL3RtcF0k
-IGxzIC1saXMgaG9sZWQuZmlsZQ0KMzA4NTA2OSA1ODcyIC1ydy1ydy1yLS0g
-ICAgMSBhZGFtICAgICBhZGFtICAgICAgNjAwMDAwMCBOb3YgMzAgMDk6MTEg
-aG9sZWQuZmlsZQ0KW2FkYW1AcGVwc2kgL3RtcF0kIGR1IC1zaCBob2xlZC5m
-aWxlDQo1LjdNCWhvbGVkLmZpbGUNClthZGFtQHBlcHNpIC90bXBdJCBkZiAu
-DQpGaWxlc3lzdGVtICAgICAgICAgICAxay1ibG9ja3MgICAgICBVc2VkIEF2
-YWlsYWJsZSBVc2UlIE1vdW50ZWQgb24NCi9kZXYvaGRlMyAgICAgICAgICAg
-ICAyNTQ3NDcyOCAgMTY5ODY0ODggICA3MTczMTgwICA3MCUgLw0KW2FkYW1A
-cGVwc2kgL3RtcF0kIHN1DQpQYXNzd29yZDogDQpyb290QHBlcHNpIC90bXBd
-IyAvdXNyL3NiaW4vZGVidWdmIC9kZXYvaGRlMw0KZGVidWdmcyAxLjE5LCAx
-My1KdWwtMjAwMCBmb3IgRVhUMiBGUyAwLjViLCA5NS8wOC8wOQ0KZGVidWdm
-czogIHN0YXRzDQpGaWxlc3lzdGVtIGlzIHJlYWQtb25seQ0KVm9sdW1lIG5h
-bWUgPSAobm9uZSkNCkxhc3QgbW91bnRlZCBkaXJlY3RvcnkgPSAobm9uZSkN
-CkZpbGVzeXN0ZW0gVVVJRCA9IGRhY2FiOGI2LWNiYWUtMTFkMy04NjdkLTAw
-MjAwMDg0ZmRiNA0KRmlsZXN5c3RlbSBmZWF0dXJlczoobm9uZSkNCkxhc3Qg
-bW91bnQgdGltZSA9IFRodSBOb3YgMjMgMjM6MTg6MDUgMjAwMA0KTGFzdCB3
-cml0ZSB0aW1lID0gVGh1IE5vdiAzMCAwOToxMjo1NiAyMDAwDQpNb3VudCBj
-b3VudHMgPSAxIChtYXhpbWFsID0gMjApDQpGaWxlc3lzdGVtIE9TIHR5cGUg
-PSBMaW51eA0KU3VwZXJibG9jayBzaXplID0gMTAyNA0KQmxvY2sgc2l6ZSA9
-IDQwOTYsIGZyYWdtZW50IHNpemUgPSA0MDk2DQpJbm9kZSBzaXplID0gMTI4
-DQo2NTc5OTM2IGlub2RlcywgNjAxNDAzNiBmcmVlDQo2NTc1MzEwIGJsb2Nr
-cywgMjEyMjA2MCBmcmVlLCAzMjg3NjUgcmVzZXJ2ZWQsIGZpcnN0IGJsb2Nr
-ID0gMA0KMzI3NjggYmxvY2tzIHBlciBncm91cA0KMzI3NjggZnJhZ21lbnRz
-IHBlciBncm91cA0KMzI3MzYgaW5vZGVzIHBlciBncm91cA0KMjAxIGdyb3Vw
-cyAoMiBkZXNjcmlwdG9ycyBibG9ja3MpDQogR3JvdXAgIDA6IGJsb2NrIGJp
-dG1hcCBhdCAzLCBpbm9kZSBiaXRtYXAgYXQgNCwgaW5vZGUgdGFibGUgYXQg
-NQ0KICAgICAgICAgICAwIGZyZWUgYmxvY2tzLCAzMDExOCBmcmVlIGlub2Rl
-cywgMTA2IHVzZWQgZGlyZWN0b3JpZXMNCiBbLi4uLl0NCiBHcm91cCAyMDA6
-IGJsb2NrIGJpdG1hcCBhdCA2NTUzNjAzLCBpbm9kZSBiaXRtYXAgYXQgNjU1
-MzYwNCwgaW5vZGUgdGFibGUgYXQgNjU1MzYwNQ0KICAgICAgICAgICAxMzE1
-MSBmcmVlIGJsb2NrcywgMjk4ODcgZnJlZSBpbm9kZXMsIDMzNCB1c2VkIGRp
-cmVjdG9yaWVzDQpkZWJ1Z2ZzOiAgc3RhdCA8MzA4NTA2OT4NCklub2RlOiAz
-MDg1MDY5ICAgVHlwZTogcmVndWxhciAgICBNb2RlOiAgMDY2NCAgIEZsYWdz
-OiAweDAgICBHZW5lcmF0aW9uOiA2NjYwNjU4DQpVc2VyOiAgIDUwMCAgIEdy
-b3VwOiAgIDUwMCAgIFNpemU6IDYwMDAwMDANCkZpbGUgQUNMOiAwICAgIERp
-cmVjdG9yeSBBQ0w6IDANCkxpbmtzOiAxICAgQmxvY2tjb3VudDogMTE3NDQN
-CkZyYWdtZW50OiAgQWRkcmVzczogMCAgICBOdW1iZXI6IDAgICAgU2l6ZTog
-MA0KY3RpbWU6IDB4M2EyNjYwMjMgLS0gVGh1IE5vdiAzMCAwOToxMTo0NyAy
-MDAwDQphdGltZTogMHgzYTI0M2M1MSAtLSBUdWUgTm92IDI4IDE4OjE0OjI1
-IDIwMDANCm10aW1lOiAweDNhMjY2MDIzIC0tIFRodSBOb3YgMzAgMDk6MTE6
-NDcgMjAwMA0KQkxPQ0tTOg0KMjEzMjI2IFsuLi4uXSAxNjc0OTMgDQpUT1RB
-TDogMTQ2OA0KZGVidWdmczogICBxdWl0DQphZGFtQHBlcHNpOiAvdG1wB1ty
-b290QHBlcHNpIC90bXBdIyBleGl0DQpleGl0DQphZGFtQHBlcHNpOiAvdG1w
-B1thZGFtQHBlcHNpIC90bXBdJCBleGl0DQpleGl0DQpTY3JpcHQgZG9uZSBv
-biBUaHUgTm92IDMwIDA5OjE2OjI3IDIwMDANCg==
---42025956-1601409947-975594877=:1152--
+	exit_files(current);
+	daemonize();
+	while (1) {
+		LockFoo(&foo);
+
+		__set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+		add_wait_queue(&foo.wait, &wait);
+
+		if (FooLocked(&foo)) {
+			schedule();
+		}
+		__set_task_state(tsk, TASK_RUNNING);
+		remove_wait_queue(&foo.wait, &wait);
+		if (race_exit) {
+			printk("locker looped %u times\n", n);
+			return 1;
+		}
+		n++;
+	}
+}
+
+int unlocker(void *tmp)
+{
+	int counter = 0;
+	unsigned int n = 0;
+
+	exit_files(current);
+	daemonize();
+	while (n < ITER) {
+		counter = jiffies;
+		while(!FooLocked(&foo)) {
+			if (counter + HZ * 5 < jiffies) {
+				printk("RACE !\n");
+				race_exit = 1;
+				wake_up(&foo.wait);
+				return 1;
+			}
+		}
+		UnlockFoo(&foo);
+		n++;
+	}
+	while(!test_bit(0, &foo.state));
+	printk("no race\n");
+	race_exit = 1;
+	wake_up(&foo.wait);
+	return 0;
+}
+
+static int __init init_race(void)
+{
+	foo.state = 0;
+	init_waitqueue_head(&foo.wait);
+	kernel_thread(locker, NULL, SIGCHLD);
+	kernel_thread(unlocker, NULL, SIGCHLD);
+	return 0;
+}
+
+static void __exit exit_race(void)
+{
+}
+
+module_init(init_race);
+module_exit(exit_race);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262759AbTCPWf7>; Sun, 16 Mar 2003 17:35:59 -0500
+	id <S261649AbTCPW7S>; Sun, 16 Mar 2003 17:59:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262775AbTCPWf7>; Sun, 16 Mar 2003 17:35:59 -0500
-Received: from mail-3.tiscali.it ([195.130.225.149]:62652 "EHLO
-	mail.tiscali.it") by vger.kernel.org with ESMTP id <S262759AbTCPWf6>;
-	Sun, 16 Mar 2003 17:35:58 -0500
-Date: Sun, 16 Mar 2003 23:46:43 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Shawn <core@enodev.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: constant Bitkeeper bitching
-Message-ID: <20030316224643.GB1252@dualathlon.random>
-References: <1047837820.3966.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262775AbTCPW7S>; Sun, 16 Mar 2003 17:59:18 -0500
+Received: from smtp2.EUnet.yu ([194.247.192.51]:58016 "EHLO smtp2.eunet.yu")
+	by vger.kernel.org with ESMTP id <S261649AbTCPW7R>;
+	Sun, 16 Mar 2003 17:59:17 -0500
+From: Toplica Tanaskovic <toptan@EUnet.yu>
+To: Sheng Long Gradilla <skamoelf@netscape.net>
+Subject: Re: AGP 3.0 for 2.4.21-pre5
+Date: Mon, 17 Mar 2003 00:08:41 +0100
+User-Agent: KMail/1.5
+References: <200303151816.39915.toptan@EUnet.yu> <3E74AC3B.6070404@netscape.net>
+In-Reply-To: <3E74AC3B.6070404@netscape.net>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <1047837820.3966.8.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Message-Id: <200303170008.41525.toptan@EUnet.yu>
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by smtp2.eunet.yu id h2GNA9x11012
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 16, 2003 at 12:03:40PM -0600, Shawn wrote:
-> [..] You had
-> patches, folks... [..]
+Dana nedelja 16. mart 2003. 17:54 napisali ste:
+> I tested it with my NVidia GeForce 4 Ti4200 with AGP8X. No luck for me
+> yet. X is still reporting AGP 4X in the log, I get garbage on the screen
+> and my PC locks up.
+>
+> I am not sure if this has something to do with the NVidia driver for X,
+> or just a bug in your module/backport.
+>
+	You have to run make clean first, or faster way go to drivers/char/agp/ and 
+delete any .o files, and then do make modules...
 
-I agree with the rest but note that the above argument is silly too.
-Patches are missing a great deal of info. bitkeeper is more useful for a
-reason. Until today we had an information-loss problem, that was fixed
-only for a restricted number of people for the last year, so it was very
-far from a solution from my point of view. Today thanks to the kernel
-CVS that Larry thankfully provided, IMHO this is finally solved and I
-greatly appreciate that.
+	I'll have to figure out way to force compilation of agpgart if only agp 3.0 
+menu item was changed.
+-- 
+Pozdrav,
+Tanasković Toplica
 
-Of course if you don't develop the kernel you can live fine with
-monolithic undocumented patches, you're not going to audit those diffs
-anyways, do you? Few people will appreciate the difference between
-patches and bk, but for developers having the finer granularity helps a
-lot, so saying "go back to patches" is a no-way.  Just try to extract
-stuff from the -ac tree and you get the idea, I'm stunned how can Alan
-submit stuff to Marcelo and Linus w/o major pain and leftovers (ok, some
-are driver changes and they're easy to extract, but not everything is
-that simple and self contained).
 
-Andrea

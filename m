@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266546AbTGHD7p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 23:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266620AbTGHD7p
+	id S266531AbTGHE6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 00:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266620AbTGHE6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 23:59:45 -0400
-Received: from web14008.mail.yahoo.com ([216.136.175.124]:39687 "HELO
-	web14008.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266546AbTGHD7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 23:59:44 -0400
-Message-ID: <20030708041419.8239.qmail@web14008.mail.yahoo.com>
-Date: Mon, 7 Jul 2003 21:14:19 -0700 (PDT)
-From: Matt Hartley <matthartley@yahoo.com>
-Subject: Re: Linux 2.4.22-pre3-ac1
-To: linux-kernel@vger.kernel.org
+	Tue, 8 Jul 2003 00:58:12 -0400
+Received: from softers.net ([213.139.168.106]:26783 "EHLO mail.softers.net")
+	by vger.kernel.org with ESMTP id S266531AbTGHE6M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 00:58:12 -0400
+Message-ID: <3F0A52F0.5BA389F9@softers.net>
+Date: Tue, 08 Jul 2003 08:13:20 +0300
+From: Jarmo =?iso-8859-2?Q?J=E4rvenp=E4=E4?= 
+	<Jarmo.Jarvenpaa@softers.net>
+Organization: Softers Oy
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Max binds
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking at the new Cryptographic options that were merged into this
-kernel, and don't see any options for "crytoloop" mounting of encrypted
-files as loop-back filesytems like the ones that I've been using in the
-CryptoAPI patches.  
+Hi
 
-Are any additional patches needed for this, and if so, are there plans
-to merge them at any point?  These seem focused mostly on IPsec from
-what I can tell, hence my confusion, and the CryptoAPI patches
-obviously don't patch in cleanly anymore.
+I'm building chrooted environment for users and I'm using mount --bind
+<what> <where> -scheme to mount some important directories for the user.
+This works fine for couple users but what is the limit for binding
+directories to show up on a different place? I tried googling but
+couldn't find any direct answers.
 
-Thanks in advance for the help!
-Matt Hartley
 
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com
+Thanks,
+Jarmo

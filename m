@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264275AbUBRGB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 01:01:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUBRGB4
+	id S264484AbUBRGIn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 01:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbUBRGIn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 01:01:56 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:20996 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264275AbUBRGBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 01:01:55 -0500
-Date: Wed, 18 Feb 2004 06:57:44 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.25-rc4
-Message-ID: <20040218055744.GC15660@alpha.home.local>
-References: <Pine.LNX.4.58L.0402180207540.4852@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0402180207540.4852@logos.cnet>
-User-Agent: Mutt/1.4i
+	Wed, 18 Feb 2004 01:08:43 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:24867 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S263513AbUBRGIk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 01:08:40 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Announce: kdb v4.3 is available for kernel 2.6.3 
+Date: Wed, 18 Feb 2004 17:08:16 +1100
+Message-ID: <10769.1077084496@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, Feb 18, 2004 at 02:11:24AM -0300, Marcelo Tosatti wrote:
-> Here goes release candidate 4, including a few small fixes.
-> 
-> If nothing bad shows up, this will become final.
+Content-Type: text/plain; charset=us-ascii
 
-Well, I would have liked to see the ACPI poweroff fix I sent a few days ago,
-but Len said he doesn't have time to review it this week. It's a shame since
-at least two of my machines which powered off correctly with very older ACPI
-versions now need it, so I don't think I'm the only one in this case :-(
+KDB (Linux Kernel Debugger) has been updated.
 
-Other than that, I'm fairly happy with at least -rc2 (not tested latest
-releases yet).
+ftp://oss.sgi.com/projects/kdb/download/v4.3/
 
-Cheers,
-Willy
+Current versions are :-
+  kdb-v4.3-2.6.3-common-1.bz2
+  kdb-v4.3-2.6.3-i386-1.bz2
+  kdb-v4.3-2.6.3-ia64-1.bz2
+
+The only change since 2.6.3-rc4-common-1 and 2.6.3-rc3-{i386,ia6}-1
+is to update the changelogs to reflect the base 2.6.3 kernel.
+
+Warning: the 2.6 versions of kdb have had minimal testing.  In
+particular they have not been tested with CONFIG_PREEMPT.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQFAMwFQi4UHNye0ZOoRAjEIAJ4p5EaPChNDWHLqy7icBCLmBAR9PACbBUqd
+9akaS3silc7r7/v8Od537Z0=
+=Nw1B
+-----END PGP SIGNATURE-----
 

@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271939AbRH2JMd>; Wed, 29 Aug 2001 05:12:33 -0400
+	id <S271937AbRH2JQO>; Wed, 29 Aug 2001 05:16:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271938AbRH2JMX>; Wed, 29 Aug 2001 05:12:23 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:11273 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S271937AbRH2JMJ>; Wed, 29 Aug 2001 05:12:09 -0400
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200108290911.f7T9Btb06402@wildsau.idv-edu.uni-linz.ac.at>
-Subject: min/max status?
-To: linux-kernel@vger.kernel.org
-Date: Wed, 29 Aug 2001 11:11:54 +0200 (MET DST)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S271942AbRH2JQE>; Wed, 29 Aug 2001 05:16:04 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:25103 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S271937AbRH2JPy>;
+	Wed, 29 Aug 2001 05:15:54 -0400
+Date: Wed, 29 Aug 2001 11:16:06 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: linux 2.4.9 make menuconfig bug
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B8CB2D6.4628C91C@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kernel 2.4.9
 
-hi,
-
-I'd like to know of min/max will stay in kernel.h in their current (and
-fucking ugly, IMO) form or if they eventually will be moved to something
-like type_min() type_max().
-
-I've read a lot of emails contra the 3-parm. min/max macros. Does our
-supreme deity listen to HIS followers or is this more like a
-"le etat est moi" --- "der kernel bin ich" question?
-
+make menuconfig
+on menu point "Fusion MPT device support" "Select" does nothing !
+it should go into a submenu
 
 -- 
-mfg,
-Dipl.-Ing. H.Rosmanith                    Karrer & Partner Gesellschaft mbH
-Freistaedter Str. 236, A-4040 Linz,                   Tel. +43/732/75 71 30
-                                                      Fax. +43/732/75 71 44
-
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

@@ -1,91 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266224AbTGDXFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 19:05:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbTGDXES
+	id S266214AbTGDXED (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 19:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266222AbTGDXEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 19:04:18 -0400
-Received: from maile.telia.com ([194.22.190.16]:19938 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id S266219AbTGDXD7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 19:03:59 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Sat, 5 Jul 2003 01:09:11 +0200 (CEST)
-From: Peter Osterlund <petero2@telia.com>
-X-X-Sender: petero@best.localdomain
-To: "P. Christeas" <p_christ@hol.gr>
-cc: Vojtech Pavlik <vojtech@suse.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: Early mail about synaptics driver
-In-Reply-To: <200306241846.26953.p_christ@hol.gr>
-Message-ID: <Pine.LNX.4.44.0307050014560.2344-100000@telia.com>
+	Fri, 4 Jul 2003 19:04:02 -0400
+Received: from dp.samba.org ([66.70.73.150]:61654 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266214AbTGDXDw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 19:03:52 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16134.2877.577780.35071@cargo.ozlabs.ibm.com>
+Date: Sat, 5 Jul 2003 09:18:21 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: benh@kernel.crashing.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org, linuxppc64-dev@lists.linuxppc.org
+Subject: Re: [PATCH 2.5.73] Signal stack fixes #1 introduce PF_SS_ACTIVE
+In-Reply-To: <20030704175439.GE22152@wohnheim.fh-wedel.de>
+References: <20030703202410.GA32008@wohnheim.fh-wedel.de>
+	<20030704174339.GB22152@wohnheim.fh-wedel.de>
+	<20030704174558.GC22152@wohnheim.fh-wedel.de>
+	<20030704175439.GE22152@wohnheim.fh-wedel.de>
+X-Mailer: VM 7.16 under Emacs 21.3.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Jun 2003, P. Christeas wrote:
+Jörn Engel writes:
 
-> I am trying to use your synaptics kernel driver. I do have the touchpad,
-> which means that as from 2.573 the kernel tries to use that by default.
-> 
-> The other important part (which I have solved) is that you set "disable
-> gestures" by default. I don't know if this is required in absolute mode,
-> but it surely makes the touchpad less useful in relative mode. That is,
-> if I unload the module and reload it with 'psmouse_noext=1' [1], then
-> the previous setting [2] applies and gestures are disabled.
+> This should be the ppc specific part of the signal stack fixes.  It sets the
+> flag, when switching to the signal stack and clears it, when switching
+> back.  When the kernel tries to switch to the signal stack again,   
+> without switching back, the process screwed up the signal stack, so we
+> kill it with a SIGSEGV.
 
-I think it would be better to restore default settings when the driver is
-unloaded, as in the patch below. I have verified that this patch solves
-the problem on my computer using kernel 2.5.74.
+This is madness.
 
-diff -u -r linux/drivers/input/mouse.orig/psmouse-base.c linux/drivers/input/mouse/psmouse-base.c
---- linux/drivers/input/mouse.orig/psmouse-base.c	Sat Jul  5 00:10:56 2003
-+++ linux/drivers/input/mouse/psmouse-base.c	Fri Jul  4 23:57:40 2003
-@@ -478,9 +478,10 @@
- static void psmouse_disconnect(struct serio *serio)
- {
- 	struct psmouse *psmouse = serio->private;
-+	if (psmouse->type == PSMOUSE_SYNAPTICS)
-+		synaptics_disconnect(psmouse);
- 	input_unregister_device(&psmouse->dev);
- 	serio_close(serio);
--	synaptics_disconnect(psmouse);
- 	kfree(psmouse);
- }
- 
-diff -u -r linux/drivers/input/mouse.orig/synaptics.c linux/drivers/input/mouse/synaptics.c
---- linux/drivers/input/mouse.orig/synaptics.c	Sat Jul  5 00:11:07 2003
-+++ linux/drivers/input/mouse/synaptics.c	Sat Jul  5 00:09:30 2003
-@@ -144,7 +144,7 @@
- static void print_ident(struct synaptics_data *priv)
- {
- 	printk(KERN_INFO "Synaptics Touchpad, model: %ld\n", SYN_ID_MODEL(priv->identity));
--	printk(KERN_INFO " Firware: %ld.%ld\n", SYN_ID_MAJOR(priv->identity),
-+	printk(KERN_INFO " Firmware: %ld.%ld\n", SYN_ID_MAJOR(priv->identity),
- 	       SYN_ID_MINOR(priv->identity));
- 
- 	if (SYN_MODEL_ROT180(priv->model_id))
-@@ -228,7 +228,7 @@
- 	/*
- 	 * The x/y limits are taken from the Synaptics TouchPad interfacing Guide,
- 	 * which says that they should be valid regardless of the actual size of
--	 * the senser.
-+	 * the sensor.
- 	 */
- 	set_bit(EV_ABS, psmouse->dev.evbit);
- 	set_abs_params(&psmouse->dev, ABS_X, 1472, 5472, 0, 0);
-@@ -259,6 +259,9 @@
- {
- 	struct synaptics_data *priv = psmouse->private;
- 
-+	/* Restore touchpad to power on default state */
-+	synaptics_set_mode(psmouse, 0);
-+
- 	kfree(priv);
- }
- 
+There is nothing in POSIX that says that you have to exit a signal
+handler by returning from it (which, under Linux, ends up doing a
+sigreturn or rt_sigreturn system call).  It is explicitly permitted to
+return from a RT signal handler with setcontext(), for instance.  And
+it is at least long-standing practice to return using longjmp().
+Neither setcontext nor longjmp will do a system call (yes, setcontext
+is a system call on sparc, but it isn't on x86 AFAIK).
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+So - the kernel doesn't (and can't and shouldn't need to) know about
+all transitions to or from a signal stack.  Therefore the PF_SS_ACTIVE
+bit is useless since it will be wrong some of the time.
 
+Anyway, what is the problem with taking a signal on the signal stack
+when you in a signal handler using the signal stack?  You just keep
+going down the stack from where you are, which is what the code
+already does.
+
+BTW, I am the PPC maintainer; Ben is the powermac maintainer.
+
+Paul.

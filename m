@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315192AbSGMQVH>; Sat, 13 Jul 2002 12:21:07 -0400
+	id <S315198AbSGMQXf>; Sat, 13 Jul 2002 12:23:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315198AbSGMQVG>; Sat, 13 Jul 2002 12:21:06 -0400
-Received: from t5o53p51.telia.com ([212.181.176.51]:2436 "EHLO
-	best.localdomain") by vger.kernel.org with ESMTP id <S315192AbSGMQVF>;
-	Sat, 13 Jul 2002 12:21:05 -0400
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-rc1-ac3
-References: <Pine.LNX.4.44.0207131435570.3808-100000@linux-box.realnet.co.sz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 13 Jul 2002 18:22:01 +0200
-In-Reply-To: <Pine.LNX.4.44.0207131435570.3808-100000@linux-box.realnet.co.sz>
-Message-ID: <m2n0svr42e.fsf@best.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S315200AbSGMQXe>; Sat, 13 Jul 2002 12:23:34 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:53765 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S315198AbSGMQXd>; Sat, 13 Jul 2002 12:23:33 -0400
+Date: Sat, 13 Jul 2002 12:21:10 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG?] unwanted proxy arp in 2.4.19-pre10
+Message-ID: <Pine.LNX.3.96.1020713121946.14953A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> writes:
+I think there's a bug, or at least unexpected behaviour in 2.4.19-pre10
+regarding ARP replies. I am getting multiple arp-replies to a who-has
+request, and there seems to be no check in arp.c to verify that the
+interface used for an arp reply actually has that address or has proxy
+set.
 
-> did the higher duty cycles have the desired effect?
+Details:
 
-Not really, unfortunately. The CPU certainly runs slower, but the
-difference in power consumption between the fastest and slowest speeds
-seems to be quite small. The kernel was configured to use APM idle
-calls, but no ACPI stuff. I measured the time it took for the battery
-to go from 100% to 90% while reading the lkml mailing list with gnus,
-so the machine was mostly idle during the test.
 
-How much power savings can be expected in this situation? Is SpeedStep
-likely to give more power savings?
+     node_A 192.168.230.1              router
+                |       \               192.168.231.127
+		|	 \		192.168.0.0/16 access
+                |      bridge            /
+                |           \           /
+                |            \         /
+          192.168.230.4      192.168.231.4
+                       \      /
+                        node_B
+
+
+When node_A does an arp request, who-has 192.168.230.4, it gets a
+correct answer from the NIC with that IP. It also gets a reply from the
+NIC on the 192.168.231 IP, because the ARP broadcast was bridged to that
+NIC and there's no check to see if that NIC actually has the IP in
+question. Since the networks are bridged for the moment, the 2nd reply
+also arrives, later, and winds up in the arp table on node_A, where it
+results in all traffic going through the bridge to the wrong NIC.
+
+In the absense of the proxy_arp flag, I would not expect that reply,
+the IP is not on that NIC. Before I "fix" that, is this intended
+behaviour for some reason? Will I break something if I add check logic?
+Is there something in /proc/sys/net/ipv4 I missed which will avoid this
+response?
 
 -- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

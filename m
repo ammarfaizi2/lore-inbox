@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317022AbSHJPVy>; Sat, 10 Aug 2002 11:21:54 -0400
+	id <S317063AbSHJPac>; Sat, 10 Aug 2002 11:30:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317024AbSHJPVy>; Sat, 10 Aug 2002 11:21:54 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:28942 "EHLO
+	id <S317066AbSHJPac>; Sat, 10 Aug 2002 11:30:32 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:36366 "EHLO
 	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S317022AbSHJPVw>; Sat, 10 Aug 2002 11:21:52 -0400
-Date: Sat, 10 Aug 2002 19:25:15 +0400
+	id <S317063AbSHJPa2>; Sat, 10 Aug 2002 11:30:28 -0400
+Date: Sat, 10 Aug 2002 19:33:49 +0400
 From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Richard Henderson <rth@twiddle.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch 2.5.30] alpha: IPI update [2/10]
-Message-ID: <20020810192515.A20534@jurassic.park.msu.ru>
+Subject: [patch 2.5.30] alpha: misc fixes [9/10]
+Message-ID: <20020810193349.H20534@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,101 +20,123 @@ User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- send_ipi_message() fix from Jeff Wiedemeier:
-  The 2.5.30 IPI algorithm (with the to_whom == set test) incorrectly sends
-  IPI messages to CPU 0 in a SMP system running with one processor. In this
-  case to_whom is often 0 (cpu_present_mask & ~1UL << smp_processor_id()) which
-  ends up triggering the to_whom == set case.
-- migration IPI removed;
+Set of small fixes:
+- pcibios_init() must be int;
+- fls() - ctlz on ev67, generic on others. This was required for
+  something several kernel releases back, now it seems to be unused.
+  Anyway, it shouldn't hurt, so included here.
+- missing #includes, missing #if RTC_IRQ in drivers/char/rtc.c;
+- define USER_HZ;
+>From Jeff Wiedemeier:
+- rename alpha-specific config section 'General setup' to 'System setup'
+  to avoid confusion with generic 'General setup';
+- fix the 'bootpfile' build.
 
 Ivan.
 
---- 2.5.30/arch/alpha/kernel/smp.c	Fri Aug  2 01:16:16 2002
-+++ linux/arch/alpha/kernel/smp.c	Thu Aug  8 19:45:19 2002
-@@ -62,7 +63,6 @@ static struct {
+--- 2.5.30/arch/alpha/kernel/pci.c	Fri Aug  2 01:16:06 2002
++++ linux/arch/alpha/kernel/pci.c	Thu Aug  8 19:28:01 2002
+@@ -190,12 +190,12 @@ pcibios_align_resource(void *data, struc
+ #undef MB
+ #undef GB
  
- enum ipi_message_type {
- 	IPI_RESCHEDULE,
--	IPI_MIGRATION,
- 	IPI_CALL_FUNC,
- 	IPI_CPU_STOP,
- };
-@@ -668,33 +658,21 @@ send_ipi_message(unsigned long to_whom, 
+-static void __init
++static int __init
+ pcibios_init(void)
  {
- 	unsigned long i, set, n;
- 
--	set = to_whom & -to_whom;
--	if (to_whom == set) {
-+	mb();
-+	for (i = to_whom; i ; i &= ~set) {
-+		set = i & -i;
- 		n = __ffs(set);
--		mb();
- 		set_bit(operation, &ipi_data[n].bits);
--		mb();
--		wripir(n);
--	} else {
--		mb();
--		for (i = to_whom; i ; i &= ~set) {
--			set = i & -i;
--			n = __ffs(set);
--			set_bit(operation, &ipi_data[n].bits);
--		}
-+	}
- 
--		mb();
--		for (i = to_whom; i ; i &= ~set) {
--			set = i & -i;
--			n = __ffs(set);
--			wripir(n);
--		}
-+	mb();
-+	for (i = to_whom; i ; i &= ~set) {
-+		set = i & -i;
-+		n = __ffs(set);
-+		wripir(n);
- 	}
+-	if (!alpha_mv.init_pci)
+-		return;
+-	alpha_mv.init_pci();
++	if (alpha_mv.init_pci)
++		alpha_mv.init_pci();
++	return 0;
  }
  
--/* Data for IPI_MIGRATION.  */
--static task_t *migration_task;
--
- /* Structure and data for smp_call_function.  This is designed to 
-    minimize static memory requirements.  Plus it looks cleaner.  */
+ subsys_initcall(pcibios_init);
+--- 2.5.30/arch/alpha/kernel/signal.c	Fri Aug  2 01:16:24 2002
++++ linux/arch/alpha/kernel/signal.c	Thu Aug  8 19:28:01 2002
+@@ -18,6 +18,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/stddef.h>
+ #include <linux/tty.h>
++#include <linux/binfmts.h>
  
-@@ -768,15 +746,6 @@ handle_ipi(struct pt_regs *regs)
- 			   is done by the interrupt return path.  */
- 			break;
- 
--		case IPI_MIGRATION:
--		    {
--			task_t *t = migration_task;
--			mb();
--			migration_task = 0;
--			sched_task_migrated(t);
--			break;
--		    }
--
- 		case IPI_CALL_FUNC:
- 		    {
- 			struct smp_call_struct *data;
-@@ -835,19 +804,6 @@ smp_send_reschedule(int cpu)
+ #include <asm/bitops.h>
+ #include <asm/uaccess.h>
+--- 2.5.30/include/asm-alpha/bitops.h	Fri Aug  2 01:16:26 2002
++++ linux/include/asm-alpha/bitops.h	Thu Aug  8 19:28:02 2002
+@@ -315,6 +315,20 @@ static inline int ffs(int word)
+ 	return word ? result+1 : 0;
  }
  
- void
--smp_migrate_task(int cpu, task_t *t)
--{
--#if DEBUG_IPI_MSG
--	if (cpu == hard_smp_processor_id())
--		printk(KERN_WARNING
--		       "smp_migrate_task: Sending IPI to self.\n");
--#endif
--	/* Acquire the migration_task mutex.  */
--	pointer_lock(&migration_task, t, 1);
--	send_ipi_message(1UL << cpu, IPI_MIGRATION);
--}
--
--void
- smp_send_stop(void)
++/*
++ * fls: find last bit set.
++ */
++#if defined(__alpha_cix__) && defined(__alpha_fix__)
++static inline int fls(int word)
++{
++	long result;
++	__asm__("ctlz %1,%0" : "=r"(result) : "r"(word & 0xffffffff));
++	return 64 - result;
++}
++#else
++#define fls	generic_fls
++#endif
++
+ /* Compute powers of two for the given integer.  */
+ static inline int floor_log2(unsigned long word)
  {
- 	unsigned long to_whom = cpu_present_mask & ~(1UL << smp_processor_id());
+--- 2.5.30/include/asm-alpha/pgalloc.h	Fri Aug  2 01:16:02 2002
++++ linux/include/asm-alpha/pgalloc.h	Thu Aug  8 19:28:02 2002
+@@ -2,6 +2,7 @@
+ #define _ALPHA_PGALLOC_H
+ 
+ #include <linux/config.h>
++#include <linux/mm.h>
+ 
+ /*      
+  * Allocate and free page tables. The xxx_kernel() versions are
+--- 2.5.30/include/asm-alpha/param.h	Fri Aug  2 01:16:22 2002
++++ linux/include/asm-alpha/param.h	Thu Aug  8 19:28:02 2002
+@@ -15,6 +15,8 @@
+ # endif
+ #endif
+ 
++#define USER_HZ		HZ
++
+ #define EXEC_PAGESIZE	8192
+ 
+ #ifndef NGROUPS
+--- 2.5.30/arch/alpha/config.in	Fri Aug  2 01:16:14 2002
++++ linux/arch/alpha/config.in	Thu Aug  8 19:49:18 2002
+@@ -11,7 +11,7 @@ define_bool CONFIG_RWSEM_XCHGADD_ALGORIT
+ source init/Config.in
+ 
+ mainmenu_option next_comment
+-comment 'General setup'
++comment 'System setup'
+ 
+ choice 'Alpha system type' \
+ 	"Generic		CONFIG_ALPHA_GENERIC		\
+--- 2.5.30/arch/alpha/boot/Makefile	Fri Aug  2 01:16:12 2002
++++ linux/arch/alpha/boot/Makefile	Thu Aug  8 19:45:03 2002
+@@ -20,6 +20,7 @@ BPOBJECTS = head.o bootp.o
+ TARGETS = vmlinux.gz tools/objstrip # also needed by aboot & milo
+ VMLINUX = $(TOPDIR)/vmlinux
+ OBJSTRIP = tools/objstrip
++LIBS := $(patsubst lib/%,$(TOPDIR)/lib/%,$(LIBS))
+ 
+ all:	$(TARGETS)
+ 	@echo Ready to install kernel in $(shell pwd)/vmlinux.gz
+--- 2.5.30/drivers/char/rtc.c	Fri Aug  2 01:16:21 2002
++++ linux/drivers/char/rtc.c	Thu Aug  8 19:28:01 2002
+@@ -870,7 +870,9 @@ no_irq:
+ 
+ 	if (misc_register(&rtc_dev))
+ 		{
++#if RTC_IRQ
+ 		free_irq(RTC_IRQ, NULL);
++#endif
+ 		release_region(RTC_PORT(0), RTC_IO_EXTENT);
+ 		return -ENODEV;
+ 		}

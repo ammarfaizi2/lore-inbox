@@ -1,94 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275693AbRKNS5t>; Wed, 14 Nov 2001 13:57:49 -0500
+	id <S275265AbRKNS6J>; Wed, 14 Nov 2001 13:58:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275552AbRKNS5m>; Wed, 14 Nov 2001 13:57:42 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:28631 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S275224AbRKNS5b>; Wed, 14 Nov 2001 13:57:31 -0500
-Date: Wed, 14 Nov 2001 10:54:33 -0800
-From: Jonathan Lahr <lahr@us.ibm.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: lahr@eng2.beaverton.ibm.com, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] SCSI io_request_lock patch
-Message-ID: <20011114105433.O26302@us.ibm.com>
-In-Reply-To: <20011112130902.B26302@us.ibm.com> <20011113092311.L786@suse.de> <20011113104210.L26302@us.ibm.com> <20011114091129.H17933@suse.de>
-Mime-Version: 1.0
+	id <S275552AbRKNS6B>; Wed, 14 Nov 2001 13:58:01 -0500
+Received: from mail102.mail.bellsouth.net ([205.152.58.42]:51171 "EHLO
+	imf02bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S275265AbRKNS5x>; Wed, 14 Nov 2001 13:57:53 -0500
+Message-ID: <3BF2BE98.3205C11C@mandrakesoft.com>
+Date: Wed, 14 Nov 2001 13:57:28 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stuart MacDonald <stuartm@connecttech.com>
+CC: tytso@mit.edu, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Fw: [Patch] Some updates to serial-5.05
+In-Reply-To: <00df01c16d23$b409ab20$294b82ce@connecttech.com> <3BF2947B.DF3BE9DC@mandrakesoft.com> <013d01c16d29$bc5d4380$294b82ce@connecttech.com> <3BF29D69.B16479A1@mandrakesoft.com> <02b901c16d3c$a4e4adc0$294b82ce@connecttech.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011114091129.H17933@suse.de>; from axboe@suse.de on Wed, Nov 14, 2001 at 09:11:29AM +0100
-X-Operating-System: Linux 2.0.32 on an i486
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe [axboe@suse.de] wrote:
-> On Tue, Nov 13 2001, Jonathan Lahr wrote:
-> > Jens Axboe [axboe@suse.de] wrote:
-> > > On Mon, Nov 12 2001, Jonathan Lahr wrote:
-> > > > 
-> > > > This is a request for comments on the patch described below which
-> > > > implements a revised approach to reducing io_request_lock
-> > > > contention in 2.4.
-> > > > 
-> > > > This new version of the io_request_lock patch (siorl-v0) is
-> > > > available at http://sourceforge.net/projects/lse/.  It employs the
-> > > > same concurrent request queueing scheme as the iorlv0 patch but
-> > > > isolates code changes to the SCSI subsystem and engages the new
-> > > > locking scheme only for SCSI drivers which explicitly request it.
-> > > > I took this more restricted approach after additional development
-> > > > based on comments from Jens and others indicated that iorlv0
-> > > > impacted the IDE subsystem and was unnecessarily broad in general.
-> > > > 
-> > > > The siorl-v0 patch allows drivers to enable concurrent queueing
-> > > > through the concurrent_queue field in the Scsi_Host_Template which
-> > > > is copied to the request queue.  It creates SCSI-specific versions
-> > > > of generic block i/o functions used by the SCSI subsystem and
-> > > > modifies them to conditionally engage the new locking scheme based
-> > > > on this field.  It allows control over which drivers use
-> > > > concurrent queueing and preserves original block i/o behavior by
-> > > > default.
-> > > 
-> > > Sorry Jonathan, but this is even more broken than the last patch. In
-> > > different ways. In no particular order:
-> > > 
-> > > o You are duplicating way too much code and exporting block
-> > > internals
-> > 
-> > The duplication is a reasonable starting point for SCSI-specific
-> > functions.  The block i/o design provides for exactly this type of
-> > tailoring through function pointers installed in request_queue.
+Stuart MacDonald wrote:
+> > Doubtful.  When applied to 2.4.x-current:
+> >
+> > [jgarzik@rum linux_2_4]$ patch drivers/char/serial.c < ~/tmp/patch
+> > patching file drivers/char/serial.c
+> > Hunk #1 FAILED at 1405.
+> > Hunk #2 FAILED at 2514.
+> > Hunk #3 FAILED at 2572.
+> > Hunk #4 FAILED at 3968.
+> > patch: **** malformed patch at line 55: {
 > 
-> Yes I know, I wrote most of said code :-)
+> You're right, the patches tend not to apply to non-5.05 versions.
+> However, applying them to 2.4.14 doesn't give me the above. What
+> exactly is 2.4.x-current, and where can I get it?
 
-And this approach makes good use of it.
+ftp://ftp.kernel.org/pub/linux/kernel/testing/
 
-> > What problem you do see with exporting block internals?
-> 
-> It's absolutely worthless. Look, it ties in with the points I made
-> below. You are exporting the merge functions for instance, and setting
-> them in the queue. This will cause scsi_merge not to use it's own
-> functions, broken.
+But it looks like your patch should be able to apply with little or no
+modification, versus 2.4.15-pre4 or 2.4.14 release.
 
-As in the baseline, initialize_merge_fn overwrites these pointers:
-     q->back_merge_fn = scsi_back_merge_fn_;
-     q->front_merge_fn = scsi_front_merge_fn_;
-     q->merge_requests_fn = scsi_merge_requests_fn_;
 
-> > Do you think the separation of SCSI from generic block i/o code and
-> > the driver-activated control of concurrent queueing provides a path
-> > for future work to reduce io_request_lock contention in SCSI/FC?
-> 
-> Not really, but I do think it could be a viable 2.4 alternative. For 2.5
-> we still want to do this the right way.
+> I'll do a patch set against 5.05c, should rmk or tytso request it.
+> Unless you're also a serial maintainer of some description?
 
-I'll try to stay apprised of the 2.5 work as it progresses.
+I converted serial.c to support cardbus/hotplug, and have merged a patch
+or two due to absence of maintainer...
+
+	Jeff
+
 
 -- 
-Jonathan Lahr
-IBM Linux Technology Center
-Beaverton, Oregon
-lahr@us.ibm.com
-503-578-3385
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

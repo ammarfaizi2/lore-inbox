@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262903AbUJ0WUu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262763AbUJ0WzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbUJ0WUu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262946AbUJ0WSe
+	id S262763AbUJ0WzC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUJ0Wq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:18:34 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:14976 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S262759AbUJ0VVV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:21:21 -0400
-Date: Wed, 27 Oct 2004 23:21:07 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Greg KH <greg@kroah.com>, Norbert Preining <preining@logic.at>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
-Message-ID: <20041027212107.GA22957@vana.vc.cvut.cz>
-References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <20041027153715.GB13991@kroah.com> <20041027191728.GA6897@vana.vc.cvut.cz> <1098906941.6990.30.camel@laptop.fenrus.org>
+	Wed, 27 Oct 2004 18:46:59 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:24992 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262763AbUJ0Wn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 18:43:29 -0400
+Subject: Re: My thoughts on the "new development model"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410271553_MC3-1-8D4F-38E7@compuserve.com>
+References: <200410271553_MC3-1-8D4F-38E7@compuserve.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098913229.7783.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098906941.6990.30.camel@laptop.fenrus.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Oct 2004 22:40:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 09:55:41PM +0200, Arjan van de Ven wrote:
-> On Wed, 2004-10-27 at 21:17 +0200, Petr Vandrovec wrote:
-> > VMware's vmnet is broken by this too.  VMware was asked by RedHat to 
-> > add udev compatibility to the code, and now you are saying that both
+On Mer, 2004-10-27 at 20:50, Chuck Ebbert wrote:
+> On Wed, 27 Oct 2004 at 16:27 +0100 Alan Cox wrote:
+> > You missed the remote DoS attack 8(
+>   Where?
+
+Posted to netdev along with fixes. See 2.6.9-ac1 or later
+
+> >>   - i8042 fails to initialize with some boards using legacy USB
+> >
+> > This is really a BIOS issue and its not a new 2.6.9 bug its a long
+> > standing and messy story.
 > 
-> who in Red Hat (notice the space) asked you this? I'm not aware of any
-> official request to vmware to do this...
- 
-I assumed that email I received from Warren Togami was official notice that
-RHEL4 is going to be udev based and that as vmnet does not currently create
-its device nodes in /dev, something should be done about it.
+>   And the patch in -ac fixes it but there is a cleaner one around
+> that does it more properly, right?
 
-As this request was quite popular, and doing it properly through sysfs 
-instead of doing several mknods when initscripts run, I filled internal
-bug report that RHEL4 will use udev and vmnet should be compatible with
-it.  And then I implemented some minimal sysfs support.
-
-Week after that I saw first email from Greg changing sysfs_driver_* & co.
-to GPL only.  I did not worry as this set did not comtain class_simple,
-and so I assumed that I'm doing nothing wrong.  But today I noticed
-that even class_simple is GPL only in -mm.
-
-It was not lot of work, I'd say under 1 hour, but it just does not seem
-correct to me, changing symbols visibility after people start using them.
-
-OK, next beta will do several mknods in /etc/init.d/vmware script.
-Not technically nice, but working.
-					Petr Vandrovec
+The -ac fix handles one corner case. The right fix appears to be to
+always disable USB legacy. But for a small fix its mighty risky.
 

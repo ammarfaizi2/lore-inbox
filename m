@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVBPBMO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVBPBl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbVBPBMO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 20:12:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVBPBMN
+	id S261963AbVBPBl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 20:41:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVBPBl1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 20:12:13 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:41134 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261757AbVBPBIo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 20:08:44 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=XWz/sNCc8CfoNptVsGjkCUZmFv/yJXdlgCLlKTqRk/XCIuHd/UCvlthlnutp57+hWBITxPVM8BeN9VEE8HoPDQcknKoogdLbc24i+146yMXRYx/W+kQkzY1zUXmoaB6W4+TiH3K6Afy4nL8AMmLwh2o6k/pPCXcMTfsoB0vx3o0=
-Message-ID: <9e473391050215170874051b29@mail.gmail.com>
-Date: Tue, 15 Feb 2005 20:08:44 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1108515632.13394.59.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 15 Feb 2005 20:41:27 -0500
+Received: from 83-216-143-24.alista342.adsl.metronet.co.uk ([83.216.143.24]:29631
+	"EHLO devzero.co.uk") by vger.kernel.org with ESMTP id S261963AbVBPBlW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 20:41:22 -0500
+From: Alistair John Strachan <alistair@devzero.co.uk>
+Reply-To: alistair@devzero.co.uk
+To: Lorenzo Colitti <lorenzo@colitti.com>
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+Date: Wed, 16 Feb 2005 01:41:11 +0000
+User-Agent: KMail/1.7.1
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+References: <20050214211105.GA12808@elf.ucw.cz> <1108500194.12031.21.camel@elrond.flymine.org> <42126506.8020407@colitti.com>
+In-Reply-To: <42126506.8020407@colitti.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-References: <200502151557.06049.jbarnes@sgi.com>
-	 <9e473391050215163621dafa65@mail.gmail.com>
-	 <200502151645.27774.jbarnes@sgi.com>
-	 <1108515632.13394.59.camel@gaston>
+Content-Disposition: inline
+Message-Id: <200502160141.11633.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a new io resource flag as part of the pci rom code,
-IORESOURCE_ROM_SHADOW, that is used on x86. If IORESOURCE_ROM_SHADOW
-is set, you should ignore the physical ROM and use the copy at C000:0.
-Can we build an equivalent flag for PPC? On x86 arch specific code
-determines the boot video device and sets the flag.
+On Tuesday 15 Feb 2005 21:09, Lorenzo Colitti wrote:
+[snip]
+> I would advise trying to compile a custom kernel from scratch with my
+> .config first.
+>
+> I got S3 working first with a very basic kernel config, but I couldn't
+> get it to work with my usual kernel. Assuming it was some feature that
+> caused the problem, I started disabling features in the hope of getting
+> it to work, but I ended up with two different kernels with seemingly
+> irrelevant differences, of which one would succesfully resume and one
+> wouldn't. So I started added features to the other kernel, and I never
+> found out what caused the problem.
 
-Acutally, if radeon and rage fb drivers were using the PCI ROM support
-(drivers/pci/rom.c) would they be having this problem? The 55AA check
-is in the PCI ROM support too.
+I took your advice and built your kernel with a few modifications (XFS instead 
+of ext, etc.). If I boot the kernel with init=/bin/sh, I can actually 
+suspend! Thanks!
 
-On Wed, 16 Feb 2005 12:00:31 +1100, Benjamin Herrenschmidt
-<benh@kernel.crashing.org> wrote:
-> 
-> > I thought the signature described what type of ROM was there?  E.g. 0xaa55
-> > means x86 ROM, x0303 means OF ROM, etc.?
-> >
-> > At any rate, not having a ROM at all (which my case may be) isn't an error
-> > either, so I think removing the printk is appropriate regardless.
-> 
-> Oh, and if this is the PowerBook, then you don't have a ROM attached to
-> the video chip, the OF driver is part of the main system ROM.
-> 
-> Ben.
-> 
-> 
+I will exhaustively enable and disable drivers tomorrow to figure out which 
+one is causing suspend to fail when I do a complete boot. Whatever we find is 
+clearly a bug that should be fixed.
 
+It is not the framebuffer driver (I always ran without vesafb or radeonfb), 
+and it is not my ipw2200 or USB drivers.
+
+Also, is USB suspend/resume supposed to work? My brief trials involved 
+modprobing the USB HCD modules, which still allowed me to suspend/resume, but 
+my USB mouse was non-functional on resume.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

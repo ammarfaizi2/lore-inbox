@@ -1,65 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132426AbRAPTKP>; Tue, 16 Jan 2001 14:10:15 -0500
+	id <S132315AbRAPTPP>; Tue, 16 Jan 2001 14:15:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132422AbRAPTKF>; Tue, 16 Jan 2001 14:10:05 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:7441 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S132388AbRAPTJs>; Tue, 16 Jan 2001 14:09:48 -0500
-Date: Tue, 16 Jan 2001 14:12:23 -0500
-From: Chris Mason <mason@suse.com>
-To: Jakob Borg <jakob@borg.pp.se>, linux-kernel@vger.kernel.org
-cc: torvalds@transmeta.com
-Subject: Re: More information on reiserfs bug
-Message-ID: <208780000.979672343@tiny>
-In-Reply-To: <20010116193858.A733@borg.pp.se>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S132357AbRAPTOz>; Tue, 16 Jan 2001 14:14:55 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:27140 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S132315AbRAPTOw>;
+	Tue, 16 Jan 2001 14:14:52 -0500
+Message-ID: <003d01c07ff1$1bd71420$0100a8c0@pittscomp.com>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: Message from Brian Gerst <bgerst@didntduck.org> of "Tue, 16 Jan 2001 12:04:57 EST." <3A647F39.EC62BB81@didntduck.org> <20010116182307Z131259-403+875@vger.kernel.org>
+Subject: Re: Linux not adhering to BIOS Drive boot order?
+Date: Tue, 16 Jan 2001 14:18:25 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Guys,
+
+> And this is a problem that has plagues all PC operating systems, but has
+never
+> been a problem on the Macintosh.  Why?  Because the Mac was designed to
+handle
+> this problem, but the PC never was.
+
+Quite true on this point.
+
+> The Mac never enumerates its devices like the PC does (no C: D: etc, no
+> /dev/sda, /dev/sdb, or anything like that).  It also remembers the boot
+device
+> in its EEPROM (the Startup Disk Control Panel handles this).
+
+For ATA drives the bios handles this.
+
+> The only way to solve this problem is the DESIGN IT INTO THE OS!  Someone
+needs
+> to stand up and say, "This is a problem, and I'm going to fix it."  There
+needs
+> to be a "device mount order database" or some kind, and all the disk
+drivers
+> need to access that database to determine where to put the devices it
+finds.
+
+NO! What needs to happen is:
+1) the person who installs a second scsi card should read the manual BEFORE
+installing it so they know how to disable the boot features if they aren't
+needed,
+
+or
+
+2) install only one bootable scsi card, period.
+
+ Anything else is a useless kludge that will come back and bite us in the
+ass.
 
 
-On Tuesday, January 16, 2001 07:38:58 PM +0100 Jakob Borg
-<jakob@borg.pp.se> wrote:
+> The only problem is BIOS boot.  That information is, I believe, stored in
+the
+> ESCD, but I don't know if it's reliable enough and complete enough to be
+usable
+> by Linux.
 
-> Hi again,
-> 
-> It seems the problem occurs every time i start fetchmail... Attached are
-> ksymoops output and .config (if i remember this time). If there is
-> anything else I can do to help debug this, just tell me
+It seems to work well enough.
 
-Linus fixed that hunk of debugging code in his merge, and it found a bug in
-the reiserfs O_SYNC support.  reiserfs_commit_write needs to hold the BKL.
+Matthew D. Pitts
+mpitts@suite224.net
 
-This should fix it:
-
---- linux/fs/reiserfs/inode.c.1	Tue Jan 16 13:46:35 2001
-+++ linux/fs/reiserfs/inode.c	Tue Jan 16 13:49:21 2001
-@@ -1853,6 +1853,11 @@
-     struct reiserfs_transaction_handle th ;
-     
-     reiserfs_wait_on_write_block(inode->i_sb) ;
-+
-+    /* prevent_flush_page_lock must be called before generic_commit_write,
-+    ** and the BKL must be held during the call.
-+    */
-+    lock_kernel() ;
-     prevent_flush_page_lock(page, inode) ;
-     ret = generic_commit_write(f, page, from, to) ;
-     /* we test for O_SYNC here so we can commit the transaction
-@@ -1866,6 +1871,8 @@
- 	journal_end_sync(&th, inode->i_sb, 1) ;
-     }
-     allow_flush_page_lock(page, inode) ;
-+    unlock_kernel() ;
-+
-     return ret ;
- }
- 
 
 
 -

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317512AbSGERay>; Fri, 5 Jul 2002 13:30:54 -0400
+	id <S317517AbSGERlV>; Fri, 5 Jul 2002 13:41:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317517AbSGERax>; Fri, 5 Jul 2002 13:30:53 -0400
-Received: from quechua.inka.de ([212.227.14.2]:23126 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S317512AbSGERaw>;
-	Fri, 5 Jul 2002 13:30:52 -0400
-From: Bernd Eckenfels <ecki-news2002-06@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Question concerning ifconfig
-In-Reply-To: <180577A42806D61189D30008C7E632E8793972@boca213a.boca.ssc.siemens.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E17QWxR-0000Im-00@sites.inka.de>
-Date: Fri, 5 Jul 2002 19:33:25 +0200
+	id <S317518AbSGERlV>; Fri, 5 Jul 2002 13:41:21 -0400
+Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:28147 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317517AbSGERlU>; Fri, 5 Jul 2002 13:41:20 -0400
+Date: Fri, 5 Jul 2002 11:43:34 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Pablo Fischer <exilion@yifan.net>
+cc: Mark Hahn <hahn@physics.mcmaster.ca>, <linux-kernel@vger.kernel.org>
+Subject: RE: StackPages errors (CALLTRACE)
+In-Reply-To: <IDEJJDGBFBNEKLNKFPAEEEAJCDAA.exilion@yifan.net>
+Message-ID: <Pine.LNX.4.44.0207051125380.10105-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bloch, Jack <Jack.Bloch@icn.siemens.com> wrote:
-> ifconfig ifp0 hw ether A2:A5:A5:01:00:00
+Hi,
 
-I get also EBUSY on 0x8924 aka SIOCSIFHWADDR.
+On Fri, 5 Jul 2002, Pablo Fischer wrote:
+> 1) Its more a HW problem? (a PRocessor problem?) I have AMD K6
+> 
+> 2) So.. you are telling me that I cant solve it? :(, only if I change the
+> proccessor to a Pentium?..
 
-Looking into the kernel:
+It's a problem with the module code. It should be sufficient to replace 
+cmov with something that can execute on < P6. That means, hand-checking, 
+depending on !CONFIG_MPENTIUM4.
 
-core/dev.c
-                case SIOCSIFHWADDR:
-                        if (dev->set_mac_address == NULL)
-                                return -EOPNOTSUPP;
-                        if (ifr->ifr_hwaddr.sa_family!=dev->type)
-                                return -EINVAL;
-                        if (!netif_device_present(dev))
-                                return -ENODEV;
-                        err = dev->set_mac_address(dev, &ifr->ifr_hwaddr);
-                        if (!err)
-                                notifier_call_chain(&netdev_chain, NETDEV_CHANGE
-                        return err;
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-
-It looks to me that set_mac_address() of the device is doing that. For my
-card it is the generic one in net_init.c which is doing:
-
-static int eth_mac_addr(struct net_device *dev, void *p)
-{
-        struct sockaddr *addr=p;
-        if (netif_running(dev))
-                return -EBUSY;
-        memcpy(dev->dev_addr, addr->sa_data,dev->addr_len);
-        return 0;
-}
-
-So, as long as your interface is up, you are not allowed to change the
-address.
-
-I will add that to the man page.
-
-Greetings
-Bernd

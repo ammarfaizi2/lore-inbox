@@ -1,35 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315278AbSGPOwo>; Tue, 16 Jul 2002 10:52:44 -0400
+	id <S317675AbSGPOxJ>; Tue, 16 Jul 2002 10:53:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317675AbSGPOwn>; Tue, 16 Jul 2002 10:52:43 -0400
-Received: from kc.hitachisoftware.com ([205.158.62.105]:25506 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S315278AbSGPOwn>; Tue, 16 Jul 2002 10:52:43 -0400
-Message-ID: <20020716145534.27565.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S317857AbSGPOxJ>; Tue, 16 Jul 2002 10:53:09 -0400
+Received: from imeil.udg.es ([130.206.45.97]:57499 "EHLO imeil.udg.es")
+	by vger.kernel.org with ESMTP id <S317675AbSGPOxI>;
+	Tue, 16 Jul 2002 10:53:08 -0400
+Date: Tue, 16 Jul 2002 16:58:57 +0200 (CEST)
+From: David Gironella Casademont <giro@hades.udg.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: Lost Interrupt
+Message-ID: <Pine.LNX.4.30.0207161657430.28172-100000@hades.udg.es>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "sanket rathi" <sanket@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 16 Jul 2002 22:55:34 +0800
-Subject: Aiie, killing the interrupt handler
-X-Originating-Ip: 202.54.40.40
-X-Originating-Server: ws4-4.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am getting this message "Aiie, killing the interrupt handler" and much more stuff dump on screen after that system get hang and i have to reboot the system. what does it mean is there some problem in my driver's interrupt routine i m working on linux 2.2.14-5 
 
-Thanks in Advance
+I compile 2.4.18 kernel with promise raid support, and when kernel is
+checking my partitions say: Lost interrupt
 
-Sanket
+any idea.
 
+thk
+Giro
 
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze

@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbUKJNvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbUKJNrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbUKJNvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 08:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbUKJNtL
+	id S261927AbUKJNrL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 08:47:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbUKJNpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 08:49:11 -0500
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:41942 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261897AbUKJNoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 08:44:54 -0500
+	Wed, 10 Nov 2004 08:45:50 -0500
+Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:45185 "EHLO
+	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261887AbUKJNoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:44:44 -0500
 From: Anton Altaparmakov <aia21@cam.ac.uk>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        linux-ntfs-dev@lists.sourceforge.net
-Subject: [PATCH 10/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
-Message-Id: <E1CRsmG-0006Oi-KK@imp.csi.cam.ac.uk>
-Date: Wed, 10 Nov 2004 13:44:48 +0000
+Subject: [PATCH 7/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
+Message-Id: <E1CRsm4-0006Nv-Vu@imp.csi.cam.ac.uk>
+Date: Wed, 10 Nov 2004 13:44:36 +0000
 X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
 X-Cam-AntiVirus: No virus found
 X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is patch 10/26 in the series.  It contains the following ChangeSet:
+This is patch 7/26 in the series.  It contains the following ChangeSet:
 
-<aia21@cantab.net> (04/10/28 1.2026.1.35)
-   NTFS: In fs/ntfs/aops.c::ntfs_writepage(), if t he page is fully outside
-         i_size, i.e. race with truncate, invalidate the buffers on the page
-         so that they become freeable and hence the page does not leak.
+<aia21@cantab.net> (04/10/25 1.2026.1.23)
+   NTFS: In fs/ntfs/aops.c::mark_ntfs_record_dirty(), take the
+         mapping->private_lock around the dirtying of the buffer heads
+         analagous to the way it is done in __set_page_dirty_buffers().
    
    Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
@@ -43,40 +43,34 @@ WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
 ===================================================================
 
 diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
---- a/fs/ntfs/ChangeLog	2004-11-10 13:44:52 +00:00
-+++ b/fs/ntfs/ChangeLog	2004-11-10 13:44:52 +00:00
-@@ -42,6 +42,9 @@
- 	  mount time as this cannot work with the current implementation.
- 	- Check for location of attribute name and improve error handling in
- 	  general in fs/ntfs/inode.c::ntfs_read_locked_inode() and friends.
-+	- In fs/ntfs/aops.c::ntfs_writepage(), if t he page is fully outside
-+	  i_size, i.e. race with truncate, invalidate the buffers on the page
-+	  so that they become freeable and hence the page does not leak.
+--- a/fs/ntfs/ChangeLog	2004-11-10 13:44:40 +00:00
++++ b/fs/ntfs/ChangeLog	2004-11-10 13:44:40 +00:00
+@@ -35,6 +35,9 @@
+ 	  ntfs_attr_size_bounds_check(), ntfs_attr_can_be_non_resident(), and
+ 	  ntfs_attr_can_be_resident(), which in turn use the new private helper
+ 	  ntfs_attr_find_in_attrdef().
++	- In fs/ntfs/aops.c::mark_ntfs_record_dirty(), take the
++	  mapping->private_lock around the dirtying of the buffer heads
++	  analagous to the way it is done in __set_page_dirty_buffers().
  
  2.1.21 - Fix some races and bugs, rewrite mft write code, add mft allocator.
  
 diff -Nru a/fs/ntfs/aops.c b/fs/ntfs/aops.c
---- a/fs/ntfs/aops.c	2004-11-10 13:44:52 +00:00
-+++ b/fs/ntfs/aops.c	2004-11-10 13:44:52 +00:00
-@@ -1117,7 +1117,8 @@
-  * For resident attributes, OTOH, ntfs_writepage() writes the @page by copying
-  * the data to the mft record (which at this stage is most likely in memory).
-  * The mft record is then marked dirty and written out asynchronously via the
-- * vfs inode dirty code path.
-+ * vfs inode dirty code path for the inode the mft record belongs to or via the
-+ * vm page dirty code path for the page the mft record is in.
-  *
-  * Based on ntfs_readpage() and fs/buffer.c::block_write_full_page().
-  *
-@@ -1141,6 +1142,11 @@
- 	/* Is the page fully outside i_size? (truncate in progress) */
- 	if (unlikely(page->index >= (vi->i_size + PAGE_CACHE_SIZE - 1) >>
- 			PAGE_CACHE_SHIFT)) {
-+		/*
-+		 * The page may have dirty, unmapped buffers.  Make them
-+		 * freeable here, so the page does not leak.
-+		 */
-+		block_invalidatepage(page, 0);
- 		unlock_page(page);
- 		ntfs_debug("Write outside i_size - truncated?");
- 		return 0;
+--- a/fs/ntfs/aops.c	2004-11-10 13:44:40 +00:00
++++ b/fs/ntfs/aops.c	2004-11-10 13:44:40 +00:00
+@@ -2158,6 +2158,7 @@
+ 	}
+ 	end = ofs + ni->itype.index.block_size;
+ 	bh_size = ni->vol->sb->s_blocksize;
++	spin_lock(&page->mapping->private_lock);
+ 	bh = head = page_buffers(page);
+ 	do {
+ 		bh_ofs = bh_offset(bh);
+@@ -2167,6 +2168,7 @@
+ 			break;
+ 		set_buffer_dirty(bh);
+ 	} while ((bh = bh->b_this_page) != head);
++	spin_unlock(&page->mapping->private_lock);
+ 	__set_page_dirty_nobuffers(page);
+ }
+ 

@@ -1,58 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132958AbREFGDD>; Sun, 6 May 2001 02:03:03 -0400
+	id <S132909AbREFG4G>; Sun, 6 May 2001 02:56:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132959AbREFGCx>; Sun, 6 May 2001 02:02:53 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:19475 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S132958AbREFGCk>;
-	Sun, 6 May 2001 02:02:40 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.6 is available 
-Date: Sun, 06 May 2001 16:02:35 +1000
-Message-ID: <819.989128955@ocs3.ocs-net>
+	id <S132991AbREFGzq>; Sun, 6 May 2001 02:55:46 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:45318 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S132909AbREFGzp>; Sun, 6 May 2001 02:55:45 -0400
+Date: Sun, 6 May 2001 10:55:19 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.4 alpha semaphores optimization
+Message-ID: <20010506105519.A7562@jurassic.park.msu.ru>
+In-Reply-To: <20010503194747.A552@jurassic.park.msu.ru> <20010504141240.A11122@twiddle.net> <20010505175547.A2302@jurassic.park.msu.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010505175547.A2302@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Sat, May 05, 2001 at 05:55:47PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> > If you do
+> > (perhaps to coordinate with devices) then the barriers are required.
+> 
+> For IO space access mb's are required, but ll/sc are of no use, AFAIK.
 
-Content-Type: text/plain; charset=us-ascii
+Ugh. You are right, of course. I forgot that drivers are also using
+atomic.h, and the intelligent device could be counted as another CPU
+to some degree...
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+Thanks for the __builtin_expect fix!
 
-modutils-2.4.6.tar.gz           Source tarball, includes RPM spec file
-modutils-2.4.6-1.src.rpm        As above, in SRPM format
-modutils-2.4.6-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
-modutils-2.4.6-1.sparc64.rpm    Not available yet, waiting for a sparc machine.
-modutils-2.4.6-1.ia64.rpm       Compiled with gcc 2.96-ia64-000717 snap 001117,
-				libc-2.2.1.
-patch-modutils-2.4.6.gz         Patch from modutils 2.4.5 to 2.4.6.
-
-Related kernel patches.
-
-patch-2.4.2-persistent.gz       Adds persistent data and generic string
-				support to kernel 2.4.2 onwards.  Optional.
-
-Changelog extract
-
-	* Replace uint64_t with u_int64_t for glibc 2.0.  Luis Carlos Yamamoto.
-	* /dev/rtc can be a module.  Urs Thuermann.
-	* Do not assume that malloc(0) returns a pointer.  Bug report by
-	  Kiichiro Naka, different fix by Keith Owens.
-	* Cross compile changes.  Maciej W. Rozycki.
-	* Better explanation for rmmod -a.   Marc Herbert.
-	* Remove modules(2) references.  Debian #69398.
- 	* hppa dp is $global$, not data_start.  Richard Hirst.
- 	* hppa64 stub for millicode calls must not use dp.  Richard Hirst.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.3 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE69Oj4i4UHNye0ZOoRAl/cAJ9Sppko57LNUHb92z01+CUDW7vMHQCff8kF
-jOxArOcYlyk9MHHa7vRUS18=
-=mWGA
------END PGP SIGNATURE-----
-
+Ivan.

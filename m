@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265165AbTFRNk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 09:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265166AbTFRNk4
+	id S265166AbTFRNpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 09:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbTFRNpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 09:40:56 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:56068 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S265165AbTFRNkz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 09:40:55 -0400
-Subject: Re: 2.5.70-mm9
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Mingming Cao <cmm@us.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20030618003838.06144cf9.akpm@digeo.com>
-References: <20030613013337.1a6789d9.akpm@digeo.com>
-	<3EEAD41B.2090709@us.ibm.com> <20030614010139.2f0f1348.akpm@digeo.com>
-	<1055637690.1396.15.camel@w-ming2.beaverton.ibm.com>
-	<20030614232049.6610120d.akpm@digeo.com>
-	<1055920382.1374.11.camel@w-ming2.beaverton.ibm.com> 
-	<20030618003838.06144cf9.akpm@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Jun 2003 08:54:44 -0500
-Message-Id: <1055944486.2075.9.camel@mulgrave>
+	Wed, 18 Jun 2003 09:45:30 -0400
+Received: from sunsite.ms.mff.cuni.cz ([195.113.19.66]:21397 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265166AbTFRNp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 09:45:29 -0400
+Date: Wed, 18 Jun 2003 15:59:20 +0200
+From: Jakub Jelinek <jakub@redhat.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix binfmt_elf.c bug on ppc64
+Message-ID: <20030618135920.GO20507@sunsite.ms.mff.cuni.cz>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-06-18 at 02:38, Andrew Morton wrote:
-> Mingming Cao <cmm@us.ibm.com> wrote:
-> >
-> > I re-run the many fsx tests with feral driver on 2.5.70mm9, ext3
-> >  fileystems, on deadline scheduler and as scheduler respectively.  Both
-> >  tests passed.  They were running for more than 24 hours without any
-> >  problems. So it could be a bug in the device driver that I used
-> >  before(QLA2xxx V8).  Before the fsx tests failed on ext3 on either
-> >  deadline scheduler or as scheduler.
-> 
-> Well it could be a bug in the driver, or it could be a bug in the generic
-> block/iosched area which was just triggered by the particular way in which
-> that driver exercises the core code.
-> 
-> James, do we have the latest-and-greatest version of the qlogic driver
-> in-tree?  ISTR that there's an update out there somewhere?
+Hi!
 
-I'm still currently keeping the qlogic and feral drivers out of tree. 
-Feral because Matthew Jacob thinks its not ready yet and Qlogic because
-I was waiting for the must-fix list (I'll prod hch again for this).
+Any prelinked shared library is impossible to run on ppc64 without this
+patch, as they immediately segfault. Say:
+/bin/echo
+works even if /lib64/ld64.so.1 is prelinked while
+/lib64/ld64.so.1 /bin/echo
+segfaults.
+The problem is that ELF_PLAT_INIT is passed the virtual address of the
+shared library, not the difference between the virtual address of the shared
+library and p_vaddr of the first PT_LOAD segment in that library
+(while for the interpreter interp_load_address is the bias).
+ELF_PLAT_INIT sets gpr[2] to this absolute address, but
+arch/ppc64/kernel/process.c (start_thread) assumes it is a bias and adds it
+to entry and toc values loaded from the entry point descriptor.
+For non-prelinked shared libraries, first PT_LOAD segment's p_vaddr is
+typically 0 and thus load_addr == load_bias (which is why this bug has not
+been discovered that long).
 
-You can get the current qlogic driver at
+--- linux-2.5.72/fs/binfmt_elf.c.jj	2003-06-17 06:20:00.000000000 +0200
++++ linux-2.5.72/fs/binfmt_elf.c	2003-06-18 15:47:52.000000000 +0200
+@@ -697,7 +697,7 @@ static int load_elf_binary(struct linux_
+ 				load_bias += error -
+ 				             ELF_PAGESTART(load_bias + vaddr);
+ 				load_addr += load_bias;
+-				reloc_func_desc = load_addr;
++				reloc_func_desc = load_bias;
+ 			}
+ 		}
+ 		k = elf_ppnt->p_vaddr;
 
-  http://sourceforge.net/projects/linux-qla2xxx/
-
-And I will update the BK tree at linux-scsi.bkbits.net
-
-James
-
-
+	Jakub

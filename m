@@ -1,203 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266897AbRGQSOh>; Tue, 17 Jul 2001 14:14:37 -0400
+	id <S266900AbRGQSRQ>; Tue, 17 Jul 2001 14:17:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266900AbRGQSO1>; Tue, 17 Jul 2001 14:14:27 -0400
-Received: from yktgi01e0-s1.watson.ibm.com ([198.81.209.16]:7047 "HELO
-	ssm22.watson.ibm.com") by vger.kernel.org with SMTP
-	id <S266897AbRGQSOQ>; Tue, 17 Jul 2001 14:14:16 -0400
-Message-ID: <3B548022.F2CB5520@watson.ibm.com>
-Date: Tue, 17 Jul 2001 14:12:50 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@us.ibm.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
+	id <S266902AbRGQSRH>; Tue, 17 Jul 2001 14:17:07 -0400
+Received: from archive.osdlab.org ([65.201.151.11]:17293 "EHLO fire.osdlab.org")
+	by vger.kernel.org with ESMTP id <S266900AbRGQSQ4>;
+	Tue, 17 Jul 2001 14:16:56 -0400
+Message-ID: <3B5480C1.B39CF1A4@osdlab.org>
+Date: Tue, 17 Jul 2001 11:15:29 -0700
+From: "Randy.Dunlap" <rddunlap@osdlab.org>
+Organization: OSDL
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: CPU affinity & IPI latency (FIX)_
-In-Reply-To: <OF51487F8A.564A5A7D-ON85256A8C.0063C208@pok.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------5CC6E2A7A562635F9959B087"
+To: Jeff Lessem <Jeff.Lessem@Colorado.EDU>
+CC: linux-kernel@vger.kernel.org, Alan <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.4.6-ac5 not booting on highmem machine
+In-Reply-To: <200107171331.HAA246192@ibg.colorado.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5CC6E2A7A562635F9959B087
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi-
 
-David, thanks for pointing this out. Ofcourse, it has be reset at that point.
-Since it is still running, it actually proves that priority overwrites for
-reservations work.
-Did you have a chance to run it on the offending app. I don't have that one,
-hence I only tried on kernel builds etc.
-Here is the update patch.
+Looks like the bootflag code checksum loop is trying to
+access across a page boundary.
 
--- Hubertus (frankeh@us.ibm.com)
+Alan et al- is there a good trick to get around this?
 
-> Davide Libenzi <davidel@xmailserver.org>@lists.sourceforge.net on
-> 07/17/2001 02:00:45 PM
->
-> Sent by:  lse-tech-admin@lists.sourceforge.net
->
-> To:   Hubertus Frnake <frankeh@watson.ibm.com>
-> cc:   linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
->       ak@suse.de
-> Subject:  Re: [Lse-tech] Re: CPU affinity & IPI latency (FIX)_
->
-> On 17-Jul-2001 Hubertus Frnake wrote:
-> > In an attempt to inline the code, somehow the tabs got lost. So here is
-> the
-> > attached correct patch fo 2.4.5. Please try and let me know whether you
-> > see your problems disappear and/or others arise.
-> > The sketchy writeup is still the same.
->
-> Did You tried the patch ?
-> Maybe this could help :
->
-> +       next = cpu_resched(this_cpu);
-> +       if (next) {
-> +               cpu_resched(this_cpu) = NULL;
-> -               next = p;
-> +               goto found_next;
-> +       }
->
-> - Davide
->
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> http://lists.sourceforge.net/lists/listinfo/lse-tech
+Alan- should bootflag.o depend on CONFIG_PNPBIOS, and not
+just the one line in it that sets the PNPOS flag?
+I.e. why execute sbf_* if not CONFIG_PNPBIOS?
+I'll generate a patch for this if you like.
 
---------------5CC6E2A7A562635F9959B087
-Content-Type: text/plain; charset=us-ascii;
- name="cpuaff-patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpuaff-patch"
+Jeff, can you post (or send me) a good boot log (just the
+E820 memory mapping part of it will do).
 
-diff -uwrbBN linux-2.4.5-van/kernel/sched.c linux-2.4.5-ca/kernel/sched.c
---- linux-2.4.5-van/kernel/sched.c	Fri Apr 20 21:26:16 2001
-+++ linux-2.4.5-ca/kernel/sched.c	Tue Jul 17 14:02:13 2001
-@@ -97,12 +97,14 @@
- static union {
- 	struct schedule_data {
- 		struct task_struct * curr;
-+		struct task_struct * resched;
- 		cycles_t last_schedule;
- 	} schedule_data;
- 	char __pad [SMP_CACHE_BYTES];
--} aligned_data [NR_CPUS] __cacheline_aligned = { {{&init_task,0}}};
-+} aligned_data [NR_CPUS] __cacheline_aligned = { {{&init_task,0,0}}};
- 
- #define cpu_curr(cpu) aligned_data[(cpu)].schedule_data.curr
-+#define cpu_resched(cpu) aligned_data[(cpu)].schedule_data.resched
- #define last_schedule(cpu) aligned_data[(cpu)].schedule_data.last_schedule
- 
- struct kernel_stat kstat;
-@@ -208,7 +210,7 @@
- {
- #ifdef CONFIG_SMP
- 	int this_cpu = smp_processor_id();
--	struct task_struct *tsk, *target_tsk;
-+	struct task_struct *tsk, *target_tsk, *rtsk;
- 	int cpu, best_cpu, i, max_prio;
- 	cycles_t oldest_idle;
- 
-@@ -219,7 +221,9 @@
- 	best_cpu = p->processor;
- 	if (can_schedule(p, best_cpu)) {
- 		tsk = idle_task(best_cpu);
--		if (cpu_curr(best_cpu) == tsk) {
-+		if ((cpu_curr(best_cpu) == tsk) &&
-+		    (cpu_resched(best_cpu) == NULL))
-+		{
- 			int need_resched;
- send_now_idle:
- 			/*
-@@ -244,13 +248,24 @@
- 	 */
- 	oldest_idle = (cycles_t) -1;
- 	target_tsk = NULL;
-+	best_cpu = 0;
- 	max_prio = 1;
- 
- 	for (i = 0; i < smp_num_cpus; i++) {
- 		cpu = cpu_logical_map(i);
- 		if (!can_schedule(p, cpu))
- 			continue;
-+		/* first check whether there is an resched IPI
-+		 * reservation for that cpu. If so consider priority
-+		 * of the reservation instead of current.
-+		 * We do not have to set the need_resched flag again
-+		 * for the currently running task. It must have been
-+		 * signalled before
-+		 */
-+		tsk = cpu_resched(cpu);
-+		if (tsk == NULL)
- 		tsk = cpu_curr(cpu);
-+
- 		/*
- 		 * We use the first available idle CPU. This creates
- 		 * a priority list between idle CPUs, but this is not
-@@ -268,19 +283,30 @@
- 				if (prio > max_prio) {
- 					max_prio = prio;
- 					target_tsk = tsk;
-+					best_cpu = cpu;
- 				}
- 			}
- 		}
- 	}
- 	tsk = target_tsk;
- 	if (tsk) {
-+		rtsk = cpu_resched(best_cpu);
-+		if (rtsk) {
-+			rtsk->has_cpu = 0; /* return rtsk to scheduable */
-+			tsk->has_cpu  = 1; /* can't schedule this one no more*/
-+			cpu_resched(best_cpu) = tsk;
-+			return;
-+		}
- 		if (oldest_idle != -1ULL) {
- 			best_cpu = tsk->processor;
- 			goto send_now_idle;
- 		}
- 		tsk->need_resched = 1;
--		if (tsk->processor != this_cpu)
--			smp_send_reschedule(tsk->processor);
-+		if (tsk->processor != this_cpu) {
-+			tsk->has_cpu  = 1; 
-+			cpu_resched(best_cpu) = tsk;
-+			smp_send_reschedule(best_cpu);
-+		}
- 	}
- 	return;
- 		
-@@ -578,6 +604,16 @@
- 	 */
- 
- repeat_schedule:
-+	/* we check whether we have a resched_IPI reservation:
-+	 * if so simply select the reserving task and next and
-+	 * go to switch to it.
-+	 */
-+	next = cpu_resched(this_cpu);
-+	if (next) {
-+		cpu_resched(this_cpu) = NULL;
-+		next = p;
-+		goto found_next;
-+	}
- 	/*
- 	 * Default process to select..
- 	 */
-@@ -604,6 +640,7 @@
- 	 * switching to the next task, save this fact in
- 	 * sched_data.
- 	 */
-+found_next:
- 	sched_data->curr = next;
- #ifdef CONFIG_SMP
-  	next->has_cpu = 1;
+Do you have the ACPI "pmtools"?  Getting an ACPI tables dump
+would be useful.
+[http://developer.intel.com/technology/iapc/acpi/downloads.htm]
 
---------------5CC6E2A7A562635F9959B087--
+~Randy
 
+
+Jeff Lessem wrote:
+> 
+> I have an 8 processor PIII Xeon machine with 8GB of ram.  The recent
+> -ac5 patch does not boot, panicking immediately after
+> Linux NET4.0 for Linux 2.4
+> Based upon Swansea University Computer Society NET3.039
+> is printed on the console.  The following ksymoops is printed.  If any
+> more information would be useful in tracking down this error, please
+> let me know.
+> 
+> ksymoops 2.4.1 on i686 2.4.6.  Options used
+>      -v /home/lessem/linux/linux-ac/vmlinux (specified)
+>      -K (specified)
+>      -L (specified)
+>      -o /lib/modules/2.4.6-ac5/ (specified)
+>      -m /boot/System.map-2.4.6-ac5 (specified)
+> 
+> No modules in ksyms, skipping objects
+> Unable to handle kernel paging request at virtual address f8801000
+> c024fab6
+> *pde = 00000000
+> Oops: 0000
+> CPU:    0
+> EIP:    0010:[<c024fab6>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010203
+> eax: f8800000   ebx: f88000e9   ecx: 03ff810c   edx: 000006f0
+> esi: 00000f17   edi: c0203816   ebp: ecc3ff80   esp: c9cbbfbc
+> ds: 0018   es: 0018   ss: 0018
+> Process swapper (pid: 1, stackpage=c9cbb000)
+> Stack: c027f70c c024bfc0 00000000 0008e000 44000000 03ff80e9 00000024 c024c884
+>        c9cba000 c024c8c2 c0105075 00010f00 c024bfc0 c01054fc 00000000 00000078
+>        00098700
+> Call Trace: [<c0105075>] [<c01054fc>]
+> Code: 8a 04 1e 00 44 24 13 46 39 ee 72 f4 80 7c 24 13 00 74 08 53
+> 
+> >>EIP; c024fab6 <sbf_init+ee/198>   <=====
+> Trace; c0105075 <init+29/154>
+> Trace; c01054fc <kernel_thread+28/38>
+> Code;  c024fab6 <sbf_init+ee/198>
+> 00000000 <_EIP>:
+> Code;  c024fab6 <sbf_init+ee/198>   <=====
+>    0:   8a 04 1e                  mov    (%esi,%ebx,1),%al   <=====
+> Code;  c024fab9 <sbf_init+f1/198>
+>    3:   00 44 24 13               add    %al,0x13(%esp,1)
+> Code;  c024fabd <sbf_init+f5/198>
+>    7:   46                        inc    %esi
+> Code;  c024fabe <sbf_init+f6/198>
+>    8:   39 ee                     cmp    %ebp,%esi
+> Code;  c024fac0 <sbf_init+f8/198>
+>    a:   72 f4                     jb     0 <_EIP>
+> Code;  c024fac2 <sbf_init+fa/198>
+>    c:   80 7c 24 13 00            cmpb   $0x0,0x13(%esp,1)
+> Code;  c024fac7 <sbf_init+ff/198>
+>   11:   74 08                     je     1b <_EIP+0x1b> c024fad1 <sbf_init+109/198>
+> Code;  c024fac9 <sbf_init+101/198>
+>   13:   53                        push   %ebx
+
+> -

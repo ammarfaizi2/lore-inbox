@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129428AbQJ3OLS>; Mon, 30 Oct 2000 09:11:18 -0500
+	id <S129365AbQJ3ORi>; Mon, 30 Oct 2000 09:17:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129337AbQJ3OLJ>; Mon, 30 Oct 2000 09:11:09 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:49677 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S129408AbQJ3OKy>; Mon, 30 Oct 2000 09:10:54 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27077@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>
-Subject: Locking Between User Context and Soft IRQs in 2.4.0
-Date: Mon, 30 Oct 2000 06:10:44 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S129355AbQJ3ORT>; Mon, 30 Oct 2000 09:17:19 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:39477 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S129326AbQJ3ORM>; Mon, 30 Oct 2000 09:17:12 -0500
+Date: Mon, 30 Oct 2000 08:17:08 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200010301417.IAA224937@tomcat.admin.navo.hpc.mil>
+To: sweh@spuddy.mew.co.uk, pollard@cats-chateau.net
+Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x
+In-Reply-To: <200010291718.RAA19325@spuddy.mew.co.uk>
+Cc: vonbrand@sleipnir.valparaiso.cl, linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Stephen Harris <sweh@spuddy.mew.co.uk>:
+> > It was NOT ignored. If syslogd dies, then the system SHOULD stop, after a
+> 
+> Huh?  "SHOULD"?   Why?  If syslog dies for any reason (bug, DOS, hack,
+> admin stupidity) then I sure don't want the system freezing up.
 
-We are trying to port a network driver from 2.2.x to 2.4.x and have some
-question regarding locks.
-According to the kernel locking HOWTO, we have to take extra care when
-locking between user context threads and BH/tasklet/softIRQ,
-so we learned (the hard way ;-) that when running the ioctl system call from
-an application we should use spin_lock/unlock_bh() and not
-spin_lock/unlock() inside dev->do_ioctl().
+Should because this is the only audit logging facility presently available
+to Linux.
 
-*	What about the other entry points implemented in net_device ? 
-*	We've got dev->get_stats, dev->set_mac_address,
-dev->set_mutlicast_list and others that are all called from running
-'ifconfig' which is an application. Are they considered user context too ?
-*	What about dev->open and dev->stop ?
-*	We figured that dev->hard_start_xmit() and timer callbacks are not
-considered user context, but how can I find out if they are being run as
-SoftIRQ or as tasklets or as Bottom Halves ? (their different definitions
-require different types of protections)
+> ( heh...  at work on Solaris I monitor 300+ systems, and it's not unusual
+> to find 1 box a week with syslog not running for some reason or another.
+> I can't decide whether it's admin stupidity or bugs in Solaris syslog - of
+> which there are many :-(( )
 
-Our driver is actually an intermediate driver bound on top of a regular net
-driver. It behaves both as a network adapter driver and a protocol at the
-same time. I can safely assume that it will have to handle both transmits
-and receives simultaneously (no hardware interrupts are involved). We've
-decided that for the first stage we are going to implement "wide" locks that
-wrap entire operations from top to bottom. For example, our
-dev->hard_start_xmit() will have a spin_lock() at the beginning and a
-spin_unlock() at the end of the function.
-*	Will it be safe to keep the lock until after the call to the base
-driver's hard_start_xmit, or do I have to release the lock just before that
-?
-*	Or, in our receive function, will I have to release the lock before
-or after the call to netif_rx() ?
-*	What about other calls to the kernel ? can the running thread be
-switched out of context when calling kernel entries and not be switched back
-in when they finish ? should I beware of deadlocks in such case ?
+On these boxes you should be running the audit log. Which has the property
+of shutting the system down when it is aborted...
 
+> syslog is not meant to be a secure audit system.  Messages can be
+> legitimately dropped.   Applications have been coded assuming that they
+> will not be frozen in syslog().  Linux should not be different in this
+> respect.   Hmm... it might be nice to be this a system tunable parameter
+> but I'm not sure the best way of doing that (glibc maybe?)
 
-	Thanks in advance,
-	Shmulik Hen,
-      	Software Engineer
-	Linux Advanced Networking Services
-	Network Communications Group, Israel (NCGj)
-	Intel Corporation Ltd.
+The best way would be to have a true audit daemon that has the property of
+hanging/shutdown of the system. I would prefer a shutdown to single user
+mode than a hang. That way I would get a chance to examine the log/restart
+the daemon and examine the log. Even better would be a way to
+suspend/checkpoint all processing, switch to a "audit emergency" mode with
+no network activity allowed, and then examine things. It would provide an
+option to clean the system and reboot, or restart the audit daemon and
+resume multiuser mode (resuming all suspended/checkpointed processes).
 
+Once there is an audit daemon then the security messages/alerts, and only
+those messages, would be sent to it.
 
+That way syslogd is available for non-security related events, and these
+could be dropped when necessary.
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

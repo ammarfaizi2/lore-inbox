@@ -1,89 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbRBSOO5>; Mon, 19 Feb 2001 09:14:57 -0500
+	id <S130096AbRBSOQG>; Mon, 19 Feb 2001 09:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129155AbRBSOOr>; Mon, 19 Feb 2001 09:14:47 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:33018 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S129111AbRBSOOd>; Mon, 19 Feb 2001 09:14:33 -0500
-Date: Mon, 19 Feb 2001 12:27:30 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org, jdthood@yahoo.co.uk
-Subject: [PATCH] fix bad dev->refcnt in unregister_netdevice was Re: [PATCH] to deal with bad dev->refcnt in unregister_netdevice()
-Message-ID: <20010219122730.A877@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	davem@redhat.com, linux-kernel@vger.kernel.org, jdthood@yahoo.co.uk
-In-Reply-To: <20010214092251.D1144@e-trend.de> <3A8AA725.7446DEA0@ubishops.ca> <20010214165758.L28359@e-trend.de> <20010214122244.H7859@conectiva.com.br> <3A8C465D.5E2A118D@ubishops.ca>
-Mime-Version: 1.0
+	id <S130089AbRBSOP4>; Mon, 19 Feb 2001 09:15:56 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:8713 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129155AbRBSOPn>;
+	Mon, 19 Feb 2001 09:15:43 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Werner Almesberger <Werner.Almesberger@epfl.ch>,
+        "Henning P. Schmiedehausen" <hps@tanstaafl.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [LONG RANT] Re: Linux stifles innovation...
+In-Reply-To: <Pine.LNX.3.96.1010219050514.17784G-100000@mandrakesoft.mandrakesoft.com>
+From: Jes Sorensen <jes@linuxcare.com>
+Date: 19 Feb 2001 15:15:25 +0100
+In-Reply-To: Jeff Garzik's message of "Mon, 19 Feb 2001 05:07:02 -0600 (CST)"
+Message-ID: <d3r90un4hu.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <3A8C465D.5E2A118D@ubishops.ca>; from jdthood@ubishops.ca on Thu, Feb 15, 2001 at 04:13:01PM -0500
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> "Jeff" == Jeff Garzik <jgarzik@mandrakesoft.com> writes:
 
-	Found it, here's the patch, please apply. Not using auto creation
-of interfaces we're using dev_get_by_name, that does a dev_hold, on
-ipx_auto_create we're not doing it, duh 8) Tested with several
-combinhations of unpluging pcmcia card, just ifconfig eth0 down, etc
+Jeff> On Mon, 19 Feb 2001, Werner Almesberger wrote:
+>> Now what's at stake ? Look at the Windows world. Also there,
+>> companies could release their drivers as Open Source. Quick, how
+>> many do this ?  Almost none. So, given the choice, most companies
+>> have defaulted to closed source. Consistently complaining when a
+>> company tries to release only closed source drivers for Linux seems
+>> to generally have the desired effect of making them change their
+>> policy.
 
-- Arnaldo
+Jeff> FWIW, -every single- Windows driver source code I've seen has
+Jeff> been bloody awful.  Asking them to release that code would
+Jeff> probably result in embarrassment.  Same reasoning why many
+Jeff> companies won't release hardware specifications...  The internal
+Jeff> docs are bad.  Really bad.
 
---- linux-2.4.2-pre4/net/ipx/af_ipx.c	Mon Feb 19 06:00:21 2001
-+++ linux-2.4.2-pre4.acme/net/ipx/af_ipx.c	Mon Feb 19 12:15:27 2001
-@@ -1194,6 +1194,7 @@
- 		atomic_set(&intrfc->refcnt, 1);
- 		MOD_INC_USE_COUNT;
- 		ipxitf_insert(intrfc);
-+		dev_hold(dev);
- 	}
- 
- 	return intrfc;
+Trust me, commercial UNIX drivers aren't any better.
 
-
-Em Thu, Feb 15, 2001 at 04:13:01PM -0500, Thomas Hood escreveu:
-> Update on the "unregister_netdevice" bug ...
-> 
-> Arnaldo Carvalho de Melo has been valiantly trying in his
-> scarce free time to find the cause.  I haven't been able to
-> hunt effectively because I don't really understand the networking
-> code; however I have been experimenting to see what are the
-> exact conditions under which the failure occurs.  I modified
-> my kernel to print dev->refcnt in /proc/net/dev so that I
-> could see what the refcnt of eth0 is at any given moment.
-> One of the more interesting experiment logs is appended 
-> below.
-> 
-> Experimentation seems to show
-> 1) It happens when ipx is used, specifically when 
->    auto_interface=on and auto_primary=on
-> 2) It happens only or especially when using DHCP
-> 3) It happens only to PCMCIA ethernet cards
-> 
-> Thomas Hood
-> jdthood_AT_yahoo.co.uk
-> 
-> Linux 2.4.1-ac10
-> /etc/pcmcia/network disabled with an 'exit 0'
-> 
-> command                         refcnt  message
-> -------                         ------  -------
-> (boot)                               0
-> (I inserted Xircom card)             1
-> ifconfig eth0 up                     2
-> ipx_configure --auto_interface=on --auto_primary=on    2
-> ifconfig eth0 down                   0  "Freeing alive device c127ac8c, eth0"
-> cardctl eject                        ?  "unregister_netdevice: waiting for
->    eth0 to become free. Usage count = 0
->    Message from syslogd@thanatos at Wed Feb 14 12:51:26 2001 ...
->    thanatos kernel: unregister_netdevice: waiting for eth0 to become free.
->    Usage count = 0"
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Jes

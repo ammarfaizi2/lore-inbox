@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268834AbUJPUFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUJPUIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268834AbUJPUFs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Oct 2004 16:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUJPUDm
+	id S268838AbUJPUIH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Oct 2004 16:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUJPUGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Oct 2004 16:03:42 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:665 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268831AbUJPUDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Oct 2004 16:03:23 -0400
-Subject: gcc 3.4 "makes pointer from integer without a cast" warnings in
-	via-rhine-c
-From: Lee Revell <rlrevell@joe-job.com>
-To: rluethi@hellgate.ch
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1097955967.2148.12.camel@krustophenia.net>
+	Sat, 16 Oct 2004 16:06:07 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:53861 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S268831AbUJPUEY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Oct 2004 16:04:24 -0400
+Date: Sun, 17 Oct 2004 00:04:27 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dan Kegel <dank@kegel.com>, Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
+       bertrand marquis <bertrand.marquis@sysgo.com>
+Subject: Re: Building on case-insensitive systems and systems where -shared doesn't work well (was: Re: 2.6.8 link failure for sparc32 (vmlinux.lds.s: No such file or directory)?)
+Message-ID: <20041016220427.GE8765@mars.ravnborg.org>
+Mail-Followup-To: Dan Kegel <dank@kegel.com>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Martin Schaffner <schaffner@gmx.li>, Kevin Hilman <kjh@hilman.org>,
+	bertrand marquis <bertrand.marquis@sysgo.com>
+References: <414FC41B.7080102@kegel.com> <58517.194.237.142.24.1095763849.squirrel@194.237.142.24> <4164DAC9.8080701@kegel.com> <20041016210024.GB8306@mars.ravnborg.org> <20041016200627.A20488@flint.arm.linux.org.uk> <20041016212440.GA8765@mars.ravnborg.org> <20041016204001.B20488@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 16 Oct 2004 15:46:07 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041016204001.B20488@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get these warnings compiling via-rhine with gcc 3.4.  What is the
-correct way to fix this?  This came up in another thread and someone
-mentioned that just adding a cast is not a "real fix" but just hides the
-problem.
+On Sat, Oct 16, 2004 at 08:40:01PM +0100, Russell King wrote:
+> On Sat, Oct 16, 2004 at 11:24:40PM +0200, Sam Ravnborg wrote:
+> > On Sat, Oct 16, 2004 at 08:06:27PM +0100, Russell King wrote:
+> > > 
+> > > Converting .S -> .s is useful for debugging - please don't cripple the
+> > > kernel developers just because some filesystems are case-challenged.
+> > 
+> > Does the debug tools rely on files named *.s then?
+> > 
+> > There are today ~1400 files named *.S in the tree, but none named *.s.
+> > So my idea was to do it like:
+> > *.S => *.asm => *.o
+> > But if this breaks some debugging tools I would like to know.
+> 
+> *.asm is nonstanard naming.  If we have to support case-challenged
+> filesystems, please ensure that the rest of the nonbroken world can
+> continue as they have done for the last few decades and live happily
+> unaffected by these problems.
 
-drivers/net/via-rhine.c: In function `get_intr_status':
-drivers/net/via-rhine.c:536: warning: passing arg 1 of `readw' makes pointer from integer without a cast
-drivers/net/via-rhine.c:539: warning: passing arg 1 of `readb' makes pointer from integer without a cast
-drivers/net/via-rhine.c: In function `rhine_power_init':
-drivers/net/via-rhine.c:555: warning: passing arg 1 of `readb' makes pointer from integer without a cast
-drivers/net/via-rhine.c:555: warning: passing arg 2 of `writeb' makes pointer from integer without a cast
-drivers/net/via-rhine.c:558: warning: passing arg 2 of `writeb' makes pointer from integer without a cast
+I still do not see how a kernel developer are affected by changing
+the extension of an intermidiate file - please explain.
 
-etc
-
-Lee
-
+	Sam

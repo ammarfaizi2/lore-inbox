@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUEIDyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264270AbUEID4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbUEIDyO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 23:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUEIDyO
+	id S264270AbUEID4B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 23:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbUEIDz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 23:54:14 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18655 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264265AbUEIDyM (ORCPT
+	Sat, 8 May 2004 23:55:56 -0400
+Received: from duke.cs.duke.edu ([152.3.140.1]:46796 "EHLO duke.cs.duke.edu")
+	by vger.kernel.org with ESMTP id S264268AbUEIDzm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 23:54:12 -0400
-Date: Sat, 8 May 2004 20:53:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@osdl.org, dipankar@in.ibm.com, manfred@colorfullife.com,
-       davej@redhat.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
-       maneesh@in.ibm.com
-Subject: Re: dentry bloat.
-In-Reply-To: <20040508201215.24f0d239.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0405082039510.1592@ppc970.osdl.org>
-References: <409B1511.6010500@colorfullife.com> <20040508012357.3559fb6e.akpm@osdl.org>
- <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org>
- <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org>
- <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org>
- <Pine.LNX.4.58.0405081216510.3271@ppc970.osdl.org> <20040508204239.GB6383@in.ibm.com>
- <20040508135512.15f2bfec.akpm@osdl.org> <20040508211920.GD4007@in.ibm.com>
- <20040508171027.6e469f70.akpm@osdl.org> <Pine.LNX.4.58.0405081947290.1592@ppc970.osdl.org>
- <20040508201215.24f0d239.davem@redhat.com>
+	Sat, 8 May 2004 23:55:42 -0400
+Date: Sat, 8 May 2004 23:55:39 -0400 (EDT)
+From: Patrick Reynolds <reynolds@cs.duke.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Synaptics touchpad jumpy under 2.6.2+
+Message-ID: <Pine.GSO.4.58.0405082305520.17603@shekel.cs.duke.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The Synaptics touchpad on my Asus M5N laptop is jumpy (sampling ~3 times
+per second or less) under Linux 2.6.2, but it works fine under 2.6.1.  I
+have also tried 2.6.5, and the problem persists.  In all cases, the
+kernels are straight from kernel.org with no extra patches.
 
+The kernel identifies my touchpad like so:
 
-On Sat, 8 May 2004, David S. Miller wrote:
-> 
-> FWIW this patch does not change the dentry size on sparc64.
-> It's 256 bytes both before and after.  But of course the
-> inline string length is larger.
+   Synaptics Touchpad, model: 1
+    Firmware: 5.9
+    Sensor: 17
+    new absolute packet format
+    Touchpad has extended capability bits
+    -> multifinger detection
+    -> palm detection
+   input: SynPS/2 Synaptics TouchPad on isa0060/serio1
 
-Yup. I tested it on ppc64, that was part of the reason for the increase in 
-the inline string size ("reclaim the lost space" rather than "make the 
-dentry shrink from 256 bytes to 248 bytes").
+The problem shows up in both gpm (1.19.6) and XFree86 (4.3.0.1 with the
+Synaptics driver 0.13.0).  It even shows up if I 'cat /dev/input/event0',
+which produces 3-4 events per second under 2.6.2 and 75-80 events per
+second under 2.6.1.
 
-That shows how broken the old setup was, btw: on 64-bit architectures, the 
-old code resulted in the inline string size being 16 bytes, while on a P4 
-it would be something like 120 bytes. That makes no sense.
+The touchpad problems seem to "spill over" to the keyboard.  When I touch
+the touchpad at all, the keyboard becomes unresponsive for a second or
+two.  If I don't use the touchpad, the keyboard is fine.
 
-Btw, the cacheline alignment was actually likely to guarantee the 
-_worst_ possible cache behaviour on a P4: the fields we access on lookup 
-are:
+The keyboard and touchpad are both built in, i8042 devices.
 
- - d_hash	(pointer *2)
- - d_bucket	(pointer)
- - d_move_count	(unsigned long)
- - d_name.hash	(part of a struct with 1 pointer + 2 ints)
- - d_parent	(pointer)
+I tried adding 'i8042.nomux' to the kernel command line.  It didn't make a
+difference for me.
 
-and they were all close together, but I think "d_bucket" was guaranteed to 
-be in another cacheline exactly because of the thing always being aligned. 
-So removing the alignment is likely to cause more of the lookups to only 
-need one cacheline instead of two like it was before.
+I #define'd DEBUG in i8042.c.  Here's the resulting dmesg:
+  http://www.cs.duke.edu/~reynolds/dmesg.txt
 
-I think. Maybe I counted the offsets wrong.
+Does anyone have any suggestions?  Any idea what changed in 2.6.2 that
+disagrees with my touchpad?
 
-		Linus
+--Patrick

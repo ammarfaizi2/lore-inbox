@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318807AbSHBL4R>; Fri, 2 Aug 2002 07:56:17 -0400
+	id <S318797AbSHBL5c>; Fri, 2 Aug 2002 07:57:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318809AbSHBL4Q>; Fri, 2 Aug 2002 07:56:16 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:14217 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318807AbSHBL4Q>;
-	Fri, 2 Aug 2002 07:56:16 -0400
-Date: Fri, 2 Aug 2002 13:59:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: martin@dalecki.de
-Cc: Stephen Lord <lord@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A new ide warning message
-Message-ID: <20020802115940.GF1055@suse.de>
-References: <1028288066.1123.5.camel@laptop.americas.sgi.com> <3D4A6F43.4010908@evision.ag> <20020802115321.GE1055@suse.de>
+	id <S318803AbSHBL5c>; Fri, 2 Aug 2002 07:57:32 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31990 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318797AbSHBL5a>; Fri, 2 Aug 2002 07:57:30 -0400
+Subject: Re: Console scrolling in kernel 2.4.xx
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Knigge <Michael.Knigge@set-software.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020802.11011405@knigge.local.net>
+References: <20020802.11011405@knigge.local.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 02 Aug 2002 14:17:46 +0100
+Message-Id: <1028294266.18317.67.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020802115321.GE1055@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 02 2002, Jens Axboe wrote:
-> On Fri, Aug 02 2002, Marcin Dalecki wrote:
-> > U?ytkownik Stephen Lord napisa?:
-> > >In 2.5.30 I started getting these warning messages out ide during
-> > >the mount of an XFS filesystem:
-> > >
-> > >ide-dma: received 1 phys segments, build 2
-> > >
-> > >Can anyone translate that into English please.
-> > 
-> > It can be found in pcidma.c.
-> > It is repoting that we have one physical segment needed by
-> > the request in question but the sctter gather list allocation
-> > needed to break it up for mapping in two.
-> 
-> You don't seem to realise that this is a BUG (somewhere, could even be
-> in the generic mapping functions)! blk_rq_map_sg() must never map a
-> request to more entries that rq->nr_segments, that's just very wrong.
-> 
-> That's why I'm suspecting the recent pcidma changes. Just a feeling, I
-> have not looked at them.
+On Fri, 2002-08-02 at 12:01, Michael Knigge wrote:
+> With Linux 2.2.xxx there are no problems, but with Kernels 2.4.xx 
+> scrolling doesn't work :-((((
 
-I'll take that back. Having looked at Adam's changes there are perfectly
-fine. I'm now putting my money on IDE breakage somewhere instead. It
-would be interesting to dump request state when this happens. Stephen,
-can you reproduce this at will?
+That sounds like you may have very old VSA1 firmware in the BIOS. Does
+it behave if you enable the VESA console and boot with a vesa bios
+framebuffer set ?
 
--- 
-Jens Axboe
 

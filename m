@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVCDINb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262642AbVCDIPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVCDINb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 03:13:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVCDINb
+	id S262642AbVCDIPb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 03:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVCDIPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 03:13:31 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5050 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262163AbVCDIL3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 03:11:29 -0500
-Date: Fri, 4 Mar 2005 00:11:03 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: jochen@tolot.escape.de, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-Id: <20050304001103.195012a6.akpm@osdl.org>
-In-Reply-To: <42281465.6070605@pobox.com>
-References: <20050302205826.523b9144.davem@davemloft.net>
-	<4226C235.1070609@pobox.com>
-	<20050303080459.GA29235@kroah.com>
-	<4226CA7E.4090905@pobox.com>
-	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
-	<422751C1.7030607@pobox.com>
-	<20050303181122.GB12103@kroah.com>
-	<20050303151752.00527ae7.akpm@osdl.org>
-	<20050303234523.GS8880@opteron.random>
-	<20050303160330.5db86db7.akpm@osdl.org>
-	<20050304025746.GD26085@tolot.miese-zwerge.org>
-	<20050303213005.59a30ae6.akpm@osdl.org>
-	<42281465.6070605@pobox.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Mar 2005 03:15:31 -0500
+Received: from ip22-176.tor.istop.com ([66.11.176.22]:10646 "EHLO
+	lapdance.christiehouse.net") by vger.kernel.org with ESMTP
+	id S262619AbVCDIOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 03:14:19 -0500
+Message-ID: <422817C3.2010307@waychison.com>
+Date: Fri, 04 Mar 2005 03:09:39 -0500
+From: Mike Waychison <mike@waychison.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] unexport complete_all
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
->
-> Andrew Morton wrote:
->  > It won't help that at all.  None of these proposals will increase testing
->  > of tip-of-tree.  In fact the 2.6.x proposal may decrease that level of
->  > that testing, although probably not much.
+> I didn't find any possible modular usage in the kernel.
 > 
->  Giving humans a well-known point where bugfixes-only mode starts would 
->  help.  Such as the -pre/-rc split does in 2.4.x.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.11-rc5-mm1-full/kernel/sched.c.old	2005-03-04 01:04:28.000000000 +0100
+> +++ linux-2.6.11-rc5-mm1-full/kernel/sched.c	2005-03-04 01:04:34.000000000 +0100
+> @@ -3053,7 +3053,6 @@
+>  			 0, 0, NULL);
+>  	spin_unlock_irqrestore(&x->wait.lock, flags);
+>  }
+> -EXPORT_SYMBOL(complete_all);
+>  
+>  void fastcall __sched wait_for_completion(struct completion *x)
+>  {
+> -
 
-Yup, sure.  I agree that we should be using Marcelo methodology on 2.6.x
-release numbering.  Last time I mentioned it to Linus I didn't understand
-the reply ;)
+This is a valid piece of API that is exported for future use.
 
+Please stop blindly posting patches for unexports that make the APIs
+half available.
 
+--
+Mike Waychison

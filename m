@@ -1,55 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265097AbTFCQrR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 12:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbTFCQrQ
+	id S265100AbTFCQrp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 12:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbTFCQro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 12:47:16 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:49161 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S265097AbTFCQrP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 12:47:15 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Michael Frank <mflt1@micrologica.com.hk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Marc Wilson <msw@cox.net>
-Subject: Re: Linux 2.4.21-rc6
-Date: Tue, 3 Jun 2003 18:59:59 +0200
-User-Agent: KMail/1.5.2
-Cc: lkml <linux-kernel@vger.kernel.org>
-References: <20030529052425.GA1566@moonkingdom.net> <Pine.LNX.4.55L.0306031302310.3892@freak.distro.conectiva> <200306040030.27640.mflt1@micrologica.com.hk>
-In-Reply-To: <200306040030.27640.mflt1@micrologica.com.hk>
+	Tue, 3 Jun 2003 12:47:44 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:3313 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265100AbTFCQrj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 12:47:39 -0400
+Date: Tue, 03 Jun 2003 09:49:58 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 770] New: usbaudio does not compile
+Message-ID: <113000000.1054658998@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200306031859.59197.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 03 June 2003 18:30, Michael Frank wrote:
+http://bugme.osdl.org/show_bug.cgi?id=770
 
-Hi Michael,
+           Summary: usbaudio does not compile
+    Kernel Version: 2.5.70-bk8
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: a.akhavan@ndr.de
 
-> > Ok, so you can reproduce the hangs reliably EVEN with -rc6, Marc?
-> -rc6 is better - comparable to 2.4.18 in what I have seen with my script.
-> After the long obscure problems since 2.4.19x, -rc6 could use serious
-> stress-testing.
-> User level testing is not sufficient here - it's just like playing
-> roulette.
-> By serious stress-testing I mean:
-> Everone testing comes up with  one dedicated "tough test"
-> which _must_ be reproducible (program, script) along his line of
-> expertise/application.
 
-well, very easy one:
+Distribution: SuSE 8.2
+Hardware Environment: Acer Travelmate 800 LCi
+Software Environment: gcc 3.3
+Problem Description: usbaudio does not compile on 2.5.70-bk8
+(I've skipped a few snapshots, so it might have been introduced at > 2.5.70-bk5)
+It used to compile before. 
 
-dd if=/dev/zero of=/home/largefile bs=16384 count=131072
+Error-log:
+In file included from sound/usb/usbaudio.c:35:
+include/linux/usb.h: In function `usb_make_path':
+include/linux/usb.h:327: warning: comparison between signed and unsigned
+sound/usb/usbaudio.c: In function `parse_audio_format_i_type':
+sound/usb/usbaudio.c:1947: error: `iface_no' undeclared (first use in this function)
+sound/usb/usbaudio.c:1947: error: (Each undeclared identifier is reported only once
+sound/usb/usbaudio.c:1947: error: for each function it appears in.)
+sound/usb/usbaudio.c:1947: error: `altno' undeclared (first use in this function)
+sound/usb/usbaudio.c: In function `parse_audio_endpoints':
+sound/usb/usbaudio.c:2172: warning: comparison between signed and unsigned
+sound/usb/usbaudio.c: In function `snd_usb_audio_create':
+sound/usb/usbaudio.c:2582: warning: comparison between signed and unsigned
+make[2]: *** [sound/usb/usbaudio.o] Error 1
+make[1]: *** [sound/usb] Error 2
+make: *** [sound] Error 2
 
-then use your mouse, your apps, switch between them, use them, _w/o_ pauses, 
-delay, stops or kinda that. If _that_ will work flawlessly for everyone, then 
-it is fixed, if not, it _needs_ to be fixed.
 
-ciao, Marc
+Steps to reproduce:
+Pentium M + Centrino / ACPI / usb
+
+
+CONFIG_SOUND=m
+
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_DETECT=y
+
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+
+CONFIG_SND_ALI5451=m
+CONFIG_SND_EMU10K1=m
+CONFIG_SND_YMFPCI=m
+CONFIG_SND_ENS1370=m
+CONFIG_SND_ENS1371=m
+CONFIG_SND_INTEL8X0=m
+CONFIG_SND_SONICVIBES=m
+CONFIG_SND_VIA82XX=m
+
+CONFIG_SND_USB_AUDIO=m
+
+
+CONFIG_SOUND_PRIME=m
+CONFIG_SOUND_BT878=m
+CONFIG_SOUND_ICH=m
+CONFIG_SOUND_VIA82CXXX=m
+CONFIG_SOUND_OSS=m
+CONFIG_SOUND_TRACEINIT=y
+CONFIG_SOUND_DMAP=y
+
+CONFIG_USB=m
+
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+
+CONFIG_USB_AUDIO=m
+CONFIG_USB_MIDI=m
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DATAFAB=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_ISD200=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_STORAGE_SDDR09=y
+CONFIG_USB_STORAGE_SDDR55=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
+
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+
+CONFIG_USB_AIPTEK=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_KBTAB=m
+
 

@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVBDAkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVBDAlC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbVBDAkm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVBDAkl
+	id S262824AbVBDAlC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:41:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbVBDAlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:40:41 -0500
-Received: from hera.kernel.org ([209.128.68.125]:17368 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S263319AbVBDAhr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:37:47 -0500
+	Thu, 3 Feb 2005 19:41:01 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:34176 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S263307AbVBDAhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:37:43 -0500
+Subject: [Patch] fix an error in /proc/slabinfo print
+From: Zou Nan hai <nanhai.zou@intel.com>
 To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: [patch 1/1] fix syscallN() macro errno value checking for i386
-Date: Fri, 4 Feb 2005 00:36:43 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <ctug2r$rjc$1@terminus.zytor.com>
-References: <20050129010145.1C42F8C9E4@zion> <200501301800.22706.arnd@arndb.de> <5a2cf1f605013010305f8270de@mail.gmail.com>
+Cc: akpm@osdl.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1107472220.2555.40.camel@linux-znh>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1107477403 28269 127.0.0.1 (4 Feb 2005 00:36:43 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 4 Feb 2005 00:36:43 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 04 Feb 2005 07:10:20 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <5a2cf1f605013010305f8270de@mail.gmail.com>
-By author:    jerome lacoste <jerome.lacoste@gmail.com>
-In newsgroup: linux.dev.kernel
-> 
-> what about something along?
-> 
-> #define EKEYNEXT    130     /* key counter */
-> 
-> and 
-> 
->  if ((unsigned long)(res) >= (unsigned long)(-EKEYNEXT)) {
-> 
+There is an obvious error in the header of /proc/slabinfo
 
-What you really need is EMAX.
+Signed-off-by: Zou Nan hai <nanhai.zou@intel.com>
 
-	-hpa
+--- linux-2.6.11-rc3/mm/slab.c	2005-02-03 13:29:33.000000000 +0800
++++ linux-2.6.11-rc3-fix/mm/slab.c	2005-02-03 13:32:42.318821400 +0800
+@@ -2860,7 +2860,7 @@ static void *s_start(struct seq_file *m,
+ 		seq_puts(m, "slabinfo - version: 2.1\n");
+ #endif
+ 		seq_puts(m, "# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab>");
+-		seq_puts(m, " : tunables <batchcount> <limit> <sharedfactor>");
++		seq_puts(m, " : tunables <limit> <batchcount> <sharedfactor>");
+ 		seq_puts(m, " : slabdata <active_slabs> <num_slabs> <sharedavail>");
+ #if STATS
+ 		seq_puts(m, " : globalstat <listallocs> <maxobjs> <grown> <reaped>"
+
+
+

@@ -1,47 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVBHQSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVBHQR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVBHQSU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 11:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVBHQST
+	id S261564AbVBHQR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 11:17:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVBHQQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 11:18:19 -0500
-Received: from jade.aracnet.com ([216.99.193.136]:38560 "EHLO
-	jade.spiritone.com") by vger.kernel.org with ESMTP id S261559AbVBHQQC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 11:16:02 -0500
-Date: Tue, 08 Feb 2005 08:15:02 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Matthew Dobson <colpatch@us.ibm.com>, Paul Jackson <pj@sgi.com>,
-       pwil3058@bigpond.net.au, frankeh@watson.ibm.com, dipankar@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
-       efocht@hpce.nec.com, LSE Tech <lse-tech@lists.sourceforge.net>,
-       hch@infradead.org, steiner@sgi.com, Jesse Barnes <jbarnes@sgi.com>,
-       sylvain.jeaugey@bull.net, djh@sgi.com,
-       LKML <linux-kernel@vger.kernel.org>, Simon.Derr@bull.net,
-       Andi Kleen <ak@suse.de>, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-ID: <44870000.1107879300@[10.10.2.4]>
-In-Reply-To: <420800F5.9070504@us.ibm.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>	 <20040805190500.3c8fb361.pj@sgi.com><247790000.1091762644@[10.10.2.4]>	 <200408061730.06175.efocht@hpce.nec.com>	<20040806231013.2b6c44df.pj@sgi.com> <411685D6.5040405@watson.ibm.com>	<20041001164118.45b75e17.akpm@osdl.org> <20041001230644.39b551af.pj@sgi.com>	<20041002145521.GA8868@in.ibm.com> <415ED3E3.6050008@watson.ibm.com>	<415F37F9.6060002@bigpond.net.au> <821020000.1096814205@[10.10.2.4]>	 <20041003083936.7c844ec3.pj@sgi.com> <834330000.1096847619@[10.10.2.4]> <1097014749.4065.48.camel@arrakis> <420800F5.9070504@us.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 8 Feb 2005 11:16:00 -0500
+Received: from vds-320151.amen-pro.com ([62.193.204.86]:49099 "EHLO
+	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
+	id S261573AbVBHQPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 11:15:03 -0500
+Subject: [PATCH] New sys_chmod() hook for the LSM framework
+From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-security-module@wirex.com" <linux-security-module@wirex.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+YdP7z6PBrYZghRwHwKV"
+Date: Tue, 08 Feb 2005 17:14:35 +0100
+Message-Id: <1107879275.3754.279.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Sorry to reply a long quiet thread, but I've been trading emails with 
-> Paul Jackson on this subject recently, and I've been unable to convince 
-> either him or myself that merging CPUSETs and CKRM is as easy as I once 
-> believed.  I'm still convinced the CPU side is doable, but I haven't 
-> managed as much success with the memory binding side of CPUSETs.  
 
-Can you describe what the difficulty is with the mem binding side?
+--=-+YdP7z6PBrYZghRwHwKV
+Content-Type: multipart/mixed; boundary="=-oFF48iPDxCwcLZTBfb3U"
 
-Thanks,
 
-M.
+--=-oFF48iPDxCwcLZTBfb3U
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-PS. If you could also make your mailer line-wrap, that'd be splendid ;-)
+Hi,
+
+As commented yesterday, I was going to release a few more hooks for some
+*critical* syscalls, this one adds a hook to sys_chmod(), and makes us
+able to apply checks and logics before releasing the operation to
+sys_chmod().
+
+The main goal is to provide a simple way to handle chmod() calls and
+apply security restrictions & checks to them, and also add add auditing
+capabilities (ie.: log chmod() calls in chroot()'ed environments, etc).
+
+Patch attached and available at:
+http://pearls.tuxedo-es.org/patches/sys_chmod_lsm-hook-2.6.11-rc3.patch
+
+I would like to see this merged, Chris should decide :)
+
+An user of this will be, as commented in my past emails, vSecurity 0.2
+release, and any other LSM module that wants to have control over
+chmod()'ing.
+
+I will make available another hook for sys_fchmod() ASAP.
+
+Cheers and thanks in advance,
+--=20
+Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org>=20
+[1024D/6F2B2DEC] & [2048g/9AE91A22][http://tuxedo-es.org]
+
+--=-oFF48iPDxCwcLZTBfb3U
+Content-Disposition: attachment; filename=sys_chmod_lsm-hook-2.6.11-rc3.patch
+Content-Transfer-Encoding: base64
+Content-Type: text/x-patch; name=sys_chmod_lsm-hook-2.6.11-rc3.patch;
+	charset=ISO-8859-1
+
+ZGlmZiAtTnVyIGxpbnV4LTIuNi4xMS1yYzMvZnMvb3Blbi5jIGxpbnV4LTIuNi4xMS1yYzMuY2ht
+L2ZzL29wZW4uYw0KLS0tIGxpbnV4LTIuNi4xMS1yYzMvZnMvb3Blbi5jCTIwMDUtMDItMDYgMjE6
+NDA6NDAuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi42LjExLXJjMy5jaG0vZnMvb3Blbi5j
+CTIwMDUtMDItMDggMTY6MTA6MDkuOTAxMjkzNTYwICswMTAwDQpAQCAtNjUwLDYgKzY1MCwxMSBA
+QA0KIAlkb3duKCZpbm9kZS0+aV9zZW0pOw0KIAlpZiAobW9kZSA9PSAobW9kZV90KSAtMSkNCiAJ
+CW1vZGUgPSBpbm9kZS0+aV9tb2RlOw0KKwkJDQorCWVycm9yID0gc2VjdXJpdHlfY2htb2QoJm5k
+LCBpbm9kZSwgbW9kZSk7DQorCWlmIChlcnJvcikNCisJCWdvdG8gZHB1dF9hbmRfb3V0OwkNCisJ
+DQogCW5ld2F0dHJzLmlhX21vZGUgPSAobW9kZSAmIFNfSUFMTFVHTykgfCAoaW5vZGUtPmlfbW9k
+ZSAmIH5TX0lBTExVR08pOw0KIAluZXdhdHRycy5pYV92YWxpZCA9IEFUVFJfTU9ERSB8IEFUVFJf
+Q1RJTUU7DQogCWVycm9yID0gbm90aWZ5X2NoYW5nZShuZC5kZW50cnksICZuZXdhdHRycyk7DQpk
+aWZmIC1OdXIgbGludXgtMi42LjExLXJjMy9pbmNsdWRlL2xpbnV4L3NlY3VyaXR5LmggbGludXgt
+Mi42LjExLXJjMy5jaG0vaW5jbHVkZS9saW51eC9zZWN1cml0eS5oDQotLS0gbGludXgtMi42LjEx
+LXJjMy9pbmNsdWRlL2xpbnV4L3NlY3VyaXR5LmgJMjAwNS0wMi0wNiAyMTo0MDoyNy4wMDAwMDAw
+MDAgKzAxMDANCisrKyBsaW51eC0yLjYuMTEtcmMzLmNobS9pbmNsdWRlL2xpbnV4L3NlY3VyaXR5
+LmgJMjAwNS0wMi0wOCAxNjoxMDozNy42NzAwNzIwNjQgKzAxMDANCkBAIC0xMDA4LDYgKzEwMDgs
+MTIgQEANCiAgKglAdHMgY29udGFpbnMgbmV3IHRpbWUNCiAgKglAdHogY29udGFpbnMgbmV3IHRp
+bWV6b25lDQogICoJUmV0dXJuIDAgaWYgcGVybWlzc2lvbiBpcyBncmFudGVkLg0KKyAqIEBjaG1v
+ZDoNCisgKglDaGVjayBwZXJtaXNzaW9uIGJlZm9yZSBjaGFuZ2luZyBmaWxlIG1vZGVzIGJ5IHN5
+c19jaG1vZCgpLg0KKyAqCUBuZCBjb250YWlucyB0aGUgbmFtZWlkYXRhIHN0cnVjdC4NCisgKglA
+aW5vZGUgY29udGFpbnMgdGhlIGlub2RlIHN0cnVjdC4NCisgKglAbW9kZSBjb250YWlucyB0aGUg
+bW9kZSB2YWx1ZS4NCisgKglSZXR1cm4gMCBpZiBwZXJtaXNzaW9uIGlzIGdyYW50ZWQuDQogICog
+QHZtX2Vub3VnaF9tZW1vcnk6DQogICoJQ2hlY2sgcGVybWlzc2lvbnMgZm9yIGFsbG9jYXRpbmcg
+YSBuZXcgdmlydHVhbCBtYXBwaW5nLg0KICAqICAgICAgQHBhZ2VzIGNvbnRhaW5zIHRoZSBudW1i
+ZXIgb2YgcGFnZXMuDQpAQCAtMTA0NCw2ICsxMDUwLDcgQEANCiAJaW50ICgqcXVvdGFfb24pIChz
+dHJ1Y3QgZGVudHJ5ICogZGVudHJ5KTsNCiAJaW50ICgqc3lzbG9nKSAoaW50IHR5cGUpOw0KIAlp
+bnQgKCpzZXR0aW1lKSAoc3RydWN0IHRpbWVzcGVjICp0cywgc3RydWN0IHRpbWV6b25lICp0eik7
+DQorCWludCAoKmNobW9kKSAoc3RydWN0IG5hbWVpZGF0YSAqbmQsIHN0cnVjdCBpbm9kZSAqaW5v
+ZGUsIG1vZGVfdCBtb2RlKTsNCiAJaW50ICgqdm1fZW5vdWdoX21lbW9yeSkgKGxvbmcgcGFnZXMp
+Ow0KIA0KIAlpbnQgKCpicHJtX2FsbG9jX3NlY3VyaXR5KSAoc3RydWN0IGxpbnV4X2JpbnBybSAq
+IGJwcm0pOw0KQEAgLTEzMDQsNiArMTMxMSwxMCBAQA0KIAlyZXR1cm4gc2VjdXJpdHlfb3BzLT5z
+ZXR0aW1lKHRzLCB0eik7DQogfQ0KIA0KK3N0YXRpYyBpbmxpbmUgaW50IHNlY3VyaXR5X2NobW9k
+KHN0cnVjdCBuYW1laWRhdGEgKm5kLCBzdHJ1Y3QgaW5vZGUgKmlub2RlLCBtb2RlX3QgbW9kZSkN
+Cit7DQorCXJldHVybiBzZWN1cml0eV9vcHMtPmNobW9kKG5kLCBpbm9kZSwgbW9kZSk7DQorfQ0K
+IA0KIHN0YXRpYyBpbmxpbmUgaW50IHNlY3VyaXR5X3ZtX2Vub3VnaF9tZW1vcnkobG9uZyBwYWdl
+cykNCiB7DQpAQCAtMTk4Niw2ICsxOTk3LDExIEBADQogCXJldHVybiBjYXBfc2V0dGltZSh0cywg
+dHopOw0KIH0NCiANCitzdGF0aWMgaW5saW5lIGludCBzZWN1cml0eV9jaG1vZChzdHJ1Y3QgbmFt
+ZWlkYXRhICpuZCwgc3RydWN0IGlub2RlICppbm9kZSwgbW9kZV90IG1vZGUpDQorew0KKwlyZXR1
+cm4gMDsNCit9DQorDQogc3RhdGljIGlubGluZSBpbnQgc2VjdXJpdHlfdm1fZW5vdWdoX21lbW9y
+eShsb25nIHBhZ2VzKQ0KIHsNCiAJcmV0dXJuIGNhcF92bV9lbm91Z2hfbWVtb3J5KHBhZ2VzKTsN
+CmRpZmYgLU51ciBsaW51eC0yLjYuMTEtcmMzL3NlY3VyaXR5L2R1bW15LmMgbGludXgtMi42LjEx
+LXJjMy5jaG0vc2VjdXJpdHkvZHVtbXkuYw0KLS0tIGxpbnV4LTIuNi4xMS1yYzMvc2VjdXJpdHkv
+ZHVtbXkuYwkyMDA1LTAyLTA2IDIxOjQwOjU3LjAwMDAwMDAwMCArMDEwMA0KKysrIGxpbnV4LTIu
+Ni4xMS1yYzMuY2htL3NlY3VyaXR5L2R1bW15LmMJMjAwNS0wMi0wOCAxNTo1ODoyNi4wMDAwMDAw
+MDAgKzAxMDANCkBAIC0xMDgsNiArMTA4LDExIEBADQogCXJldHVybiAwOw0KIH0NCiANCitzdGF0
+aWMgaW50IGR1bW15X2NobW9kKHN0cnVjdCBuYW1laWRhdGEgKm5kLCBzdHJ1Y3QgaW5vZGUgKmlu
+b2RlLCBtb2RlX3QgbW9kZSkNCit7DQorCXJldHVybiAwOw0KK30NCisNCiBzdGF0aWMgaW50IGR1
+bW15X3ZtX2Vub3VnaF9tZW1vcnkobG9uZyBwYWdlcykNCiB7DQogCWludCBjYXBfc3lzX2FkbWlu
+ID0gMDsNCkBAIC04NTgsNiArODYzLDcgQEANCiAJc2V0X3RvX2R1bW15X2lmX251bGwob3BzLCBz
+eXNjdGwpOw0KIAlzZXRfdG9fZHVtbXlfaWZfbnVsbChvcHMsIHN5c2xvZyk7DQogCXNldF90b19k
+dW1teV9pZl9udWxsKG9wcywgc2V0dGltZSk7DQorCXNldF90b19kdW1teV9pZl9udWxsKG9wcywg
+Y2htb2QpOw0KIAlzZXRfdG9fZHVtbXlfaWZfbnVsbChvcHMsIHZtX2Vub3VnaF9tZW1vcnkpOw0K
+IAlzZXRfdG9fZHVtbXlfaWZfbnVsbChvcHMsIGJwcm1fYWxsb2Nfc2VjdXJpdHkpOw0KIAlzZXRf
+dG9fZHVtbXlfaWZfbnVsbChvcHMsIGJwcm1fZnJlZV9zZWN1cml0eSk7DQo=
+
+
+--=-oFF48iPDxCwcLZTBfb3U--
+
+--=-+YdP7z6PBrYZghRwHwKV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCCOVrDcEopW8rLewRArzwAKDiHiuVAgGBP1XZ/xgZxmq9w076QgCg4bQO
+TKRvzkwpJdcYqG4xIJVNECw=
+=5e2Q
+-----END PGP SIGNATURE-----
+
+--=-+YdP7z6PBrYZghRwHwKV--
 

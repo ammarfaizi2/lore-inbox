@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267823AbTBROVM>; Tue, 18 Feb 2003 09:21:12 -0500
+	id <S267808AbTBROTQ>; Tue, 18 Feb 2003 09:19:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267826AbTBROVL>; Tue, 18 Feb 2003 09:21:11 -0500
-Received: from [207.61.129.108] ([207.61.129.108]:19097 "EHLO
-	mail.datawire.net") by vger.kernel.org with ESMTP
-	id <S267823AbTBROVK>; Tue, 18 Feb 2003 09:21:10 -0500
-From: Shawn Starr <shawn.starr@datawire.net>
-Organization: Datawire Communication Networks Inc.
-To: "Russell King" <rmk@www.linux.org.uk>
-Subject: [BUG][2.5.xx][SERIAL] Bogus output from serial driver detection
-Date: Tue, 18 Feb 2003 09:32:49 -0500
-User-Agent: KMail/1.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S267821AbTBROTQ>; Tue, 18 Feb 2003 09:19:16 -0500
+Received: from tag.witbe.net ([81.88.96.48]:34063 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S267808AbTBROTP>;
+	Tue, 18 Feb 2003 09:19:15 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Recovering .config from vmlinuz and System.map
+Date: Tue, 18 Feb 2003 15:29:16 +0100
+Message-ID: <012a01c2d75a$1d7b8d20$3f00a8c0@witbe>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302180932.49685.shawn.starr@datawire.net>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From dmesg:
+Hello,
 
-serial: 8250/16550 driver $Revision: 1.90 $ IRQ sharing enabled
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-pnp: the driver 'serial' has been registered
-pnp: match found with the PnP device '00:12' and the driver 'serial'
-pnp: res: the device '00:12' has been activated.
-ttyS0 at I/O 0x3f8 (irq = 3) is a 16550A
-pnp: match found with the PnP device '00:13' and the driver 'serial'
-pnp: match found with the PnP device '01:02.00' and the driver 'serial'
-pnp: res: the device '01:02.00' has been activated.
-ttyS2 at I/O 0x3e8 (irq = 4) is a 16550A
+I've a box running a linux 2.4.18-14 (RH stuff), for which I've lost
+the .config file...
 
-Notice ttyS1 and ttyS0 are both reporting irq 3. This is impossible because 
-IBM's BIOS refuses to let me share IRQ's with serial ports. This is also 
-causing a problem with the ISA PnP modem which apparently doesn't have an IRQ 
-that it can use because of this.
+I've gone through a long .config recovery process by looking at the
+entries in System.map, changing the configuration, building the kernel,
+diffing the new System.map with the reference one, again and again.
 
-Shawn.
+The diff process was done only on the symbol names and the last diff
+states :
+diff -urN System.map-9 System.map-2.4.18-sound | less
+--- System.map-9        Tue Feb 18 13:36:33 2003
++++ System.map-2.4.18-sound     Tue Feb 18 09:47:47 2003
+@@ -10776,6 +10776,7 @@
+ d __setup_str_console_setup
+ d __setup_str_reserve_setup
+ d startup.0
++d configs
+ d zone_balance_ratio
+ d zone_balance_min
+ d zone_balance_max
 
--- 
-Shawn Starr
-UNIX Systems Administrator, Operations
-Datawire Communication Networks Inc.
-10 Carlson Court, Suite 300
-Toronto, ON, M9W 6L2
-T: 416-213-2001 ext 179  F: 416-213-2008
-shawn.starr@datawire.net
-"The power to Transact" - http://www.datawire.net
+Could someone direct me to where is located this "configs" stuff
+that I can't find ?
+
+Second question : the addresses in front of the symbols don't match
+(except for the first ones)... I'm using the same kernel tree, the
+same compiler... Any idea ? First diff is :
+--- /usr/src/linux/System.map   Tue Feb 18 14:12:14 2003
++++ /boot/System.map-2.4.18-sound       Wed Nov 20 17:52:19 2002
+@@ -441,244 +441,244 @@
+ c010d380 T sys_modify_ldt
+ c010d3de t .text.lock.ldt
+ c010d400 t show_cpuinfo
+-c010d5f0 t c_start
+-c010d620 t c_next
+-c010d640 t c_stop
+...
++c010d5e0 t c_start
++c010d610 t c_next
++c010d630 t c_stop
+...
+
+Thanks in advance,
+
+Paul
+
 

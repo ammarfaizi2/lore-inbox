@@ -1,66 +1,307 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264538AbUAFQb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 11:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbUAFQb4
+	id S264442AbUAFQ3K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 11:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUAFQ3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 11:31:56 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:42231 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264538AbUAFQbo (ORCPT
+	Tue, 6 Jan 2004 11:29:10 -0500
+Received: from users.ccur.com ([208.248.32.211]:63089 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id S264442AbUAFQ2m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 11:31:44 -0500
-Date: Tue, 6 Jan 2004 17:31:31 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Andrew Morton <akpm@osdl.org>, James Simmons <jsimmons@infradead.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] VT locking
-In-Reply-To: <1073349182.9504.175.camel@gaston>
-Message-ID: <Pine.GSO.4.58.0401061725250.5752@waterleaf.sonytel.be>
-References: <1073349182.9504.175.camel@gaston>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Jan 2004 11:28:42 -0500
+Date: Tue, 6 Jan 2004 11:28:18 -0500
+From: Joe Korty <joe.korty@ccur.com>
+To: ak@suse.de, akpm@osdl.org
+Cc: patches@x86-64.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] more fixes for Opteron ia32 siginfo interface
+Message-ID: <20040106162818.GA9430@rudolph.ccur.com>
+Reply-To: Joe Korty <joe.korty@ccur.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004, Benjamin Herrenschmidt wrote:
-> --- linux-2.5/kernel/printk.c	2004-01-06 10:07:08.640948328 +1100
-> +++ linuxppc-2.5-benh/kernel/printk.c	2003-12-31 17:01:25.000000000 +1100
-> @@ -479,6 +493,9 @@
->  	char *p;
->  	static char printk_buf[1024];
->  	static int log_level_unknown = 1;
-> +#ifdef CONFIG_BOOTX_TEXT
-> +	extern int force_printk_to_btext;
-> +#endif
->
->  	if (oops_in_progress) {
->  		/* If a crash is occurring, make sure we can't deadlock */
-> @@ -494,6 +511,10 @@
->  	va_start(args, fmt);
->  	printed_len = vsnprintf(printk_buf, sizeof(printk_buf), fmt, args);
->  	va_end(args);
-> +#ifdef CONFIG_BOOTX_TEXT
-> +	if (force_printk_to_btext)
-> +		btext_drawstring(printk_buf);
-> +#endif /* CONFIG_BOOTX_TEXT */
+Andi and Andrew,
 
-Looks like a nice opportunity to introduce an arch-specific printk() stub:
+This patch should fix all the remaining Opteron ia32 siginfo_t issues
+in 2.6.0.  It has been only lightly tested: posix timer tests, a small
+sigqueue(2) test that I wrote, and part of ltp, all compiled in ia32
+mode.
 
-    void *arch_printk(const char *args);
+Patch is against 2.6.0 as 2.6.1-rc1 does not compile under Opteron.
 
-    if (arch_printk)
-	arch_printk(printk_buf);
+ChangeLog:
+ o Base is 2.6.0 with Andi Kleen's x86_64-2.6.0-1.bz2 patch.
+ o import Andrew Morton's 2.6.1-rc1 ia32_copy_siginfo_to_user changes.
+ o add final missing bits to ia32_copy_siginfo_to_user.
+ o insert missing timer union into siginfo_t32.
+ o remove siginfo64to32, use ia32_copy_siginfo_to_user instead.
+ o rewrite siginfo32to64 as ia32_copy_siginfo_from_user, simplify.
+ o fix possible data leak in sys32_rt_sigtimedwait.
 
-Gr{oetje,eeting}s,
+Pick and choose whatever you like from this.
+Regards,
+Joe
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+ arch/x86_64/ia32/ia32_signal.c |   49 ++++++++++++++-------
+ arch/x86_64/ia32/sys_ia32.c    |   95 +++--------------------------------------
+ include/asm-x86_64/ia32.h      |   10 +++-
+ 3 files changed, 51 insertions(+), 103 deletions(-)
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+diff -ura base/arch/x86_64/ia32/ia32_signal.c new/arch/x86_64/ia32/ia32_signal.c
+--- base/arch/x86_64/ia32/ia32_signal.c	2004-01-06 11:00:24.942006638 -0500
++++ new/arch/x86_64/ia32/ia32_signal.c	2004-01-06 11:00:51.486440081 -0500
+@@ -44,10 +44,10 @@
+ asmlinkage int do_signal(struct pt_regs *regs, sigset_t *oldset);
+ void signal_fault(struct pt_regs *regs, void *frame, char *where);
+ 
+-static int ia32_copy_siginfo_to_user(siginfo_t32 *to, siginfo_t *from)
++int ia32_copy_siginfo_to_user(siginfo_t32 __user *to, siginfo_t *from)
+ {
+ 	int err;
+-	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t)))
++	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t32)))
+ 		return -EFAULT;
+ 
+ 	/* If you change siginfo_t structure, please make sure that
+@@ -55,20 +55,18 @@
+ 		   It should never copy any pad contained in the structure
+ 		   to avoid security leaks, but must copy the generic
+ 		   3 ints plus the relevant union member.  */
+-	
++
++	err = __put_user(from->si_signo, &to->si_signo);
++	err |= __put_user(from->si_errno, &to->si_errno);
++	err |= __put_user(from->si_code, &to->si_code);
++
+ 	if (from->si_code < 0) {
+-		err = __put_user(from->si_signo, &to->si_signo);
+-		err |= __put_user(from->si_errno, &to->si_errno); 
+-		err |= __put_user(from->si_code, &to->si_code); 
+-		err |= __put_user(from->_sifields._rt._pid, &to->_sifields._rt._pid); 
+-		err |= __put_user(from->_sifields._rt._uid, &to->_sifields._rt._uid); 
+-		err |= __put_user((u32)(u64)from->_sifields._rt._sigval.sival_ptr, 
+-				  &to->_sifields._rt._sigval.sival_ptr); 
++		err |= __put_user(from->si_pid, &to->si_pid);
++		err |= __put_user(from->si_uid, &to->si_uid);
++		err |= __put_user((u32)(u64)from->si_ptr, &to->si_ptr);
+ 	} else {
+-		err = __put_user(from->si_signo, &to->si_signo);
+-		err |= __put_user(from->si_errno, &to->si_errno);
+-		err |= __put_user(from->si_code, &to->si_code);
+-		/* First 32bits of unions are always present.  */
++		/* First 32bits of unions are always present:
++		 * si_pid === si_band === si_tid === si_addr(LS half) */
+ 		err |= __put_user(from->si_pid, &to->si_pid);
+ 		switch (from->si_code >> 16) {
+ 		case __SI_FAULT >> 16:
+@@ -78,18 +76,39 @@
+ 			err |= __put_user(from->si_stime, &to->si_stime);
+ 			err |= __put_user(from->si_status, &to->si_status);
+ 		default:
++		case __SI_KILL >> 16:
+ 			err |= __put_user(from->si_uid, &to->si_uid);
+ 			break;
+ 		case __SI_POLL >> 16:
+-			err |= __put_user(from->si_band, &to->si_band); 
+ 			err |= __put_user(from->si_fd, &to->si_fd); 
+ 			break;
++		case __SI_TIMER >> 16:
++			err |= __put_user(from->si_overrun, &to->si_overrun); 
++			err |= __put_user((u32)(u64)from->si_ptr, &to->si_ptr);
++			break;
+ 		/* case __SI_RT: This is not generated by the kernel as of now.  */
+ 		}
+ 	}
+ 	return err;
+ }
+ 
++int ia32_copy_siginfo_from_user(siginfo_t *to, siginfo_t32 __user *from)
++{
++	int err;
++	if (!access_ok (VERIFY_READ, from, sizeof(siginfo_t32)))
++		return -EFAULT;
++
++	err = __get_user(to->si_signo, &from->si_signo);
++	err |= __get_user(to->si_errno, &from->si_errno);
++	err |= __get_user(to->si_code, &from->si_code);
++
++	err |= __get_user(to->si_pid, &from->si_pid);
++	err |= __get_user(to->si_uid, &from->si_uid);
++	err |= __get_user((u32)(u64)to->si_ptr, &from->si_ptr);
++
++	return err;
++}
++
+ asmlinkage long
+ sys32_sigsuspend(int history0, int history1, old_sigset_t mask, struct pt_regs regs)
+ {
+diff -ura base/arch/x86_64/ia32/sys_ia32.c new/arch/x86_64/ia32/sys_ia32.c
+--- base/arch/x86_64/ia32/sys_ia32.c	2004-01-06 11:00:24.949004907 -0500
++++ new/arch/x86_64/ia32/sys_ia32.c	2004-01-06 11:00:51.488439586 -0500
+@@ -1022,84 +1022,6 @@
+ 	return ret;
+ }
+ 
+-siginfo_t32 *
+-siginfo64to32(siginfo_t32 *d, siginfo_t *s)
+-{
+-	memset (d, 0, sizeof(siginfo_t32));
+-	d->si_signo = s->si_signo;
+-	d->si_errno = s->si_errno;
+-	d->si_code = s->si_code;
+-	if (s->si_signo >= SIGRTMIN) {
+-		d->si_pid = s->si_pid;
+-		d->si_uid = s->si_uid;
+-		memcpy(&d->si_int, &s->si_int, 
+-                       sizeof(siginfo_t) - offsetof(siginfo_t,si_int));
+-	} else switch (s->si_signo) {
+-	/* XXX: What about POSIX1.b timers */
+-	case SIGCHLD:
+-		d->si_pid = s->si_pid;
+-		d->si_status = s->si_status;
+-		d->si_utime = s->si_utime;
+-		d->si_stime = s->si_stime;
+-		break;
+-	case SIGSEGV:
+-	case SIGBUS:
+-	case SIGFPE:
+-	case SIGILL:
+-		d->si_addr = (long)(s->si_addr);
+-//		d->si_trapno = s->si_trapno;
+-		break;
+-	case SIGPOLL:
+-		d->si_band = s->si_band;
+-		d->si_fd = s->si_fd;
+-		break;
+-	default:
+-		d->si_pid = s->si_pid;
+-		d->si_uid = s->si_uid;
+-		break;
+-	}
+-	return d;
+-}
+-
+-siginfo_t *
+-siginfo32to64(siginfo_t *d, siginfo_t32 *s)
+-{
+-	d->si_signo = s->si_signo;
+-	d->si_errno = s->si_errno;
+-	d->si_code = s->si_code;
+-	if (s->si_signo >= SIGRTMIN) {
+-		d->si_pid = s->si_pid;
+-		d->si_uid = s->si_uid;
+-		memcpy(&d->si_int,
+-                       &s->si_int,
+-                       sizeof(siginfo_t) - offsetof(siginfo_t, si_int)); 
+-	} else switch (s->si_signo) {
+-	/* XXX: What about POSIX1.b timers */
+-	case SIGCHLD:
+-		d->si_pid = s->si_pid;
+-		d->si_status = s->si_status;
+-		d->si_utime = s->si_utime;
+-		d->si_stime = s->si_stime;
+-		break;
+-	case SIGSEGV:
+-	case SIGBUS:
+-	case SIGFPE:
+-	case SIGILL:
+-		d->si_addr = (void *)A(s->si_addr);
+-//		d->si_trapno = s->si_trapno;
+-		break;
+-	case SIGPOLL:
+-		d->si_band = s->si_band;
+-		d->si_fd = s->si_fd;
+-		break;
+-	default:
+-		d->si_pid = s->si_pid;
+-		d->si_uid = s->si_uid;
+-		break;
+-	}
+-	return d;
+-}
+-
+ extern asmlinkage long
+ sys_rt_sigtimedwait(const sigset_t *uthese, siginfo_t *uinfo,
+ 		    const struct timespec *uts, size_t sigsetsize);
+@@ -1114,7 +1036,6 @@
+ 	int ret;
+ 	mm_segment_t old_fs = get_fs();
+ 	siginfo_t info;
+-	siginfo_t32 info32;
+ 		
+ 	if (copy_from_user (&s32, uthese, sizeof(compat_sigset_t)))
+ 		return -EFAULT;
+@@ -1126,13 +1047,18 @@
+ 	}
+ 	if (uts && get_compat_timespec(&t, uts))
+ 		return -EFAULT;
++	if (uinfo) {
++		/* stop data leak to user space in case of structure fill mismatch
++		 * between sys_rt_sigtimedwait & ia32_copy_siginfo_to_user.
++		 */
++		memset(&info, 0, sizeof(info));
++	}
+ 	set_fs (KERNEL_DS);
+ 	ret = sys_rt_sigtimedwait(&s, uinfo ? &info : NULL, uts ? &t : NULL,
+ 			sigsetsize);
+ 	set_fs (old_fs);
+ 	if (ret >= 0 && uinfo) {
+-		if (copy_to_user (uinfo, siginfo64to32(&info32, &info),
+-				  sizeof(siginfo_t32)))
++		if (ia32_copy_siginfo_to_user(uinfo, &info))
+ 			return -EFAULT;
+ 	}
+ 	return ret;
+@@ -1145,14 +1071,11 @@
+ sys32_rt_sigqueueinfo(int pid, int sig, siginfo_t32 *uinfo)
+ {
+ 	siginfo_t info;
+-	siginfo_t32 info32;
+ 	int ret;
+ 	mm_segment_t old_fs = get_fs();
+-	
+-	if (copy_from_user (&info32, uinfo, sizeof(siginfo_t32)))
++
++	if (ia32_copy_siginfo_from_user(&info, uinfo))
+ 		return -EFAULT;
+-	/* XXX: Is this correct? */
+-	siginfo32to64(&info, &info32);
+ 	set_fs (KERNEL_DS);
+ 	ret = sys_rt_sigqueueinfo(pid, sig, &info);
+ 	set_fs (old_fs);
+diff -ura base/include/asm-x86_64/ia32.h new/include/asm-x86_64/ia32.h
+--- base/include/asm-x86_64/ia32.h	2003-12-17 21:59:35.000000000 -0500
++++ new/include/asm-x86_64/ia32.h	2004-01-06 11:00:51.486440081 -0500
+@@ -100,8 +100,11 @@
+ 
+ 		/* POSIX.1b timers */
+ 		struct {
+-			unsigned int _timer1;
+-			unsigned int _timer2;
++			int _tid;		/* timer id */
++			int _overrun;		/* overrun count */
++			sigval_t32 _sigval;	/* same as below */
++			int _sys_private;	/* not to be passed to user */
++			int _overrun_incr;	/* amount to add to overrun */
+ 		} _timer;
+ 
+ 		/* POSIX.1b signals */
+@@ -164,9 +167,12 @@
+ 
+ #ifdef __KERNEL__
+ struct user_desc;
++struct siginfo_t;
+ int do_get_thread_area(struct thread_struct *t, struct user_desc *u_info);
+ int do_set_thread_area(struct thread_struct *t, struct user_desc *u_info);
+ int ia32_child_tls(struct task_struct *p, struct pt_regs *childregs);
++int ia32_copy_siginfo_from_user(siginfo_t *to, siginfo_t32 __user *from);
++int ia32_copy_siginfo_to_user(siginfo_t32 __user *to, siginfo_t *from);
+ #endif
+ 
+ #endif /* !CONFIG_IA32_SUPPORT */
+

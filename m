@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbUC2M4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 07:56:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbUC2Mb3
+	id S262894AbUC2MbT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUC2MaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 07:31:29 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:47247 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262909AbUC2MaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:30:16 -0500
-Date: Mon, 29 Mar 2004 14:13:33 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Suspend development list <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
-Message-ID: <20040329121332.GH1453@openzaurus.ucw.cz>
-References: <20040323233228.GK364@elf.ucw.cz> <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz> <200403250857.08920.matthias.wieser@hiasl.net> <1080247142.6679.3.camel@calvin.wpcb.org.au> <20040325222745.GE2179@elf.ucw.cz> <20040327022125.GA2174@luna.mooo.com>
+	Mon, 29 Mar 2004 07:30:17 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:25281 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262894AbUC2MVr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 07:21:47 -0500
+Date: Mon, 29 Mar 2004 17:50:45 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Arjan van de Ven <arjanv@redhat.com>, Robert Love <rml@ximian.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RCU for low latency (experimental)
+Message-ID: <20040329122045.GB3683@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20040324175142.GW2065@dualathlon.random> <20040324213914.GD4539@in.ibm.com> <20040324225326.GH2065@dualathlon.random> <20040324231145.GB12035@in.ibm.com> <20040324233430.GJ2065@dualathlon.random> <20040324234643.GD12035@in.ibm.com> <s5hwu549alg.wl@alsa2.suse.de> <20040328172036.GH5648@in.ibm.com> <s5hu10898za.wl@alsa2.suse.de> <s5hvfkovsqo.wl@alsa2.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040327022125.GA2174@luna.mooo.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <s5hvfkovsqo.wl@alsa2.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-> > Kernel could automagically select the right one.. But I'd prefer for
-> > only "non compressed" part to reach mainline for 2.6. Feature freeze
-...
-> You shouldn't be to extreme in you eagerness to trim things. You should
-> always take in mind what would be good for the user, not only the
-> developer.
+On Mon, Mar 29, 2004 at 12:43:11PM +0200, Takashi Iwai wrote:
+> At Sun, 28 Mar 2004 19:28:41 +0200,
+> I wrote:
+> > 
+> > > > anyway, i confirmed that with the original krcud patch the latency
+> > > > with dcache flood can be eliminated.
+> > > 
+> > > Does the throttle-rcu patch also help eliminate dcache flood ? You
+> > > can try by just changing count >= rcumaxbatch to ++count > rcumaxbatch.
+> > 
+> > i'll try it later.
+> 
+> the throttle-rcu patch does work indeed well even without preemption.
+> i've tested maxbatch=16 and plugticks=0.  in the older version, there
+> was 20ms long latency, while in the patched version, no measurable
+> latency more than 1ms.
 
-We are trying to merge into stable series. "Good for developer"
-takes priority here. And likely patching compression in is easier
-than patching swsusp2+compression....
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Thanks for the measurements. throttle-rcu may eventually be the way
+to go, but I would wait until we have sorted out several other problems
+like route cache DoS testing that we are looking at currently.
 
+Thanks
+Dipankar

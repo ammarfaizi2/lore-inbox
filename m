@@ -1,58 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUCPOuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbUCPOtL
+	id S262134AbUCPOrO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 09:47:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUCPOnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:49:11 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:51333 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S261931AbUCPObU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:31:20 -0500
-Date: Tue, 16 Mar 2004 14:29:51 +0000
-From: Dave Jones <davej@redhat.com>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       jgarzik@pobox.com
-Subject: Re: [3C509] Fix sysfs leak.
-Message-ID: <20040316142951.GA17958@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Marc Zyngier <mzyngier@freesurf.fr>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
-References: <200403152147.i2FLl09s002942@delerium.codemonkey.org.uk> <wrpad2hf4be.fsf@panther.wild-wind.fr.eu.org> <20040316134613.GA15600@redhat.com> <wrp3c88g9xu.fsf@panther.wild-wind.fr.eu.org>
+	Tue, 16 Mar 2004 09:43:47 -0500
+Received: from styx.suse.cz ([82.208.2.94]:56449 "EHLO shadow.ucw.cz")
+	by vger.kernel.org with ESMTP id S261865AbUCPOTg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 09:19:36 -0500
+Content-Transfer-Encoding: 7BIT
+Message-Id: <10794467763238@twilight.ucw.cz>
+Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 7/44] request_region() instead of check_region() in ns558.c
+X-Mailer: gregkh_patchbomb_levon_offspring
+To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <wrp3c88g9xu.fsf@panther.wild-wind.fr.eu.org>
-User-Agent: Mutt/1.4.1i
+Date: Tue, 16 Mar 2004 15:19:36 +0100
+In-Reply-To: <1079446776360@twilight.ucw.cz>
+From: Vojtech Pavlik <vojtech@suse.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 03:09:49PM +0100, Marc Zyngier wrote:
- > >>>>> "Dave" == Dave Jones <davej@redhat.com> writes:
- > 
- > Dave> Then the probing routine is bogus, it returns 0 when it fails too.
- > 
- > Uh ? el3_eisa_probe looks like it properly returns an error...
- > 
- > Or maybe you call a failure not finding a proper device on the bus ?
+You can pull this changeset from:
+	bk://kernel.bkbits.net/vojtech/input
 
-The damned bus doesn't even exist. If this is a case that couldn't be
-detected, I'd not be complaining, but this is just nonsense having
-a driver claim that its found an EISA device, when there aren't even
-any EISA slots on the board.
+===================================================================
 
- > When the driver registers, the bus may not have been probed yet
- > (built-in case). So un-registering the driver when it fails to find a
- > proper device is simply wrong with the current implementation.
+ChangeSet@1.1474.188.7, 2004-01-26 13:25:57+01:00, sebek64@post.cz
+  input: Use request_region() instead of check_region() in ns558.c
+         it's both safer and correct.
 
-This happens long after bus initialisation should have already figured
-out that the bus doesn't exist. Even if it was left this late, the
-eisa registration code should be doing a 'oh, I've not even checked
-if I have a bus yet, I'll do it now' before it starts doing completely
-bogus things like checking for devices.
 
-The way I see it, EISA bus support is completely horked right now.
+ ns558.c |   35 ++++++++++++++++++++++++-----------
+ 1 files changed, 24 insertions(+), 11 deletions(-)
 
-		Dave
+===================================================================
+
+diff -Nru a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
+--- a/drivers/input/gameport/ns558.c	Tue Mar 16 13:19:54 2004
++++ b/drivers/input/gameport/ns558.c	Tue Mar 16 13:19:54 2004
+@@ -77,7 +77,7 @@
+  * No one should be using this address.
+  */
+ 
+-	if (check_region(io, 1))
++	if (!request_region(io, 1, "ns558-isa"))
+ 		return;
+ 
+ /*
+@@ -89,7 +89,8 @@
+ 	outb(~c & ~3, io);
+ 	if (~(u = v = inb(io)) & 3) {
+ 		outb(c, io);
+-		return;
++		i = 0;
++		goto out;
+ 	}
+ /*
+  * After a trigger, there must be at least some bits changing.
+@@ -99,7 +100,8 @@
+ 
+ 	if (u == v) {
+ 		outb(c, io);
+-		return;
++		i = 0;
++		goto out;
+ 	}
+ 	wait_ms(3);
+ /*
+@@ -110,7 +112,8 @@
+ 	for (i = 0; i < 1000; i++)
+ 		if ((u ^ inb(io)) & 0xf) {
+ 			outb(c, io);
+-			return;
++			i = 0;
++			goto out;
+ 		}
+ /* 
+  * And now find the number of mirrors of the port.
+@@ -118,7 +121,9 @@
+ 
+ 	for (i = 1; i < 5; i++) {
+ 
+-		if (check_region(io & (-1 << i), (1 << i)))	/* Don't disturb anyone */
++		release_region(io & (-1 << (i-1)), (1 << (i-1)));
++
++		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))	/* Don't disturb anyone */
+ 			break;
+ 
+ 		outb(0xff, io & (-1 << i));
+@@ -126,18 +131,25 @@
+ 			if (inb(io & (-1 << i)) != inb((io & (-1 << i)) + (1 << i) - 1)) b++;
+ 		wait_ms(3);
+ 
+-		if (b > 300)					/* We allow 30% difference */
++		if (b > 300) {					/* We allow 30% difference */
++			release_region(io & (-1 << i), (1 << i));
+ 			break;
++		}
+ 	}
+ 
+ 	i--;
+ 
++	if (i != 4) {
++		if (!request_region(io & (-1 << i), (1 << i), "ns558-isa"))
++			return;
++	}
++
+ 	if (!(port = kmalloc(sizeof(struct ns558), GFP_KERNEL))) {
+ 		printk(KERN_ERR "ns558: Memory allocation failed.\n");
+-		return;
++		goto out;
+ 	}
+-       	memset(port, 0, sizeof(struct ns558));
+-	
++	memset(port, 0, sizeof(struct ns558));
++
+ 	port->type = NS558_ISA;
+ 	port->size = (1 << i);
+ 	port->gameport.io = io;
+@@ -148,8 +160,6 @@
+ 	sprintf(port->phys, "isa%04x/gameport0", io & (-1 << i));
+ 	sprintf(port->name, "NS558 ISA");
+ 
+-	request_region(io & (-1 << i), (1 << i), "ns558-isa");
+-
+ 	gameport_register_port(&port->gameport);
+ 
+ 	printk(KERN_INFO "gameport: NS558 ISA at %#x", port->gameport.io);
+@@ -157,6 +167,9 @@
+ 	printk(" speed %d kHz\n", port->gameport.speed);
+ 
+ 	list_add(&port->node, &ns558_list);
++	return;
++out:
++	release_region(io & (-1 << i), (1 << i));
+ }
+ 
+ #ifdef CONFIG_PNP
 

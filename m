@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265540AbUAZGej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 01:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265550AbUAZGej
+	id S265532AbUAZHHD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 02:07:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbUAZHHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 01:34:39 -0500
-Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:52615 "EHLO
-	mail.home") by vger.kernel.org with ESMTP id S265540AbUAZGeh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 01:34:37 -0500
-From: Eric <eric@cisu.net>
-To: Andrew Morton <akpm@osdl.org>, sboyce@blueyonder.co.uk,
-       linux-kernel@vger.kernel.org, bunk@fs.tum.de, torvalds@osdl.org
-Subject: Re: 2.6.2-rc1-mm2 kernel oops
-Date: Mon, 26 Jan 2004 00:33:43 -0600
-User-Agent: KMail/1.5.94
-References: <4013D0AA.8060906@blueyonder.co.uk> <20040125152559.55165860.akpm@osdl.org> <20040125160400.5b9d2e88.akpm@osdl.org>
-In-Reply-To: <20040125160400.5b9d2e88.akpm@osdl.org>
+	Mon, 26 Jan 2004 02:07:03 -0500
+Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:36794 "EHLO
+	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265532AbUAZHHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 02:07:01 -0500
+From: Christian Unger <chakkerz@optusnet.com.au>
+Reply-To: chakkerz@optusnet.com.au
+Organization: naiv.sourceforge.net
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: NVidia and 2.6.1
+Date: Mon, 26 Jan 2004 18:07:23 +1100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401260033.43545.eric@cisu.net>
+Content-Disposition: inline
+Message-Id: <200401261807.23071.chakkerz@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 January 2004 18:04, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> > Eric <eric@cisu.net> wrote:
-> > >  Now I get the test_wp_bit oops w/
-> >
+Hi
 
-> Can you see if this patch makes the test_wp_bit() oops go away?
+Sorry - lost the topic of the email.
 
-I will try it tomorrow. Sorry I am a little slow on the e-mails, I will do 
-what I can to help, but I can't move as fast, or devote as much time as I 
-would like, im in college right now. I will apply the patch and see if it 
-makes my oops go away. 
-	Thanks so much for your help. I appreciate all the hard work you guys do on 
-the kernel and all the mind-racking problems that come with an 
-ever-increasing userbase. 
+Anyways, i am currently running the 5328 version of the NVidia drivers 
+(pre-patched).
 
--------------------------
-Eric Bambach
-Eric at cisu dot net
--------------------------
+Thank you all for your patience and help. 
+
+How was it resolved? I formated and started from scratch. Not elegant, but it 
+worked. Dunno what the real problem was, but it's over and my card is 
+working ... Hurrah ...
+-- 
+with kind regards,
+  Christian Unger
+
+

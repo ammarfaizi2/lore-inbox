@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269076AbUJKP54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269068AbUJKP5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269076AbUJKP54 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 11:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269048AbUJKPzR
+	id S269068AbUJKP5z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 11:57:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269076AbUJKPzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 11:55:17 -0400
-Received: from cantor.suse.de ([195.135.220.2]:31158 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S269127AbUJKPxx (ORCPT
+	Mon, 11 Oct 2004 11:55:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:60059 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S269073AbUJKPx0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 11:53:53 -0400
-Date: Mon, 11 Oct 2004 17:49:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc4-mm1
-Message-ID: <20041011154934.GD26350@wotan.suse.de>
-References: <20041011032502.299dc88d.akpm@osdl.org> <Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com>
+	Mon, 11 Oct 2004 11:53:26 -0400
+Subject: Re: Linux 2.6.9-rc4 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1097509711.2469.10.camel@cherrybomb.pdx.osdl.net>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+	 <1097509711.2469.10.camel@cherrybomb.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1097509907.2469.14.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410111844450.2873@musoma.fsmlabs.com>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 11 Oct 2004 08:51:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 11, 2004 at 06:47:45PM +0300, Zwane Mwaikambo wrote:
-> How about the following?
-> 
-> remove-lock_section-from-x86_64-spin_lock-asm.patch
->   remove LOCK_SECTION from x86_64 spin_lock asm
-> 
-> allow-x86_64-to-reenable-interrupts-on-contention.patch
->   Allow x86_64 to reenable interrupts on contention
-> 
-> The former is a fix.
+No, we didn't have two rc3 releases.  See updated stats...
 
-What does it fix? 
+> 2.6.9-rc3      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+> 2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
+> 2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
+> 2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
 
--Andi
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.9-rc4      0w/0e       0w/0e  1930w/0e   41w/0e  11w/0e   1950w/0e
+2.6.9-rc3      0w/0e       0w/0e  2752w/17e  41w/0e  11w/0e   2782w/5e
+2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
+2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
+2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
+
+-- 
+John Cherry
+cherry@osdl.org
+503-626-2455x29
+Open Source Development Labs
+

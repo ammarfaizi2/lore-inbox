@@ -1,70 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136148AbREHCsN>; Mon, 7 May 2001 22:48:13 -0400
+	id <S136738AbREHCtE>; Mon, 7 May 2001 22:49:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136738AbREHCsD>; Mon, 7 May 2001 22:48:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22956 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136148AbREHCr4>;
-	Mon, 7 May 2001 22:47:56 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S136739AbREHCsy>; Mon, 7 May 2001 22:48:54 -0400
+Received: from funnelweb.dascom.com.au ([203.144.16.133]:7164 "EHLO
+	mulga.surf.ap.tivoli.com") by vger.kernel.org with ESMTP
+	id <S136738AbREHCsg>; Mon, 7 May 2001 22:48:36 -0400
+Message-ID: <XFMail.20010508124825.peterw@dascom.com.au>
+X-Mailer: XFMail 1.4.6 on Linux
+X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15095.24153.737361.998494@pizda.ninka.net>
-Date: Mon, 7 May 2001 19:47:53 -0700 (PDT)
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
-In-Reply-To: <15095.15091.45238.172746@pizda.ninka.net>
-	<Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <988925908.1280.42.camel@agate>
+Date: Tue, 08 May 2001 12:48:25 +1000 (EST)
+Reply-To: peterw@dascom.com.au
+From: Peter Waltenberg <peterw@dascom.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: RAID question
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+We have a RAID 5 system thats had 2 of 6 disks in the RAID go into thermal
+shutdown. (Air-con failure).
 
-Linus Torvalds writes:
- > YOUR HEURISTIC IS WRONG!
+The disks are functional, but the RAID won't restart because the superblock
+timestamps on those two disks are now out of step with the rest of the array and
+there aren't enough "good" disks to reconstruct the array.
 
-Please start the conversation this way next time.
+We know there was very little activity when this happened.
 
- > I call that a bug. You don't. Fine.
+Does anyone out there know of a way to hack the superblocks on the "bad" disks
+to force them to appear to be O.K. so that the RAID will restart. 
 
-You made it sound like a data corrupter, a kernel crasher, and that
-any bug against a kernel with that patch indicates my patch caused it.
-There is an important distinction between "this is doing something
-silly" and "this will scramble your disk and crash the kernel".
+Thanks
+Peter 
 
-The latter is the conclusion several people came to.
 
-And I wanted a clarification on this, nothing more.
 
-I wanted this clarification from you _BECAUSE_ the original posting in
-this thread saw data corruption which went away after reverting my
-patch.  But there is no possible connection between my patch and the
-crashes he saw.
 
-Many people have already concluded that "Linus says davem's patch is
-crap so it must have been causing the corruptions of the original
-reporter."
 
-Like you and I, most people are lazy.  And a lazy person is likely
-to treat "bug goes away with reverting patch" plus "Linus says the
-patch is crap" as "get rid of the patch, this'll fix the bug".  And
-that'll be the end of it, nobody will investigate the true cause of
-the problem until it shows up again later for some different reason.
-
- > But that code isn't coming anywhere _close_ to my tree until the two
- > match. And I stand by my assertion that it should be reverted from Alans
- > tree too.
-
-I have no intent to ever submit that patch to your tree, I know it's
-not the right way to solve this problem.
-
-In fact I submitted that patch to you as an "[RFC]" a long time ago
-and it fell on deaf ears.  Or perhaps you happened to have laser eye
-surgery that particular day, who knows. :-)
-
-Later,
-David S. Miller
-davem@redhat.com

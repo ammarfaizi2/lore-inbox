@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKBSvU>; Thu, 2 Nov 2000 13:51:20 -0500
+	id <S129131AbQKBTAx>; Thu, 2 Nov 2000 14:00:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129142AbQKBSvK>; Thu, 2 Nov 2000 13:51:10 -0500
-Received: from smartmail.smartweb.net ([207.202.14.198]:30483 "EHLO
-	smartmail.smartweb.net") by vger.kernel.org with ESMTP
-	id <S129145AbQKBSu6>; Thu, 2 Nov 2000 13:50:58 -0500
-Message-ID: <3A01B79B.71A2D3C7@dm.ultramaster.com>
-Date: Thu, 02 Nov 2000 13:51:07 -0500
-From: David Mansfield <lkml@dm.ultramaster.com>
-Organization: Ultramaster Group LLC
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+	id <S129136AbQKBTAn>; Thu, 2 Nov 2000 14:00:43 -0500
+Received: from smtp-abo-2.wanadoo.fr ([193.252.19.150]:49322 "EHLO
+	amyris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129131AbQKBTAd>; Thu, 2 Nov 2000 14:00:33 -0500
+Message-ID: <3A01508E.A992B792@easter-eggs.com>
+Date: Thu, 02 Nov 2000 11:31:26 +0000
+From: Adam Huuva <sventon@easter-eggs.com>
+Organization: easter-eggs.org
+X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: mmap_sem (and generic) semaphore fairness question
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Several concurrent terminals.
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I posted yesterday about a problem in 2.4.0-test10 regarding *LONG*
-stalls in 'ps' and 'vmstat'.  After a conversation with Rik van Riel, it
-seems that this may be caused by contention over the mmap_sem semaphore.
+Greetings,
 
-I have a question about the fairness of the semaphore implementation
-that may be an explanation for the 'bug' that stops top and vmstat from
-updating.
+We'd like to have two sets of keyboard/mouse/screen connected to the
+same computer with each set having the control and output of an
+independent X
+session each, concurrently. There might for instance be the ps/2
+keyboard and mouse and
+USB dittos. After attempting (and failing) we believe the problem is
+really one of the kernel only allowing one virtual terminal to be active
+at one time. Is this so and what can be done?
 
-Assume some process, A, is constantly requiring some resource that's
-protected by a semaphore, S.  Assume also that the resource is not
-available, and that A sleeps inside the kernel, waiting for the
-resource, while holding S.
-
-Assume also that some other process, B, is sleeping on aquiring S.
-
-Is it possible for the following to happen repeatedly, keeping B from
-ever aquiring S.
-
-1) Resource becomes available.
-2) A is 'runnable' and is given an entire timeslice.
-3) schedule() to A
-4) A releases S
-5) A returns to userspace
-6) A uses much less than entire timeslice doing calculation
-7) A needs some resource again
-7) A enters kernel and aquires S
-8) A sleeps on resource, rest of timeslice not used, A's 'goodness'
-isn't messed up.
-9) goto 1.
-
-In this scenario, as long as A never uses it's full timeslice, B will
-never get to aquire S.
-
-Specifically, A is some memory hogging program, B is 'ps'.  S is the
-mmap_sem and the 'resource' that A is constantly getting in trouble
-about is memory (it enters the kernel via a page fault).
-
-Can anyone explain why this wouldn't happen, and wouldn't cause infinite
-starvation of B?
-
-David Mansfield
+Cheers,
+-- 
+Adam Huuva / Easter-eggs                 Spécialiste GNU/Linux
+44-46 rue de l'Ouest  -  75014 Paris  -  France -  Métro Gaité
+Phone: +33 (0) 1 43 35 00 37    -   Fax: +33 (0) 1 41 35 00 76
+mailto:sventon@easter-eggs.com  -   http://www.easter-eggs.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

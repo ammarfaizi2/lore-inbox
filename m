@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbTLNKiU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 05:38:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbTLNKiU
+	id S261522AbTLNLC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 06:02:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbTLNLC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 05:38:20 -0500
-Received: from purplechoc.demon.co.uk ([80.176.224.106]:3456 "EHLO
-	skeleton-jack.localnet") by vger.kernel.org with ESMTP
-	id S262041AbTLNKiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 05:38:19 -0500
-Date: Sun, 14 Dec 2003 10:38:03 +0000
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jamie Lokier <jamie@shareable.org>, Peter Horton <pdh@colonel-panic.org>,
-       linux-mips@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: Re: Possible shared mapping bug in 2.4.23 (at least MIPS/Sparc)
-Message-ID: <20031214103803.GA916@skeleton-jack>
-References: <20031213114134.GA9896@skeleton-jack> <20031213222626.GA20153@mail.shareable.org> <Pine.LNX.4.58.0312131740120.14336@home.osdl.org>
+	Sun, 14 Dec 2003 06:02:57 -0500
+Received: from gprs146-5.eurotel.cz ([160.218.146.5]:59008 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261522AbTLNLC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 06:02:56 -0500
+Date: Sun, 14 Dec 2003 12:03:47 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+Cc: Michael Frank <mhf@linuxmail.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Can swsusp 2.0 be merged into the 2.4 tree
+Message-ID: <20031214110347.GD318@elf.ucw.cz>
+References: <200312110537.17496.mhf@linuxmail.org> <20031212192252.GA465@elf.ucw.cz> <1071376690.2187.25.camel@laptop-linux>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312131740120.14336@home.osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@colonel-panic.org>
+In-Reply-To: <1071376690.2187.25.camel@laptop-linux>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2003 at 05:41:16PM -0800, Linus Torvalds wrote:
-> 
-> On Sat, 13 Dec 2003, Jamie Lokier wrote:
-> >
-> > Peter Horton wrote:
-> > > A quick look at sparc and sparc64 seem to show the same problem.
-> >
-> > D-cache incoherence with unsuitably aligned multiple MAP_FIXED
-> > mappings is also observed on SH4, SH5, PA-RISC 1.1d.  The kernel may
-> > have the same behaviour on those platforms: allowing a mapping that
-> > should not be allowed.
-> 
-> Why?
-> 
-> If the user asks for it, it's the users own damn fault. Nobody guarantees
-> cache coherency to users who require fixed addresses.
-> 
-> Just document it as a bug in the user program if this causes problems.
-> Don't blame the kernel - the kernel is only doing what the user asked it
-> to do.
-> 
+HI!
 
-I've seen code written for X86 use MAP_FIXED to create self wrapping
-ring buffers. Surely it's better to fail the mmap() on other archs
-rather than for the code to fail in unexpected ways?
+> That's a bit rough, isn't it Pavel? I fully agree that the power
+> management support in 2.4 is incomplete (just as is the case in 2.6),
+> but there is power management support in 2.4, and it is being used.
 
-It's a bug either way ... either the test should be fixed up or it
-should be removed from arch_get_unmapped_area() to save confusion.
+Okay, I was a bit rough. Anyway pm support in 2.4 can not be made
+complete by simply fixing all the drivers (unlike 2.6). I know that it
+can be made to work pretty well for a lot of user, but I still do not
+think that makes it suitable for 2.4 merge.
+								Pavel
 
-P.
+> Regards,
+> 
+> Nigel
+> 
+> On Sat, 2003-12-13 at 08:22, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > swsusp is useful feature also for 2.4. Could this please be merged.
+> > 
+> > 2.4 has no driver model => swsusp for 2.4 is a hack. Its nice and
+> > working, but it is still a hack.
+> > 							Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

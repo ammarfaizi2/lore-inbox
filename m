@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266002AbUHMPdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUHMPiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266002AbUHMPdV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 11:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUHMPdV
+	id S266006AbUHMPiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 11:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUHMPiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 11:33:21 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47799 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266002AbUHMPdT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 11:33:19 -0400
-To: Zhan Rongkai <zhanrk2000@yahoo.com.au>
+	Fri, 13 Aug 2004 11:38:08 -0400
+Received: from linux.us.dell.com ([143.166.224.162]:62337 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S266006AbUHMPhG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 11:37:06 -0400
+Date: Fri, 13 Aug 2004 10:36:55 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Sylvain COUTANT <sylvain.coutant@illicom.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: About the decompression of compressed kernel image
-References: <20040813145649.99935.qmail@web61309.mail.yahoo.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I'm having an emotional outburst!!
-Date: Fri, 13 Aug 2004 17:31:27 +0200
-In-Reply-To: <20040813145649.99935.qmail@web61309.mail.yahoo.com> (Zhan
- Rongkai's message of "Sat, 14 Aug 2004 00:56:49 +1000 (EST)")
-Message-ID: <je1xibdpgw.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Subject: Re: High CPU usage (up to server hang) under heavy I/O load
+Message-ID: <20040813153655.GB26340@lists.us.dell.com>
+References: <20040813140229.4F48B2FC2C@illicom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040813140229.4F48B2FC2C@illicom.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhan Rongkai <zhanrk2000@yahoo.com.au> writes:
+On Fri, Aug 13, 2004 at 04:01:35PM +0200, Sylvain COUTANT wrote:
+> Gurus,
+> 
+> I have a problem with one server (DELL, 1 TB RAID5 + RAID0, Bi-Xeon, 8 GB
+> RAM)
 
->     NOTE: The two commands: "gzip -f -9
-> arch/$(ARCH)/boot/compressed/vmlinux.bin' and
->     'gzip -f -9 <
-> arch/$(ARCH)/boot/compressed/vmlinux.bin >
-> arch/$(ARCH)/boot/compressed/vmlinux.bin.gz' ouput two
-> copies of 
->     'vmlinux.bin.gz' with different file size. Is it
-> ok? Why?
-
-Because the former puts the original name into the output, the latter
-can't.
-
-Andreas.
+Which server please?
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

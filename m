@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSFTWCQ>; Thu, 20 Jun 2002 18:02:16 -0400
+	id <S315779AbSFTWDw>; Thu, 20 Jun 2002 18:03:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315762AbSFTWCP>; Thu, 20 Jun 2002 18:02:15 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:57478 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315758AbSFTWCO>; Thu, 20 Jun 2002 18:02:14 -0400
-Date: Fri, 21 Jun 2002 00:01:56 +0200
-To: Marek Michalkiewicz <marekm@amelek.gda.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "laptop mode" for floppies too?
-Message-ID: <20020620220156.GA19402@pelks01.extern.uni-tuebingen.de>
-Mail-Followup-To: Marek Michalkiewicz <marekm@amelek.gda.pl>,
-	linux-kernel@vger.kernel.org
-References: <3D0DB3A7.C32CCAE9@zip.com.au> <E17Jvi0-0007gl-00@alf.amelek.gda.pl>
+	id <S315783AbSFTWDv>; Thu, 20 Jun 2002 18:03:51 -0400
+Received: from ns.suse.de ([213.95.15.193]:48652 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315779AbSFTWDt>;
+	Thu, 20 Jun 2002 18:03:49 -0400
+Date: Fri, 21 Jun 2002 00:03:50 +0200
+From: Dave Jones <davej@suse.de>
+To: Rudmer van Dijk <rvandijk@science.uva.nl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.23-dj2
+Message-ID: <20020621000350.S29373@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Rudmer van Dijk <rvandijk@science.uva.nl>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20020619205136.GA18903@suse.de> <200206192133.g5JLXH814796@mail.science.uva.nl> <20020619234035.R29373@suse.de> <200206202138.g5KLcsO04303@mail.science.uva.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E17Jvi0-0007gl-00@alf.amelek.gda.pl>
-User-Agent: Mutt/1.4i
-From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200206202138.g5KLcsO04303@mail.science.uva.nl>; from rvandijk@science.uva.nl on Thu, Jun 20, 2002 at 11:42:03PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 17, 2002 at 02:34:12PM +0200, Marek Michalkiewicz wrote:
+On Thu, Jun 20, 2002 at 11:42:03PM +0200, Rudmer van Dijk wrote:
 
-> And, that would be a global sync() not per-device - looks like a hack
-> to me.
+ > > 2. Can you disable agpgart, and try again. I'm fairly certain this
+ > >    is the cause, but just in case..
+ > 
+ > just checked 2 but no improvement, also checked without drm again no 
+ > solution...
 
-You can also fsync() block devices to write out the buffers attached to
-it.  Slightly less of a hack that way.
+Well, that's sort of good in a way.. it means the agpgart changes aren't
+to blame. 8-)
 
-> The floppy driver itself controls the motor, so could also somehow
-> tell the kernel to write back all dirty data just before spinning down.
-> IDE disks can spin down automatically after some idle time, but perhaps
-> it would be more efficient if Linux could do that in software instead -
-> tell the disk to go to sleep ("hdparm -y") if it has not been accessed
-> for too long, but write all dirty data first (without resetting the idle
-> timer - possible now that the timer is ours and not in the disk).
+As for your crash in exit.c, I'm puzzled by that one. Are you using 
+preempt ? if so, does disabling that fix it ?
 
-Have a look at noflushd (available via sourceforge).  Never used it with
-floppy disks, I admit, but the changes should be straightforward.
+        Dave
 
-Regards,
-
-Daniel.
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

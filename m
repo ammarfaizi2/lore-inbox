@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271741AbTG2OVu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271742AbTG2OVo
+	id S271724AbTG2Oat (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271808AbTG2Oas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:21:44 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:15891 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S271741AbTG2OVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:21:33 -0400
-Message-ID: <3F268569.80306@techsource.com>
-Date: Tue, 29 Jul 2003 10:32:09 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 29 Jul 2003 10:30:48 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:7087
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S271724AbTG2Oai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:30:38 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Timothy Miller <miller@techsource.com>, Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] O10int for interactivity
+Date: Wed, 30 Jul 2003 00:35:01 +1000
+User-Agent: KMail/1.5.2
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200307280112.16043.kernel@kolivas.org> <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu> <3F2682EF.2040702@techsource.com>
+In-Reply-To: <3F2682EF.2040702@techsource.com>
 MIME-Version: 1.0
-To: "David D. Hagood" <wowbagger@sktc.net>
-CC: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-assembly@vger.kernel.org
-Subject: Re: The Well-Factored 386
-References: <fc.0010c7b2009ebbbf0010c7b2009ebbbf.9ebbc6@capaccess.org>	<20030728070658.343ed2b0.davem@redhat.com>	<fc.0010c7b2009ecdef0010c7b2009ebbbf.9ecdfd@capaccess.org>	<20030728133300.2ef96cf4.davem@redhat.com>	<20030729002737.111bc3ad.skraw@ithnet.com> <20030728153055.006aa3f0.davem@redhat.com> <3F25AA78.6020808@sktc.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307300035.01354.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 30 Jul 2003 00:21, Timothy Miller wrote:
+> Valdis.Kletnieks@vt.edu wrote:
+> > I'm guessing that the anticipatory scheduler is the culprit here.  Soon
+> > as I figure out the incantations to use the deadline scheduler, I'll
+> > report back....
+>
+> It would be unfortunate if AS and the interactivity scheduler were to
+> conflict.  Is there a way we can have them talk to each other and have
+> AS boost some I/O requests for tasks which are marked as interactive?
+>
+> It would sacrifice some throughput for the sake of interactivity, which
+> is what the interactivity patches do anyhow.  This is a reasonable
+> compromise.
 
+That's not as silly as it sounds. In fact it should be dead easy to 
+increase/decrease the amount of anticipatory time based on the bonus from 
+looking at the code. I dunno how the higher filesystem gods feel about this 
+though.
 
-David D. Hagood wrote:
-> David S. Miller wrote:
-> 
->> And I don't care if you don't like my attitude, my job as
->> list manager is not to be liked by people or to have them
->> like my attitude.  My job is to keep the lists clean.
-> 
-> 
-> I'd just like to say "BRAVO SIR!" I am glad to see you doing this, and I 
-> support your actions 100%.
-> 
-> Anybody's right of freedom of speech ends when they force the unwilling 
-> to listen - this troll was -10, Offtopic. He was not talking about the 
-> kernel, any development of interest to the kernel, and I for one am glad 
-> he is getting bounced.
-> 
-> Let him post his drivel-scribblings on Slashdot, along with goatse.cx, 
-> the porn trolls, and the *BSD is dead trolls.
-
-
-I personally have made more than my fair share of off-topic posts.  Some 
-of them have been filtered, which really doesn't bother me, because, 
-well, they were off-topic.
-
-Sometimes, I get carried away, but I do keep in mind that off-topic 
-posts can be very rude.  I remind myself of this out of respect for 
-others on the list.
+Con
 

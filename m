@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269390AbTGJQ5I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 12:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269424AbTGJQ5H
+	id S269432AbTGJRGV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:06:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269451AbTGJREB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 12:57:07 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:2988 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S269417AbTGJQzC (ORCPT
+	Thu, 10 Jul 2003 13:04:01 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:56307 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269432AbTGJRCg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 12:55:02 -0400
-X-Comment-To: Andrew Morton
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [PATCH] minor optimization for EXT3
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: Thu, 10 Jul 2003 21:09:12 +0000
-In-Reply-To: <20030710100102.32950703.akpm@osdl.org> (Andrew Morton's
- message of "Thu, 10 Jul 2003 10:01:02 -0700")
-Message-ID: <874r1ugkcn.fsf@gw.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
-References: <87smpeigio.fsf@gw.home.net>
-	<20030710042016.1b12113b.akpm@osdl.org> <87isqaiegy.fsf@gw.home.net>
-	<20030710085155.40c78883.akpm@osdl.org> <877k6qgldo.fsf@gw.home.net>
-	<20030710100102.32950703.akpm@osdl.org>
+	Thu, 10 Jul 2003 13:02:36 -0400
+Subject: [ANNOUNCE] Linux Test Project July Release Announcement
+To: ltp-list@lists.sourceforge.net, ltp-announce@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 6.0 September 26, 2002
+Message-ID: <OF87D29D65.E0EC647C-ON85256D5F.005E96C8-86256D5F.005F1899@pok.ibm.com>
+From: "Robert Williamson" <robbiew@us.ibm.com>
+Date: Thu, 10 Jul 2003 12:17:05 -0500
+X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 07/10/2003 01:15:58 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Andrew Morton (AM) writes:
+The Linux Test Project test suite has been released. The latest version of
+the testsuite contains 2000+ tests for the Linux OS. Our web site also
+contains other information such as: test results, a Linux test tools
+matrix, an area for keeping up with fixes for known blocking problems in
+the 2.5 kernel releases, technical papers and HowTos on Linux testing, and
+a code coverage analysis tool.
 
- AM> Alex Tomas <bzzz@tmi.comex.ru> wrote:
- >> 
- >> OK. fixed version:
+Highlights:
 
- AM> Looks nice.  Now, Andreas did mention a while back that the locking rework
- AM> added an additional complexity to this optimization.  Perhaps he can remind
- AM> us of the details there?
+* Inclusion of the OpenHPI (Hardware Platform Interface) Test Suite.
+* New tests for PCI, USB, ACPI, and the NLS filesystem
+* Fixes and code cleanups for IA64 and PowerPC64
+* More script-based tests updated to use the test harness APIs
+* A new logo!
 
-he meant than 2.5 don't use lock_sb() for inode allocation. this patch is safe
-from this point of view.
+We encourage the community to post results, patches or new tests on our
+mailing list and use the CVS bug tracking facility to report problems that
+you might encounter with the test suite.
+
+
+Robert V. Williamson <robbiew@us.ibm.com>
+Linux Test Project
+IBM Linux Technology Center
+Web: http://ltp.sourceforge.net
+IRC: #ltp on freenode.irc.net
+====================
+"Only two things are infinite, the universe and human stupidity, and I'm
+not sure about the former." -Albert Einstein
 
 

@@ -1,75 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTFYMFB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 08:05:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263632AbTFYMFB
+	id S263632AbTFYMKV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 08:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbTFYMKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 08:05:01 -0400
-Received: from arbi.Informatik.uni-oldenburg.de ([134.106.1.7]:5128 "EHLO
-	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
-	id S263398AbTFYME7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 08:04:59 -0400
-Subject: patch 2.4.21 better static buffer check
-To: linux-kernel@vger.kernel.org
-Date: Wed, 25 Jun 2003 13:56:54 +0200 (MEST)
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Wed, 25 Jun 2003 08:10:21 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:44727 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263632AbTFYMKS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 08:10:18 -0400
+Date: Wed, 25 Jun 2003 18:16:33 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, richard <richardj_moore@uk.ibm.com>,
+       suparna <suparna@in.ibm.com>
+Subject: Re: [patch] kprobes for 2.5.73 with single-stepping out-of-line
+Message-ID: <20030625181633.A20678@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
+References: <20030624140926.A17908@in.ibm.com.suse.lists.linux.kernel> <p73n0g74g8q.fsf@oldwotan.suse.de> <20030625161113.A20435@in.ibm.com> <20030625115202.GB9645@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E19V8tS-0009zc-00@grossglockner.Informatik.Uni-Oldenburg.DE>
-From: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030625115202.GB9645@wotan.suse.de>; from ak@suse.de on Wed, Jun 25, 2003 at 01:52:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi list,
-writing via sprintf() into static buffers is only asking
-for trouble, IMHO. Therefor I changed do_mount.c to use
-snprintf() instead of sprintf(). 
+On Wed, Jun 25, 2003 at 01:52:02PM +0200, Andi Kleen wrote:
+> On Wed, Jun 25, 2003 at 04:11:13PM +0530, Vamsi Krishna S . wrote:
+> > On Tue, Jun 24, 2003 at 06:01:09PM +0200, Andi Kleen wrote:
+> > > "Vamsi Krishna S ." <vamsi@in.ibm.com> writes:
+> > > 
+> > > 
+> > > > +static struct kprobe *current_kprobe;
+> > > 
+> > > This global variable is quite unclean. It looks like it is for passing
+> > > function arguments around. Why is it needed? 
+> > > 
+> > This is used for keeping track of the probe that is currently being
+> > handled. This information is needed to be kept across a 
+> > trap 3 - singlestep - trap 1. So, we set store the current probe in
+> > this variable while handling trap 3, for use while handling the
+> > subsequent trap 1.
+> 
+> But how can this be SMP safe? Do you hold a lock during all this?
+> 
+Yes.. in the interests of keeping the locking to a minimum, only one
+probe can be handled at a time, even on SMP.
 
-regards,
-walter
-
---- init/do_mounts.c.org        2003-06-24 22:05:02.000000000 +0200
-+++ init/do_mounts.c    2003-06-24 22:25:03.000000000 +0200
-@@ -421,7 +421,7 @@
-        int fd;
-        va_list args;
-        va_start(args, fmt);
--       vsprintf(buf, fmt, args);
-+       vsnprintf(buf,sizeof(buf),fmt, args);
-        va_end(args);
-        fd = open("/dev/root", O_RDWR | O_NDELAY, 0);
-        if (fd >= 0) {
-@@ -710,16 +710,16 @@
-             return;
-        lun = simple_strtol(p, &p, 10);
-        if (!part)
--            sprintf(dest, "%s/host%d/bus%d/target%d/lun%d",
-+            snprintf(dest,sizeof(dest), "%s/host%d/bus%d/target%d/lun%d",
-                        prefix, host, bus, target, lun);
-        else if (*p++ == 'p')
--            sprintf(dest, "%s/host%d/bus%d/target%d/lun%d/part%s",
-+            snprintf(dest,sizeof(dest), "%s/host%d/bus%d/target%d/lun%d/part%s",
-                        prefix, host, bus, target, lun, p);
-        else
--            sprintf(dest, "%s/host%d/bus%d/target%d/lun%d/disc",
-+            snprintf(dest,sizeof(dest), "%s/host%d/bus%d/target%d/lun%d/disc",
-                        prefix, host, bus, target, lun);
-        *base = '\0';
--       sprintf(src, "/dev/%s", name);
-+       snprintf(src,sizeof(src), "/dev/%s", name);
-        sys_mkdir(src, 0755);
-        *base = '/';
-        sprintf(src, "/dev/%s", name);
-@@ -801,7 +801,8 @@
- #ifdef CONFIG_BLK_DEV_INITRD
-        int ram0 = kdev_t_to_nr(MKDEV(RAMDISK_MAJOR,0));
-        int error;
--       int i, pid;
-+       int i;
-+       pid_t pid;
- 
-        create_dev("/dev/root.old", ram0, NULL);
-        /* mount initrd on rootfs' /root */
-
+> -Andi
+Thanks,
+Vamsi.
 -- 
+Vamsi Krishna S.
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264362AbTEPNIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 09:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbTEPNIQ
+	id S264432AbTEPNdM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 09:33:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTEPNdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 09:08:16 -0400
-Received: from 216-166-237-83.clec.madisonriver.net ([216.166.237.83]:15119
-	"EHLO dpr338") by vger.kernel.org with ESMTP id S264362AbTEPNIP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 09:08:15 -0400
-Message-ID: <A4E787A2467EF849B00585F14C900559068A84@18.172.in-addr.arpa>
-From: Chien-Lung Wu <cwu@deltartp.com>
-To: linux-kernel@vger.kernel.org
-Subject: VRRP
-Date: Fri, 16 May 2003 09:19:10 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Fri, 16 May 2003 09:33:12 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:63920 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264432AbTEPNdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 09:33:11 -0400
+Date: Fri, 16 May 2003 15:45:37 +0200 (MEST)
+Message-Id: <200305161345.h4GDjbc5000236@harpo.it.uu.se>
+From: mikpe@csd.uu.se
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.5.3 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, there:
+Version 2.5.3 of perfctr, the Linux/x86 performance
+monitoring counters driver, is now available at the usual
+place: http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-	Do anyone know that Linux is able to support  VRRP (Virtual
-Redundency Router protocol)?
-Which version? and where can I download?
-Thanks.
+x86_64 is now supported in kernels 2.5.69, 2.4.21-rc2, and
+RawHide's 2.4.20-9.2 (GinGin64 RH 8.0.95 preview). Successfully
+tested on a dual Opteron box. The x86_64 control data is
+different than the x86 control data (P5 and P4 control has
+been removed), so applications must be recompiled for x86_64.
 
+Version 2.5.3, 2003-05-16
+- Added support for the Pentium M processor. It is mostly like
+  a Pentium III with some more events, except that six old
+  Pentium III / Pentium Pro events have been redefined.
+- Added support for K8 in 64-bit mode (the x86_64 kernel arch).
+  Updated driver, user-space library, and example programs.
+  The shared library libperfctr.so is now compiled with -fPIC.
+- K8 bug fix in examples/signal/signal.c: a missing INT flag
+  caused the driver to reject the control setup.
+- P4 event descriptions updated from recent documentation changes.
 
-Chien-Lung
+/ Mikael Pettersson

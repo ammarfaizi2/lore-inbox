@@ -1,65 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264091AbUKZUsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUKZUyO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264091AbUKZUsK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 15:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbUKZUrY
+	id S264095AbUKZUyO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:54:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbUKZUrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:47:24 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:63657 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S264118AbUKZUmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 15:42:52 -0500
-Subject: Re: Suspend2 merge: 1/51: Device trees
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041125224124.GE2711@elf.ucw.cz>
-References: <20041125165413.GB476@openzaurus.ucw.cz>
-	 <20041125185304.GA1260@elf.ucw.cz>
-	 <1101421336.27250.80.camel@desktop.cunninghams>
-	 <20041125224124.GE2711@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101423148.27250.110.camel@desktop.cunninghams>
+	Fri, 26 Nov 2004 15:47:14 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:50401 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S264016AbUKZUYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:24:34 -0500
+Date: Fri, 26 Nov 2004 13:24:31 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: Any reason why we don't initialize all members of struct Xgt_desc_struct in doublefault.c ?
+Message-ID: <20041126202431.GL23661@schnapps.adilger.int>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
+	akpm@osdl.org
+References: <Pine.LNX.4.61.0411250011160.3447@dragon.hygekrogen.localhost> <41A7483F.9010302@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 26 Nov 2004 09:52:28 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+svXpSx+RSEd8UhP"
+Content-Disposition: inline
+In-Reply-To: <41A7483F.9010302@pobox.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-On Fri, 2004-11-26 at 09:41, Pavel Machek wrote:
-> > I thought I wrote - perhaps I'm wrong here - that I understand that your
-> > new work in this area might make this unnecessary. I really only want to
-> > do it this way because I don't know what other drivers might be doing
-> > while we're writing the LRU pages. I'm not worried about them touching
-> > LRU. What I am worried about is them allocating memory and starving
-> > suspend so that we get hangs due to being oom. If they're suspended, we
-> > have more certainty as to how memory is being used. I don't remember
-> > what prompted me to do this in the first place, but I'm pretty sure it
-> > would have been a real observed issue.
-> 
-> Uh... It seems like quite a lot of work. Would not reserving few more
-> pages help here? Or perhaps right solution is to fix "broken" drivers
-> that need too much memory...
+--+svXpSx+RSEd8UhP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'd agree, except that I don't know how many to allocate. It makes
-getting a reliable suspend the result of guess work and favourable
-circumstances. Fixing 'broken' drivers by really suspending them seems
-to me to be the right solution. Make their memory requirements perfectly
-predictable.
+On Nov 26, 2004  10:14 -0500, Jeff Garzik wrote:
+> Jesper Juhl wrote:
+> >Yes, this is nitpicking, but I just can't leave small corners like this=
+=20
+> >unpolished ;)
+> >
+> >in arch/i386/kernel/doublefault.c you will find this (line 20) :
+> >
+> >struct Xgt_desc_struct gdt_desc =3D {0, 0};
+> >
+> >but, struct Xgt_desc_struct has 3 members,=20
+> >
+> >struct Xgt_desc_struct {
+> >        unsigned short size;
+> >        unsigned long address __attribute__((packed));
+> >        unsigned short pad;
+> >} __attribute__ ((packed));
+> >
+> >so why only initialize two of them explicitly?
+>=20
+> 'pad' is a dummy variable... nobody cares about its value.
 
-Regards,
+Also, for struct initializations if you don't specify a field explicitly
+it will be initialized to zero anyways, so even "gdt_desc =3D { }" is enough
+in this case to initialize all of the fields to zero.
 
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
 
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
 
+--+svXpSx+RSEd8UhP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFBp5D/pIg59Q01vtYRAlrwAJ9IyF/biou63BZLDPRDkiMa9HiSAgCgw6Fq
+7vASAWRdQ+C+4xZKIBxgthk=
+=FTZ8
+-----END PGP SIGNATURE-----
+
+--+svXpSx+RSEd8UhP--

@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262314AbSLGKur>; Sat, 7 Dec 2002 05:50:47 -0500
+	id <S262208AbSLGKuq>; Sat, 7 Dec 2002 05:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267746AbSLGKur>; Sat, 7 Dec 2002 05:50:47 -0500
-Received: from dp.samba.org ([66.70.73.150]:37257 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262314AbSLGKuo>;
+	id <S267746AbSLGKup>; Sat, 7 Dec 2002 05:50:45 -0500
+Received: from dp.samba.org ([66.70.73.150]:37001 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262208AbSLGKuo>;
 	Sat, 7 Dec 2002 05:50:44 -0500
-Date: Sat, 7 Dec 2002 20:56:26 +1100
+Date: Sat, 7 Dec 2002 21:19:43 +1100
 From: David Gibson <david@gibson.dropbear.id.au>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, miles@gnu.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: James.Bottomley@steeleye.com, adam@yggdrasil.com,
+       linux-kernel@vger.kernel.org, willy@debian.org
 Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021207095626.GC22230@zax.zax>
+Message-ID: <20021207101943.GD22230@zax.zax>
 Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	"Adam J. Richter" <adam@yggdrasil.com>, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org, miles@gnu.org
-References: <200212060714.XAA06006@adam.yggdrasil.com> <200212061626.gB6GQvl01748@localhost.localdomain>
+	"David S. Miller" <davem@redhat.com>, James.Bottomley@steeleye.com,
+	adam@yggdrasil.com, linux-kernel@vger.kernel.org, willy@debian.org
+References: <davem@redhat.com> <200212061829.gB6ITAt03038@localhost.localdomain> <20021206.103113.98609883.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212061626.gB6GQvl01748@localhost.localdomain>
+In-Reply-To: <20021206.103113.98609883.davem@redhat.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 06, 2002 at 10:26:57AM -0600, James Bottomley wrote:
-> adam@yggdrasil.com said:
-> > 	I like your term DMA_CONSISTENT better than DMA_CONFORMANCE_CONSISTANT
-> > .  I think the word "conformance" in there does not reduce the time
-> > that it takes to figure out what the symbol means.  I don't think any
-> > other facility will want to use the terms DMA_{,IN}CONSISTENT, so I
-> > prefer that we go with the more medium sized symbol. 
+On Fri, Dec 06, 2002 at 10:31:13AM -0800, David Miller wrote:
+>    From: James Bottomley <James.Bottomley@steeleye.com>
+>    Date: Fri, 06 Dec 2002 12:29:10 -0600
 > 
-> I'm not so keen on this.  The idea of this parameter is not to tell
-> the allocation routine what type of memory you would like, but to
-> tell it what type of memory the driver can cope with.  I think for
-> the inconsistent case, DMA_INCONSISTENT looks like the driver is
-> requiring inconsistent memory, and expecting to get it.  I'm open to
-> changing the "CONFORMANCE" part, but I'd like to name these
-> parameters something that doesn't imply they're requesting a type of
-> memory.
+>    How about (as Adam suggested) two dma allocation API's
+>    
+>    1) dma_alloc_consistent which behaves identically to pci_alloc_consistent
+>    2) dma_alloc which can take the conformance flag and can be used to tidy up 
+>    the drivers that need to know about cache flushing.
+>    
+> Now that the situation is much more clear, I'm feeling a lot
+> better about this.
+> 
+> I have only one request, in terms of naming.  What we're really
+> doing is adding a third class of memory, it really isn't consistent
+> and it really isn't streaming.  It's inconsistent memory meant to
+> be used for "consistent memory things".
 
-Well, actually I was thinking of the flags as a bitmask, not an enum,
-so I was assuming (flags==0) for not-neccessarily-consistent memory.
-However, since having seen davem's comments, I agree with him that
-separate entry points is probably a better idea for API sanity.
+Not really... it seems to me its abdicating the choice of consistent
+versus streaming memory to the platform.  Or to look at it another
+way, the actual guarantees it provides are identical to those of
+streaming DMA, but this gives the platform an opportunity to optimise
+by controlling the allocation rather than demanding it deal with
+memory from any old place as pci_map_* must do.
+
+A driver using this sort of memory should be at least isomorphic to
+one using streaming memory (maybe identical, depending on exactly
+which functions are which etc.).
+
+> So could someone come up with a clever name for this thing? :-)
+
+Given that, how about "fast-streaming" DMA memory.
 
 -- 
 David Gibson			| For every complex problem there is a

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288428AbSAKJya>; Fri, 11 Jan 2002 04:54:30 -0500
+	id <S288673AbSAKKFX>; Fri, 11 Jan 2002 05:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289124AbSAKJyU>; Fri, 11 Jan 2002 04:54:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:42509 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289051AbSAKJyM>;
-	Fri, 11 Jan 2002 04:54:12 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de.suse.lists.linux.kernel> <E16Oocq-0005tX-00@the-village.bc.nu.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 11 Jan 2002 10:54:07 +0100
-In-Reply-To: Alan Cox's message of "11 Jan 2002 00:22:35 +0100"
-Message-ID: <p737kqpp60w.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S289124AbSAKKFE>; Fri, 11 Jan 2002 05:05:04 -0500
+Received: from polypc17.chem.rug.nl ([129.125.25.92]:62087 "EHLO
+	polypc17.chem.rug.nl") by vger.kernel.org with ESMTP
+	id <S288710AbSAKKE7>; Fri, 11 Jan 2002 05:04:59 -0500
+Message-Id: <m16OyYV-000t5oC@polypc17.chem.rug.nl>
+From: chrkok@chem.rug.nl (Christiaan Kok)
+Subject: Kernel 2.4.17 gets really slow when handling large files
+To: linux-kernel@vger.kernel.org
+Date: Fri, 11 Jan 2002 11:04:59 +0100 (CET)
+X-hidden-message: <not available>
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> 
-> The kernel isnt there to fix up the fact authors can't read. Its also very
-> hard to get emulations right. I grant that this wasn't helped by the fact
-> the gcc x86 folks also couldnt read the pentium pro manual correctly.
+Dear people,
 
-One corner case where emulation would IMHO make sense would be CMPXCHG8.
-It would allow to do efficient inline mutexes in pthreads, and hit the
-emulation only on 386/486. cpu feature flag checking is unfortunately
-not an option normally for inline code.
+I have a problem with kernel 2.4.17 and as far as I have testen all the 2.4.X
+kernels before it. When handling large files, like moving or viewing movies
+(700 Mb) (with mplayer) my system suddenly slows down a lot. This can only be
+repaired by a reboot. hdparm -Tt /dev/hdX values drop from around 25 MB/s to
+around 8 MB/s but DMA is still on (at least that is what hdaprm reports). In
+is a such a state it is imposible to burn cds for instance but networkspeed is
+unharmed.
 
--Andi (who would have already done it if he had an 486/386 to test) 
+My system is a AMD Athlon 650 on a Aopen AK74 (VIA chipset )/
+640Mb memory/NVidia TNT2 with X4 driver from NVidia/2 network cards (vanilla)/
+SoundBlaster 128 with ALSA drivers/128MB swap.
+
+I tested with 2.4.17/2.4.10/2.4.10-ac4/2.4.6 and they all have this problem.  
+
+Is this a well-known problem for 2.4.X kernels? Is there a work-around 
+available, so I can happily watch movies again?
+
+with best regards,
+
+Christiaan Kok

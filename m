@@ -1,62 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276451AbRJKPYN>; Thu, 11 Oct 2001 11:24:13 -0400
+	id <S276444AbRJKPjh>; Thu, 11 Oct 2001 11:39:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276527AbRJKPYD>; Thu, 11 Oct 2001 11:24:03 -0400
-Received: from mail.spylog.com ([194.67.35.220]:13532 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S276534AbRJKPXp>;
-	Thu, 11 Oct 2001 11:23:45 -0400
-Date: Thu, 11 Oct 2001 19:20:09 +0400
-From: "Oleg A. Yurlov" <kris@spylog.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
-Organization: SpyLOG Ltd.
-X-Priority: 3 (Normal)
-Message-ID: <58528703605.20011011192009@spylog.com>
-To: Cliff Albert <cliff@oisec.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re[2]: 2.4.11aa1 and AIC7XXX
-In-Reply-To: <20011011163105.A18508@oisec.net>
-In-Reply-To: <13522687985.20011011173954@spylog.com>
- <20011011163105.A18508@oisec.net>
+	id <S276525AbRJKPjS>; Thu, 11 Oct 2001 11:39:18 -0400
+Received: from kiln.isn.net ([198.167.161.1]:3395 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S276444AbRJKPjQ>;
+	Thu, 11 Oct 2001 11:39:16 -0400
+Message-ID: <3BC5BD3B.CA7A0747@isn.net>
+Date: Thu, 11 Oct 2001 12:39:39 -0300
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] parport.h ieee1284_ops.c 2.4.12
+Content-Type: multipart/mixed;
+ boundary="------------A8A58F1C41C73B90940D837B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------A8A58F1C41C73B90940D837B
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-        Hi, Cliff and all,
+Attached patches fix my problems with 2.4.12
+include/linux/parport.h
+drivers/parport/ieee1284_ops.c
+Garst
+--------------A8A58F1C41C73B90940D837B
+Content-Type: text/plain; charset=us-ascii;
+ name="ieee1284_ops.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ieee1284_ops.c.diff"
 
-Thursday, October 11, 2001, 6:31:05 PM, you wrote:
+--- ieee1284_ops.c~	Thu Oct 11 10:02:34 2001
++++ ieee1284_ops.c	Thu Oct 11 11:59:26 2001
+@@ -362,7 +362,7 @@
+ 	} else {
+ 		DPRINTK (KERN_DEBUG "%s: ECP direction: failed to reverse\n",
+ 			 port->name);
+-		port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+ 	}
+ 
+ 	return retval;
+@@ -394,7 +394,7 @@
+ 		DPRINTK (KERN_DEBUG
+ 			 "%s: ECP direction: failed to switch forward\n",
+ 			 port->name);
+-		port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++		port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+ 	}
+ 
+ 
 
-CA> On Thu, Oct 11, 2001 at 05:39:54PM +0400, Oleg A. Yurlov wrote:
+--------------A8A58F1C41C73B90940D837B
+Content-Type: text/plain; charset=us-ascii;
+ name="parport.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="parport.h.diff"
 
->> Oct 10 20:35:31 samson kernel: (scsi0:A:2:0): Locking max tag count at 128
->> Oct 10 21:06:31 samson kernel: (scsi1:A:0:0): Locking max tag count at 64                                                           
->> Oct 11 05:33:09 samson kernel: (scsi0:A:3:0): Locking max tag count at 128       
->> 
->>         Hardware   -  SMP 2 CPU, 1GB RAM, M/B Intel L440GX, 5 SCSI HDD, Software
->> RAID5 (3 disks) and RAID1.
->> 
->>         I found in dmesg:
->> 
->>  *** Possibly defective BIOS detected (irqtable)
->>  *** Many BIOSes matching this signature have incorrect IRQ routing tables.
->>  *** If you see IRQ problems, in paticular SCSI resets and hangs at boot
->>  *** contact your vendor and ask about updates.
->>  *** Building an SMP kernel may evade the bug some of the time.
->> Starting kswapd
->> 
->>         It's  normal or not ? What I can do to fix problem with locking max tag
->> count ?
+--- parport.h~	Thu Oct 11 11:29:28 2001
++++ parport.h	Thu Oct 11 11:57:08 2001
+@@ -252,7 +252,7 @@
+ 	IEEE1284_PH_ECP_SETUP,
+ 	IEEE1284_PH_ECP_FWD_TO_REV,
+ 	IEEE1284_PH_ECP_REV_TO_FWD,
+-	IEEE1284_PH_ECP_DIR_UNKNOWN,
++	IEEE1284_PH_ECP_DIR_UNKNOWN
+ };
+ struct ieee1284_info {
+ 	int mode;
 
-CA> Looks normal, it's that the new aic7xxx driver utilizes a maximum tag queue depth of 255 tags. Your devices are supporting only a maximum tag count of 128, 64 and 128 so it's perfectly normal.
-CA> Also these 'error' messages should only appear once and no more (until a reboot)
-
-        Thanks a lot !
-
---
-Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
-mailto:kris@spylog.com                          +7 095 332-03-88
+--------------A8A58F1C41C73B90940D837B--
 

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290228AbSCGB6V>; Wed, 6 Mar 2002 20:58:21 -0500
+	id <S290277AbSCGB7V>; Wed, 6 Mar 2002 20:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290277AbSCGB6L>; Wed, 6 Mar 2002 20:58:11 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:20145 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290228AbSCGB55>; Wed, 6 Mar 2002 20:57:57 -0500
-Date: Wed, 06 Mar 2002 17:57:57 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: early ioremap not working with 2.4.19-pre1-aa1 ?
-Message-ID: <76150000.1015466277@flay>
-In-Reply-To: <20020302034448.M4431@inspiron.random>
-In-Reply-To: <174730000.1015026374@flay> <20020302034448.M4431@inspiron.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S290333AbSCGB7M>; Wed, 6 Mar 2002 20:59:12 -0500
+Received: from are.twiddle.net ([64.81.246.98]:22426 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S290277AbSCGB7G>;
+	Wed, 6 Mar 2002 20:59:06 -0500
+Date: Wed, 6 Mar 2002 17:58:46 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, Robert Love <rml@tech9.net>,
+        Rusty Russell <rusty@rustcorp.com.au>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fast Userspace Mutexes III.
+Message-ID: <20020306175846.B26064@twiddle.net>
+Mail-Followup-To: Davide Libenzi <davidel@xmailserver.org>,
+	Hubertus Franke <frankeh@watson.ibm.com>,
+	Robert Love <rml@tech9.net>, Rusty Russell <rusty@rustcorp.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020304154848.A1055@elinux01.watson.ibm.com> <Pine.LNX.4.44.0203041305250.1561-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0203041305250.1561-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Mon, Mar 04, 2002 at 02:15:58PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I have code for the NUMA-Q systems that does an ioremap
->> as the first thing in smp_boot_cpus (ia32 tree). This seems to 
->> work fine until I install the aa patches ... then it hangs in the 
->> ioremap.
-> 
-> this sounds like the same problem of the MXT patch. In short pte_alloc
-> and in turn ioremap was usable only after the initcalls.
-> 
-> Does this incremental patch fix it?  (untested)
+On Mon, Mar 04, 2002 at 02:15:58PM -0800, Davide Libenzi wrote:
+> That's great. What if the process holding the mutex dies while there're
+> sleeping tasks waiting for it ?
 
-Sorry for the slow test cycle - this works just great ... will
-this make it back to your main tree?
+The lock is lost.  The same thing would happen with locks completely
+implemented in userspace.
 
-Thanks very much for the patch,
+I don't see that the kernel should do anything about this.  If a 
+thread is killed with predudice (i.e. without pthread_cancel) then
+there are all sorts of cleanups that won't happen.  Having the
+kernel automatically unlock the locks doesn't help much, since
+the data structures are quite likely in an inconsistent state.
 
-Martin.
 
+r~

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265224AbUBOTqh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 14:46:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbUBOTqh
+	id S265178AbUBOUL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 15:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265188AbUBOUL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 14:46:37 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:58116 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265224AbUBOTqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 14:46:36 -0500
-Date: Sun, 15 Feb 2004 19:46:33 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: Michal Kwolek <miho@centrum.cz>, jmorris@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oopsing cryptoapi (or loop device?) on 2.6.*
-Message-ID: <20040215194633.A8948@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Christophe Saout <christophe@saout.de>,
-	Michal Kwolek <miho@centrum.cz>, jmorris@redhat.com,
-	linux-kernel@vger.kernel.org
-References: <402A4B52.1080800@centrum.cz> <1076866470.20140.13.camel@leto.cs.pocnet.net> <20040215180226.A8426@infradead.org> <1076870572.20140.16.camel@leto.cs.pocnet.net> <20040215185331.A8719@infradead.org> <1076873760.21477.8.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
+	Sun, 15 Feb 2004 15:11:58 -0500
+Received: from av3-1-sn1.fre.skanova.net ([81.228.11.109]:50818 "EHLO
+	av3-1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S265178AbUBOUL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 15:11:57 -0500
+To: earny@net4u.de
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Linux 2.6.3-rc3
+References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
+	<m2znbk4s8j.fsf@p4.localdomain> <200402152052.50596.earny@net4u.de>
+From: Peter Osterlund <petero2@telia.com>
+Date: 15 Feb 2004 21:11:53 +0100
+In-Reply-To: <200402152052.50596.earny@net4u.de>
+Message-ID: <m28yj42jcm.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1076873760.21477.8.camel@leto.cs.pocnet.net>; from christophe@saout.de on Sun, Feb 15, 2004 at 08:36:00PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 15, 2004 at 08:36:00PM +0100, Christophe Saout wrote:
-> The only reason, I guess, is that it depends on this very small
-> dm-daemon thing:
-> http://people.sistina.com/~thornber/dm/patches/2.6-unstable/2.6.2/2.6.2-udm1/00016.patch
-> 
-> Some other dm targets in the unstable tree use this too, it's just to
-> have very simple bottom-half processing in a separate thread with
-> synchronous start and stop functions.
-> 
-> Especially since dm-crypt was announced in a german linux magazine two
-> weeks ago people keep asking me when to expect it in the kernel. And to
-> delay it for some months just because there might be changes to
-> dm-daemon, which would be almost trivial, is a stupid reason to hold it
-> back if you ask me. :(
+Ernst Herzberg <earny@net4u.de> writes:
 
-Well, actually the above code should not enter the kernel tree at all.
-Care to rewrite dm-crypt to use Rusty's kthread code in -mm instead and
-submit a patch to Andrew?  Whenever he merges the kthread stuff to mainline
-he could just include dm-crypt then.
+> Compile warnings with new driver:
+> 
+> [...]
+> drivers/video/aty/radeon_base.c: In function `radeon_probe_pll_params':
+> drivers/video/aty/radeon_base.c:474: warning: `xtal' might be used uninitialized in this function
+
+This looks like a real bug. I guess the patch below fixes it, but I
+can't test it because that code is not executed on my hardware. (And I
+doubt it will fix your problem.)
+
+--- linux/drivers/video/aty/radeon_base.c.old	2004-02-15 21:06:02.000000000 +0100
++++ linux/drivers/video/aty/radeon_base.c	2004-02-15 20:57:22.000000000 +0100
+@@ -566,8 +566,9 @@
+ 		break;
+ 	}
+ 
+-	do_div(vclk, 1000);
+-	xtal = (xtal * denom) / num;
++	vclk *= denom;
++	do_div(vclk, 1000 * num);
++	xtal = vclk;
+ 
+ 	if ((xtal > 26900) && (xtal < 27100))
+ 		xtal = 2700;
+
+> drivers/video/aty/radeon_base.c: In function `radeon_screen_blank':
+> drivers/video/aty/radeon_base.c:944: warning: `val2' might be used uninitialized in this function
+> drivers/video/aty/radeon_base.c: In function `radeonfb_setcolreg':
+> drivers/video/aty/radeon_base.c:1025: warning: `vclk_cntl' might be used uninitialized in this function
+>   CC      net/sunrpc/timer.o
+> drivers/video/aty/radeon_base.c: In function `radeon_calc_pll_regs':
+> drivers/video/aty/radeon_base.c:1319: warning: `pll_output_freq' might be used uninitialized in this function
+
+I think these warnings are harmless.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

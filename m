@@ -1,96 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265752AbUA0UdU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 15:33:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUA0UdU
+	id S265838AbUA0UoR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 15:44:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUA0UoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 15:33:20 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63483 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S265752AbUA0UdN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 15:33:13 -0500
-Message-ID: <4016CAE2.2070502@mvista.com>
-Date: Tue, 27 Jan 2004 12:32:34 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: eric.piel@tremplin-utc.net, minyard@acm.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Incorrect value for SIGRTMAX, MIPS nonsense removed,
- timer_gettime fix
-References: <1074979873.4012e421714b1@mailetu.utc.fr>	<40162D2D.3030406@mvista.com> <20040127104648.1e749f5d.akpm@osdl.org>
-In-Reply-To: <20040127104648.1e749f5d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 27 Jan 2004 15:44:17 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:4324 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265838AbUA0UoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 15:44:13 -0500
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Florian Huber <florian.huber@mnet-online.de>
+Cc: JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1075232395.11203.94.camel@suprafluid>
+References: <1075230933.11207.84.camel@suprafluid>
+	 <1075231718.21763.28.camel@shaggy.austin.ibm.com>
+	 <1075232395.11203.94.camel@suprafluid>
+Content-Type: text/plain
+Message-Id: <1075236185.21763.89.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 27 Jan 2004 14:43:05 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> George Anzinger <george@mvista.com> wrote:
+On Tue, 2004-01-27 at 13:39, Florian Huber wrote:
+> On Tue, 2004-01-27 at 20:28, Dave Kleikamp wrote:
+> > I wonder if JFS is having trouble getting the partition size.  Can you
+> > run jfs_fsck with the -v flag to see what part of the superblock it
+> > doesn't like?
 > 
->>The attached patch does the following:
->>
->>Removes C++ comment in favor of C style.
->>
->>Removes the special treatment for MIPS SIGEV values.  We only require (and error 
->>if this fails) that the SIGEV_THREAD_ID value not share bits with the other 
->>SIGEV values.  Note that mips has yet to define this value so when they do...
->>
->>Corrects the check for the signal range to be from 1 to SIGRTMAX inclusive.
->>
->>Adds a check to verify that kmem_cache_alloc() actually returned a timer, error 
->>if not.
->>
->>Fixes a bug in timer_gettime() where the incorrect value was returned if a 
->>signal was pending on the timer OR the timer was a SIGEV_NONE timer.
-> 
-> 
->>-	if ((event->sigev_notify & ~SIGEV_NONE & MIPS_SIGEV) &&
->>-			event->sigev_signo &&
->>-			((unsigned) (event->sigev_signo > SIGRTMAX)))
->>+	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
->>+	    ((unsigned int) (event->sigev_signo - 1) >= SIGRTMAX))
->> 		return NULL;
-> 
-> 
-> I was wondering if someone would try this one :( Really, this is just over
-> the top.  Take pity upon your readers, and do:
+> The current device is:  /dev/md2
+> Open(...READ/WRITE EXCLUSIVE...) returned rc = 0
+> Incorrect jlog length detected in the superblock (P).
+> Incorrect jlog length detected in the superblock (S).
+> Superblock is corrupt and cannot be repaired 
+> since both primary and secondary copies are corrupt.  
 
-I was rather thinking of educating them :)  It does produce better code...
-> 
-> 	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
-> 		(event->sigev_signo <= 0 || event->sigev_signo > SIGRTMAX))
-> 
-> 
->>@@ -804,7 +826,7 @@
->> 	 * equal to jiffies, so the timer notify function is called directly.
->> 	 * We do not even queue SIGEV_NONE timers!
->> 	 */
->>-	if (!(timr->it_sigev_notify & SIGEV_NONE)) {
->>+	if (!((timr->it_sigev_notify & ~SIGEV_THREAD_ID) == SIGEV_NONE)) {
->> 		if (timr->it_timer.expires == jiffies)
->> 			timer_notify_task(timr);
->> 		else
-> 
-> 
-> Are you sure this is correct?   If so, using != would be clearer.
+My guess is that software raid is stealing a few blocks from the end of
+the partition, and JFS doesn't like that, since it's journal goes all
+the way to the end.  I've created a patch that will shorten the journal
+if it can safely be done.  It was built against the latest jfsutils cvs
+tree, but applies to version 1.1.4:
+http://www10.software.ibm.com/developer/opensource/jfs/project/pub/jfsutils-1.1.4.tar.gz
 
-Yes, if he said SIGEV_NONE we don't want to deliver a signal.  The restatement 
-is OK with me.
+Please let me know if this fixes it.  (lkml: Yeah, I know the code is
+indented too far.  It's outside the kernel, so give me a break.)
 
-Shall I resubmit?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Index: jfsutils/fsck/fsckmeta.c
+===================================================================
+RCS file: /usr/cvs/jfs/jfsutils/fsck/fsckmeta.c,v
+retrieving revision 1.18
+diff -u -p -r1.18 fsckmeta.c
+--- jfsutils/fsck/fsckmeta.c	17 Dec 2003 20:28:47 -0000	1.18
++++ jfsutils/fsck/fsckmeta.c	27 Jan 2004 20:27:56 -0000
+@@ -2124,9 +2124,34 @@ int validate_super(int which_super)
+ 				}
+ 				agg_blks_in_aggreg += jlog_length_from_pxd;
+ 				if (agg_blks_in_aggreg > agg_blks_on_device) {
++					int64_t short_blocks;
++					uint32_t new_jlog_size;
+ 					/* log length is bad */
+ 					vs_rc = FSCK_BADSBFJLL;
+-					fsck_send_msg(fsck_BADSBFJLL, fsck_ref_msg(which_super));
++					/* Let's try to fix it.  :^) */
++					short_blocks = agg_blks_in_aggreg -
++						agg_blks_on_device;
++					new_jlog_size = (jlog_length_from_pxd -
++							 short_blocks) *
++						sb_ptr->s_bsize;
++					/* logform likes multiples of 16K */
++					new_jlog_size &= 0xfffffC000;
++					/* Don't let it go below 1/2 MB */
++					if (new_jlog_size > (1 << 19)) {
++						printf("The volume seems to have shrunk by %Ld blocks.\n"
++						       "Will attempt to fix.\n",
++						       short_blocks);
++						jlog_length_from_pxd = 
++							new_jlog_size /
++							sb_ptr->s_bsize;
++						PXDlength(&(sb_ptr->s_logpxd),
++							  jlog_length_from_pxd);
++						vs_rc = ujfs_put_superblk(
++							 Dev_IOPort, sb_ptr, 1);
++					}
++					if (vs_rc)
++						fsck_send_msg(fsck_BADSBFJLL,
++							      fsck_ref_msg(which_super));
+ 				}
+ 			}
+ 		}
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+David Kleikamp
+IBM Linux Technology Center
 

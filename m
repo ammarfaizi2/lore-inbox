@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266780AbUBGEt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 23:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266783AbUBGEt4
+	id S266783AbUBGExg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 23:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUBGExe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 23:49:56 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:20661 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S266780AbUBGEty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 23:49:54 -0500
-Date: Fri, 06 Feb 2004 20:49:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andi Kleen <ak@suse.de>, Nick Piggin <piggin@cyberone.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm subsystem involving X  (fwd)
-Message-ID: <14230000.1076129379@[10.10.2.4]>
-In-Reply-To: <p738yjflf38.fsf@verdi.suse.de>
-References: <51080000.1075936626@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402041539470.2086@home.osdl.org.suse.lists.linux.kernel><60330000.1075939958@flay.suse.lists.linux.kernel><64260000.1075941399@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402041639420.2086@home.osdl.org.suse.lists.linux.kernel><20040204165620.3d608798.akpm@osdl.org.suse.lists.linux.kernel><Pine.LNX.4.58.0402041719300.2086@home.osdl.org.suse.lists.linux.kernel><1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com.suse.lists.linux.kernel><Pine.LNX.4.58.0402041800320.2086@home.osdl.org.suse.lists.linux.kernel><98220000.1076051821@[10.10.2.4].suse.lists.linux.kernel><1076061476.27855.1144.camel@nighthawk.suse.lists.linux.kernel>
- <5450000.1076082574@[10.10.2.4].suse.lists.linux.kernel><1076088169.29478.2928.camel@nighthawk.suse.lists.linux.kernel><218650000.1076097590@flay.suse.lists.linux.kernel><Pine.LNX.4.58.0402061215030.30672@home.osdl.org.suse.lists.linux.kernel><220850000.1076102320@flay.suse.lists.linux.kernel> <p738yjflf38.fsf@verdi.suse.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 6 Feb 2004 23:53:34 -0500
+Received: from mail.shareable.org ([81.29.64.88]:38864 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S266783AbUBGExc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 23:53:32 -0500
+Date: Sat, 7 Feb 2004 04:53:27 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ulrich Drepper <drepper@redhat.com>, Rik van Riel <riel@redhat.com>,
+       Andi Kleen <ak@suse.de>, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040207045327.GB14597@mail.shareable.org>
+References: <20040205214348.GK31926@dualathlon.random> <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com> <20040206042815.GO31926@dualathlon.random> <40235D0B.5090008@redhat.com> <20040206154906.GS31926@dualathlon.random> <4024333B.6020805@redhat.com> <20040207021954.GD31926@dualathlon.random> <20040207033759.GA8384@nevyn.them.org> <20040207043655.GE31926@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20040207043655.GE31926@dualathlon.random>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Andi Kleen <ak@suse.de> wrote (on Saturday, February 07, 2004 04:54:03 +0100):
+Andrea Arcangeli wrote:
+> (changing three times is worthless in terms of security, all computers
+> runs the same bzImage so it's not changing, anyways as Ulrich said this
+> can be fixed transparently in "their" kernel)
 
-> "Martin J. Bligh" <mbligh@aracnet.com> writes:
->  
->> If we really want to do good testing, we should make a fake NUMA config
->> that can run a 4x SMP box as fake NUMA, with half the memory in each
->> "node" and half the processors ... but I never got around to coding that ;-)
-> 
-> I have such a patch for x86-64 if anybody is interested in that.
-> 
-> x86-64 low level NUMA is quite different from IA32 NUMA though so it 
-> would be a bit difficult to port.
+Andrea, please stop mixing the different arguments.  The three changes
+were for technical reasons, not security.
 
-Not quite sure what you mean ... I was driving at pretending an SMP box
-was NUMA ... but the x86_64 is already NUMA ... are you grouping nodes
-together into single nodes with 2 cpus each?
+> The bit I care about is that glibc should know about the vsyscall to
+> be efficient,
 
-What might be intriguing is to use Nick's domains stuff to create a heirarchy
-for the scheduler where we have 1 cpu nodes and 2 cpu nodes above that, but
-still keep the normal NUMA stuff flat for mem allocation. What might be 
-interesting is a heirarchy where if this is the HT connections of cpu layouts:
+This I agree with,
 
-1 --- 2
-|     |
-|     | 
-|     |
-3 --- 4
+> and that the offsets should be fixed.
 
-then domains of (1,2,3) (2,3,4) (1,3,4) (1 2 4), with a view to restricting
-the "double hop" traffic as much as possible. But I'm not sure the domains
-code copes with multiple overlapping domains - Nick?
+If the vdso position can vary between kernels, there is no real
+technical reason why the offsets have to be fixed.  At the simplest,
+just like there is AT_SYSINFO to get the generic syscall entry point,
+pass an AT_SYSINFO_GTOD for the gettimeofday syscall.  Glibc can use
+that with no significant changes to its existing mechanism.
 
-Andi, do you already set up the mem allocation fallback zonelists like that?
+(Although I prefer to use symbols in the vdso because it's cleaner,
+AT_SYSINFO_GTOD works.  Another alternative is to have a table of
+offsets in the vsyscall page which Glibc can read - future extensible
+without the overhead of symbol lookups which Ulrich doesn't like).
 
-M.
+-- Jamie
 

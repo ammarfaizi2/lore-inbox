@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264022AbUDFVyp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 17:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264027AbUDFVyp
+	id S264027AbUDFV57 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 17:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264032AbUDFV57
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 17:54:45 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:55454
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264022AbUDFVyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 17:54:43 -0400
-Date: Tue, 6 Apr 2004 23:54:41 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, hugh@veritas.com, vrajesh@umich.edu,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040406215441.GK2234@dualathlon.random>
-References: <20040402205410.A7194@infradead.org> <20040402203514.GR21341@dualathlon.random> <20040403094058.A13091@infradead.org> <20040403152026.GE2307@dualathlon.random> <20040403155958.GF2307@dualathlon.random> <20040403170258.GH2307@dualathlon.random> <20040405105912.A3896@infradead.org> <20040405131113.A5094@infradead.org> <20040406042222.GP2234@dualathlon.random> <20040405214330.05e4ecd7.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Apr 2004 17:57:59 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:36067 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S264027AbUDFV54
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 17:57:56 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: Joerg Sommrey <jo@sommrey.de>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: High CPU temp on Athlon MP w/ recent 2.6 kernels
+Date: Tue, 6 Apr 2004 17:57:54 -0400
+User-Agent: KMail/1.6
+References: <20040406193649.GA13257@sommrey.de> <200404061626.37714.gene.heskett@verizon.net> <20040406204545.GA15946@sommrey.de>
+In-Reply-To: <20040406204545.GA15946@sommrey.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040405214330.05e4ecd7.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404061757.54779.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.9.226] at Tue, 6 Apr 2004 16:57:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 05, 2004 at 09:43:30PM -0700, Andrew Morton wrote:
-> It does pagebuf I/O with kmalloced memory?  Wow.  Pretty much anything
-> which goes from kmalloc virtual addresses back to pageframes is a big fat
-> warning sign.
+On Tuesday 06 April 2004 16:45, Joerg Sommrey wrote:
+>On Tue, Apr 06, 2004 at 04:26:37PM -0400, Gene Heskett wrote:
+>> But join the 70C club, that AMD athlon keeps itself at a medium
+>> simmer full time.  Mine has been running 67-72C for 3 years now. 
+>> Strangly, shutting down setiathome doesn't cool it by more than a
+>> couple degrees C.  And, its got a $50 all copper Glaciator cooler
+>> on it, heavy heavy heavy.
+>
+>That's not quite my point.  I am not afraid of running my athlons at
+>70C.  I just don't want to.  With Debian Woody they ran at <40C,
+> which is impressing IMHO.  An upgrade to Sarge raised the temp for
+> about 5K, which is still very cool.  This temperature didn't change
+> when I upgraded to an early 2.6 kernel.  Just after 2.6.3-mm4 there
+> was this jump for 10K that I just do not understand.  It doesn't
+> hurt the athlons but seems unnecessary to me.
+>
+>-jo
 
-it's tricky indeed, though it worked fine as far as compound was left
-disabled with hugetlbfs=n.
+40C?  Shut down for an hour to cool, I've never seen the post on my 
+board show less than 63C by the time it gets to that part of the 
+bios.  I'm running a 1400DX at 1400mhz, so the bios thinks its a 
+1600DX, and I've got vcore set down to 1.65 volts which helps a bit.
 
-> Do you see any reason why we shouldn't flip things around and make the
-> hugetlb code explicitly request the compound page metadata when allocating
-> the pages?
+Actually, the athlons seem to have a builtin shutdown at 75C, I've hit 
+that once or 3 times when the air under the desk was trapped worse 
+than usual.  Makes for downright ugly reboots...
 
-I definitely agree we should reverse the logic to __GFP_COMP instead of
-__GFP_NO_COMP in mainline. Problem is I coudln't do it in the short term
-to avoid invalidating the testing done with hugetlbfs=y. Soon I can
-reverse it and add the __GFP_COMP only for the hugetlbfs big-order
-dyanmic allocations that should be quick to identify.
-
-Christoph, I got no positive feedback yet for the alternate fix you
-proposed and it's not obvious to my eyes (isn't good_pages going to be
-screwed with your fix?), but I wanted to checkin a fix into CVS in the
-meanwhile, so for now I've checked in my __GFP_NO_COMP fix that I'm sure
-doesn't require any testing since it's obviously safe and it should
-definitely fix the problem. This way you can also take your time for the
-testing of your better fix.
-
-What's not clear to me about your fix is if it's really working safe
-with good_pages being overdecremented (good_pages doesn't look just an
-hint, there seems to be a valid reason you're doing the set_bit/test_bit
-on page->private, no?).
-
-thanks.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

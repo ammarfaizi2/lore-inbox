@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279984AbRKVQ1L>; Thu, 22 Nov 2001 11:27:11 -0500
+	id <S279986AbRKVQ1l>; Thu, 22 Nov 2001 11:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279986AbRKVQ1A>; Thu, 22 Nov 2001 11:27:00 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:9126 "EHLO
-	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
-	id <S279984AbRKVQ0u>; Thu, 22 Nov 2001 11:26:50 -0500
-Message-ID: <3BFD2709.31A1A85E@starband.net>
-Date: Thu, 22 Nov 2001 11:25:45 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James A Sutherland <jas88@cam.ac.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166rbB-0005LC-00@mauve.csi.cam.ac.uk>
+	id <S279988AbRKVQ1b>; Thu, 22 Nov 2001 11:27:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29959 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S279986AbRKVQ1Z>;
+	Thu, 22 Nov 2001 11:27:25 -0500
+Date: Thu, 22 Nov 2001 17:27:00 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] block-highmem-all-18b
+Message-ID: <20011122172700.I19902@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why have SWAP if you don't need it - answer that.?
+Hi,
 
-James A Sutherland wrote:
+A minor update version, nothing major. Changes:
 
-> On Thursday 22 November 2001 1:53 am, war wrote:
-> > I do not understand something.
-> >
-> > How can having swap speed ANYTHING up?
->
-> By providing ADDITIONAL storage. Yes, it's slower than RAM - but it's faster
-> than not having the storage at all.
->
-> > RAM = 1000MB/s.
-> > DISK = 10MB/s
-> >
-> > Ram is generally 1000x faster than a hard disk.
-> >
-> > No swap = fastest possible solution.
->
-> BS. You don't use swap INSTEAD of RAM, but AS WELL AS. Moving less frequently
-> used data to swap allows you to put more frequently used data in RAM, which
-> DOES speed things up. (At least, it does if the VM system works properly :P)
->
-> By your logic, we should switch off the system RAM, too: after all, L2 cache
-> is much faster again, so using RAM can only slow things down?
->
-> James.
+- Megaraid highmem I/O enabled again, since 2.4.14 this should be safe.
+  Verified by Arjan. (me)
+- Change can_dma_32 to highmem_io to make the meaning more clear (me).
+- Drop discontig pfn change for now (me)
+
+Find it here:
+
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.15-pre9/block-highmem-all-18b.bz2
+
+-- 
+Jens Axboe
 

@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266100AbTLaD11 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 22:27:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266101AbTLaD11
+	id S266103AbTLaDyK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 22:54:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266104AbTLaDyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 22:27:27 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:6295 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S266100AbTLaD1Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 22:27:25 -0500
-Date: Wed, 31 Dec 2003 16:20:52 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: kernel.bkbits.net is up
-In-reply-to: <200312310312.hBV3CIL29133@work.bitmover.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1072840851.2006.97.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <200312310312.hBV3CIL29133@work.bitmover.com>
+	Tue, 30 Dec 2003 22:54:10 -0500
+Received: from ms-smtp-01-qfe0.nyroc.rr.com ([24.24.2.55]:6285 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S266103AbTLaDyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 22:54:08 -0500
+From: craig duncan <duncan@nycap.rr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16370.18579.203219.50287@nycap.rr.com>
+Date: Tue, 30 Dec 2003 22:54:59 -0500
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Problem with buffer underruns burning at 8x under 2.6
+In-Reply-To: <20031230191712.GQ3086@suse.de>
+References: <16365.58236.420224.645120@nycap.rr.com>
+	<20031229192639.GI3086@suse.de>
+	<16369.47055.613713.304233@nycap.rr.com>
+	<20031230191712.GQ3086@suse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+CC: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pardon my ignorance, but what's the benefit to having an account there?
+Jens Axboe writes:
+> Your problem is that DMA is disabled. I don't know why you say that
+> hdparm doesn't work for you, how are you running it? I'm assuming that
+> /dev/cdrom is linked to /dev/hdc (or where is you CDROM located?).
 
-Regards,
+You're right... dma is disabled... for _all_ my drives.  Some change
+between booting up in 2.4 vs 2.6.  I have no idea why... yet.
 
-Nigel
+And hdparm does work fine on /dev/cdrom.  I did something stupid (ran
+/sbin/hdparm as a normal user) which made me think it didn't.
 
-On Wed, 2003-12-31 at 16:12, Larry McVoy wrote:
-> If you don't have an account on this and you want one (it's mostly for 
-> BK users but has sort of turned into a public machine for any of the 
-> kernel developers, DaveM describes it as "a friendly place") send me 
-> or davem a ssh2 key and we'll set you up.
-> 
-> --lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
+Thanks for your help.
 
+craig

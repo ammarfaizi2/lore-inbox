@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277261AbRJIXOH>; Tue, 9 Oct 2001 19:14:07 -0400
+	id <S278057AbRJIXev>; Tue, 9 Oct 2001 19:34:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278055AbRJIXN6>; Tue, 9 Oct 2001 19:13:58 -0400
-Received: from paloma17.e0k.nbg-hannover.de ([62.159.219.17]:39925 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S277261AbRJIXNn>; Tue, 9 Oct 2001 19:13:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-Date: Wed, 10 Oct 2001 01:14:10 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Robert Love <rml@tech9.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011009231350Z277261-760+22974@vger.kernel.org>
+	id <S277263AbRJIXeg>; Tue, 9 Oct 2001 19:34:36 -0400
+Received: from apollo.wizard.ca ([204.244.205.22]:26118 "HELO apollo.wizard.ca")
+	by vger.kernel.org with SMTP id <S277020AbRJIXeX>;
+	Tue, 9 Oct 2001 19:34:23 -0400
+Subject: Framebuffer detection problems, 2.4.9
+From: Michael Peddemors <michael@wizard.ca>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 09 Oct 2001 16:38:15 -0700
+Message-Id: <1002670696.4112.285.camel@mistress>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 9. Oktober 2001 22:54 schrieb Robert Love:
-> On Tue, 2001-10-09 at 18:17, Charles Cazabon wrote:
-> > They work, but not "fine".  There are performance issues with
-> > Thunderbird-core Athlons in SMP configurations that may slow them down
-> > somewhat.
->
-> Are you sure it is related to SMP and not the fact the Palomino core is
-> faster in general?
+I seldom dive into the graphical end of things myself, but this one has
+had me stumped for the last week and a half..
 
-Yes and No. ;-)
+I have a working ThinClient setup, that loads it's kernel via tftpd and
+mknbi, with the 'vga=ask' option..
+On one machine, with a Cirrus Logic card, (Cirrus Framebuffer support
+compiled in) things work fine, but on all my other boxes with VESA
+complaint cards, I cannot get it to use the VESA framebuffer, or
+seemingly to detect the VESA devices with this kernel, although we can
+on detect and pass modes using LILO on similar kernels.
 
-Robert have a look at the direct comparisons of dual 1.2 GHz Athlon TB and 
-1.2 GHz Athlon MP. There are many flowting around. The Palomino core 
-enhancements are even at the same chip clock very good for SMP.
+I have of course read as many how-to's as possible, and the svga.txt
+file seems to indicate that if I use the vga=ask option, and then run
+scan it should show all VESA modes as well, (It does detect it as a VESA
+VGA card), but the /fb/vesafb.txt seems to indicate that it won't show
+the modes..
 
-http://www.anandtech.com/chipsets/showdoc.html?i=1483&p=1
+I see that in video.S CONFIG_VIDEO_VESA is harddefined, but I cannot
+quite understand why I cannot enter a VESA mode that works..
+I tried 313, 0313, and the decimal equivs 787 and 0787 but it keeps
+returning that as an invalid mode..  This occurs on several machines,
+all with recent video cards, that are VESA compliant, and listed as
+compatible.. the motherboards all use recent BIOS's but still no joy..
 
-> I'm not saying non-Palomino-core Athlons don't have SMP issues. 
+I will accept help here, or can someone point me to a good mailing list
+to work this out?
 
-They don't have issues but they are (much) slower in dual configurations for 
-specific test cases.
+-- 
+"Catch the Magic of Linux..."
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+LinuxAdministration - Internet Services
+NetworkServices - Programming - Security
+Wizard IT Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604)589-0037 Beautiful British Columbia, Canada
 
-> I'm sure something is different -- a lot of errata is fixed (and added) in
-> between core revisions.  I'm just not so sure a measurable difference is
-> easily shown...especially when there are other reasons for a performance
-> increase in the core itself.
-
-The differences _are_ easily shown.
-
-So the Athlon XP (Palomino core) _IS_ the way to go...8-)
-
-
-Regards,
-	Dieter

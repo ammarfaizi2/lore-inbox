@@ -1,66 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132718AbRDCXxF>; Tue, 3 Apr 2001 19:53:05 -0400
+	id <S132413AbRDDAJI>; Tue, 3 Apr 2001 20:09:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132720AbRDCXw4>; Tue, 3 Apr 2001 19:52:56 -0400
-Received: from mail.cnsp.com ([206.206.97.197]:15366 "EHLO mail.cnsp.com")
-	by vger.kernel.org with ESMTP id <S132718AbRDCXws>;
-	Tue, 3 Apr 2001 19:52:48 -0400
-Mime-Version: 1.0
-Message-Id: <a05010402b6f00bdebe5b@[204.134.47.72]>
-Date: Tue, 3 Apr 2001 17:51:53 -0600
+	id <S132405AbRDDAI6>; Tue, 3 Apr 2001 20:08:58 -0400
+Received: from snowstorm.mail.pipex.net ([158.43.192.97]:61344 "HELO
+	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S132219AbRDDAIx>; Tue, 3 Apr 2001 20:08:53 -0400
+From: Michael Miller <michaelm@mjmm.org>
+Message-Id: <200104040003.f3403MG01149@mjmm.org>
+Subject: memory size detection problem on 2.3.16+ and 2.4.x
 To: linux-kernel@vger.kernel.org
-From: pi <pi_ichat@bigfoot.com>
-Subject: Kernel v2.4.3 segfault on any network send
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Date: Wed, 4 Apr 2001 01:03:22 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc me the messages, i'm not subscribed...
-Hey,
-I just upgraded to kernel 2.4.3 on a k6 (233 mhz) with the processor 
-type set accordingly, all the proper drivers compiled in and I get 
-this big disgusting error message (my friend said that means i f***ed 
-up) Sorry I don't have it, but I'll try to get it, because i'd have 
-to write it down... I can't telnet-and-copy/paste for obvious reasons.
-If I boot to kernel 2.4.2, it won't do that, so I know that lynx 
-isn't the problem (and ftp has it too).
+Hi,
 
-Pi
+summary: e801 memory size detection call failure, but bios doesnt
+set carry flag on error and hence get an incorrect memory size.
 
-PS:
-The SysRq key is a little funky in all kernels since 2.4.0... it 
-doesn't accept help with the letter H, i have to hit the spacebar, 
-and the log levels only change with the number pad...
+Since the 2.3.16 kernel, my PC has been unable
+to run any newer kernels (>2.3.16 or 2.4.x) without using the mem=64M
+command line parameter.  This was when the new bigmem support was added
+which changed the memory detection routines somewhat.
 
-Pi
--- 
-use begin;
-begin::signature;
-Anthony "3.14159" Martinez
-AIM name - LittleManTheGeek
----PERL-SIGNATURE---
-#! /usr/bin/perl -w
-while () {
-	my $sig1;
-	my $sig2;
-	my $name;
-	$sig1="What we have here is a failure to deallocate";
-	$sig2="This file provides programmers with information
-	proving that it was really a hardware problem";
-	$name="Anthony \"3.14159 iMacTinez\" Martinez"
-}
+I have traced this down to a problem with the way in which the kernel
+calls the e801 memory size detection bios call.  The kernel assumes that
+the bios will set the carry flag on the return from the call should
+there be an error.  However, the BIOS on my PC doesnt do this- infact
+it seems to simply return from the call without changing any registers.
 
-=pod
-ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL 
-YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR 
-BASE ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE 
-ARE BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
-BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
-BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
-BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
-BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
-BELONG TO US! ALL YOUR BASE ARE BELONG TO US! ALL YOUR BASE ARE 
-BELONG TO US! ALL YOUR BASE ARE BELONG TO US!
-Pi
-=cut
+As a result, my memory size being used is approx 1GB which is derived from 
+the values in the CX and DX registers before the call. My BIOS does not clear
+them (CX or DX) nor does it set the carry flag. 
+
+I have included a pretty harmless patch below (taken against 2.4.2) for
+ arch/i386/boot/setup.S
+which works around this buggy BIOS issue.  
+
+The patch clears CX and DX before the call to the e801 routine.  This
+should be harmless for any machines which currently work correctly.
+
+Please could this patch be included in the next 2.4.x kernel source tree,
+as I would guess that it is not only me affected by this...
+
+Many thanks.
+Michael Miller
+
+--- linux-2.4.2-orig/arch/i386/boot/setup.S	Sat Jan 27 18:51:35 2001
++++ linux/arch/i386/boot/setup.S	Wed Apr  4 00:13:52 2001
+@@ -32,6 +32,10 @@
+  *
+  * Transcribed from Intel (as86) -> AT&T (gas) by Chris Noe, May 1999.
+  * <stiker@northlink.com>
++ *
++ * Workaround flakey BIOSes for e801 call - which don't use carry flag
++ * on errors. Michael Miller (michaelm@mjmm.org), April 2001
++ *
+  */
+ 
+ #define __ASSEMBLY__
+@@ -341,6 +345,11 @@
+ # to write everything into the same place.)
+ 
+ meme801:
++	xorl	%edx, %edx			# Clear regs to work around
++	xorl	%ecx, %ecx			# flakey BIOSes which don't
++						# use carry bit correctly
++						# This way we get 0MB ram on
++						# call failure
+ 	movw	$0xe801, %ax
+ 	int	$0x15
+ 	jc	mem88
+
+
+
+

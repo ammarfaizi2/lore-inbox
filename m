@@ -1,58 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbUCNCXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 21:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbUCNCXo
+	id S263253AbUCNC17 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 21:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbUCNC17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 21:23:44 -0500
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:38566 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263250AbUCNCXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 21:23:40 -0500
-Message-ID: <4053C22B.2090200@blueyonder.co.uk>
-Date: Sun, 14 Mar 2004 02:23:39 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: NVIDIA and 2.6.4?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2004 02:23:39.0292 (UTC) FILETIME=[5C9955C0:01C4096B]
+	Sat, 13 Mar 2004 21:27:59 -0500
+Received: from holomorphy.com ([207.189.100.168]:60171 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263253AbUCNC14 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 21:27:56 -0500
+Date: Sat, 13 Mar 2004 18:27:42 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: anon_vma RFC2
+Message-ID: <20040314022742.GH655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+	linux-kernel@vger.kernel.org
+References: <20040314011920.GG655@holomorphy.com> <Pine.LNX.4.44.0403132039340.15971-100000@chimarrao.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403132039340.15971-100000@chimarrao.boston.redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Jones wrote:
- >In a futile gesture against entropy, Sid Boyce wrote:
- >>/ Max Valdez wrote:/
+On Sat, 13 Mar 2004, William Lee Irwin III wrote:
+>> [hugetlb at same address]
 
- >>/ >Been using nvidia modules for quite a few 2.6.x kernels, most of 
-them mmX. /
- >>/ >without problems/
+On Sat, Mar 13, 2004 at 08:41:42PM -0500, Rik van Riel wrote:
+> Well, we can find this merely by looking at the page tables
+> themselves, so that shouldn't be a problem.
 
- >I'm using it here with 2.6.4, no problems as yet.
+Pagetables of a kind the core understands may not be present there.
+On ia32 one could in theory have a pmd_huge() check, which would in
+turn not suffice for ia64 and sparc64 hugetlb. These were only examples.
+Other unusual forms of mappings, e.g. VM_RESERVED and VM_IO, may also
+be bad ideas to trip over by accident.
 
- >>/ Something strange happened, I shall try 2.6.4-mm1 shortly to see if 
-it /
- >>/ is still the same. I reckon though that I've suffered a filesystem /
- >>/ corruption./
 
- > A quick thought - have you got CONFIG_REGPARM enabled in the kernel
- > config? If so, disable it and try again. (It's almost certain to
- > cause crashes with binary modules.)
-I haven't had CONFIG_REGPARM set in any of the kernels. 2.6.4-rc2-mm1 
-was fine until after I first booted 2.6.4-mm1, then neither would work 
-with nvidia. I also got some strange stuff happening, including checksum 
-errors on the driver and I had to download it again from nvidia.com on 
-two occasions, the first redownload reinstalled  once, then  chksum 
-errors, the second redownload did the same as well as chksum 
-segfaulting, since then it's been fine. See also the garbage I get out 
-of vi in an earlier posting.
-Regards
-Sid.
+On Sat, 13 Mar 2004, William Lee Irwin III wrote:
+>> Searching the COW sharing group isn't how everything works, but in those
+>> cases where additionally you can find mm's that don't map the page at
+>> that virtual address and may have different vmas cover it, this can
+>> arise.
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
+On Sat, Mar 13, 2004 at 08:41:42PM -0500, Rik van Riel wrote:
+> This could only happen when you truncate a file that's
+> been mapped by various nonlinear VMAs, so truncate can't
+> get rid of the pages...
+> I suspect there are two ways to fix that:
+> 1) on truncate, scan ALL the ptes inside nonlinear VMAs
+>    and remove the pages
+> 2) don't allow truncate on a file that's mapped with
+>    nonlinear VMAs
+> Either would work.
 
+I'm not sure how that came in. The issue I had in mind was strictly
+a matter of tripping over things one can't make sense of from
+pagetables alone in try_to_unmap().
+
+COW-shared anonymous pages not unmappable via anonymous COW sharing
+groups arising from truncate() vs. remap_file_pages() interactions and
+failures to check for nonlinearly-mapped pages in pagetable walkers are
+an issue in general of course, but they just aren't this issue.
+
+
+-- wli

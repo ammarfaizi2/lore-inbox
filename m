@@ -1,39 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265820AbUATVaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 16:30:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUATVaZ
+	id S265796AbUATV0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 16:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265797AbUATV0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 16:30:25 -0500
-Received: from AGrenoble-101-1-4-90.w217-128.abo.wanadoo.fr ([217.128.202.90]:39119
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S265820AbUATVaU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 16:30:20 -0500
-Subject: Re: HPT370 status [2.4/2.6]
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Brian McGroarty <brian@mcgroarty.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040120204537.GA6820@mcgroarty.net>
-References: <1g0ZG-2q6-15@gated-at.bofh.it> <400D72B5.40705@gmx.at>
-	 <yw1x4quqo1gx.fsf@ford.guide>  <20040120204537.GA6820@mcgroarty.net>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1074634222.784.9.camel@nomade>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 20 Jan 2004 22:30:22 +0100
-Content-Transfer-Encoding: 8BIT
+	Tue, 20 Jan 2004 16:26:45 -0500
+Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:31843 "EHLO
+	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S265796AbUATV0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 16:26:44 -0500
+Date: Tue, 20 Jan 2004 22:25:24 +0100
+Message-Id: <200401202125.i0KLPOgh007806@lt.wsisiz.edu.pl>
+From: Lukasz Trabinski <lukasz@trabinski.net>
+To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.25-pre6
+In-Reply-To: <Pine.LNX.4.58L.0401161207000.28357@logos.cnet>
+X-Newsgroups: wsisiz.linux-kernel
+X-PGP-Key-Fingerprint: 5C87 7FF4 9539 6AA9 4EEF  529D 0236 ECCB 70F1 E978
+X-Key-ID: 70F1E978
+User-Agent: tin/1.7.3-20031220 ("Taransay") (UNIX) (Linux/2.4.25-pre6 (i686))
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mar 20/01/2004 à 21:45, Brian McGroarty a écrit :
-
-> 2.6 recognizes my 374, which uses the hpt366 driver like the
-> 370. However, no devices are being made available from it [1].
+In article <Pine.LNX.4.58L.0401161207000.28357@logos.cnet> you wrote:
 > 
-> If others' experiences are any different, I'd love to hear.
+> Hi,
+> 
+> Here goes -pre6.
+> 
+> This release came out so quickly because -pre5 contains a deadly mistake
+> in one of the fs patches.
 
-Same problem here, with an hpt370. 2.4 works fine.
+SMP (2x2.66GHz Intel), with scsi aic79xx  with kernel -pre6 crashed after
+3 days.
 
-	Xav
+No ooops in logs files or console.
+Output from console SysRq showTasks, showMem and showTasks you can see
+here:
 
+http://lukasz.eu.org/minicom.txt
+or here, if first will not work:
+http://www.pm.waw.pl/~lukasz/minicom.txt
+
+
+-- 
+*[ £T ]*

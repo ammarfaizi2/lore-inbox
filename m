@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUFRU5N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263640AbUFRXJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUFRU5N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:57:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUFRUxn
+	id S263640AbUFRXJB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 19:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbUFRXIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:53:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27833 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262101AbUFRUtC (ORCPT
+	Fri, 18 Jun 2004 19:08:09 -0400
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:31109 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264527AbUFRXFN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:49:02 -0400
-Date: Fri, 18 Jun 2004 13:51:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: axboe@suse.de, dev@opensound.com, linux-kernel@vger.kernel.org
+	Fri, 18 Jun 2004 19:05:13 -0400
+From: "Thomas Gleixner" <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+Organization: linutronix
+To: 4Front Technologies <dev@opensound.com>
 Subject: Re: Stop the Linux kernel madness
-Message-Id: <20040618135136.45581da7.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com>
-References: <20040618082708.GD12881@suse.de>
-	<Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+Date: Sat, 19 Jun 2004 00:59:27 +0200
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <40D232AD.4020708@opensound.com> <20040618204655.GA4441@mars.ravnborg.org> <40D357CB.8020904@opensound.com>
+In-Reply-To: <40D357CB.8020904@opensound.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200406190059.27976.tglx@linutronix.de>
+X-Seen: false
+X-ID: XjI89UZCre1XtUlNB3FxjPZkCJhOCy7hUDIiZexYijYIiOUIbXtq6u@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@redhat.com> wrote:
->
-> Maintaining a patch for one version of the distribution, in
-> order to get a feature to customers sooner, is perfectly
-> doable and may make economic sense.
-> 
-> Maintaining an out-of-tree patch forever because you didn't
-> get around to merging it into the upstream kernel doesn't.
+On Friday 18 June 2004 22:59, 4Front Technologies wrote:
+> The problem is that we had our software working correctly with Linux 2.6.7
+> and when we started to get a flood of support requests from our customers,
 
-Problem is, what happens if vendor X ships a feature and that feature is
-deemed unacceptable for the kernel.org kernel?
+Your customers are your customers and thats your business. And if SUSE is the 
+problem then complain there.
 
-There are examples of this and as I've earlier indicated, I'd be OK with
-merging some fairly stinky things after 2.7 forks off, as a service to the
-major kernel.org customers and as a general lets-keep-things-in-sync
-exercise.
+As I said before: Adjust your tie !
 
-But we then need to do it all again in 2.8.x.  It's hard to see how to fix
-this apart from either merging everything into the main tree or dropping
-things from vendor trees.  Or waiting for someone to come up with an
-acceptable form of whatever it is the patch does.
+-- 
+Thomas
+_____________________________________________________________________
+>From slash dot org
+"When customers are visiting, engineers are not allowed to wear ties. 
+That way the customer can tell who is the engineer and who is the 
+salesman (and therefore whom to believe.). Ties cut off blood flow 
+to the brain, making it easier for the salesmen to do their jobs." 
+_____________________________________________________________________
+linutronix - competence in embedded & realtime linux
+http://www.linutronix.de
+mail: tglx@linutronix.de
+

@@ -1,122 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316884AbSGHMmL>; Mon, 8 Jul 2002 08:42:11 -0400
+	id <S316883AbSGHMkb>; Mon, 8 Jul 2002 08:40:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316886AbSGHMmK>; Mon, 8 Jul 2002 08:42:10 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:778 "EHLO mail.stock-world.de")
-	by vger.kernel.org with ESMTP id <S316884AbSGHMmI>;
-	Mon, 8 Jul 2002 08:42:08 -0400
-Message-ID: <3D29893D.2040909@evision-ventures.com>
-Date: Mon, 08 Jul 2002 14:44:45 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
+	id <S316884AbSGHMka>; Mon, 8 Jul 2002 08:40:30 -0400
+Received: from pD952ABA4.dip.t-dialin.net ([217.82.171.164]:9685 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316883AbSGHMk3>; Mon, 8 Jul 2002 08:40:29 -0400
+Date: Mon, 8 Jul 2002 06:41:27 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Daniel Phillips <phillips@arcor.de>, Pavel Machek <pavel@ucw.cz>,
+       "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: simple handling of module removals Re: [OKS] Module removal
+In-Reply-To: <Pine.LNX.3.95.1020708082014.19138A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0207080632200.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.25 end_request trivia
-References: <Pine.LNX.4.33.0207051646280.2484-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------020200010201000909040009"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020200010201000909040009
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi,
 
-The following patch does the following:
+On Mon, 8 Jul 2002, Richard B. Johnson wrote:
+> (3)	Set a global flag "module_remove", it doesn't have to be atomic.
+> 	It needs only to be volatile. It is used in schedule() to trap
+> 	all CPUs.
+>         schedule()
+>         {
+>             while(module_remove)
+>                 ;
+>         }
 
-1. Make airo include tqueue.h, which is needed to make this driver
-compile at all again.
+That doesn't sound too clean to me...
 
-2. Adjust aztcd.c and sonycd535.c to the recent end_request() signature
-changes.
+Maybe we should lock that module explicitly, instead of halting anything 
+that is schedule()d.
 
-The patch is against 2.5.24, but still applies cleanly on top of 2.5.25.
+We should possibly add something to lock in struct module (or 
+module_info), be it some kind of integer or be it a semaphore (which is 
+clearly a bit too much, I think) or a spinlock, or whatever. This 
+shouldn't protect the module from being used in parallel, but from being 
+used in removal. So on removal, we do something like module->remove |= 1 
+or even up(module->m_sem), and when we're done, we do something related to 
+undo the up, remove or whatever...
 
---------------020200010201000909040009
-Content-Type: text/plain;
- name="misc-2.5.24.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="misc-2.5.24.diff"
+BTW, looking at struct module, we have this union
 
-diff -urN linux-2.5.24/drivers/cdrom/aztcd.c linux/drivers/cdrom/aztcd.c
---- linux-2.5.24/drivers/cdrom/aztcd.c	2002-06-21 00:53:56.000000000 +0200
-+++ linux/drivers/cdrom/aztcd.c	2002-06-23 20:12:27.000000000 +0200
-@@ -2083,12 +2083,12 @@
- 				}
- 				azt_state = AZT_S_IDLE;
- 				while (current_valid())
--					end_request(0);
-+					end_request(CURRENT, 0);
- 				return;
- 			}
- 
- /*	  if (aztSendCmd(ACMD_SET_MODE)) RETURN("azt_poll 3");
--	  outb(0x01, DATA_PORT);          
-+	  outb(0x01, DATA_PORT);
- 	  PA_OK;
- 	  STEN_LOW;
- */
-@@ -2138,7 +2138,7 @@
- 				}
- 				azt_state = AZT_S_IDLE;
- 				while (current_valid())
--					end_request(0);
-+					end_request(CURRENT, 0);
- 				return;
- 			}
- 
-@@ -2236,7 +2236,7 @@
- 						break;
- 					}
- 					if (current_valid())
--						end_request(0);
-+						end_request(CURRENT, 0);
- 					AztTries = 5;
- 				}
- 				azt_state = AZT_S_START;
-diff -urN linux-2.5.24/drivers/cdrom/sonycd535.c linux/drivers/cdrom/sonycd535.c
---- linux-2.5.24/drivers/cdrom/sonycd535.c	2002-06-21 00:53:49.000000000 +0200
-+++ linux/drivers/cdrom/sonycd535.c	2002-06-23 20:12:27.000000000 +0200
-@@ -805,14 +805,8 @@
- 	Byte cmd[2];
- 
- 	while (1) {
--		/*
--		 * The beginning here is stolen from the hard disk driver.  I hope
--		 * it's right.
--		 */
--		if (blk_queue_empty(QUEUE)) {
--			CLEAR_INTR;
-+		if (blk_queue_empty(QUEUE))
- 			return;
--		}
- 
- 		dev = minor(CURRENT->rq_dev);
- 		block = CURRENT->sector;
-@@ -828,7 +822,6 @@
- 				 * If the block address is invalid or the request goes beyond the end of
- 				 * the media, return an error.
- 				 */
--				
- 				if (sony_toc->lead_out_start_lba <= (block / 4)) {
- 					end_request(CURRENT, 0);
- 					return;
-diff -urN linux-2.5.24/drivers/net/wireless/airo.c linux/drivers/net/wireless/airo.c
---- linux-2.5.24/drivers/net/wireless/airo.c	2002-06-21 00:53:45.000000000 +0200
-+++ linux/drivers/net/wireless/airo.c	2002-06-23 18:25:56.000000000 +0200
-@@ -32,6 +32,7 @@
- #include <linux/timer.h>
- #include <linux/interrupt.h>
- #include <linux/in.h>
-+#include <linux/tqueue.h>
- #include <asm/io.h>
- #include <asm/system.h>
- #include <asm/bitops.h>
+union {
+	atomic_t usecount;
+	long pad;
+}
 
---------------020200010201000909040009--
+Fair enough, but if long pad is to pad (as it name tells us), shouldn't it 
+be atomic_t then (I mean, what if we change the type for atomic_t)?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

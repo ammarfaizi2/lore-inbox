@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277001AbRJHQkr>; Mon, 8 Oct 2001 12:40:47 -0400
+	id <S276987AbRJHQoR>; Mon, 8 Oct 2001 12:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276987AbRJHQkh>; Mon, 8 Oct 2001 12:40:37 -0400
-Received: from dsl-64-130-65-177.telocity.com ([64.130.65.177]:6394 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S276477AbRJHQk3>; Mon, 8 Oct 2001 12:40:29 -0400
-Subject: Re: sun + gigabit nic
-From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-To: kernel@ddx.a2000.nu
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        sparclinux@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.40.0110061843230.12443-100000@ddx.a2000.nu>
-In-Reply-To: <Pine.LNX.4.40.0110061843230.12443-100000@ddx.a2000.nu>
-Content-Type: text/plain
+	id <S277003AbRJHQoH>; Mon, 8 Oct 2001 12:44:07 -0400
+Received: from mailgw.prontomail.com ([216.163.180.10]:58187 "EHLO
+	c0mailgw05.prontomail.com") by vger.kernel.org with ESMTP
+	id <S276987AbRJHQoC>; Mon, 8 Oct 2001 12:44:02 -0400
+Message-ID: <3BC1D7E4.C5DDC22A@starband.net>
+Date: Mon, 08 Oct 2001 12:44:20 -0400
+From: war <war@starband.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Question concering SBLIVE! driver.
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 08 Oct 2001 09:44:13 -0700
-Message-Id: <1002559480.2837.11.camel@localhost.localdomain>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-10-06 at 09:44, kernel@ddx.a2000.nu wrote:
+I have tried that, and yet it still has static and crackles.
 
-> so will the netgear gigabit adapter work with the ultrasparc linux kernel
-> ?
-> (the netgear ga622t ?)
+Here is a picture of my aumix:
+http://war.htmlplanet.com/linux/aumix.jpg
 
-this is netgear's gige over copper card. it does not use the acenic
-chip.  instead it uses the national semiconductor 83820 chip and a
-different driver. this driver did not go into the kernel until ~2.4.10
-(ns83820.c) and does not work under sparc64 so far -- it seems to
-compile, load into the kernel, receive ethernet packets, but packets
-never get to layer 3 AFAICT.  if anybody has had better luck, please let
-me know.
+Also, secondary speakers did not work, however I've read that you need a
 
-btw, anybody know where to get acenic gige copper cards anywhere? for
-the life of me, I cannot find a place that sells them anymore.
+utility to set this up with the new driver.
 
--tduffy 
+The sound is OK except for the crackles, is there anyway to take the
+driver
+from 2.4.7 use it with 2.4.10?
+
+On a side note, the usb-uhci-2.4.10.patch worked great with my usb
+webcam, without the patch it
+would freeze the machine.
+
+
+Rui Sousa wrote:
+
+> On Sun, 7 Oct 2001, war wrote:
+>
+> Try to mute all analog sound sources (that you are not using) and
+reduce
+> IGAIN mixer settings.
+>
+> Rui Sousa
+>
+> > I've noticed in Kernel 2.4.10 that the emu10k1 driver produces
+cracks in
+> > the sound output.
+> >
+> > Is there a stable emu10k1?
+> >
+> > The emu10k1 driver in all kernels < 2.4.7 is from 04-12-2000, which
+> > produce excellent sound.
+> >
+> > I've spoken with a few other guys on IRC, and they also have this
+> > problem [of crackling, etc].
+> >
+> > What would be the best course of action if one wants good sound in
+> > kernels > 2.4.7?
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
 

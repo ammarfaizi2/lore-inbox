@@ -1,84 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTE3EAV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 00:00:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbTE3EAV
+	id S263258AbTE3EQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 00:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTE3EQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 00:00:21 -0400
-Received: from starcraft.mweb.co.za ([196.2.45.78]:14984 "EHLO
-	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
-	id S263246AbTE3EAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 00:00:17 -0400
-Date: Fri, 30 May 2003 06:12:12 +0200
-From: Bongani Hlope <bonganilinux@mweb.co.za>
-To: Andrew Morton <akpm@digeo.com>
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org, manfred@colorfullife.com,
-       bonganih@discovery.co.za
-Subject: Re: 2.5.70-mm1 Strangeness
-Message-Id: <20030530061212.22b2c625.bonganilinux@mweb.co.za>
-In-Reply-To: <20030529175135.7b204aaf.akpm@digeo.com>
-References: <20030529221622.542a6df5.bonganilinux@mweb.co.za>
-	<20030529135541.7c926896.akpm@digeo.com>
-	<20030529.171114.34756018.davem@redhat.com>
-	<20030529175135.7b204aaf.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.9uDUT_BwMqH+3("
+	Fri, 30 May 2003 00:16:25 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:6044 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263258AbTE3EQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 00:16:24 -0400
+Date: Fri, 30 May 2003 06:29:13 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Scott A Crosby <scrosby@cs.rice.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+In-Reply-To: <1054267067.2713.3.camel@rth.ninka.net>
+Message-ID: <Pine.LNX.4.44.0305300627140.4176-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.9uDUT_BwMqH+3(
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Thu, 29 May 2003 17:51:35 -0700
-Andrew Morton <akpm@digeo.com> wrote:
+On 29 May 2003, David S. Miller wrote:
 
-> "David S. Miller" <davem@redhat.com> wrote:
-> >
-> >    From: Andrew Morton <akpm@digeo.com>
-> >    Date: Thu, 29 May 2003 13:55:41 -0700
-> > 
-> >    The ip_dst_cache seems unreasonably large.  Unless your desktop is a
-> >    backbone router or something.
-> > 
-> > Lots of DST entries can result on any machine actually.  We create one
-> > per source address, not just per destination address.  So if you talk
-> > to a lot of sites, or lots of sites talk to you, you'll get a lot of
-> > DST entries.
-> > 
-> > Regardless, 80MB _IS_ excessive.  That's nearly 400,000 entries.
-> > It definitely indicates there is a leak somewhere.
-> > 
-> > Although it say:
-> > 
-> > ip_dst_cache       19470  19470   4096    1    1
-> > 
-> > Which is 19470 active objects right?
+> > I highly advise using a universal hashing library, either our own or
+> > someone elses. As is historically seen, it is very easy to make silly
+> > mistakes when attempting to implement your own 'secure' algorithm.
 > 
-> Yes, 19470 entries.  But note that each entry is 4096 bytes.
+> Why are you recommending this when after 2 days of going back
+> and forth in emails with me you came to the conclusion that for
+> performance critical paths such as the hashes in the kernel the Jenkins
+> hash was an acceptable choice?
 > 
-> Something seems to have gone and bumped the object size from 240 bytes up
-> to 4096.  This is actually what I want CONFIG_DEBUG_PAGEALLOC to do, but I
-> don't think it does it yet.  
+> It is unacceptably costly to use a universal hash, it makes a multiply
+> operation for every byte of key input plus a modulo operation at the end
+> of the hash computation.  All of which can be extremely expensive on
+> some architectures.
 > 
-> Bongani, if you have CONFIG_DEBUG_PAGEALLOC enabled then please try turning
-> it off.  And maybe Manfred can throw some light on what slab has done
-> there.
+> I showed and backed this up for you with benchmarks comparing your
+> universal hashing code and Jenkins.
 
-Cool, I'll let you know how it goes. I'll also try davem,s suggestion about 
-/proc/sys/net/ipv4/route/max_size
+i'd suggest to use the jhash for the following additional kernel entities:  
+pagecache hash, inode hash, vcache hash.
 
---=.9uDUT_BwMqH+3(
-Content-Type: application/pgp-signature
+the buffer-cache hash and the pidhash should be hard (impossible?) to
+attack locally.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+	Ingo
 
-iD8DBQE+1tod+pvEqv8+FEMRAoFZAJ9S3Xj+yep9kyQHuFN+fb37uVtXNgCeOz9c
-b611jl6L7oPf+JPFyNrLLs4=
-=LeHZ
------END PGP SIGNATURE-----
-
---=.9uDUT_BwMqH+3(--

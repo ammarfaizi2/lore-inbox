@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310652AbSCLLsx>; Tue, 12 Mar 2002 06:48:53 -0500
+	id <S310646AbSCLLtC>; Tue, 12 Mar 2002 06:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310632AbSCLLsf>; Tue, 12 Mar 2002 06:48:35 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:8636 "EHLO e21.nc.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S310646AbSCLLsS>;
-	Tue, 12 Mar 2002 06:48:18 -0500
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.16
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF65E650C0.92890E51-ON86256B7A.004027F4@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Tue, 12 Mar 2002 05:46:32 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 03/12/2002 06:47:57 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S310632AbSCLLsz>; Tue, 12 Mar 2002 06:48:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37902 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310646AbSCLLsl>;
+	Tue, 12 Mar 2002 06:48:41 -0500
+Date: Tue, 12 Mar 2002 11:48:35 +0000
+From: wli@holomorphy.com
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        wli@parcelfarce.linux.theplanet.co.uk,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org, hch@infradead.org,
+        phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+Message-ID: <20020312114835.B14628@holomorphy.com>
+Mail-Followup-To: wli@holomorphy.com, Andrea Arcangeli <andrea@suse.de>,
+	Rik van Riel <riel@conectiva.com.br>,
+	wli@parcelfarce.linux.theplanet.co.uk,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel@vger.kernel.org, hch@infradead.org,
+	phillips@bonn-fries.net
+In-Reply-To: <20020312070645.X10413@dualathlon.random> <Pine.LNX.4.44L.0203120746000.2181-100000@imladris.surriel.com> <20020312124728.L25226@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020312124728.L25226@dualathlon.random>; from andrea@suse.de on Tue, Mar 12, 2002 at 12:47:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.16 of JFS was made available yesterday.
+On Tue, Mar 12, 2002 at 12:47:28PM +0100, Andrea Arcangeli wrote:
+> Bill said that "randomness" is not the right word to use, I instead
+> think it's the key. If it's pure random mul will make no difference to
+> the distribution. And the closer we're to pure random like in the
+> wait_table hash, the less mul will help and the more important will be
+> to just get right the two contigous pages in the same cacheline and
+> nothing else.
 
-Drop 54 on March 11, 2002 (jfs-2.4-1.0.16.tar.gz
-and jfsutils-1.0.16.tar.gz) includes fixes to the file
-system and utilities. JFS has been incorporated into the
-2.5.6 linux kernel, and the 2.4.X-ac kernels beginning
-with 2.4.18-pre9-ac4.
+Aha! It's random! Is the distribution:
 
-Utilities changes
-- make fsck.jfs exit codes conform to fsck (see updated fsck.jfs man page)
-- display/log fsck.jfs exit code in debug exit msg
-- fix xchkdmp to print logredo messages
-- make xchkdmp print message text instead of message number
-- use PBSIZE for physical block size instead of BLKSSZGET ioctl
-  (eliminates MD error msg "used obsolete MD ioctl", fixes S/390 mkfs.jfs)
-- remove libfs open/close wrappers (Christoph Hellwig)
-- messaging code cleanup, general code cleanup (all)
+(1) Poisson
+(2) singular
+(3) binomial
+(4) hypergeometric
 
-File System changes
+or what?
 
-- Limit readdir offset to signed integer for NFSv2 (Christoph Hellwig)
-- missing static in jfs_imap.c (Christoph Hellwig)
-- Fix infinite loop in jfs_readdir
-  weren't updating the directory index table completely (bug # 2591)
-- Sync up 2.4 tree with 2.5 -- (Christoph Hellwig & Shaggy)
-  move to completions, provide back-compact for pre-2.4.7
-  remove dead code
-  add kdev_t conversion, that should have been in 2.4 anyway
-  move one-time inode initialization into slab constructor
-- Remove non-core files from CVS
 
-For more details about JFS, please see the patchinstructions or
-changelog.jfs files.
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
+Cheers,
+Bill

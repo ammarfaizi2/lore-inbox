@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbQKLLs6>; Sun, 12 Nov 2000 06:48:58 -0500
+	id <S129239AbQKLLta>; Sun, 12 Nov 2000 06:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129239AbQKLLsr>; Sun, 12 Nov 2000 06:48:47 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:26897 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129055AbQKLLsc>; Sun, 12 Nov 2000 06:48:32 -0500
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B2708E@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'Jeff Garzik'" <jgarzik@mandrakesoft.com>,
-        "Hen, Shmulik" <shmulik.hen@intel.com>
-Cc: "'LNML'" <linux-net@vger.kernel.org>,
-        "'LKML'" <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: RE: catch 22 - porting net driver from 2.2 to 2.4
-Date: Sun, 12 Nov 2000 03:48:22 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130417AbQKLLtY>; Sun, 12 Nov 2000 06:49:24 -0500
+Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:39176 "EHLO
+	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S129239AbQKLLtG>;
+	Sun, 12 Nov 2000 06:49:06 -0500
+Date: Sun, 12 Nov 2000 12:49:00 +0100
+From: f5ibh <f5ibh@db0bm.ampr.org>
+Message-Id: <200011121149.MAA22970@db0bm.ampr.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11-pre3 doesn't compile
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So how come I get the "RTNL: assertion failed at
-devinet.c(775):inetdev_event" when I call register_netdevice without
-rtnl_lock/unlock ?
-could it be a 2.4.0-test9 thing ? (haven't used test10 or 11 yet).
 
-and what about rmmod causing the panic when I use unregister_netdev or never
-completing the operation when I use unregister_netdevice ?
-does module_exit run inside rtnl_lock too ?
+Hi!
 
+here is the message :
 
-	Shmulik.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i586 -DMODULE   -c -o sysctl_net_ax25.o sysctl_net_ax25.c
+sysctl_net_ax25.c: In function `ax25_register_sysctl':
+sysctl_net_ax25.c:117: warning: left-hand operand of comma expression has no
+effect
+sysctl_net_ax25.c:117: parse error before `;'
+make[3]: *** [sysctl_net_ax25.o] Error 1
+make[3]: Leaving directory `/usr/src/kernel-sources-2.4.0-test11-pre3/net/ax25'
+make[2]: *** [_modsubdir_ax25] Error 2
+make[2]: Leaving directory `/usr/src/kernel-sources-2.4.0-test11-pre3/net'
+make[1]: *** [_mod_net] Error 2
+make[1]: Leaving directory `/usr/src/kernel-sources-2.4.0-test11-pre3'
+make: *** [stamp-build] Error 2
+----
 
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@mandrakesoft.com]
-Sent: Thursday, November 09, 2000 7:37 PM
-To: Hen, Shmulik
-Cc: 'LNML'; 'LKML'; netdev@oss.sgi.com
-Subject: Re: catch 22 - porting net driver from 2.2 to 2.4
+Regards
 
-
-do_ioctl is inside rtnl_lock...
-
-Remember if you need to alter the rules, you can always queue work in
-the current context, and have a kernel thread handle the work.  The nice
-thing about a kernel thread is that you start with a [almost] clean
-state, when it comes to locks.
-
-	Jeff
-
-
--- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
--
-To unsubscribe from this list: send the line "unsubscribe linux-net" in
-the body of a message to majordomo@vger.kernel.org
-
+		jean-luc
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287768AbSAKI7x>; Fri, 11 Jan 2002 03:59:53 -0500
+	id <S289896AbSAKJCN>; Fri, 11 Jan 2002 04:02:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289896AbSAKI7n>; Fri, 11 Jan 2002 03:59:43 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:14720 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S287768AbSAKI73>;
-	Fri, 11 Jan 2002 03:59:29 -0500
-Date: Fri, 11 Jan 2002 00:58:30 -0800 (PST)
-Message-Id: <20020111.005830.104033901.davem@redhat.com>
-To: alad@hss.hns.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] locked page handling in shrink_cache() : revised
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <65256B3E.0030C343.00@sandesh.hss.hns.com>
-In-Reply-To: <65256B3E.0030C343.00@sandesh.hss.hns.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289904AbSAKJCE>; Fri, 11 Jan 2002 04:02:04 -0500
+Received: from swazi.realnet.co.sz ([196.28.7.2]:17868 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S289896AbSAKJBw>; Fri, 11 Jan 2002 04:01:52 -0500
+Date: Fri, 11 Jan 2002 11:01:18 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: <zwane@netfinity.realnet.co.sz>
+To: <bonganilinux@mweb.co.za>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Compilation error on 2.5.10 linux-2.5/drivers/ide/pdc4030.c
+Message-ID: <Pine.LNX.4.33.0201111052050.7634-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: alad@hss.hns.com
-   Date: Fri, 11 Jan 2002 14:17:25 +0530
-   
-   Sorry...
-   I have corrected tha patch.
-   
-   +                   list_del(&page.lru);
-   +                   list_add(&page.lru,inactive_list.prev);
+>This fixes an error when compiling and removes a unused variable warning
+>The following warning I'm not sure about though:
+>
+>pdc4030.c: In function `do_pdc4030_io':
+>pdc4030.c:571: warning: control reaches end of non-void function
 
-Did you try to compile this? :-) 'page' is a pointer, so
-to dereference it's lru member you must use page->lru not
-page.lru
+That warning is because the function returns an ide_startstop_t but there
+is no ending return statement. Looking at the code it is possible to
+reach that particular code path. Mind doing a quick patch?
+
+ide_startstop_t do_pdc4030_io (ide_drive_t *drive, struct request *rq)
+{
+<snip>
+    default:
+                printk(KERN_ERR "pdc4030: command not READ or WRITE!
+Huh?\n");
+                ide_end_request(0, HWGROUP(drive));
+                break;
+        }
+	<=== [1]
+}
+
+[1] No return statement here but function is non-void (ie it should return
+something)
+
+

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272983AbRISDsT>; Tue, 18 Sep 2001 23:48:19 -0400
+	id <S273996AbRISD7c>; Tue, 18 Sep 2001 23:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273994AbRISDsJ>; Tue, 18 Sep 2001 23:48:09 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:60939 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S272983AbRISDsC>;
-	Tue, 18 Sep 2001 23:48:02 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200109190347.f8J3lgg266676@saturn.cs.uml.edu>
+	id <S273997AbRISD7X>; Tue, 18 Sep 2001 23:59:23 -0400
+Received: from anime.net ([63.172.78.150]:50959 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S273996AbRISD7M>;
+	Tue, 18 Sep 2001 23:59:12 -0400
+Date: Tue, 18 Sep 2001 20:55:30 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: Carsten Leonhardt <leo@arioch.oche.de>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
-To: jan@gondor.com (Jan Niehusmann)
-Date: Tue, 18 Sep 2001 23:47:42 -0400 (EDT)
-Cc: sp@scali.no (Steffen Persvold), vandrove@vc.cvut.cz (Petr Vandrovec),
-        linux-kernel@vger.kernel.org, VDA@port.imtp.ilyichevsk.odessa.ua,
-        alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20010916100834.A590@gondor.com> from "Jan Niehusmann" at Sep 16, 2001 10:08:34 AM
-X-Mailer: ELM [version 2.5 PL2]
+In-Reply-To: <87wv2yvm3l.fsf@cymoril.oche.de>
+Message-ID: <Pine.LNX.4.30.0109182053580.12146-100000@anime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Niehusmann writes:
+On 16 Sep 2001, Carsten Leonhardt wrote:
+> Roberto Jung Drebes <drebes@inf.ufrgs.br> writes:
+> > I tested here and it seems that bit 7 is responsible. Here is the
+> > diff to pci-pc.c:
+> I tried it here on my Tyan Trinity KT-A (S2390B), and it works!
 
-> Sure. I did crash a computer running an old kernel (not 2.2 but 
-> 2.4.0-testX without the optimised fast_copy_page) from a non-privileged
-> user space program containing the same code as the optimised fast_copy_page.
+Has anyone compared memcopy speed with it on and with it off?
+Eg does it slow down memory accesses even slower than non-optimized
+memcopy?
 
-Port this to Windows if you want to raise Hell. Call it something
-nasty (like "AMD/VIA bug exploit") to get attention.
+-Dan
+
+-- 
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

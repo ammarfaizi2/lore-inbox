@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269083AbUIAAdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269068AbUIAAco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269083AbUIAAdU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 20:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269080AbUIAAc7
+	id S269068AbUIAAco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 20:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUIAAaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 20:32:59 -0400
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:40781 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S269059AbUIAAcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 20:32:10 -0400
-Message-ID: <41351889.7070401@blueyonder.co.uk>
-Date: Wed, 01 Sep 2004 01:32:09 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+	Tue, 31 Aug 2004 20:30:04 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:54465 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S269066AbUHaTps
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:45:48 -0400
+Message-ID: <4134D5EF.9080903@drzeus.cx>
+Date: Tue, 31 Aug 2004 21:47:59 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1-mm2 nvidia breakage
-References: <4134A5EE.5090003@blueyonder.co.uk> <1093986244.1596.5.camel@krustophenia.net>
-In-Reply-To: <1093986244.1596.5.camel@krustophenia.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: MMC block major dev
+References: <4134CDF0.7070600@drzeus.cx> <20040831201556.B11053@flint.arm.linux.org.uk>
+In-Reply-To: <20040831201556.B11053@flint.arm.linux.org.uk>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Sep 2004 00:32:33.0328 (UTC) FILETIME=[2C033300:01C48FBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+Russell King wrote:
 
->On Tue, 2004-08-31 at 12:23, Sid Boyce wrote:
+>On Tue, Aug 31, 2004 at 09:13:52PM +0200, Pierre Ossman wrote:
 >  
 >
->>Log attached.
->>Regards
->>Sid.
+>>It seems that the MMC block layer hasn't been assigned a major number. 
+>>The code registers the block dev with a uninitialized variable. It then 
+>>proceeds to create a mmc dir under devfs. Since I'm not using devfs this 
+>>then poses a problem.
 >>    
 >>
 >
->Um, this log appears to be the output from the nvidia binary module
->installer.  Why are you posting this here?  Try support@nvidia.com.
+>First, "uninitialised variables" is a misdescription here.  Variables
+>declared outside the scope of functions are _always_ initialised even
+>though there is no apparant assignment.
 >
->Lee
+>They're placed in the BSS, or "zero initialised" section.  They have
+>a well defined value.  Zero.
+>
+>Registering with the block layer with a major number of zero means
+>"find me a free major number and assign that to me."  This is nothing
+>new.  If devfs can't cope with that, devfs is buggy.  Use udev instead.
+>
 >  
 >
-Beacause there was the workaround for 2.6.9-rc1-mm1 and possibly someone 
-may have had on for -mm2. Posted to the nvidia Linux mailing list.
-Regards
-Sid.
+Ok. Please excuse my ignorance =)
+My point was that I do not use a dynamic system for /dev so it would be 
+nice to have a static major number. Since MMC now is a part of Linus' 
+kernel maybe it's time for a permanent allocation?
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-=====LINUX ONLY USED HERE=====
+Rgds
+Pierre
 

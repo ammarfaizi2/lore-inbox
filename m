@@ -1,91 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUHAUBQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUHAULa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266155AbUHAUBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 16:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266158AbUHAUBQ
+	id S266163AbUHAULa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 16:11:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUHAULa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 16:01:16 -0400
-Received: from mail.broadpark.no ([217.13.4.2]:64241 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S266155AbUHAUBK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 16:01:10 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Oops in register_chrdev, what did I do?
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Date: Sun, 01 Aug 2004 22:01:10 +0200
-Message-ID: <yw1xwu0i1vcp.fsf@kth.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 1 Aug 2004 16:11:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:154 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266163AbUHAUL0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 16:11:26 -0400
+Date: Sun, 1 Aug 2004 16:10:42 -0400
+From: Alan Cox <alan@redhat.com>
+To: Ian Hastie <ianh@iahastie.clara.net>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: Add support for IT8212 IDE controllers
+Message-ID: <20040801201042.GC20007@devserv.devel.redhat.com>
+References: <20040731232227.GA28455@devserv.devel.redhat.com> <200408012022.42516.ianh@iahastie.local.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408012022.42516.ianh@iahastie.local.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While experimenting a bit with a small kernel module, I got this
-oops.  Digging further, I found that /proc/devices had an entry saying
+On Sun, Aug 01, 2004 at 08:22:28PM +0100, Ian Hastie wrote:
+>         ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:pio, hdf:pio
+>     it8212: controller in RAID mode.
+> 
+> That doesn't.  I have no RAID sets defined in the IT8212 card BIOS.  BTW, the 
 
-248 <NULL>
+The controller runs in RAID mode on the "smart" cards even without raid 
+definitions being used - its still doing the hardware assist.
 
-which would indicate that I passed a NULL name to register_chrdev(),
-only I didn't.  I used a string constant, so I can't see what changed
-it to NULL along the way.
+>         ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:pio, hdh:pio
+>     hde: Maxtor 6Y120P0, ATA DISK drive
+>     it8212: selected 50MHz clock.
+> 
+> Nor does this as it really should be using the 66MHz clock setting.
 
-What am I missing here?
+Currently it always picks 50MHz, thats a feature I'm still working on 
+adding intelligence to
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-c014cad4
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c014cad4>]    Tainted: P  
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00210282   (2.6.6) 
-eax: e0f93414   ebx: e0f93410   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: e0f93414   ebp: de43357c   esp: d7487f64
-ds: 007b   es: 007b   ss: 0068
-Stack: 00000000 e0f93414 fffffff4 000000f8 c0332c74 d7486000 e8969b80 d7487fa0 
-       e896b023 000000f8 e89691c9 e8969b20 fffffffc c0332c74 d7486000 c0332c5c 
-       c012ac2a 00000001 00000000 40152000 00000003 00000000 d7486000 c0103d29 
-Call Trace:
- [<e896b023>] init_foo+0x23/0x40 [foo]
- [<c012ac2a>] sys_init_module+0x105/0x211
- [<c0103d29>] sysenter_past_esp+0x52/0x71
-Code: ac aa 84 c0 75 fa ba 2f 00 00 00 8b 74 24 04 89 d0 88 c4 ac 
+>     ide2 at 0xb000-0xb007,0xa802 on irq 17
+>     hde: max request size: 128KiB
+>     hde: recal_intr: status=0x51 { DriveReady SeekComplete Error }
+>     hde: recal_intr: error=0x04 { DriveStatusError }
+> 
+> Any idea what could be causing this?  My hacked driver doesn't get this in 
+> 2.6.7, but then it could be a 2.6.8 problem.
 
+It was sent a command it didnt know.
 
->>EIP; c014cad4 <register_chrdev+57/f8>   <=====
+The UDMA33 speed behaviour looks to me like cable detect got the wrong
+answer. The reference driver doesn't actually do host side cable detect
+so it may be that its in the docs but doesn't actually work or isnt wired
+on the boards. Can you see what the ata66 function is doing ?
 
->>eax; e0f93414 <pg0+20ba9414/3fc14000>
->>ebx; e0f93410 <pg0+20ba9410/3fc14000>
->>edi; e0f93414 <pg0+20ba9414/3fc14000>
->>ebp; de43357c <pg0+1e04957c/3fc14000>
->>esp; d7487f64 <pg0+1709df64/3fc14000>
-
-Trace; e896b023 <pg0+28581023/3fc14000>
-Trace; c012ac2a <sys_init_module+105/211>
-Trace; c0103d29 <sysenter_past_esp+52/71>
-
-Code;  c014cad4 <register_chrdev+57/f8>
-00000000 <_EIP>:
-Code;  c014cad4 <register_chrdev+57/f8>   <=====
-   0:   ac                        lods   %ds:(%esi),%al   <=====
-Code;  c014cad5 <register_chrdev+58/f8>
-   1:   aa                        stos   %al,%es:(%edi)
-Code;  c014cad6 <register_chrdev+59/f8>
-   2:   84 c0                     test   %al,%al
-Code;  c014cad8 <register_chrdev+5b/f8>
-   4:   75 fa                     jne    0 <_EIP>
-Code;  c014cada <register_chrdev+5d/f8>
-   6:   ba 2f 00 00 00            mov    $0x2f,%edx
-Code;  c014cadf <register_chrdev+62/f8>
-   b:   8b 74 24 04               mov    0x4(%esp,1),%esi
-Code;  c014cae3 <register_chrdev+66/f8>
-   f:   89 d0                     mov    %edx,%eax
-Code;  c014cae5 <register_chrdev+68/f8>
-  11:   88 c4                     mov    %al,%ah
-Code;  c014cae7 <register_chrdev+6a/f8>
-  13:   ac                        lods   %ds:(%esi),%al
-
-
--- 
-Måns Rullgård
-mru@kth.se

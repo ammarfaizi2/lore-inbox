@@ -1,69 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291677AbSBAK2T>; Fri, 1 Feb 2002 05:28:19 -0500
+	id <S291676AbSBAK17>; Fri, 1 Feb 2002 05:27:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291675AbSBAK17>; Fri, 1 Feb 2002 05:27:59 -0500
-Received: from web13308.mail.yahoo.com ([216.136.175.44]:6163 "HELO
-	web13308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S291673AbSBAK1y>; Fri, 1 Feb 2002 05:27:54 -0500
-Message-ID: <20020201102753.90799.qmail@web13308.mail.yahoo.com>
-Date: Fri, 1 Feb 2002 02:27:53 -0800 (PST)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: RE: false positives on disk change checks
+	id <S291675AbSBAK1t>; Fri, 1 Feb 2002 05:27:49 -0500
+Received: from web8007.in.yahoo.com ([203.199.70.94]:35079 "HELO
+	web8007.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S291673AbSBAK1g>; Fri, 1 Feb 2002 05:27:36 -0500
+Message-ID: <20020201102728.36046.qmail@web8007.mail.in.yahoo.com>
+Date: Fri, 1 Feb 2002 10:27:28 +0000 (GMT)
+From: =?iso-8859-1?q?Yours=20Lovingly?= <ylovingly@yahoo.co.in>
+Subject: Qn:Linux assembly 
 To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+Can anyone suggest me some good resource to learn/ get
+idea of linux assembly programming, how linux assembly
+language relates to intel's specification, etc. 
 
-> I don't know the original posters problem, but I suspect I see something
-> similar. On a to be embedded system with a Geode (Cyrix) CPU and with a
-> ATA compatible CompactFlash drive I get the following messages on 
-> bootup:
-> 
-> invalidate: busy buffer
-> VFS: busy inodes on changed media.
-> 
-> This seems to happen while the system tries to remount the root fs rw.
+thanx
+Abhishek
+abbashake007@yahoo.com
 
-The following patch works around the problem for me:
-
-diff -ruN linux/drivers/ide/ide-probe.c
-linux-scorpio/drivers/ide/ide-probe.c
---- linux/drivers/ide/ide-probe.c       Mon Nov 26 14:29:17 2001
-+++ linux-scorpio/drivers/ide/ide-probe.c       Fri Feb  1 12:06:59 2002
-@@ -154,11 +154,14 @@
-                return;
-        }
-
-+#if 0
-        /*
-         * Not an ATAPI device: looks like a "regular" hard disk
-         */
-        if (id->config & (1<<7))
-                drive->removable = 1;
-+#endif
-+
-        /*
-         * Prevent long system lockup probing later for non-existant
-         * slave drive if the hwif is actually a flash memory card of some
-variety:
-
-It's obviously not a general solution but I know for sure that
-the flashdisk is not removable in our setup.
-
-Regards
-  Joerg
-
-=====
--- 
-Regards
-       Joerg
-
-
-__________________________________________________
-Do You Yahoo!?
-Great stuff seeking new owners in Yahoo! Auctions! 
-http://auctions.yahoo.com
+________________________________________________________________________
+Looking for a job?  Visit Yahoo! India Careers
+      Visit http://in.careers.yahoo.com

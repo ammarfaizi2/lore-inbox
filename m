@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262747AbTLWWNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 17:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTLWWNJ
+	id S263166AbTLWWXm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 17:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTLWWXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 17:13:09 -0500
-Received: from mother.ds.pg.gda.pl ([153.19.213.213]:7050 "HELO
-	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S262747AbTLWWNH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 17:13:07 -0500
-Date: Tue, 23 Dec 2003 23:13:03 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: DevFS vs. udev
-Message-ID: <20031223221303.GA21331@irc.pl>
-Mail-Followup-To: Tomasz Torcz <zdzichu@irc.pl>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E1AYl4w-0007A5-R3@O.Q.NET> <Pine.LNX.4.44.0312240005180.4342-100000@raven.themaw.net> <20031223173429.GA9032@mark.mielke.cc> <20031223220209.GB15946@kroah.com>
+	Tue, 23 Dec 2003 17:23:42 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:45517 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S263166AbTLWWXl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 17:23:41 -0500
+Date: Tue, 23 Dec 2003 13:50:46 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Yaroslav Klyukin <skintwin@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0 and x86_64
+Message-ID: <20031223215046.GW6438@matchmail.com>
+Mail-Followup-To: Yaroslav Klyukin <skintwin@mail.ru>,
+	linux-kernel@vger.kernel.org
+References: <3FE8B339.8080708@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031223220209.GB15946@kroah.com>
+In-Reply-To: <3FE8B339.8080708@mail.ru>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 02:02:09PM -0800, Greg KH wrote:
-> (yeah, it's probably not _all_ gentoo people, but it sure seems like the
->  majority of them sure are wed to devfs for some strange reason...)
+On Tue, Dec 23, 2003 at 04:27:21PM -0500, Yaroslav Klyukin wrote:
+> Did anybody have any experience with %subj%?
+> I am curious about stability.
 
-Heh, I'm happily using devfs on Slackware ;-)
-Also, it's interesting that other OSes have devfs-like
-functionality, but somehow done right and not suffering from
-linux' devfs illness. FreeBSD5 even mount devfs by default.
+You need a big patch that hasn't been merged into stock 2.6.0.
 
--- 
-Tomasz Torcz                 Morality must always be based on practicality.
-zdzichu@irc.-nie.spam-.pl                -- Baron Vladimir Harkonnen
+There was a patch posted the same day of the 2.6.0 relese.
+
+Mike

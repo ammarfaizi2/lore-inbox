@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbRCTRGc>; Tue, 20 Mar 2001 12:06:32 -0500
+	id <S130520AbRCTRde>; Tue, 20 Mar 2001 12:33:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130565AbRCTRGX>; Tue, 20 Mar 2001 12:06:23 -0500
-Received: from inet-smtp3.oracle.com ([205.227.43.23]:13769 "EHLO
-	inet-smtp3.oracle.com") by vger.kernel.org with ESMTP
-	id <S130552AbRCTRGG>; Tue, 20 Mar 2001 12:06:06 -0500
-Message-ID: <3AB78CC5.E6D8E748@oracle.com>
-Date: Tue, 20 Mar 2001 18:00:53 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pau <linuxnow@terra.es>
-CC: lkml <linux-kernel@vger.kernel.org>, jgarzik@mandrakesoft.com
-Subject: Re: PCMCIA serial CardBus support vanished in 2.4.3-pre3 and later
-In-Reply-To: <Pine.LNX.4.33.0103201753590.1701-100000@pau.intranet.ct>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130531AbRCTRd0>; Tue, 20 Mar 2001 12:33:26 -0500
+Received: from unthought.net ([212.97.129.24]:9928 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S130520AbRCTRdU>;
+	Tue, 20 Mar 2001 12:33:20 -0500
+Date: Tue, 20 Mar 2001 18:32:38 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Josh Grebe <squash@primary.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about memory usage in 2.4 vs 2.2
+Message-ID: <20010320183238.B1508@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Josh Grebe <squash@primary.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200103190207.UAA13397@senechalle.net> <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0103201038140.2405-100000@scarface.primary.net>; from squash@primary.net on Tue, Mar 20, 2001 at 11:01:52AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pau wrote:
-> 
-> On Tue, 20 Mar 2001, Linus Torvalds wrote:
-> 
-> >
-> >
-> > On Tue, 20 Mar 2001, Alessandro Suardi wrote:
-> > >
-> > >  2.4.3-pre3 and synced-up versions of the -ac series remove support for
-> > >  PCMCIA serial CardBus. In drivers/char/pcmcia the Makefile and Config.in
-> > >  files are modified to exclude serial_cb and the serial_cb.c file itself
-> > >  is removed by the patch. As a net result, my Xircom modem port becomes
-> > >  invisible to the kernel and I can't dial out through it.
-> >
-> > The regular serial.c should handle it natively. Just make sure you have
-> > CONFIG_SERIAL enabled, along with hotplugging support etc.
-> 
-> In fact it does. I discovered it last weekend when my modem -them same one
-> than Alessandro's- stopped working.
-> 
-> Removing "alias char-major-4 serial_cb" from modules.conf did the trick
-> and the serial driver worked flawlessly. Modules serial got loaded
-> instead.
+On Tue, Mar 20, 2001 at 11:01:52AM -0600, Josh Grebe wrote:
+> Greetings,
+...
+> Doing the math, the 2.4 machine is using 44% of available memory, while
+> the 2.2 is using only about 14%.
 
-Cool... but I have used for a while serial_cb in kernel, not as a module
- so there is nothing to remove here :) as for Jeff's surprise I have had
- basically no problem in using kernel PCMCIA stuff in 2.4 series, apart
- from the usual Tx hang bug of the Xircom.
+How is the performance difference ?
 
-Built with Jeff's latest patch, rebooting....
+...
+> These machines are dual P2-400's, with 512M ECC ram, adaptec 2940, and
+> dual intel etherexpress pro 100 cards.
+> 
+> I also tried 2.4.2-ac20 with similar results.
+> 
+> Am I missing something here? I'd really like to move the farm back up to
+> 2.4 series.
 
---alessandro      <alessandro.suardi@oracle.com> <asuardi@uninetcom.it>
+Free memory is wasted memory.   It seemed like 2.4 wasted a lot less memory
+than 2.2 on your workload.
 
-Linux:  kernel 2.2.19p17/2.4.3p4 glibc-2.2 gcc-2.96-69 binutils-2.11.90.0.1
-Oracle: Oracle8i 8.1.7.0.1 Enterprise Edition for Linux
-motto:  Tell the truth, there's less to remember.
+Could you do some performance measurements (eg. average latency on IMAP
+connection or something like that)   ?    It would be great to know wheter
+2.4 is better or worse than 2.2  (it's most likely better, since it probably
+uses the memory better, but it would be nice to know)
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

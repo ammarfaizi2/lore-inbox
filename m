@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266206AbUALUTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 15:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266235AbUALUTJ
+	id S266099AbUALULZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 15:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266206AbUALULZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 15:19:09 -0500
-Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:3268 "EHLO
-	bender.davehollis.com") by vger.kernel.org with ESMTP
-	id S266206AbUALUTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 15:19:06 -0500
-Subject: Re: 2.6.1: modprobe behaves strange
-From: David T Hollis <dhollis@davehollis.com>
-To: Detlef Grittner <detlef.grittner@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4002FF88.3000303@t-online.de>
-References: <4002FF88.3000303@t-online.de>
+	Mon, 12 Jan 2004 15:11:25 -0500
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:61229 "EHLO
+	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S266099AbUALULN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 15:11:13 -0500
+Subject: Re: Laptops & CPU frequency
+From: Disconnect <lkml@sigkill.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1073937159.28098.46.camel@cog.beaverton.ibm.com>
+References: <20040111025623.GA19890@ncsu.edu>
+	 <1073791061.1663.77.camel@localhost>  <1073816858.6189.186.camel@nomade>
+	 <1073817226.6189.189.camel@nomade>
+	 <1073937159.28098.46.camel@cog.beaverton.ibm.com>
 Content-Type: text/plain
-Message-Id: <1073938737.23741.1.camel@dhollis-lnx.kpmg.com>
+Message-Id: <1073938271.2156.10.camel@slappy>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Mon, 12 Jan 2004 15:19:08 -0500
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 12 Jan 2004 15:11:11 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-01-12 at 15:11, Detlef Grittner wrote:
-> Hello,
-> 
-> I'm using the x86_64 architecture branch and have simply copied the 
-> kernel into my configuration of a 2.4.21 kernel.
-> 
-> I have the following lines in /etc/modules.conf:
-> 
-> alias eth0 r8169
-> 
-> alias snd-card-0 snd-via82xx
-> 
-> With the 2.4.21 kernel everything worked fine, with the 2.6.1 kernel I 
-> get the following behavior:
-> 
-> modprobe eth0
-> (no error, but r8169 not loaded)
-> 
-> modprobe r8169
-> (module r8169 is loaded and works)
-> 
-> modprobe snd-card-0
-> (FATAL: Modul snd_card_0 not found)
-> 
-> modprobe snd-via82xx
-> (module snd-via82xx is loaded and works)
-> 
-Seems that you do have module_init_tools so you are fine there, but you
-are editing /etc/modules.conf.  On a 2.6 kernel using module_init_tools,
-you need to use /etc/modprobe.conf.  
+On Mon, 2004-01-12 at 14:52, john stultz wrote:
+> More info please. What type of hardware is this?  Could you send me your
+> dmesg for booting both with and without AC power? 
 
-So we've gone from conf.modules to modules.conf to modprobe.conf.  Keeps
-things interesting!
+I had a similar problem with 2.4 (with and without acpi, speedstep, etc)
+on an Inspiron 8500.  Unfortunately, Dell only gives "use speedstep"
+(boot in powersave on battery, performance on ac)  and "always in lowest
+performance mode" options in the bios.  (Dell, you listening? How about
+"don't use speedstep, only use [powersave/performance] mode"? Or "Boot
+in last-used mode"..)
+
+When the machine is suspended (swsusp) while on AC, it must be resumed
+on AC (and same if suspended on battery) or the kernel gets very
+confused.  Time doubles (or halves), etc.  No amount of arguing with
+speedstep (or acpi in general, if speedstep wasn't applied/used) will
+get it sane.  (FWIW XP gets this right - hibernate XP on battery, resume
+on ac, hibernate, resume on battery, etc and it does fine.)
+
+Perhaps linux would benefit from some form of "make sure the cpu is
+doing what we think it is" knob?  Something that could be triggered by
+scripts (or even swsusp/apm directly) as early in a resume as possible,
+before the miscalculation cascades into crashes.  (This would be
+completely independent from speedstep or acpi, since I suspect that the
+same problems may occur independently of acpi on other machines with
+similar braindamaged bios.)
+
+Thoughts?  I can do more rigorous testing and report back if needed.  (I
+spent 2 days playing with it a few months ago, then gave it up as
+hopeless.)
 
 -- 
-David T Hollis <dhollis@davehollis.com>
+Disconnect <lkml@sigkill.net>
 

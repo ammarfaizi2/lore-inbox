@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261805AbSJDWbY>; Fri, 4 Oct 2002 18:31:24 -0400
+	id <S262050AbSJDWkE>; Fri, 4 Oct 2002 18:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262019AbSJDWbY>; Fri, 4 Oct 2002 18:31:24 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:6160 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261805AbSJDWbX>; Fri, 4 Oct 2002 18:31:23 -0400
-Date: Sat, 5 Oct 2002 00:36:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-cc: Larry McVoy <lm@work.bitmover.com>, <tom_gall@mac.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021004221639.GM710@gallifrey>
-Message-ID: <Pine.LNX.4.44.0210050034250.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262052AbSJDWkE>; Fri, 4 Oct 2002 18:40:04 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47329 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262050AbSJDWkD>;
+	Fri, 4 Oct 2002 18:40:03 -0400
+Date: Fri, 04 Oct 2002 15:38:04 -0700 (PDT)
+Message-Id: <20021004.153804.94857396.davem@redhat.com>
+To: bidulock@openss7.org
+Cc: alan@lxorguk.ukuu.org.uk, ak@suse.de, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: export of sys_call_table
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021004164151.D2962@openss7.org>
+References: <20021004131547.B2369@openss7.org>
+	<20021004.152116.116611188.davem@redhat.com>
+	<20021004164151.D2962@openss7.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+   Date: Fri, 4 Oct 2002 16:41:51 -0600
+   
+   Do you mean a sys32_*_wrapper ?  Would you please offer up those
+   five lines of code?
 
-On Fri, 4 Oct 2002, Dr. David Alan Gilbert wrote:
+Can the person submitting these patches at least test
+them before posting them?
 
-> Just to be clear;
-
-... this is completely offtopic, can this _please_ be moved to a bk list?
-Thanks.
-
-bye, Roman
-
+I have no desire to see these changes in the tree, and I don't
+ask other people to code up things which are my problem to code
+up a proper patch I care about.

@@ -1,80 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267773AbUHEQ2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267755AbUHEQiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267773AbUHEQ2b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 12:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267775AbUHEQ2b
+	id S267755AbUHEQiR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 12:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267781AbUHEQiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 12:28:31 -0400
-Received: from qserv01.quadrics.com ([194.202.174.11]:19898 "EHLO
-	qserv01.quadrics.com") by vger.kernel.org with ESMTP
-	id S267772AbUHEQ2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 12:28:00 -0400
-Subject: Re: pte_modify fix backport...
-From: Daniel J Blueman <daniel.blueman@quadrics.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       marcelo.tosatti@cyclades.com
-In-Reply-To: <200408050956.39053.bjorn.helgaas@hp.com>
-References: <1091704431.1829.235.camel@pc107.quadrics.com>
-	 <200408050956.39053.bjorn.helgaas@hp.com>
-Content-Type: text/plain
-Organization: Quadrics Ltd
-Message-Id: <1091722911.1829.247.camel@pc107.quadrics.com>
+	Thu, 5 Aug 2004 12:38:17 -0400
+Received: from sv1.valinux.co.jp ([210.128.90.2]:21972 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S267755AbUHEQiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 12:38:10 -0400
+Date: Fri, 06 Aug 2004 01:35:22 +0900 (JST)
+Message-Id: <20040806.013522.74731251.taka@valinux.co.jp>
+To: kenneth.w.chen@intel.com
+Cc: wli@holomorphy.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, rohit.seth@intel.com
+Subject: Re: Hugetlb demanding paging for -mm tree
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+In-Reply-To: <200408051340.i75De0Y26517@unix-os.sc.intel.com>
+References: <20040805133637.GG14358@holomorphy.com>
+	<200408051340.i75De0Y26517@unix-os.sc.intel.com>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 05 Aug 2004 17:21:51 +0100
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Aug 2004 16:16:31.0015 (UTC) FILETIME=[918D2370:01C47B07]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-05 at 16:56, Bjorn Helgaas wrote:
-> On Thursday 05 August 2004 5:13 am, Daniel J Blueman wrote:
-> > This patch [1] corrects the behaviour of pte_modify() on ia64 to not
-> > clear page protection flags it shouldn't touch.
-> > 
-> > Without this patch, it clears the uncacheable flag on UC memory regions,
-> > which can cause MCAs with device I/O.
-> > 
-> > It was taken into 2.6.0 a while ago, but is yet to be included in 2.4 -
-> > the patch here is rediffed against 2.4.26-rc5.
-> > 
-> > Is there chance of it being taken in?
-> 
-> I put this in the 2.4 ia64 BK tree a couple days ago.  Can you check
-> here: http://lia64.bkbits.net:8080/linux-ia64-2.4 and make sure that
-> it works for you?
-> 
-> The plain patch is also available here, if that works better for you:
-> ftp://ftp.kernel.org/pub/linux/kernel/ports/ia64/v2.4/testing/cset/index.html
-> 
-> > diff -durN linux-2.4.26-rc5-orig/include/asm-ia64/pgtable.h linux-2.4.26-rc5-patched/include/asm-ia64/pgtable.h
-> > --- linux-2.4.26-rc5-orig/include/asm-ia64/pgtable.h	2004-02-18 13:36:32.000000000 +0000
-> > +++ linux-2.4.26-rc5-patched/include/asm-ia64/pgtable.h	2004-08-05 11:46:03.000000000 +0100
-> > @@ -60,7 +60,8 @@
-> >  #define _PAGE_PROTNONE		(__IA64_UL(1) << 63)
-> >  
-> >  #define _PFN_MASK		_PAGE_PPN_MASK
-> > -#define _PAGE_CHG_MASK		(_PFN_MASK | _PAGE_A | _PAGE_D)
-> > +/* Mask of bits which may be changed by pte_modify(); the odd bits are there for _PAGE_PROTNONE */
-> > +#define _PAGE_CHG_MASK		(_PAGE_P | _PAGE_PROTNONE | _PAGE_PL_MASK | _PAGE_AR_MASK | _PAGE_ED)
-> >  
-> >  #define _PAGE_SIZE_4K	12
-> >  #define _PAGE_SIZE_8K	13
-> > @@ -216,7 +217,7 @@
-> >  ({ pte_t __pte; pte_val(__pte) = physpage + pgprot_val(pgprot); __pte; })
-> >  
-> >  #define pte_modify(_pte, newprot) \
-> > -	(__pte((pte_val(_pte) & _PAGE_CHG_MASK) | pgprot_val(newprot)))
-> > +	(__pte((pte_val(_pte) & ~_PAGE_CHG_MASK) | (pgprot_val(newprot) & _PAGE_CHG_MASK)))
-> >  
-> >  #define page_pte_prot(page,prot)	mk_pte(page, prot)
-> >  #define page_pte(page)			page_pte_prot(page, __pgprot(0))
+Hello,
 
-Bjorn,
+> > On Thu, Aug 05, 2004 at 06:29:02AM -0700, Chen, Kenneth W wrote:
+> > > Dusted it off from 3 month ago.  This time re-diffed against 2.6.8-rc3-mm1.
+> > > One big change compare to previous release is this patch should work for
+> > > ALL arch that supports hugetlb page.  I have tested it on ia64 and x86.
+> > > For x86, tested with no highmem config, 4G highmem config and PAE config.
+> > > I have not tested it on sh, sparc64 and ppc64, but I have no reason to
+> > > believe that this feature won't work on these arches.
+> > > Patches are broken into two pieces.  But they should be applied together
+> > > to have correct functionality for hugetlb demand paging.
+> > > 00.demandpaging.patch - core hugetlb demand paging
+> > > 01.overcommit.patch   - hugetlbfs strict overcommit accounting.
+> > > Testing and comments are welcome.  Thanks.
+> >
+> > Could you resend as plaintext?
+> 
+> ---------------------
+> 00.demandpaging.patch
+> ---------------------
 
-The two changesets are good. Thanks!
--- 
-Daniel J Blueman
-Software Engineer, Quadrics Ltd
+I noticed some problems in your patch.
 
+  - unmap_hugepage_range() may over-decrease mm->rss, since
+    some pte's may not assigned pages yet.
+
+  - Some architectures may require to call update_mmu_cache() right after
+    a pte is updated.
+
+The following patch will fix them on IA32.
+Patches against other architectures should be also needed.
+
+Thanks,
+Hirokazu Takahashi.
+
+
+--- linux-2.6.8-rc3-mm1/arch/i386/mm/hugetlbpage.c.ORG	Thu Aug  5 20:56:59 2032
++++ linux-2.6.8-rc3-mm1/arch/i386/mm/hugetlbpage.c	Thu Aug  5 21:47:24 2032
+@@ -234,7 +234,7 @@ void unmap_hugepage_range(struct vm_area
+ 			continue;
+ 		page = pte_page(pte);
+ 		put_page(page);
++		mm->rss -= (HPAGE_SIZE / PAGE_SIZE);
+ 	}
+-	mm->rss -= (end - start) >> PAGE_SHIFT;
+ 	flush_tlb_range(vma, start, end);
+ }
+--- linux-2.6.8-rc3-mm1/mm/hugetlb.c.ORG	Thu Aug  5 20:57:13 2032
++++ linux-2.6.8-rc3-mm1/mm/hugetlb.c	Thu Aug  5 21:15:45 2032
+@@ -276,9 +276,10 @@ retry:
+ 	}
+ 
+ 	spin_lock(&mm->page_table_lock);
+-	if (pte_none(*pte))
++	if (pte_none(*pte)) {
+ 		set_huge_pte(mm, vma, page, pte, vma->vm_flags & VM_WRITE);
+-	else
++		update_mmu_cache(vma, address, *pte);
++	} else
+ 		put_page(page);
+ out:
+ 	spin_unlock(&mm->page_table_lock);

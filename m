@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313194AbSDJPBH>; Wed, 10 Apr 2002 11:01:07 -0400
+	id <S313205AbSDJPDd>; Wed, 10 Apr 2002 11:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313201AbSDJPBG>; Wed, 10 Apr 2002 11:01:06 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:61338 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S313194AbSDJPAu>; Wed, 10 Apr 2002 11:00:50 -0400
-Date: Wed, 10 Apr 2002 11:00:48 -0400
-From: Lennert Buytenhek <buytenh@gnu.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org, bridge@math.leidenuniv.nl,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: [BUG] DEADLOCK when removing a bridge on 2.4.19-pre6
-Message-ID: <20020410150048.GA32501@gnu.org>
-In-Reply-To: <20020410015311.GA31952@matchmail.com>
+	id <S313190AbSDJPCe>; Wed, 10 Apr 2002 11:02:34 -0400
+Received: from [216.196.223.237] ([216.196.223.237]:55948 "HELO sin.sloth.org")
+	by vger.kernel.org with SMTP id <S313201AbSDJPBI>;
+	Wed, 10 Apr 2002 11:01:08 -0400
+Date: Wed, 10 Apr 2002 11:01:07 -0400
+From: Geoffrey Gallaway <geoffeg@sin.sloth.org>
+To: Sean Hunter <sean@dev.sportingbet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Update - Ramdisks and tmpfs problems
+Message-ID: <20020410110107.A2299@sin.sloth.org>
+In-Reply-To: <20020409144639.A14678@sin.sloth.org> <20020410102343.A31552@sin.sloth.org> <20020410155242.H4493@dev.sportingbet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What kernel version are you using on those smp+multi tmpfs boxes? What
+hardware?
 
-On Tue, Apr 09, 2002 at 06:53:11PM -0700, Mike Fedyk wrote:
+Geoffeg
 
-> 2.4.16,17 work just fine, but 2.4.18 does not.  Looking through the
-> changelog, 2.4.18-pre4, or 5 look suspect.  Also, it is not fixed in
-> 2.4.19-pre6.  I can test the 2.4.18-pre kernels if you'd like, just let me
-> know.
-
-There's a detailed list of patches that went into 2.4 at:
-
-	http://bridge.sourceforge.net/patchtracker.html
-
-Can you try and find out which of the three patches that went
-into 2.4.18 is causing your problems?
-
-
-thanks,
-Lennert
+This one time, at band camp, Sean Hunter wrote:
+> Just a data point:  I have been using multiple tmpfs bind mounts for some time
+> on smp without this problem.
+> 
+> none on /dev/shm type tmpfs (rw,nosuid,nodev,mode=1777,size=256M)
+> /dev/shm on /tmp type none (rw,bind)
+> /dev/shm on /usr/tmp type none (rw,bind)
+> 
+> Never had a reboot fail for this reason.
+> 
+> Sean
+> 
+> 
+> On Wed, Apr 10, 2002 at 10:23:43AM -0400, Geoffrey Gallaway wrote:
+> > I finally found the problem, which appears to be a combination of things:
+> > 
+> > Multiple tmpfs mounts and SMP.
+> > 
+> > I am using a Dual Intel PIII 1Ghz box. When I use a SMP kernel AND do
+> > multiple tmpfs mounts (mount --bind /dev/shm/etc /etc; mount --bind
+> > /dev/shm/var /var) the machine goes into a reset loop. HOWEVER, when I use a
+> > non-SMP kernel and still do multiple tmpfs mounts OR when I use a SMP kernel
+> > and do only one tmpfs mount, the machine boots fine. Every once in a while
+> > (1 out of 20 times?) the machine would boot fine with a SMP kernel and
+> > multiple tmpfs mounts. Is this a timing issue?
+> > 
+> > If I can help to nail down this (apparent) bug more, please let me know.
+> > 
+> > Thanks,
+> > Geoffeg
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

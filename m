@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130235AbQK2EGa>; Tue, 28 Nov 2000 23:06:30 -0500
+        id <S129874AbQK2ERd>; Tue, 28 Nov 2000 23:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130322AbQK2EGV>; Tue, 28 Nov 2000 23:06:21 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:9992 "EHLO
-        wire.cadcamlab.org") by vger.kernel.org with ESMTP
-        id <S130235AbQK2EGN>; Tue, 28 Nov 2000 23:06:13 -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+        id <S130322AbQK2ERY>; Tue, 28 Nov 2000 23:17:24 -0500
+Received: from cebu.mozcom.com ([207.0.115.45]:13842 "EHLO cebu.mozcom.com")
+        by vger.kernel.org with ESMTP id <S129874AbQK2ERL>;
+        Tue, 28 Nov 2000 23:17:11 -0500
+Date: Wed, 29 Nov 2000 11:47:08 +0800 (PHT)
+From: Gerard Paul Java <gerardj@cebu.mozcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: PF_PACKET and Token Ring
+Message-ID: <Pine.LNX.4.03.10011291143490.10359-100000@cebu.mozcom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14884.31121.802569.317368@wire.cadcamlab.org>
-Date: Tue, 28 Nov 2000 21:35:45 -0600 (CST)
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11) 
-In-Reply-To: <20001128175348.J8881@wire.cadcamlab.org>
-        <7349.975468186@kao2.melbourne.sgi.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
-        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
-        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Keith Owens]
-> Binary patches against bss on disk cannot work, there is nothing to
-> patch.
+Hi,
 
-OK, me dumkopf.
+I'm trying to capture IP packets over a Token Ring network through a
+(PF_PACKET, SOCK_RAW) socket, but for some
+reason the sll_protocol field in the sockaddr_ll structure doesn't
+contain ETH_P_IP for IP packets but rather contains 0x100 (of course, in
+network byte order).
 
-Peter
+Is this a bug, or is it expected behavior?
+
+----------------------------------------------------------------
+Gerard Paul R. Java
+System Administrator, Mosaic Communications Cebu
+primary: riker@mozcom.com
+secondary: gerardj@cebu.mozcom.com
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

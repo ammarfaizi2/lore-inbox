@@ -1,69 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318752AbSH1HrX>; Wed, 28 Aug 2002 03:47:23 -0400
+	id <S318758AbSH1H5H>; Wed, 28 Aug 2002 03:57:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318757AbSH1HrX>; Wed, 28 Aug 2002 03:47:23 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:2483 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S318752AbSH1HrW>;
-	Wed, 28 Aug 2002 03:47:22 -0400
-Date: Wed, 28 Aug 2002 09:51:35 +0200 (CEST)
-From: Federico Carminati <Federico.Carminati@cern.ch>
+	id <S318760AbSH1H5H>; Wed, 28 Aug 2002 03:57:07 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:44243 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318758AbSH1H5G>; Wed, 28 Aug 2002 03:57:06 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia support (fwd)
-Message-ID: <Pine.LNX.4.21.0208280925370.15627-100000@lxplus009.cern.ch>
+Subject: Re: ide-2.4.20-pre4-ac2.patch
+References: <Pine.LNX.4.10.10208271503530.24156-100000@master.linux-ide.org>
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+From: Markus Plail <plail@web.de>
+Date: Wed, 28 Aug 2002 09:59:40 +0200
+In-Reply-To: <Pine.LNX.4.10.10208271503530.24156-100000@master.linux-ide.org> (Andre
+ Hedrick's message of "Tue, 27 Aug 2002 15:17:31 -0700 (PDT)")
+Message-ID: <87d6s39zwz.fsf@plailis.homelinux.net>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  trying to follow this thread. I am an absolute beginner. I bought a
-laptop clone, PIV 2.4GHz and installed 7.3RH. The sound does not work and
-I have the impression that this is because the sound system and the modem
-share an IRQ (9?), which I have the impression is not supported by Linux,
-while it works with windows. From the message below you can see that I was
-suggested to write to the linux kernel list which I am doing now. The
-chipset is VIA VT8233. I installed the OSS sound system, and it works
-erratically. Any help would be appreciated. Thanks in advance. Fed
+Hi Andre!
 
+* Andre Hedrick writes:
+>This is out and has been forwarded to AC for review.
 
-                                            Federico Carminati
+>Others helped with ideas and concepts.
 
-==============================================================================
-|| Federico Carminati             ||  Tel.: +41.22.767.4959                 ||
-|| CERN-EP                        ||  Fax.: +41.22.767.9480                 ||
-|| 1211 Geneva 23                 ||                                        ||
-|| Switzerland                    ||                                        ||
-==============================================================================
+>This should work on all archs in IDE, there may be other issues which
+>causes compile failures but should not be related to IDE.
 
----------- Forwarded message ----------
-Date: Wed, 7 Aug 2002 22:29:04 -0700
-From: dhinds <dhinds@sonic.net>
-To: Federico Carminati <federico.carminati@cern.ch>
-Subject: Re: pcmcia support
+Just wanted to tell, that with this version my kernel oops while
+mounting ide-scsi driven CD/DVD drives is gone. Thanks!
 
-On Thu, Aug 01, 2002 at 11:50:53PM +0200, Federico Carminati wrote:
-> The laptop has no brand, as it is an assembled clone. The yenta messages are 
-> there:
-> 
-> 
-> Aug  1 00:36:27 localhost kernel: Yenta IRQ list 00b8, PCI irq0
-> Aug  1 00:36:27 localhost kernel: Socket status: 30000410
-> Aug  1 00:36:27 localhost kernel: Yenta IRQ list 02b8, PCI irq0
-> Aug  1 00:36:27 localhost kernel: Socket status: 30000006
-> 
-> Trying to install sound i discovered that some IRQ's are shared, which does 
-> not help. Thanks, Fed
-
-I'm afraid the problem is in the PCI subsystem and I have no other
-workaround if pci=biosirq does not help.  The yenta driver relies on
-the PCI subsystem to find the interrupt assignment for the cardbus
-bridge device, and doesn't work properly if the interrupt can't be
-determined.
-
-You can try reporting the bug to the PCI subsystem maintainer or to
-the linux-kernel mailing list.  I don't know enough about PCI to try
-to track it down.
-
--- Dave
+regards
+Markus
 

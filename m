@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbTHVRP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 13:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbTHVRPy
+	id S264292AbTHVRFt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 13:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264307AbTHVRFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 13:15:54 -0400
-Received: from holomorphy.com ([66.224.33.161]:3223 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S265390AbTHVRPu (ORCPT
+	Fri, 22 Aug 2003 13:05:48 -0400
+Received: from verein.lst.de ([212.34.189.10]:26344 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S264292AbTHVRFf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 13:15:50 -0400
-Date: Fri, 22 Aug 2003 10:16:25 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Theurer <habanero@us.ibm.com>
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: CPU boot problem on 2.6.0-test3-bk8
-Message-ID: <20030822171625.GM4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Theurer <habanero@us.ibm.com>,
-	Dave Hansen <haveblue@us.ibm.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>,
-	"Martin J. Bligh" <mbligh@aracnet.com>
-References: <200308201658.05433.habanero@us.ibm.com> <200308211056.29876.habanero@us.ibm.com> <1061482159.19036.1716.camel@nighthawk> <200308211202.02871.habanero@us.ibm.com>
+	Fri, 22 Aug 2003 13:05:35 -0400
+Date: Fri, 22 Aug 2003 19:05:23 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix the -test3 input config damages
+Message-ID: <20030822170523.GA7819@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030822163800.GA7568@lst.de> <Pine.LNX.4.44.0308220947010.3258-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200308211202.02871.habanero@us.ibm.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.44.0308220947010.3258-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -5 () EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_AGENT_MUTT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 12:02:02PM -0500, Andrew Theurer wrote:
-> Boot log with extra kicked++ removed...
+On Fri, Aug 22, 2003 at 09:50:05AM -0700, Linus Torvalds wrote:
+> 
+> On Fri, 22 Aug 2003, Christoph Hellwig wrote:
+> >
+> > There's really no point in forcing in support for all kinds of
+> > optional input devices unless CONFIG_EMBEDDED.
+> 
+> I disagree. We've had too many totally unnecessary bug-reports from 
+> people, and it's just not worth it not having the keyboard and mouse 
+> controller driver.
 
-Say, could you try last night's bk snapshot and let me know how it's
-doing? I threw in a necessary fix on top of Dave's last night, but I
-don't know whether it's sufficient for your purposes yet.
+That's because we didn't have the "select INPUT if VT" yet..
 
+Anyone, can we at least get a different option for this thingy then?
+CONFIG_EMBEDEDDED is even more wrong in this context than in the
+old one.
 
--- wli
+What about two new options to replace the old CONFIG_EMBEDDED?
+
+ - CONFIG_AUNT_TILLIE - for this kind of shoot yourself in the foot
+   protection
+
+and
+
+  - CONFIG_NONSTD_ABI - for the original sense of a kernel so limited
+    that parts of the usual userland ABI may disappear
+

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267869AbTB1Miy>; Fri, 28 Feb 2003 07:38:54 -0500
+	id <S267847AbTB1MqA>; Fri, 28 Feb 2003 07:46:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267870AbTB1Miy>; Fri, 28 Feb 2003 07:38:54 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:12553 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S267869AbTB1Mix>; Fri, 28 Feb 2003 07:38:53 -0500
-Message-ID: <3E5F5B1F.5050801@aitel.hist.no>
-Date: Fri, 28 Feb 2003 13:50:39 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Patch: 2.5.62 devfs shrink
-References: <200302280314.TAA11682@baldur.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267853AbTB1MqA>; Fri, 28 Feb 2003 07:46:00 -0500
+Received: from fed1mtao02.cox.net ([68.6.19.243]:43245 "EHLO
+	fed1mtao02.cox.net") by vger.kernel.org with ESMTP
+	id <S267847AbTB1Mp7>; Fri, 28 Feb 2003 07:45:59 -0500
+Date: Fri, 28 Feb 2003 05:56:11 -0700
+From: Matt Porter <porter@cox.net>
+To: Nico Schottelius <schottelius@wdt.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ppc cross compiling...
+Message-ID: <20030228055611.A18247@home.com>
+References: <20030228112429.GD328@schottelius.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030228112429.GD328@schottelius.org>; from schottelius@wdt.de on Fri, Feb 28, 2003 at 12:24:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
-
-> Tangential note:	
+On Fri, Feb 28, 2003 at 12:24:29PM +0100, Nico Schottelius wrote:
+> Hello!
 > 
-> 	For what it's worth, my preference would be to change from
-> /dev/discs/disc0/part1 to /dev/disk/0/part1, but I think it would
+> I am trying to cross compile 2.5.64 and get the following
+> compile errors: 
+> 
+> make -f scripts/Makefile.build obj=arch/ppc/mm
+>   powerpc-linux-gcc -Wp,-MD,arch/ppc/mm/.4xx_mmu.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -I/usr/src/linux-2.5.50/arch/ppc -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -Wa,-m405 -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=4xx_mmu -DKBUILD_MODNAME=4xx_mmu -c -o arch/ppc/mm/4xx_mmu.o arch/ppc/mm/4xx_mmu.c
+> arch/ppc/mm/4xx_mmu.c: In function `mmu_mapin_ram':
+> arch/ppc/mm/4xx_mmu.c:99: `phys_addr_t' undeclared (first use in this function)
 
-Yes, that is nice and short.  There is no need for the disc0 part,
-we know it is a disk because it is in /dev/disk.
+Whoa, wait a minute.  Don't expect to have PPC (especially 4xx stuff) to
+even build (much less run) in Linus' tree.  A number of things that are
+under heavy development have not been submitted.  You need to grab
+the PPC development tree, see http://penguinppc.org/dev/kernel.shtml
+for instructions on pulling the linuxppc-2.5 tree.  In this case
+the phys_addr_t declaration in mmu.h hasn't found its way up.
 
-> probably do more harm than good to try to coordinate such a change
-> with switching devfs.  If you want to try to make a change where
+Also, these questions are more appropriate for the linuxppc-dev or
+linuxppc-embedded lists (http://lists.linuxppc.org/) where all the
+PPC developers can be found. 
 
-Well, I wouldn't mind a disc->disk transition.  It seems to mee there 
-aren't that many devfs users yet so I don't think it'll be that much of 
-a problem.
-
-> people will eventually have to update their systems, I think it would
-> probably make more sense to survey existing devfs naming practices and
-> try to come up with some recommendations harmonize them a bit.  For
-> example, should the directory names be singular or plural (/dev/loop
-> or /dev/loops, /dev/disk or /dev/disks)?  I would recommend signular
-> because it is less English-centric.  
-
-Singular is nice, because we think about /dev/disk/4 (one
-particular disk) a lot more than we think about "the collection
-/dev/disks"
-
-
-Helge Hafting
-
+Regards,
+-- 
+Matt Porter
+porter@cox.net
+This is Linux Country. On a quiet night, you can hear Windows reboot.

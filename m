@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288902AbSANTAF>; Mon, 14 Jan 2002 14:00:05 -0500
+	id <S288862AbSANTCw>; Mon, 14 Jan 2002 14:02:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288932AbSANS6p>; Mon, 14 Jan 2002 13:58:45 -0500
-Received: from racine.noos.net ([212.198.2.71]:50292 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id <S288923AbSANS6N>;
-	Mon, 14 Jan 2002 13:58:13 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Jeremy Lumbroso <j.lumbroso@noos.fr>
-To: salvador@inti.gov.ar
-Subject: Re: Driver via ac97 sound problem (VT82C686B)
-Date: Mon, 14 Jan 2002 19:56:03 +0100
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <E16PZOe-0003fZ-00@the-village.bc.nu> <1010956965.3260.0.camel@raul> <3C4311BC.A99CEF31@inti.gov.ar>
-In-Reply-To: <3C4311BC.A99CEF31@inti.gov.ar>
-Cc: Raul Sanchez Sanchez <raul@dif.um.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Paul Lorenz <p1orenz@yahoo.com>, linux-kernel@vger.kernel.org
+	id <S288922AbSANTBq>; Mon, 14 Jan 2002 14:01:46 -0500
+Received: from ns1.baby-dragons.com ([199.33.245.254]:44419 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S288862AbSANTAN>; Mon, 14 Jan 2002 14:00:13 -0500
+Date: Mon, 14 Jan 2002 14:00:01 -0500 (EST)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <E16QCPK-0002Yt-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0201141358060.3238-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020114185833Z288923-13996+5546@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi 
-i apply the patch and compile with the two values but i still heard no sound .
-Did someone got this driver works ?
-thx 
 
+	Hello Alan ,
 
-Le Lundi 14 Janvier 2002 18:13, salvador a écrit :
-> As Alan says: "The VIA driver doesnt appear to support the ac97 ops."
-> Here I'm attaching a brut force test, I created a small function that turns
-> ON the EAPD and another to turn it OFF. Note that according to dataseets a
-> 1 will disable the external amplifier, but you should try with the two
-> values. I attached the modified code. It have a 1886 entry that will
-> initialize the codec setting EAPD output to 0. The code have a commented
-> entry that does the reverse, try both.
-> I also attached the diffs so Alan can check if that could work.
-> Note: I didn't compile it so watch for typos ;-)
+On Mon, 14 Jan 2002, Alan Cox wrote:
+> > 1. security, if you don't need any modules you can disable modules entirly
+> > and then it's impossible to add a module without patching the kernel first
+> > (the module load system calls aren't there)
 >
-> SET
+> Urban legend.
+	I do not agree .  Got proof ?  Yes that is a valid question .
 
--- 
-__________________________
-Lumbroso Jeremy
-188 bd malesherbes 
-75017 PARIS
-01,47,64,07,94
-06,19,77,01,25
-__________________________
+> > 2. speed, there was a discussion a few weeks ago pointing out that there
+> > is some overhead for useing modules (far calls need to be used just in
+> > case becouse the system can't know where the module will be located IIRC)
+> I defy you to measure it on x86
+	OK ,How about sparc-64/alpha/ia64/... ?
+
+> > 3. simplicity in building kernels for other machines. with a monolithic
+> > kernel you have one file to move (and a bootloader to run) with modules
+> > you have to move quite a few more files.
+> tar or nfs mount; make modules_install.
+	Please my laugh'o meter is stuck already .  Sorry .  JimL
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+

@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265452AbTL2Xnr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 18:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265461AbTL2Xnr
+	id S265478AbTL2XtN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 18:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265479AbTL2XtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 18:43:47 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:47091 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265452AbTL2Xno (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 18:43:44 -0500
-Date: Mon, 29 Dec 2003 15:41:40 -0800
-To: Christoph Hellwig <hch@infradead.org>, Pat Gefre <pfg@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Updating our sn code in 2.6
-Message-ID: <20031229234140.GA29575@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
-References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031228143603.A20391@infradead.org>
+	Mon, 29 Dec 2003 18:49:13 -0500
+Received: from hell.sks3.muni.cz ([147.251.210.31]:18116 "EHLO
+	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S265478AbTL2XtL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 18:49:11 -0500
+Date: Tue, 30 Dec 2003 00:49:02 +0100
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Joshua Schmidlkofer <kernel@pacrimopen.com>
+Cc: Samuel Flory <sflory@rackable.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux@3ware.com
+Subject: Re: 3ware driver broken with 2.4.22/23 ?
+Message-ID: <20031229234902.GL916@mail.muni.cz>
+References: <20031221112113.GE916@mail.muni.cz> <3FE645E3.30602@rackable.com> <1072503925.27022.222.camel@menion.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20031228143603.A20391@infradead.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1072503925.27022.222.camel@menion.home>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
 User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2003 at 02:36:03PM +0000, Christoph Hellwig wrote:
->  - no change in 000-hwgfs-update.patch.inprogress, hwgraph_path_lookup
->    shall not be reintroduced.
-
-Pat, it looks like hwgraph_path_lookup() is only used in the PCI hotplug
-code, and is messed up anyway (it's looking for a SCSI controller??), so
-we can probably kill the addition of that function.
-
->  - 014-cleanup-pci.c.patch:  no change apparently?
-
-Yeah, it would be nice to avoid introducing stuff that just gets deleted
-in later patches.
-
->  - 030-pciio-cleanup.patch: Dito
-
-Not sure what this is about...
-
->  - 071-xswitch.devfunc.patch: Dito.
-
-Yes, I think we do have more xswitches coming...
-
->  - 075-rename-reorg.patch: Dito
-
-If this stuff is going to be used by more than just ia64, it should
-probably be moved to another directory/file.
-
-> > David or Andrew can you take these patches ?
+On Fri, Dec 26, 2003 at 09:45:25PM -0800, Joshua Schmidlkofer wrote:
 > 
-> Really, that's not what I consider fixing.  Please fix up
-> 000,014 and 030 and drop 071 and 075, then it should be fine for
-> merging.  071 shouldn't go in at all and 075 needs the renaming killed,
-> everything else can go in although it's not nice.
+> >    Generally not with such a small rev difference.  You could try the 
+> > latest driver, and firmware in the 7.7.  The driver source is on the Red 
+> > Hat drivers disk.  You should be able to drop in the .c, and .h in 
+> > drivers/scsi, and recompile.
+> > http://3ware.com/support/download.asp?code=5&id=7.7.0&softtype=Driver&releasenotes=&os=Windows
+> > 
+> > PS- Personally I'd suspect an XFS bug.  Try reiserfs.  I've been running 
+> > 2.4.23pres, and 2.4.23 on hundreds of 3ware of numerous different types. 
+> >   With no issue with the prior firmware release.
+> 
+> There are a lot of people, running RAID5 3ware's w/ Terrabyte arrays.  I
+> don't want to say it is not an XFS bug, but I find that highly suspect. 
 
-Pat, will the patches work if we omit 071 and 075?  If so, maybe we can
-get the others merged in and continue to work on the last two.
+Well, with ext3 parition iozone program finishes OK. So it looks like some XFS
+bug.
 
-Jesse
+-- 
+Luká¹ Hejtmánek

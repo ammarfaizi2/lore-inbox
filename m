@@ -1,83 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317592AbSHAV5W>; Thu, 1 Aug 2002 17:57:22 -0400
+	id <S317142AbSHAV6r>; Thu, 1 Aug 2002 17:58:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317693AbSHAV5W>; Thu, 1 Aug 2002 17:57:22 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:2688 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S317592AbSHAV5V>;
-	Thu, 1 Aug 2002 17:57:21 -0400
-Date: Fri, 2 Aug 2002 00:00:31 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: dalecki@evision.ag
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: IDE from current bk tree, UDMA and two channels...
-Message-ID: <20020801220031.GA1756@vana.vc.cvut.cz>
-References: <C94E6D2807@vcnet.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C94E6D2807@vcnet.vc.cvut.cz>
-User-Agent: Mutt/1.4i
+	id <S317182AbSHAV6r>; Thu, 1 Aug 2002 17:58:47 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:3342 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S317142AbSHAV6q>;
+	Thu, 1 Aug 2002 17:58:46 -0400
+Message-ID: <3D49AEB7.9060900@evision.ag>
+Date: Thu, 01 Aug 2002 23:57:11 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+CC: martin@dalecki.de, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] 2.5.29 IDE 110
+References: <CDEF453FCB@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01, 2002 at 07:07:21PM +0200, Petr Vandrovec wrote:
-> On 31 Jul 02 at 22:01, Marcin Dalecki wrote:
-> > 
-> > Well OK this was my next idea, but apparently you already did the
-> > experient on your own. Thanks for the result. I'm still scratching my
-> > head and I have already observed this before myself.
-> > It's always funny to see what happens when one stops a driver
-> > from deliberately disabling IRQs for eons of jiffies :-).
+Uz.ytkownik Petr Vandrovec napisa?:
+> On  1 Aug 02 at 23:16, Marcin Dalecki wrote:
 > 
-> I currently suspect IRQ handling changes, but maybe someone has
-> better idea? Also, I cannot reproduce problem with Seagate UDMA66
-> drive switched to UDMA33 mode, so it looks like that problem is 
-> timming/firmware (Toshiba MK6409MAV) dependent.
+>>Lets not forgett that the code removed would allow to read behind the
+>>partion in question and was broken therefore. However the real world
+>>example from Petr worries me and makes me thinking that the partition
+>>scanning time solution could turn out to be most adequate -> we have the
+>>FAT partition ID there at hand and could adjust the partition
+>>parameters in question properly with ease. Both of them: offset *and* size.
+>>
+>>Petr would you mind dumping the dd=/dev/hdx count=10 of the
+>>disk in question at me? Or do you preferr to go after this blotch
+>>yourself?
+> 
+> 
+> First sector contains valid partition table, but all partitions are
+> set to type 0x55, EZDrive. AFAIK EZDrive synchronizes this inivisble
+> partition with one from sector 2 on each reboot. Second sector contains 
+> 'real' partition table, with types set to Linux, Linux swap, VFAT and
+> so on. I do not have extended partition on the drive, so I do not know
+> whether this record will have 0x55 or correct type in the sector 1.
+> 
+> Problem only occurs when you'll run LILO (if you have installed it
+> in /dev/hdx instead of in /dev/hdx#), or install-mbr - it will overwrite
+> ezdrive, and you have to find diskette and reinstall EZDrive to make
+> disk bootable in this obsolete system (btw, it is PentiumII).
+> 
+> So only problem is that we do not have special /dev/hdx-mbr device
+> for accessing MBR, all code expects that it is in first sector of the 
+> /dev/hdx, while with 0_to_1 remap it is in second one.
+>                                             Petr Vandrovec
 
-I'd like to apologize to Ingo, his changes were completely innocent.
-Problem was triggered by Al's 'block device size cleanups' (currently
-cset 1.403.160.5 on bkbits).
+Thank you for saving me a bit of time. I was right now scanning Phoenix
+site for the precise docu. Now I don'thave too. Well all the above
+sounds like a defficiency in:
 
-Before this change, my system was using 4KB block size when reading
-from /dev/hdc1, because of blk_size[][] (which is in 1kB units) of this 
-partition was multiple of 2, and so i_size % 4096 was 0.  But after
-Al's change partition size is read from gendisk, and not from blk_size,
-and gendisk partition size is in 512 bytes units: and, as you can
-probably guess, now my partition had i_size % 4096 == 512, and so only
-512 byte block size was choosen. And with 512 bytes block size my
-harddisk refuses to cooperate.
+1. LILO.
 
-I was trying to find reason in code, why 512 byte block size should
-not work, but I was not able to reveal any. Maybe I/O gurus here
-will know?
+2. fdisk.
 
-For now, I'm using patch below. It fixes problems for me, block size = 1024
-is sufficient in my configuration. If you have any insights what can be
-a problem, please tell me. Problem apparently is not in i_size not being
-multiple of 1024: without changing bsize problem still occurs, even if
-I shrink i_size down to be multiple of 4K.
+3. Partition scanning code which should look at both sectors.
 
-After some more testing I found that my other drive (120GB WD) handles
-bsize=512 quite happily, so it looks like that just my Toshiba disk
-does not like 512B back to back transfers?! Are there any plans to
-read from block devices in 4KB blocks for all reads/writes except for
-the last partial page?
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+Hmm...
 
---- linux-2.5.29-c548/fs/block_dev.c.orig	2002-07-31 12:48:23.000000000 +0200
-+++ linux-2.5.29-c548/fs/block_dev.c	2002-08-01 23:20:43.000000000 +0200
-@@ -608,6 +608,11 @@
- 				break;
- 			bsize <<= 1;
- 		}
-+		if (bsize == 512) {
-+			printk(KERN_ERR "Found 512b device! Using larger block size...\n");
-+			bdev->bd_inode->i_size -= 512;
-+			bsize = 1024;
-+		}
- 		bdev->bd_block_size = bsize;
- 		bdev->bd_inode->i_blkbits = blksize_bits(bsize);
- 		if (p->queue)
+2. Isn't that critical becouse it only affects disk creation time.
+
+3. Can be fixed easy at the proper place. Namely parition/xxx.cc
+
+1. Is actually interresting for installing a new kernel
+and the most mind boggling offender.
+

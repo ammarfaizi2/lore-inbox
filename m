@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281773AbRKQQQB>; Sat, 17 Nov 2001 11:16:01 -0500
+	id <S281745AbRKQQ0W>; Sat, 17 Nov 2001 11:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281776AbRKQQPu>; Sat, 17 Nov 2001 11:15:50 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:23312 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S281773AbRKQQPe>;
-	Sat, 17 Nov 2001 11:15:34 -0500
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200111171615.fAHGFM027673@oboe.it.uc3m.es>
-Subject: Re: Raw access to block devices
-In-Reply-To: <20011117154448.97910.qmail@web21101.mail.yahoo.com> from "Roy S.C.
- Ho" at "Nov 17, 2001 07:44:48 am"
-To: "Roy S.C. Ho" <scho1208@yahoo.com>
-Date: Sat, 17 Nov 2001 17:15:22 +0100 (MET)
-Cc: linux-kernel@vger.kernel.org, scho@whizztech.com
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S280833AbRKQQ0M>; Sat, 17 Nov 2001 11:26:12 -0500
+Received: from flounder.jimking.net ([209.205.176.18]:44554 "EHLO
+	flounder.jimking.net") by vger.kernel.org with ESMTP
+	id <S280826AbRKQQ0D>; Sat, 17 Nov 2001 11:26:03 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: It's me again ...
+In-Reply-To: <m3vggaxin8.excludabilities@totally-fudged-out-message-id>
+From: Tony Reed <Tony@TRLJC.COM>
+Encrypted: : PGP
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1 (i586-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Message-Id: <20011117162600.B95DA15A05@kubrick.trljc.com>
+Date: Sat, 17 Nov 2001 11:26:00 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Roy S.C. Ho wrote:"
-> I would like to write a driver for a block device that
-> is better to be accessed directly without going
-> through the buffer cache. I read the source code raw.c
-> and learnt that linux does have raw I/O support.
-> However, it seems to me that the support only provides
-> a character device interface to users. Is there a
+On 
+  Tony Reed <Tony@TRLJC.COM> wrote:
 
-I think that's the control device. You can work out how to use it
-by looking at the ioctls in raw.c. But, yes, sure, if you get some
-"official" news on how to work it, let me know too and I'll use the
-info like a shot!
+:I've been building kernels since 2.2.15 or something, and I've never
+:had problems before, so bear with me.
 
-> simple way to maintain the block device interface to
-> user programs / other parts of the kernel, while
-> bypassing the buffer cache system?
+Got it.  Thanks guys, for your patience and hard work.
 
-Peter
+$ uname -a
+Linux kubrick 2.4.15-pre5 #1 Sat Nov 17 10:28:20 EST 2001 i586 unknown
+
+-- 
+   Tony Reed 
+<Tony@TRLJC.COM>

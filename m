@@ -1,121 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263073AbTDBRab>; Wed, 2 Apr 2003 12:30:31 -0500
+	id <S263074AbTDBRnj>; Wed, 2 Apr 2003 12:43:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263070AbTDBRab>; Wed, 2 Apr 2003 12:30:31 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:8656 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S263073AbTDBRa3>; Wed, 2 Apr 2003 12:30:29 -0500
-Date: Wed, 2 Apr 2003 11:41:41 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Brian Gerst <bgerst@didntduck.org>
-cc: Rusty Russell <rusty@rustcorp.com.au>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: module.c broken in latest snapshot
-In-Reply-To: <3E8B0648.1010800@didntduck.org>
-Message-ID: <Pine.LNX.4.44.0304021138570.8411-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263082AbTDBRnj>; Wed, 2 Apr 2003 12:43:39 -0500
+Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:57863 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id <S263074AbTDBRni>; Wed, 2 Apr 2003 12:43:38 -0500
+Date: Wed, 2 Apr 2003 11:55:03 -0600
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] Fix for module.c in current linus-2.5 BK
+Message-ID: <20030402175503.GC32302@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Apr 2003, Brian Gerst wrote:
+Hi.
 
-> kernel/module.c: In function `check_modstruct_version':
-> kernel/module.c:845: warning: passing arg 2 of `__find_symbol' from 
-> incompatible pointer type
-> kernel/module.c:845: warning: passing arg 3 of `__find_symbol' from 
-> incompatible pointer type
-> kernel/module.c:847: warning: passing arg 5 of `check_version' from 
-> incompatible pointer type
-> kernel/module.c:847: too many arguments to function `check_version'
-> kernel/module.c: In function `load_module':
-> kernel/module.c:1276: structure has no member named `num_syms'
+It looks like the problem is a missing "k". The field "num_syms" is only
+defined if CONFIG_KALLSYMS is defined.
 
-This patch should fix this problem and another, less obvious, one, which 
-made symbols exported by modules not work.
+Art Haas
 
---Kai
-
-===== include/linux/module.h 1.57 vs edited =====
---- 1.57/include/linux/module.h	Mon Mar 24 19:34:42 2003
-+++ edited/include/linux/module.h	Wed Apr  2 10:37:00 2003
-@@ -183,7 +183,7 @@
- 
- 	/* Exported symbols */
- 	const struct kernel_symbol *syms;
--	unsigned int num_ksyms;
-+	unsigned int num_syms;
- 	const unsigned long *crcs;
- 
- 	/* GPL-only exported symbols. */
-@@ -233,7 +233,7 @@
- #ifdef CONFIG_KALLSYMS
- 	/* We keep the symbol and string tables for kallsyms. */
- 	Elf_Sym *symtab;
--	unsigned long num_syms;
-+	unsigned long num_symtab;
- 	char *strtab;
- #endif
- 
 ===== kernel/module.c 1.72 vs edited =====
 --- 1.72/kernel/module.c	Mon Mar 24 19:31:40 2003
-+++ edited/kernel/module.c	Wed Apr  2 10:39:50 2003
-@@ -156,7 +156,7 @@
- 	/* Now try modules. */ 
- 	list_for_each_entry(mod, &modules, list) {
- 		*owner = mod;
--		for (i = 0; i < mod->num_ksyms; i++)
-+		for (i = 0; i < mod->num_syms; i++)
- 			if (strcmp(mod->syms[i].name, name) == 0) {
- 				*crc = symversion(mod->crcs, i);
- 				return mod->syms[i].value;
-@@ -839,12 +839,13 @@
- 					  unsigned int versindex,
- 					  struct module *mod)
- {
--	unsigned int i;
--	struct kernel_symbol_group *ksg;
-+	const unsigned long *crc;
-+	struct module *owner;
++++ edited/kernel/module.c	Wed Apr  2 11:27:34 2003
+@@ -1273,7 +1273,7 @@
+ 		goto cleanup;
  
--	if (!__find_symbol("struct_module", &ksg, &i, 1))
-+	if (!__find_symbol("struct_module", &owner, &crc, 1))
- 		BUG();
--	return check_version(sechdrs, versindex, "struct_module", mod, ksg, i);
-+	return check_version(sechdrs, versindex, "struct_module", mod,
-+			     crc);
- }
- 
- /* First part is kernel version, which we ignore. */
-@@ -1283,7 +1284,8 @@
- 		mod->gpl_crcs = (void *)sechdrs[gplcrcindex].sh_addr;
- 
- #ifdef CONFIG_MODVERSIONS
--	if ((mod->num_ksyms&&!crcindex) || (mod->num_gpl_syms&&!gplcrcindex)) {
-+	if ((mod->num_syms && !crcindex) || 
-+	    (mod->num_gpl_syms && !gplcrcindex)) {
- 		printk(KERN_WARNING "%s: No versions for exported symbols."
- 		       " Tainting kernel.\n", mod->name);
- 		tainted |= TAINT_FORCED_MODULE;
-@@ -1309,7 +1311,7 @@
- 
- #ifdef CONFIG_KALLSYMS
- 	mod->symtab = (void *)sechdrs[symindex].sh_addr;
--	mod->num_syms = sechdrs[symindex].sh_size / sizeof(Elf_Sym);
-+	mod->num_symtab = sechdrs[symindex].sh_size / sizeof(Elf_Sym);
- 	mod->strtab = (void *)sechdrs[strindex].sh_addr;
- #endif
- 	err = module_finalize(hdr, sechdrs, mod);
-@@ -1452,7 +1454,7 @@
- 
- 	/* Scan for closest preceeding symbol, and next symbol. (ELF
-            starts real symbols at 1). */
--	for (i = 1; i < mod->num_syms; i++) {
-+	for (i = 1; i < mod->num_symtab; i++) {
- 		if (mod->symtab[i].st_shndx == SHN_UNDEF)
- 			continue;
- 
-
+ 	/* Set up EXPORTed & EXPORT_GPLed symbols (section 0 is 0 length) */
+-	mod->num_syms = sechdrs[exportindex].sh_size / sizeof(*mod->syms);
++	mod->num_ksyms = sechdrs[exportindex].sh_size / sizeof(*mod->syms);
+ 	mod->syms = (void *)sechdrs[exportindex].sh_addr;
+ 	if (crcindex)
+ 		mod->crcs = (void *)sechdrs[crcindex].sh_addr;
+-- 
+To announce that there must be no criticism of the President, or that we
+are to stand by the President, right or wrong, is not only unpatriotic
+and servile, but is morally treasonable to the American public.
+ -- Theodore Roosevelt, Kansas City Star, 1918

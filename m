@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264932AbRGSEBl>; Thu, 19 Jul 2001 00:01:41 -0400
+	id <S266306AbRGSEZU>; Thu, 19 Jul 2001 00:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264942AbRGSEBc>; Thu, 19 Jul 2001 00:01:32 -0400
-Received: from [216.6.80.34] ([216.6.80.34]:51983 "EHLO
-	dcmtechdom.dcmtech.co.in") by vger.kernel.org with ESMTP
-	id <S264932AbRGSEB0>; Thu, 19 Jul 2001 00:01:26 -0400
-Message-ID: <7FADCB99FC82D41199F9000629A85D1A01C6506A@dcmtechdom.dcmtech.co.in>
-From: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>
-To: "'Florin Andrei'" <florin@sgi.com>, linux-xfs@oss.sgi.com,
-        seawolf-list@redhat.com, dledford@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: RE: noapic strikes back
-Date: Thu, 19 Jul 2001 09:30:54 +0530
+	id <S266583AbRGSEZK>; Thu, 19 Jul 2001 00:25:10 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:39502 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S266306AbRGSEZC>; Thu, 19 Jul 2001 00:25:02 -0400
+Message-ID: <3B566158.2EFE8818@redhat.com>
+Date: Thu, 19 Jul 2001 00:26:00 -0400
+From: Doug Ledford <dledford@redhat.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Florin Andrei <florin@sgi.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: noapic strikes back
+In-Reply-To: <995484908.1279.0.camel@stantz.corp.sgi.com> 
+		<3B55E7A8.1786F70A@redhat.com> <995499242.1838.2.camel@stantz.corp.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess the problem is mostly of the scsi driver. 
-Get the latest version scsi driver of that particular 
-card and then try again. 
+Florin Andrei wrote:
+> Oh, crap... :-(
+> Yes, "apic" is the right one. It works fine. Thank you.
+> Now if i only could do the same thing to the SGI XFS 1.0.1 installer...
+> 
+> P.S.: Doug, please, can you put a small README in the updates directory,
+> so people can know what option to use? I saw that URL floating around
+> for a while, so maybe some people (like me) will be confused when trying
+> to use your updated images. Thanks.
 
-Regards,
-Nitin
-
-
------Original Message-----
-From: Florin Andrei [mailto:florin@sgi.com]
-Sent: Thursday, July 19, 2001 1:05 AM
-To: linux-xfs@oss.sgi.com; seawolf-list@redhat.com; dledford@redhat.com;
-linux-kernel@vger.kernel.org
-Subject: noapic strikes back
-
-
-I have a SGI 1200 (L440GX+ motherboard, dual PIII) and i'm trying to
-install at least one version of Red Hat 7.1 on it.
-The problem is, while booting up the installer, when it comes to loading
-up the SCSI driver (AIC7xxx) the system is frozen.
-
-I tried the following boot disks:
-- stock Red Hat 7.1
-- Doug Ledford's updates from people.redhat.com
-- SGI XFS 1.0.1
-
-I tried to boot the installer with and without "noapic" option.
-
-I tried to enable and disable the APIC option in BIOS ("PCI IRQs to
-IO-APIC Mapping").
-
-I tried all the combinations of these. No luck. :-(
-
-Please, is there anything to do about this problem? I *have* to install
-something newer than RH7.0 on that system.
-
-Guys, i will try whatever boot disks you will send to me. I'm willing to
-be you guinea pig. :-) Just let's kill the APIC problem for good!
+I've put it into my local web area.  It will get disted up to the server
+before too much longer.
 
 -- 
-Florin Andrei
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+      Please check my web site for aic7xxx updates/answers before
+                      e-mailing me about problems

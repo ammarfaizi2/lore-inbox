@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVCFKeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVCFKeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVCFKeg (ORCPT <rfc822;willy@w.ods.org>);
+	id S261356AbVCFKeg (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 6 Mar 2005 05:34:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVCFKch
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVCFKct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 05:32:37 -0500
-Received: from coderock.org ([193.77.147.115]:55208 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261361AbVCFKcK (ORCPT
+	Sun, 6 Mar 2005 05:32:49 -0500
+Received: from coderock.org ([193.77.147.115]:56232 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261362AbVCFKcN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 05:32:10 -0500
-Subject: [patch 4/6] 13/34: cdrom/mcd: remove sleep_on() usage
+	Sun, 6 Mar 2005 05:32:13 -0500
+Subject: [patch 5/6] 15/34: cdrom/sjcd: remove sleep_on() usage
 To: emoenke@gwdg.de
 Cc: linux-kernel@vger.kernel.org, domen@coderock.org, nacc@us.ibm.com
 From: domen@coderock.org
-Date: Sun, 06 Mar 2005 11:32:01 +0100
-Message-Id: <20050306103201.A2F961F203@trashy.coderock.org>
+Date: Sun, 06 Mar 2005 11:32:04 +0100
+Message-Id: <20050306103204.C22611F204@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -28,34 +28,32 @@ Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/drivers/cdrom/mcd.c |    6 +++++-
+ kj-domen/drivers/cdrom/sjcd.c |    6 +++++-
  1 files changed, 5 insertions(+), 1 deletion(-)
 
-diff -puN drivers/cdrom/mcd.c~sleep_on-drivers_cdrom_mcd drivers/cdrom/mcd.c
---- kj/drivers/cdrom/mcd.c~sleep_on-drivers_cdrom_mcd	2005-03-05 16:11:47.000000000 +0100
-+++ kj-domen/drivers/cdrom/mcd.c	2005-03-05 16:11:47.000000000 +0100
-@@ -95,6 +95,7 @@
- #include <linux/delay.h>
+diff -puN drivers/cdrom/sjcd.c~sleep_on-drivers_cdrom_sjcd drivers/cdrom/sjcd.c
+--- kj/drivers/cdrom/sjcd.c~sleep_on-drivers_cdrom_sjcd	2005-03-05 16:11:48.000000000 +0100
++++ kj-domen/drivers/cdrom/sjcd.c	2005-03-05 16:11:48.000000000 +0100
+@@ -70,6 +70,7 @@
+ #include <linux/string.h>
+ #include <linux/major.h>
  #include <linux/init.h>
- #include <linux/config.h>
 +#include <linux/wait.h>
  
- /* #define REALLY_SLOW_IO  */
  #include <asm/system.h>
-@@ -1273,11 +1274,14 @@ static void mcdStatTimer(unsigned long d
- static int getMcdStatus(int timeout)
+ #include <asm/io.h>
+@@ -407,9 +408,12 @@ static void sjcd_status_timer(void)
+  */
+ static int sjcd_wait_for_status(void)
  {
- 	int st;
 +	DEFINE_WAIT(wait);
- 
-+	prepare_to_wait(&mcd_waitq, &wait, TASK_UNINTERRUPTIBLE);
- 	McdTimeout = timeout;
- 	mcd_timer.function = mcdStatTimer;
- 	mod_timer(&mcd_timer, jiffies + 1);
--	sleep_on(&mcd_waitq);
+ 	sjcd_status_timeout = SJCD_WAIT_FOR_STATUS_TIMEOUT;
+ 	SJCD_SET_TIMER(sjcd_status_timer, 1);
+-	sleep_on(&sjcd_waitq);
++	prepare_to_wait(&sjcd_waitq, &wait, TASK_UNINTERRUPTIBLE);
 +	schedule();
-+	finish_wait(&mcd_waitq, &wait);
- 	if (McdTimeout <= 0)
- 		return -1;
- 
++	finish_wait(&sjcd_waitq, &wait);
+ #if defined( SJCD_DIAGNOSTIC ) || defined ( SJCD_TRACE )
+ 	if (sjcd_status_timeout <= 0)
+ 		printk("SJCD: Error Wait For Status.\n");
 _

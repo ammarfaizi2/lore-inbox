@@ -1,108 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281796AbRK0Whc>; Tue, 27 Nov 2001 17:37:32 -0500
+	id <S279305AbRK0WjW>; Tue, 27 Nov 2001 17:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281788AbRK0WhX>; Tue, 27 Nov 2001 17:37:23 -0500
-Received: from fromage.dsndata.com ([198.183.6.16]:50436 "EHLO
-	fromage.dsndata.com") by vger.kernel.org with ESMTP
-	id <S279305AbRK0WhI>; Tue, 27 Nov 2001 17:37:08 -0500
-Date: Tue, 27 Nov 2001 16:36:51 -0600
-From: Jeff Epler <jepler@unpythonic.dhs.org>
-To: Peter Zaitsev <pz@spylog.ru>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: MMAP issues
-Message-ID: <20011127163650.B15307@unpythonic.dhs.org>
-In-Reply-To: <183721898675.20011127194607@spylog.ru> <3C03D108.E3FADE95@zip.com.au> <149725995035.20011127205424@spylog.ru>
+	id <S281788AbRK0WjP>; Tue, 27 Nov 2001 17:39:15 -0500
+Received: from postfix2-1.free.fr ([213.228.0.9]:48274 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S279305AbRK0WjC>; Tue, 27 Nov 2001 17:39:02 -0500
+Date: Tue, 27 Nov 2001 23:38:59 +0100
+From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@ufies.org>
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: 2 small patches against 2.4.15-pre6 (sym2 + email change) (fwd)
+Message-ID: <20011127233858.B2842@online.fr>
+Mail-Followup-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011127191808.S2714-300000@gerard>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
 Content-Disposition: inline
-In-Reply-To: <149725995035.20011127205424@spylog.ru>
+In-Reply-To: <20011127191808.S2714-300000@gerard>
 User-Agent: Mutt/1.3.23i
+X-Operating-System: debian SID Gnu/Linux 2.4.16 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The difference in runtime between successive runs of your program
-doesn't look terribly significant.
 
-You open 'fd' each time, and never close it.  I die about 1000 mmap()s
-into the process (-EMFILE returned by sys_open).  You may be testing
-Linux' performance with huge fd sets in your test as well.
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Moving the open() outside the loop, and running on a 512M, kernel 2.2
-machine that's also running a full gnome desktop I get really intense
-kernel CPU usage, and the following output:
- 10000  Time: 12
- 20000  Time: 45
- 30000  Time: 79
- 40000  Time: 113
-[and I got too bored to watch it go on]
 
-Unmapping the page after each map yields much better results:
+On Tue, Nov 27, 2001 at 07:46:13PM +0100, G=E9rard Roudier wrote:
+>=20
+> By the way, I missed the postings that made you the maintainer of 2.4
+> kernel neither saw any comments from Alan about. I am sure that you will
+> do the best you can and will do a very good work, but I feel a bit
+> frustrated not to know the reasons of this decision. If you can point me
+> to the corresponding articles, I will be very interested in.
 
- 10000  Time: 4
- 20000  Time: 4
- 30000  Time: 4
- 40000  Time: 5
- 50000  Time: 4
- 60000  Time: 4
- 70000  Time: 5
- 80000  Time: 5
- 90000  Time: 5
- 100000  Time: 4
-[etc]
+This link should be fine for you :
 
-Interestingly, forcing the test to allocate at successively lower
-addresses gives fast results until mmap fails (collided with a shared
-library?):
- 10000  Time: 4
- 20000  Time: 4
- 30000  Time: 4
- 40000  Time: 4
- 50000  Time: 4
- 60000  Time: 4
-Failed 0x60007000 12
+http://advogato.org/article/370.html
 
-So in kernel 2.2, it looks like some sort of linked list ordered by user
-address is being traversed in order to complete the mmap() operation.
-If so, then the O(N^2)-like behavior you saw in your original report is
-explained as the expected performance of linux' mmap for a given # of
-mappings.
 
-Jeff
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
+   Christophe
 
-int main()
-{
-    int i = 0;
-    void *p;
-    int t;
-    int fd;
-    int addr = (void *) 0x70000000;
 
-    fd = open("test.dat", O_RDWR);
-    if (fd < 0) {
-	puts("Unable to open file !");
-	return;
-    }
-    t = time(NULL);
-    while (1) {
-	p = mmap(addr, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-	addr = addr - 4096;
-	if ((int) p == -1) {
-	    printf("Failed %p %d\n", addr, errno);
-	    return;
-	}
-	i++;
-	if (i % 10000 == 0) {
-	    printf(" %d  Time: %d\n", i, time(NULL) - t);
-	    t = time(NULL);
-	}
-    }
-}
+--HlL+5n6rz5pIUxbD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8BBYCj0UvHtcstB4RAn0TAJ9Y15gRqHV85TuUqOsw0DJHJ2zG2QCdGKSw
+YmFJstxDRc4OR260+21Jy5w=
+=5PSR
+-----END PGP SIGNATURE-----
+
+--HlL+5n6rz5pIUxbD--

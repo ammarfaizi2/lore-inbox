@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266969AbTBQKOz>; Mon, 17 Feb 2003 05:14:55 -0500
+	id <S266964AbTBQKWN>; Mon, 17 Feb 2003 05:22:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266964AbTBQKOz>; Mon, 17 Feb 2003 05:14:55 -0500
-Received: from node181b.a2000.nl ([62.108.24.27]:39564 "EHLO ddx.a2000.nu")
-	by vger.kernel.org with ESMTP id <S266257AbTBQKOy>;
-	Mon, 17 Feb 2003 05:14:54 -0500
-Date: Mon, 17 Feb 2003 11:24:23 +0100 (CET)
-From: Stephan van Hienen <raid@a2000.nu>
-To: kernel@ddx.a2000.nu
-cc: Mike Black <mblack@csi-inc.com>, Peter Chubb <peter@chubb.wattle.id.au>,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       bernard@biesterbos.nl, ext2-devel@lists.sourceforge.net
-Subject: Re: raid5 2TB+ NO GO ?
-In-Reply-To: <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu>
-Message-ID: <Pine.LNX.4.53.0302171123480.2464@ddx.a2000.nu>
-References: <Pine.LNX.4.53.0302060059210.6169@ddx.a2000.nu>
- <Pine.LNX.4.53.0302060123150.6169@ddx.a2000.nu> <Pine.LNX.4.53.0302060211030.6169@ddx.a2000.nu>
- <15937.50001.367258.485512@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302061915390.17629@ddx.a2000.nu>
- <15945.31516.492846.870265@wombat.chubb.wattle.id.au>
- <Pine.LNX.4.53.0302121129480.13462@ddx.a2000.nu> <044101c2d2a9$4fcdf980$f6de11cc@black>
- <Pine.LNX.4.53.0302141120230.19336@ddx.a2000.nu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266967AbTBQKWN>; Mon, 17 Feb 2003 05:22:13 -0500
+Received: from [213.69.232.58] ([213.69.232.58]:60169 "HELO schottelius.net")
+	by vger.kernel.org with SMTP id <S266964AbTBQKWM>;
+	Mon, 17 Feb 2003 05:22:12 -0500
+Date: Sat, 15 Feb 2003 16:31:55 +0100
+From: Nico Schottelius <schottelius@wdt.de>
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-fbdev-devel] Re: New logo code [CONFIG OPTIONS]
+Message-ID: <20030215153154.GB469@schottelius.org>
+References: <Pine.GSO.4.21.0302051336170.16681-100000@vervain.sonytel.be> <1044472678.1321.388.camel@rohan.arnor.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tsOsTdHNUZQcU9Ye"
+Content-Disposition: inline
+In-Reply-To: <1044472678.1321.388.camel@rohan.arnor.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux flapp 2.5.60
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003 kernel@ddx.a2000.nu wrote:
 
-> On Wed, 12 Feb 2003, Mike Black wrote:
->
-> > I did a 12x180G and as I recall was unable to do 13x180G as it overflowed during mke2fs.  This was a year ago though so I don't know
-> > if that's been improved since then.
-> >
->
-> does anyone know for sure what is the limit for md raid5 ?
->
-> can i use 13*180GB in raid5 ?
-> or should i go for 12*180GB in raid5 ?
+--tsOsTdHNUZQcU9Ye
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I really want to create this raid this week
-so is there anyone with info what will be the limit ?
+[snipped out patch discussion]
 
+I think if the patch and the features talked about are included in the
+kernel we'll have (names are not correct)
+
+CONFIG_LOGO=3Dy/n
+CONFIG_LOGO_XRES=3D128
+CONFIG_LOGO_YRES=3D64
+CONFIG_LOGO_BPP=3D8
+CONFIG_LOGO_PATH=3D"" # (/usr/src/linux/.../logo/tux.pnm)
+CONFIG_LOGO_POS_X=3D"left|center|right"  # or absolute ?
+CONFIG_LOGO_POS_Y=3D"top|center|bottom"  # like X windows +110,+200 ?
+CONFIG_LOGO_BGCOL=3D#ef0000              # depends on bpp of framebuffer...=
+=20
+
+I think this would be enough for all and possible implementable for the
+developers..or am I wrong ?
+
+Greetings,
+
+Nico
+
+--tsOsTdHNUZQcU9Ye
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE+Tl1qtnlUggLJsX0RAoU0AJ94PeWZpsfFrToOYGOCyv2O+IzZYQCfQzps
+v856NDyLp8A4vKMZjhEqrLg=
+=zOUg
+-----END PGP SIGNATURE-----
+
+--tsOsTdHNUZQcU9Ye--

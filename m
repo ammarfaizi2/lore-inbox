@@ -1,64 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbTIYK50 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 06:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIYK50
+	id S261877AbTIYLDh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 07:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbTIYLDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 06:57:26 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:56081 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261802AbTIYK5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 06:57:24 -0400
-Date: Thu, 25 Sep 2003 12:57:19 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rfc: test whether a device has a partition table
-Message-ID: <20030925105719.GA21508@win.tue.nl>
-References: <20030924235041.GA21416@win.tue.nl> <Pine.LNX.4.44.0309241710380.1688-100000@home.osdl.org>
+	Thu, 25 Sep 2003 07:03:37 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:15567 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261877AbTIYLDe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 07:03:34 -0400
+Date: Thu, 25 Sep 2003 13:03:25 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix non-modular ftape compile
+Message-ID: <20030925110325.GK15696@fs.tum.de>
+References: <20030925102309.GI15696@fs.tum.de> <20030925113816.A9693@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309241710380.1688-100000@home.osdl.org>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030925113816.A9693@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 24, 2003 at 05:18:15PM -0700, Linus Torvalds wrote:
+On Thu, Sep 25, 2003 at 11:38:16AM +0100, Christoph Hellwig wrote:
+> On Thu, Sep 25, 2003 at 12:23:09PM +0200, Adrian Bunk wrote:
+> > ftape_proc_destroy is only available #ifdef MODULE, the following patch 
+> > fixes the link error:
+> 
+> I'd suggest to kill the #ifdef MODULE instead and mark it __exit.
+> Same result but less ifdef crap..
 
-> So? There's a bug, and we'll fix it.
 
-Yes - that is what I was in the process of doing.
-Things go wrong, we add a few heuristics and they'll
-work right again, most of the time.
+It increases the kernel size since in 2.6 __exit functions are discarded 
+at runtime and not at link time.
 
-> I know you don't want the kernel to partition at all.
-> But I don't see your point. 
 
-I did not want to start this particular discussion.
+Anyway, I agree with your suggestion. The following patch works instead 
+of the first patch I sent.
 
-But now that you bring it up, let me say the usual things.
-Probably there is no need to answer - there are no new
-insights or new proposals here.
 
-Letting mount or the kernel guess the type of the filesystem to mount
-is bad. If the kernel or mount guesses wrong the result can be fs
-corruption and kernel crash. So the right approach is to always
-give a -t option to mount and a rootfstype= boot option to the kernel.
+--- linux-2.6.0-test5-mm4-no-smp-2.95/drivers/char/ftape/lowlevel/ftape-proc.c.old	2003-09-25 12:46:18.000000000 +0200
++++ linux-2.6.0-test5-mm4-no-smp-2.95/drivers/char/ftape/lowlevel/ftape-proc.c	2003-09-25 12:46:50.000000000 +0200
+@@ -207,11 +207,9 @@
+ 		ftape_read_proc, NULL) != NULL;
+ }
+ 
+-#ifdef MODULE
+-void ftape_proc_destroy(void)
++void __exit ftape_proc_destroy(void)
+ {
+ 	remove_proc_entry("ftape", &proc_root);
+ }
+-#endif
+ 
+ #endif /* defined(CONFIG_PROC_FS) && defined(CONFIG_FT_PROC_FS) */
 
-But most people don't, and survive. And I maintain mount and
-over time a system of heuristics has been built into mount
-to make it rather likely that a guess will be correct.
 
-The partition situation is similar but a bit worse.
-We have the second half: likely guesses,
-but we lack the first half: correctness with certainty.
+cu
+Adrian
 
-What probably will happen as a result of this episode is
-that the likelihood of certain guesses is improved a bit.
-But I wouldnt mind the option of having certainty
-instead of probability. Userspace that tells the kernel,
-instead of letting the kernel probe.
+-- 
 
-Andries
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261372AbSJZNSG>; Sat, 26 Oct 2002 09:18:06 -0400
+	id <S261382AbSJZNcP>; Sat, 26 Oct 2002 09:32:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261382AbSJZNSF>; Sat, 26 Oct 2002 09:18:05 -0400
-Received: from codepoet.org ([166.70.99.138]:49840 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S261372AbSJZNSF>;
-	Sat, 26 Oct 2002 09:18:05 -0400
-Date: Sat, 26 Oct 2002 07:24:19 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: bert hubert <ahu@ds9a.nl>, andre@linux-ide.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] de-cryptify ide-disk host protected area output
-Message-ID: <20021026132419.GA11930@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	bert hubert <ahu@ds9a.nl>, andre@linux-ide.org,
-	linux-kernel@vger.kernel.org
-References: <20021026130701.GA29860@outpost.ds9a.nl>
+	id <S262126AbSJZNcP>; Sat, 26 Oct 2002 09:32:15 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:45514 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261382AbSJZNcP>; Sat, 26 Oct 2002 09:32:15 -0400
+Subject: Re: [PATCH] Double x86 initialise fix.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: davej@codemonkey.org.uk
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, alan@redhat.com
+In-Reply-To: <200210261242.g9QCgSqp030280@noodles.internal>
+References: <200210261242.g9QCgSqp030280@noodles.internal>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Oct 2002 14:56:20 +0100
+Message-Id: <1035640580.13032.100.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021026130701.GA29860@outpost.ds9a.nl>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk2, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Oct 26, 2002 at 03:07:01PM +0200, bert hubert wrote:
-> Useless number '1' being printed leading to operator confusion.
+On Sat, 2002-10-26 at 13:42, davej@codemonkey.org.uk wrote:
+> For many moons, we've been executing identify_cpu()
+> on the boot processor twice on SMP kernels.
+> This is harmless, but has a few downsides..
+> - Extra cruft in bootlog/dmesg
+> - Spawns one too many timers for the mcheck handler
+> - possibly other wasteful things..
 > 
-> --- linux-2.5.44/drivers/ide/ide-disk.c~orig	Sat Oct 26 14:59:35 2002
-> +++ linux-2.5.44/drivers/ide/ide-disk.c	Sat Oct 26 15:00:40 2002
-> @@ -1128,7 +1128,7 @@
->  {
->  	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
->  	if (flag)
-> -		printk("%s: host protected area => %d\n", drive->name, flag);
-> +		printk("%s: supports host protected area", drive->name);
->  	return flag;
->  }
+> This seems to do the right thing here..
 
-Even better -- kill the prink entirely.  If anyone really
-cares, they can run 'hdparm -I <drivename>' and get the
-exhaustive list of everything the drive supports....
+How do you know the boot CPU is CPU#0
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--

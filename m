@@ -1,55 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263202AbUJ2BSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263274AbUJ2BSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263202AbUJ2BSH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 21:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbUJ2AeT
+	id S263274AbUJ2BSI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 21:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263266AbUJ2Adv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:34:19 -0400
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:37824 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S263281AbUJ2A3D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:29:03 -0400
-Date: Thu, 28 Oct 2004 17:28:31 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Blaisorblade <blaisorblade_spam@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Dike <jdike@addtoit.com>
-Subject: Re: [uml-devel] Re: Why UML often does not build (was: Re: [PATCH] UML: Build fix for TT w/o SKAS)
-Message-ID: <20041029002831.GD12434@taniwha.stupidest.org>
-References: <20041027053602.GB30735@taniwha.stupidest.org> <200410282254.21944.blaisorblade_spam@yahoo.it> <20041028214242.GB2269@taniwha.stupidest.org> <200410290149.31665.blaisorblade_spam@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410290149.31665.blaisorblade_spam@yahoo.it>
+	Thu, 28 Oct 2004 20:33:51 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:22795 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263274AbUJ2A3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:29:15 -0400
+Date: Fri, 29 Oct 2004 01:27:51 +0100 (BST)
+From: Mark Fortescue <mark@mtfhpc.demon.co.uk>
+To: davem@redhat.com, ecd@skynet.be, jj@sunsite.ms.mff.cuni.cz,
+       anton@samba.org, wli@holomorphy.com
+cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org,
+       ultralinux@vger.kernel.org, trivial@rustcorp.com.au
+Subject: PATCH to fix initialisation issue for GC3 (linux-2.5.64 +).
+Message-ID: <Pine.LNX.4.10.10410290107100.1071-100000@mtfhpc.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 01:49:31AM +0200, Blaisorblade wrote:
+Hi All,
 
-> Yes, it was using SIGKILL instead of PTRACE_KILL; this gets broken
-> by 2.6.9.
+This patch fixes an error in the blanking code for the GCThree SBUS
+video card. Now I get a logo and black screen, not just a blank (no
+video) screen. It is a trivual fix that has taken too long to identify as
+it is such a small typing error during the rewriting of the code for
+the new frame buffer system introduced in the 2.5 series kernels.
 
-the problem here is that ptrace semantics are not well defined to
-anything subtle can and will break from time to time
+Given that it still exists in the 2.6.8.1 kernel, I assume that not many
+people have tried using the latest kernel on systems with a CGThree.
+  
+Regards
+	Mark Fortescue.
+------------------------------------------------------------------------
+#######################################################################
+#
+# Mark Fortescue <mark@mtfhpc.demon.co.uk>
+#
+# Patch to fix the blanking on the CG3 (SBUS) video card.
+# The file (formally cgthreefb.c, now cg3.c) has a typing error that
+# messes up the card initialisation when blanking is enabled/disabled.
+# Given that the blanking functions are called in the initialisation
+# routine, this makes the card un-usable. This patch fixes the error
+# and needs to be applied to all kernels from 2.5.64 to 2.8.6.1 and
+# possibly later if the CG3 is to be used sucessfully. 
+#
+#######################################################################
+diff -rupd ref-2.6.8.1/drivers/video/cg3.c linux-2.6.8.1/drivers/video/cg3.c
+--- ref-2.6.8.1/drivers/video/cg3.c	Sat Aug 14 11:55:35 2004
++++ linux-2.6.8.1/drivers/video/cg3.c	Fri Oct 29 01:03:03 2004
+@@ -198,9 +204,9 @@ cg3_blank(int blank, struct fb_info *inf
+ 
+ 	switch (blank) {
+ 	case 0: /* Unblanking */
+-		val = sbus_readl(&regs->control);
++		val = sbus_readb(&regs->control);
+ 		val |= CG3_CR_ENABLE_VIDEO;
+-		sbus_writel(val, &regs->control);
++		sbus_writeb(val, &regs->control);
+ 		par->flags &= ~CG3_FLAG_BLANKED;
+ 		break;
+ 
+@@ -208,11 +214,16 @@ cg3_blank(int blank, struct fb_info *inf
+ 	case 2: /* VESA blank (vsync off) */
+ 	case 3: /* VESA blank (hsync off) */
+ 	case 4: /* Poweroff */
+-		val = sbus_readl(&regs->control);
+-		val |= CG3_CR_ENABLE_VIDEO;
+-		sbus_writel(val, &regs->control);
++		val = sbus_readb(&regs->control);
++		val &= ~CG3_CR_ENABLE_VIDEO;
++		sbus_writeb(val, &regs->control);
+ 		par->flags |= CG3_FLAG_BLANKED;
+ 		break;
++
++	default:
++		printk ("Invalid Blanking mode (%d), unblanking\n", blank);
++		spin_unlock_irqrestore(&par->lock, flags);
++		return 1;
+ 	}
+ 
+ 	spin_unlock_irqrestore(&par->lock, flags);
+--------------------------------------------------------------------------
 
-if we can get UML in a more suitable state and perhaps get some minor
-QA stuff merged (a new make target using initramfs maybe?) we could
-'encourage' people to test UML more often
-
-> Well, I've seen Christoph Hellwig not particularly happy about us,
-> see for instance:
->
-> http://linux.bkbits.net:8080/linux-2.5/cset@41752cc9xdFXib-03VDV5akqKJZ-yA?nav=index.html|ChangeSet@-7d
-
-well, he is right in this case
-
-it's hard to find a balance between keeping it working for existing
-UML users (which is what i'm trying to make sure is the case) and
-doing cleanups which people such as hch point out really are needed
-
-> Sending a patch requires at least proof-reading it and writing a
-> meaningful changelog.  Also, managing mails takes tons of time.
-
-im happy to take any and all fixes w/o comments in any form for now if
-you want to fire them off to me

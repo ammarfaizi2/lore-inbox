@@ -1,73 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272684AbRHaMwr>; Fri, 31 Aug 2001 08:52:47 -0400
+	id <S272681AbRHaMt5>; Fri, 31 Aug 2001 08:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272683AbRHaMwh>; Fri, 31 Aug 2001 08:52:37 -0400
-Received: from mail.netcis.com ([199.227.10.105]:52177 "HELO pop1.netcis.com")
-	by vger.kernel.org with SMTP id <S272682AbRHaMw2>;
-	Fri, 31 Aug 2001 08:52:28 -0400
-Date: Fri, 31 Aug 2001 08:46:46 -0700
-From: Jeremiah Johnson <miah@netcis.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Jeremiah Johnson <miah@netcis.com>
-Organization: NETCIS International Corporation
-X-Priority: 3 (Normal)
-Message-ID: <67111542696.20010831084646@netcis.com>
-To: Steve Kieu <haiquy@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re[2]: 2.4.9 UDP broke?
-In-Reply-To: <20010831055008.21675.qmail@web10404.mail.yahoo.com>
-In-Reply-To: <20010831055008.21675.qmail@web10404.mail.yahoo.com>
-MIME-Version: 1.0
+	id <S272682AbRHaMtr>; Fri, 31 Aug 2001 08:49:47 -0400
+Received: from [195.89.159.99] ([195.89.159.99]:9980 "EHLO kushida.degree2.com")
+	by vger.kernel.org with ESMTP id <S272681AbRHaMth>;
+	Fri, 31 Aug 2001 08:49:37 -0400
+Date: Fri, 31 Aug 2001 13:50:34 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ion Badulescu <ionut@cs.columbia.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Message-ID: <20010831135034.B25128@thefinal.cern.ch>
+In-Reply-To: <Pine.LNX.4.33.0108300902570.7973-100000@penguin.transmeta.com> <Pine.LNX.4.33.0108301217280.9230-100000@age.cs.columbia.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108301217280.9230-100000@age.cs.columbia.edu>; from ionut@cs.columbia.edu on Thu, Aug 30, 2001 at 12:28:05PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: MD5
+Ion Badulescu wrote:
+> So now you're turning it around. If you compare a long with unsigned char,
+> there is no issue.
 
-Hello Steve,
+This is _not_ true.  What Linus said about long vs. unsigned int
+depending on the architecture also applies to unsigned char, on those
+old 32-bit Crays.  It is legitimate for unsigned char to have the same
+size as signed long.
 
-Thursday, August 30, 2001, 10:50:08 PM, you wrote:
+> If you compare long with unsigned int, you get the right result on the
+> alpha and a warning on x86. If you compare long with unsigned long,
+> you get a warning period.
 
-SK>  --- Jeremiah Johnson <miah@netcis.com> wrote: >
-SK> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: MD5
->>
->> Hello linux-kernel,
->>
->>   I am having very strange problems with 2.4.9 and
->> UDP.  Basically,
->>   anything using UDP wont work.  Anything using
->> TCP/ICMP works fine.
+Precisely.  Buggy code (read: architecture-specific bug) is written, and
+the bug isn't noticed until somebody compiles that code on a different
+architecture.  Far better to have GCC warn even on the alpha.
 
-SK> May be it is not the kernel, I dont know but in my box
-SK> it works as normal
+> And read above. You get the right result on the alpha and a warning on the 
+> x86. I don't see the problem with that.
+> 
+> If you want to be 100% paranoid, change the sign-compare warning into an 
+> error, so people don't ignore it. That's a much better alternative, and 
+> gcc supports it.
 
-SK> (I can use speakfreely ; it uses UDP and otehr program
-SK> too)
+See example with sizeof().  Something similar applies with PAGE_SIZE and
+other unsigned constants.
 
-Well considering the only thing I changed in my configuration is the
-kernel, I think its a problem there.  Went from 2.4.3-ac? to 2.4.9.
-System is RedHat 7.1.. Maybe it has something to do with RedHats
-inclusion of a broken compiler, I'll have to check on that when I get
-into the office.
+> > Stating the type you compare in explicitly means that you do not get
+> > surprised.
+> 
+> No. It means I suppress the gcc warning before I get a chance to see it. 
 
-I do have 2.4.9 working fine on other systems too.  Strange.
-- --
-Best regards,
- Jeremiah                            mailto:miah@netcis.com
+I have to agree with Ion here.  The explicit type is very helpful, but
+if it reduces argument range, it masks a real bug.  Not that the old
+macros were any better.  Ideally, there should be some way to get a
+warning out of GCC when a bug is masked in this way.
 
------BEGIN PGP SIGNATURE-----
-Version: 2.6
+This is what I see as the closest to ideal:
 
-iQEVAwUAO4+xapHTj7BlqKb5AQE/sQf+MNVYf4Dv4KRS2V3jiexwdlwpAUyNGUDp
-VUli3po/IuoBsiz0zubCK0tFSVMB/2o24kYzAFIBKajrQP7uVVSUqbQzWpwWazpg
-Vu3wAnHx3oPBpWmF3fxrMGjC/1g4FKUAnmBKne8VQOPaEVy+iUxZy5VQhXYXoBs0
-O98+7VzgxjPI7txEmmqcJdLJHy7hQSuKvN9+FYvDmueeWeZV909NuH9P3Estp00c
-HtuKAb57wkea8CcoZlknr+Iuei7geRAti4iGrGMYEVFNTYQxVVSC/FGM+T4UP1ia
-R08TX47WHR2sucVatXv8oT/ixyepo82D0xIHbBltYLB8yqC/JxkDYA==
-=5GKB
------END PGP SIGNATURE-----
+   1. min/max with type argument, as in new kernels.
 
+   2. Warning added to GCC for casts which reduce argument range, but
+      only when explicitly requested by an attribute on the cast...
+
+   3. Warning added to GCC for signed vs. unsigned comparisons
+      _regardless_ of type size.  This would also catch erroneous
+      unsigned char vs. EOF checks in misuses of stdio.
+
+      However, a type attribute must be provided to make the result of
+      sizeof() not return a warning.  (size_t _should_ return a warning,
+      though, so it is not that simple).
+
+As you can see, at least the kernel part is done :)
+
+-- Jamie

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129327AbQJ1QTM>; Sat, 28 Oct 2000 12:19:12 -0400
+	id <S130675AbQJ1QVI>; Sat, 28 Oct 2000 12:21:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130236AbQJ1QTA>; Sat, 28 Oct 2000 12:19:00 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:18884 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129327AbQJ1QSu>; Sat, 28 Oct 2000 12:18:50 -0400
-Message-ID: <39FAFC63.EDD4A767@uow.edu.au>
-Date: Sun, 29 Oct 2000 03:18:43 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
-X-Accept-Language: en
+	id <S130864AbQJ1QU6>; Sat, 28 Oct 2000 12:20:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31504 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130675AbQJ1QUz>; Sat, 28 Oct 2000 12:20:55 -0400
+Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was:
+To: andrewm@uow.edu.au (Andrew Morton)
+Date: Sat, 28 Oct 2000 17:20:44 +0100 (BST)
+Cc: kumon@flab.fujitsu.co.jp, ak@suse.de (Andi Kleen),
+        viro@math.psu.edu (Alexander Viro),
+        jmerkey@timpanogas.org (Jeff V. Merkey),
+        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org,
+        okir@monad.swb.de (Olaf Kirch)
+In-Reply-To: <39FAF4C6.3BB04774@uow.edu.au> from "Andrew Morton" at Oct 29, 2000 02:46:14 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: "Stephen E. Clark" <sclark46@gte.net>
-CC: lk <linux-kernel@vger.kernel.org>, "David S. Miller" <davem@redhat.com>
-Subject: Re: RTNL assert
-In-Reply-To: <39FA4968.62588272@gte.net> <39FAAFF2.200E1860@uow.edu.au> <39FADF38.9CA09B1A@gte.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13pYis-0005Q0-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen E. Clark" wrote:
-> 
-> I also get the same error if I try to configure in normal IPV4
-> tunneling. I guess it needs the same kind of patch.
+> The big question is: why is Apache using file locking so
+> much?  Is this normal behaviour for Apache?
 
-Yep.
+Apache uses file locking to serialize accept on hosts where accept either has
+bad thundering heard problems or was simply broken with multiple acceptors
 
---- linux-2.4.0-test10-pre5/net/ipv4/ipip.c	Sat Sep  9 16:19:30 2000
-+++ linux-akpm/net/ipv4/ipip.c	Sun Oct 29 03:17:38 2000
-@@ -894,7 +894,9 @@
- #ifdef MODULE
- 	register_netdev(&ipip_fb_tunnel_dev);
- #else
-+	rtnl_lock();
- 	register_netdevice(&ipip_fb_tunnel_dev);
-+	rtnl_unlock();
- #endif
- 
- 	inet_add_protocol(&ipip_protocol);
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

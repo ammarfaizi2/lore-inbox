@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267505AbTAGWEQ>; Tue, 7 Jan 2003 17:04:16 -0500
+	id <S267534AbTAGWW2>; Tue, 7 Jan 2003 17:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267515AbTAGWEP>; Tue, 7 Jan 2003 17:04:15 -0500
-Received: from robur.slu.se ([130.238.98.12]:4109 "EHLO robur.slu.se")
-	by vger.kernel.org with ESMTP id <S267505AbTAGWEP>;
-	Tue, 7 Jan 2003 17:04:15 -0500
-From: Robert Olsson <Robert.Olsson@data.slu.se>
+	id <S267535AbTAGWV4>; Tue, 7 Jan 2003 17:21:56 -0500
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:42511 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267534AbTAGWVy>; Tue, 7 Jan 2003 17:21:54 -0500
+Message-ID: <3E1B3A49.42F6370E@linux-m68k.org>
+Date: Tue, 07 Jan 2003 21:36:25 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andre Hedrick <andre@pyxtechnologies.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+References: <Pine.LNX.4.10.10301061625150.421-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15899.21204.884559.523678@robur.slu.se>
-Date: Tue, 7 Jan 2003 23:21:08 +0100
-To: Steffen Persvold <sp@scali.com>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NAPI and tg3
-X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Steffen Persvold writes:
+Andre Hedrick wrote:
 
- > True, but it doesn't say that if you have two applications loaded on 
- > a SMP box, one which is for example constantly receiving and sending data 
- > from/to the network and doing computations on the data (100 % CPU) while 
- > some other app is only doing computations (also 100 % CPU), the ksoftirqd 
- > which should receive packets and refill the TX and RX rings will be put 
- > last in the queue because of its low nice level (19), thus the network 
- > dependent application has very much lower performance than what could be 
- > achieved with a nice level of 0 or even running the interrupt based 
- > mechanism. A nice level of 0 on ksoftirqd is still a heck of a lot better 
- > than interrupt context isn't it ?
+> Please continue to think of TCP checksums as valid for a data transport,
+> you data will be gone soon enough.
+> 
+> Initiator == Controller
+> Target == Disk
+> iSCSI == cable or ribbon
+> 
+> Please turn off the CRC on your disk drive and see if you still have data.
+
+This maybe works as PR, but otherwise it's crap.
+With a network protocol you have multiple possibilities to increase the
+reliability. The lower you do it in the network layer the easier is it
+to put it into hardware and to optimize it and the more generically it's
+usable. Doing it in the protocol is only the last resort. The iSCSI
+protocol is a nice protocol - if you ignore all the crap the hardware
+vendors put in (that stuff only makes sense if you want to produce ultra
+cheap hardware).
+
+bye, Roman
 
 
- Yes my scripts test/production has even been setting -19 to ksoftirq just
- for that reason so I almost forgot this issue so I'm happy you brought
- this up. But dev->poll is not the only user of ksoftirq but for heavy
- networking it's gets pretty dominant. So we add something to NAPI_HOWTO 
- and pass the question about ksoftirq default priority to others.
-
->From a GIGE router in production.
-
-USER       PID %CPU %MEM  SIZE   RSS TTY STAT START   TIME COMMAND
-root         3  0.2  0.0     0     0  ?  RWN Aug 15 602:00 (ksoftirqd_CPU0)
-root       232  0.0  7.9 41400 40884  ?  S   Aug 15  74:12 gated 
-
-Cheers.
-						--ro

@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284432AbRLQAyW>; Sun, 16 Dec 2001 19:54:22 -0500
+	id <S284948AbRLQBDW>; Sun, 16 Dec 2001 20:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284948AbRLQAyM>; Sun, 16 Dec 2001 19:54:12 -0500
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:51150 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S284432AbRLQAyB>; Sun, 16 Dec 2001 19:54:01 -0500
-Date: Sun, 16 Dec 2001 19:53:43 -0500 (EST)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: Tony Hoyle <tmh@nothing-on.tv>
-cc: Ben Carrell <ben@xmission.com>, linux-kernel@vger.kernel.org,
-        "Michael P. Soulier" <michael.soulier@rogers.com>
-Subject: Re: can't compile 2.4.16
-In-Reply-To: <3C1D3F76.2080008@nothing-on.tv>
-Message-ID: <Pine.A41.4.21L1.0112161948420.53212-100000@login3.isis.unc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284951AbRLQBDN>; Sun, 16 Dec 2001 20:03:13 -0500
+Received: from verdi.et.tudelft.nl ([130.161.38.158]:36741 "EHLO
+	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S284952AbRLQBCz>; Sun, 16 Dec 2001 20:02:55 -0500
+Message-Id: <200112170102.fBH12sV28094@verdi.et.tudelft.nl>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+X-Exmh-Isig-CompType: repl
+X-Exmh-Isig-Folder: linux-kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: es1371 damaged after 2.2.x 
+In-Reply-To: Your message of "Sat, 15 Dec 2001 17:56:31 MST."
+             <200112160056.fBG0uVW21900@vindaloo.ras.ucalgary.ca> 
+Mime-Version: 1.0
+Content-Type: text/plain
+Date: Mon, 17 Dec 2001 02:02:54 +0100
+From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-% bzcat ~/tmp/kernel/patch-2.4.17-rc1.bz2|grep devexit|wc -l
-81
 
-So no, the fixes have not been reverted. Also, John and I have submitted
-additional patches for __devexit.
+Hi,
 
-For Debian, the last known version of binutils in sid that didn't cause
-these messages was purged a while ago. Look in /var/cache/apt/archives/
-if you keep them there, or perhaps someone you know may have it lying
-around.
+No fix, but behaviour confirmed ..
 
-I'll take a look at net/ tonight, but drivers/ should be completely
-converted to __devexit as of John's patch
-(http://marc.theaimsgroup.com/?l=linux-kernel&m=100848516505140&w=2).
+	greetings,
+	Rob van Nieuwkerk
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
-
-On Mon, 17 Dec 2001, Tony Hoyle wrote:
-
-> Has this fix been reverted?  It isn't in -pre8 or -rc1.
+>   Hi, all. I've finally sat down and looked at a problem that's been
+> annoying me for a long time: the es1371 driver in 2.4.x does not allow
+> me to set the mic recording gain as high as the 2.2.x driver does.
 > 
+> With 2.2.20, the mixer channels SOUND_MIXER_MIC (7) and
+> SOUND_MIXER_RECLEV (11) can both be adjusted to control the recoding
+> level. The default levels are sufficient for my needs, and I can
+> adjust them to a much higher level.
 > 
-> net/network.o(.text.lock+0x17b8): undefined reference to `local symbols 
-> in discarded section .text.exit'
+> With 2.4.17-rc1, I can only control the recording level with
+> SOUND_MIXER_IGAIN (12), and even setting it to the maximum 0x6464
+> value does not yield a satisfactory recording level. Changing
+> SOUND_MIXER_MIC (7) does not affect the recording level (unlike
+> 2.2.x). Further, SOUND_MIXER_RECLEV (11) is not available for reading
+> or writing.
 > 
-> It's kind of impossible to compile the kernel at the moment (even the 
-> CONFIG_HOTPLUG fix mentioned doesn't work).
+> My guess is that the change in 2.3.x to use the ac97_codec driver for
+> es1371 is the cause of this damage. Under 2.4.x, the maximum available
+> recording level is barely usable for my application. Does anyone have
+> a fix for this?
 > 
-> I tried downgrading binutils & it didn't work.. possibly I didn't go 
-> back far enough.  What is the newest version that is supposed to work?
+> Note that when I say "recording level", I do mean recording. For later
+> processing. I don't mean "gain from mic to headphones".
 > 
-> Tony
+> 				Regards,
+> 
+> 					Richard....
+> Permanent: rgooch@atnf.csiro.au
+> Current:   rgooch@ras.ucalgary.ca
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 

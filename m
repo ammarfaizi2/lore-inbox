@@ -1,29 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbULCJ1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbULCJd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbULCJ1V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 04:27:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbULCJ1V
+	id S262116AbULCJd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 04:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbULCJd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 04:27:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2781 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262113AbULCJ1S (ORCPT
+	Fri, 3 Dec 2004 04:33:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:61152 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262116AbULCJdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 04:27:18 -0500
-Date: Fri, 3 Dec 2004 01:26:45 -0800
+	Fri, 3 Dec 2004 04:33:22 -0500
+Date: Fri, 3 Dec 2004 01:32:54 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au
-Subject: Re: Time sliced CFQ io scheduler
-Message-Id: <20041203012645.21377669.akpm@osdl.org>
-In-Reply-To: <41B02DFD.9090503@gmx.de>
-References: <20041202130457.GC10458@suse.de>
-	<20041202134801.GE10458@suse.de>
-	<20041202114836.6b2e8d3f.akpm@osdl.org>
-	<20041202195232.GA26695@suse.de>
-	<20041202121938.12a9e5e0.akpm@osdl.org>
-	<41AF94B8.8030202@gmx.de>
-	<20041203070108.GA10492@suse.de>
-	<41B02DFD.9090503@gmx.de>
+To: "Olivier RAMAT" <olrt@ifrance.com>
+Cc: linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: Kernel 2.6.9 oops during data transfer to noname usb key
+Message-Id: <20041203013254.55534ef8.akpm@osdl.org>
+In-Reply-To: <0412030857.370100@th00.idoo.com>
+References: <0412030857.370100@th00.idoo.com>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -31,17 +25,35 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Prakash K. Cheemplavam" <prakashkc@gmx.de> wrote:
+"Olivier RAMAT" <olrt@ifrance.com> wrote:
 >
-> > Can you try with the patch that is in the parent of this thread? The
->  > above doesn't look that bad, although read performance could be better
->  > of course. But try with the patch please, I'm sure it should help you
->  > quite a lot.
->  > 
+> Hello !
+> This is my first post to the linux.kernel mailing list so please
+> apologize ;-)
 > 
->  It actually got worse: Though the read rate seems accepteble, it is not, as 
->  interactivity is dead while writing.
+> Here's the oops that I experienced while copying files to my noname
+> usb key :
 
-Is this a parallel IDE system?  SATA?  SCSI?  If the latter, what driver
-and what is the TCQ depth?
+A few things have been fixed since then.  Please test either 2.6.10-rc2
+plus
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.10-rc2-bk16.gz
+or test 2.6.10-rc3 when it is released.  And then send a followup report.
+
+
+> Nov 10 07:47:40 darkstar kernel:  [<c0103f25>]
+> kernel_thread_helper+0x5/0x10
+> Nov 10 07:47:40 darkstar kernel: SCSI error : <0 0 0 0> return code =
+> 0x70000
+> Nov 10 07:47:40 darkstar kernel: end_request: I/O error, dev sda, sector
+> 348970
+> Nov 10 07:47:40 darkstar kernel: Buffer I/O error on device sda1,
+> logical block 348907
+> Nov 10 07:47:40 darkstar kernel: lost page write due to I/O error on
+> sda1
+> Nov 10 07:47:50 darkstar kernel: ------------[ cut here ]------------
+> Nov 10 07:47:50 darkstar kernel: kernel BUG at
+> /usr/src/linux-2.6.9/drivers/block/as-iosched.c:1853!
+
+Ouch.  Haven't seen that before.  Maybe scsi error recovery screwed up the
+request queueing.  James, have we fixed anything in that area post-2.6.9?
 

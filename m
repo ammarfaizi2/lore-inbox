@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315628AbSGSF0g>; Fri, 19 Jul 2002 01:26:36 -0400
+	id <S315709AbSGSF3t>; Fri, 19 Jul 2002 01:29:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315629AbSGSF0g>; Fri, 19 Jul 2002 01:26:36 -0400
-Received: from holomorphy.com ([66.224.33.161]:2190 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S315628AbSGSF0g>;
-	Fri, 19 Jul 2002 01:26:36 -0400
-Date: Thu, 18 Jul 2002 22:29:30 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Rodland <arodland@noln.com>
-Cc: linux-kernel@vger.kernel.org, alan@redhat.com
-Subject: Re: [PATCH -ac] Panicking in morse code
-Message-ID: <20020719052930.GW1096@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Rodland <arodland@noln.com>, linux-kernel@vger.kernel.org,
-	alan@redhat.com
-References: <20020719011300.548d72d5.arodland@noln.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <20020719011300.548d72d5.arodland@noln.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316047AbSGSF3t>; Fri, 19 Jul 2002 01:29:49 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:45514 "EHLO
+	pimout3-int.prodigy.net") by vger.kernel.org with ESMTP
+	id <S315709AbSGSF3s>; Fri, 19 Jul 2002 01:29:48 -0400
+Message-Id: <200207190532.g6J5Wia87042@pimout3-int.prodigy.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: CaT <cat@zip.com.au>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Date: Thu, 18 Jul 2002 19:34:24 -0400
+X-Mailer: KMail [version 1.3.1]
+References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com> <20020719044518.GK5608@zip.com.au>
+In-Reply-To: <20020719044518.GK5608@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 01:13:00AM -0400, Andrew Rodland wrote:
-> No, it's not 1 April.
-> I was researching panic_blink() for someone who needed a little help,
-> when I noticed the comment above the function definition, not being the
-> kind to step down from a challenge (unless it's just really hard), I
-> decided to write morse code output code.
+On Friday 19 July 2002 12:45 am, CaT wrote:
+> On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
+> > On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
+> > > I've been sitting on this question for years, hoping I'd come
+> > > across the answer, and I STILL don't know what the "i" is short for.
+> > > Somebody here has got to know this. :)
+> >
+> > Incore node, I believe.  In the original Unix code there was dinode and
+> > inode if I remember correctly, for disk node and incore node.
+>
+> That's a new one. I always thought it was 'information node' so in the
+> above it'd be disk information node and just information node.
+>
+> Makes sense to me in any case. :)
 
-This is far more amusing than any of the April 1st Linus impersonations.
+So far I've also received off-list mails saying that it stands for "index" 
+(this person cited "the design of the unix operating system", by Maurice J 
+Bach, which I have on my shelf but don't remember that bit from), and another 
+vote for "indirection" from somebody I recognize as being on this list longer 
+than I have...
 
-Good show!
+That's it, I'm going to go email Dennis Richie...
 
-
-Cheers,
-Bill
+Rob

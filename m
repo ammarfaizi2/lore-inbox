@@ -1,49 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267480AbTAGSq4>; Tue, 7 Jan 2003 13:46:56 -0500
+	id <S267474AbTAGSpl>; Tue, 7 Jan 2003 13:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267494AbTAGSq4>; Tue, 7 Jan 2003 13:46:56 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:49396 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S267480AbTAGSqC>; Tue, 7 Jan 2003 13:46:02 -0500
-Date: Tue, 7 Jan 2003 11:53:57 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: John Bradford <john@grabjohn.com>
+	id <S267477AbTAGSpl>; Tue, 7 Jan 2003 13:45:41 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:36102 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267474AbTAGSpk>;
+	Tue, 7 Jan 2003 13:45:40 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301071854.h07Is6Fi002448@darkstar.example.net>
+Subject: Re: Virtual WORM device
+To: john@grabjohn.com (John Bradford)
+Date: Tue, 7 Jan 2003 18:54:06 +0000 (GMT)
 Cc: root@chaos.analogic.com, maxvaldez@yahoo.com, bulb@ucw.cz,
        linux-kernel@vger.kernel.org
-Subject: Re: Virtual WORM device
-Message-ID: <20030107115357.V31555@schatzie.adilger.int>
-Mail-Followup-To: John Bradford <john@grabjohn.com>,
-	root@chaos.analogic.com, maxvaldez@yahoo.com, bulb@ucw.cz,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.95.1030107131613.3523A-100000@chaos.analogic.com> <200301071841.h07If7QJ002323@darkstar.example.net>
-Mime-Version: 1.0
+In-Reply-To: <200301071841.h07If7QJ002323@darkstar.example.net> from "John Bradford" at Jan 07, 2003 06:41:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200301071841.h07If7QJ002323@darkstar.example.net>; from john@grabjohn.com on Tue, Jan 07, 2003 at 06:41:07PM +0000
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 07, 2003  18:41 +0000, John Bradford wrote:
-> > Somebody should then modify `rm` and the kernel unlink
-> > to `mv' files to the dumpster directory on the
-> > file-system, instead of really deleting them.
-> 
-> Another possibility would be to create a meta-device that works like a
-> cross between the loopback device, and WORM device, I.E. start at the
-> begining, and allocate sectors sequentially.  Whenever a sector would
-> normally be overwritten, a new one is allocated instead.  This way,
-> you could always access the filesystem as it was at any mount in time.
+> write bar to sector 1 of /dev/mw0 - actually writes foo to sector 1 of
+> /dev/hda2
 
-This is commonly called a filesystem snapshot, and you can already do
-it with LVM.
+Sorry, I meant bar, not foo.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+John.

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129553AbRBFJix>; Tue, 6 Feb 2001 04:38:53 -0500
+	id <S129068AbRBFJpr>; Tue, 6 Feb 2001 04:45:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129599AbRBFJin>; Tue, 6 Feb 2001 04:38:43 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:48000 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129553AbRBFJie>; Tue, 6 Feb 2001 04:38:34 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <14A23BF37616@vcnet.vc.cvut.cz> 
-In-Reply-To: <14A23BF37616@vcnet.vc.cvut.cz> 
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Cc: Gregory Maxwell <greg@linuxpower.cx>, linux-kernel@vger.kernel.org,
-        wakko@animx.eu.org
-Subject: Re: Matrox Marvell G400 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Feb 2001 09:36:59 +0000
-Message-ID: <21341.981452219@redhat.com>
+	id <S129032AbRBFJp1>; Tue, 6 Feb 2001 04:45:27 -0500
+Received: from baldur.fh-brandenburg.de ([195.37.0.5]:28089 "HELO
+	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
+	id <S129068AbRBFJpP>; Tue, 6 Feb 2001 04:45:15 -0500
+Date: Tue, 6 Feb 2001 10:22:52 +0100 (MET)
+From: Roman Zippel <zippel@fh-brandenburg.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <Pine.LNX.4.10.10102051658530.31998-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.10.10102060957380.7107-100000@zeus.fh-brandenburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-VANDROVE@vc.cvut.cz said:
->  And if you insist on X, you can run first head through mga with
-> usefbdev /dev/fb0 with hwcursor off, and secondary head through fbdev /
-> dev/fb1. But it is not supported by me (and neither by XFree guys
-> AFAIK, not even talking about Matrox support guys) - I support only
-> first head in X and secondary head used for 'fbtv -k'.
+On Mon, 5 Feb 2001, Linus Torvalds wrote:
 
-Unless your machine is x86, and you use the binary-only HALlib from Matrox,
-that is. :(
+> > Does it has to be vectors? What about lists?
+> 
+> I'd prefer to avoid lists unless there is some overriding concern, like a
+> real implementation issue. But I don't care much one way or the other -
+> what I care about is that the setup and usage time is as low as possible.
+> I suspect arrays are better for that.
 
-However, since the second heads of both G400 and G450 cards are supported 
-in matroxfb, there's no real reason why the support in the 'real' XFree86 
-driver should be so far behind. The main barrier to dual-head support in 
-XFree86, last time I knew, was the lack of a way to _configure_ it. That's 
-now been fixed, obviously. The HALlib is used only for mode setup, AFAICT. 
-All acceleration is still done by the real driver. 
+I was more thinking about the higher layers. Here it's simpler to setup a
+list of pages which can be send to a lower layer. In the page cache we
+already have per address space lists, so it would be very easy to use
+that. A lower layer can generate of course anything it wants out of this,
+e.g. it can generate sublists or vectors.
 
-Petr - how much of the matroxfb code is yours to give, and would you permit
-chunks of it to be reused under the XFree86 licence? Clean-room
-reverse-engineering is such a PITA :)
-
-> I'm trying... more or less. Next G450 BIOSes will have fix for
-> matroxfb deadlock on boot, so there is at least some move. Although
-> now when workaround is implemented in matroxfb, it is a bit late...
-
-I think that workaround wants to be put in place for G400 too; not just 
-G450.
-
---
-dwmw2
-
+bye, Roman
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

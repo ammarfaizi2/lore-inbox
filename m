@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbTHZSvj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 14:51:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262888AbTHZSvj
+	id S262345AbTHZStP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 14:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTHZStP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 14:51:39 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:10322 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262880AbTHZSvg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 14:51:36 -0400
-Subject: Re: [2.4.22-rc1] ext3/jbd assertion failure transaction.c:1164
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: "Marcelo W. Tosatti" <marcelo@conectiva.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0308261811240.1021-100000@neptune.local>
-References: <Pine.LNX.4.44.0308261811240.1021-100000@neptune.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1061923890.17230.30.camel@sisko.scot.redhat.com>
+	Tue, 26 Aug 2003 14:49:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59036 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262785AbTHZStM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 14:49:12 -0400
+Date: Tue, 26 Aug 2003 11:51:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: vojtech@suse.cz, ak@suse.de, haveblue@us.ibm.com, mikpe@csd.uu.se,
+       jun.nakajima@intel.com, suresh.b.siddha@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
+Message-Id: <20030826115129.509c4161.akpm@osdl.org>
+In-Reply-To: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F8@fmsmsx405.fm.intel.com>
+References: <C8C38546F90ABF408A5961FC01FDBF1902C7D1F8@fmsmsx405.fm.intel.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Aug 2003 19:51:30 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> wrote:
+>
+> Problem Description:
+>    The requirement from HPET side is, we need to map HPET physical
+>  address during timer_init() 
+>  routine and also during any read/write HPET addresses. We need to have
+>  this mapping kind of
+>  permanently, as  we will do HPET reads/writes during every timer
+>  interrupt and also during 
+>  every gettimeofday (if we don't use tsc timer).
+>    And the timer_init() happens before mem_init() (but after paging
+>  init()), so we cannot 
+>  directly use ioremap(). Current implementation is using a separate
+>  fixmap region for HPET.
 
-On Tue, 2003-08-26 at 17:15, Pascal Schmidt wrote:
+I doubt if we really need the timer running that early, apart from for
+calibrate_delay().
 
-> Sigh. I spoke too soon. Turns out I have two different versions of
-> fsx.c around. The one that caused the BUG before still does, but
-> it's a different one now:
+You can probably move the time_init() and calibrate_delay() so they occur
+after mem_init().  A close review would be needed to see if that is likely
+to break anything.  If it is, then consider creating a new late_time_init()
+thing, and call that and calibrate_delay() after mem_init().
 
-OK, could you send me both of your versions so that I can try them
-here?  I've got an uptodate fsx around myself, but not necessarily the
-same version as you, and evidently the precise version matters here.
 
-Thanks,
- Stephen
 

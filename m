@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133109AbRDVBrh>; Sat, 21 Apr 2001 21:47:37 -0400
+	id <S133110AbRDVBs1>; Sat, 21 Apr 2001 21:48:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133110AbRDVBr2>; Sat, 21 Apr 2001 21:47:28 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:6916 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S133109AbRDVBrM>;
-	Sat, 21 Apr 2001 21:47:12 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104220147.f3M1l2v126874@saturn.cs.uml.edu>
-Subject: Re: Request for comment -- a better attribution system
-To: chromi@cyberspace.org (Jonathan Morton)
-Date: Sat, 21 Apr 2001 21:47:02 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-        babydr@baby-dragons.com (Mr. James W. Laferriere), esr@thyrsus.com,
-        linux-kernel@vger.kernel.org (CML2),
-        kbuild-devel@lists.sourceforge.net
-In-Reply-To: <l03130310b707dc53131a@[192.168.239.105]> from "Jonathan Morton" at Apr 22, 2001 02:00:02 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S133111AbRDVBsS>; Sat, 21 Apr 2001 21:48:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:34945 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S133110AbRDVBsB>; Sat, 21 Apr 2001 21:48:01 -0400
+Date: Sat, 21 Apr 2001 21:46:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ulrich Drepper <drepper@cygnus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Global FPU corruption in 2.2
+In-Reply-To: <m33db3s0ty.fsf@otr.mynet.cygnus.com>
+Message-ID: <Pine.LNX.3.95.1010421213945.1407A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >> 	Find . -name "*Some-Name*" -type f -print | xargs grep 'Some-Info'
-> >> 	Hate answering with just one line of credible info , But .
-> >
-> >The above would grep every file. It takes 1 minute and 9.5 seconds.
-> >So the distributed maintainer information does not scale well at all.
+On 20 Apr 2001, Ulrich Drepper wrote:
+
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
 > 
-> No it doesn't.  It allows you to search for files of a specific naming
-> pattern and greps those.  So if you needed to know the maintainers of all
-> the config.in files, you say:
+> > The kernel doesn't know if a process is going to use the FPU when
+> > a new process is created. Only the user's code, i.e., the 'C' runtime
+> > library knows.
 > 
-> find . -name "*onfig.in" -type f -print | xargs grep 'P: '
+> Maybe you should try to understand the kernel code and the features of
+> the processor first.  The kernel can detect when the FPU is used for
+> the first time.
+> 
 
-That was an easy problem, and try it to see all the bad matches!
-This would be more normal:
+Only if it traps on the esc op-code --and if it does, we are in a
+world or hurt for performance. There is no other way that the kernel
+can 'protect' on a per-process basis since the FPU executes instructions
+in "process-owned" address space, and addresses "process-owned" data.
 
-find . -type f | xargs egrep -i8 '^[^A-Z]*[A-Z]: .*(net|ip|tcp|eth|ppp)'
+I'll have to check this out. Of course it traps on all such instructions
+if we have a '386 (so the FPU can be emulated), but that was never a
+performance issue.
 
-That is not a nice and easy command for most people, and if it
-isn't exactly right you just wasted over a minute.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

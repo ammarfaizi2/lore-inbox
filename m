@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVDDEdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVDDEiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbVDDEdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 00:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVDDEdw
+	id S261537AbVDDEiR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 00:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDDEiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 00:33:52 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:9124 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262047AbVDDEdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 00:33:45 -0400
-Date: Sun, 03 Apr 2005 23:33:27 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: How to make linux ping behaves like MS ping?
-In-reply-to: <4250B7E1.2050006@i6x.org>
-To: Beast <beast@i6x.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200504040033.27243.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <424E1451.8070501@i6x.org>
- <200504012341.40822.gene.heskett@verizon.net> <4250B7E1.2050006@i6x.org>
-User-Agent: KMail/1.7
+	Mon, 4 Apr 2005 00:38:17 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:12194 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261537AbVDDEiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 00:38:11 -0400
+Date: Sun, 3 Apr 2005 21:36:36 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Andy Lutomirski <luto@myrealbox.com>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403213636.05cddf52.pj@engr.sgi.com>
+In-Reply-To: <4250C19F.9070801@myrealbox.com>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<4250C19F.9070801@myrealbox.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 April 2005 23:43, Beast wrote:
->Hi Gene,
->Is this posting for me?
+Andy wrote:
+> Not that I really know what I'm talking about here, but this sounds 
+> highly parallelizable.
 
-Yes it was.
-
->Gene Heskett wrote:
->> I also don't play Sender Confirmation games, particularly when the
->> confirmation message is in html only.
->
->AFAIK, I never set any confirm receipt or sending html format to the
-> list.
-
-The sender confirmation form I got was in html, not from your mailer, 
-but from the ISP's server, which would not deliver the message unless 
-I did some sort of a click thru reply.  As many of these are scams 
-designed to collect valid email addresses, and some will lead to 
-phishing attacks, its something I've never, ever considered doing. 
-SCP is IMO a solution in search of a problem.
-
-In other words, talk to your ISP, and if some sort of SCP is in 
-effect, see if they will shut it off, and then setup your own version 
-of spamassassin or similar filter.
-
->> You've been removed from the Cc: line in this reply.
->>
->> You asked for help, but set the Cc: line as if you weren't
->> subscribed. Anyone who posts to this list, can IMNSHO, accept the
->> fscking replies you set in the Cc: line of your message or do
->> without the reply.
->
->I don't understand this. Could you shed some light on this?
->Tks.
->
->> Read it here, or don't read it at all, doesn't bother me.
-
-In other words, this is the only message you saw from me, which does 
-not contain the answer to your original post, as best as I could 
-answer it.  That I've been known to be erronious does occasionally 
-happen though. :)
-
-And, if you don't see this answer, it will be because I didn't do the 
-dance to clear thru your server again.  In that event, you'll 
-conclude I'm an outstanding jerk for not answering.  Yes, I've been 
-that occasionally in my 70 years, usually after something like this 
-pulls my trigger.
-
-However, since your server probably won't let this reply through 
-either, I've taken the liberty (excuse me please, list readers) of 
-adding lkml back into the Cc: line.  Maybe you'll read it there 
-eventually.
-
+I doubt it.  If we are testing the cost of a migration between CPUs
+alpha and beta, and at the same time testing betweeen CPUs gamma and
+delta, then often there will be some hardware that is shared by both the
+<alpha, beta> path, and the <gamma, delta> path.  This would affect the
+test results.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

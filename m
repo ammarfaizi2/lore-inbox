@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263046AbVCKBM5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVCKBP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263046AbVCKBM5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 20:12:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCKBMk
+	id S261860AbVCKBP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 20:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVCKBP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 20:12:40 -0500
-Received: from rproxy.gmail.com ([64.233.170.206]:38188 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263043AbVCKBMO (ORCPT
+	Thu, 10 Mar 2005 20:15:56 -0500
+Received: from ns1.g-housing.de ([62.75.136.201]:14752 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261860AbVCKBOS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 20:12:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=s4OjXyRhmmRNJzntPH/rLCHn8EV7mtBU6JIfnuaUJns9Mm95PkqE6mkSkhhxo4Ib6rMyajPBRe1buASaTCyzXPJ3ESqMSEZujjhtpMWgtwqDmffZyzq8tyFkuXbUMqn2Em+rhugl7DuDIrsPf/Oy8B7CojOXJe/WZ4ftZg9FOOI=
-Message-ID: <21d7e99705031017124f1e7551@mail.gmail.com>
-Date: Fri, 11 Mar 2005 12:12:09 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Christian Henz <christian.henz@gmail.com>
-Subject: Re: 2.6.11-mm2 + Radeon crash
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <493984f050309121212541d8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Mar 2005 20:14:18 -0500
+Message-ID: <4230F0E6.5080708@g-house.de>
+Date: Fri, 11 Mar 2005 02:14:14 +0100
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>
+Subject: Re: oom with 2.6.11
+References: <422DC2F1.7020802@g-house.de>	<3f250c710503090518526d8b90@mail.gmail.com>	<3f250c7105030905415cab5192@mail.gmail.com>	<422F016A.2090107@g-house.de>	<423063DB.40905@g-house.de> <20050310163956.0a5ff1d7.akpm@osdl.org>
+In-Reply-To: <20050310163956.0a5ff1d7.akpm@osdl.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-References: <493984f050309121212541d8@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> Christian Kujau <evil@g-house.de> wrote:
 > 
-> When I try to start X, my machine reboots. The screen goes dark as
-> usual when setting the video mode, but then I get a beep and I'm
-> greeted with the BIOS boot messages. This happened 4/5 times i've
-> tried, and once the video mode was actually set (at least I saw the
-> usual X b/w pattern with some random framebuffer garbage), the machine
-> didn't reboot but after that nothing happened. My keyboard was still
-> responsive (ie NumLock LED would still go on/off), but i could neither
-> kill X with CTRL-ALT-BACKSPACE nor could i switch back to console, so
-> I ended up pressing reset.
+>>i was going to compile 2.6.11-rc5-bk4, to sort out the "bad" kernel.
+>>compiling went fine. ok, finished some email, ok, suddenly my swap was
+>>used up again, and no memory left - uh oh! OOM again, with 2.6.11-rc5-bk2!
 > 
-> After the crashes I booted with a rescue CD to examine the logs, but I
-> could not find any obvious errors.
 > 
-> Everything works nicely on 2.6.10 and earlier kernels. I'm in the
-> process of building 2.6.11.2 to see if the crash occurs there.
+> Well if you ran out of swap then yes, the oom-killer will visit you.
 > 
-> Here is some info on my system:
-> 
-> I've got an Athlon 1000C on a VIA KT133 chipset and a Radeon 7200 (the
-> original Radeon with 32MB SDR RAM). I'm running Debian/sid.
-> 
+> Why did you run out of swapspace?
 
-A copy of /var/log/XFree86.0.log and a copy of dmesg and copy of your
-.config if you could .. main things of interest whether you have fb
-drivers and drm drivers..
+hm, if i only knew. i don't know how long it took the other night to go
+from "normal" to "OOM". but today, with 2.6.11-rc5-bk2 (well, yesterday
+actually) i was working normally, and all of a sudden swap goes from 170MB
+used swap (normal) to OOM. i think it took a minute or so, but i just
+can't tell which application went nuts. today the first process that got
+killed was "ssh-agent", the other day it was mysqld. but even after this,
+it should've released some memory, right? but the oom-killer goes on and
+on and kills the next task.
 
-Dave.
+i'll monitor memory usage tonight and see what it gives. these "pppd"
+messages are suspicious though.
+
+thank you,
+Christian.
+-- 
+BOFH excuse #135:
+
+You put the disk in upside down.

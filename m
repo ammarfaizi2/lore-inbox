@@ -1,46 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266999AbTAKJsH>; Sat, 11 Jan 2003 04:48:07 -0500
+	id <S267170AbTAKJtM>; Sat, 11 Jan 2003 04:49:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267014AbTAKJsH>; Sat, 11 Jan 2003 04:48:07 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:56334
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266999AbTAKJsG>; Sat, 11 Jan 2003 04:48:06 -0500
-Date: Sat, 11 Jan 2003 04:56:39 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Dave Jones <davej@codemonkey.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.56
-In-Reply-To: <20030111094345.GI10486@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0301110454380.4270-100000@montezuma.mastecende.com>
+	id <S267166AbTAKJtM>; Sat, 11 Jan 2003 04:49:12 -0500
+Received: from mail8.home.nl ([213.51.128.28]:50080 "EHLO mail8-sh.home.nl")
+	by vger.kernel.org with ESMTP id <S267014AbTAKJtL>;
+	Sat, 11 Jan 2003 04:49:11 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "bigred@home.nl" <bigred@home.nl>
+Reply-To: bigred@home.nl
+To: linux-kernel@vger.kernel.org
+Subject: Greg KH: "Re: Problems accessing USB Mass Storage" 
+Date: Sat, 11 Jan 2003 10:57:43 +0100
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <03011110574302.04944@linuxmarco1>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jan 2003, Adrian Bunk wrote:
-
-> On Fri, Jan 10, 2003 at 12:26:56PM -0800, Linus Torvalds wrote:
-> 
-> >...
-> > Summary of changes from v2.5.55 to v2.5.56
-> > ============================================
-> >...
-> > Dave Jones <davej@codemonkey.org.uk>:
-> >...
-> >   o [WATCHDOG] Add several new watchdog drivers from 2.4
-> >...
-> 
-> FYI:
-> 
-> drivers/char/watchdog/sc1200wdt.c doesn't compile:
-
-I can take care of that, although i think this driver could be removed due 
-scx200_wdt.c supporting the same hardware. I'll look into it.
-
-	Zwane
--- 
-function.linuxpower.ca
-
+i've had the same problem and read the mailings about it dit you solve this 
+problem later 

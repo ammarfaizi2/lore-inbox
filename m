@@ -1,121 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268275AbUI2J17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUI2Jat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268275AbUI2J17 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 05:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUI2J17
+	id S268279AbUI2Jat (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 05:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268278AbUI2Jat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 05:27:59 -0400
-Received: from gate.crashing.org ([63.228.1.57]:38812 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268275AbUI2J1y (ORCPT
+	Wed, 29 Sep 2004 05:30:49 -0400
+Received: from styx.suse.cz ([82.119.242.94]:9091 "EHLO shadow.suse.cz")
+	by vger.kernel.org with ESMTP id S268282AbUI2Jag (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 05:27:54 -0400
-Subject: [PATCH] ppc64: DART iommu allocation fix
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1096449896.9331.15.camel@gaston>
+	Wed, 29 Sep 2004 05:30:36 -0400
+Date: Wed, 29 Sep 2004 11:31:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 7/8] Psmouse - add packet size
+Message-ID: <20040929093103.GB3150@ucw.cz>
+References: <200409290140.53350.dtor_core@ameritech.net> <200409290147.35864.dtor_core@ameritech.net> <20040929071504.GB2648@ucw.cz> <200409290229.28652.dtor_core@ameritech.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 29 Sep 2004 19:24:57 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409290229.28652.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Wed, Sep 29, 2004 at 02:29:28AM -0500, Dmitry Torokhov wrote:
+> On Wednesday 29 September 2004 02:15 am, Vojtech Pavlik wrote:
+> > On Wed, Sep 29, 2004 at 01:47:34AM -0500, Dmitry Torokhov wrote:
+> > 
+> > > -int alps_detect(struct psmouse *psmouse)
+> > > +int alps_detect(struct psmouse *psmouse, int set_properties)
+> > >  {
+> > > -	return alps_get_model(psmouse) < 0 ? 0 : 1;
+> > > +	if (alps_get_model(psmouse) < 0)
+> > > +		return 0;
+> > > +
+> > > +	if (set_properties) {
+> > > +		psmouse->vendor = "ALPS";
+> > > +		psmouse->name = "TouchPad";
+> > > +	}
+> > > +	return 1;
+> > >  }
+> > 
+> > I think we should return -1 (or -errno) on failure and 0 on success,
+> > like everybody else does.
+> >
+> 
+> All *detect functions return boolean value - either the device was detected or
+> not. I think it makes most sense. Negative error is convenient when function
+> normally returns some other meaningful value, like length. *detect is a simple
+> yes/no question, it is not really an error at all.
 
-The current code allocating the DART has a couple of bugs, first
-it's called on all machines including the ones who have no DART
-(oops), and then it tries to access the device-tree using the
-"of_chosen" pointer before it was initialized.
+psmouse_probe() is very similar in its use, as are a lot of other
+functions in the serio framework - and they return 0 on success, and -1
+on failure.
 
-The enclosed patch fixes these.
+I see it as "detected/initialized" = success (0) and "not detected / failed
+to initialize" = fail (-1).
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+I agree that your view also makes sense, however I'd like to keep the
+driver return values consistent to make it easier to read.
 
-===== arch/ppc64/kernel/pmac_setup.c 1.8 vs edited =====
---- 1.8/arch/ppc64/kernel/pmac_setup.c	2004-09-27 19:12:49 +10:00
-+++ edited/arch/ppc64/kernel/pmac_setup.c	2004-09-29 18:23:58 +10:00
-@@ -447,6 +447,14 @@
- 	if (platform != PLATFORM_POWERMAC)
- 		return 0;
- 
-+	/*
-+	 * On U3, the DART (iommu) must be allocated now since it
-+	 * has an impact on htab_initialize (due to the large page it
-+	 * occupies having to be broken up so the DART itself is not
-+	 * part of the cacheable linar mapping
-+	 */
-+	alloc_u3_dart_table();
-+
- 	return 1;
- }
- 
-===== arch/ppc64/kernel/prom.c 1.101 vs edited =====
---- 1.101/arch/ppc64/kernel/prom.c	2004-09-22 19:56:16 +10:00
-+++ edited/arch/ppc64/kernel/prom.c	2004-09-29 18:21:55 +10:00
-@@ -83,6 +83,7 @@
- static int __initdata dt_root_addr_cells;
- static int __initdata dt_root_size_cells;
- static int __initdata iommu_is_off;
-+int __initdata iommu_force_on;
- typedef u32 cell_t;
- 
- #if 0
-@@ -876,9 +877,11 @@
- 		return 0;
- 	systemcfg->platform = *prop;
- 
--	/* check if iommu is forced off */
-+	/* check if iommu is forced on or off */
- 	if (get_flat_dt_prop(node, "linux,iommu-off", NULL) != NULL)
- 		iommu_is_off = 1;
-+	if (get_flat_dt_prop(node, "linux,iommu-force-on", NULL) != NULL)
-+		iommu_force_on = 1;
- 
- #ifdef CONFIG_PPC_PSERIES
- 	/* To help early debugging via the front panel, we retreive a minimal
-===== arch/ppc64/kernel/setup.c 1.80 vs edited =====
---- 1.80/arch/ppc64/kernel/setup.c	2004-09-27 19:12:49 +10:00
-+++ edited/arch/ppc64/kernel/setup.c	2004-09-29 18:23:48 +10:00
-@@ -406,16 +406,6 @@
- 
- 	DBG("Found, Initializing memory management...\n");
- 
--#ifdef CONFIG_U3_DART
--	/*
--	 * On U3, the DART (iommu) must be allocated now since it
--	 * has an impact on htab_initialize (due to the large page it
--	 * occupies having to be broken up so the DART itself is not
--	 * part of the cacheable linar mapping
--	 */
--	alloc_u3_dart_table();
--#endif /* CONFIG_U3_DART */
--
- 	/*
- 	 * Initialize stab / SLB management
- 	 */
-===== arch/ppc64/kernel/u3_iommu.c 1.6 vs edited =====
---- 1.6/arch/ppc64/kernel/u3_iommu.c	2004-09-27 19:12:49 +10:00
-+++ edited/arch/ppc64/kernel/u3_iommu.c	2004-09-29 18:22:24 +10:00
-@@ -47,6 +47,7 @@
- 
- #include "pci.h"
- 
-+extern int iommu_force_on;
- 
- /* physical base of DART registers */
- #define DART_BASE        0xf8033000UL
-@@ -305,8 +306,7 @@
- 	/* Only reserve DART space if machine has more than 2GB of RAM
- 	 * or if requested with iommu=on on cmdline.
- 	 */
--	if (lmb_end_of_DRAM() <= 0x80000000ull &&
--	    get_property(of_chosen, "linux,iommu-force-on", NULL) == NULL)
-+	if (lmb_end_of_DRAM() <= 0x80000000ull && !iommu_force_on)
- 		return;
- 
- 	/* 512 pages (2MB) is max DART tablesize. */
+Maybe renaming the *_detect functions to *_probe would make it more
+obvious.
 
+> > This should be:
+> > 
+> > 	if (param[0] != 3) 
+> > 		return -1;
+> > 	if (set_properties) {
+> > 		set_bit(REL_WHEEL, psmouse->dev.relbit);
+> > 		if (!psmouse->vendor) psmouse->vendor = "Generic";
+> > 		if (!psmouse->name) psmouse->name = "Wheel Mouse";
+> > 		psmouse->pktsize = 4;
+> > 	}
+> > 	return 0;
+> > 
+> > ... and similarly elsewhere. You save one level of nesting and it makes
+> > more sense.
+> > 
+> 
+> Ok, will change.
+> 
+> -- 
+> Dmitry
+> 
 
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265423AbSJXM0L>; Thu, 24 Oct 2002 08:26:11 -0400
+	id <S265524AbSJXM3p>; Thu, 24 Oct 2002 08:29:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265424AbSJXM0L>; Thu, 24 Oct 2002 08:26:11 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:38393 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S265423AbSJXM0K>;
-	Thu, 24 Oct 2002 08:26:10 -0400
-Date: Thu, 24 Oct 2002 18:08:09 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-Message-ID: <20021024180809.D11418@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <3DB7A581.9214EFCC@aitel.hist.no> <3DB7A80C.7D13C750@digeo.com> <3DB7AC97.D31A3CB2@digeo.com> <20021024171528.D5311@in.ibm.com> <20021024114740.78FD37CD3@oscar.casa.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021024114740.78FD37CD3@oscar.casa.dyndns.org>; from tomlins@cam.org on Thu, Oct 24, 2002 at 12:01:31PM +0000
+	id <S265531AbSJXM3p>; Thu, 24 Oct 2002 08:29:45 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:35805 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S265524AbSJXM3n>;
+	Thu, 24 Oct 2002 08:29:43 -0400
+Message-ID: <000301c27b59$f22964a0$0200a8c0@MichaelKerrisk>
+From: "Michael Kerrisk" <m.kerrisk@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: shutdown() and SHUT_RD on TCP sockets - anomalous behaviour?
+Date: Thu, 24 Oct 2002 14:21:49 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 4.72.3110.1
+X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 24, 2002 at 12:01:31PM +0000, Ed Tomlinson wrote:
-> Maneesh Soni wrote:
-> >> Oh.  It was in -mm3 too.  But something went wrong with the
-> >> dcache shrinking there.
-> > 
-> > Backing out larger-cpu-masks.patch fixes this in -mm3 so, -mm4 should not
-> > give this problem. Basically callbacks are not getting processed due to
-> > incorrect rcu_cpu_mask.
-> 
-> Would this affect UP systems?  Had the dentry leak on a UP box with 512m 
-> memory.  About 400m ended up in unfreeable dentries...
+Hello,
 
-It does affect UP systems.
+I did an archive search and found a post that indicated that what I describe
+below is known behaviour.  The question is: why does this occur on Linux?
 
-A quick look at /proc/rcu in a leaky system indicated that somehow
-despite having a batch of RCUs, they are not getting started.
+According to SUSv3, if we perform a shutdown(fd, SHUT_RD) on a socket, then
+further reads on that socket should be disabled.  In the AF_UNIX domain, all
+is fine - things operate as expected.  However, for stream sockets, things
+are different (tested on 2.2.14, and 2.4.19):
 
- /* Fake initialization required by compiler */
-@@ -106,10 +106,11 @@ static void rcu_start_batch(long newbatc
- 		rcu_ctrlblk.maxbatch = newbatch;
- 	}
- 	if (rcu_batch_before(rcu_ctrlblk.maxbatch, rcu_ctrlblk.curbatch) ||
--	    (rcu_ctrlblk.rcu_cpu_mask != 0)) {
-+	    (find_first_bit(rcu_ctrlblk.rcu_cpu_mask, NR_CPUS) != NR_CPUS)) {
- 		return;
- 	}
--	rcu_ctrlblk.rcu_cpu_mask = cpu_online_map;
-+	memcpy(rcu_ctrlblk.rcu_cpu_mask, cpu_online_map,
-+	       sizeof(rcu_ctrlblk.rcu_cpu_mask));
- }
+1. If we perform a read() on the socket and there is no data, then 0 (EOF)
+is (immediately) returned.  (This is expected.)
 
-Either find_first_bit() is not returning NR_CPUS when the bitmask has no
-bit set or memcpy is not working on the UP version of cpu_online_map. Will
-dig a little bit more.
+2. However, the peer can still write() to the socket, and afterwards we can
+read() that data from the socket, even though the reading half of the socket
+should be shutdown.  Instead of this behaviour, I expected the data to be
+discarded, and the read() to return 0 as in point 1.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+I've read the relevant source code to confirm the anomalous behaviour in
+point 2.  The question is: why do things happen in this way on Linux?
+
+Thansk
+
+Michael
+

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbSLaUaY>; Tue, 31 Dec 2002 15:30:24 -0500
+	id <S264739AbSLaUsg>; Tue, 31 Dec 2002 15:48:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSLaUaY>; Tue, 31 Dec 2002 15:30:24 -0500
-Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:54790
-	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
-	id <S261600AbSLaUaX>; Tue, 31 Dec 2002 15:30:23 -0500
-Message-ID: <3E120054.2070405@rackable.com>
-Date: Tue, 31 Dec 2002 12:38:44 -0800
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S264743AbSLaUsg>; Tue, 31 Dec 2002 15:48:36 -0500
+Received: from mx2.mail.ru ([194.67.57.12]:35589 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id <S264739AbSLaUsf>;
+	Tue, 31 Dec 2002 15:48:35 -0500
+Date: Tue, 31 Dec 2002 21:51:39 +0100 (CET)
+From: Guennadi Liakhovetski <lyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: ide-scsi CD-recorder error reading burned disks
+Message-ID: <Pine.LNX.4.44.0212312145020.3542-100000@poirot.grange>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50 responsiveness
-References: <UTC200212311911.gBVJBxe03777.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 31 Dec 2002 20:38:44.0092 (UTC) FILETIME=[9C5DEBC0:01C2B10C]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+After burning a CD, when trying to read I am getting the following
+behaviour:
 
->Fetched Solaris 9 CDROM images yesterday, unpacked, copied, etc.
->Manipulating these 600+ MB files totally kills the machine
->(with 256 MB memory). Keystrokes are reacted to after half a minute.
->It is impossible to use the mouse since the kernel is too slow
->to accept mouse packets within its self-imposed timeout, so that
->the logs are full of
->psmouse.c: Lost synchronization, throwing 1 bytes away.
->psmouse.c: Lost synchronization, throwing 3 bytes away.
->psmouse.c: Lost synchronization, throwing 1 bytes away.
->psmouse.c: Lost synchronization, throwing 3 bytes away.
->The clock lost somewhat over 10 minutes.
->
->This is really primitive behaviour.
->
->Andries
->
->
->[everything vanilla - no settings changed, no hdparm used]
->  
->
+~> dd if=/dev/cdr of=/dev/null bs=2048
+dd: reading `/dev/cdr': Input/output error
+176996+0 records in
+176996+0 records out
 
-  Was the cdrom in dma mode?  Does ""hdparm -d 1 /dev/cdrom"  work?  
+Whereas, the same disk read on the same drive under the normal ide-driver
+works ok:
 
-  How much swap do you have?
+~> dd if=/dev/hdc of=/dev/null bs=2048
+177039+0 records in
+177039+0 records out
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+Other disks can be read on this drive also under ide-scsi ok, as well as
+this disk can be read on a SCSI DVD-drive fine. Is it a known behaviour,
+or a problem in the drive / driver?
+
+2.4.20, drive is Benq CRW 4012A
+
+Thanks
+Guennadi
 
 
 

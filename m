@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbUCHXT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 18:19:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbUCHXT2
+	id S261204AbUCHXV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 18:21:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbUCHXV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 18:19:28 -0500
-Received: from fw.osdl.org ([65.172.181.6]:8098 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261185AbUCHXT0 (ORCPT
+	Mon, 8 Mar 2004 18:21:28 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:37521 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S261204AbUCHXVL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 18:19:26 -0500
-Date: Mon, 8 Mar 2004 15:21:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: objrmap-core-1 (rmap removal for file mappings to avoid 4:4 in
- <=16G machines)
-Message-Id: <20040308152126.54f4f681.akpm@osdl.org>
-In-Reply-To: <20040308230247.GC12612@dualathlon.random>
-References: <20040308202433.GA12612@dualathlon.random>
-	<Pine.LNX.4.58.0403081238060.9575@ppc970.osdl.org>
-	<20040308132305.3c35e90a.akpm@osdl.org>
-	<20040308230247.GC12612@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Mar 2004 18:21:11 -0500
+From: Pat Gefre <pfg@sgi.com>
+Message-Id: <200403082320.i28NKGsk066877@fsgi900.americas.sgi.com>
+Subject: Re: [2.6 PATCH] Altix - console driver calls console_initcall
+To: bjorn.helgaas@hp.com, davidm@napali.hpl.hp.com
+Date: Mon, 8 Mar 2004 17:20:16 -0600 (CST)
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> > Other issues are how it will play with remap_file_pages(), and how it
-> > impacts Ingo's work to permit remap_file_pages() to set page permissions on
-> > a per-page basis.  This change provides large performance improvements to
+> On Monday 08 March 2004 1:32 pm, Pat Gefre wrote:
+> > -static void __init sn_sal_serial_console_init(void);
+> > +int __init sn_sal_serial_console_init(void);
 > 
-> in the current form it should be using pte_chains still for nonlinear
-> vmas, see the function that pretends to convert the page to be like
-> anonymous memory (which simply means to use pte_chains for the reverse
-> mappings).  I admit I didn't focus much on that part though, I trust
-> Dave on that ;), since I want to drop it.
+> I don't see any callers other than the console_initcall(), so
+> you could lose the declaration altogether.
 > 
-> What I want to do with the nonlinear vmas is to scan all the ptes in
-> every nonlinear vma, so I don't have to allocate the pte_chain and the
-> swapping procedure will simply be more cpu hungry under nonlinear vmas.
-> I'm not interested to provide optimal performance in swapping nonlinear
-> vmas, I prefer the fast path to be as fast as possible and without
-> memory overhead.
+> > -static void __init
+> > +int __init
+> >  sn_sal_serial_console_init(void)
+> 
+> console_initcall() works fine with static functions, so you should
+> be able to keep this static.
+> 
+> Bjorn
 
-OK.  There was talk some months ago about making the non-linear vma's
-effectively mlocked and unswappable.  That would reduce their usefulness
-significantly.  It looks like that's off the table now, which is good.
+You're right.....
 
-btw, mincore() has always been broken with nonlinear vma's.  If you could
-fix that up some time using that pagetable walker it would be nice.  It's
-not very important though.
+Here's a new mod which goes against 1.1698 too (the 'staircase' mod) -
+so it'll have the correct line numbers - in other words it'll apply
+cleanly if 1.1698 has already been applied.
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1693  -> 1.1694 
+#	drivers/char/sn_serial.c	1.6     -> 1.7    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/03/08	pfg@sgi.com	1.1694
+# drivers/char/sn_serial.c
+#     Make console_initcall() for proper registration.
+# --------------------------------------------
+#
+diff -Nru a/drivers/char/sn_serial.c b/drivers/char/sn_serial.c
+--- a/drivers/char/sn_serial.c	Mon Mar  8 17:15:51 2004
++++ b/drivers/char/sn_serial.c	Mon Mar  8 17:15:51 2004
+@@ -105,7 +105,6 @@
+ static struct sn_sal_ops *sn_func;
+ 
+ /* Prototypes */
+-static void __init sn_sal_serial_console_init(void);
+ static int snt_hw_puts(const char *, int);
+ static int snt_poll_getc(void);
+ static int snt_poll_input_pending(void);
+@@ -921,9 +920,6 @@
+ 		printk(KERN_ERR "sn_serial: Unable to register tty driver\n");
+ 		return retval;
+ 	}
+-#ifdef CONFIG_SGI_L1_SERIAL_CONSOLE
+-	sn_sal_serial_console_init();
+-#endif	/* CONFIG_SGI_L1_SERIAL_CONSOLE */
+ 	return 0;
+ }
+ 
+@@ -1015,7 +1011,7 @@
+ 	.index = -1
+ };
+ 
+-static void __init
++static int __init
+ sn_sal_serial_console_init(void)
+ {
+ 	if (ia64_platform_is("sn2")) {
+@@ -1023,6 +1019,8 @@
+ 		sn_debug_printf("sn_sal_serial_console_init : register console\n");
+ 		register_console(&sal_console);
+ 	}
++	return 0;
+ }
++console_initcall(sn_sal_serial_console_init);
+ 
+ #endif /* CONFIG_SGI_L1_SERIAL_CONSOLE */

@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282418AbRKZTTl>; Mon, 26 Nov 2001 14:19:41 -0500
+	id <S282431AbRKZTVN>; Mon, 26 Nov 2001 14:21:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282426AbRKZTPH>; Mon, 26 Nov 2001 14:15:07 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:57099 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S282263AbRKZTOG>;
-	Mon, 26 Nov 2001 14:14:06 -0500
-Message-ID: <3C0293C6.E053C10D@osdl.org>
-Date: Mon, 26 Nov 2001 11:11:02 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sujal Shah <sujalnet@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3 / andrewm's web pages
-In-Reply-To: <1006797823.1300.4.camel@pcsshah>
+	id <S282280AbRKZTTq>; Mon, 26 Nov 2001 14:19:46 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:43122 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S282419AbRKZTTS>; Mon, 26 Nov 2001 14:19:18 -0500
+Date: Mon, 26 Nov 2001 14:19:14 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Momchil Velikov <velco@fadata.bg>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH] Scalable page cache
+Message-ID: <20011126141914.D13955@redhat.com>
+In-Reply-To: <20011126131641.A13955@redhat.com> <Pine.LNX.4.33.0111262133140.17709-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111262133140.17709-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Nov 26, 2001 at 09:40:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, to
-http://www.zipworld.com.au/~akpm/linux/ext3/
+On Mon, Nov 26, 2001 at 09:40:53PM +0100, Ingo Molnar wrote:
+> this does not appear to be the case (see my other replies). Even if the
+> hash table is big and assuming the worst-case (we miss on every hash table
+> access), mem_map is *way* bigger in the cache because it has a much less
+> compressed format. The compression ratio between mem_map[] and the hash
+> table is 1:8 in the stock kernel, 1:4 with the page buckets patch.
 
-~Randy
+Well, the only point you've made that has any impact on the data structure 
+that I'm proposing is that the cachling bouncing caused by lock acquisition 
+is the limiting factor.  The best solution to that is to make the per-bucket 
+lock only used for insert and remove, and make lookups lockless.  In order 
+to make that work, we need to break the current PageLock into a spinlock 
+portion and an io-lock flag, and grab the spinlock before removing the page 
+from the page cache.  Now, would you care to comment on the data structure?
 
-
-Sujal Shah wrote:
-> 
-> Did they move?  Can't find them anywhere.
-> 
-> I'm getting 403 Forbiddens from the www.uow.edu.au site.
+		-ben
+-- 
+Fish.

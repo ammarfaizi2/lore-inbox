@@ -1,49 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263995AbUDFUpw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbUDFUpw
+	id S264002AbUDFUss (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:48:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264003AbUDFUss
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:45:52 -0400
-Received: from bender.bawue.de ([193.7.176.20]:18126 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S263995AbUDFUpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:45:51 -0400
-Date: Tue, 6 Apr 2004 22:45:45 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: High CPU temp on Athlon MP w/ recent 2.6 kernels
-Message-ID: <20040406204545.GA15946@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040406193649.GA13257@sommrey.de> <200404061626.37714.gene.heskett@verizon.net>
+	Tue, 6 Apr 2004 16:48:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4764 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264002AbUDFUsp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 16:48:45 -0400
+Date: Tue, 6 Apr 2004 21:48:44 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Patch] BME, noatime and nodiratime
+Message-ID: <20040406204843.GL31500@parcelfarce.linux.theplanet.co.uk>
+References: <20040406145544.GA19553@MAIL.13thfloor.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404061626.37714.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <20040406145544.GA19553@MAIL.13thfloor.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 04:26:37PM -0400, Gene Heskett wrote:
+On Tue, Apr 06, 2004 at 04:55:44PM +0200, Herbert Poetzl wrote:
 > 
-> But join the 70C club, that AMD athlon keeps itself at a medium simmer 
-> full time.  Mine has been running 67-72C for 3 years now.  Strangly, 
-> shutting down setiathome doesn't cool it by more than a couple 
-> degrees C.  And, its got a $50 all copper Glaciator cooler on it, 
-> heavy heavy heavy.
+> Hi Andrew!
+> 
+> according to todays vfs strategy (hope it hasn't changed
+> again), here is the first patch, which adds the mount 
+> flags propagation, fixes the /proc display, and implements
+> noatime and nodiratime per mountpoint ...
+> 
+> please consider for inclusion ...
 
-That's not quite my point.  I am not afraid of running my athlons at
-70C.  I just don't want to.  With Debian Woody they ran at <40C, which
-is impressing IMHO.  An upgrade to Sarge raised the temp for about 5K,
-which is still very cool.  This temperature didn't change when I
-upgraded to an early 2.6 kernel.  Just after 2.6.3-mm4 there was this
-jump for 10K that I just do not understand.  It doesn't hurt the athlons
-but seems unnecessary to me.
+noatime/nodiratime: OK, but we still have direct modifications of i_atime
+that need to be taken care of.
 
--jo
+massage of ->show(): more or less OK.  However, we don't need to keep
+MS_NOATIME and MS_NODIRATIME in flags at all - 
+> +	if (flags & MS_NOATIME)
+> +		mnt_flags |= MNT_NOATIME;
+> +	if (flags & MS_NODIRATIME)
+> +		mnt_flags |= MNT_NODIRATIME;
+>  	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
 
--- 
--rw-r--r--    1 jo       users          80 2004-04-06 18:59 /home/jo/.signature
+should remove them from flags in the last line, same way we do that for
+nosuid/noexec/nodev, with obvious consequences for ->show().
+
+Note that we don't need to keep MS_NOATIME check in update_atime() - that
+animal is purely per-mountpoint now.
+
+> +	if (MNT_IS_NOATIME(mnt))
+> +		return;
+> +	if (S_ISDIR(inode->i_mode) && MNT_IS_NODIRATIME(mnt))
+> +		return;
+
+Do we need those to be macros?  AFAICS, this is the only place where we
+do such checks and we shouldn't get new callers.  IOW, keeping them
+separate doesn't buy us anything and only obfuscates the code.
+
+> -#define MNT_NOSUID	1
+> -#define MNT_NODEV	2
+> -#define MNT_NOEXEC	4
+> +#define MNT_RDONLY	1
+> +#define MNT_NOSUID	2
+> +#define MNT_NODEV	4
+> +#define MNT_NOEXEC	8
+> +#define MNT_NOATIME	16
+> +#define MNT_NODIRATIME	32
+
+*ugh*
+
+a) what's the point of reordering them (rdonly shifting the existing ones)?
+b) since MNT_RDONLY doesn't do anything at that point, why introduce it
+(and associated confusion) now?  As it is, your /proc/mounts will pretend
+that per-mountpoint r/o works right now.  Since it doesn't...
+  
+> +#define	MNT_IS_RDONLY(m)	((m) && ((m)->mnt_flags & MNT_RDONLY))
+> +#define	MNT_IS_NOATIME(m)	((m) && ((m)->mnt_flags & MNT_NOATIME))
+> +#define	MNT_IS_NODIRATIME(m)	((m) && ((m)->mnt_flags & MNT_NODIRATIME))
+
+See above.  Besides, are we ever planning to pass NULL to these guys?

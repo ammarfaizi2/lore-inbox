@@ -1,115 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbTJRRo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 13:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbTJRRo2
+	id S261755AbTJRRwj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 13:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTJRRwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 13:44:28 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:56056 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S261746AbTJRRoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 13:44:04 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.0-test7-mm1
-Date: Sat, 18 Oct 2003 19:43:38 +0200
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20031015013649.4aebc910.akpm@osdl.org>
-In-Reply-To: <20031015013649.4aebc910.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-03=_KvXk/gy9rHlF3p+";
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310181943.39148.schlicht@uni-mannheim.de>
+	Sat, 18 Oct 2003 13:52:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62080 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261755AbTJRRwh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 13:52:37 -0400
+Date: Sat, 18 Oct 2003 18:52:36 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Walt H <waltabbyh@comcast.net>
+Cc: arekm@pld-linux.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: initrd and 2.6.0-test8
+Message-ID: <20031018175236.GA7665@parcelfarce.linux.theplanet.co.uk>
+References: <3F916A0C.10800@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F916A0C.10800@comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 18, 2003 at 09:27:56AM -0700, Walt H wrote:
+> 
+> > Hi,
+> > 
+> > Seems that something changed between test7 and test8 regarding initrd or romfs 
+> > support. I'm using highly modularized 2.6.0 kernel which has all filesystems 
+> > beside romfs compiled as modules (romfs is compiled inside of kernel).
+> > 
+> > Modules for my rootfs are loaded from initrd (which is image with romfs as 
+> > filesystem) but starting from test8 kernel is not able to mount initrd 
+> > filesystem - stops with typical message about not being able to mount rootfs.
+> > 
+> > cset test7 from 20031012_0407 is known to be ok so something was changed later
+> 
+> 
+> I noticed this happened in 2.6.0-test6-mm4. Backing out this patch fixes
+> it in the short-term.
 
---Boundary-03=_KvXk/gy9rHlF3p+
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_KvXk/u24jy83e6v"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Even better would be to report the bug ;-/
 
---Boundary-01=_KvXk/u24jy83e6v
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I can't reproduce it here.  2.6.0-test8 vanilla, so far (last 15 minutes)
+tried with
+	* compressed initrd image
+	* plain ext2
+and I'll try romfs as soon as I hunt down mkfs for that animal.  All
+appears to be working...
 
-Hi Andrew,
+What did it say before the "typical message"?  Specifically, were there
+any lines starting with RAMDISK:?
 
-On Wednesday 15 October 2003 10:36, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test7=
-/2
->.6.0-test7-mm1
-  ~~ snip ~~
-> +scale-min_free_kbytes.patch
->
->  Scale min_free_kbytes according to machine size.
-
-This patch actually doesn't work, as is uses nr_free_buffer_pages() before =
-the=20
-zonelists are set up. So min_free_kbytes is always set to 128.
-
-The attached fix works here without a problem, but I'm not sure it doesn't=
-=20
-break anything...
-
-Regards
-   Thomas
-
-P.S.: 1. I've got a ported memsetup-fix from the 2.4 tree, if you want I co=
-uld=20
-send it to you.
-2. Should we consider replacing the bogus int_sqrt() with the fb_sqrt()=20
-version? (btw. it is always exact) We could place it somewhere central, so =
-it=20
-can be used from any place...
-
---Boundary-01=_KvXk/u24jy83e6v
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="fix-scale_min_free_pages.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="fix-scale_min_free_pages.diff"
-
-=2D-- linux-2.6.0-test7-mm1/init/main.c.orig	Sat Oct 18 19:20:14 2003
-+++ linux-2.6.0-test7-mm1/init/main.c	Sat Oct 18 18:58:26 2003
-@@ -396,7 +396,6 @@
- 	lock_kernel();
- 	printk(linux_banner);
- 	setup_arch(&command_line);
-=2D	init_per_zone_pages_min();
- 	setup_per_cpu_areas();
-=20
- 	/*
-@@ -406,6 +405,7 @@
- 	smp_prepare_boot_cpu();
-=20
- 	build_all_zonelists();
-+	init_per_zone_pages_min();
- 	page_alloc_init();
- 	printk("Kernel command line: %s\n", saved_command_line);
- 	parse_args("Booting kernel", command_line, __start___param,
-
---Boundary-01=_KvXk/u24jy83e6v--
-
---Boundary-03=_KvXk/gy9rHlF3p+
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA/kXvKYAiN+WRIZzQRAmAWAKCIjPiiaiz/91EdCE8Y78kZFz1yVACggAwb
-ZeIhB7ZnAYMIGCvOon1MwA0=
-=Dxoy
------END PGP SIGNATURE-----
-
---Boundary-03=_KvXk/gy9rHlF3p+--
+.config would be also useful.

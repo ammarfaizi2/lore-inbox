@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270970AbUJVDq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270898AbUJUUbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270970AbUJVDq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 23:46:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270965AbUJVDqO
+	id S270898AbUJUUbs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 16:31:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270839AbUJUU1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 23:46:14 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:16245 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270970AbUJVDiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 23:38:51 -0400
-Message-ID: <417880C3.4000807@yahoo.com.au>
-Date: Fri, 22 Oct 2004 13:38:43 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
-References: <20041021011714.GQ24619@dualathlon.random> <20041022011057.GC14325@dualathlon.random> <20041021182651.082e7f68.akpm@osdl.org> <200410212155.52264.jbarnes@sgi.com>
-In-Reply-To: <200410212155.52264.jbarnes@sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 21 Oct 2004 16:27:44 -0400
+Received: from fms.tor.istop.com ([66.11.182.43]:12932 "EHLO
+	maximus.fullmotions.com") by vger.kernel.org with ESMTP
+	id S270830AbUJUUX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 16:23:28 -0400
+Subject: Re: Reporting GPL violations - a little OT
+From: Danny Brow <fms@istop.com>
+To: Kernel-List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0410211311250.10582@twin.uoregon.edu>
+References: <1098389185.3811.14.camel@hanzo.fullmotions.com>
+	 <Pine.LNX.4.61.0410211311250.10582@twin.uoregon.edu>
+Content-Type: text/plain
+Date: Thu, 21 Oct 2004 16:33:55 -0400
+Message-Id: <1098390835.4883.23.camel@hanzo.fullmotions.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> On Thursday, October 21, 2004 8:26 pm, Andrew Morton wrote:
-> 
->>I'd be OK with wapping over to the watermark version, as long as we have
->>runtime-settable levels.
->>
->>But I'd be worried about making the default values anything other than zero
->>because nobody seems to be hitting the problems.
-> 
-> 
-> Yes, please keep the default at 0 regardless of the algorithm.  On the NUMA 
-> systems I'm aware of, an incremental min just doesn't make any sense.
-> 
+  Well it maybe the kernel itself, I remember some one saying to send e-
+mails about this to another list but can't seem to find it in my
+archives.  Any how, I don't want to open a can of worms until said
+company blows me off again about the code for said device. Now that I
+think about it, I'll send them a copy of the GPL licence if they do and
+see what happens.
 
-That problem shouldn't exist any more, so your one zone per node (?)
-NUMA systems, incremental min won't have any effect at all.
+Dan.
 
-That said, it isn't something that we should just turn on and see
-who yells.
+
+On Thu, 2004-10-21 at 13:12 -0700, Joel Jaeggli wrote:
+> On Thu, 21 Oct 2004, Danny Brow wrote:
+> 
+> > Just wondering where to report possible GPL violations.
+> 
+> the authors of the software in question are the best place to start.
+> 
+> joelja
+> 
+> > Thanks,
+> > Dan.
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
 

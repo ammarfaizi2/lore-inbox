@@ -1,69 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268670AbUJDXFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUJDXII@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268670AbUJDXFv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 19:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268697AbUJDXFu
+	id S268685AbUJDXII (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 19:08:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268690AbUJDXGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 19:05:50 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:29587 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268696AbUJDW5M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:57:12 -0400
-Date: Mon, 04 Oct 2004 15:58:01 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
-       paulus@samba.org, benh@kernel.crashing.org
-Subject: [PATCH 2.6][1/12] arch/ppc/kernel/pci.c replace pci_find_device with pci_get_device
-Message-ID: <298570000.1096930681@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 4 Oct 2004 19:06:45 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:15627 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S268688AbUJDW5A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 18:57:00 -0400
+Date: Mon, 4 Oct 2004 23:56:59 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH RESEND] 2.[46]: Set ARP hw type correctly for BOOTP over FDDI
+Message-ID: <Pine.LNX.4.58L.0410040310550.22545@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-As pci_find_device is going away I have replaced this call with pci_get_device.
-If someone with a PPC system could verify it I would appreciate it. This is the only
-one in ppc/kernel all the others are under ppc/platform. There will be 12 total.
+ Using the Ethernet ARP hw type for FDDI networks is mandated by RFC 1390
+(STD 36) and that code is already used by Linux elsewhere, but not for
+BOOTP requests sent for IPv4 autoconfiguration.  Here is a patch for both
+2.4 and 2.6 that fixes the problem for me.  Please apply.
 
-Hanna Linder
-IBM Linux Technology Center
+ Applies both to 2.4.27 and to 2.6.8.1.
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+  Maciej
 
----
+Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
 
-diff -Nrup linux-2.6.9-rc3-mm2cln/arch/ppc/kernel/pci.c linux-2.6.9-rc3-mm2patch/arch/ppc/kernel/pci.c
---- linux-2.6.9-rc3-mm2cln/arch/ppc/kernel/pci.c	2004-10-04 11:38:04.000000000 -0700
-+++ linux-2.6.9-rc3-mm2patch/arch/ppc/kernel/pci.c	2004-10-04 14:36:09.000000000 -0700
-@@ -503,7 +503,7 @@ pcibios_allocate_resources(int pass)
- 	u16 command;
- 	struct resource *r;
- 
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		pci_read_config_word(dev, PCI_COMMAND, &command);
- 		for (idx = 0; idx < 6; idx++) {
- 			r = &dev->resource[idx];
-@@ -540,7 +540,7 @@ pcibios_assign_resources(void)
- 	int idx;
- 	struct resource *r;
- 
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		int class = dev->class >> 8;
- 
- 		/* Don't touch classless devices and host bridges */
-@@ -866,7 +866,7 @@ pci_device_from_OF_node(struct device_no
- 	 */
- 	if (!pci_to_OF_bus_map)
- 		return 0;
--	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
- 		if (pci_to_OF_bus_map[dev->bus->number] != *bus)
- 			continue;
- 		if (dev->devfn != *devfn)
-
+patch-ipconfig-fddi-0
+diff -up --recursive --new-file linux.macro/net/ipv4/ipconfig.c linux/net/ipv4/ipconfig.c
+--- linux.macro/net/ipv4/ipconfig.c	2003-11-17 04:00:34.000000000 +0000
++++ linux/net/ipv4/ipconfig.c	2004-08-12 00:03:32.000000000 +0000
+@@ -689,6 +689,8 @@ static void __init ic_bootp_send_if(stru
+ 		b->htype = dev->type;
+ 	else if (dev->type == ARPHRD_IEEE802_TR) /* fix for token ring */
+ 		b->htype = ARPHRD_IEEE802;
++	else if (dev->type == ARPHRD_FDDI)
++		b->htype = ARPHRD_ETHER;
+ 	else {
+ 		printk("Unknown ARP type 0x%04x for device %s\n", dev->type, dev->name);
+ 		b->htype = dev->type; /* can cause undefined behavior */

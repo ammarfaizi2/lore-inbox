@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263354AbTDGJAT (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 05:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTDGJAS (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 05:00:18 -0400
-Received: from mta05-svc.ntlworld.com ([62.253.162.45]:27373 "EHLO
-	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S263354AbTDGJAQ (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 05:00:16 -0400
-Date: Mon, 7 Apr 2003 10:09:15 +0100
-From: Malcolm Beattie <mbeattie@clueful.co.uk>
-To: David Wagner <daw@mozart.cs.berkeley.edu>
+	id S263348AbTDGI7E (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 04:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263353AbTDGI7E (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 04:59:04 -0400
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:62402 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263348AbTDGI7D (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 04:59:03 -0400
+Subject: Via-Rhine dirve in 2.4.21-pre7
+From: Mark Syms <mark@marksyms.demon.co.uk>
+To: rl@hellgate.ch
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new syscall: flink
-Message-ID: <20030407100915.A2493@clueful.co.uk>
-References: <3E907A94.9000305@kegel.com> <200304062156.37325.oliver@neukum.org> <1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk> <b6qo2a$ecl$1@cesium.transmeta.com> <b6qnr6$s4h$1@abraham.cs.berkeley.edu>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049706637.963.6.camel@athlon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <b6qnr6$s4h$1@abraham.cs.berkeley.edu>; from daw@mozart.cs.berkeley.edu on Mon, Apr 07, 2003 at 02:29:58AM +0000
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 07 Apr 2003 10:10:37 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wagner writes:
-> H. Peter Anvin wrote:
-> >Alan Cox wrote:
-> >> Suppose I give you an O_RDONLY handle to a file which you then
-> >> flink and gain write access too ?
-> >
-> >This, I believe, is the real issue.  However, we already have that
-> >problem:
-> 
-> No, I don't think we already have that problem.  I think flink()
-> would introduce a new security hole not already present.
+Roger,
 
-Here's another example along similar lines: you can open a file
-O_APPEND and pass the descriptor along to another process (e.g. a
-security mediator process that hands out a file descriptor to a
-less-trusted recipient that it can use for appending entries only).
-fcntl() explicity prevents the clearing of the O_APPEND flag on a
-file which was opened with O_APPEND. With flink, one could flink()
-and re-open without O_APPEND: security hole.
+Just tried the via-rhine driver in 2.4.21-pre7 and it appears to exhibit
+the problem Erik Hensema reported with the VT6103 onboard network card
+on my Chaintech 7VJL Athlon board whereby you get NETDEV Watchdog
+transmit timeout errors unless you turn local io-apic off in which case
+it all works fine.
 
---Malcolm
+Please cc me directly as I'm not subscribed to the mailing list.
 
--- 
-Malcolm Beattie <mbeattie@clueful.co.uk>
+Thank you,
+
+	Mark Syms
+

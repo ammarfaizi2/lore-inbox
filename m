@@ -1,79 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284590AbRLETR0>; Wed, 5 Dec 2001 14:17:26 -0500
+	id <S284609AbRLETW1>; Wed, 5 Dec 2001 14:22:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284588AbRLETRS>; Wed, 5 Dec 2001 14:17:18 -0500
-Received: from t2.redhat.com ([199.183.24.243]:45562 "EHLO
-	dhcp-177.hsv.redhat.com") by vger.kernel.org with ESMTP
-	id <S284590AbRLETRE>; Wed, 5 Dec 2001 14:17:04 -0500
-Date: Wed, 5 Dec 2001 13:16:59 -0600
-From: Tommy Reynolds <reynolds@redhat.com>
-To: "Michael Smith" <smithmg@agere.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Unresolved symbol memset
-Message-Id: <20011205131659.3af1bafa.reynolds@redhat.com>
-In-Reply-To: <00a501c17dbe$7a6fa580$4d129c87@agere.com>
-In-Reply-To: <Pine.LNX.4.33L2.0112051024340.22241-100000@dragon.pdx.osdl.net>
-	<00a501c17dbe$7a6fa580$4d129c87@agere.com>
-Organization: Red Hat Software, Inc. / Embedded Development
-X-Mailer: Sylpheed version 0.6.5cvs3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.B/wcCO..sRzKww"
+	id <S284588AbRLETWR>; Wed, 5 Dec 2001 14:22:17 -0500
+Received: from pc26.tromso2.avidi.online.no ([148.122.16.26]:7182 "EHLO
+	shogun.thule.no") by vger.kernel.org with ESMTP id <S284586AbRLETWF>;
+	Wed, 5 Dec 2001 14:22:05 -0500
+From: "Troels Walsted Hansen" <troels@thule.no>
+To: linux-kernel@vger.kernel.org
+Subject: VIA acknowledges North Bridge bug (AKA Linux Kernel with Athlon optimizations bug)
+Date: Wed, 5 Dec 2001 20:21:57 +0100
+Message-ID: <005b01c17dc2$1c244130$0300000a@samurai>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3311
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.B/wcCO..sRzKww
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Remember the pci_fixup_via_athlon_bug() (AKA "Athlon bug stomper")
+function which went into kernel 2.4.14 after much discussion?
 
-More important activities lacking, "Michael Smith" <smithmg@agere.com> wrote:
+Apparently the mysterious register 55 in the Northbridge controls a
+buggy Memory Write Queue timer. They finally acknowledged the problem
+when Nvidia drivers and Windows XP started pushing the hardware enough
+to trigger the bug...
 
-> That particular header is included.  As I mentioned, I am using memset
-> in other areas of the code, as well as the same file.  If I take this
-> one call out of the source, it compiles, links and I am able to perform
-> and insmod correctly.  Below are the headers that are included in the
-> file, and the area of the code that is causing the problem.  Let me say
-> that the code, even with this particular call in, compiles and links.
-> The problem happens when I go to perform the insmod on it.
-> 
-> #include <memory.h>
-> #include <string.h>
-> #include "myownheaders.h"
-> 
-> 
-> void myfunction( void *a, int len )
-> {
-> ....
-> Mymemmove() //used because NdisMoveMemory can not be used
-> memset( &a->WORD[NUMWORDS-len], 0, len*4);
-> ...
-> }
+http://bbs.pcstats.com/viahardware/messageview.cfm?catid=19&threadid=863
+8
 
-Inside a driver (or module) file, any include reference that doesn't begin with
-either <linux/foo.h> or <asm/foo.h> should always raise a red flag.  There are
-user-land header files ("/usr/include") and kernel header files
-("/usr/src/linux/include") and never the twain shall meet.
+-- 
+Troels Walsted Hansen
 
-Mixing includes is always a bad idea.
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- + -- -- -- -- -- -- -- -- -- --
-Tommy Reynolds                               | mailto: <reynolds@redhat.com>
-Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
-307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.256.837.3839
-Senior Software Developer                    | Mobile: +1.919.641.2923
-
---=.B/wcCO..sRzKww
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iEYEARECAAYFAjwOcq8ACgkQWEn3bOOMcup7sQCdG4Zr4DAMAy5lJ4QvEsy+uHw+
-bBMAn1PG7gYvYbIYlLJvRLVsFyNzNvS2
-=z9l7
------END PGP SIGNATURE-----
-
---=.B/wcCO..sRzKww--
 

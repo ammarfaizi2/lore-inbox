@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262032AbSJDWjO>; Fri, 4 Oct 2002 18:39:14 -0400
+	id <S261977AbSJDWmY>; Fri, 4 Oct 2002 18:42:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262036AbSJDWjO>; Fri, 4 Oct 2002 18:39:14 -0400
-Received: from web40001.mail.yahoo.com ([66.218.78.19]:55184 "HELO
-	web40001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S262032AbSJDWjN>; Fri, 4 Oct 2002 18:39:13 -0400
-Message-ID: <20021004224442.80717.qmail@web40001.mail.yahoo.com>
-Date: Fri, 4 Oct 2002 15:44:42 -0700 (PDT)
-From: Venkat Raghu <venkatraghu2002@yahoo.com>
-Subject: newbie
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S262063AbSJDWmY>; Fri, 4 Oct 2002 18:42:24 -0400
+Received: from ip-208-181-150-114.adsl.radiant.net ([208.181.150.114]:32388
+	"EHLO kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S261977AbSJDWmX>; Fri, 4 Oct 2002 18:42:23 -0400
+Date: Fri, 4 Oct 2002 23:47:06 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
+Message-ID: <20021004234706.A6683@kushida.apsleyroad.org>
+References: <Pine.LNX.4.44.0209261311070.11487-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209261311070.11487-100000@localhost.localdomain>; from mingo@elte.hu on Thu, Sep 26, 2002 at 01:30:55PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ingo Molnar wrote:
+> futexes were not really designed with COW in mind - they were designed
+> to be used in non-COW shared memory. This is a very bad limitation
 
-I have a basic question. When some function calls
-panic:
-1)Can I store some registers into nonvolatile 
-memory. I will call this function from the very
-beginning of my panic function.
+I thought that futex-based locks were only reliable with PROT_SEM
+memory, for architectures that define PROT_SEM (e.g. PPC) -- because of
+the need for locking primitives to work in a cache coherent manner.
 
-2) What exactly happens when a function calls panic
-.i.e. a)what all things are inaccessible, in my 
-case I will be embedding my code at the very beginning
-of panic function, so what things will be inaccessible
-to my code b) what is control flow after a function
-calls panic.
+Is this not so?
 
-Any help will really useful. Kindly mail to
-venkatraghu2002@yahoo.com, as I did't subscribe.
-
-Regards
-Venkat.
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com
+-- Jamie

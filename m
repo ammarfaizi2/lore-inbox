@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289149AbSAVFCe>; Tue, 22 Jan 2002 00:02:34 -0500
+	id <S287991AbSAVFLn>; Tue, 22 Jan 2002 00:11:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289159AbSAVFCX>; Tue, 22 Jan 2002 00:02:23 -0500
-Received: from mailgate.indstate.edu ([139.102.15.118]:46761 "EHLO
-	mailgate.indstate.edu") by vger.kernel.org with ESMTP
-	id <S289149AbSAVFCM>; Tue, 22 Jan 2002 00:02:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rich Baum <richbaum@acm.org>
-To: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: [PATCH] fix drivers/scsi/imm.c in 2.5.3pre2
-Date: Mon, 21 Jan 2002 23:25:51 -0500
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <6D914675512@coral.indstate.edu>
+	id <S288255AbSAVFLd>; Tue, 22 Jan 2002 00:11:33 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:22010 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S287991AbSAVFL0>; Tue, 22 Jan 2002 00:11:26 -0500
+Date: Tue, 22 Jan 2002 00:11:25 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch for ymfpci in 2.5.x
+Message-ID: <20020122001125.A19661@devserv.devel.redhat.com>
+In-Reply-To: <20020111121431.A10147@devserv.devel.redhat.com> <Pine.LNX.4.33.0201111034070.3952-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0201111034070.3952-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 11, 2002 at 10:36:30AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've finally got the imm driver to work.  I have based this patch a patch 
-posted by derek@signalmarketing.com for the ppa driver.  I've tested this and 
-it works for me.  Please test this and send me any questions or comments you 
-may have.  If no one has any problems I'll send it to Linus.
+> Date: Fri, 11 Jan 2002 10:36:30 -0800 (PST)
+> From: Linus Torvalds <torvalds@transmeta.com>
 
-Also, I have a longer patch that gets rid of some #includes in imm.c that are 
-also in imm.h.  I moved them to imm.h.  Let me know if I should post that 
-patch as well.  It is mainly cosmetic and also works for me.
+> It would have been even saner to give that bit some sane name, and have
+> something like
+> 
+> 	#define YMFPCI_XXXBIT (__constant_cpu_to_le32(0x40000000))
+> 
+> instead of creating a totally nonsensical random number.
 
-Thanks,
-Rich
+I think something like this would be better than one more
+totally nonsesical random #define:
 
+--- linux-2.5.2/drivers/sound/ymfpci.c	Fri Jan 11 10:34:43 2002
++++ linux-2.5.2-p3/drivers/sound/ymfpci.c	Mon Jan 21 21:06:48 2002
+@@ -832,6 +832,13 @@
+ 	u32 lpfK = ymfpci_calc_lpfK(rate);
+ 	ymfpci_playback_bank_t *bank;
+ 	int nbank;
++
++	/*
++	 * The gain is a floating point number. According to the manual,
++	 * bit 31 indicates a sign bit, bit 30 indicates an integer part,
++	 * and bits [29:15] indicate a decimal fraction part. Thus,
++	 * for a gain of 1.0 the constant of 0x40000000 is loaded.
++	 */
+ 	unsigned le_0x40000000 = cpu_to_le32(0x40000000);
+ 
+ 	format = (stereo ? 0x00010000 : 0) | (w_16 ? 0 : 0x80000000);
 
-diff -urN -X dontdiff linux/drivers/scsi/imm.c linux-rb/drivers/scsi/imm.c
---- linux/drivers/scsi/imm.c	Sat Dec  8 23:02:47 2001
-+++ linux-rb/drivers/scsi/imm.c	Mon Jan 21 14:39:30 2002
-@@ -998,7 +998,7 @@
-     case 4:
- 	if (cmd->use_sg) {
- 	    /* if many buffers are available, start filling the first */
--	    cmd->SCp.buffer = (struct scatterlist *) cmd->request_buffer;
-+	    cmd->SCp.buffer = (struct scatterlist *) cmd->buffer;
- 	    cmd->SCp.this_residual = cmd->SCp.buffer->length;
- 	    cmd->SCp.ptr = page_address(cmd->SCp.buffer->page) + 
-cmd->SCp.buffer->offset;
- 	} else {
-@@ -1007,7 +1007,7 @@
- 	    cmd->SCp.this_residual = cmd->request_bufflen;
- 	    cmd->SCp.ptr = cmd->request_buffer;
- 	}
--	cmd->SCp.buffers_residual = cmd->use_sg;
-+	cmd->SCp.buffers_residual = cmd->use_sg - 1;
- 	cmd->SCp.phase++;
- 	if (cmd->SCp.this_residual & 0x01)
- 	    cmd->SCp.this_residual++;
-
+-- Pete

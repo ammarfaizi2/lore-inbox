@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265631AbUAPQ0h (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 11:26:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265632AbUAPQ0g
+	id S265710AbUAPQky (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 11:40:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265711AbUAPQky
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 11:26:36 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:53945 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265631AbUAPQ0f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 11:26:35 -0500
-Subject: Re: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item
-	returned -28
-From: Vladimir Saveliev <vs@namesys.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-In-Reply-To: <200401161620.i0GGK2MT022923@turing-police.cc.vt.edu>
-References: <200401091622.41352.lkml@kcore.org>
-	 <1074241063.2251.41.camel@tribesman.namesys.com>
-	 <200401161620.i0GGK2MT022923@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Message-Id: <1074270394.2251.167.camel@tribesman.namesys.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 16 Jan 2004 19:26:34 +0300
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Jan 2004 11:40:54 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:37252 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S265710AbUAPQkw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 11:40:52 -0500
+Date: Fri, 16 Jan 2004 16:48:34 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200401161648.i0GGmYlJ002181@81-2-122-30.bradfords.org.uk>
+To: Jonathan Kamens <jik@kamens.brookline.ma.us>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+In-Reply-To: <16392.2027.90408.850335@jik.kamens.brookline.ma.us>
+References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us>
+ <16389.63781.783923.930112@jik.kamens.brookline.ma.us>
+ <16391.24288.194579.471295@jik.kamens.brookline.ma.us>
+ <200401160747.i0G7ln1I000368@81-2-122-30.bradfords.org.uk>
+ <16392.734.505550.6731@jik.kamens.brookline.ma.us>
+ <200401161546.i0GFkkpa002053@81-2-122-30.bradfords.org.uk>
+ <16392.2027.90408.850335@jik.kamens.brookline.ma.us>
+Subject: Re: Updated on UDMA BadCRC errors + subsequent problems (was: Is it safe to ignore UDMA BadCRC errors?)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-01-16 at 19:19, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 16 Jan 2004 11:17:43 +0300, Vladimir Saveliev said:
+Quote from Jonathan Kamens <jik@kamens.brookline.ma.us>:
+> John Bradford writes:
 > 
-> > This is just a warning. You should be able to free some disk space by
-> > removing some files.
+>  > Maybe not - the most common cause I've seen for that message in the
+>  > logs is trying to access S.M.A.R.T. information when S.M.A.R.T. is
+>  > disabled.
+>  > 
+>  > I.E. the error should be reproducable with:
+>  > 
+>  > # smartctl -d /dev/hda
+>  > # smartctl -a /dev/hda
+>  > 
+>  > Are you sure you weren't trying to get S.M.A.R.T. info from the
+>  > drive at the time the error was logged?
 > 
-> Is this just the *obvious* "removing files frees space", or is there some sort
-> of garbage collection that will be triggered, so removing a 1K file will make it
-> redo tables/linked lists/whatever and return lots of blocks that used to contain
-> metadata?
+> My smartctl wants "-s off" rather than "-d", but other than that,
+> you're correct, that sequence of commands does ause the same error to
+> appear in the logs.  But why/how would SMART be disabled on the drive?
+> I've been running smartd on the drive for weeks with no errors of this
+> sort, and I fail to see how SMART would suddenly be disabled on the
+> drive with no action on my part,
 
-This is the *obvious* "removing files frees space".
+Some motherboard BIOSes disable S.M.A.R.T. on drives connected to
+their on-board controllers on each boot.  Quite possibly some PCI IDE
+cards do as well.  It's possible, (but probably not likely), that by
+trying the drive on different controllers a BIOS somewhere has
+disabled S.M.A.R.T.
 
+> so it seems more likely that some
+> other condition caused the error.
+
+Quite possibly, but I can only really guess as to what that might be
+at this point.
+
+I _think_ that UDMA CRC checking is only done on data transfers, not
+commands.  I've CC'ed Alan in the hope of getting some confirmation on
+this.  Maybe a command being corrupted on the wire could theoretically
+cause that error.
+
+John.

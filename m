@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317302AbSFCHtP>; Mon, 3 Jun 2002 03:49:15 -0400
+	id <S317303AbSFCHxN>; Mon, 3 Jun 2002 03:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317303AbSFCHtO>; Mon, 3 Jun 2002 03:49:14 -0400
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:4238 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S317302AbSFCHtN>;
-	Mon, 3 Jun 2002 03:49:13 -0400
-Message-ID: <3CFB1F77.30305@tmsusa.com>
-Date: Mon, 03 Jun 2002 00:49:11 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020601
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Jenkins <jefreyr@pacbell.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Newbie SMP question
-In-Reply-To: <3CFB0CFE.8040501@pacbell.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317304AbSFCHxM>; Mon, 3 Jun 2002 03:53:12 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:33747 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317303AbSFCHxL>;
+	Mon, 3 Jun 2002 03:53:11 -0400
+Date: Mon, 3 Jun 2002 17:51:09 +1000
+From: Anton Blanchard <anton@samba.org>
+To: akpm@zip.com.au
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Fix for recent swap changes on 64 bit archs
+Message-ID: <20020603075108.GA11597@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+This fixes two shift warnings on 64 bit archs.
 
-Jeff Jenkins wrote:
+Anton
 
-> I am familiar with a command on Solaris, namely "psrinfo".  This 
-> dispalys that # of CPUs on a box + additional info.  Is there a 
-> similar command on Linux that will display the # of CPUs on a system 
-> and any info about the CPUs ( make/model/etc.)? 
-
-well, there's always "cat /proc/cpuinfo" -
-
-Joe
-
-
-
-
+diff -urN linux-2.5_ppc64/include/linux/swapops.h linux-2.5_work/include/linux/swapops.h
+--- linux-2.5_ppc64/include/linux/swapops.h	Mon Jun  3 17:36:21 2002
++++ linux-2.5_work/include/linux/swapops.h	Mon Jun  3 16:50:02 2002
+@@ -10,7 +10,7 @@
+  * swp_entry_t's are *never* stored anywhere in their arch-dependent format.
+  */
+ #define SWP_TYPE_SHIFT(e)	(sizeof(e.val) * 8 - MAX_SWAPFILES_SHIFT)
+-#define SWP_OFFSET_MASK(e)	((1 << SWP_TYPE_SHIFT(e)) - 1)
++#define SWP_OFFSET_MASK(e)	((1UL << SWP_TYPE_SHIFT(e)) - 1)
+ 
+ /*
+  * Store a type+offset into a swp_entry_t in an arch-independent format
+@@ -19,7 +19,7 @@
+ {
+ 	swp_entry_t ret;
+ 
+-	ret.val = (type << SWP_TYPE_SHIFT(ret)) |
++	ret.val = ((unsigned long)type << SWP_TYPE_SHIFT(ret)) |
+ 			(offset & SWP_OFFSET_MASK(ret));
+ 	return ret;
+ }

@@ -1,57 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263637AbTL3XBn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 18:01:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265917AbTL3W7Z
+	id S263661AbTL3XBo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 18:01:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265866AbTL3WJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:59:25 -0500
-Received: from imf19aec.mail.bellsouth.net ([205.152.59.67]:18599 "EHLO
-	imf19aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S265907AbTL3W6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:58:24 -0500
-Subject: Re: no DRQ after issuing WRITE was Re: 2.4.23-uv3 patch set
-	released
-From: Rob Love <rml@ximian.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Daniel Tram Lux <daniel@starbattle.com>, steve@drifthost.com,
-       James Bourne <jbourne@hardrock.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Gergely Tamas <dice@mfa.kfki.hu>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-In-Reply-To: <Pine.LNX.4.58.0312301452370.2065@home.osdl.org>
-References: <Pine.LNX.4.51.0312290052470.1599@cafe.hardrock.org>
-	 <Pine.LNX.4.58L.0312300935040.22101@logos.cnet>
-	 <Pine.LNX.4.58.0312301130430.2065@home.osdl.org>
-	 <Pine.LNX.4.58L.0312301849400.23875@logos.cnet>
-	 <Pine.LNX.4.58.0312301352570.2065@home.osdl.org>
-	 <1072823015.4350.40.camel@fur>
-	 <Pine.LNX.4.58.0312301452370.2065@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1072825101.4350.55.camel@fur>
+	Tue, 30 Dec 2003 17:09:27 -0500
+Received: from mail.kroah.org ([65.200.24.183]:55489 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265803AbTL3WGh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 17:06:37 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.0
+In-Reply-To: <10728219711046@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 30 Dec 2003 14:06:11 -0800
+Message-Id: <10728219712881@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Tue, 30 Dec 2003 17:58:22 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-12-30 at 17:54, Linus Torvalds wrote:
+ChangeSet 1.1496.8.39, 2003/12/30 12:10:24-08:00, khali@linux-fr.org
 
-> Interrupts are _not_ disabled here, very much on purpose. If they were, 
-> then "jiffies" wouldn't update, and the timeouts wouldn't work.
-> 
-> This is what that _stupid_ "local_irq_set()" function does: it saves the 
-> old irq masking state, and then it enables it.
-> 
-> The whole concept doesn't make any sense. If you enable interrupts, there 
-> is little point in saving the callers irq mask, since it already got 
-> deflated.
+[PATCH] I2C: velleman typo
 
-Ah, OK.  local_irq_set() is worthless, then.
+This patch replaces "K9000" with "K8000" everywhere (5 occurences) since
+it seems that the "K9000" was a typo in the first place. It also rewords
+the i2c-velleman doc. I have fixed it in our CVS repository too, and
+have been sending a similar patch to Marcelo for Linux 2.4.
 
-Curious to see the results of upping the timeout.
 
-	Rob Love
+ Documentation/i2c/i2c-velleman    |   16 ++++++----------
+ Documentation/i2c/summary         |    2 +-
+ drivers/i2c/busses/Kconfig        |    4 ++--
+ drivers/i2c/busses/i2c-velleman.c |    2 +-
+ 4 files changed, 10 insertions(+), 14 deletions(-)
 
+
+diff -Nru a/Documentation/i2c/i2c-velleman b/Documentation/i2c/i2c-velleman
+--- a/Documentation/i2c/i2c-velleman	Tue Dec 30 12:28:12 2003
++++ b/Documentation/i2c/i2c-velleman	Tue Dec 30 12:28:12 2003
+@@ -1,6 +1,6 @@
+ i2c-velleman driver
+ -------------------
+-This is a driver for i2c-hw access for Velleman K9000 and other adapters.
++This is a driver for i2c-hw access for Velleman K8000 and other adapters.
+ 
+ Useful links
+ ------------
+@@ -10,18 +10,14 @@
+ Velleman K8000 Howto:
+ 	http://howto.htlw16.ac.at/k8000-howto.html
+ 
+-
+ K8000 and K8005 libraries
+ -------------------------
+-The project has lead to new libs for the Velleman K8000 and K8005..
++The project has lead to new libs for the Velleman K8000 and K8005:
+ LIBK8000 v1.99.1 and LIBK8005 v0.21
+ 
+-With these libs you can control the K8000 and K8005 with the original
+-simple commands which are in the original Velleman software.
+-Like SetIOchannel, ReadADchannel, SendStepCCWFull and many more.
+-Via i2c kernel device /dev/velleman
++With these libs, you can control the K8000 interface card and the K8005
++stepper motor card with the simple commands which are in the original
++Velleman software, like SetIOchannel, ReadADchannel, SendStepCCWFull and
++many more, using /dev/velleman.
+ 
+ The libs can be found on http://groups.yahoo.com/group/k8000/files/linux/
+-
+-The Velleman K8000 interface card on http://www.velleman.be/kits/k8000.htm
+-The Velleman K8005 steppermotorcard on http://www.velleman.be/kits/k8005.htm
+diff -Nru a/Documentation/i2c/summary b/Documentation/i2c/summary
+--- a/Documentation/i2c/summary	Tue Dec 30 12:28:12 2003
++++ b/Documentation/i2c/summary	Tue Dec 30 12:28:12 2003
+@@ -71,5 +71,5 @@
+ i2c-adap-ibm_ocp: IBM 4xx processor I2C device (uses i2c-algo-ibm_ocp) (NOT BUILT BY DEFAULT)
+ i2c-pport:       Primitive parallel port adapter (uses i2c-algo-bit)
+ i2c-rpx:         RPX board Motorola 8xx I2C device (uses i2c-algo-8xx) (NOT BUILT BY DEFAULT)
+-i2c-velleman:    Velleman K9000 parallel port adapter (uses i2c-algo-bit)
++i2c-velleman:    Velleman K8000 parallel port adapter (uses i2c-algo-bit)
+ 
+diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+--- a/drivers/i2c/busses/Kconfig	Tue Dec 30 12:28:12 2003
++++ b/drivers/i2c/busses/Kconfig	Tue Dec 30 12:28:12 2003
+@@ -276,10 +276,10 @@
+ 	  will be called i2c-sis96x.
+ 
+ config I2C_VELLEMAN
+-	tristate "Velleman K9000 adapter"
++	tristate "Velleman K8000 adapter"
+ 	depends on I2C_ALGOBIT && ISA
+ 	help
+-	  This supports the Velleman K9000 parallel-port I2C adapter.  Say Y
++	  This supports the Velleman K8000 parallel-port I2C adapter.  Say Y
+ 	  if you own such an adapter.
+ 
+ 	  This support is also available as a module.  If so, the module 
+diff -Nru a/drivers/i2c/busses/i2c-velleman.c b/drivers/i2c/busses/i2c-velleman.c
+--- a/drivers/i2c/busses/i2c-velleman.c	Tue Dec 30 12:28:12 2003
++++ b/drivers/i2c/busses/i2c-velleman.c	Tue Dec 30 12:28:12 2003
+@@ -1,5 +1,5 @@
+ /* ------------------------------------------------------------------------- */
+-/* i2c-velleman.c i2c-hw access for Velleman K9000 adapters		     */
++/* i2c-velleman.c i2c-hw access for Velleman K8000 adapters		     */
+ /* ------------------------------------------------------------------------- */
+ /*   Copyright (C) 1995-96, 2000 Simon G. Vogl
+ 
 

@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267818AbUHJXjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267827AbUHJXlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267818AbUHJXjK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 19:39:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267825AbUHJXjJ
+	id S267827AbUHJXlj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 19:41:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267826AbUHJXjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 19:39:09 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:35515 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267818AbUHJXfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 19:35:22 -0400
-Message-ID: <41195BC1.2030107@comcast.net>
-Date: Tue, 10 Aug 2004 19:35:29 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040810)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: V13 <v13@priest.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Bug zapper?  :)
-References: <4117D98C.2030203@comcast.net> <200408110030.37601.v13@priest.com>
-In-Reply-To: <200408110030.37601.v13@priest.com>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 19:39:21 -0400
+Received: from holomorphy.com ([207.189.100.168]:22253 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267814AbUHJXiU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 19:38:20 -0400
+Date: Tue, 10 Aug 2004 16:38:07 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Robert Picco <Robert.Picco@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1
+Message-ID: <20040810233807.GH11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Robert Picco <Robert.Picco@hp.com>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20040810002110.4fd8de07.akpm@osdl.org> <200408100937.47451.jbarnes@engr.sgi.com> <20040810212033.GY11200@holomorphy.com> <41194EA5.80706@hp.com> <20040810222840.GA11200@holomorphy.com> <20040810223006.GB11200@holomorphy.com> <20040810224308.GC11200@holomorphy.com> <20040810224532.GD11200@holomorphy.com> <20040810230357.GE11200@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810230357.GE11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Aug 10, 2004 at 03:45:32PM -0700, William Lee Irwin III wrote:
+>> "whole affair" == NULL check in copy_thread(). Except this is a nop, so
+>> I think we're just looking for something that survives copy_thread().
+
+On Tue, Aug 10, 2004 at 04:03:57PM -0700, William Lee Irwin III wrote:
+> I have an even better fix:
+> +struct pt_regs * __init idle_regs(struct pt_regs *regs)
+> +{
+> +	return NULL;
+> +}
+
+Okay, this boots and runs here. I suspect if a non-NULL value of
+pt_regs can be found that properly initializes things so copy_thread()
+doesn't die and/or set up something that crashes on the AP, it can be
+plugged in here transparently, the NULL check in copy_thread() removed,
+and no core changes will be needed.
+
+If you can advise on how to set up the switch_stack/bspstore/etc. to
+this effect so it can be done right away, I'd be much obliged.
 
 
-
-V13 wrote:
-| On Monday 09 August 2004 23:07, John Richard Moser wrote:
-|
-|>What I found interesting was that it described bugs as
-|>pseudo-quantitative based on the KLOC (thousands of lines of code) for a
-|>code body.  The basic theory boils down to 5-50 bugs per 1000 LOC,
-|>approaching 5 for QA audited code.  Thus, 10000 LOC executable, 50 bugs.
-|
-|
-| I believe that you should not believe such things. They are just
-statistics
-| and nothing more.
-|
-
-Statistics are as a whole, not as a part.  This makes statistics a
-powerful art.
-
-| If you have a 1000 lines project and:
-|
-| a) Remove all empty lines means that you remove bugs?
-| b) Split it to 5 libraries and 5 utilities (10 projects) means that
-you'll
-| have less bugs?
-| c) ....
-|
-| I don't take generalizations like this seriously and I believe that noone
-| should do. It may be true that 10.000 lines of code contain 50 bugs as an
-| average of all the code that has be written so far but it doesn't mean
-that:
-|
-| a) 50 bugs require 10.000 lines
-| b) 50 bugs will always exist on 10.000 lines
-| c) All the projects out there have the same number of bugs/line
-|
-
-No, but it means in a sample of one hundred and twenty eight billion
-lines, there will be approximately fifty bugs per 10000 lines of code.
-
-|
-|>--John
-|
-| <<V13>>
-|
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBGVvBhDd4aOud5P8RAlwKAJ0Ut0XoyibvkQ9THUT1YvcoufebdwCeJmNC
-PqZqaKCTrdpA2DyZydcT9Cw=
-=pAJZ
------END PGP SIGNATURE-----
+-- wli

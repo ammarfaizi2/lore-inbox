@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270822AbRHSWTk>; Sun, 19 Aug 2001 18:19:40 -0400
+	id <S270817AbRHSWTA>; Sun, 19 Aug 2001 18:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270821AbRHSWTW>; Sun, 19 Aug 2001 18:19:22 -0400
-Received: from ultra.sonic.net ([208.201.224.22]:38513 "EHLO ultra.sonic.net")
-	by vger.kernel.org with ESMTP id <S270822AbRHSWTH>;
-	Sun, 19 Aug 2001 18:19:07 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Sun, 19 Aug 2001 15:19:13 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.kernel.org,
+	id <S270822AbRHSWSu>; Sun, 19 Aug 2001 18:18:50 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:6628 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S270817AbRHSWSm>;
+	Sun, 19 Aug 2001 18:18:42 -0400
+Date: Sun, 19 Aug 2001 23:18:53 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>, lists@sapience.com,
+        Robert Love <rml@tech9.net>
+Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
+        riel@conectiva.com.br,
         Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <20010819151913.G30309@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	linux-kernel@vger.kernel.org,
-	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Entropy from net devices - keyboard & IDE just as 'bad' [was
+ Re: [PATCH] let Net Devices feed Entropy, updated (1/2)]
+Message-ID: <481868510.998263132@[169.254.45.213]>
+In-Reply-To: <481261630.998262525@[169.254.45.213]>
+In-Reply-To: <481261630.998262525@[169.254.45.213]>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <477033435.998258297@[169.254.45.213]>
-User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 19, 2001 at 09:58:17PM +0100, Alex Bligh - linux-kernel wrote:
-> This is not the issue; some of use _are_ worried whether or not we
-> have enough entropy (and want a read that blocks until sufficient
+> that by repeating reading (as a user) I should be able to
+> get the inter-IRQ timing down to a few tens of microseconds,
 
-If you are that worried, shouldn't you be using a hardware generator?
+& (as per add_timer_randomness) on all non-i386's and some
+i386's, I actually only need to get the time within one jiffy.
+Do this on 4 successive IRQ's, and that's 12 bits of 'false'
+entropy. But the point is, it's no worse for network than
+for the rest.
 
-mrc
--- 
-     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
-fatal ("You are in a maze of twisty compiler features, all different"); -- gcc
+--
+Alex Bligh

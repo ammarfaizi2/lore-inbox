@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTLGV3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 16:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbTLGV2z
+	id S264532AbTLGVVX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbTLGU4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 16:28:55 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:10931 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S264553AbTLGVYf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 16:24:35 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Vince <fuzzy77@free.fr>
-Subject: Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Sun, 7 Dec 2003 22:24:32 +0100
-User-Agent: KMail/1.5.4
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, mfedyk@matchmail.com,
-       zwane@holomorphy.com, linux-kernel@vger.kernel.org
-References: <3FC4E8C8.4070902@free.fr> <200312070125.56251.baldrick@free.fr> <3FD39722.8000500@free.fr>
-In-Reply-To: <3FD39722.8000500@free.fr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312072224.32417.baldrick@free.fr>
+	Sun, 7 Dec 2003 15:56:40 -0500
+Received: from amsfep13-int.chello.nl ([213.46.243.24]:20284 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264535AbTLGUzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:55:41 -0500
+Date: Sun, 7 Dec 2003 21:51:27 +0100
+Message-Id: <200312072051.hB7KpRXg000753@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 137] Amiga debug fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 07 December 2003 22:09, Vince wrote:
-> Duncan Sands wrote:
-> > Does this help?  It isn't finished - it represents the current state of
-> > my fix. Warning: have barf bag ready.
-> >
->  > [patch cut]
->
-> Yes, your patch fixes the problem: no more oops and modem_run now exits
-> cleanly. Thank you very much !
+Amiga: Fix `debug=mem' (record all kernel messages in ChipRAM): virt_to_phys()
+no longer works for Zorro II memory space, we must use ZTWO_PADDR()
 
-Hi Vincent, that's great!  I think the fix is solid, but can you please beat on it
-a bit just to be sure...
+--- linux-2.4.23/arch/m68k/amiga/config.c	2003-04-06 10:28:29.000000000 +0200
++++ linux-m68k-2.4.23/arch/m68k/amiga/config.c	2003-11-08 19:20:04.000000000 +0100
+@@ -877,7 +877,7 @@
+     savekmsg = amiga_chip_alloc_res(SAVEKMSG_MAXMEM, &debug_res);
+     savekmsg->magic1 = SAVEKMSG_MAGIC1;
+     savekmsg->magic2 = SAVEKMSG_MAGIC2;
+-    savekmsg->magicptr = virt_to_phys(savekmsg);
++    savekmsg->magicptr = ZTWO_PADDR(savekmsg);
+     savekmsg->size = 0;
+ }
+ 
 
-Thanks,
+Gr{oetje,eeting}s,
 
-Duncan.
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

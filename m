@@ -1,117 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262075AbSJIXIo>; Wed, 9 Oct 2002 19:08:44 -0400
+	id <S262648AbSJIXAH>; Wed, 9 Oct 2002 19:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262105AbSJIXIo>; Wed, 9 Oct 2002 19:08:44 -0400
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:47489 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262075AbSJIXIl>;
-	Wed, 9 Oct 2002 19:08:41 -0400
-Date: Thu, 10 Oct 2002 00:14:31 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Writable global section?
-Message-ID: <20021009231431.GA2654@bjl1.asuk.net>
-References: <20021009142458.GA2243@werewolf.able.es> <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com>
+	id <S262650AbSJIXAH>; Wed, 9 Oct 2002 19:00:07 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:49933
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262648AbSJIXAE>; Wed, 9 Oct 2002 19:00:04 -0400
+Subject: [PATCH] set_cpus_allowed() atomicity fix
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 09 Oct 2002 19:05:44 -0400
+Message-Id: <1034204745.794.206.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1021009103521.3016B-100000@chaos.analogic.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> In the case of data in the .bss section, if one procedure writes to
-> this variable, it is not seen by other procedures that are linked
-> to the shared library. However it can write with no problem and it
-> can read what it wrote. Apparently ".bss" data are not really allocations
-> in shared memory, only a promise to allocate some data when the program
-> is loaded and this data is not shared, it's private to the process.
+L-Team Captain,
 
-You are mixing up two very different concepts.
+In set_cpus_allowed(), we hold the preempt_disable() over a
+wait_for_completition() so it triggers the atomicity debugging.
 
-Writes to both .bss and .data allocations are seen by _all_ procedures
-that are linked together.  Run-time linking is within a single
-processes only.  So writes to any section are private to the process
-which does the writes.
+There is (was) a kernel preemption race here which the preemption
+disable is fixing.  I do not understand it; if this uncovers it there
+should be some light shed on the subject.
 
-.bss and .data are nearly the same thing: writable, process-private
-areas.  The only difference is that .data is initialised from the
-shared library file, while .bss is initialised with zeros.
+Anyhow, attached patch fixes the atomicity debugging error.
 
-Don't think about "mapping" a shared library, because the mappings
-aren't like shared memory between processes.  That's misleading if you
-come from a VAX or Windows background, where they are.
+Patch is against current BK.  Please, apply.
 
-Think about "loading" a shared library instead: as if you'd allocated
-private memory in a process and then copied the library file into that
-memory.  You could rewrite the ELF loader to use malloc+read+mprotect,
-and every program should continue to work.
+	Robert Love
 
-(Ignore the fact that mmap() is used: it's an optimisation which
-doesn't change the behaviour of the program).
+ sched.c |   13 ++++++++-----
+ 1 files changed, 8 insertions(+), 5 deletions(-)
 
-> If a variable is in the ".data" section, it is "seen" by all procedures
-> that are linked to the shared library, but any attempt to write to this
-> variable will seg-fault the task that attempts to modify it.
+diff -urN linux-bk/kernel/sched.c linux/kernel/sched.c
+--- linux-bk/kernel/sched.c	2002-10-09 15:46:43.000000000 -0400
++++ linux/kernel/sched.c	2002-10-09 18:52:06.000000000 -0400
+@@ -1953,7 +1953,6 @@
+ 		BUG();
+ #endif
+ 
+-	preempt_disable();
+ 	rq = task_rq_lock(p, &flags);
+ 	p->cpus_allowed = new_mask;
+ 	/*
+@@ -1962,7 +1961,7 @@
+ 	 */
+ 	if (new_mask & (1UL << task_cpu(p))) {
+ 		task_rq_unlock(rq, &flags);
+-		goto out;
++		return;
+ 	}
+ 	/*
+ 	 * If the task is not on a runqueue (and not running), then
+@@ -1971,17 +1970,21 @@
+ 	if (!p->array && !task_running(rq, p)) {
+ 		set_task_cpu(p, __ffs(p->cpus_allowed));
+ 		task_rq_unlock(rq, &flags);
+-		goto out;
++		return;
+ 	}
+ 	init_completion(&req.done);
+ 	req.task = p;
+ 	list_add(&req.list, &rq->migration_queue);
++
++	/*
++	 * counter the subsequent unlock - we do not want to preempt yet
++	 */
++	preempt_disable();
+ 	task_rq_unlock(rq, &flags);
+ 	wake_up_process(rq->migration_thread);
++	preempt_enable();
+ 
+ 	wait_for_completion(&req.done);
+-out:
+-	preempt_enable();
+ }
+ 
+ /*
 
-No it won't.  (Unless you managed to declare the ".data" section read
-only, which is not possible normally, but may be possible with certain
-tiny assembly language test programs).
-
-> I would like to be able to write to that variable and have it seen
-> by other tasks, since shared memory is shared memory.
-
-Note that, in unix terminology, the phrase "linked to a shared
-library" means linkage within a single private process only, and
-the term "shared library" has very little to do with "shared memory".
-
-This is not like Windows, where there is effectively one instance of
-the shared library mapped and shared between processes, and the
-library knows about the multiple processes that are using it.
-
-In Linux each process creates its _own_ instance of the library at
-load time, and each of those instances is private to the process that
-created it.
-
-> It's a shame to mmap a shared library upon startup and then have to
-> mmap some additional shared memory for some inter-process
-> communication.
-
-Perhaps but it does force you to think about what extent of sharing
-you really want, instead of giving you the one option which is often
-wrong.
-
-There are occasions when you'd want multiple processes per user to
-share some data, but different users to _not_ share anything.  There
-are other occasions when you want different users to share data.
-Sometimes you'd really like the data shared within a cluster instead
-of on a single machine.  Sometimes you'd like the data shared per X
-server, for example a web browser using a process per browser window
-might need this.
-
-You said you wanted the shared area for a semaphore.  Ok, but what is
-the semaphore protecting?  If it's access to a file such as a
-database, the semaphore should be _network_ wide because files are not
-always local.
-
-If it's protecting access to a set of per-user files, map a lock file
-in each user's home directoy.  If it's a scoreboard for a host-wide
-service such as a web server, it wants to use a host-wide file such as
-in /var/run for example.
-
-In general, a semaphore should have similar scope to the thing it's
-protecting.  So, a file lock for a file or set of related files; a
-thread semaphore to protect data in a thread from other threads; an
-inter-process semaphore using explicit IPC if you have an explicitly
-shared segment; a network daemon to synchronise access to a network
-wide resource, etc.
-
-Btw, take a look at pthreads especially the latest Glibc pthreads
-thing Ulrich & Ingo have worked on.  It offers fast & precise
-inter-thread (process scope) and inter-process semaphores, based on
-futexes, I believe.
-
--- Jamie

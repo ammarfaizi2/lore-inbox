@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262902AbTLJPMX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 10:12:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTLJPMX
+	id S263591AbTLJPKn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 10:10:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbTLJPKn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 10:12:23 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:33969 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262902AbTLJPLZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 10:11:25 -0500
-Date: Wed, 10 Dec 2003 07:11:10 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-       karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
-       Kendall Bennett <KendallB@scitechsoft.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031210151110.GA6896@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
-	karim@opersys.com, Linus Torvalds <torvalds@osdl.org>,
-	Kendall Bennett <KendallB@scitechsoft.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312100606510.3805-100000@master.linux-ide.org> <1071066315.5712.344.camel@hades.cambridge.redhat.com> <20031210144612.GA19357@work.bitmover.com> <1071068703.5712.398.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1071068703.5712.398.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.4i
+	Wed, 10 Dec 2003 10:10:43 -0500
+Received: from math.ut.ee ([193.40.5.125]:20112 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S263591AbTLJPKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 10:10:41 -0500
+Date: Wed, 10 Dec 2003 15:22:31 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23+BK: PPC compile error
+In-Reply-To: <20031208152954.GY912@stop.crashing.org>
+Message-ID: <Pine.GSO.4.44.0312101521540.26871-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 03:05:03PM +0000, David Woodhouse wrote:
-> On Wed, 2003-12-10 at 06:46 -0800, Larry McVoy wrote:
-> > Unless I need more coffee (which is certainly possible, it's early),
-> > yeah, I disagree with this.  A contract could do this but a copyright
-> > based license doesn't seem like it can.
-> 
-> Why so? I can license my work under whatever terms I please. 
-> 
-> I certainly can't force you to _accept_ the terms of my licence -- you
-> always have the option to decline -- but in that case you may not use my
-> work.
+> PPC32: Fix a thinko in arch/ppc/kernel/cpu_setup_6xx.S
+>
+> --- 1.6/arch/ppc/kernel/cpu_setup_6xx.S	Wed Dec  3 08:48:47 2003
+> +++ edited/arch/ppc/kernel/cpu_setup_6xx.S	Mon Dec  8 08:26:37 2003
+> @@ -161,7 +161,7 @@
+>  	rlwinm	r3,r10,16,16,31
+>  	cmplwi	r3,0x000c
+>  	bne	1f			/* Not a 7400. */
+> -	andi	r3,r10,0x0f0f
+> +	andi.	r3,r10,0x0f0f
+>  	cmpwi	0,r3,0x0200
+>  	bgt	1f			/* Rev >= 2.1 */
+>  	li	r3,HID0_SGE		/* 7400 rev < 2.1, clear SGE. */
 
-You may license *your* work under whatever terms you want.  Those terms
-can't extend to things that aren't your work in a copyright license.
-You need a contract to do that and even then there are limits to what
-you can do.
+This fix works fine, thanks!
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Meelis Roos (mroos@linux.ee)
+

@@ -1,96 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTDNPhQ (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 11:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbTDNPhQ (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 11:37:16 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:38148 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263482AbTDNPhN (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 11:37:13 -0400
-Date: Mon, 14 Apr 2003 17:49:01 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Zack Brown <zbrown@tumblerings.org>
-Cc: linux-kernel@vger.kernel.org, Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: lk-changelog.pl 0.96
-Message-ID: <20030414154901.GC8125@merlin.emma.line.org>
-Mail-Followup-To: Zack Brown <zbrown@tumblerings.org>,
-	linux-kernel@vger.kernel.org
-References: <20030413104943.433A37EBE4@merlin.emma.line.org> <20030413144218.GB21855@renegade> <20030413162338.GC22268@merlin.emma.line.org> <20030413170951.GC21855@renegade>
+	id S263475AbTDNPjR (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 11:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTDNPjR (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 11:39:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49676 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263475AbTDNPjO (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 11:39:14 -0400
+Date: Mon, 14 Apr 2003 16:50:57 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: seanlkml@rogers.com, felipe_alfaro@linuxmail.org,
+       Dominik Brodowski <linux@brodo.de>
+Subject: [CFT] Hopefully fix PCMCIA boot deadlocks
+Message-ID: <20030414165057.C22754@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	seanlkml@rogers.com, felipe_alfaro@linuxmail.org,
+	Dominik Brodowski <linux@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030413170951.GC21855@renegade>
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Apr 2003, Zack Brown wrote:
+Ok,
 
-> Too bad for me, I was hoping to use that data structure as a complete list
-> of email -> name translations for changelog entries. Maybe you could
-> include them anyway as commented out entries in the data structure? That
-> would give your script the added benefit of being harvestable for other
-> purposes, but wouldn't sacrifice the regex speed enhancements.
+Here's my latest patch against 2.5.67 which introduces a proper state
+machine into the PCMCIA layer for handling the sockets.  Unfortunately,
+I fear that this isn't the answer for the following reasons:
 
-How about this patch? Taken from CVS. Have fun,
+* We create our own workqueue (which spawns N threads, one thread per CPU.)
+  We need to use a separate thread from the keventd since we call
+  PCI probe and remove methods from this thread, which are free to
+  use flush_scheduled_work() - which would be another deadlock waiting
+  to happen.  I think we need to go to a per-socket thread instead.
 
-Index: lk-changelog.pl
-===================================================================
-RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
-retrieving revision 0.96
-retrieving revision 0.98
-diff -u -r0.96 -r0.98
---- lk-changelog.pl	13 Apr 2003 10:46:57 -0000	0.96
-+++ lk-changelog.pl	14 Apr 2003 15:47:56 -0000	0.98
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.96 2003/04/13 10:46:57 emma Exp $
-+# $Id: lk-changelog.pl,v 0.98 2003/04/14 15:47:56 emma Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -88,6 +88,20 @@
- #
- # Unless otherwise noted, the addresses below have been obtained using
- # lbdb.
-+my @addresses_handled_in_regexp = (
-+'alan:hraefn.swansea.linux.org.uk' => 'Alan Cox',
-+'alan:irongate.swansea.linux.org.uk' => 'Alan Cox',
-+'torvalds:athlon.transmeta.com' => 'Linus Torvalds',
-+'torvalds:home.transmeta.com' => 'Linus Torvalds',
-+'torvalds:kiwi.transmeta.com' => 'Linus Torvalds',
-+'torvalds:penguin.transmeta.com' => 'Linus Torvalds',
-+'torvalds:tove.transmeta.com' => 'Linus Torvalds',
-+'torvalds:transmeta.com' => 'Linus Torvalds',
-+'###############################' => '###############'
-+);
-+
-+undef @addresses_handled_in_regexp;
-+
- my %addresses = (
- 'aaron.baranoff:tsc.tdk.com' => 'Aaron Baranoff',
- 'abraham:2d3d.co.za' => 'Abraham van der Merwe',
-@@ -396,7 +410,7 @@
- 'glee:gnupilgrims.org' => 'Geoffrey Lee', # lbdb
- 'gnb:alphalink.com.au' => 'Greg Banks',
- 'go:turbolinux.co.jp' => 'Go Taniguchi',
--'gone:us.ibm.com' => 'Patricia Guaghen',
-+'gone:us.ibm.com' => 'Patricia Gaughen',
- 'gotom:debian.or.jp' => 'Goto Masanori', # from shortlog
- 'gphat:cafes.net' => 'Cory Watson',
- 'greearb:candelatech.com' => 'Ben Greear',
-@@ -1595,6 +1609,13 @@
- __END__
- # --------------------------------------------------------------------
- # $Log: lk-changelog.pl,v $
-+# Revision 0.98  2003/04/14 15:47:56  emma
-+# Doing Zack Brown a favor and archiving addresses that are now handled by regexps
-+# in a separate list.
-+#
-+# Revision 0.97  2003/04/13 11:33:27  emma
-+# Correct Patricia Gaughen's name (was Gua...). Found by Geoffrey Lee.
-+#
- # Revision 0.96  2003/04/13 10:46:57  emma
- # 100 (one hundred) new addresses and 17 corrections by Zack Brown.
- #
+* The state machine isn't as readable as it should be.  To be quite frank,
+  I think it was a mistake to code it as a state machine - IMO its
+  completely unreadable.
+
+* We allow cardbus cards to be suspended and reset as though they are
+  normal PCMCIA cards.  Unfortunately, PCI drivers have no knowledge
+  that these operations occur.  This also applies to older kernels, so
+  this isn't really a problem that's created by this patch.
+
+  This is even more true now that we have the capability to plug in a
+  complete (possibly complex) PCI bus structure.
+
+* There seems to be a whole bunch of setup stuff going on in
+  pcmcia_register_client().  This is run each time a card device driver
+  is inserted by cardmgr.  Although this has buggy for the case where
+  all drivers are built in, this patch makes it more buggy; if a card
+  is inserted at the time ds.ko is loaded, we kick off the asynchronous
+  state machine to process the card and carry on regardless.
+
+  However, we can not wait here - if we do wait for the state machine
+  to complete, we will hit the same deadlock in the device model which
+  we're hitting today.
+
+  It appears that it would mainly affect multi-function PCMCIA cards.
+  Unfortunately, I don't have any to test.
+
+That said, it seems to work for me.
+
+The patch can be found at
+
+	http://patches.arm.linux.org.uk/pcmcia/pcmcia-1.diff
+
+Now, thing is, I can't test this patch on its own; I can test it on ARM
+boxen with yenta cardbus bridges, or statically mapped PCMCIA-only
+sockets, but the former requires several other patches to the PCMCIA
+resource subsystem to be functional.
+
+Hence I need other peoples feedback on this patch before I push it
+Linus-wards.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

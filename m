@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbULPTIn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbULPTIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbULPTIn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 14:08:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbULPTFW
+	id S262004AbULPTIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 14:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbULPTEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 14:05:22 -0500
-Received: from multivac.one-eyed-alien.net ([64.169.228.101]:52146 "EHLO
-	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id S261980AbULPTCB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 14:02:01 -0500
-Date: Thu, 16 Dec 2004 11:01:59 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Kernel Developer List <linux-kernel@vger.kernel.org>
-Subject: bkbits problem?
-Message-ID: <20041216190159.GA31805@one-eyed-alien.net>
-Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>
+	Thu, 16 Dec 2004 14:04:39 -0500
+Received: from psych.st-and.ac.uk ([138.251.11.1]:49828 "EHLO
+	psych.st-andrews.ac.uk") by vger.kernel.org with ESMTP
+	id S261989AbULPTDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 14:03:17 -0500
+Subject: Re: file as a directory
+From: Peter Foldiak <Peter.Foldiak@st-andrews.ac.uk>
+To: Hans Reiser <reiser@namesys.com>
+Cc: David Masover <ninja@slaphack.com>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <41C1D870.2020407@namesys.com>
+References: <200411301631.iAUGVT8h007823@laptop11.inf.utfsm.cl>
+	 <41ACA7C9.1070001@namesys.com>
+	 <1103043518.21728.159.camel@pear.st-and.ac.uk>
+	 <41BF21BC.1020809@namesys.com>
+	 <1103059622.2999.17.camel@grape.st-and.ac.uk>
+	 <41BFC1C5.1070302@slaphack.com>
+	 <1103102854.30601.12.camel@pear.st-and.ac.uk>
+	 <41C0CF3B.1030705@slaphack.com>  <41C1D870.2020407@namesys.com>
+Content-Type: text/plain
+Message-Id: <1103223664.2336.335.camel@pear.st-and.ac.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
-X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 16 Dec 2004 19:01:04 +0000
+Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2004-12-16 at 18:48, Hans Reiser wrote:
+> David Masover wrote:
+> > Speaking of which, how much speed is lost by starting up a process?
+> >
+> > The idea of caching is that running
+> >
+> > cat *; cat *; cat *; cat *; cat *
+> >
+> > is probably slower than
+> >
+> > cat * > baz; cat baz; cat baz; cat baz; cat baz; cat baz
+> 
+> Only for small files where the per file overhead of a read is significant.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+But if the glued "file" is a stream (or pipe?) you can't do everything
+with it (e.g. seek() ) that you could do with a proper file, right?
+You may want to do everything with it that you can do with a proper
+file.
 
-Is anyone besides me having difficulty cloning a tree from
-linux.bkbits.net/linux-2.5 or 2.6?
-
-I keep getting:
-
-[mdharm@g5 mdharm]$ bk clone bk://linux.bkbits.net/linux-2.5 linux-405-2.5
-Clone bk://linux.bkbits.net/linux-2.5
-   -> file://home/mdharm/linux-405-2.5
-BAD gzip hdr
-read: No such file or directory
-0 bytes uncompressed to 0, nanX expansion
-sfio errored
-
-I can clone from linuxusb, so I don't _think_ it's a problem on my end...
-
-Matt
-
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
-
-It was a new hope.
-					-- Dust Puppy
-User Friendly, 12/25/1998
-
---RnlQjJ0d97Da+TV1
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBwdunIjReC7bSPZARAoJQAKCuVHszAWGXCRnorUE+KK1ItqbDIwCgo6mk
-XDJwKJfI7/if7GFLTSAVoX4=
-=d+d3
------END PGP SIGNATURE-----
-
---RnlQjJ0d97Da+TV1--

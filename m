@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135423AbRAUFpO>; Sun, 21 Jan 2001 00:45:14 -0500
+	id <S135497AbRAUFuo>; Sun, 21 Jan 2001 00:50:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135460AbRAUFpE>; Sun, 21 Jan 2001 00:45:04 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:25348
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S135423AbRAUFoq>; Sun, 21 Jan 2001 00:44:46 -0500
-Date: Sat, 20 Jan 2001 21:44:30 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Device List Maintainer <device@lanana.org>
-Subject: Re: Minors remaining in Major 10 ??
-In-Reply-To: <3A6A7639.7F4A0A21@transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101202142270.657-100000@master.linux-ide.org>
+	id <S135499AbRAUFuf>; Sun, 21 Jan 2001 00:50:35 -0500
+Received: from athena.intergrafix.net ([206.245.154.69]:33029 "HELO
+	athena.intergrafix.net") by vger.kernel.org with SMTP
+	id <S135497AbRAUFuU> convert rfc822-to-8bit; Sun, 21 Jan 2001 00:50:20 -0500
+Date: Sun, 21 Jan 2001 00:50:19 -0500 (EST)
+From: Admin Mailing Lists <mlist@intergrafix.net>
+To: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
+Cc: profmakx.fmp@gmx.de, linux-kernel@vger.kernel.org
+Subject: Re: [OT?] Coding Style
+In-Reply-To: <20010121061050.A664@lightside.2y.net>
+Message-ID: <Pine.LNX.4.10.10101210048360.17920-100000@athena.intergrafix.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jan 2001, H. Peter Anvin wrote:
 
-> Andre Hedrick wrote:
-> > 
-> > Hi Peter,
-> > 
-> > Regardless if we rip out the entire rule of majors for dev_t, will there
-> > be a service dummy driver to various block-devices?  There is a real need
-> > for this if we are going to get full control of the hardware by indirect
-> > access obtain the functionality that I see and need in the near future.
-> > 
+On Sun, 21 Jan 2001, Ragnar Hojland Espinosa wrote:
+
+> On Sat, Jan 20, 2001 at 05:19:17PM +0100, profmakx.fmp@gmx.de wrote:
+> > I just wanted to say that Linus´ CodingStyle is the ONLY SANE style of
+> > writing code in bigger projects. At university we are forced to use exactly the
 > 
-> At this point, I'll allocate a device number when someone is ready to
-> release a driver - no sooner.  There simply is not a whole lot of choice
-> because of the extreme shortage of device numbers that's going to last us
-> until dev_t gets expanded.
+> And the lord spake, saying, "First shalt thou write thy holy code. Indenting
+> shalt thou count to three, no more, no less.  Three shalt be the spaces thou 
+> shalt count, and the number of the counting shalt be three.  Four shalt thou
+> not count, nor count thou two, excepting that thou then proceedeth to three.
+> Eight is right out.  Once the number three, being the third number be
+> reached, shalt thou move towards indenting thy next line ..
+> 
 
-Cool Peter!
+now I know why I never read the bible.
 
-Will finish the code hack and clean it up in the next three days or so...  
-It is only an idea to test and you can see it in action first.
+people jsut dont know how old cryptography really is ;-)
 
-Cheers,
+-Tony
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
+Anthony J. Biacco                       Network Administrator/Engineer
+thelittleprince@asteroid-b612.org       Intergrafix Internet Services
 
-Andre Hedrick
-Linux ATA Development
+    "Dream as if you'll live forever, live as if you'll die today"
+http://www.asteroid-b612.org                http://www.intergrafix.net
+.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-._.-.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

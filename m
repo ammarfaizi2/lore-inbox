@@ -1,56 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVASB0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVASBir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261538AbVASB0R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 20:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVASB0R
+	id S261540AbVASBir (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 20:38:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVASBir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 20:26:17 -0500
-Received: from waste.org ([216.27.176.166]:42715 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261538AbVASB0N (ORCPT
+	Tue, 18 Jan 2005 20:38:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29368 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261540AbVASBio (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 20:26:13 -0500
-Date: Tue, 18 Jan 2005 17:26:12 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild: Implicit dependence on the C compiler
-Message-ID: <20050119012612.GD3867@waste.org>
-References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org> <41EC363D.1090106@zytor.com> <20050118190513.GA16120@mars.ravnborg.org> <csjoef$gkt$1@terminus.zytor.com>
+	Tue, 18 Jan 2005 20:38:44 -0500
+Date: Tue, 18 Jan 2005 17:31:34 -0800
+From: Greg KH <greg@kroah.com>
+To: dtor_core@ameritech.net
+Cc: Hannes Reinecke <hare@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pawlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/2] Remove input_call_hotplug
+Message-ID: <20050119013133.GD23296@kroah.com>
+References: <41ED23A3.5020404@suse.de> <20050118213002.GA17004@kroah.com> <d120d50005011813495b49907c@mail.gmail.com> <20050118215820.GA17371@kroah.com> <d120d500050118142068157a78@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <csjoef$gkt$1@terminus.zytor.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <d120d500050118142068157a78@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 07:35:43PM +0000, H. Peter Anvin wrote:
-> Followup to:  <20050118190513.GA16120@mars.ravnborg.org>
-> By author:    Sam Ravnborg <sam@ravnborg.org>
-> In newsgroup: linux.dev.kernel
+On Tue, Jan 18, 2005 at 05:20:40PM -0500, Dmitry Torokhov wrote:
+> On Tue, 18 Jan 2005 13:58:20 -0800, Greg KH <greg@kroah.com> wrote:
+> > On Tue, Jan 18, 2005 at 04:49:34PM -0500, Dmitry Torokhov wrote:
+> > > On Tue, 18 Jan 2005 13:30:02 -0800, Greg KH <greg@kroah.com> wrote:
+> > > > On Tue, Jan 18, 2005 at 03:56:35PM +0100, Hannes Reinecke wrote:
+> > > > > Hi all,
+> > > > >
+> > > > > the input subsystem is using call_usermodehelper directly, which breaks
+> > > > > all sorts of assertions especially when using udev.
+> > > > > And it's definitely going to fail once someone is trying to use netlink
+> > > > > messages for hotplug event delivery.
+> > > > >
+> > > > > To remedy this I've implemented a new sysfs class 'input_device' which
+> > > > > is a representation of 'struct input_dev'. So each device listed in
+> > > > > '/proc/bus/input/devices' gets a class device associated with it.
+> > > > > And we'll get proper hotplug events for each input_device which can be
+> > > > > handled by udev accordingly.
+> > > >
+> > > > Hm, why another input class?  We already have /sys/class/input, which we
+> > > > get hotplug events for.  We also have the individual input device
+> > > > hotplug events, which is what I think we really want here, right?
+> > >
+> > > These are a bit different classes. One is a generic input device class
+> > > device. Then you have several class device interfaces (evdev,
+> > > mousedev, joydev, tsdev, keyboard) that together with generic input
+> > > device produce concrete input devices (mouse, js, ts) that you have
+> > > implemented with class_simple.
 > > 
-> > To give some background info about why kbuild does what it does.
-> > A kernel being compiled partly with and partly without say -regparm=3
-> > will result in a non-workable kernel.
-> > 
-> > The same goes for a kernel that is partly built using gcc 2.96, partly
-> > using 3.3.4 for example.
-> > 
-> > So kbuild pr. default will force a recompile for any .o file where
-> > opions to gcc differ, or name of gcc has changed. Today no check has
-> > been implemented to check the actual gcc executable timestamp - and
-> > neither is this planned.
-> > 
+> > Hm, but we still need to make the input_dev a "real" struct device,
+> > right?  And if you do that, then you just hooked up your hotplug event
+> > properly, with no userspace breakage.
 > 
-> I would argue that "name of gcc has changed" is possibly a condition
-> that does more harm than good.  It is just as frequently used to have
-> wrappers, like distcc, as it is to have different versions.
+> I wasn't planning on doing that. The real devices are serio ports,
+> gameport ports and USB devices.They require power and resource
+> management and so forth. input_device is just a product of binding a
+> port to appropriate driver and seems to me like an ideal class_device
+> candidate. Then you add couple of class interfaces and get another
+> class_device layer as a result.
 
-Disagree. I switch compilers all the time and kbuild does the right
-thing for me.
+Ah, ok, that makes sense.  That would work too, although I don't know if
+udev can handle class_interfaces with a "dev" file in it or not.  If
+not, it shouldn't be that hard to change.
 
-I do occassionally feel your 'make install' pain and some sort of
-'make __install' might be called for.
+> > Then, if you want to still make the evdev, mousedev, and so on as
+> > class_device interfaces, that's fine, but the main point of this patch
+> > was to allow the call_usermodehelper call to be removed, so that the
+> > input subsytem will work properly with the kernel event and hotplug
+> > systems.
+> >
+> 
+> I was mostly talking about the need of 2 separate classes and this
+> patch lays groundwork for it althou lifetime rules in input system
+> need to be cleaned up before we can go all the way.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+I agree.  But I think only 1 class is needed, that way we don't break
+userspace, which is a pretty important thing.
+
+thanks,
+
+greg k-h

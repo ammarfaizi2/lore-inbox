@@ -1,103 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbTJNCh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 22:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTJNCh2
+	id S262164AbTJNCzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 22:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTJNCzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 22:37:28 -0400
-Received: from adsl-67-67-9-206.dsl.okcyok.swbell.net ([67.67.9.206]:30911
-	"HELO homer.d-oh.org") by vger.kernel.org with SMTP id S262168AbTJNChZ
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Mon, 13 Oct 2003 22:37:25 -0400
-From: "Alex Adriaanse" <alex_a@caltech.edu>
-To: "Hans Reiser" <reiser@namesys.com>
-Cc: "jw schultz" <jw@pegasys.ws>,
-       "Linux Kernel Mailing List" <Linux-Kernel@Vger.Kernel.ORG>,
-       <vs@namesys.com>
-Subject: RE: ReiserFS patch for updating ctimes of renamed files
-Date: Mon, 13 Oct 2003 21:37:24 -0500
-Message-ID: <JIEIIHMANOCFHDAAHBHOMEMEDAAA.alex_a@caltech.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F8A6646.3070206@namesys.com>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
+	Mon, 13 Oct 2003 22:55:55 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:20379 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S262164AbTJNCzy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 22:55:54 -0400
+Date: Mon, 13 Oct 2003 19:55:51 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Silly BK statistics
+Message-ID: <20031014025551.GA13675@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans,
+You guys work way too hard.  The BK openlogging tree, which has all
+changesets ever made by anyone in the Linux kernel, was getting big.
+Really big.  The nodes in the graph have internal "serial numbers"
+which are currently 16 bits, i.e., there can't be more than 64K nodes
+in the graph.
 
-Yes, I agree with J.W.  However, I also think that Andrew has a good point
-in that the behavior across Linux filesystems (ReiserFS, ext2, ext3, minix,
-etc.) should be consistent.  Either they should all update ctime during
-renames, or none of them should.
+I sent mail to some of my engineers this morning saying "hey, I suspect
+the Linux openlogging tree is about overflow, we need to go to 32 bit
+ser_t's."  I had no idea how close we were, I just knew it was a problem
+we needed to solve.
 
-Anyway, I'll try to work with the GNU tar maintainer to get this problem in
-tar fixed.  It'll probably be a lot harder to fix in tar than to have
-ReiserFS update ctimes since it'll require major changes in
-the --listed-incremental snapshot files.  However, if you don't think it's a
-good idea to make these changes to ReiserFS then we'll just work on fixing
-up tar.
+I just got mail from one of the team which reads: "With 199 serials shy
+of overflowing , the 32 bit version is now installed".
 
-Thanks,
+What that means is that in about a year, you've managed to create 65,337
+changesets.  That's 179 per day, 7.4/hour, 24x7.  You guys are busy.
 
-Alex
+To put that in perspective, the most active project on sourceforge today,
+Gaim, has 805 commits to its changelog.  Over 3.5 years.  That means you
+are changing your source base 284x more often than they are.  And that's 
+just the BK users, that doesn't count the people not using BK, which are
+a substantial fraction.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Hans Reiser
-Sent: Monday, October 13, 2003 3:46 AM
-To: Alex Adriaanse
-Cc: jw schultz; Linux Kernel Mailing List; vs@namesys.com
-Subject: Re: ReiserFS patch for updating ctimes of renamed files
-
-
-Alex, are you convinced by jw?  (I think I am.)  Would you be willing to
-submit a patch for tar instead?
-
-Hans
-
-jw schultz wrote:
-
->On Mon, Oct 13, 2003 at 09:49:20AM +0400, Hans Reiser wrote:
->
->
-> In theory it is cleaner and purer to do it the way we did. In practice,
->
->>Alex's problem seems like a real one, and I don't know how hard it is to
->>change tar to do the right thing.  We'll discuss it in a small seminar
->>today.
->>
->>
->
->Updating ctime does seem messy and a bit irrelevant for the
->atomic rename.  You are modifying the directories not the
->fricken file. This isn't DOS!  But it would seem he does
->indeed have an issue although i'm not sure what.  I've never
->used the listed-incremental option of tar and since the
->manpage is incomplete <rant deleted> i don't know what it
->actually does.  However, i have found the use of ctime to be
->terribly unreliable for file management and given what the
->standards have to say on the issue it sounds like tar is
->being abused or has a bug.
->
->
->
->
-
-
---
-Hans
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+No matter how you slice it, it is pretty amazing rate of change.
+If change is good, you guys rock, I've never seen anything like it.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265215AbTLaRkp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 12:40:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265216AbTLaRko
+	id S265217AbTLaSJG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 13:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTLaSJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 12:40:44 -0500
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:28387 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S265215AbTLaRkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 12:40:43 -0500
-Date: Wed, 31 Dec 2003 10:42:06 -0700
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0 - Watchdog patches (BK consistency checks)
-Message-ID: <20031231174206.GA14338@bounceswoosh.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030906125136.A9266@infomag.infomag.iguana.be> <200312300836.16559.edt@aei.ca> <20031230131350.A32120@hexapodia.org> <200312311001.48154.edt@aei.ca>
+	Wed, 31 Dec 2003 13:09:06 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:18875 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265217AbTLaSJE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 13:09:04 -0500
+Date: Wed, 31 Dec 2003 10:08:58 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Dale Blount <linux-kernel@dale.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4] Server stops serving nfs files (possibly ext3 or quota related)
+Message-ID: <20031231180858.GC1882@matchmail.com>
+Mail-Followup-To: Dale Blount <linux-kernel@dale.us>,
+	linux-kernel@vger.kernel.org
+References: <1071827364.1518.39.camel@rock.dale.us> <1071948988.1521.59.camel@rock.dale.us> <1072883581.22782.8.camel@rock.dale.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312311001.48154.edt@aei.ca>
+In-Reply-To: <1072883581.22782.8.camel@rock.dale.us>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31 at 10:01, Ed Tomlinson wrote:
->I am not saying I do not want do have consistency checks done.  I do want
->to control _when_ and how often they run
+On Wed, Dec 31, 2003 at 10:13:01AM -0500, Dale Blount wrote:
+> Since no one seems to have any ideas, could someone please tell me (or
+> link to the docs) of what I need to capture next time this happens? 
+> It's been pretty consistent from 2.4.18-ac4 to 2.4.22 so I'm figuring
+> the problem still isn't resolved in 2.4.23.  I've been checking
+> changelogs and nothing looks relevant.
 
-I don't see how it would be valid to not do a consistency check after
-every network operation, which is what it does now...
+First I'd cc ext3-users@redhat.com
 
-Every time you are modifying your archive from a remote source, the
-consistency check makes sure you don't have corruption in the transfer
-that was previously undetected, or corruption in the underlying
-archive which is about to accept the changes.  Since you can only do
-network updates at a time when your own archive is in a "checked-in"
-state, if the network update fails or detects corruption, you can
-clone what you'd already checked in to a new location and recover
-trivially.  The most work you can lose is the delta between your last
-changeset and the current one, assuming you keep some sort of backups
-around.
+If your processes are waiting on something you'll need to show what they're
+waiting in (ps axl).
 
-What exactly would you do if you'd been working "offline" for 3 weeks,
-went to sync, and it said that your archive was corrupted?  Or should
-it try to merge into a corrupt archive anyway?  Should that archive
-that was corrupt, and then had possibly good changes layered on top of
-it, be valid for attempting a clone?
+Do you get any other error messages in your kernel logs?  Does your network
+connection keep working when NFS serving stops?
 
-I think that limiting the consistency checking could be like opening a
-*very big* can of worms.
+run sysrq+t at the time you're having the problem, and run it through
+ksymoops.
 
+Oh, and for small lists it's ok to just include it in the email body.
 
-
-
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+Mike

@@ -1,27 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274710AbRIYXVs>; Tue, 25 Sep 2001 19:21:48 -0400
+	id <S274711AbRIYXZS>; Tue, 25 Sep 2001 19:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274717AbRIYXVi>; Tue, 25 Sep 2001 19:21:38 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:57729 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S274710AbRIYXV1>; Tue, 25 Sep 2001 19:21:27 -0400
-Message-Id: <200109252321.f8PNLfn10095@crg8.beaverton.ibm.com>
-X-Mailer: exmh version 2.0.2 2/24/98
-To: linux-kernel@vger.kernel.org
-cc: barkal@us.ibm.com
-Subject: shmdt() always returns success
+	id <S274716AbRIYXZJ>; Tue, 25 Sep 2001 19:25:09 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37525 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274711AbRIYXZA>;
+	Tue, 25 Sep 2001 19:25:00 -0400
+Date: Tue, 25 Sep 2001 16:24:12 -0700 (PDT)
+Message-Id: <20010925.162412.22123629.davem@redhat.com>
+To: hjl@lucon.org
+Cc: Ian.Dall@dsto.defence.gov.au, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: IPCONFIG fails for BOOTP
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010830083217.A8134@lucon.org>
+In-Reply-To: <20010830083217.A8134@lucon.org>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Sep 2001 16:21:40 PDT
-From: Judy Barkal <barkal@us.ibm.com>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any reason we shouldn't have shmdt() return failures - either from 
-the call to do_munmap() or because the shmaddr is invalid?
+   From: "H . J . Lu" <hjl@lucon.org>
+   Date: Thu, 30 Aug 2001 08:32:17 -0700
 
-If nobody objects, I can create a patch for this.
+   This is the patch I have been using since May.
+   
+Thanks HJ, I've applied your patch.  Sorry for taking so long.
 
-Judy
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

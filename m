@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263482AbTEIVcl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 17:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbTEIVcl
+	id S263481AbTEIVcI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 17:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263482AbTEIVcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 17:32:41 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:23444
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id S263482AbTEIVcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 17:32:39 -0400
-Message-ID: <3EBC2164.6050605@redhat.com>
-Date: Fri, 09 May 2003 14:45:08 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
-X-Accept-Language: en-us, en
+	Fri, 9 May 2003 17:32:08 -0400
+Received: from elaine24.Stanford.EDU ([171.64.15.99]:29573 "EHLO
+	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S263481AbTEIVcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 17:32:07 -0400
+Date: Fri, 9 May 2003 14:44:41 -0700 (PDT)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [CHECKER] Clarifications needed on a user-pointer false alarm in
+ kernel/kmod.c
+In-Reply-To: <Pine.GSO.4.44.0305012334140.7454-100000@elaine24.Stanford.EDU>
+Message-ID: <Pine.GSO.4.44.0305091424590.5419-100000@elaine24.Stanford.EDU>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: hammer: MAP_32BIT
-References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com>
-In-Reply-To: <3EBC15B5.4070604@zytor.com>
-X-Enigmail-Version: 0.75.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-H. Peter Anvin wrote:
+Hi,
 
-> No, it requires 31-bit addresses, and there was a discussion about how
-> some things need 31-bit and some 32-bit addresses.
+I got the following false alarm in kernel/kmod.c.
 
-That's completely irrelevant to my point.  Whether MAP_32BIT actually
-has a 31 bit limit or not doesn't matter, it's limited as well in the
-possible mmap blocks it can return.
+the call chain is sys_wait4 (_, &sub_info->retval) -> wait_task_zombie (_,
+_, stat_addr, _) -> put_user (_, stat_addr), which means &sub_info->retval
+will be passed into put_user. From the calling context, sub_info should be
+in kernel space, so &sub_info->retval should be in kernel space as well.
+The explanation for this false alarm could be that the call chain wasn't
+realistic, but I'm not sure. Can you guys please help me on that?
 
-The only thing I care about is to have a hint and not a fixed
-requirement for mmap().  All your proposals completely ignored this.
+/home/junfeng/linux-tainted/kernel/kmod.c:185:wait_for_helper:
+ERROR:TAINTED:185:185: dereferencing tainted ptr 'sub_info' [Callstack: ]
+  if (pid < 0)
+            sub_info->retval = pid;
+ else
+            sys_wait4(pid, (unsigned int *)&sub_info->retval, 0, NULL);
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE+vCFk2ijCOnn/RHQRAnw1AKChzyuZ3g9iXAX5wH088rhko/s8YgCgku12
-CayuZsLJGzPO//WCJVWyLxk=
-=rkBk
------END PGP SIGNATURE-----
+Error --->
+   complete(sub_info->complete);
+   return 0;
+}
+
 

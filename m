@@ -1,71 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUGMOKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUGMOM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUGMOKb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUGMOKb
+	id S265152AbUGMOM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUGMOM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:10:31 -0400
-Received: from sp36.amenworld.com ([62.193.200.26]:50596 "EHLO tuxedo-es.org")
-	by vger.kernel.org with ESMTP id S264286AbUGMOK3 (ORCPT
+	Tue, 13 Jul 2004 10:12:27 -0400
+Received: from pop.gmx.net ([213.165.64.20]:6811 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265152AbUGMOMU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:10:29 -0400
-Subject: Re: Kernel hacking option "Debug memory allocations" possible leak
-	of PaX memory randomization
-From: Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
-Reply-To: lorenzo@gnu.org
-To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
-Cc: pageexec@freemail.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <200407131601.39909@WOLK>
-References: <1089726693.3283.21.camel@localhost>  <200407131601.39909@WOLK>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Z+DCkmf4Zr3Vh0zLatkp"
-Message-Id: <1089727818.3284.23.camel@localhost>
+	Tue, 13 Jul 2004 10:12:20 -0400
+X-Authenticated: #19232476
+Subject: Re: DriveReady SeekComplete Error...
+From: Dhruv Matani <dhruvbird@gmx.net>
+To: Evaldo Gardenali <evaldo@gardenali.biz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <40F3D4AC.9050407@gardenali.biz>
+References: <1089721822.4215.3.camel@localhost.localdomain>
+	 <40F3D4AC.9050407@gardenali.biz>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1089728850.3240.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 13 Jul 2004 16:10:18 +0200
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 13 Jul 2004 19:57:30 +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-07-13 at 17:55, Evaldo Gardenali wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Dhruv Matani wrote:
+> | Hi,
+> | 	I've been getting this error for my brand new (2 months old) Samsung
+> | HDD. The model Number is: SV0411N, and it is a 40GB disk. I'm using the
+> | kernel version 2.4.20-8 provided by RedHat. When I used RH-7.2(before
+> | upgrading to RH-9), the same HDD worked fine. Also, when I re-installed
+> | RH-7.2, it worked fine?
+> |
+> | Any suggestions?
+> |
+> | Please cc me the reply, sine I'm not subscribed.
+> | Thanks ;-)
+> |
+> 
+> Hi there!
+> on your kernel config, make sure you enable this:
+> 
+> 
+> ~  lqqqqqqqqqqqqqqqqqqqqqqq Use multi-mode by default
+> qqqqqqqqqqqqqqqqqqqqqqqk
+> ~  x CONFIG_IDEDISK_MULTI_MODE:
+> ~    x
+> ~  x
+> ~    x
+> ~  x If you get this error, try to say Y here:
+> ~    x
+> ~  x
+> ~    x
+> ~  x hda: set_multmode: status=0x51 { DriveReady SeekComplete Error }
+> ~    x
+> ~  x hda: set_multmode: error=0x04 { DriveStatusError }
+> ~    x
+> ~  x
+> ~    x
+> ~  x If in doubt, say N.
 
---=-Z+DCkmf4Zr3Vh0zLatkp
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+I don't think this will apply here, because the error that aI get
+associated with the error is: 
 
-Hi Marc,
+Jul 12 00:19:52 localhost kernel: Freeing unused kernel memory: 92k
+freed
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: ide0: reset: success
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
+DriveReady SeekComplete Error }
+Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
+DriveStatusError BadCRC }
+Jul 12 00:19:52 localhost kernel: ide0: reset: success
+Jul 12 00:19:52 localhost kernel: Real Time Clock Driver v1.10e
 
-El mar, 13-07-2004 a las 16:01, Marc-Christian Petersen escribi=F3:
-> On Tuesday 13 July 2004 15:51, Lorenzo Hernandez Garcia-Hierro wrote:
->=20
-> Hi Lorenzo,
->=20
-> > Is anyone of you having the same situation, is it an unexpected behavio=
-r or
-> > it's a bug on the kernel source?
-> > Is that option non-compatible with PaX RANDSTACK and the rest of PaX's
-> > memory randomization features?
->=20
-> CC pageexec at freemail dot hu - He's the PaX programmer.
->=20
-> ciao, Marc
->=20
+And not set_multimode.
 
-OK, thanks, i forget the K of RANDKSTACK, sorry.
+I read somewhere, that some time interval has been changed to 20ms /
+50ms, and 100ms was the previous one, and Samsung HDDs have been konking
+off after that. What's this?
 
-Cheers,
---=20
-Lorenzo Hernandez Garcia-Hierro <lorenzo@gnu.org>
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> ~  x
+> ~    x
+> 
+> tqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq(100%)qqu
+> 
+> ~  x                                < Exit >
+> ~    x
+> 
+> mqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqj
+> 
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.2.3 (GNU/Linux)
+> 
+> iD8DBQFA89Ss5121Y+8pAbIRAio8AJ4sJ1ekYRSwVEoGBE90QIITqQyg0wCfXFaE
+> npdo42iFQ0Le8Fzq7sXjGUg=
+> =4aFw
+> -----END PGP SIGNATURE-----
+-- 
+        -Dhruv Matani.
+http://www.geocities.com/dhruvbird/
 
---=-Z+DCkmf4Zr3Vh0zLatkp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
+As a rule, man is a fool. When it's hot, he wants it cold. 
+When it's cold he wants it hot. He always wants what is not.
+	-Anon.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBA8+1KDcEopW8rLewRAlSdAJ9BCp7VWJBEmPvwOsyyGIaeoLSFgwCgm4R7
-6KTGHFUuzjEJqhChc4P4gQ0=
-=IDBY
------END PGP SIGNATURE-----
-
---=-Z+DCkmf4Zr3Vh0zLatkp--
 

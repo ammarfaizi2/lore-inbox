@@ -1,116 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129855AbRAXDey>; Tue, 23 Jan 2001 22:34:54 -0500
+	id <S130320AbRAXDsl>; Tue, 23 Jan 2001 22:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130320AbRAXDep>; Tue, 23 Jan 2001 22:34:45 -0500
-Received: from casablanca.magic.fr ([195.154.101.81]:63694 "EHLO
-	casablanca.magic.fr") by vger.kernel.org with ESMTP
-	id <S129855AbRAXDei>; Tue, 23 Jan 2001 22:34:38 -0500
-Message-ID: <3A6E4DF1.EE691AF5@magic.fr>
-Date: Wed, 24 Jan 2001 04:37:21 +0100
-From: "Jo l'Indien" <l_indien@magic.fr>
-Reply-To: l_indien@magic.fr, jma@netgem.com
-Organization: Les grandes plaines
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre10 i586)
-X-Accept-Language: fr-FR, fr, en, en-GB, en-US, ro
+	id <S131035AbRAXDsb>; Tue, 23 Jan 2001 22:48:31 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:36349 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130320AbRAXDs0>; Tue, 23 Jan 2001 22:48:26 -0500
+Message-ID: <3A6E507F.21E518DE@yahoo.co.uk>
+Date: Tue, 23 Jan 2001 22:48:15 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: paulus@linuxcare.com, callahan@maths.ox.ac.uk, jfree@sovereign.org
-CC: linux-kernel@vger.kernel.org
-Subject: Bug in ppp_async.c
-Content-Type: text/plain; charset=iso-8859-1
+To: linux-kernel@vger.kernel.org
+Subject: With recent kernels, ThinkPad 600 won't resume for two minutes after 
+ suspend
+In-Reply-To: <393D1B6D.ECCE0721@mail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id OAA11677
 
-I found a bug in the 2.4.1-pre10 version of ppp_async.c
+Hi.
 
-In fact, a lot of ioctl are not supported any more,
-whih make the pppd start fail.
-The bad patch is:
+With recent kernels, my ThinkPad 600 won't resume for two minutes
+after it is suspended.  When the Fn key is pressed the machine
+starts up, the CD-ROM scans, the screen backlight turns on,
+and the APM light flashes.  But then it just stays like that
+instead of restarting the CPU; it is completely hung, although
+the APM light continues to flash.  If I wait more than about
+two minutes with the machine suspended, however, then everything
+resumes normally.
 
-diff -u --recursive --new-file v2.4.0/linux/drivers/net/ppp_async.c
-linux/drivers/net/ppp_async.c
---- v2.4.0/linux/drivers/net/ppp_async.c Fri Apr 21 13:31:10 2000
-+++ linux/drivers/net/ppp_async.c Mon Jan 15 11:04:57 2001
-@@ -259,25 +244,6 @@
-   err = 0;
-   break;
+I have been running Linux for two years.  This never happened
+before a couple weeks ago when I upgraded to kernels 2.2.18 and
+then 2.4.0 .  I have since tested kernel 2.2.17 and see the
+same problem.  Do I have a hardware problem, or might something
+have changed in the kernel that could lead to this behavior?
 
--/*
-- * For now, do the same as the old 2.3 driver useta
-- */
-- case PPPIOCGFLAGS:
-- case PPPIOCSFLAGS:
-- case PPPIOCGASYNCMAP:
-- case PPPIOCSASYNCMAP:
-- case PPPIOCGRASYNCMAP:
-- case PPPIOCSRASYNCMAP:
-- case PPPIOCGXASYNCMAP:
-- case PPPIOCSXASYNCMAP:
-- case PPPIOCGMRU:
-- case PPPIOCSMRU:
--  err = -EPERM;
--  if (!capable(CAP_NET_ADMIN))
--   break;
--  err = ppp_async_ioctl(&ap->chan, cmd, arg);
--  break;
+Thomas Hood
+jdthood_AT_yahoo.co.uk
 -
-  case PPPIOCATTACH:
-  case PPPIOCDETACH:
-   err = ppp_channel_ioctl(&ap->chan, cmd, arg);
-
-
-When I apply this patch back, I got the connection,
-but it fail after a few seconds...
-In fact, there are two other patches to reverse
-in order to make the driver do its job again
-(sure it does: I'm using this kind of kernel now...):
-
-diff -u --recursive --new-file v2.4.0/linux/drivers/net/ppp_async.c
-linux/drivers/net/ppp_async.c
---- v2.4.0/linux/drivers/net/ppp_async.c Fri Apr 21 13:31:10 2000
-+++ linux/drivers/net/ppp_async.c Mon Jan 15 11:04:57 2001
-@@ -181,12 +175,7 @@
- ppp_asynctty_read(struct tty_struct *tty, struct file *file,
-     unsigned char *buf, size_t count)
- {
-- /* For now, do the same as the old 2.3.x code useta */
-- struct asyncppp *ap = tty->disc_data;
--
-- if (ap == 0)
--  return -ENXIO;
-- return ppp_channel_read(&ap->chan, file, buf, count);
-+ return -EAGAIN;
- }
-
- /*
-
-Then:
-
-diff -u --recursive --new-file v2.4.0/linux/drivers/net/ppp_async.c
-linux/drivers/net/ppp_async.c
---- v2.4.0/linux/drivers/net/ppp_async.c Fri Apr 21 13:31:10 2000
-+++ linux/drivers/net/ppp_async.c Mon Jan 15 11:04:57 2001
-@@ -203,12 +193,7 @@
- ppp_asynctty_write(struct tty_struct *tty, struct file *file,
-      const unsigned char *buf, size_t count)
- {
-- /* For now, do the same as the old 2.3.x code useta */
-- struct asyncppp *ap = tty->disc_data;
--
-- if (ap == 0)
--  return -ENXIO;
-- return ppp_channel_write(&ap->chan, buf, count);
-+ return -EAGAIN;
- }
-
- static int
-
-Without these modifications, everything is allright !
-
-Jocelyn Mayer
-
-PS: sorry, but I don't know who is the actual maitainer of this
-driver...
-ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€ù^jÇ«y§m…á@A«a¶Úÿÿü0ÃûnÇú+ƒùd
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263594AbTDGSSF (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 14:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbTDGSSF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 14:18:05 -0400
-Received: from findaloan-online.cc ([216.209.85.42]:21262 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S263594AbTDGSSD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 14:18:03 -0400
-Date: Mon, 7 Apr 2003 14:37:00 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Thomas Schlichter <schlicht@rumms.uni-mannheim.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: An idea for prefetching swapped memory...
-Message-ID: <20030407183700.GB7311@mark.mielke.cc>
-References: <200304071026.47557.schlicht@uni-mannheim.de> <200304072021.17080.kernel@kolivas.org> <1049712476.3e91575c2e6ae@rumms.uni-mannheim.de> <3E917BFA.4020303@aitel.hist.no> <3E9188ED.1090109@nortelnetworks.com>
+	id S262977AbTDGSfp (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 14:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTDGSfp (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 14:35:45 -0400
+Received: from home.wiggy.net ([213.84.101.140]:61389 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262977AbTDGSfo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 14:35:44 -0400
+Date: Mon, 7 Apr 2003 20:47:19 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new syscall: flink
+Message-ID: <20030407184719.GK4411@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030407102005.4c13ed7f.manushkinvv@desnol.ru> <200304070709.h37792815083@mozart.cs.berkeley.edu> <20030407113534.1de8dc91.agri@desnol.ru> <b6s3k4$i0i$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E9188ED.1090109@nortelnetworks.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <b6s3k4$i0i$1@cesium.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 07, 2003 at 10:19:25AM -0400, Chris Friesen wrote:
-> Helge Hafting wrote:
-> >"What we're going to need soon" is the best.  It isn't always predictable,
-> >but sometimes.  "The block following the last we read from some 
-> >file/fs-structure"
-> >is often a good one though.
+Previously H. Peter Anvin wrote:
+> b) This is a security hole, in which case /proc needs to be fixed.  In
+> particular, the open("/proc/self/fd/3", O_RDWR) in my example above
+> should return EPERM.
 
-> With the current setup though, the memory is wasted.  It makes sense that 
-> we should fill the memory up with *something* that is likely to be useful.
-> 
-> If I have mozilla open, start a kernel compile, and then come back half an 
-> hour later, I would like to see the mozilla pages speculatively loaded back 
-> into memory.
-> 
-> Since the system is otherwise idle, it doesn't cost anything to do this.  I 
-> think its obvious that it is beneficial to swap in something, the only 
-> trick is getting a decent heuristic as to what it should be.
+proc might not be a problem if you deal with a chroot or namespace which
+doesn't have proc mounted and no processes running with mount
+capabilities. flink could still be a problem in those situations.
 
-Chris: Based on your usage patterns, how would Linux know that you were
-going to be opening up Mozilla, and not that you were going to tweak the
-kernel source and compile it again?
-
-The only time memory is wasted is when you don't have enough of it, and it
-gets trampled for common operations that you perform. All other times, the
-memory is loaded, because it was used, which means it might be used again.
-
-mark
+Wichert.
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbTISBPU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 21:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbTISBPU
+	id S262251AbTISBjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 21:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTISBjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 21:15:20 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:60588 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S262241AbTISBPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 21:15:19 -0400
-Date: Fri, 19 Sep 2003 02:58:21 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
+	Thu, 18 Sep 2003 21:39:40 -0400
+Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:15313 "EHLO
+	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
+	id S262251AbTISBjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 21:39:39 -0400
+Date: Thu, 18 Sep 2003 20:39:10 -0500
+From: Greg Norris <haphazard@kc.rr.com>
 To: linux-kernel@vger.kernel.org
-Subject: via-rhine apparently broken in 2.4.23-pre4
-Message-ID: <Pine.LNX.4.56.0309190254480.18687@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Re: 2.6.0-test5 usbserial oops
+Message-ID: <20030919013910.GA1343@glitch.localdomain>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030911044650.GA10064@kroah.com> <20030911175755.GA13334@kroah.com> <20030911223224.GA1345@glitch.localdomain> <20030918040955.GB2849@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030918040955.GB2849@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unverified (due to lack of hardware) report from a user:
+On Wed, Sep 17, 2003 at 09:09:55PM -0700, Greg KH wrote:
+> > I'm still getting an (apparently) identical oops.  I've attached the
+> > ksymoops output (your patch was applied for this one), along with the
+> > debugging messages you requested previously.  Let me know if I can
+> > provide any additional info.
+> 
+> Does this happen on 2.6.0-test5-bk3?
 
-Updating from 2.4.22 to 2.4.23-pre4 breaks networking with an onboard VIA 
-Rhine II chip.
+I can confirm that this is still an issue on 2.6.0-test5-bk5... I
+didn't test -bk3 explicitly (although I certainly will if you like), as
+I assume that any relevant changes will be in -bk5 as well.  The oops
+appears to be essentially identical, so I'm omitting it and the debug
+output in order to conserve bandwidth.  If you want to see it anyway,
+just let me know.
 
-It seems to transfer about 2 kB of data, then stall forever.
-
-At a first look I'm not seeing anything wrong in the new code, but then 
-it's already 3:20 AM ;)
-
-LLaP
-bero
-
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
-
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+Thanx!

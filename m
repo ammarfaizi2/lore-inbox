@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129623AbRBNSGJ>; Wed, 14 Feb 2001 13:06:09 -0500
+	id <S130308AbRBNSJ2>; Wed, 14 Feb 2001 13:09:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130308AbRBNSF6>; Wed, 14 Feb 2001 13:05:58 -0500
-Received: from ike-ext.ab.videon.ca ([206.75.216.35]:45959 "HELO
-	ike-ext.ab.videon.ca") by vger.kernel.org with SMTP
-	id <S129623AbRBNSFm>; Wed, 14 Feb 2001 13:05:42 -0500
-Date: Wed, 14 Feb 2001 11:23:04 -0700
-To: Anton Blanchard <anton@linuxcare.com.au>
-Cc: "ASN Stevens, Computing Service" <Alastair.Stevens@bristol.ac.uk>,
+	id <S130485AbRBNSJI>; Wed, 14 Feb 2001 13:09:08 -0500
+Received: from 64-32-144-137.nyc1.phoenixdsl.net ([64.32.144.137]:11532 "HELO
+	mail.ovits.net") by vger.kernel.org with SMTP id <S130308AbRBNSJG>;
+	Wed, 14 Feb 2001 13:09:06 -0500
+Date: Wed, 14 Feb 2001 13:09:20 -0500
+From: Mordechai Ovits <movits@ovits.net>
+To: Gregory Maxwell <greg@linuxpower.cx>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Rick Hohensee <humbubba@smarty.smart.net>,
         linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-ac12 compile failure on sparc64
-Message-ID: <20010214112304.C22741@lovelife.olvc.ab.ca>
-In-Reply-To: <EXECMAIL.1010214113238.Y@velifer.bris.ac.uk> <20010214224148.C2132@linuxcare.com>
+Subject: Re: Reason (was: Re: dropcopyright script)
+Message-ID: <20010214130920.A9486@ovits.net>
+In-Reply-To: <20010214093336.A8748@ovits.net> <Pine.LNX.4.32.0102140959330.11384-100000@viper.haque.net> <20010214125235.B20857@xi.linuxpower.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010214224148.C2132@linuxcare.com>; from anton@linuxcare.com.au on Wed, Feb 14, 2001 at 10:41:48PM +1100
-From: Anthony Fok <foka@debian.org>
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010214125235.B20857@xi.linuxpower.cx>; from greg@linuxpower.cx on Wed, Feb 14, 2001 at 12:52:36PM -0500
+X-Satellite-Tracking: 0x4B305AFF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 10:41:48PM +1100, Anton Blanchard wrote:
-> > Hi - I am having compilation troubles on my sparc64 workstation (standard 
-> > Ultra 5 machine), which is currently running stock 2.4.1 on Red Hat 6.2 quite 
-> > happily.
+On Wed, Feb 14, 2001 at 12:52:36PM -0500, Gregory Maxwell wrote:
+> On Wed, Feb 14, 2001 at 10:00:25AM -0500, Mohammad A. Haque wrote:
+> > How big do you have your icons set that you can actually read stuff in
+> > it?
+> > On Wed, 14 Feb 2001, Mordechai Ovits wrote:
+> > 
+> > > In newer file managers, the icon of a C file is a tiny image of the first
+> > > few lines of text.  If all files startt with a copyright, it's not much
+> > > good.  So running this on a local, personal, tree can be a good thing.
 > 
-> We arent tracking the -ac patches at the moment and alan can't be expected
-> to ensure it compiles on all architectures. Best bet is to stick with
-> Linus releases.
+> It would probably be more useful to make a little picture of a tree of the
 
-You are right, of course, but then ASN Stephens is also right for reporting
-a problem in the -ac patches.  Or do you expect people to ignore bugs in the
--ac series and let bugs go unreported?  How will the -ac series improve, and
-ultimately, how will the official Linux kernel improve?
+Huh?
 
-Granted, in this case, Alan already knew the problem.  :-)
+Mordy
 
-Cheers,
-
-Anthony
-
--- 
-Anthony Fok Tung-Ling                Civil and Environmental Engineering
-foka@ualberta.ca, foka@debian.org    University of Alberta, Canada
-   Debian GNU/Linux Chinese Project -- http://www.debian.org/intl/zh/
-Come visit Our Lady of Victory Camp -- http://www.olvc.ab.ca/
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289054AbSAZKdW>; Sat, 26 Jan 2002 05:33:22 -0500
+	id <S289056AbSAZKjc>; Sat, 26 Jan 2002 05:39:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSAZKdC>; Sat, 26 Jan 2002 05:33:02 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:13579 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S289054AbSAZKc6>;
-	Sat, 26 Jan 2002 05:32:58 -0500
+	id <S289057AbSAZKjW>; Sat, 26 Jan 2002 05:39:22 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:15371 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S289056AbSAZKjK>;
+	Sat, 26 Jan 2002 05:39:10 -0500
 X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
 From: Keith Owens <kaos@ocs.com.au>
-To: "George Bonser" <george@gator.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux console at boot 
-In-Reply-To: Your message of "Thu, 24 Jan 2002 21:05:45 -0800."
-             <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com> 
+To: brendan.simon@bigpond.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: touch commands in Makefiles 
+In-Reply-To: Your message of "Fri, 25 Jan 2002 16:54:39 +1100."
+             <3C50F31F.1090302@bigpond.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 26 Jan 2002 21:32:45 +1100
-Message-ID: <20849.1012041165@ocs3.intra.ocs.com.au>
+Date: Sat, 26 Jan 2002 21:38:58 +1100
+Message-ID: <20898.1012041538@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002 21:05:45 -0800, 
-"George Bonser" <george@gator.com> wrote:
->Is there any way to stop the console scrolling during boot? My reason
->for this is I am trying to troubleshoot a boot problem with
->2.4.18-pre7 and I would like to give a more useful report than "it
->won't boot" but the screen outputs information every few seconds and I
->can't "freeze" the display so I can copy down the initial error(s).
+On Fri, 25 Jan 2002 16:54:39 +1100, 
+Brendan J Simon <brendan.simon@bigpond.com> wrote:
+>Why are header file touched in Makefiles ?
 
-Serial console is the best.  If you can't do that, add a delay after
-each set of console output.  Tweak 100000000 to get a suitable delay.
+To handle the two level dependencies on CONFIG options.  bar.c depends
+on foo.h which depends on CONFIG_BLIP.  Change CONFIG_BLIP and the
+Makefiles touch foo.h which in turn recompiles bar.c.
 
-Index: 17.1/kernel/printk.c
---- 17.1/kernel/printk.c Tue, 11 Dec 2001 09:58:50 +1100 kaos (linux-2.4/j/48_printk.c 1.1.2.2.7.1.2.3 644)
-+++ 17.1(w)/kernel/printk.c Sat, 26 Jan 2002 21:30:53 +1100 kaos (linux-2.4/j/48_printk.c 1.1.2.2.7.1.2.3 644)
-@@ -373,6 +373,7 @@ static void call_console_drivers(unsigne
- 		}
- 	}
- 	_call_console_drivers(start_print, end, msg_level);
-+	{ int i; for (i = 0; i < 100000000; ++i) ; }
- }
- 
- static void emit_log_char(char c)
+Yes, it sucks with source repositories.  Which is why kbuild 2.5
+completely removes this "feature", with kbuild 2.5 you can build from a
+read only file system.
+
+>You then tell it which files you intend to modify and it 
+>will check those files out as read-write to the local sandbox.
+
+Even easier with kbuild 2.5, it has shadow trees.  You keep the base
+read only, copy the files to modify to a separate tree and kbuild 2.5
+logically merges all the files.
+
+http://sourceforge.net/projects/kbuild/
 

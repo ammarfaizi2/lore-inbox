@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263522AbTJ0Tiw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 14:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263521AbTJ0Tiw
+	id S263500AbTJ0TsM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 14:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTJ0TsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 14:38:52 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:57105 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S263522AbTJ0Tiv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 14:38:51 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-testX and pppd/pppoe stuck after connecting
-Date: Mon, 27 Oct 2003 21:56:23 +0300
-User-Agent: KMail/1.5.3
-Cc: Jan Ploski <jpljpl@gmx.de>
+	Mon, 27 Oct 2003 14:48:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3521 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263500AbTJ0TsK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 14:48:10 -0500
+Message-ID: <3F9D7666.6010504@pobox.com>
+Date: Mon, 27 Oct 2003 14:47:50 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Hans Reiser <reiser@namesys.com>
+CC: "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: Re: Blockbusting news, results get worse
+References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com> <3F9D6891.5040300@namesys.com>
+In-Reply-To: <3F9D6891.5040300@namesys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310272156.23961.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Andrew Borzenkov wrote:
->> I can confirm it with 2.6.0-test8 and simple modem connection (no
->> pppoe). Connection is established, I get IP, DNS - everything but no
->> IP packet ever seems to either go out or come in. The same works just
->> fine with 2.6.0-test5
+Hans Reiser wrote:
+> Mudama, Eric wrote:
+> 
+>>
+>> or put it under heavy write workload and remove
+>> power.
+>>
+> Can you tell us more about what really happens to disk drives when the 
+> power is cut while a block is being written?  We engage in a lot of 
+> uninformed speculation, and it would be nice if someone who really knows 
+> told us....
+> 
+> Do drives have enough capacitance under normal conditions to finish 
+> writing the block?  Does ECC on the drive detect that the block was bad 
+> and so we don't need to detect it in the FS?
 
-whatever evil it was it has apparently disappeared in test9. Which may be good 
-or bad news for you depending on whether your problem is fixed here as well.
 
-good luck
+Does it really matter to speculate about this?
 
--andrey
+If you don't FLUSH CACHE, you have no guarantees your data is on the 
+platter.
+
+	Jeff
+
+
 

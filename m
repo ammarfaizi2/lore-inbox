@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYKjF>; Thu, 25 Jan 2001 05:39:05 -0500
+	id <S129444AbRAYKti>; Thu, 25 Jan 2001 05:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130133AbRAYKiz>; Thu, 25 Jan 2001 05:38:55 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:22636 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S129444AbRAYKik>; Thu, 25 Jan 2001 05:38:40 -0500
-Date: Thu, 25 Jan 2001 12:38:31 +0200 (EET)
-From: Heikki Lindholm <holindho@mail.niksula.cs.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: fat32 corruption with 2.4.0
-Message-ID: <Pine.GSO.4.20.0101251133480.21886-100000@famine.cs.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129511AbRAYKt2>; Thu, 25 Jan 2001 05:49:28 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:28622 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129444AbRAYKtL>; Thu, 25 Jan 2001 05:49:11 -0500
+Date: Thu, 25 Jan 2001 16:17:30 +0530 (IST)
+From: V Ganesh <ganesh@veritas.com>
+Message-Id: <200101251047.QAA16434@vxindia.veritas.com>
+To: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, sct@redhat.com
+Subject: Re: inode->i_dirty_buffers redundant ?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I haven't seen much vfat/fat32 complaints lately, so:
-2.4.0 destroyed my windows partition. There seemed to be some trouble in
-2.4.0-test9, too. I don't know if this was a known problem or not, but
-2.4.0-test9 wrote filenames in a wrong way. It could be observed by
-running windows (98 in my case) file system checker (not scandisk, but the
-graphical one) after copying some files with non-8.3 names to a fat32
-partition. There was no noticable data loss, however. 
+Stephen C. Tweedie <sct@redhat.com> wrote:
+: Hi,
 
-Yesterday, with 2.4.0 release kernel, mounting a fat32 filesystem caused
-data loss. The filesystem seemed to mount ok at a first glance, but
-reported falsely 100% space usage. Then, after unmounting it, the oldest
-(probably at start of the partition) directories "windows" and "my
-documents" were mangled beyond recognition. I think, in this case, the
-filenames got written REALLY wrong and showed as something like 
-"?   * ~ ?. ?  ?". Running scandisk caused most directories and files 
-in root directory to change to FILE0xxx.CHK and DIR0xxx.CHK. Most of the 
-data was intact, however - and subdirectories below DIR0xxx.CHK's were
-good, too. I had VIA (868B) UDMA enabled, but don't think that was the
-cause since it worked fine with ext2 partitions.
+: On Wed, Jan 24, 2001 at 03:25:16PM +0530, V Ganesh wrote:
+:> now that we have inode->i_mapping->dirty_pages, what do we need
+:> inode->i_dirty_buffers for ?
 
-In addition, trying to write to vfat /floppy with 2.4.0 also didn't
-work. Kernel complained about (bad?) sectors. Whereas 2.2.0 did the job
-fine (obviously, to the same floppy).
+: Metadata.  Specifically, directory contents and indirection blocks.
 
--- Heikki Lindholm
+: --Stephen
 
+ah, mark_buffer_dirty_inode(). thanks.
+so if I understand it,
+1. read() and mmap read faults will put the page in i_mapping->clean_pages
+2. mmaped writes will (eventually, from msync or unmap or swapout) put the
+   page in i_mapping->dirty_pages
+3. write() will put pages into i_dirty_buffers (__block_commit_write() calls
+   buffer_insert_inode_queue()).
+
+so i_dirty_buffers contains buffer_heads of pages coming from write() as
+well as metadata buffers from mark_buffer_dirty_inode(). a dirty MAP_SHARED
+page which has been write()n to will potentially exist in both lists.
+won't doing a set_dirty_page() instead of buffer_insert_inode_queue() in
+__block_commit_write() make things much simpler ? then we'd have i_dirty_buffers
+having _only_ metadata, and all data pages in the i_mapping->*_pages lists.
+
+ganesh
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

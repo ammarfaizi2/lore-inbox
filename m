@@ -1,67 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280624AbRKJMV6>; Sat, 10 Nov 2001 07:21:58 -0500
+	id <S280627AbRKJMjC>; Sat, 10 Nov 2001 07:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280623AbRKJMVu>; Sat, 10 Nov 2001 07:21:50 -0500
-Received: from eos.telenet-ops.be ([195.130.132.40]:55211 "EHLO
-	eos.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S280620AbRKJMVk>; Sat, 10 Nov 2001 07:21:40 -0500
-Date: Sat, 10 Nov 2001 13:21:39 +0100
-From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
-To: Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: Networking: repeatable oops in 2.4.15-pre2
-Message-ID: <20011110132139.A872@Zenith.starcenter>
-Mail-Followup-To: Linux-Kernel Development Mailinglist <linux-kernel@vger.kernel.org>
+	id <S280629AbRKJMix>; Sat, 10 Nov 2001 07:38:53 -0500
+Received: from host213-121-105-27.in-addr.btopenworld.com ([213.121.105.27]:64502
+	"HELO mail.dark.lan") by vger.kernel.org with SMTP
+	id <S280627AbRKJMip>; Sat, 10 Nov 2001 07:38:45 -0500
+Subject: Re: MS Natural keyboard extra keys using usb
+From: Greg Sheard <greg@ecsc.co.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Daniel Ceregatti <vi@sh.nu>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011109170008.A10527@kroah.com>
+In-Reply-To: <3BEC3B3A.6040005@sh.nu>  <20011109170008.A10527@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 10 Nov 2001 12:38:09 +0000
+Message-Id: <1005395889.32176.1.camel@lemsip>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.4.15-pre2
-X-Telephone: +32 486 460306
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2001-11-10 at 01:00, Greg KH wrote:
+> On Fri, Nov 09, 2001 at 12:23:22PM -0800, Daniel Ceregatti wrote:
+> > 
+> > Ever since 2.4.10, these keys have stopped working.
+> 
+> Are you sure you are still using the HID keyboard drivers, and not the
+> usbkbd (boot protocol keyboard) driver?
+> 
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A quick squint at menuconfig in 2.4.13 offers CONFIG_USB_HIDDEV:
 
-J Sloan (jjs@pobox.com) wrote:
-> I have been running the 2.4.15-pre kernels and
-> have found an interesting oops. I can reproduce
-> it immediately, and reliably, just by issuing an ssh
-> command (as a normal user).
+  Say Y here if you want to support HID devices (from the USB
+  specification standpoint) that aren't strictly user interface
+  devices, like monitor controls and Uninterruptable Power Supplies.
+  It is also used for "consumer keys" on multimedia keyboards and
+  USB speakers.
 
-I'm currently running Linux 2.4.15-pre2 and have no troubles with ssh. I can
-safely login onto other hosts, or issuing commands like
-	ssh -l someuser@somehost mutt
-or copy files
-	scp somefile someuser@somehost:
+  This module supports these devices separately using a separate
+  event interface on /dev/usb/hiddevX (char 180:96 to 180:111).
+  This driver requires CONFIG_USB_HID.
 
-I'm not using OpenSSH 3.0 yet (2.9p2). I'm not running any firewall or
-transparent proxying.
+IMHO this may offer the functionality that's disappeared - whilst I also
+have a Natural Keyboard, I've yet to bother mapping the consumer keys.
 
-PS My apologies that this reply isn't like it should be (no Message-ID to
-   what it is replying) but I've removed the mail before I could reply...
+Cheers,
+Greg.
 
---=20
-Taking advice on what the GPL means from Microsoft is like taking
-Stalin's word on the meaning of the US Constitution. ~(Eben Moglen)
 
---3MwIy2ne0vdjdPXF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE77RvTXfqz7M26L9sRAhwKAJ4qad0rPVYdhkLLo86pEmoW7rE9tACgkYAQ
-QJnyO+PXh6cOPcfnlp9ZnGk=
-=8pQb
------END PGP SIGNATURE-----
-
---3MwIy2ne0vdjdPXF--

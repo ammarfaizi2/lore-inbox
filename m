@@ -1,26 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264348AbTLBUJK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTLBUJK
+	id S264331AbTLBTzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 14:55:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264332AbTLBTzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:09:10 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:18067 "HELO
+	Tue, 2 Dec 2003 14:55:09 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:50577 "HELO
 	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S264348AbTLBUJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:09:07 -0500
+	id S264331AbTLBTzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 14:55:04 -0500
 X-Sender-Authentication: net64
-Date: Tue, 2 Dec 2003 21:09:04 +0100
+Date: Tue, 2 Dec 2003 20:55:02 +0100
 From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-Id: <20031202210904.48706476.skraw@ithnet.com>
-In-Reply-To: <20031202120315.GK13388@conectiva.com.br>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
-	<200312011226.04750.nbensa@gmx.net>
-	<20031202115436.GA10288@physik.tu-cottbus.de>
-	<20031202120315.GK13388@conectiva.com.br>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: nathans@sgi.com, lm@work.bitmover.com, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS for 2.4
+Message-Id: <20031202205502.474755f3.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet>
+References: <20031202002347.GD621@frodo>
+	<Pine.LNX.4.44.0312020919410.13692-100000@logos.cnet>
 Organization: ith Kommunikationstechnik GmbH
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -29,25 +28,32 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Dec 2003 10:03:15 -0200
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
+On Tue, 2 Dec 2003 09:22:48 -0200 (BRST)
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 
-> Em Tue, Dec 02, 2003 at 12:54:36PM +0100, Ionut Georgescu escreveu:
-> > I can only second that. We've been using XFS here since the days of
-> > 2.4.0-testxx and the only problems we've had were sitting between the
-> > chair and the keyboard.
+> [...]
+> A development tree is much different from a stable tree. You cant just
+> simply backport generic VFS changes just because everybody agreed with
+> them on the development tree.
 > 
-> So if there is no problems at all using it as a patch why add this to a
-> kernel that is phasing out?
+> My whole point is "2.6 is almost out of the door and its so much better".  
+> Its much faster, much cleaner. 
 
-Because it is _not_.
+Even if I am a bit off-topic here, please reconsider your last sentence. Don't
+make people think that 2.6 is in a widely useable state right now. Just take a
+look at the history of 2.4. Don't forget 2.4 can be used in boxes beyond 4 GB
+only right _now_ (2.4.23), all previous versions fall completely apart on i386
+platform. 2.4 is right now nice, useable and pretty stable - and 2.6 has not
+even begun to see the real-and-ugly world yet. There will for sure be a lot of
+interesting test cases during the next months for 2.6, but there are quite an
+amount of people that need a real stable environment - and that's why they will
+have to use 2.4 for at least one year from now on.
 
-I really wonder how many of you have read this list up to 2.4.11 release ...
+This is no vote for or against XFS-inclusion, I don't know the thing at all. I
+only want to state: developer environment is pretty different from the real
+world, so don't dump 2.4 too early please.
 
-Is there some human-memory-loss-virus flooding the area ?
-
-Please stay serious.
+Regards,
 Stephan
-
 
 

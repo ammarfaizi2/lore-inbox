@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262137AbSJNTvq>; Mon, 14 Oct 2002 15:51:46 -0400
+	id <S262144AbSJNTxu>; Mon, 14 Oct 2002 15:53:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262141AbSJNTvq>; Mon, 14 Oct 2002 15:51:46 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:52999
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S262137AbSJNTvp>; Mon, 14 Oct 2002 15:51:45 -0400
-Subject: Re: 2.5.41-ac1 doens't boot with PREEMPT on
-From: Robert Love <rml@tech9.net>
-To: John Stoffel <stoffel@lucent.com>
+	id <S262146AbSJNTxt>; Mon, 14 Oct 2002 15:53:49 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:57756 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262144AbSJNTxs>;
+	Mon, 14 Oct 2002 15:53:48 -0400
+Date: Mon, 14 Oct 2002 12:52:34 -0700 (PDT)
+Message-Id: <20021014.125234.102091817.davem@redhat.com>
+To: genlogic@inrete.it
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <15780.53268.435464.141499@gargle.gargle.HOWL>
-References: <15780.53268.435464.141499@gargle.gargle.HOWL>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 14 Oct 2002 15:57:38 -0400
-Message-Id: <1034625458.794.4752.camel@phantasy>
+Subject: Re: unhappy with current.h
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DAB1F00.667B82B5@inrete.it>
+References: <3DAB1F00.667B82B5@inrete.it>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-10-09 at 20:55, John Stoffel wrote:
+   From: Daniele Lugli <genlogic@inrete.it>
+   Date: Mon, 14 Oct 2002 21:46:08 +0200
+   
+   Moral of the story: in my opinion kernel developers should reduce to a
+   minimum the use of #define, and preferably use words in uppercase and/or
+   with underscores, in any case not commonly used words.
 
-> I've got a dual PIII x450mhz P6DGB system with 128mb of RAM.  It locks
-> up when booting 2.5.41-ac1 when Preemption is enabled.  Here's what's
-> on the console (copied yb hand) when it locks up:
-
-Have you since retried with stock 2.5.42?  If not, can you please (or
-any later version)?
-
-	Robert Love
-
+Or maybe you should change your datastructure to not have member names
+the conflict with 7 year old well defined global symbols in the Linux
+kernel?

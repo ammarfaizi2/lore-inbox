@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVCDLE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVCDLLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbVCDLE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbVCDLE0
+	id S262827AbVCDLLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262802AbVCDLE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:04:26 -0500
-Received: from mx1.mail.ru ([194.67.23.121]:57904 "EHLO mx1.mail.ru")
-	by vger.kernel.org with ESMTP id S262770AbVCDLDR (ORCPT
+	Fri, 4 Mar 2005 06:04:57 -0500
+Received: from cncln.online.ln.cn ([218.24.136.48]:32629 "EHLO gcrj.com")
+	by vger.kernel.org with ESMTP id S262769AbVCDLCz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:03:17 -0500
-From: Alexey Dobriyan <adobriyan@mail.ru>
-To: Hans-Christian Egtvedt <hc@mivu.no>
-Subject: Re: [PATCH] new driver for ITM Touch touchscreen
-Date: Fri, 4 Mar 2005 14:03:37 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <1109932223.5453.16.camel@charlie.itk.ntnu.no>
-In-Reply-To: <1109932223.5453.16.camel@charlie.itk.ntnu.no>
+	Fri, 4 Mar 2005 06:02:55 -0500
+From: "zwx" <zwx@gcrj.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.6.11-rc5-mm1 
+Date: Fri, 4 Mar 2005 19:01:46 +0800
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="utf-8"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200503041403.37137.adobriyan@mail.ru>
-X-Spam: Not detected
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Thread-Index: AcUgF8kXewM8uYDHQUuYtVPbN0caQAAkb8NA
+In-Reply-To: <200503031925.j23JPDDS004025@ccure.user-mode-linux.org>
+Message-Id: <200503041858970.SM01164@zwx2c>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 March 2005 12:30, Hans-Christian Egtvedt wrote:
+ok
 
-> I've ported the works from Chris Collins so the drivers compiles without
-> warnings and works (for me) with Linux 2.6.10 and 2.6.11.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jeff Dike
+Sent: Friday, March 04, 2005 3:25 AM
+To: Chris Wright
+Cc: Jeff Dike; Andrew Morton; linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc5-mm1 
 
-> Any comments on the driver would be much appreciated.
+chrisw@osdl.org said:
+> Thanks, I'll push that with rest of audit changes.
 
-> +struct itmtouch_dev {
+Applies on top of your changes.
 
-> +       int                     refcount; //
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-There is already generic interface for reference-counted objects. See
-lib/kref.c and kref documentation at:
+Index: linux-2.6.10/arch/um/kernel/ptrace.c
+===================================================================
+--- linux-2.6.10.orig/arch/um/kernel/ptrace.c	2005-03-03
+11:41:34.000000000 -0500
++++ linux-2.6.10/arch/um/kernel/ptrace.c	2005-03-03
+11:42:41.000000000 -0500
+@@ -341,11 +341,15 @@
+ 
+ 	if (unlikely(current->audit_context)) {
+ 		if (!entryexit)
+-			audit_syscall_entry(current, regs->orig_eax,
+-					    regs->ebx, regs->ecx,
+-					    regs->edx, regs->esi);
++			audit_syscall_entry(current, 
++					    UPT_SYSCALL_NR(&regs->regs),
++					    UPT_SYSCALL_ARG1(&regs->regs),
++					    UPT_SYSCALL_ARG2(&regs->regs),
++					    UPT_SYSCALL_ARG3(&regs->regs),
++					    UPT_SYSCALL_ARG4(&regs->regs));
+ 		else
+-			audit_syscall_exit(current, regs->eax);
++			audit_syscall_exit(current, 
++					   UPT_SYSCALL_RET(&regs->regs));
+ 	}
+ 
+ 	/* Fake a debug trap */
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=110987233406767&w=2
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-	Alexey

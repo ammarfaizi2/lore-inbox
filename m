@@ -1,84 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbTJNPxO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 11:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbTJNPxO
+	id S262529AbTJNQ1W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 12:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTJNQ1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 11:53:14 -0400
-Received: from nwkea-mail-1.sun.com ([192.18.42.13]:21176 "EHLO
-	nwkea-mail-1.sun.com") by vger.kernel.org with ESMTP
-	id S262601AbTJNPxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 11:53:12 -0400
-Date: Tue, 14 Oct 2003 11:52:22 -0400
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [NFS] RE: [autofs] multiple servers per automount
-In-reply-to: <Pine.LNX.4.44.0310142131090.3044-100000@raven.themaw.net>
-To: Ian Kent <raven@themaw.net>
-Cc: Joseph V Moss <jmoss@ichips.intel.com>,
-       "Ogden, Aaron A." <aogden@unocal.com>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       nfs@lists.sourceforge.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <3F8C1BB6.9010202@sun.com>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618
- Debian/1.3.1-3
-References: <Pine.LNX.4.44.0310142131090.3044-100000@raven.themaw.net>
+	Tue, 14 Oct 2003 12:27:22 -0400
+Received: from gaia.cela.pl ([213.134.162.11]:54544 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S262529AbTJNQ1U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 12:27:20 -0400
+Date: Tue, 14 Oct 2003 18:27:05 +0200 (CEST)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: jlnance@unity.ncsu.edu
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
+In-Reply-To: <20031014143047.GA6332@ncsu.edu>
+Message-ID: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Kent wrote:
+> Let me concur with the sentiments on this thread.
+> 
+> When I started using Linux, it was on a 40 MHz 386 with 8Megs of ram and
+> a 200 Meg HD.  This was a reasonably typical machine for the time (1993).
+> I ran X on this machine, and it was fine running several Xterms and you
+> could play the X version of Tetris or gnuchess.  I used this machine to
+> write the program I was working on for my Masters degree.
+> 
+> Today, a machine with specs like I quoted above seems hopelessly slow.
+> However, I was able to do useful work on it in 1993, and the same sort
+> of work would still be useful today.  You of course are not going to be
+> able to run mozilla and KDE on it, but lynx, slrn, mutt, and fvwm will
+> work fine.  There are many people who will never be able to afford
+> to buy a computer but could find someone to give them one of these
+> "hopelessy outdated" machines for nothing.  If we can ensure that
+> Linux keeps working on these machines, it will be a good thing.
 
->On Tue, 14 Oct 2003, Joseph V Moss wrote:
->
->  
->
->>The limit is 800 as others have stated.  Although, it can be less than that
->>if something else is already using up some of the reserved UDP ports.
->>
->>I wrote a patch long ago against a 2.2.x kernel to enable it to use
->>multiple majors for NFS mounts (like the patches now common in several
->>distros).  I then ran into the 800 limit in the RPC layer.  After changing
->>the RPC layer to count up from 0, instead of down from 800, with no real
->>upper limit, I was able to mount more than 2000 NFS filesystems simultaneously.
->>I'm sure I could have done many thousand if I had had that many filesystems
->>around to mount.  Obviously, after 1024, it wasn't using reserved ports
->>anymore, but it didn't seem to matter.
->>
->>Unfortunately, while the changes to NFS were easy to port to the 2.4 kernel,
->>the RPC layer is different enough between 2.2 and 2.4 that it didn't work
->>right off.  Bumping it up to somewhere around 1024 should work, but using
->>non-reserved ports didn't seem to work when I made a simple attempt.
->>
->>Of course, the real fix for the NFS layer is the expansion of the minor
->>numbers that's already occurred in 2.6 and the RPC layer problems should
->>be fixed by multiplexing multiple mounts on the same port.
->>
->>
->>    
->>
->
->I don't see that expansion in 2.6 (test6). It looks to me like the 
->allocation is done in set_anon_super (in fs/super.c) and that looks like 
->it is restricted to 256. Please correct this for me. I can't see how there 
->is any change to the number of unnmaed devices.
->
->  
->
+On one hand I agree with you - OTOH: why not run an older version of the
+kernel? Are kernel versions 2.2 or even 2.0 really not sufficient for such
+a situation?  It should be noted that newer kernels are adding a whole lot
+of drivers which aren't much use with old hardware anyway and only a
+little actual non-driver related stuff (sure it's an oversimplification,
+but...).  Just like you don't expect to run the latest
+games/X/mozilla/kde/gnome on old hardware perhaps you shouldn't run the
+latest kernel... perhaps you should...
 
-Here is the quick fix for this in RH 2.1AS kernels:
+Sure I would really like to be able to compile a 2.6 for my 
+firewall (486DX33+40MB-2MB badram) - but is this the way to go?
 
-http://www.kernelnewbies.org/kernels/rh21as/SOURCES/linux-2.4.9-moreunnamed.patch
+As for making the kernel smaller - perhaps a solution would be to code all 
+strings as error codes and return ERROR#42345 or something instead of the 
+full messages - there seem to be quite a lot of them.  I don't mean to 
+suggest this solution for all compilations but perhaps a switch to remove 
+strings and replace them with ints and then a seperately generated file of 
+errnum->string. I'd expect that between 10-15% of the uncompressed kernel 
+is currently pure text.
 
-It makes unnamed block devices use majors 12, 14, 38, 39, as well as 0. 
+Perhaps int->string conversion could be done by a loadable module or a 
+userspace program?
 
-I don't know if anyone is working out a better scheme for 
-get_unnamed_dev in 2.6 yet.  It does need to be done though.  A simple 
-patch for 2.6 would maybe see the unnamed_dev_in_use bitmap grow to 
-PAGE_SIZE, automatically allowing for 32768 unnamed devices.
+Just my 3c and some ideas.
 
-Mike Waychison
+Of course part of the problem is that by designing the kernel for high mem 
+situations we're using more memory hogging algorithms.  It's a simple 
+matter of features vs mem footprint.
+
+I'm not convinced either way - and I'm just posting this 
+as a voice in this discussion...
+
+Cheers,
+MaZe.
 

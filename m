@@ -1,73 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCaDtQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbVCaDu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVCaDtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 22:49:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVCaDtP
+	id S261935AbVCaDu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 22:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVCaDuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 22:49:15 -0500
-Received: from pat.uio.no ([129.240.130.16]:16058 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261934AbVCaDs5 (ORCPT
+	Wed, 30 Mar 2005 22:50:55 -0500
+Received: from graphe.net ([209.204.138.32]:5138 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261935AbVCaDuf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 22:48:57 -0500
-Subject: Re: NFS client latencies
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <1112237239.26732.8.camel@mindpipe>
-References: <1112137487.5386.33.camel@mindpipe>
-	 <1112138283.11346.2.camel@lade.trondhjem.org>
-	 <1112192778.17365.2.camel@mindpipe>
-	 <1112194256.10634.35.camel@lade.trondhjem.org>
-	 <20050330115640.0bc38d01.akpm@osdl.org>
-	 <1112217299.10771.3.camel@lade.trondhjem.org>
-	 <1112236017.26732.4.camel@mindpipe> <20050330183957.2468dc21.akpm@osdl.org>
-	 <1112237239.26732.8.camel@mindpipe>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 22:48:38 -0500
-Message-Id: <1112240918.10975.4.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.634, required 12,
-	autolearn=disabled, AWL 1.32, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 30 Mar 2005 22:50:35 -0500
+Date: Wed, 30 Mar 2005 19:50:22 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: Matthew Wilcox <matthew@wil.cx>
+cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, shai@scalex86.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] Pageset Localization V2
+In-Reply-To: <20050330134049.GA21986@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0503301947450.26235@server.graphe.net>
+References: <Pine.LNX.4.58.0503292147200.32571@server.graphe.net>
+ <20050330134049.GA21986@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 30.03.2005 Klokka 21:47 (-0500) skreiv Lee Revell:
-> On Wed, 2005-03-30 at 18:39 -0800, Andrew Morton wrote:
-> > Lee Revell <rlrevell@joe-job.com> wrote:
-> > >
-> > > > Yes. Together with the radix tree-based sorting of dirty requests,
-> > >  > that's pretty much what I've spent most of today doing. Lee, could you
-> > >  > see how the attached combined patch changes your latency numbers?
-> > >  > 
-> > > 
-> > >  Different code path, and the latency is worse.  See the attached ~7ms
-> > >  trace.
-> > 
-> > Is a bunch of gobbledygook.  Hows about you interpret it for us?
-> > 
-> 
-> Sorry.  When I summarized them before, Ingo just asked for the full
-> verbose trace.
-> 
-> The 7 ms are spent in this loop:
-> 
->  radix_tree_tag_clear+0xe/0xd0 <c01e040e> (nfs_scan_lock_dirty+0xb2/0xf0 <c01c3a22>)
->  nfs_set_page_writeback_locked+0xe/0x60 <c01c357e> (nfs_scan_lock_dirty+0x8d/0xf0 <c01c39fd>)
->  radix_tree_tag_set+0xe/0xa0 <c01e036e> (nfs_set_page_writeback_locked+0x4b/0x60 <c01c35bb>)
->  radix_tree_tag_clear+0xe/0xd0 <c01e040e> (nfs_scan_lock_dirty+0xb2/0xf0 <c01c3a22>)
+Patch to fix the issues mentioned so far. The MAKE_LIST macro would also
+not be good to some things that I have planned so lets drop it.
 
+Index: linux-2.6.11/mm/page_alloc.c
+===================================================================
+--- linux-2.6.11.orig/mm/page_alloc.c	2005-03-30 19:45:23.000000000 -0800
++++ linux-2.6.11/mm/page_alloc.c	2005-03-30 19:46:23.000000000 -0800
+@@ -1613,15 +1613,6 @@ void zone_init_free_lists(struct pglist_
+ 	memmap_init_zone((size), (nid), (zone), (start_pfn))
+ #endif
 
-Which is basically confirming what the guys from Bull already told me,
-namely that the radix tree tag stuff is much less efficient that what
-we've got now. I never saw their patches, though, so I was curious to
-try it for myself.
+-#define MAKE_LIST(list, nlist)  \
+-	do {    \
+-		if(list_empty(&list))      \
+-			INIT_LIST_HEAD(nlist);          \
+-		else {  nlist->next->prev = nlist;      \
+-			nlist->prev->next = nlist;      \
+-		}                                       \
+-	}while(0)
+-
+ /*
+  * Dynamicaly allocate memory for the
+  * per cpu pageset array in struct zone.
+@@ -1629,6 +1620,7 @@ void zone_init_free_lists(struct pglist_
+ static inline int __devinit process_zones(int cpu)
+ {
+ 	struct zone *zone, *dzone;
++	int i;
 
-Cheers,
-  Trond
+ 	for_each_zone(zone) {
+ 		struct per_cpu_pageset *npageset = NULL;
+@@ -1642,9 +1634,17 @@ static inline int __devinit process_zone
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+ 		if(zone->pageset[cpu]) {
+ 			memcpy(npageset, zone->pageset[cpu], sizeof(struct per_cpu_pageset));
+-			MAKE_LIST(zone->pageset[cpu]->pcp[0].list, (&npageset->pcp[0].list));
+-			MAKE_LIST(zone->pageset[cpu]->pcp[1].list, (&npageset->pcp[1].list));
+-		}
++
++			/* Fix up the list pointers */
++			for(i = 0; i<2; i++) {
++				if (list_empty(&zone->pageset[cpu]->pcp[i].list))
++					INIT_LIST_HEAD(&npageset->pcp[i].list);
++				else {
++					npageset->pcp[i].list.next->prev = &npageset->pcp[i].list;
++					npageset->pcp[i].list.prev->next = &npageset->pcp[i].list;
++				}
++			}
++ 		}
+ 		else {
+ 			struct per_cpu_pages *pcp;
+ 			unsigned long batch;
+@@ -1721,11 +1721,14 @@ struct notifier_block pageset_notifier =
+
+ void __init setup_per_cpu_pageset()
+ {
+-	/*Iintialize per_cpu_pageset for cpu 0.
+-	  A cpuup callback will do this for every cpu
+-	  as it comes online
++	int err;
++
++	/* Initialize per_cpu_pageset for cpu 0.
++	 * A cpuup callback will do this for every cpu
++	 * as it comes online
+ 	 */
+-	BUG_ON(process_zones(smp_processor_id()));
++	err = process_zones(smp_processor_id());
++	BUG_ON(err);
+ 	register_cpu_notifier(&pageset_notifier);
+ }
 

@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVAMVDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVANAcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbVAMVDD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 16:03:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVAMU6z
+	id S261438AbVANAcW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 19:32:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVANAah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 15:58:55 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:37892 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261688AbVAMU5s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 15:57:48 -0500
-Subject: Re: thoughts on kernel security issues
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: grendel@caudium.net, Chris Wright <chrisw@osdl.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linus Torvalds <torvalds@osdl.org>, Greg KH <greg@kroah.com>,
-       akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1105645267.4644.112.camel@localhost.localdomain>
-References: <20050112094807.K24171@build.pdx.osdl.net>
-	 <Pine.LNX.4.58.0501121002200.2310@ppc970.osdl.org>
-	 <20050112185133.GA10687@kroah.com>
-	 <Pine.LNX.4.58.0501121058120.2310@ppc970.osdl.org>
-	 <20050112161227.GF32024@logos.cnet>
-	 <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org>
-	 <20050112174203.GA691@logos.cnet>
-	 <1105627541.4624.24.camel@localhost.localdomain>
-	 <20050113194246.GC24970@beowulf.thanes.org>
-	 <20050113115004.Z24171@build.pdx.osdl.net>
-	 <20050113202905.GD24970@beowulf.thanes.org>
-	 <1105645267.4644.112.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 21:57:17 +0100
-Message-Id: <1105649837.6031.54.camel@laptopd505.fenrus.org>
+	Thu, 13 Jan 2005 19:30:37 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:23991 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261755AbVANAUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 19:20:34 -0500
+Date: Thu, 13 Jan 2005 16:17:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: add Ever UPS vendor/product id to ftdi_sio driver
+Message-ID: <20050114001710.GA3824@kroah.com>
+References: <200501132014.34558.arekm@pld-linux.org> <200501132030.33996.arekm@pld-linux.org> <20050113193403.GA29645@kroah.com> <200501132049.29969.arekm@pld-linux.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501132049.29969.arekm@pld-linux.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-13 at 19:41 +0000, Alan Cox wrote:
+On Thu, Jan 13, 2005 at 08:49:29PM +0100, Arkadiusz Miskiewicz wrote:
+> On Thursday 13 of January 2005 20:34, Greg KH wrote:
+> 
+> > But you lost the description of the patch and the Signed-off-by: line :(
+> > Third time's a charm.
+> Copy from first mail?
+> 
+> Ok, here it goes once again with description everywhere.
+> 
+> This patch allows to use ftdi_sio driver with Ever ECO Pro CDS UPS.
+> Patch was tested on pre-2.6.10 kernel.
+> 
+> Signed-Off: Arkadiusz Miskiewicz <arekm@pld-linux.org>
 
-> So the non-disclosure argument is perhaps put as "equality of access at
-> the point of discovery means everyone gets rooted.". And if you want a
-> lot more detail on this read papers on the models of security economics
-> - its a well studied field.
+Next time can you create the patch so I can apply it with -p1 on the
+patch command line.  I fixed up this one already.
 
-or in other words: you can write an exploit faster than y ou can write
-the fix, so the thing needs delaying until a fix is available to make it
-more equal.
+Applied, thanks.
 
-
+greg k-h

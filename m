@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272125AbTHDSuw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272126AbTHDSuw
+	id S272134AbTHDSwB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTHDSwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:50:52 -0400
-Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:14981 "EHLO
-	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S272125AbTHDSue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:50:34 -0400
-From: jlnance@unity.ncsu.edu
-Date: Mon, 4 Aug 2003 14:50:33 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-ID: <20030804185033.GA19998@ncsu.edu>
-References: <20030804141548.5060b9db.skraw@ithnet.com> <20030804134415.GA4454@win.tue.nl> <20030804155604.2cdb96e7.skraw@ithnet.com> <03080409334500.03650@tabby> <20030804170506.11426617.skraw@ithnet.com>
+	Mon, 4 Aug 2003 14:52:00 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:8196 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272130AbTHDSvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:51:47 -0400
+Subject: Re: [PATCH] O13int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: kernel@kolivas.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030728114041.2c8ce156.akpm@osdl.org>
+References: <200307280112.16043.kernel@kolivas.org>
+	 <200307281808.h6SI8C5k004439@turing-police.cc.vt.edu>
+	 <20030728114041.2c8ce156.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1060023104.889.7.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030804170506.11426617.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 04 Aug 2003 20:51:45 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 05:05:06PM +0200, Stephan von Krawczynski wrote:
+Bad news, I guess...
 
-> tar --dereference loops on symlinks _today_, to name an example.
-> All you have to do is to provide a way to find out if a directory is a
-> hardlink, nothing more. And that should be easy.
+I'm experiencing XMMS skips with 2.6.0-test2-mm4 + O13int patch. They
+are easily reproducible when browsing through the menus of
+KDE/Konqueror.
 
-Actually I think that is the crux of the problem.  If I do:
+My KDE session is configured with the Keramik style, using XRender
+transparencies and drop-down shadows for the menus. When browsing the
+"Bookmarks" Konqueror drop-down menu, XMMS pauses audio playback very
+briedly. The skip starts at the moment at which I click the "Bookmarks"
+menu and lasts until the menu is displayed completely on the screen. My
+Konqueror "Bookmarks" menu is really big, occupying almost the entire
+screen height (over 700 pixels).
 
-    touch a
-    ln a b
+The XMMS skips can also be reproduced while navigating through web pages
+that require a lot of CPU horsepower, like for example,
+http://www.3dwallpapers.com. When browsing through the nice wallpapers
+at the site, Konqueror hogs the CPU and XMMS starts skipping.
 
-then a and b are both links to the same file.  It is not like a is the
-real file and b is a link to it.  The situation is indistinguishable
-from:
+Both scenarios can be reproduced with either XMMS or MPlayer, so I guess
+is not an isolated problem with an specific player. Also, the XMMS skips
+are not reproducible with previous releases of your scheduler patches.
 
-    touch b
-    ln b a
+Hope this helps!
 
-When you say that you want hardlinks to work on directories I believe
-people are making the assumption that you want this to hold true for
-directories as well.  The difference between hardlinking directories
-and using symlinks or mount --bind is that there IS a difference between
-a directory and a link to the directory.
-
-Thanks,
-
-Jim

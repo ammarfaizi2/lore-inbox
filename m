@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbVARI0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVARIa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261181AbVARI0R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 03:26:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVARI0R
+	id S261180AbVARIa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 03:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVARIa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 03:26:17 -0500
-Received: from one.firstfloor.org ([213.235.205.2]:59080 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261181AbVARI0Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 03:26:16 -0500
-To: vlobanov <vlobanov@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Typo in arch/x86_64/Kconfig
-References: <Pine.LNX.4.58.0501172358520.5537@shell3.speakeasy.net>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 18 Jan 2005 09:26:15 +0100
-In-Reply-To: <Pine.LNX.4.58.0501172358520.5537@shell3.speakeasy.net> (vlobanov@speakeasy.net's
- message of "Tue, 18 Jan 2005 00:01:23 -0800 (PST)")
-Message-ID: <m1ekgj3zyw.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Tue, 18 Jan 2005 03:30:57 -0500
+Received: from web60601.mail.yahoo.com ([216.109.118.221]:18771 "HELO
+	web60601.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261180AbVARIax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 03:30:53 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=3VD75ZBwa5Kf8JYGValRlDvqbIn+DG0WsSgN0X/HlbE/+aosh/gSENrd+tYLR7o4xapydPCbRvwOmtHIP42YTOBFLLPblNfvZ3v8JApfJB2DVyrGgVPvEf1Sjem9AybRPki6wZvVi19MXH1IHLPy2PZta9Alza5kVdcXW+HRL9E=  ;
+Message-ID: <20050118083052.79885.qmail@web60601.mail.yahoo.com>
+Date: Tue, 18 Jan 2005 00:30:52 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: 2.4 scheduler with O(1) scheduler
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vlobanov <vlobanov@speakeasy.net> writes:
+Hello linux-experts,
+   From which kernel series onwards O(1) scheduler was
+incorporated into linux? I want a 2.4.x kernel with
+O(1) scheduler. But I downloaded 2.4.28 scheduler from
+kernel.org. It was the latest one in the list in the
+2.4.x series. But it misses O(1) scheduler. Where can
+I get a 2.4.x kernel with O(1) scheduler?
+    I am intercepting syscalls in 2.4 kernel. But it
+misses O(1) scheduler. so, for intercepting syscalls
+and to achieve high performance I need 2.4 kernel with
+O(1) scheduler.
 
-> diff -Nru a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-> --- a/arch/x86_64/Kconfig	2005-01-12 00:13:13.000000000 -0800
-> +++ b/arch/x86_64/Kconfig	2005-01-17 23:57:22.000000000 -0800
-> @@ -59,7 +59,7 @@
->  	  This is useful for kernel debugging when your machine crashes very
->  	  early before the console code is initialized. For normal operation
->  	  it is not recommended because it looks ugly and doesn't cooperate
-> -	  with klogd/syslogd or the X server. You should normally N here,
-> +	  with klogd/syslogd or the X server. You should normally say N here,
->  	  unless you want to debug such a crash.
+Thanks,
+selva
 
-The help text is useless anyways because the option is not user selectable,
-but always enabled. I just removed it completely. Thanks
 
--Andi
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - 250MB free storage. Do more. Manage less. 
+http://info.mail.yahoo.com/mail_250

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSHXOsE>; Sat, 24 Aug 2002 10:48:04 -0400
+	id <S316446AbSHXO6x>; Sat, 24 Aug 2002 10:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316434AbSHXOsE>; Sat, 24 Aug 2002 10:48:04 -0400
-Received: from dsl-213-023-021-235.arcor-ip.net ([213.23.21.235]:4010 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316430AbSHXOsD>;
-	Sat, 24 Aug 2002 10:48:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: conman@kolivas.net, linux-kernel@vger.kernel.org
-Subject: Re: VM changes added to performance patches for 2.4.19
-Date: Sat, 24 Aug 2002 16:54:35 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <1030170794.3d6728aa24046@kolivas.net> <E17ibVa-0001Xf-00@starship> <1030199809.3d679a012042b@kolivas.net>
-In-Reply-To: <1030199809.3d679a012042b@kolivas.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17icJA-0001Y5-00@starship>
+	id <S316465AbSHXO6x>; Sat, 24 Aug 2002 10:58:53 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:7 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S316446AbSHXO6w>;
+	Sat, 24 Aug 2002 10:58:52 -0400
+Date: Sat, 24 Aug 2002 17:12:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Larry McVoy <lm@work.bitmover.com>
+Cc: linux-kernel@vger.kernel.org, bitkeeper-announce@work.bitmover.com
+Subject: BKWeb Feature request [Was: BK license change]
+Message-ID: <20020824171245.C1889@mars.ravnborg.org>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, bitkeeper-announce@work.bitmover.com
+References: <200208240039.g7O0dZf12300@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208240039.g7O0dZf12300@work.bitmover.com>; from lm@work.bitmover.com on Fri, Aug 23, 2002 at 05:39:35PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 August 2002 16:36, conman@kolivas.net wrote:
-> Quoting Daniel Phillips <phillips@arcor.de>:
-> > Would you be so kind as to attempt to quantify that?
-> 
-> Ummm... I'm not sure if you're making fun or me? I haven't done any objective
-> tests so I can't quantify it ??
+Hi Larry.
 
-Not at all.  We need to quantify such results as yours, if we can.
+Speaking about Bitkeeper, I have a feature request.
+The view of changesets on bkbits is usefull, but the sorting does not
+give the full picture.
 
-> I just found the responsiveness of the machine a little better and don't have
-> the resources, time or inclination to test it with a benchmark.
+Follow this example:
+bk pull http://linux.bkbits.net/linux-2.5
+- Do some editing
+- Check in changes
+- Test the changes a few days
+- Submit the cset(s) to Linus
+Linus do a bk pull from my repository
 
-Fair enough.
+When accessing bkbits via the web interface, the canges are listed
+sorted after the time I did the modifications, not when Linus actually 
+did the bk pull, so they may be preceeded by maybe 100 cset's.
 
-> It's my
-> understanding that the -aa patch performed better on benchmarks, but that some
-> people reported the responsiveness was better with -rmap anyway. I'd agree with
-> the latter statement. I offer both patches with mine so if people want to try my
-> patch and feel strongly either way they can choose. My aim is to optimise system
-> response for single cpu desktops, not multi cpu servers.
+Is it possible somehow to sort the cset(s) according to the time they were
+applied to the local tree, and not when they were originally committed?
 
--- 
-Daniel
+	Sam

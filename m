@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275186AbSKEDQq>; Mon, 4 Nov 2002 22:16:46 -0500
+	id <S275230AbSKEDRT>; Mon, 4 Nov 2002 22:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275191AbSKEDQq>; Mon, 4 Nov 2002 22:16:46 -0500
-Received: from dp.samba.org ([66.70.73.150]:2756 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S275186AbSKEDQo>;
-	Mon, 4 Nov 2002 22:16:44 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275238AbSKEDRS>; Mon, 4 Nov 2002 22:17:18 -0500
+Received: from 205-158-62-90.outblaze.com ([205.158.62.90]:31453 "HELO
+	ws3-6.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S275230AbSKEDRP>; Mon, 4 Nov 2002 22:17:15 -0500
+Message-ID: <20021105032347.11253.qmail@email.com>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
-Message-ID: <15815.14470.953780.411641@gargle.gargle.HOWL>
-Date: Tue, 5 Nov 2002 14:18:30 +1100
-From: Christopher Yeoh <cyeoh@samba.org>
-To: Dan Kegel <dkegel@ixiacom.com>
-Cc: Geoff Gustafson <geoff@linux.co.intel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       sglass@us.ibm.com, cyeoh@au1.ibm.com
-Subject: Re: [ANNOUNCE] Open POSIX Test Suite
-In-Reply-To: <3DC70FC3.6030707@ixiacom.com>
-References: <3DC702E1.1050306@ixiacom.com>
-	<00fd01c2845e$eb407ee0$7fd40a0a@amr.corp.intel.com>
-	<3DC70FC3.6030707@ixiacom.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Clayton Weaver" <cgweav@email.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 04 Nov 2002 22:23:43 -0500
+Subject: Re: LKCD ("It's the disk, pinheads.")
+X-Originating-Ip: 172.191.250.30
+X-Originating-Server: ws3-6.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2002/11/4 16:24-0800  Dan Kegel writes:
-> 
-> Anyone know what the relationship between the LTP and LSB Posix
-> compliance tests are?
+Unless the server is purely a router or bridge, where
+"the money" lives entirely in ram and the only thing
+on the disk is the boot image and associated infrastructure,
+"the money" (database, work in progress, whatever)lives
+on your hard drives.
 
-The emphasis on what the test suites are trying to achieve does differ
-- eg the LSB doesn't have endurance type tests and concentrates more
-on writing tests which can be used for certification purposes. And of
-course the LSB test suites only cover the areas that the LSB spec
-requires.
+Linus is just telling you that trying to write to one
+of dozens of possible hd driver interfaces from
+a kernel that has just paniced is gambling with
+"the money", and he isn't willing to merge (and
+would not himself use) a patch that takes that risk.
 
-> Were they both originally derived from the OpenGroup Posix compliance tests?
+Like he says, the situation is different on systems
+that only have drivers for a tiny number of different
+disk interfaces, and objecting to his attitude while
+ignoring this issue is arguing in bad faith.
 
-I don't think the LTP were tests derived from the OpenGroup (though
-I'm not that familiar with them).
+If you want to dump to the network or to a serial
+port, that's different. How many different serial
+port drivers are there?
 
-Chris
+The robust solution is to hook that serial port up
+to a cheap little box sleeping on a serial port
+interrupt whose only job is to react to that interrupt
+and capture the crash dump to its own local disk,
+which isn't being managed by a kernel that just
+paniced. (If you want to give it a send-only network
+interface to the outside world for rapid notification,
+that's up to you. You could put ssh on it too, but the
+more you add, the less robust a solution it is to its
+real job, which is providing a stable interface to a
+disk for crash dumps.)
+
+Regards,
+Clayton Weaver
+<mailto: cgweav@email.com>
+
+PS: This is my first message from email.com. Let me
+know if it shows up in html or has any other
+obnoxious features characteristic of clueless
+email clients.
+
+
+
+
 -- 
-cyeoh@au.ibm.com
-IBM OzLabs Linux Development Group
-Canberra, Australia
+_______________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
+
+Single & ready to mingle? lavalife.com:  Where singles click. Free to Search!
+http://www.lavalife.com/mailcom.epl?a=2116
+

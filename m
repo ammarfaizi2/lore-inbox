@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTFISW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 14:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTFISW3
+	id S262811AbTFISZh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 14:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263918AbTFISZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 14:22:29 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:54792 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264231AbTFISW2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 14:22:28 -0400
-Subject: Re: 2.5.70-mm6
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-	 <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-Content-Type: text/plain
-Message-Id: <1055183764.584.1.camel@teapot.felipe-alfaro.com>
+	Mon, 9 Jun 2003 14:25:37 -0400
+Received: from evil.netppl.fi ([195.242.209.201]:17873 "EHLO evil.netppl.fi")
+	by vger.kernel.org with ESMTP id S262811AbTFISZg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 14:25:36 -0400
+Date: Mon, 9 Jun 2003 21:39:06 +0300
+From: Pekka Pietikainen <pp@netppl.fi>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>
+Cc: Jurgen Kramer <gtm.kramer@inter.nl.net>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Completely disable AT/PS2 keyboard support in 2.4?
+Message-ID: <20030609183906.GA32734@netppl.fi>
+References: <Pine.GSO.4.21.0306091529480.1347-100000@vervain.sonytel.be> <1055169922.4052.3.camel@paragon.slim> <3EE4A14C.3000109@inet6.fr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 09 Jun 2003 20:36:05 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <3EE4A14C.3000109@inet6.fr>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-09 at 19:45, Maciej Soltysiak wrote:
-> > . -mm kernels will be running at HZ=100 for a while.  This is because
-> >   the anticipatory scheduler's behaviour may be altered by the lower
-> >   resolution.  Some architectures continue to use 100Hz and we need the
-> >   testing coverage which x86 provides.
-> The interactivity seems to have dropped. Again, with common desktop
-> applications: xmms playing with ALSA, when choosing navigating through
-> evolution options or browsing with opera, music skipps.
-> X is running with nice -10, but with mm5 it ran smoothly.
+On Mon, Jun 09, 2003 at 05:01:32PM +0200, Lionel Bouton wrote:
+> Jurgen Kramer wrote:
+> On my config (Logitech wireless mouse and kb with USB receiver) :
+> - 272 keycode happens on each left click,
+> - 273 or 276 on each right click (actual button pressed dependant there 
+> are 2 buttons recognised as the right one on my Optical Trackman),
+> - 275 on each middle click,
+> - 274 on each wheel click...
 
-Sadly, I must agree with you... Sound with XMMS and Mplayer is chunky
-when switching between virtual desktops, or even dragging windows. Is
-this caused by latest scheduler patches, or has something to with
-HZ=100?
+Same here... Here's a patch that fixed it (something similar was added
+to 2.5 recently)
+
+--- linux-2.4.20-20.1.2007.nptl/drivers/input/keybdev.c.orig	2003-05-31 14:23:10.000000000 +0300
++++ linux-2.4.20-20.1.2007.nptl/drivers/input/keybdev.c	2003-05-31 14:23:58.000000000 +0300
+@@ -172,7 +172,8 @@
+ 	if (type != EV_KEY) return;
+ 
+ 	if (emulate_raw(code, down))
+-		printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", code);
++		if(code < BTN_MISC)
++			printk(KERN_WARNING "keybdev.c: can't emulate rawmode for keycode %d\n", code);
+ 
+ 	tasklet_schedule(&keyboard_tasklet);
+ }
+
+-- 
+Pekka Pietikainen
+
+
+
 

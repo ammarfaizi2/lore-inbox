@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266864AbRHBRMv>; Thu, 2 Aug 2001 13:12:51 -0400
+	id <S267221AbRHBRUb>; Thu, 2 Aug 2001 13:20:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266921AbRHBRMm>; Thu, 2 Aug 2001 13:12:42 -0400
-Received: from ns3.keyaccesstech.com ([209.47.245.85]:27916 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S266864AbRHBRMZ>; Thu, 2 Aug 2001 13:12:25 -0400
-Date: Thu, 2 Aug 2001 13:12:34 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: university studies?
-In-Reply-To: <3B693B46.585CC416@bilten.metu.edu.tr>
-Message-ID: <Pine.LNX.4.33.0108021259080.31892-100000@terbidium.openservices.net>
+	id <S267124AbRHBRUV>; Thu, 2 Aug 2001 13:20:21 -0400
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:2275 "EHLO e24.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266941AbRHBRUH>;
+	Thu, 2 Aug 2001 13:20:07 -0400
+Date: Thu, 2 Aug 2001 10:17:11 -0700 (PDT)
+From: Sridhar Samudrala <samudrala@us.ibm.com>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+cc: thiemo@sics.se, dmfreim@us.ibm.com, hadi@cybeus.ca,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        diffserv-general@lists.sourceforge.net, rusty@rustcorp.com.au
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+In-Reply-To: <200107312322.DAA00541@mops.inr.ac.ru>
+Message-ID: <Pine.LNX.4.21.0108020956320.25553-100000@w-sridhar2.des.sequent.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Aug 2001, Muzaffer Ozakca wrote:
+On Wed, 1 Aug 2001, Alexey Kuznetsov wrote:
 
->
-> I don't think, one should learn all the "hot" languages of the day to
-> become a good programmer. A computer science student should (and will)
-> learn the theoretical background that lays beneath. Data structures,
-> graph theory, computational linguistics, compiler theory, OS, AI, so on.
-> Practical studies such as programming projects will let the students
-> solid the theory. These thoughts are not actually mine, most of the
-> computer science departments -more or less- follow a cirriculum
-> appreciating these ideas, I think. However, a kernel (or systems)
-> programmer should also know basics of microprocessors, interrupts, etc.
-> and programming in assembly, besides the theory given in a university.
->
-> After getting the theory and completing the understanding by practice,
-> learning a programming language is just a detail. Always solving
-> problems "C" style, may not be the best approach, a functional language
-> may better suit the needs -usually not in our course.
->
-> As far I could see, kernel programming (talking about the whole)
-> requires the use of computer science, heavily.
+> > Do you think that the existing PAQ patch with SYN policing is a reasonable
+> > way for prioritizing incoming connection requests?
+> 
+> I still did not look at this patch, I have just got some url from netdev.
+> (that blamed by Jamal. :-) Guys, tell your managers they should reserve
+> a bit of money for admins to replace bogus firewalls. ibm site is really
+> not accessible, it is not a joke. :-)). I will look at it tonight.
 
-I absolutely agree that learning programming languages isn't enough. However,
-just learning algorithms and structures and doing programming projects isn't
-enough either.
+We have escalated the ECN issue and we are expecting this to be fixed by 
+sometime next week. IBM is a big distributed company and sometimes it takes a
+long time to get things done, even simple things like this.
+I am looking forward to your feedback on the patch. 
+The URL is http://oss.software.ibm.com/qos
 
-AFAIK, around where I am institutes of higher learning don't usually have a
-great track record for exposing students to a wide variety of languages.
-Usually it's Pascal and/or C/C++, with some Java mixed in. While they are
-"nice" languages, there's a lot more to other languages than can be learned
-from those four.
+> > Preempting existing low priority connections in acceptq with high priority 
+> > ones may not be good idea as we need to abort them by sending a RST.
+> 
+> Of course. It is _very_ bad idea. :-)
+> 
+> Actually, true preemption can be relaized here with moving socket
+> back to SYN-RECV state, converting it to open_request. We just pretend
+> that we did not receive ACK, it is fully legal. 
 
-And having the theoretical background doesn't actually help you program. To
-illustrate, here's a snippet of code similar to something I saw on a monitor
-where I went:
+This looks like an elegant way of prioritizing without penalizing low priority
+connections in the absence of high priority ones.
+There may be an issue with sockets in accept queue which have received data.
+Is it OK to move a socket which has already received some data back to SYN-RECV 
+state and expect the data to be resent?
 
-typedef class {
-  ...
-} C;
-
-main()
-{
-  C c;
-
-  c.C();
-    ...
-};
-
-While the student knew that objects have a constructor, he never realized
-(was never taught?) that constructors are called implicitly.
-
-Also, I did mention FP; I mentioned Lisp and XSLT as examples of FP languages.
-And Python can be used in both structed and FP ways.
-
-And yes, a course or two in digital electronics and microprocessors never
-hurts either.
-
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+Thanks
+-Sridhar
 

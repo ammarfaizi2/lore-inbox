@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317201AbSFFWcp>; Thu, 6 Jun 2002 18:32:45 -0400
+	id <S290289AbSFFWrC>; Thu, 6 Jun 2002 18:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317205AbSFFWco>; Thu, 6 Jun 2002 18:32:44 -0400
-Received: from ivimey.org ([194.106.52.201]:26466 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S317201AbSFFWco>;
-	Thu, 6 Jun 2002 18:32:44 -0400
-Date: Thu, 6 Jun 2002 23:32:33 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: Pavel Machek <pavel@ucw.cz>
-cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] remove suser()
-In-Reply-To: <20020606214840.GA1190@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0206062330480.16968-100000@sharra.ivimey.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293203AbSFFWrC>; Thu, 6 Jun 2002 18:47:02 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:5360 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S290289AbSFFWrB>; Thu, 6 Jun 2002 18:47:01 -0400
+Date: Thu, 6 Jun 2002 18:47:02 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: ET Sales <sales@etinc.com>
+Cc: nick@snowman.net, linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Loosing packets with Dlink DFE-580TX and SMC 9462TX
+Message-ID: <20020606184702.E12341@redhat.com>
+In-Reply-To: <vewutgw4n1.fsf@inigo.ingate.se> <Pine.LNX.4.21.0206031956150.8643-100000@ns> <5.1.0.14.0.20020606091713.021f0730@mail.etinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Jun 2002, Pavel Machek wrote:
+On Thu, Jun 06, 2002 at 09:21:50AM -0400, ET Sales wrote:
+> At 07:56 PM 6/3/02 -0400, you wrote:
+> 
+> Uh..aren't those 32-bit cards? There isn't enough bus bandwidth on a 32bit 
+> PCI bus to do gigabit, so its more likely that the cards are overrunning 
+> their buffers....
 
->> diff -urN linux-2.5.20/include/linux/compatmac.h linux/include/linux/compatmac.h
->> --- linux-2.5.20/include/linux/compatmac.h	Sun Jun  2 18:44:41 2002
->> +++ linux/include/linux/compatmac.h	Tue Jun  4 13:57:33 2002
->> @@ -102,8 +102,6 @@
->>  
->>  #define my_iounmap(x, b)             (((long)x<0x100000)?0:vfree ((void*)x))
->>  
->> -#define capable(x)                   suser()
->> -
->>  #define tty_flip_buffer_push(tty)    queue_task(&tty->flip.tqueue, &tq_timer)
->
->This is not right I believe. You want to keep compatibility for older
->kernels.
->
->									Pavel
+32 bit cards are okay for most applications that don't use all bandwidth 
+in both directions.  Also, if overruns occur, recent versions of ns83820.c 
+do update the error counts in /proc/net/dev.
 
-Why? The file being changed is in a particular kernel, not in, say, glibc; to 
-require compatibilty btw. a file in kernel X and another in kernel Y seems 
-stupid... but perhaps I misunderstand.
-
-Ruth
-
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
-
+		-ben

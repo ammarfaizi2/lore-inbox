@@ -1,123 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbUFRUoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263656AbUFRUsk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbUFRUoU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 16:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUFRUli
+	id S263656AbUFRUsk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 16:48:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbUFRUsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:41:38 -0400
-Received: from damned.travellingkiwi.com ([81.6.239.220]:58414 "EHLO
-	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
-	id S261763AbUFRUZA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:25:00 -0400
-Message-ID: <40D34F90.1060907@travellingkiwi.com>
-Date: Fri, 18 Jun 2004 21:24:48 +0100
-From: Hamie <hamish@travellingkiwi.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: acpi S3 never wakes up
-References: <20040618154025.15708106@damned.travellingkiwi.com>
-In-Reply-To: <20040618154025.15708106@damned.travellingkiwi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 18 Jun 2004 16:48:10 -0400
+Received: from cantor.suse.de ([195.135.220.2]:50880 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262905AbUFRUpp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 16:45:45 -0400
+Subject: Re: [PATCH RFC] __bd_forget should wait for inodes using the
+	mapping
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20040618132628.45e1d364.akpm@osdl.org>
+References: <1087523668.8002.103.camel@watt.suse.com>
+	 <20040618021043.GV12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087563810.8002.116.camel@watt.suse.com>
+	 <20040618142207.GW12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087570031.8002.153.camel@watt.suse.com>
+	 <20040618151558.GX12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087573303.8002.172.camel@watt.suse.com>
+	 <20040618154330.GY12308@parcelfarce.linux.theplanet.co.uk>
+	 <1087574752.8002.194.camel@watt.suse.com>
+	 <20040618132628.45e1d364.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1087591484.1512.14.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 18 Jun 2004 16:44:45 -0400
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hamie wrote:
+On Fri, 2004-06-18 at 16:26, Andrew Morton wrote:
+> Chris Mason <mason@suse.com> wrote:
+> >
+> > Maybe the real bug is the FS inode should never have ended up in the
+> > dirty list.
+> 
+> It'd be interesting to find out where and why it is being dirtied (atime?),
+> but even if we can prevent that from happening, people can still do things
+> like chmod on it, so we're back in the same situation.
+> 
+> There's tight coupling between writing back the inode and writing back its
+> pages, and at times it has caused problems.  It's not clear _why_ there
+> should be such a coupling but it's never been a sufficient problem to
+> justify ripping it all up.
+> 
+> >  This should all work fine if the bdev inode were the only
+> > one to ever hit a dirty list.
+> 
+> Something like this?
 
->Hi.
->
->I have an IBM r50p that I'd really really really like to have ACPI usable on. The battery works fine, the temp shows fine, the processor speeds up & slows down. All great, until I try to suspend (to RAM or to disk).
->
->Firstly to RAM.
->
->I hit Fn=F4 (Or cat 3 > /proc/acpi/sleep). System says I'm suspending. & goes to sleep. Fine so far. Unlike APM, the Fn key doesn't wake it up any more, so I press the power button. It LOOKS like it's starting up again, fan starts, CD spins, but no display... Doesn't matter whether I'm running X, or from the console. After wakup, nothing seems to work. Fn-F4 will send me to sleep again though... CTRL-ALT-Fx, does nothing...
->
->Now should I get the lock icon again (I lock my machine with a poweron pass BIOS + Disk, NOT supervisor) like on APM? Or not? SHould I come up directly back where I was before? Or something else? Anyone know? I've seen reference to people having success, but I've had nothing but bad luck with ACPi & suspending so far.
->
->Anyone got any ideas? I really really really hate having to boot my laptop 3x a day...
->
->Oh. I've tried all kinds of kernels. Current is 2.6.6 and 2.6.7, both do exactly the same thing.
->
->  
->
+[ skip writing block-special inodes ]
 
-Hi all.
+Hmmm, any risk in missing data integrity syncs because of this?
 
-Some logs from kern.log... It's definately coming back from suspend... 
-Just no video... It even suspends a second time... And wakes... No video 
-still..
+-chris
 
-Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.0: remove, state 1
-Jun 18 15:59:05 ballbreaker kernel: usb usb2: USB disconnect, address 1
-Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.0: USB bus 2 
-deregistered
-Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.1: remove, state 1
-Jun 18 15:59:05 ballbreaker kernel: usb usb3: USB disconnect, address 1
-Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.1: USB bus 3 
-deregistered
-Jun 18 15:59:05 ballbreaker kernel: uhci_hcd 0000:00:1d.2: remove, state 1
-Jun 18 15:59:05 ballbreaker kernel: usb usb4: USB disconnect, address 1
-Jun 18 15:59:06 ballbreaker kernel: uhci_hcd 0000:00:1d.2: USB bus 4 
-deregistered
-Jun 18 15:59:09 ballbreaker kernel: ehci_hcd 0000:00:1d.7: remove, state 1
-Jun 18 15:59:09 ballbreaker kernel: usb usb1: USB disconnect, address 1
-Jun 18 15:59:09 ballbreaker kernel: ehci_hcd 0000:00:1d.7: USB bus 1 
-deregistered
-Jun 18 15:59:33 ballbreaker kernel: PM: Preparing system for suspend
-Jun 18 15:59:33 ballbreaker kernel: Stopping tasks: 
-================================================|
-Jun 18 15:59:33 ballbreaker kernel: PM: Entering state.
-Jun 18 15:59:33 ballbreaker kernel:  hwsleep-0304 [767] 
-acpi_enter_sleep_state: Entering sleep state [S3]
-Jun 18 15:59:33 ballbreaker kernel: Back to C!
-Jun 18 15:59:33 ballbreaker kernel: PM: Finishing up.
-Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.0 to 64
-Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.1 to 64
-Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.2 to 64
-Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.7 to 64
-Jun 18 15:59:33 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1f.5 to 64
-Jun 18 15:59:33 ballbreaker kernel: Restarting tasks... done
-Jun 18 16:00:07 ballbreaker kernel: PM: Preparing system for suspend
-Jun 18 16:00:29 ballbreaker kernel: Stopping tasks: 
-=================================================|
-Jun 18 16:00:29 ballbreaker kernel: PM: Entering state.
-Jun 18 16:00:29 ballbreaker kernel:  hwsleep-0304 [921] 
-acpi_enter_sleep_state: Entering sleep state [S3]
-Jun 18 16:00:29 ballbreaker kernel: Back to C!
-Jun 18 16:00:29 ballbreaker kernel: PM: Finishing up.
-Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.0 to 64
-Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.1 to 64
-Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.2 to 64
-Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1d.7 to 64
-Jun 18 16:00:29 ballbreaker kernel: PCI: Setting latency timer of device 
-0000:00:1f.5 to 64
-Jun 18 16:00:29 ballbreaker kernel: Restarting tasks... done
-
-(Then it's power switch time).
-
-Can anyone give me a hint as to where the kernel should be 
-re-initialising the video?
-
->TIA
->
->Hamish., 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
 

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263387AbTLOIZl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 03:25:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbTLOIZl
+	id S263388AbTLOIxP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 03:53:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTLOIxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 03:25:41 -0500
-Received: from [62.12.131.37] ([62.12.131.37]:25520 "HELO debian")
-	by vger.kernel.org with SMTP id S263387AbTLOIZj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 03:25:39 -0500
-Date: Mon, 15 Dec 2003 09:25:37 +0100
-From: "Zeno R.R. Davatz" <zdavatz@ywesee.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: alsa on gentoo ppc 2.6.0-test11-benh1
-Message-Id: <20031215092537.165b6954.zdavatz@ywesee.com>
-In-Reply-To: <1071475558.12501.413.camel@gaston>
-References: <20031212083609.6db56e5b.zdavatz@ywesee.com>
-	<1071474131.12496.411.camel@gaston>
-	<20031215090427.7071fc29.zdavatz@ywesee.com>
-	<1071475558.12501.413.camel@gaston>
-Organization: ywesee - intellectual capital connected
-X-Mailer: Sylpheed version 0.9.7claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Mon, 15 Dec 2003 03:53:15 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40603 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263388AbTLOIxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 03:53:14 -0500
+Date: Mon, 15 Dec 2003 09:53:12 +0100
+From: Jan Kara <jack@suse.cz>
+To: Bobby Hitt <Robert.Hitt@bscnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Need Quota Support for Reiserfs Partition
+Message-ID: <20031215085312.GD6613@atrey.karlin.mff.cuni.cz>
+References: <01a901c3c2a7$f5d8a9d0$0900a8c0@BOBHITT>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01a901c3c2a7$f5d8a9d0$0900a8c0@BOBHITT>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003 19:05:58 +1100
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+  Hi,
 
-> On Mon, 2003-12-15 at 19:04, Zeno R.R. Davatz wrote:
-> > On Mon, 15 Dec 2003 18:42:12 +1100
-> > Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> > 
-> > > 
-> > > It seems you are trying to load both dmasound_pmac and alsa
-> > > snd-powermac, they are mutually exclusive.
+> I'm using Slackware Linux with kernel version 2.6.0-test11. All of my
+> partitions are Rieserfs. I now have a need to use quotas on a partition, but
+> according to the help screen using "make menuconfig" quotas are only
+> available under the ext2 file systems. Is there a patch to allow quotas
+> under rieserfs? One of my searches said that Reiserfs and quotas were
+> supported under 2.6.0, but when I try and mount the partition with this line
+> in /etc/fstab:
 > 
-> Check what's up if you don't have previously loaded dmasound_pmac
-Ok, I just done emerge -U for 2.6.0_beta11-r2
+> /dev/hde2 /downloads reiserfs defaults,usrquota,grpquota 1 2
+> 
+> I get this error:
+> 
+> mount: wrong fs type, bad option, bad superblock on /dev/hde2,
+>        or too many mounted file systems
+> 
+> 
+> If I take the usrquota,grpquota off, the mount works fine.
+  AFAIK ReiserFS doesn't support quotas in 2.6 kernel. Chris Mason
+<mason@suse.com> maintains needed patches for 2.4 and is working on
+porting them to 2.6 but they are not yet ported.
 
-Lets see how that goes.
-
-Another issue I could remember was when I tried to make the modules for the hcfusbmodem. During /usr/sbin/hcfusbconfig I got an error that told me that modversion.h is missing.
-
-TIA
-Zeno
+									Honza
 
 -- 
-Mit freundlichen Grüssen / best regards
-
-Zeno Davatz
-Verkauf & Akquisition
-
-+41 1 350 85 86
-
-www.ywesee.com > intellectual capital connected > www.oddb.org
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVAKJDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVAKJEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262621AbVAKJDl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 04:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVAKJDl
+	id S262622AbVAKJEe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 04:04:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262631AbVAKJEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 04:03:41 -0500
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:22248 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S262621AbVAKJC5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 04:02:57 -0500
-Date: Tue, 11 Jan 2005 19:43:57 +1100
-To: akpm@osdl.org
-Subject: [PATCH 1/2] ppc64: Fix iseries_veth module unload race and memory leak
-Cc: paulus@au1.ibm.com, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-From: Michael Ellerman <michael@ellerman.id.au>
-Message-Id: <20050111084357.7C3F317DDF@ozlabs.au.ibm.com>
+	Tue, 11 Jan 2005 04:04:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51401 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262622AbVAKJEY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 04:04:24 -0500
+Date: Tue, 11 Jan 2005 10:04:22 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] Badness in cfq_account_completion at drivers/block/cfq-iosched.c:916
+Message-ID: <20050111090421.GG4551@suse.de>
+References: <20050111052355.14035.qmail@web52604.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050111052355.14035.qmail@web52604.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Tue, Jan 11 2005, Srihari Vijayaraghavan wrote:
+> I see zillion of these error messages in vanilla
+> 2.6.10:
+> Jan 11 16:10:13 linux kernel:  [<c0220ee0>]
+> scsi_end_request+0xa9/0xd6
 
-When the iseries_veth driver module is unloaded there is the potential for an
-oops and also some memory leakage.
+[snip]
 
-Because the HvLpEvent_unregisterHandler() function did no synchronisation, it
-was possible for the handler that was being unregistered to be running on another
-CPU *after* HvLpEvent_unregisterHandler() had returned. This could cause the
-iseries_veth driver to leave work in the events work queue after the module
-had been unloaded. When that work was eventually executed we got an oops.
+Does this fix it?
 
-In addition some of the data structures in the iseries_veth driver were not
-being correctly freed when the module was unloaded.
-
-This is the first patch, which makes HvLpEvent_unregisterHandler() work.
-
- arch/ppc64/kernel/HvLpEvent.c         |    8 ++++++++
- include/asm-ppc64/iSeries/HvLpEvent.h |    3 +++
- 2 files changed, 11 insertions(+)
-
-
-Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
-
-diff -urN 2.6.10-ppc64-stock/arch/ppc64/kernel/HvLpEvent.c 2.6.10-ppc64-work/arch/ppc64/kernel/HvLpEvent.c
---- 2.6.10-ppc64-stock/arch/ppc64/kernel/HvLpEvent.c	2004-06-16 17:12:51.000000000 +1000
-+++ 2.6.10-ppc64-work/arch/ppc64/kernel/HvLpEvent.c	2005-01-10 16:13:33.381994263 +1100
-@@ -34,10 +34,18 @@
- int HvLpEvent_unregisterHandler( HvLpEvent_Type eventType )
- {
- 	int rc = 1;
-+
-+	might_sleep();
-+
- 	if ( eventType < HvLpEvent_Type_NumTypes ) {
- 		if ( !lpEventHandlerPaths[eventType] ) {
- 			lpEventHandler[eventType] = NULL;
- 			rc = 0;
-+
-+			/* We now sleep until all other CPUs have scheduled. This ensures that
-+			 * the deletion is seen by all other CPUs, and that the deleted handler
-+			 * isn't still running on another CPU when we return. */
-+			synchronize_kernel();
+===== drivers/block/cfq-iosched.c 1.17 vs edited =====
+--- 1.17/drivers/block/cfq-iosched.c	2004-12-24 09:12:58 +01:00
++++ edited/drivers/block/cfq-iosched.c	2005-01-11 10:03:17 +01:00
+@@ -622,8 +622,10 @@
+ 			cfq_sort_rr_list(cfqq, 0);
  		}
- 	}
- 	return rc;
-diff -urN 2.6.10-ppc64-stock/include/asm-ppc64/iSeries/HvLpEvent.h 2.6.10-ppc64-work/include/asm-ppc64/iSeries/HvLpEvent.h
---- 2.6.10-ppc64-stock/include/asm-ppc64/iSeries/HvLpEvent.h	2004-02-04 14:44:05.000000000 +1100
-+++ 2.6.10-ppc64-work/include/asm-ppc64/iSeries/HvLpEvent.h	2005-01-10 16:11:18.899255131 +1100
-@@ -75,6 +75,9 @@
- extern int HvLpEvent_registerHandler( HvLpEvent_Type eventType, LpEventHandler hdlr);
  
- // Unregister a handler for an event type
-+//  This call will sleep until the handler being removed is guaranteed to
-+//  be no longer executing on any CPU. Do not call with locks held.
-+//
- //  returns 0 on success
- //  Unregister will fail if there are any paths open for the type
- extern int HvLpEvent_unregisterHandler( HvLpEvent_Type eventType );
+-		crq->accounted = 0;
+-		cfqq->cfqd->rq_in_driver--;
++		if (crq->accounted) {
++			crq->accounted = 0;
++			cfqq->cfqd->rq_in_driver--;
++		}
+ 	}
+ 	list_add(&rq->queuelist, &q->queue_head);
+ }
+
+-- 
+Jens Axboe
+

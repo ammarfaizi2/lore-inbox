@@ -1,43 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264439AbRFIIo3>; Sat, 9 Jun 2001 04:44:29 -0400
+	id <S264444AbRFII6K>; Sat, 9 Jun 2001 04:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264443AbRFIIoU>; Sat, 9 Jun 2001 04:44:20 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52744 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264439AbRFIIoN>; Sat, 9 Jun 2001 04:44:13 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: temperature standard - global config option?
-Date: 9 Jun 2001 01:43:42 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9fsnju$nqp$1@cesium.transmeta.com>
-In-Reply-To: <20010608191600.A12143@alcove.wittsend.com> <200106090800.f5980i101507@saturn.cs.uml.edu>
+	id <S264445AbRFII6B>; Sat, 9 Jun 2001 04:58:01 -0400
+Received: from femail2.rdc1.on.home.com ([24.2.9.89]:24257 "EHLO
+	femail2.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S264444AbRFII5v>; Sat, 9 Jun 2001 04:57:51 -0400
+Date: Sat, 9 Jun 2001 04:57:44 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
+        Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>, <linux-kernel@vger.kernel.org>
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.21.0106090515080.14934-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0106090455060.26171-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200106090800.f5980i101507@saturn.cs.uml.edu>
-By author:    "Albert D. Cahalan" <acahalan@cs.uml.edu>
-In newsgroup: linux.dev.kernel
-> 
-> I hope you don't think people would assume that a "float" always
-> has useful data in all 23 fraction bits. It is a similar case.
-> 
-> So here you go, a kernel-safe conversion from C to K. It works
-> from 0 to 238 degrees C. Print as hex, so user code can toss it
-> into a union or maybe abuse scanf. Adjust as needed for F to K
-> or for hardware with greater resolution.
-> 
+On Sat, 9 Jun 2001, Rik van Riel wrote:
 
-I hope you're not seriously suggesting we're using floats for this...
+>> Why are half the people here trying to hide behind this diskspace
+>> is cheap argument?  If we rely on that, then Linux sucks shit.
+>
+>Never mind them, I haven't seen any of them contribute
+>VM code, even ;)
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Nor have I, but I think you guys working on it will get it
+cleaned up eventually.  What bugs me is people trying to pretend
+that it isn't important to fix, or that spending money to get
+newer hardware is acceptable solution.
+
+>OTOH, disk space _is_ cheap, so the other VM - performance
+>related - VM bugs do have a somewhat higher priority at the
+>moment.
+
+Yes, it is cheap.  It isn't always an acceptable workaround
+though, so I'm glad you guys are working on it - even if we have
+to wait a bit.
+
+I have faith in the system.  ;o)
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Open Source advocate
+       Opinions and viewpoints expressed are solely my own.
+----------------------------------------------------------------------
+

@@ -1,124 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265705AbTATMoM>; Mon, 20 Jan 2003 07:44:12 -0500
+	id <S265700AbTATMoV>; Mon, 20 Jan 2003 07:44:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265708AbTATMoL>; Mon, 20 Jan 2003 07:44:11 -0500
-Received: from holomorphy.com ([66.224.33.161]:50057 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S265705AbTATMoK>;
-	Mon, 20 Jan 2003 07:44:10 -0500
-Date: Mon, 20 Jan 2003 04:53:09 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com, akpm@zip.com.au,
-       greg@kroah.com
-Subject: Re: pci_child_fixup()
-Message-ID: <20030120125309.GB15315@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com,
-	akpm@zip.com.au, greg@kroah.com
-References: <20030120035217.GE770@holomorphy.com> <20030120145754.A912@jurassic.park.msu.ru>
-Mime-Version: 1.0
+	id <S265708AbTATMoU>; Mon, 20 Jan 2003 07:44:20 -0500
+Received: from port-213-148-149-130.reverse.qsc.de ([213.148.149.130]:13704
+	"EHLO eumucln01.mscsoftware.com") by vger.kernel.org with ESMTP
+	id <S265700AbTATMoT>; Mon, 20 Jan 2003 07:44:19 -0500
+Message-ID: <3E2BF107.AB48694E@mscsoftware.com>
+Date: Mon, 20 Jan 2003 13:52:24 +0100
+From: Martin Knoblauch <"martin.knoblauch "@mscsoftware.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-ac1-mkn i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: riel@conectiva.com.br
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Disabling file system caching
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.2; AVE: 6.17.0.2; VDF: 6.17.0.17
+	 at mailmuc has not found any known virus in this email.
+X-MIMETrack: Itemize by SMTP Server on EUMUCLN01/MSCsoftware(Release 5.0.10 |March 22, 2002) at
+ 01/20/2003 01:48:28 PM,
+	Serialize by Router on EUMUCLN01/MSCsoftware(Release 5.0.10 |March 22, 2002) at
+ 01/20/2003 01:48:36 PM,
+	Serialize complete at 01/20/2003 01:48:36 PM
+Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030120145754.A912@jurassic.park.msu.ru>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 07:52:17PM -0800, William Lee Irwin III wrote:
->>  		child = pci_add_new_bus(bus, dev, 0);
->> -		child->primary = buses & 0xFF;
->> -		child->secondary = (buses >> 8) & 0xFF;
->> -		child->subordinate = (buses >> 16) & 0xFF;
->> -		child->number = child->secondary;
->> +		pci_child_fixup(bus, child, buses);
+> Re: Disabling file system caching
+> 
+> From: Rik van Riel (riel@conectiva.com.br)
+> Date: Sun Jan 19 2003 - 20:05:00 EST
+> 
+> On Sun, 19 Jan 2003, Jean-Eric Cuendet wrote:
+> 
+> > Is it possible to disable file caching for a given partition or mount?
+> 
+> No, if you do that mmap(), read(), write() etc. would be impossible.
+> 
+> > Or at least to limit it at a certain quantity of memory?
+> 
+> Not yet. I'm thinking of implementing something like this
+> for the next version of -rmap (reclaim only from the cache
+> if the cache occupies more than a certain fraction of ram).
+> 
 
-On Mon, Jan 20, 2003 at 02:57:54PM +0300, Ivan Kokshaysky wrote:
-> The "bus" argument seems to be redundant. Why not use "child->parent"
-> just filled in by pci_add_new_bus() instead?
-> Ivan.
+ Yes please !!!
+   Yes please !!!
+     Yes please !!!
 
-Good point. Here's an adjusted patch. I added gregkh to the cc: list
-in case he's interested (he generally seems to be wrt. PCI).
+ :-)
 
+ Having a maximum [and maybe minimum] knob for controlling the cache
+would be an extremely useful feature in some situations.
 
-Thanks,
-Bill
-
-
-The NUMA-Q BIOS reports bus numbers different from the physical ones
-programmed into PCI-PCI bridges etc. PCI config cycles (and almost
-everything else) are meant to use translation tables handed to us by
-the BIOS. No other extant i386 port has such a beast, and there's
-currently no way to override bus numbers gotten from bus number
-registers in a meaningful way; bus number conflicts error out prior to
-any call into arch code. All of the IRQ routing, interrupt assignment,
-IO-APIC, PCI bus, etc. etc. MP table entries use these numbers, so we're
-stuck with them.
-
-This provides a fixup hook so it's possible to override the standard
-interpretation of the bus number registers in PCI-PCI bridges.
-
- arch/i386/pci/numa.c   |    9 +++++++++
- drivers/pci/probe.c    |    5 +----
- include/asm-i386/pci.h |   11 +++++++++++
- 3 files changed, 21 insertions(+), 4 deletions(-)
-
-
-diff -urpN mpc-2.5.59-1/arch/i386/pci/numa.c mpc-2.5.59-2/arch/i386/pci/numa.c
---- mpc-2.5.59-1/arch/i386/pci/numa.c	2003-01-19 19:01:38.000000000 -0800
-+++ mpc-2.5.59-2/arch/i386/pci/numa.c	2003-01-20 04:37:02.000000000 -0800
-@@ -88,6 +88,15 @@ static struct pci_ops pci_direct_conf1_m
- 	.write	= pci_conf1_mq_write
- };
- 
-+void pci_child_fixup(struct pci_bus *child, int buses)
-+{
-+	int quad = BUS2QUAD(child->parent->number);
-+	child->primary		= QUADLOCAL2BUS(quad, buses         & 0xFF);
-+	child->secondary	= QUADLOCAL2BUS(quad, (buses >> 8)  & 0xFF);
-+	child->subordinate	= QUADLOCAL2BUS(quad, (buses >> 16) & 0xFF);
-+	child->number		= child->secondary;
-+}
-+
- 
- static void __devinit pci_fixup_i450nx(struct pci_dev *d)
- {
-diff -urpN mpc-2.5.59-1/drivers/pci/probe.c mpc-2.5.59-2/drivers/pci/probe.c
---- mpc-2.5.59-1/drivers/pci/probe.c	2003-01-16 18:22:24.000000000 -0800
-+++ mpc-2.5.59-2/drivers/pci/probe.c	2003-01-20 04:37:32.000000000 -0800
-@@ -271,10 +271,7 @@ int __devinit pci_scan_bridge(struct pci
- 		if (pass)
- 			return max;
- 		child = pci_add_new_bus(bus, dev, 0);
--		child->primary = buses & 0xFF;
--		child->secondary = (buses >> 8) & 0xFF;
--		child->subordinate = (buses >> 16) & 0xFF;
--		child->number = child->secondary;
-+		pci_child_fixup(child, buses);
- 		cmax = pci_do_scan_bus(child);
- 		if (cmax > max) max = cmax;
- 	} else {
-diff -urpN mpc-2.5.59-1/include/asm-i386/pci.h mpc-2.5.59-2/include/asm-i386/pci.h
---- mpc-2.5.59-1/include/asm-i386/pci.h	2003-01-16 18:22:04.000000000 -0800
-+++ mpc-2.5.59-2/include/asm-i386/pci.h	2003-01-20 04:39:12.000000000 -0800
-@@ -100,6 +100,17 @@ static inline int pci_controller_num(str
- extern int pci_mmap_page_range(struct pci_dev *dev, struct vm_area_struct *vma,
- 			       enum pci_mmap_state mmap_state, int write_combine);
- 
-+#ifdef CONFIG_X86_NUMAQ
-+void pci_child_fixup(struct pci_bus *, int);
-+#else
-+static inline void pci_child_fixup(struct pci_bus *child, int buses)
-+{
-+	child->primary		= buses & 0xFF;
-+	child->secondary	= (buses >> 8) & 0xFF;
-+	child->subordinate	= (buses >> 16) & 0xFF;
-+	child->number		= child->secondary;
-+}
-+#endif
- #endif /* __KERNEL__ */
- 
- /* implement the pci_ DMA API in terms of the generic device dma_ one */
+Martin

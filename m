@@ -1,88 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267912AbUHFX0T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268321AbUHFX0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267912AbUHFX0T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 19:26:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUHFX0T
+	id S268321AbUHFX0J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 19:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267912AbUHFXZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 19:26:19 -0400
-Received: from zero.aec.at ([193.170.194.10]:33284 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268320AbUHFX0I (ORCPT
+	Fri, 6 Aug 2004 19:25:49 -0400
+Received: from waste.org ([209.173.204.2]:49838 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267922AbUHFXZb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 19:26:08 -0400
-To: Tim Bird <tim.bird@am.sony.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is extern inline -> static inline OK?
-References: <2q0Wb-2Tc-17@gated-at.bofh.it> <2q1pe-3hq-17@gated-at.bofh.it>
-	<2qlo1-wO-37@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 07 Aug 2004 01:26:04 +0200
-In-Reply-To: <2qlo1-wO-37@gated-at.bofh.it> (Tim Bird's message of "Sat, 07
- Aug 2004 00:30:13 +0200")
-Message-ID: <m3657vj1bn.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 6 Aug 2004 19:25:31 -0400
+Date: Fri, 6 Aug 2004 18:24:52 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: James Morris <jmorris@redhat.com>,
+       "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>,
+       mludvig@suse.cz, cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       davem@redhat.com
+Subject: Re: [PATCH]
+Message-ID: <20040806232452.GA5414@waste.org>
+References: <20040806042852.GD23994@certainkey.com> <Xine.LNX.4.44.0408060040360.20834-100000@dhcp83-76.boston.redhat.com> <20040806125427.GE23994@certainkey.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040806125427.GE23994@certainkey.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Bird <tim.bird@am.sony.com> writes:
+On Fri, Aug 06, 2004 at 08:54:27AM -0400, Jean-Luc Cooke wrote:
+> On Fri, Aug 06, 2004 at 12:42:38AM -0400, James Morris wrote:
+> > On Fri, 6 Aug 2004, Jean-Luc Cooke wrote:
+> > 
+> > > James,
+> > >   Back to your question:
+> > >     I want to replace the legacy MD5 and the incorrectly implemented SHA-1
+> > >     implementations from driver/char/random.c
+> > 
+> > Incorrectly implemented?  Do you mean not appending the bit count?
+> 
+> That and it's not endian-correct.
 
-> H. Peter Anvin wrote:
->> Followup to:  <4112D32B.4060900@am.sony.com>
->> By author:    Tim Bird <tim.bird@am.sony.com>
->> In newsgroup: linux.dev.kernel
->>
->>>Pardon my ignorance...
->>>
->>>Under what conditions is it NOT OK to convert "extern inline"
->>>to "static inline"?
->>>
->> When the code is broken if it doesn't inline.
->
-> Thanks!
->
->  From what I have read, for either 'extern inline' or 'static inline'
-> the compiler is free to not inline the code. Is this wrong?
+Are you saying that it's hashing incorrectly or that the final form is
+not in the standard bit-order? For the purposes of a random number
+generator, the latter isn't terribly important. Nor is it particularly
+important for GUIDs.
 
-Yes, it's wrong in current Linux 2.6. It currently defines inline to
-inline __attribute__((always_inline))
+> There are other issues with random.c (lack
+> for forward secrecy in the case of seed discovery, use of the insecure MD4 in
+> creating syn and seq# for tcp, the use of halfMD4 and twothridsMD4 is
+> madness
+> (what is 2/3's of 16!?!), the use of LFSRs for "mixing" when they're linear,
+> the polymonials used are not even primitive, the ability for root to wipe-out
+> the random pool, the ability for root to access the random seed directly, the
+> paper I'm co-authoring will explain all of this).
+> 
+> Basically, the paper will be describing about 12 security problems with the
+> current random.c and propose (with patch included) a new design that solves
+> all of these, uses crypto-api, uses known crypto primitives, is simpler to
+> read
+> and analyse and for a bonus is 2x to 4x faster in adding and retrieving data
+> from the pool.
 
-> It is my understanding that...
-> In the 'static inline' case the compiler may create a function in the
-> local compilation unit. But in the 'extern inline' case an extern
-> non-inline function must exist. If the compiler decides not to inline
-> the function, and a non-inline function does not exist, you get a linker
-> error.  Are you saying that, therefore, 'extern inline' functions are
-> used (without definition of extern non-inline functions to back them)
-> in order to guarantee that NO non-inline version of the function exists?
+Last time I proposed a cryptoapi-based version, I couldn't get any
+buy-off on making cryptoapi a non-optional part of the kernel. Looking
+forward to your patch/paper.
 
-Exactly.
-
-Originally it was used this way, but then the inlining algorithms got
-completely broken to not explode compile times on broken C++ template
-horrors, and in order to still compile the kernel most uses of extern
-inline were converted to static inline.
-
-Drawback is that you suddenly got a lot of binary bloat
-(e.g. at some point gcc decided to not inline anymore 
-the constant evaluation code in copy_{to,from}_user,
-which caused incredibly code bloat).
-
-That is when the #define inline __attribute__((always_inline)) was
-added.
-
-> Or are you saying that the non-inline version of the function may
-> be written differently than the inline version?
-
-That was the original intention I think, but Linux always has used
-it for the first interpretation.
-
-It's pretty obsolete now, modern gcc has __attribute__((always_inline)),
-which is a better way to do this. You get a compiler error when 
-the function cannot inlined. It also has a __attribute__((noinline))
-for the opposite case.
-
-Hope this helps,
-
--Andi
-
+-- 
+Mathematics is the supreme nostalgia of our time.

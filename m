@@ -1,91 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261728AbSKCJgs>; Sun, 3 Nov 2002 04:36:48 -0500
+	id <S261718AbSKCJeg>; Sun, 3 Nov 2002 04:34:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261729AbSKCJgs>; Sun, 3 Nov 2002 04:36:48 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:7081 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261728AbSKCJgo>;
-	Sun, 3 Nov 2002 04:36:44 -0500
-Date: Sun, 3 Nov 2002 10:43:06 +0100
+	id <S261715AbSKCJeb>; Sun, 3 Nov 2002 04:34:31 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:64936 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261714AbSKCJea>;
+	Sun, 3 Nov 2002 04:34:30 -0500
+Date: Sun, 3 Nov 2002 10:40:52 +0100
 From: Jens Axboe <axboe@suse.de>
-To: Leopold Gouverneur <lgouv@pi.be>
+To: Luc Saillard <luc.saillard@fr.alcove.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cdrom broken in bk current?
-Message-ID: <20021103094306.GK3612@suse.de>
-References: <20021103080514.GC748@gouv>
+Subject: Re: oops when using ide-cd with 2.5.45 and cdrecord
+Message-ID: <20021103094052.GI3612@suse.de>
+References: <20021102210103.GA25617@cedar.alcove-fr> <20021102213448.GA3612@suse.de> <20021103002346.GA25842@cedar.alcove-fr>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="3lcZGd9BuhuYXNfi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021103080514.GC748@gouv>
+In-Reply-To: <20021103002346.GA25842@cedar.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Sun, Nov 03 2002, Leopold Gouverneur wrote:
-> I see the following during booting:
-> ...
-> end_request: I/O error, dev hdc, sector 0
-> hdc: ATAPI 40X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
-> Uniform CD-ROM driver Revision: 3.12
-> end_request: I/O error, dev hdc, sector 0
-> end_request: I/O error, dev hdd, sector 0
-> end_request: I/O error, dev hdd, sector 0
-> hdd: ATAPI 16X CD-ROM drive, 256kB Cache, DMA
-> ...
+On Sun, Nov 03 2002, Luc Saillard wrote:
+> On Sat, Nov 02, 2002 at 10:34:48PM +0100, Jens Axboe wrote:
+> > On Sat, Nov 02 2002, Luc Saillard wrote:
+> > > Hi,
+> > > I'm a using the last cdrecord version (1.11a39) when this oops occurs.
+> > > I can't sync my disks with alt-sys-request because we are in interrupt
+> > > :(
+> > 
+> > How are you invoking cdrecord? Using ide-scsi?
+> > 
+> Like this:
 > 
-> If I mount /dev/hd[cd], the system freezes completly.
-> 
-> This was not present in 2.5.42 IRC
-> ny help?
+>   ./cdrecord dev=/dev/hdc fs=32m speed=24 -v -eject driveropts=burnfree dump.001
 
-Try with this patch.
+ok
+
+please reproduce with this debug patch and send me the output:
+
+--- /opt/kernel/linux-2.5.45/drivers/ide/ide-cd.c	2002-11-01 11:31:53.000000000 +0100
++++ drivers/ide/ide-cd.c	2002-11-03 10:40:35.000000000 +0100
+@@ -906,7 +906,7 @@
+ 	ide_set_handler(drive, handler, rq->timeout, cdrom_timer_expiry);
+ 
+ 	/* Send the command to the device. */
+-	HWIF(drive)->atapi_output_bytes(drive, rq->cmd, sizeof(rq->cmd));
++	HWIF(drive)->atapi_output_bytes(drive, rq->cmd, 12);
+ 
+ 	/* Start the DMA if need be */
+ 	if (info->dma)
+@@ -1718,6 +1718,8 @@
+ 		if (blen > thislen)
+ 			blen = thislen;
+ 
++		printk("%s: %x, ptr=%p,len=%d,bio=%p\n", drive->name, rq->cmd[0], ptr, blen, rq->bio);
++
+ 		xferfunc(drive, ptr, blen);
+ 
+ 		thislen -= blen;
 
 -- 
 Jens Axboe
 
-
---3lcZGd9BuhuYXNfi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=idecd-cdb-size-2
-
-===== drivers/ide/ide-cd.c 1.27 vs edited =====
---- 1.27/drivers/ide/ide-cd.c	Fri Oct 18 20:02:55 2002
-+++ edited/drivers/ide/ide-cd.c	Sun Nov  3 10:33:17 2002
-@@ -310,6 +310,7 @@
- #include <linux/completion.h>
- 
- #include <scsi/scsi.h>	/* For SCSI -> ATAPI command conversion */
-+#include "../scsi/scsi.h"
- 
- #include <asm/irq.h>
- #include <asm/io.h>
-@@ -877,10 +878,10 @@
- 					  ide_handler_t *handler)
- {
- 	unsigned char *cmd_buf	= rq->cmd;
--	int cmd_len		= sizeof(rq->cmd);
- 	unsigned int timeout	= rq->timeout;
- 	struct cdrom_info *info = drive->driver_data;
- 	ide_startstop_t startstop;
-+	unsigned int cmd_len;
- 
- 	if (CDROM_CONFIG_FLAGS(drive)->drq_interrupt) {
- 		/* Here we should have been called after receiving an interrupt
-@@ -902,6 +903,11 @@
- 
- 	/* Arm the interrupt handler. */
- 	ide_set_handler(drive, handler, timeout, cdrom_timer_expiry);
-+
-+	/* cdb length, pad upto the 12th byte if necessary */
-+	cmd_len = COMMAND_SIZE(rq->cmd[0]);
-+	if (cmd_len < 12)
-+		cmd_len = 12;
- 
- 	/* Send the command to the device. */
- 	HWIF(drive)->atapi_output_bytes(drive, cmd_buf, cmd_len);
-
---3lcZGd9BuhuYXNfi--
